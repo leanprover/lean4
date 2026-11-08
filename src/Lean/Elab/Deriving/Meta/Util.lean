@@ -1259,8 +1259,8 @@ def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM Pr
 
 /--
 Default `computeClassApp` used for `InstanceInfo.usingCtor` that uses the `className` from the
-context. It checks that the type former has exactly one type parameter and instantiate it with the
-type application, setting level parameters appropriately.
+context. It checks that the type former has one type parameter and tries to synthesize all type
+parameters, instantiating them with the type application and setting level parameters appropriately.
 -/
 def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
   let className := (← read).className
@@ -1269,10 +1269,9 @@ def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
   unless levelParams.length ≤ 1 do
     throwError "Invalid use of `{.ofConstName decl_name%}`, expected \
       `{.ofConstName className}` to have at most one level parameter"
-  let .forallE _ (.sort univ) (.sort _) _ := val.type
+  let .forallE _ (.sort univ) _ _ := val.type
     | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-        expected `{.ofConstName className}` to have a type of the shape `Sort _ → Sort _`,
-        i.e. to have exactly one type parameter"
+        expected `{.ofConstName className}`'s first parameter to be a type parameter"
   let mut classLParams := []
   if let [u] := levelParams then
     if univ == .param u then
@@ -1286,7 +1285,49 @@ def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
     classLParams := []
     unless univ.isEquiv (← read).indLevel do
       throwError "Invalid use of `{.ofConstName decl_name%}`, incorrect level for inductive"
-  return .app (.const className classLParams) typeApp
+  let mut res : Expr := .app (.const className classLParams) typeApp
+  let mut more ← inferType res
+  repeat
+    if more.isSort then
+      break
+    let .forallE _ t body bi := more
+      | throwError "Invalid use of `{.ofConstName decl_name%}`, unexpected result type \
+        for inductive:{indentExpr more}"
+    unless bi.isInstImplicit do
+      throwError "Invalid use of `{.ofConstName decl_name%}`, expected type class to only have \
+        instance implicit parameters except for the type parameter"
+    let cres ← tryApplyCanonicalInstance t
+    match cres with
+    | .ok (val, subgoals) =>
+      let allLInsts := (← getLocalInstances) ++ (← get).newLInsts
+      for (subgoal, allow) in subgoals do
+        subgoal.assign <| ← synthInstanceDerivingAux (← subgoal.getType) allLInsts allow
+      let val ← instantiateMVars val
+      more := body.instantiate1 val
+      res := res.app val
+    | .error err =>
+      throwError "Failed to synthesize type class of type{indentExpr t}\
+        \nReason:{indentD (← err.toMessageData)}"
+  return res
+
+private def recurrenceError (inducts : List Name) (complexOnly : Bool)
+    (msg : Name → Nat → Expr → String → MessageData) :
+    MetaM (Option MessageData) := do
+  for ind in inducts do
+    let indInfo ← getConstInfoInduct ind
+    for ctor in indInfo.ctors do
+      forallTelescope (← getConstInfoCtor ctor).type fun vars _ => do←
+        let fields := vars.drop indInfo.numParams
+        for h : i in 0...fields.size do
+          let fieldType ← inferType fields[i]
+          if fieldType.find? (fun | .const c _ => c ∈ inducts | _ => false) |>.isSome then
+            let res ← whnfD fieldType
+            let .const c _ := res.getAppFn
+              | return msg ctor i fieldType (if res.isForall then "reflexive" else "nested")
+            unless c ∈ inducts do return msg ctor i fieldType "nested"
+            unless complexOnly do
+              return msg ctor i fieldType "normal"
+  return none
 
 /--
 The building block for `makeInstancesUsingCtor`: `InstanceInfo.usingCtor` creates an `InstanceInfo`
@@ -1294,18 +1335,13 @@ for use in `makeInstancesUsingMutualBlock` that constructs an instance of the cl
 constructor and runs `perField` on every field given the name of the projection function of the
 field.
 
-The `computeClassApp` should compute the concrete type class application to generate an instance
-for, given an application of `induct` with indices.
+See `makeInstancesUsingCtor` for an explanation of the arguments.
 
 In most cases, the convenience function `makeInstancesUsingCtor` should be preferred over this one.
 In some cases you might however want more control over which inductives to generate helpers for to
 make sure we don't generate unused helpers. For example, if the type class is inherently
 non-recursive, you may want to only generate helpers for the names provided to the deriving handler
 (instead of all inductives in the mutual block).
-
-For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
-is not nested or reflexive. If the helpers are possibly recursive but don't have structural
-termination, you should consider using `supportsRec := false`.
 
 Example:
 ```
@@ -1335,12 +1371,26 @@ meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
 ```
 -/
 def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
-    (supportsRec : Bool := true)
+    (supportsRec : Bool := true) (supportsPartial := true)
     (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault)
     (induct : Name) : DerivingM (InstanceInfo α) := do
   let typeApp ← inductAppWithParams induct
   let indInfo ← getConstInfoInduct induct
-  let usePartial := (← isNestedOrReflexive) || !supportsRec
+  let usePartial := ((← isNestedOrReflexive) || !supportsRec)
+    -- if we support partial but not recursion with termination
+    -- we may as well use it for non-recursive inductives to be safe
+    && ((← isRecursive) || supportsPartial)
+  if usePartial && !supportsPartial then
+    let indInfo := (← read).indInfo
+    let className := (← read).className
+    throwError .ofLazyM do
+      let failureKind := if supportsRec then "nested and reflexive" else "recursive"
+      let header := m!"Failed to derive `{.ofConstName className}`, this deriving handler does \
+          not work for {failureKind} inductives"
+      let where? ← recurrenceError indInfo.all supportsRec fun ctorName fieldIdx type kind =>
+        m!" but the field #{fieldIdx + 1} of {.ofConstName ctorName} \
+          contains a {kind} recurrence:{indentExpr type}"
+      return m!"{header}{where?.getD "."}"
   forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
     let .sort _ := body
       | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}\
@@ -1403,9 +1453,16 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
 Constructs instances of the class using its constructor, running `perField` on every field given
 the name of the projection function of the field.
 
-For `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
+If `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
 is not nested or reflexive. If the helpers are possibly recursive but don't have structural
 termination, you should consider using `supportsRec := false`.
+
+If `supportsPartial := false`, the deriving handler will fail if the circumstances would cause it
+to be partial (i.e. if the inductive is nested or reflexive or `supportsRec := false`). For data
+type deriving handlers, `partial` is usually fine because of the existence of a `Nonempty` or
+`Inhabited` instance for the result. However, for e.g. law type classes, the helpers will usually
+not work with `partial`. Instead of providing an obscure error message about a missing `Nonempty`
+instance, `supportsPartial := false` causes it to fail early with a more helpful error message.
 
 You can also specify a one time computation at `preHelpers` which will be run before any of the
 helpers with all helpers in scope. The result of this computation is provided as an additional `α`
@@ -1459,12 +1516,22 @@ provided to `deriving` for inherently non-recursive instances), you can use
 `InstanceInfo.usingCtor` directly.
 -/
 def makeInstancesUsingCtor (perField : Name → FieldHelperProvider α)
-    (supportsRec : Bool := true) (preHelpers : DerivingM α := by exact pure ())
+    (supportsRec : Bool := true) (supportsPartial := true)
+    (preHelpers : DerivingM α := by exact pure ())
     (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault) :
     DerivingM Unit := do
   makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
     ← (← read).indInfo.all.toArray.mapM
-      (InstanceInfo.usingCtor perField supportsRec computeClassApp)
+      (InstanceInfo.usingCtor perField supportsRec supportsPartial computeClassApp)
+
+def deriveLawTypeClassUsingCtor (perField : Name → FieldHelperProvider α)
+    (supportsRec : Bool := true) (supportsPartial := true)
+    (preHelpers : DerivingM α := by exact pure ())
+    (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault) :
+    DerivingM Unit := do
+  makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
+    ← (← read).indInfo.all.toArray.mapM
+      (InstanceInfo.usingCtor perField supportsRec supportsPartial computeClassApp)
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor

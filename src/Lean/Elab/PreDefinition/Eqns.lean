@@ -10,6 +10,7 @@ import Lean.Meta.HaveTelescope
 import Lean.Meta.LetToHave
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Rewrite
+import Lean.Meta.Match.Value
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.SplitIf
@@ -90,6 +91,14 @@ def rwMatcherLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContex
   return some mvarNew.mvarId!
 
 /--
+Like `tryURefl`, but fails without trying `rfl` if the goal contains a `String` literal
+(see `containsStringLit`). Such goals are proved with the `match` equations instead.
+-/
+def tryUReflUnlessStringLit (mvarId : MVarId) (declNames : Array Name := #[]) : MetaM Bool := do
+  if containsStringLit (← mvarId.getType) then return false
+  tryURefl mvarId declNames
+
+/--
 Proves a generated equation type for `declName`. After introducing its parameters and hypotheses,
 tries reflexivity, then unfolds the definition and reduces or splits the remaining cases.
 -/
@@ -101,7 +110,7 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    if (← tryURefl mvarId #[declName]) then
+    if (← tryUReflUnlessStringLit mvarId #[declName]) then
       trace[Elab.definition.eqns] "proved directly by rfl"
       return ← instantiateMVars main
 
@@ -117,7 +126,7 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
   -/
   go (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
-    if (← tryURefl mvarId) then
+    if (← tryUReflUnlessStringLit mvarId) then
       return ()
     else if (← tryContradiction mvarId) then
       return ()

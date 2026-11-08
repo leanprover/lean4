@@ -3,7 +3,7 @@
 -- End:
 prelude
 
-axiom And : Type
+axiom Duo : Type
 
        --v textDocument/completion
-#check An
+#check Du

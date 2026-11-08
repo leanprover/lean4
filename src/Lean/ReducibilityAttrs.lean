@@ -294,7 +294,18 @@ def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isInstanceReducibleCore (← getEnv) declName
 
 /-- Set the given declaration as `[irreducible]` -/
+@[reducible]
 def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.irreducible
+
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
+    name            := `lazy_delta_abbrev
+    descr           := "Definition's ReducibilityHint marked as abbrev"
+    add             := fun decl stx kind => do
+      throwError "Cannot add attribute `[lazy_delta_abbrev]`: This attribute can only be added when declaring a `def`"
+    applicationTime := .afterTypeChecking
+ }
 
 end Lean

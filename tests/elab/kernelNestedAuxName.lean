@@ -13,7 +13,7 @@ universe, leaving a stored constructor type that is ill typed.
 open Lean
 
 /--
-error: (kernel) invalid declaration 'KNAux.mk', it uses the reserved prefix '_nested'
+error: (kernel) (InLean) invalid declaration 'KNAux.mk', it uses the reserved prefix '_nested'
 -/
 #guard_msgs in
 #eval addDecl <| .inductDecl [] 0 [
@@ -27,7 +27,7 @@ error: (kernel) invalid declaration 'KNAux.mk', it uses the reserved prefix '_ne
 -- A `proj` names its structure type, and the kernel rewrites nested occurrences in the
 -- constructor to the auxiliary type, so this reaches that type without naming it as a constant.
 /--
-error: (kernel) invalid declaration 'KNProj.mk', it uses the reserved prefix '_nested'
+error: (kernel) (InLean) invalid declaration 'KNProj.mk', it uses the reserved prefix '_nested'
 -/
 #guard_msgs in
 #eval addDecl <| .inductDecl [] 0 [

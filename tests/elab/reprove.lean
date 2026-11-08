@@ -26,7 +26,9 @@ reprove simpleTheorem by
   sorry
 
 -- Test failed reprove - incomplete proof
-/-- error: (kernel) declaration has metavariables 'reprove_example✝' -/
+/--
+error: (kernel) (InLean) unexpected metavariable in value of reprove_example._@.elab.reprove.370943593._hygCtx._hyg.3
+-/
 #guard_msgs in
 reprove withTactics by
   intro n

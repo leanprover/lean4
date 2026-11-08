@@ -1,5 +1,2 @@
-1781.lean:24:0-24:59: error: (kernel) declaration type mismatch, 'Univ'' has type
-  Type ((imax 1 u) + 1)
-but it is expected to have type
-  Type (imax 1 u)
+1781.lean:24:0-24:59: error: (kernel) (InLean) type mismatch in definition Univ'
 Univ : Type

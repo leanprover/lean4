@@ -9,12 +9,7 @@ elab "my_tac" : tactic =>
 example : True := by
   my_tac -- should work
 
-/--
-error: (kernel) declaration type mismatch, '_example' has type
-  True
-but it is expected to have type
-  1 = 2
--/
+/-- error: (kernel) (InLean) type mismatch in definition _example -/
 #guard_msgs in
 example : 1 = 2 := by
   my_tac -- generates invalid proof that is rejected by the kernel

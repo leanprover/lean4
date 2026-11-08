@@ -20,10 +20,7 @@ This test is creating the declaration
 def test.witness : Nat := (Exists.intro 0 True.intro : ∃ x : Nat, True).1
 ```
 -/
-/--
-error: (kernel) invalid projection
-  (Exists.intro Nat.zero True.intro).1
--/
+/-- error: (kernel) (InLean) projection from a propositional structure must be a proposition -/
 #guard_msgs in
 #eval do
   addDecl <| .defnDecl {
@@ -69,10 +66,7 @@ This test is creating the declaration
 theorem test.witness_eq (h : ∃ x : Nat, True) : h.2 = h.2 := rfl
 ```
 -/
-/--
-error: (kernel) invalid projection
-  h.2
--/
+/-- error: (kernel) (InLean) projection from a propositional structure must be a proposition -/
 #guard_msgs in
 #eval do
   addDecl <| .thmDecl {

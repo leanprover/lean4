@@ -46,19 +46,13 @@ private def kwhnf (idx : Nat) : CoreM Unit := do
 
 /-! An index that fits but is out of bounds is rejected, as it always was. -/
 
-/--
-error: (kernel) invalid projection
-  (P.mk 7 9).3
--/
+/-- error: (kernel) (InLean) projection index out of range -/
 #guard_msgs in
 #eval kcheck 2
 
 /-! An index too wide for `unsigned` is now rejected too, rather than truncated. -/
 
-/--
-error: (kernel) invalid projection
-  (P.mk 7 9).4294967297
--/
+/-- error: (kernel) (InLean) projection index out of range -/
 #guard_msgs in
 #eval kcheck 4294967296
 

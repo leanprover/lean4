@@ -42,7 +42,7 @@ def decl_0 : Lean.Declaration :=
 
 open Lean
 
-/-- error: (kernel) let-declaration type mismatch 'a' -/
+/-- error: (kernel) (InLean) let value type mismatch -/
 #guard_msgs in
 run_meta
   setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 0 decl_0 none)

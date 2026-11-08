@@ -10,8 +10,7 @@ private def cachePrimingType : Expr :=
 /--
 info: kernel accepted opaqueFVarCacheFalse : False
 ---
-error: (kernel) declaration has free variables 'opaqueFVarCacheFalse', expression: ⏎
-  _kernel_fresh.2
+error: (kernel) (InLean) unexpected free variable in value of opaqueFVarCacheFalse
 -/
 #guard_msgs in
 run_meta
@@ -25,6 +24,8 @@ run_meta
   }
   logInfo m!"kernel accepted {name} : False"
 
+/-- error: (kernel) (InLean) type mismatch in theorem assumptionFreeFalse -/
+#guard_msgs in
 theorem assumptionFreeFalse : False := opaqueFVarCacheFalse
 
 /-- info: 'opaqueFVarCacheFalse' depends on axioms: [opaqueFVarCacheFalse, sorryAx] -/

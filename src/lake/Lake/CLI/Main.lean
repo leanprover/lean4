@@ -329,7 +329,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with service? := some service})
 | "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
-  modifyThe LakeOptions ({· with scope? := some (.ofString scope)})
+  -- TODO: determine empty scope from the service
+  let scope := if scope.isEmpty then .none else .ofString scope
+  modifyThe LakeOptions ({· with scope? := some scope})
 | "--repo" => do
   let repo ← takeOptArg "--repo" "GitHub repository"
   if let some e := validateRepo? repo then error e

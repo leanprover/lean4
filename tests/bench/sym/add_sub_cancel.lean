@@ -411,3 +411,73 @@ def runBenchUsingCSym : MetaM Unit := do
     solveUsingCSym n
 
 #eval runBenchUsingCSym
+
+/-!
+`sym =>` Solution
+
+The `SymM` solution `solve` written as a `sym =>` tactic script. Each `simp` variant below holds
+one of the theorem collections of `solve`, and `simp` reuses its cache across the iterations of
+`repeat`, as `solveReusingCache` does.
+-/
+
+register_sym_simp unfoldCmd where
+  post := ground >> rewrite [generated_cmd.eq_1, repeated_cmds.eq_1, repeated_cmds.eq_2] with self
+
+register_sym_simp evalExpr where
+  post := ground >> rewrite [Expr.eval.eq_1, Expr.eval.eq_2, Expr.eval.eq_3] with self
+
+register_sym_simp evalStep where
+  post := ground >> rewrite [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put,
+    Binop.interp_add, Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true,
+    ne_eq] with self
+
+register_sym_simp finalStep where
+  post := ground >> rewrite [List.cons.injEq, IOEvent.IN.injEq, and_true, true_and,
+    PartialMap.put_put, PartialMap.get_put, PartialMap.get_put_diff, Option.some.injEq, and_self,
+    exists_eq_True, Word.add_sub_cancel] with self
+  maxSteps := 100000
+
+macro "solve_sym" : tactic => `(tactic| sym =>
+  intro~ m l
+  simp unfoldCmd
+  apply Exec.seq_cps
+  apply Exec.input
+  intro~ v
+  repeat
+    apply Exec.seq_cps
+    apply Exec.set
+    simp evalExpr
+    simp evalStep
+    apply Eq.refl
+  apply Exec.skip
+  simp finalStep)
+
+/--
+The proof of `solve_sym`, where `match_goal` selects each rule from the target of the main goal.
+-/
+macro "solve_sym_match" : tactic => `(tactic| sym =>
+  intro~ m l
+  simp unfoldCmd
+  repeat
+    match_goal with
+    | Exec (.seq _ _) _ _ _ _ => apply Exec.seq_cps
+    | Exec (.input _) _ _ _ _ => apply Exec.input; intro~
+    | Exec (.set _ _) _ _ _ _ => apply Exec.set
+    | Exec .skip _ _ _ _      => apply Exec.skip
+    | Expr.eval _ _ _ = _     => simp evalExpr; simp evalStep; apply Eq.refl
+  simp finalStep)
+
+def solveUsingSymTactic (n : Nat) (useMatch := false) (check := true) : MetaM Unit := do
+  driver n check fun mvarId => do
+    let tac ← if useMatch then `(tactic| solve_sym_match) else `(tactic| solve_sym)
+    let ([], _) ← runTactic mvarId tac.raw {} {} | throwError "FAILED!"
+
+def runBenchUsingSymTactic (useMatch := false) (check := true) : MetaM Unit := do
+  IO.println "=== Symbolic Simulation Tests ==="
+  IO.println ""
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700] do
+    solveUsingSymTactic n useMatch check
+
+#eval runBenchUsingSymTactic
+-- `solve_sym_match` produces the proofs of `solve_sym`, which the kernel already checked.
+#eval runBenchUsingSymTactic (useMatch := true) (check := false)

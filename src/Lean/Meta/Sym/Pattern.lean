@@ -1401,4 +1401,16 @@ reported in `MatchUnifyResult.unresolvedInsts` rather than silently left as loos
 public def Pattern.unify? (p : Pattern) (e : Expr) (zetaDelta := true) : SymM (Option (MatchUnifyResult)) :=
   main p e (unify := true) (zetaDelta := zetaDelta)
 
+/--
+Returns `true` if `p` subsumes `q`, that is, if `p` matches the pattern of `q` with the pattern
+variables of `q` read as fresh local variables. Then `p` matches every term that `q` matches.
+For example, `f #0 0` subsumes `f 1 0`, and `f #0 #1` subsumes `f #0 #0`.
+-/
+public def Pattern.subsumes (p q : Pattern) : SymM Bool := do
+  let us := q.levelParams.map fun u => mkLevelParam (`_subsumes ++ u)
+  let type := q.varTypes.foldr (init := q.pattern) fun d b => .forallE `x d b .default
+  let type := type.instantiateLevelParams q.levelParams us
+  forallBoundedTelescope type q.varTypes.size fun _ e => do
+    return (← p.match? (← shareCommon e)).isSome
+
 end Lean.Meta.Sym

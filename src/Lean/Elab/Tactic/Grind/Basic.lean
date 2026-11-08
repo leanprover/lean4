@@ -13,6 +13,7 @@ public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.DSimp.DSimpM
+public import Lean.Meta.DiscrTree.Types
 import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind
@@ -52,17 +53,30 @@ structure DSimpCacheKey where
   args    : DSimpArgs
   deriving BEq, Hashable
 
+/--
+The compiled alternatives of a `match_goal` tactic. Pattern `i` is `patterns[i]`, elaborated
+from the syntax `patternSyntax[i]`, and belongs to alternative `alts[i]`.
+-/
+structure MatchGoalTable where
+  patterns      : Array Sym.Pattern
+  patternSyntax : Array Syntax
+  alts          : Array Nat
+  /-- Maps the key sequence of each pattern to the index of the pattern. -/
+  tree          : DiscrTree Nat
+  /-- `moreSpecific[i][j]` is `true` if pattern `j` subsumes pattern `i`. -/
+  moreSpecific  : Array (Array Bool)
+
 structure Cache where
   /-- Cache for `BackwardRule`s created from declaration names (sym mode only). -/
   backwardRuleName : PHashMap Name Sym.BackwardRule := {}
   /-- Cache for `BackwardRule`s created from elaborated terms, keyed by syntax byte position range (sym mode only). -/
   backwardRuleSyntax : PHashMap (Nat × Nat) Sym.BackwardRule := {}
   /--
-  Cache for `match_goal` patterns, keyed by syntax byte position range (sym mode only). The
-  patterns of a macro expansion share the range of the macro call, so each entry also stores
-  the pattern syntax.
+  Cache for compiled `match_goal` tactics, keyed by syntax byte position range (sym mode only).
+  The tactics of a macro expansion share the range of the macro call, so each entry also stores
+  the `match_goal` syntax.
   -/
-  matchGoalPattern : PHashMap (Nat × Nat) (List (Syntax × Sym.Pattern)) := {}
+  matchGoalTable : PHashMap (Nat × Nat) (List (Syntax × MatchGoalTable)) := {}
   /-- Cache for the theorems of the `Sym.simp` simproc `rewrite [thm₁, …, thmₙ]`, keyed by the
   declaration names `thm₁, …, thmₙ`. -/
   rewriteTheorems : PHashMap (Array Name) Sym.Simp.Theorems := {}

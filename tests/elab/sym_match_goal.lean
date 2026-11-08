@@ -8,7 +8,7 @@ axiom p_succ : P n → P (n + 1)
 axiom p_zero : P 0
 axiom q_of_p : P n → Q n
 
-/-! The first matching alternative runs. -/
+/-! The alternative of the most specific matching pattern runs. -/
 
 example : P 3 := by
   sym =>
@@ -57,6 +57,43 @@ example (n : Nat) (h : P n) : Q n := by
     | Q n => apply q_of_p
     tactic => exact h
 
+/-! The order of the alternatives does not matter. -/
+
+example : P 0 := by
+  sym =>
+    match_goal with
+    | P _ => fail "general"
+    | P 0 => apply p_zero
+
+example : P 0 := by
+  sym =>
+    match_goal with
+    | P 0 => apply p_zero
+    | P _ => fail "general"
+
+example : P 0 := by
+  sym =>
+    match_goal with
+    | _ => fail "wildcard"
+    | P _ => fail "general"
+    | P 0 => apply p_zero
+
+/-! A numeral is an instance of an offset pattern. -/
+
+example : P 3 := by
+  sym =>
+    match_goal with
+    | P (_ + 1) => fail "offset"
+    | P 3 => apply p_succ
+    apply p_succ; apply p_succ; apply p_zero
+
+/-! Equally specific patterns of one alternative. -/
+
+example : P 0 := by
+  sym =>
+    match_goal with
+    | P _ | P _ => apply p_zero
+
 /-! Failures. -/
 
 /--
@@ -69,8 +106,26 @@ example : P 0 := by
     match_goal with
     | Q _ => apply q_of_p
 
+opaque F : Nat → Nat → Prop
+
 /--
-error: first
+error: `match_goal` failed, the target
+  F 0 0
+matches the patterns
+  F 0 _
+  F _ 0
+and no pattern among them is more specific than all others
+-/
+#guard_msgs in
+example : F 0 0 := by
+  sym =>
+    match_goal with
+    | F 0 _ => skip
+    | F _ 0 => skip
+    | F 1 1 => skip
+
+/--
+error: selected
 case grind
 ⊢ P 0
 -/
@@ -78,8 +133,8 @@ case grind
 example : P 0 := by
   sym =>
     match_goal with
-    | P _ => fail "first"
-    | P 0 => apply p_zero
+    | P 0 => fail "selected"
+    | P _ => apply p_zero
 
 /-- error: tactic is only available in `sym =>` mode -/
 #guard_msgs in

@@ -377,17 +377,22 @@ syntax (name := symRw) "rw " rwRuleSeq : grind
 syntax matchGoalAlt := "| " sepBy1(term, " | ") " => " grindSeq
 
 /--
-`match_goal with | pat₁ => tac₁ | … | patₙ => tacₙ` runs `tacᵢ` on the main goal for the first
-pattern `patᵢ` that matches the target of the main goal. Holes `_` in a pattern match any
+`match_goal with | pat₁ => tac₁ | … | patₙ => tacₙ` runs on the main goal the tactic of the most
+specific pattern that matches the target of the main goal. Holes `_` in a pattern match any
 subterm. Only available in `sym =>` mode.
 
-The alternative `| pat₁ | pat₂ => tac` runs `tac` if `pat₁` or `pat₂` matches. If the selected
-tactic fails, `match_goal` fails. If no pattern matches, `match_goal` fails, so that
-`repeat match_goal with …` stops on the first goal that no alternative handles.
+A pattern `p` is more specific than a pattern `q` if `q` matches every term that `p` matches.
+For example, with the alternatives `| P _ => tac₁ | P 0 => tac₂`, the target `P 0` runs `tac₂`
+and the target `P 1` runs `tac₁`. The order of the alternatives does not matter. If no
+matching pattern is more specific than all other matching patterns, `match_goal` fails. The
+alternative `| pat₁ | pat₂ => tac` runs `tac` if `pat₁` or `pat₂` is selected.
 
-A pattern matches the target as the conclusion of an `apply` rule does. Each pattern is
-elaborated once and reused, which makes `match_goal` suitable for the loop of a verification
-condition generator:
+If no pattern matches, `match_goal` fails, so that `repeat match_goal with …` stops on the first
+goal that no alternative handles. If the selected tactic fails, `match_goal` fails.
+
+A pattern matches the target as the conclusion of an `apply` rule does. The patterns of a
+`match_goal` are elaborated once into a discrimination tree, which makes `match_goal` suitable
+for the loop of a verification condition generator:
 ```
 repeat
   match_goal with

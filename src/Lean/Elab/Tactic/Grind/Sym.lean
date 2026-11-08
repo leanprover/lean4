@@ -10,6 +10,7 @@ import Lean.Elab.Tactic.Grind.SimprocDSL
 import Lean.Meta.Sym.Grind
 import Lean.Meta.Sym.Simp.Variant
 import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.Sym.Simp.EvalGround
 import Lean.Meta.Sym.Simp.Goal
 import Lean.Meta.Sym.Simp.Attr
@@ -108,38 +109,69 @@ def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardR
   | .failed => throwError "`apply` failed, rule is not applicable"
 
 /--
-Get or create the `Pattern` of the `match_goal` pattern `pat`. The holes and the unassigned
-metavariables of the elaborated `pat` become pattern variables.
+Elaborates the `match_goal` pattern `pat`. The holes and the unassigned metavariables of the
+elaborated `pat` become pattern variables.
 -/
-def getOrCreateMatchGoalPattern (pat : Syntax) : GrindTacticM Sym.Pattern := do
-  let startPos := pat.getPos?.map (·.byteIdx) |>.getD 0
-  let endPos := pat.getTailPos?.map (·.byteIdx) |>.getD 0
+def elabMatchGoalPattern (pat : Syntax) : GrindTacticM Sym.Pattern := withMainContext do
+  let r ← withTheReader Term.Context (fun ctx => { ctx with ignoreTCFailures := true }) <|
+    Term.withoutModifyingElabMetaStateWithInfo <| withRef pat <| Term.withoutErrToSorry do
+      let e ← Term.elabTerm pat none
+      Term.synthesizeSyntheticMVars (postpone := .yes)
+      abstractMVars e
+  Sym.mkPatternFromAbstractMVars r
+
+/-- Compiles the alternatives `alts` of a `match_goal` tactic. -/
+def mkMatchGoalTable (alts : Array (TSyntax ``Parser.Tactic.Grind.matchGoalAlt)) :
+    GrindTacticM MatchGoalTable := do
+  let mut patterns := #[]
+  let mut patternSyntax := #[]
+  let mut altIdxs := #[]
+  let mut tree := {}
+  for alt in alts, altIdx in [:alts.size] do
+    let `(Parser.Tactic.Grind.matchGoalAlt| | $pats|* => $_) := alt | throwUnsupportedSyntax
+    for pat in pats.getElems do
+      let p ← elabMatchGoalPattern pat
+      tree := Sym.insertPattern tree p patterns.size
+      patterns := patterns.push p
+      patternSyntax := patternSyntax.push pat
+      altIdxs := altIdxs.push altIdx
+  let moreSpecific ← withMainContext <| liftSymM <| patterns.mapM fun p =>
+    patterns.mapM fun q => q.subsumes p
+  return { patterns, patternSyntax, alts := altIdxs, tree, moreSpecific }
+
+/-- Get or create the compiled `match_goal` tactic `stx`, using the syntax position cache. -/
+def getOrCreateMatchGoalTable (stx : Syntax)
+    (alts : Array (TSyntax ``Parser.Tactic.Grind.matchGoalAlt)) : GrindTacticM MatchGoalTable := do
+  let startPos := stx.getPos?.map (·.byteIdx) |>.getD 0
+  let endPos := stx.getTailPos?.map (·.byteIdx) |>.getD 0
   let pos := (startPos, endPos)
-  let entries := (← get).cache.matchGoalPattern.find? pos |>.getD []
-  if let some (_, p) := entries.find? (·.1 == pat) then
-    return p
-  let p ← withMainContext do
-    let r ← withTheReader Term.Context (fun ctx => { ctx with ignoreTCFailures := true }) <|
-      Term.withoutModifyingElabMetaStateWithInfo <| withRef pat <| Term.withoutErrToSorry do
-        let e ← Term.elabTerm pat none
-        Term.synthesizeSyntheticMVars (postpone := .yes)
-        abstractMVars e
-    Sym.mkPatternFromAbstractMVars r
-  modify fun s => { s with cache.matchGoalPattern := s.cache.matchGoalPattern.insert pos ((pat, p) :: entries) }
-  return p
+  let entries := (← get).cache.matchGoalTable.find? pos |>.getD []
+  if let some (_, table) := entries.find? (·.1 == stx) then
+    return table
+  let table ← mkMatchGoalTable alts
+  modify fun s => { s with cache.matchGoalTable := s.cache.matchGoalTable.insert pos ((stx, table) :: entries) }
+  return table
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symMatchGoal] def evalSymMatchGoal : GrindTactic := fun stx => do
   ensureSym
   let `(grind| match_goal with $alts:matchGoalAlt*) := stx | throwUnsupportedSyntax
+  let table ← getOrCreateMatchGoalTable stx alts
   let goal ← getMainGoal
   let target ← goal.mvarId.getType
-  for alt in alts do
-    let `(Parser.Tactic.Grind.matchGoalAlt| | $pats|* => $tac) := alt | throwUnsupportedSyntax
-    for pat in pats.getElems do
-      let p ← getOrCreateMatchGoalPattern pat
-      if (← liftSymM <| goal.mvarId.withContext <| p.match? target).isSome then
-        return (← evalGrindTactic tac)
-  throwError "`match_goal` failed, no pattern matches the target{indentExpr target}"
+  let candidates := Sym.getMatch (← getMCtx) table.tree target
+  let matched ← candidates.filterM fun i => do
+    return (← liftSymM <| goal.mvarId.withContext <| table.patterns[i]!.match? target).isSome
+  if matched.isEmpty then
+    throwError "`match_goal` failed, no pattern matches the target{indentExpr target}"
+  let best := matched.filter fun i => matched.all fun j => table.moreSpecific[i]![j]!
+  let bestAlts := best.map (table.alts[·]!) |>.toList.eraseDups
+  let [altIdx] := bestAlts
+    | let pats := (matched.qsort (· < ·)).toList.map fun i =>
+        indentD m!"{table.patternSyntax[i]!}"
+      throwError "`match_goal` failed, the target{indentExpr target}\nmatches the patterns\
+        {MessageData.joinSep pats ""}\nand no pattern among them is more specific than all others"
+  let `(Parser.Tactic.Grind.matchGoalAlt| | $_|* => $tac) := alts[altIdx]! | throwUnsupportedSyntax
+  evalGrindTactic tac
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symInternalize] def evalSymInternalize : GrindTactic := fun stx => do
   ensureSym

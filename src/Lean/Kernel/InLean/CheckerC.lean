@@ -84,9 +84,20 @@ def unresolvedConstsErrorL (strOk : Bool) (where_ : String) (e : Expr) : CheckEr
     .notImplemented s!"use of the sorryAx axiom in {where_}"
   else .invalid s!"unknown constant in {where_}"
 
+/-- Twin of `Expr.constsResolve` on a term without free variables: every
+constant and every projection's structure stored, a literal's support
+declarations stored. -/
+def constsResolve (fe : FEnv) (e : Expr) : Bool :=
+  !EO.any (fun
+    | .const c _ => (fe.find? c).isNone
+    | .proj s _ _ => (fe.find? s).isNone
+    | .lit (.natVal _) => !natLitStoredF fe
+    | .lit (.strVal _) => !strLitStoredF fe
+    | _ => false) e
+
 /-- Twin of the syntactic gates of `checkConstantValC`/`checkDefnValCI` on
 one term: closed, no free variable or metavariable, its level parameters
-declared, its constants stored. -/
+declared, its constants resolving. -/
 def checkTermWF (fe : FEnv) (what : String) (lps : List Name) (e : Expr) : CheckCM Unit := do
   if e.hasLooseBVars then throw (.invalid s!"loose bound variable in {what}")
   if e.hasFVar then throw (.invalid s!"unexpected free variable in {what}")
@@ -94,7 +105,7 @@ def checkTermWF (fe : FEnv) (what : String) (lps : List Name) (e : Expr) : Check
   if e.hasLevelParam then
     unless (EO.levelParams e).all lps.contains do
       throw (.invalid s!"undeclared universe parameter in {what}")
-  unless (EO.usedConstants e).all (fun c => (fe.find? c).isSome) do
+  unless constsResolve fe e do
     throw (unresolvedConstsErrorL (strLitStoredF fe) what e)
 
 /-! ## The literal names' shapes (twin of `litShapeOk`) -/
@@ -215,10 +226,6 @@ def certifyNatEqs (fe : FEnv) : List (Expr × Expr) → CheckCM Bool
   | (l, r) :: rest => do
     if ← opDefeq mode fe 2 l r then certifyNatEqs fe rest else pure false
 
-/-- Every constant of `e` is stored. -/
-def constsResolve (fe : FEnv) (e : Expr) : Bool :=
-  (EO.usedConstants e).all fun c => (fe.find? c).isSome
-
 /-- Twin of `divModEnvGuardF`. -/
 def divModEnvGuard (fe2 : FEnv) (c : Name) : Bool :=
   natOpGuard fe2 c && (natOpDeps c).all (natOpStoredOk fe2) &&
@@ -267,8 +274,45 @@ def checkDivModCerts (fe : FEnv) (c : Name) (annVal : Expr) (x y : Expr) :
     else pure false
   | _, _ => pure false
 
-/-- Twin of `checkDivModPinF` (`checkDivModPinLoopF`, `checkDivModPinAtF`,
-`checkTypePinsF`) over the committed pin variants. -/
+/-- Twin of `checkTypePinsF`. -/
+def checkTypePins (fe : FEnv) : List (Name × Expr) → CheckCM Bool
+  | [] => pure true
+  | (n, ty) :: rest => do
+    let stored := match fe.find? n with
+      | some ci => ci.type
+      | none => .sort .zero
+    if ← opDefeq mode fe 0 stored ty then checkTypePins fe rest else pure false
+
+/-- Twin of `checkDivModPinAtF`: the type pins, then the pin, then the
+certificates. -/
+def checkDivModPinAt (fe : FEnv) (c : Name) (value' x y : Expr) (op : PinOp) : CheckCM Bool := do
+  if ← checkTypePins mode fe op.typePins.toList then
+    if ← opDefeq mode fe 0 value' op.pin then
+      checkDivModCerts mode fe c value' x y (divModCertStmts x y c) op.proofs.toList
+    else pure false
+  else pure false
+
+/-- Twin of `checkDivModPinLoopF`. -/
+def checkDivModPinLoop (fe : FEnv) (c : Name) (value' x y : Expr) :
+    List PinSet → List String → CheckCM Unit
+  | [], tried =>
+    throw (.notImplemented s!"unsupported Nat.div/mod spelling ({c}: no pin variant matched — \
+      {String.intercalate "; " tried})")
+  | ps :: rest, tried =>
+    match ps.op? c with
+    | none => checkDivModPinLoop fe c value' x y rest (tried ++ [s!"{ps.toolchain}: no pin"])
+    | some op =>
+      if divModPinGuard fe op && ((divModCertStmts x y c).zip op.proofs.toList).all
+          (fun p => divModCertGuard fe c value' p.1.1 p.1.2 p.2) then do
+        if ← checkDivModPinAt mode fe c value' x y op then pure ()
+        else
+          checkDivModPinLoop fe c value' x y rest (tried ++ [s!"{ps.toolchain}: a type pin or \
+            the pin not definitionally equal, or a certificate failed"])
+      else
+        checkDivModPinLoop fe c value' x y rest
+          (tried ++ [s!"{ps.toolchain}: pin or certificate ground constants absent"])
+
+/-- Twin of `checkDivModPinF` over the committed pin variants. -/
 def checkDivModPin (fe fe2 : FEnv) (c : Name) (value' : Expr) : CheckCM Unit := do
   unless divModEnvGuard fe2 c do
     throw (.notImplemented s!"unsupported Nat.div/mod environment ({c})")
@@ -276,28 +320,7 @@ def checkDivModPin (fe fe2 : FEnv) (c : Name) (value' : Expr) : CheckCM Unit := 
     | .ok s => pure s
     | .error e => throw (.internal s!"the Nat-operation pin dumps do not decode: {e}")
   let (x, y) ← natVars
-  let mut tried : Array String := #[]
-  for ps in sets do
-    let some op := ps.op? c
-      | tried := tried.push s!"{ps.toolchain}: no pin"; continue
-    let stmts := divModCertStmts x y c
-    if divModPinGuard fe op &&
-        (stmts.zip op.proofs.toList).all (fun p => divModCertGuard fe c value' p.1.1 p.1.2 p.2) then
-      let mut typesOk := true
-      for (n, ty) in op.typePins do
-        let stored := match fe.find? n with
-          | some ci => ci.type
-          | none => .sort .zero
-        unless ← opDefeq mode fe 0 stored ty do typesOk := false; break
-      if typesOk && (← opDefeq mode fe 0 value' op.pin) &&
-          (← checkDivModCerts mode fe c value' x y stmts op.proofs.toList) then
-        return
-      tried := tried.push s!"{ps.toolchain}: a type pin or the pin not definitionally equal, or \
-        a certificate failed"
-    else
-      tried := tried.push s!"{ps.toolchain}: pin or certificate ground constants absent"
-  throw (.notImplemented s!"unsupported Nat.div/mod spelling ({c}: no pin variant matched — \
-    {String.intercalate "; " tried.toList})")
+  checkDivModPinLoop mode fe c value' x y sets.toList []
 
 /-! ## The compiler-trust opaques and axioms -/
 

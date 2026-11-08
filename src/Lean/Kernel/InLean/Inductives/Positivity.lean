@@ -319,6 +319,8 @@ def nestCtors (ctx : NestCtx) (ops : CheckerOps) (env : FEnv) (rec : Expr → Ne
     let (ks, nds, cur, st) ← nestFields (rec crest) prog hi
       (.invalid "nested positivity: invalid nested inductive datatype, its constructor type \
         does not bind its fields (official: ill-formed constructor)") nF 0 crest st
+    if (closeTelescope nds hi cur).hasExprMVar then
+      throw (.internal "too many bound variables")
     if (List.range nF).any (fun i => ks.getD i .ordinary != .ordinary &&
         structUsedLater (closeTelescope nds hi cur) 0 i) then
       throw (.invalid "nested positivity: non valid occurrence of the datatypes being \
@@ -442,7 +444,9 @@ def nestPos (ops : CheckerOps) (env : FEnv) (ctx : NestCtx) : Nat → NestRec
           being declared")
       let (k, nb, st) ←
         nestPos ops env ctx fuel prog (dep + 1) (kb + 1) (b.inst1I (← mkFVarM dep a)) st
-      pure (k, .forallE .anonymous a (abstract1 nb dep 0) .default, st)
+      let nb := abstract1 nb dep 0
+      if nb.hasExprMVar then throw (.internal "too many bound variables")
+      pure (k, .forallE .anonymous a nb .default, st)
     | _ =>
       let args := appArgs w
       match w.getAppFnT with

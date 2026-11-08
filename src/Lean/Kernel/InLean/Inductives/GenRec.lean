@@ -281,7 +281,9 @@ def classFormerTy (ops : CheckerOps) (fe : FEnv) (formers : List ConstantVal) (M
     | none => throw (.internal "generated recursor: a class's former vanished")
 
 /-- Twin of `classConstOk`; the name's freshness read off the environment
-itself (`checkConstantValF`). -/
+itself (`checkConstantValF`).  The generated type was closed by depth
+(`EO.abstractDepthsFrom`), which may write `EO.rangePoison`: a type
+`EO.inRange` refuses is an error, as in `reducedFormer`. -/
 def classConstOk (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) : CheckCM Unit := do
   if (fe.env.find? cv.name).isSome then throw (.invalid s!"duplicate declaration {cv.name}")
   unless litShapeOk cv.name cv.levelParams cv.type do
@@ -292,6 +294,7 @@ def classConstOk (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) : CheckCM Uni
     throw (.internal s!"generated recursor: loose bound variable in type of {cv.name}")
   if cv.type.hasFVar then
     throw (.internal s!"generated recursor: free variable in type of {cv.name}")
+  unless EO.inRange cv.type do throw (.internal "too many bound variables")
   unless ← allLevelParamsDefined cv.levelParams cv.type do
     throw (.invalid s!"undeclared universe parameter in type of {cv.name}")
   unless ← constsResolveF fe cv.type do
@@ -330,11 +333,13 @@ def classRecTysOk (ops : CheckerOps) (fe : FEnv) (g : ClassGen) (k : Nat) :
   | [], _, _ => pure []
   | _, _, _ => throw (.internal "generated recursor: recursor list")
 
-/-- Twin of `classRuleCheck`. -/
+/-- Twin of `classRuleCheck`; a rule `EO.inRange` refuses is an error, as in
+`classConstOk`. -/
 def classRuleCheck (ops : CheckerOps) (w : StructWalkers) (feT feR : FEnv) (cvR : ConstantVal)
     (n : Nat) (gen : Expr) : CheckCM Unit := do
   unless !gen.hasLooseBVars && !gen.hasFVar do
     throw (.internal s!"generated recursor: a rule of {cvR.name} is not closed")
+  unless EO.inRange gen do throw (.internal "too many bound variables")
   unless ← allLevelParamsDefined cvR.levelParams gen do
     throw (.internal s!"generated recursor: a rule of {cvR.name} names an undeclared universe \
       parameter")

@@ -86,6 +86,34 @@ def depth : Level → Nat
 
 end Lvl
 
+/-! ## The shared `bvar` pool (twin of `ConLeche.Expr.bvarPool`)
+
+`bvarPool` is one static table of the first `bvarPoolSize` `bvar` nodes: a
+closed top-level `def`, built once at module initialization and marked
+persistent, so handing out `bvarPool[i]` costs a bounds check and a
+borrowed read, with no allocation and no reference counting.  `mkBvar` is
+the runtime `bvar` builder of the walks and decoders; it is
+representation-transparent (`mkBvar_eq`, `@[simp]`).  Closed constants
+such as `.bvar 0` keep the bare constructor: the compiler already lifts
+them to persistent closed terms. -/
+
+/-- Size of the static `bvar` pool. -/
+def bvarPoolSize : Nat := 4096
+
+@[inherit_doc bvarPoolSize]
+def bvarPool : Array Expr := (Array.range bvarPoolSize).map Expr.bvar
+
+/-- The `bvar` smart constructor: the pooled node below `bvarPoolSize`,
+a fresh one above it.  Same value either way (`mkBvar_eq`). -/
+@[inline] def mkBvar (i : Nat) : Expr :=
+  if h : i < bvarPool.size then bvarPool[i] else .bvar i
+
+@[simp] theorem mkBvar_eq (i : Nat) : mkBvar i = .bvar i := by
+  unfold mkBvar
+  split
+  · simp [bvarPool]
+  · rfl
+
 namespace EO
 
 /- The walks' memos compare nodes exactly: a walk's result keeps the binder
@@ -331,7 +359,7 @@ def lowerLooseBVars (e : Expr) (s d : Nat) : Expr :=
     | .bvar i =>
       if i < k then some x
       else if i - k < n then some (liftLooseBVars (get (i - k)) 0 k)
-      else some (.bvar (i - n))
+      else some (mkBvar (i - n))
     | _ => none) e 0 )
 
 /-- Twin of `instantiateListC` (Lean's `instantiate`): `bvar (k + j)` to
@@ -375,7 +403,7 @@ def abstract (e : Expr) (xs : Array Expr) : Expr :=
     match x with
     | .fvar id => (idx[id]?).map fun j =>
       let i := k + n - 1 - j
-      if i ≤ maxBVarIdx then .bvar i else rangePoison
+      if i ≤ maxBVarIdx then mkBvar i else rangePoison
     | _ => none) e 0 )
 
 /-- Lean's `abstractRange e n xs`. -/
@@ -405,7 +433,7 @@ def abstractDepthsFrom (e : Expr) (d k c₀ : Nat) : Expr :=
       | some idx =>
         if d ≤ idx ∧ idx < d + k then
           let i := c + (d + k - 1 - idx)
-          some (if i ≤ maxBVarIdx then .bvar i else rangePoison)
+          some (if i ≤ maxBVarIdx then mkBvar i else rangePoison)
         else some x
       | none => some x
     | _ => none) e c₀ )

@@ -102,7 +102,7 @@ def entry (tab : Array Obj) (j : Json) : Except String Obj := do
   | "lM" => return .level (.max (← refLevel tab (← at? 1)) (← refLevel tab (← at? 2)))
   | "lI" => return .level (.imax (← refLevel tab (← at? 1)) (← refLevel tab (← at? 2)))
   | "lp" => return .level (.param (← refName tab (← at? 1)))
-  | "b" => return .expr (.bvar (← (← at? 1).getNat?))
+  | "b" => return .expr (mkBvar (← (← at? 1).getNat?))
   | "s" => return .expr (.sort (← refLevel tab (← at? 1)))
   | "c" =>
     let us ← (← at? 2).getArr?

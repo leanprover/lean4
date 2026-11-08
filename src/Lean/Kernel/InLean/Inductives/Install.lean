@@ -51,7 +51,7 @@ def checkConstantValF (ops : CheckerOps) (fe : FEnv) (cv : ConstantVal) (allowOp
 
 /-- Twin of `structPsAt`. -/
 def structPsAt (o nP : Nat) : List Expr :=
-  (List.range nP).map fun k => .bvar (o + nP - 1 - k)
+  (List.range nP).map fun k => mkBvar (o + nP - 1 - k)
 
 /-- Twin of `structElimLevel`. -/
 def structElimLevel (elim : Name) (large : Bool) : Level :=

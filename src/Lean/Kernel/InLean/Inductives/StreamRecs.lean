@@ -94,7 +94,7 @@ def streamNestedOk (ty : Expr) (mI rP : Nat) : RecRuleFire → Bool
        | _ => false) &&
       appArgs dom ==
         pins.map (EO.liftLooseBVars · 0 (mI - rP)) ++
-          (List.range (mI - rP)).map (fun i => Expr.bvar (mI - rP - 1 - i))
+          (List.range (mI - rP)).map (fun i => mkBvar (mI - rP - 1 - i))
     | _ => false
 
 /-- Twin of `generatedFire`. -/

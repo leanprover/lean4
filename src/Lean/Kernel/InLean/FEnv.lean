@@ -384,7 +384,7 @@ def projBodyAt (T : Name) (nP i : Nat) (cty : Expr) : Option Expr :=
     | k, e =>
       if k < nP then
         match EO.stripTop (e) with
-        | .forallE _ _ b _ => params (k + 1) (b.inst1I (.bvar (nP - k)))
+        | .forallE _ _ b _ => params (k + 1) (b.inst1I (mkBvar (nP - k)))
         | _ => none
       else some e
     termination_by k => nP - k
@@ -433,7 +433,7 @@ def FEnv.projBodiesInRange (fe : FEnv) (T : Name) : Bool :=
 def paramsOkB (nP : Nat) (k : Nat) (e : Expr) : Bool :=
   EO.inRange e && (if k < nP then
     match EO.stripTop e with
-    | .forallE _ _ b _ => paramsOkB nP (k + 1) (b.inst1I (.bvar (nP - k)))
+    | .forallE _ _ b _ => paramsOkB nP (k + 1) (b.inst1I (mkBvar (nP - k)))
     | _ => true
   else true)
 termination_by nP - k

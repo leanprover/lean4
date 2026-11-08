@@ -53,7 +53,6 @@ info: (Acc.rec, Acc.recC)
 (Vector.pmap, Vector.pmapImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
 (Lean.Kernel.InLean.Expr.beqI, Lean.Kernel.InLean.Expr.beqMemo)
-(Lean.Kernel.InLean.Expr.clEq, Lean.Kernel.InLean.Expr.clEqMemo)
 (Lean.Kernel.InLean.Expr.keyEq, Lean.Kernel.InLean.Expr.keyEqMemo)
 (Lean.Kernel.InLean.Level.beqI, Lean.Kernel.InLean.Level.beqPtrI)
 -/

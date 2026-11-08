@@ -107,6 +107,40 @@ def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardR
   | .goals subgoals => replaceMainGoal subgoals
   | .failed => throwError "`apply` failed, rule is not applicable"
 
+/--
+Get or create the `Pattern` of the `match_goal` pattern `pat`. The holes and the unassigned
+metavariables of the elaborated `pat` become pattern variables.
+-/
+def getOrCreateMatchGoalPattern (pat : Syntax) : GrindTacticM Sym.Pattern := do
+  let startPos := pat.getPos?.map (·.byteIdx) |>.getD 0
+  let endPos := pat.getTailPos?.map (·.byteIdx) |>.getD 0
+  let pos := (startPos, endPos)
+  let entries := (← get).cache.matchGoalPattern.find? pos |>.getD []
+  if let some (_, p) := entries.find? (·.1 == pat) then
+    return p
+  let p ← withMainContext do
+    let r ← withTheReader Term.Context (fun ctx => { ctx with ignoreTCFailures := true }) <|
+      Term.withoutModifyingElabMetaStateWithInfo <| withRef pat <| Term.withoutErrToSorry do
+        let e ← Term.elabTerm pat none
+        Term.synthesizeSyntheticMVars (postpone := .yes)
+        abstractMVars e
+    Sym.mkPatternFromAbstractMVars r
+  modify fun s => { s with cache.matchGoalPattern := s.cache.matchGoalPattern.insert pos ((pat, p) :: entries) }
+  return p
+
+@[builtin_grind_tactic Parser.Tactic.Grind.symMatchGoal] def evalSymMatchGoal : GrindTactic := fun stx => do
+  ensureSym
+  let `(grind| match_goal with $alts:matchGoalAlt*) := stx | throwUnsupportedSyntax
+  let goal ← getMainGoal
+  let target ← goal.mvarId.getType
+  for alt in alts do
+    let `(Parser.Tactic.Grind.matchGoalAlt| | $pats|* => $tac) := alt | throwUnsupportedSyntax
+    for pat in pats.getElems do
+      let p ← getOrCreateMatchGoalPattern pat
+      if (← liftSymM <| goal.mvarId.withContext <| p.match? target).isSome then
+        return (← evalGrindTactic tac)
+  throwError "`match_goal` failed, no pattern matches the target{indentExpr target}"
+
 @[builtin_grind_tactic Parser.Tactic.Grind.symInternalize] def evalSymInternalize : GrindTactic := fun stx => do
   ensureSym
   let goal ← getMainGoal

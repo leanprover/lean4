@@ -118,15 +118,18 @@ def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) (num? :
   let type ← normalizeLevels type
   return (levelParams, type)
 
-def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
+def preprocessTypePattern (type : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
     (num? : Option Nat := none) : MetaM (List Name × Expr) := do
-  let type ← inferType e
   let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type := type.instantiateLevelParams levelParams₀ us
   let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (num? := num?)
   let type ← normalizeLevels type
   return (levelParams, type)
+
+def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
+    (num? : Option Nat := none) : MetaM (List Name × Expr) := do
+  preprocessTypePattern (← inferType e) levelParams₀ zetaReduceLHSOnly num?
 
 /--
 Creates a mask indicating which pattern variables require type checking during matching.
@@ -218,6 +221,16 @@ public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : Met
 public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
   let (levelParams, type) ← preprocessExprPattern e levelParams (num? := num?)
   mkPatternFromType levelParams type num?
+
+/--
+Creates a `Pattern` from the result `r` of `abstractMVars`. For `r.expr = fun x₁ … xₙ => p`, the
+pattern is `p` with pattern variables `x₁ … xₙ`, and the universe parameters `r.paramNames`
+become universe variables.
+-/
+public def mkPatternFromAbstractMVars (r : AbstractMVarsResult) : MetaM Pattern := do
+  let type ← lambdaBoundedTelescope r.expr r.numMVars fun xs p => mkForallFVars xs p
+  let (levelParams, type) ← preprocessTypePattern type r.paramNames.toList (num? := r.numMVars)
+  mkPatternFromType levelParams type (some r.numMVars)
 
 @[inline]
 def mkPatternFromTypeWithKey (levelParams : List Name) (type : Expr) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do

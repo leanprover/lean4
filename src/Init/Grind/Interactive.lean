@@ -373,6 +373,31 @@ simplification. Use `simp`/`dsimp` variants for that.
 -/
 syntax (name := symRw) "rw " rwRuleSeq : grind
 
+/-- An alternative `| pat₁ | … | patₙ => tac` of `match_goal`. -/
+syntax matchGoalAlt := "| " sepBy1(term, " | ") " => " grindSeq
+
+/--
+`match_goal with | pat₁ => tac₁ | … | patₙ => tacₙ` runs `tacᵢ` on the main goal for the first
+pattern `patᵢ` that matches the target of the main goal. Holes `_` in a pattern match any
+subterm. Only available in `sym =>` mode.
+
+The alternative `| pat₁ | pat₂ => tac` runs `tac` if `pat₁` or `pat₂` matches. If the selected
+tactic fails, `match_goal` fails. If no pattern matches, `match_goal` fails, so that
+`repeat match_goal with …` stops on the first goal that no alternative handles.
+
+A pattern matches the target as the conclusion of an `apply` rule does. Each pattern is
+elaborated once and reused, which makes `match_goal` suitable for the loop of a verification
+condition generator:
+```
+repeat
+  match_goal with
+  | Exec (.seq _ _) _ _ _ _ => apply Exec.seq_cps
+  | Exec .skip _ _ _ _      => apply Exec.skip
+```
+-/
+syntax (name := symMatchGoal) "match_goal" " with"
+  withPosition((ppDedent(ppLine) colGe matchGoalAlt)+) : grind
+
 /-- `exact e` closes the main goal if its target type matches that of `e`. -/
 macro "exact " e:term : grind => `(grind| tactic => exact $e:term)
 

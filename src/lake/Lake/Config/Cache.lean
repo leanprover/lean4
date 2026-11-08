@@ -768,6 +768,20 @@ public def artifactUrl
   else
     service.s3ArtifactUrl contentHash scope
 
+/-! ## Single-Artifact Transfer -/
+
+/-- **For internal use only.** -/
+public def _root_.Lake.Internal.remoteCaption
+  (service : CacheService) (scope : CacheServiceScope)
+: String :=
+  if scope.isNone then
+    if let some name := service.name? then
+      s!"{name.toString}: "
+    else
+      ""
+  else
+    s!"{scope.toString}: "
+
 public def downloadArtifact
   (descr : ArtifactDescr) (cache : Cache)
   (service : CacheService) (scope : CacheServiceScope) (force := false)
@@ -776,7 +790,8 @@ public def downloadArtifact
   let path := cache.artifactDir / descr.relPath
   if (← path.pathExists) && !force then
     return
-  logInfo s!"{scope}: downloading artifact {descr.hash}\
+  let caption := Internal.remoteCaption service scope
+  logInfo s!"{caption}downloading artifact {descr.hash}\
     \n  local path: {path}\
     \n  remote URL: {url}"
   downloadArtifactCore descr.hash url path
@@ -785,8 +800,8 @@ public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (service : CacheService) (scope : CacheServiceScope)
 : LoggerIO Unit := do
   let url := service.s3ArtifactUrl contentHash scope
-  logInfo s!"\
-    {scope}: uploading artifact {contentHash}\
+  let caption := Internal.remoteCaption service scope
+  logInfo s!"{caption}uploading artifact {contentHash}\
     \n  local path: {art}\
     \n  remote URL: {url}"
   uploadS3 art artifactContentType url service.impl.key
@@ -836,7 +851,7 @@ structure TransferDict where
 
 structure TransferConfig where
   kind : TransferKind
-  scope : CacheServiceScope
+  remoteCaption : String
   infos : Array TransferInfo
   key : String := ""
   /-- Whether this is the batch's last attempt, after which failures are not retried. -/
@@ -884,10 +899,12 @@ partial def monitorTransfer
       match Json.parse line >>= fromJson? with
       | .ok (out : JsonObject) =>
         let some (i, info) := getInfo? out
-          | logStray s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
+          | logStray s!"{cfg.remoteCaption}\
+              unidentifiable transfer completed: {line.trimAscii}"
             return
         if (← get).settled.contains i then
-          logWarning s!"{cfg.scope}: duplicate report for a transfer: {line.trimAscii}"
+          logWarning s!"{cfg.remoteCaption}\
+            duplicate report for a transfer: {line.trimAscii}"
           return
         match out.get? "exitcode" with
         | .ok none
@@ -941,7 +958,7 @@ where
     match cfg.kind with
     | .get =>
       let logDownload :=
-        logInfo s!"{cfg.scope}: downloaded artifact {hash}\
+        logInfo s!"{cfg.remoteCaption}downloaded artifact {hash}\
           \n  local path: {path}\
           \n  remote URL: {url}"
       let tmpPath := tmpPath path
@@ -967,13 +984,13 @@ where
         logDownload
         recordFailure i false s!"{tmpPath}: failed to read downloaded artifact: {e}"
     | .put =>
-      logInfo s!"{cfg.scope}: uploaded artifact {hash}\
+      logInfo s!"{cfg.remoteCaption}uploaded artifact {hash}\
         \n  local path: {path}\
         \n  remote URL: {url}"
       recordSuccess i
   handleFailure i info retryable code? out line : StateT TransferState LoggerIO Unit := do
     let action := match cfg.kind with | .get => "download" | .put => "upload"
-    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.hash}"
+    let mut msg := s!"{cfg.remoteCaption}failed to {action} artifact {info.hash}"
     if let .ok code := code? then
       msg := s!"{msg} (status code: {code})"
     if let .ok errMsg := out.getAs String "errormsg" then
@@ -1035,11 +1052,11 @@ def runTransferAttempt
   let rc ← child.wait
   let stdout ← child.stdout.readToEnd
   unless stdout.isEmpty do
-    logWarning s!"{cfg.scope}: curl produced unexpected output:\n{stdout.trimAsciiEnd}"
+    logWarning s!"{cfg.remoteCaption}curl produced unexpected output:\n{stdout.trimAsciiEnd}"
   if rc != 0 then
     -- Per-transfer failures are reported above; curl's own exit code matters
     -- only when no attempt remains (e.g., curl failed before reporting any)
-    let msg := s!"{cfg.scope}: curl exited with code {rc}"
+    let msg := s!"{cfg.remoteCaption}curl exited with code {rc}"
     if cfg.finalAttempt then
       logError msg
       return {s with didError := true}
@@ -1062,11 +1079,12 @@ def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
       break
     infos := retry
     unless finalAttempt do
-      logWarning s!"{cfg.scope}: retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {transferAttempts})"
+      logWarning s!"{cfg.remoteCaption}\
+        retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {transferAttempts})"
       -- Back off before retrying, as `curl --retry` did
       IO.sleep (1000 * attempt).toUInt32
   if numSuccesses < cfg.infos.size then
-    logError s!"{cfg.scope}: failed to {action} some artifacts"
+    logError s!"{cfg.remoteCaption}failed to {action} some artifacts"
     didError := true
   if didError then
     failure
@@ -1115,7 +1133,8 @@ public def downloadArtifacts
       fetchUrls (service.reservoirArtifactsUrl scope) infos
     else return infos
   IO.FS.createDirAll cache.artifactDir
-  transferArtifacts {scope, infos, kind := .get}
+  let remoteCaption := Internal.remoteCaption service scope
+  transferArtifacts {remoteCaption, infos, kind := .get}
 where
   createExtraPaths path extraPaths := do
     -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
@@ -1196,7 +1215,8 @@ public def uploadArtifacts
     let hash := descrs[i].hash
     let url := service.artifactUrl hash scope
     return s.addIfNew url hash paths[i]
-  transferArtifacts {scope, infos, kind := .put, key := service.impl.key}
+  let remoteCaption := Internal.remoteCaption service scope
+  transferArtifacts {remoteCaption, infos, kind := .put, key := service.impl.key}
 
 /-! ### Output Transfer -/
 
@@ -1259,11 +1279,8 @@ public def downloadRevisionOutputs?
     \n  remote URL: {url}"
   let headers := if service.isReservoir then Reservoir.lakeHeaders else {}
   let contents? ← try getUrl? url headers catch e =>
-    let caption :=
-      if remoteScope.isNone then
-        service.name?.elim localScope (·.toString)
-      else remoteScope.toString
-    logError s!"{caption}: output lookup failed"
+    let caption := Internal.remoteCaption service remoteScope
+    logError s!"{caption}output lookup failed"
     throw e
   let some contents := contents?
     | return none
@@ -1276,8 +1293,8 @@ public def uploadRevisionOutputs
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : LoggerIO Unit := do
   let url := service.s3RevisionUrl rev scope platform toolchain
-  logInfo s!"\
-    {scope}: uploading build outputs for revision {rev}\
+  let caption := Internal.remoteCaption service scope
+  logInfo s!"{caption}uploading build outputs for revision {rev}\
     \n  local path: {outputs}\
     \n  remote URL: {url}"
   uploadS3 outputs mapContentType url service.impl.key

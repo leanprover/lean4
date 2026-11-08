@@ -1,10 +1,23 @@
-# A dependency that only declares a cache service.
+# A dependency that declares cache services
+# and downloads its build caches from one of them.
 # `test.sh` copies this to `service-dep/lakefile.toml`
 # and replaces `%URL%` with the URL of the running mock server.
 name = "service-dep"
+enableArtifactCache = true
+downloadCacheService = "depFlat"
+
+[[lean_lib]]
+name = "Dep"
 
 [[cache_service]]
 name = "depS3"
 kind = "s3"
 artifactEndpoint = "%URL%/ok/a0"
 revisionEndpoint = "%URL%/ok/r0"
+
+# An unscoped service
+[[cache_service]]
+name = "depFlat"
+kind = "s3"
+artifactEndpoint = "%URL%/ok/a1"
+revisionEndpoint = "%URL%/ok/r1"

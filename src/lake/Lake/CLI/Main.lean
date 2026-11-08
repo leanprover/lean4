@@ -616,7 +616,7 @@ protected def get : CliM PUnit := do
         error "the `--rev` option is not supported for a multi-package `cache get`"
       else
         -- TODO: Parallelize?
-        let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
+        let ok ← ws.packages.foldlM (start := 0) (init := true) (m := LoggerIO) fun ok pkg => do
           let service ←
             if let some service := service? then
               pure service
@@ -629,7 +629,8 @@ protected def get : CliM PUnit := do
               pure ws.defaultCacheService
           if service.isReservoir then
             let some remoteScope := pkg.reservoirScope?
-              | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
+              | logInfo s!"{pkg.prettyName}: \
+                  skipping non-Reservoir package without its own cache service"
                 return ok
             try
               fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
@@ -683,16 +684,12 @@ where
   fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite : LoggerIO Unit := do
     let platform := cachePlatform pkg platform
     let toolchain := cacheToolchain pkg toolchain
-    let remoteCaption :=
-      if remoteScope.isNone then
-        service.name?.elim pkg.cacheScope (·.toString)
-      else remoteScope.toString
     let map : CacheMap ← id do
       let repo := GitRepo.mk pkg.dir
       if let some rev := opts.rev? then
         let rev ← repo.resolveRevision rev
         let some map ← service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
-          | error s!"{remoteCaption}: outputs not found for revision {rev}"
+          | error (noOutputsForRev service remoteScope rev)
         return map
       else
         if (← repo.hasDiff) then
@@ -705,14 +702,20 @@ where
         let map? ← revs.findSomeM? fun rev =>
           service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
         let some map := map?
-          | let revisions :=
-              if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
-            error s!"{remoteCaption}: no outputs found {revisions}"
+          | error (noOutputs service remoteScope n revs)
         return map
     cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
     unless opts.mappingsOnly do
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+  noOutputs service remoteScope n revs :=
+    let revisions :=
+      if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+    let remoteCaption := Internal.remoteCaption service remoteScope
+    s!"{remoteCaption}no outputs found {revisions}"
+  noOutputsForRev service remoteScope rev :=
+    let remoteCaption := Internal.remoteCaption service remoteScope
+    s!"{remoteCaption}outputs not found for revision {rev}"
 
 def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)

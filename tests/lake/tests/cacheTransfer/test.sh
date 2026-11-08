@@ -64,9 +64,10 @@ echo "URL=$URL"
 # Point the configured cache services at the mock server.
 # Copied after the commit above so that it does not dirty the work tree.
 cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" \
-  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml"  .
+  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml" .
 mkdir -p service-dep
 cp "$TEST_DIR/service-dep.toml" service-dep/lakefile.toml
+cp "$TEST_DIR/dep/Dep.lean" service-dep/
 sed_i "s|%URL%|$URL|g" services.toml reservoir-upload.toml \
   pkg-services.toml service-dep/lakefile.toml
 
@@ -195,7 +196,7 @@ test_err 'outputs not found for revision' \
 
 # Verify dependencies that are not on Reservoir are skipped
 test_run -f non-reservoir.toml update
-test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
+test_out 'hello: skipping non-Reservoir package' -f non-reservoir.toml cache get
 # Verify such a dependency is an error when selected with `--package`
 test_err 'hello: not a Reservoir dependency' \
   -f non-reservoir.toml cache get --package=hello
@@ -462,6 +463,43 @@ test_out 'downloaded artifact' \
   -f pkg-services.toml cache get --repo=leanprover/test --service=rootReservoir
 match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG"
 test_artifacts "$NUM_ARTS"
+
+# Verify a round trip through the `downloadCacheService` of the root and a dependency:
+# outputs uploaded without a scope are found by a `cache get` without options
+test_run -f pkg-services.toml build Test -o flat-root-outputs.jsonl
+test_run -f pkg-services.toml cache put flat-root-outputs.jsonl --scope= --service=flatRoot
+test_run -f pkg-services.toml build @service-dep/Dep -o flat-dep-outputs.jsonl \
+  --package=service-dep
+test_run -f pkg-services.toml cache put flat-dep-outputs.jsonl \
+  --package=service-dep --scope= --service=flatDep
+# An unscoped upload stores artifacts at the endpoint root
+# and outputs under just the platform
+test_artifacts "$NUM_ARTS" "$STORE_DIR/a2"
+test_exp -f "$STORE_DIR"/r2/pt/*/"$(git rev-parse HEAD)".jsonl
+test_artifacts "$NUM_DEP_ARTS" "$STORE_DIR/a1"
+test_exp -f "$STORE_DIR"/r1/pt/*/"$(git -C service-dep rev-parse HEAD)".jsonl
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+test_out 'downloaded artifact' -f pkg-services.toml cache get
+match_text "GET /ok/r2/pt/" "$SERVER_LOG"
+match_text "GET /ok/r1/pt/" "$SERVER_LOG"
+test_artifacts $((NUM_ARTS + NUM_DEP_ARTS))
+test_run -f pkg-services.toml build Test @service-dep/Dep --no-build
+# Verify `--package` fetches just the selected package
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+test_out 'downloaded artifact' -f pkg-services.toml cache get --package=service-dep
+test_artifacts "$NUM_DEP_ARTS"
+test_run -f pkg-services.toml build @service-dep/Dep --no-build
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+test_out 'downloaded artifact' -f pkg-services.toml cache get --package=test
+test_artifacts "$NUM_ARTS"
+test_run -f pkg-services.toml build Test --no-build
+# Verify the recorded unscoped outputs fetch their artifacts on demand
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+test_run -f pkg-services.toml cache get --mappings-only
+test_artifacts 0
+test_out 'downloaded artifact' -f pkg-services.toml -v build Test @service-dep/Dep --no-build
+test_artifacts $((NUM_REPLAY_ARTS + NUM_DEP_REPLAY_ARTS))
 test_run update
 
 # Verify `-o` with `--package` tracks the outputs of the selected dependency
@@ -480,7 +518,7 @@ test_exp -d "$STORE_DIR/r0/leanprover/dep"
 test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
 : > "$SERVER_LOG"
 # The other dependencies are left alone, so none is reported as skipped
-test_not_out 'skipping non-Reservoir dependency' -f dep.toml cache get --package=dep
+test_not_out 'skipping non-Reservoir package' -f dep.toml cache get --package=dep
 match_text "POST /ok/api/v1/packages/leanprover/dep/artifacts" "$SERVER_LOG"
 test_exp -d "$CACHE_DIR/revisions/dep"
 test_artifacts "$NUM_DEP_ARTS"

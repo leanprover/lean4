@@ -139,13 +139,18 @@ private def parseIPv4 : Parser Net.IPv4Addr := do
 
 -- host = IP-literal / IPv4address / reg-name
 -- Note: RFC 1123 allows domain labels to start with digits, so we must try IPv4
--- first and fall back to reg-name parsing if it fails.
+-- first and fall back to reg-name parsing if it fails. An IPv4 address followed
+-- by more name bytes (`1.2.3.4-x.example`) is a reg-name (RFC 3986 §3.2.2).
 private def parseHost (config : URI.Config) : Parser URI.Host := do
   if (← peekWhen? (· == '['.toUInt8)).isSome then
     return .ipv6 (← parseIPv6)
   else
     if (← peekWhen? isDigitByte).isSome then
-      if let some ipv4 ← tryOpt parseIPv4 then
+      if let some ipv4 ← tryOpt do
+          let ipv4 ← parseIPv4
+          if (← peekWhen? (fun x => isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8)).isSome then
+            fail "not an IPv4 address"
+          return ipv4 then
         return .ipv4 ipv4
 
     -- It needs to be a legal DNS label, so it differs from reg-name.

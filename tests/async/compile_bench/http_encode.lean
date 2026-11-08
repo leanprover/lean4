@@ -35,35 +35,35 @@ def requestHeaders : Headers :=
     |>.insert .authorization (.mk "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NSJ9.c2lnbmF0dXJl")
     |>.insert .contentLength (.mk "0")
 
-/-- The server sends the encoded pieces without joining them, so neither does the checksum. -/
+/-- The server sends a chunked body as pieces without joining them, so neither does the checksum. -/
 def checksum (buffer : ChunkedBuffer) : Nat :=
   buffer.size + buffer.data.size
 
 @[noinline]
-def benchResponseHead (start : ChunkedBuffer) (version : Version) (statuses : Array Status)
+def benchResponseHead (start : ByteArray) (version : Version) (statuses : Array Status)
     (headers : Headers) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
     for status in statuses do
       let head : Response.Head := { status, version, headers }
-      total := total + checksum (Encode.encode (v := .v11) start head)
+      total := total + (Encode.encode (v := .v11) start head).size
   return total
 
 @[noinline]
-def benchRequestHead (start : ChunkedBuffer) (method : Method) (version : Version)
+def benchRequestHead (start : ByteArray) (method : Method) (version : Version)
     (targets : Array RequestTarget) (headers : Headers) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
     for uri in targets do
       let head : Request.Head := { method, version, uri, headers }
-      total := total + checksum (Encode.encode (v := .v11) start head)
+      total := total + (Encode.encode (v := .v11) start head).size
   return total
 
 @[noinline]
 def benchChunk (chunks : Array Chunk) (iters : Nat) : IO Nat := do
   let mut total := 0
   for _ in *...iters do
-    total := total + checksum (chunks.foldl (Encode.encode (v := .v11)) ChunkedBuffer.empty)
+    total := total + checksum (chunks.foldl ChunkedBuffer.pushChunk ChunkedBuffer.empty)
   return total
 
 @[noinline]

@@ -399,6 +399,6 @@ instance : ToString Method where
     | .versionControl => "VERSION-CONTROL"
 
 instance : Encode .v11 Method where
-  encode buffer := buffer.writeString ∘ toString
+  encode out method := out ++ toString method
 
 end Std.Http.Method

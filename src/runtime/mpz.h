@@ -7,7 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include <cstddef>
 #ifdef LEAN_USE_GMP
+/* Some installations of GMP are not on a system include path, and the kernel is built with `-Werror=conversion`. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <gmp.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #else
 #include "runtime/mpn.h"
 #endif
@@ -67,6 +75,8 @@ public:
 
 #ifdef LEAN_USE_GMP
     void set(mpz_t r) const;
+    mpz_srcptr get_mpz_t() const { return m_val; }
+    mpz_ptr get_mpz_t() { return m_val; }
 #endif
 
     friend void swap(mpz & a, mpz & b) noexcept;
@@ -286,6 +296,9 @@ public:
        Return 0 if the number is negative
     */
     size_t log2() const;
+
+    /** Return the number of trailing zero bits of the absolute value, or zero for zero. */
+    size_t trailing_zeros() const;
 
     /**
        \brief Return an upper bound on the size in bytes of the representation,

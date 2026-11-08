@@ -21,8 +21,9 @@ def checkEqc (root : ENode) : GoalM Unit := do
     size := size + 1
     -- The root of `curr` must be `root`
     assert! isSameExpr (← getRoot curr) root.self
-    -- Check congruence root
-    if curr.isApp then
+    -- Check congruence root. Literals are not in the congruence table: given `x = 1`, the term `-1`
+    -- is congruent to `-x`, but the satellite solvers are responsible for `-x = -1`.
+    if curr.isApp && (← getLitKind curr) matches .notLit then
       if let some { e } := (← get).congrTable.find? { e := curr } then
         if (← hasSameType e.getAppFn curr.getAppFn) then
           assert! isSameExpr e (← getCongrRoot curr)

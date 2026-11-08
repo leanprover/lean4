@@ -29,7 +29,7 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
-/-- Internal representation of `Void` in the compiler. -/
+/-- Internal representation of `ST.Internal.Void` in the compiler. -/
 unsafe axiom lcVoid : Type
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
@@ -3672,7 +3672,7 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
 implementation. Use `List.asString` instead. -/
 @[implicit_reducible]
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
-  l.flatMap String.utf8EncodeChar |>.toByteArray
+  ⟨⟨l.flatMap String.utf8EncodeChar⟩⟩
 
 /-- A byte array is valid UTF-8 if it is of the form `List.utf8Encode m` for some `m`.
 
@@ -6069,9 +6069,10 @@ scope is fresh.
 /-- Run `x` with an incremented recursion depth counter. -/
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
   bind read fun ctx =>
-  match beq ctx.currRecDepth ctx.maxRecDepth with
-  | true  => throw (Exception.error ref maxRecDepthErrorMessage)
-  | false => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
+  -- `maxRecDepth = 0` means no limit
+  match beq ctx.maxRecDepth 0, beq ctx.currRecDepth ctx.maxRecDepth with
+  | false, true => throw (Exception.error ref maxRecDepthErrorMessage)
+  | _,     _    => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope ctx := pure ctx.currMacroScope

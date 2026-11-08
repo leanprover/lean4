@@ -550,7 +550,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Order_0__Lean_Meta_Grind_
 _start:
 {
 uint8_t v_order_287_; 
-v_order_287_ = lean_ctor_get_uint8(v_x_286_, sizeof(void*)*17 + 29);
+v_order_287_ = lean_ctor_get_uint8(v_x_286_, sizeof(void*)*18 + 29);
 return v_order_287_;
 }
 }

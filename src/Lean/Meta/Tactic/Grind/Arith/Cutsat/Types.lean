@@ -68,6 +68,26 @@ Remark: we will not define a parent structure `Cnstr` with the common
 fields until the compiler provides support for avoiding the performance overhead.
 -/
 
+inductive OrHullKind where
+  | le | eq | eqNeg
+  deriving Inhabited
+
+/--
+How the disjunct of an `.orHull` constraint implies it. The disjunct is a conjunction, and its
+conjunct at `path` (`false` for `And.left`, `true` for `And.right`) is `a = b` (`eq` and `eqNeg`)
+or `a ≤ b` (`le`), where `lhs` and `rhs` represent `a` and `b` (after the cast to `Int` given by
+`toIntThm?` if they are natural numbers). The polynomial `p := (lhs.sub rhs).norm` satisfies
+`p ≤ 0` (`le`), `p = 0` (`eq`), or `-p = 0` (`eqNeg`), and is the constraint plus `k ≥ 0`.
+-/
+structure OrHullAlt where
+  path      : List Bool
+  toIntThm? : Option Expr
+  lhs       : Int.Internal.Linear.Expr
+  rhs       : Int.Internal.Linear.Expr
+  kind      : OrHullKind
+  k         : Int
+  deriving Inhabited
+
 mutual
 /-- A equality constraint and its justification/proof. -/
 structure EqCnstr where
@@ -240,6 +260,11 @@ inductive LeCnstrProof where
     by `g`, a divisor of `d`, so the value of `c₂.p` is known modulo `g`. See `dvd_le_tight_mod`.
     -/
     dvdTightMod (c₁ : DvdCnstr) (c₂ : LeCnstr) (t g : Int)
+  | /--
+    A constraint implied by every disjunct of the disjunction `e = d₁ ∨ … ∨ dₙ`, which is `True`
+    in the core. `alts[i]` explains how `dᵢ` implies it.
+    -/
+    orHull (e : Expr) (alts : Array OrHullAlt)
   | reorder (c : LeCnstr)
   | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
@@ -345,6 +370,12 @@ structure State where
   `dvdCnstrs`, `lowers`, or `uppers`.
   -/
   elimEqs : PArray (Option EqCnstr) := {}
+  /--
+  `active[x]` is `false` if `x` was created in a case of the model search that has been backtracked.
+  Backtracking keeps `x` because the proofs of refuted cases may use it, but rolls back the constraints
+  asserted when `x` was created. `mkVar` reactivates `x` by asserting them again.
+  -/
+  active : PArray Bool := {}
   /--
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/

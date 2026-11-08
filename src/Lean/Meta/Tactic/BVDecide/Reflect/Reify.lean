@@ -209,7 +209,7 @@ where
     | HShiftLeft.hShiftLeft α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
+      if Sym.isNatValue wExpr && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
@@ -222,7 +222,7 @@ where
     | HShiftRight.hShiftRight α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
+      if Sym.isNatValue wExpr && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection

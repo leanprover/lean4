@@ -21,7 +21,7 @@ optional<name> is_constructor_app(environment const & env, expr const & e);
 bool is_non_rec_structure(environment const & env, name const & decl_name);
 
 /* Auxiliary function for to_cnstr_when_K */
-optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params);
+optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, size_t num_params);
 
 /* For datatypes that support K-axiom, given `e` an element of that type, we convert (if possible)
    to the default constructor. For example, if `e : a = a`, then this method returns `eq.refl a` */
@@ -35,7 +35,7 @@ inline expr to_cnstr_when_K(environment const & env, recursor_val const & rval, 
     if (has_expr_mvar(app_type)) {
         buffer<expr> app_type_args;
         get_app_args(app_type, app_type_args);
-        for (unsigned i = rval.get_nparams(); i < app_type_args.size(); i++) {
+        for (size_t i = rval.get_nparams(); i < app_type_args.size(); i++) {
             if (has_expr_metavar(app_type_args[i]))
                 return e;
         }
@@ -97,7 +97,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     buffer<expr> rec_args;
     get_app_args(e, rec_args);
     recursor_val const & rec_val = rec_info->to_recursor_val();
-    unsigned major_idx           = rec_val.get_major_idx();
+    size_t major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
     if (rec_val.is_k()) {
@@ -123,12 +123,12 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     /* The number of parameters in the constructor is not necessarily
        equal to the number of parameters in the recursor when we have
        nested inductive types. */
-    unsigned nparams = major_args.size() - rule->get_nfields();
+    size_t nparams = major_args.size() - rule->get_nfields();
     /* apply fields from major premise */
     rhs      = mk_app(rhs, rule->get_nfields(), major_args.data() + nparams);
     if (rec_args.size() > major_idx + 1) {
         /* recursor application has more arguments after major premise */
-        unsigned nextra = rec_args.size() - major_idx - 1;
+        size_t nextra = rec_args.size() - major_idx - 1;
         rhs = mk_app(rhs, nextra, rec_args.data() + major_idx + 1);
     }
     return some_expr(rhs);
@@ -143,7 +143,7 @@ optional<expr> inductive_is_stuck(environment const & env, expr const & e, WHNF 
     buffer<expr> rec_args;
     get_app_args(e, rec_args);
     recursor_val const & rec_val = rec_info->to_recursor_val();
-    unsigned major_idx = rec_val.get_major_idx();
+    size_t major_idx = rec_val.get_major_idx();
     if (rec_args.size() < major_idx + 1) return none_expr();
     expr cnstr_app = whnf(rec_args[major_idx]);
     if (rec_val.is_k()) {

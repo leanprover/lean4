@@ -668,7 +668,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_AC_0__Lean_Meta_Grind_AC_
 _start:
 {
 uint8_t v_ac_313_; 
-v_ac_313_ = lean_ctor_get_uint8(v_x_312_, sizeof(void*)*17 + 26);
+v_ac_313_ = lean_ctor_get_uint8(v_x_312_, sizeof(void*)*18 + 26);
 return v_ac_313_;
 }
 }

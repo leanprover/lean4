@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Bitwise.Lemmas
-// Imports: public import Init.Data.Int.Bitwise.Basic import all Init.Data.Int.Bitwise.Basic public import Init.Data.Int.DivMod.Basic import Init.ByCases import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.Pow import Init.Data.Nat.Bitwise.Lemmas import Init.Data.Nat.Lemmas import Init.Omega import Init.RCases
+// Imports: public import Init.Data.Int.Bitwise.Basic import all Init.Data.Int.Bitwise.Basic public import Init.Data.Int.DivMod.Basic import Init.ByCases import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.Pow import Init.Data.Nat.Bitwise.Lemmas import Init.Data.Nat.Lemmas import Init.Omega import Init.RCases import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -114,6 +114,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
+lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin) {
@@ -151,6 +152,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_WFTactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -170,6 +174,7 @@ lean_object* initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_RCases(uint8_t builtin);
+lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -203,6 +208,9 @@ res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_RCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_Bitwise_Lemmas(builtin);

@@ -67,6 +67,18 @@ def getIntValue? (e : Expr) : MetaM (Option Int) := do
   let some (n, _) ← getOfNatValue? a ``Int | return none
   return some (-↑n)
 
+/-- Returns `true` if `e` is an `OfNat.ofNat`-application encoding a numeral of the type `typeDeclName`. -/
+private def isOfNatValue (e : Expr) (typeDeclName : Name) : MetaM Bool := do
+  let_expr OfNat.ofNat type n _ ← e | return false
+  unless n.consumeMData.isRawNatLit do return false
+  return (← whnfD type).getAppFn.isConstOf typeDeclName
+
+/-- Returns `true` if `getIntValue? e` is `some _`. -/
+def isIntValue (e : Expr) : MetaM Bool := do
+  if (← isOfNatValue e ``Int) then return true
+  let_expr Neg.neg _ _ a ← e | return false
+  isOfNatValue a ``Int
+
 /-- Return `some b` if `e` is the boolean literal `true` or `false`. -/
 private def getBoolLit? (e : Expr) : Option Bool :=
   match e.consumeMData with
@@ -260,6 +272,17 @@ def getFloat32Value? (e : Expr) : MetaM (Option Float32) := do
   let_expr Neg.neg _ _ a ← e | return none
   let some v ← getFloat32Lit? a | return none
   return some (-v)
+
+/--
+If `a` and `b` are both `Float` or both `Float32` literals, returns whether they denote the same
+value. Values are compared by bit pattern, consistent with the `DecidableEq` instances.
+-/
+def floatLitValuesEq? (a b : Expr) : MetaM (Option Bool) := do
+  if let some x ← getFloatValue? a then
+    if let some y ← getFloatValue? b then return some (x.toBits == y.toBits)
+  if let some x ← getFloat32Value? a then
+    if let some y ← getFloat32Value? b then return some (x.toBits == y.toBits)
+  return none
 
 -- TODO: extensibility
 

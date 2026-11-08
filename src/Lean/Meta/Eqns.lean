@@ -231,9 +231,10 @@ private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit
   }
 
 /--
-Equation theorems are generated on demand, check whether they were generated in an imported file.
+Returns the equation theorems of `declName` if they are already in the environment, which includes
+those generated on demand in an imported file.
 -/
-private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
+partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv
   let eq1 := mkEqLikeNameFor env declName eqn1ThmSuffix
   if env.contains eq1 then

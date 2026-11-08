@@ -4,7 +4,7 @@ attribute [grind] Vector.getElem_swap_of_ne
 
 example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Prop) (h : p as[k]) :
     p (as.swap i j)[k] := by
-  grind -- (splits := 0) -- TODO re-enable after we update lookahead
+  grind -- (branches := 0) -- TODO re-enable after we update lookahead
 
 example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Prop) (h : p as[k]) :
     p (as.swap i j)[k] := by
@@ -12,11 +12,11 @@ example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Pr
 
 example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Prop) (h : p as[k]) :
     p (as.swap i j)[k] := by
-  fail_if_success grind (splits := 0) -lookahead -- needs lookahead or case-splits
+  fail_if_success grind (branches := 0) -lookahead -- needs lookahead or case-splits
   sorry
 
 example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by
   grind
 
 example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by
-  grind (splits := 0)
+  grind (branches := 0)

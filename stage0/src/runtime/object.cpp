@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <bit>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -172,10 +173,7 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-// Morally, `{msg, size}` is an `std::string_view`.
-static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
-    if (g_panic_messages) {
-        panic_eprintln(msg, size, force_stderr);
+static void lean_panic_print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -183,6 +181,13 @@ static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = f
             print_backtrace(force_stderr);
         }
 #endif
+}
+
+// Morally, `{msg, size}` is an `std::string_view`.
+static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
+    if (g_panic_messages) {
+        panic_eprintln(msg, size, force_stderr);
+        lean_panic_print_backtrace(force_stderr);
     }
 
     abort_on_panic();
@@ -259,7 +264,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
     }
 }
 
-static inline void lean_dealloc(lean_object * o, size_t sz) {
+extern "C" LEAN_EXPORT void lean_dealloc(void * o, size_t sz) {
 #ifdef LEAN_MIMALLOC
     mi_free_size(o, sz);
 #else
@@ -343,6 +348,18 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
     }
+}
+
+extern "C" LEAN_EXPORT void * lean_alloc_memory(size_t sz) {
+#ifdef LEAN_MIMALLOC
+    void * r = mi_malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#else
+    void * r = malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#endif
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
@@ -1399,6 +1416,8 @@ static inline obj_res mpz_to_nat(mpz const & m) {
         return mpz_to_nat_core(m);
 }
 
+static object * mpz_to_int(mpz const & m);
+
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
     return mpz_to_nat(mpz(n));
 }
@@ -1663,6 +1682,32 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
     }
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
+#ifdef LEAN_USE_GMP
+    if (a != lean_box(0) && b != lean_box(0) && !lean_nat_dec_eq(a, b) &&
+        !(lean_is_scalar(a) && lean_is_scalar(b) && lean_unbox(a) <= UINT16_MAX && lean_unbox(b) <= UINT16_MAX)) {
+        mpz aa = lean_is_scalar(a) ? mpz::of_size_t(lean_unbox(a)) : mpz_value(a);
+        mpz bb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+        mpz g, s, t;
+        // Outside the zero/equal cases, the final Euclidean quotient is at least two.
+        // The alternating-sign coefficient recurrence then gives GMP's half-size bounds;
+        // equality occurs only when a/g or b/g is two, with the corresponding coefficient +1.
+        mpz_gcdext(g.get_mpz_t(), s.get_mpz_t(), t.get_mpz_t(), aa.get_mpz_t(), bb.get_mpz_t());
+        // Match the field order of Nat.ExtendedGcdResult.
+        obj_res r = lean_alloc_ctor(0, 3, 0);
+        lean_ctor_set(r, 0, mpz_to_nat(g));
+        lean_ctor_set(r, 1, mpz_to_int(s));
+        lean_ctor_set(r, 2, mpz_to_int(t));
+        return r;
+    }
+#endif
+    lean_inc(a);
+    lean_inc(b);
+    return lean_nat_extended_gcd_fallback(a, b);
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
       unsigned res = 0;
@@ -1681,6 +1726,21 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     if (lean_is_scalar(a))
         return sizeof(size_t); // a scalar occupies one machine word
     return mpz_value(a).size_in_bytes();
+}
+
+static size_t trailing_zeros(size_t n) {
+    return n == 0 ? 0 : std::countr_zero(n);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a) {
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(lean_unbox(a)) : mpz_value(a).trailing_zeros());
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a) {
+    // Conversion to unsigned preserves the trailing zeros of negative scalars.
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(static_cast<size_t>(lean_scalar_to_int(a))) : mpz_value(a).trailing_zeros());
 }
 
 // =======================================
@@ -2138,6 +2198,7 @@ static size_t mk_capacity(size_t sz) {
 
 static void check_string_linearity(b_obj_arg s) {
     if (lean_string_is_marked_linear(s) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("string marked by `String.markLinear` was used non-linearly");
     }
 }
@@ -2623,6 +2684,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_sarray_nonlinear(obj_arg a, size_t cap) {
     if (lean_sarray_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("scalar array marked by `markLinear` was used non-linearly");
     }
     return lean_copy_sarray(a, cap);
@@ -2790,6 +2852,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
     if (lean_array_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("array marked by `Array.markLinear` was used non-linearly");
     }
     return lean_copy_expand_array(a, expand);

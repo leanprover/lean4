@@ -1,5 +1,7 @@
 import Std.WP
 import Std.Data.HashMap
+-- `List.take_add` as `@[grind =]` exhausts the instance budget on these goals, see #16223.
+attribute [-grind] List.take_add
 
 /-! Tests for `def` contracts. A `def` carrying `requires`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
@@ -782,7 +784,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return mx - mn
 where finally
-  | spec => case vc2 => exact ⟨mn, mx, by grind, by grind, by grind⟩
+  | spec => case vc6 => exact ⟨mn, mx, by grind, by grind, by grind⟩
 
 #guard_msgs (drop info) in
 #check @differenceMinMax.spec

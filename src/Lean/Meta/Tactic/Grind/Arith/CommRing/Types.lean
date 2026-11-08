@@ -176,6 +176,12 @@ structure RingState where
   varMap         : PHashMap ExprPtr Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
   denote         : PHashMap ExprPtr RingExpr := {}
+  /-- Casts `↑a` from `Nat` that have been seen. -/
+  natCastSet     : PHashSet ExprPtr := {}
+  /-- Casts `↑a` from `Nat` for which `((a : Int) : α) = ↑a` has not been asserted yet. -/
+  natCasts       : PArray Expr := {}
+  /-- `true` once a cast `↑m` from `Int` of a non-numeral `m` has been seen. -/
+  hasIntCast     : Bool := false
   deriving Inhabited
 
 /-- Per-goal solver state of a commutative ring: the Gröbner basis machinery. -/

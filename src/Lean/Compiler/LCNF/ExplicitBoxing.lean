@@ -304,10 +304,10 @@ where
     | .uproj .. => return usize
     | .erased => return tagged
     | .lit (.nat n) =>
-      if n ≤ maxSmallNat then
-        return tagged
-      else
+      if Nat.isPossibleRef n then
         return currentType
+      else
+        return tagged
     | .lit (.str ..) =>
       return object
     | .ctor i _ => return i.type

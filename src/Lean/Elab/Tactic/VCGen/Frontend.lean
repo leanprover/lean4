@@ -13,6 +13,7 @@ public import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public import Lean.Elab.Tactic.VCGen.SimpAttr
 public import Lean.Meta.Sym.Simp.EvalGround
 public import Lean.Meta.Sym.Simp.Reduce
+public import Lean.Meta.Sym.Simp.ControlFlow
 public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Elab.Tactic.Grind.Main
@@ -378,8 +379,27 @@ def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameDB :=
       trace[Elab.Tactic.Do.vcgen] "`frames` pattern elaborated to {pat.pattern}"
     return { tree, entries }
 
+/-- Throw an error that names the fix when the goal belongs to the `Std.Do` program logic, or when
+the environment lacks the `Std.WP` theory that `vcgen` works with. -/
+def checkStdWPGoal (goal : MVarId) : MetaM Unit := do
+  let hasStdWP := (← getEnv).contains ``Std.WP.Triple.intro
+  let isStdDo ← Meta.withReducible <| forallTelescopeReducing (← goal.getType) fun _ body =>
+    let head := body.consumeMData.getAppFn
+    return head.isConstOf ``Std.Do.Triple || head.isConstOf ``Std.Do.SPred.entails
+      || head.isConstOf ``Std.Tactic.Do.MGoalEntails
+  if isStdDo then
+    let importHint := if hasStdWP then m!"" else m!"add `import Std.WP` and "
+    throwError m!"vcgen: the goal is stated in the `Std.Do` program logic, but `vcgen` works on \
+      `Std.WP` triples"
+      ++ MessageData.hint' m!"To use `vcgen`, {importHint}restate the goal and its specifications \
+        with the definitions from `Std.WP`, such as `Std.WP.Triple`."
+  unless hasStdWP do
+    throwError m!"vcgen: the `Std.WP` program logic is not available"
+      ++ MessageData.hint' m!"Add `import Std.WP`."
+
 /-- Parse `vcgen` arguments. -/
 def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
+  checkStdWPGoal goal
   unless experimental.vcgen.get (← getOptions) do
     logWarningAt stx "The `vcgen` tactic is an experimental drop-in replacement for `mvcgen` \
       that will eventually replace it; `set_option experimental.vcgen true` acknowledges its \
@@ -405,8 +425,8 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
   let simpArgs := if stx[6].isNone then #[] else stx[6][2].getSepArgs
   let simpMethods ← if config.simp then
       let thms ← elabSimpTheorems simpArgs
-      pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
-                   post := Sym.Simp.evalGround >> thms.rewrite })
+      pure (some { pre := Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl
+                   post := Sym.Simp.evalGround >> thms.rewrite Sym.Simp.dischargeSimpSelf })
     else if simpArgs.isEmpty then
       pure none
     else

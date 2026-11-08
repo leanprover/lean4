@@ -156,6 +156,56 @@ private def processPowIdentityVars : RingM Unit := do
     pushNewFact proof
   modifyCommRingState fun s => { s with powIdentityVarCount := vars.size }
 
+/-- Asserts `((a : Int) : α) = ↑a` for `e := ↑a`. -/
+private def pushNatCastFact (ring : Sym.Arith.Ring) (intCastFn e : Expr) : GoalM Unit := do
+  let_expr NatCast.natCast _ _ a := e | return ()
+  let natCastInt := mkApp3 (mkConst ``NatCast.natCast [0]) Int.mkType (mkConst ``instNatCastInt) a
+  let expected ← shareCommon (← canon (← mkEq (mkApp intCastFn natCastInt) e))
+  let proof := mkApp3 (mkConst ``Grind.Ring.intCast_natCast [ring.u]) ring.type ring.ringInst a
+  pushNewFactCore expected (mkExpectedPropHint proof expected) (← getGeneration e)
+
+/--
+A ring has two casts, and congruence only relates applications of the same function: without
+`((a : Int) : α) = ↑a`, the terms `↑m` for `m : Int` and `↑a` for `a : Nat` are unrelated even
+when `m = ↑a`. The equation is asserted for each cast `↑a` of a non-numeral, but only once the
+ring has a cast `↑m` of a non-numeral, since it relates nothing else. It bypasses the normalizer,
+which rewrites `((a : Int) : α)` to `↑a`.
+-/
+private def processCast [MonadLiftT GoalM m] [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m]
+    [MonadRing m] [MonadRingState m] (e : Expr) : m Unit := do
+  match_expr e with
+  | NatCast.natCast _ inst a =>
+    if Sym.isNatValue a then return ()
+    if (← getRingState).natCastSet.contains { expr := e } then return ()
+    unless isSameExpr (← getNatCastFn).appArg! inst do return ()
+    modifyRingState fun s => { s with natCastSet := s.natCastSet.insert { expr := e } }
+    if (← getRingState).hasIntCast then
+      pushNatCastFact (← getRing) (← getIntCastFn) e
+    else
+      modifyRingState fun s => { s with natCasts := s.natCasts.push e }
+  | IntCast.intCast _ inst m =>
+    if (← getRingState).hasIntCast then return ()
+    if (Sym.getIntValue? m).run.isSome then return ()
+    unless isSameExpr (← getIntCastFn).appArg! inst do return ()
+    let natCasts := (← getRingState).natCasts
+    modifyRingState fun s => { s with hasIntCast := true, natCasts := {} }
+    let ring ← getRing
+    let intCastFn ← getIntCastFn
+    natCasts.forM fun e => pushNatCastFact ring intCastFn e
+  | _ => return ()
+
+/-- Runs `processCast` if `e` is a cast into a ring other than `Int`. -/
+private def internalizeCast (e : Expr) : GoalM Unit := do
+  let α ← match_expr e with
+    | NatCast.natCast α _ _ => pure α
+    | IntCast.intCast α _ _ => pure α
+    | _ => return ()
+  if α.isConstOf ``Int then return ()
+  if let some ringId ← getCommRingId? α then
+    RingM.run ringId do processCast e
+  else if let some ringId ← getNonCommRingId? α then
+    NonCommRingM.run ringId do processCast e
+
 /-- Returns `true` if `e` is a term `a⁻¹`. -/
 private def internalizeInv (e : Expr) : GoalM Bool := do
   match_expr e with
@@ -171,6 +221,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     -- `e` is an auxiliary term used to convert `CommRing` to `IntModule`
     return ()
   if (← internalizeInv e) then return ()
+  internalizeCast e
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
   if (← pure (isIneqParent parent?) <&&> Cutsat.isCutsatType type) then return ()

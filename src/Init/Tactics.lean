@@ -2518,7 +2518,10 @@ adds theorems to the simp set of `vcgen`. `vcgen` rewrites the hypotheses it int
 arguments of the program and the verification conditions with the theorems tagged
 `@[vcgen_simp]`, the theorems of the clause, and the evaluation of ground terms such as `41 + 1`
 and `"x" = "y"`. An argument is a theorem or definition name, a local hypothesis, a proof term, or
-`*` for every local hypothesis. `vcgen -simp` turns this simplification off.
+`*` for every local hypothesis. A theorem with hypotheses, such as
+`wrap_of_lt (h : n < 2 ^ w) : wrap w n = n`, rewrites only if the same simplification proves each
+hypothesis.
+`vcgen -simp` turns this simplification off.
 
 ### Invariant suggestions
 

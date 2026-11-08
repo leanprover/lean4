@@ -14,6 +14,7 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Intro
 import Lean.Elab.Tactic.VCGen.Util
+import Lean.Elab.Tactic.VCGen.Reduce
 
 open Lean Meta Sym Sym.Internal
 open Lean.Order
@@ -52,14 +53,14 @@ jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` conse
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
    `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
-   branch and its arguments, `fun r x => (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)`.
-   It proves `?pf₁ := Or.inl ⟨h₁, rfl, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl, rfl⟩`. Jumps under a
+   branch and its arguments other than `r : Unit`, `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`.
+   It proves `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a
    common local share its binder: the jumps of an `else if` chain share the conditions above them.
 
 The RHS goal of step 1 thus receives the hypothesis
 
 ```
-(n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)
+(n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)
 ```
 
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
@@ -67,7 +68,7 @@ parameters `r` and `x`.
 
 For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
 at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
-`n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
+`n > 0 ∧ x = 1 ∧ s = t`.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -142,7 +143,7 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   unless pre == jp.top do return none
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
-  let args := info.prog.getAppArgs ++ info.excessArgs
+  let args ← (info.prog.getAppArgs ++ info.excessArgs).mapM (reduceHead ·)
   let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
@@ -192,8 +193,8 @@ partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : Me
 
 /-- The trie of the `jumps` from local `i` on, over the parameters `xs` of `?H`. Its disjuncts bind
 each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
-equations `xs = args` of each jump without local `i`. Returns the path of each jump, the index and
-number of the disjuncts it passes. -/
+equations `xs = args` of each jump without local `i`, except for the `xs` of type `PUnit`. Returns
+the path of each jump, the index and number of the disjuncts it passes. -/
 partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
     VCGenM (Expr × Array (List (Nat × Nat))) := do
   let mut groups : Array (Array Nat) := #[]
@@ -216,9 +217,13 @@ partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (
         let decl ← jump.proof.getDecl
         pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
       | none =>
-        let eqs ← xs.mapIdxM fun j x => do
+        let mut eqs := #[]
+        for h : j in [:xs.size] do
+          let x := xs[j]
           let α ← Sym.inferType x
-          return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!
+          -- A `PUnit` parameter, such as the result `__r` of a `Unit` statement, is irrelevant.
+          unless α.isConstOf ``PUnit do
+            eqs := eqs.push (mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!)
         pure (mkAndN eqs.toList, #[[]])
     disjuncts := disjuncts.push disjunct
     for (k, path) in ks.zip subPaths do
@@ -234,21 +239,24 @@ partial def mkEqsProof (φ : Expr) : MetaM Expr := do
   | _ => throwError "vcgen +jp: unexpected equations{indentExpr φ}"
 
 /-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump,
-from the witnesses `ws` of its `∃`s and its conjuncts. -/
-partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
+whose `locals` witness its `∃`s and its conjuncts. -/
+partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (locals : List LocalDecl) :
     MetaM Expr := do
   let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
   mkOrIntro φ g 0 n fun φ => do
     if path.isEmpty then
       return ← mkEqsProof φ
-    if let .letE _ _ v b _ := φ then
-      return ← mkTrieProof (b.instantiate1 v) path ws
-    let w :: ws := ws | throwError "vcgen +jp: missing witness for{indentExpr φ}"
+    let d :: locals := locals | throwError "vcgen +jp: missing local for{indentExpr φ}"
+    if d.value?.isSome then
+      -- `bindLocal` drops a `let` that the rest of `φ` does not use.
+      let .letE _ _ v b _ := φ | return ← mkTrieProof φ path locals
+      return ← mkTrieProof (b.instantiate1 v) path locals
+    let w := d.toExpr
     match_expr φ with
     | Exists α p =>
       return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
-        (← mkTrieProof (p.beta #[w]) path ws)
-    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path ws)
+        (← mkTrieProof (p.beta #[w]) path locals)
+    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path locals)
     | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
 
 /-- Assign `?H` of `jp` the trie of its `jumps`, `False` if no jump reaches `jp`, and each jump's
@@ -262,8 +270,7 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
     return paths
   for ((jump, locals), path) in jumps.zip paths do
     jump.proof.withContext do
-      let witnesses := (locals.filter (·.value?.isNone)).map (·.toExpr)
       let φ ← instantiateMVars (← jump.proof.getType)
-      jump.proof.assign (← mkTrieProof φ path witnesses.toList)
+      jump.proof.assign (← mkTrieProof φ path locals.toList)
 
 end Lean.Elab.Tactic.VCGen

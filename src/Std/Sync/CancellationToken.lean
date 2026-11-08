@@ -56,11 +56,11 @@ instance : ToString CancellationReason where
     | .cancel => "cancel"
     | .custom msg => s!"custom(\"{msg}\")"
 
-inductive CancellationToken.Consumer where
+private inductive CancellationToken.Consumer where
   | normal (promise : IO.Promise Unit)
   | select (finished : Waiter Unit)
 
-def CancellationToken.Consumer.resolve (c : Consumer) : BaseIO Bool := do
+private def CancellationToken.Consumer.resolve (c : Consumer) : BaseIO Bool := do
   match c with
   | .normal promise =>
     promise.resolve ()
@@ -75,7 +75,7 @@ def CancellationToken.Consumer.resolve (c : Consumer) : BaseIO Bool := do
 /--
 The central state structure for a `CancellationToken`.
 -/
-structure CancellationToken.State where
+private structure CancellationToken.State where
   /--
   The cancellation reason if cancelled, none otherwise.
   -/
@@ -91,7 +91,7 @@ A cancellation token is a synchronization primitive that allows multiple consume
 until cancellation is requested.
 -/
 structure CancellationToken where
-  state : Std.Mutex CancellationToken.State
+  private state : Std.Mutex CancellationToken.State
 
 namespace CancellationToken
 

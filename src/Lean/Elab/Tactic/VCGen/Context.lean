@@ -266,5 +266,12 @@ public def burnOne : VCGenM Unit :=
     | .limited (n+1) => .limited n
     | other => other }
 
+/-- Run `k` with `methods` on the persistent simp state `State.simpState`. The state is taken out of
+`VCGenM`'s state for the run, so `k` updates it in place. -/
+public def runSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
+  let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
+  let (a, st) ← Sym.Simp.SimpM.run k methods {} st
+  modify fun s => { s with simpState := st }
+  return a
 
 end Lean.Elab.Tactic.VCGen

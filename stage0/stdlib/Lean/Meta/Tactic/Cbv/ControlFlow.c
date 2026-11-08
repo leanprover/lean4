@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Cbv.ControlFlow
-// Imports: public import Lean.Meta.Sym.Simp.SimpM import Lean.Meta.Sym.Simp.Result import Lean.Meta.Sym.Simp.Rewrite import Lean.Meta.Sym.Simp.ControlFlow import Lean.Meta.Sym.AlphaShareBuilder import Lean.Meta.Sym.InstantiateS import Lean.Meta.Sym.InferType import Lean.Meta.Sym.Simp.App import Lean.Meta.SynthInstance import Lean.Meta.WHNF import Lean.Meta.AppBuilder import Init.Sym.Lemmas import Lean.Meta.Tactic.Cbv.TheoremsLookup import Lean.Meta.Tactic.Cbv.Opaque import Lean.Meta.Tactic.Cbv.CbvEvalExt import Lean.Compiler.NoncomputableAttr import Init.CbvSimproc import Lean.Meta.Tactic.Cbv.CbvSimproc
+// Imports: public import Lean.Meta.Sym.Simp.SimpM import Lean.Meta.Sym.Simp.Result import Lean.Meta.Sym.Simp.Rewrite import Lean.Meta.Sym.Simp.ControlFlow import Lean.Meta.Sym.AlphaShareBuilder import Lean.Meta.Sym.InstantiateS import Lean.Meta.Sym.InferType import Lean.Meta.Sym.Simp.App import Lean.Meta.SynthInstance import Lean.Meta.WHNF import Lean.Meta.AppBuilder import Init.Sym.Lemmas import Lean.Meta.Sym.Simp.TheoremsLookup import Lean.Meta.Tactic.Cbv.Opaque import Lean.Meta.Tactic.Cbv.CbvEvalExt import Lean.Compiler.NoncomputableAttr import Init.CbvSimproc import Lean.Meta.Tactic.Cbv.CbvSimproc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Tactic_Cbv_getMatchTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_Simp_getMatchTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_dischargeNone___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Theorems_rewrite(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -1005,7 +1005,7 @@ _start:
 {
 lean_object* v___y_194_; lean_object* v___x_197_; uint8_t v_debug_198_; 
 v___x_197_ = lean_st_ref_get(v___y_187_);
-v_debug_198_ = lean_ctor_get_uint8(v___x_197_, sizeof(void*)*12);
+v_debug_198_ = lean_ctor_get_uint8(v___x_197_, sizeof(void*)*13);
 lean_dec(v___x_197_);
 if (v_debug_198_ == 0)
 {
@@ -14716,7 +14716,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cbv_ControlFlow_0__Lean_Me
 _start:
 {
 lean_object* v___x_4321_; 
-v___x_4321_ = l_Lean_Meta_Tactic_Cbv_getMatchTheorems(v_appFn_4309_, v_a_4316_, v_a_4317_, v_a_4318_, v_a_4319_);
+v___x_4321_ = l_Lean_Meta_Sym_Simp_getMatchTheorems(v_appFn_4309_, v_a_4316_, v_a_4317_, v_a_4318_, v_a_4319_);
 if (lean_obj_tag(v___x_4321_) == 0)
 {
 lean_object* v_a_4322_; lean_object* v___x_4323_; lean_object* v___x_4324_; 
@@ -15130,8 +15130,8 @@ return v___y_4461_;
 v___jp_4464_:
 {
 lean_object* v___x_4468_; lean_object* v___x_4469_; 
-lean_dec_ref(v___y_4466_);
-v___x_4468_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_4465_);
+lean_dec_ref(v___y_4465_);
+v___x_4468_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_4466_);
 lean_inc_ref(v___x_4468_);
 v___x_4469_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4469_, 0, v___x_4468_);
@@ -15170,8 +15170,8 @@ lean_object* v_a_4477_; uint8_t v___x_4478_;
 v_a_4477_ = lean_ctor_get(v___x_4475_, 0);
 lean_inc(v_a_4477_);
 v___x_4478_ = 0;
-v___y_4465_ = v_a_4477_;
-v___y_4466_ = v___x_4475_;
+v___y_4465_ = v___x_4475_;
+v___y_4466_ = v_a_4477_;
 v___y_4467_ = v___x_4478_;
 goto v___jp_4464_;
 }
@@ -15657,7 +15657,7 @@ lean_object* runtime_initialize_Lean_Meta_SynthInstance(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_WHNF(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* runtime_initialize_Init_Sym_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_TheoremsLookup(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_Simp_TheoremsLookup(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_Opaque(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_CbvEvalExt(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_NoncomputableAttr(uint8_t builtin);
@@ -15706,7 +15706,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Sym_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Tactic_Cbv_TheoremsLookup(builtin);
+res = runtime_initialize_Lean_Meta_Sym_Simp_TheoremsLookup(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Cbv_Opaque(builtin);
@@ -15775,7 +15775,7 @@ lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin);
 lean_object* initialize_Lean_Meta_WHNF(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Init_Sym_Lemmas(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Cbv_TheoremsLookup(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_Simp_TheoremsLookup(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Cbv_Opaque(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Cbv_CbvEvalExt(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_NoncomputableAttr(uint8_t builtin);
@@ -15822,7 +15822,7 @@ lean_dec_ref(res);
 res = initialize_Init_Sym_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Cbv_TheoremsLookup(builtin);
+res = initialize_Lean_Meta_Sym_Simp_TheoremsLookup(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Cbv_Opaque(builtin);

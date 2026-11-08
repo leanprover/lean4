@@ -760,7 +760,7 @@ where
 private partial def isValue (e : Expr) (strict : Bool) : MetaM Bool := do
   match_expr e with
   | Neg.neg _ _ e => isValue e strict
-  | OfNat.ofNat _ n _ => return (← getNatValue? n).isSome
+  | OfNat.ofNat _ n _ => isNatValue n
   | HDiv.hDiv _ _ _ _ a b => isValue a strict <&&> isValue b strict
   | _ =>
     if e.isLambda && !strict then return true

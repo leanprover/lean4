@@ -1073,7 +1073,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX nanoda
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
-    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    GIT_TAG 8de7e0c4ed3052745a7f8725164efd9e76d84c56
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON

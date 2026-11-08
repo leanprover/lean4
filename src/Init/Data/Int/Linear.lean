@@ -1183,7 +1183,7 @@ theorem dvd_of_eq_zero (ctx : Context) (d : Int) (p : Poly) : p.denote' ctx = 0 
 
 @[expose]
 noncomputable def eq_of_dvd_ediv_cert (d : Int) (e : Expr) (p p' : Poly) (x : Var) : Bool :=
-  e.norm_k.beq' p |>.and (p'.beq' (Poly.add (-d) x p))
+  e.norm_k.beq' p |>.and (p'.beq' (p.insert (-d) x))
 
 /--
 Omega-style elimination step: given `d ∣ p` and a variable `x` denoting `e / d` where `e` normalizes
@@ -1197,8 +1197,9 @@ theorem eq_of_dvd_ediv (ctx : Context) (d : Int) (e : Expr) (p p' : Poly) (x : V
   intro h₁ h₂ hd; subst p' p
   have he : Expr.denote ctx e = Poly.denote ctx e.norm := by
     rw [← Poly.denote'_eq_denote]; exact Expr.eq_of_norm_eq ctx e e.norm (by simp)
-  rw [Poly.denote'_add, hx, he, Poly.denote'_eq_denote] at *
-  rw [Int.neg_mul, Int.mul_ediv_cancel' hd]; omega
+  rw [Poly.denote'_eq_denote] at hd ⊢
+  rw [← he] at hd
+  rw [Poly.denote_insert, hx, ← he, Int.neg_mul, Int.mul_ediv_cancel' hd]; omega
 
 theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
   intro ⟨k, h⟩
@@ -1232,6 +1233,24 @@ theorem le_neg (ctx : Context) (p₁ p₂ : Poly) : le_neg_cert p₁ p₂ → ¬
   replace h : _ + 1 ≤ -0 := Int.neg_lt_neg h
   simp at h
   exact h
+
+/-- `p₁` is `p₂ + k` with `0 ≤ k`, and hence `p₂ ≤ p₁`. -/
+@[expose]
+noncomputable def le_weaken_cert (p₁ p₂ : Poly) (k : Int) : Bool :=
+  Int.ble' 0 k |>.and (p₁.beq' (p₂.addConst_k k))
+
+theorem le_weaken (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_weaken_cert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
+  simp [le_weaken_cert]
+  intro h₁ h₂; subst p₁; simp [Poly.denote_addConst]; omega
+
+theorem eq_le_weaken (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_weaken_cert p₁ p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 := by
+  intro h₁ h₂
+  exact le_weaken ctx p₁ p₂ k h₁ (Int.le_of_eq h₂)
+
+theorem eq_le_weaken_neg (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_weaken_cert (p₁.mul_k (-1)) p₂ k → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 := by
+  intro h₁ h₂
+  apply le_weaken ctx _ p₂ k h₁
+  simp [Poly.denote'_eq_denote] at h₂ ⊢; omega
 
 @[expose]
 def Poly.leadCoeff (p : Poly) : Int :=

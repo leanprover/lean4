@@ -216,6 +216,10 @@ Writes accumulated user data to output using fixed-size encoding.
 def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :=
   if writer.userData.size = 0 then
     (writer, limitSize)
+  else if writer.userDataBytes ≤ limitSize then
+    -- Everything buffered fits: move whole chunks without splitting them.
+    let outputData := writer.userData.foldl (fun buf chunk => buf.push chunk.data) writer.outputData
+    ({ writer with userData := #[], outputData, userDataBytes := 0 }, limitSize - writer.userDataBytes)
   else
     let (chunks, pending, totalSize) := writer.userData.foldl (fun (state : Array ByteArray × Array Chunk × Nat) chunk =>
       let (acc, pending, size) := state
@@ -233,7 +237,7 @@ def writeFixedBody (writer : Writer dir) (limitSize : Nat) : Writer dir × Nat :
         else
           (acc, pending, size)
     ) (#[], #[], 0)
-    let outputData := writer.outputData.append (ChunkedBuffer.ofArray chunks)
+    let outputData := chunks.foldl ChunkedBuffer.push writer.outputData
     let remaining := limitSize - totalSize
     ({ writer with userData := pending, outputData, userDataBytes := writer.userDataBytes - totalSize }, remaining)
 
@@ -247,7 +251,7 @@ def writeChunkedBody (writer : Writer dir) : Writer dir :=
     writer
   else
     let data := writer.userData.filter (fun c => !c.data.isEmpty)
-    { writer with userData := #[], userDataBytes := 0, outputData := data.foldl (Encode.encode .v11) writer.outputData }
+    { writer with userData := #[], userDataBytes := 0, outputData := data.foldl ChunkedBuffer.pushChunk writer.outputData }
 
 /--
 Writes the final chunk terminator (0\r\n\r\n) and transitions to complete state.
@@ -255,7 +259,7 @@ Writes the final chunk terminator (0\r\n\r\n) and transitions to complete state.
 def writeFinalChunk (writer : Writer dir) : Writer dir :=
   let writer := writer.writeChunkedBody
   { writer with
-    outputData := writer.outputData.write "0\r\n\r\n".toUTF8
+    outputData := writer.outputData.push "0\r\n\r\n".toUTF8
     state := .complete
   }
 
@@ -265,16 +269,8 @@ No chunk framing is added; the peer reads until the connection closes.
 -/
 def writeRawBody (writer : Writer dir) : Writer dir :=
   { writer with
-    outputData := writer.userData.foldl (fun buf c => buf.write c.data) writer.outputData,
+    outputData := writer.userData.foldl (fun buf c => buf.push c.data) writer.outputData,
     userData := #[], userDataBytes := 0 }
-
-/--
-Extracts all accumulated output data and returns it with a cleared output buffer.
--/
-@[inline]
-def takeOutput (writer : Writer dir) : Option (Writer dir × ByteArray) :=
-  let output := writer.outputData.toByteArray
-  some ({ writer with outputData := ChunkedBuffer.empty }, output)
 
 /--
 Updates the writer's state machine to a new state.
@@ -282,12 +278,6 @@ Updates the writer's state machine to a new state.
 @[inline]
 def setState (state : Writer.State) (writer : Writer dir) : Writer dir :=
   { writer with state }
-
-/--
-Writes the message headers to the output buffer.
--/
-private def writeHeaders (messageHead : Message.Head dir.swap) (writer : Writer dir) : Writer dir :=
-  { writer with outputData := Internal.Encode.encode (v := .v11) writer.outputData messageHead }
 
 /--
 Checks if the connection should be kept alive based on the Connection header.

@@ -5,6 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+/* The kernel is built with `-Werror=conversion`, which this header does not satisfy. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -597,6 +602,8 @@ static inline void lean_free_small_object(lean_object * o) {
 #endif
 }
 
+LEAN_EXPORT void lean_dealloc(void * o, size_t sz);
+LEAN_EXPORT void * lean_alloc_memory(size_t sz);
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 
@@ -1606,17 +1613,25 @@ LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
+/* All priorities above `Task.Priority.max` mean the same; `UINT_MAX` is reserved for synchronous tasks. */
+static inline unsigned lean_task_prio_of_nat(lean_obj_arg prio) {
+    if (LEAN_LIKELY(lean_is_scalar(prio) && lean_unbox(prio) < UINT_MAX))
+        return (unsigned)lean_unbox(prio);
+    lean_dec(prio);
+    return UINT_MAX - 1;
+}
+
 LEAN_EXPORT lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);
 /* Run a closure `Unit -> A` as a `Task A` */
-static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_unbox(prio), false); }
+static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_task_prio_of_nat(prio), false); }
 /* Convert a value `a : A` into `Task A` */
 LEAN_EXPORT lean_obj_res lean_task_pure(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool sync, bool keep_alive);
 /* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) (sync : Bool) : Task B */
-static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio, uint8_t sync) { return lean_task_bind_core(x, f, lean_unbox(prio), sync, false); }
+static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio, uint8_t sync) { return lean_task_bind_core(x, f, lean_task_prio_of_nat(prio), sync, false); }
 LEAN_EXPORT lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool sync, bool keep_alive);
 /* Task.map (f : A -> B) (t : Task A) (prio : Nat) (sync : Bool) : Task B */
-static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_unbox(prio), sync, false); }
+static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_task_prio_of_nat(prio), sync, false); }
 LEAN_EXPORT b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
 static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
@@ -1864,7 +1879,9 @@ LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
 LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 
@@ -1892,6 +1909,7 @@ LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object *
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
 LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
@@ -2247,7 +2265,7 @@ static inline size_t lean_uint8_to_usize(uint8_t a) { return ((size_t)a); }
 /* UInt16 */
 
 LEAN_EXPORT uint16_t lean_uint16_of_big_nat(b_lean_obj_arg a);
-static inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (int16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
+static inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
 /* Remark: the following function is used to implement the constructor `UInt16.mk`. We can't annotate constructors with `@&` */
 static inline uint16_t lean_uint16_of_nat_mk(lean_obj_arg a) { uint16_t r = lean_uint16_of_nat(a); lean_dec(a); return r; }
 static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
@@ -2328,6 +2346,30 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+#if !defined(__SIZEOF_INT128__)
+static inline uint64_t lean_uint64_add_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    return a >= modulus - b ? a - (modulus - b) : a + b;
+}
+#endif
+static inline uint64_t lean_uint64_mul_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    if (modulus == 0) return a * b;
+    if (modulus == 1) return 0;
+#if defined(__SIZEOF_INT128__)
+    __uint128_t product = (__uint128_t)a * (__uint128_t)b;
+    if (product <= UINT64_MAX) return (uint64_t)product % modulus;
+    return (uint64_t)(product % modulus);
+#else
+    /* Double and add keeps every intermediate below modulus without requiring 128-bit words. */
+    a %= modulus;
+    uint64_t result = 0;
+    while (b != 0) {
+        if (b & 1) result = lean_uint64_add_mod(result, a, modulus);
+        b >>= 1;
+        if (b != 0) a = lean_uint64_add_mod(a, a, modulus);
+    }
+    return result;
+#endif
+}
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
@@ -3660,6 +3702,11 @@ static inline size_t lean_hashset_mk_idx(lean_obj_arg sz, uint64_t hash) {
 static inline uint64_t lean_expr_data(lean_obj_arg expr) {
     return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
 }
+
+/* Ends the `-Wconversion` exemption from the top of this file. This must precede the pragma below, which would be undone by a later `pop`. */
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 // eliding unused parameter names is C23+, so ignore warning instead in the following
 #if defined(__clang__)

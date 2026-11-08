@@ -63,11 +63,16 @@ def elabSimprocRewriteSet : SymSimprocElab := fun stx => do
 @[builtin_sym_simproc rewriteInline]
 def elabSimprocRewriteInline : SymSimprocElab := fun stx => do
   let `(sym_simproc| rewrite [ $[$names:ident],* ] $[with $d?]?) := stx | throwUnsupportedSyntax
-  let mut thms : Theorems := {}
-  for name in names do
-    let declName ← realizeGlobalConstNoOverload name
-    for thm in (← mkTheoremsFromDecl declName) do
-      thms := thms.insert thm
+  let declNames ← names.mapM fun name => realizeGlobalConstNoOverload name
+  let thms ← match (← get).cache.rewriteTheorems.find? declNames with
+    | some thms => pure thms
+    | none =>
+      let mut thms : Theorems := {}
+      for declName in declNames do
+        for thm in (← mkTheoremsFromDecl declName) do
+          thms := thms.insert thm
+      modify fun s => { s with cache.rewriteTheorems := s.cache.rewriteTheorems.insert declNames thms }
+      pure thms
   return thms.rewrite (← elabOptDischarger d?)
 
 @[builtin_sym_simproc andThen]

@@ -57,6 +57,9 @@ structure Cache where
   backwardRuleName : PHashMap Name Sym.BackwardRule := {}
   /-- Cache for `BackwardRule`s created from elaborated terms, keyed by syntax byte position range (sym mode only). -/
   backwardRuleSyntax : PHashMap (Nat × Nat) Sym.BackwardRule := {}
+  /-- Cache for the theorems of the `Sym.simp` simproc `rewrite [thm₁, …, thmₙ]`, keyed by the
+  declaration names `thm₁, …, thmₙ`. -/
+  rewriteTheorems : PHashMap (Array Name) Sym.Simp.Theorems := {}
   /-- Per-variant persistent `Sym.simp` cache. Keyed by variant name + extra theorem names. -/
   simpState : Std.HashMap SimpCacheKey Sym.Simp.State := {}
   /-- Per-variant persistent `Sym.dsimp` cache. Keyed by variant name + args. -/

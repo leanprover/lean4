@@ -245,7 +245,6 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
     | .true => pure true
     | .false => pure false
     | .undef =>
-      withTraceNodeBefore `Meta.whnf (fun _ => return m!"isMajorProof {major}") do
       let indInfo ← getConstVal recVal.getMajorInduct
       /- If the type doesn't have large elimination, it must be a proof.
          TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/

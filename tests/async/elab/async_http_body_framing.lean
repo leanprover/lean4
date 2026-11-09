@@ -80,12 +80,14 @@ open Std Http Internal Test
     (handler := okHandler)
     (expect := (assertExact · r400))
 
-  check "TE: malformed token list (leading comma) → 400"
+  -- RFC 9110 §5.6.1.2: a recipient ignores empty list elements
+  check "TE: empty list element before chunked is ignored"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: ,chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
-    (handler := okHandler)
-    (expect := (assertExact · r400))
+    (handler := echoHandler)
+    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
 
-  check "TE: duplicate header lines with unsupported coding → 400"
+  -- RFC 9110 §5.3: the field lines combine into `chunked, gzip`, whose final coding is not chunked
+  check "TE: field lines chunked then gzip → 400"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nTransfer-Encoding: gzip\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
     (expect := (assertExact · r400))
@@ -109,6 +111,12 @@ open Std Http Internal Test
     (handler := echoHandler)
     (expect := (assertExact · r501))
 
+  -- RFC 9110 §5.3: the same codings over two field lines are the same list
+  check "gzip and chunked on two field lines → 501"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := echoHandler)
+    (expect := (assertExact · r501))
+
   check "br, chunked → 501"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: br, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
@@ -126,6 +134,12 @@ open Std Http Internal Test
       Response.ok |>.text s!"{te};{body}")
     (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
     (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "gzip, chunked;hello")
+
+  check "gzip and chunked on two field lines accepted when gzip is listed"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := echoHandler)
+    (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
+    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
 
   check "br, chunked → 501 when only gzip is accepted"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: br, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
@@ -154,7 +168,7 @@ open Std Http Internal Test
   check "very large Content-Length → 413"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 99999999999999999999\x0d\nConnection: close\x0d\n\x0d\nhello")
     (handler := echoHandler)
-    (expect := fun r => assertStatus r "HTTP/1.1 413")
+    (expect := (assertExact · r413))
 
   check "duplicate Content-Length same value → 400"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello")

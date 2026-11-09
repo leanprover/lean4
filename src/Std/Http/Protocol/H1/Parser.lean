@@ -210,21 +210,11 @@ def parseHttpVersion : Parser Version := do
   liftOption <| Version.ofNumber? major minor
 
 /--
-The methods `parseMethod` recognizes, by name, the most common first.
+The methods `parseMethod` recognizes, by name, the most common first: every `Method`
+(`Method.all_complete`).
 -/
 def knownMethods : Array (ByteSlice × Method) :=
-  (#[("GET", .get), ("POST", .post), ("HEAD", .head), ("PUT", .put), ("DELETE", .delete),
-    ("PATCH", .patch), ("OPTIONS", .options), ("CONNECT", .connect), ("TRACE", .trace),
-    ("QUERY", .query), ("ACL", .acl), ("BASELINE-CONTROL", .baselineControl), ("BIND", .bind),
-    ("CHECKIN", .checkin), ("CHECKOUT", .checkout), ("COPY", .copy), ("LABEL", .label),
-    ("LINK", .link), ("LOCK", .lock), ("MERGE", .merge), ("MKACTIVITY", .mkactivity),
-    ("MKCALENDAR", .mkcalendar), ("MKCOL", .mkcol), ("MKREDIRECTREF", .mkredirectref),
-    ("MKWORKSPACE", .mkworkspace), ("MOVE", .move), ("ORDERPATCH", .orderpatch), ("PRI", .pri),
-    ("PROPFIND", .propfind), ("PROPPATCH", .proppatch), ("REBIND", .rebind), ("REPORT", .report),
-    ("SEARCH", .search), ("UNBIND", .unbind), ("UNCHECKOUT", .uncheckout), ("UNLINK", .unlink),
-    ("UNLOCK", .unlock), ("UPDATE", .update), ("UPDATEREDIRECTREF", .updateredirectref),
-    ("VERSION-CONTROL", .versionControl)] : Array (String × Method)).map fun (name, method) =>
-    (name.toUTF8.toByteSlice, method)
+  Method.all.map fun method => ((toString method).toUTF8.toByteSlice, method)
 
 /-
 method         = token
@@ -274,14 +264,15 @@ def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × 
   return (uri, versionPair)
 
 /--
-Parses a request line and returns a fully-typed `Request.Head`.
+Parses a request line and returns a fully-typed `Request.Head`. A higher minor version of HTTP/1 is
+read as HTTP/1.1 (RFC 9110 §6.2).
 `request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   skipLeadingRequestEmptyLines limits
   let method ← parseMethod <* sp
   let (uri, (major, minor)) ← parseRequestLineBody limits
-  if major == 1 ∧ minor == 1 then
+  if major == 1 ∧ minor ≥ 1 then
     return ⟨method, .v11, uri, .empty⟩
   else if major == 1 ∧ minor == 0 then
     return ⟨method, .v10, uri, .empty⟩
@@ -289,7 +280,8 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
     fail "unsupported HTTP version"
 
 /--
-Parses a request line and returns the recognized HTTP method and version when available.
+Parses a request line and returns the recognized HTTP method and version when available. A higher
+minor version of HTTP/1 is read as HTTP/1.1 (RFC 9110 §6.2).
 
 request-line = method SP request-target SP HTTP-version
 -/
@@ -297,7 +289,7 @@ public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × R
   skipLeadingRequestEmptyLines limits
   let method ← parseMethod <* sp
   let (uri, (major, minor)) ← parseRequestLineBody limits
-  return (method, uri, Version.ofNumber? major minor)
+  return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
 Parses a single header field line.

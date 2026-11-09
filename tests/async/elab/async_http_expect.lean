@@ -188,6 +188,15 @@ private def assertCallCount (ref : IO.Ref Nat) (expected : Nat) : IO Unit := do
       assertStatus r "HTTP/1.1 431" *>
       assertContains r "\x0d\nDate: ")
 
+  check "generateDate: true adds Date to the 500 for a handler head with a wrong Content-Length"
+    (raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n")
+    (handler := fun _ => Response.ok |>.header! "Content-Length" "1234" |>.text "")
+    (config := { defaultConfig with generateDate := true })
+    (expect := fun r =>
+      assertStatus r "HTTP/1.1 500" *>
+      assertContains r "\x0d\nDate: " *>
+      assertContains r "\x0d\n\x0d\nInternal Server Error\n")
+
   check "generateDate: false adds no Date to a 400 the server writes itself"
     (raw := "GET / HTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)

@@ -8,7 +8,8 @@ open Std.Http.Protocol.H1
 /-!
 Tests a message head whose framing fields contradict the body length set for it, such as a handler
 response with `Content-Length: 3` and an empty body. The server answers `500 Internal Server Error`
-and closes the connection instead of spinning in its connection loop, and a client ends the
+with a short `text/plain` explanation and closes the connection instead of spinning in its
+connection loop, and a client ends the
 exchange. A `Content-Length` gives the length of a streamed body, which has none of its own. A
 response that carries no body (to `HEAD`, 204, 304) cannot contradict it: a HEAD response
 advertises the handler's `Content-Length`.
@@ -41,14 +42,13 @@ def get : String := "GET / HTTP/1.1\r\nHost: a\r\n\r\n"
 
 def abc : Array Chunk := #[Chunk.ofByteArray "abc".toUTF8]
 
-/-- Runs `machine` to a halt and checks that it answered 500 without writing the body. -/
+/-- Runs `machine` to a halt and checks that it answered 500 with its explanation, not the body. -/
 def expect500 (name : String) (machine : Machine .receiving) : IO Unit := do
   let some (out, events) := runToHalt (machine.sendData abc |>.userClosedBody)
     | throw <| IO.userError s!"[{name}] the server never halted"
-  unless out.startsWith "HTTP/1.1 500 Internal Server Error\r\n" &&
-      out.contains "Content-Length: 0\r\n" && out.contains "Connection: close\r\n" &&
-      !out.contains "abc" do
-    throw <| IO.userError s!"[{name}] expected an empty 500, got:\n{out.quote}"
+  unless out == "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n" ++
+      "Connection: close\r\nContent-Length: 22\r\n\r\nInternal Server Error\n" do
+    throw <| IO.userError s!"[{name}] expected a 500 with its explanation only, got:\n{out.quote}"
   unless events.any (· matches .failed (.other _)) do
     throw <| IO.userError s!"[{name}] no framing failure reported: {repr events}"
 

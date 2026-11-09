@@ -166,17 +166,27 @@ private def isTransferParameter (param : String) : Bool :=
 Parses a comma-separated list of transfer codings into their lowercased names, without the chunked
 placement rules of `parse`.
 
-Transfer parameters (`gzip;level=1`) are checked and dropped. `chunked` defines none, so a list in
-which `chunked` has one is rejected. A quoted parameter value that contains `,` or `;` is not
-supported.
+Empty list elements (`gzip, , chunked`) are skipped (RFC 9110 §5.6.1.2). Transfer parameters
+(`gzip;level=1`) are checked and dropped. `chunked` defines none, so a list in which `chunked` has
+one is rejected. A quoted parameter value that contains `,` or `;` is not supported.
 -/
 def parseCodings? (v : Value) : Option (Array String) :=
-  (v.value.split ',' |>.toStringList).toArray.mapM fun element => do
+  (v.value.split ',' |>.toStringList).toArray.filterMapM fun element => do
+    if element.trimAscii.isEmpty then
+      return none
     let name :: params := element.split ';' |>.toStringList | none
     let name := name.trimAscii.toString.toLower
     guard (isToken name && params.all isTransferParameter)
     guard (params.isEmpty || name != "chunked")
-    return name
+    return some name
+
+/--
+Parses the transfer codings of all of a message's `Transfer-Encoding` field lines, in order, with
+`parseCodings?`. The field lines of a list-based field form one list (RFC 9110 §5.3), so
+`Transfer-Encoding: gzip` followed by `Transfer-Encoding: chunked` is `gzip, chunked`.
+-/
+def parseFieldLines? (values : Array Value) : Option (Array String) :=
+  values.foldlM (init := #[]) fun codings value => (codings ++ ·) <$> parseCodings? value
 
 /--
 Parses a comma-separated list of transfer codings from a header value (`parseCodings?`), validating
@@ -190,13 +200,13 @@ def parse (v : Value) : Option TransferEncoding := do
     none
 
 /--
-Classifies a `Transfer-Encoding` value by its final coding, which decides how the message is framed
-(RFC 9112 §6.3): `some true` when it ends in `chunked` applied once, `some false` when it ends in
-another coding, and `none` when it is not a list of transfer codings (`parseCodings?`) or ends in a
-`chunked` applied more than once.
+Classifies a message's `Transfer-Encoding` field lines by their final coding, which decides how the
+message is framed (RFC 9112 §6.3): `some true` when they end in `chunked` applied once, `some false`
+when they end in another coding or list none, and `none` when they are not lists of transfer
+codings (`parseFieldLines?`) or end in a `chunked` applied more than once.
 -/
-def finalCodingIsChunked? (v : Value) : Option Bool := do
-  let codings ← parseCodings? v
+def finalCodingIsChunked? (values : Array Value) : Option Bool := do
+  let codings ← parseFieldLines? values
   if codings.back? != some "chunked" then
     return false
   guard (codings.count "chunked" == 1)

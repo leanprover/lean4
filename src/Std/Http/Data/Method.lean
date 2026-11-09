@@ -410,4 +410,20 @@ instance : ToString Method where
 instance : Encode .v11 Method where
   encode out method := out ++ toString method
 
+/--
+Every method, the most commonly used first.
+-/
+def all : Array Method :=
+  #[.get, .post, .head, .put, .delete, .patch, .options, .connect, .trace, .query, .acl,
+    .baselineControl, .bind, .checkin, .checkout, .copy, .label, .link, .lock, .merge, .mkactivity,
+    .mkcalendar, .mkcol, .mkredirectref, .mkworkspace, .move, .orderpatch, .pri, .propfind,
+    .proppatch, .rebind, .report, .search, .unbind, .uncheckout, .unlink, .unlock, .update,
+    .updateredirectref, .versionControl]
+
+/--
+`all` lists every method, so a constructor added to `Method` fails this proof until it is listed.
+-/
+theorem all_complete (method : Method) : all.toList.contains method := by
+  cases method <;> decide
+
 end Std.Http.Method

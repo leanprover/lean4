@@ -217,7 +217,8 @@ private structure ConnectionState (β : Type) where
 
 /--
 Keeps `machine.date` current when `Config.generateDate` is set, formatting it at most once per
-second. The machine writes every response head during `Machine.step`, so this runs before each step.
+second. The machine writes response heads during `Machine.step`, and the 500 for a head it rejects
+in `Machine.send`, so this runs before each step and before a response is applied.
 -/
 private def refreshDate (config : Config) (state : ConnectionState β) : IO (ConnectionState β) := do
   if !config.generateDate then
@@ -422,6 +423,7 @@ private def handleRecvEvent
       if ¬(← Body.isClosed res.body) then Body.close res.body
       return ({ state with handlerDispatched := false }, false)
     else
+      let state ← refreshDate config state
       let (newMachine, newRespStream) ← applyResponse state.machine res
 
       -- Eagerly consume one chunk if immediately available (avoids a Selectable.one round-trip).

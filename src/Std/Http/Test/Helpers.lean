@@ -174,7 +174,7 @@ def r400 : String := errorResponse "400 Bad Request" "Bad Request\n"
 
 def r408 : String := errorResponse "408 Request Timeout" "Request Timeout\n"
 
-def r413 : String := errorResponse "413 Content Too Large" "Content Too Large\n"
+def r413 : String := errorResponse "413 Payload Too Large" "Payload Too Large\n"
 
 def r417 : String := errorResponse "417 Expectation Failed" "Expectation Failed\n"
 

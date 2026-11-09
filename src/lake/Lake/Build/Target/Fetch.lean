@@ -6,6 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
+import Lake.Build.Facets
 import Lake.Build.Infos
 public import Lake.Build.Job.Monad
 import Lake.Config.Monad
@@ -15,9 +16,18 @@ open Lean
 
 namespace Lake
 
+/--
+Lake's own facets that build a library's or module's shared library, static library or object file,
+as named in `plugins`, `dynlibs`, `moreLinkObjs` and `moreLinkLibs`.
+-/
+def lakeLinkFacets : Array Name := #[
+  LeanLib.sharedFacet, LeanLib.staticFacet, LeanLib.staticExportFacet, Module.dynlibFacet,
+  Module.oFacet, Module.oExportFacet, Module.oNoExportFacet,
+  Module.coFacet, Module.coExportFacet, Module.coNoExportFacet, Module.bcoFacet]
+
 variable (defaultPkg : Package) (root : PartialBuildKey) in
 def PartialBuildKey.fetchInCoreAux
-  (self : PartialBuildKey) (facetless : Bool := false)
+  (self : PartialBuildKey) (facetless : Bool := false) (inPlace : Bool := false)
 : FetchM ((key : BuildKey) × Job (BuildData key)) := do
   match self with
   | .module modName =>
@@ -53,7 +63,7 @@ def PartialBuildKey.fetchInCoreAux
       return ⟨key, cast (by simp) job⟩
   | .facet target shortFacet =>
       -- Use the resolved target for the facet's build-store key.
-      let ⟨target, job⟩ ← PartialBuildKey.fetchInCoreAux target false
+      let ⟨target, job⟩ ← PartialBuildKey.fetchInCoreAux target false inPlace
       let kind := job.kind
       if h : kind.isAnonymous then
         error s!"invalid target '{root}': targets of opaque data kinds do not support facets"
@@ -62,7 +72,10 @@ def PartialBuildKey.fetchInCoreAux
         have facet := kind ++ shortFacet
         let some cfg := (← getWorkspace).findFacetConfig? facet
           | error s!"invalid target '{root}': unknown facet '{facet}'"
-        let job ← (job.cast h).bindM (kind := cfg.outKind) fun data =>
+        -- On a finished job, a `sync` bind runs its continuation before returning.
+        let sync ←
+          if inPlace && lakeLinkFacets.contains facet then IO.hasFinished job.task else pure false
+        let job ← (job.cast h).bindM (sync := sync) (kind := cfg.outKind) fun data =>
           fetch (.facet target kind data facet)
         return ⟨.facet target facet, cast (by simp) job⟩
 where
@@ -136,10 +149,10 @@ def BuildKey.fetchCore
   (self : BuildKey) [FamilyOut BuildData self α] : FetchM (Job α)
 := cast (by simp) <| fetchCore self self
 
-public protected def Target.fetchIn
-  [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
+def Target.fetchInAux
+  [DataKind α] (defaultPkg : Package) (self : Target α) (inPlace : Bool) : FetchM (Job α)
 := do
-  let ⟨_, job⟩ ← self.key.fetchInCore defaultPkg
+  let ⟨_, job⟩ ← self.key.fetchInCoreAux defaultPkg self.key true inPlace
   have ⟨kind, ⟨h_anon, h_kind⟩⟩ := (inferInstance : DataKind α)
   if h : job.kind.name = kind then
     have h := by
@@ -150,7 +163,35 @@ public protected def Target.fetchIn
     let actual := if job.kind.name.isAnonymous then "unknown" else s!"'{job.kind.name}'"
     error s!"type mismatch in target '{self.key}': expected '{kind}', got {actual}"
 
+public protected def Target.fetchIn
+  [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
+:= self.fetchInAux defaultPkg false
+
+/--
+**For internal use only.**
+Like `Target.fetchIn`, but if the key names one of Lake's own facets of a library or module that
+build a shared library, static library or object file (e.g., `Plug:shared`), and the job of the
+facet's target has finished, as the job of a module, a package or a configured target always has,
+the facet is fetched before this returns rather than in a continuation that runs later. If the
+facet is memoized and its fetch function returns a job, even a failed one, a later fetch of the key
+then finds that job instead of possibly creating another (#15435). Other facets, such as a
+package's own facets, are fetched as by `Target.fetchIn`.
+
+The facet's fetch function can block, so this must not run where blocking is not allowed, such as
+in a `(sync := true)` task. Lake uses it only in fetch functions that can already block on a
+module's imports, such as `Module.recFetchPreSetup`.
+-/
+public protected def Target.fetchInBlocking
+  [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
+:= self.fetchInAux defaultPkg true
+
 public protected def TargetArray.fetchIn
   [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")
 : FetchM (Job (Array α)) :=
   Job.collectArray (traceCaption := traceCaption) <$> self.mapM (·.fetchIn defaultPkg)
+
+/-- **For internal use only.** Like `TargetArray.fetchIn`, but uses `Target.fetchInBlocking`. -/
+public protected def TargetArray.fetchInBlocking
+  [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")
+: FetchM (Job (Array α)) :=
+  Job.collectArray (traceCaption := traceCaption) <$> self.mapM (·.fetchInBlocking defaultPkg)

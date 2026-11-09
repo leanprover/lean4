@@ -808,7 +808,7 @@ public structure Types.ApplicationFormat where
 public def applicationWithSomeFilled
     (terms : Array (Fillable TaggedDoc)) (format : Types.ApplicationFormat)
     : TaggedDoc := Id.run do
-  let enableAppArgBracketProtection := true
+  let enableAppArgBracketProtection := false
   let mut fillableTerms := terms.filter (!·.v.isAlwaysEmpty)
   if fillableTerms.isEmpty then
     return empty

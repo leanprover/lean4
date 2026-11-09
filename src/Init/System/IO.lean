@@ -1507,11 +1507,19 @@ if it has.
     IO (Option UInt32)
 
 /--
-Terminates the child process using the `SIGTERM` signal or a platform analogue.
+Terminates the child process by sending it the `SIGKILL` signal, or `SIGTERM` if `force` is `false`.
 
-If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead.
+`SIGKILL` ends the process immediately. `SIGTERM` gives the process the chance to handle the signal,
+for example to clean up before exiting, or to ignore it.
+
+If the process was started using `SpawnArgs.setsid`, the signal is sent to the entire process group
+instead.
+
+On Windows, the process is always terminated immediately using `TerminateProcess`, and `force` has
+no effect.
 -/
-@[extern "lean_io_process_child_kill"] opaque Child.kill {cfg : @& StdioConfig} : @& Child cfg → IO Unit
+@[extern "lean_io_process_child_kill"]
+opaque Child.kill {cfg : @& StdioConfig} (child : @& Child cfg) (force := true) : IO Unit
 
 /--
 Extracts the `stdin` field from a `Child` object, allowing the handle to be closed while maintaining

@@ -275,6 +275,17 @@ jobs:
           mv build/stage1.bak build/stage1
           cd src
           ../build/stage0/bin/lake cache clean
+      - name: Check libuv version
+        # Homebrew and MSYS2 provide whatever libuv they currently ship, so check the linked one.
+        # This is not an elab test, because most distributions ship a slightly older LibUV, and having
+        # a red test for almost everyone building Lean from source is just noise.
+        run: |
+          min=$((1 << 16 | 53 << 8 | 0))
+          v=$(echo $'import Lean.Runtime\n#eval Lean.libUVVersion' | build/$TARGET_STAGE/bin/lean --stdin)
+          fmt() { echo "$(($1 >> 16)).$(($1 >> 8 & 255)).$(($1 & 255))"; }
+          echo "libuv $(fmt "$v")"
+          (( v >= min )) || { echo "::error::libuv $(fmt "$v") is linked, expected at least $(fmt "$min")"; exit 1; }
+        if: ${{ !matrix.cross }}
       # Not part of the default targets because it is big
       - name: Build leanchecker-paranoid
         if: matrix.release && !matrix.wasm

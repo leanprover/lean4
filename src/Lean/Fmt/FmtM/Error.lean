@@ -69,6 +69,18 @@ public inductive FmtError where
       "The parser cannot parse the rendering of this command again. This issue \
         is commonly caused by the formatter stripping semicolons that were used to prevent \
         accidentally parsing too far.")
+  | reparseStopMismatch
+    (stx : Syntax)
+    (msg : String :=
+      "The parser reads the rendering of this command as a command that ends before or after the \
+        rendering. This issue is commonly caused by line breaks or indentation that end the \
+        command early.")
+  | reparseStructureMismatch
+    (stx : Syntax)
+    (msg : String :=
+      "The parser does not read the rendering of this syntax as one syntax node or token at the \
+        position of the rendering. This issue is commonly caused by line breaks or indentation \
+        that change where a block ends, or by missing parentheses or separators.")
   | taintedFormatting
     (stx : Syntax)
     (msg : String :=
@@ -86,12 +98,16 @@ public instance : ToString FmtError where
   toString
     | .formattingFailure (msg := msg) ..
     | .reparseFailure (msg := msg) ..
+    | .reparseStopMismatch (msg := msg) ..
+    | .reparseStructureMismatch (msg := msg) ..
     | .taintedFormatting (msg := msg) .. =>
       msg
 
 public def FmtError.ref : FmtError → Syntax
   | .formattingFailure (stx := stx) ..
   | .reparseFailure (stx := stx) ..
+  | .reparseStopMismatch (stx := stx) ..
+  | .reparseStructureMismatch (stx := stx) ..
   | .taintedFormatting (stx := stx) .. =>
     stx
 

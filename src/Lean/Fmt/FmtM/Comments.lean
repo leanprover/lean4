@@ -1059,29 +1059,41 @@ where
       lineInfo := findLineInfoContaining lineInfos tokenRange.startInclusive |>.2
     return lineInfo
 
+/-- Text of `size` bytes that `insertComments` inserted at `pos` of a rendering. -/
+public structure CommentInsertion where
+  pos : String.Pos.Raw
+  size : Nat
+
+/--
+Inserts `comments` into `rendering`. Also returns the insertions, in ascending order of position.
+-/
 public def insertComments
     (maxColumnWidth : Nat)
     (rendering : String.Slice)
     (syntaxToRendered : Std.HashMap Syntax.Range (Std.HashSet rendering.Subslice))
     (comments : Std.HashMap Syntax.Range (Array Comment))
     (multiLineTokenRanges : Array Syntax.Range)
-    : String := Id.run do
+    : String × Array CommentInsertion := Id.run do
   let comments := reassociateComments syntaxToRendered comments
   let renderedMultiLineTokenRanges :=
     determineRenderedMultiLineTokenRanges syntaxToRendered multiLineTokenRanges
   let insertions := determineCommentInsertions maxColumnWidth comments renderedMultiLineTokenRanges
   let mut r : String := ""
+  let mut commentInsertions := #[]
   let mut startPos : rendering.Pos := rendering.startPos
   for (insertionPos, comments) in insertions do
     r := r ++ rendering.slice! startPos insertionPos
+    let sizeBeforeInsertion := r.utf8ByteSize
     r := r ++ comments
     if let some charAfterComment := insertionPos.get? then
       let endCommentChar := comments.revChars.first?.get!
       if !endCommentChar.isWhitespace && !charAfterComment.isWhitespace then
         -- Padding after `comments`
         r := r ++ " "
+    commentInsertions := commentInsertions.push
+      { pos := insertionPos.offset, size := r.utf8ByteSize - sizeBeforeInsertion }
     startPos := insertionPos
   r := r ++ rendering.slice! startPos rendering.endPos
-  return r
+  return (r, commentInsertions)
 
 end Placement

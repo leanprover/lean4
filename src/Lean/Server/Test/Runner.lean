@@ -449,8 +449,8 @@ def processEdit : RunnerM Unit := do
     | throw <| IO.userError s!"failed to parse {insert}"
   let params : DidChangeTextDocumentParams := {
     textDocument := {
-      uri     := s.uri
-      version := s.versionNo
+      uri      := s.uri
+      version? := s.versionNo
     }
     contentChanges := #[
       TextDocumentContentChangeEvent.rangeChange {

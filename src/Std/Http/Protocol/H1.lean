@@ -67,7 +67,8 @@ structure PulledChunk where
 
   /--
   The pulled body chunk. Chunked framing is removed; other transfer codings, such as the `gzip` of
-  `Transfer-Encoding: gzip`, are not decoded.
+  `Transfer-Encoding: gzip`, are not decoded. A server rejects a request with a coding that is not
+  in `Config.acceptedTransferCodings`.
   -/
   chunk : Chunk
 
@@ -102,9 +103,11 @@ structure Machine (dir : Direction) where
   error : Option Error := none
 
   /--
-  The timestamp for the `Date` header.
+  The `Date` field value a server writes in each final response whose head has none, including the
+  error responses the machine writes itself (RFC 9110 §6.6.1). The caller keeps it current; with
+  `none`, no `Date` is added.
   -/
-  instant : Option Std.Time.PlainDateTime := none
+  date : Option Header.Value := none
 
   /--
   If the connection will be kept alive after the message.
@@ -228,6 +231,15 @@ private def responseMustNotHaveBody (status : Status) : Bool :=
   (100 ≤ code ∧ code < 200) ∨ code = 204 ∨ code = 304
 
 /--
+Returns `true` when a server must not send content in a response with `status`: the statuses of
+`responseMustNotHaveBody`, and `205`. A 205 response still has a message body, of length zero, so
+it is written with `Content-Length: 0` (RFC 9110 §15.3.6).
+-/
+@[inline]
+private def responseOmitsContent (status : Status) : Bool :=
+  responseMustNotHaveBody status ∨ status == .resetContent
+
+/--
 Checks that request-target form and method are compatible
 (`CONNECT` requires authority-form and `*` is reserved for `OPTIONS`).
 
@@ -302,7 +314,8 @@ private def hasSingleAcceptedHostHeader (message : Message.Head .receiving) : Bo
 /--
 Validates an incoming request head and selects the body framing mode.
 -/
-private def checkReceivingMessageHead (message : Message.Head .receiving) : Except H1.Error BodyMode := do
+private def checkReceivingMessageHead (config : Config) (message : Message.Head .receiving) :
+    Except H1.Error BodyMode := do
   -- URI Validation
   if !isValidRequestTargetForMethod message then
     throw .badMessage
@@ -318,7 +331,18 @@ private def checkReceivingMessageHead (message : Message.Head .receiving) : Exce
   -- Gets the size of the message.
   match message.getSize (allowEOFBody := true) with
   | some (.fixed n) => return .fixed n
-  | some .chunked => return .chunked
+  | some .chunked =>
+    -- RFC 9112 §6.1: a server answers a transfer coding it does not understand with 501. The
+    -- machine decodes the final `chunked` (`getSize` checked the codings end in it), and the
+    -- application the codings in `acceptedTransferCodings`.
+    match message.headers.getAll? Header.Name.transferEncoding >>=
+        Header.TransferEncoding.parseFieldLines? with
+    | some codings =>
+      if codings.pop.all (fun c => config.acceptedTransferCodings.any (·.toLower == c)) then
+        return .chunked
+      else
+        throw .unsupportedTransferCoding
+    | none => throw .badMessage
   | none => throw .badMessage
 
 /--
@@ -330,15 +354,15 @@ private def hasFramingHeaders (message : Message.Head dir) : Bool :=
     name == Header.Name.contentLength || name == Header.Name.transferEncoding
 
 /--
-Returns `true` when a response's only transfer coding field ends in a coding other than `chunked`
-and no `Content-Length` competes with it. RFC 9112 §6.3 rule 4: such a body has no length of its
-own and runs until the server closes the connection.
+Returns `true` when a response's transfer codings end in a coding other than `chunked` and no
+`Content-Length` competes with them. RFC 9112 §6.3 rule 4: such a body has no length of its own and
+runs until the server closes the connection.
 -/
 private def hasCloseDelimitedCoding (message : Message.Head .sending) : Bool :=
   message.version == .v11 && !message.headers.contains Header.Name.contentLength &&
     match message.headers.getAll? Header.Name.transferEncoding with
-    | some #[value] => Header.TransferEncoding.finalCodingIsChunked? value == some false
-    | _ => false
+    | some values => Header.TransferEncoding.finalCodingIsChunked? values == some false
+    | none => false
 
 /--
 Validates an incoming response head, answering a request with `requestMethod`, and selects its body
@@ -364,7 +388,7 @@ Direction-dispatched validation of the message head the reader just finished.
 -/
 private def checkMessageHead (machine : Machine dir) : Except H1.Error BodyMode :=
   match dir with
-  | .receiving => checkReceivingMessageHead machine.reader.messageHead
+  | .receiving => checkReceivingMessageHead machine.config machine.reader.messageHead
   | .sending => checkSendingMessageHead machine.writer.messageHead.method machine.reader.messageHead
 
 /--
@@ -383,14 +407,22 @@ private def hasExpectContinue (message : Message.Head dir) : Bool :=
     | _ => false
 
 /--
-The `Transfer-Encoding` value for a chunked message: the caller's own field when it ends in
-`chunked` (`gzip, chunked`), since the body bytes were coded for it, and `chunked` otherwise.
+The `Transfer-Encoding` value for a chunked message: the caller's own codings when they end in
+`chunked` (`gzip, chunked`), since the body bytes were coded for them, and `chunked` otherwise.
+Several field lines are written as one.
 -/
 private def chunkedCodings (headers : Headers) : Header.Value :=
   match headers.getAll? Header.Name.transferEncoding with
-  | some #[value] =>
-    if Header.TransferEncoding.finalCodingIsChunked? value == some true then value else .mk "chunked"
-  | _ => .mk "chunked"
+  | some values =>
+    if Header.TransferEncoding.finalCodingIsChunked? values == some true then
+      match values with
+      | #[value] => value
+      | _ =>
+        let combined := ", ".intercalate (values.map (·.value)).toList
+        (Header.Value.ofString? combined).getD (.mk "chunked")
+    else
+      .mk "chunked"
+  | none => .mk "chunked"
 
 /--
 Builds canonical framing headers for a chosen transfer mode.
@@ -739,20 +771,30 @@ private def connectionTokens (headers : Headers) (keepAlive : Bool) (version : V
 
 /--
 Encodes a server response head. The handler's fields are written in order without `Connection`,
-`Content-Length` and `Transfer-Encoding`, then `Server` unless the handler set one, then the
-`Connection` and framing fields the machine chose. The handler's own connection options (such as
+`Content-Length` and `Transfer-Encoding`, then `Date` and `Server` unless the handler set them, then
+the `Connection` and framing fields the machine chose. The handler's own connection options (such as
 `upgrade`) go in that `Connection` field, before the machine's `close` or `keep-alive`.
+
+`version` is the request's version and selects the framing. The status line always carries
+HTTP/1.1, the highest version the server conforms to (RFC 9110 §6.2).
 -/
 private def encodeServerHead (head : Response.Head) (version : Version) (keepAlive : Bool)
-    (agentName : Option Header.Value) (size : Body.Length) : ByteArray :=
+    (date : Option Header.Value) (agentName : Option Header.Value) (size : Body.Length) :
+    ByteArray :=
   let status := head.status
-  let out : ByteArray := ByteArray.empty ++ version ++ ' ' ++ status ++ "\r\n"
+  let out : ByteArray := ByteArray.empty ++ Version.v11 ++ ' ' ++ status ++ "\r\n"
   let out : ByteArray := head.headers.fold out fun out name value =>
     if name == Header.Name.connection || name == Header.Name.contentLength ||
         name == Header.Name.transferEncoding then
       out
     else
       appendFieldLine out name value
+  let out : ByteArray :=
+    match date with
+    | some date =>
+      if head.headers.contains Header.Name.date then out
+      else appendFieldLine out Header.Name.date date
+    | none => out
   let out : ByteArray :=
     match agentName with
     | some server =>
@@ -788,6 +830,11 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
 
   let machine := machine.updateKeepAlive messageHead.shouldKeepAlive
   let size := Writer.determineTransferMode machine.writer
+  -- RFC 9110 §15.3.6: a 205 response is framed as empty, whatever length was set for its body.
+  let size : Body.Length :=
+    match dir, messageHead with
+    | .receiving, messageHead => if messageHead.status == .resetContent then .fixed 0 else size
+    | .sending, _ => size
 
   -- RFC 7230 §3.3.1: HTTP/1.0 does not support Transfer-Encoding.  When the
   -- response body length is unknown (chunked mode), fall back to connection-close
@@ -810,6 +857,7 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
 
   -- Matching on `dir` below generalizes `machine`, so everything needed from it is read here.
   let keepAlive := machine.keepAlive
+  let date := machine.date
   let agentName := machine.config.agentName
   let version := machine.reader.messageHead.version
   let outputData := machine.writer.outputData
@@ -817,7 +865,7 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
   let outputData :=
     match dir, messageHead with
     | .receiving, messageHead =>
-      outputData.push (encodeServerHead messageHead version keepAlive agentName size)
+      outputData.push (encodeServerHead messageHead version keepAlive date agentName size)
     | .sending, messageHead =>
       let headers := messageHead.headers
 
@@ -937,10 +985,27 @@ private def framingMismatchError : H1.Error :=
   .other "Content-Length or Transfer-Encoding contradicts the body"
 
 /--
+The content of an error response the machine writes itself: the reason phrase, and for 505 the
+versions the server supports (RFC 9110 §15.6.6).
+-/
+private def errorContent (status : Status) : ByteArray :=
+  match status with
+  | .httpVersionNotSupported =>
+    "HTTP Version Not Supported: this server supports HTTP/1.0 and HTTP/1.1\n".toUTF8
+  | _ => (status.reasonPhrase ++ "\n").toUTF8
+
+/--
+The head of an error response the machine writes itself, which carries `errorContent` as
+`text/plain`.
+-/
+private def errorHead (status : Status) (headers : Headers := .empty) : Response.Head :=
+  { status, headers := headers.insert Header.Name.contentType (.mk "text/plain; charset=utf-8") }
+
+/--
 Handles a message head that `reconcileOutgoingFraming` rejected. None of that message is written:
-a server answers `500 Internal Server Error` without a body and closes the connection, and a client
-ends the exchange. Both report `framingMismatchError`, and the machine halts once its output is
-taken.
+a server answers `500 Internal Server Error` with a short `text/plain` explanation and closes the
+connection, and a client ends the exchange. Both report `framingMismatchError`, and the machine
+halts once its output is taken.
 -/
 private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
   let machine := machine
@@ -951,10 +1016,18 @@ private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
     |>.setReaderState .closed
   match dir, machine with
   | .receiving, machine =>
-    -- `omitBody` makes the connection drop the handler's body instead of draining it.
+    -- The 500 is written here, not by the writer, because `omitBody` must stay set: it makes the
+    -- connection drop the handler's body instead of draining it, and the writer drops omitted
+    -- content.
+    let status := Status.internalServerError
+    let content := errorContent status
+    let head := errorHead status
+    let encoded := encodeServerHead head machine.reader.messageHead.version machine.keepAlive
+      machine.date machine.config.agentName (.fixed content.size)
     machine.modifyWriter (fun w => { w with
-      messageHead := { status := .internalServerError }, sentMessage := true, state := .waitingForFlush })
-    |>.suppressOutgoingBody (forceZero := true)
+      messageHead := head, sentMessage := true, state := .complete,
+      outputData := w.outputData.push encoded |>.push content })
+    |>.suppressOutgoingBody
   | .sending, machine => machine.closeWriter
 
 /--
@@ -964,7 +1037,7 @@ header-only responses.
 private def maybeSuppressOutgoingBody (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   match dir with
   | .receiving =>
-    let suppressByStatus := responseMustNotHaveBody message.status
+    let suppressByStatus := responseOmitsContent message.status
     let suppressByMethod := machine.reader.messageHead.method == .head
     let forceZero := responseForbidsFramingHeaders message.status
     if suppressByStatus ∨ suppressByMethod then
@@ -992,7 +1065,7 @@ request, or one whose status forbids a body.
 private def omitsResponseBody (machine : Machine dir) (message : Message.Head dir.swap) : Bool :=
   match dir with
   | .receiving =>
-    responseMustNotHaveBody message.status ∨ machine.reader.messageHead.method == .head
+    responseOmitsContent message.status ∨ machine.reader.messageHead.method == .head
   | .sending => false
 
 /--
@@ -1012,7 +1085,7 @@ A head whose `Content-Length` or `Transfer-Encoding` otherwise contradicts the l
 Error` and closes the connection, and a client ends the exchange. Both emit `.failed` with an
 `.other` error and set `error`, but the reader ends `.closed`, not failed, so the machine halts and
 `failed` stays `false`.
-A response without a body (to `HEAD`, or a 204 or 304) cannot contradict it, and a HEAD response
+A response without content (to `HEAD`, or a 204, 205 or 304) cannot contradict it, and a HEAD response
 advertises the `Content-Length` of its head.
 -/
 @[inline]
@@ -1062,11 +1135,42 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
       | .receiving, machine => machine.setWriterState .waitingForFlush
 
 /--
+Enqueues body chunks into the writer buffer for encoding and sending.
+-/
+@[inline]
+def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
+  if data.isEmpty then
+    machine
+  else
+    machine.modifyWriter (fun writer =>
+      let extraBytes := data.foldl (fun acc c => acc + c.data.size) 0
+      { writer with userData := writer.userData ++ data, userDataBytes := writer.userDataBytes + extraBytes })
+
+/--
+Sends a response the machine writes itself with `errorContent` as `text/plain` content, which
+RFC 9110 §15.5 and §15.6 ask of 4xx and 5xx responses. A response to `HEAD` omits the content and
+keeps its `Content-Length`. Does nothing once a response is under way, whose length and body it
+would otherwise replace.
+-/
+private def sendError (machine : Machine .receiving) (status : Status) (headers : Headers := .empty) :
+    Machine .receiving :=
+  if !machine.isWaitingMessage then
+    machine
+  else
+    let content := errorContent status
+    machine
+    |>.setKnownSize (.fixed content.size)
+    |>.sendData #[{ data := content }]
+    |>.send (errorHead status headers)
+    |>.userClosedBody
+
+/--
 Resolves an `Expect: 100-continue` decision.
 
 When `status` is `100 Continue`, sends the interim response and advances to body
-reading. For any other status, sends the rejection response (typically 417), disables
-keep-alive, and closes the reader — the body will not be received.
+reading. For any other status, sends the rejection response (typically 417) with a short
+`text/plain` explanation, unless a final response was already sent, disables keep-alive, and closes
+the reader — the body will not be received.
 -/
 def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
   match dir, machine.reader.state with
@@ -1078,9 +1182,7 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
       })
       machine.setReaderState nextState
     else
-      machine.send { status }
-      |>.setKnownSize (.fixed 0)
-      |>.userClosedBody
+      machine.sendError status
       |>.disableKeepAlive
       |>.closeReader
       |>.setReaderState .closed
@@ -1090,30 +1192,17 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
 Sends an error response with `Connection: close` and shuts down input.
 
 If the machine is waiting to send a message, sends `status` with a `Connection: close`
-header and signals that the body is done (letting the step function encode and flush the
+header and a short `text/plain` explanation (letting the step function encode and flush the
 response), then stops accepting further input. Otherwise, closes the writer directly and
 stops accepting further input.
 -/
 def closeWithError (machine : Machine .receiving) (status : Status) : Machine .receiving :=
   if machine.isWaitingMessage then
-    machine.send { status, headers := .empty |>.insert .connection (.mk "close") }
-      |>.userClosedBody
+    machine.sendError status (.empty |>.insert .connection (.mk "close"))
       |>.closeReader
       |>.noMoreInput
   else
     machine.closeWriter.closeReader.noMoreInput
-
-/--
-Enqueues body chunks into the writer buffer for encoding and sending.
--/
-@[inline]
-def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
-  if data.isEmpty then
-    machine
-  else
-    machine.modifyWriter (fun writer =>
-      let extraBytes := data.foldl (fun acc c => acc + c.data.size) 0
-      { writer with userData := writer.userData ++ data, userDataBytes := writer.userDataBytes + extraBytes })
 
 /--
 Takes and clears all accumulated events, returning the drained array.
@@ -1354,6 +1443,8 @@ end
 private def errorResponseStatus (error : H1.Error) : Status :=
   match error with
   | .unsupportedVersion => .httpVersionNotSupported
+  | .unsupportedTransferCoding => .notImplemented
+  | .unsupportedMethod => .notImplemented
   | .entityTooLarge => .payloadTooLarge
   | .uriTooLong => .uriTooLong
   | .tooManyHeaders => .requestHeaderFieldsTooLarge
@@ -1363,9 +1454,9 @@ private def errorResponseStatus (error : H1.Error) : Status :=
 /--
 Handles reader failure state.
 
-On server-side (`.receiving`), it opportunistically emits one error response if
-no response head has been sent yet, then closes reader state and records the
-failure event/error.
+On server-side (`.receiving`), it opportunistically emits one error response, with a short
+`text/plain` explanation, if no response head has been sent yet, then closes reader state and
+records the failure event/error.
 -/
 private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine : Machine dir :=
@@ -1375,8 +1466,7 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
         machine
        |>.setWriterState .waitingHeaders
        |>.disableKeepAlive
-       |>.send { status := errorResponseStatus error }
-       |>.userClosedBody
+       |>.sendError (errorResponseStatus error)
       else
         machine
     | .sending => machine
@@ -1569,6 +1659,7 @@ Classifies hard request start-line parse failures into protocol-level errors.
 @[inline]
 private def classifyStartLineHardError : Std.Internal.Parsec.Error → H1.Error
   | .other "uri too long" => .uriTooLong
+  | .other "unrecognized method" => .unsupportedMethod
   | _ => .badMessage
 
 mutual

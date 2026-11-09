@@ -328,8 +328,22 @@ info: ("content-length", "42")
 #guard ["chunked", "gzip, chunked", "gzip;level=1, chunked", "gzip", "x-custom;a=b"].all fun s =>
   match Value.ofString? s with
   | some v => (Header.TransferEncoding.parse v).map (·.isChunked) ==
-      Header.TransferEncoding.finalCodingIsChunked? v
+      Header.TransferEncoding.finalCodingIsChunked? #[v]
   | none => false
+
+-- RFC 9110 §5.6.1.2: empty list elements are skipped; a list of none is not a transfer encoding.
+#guard ((Header.TransferEncoding.parse =<< Value.ofString? "gzip, , chunked").map (·.codings))
+  == some #["gzip", "chunked"]
+#guard ((Header.TransferEncoding.parse =<< Value.ofString? ",chunked,").map (·.codings))
+  == some #["chunked"]
+
+-- RFC 9110 §5.3: the field lines of a list-based field form one list.
+#guard Header.TransferEncoding.parseFieldLines? #[.mk "gzip", .mk "chunked"] == some #["gzip", "chunked"]
+#guard Header.TransferEncoding.finalCodingIsChunked? #[.mk "gzip", .mk "chunked"] == some true
+#guard Header.TransferEncoding.finalCodingIsChunked? #[.mk "chunked", .mk "chunked"] == none
+#guard Header.TransferEncoding.finalCodingIsChunked? #[.mk "chunked", .mk "gzip"] == some false
+#guard Header.TransferEncoding.finalCodingIsChunked? #[.mk "chunked", .mk ","] == some true
+#guard Header.TransferEncoding.finalCodingIsChunked? #[.mk "chunked", .mk "g zip"] == none
 
 /--
 info: ("transfer-encoding", "gzip,chunked")

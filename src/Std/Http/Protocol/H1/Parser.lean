@@ -209,57 +209,32 @@ def parseHttpVersion : Parser Version := do
   let (major, minor) ← parseHttpVersionNumber
   liftOption <| Version.ofNumber? major minor
 
+/--
+The methods `parseMethod` recognizes, by name, the most common first: every `Method`
+(`Method.all_complete`).
+-/
+def knownMethods : Array (ByteSlice × Method) :=
+  Method.all.map fun method => ((toString method).toUTF8.toByteSlice, method)
+
 /-
 method         = token
 
-Every branch is wrapped in `attempt` so that `<|>` always backtracks on
-failure, even after consuming bytes. This is strictly necessary only for the
-P-group (POST / PUT / PATCH) which share a common first byte, but wrapping
-all alternatives keeps the parser defensively correct if new methods are
-added in the future.
+The whole token is read before it is looked up, so a read that ends inside a method name waits for
+more input instead of matching a shorter method (`UPDATE` inside `UPDATEREDIRECTREF`), and a
+method that only starts with a known one (`GETX`) is not read as it.
+
+A token the server does not recognize fails with `"unrecognized method"` when it is followed by the
+space that ends a method, or by more token bytes past the 64-byte limit: RFC 9110 §9.1 and RFC 9112
+§3 answer such a method with 501. A token followed by any other byte fails with `"invalid method"`.
 -/
-def parseMethod : Parser Method :=
-  (attempt <| skipBytes "GET".toUTF8 <&> fun _ => Method.get)
-  <|> (attempt <| skipBytes "HEAD".toUTF8 <&> fun _ => Method.head)
-  <|> (attempt <| skipBytes "DELETE".toUTF8 <&> fun _ => Method.delete)
-  <|> (attempt <| skipBytes "TRACE".toUTF8 <&> fun _ => Method.trace)
-  <|> (attempt <| skipBytes "ACL".toUTF8 <&> fun _ => Method.acl)
-  <|> (attempt <| skipBytes "QUERY".toUTF8 <&> fun _ => Method.query)
-  <|> (attempt <| skipBytes "SEARCH".toUTF8 <&> fun _ => Method.search)
-  <|> (attempt <| skipBytes "BASELINE-CONTROL".toUTF8 <&> fun _ => Method.baselineControl)
-  <|> (attempt <| skipBytes "BIND".toUTF8 <&> fun _ => Method.bind)
-  <|> (attempt <| skipBytes "CONNECT".toUTF8 <&> fun _ => Method.connect)
-  <|> (attempt <| skipBytes "CHECKIN".toUTF8 <&> fun _ => Method.checkin)
-  <|> (attempt <| skipBytes "CHECKOUT".toUTF8 <&> fun _ => Method.checkout)
-  <|> (attempt <| skipBytes "COPY".toUTF8 <&> fun _ => Method.copy)
-  <|> (attempt <| skipBytes "LABEL".toUTF8 <&> fun _ => Method.label)
-  <|> (attempt <| skipBytes "LINK".toUTF8 <&> fun _ => Method.link)
-  <|> (attempt <| skipBytes "LOCK".toUTF8 <&> fun _ => Method.lock)
-  <|> (attempt <| skipBytes "MERGE".toUTF8 <&> fun _ => Method.merge)
-  <|> (attempt <| skipBytes "MKACTIVITY".toUTF8 <&> fun _ => Method.mkactivity)
-  <|> (attempt <| skipBytes "MKCALENDAR".toUTF8 <&> fun _ => Method.mkcalendar)
-  <|> (attempt <| skipBytes "MKCOL".toUTF8 <&> fun _ => Method.mkcol)
-  <|> (attempt <| skipBytes "MKREDIRECTREF".toUTF8 <&> fun _ => Method.mkredirectref)
-  <|> (attempt <| skipBytes "MKWORKSPACE".toUTF8 <&> fun _ => Method.mkworkspace)
-  <|> (attempt <| skipBytes "MOVE".toUTF8 <&> fun _ => Method.move)
-  <|> (attempt <| skipBytes "OPTIONS".toUTF8 <&> fun _ => Method.options)
-  <|> (attempt <| skipBytes "ORDERPATCH".toUTF8 <&> fun _ => Method.orderpatch)
-  <|> (attempt <| skipBytes "POST".toUTF8 <&> fun _ => Method.post)
-  <|> (attempt <| skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
-  <|> (attempt <| skipBytes "PATCH".toUTF8 <&> fun _ => Method.patch)
-  <|> (attempt <| skipBytes "PRI".toUTF8 <&> fun _ => Method.pri)
-  <|> (attempt <| skipBytes "PROPFIND".toUTF8 <&> fun _ => Method.propfind)
-  <|> (attempt <| skipBytes "PROPPATCH".toUTF8 <&> fun _ => Method.proppatch)
-  <|> (attempt <| skipBytes "REBIND".toUTF8 <&> fun _ => Method.rebind)
-  <|> (attempt <| skipBytes "REPORT".toUTF8 <&> fun _ => Method.report)
-  <|> (attempt <| skipBytes "UNBIND".toUTF8 <&> fun _ => Method.unbind)
-  <|> (attempt <| skipBytes "UNCHECKOUT".toUTF8 <&> fun _ => Method.uncheckout)
-  <|> (attempt <| skipBytes "UNLINK".toUTF8 <&> fun _ => Method.unlink)
-  <|> (attempt <| skipBytes "UNLOCK".toUTF8 <&> fun _ => Method.unlock)
-  <|> (attempt <| skipBytes "UPDATEREDIRECTREF".toUTF8 <&> fun _ => Method.updateredirectref)
-  <|> (attempt <| skipBytes "UPDATE".toUTF8 <&> fun _ => Method.update)
-  <|> (attempt <| skipBytes "VERSION-CONTROL".toUTF8 <&> fun _ => Method.versionControl)
-  <|> (parseToken 64 *> fail "unrecognized method")
+def parseMethod : Parser Method := do
+  let token ← parseToken 64
+  match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
+  | some (_, method) => return method
+  | none =>
+    let next ← peek!
+    if next == ' '.toUInt8 || tchar (Char.ofUInt8 next) then fail "unrecognized method"
+    else fail "invalid method"
 
 /--
 Parses a request-target URI, up to `limits.maxUriLength` bytes.
@@ -289,14 +264,15 @@ def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × 
   return (uri, versionPair)
 
 /--
-Parses a request line and returns a fully-typed `Request.Head`.
+Parses a request line and returns a fully-typed `Request.Head`. A higher minor version of HTTP/1 is
+read as HTTP/1.1 (RFC 9110 §6.2).
 `request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   skipLeadingRequestEmptyLines limits
   let method ← parseMethod <* sp
   let (uri, (major, minor)) ← parseRequestLineBody limits
-  if major == 1 ∧ minor == 1 then
+  if major == 1 ∧ minor ≥ 1 then
     return ⟨method, .v11, uri, .empty⟩
   else if major == 1 ∧ minor == 0 then
     return ⟨method, .v10, uri, .empty⟩
@@ -304,7 +280,8 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
     fail "unsupported HTTP version"
 
 /--
-Parses a request line and returns the recognized HTTP method and version when available.
+Parses a request line and returns the recognized HTTP method and version when available. A higher
+minor version of HTTP/1 is read as HTTP/1.1 (RFC 9110 §6.2).
 
 request-line = method SP request-target SP HTTP-version
 -/
@@ -312,7 +289,7 @@ public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × R
   skipLeadingRequestEmptyLines limits
   let method ← parseMethod <* sp
   let (uri, (major, minor)) ← parseRequestLineBody limits
-  return (method, uri, Version.ofNumber? major minor)
+  return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
 Parses a single header field line.

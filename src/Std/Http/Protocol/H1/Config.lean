@@ -130,4 +130,13 @@ structure Config where
   -/
   maxTrailerHeaders : Nat := 20
 
+  /--
+  Transfer codings other than `chunked` that a server accepts on a request because the
+  application decodes them, such as `"gzip"`; names are compared case-insensitively. The machine
+  removes only the chunked framing, so the body reaches the application still coded, and the
+  request's `Transfer-Encoding` field says which codings to decode. A request with any other coding
+  is answered with 501 Not Implemented (RFC 9112 §6.1). Default: none.
+  -/
+  acceptedTransferCodings : Array String := #[]
+
 end Std.Http.Protocol.H1

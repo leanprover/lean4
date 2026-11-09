@@ -771,7 +771,7 @@ public def artifactUrl
 /-! ## Single-Artifact Transfer -/
 
 /-- **For internal use only.** -/
-public def _root_.Lake.Internal.remoteCaption
+def _root_.Lake.Internal.remoteCaption
   (service : CacheService) (scope : CacheServiceScope)
 : String :=
   if scope.isNone then
@@ -1300,3 +1300,29 @@ public def uploadRevisionOutputs
   uploadS3 outputs mapContentType url service.impl.key
 
 end CacheService
+
+/-! ## Cache Diagnostics -/
+
+/-- **For internal use only.** -/
+public def Internal.packageHasChanges (pkg : String) : String :=
+  s!"{pkg}: package has changes; \
+    only artifacts for committed code will be downloaded"
+
+/-- **For internal use only.** -/
+public def Internal.noOutputsForRev
+  (service : CacheService) (remoteScope : CacheServiceScope) (rev : GitRev)
+: String :=
+  let remoteCaption := Internal.remoteCaption service remoteScope
+  s!"{remoteCaption}outputs not found for revision {rev}"
+
+/-- **For internal use only.** -/
+public def Internal.noOutputs
+  (service : CacheService) (remoteScope : CacheServiceScope)
+  (maxRevs : Nat) (revs : Array GitRev)
+: String :=
+  let revisions :=
+    if maxRevs = 0 || revs.size < maxRevs then
+      "for any revision"
+    else s!"in {maxRevs} revisions from HEAD"
+  let remoteCaption := Internal.remoteCaption service remoteScope
+  s!"{remoteCaption}no outputs found {revisions}"

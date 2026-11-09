@@ -500,6 +500,17 @@ test_run -f pkg-services.toml cache get --mappings-only
 test_artifacts 0
 test_out 'downloaded artifact' -f pkg-services.toml -v build Test @service-dep/Dep --no-build
 test_artifacts $((NUM_REPLAY_ARTS + NUM_DEP_REPLAY_ARTS))
+# Verify a build fetches a dependency's outputs from its `downloadCacheService`
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+test_out 'Fetched Dep' -f pkg-services.toml build @service-dep/Dep --no-build
+match_text "GET /ok/r1/pt/" "$SERVER_LOG"
+match_text "GET /ok/a1/" "$SERVER_LOG"
+test_artifacts "$NUM_DEP_REPLAY_ARTS"
+# Verify a build does not fetch them once the dependency has a build directory
+: > "$SERVER_LOG"
+test_not_out 'optArtifactCache' -f pkg-services.toml -v build @service-dep/Dep --no-build
+no_match_text "GET" "$SERVER_LOG"
 test_run update
 
 # Verify `-o` with `--package` tracks the outputs of the selected dependency

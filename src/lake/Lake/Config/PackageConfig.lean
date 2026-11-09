@@ -112,9 +112,9 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   A cache service hosting build caches for this package.
 
   If set, `lake cache get` will use this service by default when fetching build caches for this
-  package. During builds, Lake will automatically try to fetch output mappings from this service
-  at the start of a build. If successful, artifacts will then be downloaded from the service
-  on-demand during builds.
+  package. When this package is a dependency, Lake will automatically try to fetch output mappings
+  from this service before building the package's targets. If successful, artifacts will then be
+  downloaded from the service on demand during the build.
   -/
   downloadCacheService?, downloadCacheService : Option String := none
 

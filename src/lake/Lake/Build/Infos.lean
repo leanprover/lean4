@@ -290,6 +290,14 @@ public abbrev buildCache (self : Package) : BuildInfo :=
 public abbrev optBuildCache (self : Package) : BuildInfo :=
   self.facetCore optBuildCacheFacet
 
+@[inherit_doc artifactCacheFacet]
+public abbrev artifactCache (self : Package) : BuildInfo :=
+  self.facetCore artifactCacheFacet
+
+@[inherit_doc optArtifactCacheFacet]
+public abbrev optArtifactCache (self : Package) : BuildInfo :=
+  self.facetCore optArtifactCacheFacet
+
 @[inherit_doc reservoirBarrelFacet]
 public abbrev reservoirBarrel (self : Package) : BuildInfo :=
   self.facetCore reservoirBarrelFacet

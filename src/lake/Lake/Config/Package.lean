@@ -413,6 +413,16 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 public def cacheScope (self : Package) : String :=
   self.baseName.toString (escape := false)
 
+/-- **For internal use only.** -/
+@[inline] public def _root_.Lake.Internal.cacheToolchain
+  (pkg : Package) (toolchain : CacheToolchain)
+: CacheToolchain := if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
+
+/-- **For internal use only.** -/
+@[inline] public def _root_.Lake.Internal.cachePlatform
+  (pkg : Package) (platform : CachePlatform)
+: CachePlatform := if pkg.isPlatformIndependent then .none else platform
+
 /-- The cache scope used to identify the package on Reservoir. -/
 def reservoirScope (self : Package) : CacheServiceScope :=
   .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"

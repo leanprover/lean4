@@ -61,7 +61,8 @@ inductive Error
   | unsupportedVersion
 
   /--
-  The request applies a transfer coding other than `chunked`, which the server does not decode.
+  The request applies a transfer coding other than `chunked` that is not in
+  `Config.acceptedTransferCodings`.
   Maps to HTTP 501 Not Implemented (RFC 9112 §6.1).
   -/
   | unsupportedTransferCoding

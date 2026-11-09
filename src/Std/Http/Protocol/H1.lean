@@ -66,9 +66,9 @@ structure PulledChunk where
   incomplete : Bool
 
   /--
-  The pulled body chunk. Chunked framing is removed. A server rejects a request with any other
-  transfer coding; in a response, other codings, such as the `gzip` of `Transfer-Encoding: gzip`,
-  are not decoded.
+  The pulled body chunk. Chunked framing is removed; other transfer codings, such as the `gzip` of
+  `Transfer-Encoding: gzip`, are not decoded. A server rejects a request with a coding that is not
+  in `Config.acceptedTransferCodings`.
   -/
   chunk : Chunk
 
@@ -314,7 +314,8 @@ private def hasSingleAcceptedHostHeader (message : Message.Head .receiving) : Bo
 /--
 Validates an incoming request head and selects the body framing mode.
 -/
-private def checkReceivingMessageHead (message : Message.Head .receiving) : Except H1.Error BodyMode := do
+private def checkReceivingMessageHead (config : Config) (message : Message.Head .receiving) :
+    Except H1.Error BodyMode := do
   -- URI Validation
   if !isValidRequestTargetForMethod message then
     throw .badMessage
@@ -331,12 +332,18 @@ private def checkReceivingMessageHead (message : Message.Head .receiving) : Exce
   match message.getSize (allowEOFBody := true) with
   | some (.fixed n) => return .fixed n
   | some .chunked =>
-    -- RFC 9112 §6.1: a server answers a transfer coding it does not understand with 501. Only
-    -- `chunked` is decoded; `getSize` already checked that the single field ends in it.
+    -- RFC 9112 §6.1: a server answers a transfer coding it does not understand with 501. The
+    -- machine decodes the final `chunked` (`getSize` checked the single field ends in it), and the
+    -- application the codings in `acceptedTransferCodings`.
     match message.headers.getAll? Header.Name.transferEncoding with
     | some #[value] =>
-      if (Header.TransferEncoding.parseCodings? value).any (·.size == 1) then return .chunked
-      else throw .unsupportedTransferCoding
+      match Header.TransferEncoding.parseCodings? value with
+      | some codings =>
+        if codings.pop.all (fun c => config.acceptedTransferCodings.any (·.toLower == c)) then
+          return .chunked
+        else
+          throw .unsupportedTransferCoding
+      | none => throw .badMessage
     | _ => throw .badMessage
   | none => throw .badMessage
 
@@ -383,7 +390,7 @@ Direction-dispatched validation of the message head the reader just finished.
 -/
 private def checkMessageHead (machine : Machine dir) : Except H1.Error BodyMode :=
   match dir with
-  | .receiving => checkReceivingMessageHead machine.reader.messageHead
+  | .receiving => checkReceivingMessageHead machine.config machine.reader.messageHead
   | .sending => checkSendingMessageHead machine.writer.messageHead.method machine.reader.messageHead
 
 /--

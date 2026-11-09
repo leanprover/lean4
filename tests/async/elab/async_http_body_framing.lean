@@ -114,6 +114,25 @@ open Std Http Internal Test
     (handler := echoHandler)
     (expect := (assertExact · r501))
 
+  -- A coding the handler decodes itself reaches it with the chunked framing removed and the field
+  -- that names the codings left
+  check "gzip, chunked accepted when listed in acceptedTransferCodings"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := fun req => do
+      let te := match req.line.headers.getAll? Header.Name.transferEncoding with
+        | some vs => String.intercalate "|" (vs.map (fun (v : Header.Value) => v.value) |>.toList)
+        | none => "<none>"
+      let body : String ← req.body.readAll
+      Response.ok |>.text s!"{te};{body}")
+    (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
+    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "gzip, chunked;hello")
+
+  check "br, chunked → 501 when only gzip is accepted"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: br, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := echoHandler)
+    (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
+    (expect := (assertExact · r501))
+
   check "mixed-case Chunked accepted (codings are lowercased)"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: Chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)

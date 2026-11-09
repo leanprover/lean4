@@ -167,6 +167,15 @@ structure Config where
   -/
   maxChunkExtensions : Nat := 16
 
+  /--
+  Transfer codings other than `chunked` that the server accepts on a request because the handler
+  decodes them, such as `"gzip"`; names are compared case-insensitively. The handler receives the
+  body without its chunked framing but still coded, and the request's `Transfer-Encoding` field
+  says which codings to decode. A request with any other coding is answered with 501 Not
+  Implemented. Default: none.
+  -/
+  acceptedTransferCodings : Array String := #[]
+
 namespace Config
 
 /--
@@ -192,5 +201,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxBodySize := config.maxBodySize
   maxReasonPhraseLength := config.maxReasonPhraseLength
   maxTrailerHeaders := config.maxTrailerHeaders
+  acceptedTransferCodings := config.acceptedTransferCodings
 
 end Std.Http.Config

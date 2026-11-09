@@ -562,6 +562,42 @@ private def minimalGetRequest : Request.Head :=
     |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip\r\n\r\nabc"
     |>.step |>.assertFailedWith .badMessage |>.run
 
+  -- §6.1: a coding the application decodes itself is accepted; the machine removes only the chunked
+  -- framing and keeps the field that says which codings are left
+  let teField (expected : String) (t : MachineTester .receiving) (head : Request.Head) :
+      MachineTester .receiving :=
+    match head.headers.getAll? Header.Name.transferEncoding with
+    | some #[value] =>
+      if value.value == expected then t
+      else t.addError s!"expected Transfer-Encoding {expected.quote}, got {value.value.quote}"
+    | _ => t.addError "expected one Transfer-Encoding field"
+
+  MachineTester.receiving "§6.1: accepted gzip;level=1, chunked → body still coded, field kept"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip;level=1, chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertNoError |>.onEndHeaders (teField "gzip;level=1, chunked")
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  MachineTester.receiving "§6.1: accepted coding names are compared case-insensitively"
+      (config := { acceptedTransferCodings := #["GZIP"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: Gzip, Chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertNoError |>.onEndHeaders (teField "Gzip, Chunked")
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.run
+
+  MachineTester.receiving "§6.1: every coding before chunked must be accepted"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: br, gzip, chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertFailedWith .unsupportedTransferCoding |>.run
+
+  -- §6.3 rule 4: an accepted coding does not give a request without a final chunked a length
+  MachineTester.receiving "§6.3: accepted gzip without chunked → badMessage"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip\r\n\r\nabc"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
   -- RFC 9112 §7.1: `chunked` defines no parameters
   MachineTester.receiving "§7: Transfer-Encoding: chunked;x=1 request → badMessage"
     |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked;x=1\r\n\r\n0\r\n\r\n"

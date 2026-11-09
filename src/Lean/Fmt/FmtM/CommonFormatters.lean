@@ -128,7 +128,7 @@ public def fmtArrayLit (lbTk : Syntax) (elems : Syntax.TSepArray ks ",") (rbTk :
   let rbTk ← fmt rbTk
   if let #[.group ⟨#[elem]⟩] := groups then
     if !elem.needsAppBrackets then
-      return Layouts.bracketed lbTk elem rbTk .dense
+      return Layouts.bracketed lbTk elem rbTk <| .dense (alwaysPropagateStickiness := false)
   let groups :=
     groups.mapIdx fun
       | i, .group g =>

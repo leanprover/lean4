@@ -542,7 +542,7 @@ public def typeAscription
   infixOperator (format := format) #[lhs, typeAscriptionTk, rhs]
 
 public inductive Types.BracketFormat where
-  | dense (spacing := false)
+  | dense (spacing := false) (alwaysPropagateStickiness := true)
   | sparse
     (sep : TaggedDoc)
     (unindentedRb : Bool := true) (stickynessKind : StickynessKind := .preferSticky)
@@ -555,7 +555,7 @@ public def bracketed
   let isBodyAligned := isAligned body.doc
   let bodyPseudoAligned? := getPseudoAligned? body
   match format with
-  | .dense spacing =>
+  | .dense spacing alwaysPropagateStickiness =>
     if spacing then
       return spacedAtomic #[lb, nested body, rb]
     let f := fun body => Id.run do
@@ -566,7 +566,10 @@ public def bracketed
         doc := pseudoAligned doc pa.mustBeRespected
       doc := mkSelfDelimited (isBracketed := true) doc
       return doc
-    return propagateStickyness body f (kind? := some .preferUnsticky)
+    if alwaysPropagateStickiness || body.isBracketed then
+      return propagateStickyness body f (kind? := some .preferUnsticky)
+    else
+      return f body
   | .sparse sep unindentedRb preferStickyVariant =>
     let body := aligned body
     let mut sparse := lb ++ hardNested (sep ++ body) ++ sep ++ rb
@@ -583,7 +586,7 @@ public def bracketed
     return sticky nonStickyVariant stickyVariant preferStickyVariant
 
 public def parens (lbTk : TaggedDoc) (body : TaggedDoc) (rbTk : TaggedDoc) : TaggedDoc :=
-  Layouts.bracketed lbTk body rbTk .dense
+  Layouts.bracketed lbTk body rbTk <| .dense
 
 public def parenthesizedSeq (lbTk : TaggedDoc) (seq : TaggedDoc) (rbTk : TaggedDoc) : TaggedDoc :=
   Layouts.bracketed lbTk seq rbTk <| .sparse «break»
@@ -955,7 +958,7 @@ public def blocks (blocks : Array Types.Block) (format : Types.BlocksFormat := {
 public def tuple (lb : TaggedDoc) (fields : SepArray sep) (rb : TaggedDoc) : TaggedDoc := Id.run do
   let fields := Layouts.sepArray.normalize fields .excludeTrailingSep
   if fields.elemsAndSeps.size = 1 then
-    return Layouts.bracketed lb fields.elemsAndSeps[0]! rb .dense
+    return Layouts.bracketed lb fields.elemsAndSeps[0]! rb <| .dense (alwaysPropagateStickiness := false)
   let fields := Layouts.sepArray fields <| .joinUsingSep none nl
   return Layouts.bracketed lb fields rb <| .sparse «break» (stickynessKind := .coequal)
 

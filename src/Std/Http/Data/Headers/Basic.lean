@@ -272,6 +272,10 @@ The `Host` header.
 Represents the authority component of a URI:
   host [ ":" port ]
 
+`parse` reads an RFC 3986 `host`: it decodes percent-encoding and lowercases a name, so
+`Ex%61mple.com` and `example.com` parse to the same `Host`. A trailing `.` is kept, so
+`example.com.` and `example.com` stay distinct, as do an omitted port and an explicit default one.
+
 Reference: https://www.rfc-editor.org/rfc/rfc9110.html#name-host-and-authority
 -/
 structure Host where

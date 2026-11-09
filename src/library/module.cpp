@@ -498,6 +498,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         char * buffer = nullptr;
         bool is_mmap = false;
+        int mmap_errno = 0;
 
         // Map file COW-writable. The fallback walk in `region_reader::read()` writes
         // fixed pointers back into the region's memory when any dep region didn't land at its
@@ -536,6 +537,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             is_mmap = true;
         } else {
             if (buffer != MAP_FAILED) munmap(buffer, size);
+            else mmap_errno = errno;
             buffer = nullptr;
         }
 #endif
@@ -556,11 +558,31 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         if (!buffer) {
             buffer = static_cast<char *>(malloc(size));
+            if (!buffer) {
+                sstream msg;
+                msg << "failed to allocate " << size << " bytes for file '" << olean_fn << "'";
+                if (mmap_errno != 0) {
+                    msg << " after mapping it failed: " << strerror(mmap_errno);
+                }
+#ifdef __linux__
+                // Each mapped .olean takes one memory mapping, so large imports can exhaust the
+                // per-process limit, which then also makes large `malloc`s fail.
+                if (mmap_errno == ENOMEM) {
+                    msg << "; the process may have reached its memory mapping limit, which can be raised with "
+                        << "`sysctl vm.max_map_count=1048576`";
+                }
+#endif
+                return io_result_mk_error(msg.str());
+            }
             lseek(fd.get(), 0, SEEK_SET);
             ssize_t r = readn(fd.get(), buffer, size);
             if (r < 0 || r != static_cast<ssize_t>(size)) {
+                int read_errno = errno;
                 free(buffer);
-                return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
+                sstream msg;
+                msg << "failed to read file '" << olean_fn << "'";
+                if (r < 0) msg << ": " << strerror(read_errno);
+                return io_result_mk_error(msg.str());
             }
             // The buffer outlives this call (its lifetime is the Lean `CompactedRegion`'s, freed by
             // `lean_compacted_region_free`). It is only reached through interior pointers (the

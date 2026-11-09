@@ -1072,7 +1072,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar || (← read).customCanUnfoldPredicate?.isSome then
+  if e.hasExprMVar || (← read).customCanUnfoldPredicate?.isSome then
     return false
   else
     return true

@@ -808,6 +808,7 @@ public structure Types.ApplicationFormat where
 public def applicationWithSomeFilled
     (terms : Array (Fillable TaggedDoc)) (format : Types.ApplicationFormat)
     : TaggedDoc := Id.run do
+  let enableAppArgBracketProtection := true
   let mut fillableTerms := terms.filter (!·.v.isAlwaysEmpty)
   if fillableTerms.isEmpty then
     return empty
@@ -820,7 +821,7 @@ public def applicationWithSomeFilled
     let rbTk := untagged <| .text ")"
     for i in (1...fillableTerms.size - 1) do
       let arg := fillableTerms[i]!
-      if needsAppBrackets arg.v then
+      if enableAppArgBracketProtection && needsAppBrackets arg.v then
         fillableTerms := fillableTerms.set! i { arg with v := Layouts.parens lbTk arg.v rbTk }
   let mut app := fillSomeUsingSpace fillableTerms
   let terms := fillableTerms.map (·.1)

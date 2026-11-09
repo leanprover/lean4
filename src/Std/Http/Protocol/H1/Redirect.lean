@@ -278,9 +278,10 @@ private def requestTargetQuery? : RequestTarget → Option URI.Query
   | _ => none
 
 /--
-The path a resolved reference puts on the wire: without dot segments, which RFC 3986 §5.2.2 removes
-in every branch of reference resolution, and absolute, so that an empty path is sent as `/`
-(RFC 9112 §3.2.1).
+The path a resolved reference puts on the wire: without dot segments, and absolute, so that an empty
+path is sent as `/` (RFC 9112 §3.2.1). RFC 3986 §5.2.2 removes dot segments from every resolved path
+except an empty reference's, which keeps the base path; removing them there too is path
+normalization (§6.2.2.3).
 -/
 private def resolvedPath (path : URI.Path) : URI.Path :=
   { path.normalize with absolute := true }

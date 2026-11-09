@@ -23,7 +23,8 @@ This module provides parsers for HTTP request targets and HTTP-oriented URIs ali
 It handles parsing of schemes, authorities, paths, queries, and fragments.
 
 Notable intentional constraints:
-* hosts are limited to IPv4, bracketed IPv6, and DNS-style domain names
+* hosts are limited to IPv4, bracketed IPv6, and DNS-style domain names (letters, digits, `-` and
+  `_`), with percent-encoding decoded wherever a host appears (URI, request target, `Host`)
 * IPvFuture (`v...`) inside `IP-literal` is currently rejected
 
 References:
@@ -307,10 +308,6 @@ private def parseHierPart (config : URI.Config) : Parser (Option URI.Authority �
   if (← tryOpt (skipString "//")).isSome then
     let authority ← tryOpt (attempt (parseAuthority config))
     let path ← parsePath config true true  -- path-abempty (must start with "/" or be empty)
-    -- Without an authority the path cannot begin with "//" (RFC 3986 §3.3), or `http:////evil.com/x`
-    -- would print as `http://evil.com/x`.
-    if authority.isNone ∧ path.absolute ∧ (path.segments[0]?.map toString) = some "" then
-      fail "empty authority before a path that begins with \"//\""
     return (authority, path)
   else
     -- path-absolute / path-rootless / path-empty

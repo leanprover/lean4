@@ -459,6 +459,30 @@ private def minimalGetRequest : Request.Head :=
     |>.feed "GET / HTTP/1.1\r\nHost: a.com\r\nHost: b.com\r\n\r\n"
     |>.step |>.assertFailedWith .badMessage |>.run
 
+  -- RFC 9110 §7.2: `Host` is an RFC 3986 `host`, which may be percent-encoded. The field reaches the
+  -- handler as sent.
+  MachineTester.receiving "§3.2: percent-encoded Host accepted"
+    |>.feed "GET / HTTP/1.1\r\nHost: ex%41mple.com\r\n\r\n"
+    |>.step |>.assertNoError
+    |>.onEndHeaders (fun t head =>
+      match head.headers.get? .host with
+      | some v => if v.value == "ex%41mple.com" then t else t.addError s!"expected Host=ex%41mple.com, got {v.value.quote}"
+      | none => t.addError "missing Host header")
+    |>.run
+
+  MachineTester.receiving "§3.3: percent-encoded absolute-form host decoded"
+    |>.feed "GET http://ex%41mple.com/ HTTP/1.1\r\nHost: example.com\r\n\r\n"
+    |>.step |>.assertNoError
+    |>.onEndHeaders (fun t head =>
+      match head.uri.authority? with
+      | some a => if toString a == "example.com" then t else t.addError s!"expected URI authority=example.com, got {toString a}"
+      | none => t.addError "missing URI authority")
+    |>.run
+
+  MachineTester.receiving "§3.2: Host with a percent-encoded `/` → badMessage"
+    |>.feed "GET / HTTP/1.1\r\nHost: exa%2Fmple.com\r\n\r\n"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
   -- RFC 9112 §3.2.2: Host is left as-is; authority is available via the URI.
   MachineTester.receiving "§3.2: absolute-form Host preserved, authority in URI"
     |>.feed "GET http://example.com:80/path HTTP/1.1\r\nHost: random.com\r\n\r\n"

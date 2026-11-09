@@ -302,8 +302,10 @@ def hasEqualsInValue (location : String) : Bool :=
   let query := ((location.splitOn "#").head!.splitOn "?").drop 1
   query.any fun q => (q.splitOn "&").any fun kv => (kv.splitOn "=").length > 2
 
-/-- `none` when the plan agrees with RFC 3986 (up to §6.2.2 normalization of the path), otherwise
-the failure category. -/
+/-- `none` when the plan agrees with RFC 3986, otherwise the failure category. Paths and queries are
+compared up to percent-encoding normalization (§6.2.2.1–2). The planned path must have no dot
+segments, while the expected one keeps those of the base path when the reference is empty, so only
+the expected path has them removed (§6.2.2.3). -/
 def check (location want got wire : String) : Option String :=
   if got != notFollowed && !wellFormedTarget wire then
     some "malformed request-target on the wire"
@@ -323,9 +325,16 @@ def check (location want got wire : String) : Option String :=
     let (gf, go, gp, gq) := parts got
     if wf != gf || wo != go then some "origin or request-target form differs"
     else if wq.map normalizePercent != gq.map normalizePercent then some "query differs"
-    else if removeDotSegments (normalizePercent wp) != removeDotSegments (normalizePercent gp) then
+    else if normalizePercent (removeDotSegments wp) != normalizePercent gp then
       some "path differs"
     else none
+
+-- A planned path that kept its dot segments is reported, and so is one with an encoded dot segment
+-- removed, since `%2E%2E` is not a dot segment (§5.2.4 works on the path as written).
+#guard check "/x/../y" "origin-form http://example.com:80 /y"
+  "origin-form http://example.com:80 /x/../y" "/x/../y" == some "path differs"
+#guard check "/x/%2E%2E/y" "origin-form http://example.com:80 /x/%2E%2E/y"
+  "origin-form http://example.com:80 /y" "/y" == some "path differs"
 
 /-! ## Corpus -/
 

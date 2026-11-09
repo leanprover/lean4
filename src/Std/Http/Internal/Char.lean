@@ -250,14 +250,6 @@ def isValidSchemeChar (c : Char) : Bool :=
   isAsciiAlphaNumChar c || (c matches '+' | '-' | '.')
 
 /--
-Checks if a character is valid for use in a domain name.
-Valid characters are ASCII alphanumeric, hyphens, and dots.
--/
-@[inline]
-def isValidDomainNameChar (c : Char) : Bool :=
-  isAsciiAlphaNumChar c || (c matches '-' | '.')
-
-/--
 Checks if a byte is an unreserved character according to RFC 3986. Unreserved characters are:
 alphanumeric, hyphen, period, underscore, and tilde.
 -/

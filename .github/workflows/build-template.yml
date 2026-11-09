@@ -82,8 +82,14 @@ jobs:
       - name: Setup emsdk
         uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
-          version: 3.1.44
+          version: 6.0.13
           actions-cache-folder: emsdk
+        if: matrix.wasm
+      - name: Setup Node.js
+        # `lean.js` runs on Node.js; 26 is the current Active LTS
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
         if: matrix.wasm
       - name: Install 32bit c libs
         run: |
@@ -382,7 +388,8 @@ jobs:
         if: always()
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: failure() && runner.os == 'Linux'
+        # `$GDB` comes from the Nix shell
+        if: failure() && runner.os == 'Linux' && !matrix.cmultilib
         run: |
           for c in $(find . -name core); do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"

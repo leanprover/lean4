@@ -8,6 +8,10 @@ SHELL := $(LEAN_BASH) -eo pipefail
 export LEAN_PATH=
 ifeq "${USE_LAKE}" "ON"
   export LEAN_CC=${CMAKE_C_COMPILER}
+  ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+    # Lake's fallback, GNU `ar`, writes no symbol index for wasm objects
+    export LEAN_AR=${CMAKE_AR}
+  endif
 else
   export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
 endif
@@ -54,9 +58,14 @@ endif
 
 ifeq "${USE_LAKE}" "ON"
 
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+  # only what `lean.js` links; Lake and the other tools are not built for Emscripten
+  LAKE_TARGETS ?= Init Std Lean
+endif
+
 # build in parallel
 Init:
-	LEAN_GITHASH=${LAKE_LEAN_GITHASH} ${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_EXTRA_ARGS)
+	LEAN_GITHASH=${LAKE_LEAN_GITHASH} ${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_TARGETS) $(LAKE_EXTRA_ARGS)
 
 Std Lean LeanExport Lake Leanc LeanChecker LeanIR: Init
 
@@ -111,6 +120,9 @@ $(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a.trace
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
 $(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a.trace ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace ${LIB}/lean/libLake.a.trace
 $(OUTBIN)/leanexport$(EXE): $(OUTARC)/libLeanExport.a.trace
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+$(OUTBIN)/lean$(EXE) ${LIB}/temp/lean_symbols.stamp: ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace
+endif
 endif
 
 # we specify the precise file names here to avoid rebuilds
@@ -193,9 +205,27 @@ $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.*o.export $(OUTLIB)/libLake_shared$(S
 
 lake: $(OUTBIN)/lake$(EXE)
 
-$(OUTBIN)/lean$(EXE): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO) ${LIB}/temp/libleanmain.a
+ifeq "${CMAKE_SYSTEM_NAME}" "Emscripten"
+# the shared libraries are dummies (see `src/CMakeLists.txt`); `lean.js` links these archives (`LEAN_EXE_LINKER_FLAGS`)
+WASM_LEAN_ARCHIVES := ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a
+WASM_RUNTIME_ARCHIVES := ${LIB}/temp/libleanmain.a ${LIB}/temp/libleanshell.a ${LIB}/lean/libleancpp.a ${LIB}/lean/libleanrt.a
+WASM_SYMBOLS_PY := ${LEAN_SOURCE_DIR}/../script/wasm_symbols.py
+# the interpreter's symbol table and the export list of `lean.js` (see `script/wasm_symbols.py`); the script rewrites
+# its outputs only when their content changes, so a stamp records the run
+${LIB}/temp/lean_symbols.stamp: $(WASM_LEAN_ARCHIVES) $(WASM_RUNTIME_ARCHIVES) $(WASM_SYMBOLS_PY)
+	python3 $(WASM_SYMBOLS_PY) --nm "${CMAKE_NM}" --registry ${LIB}/temp/lean_symbols.c --exports ${LIB}/temp/lean_exports.json --lean $(WASM_LEAN_ARCHIVES) --runtime $(WASM_RUNTIME_ARCHIVES) && touch $@
+${LIB}/temp/lean_symbols.c ${LIB}/temp/lean_exports.json: ${LIB}/temp/lean_symbols.stamp ;
+${LIB}/temp/lean_symbols.o: ${LIB}/temp/lean_symbols.c
+	@echo "[    ] Building $@"
+	$(LEANC_SH) -c ${LEANC_OPTS} $< -o $@
+WASM_LINK_INPUTS := ${LIB}/temp/lean_symbols.o
+$(OUTBIN)/lean$(EXE): $(WASM_LEAN_ARCHIVES) $(WASM_RUNTIME_ARCHIVES) $(WASM_LINK_INPUTS) ${LIB}/temp/lean_exports.json
+else
+$(OUTBIN)/lean$(EXE): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO)
+endif
+$(OUTBIN)/lean$(EXE): ${LIB}/temp/libleanmain.a
 	$(link-preamble)
-	$(LEANC_SH) ${LIB}/temp/libleanmain.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+	$(LEANC_SH) ${LIB}/temp/libleanmain.a $(WASM_LINK_INPUTS) ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 lean: $(OUTBIN)/lean$(EXE)
 

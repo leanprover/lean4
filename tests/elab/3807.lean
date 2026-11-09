@@ -641,7 +641,7 @@ instance (priority := 100) BooleanAlgebra.toBiheytingAlgebra : BiheytingAlgebra 
   top_sdiff a := sorry
 
 end BooleanAlgebra
-
+#exit --TODO understand this
 instance Prop.instBooleanAlgebra : BooleanAlgebra Prop where
   __ := Prop.instHeytingAlgebra
   __ := GeneralizedHeytingAlgebra.toDistribLattice

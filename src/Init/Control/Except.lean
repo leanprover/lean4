@@ -62,11 +62,14 @@ then the result is the result of the second computation.
 
 This is the implementation of the `>>=` operator for `Except ε`.
 -/
-@[always_inline, inline]
-protected def bind (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
+@[always_inline]
+protected abbrev bind (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
   match ma with
   | Except.error err => Except.error err
   | Except.ok v      => f v
+
+set_option allowUnsafeReducibility true in
+attribute [semireducible] Except.bind
 
 /-- Returns `true` if the value is `Except.ok`, `false` otherwise. -/
 @[always_inline, inline]

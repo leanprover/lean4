@@ -45,11 +45,14 @@ protected def mk (x : m (Option α)) : OptionT m α :=
 /--
 Sequences two potentially-failing actions. The second action is run only if the first succeeds.
 -/
-@[always_inline, inline, expose]
-protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
+@[always_inline]
+protected abbrev bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
   match (← x) with
   | some a => f a
   | none   => pure none
+
+set_option allowUnsafeReducibility true in
+attribute [semireducible] OptionT.bind
 
 /--
 Succeeds with the provided value.

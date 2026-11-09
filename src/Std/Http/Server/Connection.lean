@@ -173,25 +173,13 @@ private def handleContinueEvent
   return (machine.canContinue status, !canContinue)
 
 /--
-Injects a `Date` header into a response head if `Config.generateDate` is set
-and the response does not already include one.
--/
-private def prepareResponseHead (config : Config) (head : Response.Head) : Async Response.Head := do
-  if config.generateDate ∧ ¬head.headers.contains Header.Name.date then
-    let now := DateTime.ofTimestamp (← Timestamp.now) TimeZone.ZoneRules.UTC
-    return { head with headers := head.headers.insert Header.Name.date (Header.Value.ofString! now.toHTTPDateString) }
-  else
-    return head
-
-/--
 Applies a successful handler response to the machine.
-Optionally injects a `Date` header, records the known body size, and sends the
-response head. Returns the updated machine and the body stream to drain, or `none`
-when the body should be omitted (e.g., for HEAD requests).
+Records the known body size and sends the response head. Returns the updated machine and the body
+stream to drain, or `none` when the body should be omitted (e.g., for HEAD requests).
 -/
 private def applyResponse
     {β : Type} [Body β]
-    (config : Config) (machine : H1.Machine .receiving) (res : Response β)
+    (machine : H1.Machine .receiving) (res : Response β)
     : Async (H1.Machine .receiving × Option β) := do
   let size ← Body.getKnownSize res.body
 
@@ -200,8 +188,7 @@ private def applyResponse
       then machine.setKnownSize knownSize
       else machine
 
-  let responseHead ← prepareResponseHead config res.line
-  let machineWithHead := machineSized.send responseHead
+  let machineWithHead := machineSized.send res.line
   if machineWithHead.writer.omitBody then
     if ¬(← Body.isClosed res.body) then
       Body.close res.body
@@ -225,6 +212,22 @@ private structure ConnectionState (β : Type) where
   expectData : Option Nat
   handlerDispatched : Bool
   pendingHead : Option Request.Head
+  /-- The second, since the Unix epoch, that `machine.date` was formatted for. -/
+  dateSecond : Option Int := none
+
+/--
+Keeps `machine.date` current when `Config.generateDate` is set, formatting it at most once per
+second. The machine writes every response head during `Machine.step`, so this runs before each step.
+-/
+private def refreshDate (config : Config) (state : ConnectionState β) : IO (ConnectionState β) := do
+  if !config.generateDate then
+    return state
+  let now ← Timestamp.now
+  let second := now.toSecondsSinceUnixEpoch.val
+  if state.dateSecond == some second then
+    return state
+  let date := Header.Value.ofString! (DateTime.ofTimestamp now TimeZone.ZoneRules.UTC).toHTTPDateString
+  return { state with machine := { state.machine with date := some date }, dateSecond := some second }
 
 /--
 Processes all H1 events from a single machine step, updating the connection state.
@@ -419,7 +422,7 @@ private def handleRecvEvent
       if ¬(← Body.isClosed res.body) then Body.close res.body
       return ({ state with handlerDispatched := false }, false)
     else
-      let (newMachine, newRespStream) ← applyResponse config state.machine res
+      let (newMachine, newRespStream) ← applyResponse state.machine res
 
       -- Eagerly consume one chunk if immediately available (avoids a Selectable.one round-trip).
       let (drainedMachine, drainedRespStream, shouldClose) ←
@@ -525,6 +528,7 @@ private def handle
   while ¬state.machine.halted do
 
     -- Phase 1: advance the state machine and hand its output to the outbox.
+    state ← refreshDate config state
     let (newMachine, step) := state.machine.step
     state := { state with machine := newMachine }
 

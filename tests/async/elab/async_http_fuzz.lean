@@ -8,8 +8,7 @@ open Std Http Internal Test
 
 
 
-def bad400 : String :=
-  "HTTP/1.1 400 Bad Request\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+def bad400 : String := r400
 
 def runWithTimeout {α : Type} (name : String) (timeoutMs : Nat := 15000) (action : IO α) : IO α := do
   let task ← IO.asTask action

@@ -64,32 +64,40 @@ private def ok200 : String :=
 -- RFC 9110 §9: Methods
 
 #eval runGroup "RFC 9110 §9: method validation" do
-  check "unknown method FOOBAR → 400"
+  -- RFC 9110 §9.1: a method the server does not recognize is answered with 501; methods are
+  -- case-sensitive, so `get` is one of them
+  check "unknown method FOOBAR → 501"
     (raw := "FOOBAR / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
 
-  check "lowercase method → 400"
+  check "lowercase method → 501"
     (raw := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
 
   check "non-ASCII method → 400"
     (raw := "GÉT / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
     (expect := fun r => assertExact r r400)
 
-  check "very long unrecognized method → 400"
+  -- RFC 9112 §3: so is a method longer than any the server implements
+  check "very long unrecognized method → 501"
     (raw :=
-      let m := String.ofList (List.replicate 20 'G')
+      let m := String.ofList (List.replicate 100 'G')
       s!"{m} / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
 
-  check "token method with hyphen (X-CUSTOM) → 400"
+  check "token method with hyphen (X-CUSTOM) → 501"
     (raw := "X-CUSTOM / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
+
+  check "method that starts with a known one (GETX) → 501"
+    (raw := "GETX / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
+    (handler := okHandler)
+    (expect := fun r => assertExact r r501)
 
 -- RFC 9112 §3.2: Request target forms
 

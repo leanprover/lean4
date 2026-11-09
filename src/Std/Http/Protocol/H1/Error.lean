@@ -61,6 +61,18 @@ inductive Error
   | unsupportedVersion
 
   /--
+  The request applies a transfer coding other than `chunked`, which the server does not decode.
+  Maps to HTTP 501 Not Implemented (RFC 9112 §6.1).
+  -/
+  | unsupportedTransferCoding
+
+  /--
+  The request's method is a token the server does not recognize.
+  Maps to HTTP 501 Not Implemented (RFC 9110 §9.1).
+  -/
+  | unsupportedMethod
+
+  /--
   Invalid chunk encoding.
   -/
   | invalidChunk
@@ -101,6 +113,8 @@ instance : ToString Error where
   | .entityTooLarge => "Entity too large"
   | .uriTooLong => "URI too long"
   | .unsupportedVersion => "Unsupported version"
+  | .unsupportedTransferCoding => "Unsupported transfer coding"
+  | .unsupportedMethod => "Unsupported method"
   | .invalidChunk => "Invalid chunk"
   | .connectionClosed => "Connection closed"
   | .badMessage => "Bad message"

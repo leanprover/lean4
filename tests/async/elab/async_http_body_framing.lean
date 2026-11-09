@@ -101,16 +101,18 @@ open Std Http Internal Test
     (handler := okHandler)
     (expect := (assertExact · r400))
 
-#eval runGroup "RFC 9112 §6.1: Transfer-Encoding accepted cases" do
-  check "gzip, chunked accepted — chunked is last"
+#eval runGroup "RFC 9112 §6.1: Transfer-Encoding codings" do
+  -- §6.1: a server answers a transfer coding it does not understand with 501; only `chunked` is
+  -- decoded, so the handler never sees a body still coded with another coding
+  check "gzip, chunked → 501, handler not run"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
-    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
+    (expect := (assertExact · r501))
 
-  check "br, chunked accepted"
+  check "br, chunked → 501"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: br, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
-    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
+    (expect := (assertExact · r501))
 
   check "mixed-case Chunked accepted (codings are lowercased)"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: Chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
@@ -121,15 +123,6 @@ open Std Http Internal Test
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked \x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
     (expect := fun r => assertStatus r "HTTP/1.1 200")
-
-  check "gzip+chunked chain is visible to handler in TE header"
-    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
-    (handler := fun req => do
-      let te := match req.line.headers.getAll? Header.Name.transferEncoding with
-        | some vs => String.intercalate "|" (vs.map (·.value) |>.toList)
-        | none => "<none>"
-      Response.ok |>.text te)
-    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "gzip, chunked")
 
 -- RFC 9112 §6.3: Content-Length
 

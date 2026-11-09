@@ -342,6 +342,8 @@ pending request, and whether the request body is replayable.
 
 Returns `.done` when:
 * the status is not a 3xx redirection,
+* the request is a `CONNECT`, whose target is the authority to tunnel to (RFC 9110 §9.3.6), not a
+  resource a `Location` can stand in for,
 * no `Location` header is present,
 * the `Location` value does not parse as a URI-reference (RFC 9110 §10.2.2),
 * the target names no host, or resolves to a non-`http(s)` scheme (SSRF guard),
@@ -368,6 +370,10 @@ def decideRedirect
     (responseHeaders : Headers)
     : RedirectOutcome := Id.run do
   if !status.isRedirection then
+    return .done
+
+  -- Every redirected target is origin-form or absolute-form, and CONNECT needs authority-form.
+  if request.method == .connect then
     return .done
 
   -- 305 Use Proxy is deprecated (RFC 9110 §15.4.6) and carries a proxy URI in

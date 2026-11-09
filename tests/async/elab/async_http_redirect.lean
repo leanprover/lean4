@@ -82,6 +82,15 @@ private def isReplayBody : RedirectBodyAction → Bool
 -- 307/308 preserve the method, so a non-GET/HEAD request with a non-replayable body is terminal.
 #guard isDone (decideRedirect origin (mkReq .post) false .temporaryRedirect (withLocation "/x"))
 
+-- A CONNECT target is the authority to tunnel to (RFC 9110 §9.3.6), which no redirected target can
+-- express, so no 3xx is followed, whether it keeps the method or changes it.
+private def connectReq : Request.Head :=
+  { method := .connect, version := .v11, uri := RequestTarget.parse! "example.com:443" }
+
+#guard [Status.movedPermanently, .found, .seeOther, .temporaryRedirect, .permanentRedirect].all
+  fun status => isDone (decideRedirect origin connectReq true status (withLocation "/x"))
+#guard isDone (decideRedirect origin connectReq true .found (withLocation "http://other.com:443"))
+
 /-! ## Followed redirects: method selection -/
 
 -- Same-origin 302 on GET: method preserved, target rewritten to origin-form, empty body.

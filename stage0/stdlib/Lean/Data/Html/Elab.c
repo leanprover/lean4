@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Html.Elab
-// Imports: public meta import Init.Data.String.Modify public meta import Lean.Data.Html.Syntax public meta import Lean.Elab.Term import Lean.Data.Html.Basic
+// Imports: public meta import Init.Data.String.Modify public meta import Lean.Data.Html.Syntax public meta import Lean.Elab.Term public meta import Lean.Elab.Command public meta import Lean.Elab.BuiltinEvalCommand import Lean.Data.Html.Basic public import Lean.Data.Html.Widget
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -50,7 +51,6 @@ lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
-lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -72,7 +72,13 @@ lean_object* l_Lean_Html_Syntax_TextCommentsView_getSyntax(lean_object*);
 lean_object* l_Lean_Html_Syntax_TextCommentsView_getText(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_indentExpr(lean_object*);
+lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Command_elabEvalCoreUnsafe(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__2(lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0_spec__0___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0_spec__0___redArg___closed__0;
@@ -461,6 +467,72 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Html___aux__Lean__Data__Html__Elab______ela
 LEAN_EXPORT lean_object* l_Lean_Elab_Html___aux__Lean__Data__Html__Elab______elabRules__Lean__Html__Syntax__html_x25__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Html___aux__Lean__Data__Html__Elab______elabRules__Lean__Html__Syntax__html_x25__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Html___aux__Lean__Data__Html__Elab______elabRules__Lean__Html__Syntax__html_x25__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lean_Elab_Html_htmlCmd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Elab"};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__0 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__0_value;
+static const lean_string_object l_Lean_Elab_Html_htmlCmd___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "htmlCmd"};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__1 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__1_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__2_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__2_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__2_value_aux_0),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__0_value),LEAN_SCALAR_PTR_LITERAL(52, 247, 248, 201, 92, 23, 188, 159)}};
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__2_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__2_value_aux_1),((lean_object*)&l_Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0___closed__1_value),LEAN_SCALAR_PTR_LITERAL(69, 184, 34, 41, 228, 163, 106, 158)}};
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__2_value_aux_2),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__1_value),LEAN_SCALAR_PTR_LITERAL(236, 154, 156, 19, 183, 24, 205, 153)}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__2 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__2_value;
+static const lean_string_object l_Lean_Elab_Html_htmlCmd___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "andthen"};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__3 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__3_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__3_value),LEAN_SCALAR_PTR_LITERAL(40, 255, 78, 30, 143, 119, 117, 174)}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__4 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__4_value;
+static const lean_string_object l_Lean_Elab_Html_htmlCmd___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "#html "};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__5 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__5_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 5}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__5_value)}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__6 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__6_value;
+static const lean_string_object l_Lean_Elab_Html_htmlCmd___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "term"};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__7 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__7_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__7_value),LEAN_SCALAR_PTR_LITERAL(187, 230, 181, 162, 253, 146, 122, 119)}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__8 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__8_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 7}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__8_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__9 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__9_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__4_value),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__6_value),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__9_value)}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__10 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__10_value;
+static const lean_ctor_object l_Lean_Elab_Html_htmlCmd___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__2_value),((lean_object*)(((size_t)(1022) << 1) | 1)),((lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__10_value)}};
+static const lean_object* l_Lean_Elab_Html_htmlCmd___closed__11 = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__11_value;
+LEAN_EXPORT const lean_object* l_Lean_Elab_Html_htmlCmd = (const lean_object*)&l_Lean_Elab_Html_htmlCmd___closed__11_value;
+LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "toMessageData"};
+static const lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__0 = (const lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__0_value;
+static const lean_ctor_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1_value_aux_0),((lean_object*)&l_Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0___closed__1_value),LEAN_SCALAR_PTR_LITERAL(63, 204, 11, 254, 52, 252, 208, 28)}};
+static const lean_ctor_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1_value_aux_1),((lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__0_value),LEAN_SCALAR_PTR_LITERAL(2, 82, 196, 140, 239, 255, 248, 166)}};
+static const lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1 = (const lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1_value;
+static lean_once_cell_t l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__2;
+static lean_once_cell_t l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__3;
+static const lean_string_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 40, .m_capacity = 40, .m_length = 39, .m_data = "`#html` does not support values of type"};
+static const lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__4 = (const lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__4_value;
+static lean_once_cell_t l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__5;
+static const lean_string_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "\nExpected `"};
+static const lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__6 = (const lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__6_value;
+static lean_once_cell_t l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__7_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__7;
+static const lean_string_object l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 54, .m_capacity = 54, .m_length = 53, .m_data = "`, or a type supported by another `#html` elaborator."};
+static const lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__8 = (const lean_object*)&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__8_value;
+static lean_once_cell_t l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__9_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__9;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg();
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Lean_Elab_Html_elabHtmlCmd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___boxed, .m_arity = 6, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Elab_Html_elabHtmlCmd___closed__0 = (const lean_object*)&l_Lean_Elab_Html_elabHtmlCmd___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_Elab_Html_elabHtmlCmd(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Html_elabHtmlCmd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__2(lean_object* v_s_1_, lean_object* v_p_2_){
 _start:
 {
@@ -5721,7 +5793,461 @@ lean_dec(v_x_1901_);
 return v_res_1909_;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0_spec__0(lean_object* v_msgData_1938_, lean_object* v___y_1939_, lean_object* v___y_1940_, lean_object* v___y_1941_, lean_object* v___y_1942_){
+_start:
+{
+lean_object* v___x_1944_; lean_object* v_env_1945_; uint8_t v___x_1946_; lean_object* v_env_1947_; lean_object* v___x_1948_; lean_object* v_toCold_1949_; lean_object* v_mctx_1950_; lean_object* v_lctx_1951_; lean_object* v_options_1952_; lean_object* v___x_1953_; lean_object* v___x_1954_; lean_object* v___x_1955_; 
+v___x_1944_ = lean_st_ref_get(v___y_1942_);
+v_env_1945_ = lean_ctor_get(v___x_1944_, 0);
+lean_inc_ref(v_env_1945_);
+lean_dec(v___x_1944_);
+v___x_1946_ = 0;
+v_env_1947_ = l_Lean_Environment_setRecordingDeps(v_env_1945_, v___x_1946_);
+v___x_1948_ = lean_st_ref_get(v___y_1940_);
+v_toCold_1949_ = lean_ctor_get(v___y_1941_, 0);
+v_mctx_1950_ = lean_ctor_get(v___x_1948_, 0);
+lean_inc_ref(v_mctx_1950_);
+lean_dec(v___x_1948_);
+v_lctx_1951_ = lean_ctor_get(v___y_1939_, 2);
+v_options_1952_ = lean_ctor_get(v_toCold_1949_, 2);
+lean_inc_ref(v_options_1952_);
+lean_inc_ref(v_lctx_1951_);
+v___x_1953_ = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(v___x_1953_, 0, v_env_1947_);
+lean_ctor_set(v___x_1953_, 1, v_mctx_1950_);
+lean_ctor_set(v___x_1953_, 2, v_lctx_1951_);
+lean_ctor_set(v___x_1953_, 3, v_options_1952_);
+v___x_1954_ = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(v___x_1954_, 0, v___x_1953_);
+lean_ctor_set(v___x_1954_, 1, v_msgData_1938_);
+v___x_1955_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_1955_, 0, v___x_1954_);
+return v___x_1955_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0_spec__0___boxed(lean_object* v_msgData_1956_, lean_object* v___y_1957_, lean_object* v___y_1958_, lean_object* v___y_1959_, lean_object* v___y_1960_, lean_object* v___y_1961_){
+_start:
+{
+lean_object* v_res_1962_; 
+v_res_1962_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0_spec__0(v_msgData_1956_, v___y_1957_, v___y_1958_, v___y_1959_, v___y_1960_);
+lean_dec(v___y_1960_);
+lean_dec_ref(v___y_1959_);
+lean_dec(v___y_1958_);
+lean_dec_ref(v___y_1957_);
+return v_res_1962_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg(lean_object* v_msg_1963_, lean_object* v___y_1964_, lean_object* v___y_1965_, lean_object* v___y_1966_, lean_object* v___y_1967_){
+_start:
+{
+lean_object* v_ref_1969_; lean_object* v___x_1970_; lean_object* v_a_1971_; lean_object* v___x_1973_; uint8_t v_isShared_1974_; uint8_t v_isSharedCheck_1979_; 
+v_ref_1969_ = lean_ctor_get(v___y_1966_, 2);
+v___x_1970_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0_spec__0(v_msg_1963_, v___y_1964_, v___y_1965_, v___y_1966_, v___y_1967_);
+v_a_1971_ = lean_ctor_get(v___x_1970_, 0);
+v_isSharedCheck_1979_ = !lean_is_exclusive(v___x_1970_);
+if (v_isSharedCheck_1979_ == 0)
+{
+v___x_1973_ = v___x_1970_;
+v_isShared_1974_ = v_isSharedCheck_1979_;
+goto v_resetjp_1972_;
+}
+else
+{
+lean_inc(v_a_1971_);
+lean_dec(v___x_1970_);
+v___x_1973_ = lean_box(0);
+v_isShared_1974_ = v_isSharedCheck_1979_;
+goto v_resetjp_1972_;
+}
+v_resetjp_1972_:
+{
+lean_object* v___x_1975_; lean_object* v___x_1977_; 
+lean_inc(v_ref_1969_);
+v___x_1975_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_1975_, 0, v_ref_1969_);
+lean_ctor_set(v___x_1975_, 1, v_a_1971_);
+if (v_isShared_1974_ == 0)
+{
+lean_ctor_set_tag(v___x_1973_, 1);
+lean_ctor_set(v___x_1973_, 0, v___x_1975_);
+v___x_1977_ = v___x_1973_;
+goto v_reusejp_1976_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_1978_; 
+v_reuseFailAlloc_1978_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_1978_, 0, v___x_1975_);
+v___x_1977_ = v_reuseFailAlloc_1978_;
+goto v_reusejp_1976_;
+}
+v_reusejp_1976_:
+{
+return v___x_1977_;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg___boxed(lean_object* v_msg_1980_, lean_object* v___y_1981_, lean_object* v___y_1982_, lean_object* v___y_1983_, lean_object* v___y_1984_, lean_object* v___y_1985_){
+_start:
+{
+lean_object* v_res_1986_; 
+v_res_1986_ = l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg(v_msg_1980_, v___y_1981_, v___y_1982_, v___y_1983_, v___y_1984_);
+lean_dec(v___y_1984_);
+lean_dec_ref(v___y_1983_);
+lean_dec(v___y_1982_);
+lean_dec_ref(v___y_1981_);
+return v_res_1986_;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__2(void){
+_start:
+{
+lean_object* v___x_1992_; lean_object* v___x_1993_; lean_object* v___x_1994_; 
+v___x_1992_ = lean_box(0);
+v___x_1993_ = ((lean_object*)(l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__1));
+v___x_1994_ = l_Lean_mkConst(v___x_1993_, v___x_1992_);
+return v___x_1994_;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__3(void){
+_start:
+{
+lean_object* v___x_1995_; lean_object* v___x_1996_; lean_object* v___x_1997_; 
+v___x_1995_ = lean_box(0);
+v___x_1996_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabContent_spec__3___lam__0___closed__0));
+v___x_1997_ = l_Lean_mkConst(v___x_1996_, v___x_1995_);
+return v___x_1997_;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__5(void){
+_start:
+{
+lean_object* v___x_1999_; lean_object* v___x_2000_; 
+v___x_1999_ = ((lean_object*)(l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__4));
+v___x_2000_ = l_Lean_stringToMessageData(v___x_1999_);
+return v___x_2000_;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__7(void){
+_start:
+{
+lean_object* v___x_2002_; lean_object* v___x_2003_; 
+v___x_2002_ = ((lean_object*)(l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__6));
+v___x_2003_ = l_Lean_stringToMessageData(v___x_2002_);
+return v___x_2003_;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__9(void){
+_start:
+{
+lean_object* v___x_2005_; lean_object* v___x_2006_; 
+v___x_2005_ = ((lean_object*)(l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__8));
+v___x_2006_ = l_Lean_stringToMessageData(v___x_2005_);
+return v___x_2006_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData(lean_object* v_h_2007_, lean_object* v_a_2008_, lean_object* v_a_2009_, lean_object* v_a_2010_, lean_object* v_a_2011_){
+_start:
+{
+lean_object* v___x_2013_; 
+lean_inc(v_a_2011_);
+lean_inc_ref(v_a_2010_);
+lean_inc(v_a_2009_);
+lean_inc_ref(v_a_2008_);
+lean_inc_ref(v_h_2007_);
+v___x_2013_ = lean_infer_type(v_h_2007_, v_a_2008_, v_a_2009_, v_a_2010_, v_a_2011_);
+if (lean_obj_tag(v___x_2013_) == 0)
+{
+lean_object* v_a_2014_; lean_object* v___x_2016_; uint8_t v_isShared_2017_; uint8_t v_isSharedCheck_2056_; 
+v_a_2014_ = lean_ctor_get(v___x_2013_, 0);
+v_isSharedCheck_2056_ = !lean_is_exclusive(v___x_2013_);
+if (v_isSharedCheck_2056_ == 0)
+{
+v___x_2016_ = v___x_2013_;
+v_isShared_2017_ = v_isSharedCheck_2056_;
+goto v_resetjp_2015_;
+}
+else
+{
+lean_inc(v_a_2014_);
+lean_dec(v___x_2013_);
+v___x_2016_ = lean_box(0);
+v_isShared_2017_ = v_isSharedCheck_2056_;
+goto v_resetjp_2015_;
+}
+v_resetjp_2015_:
+{
+lean_object* v___x_2018_; lean_object* v___x_2025_; lean_object* v___x_2026_; 
+v___x_2018_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabContent_spec__3___lam__0___closed__0));
+v___x_2025_ = lean_obj_once(&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__3, &l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__3_once, _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__3);
+lean_inc(v_a_2014_);
+v___x_2026_ = l_Lean_Meta_isExprDefEq(v_a_2014_, v___x_2025_, v_a_2008_, v_a_2009_, v_a_2010_, v_a_2011_);
+if (lean_obj_tag(v___x_2026_) == 0)
+{
+lean_object* v_a_2027_; uint8_t v___x_2028_; 
+v_a_2027_ = lean_ctor_get(v___x_2026_, 0);
+lean_inc(v_a_2027_);
+lean_dec_ref_known(v___x_2026_, 1);
+v___x_2028_ = lean_unbox(v_a_2027_);
+if (v___x_2028_ == 0)
+{
+lean_object* v___x_2029_; lean_object* v___x_2030_; lean_object* v___x_2031_; lean_object* v___x_2032_; lean_object* v___x_2033_; uint8_t v___x_2034_; lean_object* v___x_2035_; lean_object* v___x_2036_; lean_object* v___x_2037_; lean_object* v___x_2038_; lean_object* v___x_2039_; lean_object* v_a_2040_; lean_object* v___x_2042_; uint8_t v_isShared_2043_; uint8_t v_isSharedCheck_2047_; 
+lean_del_object(v___x_2016_);
+lean_dec_ref(v_h_2007_);
+v___x_2029_ = lean_obj_once(&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__5, &l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__5_once, _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__5);
+v___x_2030_ = l_Lean_indentExpr(v_a_2014_);
+v___x_2031_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_2031_, 0, v___x_2029_);
+lean_ctor_set(v___x_2031_, 1, v___x_2030_);
+v___x_2032_ = lean_obj_once(&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__7, &l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__7_once, _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__7);
+v___x_2033_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_2033_, 0, v___x_2031_);
+lean_ctor_set(v___x_2033_, 1, v___x_2032_);
+v___x_2034_ = lean_unbox(v_a_2027_);
+lean_dec(v_a_2027_);
+v___x_2035_ = l_Lean_MessageData_ofConstName(v___x_2018_, v___x_2034_);
+v___x_2036_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_2036_, 0, v___x_2033_);
+lean_ctor_set(v___x_2036_, 1, v___x_2035_);
+v___x_2037_ = lean_obj_once(&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__9, &l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__9_once, _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__9);
+v___x_2038_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_2038_, 0, v___x_2036_);
+lean_ctor_set(v___x_2038_, 1, v___x_2037_);
+v___x_2039_ = l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg(v___x_2038_, v_a_2008_, v_a_2009_, v_a_2010_, v_a_2011_);
+v_a_2040_ = lean_ctor_get(v___x_2039_, 0);
+v_isSharedCheck_2047_ = !lean_is_exclusive(v___x_2039_);
+if (v_isSharedCheck_2047_ == 0)
+{
+v___x_2042_ = v___x_2039_;
+v_isShared_2043_ = v_isSharedCheck_2047_;
+goto v_resetjp_2041_;
+}
+else
+{
+lean_inc(v_a_2040_);
+lean_dec(v___x_2039_);
+v___x_2042_ = lean_box(0);
+v_isShared_2043_ = v_isSharedCheck_2047_;
+goto v_resetjp_2041_;
+}
+v_resetjp_2041_:
+{
+lean_object* v___x_2045_; 
+if (v_isShared_2043_ == 0)
+{
+v___x_2045_ = v___x_2042_;
+goto v_reusejp_2044_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_2046_; 
+v_reuseFailAlloc_2046_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_2046_, 0, v_a_2040_);
+v___x_2045_ = v_reuseFailAlloc_2046_;
+goto v_reusejp_2044_;
+}
+v_reusejp_2044_:
+{
+return v___x_2045_;
+}
+}
+}
+else
+{
+lean_dec(v_a_2027_);
+lean_dec(v_a_2014_);
+goto v___jp_2019_;
+}
+}
+else
+{
+lean_object* v_a_2048_; lean_object* v___x_2050_; uint8_t v_isShared_2051_; uint8_t v_isSharedCheck_2055_; 
+lean_del_object(v___x_2016_);
+lean_dec(v_a_2014_);
+lean_dec_ref(v_h_2007_);
+v_a_2048_ = lean_ctor_get(v___x_2026_, 0);
+v_isSharedCheck_2055_ = !lean_is_exclusive(v___x_2026_);
+if (v_isSharedCheck_2055_ == 0)
+{
+v___x_2050_ = v___x_2026_;
+v_isShared_2051_ = v_isSharedCheck_2055_;
+goto v_resetjp_2049_;
+}
+else
+{
+lean_inc(v_a_2048_);
+lean_dec(v___x_2026_);
+v___x_2050_ = lean_box(0);
+v_isShared_2051_ = v_isSharedCheck_2055_;
+goto v_resetjp_2049_;
+}
+v_resetjp_2049_:
+{
+lean_object* v___x_2053_; 
+if (v_isShared_2051_ == 0)
+{
+v___x_2053_ = v___x_2050_;
+goto v_reusejp_2052_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_2054_; 
+v_reuseFailAlloc_2054_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_2054_, 0, v_a_2048_);
+v___x_2053_ = v_reuseFailAlloc_2054_;
+goto v_reusejp_2052_;
+}
+v_reusejp_2052_:
+{
+return v___x_2053_;
+}
+}
+}
+v___jp_2019_:
+{
+lean_object* v___x_2020_; lean_object* v___x_2021_; lean_object* v___x_2023_; 
+v___x_2020_ = lean_obj_once(&l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__2, &l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__2_once, _init_l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___closed__2);
+v___x_2021_ = l_Lean_Expr_app___override(v___x_2020_, v_h_2007_);
+if (v_isShared_2017_ == 0)
+{
+lean_ctor_set(v___x_2016_, 0, v___x_2021_);
+v___x_2023_ = v___x_2016_;
+goto v_reusejp_2022_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_2024_; 
+v_reuseFailAlloc_2024_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_2024_, 0, v___x_2021_);
+v___x_2023_ = v_reuseFailAlloc_2024_;
+goto v_reusejp_2022_;
+}
+v_reusejp_2022_:
+{
+return v___x_2023_;
+}
+}
+}
+}
+else
+{
+lean_dec_ref(v_h_2007_);
+return v___x_2013_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData___boxed(lean_object* v_h_2057_, lean_object* v_a_2058_, lean_object* v_a_2059_, lean_object* v_a_2060_, lean_object* v_a_2061_, lean_object* v_a_2062_){
+_start:
+{
+lean_object* v_res_2063_; 
+v_res_2063_ = l___private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData(v_h_2057_, v_a_2058_, v_a_2059_, v_a_2060_, v_a_2061_);
+lean_dec(v_a_2061_);
+lean_dec_ref(v_a_2060_);
+lean_dec(v_a_2059_);
+lean_dec_ref(v_a_2058_);
+return v_res_2063_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0(lean_object* v_00_u03b1_2064_, lean_object* v_msg_2065_, lean_object* v___y_2066_, lean_object* v___y_2067_, lean_object* v___y_2068_, lean_object* v___y_2069_){
+_start:
+{
+lean_object* v___x_2071_; 
+v___x_2071_ = l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___redArg(v_msg_2065_, v___y_2066_, v___y_2067_, v___y_2068_, v___y_2069_);
+return v___x_2071_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0___boxed(lean_object* v_00_u03b1_2072_, lean_object* v_msg_2073_, lean_object* v___y_2074_, lean_object* v___y_2075_, lean_object* v___y_2076_, lean_object* v___y_2077_, lean_object* v___y_2078_){
+_start:
+{
+lean_object* v_res_2079_; 
+v_res_2079_ = l_Lean_throwError___at___00__private_Lean_Data_Html_Elab_0__Lean_Elab_Html_elabHtmlCmd_mkMessageData_spec__0(v_00_u03b1_2072_, v_msg_2073_, v___y_2074_, v___y_2075_, v___y_2076_, v___y_2077_);
+lean_dec(v___y_2077_);
+lean_dec_ref(v___y_2076_);
+lean_dec(v___y_2075_);
+lean_dec_ref(v___y_2074_);
+return v_res_2079_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg(){
+_start:
+{
+lean_object* v___x_2081_; lean_object* v___x_2082_; 
+v___x_2081_ = lean_obj_once(&l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0_spec__0___redArg___closed__0, &l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0_spec__0___redArg___closed__0_once, _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Html_Syntax_Element_view___at___00Lean_Html_Syntax_Element_checkNamesMatch_spec__0_spec__0___redArg___closed__0);
+v___x_2082_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_2082_, 0, v___x_2081_);
+return v___x_2082_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg___boxed(lean_object* v___y_2083_){
+_start:
+{
+lean_object* v_res_2084_; 
+v_res_2084_ = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg();
+return v_res_2084_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0(lean_object* v_00_u03b1_2085_, lean_object* v___y_2086_, lean_object* v___y_2087_){
+_start:
+{
+lean_object* v___x_2089_; 
+v___x_2089_ = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg();
+return v___x_2089_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___boxed(lean_object* v_00_u03b1_2090_, lean_object* v___y_2091_, lean_object* v___y_2092_, lean_object* v___y_2093_){
+_start:
+{
+lean_object* v_res_2094_; 
+v_res_2094_ = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0(v_00_u03b1_2090_, v___y_2091_, v___y_2092_);
+lean_dec(v___y_2092_);
+lean_dec_ref(v___y_2091_);
+return v_res_2094_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Html_elabHtmlCmd(lean_object* v_x_2096_, lean_object* v_a_2097_, lean_object* v_a_2098_){
+_start:
+{
+lean_object* v___x_2100_; uint8_t v___x_2101_; 
+v___x_2100_ = ((lean_object*)(l_Lean_Elab_Html_htmlCmd___closed__2));
+lean_inc(v_x_2096_);
+v___x_2101_ = l_Lean_Syntax_isOfKind(v_x_2096_, v___x_2100_);
+if (v___x_2101_ == 0)
+{
+lean_object* v___x_2102_; 
+lean_dec(v_x_2096_);
+v___x_2102_ = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Html_elabHtmlCmd_spec__0___redArg();
+return v___x_2102_;
+}
+else
+{
+lean_object* v___x_2103_; lean_object* v_tk_2104_; lean_object* v___x_2105_; lean_object* v___x_2106_; uint8_t v___x_2107_; lean_object* v___x_2108_; lean_object* v___x_2109_; lean_object* v___x_2110_; 
+v___x_2103_ = lean_unsigned_to_nat(0u);
+v_tk_2104_ = l_Lean_Syntax_getArg(v_x_2096_, v___x_2103_);
+v___x_2105_ = lean_unsigned_to_nat(1u);
+v___x_2106_ = l_Lean_Syntax_getArg(v_x_2096_, v___x_2105_);
+lean_dec(v_x_2096_);
+v___x_2107_ = 0;
+v___x_2108_ = lean_box(0);
+v___x_2109_ = ((lean_object*)(l_Lean_Elab_Html_elabHtmlCmd___closed__0));
+v___x_2110_ = l_Lean_Elab_Command_elabEvalCoreUnsafe(v___x_2107_, v_tk_2104_, v___x_2106_, v___x_2108_, v___x_2109_, v___x_2107_, v_a_2097_, v_a_2098_);
+lean_dec(v_tk_2104_);
+return v___x_2110_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Html_elabHtmlCmd___boxed(lean_object* v_x_2111_, lean_object* v_a_2112_, lean_object* v_a_2113_, lean_object* v_a_2114_){
+_start:
+{
+lean_object* v_res_2115_; 
+v_res_2115_ = l_Lean_Elab_Html_elabHtmlCmd(v_x_2111_, v_a_2112_, v_a_2113_);
+lean_dec(v_a_2113_);
+lean_dec_ref(v_a_2112_);
+return v_res_2115_;
+}
+}
 lean_object* runtime_initialize_Lean_Data_Html_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Html_Widget(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Html_Elab(uint8_t builtin) {
@@ -5732,11 +6258,16 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Html_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Html_Widget(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Html_Syntax(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Term(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinEvalCommand(uint8_t builtin);
 static bool _G_meta_initialized = false;
 LEAN_EXPORT lean_object* meta_initialize_Lean_Data_Html_Elab(uint8_t builtin) {
 lean_object * res;
@@ -5751,12 +6282,21 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Command(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinEvalCommand(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* initialize_Lean_Data_Html_Syntax(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Term(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* initialize_Lean_Elab_BuiltinEvalCommand(uint8_t builtin);
 lean_object* initialize_Lean_Data_Html_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Data_Html_Widget(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Html_Elab(uint8_t builtin) {
 lean_object * res;
@@ -5771,7 +6311,16 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Elab_Command(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_BuiltinEvalCommand(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Data_Html_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Html_Widget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Html_Elab(builtin);

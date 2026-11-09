@@ -48040,6 +48040,7 @@ lean_inc(v_fst_17189_);
 lean_dec(v_val_17185_);
 v___x_17190_ = lean_cstr_to_nat("4294967296");
 v___x_17191_ = lean_nat_dec_lt(v_fst_17189_, v___x_17190_);
+lean_dec(v___x_17190_);
 if (v___x_17191_ == 0)
 {
 lean_object* v___x_17192_; lean_object* v___x_17194_; 

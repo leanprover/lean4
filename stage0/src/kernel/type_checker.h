@@ -78,7 +78,7 @@ private:
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
-    optional<expr> reduce_proj_core(expr c, name const & sname, unsigned idx);
+    optional<expr> reduce_proj_core(expr c, name const & sname, size_t idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
     expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<constant_info> is_delta(expr const & e) const;

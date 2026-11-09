@@ -18206,8 +18206,8 @@ return v___x_5369_;
 else
 {
 lean_object* v___x_5370_; 
-lean_dec(v_pre_5342_);
 lean_dec_ref_known(v_pre_5341_, 2);
+lean_dec(v_pre_5342_);
 lean_dec_ref_known(v_pre_5340_, 2);
 lean_dec_ref_known(v_kind_5339_, 2);
 lean_dec_ref_known(v___x_5338_, 3);
@@ -18218,8 +18218,8 @@ return v___x_5370_;
 else
 {
 lean_object* v___x_5371_; 
-lean_dec_ref_known(v_pre_5340_, 2);
 lean_dec(v_pre_5341_);
+lean_dec_ref_known(v_pre_5340_, 2);
 lean_dec_ref_known(v_kind_5339_, 2);
 lean_dec_ref_known(v___x_5338_, 3);
 v___x_5371_ = ((lean_object*)(l_Lean_versionString___closed__0));

@@ -53,8 +53,8 @@ def main (args : List String) : IO Unit := do
         versionNo := versionNo + 1
         let params : DidChangeTextDocumentParams := {
           textDocument := {
-            uri      := uri
-            version? := versionNo
+            uri     := uri
+            version := versionNo
           }
           contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
             start := headerEndPos

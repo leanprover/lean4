@@ -512,7 +512,7 @@ section Initialization
             params.version?
           | some (.notification "$/lean/fileProgress" (some params)) =>
             let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
-            params.textDocument.version?
+            params.textDocument.version
           | some (.notification "$/lean/ileanInfoUpdate" (some params))
           | some (.notification "$/lean/ileanInfoFinal" (some params)) =>
             let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
@@ -587,7 +587,7 @@ section NotificationHandling
     let st ← get
     let oldDoc := (←get).doc
     let cancelTk ← RequestCancellationToken.new
-    let newVersion := docId.version?.getD 0
+    let newVersion := docId.version.getD 0
     let rc : RequestContext := {
       rpcSessions := st.rpcSessions
       doc := oldDoc

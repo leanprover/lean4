@@ -1247,7 +1247,7 @@ section NotificationHandling
       -- Global search and replace in VS Code will send `didChange` to files that were never opened.
       | return
     let oldDoc := fw.doc
-    let newVersion := doc.version?.getD 0
+    let newVersion := doc.version.getD 0
     if changes.isEmpty then
       return
     let newDocText := foldDocumentChanges changes oldDoc.text

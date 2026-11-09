@@ -19,6 +19,7 @@ import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
 import Lean.Meta.Sym.Util
 import Lean.Meta.HasAssignableMVar
+import Lean.Util.OccursCheck
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Internal.Linear
 import Std.Do.Triple.Basic
@@ -951,6 +952,7 @@ Returns `false` if:
 - `tFn` is not a metavariable
 - `t` does not satisfy the Miller pattern condition
 - The assignment would violate scope (free variables in `fun x₁ ... xₙ => s` not in scope of `?m`)
+- `?m` occurs in `s`, directly or through assigned and delayed-assigned metavariables
 
 The `tFn` parameter must equal `t.getAppFn` (enforced by the proof argument).
 
@@ -965,6 +967,7 @@ def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAp
   else
     pure s
   if !(← mayAssign tFn s) then return .undef
+  if !(← occursCheck mvarId s) then return .undef
   if (← read).mvarsToCheckType.contains mvarId then
     unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← inferType s)) do
       return .false
@@ -995,6 +998,7 @@ where
     if (← mvarId.isAssigned) then return false
     if !(← isAssignableMVar mvarId) then return false
     if !(← mayAssign t s) then return false
+    if !(← occursCheck mvarId s) then return false
     /-
     **Note**: we don't need to check the type of `mvarId` here even if the variable is marked for
     checking. This is the case because `tryAssignUnassigned` is invoked only from a context where `t` and `s` are the arguments

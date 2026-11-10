@@ -791,10 +791,15 @@ public def fmtTacticSetOption : Fmt := fun
       let setOption := Layouts.pseudoApplication #[setOptionTk, optionId, optionValue]
       let inTk ← fmt inTk
       let tacs ← fmt tacs
-      return Layouts.keywordSeparated setOption inTk tacs {
+      let indentedVariant := Layouts.keywordSeparated setOption inTk tacs {
+        allowFlattening := false
+        nestedRhs := true
+      }
+      let dedentedVariant := Layouts.keywordSeparated setOption inTk tacs {
         allowFlattening := false
         nestedRhs := false
       }
+      return pseudoDedented indentedVariant dedentedVariant
   | _ =>
     throw .partialFormatter
 

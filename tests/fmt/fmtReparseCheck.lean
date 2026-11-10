@@ -42,14 +42,7 @@ example : Nat := wrap  (1 + 2)  *  3
 -- `wrap 1` keeps the structure of `wrap (1)`.
 example : Nat := wrap  (1)
 
-/-! Bugs of the formatters of core that the check catches: -/
-
--- At the column of `trivial`, `set_option … in` would apply to the rest of the tactic block.
-example : True ∧ True := by
-  constructor
-  set_option maxRecDepth 100 in
-    trivial
-  trivial
+/-! A bug of a formatter of core that the check catches: -/
 
 -- Without `;`, `cases` would take `, trivial` as a second target.
 example (h : False) : False ∧ True :=

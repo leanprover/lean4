@@ -129,7 +129,7 @@ Examples:
  * {lean}`("coffee tea water".toSlice.splitToSubslice Char.isWhitespace).toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.splitToSubslice ' ').toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.splitToSubslice " tea ").toStringList == ["coffee", "water"]`
- * {lean}`("ababababa".toSlice.splitToSubslice "aba").toStringList == ["coffee", "water"]`
+ * {lean}`("ababababa".toSlice.splitToSubslice "aba").toStringList == ["", "b", "ba"]`
  * {lean}`("baaab".toSlice.splitToSubslice "aa").toStringList == ["b", "ab"]`
 -/
 @[specialize pat, cbv_opaque]
@@ -149,7 +149,7 @@ Examples:
  * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.split ' ').toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.split " tea ").toStringList == ["coffee", "water"]`
- * {lean}`("ababababa".toSlice.split "aba").toStringList == ["coffee", "water"]`
+ * {lean}`("ababababa".toSlice.split "aba").toStringList == ["", "b", "ba"]`
  * {lean}`("baaab".toSlice.split "aa").toStringList == ["b", "ab"]`
 -/
 @[inline]

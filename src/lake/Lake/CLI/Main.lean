@@ -44,6 +44,7 @@ namespace Lake
 /-! ## General options for top-level `lake` -/
 
 public structure LakeOptions where
+
   args : List String := []
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile

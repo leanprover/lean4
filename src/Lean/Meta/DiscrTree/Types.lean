@@ -34,8 +34,6 @@ protected def Key.hash : Key → UInt64
 
 instance : Hashable Key := ⟨Key.hash⟩
 
--- `Thunk` fields have no `sizeOf` theorems
-set_option genSizeOfSpec false in
 /--
 Discrimination tree trie. See `DiscrTree`.
 -/

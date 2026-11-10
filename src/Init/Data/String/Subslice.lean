@@ -31,9 +31,9 @@ will in general be many different representations of the empty subslice of a sli
 -/
 @[ext]
 structure Subslice (s : Slice) where
-  /-- The byte position of the start of the subslice. -/
+  /-- The valid position in the underlying slice at which the subslice starts (inclusive). -/
   startInclusive : s.Pos
-  /-- The byte position of the end of the subslice. -/
+  /-- The valid position in the underlying slice at which the subslice ends (exclusive). -/
   endExclusive : s.Pos
   /-- The subslice is not degenerate (but it may be empty). -/
   startInclusive_le_endExclusive : startInclusive ≤ endExclusive
@@ -44,7 +44,7 @@ instance {s : Slice} : Inhabited s.Subslice where
 namespace Subslice
 
 /--
-Turns a subslice into a standalone slice by "forgetting" which slice the subslice is a sublice of.
+Turns a subslice into a standalone slice by "forgetting" which slice the subslice is a subslice of.
 -/
 @[inline, expose] -- for the defeq `sl.toSlice.str = s.str`.
 def toSlice {s : Slice} (sl : s.Subslice) : Slice :=

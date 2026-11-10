@@ -13,8 +13,8 @@ import Init.Omega
 /-!
 # Arithmetic of `String.Pos.Raw`
 
-This file contains basic theory about which does not actually need to know anything about strings
-and therefore does not depend on `Init.Data.String.Decode`.
+This file contains basic theory about `String.Pos.Raw` which does not actually need to know
+anything about strings and therefore does not depend on `Init.Data.String.Decode`.
 -/
 
 public section
@@ -124,7 +124,7 @@ protected theorem Pos.Raw.lt_of_lt_of_le {a b c : Pos.Raw} : a < b → b ≤ c �
 /--
 Offsets `p` by `offset` on the left. This is not an `HAdd` instance because it should be a
 relatively rare operation, so we use a name to make accidental use less likely. To offset a position
-by the size of a character character `c` or string `s`, you can use `c + p` resp. `s + p`.
+by the size of a character `c` or string `s`, you can use `c + p` resp. `s + p`.
 
 This should be seen as an operation that converts relative positions into absolute positions.
 

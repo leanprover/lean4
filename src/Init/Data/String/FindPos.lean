@@ -135,7 +135,7 @@ def Pos.prev! {s : String} (pos : s.Pos) : s.Pos :=
 /--
 Iterates {lean}`p.prev` {name}`n` times.
 
-If this would move {name}`p` past the start of {name}`s`, the result is {lean}`s.endPos`.
+If this would move {name}`p` past the start of {name}`s`, the result is {lean}`s.startPos`.
 -/
 def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with

@@ -59,9 +59,10 @@ jobs:
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         # without the update, the runner image's possibly outdated formula data considers its
-        # preinstalled versions up to date
+        # preinstalled versions up to date; skip it on Intel, where Homebrew no longer builds
+        # bottles, so updated formulae (and their dependency trees) would be built from source
         run: |
-          brew update
+          if [[ "$(uname -m)" == arm64 ]]; then brew update; fi
           brew install ccache tree zstd coreutils gmp libuv openssl@4
         if: runner.os == 'macOS'
       - name: Checkout

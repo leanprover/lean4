@@ -164,8 +164,8 @@ where
   termination_by vs.size - i
 
 private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie α) : Trie α :=
-  match i, t.force with
-  | i, .chain k c =>
+  match t.force with
+  | .chain k c =>
     if h : i < keys.size then
       if keys[i] == k then
         .chain k (insertAux keys v (i+1) c)
@@ -174,7 +174,7 @@ private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie �
           #[(k, c)].binInsert (fun a b => a.1 < b.1) (keys[i], createNodes keys v (i+1))
     else
       .node #[v] #[(k, c)]
-  | i, .node vs cs =>
+  | .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]
       let c := Id.run $ cs.binInsertM
@@ -185,7 +185,7 @@ private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie �
       .node vs c
     else
       .node (insertVal vs v) cs
-  | _, .lazy _ | _, .suffix .. => unreachable!
+  | .lazy _ | .suffix .. => unreachable!
 termination_by keys.size - i
 
 def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
@@ -342,8 +342,8 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
   insertKeyValue d keys v
 
 private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : Array α :=
-  match i, t.force with
-  | i, .chain k c =>
+  match t.force with
+  | .chain k c =>
     if h : i < keys.size then
       if keys[i] == k then
         getEntriesWithKeysAux keys (i + 1) c
@@ -351,7 +351,7 @@ private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : A
         #[]
     else
       #[]
-  | i, .node vs cs =>
+  | .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]
       match cs.binSearch (k, default) (fun a b => a.1 < b.1) with
@@ -359,7 +359,7 @@ private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : A
       | some (_, t) => getEntriesWithKeysAux keys (i + 1) t
     else
       vs
-  | _, .lazy _ | _, .suffix .. => unreachable!
+  | .lazy _ | .suffix .. => unreachable!
 termination_by keys.size - i
 
 /--

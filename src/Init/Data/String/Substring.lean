@@ -53,7 +53,7 @@ A substring is empty if its start and end positions are the same.
 def Internal.isEmptyImpl (ss : Substring.Raw) : Bool :=
   Substring.Raw.isEmpty ss
 
-/--{}
+/--
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
 @[inline] def toString : Substring.Raw → String
@@ -408,7 +408,7 @@ A substring can be interpreted as a decimal natural number if it is not empty an
 in it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
 at the start, at the end, or consecutively.
 
-Use `Substring.toNat?` to convert such a substring to a natural number.
+Use `Substring.Raw.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring.Raw) : Bool :=
   if s.isEmpty then
@@ -433,7 +433,7 @@ returning the number if it can.
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
 in it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
-Use `Substring.isNat` to check whether the substring is such a substring.
+Use `Substring.Raw.isNat` to check whether the substring is such a substring.
 -/
 def toNat? (s : Substring.Raw) : Option Nat :=
   if s.isNat then
@@ -502,7 +502,7 @@ The returned substring uses the same underlying string as `s`.
 def commonSuffix (s t : Substring.Raw) : Substring.Raw :=
   { s with startPos := loop s.stopPos t.stopPos }
 where
-  /-- Returns the starting position of the common prefix, working down from `spos, tpos`. -/
+  /-- Returns the starting position of the common suffix, working down from `spos, tpos`. -/
   loop spos tpos :=
     if h : s.startPos < spos ∧ t.startPos < tpos then
       let spos' := spos.prev s.str

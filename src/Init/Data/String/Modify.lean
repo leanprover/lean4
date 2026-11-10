@@ -172,7 +172,7 @@ character. If `p` is an invalid position, the string is returned unchanged.
 If both the replacement character and the replaced character are 7-bit ASCII characters and the
 string is not shared, then it is updated in-place and not copied.
 
-This is a legacy function. The recommended alternative is `String.Pos.set`, combined with
+This is a legacy function. The recommended alternative is `String.Pos.modify`, combined with
 `String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:

@@ -137,7 +137,7 @@ theorem PartialMatch.isLongestMatchAt
   exact h.2
 
 /--
-`prefixFunction pat i …` is the maximum `k` such that `pat[0...k] = pat[stackPos - k + 1...=stackPos]`.
+`prefixFunction pat stackPos …` is the maximum `k ≤ stackPos` such that `pat[0...k] = pat[stackPos - k + 1...=stackPos]`.
 
 Using the implementation given here, computing a table of `prefixFunction pat i` for `i` in
 `0...pat.size` would take cubic time, but we will later show that the `buildTable` function, which

@@ -595,15 +595,15 @@ This means that `p ≤ s.rawEndPos` and `p` lies on a UTF-8 character boundary. 
 operation takes constant time.
 
 Examples:
- * `String.Pos.isValid "abc" ⟨0⟩ = true`
- * `String.Pos.isValid "abc" ⟨1⟩ = true`
- * `String.Pos.isValid "abc" ⟨3⟩ = true`
- * `String.Pos.isValid "abc" ⟨4⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨0⟩ = true`
- * `String.Pos.isValid "𝒫(A)" ⟨1⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨2⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨3⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨4⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨0⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨1⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨3⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨4⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨0⟩ = true`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨1⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨2⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨3⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨4⟩ = true`
 -/
 @[extern "lean_string_is_valid_pos", expose]
 def Pos.Raw.isValid (s : @&String) (p : @& Pos.Raw) : Bool :=
@@ -1110,13 +1110,13 @@ theorem Slice.Pos.utf8Encode_get_eq_extract {s : Slice} (pos : s.Pos) (h : pos �
       (s.startInclusive.offset.byteIdx + pos.offset.byteIdx + (pos.get h).utf8Size) := by
   rw [get_eq_utf8DecodeChar pos h, List.utf8Encode_singleton, ByteArray.utf8EncodeChar_utf8DecodeChar]
 
-/-- Returns the byte at the given position in the string, or `none` if the position is the end
+/-- Returns the character at the given position in the string, or `none` if the position is the end
 position. -/
 @[expose]
 def Slice.Pos.get? {s : Slice} (pos : s.Pos) : Option Char :=
   if h : pos = s.endPos then none else some (pos.get h)
 
-/-- Returns the byte at the given position in the string, or panics if the position is the end
+/-- Returns the character at the given position in the string, or panics if the position is the end
 position. -/
 @[expose]
 def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
@@ -1209,7 +1209,7 @@ theorem Pos.ofToSlice_lt {s : String} {p q : s.toSlice.Pos} :
   simp [lt_iff, Slice.Pos.lt_iff]
 
 /--
-Returns the character at the position `pos` of a string, taking a proof that `p` is not the
+Returns the character at the position `pos` of a string, taking a proof that `pos` is not the
 past-the-end position.
 
 This function is overridden with an efficient implementation in runtime code.
@@ -1847,7 +1847,7 @@ abbrev utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char :=
 Returns the character at position `p` of a string. If `p` is not a valid position, returns `none`.
 
 This function is overridden with an efficient implementation in runtime code. See
-`String.utf8GetAux?` for the reference implementation.
+`String.Pos.Raw.utf8GetAux?` for the reference implementation.
 
 This is a legacy function. The recommended alternative is `String.Pos.get`, combined with
 `String.pos?` or another means of obtaining a `String.Pos`.
@@ -1872,7 +1872,7 @@ Returns the character at position `p` of a string. Panics if `p` is not a valid 
 See `String.pos?` and `String.Pos.get` for a safer alternative.
 
 This function is overridden with an efficient implementation in runtime code. See
-`String.utf8GetAux` for the reference implementation.
+`String.Pos.Raw.utf8GetAux` for the reference implementation.
 
 This is a legacy function. The recommended alternative is `String.Pos.get`, combined with
 `String.pos!` or another means of obtaining a `String.Pos`.
@@ -2670,9 +2670,9 @@ theorem extract_eq_copy_slice {s : String} (p₀ p₁ : s.Pos) (h : p₀ ≤ p�
 /--
 Copies a region of a slice to a new string.
 
-The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-allocated `String`.
+The region of `s` from `p₀` (inclusive) to `p₁` (exclusive) is copied to a newly-allocated `String`.
 
-If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
+If `p₀`'s offset is greater than or equal to that of `p₁`, then the resulting string is `""`.
 
 If possible, prefer `Slice.slice`, which avoids the allocation.
 -/
@@ -2733,11 +2733,11 @@ Returns the next position in a string after position `p`. If `p` is not a valid 
 `p = s.endPos`, returns the position one byte after `p`.
 
 A run-time bounds check is performed to determine whether `p` is at the end of the string. If a
-bounds check has already been performed, use `String.next'` to avoid a repeated check.
+bounds check has already been performed, use `String.Pos.Raw.next'` to avoid a repeated check.
 
 This is a legacy function. The recommended alternative is `String.Pos.next` or one of its
 variants like `String.Pos.next?`, combined with `String.pos` or another means of obtaining
-a `String.ValisPos`.
+a `String.Pos`.
 
 Some examples of edge cases:
 * `"abc".next ⟨3⟩ = ⟨4⟩`, since `3 = "abc".endPos`
@@ -2818,12 +2818,12 @@ Returns the character at position `p` of a string. Returns `(default : Char)`, w
 `p` is not a valid position.
 
 Requires evidence, `h`, that `p` is within bounds instead of performing a run-time bounds check as
-in `String.get`.
+in `String.Pos.Raw.get`.
 
 A typical pattern combines `get'` with a dependent `if`-expression to avoid the overhead of an
 additional bounds check. For example:
 ```
-def getInBounds? (s : String) (p : String.Pos) : Option Char :=
+def getInBounds? (s : String) (p : String.Pos.Raw) : Option Char :=
   if h : s.atEnd p then none else some (s.get' p h)
 ```
 Even with evidence of `¬ s.atEnd p`, `p` may be invalid if a byte index points into the middle of a
@@ -2851,13 +2851,13 @@ Returns the next position in a string after position `p`. The result is unspecif
 valid position.
 
 Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is performed, as in
-`String.next`.
+`String.Pos.Raw.next`.
 
 A typical pattern combines `String.next'` with a dependent `if`-expression to avoid the overhead of
 an additional bounds check. For example:
 ```
-def next? (s : String) (p : String.Pos) : Option Char :=
-  if h : s.atEnd p then none else s.get (s.next' p h)
+def next? (s : String) (p : String.Pos.Raw) : Option Char :=
+  if h : s.atEnd p then none else some (s.get (s.next' p h))
 ```
 
 This is a legacy function. The recommended alternative is `String.Pos.next`, combined with

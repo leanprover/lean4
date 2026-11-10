@@ -1287,7 +1287,7 @@ theorem utf8DecodeChar?_append_eq_assemble₄ {l : List UInt8} {b : ByteArray} (
 /-!
 # Main theorems
 
-`utf8DecodeChar?_utf8EncodeChar_append` and `toByteArray_of_utf8DecodeChar?_eq_some` are the two main results that together
+`utf8DecodeChar?_utf8EncodeChar_append` and `toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some` are the two main results that together
 imply that UTF-8 encoding and decoding are inverse.
 -/
 

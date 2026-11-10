@@ -129,7 +129,7 @@ def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.
   (s.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
+Finds the position of the first match of the pattern {name}`pattern` in a string {name}`s`. If there
 is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
@@ -144,7 +144,7 @@ def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
   Pos.ofToSlice (s.toSlice.find pattern)
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
+Finds the position of the last match of the pattern {name}`pattern` in a slice {name}`s` that is
 strictly before {name}`pos`. If there is no such match {lean}`none` is returned.
 
 This function is generic over all currently supported patterns except
@@ -161,7 +161,7 @@ def Slice.Pos.revFind? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToBackwardSearc
   ((s.sliceTo pos).revFind? pattern).map ofSliceTo
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
+Finds the position of the last match of the pattern {name}`pattern` in a string {name}`s` that is
 strictly before {name}`pos`. If there is no such match {lean}`none` is returned.
 
 This function is generic over all currently supported patterns except
@@ -178,15 +178,15 @@ def Pos.revFind? {s : String} (pos : s.Pos) (pattern : ρ) [ToBackwardSearcher p
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string, starting
-from the end of the slice and traversing towards the start. If there is no match {name}`none` is
+from the end of the string and traversing towards the start. If there is no match {name}`none` is
 returned.
 
 This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.revFind? Char.isWhitespace).map (·.get!) == some ' '`
- * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
+ * {lean}`("coffee tea water".revFind? Char.isWhitespace).map (·.get!) == some ' '`
+ * {lean}`"tea".revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[inline]
 def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.Pos :=
@@ -260,7 +260,8 @@ def Internal.anyImpl (s : String) (p : Char → Bool) :=
 Checks whether the string can be interpreted as the decimal representation of a natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
+at the start, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Search")}`toNat?` or
 {name (scope := "Init.Data.String.Search")}`toNat!` to convert such a slice to a natural number.
@@ -284,7 +285,7 @@ Interprets a string as the decimal representation of a natural number, returning
 {name}`none` if the slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
 {name (scope := "Init.Data.String.Search")}`toNat!` is an alternative that panics instead of
@@ -308,7 +309,7 @@ Interprets a string as the decimal representation of a natural number, returning
 slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
 alternative that returns {name}`none` instead of panicking when the string is not a natural number.

@@ -168,7 +168,7 @@ Examples:
   s.toSlice.takeEndWhile pat
 
 /--
-Creates a new string by removing the longest suffix from {name}`s` in which {name}`pat` matches
+Creates a string slice by removing the longest suffix from {name}`s` in which {name}`pat` matches
 (potentially repeatedly).
 
 This is a cheap operation because it does not allocate a new string to hold the result.
@@ -283,8 +283,6 @@ Examples:
 /--
 Checks whether the second string ({name}`s`) begins with a prefix ({name}`p`).
 
-This function is generic over all currently supported patterns.
-
 {name}`String.startsWith` is a version that takes the potential prefix after the string.
 
 Examples:
@@ -331,7 +329,7 @@ Returns the position at the start of the longest suffix of {name}`s` for which {
   Pos.ofToSlice (s.toSlice.skipSuffixWhile pat)
 
 /--
-If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
+If {name}`pat` matches a suffix at {name}`pos`, returns the position at the beginning of the match.
 Returns {name}`none` otherwise.
 
 This function is generic over all currently supported patterns.
@@ -516,7 +514,7 @@ def stripPrefix (s pre : String) : String :=
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
 otherwise.
 
-Use {name}`String.dropSuffix?` to return {name}`none` when {name}`pat` does not match a prefix.
+Use {name}`String.dropSuffix?` to return {name}`none` when {name}`pat` does not match a suffix.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.

@@ -25,7 +25,7 @@ An iterator over the characters (Unicode code points) in a `String`. Typically c
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
 `String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+`p := s.startPos`, advance it using `p.next`, access the current character using `p.get` and
 check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
 String iterators pair a string with a valid byte index. This allows efficient character-by-character
@@ -57,7 +57,7 @@ structure Iterator where
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
 `String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+`p := s.startPos`, advance it using `p.next`, access the current character using `p.get` and
 check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 -/
 @[inline] def mkIterator (s : String) : Iterator :=
@@ -95,10 +95,10 @@ Gets the character at the iterator's current position.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
 `String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+`p := s.startPos`, advance it using `p.next`, access the current character using `p.get` and
 check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
-A run-time bounds check is performed. Use `String.Iterator.curr'` to avoid redundant bounds checks.
+A run-time bounds check is performed. Use `String.Legacy.Iterator.curr'` to avoid redundant bounds checks.
 
 If the position is invalid, returns `(default : Char)`.
 -/
@@ -110,7 +110,7 @@ Moves the iterator's position forward by one character, unconditionally.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
 `String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+`p := s.startPos`, advance it using `p.next`, access the current character using `p.get` and
 check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
 It is only valid to call this function if the iterator is not at the end of the string (i.e.
@@ -250,8 +250,8 @@ satisfies `p`.
 
 /--
 Iterates over a string, updating a state at each character using the provided function `f`, until
-`f` returns `none`. Begins with the state `init`. Returns the state and character for which `f`
-returns `none`.
+`f` returns `none`. Begins with the state `init`. Returns the state and the iterator at the character
+for which `f` returns `none`.
 -/
 @[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
   if it.atEnd then

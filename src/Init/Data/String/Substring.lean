@@ -231,31 +231,16 @@ When `sep` is empty, the result is `[s]`. When `sep` occurs in overlapping patte
 is taken. There will always be exactly `n+1` elements in the returned list if there were `n`
 non-overlapping matches of `sep` in the string. The separators are not included in the returned
 substrings, which are all substrings of `s`'s string.
+
+If `s` is not a valid substring (see `Substring.Raw.toSlice?`), the result is `[s]`.
 -/
 def splitOn (s : Substring.Raw) (sep : String := " ") : List Substring.Raw :=
   if sep == "" then
     [s]
   else
-    let rec loop (b i j : String.Pos.Raw) (r : List Substring.Raw) : List Substring.Raw :=
-      if h : i.byteIdx < s.bsize then
-        have := Nat.sub_lt_sub_left h (lt_next s i h)
-        if s.get i == j.get sep then
-          let i := s.next i
-          let j := j.next sep
-          if j.atEnd sep then
-            loop i i 0 (s.extract b (i.unoffsetBy j) :: r)
-          else
-            loop b i j r
-        else
-          loop b (s.next i) 0 r
-      else
-        let r := if j.atEnd sep then
-          "".toRawSubstring :: s.extract b (i.unoffsetBy j) :: r
-        else
-          s.extract b i :: r
-        r.reverse
-      termination_by s.bsize - i.1
-    loop 0 0 0 []
+    match s.toSlice? with
+    | some s' => (s'.split sep).toList.map ofSlice
+    | none => [s]
 
 /--
 Folds a function over a substring from the left, accumulating a value starting with `init`. The

@@ -36,15 +36,17 @@
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux (let
-          # Build OpenSSL 3 statically using pkgsDist's old-glibc stdenv,
+          # Build OpenSSL statically using pkgsDist's old-glibc stdenv,
           # so the resulting static libs don't require newer glibc symbols.
+          # Sync version with `OPENSSL_SRC_VERSION` and major version with `openssl@4` in
+          # .github/workflows/build-template.yml, and major version with script/prepare-llvm-macos.sh.
           opensslForDist = pkgsDist.stdenv.mkDerivation {
-            name = "openssl-static-3.6.0";
+            name = "openssl-static-4.1.0";
             src = pkgs.fetchFromGitHub {
               owner = "openssl";
               repo = "openssl";
-              rev = "openssl-3.6.0";
-              hash = "sha256-EJnbK9ZMdN2ztTTQtb7VsEQvvbMYnY5HJ2LMJlw5FRg=";
+              rev = "openssl-4.1.0";
+              hash = "sha256-adqRWTdNKPwBnwMnIeFThSoiwc3sZpBX/3AWNpWUeGw=";
             };
             nativeBuildInputs = [ pkgsDist.perl ];
             configurePhase = ''

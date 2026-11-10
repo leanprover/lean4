@@ -41,6 +41,9 @@ jobs:
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 11.0
+      # OpenSSL built from source on Intel macOS; sync with `opensslForDist` in flake.nix
+      OPENSSL_SRC_VERSION: 4.1.0
+      OPENSSL_SRC_SHA256: 50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd
     steps:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
@@ -51,13 +54,54 @@ jobs:
         uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: clang64
+          # without the update, packages are installed in the versions of the possibly outdated MSYS2
+          # installer tarball's package database
+          update: true
           # `:` means do not prefix with msystem
           pacboy: "make: python: cmake clang ccache gmp libuv openssl: git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
+        # without the update, the runner image's possibly outdated formula data considers its
+        # preinstalled versions up to date; skip it on Intel, where Homebrew no longer builds
+        # bottles, so updated formulae (and their dependency trees) would be built from source
         run: |
-          brew install ccache tree zstd coreutils gmp libuv openssl
+          PACKAGES=(ccache tree zstd coreutils gmp libuv)
+          if [[ "$(uname -m)" == arm64 ]]; then
+            brew update
+            PACKAGES+=(openssl@4)
+          fi
+          brew install "${PACKAGES[@]}"
         if: runner.os == 'macOS'
+      - name: Restore OpenSSL
+        id: restore-openssl
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/openssl
+          key: openssl-${{ env.OPENSSL_SRC_VERSION }}-${{ matrix.os }}-macos${{ env.MACOSX_DEPLOYMENT_TARGET }}-v1
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+      - name: Build OpenSSL
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -fsSL -o openssl.tar.gz "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_SRC_VERSION/openssl-$OPENSSL_SRC_VERSION.tar.gz"
+          echo "$OPENSSL_SRC_SHA256  openssl.tar.gz" | shasum -a 256 -c
+          tar xf openssl.tar.gz
+          cd "openssl-$OPENSSL_SRC_VERSION"
+          ./Configure --prefix="$RUNNER_TEMP/openssl" no-shared no-tests
+          make -j"$(sysctl -n hw.logicalcpu)" build_sw
+          make install_sw
+        if: runner.os == 'macOS' && runner.arch == 'X64' && steps.restore-openssl.outputs.cache-hit != 'true'
+      - name: Save OpenSSL
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ runner.temp }}/openssl
+          key: ${{ steps.restore-openssl.outputs.cache-primary-key }}
+        if: runner.os == 'macOS' && runner.arch == 'X64' && steps.restore-openssl.outputs.cache-hit != 'true'
+      - name: Use OpenSSL
+        run: |
+          "$RUNNER_TEMP/openssl/bin/openssl" version
+          # picked up by script/prepare-llvm-macos.sh
+          echo "OPENSSL=$RUNNER_TEMP/openssl" >> "$GITHUB_ENV"
+        if: runner.os == 'macOS' && runner.arch == 'X64'
       - name: Checkout
         uses: actions/checkout@v6
         with:

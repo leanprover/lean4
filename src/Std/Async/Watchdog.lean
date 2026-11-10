@@ -26,13 +26,13 @@ namespace Watchdog
 The state shared between a watchdog and the code that arms it.
 -/
 private structure State where
-  /-- A timed wait is in progress. -/
+  /-- Whether a timed wait is in progress. -/
   waiting : Bool := false
   /-- When the current wait expires, as a value of `IO.monoMsNow`. -/
   deadline : Nat := 0
   /--
-  A wait outlived its deadline. The watchdog has then stopped and cancelled its context, unless the
-  context was cancelled for another reason first.
+  Whether a wait outlived its deadline. Once it is set, the watchdog stops and the context is
+  cancelled with `.deadline`, unless it was cancelled for another reason first.
   -/
   fired : Bool := false
   /-- The deadline the watchdog's timer is set for, or `none` while it waits without a timer. -/
@@ -68,30 +68,31 @@ end Watchdog
 /--
 Enforces deadlines on a sequence of waits with a single background timer. A wait starts with
 `arm` and ends with `disarm`; when one outlives its deadline, the watchdog cancels its context with
-`.deadline` and stops.
+`.deadline` and stops. The context is never cancelled before the deadline.
 
-`arm` and `disarm` only update shared state, except that a `disarm` past the deadline cancels the
-context itself. The timer is restarted only when a deadline is earlier than the one it is set for,
-so waits that keep moving the deadline later, such as idle timeouts, cost no timer operation each.
-The watchdog checks deadlines against `IO.monoMsNow` itself, so a timer that fires early never
-cancels the context before the deadline.
+Waits whose deadlines keep moving later, such as idle timeouts, cost no timer operation each: only
+a deadline earlier than the one the timer is set for restarts it.
 
-The watchdog runs until its context is cancelled, so the context should be cancelled once the
-watchdog is no longer needed.
+The context is cancelled from a task on the shared task pool, so while every worker is busy, a late
+wait may stay uncancelled until one is free. `disarm` reports a late wait regardless.
+
+The watchdog and its timer stay alive until the context is cancelled, so the context should be
+cancelled once the watchdog is no longer needed.
 -/
 structure Watchdog where
+  /-- Assembles a watchdog from its parts without starting its background task. -/
   private mk ::
   private ctx : CancellationContext
   private state : IO.Ref Watchdog.State
-  /-- Resolved to make the watchdog re-read `state`. Each round of the watchdog replaces it. -/
+  /--
+  The promise whose resolution makes the watchdog re-read `state`. Each round of the watchdog
+  replaces it.
+  -/
   private wake : IO.Ref (IO.Promise Unit)
   /-- The timer of the watchdog's current round, stopped when the next round starts. -/
   private timer : IO.Ref (Option Internal.UV.Timer)
 
 namespace Watchdog
-
-private def timeoutOf (ms : Nat) : UInt64 :=
-  if ms < UInt64.size then ms.toUInt64 else (UInt64.size - 1).toUInt64
 
 /--
 Marks the watchdog as fired and cancels its context.
@@ -122,7 +123,7 @@ private partial def round (wd : Watchdog) : BaseIO Unit := do
   | .park => BaseIO.chainTask wake.result? fun _ => round wd
   | .sleep ms =>
     let started ← EIO.toBaseIO do
-      let timer ← Internal.UV.Timer.mk (timeoutOf ms) false
+      let timer ← Internal.UV.Timer.mk (.ofNatClamp ms) false
       let elapsed ← timer.next
       wd.timer.set (some timer)
       BaseIO.chainTask (sync := true) elapsed.result? fun _ => wake.resolve ()
@@ -133,6 +134,9 @@ private partial def round (wd : Watchdog) : BaseIO Unit := do
 
 /--
 Creates a watchdog that cancels `ctx` with `.deadline` when a wait outlives its deadline.
+
+The watchdog and its timer stay alive until `ctx` is cancelled, so `ctx` should be cancelled once
+the watchdog is no longer needed.
 -/
 def new (ctx : CancellationContext) : IO Watchdog := do
   let wd : Watchdog := {
@@ -215,7 +219,8 @@ def disarm (wd : Watchdog) : BaseIO Bool := do
   if late then wd.settle else return false
 
 /--
-Returns `true` if a wait outlived its deadline and its context was cancelled with `.deadline`.
+Returns `true` if a wait outlived its deadline and its context was cancelled with `.deadline`. If
+the watchdog has marked a wait as late but not cancelled the context yet, this cancels it first.
 -/
 def hasFired (wd : Watchdog) : BaseIO Bool := do
   if (← wd.state.get).fired then wd.settle else return false

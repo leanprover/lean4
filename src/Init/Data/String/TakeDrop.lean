@@ -346,8 +346,8 @@ def Pos.revSkipWhile {s : String} (pos : s.Pos) (pat : ρ) [BackwardPattern pat]
   Pos.ofToSlice (pos.toSlice.revSkipWhile pat)
 
 /--
-Removes trailing whitespace from a string by returning a slice whose end position is the last
-non-whitespace character, or the start position if there is no non-whitespace character.
+Removes trailing whitespace from a string by returning a slice whose end position is just after the
+last non-whitespace character, or the start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 

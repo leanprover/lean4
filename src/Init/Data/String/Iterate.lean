@@ -423,7 +423,7 @@ def revPositions (s : String) :=
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
-of the slice and iterating towards the start.
+of the string and iterating towards the start.
 
 Example:
  * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`

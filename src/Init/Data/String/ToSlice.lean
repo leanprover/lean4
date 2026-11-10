@@ -19,7 +19,7 @@ namespace String
 /--
 Typeclass for types that have a conversion function to `String.Slice`. This typeclass is used to
 make some `String`/`String.Slice` functions polymorphic. As such, for now it is not intended that
-there instances of this beyond `ToSlice String` and `ToSlice String.Slice`.
+there be instances of this beyond `ToSlice String` and `ToSlice String.Slice`.
 
 To convert arbitrary data into a string representation, see `ToString` and `Repr`.
 -/

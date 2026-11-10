@@ -390,7 +390,7 @@ theorem Invariants.offset {pat s : Slice} {pos : s.Pos} (hpat : pat.isEmpty = fa
   partialMatch := partialMatch_zero (by simpa [Pos.Raw.le_iff, Pos.le_iff] using pos.le_endPos)
   isValidForSlice' _ := pos.isValidForSlice
 
-/-- The start of the window, as a valid position in `s.` -/
+/-- The start of the window, as a valid position in `s`. -/
 def Invariants.base {pat s : Slice} {needlePos stackPos : String.Pos.Raw}
     (h : Invariants pat s needlePos stackPos) : s.Pos :=
   s.pos _ h.isValidForSlice

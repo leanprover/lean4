@@ -24,7 +24,7 @@ import Init.Omega
 
 This file contains the low-level proof that UTF-8 decoding and encoding are inverses.
 An important corollary is that attempting to decode a byte array that is valid UTF-8 will
-succeed, which is required for the definition of `String.toList`.
+succeed.
 -/
 
 /-! # `Char.utf8Size` -/
@@ -1541,8 +1541,10 @@ public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h
 namespace UInt8
 
 /--
-Predicate for whether a byte can appear as the first byte of the UTF-8 encoding of a Unicode
-scalar value.
+Predicate for whether a byte has the bit pattern of a UTF-8 leading byte, that is, one of the forms
+`0b0xxxxxxx`, `0b110xxxxx`, `0b1110xxxx` or `0b11110xxx`. Every first byte of the UTF-8 encoding of a
+Unicode scalar value satisfies this, but so do some bytes that never occur in valid UTF-8 (`0xC0`,
+`0xC1` and `0xF5` to `0xF7`).
 -/
 @[expose]
 public def IsUTF8FirstByte (c : UInt8) : Prop :=

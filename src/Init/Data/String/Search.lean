@@ -54,7 +54,7 @@ def replace [ToSlice α] (s : String) (pattern : ρ) [ToForwardSearcher pattern 
   s.toSlice.replace pattern replacement
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in after the position
+Finds the position of the first match of the pattern {name}`pattern` after the position
 {name}`pos`. If there is no match {name}`none` is returned.
 
 This function is generic over all currently supported patterns.
@@ -69,7 +69,7 @@ def Slice.Pos.find? {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher 
   ((s.sliceFrom pos).find? pattern).map ofSliceFrom
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in after the position
+Finds the position of the first match of the pattern {name}`pattern` after the position
 {name}`pos`. If there is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
@@ -84,7 +84,7 @@ def Slice.Pos.find {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher p
   ofSliceFrom ((s.sliceFrom pos).find pattern)
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in after the position
+Finds the position of the first match of the pattern {name}`pattern` after the position
 {name}`pos`. If there is no match {name}`none` is returned.
 
 This function is generic over all currently supported patterns.
@@ -99,7 +99,7 @@ def Pos.find?  {s : String} (pos : s.Pos) (pattern : ρ)
   (pos.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
-Finds the position of the first match of the pattern {name}`pattern` in after the position
+Finds the position of the first match of the pattern {name}`pattern` after the position
 {name}`pos`. If there is no match {lean}`s.endPos` is returned.
 
 This function is generic over all currently supported patterns.
@@ -200,7 +200,7 @@ def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
 Splits a string at each subslice that matches the pattern {name}`pat`.
 
 The subslices that matched the pattern are not included in any of the resulting subslices. If
-multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+multiple subslices in a row match the pattern, the resulting list will contain empty slices.
 
 This function is generic over all currently supported patterns.
 
@@ -259,12 +259,12 @@ def Internal.anyImpl (s : String) (p : Char → Bool) :=
 /--
 Checks whether the string can be interpreted as the decimal representation of a natural number.
 
-A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
-at the start, at the end, or consecutively.
+A string can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot
+appear at the start, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Search")}`toNat?` or
-{name (scope := "Init.Data.String.Search")}`toNat!` to convert such a slice to a natural number.
+{name (scope := "Init.Data.String.Search")}`toNat!` to convert such a string to a natural number.
 
 Examples:
  * {lean}`"".isNat = false`
@@ -282,14 +282,15 @@ Examples:
 
 /--
 Interprets a string as the decimal representation of a natural number, returning it. Returns
-{name}`none` if the slice does not contain a decimal natural number.
+{name}`none` if the string does not contain a decimal natural number.
 
-A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
+A string can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during
+parsing.
 
 Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
 {name (scope := "Init.Data.String.Search")}`toNat!` is an alternative that panics instead of
-returning {name}`none` when the slice is not a natural number.
+returning {name}`none` when the string is not a natural number.
 
 Examples:
  * {lean}`"".toNat? = none`
@@ -306,10 +307,11 @@ Examples:
 
 /--
 Interprets a string as the decimal representation of a natural number, returning it. Panics if the
-slice does not contain a decimal natural number.
+string does not contain a decimal natural number.
 
-A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
+A string can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during
+parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
 alternative that returns {name}`none` instead of panicking when the string is not a natural number.
@@ -328,6 +330,8 @@ if the string does not contain a decimal integer.
 
 A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
 and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear at the
+start, directly after the {lit}`-`, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Search")}`String.isInt` to check whether {name}`String.toInt?`
 would return {lean}`some`. {name (scope := "Init.Data.String.Search")}`String.toInt!` is an
@@ -353,6 +357,8 @@ Checks whether the string can be interpreted as the decimal representation of an
 
 A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
 and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear at the
+start, directly after the {lit}`-`, at the end, or consecutively.
 
 Use {name}`String.toInt?` or {name (scope := "Init.Data.String.Search")}`String.toInt!` to convert
 such a string to an integer.
@@ -379,6 +385,8 @@ does not contain a decimal integer.
 
 A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
 and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear at the
+start, directly after the {lit}`-`, at the end, or consecutively.
 
 Use {name}`String.isInt` to check whether {name}`String.toInt!` would return a value.
 {name}`String.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the

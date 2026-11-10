@@ -151,11 +151,11 @@ This is a legacy function. The recommended alternative is `String.Pos.set`, comb
 `String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:
-* `"abc".set ⟨1⟩ 'B' = "aBc"`
-* `"abc".set ⟨3⟩ 'D' = "abc"`
-* `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
-* `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"` because `'∃'` is a multi-byte character, so the byte index `2` is an
-  invalid position.
+* `String.Pos.Raw.set "abc" ⟨1⟩ 'B' = "aBc"`
+* `String.Pos.Raw.set "abc" ⟨3⟩ 'D' = "abc"`
+* `String.Pos.Raw.set "L∃∀N" ⟨4⟩ 'X' = "L∃XN"`
+* `String.Pos.Raw.set "L∃∀N" ⟨2⟩ 'X' = "L∃∀N"` because `'∃'` is a multi-byte character, so the
+  byte index `2` is an invalid position.
 -/
 @[extern "lean_string_utf8_set", expose]
 def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
@@ -176,8 +176,8 @@ This is a legacy function. The recommended alternative is `String.Pos.modify`, c
 `String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:
-* `"abc".modify ⟨1⟩ Char.toUpper = "aBc"`
-* `"abc".modify ⟨3⟩ Char.toUpper = "abc"`
+* `String.Pos.Raw.modify "abc" ⟨1⟩ Char.toUpper = "aBc"`
+* `String.Pos.Raw.modify "abc" ⟨3⟩ Char.toUpper = "abc"`
 -/
 @[expose]
 def Pos.Raw.modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=

@@ -213,9 +213,9 @@ Returns the region of the substring delimited by the provided start and stop pos
 substring. The positions are interpreted with respect to the substring's start position, rather than
 the underlying string.
 
-If the resulting substring is empty, then the resulting substring is a substring of the empty string
-`""`. Otherwise, the underlying string is that of the input substring with the beginning and end
-positions adjusted.
+If the start position is not less than the stop position, then the result is a substring of the
+empty string `""`. Otherwise, the underlying string is that of the input substring with the beginning
+and end positions adjusted, and clamped to the input substring's end position.
 -/
 @[inline] def extract : Substring.Raw → String.Pos.Raw → String.Pos.Raw → Substring.Raw
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b'.offsetBy b), e.min (e'.offsetBy b)⟩
@@ -371,8 +371,8 @@ character, or to its end position if there is no non-whitespace character.
   s.dropWhile Char.isWhitespace
 
 /--
-Removes trailing whitespace from a substring by moving its end position to the last non-whitespace
-character, or to its start position if there is no non-whitespace character.
+Removes trailing whitespace from a substring by moving its end position to just after the last
+non-whitespace character, or to its start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
 -/
@@ -381,8 +381,8 @@ character, or to its start position if there is no non-whitespace character.
 
 /--
 Removes leading and trailing whitespace from a substring by first moving its start position to the
-first non-whitespace character, and then moving its end position to the last non-whitespace
-character.
+first non-whitespace character, and then moving its end position to just after the last
+non-whitespace character.
 
 If the substring consists only of whitespace, then the resulting substring's start position is moved
 to its end position.

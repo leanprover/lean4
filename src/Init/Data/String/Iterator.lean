@@ -9,10 +9,10 @@ prelude
 public import Init.Data.String.Modify
 
 /-!
-# `String.Iterator`
+# `String.Legacy.Iterator`
 
-This file contains `String.Iterator`, an outgoing API to be replaced by the iterator framework in
-a future release.
+This file contains `String.Legacy.Iterator`, an outgoing API to be replaced by the iterator
+framework in a future release.
 -/
 
 public section
@@ -21,7 +21,7 @@ namespace String.Legacy
 
 /--
 An iterator over the characters (Unicode code points) in a `String`. Typically created by
-`String.iter`.
+`String.Legacy.iter`.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
 `String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
@@ -36,7 +36,7 @@ An iterator is *valid* if the position `i` is *valid* for the string `s`, meanin
 and `i` lies on a UTF8 byte boundary. If `i = s.rawEndPos`, the iterator is at the end of the string.
 
 Most operations on iterators return unspecified values if the iterator is not valid. The functions
-in the `String.Iterator` API rule out the creation of invalid iterators, with two exceptions:
+in the `String.Legacy.Iterator` API rule out the creation of invalid iterators, with two exceptions:
 - `Iterator.next iter` is invalid if `iter` is already at the end of the string (`iter.atEnd` is
   `true`), and
 - `Iterator.forward iter n`/`Iterator.nextn iter n` is invalid if `n` is strictly greater than the
@@ -98,7 +98,8 @@ This is a no-longer-supported legacy API that will be removed in a future releas
 `p := s.startPos`, advance it using `p.next`, access the current character using `p.get` and
 check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
-A run-time bounds check is performed. Use `String.Legacy.Iterator.curr'` to avoid redundant bounds checks.
+A run-time bounds check is performed. Use `String.Legacy.Iterator.curr'` to avoid redundant bounds
+checks.
 
 If the position is invalid, returns `(default : Char)`.
 -/
@@ -149,7 +150,7 @@ Checks whether the iterator is after the beginning of the string.
 Gets the character at the iterator's current position.
 
 The proof of `it.hasNext` ensures that there is, in fact, a character at the current position. This
-function is faster that `String.Iterator.curr` due to avoiding a run-time bounds check.
+function is faster than `String.Legacy.Iterator.curr` due to avoiding a run-time bounds check.
 -/
 @[inline] def curr' (it : Iterator) (h : it.hasNext) : Char :=
   match it with
@@ -159,7 +160,7 @@ function is faster that `String.Iterator.curr` due to avoiding a run-time bounds
 Moves the iterator's position forward by one character, unconditionally.
 
 The proof of `it.hasNext` ensures that there is, in fact, a position that's one character forwards.
-This function is faster that `String.Iterator.next` due to avoiding a run-time bounds check.
+This function is faster than `String.Legacy.Iterator.next` due to avoiding a run-time bounds check.
 -/
 @[inline] def next' (it : Iterator) (h : it.hasNext) : Iterator :=
   match it with
@@ -250,8 +251,8 @@ satisfies `p`.
 
 /--
 Iterates over a string, updating a state at each character using the provided function `f`, until
-`f` returns `none`. Begins with the state `init`. Returns the state and the iterator at the character
-for which `f` returns `none`.
+`f` returns `none`. Begins with the state `init`. Returns the state and the iterator at the
+character for which `f` returns `none`, or at the end of the string if there is no such character.
 -/
 @[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
   if it.atEnd then

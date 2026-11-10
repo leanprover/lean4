@@ -471,7 +471,7 @@ theorem isLongestMatchAtChain_of_ofSliceTo {pat : ρ} [PatternModel pat] {s : Sl
   simpa using h.sliceTo p Pos.ofSliceTo_le
 
 /--
-Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains is a match
+Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains a match
 of {name}`pat` in {name}`s` and it is longest among matches ending at {name}`endPos`.
 -/
 structure IsLongestRevMatchAt (pat : ρ) [PatternModel pat] {s : Slice} (startPos endPos : s.Pos) : Prop where
@@ -958,8 +958,8 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
 Inductive predicate stating that a list of search steps represents a valid backwards search from a
 given position in a slice.
 
-"Searching" here means always taking the longest match at the first position where the pattern
-matches.
+"Searching" here means always taking the longest reverse match at the last position where the
+pattern matches, i.e., the first such position reached when going backwards.
 
 Hence, this predicate determines the list of search steps up to grouping of rejections.
 -/
@@ -1016,8 +1016,9 @@ theorem isValidRevSearchFrom_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice
 /--
 Predicate stating compatibility between {name}`PatternModel` and {name}`ToBackwardSearcher`.
 
-We require the searcher to always match the longest match at the first position where the pattern
-matches; see {name}`IsValidRevSearchFrom`.
+We require the searcher to always match the longest reverse match at the last position where the
+pattern matches, i.e., the first such position reached when going backwards; see
+{name}`IsValidRevSearchFrom`.
 -/
 class LawfulToBackwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
     [ToBackwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]

@@ -193,22 +193,73 @@ def readResponse (client : TCP.Socket.Client) (size : Nat) : Async ByteArray := 
     | some c => out := out ++ c
   return out
 
+/--
+A socket whose writes of at least `gateBytes` bytes complete only once `gate` is resolved. A write
+completes once the kernel takes the bytes, so whether a large write is still in flight when the
+peer stops reading depends on the platform's socket buffers; the gate makes it the test's choice.
+-/
+structure GatedSocket where
+  socket : TCP.Socket.Client
+  gateBytes : Nat
+  /-- Resolved once a gated write starts. -/
+  started : IO.Promise Unit
+  gate : IO.Promise Unit
+
+def GatedSocket.new (socket : TCP.Socket.Client) (gateBytes : Nat) : BaseIO GatedSocket :=
+  return { socket, gateBytes, started := ← IO.Promise.new, gate := ← IO.Promise.new }
+
+instance : Transport GatedSocket where
+  recv s expect := Transport.recv s.socket expect
+  sendAll s data := do
+    let gated := data.foldl (· + ·.size) 0 ≥ s.gateBytes
+    if gated then s.started.resolve ()
+    Transport.sendAll s.socket data
+    if gated then discard <| Async.ofTask s.gate.result?
+  recvSelector s expect := Transport.recvSelector s.socket expect
+  close s := Transport.close s.socket
+
 #eval runGroup "keep-alive timeout starts once the response is written" <| Async.block do
   let (client, conn) ← connectPair
   let failures ← IO.mkRef #[]
-  let size := 8 * 1024 * 1024
+  let size := 1024 * 1024
   let big := ByteArray.mk (Array.replicate size 'x'.toUInt8)
   let h := recordingHandler failures fun req =>
     if toString req.line.uri == "/big" then Response.ok |>.bytes big else Response.ok |>.text "[next]"
   let cfg := { config with keepAliveTimeout := ⟨300, by decide⟩ }
-  let serve ← async (Server.serveConnection conn h cfg |>.run)
+  let socket ← GatedSocket.new conn size
+  let serve ← async (Server.serveConnection socket h cfg |>.run)
   client.send (mkGet "/big").toUTF8
-  -- Reading the response starts after the keep-alive timeout.
+  -- The keep-alive timeout passes while the body's write is in flight.
   sleep 1000
   let first ← withDeadline "slow reader" 20000 (readResponse client size)
   assertStatus first "HTTP/1.1 200"
+  -- The write completes only now, so the keep-alive timeout starts over from here.
+  socket.gate.resolve ()
   client.send (mkGetClose "/next").toUTF8
   let second ← withDeadline "second response" 5000 (readAll client)
   await serve
   assertContains second "[next]"
+  expectNoFailures failures
+
+#eval runGroup "keep-alive timeout runs from when the write completes" <| Async.block do
+  let (client, conn) ← connectPair
+  let failures ← IO.mkRef #[]
+  let size := 64 * 1024
+  let big := ByteArray.mk (Array.replicate size 'x'.toUInt8)
+  let h := recordingHandler failures fun req =>
+    if toString req.line.uri == "/big" then Response.ok |>.bytes big else Response.ok |>.text "[next]"
+  let cfg := { config with keepAliveTimeout := ⟨300, by decide⟩ }
+  let socket ← GatedSocket.new conn size
+  let serve ← async (Server.serveConnection socket h cfg |>.run)
+  client.send (mkGet "/big").toUTF8
+  discard <| Async.ofTask socket.started.result?
+  -- The write completes shortly before a timeout counted from the hand-over would run out.
+  sleep 250
+  socket.gate.resolve ()
+  sleep 100
+  client.send (mkGetClose "/next").toUTF8
+  let res ← withDeadline "responses" 5000 (readAll client)
+  await serve
+  assertStatus res "HTTP/1.1 200"
+  assertContains res "[next]"
   expectNoFailures failures

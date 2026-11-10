@@ -554,12 +554,18 @@ private def handle
       state := { state with requiresData := false }
       let sources ← buildPollSources socket connectionContext state
       let event ← pollNextEvent config handler sources
-      -- The connection is not idle while the peer still reads the response, so the keep-alive
-      -- timeout starts over once the response is written.
+      -- The keep-alive timeout is armed when the response is handed to the outbox, but the
+      -- connection is idle only once the response is written, so it counts from then.
       if event matches .keepAliveTimeout then
-        if ← outbox.writing then
+        match ← outbox.idleFor? with
+        | none =>
           outbox.awaitIdle
           continue
+        | some idle =>
+          let remaining := config.keepAliveTimeout.val.toInt - idle
+          if remaining > 0 then
+            state := { state with currentTimeout := .ofInt remaining }
+            continue
       let (newState, shouldClose) ← handleRecvEvent handler config event state
       state := newState
       if shouldClose then break

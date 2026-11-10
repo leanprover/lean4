@@ -59,6 +59,11 @@ structure Outbox.State where
   -/
   idle : Option (IO.Promise Unit) := none
 
+  /--
+  When the last write completed, by `IO.monoMsNow`.
+  -/
+  idleSince : Nat := 0
+
 /--
 Writes a connection's output to `socket` in order without the connection waiting for it. At most
 one write is in flight. Output handed over meanwhile goes out in a single write once that write
@@ -97,6 +102,7 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
     BaseIO Unit := do
   let task ← EAsync.toBaseIO (Transport.sendAll outbox.socket data)
   BaseIO.chainTask (sync := true) task fun result => do
+    let now ← IO.monoMsNow
     let (next, idle) ← outbox.state.modifyGet fun s =>
       match result with
       | .error err =>
@@ -104,7 +110,8 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
           queued := [], queuedBytes := 0, writing := false, failed := true, error := some err
           idle := none })
       | .ok () =>
-        if s.queued.isEmpty then ((#[], s.idle), { s with writing := false, idle := none })
+        if s.queued.isEmpty then
+          ((#[], s.idle), { s with writing := false, idle := none, idleSince := now })
         else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0 })
     if let some idle := idle then
       idle.resolve ()
@@ -157,6 +164,14 @@ Waits until no write is in flight.
 def awaitIdle (outbox : Outbox α) : Async Unit := do
   if let some idle ← outbox.idle? then
     BaseAsync.ofTask (Task.map (sync := true) (fun _ => (Except.ok () : Except IO.Error Unit)) idle)
+
+/--
+How many milliseconds ago the last write completed, or `none` while a write is in flight.
+-/
+def idleFor? (outbox : Outbox α) : BaseIO (Option Nat) := do
+  let s ← outbox.state.get
+  if s.writing then return none
+  return some ((← IO.monoMsNow) - s.idleSince)
 
 /--
 Returns `true` once a write failed.

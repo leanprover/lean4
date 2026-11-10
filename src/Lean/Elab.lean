@@ -26,6 +26,7 @@ public import Lean.Elab.Syntax
 public import Lean.Elab.Do
 public import Lean.Elab.StructInst
 public import Lean.Elab.StructInstHint
+public import Lean.Elab.MultiuniverseInductive
 public import Lean.Elab.MutualInductive
 public import Lean.Elab.Inductive
 public import Lean.Elab.Structure

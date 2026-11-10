@@ -1338,6 +1338,7 @@ def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
   let mut res : Expr := .app (.const className classLParams) typeApp
   let mut more ← inferType res
   repeat
+    more ← whnf more
     if more.isSort then
       break
     let .forallE _ t body bi := more
@@ -1356,8 +1357,23 @@ def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
       more := body.instantiate1 val
       res := res.app val
     | .error err =>
-      throwError "Failed to synthesize type class of type{indentExpr t}\
-        \nReason:{indentD (← err.toMessageData)}"
+      let mut note : MessageData := ""
+      let requiredClass ← withReducible <| forallTelescopeReducing (whnfType := true) t fun _ body =>
+        pure (body.getAppFn.constName?.getD `missing)
+      unless (← read).names.contains typeApp.getAppFn.constName! do
+        let mut howToDerive := m!""
+        if ← hasDerivingHandler requiredClass then
+          howToDerive := m!"You can add a `deriving {.ofConstName requiredClass}` clause to all \
+            inductives in the mutual group or use\
+            {indentD m!"deriving instance {.ofConstName requiredClass} for \
+              {.joinSep ((← read).indInfo.all.map MessageData.ofConstName) ", "}"}\
+            \nto derive the missing instances"
+        note := .note m!"This deriving handler operates on the entire mutual block, so even if \
+          you don't need an instance for `{.ofConst typeApp.getAppFn}`, all of its instance \
+          binders will still need to be synthesizeable.{howToDerive}"
+      throwError "Failed to derive `{.ofConstName className}` for `{.ofConst typeApp.getAppFn}`: \
+        Could not find a suitable instance for the instance parameter of type{indentExpr t}\
+        \nReason:{indentD (← err.toMessageData)}{note}"
   return res
 
 private def recurrenceError (inducts : List Name) (complexOnly : Bool)
@@ -1575,13 +1591,59 @@ def makeInstancesUsingCtor (perField : Name → FieldHelperProvider α)
       (InstanceInfo.usingCtor perField supportsRec supportsPartial computeClassApp)
 
 def deriveLawTypeClassUsingCtor (perField : Name → FieldHelperProvider α)
-    (supportsRec : Bool := true) (supportsPartial := true)
-    (preHelpers : DerivingM α := by exact pure ())
-    (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault) :
+    (supportsRec : Bool := true)
+    (preHelpers : DerivingM α := by exact pure ()) :
     DerivingM Unit := do
+  /-
+  So let's discuss the design
+  `perField` should get the proof obligation
+  but with instance projections unfolded to either
+  (1) the concrete inline value
+  (2) the unfolded helper (ideally, the thing you returned from the `.usingHelper` function)
+
+  We would like the relationship between the what you returned in `makeInstancesUsingCtor`
+  and what we are providing to `perField` here to be as direct as possible
+  So, there are two things we need to "undo"
+  (1) Which ones are even helpers? We would like this question to be as easy to answer as
+      possible but unfortunately, it's not that simple. If someone wrote an instance manually,
+      anything *could* be a helper. But we opt for the simplest approach here: a helper is a
+      declaration whose name starts with the instance name. That alone however essentially excludes
+      hand-written instances for deriving law type classes! I'm not sure what the best way to go
+      about this is but making law type class deriving handlers fail seems like a reasonable
+      solution for now. An alternative would be to elaborate on the method_specs idea
+  (2) The `reduceInstanceProjsOnCtor` postprocessing. This is the part that makes it difficult if
+      the instances were not derived together. If the instances were not derived together, then
+      we're missing the information of the discarded instances
+
+  -/
+  let mut helperUndoTable : Std.HashMap Name Expr := {}
+  for induct in (← read).indInfo.all do
+    let indApp ← inductAppWithParams induct
+    let indInfo ← getConstInfoInduct induct
+    forallBoundedTelescope (whnfType := true) (← inferType indApp) indInfo.numIndices fun indices _body => do←
+      let classApp ← computeClassAppDefault (mkAppN indApp indices)
+      -- we're interested in the instance arguments (the first is a type argument)
+      let instArgs := classApp.getAppArgs.drop 1
+      for instArg in instArgs do
+        let .const instName _ := instArg.getAppFn | continue
+        let some info ← isDefn? instName | continue
+        lambdaTelescope info.value fun vars value => do
+          value.withApp fun ctor ctorArgs => do
+            matchConstCtor ctor pure fun cval levels => do
+              if cval.numParams + cval.numParams != ctorArgs.size then return
+              let some structInfo := getStructureInfo? (← getEnv) cval.induct | return
+              for idx in *...cval.numFields do
+                let field := ctorArgs[cval.numParams + idx]!
+                let proj := structInfo.getProjFn? idx |>.get!
+                field.withApp fun helper helperArgs => do
+                  let .const helperName _ := helper | pure ()
+                  unless instName.eraseMacroScopes.isPrefixOf helperName.eraseMacroScopes do
+                    return
+
+              return
   makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
     ← (← read).indInfo.all.toArray.mapM
-      (InstanceInfo.usingCtor perField supportsRec supportsPartial computeClassApp)
+      (InstanceInfo.usingCtor perField supportsRec (supportsPartial := false))
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor

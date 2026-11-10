@@ -38,8 +38,8 @@
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux (let
           # Build OpenSSL statically using pkgsDist's old-glibc stdenv,
           # so the resulting static libs don't require newer glibc symbols.
-          # Sync major version with `openssl@4` in .github/workflows/build-template.yml and
-          # script/prepare-llvm-macos.sh.
+          # Sync version with `OPENSSL_SRC_VERSION` and major version with `openssl@4` in
+          # .github/workflows/build-template.yml, and major version with script/prepare-llvm-macos.sh.
           opensslForDist = pkgsDist.stdenv.mkDerivation {
             name = "openssl-static-4.1.0";
             src = pkgs.fetchFromGitHub {

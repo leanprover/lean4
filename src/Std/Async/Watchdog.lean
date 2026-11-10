@@ -30,12 +30,18 @@ private structure State where
   waiting : Bool := false
   /-- When the current wait expires, as a value of `IO.monoMsNow`. -/
   deadline : Nat := 0
-  /-- A wait outlived its deadline. The watchdog has then stopped. -/
+  /--
+  A wait outlived its deadline. The watchdog has then stopped and cancelled its context, unless the
+  context was cancelled for another reason first.
+  -/
   fired : Bool := false
   /-- The deadline the watchdog's timer is set for, or `none` while it waits without a timer. -/
   scheduled : Option Nat := none
-  /-- How many waits have ended, so that `armAfter` can tell whether its wait is still in progress. -/
-  ended : Nat := 0
+  /--
+  Counts the calls that arm or end a wait, so that `armAfter` applies its deadline only if no later
+  call replaced it.
+  -/
+  epoch : Nat := 0
 
 private inductive Step where
   | stop
@@ -64,10 +70,11 @@ Enforces deadlines on a sequence of waits with a single background timer. A wait
 `arm` and ends with `disarm`; when one outlives its deadline, the watchdog cancels its context with
 `.deadline` and stops.
 
-`arm` and `disarm` only update shared state. The timer is restarted only when a deadline is earlier
-than the one it is set for, so waits that keep moving the deadline later, such as idle timeouts,
-cost no timer operation each. The watchdog checks deadlines against `IO.monoMsNow` itself, so a
-timer that fires early never cancels the context before the deadline.
+`arm` and `disarm` only update shared state, except that a `disarm` past the deadline cancels the
+context itself. The timer is restarted only when a deadline is earlier than the one it is set for,
+so waits that keep moving the deadline later, such as idle timeouts, cost no timer operation each.
+The watchdog checks deadlines against `IO.monoMsNow` itself, so a timer that fires early never
+cancels the context before the deadline.
 
 The watchdog runs until its context is cancelled, so the context should be cancelled once the
 watchdog is no longer needed.
@@ -139,16 +146,17 @@ def new (ctx : CancellationContext) : IO Watchdog := do
   return wd
 
 /--
-Sets the deadline of the current wait, unless the watchdog has fired or `ended` is given and is no
-longer the number of waits that have ended.
+Sets the deadline of the current wait, unless the watchdog has fired or `epoch` is given and a later
+call has armed or ended a wait since.
 -/
-private def armUntilIf (wd : Watchdog) (ended : Option Nat) (deadline : Nat) : BaseIO Unit := do
+private def armUntilIf (wd : Watchdog) (epoch : Option Nat) (deadline : Nat) : BaseIO Unit := do
   let wake ← wd.state.modifyGet fun s =>
-    if s.fired || ended.any (· != s.ended) then
+    if s.fired || epoch.any (· != s.epoch) then
       (false, s)
     else
       -- Only a watchdog without a timer, or with one set for a later deadline, has to re-read it.
-      (s.scheduled.all (deadline < ·), { s with waiting := true, deadline })
+      (s.scheduled.all (deadline < ·),
+        { s with waiting := true, deadline, epoch := s.epoch + 1 })
   if wake then
     (← wd.wake.get).resolve ()
 
@@ -161,15 +169,16 @@ def armUntil (wd : Watchdog) (deadline : Nat) : BaseIO Unit :=
 
 /--
 Starts a wait that must end within `timeout` of `task` finishing, and that does not time out before
-then: a deadline set for the current wait is dropped. If the wait ends before `task` finishes,
-nothing is armed. Does nothing once the watchdog has fired.
+then: a deadline set for the current wait is dropped. If the wait ends, or is armed again, before
+`task` finishes, nothing is armed. Does nothing once the watchdog has fired.
 -/
 def armAfter (wd : Watchdog) (task : Task α) (timeout : Std.Time.Millisecond.Offset) :
     BaseIO Unit := do
-  let ended ← wd.state.modifyGet fun s =>
-    if s.fired then (s.ended, s) else (s.ended, { s with waiting := false })
+  let epoch ← wd.state.modifyGet fun s =>
+    if s.fired then (s.epoch, s)
+    else (s.epoch + 1, { s with waiting := false, epoch := s.epoch + 1 })
   BaseIO.chainTask (sync := true) task fun _ => do
-    wd.armUntilIf (some ended) ((← IO.monoMsNow) + timeout.toInt.toNat)
+    wd.armUntilIf (some epoch) ((← IO.monoMsNow) + timeout.toInt.toNat)
 
 /--
 Starts a wait that must end within `timeout`. Arming again before `disarm` replaces the deadline.
@@ -179,18 +188,37 @@ def arm (wd : Watchdog) (timeout : Std.Time.Millisecond.Offset) : BaseIO Unit :=
   wd.armUntil ((← IO.monoMsNow) + timeout.toInt.toNat)
 
 /--
-Ends the current wait. Returns `true` if a wait outlived its deadline, in which case the watchdog
-cancels its context with `.deadline`.
+Reports a wait marked as late: cancels the context with `.deadline` and returns whether that is its
+reason, which it is not if the context was cancelled for another reason first. Cancelling here too
+settles the reason while the watchdog's round has marked the wait late but not cancelled yet.
 -/
-def disarm (wd : Watchdog) : BaseIO Bool :=
-  wd.state.modifyGet fun s =>
-    if s.fired then (true, s) else (false, { s with waiting := false, ended := s.ended + 1 })
+private def settle (wd : Watchdog) : BaseIO Bool := do
+  wd.ctx.cancel .deadline
+  return (← wd.ctx.getCancellationReason) == some .deadline
 
 /--
-Returns `true` if a wait outlived its deadline.
+Ends the current wait. Returns `true` if a wait outlived its deadline, in which case the context is
+cancelled with `.deadline`. A wait whose context was cancelled for another reason first is not
+reported.
 -/
-def hasFired (wd : Watchdog) : BaseIO Bool :=
-  return (← wd.state.get).fired
+def disarm (wd : Watchdog) : BaseIO Bool := do
+  let now ← IO.monoMsNow
+  -- The wait is checked here too, so that the verdict does not depend on the watchdog's own round
+  -- having run, which needs a free worker of the task pool.
+  let late ← wd.state.modifyGet fun s =>
+    if s.fired then
+      (true, s)
+    else if s.waiting && now ≥ s.deadline then
+      (true, { s with fired := true, waiting := false, scheduled := none })
+    else
+      (false, { s with waiting := false, epoch := s.epoch + 1 })
+  if late then wd.settle else return false
+
+/--
+Returns `true` if a wait outlived its deadline and its context was cancelled with `.deadline`.
+-/
+def hasFired (wd : Watchdog) : BaseIO Bool := do
+  if (← wd.state.get).fired then wd.settle else return false
 
 end Watchdog
 end Async

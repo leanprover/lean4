@@ -7,7 +7,9 @@ open Std Async
 Tests `Std.Async.Watchdog`: a wait that outlives its deadline cancels the context with `.deadline`,
 a wait disarmed in time does not, arming again replaces the deadline, an earlier deadline wakes a
 watchdog that sleeps until a later one, other cancellations are not reported as its own, and
-`armAfter` times a wait from when its task finishes.
+`armAfter` times a wait from when its task finishes unless a later call replaced it. `disarm`
+reports a late wait even when the watchdog itself could not run, and a reported timeout always
+matches the context's cancellation reason.
 -/
 
 /-- A wait that outlives its deadline cancels the context, never before the deadline. -/
@@ -170,3 +172,115 @@ def armAfterEndedWait : Async (Bool × Bool) := do
 /-- info: (false, false) -/
 #guard_msgs in
 #eval armAfterEndedWait.block
+
+/-- An `arm` after `armAfter` replaces its deadline, also once the task of `armAfter` finishes. -/
+def armAfterThenArm : Async Bool := do
+  let ctx ← CancellationContext.new
+  let wd ← Watchdog.new ctx
+  let task ← IO.Promise.new (α := Unit)
+  wd.armAfter task.result? 30
+  wd.arm 5000
+  task.resolve ()
+  sleep 300
+  let cancelled ← ctx.isCancelled
+  ctx.cancel .cancel
+  return cancelled
+
+/-- info: false -/
+#guard_msgs in
+#eval armAfterThenArm.block
+
+/-- A later `armAfter` replaces an earlier one whose task finishes first. -/
+def armAfterThenArmAfter : Async Bool := do
+  let ctx ← CancellationContext.new
+  let wd ← Watchdog.new ctx
+  let first ← IO.Promise.new (α := Unit)
+  let second ← IO.Promise.new (α := Unit)
+  wd.armAfter first.result? 30
+  wd.armAfter second.result? 30
+  first.resolve ()
+  sleep 300
+  let cancelled ← ctx.isCancelled
+  -- Keeps `second` alive until here, since dropping a promise finishes its task.
+  second.resolve ()
+  ctx.cancel .cancel
+  return cancelled
+
+/-- info: false -/
+#guard_msgs in
+#eval armAfterThenArmAfter.block
+
+/-- A wait that `armAfter` armed and that ends in time is not reported. -/
+def armAfterDisarmedInTime : Async (Bool × Bool) := do
+  let ctx ← CancellationContext.new
+  let wd ← Watchdog.new ctx
+  let task ← IO.Promise.new (α := Unit)
+  wd.armAfter task.result? 200
+  task.resolve ()
+  sleep 20
+  let fired ← wd.disarm
+  sleep 300
+  return (fired, ← ctx.isCancelled)
+
+/-- info: (false, false) -/
+#guard_msgs in
+#eval armAfterDisarmedInTime.block
+
+/--
+A wait disarmed after its deadline is reported even when the watchdog could not run, here because
+every worker of the task pool is busy.
+-/
+def lateDisarmUnderLoad : IO (Bool × Option CancellationReason) := do
+  let ctx ← CancellationContext.new
+  let wd ← Watchdog.new ctx
+  let release ← IO.mkRef false
+  wd.arm 50
+  let blockers ← (List.range 128).mapM fun _ => IO.asTask do
+    while !(← release.get) do
+      IO.sleep 1
+  IO.sleep 300
+  let fired ← wd.disarm
+  let reason ← ctx.getCancellationReason
+  release.set true
+  for blocker in blockers do
+    discard <| IO.wait blocker
+  return (fired, reason)
+
+/-- info: (true, some (Std.CancellationReason.deadline)) -/
+#guard_msgs in
+#eval lateDisarmUnderLoad
+
+/-- A late wait whose context was cancelled for another reason first is not reported. -/
+def lateAfterOtherCancellation : Async (Bool × Bool × Option CancellationReason) := do
+  let ctx ← CancellationContext.new
+  let wd ← Watchdog.new ctx
+  wd.arm 50
+  ctx.cancel .shutdown
+  sleep 150
+  return (← wd.disarm, ← wd.hasFired, ← ctx.getCancellationReason)
+
+/-- info: (false, false, some (Std.CancellationReason.shutdown)) -/
+#guard_msgs in
+#eval lateAfterOtherCancellation.block
+
+/--
+When a deadline races with another cancellation, `hasFired` is `true` exactly when the context was
+cancelled with `.deadline`. Returns the number of runs where they disagree.
+-/
+def firedMatchesReason : IO Nat := do
+  let mut mismatches := 0
+  for _ in *...2000 do
+    let ctx ← CancellationContext.new
+    let wd ← Watchdog.new ctx
+    wd.arm 0
+    ctx.cancel .shutdown
+    discard <| IO.wait (← ctx.done)
+    let fired ← wd.hasFired
+    let deadline := (← ctx.getCancellationReason) == some .deadline
+    if fired != deadline then
+      mismatches := mismatches + 1
+  return mismatches
+
+/-- info: 0 -/
+#guard_msgs in
+#eval firedMatchesReason

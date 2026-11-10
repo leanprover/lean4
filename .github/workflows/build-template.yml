@@ -87,7 +87,7 @@ jobs:
           tar xf openssl.tar.gz
           cd "openssl-$OPENSSL_SRC_VERSION"
           ./Configure --prefix="$RUNNER_TEMP/openssl" no-shared no-tests
-          make -j"$(sysctl -n hw.logicalcpu)"
+          make -j"$(sysctl -n hw.logicalcpu)" build_sw
           make install_sw
         if: runner.os == 'macOS' && runner.arch == 'X64' && steps.restore-openssl.outputs.cache-hit != 'true'
       - name: Save OpenSSL

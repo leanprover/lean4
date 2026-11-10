@@ -844,8 +844,11 @@ public def fmtMatch : Fmt := fun
   | _ =>
     throw .partialFormatter
 
-@[builtin_fmt Lean.Parser.Command.docComment]
-public def fmtDocComment : Fmt := fun stx => do
+/--
+Formats a doc comment. If `verbatim`, keeps its text from the first to the last non-whitespace
+character as it is, including the indentation of its lines, instead of normalizing it.
+-/
+public def fmtDocCommentWith (verbatim : Bool) : Fmt := fun stx => do
   let ctx ← read
   let some range := stx.getRange?
     | throw <| .elaboration <| .malformedInputSyntax stx "missing range on comment syntax"
@@ -855,16 +858,26 @@ public def fmtDocComment : Fmt := fun stx => do
   let some tailPos := ctx.text.source.pos? range.stop
     | throw <| .elaboration <| .malformedInputSyntax stx "malformed stop position on comment syntax"
   let body := ctx.text.source.extract pos tailPos
-  let lineInfo ← getLineInfo! range.start
-  let posInLine := range.start.unoffsetBy lineInfo.startPos
-  let startColumnOffset := posInLine.offsetOfPos lineInfo.line
-  let content := normalizeCommentContent body "/--" "-/" startColumnOffset (isLineComment := false)
-  let lines := content.map (untagged <| .text ·)
   let s := untagged <| .text "/--"
-  let c := joinUsing hardNl lines
+  let c ←
+    if verbatim then
+      let lines := body.toSlice.dropPrefix "/--" |>.dropSuffix "-/" |>.trimAscii |>.split "\n"
+      -- Without indentation, so that each line keeps exactly its own.
+      pure <| untagged <| .unindented (onlyNonCumulative := false) <|
+        .joinUsing .hardNl (lines.toArray.map (.text ·.toString))
+    else
+      let lineInfo ← getLineInfo! range.start
+      let posInLine := range.start.unoffsetBy lineInfo.startPos
+      let startColumnOffset := posInLine.offsetOfPos lineInfo.line
+      let content :=
+        normalizeCommentContent body "/--" "-/" startColumnOffset (isLineComment := false)
+      pure <| joinUsing hardNl (content.map (untagged <| .text ·))
   let e := untagged <| .text "-/"
   let r := Layouts.horizontalOrVertical #[s, c, e]
   tag r stx
+
+@[builtin_fmt Lean.Parser.Command.docComment]
+public def fmtDocComment : Fmt := fmtDocCommentWith (verbatim := false)
 
 @[builtin_fmt Lean.Parser.Term.attrKind]
 public def fmtAttrKind : Fmt := fun

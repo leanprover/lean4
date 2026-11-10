@@ -621,7 +621,8 @@ public def fmtGuardMsgsCmd : Fmt := fun
       $[$doc?:docComment]?
       #guard_msgs%$tk $[$spec?:guardMsgsSpec]? in%$inTk
       $cmd:command) => do
-    let doc? ← fmt? doc?
+    -- `#guard_msgs` compares the text of its doc comment with the messages of `cmd`.
+    let doc? ← fmtWith? (fmtDocCommentWith (verbatim := true)) ``fmtDocComment doc?
     let tk ← fmt tk
     let spec? ← fmt? spec?
     let head := Layouts.pseudoApplication #[tk, spec?]

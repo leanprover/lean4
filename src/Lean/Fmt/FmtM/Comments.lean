@@ -78,8 +78,6 @@ public def Comment.render (c : Comment) : Array Rendering :=
     let singleLineRendering :=
       if c.content[0]!.isEmpty then
         "/- -/"
-      else if c.content[0]!.chars.all (· == '-') then
-        s!"/-{c.content[0]!}-/"
       else
         s!"/- {c.content[0]!} -/"
     let multiLineRendering :=

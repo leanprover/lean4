@@ -1490,6 +1490,9 @@ system primitives, and it can be written in any language.
 
 The child process runs in parallel with the parent.
 
+Throws an error if the child process cannot be started, for example because the command does not
+exist or is not executable, or because the working directory does not exist.
+
 If the child process's standard input is a pipe, use `IO.Process.Child.takeStdin` to make it
 possible to close the child's standard input before the process terminates, which provides the child with an end-of-file marker.
 -/
@@ -1497,6 +1500,9 @@ possible to close the child's standard input before the process terminates, whic
 
 /--
 Blocks until the child process has exited and returns its exit code.
+
+On POSIX platforms, if other code in the same process reaps the child, for example a C library
+calling `waitpid(-1, …)`, this function never returns.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
@@ -1509,12 +1515,13 @@ if it has.
 
 /--
 Terminates the child process by sending it the `SIGKILL` signal, or `SIGTERM` if `force` is `false`.
+Does nothing if the child process has already exited.
 
 `SIGKILL` ends the process immediately. `SIGTERM` gives the process the chance to handle the signal,
 for example to clean up before exiting, or to ignore it.
 
 If the process was started using `SpawnArgs.setsid`, the signal is sent to the entire process group
-instead.
+instead, including any members that remain after the child process has exited.
 
 On Windows, the process is always terminated immediately using `TerminateProcess`, and `force` has
 no effect.

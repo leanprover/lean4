@@ -385,6 +385,10 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg f
     return decode_uv_error_impl(errnum, -errnum, fname);
 }
 
+bool string_has_nul(b_obj_arg str) {
+    return strlen(string_cstr(str)) != lean_string_size(str) - 1;
+}
+
 // Used for when you try to convert a string with NUL bytes into a C string
 obj_res mk_embedded_nul_error(b_obj_arg str) {
     lean_inc(str);

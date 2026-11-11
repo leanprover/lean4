@@ -30,6 +30,7 @@ builtin_initialize
           | throwError "Invalid `[inherit_doc]` attribute: Could not infer doc source"
         -- allow inheriting private docstrings
         let declName ← withoutExporting <| Elab.realizeGlobalConstNoOverloadWithInfo id
+        Core.checkDeprecatedAt id declName
         if (← findSimpleDocString? (← getEnv) decl (includeBuiltin := false)).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
         -- Outside the server, we do not have access to all docstrings

@@ -405,6 +405,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   try
     pushScope
     let openDecls ← elabOpenDecl decl
+      (reportDeprecated := fun idStx declName => checkDeprecatedOpenedName idStx declName)
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
       withSaveInfoContext <| elabTerm e expectedType?
   finally

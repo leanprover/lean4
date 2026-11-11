@@ -2960,8 +2960,8 @@ goto v___jp_920_;
 v___jp_911_:
 {
 uint64_t v___x_915_; uint64_t v___x_916_; uint64_t v___x_917_; uint64_t v___x_918_; lean_object* v___x_919_; 
-v___x_915_ = lean_uint64_mix_hash(v___y_913_, v___y_914_);
-v___x_916_ = lean_uint64_mix_hash(v___y_912_, v___x_915_);
+v___x_915_ = lean_uint64_mix_hash(v___y_912_, v___y_914_);
+v___x_916_ = lean_uint64_mix_hash(v___y_913_, v___x_915_);
 v___x_917_ = lean_uint64_mix_hash(v___x_910_, v___x_916_);
 v___x_918_ = lean_uint64_mix_hash(v___x_909_, v___x_917_);
 v___x_919_ = lean_alloc_ctor(3, 3, 9);
@@ -2982,8 +2982,8 @@ case 0:
 {
 uint64_t v_hashCode_923_; 
 v_hashCode_923_ = lean_ctor_get_uint64(v_rhs_908_, sizeof(void*)*2);
-v___y_912_ = v___y_921_;
-v___y_913_ = v___x_922_;
+v___y_912_ = v___x_922_;
+v___y_913_ = v___y_921_;
 v___y_914_ = v_hashCode_923_;
 goto v___jp_911_;
 }
@@ -2991,8 +2991,8 @@ case 1:
 {
 uint64_t v_hashCode_924_; 
 v_hashCode_924_ = lean_ctor_get_uint64(v_rhs_908_, sizeof(void*)*2);
-v___y_912_ = v___y_921_;
-v___y_913_ = v___x_922_;
+v___y_912_ = v___x_922_;
+v___y_913_ = v___y_921_;
 v___y_914_ = v_hashCode_924_;
 goto v___jp_911_;
 }
@@ -3000,8 +3000,8 @@ case 3:
 {
 uint64_t v_hashCode_925_; 
 v_hashCode_925_ = lean_ctor_get_uint64(v_rhs_908_, sizeof(void*)*3);
-v___y_912_ = v___y_921_;
-v___y_913_ = v___x_922_;
+v___y_912_ = v___x_922_;
+v___y_913_ = v___y_921_;
 v___y_914_ = v_hashCode_925_;
 goto v___jp_911_;
 }
@@ -3009,8 +3009,8 @@ case 4:
 {
 uint64_t v_hashCode_926_; 
 v_hashCode_926_ = lean_ctor_get_uint64(v_rhs_908_, sizeof(void*)*3);
-v___y_912_ = v___y_921_;
-v___y_913_ = v___x_922_;
+v___y_912_ = v___x_922_;
+v___y_913_ = v___y_921_;
 v___y_914_ = v_hashCode_926_;
 goto v___jp_911_;
 }
@@ -3018,8 +3018,8 @@ case 5:
 {
 uint64_t v_hashCode_927_; 
 v_hashCode_927_ = lean_ctor_get_uint64(v_rhs_908_, sizeof(void*)*5);
-v___y_912_ = v___y_921_;
-v___y_913_ = v___x_922_;
+v___y_912_ = v___x_922_;
+v___y_913_ = v___y_921_;
 v___y_914_ = v_hashCode_927_;
 goto v___jp_911_;
 }
@@ -3027,8 +3027,8 @@ default:
 {
 uint64_t v_hashCode_928_; 
 v_hashCode_928_ = lean_ctor_get_uint64(v_rhs_908_, sizeof(void*)*4);
-v___y_912_ = v___y_921_;
-v___y_913_ = v___x_922_;
+v___y_912_ = v___x_922_;
+v___y_913_ = v___y_921_;
 v___y_914_ = v_hashCode_928_;
 goto v___jp_911_;
 }
@@ -7246,8 +7246,8 @@ goto v___jp_2230_;
 v___jp_2215_:
 {
 uint64_t v___x_2219_; uint64_t v___x_2220_; uint64_t v___x_2221_; lean_object* v___x_2222_; 
-v___x_2219_ = lean_uint64_mix_hash(v___y_2217_, v___y_2218_);
-v___x_2220_ = lean_uint64_mix_hash(v___y_2216_, v___x_2219_);
+v___x_2219_ = lean_uint64_mix_hash(v___y_2216_, v___y_2218_);
+v___x_2220_ = lean_uint64_mix_hash(v___y_2217_, v___x_2219_);
 v___x_2221_ = lean_uint64_mix_hash(v___x_2214_, v___x_2220_);
 v___x_2222_ = lean_alloc_ctor(4, 3, 8);
 lean_ctor_set(v___x_2222_, 0, v_a_2211_);
@@ -7264,8 +7264,8 @@ case 1:
 {
 uint64_t v_hashCode_2226_; 
 v_hashCode_2226_ = lean_ctor_get_uint64(v_a_2213_, 0);
-v___y_2216_ = v___y_2224_;
-v___y_2217_ = v___y_2225_;
+v___y_2216_ = v___y_2225_;
+v___y_2217_ = v___y_2224_;
 v___y_2218_ = v_hashCode_2226_;
 goto v___jp_2215_;
 }
@@ -7273,8 +7273,8 @@ case 3:
 {
 uint64_t v_hashCode_2227_; 
 v_hashCode_2227_ = lean_ctor_get_uint64(v_a_2213_, sizeof(void*)*2);
-v___y_2216_ = v___y_2224_;
-v___y_2217_ = v___y_2225_;
+v___y_2216_ = v___y_2225_;
+v___y_2217_ = v___y_2224_;
 v___y_2218_ = v_hashCode_2227_;
 goto v___jp_2215_;
 }
@@ -7282,8 +7282,8 @@ case 4:
 {
 uint64_t v_hashCode_2228_; 
 v_hashCode_2228_ = lean_ctor_get_uint64(v_a_2213_, sizeof(void*)*3);
-v___y_2216_ = v___y_2224_;
-v___y_2217_ = v___y_2225_;
+v___y_2216_ = v___y_2225_;
+v___y_2217_ = v___y_2224_;
 v___y_2218_ = v_hashCode_2228_;
 goto v___jp_2215_;
 }
@@ -7291,8 +7291,8 @@ default:
 {
 uint64_t v_hashCode_2229_; 
 v_hashCode_2229_ = lean_ctor_get_uint64(v_a_2213_, sizeof(void*)*1);
-v___y_2216_ = v___y_2224_;
-v___y_2217_ = v___y_2225_;
+v___y_2216_ = v___y_2225_;
+v___y_2217_ = v___y_2224_;
 v___y_2218_ = v_hashCode_2229_;
 goto v___jp_2215_;
 }

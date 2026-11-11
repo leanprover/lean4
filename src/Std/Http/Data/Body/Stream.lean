@@ -108,6 +108,11 @@ private structure State where
   to the consumer on the next `recv` after any already-buffered chunks.
   -/
   closeError : Option IO.Error := none
+
+  /--
+  Whether the channel closes once `pendingProducer` is received, as requested by `Stream.offer`.
+  -/
+  closeAfterProducer : Bool := false
 deriving Nonempty
 
 end Channel
@@ -184,31 +189,6 @@ private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   let st ← get
   return st.pendingConsumer.isSome
 
-private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
-    AtomicT State m (Option Chunk) := do
-  let st ← get
-  if let some producer := st.pendingProducer then
-    set {
-      st with
-      pendingProducer := none
-      knownSize := decreaseKnownSize st.knownSize producer.chunk
-    }
-    discard <| producer.done.resolve true
-    return some producer.chunk
-  else
-    return none
-
-private def recvReadyResult' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
-    AtomicT State m (Except IO.Error (Option Chunk)) := do
-  if let some chunk ← tryRecv' then
-    return .ok (some chunk)
-
-  let st ← get
-  if let some err := st.closeError then
-    return .error err
-  else
-    return .ok none
-
 private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
     AtomicT State m Unit := do
   let st ← get
@@ -236,6 +216,34 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
     pendingIncompleteChunk := none
     closed := true
   }
+
+private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+    AtomicT State m (Option Chunk) := do
+  let st ← get
+  if let some producer := st.pendingProducer then
+    set {
+      st with
+      pendingProducer := none
+      knownSize := decreaseKnownSize st.knownSize producer.chunk
+      closeAfterProducer := false
+    }
+    discard <| producer.done.resolve true
+    if st.closeAfterProducer then
+      close'
+    return some producer.chunk
+  else
+    return none
+
+private def recvReadyResult' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+    AtomicT State m (Except IO.Error (Option Chunk)) := do
+  if let some chunk ← tryRecv' then
+    return .ok (some chunk)
+
+  let st ← get
+  if let some err := st.closeError then
+    return .error err
+  else
+    return .ok none
 
 end Channel
 
@@ -595,6 +603,46 @@ def send (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async 
       return ()
 
     send' stream toSend
+
+/--
+Hands `chunk` to the receiver without waiting for it: a consumer blocked in `recv` gets it at once;
+otherwise the chunk stays pending and the next `recv` returns it. With `closeAfter`, the channel
+closes once the chunk is received.
+
+`incomplete` buffers the chunk as in `send`. A second `offer` while a chunk is still pending throws.
+-/
+def offer (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) (closeAfter : Bool := false) :
+    Async Unit := do
+  let toSend ←
+    match ← collapseForSend stream chunk (incomplete && !closeAfter) with
+    | .error err => throw err
+    | .ok none => return
+    | .ok (some toSend) => pure toSend
+  let done ← IO.Promise.new
+  let error? ← stream.state.atomically do
+    Channel.pruneFinishedWaiters
+    let st ← get
+    if st.closed then
+      return some (IO.Error.userError "channel closed")
+
+    if toSend.data.isEmpty ∧ toSend.extensions.isEmpty then
+      if closeAfter then Channel.close'
+      return none
+
+    if let some consumer := st.pendingConsumer then
+      set { st with pendingConsumer := none }
+      if ← consumer.resolve (.ok (some toSend)) then
+        modify fun st => { st with knownSize := Channel.decreaseKnownSize st.knownSize toSend }
+        if closeAfter then Channel.close'
+        return none
+
+    let st ← get
+    if st.pendingProducer.isSome then
+      return some (IO.Error.userError "only one blocked producer is allowed")
+    set { st with pendingProducer := some { chunk := toSend, done }, closeAfterProducer := closeAfter }
+    return none
+  if let some err := error? then
+    throw err
 
 /--
 Returns `true` when a consumer is currently blocked waiting for data.

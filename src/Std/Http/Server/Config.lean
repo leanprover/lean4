@@ -71,6 +71,15 @@ structure Config where
   headerTimeout : Time.Millisecond.Offset := 5000
 
   /--
+  Maximum time (in milliseconds) the connection waits for its output to be written without any write
+  completing. Once it passes, the connection to a peer that stopped reading is closed, freeing its
+  socket and its slot in `maxConnections`. A single body chunk sent to a slow peer must be written
+  within this time.
+  Default: 30 seconds.
+  -/
+  writeTimeout : Time.Millisecond.Offset := 30000
+
+  /--
   Whether to enable keep-alive connections by default.
   -/
   enableKeepAlive : Bool := true

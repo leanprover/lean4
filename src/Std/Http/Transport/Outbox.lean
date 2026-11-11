@@ -64,6 +64,11 @@ structure Outbox.State where
   -/
   idleSince : Nat := 0
 
+  /--
+  When a write last started with none in flight or completed, by `IO.monoMsNow`.
+  -/
+  progressAt : Nat := 0
+
 /--
 Writes a connection's output to `socket` in order without the connection waiting for it. At most
 one write is in flight. Output handed over meanwhile goes out in a single write once that write
@@ -77,15 +82,22 @@ structure Outbox (α : Type) where
   -/
   socket : α
 
+  /--
+  How long, in milliseconds, a wait for output to be written lasts without any write completing
+  before the outbox fails.
+  -/
+  writeTimeout : Nat
+
   private state : IO.Ref Outbox.State
 
 namespace Outbox
 
 /--
-Creates an outbox that writes to `socket`.
+Creates an outbox that writes to `socket`, failing a wait for its writes once none has completed for
+`writeTimeout` milliseconds.
 -/
-def new (socket : α) : BaseIO (Outbox α) :=
-  return { socket, state := ← IO.mkRef {} }
+def new (socket : α) (writeTimeout : Nat) : BaseIO (Outbox α) :=
+  return { socket, writeTimeout, state := ← IO.mkRef {} }
 
 /--
 Joins queued output, given newest first, into one write in order.
@@ -111,8 +123,8 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
           idle := none })
       | .ok () =>
         if s.queued.isEmpty then
-          ((#[], s.idle), { s with writing := false, idle := none, idleSince := now })
-        else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0 })
+          ((#[], s.idle), { s with writing := false, idle := none, idleSince := now, progressAt := now })
+        else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0, progressAt := now })
     if let some idle := idle then
       idle.resolve ()
     unless next.isEmpty do
@@ -126,12 +138,13 @@ def send [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) : BaseIO (
   if buffer.size = 0 then
     return if (← outbox.state.get).failed then none else some 0
   let data := buffer.data
+  let now ← IO.monoMsNow
   let (start, queued?) ← outbox.state.modifyGet fun s =>
     if s.failed then ((false, none), s)
     else if s.writing then
       let queuedBytes := s.queuedBytes + buffer.size
       ((false, some queuedBytes), { s with queued := data :: s.queued, queuedBytes })
-    else ((true, some 0), { s with writing := true })
+    else ((true, some 0), { s with writing := true, progressAt := now })
   if start then
     outbox.write data
     -- A write that fails without suspending has already dropped `buffer`.
@@ -146,24 +159,58 @@ def writing (outbox : Outbox α) : BaseIO Bool :=
   return (← outbox.state.get).writing
 
 /--
-A task that finishes once no write is in flight, or `none` if none is.
+A task that finishes once no write is in flight, or `none` if none is or the outbox failed.
 -/
 def idle? (outbox : Outbox α) : BaseIO (Option (Task (Option Unit))) := do
-  unless (← outbox.state.get).writing do
+  let s ← outbox.state.get
+  if !s.writing || s.failed then
     return none
   let fresh ← IO.Promise.new
   outbox.state.modifyGet fun s =>
-    if !s.writing then (none, s)
+    if !s.writing || s.failed then (none, s)
     else match s.idle with
       | some idle => (some idle.result?, s)
       | none => (some fresh.result?, { s with idle := some fresh })
 
 /--
-Waits until no write is in flight.
+Fails the outbox because its peer stopped reading: queued output is dropped and later output too.
+The write in flight stays in flight until the transport completes it or is closed.
 -/
-def awaitIdle (outbox : Outbox α) : Async Unit := do
-  if let some idle ← outbox.idle? then
-    BaseAsync.ofTask (Task.map (sync := true) (fun _ => (Except.ok () : Except IO.Error Unit)) idle)
+private def expire (outbox : Outbox α) : BaseIO Unit :=
+  outbox.state.modify fun s =>
+    if s.failed then s
+    else { s with
+      failed := true, queued := [], queuedBytes := 0
+      error := some (IO.userError s!"no write completed within {outbox.writeTimeout} ms") }
+
+/--
+A selector that fires once `task` finishes.
+-/
+private def taskSelector (task : Task (Option Unit)) : Selector Unit where
+  tryFn := do
+    if ← IO.hasFinished task then return some () else return none
+  registerFn waiter :=
+    BaseIO.chainTask (sync := true) task fun _ =>
+      waiter.race (pure ()) (fun promise => promise.resolve (.ok ()))
+  unregisterFn := pure ()
+
+/--
+Waits until no write is in flight. If no write completes for `writeTimeout` milliseconds meanwhile,
+the outbox fails instead, so a peer that stops reading cannot hold the connection.
+-/
+partial def awaitIdle (outbox : Outbox α) : Async Unit := do
+  let some idle ← outbox.idle? | return
+  let deadline := (← outbox.state.get).progressAt + outbox.writeTimeout
+  let now ← IO.monoMsNow
+  if deadline ≤ now then
+    outbox.expire
+    return
+  let finished ← Selectable.one #[
+    .case (taskSelector idle) (fun _ => pure true),
+    .case (← Selector.sleep (.ofNat (deadline - now))) (fun _ => pure false)]
+  unless finished do
+    -- A write that completed meanwhile moved the deadline.
+    outbox.awaitIdle
 
 /--
 How many milliseconds ago the last write completed, or `none` while a write is in flight.
@@ -180,7 +227,8 @@ def failed (outbox : Outbox α) : BaseIO Bool :=
   return (← outbox.state.get).failed
 
 /--
-Waits until every write handed over so far completed. Returns `false` if a write failed.
+Waits until every write handed over so far completed. Returns `false` if a write failed or none
+completed within `writeTimeout`.
 -/
 def awaitWritten (outbox : Outbox α) : Async Bool := do
   outbox.awaitIdle
@@ -195,7 +243,7 @@ def takeError? (outbox : Outbox α) : BaseIO (Option IO.Error) :=
 /--
 Hands `buffer` to the outbox, then waits for its writes if more than `limit` bytes are queued, so a
 peer that does not read holds up the caller instead of growing its memory. Returns `false` if a
-write failed.
+write failed or none completed within `writeTimeout`.
 -/
 def push [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) (limit : Nat := 65536) :
     Async Bool := do

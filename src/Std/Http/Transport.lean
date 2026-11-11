@@ -43,9 +43,8 @@ class Transport (α : Type) where
   recvSelector : α → UInt64 → Selector (Option ByteArray)
 
   /--
-  Close the transport connection.
+  Close the transport connection, cancelling any write still in flight.
   The default implementation is a no-op; override this for transports that require explicit teardown.
-  For `Socket.Client`, the runtime closes the file descriptor when the object is finalized.
   -/
   close : α → IO Unit := fun _ => pure ()
 
@@ -65,6 +64,7 @@ instance : Transport Socket.Client where
         | none => .error (IO.userError "the promise linked to the Async was dropped")
         | some res => res
   recvSelector client expect := client.recvSelector expect
+  close client := client.close
 
 namespace Internal
 

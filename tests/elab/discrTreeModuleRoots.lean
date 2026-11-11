@@ -1,10 +1,10 @@
 import Lean.Meta.DiscrTree
 
 /-!
-Merging per-module discrimination trees with `DiscrTree.ofModuleRoots` gives the same tree as
-inserting all entries in module order: the same structure, the same values in the same order
-(including in-place replacement of `==`-equal values), and the same results after further
-insertions into the merged tree.
+Checks the properties of `DiscrTree.ofModuleRoots` not covered by `Verif.Lean.Meta.DiscrTree.Merge`,
+which shows that each merged trie agrees with inserting all entries in module order: the iteration
+order of the merged root map, insertion into a merged tree with nodes that are still lazy, and lookups
+of terms in merged trees.
 -/
 
 open Lean Meta DiscrTree
@@ -18,36 +18,13 @@ structure V where
 instance : BEq V := ⟨fun a b => a.id == b.id⟩
 instance : ToFormat V := ⟨fun v => s!"{v.id}/{v.tag}"⟩
 
-def keyPool : Array Key :=
-  #[.star, .other, .arrow, .const `f 2, .const `g 1, .const `a 0, .const `b 0, .lit (.natVal 3),
-    .proj `S 0 1]
+def f : Key := .const `f 2
+def g : Key := .const `g 1
+def a : Key := .const `a 0
+def b : Key := .const `b 0
 
-def next (s : Nat) : Nat := (s * 6364136223846793005 + 1442695040888963407) % 2 ^ 64
-
-/-- Pseudo-random entries with key sequences of length 1 to 4 and colliding value ids. -/
-def genEntries (seed n : Nat) : Array (Array Key × V) := Id.run do
-  let mut s := next seed
-  let mut out := #[]
-  for i in *...n do
-    s := next s
-    let len := s / 7 % 4 + 1
-    let mut ks := #[]
-    for _ in *...len do
-      s := next s
-      ks := ks.push keyPool[s / 11 % keyPool.size]!
-    s := next s
-    out := out.push (ks, { id := s / 13 % (n / 2 + 1), tag := i })
-  return out
-
-/-- Splits `es` into `n` consecutive modules of pseudo-random sizes, some of them empty. -/
-def splitModules (seed n : Nat) (es : Array α) : Array (Array α) := Id.run do
-  let mut s := next (seed + 17)
-  let mut cuts := #[]
-  for _ in *...(n - 1) do
-    s := next s
-    cuts := cuts.push (s / 7 % (es.size + 1))
-  let bounds := #[0] ++ cuts.qsort (· < ·) ++ #[es.size]
-  return (Array.range n).map fun i => es.extract bounds[i]! bounds[i + 1]!
+/-- An entry with keys `ks` and a value with `id` and `tag`. -/
+def e (ks : List Key) (id tag : Nat) : Array Key × V := (ks.toArray, { id, tag })
 
 def insertAll (d : DiscrTree V) (es : Array (Array Key × V)) : DiscrTree V :=
   es.foldl (init := d) fun d (ks, v) => d.insertKeyValue ks v
@@ -63,28 +40,28 @@ def same (d₁ d₂ : DiscrTree V) (es : Array (Array Key × V)) : Bool :=
       (d₁.getEntriesWithKeys ks).map (fun v => (v.id, v.tag)) ==
         (d₂.getEntriesWithKeys ks).map (fun v => (v.id, v.tag))
 
-def check (seed nMods nEntries : Nat) : Bool :=
-  let es := genEntries seed nEntries
-  let mods := splitModules seed nMods es
+/-- Merging `mods` agrees with inserting their entries in order, also after inserting `more`. -/
+def check (mods : Array (Array (Array Key × V))) (more : Array (Array Key × V) := #[]) : Bool :=
+  let es := mods.flatten
   let seq := insertAll {} es
   let merged := ofModuleRoots (mods.map fun es => moduleRootsOf es)
-  let more := genEntries (seed + 1) 30
   same seq merged es && same (insertAll seq more) (insertAll merged more) (es ++ more)
 
-#guard (List.range 50).all fun seed => check seed 1 40
-#guard (List.range 50).all fun seed => check seed 2 40
-#guard (List.range 50).all fun seed => check seed 5 60
-#guard (List.range 20).all fun seed => check seed 30 300
-#guard (List.range 5).all fun seed => check seed 100 2000
-#guard check 0 0 0
-#guard check 1 3 0
+-- the iteration order of the root map, with root keys shared between modules, occurring in only
+-- one module, and of several arities and kinds
+#guard check #[#[e [f, a, a] 1 0, e [g, a] 2 1, e [.const `f 1, a] 3 2], #[],
+  #[e [.lit (.natVal 3)] 4 3, e [f, a, b] 5 4, e [.proj `S 0 1, a] 6 5],
+  #[e [.other] 7 6, e [g, b] 8 7, e [.arrow, a, b] 9 8]]
+
+-- inserting into nodes that are still lazy, including at paths of earlier values
+#guard check #[#[e [f, a, a] 1 0, e [g, a] 2 1], #[e [f, a, b] 3 2, e [g, b] 4 3]]
+  #[e [f, a, a] 5 4, e [f, a, a] 1 5, e [f, b, b] 6 6, e [g, a] 7 7, e [a] 8 8]
 
 -- Inserting into the merged tree before forcing it gives the same result as afterwards.
 #guard
-  let es := genEntries 7 200
-  let mods := splitModules 7 6 es
+  let mods := #[#[e [f, a, a] 1 0, e [f, b, a] 2 1], #[e [f, a, b] 3 2], #[e [f, b, b] 4 3]]
   let merged := ofModuleRoots (mods.map fun es => moduleRootsOf es)
-  let more := genEntries 8 50
+  let more := #[e [f, a, a] 5 4, e [f, b, a] 2 5]
   let r₁ := insertAll merged more
   let _ := merged.size
   contents r₁ == contents (insertAll merged more)
@@ -101,12 +78,16 @@ def terms : MetaM (Array Expr) := do
   return #[add x (n 0), add (n 0) x, add x y, add (succ x) y, mul x (n 1), mul x y, succ (n 3),
     add (mul x y) (n 0), x, add x (succ y), mul (n 0) x]
 
+/-- Splits `es` into consecutive modules of `k` entries. -/
+def chunks (es : Array α) (k : Nat) : Array (Array α) :=
+  (Array.range ((es.size + k - 1) / k)).map fun i => es.extract (i * k) ((i + 1) * k)
+
 #eval show MetaM Unit from do
   let ts ← terms
   let es ← ts.mapIdxM fun i t => return ((← mkPath t), ({ id := i % 7, tag := i } : V))
   let es := es ++ es.reverse.mapIdx fun i (ks, v) => (ks, { v with tag := 100 + i })
-  for nMods in [1, 2, 3, 8] do
-    let mods := splitModules nMods nMods es
+  for k in [es.size, 7, 3, 1] do
+    let mods := chunks es k
     let seq := insertAll {} es
     let merged := ofModuleRoots (mods.map fun es => moduleRootsOf es)
     let queries ← terms

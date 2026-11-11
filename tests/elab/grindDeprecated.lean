@@ -22,11 +22,6 @@ theorem bar_eq_zero : foo = 0 := rfl
 @[deprecated bar_eq_zero (since := "2025-01-01"), grind]
 theorem bar_eq_zero' : foo = 0 := rfl
 
-/--
-warning: `bar_eq_zero'` has been deprecated: Use `bar_eq_zero` instead
-
-Hint: Replace the deprecated name:
-  bar_eq_zero'̵
--/
+-- Erasing it is not reported, since it can only be erased by its own name
 #guard_msgs in
 example : foo = foo := by grind [- bar_eq_zero']

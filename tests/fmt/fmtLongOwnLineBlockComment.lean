@@ -1,0 +1,12 @@
+/-!
+Tests that a block comment that is moved to a line of its own gets the multi-line form if the
+one-line form does not fit within the page width.
+-/
+
+-- The `;` that the comment follows is not rendered.
+def f (n : Nat) : Nat :=
+  let a := (let b := n; /- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -/ b + 1)
+  a
+
+-- The comment is wider than the optimality cutoff width.
+def g (/- yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy -/ x : Nat) : Nat := x

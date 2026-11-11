@@ -1014,6 +1014,11 @@ def determineCommentInsertions
         | .afterClosestPreviousNewline =>
           let (_, lineInfo) := findLineInfoContaining lineInfos range.startInclusive
           let lineInfo := escapeMultiLineTokens lineInfos renderedMultiLineTokenRanges lineInfo
+          -- Formatting the output again places the comment as an own-line comment in the document,
+          -- which avoids a rendering that does not fit.
+          if !isFinalAlternative
+              && lineInfo.indentation + renderingWidth rp.rendering > maxColumnWidth then
+            continue
           let insertionPos := lineInfo.range.startInclusive
           let mut insertedComment := rp.rendering.rendered.indent lineInfo.indentation ++ "\n"
           if (firstInsertedComments.get? insertionPos).any (isSeparatedByEmptyLine c) then
@@ -1035,12 +1040,7 @@ def determineCommentInsertions
           if r.contains insertionPos then
             assert! !isFinalAlternative
             continue
-          let commentLength :=
-            rp.rendering.rendered.split "\n"
-              |>.map (·.chars.length)
-              |>.toArray.getMax? (· < ·)
-              |>.get!
-          if lineInfo.length + 1 + commentLength > maxColumnWidth then
+          if lineInfo.length + 1 + renderingWidth rp.rendering > maxColumnWidth then
             assert! !isFinalAlternative
             continue
           let insertedComment :=
@@ -1051,6 +1051,10 @@ def determineCommentInsertions
         break
   return r.toArray.qsort (·.1 < ·.1)
 where
+  /-- The width of the widest line of `r`. -/
+  renderingWidth (r : Comment.Rendering) : Nat :=
+    r.rendered.split "\n" |>.map (·.chars.length) |>.toArray.getMax? (· < ·) |>.get!
+
   findLineInfoContaining (lineInfos : Array (LineInfo rendering)) (pos : rendering.Pos)
       : Nat × LineInfo rendering :=
     binSearchRightmost lineInfos pos (·.range.startInclusive) (· < ·) |>.get!

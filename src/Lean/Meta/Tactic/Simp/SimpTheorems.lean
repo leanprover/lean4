@@ -790,7 +790,8 @@ def SimpModuleIndex.addImported (d : SimpTheorems)
   let imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
     (mods.map fun (idx?, _) => (idx?.map (·.owned) |>.getD #[], #[])) (idxs.map ((·.foreign, #[])))
   if idxs.any (·.backward.any fun n => imported.contains (.decl n (inv := false))) then
-    -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we add all entries in order.
+    -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we add all entries in order. This
+    -- does not happen in core, which has no backward simp theorems, or in Mathlib.
     return mods.foldl (init := d) fun d (_, es) => es.foldl (init := d) fun d e => match e with
       | .global e => d.addSimpEntry e
       | _ => d

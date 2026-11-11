@@ -57,7 +57,12 @@ Hint: Replace the deprecated name:
 macro "explicitOld" : term => ``(@oldConst)
 
 -- Field notation on a deprecated constant
-/-- warning: `oldConst` has been deprecated: Use `newConst` instead -/
+/--
+warning: `oldConst` has been deprecated: Use `newConst` instead
+
+Hint: Replace the deprecated name:
+  o̵l̵d̵n̲e̲w̲Const
+-/
 #guard_msgs in
 macro "fieldOld" : term => ``(oldConst.succ)
 

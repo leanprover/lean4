@@ -457,18 +457,24 @@ private def isInterimResponseBody (machine : Machine dir) : Bool :=
 
 /--
 Returns `true` when body chunks should be drained internally rather than surfaced to the caller.
+
+A server drains the rest of a request body only once its response is fully written: while the
+response is still being written, the handler may be reading the body, for example to stream it back.
+An empty remainder has nothing to deliver, so it is drained as soon as the response head is sent.
 -/
 @[inline]
 private def drainBodyInternally (machine : Machine dir) : Bool :=
   match dir with
-  | .receiving => machine.writer.sentMessage
+  | .receiving =>
+    (machine.writer.state matches .complete | .closed) ||
+    (machine.writer.sentMessage && machine.reader.state matches .readBody (.fixed 0))
   | .sending => machine.isInterimResponseBody
 
 /--
 Builds the externally exposed `PulledChunk` value from parsed body bytes.
 
 When body consumption is currently internal-only (e.g. request body being
-drained after a response was already sent), returns `none`.
+drained after the response was written), returns `none`.
 -/
 @[inline]
 private def mkPulledChunk? (machine : Machine dir)

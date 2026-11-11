@@ -44,6 +44,9 @@ jobs:
       # OpenSSL built from source on Intel macOS; sync with `opensslForDist` in flake.nix
       OPENSSL_SRC_VERSION: 4.1.0
       OPENSSL_SRC_SHA256: 50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd
+      # libuv built from source on Intel macOS; sync with `libuvPinned` in flake.nix
+      LIBUV_SRC_VERSION: 1.53.0
+      LIBUV_SRC_SHA256: 21425fa398be98b51181a1885df31428092d5435c4373a396351e427322e5f1b
     steps:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
@@ -65,10 +68,10 @@ jobs:
         # preinstalled versions up to date; skip it on Intel, where Homebrew no longer builds
         # bottles, so updated formulae (and their dependency trees) would be built from source
         run: |
-          PACKAGES=(ccache tree zstd coreutils gmp libuv)
+          PACKAGES=(ccache tree zstd coreutils gmp)
           if [[ "$(uname -m)" == arm64 ]]; then
             brew update
-            PACKAGES+=(openssl@4)
+            PACKAGES+=(libuv openssl@4)
           fi
           brew install "${PACKAGES[@]}"
         if: runner.os == 'macOS'
@@ -101,6 +104,38 @@ jobs:
           "$RUNNER_TEMP/openssl/bin/openssl" version
           # picked up by script/prepare-llvm-macos.sh
           echo "OPENSSL=$RUNNER_TEMP/openssl" >> "$GITHUB_ENV"
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+      - name: Restore libuv
+        id: restore-libuv
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/libuv
+          key: libuv-${{ env.LIBUV_SRC_VERSION }}-${{ matrix.os }}-macos${{ env.MACOSX_DEPLOYMENT_TARGET }}-v1
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+      - name: Build libuv
+        run: |
+          cd "$RUNNER_TEMP"
+          # the `-dist` tarball ships a generated `configure`, so no autotools are needed
+          curl -fsSL -o libuv.tar.gz "https://dist.libuv.org/dist/v$LIBUV_SRC_VERSION/libuv-v$LIBUV_SRC_VERSION-dist.tar.gz"
+          echo "$LIBUV_SRC_SHA256  libuv.tar.gz" | shasum -a 256 -c
+          tar xf libuv.tar.gz
+          cd "libuv-$LIBUV_SRC_VERSION"
+          ./configure --prefix="$RUNNER_TEMP/libuv" --disable-shared --enable-static
+          make -j"$(sysctl -n hw.logicalcpu)"
+          make install
+        if: runner.os == 'macOS' && runner.arch == 'X64' && steps.restore-libuv.outputs.cache-hit != 'true'
+      - name: Save libuv
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ runner.temp }}/libuv
+          key: ${{ steps.restore-libuv.outputs.cache-primary-key }}
+        if: runner.os == 'macOS' && runner.arch == 'X64' && steps.restore-libuv.outputs.cache-hit != 'true'
+      - name: Use libuv
+        run: |
+          # found by `find_package(LibUV)` in every stage
+          echo "PKG_CONFIG_PATH=$RUNNER_TEMP/libuv/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}" >> "$GITHUB_ENV"
+          # picked up by script/prepare-llvm-macos.sh
+          echo "LIBUV=$RUNNER_TEMP/libuv" >> "$GITHUB_ENV"
         if: runner.os == 'macOS' && runner.arch == 'X64'
       - name: Checkout
         uses: actions/checkout@v6
@@ -275,6 +310,17 @@ jobs:
           mv build/stage1.bak build/stage1
           cd src
           ../build/stage0/bin/lake cache clean
+      - name: Check libuv version
+        # Homebrew and MSYS2 provide whatever libuv they currently ship, so check the linked one.
+        # This is not an elab test, because most distributions ship a slightly older LibUV, and having
+        # a red test for almost everyone building Lean from source is just noise.
+        run: |
+          min=$((1 << 16 | 53 << 8 | 0))
+          v=$(echo $'import Lean.Runtime\n#eval Lean.libUVVersion' | build/$TARGET_STAGE/bin/lean --stdin)
+          fmt() { echo "$(($1 >> 16)).$(($1 >> 8 & 255)).$(($1 & 255))"; }
+          echo "libuv $(fmt "$v")"
+          (( v >= min )) || { echo "::error::libuv $(fmt "$v") is linked, expected at least $(fmt "$min")"; exit 1; }
+        if: ${{ !matrix.cross }}
       # Not part of the default targets because it is big
       - name: Build leanchecker-paranoid
         if: matrix.release && !matrix.wasm

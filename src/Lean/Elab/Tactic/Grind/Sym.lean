@@ -98,7 +98,9 @@ def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardR
   | `($id:ident) =>
     try
       let declName ← realizeGlobalConstNoOverload id
-      getOrCreateBackwardRule declName
+      let rule ← getOrCreateBackwardRule declName
+      Linter.checkDeprecatedAt id declName
+      pure rule
     catch _ =>
       getOrCreateBackwardRuleFromTerm term
   | _ =>
@@ -162,6 +164,9 @@ def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTactic
       thms := thms.push (← mkTheoremFromExpr decl.toExpr)
     else
       let declName ← realizeGlobalConstNoOverload id
+      -- Definitions are unfolded, acting on occurrences that are already in the goal.
+      unless (← getConstInfo declName) matches .defnInfo _ do
+        Linter.checkDeprecatedAt id declName
       extras := extras.push <| .const declName
       thms := thms ++ (← mkTheoremsFromDecl declName)
   return (extras, thms)

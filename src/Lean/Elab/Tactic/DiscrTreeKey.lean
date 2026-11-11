@@ -42,7 +42,7 @@ private def getType (t : TSyntax `term) : TermElabM Expr := do
     else
       let declName ← realizeGlobalConstNoOverloadWithInfo id
       Linter.checkDeprecatedAt id declName
-      return (← getConstInfo declName).type
+      return (← getConstVal declName).type
   else
     Term.elabTerm t none
 

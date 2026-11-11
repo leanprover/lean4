@@ -234,7 +234,7 @@ where
       (minIndexable : Bool) : GrindTacticM (Array EMatchTheorem) := do
     let declName ← realizeGlobalConstNoOverloadWithInfo id
     -- Definitions are unfolded, acting on occurrences that are already in the goal.
-    unless (← getConstInfo declName) matches .defnInfo _ do
+    unless (← isDefn? declName).isSome do
       Linter.checkDeprecatedAt id declName
     let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
     match kind with

@@ -165,7 +165,7 @@ def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTactic
     else
       let declName ← realizeGlobalConstNoOverload id
       -- Definitions are unfolded, acting on occurrences that are already in the goal.
-      unless (← getConstInfo declName) matches .defnInfo _ do
+      unless (← isDefn? declName).isSome do
         Linter.checkDeprecatedAt id declName
       extras := extras.push <| .const declName
       thms := thms ++ (← mkTheoremsFromDecl declName)

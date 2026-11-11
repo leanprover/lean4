@@ -225,7 +225,7 @@ private def resolveSimpIdTheorem? (simpArgTerm : Term) : TermElabM ResolveSimpId
           else
             -- Definitions are unfolded, acting on occurrences that are already in the goal.
             if let .const declName _ := e then
-              unless (← getConstInfo declName) matches .defnInfo _ do
+              unless (← isDefn? declName).isSome do
                 withRef id <| Term.checkDeprecatedCore declName
             return .expr e
         else

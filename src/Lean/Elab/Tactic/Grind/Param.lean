@@ -254,7 +254,7 @@ def processParam (params : Grind.Params)
     else
       throw err
   -- Definitions are unfolded, acting on occurrences that are already in the goal.
-  unless (← getConstInfo declName) matches .defnInfo _ do
+  unless (← isDefn? declName).isSome do
     withRef id <| Term.checkDeprecatedCore declName
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with

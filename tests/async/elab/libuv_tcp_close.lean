@@ -75,15 +75,21 @@ def expectFails (name : String) (promise : IO.Promise (Except IO.Error α)) : IO
   expectError "connect" (do blockPromise (← server.connect (← client.getSockName)))
   client.close
 
--- A pending read ends with an error when the socket is closed.
+-- A pending read ends with an error when the socket is closed. Each pair closes the peer last: once
+-- the peer closed, the socket is readable, so a read on it can legitimately finish first.
 #eval show IO Unit from do
   let (client, server) ← connectPair
   let pending ← server.recv? 16
   server.close
   expectFails "pending recv?" pending
-  let pendingReadable ← client.waitReadable
   client.close
-  expectFails "pending waitReadable" pendingReadable
+
+#eval show IO Unit from do
+  let (client, server) ← connectPair
+  let pending ← client.waitReadable
+  client.close
+  expectFails "pending waitReadable" pending
+  server.close
 
 -- A pending accept ends with an error when the listening socket is closed.
 #eval show IO Unit from do

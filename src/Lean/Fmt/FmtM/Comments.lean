@@ -700,21 +700,12 @@ where
       : StateM tryInsertingComments.State (Doc FmtCost) := do
     let penalty := 999999 -- All fallbacks in the document should take priority.
     let mut result := anchor
-    let mut next? : Option Comment := none
-    for c in cs.reverse do
+    -- The comments after the anchor are appended in source order, and the comments before it are
+    -- prepended in reverse source order, so that both keep their order.
+    for c in cs do
       match placement c with
       | .afterClosestPreviousNewline =>
-        let renderings := c.render
-        let docs := renderings.map (Doc.initial <| renderingToDoc ·)
-        let docs ← docs.mapM (tag · c)
-        let doc := .oneOf docs
-        let sep := if next?.any (isSeparatedByEmptyLine c) then .hardNl ++ .hardNl else .hardNl
-        let doc := .aligned <| Doc.free (doc ++ sep) ++ result
-        result :=
-          .oneOf #[
-            doc,
-            Doc.costing (DefaultCost.ofFailureFallbackPenalty penalty) result
-          ]
+        continue
       | .beforeClosestNextNewline =>
         let renderings := c.render
         let afterLineDocs := renderings.map (Doc.final <| renderingToDoc ·)
@@ -742,6 +733,21 @@ where
             afterLineDoc,
             Doc.costing (DefaultCost.ofFailureFallbackPenalty penalty) result
           ]
+    let mut next? : Option Comment := none
+    for c in cs.reverse do
+      if !(placement c matches .afterClosestPreviousNewline) then
+        continue
+      let renderings := c.render
+      let docs := renderings.map (Doc.initial <| renderingToDoc ·)
+      let docs ← docs.mapM (tag · c)
+      let doc := .oneOf docs
+      let sep := if next?.any (isSeparatedByEmptyLine c) then .hardNl ++ .hardNl else .hardNl
+      let doc := .aligned <| Doc.free (doc ++ sep) ++ result
+      result :=
+        .oneOf #[
+          doc,
+          Doc.costing (DefaultCost.ofFailureFallbackPenalty penalty) result
+        ]
       next? := c
     return result
   goMemoized (v : Doc FmtCost) : StateM tryInsertingComments.State tryInsertingComments.Result := do

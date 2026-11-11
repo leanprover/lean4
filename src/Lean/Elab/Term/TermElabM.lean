@@ -10,6 +10,7 @@ public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 import Lean.Elab.DeprecatedSyntax.Basic
+import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -2222,8 +2223,25 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
+/--
+In a pattern, offers the replacement of a deprecated constant only if it can be used in patterns,
+and explains why not otherwise.
+-/
+private def mkPatternDeprecationHint (declName newName : Name) : MetaM MessageData := do
+  let env ← getEnv
+  if env.isConstructor newName || hasMatchPatternAttribute env newName then
+    Linter.mkIdentHint declName newName
+  else
+    return .note m!"`{.ofConstName newName true}` is neither a constructor nor a `@[match_pattern]` \
+      definition, so it cannot be used in this pattern. Written as `{newName.getString!}`, it would \
+      instead be a new pattern variable that matches every value."
+
 def checkDeprecatedCore (constName : Name) (hint : Linter.DeprecationHint := .ident) :
     TermElabM Unit := do
+  let hint := if (← read).inPattern && hint matches .ident then
+    .custom (mkPatternDeprecationHint constName)
+  else
+    hint
   Linter.checkDeprecatedAt (← getRef) constName hint
 
 /--

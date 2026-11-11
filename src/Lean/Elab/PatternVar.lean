@@ -342,7 +342,8 @@ where
 
   /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[match_pattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
-    match (← resolveId? stx "pattern") with
+    -- Deprecated constructors are reported when elaborating the pattern; variables are not uses.
+    match (← withoutCheckDeprecated <| resolveId? stx "pattern") with
     | none   => processVar stx
     | some f => match f with
       | Expr.const fName _ =>
@@ -407,7 +408,8 @@ where
       | `(@$fId:ident) => pure (fId, true)
       | _              =>
         throwError "Invalid pattern: Expected an identifier in function position, but found{indentD f}"
-    let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected (some fId)
+    let some (Expr.const fName _) ← withoutCheckDeprecated <| resolveId? fId "pattern" (withInfo := true)
+      | throwCtorExpected (some fId)
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
       let d ← getFVarLocalDecl x

@@ -40,8 +40,9 @@ private def getType (t : TSyntax `term) : TermElabM Expr := do
     if let some ldecl := (← getLCtx).findFromUserName? id.getId then
       return ldecl.type
     else
-      let info ← getConstInfo (← realizeGlobalConstNoOverloadWithInfo id)
-      return info.type
+      let declName ← realizeGlobalConstNoOverloadWithInfo id
+      Linter.checkDeprecatedAt id declName
+      return (← getConstInfo declName).type
   else
     Term.elabTerm t none
 

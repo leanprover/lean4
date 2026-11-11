@@ -126,6 +126,7 @@ where
     let attrName := if let some attrName := attrName? then attrName.getId else `grind
     let some ext ← Grind.getExtension? attrName | throwError "unknown `grind` attribute `{attrName}`"
     let declName ← realizeGlobalConstNoOverloadWithInfo thmName
+    Linter.checkDeprecatedAt thmName declName
     let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
       let patterns ← terms.getElems.mapM fun term => do

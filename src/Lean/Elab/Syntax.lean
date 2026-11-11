@@ -392,7 +392,7 @@ def adaptRulesExpander (exp : Syntax → CommandElabM (Option SyntaxNodeKind × 
   let elabExpansion := withMacroExpansion stx stx' <| elabCommand stx'
   unless k?.any (isDeprecatedSyntax (← getEnv)) do
     return ← elabExpansion
-  withReader ({ · with checkDeprecated := .none }) elabExpansion
+  withoutCheckDeprecated elabExpansion
 
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with

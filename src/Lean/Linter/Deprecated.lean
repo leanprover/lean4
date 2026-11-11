@@ -160,16 +160,49 @@ def _root_.Lean.MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := do
   (← deprecatedAttr.getParam? env declName).newName?
 
-private def mkDeprecationHint? (declName newName : Name) : MetaM (Option MessageData) := do
-  let ref ← getRef
-  let .ident _ _ writtenName _ := ref | return none
-  if writtenName.hasMacroScopes then return none
-  unless (ref.getRange? (canonicalOnly := true)).isSome do return none
-  unless (← resolveGlobalName writtenName) == [(declName, [])] do return none
-  let some replacement ← unresolveNameGlobalAvoidingLocals? newName | return none
-  return some (← m!"Replace the deprecated name:".hint #[replacement.toString] (ref? := some ref))
+/--
+How a deprecation warning for a constant with a replacement suggests switching to the replacement.
+Suggestions are only made when the replacement has the same type as the deprecated constant.
+-/
+inductive DeprecationHint where
+  /-- No suggestion. -/
+  | none
+  /--
+  If the current ref is an identifier that resolves to the deprecated constant, offers to replace it
+  with the shortest name that resolves to the replacement.
+  -/
+  | ident
+  /--
+  Appends the message computed from the name of the replacement, such as a hint for syntax other
+  than a plain identifier, or a note explaining why no hint is offered.
+  -/
+  | custom (mk : Name → MetaM MessageData)
 
-def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := do
+/--
+Creates a hint that offers to replace `ref` by `replacement`. Returns the empty message if `ref`
+has no source position.
+-/
+def mkReplacementHint (ref : Syntax) (replacement : String) : MetaM MessageData := do
+  unless (ref.getRange? (canonicalOnly := true)).isSome do return .nil
+  m!"Replace the deprecated name:".hint #[replacement] (ref? := some ref)
+
+/--
+Creates the hint offered by `DeprecationHint.ident`: if the current ref is an identifier that
+resolves to `declName`, offers to replace it with the shortest name that resolves to `newName`.
+-/
+def mkIdentHint (declName newName : Name) : MetaM MessageData := do
+  let ref ← getRef
+  let .ident _ _ writtenName _ := ref | return .nil
+  if writtenName.hasMacroScopes then return .nil
+  unless (← resolveGlobalName writtenName) == [(declName, [])] do return .nil
+  let some replacement ← unresolveNameGlobalAvoidingLocals? newName | return .nil
+  mkReplacementHint ref replacement.toString
+
+/--
+Reports a use of `declName` at the current ref if it is deprecated. Callers should usually use
+`checkDeprecatedAt`, which respects `Core.Context.checkDeprecated`.
+-/
+def checkDeprecated (declName : Name) (hint : DeprecationHint) : MetaM Unit := do
   if getLinterValue linter.deprecated (← getLinterOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
     let extraMsg ← match attr.text?, attr.newName? with
@@ -199,9 +232,21 @@ def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := d
             let pfxCompStr := if _ : pfxComps.length > 1 then m!"at least the last component `{pfxComps[0]}` of " else ""
             msg := msg ++ .note m!"`{.ofConstName newName true}` is protected. References to this \
               constant must include {pfxCompStr}its prefix `{newPfx}` even when inside its namespace."
-        if allowSuggestion && typesReduciblyDefEq then
-           if let some hint ← mkDeprecationHint? declName newName then
-            msg := msg ++ hint
+        if typesReduciblyDefEq then
+          match hint with
+          | .none => pure ()
+          | .ident => msg := msg ++ (← mkIdentHint declName newName)
+          | .custom mk => msg := msg ++ (← mk newName)
         pure msg
     logWarning <| .tagged ``deprecatedAttr <|
       m!"`{.ofConstName declName true}` has been deprecated" ++ extraMsg
+
+/--
+Reports a use of `declName` at `ref` if it is deprecated, unless deprecation checks are disabled at
+`ref` (see `Core.Context.checkDeprecated`).
+-/
+def checkDeprecatedAt (ref : Syntax) (declName : Name) (hint : DeprecationHint := .ident) :
+    MetaM Unit :=
+  withRef ref do
+    if (← Core.shouldCheckDeprecated ref) then
+      checkDeprecated declName hint

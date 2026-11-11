@@ -62,6 +62,47 @@ private structure Producer where
   -/
   done : IO.Promise Bool
 
+/--
+Joins byte arrays held newest first into one, copying each byte once. `size` is their total size.
+-/
+private def joinPieces (pieces : List ByteArray) (size : Nat) : ByteArray :=
+  match pieces with
+  | [piece] => piece
+  | _ => pieces.foldr (fun piece acc => acc ++ piece) (.emptyWithCapacity size)
+
+/--
+The pieces of a chunk that `Stream.send ... (incomplete := true)` accepted. The state is shared
+between threads, so a byte array in it is never exclusive and appending to it would copy every
+buffered byte; the pieces are joined once, when the chunk is complete.
+-/
+private structure Incomplete where
+  /--
+  The pieces' bytes, newest first.
+  -/
+  pieces : List ByteArray
+
+  /--
+  The total size of `pieces`.
+  -/
+  size : Nat
+
+  /--
+  The extensions of the oldest piece that has any.
+  -/
+  extensions : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)
+
+private def Incomplete.push (pending : Option Incomplete) (chunk : Chunk) : Incomplete :=
+  match pending with
+  | none => { pieces := [chunk.data], size := chunk.data.size, extensions := chunk.extensions }
+  | some pending => {
+      pieces := chunk.data :: pending.pieces
+      size := pending.size + chunk.data.size
+      extensions := if pending.extensions.isEmpty then chunk.extensions else pending.extensions
+    }
+
+private def Incomplete.toChunk (pending : Incomplete) : Chunk :=
+  { data := joinPieces pending.pieces pending.size, extensions := pending.extensions }
+
 open Async in
 private def resolveInterestWaiter (waiter : Waiter Bool) (x : Bool) : BaseIO Bool := do
   let lose := return false
@@ -100,7 +141,7 @@ private structure State where
   Buffered partial chunk data accumulated from `Stream.send ... (incomplete := true)`.
   These partial pieces are collapsed and emitted as a single chunk on the next complete send.
   -/
-  pendingIncompleteChunk : Option Chunk := none
+  pendingIncomplete : Option Incomplete := none
 
   /--
   Terminal error recorded when the producer could not deliver the full body
@@ -199,7 +240,7 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
   -- blocked producer's chunk would have to come first, and it is dropped below, so they are too.
   let mut leftover :=
     if st.pendingProducer.isSome then none
-    else st.pendingIncompleteChunk.filter (·.data.size > 0)
+    else st.pendingIncomplete.map (·.toChunk) |>.filter (·.data.size > 0)
   let mut knownSize := st.knownSize
 
   if let some consumer := st.pendingConsumer then
@@ -230,7 +271,7 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
     pendingProducer
     pendingConsumer := none
     interestWaiter := none
-    pendingIncompleteChunk := none
+    pendingIncomplete := none
     closeAfterProducer := false
     knownSize
     closed := true
@@ -491,22 +532,24 @@ partial def readAll
     (maximumSize : Option UInt64 := none) :
     m α := do
 
-  let rec loop (result : ByteArray) : m ByteArray := do
+  -- The continuation of each receive captures the bytes read so far and marks them as shared
+  -- between threads, so appending to one byte array would copy all of them each time.
+  let rec loop (pieces : List ByteArray) (size : Nat) : m ByteArray := do
     match ← NextChunk.nextChunk stream with
     | none =>
       -- Only a cancelled context ends the read while the stream is still open.
       unless ← (stream.isClosed : Async Bool) do
         throw (.userError "the read was cancelled before the body ended")
-      return result
+      return Channel.joinPieces pieces size
     | some chunk =>
-      let result := result ++ chunk.data
+      let size := size + chunk.data.size
       if let some max := maximumSize then
-        if result.size.toUInt64 > max then
+        if size.toUInt64 > max then
           (stream.close : Async Unit)
           throw (.userError s!"body exceeded maximum size of {max} bytes")
-      loop result
+      loop (chunk.data :: pieces) size
 
-  let result ← loop ByteArray.empty
+  let result ← loop [] 0
 
   match FromByteArray.fromByteArray result with
   | .ok a => return a
@@ -550,20 +593,14 @@ private def collapseForSend
     if st.closed then
       return .error (.userError "channel closed")
 
-    let merged := match st.pendingIncompleteChunk with
-      | some pending =>
-        {
-          data := pending.data ++ chunk.data
-          extensions := if pending.extensions.isEmpty then chunk.extensions else pending.extensions
-        }
-      | none => chunk
+    let merged := Channel.Incomplete.push st.pendingIncomplete chunk
 
     if incomplete then
-      set { st with pendingIncompleteChunk := some merged }
+      set { st with pendingIncomplete := some merged }
       return .ok none
     else
-      set { st with pendingIncompleteChunk := none }
-      return .ok (some merged)
+      set { st with pendingIncomplete := none }
+      return .ok (some merged.toChunk)
 
 /--
 Sends a chunk, retrying if a select-mode consumer races and loses. If no consumer is ready,

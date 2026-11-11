@@ -3,8 +3,7 @@ import Lean
 /-!
 The instances imported from per-module data (`InstanceModuleSummary`) equal those obtained by adding
 each imported entry in module order, down to the order of instances in the discrimination tree, and
-imported instance names are looked up in per-module arrays when all imported modules store their
-summaries.
+imported instance names are looked up in per-module arrays.
 -/
 
 open Lean Meta
@@ -29,31 +28,11 @@ def sameInstances (d₁ d₂ : Instances) : Bool :=
   d₁.instanceNames.isEmpty == d₂.instanceNames.isEmpty &&
   sortedNames d₁.erased.toList == sortedNames d₂.erased.toList
 
-/-- Whether module `i` stores a summary of its entries of `ext`. -/
-def hasSummary [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) (i : Nat) :
-    IO Bool := do
-  let some idx := (← persistentEnvExtensionsRef.get).find? (·.name == ext.ext.name ++ `moduleSummary)
-    | throw <| .userError s!"no summary extension for {ext.ext.name}"
-  return !(idx.getModuleEntries env (i : ModuleIdx)).isEmpty
-
-/--
-Whether all imported modules with global entries of `ext` store a summary, without which the
-summaries are not used (e.g. at stage 1, whose core library is exported by stage 0).
--/
-def allSummarized [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : IO Bool := do
-  let entries := (ext.ext.toEnvExtension.getState env).importedEntries
-  let mut ok := true
-  for h : i in [0:entries.size] do
-    if entries[i].any (· matches .global _) && !(← hasSummary ext env i) then
-      ok := false
-  return ok
-
 #eval show CoreM Unit from do
   let env ← getEnv
   let d := instanceExtension.getState env
   unless sameInstances d (sequentialInstances env) do
     throwError "instances differ from the sequentially built ones"
   unless d.discrTree.size > 5000 do throwError "too few instances: {d.discrTree.size}"
-  let summarized ← allSummarized instanceExtension env
-  unless d.instanceNames.imported.ownedKeys.isEmpty != summarized do
-    throwError "unexpected representation of imported instance names"
+  if d.instanceNames.imported.ownedKeys.isEmpty then
+    throwError "imported instance names are not looked up per module"

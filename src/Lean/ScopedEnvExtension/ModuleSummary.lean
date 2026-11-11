@@ -19,9 +19,7 @@ imported global entries are added using per-module summaries instead of one by o
 When a module is exported, `build` summarizes the global entries it exports at each olean level, if
 any; the summaries are stored by a separate persistent extension. On import, `addImported` adds the
 global entries of all imported modules to the initial state, given in module order, each with its
-entries and its summary (`none` for modules without global entries). If some imported module with
-global entries has no summary, all entries are imported by `descr.importGlobals` instead, as mixing
-both would change the order of entries.
+entries and its summary (`none` for modules without global entries).
 -/
 public def registerSimpleScopedEnvExtensionWithSummaries {ι : Type}
     (descr : SimpleScopedEnvExtension.Descr α σ) (build : Environment → Array α → ι)
@@ -34,16 +32,12 @@ public def registerSimpleScopedEnvExtensionWithSummaries {ι : Type}
       -- through the export function below, which the compactor cannot save (e.g. in
       -- `--incr-header-save` snapshots).
       let some summaryExt := (← persistentEnvExtensionsRef.get).find? (·.name == summaryName)
-        | descr.importGlobals as
+        | throw <| .userError s!"summary extension '{summaryName}' is not registered"
       let env := (← read).env
-      let mods := as.mapIdx fun i a =>
+      addImported descr.initial <| as.mapIdx fun i a =>
         let summary? : Option EnvExtensionEntry :=
           (summaryExt.getModuleEntries env (i : ModuleIdx))[0]?
-        ((unsafe unsafeCast summary? : Option ι), a)
-      if mods.all fun (summary?, a) => summary?.isSome || !a.any (· matches .global _) then
-        addImported descr.initial mods
-      else
-        descr.importGlobals as }
+        ((unsafe unsafeCast summary? : Option ι), a) }
   let _ : PersistentEnvExtension ι Unit Unit ← registerPersistentEnvExtension {
     name := summaryName
     mkInitial := pure ()

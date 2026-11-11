@@ -250,3 +250,6 @@ def checkDeprecatedAt (ref : Syntax) (declName : Name) (hint : DeprecationHint :
   withRef ref do
     if (← Core.shouldCheckDeprecated ref) then
       checkDeprecated declName hint
+
+builtin_initialize Core.checkDeprecatedAtRef.set fun ref declName =>
+  (checkDeprecatedAt ref declName).run'

@@ -805,29 +805,27 @@ def enterLoopBody (breakCont continueCont : DoElabM Expr) (returnCont : ReturnCo
   withReader (fun ctx => { ctx with contInfo }) body
 
 /--
-Prepare the context for elaborating the body of a `do` block in which `break`, `continue` and
-`return` are errors.
+Prepare the context for elaborating the `do` block `doSeq`.
+In `doSeq`, `break`, `continue`, `return` and reassignment of the `mut` variables in scope are
+errors. If the ref is a `finally` keyword, the error messages call `doSeq` a `finally` block.
 -/
-def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
-  let error := throwError "This `do` block does not support `break`, `continue` or `return`."
+def withoutControl (doSeq : TSyntax ``doSeq) (k : DoElabM Expr) : DoElabM Expr := do
+  let block := if (← getRef).isToken "finally" then m!"A `finally` block" else m!"This `do` block"
+  let info ← inferControlInfoSeq doSeq
+  let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
+  unless reassigned.isEmpty do
+    let vars := MessageData.joinSep (reassigned.toList.map (m!"`{·}`")) ", "
+    throwError "{block} cannot reassign the `mut` variables {vars}."
+  let error := throwError "{block} does not support `break`, `continue` or `return`."
   let rc ← getReturnCont
   let contInfo := { breakCont := error, continueCont := error, returnCont := { rc with k _ := error }}
   let contInfo := ContInfo.toContInfoRef contInfo
   withReader (fun ctx => { ctx with contInfo }) k
 
-/--
-Prepare the context for elaborating the `finally` block `finSeq`.
-In `finSeq`, `break`, `continue`, `return` and reassignment of the `mut` variables in scope at the
-`try` are errors.
--/
+/-- Prepare the context for elaborating the `finally` block `finSeq` with result type `resultType`. -/
 def enterFinally (finSeq : TSyntax ``doSeq) (resultType : Expr) (k : DoElabM Expr) :
     DoElabM Expr := do
-  let info ← inferControlInfoSeq finSeq
-  let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
-  unless reassigned.isEmpty do
-    let vars := MessageData.joinSep (reassigned.toList.map (m!"`{·}`")) ", "
-    throwErrorAt finSeq "A `finally` block cannot reassign the `mut` variables {vars}."
-  withoutControl do
+  withoutControl finSeq do
   withDoBlockResultType resultType k
 
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/

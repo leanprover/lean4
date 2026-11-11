@@ -1,0 +1,5 @@
+doFinallyMut.lean:54:2-54:9: error: A `finally` block cannot reassign the `mut` variables `s`.
+doFinallyMut.lean:62:2-62:9: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  MonadFinally Option
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

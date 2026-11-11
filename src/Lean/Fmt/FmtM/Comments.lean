@@ -139,7 +139,7 @@ public def normalizeCommentContent
     (s : String) (startSymbol endSymbol : String) (startColumnOffset : Nat) (isLineComment : Bool)
     : Array String :=
   let s := s.toSlice.dropPrefix startSymbol |>.dropSuffix endSymbol
-  let lines := s.split "\n" |>.toArray
+  let lines := s.split "\n" |>.toArray.map dropTrailingWs
   let indentation := contentColumnOffset lines
   let deindentedLines :=
     lines[0]! :: (lines[1:].toList.map (dropIndentation · indentation) |>.map dropLinePrefix)
@@ -181,6 +181,8 @@ where
     let some line := line.dropPrefix? startSymbol
       | return line
     return line.dropPrefix " "
+  dropTrailingWs (line : String.Slice) : String.Slice :=
+    line.dropEndWhile ' '
 
 /--
 Finalizes a pending comment, extracting `Comment.content` from `PendingComment.raw` by

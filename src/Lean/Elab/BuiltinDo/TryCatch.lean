@@ -71,7 +71,7 @@ private def elabDoCatch (lifter : EffectForwarder) (body : Expr) (catch_ : TSynt
       | some finSeq => do
         let β ← mkFreshResultType `β
         Term.registerMVarErrorHoleInfo β.mvarId! finSeq
-        let fin ← enterFinally β <| elabDoSeq finSeq (← DoElemCont.mkPure β)
+        let fin ← enterFinally finSeq β <| elabDoSeq finSeq (← DoElemCont.mkPure β)
         let instMonadFinally ← Term.mkInstMVar <| mkApp (mkConst ``MonadFinally [mi.u, mi.v]) mi.m
         let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m
         pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])

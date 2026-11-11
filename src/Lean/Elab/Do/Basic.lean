@@ -805,8 +805,8 @@ def enterLoopBody (breakCont continueCont : DoElabM Expr) (returnCont : ReturnCo
   withReader (fun ctx => { ctx with contInfo }) body
 
 /--
-Prepare the context for elaborating the body of a `do` block that does not support `mut` vars,
-`break`, `continue` or `return`.
+Prepare the context for elaborating the body of a `do` block in which `break`, `continue` and
+`return` are errors.
 -/
 def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
   let error := throwError "This `do` block does not support `break`, `continue` or `return`."
@@ -816,10 +816,17 @@ def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
   withReader (fun ctx => { ctx with contInfo }) k
 
 /--
-Prepare the context for elaborating the body of a `finally` block.
-There is no support for `mut` vars, `break`, `continue` or `return` in a `finally` block.
+Prepare the context for elaborating the `finally` block `finSeq`.
+In `finSeq`, `break`, `continue`, `return` and reassignment of the `mut` variables in scope at the
+`try` are errors.
 -/
-def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
+def enterFinally (finSeq : TSyntax ``doSeq) (resultType : Expr) (k : DoElabM Expr) :
+    DoElabM Expr := do
+  let info ← inferControlInfoSeq finSeq
+  let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
+  unless reassigned.isEmpty do
+    let vars := MessageData.joinSep (reassigned.toList.map (m!"`{·}`")) ", "
+    throwErrorAt finSeq "A `finally` block cannot reassign the `mut` variables {vars}."
   withoutControl do
   withDoBlockResultType resultType k
 

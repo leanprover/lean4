@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
-public import Lean.ImportedDeclMap
+public import Lean.DeclKeyedMap
 public import Lean.ScopedEnvExtension
 public import Lean.DocString
 import Lean.Meta.AppBuilder
@@ -602,33 +602,33 @@ def Origin.quickLt : Origin → Origin → Bool
   | _, .decl .. => false
   | a, b => Name.quickLt a.key b.key
 
-instance : ImportedDeclMap.Key Origin where
+instance : ImportedDeclKeyedMap.Key Origin where
   declName := Origin.key
   lt := Origin.quickLt
 
 /--
 The origins of the theorems in a simp set (`SimpTheorems.lemmaNames`). Imported origins are
-represented as an `ImportedDeclMap`.
+represented as an `ImportedDeclKeyedMap`.
 -/
-structure SimpLemmaNames extends DeclMap Origin Unit
+structure SimpLemmaNames extends DeclKeyedMap Origin Unit
   deriving Inhabited
 
 namespace SimpLemmaNames
 
 def contains (s : SimpLemmaNames) (o : Origin) : Bool :=
-  s.toDeclMap.contains o
+  s.toDeclKeyedMap.contains o
 
 def insert (s : SimpLemmaNames) (o : Origin) : SimpLemmaNames :=
-  ⟨s.toDeclMap.insert o ()⟩
+  ⟨s.toDeclKeyedMap.insert o ()⟩
 
 def erase (s : SimpLemmaNames) (o : Origin) : SimpLemmaNames :=
-  ⟨s.toDeclMap.erase o⟩
+  ⟨s.toDeclKeyedMap.erase o⟩
 
 def isEmpty (s : SimpLemmaNames) : Bool :=
-  s.toDeclMap.isEmpty
+  s.toDeclKeyedMap.isEmpty
 
 @[inline] def foldM [Monad m] (f : β → Origin → m β) (init : β) (s : SimpLemmaNames) : m β :=
-  s.toDeclMap.foldM (fun b o _ => f b o) init
+  s.toDeclKeyedMap.foldM (fun b o _ => f b o) init
 
 @[inline] def fold (f : β → Origin → β) (init : β) (s : SimpLemmaNames) : β :=
   Id.run <| s.foldM (pure <| f · ·) init
@@ -747,7 +747,7 @@ not require adding each entry (see `registerSimpleScopedEnvExtensionWithSummarie
 structure SimpModuleSummary where
   pre      : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
   post     : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
-  /-- The origins of theorems owned by the module (see `ImportedDeclMap.sortOwned`). -/
+  /-- The origins of theorems owned by the module (see `ImportedDeclKeyedMap.sortOwned`). -/
   owned    : Array Origin
   /-- The origins of the remaining theorems. -/
   foreign  : Array Origin
@@ -772,13 +772,13 @@ def SimpModuleSummary.ofEntries (env : Environment) (es : Array SimpEntry) :
     if let .decl n _ inv := t.origin then
       if inv then
         backward := backward.push n
-      if ImportedDeclMap.isOwned env n then
+      if ImportedDeclKeyedMap.isOwned env n then
         owned := owned.push (t.origin, ())
         continue
     foreign := foreign.push t.origin
   return {
     pre := DiscrTree.moduleRootsOf pre, post := DiscrTree.moduleRootsOf post
-    owned := (ImportedDeclMap.sortOwned owned).1, foreign, backward, rest }
+    owned := (ImportedDeclKeyedMap.sortOwned owned).1, foreign, backward, rest }
 
 /--
 Adds the global entries of all imported modules to the empty simp set `d`, as `addSimpEntry` would.
@@ -787,7 +787,7 @@ def SimpModuleSummary.addImported (d : SimpTheorems)
     (mods : Array (Option SimpModuleSummary × Array (ScopedEnvExtension.Entry SimpEntry))) :
     ImportM SimpTheorems := do
   let idxs := mods.filterMap (·.1)
-  let imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
+  let imported := ImportedDeclKeyedMap.ofModules (← read).env.toKernelEnv.constants.map₁
     (mods.map fun (idx?, _) => (idx?.map (·.owned) |>.getD #[], #[])) (idxs.map ((·.foreign, #[])))
   if idxs.any (·.backward.any fun n => imported.contains (.decl n (inv := false))) then
     -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we add all entries in order. This

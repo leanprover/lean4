@@ -18,18 +18,18 @@ module's sorted array, found using the imported constants, and only the remainin
 in a hash map.
 -/
 
-/-- Keys of an `ImportedDeclMap`: a declaration name plus possibly more data. -/
-public class ImportedDeclMap.Key (κ : Type) where
+/-- Keys of an `ImportedDeclKeyedMap`: a declaration name plus possibly more data. -/
+public class ImportedDeclKeyedMap.Key (κ : Type) where
   declName : κ → Name
   /-- A strict total order compatible with `==`, for binary search. -/
   lt : κ → κ → Bool
 
-public instance : ImportedDeclMap.Key Name where
+public instance : ImportedDeclKeyedMap.Key Name where
   declName := id
   lt := Name.quickLt
 
-/-- The imported part of a `DeclMap`. -/
-public structure ImportedDeclMap (κ α : Type) [BEq κ] [Hashable κ] where
+/-- The imported part of a `DeclKeyedMap`. -/
+public structure ImportedDeclKeyedMap (κ α : Type) [BEq κ] [Hashable κ] where
   /-- The imported constants, used to find the module declaring a constant. -/
   consts  : ImportedConsts ConstantInfo := .empty
   /-- Per module index, the keys of the entries owned by the module (see `isOwned`), sorted. -/
@@ -43,17 +43,17 @@ public structure ImportedDeclMap (κ α : Type) [BEq κ] [Hashable κ] where
   foreign : PHashMap κ α := {}
   deriving Inhabited
 
-namespace ImportedDeclMap
+namespace ImportedDeclKeyedMap
 
 variable {κ α : Type} [BEq κ] [Hashable κ] [Key κ] [Inhabited α]
 
 /--
-Whether the current module owns an entry about constant `n`: it declares `n`, which does not have a
-reserved name. Constants with reserved names, such as equational theorems, may be realized by several
-modules.
+Whether the current module owns an entry about constant `n`: it declares `n`, which does not have
+a reserved name. Constants with reserved names, such as equational theorems, may be realized by
+several modules.
 -/
 public def isOwned (env : Environment) (n : Name) : Bool :=
-  -- consult the private view, which `ImportedDeclMap.ofModules` looks names up in
+  -- consult the private view, which `ImportedDeclKeyedMap.ofModules` looks names up in
   ((env.setExporting false).getModuleIdxFor? n).isNone && !isReservedName env n
 
 /--
@@ -88,34 +88,34 @@ where
 @[inline] def valAt (vs : Array α) (j : Nat) : α :=
   if vs.isEmpty then default else vs[j]!
 
-def findOwned? (m : ImportedDeclMap κ α) (k : κ) : Option α := do
+def findOwned? (m : ImportedDeclKeyedMap κ α) (k : κ) : Option α := do
   if m.ownedKeys.isEmpty then none
   let i ← m.consts.findConstModIdxCached? (Key.declName k)
   let j ← findIdx? m.ownedKeys[i]! k
   return valAt m.ownedVals[i]! j
 
 /--
-Assembles the imported entries of all modules, given in module order as keys and values (or no values
-if they are all `default`): those owned by a module, as returned by `sortOwned`, at the module's index,
-and the remaining ones, of which later ones override earlier ones.
+Assembles the imported entries of all modules, given in module order as keys and values (or no
+values if they are all `default`): those owned by a module, as returned by `sortOwned`, at the
+module's index, and the remaining ones, of which later ones override earlier ones.
 -/
 public def ofModules (consts : ImportedConsts ConstantInfo) (owned : Array (Array κ × Array α))
-    (foreign : Array (Array κ × Array α)) : ImportedDeclMap κ α := Id.run do
-  let mut m : ImportedDeclMap κ α := {
+    (foreign : Array (Array κ × Array α)) : ImportedDeclKeyedMap κ α := Id.run do
+  let mut m : ImportedDeclKeyedMap κ α := {
     consts, ownedKeys := owned.map (·.1), ownedVals := owned.map (·.2) }
   for (ks, vs) in foreign do
     for h : j in [0:ks.size] do
       m := { m with foreign := m.foreign.insert ks[j] (valAt vs j) }
   return m
 
-public def find? (m : ImportedDeclMap κ α) (k : κ) : Option α :=
+public def find? (m : ImportedDeclKeyedMap κ α) (k : κ) : Option α :=
   m.foreign.find? k <|> findOwned? m k
 
-public def contains (m : ImportedDeclMap κ α) (k : κ) : Bool :=
+public def contains (m : ImportedDeclKeyedMap κ α) (k : κ) : Bool :=
   (find? m k).isSome
 
 @[specialize] public def foldM [Monad m] (f : β → κ → α → m β) (init : β)
-    (d : ImportedDeclMap κ α) : m β := do
+    (d : ImportedDeclKeyedMap κ α) : m β := do
   let mut b := init
   for h : i in [0:d.ownedKeys.size] do
     let vs := d.ownedVals[i]!
@@ -125,54 +125,54 @@ public def contains (m : ImportedDeclMap κ α) (k : κ) : Bool :=
         b ← f b k (valAt vs j)
   d.foreign.foldlM f b
 
-end ImportedDeclMap
+end ImportedDeclKeyedMap
 
 /--
-A map keyed by declarations, consisting of entries imported as an `ImportedDeclMap` and the changes
-made since.
+A map keyed by declarations, consisting of entries imported as an `ImportedDeclKeyedMap` and the
+changes made since.
 -/
-public structure DeclMap (κ α : Type) [BEq κ] [Hashable κ] where
-  imported   : ImportedDeclMap κ α := {}
+public structure DeclKeyedMap (κ α : Type) [BEq κ] [Hashable κ] where
+  imported   : ImportedDeclKeyedMap κ α := {}
   /-- The erased imported keys not in `added`. -/
   removed  : PHashSet κ := {}
   /-- The entries added since the import, overriding imported ones. -/
   added    : PHashMap κ α := {}
   deriving Inhabited
 
-namespace DeclMap
+namespace DeclKeyedMap
 
-variable {κ α : Type} [BEq κ] [Hashable κ] [ImportedDeclMap.Key κ] [Inhabited α]
+variable {κ α : Type} [BEq κ] [Hashable κ] [ImportedDeclKeyedMap.Key κ] [Inhabited α]
 
-public def find? (m : DeclMap κ α) (k : κ) : Option α :=
+public def find? (m : DeclKeyedMap κ α) (k : κ) : Option α :=
   m.added.find? k <|> if m.removed.contains k then none else m.imported.find? k
 
-public def contains (m : DeclMap κ α) (k : κ) : Bool :=
+public def contains (m : DeclKeyedMap κ α) (k : κ) : Bool :=
   (m.find? k).isSome
 
-public def insert (m : DeclMap κ α) (k : κ) (v : α) : DeclMap κ α :=
+public def insert (m : DeclKeyedMap κ α) (k : κ) (v : α) : DeclKeyedMap κ α :=
   { m with added := m.added.insert k v, removed := m.removed.erase k }
 
-public def erase (m : DeclMap κ α) (k : κ) : DeclMap κ α :=
+public def erase (m : DeclKeyedMap κ α) (k : κ) : DeclKeyedMap κ α :=
   { m with
     added := m.added.erase k
     removed := if m.imported.contains k then m.removed.insert k else m.removed }
 
-@[specialize] public def foldM [Monad m] (f : β → κ → α → m β) (init : β) (d : DeclMap κ α) :
+@[specialize] public def foldM [Monad m] (f : β → κ → α → m β) (init : β) (d : DeclKeyedMap κ α) :
     m β := do
   let b ← d.imported.foldM (init := init) fun b k v =>
     if d.removed.contains k || d.added.contains k then pure b else f b k v
   d.added.foldlM f b
 
-@[inline] public def fold (f : β → κ → α → β) (init : β) (d : DeclMap κ α) : β :=
+@[inline] public def fold (f : β → κ → α → β) (init : β) (d : DeclKeyedMap κ α) : β :=
   Id.run <| d.foldM (pure <| f · · ·) init
 
-public def toList (d : DeclMap κ α) : List (κ × α) :=
+public def toList (d : DeclKeyedMap κ α) : List (κ × α) :=
   d.fold (init := []) fun l k v => (k, v) :: l
 
 /-- Whether the map is empty, by visiting entries up to the first one. -/
-public def isEmpty (d : DeclMap κ α) : Bool :=
+public def isEmpty (d : DeclKeyedMap κ α) : Bool :=
   d.foldM (m := Except Unit) (fun _ _ _ => throw ()) () matches .ok _
 
-end DeclMap
+end DeclKeyedMap
 
 end Lean

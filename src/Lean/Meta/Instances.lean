@@ -8,7 +8,7 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
-public import Lean.ImportedDeclMap
+public import Lean.DeclKeyedMap
 public import Lean.ScopedEnvExtension
 import Lean.Meta.PPBinder
 import Lean.Util.UnusedBinders
@@ -77,7 +77,7 @@ abbrev InstanceTree := DiscrTree InstanceEntry
 
 structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
-  instanceNames : DeclMap Name InstanceEntry := {}
+  instanceNames : DeclKeyedMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
   /--
   For each class, the changes of its instances since the import, newest first. Type class resolution
@@ -129,7 +129,10 @@ does not require adding each entry (see `registerSimpleScopedEnvExtensionWithSum
 -/
 structure InstanceModuleSummary where
   roots   : Array (DiscrTree.Key × DiscrTree.Trie InstanceEntry)
-  /-- The names and entries of the named entries owned by the module (see `ImportedDeclMap.sortOwned`). -/
+  /--
+  The names and entries of the named entries owned by the module (see
+  `ImportedDeclKeyedMap.sortOwned`).
+  -/
   owned   : Array Name × Array InstanceEntry
   /-- The names and entries of the remaining named entries, in order. -/
   foreign : Array Name × Array InstanceEntry
@@ -143,14 +146,14 @@ def InstanceModuleSummary.ofEntries (env : Environment) (es : Array InstanceEntr
   let mut foreignEntries := #[]
   for e in es do
     if let some n := e.globalName? then
-      if ImportedDeclMap.isOwned env n then
+      if ImportedDeclKeyedMap.isOwned env n then
         owned := owned.push (n, e)
       else
         foreignNames := foreignNames.push n
         foreignEntries := foreignEntries.push e
   return {
     roots := DiscrTree.moduleRootsOf (es.map fun e => (e.keys, e))
-    owned := ImportedDeclMap.sortOwned owned
+    owned := ImportedDeclKeyedMap.sortOwned owned
     foreign := (foreignNames, foreignEntries) }
 
 /--
@@ -163,7 +166,7 @@ def InstanceModuleSummary.addImported (d : Instances)
   let idxs := mods.filterMap (·.1)
   return { d with
     discrTree := DiscrTree.ofModuleRoots (idxs.map (·.roots))
-    instanceNames.imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
+    instanceNames.imported := ImportedDeclKeyedMap.ofModules (← read).env.toKernelEnv.constants.map₁
       (mods.map (·.1.map (·.owned) |>.getD (#[], #[]))) (idxs.map (·.foreign)) }
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←

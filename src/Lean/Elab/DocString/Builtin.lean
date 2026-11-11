@@ -197,10 +197,13 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
       if let some r := full then
         let x ← realizeGlobalConstNoOverloadWithInfo r
         addConstInfo n x
+        Linter.checkDeprecatedAt r x
         pure x
       else
         try
-          realizeGlobalConstNoOverloadWithInfo n
+          let x ← realizeGlobalConstNoOverloadWithInfo n
+          Linter.checkDeprecatedAt n x
+          pure x
         catch
           | err => do
             let ref ← getRef
@@ -1382,12 +1385,13 @@ def suggestLean (code : VersoCode) : DocM (Array CodeSuggestion) := do
     let stx ← parseVersoCode leanTermContents code
     -- To cut down on false positives, we only suggest identifiers if their
     -- elaboration succeeds. Other terms are suggested if they parse.
-    if onlyIdent stx then
+    -- Only the suggested role reports uses of deprecated constants, when it is applied.
+    if onlyIdent stx then Term.withoutCheckDeprecated do
       let ty? ←
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      let tm ← withoutErrToSorry <| elabExtraTerm stx[0] ty?
+      discard <| withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``lean none none]
 
   catch | _ => return #[]
@@ -1401,7 +1405,8 @@ def suggestLeanTermBlock (code : VersoCodeBlock) : DocM (Array CodeBlockSuggesti
     let stx ← parseVersoCodeBlock leanTermContents code
     -- To cut down on false positives, we only suggest identifiers if their
     -- elaboration succeeds. Other terms are suggested if they parse.
-    if onlyIdent stx then
+    -- Only the suggested role reports uses of deprecated constants, when it is applied.
+    if onlyIdent stx then Term.withoutCheckDeprecated do
       let ty? ←
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none

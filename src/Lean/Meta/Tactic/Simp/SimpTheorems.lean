@@ -685,18 +685,16 @@ private def eraseFwdIfBwd (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
 def SimpTheorems.unerase (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
   { d with erased := d.erased.erase thmId }
 
-/-- Does everything `addSimpTheorem` does except inserting `e` into `pre` or `post`. -/
-private def SimpTheorems.registerSimpTheorem (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
+def SimpTheorems.addSimpTheorem (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   -- Erase the converse, if it exists
   let d := eraseFwdIfBwd d e
-  { d with lemmaNames := d.lemmaNames.insert e.origin }
-
-def SimpTheorems.addSimpTheorem (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
-  let d := d.registerSimpTheorem e
   if e.post then
-    { d with post := d.post.insertKeyValue e.keys e }
+    { d with post := d.post.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertKeyValue e.keys e }
+    { d with pre := d.pre.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+where
+  updateLemmaNames (s : SimpLemmaNames) : SimpLemmaNames :=
+    s.insert e.origin
 
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
   { d with toUnfold := d.toUnfold.insert declName }
@@ -787,18 +785,17 @@ def SimpModuleIndex.addImported (d : SimpTheorems)
     (mods : Array (Option SimpModuleIndex × Array (ScopedEnvExtension.Entry SimpEntry))) :
     ImportM SimpTheorems := do
   let idxs := mods.filterMap (·.1)
-  let d := { d with
-    pre := DiscrTree.ofModuleRoots (idxs.map (·.pre))
-    post := DiscrTree.ofModuleRoots (idxs.map (·.post)) }
   let imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
     (mods.map fun (idx?, _) => (idx?.map (·.owned) |>.getD #[], #[])) (idxs.map (·.foreign))
   if idxs.any (·.backward.any fun n => imported.contains (.decl n (inv := false))) then
-    -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we replay all entries in order.
+    -- Adding a theorem erases its converse (`eraseFwdIfBwd`), so we add all entries in order.
     return mods.foldl (init := d) fun d (_, es) => es.foldl (init := d) fun d e => match e with
-      | .global (.thm e) => d.registerSimpTheorem e
       | .global e => d.addSimpEntry e
       | _ => d
-  let d := { d with lemmaNames := { imported } }
+  let d := { d with
+    pre := DiscrTree.ofModuleRoots (idxs.map (·.pre))
+    post := DiscrTree.ofModuleRoots (idxs.map (·.post))
+    lemmaNames := { imported } }
   return idxs.foldl (init := d) fun d idx => idx.rest.foldl SimpTheorems.addSimpEntry d
 
 /--

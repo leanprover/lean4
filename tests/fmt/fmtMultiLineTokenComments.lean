@@ -50,3 +50,8 @@ def multiLineCommentGroup := f "x" -- first
   -- second
   "abc
 def"
+
+-- A comment in an interpolation that starts on a continuation line of an interpolated string.
+def inInterpolation (a : Nat) : String := s!"first {a} \
+    {Nat.succ a /- first
+  second -/}"

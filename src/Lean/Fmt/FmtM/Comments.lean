@@ -861,8 +861,9 @@ where
 /--
 Determines the ranges in the rendered output that the multi-line tokens at `multiLineTokenRanges`
 were rendered to, sorted ascendingly by start position.
-Multi-line tokens that cannot be transferred to the rendered output because none of the formatters
-tagged them are dropped; comments may then still end up within such a token.
+A multi-line token that none of the formatters tagged, such as a literal piece of an interpolated
+string, is represented by the smallest tagged syntax that includes it, so that no comment is placed
+anywhere within the rendering of that syntax.
 -/
 def determineRenderedMultiLineTokenRanges
     {rendering : String.Slice}
@@ -871,7 +872,8 @@ def determineRenderedMultiLineTokenRanges
     : Array rendering.Subslice := Id.run do
   let mut r := #[]
   for tokenRange in multiLineTokenRanges do
-    let some renderedRanges := syntaxToRendered.get? tokenRange
+    let some renderedRanges :=
+        syntaxToRendered.get? tokenRange <|> renderedRangesOfSmallestIncluding? tokenRange
       | continue
     for renderedRange in renderedRanges do
       -- A multi-line token may have been rendered on a single line, in which case no comment can
@@ -879,6 +881,16 @@ def determineRenderedMultiLineTokenRanges
       if renderedRange.toSlice.contains '\n' then
         r := r.push renderedRange
   return r.qsort (·.startInclusive < ·.startInclusive)
+where
+  renderedRangesOfSmallestIncluding? (tokenRange : Syntax.Range)
+      : Option (Std.HashSet rendering.Subslice) :=
+    let smallest? : Option (Syntax.Range × Std.HashSet rendering.Subslice) :=
+      syntaxToRendered.fold (init := none) fun smallest? range renderedRanges =>
+        if range.includes tokenRange && smallest?.all (range.bsize < ·.1.bsize) then
+          some (range, renderedRanges)
+        else
+          smallest?
+    smallest?.map (·.2)
 
 def trimmedSubslice (s : String.Slice) : s.Subslice :=
   let start := s.skipPrefixWhile Char.isWhitespace

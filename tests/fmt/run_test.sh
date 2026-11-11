@@ -12,3 +12,9 @@ capture_only "$1" \
   lean -Dlinter.all=false --plugin="$LAKE_PLUGIN" --run run_test.lean "$1"
 check_out_file
 check_exit_is_success
+
+# Formatting the output again must not change it.
+capture_only "$1.twice" \
+  lean -Dlinter.all=false --plugin="$LAKE_PLUGIN" --run run_test.lean "$1.out.produced"
+check_exit_is_success
+$DIFF -- "$1.out.produced" "$1.twice.out.produced" || fail "Formatting the output again changes it"

@@ -1105,7 +1105,15 @@ private def applyAttributesCore
       match getAttributeImpl env attr.name with
       | .error errMsg => throwError errMsg
       | .ok attrImpl  =>
-        let runAttr := attrImpl.add declName attr.stx attr.kind
+        let runAttr := do
+          attrImpl.add declName attr.stx attr.kind
+          if let some attrsStx := attr.declAttrsStx? then
+            if (← isAutomationAttr attr.name) then
+              let insts := attrsStx[1].getSepArgs
+              let removal? ← match insts.findIdx? (·[1].getRange? == attr.stx.getRange?) with
+                | some i => Linter.mkListRemovalSuggestion attrsStx insts i
+                | none => pure none
+              Linter.checkDeprecatedAutomationAttr attr.stx declName attr.name removal?
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition
           let elaborator := attrImpl.ref

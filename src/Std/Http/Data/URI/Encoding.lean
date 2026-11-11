@@ -56,8 +56,10 @@ that only verifies the character set, not full encoding validity.
 abbrev IsAllowedEncodedChars (rule : UInt8 → Bool) (s : ByteArray) : Prop :=
   s.data.all (isEncodedChar rule)
 
+-- Decided over the bytes in place: `s.data` would box a copy of every byte.
 instance : Decidable (IsAllowedEncodedChars r s) :=
-  inferInstanceAs (Decidable (s.data.all (isEncodedChar r) = true))
+  decidable_of_iff (∀ i (h : i < s.size), isEncodedChar r s[i] = true) <| by
+    simp [ByteArray.getElem_eq_getElem_data, ByteArray.size_data]
 
 /--
 Checks if all characters in a `ByteArray` are allowed in an encoded query parameter. Allows '+' as an
@@ -68,7 +70,8 @@ abbrev IsAllowedEncodedQueryChars (rule : UInt8 → Bool) (s : ByteArray) : Prop
   s.data.all (isEncodedQueryChar rule)
 
 instance : Decidable (IsAllowedEncodedQueryChars r s) :=
-  inferInstanceAs (Decidable (s.data.all (isEncodedQueryChar r) = true))
+  decidable_of_iff (∀ i (h : i < s.size), isEncodedQueryChar r s[i] = true) <| by
+    simp [ByteArray.getElem_eq_getElem_data, ByteArray.size_data]
 
 /--
 Validates that all percent signs in a byte array are followed by exactly two hexadecimal digits.
@@ -563,6 +566,48 @@ def decode (es : EncodedQueryString r) : Option String := Id.run do
     else
       (decoded.push c, i + 1)
   return String.fromUTF8? decoded
+
+/--
+Whether `es` decodes to `key`: `es.decode == some key`, but compared byte by byte as `decode` would
+produce them, without building the decoded string, and stopping at the first difference.
+-/
+def decodesTo (es : EncodedQueryString r) (key : String) : Bool := Id.run do
+  let rawBytes := es.toByteArray
+  let len := rawBytes.size
+  let percent := '%'.toNat.toUInt8
+  let plus := '+'.toNat.toUInt8
+  -- Matches the decoded byte `b` against the key byte at `j`.
+  let next (j : Nat) (b : UInt8) : Option Nat :=
+    if h : (⟨j⟩ : String.Pos.Raw) < key.rawEndPos then
+      if key.getUTF8Byte ⟨j⟩ h == b then some (j + 1) else none
+    else none
+  let mut i := 0
+  let mut j := 0
+  while h : i < len do
+    let c := rawBytes[i]
+    let step : Option (Nat × Nat) :=
+      if c == plus then
+        (next j ' '.toNat.toUInt8).map (·, i + 1)
+      else if h₁ : c == percent ∧ i + 1 < len then
+        let h1 := rawBytes[i + 1]
+        match hexDigitToUInt8? h1 with
+        | some hd1 =>
+          if h₂ : i + 2 < len then
+            let h2 := rawBytes[i + 2]
+            match hexDigitToUInt8? h2 with
+            | some hd2 => (next j (hd1 * 16 + hd2)).map (·, i + 3)
+            | none => (next j c >>= (next · h1) >>= (next · h2)).map (·, i + 3)
+          else
+            (next j c >>= (next · h1)).map (·, i + 2)
+        | none => (next j c >>= (next · h1)).map (·, i + 2)
+      else
+        (next j c).map (·, i + 1)
+    match step with
+    | some (j', i') =>
+      j := j'
+      i := i'
+    | none => return false
+  return j == key.utf8ByteSize
 
 end EncodedQueryString
 

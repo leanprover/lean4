@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.ToString
+import Std.Data.HashSet.Basic
 public import Std.Net
 public import Std.Http.Internal
 public import Std.Http.Data.URI.Encoding
@@ -370,7 +371,7 @@ def render (p : Path) (hasAuthority hasScheme : Bool) : String :=
     if p.absolute || s.isEmpty then s else "/" ++ s
   else if p.absolute && startsEmpty then
     "/." ++ s
-  else if !p.absolute && (startsEmpty || !hasScheme && first?.any (·.data.contains ':'.toUInt8)) then
+  else if !p.absolute && (startsEmpty || !hasScheme && first?.any (·.findIdx? (· == ':'.toUInt8) |>.isSome)) then
     "./" ++ s
   else
     s
@@ -451,14 +452,13 @@ deriving Repr, Inhabited, BEq
 namespace Query
 
 /--
-Extracts all unique query parameter names.
+Extracts all unique query parameter names, in order of first occurrence.
 -/
-@[expose]
 def names (query : Query) : Array EncodedQueryParam :=
-  query.map (fun p => p.fst)
-  |> Array.toList
-  |> List.eraseDups
-  |> List.toArray
+  let init : Std.HashSet EncodedQueryParam × Array EncodedQueryParam := ({}, #[])
+  let (_, names) := query.foldl (init := init) fun (seen, names) (name, _) =>
+    if seen.contains name then (seen, names) else (seen.insert name, names.push name)
+  names
 
 /--
 Extracts all query parameter values.
@@ -482,7 +482,7 @@ the same name, so the key does not end early when the query is read back.
 -/
 def formatQueryParam (key : EncodedQueryParam) (value : Option EncodedQueryParam) : String :=
   let key :=
-    if key.toByteArray.data.contains '='.toUInt8 then (toString key).replace '=' "%3D"
+    if (key.toByteArray.findIdx? (· == '='.toUInt8)).isSome then (toString key).replace '=' "%3D"
     else toString key
   match value with
   | none => key
@@ -502,7 +502,7 @@ Whether the parameter name `name` decodes to `key`. Percent-encoding is not cano
 Since `+` decodes to a space, `a+b` matches the key `"a b"`.
 -/
 private def nameIs (key : String) (name : EncodedQueryParam) : Bool :=
-  name.decode == some key
+  URI.EncodedQueryString.decodesTo name key
 
 /--
 Finds the first value of a query parameter whose name decodes to `key`, however it is spelled.

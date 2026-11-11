@@ -1709,11 +1709,11 @@ private def typedHeader? (name : String) (value : String) : Option (Header.Name 
   Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value
 
 /--
-Whether the unread input holds nothing but `CR` and `LF` bytes.
+Whether the unread input holds nothing but `CR` and `LF` bytes. Scans in place and stops at the
+first other byte; `ByteArray.data` would box a copy of the whole buffer.
 -/
 private def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
-  (input.array.data.toSubarray input.idx input.array.size).all
-    fun b => b == '\r'.toUInt8 || b == '\n'.toUInt8
+  (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
 
 /--
 Classifies hard request start-line parse failures into protocol-level errors.

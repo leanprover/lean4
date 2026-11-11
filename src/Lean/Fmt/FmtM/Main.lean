@@ -135,9 +135,28 @@ def commandRaw (ctx : Fmt.Context) (stx : Syntax) : Except Error String := do
   let some stop := ctx.text.source.pos? fullSyntaxRange.stop
     | throw <| .elaboration <| .malformedInputSyntax stx "invalid range"
   let leading := (← render ctx stx <| fmtLeadingWithRetainedNewlinesAndComments stx).rendering
-  let rawText := ctx.text.source.extract start stop
+  let mut rawText := ctx.text.source.extract start stop
+  -- `fmtTrailingWithRetainedNewlinesAndComments` leaves the comments on the line of the last token
+  -- to the comment insertion, which a raw command does not use, so they stay as in the input.
+  if let some commentsStopPos := afterTokenCommentsStop? then
+    let some commentsStop := ctx.text.source.pos? commentsStopPos
+      | throw <| .elaboration <| .malformedInputSyntax stx "invalid range"
+    -- Without the newline of a line comment, which the trailing whitespace renders.
+    let comments := ctx.text.source.extract stop commentsStop
+    rawText := rawText ++ (comments.toSlice.dropEndWhile Char.isWhitespace).toString
   let trailing := (← render ctx stx <| fmtTrailingWithRetainedNewlinesAndComments stx).rendering
   return leading ++ rawText ++ trailing
+where
+  /--
+  The end of the comments in the trailing whitespace of the last token of `stx` that start on the
+  line of the token.
+  -/
+  afterTokenCommentsStop? : Option String.Pos.Raw := do
+    let .original _ pos trailing endPos := stx.getTailInfo
+      | none
+    let comments := parseComments ctx.lineInfos ⟨pos, endPos⟩ .trailing (← trailing.toSlice?)
+    let c ← comments.filter (·.placement matches .afterToken) |>.back?
+    return c.originalWhitespaceRange.stop
 
 /-- The ranges of the tokens and nodes of a syntax tree. -/
 structure SyntaxRanges where

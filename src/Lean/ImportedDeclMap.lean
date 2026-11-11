@@ -86,11 +86,15 @@ where
       none
   termination_by hi - lo
 
+/-- The value at index `j` of values given for some keys, or `default` if `vs` is empty. -/
+@[inline] def valAt (vs : Array α) (j : Nat) : α :=
+  if vs.isEmpty then default else vs[j]!
+
 def findOwned? (m : ImportedDeclMap κ α) (k : κ) : Option α := do
   if m.ownedKeys.isEmpty then none
   let i ← m.consts.findConstModIdxCached? (Key.declName k)
-  let j ← findIdx? (m.ownedKeys[i]?.getD #[]) k
-  return (m.ownedVals[i]?.getD #[])[j]?.getD default
+  let j ← findIdx? m.ownedKeys[i]! k
+  return valAt m.ownedVals[i]! j
 
 /--
 Assembles the imported entries of all modules, given in module order as keys and values (or no values
@@ -107,7 +111,7 @@ public def ofModules (consts : ImportedConsts ConstantInfo) (owned : Array (Arra
       let k := ks[j]
       unless m.foreign.contains k || (findOwned? m k).isSome do
         m := { m with size := m.size + 1 }
-      m := { m with foreign := m.foreign.insert k (vs[j]?.getD default) }
+      m := { m with foreign := m.foreign.insert k (valAt vs j) }
   return m
 
 public def find? (m : ImportedDeclMap κ α) (k : κ) : Option α :=
@@ -120,11 +124,11 @@ public def contains (m : ImportedDeclMap κ α) (k : κ) : Bool :=
     (d : ImportedDeclMap κ α) : m β := do
   let mut b := init
   for h : i in [0:d.ownedKeys.size] do
-    let vs := d.ownedVals[i]?.getD #[]
+    let vs := d.ownedVals[i]!
     for h : j in [0:d.ownedKeys[i].size] do
       let k := d.ownedKeys[i][j]
       unless d.foreign.contains k do
-        b ← f b k (vs[j]?.getD default)
+        b ← f b k (valAt vs j)
   d.foreign.foldlM f b
 
 end ImportedDeclMap

@@ -227,6 +227,10 @@ private structure ConnectionState (β : Type) where
   handlerTask : Option (Task (Except IO.Error (Response β))) := none
   /-- The second, since the Unix epoch, that `machine.date` was formatted for. -/
   dateSecond : Option Int := none
+  /-- The client closed its side of the connection. -/
+  peerClosed : Bool := false
+  /-- The current request was read to its end, or none has started. -/
+  requestEnded : Bool := true
 
 /--
 Keeps `machine.date` current when `Config.generateDate` is set, formatting it at most once per
@@ -286,6 +290,7 @@ private def processH1Events
         keepAliveTimeout := none
         headerTimeout := none
         pendingHead := some head
+        requestEnded := false
       }
 
       if let some length := head.getSize true then
@@ -332,6 +337,7 @@ private def processH1Events
       -- A body read to its end was closed with its final chunk, so an open stream here means the
       -- rest of the body was drained after the response was written.
       endRequestStream st "the request body was discarded after the response was written"
+      st := { st with requestEnded := true }
 
     | .close => pure ()
 
@@ -406,7 +412,7 @@ private def handleRecvEvent
     return ({ st with machine := st.machine.feed bs }, false)
 
   | .bytes none =>
-    return ({ state with machine := state.machine.noMoreInput }, false)
+    return ({ state with machine := state.machine.noMoreInput, peerClosed := true }, false)
 
   | .responseBody (some chunk) =>
     return ({ state with machine := state.machine.sendData #[chunk] }, false)
@@ -537,12 +543,16 @@ private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) 
     reportFailure handler err
 
 /--
-Whether the connection ends while the client may still be sending: the machine stopped before the
-end of a request, or with input it never read.
+Whether the connection ends while the client may still be sending: the client has not closed its
+side, and the machine stopped before the end of a request, or with input it never read. The
+machine's `noMoreInput` is also set when the machine itself stops reading a request, as after a
+`417`, so it does not show that the client is done.
 -/
-private def peerMayStillSend (machine : H1.Machine .receiving) : Bool :=
-  ¬machine.reader.noMoreInput ∧
-    (machine.failed ∨ machine.reader.remainingBytes > 0 ∨ machine.reader.state matches .readBody _)
+private def peerMayStillSend (state : ConnectionState β) : Bool :=
+  let machine := state.machine
+  ¬state.peerClosed ∧
+    (¬state.requestEnded ∨ ¬machine.reader.noMoreInput ∧
+      (machine.failed ∨ machine.reader.remainingBytes > 0 ∨ machine.reader.state matches .readBody _))
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still
@@ -663,7 +673,7 @@ private def handle
     outbox.awaitIdle
     reportWriteFailure handler outbox
 
-    if !(← outbox.failed) ∧ peerMayStillSend state.machine then
+    if !(← outbox.failed) ∧ peerMayStillSend state then
       linger socket config.lingeringTimeout config.maximumRecvSize.toUInt64 connectionContext
   finally
     Transport.close socket

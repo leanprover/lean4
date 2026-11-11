@@ -1248,8 +1248,8 @@ Sends an error response with `Connection: close` and shuts down input.
 
 If the machine is waiting to send a message, sends `status` with a `Connection: close`
 header and a short `text/plain` explanation (letting the step function encode and flush the
-response), then stops accepting further input. Otherwise, closes the writer directly and
-stops accepting further input.
+response), then stops accepting further input. Otherwise, closes the writer directly, ends
+keep-alive and stops accepting further input.
 -/
 def closeWithError (machine : Machine .receiving) (status : Status) : Machine .receiving :=
   if machine.isWaitingMessage then
@@ -1257,7 +1257,9 @@ def closeWithError (machine : Machine .receiving) (status : Status) : Machine .r
       |>.closeReader
       |>.noMoreInput
   else
-    machine.closeWriter.closeReader.noMoreInput
+    -- With keep-alive on, a reader that finished its request would wait for the next one whenever
+    -- unread input follows it, and the machine would never halt.
+    machine.disableKeepAlive.closeWriter.closeReader.noMoreInput
 
 /--
 Takes and clears all accumulated events, returning the drained array.
@@ -1317,6 +1319,8 @@ private def processCompleteStep (machine : Machine dir) : Machine dir :=
   -- so close the connection regardless of `keepAlive`.
   else if machine.isReaderAwaitingContinue then
     machine.setWriterState .closed
+    |>.closeReader
+    |>.setReaderState .closed
     |>.addEvent .close
   else if machine.keepAlive then
     machine

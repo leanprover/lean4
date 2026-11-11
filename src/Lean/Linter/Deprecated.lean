@@ -63,8 +63,8 @@ def mkSinceHint (stx : Syntax) : CoreM MessageData := do
 This is the predicate we use to decide whether the old and new type of a declaration differ for the
 purpose of error reporting.
 -/
-private def areTypesReduciblyDefEq (decl₁ decl₂ : ConstantInfo) : MetaM Bool := do
-  if decl₁.numLevelParams != decl₂.numLevelParams then
+private def areTypesReduciblyDefEq (decl₁ decl₂ : ConstantVal) : MetaM Bool := do
+  if decl₁.levelParams.length != decl₂.levelParams.length then
     return false
   let levels := decl₁.levelParams.mapIdx fun i _ => mkLevelParam <| Name.num `_deprecated i
   let type₁ := decl₁.instantiateTypeLevelParams levels
@@ -108,8 +108,8 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
                           m!"Deprecate in favor of `{.ofConstName next true}` instead:"
                           #[replacement.toString] (ref? := some id.raw))
                   logWarning msg
-          if let some oldDecl := env.find? declName then
-            if let some newDecl := env.find? newName then
+          if let some oldDecl := env.findConstVal? declName then
+            if let some newDecl := env.findConstVal? newName then
               if ← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl then
                 if typeChanged?.isSome then
                   logWarning "The `+typeChanged` marker is not needed because the updated constant has the same type."
@@ -213,8 +213,8 @@ def checkDeprecated (declName : Name) (hint : DeprecationHint) : MetaM Unit := d
         let env ← getEnv
         let oldPfx := declName.getPrefix
         let newPfx := newName.getPrefix
-        let some oldDecl := env.find? declName | pure msg
-        let some newDecl := env.find? newName | pure msg
+        let some oldDecl := env.findConstVal? declName | pure msg
+        let some newDecl := env.findConstVal? newName | pure msg
         let typesReduciblyDefEq ← areTypesReduciblyDefEq oldDecl newDecl
         if !typesReduciblyDefEq then
           msg := msg ++ .note m!"The updated constant has a different type:{indentExpr newDecl.type}\

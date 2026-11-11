@@ -28,7 +28,7 @@ def elabDSimpArgs (args? : Option (Array (TSyntax [`token.«*», `ident]))) : Gr
       else
         let declName ← realizeGlobalConstNoOverload arg.raw
         -- Definitions are unfolded, acting on occurrences that are already in the goal.
-        unless (← getConstInfo declName) matches .defnInfo _ do
+        unless (← isDefn? declName).isSome do
           Linter.checkDeprecatedAt arg declName
         declNames := declNames.push declName
     else

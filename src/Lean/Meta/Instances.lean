@@ -9,7 +9,7 @@ public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
 public import Lean.ImportedDeclMap
-public import Lean.ScopedEnvExtension.ModuleIndex
+public import Lean.ScopedEnvExtension.ModuleSummary
 import Lean.Meta.PPBinder
 import Lean.Util.UnusedBinders
 import Lean.Meta.CollectFVars
@@ -125,9 +125,9 @@ def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) :
 
 /--
 The global instance entries of a module, preprocessed and stored in its olean so that importing them
-does not require adding each entry (see `registerSimpleScopedEnvExtensionWithIndex`).
+does not require adding each entry (see `registerSimpleScopedEnvExtensionWithSummaries`).
 -/
-structure InstanceModuleIndex where
+structure InstanceModuleSummary where
   roots   : Array (DiscrTree.Key × DiscrTree.Trie InstanceEntry)
   /-- The names and entries of the named entries owned by the module (see `ImportedDeclMap.sortOwned`). -/
   owned   : Array Name × Array InstanceEntry
@@ -136,8 +136,8 @@ structure InstanceModuleIndex where
   deriving Inhabited
 
 /-- Preprocesses the global instance entries the current module exports. -/
-def InstanceModuleIndex.ofEntries (env : Environment) (es : Array InstanceEntry) :
-    InstanceModuleIndex := Id.run do
+def InstanceModuleSummary.ofEntries (env : Environment) (es : Array InstanceEntry) :
+    InstanceModuleSummary := Id.run do
   let mut owned := #[]
   let mut foreignNames := #[]
   let mut foreignEntries := #[]
@@ -157,8 +157,8 @@ def InstanceModuleIndex.ofEntries (env : Environment) (es : Array InstanceEntry)
 Adds the global entries of all imported modules to the empty instance set `d`, as
 `addImportedInstanceEntry` would.
 -/
-def InstanceModuleIndex.addImported (d : Instances)
-    (mods : Array (Option InstanceModuleIndex × Array (ScopedEnvExtension.Entry InstanceEntry))) :
+def InstanceModuleSummary.addImported (d : Instances)
+    (mods : Array (Option InstanceModuleSummary × Array (ScopedEnvExtension.Entry InstanceEntry))) :
     ImportM Instances := do
   let idxs := mods.filterMap (·.1)
   return { d with
@@ -167,8 +167,8 @@ def InstanceModuleIndex.addImported (d : Instances)
       (mods.map (·.1.map (·.owned) |>.getD (#[], #[]))) (idxs.map (·.foreign)) }
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
-  registerSimpleScopedEnvExtensionWithIndex (build := InstanceModuleIndex.ofEntries)
-      (addImported := InstanceModuleIndex.addImported) {
+  registerSimpleScopedEnvExtensionWithSummaries (build := InstanceModuleSummary.ofEntries)
+      (addImported := InstanceModuleSummary.addImported) {
     initial  := {}
     addEntry := addInstanceEntry
     addImportedEntry := addImportedInstanceEntry

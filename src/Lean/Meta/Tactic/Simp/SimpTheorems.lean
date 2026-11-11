@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.ImportedDeclMap
-public import Lean.ScopedEnvExtension.ModuleIndex
+public import Lean.ScopedEnvExtension.ModuleSummary
 public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
@@ -742,9 +742,9 @@ def SimpTheorems.addSimpEntry (d : SimpTheorems) (e : SimpEntry) : SimpTheorems 
 
 /--
 The global simp entries of a module, preprocessed and stored in its olean so that importing them does
-not require adding each entry (see `registerSimpleScopedEnvExtensionWithIndex`).
+not require adding each entry (see `registerSimpleScopedEnvExtensionWithSummaries`).
 -/
-structure SimpModuleIndex where
+structure SimpModuleSummary where
   pre      : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
   post     : Array (DiscrTree.Key × DiscrTree.Trie SimpTheorem)
   /-- The origins of theorems owned by the module (see `ImportedDeclMap.sortOwned`). -/
@@ -758,8 +758,8 @@ structure SimpModuleIndex where
   deriving Inhabited
 
 /-- Preprocesses the global simp entries the current module exports. -/
-def SimpModuleIndex.ofEntries (env : Environment) (es : Array SimpEntry) :
-    SimpModuleIndex := Id.run do
+def SimpModuleSummary.ofEntries (env : Environment) (es : Array SimpEntry) :
+    SimpModuleSummary := Id.run do
   let mut pre := #[]
   let mut post := #[]
   let mut owned := #[]
@@ -783,8 +783,8 @@ def SimpModuleIndex.ofEntries (env : Environment) (es : Array SimpEntry) :
 /--
 Adds the global entries of all imported modules to the empty simp set `d`, as `addSimpEntry` would.
 -/
-def SimpModuleIndex.addImported (d : SimpTheorems)
-    (mods : Array (Option SimpModuleIndex × Array (ScopedEnvExtension.Entry SimpEntry))) :
+def SimpModuleSummary.addImported (d : SimpTheorems)
+    (mods : Array (Option SimpModuleSummary × Array (ScopedEnvExtension.Entry SimpEntry))) :
     ImportM SimpTheorems := do
   let idxs := mods.filterMap (·.1)
   let imported := ImportedDeclMap.ofModules (← read).env.toKernelEnv.constants.map₁
@@ -836,8 +836,8 @@ def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : 
 
 
 def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
-  registerSimpleScopedEnvExtensionWithIndex (build := SimpModuleIndex.ofEntries)
-    (addImported := SimpModuleIndex.addImported) {
+  registerSimpleScopedEnvExtensionWithSummaries (build := SimpModuleSummary.ofEntries)
+    (addImported := SimpModuleSummary.addImported) {
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e

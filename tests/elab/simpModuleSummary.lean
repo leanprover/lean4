@@ -1,7 +1,7 @@
 import Lean
 
 /-!
-The simp sets built at import from per-module theorem trees (`SimpModuleIndex`) equal those obtained
+The simp sets built at import from per-module theorem trees (`SimpModuleSummary`) equal those obtained
 by adding each imported entry in module order, down to the order of theorems in the trees, and
 that imported lemma names are looked up in per-module arrays when all imported modules store their
 summaries.
@@ -38,18 +38,18 @@ def sameState (d₁ d₂ : SimpTheorems) : Bool :=
   sortedNames d₁.toUnfold.toList == sortedNames d₂.toUnfold.toList &&
   sortedNames (d₁.toUnfoldThms.toList.map (·.1)) == sortedNames (d₂.toUnfoldThms.toList.map (·.1))
 
-/-- Whether module `i` stores a summary in the module index of `ext`. -/
+/-- Whether module `i` stores a summary of its entries of `ext`. -/
 def hasSummary [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) (i : Nat) :
     IO Bool := do
-  let some idx := (← persistentEnvExtensionsRef.get).find? (·.name == ext.ext.name ++ `moduleIndex)
-    | throw <| .userError s!"no module index for {ext.ext.name}"
+  let some idx := (← persistentEnvExtensionsRef.get).find? (·.name == ext.ext.name ++ `moduleSummary)
+    | throw <| .userError s!"no summary extension for {ext.ext.name}"
   return !(idx.getModuleEntries env (i : ModuleIdx)).isEmpty
 
 /--
 Whether all imported modules with global entries of `ext` store a summary, without which the
 summaries are not used (e.g. at stage 1, whose core library is exported by stage 0).
 -/
-def allIndexed [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : IO Bool := do
+def allSummarized [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : IO Bool := do
   let entries := (ext.ext.toEnvExtension.getState env).importedEntries
   let mut ok := true
   for h : i in [0:entries.size] do
@@ -69,6 +69,6 @@ def allIndexed [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environ
   unless n > 10000 do throwError "too few simp theorems: {n}"
   -- no constant is a simp theorem in both directions, so lemma names are looked up per module
   -- whenever the summaries are used
-  let indexed ← allIndexed simpExtension env
-  unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != indexed do
+  let summarized ← allSummarized simpExtension env
+  unless (← getSimpTheorems).lemmaNames.imported.ownedKeys.isEmpty != summarized do
     throwError "unexpected representation of imported lemma names"

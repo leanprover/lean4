@@ -1,6 +1,6 @@
-import SimpModuleIndex.Util
-import SimpModuleIndex.A
-import SimpModuleIndex.N
+import SimpModuleSummary.Util
+import SimpModuleSummary.A
+import SimpModuleSummary.N
 
 /-!
 Without constants that are simp theorems in both directions, imported lemma names are looked up in
@@ -21,7 +21,7 @@ example : SMI.m 1 = 3 := by simp
 example (n : Nat) : SMI.p n = SMI.q n := by simp
 
 #eval show MetaM Unit from
-  checkSimpSets [`SimpModuleIndex.A, `SimpModuleIndex.M] (perModule := true)
+  checkSimpSets [`SimpModuleSummary.A, `SimpModuleSummary.M] (perModule := true)
 
 example : SMI.C.c Nat = 1 := rfl
 example : SMI.C Int := by
@@ -36,7 +36,7 @@ example : SMI.C.c String = 4 := rfl
 example : SMI.D.d Bool = 6 := rfl
 
 #eval show MetaM Unit from do
-  checkInstances [`SimpModuleIndex.A, `SimpModuleIndex.M]
+  checkInstances [`SimpModuleSummary.A, `SimpModuleSummary.M]
   unless (← isInstance ``SMI.instCNat2) && !(← isInstance ``SMI.instCInt) do
     throwError "unexpected instance names"
   unless (← getInstancePriority? ``SMI.instCNat2) == some (eval_prio low) do

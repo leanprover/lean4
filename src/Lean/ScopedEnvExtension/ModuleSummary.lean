@@ -16,37 +16,36 @@ open ScopedEnvExtension
 Registers a simple scoped environment extension (see `registerSimpleScopedEnvExtension`) whose
 imported global entries are added using per-module summaries instead of one by one.
 
-When a module is exported, `build` summarizes the global entries it exports at each olean level; the
-summaries are stored by a separate persistent extension. On import, `addImported` adds the global
-entries of all imported modules to the initial state, given in module order with their summaries if
-they have global entries. If some imported module with global entries has no summary, e.g. because
-an older stage exported it during bootstrapping, the entries are imported by `descr.importGlobals`
-instead: building missing summaries would be more expensive, and mixing both would change the order
-of entries.
+When a module is exported, `build` summarizes the global entries it exports at each olean level, if
+any; the summaries are stored by a separate persistent extension. On import, `addImported` adds the
+global entries of all imported modules to the initial state, given in module order, each with its
+entries and its summary (`none` for modules without global entries). If some imported module with
+global entries has no summary, all entries are imported by `descr.importGlobals` instead, as mixing
+both would change the order of entries.
 -/
-public def registerSimpleScopedEnvExtensionWithIndex {ι : Type}
+public def registerSimpleScopedEnvExtensionWithSummaries {ι : Type}
     (descr : SimpleScopedEnvExtension.Descr α σ) (build : Environment → Array α → ι)
     (addImported : σ → Array (Option ι × Array (Entry α)) → ImportM σ) :
     IO (SimpleScopedEnvExtension α σ) := do
-  let indexName := descr.name ++ `moduleIndex
+  let summaryName := descr.name ++ `moduleSummary
   let ext ← registerSimpleScopedEnvExtension { descr with
     importGlobals := fun as => do
       -- Looked up by name, as referencing the summary extension from here would create a cycle
       -- through the export function below, which the compactor cannot save (e.g. in
       -- `--incr-header-save` snapshots).
-      let some indexExt := (← persistentEnvExtensionsRef.get).find? (·.name == indexName)
+      let some summaryExt := (← persistentEnvExtensionsRef.get).find? (·.name == summaryName)
         | descr.importGlobals as
       let env := (← read).env
       let mods := as.mapIdx fun i a =>
         let summary? : Option EnvExtensionEntry :=
-          (indexExt.getModuleEntries env (i : ModuleIdx))[0]?
+          (summaryExt.getModuleEntries env (i : ModuleIdx))[0]?
         ((unsafe unsafeCast summary? : Option ι), a)
       if mods.all fun (summary?, a) => summary?.isSome || !a.any (· matches .global _) then
         addImported descr.initial mods
       else
         descr.importGlobals as }
   let _ : PersistentEnvExtension ι Unit Unit ← registerPersistentEnvExtension {
-    name := indexName
+    name := summaryName
     mkInitial := pure ()
     addImportedFn := fun _ => pure ()
     addEntryFn := fun s _ => s

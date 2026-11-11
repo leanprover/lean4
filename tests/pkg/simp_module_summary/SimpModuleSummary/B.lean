@@ -1,4 +1,4 @@
-import SimpModuleIndex.A
+import SimpModuleSummary.A
 
 namespace SMI
 

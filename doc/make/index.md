@@ -19,6 +19,7 @@ Platform-Specific Setup
 - [Windows (WSL)](wsl.md)
 - [macOS (homebrew)](osx-10.9.md)
 - Linux/macOS/WSL via [Nix](https://nixos.org/nix/): Call `nix develop` in the project root. That's it.
+- [WebAssembly via Emscripten](emscripten.md), the cross-compiled build that CI tests
 
 Generic Build Instructions
 --------------------------

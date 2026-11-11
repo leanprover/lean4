@@ -46,6 +46,11 @@ string(APPEND TEST_VARS " CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 # fixture below; absent for manual `run_test.sh` runs, where
 # `maybe_use_lean_header_snapshot` skips them.
 option(LEAN_HEADER_SNAPSHOTS "Pre-elaborate Lean/Init header snapshots to speed up the elab test suites" OFF)
+if(LEAN_HEADER_SNAPSHOTS AND CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  # saving a snapshot needs `dl_iterate_phdr`, which Emscripten does not provide
+  message(STATUS "LEAN_HEADER_SNAPSHOTS is not supported on Emscripten; disabling it")
+  set(LEAN_HEADER_SNAPSHOTS OFF)
+endif()
 if(LEAN_HEADER_SNAPSHOTS)
   string(APPEND TEST_VARS " LEAN_HEADER_SNAPSHOT_LEAN='${MANGLED_CURRENT_BINARY_DIR}/lean_header_lean.snap'")
   string(APPEND TEST_VARS " LEAN_HEADER_SNAPSHOT_INIT='${MANGLED_CURRENT_BINARY_DIR}/lean_header_init.snap'")

@@ -568,6 +568,30 @@ Eq.refl five
 #guard_msgs in
 #print instA._proof_1
 
+/--
+A proof field of a structure instance should have access to the private scope, and the resulting
+proof should be abstracted into an aux theorem.
+-/
+
+public def seven : Nat := 7
+
+public class Seven where
+  proof : seven = 7
+  data : Nat
+
+theorem sevenEqSeven : seven = 7 := rfl
+
+public instance termInstSeven : Seven where
+  proof := sevenEqSeven
+  data := 0
+
+/--
+info: @[implicit_reducible, expose] def termInstSeven : Seven :=
+{ proof := termInstSeven._proof_1, data := 0 }
+-/
+#guard_msgs in
+#print termInstSeven
+
 /-- Setup for #11715. -/
 
 public structure OpOperand2 where

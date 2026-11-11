@@ -760,11 +760,15 @@ structure SimpModuleIndex where
 /-- Preprocesses the global simp entries the current module exports. -/
 def SimpModuleIndex.ofEntries (env : Environment) (es : Array SimpEntry) :
     SimpModuleIndex := Id.run do
-  let thms := es.filterMap fun | .thm e => some (e.keys, e) | _ => none
+  let mut pre := #[]
+  let mut post := #[]
   let mut owned := #[]
   let mut foreign := #[]
   let mut backward := #[]
-  for (_, t) in thms do
+  let mut rest := #[]
+  for e in es do
+    let .thm t := e | rest := rest.push e; continue
+    if t.post then post := post.push (t.keys, t) else pre := pre.push (t.keys, t)
     if let .decl n _ inv := t.origin then
       if inv then
         backward := backward.push n
@@ -773,10 +777,8 @@ def SimpModuleIndex.ofEntries (env : Environment) (es : Array SimpEntry) :
         continue
     foreign := foreign.push (t.origin, ())
   return {
-    pre := DiscrTree.moduleRootsOf (thms.filter (!·.2.post))
-    post := DiscrTree.moduleRootsOf (thms.filter (·.2.post))
-    owned := (ImportedDeclMap.sortOwned owned).1, foreign, backward
-    rest := es.filter fun e => !(e matches .thm _) }
+    pre := DiscrTree.moduleRootsOf pre, post := DiscrTree.moduleRootsOf post
+    owned := (ImportedDeclMap.sortOwned owned).1, foreign, backward, rest }
 
 /--
 Adds the global entries of all imported modules to the empty simp set `d`, as `addSimpEntry` would.

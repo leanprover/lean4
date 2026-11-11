@@ -993,8 +993,15 @@ def determineCommentInsertions
     {rendering : String.Slice}
     (maxColumnWidth : Nat) (comments : Std.HashMap rendering.Subslice (Array Comment))
     (renderedMultiLineTokenRanges : Array rendering.Subslice)
+    (renderedLineComments : Array String.Pos.Raw)
     : Array (rendering.Pos × String) := Id.run do
   let lineInfos := collectLineInfos rendering
+  -- The starts of the lines that contain a line comment of `renderedLineComments`.
+  let lineCommentLineStarts : Std.HashSet rendering.Pos :=
+    renderedLineComments.foldl (init := ∅) fun lineStarts pos =>
+      match binSearchRightmost lineInfos pos (·.range.startInclusive.offset) (· < ·) with
+      | some (_, lineInfo) => lineStarts.insert lineInfo.range.startInclusive
+      | none => lineStarts
   -- We process comments from the back to the front
   -- (in the case of nested subslices, we process smaller subslices before larger ones).
   -- This ensures that we attempt to insert later comments on the same line first
@@ -1034,6 +1041,10 @@ def determineCommentInsertions
           -- comment there would insert it into the token.
           if multiLineTokenRangeContaining? renderedMultiLineTokenRanges lineInfo.range.endExclusive
               |>.isSome then
+            assert! !isFinalAlternative
+            continue
+          -- A comment after a line comment would become part of it.
+          if lineCommentLineStarts.contains lineInfo.range.startInclusive then
             assert! !isFinalAlternative
             continue
           let insertionPos := lineInfo.range.endExclusive
@@ -1091,7 +1102,8 @@ public structure CommentInsertion where
   size : Nat
 
 /--
-Inserts `comments` into `rendering`. Also returns the insertions, in ascending order of position.
+Inserts `comments` into `rendering`, which already contains line comments at the positions
+`renderedLineComments`. Also returns the insertions, in ascending order of position.
 -/
 public def insertComments
     (maxColumnWidth : Nat)
@@ -1099,11 +1111,14 @@ public def insertComments
     (syntaxToRendered : Std.HashMap Syntax.Range (Std.HashSet rendering.Subslice))
     (comments : Std.HashMap Syntax.Range (Array Comment))
     (multiLineTokenRanges : Array Syntax.Range)
+    (renderedLineComments : Array String.Pos.Raw)
     : String × Array CommentInsertion := Id.run do
   let comments := reassociateComments syntaxToRendered comments
   let renderedMultiLineTokenRanges :=
     determineRenderedMultiLineTokenRanges syntaxToRendered multiLineTokenRanges
-  let insertions := determineCommentInsertions maxColumnWidth comments renderedMultiLineTokenRanges
+  let insertions :=
+    determineCommentInsertions maxColumnWidth comments renderedMultiLineTokenRanges
+      renderedLineComments
   let mut r : String := ""
   let mut commentInsertions := #[]
   let mut startPos : rendering.Pos := rendering.startPos

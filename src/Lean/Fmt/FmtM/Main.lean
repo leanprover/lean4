@@ -102,8 +102,17 @@ public def insertRemainingComments
     (comments : Std.HashMap Syntax.Range (Array Comment))
     (multiLineTokenRanges : Array Syntax.Range)
     : String × Array CommentInsertion :=
+  let renderedLineComments := comments.fold (init := #[]) fun acc _ cs =>
+    cs.foldl (init := acc) fun acc c =>
+      if c.kind matches .lineComment then
+        match syntaxToRenderedWhitespace.get? c.originalWhitespaceRange with
+        | some subslices => acc ++ subslices.toArray.map (·.startInclusive.offset)
+        | none => acc
+      else
+        acc
   let comments := filterAlreadyFormattedComments comments syntaxToRenderedWhitespace
   insertComments 100 rendering syntaxToRenderedNodes comments multiLineTokenRanges
+    renderedLineComments
 
 structure CommandOutput where
   rendering : String

@@ -312,6 +312,16 @@ def encode (s : String) : EncodedString r :=
       byteToHex c acc
 
 /--
+Like `encode`, but also percent-encodes the bytes `escape` selects, even those `r` allows.
+-/
+def encodeEscaping (s : String) (escape : UInt8 → Bool) : EncodedString r :=
+  s.toUTF8.foldl (init := EncodedString.empty) fun acc c =>
+    if h : isAsciiByte c ∧ r c ∧ !escape c then
+      acc.push c (by simp [isEncodedChar]; exact And.intro h.left (Or.inl h.right.left))
+    else
+      byteToHex c acc
+
+/--
 Attempts to create an `EncodedString` from a `ByteArray`. Returns `some` if the byte array contains only
 valid encoded characters and all percent signs are followed by exactly two hex digits, `none` otherwise.
 -/

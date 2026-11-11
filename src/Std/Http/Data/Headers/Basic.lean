@@ -56,13 +56,14 @@ instance [h : Header α] : Encode .v11 α where
 
 namespace Header
 
-private def parseTokenList (v : Value) : Option (Array String) := do
-  let rawParts := v.value.split (· == ',')
-  let parts := rawParts.map (·.trimAscii)
-
-  guard (parts.all (¬·.isEmpty))
-
-  return parts.toArray.map (fun s => s.toString.toLower)
+/--
+Splits a comma-separated list into its lowercased elements. Empty elements (`a, , b`) are skipped, as
+a recipient must accept them (RFC 9110 §5.6.1.2), so an empty value is an empty list.
+-/
+private def parseTokenList (v : Value) : Option (Array String) :=
+  some <| (v.value.split ',' |>.toStringList).toArray.filterMap fun part =>
+    let part := part.trimAscii
+    if part.isEmpty then none else some part.toString.toLower
 
 /--
 The `Content-Length` header, representing the size of the message body in bytes.

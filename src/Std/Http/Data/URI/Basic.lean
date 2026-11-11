@@ -125,11 +125,12 @@ deriving Inhabited, Repr, BEq
 namespace UserInfo
 
 /--
-Builds a `UserInfo` value from raw strings by applying userinfo percent-encoding.
+Builds a `UserInfo` value from raw strings by applying userinfo percent-encoding. A `:` in the
+username is encoded too, since the first `:` separates it from the password (RFC 3986 §3.2.1).
 -/
 @[inline]
 def ofStrings (username : String) (password : Option String := none) : UserInfo where
-  username := EncodedUserInfo.encode username
+  username := EncodedString.encodeEscaping username (· == ':'.toUInt8)
   password := EncodedUserInfo.encode <$> password
 
 /--
@@ -1091,8 +1092,13 @@ instance : ToString RequestTarget where
         let pathStr := if pathStr.isEmpty then "/" else pathStr
         let queryStr := URI.Query.formatOption query
         s!"{pathStr}{queryStr}"
-    | .absoluteForm uri => toString uri
-    | .authorityForm auth => toString auth
+    -- A target carries no userinfo (RFC 9110 §4.2.4) and no fragment (RFC 9112 §3.2.2), and
+    -- authority-form is only `host:port` (RFC 9112 §3.2.3).
+    | .absoluteForm uri =>
+      toString { uri with
+        authority := uri.authority.map fun (auth : URI.Authority) => { auth with userInfo := none },
+        fragment := none }
+    | .authorityForm auth => toString { auth with userInfo := none }
     | .asteriskForm => "*"
 
 instance : Encode .v11 RequestTarget where

@@ -195,12 +195,25 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
   if st.closed then
     return ()
 
+  -- Bytes an incomplete `send` already accepted are delivered before the end of the stream. A
+  -- blocked producer's chunk would have to come first, and it is dropped below, so they are too.
+  let mut leftover :=
+    if st.pendingProducer.isSome then none
+    else st.pendingIncompleteChunk.filter (·.data.size > 0)
+  let mut knownSize := st.knownSize
+
   if let some consumer := st.pendingConsumer then
-    let result :=
-      match st.closeError with
-      | some err => .error err
-      | none => .ok none
-    discard <| consumer.resolve result
+    match leftover with
+    | some chunk =>
+      if ← consumer.resolve (.ok (some chunk)) then
+        knownSize := decreaseKnownSize knownSize chunk
+        leftover := none
+    | none =>
+      let result :=
+        match st.closeError with
+        | some err => .error err
+        | none => .ok none
+      discard <| consumer.resolve result
 
   if let some waiter := st.interestWaiter then
     discard <| resolveInterestWaiter waiter false
@@ -208,12 +221,18 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
   if let some producer := st.pendingProducer then
     discard <| producer.done.resolve false
 
+  -- A leftover chunk waits as a producer nobody blocks on, which a closed stream still delivers.
+  let pendingProducer ← leftover.mapM fun chunk => do
+    return { chunk, done := ← IO.Promise.new : Producer }
+
   set {
     st with
-    pendingProducer := none
+    pendingProducer
     pendingConsumer := none
     interestWaiter := none
     pendingIncompleteChunk := none
+    closeAfterProducer := false
+    knownSize
     closed := true
   }
 
@@ -280,15 +299,16 @@ private def recv' (stream : Stream) : BaseIO (AsyncTask (Option Chunk)) := do
   stream.state.atomically do
     Channel.pruneFinishedWaiters
 
+    -- A closed stream still delivers the chunk `close` left pending.
+    if let some chunk ← Channel.tryRecv' then
+      return AsyncTask.pure (some chunk)
+
     let { closed, closeError, .. } ← get
 
     if closed then
       match closeError with
       | some err => return Task.pure (.error err)
       | none => return AsyncTask.pure none
-
-    if let some chunk ← Channel.tryRecv' then
-      return AsyncTask.pure (some chunk)
 
     let st ← get
 
@@ -461,8 +481,8 @@ instance : NextChunk ContextAsync where
 /--
 Reads all remaining chunks and decodes them into `α`.
 
-Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync` (also stops if the
-context is cancelled).
+Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync`, where a context cancelled
+before the end of the stream makes it throw instead of returning the bytes read so far.
 -/
 partial def readAll
     [FromByteArray α]
@@ -473,7 +493,11 @@ partial def readAll
 
   let rec loop (result : ByteArray) : m ByteArray := do
     match ← NextChunk.nextChunk stream with
-    | none => return result
+    | none =>
+      -- Only a cancelled context ends the read while the stream is still open.
+      unless ← (stream.isClosed : Async Bool) do
+        throw (.userError "the read was cancelled before the body ended")
+      return result
     | some chunk =>
       let result := result ++ chunk.data
       if let some max := maximumSize then

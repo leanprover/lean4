@@ -67,15 +67,15 @@ private def parseScheme (config : URI.Config) : Parser URI.Scheme := do
   else
     fail "invalid scheme"
 
--- port = 1*DIGIT
+-- port = *DIGIT; leading zeros do not change the value (RFC 3986 §3.2.3), so `000080` is port 80.
 private def parsePortNumber : Parser UInt16 := do
-  let portBytes ← takeWhileAtMost isDigitByte 5
+  let digits ← fun it => takeWhileAtMost isDigitByte it.remainingBytes it
+  let digits := digits.toByteArray.data.toList.dropWhile (· == '0'.toUInt8)
 
-  let portStr := String.fromUTF8! portBytes.toByteArray
+  if digits.length > 5 then
+    fail "port number too large"
 
-  let some portNum := String.toNat? portStr
-    | fail s!"invalid port number: {portStr}"
-
+  let portNum := digits.foldl (fun acc d => acc * 10 + (d - '0'.toUInt8).toNat) 0
   if portNum > 65535 then
     fail s!"port number too large: {portNum}"
 
@@ -133,10 +133,15 @@ private def parseHost (config : URI.Config) : Parser URI.Host := do
   else
     -- reg-name = *( unreserved / pct-encoded / sub-delims ). Percent-escapes are decoded, and the
     -- result must still be a name the resolver can look up, so sub-delims are never accepted.
-    let raw ← takeWhile1AtMost (fun x => isUnreserved x ∨ x = '%'.toUInt8) config.maxHostLength
+    -- `maxHostLength` bounds the decoded name, so the scan leaves room for escapes and a final `.`.
+    let raw ← takeWhile1AtMost (fun x => isUnreserved x ∨ x = '%'.toUInt8) (3 * (config.maxHostLength + 1))
     let some str := (URI.EncodedString.ofByteArray? (r := isUnreserved) raw.toByteArray).bind
         URI.EncodedString.decode
       | fail s!"invalid host"
+
+    let nameLength := if str.endsWith "." then str.utf8ByteSize - 1 else str.utf8ByteSize
+    if nameLength > config.maxHostLength then
+      fail s!"host too long (limit: {config.maxHostLength} bytes)"
 
     -- Only a whole host that matches IPv4address after decoding is an IPv4 literal (RFC 3986
     -- §3.2.2), so `1.2.3.4-x.example` is a name and `127.0.0.%31` is `127.0.0.1`.

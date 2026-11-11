@@ -57,9 +57,9 @@ structure Server where
   connectionLimit : Option Std.Semaphore
 
   /--
-  Indicates when the server has successfully shut down.
+  Resolved once the server has shut down, which every waiter observes.
   -/
-  shutdownPromise : Std.Channel Unit
+  shutdownPromise : IO.Promise Unit
 
   /--
   Configuration of the server
@@ -87,7 +87,7 @@ def new (config : Std.Http.Config := {}) (localAddr : Option Net.SocketAddress :
       pure none
     else
       some <$> Std.Semaphore.new config.maxConnections
-  let shutdownPromise ← Std.Channel.new
+  let shutdownPromise ← IO.Promise.new
 
   return { context, activeConnections, connectionLimit, shutdownPromise, config, localAddr }
 
@@ -100,18 +100,23 @@ def shutdown (s : Server) : Async Unit :=
   s.context.cancel .shutdown
 
 /--
-Waits for the server to shut down. Blocks until another task or async operation calls the `shutdown` function.
+Waits for the server to shut down. Blocks until another task or async operation calls the `shutdown`
+function and every connection has ended. Any number of tasks may wait, before or after the shutdown.
 -/
 @[inline]
-def waitShutdown (s : Server) : Async Unit := do
-  Async.ofAsyncTask ((← s.shutdownPromise.recv).map Except.ok)
+def waitShutdown (s : Server) : Async Unit :=
+  discard <| Async.ofTask s.shutdownPromise.result?
 
 /--
 Returns a `Selector` that waits for the server to shut down.
 -/
-@[inline]
-def waitShutdownSelector (s : Server) : Selector Unit :=
-  s.shutdownPromise.recvSelector
+def waitShutdownSelector (s : Server) : Selector Unit where
+  tryFn := do
+    if ← IO.hasFinished s.shutdownPromise.result? then return some () else return none
+  registerFn waiter :=
+    BaseIO.chainTask (sync := true) s.shutdownPromise.result? fun _ =>
+      waiter.race (pure ()) (fun promise => promise.resolve (.ok ()))
+  unregisterFn := pure ()
 
 /--
 Triggers cancellation of all requests and the accept loop, then waits for the server to fully shut down.
@@ -137,7 +142,7 @@ private def frameCancellation (s : Server) (releaseConnectionPermit : Bool := fa
       modify (· - 1)
 
       if (← get) = 0 ∧ (← s.context.isCancelled) then
-        discard <| s.shutdownPromise.send ()
+        s.shutdownPromise.resolve ()
 
 /--
 Start a new HTTP/1.1 server on the given socket address. This function uses `Async` to handle tasks

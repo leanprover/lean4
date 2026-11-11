@@ -9,7 +9,7 @@ public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
 public import Lean.ImportedDeclMap
-public import Lean.ScopedEnvExtension.ModuleSummary
+public import Lean.ScopedEnvExtension
 import Lean.Meta.PPBinder
 import Lean.Util.UnusedBinders
 import Lean.Meta.CollectFVars

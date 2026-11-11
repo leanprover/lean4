@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.ImportedDeclMap
-public import Lean.ScopedEnvExtension.ModuleSummary
+public import Lean.ScopedEnvExtension
 public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns

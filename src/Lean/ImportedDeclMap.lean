@@ -93,20 +93,21 @@ def findOwned? (m : ImportedDeclMap κ α) (k : κ) : Option α := do
   return (m.ownedVals[i]?.getD #[])[j]?.getD default
 
 /--
-Assembles the imported entries of all modules, given in module order: those owned by a module, as
-returned by `sortOwned` (possibly without values if they are all `default`), at the module's index,
+Assembles the imported entries of all modules, given in module order as keys and values (or no values
+if they are all `default`): those owned by a module, as returned by `sortOwned`, at the module's index,
 and the remaining ones, of which later ones override earlier ones.
 -/
 public def ofModules (consts : ImportedConsts ConstantInfo) (owned : Array (Array κ × Array α))
-    (foreign : Array (Array (κ × α))) : ImportedDeclMap κ α := Id.run do
+    (foreign : Array (Array κ × Array α)) : ImportedDeclMap κ α := Id.run do
   let mut m : ImportedDeclMap κ α := {
     consts, ownedKeys := owned.map (·.1), ownedVals := owned.map (·.2)
     size := owned.foldl (· + ·.1.size) 0 }
-  for es in foreign do
-    for (k, v) in es do
+  for (ks, vs) in foreign do
+    for h : j in [0:ks.size] do
+      let k := ks[j]
       unless m.foreign.contains k || (findOwned? m k).isSome do
         m := { m with size := m.size + 1 }
-      m := { m with foreign := m.foreign.insert k v }
+      m := { m with foreign := m.foreign.insert k (vs[j]?.getD default) }
   return m
 
 public def find? (m : ImportedDeclMap κ α) (k : κ) : Option α :=

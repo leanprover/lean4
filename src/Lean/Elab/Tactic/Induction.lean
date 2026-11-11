@@ -1044,7 +1044,8 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
         Please include the desired arguments."
     pure candidates[0]!
   | _ =>
-    elabTerm stx none
+    -- The call is one that is already in the goal, so deprecated constants are not reported.
+    Term.withoutCheckDeprecated <| elabTerm stx none
 
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, returning the `ElabInfo` and targets.

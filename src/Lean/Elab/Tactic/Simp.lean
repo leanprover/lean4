@@ -218,10 +218,15 @@ private def resolveSimpIdTheorem? (simpArgTerm : Term) : TermElabM ResolveSimpId
     match simpArgTerm with
     | `($id:ident) =>
       try
-        if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
+        if let some e ← Term.withoutCheckDeprecated <| Term.resolveId? simpArgTerm (withInfo := true) then
           if let some simprocDeclName ← isSimproc? e then
+            withRef id <| Term.checkDeprecatedCore simprocDeclName
             return .simproc simprocDeclName
           else
+            -- Definitions are unfolded, acting on occurrences that are already in the goal.
+            if let .const declName _ := e then
+              unless (← getConstInfo declName) matches .defnInfo _ do
+                withRef id <| Term.checkDeprecatedCore declName
             return .expr e
         else
           let name := id.getId.eraseMacroScopes

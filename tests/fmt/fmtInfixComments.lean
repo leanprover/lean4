@@ -22,7 +22,7 @@ def blockAfterTrailingOperator :=
   a + /- the left operand -/
   b
 
--- The operator leads its right operand's line, so the comment belongs to that operand.
+-- The operator leads its right operand's line; the comment between them stays with the operator.
 def leadingOperator :=
   a
   + /- the right operand -/ b
@@ -115,3 +115,10 @@ def nestedInApplication :=
   max (a + -- the left operand
     b) (a
     + /- the right operand -/ b)
+
+-- In a right-associative chain, a comment after an operator that leads a line stays with that
+-- operator instead of moving to the end of the chain.
+def conjunctionChain :=
+  aVeryLongOperandName + anotherVeryLongOperandName > 0
+    ∧ /- the second operand -/ aVeryLongOperandName + anotherVeryLongOperandName > 1
+    ∧ aVeryLongOperandName + anotherVeryLongOperandName > 2

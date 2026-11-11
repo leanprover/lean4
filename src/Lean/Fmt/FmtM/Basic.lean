@@ -633,9 +633,10 @@ def sameLine (lineInfos : Array SyntaxLineInfo) (a b : String.Pos.Raw) : Bool :=
 /--
 Reassociates the comments that follow the operator of an infix operation.
 `collectComments` attaches such a comment to the operator or to the token after it, which moves it
-around with the operator when the operation is laid out differently. It is attached to the operand
-that it shares its line with instead; a comment that shares its line with neither operand is placed
-above the operator, where it ends up on a line of its own either way.
+around with the operator when the operation is laid out differently. A comment that ends the line
+of the left operand is attached to that operand instead; a comment that shares its line with
+neither operand is placed above the operator, where it ends up on a line of its own either way. A
+comment between the operator and the right operand on one line stays with the operator.
 -/
 def infixOperatorCommentCollector : CommentCollector := fun ctx stx => Id.run do
   if stx.getNumArgs != 3 then
@@ -648,10 +649,10 @@ def infixOperatorCommentCollector : CommentCollector := fun ctx stx => Id.run do
   let comments := ctx.trailingComments op
   if comments.isEmpty then
     return #[]
-  -- The operands are anchored at their last token, which is always tagged by the formatters,
+  -- The left operand is anchored at its last token, which is always tagged by the formatters,
   -- whereas an operand of an operator chain is not formatted as a node of its own.
-  let (some lhsRange, some opRange, some rhsPos, some rhsRange) :=
-      (lhs.getTailInfo.getRange?, op.getRange?, rhs.getPos?, rhs.getTailInfo.getRange?)
+  let (some lhsRange, some opRange, some rhsPos) :=
+      (lhs.getTailInfo.getRange?, op.getRange?, rhs.getPos?)
     | return #[]
   let opOnLhsLine := sameLine ctx.lineInfos lhsRange.stop opRange.start
   let opOnRhsLine := sameLine ctx.lineInfos opRange.stop rhsPos
@@ -659,15 +660,13 @@ def infixOperatorCommentCollector : CommentCollector := fun ctx stx => Id.run do
   for c in comments do
     -- Only a comment before the first newline of the whitespace is on the operator's line.
     let commentOnOpLine := c.placement matches .afterToken
-    if commentOnOpLine && opOnLhsLine && opOnRhsLine then
-      -- `a + b`: the whole operation is on one line, so there is no other line to move to.
+    if commentOnOpLine && opOnRhsLine then
+      -- `a + /- c -/ b` or `a` / `+ /- c -/ b` (a block comment): a broken operation starts a line
+      -- with the operator, so the comment stays on the line of the right operand either way.
       continue
     if commentOnOpLine && opOnLhsLine then
       -- `a +` / `b`: the comment ends the line of the left operand.
       r := r.push (c, lhsRange)
-    else if commentOnOpLine && opOnRhsLine then
-      -- `a` / `+ b`: the comment lies within the line of the right operand.
-      r := r.push (c, rhsRange)
     else
       -- The comment shares its line with neither operand, so it belongs above the operator rather
       -- than after it.

@@ -70,10 +70,11 @@ def commentAssociations (input : String) : CoreM (Array (String × String × Str
 #guard_msgs in
 #eval commentAssociations "example := a + b -- foo"
 
--- An operator leading the line of its right operand (`a` / `+ b`) hands a comment between the two
--- over to that operand; a line comment cannot appear there, but a block comment can.
+-- A comment between an operator that leads the line of its right operand (`a` / `+ b`) and that
+-- operand stays with the operator, as on a single line; a line comment cannot appear there, but a
+-- block comment can.
 
-/-- info: #[("foo", "b", "after")] -/
+/-- info: #[("foo", "+", "after")] -/
 #guard_msgs in
 #eval commentAssociations "example :=\n  a\n  + /- foo -/ b"
 
@@ -105,7 +106,7 @@ def commentAssociations (input : String) : CoreM (Array (String × String × Str
 #guard_msgs in
 #eval commentAssociations "example := a + b * c + -- foo\n  d"
 
-/-- info: #[("foo", "d", "after")] -/
+/-- info: #[("foo", "+", "after")] -/
 #guard_msgs in
 #eval commentAssociations "example :=\n  a + b\n  + /- foo -/ c * d"
 

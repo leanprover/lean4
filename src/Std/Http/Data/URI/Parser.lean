@@ -68,9 +68,14 @@ private def parseScheme (config : URI.Config) : Parser URI.Scheme := do
     fail "invalid scheme"
 
 -- port = *DIGIT; leading zeros do not change the value (RFC 3986 §3.2.3), so `000080` is port 80.
+-- At least one digit is required: callers that accept an empty port check for it first, and
+-- authority-form relies on the failure to fall back to absolute-form (`file:///x`).
 private def parsePortNumber : Parser UInt16 := do
   let digits ← fun it => takeWhileAtMost isDigitByte it.remainingBytes it
-  let digits := digits.toByteArray.data.toList.dropWhile (· == '0'.toUInt8)
+  let digits := digits.toByteArray.data.toList
+  if digits.isEmpty then
+    fail "expected a port number"
+  let digits := digits.dropWhile (· == '0'.toUInt8)
 
   if digits.length > 5 then
     fail "port number too large"

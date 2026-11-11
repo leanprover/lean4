@@ -11,7 +11,8 @@ Tests how URIs, request-targets, ports, host names and status codes are read and
   §3.2.1);
 - absolute-form and authority-form targets carry no userinfo or fragment (RFC 9110 §4.2.4,
   RFC 9112 §3.2.2–3.2.3);
-- a port may have leading zeros (`port = *DIGIT`, RFC 3986 §3.2.3);
+- a port may have leading zeros (`port = *DIGIT`, RFC 3986 §3.2.3), and an authority-form target
+  needs at least one port digit, so `file:///x` stays absolute-form;
 - a host name of the maximal 253 characters may end with the root `.`;
 - a status code of 600–999 counts as a server error (RFC 9110 §15).
 -/
@@ -60,10 +61,22 @@ def run (machine : Machine dir) (n : Nat := 4) : Machine dir × String := Id.run
   let port := (URI.parse? "http://example.com:0000000000080/").bind (·.authority) |>.map (·.port)
   expect (port == some (.value 80)) s!"URI with port 0000000000080 gave {repr port}"
   expect (URI.parse? "http://example.com:00065536/").isNone "port 00065536 was accepted"
+  -- authority-form needs a port; without digits the target is read as absolute-form (an
+  -- `example.com` scheme).
+  expect (!(RequestTarget.parse? "example.com:").any (· matches .authorityForm _))
+    "authority-form with an empty port was accepted"
+  for target in ["file:///etc/passwd", "ws://example.com/", "urn:isbn:0451450523", "mailto:a@example.com"] do
+    expect ((RequestTarget.parse? target).any (· matches .absoluteForm _))
+      s!"{target} did not parse as absolute-form"
+  expect ((RequestTarget.parse? "example.com:0080").any (· matches .authorityForm _))
+    "example.com:0080 did not parse as authority-form"
 
 #eval runGroup "Host with a padded port" do
   check "Host: example.com:000080" "GET / HTTP/1.1\x0d\nHost: example.com:000080\x0d\nConnection: close\x0d\n\x0d\n"
     okHandler fun r => assertStatus r "HTTP/1.1 200"
+  check "CONNECT with an empty port"
+    "CONNECT example.com: HTTP/1.1\x0d\nHost: example.com:\x0d\nConnection: close\x0d\n\x0d\n"
+    okHandler fun r => assertStatus r "HTTP/1.1 400"
 
 -- A maximal host name with its trailing dot.
 #eval show IO Unit from do

@@ -799,13 +799,11 @@ def fmtCommentsWithRetainedNewlines
   let finalNumNewlines := numNewlinesBeforeComments.get? comments.size |>.getD 0
   let finalNumNewlines :=
     if lastIsBlockComment then Nat.max finalNumNewlines 1 else finalNumNewlines
+  -- A line comment includes its newline, so one more newline after it is already an empty line.
   let maxNumNewlines :=
-    if isLeading then
-      if comments.size > 0 then
-        2
-      else
-        0
-    else if comments.size == 0 || lastIsBlockComment then
+    if comments.size == 0 then
+      if isLeading then 0 else 2
+    else if lastIsBlockComment then
       2
     else
       1

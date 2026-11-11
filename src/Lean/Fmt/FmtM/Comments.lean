@@ -141,10 +141,17 @@ public def normalizeCommentContent
   let s := s.toSlice.dropPrefix startSymbol |>.dropSuffix endSymbol
   let lines := s.split "\n" |>.toArray.map dropTrailingWs
   let indentation := contentColumnOffset lines
+  -- The `--` of the first line is already dropped with `startSymbol`, but not its separation space.
+  let firstLine := if isLineComment then lines[0]!.dropPrefix " " else lines[0]!
   let deindentedLines :=
-    lines[0]! :: (lines[1:].toList.map (dropIndentation · indentation) |>.map dropLinePrefix)
+    firstLine :: (lines[1:].toList.map (dropIndentation · indentation) |>.map dropLinePrefix)
   let deindentedLines := deindentedLines.map (·.toString)
-  let content := "\n".intercalate deindentedLines |>.toSlice |> normalizeContent |>.toString
+  let content := "\n".intercalate deindentedLines
+  let content :=
+    if isLineComment then
+      content
+    else
+      normalizeBlockCommentContent content.toSlice |>.toString
   content.split "\n" |>.toArray.map (·.toString)
 where
   contentColumnOffset (lines : Array String.Slice) : Nat := Id.run do
@@ -160,11 +167,8 @@ where
           | none => columnOffset
           | some offset => min offset columnOffset
     return offset?.getD startColumnOffset
-  normalizeContent (s : String.Slice) : String.Slice := Id.run do
-    if isLineComment then
-      s.dropPrefix " " |>.dropSuffix "\n"
-    else
-      s.dropWhile (fun c => c = ' ' || c = '\n') |>.dropEndWhile (fun c => c = ' ' || c = '\n')
+  normalizeBlockCommentContent (s : String.Slice) : String.Slice :=
+    s.dropWhile (fun c => c = ' ' || c = '\n') |>.dropEndWhile (fun c => c = ' ' || c = '\n')
   dropIndentation (line : String.Slice) (amount : Nat) : String.Slice := Id.run do
     let mut line := line
     let mut amount := amount

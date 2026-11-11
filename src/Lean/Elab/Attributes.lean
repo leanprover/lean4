@@ -18,6 +18,8 @@ structure Attribute where
   kind  : AttributeKind := AttributeKind.global
   name  : Name
   stx   : Syntax := Syntax.missing
+  /-- The `@[...]` syntax of the declaration modifiers that the attribute is part of, if any. -/
+  declAttrsStx? : Option Syntax := none
   deriving Inhabited
 
 instance : ToFormat Attribute where
@@ -87,6 +89,6 @@ def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadM
 
 -- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
 def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] [MonadFinally m] (stx : Syntax) : m (Array Attribute) :=
-  elabAttrs stx[1].getSepArgs
+  return (← elabAttrs stx[1].getSepArgs).map ({ · with declAttrsStx? := stx })
 
 end Lean.Elab

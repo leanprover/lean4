@@ -19,6 +19,15 @@ example : foo = foo := by grind [foo_eq_zero]
 theorem bar_eq_zero : foo = 0 := rfl
 
 -- This theorem is deprecated AND marked with @[grind], so we can erase it
+/--
+warning: `bar_eq_zero'` is deprecated, but the `[grind]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[deprecated bar_eq_zero (since := "2025-01-01"),̵ ̵g̵r̵i̵n̵d̵]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
 @[deprecated bar_eq_zero (since := "2025-01-01"), grind]
 theorem bar_eq_zero' : foo = 0 := rfl
 

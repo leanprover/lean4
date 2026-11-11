@@ -10,7 +10,7 @@ public import Lean.Meta.Basic
 import Lean.Linter.Init
 import Lean.Elab.InfoTree.Main
 import Lean.ExtraModUses
-import Lean.Meta.Hint
+public import Lean.Meta.Hint
 import Init.Data.List.MapIdx
 import Init.Omega
 import Std.Time.Format
@@ -31,6 +31,12 @@ register_builtin_option linter.deprecated.deprecatedTarget : Bool := {
   defValue := true
   descr := "if true, warn when a `@[deprecated]` attribute points at a declaration that is \
     itself deprecated"
+}
+
+register_builtin_option linter.deprecated.automationAttr : Bool := {
+  defValue := true
+  descr := "if true, warn when a deprecated declaration is tagged with an attribute such as `simp` \
+    or `grind` that lets automation use it without a deprecation warning"
 }
 
 structure DeprecationEntry where
@@ -250,6 +256,49 @@ def checkDeprecatedAt (ref : Syntax) (declName : Name) (hint : DeprecationHint :
   withRef ref do
     if (← Core.shouldCheckDeprecated ref) then
       checkDeprecated declName hint
+
+/--
+Creates a suggestion that removes `elems[i]` from the list `elems` in the source of `whole`, together
+with the separator after it, or before it if it is the last element. If it is the only element, the
+suggestion removes `whole` instead. Returns `none` if any of the syntax
+has no position in the current file.
+-/
+def mkListRemovalSuggestion (whole : Syntax) (elems : Array Syntax) (i : Nat) :
+    CoreM (Option Hint.Suggestion) := do
+  let source := (← getFileMap).source
+  -- Syntax that a metaprogram parsed from a string has positions in that string, not in the file
+  unless whole.getSubstring?.map (·.str) |>.isEqSome source do return none
+  let some range := whole.getRange? (canonicalOnly := true) | return none
+  let some ranges := elems.mapM (·.getRange? (canonicalOnly := true)) | return none
+  let some elem := ranges[i]? | return none
+  if ranges.size == 1 then
+    return some { suggestion := "", span? := whole }
+  let (cutStart, cutStop) := match ranges[i + 1]? with
+    | some next => (elem.start, next.start)
+    | none => (ranges[i - 1]!.stop, elem.stop)
+  let text := range.start.extract source cutStart ++ cutStop.extract source range.stop
+  return some { suggestion := text, span? := whole }
+
+/--
+Reports that `declName` is deprecated but tagged with `attrName` at `ref`, where `attrName` adds
+declarations to a set used by automation (see `isAutomationAttr`). Automation uses such declarations
+without a deprecation warning, so the hint offers `removal?` to remove the attribute.
+-/
+def checkDeprecatedAutomationAttr (ref : Syntax) (declName attrName : Name)
+    (removal? : Option Hint.Suggestion) : MetaM Unit :=
+  withRef ref do
+    unless getLinterValue linter.deprecated (← getLinterOptions) do return
+    unless linter.deprecated.automationAttr.get (← getOptions) do return
+    -- Not `Core.shouldCheckDeprecated`, which is disabled in the declaration being deprecated
+    unless ref.getHeadInfo matches .original .. do return
+    unless isDeprecated (← getEnv) declName do return
+    let hint ← match removal? with
+      | some removal => m!"Remove the attribute:".hint #[removal]
+      | none => pure .nil
+    logWarning <| m!"`{.ofConstName declName true}` is deprecated, but the `[{attrName}]` attribute \
+      lets automation use it without a deprecation warning" ++ hint ++ .note m!"Removing the \
+      attribute may break proofs that rely on it. If it needs to be kept for now, this warning can \
+      be disabled with `set_option {linter.deprecated.automationAttr.name} false in`"
 
 builtin_initialize Core.checkDeprecatedAtRef.set fun ref declName =>
   (checkDeprecatedAt ref declName).run'

@@ -27,19 +27,37 @@ instance : Inhabited (DiscrTree α) where
 
 def empty : DiscrTree α := { root := {} }
 
+/-- Whether `t` is a `chain` or `node`. -/
+@[expose, inline] def Trie.isForced : Trie α → Bool
+  | .chain .. | .node .. => true
+  | .lazy _ | .suffix .. => false
+
+/-- A `chain` or `node`, as returned by `Trie.force`. -/
+abbrev Trie.Forced (α : Type) := { t : Trie α // t.isForced }
+
+instance : Inhabited (Trie.Forced α) := ⟨⟨.node #[] #[], rfl⟩⟩
+
+/-- The first key of the suffix `.suffix ks i v` as a `chain`, or its value as a `node`. -/
+private def Trie.unfoldSuffix (ks : Array Key) (i : Nat) (v : α) : Trie.Forced α :=
+  if h : i < ks.size then ⟨.chain ks[i] (.suffix ks (i + 1) v), rfl⟩ else ⟨.node #[v] #[], rfl⟩
+
+-- out of line, as traversals that need to be fast handle suffixes before forcing
+@[noinline] private def Trie.forceSlow : Trie α → Trie.Forced α
+  | .lazy t =>
+    let t := t.get
+    if h : t.isForced then ⟨t, h⟩ else
+    match t with
+    | .suffix ks i v => unfoldSuffix ks i v
+    | _ => panic! "merged discrimination tree node is lazy"
+  | .suffix ks i v => unfoldSuffix ks i v
+  | t => if h : t.isForced then ⟨t, h⟩ else default  -- unreachable
+
 /--
 The node `t` stands for as a `chain` or `node`: merges a `lazy` node and unfolds the first key of a
 `suffix`.
 -/
-@[inline] def Trie.force : Trie α → Trie α
-  | .lazy t => t.get
-  | t@(.suffix ..) => unfoldSuffix t
-  | t => t
-where
-  -- out of line, as traversals that need to be fast handle suffixes before forcing
-  @[noinline] unfoldSuffix : Trie α → Trie α
-    | .suffix ks i v => if h : i < ks.size then .chain ks[i] (.suffix ks (i + 1) v) else .node #[v] #[]
-    | t => t
+@[inline] def Trie.force (t : Trie α) : Trie.Forced α :=
+  if h : t.isForced then ⟨t, h⟩ else t.forceSlow
 
 instance : ToExpr Key where
   toTypeExpr := mkConst ``Key
@@ -81,7 +99,7 @@ partial def Trie.format [ToFormat α] : Trie α → Format
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
   | .lazy t => format t.get
-  | t@(.suffix ..) => format t.force
+  | t@(.suffix ..) => format t.force.1
 
 instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
@@ -165,7 +183,7 @@ where
 
 private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie α) : Trie α :=
   match t.force with
-  | .chain k c =>
+  | ⟨.chain k c, _⟩ =>
     if h : i < keys.size then
       if keys[i] == k then
         .chain k (insertAux keys v (i+1) c)
@@ -174,7 +192,7 @@ private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie �
           #[(k, c)].binInsert (fun a b => a.1 < b.1) (keys[i], createNodes keys v (i+1))
     else
       .node #[v] #[(k, c)]
-  | .node vs cs =>
+  | ⟨.node vs cs, _⟩ =>
     if h : i < keys.size then
       let k := keys[i]
       let c := Id.run $ cs.binInsertM
@@ -185,7 +203,6 @@ private def insertAux [BEq α] (keys : Array Key) (v : α) (i : Nat) (t : Trie �
       .node vs c
     else
       .node (insertVal vs v) cs
-  | .lazy _ | .suffix .. => unreachable!
 termination_by keys.size - i
 
 def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
@@ -343,7 +360,7 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
 
 private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : Array α :=
   match t.force with
-  | .chain k c =>
+  | ⟨.chain k c, _⟩ =>
     if h : i < keys.size then
       if keys[i] == k then
         getEntriesWithKeysAux keys (i + 1) c
@@ -351,7 +368,7 @@ private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : A
         #[]
     else
       #[]
-  | .node vs cs =>
+  | ⟨.node vs cs, _⟩ =>
     if h : i < keys.size then
       let k := keys[i]
       match cs.binSearch (k, default) (fun a b => a.1 < b.1) with
@@ -359,7 +376,6 @@ private def getEntriesWithKeysAux (keys : Array Key) (i : Nat) (t : Trie α) : A
       | some (_, t) => getEntriesWithKeysAux keys (i + 1) t
     else
       vs
-  | .lazy _ | .suffix .. => unreachable!
 termination_by keys.size - i
 
 /--

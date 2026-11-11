@@ -685,8 +685,14 @@ theorem unfold_mkT (vs : Array α) (cs : Array (Key × Trie α)) : (mkT vs cs).u
     apply Array.ext <;> simp [h2]
   · simp [Trie.unfold]
 
-theorem force_mkT (vs : Array α) (cs : Array (Key × Trie α)) : (mkT vs cs).force = mkT vs cs := by
+theorem isForced_mkT (vs : Array α) (cs : Array (Key × Trie α)) : (mkT vs cs).isForced := by
   unfold mkT; split <;> rfl
+
+theorem force_of_isForced {t : Trie α} (h : t.isForced) : t.force = ⟨t, h⟩ := by
+  simp [Trie.force, h]
+
+theorem force_mkT (vs : Array α) (cs : Array (Key × Trie α)) : (mkT vs cs).force.1 = mkT vs cs := by
+  rw [force_of_isForced (isForced_mkT vs cs)]
 
 theorem Den.unfold [BEq α] {L : List (Entry α)} {i : Nat} {t : Trie α} (h : Den L i t) :
     ∃ cs, Children L i cs ∧ t.unfold = (vals L i, cs) := by
@@ -706,13 +712,13 @@ theorem Den.unfold [BEq α] {L : List (Entry α)} {i : Nat} {t : Trie α} (h : D
   | node L i cs hlen hs hk hd => exact ⟨cs, ⟨hs, hk, hd⟩, unfold_mkT _ _⟩
 
 theorem Den.force [BEq α] {L : List (Entry α)} {i : Nat} {t : Trie α} (h : Den L i t) :
-    ∃ cs, Children L i cs ∧ t.unfold = (vals L i, cs) ∧ t.force = mkT (vals L i) cs := by
+    ∃ cs, Children L i cs ∧ t.unfold = (vals L i, cs) ∧ t.force.1 = mkT (vals L i) cs := by
   obtain ⟨cs, hc, hu⟩ := h.unfold
   refine ⟨cs, hc, hu, ?_⟩
   cases h with
   | suffix ks v i =>
     simp only [Trie.unfold] at hu
-    simp only [Trie.force, Trie.force.unfoldSuffix]
+    simp only [Trie.force, Trie.isForced, Trie.forceSlow, Trie.unfoldSuffix]
     split at hu <;> simp only [Prod.mk.injEq] at hu <;> obtain ⟨h1, rfl⟩ := hu <;> rw [← h1] <;>
       simp [mkT, *]
   | node L i cs' => rw [force_mkT, unfold_mkT] at *; simp_all
@@ -972,13 +978,20 @@ theorem binInsert_singleton {k k' : Key} (h : k' ≠ k) (c c' : Trie α) :
   · have h2 : k < k' := (Key.lt_total h).resolve_left h1
     simp [h1, h2]
 
+/-- `insertAux` depends on its trie only through `Trie.force`. -/
+theorem insertAux_congr [BEq α] {keys : Array Key} {v : α} {i : Nat} {t u : Trie α}
+    (h : t.force.1 = u) (hu : u.isForced) : insertAux keys v i t = insertAux keys v i u := by
+  have : t.force = u.force := Subtype.ext (by rw [h, force_of_isForced hu])
+  conv => lhs; rw [insertAux.eq_def, this]
+  conv => rhs; rw [insertAux.eq_def]
+
 /-- Inserting an entry into the trie of `L` at depth `i` gives the trie of `L` and the entry. -/
 theorem insertAux_den (keys : Array Key) (v : α) (i : Nat) (L : List (Entry α)) (t : Trie α)
     (h : Den L i t) : Den (L ++ [(keys, v)]) i (insertAux keys v i t) := by
   obtain ⟨cs, hc, -, hf⟩ := h.force
   have hne := h.ne_nil
   have hlen := length_append_singleton hne (keys, v)
-  rw [insertAux.eq_def, hf]
+  rw [insertAux_congr hf (isForced_mkT _ _), insertAux.eq_def]
   by_cases hch : (vals L i).isEmpty ∧ cs.size = 1
   · obtain ⟨hv, hs⟩ := hch
     rw [Array.isEmpty_iff] at hv
@@ -995,7 +1008,7 @@ theorem insertAux_den (keys : Array Key) (v : α) (i : Nat) (L : List (Entry α)
     have hden : Den L (i + 1) c := by
       have := hc.den (k, c) (by simp)
       rwa [sub_eq_self hall] at this
-    rw [hv, mkT_singleton]
+    rw [hv, mkT_singleton, force_of_isForced rfl]
     dsimp only
     split
     · rename_i hi
@@ -1060,7 +1073,7 @@ theorem insertAux_den (keys : Array Key) (v : α) (i : Nat) (L : List (Entry α)
         have : cs.size ≠ 1 := fun h => hch ⟨by simp [hv], h⟩
         exact mkT_of_size_ne _ (by omega)
       · exact mkT_of_ne_empty _ hv
-    rw [hmkT cs (Nat.le_refl _)]
+    rw [hmkT cs (Nat.le_refl _), force_of_isForced rfl]
     dsimp only
     split
     · rename_i hi

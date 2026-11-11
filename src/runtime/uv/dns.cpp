@@ -39,8 +39,9 @@ namespace {
 // submit. libuv copies the host, service, hints and address it is given.
 template<class Req>
 struct dns_req_t {
-    Req       uv;
-    owned_ref promise;
+    Req            uv;
+    owned_ref      promise;
+    uv_tracked_req link;
 };
 
 using getaddrinfo_req_t = dns_req_t<uv_getaddrinfo_t>;
@@ -85,6 +86,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         std::unique_ptr<getaddrinfo_req_t> req(static_cast<getaddrinfo_req_t*>(uv->data));
         std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
 
+        global_ev.untrack(&req->link);
+
         if (uv_dropped_at_exit(req->promise)) {
             return;
         }
@@ -125,6 +128,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         }
 
         result = uv_getaddrinfo(global_ev.m_loop, &req->uv, on_resolved, name_cstr, service_cstr, &hints);
+        if (result == 0) {
+            global_ev.track(&req->link, (uv_req_t*)&req->uv);
+        }
     }
 
     if (result != 0) {
@@ -150,6 +156,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 
     auto on_resolved = [](uv_getnameinfo_t * uv, int status, const char * hostname, const char * service) {
         std::unique_ptr<getnameinfo_req_t> req(static_cast<getnameinfo_req_t*>(uv->data));
+        global_ev.untrack(&req->link);
         if (uv_dropped_at_exit(req->promise)) {
             return;
         }
@@ -176,6 +183,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         }
 
         result = uv_getnameinfo(global_ev.m_loop, &req->uv, on_resolved, (const struct sockaddr*)&addr_ptr, 0);
+        if (result == 0) {
+            global_ev.track(&req->link, (uv_req_t*)&req->uv);
+        }
     }
 
     if (result != 0) {

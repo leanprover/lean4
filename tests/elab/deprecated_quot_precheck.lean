@@ -147,6 +147,13 @@ example : Nat := overloaded
 example : String := overloaded
 
 -- Identifiers produced by macros used in the quotation are reported where the result is elaborated.
+/--
+warning: `oldConst` has been deprecated: Use `newConst` instead
+
+Hint: Replace the deprecated name:
+  o̵l̵d̵n̲e̲w̲Const
+-/
+#guard_msgs in
 macro "addOld " x:term:max : term => do
   let old := mkIdentFrom (← getRef) ``oldConst
   ``($old + $x)

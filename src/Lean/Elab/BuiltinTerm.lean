@@ -257,6 +257,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   -- Always allow quoting private names.
   withoutExporting do
     let n ← realizeGlobalConstNoOverloadWithInfo stx[2]
+    withRef stx[2] <| checkDeprecatedCore n
     recordExtraModUseFromDecl (isMeta := false) n
     return toExpr n
 

@@ -134,7 +134,8 @@ def withClassInstDeps (className : Name) (type : Expr)
         trace[Elab.ConfigEval] m!"failure deriving instance for `{type'}`: {ex.toMessageData}"
         setEnv env
         throw ex
-    elabCommand cmd
+    -- The generated code may refer to deprecated fields and constructors.
+    Command.withoutCheckDeprecated <| elabCommand cmd
     trace[Elab.ConfigEval] m!"added instance of {.ofConstName className} for  `{type'}`"
 
 builtin_initialize

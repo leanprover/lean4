@@ -101,6 +101,7 @@ def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserResolu
       throwError m!"Declaration `{.ofConstName parser}` must be marked or imported as `meta` to be used as parser"
     recordExtraModUseFromDecl (isMeta := true) parser
     addTermInfo' stx (Lean.mkConst parser)
+    withRef stx <| checkDeprecatedCore parser
     return n
   | [n@(.alias _)] =>
     return n

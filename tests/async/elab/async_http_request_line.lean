@@ -107,10 +107,12 @@ private def ok200 : String :=
     (handler := okHandler)
     (expect := fun r => assertExact r r400)
 
+  -- A 2xx to CONNECT starts a tunnel, so it has no framing fields or content (RFC 9110 §9.3.6).
   check "CONNECT authority-form accepted"
     (raw := "CONNECT example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r ok200)
+    (expect := fun r => assertExact r
+      "HTTP/1.1 200 OK\x0d\nContent-Type: text/plain; charset=utf-8\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n")
 
   check "CONNECT authority-form port mismatch → 400"
     (raw := "CONNECT example.com:444 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")

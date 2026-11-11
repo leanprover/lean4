@@ -67,15 +67,20 @@ private def parseScheme (config : URI.Config) : Parser URI.Scheme := do
   else
     fail "invalid scheme"
 
--- port = 1*DIGIT
+-- port = *DIGIT; leading zeros do not change the value (RFC 3986 §3.2.3), so `000080` is port 80.
+-- At least one digit is required: callers that accept an empty port check for it first, and
+-- authority-form relies on the failure to fall back to absolute-form (`file:///x`).
 private def parsePortNumber : Parser UInt16 := do
-  let portBytes ← takeWhileAtMost isDigitByte 5
+  let digits ← fun it => takeWhileAtMost isDigitByte it.remainingBytes it
+  let digits := digits.toByteArray
+  if digits.isEmpty then
+    fail "expected a port number"
+  let start := (digits.findIdx? (· != '0'.toUInt8)).getD digits.size
 
-  let portStr := String.fromUTF8! portBytes.toByteArray
+  if digits.size - start > 5 then
+    fail "port number too large"
 
-  let some portNum := String.toNat? portStr
-    | fail s!"invalid port number: {portStr}"
-
+  let portNum := digits.foldl (init := 0) (start := start) fun acc d => acc * 10 + (d - '0'.toUInt8).toNat
   if portNum > 65535 then
     fail s!"port number too large: {portNum}"
 
@@ -133,15 +138,25 @@ private def parseHost (config : URI.Config) : Parser URI.Host := do
   else
     -- reg-name = *( unreserved / pct-encoded / sub-delims ). Percent-escapes are decoded, and the
     -- result must still be a name the resolver can look up, so sub-delims are never accepted.
-    let raw ← takeWhile1AtMost (fun x => isUnreserved x ∨ x = '%'.toUInt8) config.maxHostLength
-    let some str := (URI.EncodedString.ofByteArray? (r := isUnreserved) raw.toByteArray).bind
-        URI.EncodedString.decode
+    -- `maxHostLength` bounds the decoded name, so the scan leaves room for escapes and a final `.`.
+    let raw := (← takeWhile1AtMost (fun x => isUnreserved x ∨ x = '%'.toUInt8) (3 * (config.maxHostLength + 1))).toByteArray
+    -- Without a `%`, the scanned unreserved bytes are already the decoded name.
+    let decoded :=
+      if (raw.findIdx? (· == '%'.toUInt8)).isNone then String.fromUTF8? raw
+      else (URI.EncodedString.ofByteArray? (r := isUnreserved) raw).bind URI.EncodedString.decode
+    let some str := decoded
       | fail s!"invalid host"
+
+    let nameLength := if str.endsWith "." then str.utf8ByteSize - 1 else str.utf8ByteSize
+    if nameLength > config.maxHostLength then
+      fail s!"host too long (limit: {config.maxHostLength} bytes)"
 
     -- Only a whole host that matches IPv4address after decoding is an IPv4 literal (RFC 3986
     -- §3.2.2), so `1.2.3.4-x.example` is a name and `127.0.0.%31` is `127.0.0.1`.
-    if let some ipv4 := Net.IPv4Addr.ofString str then
-      return .ipv4 ipv4
+    -- `IPv4Addr.ofString` rejects any string that does not start with a digit.
+    if str.front.isDigit then
+      if let some ipv4 := Net.IPv4Addr.ofString str then
+        return .ipv4 ipv4
 
     let lower := str.toLower
     if h : URI.IsValidDomainName lower ∧ ¬lower.isEmpty then
@@ -446,7 +461,7 @@ where
     let path ← parsePath config false true
     -- path-noscheme: the first segment of a relative path has no ":" (RFC 3986 §4.2), or it would
     -- read as a scheme.
-    if !path.absolute && (path.segments[0]?.any (·.toByteArray.data.contains ':'.toUInt8)) then
+    if !path.absolute && (path.segments[0]?.any (·.toByteArray.findIdx? (· == ':'.toUInt8) |>.isSome)) then
       fail "the first segment of a relative path cannot contain ':'"
     let query ← optional (skipByteChar '?' *> parseQuery config)
     let frag ← optional (skipByteChar '#' *> fragment)

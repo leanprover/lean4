@@ -48,6 +48,13 @@ class Transport (α : Type) where
   -/
   close : α → IO Unit := fun _ => pure ()
 
+  /--
+  Shut down the write side of the connection: the peer reads end-of-stream after everything already
+  written, while this side can still read. Returns `false` when the transport cannot, which is what
+  the default implementation does.
+  -/
+  shutdown : α → Async Bool := fun _ => pure false
+
 instance : Transport Socket.Client where
   recv client expect := client.recv? expect
   sendAll client data := do
@@ -65,6 +72,9 @@ instance : Transport Socket.Client where
         | some res => res
   recvSelector client expect := client.recvSelector expect
   close client := client.close
+  shutdown client := do
+    client.shutdown
+    return true
 
 namespace Internal
 

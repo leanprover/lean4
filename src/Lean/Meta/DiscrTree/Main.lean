@@ -432,52 +432,32 @@ private def getStarResult (d : DiscrTree α) : Array α :=
   | none => result
   | some c => result ++ c.nodeValues
 
-private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
-  cs.binSearch (k, default) (fun a b => a.1 < b.1)
-
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-  match c with
-  | .chain key child =>
-    if todo.isEmpty then
-      return result
-    else
-      let e     := todo.back!
-      let todo  := todo.pop
+  if let .suffix ks i v := c then
+    let next e todo := do
       let (k, args) ← getMatchKeyArgs e (root := false)
-      if key == .star then
-        getMatchLoop todo child result
-      else
-        if key == k then
-          getMatchLoop (todo ++ args) child result
-        else
-          return result
-
-  | .node vs cs =>
-    if todo.isEmpty then
-      return result ++ vs
-    else if cs.isEmpty then
-      return result
-    else
-      let e     := todo.back!
-      let todo  := todo.pop
-      let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
-      let (k, args) ← getMatchKeyArgs e (root := false)
-      /- We must always visit `Key.star` edges since they are wildcards.
-         Thus, `todo` is not used linearly when there is `Key.star` edge
-         and there is an edge for `k` and `k != Key.star`. -/
-      let visitStar (result : Array α) : MetaM (Array α) :=
-        if first.1 == .star then
-          getMatchLoop todo first.2 result
-        else
-          return result
-      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-        match findKey cs k with
-        | none   => return result
-        | some c => getMatchLoop (todo ++ args) c.2 result
-      let result ← visitStar result
-      match k with
-      | .star  => return result
-      | _      => visitNonStar k args result
+      return (k, todo ++ args)
+    return if (← Trie.matchesSuffix next todo ks i) then result.push v else result
+  if todo.isEmpty then
+    return result ++ c.nodeValues
+  else if !c.hasChildren then
+    return result
+  else
+    let e     := todo.back!
+    let todo  := todo.pop
+    let (k, args) ← getMatchKeyArgs e (root := false)
+    /- We must always visit `Key.star` edges since they are wildcards.
+       Thus, `todo` is not used linearly when there is `Key.star` edge
+       and there is an edge for `k` and `k != Key.star`. -/
+    let result ← match c.starChild? with
+      | some c => getMatchLoop todo c result
+      | none   => pure result
+    match k with
+    | .star => return result
+    | _     =>
+      match c.findChild? k with
+      | some c => getMatchLoop (todo ++ args) c result
+      | none   => return result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -557,14 +537,11 @@ private partial def getAllValuesForKey (d : DiscrTree α) (k : Key) (result : Ar
   | none      => result
   | some trie => go trie result
 where
-  go (trie : Trie α) (result : Array α) : Array α := Id.run do
-    match trie with
-    | .chain _ c => go c result
-    | .node vs cs =>
-      let mut result := result ++ vs
-      for (_, trie) in cs do
-        result := go trie result
-      return result
+  go (trie : Trie α) (result : Array α) : Array α :=
+    if let .suffix _ _ v := trie then
+      result.push v
+    else
+      Id.run <| trie.foldChildrenM (init := result ++ trie.nodeValues) fun result _ c => go c result
 
 /--
 A liberal version of `getMatch` which only takes the root symbol of `e` into account.
@@ -592,36 +569,47 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
       | some c => process 0 args c result
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-    match skip, c with
-    | skip+1, .chain key child =>
-      process (skip + key.arity) todo child result
-    | skip+1, .node _  cs =>
-      if cs.isEmpty then
-        return result
-      else
-        cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
-    | 0, _ =>
+    if let .suffix ks i v := c then
+      return (← processSuffix skip todo ks i v result)
+    match skip with
+    | skip+1 =>
+      c.foldChildrenM (init := result) fun result k c => process (skip + k.arity) todo c result
+    | 0 =>
       if todo.isEmpty then
         return result ++ c.nodeValues
-      let cs := c.nodeChildren
-      if cs.isEmpty then
+      if !c.hasChildren then
         return result
-      else
+      let e     := todo.back!
+      let todo  := todo.pop
+      let (k, args) ← getUnifyKeyArgs e (root := false)
+      match k with
+      | .star  => c.foldChildrenM (init := result) fun result k c => process k.arity todo c result
+      | _      =>
+        let result ← match c.starChild? with
+          | some c => process 0 todo c result
+          | none   => pure result
+        match c.findChild? k with
+        | some c => process 0 (todo ++ args) c result
+        | none   => return result
+  /-- `process` on `.suffix ks i v`, without allocating its unfolding. -/
+  processSuffix (skip : Nat) (todo : Array Expr) (ks : Array Key) (i : Nat) (v : α)
+      (result : Array α) : MetaM (Array α) := do
+    if h : i < ks.size then
+      let key := ks[i]
+      match skip with
+      | skip+1 => processSuffix (skip + key.arity) todo ks (i + 1) v result
+      | 0 =>
+        if todo.isEmpty then
+          return result
         let e     := todo.back!
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false)
-        let visitStar (result : Array α) : MetaM (Array α) :=
-          let first := cs[0]!
-          if first.1 == .star then
-            process 0 todo first.2 result
-          else
-            return result
-        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-          match findKey cs k with
-          | none   => return result
-          | some c => process 0 (todo ++ args) c.2 result
         match k with
-        | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _      => visitNonStar k args (← visitStar result)
+        | .star  => processSuffix key.arity todo ks (i + 1) v result
+        | _      =>
+          let result ← if key == .star then processSuffix 0 todo ks (i + 1) v result else pure result
+          if key == k then processSuffix 0 (todo ++ args) ks (i + 1) v result else return result
+    else
+      return if skip == 0 && todo.isEmpty then result.push v else result
 
 end Lean.Meta.DiscrTree

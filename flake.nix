@@ -21,8 +21,8 @@
       llvmPackages = pkgs.llvmPackages_19;
 
       # Also provides the headers for release builds, which link `LIBUV` below built from the same
-      # source. Sync version with src/CMakeLists.txt; must be at least the minimum checked in
-      # .github/workflows/build-template.yml.
+      # source. Sync version with src/CMakeLists.txt and with `LIBUV_SRC_VERSION` in
+      # .github/workflows/build-template.yml, where it must also be at least the checked minimum.
       libuvPinned = pkgs.libuv.overrideAttrs {
         version = "1.53.0";
         src = pkgs.fetchFromGitHub {

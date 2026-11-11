@@ -657,7 +657,7 @@ def primitiveTargets : M (Array Lean.Name) := do
     ``eagerReduce,
     ``Nat,
     ``String,
-    ``String.mk,
+    set_option linter.deprecated false in ``String.mk,
     ``Char,
     ``optParam,
     ``autoParam,

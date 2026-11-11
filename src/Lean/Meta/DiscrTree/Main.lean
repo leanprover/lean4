@@ -432,28 +432,12 @@ private def getStarResult (d : DiscrTree α) : Array α :=
   | none => result
   | some c => result ++ c.nodeValues
 
-/-- `getMatchLoop` on `.suffix ks i v`, without allocating its unfolding. -/
-private partial def getMatchSuffix (todo : Array Expr) (ks : Array Key) (i : Nat) (v : α)
-    (result : Array α) : MetaM (Array α) := do
-  if h : i < ks.size then
-    if todo.isEmpty then
-      return result
-    let e     := todo.back!
-    let todo  := todo.pop
-    let (k, args) ← getMatchKeyArgs e (root := false)
-    let key := ks[i]
-    if key == .star then
-      getMatchSuffix todo ks (i + 1) v result
-    else if key == k then
-      getMatchSuffix (todo ++ args) ks (i + 1) v result
-    else
-      return result
-  else
-    return if todo.isEmpty then result.push v else result
-
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   if let .suffix ks i v := c then
-    return (← getMatchSuffix todo ks i v result)
+    let next e todo := do
+      let (k, args) ← getMatchKeyArgs e (root := false)
+      return (k, todo ++ args)
+    return if (← Trie.matchesSuffix next todo ks i) then result.push v else result
   if todo.isEmpty then
     return result ++ c.nodeValues
   else if !c.hasChildren then

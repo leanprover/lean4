@@ -84,6 +84,27 @@ def foldChildrenM [Monad m] (f : σ → Key → Trie α → m σ) (init : σ) (t
   | ⟨.node _ cs, _⟩ => cs.foldlM (init := init) fun s (k, c) => f s k c
 
 /--
+Whether the subterms `todo` match the remaining keys `ks[i:]` of a suffix, as when traversing its
+`chain`s. `next e todo` returns the key of `e` and `todo` with the arguments of `e` pushed.
+-/
+@[specialize]
+def matchesSuffix [Monad m] (next : Expr → Array Expr → m (Key × Array Expr))
+    (todo : Array Expr) (ks : Array Key) (i : Nat) : m Bool := do
+  if h : i < ks.size then
+    if todo.isEmpty then
+      return false
+    let e := todo.back!
+    let todo := todo.pop
+    if ks[i] == .star then
+      matchesSuffix next todo ks (i + 1)
+    else
+      let (k, todo) ← next e todo
+      if ks[i] == k then matchesSuffix next todo ks (i + 1) else return false
+  else
+    return todo.isEmpty
+termination_by ks.size - i
+
+/--
 Checks whether a trie node is empty (no values and no children).
 
 This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the

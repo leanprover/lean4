@@ -41,8 +41,6 @@ public structure ImportedDeclMap (κ α : Type) [BEq κ] [Hashable κ] where
   ownedVals : Array (Array α) := #[]
   /-- The entries not owned by the module declaring their constant; they override owned entries. -/
   foreign : PHashMap κ α := {}
-  /-- The number of keys. -/
-  size    : Nat := 0
   deriving Inhabited
 
 namespace ImportedDeclMap
@@ -104,14 +102,10 @@ and the remaining ones, of which later ones override earlier ones.
 public def ofModules (consts : ImportedConsts ConstantInfo) (owned : Array (Array κ × Array α))
     (foreign : Array (Array κ × Array α)) : ImportedDeclMap κ α := Id.run do
   let mut m : ImportedDeclMap κ α := {
-    consts, ownedKeys := owned.map (·.1), ownedVals := owned.map (·.2)
-    size := owned.foldl (· + ·.1.size) 0 }
+    consts, ownedKeys := owned.map (·.1), ownedVals := owned.map (·.2) }
   for (ks, vs) in foreign do
     for h : j in [0:ks.size] do
-      let k := ks[j]
-      unless m.foreign.contains k || (findOwned? m k).isSome do
-        m := { m with size := m.size + 1 }
-      m := { m with foreign := m.foreign.insert k (valAt vs j) }
+      m := { m with foreign := m.foreign.insert ks[j] (valAt vs j) }
   return m
 
 public def find? (m : ImportedDeclMap κ α) (k : κ) : Option α :=
@@ -140,11 +134,9 @@ made since.
 public structure DeclMap (κ α : Type) [BEq κ] [Hashable κ] where
   imported   : ImportedDeclMap κ α := {}
   /-- The erased imported keys not in `added`. -/
-  removed    : PHashSet κ := {}
-  /-- The size of `removed`. -/
-  numRemoved : Nat := 0
+  removed  : PHashSet κ := {}
   /-- The entries added since the import, overriding imported ones. -/
-  added      : PHashMap κ α := {}
+  added    : PHashMap κ α := {}
   deriving Inhabited
 
 namespace DeclMap
@@ -158,21 +150,12 @@ public def contains (m : DeclMap κ α) (k : κ) : Bool :=
   (m.find? k).isSome
 
 public def insert (m : DeclMap κ α) (k : κ) (v : α) : DeclMap κ α :=
-  let m := { m with added := m.added.insert k v }
-  if m.removed.contains k then
-    { m with removed := m.removed.erase k, numRemoved := m.numRemoved - 1 }
-  else
-    m
+  { m with added := m.added.insert k v, removed := m.removed.erase k }
 
 public def erase (m : DeclMap κ α) (k : κ) : DeclMap κ α :=
-  let m := { m with added := m.added.erase k }
-  if m.imported.contains k && !m.removed.contains k then
-    { m with removed := m.removed.insert k, numRemoved := m.numRemoved + 1 }
-  else
-    m
-
-public def isEmpty (m : DeclMap κ α) : Bool :=
-  m.added.isEmpty && m.imported.size == m.numRemoved
+  { m with
+    added := m.added.erase k
+    removed := if m.imported.contains k then m.removed.insert k else m.removed }
 
 @[specialize] public def foldM [Monad m] (f : β → κ → α → m β) (init : β) (d : DeclMap κ α) :
     m β := do
@@ -185,6 +168,10 @@ public def isEmpty (m : DeclMap κ α) : Bool :=
 
 public def toList (d : DeclMap κ α) : List (κ × α) :=
   d.fold (init := []) fun l k v => (k, v) :: l
+
+/-- Whether the map is empty, by visiting entries up to the first one. -/
+public def isEmpty (d : DeclMap κ α) : Bool :=
+  d.foldM (m := Except Unit) (fun _ _ _ => throw ()) () matches .ok _
 
 end DeclMap
 

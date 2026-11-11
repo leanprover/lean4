@@ -6,23 +6,27 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.ReplaceS
 import Init.Omega
 namespace Lean.Meta.Sym
 open Lean.Meta.Sym.Internal
 
 /--
-Helper function for implementing `abstractFVars` (and possible variants in the future).
+Replaces each free variable `x` of `e` for which `replace? x offset` returns `some r` with `r`, where
+`offset` is the number of binders between `x` and the root of `e`. The replacement `r` must be
+maximally shared. The traversal skips every subterm whose maximal free variable precedes `minFVarId`,
+so `minFVarId` must precede or equal every free variable that `replace?` replaces.
 -/
-@[inline] def abstractFVarsCore (e : Expr) (lctx : LocalContext)
+@[inline] def replaceFVarsCore (e : Expr) (lctx : LocalContext)
     (maxFVar : PHashMap ExprPtr (Option FVarId))
-    (minFVarId : FVarId) (toDeBruijn? : FVarId → Option Nat) : AlphaShareBuilderM Expr := do
+    (minFVarId : FVarId) (replace? : FVarId → Nat → AlphaShareBuilderM (Option Expr)) : AlphaShareBuilderM Expr := do
   let minIndex := (lctx.find? minFVarId).get!.index
   replaceS' e fun e offset => do
     match e with
     | .fvar fvarId =>
-      if let some bidx := toDeBruijn? fvarId then
-        mkBVarS (offset + bidx)
+      if let some r ← replace? fvarId offset then
+        return some r
       else
         return some e
     | .lit _ | .mvar _ | .bvar _ | .const _ _ | .sort _ =>
@@ -46,6 +50,18 @@ Helper function for implementing `abstractFVars` (and possible variants in the f
       else
         -- Keep visiting
         return none
+
+/--
+Helper function for implementing `abstractFVars` (and possible variants in the future).
+-/
+@[inline] def abstractFVarsCore (e : Expr) (lctx : LocalContext)
+    (maxFVar : PHashMap ExprPtr (Option FVarId))
+    (minFVarId : FVarId) (toDeBruijn? : FVarId → Option Nat) : AlphaShareBuilderM Expr :=
+  replaceFVarsCore e lctx maxFVar minFVarId fun fvarId offset => do
+    if let some bidx := toDeBruijn? fvarId then
+      return some (← mkBVarS (offset + bidx))
+    else
+      return none
 
 /--
 Abstracts free variables `xs[start...*]` in expression `e`, converting them to de Bruijn indices.
@@ -110,6 +126,17 @@ It is an abbreviation for `abstractFVarsRange e 0 xs`.
 -/
 public abbrev abstractFVars (e : Expr) (xs : Array Expr) : SymM Expr := do
   abstractFVarsRange e 0 xs
+
+/--
+Replaces each free variable `x` of `e` for which `replace? x offset` returns `some r` with `r`, where
+`offset` is the number of binders between `x` and the root of `e`. The replacement `r` must be
+maximally shared. `minFVarId` must precede or equal every free variable that `replace?` replaces.
+Makes the same assumptions as `abstractFVarsRange`.
+-/
+public def replaceFVarsS (e : Expr) (minFVarId : FVarId)
+    (replace? : FVarId → Nat → AlphaShareBuilderM (Option Expr)) : SymM Expr := do
+  if !e.hasFVar then return e
+  liftBuilderM <| replaceFVarsCore e (← getLCtx) (← get).maxFVar minFVarId replace?
 
 /--
 Similar to `mkLambdaFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsPrefix`,

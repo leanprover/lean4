@@ -13,6 +13,7 @@ import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
@@ -120,7 +121,7 @@ def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) (num? :
 
 def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
     (num? : Option Nat := none) : MetaM (List Name × Expr) := do
-  let type ← inferType e
+  let type ← Meta.inferType e
   let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type := type.instantiateLevelParams levelParams₀ us
@@ -924,6 +925,117 @@ def isMillerPatternArgs (e : Expr) : DefEqM Bool := do
   return go e
 
 /--
+Returns `true` if every free variable of `e` precedes the free variables that the current `isDefEqS`
+invocation introduced.
+-/
+def precedesNewFVars (e : Expr) : DefEqM Bool := do
+  let some fvarId ← getMaxFVar? e | return true
+  return (← fvarId.getDecl).index < (← read).lctxInitialNextIndex
+
+/--
+Returns `true` if any two terms of type `type` are definitionally equal: `type` is a proposition,
+`Unit` or `PUnit`. The test uses the caches of `Sym.getLevel`.
+-/
+def isSubsingletonType (type : Expr) : SymM Bool := do
+  if type.isConstOf ``PUnit || type.isConstOf ``Unit then return true
+  return (← Sym.getLevel type).isZero
+
+/--
+The occurrence of the variable `fvarId` in the argument `aᵢ` of a nested pattern `?m a₁ … aₙ`,
+where `i = argIdx`. For example, in `?m c ((a, b), d)` the variable `b` has `argIdx = 1` and
+`projs = #[@Prod.fst (α × β) δ, @Prod.snd α β]`, since `b = (((a, b), d).1).2`. Each element of
+`projs` is a projection function applied to the parameters of its structure.
+-/
+structure NestedPatternVar where
+  fvarId : FVarId
+  argIdx : Nat
+  projs  : Array Expr
+
+/--
+Adds the variables of the argument `a` of a nested pattern to `vars`, and the closed subterms of `a`
+to `closed`, for the subsingleton test in `mkNestedPatternSolution?`. The argument `a` is the term
+that `projs` selects from the argument `aᵢ` (`i = argIdx`). Fails if `a` is none of the following:
+a variable that the current `isDefEqS` invocation introduced and that `vars` does not contain, a
+closed term, or a structure instance `S.mk ps fs` such that every free variable of `ps` precedes the
+new variables and every field in `fs` satisfies this condition.
+-/
+partial def collectNestedPatternVars (a : Expr) (argIdx : Nat) (projs : Array Expr)
+    (vars : Array NestedPatternVar) (closed : Array Expr) :
+    OptionT DefEqM (Array NestedPatternVar × Array Expr) := do
+  match a with
+  | .fvar fvarId =>
+    let some decl := (← getLCtx).find? fvarId | failure
+    unless decl.index ≥ (← read).lctxInitialNextIndex do failure
+    if vars.any (·.fvarId == fvarId) then failure
+    return (vars.push { fvarId, argIdx, projs }, closed)
+  | _ =>
+    if !a.hasFVar then return (vars, closed.push a)
+    let .const ctorName us := a.getAppFn | failure
+    let env ← getEnv
+    let some (.ctorInfo ctorVal) := env.find? ctorName | failure
+    unless a.getAppNumArgs == ctorVal.numParams + ctorVal.numFields do failure
+    let some info := getStructureInfo? env ctorVal.induct | failure
+    let args := a.getAppArgs
+    let ps := args.extract 0 ctorVal.numParams
+    for p in ps do
+      unless (← precedesNewFVars p) do failure
+    let mut acc := (vars, closed)
+    for j in 0...ctorVal.numFields do
+      let some projFn := info.getProjFn? j | failure
+      let proj ← mkAppNS (← mkConstS projFn us) ps
+      acc ← collectNestedPatternVars args[ctorVal.numParams + j]! argIdx (projs.push proj) acc.1 acc.2
+    return acc
+
+/--
+Solves `?m a₁ … aₙ =?= s` for a nested pattern (Kovács and Bocquet, "Nested Pattern Unification",
+WITS 2023). Each argument `aᵢ` is a variable that the current `isDefEqS` invocation introduced, a
+closed term of a subsingleton type (see `isSubsingletonType`), or a structure instance whose fields
+satisfy this condition, and no variable occurs twice. The solution composes `s` with the partial
+inverse of the spine: `?m := fun x₁ … xₙ => s[y ↦ πₖ (… (π₁ xᵢ))]` for each variable `y` that the
+projections `π₁, …, πₖ` select from `aᵢ` (see `NestedPatternVar`). For example,
+`?m (a, b) () =?= a + b` yields `?m := fun p u => p.1 + p.2`.
+Returns `none` if the arguments of `t` do not form a nested pattern, or if the type of an argument
+contains a variable that the current `isDefEqS` invocation introduced.
+-/
+def mkNestedPatternSolution? (t s : Expr) : DefEqM (Option Expr) := do
+  let args := t.getAppArgs
+  let mut vars := #[]
+  let mut closed := #[]
+  for h : i in 0...args.size do
+    let some (vars', closed') ← (collectNestedPatternVars args[i] i #[] vars closed).run
+      | return none
+    vars := vars'
+    closed := closed'
+  for c in closed do
+    unless (← isSubsingletonType (← Sym.inferType c)) do return none
+  let mut types := #[]
+  for a in args do
+    let type ← Sym.inferType a
+    unless (← precedesNewFVars type) do return none
+    types := types.push type
+  let n := args.size
+  let lctx ← getLCtx
+  let body ← if h : 0 < vars.size then
+    let minVar := vars.foldl (init := vars[0]) fun v w =>
+      if (lctx.get! w.fvarId).index < (lctx.get! v.fvarId).index then w else v
+    replaceFVarsS s minVar.fvarId fun fvarId offset => do
+      let some var := vars.find? (·.fvarId == fvarId) | return none
+      let mut r ← mkBVarS (offset + n - 1 - var.argIdx)
+      for proj in var.projs do
+        r ← mkAppS proj r
+      return some r
+  else
+    pure s
+  let mut sol := body
+  for h : i in 0...n do
+    let j := n - 1 - i
+    let x := match args[j]! with
+      | .fvar fvarId => (lctx.get! fvarId).userName
+      | _ => `x
+    sol ← mkLambdaS x .default types[j]! sol
+  return some sol
+
+/--
 Returns `true` if the maximal free variable in `s` is less than or equal to the maximal free variable
 in `t`. We use this function when `t` is a metavariable, and we are trying to assign `t := s`.
 -/
@@ -944,12 +1056,14 @@ def mayAssign (t s : Expr) : SymM Bool := do
 
 /--
 Attempts to solve a unification constraint `t =?= s` where `t` has the form `?m a₁ ... aₙ`
-and satisfies the Miller pattern condition (all `aᵢ` are distinct, newly-introduced free variables).
+and satisfies the Miller pattern condition (all `aᵢ` are distinct, newly-introduced free variables),
+or forms a nested pattern (see `mkNestedPatternSolution?`).
 
-If successful, assigns `?m := fun x₁ ... xₙ => s` and returns `true`.
+If successful, assigns `?m := fun x₁ ... xₙ => s` (for a nested pattern, the solution of
+`mkNestedPatternSolution?`) and returns `true`.
 Returns `false` if:
 - `tFn` is not a metavariable
-- `t` does not satisfy the Miller pattern condition
+- `t` satisfies neither the Miller pattern condition nor the nested pattern condition
 - The assignment would violate scope (free variables in `fun x₁ ... xₙ => s` not in scope of `?m`)
 
 The `tFn` parameter must equal `t.getAppFn` (enforced by the proof argument).
@@ -959,14 +1073,14 @@ Remark: `t` may be of the form `?m`.
 def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEqM LBool := do
   let .mvar mvarId := tFn | return .undef
   if !(← isAssignableMVar mvarId) then return .undef
-  if !(← isMillerPatternArgs t) then return .undef
-  let s ← if t.isApp then
-    mkLambdaFVarsS t.getAppArgs s
+  let s ← if (← isMillerPatternArgs t) then
+    if t.isApp then mkLambdaFVarsS t.getAppArgs s else pure s
   else
+    let some s ← mkNestedPatternSolution? t s | return .undef
     pure s
   if !(← mayAssign tFn s) then return .undef
   if (← read).mvarsToCheckType.contains mvarId then
-    unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← inferType s)) do
+    unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← Meta.inferType s)) do
       return .false
   mvarId.assign s
   return .true
@@ -1212,7 +1326,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
         let type := varTypes[i]!
         let type ← instantiateLevelParamsS type pattern.levelParams us
         let type ← instantiateRevBetaS type args
-        let valType ← inferType val
+        let valType ← Meta.inferType val
         -- **Note**: we have to use the default `isDefEq` because the type of `val`
         -- is not necessarily normalized.
         unless (← isDefEqTypes type valType) do

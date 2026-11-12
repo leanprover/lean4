@@ -157,8 +157,10 @@ public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
 public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
     (fixedParamPerms : FixedParamPerms) : CoreM Unit := do
   ensureEqnReservedNamesAvailable preDef.declName
-  modifyEnv fun env => eqnInfoExt.insert env preDef.declName
-    { preDef with recArgPos, declNames, fixedParamPerms }
+  modifyEnv fun env =>
+    let env := eqnInfoExt.insert env preDef.declName
+      { preDef with recArgPos, declNames, fixedParamPerms }
+    structuralRecArgPosExt.insert env preDef.declName recArgPos
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
@@ -185,13 +187,6 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
     return some (← mkUnfoldEq declName info)
   else
     return none
-
-set_option compiler.ignoreBorrowAnnotation true in
-@[export lean_get_structural_rec_arg_pos]
-def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
-  let some info := eqnInfoExt.find? (← getEnv) declName | return none
-  return some info.recArgPos
-
 
 builtin_initialize
   registerGetUnfoldEqnFn getUnfoldFor?

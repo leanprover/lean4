@@ -26,9 +26,6 @@ public:
     /** \brief Return information for the constant with name \c n. Throws and exception if constant declaration does not exist in this environment. */
     constant_info get(name const & n) const { return to_kernel_env().get(n); };
 
-    /** \brief Extends the current environment with the given declaration */
-    elab_environment add(declaration const & d, bool check = true) const;
-
     /** \brief Pointer equality */
     friend bool is_eqp(elab_environment const & e1, elab_environment const & e2) {
         return e1.raw() == e2.raw();

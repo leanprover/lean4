@@ -9,6 +9,9 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+/** \brief Return recursor name for the given inductive datatype name */
+name mk_rec_name(name const & I);
+
 expr mk_unit(level const & l);
 expr mk_unit_mk(level const & l);
 

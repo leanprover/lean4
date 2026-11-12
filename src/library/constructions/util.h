@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/name_generator.h"
-#include "kernel/type_checker.h"
+#include "kernel/environment.h"
+#include "kernel/local_ctx.h"
 
 namespace lean {
 name_generator mk_constructions_name_generator();

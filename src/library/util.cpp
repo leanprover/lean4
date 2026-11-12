@@ -10,6 +10,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 
 namespace lean {
+name mk_rec_name(name const & I) {
+    return I + name("rec");
+}
+
 expr mk_unit(level const & l) {
     return mk_constant(get_punit_name(), {l});
 }

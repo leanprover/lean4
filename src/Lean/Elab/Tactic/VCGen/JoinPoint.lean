@@ -13,6 +13,8 @@ import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Intro
+import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.ExprPtr
 import Lean.Elab.Tactic.VCGen.Util
 import Lean.Elab.Tactic.VCGen.Reduce
 
@@ -66,9 +68,9 @@ The RHS goal of step 1 thus receives the hypothesis
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
 parameters `r` and `x`.
 
-For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
-at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
-`n > 0 ∧ x = 1 ∧ s = t`.
+For a stateful program, `?H` also takes the states. In `StateM Nat`, with both jumps in the state
+`t`, it is `s = t ∧ ((n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2))`: the equation `s = t` holds at every jump,
+so it stands above the disjunction. The section on anti-unification below gives the general rule.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -196,16 +198,15 @@ partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : Me
   else
     return mkApp3 (mkConst ``Or.inr) a b (← mkOrIntro b i mid hi k)
 
-/-- The trie of the `jumps` from local `i` on, over the parameters `xs` of `?H`. Its disjuncts bind
-each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
-equations `xs = args` of each jump without local `i`, except for the `xs` of type `PUnit`. Returns
-the path of each jump, the index and number of the disjuncts it passes. -/
-partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
+/-- The trie of the `jumps` from local `i` on. Its disjuncts bind each distinct local `i` of the
+jumps above the trie of the jumps that share it, and end in the leaf of each jump without local
+`i`. Returns the path of each jump, the index and number of the disjuncts it passes. -/
+partial def mkTrie (jumps : Array (Jump × Array LocalDecl × Expr)) (i : Nat) :
     VCGenM (Expr × Array (List (Nat × Nat))) := do
   let mut groups : Array (Array Nat) := #[]
   let mut byLocal : Std.HashMap FVarId Nat := {}
   for h : k in [:jumps.size] do
-    if let some d := jumps[k].2[i]? then
+    if let some d := jumps[k].2.1[i]? then
       if let some g := byLocal[d.fvarId]? then
         groups := groups.modify g (·.push k)
         continue
@@ -215,25 +216,179 @@ partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (
   let mut paths := Array.replicate jumps.size []
   for h : g in [:groups.size] do
     let ks := groups[g]
-    let (jump, locals) := jumps[ks[0]!]!
+    let (jump, locals, leaf) := jumps[ks[0]!]!
     let (disjunct, subPaths) ← match locals[i]? with
       | some d =>
-        let (φ, subPaths) ← mkTrie xs (ks.map (jumps[·]!)) (i + 1)
+        let (φ, subPaths) ← mkTrie (ks.map (jumps[·]!)) (i + 1)
         let decl ← jump.proof.getDecl
         pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
-      | none =>
-        let mut eqs := #[]
-        for h : j in [:xs.size] do
-          let x := xs[j]
-          let α ← Sym.inferType x
-          -- A `PUnit` parameter, such as the result `__r` of a `Unit` statement, is irrelevant.
-          unless α.isConstOf ``PUnit do
-            eqs := eqs.push (mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!)
-        pure (mkAndN eqs.toList, #[[]])
+      | none => pure (leaf, #[[]])
     disjuncts := disjuncts.push disjunct
     for (k, path) in ks.zip subPaths do
       paths := paths.set! k ((g, groups.size) :: path)
   return (mkOrTree disjuncts 0 disjuncts.size, paths)
+
+/-!
+## Anti-unification of the jump arguments
+
+In `StateM S` with `structure S where pc : Nat; r : Nat`, the jumps of a join point after
+`if c then modify f else modify g` pass the states
+
+```
+t₁ := { pc := s.pc + 4, r := s.r + 1 }
+t₂ := { pc := s.pc + 4, r := s.r + 2 }
+```
+
+The anti-unifier of `t₁` and `t₂` is `{ pc := s.pc + 4, r := s.r + z }`, with the hole `z` taking
+the value `1` at the first jump and `2` at the second. The join hypothesis `?H` states the
+anti-unifier once, above the trie of the jumps, and the leaf of each jump gives the values of the
+holes:
+
+```
+fun _ s' => ∃ z, s' = { pc := s.pc + 4, r := s.r + z } ∧ ((c ∧ z = 1) ∨ (¬c ∧ z = 2))
+```
+
+Thus `s'.pc = s.pc + 4` follows from `?H` without a case split. A parameter `x` whose anti-unifier
+is a hole `z` takes the place of `z`: `?H` has no equation `x = z` and no binder `∃ z`, and the
+leaves give the values of `x`.
+-/
+
+/-- A hole of the anti-unifier, with the placeholder `fvarId : type` and the value `vals[k]` at
+jump `k`. -/
+structure Hole where
+  fvarId : FVarId
+  type : Expr
+  vals : Array Expr
+
+structure AUState where
+  holes : Array Hole := #[]
+  /-- The anti-unifier of each tuple of subterms, `none` if it has none. -/
+  cache : Std.HashMap (Array ExprPtr) (Option Expr) := {}
+
+abbrev AUM := StateRefT AUState VCGenM
+
+/-- `e` mentions only locals with an index below `cutoff`, the locals common to all jumps. -/
+def isCommon (cutoff : Nat) (e : Expr) : AUM Bool := do
+  let some fvarId ← getMaxFVar? e | return true
+  let some d := (← getLCtx).find? fvarId | return false
+  return d.index < cutoff
+
+/-- The positions of `fn` applied to `n` arguments at which a hole breaks the type of the
+application: the instances, and the arguments that a later argument or the result type depends
+on. -/
+def rigidArgs (fn : Expr) (n : Nat) : MetaM (Array Bool) := do
+  let info ← getFunInfoNArgs fn n
+  let mut rigid := info.paramInfo.map fun p => p.hasFwdDeps || p.isInstImplicit
+  for i in info.resultDeps do
+    rigid := rigid.setIfInBounds i true
+  return rigid
+
+/-- A hole with the values `ts` at the jumps, of type `type?` or the type of `ts[0]`. Returns
+`none` if the type mentions a local of a branch. -/
+def mkHole (cutoff : Nat) (ts : Array Expr) (type? : Option Expr := none) :
+    AUM (Option Expr) := do
+  let type ← match type? with
+    | some type => pure type
+    | none => Sym.inferType ts[0]!
+  unless ← isCommon cutoff type do return none
+  let fvarId ← mkFreshFVarId
+  modify fun s => { s with holes := s.holes.push { fvarId, type, vals := ts } }
+  return some (← mkFVarS fvarId)
+
+mutual
+
+/-- The anti-unifier of the subterms `ts` at one position of the jump arguments. Subterms that are
+one pointer stay, unless they mention a local of a branch. Applications of one function to the
+same number of arguments are anti-unified argument by argument, if they differ only at positions
+that are not rigid. All other subterms become a hole. Returns `none` if a hole has a type that
+mentions a local of a branch. -/
+partial def antiUnify (cutoff : Nat) (ts : Array Expr) : AUM (Option Expr) := do
+  let key := ts.map ({ expr := · })
+  if let some r := (← get).cache[key]? then return r
+  let r ← antiUnifyCore cutoff ts
+  modify fun s => { s with cache := s.cache.insert key r }
+  return r
+
+partial def antiUnifyCore (cutoff : Nat) (ts : Array Expr) : AUM (Option Expr) := do
+  let t := ts[0]!
+  if ts.all (isSameExpr t ·) && (← isCommon cutoff t) then return some t
+  let fn := t.getAppFn
+  let n := t.getAppNumArgs
+  if n > 0 && ts.all (fun s => isSameExpr s.getAppFn fn && s.getAppNumArgs == n) then
+    if ← isCommon cutoff fn then
+      let saved ← get
+      let rigid ← rigidArgs fn n
+      let argss := ts.map (·.getAppArgs)
+      let mut args := Array.mkEmpty n
+      let mut ok := true
+      for i in [:n] do
+        let ai := argss.map (·[i]!)
+        let a := ai[0]!
+        if ai.all (isSameExpr a ·) && (← isCommon cutoff a) then
+          args := args.push a
+        else if rigid[i]?.getD true then
+          ok := false
+          break
+        else if let some a ← antiUnify cutoff ai then
+          args := args.push a
+        else
+          ok := false
+          break
+      if ok then return some (← mkAppNS fn args)
+      set saved
+  mkHole cutoff ts
+
+end
+
+/-- The anti-unifier of the arguments of `jumps` for the parameters `xs` of `?H`. Returns the
+equations `x = g` for the parameters `x` whose anti-unifier `g` is not a hole, the holes that
+remain, and the leaf of each jump, which equates each hole or parameter with its value at that
+jump. The parameters of type `PUnit`, such as the result `__r` of a `Unit` statement, get no
+equation. -/
+def antiUnifyJumps (jp : JoinPoint) (xs : Array Expr) (jumps : Array Jump) :
+    VCGenM (Array Expr × Array Hole × Array Expr) := do
+  let some jump₀ := jumps[0]? | return (#[], #[], #[])
+  let types ← xs.mapM (Sym.inferType ·)
+  let decl₀ ← jump₀.proof.getDecl
+  let cutoff := (decl₀.lctx.get! jp.spec.fvarId!).index + 1
+  let go : AUM (Array (Option Expr)) := do
+    let mut gs := #[]
+    for h : j in [:xs.size] do
+      if types[j]!.isConstOf ``PUnit then
+        gs := gs.push none
+        continue
+      let ts := jumps.map (·.args[j]!)
+      if let some g ← antiUnify cutoff ts then
+        gs := gs.push (some g)
+      else
+        let some z ← mkHole cutoff ts types[j]!
+          | throwError "vcgen +jp: the parameter{indentExpr xs[j]}\nhas a type with a local of a branch"
+        gs := gs.push (some z)
+    return gs
+  let (gs, st) ← withLCtx decl₀.lctx decl₀.localInstances (go.run {})
+  -- A parameter takes the place of the hole that is its anti-unifier.
+  let mut param : Std.HashMap FVarId Expr := {}
+  for h : j in [:gs.size] do
+    if let some (.fvar z) := gs[j] then
+      if st.holes.any (·.fvarId == z) && !param.contains z then
+        param := param.insert z xs[j]!
+  let holes := st.holes.filter (!param.contains ·.fvarId)
+  let substitution := param.toArray
+  let fromHoles := substitution.map (mkFVar ·.1)
+  let toParams := substitution.map (·.2)
+  let mut eqs := #[]
+  for h : j in [:gs.size] do
+    let some g := gs[j] | continue
+    if let .fvar z := g then
+      if param[z]?.any (isSameExpr · xs[j]!) then continue
+    let g := g.replaceFVars fromHoles toParams
+    eqs := eqs.push (mkApp3 (mkConst ``Eq [← Sym.getLevel types[j]!]) types[j]! xs[j]! g)
+  let leaves ← (Array.range jumps.size).mapM fun k => do
+    let eqs ← st.holes.mapM fun h => do
+      let lhs := param[h.fvarId]?.getD (mkFVar h.fvarId)
+      return mkApp3 (mkConst ``Eq [← Sym.getLevel h.type]) h.type lhs h.vals[k]!
+    return mkAndN eqs.toList
+  return (eqs, holes, leaves)
 
 /-- A proof of the equations `args = args`, by `rfl` on each. -/
 partial def mkEqsProof (φ : Expr) : MetaM Expr := do
@@ -264,18 +419,43 @@ partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (locals : List Lo
     | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path locals)
     | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
 
-/-- Assign `?H` of `jp` the trie of its `jumps`, `False` if no jump reaches `jp`, and each jump's
-`?pf` the proof along its path. `vcgen` processes the RHS goal of `jp` after all goals below the
-registration, so every jump is known by then. -/
+/-- A proof of `φ`, the join hypothesis `?H` at the arguments of jump `k`: the values of `holes` at
+`k` witness the `∃`s, `rfl` proves the equations if `hasEqs`, and the `path` of the jump leads
+through the trie. -/
+partial def mkJumpProof (φ : Expr) (holes : List Hole) (k : Nat) (hasEqs : Bool)
+    (path : List (Nat × Nat)) (locals : List LocalDecl) : MetaM Expr := do
+  match holes with
+  | h :: holes =>
+    let_expr Exists α p := φ | throwError "vcgen +jp: expected `∃`{indentExpr φ}"
+    let w := h.vals[k]!
+    return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
+      (← mkJumpProof (p.beta #[w]) holes k hasEqs path locals)
+  | [] =>
+    unless hasEqs do return ← mkTrieProof φ path locals
+    let_expr And a b := φ | throwError "vcgen +jp: expected `∧`{indentExpr φ}"
+    return mkApp4 (mkConst ``And.intro) a b (← mkEqsProof a) (← mkTrieProof b path locals)
+
+/-- Assign `?H` of `jp` the anti-unifier of the arguments of its `jumps` above the trie of the
+jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof. `vcgen` processes the RHS
+goal of `jp` after all goals below the registration, so every jump is known by then. -/
 public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
-  let jumps ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
-  let paths ← forallTelescope (← jp.hyp.getType) fun xs _ => do
-    let (φ, paths) ← mkTrie xs jumps 0
+  let jumpsLocals ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
+  let (paths, holes, hasEqs) ← forallTelescope (← jp.hyp.getType) fun xs _ => do
+    let (eqs, holes, leaves) ← antiUnifyJumps jp xs jumps
+    let jumps := (jumpsLocals.zip leaves).map fun ((jump, locals), leaf) => (jump, locals, leaf)
+    let (trie, paths) ← mkTrie jumps 0
+    let lctx := holes.foldl (init := ← getLCtx) fun lctx h => lctx.mkLocalDecl h.fvarId `z h.type
+    let φ ← withLCtx lctx (← getLocalInstances) do
+      let body := if eqs.isEmpty then trie else mkAnd (mkAndN eqs.toList) trie
+      holes.foldrM (init := body) fun h φ => do
+        return mkApp2 (mkConst ``Exists [← Sym.getLevel h.type]) h.type
+          (← mkLambdaFVars #[mkFVar h.fvarId] φ)
     jp.hyp.assign (← mkLambdaFVars xs φ)
-    return paths
-  for ((jump, locals), path) in jumps.zip paths do
+    return (paths, holes, !eqs.isEmpty)
+  for h : k in [:jumpsLocals.size] do
+    let (jump, locals) := jumpsLocals[k]
     jump.proof.withContext do
       let φ ← instantiateMVars (← jump.proof.getType)
-      jump.proof.assign (← mkTrieProof φ path locals.toList)
+      jump.proof.assign (← mkJumpProof φ holes.toList k hasEqs paths[k]! locals.toList)
 
 end Lean.Elab.Tactic.VCGen

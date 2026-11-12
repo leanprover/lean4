@@ -42,7 +42,7 @@ transformers is in `Std.WP.Monad`.
 
 ## Assertion Language Classes
 
-`Assertion` is an alias type class for `CompleteLattice`.
+`Assertion` abbreviates `CompleteLattice`.
 We use `Assertion Pred` for the assertion language of normal postconditions
 and `Assertion EPosts` for exception postconditions.
 -/

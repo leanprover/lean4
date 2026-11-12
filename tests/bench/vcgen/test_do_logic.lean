@@ -770,8 +770,8 @@ m : Type → Type u
 Pred : Type u_1
 EPosts : Type u_2
 inst✝³ : Monad m
-inst✝² : Assertion Pred
-inst✝¹ : Assertion EPosts
+inst✝² : CompleteLattice Pred
+inst✝¹ : CompleteLattice EPosts
 inst✝ : WPMonad m Pred EPosts
 amounts : List Nat
 s✝ : Nat

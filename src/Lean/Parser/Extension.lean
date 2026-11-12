@@ -61,7 +61,12 @@ inductive OLeanEntry where
   | token     (val : Token) : OLeanEntry
   | kind      (val : SyntaxNodeKind) : OLeanEntry
   | category  (catName : Name) (declName : Name) (behavior : LeadingIdentBehavior)
-  | parser    (catName : Name) (declName : Name) (prio : Nat) : OLeanEntry
+  /--
+  Stores what inserting the parser into its category's tables needs, so that importing it does not
+  have to evaluate it.
+  -/
+  | parser    (catName : Name) (declName : Name) (leading : Bool) (firstTokens : FirstTokens)
+      (prio : Nat) : OLeanEntry
   deriving Inhabited
 
 inductive Entry where
@@ -75,7 +80,7 @@ def Entry.toOLeanEntry : Entry → OLeanEntry
   | token v             => OLeanEntry.token v
   | kind v              => OLeanEntry.kind v
   | category c d b      => OLeanEntry.category c d b
-  | parser c d _ _ prio => OLeanEntry.parser c d prio
+  | parser c d leading p prio => OLeanEntry.parser c d leading p.info.firstTokens prio
 
 structure State where
   tokens      : TokenTable := {}
@@ -337,12 +342,38 @@ builtin_initialize
       runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
 
+/--
+Returns a parser for the imported parser declaration `declName` that evaluates and compiles the
+declaration on first use.
+-/
+private def mkLazyImportedParser (categories : ParserCategories) (declName : Name)
+    (firstTokens : FirstTokens) : ImportM Parser := do
+  let ctx ← read
+  let p : Thunk (Except String Parser) := .mk fun _ =>
+    match unsafe unsafeBaseIO (mkParserOfConstant categories declName ctx).toBaseIO with
+    | .ok (_, p) => .ok p
+    | .error e   => .error s!"failed to load parser `{declName}`: {e}"
+  return {
+    info := {
+      firstTokens
+      collectTokens := fun tks => match p.get with
+        | .ok p    => p.info.collectTokens tks
+        | .error _ => tks
+      collectKinds := fun ks => match p.get with
+        | .ok p    => p.info.collectKinds ks
+        | .error _ => ks
+    }
+    fn := fun c s => match p.get with
+      | .ok p    => p.fn c s
+      | .error e => s.mkUnexpectedError e
+  }
+
 private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → ImportM Entry
   | token tk       => return Entry.token tk
   | kind k         => return Entry.kind k
   | category c d l => return Entry.category c d l
-  | parser catName declName prio => do
-    let (leading, p) ← mkParserOfConstant s.categories declName
+  | parser catName declName leading firstTokens prio => do
+    let p ← mkLazyImportedParser s.categories declName firstTokens
     return Entry.parser catName declName leading p prio
 
 builtin_initialize parserExtension : ParserExtension ←

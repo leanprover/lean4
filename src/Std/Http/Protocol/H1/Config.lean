@@ -12,130 +12,70 @@ public import Std.Http.Internal
 public section
 
 /-!
-# HTTP/1.1 Configuration
+# HTTP/1.1 configuration
 
-This module defines the configuration options for HTTP/1.1 protocol processing,
-including connection limits, header constraints, and various size limits.
+Connection limits and parser bounds of the HTTP/1.1 machine.
 -/
 
 namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Std.Internal Parsec ByteArray
-
 /--
-Connection limits and parser bounds configuration.
+Connection limits and parser bounds.
 -/
 structure Config where
-  /--
-  Maximum number of requests (server) or responses (client) per connection.
-  -/
+  /-- The number of requests (server) or responses (client) per connection. -/
   maxMessages : Nat := 100
-
-  /--
-  Maximum number of headers allowed per message.
-  -/
+  /-- The number of header fields per message. -/
   maxHeaders : Nat := 100
-
-  /--
-  Maximum aggregate byte size of all header field lines in a single message
-  (name + value bytes plus 4 bytes per line for `: ` and `\r\n`). Default: 64 KiB.
-  -/
+  /-- The bytes of a message's header fields, counting `: ` and the line break of each (64 KiB). -/
   maxHeaderBytes : Nat := 65536
-
-  /--
-  Whether to enable keep-alive connections by default.
-  -/
+  /-- Whether connections are kept alive between messages. -/
   enableKeepAlive : Bool := true
-
   /--
-  The `Server` header value injected into outgoing responses (receiving mode) or the
-  `User-Agent` header value injected into outgoing requests (sending mode).
-  `none` suppresses the header entirely.
+  The `Server` field a server adds to its responses, or the `User-Agent` field a client adds to its
+  requests, unless the message has one. `none` adds neither.
   -/
   agentName : Option Header.Value := none
-
-  /--
-  Maximum length of request URI (default: 8192 bytes).
-  -/
+  /-- The bytes of a request-target (8 KiB). -/
   maxUriLength : Nat := 8192
-
-  /--
-  Maximum number of bytes consumed while parsing request/status start-lines (default: 8192 bytes).
-  -/
+  /-- The bytes of a request or status line (8 KiB). -/
   maxStartLineLength : Nat := 8192
-
-  /--
-  Maximum length of header field name (default: 256 bytes).
-  -/
+  /-- The bytes of a header field name. -/
   maxHeaderNameLength : Nat := 256
-
-  /--
-  Maximum length of header field value (default: 8192 bytes).
-  -/
+  /-- The bytes of a header field value (8 KiB). -/
   maxHeaderValueLength : Nat := 8192
-
-  /--
-  Maximum number of spaces in delimiter sequences (default: 16).
-  -/
+  /-- The spaces and tabs in one run of whitespace. -/
   maxSpaceSequence : Nat := 16
-
-  /--
-  Maximum number of leading empty lines (bare CRLF) to skip before a request-line
-  (RFC 9112 §2.2 robustness). Default: 8.
-  -/
+  /-- The empty lines a server skips before a request line (RFC 9112 §2.2). -/
   maxLeadingEmptyLines : Nat := 8
-
-  /--
-  Maximum number of extensions on a single chunk-size line (default: 16).
-  -/
+  /-- The extensions on one chunk-size line. -/
   maxChunkExtensions : Nat := 16
-
-  /--
-  Maximum length of chunk extension name (default: 256 bytes).
-  -/
+  /-- The bytes of a chunk extension name. -/
   maxChunkExtNameLength : Nat := 256
-
-  /--
-  Maximum length of chunk extension value (default: 256 bytes).
-  -/
+  /-- The bytes of a chunk extension value. -/
   maxChunkExtValueLength : Nat := 256
-
-  /--
-  Maximum number of bytes consumed while parsing one chunk-size line with extensions (default: 8192 bytes).
-  -/
+  /-- The bytes of a chunk-size line, extensions included (8 KiB). -/
   maxChunkLineLength : Nat := 8192
-
-  /--
-  Maximum allowed chunk payload size in bytes (default: 8 MiB).
-  -/
+  /-- The data bytes of one chunk (8 MiB). -/
   maxChunkSize : Nat := 8 * 1024 * 1024
-
   /--
-  Maximum allowed total body size per message in bytes (default: 64 MiB).
-  This limit applies across all body framing modes. For chunked transfer encoding,
-  chunk-size lines (including extensions) and the trailer section also count toward
-  this limit, so the total wire bytes consumed by the body cannot exceed this value.
+  The bytes of a message body (64 MiB). For a chunked body the chunk-size lines, the line breaks
+  after chunk data and the trailer section count too, so the bytes a body takes on the wire stay
+  bounded however small its chunks are.
   -/
   maxBodySize : Nat := 64 * 1024 * 1024
-
-  /--
-  Maximum length of reason phrase (default: 512 bytes).
-  -/
+  /-- The bytes of a reason phrase. -/
   maxReasonPhraseLength : Nat := 512
-
-  /--
-  Maximum number of trailer headers (default: 20).
-  -/
+  /-- The fields of a trailer section. -/
   maxTrailerHeaders : Nat := 20
-
   /--
-  Transfer codings other than `chunked` that a server accepts on a request because the
-  application decodes them, such as `"gzip"`; names are compared case-insensitively. The machine
-  removes only the chunked framing, so the body reaches the application still coded, and the
-  request's `Transfer-Encoding` field says which codings to decode. A request with any other coding
-  is answered with 501 Not Implemented (RFC 9112 §6.1). Default: none.
+  Transfer codings other than `chunked` that a server accepts on a request because the application
+  decodes them, such as `"gzip"`, compared case-insensitively. The machine removes only the chunked
+  framing, so the body reaches the application still coded, and the request's `Transfer-Encoding`
+  field says which codings to decode. A request with any other coding gets 501 Not Implemented
+  (RFC 9112 §6.1).
   -/
   acceptedTransferCodings : Array String := #[]
 

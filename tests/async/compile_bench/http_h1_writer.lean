@@ -46,13 +46,13 @@ partial def pump (answer : Conn → Conn) (c : Conn) : IO Conn := do
     | .failed err => throw <| .userError s!"machine failed: {err}"
     | .needMoreData _ => pure ()
     | _ => progress := true
-  while c.machine.canPullBodyNow do
+  while c.machine.canPullBody do
     let (machine, pulled?) := c.machine.pullBody
     c := { c with machine }
-    if let some pulled := pulled? then
-      if pulled.final then
-        c := { c with pending := true }
-      progress := true
+    let some pulled := pulled? | break
+    if pulled.final then
+      c := { c with pending := true }
+    progress := true
   if c.pending && c.machine.isWaitingMessage then
     c := answer c
     progress := true

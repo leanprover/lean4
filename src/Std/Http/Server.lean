@@ -12,6 +12,7 @@ public import Std.Sync.CancellationToken
 public import Std.Sync.Semaphore
 public import Std.Http.Server.Config
 public import Std.Http.Server.Handler
+public import Std.Http.Server.Driver
 public import Std.Http.Server.Connection
 
 public section

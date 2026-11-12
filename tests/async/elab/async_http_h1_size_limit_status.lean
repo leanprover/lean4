@@ -27,7 +27,7 @@ def feedParts (parts : List ByteArray) (config : Protocol.H1.Config := {}) :
       let (m', r) := m.step
       m := m'
       out := out ++ r.output.toByteArray
-      while m.canPullBodyNow do
+      while m.canPullBody do
         let (m', chunk?) := m.pullBody
         m := m'
         if chunk?.isNone then break
@@ -128,7 +128,7 @@ def clientError (response : String) (config : Protocol.H1.Config := {}) : Option
   for _ in [0:6] do
     let (m', _) := m.step
     m := m'
-    while m.canPullBodyNow do
+    while m.canPullBody do
       let (m', chunk?) := m.pullBody
       m := m'
       if chunk?.isNone then break

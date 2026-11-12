@@ -103,18 +103,17 @@ def pullBody (t : MachineTester dir) : MachineTester dir :=
   { t with machine, pulled, lastStep := some { events := pullEvents } }
 
 /--
-Drain all immediately-available body chunks.
-
-The loop exits when `canPullBodyNow` becomes false (either the body is complete
-or the machine stalls waiting for more data). The stall flag is set internally
-by `pullBody`, so no explicit `remainingBytes` guard is needed.
+Drain all immediately-available body chunks: pulls until the body is complete, or until `pullBody`
+returns nothing because the machine waits for more data.
 -/
 def drainBody (t : MachineTester dir) (fuel : Nat := 4096) : MachineTester dir := Id.run do
   let mut t := t
   let mut remaining := fuel
-  while remaining > 0 && t.machine.canPullBodyNow do
+  while remaining > 0 && t.machine.canPullBody do
     remaining := remaining - 1
+    let before := t.pulled.size
     t := t.pullBody
+    if t.pulled.size == before then break
   t
 
 /-- Set the known outgoing body size (forwarded to the writer). -/
@@ -171,10 +170,6 @@ def assertFailedWith (t : MachineTester dir) (expected : Error) : MachineTester 
 /-- Assert that `canPullBody` is true. -/
 def assertCanPullBody (t : MachineTester dir) : MachineTester dir :=
   t.assert (·.canPullBody) "expected canPullBody = true"
-
-/-- Assert that `canPullBodyNow` is true. -/
-def assertCanPullBodyNow (t : MachineTester dir) : MachineTester dir :=
-  t.assert (·.canPullBodyNow) "expected canPullBodyNow = true"
 
 /-- Assert that the reader is in the `complete` state. -/
 def assertReaderComplete (t : MachineTester dir) : MachineTester dir :=
@@ -636,7 +631,7 @@ private def minimalGetRequest : Request.Head :=
   MachineTester.receiving "§6.3: no CL/TE → empty body"
     |>.feed (mkGet "/")
     |>.step |>.assertNoError |>.assertHasEndHeaders
-    |>.assertCanPullBodyNow |>.drainBody
+    |>.assertCanPullBody |>.drainBody
     |>.assertPulledBody .empty |>.assertLastChunkFinal |>.run
 
   let body := "Hello, World!".toUTF8
@@ -889,7 +884,8 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (req1 ++ req2) |>.step |>.assertHasEndHeaders |>.assertKeepAlive
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
     |>.drainBody |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders |>.run
+    -- The step that ends the exchange goes on to the buffered request.
+    |>.assertHasEndHeaders |>.run
 
   -- §9.3: pipelining after CL:0 body — second request parses correctly
   let post1 := "POST /a HTTP/1.1\r\nHost: example.com\r\nContent-Length: 0\r\n\r\n"
@@ -898,8 +894,7 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (post1 ++ get2) |>.step |>.assertHasEndHeaders
     |>.drainBody |>.assertPulledBody .empty
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
-    |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders
+    |>.step |>.assertHasNext |>.assertHasEndHeaders
     |>.onEndHeaders (fun t head =>
       let path := toString head.uri.path
       if path == "/b" then t
@@ -914,8 +909,7 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (req1 ++ req2) |>.noMoreInput
     |>.step |>.assertHasEndHeaders
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
-    |>.drainBody |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders
+    |>.drainBody |>.step |>.assertHasNext |>.assertHasEndHeaders
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
     |>.drainBody |>.step
     |>.assertHasEvent (fun | .close => true | _ => false)
@@ -1022,7 +1016,7 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (mkPostHead "/upload" body.size "Expect: 100-continue\r\n")
     |>.step |>.assertHasEndHeaders |>.assertHasContinue
     |>.canContinue .«continue»
-    |>.feedBytes body |>.step |>.assertCanPullBodyNow
+    |>.feedBytes body |>.step |>.assertCanPullBody
     |>.drainBody |>.assertPulledBody body |>.run
 
   -- rejected: reader closed, body not delivered
@@ -1156,8 +1150,7 @@ private def minimalGetRequest : Request.Head :=
   MachineTester.receiving "§19.7.1: HTTP/1.0 keep-alive pipelining — second request parsed"
     |>.feed (http10req1 ++ http10req2) |>.step |>.assertHasEndHeaders |>.assertKeepAlive
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
-    |>.drainBody |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders |>.run
+    |>.drainBody |>.step |>.assertHasNext |>.assertHasEndHeaders |>.run
 
   -- §19.7.1: client side — response Connection:keep-alive → keepAlive = true
   MachineTester.sending "§19.7.1: client receives HTTP/1.0 + Connection:keep-alive → keepAlive = true"
@@ -1212,8 +1205,7 @@ private def minimalGetRequest : Request.Head :=
     |>.assertOutputContains "Connection: keep-alive\r\n" "expected the HTTP/1.0 keep-alive echo"
     |>.assertOutputNotContains "Content-Length" "unknown length must not be sent as Content-Length: 0"
     |>.assertOutputNotContains "close" "a HEAD response has no body to delimit by closing"
-    |>.assertHasNext
-    |>.step |>.assertHasEndHeaders |>.assertKeepAlive |>.run
+    |>.assertHasNext |>.assertHasEndHeaders |>.assertKeepAlive |>.run
 
 #eval runGroup "RFC 9110 §6.6.1: Date" do
   let date : Header.Value := .mk "Mon, 01 Jan 2024 00:00:00 GMT"

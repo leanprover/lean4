@@ -145,7 +145,7 @@ private def runIncrementalReceiving
 
     -- Pull at most one body chunk per input part to simulate streaming callers.
     -- Guard on buffered bytes to avoid calling into body parsing on an empty buffer.
-    if machine.canPullBodyNow && machine.reader.input.remainingBytes > 0 then
+    if machine.canPullBody && machine.reader.input.remainingBytes > 0 then
       let (machine', pulledNow?) := machine.pullBody
       let (machine', pullEvents) := machine'.takeEvents
       machine := machine'
@@ -162,7 +162,7 @@ private def runIncrementalReceiving
 
   -- After all input has arrived, drain the remaining ready body chunks.
   let mut fuel := 4096
-  while fuel > 0 && machine.canPullBodyNow && machine.reader.input.remainingBytes > 0 do
+  while fuel > 0 && machine.canPullBody && machine.reader.input.remainingBytes > 0 do
     fuel := fuel - 1
     let (machine', pulledNow?) := machine.pullBody
     let (machine', pullEvents) := machine'.takeEvents
@@ -249,7 +249,7 @@ private def assertFailedWith
   let (machine1, step1) := (machine0.feed headOnly).step
   ensure "Chunked pull on empty input (setup)" (!machine1.failed) s!"unexpected setup failure events:\n{repr step1.events}"
   ensure "Chunked pull on empty input (setup)" (hasEndHeadersEvent step1.events) "expected endHeaders in setup"
-  ensure "Chunked pull on empty input (setup)" machine1.canPullBodyNow "expected body state to be pullable"
+  ensure "Chunked pull on empty input (setup)" machine1.canPullBody "expected body state to be pullable"
 
   let (machine2, pulled?) := machine1.pullBody
   let (machine2, pullEvents) := machine2.takeEvents

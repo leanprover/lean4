@@ -144,7 +144,7 @@ lean_object* l_Lean_Exception_toMessageData(lean_object*);
 lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Pred(lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_simpAppArgRange(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_mkCongr___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_VCGen_runSimp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_VCGen_runSimp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Result_toSimpGoalResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isTrue(lean_object*);
@@ -11895,7 +11895,7 @@ lean_inc_ref(v_val_3796_);
 v___x_3815_ = lean_alloc_closure((void*)(l_Lean_Meta_Sym_Simp_simp___boxed), 11, 1);
 lean_closure_set(v___x_3815_, 0, v_val_3796_);
 lean_inc(v_val_3814_);
-v___x_3816_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_3814_, v___x_3815_, v_a_3800_, v_a_3804_, v_a_3805_, v_a_3806_, v_a_3807_, v_a_3808_, v_a_3809_);
+v___x_3816_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_3814_, v___x_3815_, v_a_3799_, v_a_3800_, v_a_3804_, v_a_3805_, v_a_3806_, v_a_3807_, v_a_3808_, v_a_3809_);
 if (lean_obj_tag(v___x_3816_) == 0)
 {
 lean_object* v_a_3817_; lean_object* v___x_3819_; uint8_t v_isShared_3820_; uint8_t v_isSharedCheck_3927_; 
@@ -14509,7 +14509,7 @@ lean_closure_set(v___f_4591_, 3, v___x_4590_);
 lean_closure_set(v___f_4591_, 4, v_a_4583_);
 lean_closure_set(v___f_4591_, 5, v_fn_4587_);
 lean_inc(v_val_4580_);
-v___x_4592_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_4580_, v___f_4591_, v___y_4568_, v___y_4572_, v___y_4573_, v___y_4574_, v___y_4575_, v___y_4576_, v___y_4577_);
+v___x_4592_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_4580_, v___f_4591_, v___y_4567_, v___y_4568_, v___y_4572_, v___y_4573_, v___y_4574_, v___y_4575_, v___y_4576_, v___y_4577_);
 if (lean_obj_tag(v___x_4592_) == 0)
 {
 lean_object* v_a_4593_; lean_object* v___x_4594_; 
@@ -16227,7 +16227,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_VCGen_Solve_0__Lean_Elab_T
 _start:
 {
 uint8_t v_errorOnMissingSpec_5126_; 
-v_errorOnMissingSpec_5126_ = lean_ctor_get_uint8(v_a_5120_, sizeof(void*)*6 + 1);
+v_errorOnMissingSpec_5126_ = lean_ctor_get_uint8(v_a_5120_, sizeof(void*)*7 + 1);
 if (v_errorOnMissingSpec_5126_ == 0)
 {
 lean_object* v___x_5127_; lean_object* v___x_5128_; lean_object* v___x_5129_; 
@@ -16366,7 +16366,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_VCGen_Solve_0__Lean_Elab_T
 _start:
 {
 lean_object* v_untilPat_x3f_5216_; 
-v_untilPat_x3f_5216_ = lean_ctor_get(v_a_5208_, 5);
+v_untilPat_x3f_5216_ = lean_ctor_get(v_a_5208_, 6);
 if (lean_obj_tag(v_untilPat_x3f_5216_) == 1)
 {
 lean_object* v_val_5217_; uint8_t v___x_5218_; lean_object* v___x_5219_; 

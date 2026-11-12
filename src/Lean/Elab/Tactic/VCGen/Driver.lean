@@ -22,39 +22,50 @@ and emits VCs (or invariant holes) for those `solve` cannot decompose further.
 -/
 
 
+open Lean.Parser.Tactic in
 /--
-Try to elaborate the user's invariant alt for invariant number `n` inline,
-discharging `mv` if successful. Looks up `Context.invariantAlts[n]?` (pre-parsed
-in `Frontend`) and dispatches to `exact $rhs` for bullet form or
-`rename_i $args*; exact $rhs` for labelled form. Returns whether elaboration
-succeeded. Numbering is 1-based; out-of-order labelled forms (e.g. `| inv2 => …`
-before `| inv1 => …`) are supported because the map is keyed by parsed number,
-not position.
+Elaborate the user's invariant alt for invariant number `n` in the term elaboration context of
+`ctx`, discharging `mv` if successful. Looks up `ctx.invariantAlts[n]?` (pre-parsed in `Frontend`)
+and dispatches to `exact $rhs` for bullet form or `rename_i $args*; exact $rhs` for labelled form.
+The header of the alt (`·`, or `| inv1 a b =>`) shows the goal `mv` in the info view. Returns
+whether elaboration succeeded. Numbering is 1-based; out-of-order labelled forms (e.g.
+`| inv2 => …` before `| inv1 => …`) are supported because the map is keyed by parsed number, not
+position.
+
+When `report` is `false`, a failed elaboration restores the state, including its messages and info
+trees, so that a later attempt with `report := true` reports the failure once.
 -/
-public def elabInvariant (invariantAlts : Std.HashMap Nat Syntax) (n : Nat) (mv : MVarId) : SymM Bool := do
+public def elabInvariant (ctx : Context) (n : Nat) (mv : MVarId) (report : Bool) : SymM Bool := do
+  let some alt := ctx.invariantAlts[n]? | return false
+  -- The tactic takes the source range of `alt`, where its errors are reported.
+  let tac ← match alt with
+    | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) =>
+        let dot := alt[0]
+        withRef alt `(tactic| (with_annotate_state $dot skip; exact $rhs))
+    | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $args* => $rhs) =>
+        let hdr := mkNullNode #[alt[0], alt[1], alt[2]]
+        withRef alt `(tactic| (rename_i $args*; with_annotate_state $hdr skip; exact $rhs))
+    | _ => return false
+  let s ← Meta.saveState
   try
-    let some alt := invariantAlts[n]? | return false
-    let tac ← match alt with
-      | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) => `(tactic| exact $rhs)
-      | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $args* => $rhs) =>
-          `(tactic| (rename_i $args*; exact $rhs))
-      | _ => return false
     -- `withDefault`: the surrounding grind context forces reducible transparency,
     -- under which the invariant's type isn't resolved enough for term elaboration
     -- of the alternative's right-hand side to succeed.
-    withRef alt <| discard <| Meta.withDefault <| Lean.Elab.runTactic mv tac {} {}
-    -- The tactic runs without throwing even when it fails to close the goal;
-    -- check explicitly that the MVar got assigned.
-    if ← mv.isAssigned then
-      -- Preprocess the assignment to `mv` because it will interact with the `SymM` world
-      if let some val ← getExprMVarAssignment? mv then
-        let val ← unfoldReducible val
-        let val ← shareCommon val
-        mv.assign val
-      return true
-    else
+    withRef alt <| discard <| Meta.withDefault <|
+      Lean.Elab.runTactic mv tac ctx.termCtx { levelNames := ctx.levelNames }
+  catch ex =>
+    if report then logException ex else s.restore
+    return false
+  -- The tactic runs without throwing even when it fails to close the goal;
+  -- check explicitly that the MVar got assigned.
+  let some val ← getExprMVarAssignment? mv
+    | unless report do s.restore
       return false
-  catch _ => return false
+  -- Preprocess the assignment to `mv` because it will interact with the `SymM` world
+  let val ← unfoldReducible val
+  let val ← shareCommon val
+  mv.assign val
+  return true
 
 /-- Pull invariant subgoals out of `subgoals` and handle them eagerly: register
 each in `State.invariants` (1-based stable index) and try to inline-elaborate
@@ -68,7 +79,7 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
     if isSpecInvariantType env (← sg.getType) then
       let n := (← get).invariants.size + 1
       modify fun s => { s with invariants := s.invariants.push sg }
-      if ← elabInvariant (← read).invariantAlts n sg then
+      if ← elabInvariant (← read) n sg (report := false) then
         modify fun s => { s with inlineHandledInvariants := s.inlineHandledInvariants.insert n }
       else
         sg.setKind .syntheticOpaque

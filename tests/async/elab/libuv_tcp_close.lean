@@ -103,9 +103,10 @@ def expectFails (name : String) (promise : IO.Promise (Except IO.Error α)) : IO
   expectError "accept after close" (do blockPromise (← listener.accept))
 
 -- A write blocked on a peer that does not read is cancelled by close, also from a thread other than
--- the one that issued it, and the peer then reads only part of what was written before
--- end-of-stream. Windows accepts a whole write, however large, while its send buffer has room, so
--- pieces are written until one stays pending.
+-- the one that issued it, and the peer then reaches end-of-stream. Windows accepts a whole write,
+-- however large, while its send buffer has room, so pieces are written until one stays pending.
+-- Windows still delivers the bytes of a cancelled write it already took, so the received count is
+-- not checked.
 #eval show IO Unit from do
   let (client, server) ← connectPair
   let piece := ByteArray.mk (Array.replicate (1024 * 1024) 0)
@@ -120,11 +121,8 @@ def expectFails (name : String) (promise : IO.Promise (Except IO.Error α)) : IO
     | throw <| IO.userError s!"a peer that does not read took all {sent} bytes; no write stayed pending"
   IO.ofExcept (← IO.wait (← IO.asTask (prio := .dedicated) server.close))
   expectFails "pending write" write
-  let mut received := 0
   repeat
     match ← (do blockPromise (← client.recv? 65536)).toBaseIO with
-    | .ok (some chunk) => received := received + chunk.size
+    | .ok (some _) => pure ()
     | .ok none | .error _ => break
-  unless received < sent do
-    throw <| IO.userError s!"the peer received all {sent} bytes, including the cancelled write"
   client.close

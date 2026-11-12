@@ -6,7 +6,7 @@ for x in xs do
     return x
 return y
 
-structure S :=
+structure S where
 (key val : Nat)
 
 instance : BEq S :=

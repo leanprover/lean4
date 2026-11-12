@@ -42,7 +42,7 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 
 opaque Vars : Type
 
-structure Lang :=
+structure Lang where
   (funcs : Nat → Type)
   (consts : Type)
 

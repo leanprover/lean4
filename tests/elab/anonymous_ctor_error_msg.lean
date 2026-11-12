@@ -1,6 +1,6 @@
 set_option pp.mvars false
 
-structure Foo := (n : Nat)
+structure Foo where (n : Nat)
 
 def Foo.sum (xs : List Foo) : Foo :=
 xs.foldl (λ s x => ⟨s.n + x.n⟩) ⟨0⟩

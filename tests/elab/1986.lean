@@ -17,7 +17,7 @@ class Preorder (α : Type u) extends LE α, LT α where
   lt := λ a b => a ≤ b ∧ ¬ b ≤ a
   lt_iff_le_not_le : ∀ a b : α, a < b ↔ (a ≤ b ∧ ¬ b ≤ a)
 
-class PartialOrder (α : Type u) extends Preorder α :=
+class PartialOrder (α : Type u) extends Preorder α where
 (le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b)
 
 def Set (α : Type u) := α → Prop

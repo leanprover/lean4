@@ -295,7 +295,7 @@ namespace Precategory
   prefix:70 "∃" => defined _
 end Precategory
 
-class category (𝒞 : Precategory) :=
+class category (𝒞 : Precategory) where
 (defDec      : ∀ (a : 𝒞.carrier), dec (a = ∄))
 (bottomLeft  : ∀ a, 𝒞.μ ∄ a = ∄)
 (bottomRight : ∀ a, 𝒞.μ a ∄ = ∄)

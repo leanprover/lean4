@@ -50,7 +50,7 @@ info: [1, 2]
 #guard_msgs in
 #eval tst2.run
 
-structure Foo :=
+structure Foo where
 (x : Nat)
 (y : Bool)
 (z : Bool)

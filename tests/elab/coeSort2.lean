@@ -2,7 +2,7 @@
 
 universe u
 
-structure Group :=
+structure Group where
 (carrier : Type u) (mul : carrier → carrier → carrier) (one : carrier)
 
 instance GroupToType : CoeSort Group (Type u) :=

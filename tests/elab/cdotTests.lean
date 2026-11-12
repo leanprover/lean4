@@ -4,7 +4,7 @@
 
 set_option pp.mvars false
 
-class Inc (α : Type) :=
+class Inc (α : Type) where
 (inc : α → α)
 
 export Inc (inc)

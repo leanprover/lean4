@@ -10,7 +10,7 @@ Test that new tabled typeclass resolution deals with loops and diamonds correctl
 set_option synthInstance.checkSynthOrder false
 
 
-class HasCoerce (a : Type) (b : Type) :=
+class HasCoerce (a : Type) (b : Type) where
 (coerce : a → b)
 
 def coerce {a b : Type} [HasCoerce a b] : a → b :=

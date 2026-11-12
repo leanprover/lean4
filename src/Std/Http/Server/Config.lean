@@ -162,11 +162,6 @@ structure Config where
   maxBodySize : Nat := 64 * 1024 * 1024
 
   /--
-  Maximum length of reason phrase (default: 512 bytes)
-  -/
-  maxReasonPhraseLength : Nat := 512
-
-  /--
   Maximum number of trailer headers (default: 20)
   -/
   maxTrailerHeaders : Nat := 20
@@ -208,7 +203,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxChunkLineLength := config.maxChunkLineLength
   maxChunkSize := config.maxChunkSize
   maxBodySize := config.maxBodySize
-  maxReasonPhraseLength := config.maxReasonPhraseLength
   maxTrailerHeaders := config.maxTrailerHeaders
   acceptedTransferCodings := config.acceptedTransferCodings
 

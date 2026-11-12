@@ -9,6 +9,7 @@ prelude
 public import Std.Http.Data.Request
 public import Std.Http.Data.Status
 public import Std.Http.Data.URI
+import Std.Http.Protocol.H1.Message
 
 public section
 
@@ -181,15 +182,7 @@ syntax that may already have been accepted by a caller.
 private def nominatedConnectionHeaders (headers : Headers) : Array Header.Name :=
   match headers.getAll? .connection with
   | none => #[]
-  | some values =>
-    values.foldl (init := #[]) fun names value =>
-      match Header.Connection.parse value with
-      | none => names
-      | some connection =>
-        connection.tokens.foldl (init := names) fun names token =>
-          match Header.Name.ofString? token with
-          | none => names
-          | some name => names.push name
+  | some values => (connectionOptions values).1.filterMap Header.Name.ofString?
 
 /--
 Proxy-configuration headers that must not cross origins.
@@ -292,10 +285,9 @@ Rewrites the target actually placed on the wire.
 private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
     (basePath : URI.Path) (baseQuery : Option URI.Query)
     (currentScheme : URI.Scheme) : RequestTarget :=
-  match ref with
-  | .absolute af =>
-    -- The fragment is never placed on the wire (RFC 9112 §3.2 / RFC 9110 §7.1), so drop it here
-    -- alongside any `userinfo` in the authority.
+  -- The fragment is never placed on the wire (RFC 9112 §3.2 / RFC 9110 §7.1), so drop it here
+  -- alongside any `userinfo` in the authority.
+  let absolute (af : URI) : RequestTarget :=
     let stripped :=
       { af with
         path := resolvedPath af.path,
@@ -305,16 +297,11 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
       .absoluteForm stripped
     else
       .originForm stripped.path stripped.query
+  match ref with
+  | .absolute af => absolute af
   | .relative { authority := some auth, path, query, .. } =>
-
     -- Protocol-relative: authority present, scheme inherited from current.
-    let path := resolvedPath path
-    let stripped := { auth with userInfo := none }
-    let af := { scheme := currentScheme, authority := some stripped, path, query, fragment := none }
-    if isCrossOrigin then
-      .absoluteForm af
-    else
-      .originForm path query
+    absolute { scheme := currentScheme, authority := some auth, path, query, fragment := none }
   | .relative { authority := none, path := refPath, query, .. } =>
 
     -- RFC 3986 §5.2.2: merge base path with reference path, then normalize. `/` has no segments, so
@@ -416,14 +403,14 @@ def decideRedirect
 
   -- A redirect that keeps the method resends the original request (RFC 9110 §15.4), body included:
   -- 307/308 always, and 301/302 for every method but POST.
-  if !methodChanged && newMethod != Method.get && newMethod != Method.head && !bodyReplayable then
-    return .done
-
   let bodyAction : RedirectBodyAction :=
     if newMethod == Method.get || newMethod == Method.head || methodChanged then
       .empty
     else
       .replay
+
+  if bodyAction matches .replay && !bodyReplayable then
+    return .done
 
   let rewrittenTarget := RedirectPlan.rewriteTarget location isCrossOrigin
     request.uri.pathOrRoot

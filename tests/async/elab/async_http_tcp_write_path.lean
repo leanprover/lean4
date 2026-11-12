@@ -209,7 +209,6 @@ def GatedSocket.new (socket : TCP.Socket.Client) (gateBytes : Nat) : BaseIO Gate
   return { socket, gateBytes, started := ← IO.Promise.new, gate := ← IO.Promise.new }
 
 instance : Transport GatedSocket where
-  recv s expect := Transport.recv s.socket expect
   sendAll s data := do
     let gated := data.foldl (· + ·.size) 0 ≥ s.gateBytes
     if gated then s.started.resolve ()

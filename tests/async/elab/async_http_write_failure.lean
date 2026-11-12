@@ -15,7 +15,6 @@ structure FailingTransport where
   writes : IO.Ref Nat
 
 instance : Transport FailingTransport where
-  recv t expect := Transport.recv t.inner expect
   sendAll t data := do
     let n ← t.writes.modifyGet fun n => (n, n + 1)
     if n == 0 then

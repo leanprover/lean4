@@ -20,7 +20,7 @@ def newMachine (config : Http.Config := { generateDate := false }) : H1.Machine 
   { config := config.toH1Config }
 
 structure Run where
-  cfg : Driver.Config := {}
+  cfg : Http.Config := {}
   state : State
   now : Nat := 0
   /-- Every command so far. -/
@@ -28,7 +28,7 @@ structure Run where
   /-- The commands of the last step. -/
   last : Array Command := #[]
 
-def Run.start (cfg : Driver.Config := {}) (machine := newMachine) (now := 0) : Run :=
+def Run.start (cfg : Http.Config := {}) (machine := newMachine) (now := 0) : Run :=
   let (state, cmds) := Driver.start cfg machine now
   { cfg, state, now, log := cmds, last := cmds }
 
@@ -42,7 +42,7 @@ def Run.at (r : Run) (now : Nat) : Run := { r with now }
 def Run.receiving (r : Run) : Bool := wantsBytes r.cfg r.state
 
 /-- Whether the connection pulls the response body. -/
-def Run.pulling (r : Run) : Bool := pullsResponse r.cfg r.state
+def Run.pulling (r : Run) : Bool := pullsResponse r.state
 
 def tag : Command → String
   | .write _ => "write"
@@ -116,19 +116,20 @@ def checkCleanup (r : Run) (what : String) : IO Unit := do
   let openBodies := (completeBodies r.log).filter (!·) |>.size
   check (ends == openBodies) s!"{what}: {openBodies} open bodies, {ends} ends ({tags r.log})"
   -- After closing, nothing happens any more.
-  for i in [Input.resume, .eof, .written, .bodyWanted, .responseEnd, .shutdown, .deadline .idle,
-      .received "GET / HTTP/1.1\r\n\r\n".toUTF8, .continueDecided true] do
+  for i in [Input.resume, .received none, .written, .bodyInterest true, .pulled none,
+      .cancelled false, .deadline .idle, .received (some "GET / HTTP/1.1\r\n\r\n".toUTF8),
+      .continueDecided true] do
     check (step r.cfg r.state (r.now + 100000) i).2.isEmpty s!"{what}: a closed connection acted"
   check (nextDeadline r.state).isNone s!"{what}: a closed connection keeps a deadline"
 
-def req (s : String) : Input := .received s.toUTF8
+def req (s : String) : Input := .received (some s.toUTF8)
 
 def full (body : String) : Input :=
   .responded {} (some (.fixed body.utf8ByteSize)) #[{ data := body.toUTF8 }] true
 
 def streamed : Input := .responded {} none #[] false
 
-def chunk (s : String) : Input := .responseData { data := s.toUTF8 }
+def chunk (s : String) : Input := .pulled (some { data := s.toUTF8 })
 
 def get (path : String) (extra := "") : String :=
   s!"GET {path} HTTP/1.1\r\nHost: x\r\n{extra}\r\n"
@@ -176,13 +177,13 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := Run.start
   let r := r.input (req (post "/1" "aa" ++ post "/2" "bbb" ++ get "/3" "Connection: close\r\n"))
   check (started r.last == #["/1"]) "first"
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check (pushed r.last == "aa" && ended r.last == 1) s!"the first body: {tags r.last}"
   let r := r.input (full "one")
   check (started r.last == #[]) s!"an unsafe request waits for the write: {tags r.last}"
   let r := r.input .written
   check (started r.last == #["/2"]) s!"second: {tags r.log}"
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check (pushed r.last == "bbb" && ended r.last == 1) s!"the second body: {tags r.last}"
   let r := r.input (full "two")
   check (started r.last == #["/3"]) "a safe request starts before the earlier response is confirmed"
@@ -203,12 +204,12 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   check (completeBodies r.last == #[false]) s!"one handler, body incomplete: {tags r.last}"
   check (wantsBodyInterest r.state) "the reader is watched"
   check (!r.receiving) "no read until the reader wants more"
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check (pushed r.last == "abc" && ended r.last == 0) s!"abc pushed: {tags r.last}"
   check (wantsBodyInterest r.state && !r.receiving) "watched again, no read yet"
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check r.receiving "the reader waits: receive"
-  let r := r.input .eof
+  let r := r.input (.received none)
   check (count r.log "failBody" == 1) s!"the body fails: {tags r.log}"
   check (ended r.log == 0) "the body never ends cleanly"
   check (reports r.log == #["Connection closed"]) s!"reported: {reports r.log}"
@@ -221,17 +222,17 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := Run.start
   let r := r.input (req "POST /c HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nab")
   check (completeBodies r.last == #[false]) "incomplete"
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check (pushed r.last == "ab") s!"ab pushed: {tags r.last}"
   check r.receiving "the rest of the chunk is received"
-  let r := r.input .eof
+  let r := r.input (.received none)
   check (count r.log "failBody" == 1 && ended r.log == 0) s!"fails: {tags r.log}"
 
 -- A complete body ends cleanly.
 #eval show IO Unit from do
   let r := Run.start
   let r := r.input (req (post "/ok" "abc"))
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check (pushed r.last == "abc" && ended r.last == 1) s!"pushed and ended: {tags r.last}"
   let r := r.input (full "ok")
   check (count r.log "failBody" == 0) "no failure"
@@ -267,7 +268,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   check r.receiving "read ahead while the response is under way"
   let r := r.input (chunk "one")
   check (has r.last "write" && r.pulling) "written, pull again"
-  let r := r.input .eof
+  let r := r.input (.received none)
   check (!r.receiving) "no read after EOF"
   let mut r := r
   for i in [0:5] do
@@ -275,22 +276,22 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
     check r.pulling "keeps streaming"
     check (!r.receiving) "no read after EOF"
     r := r.input .written
-  r := r.input .eof
+  r := r.input (.received none)
   check (r.last.isEmpty) "a second EOF is ignored"
-  r := r.input .responseEnd
+  r := r.input (.pulled none)
   r := r.input .written
   check ((bytesOf r.log).endsWith "0\r\n\r\n") "the response completes"
   checkCleanup r "half-close"
 
 -- Read-ahead stops at `readAhead` unread bytes.
 #eval show IO Unit from do
-  let r := Run.start { readAhead := 16 }
+  let r := Run.start { maximumRecvSize := 16 }
   let r := r.input (req (get "/s"))
   let r := r.input streamed
   check r.receiving "reads ahead"
   let r := r.input (req (get "/t"))
   check (!r.receiving) s!"stops reading at the bound: {tags r.last}"
-  let r := r.input .responseEnd
+  let r := r.input (.pulled none)
   check (started r.last == #["/t"]) "the pipelined request starts after the response"
 
 /-! ## Timeouts fire through `nextDeadline` -/
@@ -330,7 +331,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
 -- Body bytes that a reader waits for and that do not come: 408, and the body fails.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (postPart "/slow" 10 "abc"))
-  let r := r.input .bodyWanted |>.at 50 |>.input .bodyWanted
+  let r := r.input (.bodyInterest true) |>.at 50 |>.input (.bodyInterest true)
   check (nextDeadline r.state == some (.linger, 10050)) s!"linger deadline: {repr (nextDeadline r.state)}"
   let r := r.at 10050 |>.input (.deadline .linger)
   check ((bytesOf r.last).startsWith "HTTP/1.1 408") s!"408: {(bytesOf r.last).quote}"
@@ -394,7 +395,7 @@ def expectPost : String :=
   check ((bytesOf r.last).startsWith "HTTP/1.1 100 Continue\r\n") s!"100: {(bytesOf r.last).quote}"
   check (has r.last "startHandler") s!"the handler starts with the 100: {tags r.last}"
   check (indexOf r.last "write" < indexOf r.last "startHandler") "100 before the handler"
-  let r := r.input .bodyWanted
+  let r := r.input (.bodyInterest true)
   check r.receiving "the body is read after the 100"
   let r := r.input (req "abc")
   check (pushed r.last == "abc" && ended r.last == 1) s!"the body arrives: {tags r.last}"
@@ -442,10 +443,10 @@ def expectPost : String :=
 -- A shutdown while the handler runs: 503, and its late response is the interpreter's to release.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/"))
-  let r := r.input .shutdown
+  let r := r.input (.cancelled false)
   check ((bytesOf r.last).startsWith "HTTP/1.1 503") s!"503: {(bytesOf r.last).quote}"
   check (has r.last "abandonHandler") "abandoned"
-  check (r.input .shutdown).last.isEmpty "a second shutdown is ignored"
+  check (r.input (.cancelled false)).last.isEmpty "a second shutdown is ignored"
   let r := r.input (full "late")
   check r.last.isEmpty "the late response is ignored"
   let r := r.input .written
@@ -454,7 +455,7 @@ def expectPost : String :=
 -- A shutdown while a response streams stops it and releases its body.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/")) |>.input streamed |>.input (chunk "a")
-  let r := r.input .shutdown
+  let r := r.input (.cancelled false)
   check (has r.last "releaseResponse") s!"released: {tags r.last}"
   check (!r.pulling) "no more pulls"
   let r := r.input (chunk "late")
@@ -465,9 +466,9 @@ def expectPost : String :=
 -- The connection's own deadline: 408 when no response started.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (postPart "/slow" 10 "abc"))
-  let r := r.input .timedOut
+  let r := r.input (.cancelled true)
   check ((bytesOf r.last).startsWith "HTTP/1.1 408") s!"408: {(bytesOf r.last).quote}"
-  check (r.input .timedOut).last.isEmpty "a second cancellation is ignored"
+  check (r.input (.cancelled true)).last.isEmpty "a second cancellation is ignored"
 
 -- A failed write drops the connection.
 #eval show IO Unit from do
@@ -496,7 +497,7 @@ def expectPost : String :=
 -- A failing response body: reported, released, closed after the flush.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/")) |>.input streamed |>.input (chunk "a")
-  let r := r.input (.responseFailed (.userError "producer died"))
+  let r := r.input (.failed (.userError "producer died"))
   check (reports r.last == #["producer died"]) s!"{reports r.last}"
   check (has r.last "releaseResponse" && !has r.last "close") s!"{tags r.last}"
   let r := r.input .written
@@ -504,7 +505,7 @@ def expectPost : String :=
 
 -- The peer closes an idle connection.
 #eval show IO Unit from do
-  let r := Run.start |>.input .eof
+  let r := Run.start |>.input (.received none)
   check (has r.last "close" && !has r.last "write") s!"closed: {tags r.last}"
   check (reports r.log).isEmpty "nothing to report"
   checkCleanup r "peer close"
@@ -522,12 +523,13 @@ def expectPost : String :=
 
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/"))
-  for i in [Input.eof, .received "x".toUTF8, .responseEnd, .responseData { data := "x".toUTF8 },
-      .bodyWanted, .bodyDropped, .continueDecided true, .written, .deadline .linger] do
+  for i in [Input.received none, .received (some "x".toUTF8), .pulled none,
+      .pulled (some { data := "x".toUTF8 }), .bodyInterest true, .bodyInterest false,
+      .continueDecided true, .written, .deadline .linger] do
     check (step r.cfg r.state r.now i).2.isEmpty s!"an input from a source that is not armed acted"
 
 /-! ## Statements that hold by construction -/
 
-example (cfg : Driver.Config) (s : State) (now : Nat) (i : Input) (h : s.phase = .closed) :
+example (cfg : Http.Config) (s : State) (now : Nat) (i : Input) (h : s.phase = .closed) :
     step cfg s now i = (s, #[]) :=
   step_closed cfg s now i h

@@ -37,63 +37,16 @@ set_option linter.all true
 open Std Http Protocol Internal
 
 /--
-Limits and timeouts of the driver, in bytes and milliseconds.
+The response body is pulled only while at most this many written bytes are unconfirmed.
 -/
-structure Config where
-  /--
-  How many bytes to ask for in a receive when the machine does not say.
-  -/
-  recvSize : Nat := 8192
-
-  /--
-  The most bytes to ask for in one receive.
-  -/
-  maxRecvSize : Nat := 8192
-
-  /--
-  While a response is under way, the connection reads ahead (for a pipelined request, or to see the
-  peer close) only while it holds fewer unread bytes than this.
-  -/
-  readAhead : Nat := 8192
-
-  /--
-  The response body is pulled only while at most this many written bytes are unconfirmed.
-  -/
-  writeLimit : Nat := 65536
-
-  /--
-  How long an idle connection stays open, counted from when its writes completed.
-  -/
-  keepAliveTimeout : Nat := 12000
-
-  /--
-  How long a request head may take to arrive, counted from its first byte.
-  -/
-  headerTimeout : Nat := 5000
-
-  /--
-  How long the connection waits for body bytes that a reader is waiting for, for the next chunk of a
-  response body, and for a decision on `Expect: 100-continue`.
-  -/
-  lingeringTimeout : Nat := 10000
-
-  /--
-  How long written bytes may stay unconfirmed. The connection is then dropped.
-  -/
-  writeTimeout : Nat := 30000
-deriving Repr
+private def writeLimit : Nat := 65536
 
 /--
-The driver configuration for a server configuration.
+A timeout of the configuration in milliseconds.
 -/
-def Config.ofServer (config : Http.Config) : Config where
-  recvSize := config.defaultPayloadBytes
-  maxRecvSize := config.maximumRecvSize
-  readAhead := config.maximumRecvSize
-  keepAliveTimeout := config.keepAliveTimeout.val.toInt.toNat
-  headerTimeout := config.headerTimeout.toInt.toNat
-  lingeringTimeout := config.lingeringTimeout.toInt.toNat
-  writeTimeout := config.writeTimeout.toInt.toNat
+@[inline]
+private def ms (offset : Time.Millisecond.Offset) : Nat :=
+  offset.toInt.toNat
 
 /--
 The deadlines a connection keeps. At most one of each kind runs at a time.
@@ -136,19 +89,9 @@ inductive Input where
   | resume
 
   /--
-  A receive returned bytes.
+  A receive returned bytes, or `none` when the input is over: the peer will send nothing more.
   -/
-  | received (data : ByteArray)
-
-  /--
-  A receive found the input over: the peer will send nothing more.
-  -/
-  | eof
-
-  /--
-  A receive failed.
-  -/
-  | recvFailed (err : IO.Error)
+  | received (data : Option ByteArray)
 
   /--
   Every write handed over so far completed.
@@ -172,19 +115,9 @@ inductive Input where
   | handlerFailed (err : IO.Error)
 
   /--
-  A pull of the response body returned a chunk.
+  A pull of the response body returned a chunk, or `none` at its end.
   -/
-  | responseData (chunk : Chunk)
-
-  /--
-  A pull of the response body found its end.
-  -/
-  | responseEnd
-
-  /--
-  A pull of the response body failed.
-  -/
-  | responseFailed (err : IO.Error)
+  | pulled (chunk : Option Chunk)
 
   /--
   The handler decided on `Expect: 100-continue`.
@@ -192,14 +125,9 @@ inductive Input where
   | continueDecided (accept : Bool)
 
   /--
-  The reader of the request body waits for data.
+  The reader of the request body waits for data (`wanted`), or closed the body.
   -/
-  | bodyWanted
-
-  /--
-  The reader of the request body closed it.
-  -/
-  | bodyDropped
+  | bodyInterest (wanted : Bool)
 
   /--
   The deadline of the given kind passed.
@@ -207,14 +135,10 @@ inductive Input where
   | deadline (kind : Deadline)
 
   /--
-  The connection's context was cancelled because the server shuts down.
+  The connection's context was cancelled: because its own deadline passed (`deadline`), or because
+  the server shuts down.
   -/
-  | shutdown
-
-  /--
-  The connection's context was cancelled because its own deadline passed.
-  -/
-  | timedOut
+  | cancelled (deadline : Bool)
 
   /--
   An operation of the connection failed, and which one is not known. The connection ends.
@@ -397,22 +321,23 @@ end State
 /--
 Whether the connection wants bytes from the peer: for a request head, for a body that its reader
 waits for or that the machine drains, and, once the request was read and its response is under way,
-to read ahead up to `readAhead` bytes. Never once the input is over.
+to read ahead (for a pipelined request, or to see the peer close) up to `maximumRecvSize` unread
+bytes. Never once the input is over.
 -/
-def wantsBytes (cfg : Config) (s : State) : Bool :=
+def wantsBytes (cfg : Http.Config) (s : State) : Bool :=
   let m := s.machine
   s.phase == .serving && !m.reader.noMoreInput &&
     match m.reader.state with
     | .needStartLine | .needHeader _ => true
     | .readBody _ => !m.canPullBody || (s.body matches .open true)
-    | .complete => m.writer.sentMessage && m.reader.remainingBytes < cfg.readAhead
+    | .complete => m.writer.sentMessage && m.reader.remainingBytes < cfg.maximumRecvSize
     | _ => false
 
 /--
 How many bytes the receive that `wantsBytes` arms asks for.
 -/
-def recvSize (cfg : Config) (s : State) : Nat :=
-  (s.machine.bodyBytesWanted.getD cfg.recvSize).min cfg.maxRecvSize
+def recvSize (cfg : Http.Config) (s : State) : Nat :=
+  (s.machine.bodyBytesWanted.getD cfg.defaultPayloadBytes).min cfg.maximumRecvSize
 
 /--
 Whether the connection watches the request body's reader, to learn when it waits for data or closes.
@@ -426,9 +351,9 @@ Whether the connection pulls the next chunk of the response body: the machine ta
 few written bytes are unconfirmed.
 -/
 @[inline]
-def pullsResponse (cfg : Config) (s : State) : Bool :=
+def pullsResponse (s : State) : Bool :=
   s.phase == .serving && s.machine.writer.sentMessage && !s.machine.writer.noMoreUserData &&
-    s.unwritten ≤ cfg.writeLimit
+    s.unwritten ≤ writeLimit
 
 /--
 The deadline the interpreter has to time: the earliest that runs. None once the connection closed.
@@ -484,14 +409,14 @@ Ends the connection: closes the request body, releases the response body and the
 then closes, after the writes in flight when `flush` is set. A connection that ends because a write
 failed or timed out closes at once and does not linger.
 -/
-private def finish (cfg : Config) (s : State) (now : Nat) (flush : Bool) (cmds : Array Command) :
+private def finish (cfg : Http.Config) (s : State) (now : Nat) (flush : Bool) (cmds : Array Command) :
     State × Array Command :=
   let (s, cmds) := failOpenBody s cmds
   let cmds := cmds.push .releaseResponse
   let cmds := if s.handlerRunning then cmds.push .abandonHandler else cmds
   let s := { s with handlerRunning := false, wait := none }
   if flush && s.unwritten > 0 then
-    let writeDeadline := some (s.writeDeadline.getD (now + cfg.writeTimeout))
+    let writeDeadline := some (s.writeDeadline.getD (now + ms cfg.writeTimeout))
     ({ s with phase := .draining, writeDeadline },
       cmds)
   else closeNow s flush cmds
@@ -526,13 +451,11 @@ private def respond (s : State) (head : Response.Head) (size : Option Body.Lengt
       let machine := match size with
         | some size => s.machine.setKnownSize size
         | none => s.machine
-      let machine := machine.send head
-      if machine.writer.omitBody then
-        ({ s with machine }, #[.releaseResponse])
-      else
-        let machine := machine.sendData data
-        if ended then ({ s with machine := machine.userClosedBody }, #[.releaseResponse])
-        else ({ s with machine }, #[])
+      let machine := (machine.send head).sendData data
+      let machine := if ended then machine.userClosedBody else machine
+      -- A body that is omitted (a `HEAD` response, 204, 304) or replaced by an error response
+      -- (`Content-Length` contradicting it) takes no more data.
+      ({ s with machine }, if machine.writer.noMoreUserData then #[.releaseResponse] else #[])
 
 /--
 Ends a request that took too long: answers 408 when no response started, and otherwise ends the
@@ -543,35 +466,40 @@ private def timeOut (s : State) : State × Array Command :=
     #[.report (.userError "request header timeout")])
 
 /--
+Why a connection whose writes stayed unconfirmed is dropped.
+-/
+private def writeTimedOut (cfg : Http.Config) : IO.Error :=
+  .userError s!"no write completed within {ms cfg.writeTimeout} ms"
+
+/--
 Answers a deadline that passed.
 -/
-private def fire (cfg : Config) (s : State) (now : Nat) : Deadline → Option (State × Array Command)
+private def fire (cfg : Http.Config) (s : State) (now : Nat) : Deadline → Option (State × Array Command)
   | .idle => some (finish cfg s now true #[])
   | .header | .linger => some (timeOut s)
-  | .write =>
-    some (finish cfg { s with unwritten := 0, writeDeadline := none } now false
-      #[.report (.userError s!"no write completed within {cfg.writeTimeout} ms")])
+  | .write => some (finish cfg s now false #[.report (writeTimedOut cfg)])
   | .«continue» => decideContinue s false
 
 /--
 Applies an input to a serving connection. An input from a source that is not armed, or a deadline
 that does not run or has not passed, is ignored (`none`).
 -/
-private def apply (cfg : Config) (s : State) (now : Nat) : Input → Option (State × Array Command)
+private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → Option (State × Array Command)
   | .resume => some (s, #[])
   | .received data =>
-    if !wantsBytes cfg s then none else some ({ s with machine := s.machine.feed data }, #[])
-  | .eof =>
-    if !wantsBytes cfg s then none else some ({ s with machine := s.machine.noMoreInput }, #[])
-  | .recvFailed err =>
-    if !wantsBytes cfg s then none else some (finish cfg s now true #[.report err])
+    if !wantsBytes cfg s then
+      none
+    else
+      let machine := match data with
+        | some data => s.machine.feed data
+        | none => s.machine.noMoreInput
+      some ({ s with machine }, #[])
   | .written =>
     if s.unwritten == 0 then
       none
     else
       some ({ s with unwritten := 0, writeDeadline := none }, #[])
-  | .writeFailed err =>
-    some (finish cfg { s with unwritten := 0, writeDeadline := none } now false #[.report err])
+  | .writeFailed err => some (finish cfg s now false #[.report err])
   | .responded head size data ended =>
     if !s.handlerRunning then none else some (respond s head size data ended)
   | .handlerFailed err =>
@@ -581,33 +509,24 @@ private def apply (cfg : Config) (s : State) (now : Nat) : Input → Option (Sta
       let machine := s.machine.closeWithError .internalServerError
       some ({ s with handlerRunning := false, machine },
         #[.report err])
-  | .responseData chunk =>
-    if !pullsResponse cfg s then
+  | .pulled chunk =>
+    if !pullsResponse s then
       none
-    else
-      some ({ s with machine := s.machine.sendData #[chunk] }, #[])
-  | .responseEnd =>
-    if !pullsResponse cfg s then
-      none
-    else
-      some ({ s with machine := s.machine.userClosedBody }, #[.releaseResponse])
-  | .responseFailed err =>
-    if !pullsResponse cfg s then none else some (finish cfg s now true #[.report err])
+    else match chunk with
+      | some chunk => some ({ s with machine := s.machine.sendData #[chunk] }, #[])
+      | none => some ({ s with machine := s.machine.userClosedBody }, #[.releaseResponse])
   | .continueDecided accept => decideContinue s accept
-  | .bodyWanted => if !wantsBodyInterest s then none else some ({ s with body := .open true }, #[])
-  | .bodyDropped => if !wantsBodyInterest s then none else some ({ s with body := .closed }, #[])
+  | .bodyInterest wanted =>
+    if !wantsBodyInterest s then none
+    else some ({ s with body := if wanted then .open true else .closed }, #[])
   | .deadline kind => if due s now kind then fire cfg s now kind else none
-  | .shutdown =>
+  | .cancelled deadline =>
     if s.cancelled then
       none
     else
-      let machine := s.machine.closeWithError .serviceUnavailable
-      some ({ s with cancelled := true, machine }, #[])
-  | .timedOut =>
-    if s.cancelled then
-      none
-    else
-      let (s, cmds) := timeOut s
+      let (s, cmds) :=
+        if deadline then timeOut s
+        else ({ s with machine := s.machine.closeWithError .serviceUnavailable }, #[])
       some ({ s with cancelled := true }, cmds)
   | .failed err => some (finish cfg s now true #[.report err])
 
@@ -656,7 +575,7 @@ sent for this request. The decision, and the handler of a request with an unsafe
 them, since a write that fails ends the connection (RFC 9112 §9.3.2 lets a server process pipelined
 safe requests in parallel).
 -/
-private def dispatch (cfg : Config) (s : State) (now : Nat) (cmds : Array Command) :
+private def dispatch (cfg : Http.Config) (s : State) (now : Nat) (cmds : Array Command) :
     State × Array Command :=
   let m := s.machine
   if s.handlerRunning || !m.isWaitingMessage then
@@ -668,11 +587,11 @@ private def dispatch (cfg : Config) (s : State) (now : Nat) (cmds : Array Comman
       if s.asksContinue || earlierWrites then
         (s, cmds)
       else
-        let wait := some (.«continue», now + cfg.lingeringTimeout)
+        let wait := some (.«continue», now + ms cfg.lingeringTimeout)
         ({ s with wait }, cmds.push (.askContinue head))
     else if earlierWrites && !head.method.isSafe && !H1.expectsContinue head then (s, cmds)
     else
-      let size := H1.Message.Head.getSize (dir := .receiving) head true
+      let size := m.bodyLength?
       let complete := size == some (.fixed 0)
       ({ s with handlerRunning := true, body := if complete then .closed else .open false },
         cmds.push (.startHandler head size complete))
@@ -682,9 +601,9 @@ What the connection waits for besides its writes (`State.wait`): the `Expect: 10
 it asked, the next response chunk, body bytes, a request head, or, once its writes are confirmed,
 the next request on an idle connection.
 -/
-private def waitingFor (cfg : Config) (s : State) : Option Deadline :=
+private def waitingFor (cfg : Http.Config) (s : State) : Option Deadline :=
   if s.asksContinue then some .«continue»
-  else if pullsResponse cfg s then some .linger
+  else if pullsResponse s then some .linger
   else if !wantsBytes cfg s then none
   else match s.machine.reader.state with
     | .needStartLine =>
@@ -698,33 +617,33 @@ private def waitingFor (cfg : Config) (s : State) : Option Deadline :=
 /--
 How long a deadline of kind `kind` gives.
 -/
-private def Config.timeout (cfg : Config) : Deadline → Nat
-  | .idle => cfg.keepAliveTimeout
-  | .header => cfg.headerTimeout
-  | .linger | .«continue» => cfg.lingeringTimeout
-  | .write => cfg.writeTimeout
+private def timeout (cfg : Http.Config) : Deadline → Nat
+  | .idle => ms cfg.keepAliveTimeout.val
+  | .header => ms cfg.headerTimeout
+  | .linger | .«continue» => ms cfg.lingeringTimeout
+  | .write => ms cfg.writeTimeout
 
 /--
 Sets the deadlines that run in `s`. A deadline that keeps running keeps its time, except `linger`,
 which every input restarts.
 -/
-private def rearm (cfg : Config) (s : State) (now : Nat) : State :=
+private def rearm (cfg : Http.Config) (s : State) (now : Nat) : State :=
   let wait := (waitingFor cfg s).map fun kind =>
     match s.wait with
     | some (k, t) =>
-      if k == kind && kind != .linger then (kind, t) else (kind, now + cfg.timeout kind)
-    | none => (kind, now + cfg.timeout kind)
+      if k == kind && kind != .linger then (kind, t) else (kind, now + timeout cfg kind)
+    | none => (kind, now + timeout cfg kind)
   { s with
     wait
     writeDeadline :=
-      if s.unwritten > 0 then some (s.writeDeadline.getD (now + cfg.writeTimeout)) else none }
+      if s.unwritten > 0 then some (s.writeDeadline.getD (now + ms cfg.writeTimeout)) else none }
 
 /--
 Advances a serving connection after an input: hands the request body's reader what arrived, steps
 the machine, closes a request body the machine can no longer deliver, ends the connection once the
 machine halted, and otherwise starts what is due and sets the deadlines.
 -/
-private def settle (cfg : Config) (s : State) (now : Nat) (cmds : Array Command) :
+private def settle (cfg : Http.Config) (s : State) (now : Nat) (cmds : Array Command) :
     State × Array Command :=
   let (s, cmds) := deliverBody s cmds
   let (s, cmds) := runMachine s cmds
@@ -740,7 +659,7 @@ private def settle (cfg : Config) (s : State) (now : Nat) (cmds : Array Command)
 Answers an input at time `now` (monotonic milliseconds): returns the new state and the commands to
 perform, in order.
 -/
-def step (cfg : Config) (s : State) (now : Nat) (input : Input) : State × Array Command :=
+def step (cfg : Http.Config) (s : State) (now : Nat) (input : Input) : State × Array Command :=
   match s.phase with
   | .closed => (s, #[])
   | .draining =>
@@ -748,9 +667,7 @@ def step (cfg : Config) (s : State) (now : Nat) (input : Input) : State × Array
     | .written => closeNow s true #[]
     | .writeFailed err => closeNow s false #[.report err]
     | .deadline .write =>
-      if due s now .write then
-        closeNow s false #[.report (.userError s!"no write completed within {cfg.writeTimeout} ms")]
-      else (s, #[])
+      if due s now .write then closeNow s false #[.report (writeTimedOut cfg)] else (s, #[])
     | _ => (s, #[])
   | .serving =>
     match apply cfg s now input with
@@ -760,35 +677,27 @@ def step (cfg : Config) (s : State) (now : Nat) (input : Input) : State × Array
 /--
 Starts a connection served by `machine` at time `now`.
 -/
-def start (cfg : Config) (machine : H1.Machine .receiving) (now : Nat) : State × Array Command :=
+def start (cfg : Http.Config) (machine : H1.Machine .receiving) (now : Nat) : State × Array Command :=
   step cfg (State.init machine) now .resume
 
-theorem step_closed (cfg : Config) (s : State) (now : Nat) (input : Input) (h : s.phase = .closed) :
+theorem step_closed (cfg : Http.Config) (s : State) (now : Nat) (input : Input) (h : s.phase = .closed) :
     step cfg s now input = (s, #[]) := by
   simp [step, h]
 
 /--
-Bytes from a receive that is not armed change nothing.
+Bytes, or the end of input, from a receive that is not armed change nothing.
 -/
-theorem step_received_unarmed (cfg : Config) (s : State) (now : Nat) (data : ByteArray)
-    (h : s.phase = .serving) (hr : wantsBytes cfg s = false) :
+theorem step_received_unarmed (cfg : Http.Config) (s : State) (now : Nat)
+    (data : Option ByteArray) (h : s.phase = .serving) (hr : wantsBytes cfg s = false) :
     step cfg s now (.received data) = (s, #[]) := by
-  simp [step, apply, h, hr]
-
-/--
-An end of input from a receive that is not armed changes nothing.
--/
-theorem step_eof_unarmed (cfg : Config) (s : State) (now : Nat)
-    (h : s.phase = .serving) (hr : wantsBytes cfg s = false) :
-    step cfg s now .eof = (s, #[]) := by
   simp [step, apply, h, hr]
 
 /--
 A cancellation is answered once.
 -/
-theorem step_shutdown_twice (cfg : Config) (s : State) (now : Nat)
+theorem step_cancelled_twice (cfg : Http.Config) (s : State) (now : Nat) (deadline : Bool)
     (h : s.phase = .serving) (hs : s.cancelled = true) :
-    step cfg s now .shutdown = (s, #[]) := by
+    step cfg s now (.cancelled deadline) = (s, #[]) := by
   simp [step, apply, h, hs]
 
 theorem nextDeadline_closed (s : State) (h : s.phase = .closed) : nextDeadline s = none := by

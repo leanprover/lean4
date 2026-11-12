@@ -84,11 +84,6 @@ instance : Repr (Message.Head dir) :=
   | .receiving => inferInstanceAs (Repr Request.Head)
   | .sending => inferInstanceAs (Repr Response.Head)
 
-instance : Internal.Encode .v11 (Message.Head dir) :=
-  match dir with
-  | .receiving => inferInstanceAs (Internal.Encode .v11 Request.Head)
-  | .sending => inferInstanceAs (Internal.Encode .v11 Response.Head)
-
 instance : EmptyCollection (Message.Head dir) where
   emptyCollection :=
     match dir with

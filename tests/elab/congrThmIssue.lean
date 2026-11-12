@@ -2,7 +2,7 @@ theorem Nat.lt_of_lt_le {x y z : Nat} : x < y → y ≤ z → x < z := by
   intro h h'
   induction h'
   assumption
-  apply Nat.le_step
+  apply Nat.le_succ_of_le
   assumption
 
 structure ArrayBuffer (α) where

@@ -2,10 +2,10 @@ set_option pp.mvars false
 
 universe u
 
-structure Fn (E I : Sort u) := (exp : E) (imp : I)
+structure Fn (E I : Sort u) where (exp : E) (imp : I)
 instance (E I : Sort u) :  CoeFun (Fn E I) (fun _ => I) := {coe := fun K => K.imp}
 
-class Bar.{w} (P : Sort u) :=
+class Bar.{w} (P : Sort u) where
   fn : P -> Sort w
 
 variable {P : Sort u} (B : Bar P)

@@ -283,7 +283,7 @@ doc[]
 #eval show CommandElabM Unit from do
   let ictx := mkInputContext "# Title\n\nbody\n" "<input>"
   let env ← getEnv
-  let s := documentFn.run ictx {env, options := {}} (getTokenTable env) (mkParserState ictx.input)
+  let s := documentFn.run ictx {env, options := {}} (getTokenTable env) (mkParserState "# Title\n\nbody\n")
   IO.println (describeDoc ⟨s.stxStack.back⟩)
   let hi ← para "hi"
   let there ← para "there"

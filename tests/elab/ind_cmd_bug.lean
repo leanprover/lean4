@@ -1,6 +1,6 @@
 
 
-structure D (α : Type) :=
+structure D (α : Type) where
 (a : α)
 
 inductive S

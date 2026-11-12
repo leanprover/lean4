@@ -100,9 +100,10 @@ where
   @[inline] libs f :=
     let init := f "Init_shared" #[]
     let lean1 := f "leanshared_1" #[init]
-    let lean2 := f  "leanshared_2" #[lean1, init]
-    let lean := f "leanshared" #[lean2, lean1, init]
-    #[lean, lean2, lean1, init]
+    let lean2 := f "leanshared_2" #[lean1, init]
+    let lean3 := f "leanshared_3" #[lean2, lean1, init]
+    let lean := f "leanshared" #[lean3, lean2, lean1, init]
+    #[lean, lean3, lean2, lean1, init]
 
 theorem size_leanSharedDynlibs_pos : 0 < (leanSharedDynlibs sysroot).size := by
   unfold leanSharedDynlibs; split <;> simp [leanSharedDynlibs.libs]

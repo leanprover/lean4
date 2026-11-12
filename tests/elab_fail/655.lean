@@ -1,6 +1,6 @@
-structure A := a : Nat
+structure A where a : Nat
 
-structure B extends A := b : Nat
+structure B extends A where b : Nat
 
 def B.a (self : B) := self.a + self.b
 

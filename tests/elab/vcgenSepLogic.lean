@@ -1500,7 +1500,7 @@ loop is at, so that index is in bounds. -/
 /-- Extending the prefix by one element adds that element to the sum. -/
 @[grind =] theorem sum_take_succ (xs : List Nat) (i : Nat) (h : i < xs.length) :
     (xs.take (i + 1)).sum = xs[i]! + (xs.take i).sum := by
-  rw [List.take_succ, List.sum_append, List.getElem?_eq_getElem h]
+  rw [List.take_add_one, List.sum_append, List.getElem?_eq_getElem h]
   simp [getElem!_pos, h]
   grind
 

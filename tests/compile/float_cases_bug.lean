@@ -11,7 +11,7 @@ end Term
 
 open Term
 
-structure MyState : Type := (ts : List Term)
+structure MyState : Type where (ts : List Term)
 def emit (t : Term) : StateM MyState Unit := modify (λ ms => ⟨t::ms.ts⟩)
 
 partial def foo : MyState -> Term -> Term -> List Term

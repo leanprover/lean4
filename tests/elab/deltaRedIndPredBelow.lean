@@ -6,5 +6,5 @@ Fixes issue #2990
 def Foo (F : α -> Prop) : Prop :=
   ∀ x , F x
 
-inductive Bad : Nat -> Prop :=
+inductive Bad : Nat -> Prop where
   | bar e : Foo (fun _ : Nat => Bad e) -> Bad e

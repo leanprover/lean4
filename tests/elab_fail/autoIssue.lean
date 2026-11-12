@@ -1,5 +1,5 @@
 import Lean
-structure A :=
+structure A where
   x : Nat
   a' : x = 1 := by trivial
 
@@ -30,7 +30,7 @@ example (z : A) : z.x = 1 := by
     subst a'
     rfl
 
-structure B :=
+structure B where
   x : Nat
   y : Nat := 2
 

@@ -36,6 +36,10 @@ class Handler (σ : Type) where
 
   /--
   Called for each incoming HTTP request.
+
+  Header fields reach the handler as the client sent them. The server checks that `Host` holds a
+  valid host but does not rewrite it, so one host can arrive spelled several ways (`Example.com`,
+  `ex%61mple.com`): compare hosts through `Header.Host.parse`, not as strings.
   -/
   onRequest (self : σ) (request : Request Body.Stream) : ContextAsync (Response ResponseBody)
 

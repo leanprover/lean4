@@ -1840,6 +1840,32 @@ private def addProjTermInfo
     : TermElabM Expr :=
   addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force isDisplayableTerm
 
+/--
+Reports `constName`, which is used through field notation at the field `ref`, if it is deprecated.
+If the replacement is in the same namespace, offers to replace the field by it.
+-/
+private def checkDeprecatedField (ref : Syntax) (constName : Name) : TermElabM Unit :=
+  withRef ref <| checkDeprecatedCore constName <| .custom fun newName => do
+    if newName.getPrefix == constName.getPrefix then
+      Linter.mkReplacementHint ref newName.getString!
+    else
+      return .nil
+
+/--
+Reports the constant `e` resolved from the leading-dot identifier `ref` if it is deprecated, offering
+to replace `ref` by a leading-dot identifier for the replacement if it is in the same namespace, and by
+the replacement's shortest name otherwise.
+-/
+private def checkDeprecatedDotIdent (ref : Syntax) (e : Expr) : TermElabM Unit := do
+  let .const declName _ := e.getAppFn | return
+  withRef ref <| checkDeprecatedCore declName <| .custom fun newName => do
+    if newName.getPrefix == declName.getPrefix then
+      Linter.mkReplacementHint ref ("." ++ newName.getString!)
+    else if let some replacement ← unresolveNameGlobalAvoidingLocals? newName then
+      Linter.mkReplacementHint ref replacement.toString
+    else
+      return .nil
+
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
   let rec loop : Expr → List LVal → TermElabM Expr
@@ -1859,7 +1885,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
       if (← isInaccessiblePrivateName info.projFn) then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
-      let projFn ← withRef lval.getRef <| mkConst info.projFn levels
+      let projFn ← withRef lval.getRef <| withoutCheckDeprecated <| mkConst info.projFn levels
+      checkDeprecatedField lval.getRef info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
       let baseStructInfo ← getConstInfoInduct baseStructName
       let namedArg : NamedArg :=
@@ -1872,7 +1899,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         loop f lvals
     | LValResolution.const baseStructName structName constName levels =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
-      let projFn ← withRef lval.getRef <| mkConst constName levels
+      let projFn ← withRef lval.getRef <| withoutCheckDeprecated <| mkConst constName levels
+      checkDeprecatedField lval.getRef constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let (args, namedArgs) ← addLValArg baseStructName f args namedArgs projFn explicit
@@ -1925,7 +1953,7 @@ Elaborates the resolutions of a function. The `fns` array is the output of `reso
 -/
 private def elabAppFnResolutions (fRef : Syntax) (fns : List (Expr × Syntax × List Syntax × List Level)) (lvals : List LVal)
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
-    (acc : Array (TermElabResult Expr)) (forceTermInfo : Bool := false) :
+    (acc : Array (TermElabResult Expr)) (forceTermInfo : Bool := false) (isDotIdent : Bool := false) :
     TermElabM (Array (TermElabResult Expr)) := do
   let overloaded := overloaded || fns.length > 1
   -- Set `errToSorry` to `false` if `fns` > 1. See comment above about the interaction between `errToSorry` and `observing`.
@@ -1937,7 +1965,7 @@ private def elabAppFnResolutions (fRef : Syntax) (fns : List (Expr × Syntax × 
         let levels  := if idx == lastIdx then projLevels            else []
         LVal.fieldName field field.getId.getString! levels suffix? fRef
       let s ← observing do
-        checkDeprecated fIdent f
+        if isDotIdent then checkDeprecatedDotIdent fIdent f else checkDeprecated fIdent f
         let f ← addTermInfo fIdent f expectedType? (force := forceTermInfo)
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else return e
@@ -2106,7 +2134,8 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabDottedIdent (id : Syntax) (explicitUnivs : List Level) : TermElabM (Array (TermElabResult Expr)) := do
       let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes explicitUnivs expectedType?
       -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
-      elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
+      elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+        (forceTermInfo := true) (isDotIdent := true)
     match f with
     | `($(e).$idx:fieldIdx)
     | `($e |>.$idx:fieldIdx) =>

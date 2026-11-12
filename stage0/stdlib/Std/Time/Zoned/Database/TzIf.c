@@ -3553,12 +3553,14 @@ v___x_1250_ = l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif
 v_n_1251_ = lean_uint32_to_nat(v___x_1250_);
 v___x_1252_ = lean_unsigned_to_nat(2147483648u);
 v___x_1253_ = lean_nat_dec_lt(v_n_1251_, v___x_1252_);
+lean_dec(v___x_1252_);
 if (v___x_1253_ == 0)
 {
 lean_object* v___x_1254_; lean_object* v___x_1255_; lean_object* v___x_1256_; 
 v___x_1254_ = lean_cstr_to_nat("4294967296");
 v___x_1255_ = lean_nat_sub(v___x_1254_, v_n_1251_);
 lean_dec(v_n_1251_);
+lean_dec(v___x_1254_);
 v___x_1256_ = l_Int_negOfNat(v___x_1255_);
 lean_dec(v___x_1255_);
 return v___x_1256_;

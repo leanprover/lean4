@@ -3112,7 +3112,7 @@ return v___x_845_;
 v___jp_848_:
 {
 lean_object* v___x_852_; uint8_t v___x_853_; 
-v___x_852_ = lean_array_get_size(v___y_850_);
+v___x_852_ = lean_array_get_size(v___y_849_);
 v___x_853_ = lean_nat_dec_eq(v___x_852_, v___x_847_);
 if (v___x_853_ == 0)
 {
@@ -3120,20 +3120,20 @@ lean_object* v___x_854_; lean_object* v___x_855_; lean_object* v___x_856_; lean_
 v___x_854_ = ((lean_object*)(l___private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts___closed__0));
 v___x_855_ = lean_string_append(v___y_851_, v___x_854_);
 v___x_856_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__1___closed__2));
-v___x_857_ = lean_array_to_list(v___y_850_);
+v___x_857_ = lean_array_to_list(v___y_849_);
 v___x_858_ = l_String_intercalate(v___x_856_, v___x_857_);
 v___x_859_ = lean_string_append(v___x_855_, v___x_858_);
 lean_dec_ref(v___x_858_);
 v___x_860_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__1___closed__3));
 v___x_861_ = lean_string_append(v___x_859_, v___x_860_);
-v___y_841_ = v___y_849_;
+v___y_841_ = v___y_850_;
 v_result_842_ = v___x_861_;
 goto v___jp_840_;
 }
 else
 {
-lean_dec_ref(v___y_850_);
-v___y_841_ = v___y_849_;
+lean_dec_ref(v___y_849_);
+v___y_841_ = v___y_850_;
 v_result_842_ = v___y_851_;
 goto v___jp_840_;
 }
@@ -3148,8 +3148,8 @@ if (v___x_867_ == 0)
 lean_object* v___x_868_; 
 v___x_868_ = l___private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_formatNameParts(v_parts_864_);
 lean_dec_ref(v_parts_864_);
-v___y_849_ = v_specEntries_865_;
-v___y_850_ = v___y_863_;
+v___y_849_ = v___y_863_;
+v___y_850_ = v_specEntries_865_;
 v___y_851_ = v___x_868_;
 goto v___jp_848_;
 }
@@ -3158,8 +3158,8 @@ else
 lean_object* v___x_869_; 
 lean_dec_ref(v_parts_864_);
 v___x_869_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_NameDemangling_0__Lean_Name_Demangle_postprocessNameParts_spec__1___closed__4));
-v___y_849_ = v_specEntries_865_;
-v___y_850_ = v___y_863_;
+v___y_849_ = v___y_863_;
+v___y_850_ = v_specEntries_865_;
 v___y_851_ = v___x_869_;
 goto v___jp_848_;
 }

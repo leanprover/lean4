@@ -50,6 +50,7 @@ def elabGrindLintSkip : CommandElab := fun stx => do
     -- Skip by exact name
     for id in ids do
       let declName ← realizeGlobalConstNoOverloadWithInfo id
+      Linter.checkDeprecatedAt id declName
       checkEMatchTheorem declName
       if skipExt.getState (← getEnv) |>.contains declName then
         throwError "`{declName}` is already in the `#grind_lint` skip set"
@@ -61,6 +62,7 @@ def elabGrindLintMute : CommandElab := fun stx => do
   liftTermElabM do
   for id in ids do
     let declName ← realizeGlobalConstNoOverloadWithInfo id
+    Linter.checkDeprecatedAt id declName
     checkEMatchTheorem declName
     if muteExt.getState (← getEnv) |>.contains declName then
       throwError "`{declName}` is already in the `#grind_lint` mute set"

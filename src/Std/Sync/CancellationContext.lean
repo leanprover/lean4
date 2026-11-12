@@ -21,9 +21,11 @@ open Std.Async
 
 private structure CancellationContext.State where
   /--
-  Map of token IDs to optional tokens and their children.
+  Map of token IDs to optional tokens and their children. The children are a set, since the state
+  is shared and so updated by copying: an array of a server context's children would be copied
+  whole for every connection that starts or ends.
   -/
-  tokens : TreeMap UInt64 (CancellationToken × Array UInt64) := .empty
+  tokens : TreeMap UInt64 (CancellationToken × TreeSet UInt64) := .empty
 
   /--
   Next available ID
@@ -49,7 +51,7 @@ Creates a new root cancellation context.
 def new : BaseIO CancellationContext := do
   let token ← Std.CancellationToken.new
   return {
-    state := ← Std.Mutex.new { tokens := .empty |>.insert 0 (token, #[]) },
+    state := ← Std.Mutex.new { tokens := .empty |>.insert 0 (token, ∅) },
     token,
     id := 0
   }
@@ -70,8 +72,8 @@ def fork (root : CancellationContext) : BaseIO CancellationContext := do
 
     set { st with
       id := newId + 1,
-      tokens := st.tokens.insert newId (token, #[])
-        |>.modify root.id (.map (·) (.push · newId))
+      tokens := st.tokens.insert newId (token, ∅)
+        |>.modify root.id (.map (·) (·.insert newId))
     }
 
     return { state := root.state, token, id := newId, parent? := some root.id }

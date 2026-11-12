@@ -21,6 +21,17 @@ open Meta Term Command Internal.ErrorUtils
 namespace EvalTerm
 
 /--
+Reports `n` if it is deprecated. If the replacement is in the same namespace, offers to replace `ref`
+by `pfx` followed by the last component of the replacement.
+-/
+private def checkDeprecatedInNamespace (ref : Syntax) (pfx : String) (n : Name) : TermElabM Unit :=
+  Linter.checkDeprecatedAt ref n <| .custom fun newName => do
+    if newName.getPrefix == n.getPrefix then
+      Linter.mkReplacementHint ref (pfx ++ newName.getString!)
+    else
+      return .nil
+
+/--
 Resolves `id`, making sure the result is in namespace `c`.
 Returns `s` if the resolved name is of the form of the form `Name.str c s`.
 -/
@@ -32,8 +43,10 @@ private def resolveAtomicNameForConstNamespace (c : Name) (id : Ident) : TermEla
     if (← getEnv).contains n' then
       if (← getInfoState).enabled then
         addConstInfo id n'
+      checkDeprecatedInNamespace id "" n'
       return s
   let n ← realizeGlobalConstNoOverloadWithInfo id
+  Linter.checkDeprecatedAt id n
   if !n.hasMacroScopes && n.getPrefix == c then
     if let Name.str _ s := n then
       return s
@@ -43,7 +56,8 @@ private def resolveAtomicNameForConstNamespace (c : Name) (id : Ident) : TermEla
 Resolves `id` as if it were a dotted identifier for namespace `c`,
 and returns `s` if the resolved name is of the form `Name.str c s`.
 -/
-private def resolveDottedAtomicNameForConstNamespace (c : Name) (id : Ident) : TermElabM String := do
+private def resolveDottedAtomicNameForConstNamespace (c : Name) (dotId : Syntax) (id : Ident) :
+    TermElabM String := do
   let n := id.getId.eraseMacroScopes
   if let Name.str Name.anonymous s := n then
     addCompletionInfo <| CompletionInfo.dotId id n {} (← mkConstWithLevelParams c)
@@ -51,6 +65,7 @@ private def resolveDottedAtomicNameForConstNamespace (c : Name) (id : Ident) : T
     if (← getEnv).contains n' then
       if (← getInfoState).enabled then
         addConstInfo id n'
+      checkDeprecatedInNamespace dotId "." n'
       return s
     else
       resolveAtomicNameForConstNamespace c (mkIdentFrom id n')
@@ -68,11 +83,12 @@ partial def withSimpleEvalStx {α} (indTypeName : Name) (evalStxImpl : String �
   | `($f:ident $args*) => do
     let ctorName ← resolveAtomicNameForConstNamespace indTypeName f
     evalStxImpl ctorName args
-  | `(.$f:ident) => do
-    let ctorName ← resolveDottedAtomicNameForConstNamespace indTypeName f
+  | stx@`(.$f:ident) => do
+    let ctorName ← resolveDottedAtomicNameForConstNamespace indTypeName stx f
     evalStxImpl ctorName #[]
-  | `(.$f:ident $args*) => do
-    let ctorName ← resolveDottedAtomicNameForConstNamespace indTypeName f
+  | `($dotId:term $args*) => do
+    let `(.$f:ident) := dotId | throwUnsupportedSyntax
+    let ctorName ← resolveDottedAtomicNameForConstNamespace indTypeName dotId f
     evalStxImpl ctorName args
   | _ => throwUnsupportedSyntax
 

@@ -8961,6 +8961,7 @@ v___x_3676_ = lean_array_push(v___x_3675_, v_name_3666_);
 v___x_3677_ = 0;
 v___x_3678_ = l_Lean_Elab_Deriving_mkInstanceCmds(v_a_3671_, v___x_3667_, v___x_3676_, v___x_3677_, v_a_3658_, v_a_3659_, v_a_3660_, v_a_3661_, v_a_3662_, v_a_3663_);
 lean_dec_ref(v___x_3676_);
+lean_dec(v_a_3671_);
 if (lean_obj_tag(v___x_3678_) == 0)
 {
 lean_object* v_toCold_3679_; lean_object* v_options_3680_; lean_object* v_a_3681_; lean_object* v___x_3683_; uint8_t v_isShared_3684_; uint8_t v_isSharedCheck_3721_; 

@@ -349,7 +349,8 @@ jobs:
                 // * treeMap2 is simply large and thus takes a lot of time
                 // * docparse times out as well
                 // * async_* are flakey at the moment, re-enable in the future
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_'"
+                // * `verif` only checks proofs, which takes over 7 minutes under the sanitizers
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_|^verif$'"
               },
               {
                 "name": "Linux tsanitize",

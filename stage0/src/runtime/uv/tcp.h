@@ -29,6 +29,7 @@ struct lean_uv_tcp_socket_object {
     bool          m_shutdown_requested = false; // Whether `uv_shutdown` was already requested for this socket.
     bool          m_listening = false;          // Whether `uv_listen` succeeded on this socket.
     unsigned      m_pending_connections = 0;    // Connections the listen callback reported that nobody accepted yet.
+    bool          m_closed = false;             // Whether `close` closed the handle. Every later operation fails.
 
     // The loop holds one reference to the socket for each pending read, accept and shutdown.
     unsigned loop_refs() const {
@@ -63,6 +64,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket);
 
 // =======================================
 // TCP Socket Utility Functions

@@ -27,7 +27,7 @@ set_option doc.verso true
 /-!
 # Verification of {name}`String.Slice.splitToSubslice`
 
-This PR verifies the {name}`String.Slice.splitToSubslice` function by relating it to a model
+This module verifies the {name}`String.Slice.splitToSubslice` function by relating it to a model
 implementation based on the {name}`String.Slice.Pattern.Model.PatternModel` class.
 
 This gives a low-level correctness proof from which higher-level API lemmas can be derived.

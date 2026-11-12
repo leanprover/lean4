@@ -11,19 +11,19 @@ Author: Leonardo de Moura
 namespace lean {
 class ro_metavar_env;
 /** \brief Replace the loose bound variables with indices 0, ..., n-1 with s[0], ..., s[n-1] in e. */
-expr instantiate(expr const & e, unsigned n, expr const * s);
+expr instantiate(expr const & e, size_t n, expr const * s);
 /** \brief Replace loose bound variable \c i with \c s in \c e. */
-expr instantiate(expr const & e, unsigned i, expr const & s);
+expr instantiate(expr const & e, size_t i, expr const & s);
 /** \brief Replace loose bound variable \c 0 with \c s in \c e. */
 expr instantiate(expr const & e, expr const & s);
 
 /** \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e. */
-expr instantiate_rev(expr const & e, unsigned n, expr const * s);
+expr instantiate_rev(expr const & e, size_t n, expr const * s);
 inline expr instantiate_rev(expr const & e, buffer<expr> const & s) {
     return instantiate_rev(e, s.size(), s.data());
 }
 
-expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args, bool preserve_data = true, bool zeta = false);
+expr apply_beta(expr f, size_t num_rev_args, expr const * rev_args, bool preserve_data = true, bool zeta = false);
 /* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
    and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
 expr cheap_beta_reduce(expr const & e);

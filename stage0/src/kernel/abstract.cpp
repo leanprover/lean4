@@ -11,13 +11,13 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 
 namespace lean {
-expr abstract(expr const & e, unsigned n, expr const * subst) {
+expr abstract(expr const & e, size_t n, expr const * subst) {
     lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_fvar(e); }));
     if (!has_fvar(e))
         return e;
     return replace_tpl(e, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (is_fvar(m)) {
-                unsigned i = n;
+                size_t i = n;
                 while (i > 0) {
                     --i;
                     if (fvar_name(subst[i]) == fvar_name(m))

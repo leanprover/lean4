@@ -207,7 +207,7 @@ end Slice
 A list of all positions starting at {name}`p`.
 
 This function is not meant to be used in actual programs. Actual programs should use
-{name}`Slice.positionsFrom` or {name}`Slice.positions`.
+{name}`String.positionsFrom` or {name}`String.positions`.
 -/
 protected def Model.positionsFrom {s : String} (p : s.Pos) : List { p : s.Pos // p ≠ s.endPos } :=
   if h : p.IsAtEnd then
@@ -306,7 +306,7 @@ theorem Pos.Splits.mem_toList_right_iff {s : String} {pos : s.Pos} {t u : String
 A list of all positions strictly before {name}`p`, ordered from largest to smallest.
 
 This function is not meant to be used in actual programs. Actual programs should use
-{name}`Slice.revPositionsFrom` and {name}`Slice.revPositions`.
+{name}`String.revPositionsFrom` and {name}`String.revPositions`.
 -/
 protected def Model.revPositionsFrom {s : String} (p : s.Pos) : List { p : s.Pos // p ≠ s.endPos } :=
   if h : p = s.startPos then

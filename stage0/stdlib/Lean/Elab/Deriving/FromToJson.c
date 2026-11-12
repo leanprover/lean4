@@ -12145,6 +12145,7 @@ lean_inc_ref(v___x_5358_);
 v___x_5359_ = lean_array_push(v___x_5358_, v_declName_5342_);
 v___x_5360_ = l_Lean_Elab_Deriving_mkInstanceCmds(v_a_5354_, v___x_5350_, v___x_5359_, v___x_5352_, v_a_5343_, v_a_5344_, v_a_5345_, v_a_5346_, v_a_5347_, v_a_5348_);
 lean_dec_ref(v___x_5359_);
+lean_dec(v_a_5354_);
 if (lean_obj_tag(v___x_5360_) == 0)
 {
 lean_object* v_toCold_5361_; lean_object* v_options_5362_; lean_object* v_a_5363_; lean_object* v___x_5365_; uint8_t v_isShared_5366_; uint8_t v_isSharedCheck_5403_; 
@@ -12496,6 +12497,7 @@ lean_inc_ref(v___x_5473_);
 v___x_5474_ = lean_array_push(v___x_5473_, v_declName_5457_);
 v___x_5475_ = l_Lean_Elab_Deriving_mkInstanceCmds(v_a_5469_, v___x_5465_, v___x_5474_, v___x_5467_, v_a_5458_, v_a_5459_, v_a_5460_, v_a_5461_, v_a_5462_, v_a_5463_);
 lean_dec_ref(v___x_5474_);
+lean_dec(v_a_5469_);
 if (lean_obj_tag(v___x_5475_) == 0)
 {
 lean_object* v_toCold_5476_; lean_object* v_options_5477_; lean_object* v_a_5478_; lean_object* v___x_5480_; uint8_t v_isShared_5481_; uint8_t v_isSharedCheck_5518_; 

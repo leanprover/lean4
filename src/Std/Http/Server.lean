@@ -25,8 +25,8 @@ It provides the `Std.Http.Server` structure, which encapsulates all server state
 starting, managing, and gracefully shutting down the server.
 
 The server runs entirely using `Async` and uses a shared `CancellationContext` to signal shutdowns.
-Each active client connection is tracked, and the server automatically resolves its shutdown
-promise once all connections have closed.
+Each active client connection is tracked, and the server automatically signals its shutdown
+once all connections have closed.
 -/
 
 namespace Std.Http
@@ -57,9 +57,10 @@ structure Server where
   connectionLimit : Option Std.Semaphore
 
   /--
-  Indicates when the server has successfully shut down.
+  Cancelled once the server has shut down, which every waiter observes. Its selector, unlike a
+  task, can withdraw the waiter of a select that another case won.
   -/
-  shutdownPromise : Std.Channel Unit
+  private shutdownDone : Std.CancellationToken
 
   /--
   Configuration of the server
@@ -87,9 +88,9 @@ def new (config : Std.Http.Config := {}) (localAddr : Option Net.SocketAddress :
       pure none
     else
       some <$> Std.Semaphore.new config.maxConnections
-  let shutdownPromise ← Std.Channel.new
+  let shutdownDone ← Std.CancellationToken.new
 
-  return { context, activeConnections, connectionLimit, shutdownPromise, config, localAddr }
+  return { context, activeConnections, connectionLimit, shutdownDone, config, localAddr }
 
 /--
 Triggers cancellation of all requests and the accept loop in the server. This function should be used
@@ -100,18 +101,19 @@ def shutdown (s : Server) : Async Unit :=
   s.context.cancel .shutdown
 
 /--
-Waits for the server to shut down. Blocks until another task or async operation calls the `shutdown` function.
+Waits for the server to shut down. Blocks until another task or async operation calls the `shutdown`
+function and every connection has ended. Any number of tasks may wait, before or after the shutdown.
 -/
 @[inline]
 def waitShutdown (s : Server) : Async Unit := do
-  Async.ofAsyncTask ((← s.shutdownPromise.recv).map Except.ok)
+  await (← s.shutdownDone.wait)
 
 /--
 Returns a `Selector` that waits for the server to shut down.
 -/
 @[inline]
 def waitShutdownSelector (s : Server) : Selector Unit :=
-  s.shutdownPromise.recvSelector
+  s.shutdownDone.selector
 
 /--
 Triggers cancellation of all requests and the accept loop, then waits for the server to fully shut down.
@@ -137,7 +139,7 @@ private def frameCancellation (s : Server) (releaseConnectionPermit : Bool := fa
       modify (· - 1)
 
       if (← get) = 0 ∧ (← s.context.isCancelled) then
-        discard <| s.shutdownPromise.send ()
+        s.shutdownDone.cancel .shutdown
 
 /--
 Start a new HTTP/1.1 server on the given socket address. This function uses `Async` to handle tasks

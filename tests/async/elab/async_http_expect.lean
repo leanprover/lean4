@@ -168,3 +168,37 @@ private def assertCallCount (ref : IO.Ref Nat) (expected : Nat) : IO Unit := do
       let count := (text.splitOn "Date: ").length - 1
       unless count == 1 do
         throw <| IO.userError s!"expected 1 Date header, got {count}:\n{text.quote}")
+
+  -- RFC 9110 §6.6.1: an origin server MUST generate a Date field in all 2xx, 3xx and 4xx responses,
+  -- including those the server writes itself
+  check "generateDate: true adds Date to a 400 the server writes itself"
+    (raw := "GET / HTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n")
+    (handler := okHandler)
+    (config := { defaultConfig with generateDate := true })
+    (expect := fun r =>
+      assertStatus r "HTTP/1.1 400" *>
+      assertContains r "\x0d\nDate: " *>
+      assertContains r " GMT\x0d\nServer: LeanHTTP/1.1\x0d\n")
+
+  check "generateDate: true adds Date to a 431 the server writes itself"
+    (raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nA: 1\x0d\nB: 2\x0d\nC: 3\x0d\n\x0d\n")
+    (handler := okHandler)
+    (config := { defaultConfig with generateDate := true, maxHeaders := 2 })
+    (expect := fun r =>
+      assertStatus r "HTTP/1.1 431" *>
+      assertContains r "\x0d\nDate: ")
+
+  check "generateDate: true adds Date to the 500 for a handler head with a wrong Content-Length"
+    (raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n")
+    (handler := fun _ => Response.ok |>.header! "Content-Length" "1234" |>.text "")
+    (config := { defaultConfig with generateDate := true })
+    (expect := fun r =>
+      assertStatus r "HTTP/1.1 500" *>
+      assertContains r "\x0d\nDate: " *>
+      assertContains r "\x0d\n\x0d\nInternal Server Error\n")
+
+  check "generateDate: false adds no Date to a 400 the server writes itself"
+    (raw := "GET / HTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n")
+    (handler := okHandler)
+    (config := { defaultConfig with generateDate := false })
+    (expect := (assertExact · r400))

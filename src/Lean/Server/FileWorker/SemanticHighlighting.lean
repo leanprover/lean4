@@ -349,12 +349,6 @@ private structure MarkupAttrs where
   bold : Bool := false
   italic : Bool := false
   block : MarkupBlockCtxt := .none
-  /--
-  The token type used for text that's not in a block with its own text token.
-
-  This is used when `block` is `none`.
-  -/
-  text : SemanticTokenType := .markupDocText
 
 @[inline] private def MarkupAttrs.withBold (a : MarkupAttrs) : MarkupAttrs :=
   { a with bold := true }
@@ -368,7 +362,7 @@ private structure MarkupAttrs where
 /-- The token type of text with these attributes. -/
 private def MarkupAttrs.tokenType (a : MarkupAttrs) : SemanticTokenType :=
   match a.block with
-  | .none => a.text
+  | .none => .markupText
   | .heading => .markupHeading
   | .quote => .markupQuote
   | .list => .markupList
@@ -396,8 +390,11 @@ private def markupPriority (k : SemanticTokenType) : Nat :=
   | _ => 5
 
 /--
-Emits a `LeanSemanticToken` for `sub`, which is on a single source line. Does nothing when `sub` is
-empty.
+Emits a `LeanSemanticToken` for the Markdown subslice `sub`, which is on a single source line. Does
+nothing when `sub` is empty.
+
+The token has the `documentation` modifier in addition to `modifiers`, because Markdown is parsed
+only in docstrings.
 -/
 @[inline] private def emitTok (out : Array LeanSemanticToken) (sub : s.Subslice)
     (tokenType : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
@@ -408,7 +405,7 @@ empty.
       range := toSyntaxRange sub,
       type := tokenType,
       priority := markupPriority tokenType,
-      modifiers
+      modifiers := modifiers ∪ {.documentation}
     }
 
 /-- Emits one `LeanSemanticToken` per line in `lines`. -/
@@ -612,9 +609,12 @@ end MarkupTokens
 /--
 Collects semantic tokens for a Markdown docstring. Markup syntax (bold/italic delimiters, `#`, `>`,
 list markers, fences) consists of `keyword` tokens with the `markupSyntax` modifier; URLs are
-`markupUrl`; code block contents are `markupCodeBlock`; and text is `markupDocText`,
-`markupHeading`, `markupQuote`, or `markupList` by its block context, with the `markupBold` and
-`markupItalic` modifiers for emphasis.
+`markupUrl`; code block contents are `markupCodeBlock`; and text is `markupText`, `markupHeading`,
+`markupQuote`, or `markupList` by its block context, with the `markupBold` and `markupItalic`
+modifiers for emphasis.
+
+Every token receives the `documentation` modifier because Markdown semantic tokens occur only in
+docstrings.
 -/
 def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) (indent : Nat := 0) :
     Array LeanSemanticToken :=
@@ -630,19 +630,24 @@ open Lean.Doc MarkupTokens in
 /--
 Collects the semantic tokens of the Verso syntax `stx`.
 
-`text` is the default text token type, which is `markupDocText` in a documentation comment and
-`markupPlainText` elsewhere. `getTokens` collects the tokens of the Lean syntax contained in Verso
-metadata elements. `baseColumn` is the base column of the documentation comment, which is used to
-make tokens that include newline characters not emit tokens outside the docstring itself.
+`getTokens` collects the tokens of the Lean syntax contained in Verso metadata elements, which are
+emitted as they are.
+
+Every markup token has the modifiers in `baseModifiers` in addition to its own. `baseModifiers` is
+`{documentation}` in a documentation comment and empty elsewhere.
+
+`baseColumn` is the base column of the documentation comment, which is enables newline-splitting of
+tokens to ensure that the docstring's indentation is not included in the split versions.
 -/
 private partial def collectVersoTokens
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken)
-    (text : SemanticTokenType) (baseColumn : Nat) : Array LeanSemanticToken :=
-  go { text } stx |>.run #[] |>.2
+    (baseModifiers : SemanticTokenModifiers) (baseColumn : Nat) : Array LeanSemanticToken :=
+  go {} stx |>.run #[] |>.2
 where
+  /-- Emits a markup token of type `k` for `tk` with the modifiers in `modifiers` and `base`. -/
   tok (tk : Syntax) (k : SemanticTokenType) (modifiers : SemanticTokenModifiers := {}) :
       StateM (Array LeanSemanticToken) Unit :=
-    modify (emitSyntaxToken · tk k (markupPriority k) modifiers)
+    modify (emitSyntaxToken · tk k (markupPriority k) (modifiers ∪ baseModifiers))
 
   /--
   Emits a token for each real source line of the literal `lit`, which might possibly contain an
@@ -831,7 +836,7 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
           if let .ok (openPos, startPos, endPos) := docStringRange ⟨stx⟩ then
             Doc.Parser.docStringBaseColumn text openPos startPos endPos
           else 0
-        return collectVersoTokens stx[1] collect .markupDocText baseColumn
+        return collectVersoTokens stx[1] collect {.documentation} baseColumn
       else if stx[1].isOfKind ``Lean.Parser.Command.commentBody then
         -- The text atom's range excludes the closing delimiter and the whitespace before it.
         let some ⟨startPos, endPos⟩ := stx[1][0].getRange?
@@ -843,12 +848,12 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
       else
         return #[]
     -- Verso syntax outside a documentation comment, such as the body of a Verso document command,
-    -- get the markup tokens too. However, their plain text gets a different token so themes can
-    -- style Verso inside and outside of docstrings differently. The kinds of Verso syntax are in
-    -- the `Lean.Doc.Parser` namespace. The namespace check removes unnecessary comparisons.
+    -- gets the markup tokens too. They don't have the `documentation` modifier, so themes can style
+    -- Verso inside and outside of docstrings differently. The kinds of Verso syntax are in the
+    -- `Lean.Doc.Parser` namespace. The namespace check removes unnecessary comparisons.
     if (`Lean.Doc.Parser).isPrefixOf stx.getKind then
       if (Doc.BlockView.of ⟨stx⟩).isSome || (Doc.InlineView.of ⟨stx⟩).isSome then
-        return collectVersoTokens stx collect .markupPlainText 0
+        return collectVersoTokens stx collect {} 0
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]

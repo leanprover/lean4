@@ -163,8 +163,9 @@ class budgeted_expr_eq_fn {
                 if (!charge_payload(array_cptr(o)[i])) return false;
         } else if (is_string(o)) {
             return consume(string_size(o));
-        } else if (is_mpz(o)) {
-            return consume(mpz_value(o).size_in_bytes());
+        } else if (is_sarray(o)) {
+            // e.g. a big number literal
+            return consume(lean_sarray_size(o));
         } else {
             m_exhausted = true;
             return false;

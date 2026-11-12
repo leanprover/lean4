@@ -436,6 +436,7 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
       throwErrorAt stx[6] "`vcgen simp [...]` conflicts with the config option `simp := false`"
   let ctx := { ctx with
     simpMethods,
+    simpConfig := { maxSteps := config.simpMaxSteps, maxDischargeDepth := config.simpMaxDischargeDepth },
     frameProcs,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,

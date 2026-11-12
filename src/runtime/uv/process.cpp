@@ -162,7 +162,7 @@ static int build_env(array_ref<pair_ref<string_ref, option_ref<string_ref>>> con
     }
     for (auto const & entry : env) {
         char const * name = entry.fst().data();
-        // `setenv` rejects such names
+        // As an entry, such a name would set a different variable or none.
         if (!is_env_var_name(name)) continue;
         auto it = std::find_if(vars.begin(), vars.end(), [&](auto const & var) { return env_names_equal(var.first, name); });
         if (entry.snd()) {

@@ -3,9 +3,10 @@ import Std.Internal.UV
 /-!
 Tests `IO.Process.spawn` and the operations on `IO.Process.Child`: spawn failures are reported as
 `IO` errors, rejection of strings with NUL bytes, running executable files without a shebang via
-`/bin/sh`, binary-safe pipes, exit codes of killed children, `kill` and `wait` after the child has
-exited, reaping of dropped children, killing `setsid` process groups, environment construction,
-argument passing, concurrent spawning and `wait` on the event loop thread.
+`/bin/sh`, binary-safe pipes, exit codes of killed children, the signal dispositions of the child,
+`kill` and `wait` after the child has exited, reaping of dropped children, killing `setsid` process
+groups, environment construction, argument passing and quoting, concurrent spawning and `wait` on
+the event loop thread.
 
 The environment tests rely on `ProcessSpawn.lean.init.sh` exporting `LEAN_SPAWN_TEST_INHERITED`.
 -/
@@ -107,6 +108,9 @@ info: "sh\x00x"
     let timer ← Std.Internal.UV.Timer.mk 0 false
     discard <| timer.next
     timer.stop
+    let socket ← Std.Internal.UV.TCP.Socket.new
+    socket.bind (.v4 ⟨.ofParts 127 0 0 1, 0⟩)
+    socket.listen 1
   check ((← (← spawn { cmd := "sh", args := #["-c", "exit 5"] }).wait) == 5) "spawn after failures"
 
 /-! Exit codes. -/
@@ -124,6 +128,12 @@ info: "sh\x00x"
   let code ← (← spawn { cmd := "sh", args := #["-c", "kill -TERM $$"] }).wait
   check (code == 143) s!"the child killed by `SIGTERM` exited with {code}"
 
+-- The child does not inherit the signals that its parent ignores, such as the runtime's `SIGPIPE`.
+#eval show IO Unit from do
+  if System.Platform.isWindows then return
+  let code ← (← spawn { cmd := "sh", args := #["-c", "kill -PIPE $$"] }).wait
+  check (code == 141) s!"the child that sent itself `SIGPIPE` exited with {code}"
+
 #eval show IO Unit from do
   unless System.Platform.isWindows do return
   let code ← (← spawn { cmd := "cmd.exe", args := #["/c", "exit 1000"] }).wait
@@ -136,6 +146,16 @@ info: "sh\x00x"
   check ((← child.wait) == 3) "first `wait`"
   check ((← child.wait) == 3) "second `wait`"
   check ((← child.tryWait) == some 3) "`tryWait` after `wait`"
+  child.kill
+  check ((← child.wait) == 3) "`wait` after `kill`"
+
+-- `kill` before the first `wait`
+#eval show IO Unit from do
+  let child ← spawn { cmd := "sh", args := #["-c", "exit 3"] }
+  for _ in [0:1000] do
+    if (← child.tryWait).isSome then break
+    IO.sleep 10
+  check ((← child.tryWait) == some 3) "the child did not exit"
   child.kill
   check ((← child.wait) == 3) "`wait` after `kill`"
 
@@ -195,6 +215,27 @@ def waitForEof (h : IO.FS.Handle) (what : String) : IO Unit := do
   child.kill
   waitForEof child.stdout "the orphaned `sleep`"
 
+-- The process group exists as soon as `spawn` returns.
+#eval show IO Unit from do
+  if System.Platform.isWindows then return
+  for _ in [0:100] do
+    let child ← spawn { cmd := "sleep", args := #["30"], setsid := true }
+    child.kill
+    let code ← child.wait
+    check (code == 137) s!"the child killed right after `spawn` exited with {code}"
+
+-- `takeStdin` keeps the process group (#15674).
+#eval show IO Unit from do
+  if System.Platform.isWindows then return
+  let child ← spawn {
+    cmd := "sh", args := #["-c", "sleep 30 & echo started; wait"], stdin := .piped, stdout := .piped,
+    setsid := true }
+  check ((← child.stdout.getLine) == "started\n") "`sleep` was not started"
+  let (_, child) ← child.takeStdin
+  child.kill
+  check ((← child.wait) == 137) "the leader was not killed"
+  waitForEof child.stdout "`sleep`"
+
 -- `setsid` is a no-op on Windows
 #eval show IO Unit from do
   check ((← (← spawn { cmd := "sh", args := #["-c", "exit 4"], setsid := true }).wait) == 4) "setsid"
@@ -237,6 +278,34 @@ some "1"
   let v ← printenv inherited (env := #[(inherited.toLower, some "child")])
   check (v == some "child") s!"overriding with a lowercase name gave {repr v}"
 
+-- so that overriding `PATH` under a name of different case leaves a single `PATH`
+#eval show IO Unit from do
+  unless System.Platform.isWindows do return
+  let some root ← IO.getEnv "SystemRoot" | throw <| IO.userError "`SystemRoot` is not set"
+  let path := s!"{root}\\System32"
+  -- `set PATH` prints the variables whose names start with `PATH`
+  let out ← output { cmd := "cmd.exe", args := #["/c", "set", "PATH"], env := #[("pAtH", some path)] }
+  let values := (out.stdout.splitOn "\r\n").filterMap fun line =>
+    match line.splitOn "=" with
+    | name :: value => if name.toLower == "path" then some ("=".intercalate value) else none
+    | [] => none
+  check (values == [path]) s!"the child has the `PATH` values {values}:\n{out.stdout}\n{out.stderr}"
+
+-- An inherited environment of more than 64 KiB does not get in the way of an override.
+#eval show IO Unit from do
+  let big := (List.range 3).map fun i =>
+    (s!"LEAN_SPAWN_TEST_BIG{i}", "".pushn (Char.ofNat (97 + i)) 30000)
+  try
+    for (name, value) in big do
+      Std.Internal.UV.System.osSetenv name value
+    let x := "LEAN_SPAWN_TEST_X"
+    check ((← printenv x (env := #[(x, some "1")])) == some "1") "the override did not reach the child"
+    for (name, value) in big do
+      check ((← printenv name (env := #[(x, some "1")])) == some value) s!"{name} did not reach the child"
+  finally
+    for (name, _) in big do
+      Std.Internal.UV.System.osUnsetenv name
+
 /-! Arguments reach the child verbatim. -/
 
 def argsSource : String := "def main (args : List String) : IO Unit := IO.println (repr args.toArray)"
@@ -252,6 +321,14 @@ def argsSource : String := "def main (args : List String) : IO Unit := IO.printl
     check (out.exitCode == 0) s!"`lean --run` failed:\n{out.stderr}"
     check (out.stdout.trimAsciiEnd.copy == toString (repr args)) s!"the child got {out.stdout}"
 
+-- On Windows, arguments are quoted only where needed (#8547), and the command is not parsed.
+#eval show IO Unit from do
+  unless System.Platform.isWindows do return
+  let out ← run { cmd := "cmd.exe", args := #["/c", "echo", "hi"] }
+  check (out == "hi\r\n") s!"`echo hi` printed {repr out}"
+  discard <| spawnError { cmd := "cmd.exe\" echo \"hi" }
+  discard <| spawnError { cmd := "cmd.exe\\" }
+
 /-! Concurrent spawns from many threads. -/
 
 #eval show IO Unit from do
@@ -262,6 +339,29 @@ def argsSource : String := "def main (args : List String) : IO Unit := IO.printl
     check (out.exitCode == 0 && out.stdout == s!"line {i}\n") s!"task {i} got {repr out.stdout}"
   for t in tasks do
     IO.ofExcept t.get
+
+/-!
+A child does not inherit the pipe ends of children that are spawned concurrently. A long-lived child
+that did would keep the readers below from seeing the end of the file until it exits.
+-/
+
+#eval show IO Unit from do
+  let start ← IO.monoMsNow
+  let tasks ← (List.range 8).mapM fun i => IO.asTask (prio := .dedicated) do
+    let mut sleepers := #[]
+    for j in [0:10] do
+      let sleeper ← spawn {
+        cmd := "sleep", args := #["300"], stdin := .null, stdout := .null, stderr := .null }
+      sleepers := sleepers.push sleeper
+      let out ← output { cmd := "cat" } (input? := some s!"line {i} {j}\n")
+      check (out.exitCode == 0 && out.stdout == s!"line {i} {j}\n") s!"task {i} got {repr out.stdout}"
+    return sleepers
+  let sleepers ← tasks.mapM fun t => IO.ofExcept t.get
+  let elapsed := (← IO.monoMsNow) - start
+  for sleeper in sleepers.toArray.flatten do
+    sleeper.kill
+    discard sleeper.wait
+  check (elapsed < 120000) s!"the readers took {elapsed} ms to see the end of the file"
 
 /-!
 `wait` fails on the event loop thread rather than blocking it forever: a child's exit is only

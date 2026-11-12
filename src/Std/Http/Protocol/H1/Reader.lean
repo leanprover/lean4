@@ -25,15 +25,29 @@ set_option linter.all true
 How the body being read is framed, and how far the reader is into it.
 -/
 inductive Reader.BodyState where
-  /-- A body of known length, `remaining` bytes of which are left. -/
+  /--
+  A body of known length, `remaining` bytes of which are left.
+  -/
   | fixed (remaining : Nat)
-  /-- Before a chunk-size line. -/
+
+  /--
+  Before a chunk-size line.
+  -/
   | chunkedSize
-  /-- Inside the data of a chunk, `remaining` bytes of which are left. -/
+
+  /--
+  Inside the data of a chunk, `remaining` bytes of which are left.
+  -/
   | chunkedBody (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (remaining : Nat)
-  /-- Inside the trailer section, after `count` fields. -/
+
+  /--
+  Inside the trailer section, after `count` fields.
+  -/
   | trailers (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (count : Nat)
-  /-- A body that ends when the connection closes. -/
+
+  /--
+  A body that ends when the connection closes.
+  -/
   | closeDelimited
 deriving Inhabited, Repr, BEq
 
@@ -41,19 +55,39 @@ deriving Inhabited, Repr, BEq
 Where the reader is in the current message.
 -/
 inductive Reader.State (dir : Direction) : Type
-  /-- Before a start line. -/
+  /--
+  Before a start line.
+  -/
   | needStartLine : State dir
-  /-- Inside the header section, after the given number of fields. -/
+
+  /--
+  Inside the header section, after the given number of fields.
+  -/
   | needHeader : Nat → State dir
-  /-- Reading the body. -/
+
+  /--
+  Reading the body.
+  -/
   | readBody : Reader.BodyState → State dir
-  /-- Waiting for a `canContinue` decision before going on to the given state. -/
+
+  /--
+  Waiting for a `canContinue` decision before going on to the given state.
+  -/
   | continue : State dir → State dir
-  /-- A client waiting to send its request before it reads the response. -/
+
+  /--
+  A client waiting to send its request before it reads the response.
+  -/
   | pending : State dir
-  /-- The message was read; the exchange is not over yet. -/
+
+  /--
+  The message was read; the exchange is not over yet.
+  -/
   | complete
-  /-- No more messages will be read: the connection ends, or the machine failed (`Machine.error`). -/
+
+  /--
+  No more messages will be read: the connection ends, or the machine failed (`Machine.error`).
+  -/
   | closed
 deriving Inhabited, Repr, BEq
 
@@ -61,33 +95,54 @@ deriving Inhabited, Repr, BEq
 The side of the machine that reads incoming messages.
 -/
 structure Reader (dir : Direction) where
-  /-- Where the reader is. -/
+  /--
+  Where the reader is.
+  -/
   state : Reader.State dir := match dir with | .receiving => .needStartLine | .sending => .pending
-  /-- The unread input. -/
+
+  /--
+  The unread input.
+  -/
   input : ByteArray.Iterator := ByteArray.emptyWithCapacity 4096 |>.iter
-  /-- The head of the message being read. -/
+
+  /--
+  The head of the message being read.
+  -/
   messageHead : Message.Head dir := {}
-  /-- The number of messages already read on this connection. -/
+
+  /--
+  The number of messages already read on this connection.
+  -/
   messageCount : Nat := 0
+
   /--
   The body bytes read for the current message. For a chunked body this includes the framing:
   chunk-size lines, the line break after each chunk's data, and the trailer section.
   -/
   bodyBytesRead : Nat := 0
-  /-- The header bytes read for the current message, line breaks included. -/
+
+  /--
+  The header bytes read for the current message, line breaks included.
+  -/
   headerBytesRead : Nat := 0
-  /-- Whether the peer closed its side of the connection, so no more input arrives. -/
+
+  /--
+  Whether the peer closed its side of the connection, so no more input arrives.
+  -/
   peerClosed : Bool := false
+
   /--
   Whether the machine stopped taking input, as after rejecting `Expect: 100-continue` or answering
   with an error. Input already buffered is still read.
   -/
   inputStopped : Bool := false
+
   /--
   Whether a head was read and its body has not ended. It stays set when the reader closes, so the
   machine still knows that the peer may be sending the rest of the message.
   -/
   inMessage : Bool := false
+
   /--
   How many unread bytes were already parsed without completing a line. The line is parsed again only
   once a line feed arrives after them, so a line that arrives in pieces is parsed once, not once per
@@ -142,7 +197,8 @@ Adds a header field to the head being read.
 def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
   match dir with
   | .sending | .receiving =>
-    { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
+    let headers := reader.messageHead.headers.insert name value
+    { reader with messageHead := { reader.messageHead with headers } }
 
 /--
 Starts reading the next head on the same connection, keeping the unread input.

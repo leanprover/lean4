@@ -29,9 +29,14 @@ open Std.Http.Internal
 Which side of an exchange a machine is on, named by what it does with requests.
 -/
 inductive Direction
-  /-- A server: receives requests and sends responses. -/
+  /--
+  A server: receives requests and sends responses.
+  -/
   | receiving
-  /-- A client: sends requests and receives responses. -/
+
+  /--
+  A client: sends requests and receives responses.
+  -/
   | sending
 deriving BEq
 
@@ -94,25 +99,54 @@ instance : EmptyCollection (Message.Head dir) where
 Why a machine failed or closed the connection.
 -/
 inductive Error
-  /-- A body or chunk is over its limit, or the unread input over what the machine buffers (413). -/
+  /--
+  A body or chunk is over its limit, or the unread input over what the machine buffers (413).
+  -/
   | entityTooLarge
-  /-- The request-target is longer than `Config.maxUriLength` (414). -/
+
+  /--
+  The request-target is longer than `Config.maxUriLength` (414).
+  -/
   | uriTooLong
-  /-- The message is not HTTP/1.0 or HTTP/1.1 (505). -/
+
+  /--
+  The message is not HTTP/1.0 or HTTP/1.1 (505).
+  -/
   | unsupportedVersion
-  /-- A request's transfer coding is neither `chunked` nor in `Config.acceptedTransferCodings` (501). -/
+
+  /--
+  A request's transfer coding is neither `chunked` nor in `Config.acceptedTransferCodings` (501).
+  -/
   | unsupportedTransferCoding
-  /-- A request's method is a token the server does not recognize (501). -/
+
+  /--
+  A request's method is a token the server does not recognize (501).
+  -/
   | unsupportedMethod
-  /-- The input ended inside a message. -/
+
+  /--
+  The input ended inside a message.
+  -/
   | connectionClosed
-  /-- The message is malformed. -/
+
+  /--
+  The message is malformed.
+  -/
   | badMessage
-  /-- A message has more header fields than `Config.maxHeaders` (431). -/
+
+  /--
+  A message has more header fields than `Config.maxHeaders` (431).
+  -/
   | tooManyHeaders
-  /-- A message's header fields are longer than `Config.maxHeaderBytes` (431). -/
+
+  /--
+  A message's header fields are longer than `Config.maxHeaderBytes` (431).
+  -/
   | headersTooLarge
-  /-- Any other failure, described by `message`. -/
+
+  /--
+  Any other failure, described by `message`.
+  -/
   | other (message : String)
 deriving Repr, BEq
 
@@ -133,21 +167,44 @@ instance : ToString Error where
 What a machine reports from a step.
 -/
 inductive Event (dir : Direction)
-  /-- The machine read a message head. -/
+  /--
+  The machine read a message head.
+  -/
   | endHeaders (head : Message.Head dir)
-  /-- The machine needs more input, `size` bytes of it when known. -/
+
+  /--
+  The machine needs more input, `size` bytes of it when known.
+  -/
   | needMoreData (size : Option Nat)
-  /-- The machine failed with `err`. -/
+
+  /--
+  The machine failed with `err`.
+  -/
   | failed (err : Error)
-  /-- The connection ends. -/
+
+  /--
+  The connection ends.
+  -/
   | close
-  /-- The body of the message read ended. -/
+
+  /--
+  The body of the message read ended.
+  -/
   | closeBody
-  /-- The machine waits for the message head to send (`Machine.send`). -/
+
+  /--
+  The machine waits for the message head to send (`Machine.send`).
+  -/
   | needAnswer
-  /-- The exchange is over and the next message can be read. -/
+
+  /--
+  The exchange is over and the next message can be read.
+  -/
   | next
-  /-- A request waits for an `Expect: 100-continue` decision (`Machine.canContinue`). -/
+
+  /--
+  A request waits for an `Expect: 100-continue` decision (`Machine.canContinue`).
+  -/
   | «continue»
 deriving Inhabited, Repr
 
@@ -155,19 +212,30 @@ deriving Inhabited, Repr
 What one step of the machine produced.
 -/
 structure StepResult (dir : Direction) where
-  /-- The events of the step, in order. -/
+  /--
+  The events of the step, in order.
+  -/
   events : Array (Event dir) := #[]
-  /-- The bytes to write to the connection. -/
+
+  /--
+  The bytes to write to the connection.
+  -/
   output : ChunkedBuffer := .empty
 
 /--
 A body chunk returned by `Machine.pullBody`.
 -/
 structure PulledChunk where
-  /-- Whether the chunk ends the body. -/
+  /--
+  Whether the chunk ends the body.
+  -/
   final : Bool
-  /-- Whether the chunk is part of a chunk whose remaining bytes have not arrived yet. -/
+
+  /--
+  Whether the chunk is part of a chunk whose remaining bytes have not arrived yet.
+  -/
   incomplete : Bool
+
   /--
   The data. Chunked framing is removed; other transfer codings, such as the `gzip` of
   `Transfer-Encoding: gzip`, are not decoded.

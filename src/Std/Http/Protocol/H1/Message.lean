@@ -26,13 +26,24 @@ set_option linter.all true
 What a response with a given status may carry (RFC 9110 §15).
 -/
 inductive ContentRule where
-  /-- 1xx and 204: no content, and no `Content-Length` or `Transfer-Encoding` field. -/
+  /--
+  1xx and 204: no content, and no `Content-Length` or `Transfer-Encoding` field.
+  -/
   | none
-  /-- 304: no content. Framing fields would describe the representation it stands for. -/
+
+  /--
+  304: no content. Framing fields would describe the representation it stands for.
+  -/
   | notModified
-  /-- 205: no content, written as `Content-Length: 0` (RFC 9110 §15.3.6). -/
+
+  /--
+  205: no content, written as `Content-Length: 0` (RFC 9110 §15.3.6).
+  -/
   | empty
-  /-- Every other status. -/
+
+  /--
+  Every other status.
+  -/
   | any
 deriving BEq
 
@@ -55,9 +66,9 @@ def startsTunnel (requestMethod : Method) (status : Status) : Bool :=
   requestMethod == .connect && status.isSuccess
 
 /--
-Whether a response ends HTTP on its connection: after `101 Switching Protocols` the connection speaks
-the protocol it switched to (RFC 9110 §15.2.2), and after a tunnel's head (`startsTunnel`) it carries
-the tunnel's bytes.
+Whether a response ends HTTP on its connection: after `101 Switching Protocols` the connection
+speaks the protocol it switched to (RFC 9110 §15.2.2), and after a tunnel's head (`startsTunnel`) it
+carries the tunnel's bytes.
 -/
 @[inline]
 def leavesHttp (requestMethod : Method) (status : Status) : Bool :=
@@ -67,14 +78,26 @@ def leavesHttp (requestMethod : Method) (status : Status) : Bool :=
 What a message's `Content-Length` and `Transfer-Encoding` fields say about its body.
 -/
 inductive FramingFields where
-  /-- Neither field. -/
+  /--
+  Neither field.
+  -/
   | none
-  /-- One valid `Content-Length` and no `Transfer-Encoding`. -/
+
+  /--
+  One valid `Content-Length` and no `Transfer-Encoding`.
+  -/
   | length (n : Nat)
-  /-- Transfer codings ending in the only `chunked`, and no `Content-Length`. -/
+
+  /--
+  Transfer codings ending in the only `chunked`, and no `Content-Length`.
+  -/
   | chunked (codings : Array String)
-  /-- Transfer codings that do not end in `chunked`, and no `Content-Length`. -/
+
+  /--
+  Transfer codings that do not end in `chunked`, and no `Content-Length`.
+  -/
   | unchunked
+
   /--
   Anything else: several or malformed `Content-Length` fields, both fields, or malformed codings.
   Each could be read differently by another recipient, so such a message is rejected.

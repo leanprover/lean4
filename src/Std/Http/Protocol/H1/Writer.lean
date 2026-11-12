@@ -27,21 +27,44 @@ open Std.Http.Internal
 Where the writer is in the current message.
 -/
 inductive Writer.State
-  /-- A server waiting for a request before it answers. -/
+  /--
+  A server waiting for a request before it answers.
+  -/
   | pending
-  /-- Waiting for the head of the message to send (`Machine.send`). -/
+
+  /--
+  Waiting for the head of the message to send (`Machine.send`).
+  -/
   | waitingHeaders
-  /-- The head was given; it is written once the body's framing is known (`Machine.shouldFlush`). -/
+
+  /--
+  The head was given; it is written once the body's framing is known (`Machine.shouldFlush`).
+  -/
   | waitingForFlush
-  /-- Writing a body of known length, `n` bytes of which are left. -/
+
+  /--
+  Writing a body of known length, `n` bytes of which are left.
+  -/
   | writingBodyFixed (n : Nat)
-  /-- Writing a chunked body. -/
+
+  /--
+  Writing a chunked body.
+  -/
   | writingBodyChunked
-  /-- Writing a body that ends when the connection closes (an HTTP/1.0 response of unknown length). -/
+
+  /--
+  Writing a body that ends when the connection closes (an HTTP/1.0 response of unknown length).
+  -/
   | writingBodyClosingFrame
-  /-- The message was written. -/
+
+  /--
+  The message was written.
+  -/
   | complete
-  /-- No more messages will be written. -/
+
+  /--
+  No more messages will be written.
+  -/
   | closed
 deriving Inhabited, Repr, BEq
 
@@ -49,21 +72,44 @@ deriving Inhabited, Repr, BEq
 The side of the machine that writes outgoing messages.
 -/
 structure Writer (dir : Direction) where
-  /-- Body chunks given by the caller and not written yet. -/
+  /--
+  Body chunks given by the caller and not written yet.
+  -/
   userData : Array Chunk := .empty
-  /-- The bytes written, not yet taken by the caller (`Machine.step`). -/
+
+  /--
+  The bytes written, not yet taken by the caller (`Machine.step`).
+  -/
   outputData : ChunkedBuffer := .empty
-  /-- Where the writer is. -/
+
+  /--
+  Where the writer is.
+  -/
   state : Writer.State := match dir with | .receiving => .pending | .sending => .waitingHeaders
-  /-- The body length the caller set (`Machine.setKnownSize`), if any. -/
+
+  /--
+  The body length the caller set (`Machine.setKnownSize`), if any.
+  -/
   knownSize : Option Body.Length := none
-  /-- The head of the message being written. -/
+
+  /--
+  The head of the message being written.
+  -/
   messageHead : Message.Head dir.swap := {}
-  /-- Whether the caller gave all of the body. -/
+
+  /--
+  Whether the caller gave all of the body.
+  -/
   userClosedBody : Bool := false
-  /-- Whether the body is left off the wire (a response to `HEAD`, or a status without content). -/
+
+  /--
+  Whether the body is left off the wire (a response to `HEAD`, or a status without content).
+  -/
   omitBody : Bool := false
-  /-- The total size of `userData`. -/
+
+  /--
+  The total size of `userData`.
+  -/
   userDataBytes : Nat := 0
 
 namespace Writer
@@ -113,7 +159,10 @@ def writeChunkedBody (writer : Writer dir) : Writer dir :=
     writer
   else
     let data := writer.userData.filter (fun c => !c.data.isEmpty)
-    { writer with userData := #[], userDataBytes := 0, outputData := data.foldl ChunkedBuffer.pushChunk writer.outputData }
+    { writer with
+      userData := #[]
+      userDataBytes := 0
+      outputData := data.foldl ChunkedBuffer.pushChunk writer.outputData }
 
 /--
 Writes buffered body data and the last chunk, and completes the message.
@@ -126,8 +175,8 @@ def writeFinalChunk (writer : Writer dir) : Writer dir :=
   }
 
 /--
-Writes buffered body data as it is: for a body of stated length, or one that ends when the connection
-closes.
+Writes buffered body data as it is: for a body of stated length, or one that ends when the
+connection closes.
 -/
 def writeRawBody (writer : Writer dir) : Writer dir :=
   { writer with

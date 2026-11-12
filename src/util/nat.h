@@ -20,10 +20,11 @@ public:
     explicit nat(unsigned long v):object_ref(usize_to_nat(v)) {}
     explicit nat(unsigned long long v):object_ref(lean_uint64_to_nat(v)) {}
     explicit nat(mpz const & v):object_ref(mk_nat_obj(v)) {}
+    explicit nat(mpz && v):object_ref(mk_nat_obj(std::move(v))) {}
     explicit nat(char const * v):object_ref(box(0)) {
         mpz m(v);
         if (m > 0)
-            *this = nat(mk_nat_obj(m));
+            *this = nat(mk_nat_obj(std::move(m)));
     }
 
     nat(nat const & other):object_ref(other) {}

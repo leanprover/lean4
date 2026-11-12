@@ -2,7 +2,7 @@
 Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Sebastian Ullrich
+Author: Sebastian Ullrich, Julia M. Himmel
 */
 #include "runtime/uv/process.h"
 #include "runtime/uv/util.h"
@@ -370,6 +370,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
     unique_lock<mutex> lock(p->m_mutex);
+    // Only the loop thread runs the exit callback, so a wait on that thread would never end.
+    if (!p->m_exited && global_ev.on_loop_thread()) {
+        return io_result_mk_error("cannot wait for a child process on the event loop thread");
+    }
     p->m_exited_cond.wait(lock, [&] { return p->m_exited; });
     return lean_io_result_mk_ok(box_uint32(p->m_exit_code));
 }

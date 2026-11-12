@@ -1501,6 +1501,11 @@ possible to close the child's standard input before the process terminates, whic
 /--
 Blocks until the child process has exited and returns its exit code.
 
+Throws an error instead of blocking forever if it is called on the thread of the event loop before
+the child process is known to have exited, because that thread is the one that detects the exit. A
+task with `sync := true` runs on that thread if the task that it depends on is completed by the
+event loop, for example by a timer or a socket.
+
 On POSIX platforms, if other code in the same process reaps the child, for example a C library
 calling `waitpid(-1, …)`, this function never returns.
 -/

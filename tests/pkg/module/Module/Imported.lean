@@ -213,3 +213,46 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+
+/-! Tactics that select a constructor should not apply private constructors of imported modules. -/
+
+/--
+error: Tactic `constructor` failed: constructor `StructWithPrivateCtor.mk✝` is marked as private
+
+⊢ StructWithPrivateCtor
+-/
+#guard_msgs in
+example : StructWithPrivateCtor := by constructor; exact 1
+
+/--
+error: Tactic `constructor` failed: constructor `StructWithPrivateCtor.mk✝` is marked as private
+
+⊢ StructWithPrivateCtor
+-/
+#guard_msgs in
+example : StructWithPrivateCtor := by constructor!; exact 1
+
+/--
+error: Tactic `left` failed: constructor `IndWithPrivateCtors.a✝` is marked as private
+
+⊢ IndWithPrivateCtors
+-/
+#guard_msgs in
+example : IndWithPrivateCtors := by left; exact 1
+
+/--
+error: Tactic `right` failed: constructor `IndWithPrivateCtors.b✝` is marked as private
+
+⊢ IndWithPrivateCtors
+-/
+#guard_msgs in
+example : IndWithPrivateCtors := by right; exact 1
+
+/-- error: failed -/
+#guard_msgs in
+example (n : Nat) : StructWithPrivateCtor := by solve_by_elim
+
+/-! An inaccessible private constructor is skipped in favor of an accessible one. -/
+
+#guard_msgs in
+example : (by constructor; exact 1 : IndWithPrivateFirstCtor) = .b 1 := rfl

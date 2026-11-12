@@ -276,6 +276,13 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
               Tactic.evalTactic decrTactic.tactic
           unless remainingGoals.isEmpty do
             Term.reportUnsolvedGoals remainingGoals
+  -- `clean_wf` only changes the goal definitionally, so it leaves a type hint with the original goal
+  -- type, which mentions the measure of the whole function block. Dropping the hint gives the
+  -- auxiliary lemmas that the proofs are abstracted into the cleaned-up type instead.
+  for goal in goals do
+    let proof ← instantiateMVars (.mvar goal)
+    if proof.isAppOfArity ``id 2 then
+      goal.assign proof.appArg!
   instantiateMVars value
 
 def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
@@ -300,7 +307,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     if let some measure ← isNatLtWF wfRel then
       return (mkApp3 (mkConst `WellFounded.Nat.fix [u, v]) α motive measure, varName)
     else
-      let rel := mkProj ``WellFoundedRelation 0 wfRel
+      let rel := mkApp2 (mkConst ``WellFoundedRelation.rel [u]) α wfRel
       let wf  := mkProj ``WellFoundedRelation 1 wfRel
       let wf ← mkAppM `Lean.opaqueId #[wf]
       return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)

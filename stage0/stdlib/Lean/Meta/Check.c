@@ -3118,7 +3118,7 @@ _start:
 lean_object* v___x_905_; lean_object* v___x_906_; lean_object* v___x_907_; lean_object* v___x_908_; lean_object* v___x_909_; lean_object* v___x_910_; 
 v___x_905_ = ((lean_object*)(l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___closed__2));
 v___x_906_ = lean_unsigned_to_nat(17u);
-v___x_907_ = lean_unsigned_to_nat(1944u);
+v___x_907_ = lean_unsigned_to_nat(1951u);
 v___x_908_ = ((lean_object*)(l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___closed__1));
 v___x_909_ = ((lean_object*)(l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___closed__0));
 v___x_910_ = l_mkPanicMessageWithDecl(v___x_909_, v___x_908_, v___x_907_, v___x_906_, v___x_905_);

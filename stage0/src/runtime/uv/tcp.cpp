@@ -683,6 +683,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
             accept_keep_alive = owned_ref(socket);
         }
 
+#ifdef LEAN_WINDOWS
+        // libuv on Windows cancels pending writes with `CancelIo`, which reaches only the writes this
+        // thread issued, and closes the socket once no write is pending. A write another thread
+        // issued to a peer that does not read would keep the socket open, so cancel them all.
+        uv_os_fd_t fd;
+        if (!tcp_socket->m_listening && uv_fileno((uv_handle_t*)&tcp_socket->m_uv_tcp, &fd) == 0) {
+            CancelIoEx(fd, nullptr);
+        }
+#endif
+
         // libuv reads `data` as the Lean object until the close callback, which then releases it.
         // Pending writes, connects and shutdowns complete with `UV_ECANCELED` before that.
         lean_inc(socket);

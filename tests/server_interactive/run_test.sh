@@ -6,7 +6,7 @@ source_init "$1"
 
 # these tests don't have to succeed
 capture_only "$1" \
-  lean -Dlinter.all=false --run run_test.lean "$1"
+  lean "${LINTER_ARGS[@]}" --run run_test.lean "$1"
 normalize_mvar_suffixes
 normalize_reference_urls
 check_out_file

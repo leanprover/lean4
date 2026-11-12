@@ -1,7 +1,7 @@
 /-! A `finally` block cannot reassign the `mut` variables in scope at the `try`. -/
 
 /--
-error: A `finally` block cannot reassign the `mut` variables `s`, `t`.
+error: A `finally` block cannot reassign the `mut` variables `s` and `t`.
 -/
 #guard_msgs in
 def reassignArrowAndLoop : IO Nat := do

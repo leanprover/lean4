@@ -814,8 +814,9 @@ def withoutControl (doSeq : TSyntax ``doSeq) (k : DoElabM Expr) : DoElabM Expr :
   let info ← inferControlInfoSeq doSeq
   let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
   unless reassigned.isEmpty do
-    let vars := MessageData.joinSep (reassigned.toList.map (m!"`{·}`")) ", "
-    throwError "{block} cannot reassign the `mut` variables {vars}."
+    let noun := if reassigned.size == 1 then "variable" else "variables"
+    let vars := MessageData.andList (reassigned.toList.map (m!"`{·}`"))
+    throwError "{block} cannot reassign the `mut` {noun} {vars}."
   let error := throwError "{block} does not support `break`, `continue` or `return`."
   let rc ← getReturnCont
   let contInfo := { breakCont := error, continueCont := error, returnCont := { rc with k _ := error }}

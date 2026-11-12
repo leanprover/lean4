@@ -23,7 +23,7 @@ instance MonoidHom.commMonoid [Mul M] [Mul N] :
 example {M} [Mul M] [Mul G] [Pow G Int] :
     let zpow : Int → (M →*' G) → (M →*' G) := fun n f => { toFun := fun x => f x ^ n, map_mul' := sorry }
     ∀ (n : Nat) (a : M →*' G), zpow (Int.ofNat (Nat.succ n)) a = a * zpow (Int.ofNat n) a := by
-  simp only [Int.ofNat_eq_coe] -- commenting out this line makes simp loop
+  simp only [Int.ofNat_eq_natCast] -- commenting out this line makes simp loop
   simp (config := { failIfUnchanged := false }) only [mul_comm] -- should not produce: unexpected bound variable 2
   sorry
 

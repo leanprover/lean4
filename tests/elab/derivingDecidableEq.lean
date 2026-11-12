@@ -4,12 +4,12 @@ structure Fin' (n : Nat) where
   deriving DecidableEq
 
 #eval
-  (Fin'.mk 0 (Nat.lt.step (Nat.lt.base 0)): Fin' 2)
-  = (Fin'.mk 0 (Nat.lt.step (Nat.lt.base 0)) : Fin' 2)
+  (Fin'.mk 0 (Nat.lt_succ_of_lt (Nat.lt_add_one 0)): Fin' 2)
+  = (Fin'.mk 0 (Nat.lt_succ_of_lt (Nat.lt_add_one 0)) : Fin' 2)
 
 #eval
-  (Fin'.mk 0 (Nat.lt.step (Nat.lt.base 0)): Fin' 2)
-  = (Fin'.mk 1 (Nat.lt.base 1) : Fin' 2)
+  (Fin'.mk 0 (Nat.lt_succ_of_lt (Nat.lt_add_one 0)): Fin' 2)
+  = (Fin'.mk 1 (Nat.lt_add_one 1) : Fin' 2)
 
 inductive List' (α : Type u) where
   | nil : List' α

@@ -80,9 +80,9 @@ private def hasHttpUserInfo (message : Message.Head .receiving) : Bool :=
 
 /--
 Checks a received request head and chooses how to read its body. HTTP/1.1 requires `Host`; HTTP/1.0
-allows leaving it out, but not a malformed or repeated one. A server answers a transfer coding it does
-not decode with 501 (RFC 9112 §6.1): the machine decodes the final `chunked`, and the application the
-codings in `Config.acceptedTransferCodings`.
+allows leaving it out, but not a malformed or repeated one. A server answers a transfer coding it
+does not decode with 501 (RFC 9112 §6.1): the machine decodes the final `chunked`, and the
+application the codings in `Config.acceptedTransferCodings`.
 -/
 def checkRequestHead (config : Config) (message : Message.Head .receiving) :
     Except Error Reader.BodyState :=
@@ -127,8 +127,8 @@ def checkResponseHead (requestMethod : Method) (message : Message.Head .sending)
     | .invalid => .error .badMessage
 
 /--
-Whether a request asks for `100 Continue` before its body. A server must not send a 1xx response to an
-HTTP/1.0 client (RFC 9110 §15.2).
+Whether a request asks for `100 Continue` before its body. A server must not send a 1xx response to
+an HTTP/1.0 client (RFC 9110 §15.2).
 -/
 @[inline]
 def expectsContinue (message : Message.Head .receiving) : Bool :=
@@ -139,8 +139,8 @@ def expectsContinue (message : Message.Head .receiving) : Bool :=
 
 /--
 The `Transfer-Encoding` value of a chunked message: the sender's own codings when they end in
-`chunked` (`gzip, chunked`), since the body was coded for them, and `chunked` otherwise. Several field
-lines are written as one.
+`chunked` (`gzip, chunked`), since the body was coded for them, and `chunked` otherwise. Several
+field lines are written as one.
 -/
 private def chunkedCodings (headers : Headers) : Header.Value :=
   match headers.getAll? Header.Name.transferEncoding with
@@ -206,11 +206,12 @@ private def appendFraming (out : ByteArray) (headers : Headers) (size : Body.Len
   | .chunked => appendFieldLine out Header.Name.transferEncoding (chunkedCodings headers)
 
 /--
-Encodes a response head, answering a request of HTTP version `version`, with a body of length `size`.
-The sender's fields come first, then `Date` and `Server` unless it set them, then `Connection` and the
-framing field, unless `rule` says the response has none. The status line always says HTTP/1.1, the highest version the server conforms to (RFC
-9110 §6.2). Statuses without content get no framing field (RFC 9110 §8.6, §15.4.5), and neither does
-the connection-close body of an HTTP/1.0 response.
+Encodes a response head, answering a request of HTTP version `version`, with a body of length
+`size`. The sender's fields come first, then `Date` and `Server` unless it set them, then
+`Connection` and the framing field, unless `rule` says the response has none. The status line always
+says HTTP/1.1, the highest version the server conforms to (RFC 9110 §6.2). Statuses without content
+get no framing field (RFC 9110 §8.6, §15.4.5), and neither does the connection-close body of an
+HTTP/1.0 response.
 -/
 def encodeResponseHead (head : Response.Head) (version : Version) (keepAlive : Bool)
     (date agentName : Option Header.Value) (size : Body.Length)
@@ -229,8 +230,8 @@ def encodeResponseHead (head : Response.Head) (version : Version) (keepAlive : B
 /--
 Encodes a request head with a body of length `size`. The sender's fields come first, then
 `User-Agent` unless it set one, then `Connection` and the framing field. A request without content
-whose method anticipates none gets no `Content-Length`, unless the sender set a framing field (RFC 9110
-§8.6).
+whose method anticipates none gets no `Content-Length`, unless the sender set a framing field (RFC
+9110 §8.6).
 -/
 def encodeRequestHead (head : Request.Head) (keepAlive : Bool) (agentName : Option Header.Value)
     (size : Body.Length) : ByteArray :=

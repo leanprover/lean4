@@ -75,26 +75,44 @@ The I/O resources behind the sources the driver arms.
 -/
 private structure Live (β : Type) where
   /--
-  Where the handlers' results arrive. One channel serves the whole connection: a handler is abandoned
-  only when the connection ends, so a result that arrives is always the running handler's.
+  Where the handlers' results arrive. One channel serves the whole connection: a handler is
+  abandoned only when the connection ends, so a result that arrives is always the running handler's.
   -/
   responses : Std.Channel (Except IO.Error (Response β))
-  /-- The handler that runs. -/
+
+  /--
+  The handler that runs.
+  -/
   handler : Option (AsyncTask (Response β)) := none
-  /-- Where the asked `Expect: 100-continue` decision arrives. -/
+
+  /--
+  Where the asked `Expect: 100-continue` decision arrives.
+  -/
   decision : Option (Std.Channel Bool) := none
-  /-- The request body of the running exchange. -/
+
+  /--
+  The request body of the running exchange.
+  -/
   requestBody : Option Body.Stream := none
-  /-- The response body of the running exchange. -/
+
+  /--
+  The response body of the running exchange.
+  -/
   responseBody : Option β := none
-  /-- An input that is known without waiting, reported before anything else. -/
+
+  /--
+  An input that is known without waiting, reported before anything else.
+  -/
   ready : Option Driver.Input := none
-  /-- The second, since the Unix epoch, that the machine's `Date` was formatted for. -/
+
+  /--
+  The second, since the Unix epoch, that the machine's `Date` was formatted for.
+  -/
   dateSecond : Option Int := none
 
 /--
-Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and cleanup
-still run.
+Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and
+cleanup still run.
 -/
 private def reportFailure {σ : Type} [Handler σ] (handler : σ) (error : IO.Error) : Async Unit :=
   try Handler.onFailure handler error catch _ => pure ()
@@ -111,7 +129,8 @@ private def refreshDate (config : Config) (s : Driver.State) (live : Live β) :
   let second := now.toSecondsSinceUnixEpoch.val
   if live.dateSecond == some second then
     return (s, live)
-  let date := Header.Value.ofString! (DateTime.ofTimestamp now TimeZone.ZoneRules.UTC).toHTTPDateString
+  let date :=
+    Header.Value.ofString! (DateTime.ofTimestamp now TimeZone.ZoneRules.UTC).toHTTPDateString
   return (s.setDate (some date), { live with dateSecond := some second })
 
 /--
@@ -192,7 +211,8 @@ Performs one command of the driver.
 private def perform
     {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
     (socket : α) (handler : σ) (config : Config) (extensions : Extensions)
-    (connectionContext : CancellationContext) (outbox : Outbox α) (live : Live (Handler.ResponseBody σ)) :
+    (connectionContext : CancellationContext) (outbox : Outbox α)
+    (live : Live (Handler.ResponseBody σ)) :
     Driver.Command → Async (Live (Handler.ResponseBody σ))
   | .write data => do
     if (← outbox.send data).isNone then
@@ -289,7 +309,8 @@ private def waitInput
     match ← outbox.idle? with
     | none => return (← writesInput outbox, live)
     | some idle =>
-      selectables := selectables.push (.case (taskSelector idle) fun _ => return (← writesInput outbox, live))
+      selectables := selectables.push
+        (.case (taskSelector idle) fun _ => return (← writesInput outbox, live))
 
   let serving := s.phase == .serving
 
@@ -300,12 +321,14 @@ private def waitInput
       | _ => return (.shutdown, live))
 
   if Driver.wantsBytes cfg s then
-    selectables := selectables.push (.case (Transport.recvSelector socket (Driver.recvSize cfg s).toUInt64) fun
+    let recv := Transport.recvSelector socket (Driver.recvSize cfg s).toUInt64
+    selectables := selectables.push (.case recv fun
       | some data => return (.received data, live)
       | none => return (.eof, live))
 
   if serving && s.handlerRunning then
-    selectables := selectables.push (.case live.responses.recvSelector fun result => responded result live)
+    selectables := selectables.push
+      (.case live.responses.recvSelector fun result => responded result live)
 
   if serving && s.asksContinue then
     if let some channel := live.decision then

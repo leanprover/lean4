@@ -896,6 +896,30 @@ def blockedRecvSurfacesCloseError : Async Unit := do
 
 #eval blockedRecvSurfacesCloseError.block
 
+-- Test closeWithError: a stream that already closed cleanly keeps its clean end.
+
+def closeWithErrorAfterCloseKeepsEnd : Async Unit := do
+  let stream ← Body.mkStream
+  stream.close
+  stream.closeWithError (IO.userError "boom")
+  let result ← stream.recv
+  assert! result.isNone
+
+#eval closeWithErrorAfterCloseKeepsEnd.block
+
+-- Test closeWithError: a final chunk offered with `closeAfter` is delivered, then the clean end.
+
+def closeWithErrorAfterFinalOfferKeepsEnd : Async Unit := do
+  let stream ← Body.mkStream
+  stream.offer { data := "last".toUTF8 } (closeAfter := true)
+  stream.closeWithError (IO.userError "boom")
+  let some chunk ← stream.recv | throw (IO.userError "expected the offered chunk")
+  assert! chunk.data == "last".toUTF8
+  let result ← stream.recv
+  assert! result.isNone
+
+#eval closeWithErrorAfterFinalOfferKeepsEnd.block
+
 -- Test closeWithError: non-blocking Stream.tryRecv surfaces terminal errors at EOF.
 
 def tryRecvSurfacesCloseError : Async Unit := do

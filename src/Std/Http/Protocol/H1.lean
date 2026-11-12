@@ -186,15 +186,15 @@ private def disableKeepAlive (machine : Machine dir) : Machine dir :=
   { machine with keepAlive := false }
 
 /--
-Transitions the reader into `.failed`, records an error, and emits a `.failed`
-event in one operation. The message's framing is lost, so the connection is not reused (RFC 9112
-§6.3 rule 5, §8).
+Records `error` as the machine's failure, emits a `.failed` event and closes the reader. The
+message's framing is lost, so the connection is not reused (RFC 9112 §6.3 rule 5, §8). A server
+answers the failure in the next `step`, see `answerFailure`.
 -/
 @[inline]
 private def setFailure (machine : Machine dir) (error : H1.Error) : Machine dir :=
   machine
   |>.addEvent (.failed error)
-  |>.setReaderState (.failed error)
+  |>.setReaderState .closed
   |>.setError error
   |>.disableKeepAlive
 
@@ -541,13 +541,11 @@ private def addBodyBytes (machine : Machine dir) (bytes : Nat) : Machine dir :=
 -- State Checks
 
 /--
-Returns `true` if the reader is in a failed state.
+Returns `true` if the machine failed. `error` holds the cause.
 -/
 @[inline]
 def failed (machine : Machine dir) : Bool :=
-  match machine.reader.state with
-  | .failed _ => true
-  | _ => false
+  machine.error.isSome
 
 /--
 Returns `true` if the reader has completed successfully.
@@ -597,8 +595,7 @@ Returns `true` if the writer is waiting for headers of a new message.
 -/
 @[inline]
 def isWaitingMessage (machine : Machine dir) : Bool :=
-  machine.writer.state == .waitingHeaders ∧
-  ¬machine.writer.sentMessage
+  machine.writer.state == .waitingHeaders
 
 /--
 Returns `true` if both reader and writer are closed and no output remains.
@@ -685,7 +682,8 @@ private def resetForNextMessage (machine : Machine dir) : Machine dir :=
         messageHead := {},
         messageCount := machine.reader.messageCount + 1,
         bodyBytesRead := 0,
-        noMoreInput := machine.reader.noMoreInput
+        peerClosed := machine.reader.peerClosed,
+        inputStopped := machine.reader.inputStopped
       },
       writer := {
         userData := .empty,
@@ -695,7 +693,6 @@ private def resetForNextMessage (machine : Machine dir) : Machine dir :=
         knownSize := none,
         messageHead := {},
         userClosedBody := false,
-        sentMessage := false,
         omitBody := false
       },
       events := machine.events.push .next,
@@ -944,13 +941,14 @@ def feed (machine : Machine dir) (data : ByteArray) : Machine dir :=
       machine
 
 /--
-Signals EOF on the reader's input without changing the reader state.
-Used internally for flow control (e.g., after rejecting `Expect: 100-continue`).
-To also transition the reader to `.closed`, follow this with `setReaderState .closed`.
+Stops taking input without changing the reader state: input already buffered is still parsed, then
+the reader ends as at EOF. Used internally for flow control (e.g., after rejecting
+`Expect: 100-continue`). To also transition the reader to `.closed`, follow this with
+`setReaderState .closed`.
 -/
 @[inline]
 def closeReader (machine : Machine dir) : Machine dir :=
-  machine.modifyReader ({ · with noMoreInput := true })
+  { machine.modifyReader ({ · with inputStopped := true }) with pullBodyStalled := false }
 
 /--
 Closes the writer side, preventing any further message output.
@@ -967,11 +965,11 @@ def userClosedBody (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with userClosedBody := true })
 
 /--
-Signals that the socket is not sending data anymore.
+Signals that the peer closed its side of the connection, so no more input will arrive.
 -/
 @[inline]
 def noMoreInput (machine : Machine dir) : Machine dir :=
-  { machine.modifyReader ({ · with noMoreInput := true }) with pullBodyStalled := false }
+  { machine.modifyReader ({ · with peerClosed := true }) with pullBodyStalled := false }
 
 /--
 Set a known size for the message body, replacing any previous value.
@@ -1059,7 +1057,7 @@ private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
     let encoded := encodeServerHead head machine.reader.messageHead.version machine.keepAlive
       machine.date machine.config.agentName (.fixed content.size)
     machine.modifyWriter (fun w => { w with
-      messageHead := head, sentMessage := true, state := .complete,
+      messageHead := head, state := .complete,
       outputData := w.outputData.push encoded |>.push content })
     |>.suppressOutgoingBody
   | .sending, machine => machine.closeWriter
@@ -1138,8 +1136,7 @@ A `Content-Length` in the head gives the length of a body set as `chunked`, whos
 A head whose `Content-Length` or `Transfer-Encoding` otherwise contradicts the length set with
 `setKnownSize`, or describes no length, is not written: a server answers `500 Internal Server
 Error` and closes the connection, and a client ends the exchange. Both emit `.failed` with an
-`.other` error and set `error`, but the reader ends `.closed`, not failed, so the machine halts and
-`failed` stays `false`.
+`.other` error, set `error` and close the reader, so the machine halts.
 A response without content (to `HEAD`, or a 204, 205 or 304) cannot contradict it, and a HEAD response
 advertises the `Content-Length` of its head.
 
@@ -1193,7 +1190,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
           match dir, machine.reader.messageHead, message with
           | .receiving, request, response => startsTunnel request.method response.status
           | .sending, _, _ => false
-        let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
+        let machine := machine.modifyWriter ({ · with messageHead := message })
         let machine := maybeSuppressOutgoingBody machine message
         match dir, machine with
         | .sending, machine => machine.setWriterState .waitingForFlush |>.setReaderState .needStartLine
@@ -1266,13 +1263,11 @@ keep-alive and stops accepting further input.
 -/
 def closeWithError (machine : Machine .receiving) (status : Status) : Machine .receiving :=
   if machine.isWaitingMessage then
-    machine.sendError status (.empty |>.insert .connection (.mk "close"))
-      |>.closeReader
-      |>.noMoreInput
+    machine.sendError status (.empty |>.insert .connection (.mk "close")) |>.closeReader
   else
     -- With keep-alive on, a reader that finished its request would wait for the next one whenever
     -- unread input follows it, and the machine would never halt.
-    machine.disableKeepAlive.closeWriter.closeReader.noMoreInput
+    machine.disableKeepAlive.closeWriter.closeReader
 
 /--
 Takes and clears all accumulated events, returning the drained array.
@@ -1488,8 +1483,8 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
     | .receiving =>
       -- Detect misuse: userClosedBody set without ever committing a response via `send`.
       -- This happens when the application calls `userClosedBody` after a 1xx interim send
-      -- (which keeps `sentMessage = false`) instead of sending the final response.
-      if !machine.writer.sentMessage && machine.writer.userClosedBody then
+      -- (which stays in `waitingHeaders`) instead of sending the final response.
+      if machine.writer.userClosedBody then
         closeOnBadMessage machine
       else
         machine
@@ -1526,28 +1521,21 @@ private def errorResponseStatus (error : H1.Error) : Status :=
   | _ => .badRequest
 
 /--
-Handles reader failure state.
-
-On server-side (`.receiving`), it opportunistically emits one error response, with a short
-`text/plain` explanation, if no response head has been sent yet, then closes reader state and
-records the failure event/error.
+On the server side (`.receiving`), answers a failure with one error response, with a short
+`text/plain` explanation, unless a response was already started. `send` marks that response as
+sent, so this does nothing on later steps.
 -/
-private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
-  let machine : Machine dir :=
-    match dir with
-    | .receiving =>
-      if ¬machine.writer.sentMessage ∧ ¬machine.writer.isClosed then
-        machine
-       |>.setWriterState .waitingHeaders
-       |>.disableKeepAlive
-       |>.sendError (errorResponseStatus error)
+private def answerFailure (machine : Machine dir) : Machine dir :=
+  match dir with
+  | .receiving =>
+    match machine.error with
+    | some error =>
+      if ¬machine.writer.sentMessage then
+        machine.setWriterState .waitingHeaders |>.sendError (errorResponseStatus error)
       else
         machine
-    | .sending => machine
-
-  machine
-  |>.setReaderState .closed
-  |>.setError error
+    | none => machine
+  | .sending => machine
 
 /--
 Utility result for body parser branches that could not make progress this step.
@@ -1692,7 +1680,7 @@ private def parseChunkedBodyState (machine : Machine dir)
 /--
 Consumes close-delimited body bytes.
 
-When socket EOF is observed (`noMoreInput` + atEnd), closes body; otherwise it
+When the input ends (`noMoreInput` + atEnd), closes body; otherwise it
 either emits available bytes or requests more data.
 -/
 private def parseCloseDelimitedBody (machine : Machine dir) :
@@ -1960,7 +1948,8 @@ private partial def processReaderCompleteState (machine : Machine dir) : Machine
         messageCount := reader.messageCount,
         bodyBytesRead := 0,
         headerBytesRead := reader.headerBytesRead,
-        noMoreInput := reader.noMoreInput
+        peerClosed := reader.peerClosed,
+        inputStopped := reader.inputStopped
       }}
     -- RFC 9110 §15.2.2, §9.3.6: after `101 Switching Protocols`, or a 2xx to `CONNECT`, the bytes
     -- that follow are not HTTP/1.1 and the connection cannot be reused.
@@ -2002,8 +1991,6 @@ partial def processRead (machine : Machine dir) : Machine dir :=
     processReaderCompleteState machine
   | .closed =>
     machine
-  | .failed error =>
-    handleReaderFailed machine error
 
 end
 
@@ -2011,7 +1998,9 @@ end
 Execute one step of the state machine.
 -/
 def step (machine : Machine dir) : Machine dir × StepResult dir :=
-  let machine := machine.processRead.processWrite
+  -- A failure closes the reader, and `processWrite` closes a pending writer once the reader is
+  -- closed, so the error response is queued before writing.
+  let machine := machine.processRead.answerFailure.processWrite
   let (machine, events) := machine.takeEvents
   let (machine, output) := machine.takeOutput
   (machine, { events, output })

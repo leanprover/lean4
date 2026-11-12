@@ -153,12 +153,7 @@ def sendBytes (t : MachineTester dir) (data : ByteArray) : MachineTester dir :=
 def assert (t : MachineTester dir) (pred : Machine dir → Bool) (msg : String) : MachineTester dir :=
   if pred t.machine then t else t.addError msg
 
-/--
-Assert that the machine has not failed (reader state ≠ `.failed`).
-
-**Note:** `machine.failed` returns `false` after any `step` call because `step` transitions
-the reader from `.failed` to `.closed`. Use `assertNoError` for post-step success checks.
--/
+/-- Assert that the machine has not failed. -/
 def assertNoFailure (t : MachineTester dir) : MachineTester dir :=
   t.assert (fun m => !m.failed)
     s!"machine should not fail, got error: {repr t.machine.error}"
@@ -199,7 +194,7 @@ def assertKeepAlive (t : MachineTester dir) : MachineTester dir :=
 def assertNotKeepAlive (t : MachineTester dir) : MachineTester dir :=
   t.assert (fun m => !m.keepAlive) "expected keepAlive = false"
 
-/-- Assert that `isWaitingMessage` is true (writer in `waitingHeaders`, `!sentMessage`). -/
+/-- Assert that `isWaitingMessage` is true (writer in `waitingHeaders`). -/
 def assertIsWaitingMessage (t : MachineTester dir) : MachineTester dir :=
   t.assert (·.isWaitingMessage) "expected isWaitingMessage = true"
 
@@ -1345,8 +1340,6 @@ private def minimalGetRequest : Request.Head :=
 
 ----------------------------------------------------------------------------------------------------
 
-private def hasFailed (m : Machine dir) : Bool := m.failed || m.error.isSome
-
 private def connectRequest : Request.Head :=
   { method := .connect, version := .v11, uri := RequestTarget.parse! "example.com:443",
     headers := Headers.empty.insert! "Host" "example.com:443" }
@@ -1400,7 +1393,7 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
 #eval runGroup "RFC 9112 §6.3 rule 5: an invalid response Content-Length ends the connection" do
   MachineTester.sending "Content-Length: -1"
     |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: -1\r\n\r\n" |>.step
-    |>.assert hasFailed "expected a failure" |>.assertNotKeepAlive |>.run
+    |>.assert (·.failed) "expected a failure" |>.assertNotKeepAlive |>.run
 
 #eval runGroup "RFC 9112 §8: EOF before a final response is an incomplete exchange" do
   MachineTester.sending "before any status line"

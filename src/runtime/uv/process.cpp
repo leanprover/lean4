@@ -26,7 +26,6 @@ Author: Sebastian Ullrich, Julia M. Himmel
 #include <io.h>
 #else
 #include <errno.h>
-#include <fcntl.h>
 #include <paths.h>
 #include <signal.h>
 #include <unistd.h>
@@ -105,13 +104,6 @@ static obj_res setup_stdio(int fd, stdio_mode mode, uv_stdio_container_t & conta
                            object_ref & parent_end) {
     switch (mode) {
     case stdio_mode::inherit:
-#if !defined(LEAN_WINDOWS)
-        // `posix_spawn` fails on a closed descriptor, which `fork` used to pass on as closed.
-        if (fcntl(fd, F_GETFD) == -1 && errno == EBADF) {
-            container.flags = UV_IGNORE;
-            return nullptr;
-        }
-#endif
         container.flags = UV_INHERIT_FD;
         container.data.fd = fd;
         return nullptr;

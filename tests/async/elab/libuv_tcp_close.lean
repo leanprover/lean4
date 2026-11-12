@@ -6,7 +6,8 @@ import Std.Internal.UV.TCP
 /-!
 Tests `Std.Internal.UV.TCP.Socket.close`: the peer sees the connection end, closing twice does
 nothing, every later operation fails, and pending reads, accepts and writes end with an error instead
-of waiting, including a write blocked on a peer that does not read.
+of waiting, including a write blocked on a peer that does not read, when another thread closes the
+socket.
 -/
 
 open Std Async Net Internal.UV
@@ -101,21 +102,29 @@ def expectFails (name : String) (promise : IO.Promise (Except IO.Error α)) : IO
   expectFails "pending accept" pending
   expectError "accept after close" (do blockPromise (← listener.accept))
 
--- A write blocked on a peer that does not read is cancelled by close, and the peer then reads only
--- part of it before end-of-stream.
+-- A write blocked on a peer that does not read is cancelled by close, also from a thread other than
+-- the one that issued it, and the peer then reads only part of what was written before
+-- end-of-stream. Windows accepts a whole write, however large, while its send buffer has room, so
+-- pieces are written until one stays pending.
 #eval show IO Unit from do
   let (client, server) ← connectPair
-  let size := 64 * 1024 * 1024
-  let write ← server.send #[ByteArray.mk (Array.replicate size 0)]
-  if (← waitFor write 300).isSome then
-    throw <| IO.userError "the write to a peer that does not read finished; the test needs it pending"
-  server.close
+  let piece := ByteArray.mk (Array.replicate (1024 * 1024) 0)
+  let mut sent := 0
+  let mut pending : Option (IO.Promise (Except IO.Error Unit)) := none
+  while pending.isNone && sent < 256 * piece.size do
+    let write ← server.send #[piece]
+    sent := sent + piece.size
+    if (← waitFor write 300).isNone then
+      pending := some write
+  let some write := pending
+    | throw <| IO.userError s!"a peer that does not read took all {sent} bytes; no write stayed pending"
+  IO.ofExcept (← IO.wait (← IO.asTask (prio := .dedicated) server.close))
   expectFails "pending write" write
   let mut received := 0
   repeat
     match ← (do blockPromise (← client.recv? 65536)).toBaseIO with
     | .ok (some chunk) => received := received + chunk.size
     | .ok none | .error _ => break
-  unless received < size do
-    throw <| IO.userError s!"the peer received the whole cancelled write ({received} bytes)"
+  unless received < sent do
+    throw <| IO.userError s!"the peer received all {sent} bytes, including the cancelled write"
   client.close

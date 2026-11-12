@@ -193,6 +193,16 @@ public structure State where
   -/
   splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
+  A cache mapping matchers to the backward rule that splits them in the precondition or on the
+  right-hand side of an entailment. The particular rule depends on the matcher name, whether the
+  matcher is the precondition, the lattice instance of the entailment, and the type of the
+  matcher application.
+
+  The instance and the type are keyed by `ExprPtr`, so lookups compare them by pointer rather than
+  structurally. This is sound because both are subterms of the hash-consed goal target.
+  -/
+  assertionSplitBackwardRuleCache : Std.HashMap (Name × Bool × ExprPtr × ExprPtr) BackwardRule := {}
+  /--
   A cache mapping lattice connectives to their backward rule to apply, keyed by the `head … cₙ`
   prefix of constant arguments the rule bakes in verbatim and the total argument count that fixes the
   schematic operand and state count.

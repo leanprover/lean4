@@ -384,40 +384,35 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
 
 /-! ## Split rules -/
 
-open Lean.Elab.Tactic.Do in
-/-- Creates a reusable backward rule for splitting `ite`, `dite`, `cond`, or matchers.
+/-- The goal of a split rule as a function of the term that the rule splits. -/
+structure SplitTemplate where
+  /-- The parameters of the goal other than the split term. -/
+  params : Array Expr
+  /-- The goal whose split term is the argument. -/
+  mkGoal : Expr → Expr
+  /-- The split term of a goal that `mkGoal` built. -/
+  hole : Expr → Expr
 
-Uses `SplitInfo.withAbstract` to introduce abstract fvars for the split components,
-then `SplitInfo.splitWith` to build the splitting proof. Hypothesis types are
-discovered via `rwIfOrMatcher` inside the splitter telescope. -/
-public def mkBackwardRuleForSplit
-    (splitInfo : SplitInfo) (info : WPApp) : MetaM BackwardRule := do
-  -- The split value type is the goal's, so reuse the goal's program type and `WP` instance directly.
-  let a := info.Value
-  let ma := info.Prog
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher
+application `splitInfo` of type `resTy` in the goal that `withTemplate` describes.
+
+Uses `SplitInfo.withAbstract` to introduce abstract fvars for the split components, then
+`SplitInfo.splitWith` to build the splitting proof. Hypothesis types are discovered via
+`rwIfOrMatcher` inside the splitter telescope. `withTemplate` receives the abstract split term,
+introduces the parameters of the goal, and passes the `SplitTemplate` to its continuation. -/
+def mkBackwardRuleForSplitAt (splitInfo : SplitInfo) (resTy : Expr)
+    (withTemplate : Expr → (SplitTemplate → MetaM Expr) → MetaM Expr) : MetaM BackwardRule := do
   let prf ←
-    splitInfo.withAbstract ma fun abstractInfo splitFVars => do
+    splitInfo.withAbstract resTy fun abstractInfo splitFVars => do
     -- Eta-reduce matcher alts for the backward rule pattern to avoid expensive
     -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
     -- `splitWith`/`matcherApp.transform` can `instantiateLambda` them directly.
-    let abstractProg := match abstractInfo with
+    let abstractTerm := match abstractInfo with
       | .ite e | .dite e | .cond e => e
       | .matcher matcherApp =>
         { matcherApp with alts := matcherApp.alts.map Expr.eta }.toExpr
-    let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>
-      return (`s, ← Meta.inferType arg)
-    withLocalDeclsDND excessArgNamesTypes fun ss => do
-    withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
-    withLocalDeclD `EPosts info.EPosts fun eposts => do
-    let mkWP (prog : Expr) : Expr :=
-      let args := info.args.take 7 ++ #[prog, post, eposts]
-      mkAppN (mkAppN info.head args) ss
-    let Pred' ← Meta.inferType (mkWP abstractProg)
-    withLocalDeclD `Pre Pred' fun pre => do
-    let sampleGoal ← mkAppM ``PartialOrder.rel #[pre, mkWP abstractProg]
-    let relArgs := sampleGoal.getAppArgs
-    let relHead := mkAppN sampleGoal.getAppFn (relArgs.extract 0 3)
-    let mkGoal (prog : Expr) : Expr := mkApp relHead (mkWP prog)
+    withTemplate abstractTerm fun tmpl => do
     -- Use synthetic opaque mvars so that `rwIfOrMatcher`'s `assumption` cannot
     -- accidentally assign our subgoal metavariables.
     let subgoals ← splitInfo.altInfos.mapM fun _ =>
@@ -427,28 +422,68 @@ public def mkBackwardRuleForSplit
     let prf ←
       abstractInfo.splitWith
         (useSplitter := true)
-        (mkGoal abstractProg)
+        (tmpl.mkGoal abstractTerm)
         (fun _name bodyType idx altFVars => do
-          -- Extract the program from `bodyType` (the substituted alt goal type).
+          -- Extract the split term from `bodyType` (the substituted alt goal type).
           -- For matchers, `bodyType` has the discriminant replaced by the constructor
           -- pattern (e.g., `Nat.zero` instead of `discr`), which is required for
           -- `rwMatcher` to discharge the equality hypotheses of congr equation theorems.
-          -- For ite/dite, `bodyType` equals `mkGoal abstractProg` so this is equivalent.
-          let prog := bodyType.getArg! 3 |>.getArg! 7
-          let res ← rwIfOrMatcher idx prog
+          -- For ite/dite, `bodyType` equals `tmpl.mkGoal abstractTerm` so this is equivalent.
+          let term := tmpl.hole bodyType
+          let res ← rwIfOrMatcher idx term
           if res.proof?.isNone then
             throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}"
           let altParams := altFVars.all
-          subgoals[idx]!.mvarId!.assign (← mkForallFVars altParams (mkGoal res.expr))
-          let context ← withLocalDecl `x .default ma fun x =>
-            mkLambdaFVars #[x] (mkGoal x)
+          subgoals[idx]!.mvarId!.assign (← mkForallFVars altParams (tmpl.mkGoal res.expr))
+          let context ← withLocalDecl `x .default resTy fun x =>
+            mkLambdaFVars #[x] (tmpl.mkGoal x)
           let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
           mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
     let prf ← instantiateMVars prf
-    mkLambdaFVars (splitFVars ++ ss ++ #[post, eposts, pre] ++ subgoalHyps) prf
+    mkLambdaFVars (splitFVars ++ tmpl.params ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
+
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher program
+`splitInfo` in a goal `pre ⊑ wp prog post eposts s₁ … sₙ`. -/
+public def mkBackwardRuleForSplit
+    (splitInfo : SplitInfo) (info : WPApp) : MetaM BackwardRule := do
+  -- The split value type is the goal's, so reuse the goal's program type and `WP` instance directly.
+  mkBackwardRuleForSplitAt splitInfo info.Prog fun abstractProg k => do
+    let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>
+      return (`s, ← Meta.inferType arg)
+    withLocalDeclsDND excessArgNamesTypes fun ss => do
+    withLocalDeclD `Post (← mkArrow info.Value info.Pred) fun post => do
+    withLocalDeclD `EPosts info.EPosts fun eposts => do
+    let mkWP (prog : Expr) : Expr :=
+      let args := info.args.take 7 ++ #[prog, post, eposts]
+      mkAppN (mkAppN info.head args) ss
+    let Pred' ← Meta.inferType (mkWP abstractProg)
+    withLocalDeclD `Pre Pred' fun pre => do
+    let sampleGoal ← mkAppM ``PartialOrder.rel #[pre, mkWP abstractProg]
+    let relHead := mkAppN sampleGoal.getAppFn (sampleGoal.getAppArgs.extract 0 3)
+    k { params := ss ++ #[post, eposts, pre]
+        mkGoal := fun prog => mkApp relHead (mkWP prog)
+        hole := fun goal => goal.getArg! 3 |>.getArg! 7 }
+
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher
+application `splitInfo` of type `resTy` in a goal `e s₁ … sₙ ⊑ rhs` (when `inPre`) or
+`pre ⊑ e s₁ … sₙ`. `rel` is the partial application `PartialOrder.rel α inst` of the goal, and
+`stateTypes` are the types of `s₁ … sₙ`. -/
+public def mkBackwardRuleForAssertionSplit (splitInfo : SplitInfo) (resTy rel : Expr)
+    (stateTypes : Array Expr) (inPre : Bool) : MetaM BackwardRule :=
+  mkBackwardRuleForSplitAt splitInfo resTy fun _ k => do
+    let stateDecls := stateTypes.map fun ty => (`s, ty)
+    withLocalDeclsDND stateDecls fun ss => do
+    withLocalDeclD (if inPre then `Rhs else `Pre) (rel.getArg! 0) fun other => do
+    let argIdx := if inPre then 2 else 3
+    k { params := ss.push other
+        mkGoal := fun e =>
+          if inPre then mkApp2 rel (mkAppN e ss) other else mkApp2 rel other (mkAppN e ss)
+        hole := fun goal => (goal.getArg! argIdx).stripArgsN ss.size }
 
 /-! ## Frame rules -/
 

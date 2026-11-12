@@ -244,11 +244,15 @@ def parseMethod : Parser Method := do
 /--
 Parses a request-target URI, up to `limits.maxUriLength` bytes.
 Fails with `"uri too long"` if the target exceeds the configured limit.
+
+The target ends at SP, or at CR or LF, which no target contains: a request line with no version
+then fails at once on the missing SP, instead of waiting for one (RFC 9112 §3).
 -/
 def parseURI (limits : H1.Config) : Parser ByteArray := do
-  let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength
+  let endsTarget (c : UInt8) := c == ' '.toUInt8 || c == '\r'.toUInt8 || c == '\n'.toUInt8
+  let uri ← takeUntilUpTo endsTarget limits.maxUriLength
   if uri.size == limits.maxUriLength then
-    if (← peekWhen? (· != ' '.toUInt8)) |>.isSome then
+    if (← peekWhen? (!endsTarget ·)) |>.isSome then
       fail "uri too long"
 
   return uri.toByteArray
@@ -337,6 +341,16 @@ public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × St
     pure none
   else
     some <$> (parseFieldLine limits <* crlf)
+
+/--
+Parses the line that continues a field value after an obsolete line folding (`obs-fold = OWS CRLF
+RWS`, RFC 9112 §5.2): the leading whitespace, the field content and the terminating CRLF. Returns the
+content without the whitespace around it.
+-/
+public def parseObsFoldContinuation (limits : H1.Config) : Parser String := do
+  let value ← ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* crlf
+  let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
+  return value.trimAscii.toString
 
 /--
 Parses a backslash-escaped character inside a quoted-string.

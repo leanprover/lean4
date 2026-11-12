@@ -1342,3 +1342,132 @@ private def minimalGetRequest : Request.Head :=
     |>.assert (fun m => !m.canPullBody)
         "zero-length response body must not require a caller pullBody to advance"
     |>.assertReaderComplete |>.run
+
+----------------------------------------------------------------------------------------------------
+
+private def hasFailed (m : Machine dir) : Bool := m.failed || m.error.isSome
+
+private def connectRequest : Request.Head :=
+  { method := .connect, version := .v11, uri := RequestTarget.parse! "example.com:443",
+    headers := Headers.empty.insert! "Host" "example.com:443" }
+
+/-- Feeds `raw` one byte per read after sending `minimalGetRequest`, and returns the response head. -/
+private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) := Id.run do
+  let mut machine := (({ config := {} } : Machine .sending).send minimalGetRequest).step.1
+  for b in raw.toUTF8 do
+    let (next, result) := (machine.feed (ByteArray.mk #[b])).step
+    machine := next
+    for e in result.events do
+      if let .endHeaders head := e then return some head
+  return none
+
+#eval runGroup "RFC 9112 §6.3 rule 2: a 2xx to CONNECT ends at its head" do
+  for framing in ["Content-Length: 5\r\n", "Transfer-Encoding: chunked\r\n", ""] do
+    MachineTester.sending s!"CONNECT, 200 with {framing.quote}"
+      |>.send connectRequest |>.step
+      |>.feed s!"HTTP/1.1 200 OK\r\n{framing}\r\n\x16\x03\x01tunnel bytes" |>.step
+      |>.assertNoError |>.assertHasEndHeaders |>.drainBody |>.assertPulledBody .empty
+      |>.assertReaderClosed |>.assertNotKeepAlive
+      |>.assert (·.reader.input.remainingBytes == 15) "expected the tunnel bytes unread" |>.run
+  -- A response to CONNECT that is not 2xx is framed as usual.
+  MachineTester.sending "CONNECT, 407 with Content-Length: 2"
+    |>.send connectRequest |>.step
+    |>.feed "HTTP/1.1 407 Proxy Authentication Required\r\nContent-Length: 2\r\n\r\nno" |>.step
+    |>.assertNoError |>.drainBody |>.assertPulledBody "no".toUTF8 |>.run
+
+#eval runGroup "RFC 9112 §5.2: a client replaces each obs-fold with SP" do
+  for (field, want) in [
+      ("X-Fold: text\r\n folded with space\r\n\tfolded with tab", "text folded with space folded with tab"),
+      ("X-Fold:\r\n text", "text"), ("X-Fold: text\r\n ", "text"), ("X-Fold:\r\n ", "")] do
+    let raw := s!"HTTP/1.1 200 OK\r\n{field}\r\nContent-Length: 0\r\n\r\n"
+    MachineTester.sending s!"obs-fold {field.quote}"
+      |>.send minimalGetRequest |>.step |>.feed raw |>.step |>.assertNoError
+      |>.onEndHeaders (fun t head =>
+        let got := (head.headers.get? (.ofString! "X-Fold")).map (·.value)
+        if got == some want then t else t.addError s!"expected {want.quote}, got {repr got}")
+      |>.run
+    let got := (headOneBytePerRead raw).bind fun head => (head.headers.get? (.ofString! "X-Fold")).map (·.value)
+    unless got == some want do
+      throw <| IO.userError s!"one byte per read, {field.quote}: expected {want.quote}, got {repr got}"
+  -- A whitespace line before the first field folds nothing, and a server rejects obs-fold.
+  MachineTester.sending "SP line before the first field"
+    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\n Foo: bar\r\nContent-Length: 0\r\n\r\n" |>.step
+    |>.assertFailedWith .badMessage |>.run
+  MachineTester.receiving "obs-fold in a request"
+    |>.feed "GET / HTTP/1.1\r\nHost: a\r\nX-Fold: a\r\n b\r\n\r\n" |>.step
+    |>.assertFailedWith .badMessage |>.run
+
+#eval runGroup "RFC 9112 §6.3 rule 5: an invalid response Content-Length ends the connection" do
+  MachineTester.sending "Content-Length: -1"
+    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: -1\r\n\r\n" |>.step
+    |>.assert hasFailed "expected a failure" |>.assertNotKeepAlive |>.run
+
+#eval runGroup "RFC 9112 §8: EOF before a final response is an incomplete exchange" do
+  MachineTester.sending "before any status line"
+    |>.send minimalGetRequest |>.step |>.noMoreInput |>.step
+    |>.assertFailedWith .connectionClosed |>.run
+  MachineTester.sending "after only 100 Continue"
+    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 100 Continue\r\n\r\n" |>.step |>.noMoreInput |>.step
+    |>.assertFailedWith .connectionClosed |>.run
+  -- With no request outstanding, EOF is a normal close.
+  MachineTester.sending "after a complete response"
+    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step |>.step
+    |>.noMoreInput |>.step |>.assertNoError |>.run
+
+#eval runGroup "RFC 9110 §15: a client reads status codes outside 100–599 as server errors" do
+  for code in [0, 1, 99, 600, 999] do
+    let digits := if code < 10 then s!"00{code}" else if code < 100 then s!"0{code}" else s!"{code}"
+    MachineTester.sending s!"status {digits}"
+      |>.send minimalGetRequest |>.step |>.feed s!"HTTP/1.1 {digits} X\r\nContent-Length: 0\r\n\r\n" |>.step
+      |>.assertNoError
+      |>.onEndHeaders (fun t head =>
+        if head.status.isServerError && head.status.toCode.toNat == code then t
+        else t.addError s!"got {head.status.toCode}, isServerError {head.status.isServerError}")
+      |>.run
+  -- `status-code = 3DIGIT`, so a code below 100 is written with its leading zeros.
+  let some status := Status.ofCode none 7 | throw (IO.userError "ofCode 7")
+  let encoded := String.fromUTF8! (Std.Http.Internal.Encode.encode (v := .v11) .empty status)
+  unless encoded == "007 Unknown" do throw (IO.userError s!"encoded {encoded.quote}")
+
+#eval runGroup "RFC 9112 §3: a request line with no version fails at once" do
+  for raw in ["GET /\r\n\r\n", "GET /x\r\nHost:a\r\n\r\n", "GET /\r"] do
+    MachineTester.receiving raw.quote |>.feed raw |>.step |>.assertFailedWith .badMessage |>.run
+  -- A target cut off by the end of a read still waits for the rest.
+  MachineTester.receiving "GET /" |>.feed "GET /" |>.step |>.assertNoError |>.run
+
+#eval runGroup "RFC 9110 §4.2.4: userinfo in an http(s) request target is an error" do
+  for target in ["http://user:pass@example.com/", "https://user@example.com/x"] do
+    MachineTester.receiving target
+      |>.feed s!"GET {target} HTTP/1.1\r\nHost: example.com\r\n\r\n" |>.step
+      |>.assertFailedWith .badMessage |>.run
+  MachineTester.receiving "absolute-form without userinfo"
+    |>.feed "GET http://example.com/ HTTP/1.1\r\nHost: example.com\r\n\r\n" |>.step
+    |>.assertNoError |>.assertHasEndHeaders |>.run
+
+#eval runGroup "Interim responses count toward maxHeaderBytes" do
+  -- 54 bytes of each interim head count: its status line and its field line.
+  let interim := "HTTP/1.1 100 Continue\r\nX-Pad: 0123456789012345678901\r\n\r\n"
+  let mut t := MachineTester.sending "a run of 1xx responses" (config := { maxHeaderBytes := 200 })
+    |>.send minimalGetRequest |>.step
+  for _ in [0:20] do
+    t := t.feed interim |>.step
+  t.assertFailedWith .headersTooLarge |>.run
+  MachineTester.sending "two 1xx responses, then the final one" (config := { maxHeaderBytes := 200 })
+    |>.send minimalGetRequest |>.step |>.feed interim |>.step |>.feed interim |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step
+    |>.assertNoError |>.assertHasEndHeaders |>.run
+
+#eval runGroup "RFC 9110 §10.1.1: a final response while 100-continue is pending says close" do
+  MachineTester.receiving "final response before canContinue"
+    |>.feed (mkPostHead "/upload" 5 "Expect: 100-continue\r\n") |>.step |>.assertHasContinue
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 200 OK\r\n" "expected the 200"
+    |>.assertOutputContains "Connection: close\r\n" "expected Connection: close"
+    |>.assertNotKeepAlive |>.run
+  MachineTester.receiving "final response after 100 Continue"
+    |>.feed (mkPostHead "/upload" 5 "Expect: 100-continue\r\n") |>.step |>.assertHasContinue
+    |>.canContinue .«continue» |>.step |>.feed "hello" |>.step |>.drainBody
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n" "expected 100, then 200"
+    |>.assertOutputNotContains "Connection: close" "the connection stays open"
+    |>.assertKeepAlive |>.run

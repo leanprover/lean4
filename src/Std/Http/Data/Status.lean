@@ -50,8 +50,9 @@ def isKnownStatusCode (code: UInt16) : Bool :=
 
 /--
 A custom HTTP status with a numeric code and a reason phrase. Used to represent status codes
-not enumerated as dedicated constructors in `Status`. The code must be in the range 100–999
-(a three-digit integer per RFC 9112 §4) and must not correspond to any named constructor.
+not enumerated as dedicated constructors in `Status`. The code must be in the range 0–999
+(a three-digit integer per RFC 9112 §4) and must not correspond to any named constructor. Codes
+outside 100–599 are invalid (RFC 9110 §15): a client reads them, and treats them as server errors.
 
 Reference: https://httpwg.org/specs/rfc9110.html#status.codes
 -/
@@ -73,10 +74,9 @@ structure CustomStatus where
   validReasonPhrase : IsValidReasonPhrase phrase := by decide
 
   /--
-  Proof that the code is a valid HTTP status code (100–999), i.e. a three-digit integer
-  as required by RFC 9112 §4.
+  Proof that the code is a three-digit integer (0–999), as RFC 9112 §4 requires.
   -/
-  validCode : 100 ≤ code ∧ code ≤ 999 := by decide
+  validCode : code ≤ 999 := by decide
 
   /--
   Proof that the code does not clash with any named `Status` constructor.
@@ -97,7 +97,7 @@ Attempts to create a `CustomStatus` from a numeric code and a reason phrase stri
 `none` if the phrase contains invalid characters.
 -/
 def ofCodeAndPhrase? (code : UInt16) (phrase : String) : Option CustomStatus :=
-  if h : IsValidReasonPhrase phrase ∧ (100 ≤ code ∧ code ≤ 999) ∧ ¬isKnownStatusCode code then
+  if h : IsValidReasonPhrase phrase ∧ code ≤ 999 ∧ ¬isKnownStatusCode code then
     some ⟨code, phrase, h.left, h.right.left, h.right.right⟩
   else
     none
@@ -575,7 +575,7 @@ def ofCode (reasonPhrase : Option { x : String // IsValidReasonPhrase x }) (code
   | n =>
     let ph := reasonPhrase.getD ⟨"Unknown", by decide⟩
 
-    if h : (100 ≤ n ∧ n ≤ 999) ∧ ¬isKnownStatusCode n then
+    if h : n ≤ 999 ∧ ¬isKnownStatusCode n then
       some <| .other ⟨n, ph.val, ph.property, h.left, h.right⟩
     else
       none
@@ -635,14 +635,14 @@ def isClientError (c : Status) : Bool :=
 
 /--
 Checks if the type of the status code is a server error, meaning that the server failed to fulfill
-an apparently valid request. The invalid codes 600–999 count as server errors, as RFC 9110 §15 asks a
-client to treat them.
+an apparently valid request. The invalid codes 0–99 and 600–999 count as server errors, as RFC 9110
+§15 asks a client to treat them.
 
 Reference: https://httpwg.org/specs/rfc9110.html#status.codes
 -/
 @[inline]
 def isServerError (c : Status) : Bool :=
-  500 ≤ c.toCode
+  500 ≤ c.toCode ∨ c.toCode < 100
 
 /--
 Checks if the status code indicates an error (either client error 4xx or server error 5xx).
@@ -731,6 +731,10 @@ instance : Encode .v11 Status where
   encode out
     -- Most responses are `200 OK`; one constant skips the digits and the reason phrase copy.
     | .ok => out ++ "200 OK"
-    | status => out ++ status.toCode.toNat ++ ' ' ++ status.reasonPhrase
+    | status =>
+      let code := status.toCode.toNat
+      -- `status-code = 3DIGIT` (RFC 9112 §4), so a code below 100 keeps its leading zeros.
+      let pad := if code < 10 then "00" else if code < 100 then "0" else ""
+      out ++ pad ++ code ++ ' ' ++ status.reasonPhrase
 
 end Std.Http.Status

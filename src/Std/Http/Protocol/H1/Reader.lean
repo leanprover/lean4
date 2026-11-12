@@ -209,6 +209,14 @@ def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) 
   | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
 
 /--
+Replaces the value of the last header named `name` in the current message head.
+-/
+@[inline]
+def replaceLastHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
+  match dir with
+  | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.replaceLast name value } }
+
+/--
 Closes the reader, transitioning to the closed state.
 -/
 @[inline]

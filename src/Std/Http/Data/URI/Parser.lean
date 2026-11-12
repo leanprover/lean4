@@ -317,11 +317,19 @@ private def parseFragment (config : URI.Config) : Parser URI.EncodedFragment := 
 
 private def parseHierPart (config : URI.Config) : Parser (Option URI.Authority × URI.Path) := do
   -- Check for "//" authority path-abempty
-  -- RFC 3986 §3.2 allows an empty reg-name, so `file:///path` (empty host) is valid.
-  -- When parseAuthority fails on an empty host, treat authority as absent so the
-  -- scheme guard in callers fires correctly on non-http(s) URIs.
   if (← tryOpt (skipString "//")).isSome then
+    -- RFC 3986 §3.2.2 allows an empty reg-name, as in `file:///path`. The authority is still
+    -- defined, so it is printed again (§5.3).
     let authority ← tryOpt (attempt (parseAuthority config))
+    let authority : Option URI.Authority ←
+      if authority.isNone then
+        let next ← peek?
+        if next.isNone || next.any (fun c => c = '/'.toUInt8 ∨ c = '?'.toUInt8 ∨ c = '#'.toUInt8) then
+          pure (some { host := .empty })
+        else
+          pure none
+      else
+        pure authority
     let path ← parsePath config true true  -- path-abempty (must start with "/" or be empty)
     return (authority, path)
   else
@@ -380,7 +388,7 @@ where
 
   -- A recipient must reject an http(s) URI with an empty host (RFC 9110 §4.2.1, §4.2.2).
   requireHttpHost (scheme : URI.Scheme) (authority : Option URI.Authority) : Parser Unit := do
-    if (scheme.val = "http" || scheme.val = "https") && authority.isNone then
+    if (scheme.val = "http" || scheme.val = "https") && authority.all (·.host == .empty) then
       fail "empty host in an http(s) URI"
 
   -- Prefer absolute-form for explicit HTTP(S) scheme targets with a path or authority.

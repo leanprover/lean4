@@ -242,6 +242,12 @@ inductive Host
   An IPv6 address.
   -/
   | ipv6 (ipv6 : Net.IPv6Addr)
+
+  /--
+  An empty `reg-name` (RFC 3986 §3.2.2), as in `file:///etc/hosts`. It names no host to connect to,
+  and an `http` or `https` URI with it is rejected (RFC 9110 §4.2.1).
+  -/
+  | empty
 deriving Inhabited, BEq
 
 instance : Repr Host where
@@ -256,12 +262,14 @@ instance : Repr Host where
     | Host.name a => repr "name" (reprArg a)
     | Host.ipv4 a => repr "ipv4" (toString a)
     | Host.ipv6 a => repr "ipv6" (toString a)
+    | Host.empty => "Std.Http.URI.Host.empty"
 
 instance : ToString Host where
   toString
     | .name n => n
     | .ipv4 addr => toString addr
     | .ipv6 addr => s!"[{toString addr}]"
+    | .empty => ""
 
 /--
 Authority port representation, preserving the distinction between:

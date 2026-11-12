@@ -461,6 +461,13 @@ private def handleRecvEvent
     if state.machine.failed then
       if ¬(← Body.isClosed res.body) then Body.close res.body
       return ({ state with handlerDispatched := false }, false)
+    else if res.line.status.isInformational then
+      -- RFC 9110 §15.2: a 1xx response is interim, so it cannot end the exchange.
+      if ¬(← Body.isClosed res.body) then Body.close res.body
+      reportFailure handler s!"the handler returned the interim status {res.line.status.toCode} as its final response"
+      return ({ state with
+        machine := state.machine.closeWithError .internalServerError
+        handlerDispatched := false }, false)
     else
       let state ← refreshDate config state
       let (newMachine, newRespStream) ← applyResponse state.machine res

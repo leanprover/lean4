@@ -546,13 +546,16 @@ private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) 
 Whether the connection ends while the client may still be sending: the client has not closed its
 side, and the machine stopped before the end of a request, or with input it never read. The
 machine's `noMoreInput` is also set when the machine itself stops reading a request, as after a
-`417`, so it does not show that the client is done.
+`417`, so it does not show that the client is done. A request rejected from its head alone emits no
+`.endHeaders`, so only `machine.error` shows it: by the end the failed reader is `.closed`, and the
+body may not have arrived yet.
 -/
 private def peerMayStillSend (state : ConnectionState β) : Bool :=
   let machine := state.machine
   ¬state.peerClosed ∧
     (¬state.requestEnded ∨ ¬machine.reader.noMoreInput ∧
-      (machine.failed ∨ machine.reader.remainingBytes > 0 ∨ machine.reader.state matches .readBody _))
+      (machine.error.isSome ∨ machine.reader.remainingBytes > 0 ∨
+        machine.reader.state matches .readBody _))
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still

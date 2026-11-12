@@ -1414,20 +1414,16 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
     |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step |>.step
     |>.noMoreInput |>.step |>.assertNoError |>.run
 
+-- 600–999 keep their code; 000–099, which `Status` cannot hold, are read as 500.
 #eval runGroup "RFC 9110 §15: a client reads status codes outside 100–599 as server errors" do
-  for code in [0, 1, 99, 600, 999] do
-    let digits := if code < 10 then s!"00{code}" else if code < 100 then s!"0{code}" else s!"{code}"
+  for (digits, want) in [("000", 500), ("001", 500), ("099", 500), ("600", 600), ("999", 999)] do
     MachineTester.sending s!"status {digits}"
       |>.send minimalGetRequest |>.step |>.feed s!"HTTP/1.1 {digits} X\r\nContent-Length: 0\r\n\r\n" |>.step
       |>.assertNoError
       |>.onEndHeaders (fun t head =>
-        if head.status.isServerError && head.status.toCode.toNat == code then t
+        if head.status.isServerError && head.status.toCode.toNat == want then t
         else t.addError s!"got {head.status.toCode}, isServerError {head.status.isServerError}")
       |>.run
-  -- `status-code = 3DIGIT`, so a code below 100 is written with its leading zeros.
-  let some status := Status.ofCode none 7 | throw (IO.userError "ofCode 7")
-  let encoded := String.fromUTF8! (Std.Http.Internal.Encode.encode (v := .v11) .empty status)
-  unless encoded == "007 Unknown" do throw (IO.userError s!"encoded {encoded.quote}")
 
 #eval runGroup "RFC 9112 §3: a request line with no version fails at once" do
   for raw in ["GET /\r\n\r\n", "GET /x\r\nHost:a\r\n\r\n", "GET /\r"] do

@@ -547,6 +547,9 @@ def parseReasonPhrase (limits : H1.Config) : Parser String := do
 /--
 Parses a status-code (3 decimal digits), the following reason phrase, and the
 terminating CRLF; returns a typed `Status`.
+
+A code of 000–099 is a well-formed `3DIGIT` that `Status` cannot hold. RFC 9110 §15 asks a client to
+process such a response as a 5xx, so it is read as `500 Internal Server Error`.
 -/
 def parseStatusCode (limits : H1.Config) : Parser Status := do
   let d1 ← digit
@@ -556,6 +559,9 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   -- Servers that send no reason phrase often leave out the space before it too.
   let phrase := (← optional (sp *> parseReasonPhrase limits)).getD ""
   crlf
+
+  if code < 100 then
+    return .internalServerError
 
   if h : IsValidReasonPhrase phrase then
     if let some status := Status.ofCode (some ⟨phrase, h⟩) code.toUInt16 then

@@ -19,6 +19,8 @@ lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*
 lean_object* lean_obj_tag_nat(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -561,6 +563,9 @@ LEAN_EXPORT lean_object* l_Std_Http_Method_instEncodeV11___lam__0___boxed(lean_o
 static const lean_closure_object l_Std_Http_Method_instEncodeV11___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Http_Method_instEncodeV11___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Http_Method_instEncodeV11___closed__0 = (const lean_object*)&l_Std_Http_Method_instEncodeV11___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Method_instEncodeV11 = (const lean_object*)&l_Std_Http_Method_instEncodeV11___closed__0_value;
+static const lean_array_object l_Std_Http_Method_all___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*40, .m_other = 0, .m_tag = 246}, .m_size = 40, .m_capacity = 40, .m_data = {((lean_object*)(((size_t)(8) << 1) | 1)),((lean_object*)(((size_t)(23) << 1) | 1)),((lean_object*)(((size_t)(9) << 1) | 1)),((lean_object*)(((size_t)(27) << 1) | 1)),((lean_object*)(((size_t)(7) << 1) | 1)),((lean_object*)(((size_t)(22) << 1) | 1)),((lean_object*)(((size_t)(20) << 1) | 1)),((lean_object*)(((size_t)(5) << 1) | 1)),((lean_object*)(((size_t)(32) << 1) | 1)),((lean_object*)(((size_t)(28) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(1) << 1) | 1)),((lean_object*)(((size_t)(2) << 1) | 1)),((lean_object*)(((size_t)(3) << 1) | 1)),((lean_object*)(((size_t)(4) << 1) | 1)),((lean_object*)(((size_t)(6) << 1) | 1)),((lean_object*)(((size_t)(10) << 1) | 1)),((lean_object*)(((size_t)(11) << 1) | 1)),((lean_object*)(((size_t)(12) << 1) | 1)),((lean_object*)(((size_t)(13) << 1) | 1)),((lean_object*)(((size_t)(14) << 1) | 1)),((lean_object*)(((size_t)(15) << 1) | 1)),((lean_object*)(((size_t)(16) << 1) | 1)),((lean_object*)(((size_t)(17) << 1) | 1)),((lean_object*)(((size_t)(18) << 1) | 1)),((lean_object*)(((size_t)(19) << 1) | 1)),((lean_object*)(((size_t)(21) << 1) | 1)),((lean_object*)(((size_t)(24) << 1) | 1)),((lean_object*)(((size_t)(25) << 1) | 1)),((lean_object*)(((size_t)(26) << 1) | 1)),((lean_object*)(((size_t)(29) << 1) | 1)),((lean_object*)(((size_t)(30) << 1) | 1)),((lean_object*)(((size_t)(31) << 1) | 1)),((lean_object*)(((size_t)(33) << 1) | 1)),((lean_object*)(((size_t)(34) << 1) | 1)),((lean_object*)(((size_t)(35) << 1) | 1)),((lean_object*)(((size_t)(36) << 1) | 1)),((lean_object*)(((size_t)(37) << 1) | 1)),((lean_object*)(((size_t)(38) << 1) | 1)),((lean_object*)(((size_t)(39) << 1) | 1))}};
+static const lean_object* l_Std_Http_Method_all___closed__0 = (const lean_object*)&l_Std_Http_Method_all___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Http_Method_all = (const lean_object*)&l_Std_Http_Method_all___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Http_Method_ctorIdx___impl(uint8_t v_x_1_){
 _start:
 {

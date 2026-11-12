@@ -1,4 +1,4 @@
-class Preorder (α : Type u) extends LT α :=
+class Preorder (α : Type u) extends LT α where
   (le : α → α → Prop)
   (lt_iff_le_not_le : ∀ a b : α, lt a b ↔ (le a b ∧ ¬ le b a) := by intros; rfl)
 

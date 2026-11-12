@@ -635,13 +635,14 @@ def isClientError (c : Status) : Bool :=
 
 /--
 Checks if the type of the status code is a server error, meaning that the server failed to fulfill
-an apparently valid request.
+an apparently valid request. The invalid codes 600–999 count as server errors, as RFC 9110 §15 asks a
+client to treat them.
 
 Reference: https://httpwg.org/specs/rfc9110.html#status.codes
 -/
 @[inline]
 def isServerError (c : Status) : Bool :=
-  500 ≤ c.toCode ∧ c.toCode < 600
+  500 ≤ c.toCode
 
 /--
 Checks if the status code indicates an error (either client error 4xx or server error 5xx).

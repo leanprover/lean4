@@ -100,12 +100,15 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
         simpStuff := simpStuff.push ⟨arg⟩
         continue
       let term := arg[2]
-      match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
+      -- Deprecated constants are reported below if they are used as a spec, and by `simp` otherwise.
+      match ← Term.withoutCheckDeprecated (Term.resolveId? term (withInfo := true)) <|>
+          Term.elabCDotFunctionAlias? ⟨term⟩ with
       | some (.const declName _) =>
         try
           let some thm ← mkSpecTheoremFromConst declName explicitSpecPrio
             | throwError "not a spec theorem"
           specThms := specThms.insert thm
+          withRef term <| Term.checkDeprecatedCore declName
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
@@ -433,6 +436,7 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
       throwErrorAt stx[6] "`vcgen simp [...]` conflicts with the config option `simp := false`"
   let ctx := { ctx with
     simpMethods,
+    simpConfig := { maxSteps := config.simpMaxSteps, maxDischargeDepth := config.simpMaxDischargeDepth },
     frameProcs,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,

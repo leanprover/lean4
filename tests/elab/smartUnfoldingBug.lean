@@ -35,7 +35,7 @@ theorem skip_lt: (k j: Nat) →  skip k j < j + 2 :=
         let eqn := skip_below_eq k j c
         by
           rw [eqn]
-          apply Nat.le_step
+          apply Nat.le_succ_of_le
           apply Nat.le_refl
           done
       else
@@ -65,7 +65,7 @@ theorem witness_independent{α : Type}{n : Nat}(seq: FinSeq n α) :
 namespace FinSeq
 def init {α : Type}{n: Nat}(seq : FinSeq (n + 1) α): FinSeq n α :=
   fun k w =>
-      seq k (Nat.le_step w)
+      seq k (Nat.le_succ_of_le w)
 
 def last{α : Type}{n: Nat}(seq : FinSeq (n + 1) α): α :=
   seq n (Nat.le_refl _)

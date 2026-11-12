@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr
 public import Std.Tactic.BVDecide.Bitblast.EfficientEval
+public import Std.Tactic.BVDecide.Bitblast.Substitute
 
 @[expose] public section
 

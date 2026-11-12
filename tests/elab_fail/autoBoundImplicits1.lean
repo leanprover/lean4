@@ -41,7 +41,7 @@ def g (a : α) := xs.val.push a
 theorem ex3 : g ⟨#[0], rfl⟩ 1 = #[0, 1] :=
   rfl
 
-inductive Tree (α β : Type) :=
+inductive Tree (α β : Type) where
   | leaf1 : α → Tree α β
   | leaf2 : β → Tree α β
   | node : Tree α β → Tree α β → Tree α β

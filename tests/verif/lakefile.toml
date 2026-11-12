@@ -1,0 +1,6 @@
+name = "verif"
+defaultTargets = ["Verif"]
+
+[[lean_lib]]
+name = "Verif"
+globs = ["Verif.+"]

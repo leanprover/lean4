@@ -1,4 +1,4 @@
-structure BundledFunction (α β : Sort _) :=
+structure BundledFunction (α β : Sort _) where
 (toFun : α → β)
 
 namespace BundledFunction

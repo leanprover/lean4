@@ -20,7 +20,7 @@ def r (a : Nat) : Prop :=
 set_option pp.all true in
 #print r
 
-structure ConstantFunction (α β : Type) :=
+structure ConstantFunction (α β : Type) where
 (f : α → β)
 (h : ∀ a₁ a₂, f a₁ = f a₂)
 

@@ -191,7 +191,7 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
   · intros
     apply go_le_size
 
-attribute [local simp] LawfulMapOperator.denote_prefix_cast_ref in
+attribute [local simp] LawfulMapOperator.chainable in
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
     (input : RefVec aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :

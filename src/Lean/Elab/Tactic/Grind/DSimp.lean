@@ -26,7 +26,11 @@ def elabDSimpArgs (args? : Option (Array (TSyntax [`token.«*», `ident]))) : Gr
       if let some decl := lctx.findFromUserName? arg.raw.getId then
         fvarIds := fvarIds.push decl.fvarId
       else
-        declNames := declNames.push (← realizeGlobalConstNoOverload arg.raw)
+        let declName ← realizeGlobalConstNoOverload arg.raw
+        -- Definitions are unfolded, acting on occurrences that are already in the goal.
+        unless (← isDefn? declName).isSome do
+          Linter.checkDeprecatedAt arg declName
+        declNames := declNames.push declName
     else
       zetaDeltaAll := true
   if !fvarIds.isEmpty && zetaDeltaAll then

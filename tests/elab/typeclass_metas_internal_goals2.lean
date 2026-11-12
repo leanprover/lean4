@@ -1,7 +1,7 @@
 
-class Foo (α β : Type) : Type := (u : Unit := ())
-class Bar (α β : Type) : Type := (u : Unit := ())
-class Top : Type := (u : Unit := ())
+class Foo (α β : Type) : Type where (u : Unit := ())
+class Bar (α β : Type) : Type where (u : Unit := ())
+class Top : Type where (u : Unit := ())
 
 instance FooNatA (β : Type) : Foo Nat β := {u:=()}
 instance BarANat (α : Type) : Bar α Nat := {u:=()}

@@ -446,6 +446,15 @@ private def responseForbidsFramingHeaders (status : Status) : Bool :=
   (100 ≤ code ∧ code < 200) ∨ code = 204
 
 /--
+Returns `true` when a response with `status` to a request with `method` turns the connection into a
+tunnel: a 2xx to `CONNECT`. Such a response has no content and no framing fields (RFC 9110 §9.3.6).
+This server does not tunnel, so the connection closes after its head.
+-/
+@[inline]
+private def startsTunnel (method : Method) (status : Status) : Bool :=
+  method == .connect ∧ status.isSuccess
+
+/--
 Returns `true` when the body being read belongs to an interim (1xx) response. Such a response has no
 message body of its own: it is part of an exchange whose final response is still to come.
 -/
@@ -457,18 +466,24 @@ private def isInterimResponseBody (machine : Machine dir) : Bool :=
 
 /--
 Returns `true` when body chunks should be drained internally rather than surfaced to the caller.
+
+A server drains the rest of a request body only once its response is fully written: while the
+response is still being written, the handler may be reading the body, for example to stream it back.
+An empty remainder has nothing to deliver, so it is drained as soon as the response head is sent.
 -/
 @[inline]
 private def drainBodyInternally (machine : Machine dir) : Bool :=
   match dir with
-  | .receiving => machine.writer.sentMessage
+  | .receiving =>
+    (machine.writer.state matches .complete | .closed) ||
+    (machine.writer.sentMessage && machine.reader.state matches .readBody (.fixed 0))
   | .sending => machine.isInterimResponseBody
 
 /--
 Builds the externally exposed `PulledChunk` value from parsed body bytes.
 
 When body consumption is currently internal-only (e.g. request body being
-drained after a response was already sent), returns `none`.
+drained after the response was written), returns `none`.
 -/
 @[inline]
 private def mkPulledChunk? (machine : Machine dir)
@@ -563,8 +578,9 @@ def shouldFlush (machine : Machine dir) : Bool :=
   machine.writer.knownSize.isSome ∨
 
   -- Flush as soon as body bytes exist so keep-alive streaming does not wait
-  -- for producer EOF before sending first chunks.
-  machine.writer.userData.size > 0
+  -- for producer EOF before sending first chunks. An HTTP/1.0 request cannot be chunked (RFC 9112
+  -- §6.1), so it waits for its whole body, whose length its head must carry.
+  (machine.writer.userData.size > 0 ∧ ¬(dir matches .sending ∧ machine.writer.messageHead.version == .v10))
 
 /--
 Returns `true` if the writer is waiting for headers of a new message.
@@ -776,11 +792,12 @@ the `Connection` and framing fields the machine chose. The handler's own connect
 `upgrade`) go in that `Connection` field, before the machine's `close` or `keep-alive`.
 
 `version` is the request's version and selects the framing. The status line always carries
-HTTP/1.1, the highest version the server conforms to (RFC 9110 §6.2).
+HTTP/1.1, the highest version the server conforms to (RFC 9110 §6.2). A `tunnel` response (see
+`startsTunnel`) has no framing fields.
 -/
 private def encodeServerHead (head : Response.Head) (version : Version) (keepAlive : Bool)
-    (date : Option Header.Value) (agentName : Option Header.Value) (size : Body.Length) :
-    ByteArray :=
+    (date : Option Header.Value) (agentName : Option Header.Value) (size : Body.Length)
+    (tunnel : Bool := false) : ByteArray :=
   let status := head.status
   let out : ByteArray := ByteArray.empty ++ Version.v11 ++ ' ' ++ status ++ "\r\n"
   let out : ByteArray := head.headers.fold out fun out name value =>
@@ -808,7 +825,7 @@ private def encodeServerHead (head : Response.Head) (version : Version) (keepAli
   -- Framing fields are omitted for bodyless status codes (RFC 9110 §8.6, §15.4.5) and for
   -- HTTP/1.0 connection-close framing (RFC 7230 §3.3.1).
   let out : ByteArray :=
-    if responseForbidsFramingHeaders status ∨ status == .notModified then
+    if responseForbidsFramingHeaders status ∨ status == .notModified ∨ tunnel then
       out
     else
       match size with
@@ -860,12 +877,16 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
   let date := machine.date
   let agentName := machine.config.agentName
   let version := machine.reader.messageHead.version
+  let tunnel : Bool :=
+    match dir, machine.reader.messageHead, messageHead with
+    | .receiving, request, response => startsTunnel request.method response.status
+    | .sending, _, _ => false
   let outputData := machine.writer.outputData
 
   let outputData :=
     match dir, messageHead with
     | .receiving, messageHead =>
-      outputData.push (encodeServerHead messageHead version keepAlive date agentName size)
+      outputData.push (encodeServerHead messageHead version keepAlive date agentName size tunnel)
     | .sending, messageHead =>
       let headers := messageHead.headers
 
@@ -1037,9 +1058,10 @@ header-only responses.
 private def maybeSuppressOutgoingBody (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   match dir with
   | .receiving =>
-    let suppressByStatus := responseOmitsContent message.status
+    let tunnel := startsTunnel machine.reader.messageHead.method message.status
+    let suppressByStatus := responseOmitsContent message.status ∨ tunnel
     let suppressByMethod := machine.reader.messageHead.method == .head
-    let forceZero := responseForbidsFramingHeaders message.status
+    let forceZero := responseForbidsFramingHeaders message.status ∨ tunnel
     if suppressByStatus ∨ suppressByMethod then
       -- RFC 9110 §9.3.2: a HEAD response has the framing fields GET would have. With no known
       -- length that is chunked framing, not the `Content-Length: 0` of a body closed empty.
@@ -1059,14 +1081,34 @@ private def isWriterClosed (machine : Machine dir) : Bool :=
 
 /--
 Returns `true` when the outgoing message is a response that carries no body: one to a `HEAD`
-request, or one whose status forbids a body.
+request, one whose status forbids a body, or a 2xx to `CONNECT`.
 -/
 @[inline]
 private def omitsResponseBody (machine : Machine dir) (message : Message.Head dir.swap) : Bool :=
   match dir with
   | .receiving =>
-    responseOmitsContent message.status ∨ machine.reader.messageHead.method == .head
+    responseOmitsContent message.status ∨ machine.reader.messageHead.method == .head ∨
+      startsTunnel machine.reader.messageHead.method message.status
   | .sending => false
+
+/--
+Returns `true` when the outgoing message cannot be framed for HTTP/1.0, which defines no transfer
+coding (RFC 9112 §6.1): a response to an HTTP/1.0 request whose `Transfer-Encoding` lists a coding
+other than `chunked`, whose content would otherwise go out still coded, or an HTTP/1.0 request whose
+length was set as `chunked`.
+-/
+private def unframeableForHttp10 (machine : Machine dir) (message : Message.Head dir.swap) : Bool :=
+  match dir with
+  | .receiving =>
+    let coded :=
+      match message.headers.getAll? Header.Name.transferEncoding with
+      | none => false
+      | some values =>
+        match Header.TransferEncoding.parseFieldLines? values with
+        | some codings => codings.any (· != "chunked")
+        | none => false
+    machine.reader.messageHead.version == .v10 && coded
+  | .sending => message.version == .v10 && machine.writer.knownSize == some .chunked
 
 /--
 Send the head of a message to the machine.
@@ -1087,6 +1129,9 @@ Error` and closes the connection, and a client ends the exchange. Both emit `.fa
 `failed` stays `false`.
 A response without content (to `HEAD`, or a 204, 205 or 304) cannot contradict it, and a HEAD response
 advertises the `Content-Length` of its head.
+
+A message HTTP/1.0 cannot frame (see `unframeableForHttp10`) is rejected the same way. A 2xx to
+`CONNECT` is written without content or framing fields, and the connection then closes.
 -/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
@@ -1128,11 +1173,21 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
     match reconciled with
     | none => rejectOutgoingFraming machine
     | some machine =>
-      let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
-      let machine := maybeSuppressOutgoingBody machine message
-      match dir, machine with
-      | .sending, machine => machine.setWriterState .waitingForFlush |>.setReaderState .needStartLine
-      | .receiving, machine => machine.setWriterState .waitingForFlush
+      if unframeableForHttp10 machine message ∧ ¬omitsResponseBody machine message then
+        rejectOutgoingFraming machine
+      else
+        let tunnel : Bool :=
+          match dir, machine.reader.messageHead, message with
+          | .receiving, request, response => startsTunnel request.method response.status
+          | .sending, _, _ => false
+        let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
+        let machine := maybeSuppressOutgoingBody machine message
+        match dir, machine with
+        | .sending, machine => machine.setWriterState .waitingForFlush |>.setReaderState .needStartLine
+        | .receiving, machine =>
+          let machine := machine.setWriterState .waitingForFlush
+          -- What follows a tunnel's head is not HTTP, and this server does not tunnel.
+          if tunnel then machine.disableKeepAlive.closeReader.setReaderState .closed else machine
 
 /--
 Enqueues body chunks into the writer buffer for encoding and sending.
@@ -1193,8 +1248,8 @@ Sends an error response with `Connection: close` and shuts down input.
 
 If the machine is waiting to send a message, sends `status` with a `Connection: close`
 header and a short `text/plain` explanation (letting the step function encode and flush the
-response), then stops accepting further input. Otherwise, closes the writer directly and
-stops accepting further input.
+response), then stops accepting further input. Otherwise, closes the writer directly, ends
+keep-alive and stops accepting further input.
 -/
 def closeWithError (machine : Machine .receiving) (status : Status) : Machine .receiving :=
   if machine.isWaitingMessage then
@@ -1202,7 +1257,9 @@ def closeWithError (machine : Machine .receiving) (status : Status) : Machine .r
       |>.closeReader
       |>.noMoreInput
   else
-    machine.closeWriter.closeReader.noMoreInput
+    -- With keep-alive on, a reader that finished its request would wait for the next one whenever
+    -- unread input follows it, and the machine would never halt.
+    machine.disableKeepAlive.closeWriter.closeReader.noMoreInput
 
 /--
 Takes and clears all accumulated events, returning the drained array.
@@ -1262,6 +1319,8 @@ private def processCompleteStep (machine : Machine dir) : Machine dir :=
   -- so close the connection regardless of `keepAlive`.
   else if machine.isReaderAwaitingContinue then
     machine.setWriterState .closed
+    |>.closeReader
+    |>.setReaderState .closed
     |>.addEvent .close
   else if machine.keepAlive then
     machine
@@ -1654,6 +1713,13 @@ private def typedHeader? (name : String) (value : String) : Option (Header.Name 
   Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value
 
 /--
+Whether the unread input holds nothing but `CR` and `LF` bytes. Scans in place and stops at the
+first other byte; `ByteArray.data` would box a copy of the whole buffer.
+-/
+private def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
+  (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
+
+/--
 Classifies hard request start-line parse failures into protocol-level errors.
 -/
 @[inline]
@@ -1671,7 +1737,8 @@ for header parsing.
 private partial def processReceivingStartLine (machine : Machine .receiving) : Machine .receiving :=
   -- `maxStartLineLength` is checked on the complete line only: on an incomplete line it fires before
   -- the parser's `maxUriLength` check, so the status would depend on where a read ends. The parser's
-  -- own limits (leading empty lines, method, `maxUriLength`) bound an incomplete line.
+  -- own limits (leading empty lines, method, `maxUriLength`) bound an incomplete line, and they
+  -- leave only the target unbounded, so a line over the limit gets 414 (RFC 9112 §3).
   let remaining := machine.reader.input.remainingBytes
   let (parsed, result) := parseWith machine
     (parseRequestLineRawVersion machine.config)
@@ -1681,7 +1748,7 @@ private partial def processReceivingStartLine (machine : Machine .receiving) : M
   match result with
   | some (method, uri, version) =>
     if remaining - parsed.reader.input.remainingBytes > machine.config.maxStartLineLength then
-      machine.setFailure .badMessage
+      machine.setFailure .uriTooLong
     else
       match version with
       | some (v@Version.v11) | some (v@Version.v10) =>
@@ -1731,8 +1798,10 @@ dispatches to request-line/status-line parsing based on machine direction.
 private partial def processNeedStartLine (machine : Machine dir) : Machine dir :=
   let reader := machine.reader
 
-  -- Closed connection, no more data
-  if reader.noMoreInput ∧ reader.input.atEnd then
+  -- Closed connection, no more data. RFC 9112 §2.2: a server ignores empty lines before a
+  -- request-line, so input that ends with nothing but line terminators ends it as plain EOF does.
+  if reader.noMoreInput ∧
+      (reader.input.atEnd ∨ (dir matches .receiving ∧ onlyLineEndsLeft reader.input)) then
     machine.setReaderState .closed
 
   -- No more data

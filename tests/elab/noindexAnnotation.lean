@@ -1,4 +1,4 @@
-structure Fin2 (n : Nat) :=
+structure Fin2 (n : Nat) where
   (val  : Nat)
   (isLt : val < n)
 

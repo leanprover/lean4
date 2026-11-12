@@ -52,6 +52,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
     -- IR is (currently) exported always, so access to private decls is fine here.
     withoutExporting do
       let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      Core.checkDeprecatedAt fnNameStx fnName
       let fnDecl ← getConstVal fnName
       unless decl.levelParams.length == fnDecl.levelParams.length do
         throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has {fnDecl.levelParams.length} universe level parameter(s), but `{.ofConstName declName}` has {decl.levelParams.length}"

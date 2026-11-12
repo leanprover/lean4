@@ -1,4 +1,4 @@
-inductive FinInt: Nat → Type :=
+inductive FinInt: Nat → Type where
   | nil: FinInt 0
   | next: Bool → FinInt n → FinInt (n+1)
 deriving DecidableEq
@@ -8,7 +8,7 @@ def zero (sz: Nat): FinInt sz :=
   | 0 => .nil
   | sz+1 => .next false (zero sz)
 
-inductive Pair :=
+inductive Pair where
   | mk (sz: Nat) (lhs rhs: FinInt sz)
 
 def makePair?: (n m: (sz: Nat) × FinInt sz) → Option Pair

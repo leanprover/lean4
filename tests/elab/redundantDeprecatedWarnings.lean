@@ -10,6 +10,15 @@ def baz (x : Nat) := x + 1
 @[deprecated foo (since:="2025-06-23")]
 def baz2 (x : Nat) := x + 1
 
+/--
+warning: `qux` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵deprecated bar +typeChanged (since:="2025-06-23")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
 @[simp,deprecated bar +typeChanged (since:="2025-06-23")]
 theorem qux (x : Nat) : foo x = baz x := rfl
 
@@ -18,6 +27,15 @@ theorem quux (x : Nat) : foo x = x + 1 := by
   rw [qux x]
   rfl
 
+/--
+warning: `qux2` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated bar +typeChanged (since:="2025-06-23")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
 @[simp, deprecated bar +typeChanged (since:="2025-06-23")]
 theorem qux2 (x : Nat) : foo x = baz x := rfl
 

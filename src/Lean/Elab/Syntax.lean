@@ -101,6 +101,7 @@ def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserResolu
       throwError m!"Declaration `{.ofConstName parser}` must be marked or imported as `meta` to be used as parser"
     recordExtraModUseFromDecl (isMeta := true) parser
     addTermInfo' stx (Lean.mkConst parser)
+    withRef stx <| checkDeprecatedCore parser
     return n
   | [n@(.alias _)] =>
     return n
@@ -392,7 +393,7 @@ def adaptRulesExpander (exp : Syntax → CommandElabM (Option SyntaxNodeKind × 
   let elabExpansion := withMacroExpansion stx stx' <| elabCommand stx'
   unless k?.any (isDeprecatedSyntax (← getEnv)) do
     return ← elabExpansion
-  withReader ({ · with checkDeprecated := .none }) elabExpansion
+  withoutCheckDeprecated elabExpansion
 
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with

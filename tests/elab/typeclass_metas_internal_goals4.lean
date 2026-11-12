@@ -1,7 +1,7 @@
 
-class Foo (α β γ : Type) := (u:Unit)
-class Bar (α β γ : Type) := (u:Unit)
-class Top := (u:Unit)
+class Foo (α β γ : Type) where (u:Unit)
+class Bar (α β γ : Type) where (u:Unit)
+class Top where (u:Unit)
 set_option synthInstance.checkSynthOrder false in
 instance FooBarToTop (α β γ : Type) [Foo α β γ] [Bar α β γ] : Top := {u:=()}
 

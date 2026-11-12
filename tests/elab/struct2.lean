@@ -1,11 +1,11 @@
 universe u v w
 
-structure A (α : Type u) :=
+structure A (α : Type u) where
 (f : (β : Type u) → α → β → α)
 
 set_option pp.all true
 
-structure B (α : Type u) extends A α :=
+structure B (α : Type u) extends A α where
 (x : Nat)
 (f := fun β a b => a)
 

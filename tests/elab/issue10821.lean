@@ -12,6 +12,9 @@ def Nat.inc' (n : Nat) : Nat := n + 1
 /--
 @ +3:5...9
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
+
+Hint: Replace the deprecated name:
+  inc'̵
 -/
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=
@@ -21,6 +24,9 @@ example (n : Nat) : Nat :=
 /--
 @ +2:7...11
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
+
+Hint: Replace the deprecated name:
+  inc'̵
 -/
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=
@@ -29,6 +35,9 @@ example (n : Nat) : Nat :=
 /--
 @ +2:6...10
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
+
+Hint: Replace the deprecated name:
+  inc'̵
 -/
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=
@@ -37,6 +46,9 @@ example (n : Nat) : Nat :=
 /--
 @ +2:4...8
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
+
+Hint: Replace the deprecated name:
+  inc'̵
 -/
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=

@@ -24,7 +24,9 @@ namespace Std.Http.URI
 set_option linter.all true
 
 /--
-Per-component size limits for the URI parser.
+Per-component size limits for the URI parser. The defaults bound a URI by its total path and query
+lengths; the component limits below them only reject what those already would, except the host's,
+which is the length of a DNS name.
 -/
 structure Config where
   /--
@@ -32,10 +34,11 @@ structure Config where
   The scheme grammar requires at least one leading ALPHA; the remaining budget is
   `max(0, maxSchemeLength - 1)` additional characters.
   -/
-  maxSchemeLength : Nat := 13
+  maxSchemeLength : Nat := 64
 
   /--
-  Maximum length of the host `reg-name` component, in bytes.
+  Maximum length of the host `reg-name` component after percent-decoding, in bytes, not counting
+  the trailing `.` of a fully qualified name.
   -/
   maxHostLength : Nat := 253
 
@@ -47,7 +50,7 @@ structure Config where
   /--
   Maximum length of a single path segment, in bytes.
   -/
-  maxSegmentLength : Nat := 256
+  maxSegmentLength : Nat := 8192
 
   /--
   Maximum length of the query string, in bytes.
@@ -59,13 +62,13 @@ structure Config where
   /--
   Maximum length of the fragment component, in bytes.
   -/
-  maxFragmentLength : Nat := 1024
+  maxFragmentLength : Nat := 8192
 
   /--
   Maximum number of path segments.
   Prevents excessive segment counts that could arise from paths like `/a/b/c/…` repeated many times.
   -/
-  maxPathSegments : Nat := 128
+  maxPathSegments : Nat := 8192
 
   /--
   Maximum total byte length of the path (all segments combined, including separating slashes).
@@ -75,6 +78,6 @@ structure Config where
   /--
   Maximum number of query parameters (key-value pairs separated by `&`).
   -/
-  maxQueryParams : Nat := 100
+  maxQueryParams : Nat := 8192
 
 end Std.Http.URI

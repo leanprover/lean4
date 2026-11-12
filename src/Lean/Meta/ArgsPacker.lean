@@ -243,44 +243,51 @@ namespace Mutual
 
 /-!
 Helpers for iterated `PSum`.
+
+The `PSum` types form a balanced binary tree, so that the nesting depth of the packed arguments
+and of the `PSum.casesOn` that take them apart is logarithmic in the number of functions. For up to
+three functions, this is `t₁ ⊕' t₂ ⊕' t₃`.
 -/
 
-/-- Given types `#[t₁, t₂,…]`, returns the type `t₁ ⊕' t₂ …`. -/
-def packType (ds : Array Expr) : MetaM Expr := do
-  let mut r := ds.back!
-  for d in ds.pop.reverse do
-    r ← mkAppM ``PSum #[d, r]
-  return r
+/-- The number of functions in the left subtree of a tree of `n ≥ 2` functions. -/
+private def numLeft (n : Nat) : Nat := n / 2
 
-/-- Given type `A ⊕' B ⊕' … ⊕' D`, return `[A, B, …, D]` -/
-private def unpackType (n : Nat) (type : Expr) : MetaM (List Expr) :=
-  match n with
-  | 0 => pure []
-  | 1 => pure [type]
-  | n+1 =>
-    match_expr type with
-    | PSum a b => return a :: (← unpackType n b)
-    | _ => throwError "Mutual.unpackType: Expected PSum type, got {type}"
+/-- Given types `#[t₁, t₂,…]`, returns their `PSum`. -/
+partial def packType (ds : Array Expr) : MetaM Expr := do
+  if ds.size ≤ 1 then
+    return ds[0]!
+  let k := numLeft ds.size
+  mkAppM ``PSum #[← packType (ds.extract 0 k), ← packType (ds.extract k)]
+
+/-- Given the `PSum` of `n` types `A, B, …, D`, return `[A, B, …, D]` -/
+private partial def unpackType (n : Nat) (type : Expr) : MetaM (List Expr) := do
+  if n = 0 then
+    return []
+  if n = 1 then
+    return [type]
+  match_expr type with
+  | PSum a b =>
+    let k := numLeft n
+    return (← unpackType k a) ++ (← unpackType (n - k) b)
+  | _ => throwError "Mutual.unpackType: Expected PSum type, got {type}"
 
 /--
 If `arg` is the argument to the `fidx`th of the `argsPacker.numFuncs` in the recursive group,
 then `mk` packs that argument in `PSum.inl` and `PSum.inr` constructors
 to create the mutual-packed argument of type `domain`.
 -/
-def pack (numFuncs : Nat) (domain : Expr) (fidx : Nat) (arg : Expr) : MetaM Expr := do
-  let rec go (i : Nat) (type : Expr) : MetaM Expr := do
-    if i >= numFuncs - 1 then
-      return arg
+partial def pack (numFuncs : Nat) (domain : Expr) (fidx : Nat) (arg : Expr) : MetaM Expr := do
+  if numFuncs ≤ 1 then
+    return arg
+  (← whnfD domain).withApp fun f args => do
+    assert! args.size == 2
+    let k := numLeft numFuncs
+    if fidx < k then
+      let r ← pack k args[0]! fidx arg
+      return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0]! args[1]! r
     else
-      (← whnfD type).withApp fun f args => do
-        assert! args.size == 2
-        if i == fidx then
-          return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0]! args[1]! arg
-        else
-          let r ← go (i+1) args[1]!
-          return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0]! args[1]! r
-    termination_by numFuncs - 1 - i
-  go 0 domain
+      let r ← pack (numFuncs - k) args[1]! (fidx - k) arg
+      return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0]! args[1]! r
 
 /--
 Unpacks a mutually packed argument created with `Mutual.mk` returning the
@@ -288,19 +295,17 @@ argument and function index.
 
 Throws an error if the expression is not of that form.
 -/
-def unpack (numFuncs : Nat) (expr : Expr) : Option (Nat × Expr) := do
-  let mut funidx := 0
-  let mut e := expr
-  while funidx + 1 < numFuncs do
-    if e.isAppOfArity ``PSum.inr 3 then
-      e := e.getArg! 2
-      funidx := funidx + 1
-    else if e.isAppOfArity ``PSum.inl 3 then
-      e := e.getArg! 2
-      break
-    else
-      none
-  return (funidx, e)
+partial def unpack (numFuncs : Nat) (e : Expr) : Option (Nat × Expr) := do
+  if numFuncs ≤ 1 then
+    return (0, e)
+  let k := numLeft numFuncs
+  if e.isAppOfArity ``PSum.inl 3 then
+    unpack k (e.getArg! 2)
+  else if e.isAppOfArity ``PSum.inr 3 then
+    let (funidx, e) ← unpack (numFuncs - k) (e.getArg! 2)
+    return (k + funidx, e)
+  else
+    none
 
 
 /--
@@ -312,24 +317,26 @@ This function assumes (and does not check) that `Rᵢ` all have the same level.
 -/
 def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
   let u ← forallBoundedTelescope types[0]! (some 1) fun _ body => getLevel body
-  let rec go (x : Expr) (i : Nat) : MetaM Expr := do
-    if i < types.size - 1 then
-      let xType ← whnfD (← inferType x)
-      assert! xType.isAppOfArity ``PSum 2
-      let xTypeArgs := xType.getAppArgs
-      let casesOn := mkConst ``PSum.casesOn (mkLevelSucc u :: xType.getAppFn.constLevels!)
-      let casesOn := mkAppN casesOn xTypeArgs -- parameters
-      let casesOn := mkApp casesOn (← mkLambdaFVars #[x] (mkSort u)) -- motive
-      let casesOn := mkApp casesOn x -- major
-      let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0]! fun x => do
-        mkLambdaFVars #[x] (types[i]!.bindingBody!.instantiate1 x)
-      let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[1]! fun x => do
-        mkLambdaFVars #[x] (← go x (i+1))
-      return mkApp2 casesOn minor1 minor2
-    else
-      return types[i]!.bindingBody!.instantiate1 x
-    termination_by types.size - 1 - i
-  go x 0
+  go u types x
+where
+  go (u : Level) (types : Array Expr) (x : Expr) : MetaM Expr := do
+    if _ : types.size ≤ 1 then
+      return types[0]!.bindingBody!.instantiate1 x
+    let k := numLeft types.size
+    let xType ← whnfD (← inferType x)
+    assert! xType.isAppOfArity ``PSum 2
+    let xTypeArgs := xType.getAppArgs
+    let casesOn := mkConst ``PSum.casesOn (mkLevelSucc u :: xType.getAppFn.constLevels!)
+    let casesOn := mkAppN casesOn xTypeArgs -- parameters
+    let casesOn := mkApp casesOn (← mkLambdaFVars #[x] (mkSort u)) -- motive
+    let casesOn := mkApp casesOn x -- major
+    let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0]! fun x => do
+      mkLambdaFVars #[x] (← go u (types.extract 0 k) x)
+    let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[1]! fun x => do
+      mkLambdaFVars #[x] (← go u (types.extract k) x)
+    return mkApp2 casesOn minor1 minor2
+  termination_by types.size
+  decreasing_by all_goals simp only [Array.size_extract, numLeft]; omega
 
 /--
 Given types `(x : A) → R₁[x]` and `(z : B) → R₂[z]`, returns the type
@@ -383,24 +390,27 @@ matches on `x` to apply the right `alt` to produce a value of `codomain[x]`.
 
 Uses the variable name from the lambda in `altᵢ`, if present.
 -/
-private def casesOn (x : Expr) (codomain : Expr) (alts : List Expr) : MetaM Expr := do
-  match alts with
-  | [] => throwError "Mutual.casesOn: no alternatives"
-  | [alt] => return alt.beta #[x]
-  | alt₁ :: alts => do
-    let t ← inferType x
-    match_expr t with
-    | PSum a b =>
-      let u ← getLevel codomain
-      let us := t.getAppFn.constLevels!
-      let motive ← mkLambdaFVars #[x] codomain
-      let alt₂ ←
-        if let [alt] := alts then pure alt else
-        withLocalDeclD (← mkFreshUserName `_x) b fun y => do
-          let codomain' := motive.beta #[mkApp3 (.const ``PSum.inr us) a b y]
-          mkLambdaFVars #[y] (← casesOn y codomain' alts)
-      return mkApp6 (.const ``PSum.casesOn (u::us)) a b motive x alt₁ alt₂
-    | _ => throwError "Mutual.casesOn: Expected PSum type, got {t}"
+private partial def casesOn (x : Expr) (codomain : Expr) (alts : Array Expr) : MetaM Expr := do
+  if alts.isEmpty then
+    throwError "Mutual.casesOn: no alternatives"
+  if alts.size = 1 then
+    return alts[0]!.beta #[x]
+  let t ← inferType x
+  match_expr t with
+  | PSum a b =>
+    let u ← getLevel codomain
+    let us := t.getAppFn.constLevels!
+    let motive ← mkLambdaFVars #[x] codomain
+    let mkAlt (ctor : Name) (d : Expr) (alts : Array Expr) : MetaM Expr := do
+      if alts.size = 1 then return alts[0]!
+      withLocalDeclD (← mkFreshUserName `_x) d fun y => do
+        let codomain' := motive.beta #[mkApp3 (.const ctor us) a b y]
+        mkLambdaFVars #[y] (← casesOn y codomain' alts)
+    let k := numLeft alts.size
+    let alt₁ ← mkAlt ``PSum.inl a (alts.extract 0 k)
+    let alt₂ ← mkAlt ``PSum.inr b (alts.extract k)
+    return mkApp6 (.const ``PSum.casesOn (u::us)) a b motive x alt₁ alt₂
+  | _ => throwError "Mutual.casesOn: Expected PSum type, got {t}"
 
 /--
 Given unary expressions `e₁`, `e₂` with types `(x : A) → R₁[x]`
@@ -412,7 +422,7 @@ and `(z : C) → R₂[z]`, returns an expression of type
 def uncurryWithType (resultType : Expr) (es : Array Expr) : MetaM Expr := do
   forallBoundedTelescope resultType (some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
-    let value ← casesOn x codomain es.toList
+    let value ← casesOn x codomain es
     mkLambdaFVars #[x] value
 
 def uncurry (es : Array Expr) : MetaM Expr := do
@@ -432,7 +442,7 @@ def uncurryND (es : Array Expr) : MetaM Expr := do
   let resultType ← uncurryTypeND types
   forallBoundedTelescope resultType (some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
-    let value ← casesOn x codomain es.toList
+    let value ← casesOn x codomain es
     mkLambdaFVars #[x] value
 
 /--

@@ -667,14 +667,14 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
    move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
    out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+// sync with tests/verif/Verif/runtime/RC.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
 /* Whether the count of `o` is thread-shared and not stuck, that is, one that increments still
    adjust. Read as unsigned, a persistent count (0), a single-threaded count and a stuck count all
    fall below every such count, so one comparison rejects them all. */
-// sync with tests/elab/rc_model.lean (`isUnstuckMt_unsigned`)
+// sync with tests/verif/Verif/runtime/RC.lean (`isUnstuckMt_unsigned`)
 static inline bool lean_is_unstuck_mt(lean_object * o) {
     return (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY;
 }
@@ -682,7 +682,7 @@ static inline bool lean_is_unstuck_mt(lean_object * o) {
 /* Whether the count of `o` is one no drop will ever free: persistent, or at or below the drop
    threshold. Read as unsigned, both fall below every unstuck thread-shared count, so one comparison
    catches both; so would a single-threaded count, which callers must have excluded first. */
-// sync with tests/elab/rc_model.lean (`isNeverFreed_unsigned`)
+// sync with tests/verif/Verif/runtime/RC.lean (`isNeverFreed_unsigned`)
 static inline bool lean_is_never_freed(lean_object * o) {
     assert(!lean_is_st(o));
     return (unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP;
@@ -695,7 +695,7 @@ static inline bool lean_is_never_freed(lean_object * o) {
    of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
    adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
    so a constant `n` folds this test away and never reaches the bound. */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_INC_MAX`)
+// sync with tests/verif/Verif/runtime/RC.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)0x10000)
 
 /* An overflowing single-threaded count lands at or below this: the inline increment wraps it into
@@ -704,13 +704,13 @@ static inline bool lean_is_never_freed(lean_object * o) {
    above it while at most 4094 maximal increments are in flight at once, two fewer than the sticky
    range already allows before a frozen count wraps into the single-threaded range (i.e. about
    equally safe to assume not to happen in practice). */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_STUCK_ST`)
+// sync with tests/verif/Verif/runtime/RC.lean (`LEAN_RC_STUCK_ST`)
 #define LEAN_RC_STUCK_ST (INT_MIN + (int)LEAN_RC_INC_MAX)
 
 /* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
-// sync with tests/elab/rc_model.lean (`incRefN`)
+// sync with tests/verif/Verif/runtime/RC.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     // A count above this could wrap clean past the sticky range, on either the single-threaded or
     // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
@@ -737,7 +737,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
-// sync with tests/elab/rc_model.lean (`decRef`)
+// sync with tests/verif/Verif/runtime/RC.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);

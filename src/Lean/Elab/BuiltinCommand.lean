@@ -317,6 +317,7 @@ private partial def elabChoiceAux (choiceStx : Syntax) (i : Nat) : CommandElabM 
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
     let openDecls ← elabOpenDecl decl
+      (reportDeprecated := fun idStx declName => liftTermElabM <| checkDeprecatedOpenedName idStx declName)
     modifyScope fun scope => { scope with openDecls := openDecls }
   | _ => throwUnsupportedSyntax
 

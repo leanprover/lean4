@@ -115,6 +115,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_chain_elim___redArg(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_chain_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_node_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_node_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_lazy_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_lazy_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_suffix_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_suffix_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Key_ctorIdx___impl(lean_object* v_x_1_){
 _start:
 {
@@ -1093,7 +1097,9 @@ return v_res_353_;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(lean_object* v_t_354_, lean_object* v_k_355_){
 _start:
 {
-if (lean_obj_tag(v_t_354_) == 0)
+switch(lean_obj_tag(v_t_354_))
+{
+case 0:
 {
 lean_object* v_key_356_; lean_object* v_child_357_; lean_object* v___x_358_; 
 v_key_356_ = lean_ctor_get(v_t_354_, 0);
@@ -1104,7 +1110,7 @@ lean_dec_ref_known(v_t_354_, 2);
 v___x_358_ = lean_apply_2(v_k_355_, v_key_356_, v_child_357_);
 return v___x_358_;
 }
-else
+case 1:
 {
 lean_object* v_vs_359_; lean_object* v_children_360_; lean_object* v___x_361_; 
 v_vs_359_ = lean_ctor_get(v_t_354_, 0);
@@ -1115,55 +1121,110 @@ lean_dec_ref_known(v_t_354_, 2);
 v___x_361_ = lean_apply_2(v_k_355_, v_vs_359_, v_children_360_);
 return v___x_361_;
 }
+case 2:
+{
+lean_object* v_t_362_; lean_object* v___x_363_; 
+v_t_362_ = lean_ctor_get(v_t_354_, 0);
+lean_inc_ref(v_t_362_);
+lean_dec_ref_known(v_t_354_, 1);
+v___x_363_ = lean_apply_1(v_k_355_, v_t_362_);
+return v___x_363_;
+}
+default: 
+{
+lean_object* v_keys_364_; lean_object* v_i_365_; lean_object* v_v_366_; lean_object* v___x_367_; 
+v_keys_364_ = lean_ctor_get(v_t_354_, 0);
+lean_inc_ref(v_keys_364_);
+v_i_365_ = lean_ctor_get(v_t_354_, 1);
+lean_inc(v_i_365_);
+v_v_366_ = lean_ctor_get(v_t_354_, 2);
+lean_inc(v_v_366_);
+lean_dec_ref_known(v_t_354_, 3);
+v___x_367_ = lean_apply_3(v_k_355_, v_keys_364_, v_i_365_, v_v_366_);
+return v___x_367_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_ctorElim(lean_object* v_00_u03b1_362_, lean_object* v_motive__1_363_, lean_object* v_ctorIdx_364_, lean_object* v_t_365_, lean_object* v_h_366_, lean_object* v_k_367_){
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_ctorElim(lean_object* v_00_u03b1_368_, lean_object* v_motive__1_369_, lean_object* v_ctorIdx_370_, lean_object* v_t_371_, lean_object* v_h_372_, lean_object* v_k_373_){
 _start:
 {
-lean_object* v___x_368_; 
-v___x_368_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_365_, v_k_367_);
-return v___x_368_;
+lean_object* v___x_374_; 
+v___x_374_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_371_, v_k_373_);
+return v___x_374_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_ctorElim___boxed(lean_object* v_00_u03b1_369_, lean_object* v_motive__1_370_, lean_object* v_ctorIdx_371_, lean_object* v_t_372_, lean_object* v_h_373_, lean_object* v_k_374_){
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_ctorElim___boxed(lean_object* v_00_u03b1_375_, lean_object* v_motive__1_376_, lean_object* v_ctorIdx_377_, lean_object* v_t_378_, lean_object* v_h_379_, lean_object* v_k_380_){
 _start:
 {
-lean_object* v_res_375_; 
-v_res_375_ = l_Lean_Meta_DiscrTree_Trie_ctorElim(v_00_u03b1_369_, v_motive__1_370_, v_ctorIdx_371_, v_t_372_, v_h_373_, v_k_374_);
-lean_dec(v_ctorIdx_371_);
-return v_res_375_;
+lean_object* v_res_381_; 
+v_res_381_ = l_Lean_Meta_DiscrTree_Trie_ctorElim(v_00_u03b1_375_, v_motive__1_376_, v_ctorIdx_377_, v_t_378_, v_h_379_, v_k_380_);
+lean_dec(v_ctorIdx_377_);
+return v_res_381_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_chain_elim___redArg(lean_object* v_t_376_, lean_object* v_chain_377_){
-_start:
-{
-lean_object* v___x_378_; 
-v___x_378_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_376_, v_chain_377_);
-return v___x_378_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_chain_elim(lean_object* v_00_u03b1_379_, lean_object* v_motive__1_380_, lean_object* v_t_381_, lean_object* v_h_382_, lean_object* v_chain_383_){
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_chain_elim___redArg(lean_object* v_t_382_, lean_object* v_chain_383_){
 _start:
 {
 lean_object* v___x_384_; 
-v___x_384_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_381_, v_chain_383_);
+v___x_384_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_382_, v_chain_383_);
 return v___x_384_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_node_elim___redArg(lean_object* v_t_385_, lean_object* v_node_386_){
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_chain_elim(lean_object* v_00_u03b1_385_, lean_object* v_motive__1_386_, lean_object* v_t_387_, lean_object* v_h_388_, lean_object* v_chain_389_){
 _start:
 {
-lean_object* v___x_387_; 
-v___x_387_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_385_, v_node_386_);
-return v___x_387_;
+lean_object* v___x_390_; 
+v___x_390_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_387_, v_chain_389_);
+return v___x_390_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_node_elim(lean_object* v_00_u03b1_388_, lean_object* v_motive__1_389_, lean_object* v_t_390_, lean_object* v_h_391_, lean_object* v_node_392_){
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_node_elim___redArg(lean_object* v_t_391_, lean_object* v_node_392_){
 _start:
 {
 lean_object* v___x_393_; 
-v___x_393_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_390_, v_node_392_);
+v___x_393_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_391_, v_node_392_);
 return v___x_393_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_node_elim(lean_object* v_00_u03b1_394_, lean_object* v_motive__1_395_, lean_object* v_t_396_, lean_object* v_h_397_, lean_object* v_node_398_){
+_start:
+{
+lean_object* v___x_399_; 
+v___x_399_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_396_, v_node_398_);
+return v___x_399_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_lazy_elim___redArg(lean_object* v_t_400_, lean_object* v_lazy_401_){
+_start:
+{
+lean_object* v___x_402_; 
+v___x_402_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_400_, v_lazy_401_);
+return v___x_402_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_lazy_elim(lean_object* v_00_u03b1_403_, lean_object* v_motive__1_404_, lean_object* v_t_405_, lean_object* v_h_406_, lean_object* v_lazy_407_){
+_start:
+{
+lean_object* v___x_408_; 
+v___x_408_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_405_, v_lazy_407_);
+return v___x_408_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_suffix_elim___redArg(lean_object* v_t_409_, lean_object* v_suffix_410_){
+_start:
+{
+lean_object* v___x_411_; 
+v___x_411_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_409_, v_suffix_410_);
+return v___x_411_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_suffix_elim(lean_object* v_00_u03b1_412_, lean_object* v_motive__1_413_, lean_object* v_t_414_, lean_object* v_h_415_, lean_object* v_suffix_416_){
+_start:
+{
+lean_object* v___x_417_; 
+v___x_417_ = l_Lean_Meta_DiscrTree_Trie_ctorElim___redArg(v_t_414_, v_suffix_416_);
+return v___x_417_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);

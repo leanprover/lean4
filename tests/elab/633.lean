@@ -7,7 +7,7 @@ def uext {w:Nat} (x: expression w) (o:Nat) : expression w := expression.const _
 def eval {n : Nat} (v:expression n) : semantics (expression n) := pure (expression.const _)
 def set_overflow {w : Nat} (e : expression w) : semantics Unit := pure ()
 
-structure instruction :=
+structure instruction where
   (mnemonic:String)
   (patterns:List Nat)
 

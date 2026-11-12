@@ -281,12 +281,11 @@ def isCommon (cutoff : Nat) (e : Expr) : AUM Bool := do
   let some d := (← getLCtx).find? fvarId | return false
   return d.index < cutoff
 
-/-- The positions of `fn` applied to `n` arguments at which a hole breaks the type of the
-application: the instances, and the arguments that a later argument or the result type depends
-on. -/
+/-- The positions of `fn` applied to `n` arguments at which the anti-unifier has no hole: the
+instances, the proofs, and the arguments that a later argument or the result type depends on. -/
 def rigidArgs (fn : Expr) (n : Nat) : MetaM (Array Bool) := do
   let info ← getFunInfoNArgs fn n
-  let mut rigid := info.paramInfo.map fun p => p.hasFwdDeps || p.isInstImplicit
+  let mut rigid := info.paramInfo.map fun p => p.hasFwdDeps || p.isInstImplicit || p.isProp
   for i in info.resultDeps do
     rigid := rigid.setIfInBounds i true
   return rigid

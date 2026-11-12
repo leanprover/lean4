@@ -33,6 +33,28 @@ example : ⦃fun s => s = s₀⦄ addOneOrTwo o ⦃fun _ s => s₀ < s⦄ := by
   trace_state
   all_goals grind
 
+-- The hole values `0` and `0 + 1` are in `simp` normal form in the hypothesis, so `simp` leaves the
+-- binder domain of the join RHS unchanged.
+def addZeroOrOne (c : Bool) : StateM Nat Unit := do
+  let mut x ← get
+  if c then x := x + 0 else x := x + (0 + 1)
+  set x
+
+/--
+trace: case vc1
+c : Bool
+s₀ s✝¹ : Nat
+x✝¹ : PUnit
+x✝ s✝ : Nat
+h✝ : ∃ z, (x✝ = s₀ + z ∧ s✝ = s₀) ∧ (c = true ∧ z = 0 ∨ ¬c = true ∧ z = 1)
+⊢ s₀ ≤ x✝
+-/
+#guard_msgs in
+example : ⦃fun s => s = s₀⦄ addZeroOrOne c ⦃fun _ s => s₀ ≤ s⦄ := by
+  vcgen +jp [addZeroOrOne]
+  trace_state
+  all_goals grind
+
 structure S where
   pc : Nat
   r : Nat

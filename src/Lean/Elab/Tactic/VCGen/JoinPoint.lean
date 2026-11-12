@@ -54,10 +54,12 @@ jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` conse
    `⊤ ⊑ wp⟦__do_jp () 1⟧ Q` with `__do_jp_spec () 1 ?pf₁` and records the jump. The `else` branch
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
-   `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
-   branch and its arguments other than `r : Unit`, `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`.
-   It proves `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a
-   common local share its binder: the jumps of an `else if` chain share the conditions above them.
+   `finalizeJoinPoint` anti-unifies the arguments of the jumps for each parameter other than
+   `r : Unit`, and states the anti-unifier above a disjunction with one disjunct per jump over the
+   locals of its branch. The arguments `1` and `2` of `x` have no common part, so the disjuncts
+   give the values of `x`: `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`. It proves
+   `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a common local share its
+   binder: the jumps of an `else if` chain share the conditions above them.
 
 The RHS goal of step 1 thus receives the hypothesis
 

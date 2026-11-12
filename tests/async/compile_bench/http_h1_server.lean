@@ -56,12 +56,12 @@ partial def pump (c : Conn) : IO Conn := do
       c := { c with pending := true, headers := c.headers + head.headers.size }
       progress := true
     | _ => progress := true
-  while c.machine.canPullBodyNow do
+  while c.machine.canPullBody do
     let (machine, pulled?) := c.machine.pullBody
     c := { c with machine }
-    if let some pulled := pulled? then
-      c := { c with body := c.body ++ pulled.chunk.data, bodyDone := pulled.final }
-      progress := true
+    let some pulled := pulled? | break
+    c := { c with body := c.body ++ pulled.chunk.data, bodyDone := pulled.final }
+    progress := true
   if c.pending && c.bodyDone && c.machine.isWaitingMessage then
     c := respond c
     progress := true

@@ -113,6 +113,8 @@ public structure Context where
   with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
   config option is `false`. -/
   simpMethods : Option Sym.Simp.Methods := none
+  /-- The configuration of every `Sym.simp` run with `simpMethods`. -/
+  simpConfig : Sym.Simp.Config := {}
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
   whose body is a splitter and sets up shared-continuation handling instead of
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
@@ -271,11 +273,11 @@ public def burnOne : VCGenM Unit :=
     | .limited (n+1) => .limited n
     | other => other }
 
-/-- Run `k` with `methods` on the persistent simp state `State.simpState`. The state is taken out of
-`VCGenM`'s state for the run, so `k` updates it in place. -/
+/-- Run `k` with `methods` and `Context.simpConfig` on the persistent simp state `State.simpState`.
+The state is taken out of `VCGenM`'s state for the run, so `k` updates it in place. -/
 public def runSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
   let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
-  let (a, st) ← Sym.Simp.SimpM.run k methods {} st
+  let (a, st) ← Sym.Simp.SimpM.run k methods (← read).simpConfig st
   modify fun s => { s with simpState := st }
   return a
 

@@ -686,6 +686,7 @@ if (v___x_31_ == 0)
 lean_object* v___x_32_; uint8_t v___x_33_; 
 v___x_32_ = lean_cstr_to_nat("4294967296");
 v___x_33_ = lean_nat_dec_lt(v_numCtors_25_, v___x_32_);
+lean_dec(v___x_32_);
 if (v___x_33_ == 0)
 {
 lean_object* v___x_34_; 
@@ -7401,8 +7402,8 @@ v___x_2285_ = lean_unbox(v_snd_2265_);
 lean_dec(v_snd_2265_);
 if (v___x_2285_ == 0)
 {
-v___y_2267_ = v___x_2284_;
-v___y_2268_ = v_nextIdx_2278_;
+v___y_2267_ = v_nextIdx_2278_;
+v___y_2268_ = v___x_2284_;
 v_fields_2269_ = v_fst_2282_;
 v_nextOffset_2270_ = v___x_2222_;
 goto v___jp_2266_;
@@ -7418,8 +7419,8 @@ lean_inc(v_fst_2288_);
 v_snd_2289_ = lean_ctor_get(v___x_2287_, 1);
 lean_inc(v_snd_2289_);
 lean_dec_ref(v___x_2287_);
-v___y_2267_ = v___x_2284_;
-v___y_2268_ = v_nextIdx_2278_;
+v___y_2267_ = v_nextIdx_2278_;
+v___y_2268_ = v___x_2284_;
 v_fields_2269_ = v_fst_2288_;
 v_nextOffset_2270_ = v_snd_2289_;
 goto v___jp_2266_;
@@ -7476,8 +7477,8 @@ lean_object* v___x_2218_; lean_object* v___x_2219_; lean_object* v___x_2220_;
 v___x_2218_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v___x_2218_, 0, v_ctorName_2200_);
 lean_ctor_set(v___x_2218_, 1, v_cidx_2201_);
-lean_ctor_set(v___x_2218_, 2, v___y_2215_);
-lean_ctor_set(v___x_2218_, 3, v___y_2214_);
+lean_ctor_set(v___x_2218_, 2, v___y_2214_);
+lean_ctor_set(v___x_2218_, 3, v___y_2215_);
 lean_ctor_set(v___x_2218_, 4, v_nextOffset_2217_);
 v___x_2219_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2219_, 0, v___x_2218_);

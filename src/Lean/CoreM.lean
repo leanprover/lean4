@@ -759,6 +759,22 @@ def shouldCheckDeprecated (ref : Syntax) : CoreM Bool := do
     | .none => false
 
 /--
+Implementation of `checkDeprecatedAt`, set by `Lean.Linter.Deprecated`. Like `compileDeclsRef`, this
+ref breaks an import cycle: modules imported by `Lean.Linter.Deprecated` can still report uses of
+deprecated constants.
+-/
+builtin_initialize checkDeprecatedAtRef : IO.Ref (Syntax → Name → CoreM Unit) ←
+  IO.mkRef fun _ _ => pure ()
+
+/--
+Reports a use of `declName` at `ref` if it is deprecated, with a hint to replace the identifier
+`ref` by the replacement. See `Lean.Linter.checkDeprecatedAt`, which should be preferred where it can
+be imported.
+-/
+def checkDeprecatedAt (ref : Syntax) (declName : Name) : CoreM Unit := do
+  (← checkDeprecatedAtRef.get) ref declName
+
+/--
 Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this
 command's elaboration, making its result available to reporting and the language server. The
 reporter will not know about this snapshot tree node until the main elaboration thread for this

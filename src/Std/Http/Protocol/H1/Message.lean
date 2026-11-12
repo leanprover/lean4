@@ -93,20 +93,18 @@ def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Op
       | some _ => none -- To avoid request smuggling with malformed/multiple content-length headers.
       | none => if allowEOFBody then some (.fixed 0) else none
 
-  -- Single transfer-encoding header.
-  | some #[header] =>
-    match Header.TransferEncoding.finalCodingIsChunked? header, contentLength with
+  | some values =>
+    match Header.TransferEncoding.finalCodingIsChunked? values, contentLength with
     | some true, none =>
         -- HTTP/1.0 does not define chunked transfer encoding (RFC 2068 §19.4.6).
         -- A server MUST NOT use chunked with an HTTP/1.0 peer; likewise, an
         -- HTTP/1.0 request carrying Transfer-Encoding: chunked is malformed.
         if message.version == .v10 then none else some .chunked
     | _, _ => none -- To avoid request smuggling when TE and CL are mixed.
-
-  -- We disallow multiple transfer-encoding headers.
-  | some _ => none
 /--
-Checks whether the message indicates that the connection should be kept alive.
+Checks whether the message indicates that the connection should be kept alive. A `close` option
+ends the connection for every version, even next to `keep-alive` (RFC 9112 §9.3, §9.6); otherwise
+HTTP/1.1 persists by default and HTTP/1.0 only with `keep-alive`.
 -/
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
   -- Most messages have no `Connection` field.
@@ -126,10 +124,10 @@ def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
     match tokens? with
     | none => false
     | some tokens =>
-        if message.version == .v11 then
-          !tokens.any (· == "close")
+        if tokens.any (· == "close") then
+          false
         else
-          tokens.any (· == "keep-alive")
+          message.version == .v11 || tokens.any (· == "keep-alive")
 
 instance : Repr (Message.Head dir) :=
   match dir with

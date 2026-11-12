@@ -451,8 +451,12 @@ Assumed invariant: parent projections and field names are disjoint sets. This is
 Resulting invariant: the field has a LHS that has one of these forms:
 - `.fieldName .. :: _`
 - `[.parentFieldName ..]`
+
+Reports deprecated fields only if `allOptional` is true or the field has a default value or
+autoParam, since otherwise the field cannot be omitted.
 -/
-private partial def normalizeField (structName : Name) (fieldView : FieldView) : MetaM FieldView := do
+private partial def normalizeField (structName : Name) (fieldView : FieldView) (allOptional : Bool) :
+    MetaM FieldView := do
   let env ← getEnv
   match fieldView.lhs with
   | .fieldIndex ref idx :: rest =>
@@ -462,7 +466,7 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
     if idx > fieldNames.size then
       throwErrorAt ref m!"invalid field index, structure `{.ofConstName structName}` has only {fieldNames.size} fields"
     let field := FieldLHS.fieldName (mkIdentFrom ref fieldNames[idx - 1]!)
-    normalizeField structName { fieldView with lhs := field :: rest }
+    normalizeField structName { fieldView with lhs := field :: rest } allOptional
   | .fieldName ident :: rest =>
     let name := ident.getId
     assert! name.isAtomic
@@ -471,8 +475,17 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
       if rest.isEmpty then
         return { fieldView with lhs := [.parentFieldName ident parentName name] }
       else
-        normalizeField parentName { fieldView with lhs := rest }
-    else if (findField? env structName name).isSome then
+        normalizeField parentName { fieldView with lhs := rest } allOptional
+    else if let some fieldStructName := findField? env structName name then
+      let optional := allOptional || (getEffectiveDefaultFnForField? env structName name).isSome ||
+        (getAutoParamFnForField? env structName name).isSome
+      if let some projFn := getProjFnForField? env fieldStructName name then
+        if optional then
+          Linter.checkDeprecatedAt ident projFn <| .custom fun newName => do
+            if newName.getPrefix == projFn.getPrefix then
+              Linter.mkReplacementHint ident newName.getString!
+            else
+              return .nil
       return fieldView
     else
       throwErrorAt ident m!"`{name}` is not a field of structure `{.ofConstName structName}`"
@@ -518,13 +531,15 @@ private abbrev ExpandedFields := NameMap ExpandedField
 /--
 Normalizes and expands the field views.
 Validates that there are no duplicate fields.
+See `normalizeField` for `allOptional`.
 -/
-private def expandFields (structName : Name) (fieldViews : Array FieldView) (recover : Bool) : MetaM (Bool × ExpandedFields) := do
+private def expandFields (structName : Name) (fieldViews : Array FieldView) (recover : Bool)
+    (allOptional : Bool) : MetaM (Bool × ExpandedFields) := do
   let mut fields : ExpandedFields := {}
   let mut errors : Bool := false
   for fieldView in fieldViews do
     try
-      let fieldView ← normalizeField structName fieldView
+      let fieldView ← normalizeField structName fieldView allOptional
       match fieldView.lhs with
       | .fieldName ident :: rest =>
         let name := ident.getId
@@ -1264,7 +1279,9 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   if (← isInaccessiblePrivateName ctorVal.name) then
     throwError "invalid \{...} notation, constructor for `{.ofConstName structName}` is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?
-  let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)
+  -- With sources or `..`, any field may be omitted. Patterns only read fields.
+  let allOptional := !s.sources.explicit.isEmpty || s.sources.implicit.isSome || (← read).inPattern
+  let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry) allOptional
   let fields ← addSourceFields structName s.sources.explicit fields
   trace[Elab.structInst] "expanded fields:\n{MessageData.joinSep (fields.toList.map (fun (_, field) => MessageData.group m!"- {MessageData.nest 2 (toMessageData field)}")) "\n"}"
   let ellipsis := s.sources.implicit.isSome

@@ -8136,7 +8136,6 @@ v___x_3152_ = lean_mk_empty_array_with_capacity(v___x_3151_);
 lean_inc_ref(v___x_3152_);
 v___x_3153_ = lean_array_push(v___x_3152_, v_declName_3099_);
 v___x_3154_ = 1;
-lean_inc(v_a_3148_);
 v___x_3155_ = l_Lean_Elab_Deriving_mkInstanceCmds(v_a_3148_, v___x_3107_, v___x_3153_, v___x_3154_, v_a_3100_, v_a_3101_, v_a_3102_, v_a_3103_, v_a_3104_, v_a_3105_);
 lean_dec_ref(v___x_3153_);
 if (lean_obj_tag(v___x_3155_) == 0)
@@ -8757,6 +8756,7 @@ lean_inc_ref(v___x_3411_);
 v___x_3412_ = lean_array_push(v___x_3411_, v_name_3395_);
 v___x_3413_ = l_Lean_Elab_Deriving_mkInstanceCmds(v_a_3407_, v___x_3403_, v___x_3412_, v___x_3405_, v_a_3396_, v_a_3397_, v_a_3398_, v_a_3399_, v_a_3400_, v_a_3401_);
 lean_dec_ref(v___x_3412_);
+lean_dec(v_a_3407_);
 if (lean_obj_tag(v___x_3413_) == 0)
 {
 lean_object* v_toCold_3414_; lean_object* v_options_3415_; lean_object* v_a_3416_; lean_object* v___x_3418_; uint8_t v_isShared_3419_; uint8_t v_isSharedCheck_3456_; 

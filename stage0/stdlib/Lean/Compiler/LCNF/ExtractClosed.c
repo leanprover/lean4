@@ -3676,8 +3676,8 @@ goto v___jp_866_;
 }
 else
 {
-lean_dec_ref_known(v_declName_931_, 2);
 lean_dec(v_pre_932_);
+lean_dec_ref_known(v_declName_931_, 2);
 lean_dec_ref_known(v_value_930_, 3);
 lean_dec_ref(v_decl_929_);
 v_decl_867_ = v_decl_852_;
@@ -3688,8 +3688,8 @@ goto v___jp_866_;
 }
 else
 {
-lean_dec(v_declName_931_);
 lean_dec_ref_known(v_value_930_, 3);
+lean_dec(v_declName_931_);
 lean_dec_ref(v_decl_929_);
 v_decl_867_ = v_decl_852_;
 v_k_868_ = v_k_853_;

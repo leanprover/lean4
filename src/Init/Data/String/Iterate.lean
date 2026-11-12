@@ -415,7 +415,7 @@ Examples
  * {lean}`("abc".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
  * {lean}`("abc".revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
  * {lean}`("ab∀c".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
+ * {lean}`("ab∀c".revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
 -/
 @[inline]
 def revPositions (s : String) :=
@@ -423,7 +423,7 @@ def revPositions (s : String) :=
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
-of the slice and iterating towards the start.
+of the string and iterating towards the start.
 
 Example:
  * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`

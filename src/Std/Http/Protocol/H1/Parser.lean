@@ -165,10 +165,15 @@ def hexDigit : Parser UInt8 := do
   else fail s!"invalid hex digit {Char.ofUInt8 b |>.quote}"
 
 /--
-Parses a hexadecimal integer (one or more hex digits, up to 16 digits).
+Parses a hexadecimal integer (one or more hex digits, up to 16 after any leading zeros, which do not
+change the value).
 Used for chunk-size lines in chunked transfer encoding.
 -/
-def hex : Parser Nat :=
+def hex : Parser Nat := do
+  let zeros ← takeWhile (· == '0'.toUInt8)
+  if zeros.size > 0 then
+    -- A size of only zeros is complete; `go` still needs one digit when nothing came before it.
+    return (← optional (attempt (go 0 0))).getD 0
   go 0 0
 where
   go (acc : Nat) (count : Nat) : Parser Nat := do
@@ -209,57 +214,32 @@ def parseHttpVersion : Parser Version := do
   let (major, minor) ← parseHttpVersionNumber
   liftOption <| Version.ofNumber? major minor
 
+/--
+The methods `parseMethod` recognizes, by name, the most common first: every `Method`
+(`Method.all_complete`).
+-/
+def knownMethods : Array (ByteSlice × Method) :=
+  Method.all.map fun method => ((toString method).toUTF8.toByteSlice, method)
+
 /-
 method         = token
 
-Every branch is wrapped in `attempt` so that `<|>` always backtracks on
-failure, even after consuming bytes. This is strictly necessary only for the
-P-group (POST / PUT / PATCH) which share a common first byte, but wrapping
-all alternatives keeps the parser defensively correct if new methods are
-added in the future.
+The whole token is read before it is looked up, so a read that ends inside a method name waits for
+more input instead of matching a shorter method (`UPDATE` inside `UPDATEREDIRECTREF`), and a
+method that only starts with a known one (`GETX`) is not read as it.
+
+A token the server does not recognize fails with `"unrecognized method"` when it is followed by the
+space that ends a method, or by more token bytes past the 64-byte limit: RFC 9110 §9.1 and RFC 9112
+§3 answer such a method with 501. A token followed by any other byte fails with `"invalid method"`.
 -/
-def parseMethod : Parser Method :=
-  (attempt <| skipBytes "GET".toUTF8 <&> fun _ => Method.get)
-  <|> (attempt <| skipBytes "HEAD".toUTF8 <&> fun _ => Method.head)
-  <|> (attempt <| skipBytes "DELETE".toUTF8 <&> fun _ => Method.delete)
-  <|> (attempt <| skipBytes "TRACE".toUTF8 <&> fun _ => Method.trace)
-  <|> (attempt <| skipBytes "ACL".toUTF8 <&> fun _ => Method.acl)
-  <|> (attempt <| skipBytes "QUERY".toUTF8 <&> fun _ => Method.query)
-  <|> (attempt <| skipBytes "SEARCH".toUTF8 <&> fun _ => Method.search)
-  <|> (attempt <| skipBytes "BASELINE-CONTROL".toUTF8 <&> fun _ => Method.baselineControl)
-  <|> (attempt <| skipBytes "BIND".toUTF8 <&> fun _ => Method.bind)
-  <|> (attempt <| skipBytes "CONNECT".toUTF8 <&> fun _ => Method.connect)
-  <|> (attempt <| skipBytes "CHECKIN".toUTF8 <&> fun _ => Method.checkin)
-  <|> (attempt <| skipBytes "CHECKOUT".toUTF8 <&> fun _ => Method.checkout)
-  <|> (attempt <| skipBytes "COPY".toUTF8 <&> fun _ => Method.copy)
-  <|> (attempt <| skipBytes "LABEL".toUTF8 <&> fun _ => Method.label)
-  <|> (attempt <| skipBytes "LINK".toUTF8 <&> fun _ => Method.link)
-  <|> (attempt <| skipBytes "LOCK".toUTF8 <&> fun _ => Method.lock)
-  <|> (attempt <| skipBytes "MERGE".toUTF8 <&> fun _ => Method.merge)
-  <|> (attempt <| skipBytes "MKACTIVITY".toUTF8 <&> fun _ => Method.mkactivity)
-  <|> (attempt <| skipBytes "MKCALENDAR".toUTF8 <&> fun _ => Method.mkcalendar)
-  <|> (attempt <| skipBytes "MKCOL".toUTF8 <&> fun _ => Method.mkcol)
-  <|> (attempt <| skipBytes "MKREDIRECTREF".toUTF8 <&> fun _ => Method.mkredirectref)
-  <|> (attempt <| skipBytes "MKWORKSPACE".toUTF8 <&> fun _ => Method.mkworkspace)
-  <|> (attempt <| skipBytes "MOVE".toUTF8 <&> fun _ => Method.move)
-  <|> (attempt <| skipBytes "OPTIONS".toUTF8 <&> fun _ => Method.options)
-  <|> (attempt <| skipBytes "ORDERPATCH".toUTF8 <&> fun _ => Method.orderpatch)
-  <|> (attempt <| skipBytes "POST".toUTF8 <&> fun _ => Method.post)
-  <|> (attempt <| skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
-  <|> (attempt <| skipBytes "PATCH".toUTF8 <&> fun _ => Method.patch)
-  <|> (attempt <| skipBytes "PRI".toUTF8 <&> fun _ => Method.pri)
-  <|> (attempt <| skipBytes "PROPFIND".toUTF8 <&> fun _ => Method.propfind)
-  <|> (attempt <| skipBytes "PROPPATCH".toUTF8 <&> fun _ => Method.proppatch)
-  <|> (attempt <| skipBytes "REBIND".toUTF8 <&> fun _ => Method.rebind)
-  <|> (attempt <| skipBytes "REPORT".toUTF8 <&> fun _ => Method.report)
-  <|> (attempt <| skipBytes "UNBIND".toUTF8 <&> fun _ => Method.unbind)
-  <|> (attempt <| skipBytes "UNCHECKOUT".toUTF8 <&> fun _ => Method.uncheckout)
-  <|> (attempt <| skipBytes "UNLINK".toUTF8 <&> fun _ => Method.unlink)
-  <|> (attempt <| skipBytes "UNLOCK".toUTF8 <&> fun _ => Method.unlock)
-  <|> (attempt <| skipBytes "UPDATEREDIRECTREF".toUTF8 <&> fun _ => Method.updateredirectref)
-  <|> (attempt <| skipBytes "UPDATE".toUTF8 <&> fun _ => Method.update)
-  <|> (attempt <| skipBytes "VERSION-CONTROL".toUTF8 <&> fun _ => Method.versionControl)
-  <|> (parseToken 64 *> fail "unrecognized method")
+def parseMethod : Parser Method := do
+  let token ← parseToken 64
+  match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
+  | some (_, method) => return method
+  | none =>
+    let next ← peek!
+    if next == ' '.toUInt8 || tchar (Char.ofUInt8 next) then fail "unrecognized method"
+    else fail "invalid method"
 
 /--
 Parses a request-target URI, up to `limits.maxUriLength` bytes.
@@ -274,6 +254,16 @@ def parseURI (limits : H1.Config) : Parser ByteArray := do
   return uri.toByteArray
 
 /--
+The URI limits for a request-target. `maxUriLength` bounds the whole target, so no component limit
+lower than it rejects a target the server accepts as a whole, which RFC 9112 §3 would answer with
+`414`, not `400`. The host keeps its own limit, the length of a DNS name.
+-/
+def requestTargetConfig (limits : H1.Config) : URI.Config :=
+  let n := limits.maxUriLength
+  { maxSchemeLength := n, maxUserInfoLength := n, maxSegmentLength := n, maxQueryLength := n,
+    maxFragmentLength := n, maxPathSegments := n, maxTotalPathLength := n, maxQueryParams := n }
+
+/--
 Shared core for request-line parsing: parses `request-target SP HTTP-version CRLF`
 and returns the `RequestTarget` together with the raw major/minor version numbers.
 
@@ -282,21 +272,22 @@ the method token, keeping URI validation and version parsing in one place.
 -/
 def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × Nat) := do
   let rawUri ← parseURI limits <* sp
-  let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run rawUri with
+  let uri ← match (Std.Http.URI.Parser.parseRequestTarget (requestTargetConfig limits) <* eof).run rawUri with
   | .ok res => pure res
   | .error res => fail res
   let versionPair ← parseHttpVersionNumber <* crlf
   return (uri, versionPair)
 
 /--
-Parses a request line and returns a fully-typed `Request.Head`.
+Parses a request line and returns a fully-typed `Request.Head`. A higher minor version of HTTP/1 is
+read as HTTP/1.1 (RFC 9110 §6.2).
 `request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   skipLeadingRequestEmptyLines limits
   let method ← parseMethod <* sp
   let (uri, (major, minor)) ← parseRequestLineBody limits
-  if major == 1 ∧ minor == 1 then
+  if major == 1 ∧ minor ≥ 1 then
     return ⟨method, .v11, uri, .empty⟩
   else if major == 1 ∧ minor == 0 then
     return ⟨method, .v10, uri, .empty⟩
@@ -304,7 +295,8 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
     fail "unsupported HTTP version"
 
 /--
-Parses a request line and returns the recognized HTTP method and version when available.
+Parses a request line and returns the recognized HTTP method and version when available. A higher
+minor version of HTTP/1 is read as HTTP/1.1 (RFC 9110 §6.2).
 
 request-line = method SP request-target SP HTTP-version
 -/
@@ -312,7 +304,7 @@ public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × R
   skipLeadingRequestEmptyLines limits
   let method ← parseMethod <* sp
   let (uri, (major, minor)) ← parseRequestLineBody limits
-  return (method, uri, Version.ofNumber? major minor)
+  return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
 Parses a single header field line.
@@ -361,13 +353,14 @@ def parseQuotedPair : Parser UInt8 := do
     fail s!"invalid quoted-pair byte: {Char.ofUInt8 b |>.quote}"
 
 /--
-Parses a quoted-string value, unescaping quoted-pairs.
+Parses a quoted-string value, unescaping quoted-pairs, and returns its bytes.
 
-`quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE`
+`quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE`, where both `qdtext` and `quoted-pair`
+also allow obs-text (`%x80-FF`, RFC 9110 §5.6.4).
 -/
-def parseQuotedString (maxLength : Nat) : Parser String := do
+def parseQuotedString (maxLength : Nat) : Parser ByteArray := do
   skipByte '"'.toUInt8
-  liftOption <| String.fromUTF8? (← loop .empty 0)
+  loop .empty 0
 where
   loop (buf : ByteArray) (length : Nat) : Parser ByteArray := do
     let b ← any
@@ -376,14 +369,14 @@ where
       return buf
     else if b == '\\'.toUInt8 then
       let next ← any
-      if quotedPairChar (Char.ofUInt8 next)
+      if quotedPairChar (Char.ofUInt8 next) || next ≥ 0x80
         then
           if length + 1 > maxLength then
             fail "quoted-string too long"
           else
             loop (buf.push next) (length + 1)
         else fail s!"invalid quoted-pair byte: {Char.ofUInt8 next |>.quote}"
-    else if isQdText b then
+    else if isQdText b || b ≥ 0x80 then
       if length + 1 > maxLength then
         fail "quoted-string too long"
       else
@@ -392,8 +385,16 @@ where
       fail s!"invalid qdtext byte: {Char.ofUInt8 b |>.quote}"
   termination_by maxLength - length
 
--- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
-def parseChunkExt (limits : H1.Config) : Parser (Chunk.ExtensionName × Option Chunk.ExtensionValue) := do
+/--
+Parses one chunk extension:
+`chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )`.
+
+Returns `none` for an extension whose quoted value holds obs-text, which `Chunk.ExtensionValue` cannot
+represent: such an extension is ignored, as a recipient ignores any extension it does not
+recognize (RFC 9112 §7.1.1).
+-/
+def parseChunkExt (limits : H1.Config) :
+    Parser (Option (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   ows limits *> skipByte ';'.toUInt8 *> ows limits
   let name ← (liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtNameLength) <* ows limits
 
@@ -405,14 +406,17 @@ def parseChunkExt (limits : H1.Config) : Parser (Chunk.ExtensionName × Option C
     -- The `<* ows limits` after the name already consumed any trailing whitespace,
     -- so these ows calls are no-ops in practice, but kept for explicit grammar correspondence.
     ows limits *> skipByte '='.toUInt8 *> ows limits
-    let value ← ows limits *> (parseQuotedString limits.maxChunkExtValueLength <|> liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength))
+    if (← peekWhen? (· == '"'.toUInt8)).isSome then
+      let bytes ← parseQuotedString limits.maxChunkExtValueLength
+      return (String.fromUTF8? bytes >>= Chunk.ExtensionValue.ofString?).map (name, some ·)
 
+    let value ← liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength)
     let some value := Chunk.ExtensionValue.ofString? value
       | fail "invalid extension value"
 
-    return (name, some value)
+    return some (name, some value)
 
-  return (name, none)
+  return some (name, none)
 
 /--
 Parses the size and extensions of a chunk.
@@ -421,7 +425,7 @@ public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (Chunk.Ext
   let size ← hex
   let ext ← manyItems (some <$> parseChunkExt limits) limits.maxChunkExtensions
   crlf
-  return (size, ext)
+  return (size, ext.filterMap id)
 
 /--
 Result of parsing partial or complete information.

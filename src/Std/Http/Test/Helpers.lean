@@ -163,23 +163,29 @@ def assertResponseCount (response : ByteArray) (n : Nat) : IO Unit := do
 
 -- Common fixed response strings
 
-def r400 : String :=
-  "HTTP/1.1 400 Bad Request\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+/--
+An error response the server writes itself: `status` with `content` as its `text/plain` content.
+-/
+def errorResponse (status : String) (content : String) : String :=
+  s!"HTTP/1.1 {status}\x0d\nContent-Type: text/plain; charset=utf-8\x0d\nServer: LeanHTTP/1.1\x0d\n" ++
+    s!"Connection: close\x0d\nContent-Length: {content.utf8ByteSize}\x0d\n\x0d\n{content}"
 
-def r408 : String :=
-  "HTTP/1.1 408 Request Timeout\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+def r400 : String := errorResponse "400 Bad Request" "Bad Request\n"
 
-def r413 : String :=
-  "HTTP/1.1 413 Content Too Large\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+def r408 : String := errorResponse "408 Request Timeout" "Request Timeout\n"
 
-def r417 : String :=
-  "HTTP/1.1 417 Expectation Failed\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+def r413 : String := errorResponse "413 Payload Too Large" "Payload Too Large\n"
+
+def r417 : String := errorResponse "417 Expectation Failed" "Expectation Failed\n"
 
 def r431 : String :=
-  "HTTP/1.1 431 Request Header Fields Too Large\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+  errorResponse "431 Request Header Fields Too Large" "Request Header Fields Too Large\n"
+
+def r501 : String := errorResponse "501 Not Implemented" "Not Implemented\n"
 
 def r505 : String :=
-  "HTTP/1.1 505 HTTP Version Not Supported\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+  errorResponse "505 HTTP Version Not Supported"
+    "HTTP Version Not Supported: this server supports HTTP/1.0 and HTTP/1.1\n"
 
 -- Standard handlers
 

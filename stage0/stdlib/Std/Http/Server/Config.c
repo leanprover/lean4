@@ -18,26 +18,28 @@ LEAN_EXPORT lean_object* l_Std_Http_Config_toH1Config___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Http_Config_toH1Config(lean_object* v_config_1_){
 _start:
 {
-lean_object* v_maxRequests_2_; lean_object* v_maxHeaders_3_; lean_object* v_maxHeaderBytes_4_; uint8_t v_enableKeepAlive_5_; lean_object* v_serverName_6_; lean_object* v_maxUriLength_7_; lean_object* v_maxStartLineLength_8_; lean_object* v_maxHeaderNameLength_9_; lean_object* v_maxHeaderValueLength_10_; lean_object* v_maxSpaceSequence_11_; lean_object* v_maxLeadingEmptyLines_12_; lean_object* v_maxChunkExtNameLength_13_; lean_object* v_maxChunkExtValueLength_14_; lean_object* v_maxChunkLineLength_15_; lean_object* v_maxChunkSize_16_; lean_object* v_maxBodySize_17_; lean_object* v_maxReasonPhraseLength_18_; lean_object* v_maxTrailerHeaders_19_; lean_object* v_maxChunkExtensions_20_; lean_object* v___x_21_; 
+lean_object* v_maxRequests_2_; lean_object* v_maxHeaders_3_; lean_object* v_maxHeaderBytes_4_; uint8_t v_enableKeepAlive_5_; lean_object* v_serverName_6_; lean_object* v_maxUriLength_7_; lean_object* v_maxStartLineLength_8_; lean_object* v_maxHeaderNameLength_9_; lean_object* v_maxHeaderValueLength_10_; lean_object* v_maxSpaceSequence_11_; lean_object* v_maxLeadingEmptyLines_12_; lean_object* v_maxChunkExtNameLength_13_; lean_object* v_maxChunkExtValueLength_14_; lean_object* v_maxChunkLineLength_15_; lean_object* v_maxChunkSize_16_; lean_object* v_maxBodySize_17_; lean_object* v_maxReasonPhraseLength_18_; lean_object* v_maxTrailerHeaders_19_; lean_object* v_maxChunkExtensions_20_; lean_object* v_acceptedTransferCodings_21_; lean_object* v___x_22_; 
 v_maxRequests_2_ = lean_ctor_get(v_config_1_, 1);
 v_maxHeaders_3_ = lean_ctor_get(v_config_1_, 2);
 v_maxHeaderBytes_4_ = lean_ctor_get(v_config_1_, 3);
-v_enableKeepAlive_5_ = lean_ctor_get_uint8(v_config_1_, sizeof(void*)*24);
-v_serverName_6_ = lean_ctor_get(v_config_1_, 9);
-v_maxUriLength_7_ = lean_ctor_get(v_config_1_, 10);
-v_maxStartLineLength_8_ = lean_ctor_get(v_config_1_, 11);
-v_maxHeaderNameLength_9_ = lean_ctor_get(v_config_1_, 12);
-v_maxHeaderValueLength_10_ = lean_ctor_get(v_config_1_, 13);
-v_maxSpaceSequence_11_ = lean_ctor_get(v_config_1_, 14);
-v_maxLeadingEmptyLines_12_ = lean_ctor_get(v_config_1_, 15);
-v_maxChunkExtNameLength_13_ = lean_ctor_get(v_config_1_, 16);
-v_maxChunkExtValueLength_14_ = lean_ctor_get(v_config_1_, 17);
-v_maxChunkLineLength_15_ = lean_ctor_get(v_config_1_, 18);
-v_maxChunkSize_16_ = lean_ctor_get(v_config_1_, 19);
-v_maxBodySize_17_ = lean_ctor_get(v_config_1_, 20);
-v_maxReasonPhraseLength_18_ = lean_ctor_get(v_config_1_, 21);
-v_maxTrailerHeaders_19_ = lean_ctor_get(v_config_1_, 22);
-v_maxChunkExtensions_20_ = lean_ctor_get(v_config_1_, 23);
+v_enableKeepAlive_5_ = lean_ctor_get_uint8(v_config_1_, sizeof(void*)*26);
+v_serverName_6_ = lean_ctor_get(v_config_1_, 10);
+v_maxUriLength_7_ = lean_ctor_get(v_config_1_, 11);
+v_maxStartLineLength_8_ = lean_ctor_get(v_config_1_, 12);
+v_maxHeaderNameLength_9_ = lean_ctor_get(v_config_1_, 13);
+v_maxHeaderValueLength_10_ = lean_ctor_get(v_config_1_, 14);
+v_maxSpaceSequence_11_ = lean_ctor_get(v_config_1_, 15);
+v_maxLeadingEmptyLines_12_ = lean_ctor_get(v_config_1_, 16);
+v_maxChunkExtNameLength_13_ = lean_ctor_get(v_config_1_, 17);
+v_maxChunkExtValueLength_14_ = lean_ctor_get(v_config_1_, 18);
+v_maxChunkLineLength_15_ = lean_ctor_get(v_config_1_, 19);
+v_maxChunkSize_16_ = lean_ctor_get(v_config_1_, 20);
+v_maxBodySize_17_ = lean_ctor_get(v_config_1_, 21);
+v_maxReasonPhraseLength_18_ = lean_ctor_get(v_config_1_, 22);
+v_maxTrailerHeaders_19_ = lean_ctor_get(v_config_1_, 23);
+v_maxChunkExtensions_20_ = lean_ctor_get(v_config_1_, 24);
+v_acceptedTransferCodings_21_ = lean_ctor_get(v_config_1_, 25);
+lean_inc_ref(v_acceptedTransferCodings_21_);
 lean_inc(v_maxTrailerHeaders_19_);
 lean_inc(v_maxReasonPhraseLength_18_);
 lean_inc(v_maxBodySize_17_);
@@ -56,36 +58,37 @@ lean_inc(v_serverName_6_);
 lean_inc(v_maxHeaderBytes_4_);
 lean_inc(v_maxHeaders_3_);
 lean_inc(v_maxRequests_2_);
-v___x_21_ = lean_alloc_ctor(0, 18, 1);
-lean_ctor_set(v___x_21_, 0, v_maxRequests_2_);
-lean_ctor_set(v___x_21_, 1, v_maxHeaders_3_);
-lean_ctor_set(v___x_21_, 2, v_maxHeaderBytes_4_);
-lean_ctor_set(v___x_21_, 3, v_serverName_6_);
-lean_ctor_set(v___x_21_, 4, v_maxUriLength_7_);
-lean_ctor_set(v___x_21_, 5, v_maxStartLineLength_8_);
-lean_ctor_set(v___x_21_, 6, v_maxHeaderNameLength_9_);
-lean_ctor_set(v___x_21_, 7, v_maxHeaderValueLength_10_);
-lean_ctor_set(v___x_21_, 8, v_maxSpaceSequence_11_);
-lean_ctor_set(v___x_21_, 9, v_maxLeadingEmptyLines_12_);
-lean_ctor_set(v___x_21_, 10, v_maxChunkExtensions_20_);
-lean_ctor_set(v___x_21_, 11, v_maxChunkExtNameLength_13_);
-lean_ctor_set(v___x_21_, 12, v_maxChunkExtValueLength_14_);
-lean_ctor_set(v___x_21_, 13, v_maxChunkLineLength_15_);
-lean_ctor_set(v___x_21_, 14, v_maxChunkSize_16_);
-lean_ctor_set(v___x_21_, 15, v_maxBodySize_17_);
-lean_ctor_set(v___x_21_, 16, v_maxReasonPhraseLength_18_);
-lean_ctor_set(v___x_21_, 17, v_maxTrailerHeaders_19_);
-lean_ctor_set_uint8(v___x_21_, sizeof(void*)*18, v_enableKeepAlive_5_);
-return v___x_21_;
+v___x_22_ = lean_alloc_ctor(0, 19, 1);
+lean_ctor_set(v___x_22_, 0, v_maxRequests_2_);
+lean_ctor_set(v___x_22_, 1, v_maxHeaders_3_);
+lean_ctor_set(v___x_22_, 2, v_maxHeaderBytes_4_);
+lean_ctor_set(v___x_22_, 3, v_serverName_6_);
+lean_ctor_set(v___x_22_, 4, v_maxUriLength_7_);
+lean_ctor_set(v___x_22_, 5, v_maxStartLineLength_8_);
+lean_ctor_set(v___x_22_, 6, v_maxHeaderNameLength_9_);
+lean_ctor_set(v___x_22_, 7, v_maxHeaderValueLength_10_);
+lean_ctor_set(v___x_22_, 8, v_maxSpaceSequence_11_);
+lean_ctor_set(v___x_22_, 9, v_maxLeadingEmptyLines_12_);
+lean_ctor_set(v___x_22_, 10, v_maxChunkExtensions_20_);
+lean_ctor_set(v___x_22_, 11, v_maxChunkExtNameLength_13_);
+lean_ctor_set(v___x_22_, 12, v_maxChunkExtValueLength_14_);
+lean_ctor_set(v___x_22_, 13, v_maxChunkLineLength_15_);
+lean_ctor_set(v___x_22_, 14, v_maxChunkSize_16_);
+lean_ctor_set(v___x_22_, 15, v_maxBodySize_17_);
+lean_ctor_set(v___x_22_, 16, v_maxReasonPhraseLength_18_);
+lean_ctor_set(v___x_22_, 17, v_maxTrailerHeaders_19_);
+lean_ctor_set(v___x_22_, 18, v_acceptedTransferCodings_21_);
+lean_ctor_set_uint8(v___x_22_, sizeof(void*)*19, v_enableKeepAlive_5_);
+return v___x_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Config_toH1Config___boxed(lean_object* v_config_22_){
+LEAN_EXPORT lean_object* l_Std_Http_Config_toH1Config___boxed(lean_object* v_config_23_){
 _start:
 {
-lean_object* v_res_23_; 
-v_res_23_ = l_Std_Http_Config_toH1Config(v_config_22_);
-lean_dec_ref(v_config_22_);
-return v_res_23_;
+lean_object* v_res_24_; 
+v_res_24_ = l_Std_Http_Config_toH1Config(v_config_23_);
+lean_dec_ref(v_config_23_);
+return v_res_24_;
 }
 }
 lean_object* runtime_initialize_Std_Time(uint8_t builtin);

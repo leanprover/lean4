@@ -250,14 +250,6 @@ def isValidSchemeChar (c : Char) : Bool :=
   isAsciiAlphaNumChar c || (c matches '+' | '-' | '.')
 
 /--
-Checks if a character is valid for use in a domain name.
-Valid characters are ASCII alphanumeric, hyphens, and dots.
--/
-@[inline]
-def isValidDomainNameChar (c : Char) : Bool :=
-  isAsciiAlphaNumChar c || (c matches '-' | '.')
-
-/--
 Checks if a byte is an unreserved character according to RFC 3986. Unreserved characters are:
 alphanumeric, hyphen, period, underscore, and tilde.
 -/
@@ -315,14 +307,21 @@ def isUserInfoChar (c : UInt8) : Bool :=
   isUnreserved c || isSubDelims c || c = ':'.toUInt8
 
 /--
-Checks if a byte is a valid character in a URI query component,
-excluding the typical key/value separators `&` and `=`.
+Checks if a byte is a valid character in a URI query parameter, excluding the pair separator `&`.
 
-Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986,
-but disallows `&` and `=` so they can be treated as structural separators.
+Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986. `=` is allowed because a value may
+contain it (`?a=b=c`); a parameter name ends at its first `=`, so a parsed name never contains one.
 -/
 @[inline]
 def isQueryDataChar (c : UInt8) : Bool :=
-  isQueryChar c && c ≠ '&'.toUInt8 && c ≠ '='.toUInt8
+  isQueryChar c && c ≠ '&'.toUInt8
+
+/--
+Checks if a byte may appear unescaped in a query parameter name: `isQueryDataChar` without `=`,
+which would end the name.
+-/
+@[inline]
+def isQueryNameChar (c : UInt8) : Bool :=
+  isQueryDataChar c && c ≠ '='.toUInt8
 
 end Std.Http.Internal.Char

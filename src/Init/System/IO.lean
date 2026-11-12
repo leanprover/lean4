@@ -18,6 +18,7 @@ import Init.Data.Ord.UInt
 import Init.Data.ToString.Macro
 import Init.Data.List.Impl
 import Init.Data.Int.Repr
+import Init.Data.String.Lossy
 
 public section
 
@@ -1507,11 +1508,19 @@ if it has.
     IO (Option UInt32)
 
 /--
-Terminates the child process using the `SIGTERM` signal or a platform analogue.
+Terminates the child process by sending it the `SIGKILL` signal, or `SIGTERM` if `force` is `false`.
 
-If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead.
+`SIGKILL` ends the process immediately. `SIGTERM` gives the process the chance to handle the signal,
+for example to clean up before exiting, or to ignore it.
+
+If the process was started using `SpawnArgs.setsid`, the signal is sent to the entire process group
+instead.
+
+On Windows, the process is always terminated immediately using `TerminateProcess`, and `force` has
+no effect.
 -/
-@[extern "lean_io_process_child_kill"] opaque Child.kill {cfg : @& StdioConfig} : @& Child cfg → IO Unit
+@[extern "lean_io_process_child_kill"]
+opaque Child.kill {cfg : @& StdioConfig} (child : @& Child cfg) (force := true) : IO Unit
 
 /--
 Extracts the `stdin` field from a `Child` object, allowing the handle to be closed while maintaining
@@ -1541,42 +1550,99 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code.
+The result of running a process to completion, with its output as bytes.
+-/
+structure BinOutput where
+  /-- The process's exit code. -/
+  exitCode : UInt32
+  /-- Everything that was written to the process's standard output. -/
+  stdout   : ByteArray
+  /-- Everything that was written to the process's standard error. -/
+  stderr   : ByteArray
+
+/--
+Runs a process to completion and captures its exit code and its output as bytes.
 The child process is run with a null standard input or the specified input if provided,
 and the current process blocks until it has run to completion.
+
+The input is written while the output is read, so the child may produce output before it has read
+all of its input. The child need not read all of its input. Errors in writing the input or reading
+the output are thrown only once the child has exited.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
+-/
+def binOutput (args : SpawnArgs) (input? : Option ByteArray := none) : IO BinOutput := do
+  let (child, written) ←
+    if let some input := input? then
+      let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
+      -- The task holds the only reference to `stdin`, so the child sees the end of its input when
+      -- the task finishes.
+      let written ← IO.asTask (prio := .dedicated) do
+        try
+          stdin.write input
+          stdin.flush
+        catch e =>
+          match e with
+          -- The child exited or closed its standard input early. Windows reports this as `EINVAL`
+          -- rather than `EPIPE`.
+          | .resourceVanished .. | .invalidArgument .. => pure ()
+          | e => throw e
+      pure (child, written)
+    else
+      pure (← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }, .pure (.ok ()))
+  let stdout ← IO.asTask (prio := .dedicated) child.stdout.readBinToEnd
+  let stderr ← child.stderr.readBinToEnd.toBaseIO
+  let exitCode ← child.wait
+  MonadExcept.ofExcept written.get
+  return {
+    exitCode
+    stdout := ← MonadExcept.ofExcept stdout.get
+    stderr := ← MonadExcept.ofExcept stderr
+  }
+
+private def decodeOutput (cmd stream : String) (bytes : ByteArray) : IO String :=
+  match String.fromUTF8? bytes with
+  | some s => pure s
+  | none => throw <| IO.userError s!"process '{cmd}' wrote non-UTF-8 data to its {stream}"
+
+/--
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion. The child need not read all of its
+input.
+
+Once the child has exited, an exception is thrown if its standard output or standard error is not
+valid UTF-8. Use `IO.Process.binOutput` to capture output that need not be UTF-8.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
 -/
 def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
-  let child ←
-    if let some input := input? then
-      let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
-      stdin.putStr input
-      stdin.flush
-      pure child
-    else
-      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
-  let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
-  let stderr ← child.stderr.readToEnd
-  let exitCode ← child.wait
-  let stdout ← IO.ofExcept stdout.get
-  pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
+  let out ← binOutput args (input?.map (·.toUTF8))
+  return {
+    exitCode := out.exitCode
+    stdout := ← decodeOutput args.cmd "standard output" out.stdout
+    stderr := ← decodeOutput args.cmd "standard error" out.stderr
+  }
 
 /--
 Runs a process to completion, blocking until it terminates.
-The child process is run with a null standard input or the specified input if provided,
-If the child process terminates successfully with exit code 0, its standard output is returned.
-An exception is thrown if it terminates with any other exit code.
+The child process is run with a null standard input or the specified input if provided, which it
+need not read in full. If the child process terminates successfully with exit code 0, its standard
+output is returned.
+
+An exception is thrown if the child terminates with any other exit code; its message includes the
+standard error, with invalid UTF-8 replaced by `�` (`U+FFFD`). An exception is also thrown if the
+standard output is not valid UTF-8.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
 -/
 def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
-  let out ← output args input?
+  let out ← binOutput args (input?.map (·.toUTF8))
   if out.exitCode != 0 then
     throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
       \nstderr:\
-      \n{out.stderr}"
-  pure out.stdout
+      \n{String.fromUTF8Lossy out.stderr}"
+  decodeOutput args.cmd "standard output" out.stdout
 
 /--
 Terminates the current process with the provided exit code. `0` indicates success, all other values

@@ -11406,8 +11406,8 @@ goto v___jp_4547_;
 }
 else
 {
-lean_dec(v_tail_4546_);
 lean_dec_ref_known(v___x_4545_, 2);
+lean_dec(v_tail_4546_);
 lean_del_object(v___x_4542_);
 lean_dec(v_levelParams_4540_);
 lean_dec(v___x_4537_);
@@ -11958,8 +11958,8 @@ else
 {
 lean_object* v_a_4688_; lean_object* v___x_4690_; uint8_t v_isShared_4691_; uint8_t v_isSharedCheck_4695_; 
 lean_dec_ref(v___x_4552_);
-lean_dec(v_tail_4546_);
 lean_dec_ref_known(v___x_4545_, 2);
+lean_dec(v_tail_4546_);
 lean_del_object(v___x_4542_);
 lean_dec(v_levelParams_4540_);
 lean_dec(v___x_4537_);

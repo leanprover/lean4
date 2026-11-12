@@ -387,7 +387,8 @@ section Monadic
 abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
-@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk']
+/-- The constructor has been renamed. -/
+@[deprecated IterM.mk (since := "2025-12-01"), inline, expose]
 def Iterators.toIterM := @IterM.mk
 
 theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :

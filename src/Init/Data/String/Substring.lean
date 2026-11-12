@@ -53,7 +53,7 @@ A substring is empty if its start and end positions are the same.
 def Internal.isEmptyImpl (ss : Substring.Raw) : Bool :=
   Substring.Raw.isEmpty ss
 
-/--{}
+/--
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
 @[inline] def toString : Substring.Raw → String
@@ -213,9 +213,9 @@ Returns the region of the substring delimited by the provided start and stop pos
 substring. The positions are interpreted with respect to the substring's start position, rather than
 the underlying string.
 
-If the resulting substring is empty, then the resulting substring is a substring of the empty string
-`""`. Otherwise, the underlying string is that of the input substring with the beginning and end
-positions adjusted.
+If the start position is not less than the stop position, then the result is a substring of the
+empty string `""`. Otherwise, the underlying string is that of the input substring with the beginning
+and end positions adjusted, and clamped to the input substring's end position.
 -/
 @[inline] def extract : Substring.Raw → String.Pos.Raw → String.Pos.Raw → Substring.Raw
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b'.offsetBy b), e.min (e'.offsetBy b)⟩
@@ -231,31 +231,16 @@ When `sep` is empty, the result is `[s]`. When `sep` occurs in overlapping patte
 is taken. There will always be exactly `n+1` elements in the returned list if there were `n`
 non-overlapping matches of `sep` in the string. The separators are not included in the returned
 substrings, which are all substrings of `s`'s string.
+
+If `s` is not a valid substring (see `Substring.Raw.toSlice?`), the result is `[s]`.
 -/
 def splitOn (s : Substring.Raw) (sep : String := " ") : List Substring.Raw :=
   if sep == "" then
     [s]
   else
-    let rec loop (b i j : String.Pos.Raw) (r : List Substring.Raw) : List Substring.Raw :=
-      if h : i.byteIdx < s.bsize then
-        have := Nat.sub_lt_sub_left h (lt_next s i h)
-        if s.get i == j.get sep then
-          let i := s.next i
-          let j := j.next sep
-          if j.atEnd sep then
-            loop i i 0 (s.extract b (i.unoffsetBy j) :: r)
-          else
-            loop b i j r
-        else
-          loop b (s.next i) 0 r
-      else
-        let r := if j.atEnd sep then
-          "".toRawSubstring :: s.extract b (i.unoffsetBy j) :: r
-        else
-          s.extract b i :: r
-        r.reverse
-      termination_by s.bsize - i.1
-    loop 0 0 0 []
+    match s.toSlice? with
+    | some s' => (s'.split sep).toList.map ofSlice
+    | none => [s]
 
 /--
 Folds a function over a substring from the left, accumulating a value starting with `init`. The
@@ -371,8 +356,8 @@ character, or to its end position if there is no non-whitespace character.
   s.dropWhile Char.isWhitespace
 
 /--
-Removes trailing whitespace from a substring by moving its end position to the last non-whitespace
-character, or to its start position if there is no non-whitespace character.
+Removes trailing whitespace from a substring by moving its end position to just after the last
+non-whitespace character, or to its start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
 -/
@@ -381,8 +366,8 @@ character, or to its start position if there is no non-whitespace character.
 
 /--
 Removes leading and trailing whitespace from a substring by first moving its start position to the
-first non-whitespace character, and then moving its end position to the last non-whitespace
-character.
+first non-whitespace character, and then moving its end position to just after the last
+non-whitespace character.
 
 If the substring consists only of whitespace, then the resulting substring's start position is moved
 to its end position.
@@ -408,7 +393,7 @@ A substring can be interpreted as a decimal natural number if it is not empty an
 in it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
 at the start, at the end, or consecutively.
 
-Use `Substring.toNat?` to convert such a substring to a natural number.
+Use `Substring.Raw.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring.Raw) : Bool :=
   if s.isEmpty then
@@ -433,7 +418,7 @@ returning the number if it can.
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
 in it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
-Use `Substring.isNat` to check whether the substring is such a substring.
+Use `Substring.Raw.isNat` to check whether the substring is such a substring.
 -/
 def toNat? (s : Substring.Raw) : Option Nat :=
   if s.isNat then
@@ -502,7 +487,7 @@ The returned substring uses the same underlying string as `s`.
 def commonSuffix (s t : Substring.Raw) : Substring.Raw :=
   { s with startPos := loop s.stopPos t.stopPos }
 where
-  /-- Returns the starting position of the common prefix, working down from `spos, tpos`. -/
+  /-- Returns the starting position of the common suffix, working down from `spos, tpos`. -/
   loop spos tpos :=
     if h : s.startPos < spos ∧ t.startPos < tpos then
       let spos' := spos.prev s.str

@@ -46,6 +46,19 @@ structure StateStack (α : Type) (β : Type) (σ : Type) where
   newEntries    : List (Entry α) := []
   deriving Inhabited
 
+/--
+Adds the global entries of the imported modules, given in module order, one by one to `mkInitial`;
+the default of `Descr.importGlobals`.
+-/
+def addImportedGlobals (mkInitial : IO σ) (ofOLeanEntry : σ → α → ImportM β)
+    (addImportedEntry : σ → β → σ) (as : Array (Array (Entry α))) : ImportM σ := do
+  let mut s ← mkInitial
+  for a in as do
+    for e in a do
+      if let .global a := e then
+        s := addImportedEntry s (← ofOLeanEntry s a)
+  return s
+
 structure Descr (α : Type) (β : Type) (σ : Type) where
   name           : Name := by exact decl_name%
   mkInitial      : IO σ
@@ -65,6 +78,13 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   operations adding or removing entries log their declarations (`Environment.logDeclChange`).
   -/
   entryDecl? : Option (β → Name) := none
+  /--
+  Creates the initial state at import from the global entries of all imported modules, which are
+  given in module order. The default adds them one by one to `mkInitial` using `ofOLeanEntry` and
+  `addImportedEntry`. Environments without imports start from `mkInitial`.
+  -/
+  importGlobals : Array (Array (Entry α)) → ImportM σ :=
+    addImportedGlobals mkInitial ofOLeanEntry addImportedEntry
 
 /--
 Whether scope operations that change the effective state must be recorded like content changes;
@@ -102,15 +122,11 @@ def ScopedEntries.insert (scopedEntries : ScopedEntries β) (ns : Name) (b : β)
   | some bs => { map := scopedEntries.map.insert ns <| bs.push b }
 
 def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : ImportM (StateStack α β σ) := do
-  let mut s ← descr.mkInitial
+  let mut s ← descr.importGlobals as
   let mut scopedEntries : ScopedEntries β := {}
   for a in as do
     for e in a do
-      match e with
-      | Entry.global a =>
-        let b ← descr.ofOLeanEntry s a
-        s := descr.addImportedEntry s b
-      | Entry.scoped ns a =>
+      if let Entry.scoped ns a := e then
         let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
   s := descr.finalizeImport s
@@ -348,6 +364,9 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   logWrites : Bool := false
   /-- See `ScopedEnvExtension.Descr.entryDecl?`. -/
   entryDecl? : Option (α → Name) := none
+  /-- See `ScopedEnvExtension.Descr.importGlobals`. -/
+  importGlobals : Array (Array (Entry α)) → ImportM σ :=
+    addImportedGlobals (pure initial) (fun _ a => pure a) addImportedEntry
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
@@ -362,6 +381,48 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     trackGen       := descr.trackGen
     logWrites      := descr.logWrites
     entryDecl?     := descr.entryDecl?
+    importGlobals  := descr.importGlobals
   }
+
+/--
+Registers a simple scoped environment extension (see `registerSimpleScopedEnvExtension`) whose
+imported global entries are added using per-module summaries instead of one by one.
+
+When a module is exported, `build` summarizes the global entries it exports at each olean level, if
+any; the summaries are stored by a separate persistent extension. On import, `addImported` adds the
+global entries of all imported modules to the initial state, given in module order, each with its
+entries and its summary (`none` for modules without global entries).
+-/
+def registerSimpleScopedEnvExtensionWithSummaries {ι : Type}
+    (descr : SimpleScopedEnvExtension.Descr α σ) (build : Environment → Array α → ι)
+    (addImported : σ → Array (Option ι × Array (Entry α)) → ImportM σ) :
+    IO (SimpleScopedEnvExtension α σ) := do
+  let summaryName := descr.name ++ `moduleSummary
+  let ext ← registerSimpleScopedEnvExtension { descr with
+    importGlobals := fun as => do
+      -- Looked up by name, as referencing the summary extension from here would create a cycle
+      -- through the export function below, which the compactor cannot save (e.g. in
+      -- `--incr-header-save` snapshots).
+      let some summaryExt := (← persistentEnvExtensionsRef.get).find? (·.name == summaryName)
+        | throw <| .userError s!"summary extension '{summaryName}' is not registered"
+      let env := (← read).env
+      addImported descr.initial <| as.mapIdx fun i a =>
+        let summary? : Option EnvExtensionEntry :=
+          (summaryExt.getModuleEntries env (i : ModuleIdx))[0]?
+        ((unsafe unsafeCast summary? : Option ι), a) }
+  let _ : PersistentEnvExtension ι Unit Unit ← registerPersistentEnvExtension {
+    name := summaryName
+    mkInitial := pure ()
+    addImportedFn := fun _ => pure ()
+    addEntryFn := fun s _ => s
+    exportEntriesFnEx := fun env _ =>
+      let es := exportEntriesFn ext.descr env (ext.ext.getState env)
+      let summarize (es : Array (Entry α)) :=
+        let globals := es.filterMap fun | .global e => some e | _ => none
+        if globals.isEmpty then #[] else #[build env globals]
+      { exported := summarize es.exported, server := summarize es.server
+        «private» := summarize es.private }
+  }
+  return ext
 
 end Lean

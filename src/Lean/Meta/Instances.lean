@@ -8,6 +8,8 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
+public import Lean.DeclKeyedMap
+public import Lean.ScopedEnvExtension
 import Lean.Meta.PPBinder
 import Lean.Util.UnusedBinders
 import Lean.Meta.CollectFVars
@@ -75,7 +77,7 @@ abbrev InstanceTree := DiscrTree InstanceEntry
 
 structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
-  instanceNames : PHashMap Name InstanceEntry := {}
+  instanceNames : DeclKeyedMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
   /--
   For each class, the changes of its instances since the import, newest first. Type class resolution
@@ -121,8 +123,55 @@ def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) :
     throwError "`{.ofConstName declName}` does not have [instance] attribute"
   return d.eraseCore declName
 
+/--
+The global instance entries of a module, preprocessed and stored in its olean so that importing them
+does not require adding each entry (see `registerSimpleScopedEnvExtensionWithSummaries`).
+-/
+structure InstanceModuleSummary where
+  roots   : Array (DiscrTree.Key × DiscrTree.Trie InstanceEntry)
+  /--
+  The names and entries of the named entries owned by the module (see
+  `ImportedDeclKeyedMap.sortOwned`).
+  -/
+  owned   : Array Name × Array InstanceEntry
+  /-- The names and entries of the remaining named entries, in order. -/
+  foreign : Array Name × Array InstanceEntry
+  deriving Inhabited
+
+/-- Preprocesses the global instance entries the current module exports. -/
+def InstanceModuleSummary.ofEntries (env : Environment) (es : Array InstanceEntry) :
+    InstanceModuleSummary := Id.run do
+  let mut owned := #[]
+  let mut foreignNames := #[]
+  let mut foreignEntries := #[]
+  for e in es do
+    if let some n := e.globalName? then
+      if ImportedDeclKeyedMap.isOwned env n then
+        owned := owned.push (n, e)
+      else
+        foreignNames := foreignNames.push n
+        foreignEntries := foreignEntries.push e
+  return {
+    roots := DiscrTree.moduleRootsOf (es.map fun e => (e.keys, e))
+    owned := ImportedDeclKeyedMap.sortOwned owned
+    foreign := (foreignNames, foreignEntries) }
+
+/--
+Adds the global entries of all imported modules to the empty instance set `d`, as
+`addImportedInstanceEntry` would.
+-/
+def InstanceModuleSummary.addImported (d : Instances)
+    (mods : Array (Option InstanceModuleSummary × Array (ScopedEnvExtension.Entry InstanceEntry))) :
+    ImportM Instances := do
+  let idxs := mods.filterMap (·.1)
+  return { d with
+    discrTree := DiscrTree.ofModuleRoots (idxs.map (·.roots))
+    instanceNames.imported := ImportedDeclKeyedMap.ofModules (← read).env.toKernelEnv.constants.map₁
+      (mods.map (·.1.map (·.owned) |>.getD (#[], #[]))) (idxs.map (·.foreign)) }
+
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
-  registerSimpleScopedEnvExtension {
+  registerSimpleScopedEnvExtensionWithSummaries (build := InstanceModuleSummary.ofEntries)
+      (addImported := InstanceModuleSummary.addImported) {
     initial  := {}
     addEntry := addInstanceEntry
     addImportedEntry := addImportedInstanceEntry

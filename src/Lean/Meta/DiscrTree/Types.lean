@@ -45,6 +45,18 @@ inductive Trie (α : Type) where
     -/
   | chain (key : Key) (child : Trie α) : Trie α
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α
+    /--
+    A node shared by the tries of several imported modules, merged on first access (see
+    `DiscrTree.ofModuleRoots`). The merged node is never itself `lazy`.
+    -/
+  | lazy (t : Thunk (Trie α)) : Trie α
+    /--
+    Most paths end in a single value after the last branching point. The special-cased
+    `.suffix keys i v` node stands for the path of `v` through the remaining keys `keys[i:]`,
+    equivalent to `.chain` nodes for these keys ending in `.node #[v] #[]`, but takes a single node
+    instead of one per key, as `keys` is usually shared with `v`'s own keys.
+    -/
+  | suffix (keys : Array Key) (i : Nat) (v : α) : Trie α
 
 end DiscrTree
 

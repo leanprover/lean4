@@ -2693,7 +2693,7 @@ v___jp_1279_:
 {
 lean_object* v_val_1283_; lean_object* v_newCnf_1284_; lean_object* v___x_1285_; lean_object* v___x_1287_; 
 v_val_1283_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_addIte___at___00__private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_State_addIte___at___00__private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_x27_go___at___00Std_Sat_AIG_toCNF_x27_spec__0_spec__4_spec__8___redArg(v_cache_1271_, v_cond_1266_, v_ifTrue_1267_, v_ifFalse_1268_, v_idx_1269_);
-v_newCnf_1284_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_Decl_iteToCNF___redArg(v_idx_1269_, v___x_1276_, v___x_1277_, v___x_1278_, v___y_1280_, v___y_1281_, v___y_1282_);
+v_newCnf_1284_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_Decl_iteToCNF___redArg(v_idx_1269_, v___x_1276_, v___x_1277_, v___x_1278_, v___y_1281_, v___y_1280_, v___y_1282_);
 v___x_1285_ = l_Array_append___redArg(v_cnf_1270_, v_newCnf_1284_);
 lean_dec_ref(v_newCnf_1284_);
 if (v_isShared_1274_ == 0)
@@ -2728,8 +2728,8 @@ if (v___x_1294_ == 0)
 {
 uint8_t v___x_1295_; 
 v___x_1295_ = 1;
-v___y_1280_ = v___y_1290_;
-v___y_1281_ = v___y_1291_;
+v___y_1280_ = v___y_1291_;
+v___y_1281_ = v___y_1290_;
 v___y_1282_ = v___x_1295_;
 goto v___jp_1279_;
 }
@@ -2737,8 +2737,8 @@ else
 {
 uint8_t v___x_1296_; 
 v___x_1296_ = 0;
-v___y_1280_ = v___y_1290_;
-v___y_1281_ = v___y_1291_;
+v___y_1280_ = v___y_1291_;
+v___y_1281_ = v___y_1290_;
 v___y_1282_ = v___x_1296_;
 goto v___jp_1279_;
 }

@@ -12,16 +12,18 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
-expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
-    if (s >= get_loose_bvar_range(a) || n == 0)
+expr instantiate(expr const & a, size_t start, size_t n, expr const * subst) {
+    if (start >= get_loose_bvar_range(a) || n == 0)
         return a;
+    // The loose bvar range has 20 bits. Narrowing keeps the arithmetic of this hot traversal at 32 bits.
+    unsigned s = static_cast<unsigned>(start);
     return replace_tpl(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
             if (is_bvar(m)) {
                 nat const & vidx = bvar_idx(m);
                 if (vidx >= s1) {
-                    unsigned h = s1 + n;
-                    if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
+                    size_t h = s1 + n;
+                    if (h < s1 /* overflow, h is bigger than any vidx */ || (vidx.is_small() && vidx.get_small_value() < h)) {
                         return some_expr(lift_loose_bvars(subst[vidx.get_small_value() - s1], offset));
                     } else {
                         return some_expr(mk_bvar(vidx - nat(n)));
@@ -35,8 +37,8 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
         });
 }
 
-expr instantiate(expr const & e, unsigned n, expr const * s) { return instantiate(e, 0, n, s); }
-expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
+expr instantiate(expr const & e, size_t n, expr const * s) { return instantiate(e, 0, n, s); }
+expr instantiate(expr const & e, size_t i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
 extern "C" LEAN_EXPORT object * lean_expr_instantiate1(object * a0, object * e0) {
@@ -65,7 +67,7 @@ static object * lean_expr_instantiate_core(b_obj_arg a0, size_t n, object** subs
                         object * v = subst[vidx.get_small_value() - offset];
                         return some_expr(lift_loose_bvars(TO_REF(expr, v), offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -92,7 +94,7 @@ extern "C" LEAN_EXPORT object * lean_expr_instantiate_range(b_obj_arg a, b_obj_a
     }
 }
 
-expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
+expr instantiate_rev(expr const & a, size_t n, expr const * subst) {
     if (!has_loose_bvars(a))
         return a;
     return replace_tpl(a, [=](expr const & m, unsigned offset) -> optional<expr> {
@@ -126,7 +128,7 @@ static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** 
                         object * v = subst[n - (vidx.get_small_value() - offset) - 1];
                         return some_expr(lift_loose_bvars(TO_REF(expr, v), offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - nat::of_size_t(n)));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -153,7 +155,7 @@ extern "C" LEAN_EXPORT object * lean_expr_instantiate_rev_range(b_obj_arg a, b_o
     }
 }
 
-static expr apply_beta_rec(expr e, unsigned i, unsigned num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
+static expr apply_beta_rec(expr e, size_t i, size_t num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
     if (is_lambda(e)) {
         if (i + 1 < num_rev_args) {
             return apply_beta_rec(binding_body(e), i+1, num_rev_args, rev_args, preserve_data, zeta);
@@ -164,23 +166,23 @@ static expr apply_beta_rec(expr e, unsigned i, unsigned num_rev_args, expr const
         if (zeta && i < num_rev_args) {
             return apply_beta_rec(instantiate(let_body(e), let_value(e)), i, num_rev_args, rev_args, preserve_data, zeta);
         } else {
-            unsigned n = num_rev_args - i;
+            size_t n = num_rev_args - i;
             return mk_rev_app(instantiate(e, i, rev_args + n), n, rev_args);
         }
     } else if (is_mdata(e)) {
         if (preserve_data) {
-            unsigned n = num_rev_args - i;
+            size_t n = num_rev_args - i;
             return mk_rev_app(instantiate(e, i, rev_args + n), n, rev_args);
         } else {
             return apply_beta_rec(mdata_expr(e), i, num_rev_args, rev_args, preserve_data, zeta);
         }
     } else {
-        unsigned n = num_rev_args - i;
+        size_t n = num_rev_args - i;
         return mk_rev_app(instantiate(e, i, rev_args + n), n, rev_args);
     }
 }
 
-expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
+expr apply_beta(expr f, size_t num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
     if (num_rev_args == 0) return f;
     return apply_beta_rec(f, 0, num_rev_args, rev_args, preserve_data, zeta);
 }
@@ -191,7 +193,7 @@ expr cheap_beta_reduce(expr const & e) {
     if (!is_lambda(fn)) return e;
     buffer<expr> args;
     get_app_args(e, args);
-    unsigned i = 0;
+    size_t i = 0;
     while (is_lambda(fn) && i < args.size()) {
         i++;
         fn = binding_body(fn);

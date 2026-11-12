@@ -446,7 +446,7 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-// sync with tests/elab/rc_model.lean (`incRefHugeN`)
+// sync with tests/verif/Verif/runtime/RC.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
     if (lean_is_st(o)) {
@@ -468,7 +468,7 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_model.lean (`decRefCold`)
+// sync with tests/verif/Verif/runtime/RC.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
@@ -539,7 +539,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_ob
 // Thunks
 
 // Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
-// sync with tests/elab/rc_model.lean (`isUnshared`)
+// sync with tests/verif/Verif/runtime/RC.lean (`isUnshared`)
 static inline bool is_unshared(object * o) {
     int rc = lean_internal_get_rc(o);
     return rc > 0 || rc <= LEAN_RC_STUCK_ST;
@@ -691,7 +691,7 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
         if (!lean_is_scalar(o) && is_unshared(o)) {
             // A count that overflowed, or is too large for the live thread-shared range, freezes at
             // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
-            // sync with tests/elab/rc_model.lean (`markMtRc`)
+            // sync with tests/verif/Verif/runtime/RC.lean (`markMtRc`)
             int rc = lean_internal_get_rc(o);
             lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
             uint8_t tag = lean_ptr_tag(o);

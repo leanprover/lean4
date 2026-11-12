@@ -7152,7 +7152,7 @@ v_vars_2253_ = lean_ctor_get(v_a_2249_, 0);
 lean_inc_ref(v_vars_2253_);
 v_varMap_2254_ = lean_ctor_get(v_a_2249_, 1);
 lean_inc_ref(v_varMap_2254_);
-v_assignment_2255_ = lean_ctor_get(v_a_2249_, 12);
+v_assignment_2255_ = lean_ctor_get(v_a_2249_, 13);
 lean_inc_ref(v_assignment_2255_);
 lean_dec(v_a_2249_);
 v___x_2256_ = l_Lean_PersistentHashMap_Node_isEmpty___redArg(v_varMap_2254_);
@@ -8447,7 +8447,7 @@ goto v_resetjp_2695_;
 v_resetjp_2695_:
 {
 lean_object* v_steps_2698_; uint8_t v___x_2699_; 
-v_steps_2698_ = lean_ctor_get(v_a_2694_, 14);
+v_steps_2698_ = lean_ctor_get(v_a_2694_, 15);
 lean_inc(v_steps_2698_);
 lean_dec(v_a_2694_);
 v___x_2699_ = lean_nat_dec_le(v_liaSteps_2689_, v_steps_2698_);

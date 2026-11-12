@@ -57,7 +57,12 @@ Hint: Replace the deprecated name:
 macro "explicitOld" : term => ``(@oldConst)
 
 -- Field notation on a deprecated constant
-/-- warning: `oldConst` has been deprecated: Use `newConst` instead -/
+/--
+warning: `oldConst` has been deprecated: Use `newConst` instead
+
+Hint: Replace the deprecated name:
+  o̵l̵d̵n̲e̲w̲Const
+-/
 #guard_msgs in
 macro "fieldOld" : term => ``(oldConst.succ)
 
@@ -147,6 +152,13 @@ example : Nat := overloaded
 example : String := overloaded
 
 -- Identifiers produced by macros used in the quotation are reported where the result is elaborated.
+/--
+warning: `oldConst` has been deprecated: Use `newConst` instead
+
+Hint: Replace the deprecated name:
+  o̵l̵d̵n̲e̲w̲Const
+-/
+#guard_msgs in
 macro "addOld " x:term:max : term => do
   let old := mkIdentFrom (← getRef) ``oldConst
   ``($old + $x)

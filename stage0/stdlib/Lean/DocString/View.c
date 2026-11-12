@@ -5868,11 +5868,11 @@ return v___x_2025_;
 }
 v___jp_2026_:
 {
-if (lean_obj_tag(v___y_2027_) == 0)
+if (lean_obj_tag(v___y_2028_) == 0)
 {
 lean_object* v___x_2031_; 
 v___x_2031_ = ((lean_object*)(l___private_Lean_DocString_View_0__Lean_Doc_codeLinesFrom___closed__0));
-v___y_2020_ = v___y_2028_;
+v___y_2020_ = v___y_2027_;
 v___y_2021_ = v___y_2029_;
 v___y_2022_ = v___y_2030_;
 v___y_2023_ = v___x_2031_;
@@ -5881,10 +5881,10 @@ goto v___jp_2019_;
 else
 {
 lean_object* v_val_2032_; 
-v_val_2032_ = lean_ctor_get(v___y_2027_, 0);
+v_val_2032_ = lean_ctor_get(v___y_2028_, 0);
 lean_inc(v_val_2032_);
-lean_dec_ref_known(v___y_2027_, 1);
-v___y_2020_ = v___y_2028_;
+lean_dec_ref_known(v___y_2028_, 1);
+v___y_2020_ = v___y_2027_;
 v___y_2021_ = v___y_2029_;
 v___y_2022_ = v___y_2030_;
 v___y_2023_ = v_val_2032_;
@@ -5940,8 +5940,8 @@ if (lean_obj_tag(v___x_2047_) == 0)
 lean_object* v___x_2048_; lean_object* v___x_2049_; 
 v___x_2048_ = l___private_Lean_DocString_View_0__Lean_Doc_emptyContentInfo(v_closeFence_2042_);
 v___x_2049_ = l_Lean_Syntax_setInfo(v___x_2048_, v_s_2037_);
-v___y_2027_ = v_args_2035_;
-v___y_2028_ = v_name_2034_;
+v___y_2027_ = v_name_2034_;
+v___y_2028_ = v_args_2035_;
 v___y_2029_ = v_closeFence_2042_;
 v___y_2030_ = v___x_2049_;
 goto v___jp_2026_;
@@ -5949,8 +5949,8 @@ goto v___jp_2026_;
 else
 {
 lean_dec_ref_known(v___x_2047_, 1);
-v___y_2027_ = v_args_2035_;
-v___y_2028_ = v_name_2034_;
+v___y_2027_ = v_name_2034_;
+v___y_2028_ = v_args_2035_;
 v___y_2029_ = v_closeFence_2042_;
 v___y_2030_ = v_s_2037_;
 goto v___jp_2026_;

@@ -66,7 +66,7 @@ def projIndexedStructLike (fe : FEnv) (T sn : Name) (i nArgs : Nat) : Bool :=
       | [c] =>
         caps.nparams < nArgs &&
           match fe.ctorView? c with
-          | some (_, _, nF) => decide (i < nF)
+          | some (_, _, nF, _) => decide (i < nF)
           | none => false
       | _ => false
     | none => false
@@ -80,12 +80,6 @@ def projMissError (fe : FEnv) (hasTable : Bool) (T sn : Name) (i nArgs : Nat) : 
 
 /-! ## Expression predicates -/
 
-/-- Twin of `Expr.piResult`. -/
-def piResult : Expr → Expr
-  | .mdata _ e => piResult e
-  | .forallE _ _ b _ => piResult b
-  | e => e
-
 /-- Twin of `teleArityOk`. -/
 def teleArityOk (ty : Expr) (args : List Expr) : Bool := (peelPis args.length ty).isSome
 
@@ -94,20 +88,17 @@ def etaCtorPartialC (fe : FEnv) (e : Expr) : Option Nat :=
   match e.getAppFnT with
   | .const c _ =>
     match fe.ctorView? c with
-    | some (cvc, cnP, cnF) =>
+    | some (_, cnP, cnF, T) =>
       if e.getAppNumArgsT < cnP + cnF then
-        match (piResult cvc.type).getAppFnT with
-        | .const T _ =>
-          match fe.indView? T with
-          | some (_, caps) =>
-            match fe.findTable? T with
-            | some tbl =>
-              if caps.eta = true ∧ tbl.ctor == c then
-                some (cnP + cnF - e.getAppNumArgsT)
-              else none
-            | none => none
+        match fe.indView? T with
+        | some (_, caps) =>
+          match fe.findTable? T with
+          | some tbl =>
+            if caps.eta = true ∧ tbl.ctor == c then
+              some (cnP + cnF - e.getAppNumArgsT)
+            else none
           | none => none
-        | _ => none
+        | none => none
       else none
     | none => none
   | _ => none
@@ -333,30 +324,35 @@ def natResultRefused (maxBytes : Nat) (op : NatBinOp) (x : Expr) : Bool :=
 
 /-! ## A family's sort, read at use -/
 
-/-- Twin of `formerResSort`. -/
-def formerResSort (ty : Expr) : Option Level :=
-  match EO.stripTop (piResult ty) with
-  | .sort s => some s
-  | _ => none
-
 /-- Twin of `formerDefHeaded`. -/
 def formerDefHeaded (cv : ConstantVal) : Bool := (formerResSort cv.type).isNone
-
-/-- Twin of `formerZ`. -/
-def formerZ (cvT : ConstantVal) : PropWhen :=
-  match formerResSort cvT.type with
-  | some s => Lvl.zeronessOf s
-  | none => .ifAllZero []
 
 /-- Twin of `formerNeverZero`. -/
 def formerNeverZero (cvT : ConstantVal) (us : List Level) : Bool :=
   (Lvl.substPW cvT.levelParams us (formerZ cvT)).isNever
 
-/-- Twin of `ctorFamily`. -/
-def ctorFamily (fe : FEnv) (cvj : ConstantVal) : Option (ConstantVal × IndCaps) :=
-  match EO.stripTop ((piResult cvj.type).getAppFnT) with
-  | .const T _ => fe.indView? T
-  | _ => none
+/-- Twin of `ctorFamily`: the former and the capabilities stored at the
+constructor's `induct` (Lean's `ConstructorVal.induct`, read by
+`ctorView?`). -/
+def ctorFamily (fe : FEnv) (induct : Name) : Option (ConstantVal × IndCaps) :=
+  fe.indView? induct
+
+/-- Twin of `recFireLevelCount`: how many comparand levels a rule firing at
+`fire` has, read without substituting. -/
+def recFireLevelCount (fire : RecRuleFire) (cvjLps : List Name) : Nat :=
+  match fire with
+  | .nested lvls _ => lvls.length
+  | .plain => cvjLps.length
+  | .levels lvls => lvls.length
+
+/-- Twin of `iotaNoCert`: a rule fires with no certificate at a K recursor,
+or where the constructor's family records a never-zero sort
+(`IndCaps.neverZero`) and has `n` level parameters. -/
+def iotaNoCert (fe : FEnv) (isK : Bool) (induct : Name) (n : Nat) : Bool :=
+  isK ||
+    match ctorFamily fe induct with
+    | some (cvT, caps) => caps.neverZero && cvT.levelParams.length == n
+    | none => false
 
 /-- Twin of `etaRescueTable?`. -/
 def etaRescueTable? (tbl? : Option TableView) (ctor : Name) (cvj cvT : ConstantVal)

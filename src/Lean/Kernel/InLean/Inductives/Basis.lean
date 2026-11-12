@@ -220,7 +220,7 @@ def pinAgrees : ConstantInfo → ConstantInfo → Bool
   | .inductInfo v, .inductInfo v' => v.name == v'.name && Expr.clEq v.type v'.type
   | .ctorInfo v, .ctorInfo v' =>
     v.name == v'.name && Expr.clEq v.type v'.type &&
-      v.numParams == v'.numParams && v.numFields == v'.numFields
+      v.numParams == v'.numParams && v.numFields == v'.numFields && v.induct == v'.induct
   | .recInfo v, .recInfo v' =>
     v.name == v'.name && Expr.clEq v.type v'.type &&
       majorIdxOf v == majorIdxOf v' && rulePrefixOf v == rulePrefixOf v' && v.k == v'.k &&

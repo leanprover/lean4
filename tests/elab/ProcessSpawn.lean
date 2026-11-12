@@ -3,10 +3,10 @@ import Std.Internal.UV
 /-!
 Tests `IO.Process.spawn` and the operations on `IO.Process.Child`: spawn failures are reported as
 `IO` errors, rejection of strings with NUL bytes, running executable files without a shebang via
-`/bin/sh`, binary-safe pipes, exit codes of killed children, the signal dispositions of the child,
-`kill` and `wait` after the child has exited, reaping of dropped children, killing `setsid` process
-groups, environment construction, argument passing and quoting, concurrent spawning and `wait` on
-the event loop thread.
+`/bin/sh`, command lookup on Windows, binary-safe pipes, exit codes of killed children, the signal
+dispositions of the child, `kill` and `wait` after the child has exited, reaping of dropped
+children, killing `setsid` process groups, environment construction, argument passing and quoting,
+concurrent spawning and `wait` on the event loop thread.
 
 The environment tests rely on `ProcessSpawn.lean.init.sh` exporting `LEAN_SPAWN_TEST_INHERITED`.
 -/
@@ -92,6 +92,17 @@ info: "sh\x00x"
     IO.FS.createDir (dir / "sub")
     writeScript (dir / "sub" / name) 8
     run { cmd := name, cwd := dir / "sub", env := #[("PATH", some s!".:{path}")] } 8 "relative `PATH` entry"
+
+/-! On Windows, the system directory is searched before `PATH`, as `CreateProcess` does. -/
+
+#eval show IO Unit from do
+  unless System.Platform.isWindows do return
+  IO.FS.withTempDir fun dir => do
+    -- comes first in the child's `PATH`, but must not be run
+    IO.FS.writeFile (dir / "cmd.exe") "not an executable"
+    let path := s!"{dir};{(← IO.getEnv "PATH").getD ""}"
+    let out ← run { cmd := "cmd", args := #["/c", "echo", "hi"], env := #[("PATH", some path)] }
+    check (out == "hi\r\n") s!"`echo hi` printed {repr out}"
 
 /-! Pipes carry bytes unchanged, with no line ending or end-of-file translation on Windows. -/
 

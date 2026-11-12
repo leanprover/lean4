@@ -213,7 +213,24 @@ static b_obj_arg find_nul(string_ref const & cmd, array_ref<string_ref> const & 
     return nullptr;
 }
 
-#if !defined(LEAN_WINDOWS)
+#if defined(LEAN_WINDOWS)
+// Finds a command without a directory where `CreateProcess` looks for it: in the directory of this
+// executable, the working directory and the system directories, and only then in `PATH`. libuv
+// searches nothing but the child's working directory and `PATH`.
+static std::optional<std::string> find_command(char const * cmd) {
+    if (strpbrk(cmd, "/\\:") != nullptr) return std::nullopt;
+    std::string file(MAX_PATH, '\0');
+    DWORD len = SearchPathA(nullptr, cmd, ".exe", static_cast<DWORD>(file.size()), file.data(), nullptr);
+    if (len >= file.size()) {
+        // too small a buffer; `len` is the size that the path and its terminator need
+        file.resize(static_cast<size_t>(len) + 1);
+        len = SearchPathA(nullptr, cmd, ".exe", static_cast<DWORD>(file.size()), file.data(), nullptr);
+    }
+    if (len == 0 || len >= file.size()) return std::nullopt;
+    file.resize(len);
+    return file;
+}
+#else
 static bool is_executable_file(std::string const & file, char const * cwd) {
     std::string resolved = file[0] != '/' && cwd != nullptr ? std::string(cwd) + "/" + file : file;
     struct stat st;
@@ -324,6 +341,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
     options.cwd         = cwd ? cwd.get()->data() : nullptr;
     options.stdio_count = 3;
     options.stdio       = stdio;
+#if defined(LEAN_WINDOWS)
+    // A command that is not found here is left to libuv's search.
+    std::optional<std::string> found_cmd = find_command(cmd.data());
+    if (found_cmd) {
+        options.file = found_cmd->c_str();
+        // Runs the file that was found even if its name has no extension.
+        options.flags |= UV_PROCESS_WINDOWS_FILE_PATH_EXACT_NAME;
+    }
+#endif
 #if !defined(LEAN_WINDOWS)
     // On Windows, this would also detach the child from the console.
     if (setsid) {

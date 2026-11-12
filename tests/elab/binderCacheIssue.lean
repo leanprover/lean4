@@ -1,11 +1,11 @@
 universe u v w
 
-class Funtype (N : Sort u) (O : outParam (Sort v)) (T : outParam (Sort w)) :=
+class Funtype (N : Sort u) (O : outParam (Sort v)) (T : outParam (Sort w)) where
   pack : O -> N
   unpack : N -> O
   apply : N -> T
 
-class LNot {P : Sort u} (L : P -> Prop) :=
+class LNot {P : Sort u} (L : P -> Prop) where
   toFun : (p : P) -> Not (L p)
 
 namespace LNot

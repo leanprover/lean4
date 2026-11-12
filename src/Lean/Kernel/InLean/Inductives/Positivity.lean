@@ -165,7 +165,7 @@ def nestContainer (ctx : NestCtx) (C : Name) : Option (Nat × List (ConstantVal 
   match ctx.fe.indView? C with
   | some (_, caps) =>
     let cs := caps.ctors.filterMap fun n =>
-      (ctx.fe.ctorView? n).bind fun (cv, nPc, nF) => nestCtorEntry C cv nPc nF
+      (ctx.fe.ctorView? n).bind fun (cv, nPc, nF, _) => nestCtorEntry C cv nPc nF
     match cs with
     | [] => some (caps.nparams, [])
     | (_, nPc, _) :: _ => some (nPc, cs.map fun c => (c.1, c.2.2))

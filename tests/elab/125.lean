@@ -1,4 +1,4 @@
-class HasElems (α : Type) : Type := (elems : Array α)
+class HasElems (α : Type) : Type where (elems : Array α)
 def elems (α : Type) [HasElems α] : Array α := HasElems.elems
 
 inductive Foo : Type

@@ -22,15 +22,19 @@ and nothing is memoised:
 * **`IndCaps`** (`indView?`, twin of `blockCapsAt`): every field is a field
   of the `InductiveVal` (`all`, `numParams`, `numIndices`, `ctors`, and
   official's `is_rec` as `isRec`, which is con-leche's `blockIsRec`) or of
-  its one constructor's `ConstructorVal` (`numFields`).  One lookup and a
-  small record per use.
+  its one constructor's `ConstructorVal` (`numFields`), but the family's sort
+  fact `neverZero`, which is read off the former's type as the
+  install reads its declared one (`formerZ`: the `∀`-telescope to its sort,
+  a walk of the parameters and indices).  One lookup and a small record per
+  use.
 * **A recursor's counts** (`recView?`): `majorIdx` and `rulePrefix` are sums
   of the `RecursorVal`'s counts, its K flag is `k`, its rules are `rules`.
   **The firing mode** (`recFireAt`, twin of `recFire`) is computed only
   where a check reads it (ι's case-3 certificate): `.plain` when the major
   premise's domain is headed by a member of the block, else `.nested` at
   that domain's levels and parameters.
-* **A constructor's counts** (`ctorView?`): `numParams`, `numFields`.
+* **A constructor's counts and family** (`ctorView?`): `numParams`, `numFields`,
+  `induct` (the family con-leche's install stores on the record).
 * **Projection tables** (`findProj?`, twin of `blockTables` read at a
   field): a table exists for an index-free one-constructor inductive whose
   constructor type binds its parameters and fields; that is a binder count,
@@ -72,8 +76,10 @@ exit, so the checker's soundness holds whatever they are.
 
 * `recDepth`: the core's entry points nest at most this deep (the knot's
   fuel; `none` is `checkFuel`), official `scope_rec_depth`'s bound.
-* `poll`: if any, asked at every body the knot's memos miss and at every
-  unfolding (`Event`); a limit it answers is the error.  The heartbeat
+* `poll`: if any, asked at every body the knot's memos miss (for
+  `whnfCore`, whose memo is read inside its loop, at every entry that is not
+  an easy case) and at every unfolding (`Event`); a limit it answers is the
+  error.  The heartbeat
   budget, the cancellation token and the diagnostics' unfold counter live
   behind it (core's glue reads and writes the runtime).
 * `maxNatSize`: twin of con-leche's `maxNatSize` (the run's parameter,
@@ -143,6 +149,24 @@ official's. -/
 
 /-! ## Inductives -/
 
+/-- Twin of `Expr.piResult`. -/
+def piResult : Expr → Expr
+  | .mdata _ e => piResult e
+  | .forallE _ _ b _ => piResult b
+  | e => e
+
+/-- Twin of `formerResSort`. -/
+def formerResSort (ty : Expr) : Option Level :=
+  match EO.stripTop (piResult ty) with
+  | .sort s => some s
+  | _ => none
+
+/-- Twin of `formerZ`. -/
+def formerZ (cvT : ConstantVal) : PropWhen :=
+  match formerResSort cvT.type with
+  | some s => Lvl.zeronessOf s
+  | none => .ifAllZero []
+
 /-- Twin of `IndCaps`. -/
 structure IndCaps where
   eta : Bool := false
@@ -150,9 +174,12 @@ structure IndCaps where
   nparams : Nat := 0
   nIdx : Nat := 0
   ctors : List Name := []
+  neverZero : Bool := false
   deriving Inhabited
 
-/-- **Twin of `blockCapsAt`**, read off the `InductiveVal`. -/
+/-- **Twin of `blockCapsAt`**, read off the `InductiveVal`.  The family's
+sort fact (`neverZero`) is the former's type read as the install
+reads its declared one (`formerZ`): its `∀`-telescope walked to the sort. -/
 def capsOf (v : InductiveVal) : IndCaps :=
   match v.ctors with
   | [c] =>
@@ -160,8 +187,10 @@ def capsOf (v : InductiveVal) : IndCaps :=
       all := v.all
       nparams := v.numParams
       nIdx := v.numIndices
-      ctors := [c] }
-  | cs => { all := v.all, nparams := v.numParams, nIdx := v.numIndices, ctors := cs }
+      ctors := [c]
+      neverZero := (formerZ v.toConstantVal).isNever }
+  | cs => { all := v.all, nparams := v.numParams, nIdx := v.numIndices, ctors := cs,
+            neverZero := (formerZ v.toConstantVal).isNever }
 
 /-- **The twin of a lookup finding `.indInfo cvT caps`**: an inductive type
 former and its capabilities, or `Quot` (the pin's empty capabilities). -/
@@ -171,12 +200,13 @@ def FEnv.indView? (fe : FEnv) (n : Name) : Option (ConstantVal × IndCaps) :=
   | some (.quotInfo q) => if q.kind == .type then some (q.toConstantVal, {}) else none
   | _ => none
 
-/-- **The twin of a lookup finding `.ctorInfo cv nP nF`**: a constructor
-and its counts, or `Quot.mk` (two parameters, one field). -/
-def FEnv.ctorView? (fe : FEnv) (n : Name) : Option (ConstantVal × Nat × Nat) :=
+/-- **The twin of a lookup finding `.ctorInfo cv nP nF induct`**: a
+constructor, its counts and its family (Lean's `ConstructorVal.induct`), or
+`Quot.mk` (two parameters, one field, the family `Quot`). -/
+def FEnv.ctorView? (fe : FEnv) (n : Name) : Option (ConstantVal × Nat × Nat × Name) :=
   match fe.find? n with
-  | some (.ctorInfo v) => some (v.toConstantVal, v.numParams, v.numFields)
-  | some (.quotInfo q) => if q.kind == .ctor then some (q.toConstantVal, 2, 1) else none
+  | some (.ctorInfo v) => some (v.toConstantVal, v.numParams, v.numFields, v.induct)
+  | some (.quotInfo q) => if q.kind == .ctor then some (q.toConstantVal, 2, 1, quotName) else none
   | _ => none
 
 /-- Twin of `isCtorAppC`. -/
@@ -190,7 +220,7 @@ def etaCtorShapeC (fe : FEnv) (e : Expr) : Bool :=
   match e.getAppFnT with
   | .const c _ =>
     match fe.ctorView? c with
-    | some (_, cnP, cnF) => e.getAppNumArgsT == cnP + cnF
+    | some (_, cnP, cnF, _) => e.getAppNumArgsT == cnP + cnF
     | none => false
   | _ => false
 

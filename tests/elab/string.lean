@@ -53,38 +53,38 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test String.Pos.Raw.isValid "𝒫(A)" ⟨4⟩ = true
 
 -- get
-#test "abc".get ⟨1⟩ = 'b'
-#test "abc".get ⟨3⟩ = (default : Char)
-#test "L∃∀N".get ⟨2⟩ = (default : Char)
+#test String.Pos.Raw.get "abc" ⟨1⟩ = 'b'
+#test String.Pos.Raw.get "abc" ⟨3⟩ = (default : Char)
+#test String.Pos.Raw.get "L∃∀N" ⟨2⟩ = (default : Char)
 
 -- get?
-#test "abc".get? ⟨1⟩ = some 'b'
-#test "abc".get? ⟨3⟩ = none
-#test "L∃∀N".get? ⟨1⟩ = some '∃'
-#test "L∃∀N".get? ⟨2⟩ = none
+#test String.Pos.Raw.get? "abc" ⟨1⟩ = some 'b'
+#test String.Pos.Raw.get? "abc" ⟨3⟩ = none
+#test String.Pos.Raw.get? "L∃∀N" ⟨1⟩ = some '∃'
+#test String.Pos.Raw.get? "L∃∀N" ⟨2⟩ = none
 
 -- get!
-#test "abc".get! ⟨1⟩ = 'b'
+#test String.Pos.Raw.get! "abc" ⟨1⟩ = 'b'
 
 -- set
-#test "abc".set ⟨1⟩ 'B' = "aBc"
-#test "abc".set ⟨3⟩ 'D' = "abc"
-#test "L∃∀N".set ⟨4⟩ 'X' = "L∃XN"
-#test "L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"
+#test String.Pos.Raw.set "abc" ⟨1⟩ 'B' = "aBc"
+#test String.Pos.Raw.set "abc" ⟨3⟩ 'D' = "abc"
+#test String.Pos.Raw.set "L∃∀N" ⟨4⟩ 'X' = "L∃XN"
+#test String.Pos.Raw.set "L∃∀N" ⟨2⟩ 'X' = "L∃∀N"
 
 -- modify
-#test abc.modify ⟨1⟩ Char.toUpper = "aBc"
-#test abc.modify ⟨3⟩ Char.toUpper = "abc"
+#test String.Pos.Raw.modify abc ⟨1⟩ Char.toUpper = "aBc"
+#test String.Pos.Raw.modify abc ⟨3⟩ Char.toUpper = "abc"
 
 -- next
-#test abc.next ⟨3⟩ = ⟨4⟩
-#test "L∃∀N".next ⟨2⟩ = ⟨3⟩
-#test abc.get (0 |> abc.next) = 'b'
-#test lean.get (0 |> lean.next |> lean.next) = '∀'
+#test String.Pos.Raw.next abc ⟨3⟩ = ⟨4⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨2⟩ = ⟨3⟩
+#test String.Pos.Raw.get abc (0 |> String.Pos.Raw.next abc) = 'b'
+#test String.Pos.Raw.get lean (0 |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean) = '∀'
 
 -- prev
-#test abc.get (abc.rawEndPos |> abc.prev) = 'c'
-#test lean.get (lean.rawEndPos |> lean.prev |> lean.prev |> lean.prev) = '∃'
+#test String.Pos.Raw.get abc (abc.rawEndPos |> String.Pos.Raw.prev abc) = 'c'
+#test String.Pos.Raw.get lean (lean.rawEndPos |> String.Pos.Raw.prev lean |> String.Pos.Raw.prev lean |> String.Pos.Raw.prev lean) = '∃'
 
 -- front
 #test "abc".front = 'a'
@@ -95,21 +95,21 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test "".back = (default : Char)
 
 -- atEnd
-#test (0 |> abc.next |> abc.next |> abc.atEnd) = false
-#test (0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd) = true
-#test (0 |> lean.next |> lean.next |> lean.next |> lean.atEnd) = false
-#test (0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true
-#test abc.atEnd ⟨4⟩ = true
-#test lean.atEnd ⟨7⟩ = false
-#test lean.atEnd ⟨8⟩ = true
+#test (0 |> String.Pos.Raw.next abc |> String.Pos.Raw.next abc |> String.Pos.Raw.atEnd abc) = false
+#test (0 |> String.Pos.Raw.next abc |> String.Pos.Raw.next abc |> String.Pos.Raw.next abc |> String.Pos.Raw.next abc |> String.Pos.Raw.atEnd abc) = true
+#test (0 |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean |> String.Pos.Raw.atEnd lean) = false
+#test (0 |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean |> String.Pos.Raw.atEnd lean) = true
+#test String.Pos.Raw.atEnd abc ⟨4⟩ = true
+#test String.Pos.Raw.atEnd lean ⟨7⟩ = false
+#test String.Pos.Raw.atEnd lean ⟨8⟩ = true
 
 -- get'
 def getInBounds? (s : String) (p : String.Pos.Raw) : Option Char :=
-  if h : s.atEnd p then none else some (s.get' p h)
+  if h : String.Pos.Raw.atEnd s p then none else some (String.Pos.Raw.get' s p h)
 
-#test "L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)
-#test "abc".get' 0 (by decide) = 'a'
-#test let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'
+#test String.Pos.Raw.get' "L∃∀N" ⟨2⟩ (by decide) = (default : Char)
+#test String.Pos.Raw.get' "abc" 0 (by decide) = 'a'
+#test let lean := "L∃∀N"; String.Pos.Raw.get' lean (0 |> String.Pos.Raw.next lean |> String.Pos.Raw.next lean) (by decide) = '∀'
 
 #test getInBounds? abc ⟨1⟩ = some 'b'
 #test getInBounds? abc ⟨5⟩ = none
@@ -117,50 +117,50 @@ def getInBounds? (s : String) (p : String.Pos.Raw) : Option Char :=
 
 -- next'
 def next? (s : String) (p : String.Pos.Raw) : Option Char :=
-  if h : s.atEnd p then none else s.get (s.next' p h)
+  if h : String.Pos.Raw.atEnd s p then none else String.Pos.Raw.get s (String.Pos.Raw.next' s p h)
 
-#test let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'
+#test let abc := "abc"; String.Pos.Raw.get abc (String.Pos.Raw.next' abc 0 (by decide)) = 'b'
 
 #test next? abc ⟨1⟩ = some 'c'
 #test next? abc ⟨5⟩ = none
 
 /-!
-Behavior of `String.prev` (`lean_string_utf8_prev`) in special cases (see issue #9439).
+Behavior of `String.Pos.Raw.prev` (`lean_string_utf8_prev`) in special cases (see issue #9439).
 -/
 
-#test "L∃∀N".prev ⟨0⟩ = ⟨0⟩
-#test "L∃∀N".prev ⟨1⟩ = ⟨0⟩
-#test "L∃∀N".prev ⟨2⟩ = ⟨1⟩
-#test "L∃∀N".prev ⟨3⟩ = ⟨1⟩
-#test "L∃∀N".prev ⟨4⟩ = ⟨1⟩
-#test "L∃∀N".prev ⟨5⟩ = ⟨4⟩
-#test "L∃∀N".prev ⟨6⟩ = ⟨4⟩
-#test "L∃∀N".prev ⟨7⟩ = ⟨4⟩
-#test "L∃∀N".prev ⟨8⟩ = ⟨7⟩ -- rawEndPos
-#test "L∃∀N".prev ⟨9⟩ = ⟨8⟩
-#test "L∃∀N".prev ⟨100⟩ = ⟨99⟩ -- small value out of bounds
-#test "L∃∀N".prev ⟨2 ^ 128⟩ = ⟨2 ^ 128 - 1⟩ -- large non-scalar
-#test "L∃∀N".prev ⟨2 ^ 63⟩ = ⟨2 ^ 63 - 1⟩ -- scalar boundary (64-bit)
-#test "L∃∀N".prev ⟨2 ^ 31⟩ = ⟨2 ^ 31 - 1⟩ -- scalar boundary (32-bit)
+#test String.Pos.Raw.prev "L∃∀N" ⟨0⟩ = ⟨0⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨1⟩ = ⟨0⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨2⟩ = ⟨1⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨3⟩ = ⟨1⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨4⟩ = ⟨1⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨5⟩ = ⟨4⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨6⟩ = ⟨4⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨7⟩ = ⟨4⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨8⟩ = ⟨7⟩ -- rawEndPos
+#test String.Pos.Raw.prev "L∃∀N" ⟨9⟩ = ⟨8⟩
+#test String.Pos.Raw.prev "L∃∀N" ⟨100⟩ = ⟨99⟩ -- small value out of bounds
+#test String.Pos.Raw.prev "L∃∀N" ⟨2 ^ 128⟩ = ⟨2 ^ 128 - 1⟩ -- large non-scalar
+#test String.Pos.Raw.prev "L∃∀N" ⟨2 ^ 63⟩ = ⟨2 ^ 63 - 1⟩ -- scalar boundary (64-bit)
+#test String.Pos.Raw.prev "L∃∀N" ⟨2 ^ 31⟩ = ⟨2 ^ 31 - 1⟩ -- scalar boundary (32-bit)
 
 /-!
-Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue #9440).
+Behavior of `String.Pos.Raw.next` (`lean_string_utf8_next`) in special cases (see issue #9440).
 -/
 
-#test "L∃∀N".next ⟨0⟩ = ⟨1⟩
-#test "L∃∀N".next ⟨1⟩ = ⟨4⟩
-#test "L∃∀N".next ⟨2⟩ = ⟨3⟩
-#test "L∃∀N".next ⟨3⟩ = ⟨4⟩
-#test "L∃∀N".next ⟨4⟩ = ⟨7⟩
-#test "L∃∀N".next ⟨5⟩ = ⟨6⟩
-#test "L∃∀N".next ⟨6⟩ = ⟨7⟩
-#test "L∃∀N".next ⟨7⟩ = ⟨8⟩
-#test "L∃∀N".next ⟨8⟩ = ⟨9⟩
-#test "L∃∀N".next ⟨9⟩ = ⟨10⟩
-#test "L∃∀N".next ⟨99⟩ = ⟨100⟩ -- small value out of bounds
-#test "L∃∀N".next ⟨2 ^ 128 - 1⟩ = ⟨2 ^ 128⟩ -- large non-scalar
-#test "L∃∀N".next ⟨2 ^ 63 - 1⟩ = ⟨2 ^ 63⟩ -- scalar boundary (64-bit)
-#test "L∃∀N".next ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)
+#test String.Pos.Raw.next "L∃∀N" ⟨0⟩ = ⟨1⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨1⟩ = ⟨4⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨2⟩ = ⟨3⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨3⟩ = ⟨4⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨4⟩ = ⟨7⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨5⟩ = ⟨6⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨6⟩ = ⟨7⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨7⟩ = ⟨8⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨8⟩ = ⟨9⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨9⟩ = ⟨10⟩
+#test String.Pos.Raw.next "L∃∀N" ⟨99⟩ = ⟨100⟩ -- small value out of bounds
+#test String.Pos.Raw.next "L∃∀N" ⟨2 ^ 128 - 1⟩ = ⟨2 ^ 128⟩ -- large non-scalar
+#test String.Pos.Raw.next "L∃∀N" ⟨2 ^ 63 - 1⟩ = ⟨2 ^ 63⟩ -- scalar boundary (64-bit)
+#test String.Pos.Raw.next "L∃∀N" ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)
 
 -- ofByteArray
 #test (String.ofByteArray ByteArray.empty (by simp)) = ""

@@ -14499,7 +14499,7 @@ _start:
 lean_object* v___x_4486_; lean_object* v___x_4487_; lean_object* v___x_4488_; lean_object* v___x_4489_; lean_object* v___x_4490_; lean_object* v___x_4491_; 
 v___x_4486_ = ((lean_object*)(l_Lean_Meta_SimpTheorem_getValue___closed__2));
 v___x_4487_ = lean_unsigned_to_nat(18u);
-v___x_4488_ = lean_unsigned_to_nat(1922u);
+v___x_4488_ = lean_unsigned_to_nat(1929u);
 v___x_4489_ = ((lean_object*)(l_Lean_Meta_SimpTheorem_getValue___closed__1));
 v___x_4490_ = ((lean_object*)(l_Lean_Meta_SimpTheorem_getValue___closed__0));
 v___x_4491_ = l_mkPanicMessageWithDecl(v___x_4490_, v___x_4489_, v___x_4488_, v___x_4487_, v___x_4486_);

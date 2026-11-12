@@ -450,8 +450,11 @@ v4.35.0 and later toolchains. -/
   | true => isTrue (of_toBoolUsing_eq_true (d := k) (by simpa [withPtrEq] using h))
   | false => isFalse (of_toBoolUsing_eq_false (d := k) (by simpa [withPtrEq] using h))
 
-/-- Twin of `probeHit`. -/
-@[inline] def probeHit (m : BeqMap) (key : Nat) (pa pb : USize) (a b : Expr) :
+/-- Twin of `probeHit`: not inlined, everything borrowed (the structural
+fallback inside `ptrDecStruct` takes its terms owned, and a term that is an
+owned argument in `beqGoX` would make the descent's own parameters owned;
+see `BeqSt.recordEq`). -/
+@[noinline] def probeHit (m : @& BeqMap) (key : Nat) (pa pb : USize) (a b : @& Expr) :
     { h : Bool // h = true → a = b } :=
   let p := m.getD key EqPair.dflt
   if p.pa == pa && p.pb == pb then
@@ -460,129 +463,175 @@ v4.35.0 and later toolchains. -/
     | _, _ => ⟨false, fun h => Bool.noConfusion h⟩
   else ⟨false, fun h => Bool.noConfusion h⟩
 
-structure BeqResX (a b : Expr) where
-  dec : Decidable (a = b)
-  map : Option BeqMap
+/-- Twin of `BeqSt`: the state the descent threads, verdict and memo in one
+word — `fail` once a pair proved unequal (the comparison is then aborted),
+`empty` before the first recorded pair, `table m` after it.  A node's
+comparison allocates nothing but the memo's own growth, as official's
+`expr_eq_fn::apply` returns a `bool` beside a member cache. -/
+inductive BeqSt where
+  | fail
+  | empty
+  | table (m : BeqMap)
 
-abbrev BeqOutX (a b : Expr) := Squash (BeqResX a b)
+/-- Twin of `BeqSt.ok`. -/
+@[inline] def BeqSt.ok : BeqSt → Bool
+  | .fail => false
+  | _ => true
 
-@[inline] def BeqOutX.mk {a b : Expr} (d : Decidable (a = b)) (map : Option BeqMap) : BeqOutX a b :=
-  Quot.mk _ ⟨d, map⟩
+/-- Twin of `BeqSt.record`: the entry under its key, in the table or in a
+fresh one. -/
+@[inline] def BeqSt.record (st : BeqSt) (key : Nat) (p : EqPair) : BeqSt :=
+  match st with
+  | .table m => .table (m.insert key p)
+  | _ => .table (({} : BeqMap).insert key p)
 
-@[inline] def BeqMap.record (mp : Option BeqMap) (key : Nat) (p : EqPair) : Option BeqMap :=
-  match mp with
-  | none => some (({} : BeqMap).insert key p)
-  | some m => some (m.insert key p)
+theorem BeqSt.record_ok (st : BeqSt) (key : Nat) (p : EqPair) :
+    (st.record key p).ok = true := by
+  cases st <;> rfl
+
+/-- Twin of `BeqSt.recordEq`: the write-back of a proved-equal pair, the
+entry built here from borrowed terms; not inlined, so that no term is an
+owned constructor argument in `beqGoX`. -/
+@[noinline] def BeqSt.recordEq (st : BeqSt) (a b : @& Expr) (pa pb : USize) (h : a = b) :
+    BeqSt :=
+  st.record (beqKey pa pb) ⟨a, b, pa, pb, h⟩
+
+/-- Twin of `BeqOk`: a state the descent may enter a node with. -/
+abbrev BeqOk := { s : BeqSt // s.ok = true }
+
+/-- Twin of `BeqOutX`: the state, with the proof that it is not `fail`
+exactly when the pair is equal, behind a quotient (erased: at runtime the
+`BeqSt` itself). -/
+abbrev BeqOutX (a b : Expr) := Squash { s : BeqSt // s.ok = true ↔ a = b }
+
+@[inline] def BeqOutX.yes {a b : Expr} (st : BeqOk) (h : a = b) : BeqOutX a b :=
+  Quot.mk _ ⟨st.1, fun _ => h, fun _ => st.2⟩
+
+@[inline] def BeqOutX.no {a b : Expr} (h : ¬ a = b) : BeqOutX a b :=
+  Quot.mk _ ⟨.fail, fun e => Bool.noConfusion e, fun e => absurd e h⟩
+
+@[inline] def BeqOutX.mk {a b : Expr} (d : Decidable (a = b)) (st : BeqOk) : BeqOutX a b :=
+  match d with
+  | isTrue h => .yes st h
+  | isFalse h => .no h
+
+@[inline] def BeqOutX.cast {a b c d : Expr} (r : BeqOutX a b) (e : (a = b) ↔ (c = d)) :
+    BeqOutX c d :=
+  Squash.lift r fun r => Quot.mk _ ⟨r.1, r.2.trans e⟩
+
+/-- Twin of `beqIsApp`: the spine test of `beqGoX`. -/
+@[inline] def beqIsApp : Expr → Bool
+  | .app .. => true
+  | _ => false
 
 /-- Twin of `enterBeq`: pointer identity, the cached data word, the leaf
 test, then the exclusivity of each side — an exclusive side means the pair
 cannot recur and the descent runs with the memo untouched; a shared/shared
 pair is probed, and recorded on a completed `true`. -/
-@[inline] def enterBeq (map : Option BeqMap) (a b : @& Expr) (rec : Option BeqMap → BeqOutX a b) :
+@[inline] def enterBeq (st : BeqOk) (a b : @& Expr) (rec : BeqOk → BeqOutX a b) :
     BeqOutX a b :=
   withAddr a fun pa => withAddr b fun pb =>
-  if pa == pb then .mk (ptrDecStruct a b) map
+  if pa == pb then .mk (ptrDecStruct a b) st
   else if h : dataNe a b then
-    .mk (isFalse (fun e => by subst e; simp [dataNe_self] at h)) map
-  else if !beqRecursive a then rec map
+    .no (fun e => by subst e; simp [dataNe_self] at h)
+  else if !beqRecursive a then rec st
   else withExcl a fun ea =>
-    if ea then rec map
+    if ea then rec st
     else withExcl b fun eb =>
-    if eb then rec map
+    if eb then rec st
     else
     let hit : { h : Bool // h = true → a = b } :=
-      match map with
-      | some m => probeHit m (beqKey pa pb) pa pb a b
-      | none => ⟨false, fun h => Bool.noConfusion h⟩
-    if hh : hit.1 then .mk (isTrue (hit.2 hh)) map
-    else Squash.lift (rec map) fun r =>
-      match r.dec with
-      | isTrue h => .mk (isTrue h) (BeqMap.record r.map (beqKey pa pb) ⟨a, b, pa, pb, h⟩)
-      | d => .mk d r.map
+      match st.1 with
+      | .table m => probeHit m (beqKey pa pb) pa pb a b
+      | _ => ⟨false, fun h => Bool.noConfusion h⟩
+    if hh : hit.1 then .yes st (hit.2 hh)
+    else Squash.lift (rec st) fun r =>
+      if h : r.1.ok then
+        .yes ⟨r.1.recordEq a b pa pb (r.2.mp h), BeqSt.record_ok ..⟩ (r.2.mp h)
+      else Quot.mk _ r
 
-/-- Twin of `beqGoX` over `Lean.Expr`: the constructor cases, each child
-through `enterBeq`; leaves decided by their components' equality. -/
-def beqGoX (map : Option BeqMap) (a b : @& Expr) : BeqOutX a b :=
+/-- Twin of `beqGoX` over `Lean.Expr` (official `expr_eq_fn::apply`): the
+constructor cases, each child through `enterBeq`; leaves decided by their
+components' equality.  An application compares its last argument first and
+then walks down the spine: where both functions are applications again the
+descent continues on them directly (a partial application is neither
+probed, recorded nor word-tested), and the heads go through the child
+step.  A `false` aborts the comparison at every level (`fail`). -/
+def beqGoX (st : BeqOk) (a b : @& Expr) : BeqOutX a b :=
   match a, b with
   | .bvar i, .bvar j =>
     .mk (if h : i = j then isTrue (by subst h; rfl)
-         else isFalse (fun e => h (Expr.bvar.inj e))) map
+         else isFalse (fun e => h (Expr.bvar.inj e))) st
   | .fvar i, .fvar j =>
     .mk (if h : i = j then isTrue (by subst h; rfl)
-         else isFalse (fun e => h (Expr.fvar.inj e))) map
+         else isFalse (fun e => h (Expr.fvar.inj e))) st
   | .mvar i, .mvar j =>
     .mk (if h : i = j then isTrue (by subst h; rfl)
-         else isFalse (fun e => h (Expr.mvar.inj e))) map
+         else isFalse (fun e => h (Expr.mvar.inj e))) st
   | .sort u, .sort v =>
     .mk (if h : u = v then isTrue (by subst h; rfl)
-         else isFalse (fun e => h (Expr.sort.inj e))) map
+         else isFalse (fun e => h (Expr.sort.inj e))) st
   | .const n us, .const m vs =>
     .mk (if h : n = m ∧ us = vs then isTrue (by obtain ⟨rfl, rfl⟩ := h; rfl)
-         else isFalse (fun e => h ⟨(Expr.const.inj e).1, (Expr.const.inj e).2⟩)) map
+         else isFalse (fun e => h ⟨(Expr.const.inj e).1, (Expr.const.inj e).2⟩)) st
   | .lit l, .lit l' =>
     .mk (if h : l = l' then isTrue (by subst h; rfl)
-         else isFalse (fun e => h (Expr.lit.inj e))) map
+         else isFalse (fun e => h (Expr.lit.inj e))) st
   | .app f x, .app g y =>
-    Squash.lift (enterBeq map f g fun m => beqGoX m f g) fun r₁ =>
-      match r₁.dec with
-      | isFalse h => .mk (isFalse (fun e => h (Expr.app.inj e).1)) r₁.map
-      | isTrue h => Squash.lift (enterBeq r₁.map x y fun m => beqGoX m x y) fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h' => isTrue (by subst h; subst h'; rfl)
-          | isFalse h' => isFalse (fun e => h' (Expr.app.inj e).2))
-          r₂.map
+    Squash.lift (enterBeq st x y fun s => beqGoX s x y) fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have hx : x = y := r₁.2.mp h₁
+        let rf : BeqOutX f g :=
+          if hf : beqIsApp f then
+            if hg : beqIsApp g then beqGoX ⟨r₁.1, h₁⟩ f g
+            else .no (fun e => by subst e; exact hg hf)
+          else enterBeq ⟨r₁.1, h₁⟩ f g fun s => beqGoX s f g
+        rf.cast ⟨fun h' => by subst hx; subst h'; rfl, fun e => (Expr.app.inj e).1⟩
+      else .no (fun e => h₁ (r₁.2.mpr (Expr.app.inj e).2))
   | .lam n t b bi, .lam n' t' b' bi' =>
     if hn : n = n' ∧ bi = bi' then
-      Squash.lift (enterBeq map t t' fun mp => beqGoX mp t t') fun r₁ =>
-        match r₁.dec with
-        | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.lam.inj e).2.1)) r₁.map
-        | isTrue h₁ => Squash.lift (enterBeq r₁.map b b' fun mp => beqGoX mp b b') fun r₂ =>
-          .mk (match r₂.dec with
-            | isTrue h₂ => isTrue (by obtain ⟨rfl, rfl⟩ := hn; subst h₁; subst h₂; rfl)
-            | isFalse h₂ => isFalse (fun e => h₂ (Expr.lam.inj e).2.2.1))
-            r₂.map
-    else .mk (isFalse (fun e => hn ⟨(Expr.lam.inj e).1, (Expr.lam.inj e).2.2.2⟩)) map
+      Squash.lift (enterBeq st t t' fun s => beqGoX s t t') fun r₁ =>
+        if h₁ : r₁.1.ok then
+          have ht : t = t' := r₁.2.mp h₁
+          (enterBeq ⟨r₁.1, h₁⟩ b b' fun s => beqGoX s b b').cast
+            ⟨fun h' => by obtain ⟨rfl, rfl⟩ := hn; subst ht; subst h'; rfl,
+             fun e => (Expr.lam.inj e).2.2.1⟩
+        else .no (fun e => h₁ (r₁.2.mpr (Expr.lam.inj e).2.1))
+    else .no (fun e => hn ⟨(Expr.lam.inj e).1, (Expr.lam.inj e).2.2.2⟩)
   | .forallE n t b bi, .forallE n' t' b' bi' =>
     if hn : n = n' ∧ bi = bi' then
-      Squash.lift (enterBeq map t t' fun mp => beqGoX mp t t') fun r₁ =>
-        match r₁.dec with
-        | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.forallE.inj e).2.1)) r₁.map
-        | isTrue h₁ => Squash.lift (enterBeq r₁.map b b' fun mp => beqGoX mp b b') fun r₂ =>
-          .mk (match r₂.dec with
-            | isTrue h₂ => isTrue (by obtain ⟨rfl, rfl⟩ := hn; subst h₁; subst h₂; rfl)
-            | isFalse h₂ => isFalse (fun e => h₂ (Expr.forallE.inj e).2.2.1))
-            r₂.map
-    else .mk (isFalse (fun e => hn ⟨(Expr.forallE.inj e).1, (Expr.forallE.inj e).2.2.2⟩)) map
+      Squash.lift (enterBeq st t t' fun s => beqGoX s t t') fun r₁ =>
+        if h₁ : r₁.1.ok then
+          have ht : t = t' := r₁.2.mp h₁
+          (enterBeq ⟨r₁.1, h₁⟩ b b' fun s => beqGoX s b b').cast
+            ⟨fun h' => by obtain ⟨rfl, rfl⟩ := hn; subst ht; subst h'; rfl,
+             fun e => (Expr.forallE.inj e).2.2.1⟩
+        else .no (fun e => h₁ (r₁.2.mpr (Expr.forallE.inj e).2.1))
+    else .no (fun e => hn ⟨(Expr.forallE.inj e).1, (Expr.forallE.inj e).2.2.2⟩)
   | .letE n t v b nd, .letE n' t' v' b' nd' =>
     if hn : n = n' ∧ nd = nd' then
-      Squash.lift (enterBeq map t t' fun mp => beqGoX mp t t') fun r₁ =>
-        match r₁.dec with
-        | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.letE.inj e).2.1)) r₁.map
-        | isTrue h₁ => Squash.lift (enterBeq r₁.map v v' fun mp => beqGoX mp v v') fun r₂ =>
-          match r₂.dec with
-          | isFalse h₂ => .mk (isFalse (fun e => h₂ (Expr.letE.inj e).2.2.1)) r₂.map
-          | isTrue h₂ => Squash.lift (enterBeq r₂.map b b' fun mp => beqGoX mp b b') fun r₃ =>
-            .mk (match r₃.dec with
-              | isTrue h₃ => isTrue (by obtain ⟨rfl, rfl⟩ := hn; subst h₁; subst h₂; subst h₃; rfl)
-              | isFalse h₃ => isFalse (fun e => h₃ (Expr.letE.inj e).2.2.2.1))
-              r₃.map
-    else .mk (isFalse (fun e => hn ⟨(Expr.letE.inj e).1, (Expr.letE.inj e).2.2.2.2⟩)) map
+      Squash.lift (enterBeq st t t' fun s => beqGoX s t t') fun r₁ =>
+        if h₁ : r₁.1.ok then
+          have ht : t = t' := r₁.2.mp h₁
+          Squash.lift (enterBeq ⟨r₁.1, h₁⟩ v v' fun s => beqGoX s v v') fun r₂ =>
+            if h₂ : r₂.1.ok then
+              have hv : v = v' := r₂.2.mp h₂
+              (enterBeq ⟨r₂.1, h₂⟩ b b' fun s => beqGoX s b b').cast
+                ⟨fun h' => by obtain ⟨rfl, rfl⟩ := hn; subst ht; subst hv; subst h'; rfl,
+                 fun e => (Expr.letE.inj e).2.2.2.1⟩
+            else .no (fun e => h₂ (r₂.2.mpr (Expr.letE.inj e).2.2.1))
+        else .no (fun e => h₁ (r₁.2.mpr (Expr.letE.inj e).2.1))
+    else .no (fun e => hn ⟨(Expr.letE.inj e).1, (Expr.letE.inj e).2.2.2.2⟩)
   | .proj s i x, .proj s' i' x' =>
     if hs : s = s' ∧ i = i' then
-      Squash.lift (enterBeq map x x' fun mp => beqGoX mp x x') fun r =>
-        .mk (match r.dec with
-          | isTrue h => isTrue (by obtain ⟨rfl, rfl⟩ := hs; subst h; rfl)
-          | isFalse h => isFalse (fun e => h (Expr.proj.inj e).2.2))
-          r.map
-    else .mk (isFalse (fun e => hs ⟨(Expr.proj.inj e).1, (Expr.proj.inj e).2.1⟩)) map
+      (enterBeq st x x' fun r => beqGoX r x x').cast
+        ⟨fun h => by obtain ⟨rfl, rfl⟩ := hs; subst h; rfl, fun e => (Expr.proj.inj e).2.2⟩
+    else .no (fun e => hs ⟨(Expr.proj.inj e).1, (Expr.proj.inj e).2.1⟩)
   | .mdata d x, .mdata d' x' =>
     if hd : d = d' then
-      Squash.lift (enterBeq map x x' fun mp => beqGoX mp x x') fun r =>
-        .mk (match r.dec with
-          | isTrue h => isTrue (by subst hd; subst h; rfl)
-          | isFalse h => isFalse (fun e => h (Expr.mdata.inj e).2))
-          r.map
-    else .mk (isFalse (fun e => hd (Expr.mdata.inj e).1)) map
+      (enterBeq st x x' fun r => beqGoX r x x').cast
+        ⟨fun h => by subst hd; subst h; rfl, fun e => (Expr.mdata.inj e).2⟩
+    else .no (fun e => hd (Expr.mdata.inj e).1)
   | .bvar .., .fvar .. | .bvar .., .mvar .. | .bvar .., .sort ..
   | .bvar .., .const .. | .bvar .., .app .. | .bvar .., .lam ..
   | .bvar .., .forallE .. | .bvar .., .letE .. | .bvar .., .lit ..
@@ -627,13 +676,13 @@ def beqGoX (map : Option BeqMap) (a b : @& Expr) : BeqOutX a b :=
   | .proj .., .mvar .. | .proj .., .sort .. | .proj .., .const ..
   | .proj .., .app .. | .proj .., .lam .. | .proj .., .forallE ..
   | .proj .., .letE .. | .proj .., .lit .. | .proj .., .mdata .. =>
-    .mk (isFalse (fun e => Expr.noConfusion e)) map
+    .no (fun e => Expr.noConfusion e)
 
 /-- Twin of `Expr.beqMemo`: the pointer test, the cached data word, then the
 memoised descent. -/
 def Expr.beqMemo (a b : Expr) : Bool :=
   withPtrEq a b (fun _ => if !dataNe a b then
-      @decide (a = b) (Squash.lift (beqGoX none a b) (fun r => r.dec))
+      @decide (a = b) (Squash.lift (beqGoX ⟨.empty, rfl⟩ a b) (fun r => decidable_of_iff _ r.2))
     else false)
     (fun h => by subst h; simp [dataNe_self])
 
@@ -763,8 +812,9 @@ structure ClPair (R : Expr → Expr → Prop) where
 
 abbrev ClMap (R : Expr → Expr → Prop) := Std.HashMap Nat (ClPair R)
 
-@[inline] def clProbeHit {R : Expr → Expr → Prop} (m : ClMap R) (key : Nat) (pa pb : USize)
-    (a b : Expr) : { h : Bool // h = true → R a b } :=
+/-- `probeHit` for a relation `R`: not inlined, everything borrowed. -/
+@[noinline] def clProbeHit {R : Expr → Expr → Prop} (m : @& ClMap R) (key : Nat) (pa pb : USize)
+    (a b : @& Expr) : { h : Bool // h = true → R a b } :=
   match m.get? key with
   | some p =>
     if p.pa == pa && p.pb == pb then
@@ -774,54 +824,84 @@ abbrev ClMap (R : Expr → Expr → Prop) := Std.HashMap Nat (ClPair R)
     else ⟨false, fun h => Bool.noConfusion h⟩
   | none => ⟨false, fun h => Bool.noConfusion h⟩
 
-/-- A descent's answer for `P`, with the memo of `R`-related pairs. -/
-structure ClResX (R : Expr → Expr → Prop) (P : Prop) where
-  dec : Decidable P
-  map : Option (ClMap R)
+/-- `BeqSt` for a relation `R`: `fail`, or the memo of `R`-related pairs. -/
+inductive ClSt (R : Expr → Expr → Prop) where
+  | fail
+  | empty
+  | table (m : ClMap R)
 
-abbrev ClOutX (R : Expr → Expr → Prop) (P : Prop) := Squash (ClResX R P)
+@[inline] def ClSt.ok {R : Expr → Expr → Prop} : ClSt R → Bool
+  | .fail => false
+  | _ => true
 
-@[inline] def ClOutX.mk {R : Expr → Expr → Prop} {P : Prop} (d : Decidable P)
-    (map : Option (ClMap R)) : ClOutX R P :=
-  Quot.mk _ ⟨d, map⟩
+@[inline] def ClSt.record {R : Expr → Expr → Prop} (st : ClSt R) (key : Nat) (p : ClPair R) :
+    ClSt R :=
+  match st with
+  | .table m => .table (m.insert key p)
+  | _ => .table ((Std.HashMap.emptyWithCapacity (key % 8 + 8) : ClMap R).insert key p)
 
-@[inline] def ClMap.record {R : Expr → Expr → Prop} (mp : Option (ClMap R)) (key : Nat)
-    (p : ClPair R) : Option (ClMap R) :=
-  match mp with
-  | none => some ((Std.HashMap.emptyWithCapacity (key % 8 + 8) : ClMap R).insert key p)
-  | some m => some (m.insert key p)
+theorem ClSt.record_ok {R : Expr → Expr → Prop} (st : ClSt R) (key : Nat) (p : ClPair R) :
+    (st.record key p).ok = true := by
+  cases st <;> rfl
+
+/-- `BeqSt.recordEq` for `R`: not inlined, the terms borrowed. -/
+@[noinline] def ClSt.recordRel {R : Expr → Expr → Prop} (st : ClSt R) (a b : @& Expr)
+    (pa pb : USize) (h : R a b) : ClSt R :=
+  st.record (beqKey pa pb) ⟨a, b, pa, pb, h⟩
+
+abbrev ClOk (R : Expr → Expr → Prop) := { s : ClSt R // s.ok = true }
+
+/-- A descent's answer for `P`: the state, not `fail` exactly when `P`. -/
+abbrev ClOutX (R : Expr → Expr → Prop) (P : Prop) := Squash { s : ClSt R // s.ok = true ↔ P }
+
+@[inline] def ClOutX.yes {R : Expr → Expr → Prop} {P : Prop} (st : ClOk R) (h : P) :
+    ClOutX R P :=
+  Quot.mk _ ⟨st.1, fun _ => h, fun _ => st.2⟩
+
+@[inline] def ClOutX.no {R : Expr → Expr → Prop} {P : Prop} (h : ¬ P) : ClOutX R P :=
+  Quot.mk _ ⟨.fail, fun e => Bool.noConfusion e, fun e => absurd e h⟩
+
+@[inline] def ClOutX.mk {R : Expr → Expr → Prop} {P : Prop} (d : Decidable P) (st : ClOk R) :
+    ClOutX R P :=
+  match d with
+  | isTrue h => .yes st h
+  | isFalse h => .no h
+
+@[inline] def ClOutX.cast {R : Expr → Expr → Prop} {P Q : Prop} (r : ClOutX R P) (e : P ↔ Q) :
+    ClOutX R Q :=
+  Squash.lift r fun r => Quot.mk _ ⟨r.1, r.2.trans e⟩
 
 /-- Twin of `enterBeq` for a reflexive comparison `R`: `rej` is the O(1)
 test that rejects a pair (the data word, or the part of it `R` keeps), and
 the descent `rec` runs on a pair `rej` let through. -/
 @[inline] def enterCl {R : Expr → Expr → Prop} (hrefl : ∀ a, R a a) (rej : Expr → Expr → Bool)
-    (hrej : ∀ a b, rej a b = true → ¬ R a b) (map : Option (ClMap R)) (a b : @& Expr)
-    (rec : rej a b = false → Option (ClMap R) → ClOutX R (R a b)) : ClOutX R (R a b) :=
+    (hrej : ∀ a b, rej a b = true → ¬ R a b) (st : ClOk R) (a b : @& Expr)
+    (rec : rej a b = false → ClOk R → ClOutX R (R a b)) : ClOutX R (R a b) :=
   withAddr a fun pa => withAddr b fun pb =>
   if pa == pb then
     match ptrDec a b with
-    | isTrue h => .mk (isTrue (h ▸ hrefl a)) map
+    | isTrue h => .yes st (h ▸ hrefl a)
     | isFalse _ =>
-      if h : rej a b then .mk (isFalse (hrej a b h)) map
-      else rec (Bool.of_not_eq_true h) map
-  else if h : rej a b then .mk (isFalse (hrej a b h)) map
+      if h : rej a b then .no (hrej a b h)
+      else rec (Bool.of_not_eq_true h) st
+  else if h : rej a b then .no (hrej a b h)
   else
   have h := Bool.of_not_eq_true h
-  if !beqRecursive a then rec h map
+  if !beqRecursive a then rec h st
   else withExcl a fun ea =>
-    if ea then rec h map
+    if ea then rec h st
     else withExcl b fun eb =>
-    if eb then rec h map
+    if eb then rec h st
     else
     let hit : { h : Bool // h = true → R a b } :=
-      match map with
-      | some m => clProbeHit m (beqKey pa pb) pa pb a b
-      | none => ⟨false, fun h => Bool.noConfusion h⟩
-    if hh : hit.1 then .mk (isTrue (hit.2 hh)) map
-    else Squash.lift (rec h map) fun r =>
-      match r.dec with
-      | isTrue hr => .mk (isTrue hr) (ClMap.record r.map (beqKey pa pb) ⟨a, b, pa, pb, hr⟩)
-      | d => .mk d r.map
+      match st.1 with
+      | .table m => clProbeHit m (beqKey pa pb) pa pb a b
+      | _ => ⟨false, fun h => Bool.noConfusion h⟩
+    if hh : hit.1 then .yes st (hit.2 hh)
+    else Squash.lift (rec h st) fun r =>
+      if hr : r.1.ok then
+        .yes ⟨r.1.recordRel a b pa pb (r.2.mp hr), ClSt.record_ok ..⟩ (r.2.mp hr)
+      else Quot.mk _ r
 
 /-- Lean's cached data reads no binder name or binder info. -/
 theorem data_eraseK : ∀ e : Expr, (eraseK e).data = e.data := by
@@ -839,79 +919,76 @@ abbrev KeyR (a b : Expr) : Prop := eraseK a = eraseK b
 
 /-- A child pair of the key comparison: the pointers, the data word, the
 memo, the descent `go`. -/
-@[inline] def keyChild (map : Option (ClMap KeyR)) (a b : @& Expr)
-    (go : Option (ClMap KeyR) → ClOutX KeyR (KeyR a b)) : ClOutX KeyR (KeyR a b) :=
-  enterCl (R := KeyR) (fun _ => rfl) dataNe dataNe_eraseK map a b fun _ => go
+@[inline] def keyChild (st : ClOk KeyR) (a b : @& Expr)
+    (go : ClOk KeyR → ClOutX KeyR (KeyR a b)) : ClOutX KeyR (KeyR a b) :=
+  enterCl (R := KeyR) (fun _ => rfl) dataNe dataNe_eraseK st a b fun _ => go
 
 /-- The key comparison's descent (`eraseK`): names and infos not compared,
 `nonDep` and `mdata` compared; a pair of different constructors is unequal, a
-pair of leaves decided by their equality. -/
-def keyGoX (map : Option (ClMap KeyR)) (a b : @& Expr) : ClOutX KeyR (KeyR a b) :=
+pair of leaves decided by their equality.  An application compares its last
+argument first, then walks down the spine as `beqGoX` does. -/
+def keyGoX (st : ClOk KeyR) (a b : @& Expr) : ClOutX KeyR (KeyR a b) :=
   match a, b with
   | .app f x, .app g y =>
-    Squash.lift (keyChild map f g fun m => keyGoX m f g) fun r₁ =>
-      match r₁.dec with
-      | isFalse h => .mk (isFalse (fun e => h (Expr.app.inj e).1)) r₁.map
-      | isTrue h => Squash.lift (keyChild r₁.map x y fun m => keyGoX m x y) fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h' => isTrue (by simp only [KeyR, eraseK] at *; simp only [h, h'])
-          | isFalse h' => isFalse (fun e => h' (Expr.app.inj e).2))
-          r₂.map
+    Squash.lift (keyChild st x y fun s => keyGoX s x y) fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have hx : KeyR x y := r₁.2.mp h₁
+        let rf : ClOutX KeyR (KeyR f g) :=
+          if hf : beqIsApp f then
+            if hg : beqIsApp g then keyGoX ⟨r₁.1, h₁⟩ f g
+            else .no (fun e => hg (by
+              cases f <;> cases g <;> simp_all [beqIsApp, KeyR, eraseK]))
+          else keyChild ⟨r₁.1, h₁⟩ f g fun s => keyGoX s f g
+        rf.cast ⟨fun h' => by simp only [KeyR, eraseK] at *; simp only [hx, h'],
+          fun e => (Expr.app.inj e).1⟩
+      else .no (fun e => h₁ (r₁.2.mpr (Expr.app.inj e).2))
   | .lam _ t b _, .lam _ t' b' _ =>
-    Squash.lift (keyChild map t t' fun mp => keyGoX mp t t') fun r₁ =>
-      match r₁.dec with
-      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.lam.inj e).2.1)) r₁.map
-      | isTrue h₁ => Squash.lift (keyChild r₁.map b b' fun mp => keyGoX mp b b') fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h₂ => isTrue (by simp only [KeyR, eraseK] at *; simp only [h₁, h₂])
-          | isFalse h₂ => isFalse (fun e => h₂ (Expr.lam.inj e).2.2.1))
-          r₂.map
+    Squash.lift (keyChild st t t' fun s => keyGoX s t t') fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have ht : KeyR t t' := r₁.2.mp h₁
+        (keyChild ⟨r₁.1, h₁⟩ b b' fun s => keyGoX s b b').cast
+          ⟨fun h₂ => by simp only [KeyR, eraseK] at *; simp only [ht, h₂],
+           fun e => (Expr.lam.inj e).2.2.1⟩
+      else .no (fun e => h₁ (r₁.2.mpr (Expr.lam.inj e).2.1))
   | .forallE _ t b _, .forallE _ t' b' _ =>
-    Squash.lift (keyChild map t t' fun mp => keyGoX mp t t') fun r₁ =>
-      match r₁.dec with
-      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.forallE.inj e).2.1)) r₁.map
-      | isTrue h₁ => Squash.lift (keyChild r₁.map b b' fun mp => keyGoX mp b b') fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h₂ => isTrue (by simp only [KeyR, eraseK] at *; simp only [h₁, h₂])
-          | isFalse h₂ => isFalse (fun e => h₂ (Expr.forallE.inj e).2.2.1))
-          r₂.map
+    Squash.lift (keyChild st t t' fun s => keyGoX s t t') fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have ht : KeyR t t' := r₁.2.mp h₁
+        (keyChild ⟨r₁.1, h₁⟩ b b' fun s => keyGoX s b b').cast
+          ⟨fun h₂ => by simp only [KeyR, eraseK] at *; simp only [ht, h₂],
+           fun e => (Expr.forallE.inj e).2.2.1⟩
+      else .no (fun e => h₁ (r₁.2.mpr (Expr.forallE.inj e).2.1))
   | .letE _ t v b nd, .letE _ t' v' b' nd' =>
     if hn : nd = nd' then
-    Squash.lift (keyChild map t t' fun mp => keyGoX mp t t') fun r₁ =>
-      match r₁.dec with
-      | isFalse h₁ => .mk (isFalse (fun e => h₁ (Expr.letE.inj e).2.1)) r₁.map
-      | isTrue h₁ => Squash.lift (keyChild r₁.map v v' fun mp => keyGoX mp v v') fun r₂ =>
-        match r₂.dec with
-        | isFalse h₂ => .mk (isFalse (fun e => h₂ (Expr.letE.inj e).2.2.1)) r₂.map
-        | isTrue h₂ => Squash.lift (keyChild r₂.map b b' fun mp => keyGoX mp b b') fun r₃ =>
-          .mk (match r₃.dec with
-            | isTrue h₃ => isTrue (by
-                subst hn; simp only [KeyR, eraseK] at *; simp only [h₁, h₂, h₃])
-            | isFalse h₃ => isFalse (fun e => h₃ (Expr.letE.inj e).2.2.2.1))
-            r₃.map
-    else .mk (isFalse (fun e => hn (Expr.letE.inj e).2.2.2.2)) map
+    Squash.lift (keyChild st t t' fun s => keyGoX s t t') fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have ht : KeyR t t' := r₁.2.mp h₁
+        Squash.lift (keyChild ⟨r₁.1, h₁⟩ v v' fun s => keyGoX s v v') fun r₂ =>
+          if h₂ : r₂.1.ok then
+            have hv : KeyR v v' := r₂.2.mp h₂
+            (keyChild ⟨r₂.1, h₂⟩ b b' fun s => keyGoX s b b').cast
+              ⟨fun h₃ => by subst hn; simp only [KeyR, eraseK] at *; simp only [ht, hv, h₃],
+               fun e => (Expr.letE.inj e).2.2.2.1⟩
+          else .no (fun e => h₂ (r₂.2.mpr (Expr.letE.inj e).2.2.1))
+      else .no (fun e => h₁ (r₁.2.mpr (Expr.letE.inj e).2.1))
+    else .no (fun e => hn (Expr.letE.inj e).2.2.2.2)
   | .proj s i x, .proj s' i' x' =>
     if hs : s = s' ∧ i = i' then
-      Squash.lift (keyChild map x x' fun mp => keyGoX mp x x') fun r =>
-        .mk (match r.dec with
-          | isTrue h => isTrue (by
-              obtain ⟨rfl, rfl⟩ := hs; simp only [KeyR, eraseK] at *; simp only [h])
-          | isFalse h => isFalse (fun e => h (Expr.proj.inj e).2.2))
-          r.map
-    else .mk (isFalse (fun e => hs ⟨(Expr.proj.inj e).1, (Expr.proj.inj e).2.1⟩)) map
+      (keyChild st x x' fun r => keyGoX r x x').cast
+        ⟨fun h => by obtain ⟨rfl, rfl⟩ := hs; simp only [KeyR, eraseK] at *; simp only [h],
+         fun e => (Expr.proj.inj e).2.2⟩
+    else .no (fun e => hs ⟨(Expr.proj.inj e).1, (Expr.proj.inj e).2.1⟩)
   | .mdata d x, .mdata d' x' =>
     if hd : d = d' then
-      Squash.lift (keyChild map x x' fun mp => keyGoX mp x x') fun r =>
-        .mk (match r.dec with
-          | isTrue h => isTrue (by subst hd; simp only [KeyR, eraseK] at *; simp only [h])
-          | isFalse h => isFalse (fun e => h (Expr.mdata.inj e).2))
-          r.map
-    else .mk (isFalse (fun e => hd (Expr.mdata.inj e).1)) map
+      (keyChild st x x' fun r => keyGoX r x x').cast
+        ⟨fun h => by subst hd; simp only [KeyR, eraseK] at *; simp only [h],
+         fun e => (Expr.mdata.inj e).2⟩
+    else .no (fun e => hd (Expr.mdata.inj e).1)
   | a, b =>
     if hc : ctorTag a = ctorTag b then
       -- same constructor, not one the arms above take: two leaves (O(1) `eraseK`)
-      .mk ((inferInstance : DecidableEq Expr) (eraseK a) (eraseK b)) map
-    else .mk (isFalse (fun e => hc (by rw [← ctorTag_eraseK a, ← ctorTag_eraseK b, e]))) map
+      .mk ((inferInstance : DecidableEq Expr) (eraseK a) (eraseK b)) st
+    else .no (fun e => hc (by rw [← ctorTag_eraseK a, ← ctorTag_eraseK b, e]))
 
 theorem erase_mdata (m : MData) (x : Expr) : erase (.mdata m x) = erase x := rfl
 
@@ -1012,76 +1089,67 @@ theorem clDataNe_rej (a b : Expr) (h : clDataNe a b = true) : ¬ ClR a b := by
 
 /-- A child pair of the checker's comparison: the pointers, the invariant
 part of the data word, the memo, the descent `go`. -/
-@[inline] def clChild (map : Option (ClMap ClR)) (a b : @& Expr)
-    (go : Option (ClMap ClR) → ClOutX ClR (clB a b = true)) : ClOutX ClR (ClR a b) :=
-  enterCl clStep_refl clDataNe clDataNe_rej map a b fun h m =>
-    Squash.lift (go m) fun r =>
-      .mk (@decidable_of_iff _ _ (by simp only [ClR, clStep_of h]) r.dec) r.map
+@[inline] def clChild (st : ClOk ClR) (a b : @& Expr)
+    (go : ClOk ClR → ClOutX ClR (clB a b = true)) : ClOutX ClR (ClR a b) :=
+  enterCl clStep_refl clDataNe clDataNe_rej st a b fun h s =>
+    (go s).cast (by simp only [ClR, clStep_of h])
 
 /-- The checker comparison's descent (`clB`): a `mdata` node is read
 through (no rebuilt term), then the constructor cases, each child through
-`clChild`. -/
-def clGoX (map : Option (ClMap ClR)) (a b : @& Expr) : ClOutX ClR (clB a b = true) :=
+`clChild`.  An application compares its last argument first, then walks
+down the spine: where both functions are applications the descent continues
+on them directly, past the invariant part of their data words (`clStep`'s
+own test), with no pointer, exclusivity or memo step. -/
+def clGoX (st : ClOk ClR) (a b : @& Expr) : ClOutX ClR (clB a b = true) :=
   match a, b with
-  | .mdata m x, b =>
-    Squash.lift (clGoX map x b) fun r => .mk (clB_mdata_l m x b ▸ r.dec) r.map
-  | a, .mdata m y =>
-    Squash.lift (clGoX map a y) fun r => .mk (clB_mdata_r m y a ▸ r.dec) r.map
+  | .mdata m x, b => (clGoX st x b).cast (by rw [clB_mdata_l])
+  | a, .mdata m y => (clGoX st a y).cast (by rw [clB_mdata_r])
   | .app f x, .app g y =>
-    Squash.lift (clChild map f g fun m => clGoX m f g) fun r₁ =>
-      match r₁.dec with
-      | isFalse h => .mk (isFalse (by simp_all [clB_app])) r₁.map
-      | isTrue h => Squash.lift (clChild r₁.map x y fun m => clGoX m x y) fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h' => isTrue (by simp_all [clB_app])
-          | isFalse h' => isFalse (by simp_all [clB_app]))
-          r₂.map
+    Squash.lift (clChild st x y fun s => clGoX s x y) fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have hx : ClR x y := r₁.2.mp h₁
+        let rf : ClOutX ClR (ClR f g) :=
+          if beqIsApp f && beqIsApp g then
+            if hd : clDataNe f g then .no (clDataNe_rej f g hd)
+            else (clGoX ⟨r₁.1, h₁⟩ f g).cast
+              (by simp only [ClR, clStep_of (Bool.of_not_eq_true hd)])
+          else clChild ⟨r₁.1, h₁⟩ f g fun s => clGoX s f g
+        rf.cast (by simp_all [clB_app])
+      else .no (by have := r₁.2; simp_all [clB_app])
   | .lam _ t b _, .lam _ t' b' _ =>
-    Squash.lift (clChild map t t' fun mp => clGoX mp t t') fun r₁ =>
-      match r₁.dec with
-      | isFalse h₁ => .mk (isFalse (by simp_all [clB_lam])) r₁.map
-      | isTrue h₁ => Squash.lift (clChild r₁.map b b' fun mp => clGoX mp b b') fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h₂ => isTrue (by simp_all [clB_lam])
-          | isFalse h₂ => isFalse (by simp_all [clB_lam]))
-          r₂.map
+    Squash.lift (clChild st t t' fun s => clGoX s t t') fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have ht : ClR t t' := r₁.2.mp h₁
+        (clChild ⟨r₁.1, h₁⟩ b b' fun s => clGoX s b b').cast (by simp_all [clB_lam])
+      else .no (by have := r₁.2; simp_all [clB_lam])
   | .forallE _ t b _, .forallE _ t' b' _ =>
-    Squash.lift (clChild map t t' fun mp => clGoX mp t t') fun r₁ =>
-      match r₁.dec with
-      | isFalse h₁ => .mk (isFalse (by simp_all [clB_forallE])) r₁.map
-      | isTrue h₁ => Squash.lift (clChild r₁.map b b' fun mp => clGoX mp b b') fun r₂ =>
-        .mk (match r₂.dec with
-          | isTrue h₂ => isTrue (by simp_all [clB_forallE])
-          | isFalse h₂ => isFalse (by simp_all [clB_forallE]))
-          r₂.map
+    Squash.lift (clChild st t t' fun s => clGoX s t t') fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have ht : ClR t t' := r₁.2.mp h₁
+        (clChild ⟨r₁.1, h₁⟩ b b' fun s => clGoX s b b').cast (by simp_all [clB_forallE])
+      else .no (by have := r₁.2; simp_all [clB_forallE])
   | .letE _ t v b _, .letE _ t' v' b' _ =>
-    Squash.lift (clChild map t t' fun mp => clGoX mp t t') fun r₁ =>
-      match r₁.dec with
-      | isFalse h₁ => .mk (isFalse (by simp_all [clB_letE])) r₁.map
-      | isTrue h₁ => Squash.lift (clChild r₁.map v v' fun mp => clGoX mp v v') fun r₂ =>
-        match r₂.dec with
-        | isFalse h₂ => .mk (isFalse (by simp_all [clB_letE])) r₂.map
-        | isTrue h₂ => Squash.lift (clChild r₂.map b b' fun mp => clGoX mp b b') fun r₃ =>
-          .mk (match r₃.dec with
-            | isTrue h₃ => isTrue (by simp_all [clB_letE])
-            | isFalse h₃ => isFalse (by simp_all [clB_letE]))
-            r₃.map
+    Squash.lift (clChild st t t' fun s => clGoX s t t') fun r₁ =>
+      if h₁ : r₁.1.ok then
+        have ht : ClR t t' := r₁.2.mp h₁
+        Squash.lift (clChild ⟨r₁.1, h₁⟩ v v' fun s => clGoX s v v') fun r₂ =>
+          if h₂ : r₂.1.ok then
+            have hv : ClR v v' := r₂.2.mp h₂
+            (clChild ⟨r₂.1, h₂⟩ b b' fun s => clGoX s b b').cast (by simp_all [clB_letE])
+          else .no (by have := r₂.2; simp_all [clB_letE])
+      else .no (by have := r₁.2; simp_all [clB_letE])
   | .proj s i x, .proj s' i' x' =>
     if hs : s = s' ∧ i = i' then
-      Squash.lift (clChild map x x' fun mp => clGoX mp x x') fun r =>
-        .mk (match r.dec with
-          | isTrue h => isTrue (by simp_all [clB_proj])
-          | isFalse h => isFalse (by simp_all [clB_proj]))
-          r.map
-    else .mk (isFalse (by simp_all [clB_proj])) map
+      (clChild st x x' fun r => clGoX r x x').cast (by simp_all [clB_proj])
+    else .no (by simp_all [clB_proj])
   | a, b =>
     if h : ctorTag a ≠ 10 ∧ ctorTag b ≠ 10 ∧ (ctorTag a = ctorTag b → beqRecursive a = false) then
       -- two leaves of one constructor, or different constructors
       if hc : ctorTag a = ctorTag b then
         .mk (decidable_of_iff (erase a = erase b)
-          (by rw [clB_other a b h.1 h.2.1 h.2.2]; simp [hc])) map
-      else .mk (isFalse (by rw [clB_other a b h.1 h.2.1 h.2.2]; simp [hc])) map
-    else .mk (instDecidableEqBool (clB a b) true) map
+          (by rw [clB_other a b h.1 h.2.1 h.2.2]; simp [hc])) st
+      else .no (by rw [clB_other a b h.1 h.2.1 h.2.2]; simp [hc])
+    else .mk (instDecidableEqBool (clB a b) true) st
 termination_by (sizeOf a + sizeOf b)
 
 /-- **The memo maps' key equality**: equal after `eraseK`. -/
@@ -1091,7 +1159,8 @@ def Expr.keyEq (a b : Expr) : Bool := decide (eraseK a = eraseK b)
 def Expr.keyEqMemo (a b : Expr) : Bool :=
   withPtrEq a b
     (fun _ => if !dataNe a b then
-        @decide (eraseK a = eraseK b) (Squash.lift (keyGoX none a b) (fun r => r.dec))
+        @decide (eraseK a = eraseK b)
+          (Squash.lift (keyGoX ⟨.empty, rfl⟩ a b) (fun r => decidable_of_iff _ r.2))
       else false)
     (fun h => by subst h; simp [dataNe_self])
 
@@ -1110,7 +1179,8 @@ the cached data word, then the memoised descent (`clB`, executed by
 def Expr.clEq (a b : Expr) : Bool :=
   withPtrEq a b
     (fun _ => !clDataNe a b &&
-      @decide (clB a b = true) (Squash.lift (clGoX none a b) (fun r => r.dec)))
+      @decide (clB a b = true)
+        (Squash.lift (clGoX ⟨.empty, rfl⟩ a b) (fun r => decidable_of_iff _ r.2)))
     (fun h => by subst h; simp [clDataNe_self, clB_refl])
 
 /-- `Expr.clEq` is the plain descent's answer on the pair. -/

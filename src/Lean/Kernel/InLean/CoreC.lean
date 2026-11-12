@@ -235,7 +235,7 @@ def unitLikeShapeM (fe : FEnv) (w : Expr) : CheckCM (Option (Expr × Nat)) :=
         | some tbl =>
           if (appArgs w).length = tbl.numParams then
             match fe.ctorView? tbl.ctor with
-            | some (cvC, _, _) => do
+            | some (cvC, _, _, _) => do
               let cty ← instLevelParamsM cvC.levelParams us cvC.type
               pure ((peelPis tbl.numParams cty).map fun body =>
                 (body.instI (appArgs w).reverse.toArray, tbl.numFields))
@@ -260,6 +260,26 @@ def iotaNumArgs : Expr → Nat → Nat
   | .mdata _ e, n => iotaNumArgs e n
   | .app f _, n => iotaNumArgs f (n + 1)
   | _, n => n
+
+/-- Twin of `getAppArgsArrGo`; `mdata` read through. -/
+def getAppArgsArrGo : Expr → Nat → Array Expr → Array Expr
+  | .app f a, i + 1, acc => getAppArgsArrGo f i (acc.set! i a)
+  | .mdata _ e, i, acc => getAppArgsArrGo e i acc
+  | _, _, acc => acc
+
+/-- Twin of `getAppArgsArr`: the spine's arguments (outermost last), written
+into an array of the spine's length from the back: no list is built. -/
+@[inline] def getAppArgsArr (e : Expr) : Array Expr :=
+  getAppArgsArrGo e (iotaNumArgs e 0) (Array.replicate (iotaNumArgs e 0) e)
+
+/-- Twin of `spineArg`. -/
+def spineArg (args : Array Expr) (i : Nat) : Expr := args.getD i (.bvar 0)
+
+/-- Twin of `mkAppRange`: `f` applied to `args[i:j]`, the range read in
+place. -/
+def mkAppRange (f : Expr) (args : Array Expr) (i j : Nat) : Expr :=
+  if h : i < j ∧ i < args.size then mkAppRange (.app f args[i]) args (i + 1) j else f
+termination_by j - i
 
 /-- Twin of `iotaArityOk`. -/
 def iotaArityOk (fe : FEnv) (e : Expr) : Bool :=
@@ -291,7 +311,7 @@ def iotaTargetF (fe : FEnv) (h : Expr) : Option Nat :=
 /-- Twin of `projCertF`. -/
 def projCertF (fe : FEnv) (c : Name) (args : List Expr) : Bool :=
   match fe.ctorView? c with
-  | some (cvC, _, _) => teleArityOk cvC.type args
+  | some (cvC, _, _, _) => teleArityOk cvC.type args
   | none => false
 
 /-- Twin of `projCertAtF`. -/
@@ -339,26 +359,6 @@ def checkConstSafety (fe : FEnv) (n : Name) (ci : ConstantInfo) : CheckCM Unit :
         set' st (mp.insert (EKey.mk e) r)
       pure r
 
-/-- Twin of `memoRedEI`: `memoEI` for head normalisation, except that an
-answer that is the input itself is not stored (official `whnf_core` caches
-nothing on its stuck `f == f0` arm).  The test is the pointer-first `==`:
-the stuck arms return the input by reference. -/
-@[inline] def memoRedEI (get' : CState → Std.HashMap EKey Expr)
-    (set' : CState → Std.HashMap EKey Expr → CState)
-    (f : Nat → Expr → CheckCM Expr) : Nat → Expr → CheckCM Expr :=
-  fun d e => do
-    match (get' (← get))[EKey.mk e]? with
-    | some r => pure r
-    | none =>
-      let r ← f d e
-      if r == e then pure r
-      else
-        modify fun st =>
-          let mp := get' st
-          let st := set' st ∅
-          set' st (mp.insert (EKey.mk e) r)
-        pure r
-
 /-- Twin of `memoBI`. -/
 @[inline] def memoBI (f : Nat → Expr → Expr → CheckCM Bool) : Nat → Expr → Expr → CheckCM Bool :=
   fun d a b => do
@@ -379,6 +379,64 @@ through the memo, keyed with its wrapper, as before. -/
 @[inline] def whnfCoreEasy : Expr → Bool
   | .sort _ | .fvar .. | .forallE .. | .lam .. | .const .. | .lit _ => true
   | _ => false
+
+/-- Twin of `whnfCoreKeyC`: a term of an arm official `whnf_core` stores (a
+projection, a let-expression, or an application whose head is not its own
+head normal form), read through its top `mdata`; `h` is its spine head
+(`getAppFnT`). -/
+@[inline] def whnfCoreKeyC (h e : Expr) : Bool :=
+  match EO.stripTop e with
+  | .app _ _ => !isStuckHeadC h
+  | .proj .. | .letE .. => true
+  | _ => false
+
+/-- Twin of `whnfCoreStoresDone`: a key whose step ended the chain with `v`
+is stored, but for an application answered by itself. -/
+@[inline] def whnfCoreStoresDone (key : Bool) (e v : Expr) : Bool :=
+  match EO.stripTop e with
+  | .app .. => key && !(v == e)
+  | _ => key
+
+/-- Twin of `whnfCoreCheapSafeC`: a step the two modes take alike (a
+let-expression, or an application whose head is a lambda or stuck), read
+through the top `mdata`. -/
+@[inline] def whnfCoreCheapSafeC (h e : Expr) : Bool :=
+  match EO.stripTop e with
+  | .app _ _ =>
+    match h with
+    | .lam .. => true
+    | h => isStuckHeadC h
+  | .letE .. => true
+  | _ => false
+
+/-- Twin of `storeChain`: the chain's keys `pend` map to its answer in the
+full mode's memo, those of `pendC` in the cheap mode's; each map is taken
+out of the state before the inserts. -/
+@[inline] def storeChain (st : CState) (pend pendC : List Expr) (v : Expr) : CState :=
+  let mp := st.whnfCoreC
+  let st := { st with whnfCoreC := ∅ }
+  let st := { st with whnfCoreC := pend.foldl (fun m k => m.insert (EKey.mk k) v) mp }
+  let mc := st.whnfCoreCheapC
+  let st := { st with whnfCoreCheapC := ∅ }
+  { st with whnfCoreCheapC := pendC.foldl (fun m k => m.insert (EKey.mk k) v) mc }
+
+/-- Twin of `pushKey`. -/
+@[inline] def pushKey (b : Bool) (e : Expr) (pend : List Expr) : List Expr :=
+  if b then e :: pend else pend
+
+/-- Twin of `pushCheapKey`. -/
+@[inline] def pushCheapKey (safe b : Bool) (e : Expr) (pendC : List Expr) : List Expr :=
+  if safe then pushKey b e pendC else []
+
+/-- Twin of `storeChainI`: the cheap mode stores nothing, and a chain without
+keys has nothing to store. -/
+@[inline] def storeChainI (cheap : Bool) (pend pendC : List Expr) (v : Expr) : CheckCM Unit :=
+  if cheap || pend.isEmpty then pure () else modify fun st => storeChain st pend pendC v
+
+/-- Twin of `whnfCoreLookupI`. -/
+@[inline] def whnfCoreLookupI (cheap : Bool) (e : Expr) : CheckCM (Option Expr) := do
+  let st ← get
+  if cheap then pure st.whnfCoreCheapC[EKey.mk e]? else pure st.whnfCoreC[EKey.mk e]?
 
 /-- Twin of `whnfEasy` (official `whnf`'s easy cases): sorts, free
 variables, Π-types and literals.  A constant or a lambda-expression still
@@ -560,7 +618,7 @@ def structEtaCertWithI (eager : Bool) (lv : Nat) (depth : Nat) (a b wtb : Expr) 
   match a.getAppFnT with
   | .const cn us => do
     match fe.ctorView? cn with
-    | some (cvc, cnP, cnF) => do
+    | some (cvc, cnP, cnF, _) => do
       let aargs := appArgs a
       if aargs.length = cnP + cnF then
         match wtb.getAppFnT with
@@ -734,11 +792,17 @@ def formerNeverZeroI (eager : Bool) (lv : Nat) (cvT : ConstantVal) (caps : IndCa
     | none => pure false
 termination_by (lv, 21, 0, 0)
 
+/-- Twin of `familyNeverZeroI`. -/
+def familyNeverZeroI (eager : Bool) (lv : Nat) (cvT : ConstantVal) (caps : IndCaps)
+    (us : List Level) : CheckCM Bool :=
+  if caps.neverZero then pure true else formerNeverZeroI eager lv cvT caps us
+termination_by (lv, 21, 1, 0)
+
 /-- Twin of `iotaCase3I`. -/
 def iotaCase3I (eager : Bool) (lv : Nat) (isK : Bool)
-    (cvj : ConstantVal) (us : List Level) : CheckCM Bool :=
+    (induct : Name) (us : List Level) : CheckCM Bool :=
   if isK then pure false else
-  match ctorFamily fe cvj with
+  match ctorFamily fe induct with
   | some (cvT, caps) =>
     if cvT.levelParams.length == us.length then do
       let nz ← formerNeverZeroI eager lv cvT caps us
@@ -754,71 +818,68 @@ def majorToCtorI (eager : Bool) (lv : Nat) (depth : Nat) (isK : Bool)
   match rules with
   | [rl] =>
     match fe.ctorView? rl.ctor with
-    | some (cvj, cnP, _) =>
-      match EO.stripTop ((piResult cvj.type).getAppFnT) with
-      | .const T _ =>
-        match fe.indView? T with
-        | some (cvT, caps) =>
-          if isK = true then do
-            let tmaj ← whnfI eager lv depth (← inferI eager lv true depth major)
-            match tmaj.getAppFnT with
-            | .const T' ust =>
-              if T' == T ∧ cvj.levelParams.length = ust.length then do
-                let margs := appArgs tmaj
-                if cnP ≤ margs.length then do
-                  let fab ← mkAppNM (.const rl.ctor ust) (margs.take cnP)
-                  if Expr.wscopedBC depth fab && (Expr.closedBV fab) && (← leafGuardM fab major) then do
-                    -- official `to_cnstr_when_K`'s type check, both modes; the
-                    -- proof-irrelevance certificate at the verified mode
-                    let tfab ← inferI eager lv true depth fab
-                    if ← defeqI eager lv depth tmaj tfab then
-                      if ← certAtI mode (proofIrrelI eager lv depth fab major) then pure fab
-                      else pure major
+    | some (cvj, cnP, _, T) =>
+      match fe.indView? T with
+      | some (cvT, caps) =>
+        if isK = true then do
+          let tmaj ← whnfI eager lv depth (← inferI eager lv true depth major)
+          match tmaj.getAppFnT with
+          | .const T' ust =>
+            if T' == T ∧ cvj.levelParams.length = ust.length then do
+              let margs := appArgs tmaj
+              if cnP ≤ margs.length then do
+                let fab ← mkAppNM (.const rl.ctor ust) (margs.take cnP)
+                if Expr.wscopedBC depth fab && (Expr.closedBV fab) && (← leafGuardM fab major) then do
+                  -- official `to_cnstr_when_K`'s type check, both modes; the
+                  -- proof-irrelevance certificate at the verified mode
+                  let tfab ← inferI eager lv true depth fab
+                  if ← defeqI eager lv depth tmaj tfab then
+                    if ← certAtI mode (proofIrrelI eager lv depth fab major) then pure fab
                     else pure major
                   else pure major
                 else pure major
               else pure major
-            | _ => pure major
-          else match etaRescueTable? (fe.findTable? T) rl.ctor cvj cvT caps with
-          | some tbl => do
+            else pure major
+          | _ => pure major
+        else match etaRescueTable? (fe.findTable? T) rl.ctor cvj cvT caps with
+        | some tbl => do
+          let tmaj ← whnfI eager lv depth (← inferI eager lv true depth major)
+          match tmaj.getAppFnT with
+          | .const T' ust => do
+            let margs := appArgs tmaj
+            -- the counts are the table's
+            if T' == T ∧ margs.length = tbl.numParams ∧
+                ust.length = cvT.levelParams.length then do
+              if ← familyNeverZeroI eager lv cvT caps ust then do
+                let fab ← mkAppNM (.const tbl.ctor ust)
+                  (margs ++ projNodesI T major (List.range tbl.numFields))
+                if Expr.wscopedBC depth fab && (Expr.closedBV fab) && (← leafGuardM fab major) then
+                  pure fab
+                else pure major
+              else pure major
+            else pure major
+          | _ => pure major
+        | none =>
+          if T == andName then do
             let tmaj ← whnfI eager lv depth (← inferI eager lv true depth major)
             match tmaj.getAppFnT with
             | .const T' ust => do
               let margs := appArgs tmaj
-              -- the counts are the table's
-              if T' == T ∧ margs.length = tbl.numParams ∧
-                  ust.length = cvT.levelParams.length then do
-                if ← formerNeverZeroI eager lv cvT caps ust then do
-                  let fab ← mkAppNM (.const tbl.ctor ust)
-                    (margs ++ projNodesI T major (List.range tbl.numFields))
-                  if Expr.wscopedBC depth fab && (Expr.closedBV fab) && (← leafGuardM fab major) then
-                    pure fab
+              if T' == T ∧ margs.length = cnP ∧
+                  cvj.levelParams.length = ust.length ∧
+                  fe.andRescueSlotsF rl.ctor cnP = true then do
+                let fab ← mkAppNM (.const rl.ctor ust) (margs ++ projNodesI T major [0, 1])
+                if Expr.wscopedBC depth fab && (Expr.closedBV fab) && (← leafGuardM fab major) then do
+                  let tfab ← inferI eager lv true depth fab
+                  if ← defeqI eager lv depth tmaj tfab then
+                    if ← certAtI mode (proofIrrelI eager lv depth fab major) then pure fab
+                    else pure major
                   else pure major
                 else pure major
               else pure major
             | _ => pure major
-          | none =>
-            if T == andName then do
-              let tmaj ← whnfI eager lv depth (← inferI eager lv true depth major)
-              match tmaj.getAppFnT with
-              | .const T' ust => do
-                let margs := appArgs tmaj
-                if T' == T ∧ margs.length = cnP ∧
-                    cvj.levelParams.length = ust.length ∧
-                    fe.andRescueSlotsF rl.ctor cnP = true then do
-                  let fab ← mkAppNM (.const rl.ctor ust) (margs ++ projNodesI T major [0, 1])
-                  if Expr.wscopedBC depth fab && (Expr.closedBV fab) && (← leafGuardM fab major) then do
-                    let tfab ← inferI eager lv true depth fab
-                    if ← defeqI eager lv depth tmaj tfab then
-                      if ← certAtI mode (proofIrrelI eager lv depth fab major) then pure fab
-                      else pure major
-                    else pure major
-                  else pure major
-                else pure major
-              | _ => pure major
-            else pure major
-        | none => pure major
-      | _ => pure major
+          else pure major
+      | none => pure major
     | none => pure major
   | _ => pure major
 termination_by (lv, 23, 0, 0)
@@ -858,55 +919,67 @@ def prepareMajorI (eager : Bool) (lv : Nat) (depth : Nat) (isK : Bool)
       majorToCtorI eager lv depth isK rules major₁
 termination_by (lv, 26, 0, 0)
 
-/-- Twin of `iotaRecI`.  The rule's firing mode is read only inside the
-case-3 certificate (`recFireAt`). -/
-def iotaRecI (eager : Bool) (lv : Nat) (depth : Nat) (e : Expr) : CheckCM (Option Expr) := do
-  match e.getAppFnT with
+/-- Twin of `iotaRecI`, on the argument array `args` of a spine headed by
+`h`: the ι step at the redex `h args[0:k]`.  Nothing of the redex is
+rebuilt: the reduct is the rule's right-hand side applied to two ranges,
+the recursor's leading arguments and the constructor's fields.  The rule's
+firing mode is read only inside the certificate (`recFireAt`); the case
+split reads the stored facts first (`iotaNoCert`), and the case-3
+certificates read lists, built only there. -/
+def iotaRecI (eager : Bool) (lv : Nat) (depth : Nat) (h : Expr) (args : Array Expr) (k : Nat) :
+    CheckCM (Option Expr) := do
+  match h with
   | .const c us => do
     match fe.recAt? c with
     | some (rv, isQuot) => do
       let mI := majorIdxOf rv
       let rP := rulePrefixOf rv
-      let args := appArgs e
-      if args.length = mI + 1 ∧ us.length = rv.levelParams.length ∧
+      if k = mI + 1 ∧ k ≤ args.size ∧ us.length = rv.levelParams.length ∧
           (peelPis (mI + 1) rv.type).isSome = true then do
-        let major ← prepareMajorI eager lv depth rv.k rv.rules (args.getD mI (.bvar 0))
+        let major ← prepareMajorI eager lv depth rv.k rv.rules (spineArg args mI)
         match major.getAppFnT with
         | .const cj usj => do
           match fe.ctorView? cj with
-          | some (cvj, cnP, _) =>
+          | some (cvj, cnP, _, induct) =>
             match rv.rules.find? (fun r' => r'.ctor == cj) with
             | some rl => do
-              let margs := appArgs major
-              if margs.length = cnP + rl.nfields then do
+              let margs := getAppArgsArr major
+              if margs.size = cnP + rl.nfields then do
                 if ← certAtI mode (do
                     let fire := recFireAt rv isQuot
+                    -- case 2 by the stored facts: no comparand is computed
+                    if iotaNoCert fe rv.k induct (recFireLevelCount fire cvj.levelParams) then
+                      pure true
+                    else do
                     let cmpLvls : List Level ←
                       match fire with
                       | .nested lvls _ => substLevelTreesM rv.levelParams us lvls
                       | .plain =>
                         substLevelTreesM rv.levelParams us (cvj.levelParams.map Level.param)
                       | .levels lvls => substLevelTreesM rv.levelParams us lvls
-                    if ← iotaCase3I eager lv rv.k cvj cmpLvls then do
+                    if ← iotaCase3I eager lv rv.k induct cmpLvls then do
                       if ← liftFueled "level comparison" (← isEquivListLM usj cmpLvls) then do
+                        let argsL := args.toList.take k
+                        let margsL := margs.toList
                         let cmpArgs : List Expr ←
                           match fire with
                           | .nested _ pins =>
-                            match pinArgsI rv.levelParams us (args.take rP) pins with
+                            match pinArgsI rv.levelParams us (argsL.take rP) pins with
                             | some ps => pure ps
                             | none => throw (.internal "universe level too deep")
-                          | .plain => pure (args.take cnP)
-                          | .levels _ => pure (args.take cnP)
-                        if ← defEqListI eager lv depth (margs.take cnP) cmpArgs then do
+                          | .plain => pure (argsL.take cnP)
+                          | .levels _ => pure (argsL.take cnP)
+                        if ← defEqListI eager lv depth (margsL.take cnP) cmpArgs then do
                           let tyCtor ← constTyAtM fe cj usj
-                          if ← iotaCertsFullI eager lv depth tyCtor margs then
-                            iotaIndexOkI eager lv depth mI rP cnP tyCtor margs ((args.take mI).drop rP)
+                          if ← iotaCertsFullI eager lv depth tyCtor margsL then
+                            iotaIndexOkI eager lv depth mI rP cnP tyCtor margsL
+                              ((argsL.take mI).drop rP)
                           else pure false
                         else pure false
                       else pure false
                     else pure true) then do
                   let rhs ← ruleRhsAtM fe c cj us
-                  pure (some (← mkAppNM rhs (args.take rP ++ margs.drop cnP)))
+                  pure (some (mkAppRange (mkAppRange rhs args 0 (min rP k)) margs cnP margs.size))
                 else pure none
               else pure none
             | none => pure none
@@ -937,67 +1010,73 @@ def reduceProjCoreI (eager : Bool) (lv : Nat) (depth : Nat) (sn : Name) (i : Nat
   | none => pure none
 termination_by (lv, 28, 0, 0)
 
-/-- Twin of `betaPeelI`. -/
-def betaPeelI (eager : Bool) (lv : Nat) (depth : Nat) :
-    Expr → List Expr → List Expr → CheckCM WhnfStep
-  | t, acc, [] => do pure (.cont (← instListM t acc))
-  | t, acc, a :: rest => do
+/-- Twin of `betaPeelI`: `t` is the raw lambda body past the binders
+consumed so far, `acc` their arguments (innermost first), `args[i:]` the
+spine left.  The body is substituted once, when peeling stops, without a
+memo (Lean's `instantiate`, not `instListM`: official's `instantiate` keeps
+no cache across calls), and applied to the arguments left over. -/
+def betaPeelI (eager : Bool) (lv : Nat) (depth : Nat)
+    (t : Expr) (acc : List Expr) (args : Array Expr) (i : Nat) : CheckCM WhnfStep :=
+  if hi : i < args.size then
     match EO.stripTop (t) with
-    | .lam _ _ body _ => betaPeelI eager lv depth body (a :: acc) rest
-    | _ => do
-      let e' ← instListM t acc
-      pure (.cont (← mkAppNM e' (a :: rest)))
-termination_by _ _ args => (lv, 29, args.length, 0)
+    | .lam _ _ body _ => betaPeelI eager lv depth body (args[i] :: acc) args (i + 1)
+    | _ => pure (.cont (mkAppRange (t.instI acc.toArray) args i args.size))
+  else pure (.cont (t.instI acc.toArray))
+termination_by (lv, 29, args.size - i, 0)
 
-/-- Twin of `whnfAppI`; a ι step is reported to the poll (`Event.unfold`). -/
-def whnfAppI (eager : Bool) (lv : Nat) (depth : Nat) : Expr → List Expr → CheckCM WhnfStep
-  | v, [] => pure (.done v)
-  | v, a :: rest => do
+/-- Twin of `whnfAppI`, over the spine `args[i:]`; a ι step is reported to the
+poll (`Event.unfold`). -/
+def whnfAppI (eager : Bool) (lv : Nat) (depth : Nat)
+    (v : Expr) (args : Array Expr) (i : Nat) : CheckCM WhnfStep :=
+  if hi : i < args.size then
     match EO.stripTop (v) with
-    | .lam _ _ body _ => betaPeelI eager lv depth body [a] rest
+    | .lam _ _ body _ => betaPeelI eager lv depth body [args[i]] args (i + 1)
     | _ => do
-      let fa := Expr.app v a
-      match ← (if iotaArityOk fe fa then iotaRecI eager lv depth fa else pure none) with
+      let fa := Expr.app v args[i]
+      match ← (if iotaArityOk fe fa then
+                 iotaRecI eager lv depth fa.getAppFnT (getAppArgsArr fa) (iotaNumArgs fa 0)
+               else pure none) with
       | some e'' =>
-        let e' ← mkAppNM e'' rest
-        pollC fe (.unfold (headConstName fa)) (pure (.cont e'))
-      | none => whnfAppI eager lv depth fa rest
-termination_by _ args => (lv, 30, args.length, 0)
+        pollC fe (.unfold (headConstName fa)) (pure (.cont (mkAppRange e'' args (i + 1) args.size)))
+      | none => whnfAppI eager lv depth fa args (i + 1)
+  else pure (.done v)
+termination_by (lv, 30, args.size - i, 0)
 
 /-- Twin of `whnfStuckI`: a spine `e` whose head `h` is its own head normal
 form and not a lambda (official `whnf_core`'s `f == f0` arm): the ι step,
-tried once, at the one prefix where it can fire (`iotaTargetF`), and
-otherwise the input itself, with nothing rebuilt.  A ι step is reported to
-the poll (`Event.unfold`), as in `whnfAppI`. -/
+tried once, at the one prefix where it can fire (`iotaTargetF`), on the
+spine's argument array, and otherwise the input itself, with nothing
+rebuilt.  A ι step is reported to the poll (`Event.unfold`), as in
+`whnfAppI`. -/
 def whnfStuckI (eager : Bool) (lv : Nat) (depth : Nat) (h e : Expr) :
     CheckCM WhnfStep := do
   match iotaTargetF fe h with
   | some k =>
     if k ≤ iotaNumArgs e 0 then do
-      let args := appArgs e
-      match ← iotaRecI eager lv depth (mkAppN h (args.take k).toArray) with
+      let args := getAppArgsArr e
+      match ← iotaRecI eager lv depth h args k with
       | some e'' =>
-        let e' ← mkAppNM e'' (args.drop k)
-        pollC fe (.unfold (headConstName h)) (pure (.cont e'))
+        pollC fe (.unfold (headConstName h)) (pure (.cont (mkAppRange e'' args k args.size)))
       | none => pure (.done e)
     else pure (.done e)
   | none => pure (.done e)
 termination_by (lv, 30, 0, 0)
 
 /-- Twin of `whnfCoreStepI`; `mdata` is looked through.  A spine whose
-head is its own head normal form goes to `whnfStuckI`. -/
+head is its own head normal form goes to `whnfStuckI`; `h` is the term's
+spine head (`getAppFnT`), computed by the loop. -/
 def whnfCoreStepI (eager : Bool) (lv : Nat) (cheap : Bool) (depth : Nat)
-    (e : Expr) : CheckCM WhnfStep := do
+    (h e : Expr) : CheckCM WhnfStep := do
     match EO.stripTop (e) with
     | .sort _ | .fvar .. | .forallE .. | .lam .. | .const .. | .lit _ => pure (.done e)
     | .app _ _ => do
-      let h := e.getAppFnT
       -- a head that is its own head normal form: the spine is stuck but
       -- for ι, and is answered by itself
       if isStuckHeadC h then whnfStuckI eager lv depth h e
       else do
+        let args := getAppArgsArr e
         let v ← whnfCoreI eager lv cheap depth h
-        whnfAppI eager lv depth v (appArgs e)
+        whnfAppI eager lv depth v args 0
     | .proj sn i pe => do
       let c ← if cheap then whnfCoreI eager lv true depth pe else whnfI eager lv depth pe
       match ← reduceProjCoreI eager lv depth sn i c with
@@ -1008,19 +1087,42 @@ def whnfCoreStepI (eager : Bool) (lv : Nat) (cheap : Bool) (depth : Nat)
     | .bvar _ | .mvar _ => throw (.notImplemented "whnf beyond the supported fragment")
 termination_by (lv, 31, 0, 0)
 
-/-- Twin of `whnfCoreLoopI`. -/
+/-- Twin of `whnfCoreLoopI`: `whnfCoreStepI` iterated on its own step
+budget, with official `whnf_core`'s memo policy.  Every step looks its term
+up (`whnfCoreKeyC`: a term no arm stores is not looked up), a hit ends the
+chain, and the keys of the steps taken so far (`pend`; `pendC` those the
+cheap mode takes alike, `whnfCoreCheapSafeC`) wait for the chain's answer,
+stored at its end (`storeChainI`).  The cheap mode reads its own memo and
+stores nothing. -/
 def whnfCoreLoopI (eager : Bool) (lv : Nat) (cheap : Bool) (depth : Nat) :
-    Nat → Expr → CheckCM Expr
-  | 0, _ => throw (.internal "fuel exhausted: whnfCore loop")
-  | n + 1, e => do
-    match ← whnfCoreStepI eager lv cheap depth e with
-    | .done v => pure v
-    | .cont e' => whnfCoreLoopI eager lv cheap depth n e'
-termination_by n _ => (lv, 32, n, 0)
+    Nat → List Expr → List Expr → Expr → CheckCM Expr
+  | 0, _, _, _ => throw (.internal "fuel exhausted: whnfCore loop")
+  | n + 1, pend, pendC, e => do
+    if whnfCoreEasy e then
+      storeChainI cheap pend pendC e
+      pure e
+    else
+      let h := e.getAppFnT
+      let key := whnfCoreKeyC h e
+      match ← (if key then whnfCoreLookupI cheap e else pure none) with
+      | some r =>
+        storeChainI cheap pend [] r
+        pure r
+      | none =>
+        let safe := whnfCoreCheapSafeC h e
+        match ← whnfCoreStepI eager lv cheap depth h e with
+        | .done v =>
+          let st := !cheap && whnfCoreStoresDone key e v
+          storeChainI cheap (pushKey st e pend) (pushCheapKey safe st e pendC) v
+          pure v
+        | .cont e' =>
+          let st := !cheap && key
+          whnfCoreLoopI eager lv cheap depth n (pushKey st e pend) (pushCheapKey safe st e pendC) e'
+termination_by n _ _ _ => (lv, 32, n, 0)
 
-/-- Twin of `whnfCoreBodyI`. -/
+/-- Twin of `whnfCoreBodyI`: the loop with no key pending. -/
 def whnfCoreBodyI (eager : Bool) (lv : Nat) : Bool → Nat → Expr → CheckCM Expr :=
-  fun cheap depth e => whnfCoreLoopI eager lv cheap depth whnfCoreLoopFuel e
+  fun cheap depth e => whnfCoreLoopI eager lv cheap depth whnfCoreLoopFuel [] [] e
 termination_by (lv, 33, 0, 0)
 
 /-- Twin of `defeqArgI`: an `eagerReduce _ _` argument's type is compared
@@ -1571,19 +1673,15 @@ def defeqBodyI (eager : Bool) (lv : Nat) : Nat → Expr → Expr → CheckCM Boo
 termination_by (lv, 63, 0, 0)
 
 
-/-- Twin of the `whnfCore` entry point; the easy cases (`whnfCoreEasy`)
-return before the memo, in both modes, as official.  The two modes of
-`whnfCore` (official `cheap_proj`) under two memos; neither stores an answer
-that is its input (`memoRedEI`). -/
+/-- Twin of the `whnfCore` entry point: the loop, which looks its terms up in
+the mode's memo (`whnfCoreLoopI`).  An easy case (`whnfCoreEasy`) returns
+at once, as the loop's first step would; any other term runs the loop behind
+the poll. -/
 def whnfCoreI (eager : Bool) : Nat → Bool → Nat → Expr → CheckCM Expr
   | 0, _, _, _ => throw (.limit .recDepth)
   | lv + 1, c, d, e =>
     if whnfCoreEasy e then pure e
-    else if c then
-      memoRedEI (·.whnfCoreCheapC) (fun st mp => { st with whnfCoreCheapC := mp })
-        (fun d e => pollC fe (.body d) (whnfCoreBodyI eager lv true d e)) d e
-    else memoRedEI (·.whnfCoreC) (fun st mp => { st with whnfCoreC := mp })
-      (fun d e => pollC fe (.body d) (whnfCoreBodyI eager lv false d e)) d e
+    else pollC fe (.body d) (whnfCoreBodyI eager lv c d e)
 termination_by lv _ _ _ => (lv, 0, 0, 0)
 
 /-- Twin of the `whnf` entry point; its easy cases (`whnfEasy`) return

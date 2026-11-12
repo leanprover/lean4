@@ -2,38 +2,38 @@
 universe w₁ w₂ w₃
 
 namespace Struct
-structure S1.{r, s} (α : Type s) : Type (max s r) :=
+structure S1.{r, s} (α : Type s) : Type (max s r) where
   up :: (down : α)
 
 def ex1.{u, v} (α : Type u) (σ : Type (max v u)) (h : σ = S1.{v, u} α) : True :=
   trivial
 
-structure S2.{u, v} (α : Sort u) (β : Sort v) :=
+structure S2.{u, v} (α : Sort u) (β : Sort v) where
   (a : α)
   (b : β)
 
 def ex2.{u, v} (α : Sort u) (β : Sort v) (σ : Sort (max u v 1)) (h : σ = S2 α β) : True :=
   trivial
 
-structure S3.{u, v} (α : Type u) (β : Type v) :=
+structure S3.{u, v} (α : Type u) (β : Type v) where
   (a : α)
   (b : β)
 
 def ex3.{u, v} (α : Type u) (β : Type v) (σ : Type (max u v)) (h : σ = S3 α β) : True :=
   trivial
 
-structure S4.{u, v} (α : Sort u) (β : Sort v) : Type _ := -- Warning: possibly too high
+structure S4.{u, v} (α : Sort u) (β : Sort v) : Type _ where -- Warning: possibly too high
   (a : α)
   (b : β)
 
-structure S5.{u, v} (α : Type (u+1)) (β : Type v) :=
+structure S5.{u, v} (α : Type (u+1)) (β : Type v) where
   (a : α)
   (b : β)
 
 def ex5.{u, v} (α : Type (u+1)) (β : Type v) (σ : Type (max (u+1) v)) (h : σ = S5 α β) : True :=
   trivial
 
-structure S6.{u, v} (α : Sort (max u v)) (β : Type v) :=
+structure S6.{u, v} (α : Sort (max u v)) (β : Type v) where
   (a : α)
   (b : β)
 
@@ -42,7 +42,7 @@ structure S6.{u, v} (α : Sort (max u v)) (β : Type v) :=
 def ex6.{u, v} (α : Sort (max u v)) (β : Type v) (σ : Sort max u (v+1)) (h : σ = S6.{u, v} α β) : True :=
   trivial
 
-structure S7.{u, v} (α : Sort u) (β : Sort v) : Sort (max u v) :=  -- Error: invalid universe polymorphic type
+structure S7.{u, v} (α : Sort u) (β : Sort v) : Sort (max u v) where  -- Error: invalid universe polymorphic type
   (a : α) (b : β)
 
 end Struct

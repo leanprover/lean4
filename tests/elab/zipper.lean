@@ -1,4 +1,4 @@
-structure ListZipper (α : Type) :=
+structure ListZipper (α : Type) where
 (xs : List α) (bs : List α)
 
 -- set_option trace.compiler.ir.rc true

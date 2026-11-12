@@ -26,7 +26,7 @@ end ExceptT'
 
 abbrev Node := Nat
 
-structure nodeData :=
+structure nodeData where
 (find : Node) (rank : Nat := 0)
 
 abbrev ufData := Array nodeData

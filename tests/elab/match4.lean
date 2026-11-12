@@ -46,7 +46,7 @@ def Vector' (α : Type) (n : Nat) := { a : Array α // a.size = n }
 def mkVec {α : Type} (n : Nat) (a : α) : Vector' α n :=
 ⟨Array.replicate n a, Array.size_replicate ..⟩
 
-structure S :=
+structure S where
 (n : Nat)
 (y : Vector' Nat n)
 (z : Vector' Nat n)

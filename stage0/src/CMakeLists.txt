@@ -604,6 +604,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -Wl,-soname=libInit_shared.so")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -Wl,-soname=libleanshared_1.so")
   string(APPEND LEANSHARED_2_LINKER_FLAGS " -Wl,-soname=libleanshared_2.so")
+  string(APPEND LEANSHARED_3_LINKER_FLAGS " -Wl,-soname=libleanshared_3.so")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
@@ -615,6 +616,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_2_LINKER_FLAGS " -install_name @rpath/libleanshared_2.dylib")
+  string(APPEND LEANSHARED_3_LINKER_FLAGS " -install_name @rpath/libleanshared_3.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
@@ -653,7 +655,7 @@ endif()
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   # import libraries created by the stdlib.make targets
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_3 -lleanshared_2 -lleanshared_1 -lleanshared")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
   # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
@@ -975,6 +977,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     leanshared
     ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_3${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_2${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
@@ -1004,7 +1007,7 @@ else()
     VERBATIM
   )
 
-  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_3 -lleanshared_2 -lleanshared_1 -lleanshared")
 
   # NOTE: `mimalloc_paranoid` in front of `leanrt` and no `leanshared` to replace default allocator
   set(

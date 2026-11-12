@@ -15,7 +15,7 @@ elab d:docComment "test" : command => do
   let text ← getFileMap
   let input := text.source
 
-  let endPos := input.prev <| input.prev endPos
+  let endPos := String.Pos.Raw.prev input <| String.Pos.Raw.prev input endPos
 
   if h : endPos ≤ input.rawEndPos then
     let ictx := mkInputContext input (← getFileName) (endPos := endPos) (endPos_valid := h)

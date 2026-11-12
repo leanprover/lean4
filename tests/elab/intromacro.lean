@@ -1,6 +1,6 @@
 
 
-structure S :=
+structure S where
 (x y z : Nat := 0)
 
 def f1 : Nat × Nat → S → Nat :=

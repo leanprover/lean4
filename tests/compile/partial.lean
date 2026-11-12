@@ -4,9 +4,9 @@ set_option pp.explicit true
 
 partial def contains : String → Char → String.Pos.Raw → Bool
 | s, c, i =>
-  if s.atEnd i then false
-  else if s.get i == c then true
-       else contains s c (s.next i)
+  if String.Pos.Raw.atEnd s i then false
+  else if String.Pos.Raw.get s i == c then true
+       else contains s c (String.Pos.Raw.next s i)
 
 def main : IO Unit :=
 let s1 := "hello";

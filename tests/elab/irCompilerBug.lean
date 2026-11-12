@@ -1,6 +1,6 @@
 --
 
-structure Payload :=
+structure Payload where
 (key : Nat)
 (val : Nat)
 

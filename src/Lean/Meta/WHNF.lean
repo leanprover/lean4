@@ -37,14 +37,19 @@ namespace Lean.Meta
 /-! # Smart unfolding support -/
 -- ===========================
 
-set_option compiler.ignoreBorrowAnnotation true in
 /--
-Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
-It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
-to this module.
+Position of the recursive argument of each definition compiled by structural recursion, as
+registered by `Lean.Elab.Structural.registerEqnsInfo`.
 -/
-@[extern "lean_get_structural_rec_arg_pos"]
-opaque getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
+builtin_initialize structuralRecArgPosExt : MapDeclarationExtension Nat ←
+  mkMapDeclarationExtension (logWrites := true) (exportEntriesFn := fun env s =>
+    let all := s.toArray
+    -- Do not export for non-exposed defs at exported/server levels
+    let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray
+    { exported, server := exported, «private» := all })
+
+def getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat) :=
+  return structuralRecArgPosExt.find? (← getEnv) declName
 
 def smartUnfoldingSuffix := "_sunfold"
 

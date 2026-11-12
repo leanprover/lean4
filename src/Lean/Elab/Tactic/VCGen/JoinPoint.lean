@@ -253,6 +253,12 @@ fun _ s' => ∃ z, s' = { pc := s.pc + 4, r := s.r + z } ∧ ((c ∧ z = 1) ∨ 
 Thus `s'.pc = s.pc + 4` follows from `?H` without a case split. A parameter `x` whose anti-unifier
 is a hole `z` takes the place of `z`: `?H` has no equation `x = z` and no binder `∃ z`, and the
 leaves give the values of `x`.
+
+A `let` local of a branch stands for its value. After `match o with | 0 => x := s + 1 | _ => x := s
++ 2`, the jumps pass the locals `x₁ := s + 1` and `x₂ := s + 2`, whose anti-unifier is `s + z`
+with the values `1` and `2`. If the values have no common part, as `s + 1` and `s * 2`, the hole
+takes the locals as its values, so the leaves are `let x₁ := s + 1; z = x₁` and
+`let x₂ := s * 2; z = x₂`.
 -/
 
 /-- A hole of the anti-unifier, with the placeholder `fvarId : type` and the value `vals[k]` at
@@ -297,48 +303,67 @@ def mkHole (cutoff : Nat) (ts : Array Expr) (type? : Option Expr := none) :
   modify fun s => { s with holes := s.holes.push { fvarId, type, vals := ts } }
   return some (← mkFVarS fvarId)
 
+/-- The index of the first local after `__do_jp_spec`, and the local context of each jump. -/
+structure AUContext where
+  cutoff : Nat
+  lctxs : Array LocalContext
+
+/-- The value `v` of `t`, if `t` is a `let` local of a branch in `lctx` other than a `have`.
+If `v` is again such a local, the value of `v`, and so on. -/
+partial def lookThrough (cutoff : Nat) (lctx : LocalContext) (t : Expr) : Option Expr := do
+  let .fvar fvarId := t | none
+  let .ldecl index _ _ _ v nonDep _ ← lctx.find? fvarId | none
+  if nonDep || index < cutoff then none
+  some ((lookThrough cutoff lctx v).getD v)
+
 mutual
 
-/-- The anti-unifier of the subterms `ts` at one position of the jump arguments. Subterms that are
-one pointer stay, unless they mention a local of a branch. Applications of one function to the
-same number of arguments are anti-unified argument by argument, if they differ only at positions
-that are not rigid. All other subterms become a hole. Returns `none` if a hole has a type that
-mentions a local of a branch. -/
-partial def antiUnify (cutoff : Nat) (ts : Array Expr) : AUM (Option Expr) := do
+/-- The anti-unifier of the subterms `ts` at one position of the jump arguments, or a hole with
+the values `ts` if `ts` have no common part. Returns `none` if that hole has a type that mentions
+a local of a branch. -/
+partial def antiUnify (ctx : AUContext) (ts : Array Expr) : AUM (Option Expr) := do
   let key := ts.map ({ expr := · })
   if let some r := (← get).cache[key]? then return r
-  let r ← antiUnifyCore cutoff ts
+  let r ← match ← commonPart ctx ts with
+    | some g => pure (some g)
+    | none => mkHole ctx.cutoff ts
   modify fun s => { s with cache := s.cache.insert key r }
   return r
 
-partial def antiUnifyCore (cutoff : Nat) (ts : Array Expr) : AUM (Option Expr) := do
+/-- The common part of the subterms `ts`, `none` if they have none. Subterms that are one pointer
+stay, unless they mention a local of a branch. A `let` local of a branch at jump `k` stands for
+its value in the local context of jump `k`. Applications of one function to the same number of
+arguments are anti-unified argument by argument, if they differ only at positions that are not
+rigid. -/
+partial def commonPart (ctx : AUContext) (ts : Array Expr) : AUM (Option Expr) := do
   let t := ts[0]!
-  if ts.all (isSameExpr t ·) && (← isCommon cutoff t) then return some t
+  if ts.all (isSameExpr t ·) && (← isCommon ctx.cutoff t) then return some t
+  let vs := ts.mapIdx fun k t => (lookThrough ctx.cutoff ctx.lctxs[k]! t).getD t
+  unless (vs.zip ts).all fun (v, t) => isSameExpr v t do
+    return ← commonPart ctx vs
   let fn := t.getAppFn
   let n := t.getAppNumArgs
-  if n > 0 && ts.all (fun s => isSameExpr s.getAppFn fn && s.getAppNumArgs == n) then
-    if ← isCommon cutoff fn then
-      let saved ← get
-      let rigid ← rigidArgs fn n
-      let argss := ts.map (·.getAppArgs)
-      let mut args := Array.mkEmpty n
-      let mut ok := true
-      for i in [:n] do
-        let ai := argss.map (·[i]!)
-        let a := ai[0]!
-        if ai.all (isSameExpr a ·) && (← isCommon cutoff a) then
-          args := args.push a
-        else if rigid[i]?.getD true then
-          ok := false
-          break
-        else if let some a ← antiUnify cutoff ai then
-          args := args.push a
-        else
-          ok := false
-          break
-      if ok then return some (← mkAppNS fn args)
+  unless n > 0 && ts.all (fun s => isSameExpr s.getAppFn fn && s.getAppNumArgs == n) do
+    return none
+  unless ← isCommon ctx.cutoff fn do return none
+  let saved ← get
+  let rigid ← rigidArgs fn n
+  let argss := ts.map (·.getAppArgs)
+  let mut args := Array.mkEmpty n
+  for i in [:n] do
+    let ai := argss.map (·[i]!)
+    let a := ai[0]!
+    if ai.all (isSameExpr a ·) && (← isCommon ctx.cutoff a) then
+      args := args.push a
+    else if rigid[i]?.getD true then
       set saved
-  mkHole cutoff ts
+      return none
+    else if let some a ← antiUnify ctx ai then
+      args := args.push a
+    else
+      set saved
+      return none
+  return some (← mkAppNS fn args)
 
 end
 
@@ -353,6 +378,7 @@ def antiUnifyJumps (jp : JoinPoint) (xs : Array Expr) (jumps : Array Jump) :
   let types ← xs.mapM (Sym.inferType ·)
   let decl₀ ← jump₀.proof.getDecl
   let cutoff := (decl₀.lctx.get! jp.spec.fvarId!).index + 1
+  let ctx : AUContext := { cutoff, lctxs := ← jumps.mapM fun jump => return (← jump.proof.getDecl).lctx }
   let go : AUM (Array (Option Expr)) := do
     let mut gs := #[]
     for h : j in [:xs.size] do
@@ -360,7 +386,7 @@ def antiUnifyJumps (jp : JoinPoint) (xs : Array Expr) (jumps : Array Jump) :
         gs := gs.push none
         continue
       let ts := jumps.map (·.args[j]!)
-      if let some g ← antiUnify cutoff ts then
+      if let some g ← antiUnify ctx ts then
         gs := gs.push (some g)
       else
         let some z ← mkHole cutoff ts types[j]!

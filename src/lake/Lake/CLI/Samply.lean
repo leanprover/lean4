@@ -133,7 +133,7 @@ def applySymbols (profile response : Json)
   return profile.setObjVal! "threads" (Json.arr threads)
     |>.setObjVal! "meta" (metadata.setObjVal! "symbolicated" (Json.bool true))
 
-/-- Kill a child process, ignoring errors (e.g. if it already exited). -/
+/-- Kill a child process and wait for it to exit, ignoring errors. -/
 def killSafe {cfg : IO.Process.StdioConfig} (proc : IO.Process.Child cfg) : IO Unit :=
   try proc.kill; let _ ← proc.wait catch _ => pure ()
 

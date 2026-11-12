@@ -1453,8 +1453,14 @@ structure SpawnArgs extends StdioConfig where
   working directory.
 
   On POSIX platforms, an executable file that the system cannot run directly, such as a script
-  without a `#!` line, is run by `/bin/sh`. On Windows, the child process's working directory is
-  searched before `PATH`, and the extensions `.com` and `.exe` are tried.
+  without a `#!` line, is run by `/bin/sh`.
+
+  On Windows, a command without a directory is first searched for where the system looks for
+  executables: in the directory of the current executable, the current working directory, the
+  system directories and the directories of the current process's `PATH`, in this order and with the
+  extension `.exe` if the command has none. Only if it is not found there, the child process's
+  working directory and the directories of its `PATH` are searched, also trying the extensions
+  `.com` and `.exe`.
   -/
   cmd : String
   /--
@@ -1462,7 +1468,8 @@ structure SpawnArgs extends StdioConfig where
 
   On Windows, where a process receives a single command line, the arguments are quoted as needed
   according to the conventions of the Microsoft C runtime. Programs that split their command line
-  differently, such as `cmd.exe`, may see other arguments.
+  differently, such as `cmd.exe`, may see other arguments, and programs built on the Cygwin or
+  MSYS2 runtime expand wildcards and braces in arguments that did not need quotes.
   -/
   args : Array String := #[]
   /-- The child process's working directory. Inherited from the parent current process if `none`. -/

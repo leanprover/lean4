@@ -805,9 +805,9 @@ def enterLoopBody (breakCont continueCont : DoElabM Expr) (returnCont : ReturnCo
   withReader (fun ctx => { ctx with contInfo }) body
 
 /--
-Prepare the context for elaborating the `do` block `doSeq`.
-In `doSeq`, `break`, `continue`, `return` and reassignment of the `mut` variables in scope are
-errors. If the ref is a `finally` keyword, the error messages call `doSeq` a `finally` block.
+Arrange the context for elaborating `doSeq` such that `break`, `continue`, `return` and
+reassignment of the `mut` variables in scope are errors. If the ref is a `finally` keyword, the
+error messages call `doSeq` a `finally` block.
 -/
 def withoutControl (doSeq : TSyntax ``doSeq) (k : DoElabM Expr) : DoElabM Expr := do
   let block := if (← getRef).isToken "finally" then m!"A `finally` block" else m!"This `do` block"

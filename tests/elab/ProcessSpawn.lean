@@ -93,6 +93,53 @@ info: "sh\x00x"
     writeScript (dir / "sub" / name) 8
     run { cmd := name, cwd := dir / "sub", env := #[("PATH", some s!".:{path}")] } 8 "relative `PATH` entry"
 
+/-!
+Shell fallback uses the `PATH` candidate that failed with `ENOEXEC`. An earlier executable
+can have a missing shebang interpreter, in which case `execvp` skips it with `ENOENT`.
+-/
+
+#eval show IO Unit from do
+  if System.Platform.isWindows then return
+  IO.FS.withTempDir fun dir => do
+    let name := "lean_spawn_test_script"
+    for sub in ["missing-interpreter", "not-executable", "fallback dir", "later"] do
+      IO.FS.createDir (dir / sub)
+    let writeScript (sub content : String) (executable := true) : IO Unit := do
+      let file := dir / sub / name
+      IO.FS.writeFile file content
+      IO.setAccessRights file { user := { read := true, write := true, execution := executable } }
+    writeScript "missing-interpreter" s!"#!{dir}/missing\nprintf wrong\n"
+    writeScript "not-executable" "printf wrong\n" false
+    writeScript "fallback dir" "printf '%s|' \"$@\"\nexit 7\n"
+    writeScript "later" "printf wrong\n"
+    let notDir := dir / "not-a-directory"
+    IO.FS.writeFile notDir ""
+    let checkRun (args : SpawnArgs) (what : String) : IO Unit := do
+      let out ← output { args with args := #["a b", "c"] }
+      check (out.exitCode == 7 && out.stdout == "a b|c|")
+        s!"{what}: {out.exitCode} {repr out.stdout} {out.stderr}"
+    let path := ":".intercalate <|
+      ["missing", "not-a-directory", "not-executable", "missing-interpreter", "fallback dir", "later"].map
+        fun (sub : String) => (dir / sub).toString
+    checkRun { cmd := name, env := #[("PATH", some path)] } "absolute `PATH` entries"
+    checkRun { cmd := name, env := #[("PATH", some s!"{"".pushn 'x' 8192}:{path}")] }
+      "oversized `PATH` entry"
+    checkRun {
+      cmd := name, cwd := dir, inheritEnv := false,
+      env := #[("PATH", some "missing-interpreter:fallback dir:later")] } "relative `PATH` entries"
+    checkRun {
+      cmd := name, cwd := dir / "fallback dir",
+      env := #[("PATH", some s!"{dir}/missing-interpreter::{dir}/later")] } "empty `PATH` entry"
+    let oldPath ← IO.getEnv "PATH"
+    try
+      Std.Internal.UV.System.osSetenv "PATH" path
+      checkRun { cmd := name } "inherited `PATH`"
+    finally
+      if let some path := oldPath then
+        Std.Internal.UV.System.osSetenv "PATH" path
+      else
+        Std.Internal.UV.System.osUnsetenv "PATH"
+
 /-! On Windows, the system directory is searched before `PATH`, as `CreateProcess` does. -/
 
 #eval show IO Unit from do

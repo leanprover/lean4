@@ -26,6 +26,7 @@ Author: Sebastian Ullrich, Julia M. Himmel
 #include <io.h>
 #else
 #include <errno.h>
+#include <limits.h>
 #include <paths.h>
 #include <signal.h>
 #include <unistd.h>
@@ -230,39 +231,6 @@ static std::optional<std::string> find_command(char const * cmd) {
     file.resize(len);
     return file;
 }
-#else
-static bool is_executable_file(std::string const & file, char const * cwd) {
-    std::string resolved = file[0] != '/' && cwd != nullptr ? std::string(cwd) + "/" + file : file;
-    struct stat st;
-    return stat(resolved.c_str(), &st) == 0 && S_ISREG(st.st_mode) && access(resolved.c_str(), X_OK) == 0;
-}
-
-// Finds the file that `uv_spawn` tried to execute for `cmd`, searching `PATH` in `envp` as libuv
-// does. Relative paths are relative to the child's working directory `cwd`.
-static std::optional<std::string> find_executed_file(char const * cmd, char * const * envp, char const * cwd) {
-    if (strchr(cmd, '/') != nullptr) {
-        return std::string(cmd);
-    }
-    char const * path = _PATH_DEFPATH;
-    for (char * const * e = envp; *e != nullptr; e++) {
-        if (strncmp(*e, "PATH=", 5) == 0) {
-            path = *e + 5;
-            break;
-        }
-    }
-    while (true) {
-        char const * end = strchr(path, ':');
-        if (end == nullptr) end = path + strlen(path);
-        std::string file = end == path ? std::string(cmd) : std::string(path, end) + "/" + cmd;
-        if (is_executable_file(file, cwd)) {
-            return file;
-        }
-        if (*end == '\0') {
-            return std::nullopt;
-        }
-        path = end + 1;
-    }
-}
 #endif
 
 // Returns the new process object, or `nullptr` and the error in `err`.
@@ -283,6 +251,62 @@ static lean_uv_process_object * spawn_process(uv_process_options_t const & optio
     }
     return p;
 }
+
+#if !defined(LEAN_WINDOWS)
+static lean_uv_process_object * spawn_shell(uv_process_options_t options, bool setsid, int & err) {
+    std::vector<char *> argv = { const_cast<char *>(_PATH_BSHELL), const_cast<char *>(options.file) };
+    for (char ** arg = options.args + 1; *arg != nullptr; arg++) {
+        argv.push_back(*arg);
+    }
+    argv.push_back(nullptr);
+    options.file = _PATH_BSHELL;
+    options.args = argv.data();
+    return spawn_process(options, setsid, err);
+}
+
+// Repeats libuv's `PATH` search, spawning each candidate, to find the one that failed with
+// `ENOEXEC`; checking candidates without spawning would not reject executables whose
+// interpreter is missing.
+static lean_uv_process_object * retry_spawn_with_shell(uv_process_options_t options, bool setsid, int & err) {
+    char const * cmd = options.file;
+    if (strchr(cmd, '/') != nullptr) {
+        return spawn_shell(options, setsid, err);
+    }
+    char const * path = _PATH_DEFPATH;
+    char * const * envp = options.env != nullptr ? options.env : environ;
+    for (char * const * e = envp; e != nullptr && *e != nullptr; e++) {
+        if (strncmp(*e, "PATH=", 5) == 0) {
+            path = *e + 5;
+            break;
+        }
+    }
+    bool seen_eacces = false;
+    err = UV_ENOENT;
+    while (true) {
+        char const * end = strchr(path, ':');
+        if (end == nullptr) end = path + strlen(path);
+        // libuv skips oversized `PATH` entries when resolving commands.
+        if (end - path < PATH_MAX) {
+            // The slash prevents libuv from searching `PATH` again for an empty entry.
+            std::string file = end == path ? std::string("./") + cmd : std::string(path, end) + "/" + cmd;
+            options.file = file.c_str();
+            lean_uv_process_object * p = spawn_process(options, setsid, err);
+            if (err == UV_ENOEXEC) {
+                return spawn_shell(options, setsid, err);
+            }
+            if (err == UV_EACCES) {
+                seen_eacces = true;
+            } else if (err != UV_ENOENT && err != UV_ENOTDIR) {
+                return p;
+            }
+        }
+        if (*end == '\0') break;
+        path = end + 1;
+    }
+    if (seen_eacces) err = UV_EACCES;
+    return nullptr;
+}
+#endif
 
 /* IO.Process.spawn (args : SpawnArgs) : IO (Child args.toStdioConfig) */
 extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
@@ -362,17 +386,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
 #if !defined(LEAN_WINDOWS)
     // Unlike `execvp`, `posix_spawn` does not run executable files without a shebang via `/bin/sh`.
     if (err == UV_ENOEXEC) {
-        if (auto file = find_executed_file(cmd.data(), own_env ? envp.data() : environ, options.cwd)) {
-            std::vector<char *> sh_argv = { const_cast<char *>(_PATH_BSHELL), file->data() };
-            sh_argv.insert(sh_argv.end(), argv.begin() + 1, argv.end());
-            uv_process_options_t sh_options = options;
-            sh_options.file = _PATH_BSHELL;
-            sh_options.args = sh_argv.data();
-            int sh_err;
-            if ((p = spawn_process(sh_options, setsid, sh_err)) != nullptr) {
-                err = 0;
-            }
-        }
+        p = retry_spawn_with_shell(options, setsid, err);
     }
 #endif
     if (p == nullptr) {

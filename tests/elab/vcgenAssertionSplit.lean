@@ -22,8 +22,8 @@ example (o : Option Nat) :
 /-- The right-hand side `(match o with …) s` splits on `o` with the state argument `s` applied. -/
 example (o : Option Nat) :
     ⦃ fun (_ : Nat) => True ⦄
-    (get : StateM Nat Nat)
-    ⦃ fun r => match o with | some _ => fun s => r = s | none => fun _ => True ⦄ := by
+    (pure 0 : StateM Nat Nat)
+    ⦃ fun _ => match o with | some n => fun _ => n = n | none => fun _ => True ⦄ := by
   vcgen
 
 /-- The program splits on `o`. Substituting `o = some n` reduces the postcondition. -/

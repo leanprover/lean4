@@ -86,19 +86,32 @@ def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
     trace[Elab.Tactic.Do.vcgen] "Rintro rule {entry.declName} does not apply"
   return none
 
-/-- Whether `φ` is an equation `x = t` whose left-hand side is a local. -/
-def isFVarEq (φ : Expr) : Bool :=
-  φ.isAppOfArity ``Eq 3 && (φ.getArg! 1).isFVar
+/-- The local `x` and the term `t` of an equation `x = t` that does not mention `x` in `t`. -/
+def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
+  let_expr Eq _ x t := φ | none
+  let .fvar xId := x | none
+  if t.containsFVar xId then none
+  return (xId, t)
+
+/-- Record in `scope.splitEqs` the hypotheses `h : x = t` for a local `x` among the local
+declarations of `goal` from index `start` on. -/
+def recordSplitEqs (scope : Scope) (goal : MVarId) (start : Nat) : MetaM Scope := goal.withContext do
+  return (← getLCtx).foldl (start := start) (init := scope) fun scope d =>
+    match fvarEq? d.type with
+    | some (xId, t) => { scope with splitEqs := scope.splitEqs.insert xId (t, d.fvarId) }
+    | none => scope
 
 /-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
 `∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
-the binders between two matches are introduced at once. A binder `x = t` for a local `x` is
-substituted with `substEqHyp?` instead. -/
-def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
+the binders between two matches are introduced at once. The introduced equations `x = t` for a
+local `x` are recorded in `Scope.splitEqs`. -/
+def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
+    VCGenM (Option (Scope × List MVarId)) := do
   unless target.isForall do return none
   let oldGoal ← instantiateBinderDomains oldGoal
+  let start := (← oldGoal.getDecl).lctx.numIndices
   let mut goal ← match ← simpGoalTelescope oldGoal with
-    | .closed => return some []
+    | .closed => return some (scope, [])
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
   let rintros := (← read).rintros
@@ -106,25 +119,12 @@ def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarI
   let mut n := 0
   repeat
     match e with
-    | .forallE _ φ b _ =>
+    | .forallE _ _ b _ =>
       let entries := Sym.getMatch (← getMCtx) rintros e
       unless entries.isEmpty do
         goal ← introsHygienicN goal n
         n := 0
-        if let some gs ← applyRIntroRules goal entries then return some gs
-      -- Substitute an equation `x = t` for a local `x`, such as the equation that a split adds to
-      -- each alternative.
-      if isFVarEq φ && !b.hasLooseBVar 0 then
-        goal ← introsHygienicN goal n
-        n := 0
-        let .forallE nm φ G _ ← goal.getType | unreachable!
-        if let some (g, keep) ← goal.withContext (substEqHyp? goal nm φ G) then
-          goal := g
-          e ← goal.getType
-          if keep then
-            n := 1
-            e := e.bindingBody!
-          continue
+        if let some gs ← applyRIntroRules goal entries then return some (scope, gs)
       n := n + 1
       e := b
     | .letE _ _ _ b _ =>
@@ -134,7 +134,7 @@ def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarI
   goal ← introsHygienicN goal n
   if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
-  return some [goal]
+  return some (← recordSplitEqs scope goal start, [goal])
 
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
@@ -282,6 +282,36 @@ def normalizePreToTop? (goal : MVarId) (pre target : Expr) : VCGenM (Option (Lis
     return some [g]
   return none
 
+/-- Reduce the matcher application `e` with a hypothesis `h : x = t` of `scope.splitEqs` for one of
+its discriminants `x`, when the matcher reduces once `t` replaces `x`. Returns the reduct `e'` and a
+proof of `e = e'`. -/
+def reduceMatchBySplitEq? (scope : Scope) (splitInfo : Lean.Elab.Tactic.Do.SplitInfo) (e : Expr) :
+    VCGenM (Option (Expr × Expr)) := do
+  let .matcher matcherApp := splitInfo | return none
+  if scope.splitEqs.isEmpty || splitInfo.resTy.isNone then return none
+  for h : i in [:matcherApp.discrs.size] do
+    let x := matcherApp.discrs[i]
+    let .fvar xId := x | continue
+    let some (t, hId) := scope.splitEqs.get? xId | continue
+    let withDiscr (d : Expr) : Expr := { matcherApp with discrs := matcherApp.discrs.set! i d }.toExpr
+    let some e' ← reduceHead? (← shareCommon (withDiscr t)) | continue
+    let xTy ← Sym.inferType x
+    let eTy ← Sym.inferType e
+    let f := mkLambda `x .default xTy (withDiscr (.bvar 0))
+    let prf := mkApp6 (mkConst ``congrArg [← Sym.getLevel xTy, ← Sym.getLevel eTy])
+      xTy eTy x t f (.fvar hId)
+    return some (e', prf)
+  return none
+
+/-- Replace the target `C a` of `goal` by `target'`, which is `C a'`, given `prf : a = a'` and the
+function `C : α → Prop`. -/
+def replaceTargetByEq (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM MVarId := do
+  let target ← goal.getType
+  let g' ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar target' (← goal.getTag)
+  let hEq := mkApp6 (mkConst ``congrArg [← Sym.getLevel α, Level.one]) α (mkSort Level.zero) a a' C prf
+  goal.assign (mkApp4 (mkConst ``Eq.mpr [Level.zero]) target target' hEq g')
+  return g'.mvarId!
+
 /-- Apply the split rule `rule` for the split application `e` to `goal`, and simplify the
 hypotheses of each alternative. -/
 def applySplitRule (goal : MVarId) (rule : BackwardRule) (e : Expr) :
@@ -313,11 +343,17 @@ where
 arguments, as in `(match o with | some n => P n | none => Q) s`. A split needs a condition or a
 discriminant that mentions a local; the simp set of the verification conditions decides a closed one,
 as in `match "done" with | "start" => False | _ => True`. -/
-def assertionMatch? (goal : MVarId) (target : Expr) (inPre : Bool) :
+def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Bool) :
     VCGenM (Option (List MVarId)) := do
   let_expr c@PartialOrder.rel α inst pre rhs := target | return none
   let e := if inPre then pre else rhs
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e | return none
+  if let some (e', prf) ← reduceMatchBySplitEq? scope splitInfo e then
+    let mkTarget (e : Expr) : Expr :=
+      if inPre then mkApp4 c α inst e rhs else mkApp4 c α inst pre e
+    let target' ← if inPre then mkAppNS c #[α, inst, e', rhs] else mkAppNS c #[α, inst, pre, e']
+    let C := mkLambda `a .default α (mkTarget (.bvar 0))
+    return some [← replaceTargetByEq goal α e e' C target' prf]
   unless splitInfo.selectors.any (·.hasFVar) do return none
   let some resTy := splitInfo.resTy | return none
   let some stateTypes := nonDependentDomains? resTy splitInfo.extraArgs.size | return none
@@ -341,7 +377,7 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   if let some g ← iSupPreIntro? goal pre then
     return some (scope, [g])
-  if let some gs ← assertionMatch? goal target (inPre := true) then
+  if let some gs ← assertionMatch? scope goal target (inPre := true) then
     return some (scope, gs)
   if let some goal' ← introsExcessArgs goal then return some (scope, [goal'])
   if let some gs ← normalizePreToTop? goal pre target then
@@ -457,9 +493,16 @@ def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
 
 /-- Strategy 11b: split an `ite`/`dite`/`cond`/match program, or iota-reduce a matcher with a
 concrete discriminant. -/
-def wpMatch? (goal : MVarId) (info : WPApp) :
+def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
+  if let some (prog', prf) ← reduceMatchBySplitEq? scope splitInfo info.prog then
+    let_expr c@PartialOrder.rel α inst pre _ := (← goal.getType) | return none
+    let mkRhs (prog : Expr) : Expr := mkAppN (mkAppN info.head (info.args.set! 7 prog)) info.excessArgs
+    let rhs' ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog')) info.excessArgs
+    let target' ← mkAppNS c #[α, inst, pre, rhs']
+    let C := mkLambda `p .default info.Prog (mkApp4 c α inst pre (mkRhs (.bvar 0)))
+    return some [← replaceTargetByEq goal info.Prog info.prog prog' C target' prf]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   applySplitRule goal rule info.prog
 
@@ -695,7 +738,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
   if let some g ← consumeMData? goal target then return .goals scope [g]
   if let some g ← consumeBinderNameHint? goal target then return .goals scope [g]
-  if let some gs ← forallIntro? goal target then return .goals scope gs
+  if let some (scope, gs) ← forallIntro? scope goal target then return .goals scope gs
   if let some g ← targetLetIntro? goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]
   if let some g ← bareWPToLe? goal target then return .goals scope [g]
@@ -720,7 +763,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
-  if let some gs ← assertionMatch? goal target (inPre := false) then return .goals scope gs
+  if let some gs ← assertionMatch? scope goal target (inPre := false) then return .goals scope gs
 
   -- Phase 4: wp decomposition. The program-shape steps below all consume one unit of fuel
   -- (the `stepLimit` config option) when they make progress.
@@ -739,7 +782,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .goals scope gs
     if let some gs ← wpSimpStateArgs? goal info then
       return .goals scope gs
-    if let some gs ← wpMatch? goal info then
+    if let some gs ← wpMatch? scope goal info then
       burnOne
       return .goals scope gs
     if let some gs ← wpJump? scope goal info then

@@ -136,7 +136,7 @@ theorem fib_impl_vcs
     : wp (fib_impl n) (Q n) E := by
   vcgen [fib_impl]
   case inv1 h => exact I n h
-  case vc1 => apply_rules [ret]
+  case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 h a b hinv => exact loop_post n h (a, b) hinv
   case vc4 h pref cur suff _hsplit a b₀ _hinv =>

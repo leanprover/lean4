@@ -104,7 +104,7 @@ def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
 /-- Substitute `t` for `x` in `G` in the goal `x = t → G`, leaving `x = t → G[t/x]`. When the
 equation is unused after the substitution, leave `G[t/x]`. `x` stays in the local context. Returns
 the new goal and whether it keeps the hypothesis `x = t`. -/
-public def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option (MVarId × Bool)) := do
+def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option (MVarId × Bool)) := do
   let some (x, t, body, unused) ← eqSubstCandidate? eqn G | return none
   let α ← Sym.inferType x
   let u ← Sym.getLevel α

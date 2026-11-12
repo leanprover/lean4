@@ -5,7 +5,7 @@ Tests `IO.Process.spawn` and the operations on `IO.Process.Child`: spawn failure
 `IO` errors, rejection of strings with NUL bytes, running executable files without a shebang via
 `/bin/sh`, binary-safe pipes, exit codes of killed children, `kill` and `wait` after the child has
 exited, reaping of dropped children, killing `setsid` process groups, environment construction,
-argument passing and concurrent spawning.
+argument passing, concurrent spawning and `wait` on the event loop thread.
 
 The environment tests rely on `ProcessSpawn.lean.init.sh` exporting `LEAN_SPAWN_TEST_INHERITED`.
 -/
@@ -262,3 +262,55 @@ def argsSource : String := "def main (args : List String) : IO Unit := IO.printl
     check (out.exitCode == 0 && out.stdout == s!"line {i}\n") s!"task {i} got {repr out.stdout}"
   for t in tasks do
     IO.ofExcept t.get
+
+/-!
+`wait` fails on the event loop thread rather than blocking it forever: a child's exit is only
+detected on that thread.
+-/
+
+/--
+Runs `act` on the event loop thread, as a synchronous continuation of a timer. Fails if `act` blocks
+that thread.
+-/
+def onLoopThread (act : IO α) : IO (Except IO.Error α) := do
+  let caller ← IO.getTID
+  for _ in [0:100] do
+    let timer ← Std.Internal.UV.Timer.mk 10 false
+    let task ← IO.mapTask (sync := true) (t := (← timer.next).result!) fun _ => do
+      -- The continuation runs on the calling thread instead if the timer has already fired.
+      if (← IO.getTID) == caller then return none
+      return some (← act.toBaseIO)
+    for _ in [0:1000] do
+      if ← IO.hasFinished task then break
+      IO.sleep 10
+    unless ← IO.hasFinished task do
+      throw <| IO.userError "the event loop thread is blocked"
+    if let some result ← IO.ofExcept task.get then
+      return result
+  throw <| IO.userError "the timer always fired before its continuation was added"
+
+/-- info: cannot wait for a child process on the event loop thread -/
+#guard_msgs in
+#eval show IO Unit from do
+  let child ← spawn { cmd := "cat", stdin := .piped }
+  match ← onLoopThread child.wait with
+  | .ok code => throw <| IO.userError s!"`wait` returned {code}"
+  | .error e => IO.println e
+  -- Other threads can still wait for the child.
+  child.kill
+  let code ← child.wait
+  check (code == if System.Platform.isWindows then 1 else 137) s!"the killed child exited with {code}"
+
+-- `wait` does not block for a child that is known to have exited.
+#eval show IO Unit from do
+  let child ← spawn { cmd := "sh", args := #["-c", "exit 3"] }
+  check ((← child.wait) == 3) "`wait`"
+  match ← onLoopThread child.wait with
+  | .ok code => check (code == 3) s!"`wait` on the event loop thread returned {code}"
+  | .error e => throw e
+
+-- `output` waits for the child that it spawns.
+#eval show IO Unit from do
+  match ← onLoopThread (output { cmd := "sh", args := #["-c", "exit 0"] }) with
+  | .ok out => throw <| IO.userError s!"`output` returned {out.exitCode}"
+  | .error _ => pure ()

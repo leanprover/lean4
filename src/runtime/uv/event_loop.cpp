@@ -11,6 +11,8 @@ namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 event_loop global_ev;
 
+LEAN_THREAD_VALUE(bool, g_on_loop_thread, false);
+
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
 static void check_uv(int result, const char * msg) {
@@ -56,8 +58,13 @@ bool event_loop::alive(event_loop_guard const &) {
     return alive;
 }
 
+bool event_loop::on_loop_thread() const {
+    return g_on_loop_thread;
+}
+
 // The loop thread's body.
 void event_loop::run() {
+    g_on_loop_thread = true;
     while (true) {
         uv_mutex_lock(&m_mutex);
 

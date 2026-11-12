@@ -45,6 +45,10 @@ public:
     // Whether the loop has work other than `m_async`.
     bool alive(event_loop_guard const &);
 
+    // Whether the caller is the loop thread, which runs every callback and the continuations that
+    // these run inline. No callback runs while that thread is blocked.
+    bool on_loop_thread() const;
+
 private:
     uv_mutex_t       m_mutex;
     uv_cond_t        m_cond;

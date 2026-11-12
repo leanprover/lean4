@@ -387,9 +387,7 @@ structure MetavarContext where
   Metavariables whose assignments must preserve the type up to `TransparencyMode.instances`.
 
   Metavariables created for the instance-implicit arguments of an instance during typeclass
-  resolution are added to this set, and membership is propagated to the metavariables in
-  type-determining (spine) positions of values assigned to members. This maintains the
-  invariant that the final instantiation of such a metavariable has a type that agrees with
+  resolution are added to this set. This maintains the invariant that the final instantiation of such a metavariable has a type that agrees with
   the metavariable's type at `.instances` transparency, so unification cannot commit to an
   instance for a type that is different at instance-resolution time. See issue #9077.
   -/
@@ -1249,6 +1247,9 @@ mutual
           ngen := s.ngen.next
         }
       if !mvarDecl.kind.isSyntheticOpaque then
+        -- `newMVar` stands in for `mvarId`, so it inherits the instance-typed mark.
+        if (← mvarId.isInstanceTyped) then
+          newMVarId.markInstanceTyped
         mvarId.assign result
       else
         /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := ?mvarPending`,

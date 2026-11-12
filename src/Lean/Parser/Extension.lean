@@ -197,24 +197,33 @@ def registerAliasCore {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) 
 def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Option (AliasValue α)) := do
   return (← mapRef.get).find? aliasName
 
-def getConstAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO α := do
-  match (← getAlias mapRef aliasName) with
+def AliasTable.getConst {α} (aliases : AliasTable α) (aliasName : Name) : Except String α :=
+  match aliases.find? aliasName with
   | some (AliasValue.const v)  => pure v
-  | some (AliasValue.unary _)  => throw ↑s!"parser `{aliasName}` is not a constant, it takes one argument"
-  | some (AliasValue.binary _) => throw ↑s!"parser `{aliasName}` is not a constant, it takes two arguments"
-  | none   => throw ↑s!"parser `{aliasName}` was not found"
+  | some (AliasValue.unary _)  => throw s!"parser `{aliasName}` is not a constant, it takes one argument"
+  | some (AliasValue.binary _) => throw s!"parser `{aliasName}` is not a constant, it takes two arguments"
+  | none   => throw s!"parser `{aliasName}` was not found"
+
+def AliasTable.getUnary {α} (aliases : AliasTable α) (aliasName : Name) : Except String (α → α) :=
+  match aliases.find? aliasName with
+  | some (AliasValue.unary v) => pure v
+  | some _ => throw s!"parser `{aliasName}` does not take one argument"
+  | none   => throw s!"parser `{aliasName}` was not found"
+
+def AliasTable.getBinary {α} (aliases : AliasTable α) (aliasName : Name) : Except String (α → α → α) :=
+  match aliases.find? aliasName with
+  | some (AliasValue.binary v) => pure v
+  | some _ => throw s!"parser `{aliasName}` does not take two arguments"
+  | none   => throw s!"parser `{aliasName}` was not found"
+
+def getConstAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO α := do
+  IO.ofExcept <| (← mapRef.get).getConst aliasName
 
 def getUnaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α) := do
-  match (← getAlias mapRef aliasName) with
-  | some (AliasValue.unary v) => pure v
-  | some _ => throw ↑s!"parser `{aliasName}` does not take one argument"
-  | none   => throw ↑s!"parser `{aliasName}` was not found"
+  IO.ofExcept <| (← mapRef.get).getUnary aliasName
 
 def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α → α) := do
-  match (← getAlias mapRef aliasName) with
-  | some (AliasValue.binary v) => pure v
-  | some _ => throw ↑s!"parser `{aliasName}` does not take two arguments"
-  | none   => throw ↑s!"parser `{aliasName}` was not found"
+  IO.ofExcept <| (← mapRef.get).getBinary aliasName
 
 abbrev ParserAliasValue := AliasValue Parser
 
@@ -228,6 +237,12 @@ structure ParserAliasInfo where
 builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
 builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.mkRef {}
 builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
+
+/--
+Helper environment extension that gives us access to built-in aliases in pure parser functions.
+-/
+builtin_initialize aliasExtension : EnvExtension (NameMap ParserAliasValue) ←
+  registerEnvExtension parserAliasesRef.get
 
 def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
   return (← parserAliases2infoRef.get).getD aliasName {}
@@ -260,37 +275,40 @@ def ensureBinaryParserAlias (aliasName : Name) : IO Unit :=
 def ensureConstantParserAlias (aliasName : Name) : IO Unit :=
   discard $ getConstAlias parserAliasesRef aliasName
 
-unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser) := do
-  let env  := (← read).env
-  let opts := (← read).opts
+unsafe def mkParserOfConstantUnsafe (env : Environment) (opts : Options) (constName : Name)
+    (compileParserDescr : ParserDescr → Except String Parser) : Except String (Bool × Parser) := do
   match env.find? constName with
-  | none      => throw ↑s!"Unknown constant `{constName}`"
+  | none      => throw s!"Unknown constant `{constName}`"
   | some info =>
     match info.type with
     | Expr.const `Lean.Parser.TrailingParser _ =>
-      let p ← IO.ofExcept $ env.evalConst Parser opts constName
+      let p ← env.evalConst Parser opts constName
       pure ⟨false, p⟩
     | Expr.const `Lean.Parser.Parser _ =>
-      let p ← IO.ofExcept $ env.evalConst Parser opts constName
+      let p ← env.evalConst Parser opts constName
       pure ⟨true, p⟩
     | Expr.const `Lean.ParserDescr _ =>
-      let d ← IO.ofExcept $ env.evalConst ParserDescr opts constName
+      let d ← env.evalConst ParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨true, p⟩
     | Expr.const `Lean.TrailingParserDescr _ =>
-      let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
+      let d ← env.evalConst TrailingParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
-    | _ => throw ↑s!"unexpected parser type at `{constName}` (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
+    | _ => throw s!"unexpected parser type at `{constName}` (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implemented_by mkParserOfConstantUnsafe]
-opaque mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
+opaque mkParserOfConstantAux (env : Environment) (opts : Options) (constName : Name)
+    (compileParserDescr : ParserDescr → Except String Parser) : Except String (Bool × Parser)
 
-partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
-  let rec visit : ParserDescr → ImportM Parser
-    | ParserDescr.const n                             => getConstAlias parserAliasesRef n
-    | ParserDescr.unary n d                           => return (← getUnaryAlias parserAliasesRef n) (← visit d)
-    | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parserAliasesRef n) (← visit d₁) (← visit d₂)
+/-- Compiles `d`, evaluating the parser declarations it refers to in `env`. -/
+partial def compileParserDescrCore (env : Environment) (opts : Options)
+    (categories : ParserCategories) (d : ParserDescr) : Except String Parser :=
+  let aliases := aliasExtension.getState env
+  let rec visit : ParserDescr → Except String Parser
+    | ParserDescr.const n                             => AliasTable.getConst aliases n
+    | ParserDescr.unary n d                           => return (← AliasTable.getUnary aliases n) (← visit d)
+    | ParserDescr.binary n d₁ d₂                      => return (← AliasTable.getBinary aliases n) (← visit d₁) (← visit d₂)
     | ParserDescr.node k prec d                       => return leadingNode k prec (← visit d)
     | ParserDescr.nodeWithAntiquot n k d              => return withCache k (nodeWithAntiquot n k (← visit d) (anonymous := true))
     | ParserDescr.sepBy p sep psep trail              => return sepBy (← visit p) sep (← visit psep) trail
@@ -300,16 +318,28 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent
     | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol tk asciiTk preserve
     | ParserDescr.parser constName                    => do
-      let (_, p) ← mkParserOfConstantAux constName visit;
+      let (_, p) ← mkParserOfConstantAux env opts constName visit
       pure p
     | ParserDescr.cat catName prec                    =>
       match getCategory categories catName with
       | some _ => pure $ categoryParser catName prec
-      | none   => IO.ofExcept $ throwUnknownParserCategory catName
+      | none   => throwUnknownParserCategory catName
   visit d
 
-def mkParserOfConstant (categories : ParserCategories) (constName : Name) : ImportM (Bool × Parser) :=
-  mkParserOfConstantAux constName (compileParserDescr categories)
+def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser := do
+  let { env, opts } ← read
+  IO.ofExcept <| compileParserDescrCore env opts categories d
+
+/--
+Evaluates the parser declaration `constName` in `env`, returning whether it is a leading parser.
+-/
+def mkParserOfConstantCore (env : Environment) (opts : Options) (categories : ParserCategories)
+    (constName : Name) : Except String (Bool × Parser) :=
+  mkParserOfConstantAux env opts constName (compileParserDescrCore env opts categories)
+
+def mkParserOfConstant (categories : ParserCategories) (constName : Name) : ImportM (Bool × Parser) := do
+  let { env, opts } ← read
+  IO.ofExcept <| mkParserOfConstantCore env opts categories constName
 
 structure ParserAttributeHook where
   /-- Called after a parser attribute is applied to a declaration. -/
@@ -346,14 +376,13 @@ builtin_initialize
 Returns a parser for the imported parser declaration `declName` that evaluates and compiles the
 declaration on first use.
 -/
-private def mkLazyImportedParser (categories : ParserCategories) (declName : Name)
-    (firstTokens : FirstTokens) : ImportM Parser := do
-  let ctx ← read
+private def mkLazyImportedParser (env : Environment) (opts : Options)
+    (categories : ParserCategories) (declName : Name) (firstTokens : FirstTokens) : Parser :=
   let p : Thunk (Except String Parser) := .mk fun _ =>
-    match unsafe unsafeBaseIO (mkParserOfConstant categories declName ctx).toBaseIO with
+    match mkParserOfConstantCore env opts categories declName with
     | .ok (_, p) => .ok p
     | .error e   => .error s!"failed to load parser `{declName}`: {e}"
-  return {
+  {
     info := {
       firstTokens
       collectTokens := fun tks => match p.get with
@@ -373,7 +402,8 @@ private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → Impo
   | kind k         => return Entry.kind k
   | category c d l => return Entry.category c d l
   | parser catName declName leading firstTokens prio => do
-    let p ← mkLazyImportedParser s.categories declName firstTokens
+    let { env, opts } ← read
+    let p := mkLazyImportedParser env opts s.categories declName firstTokens
     return Entry.parser catName declName leading p prio
 
 builtin_initialize parserExtension : ParserExtension ←
@@ -408,20 +438,17 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
   | none     => LeadingIdentBehavior.default
   | some cat => cat.behavior
 
-unsafe def evalParserConstUnsafe (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn := fun ctx s => unsafeBaseIO do
+def evalParserConst (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn := fun ctx s =>
   let categories := (parserExtension.getState ctx.env).categories
-  match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
+  match mkParserOfConstantCore ctx.env ctx.options categories declName with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
-    return adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
+    adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
   | .error e   =>
     if let some evalFallback := evalFallback? then
-      return evalFallback ctx s
+      evalFallback ctx s
     else
-      return s.mkUnexpectedError e.toString
-
-@[implemented_by evalParserConstUnsafe]
-opaque evalParserConst (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn
+      s.mkUnexpectedError e
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   defValue := false
@@ -741,12 +768,6 @@ def withSetOptionValueFn (p : ParserFn) : ParserFn := fun c s =>
     p c s
 
 @[inline] def withSetOptionValue : Parser → Parser := withFn withSetOptionValueFn
-
-/--
-Helper environment extension that gives us access to built-in aliases in pure parser functions.
--/
-builtin_initialize aliasExtension : EnvExtension (NameMap ParserAliasValue) ←
-  registerEnvExtension parserAliasesRef.get
 
 /-- Result of resolving a parser name. -/
 inductive ParserResolution where

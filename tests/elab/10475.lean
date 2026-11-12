@@ -6,12 +6,9 @@ info: let y : Type := Prop;
 let x : y := True;
 p x
 ---
-info: let y : Type := Prop;
-let x : y := True;
-x
+info: True
 ---
-info: let y : Type := Prop;
-y
+info: Prop
 -/
 #guard_msgs in
 set_option pp.letVarTypes true in

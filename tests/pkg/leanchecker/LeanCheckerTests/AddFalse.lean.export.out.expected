@@ -1,5 +1,2 @@
 Lean default kernel rejects the solution: while replaying declaration 'false':
-(kernel) declaration type mismatch, 'false' has type
-  Prop
-but it is expected to have type
-  False
+(kernel) (InLean) type mismatch in theorem false

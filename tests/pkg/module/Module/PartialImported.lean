@@ -8,7 +8,7 @@ boundary as an axiom stub.
 -/
 
 /--
-error: (kernel) invalid declaration, it uses unsafe declaration 'partialFalse'
+error: (kernel) (InLean) invalid declaration, it uses unsafe declaration 'partialFalse'
 -/
 #guard_msgs in
 public theorem partialBoom : _root_.False :=

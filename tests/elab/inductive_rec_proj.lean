@@ -50,7 +50,20 @@ def f0_1 (v : I0) : Nat := v.1
 def f0_2 (v : I0) : List Nat := v.2
 def f1_1 (v : I1) : Nat := v.1
 def f1_2 (v : I1) : I1 := v.2
+
+/-!
+The kernel declines projections of an indexed structure-like type: under the plan of lean4
+issue #14977, projections exist only for non-indexed types with one constructor.
+-/
+/-- error: (kernel) (InLean) declined: projection on an indexed structure-like type -/
+#guard_msgs in
 def f2_1 (v : I2 n) : Nat := v.1
+/-- error: (kernel) (InLean) declined: projection on an indexed structure-like type -/
+#guard_msgs in
 def f2_2 (v : I2 n) : List (Fin (f2_1 v)) := v.2
+/-- error: (kernel) (InLean) declined: projection on an indexed structure-like type -/
+#guard_msgs in
 def f3_1 (v : I3 n) : Nat := v.1
+/-- error: (kernel) (InLean) declined: projection on an indexed structure-like type -/
+#guard_msgs in
 def f3_2 (v : I3 n) : I3 (f3_1 v + 1) := v.2

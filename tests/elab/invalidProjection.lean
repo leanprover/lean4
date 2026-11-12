@@ -81,10 +81,7 @@ which has propositional type
 def witness : Nat := (⟨1, Nat.le_refl _⟩ : ∃ x, x ≥ 1).1
 
 -- Projection to the property as well (it could contain the witness projection).
-/--
-error: (kernel) invalid projection
-  h.2
--/
+/-- error: (kernel) (InLean) projection from a propositional structure must be a proposition -/
 #guard_msgs in
 theorem witness_eq (h : ∃ x : Nat, True) : h.2 = h.2 := rfl
 

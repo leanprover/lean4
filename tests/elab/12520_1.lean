@@ -57,6 +57,10 @@ private def expectDeclTypeMismatch
       throwError m!"BUG: checked admission accepted invalid declaration {name}"
   | .error (.declTypeMismatch ..) =>
       pure ()
+  -- the InLean kernel reports the mismatch as `(InLean) type mismatch in theorem …`
+  | .error (.other msg) =>
+      unless msg.startsWith "(InLean) type mismatch in theorem" do
+        throwError m!"unexpected kernel exception for {name}: {msg}"
   | .error e =>
       throwError m!"unexpected kernel exception for {name}: {e.toMessageData {}}"
 

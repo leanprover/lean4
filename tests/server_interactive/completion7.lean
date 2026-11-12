@@ -1,10 +1,10 @@
 prelude
 
-structure And where
+structure Duo where
   left : Type
   right : Type
 
-#check And
+#check Duo
         --^ completion
-#check And.
+#check Duo.
          --^ completion

@@ -1,40 +1,40 @@
 {"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 6, "character": 10}}
 {"items":
- [{"label": "And",
+ [{"label": "Duo",
    "kind": 22,
-   "data": ["file:///completion7.lean", 6, 10, 0, "cAnd"]}],
+   "data": ["file:///completion7.lean", 6, 10, 0, "cDuo"]}],
  "isIncomplete": false}
-Resolution of And:
-{"label": "And",
+Resolution of Duo:
+{"label": "Duo",
  "kind": 22,
  "detail": "Type 1",
- "data": ["file:///completion7.lean", 6, 10, 0, "cAnd"]}
+ "data": ["file:///completion7.lean", 6, 10, 0, "cDuo"]}
 {"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 8, "character": 11}}
 {"items":
- [{"label": "left",
-   "kind": 5,
-   "data": ["file:///completion7.lean", 8, 11, 0, "cAnd.left"]},
+ [{"label": "mk",
+   "kind": 4,
+   "data": ["file:///completion7.lean", 8, 11, 0, "cDuo.mk"]},
   {"label": "right",
    "kind": 5,
-   "data": ["file:///completion7.lean", 8, 11, 0, "cAnd.right"]},
-  {"label": "mk",
-   "kind": 4,
-   "data": ["file:///completion7.lean", 8, 11, 0, "cAnd.mk"]}],
+   "data": ["file:///completion7.lean", 8, 11, 0, "cDuo.right"]},
+  {"label": "left",
+   "kind": 5,
+   "data": ["file:///completion7.lean", 8, 11, 0, "cDuo.left"]}],
  "isIncomplete": false}
-Resolution of left:
-{"label": "left",
- "kind": 5,
- "detail": "And → Type",
- "data": ["file:///completion7.lean", 8, 11, 0, "cAnd.left"]}
-Resolution of right:
-{"label": "right",
- "kind": 5,
- "detail": "And → Type",
- "data": ["file:///completion7.lean", 8, 11, 0, "cAnd.right"]}
 Resolution of mk:
 {"label": "mk",
  "kind": 4,
- "detail": "Type → Type → And",
- "data": ["file:///completion7.lean", 8, 11, 0, "cAnd.mk"]}
+ "detail": "Type → Type → Duo",
+ "data": ["file:///completion7.lean", 8, 11, 0, "cDuo.mk"]}
+Resolution of right:
+{"label": "right",
+ "kind": 5,
+ "detail": "Duo → Type",
+ "data": ["file:///completion7.lean", 8, 11, 0, "cDuo.right"]}
+Resolution of left:
+{"label": "left",
+ "kind": 5,
+ "detail": "Duo → Type",
+ "data": ["file:///completion7.lean", 8, 11, 0, "cDuo.left"]}

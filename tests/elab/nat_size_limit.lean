@@ -24,7 +24,9 @@ def mulBig : Nat := a * a                        -- 2^128, three limbs
 #guard_msgs in
 #eval kwhnf `mulOk
 
-/-- error: (kernel) the kernel refused a `Nat` numeral because its size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment variable to allow it -/
+/--
+error: (kernel) (InLean) the kernel refused a `Nat` numeral because its size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment variable to allow it
+-/
 #guard_msgs in
 #eval kwhnf `mulBig
 
@@ -32,22 +34,30 @@ def mulBig : Nat := a * a                        -- 2^128, three limbs
 def powBig : Nat := 2 ^ 100
 def powHugeExp : Nat := 2 ^ 4294967296
 
-/-- error: (kernel) the kernel refused to evaluate `Nat.pow` because the result would exceed the maximum numeral size; increase the LEAN_NAT_MAX_SIZE environment variable to allow it -/
+/--
+error: (kernel) (InLean) the kernel refused to evaluate `Nat.pow` because the result would exceed the maximum numeral size; increase the LEAN_NAT_MAX_SIZE environment variable to allow it
+-/
 #guard_msgs in
 #eval kwhnf `powBig
 
-/-- error: (kernel) the kernel refused to evaluate `Nat.pow` because its second argument does not fit in a 32-bit unsigned integer -/
+/--
+error: (kernel) (InLean) the kernel refused to evaluate `Nat.pow` because its second argument does not fit in a 32-bit unsigned integer
+-/
 #guard_msgs in
 #eval kwhnf `powHugeExp
 
 -- `Nat.shiftLeft` result limit.
 def shiftBig : Nat := 1 <<< 200
 
-/-- error: (kernel) the kernel refused a `Nat` numeral because its size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment variable to allow it -/
+/--
+error: (kernel) (InLean) the kernel refused a `Nat` numeral because its size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment variable to allow it
+-/
 #guard_msgs in
 #eval kwhnf `shiftBig
 
 -- A numeral entering the kernel directly (source literal) is bounded too.
-/-- error: (kernel) the kernel refused a `Nat` numeral because its size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment variable to allow it -/
+/--
+error: (kernel) (InLean) the kernel refused a `Nat` numeral because its size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment variable to allow it
+-/
 #guard_msgs in
 def bigLit : Nat := 340282366920938463463374607431768211456   -- 2^128

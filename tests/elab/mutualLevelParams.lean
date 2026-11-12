@@ -19,7 +19,7 @@ private def ty : Expr := .forallE `x (.sort (.param `u)) (.sort (.param `u)) .de
 private def val : Expr := .lam `x (.sort (.param `u)) (.bvar 0) .default
 
 /--
-error: (kernel) invalid mutual definition, declarations must have the same universe level parameters
+error: (kernel) (InLean) invalid mutual definition, declarations must have the same universe level parameters
 -/
 #guard_msgs in
 #eval addDecl <| .mutualDefnDecl [

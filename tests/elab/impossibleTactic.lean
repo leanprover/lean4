@@ -116,12 +116,7 @@ open Lean Lean.Elab Lean.Elab.Tactic in
 elab "_fake_close" : tactic => do
   let mvar ← getMainGoal
   mvar.assign (mkNatLit 0)
-/--
-error: (kernel) declaration type mismatch, '_example._impossible_1' has type
-  ¬True → Nat
-but it is expected to have type
-  ¬¬True
--/
+/-- error: (kernel) (InLean) type mismatch in theorem _example._impossible_1 -/
 #guard_msgs in
 example : ¬True := by
   impossible by
@@ -150,7 +145,7 @@ warning: declaration uses `sorry`
 trace: x : Nat
 ⊢ ¬x = 0
 ---
-error: (kernel) declaration has metavariables '_example'
+error: (kernel) (InLean) unexpected metavariable in value of _example
 -/
 #guard_msgs in
 example : True := by

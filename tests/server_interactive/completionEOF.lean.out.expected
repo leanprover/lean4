@@ -1,7 +1,7 @@
 {"textDocument": {"uri": "file:///completionEOF.lean"},
  "position": {"line": 8, "character": 9}}
 {"items":
- [{"label": "And",
+ [{"label": "Duo",
    "kind": 21,
-   "data": ["file:///completionEOF.lean", 8, 9, 0, "cAnd"]}],
+   "data": ["file:///completionEOF.lean", 8, 9, 0, "cDuo"]}],
  "isIncomplete": false}

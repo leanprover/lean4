@@ -47,19 +47,19 @@ private def addInductive (name : Name) (numParams : Nat) (type : Expr) (ctors : 
 #eval addInductive `Control (numParams := 0) (mkSort 1) []
 
 /--
-error: (kernel) invalid inductive datatype declaration, incorrect number of parameters
+error: (kernel) (InLean) invalid inductive datatype declaration, incorrect number of parameters
 -/
 #guard_msgs in
 #eval addInductive `Wide0 (numParams := 4294967296) (mkSort 1) []
 
 /--
-error: (kernel) invalid inductive datatype declaration, incorrect number of parameters
+error: (kernel) (InLean) invalid inductive datatype declaration, incorrect number of parameters
 -/
 #guard_msgs in
 #eval addInductive `Wide1 (numParams := 4294967297) (.forallE `x (mkSort 1) (mkSort 1) .default) []
 
 /--
-error: (kernel) invalid occurrence of datatype 'Wide2' being declared: it must be applied to the parameters and universe levels of the mutual declaration
+error: (kernel) (InLean) invalid occurrence of datatype 'Wide2' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 #eval addInductive `Wide2 (numParams := 4294967296) (mkSort 1) [{ name := `Wide2.mk, type := mkConst `Wide2 }]

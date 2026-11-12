@@ -42,7 +42,7 @@ info: num parameters: 1, universe parameters: []
 inductive E : W → Type
   | E.mk : (w : W) → L (E (W.mk false)) → E w
 ---
-error: (kernel) invalid occurrence of datatype 'E' being declared: it must be applied to the parameters and universe levels of the mutual declaration
+error: (kernel) (InLean) invalid occurrence of datatype 'E' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkbug
@@ -65,7 +65,7 @@ info: num parameters: 1, universe parameters: []
 inductive F : W → Type
   | F.mk : (w : W) → L2 (F w) ((fun g => g (W.mk false)) F) → F w
 ---
-error: (kernel) invalid occurrence of datatype 'F' being declared: it must be applied to the parameters and universe levels of the mutual declaration
+error: (kernel) (InLean) invalid occurrence of datatype 'F' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkbug2
@@ -86,7 +86,7 @@ info: num parameters: 1, universe parameters: []
 inductive G : W → Type → Type
   | G.mk : (w : W) → L (G w (G (W.mk false))) → G w Nat
 ---
-error: (kernel) invalid occurrence of datatype 'G' being declared: it must be applied to the parameters and universe levels of the mutual declaration
+error: (kernel) (InLean) invalid occurrence of datatype 'G' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkbug3
@@ -107,7 +107,7 @@ info: num parameters: 1, universe parameters: []
 inductive D : Type → Type
   | D.mk : (p : Type) → Ignore (D Nat) → D p
 ---
-error: (kernel) invalid occurrence of datatype 'D' being declared: it must be applied to the parameters and universe levels of the mutual declaration
+error: (kernel) (InLean) invalid occurrence of datatype 'D' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkerased
@@ -127,7 +127,7 @@ info: num parameters: 1, universe parameters: [u, v]
 inductive U : Type → Type
   | U.mk : (p : Type) → L (@U.{v, u} p) → @U.{u, v} p
 ---
-error: (kernel) invalid occurrence of datatype 'U' being declared: it must be applied to the parameters and universe levels of the mutual declaration
+error: (kernel) (InLean) invalid occurrence of datatype 'U' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 set_option pp.universes true in
@@ -192,7 +192,7 @@ inductive C : Type → Type
   | C.mk : let x := Nat;
 Type → C x
 ---
-error: (kernel) invalid inductive datatype declaration, incorrect number of parameters
+error: (kernel) (InLean) invalid inductive datatype declaration, incorrect number of parameters
 -/
 #guard_msgs in
 mkletparam

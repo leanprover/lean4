@@ -23,8 +23,7 @@ elab "mkbug" : command => build
 /--
 info: (w : W) → L (E w) w.1.1 → E w
 ---
-error: (kernel) invalid projection
-  w.1
+error: (kernel) (InLean) invalid projection: the node names another structure
 -/
 #guard_msgs in
 mkbug

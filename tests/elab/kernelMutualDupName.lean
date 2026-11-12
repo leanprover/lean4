@@ -24,9 +24,7 @@ private def mkDefn (n : Name) (type value : Expr) : DefinitionVal :=
     mkDefn `mdistinctB (mkConst ``Bool) (mkConst ``Bool.true)]
   IO.println "mutual block with distinct names: ok"
 
-/--
-error: (kernel) invalid mutual definition, duplicate declaration name 'mdup'
--/
+/-- error: (kernel) (InLean) invalid mutual definition, duplicate declaration name 'mdup' -/
 #guard_msgs in
 #eval show CoreM Unit from
   addDecl <| .mutualDefnDecl [

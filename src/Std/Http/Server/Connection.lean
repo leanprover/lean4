@@ -28,10 +28,9 @@ open Internal (Outbox)
 /-!
 # Connection
 
-This module defines `Server.Connection`, a structure used to handle a single HTTP connection with
-possibly multiple requests. The connection performs what `Server.Driver` decides: it runs the
-driver's commands, waits on the sources the driver's state arms, and reports what happened, and the
-time, as the driver's inputs.
+This module serves a single HTTP connection with possibly multiple requests (`serveConnection`). The
+connection performs what `Server.Driver` decides: it runs the driver's commands, waits on the
+sources the driver's state arms, and reports what happened, and the time, as the driver's inputs.
 -/
 
 set_option linter.all true
@@ -49,46 +48,106 @@ deriving TypeName
 instance : ToString RemoteAddr where
   toString addr := toString addr.addr
 
+namespace Connection
+
 /--
-A single HTTP connection.
+The result of a handler, or of an `Expect: 100-continue` decision. A connection runs at most one of
+them at a time, so one channel carries both.
 -/
-structure Connection (α : Type) where
+private inductive Answer (β : Type) where
   /--
-  The client connection.
+  The handler's response, or its failure.
+  -/
+  | response (result : Except IO.Error (Response β))
+
+  /--
+  The decision on `Expect: 100-continue`.
+  -/
+  | decision (accept : Bool)
+
+/--
+What ends a wait. The continuations of a wait's cases capture nothing, so they allocate nothing; what
+needs the connection's state is done once the wait is over (`wake`).
+-/
+private inductive Woke (β : Type) where
+  /--
+  An input for the driver.
+  -/
+  | input (input : Driver.Input)
+
+  /--
+  The writes in flight completed or failed.
+  -/
+  | writes
+
+  /--
+  The connection's context was cancelled.
+  -/
+  | cancelled
+
+  /--
+  A handler or an `Expect: 100-continue` decision answered; `none` once the channel is closed.
+  -/
+  | answer (answer : Option (Answer β))
+
+/--
+What a connection keeps for its whole life.
+-/
+private structure Env (σ α β : Type) where
+  /--
+  The transport.
   -/
   socket : α
 
   /--
-  The processing machine for HTTP/1.1.
+  The handler.
   -/
-  machine : H1.Machine .receiving
+  handler : σ
+
+  /--
+  The server configuration.
+  -/
+  config : Config
 
   /--
   Extensions to attach to each request (e.g., remote address).
   -/
-  extensions : Extensions := .empty
+  extensions : Extensions
 
-namespace Connection
+  /--
+  The connection's cancellation context.
+  -/
+  context : CancellationContext
+
+  /--
+  Where the output goes.
+  -/
+  outbox : Outbox α
+
+  /--
+  Where the handlers' results and the `Expect: 100-continue` decisions arrive. A handler is abandoned
+  only when the connection ends, so a result that arrives is always the running handler's.
+  -/
+  answers : Std.CloseableChannel (Answer β)
+
+  /--
+  The connection's cancellation, as a case of a wait.
+  -/
+  cancelCase : Selectable (Woke β)
+
+  /--
+  An answer on `answers`, as a case of a wait.
+  -/
+  answerCase : Selectable (Woke β)
 
 /--
 The I/O resources behind the sources the driver arms.
 -/
 private structure Live (β : Type) where
   /--
-  Where the handlers' results arrive. One channel serves the whole connection: a handler is
-  abandoned only when the connection ends, so a result that arrives is always the running handler's.
-  -/
-  responses : Std.Channel (Except IO.Error (Response β))
-
-  /--
   The handler that runs.
   -/
   handler : Option (AsyncTask (Response β)) := none
-
-  /--
-  Where the asked `Expect: 100-continue` decision arrives.
-  -/
-  decision : Option (Std.Channel Bool) := none
 
   /--
   The request body of the running exchange.
@@ -106,9 +165,10 @@ private structure Live (β : Type) where
   ready : Option Driver.Input := none
 
   /--
-  The second, since the Unix epoch, that the machine's `Date` was formatted for.
+  Until when, by `IO.monoMsNow`, the machine's `Date` stays current: the end of the second it was
+  formatted for.
   -/
-  dateSecond : Option Int := none
+  dateUntil : Nat := 0
 
 /--
 Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and
@@ -118,20 +178,18 @@ private def reportFailure {σ : Type} [Handler σ] (handler : σ) (error : IO.Er
   try Handler.onFailure handler error catch _ => pure ()
 
 /--
-Keeps the machine's `Date` current when `Config.generateDate` is set, formatting it at most once per
-second.
+Keeps the machine's `Date` current when `Config.generateDate` is set. The wall clock is read, and the
+field formatted, only once the second it was formatted for is over.
 -/
-private def refreshDate (config : Config) (s : Driver.State) (live : Live β) :
+private def refreshDate (config : Config) (now : Nat) (s : Driver.State) (live : Live β) :
     IO (Driver.State × Live β) := do
-  if !config.generateDate then
+  if !config.generateDate || now < live.dateUntil then
     return (s, live)
-  let now ← Timestamp.now
-  let second := now.toSecondsSinceUnixEpoch.val
-  if live.dateSecond == some second then
-    return (s, live)
+  let wall ← Timestamp.now
+  let intoSecond := (wall.toMillisecondsSinceUnixEpoch.val % 1000).toNat
   let date :=
-    Header.Value.ofString! (DateTime.ofTimestamp now TimeZone.ZoneRules.UTC).toHTTPDateString
-  return (s.setDate (some date), { live with dateSecond := some second })
+    Header.Value.ofString! (DateTime.ofTimestamp wall TimeZone.ZoneRules.UTC).toHTTPDateString
+  return (s.setDate (some date), { live with dateUntil := now + (1000 - intoSecond) })
 
 /--
 Turns the handler's result into an input, keeping the response body to pull from. The body chunks
@@ -173,12 +231,12 @@ private def taskSelector (task : Task α) : Selector α where
   unregisterFn := pure ()
 
 /--
-The input that reports the outbox's writes: `written`, or `writeFailed` with the first error.
+The input that reports the outbox's writes: `written`, or `writeFailed` with the error.
 -/
 private def writesInput (outbox : Outbox α) : BaseIO Driver.Input := do
-  if ← outbox.failed then
-    return .writeFailed ((← outbox.takeError?).getD (.userError "write failed"))
-  return .written
+  match ← outbox.error? with
+  | some err => return .writeFailed err
+  | none => return .written
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still
@@ -210,36 +268,32 @@ Performs one command of the driver.
 -/
 private def perform
     {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
-    (socket : α) (handler : σ) (config : Config) (extensions : Extensions)
-    (connectionContext : CancellationContext) (outbox : Outbox α)
-    (live : Live (Handler.ResponseBody σ)) :
+    (env : Env σ α (Handler.ResponseBody σ)) (live : Live (Handler.ResponseBody σ)) :
     Driver.Command → Async (Live (Handler.ResponseBody σ))
   | .write data => do
-    if (← outbox.send data).isNone then
-      return { live with ready := some (← writesInput outbox) }
+    env.outbox.send data
     return live
   | .startHandler line size complete => do
     let stream ← Body.mkStream
     Body.setKnownSize stream size
     if complete then
       Body.close stream
-    let task ← Handler.onRequest handler { line, body := stream, extensions } connectionContext
-      |>.asTask
-    BaseIO.chainTask task (discard ∘ live.responses.send)
+    let task ← Handler.onRequest env.handler { line, body := stream, extensions := env.extensions }
+      env.context |>.asTask
+    BaseIO.chainTask (sync := true) task fun result =>
+      discard <| env.answers.trySend (.response result)
     return { live with requestBody := some stream, handler := some task }
   | .askContinue head => do
-    let channel : Std.Channel Bool ← Std.Channel.new
-    let task ← Handler.onContinue handler head |>.asTask
-    BaseIO.chainTask task fun
-      | .ok v => discard <| channel.send v
-      | .error _ => discard <| channel.send false
-    return { live with decision := some channel }
+    let task ← Handler.onContinue env.handler head |>.asTask
+    BaseIO.chainTask (sync := true) task fun result =>
+      discard <| env.answers.trySend (.decision (match result with | .ok accept => accept | _ => false))
+    return live
   | .pushBody chunk incomplete final => do
     if let some stream := live.requestBody then
       -- The reader that waited may have withdrawn since, for example a `recvSelector` that lost its
       -- select, so the chunk is offered rather than sent: the connection must not wait.
       try stream.offer chunk incomplete (closeAfter := final)
-      catch e => reportFailure handler e
+      catch e => reportFailure env.handler e
     return if final then { live with requestBody := none } else live
   | .failBody err => do
     if let some stream := live.requestBody then
@@ -250,7 +304,7 @@ private def perform
       if !(← Body.isClosed body) then Body.close body
     return { live with responseBody := none }
   | .report err => do
-    reportFailure handler err
+    reportFailure env.handler err
     return live
   | .abandonHandler => do
     if let some task := live.handler then
@@ -260,25 +314,43 @@ private def perform
     return { live with handler := none }
   | .close lingerFirst => do
     if lingerFirst then
-      linger socket config.lingeringTimeout config.maximumRecvSize.toUInt64 connectionContext
-    Transport.close socket
+      linger env.socket env.config.lingeringTimeout env.config.maximumRecvSize.toUInt64 env.context
+    Transport.close env.socket
     return live
 
 /--
-Waits for the next input: a source the driver's state arms, the outbox confirming the writes, the
-driver's deadline, or the connection's cancellation.
+Turns what ended a wait into the driver's input.
+-/
+private def wake
+    {σ : Type} [Handler σ] [Body (Handler.ResponseBody σ)]
+    (env : Env σ α (Handler.ResponseBody σ)) (live : Live (Handler.ResponseBody σ)) :
+    Woke (Handler.ResponseBody σ) → Async (Driver.Input × Live (Handler.ResponseBody σ))
+  | .input input => return (input, live)
+  | .writes => return (← writesInput env.outbox, live)
+  | .cancelled => do
+    let reason ← env.context.getCancellationReason
+    return (.cancelled (reason matches some .deadline), live)
+  | .answer (some (.response result)) => responded result live
+  | .answer (some (.decision accept)) => return (.continueDecided accept, live)
+  | .answer none => return (.failed (.userError "the connection's answers were closed"), live)
+
+/--
+Waits for the next input: the outbox confirming the writes, the driver's deadline, a source the
+driver's state arms, or the connection's cancellation.
 -/
 private def waitInput
     {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
-    (cfg : Driver.Config) (socket : α) (connectionContext : CancellationContext) (outbox : Outbox α)
-    (s : Driver.State) (live : Live (Handler.ResponseBody σ)) :
+    (env : Env σ α (Handler.ResponseBody σ)) (s : Driver.State)
+    (live : Live (Handler.ResponseBody σ)) :
     Async (Driver.Input × Live (Handler.ResponseBody σ)) := do
   if let some input := live.ready then
     return (input, { live with ready := none })
 
+  let mut writes := none
   if s.watchesWrites then
-    if ← outbox.failed then
-      return (← writesInput outbox, live)
+    match ← env.outbox.idle? with
+    | none => return (← writesInput env.outbox, live)
+    | some idle => writes := some idle
 
   let now ← IO.monoMsNow
   let deadline := Driver.nextDeadline s
@@ -287,82 +359,61 @@ private def waitInput
       return (.deadline kind, live)
 
   -- A response chunk that is already there is taken without a select.
-  let pullsResponse := Driver.pullsResponse cfg s
+  let pullsResponse := Driver.pullsResponse s
   if pullsResponse then
     if let some body := live.responseBody then
       try
-        match ← Body.tryRecv body with
-        | some (some chunk) => return (.responseData chunk, live)
-        | some none => return (.responseEnd, live)
-        | none => pure ()
-      catch err => return (.responseFailed err, live)
+        if let some chunk ← Body.tryRecv body then
+          return (.pulled chunk, live)
+      catch err => return (.failed err, live)
 
   -- So is the interest of a request body reader that already waits.
-  if Driver.wantsBodyInterest s then
+  let wantsBodyInterest := Driver.wantsBodyInterest s
+  if wantsBodyInterest then
     if let some stream := live.requestBody then
       if let some wanted ← stream.interestSelector.tryFn then
-        return (if wanted then .bodyWanted else .bodyDropped, live)
+        return (.bodyInterest wanted, live)
 
-  let mut selectables : Array (Selectable (Driver.Input × Live (Handler.ResponseBody σ))) := #[]
+  let mut selectables : Array (Selectable (Woke (Handler.ResponseBody σ))) := #[]
 
-  if s.watchesWrites then
-    match ← outbox.idle? with
-    | none => return (← writesInput outbox, live)
-    | some idle =>
-      selectables := selectables.push
-        (.case (taskSelector idle) fun _ => return (← writesInput outbox, live))
+  if let some idle := writes then
+    selectables := selectables.push (.case (taskSelector idle) fun _ => pure .writes)
 
-  let serving := s.phase == .serving
+  if s.phase == .serving && !s.cancelled then
+    selectables := selectables.push env.cancelCase
 
-  if serving && !s.cancelled then
-    selectables := selectables.push (.case connectionContext.doneSelector fun _ => do
-      match ← connectionContext.getCancellationReason with
-      | some .deadline => return (.timedOut, live)
-      | _ => return (.shutdown, live))
+  if Driver.wantsBytes env.config s then
+    let recv := Transport.recvSelector env.socket (Driver.recvSize env.config s).toUInt64
+    selectables := selectables.push (.case recv fun data => pure (.input (.received data)))
 
-  if Driver.wantsBytes cfg s then
-    let recv := Transport.recvSelector socket (Driver.recvSize cfg s).toUInt64
-    selectables := selectables.push (.case recv fun
-      | some data => return (.received data, live)
-      | none => return (.eof, live))
+  if s.handlerRunning || s.asksContinue then
+    selectables := selectables.push env.answerCase
 
-  if serving && s.handlerRunning then
-    selectables := selectables.push
-      (.case live.responses.recvSelector fun result => responded result live)
-
-  if serving && s.asksContinue then
-    if let some channel := live.decision then
-      selectables := selectables.push (.case channel.recvSelector fun accept =>
-        return (.continueDecided accept, { live with decision := none }))
-
-  if Driver.wantsBodyInterest s then
+  if wantsBodyInterest then
     if let some stream := live.requestBody then
-      selectables := selectables.push (.case stream.interestSelector fun
-        | true => return (.bodyWanted, live)
-        | false => return (.bodyDropped, live))
+      selectables := selectables.push
+        (.case stream.interestSelector fun wanted => pure (.input (.bodyInterest wanted)))
 
   if pullsResponse then
     if let some body := live.responseBody then
-      selectables := selectables.push (.case (Body.recvSelector body) fun
-        | some chunk => return (.responseData chunk, live)
-        | none => return (.responseEnd, live))
+      selectables := selectables.push
+        (.case (Body.recvSelector body) fun chunk => pure (.input (.pulled chunk)))
 
   -- A source that is ready is taken before a timer is started for the deadline.
-  let mut ready := none
   try
-    unless selectables.isEmpty do ready ← Selectable.tryOne selectables
+    unless selectables.isEmpty do
+      if let some woke ← Selectable.tryOne selectables then
+        return ← wake env live woke
   catch err => return (.failed err, live)
-  if let some input := ready then
-    return input
 
   if let some (kind, time) := deadline then
     let sleep ← Selector.sleep ((time - now) * (1 : Millisecond.Offset))
-    selectables := selectables.push (.case sleep fun _ => return (.deadline kind, live))
+    selectables := selectables.push (.case sleep fun _ => pure (.input (.deadline kind)))
 
   if selectables.isEmpty then
     return (.failed (.userError "the connection waits for nothing"), live)
 
-  try Selectable.one selectables
+  try wake env live (← Selectable.one selectables)
   catch err => return (.failed err, live)
 
 /--
@@ -371,32 +422,37 @@ until the driver closes the connection.
 -/
 private def handle
     {σ : Type} [Transport α] [h : Handler σ]
-    (connection : Connection α)
+    (socket : α)
+    (extensions : Extensions)
     (config : Config)
     (connectionContext : CancellationContext)
     (handler : σ) : Async Unit := do
 
   let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
 
-  let socket := connection.socket
-  let cfg := Driver.Config.ofServer config
-  let outbox ← Outbox.new socket cfg.writeTimeout
+  let answers ← Std.CloseableChannel.new
+  let env : Env σ α (Handler.ResponseBody σ) := {
+    socket, handler, config, extensions, context := connectionContext, answers
+    outbox := ← Outbox.new socket
+    cancelCase := .case connectionContext.doneSelector fun _ => pure .cancelled
+    answerCase := .case answers.recvSelector fun answer => pure (.answer answer) }
 
-  let mut live : Live (Handler.ResponseBody σ) := { responses := ← Std.Channel.new }
-  let mut s := Driver.State.init connection.machine
+  let mut live : Live (Handler.ResponseBody σ) := {}
+  let mut s := Driver.State.init { config := config.toH1Config }
   let mut input := Driver.Input.resume
 
   try
     repeat
-      let (s', l) ← refreshDate config s live
-      let (s'', cmds) := Driver.step cfg s' (← IO.monoMsNow) input
+      let now ← IO.monoMsNow
+      let (s', l) ← refreshDate config now s live
+      let (s'', cmds) := Driver.step config s' now input
       s := s''
       live := l
       for cmd in cmds do
-        live ← perform socket handler config connection.extensions connectionContext outbox live cmd
+        live ← perform env live cmd
       if s.isClosed then
         break
-      let (i, l) ← waitInput cfg socket connectionContext outbox s live
+      let (i, l) ← waitInput env s live
       input := i
       live := l
   catch err =>
@@ -429,7 +485,6 @@ def serveConnection
     {σ : Type} [Transport t] [Handler σ]
     (client : t) (handler : σ)
     (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
-  (Connection.mk client { config := config.toH1Config } extensions)
-  |>.handle config (← ContextAsync.getContext) handler
+  Connection.handle client extensions config (← ContextAsync.getContext) handler
 
 end Std.Http.Server

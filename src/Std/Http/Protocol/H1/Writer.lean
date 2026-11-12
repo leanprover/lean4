@@ -48,14 +48,10 @@ inductive Writer.State
   | writingBodyFixed (n : Nat)
 
   /--
-  Writing a chunked body.
+  Writing a body of unknown length: chunked, or else one that ends when the connection closes (an
+  HTTP/1.0 response).
   -/
-  | writingBodyChunked
-
-  /--
-  Writing a body that ends when the connection closes (an HTTP/1.0 response of unknown length).
-  -/
-  | writingBodyClosingFrame
+  | writingBodyOpen (chunked : Bool)
 
   /--
   The message was written.

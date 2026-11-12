@@ -54,31 +54,31 @@ deriving Inhabited, Repr, BEq
 /--
 Where the reader is in the current message.
 -/
-inductive Reader.State (dir : Direction) : Type
+inductive Reader.State : Type
   /--
   Before a start line.
   -/
-  | needStartLine : State dir
+  | needStartLine
 
   /--
   Inside the header section, after the given number of fields.
   -/
-  | needHeader : Nat → State dir
+  | needHeader : Nat → State
 
   /--
   Reading the body.
   -/
-  | readBody : Reader.BodyState → State dir
+  | readBody : Reader.BodyState → State
 
   /--
-  Waiting for a `canContinue` decision before going on to the given state.
+  Waiting for a `canContinue` decision before reading the body.
   -/
-  | continue : State dir → State dir
+  | continue : Reader.BodyState → State
 
   /--
   A client waiting to send its request before it reads the response.
   -/
-  | pending : State dir
+  | pending
 
   /--
   The message was read; the exchange is not over yet.
@@ -98,7 +98,7 @@ structure Reader (dir : Direction) where
   /--
   Where the reader is.
   -/
-  state : Reader.State dir := match dir with | .receiving => .needStartLine | .sending => .pending
+  state : Reader.State := match dir with | .receiving => .needStartLine | .sending => .pending
 
   /--
   The unread input.
@@ -256,6 +256,11 @@ theorem input_addHeader (name : Header.Name) (value : Header.Value) (reader : Re
 theorem input_addBodyBytes (n : Nat) (reader : Reader dir) :
     (reader.addBodyBytes n).input = reader.input := by
   unfold addBodyBytes; rfl
+
+@[simp]
+theorem input_resetAfterInterim (reader : Reader dir) :
+    reader.resetAfterInterim.input = reader.input := by
+  unfold resetAfterInterim; rfl
 
 end Reader
 

@@ -24,12 +24,11 @@ open Std Std.Internal Parsec ByteArray Internal.Char
 set_option linter.all true
 
 /--
-Checks if a byte may appear inside a field value.
-
-Allows `field-content`: `HTAB / SP / VCHAR / obs-text`.
+Checks if a byte is `field-content`, `HTAB / SP / VCHAR / obs-text`: the bytes of a field value and
+of a reason phrase.
 -/
 @[inline]
-def isFieldVChar (c : UInt8) : Bool :=
+def isFieldContentByte (c : UInt8) : Bool :=
   fieldContent (Char.ofUInt8 c)
 
 /--
@@ -63,34 +62,6 @@ def optionalUnlessEof (p : Parser α) : Parser (Option α) := fun it =>
   | .success rem res => .success rem (some res)
   | .error rem .eof => .error rem .eof
   | .error _ _ => .success it none
-
-/--
-Repeatedly applies `parser` until it returns `none` or the `maxCount` limit is
-exceeded. Returns the collected results as an array.
-
-An item cut off by the end of the input fails with `.eof` instead of ending the list, so it is
-re-parsed once the rest arrives.
--/
-def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) :=
-  go #[]
-where
-  go (acc : Array α) : Parser (Array α) := do
-    let step ← optionalUnlessEof do
-      match ← parser with
-      | none => fail "end of items"
-      | some x => return x
-
-    match step with
-    | none =>
-      return acc
-    | some x =>
-      if acc.size + 1 > maxCount then
-        fail s!"too many items: {acc.size + 1} > {maxCount}"
-      else
-        go (acc.push x)
-  termination_by maxCount - acc.size
-  decreasing_by simp only [Array.size_push]; omega
-
 
 /--
 Lifts an `Option` into the parser monad, failing with a generic message if the value is `none`.
@@ -154,15 +125,13 @@ def ows (limits : H1.Config) : Parser Unit := do
     pure ()
 
 /--
-Parses a single ASCII hex digit and returns its numeric value (`0`–`15`).
+The value of an ASCII hex digit (`isHexDigitByte`).
 -/
-def hexDigit : Parser UInt8 := do
-  let b ← any
-  if isHexDigitByte b then
-    if b ≥ '0'.toUInt8 && b ≤ '9'.toUInt8 then return b - '0'.toUInt8
-    else if b ≥ 'A'.toUInt8 && b ≤ 'F'.toUInt8 then return b - 'A'.toUInt8 + 10
-    else return b - 'a'.toUInt8 + 10
-  else fail s!"invalid hex digit {Char.ofUInt8 b |>.quote}"
+@[inline]
+def hexValue (b : UInt8) : Nat :=
+  if b ≤ '9'.toUInt8 then (b - '0'.toUInt8).toNat
+  else if b ≤ 'F'.toUInt8 then (b - 'A'.toUInt8 + 10).toNat
+  else (b - 'a'.toUInt8 + 10).toNat
 
 /--
 Parses a hexadecimal integer (one or more hex digits, up to 16 after any leading zeros, which do not
@@ -171,48 +140,33 @@ Used for chunk-size lines in chunked transfer encoding.
 -/
 def hex : Parser Nat := do
   let zeros ← takeWhile (· == '0'.toUInt8)
-  if zeros.size > 0 then
-    -- A size of only zeros is complete; `go` still needs one digit when nothing came before it.
-    return (← optional (attempt (go 0 0))).getD 0
-  go 0 0
-where
-  go (acc : Nat) (count : Nat) : Parser Nat := do
-    match ← optional (attempt hexDigit) with
-    | some d =>
-        if count + 1 > 16 then
-          fail "chunk size too large"
-        else
-          go (acc * 16 + d.toNat) (count + 1)
-    | none =>
-        if count = 0 then
-          -- Preserve EOF as incremental chunk-size parsing can request more data.
-          -- For non-EOF invalid bytes, keep the specific parse failure.
-          let _ ← peek!
-          fail "expected hex digit"
-        else
-          return acc
-  termination_by 16 - count
+  let digits ← takeWhileUpTo isHexDigitByte 17
+  if digits.size > 16 then
+    fail "chunk size too large"
+  if zeros.size == 0 && digits.size == 0 then
+    fail "expected hex digit"
+  return digits.byteArray.foldl (fun n b => n * 16 + hexValue b) 0 digits.start digits.stop
 
 -- Actual parsers
 
 /--
-Parses `HTTP-version = HTTP-name "/" DIGIT "." DIGIT` and returns the major and
-minor version numbers as a pair.
+Parses `HTTP-version = HTTP-name "/" DIGIT "." DIGIT`. A higher minor version of HTTP/1 is read as
+HTTP/1.1 (RFC 9110 §2.5, §6.2). Returns `none` for a version this library does not know.
 -/
-def parseHttpVersionNumber : Parser (Nat × Nat) := do
+def parseHttpVersion : Parser (Option Version) := do
   skipBytes "HTTP/".toUTF8
-  let major ← digit
+  let major := (← digit).toNat - 48
   skipByte '.'.toUInt8
-  let minor ← digit
-  pure ((major.toNat - 48), (minor.toNat - 48))
+  let minor := (← digit).toNat - 48
+  return Version.ofNumber? major (if major == 1 then min minor 1 else minor)
 
 /--
-Parses an HTTP version string and returns the corresponding `Version` value.
-Fails if the version is not recognized by `Version.ofNumber?`.
+Accepts HTTP/1.0 and HTTP/1.1, the versions an HTTP/1 message can have.
 -/
-def parseHttpVersion : Parser Version := do
-  let (major, minor) ← parseHttpVersionNumber
-  liftOption <| Version.ofNumber? major minor
+def http1Version : Option Version → Parser Version
+  | some .v10 => pure .v10
+  | some .v11 => pure .v11
+  | _ => fail "unsupported HTTP version"
 
 /--
 The methods `parseMethod` recognizes, by name, the most common first: every `Method`
@@ -268,47 +222,28 @@ def requestTargetConfig (limits : H1.Config) : URI.Config :=
     maxFragmentLength := n, maxPathSegments := n, maxTotalPathLength := n, maxQueryParams := n }
 
 /--
-Shared core for request-line parsing: parses `request-target SP HTTP-version CRLF`
-and returns the `RequestTarget` together with the raw major/minor version numbers.
+Parses a request line and returns the method, the target and the version, `none` for a version this
+library does not know.
 
-Both `parseRequestLine` and `parseRequestLineRawVersion` call this after consuming
-the method token, keeping URI validation and version parsing in one place.
+request-line = method SP request-target SP HTTP-version
 -/
-def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × Nat) := do
+public def parseRequestLineRawVersion (limits : H1.Config) :
+    Parser (Method × RequestTarget × Option Version) := do
+  skipLeadingRequestEmptyLines limits
+  let method ← parseMethod <* sp
   let rawUri ← parseURI limits <* sp
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget (requestTargetConfig limits) <* eof).run rawUri with
   | .ok res => pure res
   | .error res => fail res
-  let versionPair ← parseHttpVersionNumber <* crlf
-  return (uri, versionPair)
+  let version ← parseHttpVersion <* crlf
+  return (method, uri, version)
 
 /--
-Parses a request line and returns a fully-typed `Request.Head`. A higher minor version of HTTP/1 is
-read as HTTP/1.1 (RFC 9110 §6.2).
-`request-line = method SP request-target SP HTTP-version`
+Parses a request line of HTTP/1.0 or HTTP/1.1 and returns a fully-typed `Request.Head`.
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
-  skipLeadingRequestEmptyLines limits
-  let method ← parseMethod <* sp
-  let (uri, (major, minor)) ← parseRequestLineBody limits
-  if major == 1 ∧ minor ≥ 1 then
-    return ⟨method, .v11, uri, .empty⟩
-  else if major == 1 ∧ minor == 0 then
-    return ⟨method, .v10, uri, .empty⟩
-  else
-    fail "unsupported HTTP version"
-
-/--
-Parses a request line and returns the recognized HTTP method and version when available. A higher
-minor version of HTTP/1 is read as HTTP/1.1 (RFC 9110 §6.2).
-
-request-line = method SP request-target SP HTTP-version
--/
-public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Option Version) := do
-  skipLeadingRequestEmptyLines limits
-  let method ← parseMethod <* sp
-  let (uri, (major, minor)) ← parseRequestLineBody limits
-  return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
+  let (method, uri, version) ← parseRequestLineRawVersion limits
+  return ⟨method, ← http1Version version, uri, .empty⟩
 
 /--
 Parses a single header field line.
@@ -317,7 +252,7 @@ Parses a single header field line.
 -/
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← parseToken limits.maxHeaderNameLength
-  let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
+  let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldContentByte limits.maxHeaderValueLength) <* ows limits
 
   let name ← liftOption <| String.fromUTF8? name.toByteArray
   -- obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
@@ -348,23 +283,9 @@ RWS`, RFC 9112 §5.2): the leading whitespace, the field content and the termina
 content without the whitespace around it.
 -/
 public def parseObsFoldContinuation (limits : H1.Config) : Parser String := do
-  let value ← ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* crlf
+  let value ← ows limits *> optional (takeWhileUpTo isFieldContentByte limits.maxHeaderValueLength) <* crlf
   let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
   return value.trimAscii.toString
-
-/--
-Parses a backslash-escaped character inside a quoted-string.
-
-`quoted-pair = "\" ( HTAB / SP / VCHAR )` — strict ASCII-only (no obs-text).
--/
-def parseQuotedPair : Parser UInt8 := do
-  skipByte '\\'.toUInt8
-  let b ← any
-
-  if quotedPairChar (Char.ofUInt8 b) then
-    return b
-  else
-    fail s!"invalid quoted-pair byte: {Char.ofUInt8 b |>.quote}"
 
 /--
 Parses a quoted-string value, unescaping quoted-pairs, and returns its bytes.
@@ -437,102 +358,51 @@ Parses the size and extensions of a chunk.
 -/
 public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   let size ← hex
-  let ext ← manyItems (some <$> parseChunkExt limits) limits.maxChunkExtensions
+  let ext ← extensions #[] 0
   crlf
-  return (size, ext.filterMap id)
+  return (size, ext)
+where
+  /--
+  Parses the extensions after the `count` ones already read. One cut off by the end of the input
+  fails with `.eof`, so it is parsed again once the rest arrives.
+  -/
+  extensions (acc : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (count : Nat) :
+      Parser (Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
+    let some ext ← optionalUnlessEof (parseChunkExt limits) | return acc
+    if h : count + 1 > limits.maxChunkExtensions then
+      fail s!"too many chunk extensions: {count + 1} > {limits.maxChunkExtensions}"
+    else
+      extensions (ext.elim acc acc.push) (count + 1)
+  termination_by limits.maxChunkExtensions - count
 
 /--
-Result of parsing partial or complete information.
+Whether `name` (compared case-insensitively) is a field a trailer section must not carry (RFC 9112
+§6.5). The fields that frame or route a message (`content-length`, `transfer-encoding`, `host`,
+`connection`, `te`, `upgrade`, `trailer`) always are: in a trailer section such a field is an
+attempt to reframe the message after the fact, which a downstream proxy might act on. With
+`strict`, so are the fields that control how the message is processed (`expect`, `authorization`,
+`max-forwards`, `cache-control`, `content-encoding`).
 -/
-public inductive TakeResult
-  | complete (data : ByteSlice)
-  | incomplete (data : ByteSlice) (remaining : Nat)
-
-/--
-Parses a single chunk in chunked transfer encoding.
--/
-public def parseChunkPartial (limits : H1.Config) : Parser (Option (Nat × Array (Chunk.ExtensionName × Option Chunk.ExtensionValue) × ByteSlice)) := do
-  let (size, ext) ← parseChunkSize limits
-  if size == 0 then
-    return none
-  else
-    let data ← take size
-    return some ⟨size, ext, data⟩
-
-/--
-Parses fixed-size data that can be incomplete.
--/
-public def parseFixedSizeData (size : Nat) : Parser TakeResult := fun it =>
-  if it.remainingBytes = 0 then
-    .error it .eof
-  else if it.remainingBytes < size then
-    .success (it.forward it.remainingBytes) (.incomplete it.array[it.idx...(it.idx+it.remainingBytes)] (size - it.remainingBytes))
-  else
-    .success (it.forward size) (.complete (it.array[it.idx...(it.idx+size)]))
-
-/--
-Parses fixed-size chunk data that can be incomplete.
--/
-public def parseChunkSizedData (size : Nat) : Parser TakeResult := do
-  match ← parseFixedSizeData size with
-  | .complete data => crlf *> return .complete data
-  | .incomplete data res => return .incomplete data res
-
-/--
-Returns `true` if `name` (compared case-insensitively) frames or routes a message
-(`content-length`, `transfer-encoding`, `host`, `connection`, `te`, `upgrade`, `trailer`). In a
-trailer section such a field is an attempt to reframe the message after the fact, which a downstream
-proxy might act on, so the message is rejected.
--/
-def isFramingTrailerField (name : String) : Bool :=
+def isRejectedTrailerField (strict : Bool) (name : String) : Bool :=
   let n := name.toLower
-  n == "content-length" || n == "transfer-encoding" || n == "host" ||
-  n == "connection" || n == "te" || n == "upgrade" || n == "trailer"
+  n == "content-length" || n == "transfer-encoding" || n == "host" || n == "connection" ||
+    n == "te" || n == "upgrade" || n == "trailer" ||
+    strict && (n == "expect" || n == "authorization" || n == "max-forwards" ||
+      n == "cache-control" || n == "content-encoding")
 
 /--
-Returns `true` if `name` (compared case-insensitively) is a field that MUST NOT appear in HTTP/1.1
-trailer sections per RFC 9112 §6.5: the framing and routing fields of `isFramingTrailerField`, and
-fields that control how the message is processed (`expect`, `authorization`, `max-forwards`,
-`cache-control`, `content-encoding`).
--/
-def isForbiddenTrailerField (name : String) : Bool :=
-  let n := name.toLower
-  isFramingTrailerField name || n == "expect" ||
-  n == "authorization" || n == "max-forwards" || n == "cache-control" || n == "content-encoding"
-
-/--
-Parses a trailer header (used after a chunked body). Framing and routing fields
-(`isFramingTrailerField`) are always rejected, to prevent trailer injection attacks where a
-downstream proxy might re-interpret them. With `strict`, every field forbidden in trailers is
-rejected; without it, the others are parsed and left for the caller to drop, since RFC 9110 §6.5.1
-asks recipients not to merge them rather than to reject a message that is otherwise complete.
+Parses a trailer header (used after a chunked body), rejecting a field a trailer section must not
+carry (`isRejectedTrailerField`). Without `strict`, only framing and routing fields are rejected; the
+others are parsed and left for the caller to drop, since RFC 9110 §6.5.1 asks recipients not to
+merge them rather than to reject a message that is otherwise complete.
 -/
 public def parseTrailerHeader (limits : H1.Config) (strict : Bool := true) :
     Parser (Option (String × String)) := do
   let result ← parseSingleHeader limits
   if let some (name, _) := result then
-    if isFramingTrailerField name || (strict && isForbiddenTrailerField name) then
+    if isRejectedTrailerField strict name then
       fail s!"forbidden trailer field: {name}"
   return result
-
-/--
-Parses trailer headers after a chunked body and returns them as an array of name-value pairs.
-
-This is exposed for callers that need the trailer values directly (e.g. clients). The
-internal protocol machine parses the section one field at a time with `parseTrailerHeader`, and
-discards trailer values.
--/
-public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
-  let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
-  crlf
-  return trailers
-
-/--
-Returns `true` if `c` is a valid reason-phrase byte (`HTAB / SP / VCHAR / obs-text`).
--/
-@[inline]
-def isReasonPhraseByte (c : UInt8) : Bool :=
-  fieldContent (Char.ofUInt8 c)
 
 /--
 Parses a reason phrase (text after status code).
@@ -541,7 +411,7 @@ Allows `HTAB / SP / VCHAR / obs-text` bytes. A client ignores the phrase (RFC 91
 that are not UTF-8 are replaced rather than rejected.
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
-  let bytes ← takeWhileUpTo isReasonPhraseByte limits.maxReasonPhraseLength
+  let bytes ← takeWhileUpTo isFieldContentByte limits.maxReasonPhraseLength
   return String.fromUTF8Lossy bytes.toByteArray
 
 /--
@@ -570,33 +440,21 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   fail "invalid status code"
 
 /--
-Parses a status line and returns a fully-typed `Response.Head`.
-`status-line = HTTP-version SP status-code SP [ reason-phrase ]`
-Accepts only HTTP/1.x, read as HTTP/1.1 for any minor version above 1. For parsing where the version
-may be unrecognized and must be mapped to an error event, use `parseStatusLineRawVersion`.
--/
-public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
-  let (major, minor) ← parseHttpVersionNumber <* sp
-  let status ← parseStatusCode limits
-  if major == 1 ∧ minor ≥ 1 then
-    return { status, version := .v11, headers := .empty }
-  else if major == 1 ∧ minor == 0 then
-    return { status, version := .v10, headers := .empty }
-  else
-    fail "unsupported HTTP version"
-
-/--
-Parses a status line and returns the status code plus recognized HTTP version when available.
-Consumes and discards the reason phrase.
-
-RFC 9110 §2.5: a response with a higher minor version than HTTP/1.1 (`HTTP/1.2`) is processed as
-HTTP/1.1, the highest minor version this client implements.
+Parses a status line and returns the status code and the version, `none` for a version this library
+does not know. Consumes and discards the reason phrase.
 
 status-line = HTTP-version SP status-code SP [ reason-phrase ] CRLF
 -/
 public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
-  let (major, minor) ← parseHttpVersionNumber <* sp
+  let version ← parseHttpVersion <* sp
   let status ← parseStatusCode limits
-  return (status, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
+  return (status, version)
+
+/--
+Parses a status line of HTTP/1.0 or HTTP/1.1 and returns a fully-typed `Response.Head`.
+-/
+public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
+  let (status, version) ← parseStatusLineRawVersion limits
+  return { status, version := ← http1Version version, headers := .empty }
 
 end Std.Http.Protocol.H1

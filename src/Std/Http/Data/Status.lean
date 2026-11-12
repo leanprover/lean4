@@ -27,13 +27,13 @@ set_option linter.all true
 open Std.Http.Internal
 
 /--
-A proposition stating that `s` is a valid HTTP reason phrase: every character passes
-`Char.reasonPhraseChar` per RFC 9110 §15.
+A proposition stating that `s` is a valid HTTP reason phrase: every character is field content,
+HTAB / SP / VCHAR / obs-text (RFC 9110 §15).
 
 Reference: https://httpwg.org/specs/rfc9110.html#reason.phrase
 -/
 abbrev IsValidReasonPhrase (s : String) : Prop :=
-  s.toList.all Char.reasonPhraseChar
+  s.toList.all Char.fieldContent
 
 /--
 Returns `true` for every status code that has a dedicated named constructor in `Status`.

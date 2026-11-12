@@ -1077,6 +1077,26 @@ private def minimalGetRequest : Request.Head :=
     |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8
     |>.assertHasCloseBody |>.run
 
+  -- §15.2: a final response that arrives in the same read as the interim responses before it is
+  -- parsed in that step; nothing else would prompt another step.
+  MachineTester.sending "§15.2: 100 Continue and the final response in one read"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok" |>.step
+    |>.assertNoError
+    |>.assertHasEvent (fun | .endHeaders head => head.status == .ok | _ => false)
+        "expected the final response head in the step that read it"
+    |>.drainBody |>.assertPulledBody "ok".toUTF8 |>.assertHasCloseBody |>.run
+
+  MachineTester.sending "§15.2: two interim responses and the final response in one read"
+    |>.send minimalGetRequest |>.step
+    |>.feed ("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 103 Early Hints\r\nLink: </a.css>\r\n\r\n" ++
+      "HTTP/1.1 204 No Content\r\n\r\n")
+    |>.step
+    |>.assertNoError
+    |>.assertHasEvent (fun | .endHeaders head => head.status == .noContent | _ => false)
+        "expected the final response head in the step that read it"
+    |>.assertHasCloseBody |>.run
+
   -- §15.2.2: after 101 the connection speaks the new protocol, so no final response follows and the
   -- bytes after the head are not read as HTTP
   MachineTester.sending "§15.2.2: 101 Switching Protocols ends the exchange"

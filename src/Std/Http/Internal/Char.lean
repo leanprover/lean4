@@ -18,8 +18,7 @@ public section
 # HTTP Character Predicates
 
 This module provides shared character validation predicates used across the HTTP library.
-All predicates in this module are ASCII-only by design (`isAscii c` where applicable), and
-intentionally exclude `obs-text` and all non-ASCII code points.
+They are ASCII-only, except `fieldVchar` and `fieldContent`, which also accept `obs-text`.
 -/
 
 namespace Std.Http.Internal.Char
@@ -143,32 +142,12 @@ def fieldVchar (c : Char) : Bool :=
   vchar c || c.val ≥ 0x80
 
 /--
-field-content character class:
-field-vchar / SP / HTAB
-; ASCII-only variant (no obs-text).
+field-content character class: field-vchar / SP / HTAB. It is also the character class of a
+reason phrase (RFC 9110 §15: HTAB / SP / VCHAR / obs-text).
 -/
 @[inline]
 def fieldContent (c : Char) : Bool :=
   fieldVchar c || (c matches ' ' | '\t')
-
-/--
-ctext = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E
-; ASCII-only variant (no obs-text).
--/
-@[inline]
-def ctext (c : Char) : Bool :=
-  (c matches '\t' | ' ') ||
-  ('!' ≤ c ∧ c ≤ '\'') ||
-  ('*' ≤ c ∧ c ≤ '[') ||
-  (']' ≤ c ∧ c ≤ '~')
-
-/--
-etagc = "!" / %x23-7E
-; ASCII-only variant (no obs-text).
--/
-@[inline]
-def etagc (c : Char) : Bool :=
-  c = '!' || ('#' ≤ c ∧ c ≤ '~')
 
 /--
 OWS = *( SP / HTAB )  (character class only)
@@ -176,37 +155,6 @@ OWS = *( SP / HTAB )  (character class only)
 @[inline]
 def ows (c : Char) : Bool :=
   c matches ' ' | '\t'
-
-/--
-BWS = OWS (character class alias)
--/
-@[inline]
-def bws (c : Char) : Bool :=
-  ows c
-
-/--
-RWS = 1*( SP / HTAB ) (character class is identical to `ows`)
--/
-@[inline]
-def rws (c : Char) : Bool :=
-  ows c
-
-/--
-obs-text = %x80-FF (and higher Unicode scalar values in this library's `Char` model).
--/
-@[inline]
-def obsText (c : Char) : Bool :=
-  0x80 ≤ c.toNat
-
-/--
-reason-phrase character class:
-HTAB / SP / VCHAR / obs-text
-
-Reference: https://httpwg.org/specs/rfc9110.html#reason.phrase
--/
-@[inline]
-def reasonPhraseChar (c : Char) : Bool :=
-  (c matches '\t' | ' ') || vchar c || c.val ≥ 0x80
 
 /--
 Checks if a character is a hexadecimal digit (0-9, a-f, or A-F).

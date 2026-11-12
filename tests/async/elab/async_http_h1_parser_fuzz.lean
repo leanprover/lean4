@@ -150,7 +150,7 @@ private def expectFail {α} (name : String) (p : Parser α) (s : String) : IO Un
   let sh2 ← expectOk "parseSingleHeader none" (parseSingleHeader {} <* eof) "\r\n"
   ensure "parseSingleHeader none present" sh2.isNone "expected header terminator"
 
-  -- parseChunkSize / parseChunkPartial
+  -- parseChunkSize
   let (n1, ext1) ← expectOk "parseChunkSize bare" (parseChunkSize {} <* eof) "A\r\n"
   ensure "parseChunkSize value" (n1 == 10) "chunk-size mismatch"
   ensure "parseChunkSize ext empty" (ext1.isEmpty) "expected no extensions"
@@ -159,36 +159,10 @@ private def expectFail {α} (name : String) (p : Parser α) (s : String) : IO Un
   ensure "parseChunkSize ext value" (n2 == 4) "chunk-size mismatch with ext"
   ensure "parseChunkSize ext count" (ext2.size == 2) "expected 2 extensions"
 
-  let cp1 ← expectOk "parseChunkPartial some" (parseChunkPartial {} <* eof) "4\r\nWiki"
-  ensure "parseChunkPartial some isSome" cp1.isSome "expected chunk data"
-  ensure "parseChunkPartial some size" ((cp1.map (fun (n, _, _) => n)).getD 0 == 4) "size mismatch"
-
-  let cp0 ← expectOk "parseChunkPartial none" (parseChunkPartial {} <* eof) "0\r\n"
-  ensure "parseChunkPartial none isNone" cp0.isNone "expected last-chunk marker"
-
-  -- parseFixedSizeData / parseChunkSizedData
-  let fs1 ← expectOk "parseFixedSizeData complete" (parseFixedSizeData 4 <* eof) "Wiki"
-  ensure "parseFixedSizeData complete shape"
-    (match fs1 with | .complete _ => true | _ => false)
-    "expected complete result"
-  let fs2 ← expectOk "parseFixedSizeData incomplete" (parseFixedSizeData 4 <* eof) "Wi"
-  ensure "parseFixedSizeData incomplete shape"
-    (match fs2 with | .incomplete _ 2 => true | _ => false)
-    "expected incomplete result with remaining=2"
-
-  let cs1 ← expectOk "parseChunkSizedData complete" (parseChunkSizedData 4 <* eof) "Wiki\r\n"
-  ensure "parseChunkSizedData complete shape"
-    (match cs1 with | .complete _ => true | _ => false)
-    "expected complete chunk-sized result"
-  let cs2 ← expectOk "parseChunkSizedData incomplete" (parseChunkSizedData 4 <* eof) "Wi"
-  ensure "parseChunkSizedData incomplete shape"
-    (match cs2 with | .incomplete _ 2 => true | _ => false)
-    "expected incomplete chunk-sized result with remaining=2"
-
-  -- parseTrailers
-  let trailers ← expectOk "parseTrailers ok" (parseTrailers {} <* eof) "X-Test: a\r\nY-Test: b\r\n\r\n"
-  ensure "parseTrailers count" (trailers.size == 2) "expected 2 trailers"
-  expectFail "parseTrailers forbidden" (parseTrailers {} <* eof) "Content-Length: 1\r\n\r\n"
+  -- parseTrailerHeader
+  let t1 ← expectOk "parseTrailerHeader ok" (parseTrailerHeader {} <* eof) "X-Test: a\r\n"
+  ensure "parseTrailerHeader some" t1.isSome "expected a trailer field"
+  expectFail "parseTrailerHeader forbidden" (parseTrailerHeader {} <* eof) "Content-Length: 1\r\n"
 
   -- parseRequestLineRawVersion / parseStatusLineRawVersion
   let (m1, _, v1) ← expectOk "parseRequestLineRawVersion" (parseRequestLineRawVersion {} <* eof) "GET / HTTP/1.1\r\n"

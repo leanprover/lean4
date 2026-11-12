@@ -234,15 +234,19 @@ info: #check Nat.succ (1 + 2)
 #guard_msgs in
 #apply_suggestions #check Nat.succ (1 +' 2)
 
-deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-10-19")
-  | `(let_fun $x:ident := $v; $b) => `(have $x:ident := $v; $b)
+-- A test-local copy of `let_fun`, which is itself deprecated in core
+syntax:lead (name := oldHave) "old_have " ident " := " term "; " term : term
+macro_rules | `(old_have $x := $v; $b) => `(have $x := $v; $b)
 
--- Like `let_fun`, `have` extends as far to the right as possible and cannot be an argument.
+deprecated_syntax oldHave "use `have` instead" (since := "2026-10-19")
+  | `(old_have $x:ident := $v; $b) => `(have $x:ident := $v; $b)
+
+-- Like `old_have`, `have` extends as far to the right as possible and cannot be an argument.
 /--
-warning: syntax 'Lean.Parser.Term.let_fun' has been deprecated: use `have` instead
+warning: syntax 'oldHave' has been deprecated: use `have` instead
 
 Hint: Replace the deprecated syntax:
-  l̵e̵t̵_̵f̵u̵n̵h̲a̲v̲e̲ x := 1; ̵
+  o̵l̵d̵_̵h̵a̵v̵e̵h̲a̲v̲e̲ x := 1; ̵
   ̲x + 1
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
@@ -254,7 +258,7 @@ info: #check have x := 1;
 x + 1
 -/
 #guard_msgs in
-#apply_suggestions #check let_fun x := 1; x + 1
+#apply_suggestions #check old_have x := 1; x + 1
 
 syntax:max (name := oldPair) "old_pair " term:max term:max : term
 macro_rules | `(old_pair $a $b) => `(($a, $b))

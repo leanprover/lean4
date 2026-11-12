@@ -32,7 +32,7 @@ partial def commandCommentBodyFn (c : ParserContext) (s : ParserState) : ParserS
   go s
 where
   go (s : ParserState) : ParserState := Id.run do
-    let input := c.input
+    let input := c.toInputContext
     let i     := s.pos
     if input.atEnd i then return s.mkUnexpectedError "unterminated command comment"
     let curr := input.get i

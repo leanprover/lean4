@@ -150,11 +150,11 @@ warning: `[deprecated]` attribute should specify the date or library version at 
 Hint: Add the current date:
   [apply] (since := "<today>")
 ---
-info: @[deprecated newDecl (since := "<today>"), inline, simp]
+info: @[deprecated newDecl (since := "<today>"), inline, reducible]
 def otherAttrs : Nat := 0
 -/
 #guard_msgs in
-#since_hint @[deprecated newDecl, inline, simp]
+#since_hint @[deprecated newDecl, inline, reducible]
 def otherAttrs : Nat := 0
 
 def laterAttribute : Nat := 0

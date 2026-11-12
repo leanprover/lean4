@@ -85,10 +85,7 @@ def testDeletions (s : String) : StateT Stats IO Unit := do
 
 def insertions (toInsert : String) (s : String) : Array String := Id.run do
   let mut out := #[s]
-  let mut iter := toInsert.iter
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  for c in toInsert.chars do
     let mut next := #[]
     for s' in out do
       for i in [0:s'.length + 1] do
@@ -122,19 +119,12 @@ def testInsertions (s : String) : StateT Stats IO Unit := do
 
 def substs (toSubst : String) (s : String) : Array String := Id.run do
   let mut out := #[s]
-  let mut iter := toSubst.iter
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  for c in toSubst.chars do
     let mut next := #[]
     for s' in out do
-      let mut iter2 := s'.iter
-      while h2 : iter2.hasNext do
-        let c2 := iter2.curr' h2
-        let i := iter2.i
-        iter2 := iter2.next' h2
-        if c ≠ c2 then
-          next := next.push <| s'.set i c
+      for ⟨p, h⟩ in s'.positions do
+        if c ≠ p.get h then
+          next := next.push <| p.set c h
     out := next
   return out
 

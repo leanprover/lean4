@@ -69,6 +69,11 @@ structure CState where
   fvCls : Std.HashMap (Nat × UInt64) (List Nat) := {}
   /-- Per number: the free variable's type (its class's first member). -/
   fvTys : Array Expr := #[]
+  /-- The binder types' `EO.clHash` walk memo (exact keys, pointer first),
+  kept for the declaration: con-leche's `.fvar d ty` node carries its type's
+  hash, so a fresh walk per interning miss would cost InLean the size of the
+  type at every binder opening. -/
+  clHashC : @Std.HashMap Expr UInt64 instBEqExprExact _ := {}
 
 instance : Inhabited CState := ⟨{}⟩
 
@@ -98,17 +103,20 @@ def peelFuel : Nat := 16777216
 `d` of type `ty`.  One number per depth and `Expr.clEq`-class of the type
 (con-leche's node `.fvar d ty` is one value per depth and type, and `clEq`
 equal types stand for one con-leche type): a `keyEq` hit is the fast path,
-a miss looks the class up under `EO.clHash`. -/
+a miss looks the class up under `EO.clHash`, through the declaration's
+hash memo `clHashC`. -/
 def mkFVarM (d : Nat) (ty : Expr) : CheckCM Expr :=
   modifyGet fun s =>
     match s.fvSeen[(d, EKey.mk ty)]? with
     | some n => (.fvar (fvId d n), s)
     | none =>
-      let h := EO.clHash ty
       let seen := s.fvSeen
       let cls := s.fvCls
       let tys := s.fvTys
-      let s := { s with fvSeen := {}, fvCls := {}, fvTys := #[] }
+      let hm := s.clHashC
+      let s := { s with fvSeen := {}, fvCls := {}, fvTys := #[], clHashC := {} }
+      let (h, hm) := EO.clHashGo ty hm
+      let s := { s with clHashC := hm }
       let cands := cls.getD (d, h) []
       match cands.find? (fun n => Expr.clEq (tys[n]?.getD ty) ty) with
       | some n =>

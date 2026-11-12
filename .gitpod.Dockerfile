@@ -2,7 +2,7 @@
 FROM gitpod/workspace-full
 
 USER root
-RUN apt-get update && apt-get install git libgmp-dev libuv1-dev cmake ccache clang -y && apt-get clean
+RUN apt-get update && apt-get install git libuv1-dev cmake ccache clang -y && apt-get clean
 
 USER gitpod
 

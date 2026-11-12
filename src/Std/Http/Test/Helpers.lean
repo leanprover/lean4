@@ -9,6 +9,7 @@ prelude
 public import Std.Http.Server
 public import Std.Async
 public import Std.Async.Timer
+public import Std.Http.Test.Assert
 import Init.Data.String.Legacy
 
 public section

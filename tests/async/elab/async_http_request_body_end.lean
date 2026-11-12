@@ -190,3 +190,10 @@ def expectSuffix (name : String) (response : String) (suffix : String) : IO Unit
     let text := String.fromUTF8! response
     unless text.startsWith "HTTP/1.1 200 OK" do
       throw (IO.userError s!"run {i}: unexpected response {text.quote}")
+
+-- A chunked body whose terminal zero-size chunk never arrives before EOF is a bad message.
+#eval runGroup "RFC 9112 §6: chunked parse errors" do
+  checkClose "missing terminal 0-chunk at EOF → 400"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n")
+    (handler := echoHandler)
+    (expect := (assertExact · r400))

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Http.Server
-import Std.Http.Test.Helpers
 
 public section
 

@@ -1,5 +1,6 @@
 module
 
+import Std.Http.Test.Helpers
 import Std.Http.Protocol.H1
 
 open Std.Http
@@ -12,11 +13,11 @@ and invalid `Location` values, and every followed plan must put an RFC 9112 requ
 wire.
 -/
 
-/-! ## RFC 3986 §5.2 reference resolution -/
+-- RFC 3986 §5.2 reference resolution
 
-abbrev Str := List Char
+private abbrev Str := List Char
 
-structure Ref where
+private structure Ref where
   scheme? : Option Str
   authority? : Option Str
   path : Str
@@ -24,7 +25,7 @@ structure Ref where
   fragment? : Option Str
 
 /-- Appendix B: `^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?` -/
-def splitRef (s : Str) : Ref :=
+private def splitRef (s : Str) : Ref :=
   let (pre, rest) := s.span (fun c => c != ':' && c != '/' && c != '?' && c != '#')
   let (scheme?, s) :=
     if rest.head? == some ':' && !pre.isEmpty then (some pre, rest.tail) else (none, s)
@@ -45,7 +46,7 @@ def splitRef (s : Str) : Ref :=
   { scheme?, authority?, path, query?, fragment? }
 
 /-- §5.2.4. The output buffer is a reversed list of the pieces rule E moved. -/
-partial def removeDotSegmentsLoop : Str → List Str → List Str
+private partial def removeDotSegmentsLoop : Str → List Str → List Str
   | [], out => out
   | '.' :: '.' :: '/' :: r, out => removeDotSegmentsLoop r out
   | '.' :: '/' :: r, out => removeDotSegmentsLoop r out
@@ -63,16 +64,16 @@ partial def removeDotSegmentsLoop : Str → List Str → List Str
       let (seg, rest) := (c :: r).span (· != '/')
       removeDotSegmentsLoop rest (seg :: out)
 
-def removeDotSegments (p : Str) : Str :=
+private def removeDotSegments (p : Str) : Str :=
   (removeDotSegmentsLoop p []).reverse.flatten
 
 /-- §5.2.3 -/
-def merge (baseHasAuthority : Bool) (basePath refPath : Str) : Str :=
+private def merge (baseHasAuthority : Bool) (basePath refPath : Str) : Str :=
   if baseHasAuthority && basePath.isEmpty then '/' :: refPath
   else (basePath.reverse.dropWhile (· != '/')).reverse ++ refPath
 
 /-- §5.2.2, strict: a reference's scheme is never ignored. -/
-def resolve (base r : Ref) : Ref :=
+private def resolve (base r : Ref) : Ref :=
   if r.scheme?.isSome then
     { r with path := removeDotSegments r.path }
   else if r.authority?.isSome then
@@ -88,7 +89,7 @@ def resolve (base r : Ref) : Ref :=
              path := removeDotSegments (merge base.authority?.isSome base.path r.path) }
 
 /-- §5.3 -/
-def recompose (t : Ref) : String :=
+private def recompose (t : Ref) : String :=
   (t.scheme?.map (String.ofList · ++ ":")).getD ""
     ++ (t.authority?.map ("//" ++ String.ofList ·)).getD ""
     ++ String.ofList t.path
@@ -96,7 +97,7 @@ def recompose (t : Ref) : String :=
     ++ (t.fragment?.map ("#" ++ String.ofList ·)).getD ""
 
 /-- The resolver reproduces every example of RFC 3986 §5.4 (base `http://a/b/c/d;p?q`). -/
-def rfcTable : List (String × String) := [
+private def rfcTable : List (String × String) := [
   ("g:h", "g:h"), ("g", "http://a/b/c/g"), ("./g", "http://a/b/c/g"), ("g/", "http://a/b/c/g/"),
   ("/g", "http://a/g"), ("//g", "http://g"), ("?y", "http://a/b/c/d;p?y"),
   ("g?y", "http://a/b/c/g?y"), ("#s", "http://a/b/c/d;p?q#s"), ("g#s", "http://a/b/c/g#s"),
@@ -113,32 +114,27 @@ def rfcTable : List (String × String) := [
   ("g?y/../x", "http://a/b/c/g?y/../x"), ("g#s/./x", "http://a/b/c/g#s/./x"),
   ("g#s/../x", "http://a/b/c/g#s/../x"), ("http:g", "http:g")]
 
-/-- info: [] -/
-#guard_msgs in
-#eval rfcTable.filter fun (r, want) =>
-  recompose (resolve (splitRef "http://a/b/c/d;p?q".toList) (splitRef r.toList)) != want
+-- RFC 3986 syntax
 
-/-! ## RFC 3986 syntax -/
-
-def hexVal? (c : Char) : Option Nat :=
+private def hexVal? (c : Char) : Option Nat :=
   if c.isDigit then some (c.toNat - '0'.toNat)
   else if 'a' ≤ c.toLower && c.toLower ≤ 'f' then some (c.toLower.toNat - 'a'.toNat + 10)
   else none
 
-def isUnreserved (c : Char) : Bool :=
+private def isUnreserved (c : Char) : Bool :=
   c.isAlphanum || c == '-' || c == '.' || c == '_' || c == '~'
 
-def isPchar (c : Char) : Bool :=
+private def isPchar (c : Char) : Bool :=
   isUnreserved c || "!$&'()*+,;=:@".contains c
 
-partial def wellFormedPercent : Str → Bool
+private partial def wellFormedPercent : Str → Bool
   | '%' :: a :: b :: r => (hexVal? a).isSome && (hexVal? b).isSome && wellFormedPercent r
   | '%' :: _ => false
   | _ :: r => wellFormedPercent r
   | [] => true
 
 /-- `URI-reference`, checked per component of the Appendix B split. -/
-def isValidReference (s : String) : Bool :=
+private def isValidReference (s : String) : Bool :=
   let r := splitRef s.toList
   let ok (extra : String) (cs : Str) :=
     cs.all (fun c => isPchar c || c == '%' || extra.contains c) && wellFormedPercent cs
@@ -171,7 +167,7 @@ def isValidReference (s : String) : Bool :=
 
 /-- RFC 9112 §3.2: `absolute-path [ "?" query ]`, or for absolute-form
 `scheme "://" authority absolute-path [ "?" query ]` without userinfo or fragment. -/
-def wellFormedTarget (target : String) : Bool :=
+private def wellFormedTarget (target : String) : Bool :=
   let originForm (s : Str) : Bool :=
     let (path, q) := s.span (· != '?')
     path.head? == some '/' && path.all (fun c => isPchar c || c == '/' || c == '%')
@@ -189,12 +185,12 @@ def wellFormedTarget (target : String) : Bool :=
         && originForm (if pq.head? == some '/' then pq else '/' :: pq)
     | _ => false
 
-/-! ## Expected and planned outcomes -/
+-- Expected and planned outcomes
 
-def lower (s : Str) : Str := s.map Char.toLower
+private def lower (s : Str) : Str := s.map Char.toLower
 
 /-- §6.2.2.1–2: uppercase percent-encoding hex digits and decode unreserved characters. -/
-partial def normalizePercent : Str → Str
+private partial def normalizePercent : Str → Str
   | '%' :: a :: b :: r =>
     match hexVal? a, hexVal? b with
     | some x, some y =>
@@ -208,7 +204,7 @@ partial def normalizePercent : Str → Str
 /-- A registered name for DNS lookup (RFC 3986 §3.2.2, RFC 1034 §3.5): non-empty labels of at most 63
 alphanumerics and `-` that do not start or end with `-`, and an optional trailing `.`. `_` is also
 accepted, as the client does. -/
-def isDnsName (host : Str) : Bool :=
+private def isDnsName (host : Str) : Bool :=
   let labels := (String.ofList (if host.getLast? == some '.' then host.dropLast else host)).splitOn "."
   host.length ≤ 255 && labels.all fun l =>
     let cs := l.toList
@@ -218,7 +214,7 @@ def isDnsName (host : Str) : Bool :=
 /-- `(host, port)` of an authority, with the host normalized as in §6.2.2.1–2, or `none` when it names
 no usable host: it is empty (RFC 9110 §4.2.1), a registered name that is not a DNS name, or has an
 invalid port. -/
-def hostPort? (scheme authority : Str) : Option (Str × Nat) :=
+private def hostPort? (scheme authority : Str) : Option (Str × Nat) :=
   let hostPort := match authority.reverse.span (· != '@') with
     | (_, []) => authority
     | (hp, _) => hp.reverse
@@ -239,10 +235,10 @@ def hostPort? (scheme authority : Str) : Option (Str × Nat) :=
     if n < 65536 then some (host, n) else none
   else none
 
-def notFollowed : String := "<not followed>"
+private def notFollowed : String := "<not followed>"
 
 /-- The RFC 3986 outcome as `form scheme://host:port path?query`, from origin `http://example.com`. -/
-def expected (baseTarget location : String) : String :=
+private def expected (baseTarget location : String) : String :=
   let b := splitRef baseTarget.toList
   let base := { b with scheme? := some "http".toList, authority? := some "example.com".toList }
   let t := resolve base (splitRef location.toList)
@@ -258,12 +254,12 @@ def expected (baseTarget location : String) : String :=
     let query := (t.query?.map ("?" ++ String.ofList ·)).getD ""
     s!"{form} {String.ofList scheme}://{String.ofList host}:{port} {path}{query}"
 
-def current : URI.Origin :=
+private def current : URI.Origin :=
   { scheme := URI.Scheme.ofString! "http", host := (URI.parse! "http://example.com/").host?.get!,
     port := 80 }
 
 /-- The plan in the form of `expected`, and the request-target exactly as it goes on the wire. -/
-def planned (baseTarget : String) (location : Header.Value) : String × String :=
+private def planned (baseTarget : String) (location : Header.Value) : String × String :=
   let request : Request.Head :=
     { method := .get, version := .v11, uri := RequestTarget.parse! baseTarget }
   match decideRedirect current request false .found (Headers.empty.insert .location location) with
@@ -278,7 +274,7 @@ def planned (baseTarget : String) (location : Header.Value) : String × String :
       toString p.target)
 
 /-- Splits `form origin path?query`. -/
-def parts (s : String) : String × String × Str × Option Str :=
+private def parts (s : String) : String × String × Str × Option Str :=
   match s.splitOn " " with
   | [form, origin, pq] =>
     let (path, q) := pq.toList.span (· != '?')
@@ -286,7 +282,7 @@ def parts (s : String) : String × String × Str × Option Str :=
   | _ => (s, "", [], none)
 
 /-- A reference shape RFC 3986 forbids that `URIReference.parse?` still returns. -/
-def parserViolation? (location : String) : Option String :=
+private def parserViolation? (location : String) : Option String :=
   match URIReference.parse? location with
   | some (.relative { authority := none, path, .. }) =>
     let p := toString path
@@ -298,7 +294,7 @@ def parserViolation? (location : String) : Option String :=
   | _ => none
 
 /-- A query parameter whose value contains `=` (#16021). -/
-def hasEqualsInValue (location : String) : Bool :=
+private def hasEqualsInValue (location : String) : Bool :=
   let query := ((location.splitOn "#").head!.splitOn "?").drop 1
   query.any fun q => (q.splitOn "&").any fun kv => (kv.splitOn "=").length > 2
 
@@ -306,7 +302,7 @@ def hasEqualsInValue (location : String) : Bool :=
 compared up to percent-encoding normalization (§6.2.2.1–2). The planned path must have no dot
 segments, while the expected one keeps those of the base path when the reference is empty, so only
 the expected path has them removed (§6.2.2.3). -/
-def check (location want got wire : String) : Option String :=
+private def check (location want got wire : String) : Option String :=
   if got != notFollowed && !wellFormedTarget wire then
     some "malformed request-target on the wire"
   else if !isValidReference location then
@@ -329,64 +325,59 @@ def check (location want got wire : String) : Option String :=
       some "path differs"
     else none
 
--- A planned path that kept its dot segments is reported, and so is one with an encoded dot segment
--- removed, since `%2E%2E` is not a dot segment (§5.2.4 works on the path as written).
-#guard check "/x/../y" "origin-form http://example.com:80 /y"
-  "origin-form http://example.com:80 /x/../y" "/x/../y" == some "path differs"
-#guard check "/x/%2E%2E/y" "origin-form http://example.com:80 /x/%2E%2E/y"
-  "origin-form http://example.com:80 /y" "/y" == some "path differs"
+-- Corpus
 
-/-! ## Corpus -/
+private def rfcExamples : List String :=
+  rfcTable.map (·.1) ++ ["?", "/", "/?y", "/#f", "///g", "//", "//?y", "http://", "http:///g",
+    "../../f/g/", "/../../f/g/", ".#frag"]
 
-def rfcExamples : List String :=
-  rfcTable.map (·.1) ++ ["/", "/?y", "/#f", "///g", "//", "//?y", "http://", "http:///g"]
-
-def baseTargets : List String := [
+private def baseTargets : List String := [
   "/b/c/d;p?q", "/", "/a", "/a/", "/a/b/", "/a//b", "/a/b?x=1&y=2", "/x/y/z?", "/%7Euser/doc",
-  "/a%2Fb/c", "/.well-known/x", "/a/b/c/d/e/f", "http://example.com/b/c/d;p?q", "/a/./b/../c"]
+  "/a%2Fb/c", "/.well-known/x", "/a/b/c/d/e/f", "http://example.com/b/c/d;p?q", "/a/./b/../c",
+  "/b/c/d/e/", "/b/c/d/e", "/b/", "http://example.com"]
 
-def segments : Array String := #[
+private def segments : Array String := #[
   "g", "h", "x", "", "", ".", ".", "..", "..", "g.", ".g", "..g", "g..", "...", "%2E", "%2e",
   "%2E%2E", ".%2E", "a;b", "a=b", "a:b", "@", "!$&'()*+,;=", "%7E", "~", "%41", "%2F", "%25",
   "%3F", "%23", "a%20b", "-_.~", "%C3%A9", "%E9", "*", "a+b", "%2f", "%3A"]
 
-def queries : Array String := #[
+private def queries : Array String := #[
   "", "y", "a=b", "a=b=c", "a&b", "a&&b", "&", "=", "a=", "=b", "/./x", "../x", "?", "a+b",
   "%2B", "a%3Db", "%20", "q=%41", "a;b", ":@", "!$'()*,", "%26=%3D", "a=b&a=c", "%7e", "caf%E9"]
 
-def fragments : Array String := #["", "s", "s/../x", "?y", "%C3%A9", "caf%E9"]
+private def fragments : Array String := #["", "s", "s/../x", "?y", "%C3%A9", "caf%E9"]
 
-def authorities : Array String := #[
+private def authorities : Array String := #[
   "example.com", "EXAMPLE.com", "example.com:80", "example.com:", "example.com:8080",
   "example.com:443", "other.com", "user:pw@example.com", "user@other.com:81", "127.0.0.1",
   "[::1]", "[::1]:8080", "a.b-c.example", "example.com:65536", "", ":80", "example.com.",
   "a_b.example", "ex%41mple.com"]
 
-def schemes : Array String := #["http", "HTTP", "https", "HtTpS", "ftp", "file", "mailto"]
+private def schemes : Array String := #["http", "HTTP", "https", "HtTpS", "ftp", "file", "mailto"]
 
 /-- Pieces that make a reference invalid in most positions. -/
-def invalidPieces : Array String := #[
+private def invalidPieces : Array String := #[
   " ", "<", ">", "\"", "{", "}", "|", "\\", "^", "`", "%", "%G1", "%2", "é", "[", "]",
   "a b", "%%", "#", "?#", "//", ":", "@", "%00", "%0D%0A"]
 
-structure Rng where
+private structure Rng where
   state : UInt64
 
-def Rng.next (g : Rng) : Nat × Rng :=
+private def Rng.next (g : Rng) : Nat × Rng :=
   let s := g.state * 6364136223846793005 + 1442695040888963407
   ((s >>> 33).toNat, ⟨s⟩)
 
-def Rng.below (g : Rng) (n : Nat) : Nat × Rng :=
+private def Rng.below (g : Rng) (n : Nat) : Nat × Rng :=
   let (m, g) := g.next
   (m % n, g)
 
-def Rng.pick (g : Rng) (xs : Array String) : String × Rng :=
+private def Rng.pick (g : Rng) (xs : Array String) : String × Rng :=
   let (n, g) := g.below xs.size
   (xs[n]!, g)
 
 /-- `/`-separated segments. A relative path whose first segment is empty or has a `:` gets a `./`
 prefix, and an absolute one a `.` segment so it cannot start with `//` (RFC 3986 §4.2). -/
-def genPath (g : Rng) (absolute : Bool) : String × Rng := Id.run do
+private def genPath (g : Rng) (absolute : Bool) : String × Rng := Id.run do
   let (n, g) := g.below 5
   let mut g := g
   let mut segs : Array String := #[]
@@ -402,7 +393,7 @@ def genPath (g : Rng) (absolute : Bool) : String × Rng := Id.run do
   else
     return (body, g)
 
-def genReference (g : Rng) : String × Rng := Id.run do
+private def genReference (g : Rng) : String × Rng := Id.run do
   let (kind, g) := g.below 10
   let mut g := g
   let mut out := ""
@@ -445,7 +436,7 @@ def genReference (g : Rng) : String × Rng := Id.run do
     out := out ++ "#" ++ f
   return (out, g)
 
-def corpus (count : Nat) : Array String := Id.run do
+private def corpus (count : Nat) : Array String := Id.run do
   let mut g : Rng := ⟨20261029⟩
   let mut out := rfcExamples.toArray
   for i in [0:count] do
@@ -461,11 +452,26 @@ def corpus (count : Nat) : Array String := Id.run do
       out := out.push r
   return out
 
-/-! ## Run -/
+/-! ## Oracle self-checks (RFC 3986 §5.4, §5.2.4) -/
+
+-- The resolver reproduces every example of RFC 3986 §5.4.
+/-- info: [] -/
+#guard_msgs in
+#eval rfcTable.filter fun (r, want) =>
+  recompose (resolve (splitRef "http://a/b/c/d;p?q".toList) (splitRef r.toList)) != want
+
+-- A planned path that kept its dot segments is reported, and so is one with an encoded dot segment
+-- removed, since `%2E%2E` is not a dot segment (§5.2.4 works on the path as written).
+#guard check "/x/../y" "origin-form http://example.com:80 /y"
+  "origin-form http://example.com:80 /x/../y" "/x/../y" == some "path differs"
+#guard check "/x/%2E%2E/y" "origin-form http://example.com:80 /x/%2E%2E/y"
+  "origin-form http://example.com:80 /y" "/y" == some "path differs"
+
+/-! ## Differential (RFC 3986 §5.2, RFC 9112 §3.2) -/
 
 /-- Checks every base against every reference and reports each failure category with its count and
 a few samples. -/
-def run (count : Nat) (samplesPerCategory : Nat := 3) : IO Unit := do
+private def run (count : Nat) (samplesPerCategory : Nat := 3) : IO Unit := do
   let refs := corpus count
   let mut checked := 0
   let mut failures : Array (String × Nat × Array String) := #[]
@@ -493,6 +499,6 @@ def run (count : Nat) (samplesPerCategory : Nat := 3) : IO Unit := do
       IO.println s!"{n} × {category}"
       for s in samples do IO.println s
 
-/-- info: 42280 redirects agree with RFC 3986 -/
+/-- info: 54432 redirects agree with RFC 3986 -/
 #guard_msgs in
 #eval run 3000

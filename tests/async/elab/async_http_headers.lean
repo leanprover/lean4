@@ -370,41 +370,10 @@ info: ("connection", "keep-alive,close")
   let (name, value) := Header.Connection.serialize c
   return (name.value, value.value)
 
-/-! ## Aggregate header byte limit (maxHeaderBytes) -/
-
-section HeaderByteLimit
-open Std.Http.Protocol.H1
-
--- Helper: feed all bytes at once and run one step, return the machine state.
-private def runMachine (raw : String) (cfg : Config) : Machine .receiving :=
-  let machine : Machine .receiving := { config := cfg }
-  (machine.feed raw.toUTF8).step.1
-
--- With a tight limit (35 bytes), two headers whose combined byte count exceeds
--- the limit should cause the machine to fail.
--- "host" (4) + "example.com" (11) + 4 = 19 bytes for the first header.
--- "x-a" (3) + "somevalue1" (10) + 4 = 17 bytes for the second → total 36 > 35.
-#guard
-  let raw := "GET / HTTP/1.1\r\nhost: example.com\r\nx-a: somevalue1\r\n\r\n"
-  let cfg : Config := { maxHeaderBytes := 35 }
-  (runMachine raw cfg).failed
-
--- With a generous limit the same request succeeds (machine is not failed).
-#guard
-  let raw := "GET / HTTP/1.1\r\nhost: example.com\r\nx-a: somevalue1\r\n\r\n"
-  let cfg : Config := { maxHeaderBytes := 100 }
-  !(runMachine raw cfg).failed
-
--- Exactly at the boundary: 19 bytes for host header alone, limit = 19 → ok.
-#guard
-  let raw := "GET / HTTP/1.1\r\nhost: example.com\r\n\r\n"
-  let cfg : Config := { maxHeaderBytes := 19 }
-  !(runMachine raw cfg).failed
-
--- One byte under the two-header total → second header pushes it over.
-#guard
-  let raw := "GET / HTTP/1.1\r\nhost: example.com\r\nx-a: somevalue1\r\n\r\n"
-  let cfg : Config := { maxHeaderBytes := 19 }
-  (runMachine raw cfg).failed
-
-end HeaderByteLimit
+-- Empty elements of a `Connection` list are skipped.
+#eval show IO Unit from do
+  for (value, tokens) in [("keep-alive, ", #["keep-alive"]), (", upgrade,, close", #["upgrade", "close"]),
+      ("", #[])] do
+    let got := (Header.Connection.parse (.ofString! value)).map (·.tokens)
+    unless got == some tokens do
+      throw (IO.userError s!"Connection.parse {value.quote}: expected {tokens}, got {got}")

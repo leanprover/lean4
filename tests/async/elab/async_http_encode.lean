@@ -612,3 +612,29 @@ info: "HTTP/3.0 200 OK\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({ status := .ok, version := .v30 } : Response.Head)
+
+/-! ## Status classes -/
+
+-- `isRedirection` is true exactly on the 3xx range, unassigned codes included, and false on the
+-- 2xx/4xx boundaries.
+#guard Status.isRedirection .multipleChoices
+#guard Status.isRedirection .permanentRedirect
+#guard !Status.isRedirection .ok
+#guard !Status.isRedirection .badRequest
+#guard (Status.ofCode none 299).any (!·.isRedirection)
+#guard (Status.ofCode none 300).any (·.isRedirection)
+#guard (Status.ofCode none 308).any (·.isRedirection)
+#guard (Status.ofCode none 350).any (·.isRedirection)
+#guard (Status.ofCode none 399).any (·.isRedirection)
+#guard (Status.ofCode none 400).any (!·.isRedirection)
+
+-- Status codes 600–999 count as server errors (RFC 9110 §15).
+#eval show IO Unit from do
+  let expect (cond : Bool) (msg : String) : IO Unit := unless cond do throw (IO.userError msg)
+  for code in [600, 700, 999] do
+    let some status := Status.ofCode none code | throw (IO.userError s!"ofCode {code}")
+    expect (status.isServerError && status.isError) s!"status {code} is not a server error"
+  let some status := Status.ofCode none 599 | throw (IO.userError "ofCode 599")
+  expect status.isServerError "599 is not a server error"
+  let some status := Status.ofCode none 499 | throw (IO.userError "ofCode 499")
+  expect (!status.isServerError && status.isClientError) "499 is not a client error"

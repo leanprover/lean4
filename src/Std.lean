@@ -15,3 +15,5 @@ public import Std.Tactic
 public import Std.Internal
 public import Std.Net
 public import Std.WP
+import Std.Http.Test.Helpers
+import Std.Http.Test.Machine

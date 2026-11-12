@@ -59,7 +59,7 @@
         "STRIP_BINARIES": "OFF",
         "USE_MIMALLOC": "OFF",
         "BSYMBOLIC": "OFF",
-        "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000 TEST_STACK_SIZE=16000 LSAN_OPTIONS=max_leaks=10"
+        "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000 TEST_STACK_SIZE=16000 LSAN_OPTIONS=max_leaks=10 LEAN_TEST_TIME_SCALE=50"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/sanitize"
@@ -74,7 +74,8 @@
         "STRIP_BINARIES": "OFF",
         "SMALL_ALLOCATOR": "OFF",
         "USE_MIMALLOC": "OFF",
-        "BSYMBOLIC": "OFF"
+        "BSYMBOLIC": "OFF",
+        "LEAN_TEST_VARS": "LEAN_TEST_TIME_SCALE=50"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/sanitize-thread"

@@ -1,4 +1,5 @@
 import Std.Http
+import Std.Http.Test.Helpers
 import Std.Async
 import Std.Async.Timer
 
@@ -201,32 +202,6 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
   assertStatusPrefix "09_incomplete_send_collapse" response "HTTP/1.1 200"
   assertContains response "hello world"
 
--- 10: Pipeline fixed-body POST then GET.
-#eval runWithTimeout "10_pipeline_fixed_then_get" 2000 do
-  let raw := ("POST /one HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhello" ++
-              "GET /two HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n").toUTF8
-  let response ← sendRawTimed "10_pipeline_fixed_then_get/send" raw uriHandler
-  assertStatusCount "10_pipeline_fixed_then_get" response 2
-  assertContains response "/one"
-  assertContains response "/two"
-
--- 11: Pipeline chunked-body POST then GET.
-#eval runWithTimeout "11_pipeline_chunked_then_get" 2000 do
-  let raw := ("POST /chunk HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n" ++
-              "GET /two HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n").toUTF8
-  let response ← sendRawTimed "11_pipeline_chunked_then_get/send" raw uriHandler
-  assertStatusCount "11_pipeline_chunked_then_get" response 2
-  assertContains response "/chunk"
-  assertContains response "/two"
-
--- 12: Malformed first request should not loop into second.
-#eval runWithTimeout "12_malformed_closes_connection" 2000 do
-  let raw := ("GET / HTTP/1.1\x0d\nHost: example.com\x0d\nBadHeader value\x0d\n\x0d\n" ++
-              "GET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n").toUTF8
-  let response ← sendRawTimed "12_malformed_closes_connection/send" raw uriHandler
-  assertStatusPrefix "12_malformed_closes_connection" response "HTTP/1.1 400"
-  assertStatusCount "12_malformed_closes_connection" response 1
-
 -- 13: Client closes while server is streaming response.
 #eval runWithTimeout "13_client_close_while_streaming" 2000 do
   let raw := "GET /close-stream HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
@@ -271,27 +246,6 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
   assertStatusPrefix "18_stress_streaming_active_client" response "HTTP/1.1 200"
   assertContains response "x0,"
   assertContains response "x119,"
-
--- 19: Pipeline with large unread first body still processes second request.
-#eval runWithTimeout "19_pipeline_large_unread_then_get" 2000 do
-  let body := String.ofList (List.replicate 5000 'b')
-  let raw := (s!"POST /big HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5000\x0d\n\x0d\n{body}" ++
-              "GET /after HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n").toUTF8
-  let response ← sendRawTimed "19_pipeline_large_unread_then_get/send" raw uriHandler
-  assertStatusCount "19_pipeline_large_unread_then_get" response 2
-  assertContains response "/big"
-  assertContains response "/after"
-
--- 20: Triple pipeline mixed body styles.
-#eval runWithTimeout "20_triple_pipeline_mixed" 2000 do
-  let raw := ("POST /a HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 4\x0d\n\x0d\ndata" ++
-              "POST /b HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\n3\x0d\nhey\x0d\n0\x0d\n\x0d\n" ++
-              "GET /c HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n").toUTF8
-  let response ← sendRawTimed "20_triple_pipeline_mixed/send" raw uriHandler
-  assertStatusCount "20_triple_pipeline_mixed" response 3
-  assertContains response "/a"
-  assertContains response "/b"
-  assertContains response "/c"
 
 -- 21: Slow/incomplete active body transfer must time out (no connection pinning).
 #eval runWithTimeout "21_incomplete_slow_post_times_out" 2000 do

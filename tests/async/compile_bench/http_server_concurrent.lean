@@ -1,4 +1,5 @@
 import Std.Http
+import Std.Http.Test.Helpers
 
 open Std Async
 open Std Http Internal Test

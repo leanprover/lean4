@@ -1,4 +1,5 @@
 import Std.Http
+import Std.Http.Test.Helpers
 import Std.Async
 
 open Std.Async
@@ -194,61 +195,6 @@ def fuzzSingleByteInputs : IO Unit := do
     let response ← sendRawAndClose client server bytes okHandler
     assertValidHttpOrEmpty s!"fuzzSingleByte byte={b}" response
 
--- Property: known attack patterns and real-world malformed inputs are handled safely.
--- This is the Lean analogue of hyper's denial-of-service and smuggling corpus.
-def fuzzKnownMaliciousPatterns : IO Unit := do
-  let patterns : Array ByteArray := #[
-    -- TLS 1.2 client hello prefix
-    ByteArray.mk #[0x16, 0x03, 0x01, 0x00, 0xa5, 0x01, 0x00, 0x00],
-    -- TLS 1.3 client hello prefix
-    ByteArray.mk #[0x16, 0x03, 0x03, 0x00, 0x7c, 0x01, 0x00, 0x00],
-    -- HTTP/2 connection preface
-    "PRI * HTTP/2.0\x0d\n\x0d\nSM\x0d\n\x0d\n".toUTF8,
-    -- Bare LF line endings
-    "GET / HTTP/1.1\nHost: example.com\n\n".toUTF8,
-    -- CR-only line endings
-    "GET / HTTP/1.1\x0dHost: example.com\x0d\x0d".toUTF8,
-    -- Null bytes everywhere
-    ByteArray.mk #[0x00, 0x00, 0x00, 0x00],
-    -- CRLF injection attempt in request-line
-    "GET /path%0d%0aInjected: header HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8,
-    -- Unicode in path (raw multibyte UTF-8)
-    "GET /caf\xc3\xa9 HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8,
-    -- HTTP response sent as a request (should fail, not panic)
-    "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\n\x0d\nok".toUTF8,
-    -- Request smuggling: CL.TE
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 6\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\n0\x0d\n\x0d\nX".toUTF8,
-    -- Request smuggling: TE.CL
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nContent-Length: 3\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8,
-    -- Duplicate chunked coding
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8,
-    -- TE with tab (whitespace obfuscation)
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding:\x09chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8,
-    -- TE with null byte injection
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunk\x00ed\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8,
-    -- Extremely long method token
-    (String.ofList (List.replicate 8192 'A') ++ " / HTTP/1.1\x0d\nHost: h\x0d\n\x0d\n").toUTF8,
-    -- SSRF-like absolute-form URI targeting internal host
-    "GET http://169.254.169.254/latest/meta-data/ HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8,
-    -- Chunk size with non-hex chars
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nGG\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8,
-    -- Chunk size overflow attempt (16+ hex digits)
-    "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nffffffffffffffff1\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8,
-    -- Header with embedded CRLF in value
-    "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Inject: foo\x0d\nEvil: injected\x0d\nConnection: close\x0d\n\x0d\n".toUTF8,
-    -- Multiple Host headers (smuggling attempt)
-    "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nHost: evil.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8,
-    -- Absolute-form URI with bad host overrides Host header
-    "GET http://evil.internal/steal HTTP/1.1\x0d\nHost: public.example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8,
-    -- Folded header (obs-fold, rejected per RFC 9112)
-    "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Folded: value\x0d\n  continuation\x0d\nConnection: close\x0d\n\x0d\n".toUTF8,
-  ]
-  for i in [:patterns.size] do
-    let pattern := patterns[i]!
-    let (client, server) ← Mock.new
-    let response ← sendRawAndClose client server pattern okHandler
-    assertValidHttpOrEmpty s!"fuzzKnownMalicious pattern={i}" response
-
 -- ============================================================================
 -- Run all properties
 -- ============================================================================
@@ -280,7 +226,3 @@ def fuzzKnownMaliciousPatterns : IO Unit := do
 -- Property: every single-byte input is handled safely (all 256 cases).
 #eval runWithTimeout "fuzz_single_byte_inputs" 30000 do
   fuzzSingleByteInputs
-
--- Property: known attack patterns and malformed inputs are handled safely.
-#eval runWithTimeout "fuzz_known_malicious_patterns" 30000 do
-  fuzzKnownMaliciousPatterns

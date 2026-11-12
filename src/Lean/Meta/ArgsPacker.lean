@@ -313,6 +313,9 @@ Given unary types `(x : Aᵢ) → Rᵢ[x]`, and `(x : A₁ ⊕ A₂ …)`, calcu
 ```
 match x with | inl x₁ => R₁[x₁] | inr x₂ => R₂[x₂] | …
 ```
+A case split is omitted where both branches have the same type, not depending on the branch's
+argument; in particular the result is `R` if all `Rᵢ` are the same non-dependent type `R`.
+
 This function assumes (and does not check) that `Rᵢ` all have the same level.
 -/
 def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
@@ -325,18 +328,23 @@ where
     let k := numLeft types.size
     let xType ← whnfD (← inferType x)
     assert! xType.isAppOfArity ``PSum 2
-    let xTypeArgs := xType.getAppArgs
-    let casesOn := mkConst ``PSum.casesOn (mkLevelSucc u :: xType.getAppFn.constLevels!)
-    let casesOn := mkAppN casesOn xTypeArgs -- parameters
-    let casesOn := mkApp casesOn (← mkLambdaFVars #[x] (mkSort u)) -- motive
-    let casesOn := mkApp casesOn x -- major
-    let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0]! fun x => do
+    let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xType.appFn!.appArg! fun x => do
       mkLambdaFVars #[x] (← go u (types.extract 0 k) x)
-    let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[1]! fun x => do
+    let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xType.appArg! fun x => do
       mkLambdaFVars #[x] (← go u (types.extract k) x)
-    return mkApp2 casesOn minor1 minor2
+    return mkCasesOn u xType x minor1 minor2
   termination_by types.size
   decreasing_by all_goals simp only [Array.size_extract, numLeft]; omega
+
+  /-- Case splits on `x : A ⊕' B` into the types `minor1 : A → Sort u` and `minor2 : B → Sort u`. -/
+  mkCasesOn (u : Level) (xType x minor1 minor2 : Expr) : Expr :=
+    let r₁ := minor1.bindingBody!
+    if !r₁.hasLooseBVars && r₁ == minor2.bindingBody! then
+      r₁
+    else
+      let motive := .lam `_x xType (mkSort u) .default
+      mkApp4 (mkAppN (mkConst ``PSum.casesOn (mkLevelSucc u :: xType.getAppFn.constLevels!))
+        xType.getAppArgs) motive x minor1 minor2
 
 /--
 Given types `(x : A) → R₁[x]` and `(z : B) → R₂[z]`, returns the type

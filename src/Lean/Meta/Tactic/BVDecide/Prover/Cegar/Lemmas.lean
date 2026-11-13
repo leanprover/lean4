@@ -28,27 +28,12 @@ public def Cegar.processNewHyps : CegarM ProcessHypResult := do
     let (normalized, unnormalized) := hypQueue.partition (·.isNormalized)
     let mut hypQueue := normalized.map (·.hyp)
     unless unnormalized.isEmpty do
-      let target := .mvarIdTarget (← read).goal
-      let ctx := (← CegarM.getTacticContext).preProcessContext
-      let ctx :=
-        .new
-          ctx.mode
-          { ctx.config with
-              enums := false,
-              structures := false,
-              fixedInt := false,
-              shortCircuit := false
-          }
-          true
-      let caches ← CegarM.takePreProcessCaches
-      let (solved, state) ←
-        Normalize.PreProcessM.run ctx target do
-          Normalize.PreProcessM.setCaches caches
-          Normalize.bvNormalize <| unnormalized.map (·.hyp)
+      let (solved, hyps) ← CegarM.liftPreProcessM do
+        let solved ← Normalize.bvNormalize <| unnormalized.map (·.hyp)
+        let hyps := (← get).hypotheses
+        return (solved, hyps)
       if solved then return .solved
-      CegarM.setPreProcessCaches state.caches
-      hypQueue := hypQueue ++ state.hypotheses
-
+      hypQueue := hypQueue ++ hyps
     let mut sats := #[]
     for hyp in hypQueue do
       checkSystem "bv_decide"

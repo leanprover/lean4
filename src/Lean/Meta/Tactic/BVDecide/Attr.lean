@@ -26,6 +26,7 @@ open Simp
 builtin_initialize registerTraceClass `Meta.Tactic.sat
 builtin_initialize registerTraceClass `Meta.Tactic.bv
 builtin_initialize registerTraceClass `Meta.Tactic.bv.uf
+builtin_initialize registerTraceClass `Meta.Tactic.bv.epr
 
 register_builtin_option sat.solver : String := {
   defValue := ""

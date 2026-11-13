@@ -51,24 +51,26 @@ public structure Subsolver where
 public abbrev SubsolverT {σ : Type} (m : Type → Type) [STWorld σ m] (α : Type) := StateRefT Subsolver m α
 
 /--
-Create a subsolver for hypotheses in the local context of `mvar`. It performs neither theory
-refinement nor the preprocessing passes that are disabled for CEGAR lemmas.
+Create a new subsolver. If `trackFunAtoms` is set, reification registers UF atoms in the
+`funState` of the reification state as usual, but the subsolver still treats them as plain atoms.
 -/
-public def Subsolver.new (ctx : TacticContext) (mvar : MVarId) : Sym.SymM Subsolver := do
+public def Subsolver.new (ctx : TacticContext) (mvar : MVarId) (reifyState : BVDecide.State := {})
+    (trackFunAtoms : Bool := false) : Sym.SymM Subsolver := do
   let ctx := { ctx with
     config := { ctx.config with
       enums := false
       structures := false
       fixedInt := false
       shortCircuit := false
-      uf := false
+      uf := trackFunAtoms
+      epr := false
     }
   }
   let satSolver ← Cadical.Solver.new
   let opts := External.SatOptions.ofMode ctx.config.solverMode |>.addIncremental
   opts.configureSolver satSolver
   return {
-    reifyState := {}
+    reifyState
     preProcessState := {}
     bvSolver := {
       bitvecState := {}
@@ -92,7 +94,7 @@ def liftBvSolverM (x : BvSolverM α) : SubsolverT m α := do
   modify fun s => { s with bvSolver }
   return a
 
-def liftReifyM (x : ReifyM α) : SubsolverT m α := do
+public def liftReifyM (x : ReifyM α) : SubsolverT m α := do
   let config := (← get).ctx.config
   let reifyState ← modifyGet fun s => (s.reifyState, { s with reifyState := {} })
   let (a, reifyState) ← liftM (m := Grind.GrindM) <|
@@ -100,7 +102,7 @@ def liftReifyM (x : ReifyM α) : SubsolverT m α := do
   modify fun s => { s with reifyState }
   return a
 
-def liftPreProcessM (x : Normalize.PreProcessM α) : SubsolverT m α := do
+public def liftPreProcessM (x : Normalize.PreProcessM α) : SubsolverT m α := do
   let ctx := (← get).ctx.preProcessContext
   let ctx := .new ctx.mode ctx.config true
   let mvar := (← get).mvar
@@ -114,11 +116,10 @@ def liftPreProcessM (x : Normalize.PreProcessM α) : SubsolverT m α := do
   return a
 
 /--
-Push a new level of hypotheses `hyps` that are already in `bv_decide` normal form onto the solver
-stack, skipping the pre-processor.
+Reify hypotheses `hyps` that are already in `bv_decide` normal form without asserting them.
 -/
-public def pushNormalized (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
-  let bvExprs ← liftReifyM do
+public def reifyNormalized (hyps : Array Normalize.Hyp) : SubsolverT m (Array BVLogicalExpr) := do
+  liftReifyM do
     let (sats, lemmas) ← LemmaM.run do
       -- TODO: share with lemma file?
       hyps.filterMapM fun hyp => do
@@ -128,10 +129,23 @@ public def pushNormalized (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
           | throwError m!"Failed to reify subsolver hypothesis {hyp.type}"
         return some reflected
     return (lemmas ++ sats).map (·.bvExpr)
+
+/--
+Push a new assertion level of reflected expressions onto the assertion stack.
+Note that these assertions must have been reified in the reification context of this subsolver.
+-/
+public def pushReified (bvExprs : Array BVLogicalExpr) : SubsolverT m Unit := do
   liftBvSolverM <| BvSolverM.push bvExprs
 
 /--
-Push a new level of hypotheses `hyps` onto the solver stack. This already triggers pre-processing.
+Push a new assertion level of `bv_decide` normalized hypotheses onto the assertion stack, skipping
+the pre-processor.
+-/
+public def pushNormalized (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
+  pushReified (← reifyNormalized hyps)
+
+/--
+Push a new assertion level of hypotheses onto the assertion stack, pre-processing them in the process.
 -/
 public def push (hyps : Array Normalize.Hyp) : SubsolverT m Unit := do
   let preprocessResult ← liftPreProcessM do
@@ -165,8 +179,14 @@ public def check : SubsolverT m (Except CegarM.CounterExample Unit) := do
     let cex ← liftReifyM <| CegarM.CounterExample.ofArray cex
     return .error cex
 
-public def run (ctx : TacticContext) (mvar : MVarId) (x : SubsolverT m α) : m α := do
-  let solver ← Subsolver.new ctx mvar
+public def getReifyState : SubsolverT m BVDecide.State := do
+  -- Fill the cache once instead of in every solver started from this state.
+  discard <| liftReifyM ReifyM.atomsAssignmentMap
+  return (← get).reifyState
+
+public def run (ctx : TacticContext) (mvar : MVarId) (x : SubsolverT m α)
+    (reifyState : BVDecide.State := {}) (trackFunAtoms : Bool := false) : m α := do
+  let solver ← Subsolver.new ctx mvar reifyState trackFunAtoms
   StateRefT'.run' x solver
 
 end SubsolverT

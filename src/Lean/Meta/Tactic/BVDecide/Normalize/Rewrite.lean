@@ -37,7 +37,7 @@ public def withRewriteRules (k : Sym.DSimp.Methods → Sym.DSimp.Config → Sym.
   let cache ← ST.mkRef {}
   let simpMethods : Sym.Simp.Methods := {
     pre e := do
-      if e.isAppOfArity ``Std.Tactic.BVDecide.BitVec.ofProp 1 then return .rfl (done := true)
+      if e.isAppOfArity ``Std.Tactic.BVDecide.Bool.ofProp 1 then return .rfl (done := true)
       let res ← Sym.Simp.simpControl e
       -- We invalidate `done` as we still want to rewrite in the arms, even if the discr cannot
       -- be resolved.

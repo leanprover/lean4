@@ -45,12 +45,12 @@ end Frontend.Normalize
 
 open Classical in
 /--
-Encode `a` as a `BitVec 1`. This is used by bv_decide to treat propositional variables.
+Encode `a` as a `Bool`. This is used by bv_decide to treat propositional variables.
 -/
-noncomputable def BitVec.ofProp (a : Prop) : BitVec 1 :=
-  if a then 1#1 else 0#1
+noncomputable def Bool.ofProp (a : Prop) : Bool :=
+  decide a
 
-theorem BitVec.eq_ofProp_eq_one (a : Prop) : a = (BitVec.ofProp a = 1#1) := by
-  by_cases h : a <;> simp [BitVec.ofProp, h]
+theorem Bool.eq_ofProp_eq_true (a : Prop) : a = (Bool.ofProp a = true) := by
+  simp [Bool.ofProp]
 
 end Std.Tactic.BVDecide

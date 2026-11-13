@@ -124,8 +124,8 @@ def checkConstantVal (μ : CheckMode) (n : Name) (lps : List Name) (ty : Expr) :
   (checkConstantValC μ (← read).fe { name := n, levelParams := lps, type := ty } : CheckCM Unit)
 
 /-- A term's syntactic gates (`checkTermWF`). -/
-def checkExprWF (what : String) (lps : List Name) (e : Expr) : M Unit := do
-  (checkTermWF (← read).fe what lps e : CheckCM Unit)
+def checkExprWF (pre : String) (n : Name) (lps : List Name) (e : Expr) : M Unit := do
+  (checkTermWF (← read).fe pre n lps e : CheckCM Unit)
 
 /-- The level-instantiated type of a stored constant (`constTyAtM`). -/
 def constTyAt (ci : ConstantInfo) (us : List Level) : M Expr := do

@@ -98,6 +98,15 @@ def checkDecl (cfg : Config) (env : Kernel.Environment) (decl : Declaration) :
       throw (.notImplemented "a constant other than an axiom at `sorryAx`'s name")
     return a
 
+/-- **Check `decl` without adding anything**: success, or the exception `addDecl` would
+return.  For a caller that adds the constants itself (a theorem's checked, shared copy is
+not the declaration the environment gets). -/
+def checkDeclOnly (env : Kernel.Environment) (decl : Declaration) (cfg : Config := {}) :
+    Except Kernel.Exception Unit :=
+  match checkDecl cfg env decl with
+  | .ok _ => .ok ()
+  | .error e => .error e.toKernelException
+
 /-- **Check `decl` and add the constants it declares** — the twin of
 `Lean.Kernel.Environment.addDeclCore`.  A reject, a decline and an error
 are each `Kernel.Exception.other`, the message prefixed `(InLean)` and, for a

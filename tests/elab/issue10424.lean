@@ -33,7 +33,7 @@ has type
 but is expected to have type
   Fin (n0 + 1)
 ---
-error: (kernel) declaration has metavariables '_example'
+error: (kernel) (InLean) unexpected metavariable in type of _example
 -/
 #guard_msgs in
 example (n0 n : Nat) (h : id n0 = n) :

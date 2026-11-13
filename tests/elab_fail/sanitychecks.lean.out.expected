@@ -23,5 +23,5 @@ This process uses multiple strategies:
 - It tries unfolding the return type.
 
 If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
-sanitychecks.lean:22:12-22:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
-sanitychecks.lean:25:12-25:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
+sanitychecks.lean:22:12-22:20: error: (kernel) (InLean) invalid declaration, it uses unsafe declaration 'unsafeCast'
+sanitychecks.lean:25:12-25:20: error: (kernel) (InLean) invalid declaration, it uses unsafe declaration 'unsafeCast'

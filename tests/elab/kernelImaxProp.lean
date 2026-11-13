@@ -32,10 +32,7 @@ theorem kmRight : KMAsProp := KMWeird.mk true
 /-- The inductive really is a proposition, so proof irrelevance applies. -/
 theorem kmProofIrrel : kmLeft = kmRight := rfl
 
-/--
-error: (kernel) invalid projection
-  proof.1
--/
+/-- error: (kernel) (InLean) projection from a propositional structure must be a proposition -/
 #guard_msgs in
 #eval addDecl <| .defnDecl {
   name := `kmLeak

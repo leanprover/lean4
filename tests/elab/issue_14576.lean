@@ -55,10 +55,7 @@ meta def build : CommandElabM Unit := do
 
 elab "mkbug" : command => build
 
-/--
-error: (kernel) invalid projection
-  w.1
--/
+/-- error: (kernel) (InLean) invalid projection: the node names another structure -/
 #guard_msgs in
 mkbug
 

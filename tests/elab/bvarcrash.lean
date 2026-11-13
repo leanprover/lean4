@@ -637,7 +637,7 @@ run_meta do
   for decl in [decl_0, decl_1, decl_2, decl_3, decl_4, decl_5, decl_6, decl_7, decl_8] do
     setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 0 decl none)
 
-/-- error: (kernel) constant has already been declared '«term_+_»' -/
+/-- error: (kernel) (InLean) constant has already been declared '«term_+_»' -/
 #guard_msgs in
 run_meta
     setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 0 decl_9 none)

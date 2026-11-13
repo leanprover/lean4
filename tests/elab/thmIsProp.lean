@@ -2,10 +2,7 @@ import Lean
 
 open Lean
 
-/--
-error: (kernel) type of theorem 'bad' is not a proposition
-  Nat
--/
+/-- error: (kernel) (InLean) type of theorem bad is not a proposition -/
 #guard_msgs (error) in
 run_meta do
   addDecl <| .thmDecl {

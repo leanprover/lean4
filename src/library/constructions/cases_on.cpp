@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "kernel/inductive.h"
 #include "library/suffixes.h"
 #include "library/util.h"
 #include "library/constants.h"

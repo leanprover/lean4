@@ -581,15 +581,39 @@ end CacheServiceKind
 
 /-! ## Remote Cache Service -/
 
+@[inline] def downloadTmpPath (path : FilePath) : FilePath :=
+  path.addExtension "tmp"
+
+def artifactHashMismatch (badPath : FilePath) (actualHash : Hash) : String :=
+  s!"{badPath}: downloaded artifact hash mismatch, got {actualHash}"
+
+def artifactWriteFailed (artPath : FilePath) (err : IO.Error) : String :=
+  s!"{artPath}: failed to write artifact: {err}"
+
+def artifactReadFailed (path : FilePath) (err : IO.Error) : String :=
+  s!"{path}: failed to read downloaded artifact: {err}"
+
 /-- **For internal use only.** -/
 public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
-  download url path
-  let actualHash ← computeFileHash path
-  if actualHash != hash then
-    let errPos ← getLogPos
-    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-    IO.FS.removeFile path
-    throw errPos
+  let tmpPath := downloadTmpPath path
+  download url tmpPath
+  match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
+  | .ok contents =>
+    let actualHash := Hash.ofByteArray contents
+    if actualHash == hash then
+      if let .error e ← writeBinFileAtomicIfNew path contents |>.toBaseIO then
+        error (artifactWriteFailed path e)
+      else
+        try IO.FS.removeFile tmpPath catch _ => pure ()
+    else
+      let errPos ← getLogPos
+      logError (artifactHashMismatch tmpPath actualHash)
+      -- Do not remove file to avoid deleting a racing download
+      throw errPos
+  | .error e =>
+    -- A racing download may have created it already.
+    unless e matches .noFileOrDirectory .. && (← path.pathExists) do
+      error (artifactReadFailed tmpPath e)
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
@@ -751,7 +775,9 @@ public def downloadArtifact
 : LoggerIO Unit := do
   let url := service.artifactUrl descr.hash scope
   let path := cache.artifactDir / descr.relPath
-  if (← path.pathExists) && !force then
+  if force then
+    removeFileIfExists path
+  else if (← path.pathExists) then
     return
   logInfo s!"{scope}: downloading artifact {descr.hash}\
     \n  local path: {path}\
@@ -827,9 +853,6 @@ structure TransferState where
   fix. A batch retries its unsettled transfers on its next attempt.
   -/
   settled : Std.HashSet Nat := {}
-
-@[inline] def tmpPath (path : FilePath) : FilePath :=
-  path.addExtension "tmp"
 
 /--
 The number of times a batch transfer is attempted: one initial attempt plus
@@ -921,28 +944,29 @@ where
         logInfo s!"{cfg.scope}: downloaded artifact {hash}\
           \n  local path: {path}\
           \n  remote URL: {url}"
-      let tmpPath := tmpPath path
+      let tmpPath := downloadTmpPath path
       match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
       | .ok contents =>
         logDownload
         let actualHash := Hash.ofByteArray contents
         if actualHash != hash then
-          recordFailure i true s!"{tmpPath}: downloaded artifact hash mismatch, got {actualHash}"
-        else if let .error e ← IO.FS.rename tmpPath path |>.toBaseIO then
-          recordFailure i false s!"{path}: failed to persist temporary artifact: {e}"
+          recordFailure i true (artifactHashMismatch tmpPath actualHash)
+        else if let .error e ← writeBinFileAtomicIfNew path contents |>.toBaseIO then
+          recordFailure i false (artifactWriteFailed path e)
         else
+          try IO.FS.removeFile tmpPath catch _ => pure ()
           unless extraPaths.isEmpty do
             -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
             for extraPath in extraPaths do
-              if let .error e ← IO.FS.writeBinFile extraPath contents |>.toBaseIO then
-                logError s!"{extraPath}: failed to copy artifact: {e}"
+              if let .error e ← writeBinFileAtomicIfNew extraPath contents |>.toBaseIO then
+                logError (artifactWriteFailed extraPath e)
                 modify ({· with didError := true})
           recordSuccess i
       | .error (.noFileOrDirectory ..) =>
         handleFailure i info true (.ok code) out line
       | .error e =>
         logDownload
-        recordFailure i false s!"{tmpPath}: failed to read downloaded artifact: {e}"
+        recordFailure i false (artifactReadFailed tmpPath e)
     | .put =>
       logInfo s!"{cfg.scope}: uploaded artifact {hash}\
         \n  local path: {path}\
@@ -960,7 +984,7 @@ where
       \n  remote URL: {info.url}"
     match cfg.kind with
     | .get =>
-      let tmpPath := tmpPath info.path
+      let tmpPath := downloadTmpPath info.path
       unless code? matches .ok 404 do -- ignore response bodies on 404s
         if let .ok size := out.getAs Nat "size_download" then
           if size > 0 then
@@ -984,7 +1008,7 @@ def runTransferAttempt
     match cfg.kind with
     | .get =>
       cfg.infos.forM fun info => do
-        let tmpPath := tmpPath info.path
+        let tmpPath := downloadTmpPath info.path
         removeFileIfExists tmpPath
         h.putStrLn s!"url = {info.url.quote}"
         h.putStrLn s!"-o {tmpPath.toString.quote}"

@@ -15,7 +15,7 @@ test_run build text
 art=$("$LAKE" query text)
 test_exp "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 test_cmd diff -u fixtures/source.txt "$art"
-tmp="$art.copy.tmp"
+tmp="$art.part.tmp"
 
 # Plants the given file as the temporary file of a fresh save,
 # re-caches the artifact, and verifies the result

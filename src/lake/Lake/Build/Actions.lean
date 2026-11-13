@@ -170,10 +170,9 @@ public def compileExe
 public def download
   (url : String) (file : FilePath) (headers : Array String := #[])
 : LogIO PUnit := do
-  if (← file.pathExists) then
-    IO.FS.removeFile file
-  else
-    createParentDirs file
+  createParentDirs file
+  -- No `--clobber` to be compatible with older versions of `curl`.
+  removeFileIfExists file
   let args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
   proc (quiet := true) {cmd := ← Internal.getCurl, args}

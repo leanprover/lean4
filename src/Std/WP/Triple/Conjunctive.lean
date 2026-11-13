@@ -36,7 +36,7 @@ variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type w'}
 Conjunction of two Hoare triple specifications for a program `x`. This theorem decomposes proofs:
 prove unrelated facts about `x` separately, then combine them here.
 -/
-theorem and {x : Prog} [(WP.trans x).IsConjunctive] {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred}
+theorem and {x : Prog} [WP.IsConjunctive x] {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred}
     {eposts₁ eposts₂ : EPosts}
     (h₁ : Triple x pre₁ post₁ eposts₁) (h₂ : Triple x pre₂ post₂ eposts₂) :
     Triple x (pre₁ ⊓ pre₂) (post₁ ⊓ post₂) (eposts₁ ⊓ eposts₂) :=
@@ -48,7 +48,7 @@ Modus ponens for two Hoare triple specifications of a program `x`. This theorem 
 Let `h₁` establish a basic postcondition `post₁` for `x`, and let `h₂` establish the advanced
 postcondition `post₂` under the assumption `post₁`. Then `mp h₁ h₂` establishes `post₂` for `x`.
 -/
-theorem mp [WP.IsMonotone Prog] {x : Prog} [(WP.trans x).IsConjunctive]
+theorem mp [WP.IsMonotone Prog] {x : Prog} [WP.IsConjunctive x]
     [Heyting Pred] [Heyting EPosts]
     {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred} {eposts₁ eposts₂ : EPosts}
     (h₁ : Triple x pre₁ post₁ eposts₁)
@@ -66,7 +66,7 @@ that holds after a successful run of `obs` already holds before it.
 -/
 theorem observe [WP.IsMonotone Prog] {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPosts]
     [Heyting Pred] [Heyting EPosts]
-    {obs : Prog} [(WP.trans obs).IsConjunctive] {prog : Prog'}
+    {obs : Prog} [WP.IsConjunctive obs] {prog : Prog'}
     {pre : Pred} {post : Value → Pred} {eposts : EPosts}
     {post' : Value' → Pred} {eposts' : EPosts}
     (hp : ∀ C : Pred, wp obs (fun _ => C) ⊥ ⊑ C)

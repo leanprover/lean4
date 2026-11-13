@@ -26,7 +26,7 @@ The laws relate `WP.trans : m α → PredTrans Pred EPosts α` to the monad stru
 
 * `MonadicWP.IsLaxMonadMorphism m`: `pure` and `bind` of the transformers lie below the
   transformers of `pure` and `bind`, so `wp` is sound for `pure` and `bind`. Together with
-  `WP.IsMonotone`, `WP.trans` is then a lax monad morphism into the monotone transformers.
+  `MonadicWP.IsMonotone`, `WP.trans` is then a lax monad morphism into the monotone transformers.
 * `MonadicWP.IsMonadMorphism m`: `WP.trans` is a monad morphism. It commutes with `pure` and
   `bind`, so `wp` computes `pure` and `bind`.
 -/
@@ -48,6 +48,11 @@ instance (priority := low)
     WP (m α) α Pred EPosts :=
   inst.toWP α
 
+/-- The transformer of every program of the monad `m` is monotone. -/
+abbrev MonadicWP.IsMonotone (m : Type u → Type v) {Pred : Type w} {EPosts : Type w'} [Monad m]
+    [MonadicWP m Pred EPosts] [PartialOrder Pred] [PartialOrder EPosts] : Prop :=
+  ∀ α, WP.IsMonotone (m α)
+
 /-- `WP.trans` is a monad morphism from `m` to `PredTrans Pred EPosts`: it commutes with `pure` and
 `bind`. -/
 class MonadicWP.IsMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w)}
@@ -60,8 +65,8 @@ class MonadicWP.IsMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w
     WP.trans (x >>= f) = WP.trans x >>= fun a => WP.trans (f a)
 
 /-- `pure` and `bind` of the transformers in `PredTrans Pred EPosts` lie below the transformers of
-`pure` and `bind`. Together with `WP.IsMonotone`, `WP.trans` is then a lax monad morphism from `m`
-to the monotone transformers. -/
+`pure` and `bind`. Together with `MonadicWP.IsMonotone`, `WP.trans` is then a lax monad morphism
+from `m` to the monotone transformers. -/
 class MonadicWP.IsLaxMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w)}
     {EPosts : outParam (Type w')} [Monad m] [MonadicWP m Pred EPosts]
     [PartialOrder Pred] [PartialOrder EPosts] : Prop where
@@ -115,7 +120,7 @@ theorem bind_le_wp_bind {α β : Type u} (x : m α) (f : α → m β) (post : β
   IsLaxMonadMorphism.bind_le x f post eposts
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
-theorem map_le_wp_map [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] {α β : Type u} (f : α → β) (x : m α) :
+theorem map_le_wp_map [LawfulMonad m] [MonadicWP.IsMonotone m] {α β : Type u} (f : α → β) (x : m α) :
   ∀ post eposts, wp x (fun a => post (f a)) eposts ⊑ wp (f <$> x) post eposts := by
   intro post eposts
   rw [← bind_pure_comp]
@@ -125,7 +130,7 @@ theorem map_le_wp_map [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] {α β : Ty
   intro a; exact pure_le_wp_pure (f a) post eposts
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
-theorem seq_le_wp_seq [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] {α β : Type u} (f : m (α → β)) (x : m α) :
+theorem seq_le_wp_seq [LawfulMonad m] [MonadicWP.IsMonotone m] {α β : Type u} (f : m (α → β)) (x : m α) :
   ∀ post eposts,
     wp f (fun g => wp x (fun a => post (g a)) eposts) eposts ⊑
       wp (f <*> x) post eposts := by

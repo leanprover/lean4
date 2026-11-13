@@ -147,13 +147,13 @@ theorem fib_impl_vcs
     exact loop_step n h (a, b₀) pref cur suff _hsplit _hinv
 
 @[spec]
-theorem mkFreshNat_spec [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem mkFreshNat_spec [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
   vcgen [mkFreshNat] <;> simp_all
 
-theorem erase_unfold [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem erase_unfold [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
   (mkFreshNat : StateT AppState m Nat)
   ⦃fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -163,7 +163,7 @@ theorem erase_unfold [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [
   fail_if_success done
   admit
 
-theorem add_unfold [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem add_unfold [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -278,7 +278,7 @@ namespace HimpSplit
 -- A `⇨` (Heyting implication) in the postcondition exercises the `PreservesSup.le_upperAdjoint` split, whose
 -- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
 -- `⇨` from collapsing to `→`.
-theorem himp_post {m} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem himp_post {m} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄ (pure 4 : m Nat) ⦃ fun r => ⌜r = 4⌝ ⇨ ⌜r > 0⌝ ⦄ := by
   vcgen
   all_goals grind
@@ -504,7 +504,7 @@ variable {m} [Monad m]
 open Std Std.Iterators
 
 theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄
     (do
       let mut sum : Nat := 0
@@ -517,7 +517,7 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [CompleteLattice Pred] [Comp
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
@@ -528,7 +528,7 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [CompleteLatti
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
@@ -540,7 +540,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [CompleteLattic
 
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m]
-    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
@@ -551,7 +551,7 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
-    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
@@ -562,7 +562,7 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
-    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
   case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
@@ -739,7 +739,7 @@ end InvalidSpecRejection
 
 namespace TopBetaReduction
 
-variable {m : Type → Type u} {Pred EPosts} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+variable {m : Type → Type u} {Pred EPosts} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
 
 def incr (n : Nat) : StateT Nat m PUnit := modify (· + n)
 

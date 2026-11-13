@@ -33,7 +33,7 @@ open Assertion
 universe u u₁ u₂ v w
 variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v}
   {Pred : Type (max u₁ u₂)} {EPosts : Type (max u₁ u₂)}
-variable [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+variable [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
 
 /-! ## Gadgets -/
 
@@ -154,7 +154,7 @@ end Gadget
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
 variable [Monad m] [Lean.Order.MonadTail m] [CompleteLattice Pred] [CompleteLattice EPosts]
-  [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+  [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
 
 omit [LawfulMonad m] in
 @[spec]

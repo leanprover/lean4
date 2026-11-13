@@ -44,7 +44,7 @@ def mkFreshPair [Monad m] [MonadStateOf AppState m] : m (Nat × Nat) := do
 
 /-- Lossy spec: says nothing about `s.2`. -/
 @[spec]
-theorem mkFreshNat_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem mkFreshNat_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.1 = n⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝ ⦄ := by
   unfold mkFreshNat
@@ -53,7 +53,7 @@ theorem mkFreshNat_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice 
 /-- `mkFreshNat` frames any `F` outside its `fst` footprint. The frame condition reduces through
 `of_conjunctive` to the preservation triple, which holds since `mkFreshNat` overwrites only `fst`. -/
 theorem frames_mkFreshNat [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] [∀ β (y : m β), (WP.trans y).IsConjunctive]
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [MonadicWP.IsConjunctive m]
     [∀ a : Pred, PreservesSup (meet a)] {F P : AppState → Pred}
     (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (mkFreshNat : StateT AppState m Nat) F P := by
@@ -95,7 +95,7 @@ theorem recovers_snd_pair :
 
 /-- Lossy spec: says nothing about `s.1`. -/
 @[spec]
-theorem mkFreshSnd_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem mkFreshSnd_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.2 = o⌝ ⦄ (mkFreshSnd : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = o ∧ s.2 = o + 1⌝ ⦄ := by
   unfold mkFreshSnd
@@ -103,7 +103,7 @@ theorem mkFreshSnd_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice 
 
 /-- `mkFreshSnd` frames any `F` outside its `snd` footprint. -/
 theorem frames_mkFreshSnd [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] [∀ β (y : m β), (WP.trans y).IsConjunctive]
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [MonadicWP.IsConjunctive m]
     [∀ a : Pred, PreservesSup (meet a)] {F P : AppState → Pred}
     (h : ∀ a b, F (a, b) = F (a, 0)) :
     WP.Frames meet (mkFreshSnd : StateT AppState m Nat) F P := by
@@ -152,7 +152,7 @@ theorem recovers_both :
 
 /-- Lossy spec: says nothing about `s.2`. -/
 @[spec]
-theorem addFst_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+theorem addFst_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.1 = n⌝ ⦄ (addFst k : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + k⌝ ⦄ := by
   unfold addFst
@@ -160,7 +160,7 @@ theorem addFst_spec_lossy [Monad m] [CompleteLattice Pred] [CompleteLattice EPos
 
 /-- `addFst k` frames any `F` outside its `fst` footprint. -/
 theorem frames_addFst [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] [∀ β (y : m β), (WP.trans y).IsConjunctive]
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [MonadicWP.IsConjunctive m]
     [∀ a : Pred, PreservesSup (meet a)] {F P : AppState → Pred} {k : Nat}
     (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (addFst k : StateT AppState m Nat) F P := by
@@ -194,7 +194,7 @@ theorem recovers_with_arg :
 /-- Lossy spec: says nothing about `s.1`. -/
 @[spec]
 theorem bumpSnd_spec_lossy {σ : Type} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.2 = o⌝ ⦄ (bumpSnd : StateT (σ × Nat) m Nat)
     ⦃ fun r s => ⌜r = o ∧ s.2 = o + 1⌝ ⦄ := by
   unfold bumpSnd
@@ -202,7 +202,7 @@ theorem bumpSnd_spec_lossy {σ : Type} [Monad m] [CompleteLattice Pred] [Complet
 
 /-- `bumpSnd` frames any `F` outside its `snd` footprint, over an abstract state `σ`. -/
 theorem frames_bumpSnd {σ : Type} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] [∀ β (y : m β), (WP.trans y).IsConjunctive]
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [MonadicWP.IsConjunctive m]
     [∀ a : Pred, PreservesSup (meet a)] {F P : σ × Nat → Pred}
     (h : ∀ a b, F (a, b) = F (a, 0)) :
     WP.Frames meet (bumpSnd : StateT (σ × Nat) m Nat) F P := by
@@ -233,8 +233,8 @@ theorem recovers_fst_poly {σ : Type} {a : σ} :
 error: `frames` alternative matched no program in the goal
 -/
 #guard_msgs in
-example [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
-    [∀ β (y : m β), (WP.trans y).IsConjunctive] [∀ a : Pred, PreservesSup (meet a)] :
+example [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+    [MonadicWP.IsConjunctive m] [∀ a : Pred, PreservesSup (meet a)] :
     ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := by
   vcgen frames | mkFreshSnd => fun s => ⌜s.2 = 7⌝
@@ -275,14 +275,14 @@ the abstract assertion universe. -/
 /-- Only `get` and state-introduction, exercising `Spec.get_StateT` at an abstract assertion
 universe. -/
 example {m : Type → Type v} {Pred : Type w} {EPosts : Type w'} [Monad m] [CompleteLattice Pred]
-    [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (P : Nat → Pred) :
+    [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (P : Nat → Pred) :
     ⦃P⦄ (get : StateT Nat m Nat) ⦃fun _ => P⦄ := by
   vcgen
 
 /-- The lossy spec of `mkFreshNat` at an abstract assertion universe: `vcgen` threads
 `pure`/`bind`/`map`/`modifyGet`/`get` over `Pred : Type w`. -/
 example {m : Type → Type v} {Pred : Type w} {EPosts : Type w'} [Monad m] [CompleteLattice Pred]
-    [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (n : Nat) :
+    [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (n : Nat) :
     ⦃ fun s => ⌜s.1 = n⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝ ⦄ := by
   unfold mkFreshNat
@@ -302,7 +302,7 @@ class Never (α : Type) : Prop where
 /-- The lossy spec, guarded by an instance on a `γ` that nothing determines. -/
 @[spec high]
 theorem mkFreshNat_spec_guarded {γ : Type} [Never γ] [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun s => ⌜s.1 = n⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝ ⦄ :=
   (Never.absurd (α := γ)).elim

@@ -91,7 +91,7 @@ instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadM
     | error e => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
 instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
-    [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ExceptT ε m) where
   pure_le x := fun post eposts =>
     MonadicWP.pure_le_wp_pure (m := m) (Except.ok x) (pushExcept post eposts.fst) eposts.snd
@@ -143,7 +143,7 @@ instance {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadM
     | none => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
 instance {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
-    [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (OptionT m) where
   pure_le x := fun post eposts =>
     MonadicWP.pure_le_wp_pure (m := m) (some x) (pushOption post eposts.fst) eposts.snd
@@ -188,7 +188,7 @@ instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m 
       eposts
 
 instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m Pred EPosts]
-    [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)]
+    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
     [MonadicWP.IsLaxMonadMorphism m] : MonadicWP.IsLaxMonadMorphism (StateT σ m) where
   pure_le x := fun post eposts s =>
     MonadicWP.pure_le_wp_pure (m := m) (x, s) (fun p => post p.1 p.2) eposts
@@ -224,7 +224,7 @@ instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadM
     MonadicWP.wp_bind_eq (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r) eposts
 
 instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
-    [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ReaderT ρ m) where
   pure_le x := fun post eposts r =>
     MonadicWP.pure_le_wp_pure (m := m) x (fun a => post a r) eposts

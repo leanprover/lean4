@@ -144,20 +144,20 @@ def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 
 /-- The frame-internalizing cost weakest precondition: the `frameClosure` of the base
 `StateT` wp over `costConj`. -/
-noncomputable def TickT.wp [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+noncomputable def TickT.wp [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPosts) : Nat → Pred :=
   ((WP.trans x.run).frameClosure costConj).apply Q E
 
 /-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
 shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
 @[simp, grind =]
-theorem TickT.wp_apply_eq [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem TickT.wp_apply_eq [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPosts) (n : Nat) :
     TickT.wp x Q E n = ⨅ r, WP.wp x.run (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r)) E (n + r) := by
   simp only [TickT.wp, PredTrans.apply_frameClosure, iInf_apply, costConj_imp]
   rfl
 
-theorem TickT.le_wp_tick [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem TickT.le_wp_tick [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     (Q : Unit → Nat → Pred) (E : EPosts) (n : Nat) :
     Q () (n + 1) ⊑ WP.wp (tick (m := m)).run Q E n := by
   apply MonadicWP.pure_le_wp_pure (post := Function.uncurry Q) (x := (PUnit.unit, n + 1))
@@ -188,12 +188,12 @@ noncomputable instance TickT.instWPMonad [MonadicWP m Pred EPosts] [CompleteLatt
   MonadicWP.withFrameClosure (m := StateT Nat m) costConj StateT.instWPMonad
 
 instance [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [∀ α, WP.IsMonotone (m α)] {α : Type} : WP.IsMonotone (TickT m α) :=
+    [MonadicWP.IsMonotone m] {α : Type} : WP.IsMonotone (TickT m α) :=
   MonadicWP.isMonotone_withFrameClosure (m := StateT Nat m) costConj StateT.instWPMonad
     (fun _ => inferInstance) α
 
 instance [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts]
-    [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+    [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (TickT m) :=
   MonadicWP.isLaxMonadMorphism_withFrameClosure (m := StateT Nat m) costConj
     costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
@@ -202,14 +202,14 @@ instance [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPost
 /-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`,
 under every guard `P`. -/
 @[grind .]
-theorem frames_costConj [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem frames_costConj [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     {α : Type} (x : TickT m α) (F : Nat) (P : Nat → Pred) :
     WP.Frames costConj x F P :=
   WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
     ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
-theorem tickFrames [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem tickFrames [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPosts) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
   PartialOrder.rel_trans (le_meet _ _ _ (le_top _) PartialOrder.rel_refl)
@@ -217,7 +217,7 @@ theorem tickFrames [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m 
 
 /-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/
-theorem TickT.le_wp_tick' [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem TickT.le_wp_tick' [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     (Q : Unit → Nat → Pred) (E : EPosts) (n : Nat) :
     Q () (n + 1) ⊑ TickT.wp (tick (m := m)) Q E n := by
   rw [TickT.wp_apply_eq]
@@ -236,7 +236,7 @@ meet form, so the built-in meet split yields the tick guard and the shifted resi
 open Lean.Elab.Tactic.VCGen
 
 /-- Exact spec for `tick`, registered so `vcgen` can decompose `tick` calls. -/
-@[spec] theorem tick_spec [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] :
+@[spec] theorem tick_spec [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     ⦃ fun n => Q () (n + 1) ⦄ (tick : TickT m Unit) ⦃ Q; E ⦄ := by
   constructor
   intro n
@@ -365,7 +365,7 @@ untouched. -/
 /-- Lifting a base-monad program into `TickT` leaves the cost untouched: its wp is the base wp with the
 cost `n` held fixed. -/
 @[spec] theorem Spec.monadLift_TickT [CompleteLattice Pred] [CompleteLattice EPosts]
-    [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] {α : Type} (x : m α) (Q : α → Nat → Pred) (E : EPosts) :
+    [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] {α : Type} (x : m α) (Q : α → Nat → Pred) (E : EPosts) :
     ⦃fun n => WP.wp x (fun a => Q a n) E⦄ (MonadLift.monadLift x : TickT m α) ⦃Q; E⦄ := by
   constructor
   intro n

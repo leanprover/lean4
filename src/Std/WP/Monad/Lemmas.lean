@@ -32,7 +32,7 @@ variable {m : Type u → Type v} [Monad m] [MonadicWP m Pred EPosts]
 
 /-! ## MonadReaderOf simp lemmas -/
 
-theorem le_wp_read_ReaderT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem le_wp_read_ReaderT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     (post : ρ → ρ → Pred) (eposts : EPosts) :
     (fun r => post r r) ⊑ wp (MonadReaderOf.read : ReaderT ρ m ρ) post eposts := by
   intro r
@@ -46,7 +46,7 @@ theorem wp_adapt_ReaderT_apply_eq (f : ρ → ρ') (x : ReaderT ρ' m α) :
 
 /-! ## MonadStateOf simp lemmas -/
 
-theorem le_wp_get_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem le_wp_get_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     (post : σ → σ → Pred) (eposts : EPosts) :
     (fun s => post s s) ⊑ wp (MonadStateOf.get : StateT σ m σ) post eposts := by
   intro s
@@ -54,7 +54,7 @@ theorem le_wp_get_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α
     (MonadicWP.pure_le_wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
-theorem le_wp_set_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : σ)
+theorem le_wp_set_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : σ)
     (post : PUnit → σ → Pred) (eposts : EPosts) :
     (fun _ => post ⟨⟩ x) ⊑ wp (MonadStateOf.set x : StateT σ m PUnit) post eposts := by
   intro s
@@ -62,7 +62,7 @@ theorem le_wp_set_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α
     (MonadicWP.pure_le_wp_pure (m := m) (x := (PUnit.unit, x))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
-theorem le_wp_modifyGet_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (f : σ → α × σ)
+theorem le_wp_modifyGet_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (f : σ → α × σ)
     (post : α → σ → Pred) (eposts : EPosts) :
     (fun s => post (f s).1 (f s).2) ⊑ wp (MonadStateOf.modifyGet f : StateT σ m α) post eposts := by
   intro s
@@ -120,7 +120,7 @@ theorem wp_throw_Except_apply_eq (e : ε) :
     wp (MonadExceptOf.throw e : Except ε α) post eposts = eposts e := by
   simp [wp, WP.trans, MonadExceptOf.throw]
 
-theorem le_wp_throw_ExceptT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (err : ε) :
+theorem le_wp_throw_ExceptT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (err : ε) :
     eposts.fst err ⊑ wp (MonadExceptOf.throw err : ExceptT ε m α) post eposts := by
   simpa [MonadExceptOf.throw, pushExcept] using
     (MonadicWP.pure_le_wp_pure (m := m) (x := Except.error err)
@@ -138,7 +138,7 @@ theorem wp_throw_Option_apply_eq (e : PUnit) :
   simp only [wp, MonadExceptOf.throw]
   rfl
 
-theorem le_wp_throw_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (err : PUnit) :
+theorem le_wp_throw_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (err : PUnit) :
   eposts.fst () ⊑ wp (MonadExceptOf.throw err : OptionT m α) post eposts := by
   show eposts.fst () ⊑ wp (pure none : m (Option α)) (pushOption post eposts.fst) eposts.snd
   simpa [MonadExceptOf.throw, pushOption] using
@@ -165,7 +165,7 @@ theorem wp_tryCatch_Except_apply_eq (x : Except ε α) (h : ε → Except ε α)
   simp only [wp, WP.trans, MonadExceptOf.tryCatch, Except.tryCatch]
   cases x <;> simp
 
-theorem le_wp_tryCatch_ExceptT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : ExceptT ε m α)
+theorem le_wp_tryCatch_ExceptT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : ExceptT ε m α)
     (h : ε → ExceptT ε m α) :
     wp x post ⟨fun e => wp (h e) post eposts, eposts.snd⟩ ⊑
       wp (MonadExceptOf.tryCatch x h : ExceptT ε m α) post eposts := by
@@ -195,7 +195,7 @@ theorem wp_tryCatch_EStateM_apply_eq (x : EStateM ε σ α) (h : ε → EStateM 
   rfl
 
 @[simp]
-theorem le_wp_tryCatch_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : OptionT m α)
+theorem le_wp_tryCatch_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : OptionT m α)
     (h : PUnit → OptionT m α) :
   wp x post ⟨fun _ => wp (h ⟨⟩) post eposts, eposts.snd⟩ ⊑
     wp (MonadExceptOf.tryCatch x h : OptionT m α) post eposts := by
@@ -259,7 +259,7 @@ theorem wp_readThe_ReaderT_apply_eq :
 
 /-! ## MonadLift simp lemmas -/
 
-theorem le_wp_monadLift_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → σ → Pred) :
+theorem le_wp_monadLift_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → σ → Pred) :
     (fun s => wp x (fun a => post a s) eposts) ⊑
       wp (MonadLift.monadLift x : StateT σ m α) post eposts := by
   intro s
@@ -276,7 +276,7 @@ theorem wp_monadLift_ReaderT_apply_eq (x : m α) :
       fun r => wp x (fun a => post a r) eposts := by
   rfl
 
-theorem le_wp_monadLift_ExceptT_apply [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → Pred)
+theorem le_wp_monadLift_ExceptT_apply [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → Pred)
     (eposts : (ε → Pred) × EPosts) :
     wp x post eposts.snd ⊑
       wp (MonadLift.monadLift x : ExceptT ε m α) post eposts := by
@@ -298,7 +298,7 @@ theorem wp_lift_ExceptT_apply_eq (x : m α) :
   rfl
 
 @[simp]
-theorem le_wp_monadLift_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : m α) :
+theorem le_wp_monadLift_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) :
   wp x post eposts.snd ⊑
     wp (MonadLift.monadLift x : OptionT m α) post eposts := by
   simp only [wp, MonadLift.monadLift, OptionT.mk, OptionT.lift]
@@ -363,7 +363,7 @@ theorem wp_withTheReader_ReaderT_apply_eq (f : ρ → ρ) (x : ReaderT ρ m α) 
 
 /-! ## Transformer adapt lemmas -/
 
-theorem le_wp_adapt_ExceptT_apply [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (f : ε → ε') (x : ExceptT ε m α) :
+theorem le_wp_adapt_ExceptT_apply [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (f : ε → ε') (x : ExceptT ε m α) :
     wp x post ⟨fun e => eposts.fst (f e), eposts.snd⟩ ⊑
       wp (ExceptT.adapt f x : ExceptT ε' m α) post eposts := by
   simp only [wp, ExceptT.adapt, ExceptT.mk]
@@ -405,14 +405,14 @@ theorem wp_liftWith_ExceptT_apply_eq
   simp
 
 @[simp]
-theorem le_wp_liftWith_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+theorem le_wp_liftWith_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
   (f : (∀{β}, OptionT m β → m (Option β)) → m α) :
   wp (f (fun x => x.run)) post eposts.snd ⊑
     wp (MonadControl.liftWith (m:=m) f : OptionT m α) post eposts := by
   simp only [MonadControl.liftWith, liftM, monadLift, OptionT.wp_apply_eq]
   exact le_wp_monadLift_OptionT_apply (f (fun x => x.run))
 
-theorem le_wp_restoreM_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : m (α × σ)) :
+theorem le_wp_restoreM_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : m (α × σ)) :
     (fun _ => wp x (fun (a, s) => post a s) eposts) ⊑
       wp (MonadControl.restoreM (m:=m) x : StateT σ m α) post eposts := by
   simp only [MonadControl.restoreM]
@@ -632,14 +632,14 @@ theorem wp_orElse_Except_apply_eq (x : Except ε α) (h : Unit → Except ε α)
 section
 variable {m : Type u → Type v} [Monad m] [MonadicWP m Pred EPosts]
 
-theorem le_wp_orElse_ExceptT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : ExceptT ε m α)
+theorem le_wp_orElse_ExceptT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : ExceptT ε m α)
     (h : Unit → ExceptT ε m α) :
     wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩ ⊑
       wp (OrElse.orElse x h : ExceptT ε m α) post eposts := by
   apply le_wp_tryCatch_ExceptT_apply
 
 @[simp]
-theorem le_wp_orElse_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m] (x : OptionT m α)
+theorem le_wp_orElse_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] (x : OptionT m α)
     (h : Unit → OptionT m α) :
   wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩ ⊑
     wp (OrElse.orElse x h : OptionT m α) post eposts := by

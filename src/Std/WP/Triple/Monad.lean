@@ -28,9 +28,9 @@ variable {Pred : Type w} {EPosts : Type w'}
 namespace Triple
 
 variable {m : Type v → Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-  [MonadicWP m Pred EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+  [MonadicWP m Pred EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
 
-omit [∀ (α : Type v), WP.IsMonotone (m α)] in
+omit [MonadicWP.IsMonotone m] in
 theorem pure (a : α) (h : pre ⊑ post a) :
     Triple (pure (f := m) a) pre post eposts :=
   ⟨PartialOrder.rel_trans h (MonadicWP.pure_le_wp_pure a post eposts)⟩

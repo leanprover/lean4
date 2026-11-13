@@ -19,7 +19,7 @@ open Lean Order Std.WP Lean.Order
 namespace Std.WP
 
 universe u v
-variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
+variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
 
 namespace Gadget
 
@@ -35,7 +35,7 @@ end Gadget
 
 open Gadget
 
-omit [∀ (α : Type u), WP.IsMonotone (m α)] in
+omit [MonadicWP.IsMonotone m] in
 /-- Specification for `assertGadget`: the precondition requires both the assertion `as` and
 the Heyting implication `as ⇨ post ⟨⟩`, ensuring the assertion holds and the postcondition
 follows from it. -/

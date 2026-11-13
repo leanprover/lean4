@@ -76,7 +76,7 @@ theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
   rw [hf x]
   exact PredTrans.frameClosure_frames op comp hact hactE (f x) Q E F
 
-theorem WP.frames_of_conjunctive [WP.IsMonotone Prog] {x : Prog} [(WP.trans x).IsConjunctive]
+theorem WP.frames_of_conjunctive [WP.IsMonotone Prog] {x : Prog} [WP.IsConjunctive x]
     {opE : Pred → EPosts → EPosts} [FrameOp meet EPosts opE] {F P : Pred}
     (hF : P ⊓ F ⊑ wp x (fun _ => F) (opE F ⊤))
     (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :

@@ -22,6 +22,7 @@ import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range
 import Init.Data.List.TakeDrop
+import Init.Data.List.Impl
 import Init.Data.Nat.Mod
 import Init.Data.Slice.Lemmas
 import Init.Omega

@@ -46,12 +46,11 @@ deriving DecidableEq, Repr
 
 namespace LinearCombo
 
-private def join (l : List String) : String :=
-  l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
-
 instance : ToString LinearCombo where
   toString lc := private
-    s!"{lc.const}{join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
+    let terms := lc.coeffs.toList.foldl (init := ("", 0)) fun (sofar, i) c =>
+      (String.Internal.append sofar s!" + {c} * x{i+1}", i + 1)
+    s!"{lc.const}{terms.1}"
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

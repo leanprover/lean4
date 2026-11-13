@@ -11,6 +11,7 @@ import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
 public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
+import Init.Data.List.Impl
 import Init.Data.List.TakeDrop
 import Init.Data.List.Nat.TakeDrop
 public import Init.Data.BitVec.Basic

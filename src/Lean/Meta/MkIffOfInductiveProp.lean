@@ -16,6 +16,7 @@ public import Lean.Meta.Basic
 import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Cases
+import Init.Data.List.Impl
 
 
 namespace Lean.Meta

@@ -9,6 +9,7 @@ prelude
 import all Init.Data.List.Attach
 public import Init.Data.List.Attach
 import Init.Data.List.Erase
+public import Init.Data.List.Impl
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop

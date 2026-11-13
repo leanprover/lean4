@@ -2870,7 +2870,7 @@ example {xs : List Nat} : xs.foldr (· + ·) 1 > 0 := by
 ```
 -/
 @[expose]
-def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
+noncomputable def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
   | nil, _, _, hb, _ => hb
   | x :: l, op, b, hb, hl =>

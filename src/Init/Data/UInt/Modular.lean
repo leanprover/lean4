@@ -33,7 +33,7 @@ def mulMod (a b modulus : UInt64) : UInt64 :=
 Raises a 64-bit unsigned integer to a natural-number power modulo `modulus`. When `modulus` is `0`,
 the result is the wrapped power.
 -/
-def powMod (base : UInt64) (exponent : Nat) (modulus : UInt64) : UInt64 :=
+noncomputable def powMod (base : UInt64) (exponent : Nat) (modulus : UInt64) : UInt64 :=
   .ofNat (base.toNat ^ exponent % modulus.toNat)
 
 /--
@@ -41,7 +41,7 @@ Returns the multiplicative inverse of `a` modulo `modulus`, or `none` if the inv
 exist. When `modulus` is `0`, the result is `none`. For a nonzero modulus, an inverse exists exactly
 when `a` and `modulus` are coprime.
 -/
-def invMod? (a modulus : UInt64) : Option UInt64 :=
+noncomputable def invMod? (a modulus : UInt64) : Option UInt64 :=
   if modulus = 0 then
     none
   else

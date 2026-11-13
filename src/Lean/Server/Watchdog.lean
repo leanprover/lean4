@@ -16,6 +16,7 @@ public import Init.Data.List.Sort
 public import Std.Sync.Channel
 public import Lean.Server.Logging
 import Lean.Elab.ErrorUtils
+import Init.Data.List.Impl
 
 public section
 

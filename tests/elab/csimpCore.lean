@@ -1,63 +1,35 @@
 import Std
 import Lean
 
-open Lean Compiler LCNF
+open Lean Compiler
 
 /-!
-`@[csimp]` should only be applied to `noncomputable` defs so we never compile against the wrong
-version. The following list shows where this is not yet the case.
+Checks that every declaration in `Init`, `Std` and `Lean` that is replaced by a `@[csimp]` theorem
+is `noncomputable`, so we never compile against the wrong version.
+
+Recursors and structure projections cannot be marked `noncomputable`; they are exempt.
 -/
 
-/--
-info: (Acc.rec, Acc.recC)
-(Array.instDecidableEmpEq, Array.instDecidableEmpEqImpl)
-(Array.instDecidableEq, Array.instDecidableEqImpl)
-(Array.instDecidableEqEmp, Array.instDecidableEqEmpImpl)
-(Array.pmap, Array.pmapImpl)
-(ByteArray.append, ByteArray.fastAppend)
-(Fin.foldl, Fin.foldlTR)
-(List.append, List.appendTR)
-(List.dropLast, List.dropLastTR)
-(List.erase, List.eraseTR)
-(List.eraseIdx, List.eraseIdxTR)
-(List.eraseP, List.erasePTR)
-(List.filter, List.filterTR)
-(List.findRev?, List.findRev?TR)
-(List.findSomeRev?, List.findSomeRev?TR)
-(List.foldr, List.foldrTR)
-(List.insertIdx, List.insertIdxTR)
-(List.intersperse, List.intersperseTR)
-(List.leftpad, List.leftpadTR)
-(List.length, List.lengthTR)
-(List.map, List.mapTR)
-(List.merge, List.MergeSort.Internal.mergeTR)
-(List.mergeSort, List.MergeSort.Internal.mergeSortTR₂)
-(List.modify, List.modifyTR)
-(List.pmap, List.pmapImpl)
-(List.range', List.range'TR)
-(List.replace, List.replaceTR)
-(List.replicate, List.replicateTR)
-(List.set, List.setTR)
-(List.take, List.takeTR)
-(List.takeWhile, List.takeWhileTR)
-(List.unzip, List.unzipTR)
-(List.zipIdx, List.zipIdxTR)
-(List.zipWith, List.zipWithTR)
-(Nat.all, Nat.allTR)
-(Nat.any, Nat.anyTR)
-(Nat.fold, Nat.foldTR)
-(Nat.rec, Nat.recCompiled)
-(Nat.repeat, Nat.repeatTR)
-(String.utf8EncodeChar, String.utf8EncodeCharFast)
-(Thunk.fn, Thunk.fnImpl)
-(UInt64.invMod?, UInt64.invModImpl)
-(UInt64.powMod, UInt64.powModImpl)
-(Vector.pmap, Vector.pmapImpl)
-(String.Slice.Pos.next, String.Slice.Pos.nextFast)
--/
-#guard_msgs in
-run_elab do
+def csimpComputableDecls : CoreM (Array Name) := do
   let env ← getEnv
-  for (l, e) in CSimp.ext.getState env |>.map.toList.mergeSort (le := (·.1.lt ·.1)) do
-    if !isNoncomputable env l then
-      IO.println (l, e.toDeclName)
+  let mut bad := #[]
+  for (declName, _) in (CSimp.ext.getState env).map.toList do
+    let some modIdx := env.getModuleIdxFor? declName | continue
+    unless env.header.moduleNames[modIdx]!.getRoot matches `Init | `Std | `Lean do continue
+    if isNoncomputable env declName then continue
+    if (← getConstInfo declName) matches .recInfo _ then continue
+    if env.isProjectionFn declName then continue
+    bad := bad.push declName
+  return bad.qsort Name.lt
+
+/-- info: #[] -/
+#guard_msgs in
+#eval csimpComputableDecls
+
+/-! Sanity check: the imported `@[csimp]` theorems are visible to the check. -/
+
+/-- info: true -/
+#guard_msgs in
+#eval show CoreM _ from do
+  let s := CSimp.ext.getState (← getEnv)
+  return [``List.map, ``List.foldr, ``Array.instDecidableEq].all s.map.contains

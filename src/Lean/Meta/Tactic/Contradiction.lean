@@ -82,7 +82,11 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
 
 end ElimEmptyInductive
 
-private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
+/--
+Closes `mvarId` if the type of `fvarId` is an empty inductive type. `fuel` is the number of goals
+visited by the search. Returns `true` iff the goal has been closed.
+-/
+def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
   mvarId.withContext do
     if (← isElimEmptyInductiveCandidate fvarId) then
       commitWhen do
@@ -117,7 +121,7 @@ where
   ```
   This kind of hypotheses is created when we generate conditional equations for match expressions.
 -/
-private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
+def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
   assert! isGenDiseq localDecl.type
   let val? ← withNewMCtxDepth do
     let (args, _, _) ← forallMetaTelescope localDecl.type

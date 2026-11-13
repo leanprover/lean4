@@ -81,6 +81,33 @@ private def rwStringLitDite? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId
   return some mvarNew.mvarId!
 
 /--
+A `contradiction` variant for the goals of `proveCondEqThm`. It closes the goal if a hypothesis is
+- a disequality `h : a ≠ b`, or `h : a = b → False`, where `a` and `b` are definitionally equal,
+- a generalized disequality such as `h : ∀ ys, x = C ys → False` (see `processGenDiseq`), or
+- an element of an empty inductive type.
+
+Unlike `MVarId.contradiction`, it does not search for a pair of hypotheses `h₁ : p` and `h₂ : ¬ p`.
+That search compares every `h₂` with every other hypothesis, and the goals of `proveCondEqThm` have
+one hypothesis for each alternative of the `match`.
+-/
+private def contradictionForEqns (mvarId : MVarId) : MetaM Unit := mvarId.withContext do
+  mvarId.checkNotAssigned `contradiction
+  let fuel := ({} : Contradiction.Config).searchFuel
+  for localDecl in (← getLCtx) do
+    unless localDecl.isImplementationDetail do
+      if let some (_, lhs, rhs) ← matchNe? localDecl.type then
+        if (← isDefEq lhs rhs) then
+          mvarId.assign (← mkAbsurd (← mvarId.getType) (← mkEqRefl lhs) localDecl.toExpr)
+          return
+      if Simp.isEqnThmHypothesis localDecl.type then
+        if (← processGenDiseq mvarId localDecl) then
+          return
+      if (← matchEq? localDecl.type).isNone && (← matchHEq? localDecl.type).isNone then
+        if (← elimEmptyInductive mvarId localDecl.fvarId fuel) then
+          return
+  throwTacticEx `contradiction mvarId
+
+/--
 Helper method for proving a conditional equational theorem associated with an alternative of
 the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
 
@@ -115,7 +142,7 @@ where
       <|>
       (do mvarId.refl; return #[])
       <|>
-      (do mvarId.contradiction { genDiseq := true }; return #[])
+      (do contradictionForEqns mvarId; return #[])
       <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>

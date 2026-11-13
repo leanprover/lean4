@@ -54,6 +54,25 @@ def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
   | matcher matcherApp => matcherApp.altNumParams.mapIdx fun idx numParams =>
       (numParams, matcherApp.alts[idx]!)
 
+/-- The name of the constant at the head of the split application. -/
+def splitterName : SplitInfo → Name
+  | .ite .. => ``_root_.ite
+  | .dite .. => ``_root_.dite
+  | .cond .. => ``_root_.cond
+  | .matcher matcherApp => matcherApp.matcherName
+
+/-- The arguments that the split application is applied to beyond its own arity. -/
+def extraArgs : SplitInfo → Array Expr
+  | .ite e | .dite e => e.getAppArgs.extract 5 e.getAppNumArgs
+  | .cond e => e.getAppArgs.extract 4 e.getAppNumArgs
+  | .matcher matcherApp => matcherApp.remaining
+
+/-- The terms that select an alternative: the condition of an `ite`/`dite`/`cond`, or the
+discriminants of a matcher. -/
+def selectors : SplitInfo → Array Expr
+  | .ite e | .dite e | .cond e => #[e.getArg! 1]
+  | .matcher matcherApp => matcherApp.discrs
+
 /-- The expression represented by a `SplitInfo`. -/
 def expr : SplitInfo → Expr
   | .ite e => e

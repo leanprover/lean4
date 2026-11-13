@@ -914,7 +914,7 @@ example : ⦃ fun s => s = 3 ⦄ bumpSat ⦃ fun _ s => s = 4 ⦄ := by
 @[spec]
 theorem dec_spec (Q : Unit → Nat → Prop) :
     ⦃ fun s => match s with | 0 => Q () 0 | n + 1 => Q () n ⦄ dec ⦃ Q ⦄ := by
-  unfold dec; vcgen; rename_i s _; cases s <;> simp_all
+  unfold dec; vcgen with finish
 
 example : ⦃ fun s => s = 3 ⦄ dec ⦃ fun _ s => s = 2 ⦄ := by
   vcgen frames | dec => fun s => s = 3 with finish

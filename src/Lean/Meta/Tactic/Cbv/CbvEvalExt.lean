@@ -24,12 +24,6 @@ via `mkAuxLemma`.
 -/
 
 public section
-namespace Lean.Meta.Sym.Simp
-
-def Theorem.declName (thm : Theorem) : Option Name := thm.expr.getAppFn.constName?
-
-end Lean.Meta.Sym.Simp
-
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
@@ -105,7 +99,7 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
     initial  := {}
     addEntry := CbvEvalState.addEntry
     exportEntry? := fun _ entry =>
-      match entry.thm.declName with
+      match entry.thm.declName? with
       | none => ⟨none, none, none⟩
       | some n =>
         if isPrivateName n then ⟨none, none, some entry⟩

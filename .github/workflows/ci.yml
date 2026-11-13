@@ -313,6 +313,8 @@ jobs:
                 // it neither enables the cache for the build nor transfers it.
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (stamped ? "" : " -DUSE_LAKE_CACHE=ON"),
                 "lake-cache": !stamped,
+                // Round-trips the uploaded cache; `merge-ci` and above only, since it is serial
+                "verify-lake-cache": level >= 1,
               },
               {
                 "name": "Linux RelWithAssert",

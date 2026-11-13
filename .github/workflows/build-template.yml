@@ -261,7 +261,7 @@ jobs:
           ulimit -c unlimited  # coredumps
           time make -C build $TARGET_STAGE -j$NPROC
       # Should be done as early as possible, and the Lake cache upload below in particular *before*
-      # "Check rebootstrap" which changes the state of stage1/
+      # anything that changes the state of stage1/ (see "Wait for Lake Cache Upload")
       - name: Save CCache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown
@@ -276,6 +276,8 @@ jobs:
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
         if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # only reads stage1/, so it can overlap with installing and testing
+        background: true
         run: |
           curl --version
           cd src
@@ -286,30 +288,6 @@ jobs:
           LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1
           LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
         timeout-minutes: 20 # prevent excessive hanging from network issues
-      - name: Verify Lake Cache
-        if: steps.upload-lake-cache.outcome == 'success'
-        # `lake cache clean` deletes the entire configured cache directory, which for a build using
-        # the system-wide cache would be the one shared with every other job on the runner, so give
-        # the round trip a throwaway directory of its own.
-        env:
-          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
-        run: |
-          cp -r build/stage1 build/stage1.bak
-          rm -rf build/stage1/lib
-          cd src
-          ../build/stage0/bin/lake cache clean
-          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
-          ../build/stage0/bin/lake build --no-build
-        continue-on-error: true
-      - name: Restore Build
-        if: steps.upload-lake-cache.outcome == 'success'
-        env:
-          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
-        run: |
-          rm -rf build/stage1
-          mv build/stage1.bak build/stage1
-          cd src
-          ../build/stage0/bin/lake cache clean
       - name: Check libuv version
         # Homebrew and MSYS2 provide whatever libuv they currently ship, so check the linked one.
         # This is not an elab test, because most distributions ship a slightly older LibUV, and having
@@ -436,6 +414,32 @@ jobs:
           paths: build/${{ env.TARGET_STAGE }}/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed
         if: always() && steps.test.conclusion != 'skipped'
+      - name: Wait for Lake Cache Upload
+        wait: upload-lake-cache
+      - name: Verify Lake Cache
+        if: steps.upload-lake-cache.outcome == 'success' && matrix.verify-lake-cache
+        # `lake cache clean` deletes the entire configured cache directory, which for a build using
+        # the system-wide cache would be the one shared with every other job on the runner, so give
+        # the round trip a throwaway directory of its own.
+        env:
+          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
+        run: |
+          cp -r build/stage1 build/stage1.bak
+          rm -rf build/stage1/lib
+          cd src
+          ../build/stage0/bin/lake cache clean
+          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
+          ../build/stage0/bin/lake build --no-build
+        continue-on-error: true
+      - name: Restore Build
+        if: steps.upload-lake-cache.outcome == 'success' && matrix.verify-lake-cache
+        env:
+          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
+        run: |
+          rm -rf build/stage1
+          mv build/stage1.bak build/stage1
+          cd src
+          ../build/stage0/bin/lake cache clean
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compile/534.lean.out
         if: (!matrix.cross) && steps.test.conclusion != 'skipped'

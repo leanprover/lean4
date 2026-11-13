@@ -247,21 +247,6 @@ def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Arr
     r := r.modify funidx (·.push goal)
   return r
 
-/--
-Runs `k` on fresh copies of `goals`, then assigns each goal the proof found for its copy, without
-a top-level type hint. `clean_wf` only changes the goal definitionally, so it leaves such a hint
-with the original goal type, which mentions the measure of the whole function block. Without it,
-the auxiliary lemmas that the proofs are abstracted into get the cleaned-up type instead.
--/
-private def withGoalCopies (goals : Array MVarId) (k : Array MVarId → TermElabM Unit) :
-    TermElabM Unit := do
-  let copies ← goals.mapM fun goal => goal.withContext do
-    return (← mkFreshExprSyntheticOpaqueMVar (← goal.getType) (← goal.getTag)).mvarId!
-  k copies
-  for goal in goals, copy in copies do
-    let proof ← instantiateMVars (.mvar copy)
-    goal.assign (if proof.isAppOfArity ``id 2 then proof.appArg! else proof)
-
 def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr :=
   -- entering proof
   withoutExporting do
@@ -278,20 +263,19 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
           let some ref := getRecAppSyntax? (← goal.getType)
             | throwError "MVar not annotated as a recursive call:{indentExpr type}"
           goal.setType type.mdataExpr!
-          withGoalCopies #[goal] fun copies => withRef ref <| applyDefaultDecrTactic copies[0]!
+          withRef ref <| applyDefaultDecrTactic goal
       | some decrTactic => withRef decrTactic.ref do
         goals.forM fun goal => do goal.setType (← goal.getType).mdataExpr!
         unless goals.isEmpty do -- unlikely to be empty
-          withGoalCopies goals fun goals => do
-            -- make info from `runTactic` available
-            goals.forM fun goal => pushInfoTree (.hole goal)
-            let remainingGoals ← Tactic.run goals[0]! do
-              Tactic.setGoals goals.toList
-              applyCleanWfTactic
-              Tactic.withTacticInfoContext decrTactic.ref do
-                Tactic.evalTactic decrTactic.tactic
-            unless remainingGoals.isEmpty do
-              Term.reportUnsolvedGoals remainingGoals
+          -- make info from `runTactic` available
+          goals.forM fun goal => pushInfoTree (.hole goal)
+          let remainingGoals ← Tactic.run goals[0]! do
+            Tactic.setGoals goals.toList
+            applyCleanWfTactic
+            Tactic.withTacticInfoContext decrTactic.ref do
+              Tactic.evalTactic decrTactic.tactic
+          unless remainingGoals.isEmpty do
+            Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
 def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
@@ -316,7 +300,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     if let some measure ← isNatLtWF wfRel then
       return (mkApp3 (mkConst `WellFounded.Nat.fix [u, v]) α motive measure, varName)
     else
-      let rel := mkApp2 (mkConst ``WellFoundedRelation.rel [u]) α wfRel
+      let rel := mkProj ``WellFoundedRelation 0 wfRel
       let wf  := mkProj ``WellFoundedRelation 1 wfRel
       let wf ← mkAppM `Lean.opaqueId #[wf]
       return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)

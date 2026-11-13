@@ -11,6 +11,7 @@ import all Std.Data.DHashMap.Basic
 public import Std.Data.DHashMap.AdditionalOperations
 public import Std.Internal.ForIn.Basic
 import all Std.Data.DHashMap.AdditionalOperations
+import Init.Omega
 import Init.ByCases
 import Init.Data.List.Find
 import Init.Data.List.Impl
@@ -5446,4 +5447,485 @@ end Const
 
 end map
 attribute [simp] contains_eq_false_iff_not_mem
+
+/-! ### Merging with a collision function -/
+
+theorem mergeWith?_eq_fold [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {m₁ m₂ : DHashMap α β} :
+    m₁.mergeWith? f m₂ = m₂.fold (fun out a b₂ =>
+      out.alter a (fun old => old.elim (some b₂) (fun b₁ => f a b₁ b₂))) m₁ := by
+  rw [fold_eq_foldl_toList]
+  apply ext
+  simp only [DHashMap.mergeWith?, Raw₀.mergeWith?, Raw.fold_eq_foldl_toListModel,
+    DHashMap.toList, Raw.toList_eq_toListModel]
+  refine List.foldl_rel (r := fun (raw : Raw₀ α β) (map : DHashMap α β) => raw.1 = map.inner) rfl ?_
+  intro entry _ raw map h
+  cases raw
+  cases map
+  cases h
+  rfl
+
+namespace Const
+
+variable {β : Type v}
+
+theorem mergeWith?_eq_fold {f : α → β → β → Option β}
+    {m₁ m₂ : DHashMap α (fun _ => β)} :
+    mergeWith? f m₁ m₂ = m₂.fold (fun out a b₂ =>
+      alter out a (fun old => old.elim (some b₂) (fun b₁ => f a b₁ b₂))) m₁ := by
+  rw [DHashMap.fold_eq_foldl_toList]
+  apply ext
+  simp only [DHashMap.Const.mergeWith?, Raw₀.Const.mergeWith?, Raw.fold_eq_foldl_toListModel,
+    DHashMap.toList, Raw.toList_eq_toListModel]
+  refine List.foldl_rel (r := fun (raw : Raw₀ α (fun _ => β)) (map : DHashMap α (fun _ => β)) => raw.1 = map.inner) rfl ?_
+  intro entry _ raw map h
+  cases raw
+  cases map
+  cases h
+  rfl
+
+end Const
+
+private theorem get?_foldl_alter_of_forall [LawfulBEq α]
+    (entries : List ((a : α) × β a)) (out : DHashMap α β)
+    (update : (a : α) → β a → Option (β a) → Option (β a)) (key : α)
+    (h : ∀ entry ∈ entries, ¬ (entry.1 == key)) :
+    (entries.foldl (fun out entry => out.alter entry.1 (update entry.1 entry.2)) out).get? key =
+      out.get? key := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    rw [List.foldl_cons, ih]
+    · rw [get?_alter, dite_eq_right (h entry (by simp))]
+    · intro later hlater
+      exact h later (by simp [hlater])
+
+private theorem get?_foldl_alter_of_mem [LawfulBEq α]
+    (entries : List ((a : α) × β a)) (out : DHashMap α β)
+    (update : (a : α) → β a → Option (β a) → Option (β a)) (key : α) (value : β key)
+    (hpair : entries.Pairwise (fun a b => ¬ (a.1 == b.1)))
+    (hmem : ⟨key, value⟩ ∈ entries) :
+    (entries.foldl (fun out entry => out.alter entry.1 (update entry.1 entry.2)) out).get? key =
+      update key value (out.get? key) := by
+  induction entries generalizing out with
+  | nil => simp at hmem
+  | cons entry entries ih =>
+    simp only [List.pairwise_cons] at hpair
+    rcases List.mem_cons.mp hmem with heq | hmem
+    · subst entry
+      rw [List.foldl_cons, get?_foldl_alter_of_forall entries _ update key]
+      · rw [get?_alter_self]
+      · intro later hlater heq
+        have hkey : later.1 = key := eq_of_beq heq
+        apply hpair.1 later hlater
+        simp [hkey]
+    · rw [List.foldl_cons, ih _ hpair.2 hmem, get?_alter,
+        dite_eq_right (hpair.1 ⟨key, value⟩ hmem)]
+
+theorem get?_mergeWith? [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DHashMap α β} {k : α} :
+    (t₁.mergeWith? f t₂).get? k =
+      match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂ := by
+  rw [mergeWith?_eq_fold, fold_eq_foldl_toList]
+  cases hsource : t₂.get? k with
+  | none =>
+    apply get?_foldl_alter_of_forall _ t₁ (fun a b₂ old => old.elim (some b₂) (fun b₁ => f a b₁ b₂)) k
+    intro entry hentry heq
+    have hkey : entry.1 = k := eq_of_beq heq
+    have hget := mem_toList_iff_get?_eq_some.mp hentry
+    cases entry
+    subst_vars
+    simp_all
+  | some value =>
+    rw [get?_foldl_alter_of_mem _ t₁
+      (fun a b₂ old => old.elim (some b₂) (fun b₁ => f a b₁ b₂)) k value
+      (by simpa only [Bool.not_eq_true] using t₂.distinct_keys_toList)
+      (mem_toList_iff_get?_eq_some.mpr hsource)]
+    cases t₁.get? k <;> rfl
+
+theorem get?_mergeWith [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t₁ t₂ : DHashMap α β} {k : α} :
+    (t₁.mergeWith f t₂).get? k =
+      match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => some (f k b₁ b₂) := by
+  rw [mergeWith, get?_mergeWith?]
+
+
+namespace Const
+
+variable {β : Type v}
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+
+private theorem get?_foldl_alter_of_forall [EquivBEq α] [LawfulHashable α]
+    (entries : List (α × β)) (out : DHashMap α β)
+    (update : α → β → Option β → Option β) (key : α)
+    (h : ∀ entry ∈ entries, ¬ (entry.1 == key)) :
+    get? (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out) key =
+      get? out key := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    rw [List.foldl_cons, ih]
+    · rw [get?_alter, ite_eq_right (h entry (by simp))]
+    · intro later hlater
+      exact h later (by simp [hlater])
+
+private theorem get?_foldl_alter [EquivBEq α] [LawfulHashable α]
+    (entries : List (α × β)) (out : DHashMap α β)
+    (update : α → β → Option β → Option β) (key : α)
+    (hpair : entries.Pairwise (fun a b => ¬ (a.1 == b.1))) :
+    get? (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out) key =
+      match entries.find? (fun entry => (entry.1 == key)) with
+      | none => get? out key
+      | some (a, b) => update a b (get? out key) := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    simp only [List.pairwise_cons] at hpair
+    by_cases heq : (entry.1 == key)
+    · rw [List.foldl_cons, get?_foldl_alter_of_forall entries _ update key]
+      · simp only [List.find?_cons_of_pos (p := fun (e : α × β) => e.1 == key) (a := entry) heq]
+        rw [get?_alter, ite_eq_left heq, get?_congr heq]
+      · intro later hlater hlaterEq
+        exact hpair.1 later hlater (BEq.trans heq (BEq.symm hlaterEq))
+    · rw [List.foldl_cons, ih _ hpair.2, get?_alter, ite_eq_right heq]
+      rw [List.find?_cons_of_neg (p := fun (e : α × β) => e.1 == key) (a := entry) heq]
+
+theorem get?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : DHashMap α β} {k : α} :
+    get? (mergeWith? f t₁ t₂) k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k := by
+  rw [mergeWith?_eq_fold, fold_eq_foldl_toList]
+  rw [get?_foldl_alter _ t₁ (fun a b₂ old => old.elim (some b₂) (fun b₁ => f a b₁ b₂)) k (by simpa only [Bool.not_eq_true] using (distinct_keys_toList (m := t₂)))]
+  cases hfind : (toList t₂).find? (fun entry => (entry.1 == k)) with
+  | none =>
+    have hc := find?_toList_eq_none_iff_contains_eq_false.mp hfind
+    rw [DHashMap.getKey?_eq_none_of_contains_eq_false hc]
+  | some entry =>
+    obtain ⟨hk, hv⟩ := find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some.mp hfind
+    rw [hk, hv]
+    cases entry
+    cases get? t₁ k <;> rfl
+
+theorem get?_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : DHashMap α β} {k : α} :
+    get? (mergeWith f t₁ t₂) k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => some (f a b₁ b₂)
+      | _, _ => get? t₁ k := by
+  rw [Const.mergeWith, get?_mergeWith?]
+
+private theorem getKey?_foldl_alter_of_forall [EquivBEq α] [LawfulHashable α]
+    (entries : List (α × β)) (out : DHashMap α β)
+    (update : α → β → Option β → Option β) (key : α)
+    (h : ∀ entry ∈ entries, ¬ (entry.1 == key)) :
+    (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out).getKey? key =
+      out.getKey? key := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    rw [List.foldl_cons, ih]
+    · rw [getKey?_alter, ite_eq_right (h entry (by simp))]
+    · intro later hlater
+      exact h later (by simp [hlater])
+
+private theorem getKey?_foldl_alter [EquivBEq α] [LawfulHashable α]
+    (entries : List (α × β)) (out : DHashMap α β)
+    (update : α → β → Option β → Option β) (key : α)
+    (hpair : entries.Pairwise (fun a b => ¬ (a.1 == b.1))) :
+    (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out).getKey? key =
+      match entries.find? (fun entry => (entry.1 == key)) with
+      | none => out.getKey? key
+      | some (a, b) => if (update a b (get? out key)).isSome then some a else none := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    simp only [List.pairwise_cons] at hpair
+    by_cases heq : (entry.1 == key)
+    · rw [List.foldl_cons, getKey?_foldl_alter_of_forall entries _ update key]
+      · simp only [List.find?_cons_of_pos (p := fun (e : α × β) => e.1 == key) (a := entry) heq]
+        rw [getKey?_alter, ite_eq_left heq, get?_congr heq]
+      · intro later hlater hlaterEq
+        exact hpair.1 later hlater (BEq.trans heq (BEq.symm hlaterEq))
+    · rw [List.foldl_cons, ih _ hpair.2, getKey?_alter, ite_eq_right heq,
+        get?_alter, ite_eq_right heq]
+      rw [List.find?_cons_of_neg (p := fun (e : α × β) => e.1 == key) (a := entry) heq]
+
+theorem getKey?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : DHashMap α β} {k : α} :
+    (mergeWith? f t₁ t₂).getKey? k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ =>
+        if (match get? t₁ k with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k := by
+  rw [mergeWith?_eq_fold, fold_eq_foldl_toList]
+  rw [getKey?_foldl_alter _ t₁ (fun a b₂ old => old.elim (some b₂) (fun b₁ => f a b₁ b₂)) k (by simpa only [Bool.not_eq_true] using (distinct_keys_toList (m := t₂)))]
+  cases hfind : (toList t₂).find? (fun entry => (entry.1 == k)) with
+  | none =>
+    have hc := find?_toList_eq_none_iff_contains_eq_false.mp hfind
+    rw [DHashMap.getKey?_eq_none_of_contains_eq_false hc]
+  | some entry =>
+    obtain ⟨hk, hv⟩ := find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some.mp hfind
+    rw [hk, hv]
+    cases entry with
+    | mk a b₂ =>
+      have he : (get? t₁ k).elim (some b₂) (fun b₁ => f a b₁ b₂) =
+          (match get? t₁ k with | none => some b₂ | some b₁ => f a b₁ b₂) := by
+        cases get? t₁ k <;> rfl
+      simp only [he]
+
+end Const
+
+@[simp]
+theorem mergeWith?_some [LawfulBEq α] {f : (a : α) → β a → β a → β a} {t₁ t₂ : DHashMap α β} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+namespace Const
+
+variable {β : Type v}
+
+@[simp]
+theorem mergeWith?_some {f : α → β → β → β} {t₁ t₂ : DHashMap α (fun _ => β)} :
+    mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₁ t₂ = mergeWith f t₁ t₂ := by
+  rfl
+
+
+end Const
+
+theorem Equiv.mergeWith? [LawfulBEq α]
+    (f : (a : α) → β a → β a → Option (β a))
+    {m₁ m₂ m₃ m₄ : DHashMap α β} (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    m₁.mergeWith? f m₃ ~m m₂.mergeWith? f m₄ := by
+  apply Equiv.of_forall_get?_eq
+  intro k
+  rw [get?_mergeWith?, get?_mergeWith?, hl.get?_eq, hr.get?_eq]
+
+theorem Equiv.mergeWith [LawfulBEq α]
+    (f : (a : α) → β a → β a → β a)
+    {m₁ m₂ m₃ m₄ : DHashMap α β} (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    m₁.mergeWith f m₃ ~m m₂.mergeWith f m₄ :=
+  hl.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) hr
+
+theorem Equiv.constMergeWith? [EquivBEq α] [LawfulHashable α] {β : Type v}
+    (f : α → β → β → Option β)
+    {m₁ m₂ m₃ m₄ : DHashMap α (fun _ => β)} (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    Const.mergeWith? f m₁ m₃ ~m Const.mergeWith? f m₂ m₄ := by
+  apply Equiv.of_forall_getKey_eq_of_forall_constGet?_eq
+  · intro k hk hk'
+    have h : (Const.mergeWith? f m₁ m₃).getKey? k = (Const.mergeWith? f m₂ m₄).getKey? k := by
+      rw [Const.getKey?_mergeWith?, Const.getKey?_mergeWith?,
+        hl.getKey?_eq, hr.getKey?_eq, hl.constGet?_eq, hr.constGet?_eq]
+    rw [getKey?_eq_some_getKey hk, getKey?_eq_some_getKey hk'] at h
+    exact Option.some.inj h
+  · intro k
+    rw [Const.get?_mergeWith?, Const.get?_mergeWith?,
+      hl.constGet?_eq, hr.constGet?_eq, hr.getKey?_eq]
+
+theorem Equiv.constMergeWith [EquivBEq α] [LawfulHashable α] {β : Type v}
+    (f : α → β → β → β)
+    {m₁ m₂ m₃ m₄ : DHashMap α (fun _ => β)} (hl : m₁ ~m m₂) (hr : m₃ ~m m₄) :
+    Const.mergeWith f m₁ m₃ ~m Const.mergeWith f m₂ m₄ :=
+  hl.constMergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) hr
+
+theorem mergeWith?_empty_left [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t : DHashMap α β} :
+    (∅ : DHashMap α β).mergeWith? f t ~m t := by
+  apply Equiv.of_forall_get?_eq
+  intro k
+  rw [get?_mergeWith?, get?_empty]
+  cases t.get? k <;> rfl
+
+@[simp]
+theorem mergeWith_empty_left [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t : DHashMap α β} :
+    (∅ : DHashMap α β).mergeWith f t ~m t :=
+  mergeWith?_empty_left (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+private theorem size_foldl_alter_le [LawfulBEq α]
+    (entries : List ((a : α) × β a)) (out : DHashMap α β)
+    (update : (a : α) → β a → Option (β a) → Option (β a)) :
+    (entries.foldl (fun out entry => out.alter entry.1 (update entry.1 entry.2)) out).size ≤
+      out.size + entries.length := by
+  induction entries generalizing out with
+  | nil => exact Nat.le_refl _
+  | cons entry entries ih =>
+    simp only [List.foldl_cons, List.length_cons]
+    have h := ih (out.alter entry.1 (update entry.1 entry.2))
+    have hs := size_alter_le_size (m := out) (k := entry.1) (f := update entry.1 entry.2)
+    omega
+
+theorem size_mergeWith?_le [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DHashMap α β} :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size := by
+  rw [mergeWith?_eq_fold, fold_eq_foldl_toList]
+  simpa only [length_toList] using size_foldl_alter_le t₂.toList t₁
+    (fun a b₂ old => old.elim (some b₂) (fun b₁ => f a b₁ b₂))
+
+theorem size_mergeWith_le [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t₁ t₂ : DHashMap α β} :
+    (t₁.mergeWith f t₂).size ≤ t₁.size + t₂.size :=
+  size_mergeWith?_le (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+theorem contains_mergeWith? [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DHashMap α β} {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+
+
+@[simp]
+theorem mergeWith?_empty_right [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {m : DHashMap α β} :
+    m.mergeWith? f ∅ = m := by
+  rw [mergeWith?_eq_fold, fold_eq_foldl_toList, toList_empty]
+  rfl
+
+@[simp]
+theorem mergeWith_empty_right [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {m : DHashMap α β} :
+    m.mergeWith f ∅ = m :=
+  mergeWith?_empty_right (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+namespace Const
+
+variable {β : Type v}
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+
+private theorem size_foldl_alter_le [EquivBEq α] [LawfulHashable α]
+    (entries : List (α × β)) (out : DHashMap α β)
+    (update : α → β → Option β → Option β) :
+    (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out).size ≤
+      out.size + entries.length := by
+  induction entries generalizing out with
+  | nil => exact Nat.le_refl _
+  | cons entry entries ih =>
+    simp only [List.foldl_cons, List.length_cons]
+    have h := ih (alter out entry.1 (update entry.1 entry.2))
+    have hs := size_alter_le_size (m := out) (k := entry.1) (f := update entry.1 entry.2)
+    omega
+
+theorem size_mergeWith?_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : DHashMap α β} :
+    (mergeWith? f t₁ t₂).size ≤ t₁.size + t₂.size := by
+  rw [mergeWith?_eq_fold, fold_eq_foldl_toList]
+  simpa only [length_toList] using size_foldl_alter_le (toList t₂) t₁
+    (fun a b₂ old => old.elim (some b₂) (fun b₁ => f a b₁ b₂))
+
+theorem size_mergeWith_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : DHashMap α β} :
+    (mergeWith f t₁ t₂).size ≤ t₁.size + t₂.size :=
+  size_mergeWith?_le (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+theorem contains_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : DHashMap α β} {k : α} :
+    (mergeWith? f t₁ t₂).contains k =
+      (match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+
+theorem mergeWith?_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t : DHashMap α β} :
+    mergeWith? f ∅ t ~m t := by
+  have hkeys : ∀ k, (mergeWith? f ∅ t).getKey? k = t.getKey? k := by
+    intro k
+    have hs : (t.getKey? k).isSome = (get? t k).isSome := by
+      rw [DHashMap.isSome_getKey?_eq_contains, isSome_get?_eq_contains]
+    rw [getKey?_mergeWith?, get?_empty, DHashMap.getKey?_empty]
+    cases hk : t.getKey? k <;> cases hv : get? t k <;>
+      simp_all only [Option.isSome_none, Option.isSome_some, Bool.false_eq_true,
+        Bool.true_eq_false, ↓reduceIte]
+  apply Equiv.of_forall_getKey_eq_of_forall_constGet?_eq
+  · intro k hk hk'
+    have h := hkeys k
+    rw [DHashMap.getKey?_eq_some_getKey hk, DHashMap.getKey?_eq_some_getKey hk'] at h
+    exact Option.some.inj h
+  · intro k
+    have hs : (t.getKey? k).isSome = (get? t k).isSome := by
+      rw [DHashMap.isSome_getKey?_eq_contains, isSome_get?_eq_contains]
+    rw [get?_mergeWith?, get?_empty]
+    cases hk : t.getKey? k <;> cases hv : get? t k <;>
+      simp_all only [Option.isSome_none, Option.isSome_some, Bool.false_eq_true,
+        Bool.true_eq_false]
+
+@[simp]
+theorem mergeWith_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t : DHashMap α β} :
+    mergeWith f ∅ t ~m t :=
+  mergeWith?_empty_left (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+
+@[simp]
+theorem mergeWith?_empty_right {f : α → β → β → Option β}
+    {m : DHashMap α (fun _ => β)} : mergeWith? f m ∅ = m := by
+  rw [mergeWith?_eq_fold, DHashMap.fold_eq_foldl_toList, DHashMap.toList_empty]
+  rfl
+
+@[simp]
+theorem mergeWith_empty_right {f : α → β → β → β}
+    {m : DHashMap α (fun _ => β)} : mergeWith f m ∅ = m :=
+  mergeWith?_empty_right (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+end Const
+
+theorem contains_mergeWith [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {m₁ m₂ : DHashMap α β} {k : α} :
+    (m₁.mergeWith f m₂).contains k = (m₁.contains k || m₂.contains k) := by
+  rw [mergeWith, contains_mergeWith?, contains_eq_isSome_get? (m := m₁),
+    contains_eq_isSome_get? (m := m₂)]
+  cases m₁.get? k <;> cases m₂.get? k <;> rfl
+
+@[simp]
+theorem mem_mergeWith [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {m₁ m₂ : DHashMap α β} {k : α} :
+    k ∈ m₁.mergeWith f m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [mem_iff_contains, contains_mergeWith, Bool.or_eq_true]
+
+namespace Const
+
+variable {β : Type v}
+
+theorem contains_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : DHashMap α (fun _ => β)} {k : α} :
+    (mergeWith f m₁ m₂).contains k = (m₁.contains k || m₂.contains k) := by
+  have hs : (m₂.getKey? k).isSome = (get? m₂ k).isSome := by
+    rw [DHashMap.isSome_getKey?_eq_contains, isSome_get?_eq_contains]
+  rw [Const.mergeWith, contains_mergeWith?, contains_eq_isSome_get? (m := m₁),
+    contains_eq_isSome_get? (m := m₂)]
+  cases hk : m₂.getKey? k <;> cases h₁ : get? m₁ k <;> cases h₂ : get? m₂ k <;>
+    simp_all only [Option.isSome_none, Option.isSome_some, Bool.false_eq_true,
+      Bool.true_eq_false, Bool.false_or, Bool.true_or]
+
+@[simp]
+theorem mem_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : DHashMap α (fun _ => β)} {k : α} :
+    k ∈ mergeWith f m₁ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [mem_iff_contains, contains_mergeWith, Bool.or_eq_true]
+
+end Const
+
 end Std.DHashMap

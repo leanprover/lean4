@@ -475,6 +475,9 @@ jobs:
           # stage0 is unchanged, there is nothing to rebootstrap anyway, so exit early.
           git diff --cached --quiet -- stage0 && exit 0 || git commit -m "chore: update-stage0"
           time make -C build -j$NPROC
+          # The tests below require Beam ("Build lean-beam" set `LEAN_BEAM_REQUIRED`), and Beam refuses
+          # to run under a compiler other than the one it was built with
+          C_INCLUDE_PATH="$GLIBC_DEV/include" make -C build/stage1 lean-beam
           # Set Lake's githash to the new stage0 hash used during the build (for the tests).
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)

@@ -1,0 +1,32 @@
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 20, "character": 2}}
+{"rendered":
+ "```lean\ncase grind\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ wp\n    (have acc := 0;\n    do\n    let __s ←\n      forIn l acc fun x __s =>\n          have acc := __s;\n          have acc := acc + x;\n          pure (ForInStep.yield acc)\n    have acc : Nat := __s\n    pure acc)\n    (fun r => r = l.sum) PUnit.unit\n```",
+ "goals":
+ ["case grind\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ wp\n    (have acc := 0;\n    do\n    let __s ←\n      forIn l acc fun x __s =>\n          have acc := __s;\n          have acc := acc + x;\n          pure (ForInStep.yield acc)\n    have acc : Nat := __s\n    pure acc)\n    (fun r => r = l.sum) PUnit.unit"]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 20, "character": 3}}
+{"rendered":
+ "```lean\ncase vc1\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ 0 + l.sum = l.sum\n```\n---\n```lean\ncase vc2\nl : List Nat\nr : Nat\nh : sumDef l = r\na✝¹ : Nat\na✝ : a✝¹ + [].sum = l.sum\n⊢ a✝¹ = l.sum\n```\n---\n```lean\ncase vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum\n```",
+ "goals":
+ ["case vc1\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ 0 + l.sum = l.sum",
+  "case vc2\nl : List Nat\nr : Nat\nh : sumDef l = r\na✝¹ : Nat\na✝ : a✝¹ + [].sum = l.sum\n⊢ a✝¹ = l.sum",
+  "case vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum"]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 23, "character": 2}}
+{"rendered":
+ "```lean\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop\n```",
+ "goals": ["l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 31, "character": 2}}
+{"rendered":
+ "```lean\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop\n```",
+ "goals": ["l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 38, "character": 5}}
+{"rendered":
+ "```lean\ncase vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0\n```\n---\n```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
+ "goals":
+ ["case vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0",
+  "case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝",
+  "case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}

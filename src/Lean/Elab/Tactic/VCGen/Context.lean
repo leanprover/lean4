@@ -138,6 +138,12 @@ public structure Context where
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
+  /-- The term elaboration context of the `vcgen` call, in which the `invariants` alternatives
+  elaborate. It carries the declaration name of the enclosing declaration. -/
+  termCtx : Term.Context := {}
+  /-- The universe parameter names of the enclosing declaration, in scope in the `invariants`
+  alternatives. -/
+  levelNames : List Name := []
   /-- The `until` pattern: when `some pat`, VC generation stops and emits the current goal as a VC
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none

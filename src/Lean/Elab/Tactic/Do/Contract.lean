@@ -168,12 +168,20 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
   let specTac : TSyntax `tactic ← match specStep? with
     | some tacs => `(tactic| ($(⟨tacs⟩):tacticSeq))
     | none => `(tactic| skip)
+  -- The `vcgen` keyword takes the source position of the first contract clause's keyword, so that
+  -- the info view shows the goals of `vcgen` at that keyword.
+  let clauseKw :=
+    if !requiresStx.isNone then requiresStx[0][0] else if !ensuresStx.isNone then ensuresStx[0][0]
+    else if throwsStx.getNumArgs > 0 then throwsStx[0][0] else givenStx[0][0]
+  let vcgenTac ← `(tactic| vcgen [$fId:ident] with (try finish))
+  let vcgenTac : TSyntax `tactic :=
+    ⟨vcgenTac.raw.setArg 0 (Syntax.atom clauseKw.getHeadInfo "vcgen")⟩
   -- `open scoped` activates the instances of `Std.WP` and the `⊤` notation of
   -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|
     open scoped Std.WP Lean.Order in
     @[spec] theorem $specId $binders* : $triple := by
-      vcgen [$fId:ident] with (try finish)
+      $vcgenTac:tactic
       $specTac:tactic
       first
       | done

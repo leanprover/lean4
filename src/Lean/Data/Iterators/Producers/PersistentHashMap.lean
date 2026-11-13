@@ -14,6 +14,7 @@ import Init.Omega
 import Init.Data.Slice.Array.Lemmas
 import Init.Data.Array.Mem
 import Init.Data.List.TakeDrop
+import Init.Data.List.Impl
 
 /-!
 # PersistentHashMap iterator

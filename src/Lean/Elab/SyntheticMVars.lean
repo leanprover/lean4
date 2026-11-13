@@ -11,6 +11,7 @@ public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.AbstractNestedProofs
 public import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Impl
 import Lean.Elab.ErrorUtils
 
 public section

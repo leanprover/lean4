@@ -15,6 +15,7 @@ import Init.Data.List.Nat.Range
 import Init.Data.ByteArray.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
+import Init.Data.List.Impl
 import Init.Omega
 import Init.ByCases
 

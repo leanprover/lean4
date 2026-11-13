@@ -10,7 +10,7 @@ prelude
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
-import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Impl
 public import Lean.Data.Lsp.LanguageFeatures
 import Init.While
 

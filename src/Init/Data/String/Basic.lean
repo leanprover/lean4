@@ -1486,7 +1486,7 @@ theorem Pos.utf8ByteSize_byte {s : String} {pos : s.Pos} {h : pos ≠ s.endPos} 
 /-- Advances a valid position on a slice to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
 @[expose]
-def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
+noncomputable def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
   offset := pos.offset.increaseBy ((pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte)
   isValidForSlice := by
     obtain ⟨t₁, t₂, ht, ht'⟩ := copy_eq_append_get h
@@ -1496,18 +1496,6 @@ def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos wher
     rw [Pos.Raw.increaseBy_charUtf8Size]
     refine Pos.Raw.IsValid.append_left ?_ t₁
     exact Pos.Raw.isValid_singleton.2 (Or.inr rfl)
-
-/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
-given position is the past-the-end position. -/
-@[expose]
-def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
-  if h : pos = s.endPos then none else some (pos.next h)
-
-/-- Advances a valid position on a slice to the next valid position, or panics if the given
-position is the past-the-end position. -/
-@[expose]
-def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
-  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
 
 @[simp]
 theorem Slice.Pos.offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
@@ -1611,18 +1599,6 @@ theorem Pos.ofToSlice_next_toSlice {s : String} {pos : s.Pos} {h} :
 @[simp]
 theorem Slice.Pos.str_inj {s : Slice} (p₁ p₂ : s.Pos) : p₁.str = p₂.str ↔ p₁ = p₂ := by
   simp [Slice.Pos.ext_iff, String.Pos.ext_iff, Pos.Raw.ext_iff]
-
-/-- Advances a valid position on a string to the next valid position, or returns `none` if the
-given position is the past-the-end position. -/
-@[inline, expose]
-def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
-  pos.toSlice.next?.map Pos.ofToSlice
-
-/-- Advances a valid position on a string to the next valid position, or panics if the given
-position is the past-the-end position. -/
-@[inline, expose]
-def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
-  ofToSlice pos.toSlice.next!
 
 /-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
 @[inline, expose]
@@ -2071,6 +2047,30 @@ theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
   funext s pos h
   simp [Slice.Pos.ext_iff, Slice.Pos.nextFast, Pos.Raw.ext_iff, Slice.Pos.get_eq_get_str]
   omega
+
+/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+@[expose]
+def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
+  if h : pos = s.endPos then none else some (pos.next h)
+
+/-- Advances a valid position on a slice to the next valid position, or panics if the given
+position is the past-the-end position. -/
+@[expose]
+def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
+  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
+
+/-- Advances a valid position on a string to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+@[inline, expose]
+def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
+  pos.toSlice.next?.map Pos.ofToSlice
+
+/-- Advances a valid position on a string to the next valid position, or panics if the given
+position is the past-the-end position. -/
+@[inline, expose]
+def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
+  ofToSlice pos.toSlice.next!
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
 @[inline, expose, implicit_reducible]

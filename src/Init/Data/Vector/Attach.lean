@@ -25,7 +25,7 @@ to apply `f`.
 We replace this at runtime with a more efficient version via the `csimp` lemma `pmap_eq_pmapImpl`.
 -/
 @[expose]
-def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) : Vector β n :=
+noncomputable def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) : Vector β n :=
   Vector.mk (xs.toArray.pmap f (fun a m => H a (by simpa using m))) (by simp)
 
 /--

@@ -25,7 +25,7 @@ an array `xs : Array α`, given a proof that every element of `xs` in fact satis
 `Array.pmap`, named for “partial map,” is the equivalent of `Array.map` for such partial functions.
 -/
 @[expose]
-def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
+noncomputable def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
   (xs.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
 
 /--

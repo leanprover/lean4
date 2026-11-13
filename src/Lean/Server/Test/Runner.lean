@@ -10,6 +10,7 @@ prelude
 public import Lean.Widget
 import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.GoTo
+import Init.Data.List.Sort.Impl
 
 public section
 open Lean

@@ -326,26 +326,38 @@ jobs:
         if: matrix.release && !matrix.wasm
         run: |
           make -C build/$TARGET_STAGE leanchecker-paranoid -j$NPROC
-      - name: Build lean4lean and con-leche
-        if: matrix.release && !matrix.wasm
+      # For the external checkers pinned to their own toolchains (`lean4lean`, `con-leche`) and the
+      # `lean-beam` package test
+      - name: Install elan
+        if: (matrix.release && !matrix.wasm) || matrix.lean-beam
         run: |
           if ! command -v elan > /dev/null; then
             # Use consistent `ELAN_HOME` across platforms
             (cd build && export ELAN_HOME=elan &&
               curl https://elan.lean-lang.org/elan-init.sh -sSf |
                 sh -s -- -y --default-toolchain none --no-modify-path)
-            export PATH="$PWD/build/elan/bin:$PATH"
+            if command -v cygpath > /dev/null; then
+              # msys2 drops `GITHUB_PATH`, but each step is a login shell
+              echo "export PATH=\"$PWD/build/elan/bin:\$PATH\"" > /etc/profile.d/elan.sh
+            else
+              echo "$PWD/build/elan/bin" >> "$GITHUB_PATH"
+            fi
           fi
+      - name: Build lean4lean and con-leche
+        if: matrix.release && !matrix.wasm
+        run: |
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche
       - name: Build lean-beam
-        if: matrix.release && !matrix.wasm && runner.os != 'Windows'
+        if: (matrix.release || matrix.lean-beam) && !matrix.wasm && runner.os != 'Windows'
         run: |
-          if [ -d build/elan/bin ]; then
-            echo "$PWD/build/elan/bin" >> "$GITHUB_PATH"
-          fi
           # Require Beam in the package test only when this job explicitly builds it.
           echo 'LEAN_BEAM_REQUIRED=1' >> "$GITHUB_ENV"
+          # Beam's C sources need libc headers, which the toolchain does not bundle; use those of the
+          # glibc we link against instead of the runner's `/usr/include`, which NixOS runners lack
+          if [[ -n "${GLIBC_DEV:-}" ]]; then
+            export C_INCLUDE_PATH="$GLIBC_DEV/include"
+          fi
           make -C build/$TARGET_STAGE lean-beam
       - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm
@@ -463,6 +475,9 @@ jobs:
           # stage0 is unchanged, there is nothing to rebootstrap anyway, so exit early.
           git diff --cached --quiet -- stage0 && exit 0 || git commit -m "chore: update-stage0"
           time make -C build -j$NPROC
+          # The tests below require Beam ("Build lean-beam" set `LEAN_BEAM_REQUIRED`), and Beam refuses
+          # to run under a compiler other than the one it was built with
+          C_INCLUDE_PATH="$GLIBC_DEV/include" make -C build/stage1 lean-beam
           # Set Lake's githash to the new stage0 hash used during the build (for the tests).
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)

@@ -178,7 +178,7 @@ public structure Scope where
 public structure State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
-  The particular rule depends on the theorem name, the `WPMonad` instance and the number of
+  The particular rule depends on the theorem name, the `MonadicWP` instance and the number of
   excess state arguments that the weakest precondition target is applied to.
 
   The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
@@ -203,7 +203,7 @@ public structure State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
+  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `MonadicWP` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
   /-- Caches the backward rules of the `@[vcgen_rintro]` rules, keyed by declaration name. -/

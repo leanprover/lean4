@@ -11,9 +11,9 @@ set_option sym.debug true
 /-!
 # `vcgen` on a non-monadic program type
 
-This test exercises the `WP`/`WPMonad` split: it defines a small IMP language with (non-reentrant)
+This test exercises the `WP`/`MonadicWP` split: it defines a small IMP language with (non-reentrant)
 function calls whose weakest precondition is an *operational* semantics, gives it a `WP` instance
-(without any `WPMonad` instance, since `Cmd` is not a monad), and uses `vcgen` to generate
+(without any `MonadicWP` instance, since `Cmd` is not a monad), and uses `vcgen` to generate
 verification conditions. The environment lives in the assertion (`Env → State → Prop`) so the
 program stays a bare `Cmd` and `vcgen` discriminates on its constructors.
 
@@ -151,9 +151,11 @@ abbrev Assn := Env → State → Prop
 
 instance : WP Cmd Unit Assn EStack⟨⟩ where
   trans c := ⟨fun Q _epost Φ s => wpCmd Φ c (Q () Φ) s⟩
-  trans_monotone c := by
-    intro Q Q' e e' _he hQ Φ s h
-    exact wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
+
+instance : WP.IsMonotone Cmd := fun c => by
+  constructor
+  intro Q Q' e e' _he hQ Φ s h
+  exact wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
 
 variable {Q : Unit → Assn} {eposts : EStack⟨⟩}
 
@@ -204,7 +206,7 @@ theorem wp_while_eq (cond : Expr) (body : Cmd) (Φ : Env) (s : State) :
 /-- Build a triple from the pointwise `wp` equation of the program. -/
 private theorem triple_of_wp {c : Cmd} {pre : Assn}
     (h : ∀ Φ s, Std.WP.wp c Q eposts Φ s = pre Φ s) : Triple c pre Q eposts :=
-  Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s]; exact PartialOrder.rel_refl)
+  Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s])
 
 /-! ## Specification lemmas, one per constructor -/
 

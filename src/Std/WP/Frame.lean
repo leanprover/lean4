@@ -26,7 +26,7 @@ guard `P s := a < s.p ∨ s.p + s.n ≤ a`.
 A `WP` built as the `Lean.Order.PredTrans.frameClosure` of a base wp frames every resource under
 every guard.
 
-The monadic counterpart, which builds a `WPMonad` from the frame closure of a base interpretation,
+The monadic counterpart, which builds a `MonadicWP` from the frame closure of a base interpretation,
 is in `Std.WP.Monad.Frame`.
 -/
 
@@ -35,7 +35,7 @@ open Lean.Order Std.WP
 namespace Std.WP
 
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
-  [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
 
 /-- The program `x` frames the resource `F` under the guard `P`: in a state that satisfies `P`,
 `op F ·` commutes into the postcondition of `wp x` and the companion `opE F ·` into the exception
@@ -46,7 +46,7 @@ structure WP.Frames {R : Type t} (op : R → Pred → Pred) {opE : R → EPosts 
   op_wp_le_wp_op : ∀ (Q : Value → Pred) (E : EPosts),
     P ⊓ op F (wp x Q E) ⊑ wp x (fun a => op F (Q a)) (opE F E)
 
-theorem meet_op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
+theorem meet_op_wp_upperAdjoint_le_wp [WP.IsMonotone Prog] {R : Type t} {op : R → Pred → Pred}
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
     {x : Prog} {F : R} {P : Pred} {Q : Value → Pred} {E : EPosts}
     (hframes : WP.Frames op x F P) :
@@ -76,7 +76,7 @@ theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
   rw [hf x]
   exact PredTrans.frameClosure_frames op comp hact hactE (f x) Q E F
 
-theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
+theorem WP.frames_of_conjunctive [WP.IsMonotone Prog] {x : Prog} [(WP.trans x).IsConjunctive]
     {opE : Pred → EPosts → EPosts} [FrameOp meet EPosts opE] {F P : Pred}
     (hF : P ⊓ F ⊑ wp x (fun _ => F) (opE F ⊤))
     (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
@@ -88,7 +88,7 @@ theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
       (PartialOrder.rel_trans (meet_le_right _ _) (meet_le_right _ _))
     exact le_meet _ _ _ (meet_le_left _ _)
       (PartialOrder.rel_trans (meet_le_right _ _) (meet_le_left _ _))
-  · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le (fun _ => F) Q (opE F ⊤) E) ?_
+  · refine PartialOrder.rel_trans (PredTrans.IsConjunctive.meet_apply_le (pt := WP.trans x) (fun _ => F) Q (opE F ⊤) E) ?_
     refine WP.wp_monotone ?_ (hE E)
     intro a
     simp only [meet_apply]
@@ -101,7 +101,13 @@ exception-channel companion. -/
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
     (base : WP Prog Value Pred EPosts) : WP Prog Value Pred EPosts where
   trans x := (base.trans x).frameClosure op
-  trans_monotone x := PredTrans.monotone_frameClosure op (base.trans_monotone x)
+
+omit [WP Prog Value Pred EPosts] in
+theorem WP.isMonotone_withFrameClosure {R : Type t} (op : R → Pred → Pred)
+    {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
+    (base : WP Prog Value Pred EPosts) (h : @WP.IsMonotone Prog _ _ _ base _ _) :
+    @WP.IsMonotone Prog _ _ _ (WP.withFrameClosure op base) _ _ :=
+  fun x => have := h x; inferInstanceAs ((base.trans x).frameClosure op).IsMonotone
 
 omit [WP Prog Value Pred EPosts] in
 theorem WP.withFrameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred)

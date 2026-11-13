@@ -71,21 +71,22 @@ at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
 `n > 0 ∧ x = 1 ∧ s = t`.
 -/
 
-/-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
-read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
-def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
-  let mut inst := instCL
-  for s in ss do
-    let_expr instCompleteLatticePi _ _ f := inst | return none
-    inst ← betaS f #[s]
-  return some inst
+/-- The lattice instance of the assertions `B` of a goal `pre ⊑ rhs`, read off the order `instPO` of
+`B` in the goal: the lattice order `CompleteLattice.toPartialOrder instCL` gives `instCL`, and the
+order `instPartialOrderProp` of `Prop` gives `instCompleteLatticeProp`. -/
+def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
+  match_expr instPO with
+  | CompleteLattice.toPartialOrder _ instCL => return some instCL
+  | Std.Internal.Order.instPartialOrderProp =>
+    return some (← mkConstS ``Std.Internal.Order.instCompleteLatticeProp)
+  | _ => return none
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
 `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
 `∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if
-`jp` is no `__do_jp` with a lambda RHS under `+jp`, or if the states have no base lattice
-instance. -/
+`jp` is no `__do_jp` with a lambda RHS under `+jp`, or if the order of the goal is no lattice
+order. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
   unless (← read).useJP && Lean.Elab.Tactic.Do.isJP (← jp.getUserName) && val.isLambda do
@@ -102,13 +103,13 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     let xs ← xs.mapM (share ·)
     let ss ← ss.mapM (share ·)
     let B ← share B
-    let some instB ← baseInstance? info.instAL ss | return none
+    let some instB ← latticeOfOrder? inst | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
     let top ← mkAppNS (← mkConstS ``Lean.Order.top [u]) #[B, instB]
     let hyp ← share (← mkFreshExprMVarAt lctx localInsts
       (← mkForallFVarsS (xs ++ ss) (← mkSortS .zero)) .syntheticOpaque)
     let entails (prog : Expr) : VCGenM Expr := do
-      let wp ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog)) ss
+      let wp ← mkAppNS (← mkAppNS info.head (info.args.set! 5 prog)) ss
       let rel ← mkAppNS (← mkConstS ``PartialOrder.rel goalTy.getAppFn.constLevels!)
         #[α, inst, top, wp]
       mkForallFVarsS (xs ++ ss) (← mkForallS `h .default (← mkAppNS hyp (xs ++ ss)) rel)

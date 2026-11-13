@@ -33,7 +33,7 @@ open Assertion
 universe u u₁ u₂ v w
 variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v}
   {Pred : Type (max u₁ u₂)} {EPosts : Type (max u₁ u₂)}
-variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
 
 /-! ## Gadgets -/
 
@@ -62,6 +62,7 @@ open Gadget
 
 /-! ## Specifications -/
 
+omit [LawfulMonad m] in
 @[spec]
 theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
@@ -87,6 +88,7 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
   rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
 
+omit [LawfulMonad m] in
 @[spec]
 theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
@@ -151,9 +153,10 @@ assertion language it evaluates in is the one the specification is applied at. -
 end Gadget
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
-variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPosts]
-  [WPMonad m Pred EPosts]
+variable [Monad m] [Lean.Order.MonadTail m] [CompleteLattice Pred] [CompleteLattice EPosts]
+  [MonadicWP m Pred EPosts] [LawfulMonad m] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
 
+omit [LawfulMonad m] in
 @[spec]
 theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
@@ -179,6 +182,7 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
   unfold forInLoopWithInvariantAndVariant
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
+omit [LawfulMonad m] in
 @[spec]
 theorem Spec.forInLoop_invariant
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
@@ -202,6 +206,7 @@ theorem Spec.forInLoop_invariant
   unfold forInLoopWithInvariant
   exact Spec.forIn_loop measure inv einv step
 
+omit [LawfulMonad m] in
 @[spec]
 theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}

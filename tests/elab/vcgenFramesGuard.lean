@@ -32,11 +32,13 @@ def run : List Instr → St → St
 
 instance : WP Instr Unit (St → Prop) Unit where
   trans i := ⟨fun Q _ s => Q () (i.step s)⟩
-  trans_monotone _ := fun _ _ _ _ _ hQ _ h => hQ () _ h
+
+instance : WP.IsMonotone Instr := fun _ => ⟨fun _ _ _ _ _ hQ _ h => hQ () _ h⟩
 
 instance : WP (List Instr) Unit (St → Prop) Unit where
   trans p := ⟨fun Q _ s => Q () (run p s)⟩
-  trans_monotone _ := fun _ _ _ _ _ hQ _ h => hQ () _ h
+
+instance : WP.IsMonotone (List Instr) := fun _ => ⟨fun _ _ _ _ _ hQ _ h => hQ () _ h⟩
 
 section
 variable {Q : Unit → St → Prop} {E : Unit}

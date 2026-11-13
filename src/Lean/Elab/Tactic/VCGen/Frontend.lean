@@ -158,18 +158,18 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let ctx : Context := { backwardRules, rintros := ← getRIntros }
   return (ctx, { specs := allSpecThms })
 
-/-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad
+/-- True iff `m` carries a `MonadicWP m _ _` instance, i.e. it is a genuine weakest-precondition monad
 rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPosts` `outParam`s are left
 as metavariables for instance search to fill; instance search runs at default transparency, while the
 caller reduces types at reducible transparency. -/
-def isWPMonad (m : Expr) : MetaM Bool := withDefault do
-  try return (← synthInstanceOpt? ``Std.WP.WPMonad #[some m]).isSome
+def isMonadicWP (m : Expr) : MetaM Bool := withDefault do
+  try return (← synthInstanceOpt? ``Std.WP.MonadicWP #[some m]).isSome
   catch _ => return false
 
 /-- Infer the program type of a `vcgen` goal, the key for frame-procedure selection and the expected
 type for elaborating `frames`/`until` patterns. Peels leading binders, then reads the program type
 from a bare `wp …` target, a `pre ⊑ wp …` entailment, or a `Triple`. When the program type is `m α`
-with `m` a `WPMonad`, the monad `m` is returned (frameprocs are keyed by monad); otherwise the whole
+with `m` a `MonadicWP` monad, the monad `m` is returned (frameprocs are keyed by monad); otherwise the whole
 program type is returned, so deep embeddings key on their own head. Returns `none` when the goal
 exposes no program. -/
 public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducible do
@@ -186,7 +186,7 @@ public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducib
     let some progTy := progTy? | return none
     let progTy ← whnf progTy
     if progTy.isApp then
-      if ← isWPMonad progTy.appFn! then
+      if ← isMonadicWP progTy.appFn! then
         return some progTy.appFn!
     return some progTy
 

@@ -44,7 +44,8 @@ conjunctive, because `(f ⊓ g) a = f a ⊓ g a`. For example:
     bind      ↦  wp x (fun a => wp (f a) Q E) E
     tryCatch  ↦  wp x Q (fun e => wp (h e) Q E, E.snd)
 
-The `wp` arm assumes that the `wp` of the sub-program is conjunctive (`WPConjunctive`).
+The `wp` arm assumes that the sub-program `x` has a conjunctive transformer
+(`(WP.trans x).IsConjunctive`).
 
 `conjunctiveArgs?` is a fixed table. An attribute on lemmas such as
 `ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` could extend it to user-defined heads,
@@ -78,9 +79,9 @@ def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
     match_expr rhs with
-    | wp _ _ _ _ _ _ _ prog post eposts => some (pre, prog, post, eposts)
+    | wp _ _ _ _ _ prog post eposts => some (pre, prog, post, eposts)
     | _ => none
-  | Triple _ _ _ _ _ _ x _ pre post eposts => some (pre, x, post, eposts)
+  | Triple _ _ _ _ x _ _ pre post eposts => some (pre, x, post, eposts)
   | _ => none
 
 /-- Whether any metavariable from `mvarIds` occurs in `e`. -/
@@ -93,7 +94,7 @@ def conjunctiveArgs? (env : Environment) : Name → Option (Nat × List Nat)
   | ``And => some (2, [0, 1])
   | ``Lean.Order.iInf => some (4, [3])
   | ``Lean.Order.himp => some (4, [3])
-  | ``wp => some (10, [8, 9])
+  | ``wp => some (8, [6, 7])
   | ``Prod.fst | ``Prod.snd => some (3, [2])
   | ``Prod.mk => some (4, [2, 3])
   | ``ite | ``dite => some (5, [3, 4])

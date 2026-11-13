@@ -19,7 +19,7 @@ open Lean Order Std.WP Lean.Order
 namespace Std.WP
 
 universe u v
-variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [∀ α, WP.IsMonotone (m α)] [MonadicWP.IsLaxMonadMorphism m]
 
 namespace Gadget
 
@@ -29,12 +29,13 @@ set_option linter.unusedVariables false in
 
 The `as` parameter is the assertion to be checked. At runtime, `assertGadget` is simply
 `pure ⟨⟩`. -/
-def assertGadget [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] (as : Pred) : m PUnit := pure ⟨⟩
+def assertGadget [Monad m] [MonadicWP m Pred EPosts] (as : Pred) : m PUnit := pure ⟨⟩
 
 end Gadget
 
 open Gadget
 
+omit [∀ (α : Type u), WP.IsMonotone (m α)] in
 /-- Specification for `assertGadget`: the precondition requires both the assertion `as` and
 the Heyting implication `as ⇨ post ⟨⟩`, ensuring the assertion holds and the postcondition
 follows from it. -/

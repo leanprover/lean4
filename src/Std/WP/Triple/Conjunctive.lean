@@ -30,25 +30,25 @@ namespace Triple
 
 universe u u' v v' w w'
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type w'}
-  [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
 
 /--
 Conjunction of two Hoare triple specifications for a program `x`. This theorem decomposes proofs:
 prove unrelated facts about `x` separately, then combine them here.
 -/
-theorem and {x : Prog} [WPConjunctive x] {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred}
+theorem and {x : Prog} [(WP.trans x).IsConjunctive] {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred}
     {eposts₁ eposts₂ : EPosts}
     (h₁ : Triple x pre₁ post₁ eposts₁) (h₂ : Triple x pre₂ post₂ eposts₂) :
     Triple x (pre₁ ⊓ pre₂) (post₁ ⊓ post₂) (eposts₁ ⊓ eposts₂) :=
   ⟨PartialOrder.rel_trans (meet_mono h₁.le_wp h₂.le_wp)
-    (WPConjunctive.wp_meet_wp_le post₁ post₂ eposts₁ eposts₂)⟩
+    (PredTrans.IsConjunctive.meet_apply_le (pt := WP.trans x) post₁ post₂ eposts₁ eposts₂)⟩
 
 /--
 Modus ponens for two Hoare triple specifications of a program `x`. This theorem separates proofs.
 Let `h₁` establish a basic postcondition `post₁` for `x`, and let `h₂` establish the advanced
 postcondition `post₂` under the assumption `post₁`. Then `mp h₁ h₂` establishes `post₂` for `x`.
 -/
-theorem mp {x : Prog} [WPConjunctive x]
+theorem mp [WP.IsMonotone Prog] {x : Prog} [(WP.trans x).IsConjunctive]
     [Heyting Pred] [Heyting EPosts]
     {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred} {eposts₁ eposts₂ : EPosts}
     (h₁ : Triple x pre₁ post₁ eposts₁)
@@ -64,9 +64,9 @@ with postcondition `post`, together with the specification `hgoal` deriving the 
 `wp prog post' eposts'` from `post`. The premise `hp` restricts `obs` to observation: an assertion
 that holds after a successful run of `obs` already holds before it.
 -/
-theorem observe {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPosts]
+theorem observe [WP.IsMonotone Prog] {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPosts]
     [Heyting Pred] [Heyting EPosts]
-    {obs : Prog} [WPConjunctive obs] {prog : Prog'}
+    {obs : Prog} [(WP.trans obs).IsConjunctive] {prog : Prog'}
     {pre : Pred} {post : Value → Pred} {eposts : EPosts}
     {post' : Value' → Pred} {eposts' : EPosts}
     (hp : ∀ C : Pred, wp obs (fun _ => C) ⊥ ⊑ C)

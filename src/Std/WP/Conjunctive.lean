@@ -18,25 +18,19 @@ open Lean.Order Std.WP
 /-!
 # Conjunctive weakest preconditions
 
-`WPConjunctive x` states that the meet `wp x Q₁ E₁ ⊓ wp x Q₂ E₂` of two weakest preconditions lies
-below the weakest precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of the
-postconditions. The instances for the base monads and the monad transformers are in
+A program `x` has a conjunctive weakest precondition when its transformer is conjunctive:
+`[(WP.trans x).IsConjunctive]`. The meet `wp x Q₁ E₁ ⊓ wp x Q₂ E₂` of two weakest preconditions
+then lies below the weakest precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of
+the postconditions. The instances for the base monads and the monad transformers are in
 `Std.WP.Monad.Conjunctive`.
 -/
 
 namespace Std.WP
 
-/-- `wp x` is sub-conjunctive: the meet of the weakest preconditions of two postconditions lies
-below the weakest precondition of the componentwise meet of the postconditions. A healthiness
-condition of the `WP` interpretation for the individual program `x`; it holds for the base
-interpretations and lifts through the transformers. -/
-class WPConjunctive {Prog : Type u} {Value : outParam (Type v)} {Pred : outParam (Type w)}
-    {EPosts : outParam (Type z)} [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
-    (x : Prog) : Prop where
-  /-- The meet of the weakest preconditions `wp x Q₁ E₁` and `wp x Q₂ E₂` lies below the weakest
-  precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of the postconditions. -/
-  wp_meet_wp_le : (WP.trans x).Conjunctive
-
-attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] WPConjunctive
+/-- The transformer of the program `x` is conjunctive. -/
+@[deprecated PredTrans.IsConjunctive +typeChanged (since := "2026-11-13")]
+abbrev WPConjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
+    [WP Prog Value Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts] (x : Prog) : Prop :=
+  (WP.trans x).IsConjunctive
 
 end Std.WP

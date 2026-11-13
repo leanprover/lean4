@@ -115,6 +115,10 @@ theorem mergeWith {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
     (t₁.mergeWith mergeFn t₂).WF :=
   ⟨InnerWF.constMergeWith h⟩
 
+theorem mergeWith? {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
+    (t₁.mergeWith? mergeFn t₂).WF :=
+  ⟨InnerWF.constMergeWith? h⟩
+
 theorem union [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) :
   (t₁ ∪ t₂).WF :=
   ⟨InnerWF.union h₁ h₂⟩

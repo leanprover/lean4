@@ -12,6 +12,9 @@ public import Init.Data.Array.Perm
 public import Std.Internal.ForIn.Basic
 import Init.Data.List.Pairwise
 import Init.Data.Prod
+import Init.Omega
+import Init.ByCases
+import Init.Data.List.Find
 
 @[expose] public section
 
@@ -5925,6 +5928,10 @@ theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp] (f : (a : α) → β a → β
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄) : t₁.mergeWith f t₃ ~m t₂.mergeWith f t₄ :=
   ⟨h.1.mergeWith h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
 
+theorem mergeWith? [TransCmp cmp] [LawfulEqCmp cmp] (f : (a : α) → β a → β a → Option (β a))
+    (h : t₁ ~m t₂) (h' : t₃ ~m t₄) : t₁.mergeWith? f t₃ ~m t₂.mergeWith? f t₄ :=
+  ⟨h.1.mergeWith? h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
+
 section Const
 
 variable {β : Type v} {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w'}
@@ -6088,6 +6095,10 @@ theorem constInsertManyIfNewUnit_list [TransCmp cmp] {t₁ t₂ : DTreeMap α Un
 theorem constMergeWith [TransCmp cmp] (f : α → β → β → β) (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
     Const.mergeWith f t₁ t₃ ~m Const.mergeWith f t₂ t₄ :=
   ⟨h.1.constMergeWith h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
+
+theorem constMergeWith? [TransCmp cmp] (f : α → β → β → Option β) (h : t₁ ~m t₂) (h' : t₃ ~m t₄) :
+    Const.mergeWith? f t₁ t₃ ~m Const.mergeWith? f t₂ t₄ :=
+  ⟨h.1.constMergeWith? h'.1 t₁.2 t₂.2 t₃.2 t₄.2⟩
 
 end Const
 
@@ -7116,5 +7127,377 @@ theorem toArray_keys : t.keys.toArray = t.keysArray :=
 
 theorem toList_keysArray : t.keysArray.toList = t.keys :=
   Impl.toList_keysArray
+
+
+/-! ### Deletion-capable merging -/
+
+theorem mergeWith?_eq_foldl [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DTreeMap α β cmp} :
+    t₁.mergeWith? f t₂ = t₂.foldl (fun t a b₂ =>
+      t.alter a (fun | none => some b₂ | some b₁ => f a b₁ b₂)) t₁ := by
+  rw [foldl_eq_foldl_toList]
+  apply ext
+  let : Ord α := ⟨cmp⟩
+  change (Impl.mergeWith? f t₁.inner t₂.inner _).impl = _
+  rw [Impl.mergeWith?_eq_mergeWith?!, Impl.mergeWith?!, Impl.foldl_eq_foldl_toList]
+  rw [← List.foldl_hom (inner (cmp := cmp)) (g₂ := fun t p =>
+    t.alter! p.1 (fun | none => some p.2 | some b₁ => f p.1 b₁ p.2))]
+  · simp only [DTreeMap.toList]
+    congr 1
+    funext t p
+    congr 1
+    funext x
+    cases x <;> rfl
+  · intro t p
+    simp only [DTreeMap.alter, Impl.alter_eq_alter!]
+    congr 1
+    funext x
+    cases x <;> rfl
+
+@[simp]
+theorem mergeWith?_empty_right [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t : DTreeMap α β cmp} :
+    t.mergeWith? f ∅ = t := by
+  rw [mergeWith?_eq_foldl, foldl_eq_foldl_toList]
+  rfl
+
+private theorem get?_foldl_alter_of_forall [TransCmp cmp] [LawfulEqCmp cmp]
+    (entries : List ((a : α) × β a)) (out : DTreeMap α β cmp)
+    (update : (a : α) → β a → Option (β a) → Option (β a)) (key : α)
+    (h : ∀ entry ∈ entries, cmp entry.1 key ≠ .eq) :
+    (entries.foldl (fun out entry => out.alter entry.1 (update entry.1 entry.2)) out).get? key =
+      out.get? key := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    rw [List.foldl_cons, ih]
+    · rw [get?_alter, dite_eq_right (h entry (by simp))]
+    · intro later hlater
+      exact h later (by simp [hlater])
+
+private theorem get?_foldl_alter_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    (entries : List ((a : α) × β a)) (out : DTreeMap α β cmp)
+    (update : (a : α) → β a → Option (β a) → Option (β a)) (key : α) (value : β key)
+    (hpair : entries.Pairwise (fun a b => cmp a.1 b.1 ≠ .eq))
+    (hmem : ⟨key, value⟩ ∈ entries) :
+    (entries.foldl (fun out entry => out.alter entry.1 (update entry.1 entry.2)) out).get? key =
+      update key value (out.get? key) := by
+  induction entries generalizing out with
+  | nil => simp at hmem
+  | cons entry entries ih =>
+    simp only [List.pairwise_cons] at hpair
+    rcases List.mem_cons.mp hmem with heq | hmem
+    · subst entry
+      rw [List.foldl_cons, get?_foldl_alter_of_forall entries _ update key]
+      · rw [get?_alter_self]
+      · intro later hlater heq
+        have hkey : later.1 = key := LawfulEqCmp.eq_of_compare heq
+        apply hpair.1 later hlater
+        simp [hkey]
+    · rw [List.foldl_cons, ih _ hpair.2 hmem, get?_alter,
+        dite_eq_right (hpair.1 ⟨key, value⟩ hmem)]
+
+theorem get?_mergeWith? [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DTreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂).get? k =
+      match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂ := by
+  rw [mergeWith?_eq_foldl, foldl_eq_foldl_toList]
+  cases hsource : t₂.get? k with
+  | none =>
+    apply get?_foldl_alter_of_forall _ t₁ (fun a b₂ => fun
+      | none => some b₂ | some b₁ => f a b₁ b₂) k
+    intro entry hentry heq
+    have hkey : entry.1 = k := LawfulEqCmp.eq_of_compare heq
+    have hget := mem_toList_iff_get?_eq_some.mp hentry
+    cases entry
+    subst_vars
+    simp_all
+  | some value =>
+    exact get?_foldl_alter_of_mem _ t₁ (fun a b₂ => fun
+      | none => some b₂ | some b₁ => f a b₁ b₂) k value t₂.distinct_keys_toList
+      (mem_toList_iff_get?_eq_some.mpr hsource)
+
+theorem mergeWith?_empty_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t : DTreeMap α β cmp} :
+    (∅ : DTreeMap α β cmp).mergeWith? f t ~m t := by
+  apply Equiv.of_forall_get?_eq
+  intro k
+  rw [get?_mergeWith?, get?_emptyc]
+  cases t.get? k <;> rfl
+
+private theorem size_foldl_alter_le [TransCmp cmp] [LawfulEqCmp cmp]
+    (entries : List ((a : α) × β a)) (out : DTreeMap α β cmp)
+    (update : (a : α) → β a → Option (β a) → Option (β a)) :
+    (entries.foldl (fun out entry => out.alter entry.1 (update entry.1 entry.2)) out).size ≤
+      out.size + entries.length := by
+  induction entries generalizing out with
+  | nil => exact Nat.le_refl _
+  | cons entry entries ih =>
+    simp only [List.foldl_cons, List.length_cons]
+    have h := ih (out.alter entry.1 (update entry.1 entry.2))
+    have hs := size_alter_le_size (t := out) (k := entry.1) (f := update entry.1 entry.2)
+    omega
+
+theorem size_mergeWith?_le [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DTreeMap α β cmp} :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size := by
+  rw [mergeWith?_eq_foldl, foldl_eq_foldl_toList]
+  simpa only [length_toList] using size_foldl_alter_le t₂.toList t₁
+    (fun a b₂ => fun | none => some b₂ | some b₁ => f a b₁ b₂)
+
+theorem contains_mergeWith? [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : DTreeMap α β cmp} {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+
+namespace Const
+
+variable {β : Type v}
+
+theorem mergeWith?_eq_foldl {f : α → β → β → Option β} {t₁ t₂ : DTreeMap α β cmp} :
+    mergeWith? f t₁ t₂ = t₂.foldl (fun t a b₂ =>
+      alter t a (fun | none => some b₂ | some b₁ => f a b₁ b₂)) t₁ := by
+  rw [DTreeMap.foldl_eq_foldl_toList]
+  apply ext
+  let : Ord α := ⟨cmp⟩
+  change (Impl.Const.mergeWith? f t₁.inner t₂.inner _).impl = _
+  rw [Impl.Const.mergeWith?_eq_mergeWith?!, Impl.Const.mergeWith?!, Impl.foldl_eq_foldl_toList]
+  rw [← List.foldl_hom inner (g₂ := fun t p =>
+    Impl.Const.alter! p.1 (fun | none => some p.2 | some b₁ => f p.1 b₁ p.2) t)]
+  · rfl
+  · intro t p
+    exact (Impl.Const.alter_eq_alter! t.wf.balanced).symm
+
+@[simp]
+theorem mergeWith?_empty_right {f : α → β → β → Option β} {t : DTreeMap α β cmp} :
+    mergeWith? f t ∅ = t := by
+  rw [mergeWith?_eq_foldl, DTreeMap.foldl_eq_foldl_toList]
+  rfl
+
+private theorem get?_foldl_alter_of_forall [TransCmp cmp]
+    (entries : List (α × β)) (out : DTreeMap α β cmp)
+    (update : α → β → Option β → Option β) (key : α)
+    (h : ∀ entry ∈ entries, cmp entry.1 key ≠ .eq) :
+    get? (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out) key =
+      get? out key := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    rw [List.foldl_cons, ih]
+    · rw [get?_alter, ite_eq_right (h entry (by simp))]
+    · intro later hlater
+      exact h later (by simp [hlater])
+
+private theorem get?_foldl_alter [TransCmp cmp]
+    (entries : List (α × β)) (out : DTreeMap α β cmp)
+    (update : α → β → Option β → Option β) (key : α)
+    (hpair : entries.Pairwise (fun a b => cmp a.1 b.1 ≠ .eq)) :
+    get? (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out) key =
+      match entries.find? (fun entry => cmp entry.1 key == .eq) with
+      | none => get? out key
+      | some (a, b) => update a b (get? out key) := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    simp only [List.pairwise_cons] at hpair
+    by_cases heq : cmp entry.1 key = .eq
+    · rw [List.foldl_cons, get?_foldl_alter_of_forall entries _ update key]
+      · simp only [List.find?_cons, heq, beq_self_eq_true]
+        rw [get?_alter, ite_eq_left heq, get?_congr heq]
+      · intro later hlater hlaterEq
+        exact hpair.1 later hlater (TransCmp.eq_trans heq (OrientedCmp.eq_symm hlaterEq))
+    · rw [List.foldl_cons, ih _ hpair.2, get?_alter, ite_eq_right heq]
+      rw [List.find?_cons_of_neg (by simpa only [beq_iff_eq] using heq)]
+
+theorem get?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : DTreeMap α β cmp} {k : α} :
+    get? (mergeWith? f t₁ t₂) k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k := by
+  rw [mergeWith?_eq_foldl, foldl_eq_foldl_toList]
+  rw [get?_foldl_alter _ t₁ (fun a b₂ => fun
+    | none => some b₂ | some b₁ => f a b₁ b₂) k distinct_keys_toList]
+  cases hfind : (toList t₂).find? (fun entry => cmp entry.1 k == .eq) with
+  | none =>
+    have hc := find?_toList_eq_none_iff_contains_eq_false.mp hfind
+    rw [DTreeMap.getKey?_eq_none_of_contains_eq_false hc]
+  | some entry =>
+    obtain ⟨hk, hv⟩ := find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some.mp hfind
+    rw [hk, hv]
+
+private theorem getKey?_foldl_alter_of_forall [TransCmp cmp]
+    (entries : List (α × β)) (out : DTreeMap α β cmp)
+    (update : α → β → Option β → Option β) (key : α)
+    (h : ∀ entry ∈ entries, cmp entry.1 key ≠ .eq) :
+    (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out).getKey? key =
+      out.getKey? key := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    rw [List.foldl_cons, ih]
+    · rw [getKey?_alter, ite_eq_right (h entry (by simp))]
+    · intro later hlater
+      exact h later (by simp [hlater])
+
+private theorem getKey?_foldl_alter [TransCmp cmp]
+    (entries : List (α × β)) (out : DTreeMap α β cmp)
+    (update : α → β → Option β → Option β) (key : α)
+    (hpair : entries.Pairwise (fun a b => cmp a.1 b.1 ≠ .eq)) :
+    (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out).getKey? key =
+      match entries.find? (fun entry => cmp entry.1 key == .eq) with
+      | none => out.getKey? key
+      | some (a, b) => if (update a b (get? out key)).isSome then some a else none := by
+  induction entries generalizing out with
+  | nil => rfl
+  | cons entry entries ih =>
+    simp only [List.pairwise_cons] at hpair
+    by_cases heq : cmp entry.1 key = .eq
+    · rw [List.foldl_cons, getKey?_foldl_alter_of_forall entries _ update key]
+      · simp only [List.find?_cons, heq, beq_self_eq_true]
+        rw [getKey?_alter, ite_eq_left heq, get?_congr heq]
+      · intro later hlater hlaterEq
+        exact hpair.1 later hlater (TransCmp.eq_trans heq (OrientedCmp.eq_symm hlaterEq))
+    · rw [List.foldl_cons, ih _ hpair.2, getKey?_alter, ite_eq_right heq,
+        get?_alter, ite_eq_right heq]
+      rw [List.find?_cons_of_neg (by simpa only [beq_iff_eq] using heq)]
+
+theorem getKey?_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : DTreeMap α β cmp} {k : α} :
+    (mergeWith? f t₁ t₂).getKey? k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ =>
+        if (match get? t₁ k with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k := by
+  rw [mergeWith?_eq_foldl, foldl_eq_foldl_toList]
+  rw [getKey?_foldl_alter _ t₁ (fun a b₂ => fun
+    | none => some b₂ | some b₁ => f a b₁ b₂) k distinct_keys_toList]
+  cases hfind : (toList t₂).find? (fun entry => cmp entry.1 k == .eq) with
+  | none =>
+    have hc := find?_toList_eq_none_iff_contains_eq_false.mp hfind
+    rw [DTreeMap.getKey?_eq_none_of_contains_eq_false hc]
+  | some entry =>
+    obtain ⟨hk, hv⟩ := find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some.mp hfind
+    rw [hk, hv]
+
+end Const
+
+@[simp]
+theorem mergeWith?_some [LawfulEqCmp cmp] {f : (a : α) → β a → β a → β a} {t₁ t₂ : DTreeMap α β cmp} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+namespace Const
+
+variable {β : Type v}
+
+@[simp]
+theorem mergeWith?_some {f : α → β → β → β} {t₁ t₂ : DTreeMap α β cmp} :
+    mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₁ t₂ = mergeWith f t₁ t₂ := by
+  rfl
+
+
+private theorem size_foldl_alter_le [TransCmp cmp]
+    (entries : List (α × β)) (out : DTreeMap α β cmp)
+    (update : α → β → Option β → Option β) :
+    (entries.foldl (fun out entry => alter out entry.1 (update entry.1 entry.2)) out).size ≤
+      out.size + entries.length := by
+  induction entries generalizing out with
+  | nil => exact Nat.le_refl _
+  | cons entry entries ih =>
+    simp only [List.foldl_cons, List.length_cons]
+    have h := ih (alter out entry.1 (update entry.1 entry.2))
+    have hs := size_alter_le_size (t := out) (k := entry.1) (f := update entry.1 entry.2)
+    omega
+
+theorem size_mergeWith?_le [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : DTreeMap α β cmp} :
+    (mergeWith? f t₁ t₂).size ≤ t₁.size + t₂.size := by
+  rw [mergeWith?_eq_foldl, foldl_eq_foldl_toList]
+  simpa only [length_toList] using size_foldl_alter_le (toList t₂) t₁
+    (fun a b₂ => fun | none => some b₂ | some b₁ => f a b₁ b₂)
+
+theorem contains_mergeWith? [TransCmp cmp]
+    {f : α → β → β → Option β} {t₁ t₂ : DTreeMap α β cmp} {k : α} :
+    (mergeWith? f t₁ t₂).contains k =
+      (match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+
+theorem mergeWith?_empty_left [TransCmp cmp]
+    {f : α → β → β → Option β} {t : DTreeMap α β cmp} :
+    mergeWith? f ∅ t ~m t := by
+  have hkeys : ∀ k, (mergeWith? f ∅ t).getKey? k = t.getKey? k := by
+    intro k
+    have hs : (t.getKey? k).isSome = (get? t k).isSome := by
+      rw [DTreeMap.isSome_getKey?_eq_contains, isSome_get?_eq_contains]
+    rw [getKey?_mergeWith?, get?_emptyc, DTreeMap.getKey?_emptyc]
+    cases hk : t.getKey? k <;> cases hv : get? t k <;>
+      simp_all only [Option.isSome_none, Option.isSome_some, Bool.false_eq_true,
+        Bool.true_eq_false, ↓reduceIte]
+  apply Equiv.of_forall_getKey_eq_of_forall_constGet?_eq
+  · intro k hk hk'
+    have h := hkeys k
+    rw [DTreeMap.getKey?_eq_some_getKey hk, DTreeMap.getKey?_eq_some_getKey hk'] at h
+    exact Option.some.inj h
+  · intro k
+    have hs : (t.getKey? k).isSome = (get? t k).isSome := by
+      rw [DTreeMap.isSome_getKey?_eq_contains, isSome_get?_eq_contains]
+    rw [get?_mergeWith?, get?_emptyc]
+    cases hk : t.getKey? k <;> cases hv : get? t k <;>
+      simp_all only [Option.isSome_none, Option.isSome_some, Bool.false_eq_true,
+        Bool.true_eq_false]
+
+end Const
+
+@[simp]
+theorem minEntry?_empty :
+    (∅ : DTreeMap α β cmp).minEntry? = none := by
+  change DTreeMap.minEntry? (DTreeMap.empty (cmp := cmp)) = none
+  unfold DTreeMap.minEntry? DTreeMap.empty Impl.empty Impl.minEntry?
+  rfl
+
+@[simp]
+theorem maxEntry?_empty :
+    (∅ : DTreeMap α β cmp).maxEntry? = none := by
+  change DTreeMap.maxEntry? (DTreeMap.empty (cmp := cmp)) = none
+  unfold DTreeMap.maxEntry? DTreeMap.empty Impl.empty Impl.maxEntry?
+  rfl
+
+namespace Const
+
+variable {β : Type v}
+
+@[simp]
+theorem minEntry?_empty : minEntry? (∅ : DTreeMap α β cmp) = none := by
+  change DTreeMap.Const.minEntry? (DTreeMap.empty (cmp := cmp)) = none
+  unfold DTreeMap.Const.minEntry? DTreeMap.empty Impl.empty Impl.Const.minEntry?
+  rfl
+
+@[simp]
+theorem maxEntry?_empty : maxEntry? (∅ : DTreeMap α β cmp) = none := by
+  change DTreeMap.Const.maxEntry? (DTreeMap.empty (cmp := cmp)) = none
+  unfold DTreeMap.Const.maxEntry? DTreeMap.empty Impl.empty Impl.Const.maxEntry?
+  rfl
+
+end Const
 
 end Std.DTreeMap

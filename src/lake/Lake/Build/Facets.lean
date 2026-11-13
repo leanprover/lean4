@@ -224,14 +224,16 @@ builtin_facet linkInfoNoExport : Module => ModuleLinkInfo
 /-! ## Package Facets -/
 
 /--
-A package's *optional* cached build archive (e.g., from Reservoir or GitHub).
-Will NOT cause the whole build to fail if the archive cannot be fetched.
+A package's *optional* published artifact mappings, when `buildCache` is set,
+or cached build archive (e.g., from Reservoir or GitHub) otherwise.
+Will NOT cause the whole build to fail if the mappings or archive cannot be fetched.
 -/
 builtin_facet optBuildCacheFacet @ optCache : Package => Bool
 
 /--
-A package's cached build archive (e.g., from Reservoir or GitHub).
-Will cause the whole build to fail if the archive cannot be fetched.
+A package's published artifact mappings, when `buildCache` is set,
+or cached build archive (e.g., from Reservoir or GitHub) otherwise.
+Will cause the whole build to fail if the mappings or archive cannot be fetched.
 -/
 builtin_facet buildCacheFacet @ cache : Package => Unit
 

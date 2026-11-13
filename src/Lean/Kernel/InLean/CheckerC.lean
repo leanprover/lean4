@@ -101,8 +101,8 @@ def constsResolve (fe : FEnv) (e : Expr) : Bool :=
   !EO.any (fun
     | .const c _ => (fe.find? c).isNone
     | .proj s _ _ => (fe.find? s).isNone
-    | .lit (.natVal _) => !natLitStoredF fe
-    | .lit (.strVal _) => !strLitStoredF fe
+    | .lit (.natVal _) => !fe.natLit
+    | .lit (.strVal _) => !fe.strLit
     | _ => false) e
 
 /-- Twin of the syntactic gates of `checkConstantValC`/`checkDefnValCI` on
@@ -117,7 +117,7 @@ def checkTermWF (fe : FEnv) (pre : String) (n : Name) (lps : List Name) (e : Exp
     unless (EO.levelParams e).all lps.contains do
       throw (.invalid s!"undeclared universe parameter in {pre}{n}")
   unless constsResolve fe e do
-    throw (unresolvedConstsErrorL fe (strLitStoredF fe) s!"{pre}{n}" e)
+    throw (unresolvedConstsErrorL fe fe.strLit s!"{pre}{n}" e)
 
 /-! ## The literal names' shapes (twin of `litShapeOk`) -/
 
@@ -217,7 +217,7 @@ def natOpStoredOk (fe : FEnv) (n : Name) : Bool :=
 /-- Twin of `natOpGuardF` (its `natLitSupported` conjunct: the `Nat` names'
 shapes, which their own checks fix, `litShapeOk`). -/
 def natOpGuard (fe : FEnv) (c : Name) : Bool :=
-  natLitStoredF fe &&
+  fe.natLit &&
   (natOpDeps c).all (fun n => match fe.find? n with
     | some (.defnInfo v) => v.levelParams.isEmpty
     | _ => false) &&
@@ -451,7 +451,7 @@ whose own constant is in the environment its value is checked in). -/
 def checkDefnC (cfg : Config) (fe : FEnv) (v : DefinitionVal) : CheckCM Added := do
   let ci := ConstantInfo.defnInfo v
   if v.safety == .unsafe then
-    let fe := { fe with safety := .unsafe }
+    let fe := fe.withSafety .unsafe
     checkConstantValC mode fe v.toConstantVal true
     checkValueC mode (fe.push ci) "definition" v.name v.levelParams
       v.type v.value
@@ -512,7 +512,7 @@ def checkAxiomC (cfg : Config) (fe : FEnv) (v : AxiomVal) : CheckCM Added := do
       throw (.notImplemented "quotient declaration before what it needs")
     if (fe.env.find? v.name).isSome then throw (alreadyDeclared v.name)
     return { consts := #[ci] }
-  let fe' := { fe with safety := if v.isUnsafe then .unsafe else .safe }
+  let fe' := fe.withSafety (if v.isUnsafe then .unsafe else .safe)
   -- the official policy (`coreAxioms`) admits an axiom at a certified `Nat`
   -- operation's name: the elaborator adds a recursive definition as an axiom
   -- while it elaborates it (`addAsAxiom`); any other declaration there is checked
@@ -537,7 +537,7 @@ def checkMutualC (fe : FEnv) (vs : List DefinitionVal) : CheckCM Added := do
   let safety := v₀.safety
   if safety == .safe then
     throw (.invalid "invalid mutual definition, declaration is not tagged as unsafe/partial")
-  let fe := { fe with safety }
+  let fe := fe.withSafety safety
   let mut found : Array Name := #[]
   for v in vs do
     if v.safety != safety then

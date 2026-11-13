@@ -186,7 +186,7 @@ def unfoldDefinitionI (fe : FEnv) (e : Expr) : CheckCM (Option Expr) := do
 def litToCtorIfNatI (fe : FEnv) (e : Expr) : CheckCM Expr := do
   match EO.stripTop (e) with
   | .lit (.natVal n) =>
-    if natLitStoredF fe then pure (natLitToConstructor n)
+    if fe.natLit then pure (natLitToConstructor n)
     else pure e
   | _ => pure e
 
@@ -484,7 +484,7 @@ def reduceNatI (eager : Bool) (lv : Nat) (depth : Nat) (e : Expr) :
       match us with
       | _ :: _ => pure none
       | [] => do
-        if c == natSuccName ∧ natLitStoredF fe then do
+        if c == natSuccName ∧ fe.natLit then do
           let w ← whnfI eager lv depth b
           match rawNatLitC? w with
           | some n =>
@@ -888,7 +888,7 @@ termination_by (lv, 23, 0, 0)
 def litMajorToCtorI (eager : Bool) (lv : Nat) (depth : Nat) (e : Expr) : CheckCM Expr := do
   match EO.stripTop (e) with
   | .lit (.strVal s) =>
-    if strLitStoredF fe then whnfI eager lv depth (strLitToConstructor s)
+    if fe.strLit then whnfI eager lv depth (strLitToConstructor s)
     else pure e
   | _ => litToCtorIfNatI fe e
 termination_by (lv, 24, 0, 0)
@@ -897,7 +897,7 @@ termination_by (lv, 24, 0, 0)
 def projLitToCtorI (eager : Bool) (lv : Nat) (depth : Nat) (e : Expr) : CheckCM Expr := do
   match EO.stripTop (e) with
   | .lit (.strVal s) =>
-    if strLitStoredF fe then whnfI eager lv depth (strLitToConstructor s)
+    if fe.strLit then whnfI eager lv depth (strLitToConstructor s)
     else pure e
   | _ => pure e
 termination_by (lv, 25, 0, 0)
@@ -1341,12 +1341,12 @@ def inferBodyI (eager : Bool) (lv : Nat) (io : Bool) : Nat → Expr → CheckCM 
         checkConstSafety fe n ci
         constTyAtM fe n us
     | .lit (.natVal n) => do
-      if natLitStoredF fe then do
+      if fe.natLit then do
         if natSizeBytes n > fe.limits.maxNatSize then throw (.invalid natTooBigMsg)
         pure (.const natName [])
       else throw (.invalid "Nat literal without the Nat basis declarations")
     | .lit (.strVal _) => do
-      if strLitStoredF fe then pure (.const stringName [])
+      if fe.strLit then pure (.const stringName [])
       else throw (.notImplemented "string literals before the String support declarations")
     | .forallE _ ty body _ => do
       let tty ← inferI eager lv io depth ty
@@ -1606,14 +1606,14 @@ def defeqStuckI (eager : Bool) (lv : Nat) (depth : Nat) (a b : Expr) : CheckCM B
   | .lit l, .app fO _ => do
     match l, EO.stripTop fO with
     | .strVal s, .const cO usO =>
-      if cO == stringOfListName ∧ usO = [] ∧ strLitStoredF fe then
+      if cO == stringOfListName ∧ usO = [] ∧ fe.strLit then
         defeqI eager lv depth (strLitToConstructor s) b
       else stuckIrrelI eager lv depth a b
     | _, _ => stuckIrrelI eager lv depth a b
   | .app fO _, .lit l => do
     match l, EO.stripTop fO with
     | .strVal s, .const cO usO =>
-      if cO == stringOfListName ∧ usO = [] ∧ strLitStoredF fe then
+      if cO == stringOfListName ∧ usO = [] ∧ fe.strLit then
         defeqI eager lv depth a (strLitToConstructor s)
       else stuckIrrelI eager lv depth a b
     | _, _ => stuckIrrelI eager lv depth a b

@@ -236,11 +236,12 @@ def PinSet.op? (ps : PinSet) (c : Name) : Except String (Option PinOp) := do
     unless op.inRange do throw s!"a pin term of {c} is out of range"
     return some op
 
-/-- The variants, in con-leche's order (the dump of con-leche's toolchain
-first). -/
+/-- The variants, in con-leche's order (`#load_natop_pins`: newest
+toolchain first, oldest last). -/
 def pinSets : Array PinSet := #[
+  ⟨include_str "pins/leanprover-lean4-pr-releases-pr-release-16441.json"⟩,
   ⟨include_str "pins/leanprover-lean4-nightly-nightly-2026-09-10.json"⟩,
-  ⟨include_str "pins/leanprover-lean4-v4.33.0.json"⟩,
-  ⟨include_str "pins/leanprover-lean4-v4.34.0-rc2.json"⟩]
+  ⟨include_str "pins/leanprover-lean4-v4.34.0-rc2.json"⟩,
+  ⟨include_str "pins/leanprover-lean4-v4.33.0.json"⟩]
 
 end Lean.Kernel.InLean

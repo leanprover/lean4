@@ -198,8 +198,8 @@ def constsResolveF (fe : FEnv) (e : Expr) : CheckCM Bool := do
     (EO.usedConstants t).all (fun c => (fe.find? c).isSome) &&
     !EO.any (fun
       | .proj s _ _ => (fe.find? s).isNone
-      | .lit (.natVal _) => !natLitStoredF fe
-      | .lit (.strVal _) => !strLitStoredF fe
+      | .lit (.natVal _) => !fe.natLit
+      | .lit (.strVal _) => !fe.strLit
       | _ => false) t
   return (← withAnnotations e).all ok
 

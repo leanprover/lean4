@@ -41,8 +41,18 @@ def markQuot (env : Kernel.Environment) : Kernel.Environment :=
 def quotInitialized (env : Kernel.Environment) : Bool :=
   env.isQuotInit
 
-/-- Twin of `FEnv.push`. -/
-def FEnv.push (fe : FEnv) (ci : ConstantInfo) : FEnv := { fe with env := addConst fe.env ci }
+/-- Twin of `FEnv.push`.  The literal flags are recomputed only at one of
+their ten names (`litName`) and only while string literals are not yet
+expandable, as master's push: every other push of a fresh name leaves them
+as they are, so once the string-support constants are in, a push tests one
+`Bool`. -/
+def FEnv.push (fe : FEnv) (ci : ConstantInfo) : FEnv :=
+  let env := addConst fe.env ci
+  let upd := !fe.strLit && litName ci.name
+  { fe with
+    env := env
+    natLit := if upd then natLitStoredBy (findAt env fe.safety fe.coreAxioms) else fe.natLit
+    strLit := if upd then strLitStoredBy (findAt env fe.safety fe.coreAxioms) else fe.strLit }
 
 /-- Twin of `FEnv.pushAll`. -/
 def FEnv.pushAll : List ConstantInfo → FEnv → FEnv

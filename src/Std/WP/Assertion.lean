@@ -31,9 +31,8 @@ The `Assertion` class and lattice capabilities such as total nondeterministic fu
 attribute [scoped instance] Std.Internal.Order.instPartialOrderProp
   Std.Internal.Order.instCompleteLatticeProp
 
-/-- An assertion type is equipped with a `CompleteLattice` structure,
-used as the carrier for pre- and postconditions. -/
-class abbrev Assertion (α : Type w) := CompleteLattice α
+/-- An assertion type is a `CompleteLattice`, used as the type of pre- and postconditions. -/
+abbrev Assertion (α : Type w) := CompleteLattice α
 
 namespace Assertion
 

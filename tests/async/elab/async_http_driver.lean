@@ -361,6 +361,32 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   check (has r.last "close" && !lingered r.last) s!"dropped: {tags r.last}"
   checkCleanup r "write timeout"
 
+-- The write deadline counts from the last write that completed, not from the first one that is not
+-- confirmed: a peer that keeps reading is not dropped while the outbox never goes idle.
+#eval show IO Unit from do
+  let r := Run.start |>.input (req (get "/")) |>.input (full "x")
+  let r := r.at 20000 |>.input (.writeProgress 20000)
+  check (nextDeadline r.state == some (.write, 50000)) s!"restarted: {repr (nextDeadline r.state)}"
+  let r := r.at 30000 |>.input (.deadline .write)
+  check (!has r.last "close") s!"not due any more: {tags r.last}"
+  let r := r.input (.writeProgress 5000)
+  check (nextDeadline r.state == some (.write, 50000)) "an older completion does not move it back"
+  let r := r.at 50000 |>.input (.deadline .write)
+  check (has r.last "close" && !lingered r.last) s!"no write completed for 30 s: {tags r.last}"
+  checkCleanup r "write progress"
+
+-- So does the final flush.
+#eval show IO Unit from do
+  let r := Run.start |>.input (req (get "/" "Connection: close\r\n")) |>.input (full "bye")
+  check (r.state.phase == .draining) "draining"
+  let r := r.at 25000 |>.input (.writeProgress 25000)
+  check (nextDeadline r.state == some (.write, 55000)) s!"restarted: {repr (nextDeadline r.state)}"
+  let r := r.at 30000 |>.input (.deadline .write)
+  check (!has r.last "close") s!"not due any more: {tags r.last}"
+  let r := r.input .written
+  check (has r.last "close") s!"flushed: {tags r.last}"
+  checkCleanup r "write progress while draining"
+
 -- While a response streams, a write that is not confirmed drops it too; its body is released.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/")) |>.input streamed |>.input (chunk "x")

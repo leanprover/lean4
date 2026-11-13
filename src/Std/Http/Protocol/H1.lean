@@ -470,8 +470,8 @@ private def acceptFinal (machine : Machine dir) (message : Message.Head dir.swap
   | .sending, machine, _ => machine.setReaderState .needStartLine
   | .receiving, machine, message =>
     let machine := if omits then machine.omitResponseBody message.status else machine
-    -- What follows a tunnel's head is not HTTP, and this server does not tunnel.
-    if startsTunnel machine.reader.messageHead.method message.status then machine.stopReading
+    -- What follows a 101 or a tunnel's head is not HTTP, and this server speaks neither.
+    if leavesHttp machine.reader.messageHead.method message.status then machine.stopReading
     else machine
 
 /--
@@ -542,7 +542,9 @@ Gives the machine the head of the message to send. Does nothing unless the machi
 
 An informational (1xx) response is written at once (`sendInterim`), and the machine goes on waiting
 for the final response. The reader is not affected: `canContinue` resolves an `Expect: 100-continue`
-decision.
+decision. No 1xx goes to an HTTP/1.0 client (RFC 9110 §15.2). `101 Switching Protocols` ends the
+exchange instead, without content or framing fields, and the connection then closes: what follows is
+not HTTP (RFC 9110 §15.2.2).
 
 A `Content-Length` in the head gives the length of a body set as `chunked`, whose length is unknown.
 A head whose `Content-Length` or `Transfer-Encoding` otherwise contradicts the length set with
@@ -560,7 +562,9 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
   else
     match dir, machine, message with
     | .receiving, machine, message =>
-      if message.status.isInterim then
+      if message.status.isInformational && machine.reader.messageHead.version != .v11 then
+        machine
+      else if message.status.isInterim then
         machine.sendInterim message
       else
         sendFinal machine message

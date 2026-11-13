@@ -50,6 +50,11 @@ structure Outbox.State where
   -/
   idle : Option (IO.Promise Unit) := none
 
+  /--
+  When a write last completed, by `IO.monoMsNow`; `0` before any did.
+  -/
+  completedAt : Nat := 0
+
 /--
 Writes a connection's output to `socket` in order without the connection waiting for it. At most
 one write is in flight. Output handed over meanwhile goes out in a single write once that write
@@ -88,13 +93,15 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
     BaseIO Unit := do
   let task ← EAsync.toBaseIO (Transport.sendAll outbox.socket data)
   BaseIO.chainTask (sync := true) task fun result => do
+    let now ← IO.monoMsNow
     let (next, idle) ← outbox.state.modifyGet fun s =>
       match result with
       | .error err =>
         ((#[], s.idle), { s with queued := [], writing := false, error := some err, idle := none })
       | .ok () =>
-        if s.queued.isEmpty then ((#[], s.idle), { s with writing := false, idle := none })
-        else ((joinQueued s.queued, none), { s with queued := [] })
+        if s.queued.isEmpty then
+          ((#[], s.idle), { s with writing := false, idle := none, completedAt := now })
+        else ((joinQueued s.queued, none), { s with queued := [], completedAt := now })
     if let some idle := idle then
       idle.resolve ()
     unless next.isEmpty do
@@ -130,6 +137,12 @@ def idle? (outbox : Outbox α) : BaseIO (Option (Task (Option Unit))) := do
     else match s.idle with
       | some idle => (some idle.result?, s)
       | none => (some fresh.result?, { s with idle := some fresh })
+
+/--
+When a write last completed, by `IO.monoMsNow`; `0` before any did.
+-/
+def completedAt (outbox : Outbox α) : BaseIO Nat :=
+  return (← outbox.state.get).completedAt
 
 /--
 The error of the write that failed, if one did.

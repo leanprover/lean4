@@ -185,19 +185,59 @@ where
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)
     return (pos, tailPos, trailingPos?)
 
+open Meta in
+/--
+The goals to show after the tactic of `ti`, which has no nested tactics. If the tactic created no
+new goals, these are `ti.goalsAfter`, preceded by the goals of `ti.goalsBefore` that the tactic
+closed with a term containing an error of its own, that is, a synthetic `sorry` that term
+elaboration put in place of a term with an error, labelled with a source range inside the tactic.
+While the term given to `exact` or `apply` is being typed, it usually elaborates to such a `sorry`,
+and showing no goals then would hide the goal being worked on (issue #7136). Errors elsewhere, such
+as in the statement of the goal, of a hypothesis or of a lemma used, are not counted, nor are goals
+that error recovery admitted with a unique `sorry`, such as the goal of a `·` block left unsolved.
+`text` is the document's file map. Must run in `ti.mctxAfter`.
+-/
+def goalsAfterForDisplay (text : FileMap) (ti : Elab.TacticInfo) : MetaM (List MVarId) := do
+  if ti.goalsAfter.any (!ti.goalsBefore.contains ·) then
+    return ti.goalsAfter
+  let (some pos, some tailPos) := (ti.stx.getPos?, ti.stx.getTailPos?)
+    | return ti.goalsAfter
+  let mainModule ← getMainModule
+  let isOwnError (e : Expr) : Bool := Id.run do
+    let some { module? := some m } := isLabeledSorry? e
+      | return false
+    -- term elaboration creates non-unique labelled `sorry`s, whose label is wrapped in
+    -- `Function.const` (see `mkLabeledSorry`)
+    m.module == mainModule && e.isSyntheticSorry && (e.getArg! 2).isAppOfArity ``Function.const 4 &&
+      pos ≤ text.ofPosition m.range.pos && text.ofPosition m.range.endPos ≤ tailPos
+  let closedWithError ← ti.goalsBefore.filterM fun g => do
+    if ti.goalsAfter.contains g then
+      return false
+    let val ← instantiateMVars (.mvar g)
+    return (val.find? isOwnError).isSome
+  return closedWithError ++ ti.goalsAfter
+
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
   mapTaskCostly (findGoalsAt? doc hoverPos) <| Option.mapM fun rs => do
-    let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
+    let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, isLeaf := isLeaf, .. } => do
       let ciAfter := { ci with mctx := ti.mctxAfter }
       let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
       -- compute the interactive goals
       let goals ← ci.runMetaM {} (do
-        let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
-        let goals ← goals.mapM Widget.goalToInteractive
+        -- A tactic with nested tactics, such as a `·` block whose goal error recovery admitted,
+        -- shows the state after it as it is, and so does a tactic once the cursor has moved past
+        -- its last line, where the next tactic will be typed.
+        let notPastLastLine := ti.stx.getTailPos?.any fun tailPos =>
+          (text.toPosition hoverPos).line ≤ (text.toPosition tailPos).line
+        let goals ←
+          if !useAfter then pure ti.goalsBefore
+          else if isLeaf && notPastLastLine then goalsAfterForDisplay text ti
+          else pure ti.goalsAfter
+        let goals ← goals.toArray.mapM Widget.goalToInteractive
         return ⟨goals⟩
       )
       -- compute the goal diff

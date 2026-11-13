@@ -1093,6 +1093,152 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   rw [filter_eq_filterₘ]
   exact wfImp_filterₘ h
 
+/-! # `partitionₘ` -/
+
+theorem toListModel_fst_partitionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {p : (a : α) → β a → Bool} (h : Raw.WFImp m.1) :
+    (toListModel (m.partitionₘ p).1.1.buckets).Perm
+      ((toListModel m.1.buckets).filter (fun x => p x.1 x.2)) := by
+  simp only[partitionₘ, Raw.fold_eq_foldl_toListModel]
+  have hl : DistinctKeys (toListModel m.1.buckets) := h.distinct
+  generalize toListModel m.1.buckets = l at ⊢ hl
+  suffices ∀ (mx : Raw₀ α β × Raw₀ α β) (h : Raw.WFImp mx.1.1) (h₂ : ∀ a, a ∈ l.keys → containsKey a (toListModel mx.1.1.buckets) = false), (toListModel (l.foldl (init := mx) (fun (a : (Raw₀ α β × Raw₀ α β)) (b : (a : α) × β a) => if p b.1 b.2 then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2))).1.1.buckets).Perm
+    (toListModel mx.1.1.buckets ++ l.filter (fun x => p x.1 x.2)) by simpa using this (emptyWithCapacity, emptyWithCapacity) wfImp_emptyWithCapacity
+  intro mx hmx hmx'
+  induction l generalizing mx with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [foldl_cons, filter_cons]
+    refine (ih hl.tail _ ?_ ?_).trans ?_
+    · split
+      · exact wfImp_insert hmx
+      · simpa
+    · intro a ha
+      split
+      · simp only
+        rw [containsKey_of_perm (toListModel_insert hmx), containsKey_insertEntry, Bool.or_eq_false_iff]
+        refine ⟨?_, hmx' _ (by simp [List.keys, ha])⟩
+        refine Bool.eq_false_of_ne_true (fun ha' => ?_)
+        have := hl.containsKey_eq_false
+        simp [containsKey_congr ha', containsKey_of_mem_keys ha] at this
+      · simp only
+        apply hmx'
+        simp [List.keys, ha]
+    · split
+      · simp only
+        refine ((toListModel_insert hmx).append_right _).trans ?_
+        rw [List.append_cons, List.perm_append_right_iff, insertEntry_of_containsKey_eq_false]
+        · exact Perm.trans (by simpa using (List.reverse_perm _).symm) (List.reverse_perm _)
+        · apply hmx'
+          simp [List.keys]
+      · simp
+
+theorem toListModel_snd_partitionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {p : (a : α) → β a → Bool} (h : Raw.WFImp m.1) :
+    (toListModel (m.partitionₘ p).2.1.buckets).Perm
+      ((toListModel m.1.buckets).filter (fun x => !p x.1 x.2)) := by
+  simp only [partitionₘ, Raw.fold_eq_foldl_toListModel]
+  have hl : DistinctKeys (toListModel m.1.buckets) := h.distinct
+  generalize toListModel m.1.buckets = l at ⊢ hl
+  suffices ∀ (mx : Raw₀ α β × Raw₀ α β) (h : Raw.WFImp mx.2.1) (h₂ : ∀ a, a ∈ l.keys → containsKey a (toListModel mx.2.1.buckets) = false), (toListModel (l.foldl (init := mx) (fun (a : (Raw₀ α β × Raw₀ α β)) (b : (a : α) × β a) => if p b.1 b.2 then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2))).2.1.buckets).Perm
+    (toListModel mx.2.1.buckets ++ l.filter (fun x => !p x.1 x.2)) by simpa using this (emptyWithCapacity, emptyWithCapacity) wfImp_emptyWithCapacity
+  intro mx hmx hmx'
+  induction l generalizing mx with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [foldl_cons, filter_cons]
+    refine (ih hl.tail _ ?_ ?_).trans ?_
+    · split
+      · simpa
+      · exact wfImp_insert hmx
+    · intro a ha
+      split
+      · simp only
+        apply hmx'
+        simp [List.keys, ha]
+      · simp only
+        rw [containsKey_of_perm (toListModel_insert hmx), containsKey_insertEntry, Bool.or_eq_false_iff]
+        refine ⟨?_, hmx' _ (by simp [List.keys, ha])⟩
+        refine Bool.eq_false_of_ne_true (fun ha' => ?_)
+        have := hl.containsKey_eq_false
+        simp [containsKey_congr ha', containsKey_of_mem_keys ha] at this
+    · split <;> rename_i hx
+      · simp_all
+      · simp only [hx, Bool.not_false, ↓reduceIte]
+        refine ((toListModel_insert hmx).append_right _).trans ?_
+        rw [List.append_cons, List.perm_append_right_iff, insertEntry_of_containsKey_eq_false]
+        · exact Perm.trans (by simpa using (List.reverse_perm _).symm) (List.reverse_perm _)
+        · apply hmx'
+          simp [List.keys]
+
+theorem wfImp_fst_partitionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partitionₘ f).1.1 := by
+  simp only [partitionₘ, Raw.fold_eq_foldl_toListModel]
+  let p : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if f b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β) (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1),
+    Raw.WFImp (p (m₁, m₂) l).1.1 from this _ _ _ wfImp_emptyWithCapacity wfImp_emptyWithCapacity
+  intro l
+  induction l with
+  | nil =>
+    simp only [List.foldl_nil, p]
+    intro m₁ _ h₁ _
+    apply h₁
+  | cons hd tl ih =>
+    intro m₁ m₂ h₁ h₂
+    simp only [List.foldl_cons, p]
+    by_cases hhd : f hd.fst hd.snd = true
+    · simp only [hhd, ↓reduceIte]
+      apply ih _ _ (wfImp_insert h₁) h₂
+    · simp only [hhd, Bool.false_eq_true, ↓reduceIte]
+      apply ih _ _ h₁ (wfImp_insert h₂)
+
+theorem wfImp_snd_partitionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partitionₘ f).2.1 := by
+  simp only [partitionₘ, Raw.fold_eq_foldl_toListModel]
+  let p : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if f b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β) (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1),
+    Raw.WFImp (p (m₁, m₂) l).2.1 from this _ _ _ wfImp_emptyWithCapacity wfImp_emptyWithCapacity
+  intro l
+  induction l with
+  | nil =>
+    simp only [List.foldl_nil, p]
+    intro _ m₂ _ h₂
+    apply h₂
+  | cons hd tl ih =>
+    intro m₁ m₂ h₁ h₂
+    simp only [List.foldl_cons, p]
+    by_cases hhd : f hd.fst hd.snd = true
+    · simp only [hhd, ↓reduceIte]
+      apply ih _ _ (wfImp_insert h₁) h₂
+    · simp only [hhd, Bool.false_eq_true, ↓reduceIte]
+      apply ih _ _ h₁ (wfImp_insert h₂)
+
+/-! # `partition` -/
+
+theorem toListModel_fst_partition [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {p : (a : α) → β a → Bool} (h : Raw.WFImp m.1) :
+    (toListModel (m.partition p).1.1.buckets).Perm
+      ((toListModel m.1.buckets).filter (fun x => p x.1 x.2)) := by
+  simpa [partition_eq_partitionₘ] using toListModel_fst_partitionₘ h
+
+theorem toListModel_snd_partition [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {p : (a : α) → β a → Bool} (h : Raw.WFImp m.1) :
+    (toListModel (m.partition p).2.1.buckets).Perm
+      ((toListModel m.1.buckets).filter (fun x => !p x.1 x.2)) := by
+  simpa [partition_eq_partitionₘ] using toListModel_snd_partitionₘ h
+
+theorem wfImp_fst_partition [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partition f).1.1 := by
+  simpa [partition_eq_partitionₘ] using wfImp_fst_partitionₘ
+
+theorem wfImp_snd_partition [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partition f).2.1 := by
+  simpa [partition_eq_partitionₘ] using wfImp_snd_partitionₘ
+
 /-! # `insertListₘ` -/
 
 theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
@@ -1234,6 +1380,8 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   | alter₀ _ h => exact Raw₀.wfImp_alter (by apply h)
   | constAlter₀ _ h => exact Raw₀.Const.wfImp_alter (by apply h)
   | inter₀ _ _ h _  => exact Raw₀.wfImp_inter (by apply h)
+  | fst_partition₀ => exact Raw₀.wfImp_fst_partition
+  | snd_partition₀ => exact Raw₀.wfImp_snd_partition
 
 end Raw
 

@@ -165,7 +165,7 @@ theorem le_iff_forall_le {σ : Type uₗ} {β : Type vₗ} [PartialOrder β] {f 
 
 section
 
-variable {l : Type uₗ} [CompleteLattice l]
+variable {l : Type uₗ} [PartialOrder l]
 
 @[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
 theorem le_iff_forall_le_1 {σ : Type vₗ} {P Q : σ → l} :

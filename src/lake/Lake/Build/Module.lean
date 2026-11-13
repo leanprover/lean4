@@ -755,10 +755,12 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
 public def Module.setupFacetConfig : ModuleFacetConfig setupFacet :=
   mkFacetJobConfig (buildable := false) recFetchSetup
 
-/-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
-public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
+/--
+Remove cached file hashes of the module build outputs (in `.hash` files).
+Does not include the `ltar` hash.
+-/
+public def Module.clearOutputHashesCore (mod : Module) : IO PUnit := do
   try
-    clearFileHash mod.ltarFile
     clearFileHash mod.oleanFile
     clearFileHash mod.oleanServerFile
     clearFileHash mod.oleanPrivateFile
@@ -769,6 +771,14 @@ public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
     clearFileHash mod.bcFile
   catch e =>
     error s!"failed to remove output hashes: {e}"
+
+/-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
+public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
+  try
+    clearFileHash mod.ltarFile
+  catch e =>
+    error s!"failed to remove ltar hash: {e}"
+  mod.clearOutputHashesCore
 
 /-- Remove all existing artifacts produced by a Lean build of the module. -/
 public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
@@ -1227,6 +1237,7 @@ where
             -- hash, so only do it on a verified hash match. An mtime-only match
             -- leaves the hash unconfirmed, so rebuild instead.
             if status == .hashUpToDate then
+              mod.clearOutputHashesCore
               mod.unpackLtar mod.ltarFile depTrace.hash
             else
               discard <| mod.buildLean presetup
@@ -1246,6 +1257,7 @@ where
         unless (← mod.checkArtifactsExist presetup.isModule presetup.postponeCompile) do
           -- As above: restore on a hash match and rebuild on a mtime match.
           if status == .hashUpToDate then
+            mod.clearOutputHashesCore
             mod.unpackLtar mod.ltarFile depTrace.hash
           else
             discard <| mod.buildLean presetup

@@ -171,16 +171,17 @@ theorem toSortAux_toBvAux_eq_of_mem {α : Type u} {w : Nat} (elems : List α) (h
   unfold toSortAux toBvAux
   simp [List.getElem_idxOf, List.getElem?_eq_getElem (List.idxOf_lt_length_of_mem hx)]
 
-meta def toBvPredNames (n : Nat) : Lean.Name × Lean.Name :=
-  let pred := Lean.Name.mkSimple ("toBvPred" ++ n.toSubscriptString)
+meta def toBvPredNames (kind : String) (n : Nat) : Lean.Name × Lean.Name :=
+  let pred := Lean.Name.mkSimple ("toBvPred" ++ kind ++ n.toSubscriptString)
   (pred, pred.appendAfter "_toBvAux_eq")
 
 /-
 This macro generates for an arity `n` the following declarations:
-- `toBvPredₙ` which can be used to encode an `n`-ary predicate `p : α₁ → ... → αₙ → Prop`
+- `toBvPredPropₙ` which can be used to encode an `n`-ary predicate `p : α₁ → ... → αₙ → Prop`
   to an `n`-ary BitVec predicate: `p' : BitVec w₁ → ... → BitVec wₙ → Bool`
-- `toBvPredₙ_toBvAux_eq` which states that we can replace an application `p x₁ ... xₙ`
+- `toBvPredPropₙ_toBvAux_eq` which states that we can replace an application `p x₁ ... xₙ`
   with `p' (toBvAux x₁) ... (toBvAux xₙ) = true`.
+- the same but with `toBvPredBool` for predicates into `Bool`.
 -/
 
 open Lean in
@@ -189,8 +190,10 @@ local macro "declare_bv_pred" n:num : command => do
   let n := n.getNat
   let idx (base : String) (i : Nat) : Ident :=
     mkIdent <| Name.mkSimple (base ++ i.toSubscriptString)
-  let (predName, thmName) := toBvPredNames n
-  let (predName, thmName) := (mkIdent predName, mkIdent thmName)
+  let (propPredName, propThmName) := toBvPredNames "Prop" n
+  let (propPredName, propThmName) := (mkIdent propPredName, mkIdent propThmName)
+  let (boolPredName, boolThmName) := toBvPredNames "Bool" n
+  let (boolPredName, boolThmName) := (mkIdent boolPredName, mkIdent boolThmName)
   let mut defBinders : TSyntaxArray `Lean.Parser.Term.bracketedBinder := #[]
   let mut thmBinders : TSyntaxArray `Lean.Parser.Term.bracketedBinder := #[]
   let mut xBinders : TSyntaxArray `Lean.Parser.Term.bracketedBinder := #[]
@@ -220,14 +223,23 @@ local macro "declare_bv_pred" n:num : command => do
     sortArgs := sortArgs.push <| ← `(toSortAux $elems $default $bv)
     xs := xs.push x
     bvArgs := bvArgs.push <| ← `(toBvAux $elems $h $x)
-  let predTy ← sorts.foldrM (fun s acc => `($s → $acc)) (← `(Prop))
+  let propPredTy ← sorts.foldrM (fun s acc => `($s → $acc)) (← `(Prop))
+  let boolPredTy ← sorts.foldrM (fun s acc => `($s → $acc)) (← `(Bool))
   `(
-    public noncomputable def $predName $defBinders* (p : $predTy) $bvBinders* : Bool :=
+    public noncomputable def $propPredName $defBinders* (p : $propPredTy) $bvBinders* : Bool :=
       @decide (p $sortArgs*) (Classical.propDecidable _)
 
-    public theorem $thmName $thmBinders* (p : $predTy) $xBinders* :
-        (p $xs*) = ($predName $predArgs* p $bvArgs* = true) := by
-      unfold $predName
+    public theorem $propThmName $thmBinders* (p : $propPredTy) $xBinders* :
+        (p $xs*) = ($propPredName $predArgs* p $bvArgs* = true) := by
+      unfold $propPredName
+      simp [toSortAux_toBvAux_eq_of_mem, *]
+
+    public noncomputable def $boolPredName $defBinders* (p : $boolPredTy) $bvBinders* : Bool :=
+      p $sortArgs*
+
+    public theorem $boolThmName $thmBinders* (p : $boolPredTy) $xBinders* :
+        (p $xs*) = ($boolPredName $predArgs* p $bvArgs*) := by
+      unfold $boolPredName
       simp [toSortAux_toBvAux_eq_of_mem, *]
   )
 
@@ -236,20 +248,30 @@ set_option hygiene false in
 local macro "declare_bv_preds" maxArity:num : command => do
   let ns ← Macro.getCurrNamespace
   let mut cmds : Array Syntax := #[]
-  let mut arities : Array Term := #[]
-  let mut decls : Array Term := #[]
+  let mut propArities : Array Term := #[]
+  let mut propDecls : Array Term := #[]
+  let mut boolArities : Array Term := #[]
+  let mut boolDecls : Array Term := #[]
   for i in 1...=maxArity.getNat do
     cmds := cmds.push <| ← `(command| declare_bv_pred $(quote i):num)
-    let (pred, thm) := toBvPredNames i
-    let (pred, thm) : Term × Term := (quote (ns ++ pred), quote (ns ++ thm))
-    arities := arities.push <| ← `(($pred, $(quote i):num))
-    decls := decls.push <| ← `(($pred, $thm))
+    let (propPred, propThm) := toBvPredNames "Prop" i
+    let (propPred, propThm) : Term × Term := (quote (ns ++ propPred), quote (ns ++ propThm))
+    propArities := propArities.push <| ← `(($propPred, $(quote i):num))
+    propDecls := propDecls.push <| ← `(($propPred, $propThm))
+    let (boolPred, boolThm) := toBvPredNames "Bool" i
+    let (boolPred, boolThm) : Term × Term := (quote (ns ++ boolPred), quote (ns ++ boolThm))
+    boolArities := boolArities.push <| ← `(($boolPred, $(quote i):num))
+    boolDecls := boolDecls.push <| ← `(($boolPred, $boolThm))
   let tables ← `(
     public def maxToBvPredArity : Nat := $maxArity
 
-    public def toBvPredArity : Std.HashMap Lean.Name Nat := Std.HashMap.ofList [$arities,*]
+    public def toBvPredPropArity : Std.HashMap Lean.Name Nat := Std.HashMap.ofList [$propArities,*]
 
-    public def toBvPredDecls : Array (Lean.Name × Lean.Name) := #[$decls,*]
+    public def toBvPredPropDecls : Array (Lean.Name × Lean.Name) := #[$propDecls,*]
+
+    public def toBvPredBoolArity : Std.HashMap Lean.Name Nat := Std.HashMap.ofList [$boolArities,*]
+
+    public def toBvPredBoolDecls : Array (Lean.Name × Lean.Name) := #[$boolDecls,*]
   )
   return ⟨mkNullNode (cmds.push tables)⟩
 

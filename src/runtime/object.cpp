@@ -1153,7 +1153,7 @@ public:
             t->join();
 
         // The workers finish with the event loop still running, so a task blocked on a libuv promise completes. Stopping
-        // the loop releases references, which takes the lock and can discard tasks.
+        // the loop releases what it held, which takes the lock, except the promises that are still pending.
         finalize_libuv();
         lock.lock();
         m_worker_done_cv.wait(lock, [&]() { return m_discarding == 0; });
@@ -1308,6 +1308,8 @@ extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     if (num_workers == 0)
         return;
     if (g_task_manager) {
+        // Before `restart`, so that the manager discards the continuations of the libuv promises `shutdown` kept.
+        release_libuv_promises();
         g_task_manager->restart(num_workers);
         // `shutdown` tore the event loop down. Until here, libuv calls fail instead of starting work whose
         // continuations a dormant manager would discard.

@@ -10,7 +10,6 @@ Author: Sofia Rodrigues, Henrik Böving
 #include "runtime/uv/timer.h"
 #include "runtime/uv/udp.h"
 #include "runtime/thread.h"
-#include <cstdio>
 #include <type_traits>
 
 namespace lean {
@@ -31,7 +30,8 @@ void event_loop::start() {
         return;
     }
 
-    if (m_loop == nullptr) {
+    bool restart = m_loop != nullptr;
+    if (!restart) {
         // Threads keep taking the lock while the loop is torn down, so it outlives the loop.
         check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
         check_uv(uv_mutex_init(&m_async_mutex), "Failed to initialize mutex");
@@ -42,16 +42,41 @@ void event_loop::start() {
         m_kept = new std::vector<owned_ref>();
     }
 
-    // On a restart, other threads may be calling into libuv.
+    // On a restart, other threads may be calling into libuv. Until the lock is released, none of them uses the
+    // new loop, so a failure can still undo it.
     lock();
-    check_uv(uv_loop_init(m_loop), "Failed to initialize loop");
-    check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
-    uv_mutex_lock(&m_async_mutex);
-    m_running = true;
-    uv_mutex_unlock(&m_async_mutex);
+    int result = uv_loop_init(m_loop);
+    if (result == 0) {
+        result = uv_async_init(m_loop, &m_async, nullptr);
+        if (result == 0) {
+            set_running(true);
+            try {
+                // The loop thread waits for the lock.
+                m_thread = new lthread([this]() { run(); });
+            } catch (...) {
+                set_running(false);
+                uv_close((uv_handle_t*)&m_async, nullptr);
+                uv_run(m_loop, UV_RUN_DEFAULT);
+                result = UV_EAGAIN;
+            }
+        }
+        if (result != 0) {
+            uv_loop_close(m_loop);
+        }
+    }
     unlock();
 
-    m_thread = new lthread([this]() { run(); });
+    // A failed restart, such as when no file descriptor is free, leaves the loop torn down, and the next one
+    // tries again.
+    if (!restart) {
+        check_uv(result, "Failed to start the event loop");
+    }
+}
+
+void event_loop::set_running(bool running) {
+    uv_mutex_lock(&m_async_mutex);
+    m_running = running;
+    uv_mutex_unlock(&m_async_mutex);
 }
 
 void event_loop::lock() {
@@ -126,13 +151,20 @@ static void drop_handle_refs(uv_handle_t * handle) {
         global_ev.exit_drop(owned_ref((lean_object *)handle->data));
     }
     for (owned_ref * ref : object->lean_refs()) {
-        global_ev.exit_drop(std::move(*ref));
+        // Socket finalizers, and `lean_mark_mt` while a handle is created, read null slots without the lock.
+        if (ref->get() != nullptr) {
+            global_ev.exit_drop(std::move(*ref));
+        }
     }
 }
 
 static void close_for_exit(uv_handle_t * handle, void *) {
-    // A finalizer closes its handle itself, and the close callback frees the object.
+    // A finalizer closes its handle itself, and the close callback frees the object. A socket that `close`
+    // closed is still the Lean object's, and its pending shutdown still holds the loop's reference.
     if (uv_is_closing(handle)) {
+        if (handle->type == UV_TCP && reinterpret_cast<lean_uv_tcp_socket_object *>(handle)->m_closed) {
+            drop_handle_refs<lean_uv_tcp_socket_object>(handle);
+        }
         return;
     }
 
@@ -144,16 +176,8 @@ static void close_for_exit(uv_handle_t * handle, void *) {
             drop_handle_refs<lean_uv_signal_object>(handle);
             break;
         case UV_TCP:
-#ifdef _WIN32
-            {
-                // libuv cancels writes with `CancelIo`, which only reaches I/O issued by the calling thread,
-                // and keeps the socket open until they finish. A write that a worker issued to a peer that
-                // stopped reading would never finish.
-                uv_os_fd_t fd;
-                if (uv_fileno(handle, &fd) == 0) {
-                    CancelIoEx(fd, nullptr);
-                }
-            }
+#ifdef LEAN_WINDOWS
+            tcp_cancel_pending_writes(reinterpret_cast<lean_uv_tcp_socket_object *>(handle));
 #endif
             drop_handle_refs<lean_uv_tcp_socket_object>(handle);
             break;
@@ -176,9 +200,7 @@ void event_loop::stop() {
     }
 
     lock();
-    uv_mutex_lock(&m_async_mutex);
-    m_running = false;
-    uv_mutex_unlock(&m_async_mutex);
+    set_running(false);
     // `unlock` wakes the loop thread only once no other thread waits for the lock, which may never happen
     // while other threads keep calling into libuv.
     uv_cond_signal(&m_cond);
@@ -192,26 +214,34 @@ void event_loop::stop() {
     {
         event_loop_guard guard;
 
-        // The task manager is dormant again, so the pending promises the last teardown kept go too.
-        m_released.swap(*m_kept);
-
         uv_walk(m_loop, close_for_exit, nullptr);
 
         // Closing a handle cancels its requests, and threadpool requests run to completion. Their callbacks
         // hand their references to `exit_drop`.
         uv_run(m_loop, UV_RUN_DEFAULT);
 
-        int result = uv_loop_close(m_loop);
-        if (result != 0) {
-            fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n", uv_strerror(result));
-            // libuv may still use the loop, so the next `start` initializes another one.
-            m_loop = new uv_loop_t;
+        // The walk closed every handle and `uv_run` finished every request.
+        if (uv_loop_close(m_loop) != 0) {
+            lean_internal_panic("libuv event loop still busy after the teardown");
         }
 
         released.swap(m_released);
     }
     // Released only once the loop is closed: the finalizers this runs free objects whose handles the walk
     // closed, which libuv uses until then.
+}
+
+void event_loop::release_kept() {
+    if (m_kept == nullptr) {
+        return;
+    }
+
+    std::vector<owned_ref> kept;
+    {
+        event_loop_guard guard;
+        kept.swap(*m_kept);
+    }
+    // Released after the unlock.
 }
 
 /* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */

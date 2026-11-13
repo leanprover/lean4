@@ -10,8 +10,7 @@ reads, a half-close queued behind it, a select cycle, a detached retry loop's sl
 only reference is the loop's. The teardown runs none of their continuations and keeps the promises
 pending: a continuation that runs prints, a `result!` that runs would panic and hang, a failing sleep
 would make the retry loop spin forever, and the select cycle, once its promises are released, is an
-unreachable cycle that leak checkers report. The teardown also prints a warning if the loop does not
-close.
+unreachable cycle that leak checkers report.
 
 Exit still waits for running tasks with the loop up, so a task blocked on a timer wakes, and timer
 finalizers racing the start of exit on worker threads are fine.

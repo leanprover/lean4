@@ -41,15 +41,17 @@ class lthread;
 // When the task manager shuts down, `stop` ends the loop thread and tears the loop down: it closes every
 // handle and runs the loop until everything has finished. No Lean code runs during the teardown.
 // Everything the loop held is released once the loop is closed, except promises that are still pending,
-// which the next teardown releases. Releasing one discards its continuations, since no worker is left by
-// then, and work that only such a continuation could have finished, such as a select waiting on a
-// channel, stays behind as a reference cycle. Kept, it is still reachable when the process exits. When
-// the task manager restarts, `start` starts a fresh loop, and a handle the teardown closed stays closed.
+// which `release_kept` releases before the task manager restarts. Releasing the last reference to one
+// discards its continuations, since the task manager is still dormant then, and work that only such a
+// continuation could have finished, such as a select waiting on a channel, stays behind as a reference
+// cycle. Kept, it is still reachable when the process exits. When the task manager restarts, `start`
+// starts a fresh loop, and a handle the teardown closed stays closed.
 class event_loop {
 public:
     uv_loop_t * m_loop = nullptr;
 
-    // Starts a fresh loop and the loop thread, at startup and again after each `stop`.
+    // Starts a fresh loop and the loop thread, at startup and again after each `stop`. A failure panics at
+    // startup; on a restart it leaves the loop torn down.
     void start();
 
     // Tears the loop down. Called after the task manager's workers have finished.
@@ -61,9 +63,15 @@ public:
     // Whether the loop is still running, as opposed to torn down by `stop`. Call with the lock held.
     bool running() const { return m_running; }
 
-    // Hands a reference to the loop during the teardown: a pending promise is kept until the next
-    // teardown, anything else is released once the loop is closed. Call with the lock held.
+    // Hands a reference to the loop during the teardown: a pending promise is kept until `release_kept`,
+    // anything else is released once the loop is closed. Call with the lock held.
     void exit_drop(owned_ref ref);
+
+    // Releases the loop's references to the pending promises that the teardowns kept. A promise that
+    // nothing else references then resolves its result with `none`; one still referenced elsewhere stays
+    // pending. Called while the task manager is dormant, so that it discards their continuations instead
+    // of running them: the one `Promise.result!` adds would block the releasing thread forever.
+    void release_kept();
 
 private:
     uv_loop_t        m_loop_storage;
@@ -77,12 +85,14 @@ private:
     lthread *        m_thread = nullptr;
     // What the teardown releases once the loop is closed.
     std::vector<owned_ref> m_released;
-    // The pending promises of the last teardown. Never freed, so that they are reachable at exit.
+    // The pending promises the teardowns kept. Never freed, so that they are reachable at exit.
     std::vector<owned_ref> * m_kept = nullptr;
 
     void lock();
     void unlock();
     void run();
+    // Orders the change before or after every send on `m_async`.
+    void set_running(bool running);
 
     friend class event_loop_guard;
 };
@@ -103,8 +113,8 @@ public:
     // with `UV_ECANCELED` instead of calling libuv.
     bool stopped() const { return !global_ev.running(); }
 
-    // Whether `handle` can no longer be used: the loop is torn down, or a teardown closed the handle before
-    // the loop was started again. A finalizer closes only handles that Lean code can no longer reach.
+    // Whether `handle` can no longer be used: the loop is torn down, or the handle was closed, by a teardown
+    // or by a TCP socket's `close`. A finalizer closes only handles that Lean code can no longer reach.
     template<class H>
     bool closed(H * handle) const { return stopped() || uv_is_closing((uv_handle_t*)handle); }
 };

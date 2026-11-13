@@ -39,6 +39,22 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) (check := true) : MetaM Unit := do
     mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)
 
 /--
+Proves a goal with `rfl`, provided that no reduction step needs the constructor of a `String`
+literal (see `Config.stringLitToCtor`). Otherwise, executes `prove`, and tries `rfl` without this
+restriction if `prove` fails. `rfl` must throw an exception if it fails.
+-/
+def reflOrProve (rfl : MetaM Unit) (prove : MetaM Unit) : MetaM Unit := do
+  try
+    withoutStringLitToCtor rfl
+  catch _ =>
+    let s ← saveState
+    try
+      prove
+    catch ex =>
+      s.restore
+      try rfl catch _ => throw ex
+
+/--
 Try to apply `heq_of_eq`. If successful, then return new goal, otherwise return `mvarId`.
 -/
 def _root_.Lean.MVarId.heqOfEq (mvarId : MVarId) : MetaM MVarId :=

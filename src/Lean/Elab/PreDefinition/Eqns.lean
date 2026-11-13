@@ -10,6 +10,7 @@ import Lean.Meta.HaveTelescope
 import Lean.Meta.LetToHave
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Rewrite
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.SplitIf
@@ -101,11 +102,10 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    if (← tryURefl mvarId #[declName]) then
+    let rfl : MetaM Unit := do
+      unless (← tryURefl mvarId #[declName]) do throwError "`rfl` failed"
       trace[Elab.definition.eqns] "proved directly by rfl"
-      return ← instantiateMVars main
-
-    go (← unfoldLHS declName mvarId)
+    reflOrProve rfl do go (← unfoldLHS declName mvarId)
     instantiateMVars main
   where
   /--
@@ -117,30 +117,31 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
   -/
   go (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
-    if (← tryURefl mvarId) then
-      return ()
-    else if (← tryContradiction mvarId) then
-      return ()
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
-      go mvarId
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
-      go mvarId
-    else
-      let ctx ← Simp.mkContext (config := { dsimp := false })
-      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-      | TacticResultCNM.closed => return ()
-      | TacticResultCNM.modified mvarId => go mvarId
-      | TacticResultCNM.noChange =>
-        if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
-          mvarIds.forM go
-        else if let some mvarId ← rwMatcherLHS? mvarId then
-          go mvarId
-        else
-          throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
+    let rfl : MetaM Unit := do
+      unless (← tryURefl mvarId) do throwError "`rfl` failed"
+    reflOrProve rfl do
+      if (← tryContradiction mvarId) then
+        return ()
+      else if let some mvarId ← simpMatch? mvarId then
+        go mvarId
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
+        go mvarId
+      else if let some mvarId ← whnfReducibleLHS? mvarId then
+        go mvarId
+      else
+        let ctx ← Simp.mkContext (config := { dsimp := false })
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+        | TacticResultCNM.closed => return ()
+        | TacticResultCNM.modified mvarId => go mvarId
+        | TacticResultCNM.noChange =>
+          if let some mvarIds ← casesOnStuckLHS? mvarId then
+            mvarIds.forM go
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
+            mvarIds.forM go
+          else if let some mvarId ← rwMatcherLHS? mvarId then
+            go mvarId
+          else
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 /--
 Checks whether the left-hand side of a quantified equality depends on `fvarId`.

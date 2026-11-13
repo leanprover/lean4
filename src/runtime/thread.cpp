@@ -183,13 +183,12 @@ extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int,
 typedef std::vector<std::pair<thread_finalizer, void*>> thread_finalizers;
 
 void run_thread_finalizers_core(thread_finalizers & fns) {
-    unsigned i = fns.size();
-    while (i > 0) {
-        --i;
-        auto fn = fns[i].first;
-        fn(fns[i].second);
+    // A finalizer can run Lean code that registers new finalizers.
+    while (!fns.empty()) {
+        auto [fn, p] = fns.back();
+        fns.pop_back();
+        fn(p);
     }
-    fns.clear();
 }
 
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);

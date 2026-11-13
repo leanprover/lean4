@@ -105,20 +105,22 @@ def registerElement (elem : Expr) (sort : SortId) : DetectM Unit := do
       elements := s.elements.insert ⟨elem⟩ sort
     }
 
-def registerPred (pred : Expr) (argumentSorts : Array SortId) : DetectM Unit := do
+def registerPred (pred : Expr) (argumentSorts : Array SortId) (encoding : PredEncoding) :
+    DetectM Unit := do
   let pred ← Sym.share pred
-  modify fun s => { s with preds := s.preds.insert ⟨pred⟩ { argumentSorts } }
+  modify fun s => { s with preds := s.preds.insert ⟨pred⟩ { argumentSorts, encoding } }
 
 /--
-Check whether `type` is a non-dependent function of the shape `α₁ → ... → αₙ → Prop` where
+Check whether `type` is a non-dependent function of the shape `α₁ → ... → αₙ → Prop/Bool` where
 all `α` are EPR sorts.
 -/
-def predType? (type : Expr) : DetectM (Option (Array SortId)) :=
+def predType? (type : Expr) : DetectM (Option (Array SortId × PredEncoding)) :=
   go type #[]
 where
-  go (type : Expr) (acc : Array SortId) : DetectM (Option (Array SortId)) := do
+  go (type : Expr) (acc : Array SortId) : DetectM (Option (Array SortId × PredEncoding)) := do
     match type with
-    | .sort .zero => return if acc.isEmpty then none else some acc
+    | .sort .zero => return if acc.isEmpty then none else some (acc, .prop)
+    | .const ``Bool [] => return if acc.isEmpty then none else some (acc, .bool)
     | .forallE _ dom body _ =>
       if body.hasLooseBVars then return none
       let some sort ← getSort? dom | return none
@@ -140,8 +142,8 @@ def processLocalDecl (decl : LocalDecl) : DetectM Unit := do
     registerSort (← Sym.share decl.toExpr) u
   else if let some sort ← getSort? type then
     registerElement (← Sym.share decl.toExpr) sort
-  else if let some argumentSorts ← predType? type then
-    registerPred (← Sym.share decl.toExpr) argumentSorts
+  else if let some (argumentSorts, predEncoding) ← predType? type then
+    registerPred (← Sym.share decl.toExpr) argumentSorts predEncoding
 
 structure ScanContext where
   /--
@@ -197,49 +199,86 @@ def checkPredApp (e : Expr) (depth : Nat) : ScanM Bool := do
     markMentionsSort
     return true
 
+@[inline]
+def withCheckCache (e : Expr) (depth : Nat) (k : Expr → Nat → ScanM Bool) : ScanM Bool := do
+  if (← get).cache.contains (⟨e⟩, depth) then
+    return true
+  else
+    let value ← k e depth
+    if value then
+      modify fun s => { s with cache := s.cache.insert (⟨e⟩, depth) }
+      return true
+    else
+      return false
+
+mutual
+
+partial def checkBool (e : Expr) (depth : Nat) : ScanM Bool := do
+  withCheckCache e depth go
+where
+  go (e : Expr) (depth : Nat) : ScanM Bool := do
+    match_expr e with
+    | Bool.true => return true
+    | Bool.false => return true
+    | Bool.not p => checkBool p depth
+    | Bool.and p q => checkBool p depth <&&> checkBool q depth
+    | Bool.or p q => checkBool p depth <&&> checkBool q depth
+    | Bool.xor p q => checkBool p depth <&&> checkBool q depth
+    | BEq.beq α _ lhs rhs =>
+      if α.isConstOf ``Bool then
+        checkBool lhs depth <&&> checkBool rhs depth
+      else
+        return false
+    | decide p _ => checkProp p depth
+    | cond _ c p q =>
+      checkBool c depth <&&> checkBool p depth <&&> checkBool q depth
+    | ite _ c _ p q =>
+      checkProp c depth <&&> checkBool p depth <&&> checkBool q depth
+    | _ => checkPredApp e depth <||> isBoolAtom e
+
+  isBoolAtom (e : Expr) : ScanM Bool := do
+    match e with
+    | .fvar fvarId => return (← fvarId.getType).isConstOf ``Bool
+    | _ => return false
+
 /--
 Check that `e` is approximately a quantifier free EPR expression. `depth` is the amount of `forallE`
 we are under.
 -/
 partial def checkProp (e : Expr) (depth : Nat) : ScanM Bool := do
-  goCache e depth
+  withCheckCache e depth go
 where
-  goCache (e : Expr) (depth : Nat) : ScanM Bool := do
-    if (← get).cache.contains (⟨e⟩, depth) then
-      return true
-    else
-      let value ← go e depth
-      if value then
-        modify fun s => { s with cache := s.cache.insert (⟨e⟩, depth) }
-        return true
-      else
-        return false
-
   go (e : Expr) (depth : Nat) : ScanM Bool := do
     match e with
     | .forallE _ dom body _ =>
       if body.hasLooseBVar 0 then return false
-      goCache dom depth <&&> goCache body (depth + 1)
+      checkProp dom depth <&&> checkProp body (depth + 1)
     | _ =>
       match_expr e with
       | True => return true
       | False => return true
-      | Not p => goCache p depth
-      | And p q => goCache p depth <&&> goCache q depth
-      | Or p q => goCache p depth <&&> goCache q depth
-      | Iff p q => goCache p depth <&&> goCache q depth
+      | Not p => checkProp p depth
+      | And p q => checkProp p depth <&&> checkProp q depth
+      | Or p q => checkProp p depth <&&> checkProp q depth
+      | Iff p q => checkProp p depth <&&> checkProp q depth
       | Eq α lhs rhs =>
         if α.isProp then
-          goCache lhs depth <&&> goCache rhs depth
+          checkProp lhs depth <&&> checkProp rhs depth
+        else if α.isConstOf ``Bool then
+          checkBool lhs depth <&&> checkBool rhs depth
         else
           checkEq α lhs rhs depth
+      | cond _ c p q =>
+        checkBool c depth <&&> checkProp p depth <&&> checkProp q depth
+      | ite _ c _ p q =>
+        checkProp c depth <&&> checkProp p depth <&&> checkProp q depth
       | _ => checkPredApp e depth <||> isPropAtom e
 
   isPropAtom (e : Expr) : ScanM Bool := do
     match e with
     | .fvar fvarId => return (← fvarId.getType).isProp
     | _ => return false
-
+end
 
 end ScanM
 

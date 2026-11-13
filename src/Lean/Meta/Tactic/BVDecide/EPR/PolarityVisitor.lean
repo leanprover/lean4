@@ -38,6 +38,73 @@ end VisitM
 
 namespace PolarityVisitor
 
+mutual
+
+/-
+We special case these because bool facts frequently occur as `b = true`. In this situation we would
+naively analyze `b` with both polarities, despite that not being necessary.
+-/
+@[specialize]
+partial def visitBool'.visitBoth (p q : Expr) (polarity flip : Bool) (f : Expr → Bool → m Unit) :
+    VisitM m Unit := do
+  match_expr (meta := false) p with
+  | Bool.true => visitBool' q (polarity ^^ flip) f
+  | Bool.false => visitBool' q (!polarity ^^ flip) f
+  | _ =>
+    match_expr (meta := false) q with
+    | Bool.true => visitBool' p (polarity ^^ flip) f
+    | Bool.false => visitBool' p (!polarity ^^ flip) f
+    | _ =>
+      visitBool' p true f
+      visitBool' p false f
+      visitBool' q true f
+      visitBool' q false f
+
+@[specialize]
+partial def visitProp'.visitBoth (p q : Expr) (polarity flip : Bool) (f : Expr → Bool → m Unit) :
+    VisitM m Unit := do
+  match_expr (meta := false) p with
+  | True => visitProp' q (polarity ^^ flip) f
+  | False => visitProp' q (!polarity ^^ flip) f
+  | _ =>
+    match_expr (meta := false) q with
+    | True => visitProp' p (polarity ^^ flip) f
+    | False => visitProp' p (!polarity ^^ flip) f
+    | _ =>
+      visitProp' p true f
+      visitProp' p false f
+      visitProp' q true f
+      visitProp' q false f
+
+@[specialize]
+partial def visitBool' (e : Expr) (polarity : Bool) (f : Expr → Bool → m Unit) : VisitM m Unit := do
+  VisitM.withCheckCache e polarity do
+    match_expr (meta := false) e with
+    | Bool.true => return ()
+    | Bool.false => return ()
+    | Bool.not p => visitBool' p (!polarity) f
+    | Bool.and p q =>
+      visitBool' p polarity f
+      visitBool' q polarity f
+    | Bool.or p q =>
+      visitBool' p polarity f
+      visitBool' q polarity f
+    | Bool.xor p q => visitBool'.visitBoth p q polarity true f
+    | BEq.beq α _ p q =>
+      if α.isConstOf ``Bool then visitBool'.visitBoth p q polarity false f else f e polarity
+    | cond _ c p q =>
+      visitBool' c true f
+      visitBool' c false f
+      visitBool' p polarity f
+      visitBool' q polarity f
+    | ite _ c _ p q =>
+      visitProp' c true f
+      visitProp' c false f
+      visitBool' p polarity f
+      visitBool' q polarity f
+    | decide p _ => visitProp' p polarity f
+    | _ => f e polarity
+
 @[specialize]
 partial def visitProp' (e : Expr) (polarity : Bool) (f : Expr → Bool → m Unit) :
     VisitM m Unit := do
@@ -56,21 +123,27 @@ partial def visitProp' (e : Expr) (polarity : Bool) (f : Expr → Bool → m Uni
       | Or p q =>
         visitProp' p polarity f
         visitProp' q polarity f
-      | Iff p q =>
-        visitProp' p true f
-        visitProp' p false f
-        visitProp' q true f
-        visitProp' q false f
+      | Iff p q => visitProp'.visitBoth p q polarity false f
       | Eq α lhs rhs =>
         if α.isProp then
-          visitProp' lhs true f
-          visitProp' lhs false f
-          visitProp' rhs true f
-          visitProp' rhs false f
+          visitProp'.visitBoth lhs rhs polarity false f
+        else if α.isConstOf ``Bool then
+          visitBool'.visitBoth lhs rhs polarity false f
         else
           f e polarity
+      | cond _ c p q =>
+        visitBool' c true f
+        visitBool' c false f
+        visitProp' p polarity f
+        visitProp' q polarity f
+      | ite _ c _ p q =>
+        visitProp' c true f
+        visitProp' c false f
+        visitProp' p polarity f
+        visitProp' q polarity f
       | _ => f e polarity
 
+end
 
 /--
 Calls `f` at every atom of the EPR expression `e`, together with polarity information about that
@@ -81,6 +154,15 @@ problem.
 public def visitProp (e : Expr) (f : Expr → Bool → m Unit) : m Unit :=
   VisitM.run do
     visitProp' e true f
+
+/--
+Calls `f` at every atom of the `Bool` expression `e`, together with polarity information about that
+atom. `e` is expected to be in `bv_normalize` normal form. The function does not visit the same
+`(atom, pol)` pair twice even if it occurs twice in the problem.
+-/
+@[specialize]
+public def visitBool (e : Expr) (f : Expr → Bool → m Unit) : m Unit :=
+  StateRefT'.run' (visitBool' e true f) {}
 
 end PolarityVisitor
 

@@ -266,8 +266,12 @@ where
       DiagnosisM (Option (Expr × Expr)) := do
     match_expr var with
     | BitVec.ofBool predAtom =>
-      let some predApp := isEprPredApp? predAtom | return none
-      return some (predApp, mkConst (if value.bv == 1 then ``True else ``False))
+      let some (predApp, predEncoding) := isEprPredApp? predAtom | return none
+      let value :=
+        match predEncoding with
+        | .prop => if value.bv == 1 then ``True else ``False
+        | .bool => if value.bv == 1 then ``Bool.true else ``Bool.false
+      return some (predApp, mkConst value)
     | _ =>
       let some (sort, elem) := isEprElement? var | return none
       let some sortFVarId := sort.fvarId? | throwError m!"EPR sort is not an FVarId"
@@ -278,17 +282,21 @@ where
     let_expr Std.Tactic.BVDecide.EPR.BitVec.toBvAux α  _ _ _ elem := e | none
     return (α, elem)
 
-  isEprPredApp? (e : Expr) : Option Expr :=
+  isEprPredApp? (e : Expr) : Option (Expr × EPR.PredEncoding) :=
     e.withApp fun fn args => do
       let .const fn _ := fn | none
-      let arity ← EPR.BitVec.toBvPredArity[fn]?
+      -- TODO: extract encoding out of here
+      let getPropArity (fn : Name) : Option (Nat × EPR.PredEncoding) := do
+        return (← EPR.BitVec.toBvPredPropArity[fn]?, .prop)
+      let getBoolArity (fn : Name) : Option (Nat × EPR.PredEncoding) := do
+        return (← EPR.BitVec.toBvPredBoolArity[fn]?, .bool)
+
+      let (arity, encoding) ← (Option.or (getPropArity fn) (getBoolArity fn))
       guard <| args.size == 5 * arity + 1
       let elems ← args[(4 * arity + 1)...*].toArray.mapM fun arg => do
         let (_, elem) ← isEprElement? arg
         return elem
-      return mkAppN args[4 * arity]! elems
-
-
+      return (mkAppN args[4 * arity]! elems, encoding)
 
 end DiagnosisM
 

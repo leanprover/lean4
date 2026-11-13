@@ -119,7 +119,8 @@ def translateAtom (ctx : TranslateCtx) : Sym.Simp.Simproc := fun e => do
           let sortInfo := ctx.sortInfo[sort]!
           resExpr := mkApp resExpr (sortInfo.appToBv arg)
           resProof := mkApp2 resProof arg argMem
-        resExpr ← Sym.share <| mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) resExpr (toExpr true)
+        if predInfo.encoding == .prop then
+          resExpr ← Sym.share <| mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) resExpr (toExpr true)
         return .step resExpr resProof (done := true)
 
 structure TranslateState where
@@ -220,7 +221,10 @@ def translatePreds (preds : Std.HashMap Expr PredInfo) (sortInfos : Std.HashMap 
       throwError m!"EPR predicates with more than {Std.Tactic.BVDecide.EPR.BitVec.maxToBvPredArity} arguments are not supported yet: {pred}"
     if predInfo.argumentSorts.isEmpty then
       throwError m!"EPR predicates should not have arity 0"
-    let (bvPredBase, eqBase) := Std.Tactic.BVDecide.EPR.BitVec.toBvPredDecls[predInfo.argumentSorts.size - 1]!
+    let (bvPredBase, eqBase) :=
+      match predInfo.encoding with
+      | .prop => Std.Tactic.BVDecide.EPR.BitVec.toBvPredPropDecls[predInfo.argumentSorts.size - 1]!
+      | .bool => Std.Tactic.BVDecide.EPR.BitVec.toBvPredBoolDecls[predInfo.argumentSorts.size - 1]!
     let levels := predInfo.argumentSorts.map (sortInfos[·]!.level) |>.toList
     let mut bvPred := mkConst bvPredBase levels
     let mut eqThm := mkConst eqBase levels

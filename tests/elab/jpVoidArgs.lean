@@ -43,13 +43,13 @@ trace: [Compiler.saveMono] size: 25
         | ST.Out.mk val.20 state.21 =>
           goto _jp.2 state.21
 [Compiler.saveImpure] size: 19
-    def test x y a.1 : tobj :=
-      jp _jp.2 : tobj :=
+    def test x y a.1 : tagged :=
+      jp _jp.2 : tagged :=
         let _x.3 := 3;
         let _x.4 := y _x.3 ◾;
         let _x.5 := 0;
         return _x.5;
-      cases x : tobj
+      cases x : tagged
       | Enum.A =>
         let _x.6 := 0;
         inc[ref] y;
@@ -66,7 +66,7 @@ trace: [Compiler.saveMono] size: 25
         let _x.11 := y _x.10 ◾;
         goto _jp.2
 [Compiler.saveImpure] size: 2
-    def test._boxed x y a.1 : tobj :=
+    def test._boxed x y a.1 : tagged :=
       let x.boxed := unbox x;
       let res := test x.boxed y a.1;
       return res

@@ -204,7 +204,7 @@ theorem wp_while_eq (cond : Expr) (body : Cmd) (Φ : Env) (s : State) :
 /-- Build a triple from the pointwise `wp` equation of the program. -/
 private theorem triple_of_wp {c : Cmd} {pre : Assn}
     (h : ∀ Φ s, Std.WP.wp c Q eposts Φ s = pre Φ s) : Triple c pre Q eposts :=
-  Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s]; exact PartialOrder.rel_refl)
+  Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s])
 
 /-! ## Specification lemmas, one per constructor -/
 

@@ -43,7 +43,7 @@ def HProp : Type := Heap → Prop
 instance : Lean.Order.CompleteLattice HProp :=
   inferInstanceAs (Lean.Order.CompleteLattice (Heap → Prop))
 
-instance : Std.WP.Assertion HProp := inferInstanceAs (Std.WP.Assertion (Heap → Prop))
+instance : Lean.Order.CompleteLattice HProp := inferInstanceAs (Lean.Order.CompleteLattice (Heap → Prop))
 
 /-- The cell `l` holds `v`, and nothing else is owned. -/
 def pointsTo (l : Addr) (v : Nat) : HProp := fun h => h = Heap.single l v

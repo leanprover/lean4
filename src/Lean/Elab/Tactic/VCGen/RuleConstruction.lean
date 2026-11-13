@@ -272,11 +272,18 @@ def mkSpecBackwardProof (info : WPApp)
         let botEPred ← mkAppOptM ``Lean.Order.bot #[epostsTy, none]
         isDefEqGuarded epostsSpec botEPred
       catch _ => pure false
-    if isBot then
+    /- `WP.wp_monotone_bot_le` takes a lattice of exception postconditions in place of their order,
+      so unification infers it from the `WP` instance. -/
+    let botLe? ← if isBot then
+        try
+          some <$> mkAppOptM ``WP.wp_monotone_bot_le ((wpArgs.map some).set! 5 none ++
+            #[prog, postAbstract, epostsAbstract, pre, specApplied].map some)
+        catch _ => pure none
+      else pure none
+    if let some botLe := botLe? then
       /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostsImpl` premise -/
-      specApplied := mkAppN (wpLemma ``WP.wp_monotone_bot_le)
-        #[prog, postAbstract, epostsAbstract, pre, specApplied]
+      specApplied := botLe
     else
       /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
@@ -491,8 +498,11 @@ positions of the schematic slots.
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
   let op ← fp.mkOpAppM info
+  -- The frame rule takes lattices of assertions in place of their orders, so unification infers
+  -- them from the `WP` instance.
+  let wpArgs := (info.args.take 7).map some |>.set! 4 none |>.set! 5 none
   let thm ← mkAppOptM ``Std.WP.meet_op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none, none])
+    (wpArgs ++ #[none, some op, none, none])
   let (xs, _, concl) ← forallMetaTelescope (← instantiateMVars (← Meta.inferType thm))
   let_expr PartialOrder.rel _ _ lhs wp := concl
     | throwError "frame: unexpected frame rule conclusion{indentExpr concl}"

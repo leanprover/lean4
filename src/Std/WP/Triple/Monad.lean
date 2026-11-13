@@ -27,7 +27,7 @@ variable {Pred : Type w} {EPosts : Type w'}
 
 namespace Triple
 
-variable {m : Type v → Type u} [Monad m] [Assertion Pred] [Assertion EPosts]
+variable {m : Type v → Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts]
   [WPMonad m Pred EPosts]
 
 theorem pure (a : α) (h : pre ⊑ post a) :

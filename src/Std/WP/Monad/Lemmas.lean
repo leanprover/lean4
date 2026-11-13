@@ -28,7 +28,7 @@ open Lean.Order WPMonad
 universe u v
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
 
 /-! ## MonadReaderOf simp lemmas -/
 
@@ -452,21 +452,21 @@ theorem wp_restoreM_OptionT_apply_eq (x : m (Option α)) :
 end
 
 @[simp]
-theorem wp_controlAt_apply_eq [Bind n] [Monad m] [Monad n] [Assertion Pred] [Assertion EPosts] [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
+theorem wp_controlAt_apply_eq [Bind n] [Monad m] [Monad n] [CompleteLattice Pred] [CompleteLattice EPosts] [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
     (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
     wp (controlAt m f : n α) post eposts =
       wp (liftWith f >>= restoreM : n α) post eposts := by
   rfl
 
 @[simp]
-theorem wp_control_apply_eq [Bind n] [Monad m] [Monad n] [Assertion Pred] [Assertion EPosts] [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
+theorem wp_control_apply_eq [Bind n] [Monad m] [Monad n] [CompleteLattice Pred] [CompleteLattice EPosts] [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
     (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
     wp (control f : n α) post eposts =
       wp (liftWith f >>= restoreM : n α) post eposts := by
   rfl
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
 
 @[simp]
 theorem wp_monadLift_refl_apply_eq [Pure m] (x : m α) :
@@ -496,7 +496,7 @@ end
 /-! ## Transitive lift/map/control simp lemmas -/
 
 section
-variable {m n : Type u → Type v} {o : Type u → Type v} [Assertion Pred] [Assertion EPosts] [∀ α, WP (o α) α Pred EPosts]
+variable {m n : Type u → Type v} {o : Type u → Type v} [CompleteLattice Pred] [CompleteLattice EPosts] [∀ α, WP (o α) α Pred EPosts]
 
 @[simp]
 theorem wp_monadLift_trans_apply_eq [MonadLift n o] [MonadLiftT m n] (x : m α) :
@@ -531,7 +531,7 @@ end
 /-! ## Lifted state/reader operations -/
 
 section
-variable {m n : Type u → Type v} [MonadLift m n] [Assertion Pred] [Assertion EPosts] [∀ α, WP (n α) α Pred EPosts]
+variable {m n : Type u → Type v} [MonadLift m n] [CompleteLattice Pred] [CompleteLattice EPosts] [∀ α, WP (n α) α Pred EPosts]
 
 @[simp]
 theorem wp_get_MonadStateOf_lift_apply_eq [MonadStateOf σ m] :
@@ -562,7 +562,7 @@ end
 /-! ## Lifted except operations -/
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [MonadExceptOf ε m]
+variable {m : Type u → Type v} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] [MonadExceptOf ε m]
 
 @[simp]
 theorem wp_throw_lift_ExceptT_apply_eq (err : ε) :
@@ -630,7 +630,7 @@ theorem wp_orElse_Except_apply_eq (x : Except ε α) (h : Unit → Except ε α)
   cases x <;> rfl
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
 
 theorem le_wp_orElse_ExceptT_apply (x : ExceptT ε m α)
     (h : Unit → ExceptT ε m α) :

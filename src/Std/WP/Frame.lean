@@ -35,7 +35,7 @@ open Lean.Order Std.WP
 namespace Std.WP
 
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
-  [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
 
 /-- The program `x` frames the resource `F` under the guard `P`: in a state that satisfies `P`,
 `op F ·` commutes into the postcondition of `wp x` and the companion `opE F ·` into the exception

@@ -72,13 +72,28 @@ at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
-read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
-def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
-  let mut inst := instCL
+read off the order `instPO` of `Pred`. Each state either applies the pointwise order `instOrderPi`
+or sits inside the pointwise lattice `instCompleteLatticePi` of a lattice order
+`CompleteLattice.toPartialOrder`. The order of `B` is a lattice order. Example: `StateT Nat Id` has
+the order `instOrderPi fun _ => CompleteLattice.toPartialOrder instCL` on `Nat → Prop`, and `B`
+has the lattice `instCL`. -/
+def baseInstance? (instPO : Expr) (ss : Array Expr) : SymM (Option Expr) := do
+  let mut po := instPO
+  let mut cl? : Option Expr := none
   for s in ss do
-    let_expr instCompleteLatticePi _ _ f := inst | return none
-    inst ← betaS f #[s]
-  return some inst
+    if let some cl := cl? then
+      let_expr instCompleteLatticePi _ _ f := cl | return none
+      cl? := some (← betaS f #[s])
+    else
+      match_expr po with
+      | instOrderPi _ _ f => po ← betaS f #[s]
+      | CompleteLattice.toPartialOrder _ cl =>
+        let_expr instCompleteLatticePi _ _ f := cl | return none
+        cl? := some (← betaS f #[s])
+      | _ => return none
+  if let some cl := cl? then return some cl
+  let_expr CompleteLattice.toPartialOrder _ cl := po | return none
+  return some cl
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with

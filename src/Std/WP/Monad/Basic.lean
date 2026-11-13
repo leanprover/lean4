@@ -31,7 +31,7 @@ variable {m : Type u → Type z}
 `pure` and `bind`. The interpretation for every result type is carried as the `toWP` field; an
 instance exposes it as a `WP (m α) …` interpretation. -/
 class WPMonad (m : Type u → Type v) (Pred : outParam (Type w)) (EPosts : outParam (Type w'))
-    [Monad m] [Assertion Pred] [Assertion EPosts] extends LawfulMonad m where
+    [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] extends LawfulMonad m where
   /-- The weakest precondition interpretation of `m` at every result type. -/
   toWP : ∀ α, WP (m α) α Pred EPosts
   /-- Soundness of `pure`: the postcondition applied to `x` implies the weakest precondition of
@@ -49,7 +49,7 @@ attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] WPMonad
 program type with a bespoke `WP` instance (e.g. a non-monadic one) is preferred. -/
 instance (priority := low)
     {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} {α : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPosts] [inst : WPMonad m Pred EPosts] :
+    [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [inst : WPMonad m Pred EPosts] :
     WP (m α) α Pred EPosts :=
   inst.toWP α
 
@@ -61,7 +61,7 @@ One-directional consequences of the `WPMonad` axioms for `pure`, `bind`, `map`, 
 
 namespace WPMonad
 
-variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
 theorem map_le_wp_map (f : α → β) (x : m α) :

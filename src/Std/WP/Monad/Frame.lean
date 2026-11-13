@@ -34,7 +34,7 @@ A separation logic depends on this property: every frame `op r` passes through t
 program in every state. A caller of a spec picks a frame and applies the frame rule for that
 frame. -/
 @[instance_reducible] noncomputable def WPMonad.withFrameClosure {m : Type v → Type w} [Monad m]
-    {P : Type u} {E : Type z} [Assertion P] [Assertion E]
+    {P : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E', opE (comp r r') E' = opE r (opE r' E'))

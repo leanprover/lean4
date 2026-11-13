@@ -207,24 +207,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             }
         } else if (signal->m_state == signal_state::Running &&
                    (signal->m_repeating ? signal_promise_is_finished(signal) : signal->m_promise.get() == nullptr)) {
-            // The loop holds a reference exactly while a promise is pending.
-            bool const loop_ref = signal->m_promise.get() != nullptr;
-            dropped = std::move(signal->m_promise);
-
             if (signal->m_received) {
                 // A signal that arrived with no promise pending resolves this one at once, so the
-                // signal keeps no promise and the loop no reference.
+                // signal keeps no promise and the loop no reference. The delivery that set
+                // `m_received` already let go of the previous promise and the loop's reference.
+                lean_assert(signal->m_promise.get() == nullptr);
                 signal->m_received = false;
                 promise = owned_ref(mk_mt_promise());
                 lean_dec(lean_io_promise_resolve(lean_box(signal->m_lean_signum), promise.get()));
-                if (loop_ref) {
-                    lean_dec(obj);
-                }
             } else {
-                if (!loop_ref) {
-                    // A delivery or `cancel` released the loop's reference along with the promise.
+                // The loop holds a reference exactly while a promise is pending, and keeps it for the
+                // fresh one. A delivery or `cancel` released it along with the promise.
+                if (signal->m_promise.get() == nullptr) {
                     lean_inc(obj);
                 }
+                dropped = std::move(signal->m_promise);
                 signal->m_promise = owned_ref(mk_mt_promise());
             }
         }

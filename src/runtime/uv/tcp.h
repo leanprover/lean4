@@ -46,6 +46,13 @@ struct lean_uv_tcp_socket_object {
 // Tcp socket object manipulation functions.
 static inline lean_object* lean_uv_tcp_socket_new(lean_uv_tcp_socket_object* s) { return lean_alloc_external(g_uv_tcp_socket_external_class, s); }
 static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object* o) { return (lean_uv_tcp_socket_object*)(lean_get_external_data(o)); }
+
+#ifdef LEAN_WINDOWS
+// libuv on Windows cancels pending writes with `CancelIo`, which reaches only the writes the calling
+// thread issued, and closes the socket once no write is pending. A write another thread issued to a
+// peer that does not read would keep the socket open, so this cancels them all. Call before `uv_close`.
+void tcp_cancel_pending_writes(lean_uv_tcp_socket_object * tcp_socket);
+#endif
 #endif
 
 // =======================================

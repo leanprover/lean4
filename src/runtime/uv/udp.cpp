@@ -149,6 +149,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     owned_ref data(data_array);
 
     if (lean_array_size(data_array) == 0) {
+        {
+            // Sending nothing needs no libuv call, but fails like any other operation on the socket.
+            event_loop_guard guard;
+
+            if (guard.closed(&udp_socket->m_uv_udp)) {
+                return io_result_mk_uv_error(UV_ECANCELED);
+            }
+        }
+
         lean_object * promise = mk_mt_promise();
         resolve_with_code(0, promise);
 

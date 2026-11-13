@@ -68,6 +68,15 @@ static void tcp_socket_finalizer(void* ptr) {
     });
 }
 
+#ifdef LEAN_WINDOWS
+void tcp_cancel_pending_writes(lean_uv_tcp_socket_object * tcp_socket) {
+    uv_os_fd_t fd;
+    if (!tcp_socket->m_listening && uv_fileno((uv_handle_t*)&tcp_socket->m_uv_tcp, &fd) == 0) {
+        CancelIoEx(fd, nullptr);
+    }
+}
+#endif
+
 void initialize_libuv_tcp_socket() {
     g_uv_tcp_socket_external_class = lean_register_external_class(tcp_socket_finalizer, uv_foreach_refs<lean_uv_tcp_socket_object>);
 }
@@ -159,6 +168,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     owned_ref data(data_array);
 
     if (lean_array_size(data_array) == 0) {
+        {
+            // Sending nothing needs no libuv call, but fails like any other operation on the socket.
+            event_loop_guard guard;
+
+            if (guard.closed(&tcp_socket->m_uv_tcp)) {
+                return io_result_mk_uv_error(tcp_socket->m_closed ? UV_EBADF : UV_ECANCELED);
+            }
+        }
+
         lean_object * promise = mk_mt_promise();
         resolve_with_code(0, promise);
 
@@ -740,13 +758,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
         }
 
 #ifdef LEAN_WINDOWS
-        // libuv on Windows cancels pending writes with `CancelIo`, which reaches only the writes this
-        // thread issued, and closes the socket once no write is pending. A write another thread
-        // issued to a peer that does not read would keep the socket open, so cancel them all.
-        uv_os_fd_t fd;
-        if (!tcp_socket->m_listening && uv_fileno((uv_handle_t*)&tcp_socket->m_uv_tcp, &fd) == 0) {
-            CancelIoEx(fd, nullptr);
-        }
+        tcp_cancel_pending_writes(tcp_socket);
 #endif
 
         // libuv reads `data` as the Lean object until the close callback, which then releases it.

@@ -93,6 +93,61 @@ structure Limits where
 
 instance : Inhabited Limits := ⟨{}⟩
 
+/-- Is a constant safe (neither `unsafe` nor `partial`)? -/
+def safeConst : ConstantInfo → Bool
+  | .defnInfo v => match v.safety with
+    | .safe => true
+    | _ => false
+  | ci => !ci.isUnsafe
+
+/-- **Does a check at this safety and axiom policy see the constant `ci`
+stored at `n`?**  Not `sorryAx` unless `coreAxioms` (con-leche installs
+nothing for it); in the check of a safe declaration, no `unsafe` or
+`partial` constant (con-leche checks no such declaration, and official
+rejects a safe declaration using one: only the message differs, "unknown
+constant"). -/
+@[inline] def seesAt (safety : DefinitionSafety) (coreAxioms : Bool) (n : Name)
+    (ci : ConstantInfo) : Bool :=
+  !(n == sorryAxName && !coreAxioms) &&
+    match safety with
+    | .safe => safeConst ci
+    | _ => true
+
+/-- The constants a check at this safety and axiom policy sees in `env`
+(`seesAt`): `FEnv.find?` over the components, which the literal flags'
+defaults read. -/
+@[inline] def findAt (env : Kernel.Environment) (safety : DefinitionSafety) (coreAxioms : Bool)
+    (n : Name) : Option ConstantInfo :=
+  match env.find? n with
+  | some ci => if seesAt safety coreAxioms n ci then some ci else none
+  | none => none
+
+/-- **Are `Nat` literals expandable**, by a lookup (twin of `natLitStoredBy`):
+`Nat`, `Nat.zero` and `Nat.succ` are seen. -/
+@[inline] def natLitStoredBy (find : Name → Option ConstantInfo) : Bool :=
+  (find natName).isSome && (find natZeroName).isSome && (find natSuccName).isSome
+
+/-- The string-support constants are seen (`strLitStoredBy` past the `Nat`
+ones). -/
+@[inline] def strSupportBy (find : Name → Option ConstantInfo) : Bool :=
+  (find stringName).isSome && (find stringOfListName).isSome &&
+    (find listName).isSome && (find listNilName).isSome &&
+    (find listConsName).isSome && (find charName).isSome &&
+    (find charOfNatName).isSome
+
+/-- **Are string literals expandable**, by a lookup (twin of
+`strLitStoredBy`): the `Nat` constants and the string-support constants are
+seen. -/
+@[inline] def strLitStoredBy (find : Name → Option ConstantInfo) : Bool :=
+  natLitStoredBy find && strSupportBy find
+
+/-- Twin of `litName`: the ten names the two literal flags read; a push of
+any other name leaves them as they are. -/
+def litName (n : Name) : Bool :=
+  n == natName || n == natZeroName || n == natSuccName || n == stringName ||
+    n == stringOfListName || n == listName || n == listNilName || n == listConsName ||
+    n == charName || n == charOfNatName
+
 /-- Twin of `FEnv`: the environment a check reads, and the declaration's
 safety (official `m_definition_safety`; con-leche checks safe declarations
 only). -/
@@ -116,24 +171,25 @@ structure FEnv where
   pending : List Name := []
   /-- The resource limits (`Limits`). -/
   limits : Limits := {}
+  /-- **Are `Nat` literals expandable** here (twin of `FEnv.natLit`): the
+  core reads it at every literal it meets, so it is computed where an
+  `FEnv` is built (this default, by three lookups), recomputed where the
+  safety changes (`FEnv.withSafety`) and kept by every push but one of the
+  ten names before string literals are expandable (`FEnv.push`).  Its
+  meaning, `natLitStoredBy` of `FEnv.find?`, is carried by the proofs'
+  relation (`InLeanProof.LitFlagsI`), not by a proof field: what a push
+  answers is the environment laws' (`InLeanProof.EnvLaws`), a premise of
+  the proofs that InLean's code cannot state. -/
+  natLit : Bool := natLitStoredBy (findAt env safety coreAxioms)
+  /-- **Are string literals expandable** here (as `natLit`; the default is
+  `strLitStoredBy` spelled out after `natLit`, so the `Nat` lookups run
+  once). -/
+  strLit : Bool := natLit && strSupportBy (findAt env safety coreAxioms)
 
-/-- Is a constant safe (neither `unsafe` nor `partial`)? -/
-def safeConst : ConstantInfo → Bool
-  | .defnInfo v => match v.safety with
-    | .safe => true
-    | _ => false
-  | ci => !ci.isUnsafe
-
-/-- **Does a check at `fe` see the constant `ci` stored at `n`?**  Not
-`sorryAx` unless `coreAxioms` (con-leche installs nothing for it); in the
-check of a safe declaration, no `unsafe` or `partial` constant (con-leche
-checks no such declaration, and official rejects a safe declaration using
-one: only the message differs, "unknown constant"). -/
+/-- **Does a check at `fe` see the constant `ci` stored at `n`?**
+(`seesAt` at its safety and policy). -/
 @[inline] def FEnv.sees (fe : FEnv) (n : Name) (ci : ConstantInfo) : Bool :=
-  !(n == sorryAxName && !fe.coreAxioms) &&
-    match fe.safety with
-    | .safe => safeConst ci
-    | _ => true
+  seesAt fe.safety fe.coreAxioms n ci
 
 /-- Twin of `FEnv.find?`: the constants the check sees (`FEnv.sees`).  A
 name's freshness is read off the environment itself (`fe.env.find?`), as
@@ -142,6 +198,16 @@ official's. -/
   match fe.env.find? n with
   | some ci => if fe.sees n ci then some ci else none
   | none => none
+
+/-- **`fe` at the safety `safety`**: the literal flags recomputed when the
+safety changes (a safe check does not see an `unsafe` or `partial`
+constant, `seesAt`), kept otherwise. -/
+def FEnv.withSafety (fe : FEnv) (safety : DefinitionSafety) : FEnv :=
+  let same := fe.safety == safety
+  { fe with
+    safety := safety
+    natLit := if same then fe.natLit else natLitStoredBy (findAt fe.env safety fe.coreAxioms)
+    strLit := if same then fe.strLit else strLitStoredBy (findAt fe.env safety fe.coreAxioms) }
 
 /-- Is `T` a member of the block being checked (`FEnv.pending`)? -/
 @[inline] def FEnv.isPending (fe : FEnv) (T : Name) : Bool :=
@@ -532,18 +598,5 @@ def FEnv.andRescueSlotsF (fe : FEnv) (ctor : Name) (nP : Nat) : Bool :=
     match fe.findProj? andName j with
     | some e => e.ctor == ctor && e.numParams == nP && e.numFields == 2
     | none => false
-
-/-! ## Literal support -/
-
-/-- Twin of `natLitStoredF`. -/
-def natLitStoredF (fe : FEnv) : Bool :=
-  (fe.find? natName).isSome && (fe.find? natZeroName).isSome && (fe.find? natSuccName).isSome
-
-/-- Twin of `strLitStoredF`. -/
-def strLitStoredF (fe : FEnv) : Bool :=
-  natLitStoredF fe && (fe.find? stringName).isSome && (fe.find? stringOfListName).isSome &&
-    (fe.find? listName).isSome && (fe.find? listNilName).isSome &&
-    (fe.find? listConsName).isSome && (fe.find? charName).isSome &&
-    (fe.find? charOfNatName).isSome
 
 end Lean.Kernel.InLean

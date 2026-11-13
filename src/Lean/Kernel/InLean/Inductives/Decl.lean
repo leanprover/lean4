@@ -109,7 +109,7 @@ def checkIndDeclC (fe : FEnv) (block : List ConstantInfo) (nP : Nat) : CheckCM U
 former's and constructor's type at the unsafe safety, in order (con-leche
 has no unsafe declarations). -/
 def checkUnsafeBlock (fe : FEnv) (consts : Array ConstantInfo) : CheckCM Unit := do
-  let fe := { fe with safety := .unsafe }
+  let fe := fe.withSafety .unsafe
   let _ ← consts.foldlM (fun (fe : FEnv) ci => do
     match ci with
     | .inductInfo _ | .ctorInfo _ => checkConstantValC mode fe ci.toConstantVal
@@ -145,7 +145,9 @@ def checkInductiveC (fe : FEnv) (lps : List Name) (nparams : Nat) (types : List 
   -- a safe block's constants are safe (the generator is not verified)
   unless isUnsafe || gen.consts.all safeConst do
     throw (.internal "inductive generator: an unsafe constant in a safe block")
-  -- every projection body the extended environment reads is in range
+  -- every projection body the extended environment reads is in range (a
+  -- view for this test alone: it reads projection tables, not the literal
+  -- flags, which it carries over unchanged)
   let feN : FEnv := { fe with env := gen.consts.foldl addConst fe.env }
   unless gen.consts.all fun ci => feN.projBodiesInRange ci.name do
     throw (.internal "too many bound variables in a projection body")

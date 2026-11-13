@@ -72,3 +72,52 @@ def onStr : String → Nat
 
 example := @onStr.match_1.eq_65
 example := @onStr.eq_65
+
+/-!
+The equation for the `n+1` alternative does not reduce the nested `match` on `String` literals,
+so it is proved by `rfl`.
+-/
+
+def nested (n : Nat) (s : String) : Nat :=
+  match n with
+  | 0 => (match s with | "a" => 1 | _ => 2)
+  | n+1 => n
+
+/--
+info: @[backward_defeq] theorem nested.eq_3 : ∀ (s : String) (n_2 : Nat), nested n_2.succ s = n_2 :=
+fun s n_2 => Eq.refl (nested n_2.succ s)
+-/
+#guard_msgs in
+#print nested.eq_3
+
+/-!
+A `match` on `String` literals under a binder. The equation is provable only by `rfl`.
+-/
+
+def underLambda : List (String → Nat) :=
+  [fun s => match s with | "a" => 1 | _ => 2]
+
+example := @underLambda.eq_1
+
+/-!
+The equation for a `String` literal alternative is proved with the `match` equation, and not by
+`rfl` after unfolding the definition.
+-/
+
+def lits : String → Nat
+  | "a" => 0
+  | "b" => 1
+  | "c" => 2
+  | _ => 3
+
+/--
+info: theorem lits.eq_3 : lits "c" = 2 :=
+id
+  (Eq.mpr
+    (id
+      (congrFun' (congrArg Eq (lits.match_1.eq_3 (fun x => Nat) (fun _ => 0) (fun _ => 1) (fun _ => 2) fun x => 3)) 2))
+    (Eq.refl 2))
+-/
+#guard_msgs in
+set_option pp.proofs true in
+#print lits.eq_3

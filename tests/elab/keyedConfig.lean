@@ -66,5 +66,6 @@ example (c : ConfigWithKey) (t : TransparencyMode) (h : c.config.toKey = c.key) 
     (_ : UInt64) <<< _ = a, (_ : UInt64) <<< _ = a,
     (_ : UInt64) <<< _ = a, (_ : UInt64) <<< _ = a,
     (_ : UInt64) <<< _ = a, (_ : UInt64) <<< _ = a,
-    (_ : UInt64) <<< _ = a, (_ : UInt64) <<< _ = a
+    (_ : UInt64) <<< _ = a, (_ : UInt64) <<< _ = a,
+    (_ : UInt64) <<< _ = a
   simp only [UInt64.or_assoc, UInt64.or_comm]

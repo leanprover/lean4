@@ -17,7 +17,6 @@ import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.SplitSparseCasesOn
 import Lean.Meta.StringLitProof
-import Lean.Meta.Match.Value
 
 public section
 
@@ -100,10 +99,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
       (_, mvarId) ← introSubstEq mvarId
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
-  if containsStringLit type then
-    unfoldAndProve mvarId
-  else
-    try mvarId.refl catch _ => unfoldAndProve mvarId
+  reflOrProve mvarId.refl (unfoldAndProve mvarId)
   instantiateMVars mvar0
 where
   unfoldAndProve (mvarId : MVarId) : MetaM Unit := do

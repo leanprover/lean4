@@ -42,12 +42,4 @@ def normMatchValue (e : Expr) : MetaM Expr := do
     return mkApp (mkConst ``Float32.ofBits) (mkRawNatLit x.toBits.toNat)
   return e
 
-/--
-Returns `true` if `e` contains a `String` literal. Proving a goal about a `match` on `String`
-literals by `rfl` decides the patterns by reducing `String.decEq`, which compares the literals
-character by character. The equation generators do not use `rfl` on such goals.
--/
-def containsStringLit (e : Expr) : Bool :=
-  (e.find? (·.isStringLit)).isSome
-
 end Lean.Meta

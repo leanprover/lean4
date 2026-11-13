@@ -1043,6 +1043,24 @@ where
 
 instance : ToOutputJson ModuleOutputArtifacts := ⟨(toJson ·.descrs)⟩
 
+/--
+The directory holding the trace files a module archive is packed from and unpacked to.
+
+`leantar` parses the trace it packs, which would tie it to Lake's trace format and hash width.
+Thus, it is only given a fixed stub trace (`stub.trace`), while the module's actual trace data
+is packed as the plain file `module.json` and turned into the module's trace by Lake.
+-/
+def Module.ltarTraceDir (self : Module) : FilePath :=
+  self.irDir / self.fileName "ltar.d"
+
+/--
+A fixed trace in the oldest schema for which `leantar` stores the base directory of each file.
+Its hash is fixed so that archive bytes depend only on the outputs.
+-/
+-- TODO: Drop the stub once a `leantar` release can pack an archive without a trace.
+def ltarStubTrace : String :=
+  "{\"schemaVersion\": \"2025-09-10\", \"depHash\": \"0000000000000000\"}"
+
 def Module.packLtar
   (self : Module) (arts : ModuleOutputArtifacts)
 : JobM Artifact := do
@@ -1050,35 +1068,43 @@ def Module.packLtar
     if (← self.checkArtifactsExist arts.isModule arts.c?.isNone) then
       return arts
     else self.restoreAllArtifacts arts
+  let .ok data ← readTraceFile self.traceFile
+    | error s!"{self.traceFile}: module archive requires a valid trace"
+  let traceDir := self.ltarTraceDir
+  IO.FS.createDirAll traceDir
+  IO.FS.writeFile (traceDir / "stub.trace") ltarStubTrace
+  -- Omit what depends on the inputs rather than the outputs
+  let data := {data with
+    depHash := .nil, inputs := #[], log := ⟨data.log.entries.filter (·.level ≥ LogLevel.info)⟩}
+  IO.FS.writeFile (traceDir / "module.json") (toJson data).compress
   let args ← id do
-    -- `-s` strips the `depHash` so archive bytes depend only on outputs.
-    -- Consumers reinject the hash on unpack (see `Module.unpackLtar`).
     let mut args := #[
-      "-s",
+      "-C", traceDir.toString,
       "-C", self.leanLibDir.toString,
       "-C", self.irDir.toString,
       self.ltarFile.toString,
-      self.fileName "trace"
+      "stub.trace",
+      "-i", "0", "module.json"
     ]
     let addArt args idx art :=
       args.push "-i" |>.push idx |>.push (self.fileName art.ext)
     -- Note: oleans parts must be in the order of `.olean`, `.olean.server`, `.olean.private`
-    args := addArt args "0" arts.olean
+    args := addArt args "1" arts.olean
     if let some art := arts.oleanServer? then
-      args := addArt args "0" art
-    if let some art := arts.oleanPrivate? then
-      args := addArt args "0" art
-    args := addArt args "0" arts.ilean
-    if let some art := arts.irSig? then
-      args := addArt args "0" art
-    if let some art := arts.ir? then
-      args := addArt args "0" art
-    if let some art := arts.c? then
       args := addArt args "1" art
+    if let some art := arts.oleanPrivate? then
+      args := addArt args "1" art
+    args := addArt args "1" arts.ilean
+    if let some art := arts.irSig? then
+      args := addArt args "1" art
+    if let some art := arts.ir? then
+      args := addArt args "1" art
+    if let some art := arts.c? then
+      args := addArt args "2" art
     if Lean.Internal.hasLLVMBackend () then
       let some art := arts.bc?
         | error "LLVM backend enabled but module outputs lack bitcode"
-      args := addArt args "1" art
+      args := addArt args "2" art
     return args
   proc (quiet := true) {cmd := (← getLeantar).toString, args}
   if (← self.pkg.isArtifactCacheWritable) then
@@ -1087,17 +1113,25 @@ def Module.packLtar
     computeArtifact self.ltarFile "ltar"
 
 def Module.unpackLtar (self : Module) (ltar : FilePath) (inputHash : Hash) : JobM Unit := do
-  -- Archive has no `depHash` (packed with `-s`); supply it via `-j -` JSON stdin.
-  let input := Json.arr #[Json.mkObj [
-    ("file", toJson ltar.toString),
-    ("hash", toJson inputHash.hex)
-  ]]
+  let traceDir := self.ltarTraceDir
   let args := #[
+    -- Without `-f`, `leantar` skips unpacking if the stub trace is already present.
+    "-f",
+    "-C", traceDir.toString,
     "-C", self.leanLibDir.toString,
     "-C", self.irDir.toString,
-    "-x", "-j", "-"
+    "-x", ltar.toString
   ]
-  proc (quiet := true) (input? := input.compress) {cmd := (← getLeantar).toString, args}
+  proc (quiet := true) {cmd := (← getLeantar).toString, args}
+  let dataFile := traceDir / "module.json"
+  let data ← id do
+    match (← IO.FS.readFile dataFile |>.toBaseIO) with
+    | .ok contents =>
+      match Json.parse contents >>= fromJson? with
+      | .ok (data : BuildMetadata) => pure data
+      | .error e => error s!"{ltar}: invalid module trace data: {e}"
+    | .error e => error s!"{ltar}: failed to read unpacked module trace data: {e}"
+  BuildMetadata.writeFile self.traceFile {data with depHash := inputHash}
 
 def Module.recBuildLtar (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:ltar" <| withCurrPackage self.pkg do

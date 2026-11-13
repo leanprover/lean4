@@ -82,7 +82,7 @@ effects, and some operation should be carried out only for its effects. In `do`-
 whose values are discarded must return `Unit`, and `discard` can be used to explicitly discard their
 values.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
 
@@ -122,13 +122,13 @@ export Alternative (failure)
 /--
 If the proposition `p` is true, does nothing, else fails (using `failure`).
 -/
-@[always_inline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+@[always_inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
 /--
 Returns `some x` if `f` succeeds with value `x`, else returns `none`.
 -/
-@[always_inline, inline] def optional (x : f α) : f (Option α) :=
+@[always_inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 
 class ToBool (α : Type u) where
@@ -378,7 +378,7 @@ effects in the outer monad; this extra information is determined by `stM`.
 
 This function takes the inner monad as an explicit parameter. Use `control` to infer the monad.
 -/
-@[always_inline, inline]
+@[always_inline]
 def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
@@ -392,7 +392,7 @@ effects in the outer monad; this extra information is determined by `stM`.
 This function takes the inner monad as an implicit parameter. Use `controlAt` to specify it
 explicitly.
 -/
-@[always_inline, inline]
+@[always_inline]
 def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f

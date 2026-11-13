@@ -192,7 +192,7 @@ Examples:
  * `none.filter (fun x : Nat => x % 2 == 0) = none`
  * `none.filter (fun x : Nat => true) = none`
 -/
-@[always_inline, inline, implicit_reducible] protected def filter (p : α → Bool) : Option α → Option α
+@[always_inline, implicit_reducible] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
@@ -204,7 +204,7 @@ Examples:
  * `(some 22).all (· % 2 == 0) = true
  * `none.all (fun x : Nat => x % 2 == 0) = true
 -/
-@[always_inline, inline, implicit_reducible] protected def all (p : α → Bool) : Option α → Bool
+@[always_inline, implicit_reducible] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
@@ -219,7 +219,7 @@ Examples:
  * `(some 22).any (· % 2 == 0) = true
  * `none.any (fun x : Nat => true) = false
 -/
-@[always_inline, inline, implicit_reducible] protected def any (p : α → Bool) : Option α → Bool
+@[always_inline, implicit_reducible] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
@@ -599,7 +599,7 @@ Examples:
  * `Option.tryCatch none (fun () => some "handled") = some "handled"`
  * `Option.tryCatch (some "succeeded") (fun () => some "handled") = some "succeeded"`
 -/
-@[always_inline, inline] protected def Option.tryCatch (x : Option α) (handle : Unit → Option α) : Option α :=
+@[always_inline] protected def Option.tryCatch (x : Option α) (handle : Unit → Option α) : Option α :=
   match x with
   | some _ => x
   | none => handle ()

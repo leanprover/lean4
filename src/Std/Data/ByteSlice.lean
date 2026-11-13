@@ -76,15 +76,15 @@ instance : Self (Std.Slice Internal.ByteSliceData) ByteSlice where
 
 namespace ByteSlice
 
-@[always_inline, inline, expose, inherit_doc Internal.ByteSliceData.byteArray]
+@[always_inline, expose, inherit_doc Internal.ByteSliceData.byteArray]
 def byteArray (xs : @& ByteSlice) : ByteArray :=
   xs.internalRepresentation.byteArray
 
-@[always_inline, inline, expose, inherit_doc Internal.ByteSliceData.start]
+@[always_inline, expose, inherit_doc Internal.ByteSliceData.start]
 def start (xs : @& ByteSlice) : Nat :=
   xs.internalRepresentation.start
 
-@[always_inline, inline, expose, inherit_doc Internal.ByteSliceData.stop]
+@[always_inline, expose, inherit_doc Internal.ByteSliceData.stop]
 def stop (xs : @& ByteSlice) : Nat :=
   xs.internalRepresentation.stop
 

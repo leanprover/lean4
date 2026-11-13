@@ -69,7 +69,7 @@ def Iterator.Monadic.step [UpwardEnumerable α] [LE α] [DecidableLE α]
 /--
 The pure function mapping a range iterator of type {name}`Iter` to the next step of the iterator.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iterator.step [UpwardEnumerable α] [LE α] [DecidableLE α]
     (it : Iter (α := Rxc.Iterator α) α) :
     IterStep (Iter (α := Rxc.Iterator α) α) α :=
@@ -88,7 +88,7 @@ theorem Iterator.step_eq_monadicStep [UpwardEnumerable α] [LE α] [DecidableLE 
   · rfl
   · split <;> rfl
 
-@[always_inline, inline]
+@[always_inline]
 instance [UpwardEnumerable α] [LE α] [DecidableLE α] :
     Iterator (Rxc.Iterator α) Id α where
   IsPlausibleStep it step := step = Iterator.Monadic.step it
@@ -439,7 +439,7 @@ An efficient {name}`IteratorLoop` instance:
 As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
 -/
-@[always_inline, inline]
+@[always_inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] :
@@ -450,7 +450,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
       loop γ Pl (next ≤ ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
     | ⟨⟨none, _⟩⟩ => return init
   where
-    @[always_inline, inline]
+    @[always_inline]
     loop γ (Pl : α → γ → ForInStep γ → Prop) (LargeEnough : α → Prop) (hl : ∀ a b : α, a ≤ b → LargeEnough a → LargeEnough b)
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → out ≤ upperBound → (c : γ) → n (Subtype (Pl out c))) : n γ :=
@@ -650,7 +650,7 @@ def Iterator.Monadic.step [UpwardEnumerable α] [LT α] [DecidableLT α]
 /--
 The pure function mapping a range iterator of type {name}`Iter` to the next step of the iterator.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iterator.step [UpwardEnumerable α] [LT α] [DecidableLT α]
     (it : Iter (α := Rxo.Iterator α) α) :
     IterStep (Iter (α := Rxo.Iterator α) α) α :=
@@ -669,7 +669,7 @@ theorem Iterator.step_eq_monadicStep [UpwardEnumerable α] [LT α] [DecidableLT 
   · rfl
   · split <;> rfl
 
-@[always_inline, inline]
+@[always_inline]
 instance [UpwardEnumerable α] [LT α] [DecidableLT α] :
     Iterator (Rxo.Iterator α) Id α where
   IsPlausibleStep it step := step = Iterator.Monadic.step it
@@ -1019,7 +1019,7 @@ An efficient {name}`IteratorLoop` instance:
 As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
 -/
-@[always_inline, inline]
+@[always_inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] :
@@ -1030,7 +1030,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
       loop γ Pl (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
     | ⟨⟨none, _⟩⟩ => return init
   where
-    @[always_inline, inline]
+    @[always_inline]
     loop γ (Pl : α → γ → ForInStep γ → Prop) (LargeEnough : α → Prop)
         (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
@@ -1214,7 +1214,7 @@ def Iterator.Monadic.step [UpwardEnumerable α]
 /--
 The pure function mapping a range iterator of type {name}`Iter` to the next step of the iterator.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iterator.step [UpwardEnumerable α]
     (it : Iter (α := Rxi.Iterator α) α) :
     IterStep (Iter (α := Rxi.Iterator α) α) α :=
@@ -1228,7 +1228,7 @@ theorem Iterator.step_eq_monadicStep [UpwardEnumerable α]
   simp only [step, Monadic.step, Iter.toIterM]
   split <;> rfl
 
-@[always_inline, inline]
+@[always_inline]
 instance [UpwardEnumerable α] :
     Iterator (Rxi.Iterator α) Id α where
   IsPlausibleStep it step := step = Iterator.Monadic.step it
@@ -1502,7 +1502,7 @@ An efficient {name}`IteratorLoop` instance:
 As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
 -/
-@[always_inline, inline]
+@[always_inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {n : Type u → Type w} [Monad n] :
     IteratorLoop (Rxi.Iterator α) Id n where
@@ -1512,7 +1512,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable
       loop γ Pl (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) init next ?hle'' (fun a ha c => f a ?hf c)
     | ⟨⟨none⟩⟩ => return init
   where
-    @[always_inline, inline]
+    @[always_inline]
     loop γ (Pl : α → γ → ForInStep γ → Prop) (LargeEnough : α → Prop) (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
         (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → (c : γ) → n (Subtype (Pl out c))) : n γ :=

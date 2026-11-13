@@ -30,7 +30,7 @@ state, it returns a value paired with the final state.
 
 The monad `m` must support `ST` effects in order to create and mutate reference cells.
 -/
-@[always_inline, inline]
+@[always_inline]
 def StateRefT'.run {ω σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST ω) m] {α : Type} (x : StateRefT' ω σ m α) (s : σ) : m (α × σ) := do
   let ref ← ST.mkRef s
   let a ← x ref
@@ -43,7 +43,7 @@ state, it returns a value, discarding the final state.
 
 The monad `m` must support `ST` effects in order to create and mutate reference cells.
 -/
-@[always_inline, inline]
+@[always_inline]
 def StateRefT'.run' {ω σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST ω) m] {α : Type} (x : StateRefT' ω σ m α) (s : σ) : m α := do
   let (a, _) ← x.run s
   pure a
@@ -57,7 +57,7 @@ Runs an action from the underlying monad in the monad with state. The state is n
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
 lifting](lean-manual://section/monad-lifting).
 -/
-@[always_inline, inline]
+@[always_inline]
 protected def lift (x : m α) : StateRefT' ω σ m α :=
   fun _ => x
 

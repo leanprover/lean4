@@ -34,7 +34,7 @@ The pure version of this iterator is
 * {name}`Finite` instance: always
 * {name}`Productive` instance: always
 -/
-@[always_inline, inline, match_pattern]
+@[always_inline, match_pattern]
 def _root_.Vector.iterFromIdxM (xs : Vector α n) (m : Type w → Type w')
     (pos : Nat) [Pure m] :=
   (xs.toArray.iterFromIdxM m pos : IterM m α)

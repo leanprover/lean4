@@ -26,7 +26,7 @@ open Std.PRange
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Rcc.iter (r : Rcc α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨some r.lower, r.upper⟩⟩
 
@@ -34,7 +34,7 @@ def Std.Rcc.iter (r : Rcc α) : Iter (α := Rxc.Iterator α) α :=
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Rco.iter (r : Rco α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨some r.lower, r.upper⟩⟩
 
@@ -42,7 +42,7 @@ def Std.Rco.iter (r : Rco α) : Iter (α := Rxo.Iterator α) α :=
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Rci.iter (r : Rci α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨some r.lower⟩⟩
 
@@ -50,7 +50,7 @@ def Std.Rci.iter (r : Rci α) : Iter (α := Rxi.Iterator α) α :=
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Roc.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower, r.upper⟩⟩
 
@@ -58,7 +58,7 @@ def Std.Roc.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator �
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Roo.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower, r.upper⟩⟩
 
@@ -66,7 +66,7 @@ def Std.Roo.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator �
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Roi.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower⟩⟩
 
@@ -74,7 +74,7 @@ def Std.Roi.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator �
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Ric.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨Least?.least?, r.upper⟩⟩
 
@@ -82,7 +82,7 @@ def Std.Ric.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Rio.iter [Least? α] (r : Rio α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨Least?.least?, r.upper⟩⟩
 
@@ -90,6 +90,6 @@ def Std.Rio.iter [Least? α] (r : Rio α) : Iter (α := Rxo.Iterator α) α :=
 Returns an iterator over the given range. This iterator will emit the elements of the range
 in increasing order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Std.Rii.iter [Least? α] (_ : Rii α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨Least?.least?⟩⟩

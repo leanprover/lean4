@@ -31,14 +31,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rcc.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] (r : Rcc α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨some r.lower, r.upper⟩⟩
 
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Rcc α) : List α :=
   Internal.iter r |>.toList
@@ -46,7 +46,7 @@ def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Rcc α) : Array α :=
   Internal.iter r |>.toArray
@@ -54,7 +54,7 @@ def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 /--
 Returns the number of elements contained in the given closed range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxc.HasSize α] (r : Rcc α) : Nat :=
   Rxc.HasSize.size r.lower r.upper
 
@@ -121,14 +121,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rco.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] (r : Rco α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨some r.lower, r.upper⟩⟩
 
 /--
 Returns the elements of the given left-closed right-open range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rco α) : List α :=
   Internal.iter r |>.toList
@@ -136,7 +136,7 @@ def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given left-closed right-open range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rco α) : Array α :=
   Internal.iter r |>.toArray
@@ -144,7 +144,7 @@ def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 /--
 Returns the number of elements contained in the given left-closed right-open range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxo.HasSize α] (r : Rco α) : Nat :=
   Rxo.HasSize.size r.lower r.upper
 
@@ -207,14 +207,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rcc.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] (r : Rci α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨some r.lower⟩⟩
 
 /--
 Returns the elements of the given left-closed right-unbounded range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
     List α :=
   Internal.iter r |>.toList
@@ -222,7 +222,7 @@ def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite
 /--
 Returns the elements of the given left-closed right-unbounded range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
     Array α :=
   Internal.iter r |>.toArray
@@ -231,7 +231,7 @@ def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinit
 /--
 Returns the number of elements contained in the given left-closed right-unbounded range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxi.HasSize α] (r : Rci α) : Nat :=
   Rxi.HasSize.size r.lower
 
@@ -292,14 +292,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roc.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower, r.upper⟩⟩
 
 /--
 Returns the elements of the given left-open right-closed range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Roc α) : List α :=
   Internal.iter r |>.toList
@@ -307,7 +307,7 @@ def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given left-open right-closed range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Roc α) : Array α :=
   Internal.iter r |>.toArray
@@ -315,7 +315,7 @@ def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 /--
 Returns the number of elements contained in the given left-open right-closed range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxc.HasSize α] [UpwardEnumerable α] (r : Roc α) : Nat :=
   match UpwardEnumerable.succ? r.lower with
   | none => 0
@@ -373,14 +373,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roo.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower, r.upper⟩⟩
 
 /--
 Returns the elements of the given open range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Roo α) : List α :=
   Internal.iter r |>.toList
@@ -388,7 +388,7 @@ def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given open range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Roo α) : Array α :=
   Internal.iter r |>.toArray
@@ -396,7 +396,7 @@ def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerab
 /--
 Returns the number of elements contained in the given open range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxo.HasSize α] [UpwardEnumerable α] (r : Roo α) : Nat :=
   match UpwardEnumerable.succ? r.lower with
   | none => 0
@@ -453,14 +453,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roi.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower⟩⟩
 
 /--
 Returns the elements of the given left-open right-unbounded range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     (r : Roi α) : List α :=
   Internal.iter r |>.toList
@@ -468,7 +468,7 @@ def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite 
 /--
 Returns the elements of the given left-open right-unbounded range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     (r : Roi α) : Array α :=
   Internal.iter r |>.toArray
@@ -476,7 +476,7 @@ def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinit
 /--
 Returns the number of elements contained in the given left-open right-unbounded range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxi.HasSize α] [UpwardEnumerable α] (r : Roi α) : Nat :=
   match UpwardEnumerable.succ? r.lower with
   | none => 0
@@ -529,14 +529,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Ric.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨Least?.least?, r.upper⟩⟩
 
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Ric α) : List α :=
   Internal.iter r |>.toList
@@ -544,7 +544,7 @@ def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpw
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Ric α) : Array α :=
   Internal.iter r |>.toArray
@@ -552,7 +552,7 @@ def toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUp
 /--
 Returns the number of elements contained in the given closed range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxc.HasSize α] [Least? α] (r : Ric α) : Nat :=
   match Least?.least? (α := α) with
   | none => 0
@@ -604,14 +604,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rio.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] [Least? α] (r : Rio α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨Least?.least?, r.upper⟩⟩
 
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rio α) : List α :=
   Internal.iter r |>.toList
@@ -619,7 +619,7 @@ def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpw
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rio α) : Array α :=
   Internal.iter r |>.toArray
@@ -627,7 +627,7 @@ def toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUp
 /--
 Returns the number of elements contained in the given closed range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size [Rxo.HasSize α] [Least? α] (r : Rio α) : Nat :=
   match Least?.least? (α := α) with
   | none => 0
@@ -678,14 +678,14 @@ This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rio.iter` instead, which requires
 importing {module -checked}`Std.Data.Iterators`.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Internal.iter [UpwardEnumerable α] [Least? α] (_ : Rii α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨Least?.least?⟩⟩
 
 /--
 Returns the elements of the given full range as a list in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
     [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : List α :=
   Internal.iter r |>.toList
@@ -693,7 +693,7 @@ def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
 /--
 Returns the elements of the given full range as an array in ascending order.
 -/
-@[always_inline, inline]
+@[always_inline]
 def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
     [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : Array α :=
   Internal.iter r |>.toArray
@@ -701,7 +701,7 @@ def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
 /--
 Returns the number of elements contained in the full range.
 -/
-@[always_inline, inline]
+@[always_inline]
 def size (_ : Rii α) [Least? α] [Rxi.HasSize α] : Nat :=
   match Least?.least? (α := α) with
   | none => 0

@@ -80,11 +80,11 @@ variable [DecidableEq idx] [DecidableEq elem] [Input ι elem idx]
 instance : Inhabited (Parsec ι α) where
   default := fun it => ParseResult.error it (.other "")
 
-@[always_inline, inline]
+@[always_inline]
 protected def pure (a : α) : Parsec ι α := fun it =>
   .success it a
 
-@[always_inline, inline]
+@[always_inline]
 protected def bind {α β : Type} (f : Parsec ι α) (g : α → Parsec ι β) : Parsec ι β := fun it =>
   match f it with
   | .success rem a => g a rem
@@ -93,7 +93,7 @@ protected def bind {α β : Type} (f : Parsec ι α) (g : α → Parsec ι β) :
 /--
 Parser that always fails with the given error message.
 -/
-@[always_inline, inline]
+@[always_inline]
 def fail (msg : String) : Parsec ι α := fun it =>
   .error it (.other msg)
 
@@ -117,14 +117,14 @@ instance : Monad (Parsec ι) where
 /--
 Try `p`, and if it fails without consuming input, run `q ()` instead.
 -/
-@[always_inline, inline]
+@[always_inline]
 def orElse (p : Parsec ι α) (q : Unit → Parsec ι α) : Parsec ι α :=
   tryCatch p pure q
 
 /--
 Attempt to parse with `p`, but don't consume input on failure.
 -/
-@[always_inline, inline]
+@[always_inline]
 def attempt (p : Parsec ι α) : Parsec ι α := fun it =>
   match p it with
   | .success rem res => .success rem res

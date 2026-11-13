@@ -83,7 +83,7 @@ manually.
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
 it terminates.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
   (⟨Types.TakeWhile.mk (P := P) it⟩ : IterM m β)
 
@@ -119,7 +119,7 @@ In this case, the `Finite` (or `Productive`) instance needs to be proved manuall
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
 it terminates.
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.takeWhileM [Monad m] [MonadAttach m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
   (it.takeWhileWithPostcondition (PostconditionT.attachLift ∘ P) : IterM m β)
 
@@ -155,7 +155,7 @@ In this case, the `Finite` (or `Productive`) instance needs to be proved manuall
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
 it terminates.
 -/
-@[always_inline, inline, implicit_reducible]
+@[always_inline, implicit_reducible]
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (it.takeWhileWithPostcondition (pure ∘ ULift.up ∘ P) : IterM m β)
 
@@ -176,7 +176,7 @@ inductive TakeWhile.PlausibleStep [Iterator α m β] {P} (it : IterM (α := Take
   | rejected : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       (P out).Property (.up false) → PlausibleStep it .done
 
-@[always_inline, inline]
+@[always_inline]
 instance TakeWhile.instIterator [Monad m] [Iterator α m β] {P} :
     Iterator (TakeWhile α m β P) m β where
   IsPlausibleStep := TakeWhile.PlausibleStep

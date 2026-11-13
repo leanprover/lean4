@@ -31,7 +31,7 @@ variable {α σ : Type u} {m : Type u → Type v}
 Runs a stateful computation that's represented using continuation passing style by providing it with
 an initial state and a continuation.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def runK (x : StateCpsT σ m α) (s : σ) (k : α → σ → m β) : m β :=
   x _ s k
 
@@ -42,7 +42,7 @@ state, it returns a value paired with the final state.
 While the state is internally represented in continuation passing style, the resulting value is the
 same as for a non-CPS state monad.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def run [Monad m] (x : StateCpsT σ m α) (s : σ) : m (α × σ) :=
   runK x s (fun a s => pure (a, s))
 
@@ -50,7 +50,7 @@ def run [Monad m] (x : StateCpsT σ m α) (s : σ) : m (α × σ) :=
 Executes an action from a monad with added state in the underlying monad `m`. Given an initial
 state, it returns a value, discarding the final state.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def run' [Monad m] (x : StateCpsT σ m α) (s : σ) : m α :=
   runK x s (fun a _ => pure a)
 
@@ -82,7 +82,7 @@ Runs an action from the underlying monad in the monad with state. The state is n
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
 lifting](lean-manual://section/monad-lifting).
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 protected def lift [Monad m] (x : m α) : StateCpsT σ m α :=
   fun _ s k => x >>= (k . s)
 

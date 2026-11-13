@@ -59,14 +59,14 @@ end Iterators.Types
 
 open Std.Iterators Std.Iterators.Types
 
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.InternalCombinators.filterMap {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n lift f) n γ :=
   ⟨⟨it⟩⟩
 
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n γ)

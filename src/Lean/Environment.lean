@@ -638,6 +638,12 @@ structure Environment where
   -/
   checked             : Task Kernel.Environment := private_decl% (.pure base.private)
   /--
+  Like `checked`, but may already contain declarations whose kernel check is still pending, and which
+  would be replaced by axioms in `checked` if the check fails. Kernel checks use it so that they do
+  not have to wait for preceding checks. `none` if identical to `checked`.
+  -/
+  private uncheckedKernelEnv? : Option (Task Kernel.Environment) := none
+  /--
   Container of asynchronously elaborated declarations. For consistency, `Lean.addDecl` makes sure
   this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set of
   constants known on the current environment branch, which is a subset of `checked`.
@@ -758,6 +764,17 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get
 
+/-- The kernel environment that further declarations should be checked against; see `checked`. -/
+def uncheckedKernelEnv (env : Environment) : Task Kernel.Environment :=
+  env.uncheckedKernelEnv?.getD env.checked
+
+/--
+Makes `uncheckedKernelEnv` the kernel environment of `env`, i.e. kernel additions on the resulting
+environment do not wait for pending kernel checks.
+-/
+def useUncheckedKernelEnv (env : Environment) : Environment :=
+  { env with checked := env.uncheckedKernelEnv, uncheckedKernelEnv? := none }
+
 /-- Updates `env.isExporting`. Ignored if `env.header.isModule` is false. -/
 def setExporting (env : Environment) (isExporting : Bool) : Environment :=
   if !env.header.isModule || env.isExporting == isExporting then
@@ -825,11 +842,14 @@ def setRecordingDeps (env : Environment) (recording : Bool) : Environment :=
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
-  { env with checked := env.checked.map (sync := true) f, base.private := f env.base.private }
+  { env with
+    checked := env.checked.map (sync := true) f
+    uncheckedKernelEnv? := env.uncheckedKernelEnv?.map (·.map (sync := true) f)
+    base.private := f env.base.private }
 
 /-- Sets synchronous and (private) asynchronous parts of the environment to the given kernel environment. -/
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
-  { env with checked := .pure newChecked, base.private := newChecked }
+  { env with checked := .pure newChecked, uncheckedKernelEnv? := none, base.private := newChecked }
 
 /-- The declaration prefix to which the environment is restricted to, if any. -/
 def asyncPrefix? (env : Environment) : Option Name :=
@@ -1108,7 +1128,10 @@ def promiseChecked (env : Environment) : BaseIO PromiseCheckedResult := do
     mainEnv := { env with
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
-        | none      => env.checked }
+        | none      => env.checked
+      -- The asynchronous modification may affect kernel checking, e.g. by compiling definitions
+      -- used by `Lean.reduceBool`.
+      uncheckedKernelEnv? := none }
     -- Do not allow adding new constants
     asyncEnv := env.enterAsync `__reserved__Environment_promiseChecked
     checkedEnvPromise
@@ -1152,6 +1175,7 @@ structure AddConstAsyncResult where
   private sigPromise : IO.Promise ConstantVal
   private constPromise : IO.Promise ConstPromiseVal
   private checkedEnvPromise : IO.Promise Kernel.Environment
+  private uncheckedEnvPromise : IO.Promise Kernel.Environment
   private allRealizationsPromise : IO.Promise (NameMap AsyncConst)
 
 /-- Creates fallback info to be used in case promises are dropped unfulfilled. -/
@@ -1198,6 +1222,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
   let constPromise ← IO.Promise.new
   let allRealizationsPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
+  let uncheckedEnvPromise ← IO.Promise.new
 
   let privateAsyncConst := {
     constInfo := {
@@ -1237,6 +1262,9 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | none   => .mk (α := AsyncConsts) default
   }
   let env := env.registerConstAdded constName
+  let checked := checkedEnvPromise.result?.bind (sync := true) fun
+    | some kenv => .pure kenv
+    | none      => env.checked
   return {
     constName, kind, exportedKind?
     mainEnv := { env with
@@ -1245,14 +1273,15 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
         «public»  := exportedAsyncConst?.map (env.asyncConstsMap.public.add ·)
           |>.getD env.asyncConstsMap.public
       }
-      checked := checkedEnvPromise.result?.bind (sync := true) fun
+      checked
+      uncheckedKernelEnv? := some <| uncheckedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
-        | none      => env.checked
+        | none      => checked
       allRealizations := allRealizationsPromise.result?.bind (sync := true) fun
         | some r => .pure r
         | none   => env.allRealizations }
     asyncEnv := env.enterAsync constName
-    sigPromise, constPromise, allRealizationsPromise, checkedEnvPromise
+    sigPromise, constPromise, allRealizationsPromise, checkedEnvPromise, uncheckedEnvPromise
   }
 
 /--
@@ -1304,6 +1333,19 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
   }
 
 /--
+Commits the kernel environments resulting from adding the constant: `unchecked` may be resolved
+before the constant's kernel check has finished and should then contain the unchecked constant, while
+`checked` should contain the constant only if the check was successful. Realizations are taken from
+`env`. Must be called only after `commitConst`.
+-/
+def AddConstAsyncResult.commitKernelEnvs (res : AddConstAsyncResult) (env : Environment)
+    (unchecked checked : Task Kernel.Environment) : BaseIO Unit := do
+  BaseIO.chainTask (sync := true) unchecked res.uncheckedEnvPromise.resolve
+  BaseIO.chainTask (sync := true) checked fun checked => do
+    res.checkedEnvPromise.resolve checked
+    BaseIO.chainTask (sync := true) env.allRealizations res.allRealizationsPromise.resolve
+
+/--
 Assuming `Lean.addDecl` has been run for the constant to be added on the async environment branch,
 commits the full constant info from that call to the main environment, (asynchronously) waits for
 the final kernel environment resulting from the `addDecl` call, and commits it to the main branch as
@@ -1315,9 +1357,7 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
   -- `info?`
   if !(← res.constPromise.isResolved) then
     res.commitConst env
-  BaseIO.chainTask (sync := true) env.checked fun checked => do
-    res.checkedEnvPromise.resolve checked
-    BaseIO.chainTask (sync := true) env.allRealizations res.allRealizationsPromise.resolve
+  res.commitKernelEnvs env env.uncheckedKernelEnv env.checked
 
 /--
 Checks whether `findAsync?` would return a result.
@@ -2959,7 +2999,7 @@ namespace Environment
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) : Environment :=
-  { env with checked := .pure kenv }
+  { env with checked := .pure kenv, uncheckedKernelEnv? := none }
 
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
@@ -3037,6 +3077,7 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
       oldEnv.checked.bind (sync := true) fun oldKEnv =>
         newEnv.checked.map fun newKEnv =>
           replayKernel oldKEnv newKEnv exts newPrivateConsts kenv |>.toOption.getD kenv
+    uncheckedKernelEnv? := none
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
@@ -3257,6 +3298,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         | .error e => do
           exPromise.resolve e
           return kenv)
+    uncheckedKernelEnv? := none
     allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
       res.newConsts.private.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c

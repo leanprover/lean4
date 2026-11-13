@@ -185,8 +185,35 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
 
   if Elab.async.get (← getOptions) then
     let cancelTk ← IO.CancelToken.new
-    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
-    let t ← BaseIO.mapTask checkAct env.checked
+    -- Kernel diagnostics are accumulated in the resulting kernel environment, so we need to keep it.
+    let t ← if Kernel.isDiagnosticsEnabled env then
+      let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+      BaseIO.mapTask checkAct env.checked
+    else
+      -- Check against `uncheckedKernelEnv` so that we do not wait for preceding checks, and in turn
+      -- let following checks proceed by committing an unchecked version of the declaration right
+      -- away.
+      let opts ← getOptions
+      let okPromise ← IO.Promise.new
+      let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+        setEnv async.asyncEnv.useUncheckedKernelEnv
+        try
+          doCheck
+          okPromise.resolve true
+        catch ex =>
+          okPromise.resolve false
+          throw ex
+      let t ← BaseIO.mapTask checkAct env.uncheckedKernelEnv
+      let unchecked := env.uncheckedKernelEnv.map (sync := true) fun kenv =>
+        kenv.addDeclWithoutChecking decl |>.toOption.getD kenv
+      let checked := okPromise.result?.bind (sync := true) fun ok? =>
+        env.checked.bind (sync := true) fun kenv =>
+          if ok? == some true then
+            .pure <| kenv.addDeclWithoutChecking decl |>.toOption.getD kenv
+          else
+            Task.spawn fun _ => addAsAxiomKernel opts kenv
+      async.commitKernelEnvs async.asyncEnv unchecked checked
+      pure t
     -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
     -- users should not worry about and other callers can add a separate task with ranges
     -- themselves, see `MutualDef`.
@@ -197,45 +224,47 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
     finally
       setEnv async.mainEnv
 where
-  doAdd := do
+  doCheck := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
-        try
-          let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
-            |> ofExceptKernelException
-          setEnv env
-        catch ex =>
-          -- avoid follow-up errors by (trying to) add broken decl as axiom
-          addAsAxiom
-          throw ex
+        let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+  doAdd := do
+    try
+      doCheck
+    catch ex =>
+      -- avoid follow-up errors by (trying to) add broken decl as axiom
+      addAsAxiom
+      throw ex
   addAsAxiom := do
-    -- try to add as axiom with given type for def/theorem
-    match decl with
-    | .defnDecl d | .thmDecl d =>
-      let fallbackDecl := .axiomDecl {
-        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false
-      }
+    for fallbackDecl in fallbackDecls do
       try
         let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
           |> ofExceptKernelException
         setEnv env
         return
       catch _ => pure ()
-    | _ => pure ()
-
-    -- otherwise, add as axiom with type `sorry`
-    for n in decl.getNames do
-      let fallbackDecl := .axiomDecl {
-        name := n, levelParams := []
-        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
-      }
-      try
-        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
-          |> ofExceptKernelException
-        setEnv env
-        return
-      catch _ => pure ()
+  /-- Like `addAsAxiom` for the kernel environment only. -/
+  addAsAxiomKernel (opts : Options) (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
+    for fallbackDecl in fallbackDecls do
+      if let .ok kenv := kenv.addDecl opts fallbackDecl then
+        return kenv
+    return kenv
+  /--
+  Axioms to try adding in place of `decl` if it fails to check: one with the given type for
+  def/theorem, otherwise one with type `sorry`.
+  -/
+  fallbackDecls : List Declaration :=
+    let typed := match decl with
+      | .defnDecl d | .thmDecl d =>
+        [.axiomDecl { name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false }]
+      | _ => []
+    typed ++ decl.getNames.map fun n => .axiomDecl {
+      name := n, levelParams := []
+      type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
+    }
 
 /--
 Adds the given declaration to the environment's private scope, deriving a suitable presentation in

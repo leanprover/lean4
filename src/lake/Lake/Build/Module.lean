@@ -1128,6 +1128,8 @@ def Module.buildLean
   mod.clearOutputHashes
   compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
+  if presetup.srcMTime < (← getMTime presetup.srcFile) then
+    error "module changed since build began; rerun the build"
   mod.computeArtifacts setup.isModule presetup.postponeCompile
 
 def  adjustMTime (arts : ModuleOutputArtifacts) (traceFile : FilePath) : JobM ModuleOutputArtifacts := do

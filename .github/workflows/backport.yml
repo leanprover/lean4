@@ -5,22 +5,25 @@ on:
       - closed
       - labeled
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   backport:
     name: Backport
     runs-on: ubuntu-latest
     # Only react to merged PRs for security reasons.
     # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target.
+    # The quote in `'"backport '` anchors the match at the start of a label name.
     if: >
-      github.event.pull_request.merged
-      && (
-        github.event.action == 'closed'
-        || (
-          github.event.action == 'labeled'
-          && contains(github.event.label.name, 'backport')
-        )
+      github.event.pull_request.merged && (
+        github.event.action == 'closed' && contains(toJSON(github.event.pull_request.labels.*.name), '"backport ')
+        || github.event.action == 'labeled' && startsWith(github.event.label.name, 'backport ')
       )
     steps:
-      - uses: tibdex/backport@9565281eda0731b1d20c4025c43339fb0a23812e # v2.0.4
+      # The action fetches the commits it needs itself, so a shallow checkout suffices.
+      - uses: actions/checkout@v6
+      - uses: korthout/backport-action@ad272ff24e4a8593bf18a951a154ae6af93b26b8 # v5.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pull_description: "Backport of #${pull_number} to `${target_branch}`."

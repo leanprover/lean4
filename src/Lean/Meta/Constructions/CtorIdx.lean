@@ -140,4 +140,22 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
       compileDecl decl
       enableRealizationsForConst declName
 
+/--
+Given an expression `e` whose type is an inductive type, returns the constructor index of `e` as an
+expression of type `Nat`. If the inductive type has at most one constructor, returns `nat_lit 0`
+instead of an application of `ctorIdx`.
+-/
+public def Meta.mkCtorIdxApp (e : Expr) : MetaM Expr := do
+  let ty ← whnfD (← inferType e)
+  ty.withApp fun fn args => do
+    let fail := throwError m!"Expected the type of the input of {.ofConstName decl_name%} \
+      to be an inductive application but found{indentExpr ty}"
+    let .const nm us := fn | fail
+    let some indInfo ← isInductive? nm | fail
+    if indInfo.ctors matches [_] | [] then
+      return mkRawNatLit 0
+    unless (← getEnv).contains (mkCtorIdxName nm) do
+      throwError "Error in {.ofConstName decl_name%}, could not find {mkCtorIdxName nm}"
+    return mkAppN (.const (mkCtorIdxName nm) us) args |>.app e
+
 end Lean

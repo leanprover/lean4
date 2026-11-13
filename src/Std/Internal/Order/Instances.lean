@@ -22,9 +22,9 @@ namespace Lean.Order
 
 open PartialOrder
 
-instance [CompleteLattice l] : Std.Refl (α := l) (· ⊑ ·) := ⟨fun _ => rel_refl⟩
-instance [CompleteLattice l] : Trans (· ⊑ · : l → l → Prop) (· ⊑ ·) (· ⊑ ·) := ⟨rel_trans⟩
-instance [CompleteLattice l] : Std.Antisymm (α := l) (· ⊑ ·) := ⟨fun _ _ => rel_antisymm⟩
+instance [PartialOrder l] : Std.Refl (α := l) (· ⊑ ·) := ⟨fun _ => rel_refl⟩
+instance [PartialOrder l] : Trans (· ⊑ · : l → l → Prop) (· ⊑ ·) (· ⊑ ·) := ⟨rel_trans⟩
+instance [PartialOrder l] : Std.Antisymm (α := l) (· ⊑ ·) := ⟨fun _ _ => rel_antisymm⟩
 
 instance [CompleteLattice l] : Std.Commutative (α := l) (· ⊓ ·) := ⟨fun _ _ => meet_comm⟩
 instance [CompleteLattice l] : Std.Commutative (α := l) (· ⊔ ·) := ⟨fun _ _ => join_comm⟩

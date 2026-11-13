@@ -51,7 +51,7 @@ instance EStateM.instWPConjunctive {ε σ α : Type} (x : EStateM ε σ α) : WP
 
 /-- A `StateT` program lifts conjunctivity from its base monad. -/
 instance StateT.instWPConjunctive {m : Type u → Type v} {σ : Type u} {Pred : Type w} {EPosts : Type z}
-    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
     (x : StateT σ m α) [base : ∀ s, WPConjunctive (x.run s)] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     intro s
@@ -65,7 +65,7 @@ instance StateT.instWPConjunctive {m : Type u → Type v} {σ : Type u} {Pred : 
 
 /-- A `ReaderT` program lifts conjunctivity from its base monad. -/
 instance ReaderT.instWPConjunctive {m : Type u → Type v} {ρ : Type u} {Pred : Type w} {EPosts : Type z}
-    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
     (x : ReaderT ρ m α) [base : ∀ r, WPConjunctive (x.run r)] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     intro r
@@ -79,7 +79,7 @@ instance ReaderT.instWPConjunctive {m : Type u → Type v} {ρ : Type u} {Pred :
 
 /-- An `OptionT` program lifts conjunctivity from its base monad. -/
 instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPosts : Type z}
-    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
     (x : OptionT m α) [base : WPConjunctive x.run] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     simp only [WP.trans_apply_eq, OptionT.wp_apply_eq, Prod.snd_meet]
@@ -93,7 +93,7 @@ instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPos
 
 /-- An `ExceptT` program lifts conjunctivity from its base monad. -/
 instance ExceptT.instWPConjunctive {m : Type u → Type v} {ε α : Type u} {Pred : Type w}
-    {EPosts : Type z} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {EPosts : Type z} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
     (x : ExceptT ε m α) [base : WPConjunctive x.run] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     simp only [WP.trans_apply_eq, ExceptT.wp_apply_eq, Prod.snd_meet]

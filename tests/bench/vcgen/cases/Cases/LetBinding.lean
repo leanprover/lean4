@@ -15,13 +15,13 @@ set_option experimental.vcgen true
 -- Partially evaluated specs for best performance.
 
 @[spec high] theorem spec_get_StateT {m : Type u → Type v} {Pred EPosts : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
     {σ : Type u} (post : σ → σ → Pred) (eposts : EPosts) :
     ⦃ fun s => post s s ⦄ (get : StateT σ m σ) ⦃ post; eposts ⦄ := by
   vcgen
 
 @[spec high] theorem spec_set_StateT' {m : Type u → Type v} {Pred EPosts : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
     {σ : Type u} (s : σ) (post : PUnit → σ → Pred) (eposts : EPosts) :
     ⦃ fun _ => post ⟨⟩ s ⦄ (set s : StateT σ m PUnit) ⦃ post; eposts ⦄ := by
   vcgen

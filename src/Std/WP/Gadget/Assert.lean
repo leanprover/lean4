@@ -19,7 +19,7 @@ open Lean Order Std.WP Lean.Order
 namespace Std.WP
 
 universe u v
-variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts]
 
 namespace Gadget
 
@@ -29,7 +29,7 @@ set_option linter.unusedVariables false in
 
 The `as` parameter is the assertion to be checked. At runtime, `assertGadget` is simply
 `pure ⟨⟩`. -/
-def assertGadget [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] (as : Pred) : m PUnit := pure ⟨⟩
+def assertGadget [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] (as : Pred) : m PUnit := pure ⟨⟩
 
 end Gadget
 

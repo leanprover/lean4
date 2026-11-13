@@ -34,8 +34,9 @@ variable {Pred : Type w} {EPosts : Type w'}
 
 /-- A Hoare triple for reasoning about programs. A Hoare triple `Triple x pre post eposts`
 is a *specification* for `x`: if assertion `pre` holds before `x`, then postcondition `post` holds
-after running `x` (and `eposts` handles any errors). -/
-structure Triple {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPosts] (x : Prog) [WP Prog Value Pred EPosts] (pre : Pred) (post : Value → Pred) (eposts : EPosts) : Prop where
+after running `x` (and `eposts` handles any errors). The orders of `Pred` and `EPosts` are the
+orders of the `WP` interpretation. -/
+structure Triple {Prog : Type u} {Value : Type v} {_ : PartialOrder Pred} {_ : PartialOrder EPosts} (x : Prog) [WP Prog Value Pred EPosts] (pre : Pred) (post : Value → Pred) (eposts : EPosts) : Prop where
   /-- Construct a triple from a weakest precondition entailment. -/
   intro ::
   /-- The weakest precondition entailment witnessing the triple. -/
@@ -91,7 +92,7 @@ meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
 
 namespace Triple
 
-variable {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPosts]
+variable {Prog : Type u} {Value : Type v} [PartialOrder Pred] [PartialOrder EPosts]
   [WP Prog Value Pred EPosts]
 
 theorem iff {x : Prog} {pre : Pred} {post : Value → Pred} {eposts : EPosts} :

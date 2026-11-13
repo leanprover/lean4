@@ -53,7 +53,7 @@ instance Id.instWPMonad : WPMonad Id.{u} Prop EStack⟨⟩ where
 /-- `ExceptT`'s `WP` interpretation: lift the base interpretation by adding an exception
 postcondition layer. -/
 instance ExceptT.wpInst {Pred : Type v}
-  [Assertion Pred] [Assertion EPosts] [WP (m (Except ε α)) (Except ε α) Pred EPosts] :
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP (m (Except ε α)) (Except ε α) Pred EPosts] :
     WP (ExceptT ε m α) α Pred ((ε → Pred) × EPosts) where
   trans x := PredTrans.pushExceptT (WP.trans x.run)
   trans_monotone x := fun post post' eposts eposts' heposts hpost => by
@@ -67,7 +67,7 @@ instance ExceptT.wpInst {Pred : Type v}
 
 /-- `ExceptT` lifts a `WPMonad` instance by adding an exception postcondition layer. -/
 instance ExceptT.instWPMonad {Pred : Type v}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] :
     WPMonad (ExceptT ε m) Pred ((ε → Pred) × EPosts) where
   toWP _ := inferInstance
   pure_le_wp_pure x := fun post eposts =>
@@ -84,14 +84,14 @@ instance ExceptT.instWPMonad {Pred : Type v}
 
 @[simp, grind =]
 theorem ExceptT.wp_apply_eq {α ε Pred EPosts}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] (x : ExceptT ε m α)
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] (x : ExceptT ε m α)
   (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     wp x post eposts = wp x.run (pushExcept post eposts.fst) eposts.snd := rfl
 
 /-- `OptionT`'s `WP` interpretation: lift the base interpretation by adding a `Unit` exception
 postcondition layer. -/
 instance OptionT.wpInst {Pred : Type u}
-  [Assertion Pred] [Assertion EPosts] [WP (m (Option α)) (Option α) Pred EPosts] :
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP (m (Option α)) (Option α) Pred EPosts] :
     WP (OptionT m α) α Pred ((Unit → Pred) × EPosts) where
   trans x := PredTrans.pushOptionT (WP.trans x.run)
   trans_monotone x := fun post post' eposts eposts' heposts hpost => by
@@ -104,7 +104,7 @@ instance OptionT.wpInst {Pred : Type u}
 
 /-- `OptionT` lifts a `WPMonad` instance by adding a `Unit` exception postcondition layer. -/
 instance OptionT.instWPMonad {Pred : Type u}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] :
     WPMonad (OptionT m) Pred ((Unit → Pred) × EPosts) where
   toWP _ := inferInstance
   pure_le_wp_pure x := fun post eposts =>
@@ -121,13 +121,13 @@ instance OptionT.instWPMonad {Pred : Type u}
 
 @[simp, grind =]
 theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPosts}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] (x : OptionT m α)
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] (x : OptionT m α)
   (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     wp x post eposts = wp x.run (pushOption post eposts.fst) eposts.snd := rfl
 
 /-- `StateT`'s `WP` interpretation: lift the base interpretation by adding a state argument. -/
 instance StateT.wpInst {EPosts : Type v} {σ : Type u} {Pred : Type w}
-  [Assertion Pred] [Assertion EPosts] [WP (m (α × σ)) (α × σ) Pred EPosts] :
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP (m (α × σ)) (α × σ) Pred EPosts] :
     WP (StateT σ m α) α (σ → Pred) EPosts where
   trans x := PredTrans.pushArg (WP.trans <| x.run ·)
   trans_monotone x := fun post post' eposts eposts' heposts hpost s => by
@@ -138,7 +138,7 @@ instance StateT.wpInst {EPosts : Type v} {σ : Type u} {Pred : Type w}
 
 /-- `StateT` lifts a `WPMonad` instance by adding a state argument. -/
 instance (priority := low) StateT.instWPMonad {EPosts : Type v} {σ : Type u} {Pred : Type w}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] :
     WPMonad (StateT σ m) (σ → Pred) EPosts where
   toWP _ := inferInstance
   pure_le_wp_pure x := fun post eposts s =>
@@ -148,13 +148,13 @@ instance (priority := low) StateT.instWPMonad {EPosts : Type v} {σ : Type u} {P
 
 @[simp, grind =]
 theorem StateT.wp_apply_eq {σ : Type u}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] (x : StateT σ m α)
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] (x : StateT σ m α)
   (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
     wp x post eposts s = wp (x.run s) (fun (a, s) => post a s) eposts := rfl
 
 /-- `ReaderT`'s `WP` interpretation: lift the base interpretation by adding a reader argument. -/
 instance ReaderT.wpInst {Pred : Type v}
-  [Assertion Pred] [Assertion EPosts] [WP (m α) α Pred EPosts] :
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP (m α) α Pred EPosts] :
     WP (ReaderT ρ m α) α (ρ → Pred) EPosts where
   trans x := ⟨fun post eposts r => wp (x.run r) (fun a => post a r) eposts⟩
   trans_monotone x := fun post post' eposts eposts' heposts hpost r => by
@@ -165,7 +165,7 @@ instance ReaderT.wpInst {Pred : Type v}
 
 /-- `ReaderT` lifts a `WPMonad` instance by adding a reader argument. -/
 instance ReaderT.instWPMonad {Pred : Type v}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] :
     WPMonad (ReaderT ρ m) (ρ → Pred) EPosts where
   toWP _ := inferInstance
   pure_le_wp_pure x := fun post eposts r =>
@@ -178,7 +178,7 @@ instance ReaderT.instWPMonad {Pred : Type v}
 
 @[simp, grind =]
 theorem ReaderT.wp_apply_eq {ρ : Type u}
-  [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] (x : ReaderT ρ m α)
+  [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [WPMonad m Pred EPosts] (x : ReaderT ρ m α)
   (post : α → ρ → Pred) (eposts : EPosts) (r : ρ) :
     wp x post eposts r = wp (x.run r) (fun a => post a r) eposts := rfl
 

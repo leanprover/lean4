@@ -219,7 +219,7 @@ instance: CoeFun TraceProp (fun _ => { tr: ProofTrace // tr.Invariant } → Prop
   coe x := x.val
 
 public
-instance: Assertion TraceProp where
+instance : CompleteLattice TraceProp where
   rel p1 p2 := ∀ tr, p1 tr → p2 tr
   rel_refl := by grind
   rel_trans := by grind

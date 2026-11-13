@@ -36,7 +36,7 @@ instance : LawfulMonad Stateful :=
     (bind_assoc := by intro _ _ _ x f g; simp only [bind]; funext; grind)
 
 /-- A dependent assertion language: the postcondition `Prop` may depend on a proof about the state.
-An `abbrev`, so the carrier unfolds to the dependent Pi and `Assertion`/`PartialOrder` are the generic
+An `abbrev`, so the carrier unfolds to the dependent Pi and `CompleteLattice`/`PartialOrder` are the generic
 pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 

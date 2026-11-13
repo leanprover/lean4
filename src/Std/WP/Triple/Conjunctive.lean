@@ -30,7 +30,7 @@ namespace Triple
 
 universe u u' v v' w w'
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type w'}
-  [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
+  [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
 
 /--
 Conjunction of two Hoare triple specifications for a program `x`. This theorem decomposes proofs:

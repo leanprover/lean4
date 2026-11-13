@@ -31,7 +31,7 @@ below the weakest precondition of the componentwise meet of the postconditions. 
 condition of the `WP` interpretation for the individual program `x`; it holds for the base
 interpretations and lifts through the transformers. -/
 class WPConjunctive {Prog : Type u} {Value : outParam (Type v)} {Pred : outParam (Type w)}
-    {EPosts : outParam (Type z)} [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
+    {EPosts : outParam (Type z)} [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
     (x : Prog) : Prop where
   /-- The meet of the weakest preconditions `wp x Q₁ E₁` and `wp x Q₂ E₂` lies below the weakest
   precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of the postconditions. -/

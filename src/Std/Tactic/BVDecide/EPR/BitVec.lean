@@ -73,11 +73,63 @@ theorem toBvAux_lt_ofNatLT_length_of_mem {w : Nat} {elems : List α}
   simp only [BitVec.lt_def, BitVec.toNat_ofNatLT]
   exact List.idxOf_lt_length_of_mem hx
 
+/--
+This is the bound used for the BitVec representation of each sort element to achieve a basic, sound
+encoding. Every element is bound by the overall size of its sort.
+-/
 public theorem toBvAux_lt_ofNat_length_of_mem {α : Type u} {w : Nat} {elems : List α}
     (h : elems.length < 2 ^ w) {x : α} (hx : x ∈ elems) :
     toBvAux elems h x < BitVec.ofNat w elems.length := by
   have := toBvAux_lt_ofNatLT_length_of_mem h hx
   simpa [BitVec.ofNatLT_eq_ofNat] using this
+
+open Classical in
+/--
+Instead of bounding each element by the overall size of the sort we can use the first half of
+Paradox style symmetry breaking by saying:
+```
+α₀ ≤ 0
+α₁ ≤ 1
+α₂ ≤ 2
+...
+```
+-/
+public theorem toBvAux_le_ofNat_of_getElem_eq {α : Type u} {w : Nat} {elems : List α}
+    (h : elems.length < 2 ^ w) {x : α} {i : Nat} (hi : i < elems.length) (hx : elems[i] = x) :
+    toBvAux elems h x ≤ BitVec.ofNat w i := by
+  have hi' : i < 2 ^ w := Nat.lt_trans hi h
+  simp only [BitVec.le_def, toBvAux, BitVec.toNat_ofNatLT, BitVec.toNat_ofNat, Nat.mod_eq_of_lt hi']
+  subst hx
+  apply Classical.byContradiction
+  intro hc
+  have hlt : i < elems.idxOf elems[i] := Nat.lt_of_not_le hc
+  have := List.not_of_lt_findIdx hlt
+  simp at this
+
+open Classical in
+/--
+As an additional level of symmetry breaking we can say that given a sort represented as a list
+`[α₀, α₁, ...]` if `αᵢ` is not at index `i` (i.e. equal to some `αₙ` for `n  < i`) then no sort
+member can have the BitVec representation `i`.
+-/
+public theorem toBvAux_ne_of_toBvAux_lt {α : Type u} {w : Nat} {elems : List α}
+    (h : elems.length < 2 ^ w)
+    {x : α} {i : Nat} (hi : i < elems.length) (hx : elems[i] = x) (y : α) :
+    toBvAux elems h x < BitVec.ofNat w i → toBvAux elems h y ≠ BitVec.ofNat w i := by
+  intro h1 h2
+  have hi' : i < 2 ^ w := Nat.lt_trans hi h
+  simp only [BitVec.lt_def, ← BitVec.toNat_inj, toBvAux, BitVec.toNat_ofNatLT, BitVec.toNat_ofNat,
+    Nat.mod_eq_of_lt hi'] at h1 h2
+  have hy' : y ∈ elems := by
+    apply Classical.byContradiction
+    intro hn
+    rw [List.idxOf_eq_length hn] at h2
+    exact Nat.lt_irrefl _ (h2 ▸ hi)
+  have e := List.getElem_idxOf (List.idxOf_lt_length_of_mem hy')
+  simp only [h2] at e
+  have hxy : x = y := hx.symm.trans e
+  subst hxy
+  exact Nat.ne_of_lt h1 h2
 
 public theorem mem_iff_toBvAux_mem_map_toBvAux {α : Type u} {w : Nat} (elems : List α)
     (h1 : elems.length < 2 ^ w) (x : α) :

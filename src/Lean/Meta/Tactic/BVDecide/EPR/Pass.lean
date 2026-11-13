@@ -320,20 +320,22 @@ def traceProblem (problem : EprProblem) : MetaM Unit := do
     for fact in problem.quantifiedFacts do
       trace[Meta.Tactic.bv.epr] m!"quantified fact {fact.boundSorts.map (·.idx)} : {fact.hyp.type}"
 
-def detectAndEncode (g : MVarId) (hyps : Array Hyp) :
+def detectAndEncode (g : MVarId) (hyps : Array Hyp) (symBreak : Elab.Tactic.BVDecide.EprSymBreak) :
     Sym.SymM (Option (Array Hyp × EprBvProblem)) := g.withContext do
   let { problem, remainingHyps } ← detectEprProblem hyps
   if problem.groundFacts.isEmpty && problem.quantifiedFacts.isEmpty then return none
   traceProblem problem
   -- TODO: Pre-Processing here.
-  let bvProblem ← epr2BitVec problem g
+  let bvProblem ← epr2BitVec problem g symBreak
   return some (remainingHyps, bvProblem)
 
 public def eprDetectPass : Pass where
   name := `eprDetectPass
   run' := do
     let g ← PreProcessM.getTargetMVarId
-    let some (remainingHyps, bvProblem) ← detectAndEncode g (← PreProcessM.getHyps) | return false
+    let symBreak := (← PreProcessM.getConfig).eprSymBreak
+    let some (remainingHyps, bvProblem) ← detectAndEncode g (← PreProcessM.getHyps) symBreak
+      | return false
     modify fun s => { s with hypotheses := remainingHyps, eprBvProblem := bvProblem }
     PreProcessM.addHyps bvProblem.groundFacts
     return false

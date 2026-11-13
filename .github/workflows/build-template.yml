@@ -346,6 +346,11 @@ jobs:
           fi
           # Require Beam in the package test only when this job explicitly builds it.
           echo 'LEAN_BEAM_REQUIRED=1' >> "$GITHUB_ENV"
+          # Beam's C sources need libc headers, which the toolchain does not bundle; use those of the
+          # glibc we link against instead of the runner's `/usr/include`, which NixOS runners lack
+          if [[ -n "${GLIBC_DEV:-}" ]]; then
+            export C_INCLUDE_PATH="$GLIBC_DEV/include"
+          fi
           make -C build/$TARGET_STAGE lean-beam
       - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm

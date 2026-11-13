@@ -106,17 +106,18 @@ def constsResolve (fe : FEnv) (e : Expr) : Bool :=
     | _ => false) e
 
 /-- Twin of the syntactic gates of `checkConstantValC`/`checkDefnValCI` on
-one term: closed, no free variable or metavariable, its level parameters
+one term (its context message, `pre` then the name, is built only on the
+error path): closed, no free variable or metavariable, its level parameters
 declared, its constants resolving. -/
-def checkTermWF (fe : FEnv) (what : String) (lps : List Name) (e : Expr) : CheckCM Unit := do
-  if e.hasLooseBVars then throw (.invalid s!"loose bound variable in {what}")
-  if e.hasFVar then throw (.invalid s!"unexpected free variable in {what}")
-  if e.hasMVar then throw (.invalid s!"unexpected metavariable in {what}")
+def checkTermWF (fe : FEnv) (pre : String) (n : Name) (lps : List Name) (e : Expr) : CheckCM Unit := do
+  if e.hasLooseBVars then throw (.invalid s!"loose bound variable in {pre}{n}")
+  if e.hasFVar then throw (.invalid s!"unexpected free variable in {pre}{n}")
+  if e.hasMVar then throw (.invalid s!"unexpected metavariable in {pre}{n}")
   if e.hasLevelParam then
     unless (EO.levelParams e).all lps.contains do
-      throw (.invalid s!"undeclared universe parameter in {what}")
+      throw (.invalid s!"undeclared universe parameter in {pre}{n}")
   unless constsResolve fe e do
-    throw (unresolvedConstsErrorL fe (strLitStoredF fe) what e)
+    throw (unresolvedConstsErrorL fe (strLitStoredF fe) s!"{pre}{n}" e)
 
 /-! ## The literal names' shapes (twin of `litShapeOk`) -/
 
@@ -172,14 +173,14 @@ def checkConstantValC (fe : FEnv) (cv : ConstantVal) (allowOp : Bool := false) :
     throw (.notImplemented s!"a declaration at a literal's name with another shape ({cv.name})")
   unless namesNodup cv.levelParams do
     throw (.invalid s!"duplicate universe parameters in {cv.name}")
-  checkTermWF fe s!"type of {cv.name}" cv.levelParams cv.type
+  checkTermWF fe "type of " cv.name cv.levelParams cv.type
   let stype ← opInfer mode fe 0 cv.type
   let _u ← opSort mode fe 0 stype
 
 /-- Twin of the value half of `checkDefnValCI`/`checkThmValCI`/`checkOpaqueValCI`. -/
 def checkValueC (fe : FEnv) (kind : String) (n : Name) (lps : List Name) (ty v : Expr) :
     CheckCM Unit := do
-  checkTermWF fe s!"value of {n}" lps v
+  checkTermWF fe "value of " n lps v
   let vt ← opInfer mode fe 0 v
   unless ← opDefeq mode fe 0 vt ty do throw (.invalid s!"type mismatch in {kind} {n}")
 

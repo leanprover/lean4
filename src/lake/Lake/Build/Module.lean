@@ -755,31 +755,6 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
 public def Module.setupFacetConfig : ModuleFacetConfig setupFacet :=
   mkFacetJobConfig (buildable := false) recFetchSetup
 
-/-- Remove all existing artifacts produced by a Lean build of the module. -/
-public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
-  try
-    removeFileIfExists mod.ltarFile
-    removeFileIfExists mod.oleanFile
-    removeFileIfExists mod.oleanServerFile
-    removeFileIfExists mod.oleanPrivateFile
-    removeFileIfExists mod.ileanFile
-    removeFileIfExists mod.irSigFile
-    removeFileIfExists mod.irFile
-    removeFileIfExists mod.cFile
-    removeFileIfExists mod.bcFile
-  catch e =>
-    error s!"failed to remove output artifacts: {e}"
-
-/-- Remove all existing artifacts produced by a `leanir` build of the module. -/
-public def Module.clearIROutputArtifacts (mod : Module) : IO PUnit := do
-  try
-    removeFileIfExists mod.ltarFile
-    removeFileIfExists mod.irSigFile
-    removeFileIfExists mod.irFile
-    removeFileIfExists mod.cFile
-  catch e =>
-    error s!"failed to remove IR output artifacts: {e}"
-
 /-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
 public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
   try
@@ -795,6 +770,25 @@ public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
   catch e =>
     error s!"failed to remove output hashes: {e}"
 
+/-- Remove all existing artifacts produced by a Lean build of the module. -/
+public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
+  try
+    removeFileIfExists mod.ltarFile
+    removeFileIfExists mod.oleanFile
+    removeFileIfExists mod.oleanServerFile
+    removeFileIfExists mod.oleanPrivateFile
+    removeFileIfExists mod.ileanFile
+    removeFileIfExists mod.irSigFile
+    removeFileIfExists mod.irFile
+    removeFileIfExists mod.cFile
+    removeFileIfExists mod.bcFile
+  catch e =>
+    error s!"failed to remove output artifacts: {e}"
+  finally
+    -- Done after deleting the corresponding artifacts,
+    -- so that a racing process does not recreate them in-between.
+    mod.clearOutputHashes
+
 /-- Remove any cached file hashes of the module IR build outputs (in `.hash` files). -/
 public def Module.clearIROutputHashes (mod : Module) : IO PUnit := do
   try
@@ -805,10 +799,21 @@ public def Module.clearIROutputHashes (mod : Module) : IO PUnit := do
   catch e =>
     error s!"failed to remove IR output hashes: {e}"
 
+/-- Remove all existing artifacts produced by a `leanir` build of the module. -/
+public def Module.clearIROutputArtifacts (mod : Module) : IO PUnit := do
+  try
+    removeFileIfExists mod.ltarFile
+    removeFileIfExists mod.irSigFile
+    removeFileIfExists mod.irFile
+    removeFileIfExists mod.cFile
+  catch e =>
+    error s!"failed to remove IR output artifacts: {e}"
+  finally
+    -- Ordered as in `clearOutputArtifacts`
+    mod.clearIROutputHashes
+
 /-- Cache the file hashes of the module build outputs in `.hash` files. -/
 public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
-  -- Hashes on not conditional on module metadata (e.g., `isModule`).
-  -- Lake will determine which files to use (and which to delete) as part of the build proccess.
   try
     cacheFileHashIfExists mod.ltarFile
     cacheFileHashIfExists mod.oleanFile
@@ -1125,7 +1130,6 @@ def Module.buildLean
   let setup ← mkModuleSetup mod presetup
   let arts := mod.mkArtifacts presetup.srcFile presetup.isModule
   mod.clearOutputArtifacts
-  mod.clearOutputHashes
   compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
   mod.computeArtifacts setup.isModule presetup.postponeCompile
@@ -1331,7 +1335,6 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
       let irSetup ← mkModuleSetup mod presetup
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
       mod.clearIROutputArtifacts
-      mod.clearIROutputHashes
       compileLeanIR mod.irSetupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
     let arts ← mod.computeIRArtifacts elabArts upToDate
     let arts ← adjustMTime arts mod.irTraceFile

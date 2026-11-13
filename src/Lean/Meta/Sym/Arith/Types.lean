@@ -150,6 +150,33 @@ structure Order where
   ltFn?              : Option Expr
   deriving Inhabited
 
+/--
+Classification state for a type with a `Grind.IntModule` or `Grind.NatModule` instance, used by
+additive normalization (`Sym.Arith.normalizeAdd?`). The operators are the canonical ones, checked
+against the module's structure when the type is classified.
+-/
+structure Module where
+  id         : Nat
+  type       : Expr
+  /-- Cached `getDecLevel type` -/
+  u          : Level
+  /-- `true` for an `IntModule`, `false` for a `NatModule`. -/
+  integers   : Bool
+  /-- The `IntModule` instance if `integers`, the `NatModule` instance otherwise. -/
+  inst       : Expr
+  addFn      : Expr
+  /-- `HSMul.hSMul Nat type type inst` -/
+  natSMulFn  : Expr
+  /-- `OfNat.ofNat type 0 inst` -/
+  zeroNum    : Expr
+  /-- `Zero.zero type inst` -/
+  zeroFn     : Expr
+  subFn?     : Option Expr := none
+  negFn?     : Option Expr := none
+  /-- `HSMul.hSMul Int type type inst` -/
+  intSMulFn? : Option Expr := none
+  deriving Inhabited
+
 /-- Arith type classification state, stored as a `SymExtension`. -/
 structure State where
   /--
@@ -171,6 +198,10 @@ structure State where
   orders         : Array Order := {}
   /-- Mapping from types to their order id. Caches failures as `none`. -/
   typeOrderClassify : PHashMap ExprPtr (Option Nat) := {}
+  /-- Module structures. -/
+  modules        : Array Module := {}
+  /-- Mapping from types to their module id. Caches failures as `none`. -/
+  typeModuleClassify : PHashMap ExprPtr (Option Nat) := {}
   deriving Inhabited
 
 builtin_initialize arithExt : SymExtension State ← registerSymExtension (return {})

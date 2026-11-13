@@ -93,6 +93,35 @@ private def mkSMulFn (u : Level) (type : Expr) (scalar : Expr) (expectedSMulInst
     | some inst => checkInst ``HSMul.hSMul inst inst'; pure inst
   canonExpr <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) scalar type type inst
 
+/--
+The canonical operators of the module `type` with the `IntModule` (`integers`) or `NatModule`
+instance `inst`, each checked against the module's structure; the `id` field is left as `0`.
+-/
+def mkModule (type : Expr) (u : Level) (inst : Expr) (integers : Bool) : m Module := do
+  let natInst := if integers then mkApp2 (mkConst ``Grind.IntModule.toNatModule [u]) type inst else inst
+  let monoid := mkApp2 (mkConst ``Grind.NatModule.toAddCommMonoid [u]) type natInst
+  let addFn ← mkBinHomoFn type u ``HAdd ``HAdd.hAdd <|
+    mkApp2 (mkConst ``instHAdd [u]) type (mkApp2 (mkConst ``Grind.AddCommMonoid.toAdd [u]) type monoid)
+  let natSMulFn ← mkSMulFn u type Nat.mkType (mkApp2 (mkConst ``Grind.NatModule.nsmul [u]) type natInst)
+  let zeroInst' := mkApp2 (mkConst ``Grind.AddCommMonoid.toZero [u]) type monoid
+  let zeroInst ← match (← MonadCanon.synthInstance? (mkApp (mkConst ``Zero [u]) type)) with
+    | none => pure zeroInst'
+    | some inst => checkInst ``Zero.zero inst zeroInst'; pure inst
+  let zeroFn ← canonExpr <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+  let ofNatInst' := mkApp2 (mkConst ``Zero.toOfNat0 [u]) type zeroInst
+  let ofNatInst ← match (← MonadCanon.synthInstance? (mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0))) with
+    | none => pure ofNatInst'
+    | some inst => checkInst ``OfNat.ofNat inst ofNatInst'; pure inst
+  let zeroNum ← canonExpr <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatInst
+  let mod : Module := { id := 0, type, u, integers, inst, addFn, natSMulFn, zeroNum, zeroFn }
+  unless integers do return mod
+  let group := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type inst
+  let subFn ← mkBinHomoFn type u ``HSub ``HSub.hSub <|
+    mkApp2 (mkConst ``instHSub [u]) type (mkApp2 (mkConst ``Grind.AddCommGroup.toSub [u]) type group)
+  let negFn ← mkUnaryFn type u ``Neg ``Neg.neg (mkApp2 (mkConst ``Grind.AddCommGroup.toNeg [u]) type group)
+  let intSMulFn ← mkSMulFn u type Int.mkType (mkApp2 (mkConst ``Grind.IntModule.zsmul [u]) type inst)
+  return { mod with subFn? := some subFn, negFn? := some negFn, intSMulFn? := some intSMulFn }
+
 section RingFns
 variable [MonadRing m]
 

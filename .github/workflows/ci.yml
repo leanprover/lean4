@@ -299,6 +299,8 @@ jobs:
                 "upload": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
+                // Cheap enough to build and test on every run, not only releases
+                "lean-beam": true,
                 // Done as part of test-bench
                 //"check-stage3": level >= 2,
                 "test": true,

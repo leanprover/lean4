@@ -339,7 +339,7 @@ jobs:
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche
       - name: Build lean-beam
-        if: matrix.release && !matrix.wasm && runner.os != 'Windows'
+        if: (matrix.release || matrix.lean-beam) && !matrix.wasm && runner.os != 'Windows'
         run: |
           if [ -d build/elan/bin ]; then
             echo "$PWD/build/elan/bin" >> "$GITHUB_PATH"

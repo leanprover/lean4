@@ -52,6 +52,8 @@ instance : CompleteLattice Thrown where
       ⟨fun hq p hp => (hsup q.onThrow).mp hq p.onThrow hp,
        fun h => (hsup q.onThrow).mpr fun f hf => h ⟨f⟩ hf⟩⟩
 
+instance : Assertion Thrown where
+
 instance : ToEStack Thrown EStack⟨String → Prop⟩ where
   toEStack t := estack⟨t.onThrow⟩
   le_of_toEStack_le h := h.1

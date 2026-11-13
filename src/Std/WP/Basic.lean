@@ -196,4 +196,23 @@ theorem wp_le_wp_of_eq {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts 
     wp y post eposts ⊑ wp x post eposts := by
   subst h; exact PartialOrder.rel_refl
 
+/-! `Prop` entailment rules, stated over the `Assertion Prop` lattice. -/
+
+namespace Assertion
+
+theorem le_of_imp_top_le (x y : Prop) : (x → (⊤ : Prop) ⊑ y) → x ⊑ y :=
+  Lean.Order.le_of_imp_top_le x y
+
+theorem top_le_prop (x : Prop) : x → (⊤ : Prop) ⊑ x :=
+  Lean.Order.top_le_prop x
+
+theorem true_le_of_top_le (x : Prop) : ((⊤ : Prop) ⊑ x) → (True : Prop) ⊑ x :=
+  Lean.Order.true_le_of_top_le x
+
+theorem le_forall {β : Sort u} (p : Prop) (q : β → Prop) (h : ∀ x, p ⊑ q x) :
+    p ⊑ (∀ x, q x) :=
+  Lean.Order.le_forall p q h
+
+end Assertion
+
 end Std.WP

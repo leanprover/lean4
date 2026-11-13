@@ -72,16 +72,17 @@ at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
-read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
-def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
-  let mut inst := instCL
+read off the assertion instance `instAL` of `Pred`, which nests one `instAssertionForall` per state.
+The result is `Assertion.toCompleteLattice B instB`, the lattice instance of every elaborated `⌜·⌝`
+at `B`. -/
+def baseInstance? (instAL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
+  let mut inst := instAL
   for s in ss do
-    let_expr instCompleteLatticePi _ _ f := inst | return none
+    let_expr Std.WP.instAssertionForall _ _ f := inst | return none
     inst ← betaS f #[s]
-  -- The goals of `vcgen` state `⌜·⌝` with `c`, not with `Assertion.toCompleteLattice (.mk c)`.
-  let_expr Std.WP.Assertion.toCompleteLattice _ a := inst | return some inst
-  let_expr Std.WP.Assertion.mk _ c := a | return some inst
-  return some c
+  let instTy ← Sym.inferType inst
+  let_expr Std.WP.Assertion B := instTy | return none
+  mkAppNS (← mkConstS ``Std.WP.Assertion.toCompleteLattice instTy.getAppFn.constLevels!) #[B, inst]
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
@@ -98,13 +99,6 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
   let jpFVar ← mkFVarS jp
   let jpTy ← Sym.inferType jpFVar
   let numParams ← Lean.Elab.Tactic.Do.getNumJoinParams jpTy info.Prog
-  -- `Assertion` is a class abbreviation: `instAL` is `Assertion.mk instCL`, where `instCL` is the
-  -- lattice instance of every elaborated `⌜·⌝`, or it is a local instance.
-  let instCL ← match_expr info.instAL with
-    | Std.WP.Assertion.mk _ instCL => pure instCL
-    | _ =>
-      let lvls := (← Sym.inferType info.instAL).getAppFn.constLevels!
-      mkAppNS (← mkConstS ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let some (hyp, top, specTy, rhsTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
@@ -112,7 +106,7 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     let xs ← xs.mapM (share ·)
     let ss ← ss.mapM (share ·)
     let B ← share B
-    let some instB ← baseInstance? instCL ss | return none
+    let some instB ← baseInstance? info.instAL ss | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
     let top ← mkAppNS (← mkConstS ``Lean.Order.top [u]) #[B, instB]
     let hyp ← share (← mkFreshExprMVarAt lctx localInsts

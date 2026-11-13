@@ -69,7 +69,8 @@ inductive Deadline where
   | linger
 
   /--
-  Written bytes have to be confirmed; the connection is dropped.
+  A write has to complete within `writeTimeout` of the last one that did, or of the first one not
+  yet confirmed; the connection is dropped.
   -/
   | write
 
@@ -102,6 +103,11 @@ inductive Input where
   A write failed.
   -/
   | writeFailed (err : IO.Error)
+
+  /--
+  A write completed at `time` (monotonic milliseconds), while later writes may still be in flight.
+  -/
+  | writeProgress (time : Nat)
 
   /--
   The handler returned a response with head `head` and body length `size`, if known. `data` holds
@@ -276,7 +282,7 @@ structure State where
   wait : Option (Deadline × Nat) := none
 
   /--
-  When the unconfirmed writes have to be confirmed.
+  When the connection is dropped unless a write completes first (`Input.writeProgress`).
   -/
   writeDeadline : Option Nat := none
 
@@ -466,6 +472,12 @@ private def timeOut (s : State) : State × Array Command :=
     #[.report (.userError "request header timeout")])
 
 /--
+Restarts the write deadline, if one runs, from a write that completed at `time`.
+-/
+private def progressWrites (cfg : Http.Config) (s : State) (time : Nat) : State :=
+  { s with writeDeadline := s.writeDeadline.map (max · (time + ms cfg.writeTimeout)) }
+
+/--
 Why a connection whose writes stayed unconfirmed is dropped.
 -/
 private def writeTimedOut (cfg : Http.Config) : IO.Error :=
@@ -500,6 +512,8 @@ private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → Option
     else
       some ({ s with unwritten := 0, writeDeadline := none }, #[])
   | .writeFailed err => some (finish cfg s now false #[.report err])
+  | .writeProgress time =>
+    if s.writeDeadline.isNone then none else some (progressWrites cfg s time, #[])
   | .responded head size data ended =>
     if !s.handlerRunning then none else some (respond s head size data ended)
   | .handlerFailed err =>
@@ -666,6 +680,7 @@ def step (cfg : Http.Config) (s : State) (now : Nat) (input : Input) : State × 
     match input with
     | .written => closeNow s true #[]
     | .writeFailed err => closeNow s false #[.report err]
+    | .writeProgress time => (progressWrites cfg s time, #[])
     | .deadline .write =>
       if due s now .write then closeNow s false #[.report (writeTimedOut cfg)] else (s, #[])
     | _ => (s, #[])

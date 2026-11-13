@@ -1197,6 +1197,30 @@ private def minimalGetRequest : Request.Head :=
     |>.assertOutputNotContains "103" "a 1xx response must not reach an HTTP/1.0 client"
     |>.assertOutputStartsWith "HTTP/1.1 200" "expected the final response first" |>.run
 
+  -- RFC 9110 §15.2: `101 Switching Protocols` is a 1xx response too
+  MachineTester.receiving "§15.2: 101 is not sent to an HTTP/1.0 client"
+    |>.feed (mkGet10 "/") |>.step
+    |>.send { status := .switchingProtocols } |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertOutputNotContains "101" "a 1xx response must not reach an HTTP/1.0 client"
+    |>.assertOutputStartsWith "HTTP/1.1 200" "expected the final response first" |>.run
+
+  -- RFC 9110 §15.2.2: after a 101 the connection speaks the protocol it switched to, which this
+  -- server does not, so the connection ends with the 101 and what follows is not read as HTTP
+  MachineTester.receiving "§15.2.2: a 101 ends HTTP on the connection"
+    |>.feed ("GET /chat HTTP/1.1\r\nHost: example.com\r\n" ++
+      "Connection: Upgrade\r\nUpgrade: websocket\r\n\r\n")
+    |>.step
+    |>.send { status := .switchingProtocols,
+              headers := Headers.empty.insert! "Upgrade" "websocket"
+                |>.insert! "Connection" "Upgrade" }
+    |>.feedBytes (ByteArray.mk #[0x81, 0x02, 0x68, 0x69])
+    |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 101 Switching Protocols\r\n" "expected the 101"
+    |>.assertOutputNotContains "Content-Length" "a 101 has no framing fields"
+    |>.assertOutputNotContains "HTTP/1.1 400" "what follows a 101 must not be read as a request"
+    |>.assertNoError |>.assertHalted |>.run
+
   -- RFC 9110 §6.2: a server sends the highest version it conforms to whose major version is at most
   -- the request's, so an HTTP/1.0 request gets an HTTP/1.1 status line with HTTP/1.0 framing
   MachineTester.receiving "§6.2: HTTP/1.0 request → HTTP/1.1 status line, connection-close framing"

@@ -170,6 +170,11 @@ private structure Live (β : Type) where
   -/
   dateUntil : Nat := 0
 
+  /--
+  The last write completion reported to the driver (`Outbox.completedAt`).
+  -/
+  completedSeen : Nat := 0
+
 /--
 Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and
 cleanup still run.
@@ -193,10 +198,10 @@ private def refreshDate (config : Config) (now : Nat) (s : Driver.State) (live :
 
 /--
 Turns the handler's result into an input, keeping the response body to pull from. The body chunks
-available at once go with the head, so a small response goes out in one write: one chunk, and the
-end too for a body of known length, which cannot change its framing. Taking more could let a
-producer close a body of unknown length before its head is written, which would give it a fixed
-length.
+available at once go with the head, so a small response goes out in one write: one chunk, and for a
+body of known length, which cannot change its framing, the next chunk or the end. Taking more could
+let a producer close a body of unknown length before its head is written, which would give it a
+fixed length.
 -/
 private def responded [Body β] (result : Except IO.Error (Response β)) (live : Live β) :
     Async (Driver.Input × Live β) := do
@@ -213,7 +218,8 @@ private def responded [Body β] (result : Except IO.Error (Response β)) (live :
         if size matches some (.fixed _) then
           match ← Body.tryRecv res.body with
           | some none => return (.responded res.line size #[chunk] true, live)
-          | _ => return (.responded res.line size #[chunk] false, live)
+          | some (some next) => return (.responded res.line size #[chunk, next] false, live)
+          | none => return (.responded res.line size #[chunk] false, live)
         else
           return (.responded res.line size #[chunk] false, live)
     catch err =>
@@ -237,6 +243,20 @@ private def writesInput (outbox : Outbox α) : BaseIO Driver.Input := do
   match ← outbox.error? with
   | some err => return .writeFailed err
   | none => return .written
+
+/--
+The input for a deadline of kind `kind` that passed. Only the outbox knows when a write last
+completed, so a completion the driver has not heard of is reported first, as `writeProgress`, which
+restarts the write deadline.
+-/
+private def deadlineInput (outbox : Outbox α) (live : Live β) :
+    Driver.Deadline → BaseIO (Driver.Input × Live β)
+  | .write => do
+    let completedAt ← outbox.completedAt
+    if completedAt > live.completedSeen then
+      return (.writeProgress completedAt, { live with completedSeen := completedAt })
+    return (.deadline .write, live)
+  | kind => return (.deadline kind, live)
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still
@@ -325,6 +345,7 @@ private def wake
     {σ : Type} [Handler σ] [Body (Handler.ResponseBody σ)]
     (env : Env σ α (Handler.ResponseBody σ)) (live : Live (Handler.ResponseBody σ)) :
     Woke (Handler.ResponseBody σ) → Async (Driver.Input × Live (Handler.ResponseBody σ))
+  | .input (.deadline kind) => return (← deadlineInput env.outbox live kind)
   | .input input => return (input, live)
   | .writes => return (← writesInput env.outbox, live)
   | .cancelled => do
@@ -356,7 +377,7 @@ private def waitInput
   let deadline := Driver.nextDeadline s
   if let some (kind, time) := deadline then
     if time ≤ now then
-      return (.deadline kind, live)
+      return (← deadlineInput env.outbox live kind)
 
   -- A response chunk that is already there is taken without a select.
   let pullsResponse := Driver.pullsResponse s

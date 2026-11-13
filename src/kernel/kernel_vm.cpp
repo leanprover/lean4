@@ -29,7 +29,7 @@ static size_t const KVM_NUM_REGS = 1 << 16;
 
 enum class binop : uint8 {
     add, sub, mul, udiv, umod, band, bor, bxor, shl, shr, eq, ult, ule, slt, sle,
-    sadd, ssub, smul, sdiv, smod, count
+    sadd, ssub, smul, sdiv, smod, umulh, count
 };
 
 /* A decoded instruction, see `Lean.KernelVM.Instr`. */
@@ -178,6 +178,7 @@ class kernel_vm {
             // `INT64_MIN / -1 = 2^63` does not fit.
             if (sa == std::numeric_limits<int64>::min() && sb == -1) return false;
             r = static_cast<uint64>(ediv(sa, sb)); return true;
+        case binop::umulh: r = static_cast<uint64>((static_cast<unsigned __int128>(a) * b) >> 64); return true;
         case binop::smod:
             if (sb == 0) { r = a; return true; }
             if (sb == -1) { r = 0; return true; }

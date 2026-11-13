@@ -64,7 +64,7 @@ abbrev tmpBase : Nat := 60000
 def BinOp.code : BinOp → Nat
   | .add => 0 | .sub => 1 | .mul => 2 | .udiv => 3 | .umod => 4 | .and => 5 | .or => 6 | .xor => 7
   | .shl => 8 | .shr => 9 | .eq => 10 | .ult => 11 | .ule => 12 | .slt => 13 | .sle => 14
-  | .sadd => 15 | .ssub => 16 | .smul => 17 | .sdiv => 18 | .smod => 19
+  | .sadd => 15 | .ssub => 16 | .smul => 17 | .sdiv => 18 | .smod => 19 | .umulh => 20
 
 /-- An instruction being assembled: the first word and the immediate operand. -/
 structure AsmInstr where
@@ -208,6 +208,7 @@ scoped infixl:65 " -ₛ " => Exp.bin BinOp.ssub
 scoped infixl:70 " *ₛ " => Exp.bin BinOp.smul
 scoped infixl:70 " /ₛ " => Exp.bin BinOp.sdiv
 scoped infixl:70 " %ₛ " => Exp.bin BinOp.smod
+scoped infixl:70 " *ₕ " => Exp.bin BinOp.umulh
 scoped infixl:60 " &&ᵥ " => Exp.bin BinOp.and
 scoped infixl:59 " ||ᵥ " => Exp.bin BinOp.or
 scoped infixl:58 " ^^ᵥ " => Exp.bin BinOp.xor

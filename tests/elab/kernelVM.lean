@@ -100,7 +100,7 @@ def interesting : Array Nat :=
 
 def ops : Array BinOp :=
   #[.add, .sub, .mul, .udiv, .umod, .and, .or, .xor, .shl, .shr, .eq, .ult, .ule, .slt, .sle,
-    .sadd, .ssub, .smul, .sdiv, .smod]
+    .sadd, .ssub, .smul, .sdiv, .smod, .umulh]
 
 def genExp : Nat → GenM Exp
   | 0 => do
@@ -191,6 +191,6 @@ def diffTest (n : Nat) : MetaM Unit := do
   logInfo m!"agreed on {n} programs: {results[1]!} succeeded, {results[0]!} failed"
 
 
-/-- info: agreed on 4000 programs: 2419 succeeded, 1581 failed -/
+/-- info: agreed on 4000 programs: 2433 succeeded, 1567 failed -/
 #guard_msgs in
 #eval diffTest 4000

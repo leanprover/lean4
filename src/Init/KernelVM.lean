@@ -93,6 +93,8 @@ inductive BinOp where
   | sdiv
   /-- Signed Euclidean remainder (`Int.emod`). -/
   | smod
+  /-- The high 64 bits of the 128-bit product. -/
+  | umulh
 
 /-- A word as a signed integer, in two's complement. -/
 def toSigned (a : UInt64) : Int :=
@@ -130,6 +132,7 @@ def BinOp.eval : BinOp → UInt64 → UInt64 → Option UInt64
   | .smul, a, b => ofSigned? (toSigned a * toSigned b)
   | .sdiv, a, b => ofSigned? (toSigned a / toSigned b)
   | .smod, a, b => ofSigned? (toSigned a % toSigned b)
+  | .umulh, a, b => some (UInt64.ofNat (a.toNat * b.toNat / 2 ^ 64))
 
 
 /-- The binary operation with the given code: the index of its constructor. -/
@@ -138,6 +141,7 @@ def BinOp.ofCode? : Nat → Option BinOp
   | 5 => some .and | 6 => some .or | 7 => some .xor | 8 => some .shl | 9 => some .shr
   | 10 => some .eq | 11 => some .ult | 12 => some .ule | 13 => some .slt | 14 => some .sle
   | 15 => some .sadd | 16 => some .ssub | 17 => some .smul | 18 => some .sdiv | 19 => some .smod
+  | 20 => some .umulh
   | _ => none
 
 /-- An input of a program. -/

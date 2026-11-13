@@ -3,7 +3,8 @@ import LazyParser.Def
 /-!
 Tests that imported parsers are evaluated only on first use, at most once, and otherwise behave as
 before: trailing parsers, parsers in a user category, parsers referring to other parser decls,
-scoped parsers, and tactic parsers as seen by `firstTacticTokens`.
+scoped parsers, tactic parsers as seen by `firstTacticTokens`, and parsers using a parser alias
+registered by an imported initializer.
 -/
 
 open Lean Elab Command
@@ -31,6 +32,8 @@ open N in
 example : zork_term = 4 := rfl
 
 example : True := by lazy_tac
+
+example : aliased bang! = 5 := rfl
 
 /-- info: some "lazy_tac" -/
 #guard_msgs in

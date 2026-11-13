@@ -55,6 +55,14 @@ private def addBuiltinParserCategory (catName declName : Name) (behavior : Leadi
   let categories ← IO.ofExcept $ addParserCategoryCore categories catName { declName, behavior }
   builtinParserCategoriesRef.set categories
 
+/-- Parser aliases for making `ParserDescr` extensible -/
+inductive AliasValue (α : Type) where
+  | const  (p : α)
+  | unary  (p : α → α)
+  | binary (p : α → α → α)
+
+abbrev AliasTable (α) := NameMap (AliasValue α)
+
 namespace ParserExtension
 
 inductive OLeanEntry where
@@ -86,18 +94,14 @@ structure State where
   tokens      : TokenTable := {}
   kinds       : SyntaxNodeKindSet := {}
   categories  : ParserCategories := {}
+  /-- All parser aliases, including those registered by imported initializers. -/
+  aliases     : AliasTable Parser := {}
   deriving Inhabited
 
 end ParserExtension
 
 open ParserExtension in
 abbrev ParserExtension := ScopedEnvExtension OLeanEntry Entry State
-
-private def ParserExtension.mkInitial : IO ParserExtension.State := do
-  let tokens     ← builtinTokenTable.get
-  let kinds      ← builtinSyntaxNodeKindSetRef.get
-  let categories ← builtinParserCategoriesRef.get
-  pure { tokens := tokens, kinds := kinds, categories := categories }
 
 private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String TokenTable := do
   if tk == "" then throw "invalid empty symbol"
@@ -180,14 +184,6 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
     | Except.ok categories => { s with categories }
     | Except.error e       => panic! s!"ParserExtension.addEntryImpl: {e}"
 
-/-- Parser aliases for making `ParserDescr` extensible -/
-inductive AliasValue (α : Type) where
-  | const  (p : α)
-  | unary  (p : α → α)
-  | binary (p : α → α → α)
-
-abbrev AliasTable (α) := NameMap (AliasValue α)
-
 def registerAliasCore {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (value : AliasValue α) : IO Unit := do
   unless (← initializing) do throw ↑"aliases can only be registered during initialization"
   if (← mapRef.get).contains aliasName then
@@ -237,12 +233,6 @@ structure ParserAliasInfo where
 builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
 builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.mkRef {}
 builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
-
-/--
-Helper environment extension that gives us access to built-in aliases in pure parser functions.
--/
-builtin_initialize aliasExtension : EnvExtension (NameMap ParserAliasValue) ←
-  registerEnvExtension parserAliasesRef.get
 
 def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
   return (← parserAliases2infoRef.get).getD aliasName {}
@@ -301,10 +291,12 @@ unsafe def mkParserOfConstantUnsafe (env : Environment) (opts : Options) (constN
 opaque mkParserOfConstantAux (env : Environment) (opts : Options) (constName : Name)
     (compileParserDescr : ParserDescr → Except String Parser) : Except String (Bool × Parser)
 
-/-- Compiles `d`, evaluating the parser declarations it refers to in `env`. -/
-partial def compileParserDescrCore (env : Environment) (opts : Options)
+/--
+Compiles `d`, evaluating the parser declarations it refers to in `env` and resolving parser aliases
+in `aliases`.
+-/
+partial def compileParserDescrCore (env : Environment) (opts : Options) (aliases : AliasTable Parser)
     (categories : ParserCategories) (d : ParserDescr) : Except String Parser :=
-  let aliases := aliasExtension.getState env
   let rec visit : ParserDescr → Except String Parser
     | ParserDescr.const n                             => AliasTable.getConst aliases n
     | ParserDescr.unary n d                           => return (← AliasTable.getUnary aliases n) (← visit d)
@@ -328,18 +320,18 @@ partial def compileParserDescrCore (env : Environment) (opts : Options)
 
 def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser := do
   let { env, opts } ← read
-  IO.ofExcept <| compileParserDescrCore env opts categories d
+  IO.ofExcept <| compileParserDescrCore env opts (← parserAliasesRef.get) categories d
 
 /--
 Evaluates the parser declaration `constName` in `env`, returning whether it is a leading parser.
 -/
-def mkParserOfConstantCore (env : Environment) (opts : Options) (categories : ParserCategories)
-    (constName : Name) : Except String (Bool × Parser) :=
-  mkParserOfConstantAux env opts constName (compileParserDescrCore env opts categories)
+def mkParserOfConstantCore (env : Environment) (opts : Options) (aliases : AliasTable Parser)
+    (categories : ParserCategories) (constName : Name) : Except String (Bool × Parser) :=
+  mkParserOfConstantAux env opts constName (compileParserDescrCore env opts aliases categories)
 
 def mkParserOfConstant (categories : ParserCategories) (constName : Name) : ImportM (Bool × Parser) := do
   let { env, opts } ← read
-  IO.ofExcept <| mkParserOfConstantCore env opts categories constName
+  IO.ofExcept <| mkParserOfConstantCore env opts (← parserAliasesRef.get) categories constName
 
 structure ParserAttributeHook where
   /-- Called after a parser attribute is applied to a declaration. -/
@@ -376,10 +368,10 @@ builtin_initialize
 Returns a parser for the imported parser declaration `declName` that evaluates and compiles the
 declaration on first use.
 -/
-private def mkLazyImportedParser (env : Environment) (opts : Options)
+private def mkLazyImportedParser (env : Environment) (opts : Options) (aliases : AliasTable Parser)
     (categories : ParserCategories) (declName : Name) (firstTokens : FirstTokens) : Parser :=
   let p : Thunk (Except String Parser) := .mk fun _ =>
-    match mkParserOfConstantCore env opts categories declName with
+    match mkParserOfConstantCore env opts aliases categories declName with
     | .ok (_, p) => .ok p
     | .error e   => .error s!"failed to load parser `{declName}`: {e}"
   {
@@ -403,8 +395,16 @@ private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → Impo
   | category c d l => return Entry.category c d l
   | parser catName declName leading firstTokens prio => do
     let { env, opts } ← read
-    let p := mkLazyImportedParser env opts s.categories declName firstTokens
+    let p := mkLazyImportedParser env opts s.aliases s.categories declName firstTokens
     return Entry.parser catName declName leading p prio
+
+/-- On import, this runs after the imported modules' initializers, which may register aliases. -/
+private def ParserExtension.mkInitial : IO ParserExtension.State := do
+  let tokens     ← builtinTokenTable.get
+  let kinds      ← builtinSyntaxNodeKindSetRef.get
+  let categories ← builtinParserCategoriesRef.get
+  let aliases    ← parserAliasesRef.get
+  pure { tokens, kinds, categories, aliases }
 
 builtin_initialize parserExtension : ParserExtension ←
   registerScopedEnvExtension {
@@ -439,8 +439,8 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
   | some cat => cat.behavior
 
 def evalParserConst (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn := fun ctx s =>
-  let categories := (parserExtension.getState ctx.env).categories
-  match mkParserOfConstantCore ctx.env ctx.options categories declName with
+  let { categories, aliases, .. } := parserExtension.getState ctx.env
+  match mkParserOfConstantCore ctx.env ctx.options aliases categories declName with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
     adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
@@ -768,6 +768,12 @@ def withSetOptionValueFn (p : ParserFn) : ParserFn := fun c s =>
     p c s
 
 @[inline] def withSetOptionValue : Parser → Parser := withFn withSetOptionValueFn
+
+/--
+Helper environment extension that gives us access to built-in aliases in pure parser functions.
+-/
+builtin_initialize aliasExtension : EnvExtension (NameMap ParserAliasValue) ←
+  registerEnvExtension parserAliasesRef.get
 
 /-- Result of resolving a parser name. -/
 inductive ParserResolution where

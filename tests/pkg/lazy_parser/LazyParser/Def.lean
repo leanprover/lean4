@@ -1,5 +1,6 @@
 import Lean
 import LazyParser.Counter
+import LazyParser.Alias
 
 /-!
 Declares parsers of various shapes for use from `LazyParser.Use`, which imports them lazily.
@@ -35,3 +36,7 @@ end N
 
 syntax (name := lazyTac) "lazy_tac" : tactic
 macro_rules | `(tactic| lazy_tac) => `(tactic| trivial)
+
+-- Uses the alias registered by an imported initializer.
+syntax "aliased " bangTok : term
+macro_rules | `(aliased bang!) => `(5)

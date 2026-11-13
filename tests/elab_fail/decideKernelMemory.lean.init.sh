@@ -1,0 +1,1 @@
+TEST_LEAN_ARGS+=(-M1024)

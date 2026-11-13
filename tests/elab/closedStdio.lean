@@ -40,12 +40,20 @@ def main (args : List String) : IO Unit := do
     let file := dir / "main.lean"
     let report := dir / "report"
     IO.FS.writeFile file source
-    for closed in ["<&-", ">&-", "2>&-", "<&- >&- 2>&-"] do
-      let out ← IO.Process.output {
+    -- What the program and its child write to standard output when it is open.
+    let childOut := "to stdout\nout\n".toUTF8
+    for (closed, expected) in [("<&-", childOut), (">&-", .empty), ("2>&-", childOut),
+        ("<&- >&- 2>&-", .empty)] do
+      let out ← IO.Process.binOutput {
         cmd := "sh"
         args := #["-c", s!"exec \"$@\" {closed}", "sh", (← IO.appPath).toString, "--run",
           file.toString, report.toString] }
-      check (out.exitCode == 0) s!"{closed}: exit code {out.exitCode}\n{out.stdout}\n{out.stderr}"
+      let describe (bytes : ByteArray) : String :=
+        match String.fromUTF8? bytes with
+        | some s => s.quote
+        | none => s!"non-UTF-8 bytes {(bytes.extract 0 256).toList} of {bytes.size}"
+      let details := s!"exit code {out.exitCode}, stdout {describe out.stdout}, stderr {describe out.stderr}"
+      check (out.exitCode == 0 && out.stdout == expected) s!"{closed}: {details}"
       let result ← IO.FS.readFile report
-      check (result == "stdout: ok, stderr: ok, stdin: ok, child: 0") s!"{closed}: {result}"
+      check (result == "stdout: ok, stderr: ok, stdin: ok, child: 0") s!"{closed}: {result}; {details}"
       IO.FS.removeFile report

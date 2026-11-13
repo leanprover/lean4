@@ -16,6 +16,7 @@ import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.SplitSparseCasesOn
+import Lean.Meta.StringLitProof
 
 public section
 
@@ -57,6 +58,56 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
   mvarId.deltaTarget (· == ``Nat.Internal.elimOffset)
 
 /--
+If the left-hand side of the goal is `dite (a = b) t e` where `a` and `b` are `String` literals,
+rewrites it to the selected branch. Distinct literals are proved distinct with
+`mkStringLitNeProof`; reducing `String.decEq` instead compares them character by character.
+-/
+private def rwStringLitDite? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  let some (_, lhs, rhs) := (← mvarId.getType).eq? | return none
+  let_expr dite@dite α c h t e := lhs | return none
+  let_expr Eq _ a b := c | return none
+  let some s₁ := getStringValue? a | return none
+  let some s₂ := getStringValue? b | return none
+  let us := dite.constLevels!
+  let (lhs', proof) ←
+    if s₁ == s₂ then
+      let hc ← mkEqRefl a
+      pure (t.beta #[hc], mkAppN (mkConst ``dite_eq_left us) #[c, h, hc, α, t, e])
+    else
+      let hc := mkExpectedPropHint (← mkStringLitNeProof s₁ s₂) (mkNot c)
+      pure (e.beta #[hc], mkAppN (mkConst ``dite_eq_right us) #[c, h, hc, α, t, e])
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar (← mkEq lhs' rhs) (← mvarId.getTag)
+  mvarId.assign (← mkEqTrans proof mvarNew)
+  return some mvarNew.mvarId!
+
+/--
+A `contradiction` variant for the goals of `proveCondEqThm`. It closes the goal if a hypothesis is
+- a disequality `h : a ≠ b`, or `h : a = b → False`, where `a` and `b` are definitionally equal,
+- a generalized disequality such as `h : ∀ ys, x = C ys → False` (see `processGenDiseq`), or
+- an element of an empty inductive type.
+
+Unlike `MVarId.contradiction`, it does not search for a pair of hypotheses `h₁ : p` and `h₂ : ¬ p`.
+That search compares every `h₂` with every other hypothesis, and the goals of `proveCondEqThm` have
+one hypothesis for each alternative of the `match`.
+-/
+private def contradictionForEqns (mvarId : MVarId) : MetaM Unit := mvarId.withContext do
+  mvarId.checkNotAssigned `contradiction
+  let fuel := ({} : Contradiction.Config).searchFuel
+  for localDecl in (← getLCtx) do
+    unless localDecl.isImplementationDetail do
+      if let some (_, lhs, rhs) ← matchNe? localDecl.type then
+        if (← isDefEq lhs rhs) then
+          mvarId.assign (← mkAbsurd (← mvarId.getType) (← mkEqRefl lhs) localDecl.toExpr)
+          return
+      if Simp.isEqnThmHypothesis localDecl.type then
+        if (← processGenDiseq mvarId localDecl) then
+          return
+      if (← matchEq? localDecl.type).isNone && (← matchHEq? localDecl.type).isNone then
+        if (← elimEmptyInductive mvarId localDecl.fvarId fuel) then
+          return
+  throwTacticEx `contradiction mvarId
+
+/--
 Helper method for proving a conditional equational theorem associated with an alternative of
 the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
 
@@ -75,20 +126,23 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
       (_, mvarId) ← introSubstEq mvarId
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
-  try mvarId.refl
-  catch _ =>
-    mvarId ← mvarId.deltaTarget (· == matchDeclName)
-    mvarId ← mvarId.heqOfEq
-    go mvarId 0
+  reflOrProve mvarId.refl (unfoldAndProve mvarId)
   instantiateMVars mvar0
 where
+  unfoldAndProve (mvarId : MVarId) : MetaM Unit := do
+    let mvarId ← mvarId.deltaTarget (· == matchDeclName)
+    go (← mvarId.heqOfEq) 0
+
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
+      (do let some mvarId ← rwStringLitDite? mvarId | throwError "no `String` literal `dite`"
+          return #[mvarId])
+      <|>
       (do mvarId.refl; return #[])
       <|>
-      (do mvarId.contradiction { genDiseq := true }; return #[])
+      (do contradictionForEqns mvarId; return #[])
       <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>

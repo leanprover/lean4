@@ -107,10 +107,37 @@ def addDeclRuntime (env : Kernel.Environment) (_maxHeartbeats : USize) (maxRecDe
     Except Kernel.Exception Kernel.Environment :=
   addDecl env decl (addDeclConfig maxRecDepth none)
 
+/-- `checkDeclOnly` under the elaborator's limits, as `addDeclRuntime` runs `addDecl`: success
+with the unfold counts of the check (empty unless diagnostics are enabled), or the exception. -/
+private unsafe def checkDeclRuntimeUnsafe (env : Kernel.Environment) (maxHeartbeats : USize)
+    (maxRecDepth : USize) (decl : Declaration) (cancelTk? : Option IO.CancelToken) :
+    Except Kernel.Exception (Std.HashMap Name Nat) :=
+  let diag := env.diagnostics.enabled
+  if maxHeartbeats == 0 && cancelTk?.isNone && !diag then
+    (checkDeclOnly env decl (addDeclConfig maxRecDepth none)).map fun _ => {}
+  else unsafeBaseIO do
+    let start ← IO.getNumHeartbeats
+    let unfolds? ← if diag then some <$> IO.mkRef {} else pure none
+    let poll := fun ev => unsafeBaseIO (pollIO start maxHeartbeats.toNat cancelTk? unfolds? ev)
+    match checkDeclOnly env decl (addDeclConfig maxRecDepth (some poll)) with
+    | .ok _ =>
+      match unfolds? with
+      | some ref => return .ok (← ref.get)
+      | none => return .ok {}
+    | .error e => return .error e
+
+/-- **`checkDeclOnly` under the elaborator's limits**, as `addDeclRuntime` for `addDecl`
+(in the logic there is no poll and no count). -/
+@[implemented_by checkDeclRuntimeUnsafe]
+def checkDeclRuntime (env : Kernel.Environment) (_maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : Declaration) (_cancelTk? : Option IO.CancelToken) :
+    Except Kernel.Exception (Std.HashMap Name Nat) :=
+  (checkDeclOnly env decl (addDeclConfig maxRecDepth none)).map fun _ => {}
+
 /-- `Kernel.Environment.addDeclCore` (`lean_add_decl`).  As the C++ kernel's `add_theorem`
 (`sharecommon_persistent_fn`), a theorem's type and value are checked with their common subterms
 shared (`ShareCommon.shareCommon'`, the identity in the logic), and the environment gets the
-original declaration, not the shared terms.  Nothing else is shared here (the elaborator shares
+original declaration, not the shared terms, added once (the shared theorem is only checked).  Nothing else is shared here (the elaborator shares
 definitions itself).  The checker's memo maps and comparisons go pointer first, so on a term whose
 repeated subterms are different objects each copy is checked and compared on its own. -/
 @[export lean_add_decl]
@@ -120,8 +147,10 @@ def addDeclExport (env : Kernel.Environment) (maxHeartbeats : USize) (maxRecDept
   match decl with
   | .thmDecl v =>
     let shared := ShareCommon.shareCommon' v
-    match addDeclRuntime env maxHeartbeats maxRecDepth (.thmDecl shared) cancelTk? with
-    | .ok env' => .ok { env.add (.thmInfo v) with diagnostics := env'.diagnostics }
+    match checkDeclRuntime env maxHeartbeats maxRecDepth (.thmDecl shared) cancelTk? with
+    | .ok unfolds =>
+      let env' := env.add (.thmInfo v)
+      .ok (if env.diagnostics.enabled then addUnfolds env' unfolds else env')
     | .error e => .error e
   | _ => addDeclRuntime env maxHeartbeats maxRecDepth decl cancelTk?
 

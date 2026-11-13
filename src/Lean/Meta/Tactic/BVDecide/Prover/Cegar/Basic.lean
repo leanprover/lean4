@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Basic
 public import Lean.Meta.Tactic.BVDecide.TacticContext
 public import Lean.Cadical.Basic
+public import Lean.Meta.Tactic.BVDecide.EPR.InstSets
 
 /-!
 This module provides the basic infrastructure for the CEGAR (Counter Example Guided Abstraction Refinement)
@@ -75,6 +76,10 @@ public structure EprTemplate.Quant where
   -/
   instConsts : Array Expr
   /--
+  The reified `toBv instConst` for each of `instConsts`.
+  -/
+  instConstAtoms : Array ((w : Nat) × BVExpr w)
+  /--
   The guards and the negated body of `fact` instantiated with `instConsts`, as well as the lemmas
   generated while reifying them.
   -/
@@ -85,7 +90,11 @@ A `Bool` predicate UF atom of an `EprTemplate`.
 -/
 public structure EprTemplate.PredAtom where
   /--
-  The key of the predicate in a `FunModel`.
+  The original, unencoded predicate if this is an application of an EPR predicate encoding.
+  -/
+  pred? : Option Expr
+  /--
+  The predicate abstracted over its arguments, the key of the predicate in a `FunModel`.
   -/
   pattern : Expr
   /--
@@ -159,6 +168,21 @@ public structure BitVecState where
   cnfCache : Std.Sat.AIG.toCNF.State aig := .empty aig
 
 /--
+State of the EPR theory solver.
+-/
+public structure EprState where
+  /--
+  The instantiation set analysis, computed at the first MBQI round and updated continously
+  throughout the search. Before querying it needs to have been fed every ground term currently in
+  the problem.
+  -/
+  instSets : Option EPR.InstSets := none
+  /--
+  The reified quantifiers for MBQI, built at the first MBQI round.
+  -/
+  template : Option Cegar.EprTemplate := none
+
+/--
 State carried around by our theory solvers.
 -/
 public structure TheoryState where
@@ -171,13 +195,13 @@ public structure TheoryState where
   -/
   bitvecState : BitVecState := {}
   /--
+  EPR theory state.
+  -/
+  eprState : EprState := {}
+  /--
   Caches for the hypothesis preprocessor.
   -/
   preprocessCaches : Grind.BVDecide.Caches := {}
-  /--
-  The reified quantifiers for EPR MBQI, built on the first model check.
-  -/
-  eprTemplate : Option Cegar.EprTemplate := none
   /--
   The incremental SAT solver.
   -/

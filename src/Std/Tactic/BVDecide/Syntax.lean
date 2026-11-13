@@ -129,6 +129,10 @@ structure BVDecideConfig where
   How much effort bv_decide should put into breaking symmetries of EPR problems.
   -/
   eprSymBreak : EprSymBreak := .simple
+  /--
+  Guide the MBQI procedure for EPR problems with Z3 style instantiation sets and projections.
+  -/
+  eprProjections : Bool := true
 
 /--
 Whether this configuration requires the solver to use incremental solving.

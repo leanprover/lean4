@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Meta.Tactic.BVDecide.EPR.Basic
 public import Lean.Meta.Tactic.BVDecide.EPR.BitVec
+public import Lean.Meta.Tactic.BVDecide.EPR.BoolPolarityVisitor
+public import Lean.Meta.Tactic.BVDecide.EPR.InstSets
 public import Lean.Meta.Tactic.BVDecide.EPR.Pass
 public import Lean.Meta.Tactic.BVDecide.EPR.PolarityVisitor
 public import Lean.Meta.Tactic.BVDecide.EPR.SortInference

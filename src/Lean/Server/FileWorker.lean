@@ -446,7 +446,7 @@ def setupImports
 
 /- Worker initialization sequence. -/
 section Initialization
-  def initializeWorker (doc : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
+  partial def initializeWorker (doc : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let maxDocVersionRef ← IO.mkRef 0
@@ -502,30 +502,32 @@ section Initialization
         elaboration tasks here. -/
     mkLspOutputChannel maxDocVersion : IO (Std.Channel OutputMessage) := do
       let chanOut ← Std.Channel.new
-      let _ ← chanOut.forAsync (prio := .dedicated) fun ⟨msg?, serialized⟩ => do
-        -- discard outdated notifications; note that in contrast to responses, notifications can
-        -- always be silently discarded
-        let version? : Option Int := do
-          match msg? with
-          | some (.notification "textDocument/publishDiagnostics" (some params)) =>
-            let params : PublishDiagnosticsParams ← fromJson? (toJson params) |>.toOption
-            params.version?
-          | some (.notification "$/lean/fileProgress" (some params)) =>
-            let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
-            params.textDocument.version?
-          | some (.notification "$/lean/ileanInfoUpdate" (some params))
-          | some (.notification "$/lean/ileanInfoFinal" (some params)) =>
-            let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
-            some params.version
-          | _ => none
-        if let some version := version? then
-          if version < (← maxDocVersion.get) then
-            return
-
-          -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
-          -- as that would allow outdated messages to be reported until the delay is over
-        o.writeSerializedLspMessage serialized |>.catchExceptions (fun _ => pure ())
+      -- we used to use `.forAsync (prio := .dedicated)` here but that creates a new thread *per
+      -- message*
+      let _ ← BaseIO.asTask (prio := .dedicated) (processChanMsg chanOut maxDocVersion)
       return chanOut
+    processChanMsg (chanOut : Std.Channel OutputMessage) (maxDocVersion : IO.Ref Int) : BaseIO Unit := do
+      let ⟨msg?, serialized⟩ := (← chanOut.recv).get
+      -- discard outdated notifications; note that in contrast to responses, notifications can
+      -- always be silently discarded
+      let version? : Option Int := do
+        match msg? with
+        | some (.notification "textDocument/publishDiagnostics" (some params)) =>
+          let params : PublishDiagnosticsParams ← fromJson? (toJson params) |>.toOption
+          params.version?
+        | some (.notification "$/lean/fileProgress" (some params)) =>
+          let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
+          params.textDocument.version?
+        | some (.notification "$/lean/ileanInfoUpdate" (some params))
+        | some (.notification "$/lean/ileanInfoFinal" (some params)) =>
+          let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
+          some params.version
+        | _ => none
+      if version?.all (· >= (← maxDocVersion.get)) then
+        o.writeSerializedLspMessage serialized |>.catchExceptions (fun _ => pure ())
+        -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
+        -- as that would allow outdated messages to be reported until the delay is over
+      processChanMsg chanOut maxDocVersion
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
       let some snap := snap.result?

@@ -54,6 +54,11 @@ info: (Acc.rec, Acc.recC)
 (UInt64.powMod, UInt64.powModImpl)
 (Vector.pmap, Vector.pmapImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
+(Lean.Kernel.InLean.Expr.beqI, Lean.Kernel.InLean.Expr.beqMemo)
+(Lean.Kernel.InLean.Expr.decEqI, Lean.Kernel.InLean.Expr.decEqPtrI)
+(Lean.Kernel.InLean.Expr.keyEq, Lean.Kernel.InLean.Expr.keyEqMemo)
+(Lean.Kernel.InLean.Level.decEqI, Lean.Kernel.InLean.Level.decEqPtrI)
+(Lean.Kernel.InLean.Literal.decEqI, Lean.Kernel.InLean.Literal.decEqPtrI)
 -/
 #guard_msgs in
 run_elab do

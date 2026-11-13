@@ -805,22 +805,27 @@ def enterLoopBody (breakCont continueCont : DoElabM Expr) (returnCont : ReturnCo
   withReader (fun ctx => { ctx with contInfo }) body
 
 /--
-Prepare the context for elaborating the body of a `do` block that does not support `mut` vars,
-`break`, `continue` or `return`.
+Arrange the context for elaborating `doSeq` such that `break`, `continue`, `return` and
+reassignment of the `mut` variables in scope are errors.
 -/
-def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
-  let error := throwError "This `do` block does not support `break`, `continue` or `return`."
+def withoutControl (doSeq : TSyntax ``doSeq) (k : DoElabM Expr) : DoElabM Expr := do
+  let block := if (← getRef).isToken "finally" then m!"A `finally` block" else m!"This `do` block"
+  let info ← inferControlInfoSeq doSeq
+  let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
+  unless reassigned.isEmpty do
+    let noun := if reassigned.size == 1 then "variable" else "variables"
+    let vars := MessageData.andList (reassigned.toList.map (m!"`{·}`"))
+    throwError "{block} cannot reassign the `mut` {noun} {vars}."
+  let error := throwError "{block} does not support `break`, `continue` or `return`."
   let rc ← getReturnCont
   let contInfo := { breakCont := error, continueCont := error, returnCont := { rc with k _ := error }}
   let contInfo := ContInfo.toContInfoRef contInfo
   withReader (fun ctx => { ctx with contInfo }) k
 
-/--
-Prepare the context for elaborating the body of a `finally` block.
-There is no support for `mut` vars, `break`, `continue` or `return` in a `finally` block.
--/
-def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
-  withoutControl do
+/-- Prepare the context for elaborating the `finally` block `finSeq` with result type `resultType`. -/
+def enterFinally (finSeq : TSyntax ``doSeq) (resultType : Expr) (k : DoElabM Expr) :
+    DoElabM Expr := do
+  withoutControl finSeq do
   withDoBlockResultType resultType k
 
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/

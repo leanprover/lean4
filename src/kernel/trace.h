@@ -16,7 +16,6 @@ bool is_trace_class_enabled(name const & n);
 
 class scope_trace_env {
     options     const *      m_old_opts;
-    void init(elab_environment * env, options * opts);
 public:
     scope_trace_env(elab_environment const & env, options const & opts);
     ~scope_trace_env();

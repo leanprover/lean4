@@ -65,11 +65,6 @@ def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
     let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
     formatCategory `term stx
 
-def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
-    { fileName := "<PrettyPrinter>", fileMap := default }
-    { env := env }
-
 def ppLevel (l : Level) : MetaM Format := do
   ppCategory `level (← delabLevel l (prec := 0))
 

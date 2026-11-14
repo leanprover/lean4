@@ -94,10 +94,17 @@ section Utils
     | ioError (e : IO.Error)
 
   inductive WorkerState where
-    | crashed
+    | crashed (exitCode : UInt32)
     | cannotWrite
     | terminating
     | running
+
+  /-- Error message for requests to the worker for `uri` that crashed with `exitCode`. -/
+  def workerCrashedMessage (uri : DocumentUri) (exitCode : UInt32) : String :=
+    match exitCode with
+    | 0 => s!"Server process for {uri} exited unexpectedly."
+    | 1 => s!"Server process for {uri} crashed, see stderr for exception."
+    | _ => s!"Server process for {uri} crashed, likely due to a stack overflow or a bug."
 
   def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
     match fromJson? params with
@@ -229,8 +236,15 @@ end Utils
 section FileWorker
 
   structure FileWorker where
+    /-- Unique among all file worker processes that the watchdog starts. -/
+    id        : Nat
     doc       : DocumentMeta
     proc      : Process.Child workerCfg
+    /--
+    Set when the process is reaped. Hold the mutex while reaping or killing the process, so that
+    the process is only reaped once and never killed after its process ID may have been reused.
+    Never hold it while blocking.
+    -/
     exitCode  : Std.Mutex (Option UInt32)
     commTask? : Option (ServerTask WorkerEvent)
     state     : Std.Mutex WorkerState
@@ -243,27 +257,28 @@ section FileWorker
   def stdout (fw : FileWorker) : FS.Stream :=
     FS.Stream.ofHandle fw.proc.stdout
 
-  def waitForProc (fw : FileWorker) : IO UInt32 :=
+  /-- Reaps the process if it has exited. Does not block. -/
+  def tryReapProc (fw : FileWorker) : IO (Option UInt32) :=
     fw.exitCode.atomically do
-      match ← get with
-      | none =>
-        let exitCode ← fw.proc.wait
+      if let some exitCode ← get then
+        return some exitCode
+      let exitCode? ← fw.proc.tryWait
+      if let some exitCode := exitCode? then
         set <| some exitCode
-        return exitCode
-      | some exitCode =>
-        return exitCode
+      return exitCode?
 
-  def killProcAndWait (fw : FileWorker) : IO UInt32 :=
+  /-- Waits until the process has exited. Polls so that `killProcAndWait` can kill it meanwhile. -/
+  partial def waitForProc (fw : FileWorker) : IO UInt32 := do
+    if let some exitCode ← fw.tryReapProc then
+      return exitCode
+    IO.sleep 50
+    fw.waitForProc
+
+  def killProcAndWait (fw : FileWorker) : IO UInt32 := do
     fw.exitCode.atomically do
-      match ← get with
-      | none =>
+      if (← get).isNone then
         fw.proc.kill
-        let exitCode ← fw.proc.wait
-        set <| some exitCode
-        return exitCode
-      | some exitCode =>
-        -- Process is already dead
-        return exitCode
+    fw.waitForProc
 
   end FileWorker
 end FileWorker
@@ -315,6 +330,8 @@ section ServerM
 
   structure RequestIDTranslation where
     sourceUri : DocumentUri
+    /-- `FileWorker.id` of the worker that sent the request. -/
+    workerID  : Nat
     localID   : RequestID
 
   abbrev PendingServerRequestMap := Std.TreeMap RequestID RequestIDTranslation
@@ -326,14 +343,21 @@ section ServerM
   def ServerRequestData.trackOutboundRequest
       (data      : ServerRequestData)
       (sourceUri : DocumentUri)
+      (workerID  : Nat)
       (localID   : RequestID)
       : RequestID × ServerRequestData :=
     let globalID := data.freshServerRequestID
     let data := {
-      pendingServerRequests := data.pendingServerRequests.insert globalID ⟨sourceUri, localID⟩
+      pendingServerRequests := data.pendingServerRequests.insert globalID ⟨sourceUri, workerID, localID⟩
       freshServerRequestID  := globalID + 1
     }
     (globalID, data)
+
+  /-- Erases the translations for the requests of the file worker with the ID `workerID`. -/
+  def ServerRequestData.eraseWorkerRequests (data : ServerRequestData) (workerID : Nat)
+      : ServerRequestData :=
+    { data with
+      pendingServerRequests := data.pendingServerRequests.filter fun _ t => t.workerID != workerID }
 
   def ServerRequestData.translateInboundResponse
       (data     : ServerRequestData)
@@ -394,6 +418,8 @@ section ServerM
     /-- Command line arguments. -/
     args              : List String
     fileWorkersRef    : IO.Ref (Std.TreeMap DocumentUri FileWorker)
+    /-- `FileWorker.id` for the next file worker. -/
+    freshWorkerID     : IO.Ref Nat
     /-- We store these to pass them to workers. -/
     initParams        : InitializeParams
     workerPath        : System.FilePath
@@ -458,19 +484,9 @@ section ServerM
     let some mod := mod?
       | return
     s.referenceData.atomically do
-      let pendingWaitForILeanRequests ← modifyGet fun rd =>
+      modify fun rd =>
         let rd := rd.modifyReferences (·.removeWorkerRefs mod)
-        let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
-        let rd := { rd with pendingWaitForILeanRequests := rest }
-        let rd := rd.modifyFinalizedWorkerILeanVersions (·.erase uri)
-        (pending, rd)
-      for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
-        writeMessage {
-          id := pendingWaitForILeanRequest.id,
-          code := ErrorCode.contentModified,
-          message := s!"The file worker for {uri} has been terminated."
-          : ResponseError Unit
-        }
+        rd.modifyFinalizedWorkerILeanVersions (·.erase uri)
 
 
   def setWorkerState (fw : FileWorker) (s : WorkerState) : ServerM Unit := do
@@ -479,6 +495,9 @@ section ServerM
   def getWorkerState (fw : FileWorker) : ServerM WorkerState := do
     fw.state.atomically get
 
+  /--
+  Answers all pending requests for `uri` with an error, including `$/lean/waitForILeans` requests.
+  -/
   def errorPendingRequests (uri : DocumentUri) (code : ErrorCode) (msg : String)
       : ServerM Unit := do
     let ctx ← read
@@ -487,8 +506,13 @@ section ServerM
       let pendingRequests := d.getRequestQueue uri
       set <| d.clearWorkerRequestData uri
       return pendingRequests
+    let pendingWaitForILeanRequests ← ctx.referenceData.atomically <| modifyGet fun rd =>
+      let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+      (pending, { rd with pendingWaitForILeanRequests := rest })
     for (id, _) in pendingRequests do
       writeMessage { id := id, code := code, message := msg : ResponseError Unit }
+    for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
+      writeMessage { id := pendingWaitForILeanRequest.id, code, message := msg : ResponseError Unit }
 
   def eraseGetPendingRequest (uri : DocumentUri) (id : RequestID) : ServerM (Option (JsonRpc.Request Json)) := do
     let ctx ← read
@@ -519,18 +543,19 @@ section ServerM
     s.referenceData.atomically do
       let rd ← get
       let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references params.decls)
-      let (pendingWaitForILeanRequests, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+      -- Like `finalizeWorkerRefs`, ignore late final notifications for older versions.
+      let finalizedVersion := max params.version (rd.finalizedWorkerILeanVersions[uri]?.getD 0)
+      let (satisfied, rest) := rd.pendingWaitForILeanRequests.partition fun r =>
+        r.uri == uri && r.version ≤ finalizedVersion
       let rd := { rd with pendingWaitForILeanRequests := rest }
-      let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
+      let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri finalizedVersion)
       set rd
-      for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
-        if pendingWaitForILeanRequest.uri == uri
-            && pendingWaitForILeanRequest.version <= params.version then
-          writeMessage {
-            id := pendingWaitForILeanRequest.id
-            result := ⟨⟩
-            : Response WaitForILeans
-          }
+      for pendingWaitForILeanRequest in satisfied do
+        writeMessage {
+          id := pendingWaitForILeanRequest.id
+          result := ⟨⟩
+          : Response WaitForILeans
+        }
 
   def emitServerRequestResponse [ToJson α] (fw : FileWorker) (r : Response α) : IO Unit := do
     if ! ((← fw.state.atomically get) matches .running) then
@@ -758,13 +783,16 @@ section ServerM
           try
             fw.stdout.readLspMessageAsString
           catch _ =>
+            -- The worker sends no further requests, and replies to its earlier requests are obsolete.
+            (← read).serverRequestData.modify (·.eraseWorkerRequests fw.id)
             let exitCode ← fw.waitForProc
             -- Remove surviving descendant processes, if any, such as from nested builds.
             -- On Windows, we instead rely on elan doing this.
             try fw.proc.kill catch _ => pure ()
             -- TODO: Wait for process group to finish
+            -- Exit code 0 also counts as a crash: the watchdog stops listening to a worker before it
+            -- sends `exit`, so a worker that exits with code 0 here did so on its own.
             match exitCode with
-              | 0 => return .terminated
               | 2 => return .importsChanged
               | _ => return .crashed exitCode
         let .ok metaData := parseMessageMetaData msg
@@ -821,7 +849,7 @@ section ServerM
           else
             if let .ok params? := parseRequestParams? (Option Json.Structured) msg then
               let globalID ← (← read).serverRequestData.modifyGet
-                (·.trackOutboundRequest fw.doc.uri id)
+                (·.trackOutboundRequest fw.doc.uri fw.id id)
               writeMessage (Message.request globalID method params?)
         | .notification "$/lean/ileanHeaderSetupInfo" =>
           if let .ok params := parseNotificationParams? LeanILeanHeaderSetupInfoParams msg then
@@ -859,6 +887,7 @@ section ServerM
         initialDependencyBuildMode
     -- The task will never access itself, so this is fine
     let fw : FileWorker := {
+      id := ← st.freshWorkerID.modifyGet fun id => (id, id + 1)
       doc := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc := workerProc
       exitCode
@@ -871,21 +900,27 @@ section ServerM
     updateFileWorkers fw
     let commTask ← forwardMessages fw
     let fw : FileWorker := { fw with commTask? := some commTask }
-    fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
-    fw.stdin.writeLspNotification {
-      method := "textDocument/didOpen"
-      param  := {
-        textDocument := {
-          uri        := m.uri
-          languageId := "lean"
-          version    := m.version
-          text       := m.text.source
-        }
-        dependencyBuildMode? := initialDependencyBuildMode
-        : LeanDidOpenTextDocumentParams
-      }
-    }
+    -- The main loop only notices that the worker exits if `commTask?` is set.
     updateFileWorkers fw
+    try
+      fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
+      fw.stdin.writeLspNotification {
+        method := "textDocument/didOpen"
+        param  := {
+          textDocument := {
+            uri        := m.uri
+            languageId := "lean"
+            version    := m.version
+            text       := m.text.source
+          }
+          dependencyBuildMode? := initialDependencyBuildMode
+          : LeanDidOpenTextDocumentParams
+        }
+      }
+    catch _ =>
+      -- Writing fails when the worker has exited. `commTask` then reports the exit to the main loop.
+      setWorkerState fw .cannotWrite
+      return
     let reqQueue ← st.requestData.getRequestQueue m.uri
     for (_, msg) in reqQueue do
       try
@@ -920,15 +955,25 @@ section ServerM
       : ServerM Unit := do
     let some fw ← getFileWorker? uri
       | return
+    let state ← getWorkerState fw
+    -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
+    -- the notification here because all non-discardable notifications are handled by the watchdog
+    -- itself.
     if let some req := JsonRpc.Request.ofMessage? msg then
-      -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
-      -- the notification here because all non-discardable notifications are handled by the watchdog
-      -- itself.
+      if let .crashed exitCode := state then
+        -- Nothing answers the request until the next `didChange` restarts the worker.
+        writeMessage {
+          id      := req.id
+          code    := ErrorCode.workerCrashed
+          message := workerCrashedMessage uri exitCode
+          : ResponseError Unit
+        }
+        return
       (← read).requestData.enqueue uri req
-    match ← getWorkerState fw with
+    match state with
     | WorkerState.cannotWrite | WorkerState.terminating =>
       return
-    | WorkerState.crashed =>
+    | WorkerState.crashed _ =>
       if ! (msg matches .notification "textDocument/didChange" ..) then
         -- Only restart crashed FileWorkers on `didChange`.
         return
@@ -1406,33 +1451,34 @@ section MessageHandling
             : Response WaitForILeans
           }
           return
-      if let none ← getFileWorker? uri then
-        writeMessage {
-          id
-          code    := ErrorCode.contentModified
-          message := s!"Cannot process '$/lean/waitForILeans' request to closed file '{uri}'"
-          : ResponseError Unit
-        }
-        return
-      ctx.referenceData.atomically do
-        let deferResponse := modify fun rd =>
-          rd.modifyPendingWaitForILeanRequests fun pending =>
-            pending.push {
-              id
-              uri := uri
-              version := version
-            }
-        let some lastFinalizedVersion := (← get).finalizedWorkerILeanVersions[uri]?
-          | deferResponse
-            return
-        if lastFinalizedVersion < version then
-          deferResponse
+      let some fw ← getFileWorker? uri
+        | writeMessage {
+            id
+            code    := ErrorCode.contentModified
+            message := s!"Cannot process '$/lean/waitForILeans' request to closed file '{uri}'"
+            : ResponseError Unit
+          }
           return
-        writeMessage {
-          id
-          result := ⟨⟩
-          : Response WaitForILeans
-        }
+      let state ← getWorkerState fw
+      ctx.referenceData.atomically do
+        if (← get).finalizedWorkerILeanVersions[uri]?.any (version ≤ ·) then
+          writeMessage {
+            id
+            result := ⟨⟩
+            : Response WaitForILeans
+          }
+          return
+        if let .crashed exitCode := state then
+          -- A crashed worker never finalizes `version`.
+          writeMessage {
+            id
+            code    := ErrorCode.workerCrashed
+            message := workerCrashedMessage uri exitCode
+            : ResponseError Unit
+          }
+          return
+        modify fun rd =>
+          rd.modifyPendingWaitForILeanRequests (·.push { id, uri, version })
     | _ =>
       forwardRequestToWorker id method params
 
@@ -1459,20 +1505,28 @@ section MessageHandling
     | _ =>
       pure ()
 
-  def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
-    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
+  /-- Forwards a client reply to the file worker that sent the request, if it is still current. -/
+  def forwardReplyToWorker (globalID : RequestID) (mkReply : RequestID → JsonRpc.Message)
+      : ServerM Unit := do
+    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse globalID)
       | return
-    tryWriteMessage translation.sourceUri (Response.mk translation.localID result)
+    let some fw ← getFileWorker? translation.sourceUri
+      | return
+    -- A new worker for the same file reuses the request IDs of the old worker.
+    if fw.id != translation.workerID then
+      return
+    tryWriteMessage translation.sourceUri (mkReply translation.localID)
+
+  def handleResponse (id : RequestID) (result : Json) : ServerM Unit :=
+    forwardReplyToWorker id fun localID => Response.mk localID result
 
   def handleResponseError
       (id      : RequestID)
       (code    : ErrorCode)
       (message : String)
       (data?   : Option Json)
-      : ServerM Unit := do
-    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
-      | return
-    tryWriteMessage translation.sourceUri (ResponseError.mk translation.localID code message data?)
+      : ServerM Unit :=
+    forwardReplyToWorker id fun localID => ResponseError.mk localID code message data?
 end MessageHandling
 
 section MainLoop
@@ -1507,7 +1561,7 @@ section MainLoop
     for (_, fw) in workers do
       let some commTask := fw.commTask?
         | continue
-      if (← getWorkerState fw) matches WorkerState.crashed then
+      if (← getWorkerState fw) matches WorkerState.crashed _ then
         continue
       workerTasks := workerTasks.push <| commTask.mapCheap (ServerEvent.workerEvent fw)
 
@@ -1539,15 +1593,9 @@ section MainLoop
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {uri}: {e}"
       | WorkerEvent.crashed exitCode =>
-        let (errorCode, errorCausePointer) :=
-          if exitCode = 1 then
-            (ErrorCode.workerExited, "see stderr for exception")
-          else
-            (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-        errorPendingRequests uri errorCode
-          s!"Server process for {uri} crashed, {errorCausePointer}."
+        errorPendingRequests uri ErrorCode.workerCrashed (workerCrashedMessage uri exitCode)
         writeMessage <| mkFileProgressAtPosNotification doc 0 (kind := LeanFileProgressKind.fatalError)
-        setWorkerState fw .crashed
+        setWorkerState fw (.crashed exitCode)
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError
@@ -1796,6 +1844,7 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
     logData
     args           := args
     fileWorkersRef := fileWorkersRef
+    freshWorkerID  := ← IO.mkRef 0
     initParams     := initRequest.param
     referenceData
     workerPath

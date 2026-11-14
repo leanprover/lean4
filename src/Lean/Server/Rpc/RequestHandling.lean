@@ -57,8 +57,10 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
       { code := .methodNotFound
         message := s!"No RPC method '{p.method}' found"}
     bindWaitFindSnap doc (notFoundX := throwNotFound)
+      -- `.local` does not block. It finds the methods that were registered on the main branch of
+      -- the environment, and the lookup below finds all others at `callPos`.
       (fun s => s.endPos >= callPos ||
-        (userRpcProcedures.find? s.env p.method).isSome)
+        (userRpcProcedures.find? s.env p.method (asyncMode := .local)).isSome)
       fun snap => do
         if let some procName := userRpcProcedures.find? snap.env p.method then
           let options := snap.cmdState.scopes.head!.opts

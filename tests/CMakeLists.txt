@@ -335,7 +335,11 @@ add_test_pile(elab_bench *.lean BENCH PART1 ${ELAB_FIXTURES})
 add_test_pile(elab_fail *.lean ${ELAB_FIXTURES})
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
-add_test_pile(server *.lean)
+if(WIN32)
+  # Uses a shell script as the file worker.
+  set(SERVER_EXCEPT EXCEPT closed_stdout_worker.lean)
+endif()
+add_test_pile(server *.lean ${SERVER_EXCEPT})
 add_test_pile(server_interactive *.lean)
 
 add_test_dir(markdown_conformance)

@@ -64,7 +64,7 @@ bool is_atomic(expr const & e) {
 }
 
 extern "C" uint8 lean_expr_binder_info(object * e);
-binder_info binding_info(expr const & e) { return static_cast<binder_info>(lean_expr_binder_info(e.to_obj_arg())); }
+binder_info binding_info_core(expr const & e) { return static_cast<binder_info>(lean_expr_binder_info(e.to_obj_arg())); }
 
 extern "C" object * lean_lit_type(obj_arg e);
 expr lit_type(literal const & lit) { return expr(lean_lit_type(lit.to_obj_arg())); }

@@ -8,7 +8,7 @@ rm -f "$1.measurements.jsonl"
 # `--root` to infer same private names as in the server
 # Elab.inServer to allow for arbitrary `#eval`
 capture_and_measure "$1" "$TOPIC" \
-  lean --root=.. -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true "${TEST_LEAN_ARGS[@]}" "$1"
+  lean --root=.. -DprintMessageEndPos=true "${LINTER_ARGS[@]}" -DElab.inServer=true "${TEST_LEAN_ARGS[@]}" "$1"
 normalize_mvar_suffixes
 normalize_reference_urls
 extract_measurements "$TOPIC"

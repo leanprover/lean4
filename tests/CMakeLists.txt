@@ -328,6 +328,7 @@ add_test_pile(
     ${ELAB_FIXTURES}
 )
 add_test_pile(compile *.lean BENCH PART2)
+add_test_pile(deprecated/elab *.lean)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(docparse *.txt)
 add_test_pile(elab *.lean ${ELAB_FIXTURES})

@@ -43,7 +43,7 @@ if [[ -n $DO_INTERPRET ]]; then
   run_before "$1"
 
   capture_only "$1" \
-    lean -Dlinter.all=false "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
+    lean "${LINTER_ARGS[@]}" "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
   normalize_measurements
   check_out_file
   check_exit_is "${TEST_EXIT:-0}"

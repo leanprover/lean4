@@ -44,7 +44,7 @@ if [[ -n $DO_INTERPRET ]]; then
   TOPIC="interpreted/$(basename "$1" .lean)"
 
   capture_and_measure "$1" "$TOPIC" \
-    lean -Dlinter.all=false "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
+    lean "${LINTER_ARGS[@]}" "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
   check_exit_is "${TEST_EXIT:-0}"
   extract_measurements "$TOPIC"
 

@@ -49,12 +49,12 @@ def exchange (machine : Machine .sending) (response : ByteArray) : IO (Machine .
       | .failed err => throw <| .userError s!"machine failed: {err}"
       | .endHeaders head => result := { result with headers := result.headers + head.headers.size }
       | _ => pure ()
-    while machine.canPullBodyNow do
+    while machine.canPullBody do
       let (next, pulled?) := machine.pullBody
       machine := next
-      if let some pulled := pulled? then
-        result := { result with bodyBytes := result.bodyBytes + pulled.chunk.data.size }
-        done := pulled.final
+      let some pulled := pulled? | break
+      result := { result with bodyBytes := result.bodyBytes + pulled.chunk.data.size }
+      done := pulled.final
   -- Completes the exchange so the next request can be sent.
   let (ready, res) := machine.step
   unless ready.isWaitingMessage do

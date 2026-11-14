@@ -7,19 +7,15 @@ module
 
 prelude
 import Init.Data.Array
-public import Std.Http.Data
+public import Std.Http.Protocol.H1.Basic
 
 public section
 
 /-!
-# Message
+# HTTP/1.1 message rules
 
-This module provides types and operations for HTTP/1.1 messages, centered around the `Direction`
-type which models the server's role in message exchange: `Direction.receiving` for parsing incoming
-requests from clients, and `Direction.sending` for generating outgoing responses to clients.
-The `Message.Head` type is parameterized by `Direction` and resolves to `Request.Head` or
-`Response.Head` accordingly, enabling generic code that works uniformly across both phases
-while exposing common operations such as headers, version, and `shouldKeepAlive`
+What a response's status allows it to carry, what a message's framing fields say about its body, and
+whether a message keeps the connection open.
 -/
 
 namespace Std.Http.Protocol.H1
@@ -27,120 +23,149 @@ namespace Std.Http.Protocol.H1
 set_option linter.all true
 
 /--
-Direction of message flow from the server's perspective.
+What a response with a given status may carry (RFC 9110 §15).
 -/
-inductive Direction
+inductive ContentRule where
   /--
-  Receiving and parsing incoming requests from clients.
+  1xx and 204: no content, and no `Content-Length` or `Transfer-Encoding` field.
   -/
-  | receiving
+  | none
 
   /--
-  Client perspective: writing outgoing requests and reading incoming responses.
+  304: no content. Framing fields would describe the representation it stands for.
   -/
-  | sending
+  | notModified
+
+  /--
+  205: no content, written as `Content-Length: 0` (RFC 9110 §15.3.6).
+  -/
+  | empty
+
+  /--
+  Every other status.
+  -/
+  | any
 deriving BEq
 
 /--
-Inverts the message direction.
+What a response with this status may carry.
 -/
-abbrev Direction.swap : Direction → Direction
-  | .receiving => .sending
-  | .sending => .receiving
+def _root_.Std.Http.Status.contentRule (status : Status) : ContentRule :=
+  let code := status.toCode
+  if (100 ≤ code ∧ code < 200) ∨ code = 204 then .none
+  else if code = 304 then .notModified
+  else if code = 205 then .empty
+  else .any
 
 /--
-Gets the message head type based on direction.
+Whether a response turns its connection into a tunnel: a 2xx answer to `CONNECT` (RFC 9110 §9.3.6).
+It has no content and no framing fields, and no HTTP follows its head.
 -/
-@[expose]
-def Message.Head : Direction → Type
-  | .receiving => Request.Head
-  | .sending => Response.Head
+@[inline]
+def startsTunnel (requestMethod : Method) (status : Status) : Bool :=
+  requestMethod == .connect && status.isSuccess
 
 /--
-Gets the headers of a `Message`.
+Whether a response ends HTTP on its connection: after `101 Switching Protocols` the connection
+speaks the protocol it switched to (RFC 9110 §15.2.2), and after a tunnel's head (`startsTunnel`) it
+carries the tunnel's bytes.
 -/
-def Message.Head.headers (m : Message.Head dir) : Headers :=
-  match dir with
-  | .receiving => Request.Head.headers m
-  | .sending => Response.Head.headers m
+@[inline]
+def leavesHttp (requestMethod : Method) (status : Status) : Bool :=
+  status.toCode == 101 || startsTunnel requestMethod status
 
 /--
-Returns a copy of the message head with the headers replaced.
+What a message's `Content-Length` and `Transfer-Encoding` fields say about its body.
 -/
-def Message.Head.setHeaders (m : Message.Head dir) (headers : Headers) : Message.Head dir :=
-  match dir with
-  | .receiving => { (m : Request.Head)  with headers }
-  | .sending   => { (m : Response.Head) with headers }
+inductive FramingFields where
+  /--
+  Neither field.
+  -/
+  | none
+
+  /--
+  One valid `Content-Length` and no `Transfer-Encoding`.
+  -/
+  | length (n : Nat)
+
+  /--
+  Transfer codings ending in the only `chunked`, and no `Content-Length`.
+  -/
+  | chunked (codings : Array String)
+
+  /--
+  Transfer codings that do not end in `chunked`, and no `Content-Length`.
+  -/
+  | unchunked
+
+  /--
+  Anything else: several or malformed `Content-Length` fields, both fields, or malformed codings.
+  Each could be read differently by another recipient, so such a message is rejected.
+  -/
+  | invalid
 
 /--
-Gets the version of a `Message`.
+Classifies a message's framing fields.
 -/
-def Message.Head.version (m : Message.Head dir) : Version :=
-  match dir with
-  | .receiving => Request.Head.version m
-  | .sending => Response.Head.version m
-
-/--
-Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
--/
-def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Option Body.Length :=
+def Message.Head.framingFields (message : Message.Head dir) : FramingFields :=
   let contentLength := message.headers.getAll? .contentLength
-
   match message.headers.getAll? .transferEncoding with
   | none =>
-      match contentLength with
-      | some #[cl] => .fixed <$> (Header.ContentLength.parse cl |>.map (·.length))
-      | some _ => none -- To avoid request smuggling with malformed/multiple content-length headers.
-      | none => if allowEOFBody then some (.fixed 0) else none
-
+    match contentLength with
+    | none => .none
+    | some #[value] =>
+      match Header.ContentLength.parse value with
+      | some cl => .length cl.length
+      | none => .invalid
+    | some _ => .invalid
   | some values =>
-    match Header.TransferEncoding.finalCodingIsChunked? values, contentLength with
-    | some true, none =>
-        -- HTTP/1.0 does not define chunked transfer encoding (RFC 2068 §19.4.6).
-        -- A server MUST NOT use chunked with an HTTP/1.0 peer; likewise, an
-        -- HTTP/1.0 request carrying Transfer-Encoding: chunked is malformed.
-        if message.version == .v10 then none else some .chunked
-    | _, _ => none -- To avoid request smuggling when TE and CL are mixed.
+    if contentLength.isSome then .invalid
+    else
+      match Header.TransferEncoding.parseFieldLines? values with
+      | none => .invalid
+      | some codings =>
+        if codings.back? != some "chunked" then .unchunked
+        else if codings.count "chunked" == 1 then .chunked codings
+        else .invalid
+
 /--
-Checks whether the message indicates that the connection should be kept alive. A `close` option
-ends the connection for every version, even next to `keep-alive` (RFC 9112 §9.3, §9.6); otherwise
-HTTP/1.1 persists by default and HTTP/1.0 only with `keep-alive`.
+Whether a message has a `Content-Length` or `Transfer-Encoding` field.
+-/
+@[inline]
+def Message.Head.hasFramingFields (message : Message.Head dir) : Bool :=
+  message.headers.map.entries.any fun (name, _) =>
+    name == Header.Name.contentLength || name == Header.Name.transferEncoding
+
+/--
+The body length a message's framing fields state. With `allowEOFBody`, a message with neither field
+has an empty body. HTTP/1.0 has no chunked coding.
+-/
+def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Option Body.Length :=
+  match message.framingFields with
+  | .none => if allowEOFBody then some (.fixed 0) else Option.none
+  | .length n => some (.fixed n)
+  | .chunked _ => if message.version == .v10 then Option.none else some .chunked
+  | .unchunked | .invalid => Option.none
+
+/--
+The tokens of the `Connection` field lines `values`, and whether every line parsed.
+-/
+def connectionOptions (values : Array Header.Value) : Array String × Bool :=
+  values.foldl (init := (#[], true)) fun (tokens, ok) value =>
+    match Header.Connection.parse value with
+    | some connection => (tokens ++ connection.tokens, ok)
+    | none => (tokens, false)
+
+/--
+Whether a message lets the connection stay open after it (RFC 9112 §9.3): not if `Connection` has
+`close`, whatever the version; otherwise HTTP/1.1 does, and HTTP/1.0 only with `keep-alive`. A
+`Connection` field that does not parse closes it.
 -/
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  -- Most messages have no `Connection` field.
-  if !message.headers.map.entries.any (·.1 == Header.Name.connection) then
-    message.version == .v11
-  else
-    let tokens? : Option (Array String) :=
-      match message.headers.getAll? .connection with
-      | none => some #[]
-      | some values =>
-          values.foldl (fun acc raw => do
-            let acc ← acc
-            let parsed ← Header.Connection.parse raw
-            pure (acc ++ parsed.tokens)
-          ) (some #[])
+  match message.headers.getAll? .connection with
+  | none => message.version == .v11
+  | some values =>
+    let (tokens, ok) := connectionOptions values
+    ok && !tokens.contains "close" && (message.version == .v11 || tokens.contains "keep-alive")
 
-    match tokens? with
-    | none => false
-    | some tokens =>
-        if tokens.any (· == "close") then
-          false
-        else
-          message.version == .v11 || tokens.any (· == "keep-alive")
-
-instance : Repr (Message.Head dir) :=
-  match dir with
-  | .receiving => inferInstanceAs (Repr Request.Head)
-  | .sending => inferInstanceAs (Repr Response.Head)
-
-instance : Internal.Encode .v11 (Message.Head dir) :=
-  match dir with
-  | .receiving => inferInstanceAs (Internal.Encode .v11 Request.Head)
-  | .sending => inferInstanceAs (Internal.Encode .v11 Response.Head)
-
-instance : EmptyCollection (Message.Head dir) where
-  emptyCollection :=
-    match dir with
-    | .receiving => { method := .get, version := .v11 }
-    | .sending => {}
+end Std.Http.Protocol.H1

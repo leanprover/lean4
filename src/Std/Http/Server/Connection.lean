@@ -12,6 +12,7 @@ public import Std.Http.Transport
 public import Std.Http.Transport.Outbox
 public import Std.Http.Protocol.H1
 public import Std.Http.Server.Config
+public import Std.Http.Server.Driver
 public import Std.Http.Server.Handler
 
 public section
@@ -27,8 +28,9 @@ open Internal (Outbox)
 /-!
 # Connection
 
-This module defines `Server.Connection`, a structure used to handle a single HTTP connection with
-possibly multiple requests.
+This module serves a single HTTP connection with possibly multiple requests (`serveConnection`). The
+connection performs what `Server.Driver` decides: it runs the driver's commands, waits on the
+sources the driver's state arms, and reports what happened, and the time, as the driver's inputs.
 -/
 
 set_option linter.all true
@@ -46,535 +48,215 @@ deriving TypeName
 instance : ToString RemoteAddr where
   toString addr := toString addr.addr
 
+namespace Connection
+
 /--
-A single HTTP connection.
+The result of a handler, or of an `Expect: 100-continue` decision. A connection runs at most one of
+them at a time, so one channel carries both.
 -/
-structure Connection (α : Type) where
+private inductive Answer (β : Type) where
   /--
-  The client connection.
+  The handler's response, or its failure.
+  -/
+  | response (result : Except IO.Error (Response β))
+
+  /--
+  The decision on `Expect: 100-continue`.
+  -/
+  | decision (accept : Bool)
+
+/--
+What ends a wait. The continuations of a wait's cases capture nothing, so they allocate nothing; what
+needs the connection's state is done once the wait is over (`wake`).
+-/
+private inductive Woke (β : Type) where
+  /--
+  An input for the driver.
+  -/
+  | input (input : Driver.Input)
+
+  /--
+  The writes in flight completed or failed.
+  -/
+  | writes
+
+  /--
+  The connection's context was cancelled.
+  -/
+  | cancelled
+
+  /--
+  A handler or an `Expect: 100-continue` decision answered; `none` once the channel is closed.
+  -/
+  | answer (answer : Option (Answer β))
+
+/--
+What a connection keeps for its whole life.
+-/
+private structure Env (σ α β : Type) where
+  /--
+  The transport.
   -/
   socket : α
 
   /--
-  The processing machine for HTTP/1.1.
+  The handler.
   -/
-  machine : H1.Machine .receiving
+  handler : σ
+
+  /--
+  The server configuration.
+  -/
+  config : Config
 
   /--
   Extensions to attach to each request (e.g., remote address).
   -/
-  extensions : Extensions := .empty
+  extensions : Extensions
 
-namespace Connection
+  /--
+  The connection's cancellation context.
+  -/
+  context : CancellationContext
+
+  /--
+  Where the output goes.
+  -/
+  outbox : Outbox α
+
+  /--
+  Where the handlers' results and the `Expect: 100-continue` decisions arrive. A handler is abandoned
+  only when the connection ends, so a result that arrives is always the running handler's.
+  -/
+  answers : Std.CloseableChannel (Answer β)
+
+  /--
+  The connection's cancellation, as a case of a wait.
+  -/
+  cancelCase : Selectable (Woke β)
+
+  /--
+  An answer on `answers`, as a case of a wait.
+  -/
+  answerCase : Selectable (Woke β)
 
 /--
-Events produced by the async select loop in `receiveWithTimeout`.
-Each variant corresponds to one possible outcome of waiting for I/O.
+The I/O resources behind the sources the driver arms.
 -/
-private inductive Recv (β : Type)
-  | bytes (x : Option ByteArray)
-  | responseBody (x : Option Chunk)
-  | bodyInterest (x : Bool)
-  | response (x : (Except IO.Error (Response β)))
-  | timeout
-  | keepAliveTimeout
-  | shutdown
-  | close
+private structure Live (β : Type) where
+  /--
+  The handler that runs.
+  -/
+  handler : Option (AsyncTask (Response β)) := none
+
+  /--
+  The request body of the running exchange.
+  -/
+  requestBody : Option Body.Stream := none
+
+  /--
+  The response body of the running exchange.
+  -/
+  responseBody : Option β := none
+
+  /--
+  An input that is known without waiting, reported before anything else.
+  -/
+  ready : Option Driver.Input := none
+
+  /--
+  Until when, by `IO.monoMsNow`, the machine's `Date` stays current: the end of the second it was
+  formatted for.
+  -/
+  dateUntil : Nat := 0
+
+  /--
+  The last write completion reported to the driver (`Outbox.completedAt`).
+  -/
+  completedSeen : Nat := 0
 
 /--
-The timeout that applies while the connection waits on its peer.
--/
-private inductive Timer where
-  /-- The connection is idle between requests, and closes quietly once `remaining` passes. -/
-  | keepAlive (remaining : Millisecond.Offset)
-  /-- A request head is being read, and must be complete by `deadline`. -/
-  | header (deadline : Timestamp)
-  /-- A request head was read, and the connection fails when a wait takes longer than `timeout`. -/
-  | request (timeout : Millisecond.Offset)
-
-/--
-The set of I/O sources to wait on during a single poll iteration.
-Each `Option` field is `none` when that source is not currently active.
--/
-private structure PollSources (α β : Type) where
-  socket : Option α
-  timer : Option Timer
-  expect : Option Nat
-  response : Option (Std.Channel (Except IO.Error (Response β)))
-  responseBody : Option β
-  requestBody : Option Body.Stream
-  connectionContext : CancellationContext
-
-/--
-Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and cleanup
-still run.
+Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and
+cleanup still run.
 -/
 private def reportFailure {σ : Type} [Handler σ] (handler : σ) (error : IO.Error) : Async Unit :=
   try Handler.onFailure handler error catch _ => pure ()
 
 /--
-Waits for the next I/O event across all active sources described by `sources`.
-Computes the socket recv size from `config`, then races all active selectables.
-Calls `Handler.onFailure` and returns `.close` on transport errors.
+Keeps the machine's `Date` current when `Config.generateDate` is set. The wall clock is read, and the
+field formatted, only once the second it was formatted for is over.
 -/
-private def pollNextEvent
-    {σ β : Type} [Transport α] [Handler σ] [Body β]
-    (config : Config) (handler : σ) (sources : PollSources α β)
-    : Async (Recv β) := do
-  let expectedBytes := sources.expect
-    |>.getD config.defaultPayloadBytes
-    |>.min config.maximumRecvSize
-    |>.toUInt64
-
-  let mut selectables : Array (Selectable (Recv β)) := #[
-    .case sources.connectionContext.doneSelector (fun _ => do
-      let reason ← sources.connectionContext.getCancellationReason
-      match reason with
-      | some .deadline => pure .timeout
-      | _ => pure .shutdown)
-  ]
-
-  if let some socket := sources.socket then
-    selectables := selectables.push (.case (Transport.recvSelector socket expectedBytes) (Recv.bytes · |> pure))
-
-  match sources.timer with
-  | some (.keepAlive remaining) =>
-    selectables := selectables.push (.case (← Selector.sleep remaining) (fun _ => pure .keepAliveTimeout))
-  | some (.header deadline) =>
-    selectables := selectables.push (.case (← Selector.sleep (deadline - (← Timestamp.now)).toMilliseconds) (fun _ => pure .timeout))
-  | some (.request timeout) =>
-    selectables := selectables.push (.case (← Selector.sleep timeout) (fun _ => pure .timeout))
-  | none => pure ()
-
-  if let some responseBody := sources.responseBody then
-    selectables := selectables.push (.case (Body.recvSelector responseBody) (Recv.responseBody · |> pure))
-
-  if let some requestBody := sources.requestBody then
-    selectables := selectables.push (.case (requestBody.interestSelector) (Recv.bodyInterest · |> pure))
-
-  if let some response := sources.response then
-    selectables := selectables.push (.case response.recvSelector (Recv.response · |> pure))
-
-  try Selectable.one selectables
-  catch e =>
-    reportFailure handler e
-    pure .close
+private def refreshDate (config : Config) (now : Nat) (s : Driver.State) (live : Live β) :
+    IO (Driver.State × Live β) := do
+  if !config.generateDate || now < live.dateUntil then
+    return (s, live)
+  let wall ← Timestamp.now
+  let intoSecond := (wall.toMillisecondsSinceUnixEpoch.val % 1000).toNat
+  let date :=
+    Header.Value.ofString! (DateTime.ofTimestamp wall TimeZone.ZoneRules.UTC).toHTTPDateString
+  return (s.setDate (some date), { live with dateUntil := now + (1000 - intoSecond) })
 
 /--
-Handles the `Expect: 100-continue` protocol for a pending request head.
-Races between the handler's decision (`Handler.onContinue`), the connection being
-cancelled, and a lingering timeout. Returns the updated machine and whether
-`pendingHead` should be cleared (i.e. when the request is rejected).
+Turns the handler's result into an input, keeping the response body to pull from. The body chunks
+available at once go with the head, so a small response goes out in one write: one chunk, and for a
+body of known length, which cannot change its framing, the next chunk or the end. Taking more could
+let a producer close a body of unknown length before its head is written, which would give it a
+fixed length.
 -/
-private def handleContinueEvent
-    {σ : Type} [Handler σ]
-    (handler : σ) (machine : H1.Machine .receiving) (head : Request.Head)
-    (config : Config) (connectionContext : CancellationContext)
-    : Async (H1.Machine .receiving × Bool) := do
-
-  let continueChannel : Std.Channel Bool ← Std.Channel.new
-  let continueTask ← Handler.onContinue handler head |>.asTask
-
-  BaseIO.chainTask continueTask fun
-    | .ok v => discard <| continueChannel.send v
-    | .error _ => discard <| continueChannel.send false
-
-  let canContinue ← Selectable.one #[
-    .case continueChannel.recvSelector pure,
-    .case connectionContext.doneSelector (fun _ => pure false),
-    .case (← Selector.sleep config.lingeringTimeout) (fun _ => pure false)
-  ]
-
-  let status := if canContinue then Status.«continue» else Status.expectationFailed
-  return (machine.canContinue status, !canContinue)
+private def responded [Body β] (result : Except IO.Error (Response β)) (live : Live β) :
+    Async (Driver.Input × Live β) := do
+  match result with
+  | .error err => return (.handlerFailed err, { live with handler := none })
+  | .ok res =>
+    let live := { live with handler := none, responseBody := some res.body }
+    try
+      let size ← Body.getKnownSize res.body
+      match ← Body.tryRecv res.body with
+      | none => return (.responded res.line size #[] false, live)
+      | some none => return (.responded res.line size #[] true, live)
+      | some (some chunk) =>
+        if size matches some (.fixed _) then
+          match ← Body.tryRecv res.body with
+          | some none => return (.responded res.line size #[chunk] true, live)
+          | some (some next) => return (.responded res.line size #[chunk, next] false, live)
+          | none => return (.responded res.line size #[chunk] false, live)
+        else
+          return (.responded res.line size #[chunk] false, live)
+    catch err =>
+      return (.responded res.line none #[] false, { live with ready := some (.failed err) })
 
 /--
-Applies a successful handler response to the machine.
-Records the known body size and sends the response head. Returns the updated machine and the body
-stream to drain, or `none` when the body should be omitted (e.g., for HEAD requests).
+A selector for the end of `task`.
 -/
-private def applyResponse
-    {β : Type} [Body β]
-    (machine : H1.Machine .receiving) (res : Response β)
-    : Async (H1.Machine .receiving × Option β) := do
-  let size ← Body.getKnownSize res.body
-
-  let machineSized :=
-    if let some knownSize := size
-      then machine.setKnownSize knownSize
-      else machine
-
-  let machineWithHead := machineSized.send res.line
-  if machineWithHead.writer.omitBody then
-    if ¬(← Body.isClosed res.body) then
-      Body.close res.body
-    return (machineWithHead, none)
-  else
-    return (machineWithHead, some res.body)
+private def taskSelector (task : Task α) : Selector α where
+  tryFn := do
+    if ← IO.hasFinished task then return some task.get else return none
+  registerFn waiter :=
+    BaseIO.chainTask (sync := true) task fun value =>
+      waiter.race (pure ()) fun promise => promise.resolve (.ok value)
+  unregisterFn := pure ()
 
 /--
-The handler of the current request.
+The input that reports the outbox's writes: `written`, or `writeFailed` with the error.
 -/
-private inductive HandlerState (β : Type) where
-  /-- No handler runs. -/
-  | idle
-  /-- The handler runs, and the loop waits for its response. -/
-  | running (task : Task (Except IO.Error (Response β)))
-  /-- The handler still runs, but its response will not be written, as after a timeout. -/
-  | abandoned (task : Task (Except IO.Error (Response β)))
-
-namespace HandlerState
-
-private def isRunning : HandlerState β → Bool
-  | .running _ => true
-  | _ => false
-
-/-- Stops waiting for the response of a running handler. -/
-private def abandon : HandlerState β → HandlerState β
-  | .running task => .abandoned task
-  | state => state
-
-private def task? : HandlerState β → Option (Task (Except IO.Error (Response β)))
-  | .running task | .abandoned task => some task
-  | .idle => none
-
-end HandlerState
+private def writesInput (outbox : Outbox α) : BaseIO Driver.Input := do
+  match ← outbox.error? with
+  | some err => return .writeFailed err
+  | none => return .written
 
 /--
-All mutable state carried through the connection processing loop.
-Bundled into a struct so it can be passed to and returned from helper functions.
+The input for a deadline of kind `kind` that passed. Only the outbox knows when a write last
+completed, so a completion the driver has not heard of is reported first, as `writeProgress`, which
+restarts the write deadline.
 -/
-private structure ConnectionState (β : Type) where
-  machine : H1.Machine .receiving
-  requestStream : Body.Stream
-  timer : Timer
-  response : Std.Channel (Except IO.Error (Response β))
-  respStream : Option β
-  /-- Set when the machine asked for more input in the last step, with the bytes it expects if known. -/
-  inputWanted : Option (Option Nat) := none
-  handler : HandlerState β := .idle
-  pendingHead : Option Request.Head
-  /-- The second, since the Unix epoch, that `machine.date` was formatted for. -/
-  dateSecond : Option Int := none
-  /-- The current request was read to its end, or none has started. -/
-  requestEnded : Bool := true
-
-/--
-Keeps `machine.date` current when `Config.generateDate` is set, formatting it at most once per
-second. The machine writes response heads during `Machine.step`, and the 500 for a head it rejects
-in `Machine.send`, so this runs before each step and before a response is applied.
--/
-private def refreshDate (config : Config) (state : ConnectionState β) : IO (ConnectionState β) := do
-  if !config.generateDate then
-    return state
-  let now ← Timestamp.now
-  let second := now.toSecondsSinceUnixEpoch.val
-  if state.dateSecond == some second then
-    return state
-  let date := Header.Value.ofString! (DateTime.ofTimestamp now TimeZone.ZoneRules.UTC).toHTTPDateString
-  return { state with machine := { state.machine with date := some date }, dateSecond := some second }
-
-/--
-Ends `state.requestStream` once the machine produces no more of the body. It closes cleanly only when
-no body bytes are left undelivered; otherwise a handler reading it gets an error saying `reason`, so a
-truncated body never looks complete. A final chunk already offered keeps its clean end, since
-`Stream.closeWithError` leaves it alone.
--/
-private def endRequestStream (state : ConnectionState β) (reason : String) : Async Unit := do
-  let stream := state.requestStream
-  if ← stream.isClosed then
-    return
-  if (← stream.getKnownSize) == some (.fixed 0) then
-    stream.close
-  else
-    stream.closeWithError (.userError reason)
-
-/--
-Processes all H1 events from a single machine step, updating the connection state.
-Handles keep-alive resets, body-size tracking, `Expect: 100-continue`, and parse errors.
-Returns the updated state; stops early on `.failed`.
--/
-private def processH1Events
-    {σ β : Type} [Handler σ] [Body β]
-    (handler : σ) (config : Config) (connectionContext : CancellationContext)
-    (events : Array (H1.Event .receiving))
-    (state : ConnectionState β)
-    : Async (ConnectionState β) := do
-
-  let mut st := state
-
-  for event in events do
-    match event with
-    | .needMoreData expect =>
-      st := { st with inputWanted := some expect }
-
-    | .needAnswer => pure ()
-
-    | .endHeaders head =>
-
-      st := { st with
-        timer := .request config.lingeringTimeout
-        pendingHead := some head
-        requestEnded := false
-      }
-
-      if let some length := head.getSize true then
-        -- Sets the size of the body that is going out of the connection.
-        Body.setKnownSize st.requestStream (some length)
-
-    | .«continue» =>
-      if let some head := st.pendingHead then
-        let (newMachine, clearPending) ← handleContinueEvent handler st.machine head config connectionContext
-        st := { st with machine := newMachine }
-        if clearPending then
-          st := { st with pendingHead := none }
-
-    | .next =>
-      -- Reset all per-request state for the next pipelined request.
-      endRequestStream st "the request body was discarded after the response was written"
-
-      if let some res := st.respStream then
-        if ¬(← Body.isClosed res) then
-          Body.close res
-
-      let newStream ← Body.mkStream
-
-      st := { st with
-        requestStream := newStream
-        response := ← Std.Channel.new
-        respStream := none
-        timer := .keepAlive config.keepAliveTimeout.val
-        handler := st.handler.abandon
-      }
-
-    | .failed err =>
-      reportFailure handler (toString err)
-
-      endRequestStream st s!"the request body is incomplete: {err}"
-
-      st := { st with inputWanted := none, pendingHead := none }
-      break
-
-    | .closeBody =>
-      -- A body read to its end was closed with its final chunk, so an open stream here means the
-      -- rest of the body was drained after the response was written.
-      endRequestStream st "the request body was discarded after the response was written"
-      st := { st with requestEnded := true }
-
-    | .close => pure ()
-
-  return st
-
-/--
-Dispatches a pending request head to the handler if one is waiting.
-Spawns the handler as an async task and routes its result back through `state.response`.
-Returns the updated state with `pendingHead` cleared and the handler running.
--/
-private def dispatchPendingRequest
-    {σ : Type} [Handler σ]
-    (handler : σ) (extensions : Extensions) (connectionContext : CancellationContext)
-    (state : ConnectionState (Handler.ResponseBody σ))
-    : Async (ConnectionState (Handler.ResponseBody σ)) := do
-  if let some line := state.pendingHead then
-
-    let task ← Handler.onRequest handler { line, body := state.requestStream, extensions } connectionContext
-      |>.asTask
-
-    BaseIO.chainTask task (discard ∘ state.response.send)
-    return { state with pendingHead := none, handler := .running task }
-  else
-    return state
-
-/--
-Attempts a single non-blocking receive from the body and feeds any available chunk
-into the machine, without going through the `Selectable.one` scheduler.
-
-For fully-buffered bodies (e.g. `Body.Full`) this avoids one
-`Selectable.one` round-trip when the chunk is already in memory. Streaming bodies
-that have no producer waiting return `none` and fall through to the normal poll loop
-unchanged.
-
-Only one chunk is consumed here. Looping would introduce yield points between
-`Body.tryRecv` calls, allowing a background producer to race ahead and close the
-stream before `writeHead` runs — turning a streaming response with unknown size
-into a fixed-length one.
--/
-private def tryDrainBody [Body β]
-    (machine : H1.Machine .receiving) (body : β)
-    : Async (H1.Machine .receiving × Option β) := do
-  match ← Body.tryRecv body with
-  | none => pure (machine, some body)
-  | some (some chunk) => pure (machine.sendData #[chunk], some body)
-  | some none =>
-    if !(← Body.isClosed body) then Body.close body
-    pure (machine.userClosedBody, none)
-
-/--
-Processes a single async I/O event and updates the connection state.
-Returns the updated state and `true` if the connection should be closed immediately.
--/
-private def handleRecvEvent
-    {σ β : Type} [Handler σ] [Body β]
-    (handler : σ) (config : Config)
-    (event : Recv β) (state : ConnectionState β)
-    : Async (ConnectionState β × Bool) := do
-
-  match event with
-  | .bytes (some bs) =>
-
-    let mut st := state
-
-    -- The first byte after idle starts the request head, which the header timeout bounds.
-    if st.timer matches .keepAlive _ then
-      st := { st with timer := .header ((← Timestamp.now) + config.headerTimeout) }
-
-    return ({ st with machine := st.machine.feed bs }, false)
-
-  | .bytes none =>
-    return ({ state with machine := state.machine.noMoreInput }, false)
-
-  | .responseBody (some chunk) =>
-    return ({ state with machine := state.machine.sendData #[chunk] }, false)
-
-  | .responseBody none =>
-    if let some res := state.respStream then
-      if ¬(← Body.isClosed res) then Body.close res
-    return ({ state with machine := state.machine.userClosedBody, respStream := none }, false)
-
-  | .bodyInterest interested =>
-    if interested then
-      let (newMachine, pulledChunk) := state.machine.pullBody
-      let mut st := { state with machine := newMachine }
-
-      -- The reader that signalled interest may have withdrawn since, for example a `recvSelector`
-      -- that lost its select, so the chunk is offered rather than sent: the loop must not wait.
-      if let some pulled := pulledChunk then
-        try
-          st.requestStream.offer pulled.chunk pulled.incomplete (closeAfter := pulled.final)
-        catch e => reportFailure handler e
-
-      return (st, false)
-    else
-      return (state, false)
-
-  | .close | .keepAliveTimeout => return (state, true)
-
-  | .timeout =>
-    reportFailure handler "request header timeout"
-    return ({ state with
-      machine := state.machine.closeWithError .requestTimeout
-      handler := state.handler.abandon }, false)
-
-  | .shutdown =>
-    return ({ state with
-      machine := state.machine.closeWithError .serviceUnavailable
-      handler := state.handler.abandon }, false)
-
-  | .response (.error err) =>
-    reportFailure handler err
-    return ({ state with
-      machine := state.machine.closeWithError .internalServerError
-      handler := .idle }, false)
-
-  | .response (.ok res) =>
-    let state := { state with handler := .idle }
-    if state.machine.failed then
-      if ¬(← Body.isClosed res.body) then Body.close res.body
-      return (state, false)
-    else if res.line.status.isInformational then
-      -- RFC 9110 §15.2: a 1xx response is interim, so it cannot end the exchange.
-      if ¬(← Body.isClosed res.body) then Body.close res.body
-      reportFailure handler s!"the handler returned the interim status {res.line.status.toCode} as its final response"
-      return ({ state with machine := state.machine.closeWithError .internalServerError }, false)
-    else
-      let state ← refreshDate config state
-      let (newMachine, newRespStream) ← applyResponse state.machine res
-
-      -- Eagerly consume one chunk if immediately available (avoids a Selectable.one round-trip).
-      let (drainedMachine, drainedRespStream, shouldClose) ←
-        match newRespStream with
-        | none => pure (newMachine, none, false)
-        | some body =>
-          try
-            let (machine, body) ← tryDrainBody newMachine body
-            pure (machine, body, false)
-          catch e =>
-            reportFailure handler e
-            pure (newMachine, some body, true)
-
-      return ({ state with machine := drainedMachine, respStream := drainedRespStream }, shouldClose)
-
-/--
-Computes the active `PollSources` for the current connection state.
-Determines which IO sources need attention and whether to include the socket.
-
-Once `inputLimit` bytes of input wait unread and the machine needs no more to make progress
-(`inputWanted` is `none`), the socket is left out, so the rest waits in the kernel and pushes back on
-the client, for example while a response streams.
--/
-private def buildPollSources
-    {α β : Type} [Transport α]
-    (socket : α) (connectionContext : CancellationContext) (state : ConnectionState β)
-    (inputWanted : Option (Option Nat)) (inputLimit : Nat)
-    : Async (PollSources α β) := do
-  let requestBodyOpen ←
-    if state.machine.canPullBody then pure !(← Body.isClosed state.requestStream)
-    else pure false
-
-  let requestBodyInterested ←
-    if state.machine.canPullBody ∧ requestBodyOpen then state.requestStream.hasInterest
-    else pure false
-
-  let requestBody ←
-    if state.machine.canPullBodyNow ∧ requestBodyOpen then pure (some state.requestStream)
-    else pure none
-
-  -- Include the socket only when there is more to do than waiting for the handler alone.
-  let pollSocket :=
-    !state.handler.isRunning ∨ state.respStream.isSome ∨
-    state.machine.writer.sentMessage ∨ (state.machine.canPullBody ∧ requestBodyInterested)
-
-  let inputFull := state.machine.reader.remainingBytes ≥ inputLimit ∧ inputWanted.isNone
-
-  return {
-    -- After EOF the socket stays readable, returning `none` at once, so polling it would spin.
-    socket := if pollSocket ∧ ¬state.machine.reader.noMoreInput ∧ ¬inputFull then some socket else none
-    timer := if pollSocket then some state.timer else none
-    expect := inputWanted.join
-    response := if state.handler.isRunning then some state.response else none
-    responseBody := state.respStream
-    requestBody := requestBody
-    connectionContext := connectionContext
-  }
-
-/--
-Whether processing `event` may run handler code that must not run after an earlier write failed:
-the handler of a request with an unsafe method, or `Handler.onContinue`. Pipelined requests with
-safe methods may be processed before the earlier responses are written (RFC 9112 §9.3.2).
--/
-private def needsWrittenOutput : H1.Event .receiving → Bool
-  | .endHeaders head => !head.method.isSafe
-  | .«continue» => true
-  | _ => false
-
-/--
-Reports a failed write of `outbox` to the handler, once.
--/
-private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) : Async Unit := do
-  if let some err ← outbox.takeError? then
-    reportFailure handler err
-
-/--
-Whether the connection ends while the client may still be sending: the client has not closed its
-side, and the machine stopped before the end of a request, or, while it still took input, with input
-it never read. A request rejected from its head alone leaves `requestEnded` set, so only
-`machine.failed` shows it.
--/
-private def peerMayStillSend (state : ConnectionState β) : Bool :=
-  let reader := state.machine.reader
-  ¬reader.peerClosed ∧
-    (¬state.requestEnded ∨ ¬reader.inputStopped ∧
-      (state.machine.failed ∨ reader.remainingBytes > 0 ∨ reader.state matches .readBody _))
+private def deadlineInput (outbox : Outbox α) (live : Live β) :
+    Driver.Deadline → BaseIO (Driver.Input × Live β)
+  | .write => do
+    let completedAt ← outbox.completedAt
+    if completedAt > live.completedSeen then
+      return (.writeProgress completedAt, { live with completedSeen := completedAt })
+    return (.deadline .write, live)
+  | kind => return (.deadline kind, live)
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still
@@ -602,97 +284,200 @@ private def linger [Transport α] (socket : α) (timeout : Millisecond.Offset) (
       break
 
 /--
-Runs the main request/response processing loop for a single connection.
-Drives the HTTP/1.1 state machine through four phases each iteration:
-hand output to the outbox, process H1 events, dispatch pending requests, poll for I/O.
+Performs one command of the driver.
+-/
+private def perform
+    {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
+    (env : Env σ α (Handler.ResponseBody σ)) (live : Live (Handler.ResponseBody σ)) :
+    Driver.Command → Async (Live (Handler.ResponseBody σ))
+  | .write data => do
+    env.outbox.send data
+    return live
+  | .startHandler line size complete => do
+    let stream ← Body.mkStream
+    Body.setKnownSize stream size
+    if complete then
+      Body.close stream
+    let task ← Handler.onRequest env.handler { line, body := stream, extensions := env.extensions }
+      env.context |>.asTask
+    BaseIO.chainTask (sync := true) task fun result =>
+      discard <| env.answers.trySend (.response result)
+    return { live with requestBody := some stream, handler := some task }
+  | .askContinue head => do
+    let task ← Handler.onContinue env.handler head |>.asTask
+    BaseIO.chainTask (sync := true) task fun result =>
+      discard <| env.answers.trySend (.decision (match result with | .ok accept => accept | _ => false))
+    return live
+  | .pushBody chunk incomplete final => do
+    if let some stream := live.requestBody then
+      -- The reader that waited may have withdrawn since, for example a `recvSelector` that lost its
+      -- select, so the chunk is offered rather than sent: the connection must not wait.
+      try stream.offer chunk incomplete (closeAfter := final)
+      catch e => reportFailure env.handler e
+    return if final then { live with requestBody := none } else live
+  | .failBody err => do
+    if let some stream := live.requestBody then
+      stream.closeWithError err
+    return { live with requestBody := none }
+  | .releaseResponse => do
+    if let some body := live.responseBody then
+      if !(← Body.isClosed body) then Body.close body
+    return { live with responseBody := none }
+  | .report err => do
+    reportFailure env.handler err
+    return live
+  | .abandonHandler => do
+    if let some task := live.handler then
+      BaseIO.chainTask task fun
+        | .ok res => discard <| EAsync.toBaseIO (ε := IO.Error) (Body.close res.body)
+        | .error _ => pure ()
+    return { live with handler := none }
+  | .close lingerFirst => do
+    if lingerFirst then
+      linger env.socket env.config.lingeringTimeout env.config.maximumRecvSize.toUInt64 env.context
+    Transport.close env.socket
+    return live
+
+/--
+Turns what ended a wait into the driver's input.
+-/
+private def wake
+    {σ : Type} [Handler σ] [Body (Handler.ResponseBody σ)]
+    (env : Env σ α (Handler.ResponseBody σ)) (live : Live (Handler.ResponseBody σ)) :
+    Woke (Handler.ResponseBody σ) → Async (Driver.Input × Live (Handler.ResponseBody σ))
+  | .input (.deadline kind) => return (← deadlineInput env.outbox live kind)
+  | .input input => return (input, live)
+  | .writes => return (← writesInput env.outbox, live)
+  | .cancelled => do
+    let reason ← env.context.getCancellationReason
+    return (.cancelled (reason matches some .deadline), live)
+  | .answer (some (.response result)) => responded result live
+  | .answer (some (.decision accept)) => return (.continueDecided accept, live)
+  | .answer none => return (.failed (.userError "the connection's answers were closed"), live)
+
+/--
+Waits for the next input: the outbox confirming the writes, the driver's deadline, a source the
+driver's state arms, or the connection's cancellation.
+-/
+private def waitInput
+    {σ : Type} [Transport α] [Handler σ] [Body (Handler.ResponseBody σ)]
+    (env : Env σ α (Handler.ResponseBody σ)) (s : Driver.State)
+    (live : Live (Handler.ResponseBody σ)) :
+    Async (Driver.Input × Live (Handler.ResponseBody σ)) := do
+  if let some input := live.ready then
+    return (input, { live with ready := none })
+
+  let mut writes := none
+  if s.watchesWrites then
+    match ← env.outbox.idle? with
+    | none => return (← writesInput env.outbox, live)
+    | some idle => writes := some idle
+
+  let now ← IO.monoMsNow
+  let deadline := Driver.nextDeadline s
+  if let some (kind, time) := deadline then
+    if time ≤ now then
+      return (← deadlineInput env.outbox live kind)
+
+  -- A response chunk that is already there is taken without a select.
+  let pullsResponse := Driver.pullsResponse s
+  if pullsResponse then
+    if let some body := live.responseBody then
+      try
+        if let some chunk ← Body.tryRecv body then
+          return (.pulled chunk, live)
+      catch err => return (.failed err, live)
+
+  -- So is the interest of a request body reader that already waits.
+  let wantsBodyInterest := Driver.wantsBodyInterest s
+  if wantsBodyInterest then
+    if let some stream := live.requestBody then
+      if let some wanted ← stream.interestSelector.tryFn then
+        return (.bodyInterest wanted, live)
+
+  let mut selectables : Array (Selectable (Woke (Handler.ResponseBody σ))) := #[]
+
+  if let some idle := writes then
+    selectables := selectables.push (.case (taskSelector idle) fun _ => pure .writes)
+
+  if s.phase == .serving && !s.cancelled then
+    selectables := selectables.push env.cancelCase
+
+  if Driver.wantsBytes env.config s then
+    let recv := Transport.recvSelector env.socket (Driver.recvSize env.config s).toUInt64
+    selectables := selectables.push (.case recv fun data => pure (.input (.received data)))
+
+  if s.handlerRunning || s.asksContinue then
+    selectables := selectables.push env.answerCase
+
+  if wantsBodyInterest then
+    if let some stream := live.requestBody then
+      selectables := selectables.push
+        (.case stream.interestSelector fun wanted => pure (.input (.bodyInterest wanted)))
+
+  if pullsResponse then
+    if let some body := live.responseBody then
+      selectables := selectables.push
+        (.case (Body.recvSelector body) fun chunk => pure (.input (.pulled chunk)))
+
+  -- A source that is ready is taken before a timer is started for the deadline.
+  try
+    unless selectables.isEmpty do
+      if let some woke ← Selectable.tryOne selectables then
+        return ← wake env live woke
+  catch err => return (.failed err, live)
+
+  if let some (kind, time) := deadline then
+    let sleep ← Selector.sleep ((time - now) * (1 : Millisecond.Offset))
+    selectables := selectables.push (.case sleep fun _ => pure (.input (.deadline kind)))
+
+  if selectables.isEmpty then
+    return (.failed (.userError "the connection waits for nothing"), live)
+
+  try wake env live (← Selectable.one selectables)
+  catch err => return (.failed err, live)
+
+/--
+Runs the connection: performs the driver's commands and reports what happened as its next input,
+until the driver closes the connection.
 -/
 private def handle
     {σ : Type} [Transport α] [h : Handler σ]
-    (connection : Connection α)
+    (socket : α)
+    (extensions : Extensions)
     (config : Config)
     (connectionContext : CancellationContext)
     (handler : σ) : Async Unit := do
 
   let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
 
-  let socket := connection.socket
-  let initStream ← Body.mkStream
+  let answers ← Std.CloseableChannel.new
+  let env : Env σ α (Handler.ResponseBody σ) := {
+    socket, handler, config, extensions, context := connectionContext, answers
+    outbox := ← Outbox.new socket
+    cancelCase := .case connectionContext.doneSelector fun _ => pure .cancelled
+    answerCase := .case answers.recvSelector fun answer => pure (.answer answer) }
 
-  let mut state : ConnectionState (Handler.ResponseBody σ) := {
-    machine := connection.machine
-    requestStream := initStream
-    timer := .keepAlive config.keepAliveTimeout.val
-    response := ← Std.Channel.new
-    respStream := none
-    pendingHead := none
-  }
+  let mut live : Live (Handler.ResponseBody σ) := {}
+  let mut s := Driver.State.init { config := config.toH1Config }
+  let mut input := Driver.Input.resume
 
-  let outbox ← Outbox.new socket config.writeTimeout.toInt.toNat
-
-  while ¬state.machine.halted do
-
-    -- Phase 1: advance the state machine and hand its output to the outbox.
-    state ← refreshDate config state
-    let (newMachine, step) := state.machine.step
-    state := { state with machine := newMachine }
-
-    unless ← outbox.push step.output do
-      reportWriteFailure handler outbox
-      break
-
-    if step.events.any needsWrittenOutput then
-      unless ← outbox.awaitWritten do
-        reportWriteFailure handler outbox
-        break
-
-    -- Phase 2: process all events emitted by this step.
-    state ← processH1Events handler config connectionContext step.events state
-
-    -- Phase 3: dispatch any newly parsed request to the handler.
-    state ← dispatchPendingRequest handler connection.extensions connectionContext state
-
-    -- Phase 4: wait for the next IO event when any source needs attention.
-    if state.inputWanted.isSome ∨ state.handler.isRunning ∨ state.respStream.isSome ∨ state.machine.canPullBody then
-      let inputWanted := state.inputWanted
-      state := { state with inputWanted := none }
-      let sources ← buildPollSources socket connectionContext state inputWanted config.maximumRecvSize
-      let event ← pollNextEvent config handler sources
-      -- The keep-alive timeout is armed when the response is handed to the outbox, but the
-      -- connection is idle only once the response is written, so it counts from then.
-      if event matches .keepAliveTimeout then
-        match ← outbox.idleFor? with
-        | none =>
-          outbox.awaitIdle
-          continue
-        | some idle =>
-          let remaining := config.keepAliveTimeout.val.toInt - idle
-          if remaining > 0 then
-            state := { state with timer := .keepAlive (.ofInt remaining) }
-            continue
-      let (newState, shouldClose) ← handleRecvEvent handler config event state
-      state := newState
-      if shouldClose then break
-
-  -- Clean up: close all open streams, finish writing, and close the socket.
   try
-    endRequestStream state "the connection closed before the request body was complete"
-
-    if let some res := state.respStream then
-      if ¬(← Body.isClosed res) then Body.close res
-
-    -- A handler still running returns a response nobody will write. Its body is closed when it
-    -- arrives, so a producer streaming into it does not wait forever.
-    if let some task := state.handler.task? then
-      background do
-        if let .ok res ← Async.ofTask task then
-          Body.close res.body
-
-    outbox.awaitIdle
-    reportWriteFailure handler outbox
-
-    if !(← outbox.failed) ∧ peerMayStillSend state then
-      linger socket config.lingeringTimeout config.maximumRecvSize.toUInt64 connectionContext
-  finally
+    repeat
+      let now ← IO.monoMsNow
+      let (s', l) ← refreshDate config now s live
+      let (s'', cmds) := Driver.step config s' now input
+      s := s''
+      live := l
+      for cmd in cmds do
+        live ← perform env live cmd
+      if s.isClosed then
+        break
+      let (i, l) ← waitInput env s live
+      input := i
+      live := l
+  catch err =>
+    reportFailure handler err
     Transport.close socket
 
 end Connection
@@ -721,7 +506,6 @@ def serveConnection
     {σ : Type} [Transport t] [Handler σ]
     (client : t) (handler : σ)
     (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
-  (Connection.mk client { config := config.toH1Config } extensions)
-  |>.handle config (← ContextAsync.getContext) handler
+  Connection.handle client extensions config (← ContextAsync.getContext) handler
 
 end Std.Http.Server

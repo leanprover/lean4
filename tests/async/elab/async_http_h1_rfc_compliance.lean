@@ -103,18 +103,17 @@ def pullBody (t : MachineTester dir) : MachineTester dir :=
   { t with machine, pulled, lastStep := some { events := pullEvents } }
 
 /--
-Drain all immediately-available body chunks.
-
-The loop exits when `canPullBodyNow` becomes false (either the body is complete
-or the machine stalls waiting for more data). The stall flag is set internally
-by `pullBody`, so no explicit `remainingBytes` guard is needed.
+Drain all immediately-available body chunks: pulls until the body is complete, or until `pullBody`
+returns nothing because the machine waits for more data.
 -/
 def drainBody (t : MachineTester dir) (fuel : Nat := 4096) : MachineTester dir := Id.run do
   let mut t := t
   let mut remaining := fuel
-  while remaining > 0 && t.machine.canPullBodyNow do
+  while remaining > 0 && t.machine.canPullBody do
     remaining := remaining - 1
+    let before := t.pulled.size
     t := t.pullBody
+    if t.pulled.size == before then break
   t
 
 /-- Set the known outgoing body size (forwarded to the writer). -/
@@ -171,10 +170,6 @@ def assertFailedWith (t : MachineTester dir) (expected : Error) : MachineTester 
 /-- Assert that `canPullBody` is true. -/
 def assertCanPullBody (t : MachineTester dir) : MachineTester dir :=
   t.assert (·.canPullBody) "expected canPullBody = true"
-
-/-- Assert that `canPullBodyNow` is true. -/
-def assertCanPullBodyNow (t : MachineTester dir) : MachineTester dir :=
-  t.assert (·.canPullBodyNow) "expected canPullBodyNow = true"
 
 /-- Assert that the reader is in the `complete` state. -/
 def assertReaderComplete (t : MachineTester dir) : MachineTester dir :=
@@ -636,7 +631,7 @@ private def minimalGetRequest : Request.Head :=
   MachineTester.receiving "§6.3: no CL/TE → empty body"
     |>.feed (mkGet "/")
     |>.step |>.assertNoError |>.assertHasEndHeaders
-    |>.assertCanPullBodyNow |>.drainBody
+    |>.assertCanPullBody |>.drainBody
     |>.assertPulledBody .empty |>.assertLastChunkFinal |>.run
 
   let body := "Hello, World!".toUTF8
@@ -889,7 +884,8 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (req1 ++ req2) |>.step |>.assertHasEndHeaders |>.assertKeepAlive
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
     |>.drainBody |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders |>.run
+    -- The step that ends the exchange goes on to the buffered request.
+    |>.assertHasEndHeaders |>.run
 
   -- §9.3: pipelining after CL:0 body — second request parses correctly
   let post1 := "POST /a HTTP/1.1\r\nHost: example.com\r\nContent-Length: 0\r\n\r\n"
@@ -898,8 +894,7 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (post1 ++ get2) |>.step |>.assertHasEndHeaders
     |>.drainBody |>.assertPulledBody .empty
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
-    |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders
+    |>.step |>.assertHasNext |>.assertHasEndHeaders
     |>.onEndHeaders (fun t head =>
       let path := toString head.uri.path
       if path == "/b" then t
@@ -914,8 +909,7 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (req1 ++ req2) |>.noMoreInput
     |>.step |>.assertHasEndHeaders
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
-    |>.drainBody |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders
+    |>.drainBody |>.step |>.assertHasNext |>.assertHasEndHeaders
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
     |>.drainBody |>.step
     |>.assertHasEvent (fun | .close => true | _ => false)
@@ -1022,7 +1016,7 @@ private def minimalGetRequest : Request.Head :=
     |>.feed (mkPostHead "/upload" body.size "Expect: 100-continue\r\n")
     |>.step |>.assertHasEndHeaders |>.assertHasContinue
     |>.canContinue .«continue»
-    |>.feedBytes body |>.step |>.assertCanPullBodyNow
+    |>.feedBytes body |>.step |>.assertCanPullBody
     |>.drainBody |>.assertPulledBody body |>.run
 
   -- rejected: reader closed, body not delivered
@@ -1081,6 +1075,26 @@ private def minimalGetRequest : Request.Head :=
         "an interim response must not emit closeBody"
     |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok" |>.step
     |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8
+    |>.assertHasCloseBody |>.run
+
+  -- §15.2: a final response that arrives in the same read as the interim responses before it is
+  -- parsed in that step; nothing else would prompt another step.
+  MachineTester.sending "§15.2: 100 Continue and the final response in one read"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok" |>.step
+    |>.assertNoError
+    |>.assertHasEvent (fun | .endHeaders head => head.status == .ok | _ => false)
+        "expected the final response head in the step that read it"
+    |>.drainBody |>.assertPulledBody "ok".toUTF8 |>.assertHasCloseBody |>.run
+
+  MachineTester.sending "§15.2: two interim responses and the final response in one read"
+    |>.send minimalGetRequest |>.step
+    |>.feed ("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 103 Early Hints\r\nLink: </a.css>\r\n\r\n" ++
+      "HTTP/1.1 204 No Content\r\n\r\n")
+    |>.step
+    |>.assertNoError
+    |>.assertHasEvent (fun | .endHeaders head => head.status == .noContent | _ => false)
+        "expected the final response head in the step that read it"
     |>.assertHasCloseBody |>.run
 
   -- §15.2.2: after 101 the connection speaks the new protocol, so no final response follows and the
@@ -1156,8 +1170,7 @@ private def minimalGetRequest : Request.Head :=
   MachineTester.receiving "§19.7.1: HTTP/1.0 keep-alive pipelining — second request parsed"
     |>.feed (http10req1 ++ http10req2) |>.step |>.assertHasEndHeaders |>.assertKeepAlive
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
-    |>.drainBody |>.step |>.assertHasNext
-    |>.step |>.assertHasEndHeaders |>.run
+    |>.drainBody |>.step |>.assertHasNext |>.assertHasEndHeaders |>.run
 
   -- §19.7.1: client side — response Connection:keep-alive → keepAlive = true
   MachineTester.sending "§19.7.1: client receives HTTP/1.0 + Connection:keep-alive → keepAlive = true"
@@ -1183,6 +1196,30 @@ private def minimalGetRequest : Request.Head :=
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
     |>.assertOutputNotContains "103" "a 1xx response must not reach an HTTP/1.0 client"
     |>.assertOutputStartsWith "HTTP/1.1 200" "expected the final response first" |>.run
+
+  -- RFC 9110 §15.2: `101 Switching Protocols` is a 1xx response too
+  MachineTester.receiving "§15.2: 101 is not sent to an HTTP/1.0 client"
+    |>.feed (mkGet10 "/") |>.step
+    |>.send { status := .switchingProtocols } |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertOutputNotContains "101" "a 1xx response must not reach an HTTP/1.0 client"
+    |>.assertOutputStartsWith "HTTP/1.1 200" "expected the final response first" |>.run
+
+  -- RFC 9110 §15.2.2: after a 101 the connection speaks the protocol it switched to, which this
+  -- server does not, so the connection ends with the 101 and what follows is not read as HTTP
+  MachineTester.receiving "§15.2.2: a 101 ends HTTP on the connection"
+    |>.feed ("GET /chat HTTP/1.1\r\nHost: example.com\r\n" ++
+      "Connection: Upgrade\r\nUpgrade: websocket\r\n\r\n")
+    |>.step
+    |>.send { status := .switchingProtocols,
+              headers := Headers.empty.insert! "Upgrade" "websocket"
+                |>.insert! "Connection" "Upgrade" }
+    |>.feedBytes (ByteArray.mk #[0x81, 0x02, 0x68, 0x69])
+    |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 101 Switching Protocols\r\n" "expected the 101"
+    |>.assertOutputNotContains "Content-Length" "a 101 has no framing fields"
+    |>.assertOutputNotContains "HTTP/1.1 400" "what follows a 101 must not be read as a request"
+    |>.assertNoError |>.assertHalted |>.run
 
   -- RFC 9110 §6.2: a server sends the highest version it conforms to whose major version is at most
   -- the request's, so an HTTP/1.0 request gets an HTTP/1.1 status line with HTTP/1.0 framing
@@ -1212,8 +1249,7 @@ private def minimalGetRequest : Request.Head :=
     |>.assertOutputContains "Connection: keep-alive\r\n" "expected the HTTP/1.0 keep-alive echo"
     |>.assertOutputNotContains "Content-Length" "unknown length must not be sent as Content-Length: 0"
     |>.assertOutputNotContains "close" "a HEAD response has no body to delimit by closing"
-    |>.assertHasNext
-    |>.step |>.assertHasEndHeaders |>.assertKeepAlive |>.run
+    |>.assertHasNext |>.assertHasEndHeaders |>.assertKeepAlive |>.run
 
 #eval runGroup "RFC 9110 §6.6.1: Date" do
   let date : Header.Value := .mk "Mon, 01 Jan 2024 00:00:00 GMT"

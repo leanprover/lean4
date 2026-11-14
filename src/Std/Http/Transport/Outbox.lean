@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Http.Transport
+public import Std.Http.Internal.ChunkedBuffer
 
 public section
 
@@ -35,22 +36,12 @@ structure Outbox.State where
   queued : List (Array ByteArray) := []
 
   /--
-  The size of `queued` in bytes.
-  -/
-  queuedBytes : Nat := 0
-
-  /--
   A write is in flight.
   -/
   writing : Bool := false
 
   /--
-  A write failed, so later output is dropped.
-  -/
-  failed : Bool := false
-
-  /--
-  The error of the failed write, until it is taken.
+  The error of the write that failed, after which later output is dropped.
   -/
   error : Option IO.Error := none
 
@@ -60,14 +51,9 @@ structure Outbox.State where
   idle : Option (IO.Promise Unit) := none
 
   /--
-  When the last write completed, by `IO.monoMsNow`.
+  When a write last completed, by `IO.monoMsNow`; `0` before any did.
   -/
-  idleSince : Nat := 0
-
-  /--
-  When a write last started with none in flight or completed, by `IO.monoMsNow`.
-  -/
-  progressAt : Nat := 0
+  completedAt : Nat := 0
 
 /--
 Writes a connection's output to `socket` in order without the connection waiting for it. At most
@@ -82,22 +68,15 @@ structure Outbox (α : Type) where
   -/
   socket : α
 
-  /--
-  How long, in milliseconds, a wait for output to be written lasts without any write completing
-  before the outbox fails.
-  -/
-  writeTimeout : Nat
-
   private state : IO.Ref Outbox.State
 
 namespace Outbox
 
 /--
-Creates an outbox that writes to `socket`, failing a wait for its writes once none has completed for
-`writeTimeout` milliseconds.
+Creates an outbox that writes to `socket`.
 -/
-def new (socket : α) (writeTimeout : Nat) : BaseIO (Outbox α) :=
-  return { socket, writeTimeout, state := ← IO.mkRef {} }
+def new (socket : α) : BaseIO (Outbox α) :=
+  return { socket, state := ← IO.mkRef {} }
 
 /--
 Joins queued output, given newest first, into one write in order.
@@ -118,141 +97,58 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
     let (next, idle) ← outbox.state.modifyGet fun s =>
       match result with
       | .error err =>
-        ((#[], s.idle), { s with
-          queued := [], queuedBytes := 0, writing := false, failed := true, error := some err
-          idle := none })
+        ((#[], s.idle), { s with queued := [], writing := false, error := some err, idle := none })
       | .ok () =>
         if s.queued.isEmpty then
-          ((#[], s.idle), { s with writing := false, idle := none, idleSince := now, progressAt := now })
-        else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0, progressAt := now })
+          ((#[], s.idle), { s with writing := false, idle := none, completedAt := now })
+        else ((joinQueued s.queued, none), { s with queued := [], completedAt := now })
     if let some idle := idle then
       idle.resolve ()
     unless next.isEmpty do
       outbox.write next
 
 /--
-Hands `buffer` to the outbox, which writes it after everything handed over before. Returns how many
-bytes now wait behind the write in flight, or `none` if a write failed and `buffer` was dropped.
+Hands `buffer` to the outbox, which writes it after everything handed over before. Once a write
+failed, `buffer` is dropped.
 -/
-def send [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) : BaseIO (Option Nat) := do
+def send [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) : BaseIO Unit := do
   if buffer.size = 0 then
-    return if (← outbox.state.get).failed then none else some 0
+    return
   let data := buffer.data
-  let now ← IO.monoMsNow
-  let (start, queued?) ← outbox.state.modifyGet fun s =>
-    if s.failed then ((false, none), s)
-    else if s.writing then
-      let queuedBytes := s.queuedBytes + buffer.size
-      ((false, some queuedBytes), { s with queued := data :: s.queued, queuedBytes })
-    else ((true, some 0), { s with writing := true, progressAt := now })
+  let start ← outbox.state.modifyGet fun s =>
+    if s.error.isSome then (false, s)
+    else if s.writing then (false, { s with queued := data :: s.queued })
+    else (true, { s with writing := true })
   if start then
     outbox.write data
-    -- A write that fails without suspending has already dropped `buffer`.
-    if (← outbox.state.get).failed then
-      return none
-  return queued?
 
 /--
-Returns `true` while a write is in flight.
--/
-def writing (outbox : Outbox α) : BaseIO Bool :=
-  return (← outbox.state.get).writing
-
-/--
-A task that finishes once no write is in flight, or `none` if none is or the outbox failed.
+A task that finishes once no write is in flight, or `none` if none is or a write failed.
 -/
 def idle? (outbox : Outbox α) : BaseIO (Option (Task (Option Unit))) := do
   let s ← outbox.state.get
-  if !s.writing || s.failed then
+  if !s.writing || s.error.isSome then
     return none
+  if let some idle := s.idle then
+    return some idle.result?
   let fresh ← IO.Promise.new
   outbox.state.modifyGet fun s =>
-    if !s.writing || s.failed then (none, s)
+    if !s.writing || s.error.isSome then (none, s)
     else match s.idle with
       | some idle => (some idle.result?, s)
       | none => (some fresh.result?, { s with idle := some fresh })
 
 /--
-Fails the outbox because its peer stopped reading: queued output is dropped and later output too.
-The write in flight stays in flight until the transport completes it or is closed.
+When a write last completed, by `IO.monoMsNow`; `0` before any did.
 -/
-private def expire (outbox : Outbox α) : BaseIO Unit :=
-  outbox.state.modify fun s =>
-    if s.failed then s
-    else { s with
-      failed := true, queued := [], queuedBytes := 0
-      error := some (IO.userError s!"no write completed within {outbox.writeTimeout} ms") }
+def completedAt (outbox : Outbox α) : BaseIO Nat :=
+  return (← outbox.state.get).completedAt
 
 /--
-A selector that fires once `task` finishes.
+The error of the write that failed, if one did.
 -/
-private def taskSelector (task : Task (Option Unit)) : Selector Unit where
-  tryFn := do
-    if ← IO.hasFinished task then return some () else return none
-  registerFn waiter :=
-    BaseIO.chainTask (sync := true) task fun _ =>
-      waiter.race (pure ()) (fun promise => promise.resolve (.ok ()))
-  unregisterFn := pure ()
-
-/--
-Waits until no write is in flight. If no write completes for `writeTimeout` milliseconds meanwhile,
-the outbox fails instead, so a peer that stops reading cannot hold the connection.
--/
-partial def awaitIdle (outbox : Outbox α) : Async Unit := do
-  let some idle ← outbox.idle? | return
-  let deadline := (← outbox.state.get).progressAt + outbox.writeTimeout
-  let now ← IO.monoMsNow
-  if deadline ≤ now then
-    outbox.expire
-    return
-  let finished ← Selectable.one #[
-    .case (taskSelector idle) (fun _ => pure true),
-    .case (← Selector.sleep (.ofNat (deadline - now))) (fun _ => pure false)]
-  unless finished do
-    -- A write that completed meanwhile moved the deadline.
-    outbox.awaitIdle
-
-/--
-How many milliseconds ago the last write completed, or `none` while a write is in flight.
--/
-def idleFor? (outbox : Outbox α) : BaseIO (Option Nat) := do
-  let s ← outbox.state.get
-  if s.writing then return none
-  return some ((← IO.monoMsNow) - s.idleSince)
-
-/--
-Returns `true` once a write failed.
--/
-def failed (outbox : Outbox α) : BaseIO Bool :=
-  return (← outbox.state.get).failed
-
-/--
-Waits until every write handed over so far completed. Returns `false` if a write failed or none
-completed within `writeTimeout`.
--/
-def awaitWritten (outbox : Outbox α) : Async Bool := do
-  outbox.awaitIdle
-  return !(← outbox.failed)
-
-/--
-Takes the error of the failed write, so that only the first caller gets it.
--/
-def takeError? (outbox : Outbox α) : BaseIO (Option IO.Error) :=
-  outbox.state.modifyGet fun s => (s.error, { s with error := none })
-
-/--
-Hands `buffer` to the outbox, then waits for its writes if more than `limit` bytes are queued, so a
-peer that does not read holds up the caller instead of growing its memory. Returns `false` if a
-write failed or none completed within `writeTimeout`.
--/
-def push [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) (limit : Nat := 65536) :
-    Async Bool := do
-  match ← outbox.send buffer with
-  | some queued =>
-    if queued ≤ limit then
-      return true
-    outbox.awaitWritten
-  | none => return false
+def error? (outbox : Outbox α) : BaseIO (Option IO.Error) :=
+  return (← outbox.state.get).error
 
 end Outbox
 

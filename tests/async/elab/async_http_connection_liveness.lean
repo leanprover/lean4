@@ -37,7 +37,6 @@ structure StalledWrites where
   gate : IO.Promise Unit
 
 instance : Transport StalledWrites where
-  recv s n := Transport.recv s.inner n
   sendAll s _ := discard <| Async.ofTask s.gate.result?
   recvSelector s n := Transport.recvSelector s.inner n
   close s := Transport.close s.inner
@@ -121,7 +120,6 @@ structure CountingPolls where
   polls : IO.Ref Nat
 
 instance : Transport CountingPolls where
-  recv s n := Transport.recv s.inner n
   sendAll s data := Transport.sendAll s.inner data
   recvSelector s n :=
     let selector := Transport.recvSelector s.inner n

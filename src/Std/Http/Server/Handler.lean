@@ -109,25 +109,6 @@ def ofFns
     StatelessHandler :=
   { onRequest, onFailure, onContinue }
 
-/--
-Builds a `StatelessHandler` from a request function and a failure callback. Useful for
-attaching error logging to a handler.
--/
-def withFailure
-    (handler : StatelessHandler)
-    (onFailure : IO.Error → Async Unit) :
-    StatelessHandler :=
-  { handler with onFailure }
-
-/--
-Builds a `StatelessHandler` from a request function and a continue callback
--/
-def withContinue
-    (handler : StatelessHandler)
-    (onContinue : Request.Head → Async Bool) :
-    StatelessHandler :=
-  { handler with onContinue }
-
 end Handler
 
 end Std.Http.Server

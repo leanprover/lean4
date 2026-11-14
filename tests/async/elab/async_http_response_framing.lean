@@ -251,3 +251,32 @@ private def serveCounting (raw : String) (respond : TestHandler) : IO (String ×
     fun _ => Response.ok |>.header! "Content-Length" "3"
       |>.stream fun s => s.send (Chunk.ofByteArray "abcd".toUTF8)
   unless failures > 0 do throw <| IO.userError "long body: onFailure was not called"
+
+/-- A response body of known length whose chunks are all ready at once. -/
+private structure ReadyChunks where
+  chunks : IO.Ref (List Chunk)
+  size : Nat
+
+private def ReadyChunks.take (body : ReadyChunks) : BaseIO (Option Chunk) :=
+  body.chunks.modifyGet fun | [] => (none, []) | c :: cs => (some c, cs)
+
+private instance : Body ReadyChunks where
+  recv body := body.take
+  close body := body.chunks.set []
+  isClosed body := return (← body.chunks.get).isEmpty
+  recvSelector body :=
+    { tryFn := some <$> body.take, registerFn := fun _ => pure (), unregisterFn := pure () }
+  tryRecv body := some <$> body.take
+  getKnownSize body := return some (.fixed body.size)
+  setKnownSize _ _ := pure ()
+
+-- Every chunk of a body of known length is written, however many are ready when the handler
+-- returns.
+#eval runGroup "A body of known length with several chunks ready at once" do
+  let (text, _, failures) ← serveCounting "GET / HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n" fun _ => do
+    let chunks ← IO.mkRef (["abc", "def", "ghi"].map (Chunk.ofByteArray ·.toUTF8))
+    let body : ReadyChunks := { chunks, size := 9 }
+    return { line := { status := .ok }, body := Body.Any.ofBody body }
+  unless text.endsWith "Content-Length: 9\x0d\n\x0d\nabcdefghi" do
+    throw <| IO.userError s!"expected the whole body:\n{text.quote}"
+  unless failures == 0 do throw <| IO.userError s!"onFailure was called {failures} times"

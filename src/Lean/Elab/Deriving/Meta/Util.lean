@@ -2005,6 +2005,8 @@ class Size (α : Type u) where
 class LawfulSize (α : Type u) [Size α] where
   size_pos (x : α) : 0 < Size.size x
 
+open Lean Meta Elab Deriving
+
 -- Deriving handler for `Size` (see `deriveTransformationInstPerConstructor`)
 meta def deriveSize : DerivingHandler :=
   mkInductiveDerivingHandler ``Size do

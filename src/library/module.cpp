@@ -103,13 +103,15 @@ public:
     operator bool() const { return m_fd != -1; }
 };
 
+// Bump when the layout or the meaning of the stored data changes (e.g. the `Expr` hash function),
+// as external tools such as `leantar` reconstruct that data.
+static constexpr uint8_t OLEAN_VERSION = 4;
+
 /** On-disk format of a .olean file. */
 struct olean_header {
     // 5 bytes: magic number
     char marker[5] = {'o', 'l', 'e', 'a', 'n'};
-    // 1 byte: version, incremented on structural changes to header
-    // v2: current `.olean` format
-    // v3: new format used for `CompactedRegion.save (allowClosures := true)`; see below for changes
+    // 1 byte: `OLEAN_VERSION`
     uint8_t version;
     // 1 byte of flags:
     // * bit 0: whether persisted bignums use GMP or Lean-native encoding
@@ -130,14 +132,13 @@ struct olean_header {
     char githash[40];
     // address at which the beginning of the file (including header) is attempted to be mmapped
     size_t base_addr;
-    // In v3, the fixed header is followed by these length-prefixed sections:
+    // The fixed header is followed by these length-prefixed sections:
     //   size_t   data_size                                // byte length of the compacted data
     //   compacted data                                    // `data_size` bytes
     //   uint32_t num_closure_offsets
     //   num_closure_offsets × uint64_t                    // data-relative closure `m_fun` offsets
     //   uint32_t num_libs                                 // closure fn-pointer relocation table
     //   num_libs × (size_t base_addr, uint32_t id_len, char id[id_len])  // used libs
-    // In v2, the compacted data starts immediately after the header (no `data_size`, no sections).
     size_t data[];
 };
 // make sure we don't have any padding bytes, which also ensures `data` is properly aligned
@@ -313,84 +314,61 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
     try {
         std::ofstream out(olean_tmp_fn, std::ios_base::binary);
 
-        if (!allow_closures) {
-            // v2 path: just `[header][data]`, no extension, no trailer.
-            // Compactor errors on closures.
-            if (compactor.size() % ALIGN != 0) {
-                compactor.alloc(ALIGN - (compactor.size() % ALIGN));
-            }
-            size_t file_offset = compactor.size();
-            // Reserve space in the compactor buffer for the header so subsequent objects'
-            // `base_addr`-relative offsets land in the right spot. The header is written directly
-            // to `out` below; these reserved bytes are never read back.
-            compactor.alloc(sizeof(olean_header));
-            olean_header header = {};
-            header.version = 2;
-            header.base_addr = reinterpret_cast<size_t>(compactor.base_addr()) + file_offset;
-            strncpy(header.lean_version, get_short_version_string().c_str(), sizeof(header.lean_version));
-            strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
-            out.write(reinterpret_cast<char *>(&header), sizeof(header));
-
-            compactor(odata);
-            out.write(static_cast<char const *>(compactor.data()) + file_offset + sizeof(olean_header),
-                      compactor.size() - file_offset - sizeof(olean_header));
-        } else {
-            // v3 format
-            // NOTE: each section's data MUST be reserved in the compactor buffer, even when
-            // trailing the actual compactor data, so that any follow-up compaction stays in sync
-            // instead of attempting to map on top of the trailing data
-            if (compactor.size() % ALIGN != 0) {
-                compactor.alloc(ALIGN - (compactor.size() % ALIGN));
-            }
-            size_t file_offset = compactor.size();
-
-            compactor.alloc(sizeof(olean_header));
-            olean_header header = {};
-            header.version = 3;
-            header.base_addr = reinterpret_cast<size_t>(compactor.base_addr()) + file_offset;
-            strncpy(header.lean_version, get_short_version_string().c_str(), sizeof(header.lean_version));
-            strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
-            out.write(reinterpret_cast<char *>(&header), sizeof(header));
-
-            // `data_size`: reserve its slot now so the data lands at the right buffer offset (and
-            // stays `size_t`-aligned: 88 + 8 = 96); its value is only known once the data is
-            // serialized, so it is written just below.
-            compactor.alloc(sizeof(size_t));
-
-            compactor(odata);
-
-            size_t data_offset = file_offset + sizeof(olean_header) + sizeof(size_t);
-            size_t data_size = compactor.size() - data_offset;
-            out.write(reinterpret_cast<char const *>(&data_size), sizeof(data_size));
-            out.write(static_cast<char const *>(compactor.data()) + data_offset, data_size);
-
-            // Read everything we need from the compactor buffer now: the trailer `alloc`s below
-            // may reallocate it. `used_libs()` maps each recorded closure fn pointer to its
-            // library; only those libraries are written. `file_offsets` are this part's closure
-            // `m_fun` offsets made data-section-relative.
-            std::vector<lib_info> used_libs = compactor.used_libs();
-            std::vector<size_t> & all_offsets = compactor.closure_offsets();
-            std::vector<uint64_t> file_offsets;
-            for (size_t off : all_offsets) {
-                file_offsets.push_back(static_cast<uint64_t>(off - data_offset));
-            }
-            // Clear so a chained next part accumulates only its own closures.
-            all_offsets.clear();
-
-            // Closure section.
-            uint32_t num_closure_offsets = static_cast<uint32_t>(file_offsets.size());
-            compactor.alloc(sizeof(num_closure_offsets));
-            out.write(reinterpret_cast<char const *>(&num_closure_offsets), sizeof(num_closure_offsets));
-            if (!file_offsets.empty()) {
-                compactor.alloc(file_offsets.size() * sizeof(uint64_t));
-                out.write(reinterpret_cast<char const *>(file_offsets.data()),
-                          file_offsets.size() * sizeof(uint64_t));
-            }
-
-            // Relocation table: only the libraries containing a compacted closure's fn pointer.
-            compactor.alloc(lib_table_size(used_libs));
-            write_lib_table(out, used_libs);
+        // NOTE: each section's data MUST be reserved in the compactor buffer, even when
+        // trailing the actual compactor data, so that any follow-up compaction stays in sync
+        // instead of attempting to map on top of the trailing data
+        if (compactor.size() % ALIGN != 0) {
+            compactor.alloc(ALIGN - (compactor.size() % ALIGN));
         }
+        size_t file_offset = compactor.size();
+
+        compactor.alloc(sizeof(olean_header));
+        olean_header header = {};
+        header.version = OLEAN_VERSION;
+        header.base_addr = reinterpret_cast<size_t>(compactor.base_addr()) + file_offset;
+        strncpy(header.lean_version, get_short_version_string().c_str(), sizeof(header.lean_version));
+        strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
+        out.write(reinterpret_cast<char *>(&header), sizeof(header));
+
+        // `data_size`: reserve its slot now so the data lands at the right buffer offset (and
+        // stays `size_t`-aligned: 88 + 8 = 96); its value is only known once the data is
+        // serialized, so it is written just below.
+        compactor.alloc(sizeof(size_t));
+
+        compactor(odata);
+
+        size_t data_offset = file_offset + sizeof(olean_header) + sizeof(size_t);
+        size_t data_size = compactor.size() - data_offset;
+        out.write(reinterpret_cast<char const *>(&data_size), sizeof(data_size));
+        out.write(static_cast<char const *>(compactor.data()) + data_offset, data_size);
+
+        // Read everything we need from the compactor buffer now: the trailer `alloc`s below
+        // may reallocate it. `used_libs()` maps each recorded closure fn pointer to its
+        // library; only those libraries are written. `file_offsets` are this part's closure
+        // `m_fun` offsets made data-section-relative.
+        std::vector<lib_info> used_libs = compactor.used_libs();
+        std::vector<size_t> & all_offsets = compactor.closure_offsets();
+        std::vector<uint64_t> file_offsets;
+        for (size_t off : all_offsets) {
+            file_offsets.push_back(static_cast<uint64_t>(off - data_offset));
+        }
+        // Clear so a chained next part accumulates only its own closures.
+        all_offsets.clear();
+
+        // Closure section.
+        uint32_t num_closure_offsets = static_cast<uint32_t>(file_offsets.size());
+        // A single reservation, as `alloc` rounds up to 8 bytes: without closures, the reserved
+        // size then equals the file size, from which `leantar` derives the next part's address.
+        compactor.alloc(sizeof(num_closure_offsets) + file_offsets.size() * sizeof(uint64_t) +
+                        lib_table_size(used_libs));
+        out.write(reinterpret_cast<char const *>(&num_closure_offsets), sizeof(num_closure_offsets));
+        if (!file_offsets.empty()) {
+            out.write(reinterpret_cast<char const *>(file_offsets.data()),
+                      file_offsets.size() * sizeof(uint64_t));
+        }
+
+        // Relocation table: only the libraries containing a compacted closure's fn pointer.
+        write_lib_table(out, used_libs);
         out.close();
         // Note that close itself can fail to flush, so this must be last.
         if (out.fail()) {
@@ -448,7 +426,6 @@ static object * mk_compacted_region(b_obj_arg ofname, object * root,
 // in this file. Returns `(α × CompactedRegion)`, where `α` is the type the Lean caller asks the
 // root to be interpreted as — the C side does no type checking and the caller is responsible for
 // using a type compatible with what was saved (see `CompactedRegion.read`).
-// Supports both `v2` and `v3` formats.
 extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_obj_arg odep_regions) {
     std::string olean_fn(lean_string_cstr(ofname));
     try {
@@ -487,7 +464,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        if ((header.version != 2 && header.version != 3) || header.flags != default_header.flags
+        if (header.version != OLEAN_VERSION || header.flags != default_header.flags
 #ifdef LEAN_CHECK_OLEAN_VERSION
             || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
 #endif
@@ -502,7 +479,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         // Map file COW-writable. The fallback walk in `region_reader::read()` writes
         // fixed pointers back into the region's memory when any dep region didn't land at its
-        // saved `base_addr`, so the mapping must be writable. `v3` files additionally patch
+        // saved `base_addr`, so the mapping must be writable. Files with closures additionally patch
         // closure fn pointers in place. Unwritten pages remain shared with the page cache under
         // `MAP_PRIVATE` regardless of protection, so `PROT_WRITE` is free when no fixup happens.
 #ifdef LEAN_MMAP
@@ -596,30 +573,25 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #endif
         }
 
-        // v3 format, default data otherwise
         std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs;
         std::vector<size_t> closure_offsets;
-        size_t data_section_off = sizeof(olean_header);
-        size_t data_section_sz = size - sizeof(olean_header);
-        if (header.version == 3) {
-            size_t data_size;
-            memcpy(&data_size, buffer + sizeof(olean_header), sizeof(data_size));
-            data_section_off = sizeof(olean_header) + sizeof(size_t);
-            data_section_sz = data_size;
-            char const * p = buffer + data_section_off + data_size;
-            uint32_t num_closure_offsets;
-            memcpy(&num_closure_offsets, p, sizeof(num_closure_offsets));
-            p += sizeof(num_closure_offsets);
-            if (num_closure_offsets > 0) {
-                closure_offsets.reserve(num_closure_offsets);
-                for (uint32_t i = 0; i < num_closure_offsets; i++) {
-                    uint64_t off;
-                    memcpy(&off, p, sizeof(off));
-                    p += sizeof(off);
-                    closure_offsets.push_back(static_cast<size_t>(off));
-                }
-                lib_relocs = read_lib_table_from_buffer(p);
+        size_t data_size;
+        memcpy(&data_size, buffer + sizeof(olean_header), sizeof(data_size));
+        size_t data_section_off = sizeof(olean_header) + sizeof(size_t);
+        size_t data_section_sz = data_size;
+        char const * p = buffer + data_section_off + data_size;
+        uint32_t num_closure_offsets;
+        memcpy(&num_closure_offsets, p, sizeof(num_closure_offsets));
+        p += sizeof(num_closure_offsets);
+        if (num_closure_offsets > 0) {
+            closure_offsets.reserve(num_closure_offsets);
+            for (uint32_t i = 0; i < num_closure_offsets; i++) {
+                uint64_t off;
+                memcpy(&off, p, sizeof(off));
+                p += sizeof(off);
+                closure_offsets.push_back(static_cast<size_t>(off));
             }
+            lib_relocs = read_lib_table_from_buffer(p);
         }
 
         region_reader reader(

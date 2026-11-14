@@ -152,6 +152,7 @@ def LakeOptions.mkBuildConfig
   (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
   (outputsPackage? : Option Package := none)
 : BuildConfig where
+  maxRevs := opts.maxRevs
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
@@ -329,7 +330,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with service? := some service})
 | "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
-  modifyThe LakeOptions ({· with scope? := some (.ofString scope)})
+  -- TODO: determine empty scope from the service
+  let scope := if scope.isEmpty then .none else .ofString scope
+  modifyThe LakeOptions ({· with scope? := some scope})
 | "--repo" => do
   let repo ← takeOptArg "--repo" "GitHub repository"
   if let some e := validateRepo? repo then error e
@@ -543,12 +546,6 @@ def serviceNotFound (ws : Workspace) (service : String) : String :=
   unless (ws.findCacheService? service).isSome do
     error (serviceNotFound ws service)
 
-@[inline] def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
-  if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
-
-@[inline] def cachePlatform (pkg : Package) (platform : CachePlatform) : CachePlatform :=
-  if pkg.isPlatformIndependent then .none else platform
-
 -- since 2026-02-19
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
@@ -579,14 +576,7 @@ protected def get : CliM PUnit := do
         failure
     let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
-    let service : CacheService ← id do
-      if let some service := opts.service? then
-        ws.findCacheService service
-      else if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
-        logWarning endpointDeprecation
-        return .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
-      else
-        return ws.defaultCacheService
+    let service ← computeDownloadArtsService ws opts
     let map ← CacheMap.load file
     let localScope := pkg?.elim ws.root.cacheScope (·.cacheScope)
     cache.writeMap localScope map service.name? (some remoteScope) overwrite
@@ -595,26 +585,9 @@ protected def get : CliM PUnit := do
   else
     let platform := opts.platform?.getD .system
     let toolchain := opts.toolchain?.getD ws.cacheToolchain
-    let service : CacheService ← id do
-      if let some service := opts.service? then
-        ws.findCacheService service
-      else
-        match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-        | some artifactEndpoint, some revisionEndpoint =>
-          logWarning endpointDeprecation
-          if opts.mappingsOnly then
-            error "`--mappings-only` requires services to be configured
-              via the Lake system configuration (not environment variables)"
-          return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
-        | none, none =>
-            return ws.defaultCacheService
-        | some artifactEndpoint, none =>
-          logWarning endpointDeprecation
-          error (invalidEndpointConfig artifactEndpoint "")
-        | none, some revisionEndpoint =>
-          logWarning endpointDeprecation
-          error (invalidEndpointConfig "" revisionEndpoint)
+    let service? ← computeDownloadService? ws opts
     if let some remoteScope := opts.scope? then
+      let service := service?.getD ws.defaultCacheService
       if !remoteScope.isRepo && service.isReservoir then
         -- `--scope` with Reservoir would imply downloading artifacts for a different package.
         -- This is likely user error (they meant `--repo`) rather than something actually useful.
@@ -622,29 +595,81 @@ protected def get : CliM PUnit := do
           if you instead want to download artifacts for a fork of the package, use `--repo`"
       let pkg := pkg?.getD ws.root
       fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
-    else if service.isReservoir then
+    else if service?.getD ws.defaultCacheService |>.isReservoir then
       if let some pkg := pkg? then
-        let some remoteScope := pkg.reservoirScope?
-          | error s!"{pkg.prettyName}: not a Reservoir dependency and no `--scope` or `--repo` set"
-        fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
+        let service ← service?.getDM do
+          if let some service := pkg.downloadCacheService? then
+            ws.findCacheService service.toString
+          else return ws.defaultCacheService
+        if service.isReservoir then
+          let some remoteScope := pkg.reservoirScope?
+            | error s!"{pkg.prettyName}: not a Reservoir dependency"
+          fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
+        else
+          fetchOutputs cache service pkg .none opts platform toolchain overwrite
       else if opts.rev?.isSome then
-        error "the `--rev` option is not supported for a multi-package Reservoir `cache get`"
+        error "the `--rev` option is not supported for a multi-package `cache get`"
       else
         -- TODO: Parallelize?
-        let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
-          let some remoteScope := pkg.reservoirScope?
-            | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
+        let ok ← ws.packages.foldlM (start := 0) (init := true) (m := LoggerIO) fun ok pkg => do
+          let service ←
+            if let some service := service? then
+              pure service
+            else if let some service := pkg.downloadCacheService? then
+              try
+                ws.findCacheService service.toString
+              catch _ =>
+                return false
+            else
+              pure ws.defaultCacheService
+          if service.isReservoir then
+            let some remoteScope := pkg.reservoirScope?
+              | logInfo s!"{pkg.prettyName}: \
+                  skipping non-Reservoir package without its own cache service"
+                return ok
+            try
+              fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
               return ok
-          try
-            fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
-            return ok
-          catch _ =>
-            return false
+            catch _ =>
+              return false
+          else
+            try
+              fetchOutputs cache service pkg .none opts platform toolchain overwrite
+              return ok
+            catch _ =>
+              return false
         unless ok do
           error "failed to download artifacts for some dependencies"
     else
       error "to use `cache get` with a custom endpoint, the `--scope` or `--repo` option must be set"
 where
+  computeDownloadService? ws opts := do
+    if let some service := opts.service? then
+      some <$> ws.findCacheService service
+    else
+      match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+      | some artifactEndpoint, some revisionEndpoint =>
+        logWarning endpointDeprecation
+        if opts.mappingsOnly then
+          error "`--mappings-only` requires services to be configured
+            via the Lake system configuration (not environment variables)"
+        return some <| .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
+      | none, none =>
+        return none
+      | some artifactEndpoint, none =>
+        logWarning endpointDeprecation
+        error (invalidEndpointConfig artifactEndpoint "")
+      | none, some revisionEndpoint =>
+        logWarning endpointDeprecation
+        error (invalidEndpointConfig "" revisionEndpoint)
+  computeDownloadArtsService ws opts := do
+    if let some service := opts.service? then
+      ws.findCacheService service
+    else if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
+      logWarning endpointDeprecation
+      return .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
+    else
+      return ws.defaultCacheService
   invalidEndpointConfig artifactEndpoint revisionEndpoint :=
     s!"invalid endpoint configuration:\
     \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint}\
@@ -652,19 +677,18 @@ where
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
   fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite : LoggerIO Unit := do
-    let platform := cachePlatform pkg platform
-    let toolchain := cacheToolchain pkg toolchain
+    let platform := Internal.cachePlatform pkg platform
+    let toolchain := Internal.cacheToolchain pkg toolchain
     let map : CacheMap ← id do
       let repo := GitRepo.mk pkg.dir
       if let some rev := opts.rev? then
         let rev ← repo.resolveRevision rev
         let some map ← service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
-          | error s!"{remoteScope}: outputs not found for revision {rev}"
+          | error (Internal.noOutputsForRev service remoteScope rev)
         return map
       else
         if (← repo.hasDiff) then
-          logWarning s!"{pkg.prettyName}: package has changes; \
-            only artifacts for committed code will be downloaded"
+          logWarning (Internal.packageHasChanges pkg.prettyName)
           if opts.failLv ≤ .warning then
             failure
         let n := opts.maxRevs
@@ -672,9 +696,7 @@ where
         let map? ← revs.findSomeM? fun rev =>
           service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
         let some map := map?
-          | let revisions :=
-              if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
-            error s!"{remoteScope}: no outputs found {revisions}"
+          | error (Internal.noOutputs service remoteScope n revs)
         return map
     cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
     unless opts.mappingsOnly do
@@ -765,8 +787,8 @@ protected def put : CliM PUnit := do
   let pkg ← match opts.package? with
     | some pkg => parsePackageSpec ws pkg
     | _ => pure ws.root
-  let platform := cachePlatform pkg (opts.platform?.getD .system)
-  let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.cacheToolchain)
+  let platform := Internal.cachePlatform pkg (opts.platform?.getD .system)
+  let toolchain := Internal.cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.cacheToolchain)
   let service ← computeUploadService opts.service? ws.lakeEnv ws.lakeConfig
   let rev ← computePackageRev pkg.dir
   putCore rev file ws.lakeCache.artifactDir service scope platform toolchain

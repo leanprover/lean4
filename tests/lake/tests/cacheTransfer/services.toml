@@ -73,3 +73,18 @@ apiEndpoint = "%URL%/badcount/api/v1"
 name = "apiError"
 type = "reservoir"
 apiEndpoint = "%URL%/apierror/api/v1"
+
+# Uploads to the unscoped services `service-dep.toml` and `pkg-services.toml`
+# declare for downloads
+
+[[cache.service]]
+name = "flatDep"
+type = "s3"
+artifactEndpoint = "%URL%/ok/a1"
+revisionEndpoint = "%URL%/ok/r1"
+
+[[cache.service]]
+name = "flatRoot"
+type = "s3"
+artifactEndpoint = "%URL%/ok/a2"
+revisionEndpoint = "%URL%/ok/r2"

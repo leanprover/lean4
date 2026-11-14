@@ -2070,6 +2070,10 @@ where
         throwError "Value is not positive:{indentExpr e}"
       throwError "Unexpected goal for `LawfulSize` deriving handler: \
         Could not prove that{indentExpr e}\nis positive"
+
+meta initialize
+  registerDerivingHandler ``Size deriveSize
+  registerDerivingHandler ``LawfulSize deriveLawfulSize
 ```
 -/
 def deriveLawTypeClassUsingCtor

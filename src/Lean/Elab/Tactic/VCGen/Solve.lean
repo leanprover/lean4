@@ -193,11 +193,11 @@ def setAppArg (e : Expr) (i n : Nat) (v : Expr) : Expr :=
 def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
   unless rhs.hasMVar do return none
   let n := rhs.getAppNumArgs
-  unless n > 7 && rhs.getAppFn.isConstOf ``Std.WP.wp do return none
-  let prog := rhs.getArg! 7 n
+  unless n > 5 && rhs.getAppFn.isConstOf ``Std.WP.wp do return none
+  let prog := rhs.getArg! 5 n
   let prog' ← instantiateMVarsIfMVarAppS prog
   if isSameExpr prog prog' then return none
-  return some (← shareCommon (setAppArg rhs 7 n prog'))
+  return some (← shareCommon (setAppArg rhs 5 n prog'))
 
 /-- Instantiate assigned head metavariables in the goal's entailment, so the shape tests in the
 following steps see the assigned form. -/
@@ -297,7 +297,7 @@ def replaceRhsDefEq (goal : MVarId) (rhs : Expr) : VCGenM MVarId := do
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
 def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
     VCGenM MVarId := do
-  let wp ← mkAppNS info.head <| info.args.set! 7 prog
+  let wp ← mkAppNS info.head <| info.args.set! 5 prog
   replaceRhsDefEq goal (← mkAppNS wp info.excessArgs)
 
 /-- Put `let name : type := val; body` in front of the entailment in `goal`'s target, where `body` is
@@ -353,7 +353,7 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
     return some (scope, [← replaceProgDefEq goal info (← mkAppRevS body' appArgs)])
-  let wp ← mkAppNS info.head <| info.args.set! 7 (← mkAppRevS body appArgs)
+  let wp ← mkAppNS info.head <| info.args.set! 5 (← mkAppRevS body appArgs)
   let (jp, goal) ← introLet goal name type val (← mkAppNS wp info.excessArgs) nondep
   if appArgs.isEmpty then
     if let some r ← registerJoinPoint scope goal jp val info then
@@ -499,6 +499,8 @@ def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
     (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
     Grind.GrindM (Option (FrameGoal × List MVarId)) := do
+  let le ← share le
+  let W ← share W
   let fp ← share (← mkFreshExprMVar le.appFn!.appArg!)
   let rhs ← mkAppNS W excessStates
   let target ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs]))

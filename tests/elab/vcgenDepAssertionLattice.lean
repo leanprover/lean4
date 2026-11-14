@@ -36,7 +36,7 @@ instance : LawfulMonad Stateful :=
     (bind_assoc := by intro _ _ _ x f g; simp only [bind]; funext; grind)
 
 /-- A dependent assertion language: the postcondition `Prop` may depend on a proof about the state.
-An `abbrev`, so the carrier unfolds to the dependent Pi and `Assertion`/`PartialOrder` are the generic
+An `abbrev`, so the carrier unfolds to the dependent Pi and `CompleteLattice`/`PartialOrder` are the generic
 pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 
@@ -48,8 +48,10 @@ instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨�
       match optRes with
       | none => True
       | some res => post res stOut h⟩
-  trans_monotone x := by
-    simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
+
+instance {α : Type} : WP.IsMonotone (Stateful α) := fun x => by
+  constructor
+  simp only [WP.trans, Lean.Order.PartialOrder.rel, Stateful.run]; grind
 
 theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
     (post : α → StateProp) (eposts : EStack⟨⟩) (st : State) (h : st.Invariant) :
@@ -59,11 +61,17 @@ theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
           | none => True
           | some r => post r (x st).2 h' := rfl
 
-instance : WPMonad Stateful StateProp EStack⟨⟩ where
+instance : MonadicWP Stateful StateProp EStack⟨⟩ where
   toWP _ := Stateful.instWP
-  pure_le_wp_pure x post eposts := by
+
+instance : MonadicWP.IsLaxMonadMorphism Stateful where
+  pure_le x := by
+    intro post eposts
     intro st h hp; exact ⟨h, hp⟩
-  bind_le_wp_bind x f post eposts := by
+  bind_le x f := by
+    intro post eposts
+    show Lean.Order.PartialOrder.rel (wp x (fun a => wp (f a) post eposts) eposts)
+      (wp (x >>= f) post eposts)
     intro st h hp
     simp only [Stateful.trans_apply_eq, bind] at hp ⊢
     grind

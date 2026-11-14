@@ -65,9 +65,10 @@ instance : WP (Prog α) α Prop Thrown where
   trans
     | .ret a => ⟨fun post _ => post a⟩
     | .throw e => ⟨fun _ epost => epost.onThrow e⟩
-  trans_monotone
-    | .ret _ => fun _ _ _ _ _ hpost => hpost _
-    | .throw e => fun _ _ _ _ hepost _ => hepost e
+
+instance : WP.IsMonotone (Prog α)
+  | .ret _ => ⟨fun _ _ _ _ _ hpost => hpost _⟩
+  | .throw e => ⟨fun _ _ _ _ hepost _ => hepost e⟩
 
 axiom Q : String → Prop
 

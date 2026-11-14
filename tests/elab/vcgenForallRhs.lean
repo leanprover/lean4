@@ -35,9 +35,11 @@ axiom wp_add : ∀ {l r : Lang} {Φ : Value → Prop},
 
 instance instWP_Lang : WP Lang Value Prop EStack⟨⟩ where
   trans l := ⟨fun Φ _ => wp l Φ⟩
-  trans_monotone x := by
-    simp [PredTrans.Monotone, Lean.Order.PartialOrder.rel]
-    intros; apply wp_mono <;> trivial
+
+instance : WP.IsMonotone Lang := fun x => by
+  constructor
+  simp [Lean.Order.PartialOrder.rel]
+  intros; apply wp_mono <;> trivial
 
 @[spec]
 theorem spec_nat {n : Nat} {Φ : Value → Prop} : ⦃ Φ ⟨.nat n, .nat⟩ ⦄ (Lang.nat n) ⦃ Φ; estack⟨⟩⦄ :=
@@ -82,9 +84,11 @@ axiom wpS_add : ∀ {l r} {Φ : ValueS → Nat → Prop} {s : Nat},
 
 instance instWP_LangS : WP LangS ValueS (Nat → Prop) EStack⟨⟩ where
   trans l := ⟨fun Φ _ => wpS l Φ⟩
-  trans_monotone x := by
-    simp [PredTrans.Monotone, Lean.Order.PartialOrder.rel]
-    intros; apply wpS_mono <;> trivial
+
+instance : WP.IsMonotone LangS := fun x => by
+  constructor
+  simp [Lean.Order.PartialOrder.rel]
+  intros; apply wpS_mono <;> trivial
 
 @[spec]
 theorem spec_nat_s {n : Nat} {Φ : ValueS → Nat → Prop} :

@@ -164,16 +164,15 @@ theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPos
       ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl
 
 /-- The frame closure carries monotonicity: if `t` is monotone, so is `t.frameClosure op`. -/
-theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
-    {t : PredTrans Pred EPosts β} (h : t.Monotone) :
-    (t.frameClosure op).Monotone := by
-  haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
-  haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
-  intro post post' eposts eposts' hE hP
-  simp only [PredTrans.apply_frameClosure]
-  refine iInf_mono fun r => PreservesSup.upperAdjoint_mono _ ?_
-  exact h _ _ _ _ (PreservesSup.map_mono (opE r) hE)
-    (fun a => PreservesSup.map_mono (op r) (hP a))
+instance (op : R → Pred → Pred) [FrameOp op EPosts opE]
+    (t : PredTrans Pred EPosts β) [t.IsMonotone] : (t.frameClosure op).IsMonotone where
+  apply_mono post post' eposts eposts' hE hP := by
+    haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
+    haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
+    simp only [PredTrans.apply_frameClosure]
+    refine iInf_mono fun r => PreservesSup.upperAdjoint_mono _ ?_
+    exact PredTrans.IsMonotone.apply_mono (pt := t) _ _ _ _ (PreservesSup.map_mono (opE r) hE)
+      (fun a => PreservesSup.map_mono (op r) (hP a))
 
 /-- The frame rule, internalized: for supremum-preserving `op r` whose resources compose by `comp`
 with the action law `op (comp r r') = op r ∘ op r'`, and the matching companion law `hactE`, `op F`

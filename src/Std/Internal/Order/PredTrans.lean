@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Order.Basic
+public import Std.Internal.Order.Product
 
 universe u v w z
 @[expose] public section
@@ -71,13 +72,29 @@ instance [CCPO Pred] : CCPO (PredTrans Pred EPosts α) where
     · intro h
       exact (hsup q.apply).mpr fun f ⟨pf, hpf, hpf_eq⟩ => by subst hpf_eq; exact h pf hpf
 
-/-- Monotonicity property for a predicate transformer: if both `post` and `eposts` grow,
-then the resulting precondition grows. -/
+/-- A predicate transformer `pt` is monotone: if both `post` and `eposts` grow, then the
+precondition `pt.apply post eposts` grows. -/
+class IsMonotone [PartialOrder Pred] [PartialOrder EPosts] (pt : PredTrans Pred EPosts α) :
+    Prop where
+  /-- Larger postconditions give a larger precondition. -/
+  apply_mono : ∀ post post' eposts eposts', eposts ⊑ eposts' → post ⊑ post' →
+    pt.apply post eposts ⊑ pt.apply post' eposts'
+
+/-- A predicate transformer `pt` is conjunctive: the meet of two preconditions lies below the
+precondition of the componentwise meet of the postconditions. -/
+class IsConjunctive [CompleteLattice Pred] [CompleteLattice EPosts]
+    (pt : PredTrans Pred EPosts α) : Prop where
+  /-- The meet of two preconditions lies below the precondition of the meet. -/
+  meet_apply_le : ∀ post₁ post₂ eposts₁ eposts₂,
+    pt.apply post₁ eposts₁ ⊓ pt.apply post₂ eposts₂ ⊑ pt.apply (post₁ ⊓ post₂) (eposts₁ ⊓ eposts₂)
+
+/-- Monotonicity of `pt` as a proposition. -/
+@[deprecated IsMonotone (since := "2026-11-13")]
 def Monotone [PartialOrder Pred] [PartialOrder EPosts] (pt : PredTrans Pred EPosts α) :=
   ∀ post post' eposts eposts', eposts ⊑ eposts' → post ⊑ post' → pt.apply post eposts ⊑ pt.apply post' eposts'
 
-/-- Conjunctivity property for a predicate transformer: the meet of two preconditions lies below
-the precondition of the componentwise meet of the postconditions. -/
+/-- Conjunctivity of `pt` as a proposition. -/
+@[deprecated IsConjunctive (since := "2026-11-13")]
 def Conjunctive [CompleteLattice Pred] [CompleteLattice EPosts] (pt : PredTrans Pred EPosts α) :=
   ∀ post₁ post₂ eposts₁ eposts₂,
     pt.apply post₁ eposts₁ ⊓ pt.apply post₂ eposts₂ ⊑ pt.apply (post₁ ⊓ post₂) (eposts₁ ⊓ eposts₂)
@@ -436,6 +453,98 @@ instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
   throw e := liftArg (MonadExceptOf.throw (m := PredTrans Pred EPosts) e)
   tryCatch x handle := pushArg fun s =>
     MonadExceptOf.tryCatch (m := PredTrans Pred EPosts) (x.popArg s) fun e => (handle e).popArg s
+
+end PredTrans
+
+/-!
+## Laws of the combinators
+
+`IsMonotone` and `IsConjunctive` instances for the combinators. A transformer built from the
+combinators gets its laws from these instances.
+-/
+
+namespace PredTrans
+
+variable {Pred : Type u} {EPosts : Type v} {α β : Type w}
+
+section Monotone
+
+variable [PartialOrder Pred] [PartialOrder EPosts]
+
+instance (a : α) : (PredTrans.pure a : PredTrans Pred EPosts α).IsMonotone :=
+  ⟨fun _ _ _ _ _ hpost => hpost a⟩
+
+instance (x : PredTrans Pred EPosts α) (f : α → PredTrans Pred EPosts β)
+    [x.IsMonotone] [∀ a, (f a).IsMonotone] : (x >>= f).IsMonotone :=
+  ⟨fun _ _ _ _ heposts hpost => IsMonotone.apply_mono (pt := x) _ _ _ _ heposts
+    (fun a => IsMonotone.apply_mono (pt := f a) _ _ _ _ heposts hpost)⟩
+
+instance {σ : Type z} (x : σ → PredTrans Pred EPosts (α × σ)) [∀ s, (x s).IsMonotone] :
+    (pushArg x).IsMonotone :=
+  ⟨fun _ _ _ _ heposts hpost s => IsMonotone.apply_mono (pt := x s) _ _ _ _ heposts
+    (fun p => hpost p.1 p.2)⟩
+
+instance {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) [x.IsMonotone] (s : σ) :
+    (x.popArg s).IsMonotone :=
+  ⟨fun _ _ _ _ heposts hpost => IsMonotone.apply_mono (pt := x) _ _ _ _ heposts
+    (fun a s => hpost (a, s)) s⟩
+
+instance {σ : Type z} (x : PredTrans Pred EPosts α) [x.IsMonotone] :
+    (liftArg x : PredTrans (σ → Pred) EPosts α).IsMonotone :=
+  ⟨fun _ _ _ _ heposts hpost s => IsMonotone.apply_mono (pt := x) _ _ _ _ heposts
+    (fun a => hpost a s)⟩
+
+instance {ε : Type z} (x : PredTrans Pred EPosts (Except ε α)) [x.IsMonotone] :
+    (pushExceptT x).IsMonotone :=
+  ⟨fun _ _ _ _ heposts hpost => IsMonotone.apply_mono (pt := x) _ _ _ _ heposts.2
+    (fun | .ok a => hpost a | .error e => heposts.1 e)⟩
+
+instance (x : PredTrans Pred EPosts (Option α)) [x.IsMonotone] :
+    (pushOptionT x).IsMonotone :=
+  ⟨fun _ _ _ _ heposts hpost => IsMonotone.apply_mono (pt := x) _ _ _ _ heposts.2
+    (fun | .some a => hpost a | .none => heposts.1 ())⟩
+
+end Monotone
+
+section Conjunctive
+
+variable [CompleteLattice Pred] [CompleteLattice EPosts]
+
+instance (a : α) : (PredTrans.pure a : PredTrans Pred EPosts α).IsConjunctive :=
+  ⟨fun _ _ _ _ => PartialOrder.rel_of_eq (meet_apply _ _ a).symm⟩
+
+instance (x : PredTrans Pred EPosts α) (f : α → PredTrans Pred EPosts β)
+    [x.IsMonotone] [x.IsConjunctive] [∀ a, (f a).IsConjunctive] : (x >>= f).IsConjunctive :=
+  ⟨fun _ _ _ _ => PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
+    (IsMonotone.apply_mono (pt := x) _ _ _ _ PartialOrder.rel_refl fun a => by
+      rw [meet_apply]; exact IsConjunctive.meet_apply_le (pt := f a) _ _ _ _)⟩
+
+instance {σ : Type z} (x : σ → PredTrans Pred EPosts (α × σ)) [∀ s, (x s).IsMonotone]
+    [∀ s, (x s).IsConjunctive] : (pushArg x).IsConjunctive :=
+  ⟨fun _ _ _ _ s => by
+    simp only [meet_apply, apply_pushArg]
+    refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x s) _ _ _ _)
+      (IsMonotone.apply_mono (pt := x s) _ _ _ _ PartialOrder.rel_refl fun p => ?_)
+    simp only [meet_apply]
+    exact PartialOrder.rel_refl⟩
+
+instance {ε : Type z} (x : PredTrans Pred EPosts (Except ε α)) [x.IsMonotone]
+    [x.IsConjunctive] : (pushExceptT x).IsConjunctive :=
+  ⟨fun _ _ E₁ E₂ => by
+    simp only [apply_pushExceptT, Prod.snd_meet]
+    refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
+      (IsMonotone.apply_mono (pt := x) _ _ _ _ PartialOrder.rel_refl fun r => ?_)
+    cases r <;> simp only [meet_apply, pushExcept, Prod.fst_meet] <;> exact PartialOrder.rel_refl⟩
+
+instance (x : PredTrans Pred EPosts (Option α)) [x.IsMonotone] [x.IsConjunctive] :
+    (pushOptionT x).IsConjunctive :=
+  ⟨fun _ _ E₁ E₂ => by
+    simp only [apply_pushOptionT, Prod.snd_meet]
+    refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
+      (IsMonotone.apply_mono (pt := x) _ _ _ _ PartialOrder.rel_refl fun o => ?_)
+    cases o <;> simp only [meet_apply, pushOption, Prod.fst_meet] <;> exact PartialOrder.rel_refl⟩
+
+end Conjunctive
 
 end PredTrans
 

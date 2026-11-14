@@ -1082,7 +1082,7 @@ info: twoLayer.spec : ∀ (n : Nat),
 
 /--
 error: failed to synthesize instance of type class
-  EPostSlot EStack⟨⟩ ?m.17 Prop
+  EPostSlot EStack⟨⟩ ?m.16 Prop
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/

@@ -21,7 +21,7 @@ namespace Lean.Elab.Tactic.VCGen
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
-`pre ⊑ wp Prog Value Pred EPosts instAL instEAL instWP prog post eposts s₁ ... sₙ`.
+`pre ⊑ wp Prog Value Pred EPosts instWP prog post eposts s₁ ... sₙ`.
 -/
 public structure WPApp where
   /-- The whole `wp` application, including the excess state arguments. -/
@@ -29,7 +29,7 @@ public structure WPApp where
   /-- The `wp` function head, separated from its explicit core arguments. -/
   head : Expr
   /-- The ordered core arguments of the `wp` application:
-  `#[Prog, Value, Pred, EPosts, instAL, instEAL, instWP, prog, post, eposts]`. -/
+  `#[Prog, Value, Pred, EPosts, instWP, prog, post, eposts]`. -/
   args : Array Expr
   /-- Extra arguments applied after `wp … prog post eposts`, usually concrete state arguments. -/
   excessArgs : Array Expr
@@ -48,14 +48,12 @@ public def Value (info : WPApp) : Expr := info.args[1]!
 public def Pred (info : WPApp) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
 public def EPosts (info : WPApp) : Expr := info.args[3]!
-/-- `Assertion Pred` instance argument of `wp`. -/
-public def instAL (info : WPApp) : Expr := info.args[4]!
 /-- `WP` instance argument of `wp`. -/
-public def instWP (info : WPApp) : Expr := info.args[6]!
+public def instWP (info : WPApp) : Expr := info.args[4]!
 /-- Program expression classified by VCGen. -/
-public def prog (info : WPApp) : Expr := info.args[7]!
+public def prog (info : WPApp) : Expr := info.args[5]!
 /-- Postcondition argument of `wp`. -/
-public def post (info : WPApp) : Expr := info.args[8]!
+public def post (info : WPApp) : Expr := info.args[6]!
 
 /-- The `wp` application itself, before the excess state arguments apply. -/
 public def wp (info : WPApp) : Expr := info.expr.stripArgsN info.excessArgs.size
@@ -65,8 +63,8 @@ end WPApp
 /-- The `wp` metadata of `rhs`, or `none` when `rhs` is not a `wp` application. -/
 public def isWPApp? (rhs : Expr) : Option WPApp :=
   rhs.withApp fun head args =>
-    if head.isConstOf ``Std.WP.wp && args.size ≥ 10 then
-      some { expr := rhs, head, args := args.take 10, excessArgs := args.drop 10 }
+    if head.isConstOf ``Std.WP.wp && args.size ≥ 8 then
+      some { expr := rhs, head, args := args.take 8, excessArgs := args.drop 8 }
     else
       none
 

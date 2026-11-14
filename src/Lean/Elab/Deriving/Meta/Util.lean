@@ -861,10 +861,15 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
         let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
         let value ← instantiateMVars helper.value.get!
         let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
+        trace[Elab.Deriving] "Helper declaration `{helper.declName.get!}` \
+          of type{indentExpr type}\nand value{indentExpr value}"
         return { helper with type, value }
       let value ← instantiateMVars info.value
       let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
+      trace[Elab.Deriving] "Instance declaration `{info.declName.get!}` \
+        of type{indentExpr info.fullType.get!}\nand value{indentExpr value}"
       return { info with extendedHelpers, value }
+
     -- 7. create all the helper pre-definitions
     let mut helperPredefs : Array PreDefinition := #[]
     let ref ← getRef
@@ -1361,11 +1366,12 @@ def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM Pr
   }
 
 /--
-Default `computeClassApp` used for `InstanceInfo.usingCtor` that uses the `className` from the
-context. It checks that the type former has one type parameter and tries to synthesize all type
+Computes a type class application based on a type application.
+
+First checks that the type former has one type parameter and then tries to synthesize all type
 parameters, instantiating them with the type application and setting level parameters appropriately.
 -/
-def computeClassAppDefault (typeApp : Expr) : DerivingM Expr := do
+private def computeClassApp (typeApp : Expr) : DerivingM Expr := do
   let className := (← read).className
   let val ← getConstVal className
   let levelParams := val.levelParams
@@ -1449,21 +1455,13 @@ private def recurrenceError (inducts : List Name) (complexOnly : Bool)
   return none
 
 /--
-The building block for `makeInstancesUsingCtor`: `InstanceInfo.usingCtor` creates an `InstanceInfo`
-for use in `makeInstancesUsingMutualBlock` that constructs an instance of the class using its
-constructor and runs `perField` on every field given the name of the projection function of the
-field.
-
-See `makeInstancesUsingCtor` for an explanation of the arguments.
-
-In most cases, the convenience function `makeInstancesUsingCtor` should be preferred over this one.
+General version of `InstanceInfo.usingCtor` that allows specifying the precise type and type class
+applications and variables to be abstracted (usually the indices).
 -/
-def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
+def InstanceInfo.usingCtorCore (perField : Name → FieldHelperProvider α)
+    (induct : Name) (typeApp classApp : Expr) (additionalVars : Array Expr)
     (supportsRec : Bool := true) (supportsPartial := true)
-    (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault)
-    (induct : Name) : DerivingM (InstanceInfo α) := do
-  let typeApp ← inductAppWithParams induct
-  let indInfo ← getConstInfoInduct induct
+    : DerivingM (InstanceInfo α) := do
   let usePartial := ((← isNestedOrReflexive) || !supportsRec)
     -- if we support partial but not recursion with termination
     -- we may as well use it for non-recursive inductives to be safe
@@ -1479,63 +1477,79 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
         m!" but the field #{fieldIdx + 1} of {.ofConstName ctorName} \
           contains a {kind} recurrence:{indentExpr type}"
       return m!"{header}{where?.getD "."}"
-  forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
+  let classApp ← whnfR classApp -- unfold class `abbrev`s like `Std.ReflOrd`
+  classApp.withApp fun fn classParams => do
+  let .const className classLParams := fn
+    | throwError "Invalid use of `{.ofConstName decl_name%}`,{indentExpr classApp}\
+        \nis not a constant application"
+  let some structInfo := getStructureInfo? (← getEnv) className
+    | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+        expected `{.ofConstName className}` to be a structure"
+  let classInfo ← getConstInfoInduct className
+  let [ctor] := classInfo.ctors | unreachable!
+  let type ← mkForallFVars additionalVars classApp
+  let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
+  let mut helpers : Array (HelperInfo α) := #[]
+  let additionalVarDecls := (← additionalVars.mapM (·.fvarId!.getDecl)).toList
+  for h : i in 0...structInfo.fieldNames.size do
+    let some projFn := structInfo.getProjFn? i | unreachable!
+    let fieldInfo ← getConstVal projFn
+    let expectedType ← Core.instantiateTypeLevelParams fieldInfo classLParams
+    let expectedType ← instantiateForall expectedType classParams
+    let .forallE _ _ expectedType _ := expectedType | unreachable!
+    if expectedType.hasLooseBVars then
+      throwError "Invalid use of `{.ofConstName decl_name%}`: This function can currently only \
+        be used for non-dependent fields but `{.ofConstName projFn}` \
+        depends on previous fields."
+    let input := { classLParams, classParams, typeApp, fieldInfo, expectedType }
+    let fieldHelperInfo ← perField projFn input
+    fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
+    if let .usingHelper mkValue := fieldHelperInfo then
+      helpers := helpers.push {
+        suffix := structInfo.fieldNames[i]
+        type := ← mkForallFVars additionalVars expectedType
+        mkValue instances val := do
+          withExistingLocalDecls additionalVarDecls do
+            let res ← mkLambdaFVars additionalVars <| ← mkValue instances val
+            return res
+        postprocess _ := postprocessUsingCtor usePartial
+      }
+  return {
+    induct, type, helpers
+    mkValue helpers := do
+      withExistingLocalDecls additionalVarDecls do
+        let mut ctorApp : Expr := mkAppN (.const ctor classLParams) classParams
+        let mut helperIdx := 0
+        for info in fieldHelperInfos do
+          match info with
+          | .inline e => ctorApp := ctorApp.app e
+          | .usingHelper _ =>
+            ctorApp := ctorApp.app (mkAppN helpers[helperIdx]! additionalVars)
+            helperIdx := helperIdx + 1
+        mkLambdaFVars additionalVars ctorApp
+  }
+
+/--
+The building block for `makeInstancesUsingCtor`: `InstanceInfo.usingCtor` creates an `InstanceInfo`
+for use in `makeInstancesUsingMutualBlock` that constructs an instance of the class using its
+constructor and runs `perField` on every field given the name of the projection function of the
+field.
+
+See `makeInstancesUsingCtor` for an explanation of the arguments.
+
+In most cases, the convenience function `makeInstancesUsingCtor` should be preferred over this one.
+-/
+def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
+    (supportsRec : Bool := true) (supportsPartial := true)
+    (induct : Name) : DerivingM (InstanceInfo α) := do
+  let typeApp ← inductAppWithParams induct
+  let indInfo ← getConstInfoInduct induct
+  forallBoundedTelescope (← inferType typeApp) indInfo.numIndices fun indices body => do
     let .sort _ := body
-      | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}\
-          \nfor {.ofConstName induct}"
+      | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
     let typeApp := mkAppN typeApp indices
     let classApp ← computeClassApp typeApp
-    let classApp ← whnfR classApp -- unfold class `abbrev`s like `Std.ReflOrd`
-    classApp.withApp fun fn classParams => do
-    let .const className classLParams := fn
-      | throwError "Invalid use of `{.ofConstName decl_name%}`,{indentExpr classApp}\
-          \nis not a constant application"
-    let some structInfo := getStructureInfo? (← getEnv) className
-      | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-          expected `{.ofConstName className}` to be a structure"
-    let classInfo ← getConstInfoInduct className
-    let [ctor] := classInfo.ctors | unreachable!
-    let type ← mkForallFVars indices classApp
-    let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
-    let mut helpers : Array (HelperInfo α) := #[]
-    let indexDecls := (← indices.mapM (·.fvarId!.getDecl)).toList
-    for h : i in 0...structInfo.fieldNames.size do
-      let some projFn := structInfo.getProjFn? i | unreachable!
-      let fieldInfo ← getConstVal projFn
-      let expectedType ← Core.instantiateTypeLevelParams fieldInfo classLParams
-      let expectedType ← instantiateForall expectedType classParams
-      let .forallE _ _ expectedType _ := expectedType | unreachable!
-      if expectedType.hasLooseBVars then
-        throwError "Invalid use of `{.ofConstName decl_name%}`: This function can currently only \
-          be used for non-dependent fields but `{.ofConstName projFn}` \
-          depends on previous fields."
-      let input := { classLParams, classParams, typeApp, fieldInfo, expectedType }
-      let fieldHelperInfo ← perField projFn input
-      fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
-      if let .usingHelper mkValue := fieldHelperInfo then
-        helpers := helpers.push {
-          suffix := structInfo.fieldNames[i]
-          type := ← mkForallFVars indices expectedType
-          mkValue instances val := do
-            withExistingLocalDecls indexDecls do
-              let res ← mkLambdaFVars indices <| ← mkValue instances val
-              return res
-          postprocess _ := postprocessUsingCtor usePartial
-        }
-    return {
-      induct, type, helpers
-      mkValue helpers := do
-        withExistingLocalDecls indexDecls do
-          let mut ctorApp : Expr := mkAppN (.const ctor classLParams) classParams
-          let mut helperIdx := 0
-          for info in fieldHelperInfos do
-            match info with
-            | .inline e => ctorApp := ctorApp.app e
-            | .usingHelper _ =>
-              ctorApp := ctorApp.app (mkAppN helpers[helperIdx]! indices)
-              helperIdx := helperIdx + 1
-          mkLambdaFVars indices ctorApp
-    }
+    InstanceInfo.usingCtorCore perField induct typeApp classApp indices supportsRec supportsPartial
 
 /--
 Constructs instances of the class using its constructor, running `perField` on every field given
@@ -1559,10 +1573,6 @@ don't need recursive instance applications for the fields.
 You can also specify a one time computation at `preHelpers` which will be run before any of the
 helpers with all helpers in scope. The result of this computation is provided as an additional `α`
 argument to all `FieldHelperProvider` APIs.
-
-The `computeClassApp` function should compute the concrete type class application to generate an
-instance for, given an application of an inductive from the mutual block with indices. Per default,
-it returns an application of the class being derived with the inductive type application.
 
 Example:
 ```
@@ -1601,7 +1611,7 @@ meta def deriveTypeInfo : DerivingHandler :=
 meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
 ```
 
-This function is a short-hand for running `makeInstanceUsingMutualHelper` where an `InstanceInfo`
+This function is a short-hand for running `makeInstancesUsingMutualHelper` where an `InstanceInfo`
 is generated using `InstanceInfo.usingCtor` for every inductive in the mutual block. If you need
 more control over which inductives to generate helpers for (e.g. only the ones that are actually
 provided to `deriving` for inherently non-recursive instances), you can use
@@ -1609,18 +1619,17 @@ provided to `deriving` for inherently non-recursive instances), you can use
 -/
 def makeInstancesUsingCtor (perField : Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (supportsPartial := true) (nonRec : Bool := false)
-    (preHelpers : DerivingM α := by exact pure ())
-    (computeClassApp : (typeApp : Expr) → DerivingM Expr := computeClassAppDefault) :
+    (preHelpers : DerivingM α := by exact pure ()) :
     DerivingM Unit := do
   if nonRec then
     for name in (← read).names do
       withoutModifyingInstanceState do
         makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
-          #[← InstanceInfo.usingCtor perField supportsRec supportsPartial computeClassApp name]
+          #[← InstanceInfo.usingCtor perField supportsRec supportsPartial name]
   else
     makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
       ← (← read).indInfo.all.toArray.mapM
-        (InstanceInfo.usingCtor perField supportsRec supportsPartial computeClassApp)
+        (InstanceInfo.usingCtor perField supportsRec supportsPartial)
 
 /-- An equation for an instance projection of an instance parameter of a law type class -/
 structure InstanceProjEquation where
@@ -1642,6 +1651,9 @@ structure InstanceProjEquation where
   -/
   helperName? : Option Name
 
+instance : ToMessageData InstanceProjEquation where
+  toMessageData eqn := m!"{eqn.lhs}\n===>\n{eqn.unfolded}"
+
 /-- Context for deriving law type classes -/
 structure LawDerivingContext where
   /--
@@ -1651,6 +1663,7 @@ structure LawDerivingContext where
   class.
   -/
   equations : NameMap (Array InstanceProjEquation) := {}
+deriving Inhabited
 
 /--
 Given an application, returns the corresponding equation if `app` is an application of instance
@@ -1685,7 +1698,10 @@ def LawDerivingContext.unfoldOnce (ctx : LawDerivingContext) (e : Expr)
       let overArgs := e.getAppArgsN numOverArgs
       let mut proof := eqn.proof
       for arg in overArgs do
-        proof ← mkCongrFun proof arg
+        if proof.isAppOfArity ``funext 5 then
+          proof := proof.appArg!.betaRev #[arg]
+        else
+          proof ← mkCongrFun proof arg
       return .done { expr := eqn.unfolded.beta overArgs, proof? := proof }
     dpre e := do
       -- stop early
@@ -1699,16 +1715,57 @@ def LawDerivingContext.unfoldOnce (ctx : LawDerivingContext) (e : Expr)
 Unfolds all instance projections registered in `ctx` once in the expected type before running `x`.
 You can also provide a filter for which projections to unfold.
 -/
-def LawDerivingContext.withUnfoldOnce (ctx : LawDerivingContext) (x : FieldHelperProvider α)
-    (filter : InstanceProjEquation → Bool := fun _ => true) : FieldHelperProvider α :=
+partial def LawDerivingContext.withUnfoldOnce (ctx : LawDerivingContext)
+    (x : FieldHelperProvider α) (filter : InstanceProjEquation → Bool := fun _ => true)
+    : FieldHelperProvider α :=
   fun input => do
-    let (newExpectedType, proof) ← ctx.unfoldOnce input.expectedType filter
+    -- returns (e', h : e' → e)
+    -- we need to do this manually to make sure the general structure
+    -- is preserved for termination proofs
+    let rec goRewrite (e : Expr) : DerivingM (Expr × Expr) := withIncRecDepth do
+      match e with
+      | .forallE nm t b bi =>
+        let noRewrite := do
+          withLocalDecl nm bi t fun var => do
+            let (b', imp) ← goRewrite (b.instantiate1 var)
+            let e' ← mkForallFVars #[var] b'
+            withLocalDeclD `h e' fun h => do
+              return (e', ← mkLambdaFVars #[h, var] (imp.betaRev #[h.app var]))
+        unless ← isProp t do
+          return ← noRewrite
+        let (t', proof) ← ctx.unfoldOnce t filter
+        -- unfortunately, is does not seem to be possible to disable all reductions in `simp`
+        -- in particular it will always instantiate metavariables and fold raw nat literals
+        -- so this branch may not be hit even if we didn't unfold anything :(
+        -- the `Sym.Simp` framework gives us more control but requires us to share all expressions
+        if t' == t then
+          return ← noRewrite
+        let mp := mkApp3 (.const ``Eq.mp [0]) t t' proof
+        let mpr := mkApp3 (.const ``Eq.mpr_prop []) t t' proof
+        withLocalDecl nm bi t' fun var => do
+          let (b', imp) ← goRewrite (b.instantiate1 (mp.app var))
+          let e' ← mkForallFVars #[var] b'
+          withLocalDeclD `h e' fun h => do
+          withLocalDecl nm bi t fun origVar => do
+            return (e', ← mkLambdaFVars #[h, origVar] (imp.betaRev #[h.app (mpr.app origVar)]))
+      | _ =>
+        let (e', proof) ← ctx.unfoldOnce e filter
+        return (e', mkApp3 (.const ``Eq.mpr [← getLevel e]) e e' proof)
+    let (newExpectedType, imp) ← goRewrite input.expectedType
     let res ← x { input with expectedType := newExpectedType }
-    let mpr := mkApp3 (.const ``Eq.mpr [← getLevel input.expectedType])
-      input.expectedType newExpectedType proof
     match res with
-    | .inline val => return .inline <| mpr.app val
-    | .usingHelper fn => return .usingHelper <| fun xs val => return mpr.app <| ← fn xs val
+    | .inline res =>
+      if let .lam _ _ b _ := imp then
+        return .inline <| b.instantiateBetaRevRange 0 1 #[res]
+      else
+        return .inline <| imp.app res
+    | .usingHelper fn =>
+      return .usingHelper <| fun xs val => do
+        let res ← fn xs val
+        if let .lam _ _ b _ := imp then
+          return b.instantiateBetaRevRange 0 1 #[res]
+        else
+          return imp.app res
 
 private structure Refold where
   lparams : List Level
@@ -1772,6 +1829,7 @@ private def getUnfoldEqnForExpr (e : Expr) : MetaM (Option (Expr × Expr)) := do
 
 private def findRefoldsAndEquationsIn (instApp : Expr) (acc : LawDerivingAccumulator) :
     DerivingM LawDerivingAccumulator := do
+  withTraceNode `Elab.Deriving (fun _ => return m!"Processing instance {instApp}") do
   let .const instName us := instApp.getAppFn
     | trace[Elab.Deriving] "Not a constant application for instance parameter{indentExpr instApp}"
       return acc
@@ -1854,13 +1912,14 @@ private def validateRefolds (acc : NameMap Refold) : DerivingM Unit := do
             into a single one by specifying the instances in a comma-separated list"
       validated := validated.insert other
 
-private def LawDerivingAccumulator.toContext (acc : LawDerivingAccumulator) :
+private def LawDerivingContext.ofRefoldsAndEquations
+    (refolds : NameMap Refold) (eqns : Array InstanceProjEquation) :
     DerivingM LawDerivingContext := do
-  validateRefolds acc.refolds
   let mut ctx : LawDerivingContext := {}
-  for eqn in acc.unfolds do
+  for eqn in eqns do
     let proj := eqn.projName
-    let rhs ← applyRefolds eqn.unfolded acc.refolds
+    let rhs ← applyRefolds eqn.unfolded refolds
+    trace[Elab.Deriving] "Refolded{indentExpr eqn.unfolded}\n===>{indentExpr rhs}"
     let eqn := {
       eqn with
       unfolded := rhs
@@ -1874,19 +1933,49 @@ private def LawDerivingAccumulator.toContext (acc : LawDerivingAccumulator) :
     }
   return ctx
 
-private def buildLawDerivingContextFor (names : List Name) : DerivingM LawDerivingContext := do
-  let mut acc : LawDerivingAccumulator := {}
+private structure LawDerivingEntry where
+  induct : Name
+  lctx : LocalContext
+  localInsts : LocalInstances
+  typeApp : Expr
+  classApp : Expr
+  indices : Array Expr
+  equations : Array InstanceProjEquation
+  lawContext : LawDerivingContext := {}
+deriving Inhabited
+
+private def buildLawDerivingEntriesFor (names : List Name) :
+    DerivingM (Array LawDerivingEntry) := do
+  let mut refolds : NameMap Refold := {}
+  let mut entries : Array LawDerivingEntry := #[]
   for induct in names do
     let indApp ← inductAppWithParams induct
     let indInfo ← getConstInfoInduct induct
     forallBoundedTelescope (whnfType := true) (← inferType indApp) indInfo.numIndices fun indices body => do←
       let .sort _ := body | throwError "Unexpected inductive type type{indentExpr (← inferType indApp)}"
-      let classApp ← computeClassAppDefault (mkAppN indApp indices)
+      let typeApp := mkAppN indApp indices
+      let classApp ← computeClassApp typeApp
       -- we're interested in the instance arguments (the first is a type argument)
       let instArgs := classApp.getAppArgs.drop 1
+      let mut acc := { refolds, unfolds := #[] }
       for instArg in instArgs do
         acc ← findRefoldsAndEquationsIn instArg acc
-  acc.toContext
+      trace[Elab.Deriving] "{acc.unfolds}"
+      entries := entries.push {
+        induct, typeApp, classApp, indices
+        equations := acc.unfolds
+        lctx := ← getLCtx
+        localInsts := ← getLocalInstances
+      }
+      refolds := acc.refolds
+  validateRefolds refolds
+  entries.mapM fun entry => do
+    withLCtx entry.lctx entry.localInsts do
+      return {
+        entry with
+        equations := #[]
+        lawContext := ← LawDerivingContext.ofRefoldsAndEquations refolds entry.equations
+      }
 
 def deriveLawTypeClassUsingCtor
     (perField : LawDerivingContext → Name → FieldHelperProvider α)
@@ -1896,15 +1985,20 @@ def deriveLawTypeClassUsingCtor
   if nonRec then
     for name in (← read).names do
       withoutModifyingInstanceState do
-        let ctx ← buildLawDerivingContextFor [name]
-        makeInstancesUsingMutualBlock (preHelpers := preHelpers)
-          #[← InstanceInfo.usingCtor (perField ctx) supportsRec
-            (supportsPartial := false) (induct := name)]
+        let entries ← buildLawDerivingEntriesFor [name]
+        let entry := entries[0]!
+        let info ← withLCtx entry.lctx entry.localInsts do
+          InstanceInfo.usingCtorCore (perField entry.lawContext) entry.typeApp entry.classApp
+            entry.indices (supportsRec := supportsRec) (supportsPartial := false) (induct := name)
+        makeInstancesUsingMutualBlock (preHelpers := preHelpers) #[info]
   else
-    let ctx ← buildLawDerivingContextFor (← read).indInfo.all
+    let entries ← buildLawDerivingEntriesFor (← read).indInfo.all
     makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
-      ← (← read).indInfo.all.toArray.mapM
-        (InstanceInfo.usingCtor (perField ctx) supportsRec (supportsPartial := false))
+      ← entries.mapM fun entry => do
+        withLCtx entry.lctx entry.localInsts do
+          InstanceInfo.usingCtorCore (perField entry.lawContext) entry.typeApp entry.classApp
+            entry.indices (supportsRec := supportsRec) (supportsPartial := false)
+            (induct := entry.induct)
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor

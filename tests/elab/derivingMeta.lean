@@ -574,3 +574,144 @@ meta def declareWide (name : Name) (n : Nat) : CommandElabM Unit := do
 
 run_cmd declareWide `Wide400 400
 run_cmd handler #[``Wide400]
+
+/-!
+An (arguably silly) example for a law type class deriving handler
+-/
+
+inductive Data.Small : Data → Prop
+  | nat (n : Nat) : Small (.nat n)
+  | int (n : Int) : Small (.int n)
+  | string (s : String) : Small (.string s)
+  | array (xs : Array Data) (h : ∀ x ∈ xs, Small x) : Small (.array xs)
+  | ctor (idx : Nat) (l : List Data) (hcidx : idx < 16) (hfields : l.length < 16)
+      (h : ∀ x ∈ l, Small x) : Small (.ctor idx l)
+
+class IsSmallMyClass (α : Type u) [MyClass α] where
+  small : ∀ x : α, (MyClass.convert x).Small
+
+meta partial def lawHandler := mkInductiveDerivingHandler ``IsSmallMyClass do
+  deriveLawTypeClassUsingCtor fun
+    | ctx, ``IsSmallMyClass.small =>
+      ctx.withUnfoldOnce <| .casesLaw fun ival cval fields ctorApp expectedType () => do
+        let_expr Data.Small thing := expectedType
+          | throwError "Unexpected goal for `IsSmallMyClass` deriving handler:\
+            {indentExpr expectedType}"
+        -- solve the goal recursively
+        solveSmall thing
+    | _, _ => .unhandled
+  return true
+where
+  solveSmall (thing : Expr) : DerivingM Expr := do
+    match_expr thing with
+    | c@MyClass.convert α inst x =>
+      let lawInst ← synthInstanceDeriving (mkApp2 (.const ``IsSmallMyClass c.constLevels!) α inst)
+      return mkApp4 (.const ``IsSmallMyClass.small c.constLevels!) α inst lawInst x
+    | Data.nat x => return .app (.const ``Data.Small.nat []) x
+    | Data.int x => return .app (.const ``Data.Small.int []) x
+    | Data.string x => return .app (.const ``Data.Small.string []) x
+    | Data.ctor idx l =>
+      let some lit ← getNatValue? idx
+        | throwError "Unexpected `Data.ctor` application, expected literal constructor index\
+          {indentExpr thing}"
+      unless lit < 16 do
+        throwError "Failed to derive `IsSmallMyClass`, constructor index {lit} is not \
+          smaller than 16"
+      let (listProof, fieldCount) ← solveForallSmall l
+      unless fieldCount < 16 do
+        throwError "Failed to derive `IsSmallMyClass`, field count {lit} is not \
+          smaller than 16"
+      let cidxProof := mkApp3 (.const ``Nat.le_of_ble_eq_true [])
+        (mkRawNatLit (lit + 1)) (mkRawNatLit 16) reflBoolTrue
+      let fieldProof := mkApp3 (.const ``Nat.le_of_ble_eq_true [])
+        (mkRawNatLit (fieldCount + 1)) (mkRawNatLit 16) reflBoolTrue
+      return mkApp5 (.const ``Data.Small.ctor []) idx l cidxProof fieldProof listProof
+    | _ =>
+      throwError "Unexpected goal for `IsSmallMyClass` deriving handler:\
+        {indentExpr (mkSmallExpr thing)}"
+  solveForallSmall (list : Expr) : DerivingM (Expr × Nat) := do
+    match_expr list with
+    | List.nil _ =>
+      return (mkApp2 (.const ``List.forall_mem_nil [0]) (.const ``Data [])
+        (.const ``Data.Small []), 0)
+    | List.cons _ head tail =>
+      let iff := mkApp4 (.const ``List.forall_mem_cons [0]) (.const ``Data [])
+        (.const ``Data.Small []) head tail
+      let (tailProof, count) ← solveForallSmall tail
+      let mpr := .proj ``Iff 1 iff
+      let and := mkApp4 (.const ``And.intro []) (mkSmallExpr head) (mkForallMemExpr tail)
+        (← solveSmall head) tailProof
+      return (.app mpr and, count + 1)
+    | _ =>
+      throwError "Unexpected goal for `IsSmallMyClass` deriving handler:\
+        {indentExpr (mkForallMemExpr list)}"
+  mkSmallExpr (e : Expr) : Expr :=
+    .app (.const ``Data.Small []) e
+  mkForallMemExpr (e : Expr) : Expr :=
+    -- you can tell this would be nicer with Qq
+    let data := .const ``Data []
+    let listData := .app (.const ``List [0]) data
+    .forallE `x data
+      (.forallE `hmem
+        (mkApp5 (.const ``Membership.mem [0, 0]) data listData
+          (.app (.const ``List.instMembership [0]) data) e (.bvar 0))
+        (mkSmallExpr (.bvar 1))
+        .default)
+      .default
+
+/-!
+You can use the handler even on manually defined instances that don't use helpers,
+as long as the handler can prove the laws.
+-/
+
+run_cmd lawHandler #[``Nat, ``Int, ``String, ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize]
+
+instance [MyClass α] [IsSmallMyClass α] : IsSmallMyClass (Array α) where
+  small xs := by
+    refine .array _ ?_
+    simp [IsSmallMyClass.small]
+
+-- the original instance is partial so we can't do much else here
+set_option warn.sorry false in
+instance : IsSmallMyClass Syntax := sorry
+
+run_cmd
+  lawHandler #[``List, ``String.Pos.Raw, ``Bool, ``Substring.Raw, ``SourceInfo, ``Name,
+    ``Syntax.Preresolved, ``FVarId, ``MVarId, ``LevelMVarId, ``BinderInfo, ``Literal,
+    ``Prod, ``DataValue, ``KVMap, ``Level, ``Expr, ``ConstantVal, ``AxiomVal, ``ReducibilityHints,
+    ``DefinitionSafety, ``DefinitionVal, ``TheoremVal, ``OpaqueVal, ``QuotKind, ``QuotVal,
+    ``InductiveVal, ``ConstructorVal, ``RecursorRule, ``RecursorVal, ``ConstantInfo,
+    ``Constructor, ``InductiveType, ``Declaration]
+
+/-!
+Mutual inductives work too but not when the instances were derived separately
+-/
+
+run_cmd lawHandler #[``Mutual1, ``Mutual2]
+
+/--
+error: Could not find helper declaration `instMyClassOtherMutual1_1.convert` inside an instance.
+This usually means that the instances were derived individually instead of all in a single
+`deriving instance` command. If you can, use `deriving ...` directly at the declaration of
+`OtherMutual1` instead of using `deriving instance ... for ...`. Otherwise, join all
+`deriving instance ... for ...` into a single one by specifying the instances in a
+comma-separated list
+-/
+#guard_msgs in
+run_cmd lawHandler #[``OtherMutual1]
+
+/-!
+Testing the law type class deriving handler on the various instances we've made above.
+-/
+
+run_cmd lawHandler #[``Vec, ``Sigma, ``SigmaField]
+
+set_option deriving.bindersVerbatim true in
+run_cmd lawHandler #[``TestVerbatim]
+
+set_option deriving.reduceInstances false in
+run_cmd lawHandler #[``TestNoReduction]
+
+run_cmd
+  lawHandler #[``TestParams, ``TestRedundantForward, ``TestRedundantBackward,
+    ``WithImplicit, ``WithExplicit, ``TestPrivate]

@@ -186,6 +186,12 @@ public structure State where
   -/
   specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
+  A cache of the law instances that spec rules take, keyed by the law class and its first explicit
+  argument: the monad of `MonadicWP.IsMonotone m`, or the program type of `WP.IsMonotone Prog`. The
+  argument determines the remaining ones, which can differ in their unfolding between two specs.
+  -/
+  lawInstanceCache : Std.HashMap (Name × Expr) Expr := {}
+  /--
   A cache mapping matchers to their splitting backward rule to apply.
   The particular rule depends on the matcher name, the monad and the number of excess state
   arguments that the weakest precondition target is applied to.

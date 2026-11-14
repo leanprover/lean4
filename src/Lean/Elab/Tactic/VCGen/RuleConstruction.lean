@@ -219,7 +219,8 @@ prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
 -/
 def mkSpecBackwardProof (info : WPApp)
     (pre prog postSpec epostsSpec specProof : Expr) (ss ssTypes : Array Expr)
-    (stateArgNames : Array Name := #[]) : MetaM AbstractMVarsResult := do
+    (instPO : Expr) (stateArgNames : Array Name := #[]) (monoInst? : Option Expr := none) :
+    MetaM AbstractMVarsResult := do
   /- we start with `pre ⊑ wp prog post eposts` where
   1. `pre` represents the Lean expression for `pre`
   2. `prog`, `postSpec`, and `epostsSpec` are the selected arguments of the spec's `wp` RHS
@@ -227,10 +228,16 @@ def mkSpecBackwardProof (info : WPApp)
   4. `ss` represents the Lean expressions for the state variables `s1`, `s2`, ..., `sn`
   5. `ssTypes` represents the Lean types for the state variables `s1`, `s2`, ..., `sn` -/
   let wpArgs := info.args.take 5
-  /- The lemma's order and monotonicity instances are not arguments of `wp`; `mkAppOptM`
-     synthesizes them. -/
-  let wpLemma (n : Name) (rest : Array Expr) : MetaM Expr :=
-    mkAppOptM n (wpArgs.map some ++ #[none, none, none] ++ rest.map some)
+  /- The lemmas take the orders and the monotonicity of the program type after the `wp` arguments:
+     the order `instPO` of the spec's `⊑`, an order or lattice of `EPosts`, and `mono`. The
+     applications are built without type checks; the kernel checks the final proof. -/
+  let poEPosts ← synthInstance (mkApp (mkConst ``PartialOrder [← getLevel info.EPosts]) info.EPosts)
+  let mono : MetaM Expr := match monoInst? with
+    | some mono => pure mono
+    | none => do synthInstance (← mkAppOptM ``Std.WP.WP.IsMonotone
+        #[some info.Prog, none, none, none, some info.instWP, some instPO, some poEPosts])
+  let wpLemma (n : Name) (instEPosts : Expr) (rest : Array Expr) : MetaM Expr := do
+    return mkAppN (mkConst n info.head.constLevels!) (wpArgs ++ #[instPO, instEPosts, ← mono] ++ rest)
   let mut postAbstract := postSpec.consumeMData
   let mut epostsAbstract := epostsSpec.consumeMData
   let mut specApplied := specProof
@@ -254,7 +261,7 @@ def mkSpecBackwardProof (info : WPApp)
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostsSpec`, where `post` is abstracted.
        Uses wp_monotone_post_le: post ⊑ post' → pre ⊑ wp x post eposts → pre ⊑ wp x post' eposts -/
-    specApplied := ← wpLemma ``WP.wp_monotone_post_le
+    specApplied := ← wpLemma ``WP.wp_monotone_post_le poEPosts
       #[prog, postSpec, postAbstract, epostsSpec, hpostRel, pre, specApplied]
 
   /- abstract concrete `eposts` if it is not already abstract -/
@@ -278,13 +285,15 @@ def mkSpecBackwardProof (info : WPApp)
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostsImpl` premise -/
-      specApplied := ← wpLemma ``WP.wp_monotone_bot_le
+      let latticeEPosts ← synthInstance
+        (mkApp (mkConst ``CompleteLattice [← getLevel info.EPosts]) info.EPosts)
+      specApplied := ← wpLemma ``WP.wp_monotone_bot_le latticeEPosts
         #[prog, postAbstract, epostsAbstract, pre, specApplied]
     else
       /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
       let heposts ← decomposeProdRel info.EPosts epostsSpec epostsAbstract stateArgNames
-      specApplied := ← wpLemma ``WP.wp_monotone_epost_le
+      specApplied := ← wpLemma ``WP.wp_monotone_epost_le poEPosts
         #[prog, postAbstract, epostsSpec, epostsAbstract, heposts, pre, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
@@ -344,6 +353,12 @@ def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
     (info.args.take 5).map some ++ #[none, none, none, some eqPrf, some post, some eposts]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
+/-- The law classes whose instances `tryMkBackwardRuleFromSpec` caches across specs. Each is
+determined by its first explicit argument. -/
+def lawClasses : Array Name :=
+  #[``Std.WP.WP.IsMonotone, `Std.WP.MonadicWP.IsMonotone, `Std.WP.MonadicWP.IsLaxMonadMorphism,
+    ``LawfulMonad]
+
 /--
 Try to build a backward rule from a single spec theorem.
 
@@ -358,6 +373,7 @@ same way.
   `info.Pred = σ1 → ... → σn → Prop`
 -/
 public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
+    (lawInstances : IO.Ref (Std.HashMap (Name × Expr) Expr))
     (stateArgNames : Array Name := #[]) : OptionT MetaM BackwardRule := do
   -- Instantiate the spec theorem, creating metavars for all universally quantified params
   let (_xs, _bs, specProof, specType) ← specThm.instantiate
@@ -376,15 +392,26 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
   -- The spec's orders and laws (`PartialOrder Pred`, `WP.IsMonotone`, ...) are no arguments of
   -- `wp`, so the unification above leaves them open. Synthesize each one whose type the
-  -- unification determined; the rule is cached per `WP` instance.
+  -- unification determined; the rule is cached per `WP` instance. A law instance is also cached
+  -- across specs, keyed by its class and first explicit argument.
   for x in _xs, b in _bs do
     unless b.isInstImplicit && x.isMVar do continue
     let mvarId := x.mvarId!
     if ← mvarId.isAssigned then continue
     let ty ← instantiateMVars (← mvarId.getType)
     if ty.hasExprMVar then continue
+    let key? := match ty.getAppFn with
+      | .const c _ =>
+        if lawClasses.contains c then ty.getAppArgs[0]?.map (c, ·) else none
+      | _ => none
+    if let some key := key? then
+      if let some inst := (← lawInstances.get)[key]? then
+        -- The class and its determining argument fix the instance up to definitional equality.
+        mvarId.assign inst
+        continue
     if let some inst ← (monadLift (synthInstance? ty) : OptionT MetaM (Option Expr)) then
       mvarId.assign inst
+      if let some key := key? then lawInstances.modify (·.insert key inst)
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
   let mut ss := #[]
@@ -393,7 +420,15 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     let ty ← Meta.inferType info.excessArgs[i]
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
-  let res ← mkSpecBackwardProof info pre prog postSpec epostsSpec specProof ss ssTypes stateArgNames
+  -- The monotonicity of the program type: the cached `WP.IsMonotone Prog`, or for a monadic program
+  -- `m α` the cached `MonadicWP.IsMonotone m` at `α`.
+  let laws ← lawInstances.get
+  let monoInst? := laws[(``Std.WP.WP.IsMonotone, info.Prog)]? <|>
+    (if info.Prog.isApp then
+      laws[(`Std.WP.MonadicWP.IsMonotone, info.M)]?.map (mkApp · info.Prog.appArg!)
+    else none)
+  let res ← mkSpecBackwardProof info pre prog postSpec epostsSpec specProof ss ssTypes _cl'
+    stateArgNames monoInst?
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Split rules -/

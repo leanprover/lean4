@@ -72,6 +72,11 @@ instance ExceptT.instWPMonad {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts]
     MonadicWP (ExceptT ε m) Pred ((ε → Pred) × EPosts) where
   toWP _ := inferInstance
 
+/-- Monotonicity of `ExceptT` programs, stated at the interpretation that `MonadicWP` supplies. -/
+instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
+    [PartialOrder EPosts] [MonadicWP.IsMonotone m] : MonadicWP.IsMonotone (ExceptT ε m) :=
+  fun _ x => inferInstanceAs (PredTrans.pushExceptT (WP.trans x.run)).IsMonotone
+
 @[simp, grind =]
 theorem ExceptT.wp_apply_eq {α ε Pred EPosts} [Monad m] [MonadicWP m Pred EPosts]
     (x : ExceptT ε m α) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
@@ -90,7 +95,7 @@ instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadM
     | ok a => rfl
     | error e => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
-instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
+instance (priority := low) {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
     [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ExceptT ε m) where
   pure_le x := fun post eposts =>
@@ -122,6 +127,11 @@ instance OptionT.instWPMonad {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts]
     MonadicWP (OptionT m) Pred ((Unit → Pred) × EPosts) where
   toWP _ := inferInstance
 
+/-- Monotonicity of `OptionT` programs, stated at the interpretation that `MonadicWP` supplies. -/
+instance {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
+    [PartialOrder EPosts] [MonadicWP.IsMonotone m] : MonadicWP.IsMonotone (OptionT m) :=
+  fun _ x => inferInstanceAs (PredTrans.pushOptionT (WP.trans x.run)).IsMonotone
+
 @[simp, grind =]
 theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPosts}
     [Monad m] [MonadicWP m Pred EPosts] (x : OptionT m α)
@@ -142,7 +152,7 @@ instance {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadM
     | some a => rfl
     | none => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
-instance {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
+instance (priority := low) {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
     [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (OptionT m) where
   pure_le x := fun post eposts =>
@@ -174,6 +184,12 @@ instance (priority := low) StateT.instWPMonad {EPosts : Type v} {σ : Type u} {P
     MonadicWP (StateT σ m) (σ → Pred) EPosts where
   toWP _ := inferInstance
 
+/-- Monotonicity of `StateT` programs, stated at the interpretation that `MonadicWP` supplies. -/
+instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m Pred EPosts]
+    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] :
+    MonadicWP.IsMonotone (StateT σ m) :=
+  fun _ x => inferInstanceAs (PredTrans.pushArg (WP.trans <| x.run ·)).IsMonotone
+
 @[simp, grind =]
 theorem StateT.wp_apply_eq {σ : Type u} [Monad m] [MonadicWP m Pred EPosts] (x : StateT σ m α)
     (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
@@ -187,7 +203,7 @@ instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m 
     MonadicWP.wp_bind_eq (m := m) (x.run s) (fun p => (f p.1).run p.2) (fun p => post p.1 p.2)
       eposts
 
-instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m Pred EPosts]
+instance (priority := low) {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m Pred EPosts]
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
     [MonadicWP.IsLaxMonadMorphism m] : MonadicWP.IsLaxMonadMorphism (StateT σ m) where
   pure_le x := fun post eposts s =>
@@ -211,6 +227,12 @@ instance ReaderT.instWPMonad {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts]
     MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts where
   toWP _ := inferInstance
 
+/-- Monotonicity of `ReaderT` programs, stated at the interpretation that `MonadicWP` supplies. -/
+instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
+    [PartialOrder EPosts] [MonadicWP.IsMonotone m] : MonadicWP.IsMonotone (ReaderT ρ m) :=
+  fun _ x => ⟨fun _ _ _ _ heposts hpost r =>
+    WP.wp_monotone (x := x.run r) (fun a => hpost a r) heposts⟩
+
 @[simp, grind =]
 theorem ReaderT.wp_apply_eq {ρ : Type u} [Monad m] [MonadicWP m Pred EPosts] (x : ReaderT ρ m α)
     (post : α → ρ → Pred) (eposts : EPosts) (r : ρ) :
@@ -223,7 +245,7 @@ instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadM
   trans_bind x f := PredTrans.ext fun post eposts => funext fun r =>
     MonadicWP.wp_bind_eq (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r) eposts
 
-instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
+instance (priority := low) {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
     [PartialOrder EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ReaderT ρ m) where
   pure_le x := fun post eposts r =>

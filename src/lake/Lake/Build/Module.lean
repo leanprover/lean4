@@ -49,8 +49,11 @@ Build function definitions for a module's builtin facets.
 /-- Parse the header of a Lean file from its source. -/
 def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
   let path := mod.leanFile
+  -- Modification must be read before the file. Otherwise, a modifcation between the file read
+  -- and the modification time read would not be caught by the check in `buildLean`.
+  let mtime ← getMTime path
   let contents ← IO.FS.readFile path
-  let trace := {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
+  let trace := {caption := path.toString, mtime, hash := .ofText contents}
   setTrace trace
   let header ← Lean.parseImports' contents path.toString
   let imports ← header.imports.mapM fun imp => do
@@ -1128,6 +1131,10 @@ def Module.buildLean
   mod.clearOutputHashes
   compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
+  unless presetup.srcMTime == (← getMTime presetup.srcFile) do
+    error s!"module source file:\
+      \n   {presetup.srcFile}\
+      \nchanged since build began; rerun the build"
   mod.computeArtifacts setup.isModule presetup.postponeCompile
 
 def  adjustMTime (arts : ModuleOutputArtifacts) (traceFile : FilePath) : JobM ModuleOutputArtifacts := do

@@ -63,21 +63,21 @@ def packCalls (fixedParamPerms : FixedParamPerms) (argsPacker : ArgsPacker) (fun
     return TransformStep.done e
     )
 
-def mutualName (fixedParamPerms : FixedParamPerms) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : Name :=
+def mutualName (fixedParamPerms : FixedParamPerms) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM Name :=
   if fixedParamPerms.fixedArePrefix && argsPacker.onlyOneUnary then
-    preDefs[0]!.declName
+    return preDefs[0]!.declName
   else
     if argsPacker.numFuncs > 1 then
-      preDefs[0]!.declName ++ `_mutual
+      mkBodyHelperDeclName preDefs[0]!.declName `_mutual
     else
-      preDefs[0]!.declName ++ `_unary
+      mkBodyHelperDeclName preDefs[0]!.declName `_unary
 
 /--
 Creates a single unary function from the given `preDefs`, using the machinery in the `ArgPacker`
 module.
 -/
 def packMutual (fixedParamPerms : FixedParamPerms) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
-  let newFn := mutualName fixedParamPerms argsPacker preDefs
+  let newFn ← mutualName fixedParamPerms argsPacker preDefs
   if newFn = preDefs[0]!.declName then
     return preDefs[0]!
   -- Bring the fixed prefix into scope

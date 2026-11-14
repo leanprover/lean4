@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Match.SimpH
+import Lean.Meta.Match.DiteTree
 import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.SplitSparseCasesOn
@@ -143,6 +144,8 @@ where
       (do mvarId.refl; return #[])
       <|>
       (do contradictionForEqns mvarId; return #[])
+      <|>
+      (splitDiteTree mvarId)
       <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>

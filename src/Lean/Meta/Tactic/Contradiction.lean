@@ -115,17 +115,14 @@ where
     | _ => acc
 
 /--
-  Close goal if `localDecl` is a "generalized disequality". Example:
-  ```
-  h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
-  ```
-  This kind of hypotheses is created when we generate conditional equations for match expressions.
+Given `h : type` where `type` is a "generalized disequality" (see `processGenDiseq`), returns a
+proof of `False` if the equality hypotheses of `type` can be proved by reflexivity.
 -/
-def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
-  assert! isGenDiseq localDecl.type
-  let val? ← withNewMCtxDepth do
-    let (args, _, _) ← forallMetaTelescope localDecl.type
-    let mask  := mkGenDiseqMask localDecl.type
+def mkGenDiseqFalseProof? (h type : Expr) : MetaM (Option Expr) := do
+  assert! isGenDiseq type
+  withNewMCtxDepth do
+    let (args, _, _) ← forallMetaTelescope type
+    let mask  := mkGenDiseqMask type
     for arg in args, useRefl in mask do
       if useRefl then
         /- Remark: we should not try to use `refl` for equalities that have forward dependencies because
@@ -146,15 +143,22 @@ def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
         if let some (_, lhs, _,  _) ← matchHEq? (← inferType arg) then
           unless (← isDefEq arg (← mkHEqRefl lhs)) do
             return none
-    let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
+    let falseProof ← instantiateMVars (mkAppN h args)
     if (← hasAssignableMVar falseProof) then
       return none
-    return some (← mkFalseElim (← mvarId.getType) falseProof)
-  if let some val := val? then
-    mvarId.assign val
-    return true
-  else
-    return false
+    return some falseProof
+
+/--
+  Close goal if `localDecl` is a "generalized disequality". Example:
+  ```
+  h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
+  ```
+  This kind of hypotheses is created when we generate conditional equations for match expressions.
+-/
+def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
+  let some falseProof ← mkGenDiseqFalseProof? localDecl.toExpr localDecl.type | return false
+  mvarId.assign (← mkFalseElim (← mvarId.getType) falseProof)
+  return true
 
 /--
 Closes `mvarId` if `h : lhs = rhs` equates two distinct `Float`/`Float32` literals, and returns

@@ -1552,8 +1552,8 @@ def InstanceInfo.usingCtor (perField : Name → FieldHelperProvider α)
     InstanceInfo.usingCtorCore perField induct typeApp classApp indices supportsRec supportsPartial
 
 /--
-Constructs instances of the class using its constructor, running `perField` on every field given
-the name of the projection function of the field.
+Constructs instances of the type class in the context using its constructor, running `perField` on
+every field given the name of the projection function of the field.
 
 If `supportsRec := true` (the default), it tries to make the helpers non-partial if the inductive
 is not nested or reflexive. If the helpers are possibly recursive but don't have structural
@@ -1977,6 +1977,101 @@ private def buildLawDerivingEntriesFor (names : List Name) :
         lawContext := ← LawDerivingContext.ofRefoldsAndEquations refolds entry.equations
       }
 
+/--
+Constructs instances of the law type class in the context using its constructor, running `perField`
+on every field given a `LawDerivingContext` the name of the projection function of the field.
+
+The `LawDerivingContext` contains equations for each field of the instance parameters of the law
+type class. The most typical use is to just `ctx.withUnfoldOnce` with it, unfolding the relevant
+instance projections. Otherwise, you can also use `ctx.unfoldOnce` later on individual expressions
+or directly look up equations.
+
+If `supportsRec := false`, it will fail if the inductive is recursive. Otherwise it also always
+fails if the inductive is nested or reflexive.
+
+If `nonRec := true`, then an instance is derived for each inductive individually. That means that
+you can't refer to instances of other inductives in the mutual block. Use this for instances that
+don't need recursive instance applications for the fields.
+
+You can also specify a one time computation at `preHelpers` which will be run before any of the
+helpers with all helpers in scope. The result of this computation is provided as an additional `α`
+argument to all `FieldHelperProvider` APIs.
+
+Example:
+```
+class Size (α : Type u) where
+  size : α → Int
+
+class LawfulSize (α : Type u) [Size α] where
+  size_pos (x : α) : 0 < Size.size x
+
+-- Deriving handler for `Size` (see `deriveTransformationInstPerConstructor`)
+meta def deriveSize : DerivingHandler :=
+  mkInductiveDerivingHandler ``Size do
+    deriveTransformationInstPerConstructor fun _ival _cval fields _ctorApp => do
+      let mut size := toExpr (0 : Int)
+      for field in fields do
+        let ty ← inferType field
+        let some lvl ← getDecLevel? ty | continue
+        let inst ← synthInstanceDeriving (.app (.const ``Size [lvl]) ty)
+        let val := mkApp3 (.const ``Size.size [lvl]) ty inst field
+        if size == toExpr (0 : Int) then
+          size := val
+        else
+          size := mkIntAdd size val
+      let val := toExpr (1 : Int)
+      if size == toExpr (0 : Int) then
+        return val
+      else
+        return mkIntAdd size val
+
+-- Deriving handler for `LawfulSize`
+meta partial def deriveLawfulSize : DerivingHandler :=
+  mkInductiveDerivingHandler ``LawfulSize do
+    deriveLawTypeClassUsingCtor fun
+      | ctx, ``LawfulSize.size_pos =>
+        -- unfold the `Size.size` instance projection in the expression `0 < Size.size x`
+        ctx.withUnfoldOnce <|
+          -- then, match on the `x : α` parameter and reduce the matcher created
+          -- by `deriveTransformationInstPerConstructor`
+          .casesLaw fun _ival _cval _fields _ctorApp expectedType () => do
+            -- The goal should be `0 < body` at this point where `body` is the equation generated
+            -- in the deriving handler above
+            let_expr LT.lt _ _ _zero body := expectedType
+              | throwError "Unexpected goal for `LawfulSize` deriving handler\
+                  {indentExpr expectedType}"
+            provePos body
+      | _, _ => .unhandled
+    return true
+where
+  -- We recursively prove positivity of the whole expression
+  -- This prover can handle a little more than `deriveSize` produces
+  -- That can allow it to handle some non-recursive hand-written instances, too
+  provePos (e : Expr) : DerivingM Expr := do
+    match_expr e with
+    -- (l + r : Int)
+    | HAdd.hAdd _ _ _ inst l r =>
+      -- We cannot assume that the expression comes directly from the deriving handler
+      -- So we need to perform all sorts of checks to make sure what we're doing is correct
+      unless ← DefEq.isInstHAddInt inst do
+        throwError "Unexpected addition instance{indentExpr inst}"
+      return mkApp4 (.const ``Int.add_pos []) l r (← provePos l) (← provePos r)
+    | c@Size.size α inst x =>
+      -- Here's where we use `LawfulSize` instances recursively
+      let lawInst ← synthInstanceDeriving (mkApp2 (.const ``LawfulSize c.constLevels!) α inst)
+      return mkApp4 (.const ``LawfulSize.size_pos c.constLevels!) α inst lawInst x
+    | _ =>
+      -- We need to also handle the `1` literal (here, generally, any positive literal)
+      if let some val ← getIntValue? e then
+        if 0 < val then
+          let p := mkIntLT (toExpr (0 : Int)) e
+          let decidable := mkApp2 (.const ``Int.decLt []) (toExpr (0 : Int)) e
+          return mkApp3 (.const ``of_decide_eq_true []) p decidable reflBoolTrue
+        throwError "Value is not positive:{indentExpr e}"
+      throwError "Unexpected goal for `LawfulSize` deriving handler: \
+        Could not prove that{indentExpr e}\nis positive"
+```
+-/
 def deriveLawTypeClassUsingCtor
     (perField : LawDerivingContext → Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (nonRec : Bool := false)

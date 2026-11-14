@@ -10,3 +10,8 @@ paths:
       # https://github.com/rhysd/actionlint/pull/652
       - missing input "app-id" which is required by action "actions/create-github-app-token@v3"
       - input "client-id" is not defined in action "actions/create-github-app-token@v3"
+  # parallel steps (`background`, `wait`): https://github.com/rhysd/actionlint/pull/694
+  ".github/workflows/build-template.yml":
+    ignore:
+      - unexpected key "background" for step to run shell command
+      - step must run script with "run" section or run action with "uses" section

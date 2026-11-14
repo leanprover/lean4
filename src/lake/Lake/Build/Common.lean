@@ -317,6 +317,9 @@ and log are saved to `traceFile`, if the build completes without a fatal error
       writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
+    -- Delete trace before build to prevent association of new outputs with
+    -- the old trace upon build failure and the reversion of the the inputs.
+    removeFileIfExists traceFile
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
@@ -756,7 +759,6 @@ where
       removeFileIfExists file
       build
       clearFileHash file
-      removeFileIfExists traceFile
       computeArtifact file ext text
   setMTime art traceFile := do
     match (← getMTime traceFile |>.toBaseIO) with

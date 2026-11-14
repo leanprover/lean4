@@ -478,6 +478,9 @@ jobs:
           # The tests below require Beam ("Build lean-beam" set `LEAN_BEAM_REQUIRED`), and Beam refuses
           # to run under a compiler other than the one it was built with
           C_INCLUDE_PATH="$GLIBC_DEV/include" make -C build/stage1 lean-beam
+          # Check the rebootstrapped exports with the pinned `con-leche` (its package test skips
+          # without the binary)
+          make -C build/stage1 con-leche
           # Set Lake's githash to the new stage0 hash used during the build (for the tests).
           # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
           export LEAN_GITHASH=$(cat build/stage1/lake-githash)

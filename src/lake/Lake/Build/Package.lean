@@ -188,12 +188,12 @@ def Package.fetchArtifactCache (pkg : Package) : JobM PUnit := do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
       logWarning (Internal.packageHasChanges pkg.prettyName)
-    let n := 100
-    let revs ← repo.getHeadRevisions n
+    let maxRevs ← getMaxRevs
+    let revs ← repo.getHeadRevisions maxRevs
     let map? ← LoggerIO.toLogIO <| revs.findSomeM? fun rev =>
       service.downloadRevisionOutputs? rev cache pkg.cacheScope .none platform toolchain
     let some map := map?
-      | error (Internal.noOutputs service .none n revs)
+      | error (Internal.noOutputs service .none maxRevs revs)
     return map
   cache.writeMap pkg.cacheScope map service.name? (some .none) (overwrite := false)
 

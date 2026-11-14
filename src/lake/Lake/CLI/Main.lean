@@ -152,6 +152,7 @@ def LakeOptions.mkBuildConfig
   (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
   (outputsPackage? : Option Package := none)
 : BuildConfig where
+  maxRevs := opts.maxRevs
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild

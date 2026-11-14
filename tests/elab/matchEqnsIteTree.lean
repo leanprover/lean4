@@ -96,3 +96,49 @@ def dependent : (n : Nat) → Fin (n+1) → String → Nat
   | 1, _, _ => 3
   | _, _, _ => 4
 #gen_match_eqns dependent.match_1
+
+/-!
+The catch-all equations of the following matchers reach a `casesOn` application after one, two,
+and three tests `x = value` have succeeded. The equalities for these tests are substituted before
+the `casesOn` application is processed.
+-/
+def oneTest : List String → Nat
+  | ["a"] => 1
+  | ["b"] => 2
+  | _ => 3
+#gen_match_eqns oneTest.match_1
+
+def twoTests : String → String → List Nat → Nat
+  | "a", "b", [] => 1
+  | "a", "c", [1] => 2
+  | "d", "b", _ :: _ => 3
+  | _, _, _ => 4
+#gen_match_eqns twoTests.match_1
+
+def threeTests : String → Nat → Char → Option Bool → Nat
+  | "a", 0, 'x', none => 1
+  | "a", 0, 'y', some true => 2
+  | "a", 1, 'x', some _ => 3
+  | _, _, _, _ => 4
+#gen_match_eqns threeTests.match_1
+
+/-!
+The matcher tests the `Nat` before the `Char` after `x = "a"` succeeds, and the `Char` before the
+`Nat` after `x = "b"` succeeds.
+-/
+def testOrder : String → Nat → Char → Nat
+  | "a", 1, 'a' => 1
+  | "b", _, 'b' => 2
+  | "b", 2, 'c' => 3
+  | _, _, _ => 4
+#gen_match_eqns testOrder.match_1
+
+/-!
+The patterns `5` and `5.0` denote the same `Float` value. The matcher tests `x = 5` once, and the
+overlap hypothesis for the second alternative is `x = 5.0 → s = "b" → False`.
+-/
+def floatValues : Float → String → Nat
+  | 5, "a" => 1
+  | 5.0, "b" => 2
+  | _, _ => 3
+#gen_match_eqns floatValues.match_1

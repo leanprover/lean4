@@ -47,6 +47,20 @@ unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl 
 /-- Set of modules for which we have already run the module initializer in the interpreter. -/
 builtin_initialize interpretedModInits : IO.Ref NameSet ← IO.mkRef {}
 
+/--
+Records that the module has no native code, so that the interpreter does not look up native symbols
+for its declarations until the next dynamic library is loaded.
+-/
+@[extern "lean_mark_non_native_module"]
+private opaque markNonNativeModule (mod : @& Name) : BaseIO Unit
+
+/-- Returns the module defining the imported declaration, or the anonymous name. -/
+@[export lean_get_imported_decl_module]
+private def getImportedDeclModule (env : Environment) (declName : Name) : Name :=
+  match env.getModuleIdxFor? declName with
+  | some idx => env.header.moduleNames[idx]?.getD .anonymous
+  | none => .anonymous
+
 unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name) :=
   registerParametricAttribute {
     ref := ref
@@ -191,6 +205,7 @@ private unsafe def runInitAttrForMod
     else
       if (← runModInit (phases := .all) mod.module pkg?) then
         return false
+  markNonNativeModule mod.module
 
   -- As `[init]` decls can have global side effects, ensure we run them at most once,
   -- just like the compiled code does.

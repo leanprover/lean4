@@ -156,27 +156,46 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
     addAndCompile decl
     IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
 
+/--
+Returns whether some direct import of module {name}`modIdx` is marked in {name}`noNative`. The
+native initializer of a module calls those of all its direct imports, so in that case the module
+cannot have native code either.
+-/
+private def hasNonNativeImport (env : Environment) (noNative : Array Bool) (modIdx : Nat) : Bool :=
+  match env.header.moduleData[modIdx]? with
+  | some data => data.imports.any fun imp =>
+    match env.getModuleIdx? imp.module with
+    | some idx => noNative[idx.toNat]?.getD false
+    | none => false
+  | none => false
+
+/--
+Runs the initializers of the given imported module. {name}`noNative` marks the modules with a
+lower index known to have no native code; returns whether this module has none either.
+-/
 private unsafe def runInitAttrForMod
-    (env : Environment) (opts : Options) (mod : EffectiveImport) (modIdx : Nat) : IO Unit := do
+    (env : Environment) (opts : Options) (mod : EffectiveImport) (modIdx : Nat)
+    (noNative : Array Bool := #[]) : IO Bool := do
   let initRuntime := Elab.inServer.get opts || mod.irPhases != .runtime
 
   -- any native Lean code reachable by the interpreter (i.e. from shared
   -- libraries with their corresponding module in the Environment) must
   -- first be initialized
-  let pkg? := env.getModulePackageByIdx? modIdx
-  if env.header.isModule then
-    let initializedRuntime ← pure initRuntime <&&> runModInit (phases := .runtime) mod.module pkg?
-    let initializedComptime ← runModInit (phases := .comptime) mod.module pkg?
-    if initializedRuntime || initializedComptime then
-      return
-  else
-    if (← runModInit (phases := .all) mod.module pkg?) then
-      return
+  if !hasNonNativeImport env noNative modIdx then
+    let pkg? := env.getModulePackageByIdx? modIdx
+    if env.header.isModule then
+      let initializedRuntime ← pure initRuntime <&&> runModInit (phases := .runtime) mod.module pkg?
+      let initializedComptime ← runModInit (phases := .comptime) mod.module pkg?
+      if initializedRuntime || initializedComptime then
+        return false
+    else
+      if (← runModInit (phases := .all) mod.module pkg?) then
+        return false
 
   -- As `[init]` decls can have global side effects, ensure we run them at most once,
   -- just like the compiled code does.
   if (← interpretedModInits.get).contains mod.module then
-    return
+    return true
   interpretedModInits.modify (·.insert mod.module)
   let modEntries := regularInitAttr.ext.getModuleEntries env modIdx
   -- `getModuleIREntries` is identical to `getModuleEntries` if we loaded only one of
@@ -194,13 +213,15 @@ private unsafe def runInitAttrForMod
       initFn
     else
       runInit env opts decl initDecl
+  return true
 
 @[export lean_run_init_attrs]
 private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
   if !(← isInitializerExecutionEnabled) then
     throw <| IO.userError "`enableInitializersExecution` must be run before calling `importModules (loadExts := true)`"
+  let mut noNative := Array.emptyWithCapacity env.header.modules.size
   for mod in env.header.modules, modIdx in 0...* do
-    runInitAttrForMod env opts mod modIdx
+    noNative := noNative.push (← runInitAttrForMod env opts mod modIdx noNative)
 
 /--
 Like `runInitAttrs`, but walks only the given module indices. Used by `--incr-load`: the indices
@@ -215,7 +236,7 @@ unsafe def runInitAttrsForModules
     throw <| IO.userError "`enableInitializersExecution` must be run before reusing a `--incr-load` snapshot"
   for modIdx in modIdxs do
     if h : modIdx < env.header.modules.size then
-      runInitAttrForMod env opts env.header.modules[modIdx] modIdx
+      discard <| runInitAttrForMod env opts env.header.modules[modIdx] modIdx
 
 /--
 Returns the indices of modules in `env.header.modules` whose `regularInitAttr` has non-empty

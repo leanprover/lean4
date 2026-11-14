@@ -94,14 +94,9 @@ inductive Reader.State (dir : Direction) : Type
   | complete
 
   /--
-  State that it has completed and cannot process more data.
+  State that it has completed, or failed, and cannot process more data.
   -/
   | closed
-
-  /--
-  The input is malformed.
-  -/
-  | failed (error : Error) : State dir
 deriving Inhabited, Repr, BEq
 
 /--
@@ -141,11 +136,24 @@ structure Reader (dir : Direction) where
   headerBytesRead : Nat := 0
 
   /--
-  Set when no further input bytes will arrive (the remote end has closed the connection).
+  Set when the peer closed its side of the connection, so no further input bytes will arrive.
   -/
-  noMoreInput : Bool := false
+  peerClosed : Bool := false
+
+  /--
+  Set when the machine stops taking input, as when it rejects `Expect: 100-continue` or answers with
+  an error and closes the connection. Input already buffered is still parsed.
+  -/
+  inputStopped : Bool := false
 
 namespace Reader
+
+/--
+Whether no further input will be fed: the peer closed its side, or the machine stopped taking input.
+-/
+@[inline]
+def noMoreInput (reader : Reader dir) : Bool :=
+  reader.peerClosed || reader.inputStopped
 
 /--
 Checks if the reader is in a closed state and cannot process more messages.
@@ -163,15 +171,6 @@ Checks if the reader has completed parsing the current message.
 def isComplete (reader : Reader dir) : Bool :=
   match reader.state with
   | .complete => true
-  | _ => false
-
-/--
-Checks if the reader has encountered an error.
--/
-@[inline]
-def hasFailed (reader : Reader dir) : Bool :=
-  match reader.state with
-  | .failed _ => true
   | _ => false
 
 /--
@@ -209,11 +208,12 @@ def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) 
   | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
 
 /--
-Closes the reader, transitioning to the closed state.
+Replaces the value of the last header named `name` in the current message head.
 -/
 @[inline]
-def close (reader : Reader dir) : Reader dir :=
-  { reader with state := .closed, noMoreInput := true }
+def replaceLastHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
+  match dir with
+  | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.replaceLast name value } }
 
 /--
 Marks the current message as complete and prepares for the next message.
@@ -223,13 +223,6 @@ def markComplete (reader : Reader dir) : Reader dir :=
   { reader with
     state := .complete
     messageCount := reader.messageCount + 1 }
-
-/--
-Transitions the reader to a failed state with the given error.
--/
-@[inline]
-def fail (error : Error) (reader : Reader dir) : Reader dir :=
-  { reader with state := .failed error }
 
 /--
 Resets the reader to parse a new message on the same connection.
@@ -249,17 +242,8 @@ Checks if more input is needed to continue parsing.
 def needsMoreInput (reader : Reader dir) : Bool :=
   reader.input.atEnd && !reader.noMoreInput &&
   match reader.state with
-  | .complete | .closed | .failed _ | .«continue» _ => false
+  | .complete | .closed | .«continue» _ => false
   | _ => true
-
-/--
-Returns the current parse error if the reader has failed.
--/
-@[inline]
-def getError (reader : Reader dir) : Option Error :=
-  match reader.state with
-  | .failed err => some err
-  | _ => none
 
 /--
 Gets the number of bytes remaining in the input buffer.
@@ -309,13 +293,6 @@ Transitions to the state for reading chunked transfer encoding.
 @[inline]
 def startChunkedBody (reader : Reader dir) : Reader dir :=
   { reader with state := .readBody .chunkedSize }
-
-/--
-Marks that no more input will be provided (connection closed).
--/
-@[inline]
-def markNoMoreInput (reader : Reader dir) : Reader dir :=
-  { reader with noMoreInput := true }
 
 /--
 Checks if the connection should be kept alive for the next message.

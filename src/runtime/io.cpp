@@ -385,6 +385,10 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg f
     return decode_uv_error_impl(errnum, -errnum, fname);
 }
 
+bool string_has_nul(b_obj_arg str) {
+    return strlen(string_cstr(str)) != lean_string_size(str) - 1;
+}
+
 // Used for when you try to convert a string with NUL bytes into a C string
 obj_res mk_embedded_nul_error(b_obj_arg str) {
     lean_inc(str);
@@ -1849,7 +1853,27 @@ extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
     }
 }
 
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+// Connects each closed standard stream to the null device. Otherwise the next descriptor to be opened,
+// such as one of the event loop's, would take its number and be read, written and passed on to child
+// processes as that stream.
+static void open_closed_standard_streams() {
+    for (int fd = STDIN_FILENO; fd <= STDERR_FILENO; fd++) {
+        if (fcntl(fd, F_GETFD) == -1 && errno == EBADF) {
+            // The lowest free descriptor is `fd`, unless another thread opens or closes one meanwhile.
+            int null_fd = open("/dev/null", O_RDWR);
+            if (null_fd > STDERR_FILENO) {
+                close(null_fd);
+            }
+        }
+    }
+}
+#endif
+
 void initialize_io() {
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+    open_closed_standard_streams();
+#endif
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

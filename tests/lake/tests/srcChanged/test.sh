@@ -17,5 +17,13 @@ echo "# TEST: rerun succeeds"
 test_run build
 test_exp -f .lake/build/lib/lean/Foo.trace
 
+echo "# TEST: source changed during build then reverted"
+# The previous trace must not mark the new build's outputs up-to-date
+echo "-- edit" >> Foo.lean
+LAKE_TEST_TOUCH=1 test_err "changed since build began" build
+test_exp -f .lake/build/lib/lean/Foo.olean
+cp ../Foo.lean Foo.lean
+test_out "Built Foo" build
+
 # Cleanup
 rm -f produced.out

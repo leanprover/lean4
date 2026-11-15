@@ -1,4 +1,6 @@
-/-! Rewrites its own source file during elaboration if `LAKE_TEST_TOUCH` is set. -/
+/-!
+Rewrites its own source file during elaboration if `LAKE_TEST_TOUCH` is set.
+-/
 
 #eval show IO Unit from do
   if (← IO.getEnv "LAKE_TEST_TOUCH").isSome then

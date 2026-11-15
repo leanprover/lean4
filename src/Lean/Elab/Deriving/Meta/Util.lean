@@ -1200,8 +1200,7 @@ def FieldHelperProvider.doubleCasesSlow
     let fail := throwError "Invalid use of `{.ofConstName decl_name%}`, \
       expected field `{.ofConstName input.fieldName}` to have the shape \
       `α → α → β` where `α` is the type parameter"
-    let .forallE _ ty (.forallE _ ty' tgt _) _ ←
-      instantiateTypeLevelParams input.fieldInfo input.classLParams | fail
+    let .forallE _ ty (.forallE _ ty' tgt _) _ := input.expectedType | fail
     unless ty == input.typeApp do return ← fail
     unless ty' == input.typeApp do return ← fail
     if tgt.hasFVar then
@@ -1257,8 +1256,7 @@ def FieldHelperProvider.doubleCases
     let fail := throwError "Invalid use of `{.ofConstName decl_name%}`, \
       expected field `{.ofConstName input.fieldName}` to have the shape \
       `α → α → β` where `α` is the type parameter"
-    let .forallE _ ty (.forallE _ ty' tgt _) _ ←
-      instantiateTypeLevelParams input.fieldInfo input.classLParams | fail
+    let .forallE _ ty (.forallE _ ty' tgt _) _ := input.expectedType | fail
     unless ty == input.typeApp do return ← fail
     unless ty' == input.typeApp do return ← fail
     if tgt.hasFVar then

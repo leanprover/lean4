@@ -43,11 +43,11 @@ namespace BuildStoreRef
 @[inline] public def new (s : BuildStore := {}) : BaseIO BuildStoreRef :=
   Std.Mutex.new s
 
-/-- Atomically applies a pure modifucation to the build store. -/
+/-- Atomically applies a pure modification to the build store. -/
 @[inline] public def modify (f : BuildStore → BuildStore) (r : BuildStoreRef) : BaseIO Unit :=
   r.atomically (·.modify f)
 
-/-- Atomically pplies a pure modifucation to the build store and returns the paired value. -/
+/-- Atomically applies a pure modification to the build store and returns the paired value. -/
 @[inline] public def modifyGet (f : BuildStore → (α × BuildStore)) (r : BuildStoreRef) : BaseIO α :=
   r.atomically (·.modifyGet f)
 
@@ -61,7 +61,7 @@ namespace BuildStoreRef
 
 /--
 Atomically returns the build store's saved job for the build key {lean}`k`, if any.
-Otehrwise, returns {lean}`none`.
+Otherwise, returns {lean}`none`.
 -/
 @[inline] public def fetch?
   (k : BuildKey) [FamilyOut BuildData k α] (r : BuildStoreRef)

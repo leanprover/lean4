@@ -43,7 +43,10 @@ def elabProj : SymDSimprocElab := fun _ =>
 @[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.rewriteInline]
 def elabRewriteInline : SymDSimprocElab := fun stx => do
   let `(sym_dsimproc| rewrite [ $[$names:ident],* ]) := stx | throwUnsupportedSyntax
-  let declNames ← names.mapM fun name => realizeGlobalConstNoOverload name
+  let declNames ← names.mapM fun name => do
+    let declName ← realizeGlobalConstNoOverload name
+    Linter.checkDeprecatedAt name declName
+    return declName
   return (← Decls.ofNames declNames).toDSimproc
 
 @[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.none]

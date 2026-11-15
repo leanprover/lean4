@@ -18,6 +18,7 @@ import Lean.Meta.Sym.Arith.Kronecker
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
 public import Lean.Meta.NatInstTesters
+import Lean.Meta.IntInstTesters
 public import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Data.RArray
 import Init.Grind.Norm
@@ -58,7 +59,9 @@ form is stated for the simplified atoms. The congruence proof for that step is b
 children's with the `SafePoly` mirrors of the `toPoly` cases, so the polynomial of a node is the
 kernel's `toPoly` of its reification by construction. A cast of a numeral (`↑(2 : Nat)`,
 `↑(-2 : Int)`) is rewritten to the numeral of the carrier on the way, also when it is the whole
-term, so that a numeral has one representation.
+term, so that a numeral has one representation. Other casts from `Nat` and `Int` are pushed
+through the `Nat`/`Int` arithmetic of their argument (`↑(m + n) ↦ ↑m + ↑n`), so that `(m + n) • x`
+is `m • x + n • x`; truncated `Nat` subtraction is an atom.
 
 With `distrib := false`, a product of two non-constant polynomials is not expanded: its factors
 are normalized and certified where they are, and the product is an atom (see `normalize?`).
@@ -184,8 +187,23 @@ instance : MonadGetVar NormM where
   getVar x := return (← get).vars[x]!
 
 /--
+`true` if `a` is an application of an operator that `mkCastStep?` pushes a cast through:
+`+`, `*`, and powers with a literal exponent, and for an `Int` source also `-`, negation, and
+casts from `Nat`. Truncated `Nat` subtraction is not interpreted. Instances are not checked.
+-/
+private def isCastPushable (isNat : Bool) (a : Expr) : Bool :=
+  match_expr a with
+  | HAdd.hAdd _ _ _ _ _ _ => true
+  | HMul.hMul _ _ _ _ _ _ => true
+  | HPow.hPow _ _ _ _ _ k => Sym.isNatValue k
+  | HSub.hSub _ _ _ _ _ _ => !isNat
+  | Neg.neg _ _ _ => !isNat
+  | NatCast.natCast _ _ _ => !isNat
+  | _ => false
+
+/--
 If `e` is an application of an arithmetic operator supported by the normalizer, or a cast of a
-numeral, returns its carrier type.
+numeral or of a term the cast is pushed through (`isCastPushable`), returns its carrier type.
 -/
 def getArithType? (e : Expr) : Option Expr :=
   match_expr e with
@@ -198,8 +216,8 @@ def getArithType? (e : Expr) : Option Expr :=
   | Neg.neg α _ _ => some α
   | HDiv.hDiv α β γ _ _ _ => homoType? α β γ
   | Inv.inv α _ _ => some α
-  | NatCast.natCast α _ a => if Sym.isNatValue a then some α else none
-  | IntCast.intCast α _ a => if (Sym.getIntValue? a).run.isSome then some α else none
+  | NatCast.natCast α _ a => if Sym.isNatValue a || isCastPushable true a then some α else none
+  | IntCast.intCast α _ a => if (Sym.getIntValue? a).run.isSome || isCastPushable false a then some α else none
   | _ => none
 
 /-- `true` if the structure of `kind` is a field. -/
@@ -210,7 +228,7 @@ private def isFieldKind (kind : Kind) : SymM Bool := do
 /-!
 ## Rewrite steps
 
-The steps applied by `visit` that are not congruences: `k • a ↦ ↑k * a`, casts of numerals, and
+The steps applied by `visit` that are not congruences: `k • a ↦ ↑k * a`, the cast rewrites, and
 the field rewrites.
 -/
 
@@ -278,6 +296,58 @@ private def mkCastLitStep? (kind : Kind) (e : Expr) : NormM (Option (Expr × Exp
     let thm := mkApp4 (mkConst thmName [ring.u]) ring.type ring.ringInst a eagerReflBoolTrue
     return some (e₂, mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [ring.u.succ]) ring.type e e₂))
   | _ => return none
+
+/--
+The cast push hook: given `e := ↑a` for an `a : Nat`, or `a : Int` in a ring, with
+`isCastPushable a`, returns `e` with the cast pushed one level into `a`, proved by
+`Grind.Semiring.natCast_add` / `natCast_mul` / `natCast_pow` and `Grind.Ring.intCast_add` /
+`intCast_mul` / `intCast_pow` / `intCast_sub` / `intCast_neg` / `intCast_natCast`. Returns
+`none` when the cast instance is not the structure's or the operator instance of `a` is not the
+canonical `Nat`/`Int` one; `e` is then an atom.
+-/
+private def mkCastStep? (kind : Kind) (e : Expr) : NormM (Option (Expr × Expr)) := do
+  let (isNat, a) ← match_expr e with
+    | NatCast.natCast _ _ a => pure (true, a)
+    | IntCast.intCast _ _ a =>
+      unless kind.isRing do return none
+      pure (false, a)
+    | _ => return none
+  let (type, u, inst, castFn) ← if kind.isRing then
+      let ring ← getRing
+      if isNat then pure (ring.type, ring.u, ring.semiringInst, ← getNatCastFn)
+      else pure (ring.type, ring.u, ring.ringInst, ← getIntCastFn)
+    else
+      let sr ← getSemiring
+      pure (sr.type, sr.u, sr.semiringInst, ← getNatCastFn')
+  unless isSameExpr castFn (← canonExpr e.appFn!) do return none
+  let thm (nat int : Name) (args : Array Expr) :=
+    mkAppN (mkApp2 (mkConst (if isNat then nat else int) [u]) type inst) args
+  let cast (x : Expr) := mkApp castFn x
+  let some (h, e₂) ← (match_expr a with
+    | HAdd.hAdd _ _ _ i x y => do
+      unless (← if isNat then Structural.isInstHAddNat i else Structural.isInstHAddInt i) do return none
+      return some (thm ``Grind.Semiring.natCast_add ``Grind.Ring.intCast_add #[x, y],
+        mkApp2 (← if kind.isRing then getAddFn else getAddFn') (cast x) (cast y))
+    | HMul.hMul _ _ _ i x y => do
+      unless (← if isNat then Structural.isInstHMulNat i else Structural.isInstHMulInt i) do return none
+      return some (thm ``Grind.Semiring.natCast_mul ``Grind.Ring.intCast_mul #[x, y],
+        mkApp2 (← if kind.isRing then getMulFn else getMulFn') (cast x) (cast y))
+    | HPow.hPow _ _ _ i x k => do
+      unless (← if isNat then Structural.isInstHPowNat i else Structural.isInstHPowInt i) do return none
+      return some (thm ``Grind.Semiring.natCast_pow ``Grind.Ring.intCast_pow #[x, k],
+        mkApp2 (← if kind.isRing then getPowFn else getPowFn') (cast x) k)
+    | HSub.hSub _ _ _ i x y => do
+      unless !isNat && (← Structural.isInstHSubInt i) do return none
+      return some (thm .anonymous ``Grind.Ring.intCast_sub #[x, y], mkApp2 (← getSubFn) (cast x) (cast y))
+    | Neg.neg _ i x => do
+      unless !isNat && (← Structural.isInstNegInt i) do return none
+      return some (thm .anonymous ``Grind.Ring.intCast_neg #[x], mkApp (← getNegFn) (cast x))
+    | NatCast.natCast _ i x => do
+      unless !isNat && i.isConstOf ``instNatCastInt do return none
+      return some (thm .anonymous ``Grind.Ring.intCast_natCast #[x], mkApp (← getNatCastFn) x)
+    | _ => return none : NormM _) | return none
+  let e₂ ← share e₂
+  return some (e₂, mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) type e e₂))
 
 /-!
 Field rewrites applied by the walk, all without side conditions (`Init/Grind/Ring/Field.lean`):
@@ -1387,6 +1457,26 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
       chainNode e e₁ r (← visit v e₁)
     else
       mkAtom e₁ r
+  -- A cast of the non-numeral `a`: pushed one level into `a` and visited. When the instances do
+  -- not allow it, `e` is an atom, but one `simpAtom` must not visit (see `unexpected`).
+  -- In a non-commutative structure, `a` is first normalized in `Nat`/`Int`: the casts are
+  -- central, but the structure's normal form does not commute them (`↑(m * n)` and `↑(n * m)`).
+  let cast (isNat : Bool) (a : Expr) : VisitM m Node := do
+    unless isCastPushable isNat a do return (← atom)
+    match h : e with
+    | .app f a =>
+      let comm := (← read).polyCfg.commutative
+      let r ← if comm then pure .rfl else Simp.mkCongrArg e f a (← v.simpAtom a) h
+      let e₁ := r.getResultExpr e
+      let a₁ := e₁.appArg!
+      if let some k := (if isNat then (Sym.getNatValue? a₁).run.map Int.ofNat else (Sym.getIntValue? a₁).run) then
+        if let some (e₂, h₂) ← liftNorm (mkCastLitStep? kind e₁) then
+          return (← numNode e₂ (← chainResults e e₁ r (.step e₂ h₂)) k)
+      else if let some (e₂, h₂) ← liftNorm (mkCastStep? kind e₁) then
+        return (← chainNode e e₂ (← chainResults e e₁ r (.step e₂ h₂)) (← visit v e₂))
+      let r ← if comm then Simp.mkCongrArg e f a (← v.simpAtom a) h else pure r
+      mkAtom (r.getResultExpr e) r
+    | _ => unreachable!
   -- A product or power kept as an atom: its factors are normalized where they are.
   let keep (fa f a b : Expr) (ra rb : Result) (h₁ : e = .app (.app f a) b) (h₂ : fa = .app f a) : VisitM m Node := do
     let r ← congrBin e fa f a b ra rb h₁ h₂
@@ -1527,14 +1617,14 @@ private partial def visitCore (v : Visitor m) (e : Expr) : VisitM m Node := do
       | none => mkAtom e₁ r
     | _ => unreachable!
   | NatCast.natCast _ _ a =>
-    let some k := (Sym.getNatValue? a).run | atom
+    let some k := (Sym.getNatValue? a).run | cast true a
     -- A cast of a numeral becomes the numeral of the carrier. With a different cast instance, it is
     -- an atom, but one `simpAtom` must not visit: `simp` would re-enter `e` through `normalizeTerm?`.
     let some (e₂, h) ← liftNorm (mkCastLitStep? kind e) | mkAtom e .rfl
     numNode e₂ (.step e₂ h) k
   | IntCast.intCast _ _ a =>
     unless isRing do return (← atom)
-    let some k := (Sym.getIntValue? a).run | atom
+    let some k := (Sym.getIntValue? a).run | cast false a
     let some (e₂, h) ← liftNorm (mkCastLitStep? kind e) | mkAtom e .rfl
     numNode e₂ (.step e₂ h) k
   | OfNat.ofNat _ n _ =>
@@ -2437,20 +2527,21 @@ private def runNorm (kind : Kind) (distrib : Bool) (k : VisitM m α) : m α := d
   (k.run { kind, distrib, polyCfg, charZero }).run' {}
 
 /--
-`true` if the structure `kind` has a characteristic the normalizer must leave alone: a numeral
-above `maxChar?`, or one that is not a numeral (`BitVec w`, `Fin n`). See `normalize?`.
+`true` if the structure `kind` has a characteristic the normalizer must leave alone: `1`, a
+numeral above `maxChar?`, or, with `maxChar?`, one that is not a numeral (`BitVec w`, `Fin n`).
+See `normalize?`.
 -/
-private def charAboveLimit (kind : Kind) (maxChar? : Option Nat) : m Bool := do
-  let some maxChar := maxChar? | return false
+private def skipChar (kind : Kind) (maxChar? : Option Nat) : m Bool := do
   let s ← (getArithState : SymM _)
   let (charInst?, symbolicChar) := match kind with
     | .commRing id => let r := s.rings[id]!; (r.charInst?, r.symbolicChar)
     | .commSemiring id => let r := s.rings[s.semirings[id]!.ringId]!; (r.charInst?, r.symbolicChar)
     | .ring id => let r := s.ncRings[id]!; (r.charInst?, r.symbolicChar)
     | .semiring id => let r := s.ncSemirings[id]!; (r.charInst?, r.symbolicChar)
-  if symbolicChar then return true
+  if symbolicChar then return maxChar?.isSome
   let some (_, c) := charInst? | return false
-  return c > maxChar
+  -- Polynomials are not canonical in characteristic `1`: `Poly.ofVar x` keeps the coefficient `1`.
+  return c == 1 || maxChar?.any (c > ·)
 
 /-- The kind of the structure of `α`, if the normalizer supports it. -/
 private def classifyKind? (α : Expr) : m (Option Kind) := do
@@ -2464,7 +2555,7 @@ private def classifyKind? (α : Expr) : m (Option Kind) := do
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
 private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) (lhsOnly distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some kind ← classifyKind? α | return .rfl
-  if (← charAboveLimit kind maxChar?) then return .rfl
+  if (← skipChar kind maxChar?) then return .rfl
   let order? ← match rel with
     | .eq => pure none
     | .le | .lt =>
@@ -2512,8 +2603,8 @@ private def normalizeRel? (v : Visitor m) (rel : RelKind) (α e lhs rhs : Expr) 
       | .step _ h₁ _ cd₀ => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true) (contextDependent := cd)) cd₀
 
 /--
-Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, negation, or,
-in a field, `/` and `⁻¹`, whose carrier type is a ring or semiring) into polynomial normal
+Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, negation, a
+cast accepted by `getArithType?`, or, in a field, `/` and `⁻¹`, whose carrier type is a ring or semiring) into polynomial normal
 form, after simplifying its atoms with `simpAtom`. `e` must be maximally shared.
 
 The result distinguishes three cases:
@@ -2531,7 +2622,7 @@ that asked for one is `contextDependent`. `distrib` is described at `normalize?`
 private def normalizeTerm? (v : Visitor m) (e : Expr) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some α := getArithType? e | return .rfl
   let some kind ← classifyKind? α | return .rfl
-  if (← charAboveLimit kind maxChar?) then
+  if (← skipChar kind maxChar?) then
     -- A cast of a numeral still becomes the numeral of the carrier, so that a numeral has one
     -- representation, and `a / b` becomes `a * b⁻¹`, since the ring module does not interpret
     -- `/`; everything else is left as written.
@@ -2566,7 +2657,7 @@ otherwise (`IntSolver.lean`).
 -/
 private def normalizeDvd? (v : Visitor m) (e dvdFn arg : Expr) (k : Int) (distrib : Bool) (maxChar? : Option Nat) : m Result := do
   let some kind@(.commRing _) ← classifyKind? dvdFn.appFn!.appArg! | return .rfl
-  if (← charAboveLimit kind maxChar?) then return .rfl
+  if (← skipChar kind maxChar?) then return .rfl
   runNorm kind distrib do
     let n ← visit v arg
     let r₀ ← match h : e with
@@ -2680,7 +2771,8 @@ rewritten to the numeral of the carrier, and field division `a / b` to `a * b⁻
 coefficients modulo the characteristic, so `x - y` over `BitVec 64` would become
 `x + 18446744073709551615 * y`, which hides the subtraction from rewrite rules and from
 `grind`'s `[grind hom]` translation. Structures with no `IsCharP` instance are normalized:
-without a known characteristic no coefficient is reduced.
+without a known characteristic no coefficient is reduced. Structures of characteristic `1`, where
+all elements are equal, are always left as written in the same way.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
     (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) (distrib : Bool := true)

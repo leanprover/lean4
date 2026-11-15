@@ -100,12 +100,14 @@ private def ok200 : String :=
     (handler := okHandler)
     (expect := fun r => assertExact r r431)
 
-  check "request-line too long → 400"
+  -- The method and version are bounded, so a line over the limit is over it because of its target.
+  check "request-line too long → 414"
     (raw :=
       let longUri := "/" ++ String.ofList (List.replicate 2000 'a')
       s!"GET {longUri} HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (config := { defaultConfig with maxStartLineLength := 1000 })
+    (expect := fun r => assertStatus r "HTTP/1.1 414")
 
 #eval runGroup "maxStartLineLength config" do
   let cfg : Config := { defaultConfig with maxStartLineLength := 16384 }

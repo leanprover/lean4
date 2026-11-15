@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Std.WP
 import Std.WP.Triple.SpecLemmas
 
+set_option sym.debug true
+
 /-!
 # `vcgen` on a non-monadic program type
 

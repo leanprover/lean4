@@ -1,8 +1,8 @@
 import Lean
 /-!
 This test checks that Verso syntax outside a documentation comment receives the markup semantic
-tokens. Text that is in no heading, blockquote, or list item is `markupPlainText` rather than
-`markupDocText`; everything else is tokenized as in a Verso docstring. The command below takes its
+tokens. The tokens have the same types as in a Verso docstring, and they don't have the
+`documentation` modifier. The command below takes its
 document between `:::::::` delimiters, as Verso's `#docs` command does. The delimiters are tokens of
 the command, not document syntax, so they get no markup token.
 -/

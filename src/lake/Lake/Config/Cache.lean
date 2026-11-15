@@ -551,17 +551,69 @@ instance : ToString CacheToolchain := ⟨CacheToolchain.toString⟩
 
 end CacheToolchain
 
+/-! ## Cache Service Kind -/
+
+public inductive CacheServiceKind
+| undef
+| reservoir
+| s3
+deriving Inhabited, DecidableEq
+
+namespace CacheServiceKind
+
+@[inline_if_reduce]
+public def ofString? (s : String) : Option CacheServiceKind :=
+  match s with
+  | "reservoir" => some .reservoir
+  | "s3" => some .s3
+  | _ => none
+
+@[inline_if_reduce]
+public protected def toString (self : CacheServiceKind) : String :=
+  match self with
+  | .reservoir => "reservoir"
+  | .s3 => "s3"
+  | .undef => "<undef>"
+
+public instance : ToString CacheServiceKind := ⟨CacheServiceKind.toString⟩
+
+end CacheServiceKind
+
 /-! ## Remote Cache Service -/
+
+@[inline] def downloadTmpPath (path : FilePath) : FilePath :=
+  path.addExtension "tmp"
+
+def artifactHashMismatch (badPath : FilePath) (actualHash : Hash) : String :=
+  s!"{badPath}: downloaded artifact hash mismatch, got {actualHash}"
+
+def artifactWriteFailed (artPath : FilePath) (err : IO.Error) : String :=
+  s!"{artPath}: failed to write artifact: {err}"
+
+def artifactReadFailed (path : FilePath) (err : IO.Error) : String :=
+  s!"{path}: failed to read downloaded artifact: {err}"
 
 /-- **For internal use only.** -/
 public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
-  download url path
-  let actualHash ← computeFileHash path
-  if actualHash != hash then
-    let errPos ← getLogPos
-    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-    IO.FS.removeFile path
-    throw errPos
+  let tmpPath := downloadTmpPath path
+  download url tmpPath
+  match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
+  | .ok contents =>
+    let actualHash := Hash.ofByteArray contents
+    if actualHash == hash then
+      if let .error e ← writeBinFileAtomicIfNew path contents |>.toBaseIO then
+        error (artifactWriteFailed path e)
+      else
+        try IO.FS.removeFile tmpPath catch _ => pure ()
+    else
+      let errPos ← getLogPos
+      logError (artifactHashMismatch tmpPath actualHash)
+      -- Do not remove file to avoid deleting a racing download
+      throw errPos
+  | .error e =>
+    -- A racing download may have created it already.
+    unless e matches .noFileOrDirectory .. && (← path.pathExists) do
+      error (artifactReadFailed tmpPath e)
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
@@ -589,16 +641,15 @@ def uploadS3
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
 structure CacheServiceImpl where
-  mk ::
-    name? : Option CacheServiceName := none
-    /- S3 Bucket -/
-    key : String := ""
-    artifactEndpoint : String := ""
-    revisionEndpoint : String := ""
-    /- Reservoir -/
-    isReservoir : Bool := false
-    apiEndpoint : String := ""
-    deriving Nonempty
+  name? : Option CacheServiceName := none
+  /- S3 Bucket -/
+  key : String := ""
+  artifactEndpoint : String := ""
+  revisionEndpoint : String := ""
+  /- Reservoir -/
+  isReservoir : Bool := false
+  apiEndpoint : String := ""
+  deriving Nonempty
 
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
@@ -611,7 +662,7 @@ the desired functions by using `CacheService`'s smart constructors
 public structure CacheService where
   private mk ::
     private impl : CacheServiceImpl
-    deriving Nonempty
+    deriving Nonempty, TypeName
 
 namespace CacheService
 
@@ -619,15 +670,50 @@ namespace CacheService
 @[inline] public def name? (service : CacheService) : Option CacheServiceName :=
   service.impl.name?
 
+/-- Returns what kind of cache service this is. -/
+@[inline] public def kind (service : CacheService) : CacheServiceKind :=
+  if service.impl.isReservoir then .reservoir else .s3
+
+public theorem kind_ne_undef : kind s ≠ .undef := by
+  simp only [kind]
+  split <;> simp_all
+
 /-- Returns whether this is a Reservoir cache service configuration. -/
 @[inline] public def isReservoir (service : CacheService) : Bool :=
   service.impl.isReservoir
+
+public theorem kind_eq_iff_isReservoir : kind s = .reservoir ↔ isReservoir s := by
+  simp only [isReservoir, kind]
+  split <;> simp_all
+
+/-- Returns whether this is a Amazon S3-style cache service configuration. -/
+@[inline] public def isS3 (service : CacheService) : Bool :=
+  ¬ service.impl.isReservoir
+
+public theorem kind_eq_iff_isS3 : kind s = .s3 ↔ isS3 s :=  by
+  simp only [isS3, kind]
+  split <;> simp_all
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the API endpoint of a Reservoir cache service. -/
+@[inline] public def apiEndpoint (service : CacheService) (h : service.isReservoir) : String :=
+  service.impl.apiEndpoint
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the artifact endpoint of a S3-style cache service. -/
+@[inline] public def artifactEndpoint (service : CacheService) (h : service.isS3) : String :=
+  service.impl.artifactEndpoint
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the revision endpoint of a S3-style  cache service. -/
+@[inline] public def revisionEndpoint (service : CacheService) (h : service.isS3) : String :=
+  service.impl.revisionEndpoint
 
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
 @[inline] public def reservoirService
-  (apiEndpoint : String) (name? := some CacheServiceName.reservoir)
+  (apiEndpoint : String) (name? : Option CacheServiceName := none)
 : CacheService := .mk {name?, isReservoir := true, apiEndpoint}
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
@@ -648,6 +734,14 @@ namespace CacheService
 /-- Reconfigures the cache service to use the provided key (for uploads).-/
 @[inline] public def withKey (service : CacheService) (key : String) : CacheService :=
   .mk {service.impl with key}
+
+/-- Returns the cache service under a new name. -/
+@[inline] public def withName (service : CacheService) (name : CacheServiceName) : CacheService :=
+  .mk {service.impl with name? := some name}
+
+/-- Names the cache service if it does not already have one.-/
+@[inline] public def withNameD (service : CacheService) (name : CacheServiceName) : CacheService :=
+  .mk {service.impl with name? := service.impl.name?.getD name}
 
 /-! ### Artifact Transfer -/
 
@@ -681,7 +775,9 @@ public def downloadArtifact
 : LoggerIO Unit := do
   let url := service.artifactUrl descr.hash scope
   let path := cache.artifactDir / descr.relPath
-  if (← path.pathExists) && !force then
+  if force then
+    removeFileIfExists path
+  else if (← path.pathExists) then
     return
   logInfo s!"{scope}: downloading artifact {descr.hash}\
     \n  local path: {path}\
@@ -757,9 +853,6 @@ structure TransferState where
   fix. A batch retries its unsettled transfers on its next attempt.
   -/
   settled : Std.HashSet Nat := {}
-
-@[inline] def tmpPath (path : FilePath) : FilePath :=
-  path.addExtension "tmp"
 
 /--
 The number of times a batch transfer is attempted: one initial attempt plus
@@ -851,28 +944,29 @@ where
         logInfo s!"{cfg.scope}: downloaded artifact {hash}\
           \n  local path: {path}\
           \n  remote URL: {url}"
-      let tmpPath := tmpPath path
+      let tmpPath := downloadTmpPath path
       match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
       | .ok contents =>
         logDownload
         let actualHash := Hash.ofByteArray contents
         if actualHash != hash then
-          recordFailure i true s!"{tmpPath}: downloaded artifact hash mismatch, got {actualHash}"
-        else if let .error e ← IO.FS.rename tmpPath path |>.toBaseIO then
-          recordFailure i false s!"{path}: failed to persist temporary artifact: {e}"
+          recordFailure i true (artifactHashMismatch tmpPath actualHash)
+        else if let .error e ← writeBinFileAtomicIfNew path contents |>.toBaseIO then
+          recordFailure i false (artifactWriteFailed path e)
         else
+          try IO.FS.removeFile tmpPath catch _ => pure ()
           unless extraPaths.isEmpty do
             -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
             for extraPath in extraPaths do
-              if let .error e ← IO.FS.writeBinFile extraPath contents |>.toBaseIO then
-                logError s!"{extraPath}: failed to copy artifact: {e}"
+              if let .error e ← writeBinFileAtomicIfNew extraPath contents |>.toBaseIO then
+                logError (artifactWriteFailed extraPath e)
                 modify ({· with didError := true})
           recordSuccess i
       | .error (.noFileOrDirectory ..) =>
         handleFailure i info true (.ok code) out line
       | .error e =>
         logDownload
-        recordFailure i false s!"{tmpPath}: failed to read downloaded artifact: {e}"
+        recordFailure i false (artifactReadFailed tmpPath e)
     | .put =>
       logInfo s!"{cfg.scope}: uploaded artifact {hash}\
         \n  local path: {path}\
@@ -890,7 +984,7 @@ where
       \n  remote URL: {info.url}"
     match cfg.kind with
     | .get =>
-      let tmpPath := tmpPath info.path
+      let tmpPath := downloadTmpPath info.path
       unless code? matches .ok 404 do -- ignore response bodies on 404s
         if let .ok size := out.getAs Nat "size_download" then
           if size > 0 then
@@ -914,7 +1008,7 @@ def runTransferAttempt
     match cfg.kind with
     | .get =>
       cfg.infos.forM fun info => do
-        let tmpPath := tmpPath info.path
+        let tmpPath := downloadTmpPath info.path
         removeFileIfExists tmpPath
         h.putStrLn s!"url = {info.url.quote}"
         h.putStrLn s!"-o {tmpPath.toString.quote}"

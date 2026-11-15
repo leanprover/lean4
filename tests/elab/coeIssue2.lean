@@ -1,10 +1,10 @@
-structure A :=
+structure A where
 (a : Nat)
 
-structure B :=
+structure B where
 (a : Nat)
 
-structure C :=
+structure C where
 (a : Nat)
 
 instance : Coe A B := ⟨fun s => ⟨s.1⟩⟩

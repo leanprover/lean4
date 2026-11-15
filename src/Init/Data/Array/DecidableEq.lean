@@ -103,7 +103,7 @@ def instDecidableEqImpl [DecidableEq α] : DecidableEq (Array α) := fun xs ys =
   | true  => isTrue (eq_of_isEqv xs ys h)
   | false => isFalse (by subst ·; rw [isEqv_self] at h; contradiction)
 
-instance instDecidableEq [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
+noncomputable instance instDecidableEq [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
   match xs with
   | ⟨[]⟩ =>
     match ys with
@@ -121,7 +121,7 @@ theorem instDecidableEq_csimp : @instDecidableEq = @instDecidableEqImpl :=
 /--
 Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
 -/
-instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
+noncomputable instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
   match xs with
   | ⟨[]⟩ => isTrue rfl
   | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
@@ -129,7 +129,7 @@ instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
 /--
 Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
 -/
-instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
+noncomputable instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
   match ys with
   | ⟨[]⟩ => isTrue rfl
   | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))

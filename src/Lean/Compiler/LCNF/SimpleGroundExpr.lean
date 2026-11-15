@@ -200,7 +200,7 @@ where
       | .nat v =>
         match decl.type with
         | ImpureType.tagged =>
-          guard <| v < 2^31
+          guard <| !Nat.isPossibleRef v
           record decl.fvarId (.arg (.tagged v))
         | _ => failure
       | .uint8 v => record decl.fvarId (.uint8 v)

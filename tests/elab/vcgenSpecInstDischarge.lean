@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` tries the `@[spec]` theorems matching a program in descending priority order and applies the
 first one whose backward rule applies. A spec guarded by an instance the call site does not provide

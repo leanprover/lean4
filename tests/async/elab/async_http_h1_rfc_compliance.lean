@@ -1,4 +1,5 @@
 import Std.Http
+import Std.Http.Test.Helpers
 
 open Std Http
 open Std.Http.Internal.Test
@@ -346,9 +347,62 @@ private def minimalGetRequest : Request.Head :=
     |>.feed "GET / HTTP/2.0\r\nHost: example.com\r\n\r\n"
     |>.step |>.assertFailedWith .unsupportedVersion |>.run
 
-  MachineTester.receiving "§3: unrecognized method → badMessage"
-    |>.feed "LEAN / HTTP/1.1\r\nHost: example.com\r\n\r\n"
-    |>.step |>.assertFailedWith .badMessage |>.run
+  for version in ["HTTP/0.9", "HTTP/3.0"] do
+    MachineTester.receiving s!"§2: {version} → unsupportedVersion"
+      |>.feed s!"GET / {version}\r\nHost: example.com\r\n\r\n"
+      |>.step |>.assertFailedWith .unsupportedVersion |>.run
+
+  -- RFC 9110 §6.2: a higher minor version is processed as the highest minor version the recipient
+  -- implements
+  for version in ["HTTP/1.2", "HTTP/1.9"] do
+    MachineTester.receiving s!"§2: {version} request is read as HTTP/1.1"
+      |>.feed s!"GET / {version}\r\nHost: example.com\r\n\r\n"
+      |>.step |>.assertNoError |>.assertHasEndHeaders |>.assertKeepAlive
+      |>.onEndHeaders (fun t head =>
+        if head.version != .v11 then t.addError s!"expected HTTP/1.1, got {repr head.version}" else t)
+      |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+      |>.assertOutputStartsWith "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" "expected an HTTP/1.1 response"
+      |>.assertKeepAlive |>.run
+
+  -- RFC 9110 §9.1, RFC 9112 §3: a well-formed method the server does not recognize, or one longer
+  -- than any it implements, is answered with 501. Methods are case-sensitive.
+  let longMethod := String.ofList (List.replicate 65 'G')
+  for (label, method) in [("LEAN", "LEAN"), ("GETX", "GETX"), ("get", "get"), ("X-CUSTOM", "X-CUSTOM"),
+      ("UPDATEX", "UPDATEX"), ("a 65-byte token", longMethod)] do
+    MachineTester.receiving s!"§3: unrecognized method {label} → unsupportedMethod"
+      |>.feed s!"{method} / HTTP/1.1\r\nHost: example.com\r\n\r\n"
+      |>.step |>.assertFailedWith .unsupportedMethod
+      |>.step |>.assertOutputStartsWith "HTTP/1.1 501 Not Implemented\r\n" "expected 501" |>.run
+
+  -- A method that is not a token makes the request line malformed
+  for line in ["G@T / HTTP/1.1", "GÉT / HTTP/1.1", "GET\t/ HTTP/1.1", "GETHTTP/1.1"] do
+    MachineTester.receiving s!"§3: {line.quote} → badMessage"
+      |>.feed s!"{line}\r\nHost: example.com\r\n\r\n"
+      |>.step |>.assertFailedWith .badMessage |>.run
+
+  -- The method is read whole before it is matched, so the outcome does not depend on where a read
+  -- ends inside it (#16111: `UPDATE` must not match the start of `UPDATEREDIRECTREF`)
+  for expected in Method.all do
+    let name := toString expected
+    unless Method.ofString? name == some expected do
+      throw <| IO.userError s!"Method.ofString? {name.quote} is not {repr expected}"
+    let (target, host) := if name == "CONNECT" then ("example.com:443", "example.com:443") else ("/", "example.com")
+    let request := s!"{name} {target} HTTP/1.1\r\nHost: {host}\r\n\r\n".toUTF8
+    for i in [1:name.length + 2] do
+      MachineTester.receiving s!"§3: {name} split after byte {i}"
+        |>.feedBytes (request.extract 0 i) |>.step |>.assertNoError
+        |>.feedBytes (request.extract i request.size) |>.step |>.assertNoError
+        |>.onEndHeaders (fun t head =>
+          if head.method == expected then t else t.addError s!"expected {name}, got {repr head.method}")
+        |>.run
+
+  for method in ["LEAN", "GETX", "UPDATEX", "UPDATEREDIRECTREFS"] do
+    let request := s!"{method} / HTTP/1.1\r\nHost: example.com\r\n\r\n".toUTF8
+    for i in [1:method.length + 1] do
+      MachineTester.receiving s!"§3: unrecognized {method} split after byte {i} → unsupportedMethod"
+        |>.feedBytes (request.extract 0 i) |>.step |>.assertNoError
+        |>.feedBytes (request.extract i request.size) |>.step
+        |>.assertFailedWith .unsupportedMethod |>.run
 
   MachineTester.receiving "§3: GET method and HTTP/1.1 version parsed correctly"
     |>.feed "GET /path HTTP/1.1\r\nHost: example.com\r\n\r\n"
@@ -358,6 +412,71 @@ private def minimalGetRequest : Request.Head :=
       else if head.version != .v11 then t.addError s!"expected HTTP/1.1, got {repr head.version}"
       else t)
     |>.run
+
+#eval runGroup "RFC 9110 §2.5, §5.5 / RFC 9112 §4: response start line and field values" do
+  -- §5.5: a recipient treats obs-text in a field value as opaque data
+  MachineTester.sending "§5.5: obs-text in a response field value is accepted"
+    |>.send minimalGetRequest |>.step
+    |>.feedBytes ("HTTP/1.1 200 OK\r\nContent-Disposition: attachment; filename=\"caf".toUTF8
+      ++ ByteArray.mk #[0xC3, 0xA9] ++ ".txt\"\r\nX-Latin1: caf".toUTF8 ++ ByteArray.mk #[0xE9]
+      ++ "\r\nContent-Length: 0\r\n\r\n".toUTF8)
+    |>.step |>.assertNoError |>.assertHasEndHeaders
+    |>.onEndHeaders (fun t head =>
+      let disposition := (head.headers.get? (.ofString! "Content-Disposition")).map (·.value)
+      let latin1 := (head.headers.get? (.ofString! "X-Latin1")).map (·.value)
+      if disposition != some "attachment; filename=\"café.txt\"" then
+        t.addError s!"Content-Disposition mismatch: {repr disposition}"
+      else if latin1 != some "caf\uFFFD" then
+        t.addError s!"X-Latin1 mismatch: {repr latin1}"
+      else t)
+    |>.run
+
+  -- §4: obs-text in a reason phrase, which a client ignores
+  MachineTester.sending "§4: obs-text in the reason phrase is accepted"
+    |>.send minimalGetRequest |>.step
+    |>.feedBytes ("HTTP/1.1 200 Tr".toUTF8 ++ ByteArray.mk #[0xC3, 0xA8] ++ "s bien ".toUTF8
+      ++ ByteArray.mk #[0xFF] ++ "\r\nContent-Length: 0\r\n\r\n".toUTF8)
+    |>.step |>.assertNoError
+    |>.onEndHeaders (fun t head =>
+      if head.status.toCode != 200 then t.addError s!"expected 200, got {head.status.toCode}" else t)
+    |>.run
+
+  -- §4: a status line that ends right after the status code
+  MachineTester.sending "§4: status line with no space after the code is accepted"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 204\r\n\r\n"
+    |>.step |>.assertNoError
+    |>.onEndHeaders (fun t head =>
+      if head.status != .noContent then t.addError s!"expected 204, got {head.status.toCode}" else t)
+    |>.run
+
+  -- §2.5: a higher minor version is processed as the highest minor version the recipient implements
+  MachineTester.sending "§2.5: HTTP/1.2 response is read as HTTP/1.1"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.2 200 OK\r\nContent-Length: 2\r\n\r\nok"
+    |>.step |>.assertNoError |>.assertKeepAlive
+    |>.onEndHeaders (fun t head =>
+      if head.version != .v11 then t.addError s!"expected HTTP/1.1, got {repr head.version}" else t)
+    |>.drainBody |>.assertPulledBody "ok".toUTF8 |>.run
+
+#eval runGroup "RFC 9112 §7.1.2 / RFC 9110 §6.5: trailer fields" do
+  -- §6.5.1: a client drops a trailer field it must not process instead of failing the response
+  MachineTester.sending "§6.5: forbidden non-framing trailer field in a response is dropped"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nok\r\n0\r\nCache-Control: no-cache\r\n\r\n"
+    |>.step |>.assertNoError
+    |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8 |>.assertLastChunkFinal |>.run
+
+  -- a field that frames the message is still refused in a response's trailers
+  MachineTester.sending "§6.5: framing field in response trailers → badMessage"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nok\r\n0\r\nContent-Length: 2\r\n\r\n"
+    |>.step |>.drainBody |>.assertFailedWith .badMessage |>.run
+
+  -- a server keeps rejecting every field forbidden in a request's trailers
+  MachineTester.receiving "§6.5: forbidden trailer field in a request → badMessage"
+    |>.feed (mkChunkedPost "/" ++ "2\r\nok\r\n0\r\nCache-Control: no-cache\r\n\r\n")
+    |>.step |>.drainBody |>.assertFailedWith .badMessage |>.run
 
 #eval runGroup "RFC 9112 §3.2–§3.3: request-target form and Host" do
   MachineTester.receiving "§3.2.1: origin-form path preserved"
@@ -393,6 +512,30 @@ private def minimalGetRequest : Request.Head :=
     |>.feed "GET / HTTP/1.1\r\nHost: a.com\r\nHost: b.com\r\n\r\n"
     |>.step |>.assertFailedWith .badMessage |>.run
 
+  -- RFC 9110 §7.2: `Host` is an RFC 3986 `host`, which may be percent-encoded. The field reaches the
+  -- handler as sent.
+  MachineTester.receiving "§3.2: percent-encoded Host accepted"
+    |>.feed "GET / HTTP/1.1\r\nHost: ex%41mple.com\r\n\r\n"
+    |>.step |>.assertNoError
+    |>.onEndHeaders (fun t head =>
+      match head.headers.get? .host with
+      | some v => if v.value == "ex%41mple.com" then t else t.addError s!"expected Host=ex%41mple.com, got {v.value.quote}"
+      | none => t.addError "missing Host header")
+    |>.run
+
+  MachineTester.receiving "§3.3: percent-encoded absolute-form host decoded"
+    |>.feed "GET http://ex%41mple.com/ HTTP/1.1\r\nHost: example.com\r\n\r\n"
+    |>.step |>.assertNoError
+    |>.onEndHeaders (fun t head =>
+      match head.uri.authority? with
+      | some a => if toString a == "example.com" then t else t.addError s!"expected URI authority=example.com, got {toString a}"
+      | none => t.addError "missing URI authority")
+    |>.run
+
+  MachineTester.receiving "§3.2: Host with a percent-encoded `/` → badMessage"
+    |>.feed "GET / HTTP/1.1\r\nHost: exa%2Fmple.com\r\n\r\n"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
   -- RFC 9112 §3.2.2: Host is left as-is; authority is available via the URI.
   MachineTester.receiving "§3.2: absolute-form Host preserved, authority in URI"
     |>.feed "GET http://example.com:80/path HTTP/1.1\r\nHost: random.com\r\n\r\n"
@@ -406,14 +549,92 @@ private def minimalGetRequest : Request.Head :=
         | none => t.addError "missing URI authority")
     |>.run
 
--- Any multi-TE message is rejected as a request-smuggling defence.
 #eval runGroup "RFC 9112 §6: Transfer-Encoding validation" do
-  MachineTester.receiving "§6.1: multiple Transfer-Encoding headers → badMessage"
+  -- RFC 9110 §5.3: the field lines of Transfer-Encoding form one list, so these are `gzip, chunked`
+  MachineTester.receiving "§6.1: gzip and chunked on two field lines → unsupportedTransferCoding"
     |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip\r\nTransfer-Encoding: chunked\r\n\r\n"
+    |>.step |>.assertFailedWith .unsupportedTransferCoding |>.run
+
+  MachineTester.receiving "§6.1: chunked on two field lines is chunked applied twice → badMessage"
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked\r\nTransfer-Encoding: chunked\r\n\r\n"
     |>.step |>.assertFailedWith .badMessage |>.run
+
+  MachineTester.receiving "§6.3: Transfer-Encoding on two field lines with Content-Length → badMessage"
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip\r\n" ++
+      "Transfer-Encoding: chunked\r\nContent-Length: 3\r\n\r\n")
+    |>.step |>.assertFailedWith .badMessage |>.run
+
+  -- RFC 9110 §5.6.1.2: empty list elements are ignored
+  MachineTester.receiving "§6.1: accepted codings over two field lines with empty elements"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip, \r\n" ++
+      "Transfer-Encoding: , chunked\r\n\r\n3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertNoError
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  MachineTester.receiving "§6.1: Transfer-Encoding: gzip, , chunked → unsupportedTransferCoding"
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip, , chunked\r\n\r\n"
+    |>.step |>.assertFailedWith .unsupportedTransferCoding |>.run
 
   MachineTester.receiving "§6.1: Transfer-Encoding: identity → badMessage"
     |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: identity\r\n\r\n"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
+  -- §6.1: a server answers a transfer coding it does not understand with 501; only `chunked` is
+  -- decoded, so any other coding before it is not implemented
+  for coding in ["gzip, chunked", "br, chunked", "gzip;level=1, chunked", "x-custom, gzip, chunked"] do
+    MachineTester.receiving s!"§6.1: Transfer-Encoding: {coding} request → 501 Not Implemented"
+      |>.feed (s!"POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: {coding}\r\n\r\n" ++
+        "3\r\nabc\r\n0\r\n\r\n")
+      |>.step |>.assertFailedWith .unsupportedTransferCoding
+      |>.step
+      |>.assertOutputStartsWith "HTTP/1.1 501 Not Implemented\r\n" "expected 501"
+      |>.assertOutputContains "Connection: close\r\n" "the unread body ends the connection" |>.run
+
+  -- §6.3 rule 4: a request whose final coding is not `chunked` has no reliable length: 400, not 501
+  MachineTester.receiving "§6.3: Transfer-Encoding: gzip request → badMessage"
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip\r\n\r\nabc"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
+  -- §6.1: a coding the application decodes itself is accepted; the machine removes only the chunked
+  -- framing and keeps the field that says which codings are left
+  let teField (expected : String) (t : MachineTester .receiving) (head : Request.Head) :
+      MachineTester .receiving :=
+    match head.headers.getAll? Header.Name.transferEncoding with
+    | some #[value] =>
+      if value.value == expected then t
+      else t.addError s!"expected Transfer-Encoding {expected.quote}, got {value.value.quote}"
+    | _ => t.addError "expected one Transfer-Encoding field"
+
+  MachineTester.receiving "§6.1: accepted gzip;level=1, chunked → body still coded, field kept"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip;level=1, chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertNoError |>.onEndHeaders (teField "gzip;level=1, chunked")
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  MachineTester.receiving "§6.1: accepted coding names are compared case-insensitively"
+      (config := { acceptedTransferCodings := #["GZIP"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: Gzip, Chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertNoError |>.onEndHeaders (teField "Gzip, Chunked")
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.run
+
+  MachineTester.receiving "§6.1: every coding before chunked must be accepted"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed ("POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: br, gzip, chunked\r\n\r\n" ++
+      "3\r\nabc\r\n0\r\n\r\n")
+    |>.step |>.assertFailedWith .unsupportedTransferCoding |>.run
+
+  -- §6.3 rule 4: an accepted coding does not give a request without a final chunked a length
+  MachineTester.receiving "§6.3: accepted gzip without chunked → badMessage"
+      (config := { acceptedTransferCodings := #["gzip"] })
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: gzip\r\n\r\nabc"
+    |>.step |>.assertFailedWith .badMessage |>.run
+
+  -- RFC 9112 §7.1: `chunked` defines no parameters
+  MachineTester.receiving "§7: Transfer-Encoding: chunked;x=1 request → badMessage"
+    |>.feed "POST / HTTP/1.1\r\nHost: example.com\r\nTransfer-Encoding: chunked;x=1\r\n\r\n0\r\n\r\n"
     |>.step |>.assertFailedWith .badMessage |>.run
 
 #eval runGroup "RFC 9112 §6.3: body framing" do
@@ -542,6 +763,116 @@ private def minimalGetRequest : Request.Head :=
     |>.pullBody
     |>.assertPulledBody splitBody |>.assertLastChunkFinal |>.run
 
+#eval runGroup "RFC 9112 §6: framing of messages without a body, and of written messages" do
+  -- §6.3 rule 1: a response to HEAD ends at its header block, whatever its framing fields say
+  MachineTester.sending "§6.3: HEAD response with contradictory framing fields completes"
+    |>.send { minimalGetRequest with method := .head } |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Length: 10\r\n\r\n"
+    |>.step |>.assertNoError |>.assertReaderComplete |>.run
+
+  -- §6.3 rule 1: so does a 204 response
+  MachineTester.sending "§6.3: 204 response with contradictory framing fields completes"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 204 No Content\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\n\r\n"
+    |>.step |>.assertNoError |>.assertReaderComplete |>.run
+
+  -- §6.3 rule 4: a response whose final transfer coding is not chunked is read until the server closes
+  for coding in ["gzip", "chunked, gzip", "gzip;level=1", "gzip ; level = \"9\""] do
+    MachineTester.sending s!"§6.3: Transfer-Encoding: {coding} response is close-delimited"
+      |>.send minimalGetRequest |>.step
+      |>.feed s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: {coding}\r\n\r\nabc"
+      |>.step |>.assertNoError |>.assertNotKeepAlive
+      |>.noMoreInput |>.drainBody |>.assertNoError
+      |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  -- §7: transfer parameters do not change which coding is final
+  MachineTester.sending "§6.3: Transfer-Encoding: gzip;level=1, chunked response is chunked"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: gzip;level=1, chunked\r\n\r\n3\r\nabc\r\n0\r\n\r\n"
+    |>.step |>.assertNoError |>.assertKeepAlive
+    |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
+
+  -- §7.1: chunked defines no parameters
+  for coding in ["chunked;x=1", "gzip;level, chunked", "gzip;=1, chunked"] do
+    MachineTester.sending s!"§7: Transfer-Encoding: {coding} → badMessage"
+      |>.send minimalGetRequest |>.step
+      |>.feed s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: {coding}\r\n\r\n3\r\nabc\r\n0\r\n\r\n"
+      |>.step |>.assertFailedWith .badMessage |>.run
+
+  -- §6.1: a chunked message keeps the transfer codings its body was coded with
+  MachineTester.receiving "§6.1: server keeps the handler's Transfer-Encoding: gzip, chunked"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok, headers := Headers.empty.insert! "Transfer-Encoding" "gzip, chunked" }
+    |>.sendBytes "abc".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputContains "Transfer-Encoding: gzip, chunked\r\n" "expected the handler's codings"
+    |>.assertOutputContains "3\r\nabc\r\n0\r\n\r\n" "expected a chunked body" |>.run
+
+  MachineTester.receiving "§6.1: server keeps the handler's Transfer-Encoding: gzip;level=1, chunked"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok, headers := Headers.empty.insert! "Transfer-Encoding" "gzip;level=1, chunked" }
+    |>.sendBytes "abc".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputContains "Transfer-Encoding: gzip;level=1, chunked\r\n" "expected the handler's codings"
+    |>.assertOutputContains "3\r\nabc\r\n0\r\n\r\n" "expected a chunked body" |>.run
+
+  MachineTester.sending "§6.1: client keeps the caller's Transfer-Encoding: gzip, chunked"
+    |>.send { minimalGetRequest with
+      method := .post, headers := minimalGetRequest.headers.insert! "Transfer-Encoding" "gzip, chunked" }
+    |>.sendBytes "abc".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputContains "Transfer-Encoding: gzip, chunked\r\n" "expected the caller's codings"
+    |>.assertOutputContains "3\r\nabc\r\n0\r\n\r\n" "expected a chunked body" |>.run
+
+  -- RFC 9110 §5.3: codings over several field lines are one list, written as one field
+  MachineTester.receiving "§6.1: server writes the handler's two Transfer-Encoding lines as one"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok, headers :=
+      (Headers.empty.insert! "Transfer-Encoding" "gzip").insert! "Transfer-Encoding" "chunked" }
+    |>.sendBytes "abc".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputContains "Transfer-Encoding: gzip, chunked\r\n" "expected the combined codings"
+    |>.assertOutputNotContains "Transfer-Encoding: chunked\r\n" "expected one Transfer-Encoding field"
+    |>.assertOutputContains "3\r\nabc\r\n0\r\n\r\n" "expected a chunked body" |>.run
+
+  -- RFC 9110 §15.3.6: a server must not generate content in a 205 response; it sends
+  -- `Content-Length: 0` whatever length or framing the handler gave
+  MachineTester.receiving "§15.3.6: 205 drops the handler's content and sends Content-Length: 0"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .resetContent } |>.sendBytes "body".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 205 Reset Content\r\nContent-Length: 0\r\n\r\n"
+        "expected a 205 head with Content-Length: 0"
+    |>.assertOutputNotContains "body" "a 205 response carries no content"
+    |>.assertNoError |>.assertKeepAlive |>.run
+
+  MachineTester.receiving "§15.3.6: 205 with the handler's Content-Length: 4 still sends Content-Length: 0"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .resetContent, headers := Headers.empty.insert! "Content-Length" "4" }
+    |>.sendBytes "body".toUTF8 |>.userClosedBody |>.step
+    |>.assertOutputContains "Content-Length: 0\r\n\r\n" "expected Content-Length: 0"
+    |>.assertOutputNotContains "Content-Length: 4" "the handler's length must not be advertised"
+    |>.assertOutputNotContains "body" "a 205 response carries no content"
+    |>.assertNoError |>.run
+
+  MachineTester.receiving "§15.3.6: 205 of unknown length is not chunked"
+    |>.feed (mkGet "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .resetContent } |>.setKnownSize .chunked |>.sendBytes "body".toUTF8
+    |>.userClosedBody |>.step
+    |>.assertOutputContains "Content-Length: 0\r\n\r\n" "expected Content-Length: 0"
+    |>.assertOutputNotContains "Transfer-Encoding" "a 205 response is not chunked"
+    |>.assertOutputNotContains "body" "a 205 response carries no content" |>.run
+
+  -- RFC 9110 §8.6: no Content-Length on a request without content whose method anticipates none
+  MachineTester.sending "§8.6: bodyless GET request carries no Content-Length"
+    |>.send minimalGetRequest |>.userClosedBody |>.step
+    |>.assertOutputStartsWith "GET / HTTP/1.1\r\n" "expected the request line"
+    |>.assertOutputNotContains "Content-Length" "a bodyless GET must not carry Content-Length" |>.run
+
+  MachineTester.sending "§8.6: bodyless POST request still carries Content-Length: 0"
+    |>.send { minimalGetRequest with method := .post } |>.userClosedBody |>.step
+    |>.assertOutputContains "Content-Length: 0\r\n" "a bodyless POST keeps Content-Length: 0" |>.run
+
+  MachineTester.sending "§8.6: a GET whose caller set Content-Length: 0 keeps it"
+    |>.send { minimalGetRequest with headers := minimalGetRequest.headers.insert! "Content-Length" "0" }
+    |>.userClosedBody |>.step
+    |>.assertOutputContains "Content-Length: 0\r\n" "an explicit framing field is kept" |>.run
+
 #eval runGroup "RFC 9112 §9.3: connection persistence" do
   -- §9.3: HTTP/1.1 connections are persistent by default
   MachineTester.receiving "§9.3: HTTP/1.1 default keep-alive = true"
@@ -609,11 +940,69 @@ private def minimalGetRequest : Request.Head :=
     |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
     |>.assertOutputContains "Connection: close" "expected Connection: close in response" |>.run
 
+  -- §9.6: a `Connection: close` response header set by the handler ends a keep-alive connection
+  MachineTester.receiving "§9.6: handler Connection:close on keep-alive request → connection closed"
+    |>.feed (mkGet "/first" ++ mkGet "/second") |>.step |>.assertHasEndHeaders |>.assertKeepAlive
+    |>.send { status := .ok, headers := Headers.empty.insert .connection (.mk "close") }
+    |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertNotKeepAlive
+    |>.assertOutputContains "Connection: close" "expected Connection: close in response"
+    |>.assertHasEvent (fun | .close => true | _ => false) "expected .close after the response"
+    |>.assertNoEvent (fun | .next => true | _ => false) "expected the pipelined request to be dropped"
+    |>.step |>.assertHalted |>.run
+
+  -- §9.6: the error responses of `closeWithError` end a keep-alive connection
+  for status in #[Status.internalServerError, .requestTimeout, .serviceUnavailable] do
+    MachineTester.receiving s!"§9.6: closeWithError {status.toCode} on keep-alive request → connection closed"
+      |>.feed (mkGet "/first" ++ mkGet "/second") |>.step |>.assertHasEndHeaders |>.assertKeepAlive
+      |>.closeWithError status |>.step
+      |>.assertNotKeepAlive
+      |>.assertOutputStartsWith s!"HTTP/1.1 {status.toCode} " "expected the error status line"
+      |>.assertOutputContains "Connection: close" "expected Connection: close in the error response"
+      |>.assertHasEvent (fun | .close => true | _ => false) "expected .close after the error response"
+      |>.assertNoEvent (fun | .next => true | _ => false) "expected the pipelined request to be dropped"
+      |>.run
+
   -- §9.6: HTTP/1.1 response with Connection: close → keep-alive disabled
   MachineTester.sending "§9.6: HTTP/1.1 response Connection:close → keep-alive = false"
     |>.send minimalGetRequest |>.step
     |>.feed "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 0\r\n\r\n"
     |>.step |>.assertNoError |>.assertNotKeepAlive |>.run
+
+  -- RFC 9110 §7.6.1, §7.8: the handler's connection options are kept, with the machine's `close`
+  let upgrade (connection : String) : Response.Head :=
+    { status := .upgradeRequired,
+      headers := Headers.empty |>.insert! "Upgrade" "TLS/1.2" |>.insert! "Connection" connection }
+  MachineTester.receiving "§7.8: 426 keeps Connection: upgrade and appends close"
+    |>.feed "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n"
+    |>.step |>.assertIsWaitingMessage
+    |>.send (upgrade "Upgrade")
+    |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertOutputContains "Connection: upgrade, close\r\n" "expected the handler's upgrade option and close"
+    |>.assertOutputContains "Upgrade: TLS/1.2\r\n" "expected the Upgrade field" |>.run
+
+  MachineTester.receiving "§7.8: keep-alive response keeps the handler's Connection: upgrade"
+    |>.feed (mkGet "/") |>.step |>.assertKeepAlive
+    |>.send (upgrade "upgrade, keep-alive")
+    |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step |>.assertKeepAlive
+    |>.assertOutputContains "Connection: upgrade\r\n" "expected only the upgrade option" |>.run
+
+  -- RFC 9110 §7.8: a client that sends `Upgrade` also sends the `upgrade` connection option
+  MachineTester.sending "§7.8: client keeps the caller's Connection: upgrade"
+    |>.send { minimalGetRequest with
+      headers := minimalGetRequest.headers
+        |>.insert! "Connection" "Upgrade" |>.insert! "Upgrade" "websocket" }
+    |>.userClosedBody |>.step
+    |>.assertOutputContains "Connection: upgrade\r\n" "expected the caller's upgrade option"
+    |>.assertOutputContains "Upgrade: websocket\r\n" "expected the Upgrade field" |>.run
+
+  MachineTester.sending "§7.8: client appends close to the caller's connection options"
+    |>.send { minimalGetRequest with
+      headers := minimalGetRequest.headers
+        |>.insert! "Connection" "upgrade, close" |>.insert! "Upgrade" "websocket" }
+    |>.userClosedBody |>.step |>.assertNotKeepAlive
+    |>.assertOutputContains "Connection: upgrade, close\r\n" "expected the upgrade option, then close"
+    |>.run
 
 #eval runGroup "RFC 9110 §6–§7: header handling" do
   -- §6.3: custom application headers are preserved in the parsed head
@@ -688,6 +1077,30 @@ private def minimalGetRequest : Request.Head :=
     |>.send { status := .processing } |>.step
     |>.assertIsWaitingMessage |>.run
 
+  -- §15.2: an interim response has no body of its own, so it must not end the response body
+  MachineTester.sending "§15.2: 103 Early Hints → no closeBody until the final response"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 103 Early Hints\r\nLink: </style.css>; rel=preload\r\n\r\n" |>.step
+    |>.assertNoError
+    |>.assertNoEvent (fun | .closeBody => true | _ => false)
+        "an interim response must not emit closeBody"
+    |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok" |>.step
+    |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8
+    |>.assertHasCloseBody |>.run
+
+  -- §15.2.2: after 101 the connection speaks the new protocol, so no final response follows and the
+  -- bytes after the head are not read as HTTP
+  MachineTester.sending "§15.2.2: 101 Switching Protocols ends the exchange"
+    |>.send { minimalGetRequest with
+      headers := minimalGetRequest.headers
+        |>.insert! "Connection" "upgrade" |>.insert! "Upgrade" "websocket" }
+    |>.step
+    |>.feed "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n"
+    |>.feedBytes (ByteArray.mk #[0x81, 0x02, 0x68, 0x69])
+    |>.step
+    |>.assertNoError |>.assertHasEndHeaders |>.assertNotKeepAlive
+    |>.assertReaderClosed |>.run
+
 #eval runGroup "RFC 7231 §4.3.2: HEAD request handling" do
   -- body bytes suppressed; Content-Length metadata still emitted so client knows size
   let body := "hello".toUTF8
@@ -700,6 +1113,17 @@ private def minimalGetRequest : Request.Head :=
     |>.assertOutputContains "Content-Length: 5" "expected Content-Length metadata preserved"
     |>.assertOutputNotContains "hello" "HEAD response must not contain body bytes on the wire"
     |>.run
+
+  -- RFC 9110 §9.3.2, §8.6: with no known length a HEAD response has GET's framing; a
+  -- `Content-Length: 0` would claim the GET response is empty
+  MachineTester.receiving "§9.3.2: HEAD response of unknown length has no Content-Length: 0"
+    |>.feed ("HEAD / HTTP/1.1\r\nHost: example.com\r\n\r\n" ++ mkGet "/next")
+    |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok } |>.userClosedBody |>.step
+    |>.assertOutputNotContains "Content-Length" "unknown length must not be sent as Content-Length: 0"
+    |>.assertOutputContains "Transfer-Encoding: chunked\r\n" "expected the framing GET would have"
+    |>.assertOutputNotContains "0\r\n\r\n" "a HEAD response carries no body, not even a last chunk"
+    |>.assertHasNext |>.run
 
 #eval runGroup "RFC 2616: HTTP/1.0 compatibility" do
   -- RFC 2068 §19.4.6: HTTP/1.0 does not define chunked transfer encoding
@@ -755,6 +1179,145 @@ private def minimalGetRequest : Request.Head :=
     |>.step |>.step
     |>.assertOutputContains "Connection: keep-alive"
         "RFC 2616 §19.7.1: HTTP/1.0 keep-alive response must include Connection: keep-alive" |>.run
+
+  -- RFC 9110 §15.2: a server must not send a 1xx response to an HTTP/1.0 client
+  MachineTester.receiving "§15.2: 103 Early Hints is not sent to an HTTP/1.0 client"
+    |>.feed (mkGet10 "/") |>.step |>.assertIsWaitingMessage
+    |>.send { status := .earlyHints, headers := Headers.empty.insert! "Link" "</a.css>; rel=preload" }
+    |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertOutputNotContains "103" "a 1xx response must not reach an HTTP/1.0 client"
+    |>.assertOutputStartsWith "HTTP/1.1 200" "expected the final response first" |>.run
+
+  -- RFC 9110 §6.2: a server sends the highest version it conforms to whose major version is at most
+  -- the request's, so an HTTP/1.0 request gets an HTTP/1.1 status line with HTTP/1.0 framing
+  MachineTester.receiving "§6.2: HTTP/1.0 request → HTTP/1.1 status line, connection-close framing"
+    |>.feed (mkGet10 "/") |>.step
+    |>.send { status := .ok } |>.sendBytes "hello".toUTF8 |>.userClosedBody
+    |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 200 OK\r\n" "expected an HTTP/1.1 status line"
+    |>.assertOutputContains "Connection: close\r\n" "an HTTP/1.0 connection without keep-alive closes"
+    |>.assertOutputNotContains "Transfer-Encoding" "HTTP/1.0 has no chunked framing" |>.run
+
+  MachineTester.receiving "§6.2: HTTP/1.0 keep-alive request → HTTP/1.1 status line, keep-alive echoed"
+    |>.feed "GET / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n" |>.step
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody
+    |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 200 OK\r\n" "expected an HTTP/1.1 status line"
+    |>.assertOutputContains "Connection: keep-alive\r\n" "expected the HTTP/1.0 keep-alive echo"
+    |>.assertKeepAlive |>.run
+
+  -- RFC 9112 §6.3: a HEAD response ends at its header block, so a length the server does not know
+  -- does not cost an HTTP/1.0 client its keep-alive connection
+  MachineTester.receiving "§6.3: HTTP/1.0 HEAD of unknown length keeps the connection alive"
+    |>.feed ("HEAD / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n" ++
+      "GET /second HTTP/1.0\r\nConnection: keep-alive\r\n\r\n")
+    |>.step |>.assertIsWaitingMessage
+    |>.send { status := .ok } |>.userClosedBody |>.step
+    |>.assertOutputContains "Connection: keep-alive\r\n" "expected the HTTP/1.0 keep-alive echo"
+    |>.assertOutputNotContains "Content-Length" "unknown length must not be sent as Content-Length: 0"
+    |>.assertOutputNotContains "close" "a HEAD response has no body to delimit by closing"
+    |>.assertHasNext
+    |>.step |>.assertHasEndHeaders |>.assertKeepAlive |>.run
+
+#eval runGroup "RFC 9110 §6.6.1: Date" do
+  let date : Header.Value := .mk "Mon, 01 Jan 2024 00:00:00 GMT"
+  let withDate (t : MachineTester .receiving) : MachineTester .receiving :=
+    { t with machine := { t.machine with date := some date } }
+
+  MachineTester.receiving "§6.6.1: the machine's date goes into a response without Date"
+    |> withDate
+    |>.feed (mkGet "/") |>.step
+    |>.send { status := .ok } |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 200 OK\r\nDate: Mon, 01 Jan 2024 00:00:00 GMT\r\nContent-Length: 0\r\n"
+        "expected the machine's Date after the handler's fields" |>.run
+
+  MachineTester.receiving "§6.6.1: the handler's own Date is kept and not duplicated"
+    |> withDate
+    |>.feed (mkGet "/") |>.step
+    |>.send { status := .ok, headers := Headers.empty.insert! "Date" "Tue, 02 Jan 2024 00:00:00 GMT" }
+    |>.setKnownSize (.fixed 0) |>.userClosedBody |>.step
+    |>.assertOutputContains "Date: Tue, 02 Jan 2024 00:00:00 GMT\r\n" "expected the handler's Date"
+    |>.assertOutputNotContains "Mon, 01 Jan 2024" "the machine's Date must not be added too" |>.run
+
+  MachineTester.receiving "§6.6.1: a 400 the machine writes itself carries Date"
+    |> withDate
+    |>.feed "GET / HTTP/1.1\r\n\r\n" |>.step |>.step
+    |>.assertOutputStartsWith
+        "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\nDate: Mon, 01 Jan 2024 00:00:00 GMT\r\n"
+        "expected Date on the machine's 400" |>.run
+
+  MachineTester.receiving "§6.6.1: a 408 from closeWithError carries Date"
+    |> withDate
+    |>.feed (mkPostHead "/" 5) |>.step
+    |>.closeWithError .requestTimeout |>.step
+    |>.assertOutputStartsWith
+        "HTTP/1.1 408 Request Timeout\r\nContent-Type: text/plain; charset=utf-8\r\nDate: Mon, 01 Jan 2024 00:00:00 GMT\r\n"
+        "expected Date on the 408" |>.run
+
+  MachineTester.receiving "§6.6.1: the 500 for a rejected head carries Date and an explanation"
+    |> withDate
+    |>.feed (mkGet "/") |>.step
+    |>.setKnownSize (.fixed 0)
+    |>.send { status := .ok, headers := Headers.empty.insert! "Content-Length" "4" } |>.step
+    |>.assertOutputStartsWith
+        ("HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain; charset=utf-8\r\n" ++
+          "Date: Mon, 01 Jan 2024 00:00:00 GMT\r\nConnection: close\r\nContent-Length: 22\r\n\r\n" ++
+          "Internal Server Error\n")
+        "expected Date and the explanation on the 500" |>.run
+
+  MachineTester.receiving "§6.6.1: without a date the machine adds no Date"
+    |>.feed "GET / HTTP/1.1\r\n\r\n" |>.step |>.step
+    |>.assertOutputNotContains "Date" "no Date without a date value" |>.run
+
+#eval runGroup "RFC 9110 §15.5, §15.6: content of the error responses the server writes" do
+  -- §15.5, §15.6: except for a response to HEAD, a 4xx or 5xx response should explain the error
+  MachineTester.receiving "§15.5: a 400 the machine writes explains itself"
+    |>.feed "GET / HTTP/1.1\r\n\r\n" |>.step |>.step
+    |>.assertOutputStartsWith
+        ("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\n" ++
+          "Connection: close\r\nContent-Length: 12\r\n\r\nBad Request\n")
+        "expected a text/plain explanation" |>.run
+
+  -- §15.6.6: a 505 says which versions the server supports
+  MachineTester.receiving "§15.6.6: a 505 names the supported versions"
+    |>.feed "GET / HTTP/2.0\r\nHost: example.com\r\n\r\n" |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 505 HTTP Version Not Supported\r\n" "expected 505"
+    |>.assertOutputContains "\r\n\r\nHTTP Version Not Supported: this server supports HTTP/1.0 and HTTP/1.1\n"
+        "expected the supported versions" |>.run
+
+  -- §9.3.2: a response to HEAD has no content, but keeps the Content-Length GET would have
+  MachineTester.receiving "§9.3.2: a 400 to HEAD keeps Content-Length and omits the content"
+    |>.feed "HEAD / HTTP/1.1\r\n\r\n" |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 400 Bad Request\r\n" "expected 400"
+    |>.assertOutputContains "Content-Length: 12\r\n\r\n" "expected the content's length"
+    |>.assertOutputNotContains "\r\n\r\nBad Request" "a HEAD response carries no content" |>.run
+
+  MachineTester.receiving "§15.5: a 408 from closeWithError explains itself"
+    |>.feed (mkPostHead "/" 5) |>.step
+    |>.closeWithError .requestTimeout |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 408 Request Timeout\r\n" "expected 408"
+    |>.assertOutputContains "Connection: close\r\n" "expected Connection: close"
+    |>.assertOutputContains "Content-Length: 16\r\n\r\nRequest Timeout\n" "expected an explanation"
+    |>.assertNotKeepAlive |>.run
+
+  MachineTester.receiving "§15.5: a 417 from canContinue explains itself"
+    |>.feed (mkPostHead "/" 5 "Expect: 100-continue\r\n") |>.step |>.assertHasContinue
+    |>.canContinue .expectationFailed |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 417 Expectation Failed\r\n" "expected 417"
+    |>.assertOutputContains "Content-Length: 19\r\n\r\nExpectation Failed\n" "expected an explanation"
+    |>.assertNotKeepAlive |>.run
+
+  -- A final response sent before the rejection keeps its length and body; the rejection only stops
+  -- the request body and the connection
+  MachineTester.receiving "§15.5: canContinue after a final response leaves that response intact"
+    |>.feed (mkPostHead "/" 5 "Expect: 100-continue\r\n") |>.step |>.assertHasContinue
+    |>.setKnownSize (.fixed 5) |>.send { status := .ok } |>.sendBytes "hello".toUTF8 |>.userClosedBody
+    |>.canContinue .expectationFailed |>.step |>.step
+    |>.assertOutputStartsWith "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 5\r\n\r\nhello"
+        "expected the 200 with its own length and body"
+    |>.assertOutputNotContains "Expectation Failed" "no 417 content after a final response"
+    |>.assertNoError |>.assertNotKeepAlive |>.run
 
 #eval runGroup "RFC 9110 §8.6 / §6.3: client-side bodyless response framing" do
   -- §8.6: a HEAD response has no body regardless of framing headers. The client reader must treat

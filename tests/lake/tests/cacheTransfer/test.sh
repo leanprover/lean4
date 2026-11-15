@@ -63,8 +63,12 @@ echo "URL=$URL"
 
 # Point the configured cache services at the mock server.
 # Copied after the commit above so that it does not dirty the work tree.
-cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" .
-sed_i "s|%URL%|$URL|g" services.toml
+cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" \
+  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml"  .
+mkdir -p service-dep
+cp "$TEST_DIR/service-dep.toml" service-dep/lakefile.toml
+sed_i "s|%URL%|$URL|g" services.toml reservoir-upload.toml \
+  pkg-services.toml service-dep/lakefile.toml
 
 # The option validation below expects no configured service, as in a default
 # installation; the transfer tests switch to the mock services
@@ -114,10 +118,18 @@ test_err '`--mappings-only` is not supported' cache get --mappings-only bogus.js
 with_endpoints test_err '`--mappings-only` requires services' cache get --mappings-only
 
 # Verify `--service` validation
-test_err 'service `bogus` not found in system configuration' \
+test_err 'service not found `bogus`' \
   cache get --service='bogus'
-test_err 'service `bogus` not found in system configuration' \
+test_err 'service not found `bogus`' \
   cache put bogus.jsonl --scope='bogus' --service='bogus'
+
+# Verify Reservoir services are rejected for uploads,
+# whether selected explicitly or as the default upload service
+test_err 'Reservoir services do not support uploads' \
+  cache put bogus.jsonl --scope='bogus' --service='reservoir'
+LAKE_CONFIG="$WORK_DIR/reservoir-upload.toml" \
+test_err 'Reservoir services do not support uploads' \
+  cache put bogus.jsonl --scope='bogus'
 
 # Verify `cache get` rejects bad configurations
 test_err '`--no-overwrite` is not supported for `cache get`' \
@@ -437,6 +449,20 @@ test_out 'downloaded artifact' cache get --repo=leanprover/test
 match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG"
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
+
+# Verify transfers through cache services declared by packages:
+# an S3 service from a dependency and a Reservoir service from the root
+test_run -f pkg-services.toml update
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_out 'downloaded artifact' -f pkg-services.toml cache get --scope=test --service=depS3
+test_artifacts "$NUM_ARTS"
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+test_out 'downloaded artifact' \
+  -f pkg-services.toml cache get --repo=leanprover/test --service=rootReservoir
+match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG"
+test_artifacts "$NUM_ARTS"
+test_run update
 
 # Verify `-o` with `--package` tracks the outputs of the selected dependency
 # from the root workspace, matching those of a build of the dependency alone

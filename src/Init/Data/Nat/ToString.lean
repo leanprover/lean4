@@ -107,7 +107,7 @@ theorem toNat_digitChar_sub_48_of_lt_ten {n : Nat} (hn : n < 10) : n.digitChar.t
 private theorem isDigit_of_mem_toDigitsCore
     (hc : c ∈ cs → c.isDigit) (hb₁ : 0 < b) (hb₂ : b ≤ 10) (h : c ∈ toDigitsCore b fuel n cs) :
     c.isDigit := by
-  induction fuel generalizing n cs with rw [toDigitsCore] at h
+  induction fuel generalizing n cs with simp only [toDigitsCore] at h
   | zero => exact hc h
   | succ _ ih =>
     split at h
@@ -162,7 +162,7 @@ private theorem toDigitsCore_toDigitsCore
   cases fuel with
   | zero => contradiction
   | succ fuel =>
-    rw [toDigitsCore]
+    simp only [toDigitsCore]
     split
     case isTrue h =>
       have : b ≤ b * n + d := Nat.le_trans (Nat.le_mul_of_pos_right _ hn) (le_add_right _ _)
@@ -198,7 +198,7 @@ theorem toDigits_eq_if {b : Nat} {n : Nat} (hb : 1 < b) : b.toDigits n = if n < 
 theorem length_toDigits_pos {b n : Nat} :
     0 < (Nat.toDigits b n).length := by
   simp [toDigits]
-  rw [toDigitsCore]
+  simp only [toDigitsCore]
   split
   · simp
   · rw [toDigitsCore_eq_toDigitsCore_nil_append]

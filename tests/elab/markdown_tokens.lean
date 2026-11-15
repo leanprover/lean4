@@ -40,60 +40,100 @@ def tokenCount (input : String) (typeName : String) : Nat := Id.run do
 
 Each line places an `x` content character inside the smallest snippet that produces the targeted
 attribute combination. The block context selects the type, and the emphasis adds the `markupBold`
-and `markupItalic` modifiers.
+and `markupItalic` modifiers. Every token has the `documentation` modifier, because Markdown is
+parsed only in docstrings.
 -/
 
 -- plain × {none, bold, italic, both}
-/-- info: "markupDocText" -/
+/-- info: "markupText documentation" -/
 #guard_msgs in #eval markupAt "x" 0
 
-/-- info: "markupDocText markupBold" -/
+/-- info: "markupText documentation markupBold" -/
 #guard_msgs in #eval markupAt "**x**" 2
 
-/-- info: "markupDocText markupItalic" -/
+/-- info: "markupText documentation markupItalic" -/
 #guard_msgs in #eval markupAt "*x*" 1
 
-/-- info: "markupDocText markupBold markupItalic" -/
+/-- info: "markupText documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "***x***" 3
 
 -- heading × {none, bold, italic, both}
-/-- info: "markupHeading" -/
+/-- info: "markupHeading documentation" -/
 #guard_msgs in #eval markupAt "# x" 2
 
-/-- info: "markupHeading markupBold" -/
+/-- info: "markupHeading documentation markupBold" -/
 #guard_msgs in #eval markupAt "# **x**" 4
 
-/-- info: "markupHeading markupItalic" -/
+/-- info: "markupHeading documentation markupItalic" -/
 #guard_msgs in #eval markupAt "# *x*" 3
 
-/-- info: "markupHeading markupBold markupItalic" -/
+/-- info: "markupHeading documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "# ***x***" 5
 
 -- blockquote × {none, bold, italic, both}
-/-- info: "markupQuote" -/
+/-- info: "markupQuote documentation" -/
 #guard_msgs in #eval markupAt "> x" 2
 
-/-- info: "markupQuote markupBold" -/
+/-- info: "markupQuote documentation markupBold" -/
 #guard_msgs in #eval markupAt "> **x**" 4
 
-/-- info: "markupQuote markupItalic" -/
+/-- info: "markupQuote documentation markupItalic" -/
 #guard_msgs in #eval markupAt "> *x*" 3
 
-/-- info: "markupQuote markupBold markupItalic" -/
+/-- info: "markupQuote documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "> ***x***" 5
 
 -- list × {none, bold, italic, both}
-/-- info: "markupList" -/
+/-- info: "markupList documentation" -/
 #guard_msgs in #eval markupAt "* x" 2
 
-/-- info: "markupList markupBold" -/
+/-- info: "markupList documentation markupBold" -/
 #guard_msgs in #eval markupAt "* **x**" 4
 
-/-- info: "markupList markupItalic" -/
+/-- info: "markupList documentation markupItalic" -/
 #guard_msgs in #eval markupAt "* *x*" 3
 
-/-- info: "markupList markupBold markupItalic" -/
+/-- info: "markupList documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* ***x***" 5
+
+/-!
+## The `documentation` Modifier
+
+The document below uses every construct that has a token of its own. Each of its tokens has the
+`documentation` modifier, whatever its type.
+-/
+
+def everyConstruct : String :=
+  "# Heading\n\n" ++
+  "Text with **bold**, *italic*, `code`, <b>html</b>, a [link](/u \"title\"), an ![image](<u>),\n" ++
+  "<https://e.com>, a [ref], and a \\* escape.\n\n" ++
+  "> Quote\n\n" ++
+  "* Item\n\n" ++
+  "```lean\ncode\n```\n\n" ++
+  "    indented\n\n" ++
+  "[ref]: /u (title)\n\n" ++
+  "---\n"
+
+/-- Gets the type names of the tokens of `input` that don't have the `documentation` modifier. -/
+def typesWithoutDocumentation (input : String) : Array String :=
+  let text := FileMap.ofString input
+  let toks := collectMarkdownTokens text 0 input.rawEndPos
+  toks.filterMap fun t =>
+    if SemanticTokenModifier.documentation ∈ t.modifiers then none
+    else SemanticTokenType.names[t.type.toNat]?
+
+/-- Gets the type names that occur among the tokens of `input`, in legend order. -/
+def typesOf (input : String) : Array String :=
+  SemanticTokenType.names.filter (tokenCount input · > 0)
+
+/--
+info: #["keyword", "function", "string", "markupText", "markupHeading", "markupQuote", "markupList", "markupInlineCode",
+  "markupCodeBlock", "markupUrl", "markupCrossReference"]
+-/
+#guard_msgs in #eval typesOf everyConstruct
+
+/-- info: #[] -/
+#guard_msgs in #eval typesWithoutDocumentation everyConstruct
 
 /-!
 ## Markup Syntax
@@ -101,37 +141,43 @@ and `markupItalic` modifiers.
 Markup syntax consists of `keyword` tokens with the `markupSyntax` modifier.
 -/
 
-/-- info: ["keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax"] -/
+/--
+info: ["keyword documentation markupSyntax", "keyword documentation markupSyntax", "keyword documentation markupSyntax",
+  "keyword documentation markupSyntax"]
+-/
 #guard_msgs in #eval ["**x**", "# x", "> x", "* x"].zipWith markupAt [0, 0, 0, 0]
 
 -- A setext underline token is the marker sequence alone, without the indentation before it or the
 -- whitespace after it.
-/-- info: ["<none>", "keyword markupSyntax", "keyword markupSyntax", "<none>"] -/
+/-- info: ["<none>", "keyword documentation markupSyntax", "keyword documentation markupSyntax", "<none>"] -/
 #guard_msgs in #eval [9, 11, 13, 14].map (markupAt "  Setext\n  ===   \n")
 
 -- A thematic break token runs from its first marker to its last, spaces between them included.
-/-- info: ["<none>", "keyword markupSyntax", "keyword markupSyntax", "keyword markupSyntax", "<none>"] -/
+/--
+info: ["<none>", "keyword documentation markupSyntax", "keyword documentation markupSyntax",
+  "keyword documentation markupSyntax", "<none>"]
+-/
 #guard_msgs in #eval [1, 2, 3, 6, 7].map (markupAt "  * * *  \n")
 
 /-!
 ## Code
 
-Inline code and code blocks have fixed types without modifiers, regardless of surrounding
+Inline code and code blocks have fixed types without emphasis modifiers, regardless of surrounding
 emphasis.
 -/
 
-/-- info: "markupInlineCode" -/
+/-- info: "markupInlineCode documentation" -/
 #guard_msgs in #eval markupAt "`x`" 1
 
-/-- info: "markupInlineCode" -/
+/-- info: "markupInlineCode documentation" -/
 #guard_msgs in #eval markupAt "**`x`**" 3
 
-/-- info: "markupCodeBlock" -/
+/-- info: "markupCodeBlock documentation" -/
 #guard_msgs in #eval markupAt "```\nx\n```" 4
 
 -- Indented code blocks (4 leading spaces) get one `markupCodeBlock` token per
 -- line, after the four columns of indentation.
-/-- info: "markupCodeBlock" -/
+/-- info: "markupCodeBlock documentation" -/
 #guard_msgs in #eval markupAt "    indented\n    code block\n" 4
 
 /-- info: "<none>" -/
@@ -141,7 +187,7 @@ emphasis.
 #guard_msgs in #eval tokenCount "    indented\n    code block\n" "markupCodeBlock"
 
 -- HTML blocks get one `markupCodeBlock` token per line; their content is not parsed as Markdown.
-/-- info: "markupCodeBlock" -/
+/-- info: "markupCodeBlock documentation" -/
 #guard_msgs in #eval markupAt "<div>\n*x*\n</div>\n" 7
 
 /-- info: 3 -/
@@ -150,10 +196,10 @@ emphasis.
 -- In inline code that crosses a line break, each line of the content gets its
 -- own `markupInlineCode` token (LSP semantic tokens are per-line), and the
 -- delimiters remain delimiters.
-/-- info: "markupInlineCode" -/
+/-- info: "markupInlineCode documentation" -/
 #guard_msgs in #eval markupAt "`a\nb`" 1
 
-/-- info: "markupInlineCode" -/
+/-- info: "markupInlineCode documentation" -/
 #guard_msgs in #eval markupAt "`a\nb`" 3
 
 /-!
@@ -166,19 +212,19 @@ inline code, and links inside alt text receive their normal token types.
 -/
 
 -- Plain alt text gets the ambient context (here, plain).
-/-- info: "markupDocText" -/
+/-- info: "markupText documentation" -/
 #guard_msgs in #eval markupAt "![x](http://e.com)" 2
 
 -- For bold inside alt, the inner content character has the modifier.
-/-- info: "markupDocText markupBold" -/
+/-- info: "markupText documentation markupBold" -/
 #guard_msgs in #eval markupAt "![**x**](http://e.com)" 4
 
 -- Inline code inside alt is still `markupInlineCode`.
-/-- info: "markupInlineCode" -/
+/-- info: "markupInlineCode documentation" -/
 #guard_msgs in #eval markupAt "![`x`](http://e.com)" 3
 
 -- For an autolink inside alt, the URL is `markupUrl`.
-/-- info: "markupUrl" -/
+/-- info: "markupUrl documentation" -/
 #guard_msgs in #eval markupAt "![<https://e.com>](http://e.com)" 3
 
 /-!
@@ -189,28 +235,28 @@ character must receive the same modifiers in both arrangements; otherwise
 attribute accumulation depends on traversal order.
 -/
 
-/-- info: "markupDocText markupBold markupItalic" -/
+/-- info: "markupText documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "**a *x* a**" 5
 
-/-- info: "markupDocText markupBold markupItalic" -/
+/-- info: "markupText documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "*a **x** a*" 5
 
-/-- info: "markupHeading markupBold markupItalic" -/
+/-- info: "markupHeading documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "# **a *x* a**" 7
 
-/-- info: "markupHeading markupBold markupItalic" -/
+/-- info: "markupHeading documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "# *a **x** a*" 7
 
-/-- info: "markupQuote markupBold markupItalic" -/
+/-- info: "markupQuote documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "> **a *x* a**" 7
 
-/-- info: "markupQuote markupBold markupItalic" -/
+/-- info: "markupQuote documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "> *a **x** a*" 7
 
-/-- info: "markupList markupBold markupItalic" -/
+/-- info: "markupList documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* **a *x* a**" 7
 
-/-- info: "markupList markupBold markupItalic" -/
+/-- info: "markupList documentation markupBold markupItalic" -/
 #guard_msgs in #eval markupAt "* *a **x** a*" 7
 
 /-!
@@ -231,10 +277,10 @@ token, since VS Code does not support multi-line semantic tokens.
 #guard_msgs in #eval markupAt "# a *cross\nline* b" 10
 
 -- Surrounding line content still receives its expected types.
-/-- info: "markupDocText" -/
+/-- info: "markupText documentation" -/
 #guard_msgs in #eval markupAt "hello\nworld" 0
 
-/-- info: "markupDocText" -/
+/-- info: "markupText documentation" -/
 #guard_msgs in #eval markupAt "hello\nworld" 6
 
 /-!
@@ -261,7 +307,7 @@ def inside a blockquote still produces a `markupCrossReference` token on
 its label.
 -/
 
-/-- info: "markupCrossReference" -/
+/-- info: "markupCrossReference documentation" -/
 #guard_msgs in #eval markupAt "> [foo]: https://e.com\n" 3
 
 /-!
@@ -269,14 +315,14 @@ its label.
 
 Seven or more `#` characters are not a valid ATX heading (CommonMark
 §4.2 caps the level at six). The line falls through to a paragraph and
-its content receives the plain `markupDocText` type.
+its content receives the plain `markupText` type.
 -/
 
-/-- info: "markupDocText" -/
+/-- info: "markupText documentation" -/
 #guard_msgs in #eval markupAt "####### x" 8
 
 -- Six hashes is still a heading.
-/-- info: "markupHeading" -/
+/-- info: "markupHeading documentation" -/
 #guard_msgs in #eval markupAt "###### x" 7
 
 /-!
@@ -287,10 +333,10 @@ sibling-incompatible lists. The inner list's content still receives the
 `markupList` type.
 -/
 
-/-- info: "markupList" -/
+/-- info: "markupList documentation" -/
 #guard_msgs in #eval markupAt "* outer\n  - inner" 12
 
-/-- info: "markupList" -/
+/-- info: "markupList documentation" -/
 #guard_msgs in #eval markupAt "* outer\n  + inner" 12
 
 /-!
@@ -300,10 +346,10 @@ A title's delimiters are markup syntax like the brackets around the link text, a
 string, both for inline targets and for link reference definitions.
 -/
 
-/-- info: ["keyword markupSyntax", "string", "keyword markupSyntax"] -/
+/-- info: ["keyword documentation markupSyntax", "string documentation", "keyword documentation markupSyntax"] -/
 #guard_msgs in #eval ["[a](/u \"t\")", "[a](/u \"t\")", "[a](/u \"t\")"].zipWith markupAt [7, 8, 9]
 
-/-- info: ["keyword markupSyntax", "string", "keyword markupSyntax"] -/
+/-- info: ["keyword documentation markupSyntax", "string documentation", "keyword documentation markupSyntax"] -/
 #guard_msgs in #eval ["[r]: /u (t)", "[r]: /u (t)", "[r]: /u (t)"].zipWith markupAt [8, 9, 10]
 
 /-!
@@ -313,10 +359,10 @@ The backslash or the trailing spaces that make a line ending a hard break are ma
 the backslash of an escape. The escaped character is text.
 -/
 
-/-- info: ["keyword markupSyntax", "keyword markupSyntax"] -/
+/-- info: ["keyword documentation markupSyntax", "keyword documentation markupSyntax"] -/
 #guard_msgs in #eval ["a\\\nb", "a  \nb"].zipWith markupAt [1, 1]
 
-/-- info: ["keyword markupSyntax", "markupDocText"] -/
+/-- info: ["keyword documentation markupSyntax", "markupText documentation"] -/
 #guard_msgs in #eval ["\\*x", "\\*x"].zipWith markupAt [0, 1]
 
 /-!
@@ -326,16 +372,16 @@ Inline code, a link title, or a reference label that continues onto the next lin
 one token per line, and the blockquote marker on the second line stays a delimiter.
 -/
 
-/-- info: ["keyword markupSyntax", "<none>", "markupInlineCode"] -/
+/-- info: ["keyword documentation markupSyntax", "<none>", "markupInlineCode documentation"] -/
 #guard_msgs in #eval ["> `a\n> b`", "> `a\n> b`", "> `a\n> b`"].zipWith markupAt [5, 6, 7]
 
-/-- info: ["keyword markupSyntax", "string"] -/
+/-- info: ["keyword documentation markupSyntax", "string documentation"] -/
 #guard_msgs in #eval ["> [x](/u \"t\n> u\")", "> [x](/u \"t\n> u\")"].zipWith markupAt [12, 14]
 
-/-- info: ["keyword markupSyntax", "markupCrossReference"] -/
+/-- info: ["keyword documentation markupSyntax", "markupCrossReference documentation"] -/
 #guard_msgs in #eval ["> [foo\n> bar]: /u", "> [foo\n> bar]: /u"].zipWith markupAt [7, 9]
 
-/-- info: ["markupCrossReference", "markupCrossReference"] -/
+/-- info: ["markupCrossReference documentation", "markupCrossReference documentation"] -/
 #guard_msgs in #eval ["[t][a\nb]\n\n[a b]: /u", "[t][a\nb]\n\n[a b]: /u"].zipWith markupAt [4, 6]
 
 /-!
@@ -344,7 +390,7 @@ one token per line, and the blockquote marker on the second line stays a delimit
 Inline HTML is inline code, one token per line.
 -/
 
-/-- info: ["markupInlineCode", "markupDocText", "markupInlineCode"] -/
+/-- info: ["markupInlineCode documentation", "markupText documentation", "markupInlineCode documentation"] -/
 #guard_msgs in #eval ["a <b>c</b>", "a <b>c</b>", "a <b>c</b>"].zipWith markupAt [2, 5, 7]
 
 /-!
@@ -362,7 +408,7 @@ def markupAtIndented (input : String) (indent byteIdx : Nat) : String := Id.run 
     SemanticTokenType.names[t.type.toNat]?
   tok?.getD "<none>"
 
-/-- info: ["markupDocText", "markupCodeBlock", "markupCodeBlock"] -/
+/-- info: ["markupText", "markupCodeBlock", "markupCodeBlock"] -/
 #guard_msgs in #eval
   ["  a\n\n    b", "  a\n\n      c", "a\n\n    b"].zipWith (fun s (i, p) => markupAtIndented s i p) [(2, 9), (2, 11), (0, 7)]
 
@@ -380,8 +426,8 @@ The angle brackets around a destination are markup syntax, and only the URL betw
 both for inline targets and for link reference definitions.
 -/
 
-/-- info: ["keyword markupSyntax", "markupUrl", "keyword markupSyntax"] -/
+/-- info: ["keyword documentation markupSyntax", "markupUrl documentation", "keyword documentation markupSyntax"] -/
 #guard_msgs in #eval ["[a](<u>)", "[a](<u>)", "[a](<u>)"].zipWith markupAt [4, 5, 6]
 
-/-- info: ["keyword markupSyntax", "markupUrl", "keyword markupSyntax"] -/
+/-- info: ["keyword documentation markupSyntax", "markupUrl documentation", "keyword documentation markupSyntax"] -/
 #guard_msgs in #eval ["[r]: <u>", "[r]: <u>", "[r]: <u>"].zipWith markupAt [5, 6, 7]

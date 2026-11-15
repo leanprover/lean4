@@ -11,6 +11,7 @@ public import Lake.Config.Script
 public import Lake.Config.ConfigDecl
 public import Lake.Config.Dependency
 public import Lake.Config.PackageConfig
+public import Lake.Config.LakeConfig
 public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
@@ -66,6 +67,8 @@ public structure Package where
   (i.e., on a bare `lake build` of the package).
   -/
   defaultTargets : Array Name := #[]
+  /-- Cache services for the package. -/
+  cacheServices : CacheServiceMap := {}
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
   /--

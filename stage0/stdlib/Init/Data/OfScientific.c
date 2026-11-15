@@ -662,6 +662,7 @@ _start:
 lean_object* v___y_146_; lean_object* v___x_152_; uint8_t v___x_153_; 
 v___x_152_ = lean_cstr_to_nat("9007199254740992");
 v___x_153_ = lean_nat_dec_lt(v_m_142_, v___x_152_);
+lean_dec(v___x_152_);
 if (v___x_153_ == 0)
 {
 goto v___jp_149_;

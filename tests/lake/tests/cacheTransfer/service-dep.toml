@@ -1,0 +1,10 @@
+# A dependency that only declares a cache service.
+# `test.sh` copies this to `service-dep/lakefile.toml`
+# and replaces `%URL%` with the URL of the running mock server.
+name = "service-dep"
+
+[[cache_service]]
+name = "depS3"
+kind = "s3"
+artifactEndpoint = "%URL%/ok/a0"
+revisionEndpoint = "%URL%/ok/r0"

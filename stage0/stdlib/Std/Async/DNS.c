@@ -243,8 +243,8 @@ v___x_55_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_55_, 0, v_val_54_);
 v___x_56_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_56_, 0, v___x_55_);
-lean_inc_ref(v___y_52_);
-v___x_57_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_53_, v___y_51_, v___x_56_, v___y_52_);
+lean_inc_ref(v___y_53_);
+v___x_57_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_52_, v___y_51_, v___x_56_, v___y_53_);
 return v___x_57_;
 }
 v___jp_58_:
@@ -293,8 +293,8 @@ goto v_reusejp_68_;
 v_reusejp_68_:
 {
 v___y_51_ = v___x_62_;
-v___y_52_ = v___f_60_;
-v___y_53_ = v___x_61_;
+v___y_52_ = v___x_61_;
+v___y_53_ = v___f_60_;
 v_val_54_ = v___x_69_;
 goto v___jp_50_;
 }
@@ -339,8 +339,8 @@ goto v_reusejp_76_;
 v_reusejp_76_:
 {
 v___y_51_ = v___x_62_;
-v___y_52_ = v___f_60_;
-v___y_53_ = v___x_61_;
+v___y_52_ = v___x_61_;
+v___y_53_ = v___f_60_;
 v_val_54_ = v___x_77_;
 goto v___jp_50_;
 }

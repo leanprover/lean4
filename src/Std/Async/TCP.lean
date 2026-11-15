@@ -112,6 +112,14 @@ def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
   }
 
 /--
+Closes the server socket: it stops listening, a pending accept fails, and so does every later
+operation. Closing twice does nothing.
+-/
+@[inline]
+def close (s : Server) : IO Unit :=
+  s.native.close
+
+/--
 Gets the local address of the server socket.
 -/
 @[inline]
@@ -232,6 +240,14 @@ Shuts down the write side of the client socket.
 @[inline]
 def shutdown (s : Client) : Async Unit :=
   Async.ofPromise <| s.native.shutdown
+
+/--
+Closes the client socket. Pending operations fail, and so does every later one. Writes still in
+flight are cancelled, so the peer may receive only part of them. Closing twice does nothing.
+-/
+@[inline]
+def close (s : Client) : IO Unit :=
+  s.native.close
 
 /--
 Gets the remote address of the client socket.

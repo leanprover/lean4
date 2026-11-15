@@ -223,7 +223,9 @@ partial def defEvalConfigItem
       trace[Elab.ConfigEval] "Deriving EvalEval instance for `{ty}` failed: {ex.toMessageData}"
   -- Pass two: rebuild the trie in the presense of these instances, and build the command
   let cmd ← liftTermElabM <| withFreshMacroScope <| mkCmd structName
-  elabCommand cmd
+  -- The generated code sets every field, including deprecated ones. Uses of deprecated fields in
+  -- configuration syntax are reported when the configuration is elaborated.
+  Command.withoutCheckDeprecated <| elabCommand cmd
 where
   hasInstance (cls : Name) (ty : Expr) : M Bool := do
     try

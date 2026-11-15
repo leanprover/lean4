@@ -43,7 +43,7 @@ def covered (table : Std.HashMap Nat (List Nat)) (n : Nat) : Bool :=
 
 /-- The folding of `n` that the file requires of a covered character. -/
 def expected (table : Std.HashMap Nat (List Nat)) (n : Nat) : String :=
-  String.mk ((table[n]?.getD [n]).map Char.ofNat)
+  String.ofList ((table[n]?.getD [n]).map Char.ofNat)
 
 /--
 The code points whose folding is wrong, with the expected and actual foldings: covered code points

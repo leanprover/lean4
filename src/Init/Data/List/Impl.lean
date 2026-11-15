@@ -9,7 +9,8 @@ prelude
 public import Init.Ext
 import Init.Data.Array.Bootstrap
 import Init.Data.Bool
-import Init.Data.List.Lemmas
+public import Init.Data.List.Lemmas
+import all Init.Data.List.Basic
 import Init.Data.Option.Lemmas
 
 public section
@@ -20,8 +21,8 @@ public section
 Many of the proofs require theorems about `Array`,
 so these are in a separate file to minimize imports.
 
-If you import `Init.Data.List.Basic` but do not import this file,
-then at runtime you will get non-tail recursive versions of the following definitions.
+The definitions replaced here are `noncomputable`, so compiled code using them must import this
+file.
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
@@ -41,16 +42,20 @@ The following operations are still missing `@[csimp]` replacements:
 
 The following operations are not recursive to begin with
 (or are defined in terms of recursive primitives):
-`isEmpty`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft`, `rotateRight`, `insert`, `zip`, `enum`,
-`min?`, `max?`, `min`, `max` and `removeAll`.
+`isEmpty`, `isSuffixOf`, `isSuffixOf?`, `insert`, `enum`, `min?`, `max?`, `min`, `max` and
+`removeAll`.
 
 The following operations were already given `@[csimp]` replacements in `Init/Data/List/Basic.lean`:
-`length`, `map`, `filter`, `replicate`, `leftPad`, `unzip`, `range'`, `iota`, `intersperse`.
+`length`, `map`, `filter`, `replicate`, `leftPad`, `range'`.
 
 The following operations are given `@[csimp]` replacements below:
 `set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
 `take`, `takeWhile`, `dropLast`, `replace`, `modify`, `insertIdx`, `erase`, `eraseIdx`, `zipWith`,
-`enumFrom`, and `intercalate`.
+`unzip`, `enumFrom`, `intersperse` and `intercalate`.
+
+The following definitions use the operations above. They are given `@[csimp]` replacements below
+with the same definition, which is compiled using the replacements of those operations:
+`sum`, `prod`, `foldrRecOn`, `extract`, `rotateLeft`, `rotateRight`, `isPerm` and `zip`.
 
 -/
 
@@ -144,6 +149,52 @@ Examples:
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
   funext α β f init l; simp only [foldrTR, ← Array.foldr_toList]
 
+/-! ### sum -/
+
+/--
+Computes the sum of the elements of a list.
+
+This is the implementation of `List.sum` used at runtime; it is compiled using `List.foldrTR`.
+-/
+def sumTR {α} [Add α] [Zero α] : List α → α :=
+  foldr (· + ·) 0
+
+@[csimp] theorem sum_eq_sumTR : @sum = @sumTR := by
+  funext α _ _ l; simp only [sum, sumTR]
+
+/-! ### prod -/
+
+/--
+Computes the product of the elements of a list.
+
+This is the implementation of `List.prod` used at runtime; it is compiled using `List.foldrTR`.
+-/
+def prodTR {α} [Mul α] [One α] : List α → α :=
+  foldr (· * ·) 1
+
+@[csimp] theorem prod_eq_prodTR : @prod = @prodTR := by
+  funext α _ _ l; simp only [prod, prodTR]
+
+/-! ### foldrRecOn -/
+
+/--
+A reasoning principle for proving propositions about the result of `List.foldr` by establishing an
+invariant that is true for the initial data and preserved by the operation being folded.
+
+This is the implementation of `List.foldrRecOn` used at runtime; it is compiled using
+`List.foldrTR`.
+-/
+def foldrRecOnImpl {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
+    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
+  | nil, _, _, hb, _ => hb
+  | x :: l, op, b, hb, hl =>
+    hl (foldr op b l)
+      (foldrRecOnImpl l op hb fun b c a m => hl b c a (mem_cons_of_mem x m)) x mem_cons_self
+
+@[csimp] theorem foldrRecOn_eq_foldrRecOnImpl : @foldrRecOn = @foldrRecOnImpl := by
+  funext β α motive l op b hb hl
+  induction l <;> simp [foldrRecOnImpl, *]
+
 /-! ### flatMap  -/
 
 /--
@@ -217,6 +268,63 @@ Examples:
     cases i with simp only [take, takeTR.go]
     | zero => simp
     | succ n => intro h; rw [IH] <;> simp_all
+
+/-! ### extract -/
+
+/--
+Returns the slice of `l` from indices `start` (inclusive) to `stop` (exclusive).
+
+This is the implementation of `List.extract` used at runtime; it is compiled using `List.takeTR`.
+-/
+@[inline] def extractTR (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
+  (l.drop start).take (stop - start)
+
+@[csimp] theorem extract_eq_extractTR : @extract = @extractTR := by
+  funext α l start stop; simp only [extract, extractTR]
+
+/-! ### rotateLeft -/
+
+/--
+Rotates the elements of `xs` to the left, moving `i % xs.length` elements from the start of the list
+to the end.
+
+This is the implementation of `List.rotateLeft` used at runtime; it is compiled using
+`List.takeTR`.
+-/
+def rotateLeftTR (xs : List α) (i : Nat := 1) : List α :=
+  let len := xs.length
+  if len ≤ 1 then
+    xs
+  else
+    let i := i % len
+    let ys := xs.take i
+    let zs := xs.drop i
+    zs ++ ys
+
+@[csimp] theorem rotateLeft_eq_rotateLeftTR : @rotateLeft = @rotateLeftTR := by
+  funext α xs i; simp only [rotateLeft, rotateLeftTR]
+
+/-! ### rotateRight -/
+
+/--
+Rotates the elements of `xs` to the right, moving `i % xs.length` elements from the end of the list
+to the start.
+
+This is the implementation of `List.rotateRight` used at runtime; it is compiled using
+`List.takeTR`.
+-/
+def rotateRightTR (xs : List α) (i : Nat := 1) : List α :=
+  let len := xs.length
+  if len ≤ 1 then
+    xs
+  else
+    let i := len - i % len
+    let ys := xs.take i
+    let zs := xs.drop i
+    zs ++ ys
+
+@[csimp] theorem rotateRight_eq_rotateRightTR : @rotateRight = @rotateRightTR := by
+  funext α xs i; simp only [rotateRight, rotateRightTR]
 
 /-! ### takeWhile -/
 
@@ -514,6 +622,23 @@ Examples:
       simp only [eraseIdxTR.go, eraseIdx]
       rw [IH]; simp; simp; exact h
 
+/-! ## Permutations -/
+
+/-! ### isPerm -/
+
+/--
+Returns `true` if `l₁` and `l₂` are permutations of each other. `O(|l₁| * |l₂|)`.
+
+This is the implementation of `List.isPerm` used at runtime; it is compiled using `List.eraseTR`.
+-/
+def isPermTR [BEq α] : List α → List α → Bool
+  | [], l₂ => l₂.isEmpty
+  | a :: l₁, l₂ => l₂.contains a && isPermTR l₁ (l₂.erase a)
+
+@[csimp] theorem isPerm_eq_isPermTR : @isPerm = @isPermTR := by
+  funext α _ l₁ l₂
+  induction l₁ generalizing l₂ <;> simp [isPerm, isPermTR, *]
+
 /-! ## Zippers -/
 
 /-! ### zipWith -/
@@ -542,6 +667,40 @@ Examples:
     | [], _, acc | _::_, [], acc => by simp [zipWithTR.go, zipWith]
     | a::as, b::bs, acc => by simp [zipWithTR.go, zipWith, go as bs]
   exact (go as bs #[]).symm
+
+/-! ### zip -/
+
+/--
+Combines two lists into a list of pairs in which the first and second components are the
+corresponding elements of each list. The resulting list is the length of the shorter of the input
+lists.
+
+This is the implementation of `List.zip` used at runtime; it is compiled using `List.zipWithTR`.
+-/
+@[inline] def zipTR : List α → List β → List (Prod α β) :=
+  zipWith Prod.mk
+
+@[csimp] theorem zip_eq_zipTR : @zip = @zipTR := by
+  funext α β xs ys; simp only [zip, zipTR]
+
+/-! ### unzip -/
+
+/--
+Separates a list of pairs into two lists that contain the respective first and second components.
+
+`O(|l|)`. This is a tail-recursive version of `List.unzip` that's used at runtime.
+
+Examples:
+* `[("Monday", 1), ("Tuesday", 2)].unzipTR = (["Monday", "Tuesday"], [1, 2])`
+* `[(x₁, y₁), (x₂, y₂), (x₃, y₃)].unzipTR = ([x₁, x₂, x₃], [y₁, y₂, y₃])`
+* `([] : List (Nat × String)).unzipTR = (([], []) : List Nat × List String)`
+-/
+def unzipTR (l : List (α × β)) : List α × List β :=
+  l.foldr (fun (a, b) (as, bs) => (a::as, b::bs)) ([], [])
+
+@[csimp] theorem unzip_eq_unzipTR : @unzip = @unzipTR := by
+  apply funext; intro α; apply funext; intro β; apply funext; intro l
+  simp [unzipTR]; induction l <;> simp [*]
 
 /-! ## Ranges and enumeration -/
 
@@ -577,6 +736,33 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
 
 
 /-! ## Other list operations -/
+
+/-! ### intersperse -/
+
+/--
+Alternates the elements of `l` with `sep`.
+
+`O(|l|)`.
+
+This is a tail-recursive version of `List.intersperse`, used at runtime.
+
+Examples:
+* `List.intersperseTR "then" [] = []`
+* `List.intersperseTR "then" ["walk"] = ["walk"]`
+* `List.intersperseTR "then" ["walk", "run"] = ["walk", "then", "run"]`
+* `List.intersperseTR "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
+-/
+def intersperseTR (sep : α) : (l : List α) → List α
+  | [] => []
+  | [x] => [x]
+  | x::y::xs => x :: sep :: y :: xs.foldr (fun a r => sep :: a :: r) []
+
+@[csimp] theorem intersperse_eq_intersperseTR : @intersperse = @intersperseTR := by
+  apply funext; intro α; apply funext; intro sep; apply funext; intro l
+  simp [intersperseTR]
+  match l with
+  | [] | [_] => rfl
+  | x::y::xs => simp [intersperse]; induction xs generalizing y <;> simp [*]
 
 /-! ### intercalate -/
 

@@ -73,6 +73,20 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
     throw (IO.userError "Failed to register attribute: Attributes can only be registered during initialization")
   attributeMapRef.modify fun m => m.insert attr.name attr
 
+/--
+Names of the attributes, such as `simp` and `grind`, that add a declaration to a set of lemmas used
+by automation. Deprecated declarations should not be added to such sets.
+-/
+builtin_initialize automationAttrsRef : IO.Ref NameSet ← IO.mkRef {}
+
+/-- Registers `attrName` as an attribute that adds declarations to a set used by automation. -/
+def registerAutomationAttr (attrName : Name) : IO Unit :=
+  automationAttrsRef.modify (·.insert attrName)
+
+/-- Returns whether `attrName` adds declarations to a set used by automation. -/
+def isAutomationAttr (attrName : Name) : IO Bool :=
+  return (← automationAttrsRef.get).contains attrName
+
 /-!
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
   We have the following ones:

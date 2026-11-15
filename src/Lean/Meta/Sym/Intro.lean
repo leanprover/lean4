@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Intro
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InstantiateMVarsS
 namespace Lean.Meta.Sym
 open Lean.Meta.Sym.Internal
 /--
@@ -18,10 +19,12 @@ Efficient `intro` for symbolic simulation.
 Binders without a name in `names` are named after their binder name. If `hygienic` is `true`, those
 names are made inaccessible (fresh macro scopes); otherwise they are accessible names unused in the
 (incrementally built) local context.
+
+If the binders end at an assigned metavariable, e.g., `⊢ ?a` with `?a := p → q`, the binders of its
+value are introduced too.
 -/
-def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) : SymM (Array FVarId × MVarId) := do
+partial def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) : SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
-  let env ← getEnv
   let mvarDecl ← mvarId.getDecl
   /-
   Helper function for constructing a value to assign to `mvarId`. We don't need max sharing here.
@@ -65,11 +68,11 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       return names[i]
     else
       mkFreshBinderNameForTacticCore lctx binderName hygienic
-  let updateLocalInsts (localInsts : LocalInstances) (fvar : Expr) (type : Expr) : LocalInstances :=
-    if let some className := isClass? env type then
-      localInsts.push { fvar, className }
+  let updateLocalInsts (localInsts : LocalInstances) (fvar : Expr) (type : Expr) : MetaM LocalInstances := do
+    if let some className ← isClass? type then
+      return localInsts.push { fvar, className }
     else
-      localInsts
+      return localInsts
   let rec visit (i : Nat) (lctx : LocalContext) (localInsts : LocalInstances) (fvars : Array Expr) (type : Expr) : SymM (Array Expr × MVarId) := do
     if i >= max then
       finalize lctx localInsts fvars type
@@ -82,7 +85,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       let lctx       := lctx.mkLocalDecl fvarId userName type bi (.ofBinderName userName)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
-      let localInsts := updateLocalInsts localInsts fvar type
+      let localInsts ← updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
     | .letE n type value body nondep =>
       let type       ← instantiateRevS type fvars
@@ -97,9 +100,21 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       let lctx       := lctx.mkLetDecl fvarId userName type value (kind := .ofBinderName userName)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
-      let localInsts := updateLocalInsts localInsts fvar type
+      let localInsts ← updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
-    | _ => finalize lctx localInsts fvars type
+    | _ =>
+      if type.getAppFn.isMVar then
+        let type ← instantiateRevS type fvars
+        if let some type ← instantiateAssignedMVarHeadS? type then
+          -- Introduces the remaining binders from the value of the metavariable.
+          let mvarId ← if fvars.isEmpty then
+            mvarId.setType type
+            pure mvarId
+          else
+            pure (← finalize lctx localInsts fvars type).2
+          let (fvars', mvarId) ← introCore mvarId (max - i) (names.extract i names.size) hygienic
+          return (fvars ++ fvars'.map mkFVar, mvarId)
+      finalize lctx localInsts fvars type
   let (fvars, mvarId') ← visit 0 mvarDecl.lctx mvarDecl.localInstances #[] mvarDecl.type
   return (fvars.map (·.fvarId!), mvarId')
 

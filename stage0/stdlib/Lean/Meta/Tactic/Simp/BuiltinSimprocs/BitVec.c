@@ -99,7 +99,7 @@ lean_object* l_BitVec_rotateRight(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_rotateLeft(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftl(lean_object*, lean_object*);
 lean_object* l_BitVec_neg(lean_object*, lean_object*);
-lean_object* l_BitVec_clz(lean_object*, lean_object*);
+lean_object* l_BitVec_clzFast(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0__BitVec_instDecidableEqLiteral_decEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0__BitVec_instDecidableEqLiteral_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0__BitVec_instDecidableEqLiteral(lean_object*, lean_object*);
@@ -17187,7 +17187,7 @@ lean_inc(v_n_4746_);
 v_value_4747_ = lean_ctor_get(v_val_4742_, 1);
 lean_inc(v_value_4747_);
 lean_dec(v_val_4742_);
-v___x_4748_ = l_BitVec_clz(v_n_4746_, v_value_4747_);
+v___x_4748_ = l_BitVec_clzFast(v_n_4746_, v_value_4747_);
 lean_dec(v_value_4747_);
 v___x_4749_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0__BitVec_toExpr_x27___redArg(v_n_4746_, v___x_4748_, v_a_4725_, v_a_4726_, v_a_4727_, v_a_4728_, v_a_4729_);
 if (lean_obj_tag(v___x_4749_) == 0)

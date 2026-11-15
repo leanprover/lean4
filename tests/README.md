@@ -63,6 +63,10 @@ Benchmarks belonging to the old framework are not included in this description.
   A collection of miscellaneous small benchmark scripts.
 - `pkg`:
   Tests that run in lake packages.
+- `verif`:
+  A lake package of proofs about parts of the implementation, laid out like `src/` under the `Verif` prefix
+  (e.g. `Verif/Lean/ConstTrie/Lookup.lean` verifies lookups in `src/Lean/ConstTrie.lean`).
+  Its proofs take a while to check, so it is skipped unless `CI` or `LEAN_TEST_VERIF` is set.
 
 ## How to run the test suite?
 
@@ -95,6 +99,13 @@ make -C build/release/stage1 -j "$(nproc)" test ARGS="-R '<regex>'"
 # Manually, without ctest
 tests/with_stage1_test_env.sh path/to/test/directory/run_test.sh
 tests/with_stage1_test_env.sh path/to/test/pile/run_test.sh testfile
+```
+
+The `verif` package is skipped outside of CI. Run it using
+
+```sh
+LEAN_TEST_VERIF=1 CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS="-R '^verif'"
 ```
 
 ## How to run the bench suite?

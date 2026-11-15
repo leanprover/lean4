@@ -45,6 +45,9 @@ require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"
 require qux from copy "qux"
 
+cache_service cdn := .downloadService "https://example.com/a0" "https://example.com/r0"
+cache_service "my-reservoir" := .reservoirService "https://example.com/api/v1"
+
 @[default_target]
 lean_lib A where
   srcDir := "."

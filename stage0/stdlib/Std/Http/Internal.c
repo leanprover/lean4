@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Http.Internal
-// Imports: public import Std.Http.Internal.Char public import Std.Http.Internal.ChunkedBuffer public import Std.Http.Internal.LowerCase public import Std.Http.Internal.IndexMultiMap public import Std.Http.Internal.Encode public import Std.Http.Internal.String public import Std.Http.Internal.Char
+// Imports: public import Std.Http.Internal.Char public import Std.Http.Internal.ChunkedBuffer public import Std.Http.Internal.LowerCase public import Std.Http.Internal.MultiMap public import Std.Http.Internal.Encode public import Std.Http.Internal.String public import Std.Http.Internal.Char
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,7 @@ extern "C" {
 lean_object* runtime_initialize_Std_Http_Internal_Char(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Internal_ChunkedBuffer(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Internal_LowerCase(uint8_t builtin);
-lean_object* runtime_initialize_Std_Http_Internal_IndexMultiMap(uint8_t builtin);
+lean_object* runtime_initialize_Std_Http_Internal_MultiMap(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Internal_Encode(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Internal_String(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Internal_Char(uint8_t builtin);
@@ -36,7 +36,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Http_Internal_LowerCase(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Http_Internal_IndexMultiMap(builtin);
+res = runtime_initialize_Std_Http_Internal_MultiMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Http_Internal_Encode(builtin);
@@ -60,7 +60,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Http_Internal_Char(uint8_t builtin);
 lean_object* initialize_Std_Http_Internal_ChunkedBuffer(uint8_t builtin);
 lean_object* initialize_Std_Http_Internal_LowerCase(uint8_t builtin);
-lean_object* initialize_Std_Http_Internal_IndexMultiMap(uint8_t builtin);
+lean_object* initialize_Std_Http_Internal_MultiMap(uint8_t builtin);
 lean_object* initialize_Std_Http_Internal_Encode(uint8_t builtin);
 lean_object* initialize_Std_Http_Internal_String(uint8_t builtin);
 lean_object* initialize_Std_Http_Internal_Char(uint8_t builtin);
@@ -78,7 +78,7 @@ lean_dec_ref(res);
 res = initialize_Std_Http_Internal_LowerCase(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Http_Internal_IndexMultiMap(builtin);
+res = initialize_Std_Http_Internal_MultiMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Http_Internal_Encode(builtin);

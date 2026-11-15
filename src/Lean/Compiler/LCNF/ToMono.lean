@@ -339,6 +339,8 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
       casesUIntToMono c ``UInt32 h
     else if h : c.typeName == ``UInt64 then
       casesUIntToMono c ``UInt64 h
+    else if h : c.typeName == ``USize then
+      casesUIntToMono c ``USize h
     else if h : c.typeName == ``Array then
       casesArrayToMono c h
     else if h : c.typeName == ``ByteArray then

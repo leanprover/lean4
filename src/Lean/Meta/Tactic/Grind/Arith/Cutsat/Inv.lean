@@ -81,6 +81,7 @@ def checkVars : GoalM Unit := do
       unreachable!
     num := num + 1
   assert! s.vars.size == num
+  assert! s.active.size == s.vars.size
 
 def checkElimEqs : GoalM Unit := do
   let s ← get'

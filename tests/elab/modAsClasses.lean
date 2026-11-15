@@ -1,6 +1,6 @@
 set_option warn.classDefReducibility false
 
-class MyMod :=
+class MyMod where
 (a : Nat)
 
 namespace MyMod

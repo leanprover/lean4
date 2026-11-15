@@ -231,14 +231,15 @@ Auxiliary function for registering `grind`, `grind!`, `grind?`, and `grind!?` at
 The `grind?` and `grind!?` are aliases for `grind` and `grind!` which displays patterns using `logInfo`.
 It is just a convenience for users.
 -/
-private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool) (ext : Extension) (ref : Name := by exact decl_name%) : IO Unit :=
+private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool) (ext : Extension) (ref : Name := by exact decl_name%) : IO Unit := do
+  let name := match minIndexable, showInfo with
+    | false, false => attrName
+    | false, true  => attrName.appendAfter "?"
+    | true,  false => attrName.appendAfter "!"
+    | true,  true  => attrName.appendAfter "!?"
+  registerAutomationAttr name
   registerBuiltinAttribute {
-    ref  := ref
-    name := match minIndexable, showInfo with
-      | false, false => attrName
-      | false, true  => attrName.appendAfter "?"
-      | true,  false => attrName.appendAfter "!"
-      | true,  true  => attrName.appendAfter "!?"
+    ref, name
     descr :=
       let header := match minIndexable, showInfo with
         | false, false => s!"The `[{attrName}]` attribute is used to annotate declarations."

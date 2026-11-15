@@ -12,6 +12,7 @@ meta import Lake.Config.LeanLibConfig
 meta import Lake.Config.LeanExeConfig
 meta import Lake.Config.InputFileConfig
 meta import Lake.Config.PackageConfig
+meta import Lake.Config.LakeConfig
 
 /-! # TOML Translation
 
@@ -45,6 +46,8 @@ instance [enc : EncodeField σ name α] [BEq α] [field : ConfigField σ name α
   insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg) (enc := ⟨enc.encodeField⟩)
 
 /-! ## Value Encoders -/
+
+public instance : ToToml CacheServiceKind := ⟨(toToml ·.toString)⟩
 
 public instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
 public instance : ToToml BuildType := ⟨(toToml ·.toString)⟩
@@ -159,6 +162,25 @@ public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : T
 
 public instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
+/-! ## Cache Service Configuration Encoders -/
+
+public protected def CacheService.toToml
+  (name : String) (service : CacheService) (t : Table  := {})
+: Table  :=
+  let t := t.insert `name name
+  match h:service.kind with
+  | .reservoir =>
+    t
+    |>.insert `kind "reservoir"
+    |>.insert `apiEndpoint (service.apiEndpoint (service.kind_eq_iff_isReservoir.mp h))
+  | .s3 =>
+    t
+    |>.insert `kind "s3"
+    |>.insert `artifactEndpoint (service.artifactEndpoint (service.kind_eq_iff_isS3.mp h))
+    |>.insert `revisionEndpoint (service.revisionEndpoint (service.kind_eq_iff_isS3.mp h))
+  | .undef =>
+    service.kind_ne_undef.elim h
+
 /-! ## Package & Target Configuration Encoders -/
 
 meta def genToToml
@@ -184,6 +206,8 @@ meta def genToToml
 
 local macro "gen_toml_encoders%" : command => do
   let cmds := #[]
+  -- Services
+  let cmds ← genToToml cmds ``CacheServiceConfig
   -- Targets
   let cmds ← genToToml cmds ``LeanConfig
   let cmds ← genToToml cmds ``LeanLibConfig
@@ -211,9 +235,12 @@ gen_toml_encoders%
 public def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   let cfg : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
+  have : SmartInsert CacheServiceMap :=
+    ⟨fun k v t => t.insertUnless v.isEmpty k <| v.foldl (fun a n s => a.push (s.toToml n.getString!)) #[]⟩
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
+  |>.smartInsert `cache_service pkg.cacheServices
   |>.smartInsert LeanLib.keyword (pkg.mkTomlTargets LeanLib.configKind LeanLibConfig.toToml)
   |>.smartInsert LeanExe.keyword (pkg.mkTomlTargets LeanExe.configKind LeanExeConfig.toToml)
   |>.smartInsert InputFile.keyword (pkg.mkTomlTargets InputFile.configKind InputFileConfig.toToml)

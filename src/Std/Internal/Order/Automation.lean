@@ -8,31 +8,41 @@ module
 prelude
 public import Std.Internal.Order.Heyting
 public import Std.Internal.Order.FrameClosure
+public import Init.Data.Bool
 
 public section
 
 /-!
 # Automation for the lattice theory
 
-This module registers the automation lemmas of the lattice theory with `simp` and `grind`.
-A lemma gets `simp` and `grind norm` if and only if it is an unconditional equation (or `Iff`)
+This module registers the automation lemmas of the lattice theory with `simp`, `grind` and `vcgen`.
+A lemma gets `simp`, `grind norm` and `vcgen_simp` if it is an unconditional equation (or `Iff`)
 whose right side removes lattice vocabulary, moves it to a smaller carrier (pointwise application,
 pair components), or moves it into the `Prop` argument of `⌜·⌝`. Such an equation holds in every
 context, including under binders, and rewriting with the whole set terminates.
+`grind` and `vcgen` differ from this rule in a few places.
 
 `grind` has theories for the vocabulary of `Prop` and none for complete lattices. So `grind` also
 unfolds `⊑` at function and pair carriers into `Prop`, although the unfolded term is larger:
 `le_pi_eq_forall` is a `grind norm` lemma, and `le_prod_eq_and` is a `grind =` lemma. Neither is a
-`simp` lemma.
-
-`grind` rewrites with `grind norm` lemmas while it preprocesses the goal, before E-matching, and it
-rewrites under binders. For example, at carrier `Prop` the hypothesis
+`simp` lemma. `grind` rewrites with `grind norm` lemmas while it preprocesses the goal, before
+E-matching, and it rewrites under binders. For example, at carrier `Prop` the hypothesis
 ```
 h : ¬ ⨆ r, ⌜some false = some r⌝ ⊓ (r = false ∧ q)
 ```
 normalizes to `¬ ∃ r, some false = some r ∧ r = false ∧ q`. The body of the `∃` is in the
 vocabulary of `grind`, so E-matching instantiates `r := false` from the ground term `some false`,
 and `h` yields `¬ q`.
+
+`vcgen` rewrites hypotheses, state arguments and verification conditions with the `@[vcgen_simp]`
+theorems. The set leaves out the computation rules of predicate transformers. It adds a few
+theorems about the logical connectives, `decide`, `Bool` literals and `⊑`, and the index
+elimination rules `exists_eq_left`, `exists_eq_right` and their primed variants for `∃`. Simp
+rewrites inner terms first, so the `∃` rules complete the index elimination rules for `⨆`:
+```
+⨆ x, ⌜x = t⌝ ⊓ ⌜q x⌝ ⇝ ⨆ x, ⌜x = t ∧ q x⌝ ⇝ ⌜∃ x, x = t ∧ q x⌝ ⇝ ⌜q t⌝
+```
+rewrites with `ofProp_meet_ofProp`, `iSup_ofProp` and `exists_eq_left`.
 -/
 
 namespace Lean.Order
@@ -59,6 +69,8 @@ attribute [simp, grind norm] CompleteLattice.ofProp_prop_eq meet_prop_eq_and joi
 attribute [simp, grind norm] CompleteLattice.ofProp_true CompleteLattice.ofProp_false
   CompleteLattice.ofProp_meet_ofProp CompleteLattice.ofProp_join_ofProp CompleteLattice.iSup_ofProp
   CompleteLattice.iInf_ofProp CompleteLattice.ofProp_himp_ofProp
+  CompleteLattice.iSup_ofProp_eq_left CompleteLattice.iSup_ofProp_eq_left'
+  CompleteLattice.iSup_ofProp_eq_right CompleteLattice.iSup_ofProp_eq_right'
 
 /-! ## Elimination of `⊑` -/
 
@@ -89,6 +101,37 @@ attribute [simp, grind norm] PredTrans.apply_pure PredTrans.apply_Pure_pure Pred
   PredTrans.apply_MonadReader_read PredTrans.apply_frameClosure
   pushExcept_ok pushExcept_error pushOption_some pushOption_none
   FrameOp.pointwise_apply FrameOp.prod_fst FrameOp.prod_snd FrameOp.ignore_apply
+
+/-! ## The `vcgen` set -/
+
+attribute [vcgen_simp] eq_self iff_self
+  true_and and_true false_and and_false
+  true_or or_true false_or or_false
+  not_true_eq_false not_false_eq_true
+  true_implies implies_true false_implies
+  ite_true ite_false dite_true dite_false
+  decide_true decide_false Bool.true_eq_false Bool.false_eq_true
+  exists_eq_left exists_eq_left' exists_eq_right exists_eq_right' PartialOrder.rel_refl
+
+attribute [vcgen_simp] meet_apply join_apply iSup_apply iInf_apply top_apply bot_apply
+  CompleteLattice.ofProp_apply himp_apply
+  Prod.fst_meet Prod.snd_meet Prod.fst_join Prod.snd_join
+  Prod.fst_iSup Prod.snd_iSup Prod.fst_iInf Prod.snd_iInf Prod.fst_top Prod.snd_top
+  Prod.fst_bot Prod.snd_bot Prod.fst_ofProp Prod.snd_ofProp
+  Prod.fst_himp Prod.snd_himp
+  CompleteLattice.ofProp_prop_eq meet_prop_eq_and join_prop_eq_or
+  iSup_prop_eq_exists iInf_prop_eq_forall top_prop_eq bot_prop_eq himp_prop_eq_imp le_prop_eq_imp
+  CompleteLattice.ofProp_true CompleteLattice.ofProp_false
+  CompleteLattice.ofProp_meet_ofProp CompleteLattice.ofProp_join_ofProp CompleteLattice.iSup_ofProp
+  CompleteLattice.iInf_ofProp CompleteLattice.ofProp_himp_ofProp
+  CompleteLattice.iSup_ofProp_eq_left CompleteLattice.iSup_ofProp_eq_left'
+  CompleteLattice.iSup_ofProp_eq_right CompleteLattice.iSup_ofProp_eq_right'
+  CompleteLattice.ofProp_le_eq_imp
+  CompleteLattice.meet_ofProp_le_eq_imp CompleteLattice.ofProp_meet_le_eq_imp le_top_iff bot_le_iff
+  top_le_himp_iff join_le_iff le_meet_iff iSup_le_iff le_iInf_iff
+  CompleteLattice.top_le_ofProp_iff
+  top_meet meet_top bot_meet meet_bot bot_join join_bot top_join
+  join_top iSup_bot iInf_top
 
 end Lean.Order
 

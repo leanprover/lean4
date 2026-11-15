@@ -20,11 +20,25 @@
 
       llvmPackages = pkgs.llvmPackages_19;
 
+      # Also provides the headers for release builds, which link `LIBUV` below built from the same
+      # source. Sync version with src/CMakeLists.txt and with `LIBUV_SRC_VERSION` in
+      # .github/workflows/build-template.yml, where it must also be at least the checked minimum.
+      libuvPinned = pkgs.libuv.overrideAttrs {
+        version = "1.53.0";
+        src = pkgs.fetchFromGitHub {
+          owner = "libuv";
+          repo = "libuv";
+          rev = "v1.53.0";
+          hash = "sha256-AC1LS6PfieP8IjGhoIwm0WcLNIsUgULyP7V4HuvSqbg=";
+        };
+        doCheck = false;
+      };
+
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
           stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache pkg-config openssl openssl.dev
+            cmake gmp libuvPinned ccache pkg-config openssl openssl.dev
             llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
@@ -36,15 +50,17 @@
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux (let
-          # Build OpenSSL 3 statically using pkgsDist's old-glibc stdenv,
+          # Build OpenSSL statically using pkgsDist's old-glibc stdenv,
           # so the resulting static libs don't require newer glibc symbols.
+          # Sync version with `OPENSSL_SRC_VERSION` and major version with `openssl@4` in
+          # .github/workflows/build-template.yml, and major version with script/prepare-llvm-macos.sh.
           opensslForDist = pkgsDist.stdenv.mkDerivation {
-            name = "openssl-static-3.6.0";
+            name = "openssl-static-4.1.0";
             src = pkgs.fetchFromGitHub {
               owner = "openssl";
               repo = "openssl";
-              rev = "openssl-3.6.0";
-              hash = "sha256-EJnbK9ZMdN2ztTTQtb7VsEQvvbMYnY5HJ2LMJlw5FRg=";
+              rev = "openssl-4.1.0";
+              hash = "sha256-adqRWTdNKPwBnwMnIeFThSoiwc3sZpBX/3AWNpWUeGw=";
             };
             nativeBuildInputs = [ pkgsDist.perl ];
             configurePhase = ''
@@ -78,14 +94,8 @@
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];
-            # Sync version with CMakeLists.txt
-            version = "1.48.0";
-            src = pkgs.fetchFromGitHub {
-              owner = "libuv";
-              repo = "libuv";
-              rev = "v1.48.0";
-              sha256 = "100nj16fg8922qg4m2hdjh62zv4p32wyrllsvqr659hdhjc03bsk";
-            };
+            name = "libuv-${libuvPinned.version}";
+            inherit (libuvPinned) version src;
             doCheck = false;
           });
           OPENSSL = opensslForDist;

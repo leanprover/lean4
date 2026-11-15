@@ -2267,9 +2267,9 @@ else
 lean_object* v_e_x3f_803_; 
 v_e_x3f_803_ = l_Lean_Syntax_getArg(v___x_799_, v___x_656_);
 lean_dec(v___x_799_);
-v___y_731_ = v_ts_796_;
+v___y_731_ = v_conds_797_;
 v___y_732_ = v_a_649_;
-v___y_733_ = v_conds_797_;
+v___y_733_ = v_ts_796_;
 v_a_734_ = v_e_x3f_803_;
 v_a_735_ = v_a_650_;
 goto v___jp_730_;
@@ -2360,9 +2360,9 @@ return v___x_818_;
 v___jp_730_:
 {
 lean_object* v___x_736_; lean_object* v___x_737_; lean_object* v___x_738_; lean_object* v___x_739_; lean_object* v___x_740_; lean_object* v___x_741_; lean_object* v___x_742_; size_t v_sz_743_; size_t v___x_744_; lean_object* v___x_745_; 
-v___x_736_ = l_Array_reverse___redArg(v___y_733_);
+v___x_736_ = l_Array_reverse___redArg(v___y_731_);
 v___x_737_ = lean_array_push(v___x_736_, v_cond_657_);
-v___x_738_ = l_Array_reverse___redArg(v___y_731_);
+v___x_738_ = l_Array_reverse___redArg(v___y_733_);
 v___x_739_ = lean_array_push(v___x_738_, v_t_729_);
 v___x_740_ = l_Array_zip___redArg(v___x_737_, v___x_739_);
 lean_dec_ref(v___x_739_);
@@ -2494,9 +2494,9 @@ lean_ctor_set(v___x_782_, 2, v___x_781_);
 v___x_783_ = l_Lean_Syntax_node2(v___x_772_, v___x_775_, v___x_780_, v___x_782_);
 v___x_784_ = l_Lean_Syntax_node1(v___x_772_, v___x_774_, v___x_783_);
 v___x_785_ = l_Lean_Syntax_node1(v___x_772_, v___x_773_, v___x_784_);
-v___y_731_ = v_ts_767_;
+v___y_731_ = v_conds_766_;
 v___y_732_ = v___y_768_;
-v___y_733_ = v_conds_766_;
+v___y_733_ = v_ts_767_;
 v_a_734_ = v___x_785_;
 v_a_735_ = v___y_769_;
 goto v___jp_730_;

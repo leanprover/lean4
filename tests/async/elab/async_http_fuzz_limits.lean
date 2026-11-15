@@ -94,8 +94,7 @@ def assertStatusPrefix (name : String) (response : ByteArray) (pfx : String) : I
 def countOccurrences (s needle : String) : Nat :=
   if needle.isEmpty then 0 else (s.splitOn needle).length - 1
 
-def bad400 : String :=
-  "HTTP/1.1 400 Bad Request\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\nContent-Length: 0\x0d\n\x0d\n"
+def bad400 : String := r400
 
 def echoBodyHandler : TestHandler := fun req => do
   let body : String ← req.body.readAll
@@ -130,8 +129,8 @@ def fuzzBodySizeLimitContentLength (iterations : Nat) (seed0 : Nat) : IO Unit :=
 -- maxBodySize — chunked framing
 -- ============================================================================
 
--- Property: chunked bodies with total bytes at or below maxBodySize → 200.
---           Chunked bodies exceeding maxBodySize → 413.
+-- Property: chunked bodies whose wire size (data plus chunk framing) is at or below
+--           maxBodySize → 200. Chunked bodies exceeding maxBodySize → 413.
 def fuzzBodySizeLimitChunked (iterations : Nat) (seed0 : Nat) : IO Unit := do
   let limit : Nat := 64
   let config : Config := { lingeringTimeout := 1000, generateDate := false, maxBodySize := limit }
@@ -160,10 +159,11 @@ def fuzzBodySizeLimitChunked (iterations : Nat) (seed0 : Nat) : IO Unit := do
     let (client, server) ← Mock.new
     let response ← sendRaw client server raw (fun req => do
       let _body : String ← req.body.readAll; Response.ok |>.text "ok") config
-    if totalSize ≤ limit then
-      assertStatusPrefix s!"fuzzBodySizeLimitChunked iter={i} seed={caseSeed} total={totalSize}" response "HTTP/1.1 200"
+    let label := s!"fuzzBodySizeLimitChunked iter={i} seed={caseSeed} total={totalSize} wire={chunkedBody.size}"
+    if chunkedBody.size ≤ limit then
+      assertStatusPrefix label response "HTTP/1.1 200"
     else
-      assertStatusPrefix s!"fuzzBodySizeLimitChunked iter={i} seed={caseSeed} total={totalSize}" response "HTTP/1.1 413"
+      assertStatusPrefix label response "HTTP/1.1 413"
 
 -- ============================================================================
 -- maxHeaders — header count limit

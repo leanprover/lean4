@@ -116,7 +116,7 @@ public def propagateIneq (e : Expr) (eqTrue : Bool) : GoalM Unit := do
       pure true
     else
       return ()
-    if strict && s.lawfulOrderLTInst?.isNone then
+    if s.orderedAddInst?.isNone || (strict && s.lawfulOrderLTInst?.isNone) then
       modifyStruct fun s => { s with ignored := s.ignored.push e }
       return ()
     if (← isOrderedCommRing) then

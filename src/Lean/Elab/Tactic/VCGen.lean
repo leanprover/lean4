@@ -16,6 +16,7 @@ public import Lean.Elab.Tactic.VCGen.Entails
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Elab.Tactic.VCGen.Driver
 public import Lean.Elab.Tactic.VCGen.SimpAttr
+public import Lean.Elab.Tactic.VCGen.RIntroAttr
 public import Lean.Elab.Tactic.VCGen.Frontend
 
 /-!
@@ -31,5 +32,6 @@ The `vcgen` tactic, split across the modules above.
 - `VCGen.Solve` — the main `solve` step / `SolveResult`.
 - `VCGen.Driver` — the worklist driver (`work`, `emitVC`, `main`, `Result`).
 - `VCGen.SimpAttr` — the `@[vcgen_simp]` theorem set.
+- `VCGen.RIntroAttr` — the `@[vcgen_rintro]` binder destructuring rules.
 - `VCGen.Frontend` — the `vcgen` syntax + tactic elaborator + `mkSpecContext`.
 -/

@@ -131,7 +131,7 @@ inductive Year
   | twoDigit
 
   /--
-  Four-digit year format (e.g., "2023")
+  Four-digit year format (e.g., "2023"), with a `+` sign for years above 9999 (e.g., "+12345")
   -/
   | fourDigit
 
@@ -306,12 +306,12 @@ end OffsetX
 inductive OffsetO
 
   /--
-  Short form of the localized offset (e.g., "GMT+8")
+  Short form of the localized offset, with seconds only when non-zero (e.g., "GMT+8", "GMT+1:30:15")
   -/
   | short
 
   /--
-  Full form of the localized offset (e.g., "GMT+08:00")
+  Full form of the localized offset, with seconds only when non-zero (e.g., "GMT+08:00", "GMT+01:30:15")
   -/
   | full
   deriving Repr, Inhabited
@@ -340,7 +340,7 @@ inductive OffsetZ
   | hourMinute
 
   /--
-  Localized offset text in full form (e.g., "GMT+08:00")
+  Localized offset text in full form, with seconds only when non-zero (e.g., "GMT+08:00", "GMT+01:30:15")
   -/
   | full
 
@@ -667,7 +667,7 @@ inductive Modifier
   /--
   `Z`: Zone offset.
   - `Z`, `ZZ`, `ZZZ`: output/parse `±HHMM[ss]` (no colon; seconds only when non-zero). Does **not** accept the literal `Z` character for UTC — use `ZZZZZ` or `XXX` for that.
-  - `ZZZZ`: outputs/parses localized GMT form (e.g., `GMT+08:00`).
+  - `ZZZZ`: outputs/parses localized GMT form, with seconds only when non-zero (e.g., `GMT+08:00`, `GMT+01:30:15`).
   - `ZZZZZ`: outputs `±HH:mm[:ss]` and uses `Z` for UTC (e.g., `Z`, `+01:30`).
   -/
   | Z (presentation : OffsetZ)

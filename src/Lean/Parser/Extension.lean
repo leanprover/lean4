@@ -70,8 +70,8 @@ inductive OLeanEntry where
   | kind      (val : SyntaxNodeKind) : OLeanEntry
   | category  (catName : Name) (declName : Name) (behavior : LeadingIdentBehavior)
   /--
-  Stores what inserting the parser into its category's tables needs, so that importing it does not
-  have to evaluate it.
+  Parser `declName` of category `catName`, with `leading` and `firstTokens` copied from the parser
+  so that importing can add it to the parsing tables without evaluating it.
   -/
   | parser    (catName : Name) (declName : Name) (leading : Bool) (firstTokens : FirstTokens)
       (prio : Nat) : OLeanEntry

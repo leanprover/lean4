@@ -257,6 +257,7 @@ jobs:
         timeout-minutes: 20 # prevent excessive hanging from network issues
         continue-on-error: true
       - name: Build Target Stage
+        id: build
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build $TARGET_STAGE -j$NPROC
@@ -273,9 +274,9 @@ jobs:
           key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
       - id: upload-lake-cache
         name: Upload Lake Cache
-        # Caching on cancellation created some mysterious issues perhaps related to improper build
-        # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # Only after a successful build: `lake build` would just retry failed modules. Since this
+        # needs access to secrets, it cannot be run on forks.
+        if: matrix.lake-cache && steps.build.outcome == 'success' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         # only reads stage1/, so it can overlap with installing and testing
         background: true
         run: |

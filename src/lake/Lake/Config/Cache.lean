@@ -1309,6 +1309,17 @@ public def Internal.packageHasChanges (pkg : String) : String :=
     only artifacts for committed code will be downloaded"
 
 /-- **For internal use only.** -/
+public def Internal.packageServiceRequiresScope (pkg : String) (service : CacheServiceName) : String :=
+  s!"{pkg}: package's configured download service `{service}` requires a scope; \
+  only unscoped services are supported for `downloadCacheService`; \
+  ensure the service is configured with `hasPackageScopes = false`"
+
+/-- **For internal use only.** -/
+public def Internal.packageNotReservoir (pkg : String) : String :=
+  s!"{pkg}: a Reservoir service is configured, \
+    but the package is not a Reservoir dependency"
+
+/-- **For internal use only.** -/
 public def Internal.noOutputsForRev
   (service : CacheService) (remoteScope : CacheServiceScope) (rev : GitRev)
 : String :=

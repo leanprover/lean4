@@ -65,12 +65,13 @@ echo "URL=$URL"
 # Copied after the commit above so that it does not dirty the work tree.
 cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" \
   "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml" \
-  "$TEST_DIR/scoped-override.toml" .
+  "$TEST_DIR/scoped-override.toml" "$TEST_DIR/reservoir-dep.toml" \
+  "$TEST_DIR/reservoir-override.toml" .
 mkdir -p service-dep
 cp "$TEST_DIR/service-dep.toml" service-dep/lakefile.toml
 cp "$TEST_DIR/dep/Dep.lean" service-dep/
 sed_i "s|%URL%|$URL|g" services.toml reservoir-upload.toml \
-  pkg-services.toml service-dep/lakefile.toml scoped-override.toml
+  pkg-services.toml service-dep/lakefile.toml scoped-override.toml reservoir-override.toml
 
 # The option validation below expects no configured service, as in a default
 # installation; the transfer tests switch to the mock services
@@ -146,7 +147,7 @@ test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogu
 test_err 'unknown package `bogus`' cache get --package='bogus'
 test_err 'the `--rev` option is not supported for a multi-package `cache get`' \
   cache get --rev=bogus
-with_endpoints test_err 'multi-package `cache get` requires a Reservoir-style service' cache get
+with_endpoints test_err 'multi-package `cache get` requires a Reservoir service' cache get
 LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service does not support `--scope` or `--repo`' \
   cache get --scope='bogus' --service='flatRoot'
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
@@ -203,7 +204,7 @@ test_err 'outputs not found for revision' \
 test_run -f non-reservoir.toml update
 test_out 'hello: skipping non-Reservoir package' -f non-reservoir.toml cache get
 # Verify such a dependency is an error when selected with `--package`
-test_err 'hello: not a Reservoir dependency' \
+test_err 'hello: a Reservoir service is configured, but the package is not a Reservoir dependency' \
   -f non-reservoir.toml cache get --package=hello
 test_run update
 
@@ -527,6 +528,29 @@ test_artifacts "$NUM_ARTS"
 LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_err \
   'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
   -f pkg-services.toml cache get --package=service-dep
+# Verify a build does not fetch through such a service and instead builds from source
+test_cmd rm -rf service-dep/.lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_out \
+  'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
+  -f pkg-services.toml -v build @service-dep/Dep
+match_text 'Built Dep' produced.out
+no_match_text "GET" "$SERVER_LOG"
+test_run update
+
+# Verify a build fetches through a `downloadCacheService` overridden by a Reservoir service,
+# looking up the outputs under the dependency's Reservoir scope
+test_run -f reservoir-dep.toml update
+test_run -f reservoir-dep.toml build @service-dep/Dep -o reservoir-dep-outputs.jsonl \
+  --package=service-dep
+test_run -f reservoir-dep.toml cache put reservoir-dep-outputs.jsonl \
+  --package=service-dep --repo=leanprover/service-dep
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+LAKE_CONFIG="$WORK_DIR/reservoir-override.toml" test_out 'Fetched Dep' \
+  -f reservoir-dep.toml build @service-dep/Dep --no-build
+match_text "GET /ok/api/v1/packages/leanprover/service-dep/build-outputs" "$SERVER_LOG"
+match_text "GET /ok/api/v1/packages/leanprover/service-dep/artifacts/" "$SERVER_LOG"
 test_run update
 
 # Verify `-o` with `--package` tracks the outputs of the selected dependency

@@ -175,15 +175,23 @@ def mkOptBuildCacheFacetConfig
 
 /-- Tries to download a package's output mappings from its `downloadCacheService`. -/
 def Package.fetchArtifactCache (pkg : Package) : JobM PUnit := do
-  let some service := pkg.downloadCacheService?
+  let some serviceName := pkg.downloadCacheService?
     | error "package has no associated cache service; \
       if you are the maintainer, set `downloadCacheService` on the package"
-  let some service := (← getWorkspace).findCacheService? service.toString
-    | error s!"package's cache service not found `{service}`; \
-      check with the maintainer on how to configure the service"
+  let some service := (← getWorkspace).findCacheService? serviceName.toString
+    | error s!"package's cache service not found `{serviceName}`; \
+      check with the maintainer about how to configure the service"
+  if service.hasPackageScopes && !service.isReservoir then
+    error (Internal.packageServiceRequiresScope pkg.prettyName serviceName)
   let cache ← getLakeCache
   let platform := Internal.cachePlatform pkg .system
   let toolchain := Internal.cacheToolchain pkg (← getWorkspace).cacheToolchain
+  let remoteScope ← id do
+    if service.isReservoir then
+      pkg.reservoirScope?.getDM do
+        error (Internal.packageNotReservoir pkg.prettyName)
+    else
+      return .none
   let map : CacheMap ← id do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
@@ -191,11 +199,11 @@ def Package.fetchArtifactCache (pkg : Package) : JobM PUnit := do
     let maxRevs ← getMaxRevs
     let revs ← repo.getHeadRevisions maxRevs
     let map? ← LoggerIO.toLogIO <| revs.findSomeM? fun rev =>
-      service.downloadRevisionOutputs? rev cache pkg.cacheScope .none platform toolchain
+      service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain
     let some map := map?
-      | error (Internal.noOutputs service .none maxRevs revs)
+      | error (Internal.noOutputs service remoteScope maxRevs revs)
     return map
-  cache.writeMap pkg.cacheScope map service.name? (some .none) (overwrite := false)
+  cache.writeMap pkg.cacheScope map service.name? (some remoteScope) (overwrite := false)
 
 /-- The `PackageFacetConfig` for the builtin `optArtifactCacheFacet`. -/
 public def Package.optArtifactCacheFacetConfig : PackageFacetConfig optArtifactCacheFacet :=

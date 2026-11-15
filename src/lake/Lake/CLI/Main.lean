@@ -569,15 +569,9 @@ def validatePkgScope (pkg : Package) (service : CacheService) (scope? : Option C
       return scope
     else
       pkg.reservoirScope?.getDM do
-        error s!"{pkg.prettyName}: not a Reservoir dependency"
+        error (Internal.packageNotReservoir pkg.prettyName)
   else
     validateScope service scope?
-
-def pkgServiceRequiresScope (pkg : Package) (service : CacheServiceName) : String :=
-  s!"{pkg.prettyName}: \
-  package's configured download service `{service}` requires a scope; \
-  only unscoped services are supported for `downloadCacheService`; \
-  ensure the service is configured with `hasPackageScopes = false`"
 
 protected def get : CliM PUnit := do
   processOptions lakeOption
@@ -623,7 +617,7 @@ protected def get : CliM PUnit := do
           if let some serviceName := pkg.downloadCacheService? then
             let service ← ws.findCacheService serviceName.toString
             if service.hasPackageScopes && !service.isReservoir then
-              error (pkgServiceRequiresScope pkg serviceName)
+              error (Internal.packageServiceRequiresScope pkg.prettyName serviceName)
             else
               return service
         return ws.defaultCacheService
@@ -644,7 +638,7 @@ protected def get : CliM PUnit := do
               try
                 let service ← ws.findCacheService serviceName.toString
                 if service.hasPackageScopes && !service.isReservoir then
-                  logWarning (pkgServiceRequiresScope pkg serviceName)
+                  logWarning (Internal.packageServiceRequiresScope pkg.prettyName serviceName)
                   if opts.failLv ≤ .warning then
                     return false
                   else
@@ -674,7 +668,7 @@ protected def get : CliM PUnit := do
         unless ok do
           error "failed to download artifacts for some dependencies"
       else
-        error "multi-package `cache get` requires a Reservoir-style service"
+        error "multi-package `cache get` requires a Reservoir service"
 where
   computeDownloadService? ws opts := do
     if let some service := opts.service? then

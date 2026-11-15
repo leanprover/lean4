@@ -354,26 +354,43 @@ theorem String.ofList_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.
 Auxiliary function for proving that two `String` literals are different. See
 `String.Internal.ofList_ne_ofList`.
 
-Returns `c.toNat + 1` if `c` is the character at position `i` of `l`, and `0` if `l` does not
-have a character at position `i`.
+Returns `false` if `l₁` and `l₂` have different characters at position `i`, or if exactly one of
+them has a character at position `i`. It assumes the two lists have at least `i` elements, and
+returns `true` otherwise.
 
-It is defined using recursors, `Nat.add`, and raw literals to minimize the number of definitions
-the kernel has to unfold when evaluating it.
+It traverses the two lists simultaneously, and is defined using recursors to minimize the number of
+steps the kernel has to perform when evaluating it.
 -/
-@[expose] noncomputable def String.Internal.charCodeAt (i : Nat) (l : List Char) : Nat :=
-  Nat.rec (motive := fun _ => List Char → Nat)
-    (fun l => List.rec (motive := fun _ => Nat) (nat_lit 0) (fun c _ _ => Nat.add c.toNat (nat_lit 1)) l)
-    (fun _ f l => List.rec (motive := fun _ => Nat) (nat_lit 0) (fun _ tl _ => f tl) l)
-    i l
+@[expose] noncomputable def String.Internal.sameCharAt (i : Nat) (l₁ l₂ : List Char) : Bool :=
+  Nat.rec (motive := fun _ => List Char → List Char → Bool)
+    (fun l₁ l₂ => List.rec (motive := fun _ => Bool)
+      (List.rec (motive := fun _ => Bool) true (fun _ _ _ => false) l₂)
+      (fun c₁ _ _ => List.rec (motive := fun _ => Bool) false (fun c₂ _ _ => Nat.beq c₁.toNat c₂.toNat) l₂)
+      l₁)
+    (fun _ f l₁ l₂ => List.rec (motive := fun _ => Bool) true
+      (fun _ l₁ _ => List.rec (motive := fun _ => Bool) true (fun _ l₂ _ => f l₁ l₂) l₂)
+      l₁)
+    i l₁ l₂
+
+theorem String.Internal.sameCharAt_self (i : Nat) (l : List Char) : sameCharAt i l l = true := by
+  induction i generalizing l with
+  | zero => cases l with
+    | nil => rfl
+    | cons c l => exact Nat.beq_refl _
+  | succ i ih => cases l with
+    | nil => rfl
+    | cons c l => exact ih l
 
 /--
 Auxiliary theorem for proving that two `String` literals are different. `i` is the first position
 where `l₁` and `l₂` differ, and `h` is `Eq.refl false`.
 -/
 theorem String.Internal.ofList_ne_ofList (l₁ l₂ : List Char) (i : Nat)
-    (h : Nat.beq (charCodeAt i l₁) (charCodeAt i l₂) = false) :
-    String.ofList l₁ ≠ String.ofList l₂ :=
-  fun h' => Nat.ne_of_beq_eq_false h (congrArg (charCodeAt i) (String.ofList_injective h'))
+    (h : sameCharAt i l₁ l₂ = false) : String.ofList l₁ ≠ String.ofList l₂ := by
+  intro h'
+  cases String.ofList_injective h'
+  rw [sameCharAt_self] at h
+  contradiction
 
 @[deprecated String.ofList_inj (since := "2025-10-30")]
 theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=

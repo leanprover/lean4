@@ -20,9 +20,9 @@ The proof is `String.Internal.ofList_ne_ofList l₁ l₂ i (Eq.refl false)` wher
 position where the two strings differ. If one of them is a prefix of the other, `i` is the length
 of the shorter one.
 
-To check it, the kernel evaluates `String.Internal.charCodeAt i` at both lists, which traverses the
-first `i` elements of each list without comparing them, and then compares two natural numbers.
-It does not unfold `String.decEq`.
+To check it, the kernel evaluates `String.Internal.sameCharAt i l₁ l₂`, which traverses the first
+`i` elements of the two lists simultaneously without comparing them, and then compares the
+characters at position `i`. It does not unfold `String.decEq`.
 -/
 def mkStringLitNeProof (s₁ s₂ : String) : MetaM Expr := do
   let l₁ := s₁.toList

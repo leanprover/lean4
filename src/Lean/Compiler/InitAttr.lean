@@ -175,13 +175,14 @@ Returns whether some direct import of module {name}`modIdx` is marked in {name}`
 native initializer of a module calls those of all its direct imports, so in that case the module
 cannot have native code either.
 -/
-private def hasNonNativeImport (env : Environment) (noNative : Array Bool) (modIdx : Nat) : Bool :=
-  match env.header.moduleData[modIdx]? with
-  | some data => data.imports.any fun imp =>
-    match env.getModuleIdx? imp.module with
-    | some idx => noNative[idx.toNat]?.getD false
-    | none => false
-  | none => false
+private def hasNonNativeImport (env : Environment) (noNative : Array Bool) (modIdx : Nat) :
+    Bool := Id.run do
+  let some data := env.header.moduleData[modIdx]? | return false
+  for imp in data.imports do
+    if let some idx := env.getModuleIdx? imp.module then
+      if noNative[idx.toNat]?.getD false then
+        return true
+  return false
 
 /--
 Runs the initializers of the given imported module. {name}`noNative` marks the modules with a

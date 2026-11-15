@@ -350,6 +350,31 @@ theorem List.asString_injective {l₁ l₂ : List Char} (h : String.ofList l₁ 
 theorem String.ofList_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   ⟨ofList_injective, (· ▸ rfl)⟩
 
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ofList_ne_ofList`.
+
+Returns `c.toNat + 1` if `c` is the character at position `i` of `l`, and `0` if `l` does not
+have a character at position `i`.
+
+It is defined using recursors, `Nat.add`, and raw literals to minimize the number of definitions
+the kernel has to unfold when evaluating it.
+-/
+@[expose] noncomputable def String.Internal.charCodeAt (i : Nat) (l : List Char) : Nat :=
+  Nat.rec (motive := fun _ => List Char → Nat)
+    (fun l => List.rec (motive := fun _ => Nat) (nat_lit 0) (fun c _ _ => Nat.add c.toNat (nat_lit 1)) l)
+    (fun _ f l => List.rec (motive := fun _ => Nat) (nat_lit 0) (fun _ tl _ => f tl) l)
+    i l
+
+/--
+Auxiliary theorem for proving that two `String` literals are different. `i` is the first position
+where `l₁` and `l₂` differ, and `h` is `Eq.refl false`.
+-/
+theorem String.Internal.ofList_ne_ofList (l₁ l₂ : List Char) (i : Nat)
+    (h : Nat.beq (charCodeAt i l₁) (charCodeAt i l₂) = false) :
+    String.ofList l₁ ≠ String.ofList l₂ :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg (charCodeAt i) (String.ofList_injective h'))
+
 @[deprecated String.ofList_inj (since := "2025-10-30")]
 theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   String.ofList_inj

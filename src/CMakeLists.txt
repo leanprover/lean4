@@ -1111,7 +1111,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       PREFIX lean-beam-native
       EXCLUDE_FROM_ALL ON
       GIT_REPOSITORY https://github.com/leanprover/lean-beam
-      GIT_TAG a9645d2033815fea9a91ce67f7e5f5c8b9eacc85
+      GIT_TAG 10c7238efd7915bba2a7cca951c32b8485b8fa2e
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ${CMAKE_COMMAND}
         -DLEAN_PREFIX=${CMAKE_BINARY_DIR}

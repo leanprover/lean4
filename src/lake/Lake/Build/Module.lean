@@ -524,7 +524,7 @@ def fetchImportInfo
 
 /-- The `ModuleFacetConfig` for the builtin `importInfoFacet`. -/
 public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
-  mkFacetJobConfig fun mod => do
+  mkFacetJobConfig fun mod => ensureJob do
     let header ← (← mod.header.fetch).await
     fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
       (allowNonModules := mod.allowNonModules)
@@ -659,10 +659,26 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
   -/
   let precompileImports ← if mod.shouldPrecompileImports then
     mod.transImports.fetch else mod.precompileImports.fetch
-  let precompileImports ← precompileImports.await
+  -- Both import info and precompiled imports depend on input and repeat its errors.
+  -- Waiting on it first prints its errors once and skips the erroring dependents.
+  discard inputJob.await
+  let precompileImports ←
+    try
+      precompileImports.await
+    catch e =>
+      let log ← takeLogFrom e
+      let e ←
+        try
+          -- Ensure any errors from the import info appear in the log
+          discard impInfoJob.await
+          getLogPos
+        catch e =>
+          pure e
+      log.replay
+      throw e
+
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
     mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
-
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
@@ -1517,7 +1533,7 @@ public def Module.oFacetConfig : ModuleFacetConfig oFacet :=
 
 def recComputeModuleLinkInfo
   (root : Module) (shouldExport : Bool)
-: FetchM (Job ModuleLinkInfo) := do
+: FetchM (Job ModuleLinkInfo) := ensureJob do
   /-
   Remark: We must build the root before we fetch the transitive imports
   so that errors in the import block of transitive imports will not kill this

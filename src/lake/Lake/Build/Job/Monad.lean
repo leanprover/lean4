@@ -189,8 +189,13 @@ Logs the job's log and throws if there was an error.
 -/
 public protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
-  | .error n {log, ..} => log.replay; throw n
-  | .ok a {log, ..} => log.replay; pure a
+  | .error e {log, ..} =>
+    let iniPos ← getLogPos
+    log.replay
+    throw ⟨iniPos.val + e.val⟩
+  | .ok a {log, ..} =>
+    log.replay
+    return a
 
 /-- Fail the current job as canceled (no log entry; see `JobState.canceled`). -/
 public def cancelJob : JobM α := do

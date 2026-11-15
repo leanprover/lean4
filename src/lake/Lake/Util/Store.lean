@@ -6,7 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Prelude
+public import Init.Notation
+
+set_option doc.verso true
 
 namespace Lake
 
@@ -17,7 +19,7 @@ public class MonadStore1Of {κ : Type u} (k : κ) (α : semiOutParam (Type v)) (
 
 export MonadStore1Of (store)
 
-/-- Similar to `MonadStore1Of`, but `α` is an `outParam` for convenience. -/
+/-- Similar to {lean}`MonadStore1Of`, but {lean}`α` is an {lean}`outParam` for convenience. -/
 public class MonadStore1 {κ : Type u} (k : κ) (α : outParam (Type v)) (m : Type v → Type w) where
   fetch? : m (Option α)
   store : α → m PUnit
@@ -44,7 +46,13 @@ public instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n wher
   fetch? k := liftM (m := m) (fetch? k)
   store k a := liftM (m := m) (store k a)
 
-@[inline] public def fetchOrCreate
+/--
+Returns the value of {lean}`key` in the store if it exists.
+Otherwise, runs {lean}`create` to generate it, adds it to the store, and returns the result.
+
+**Note:** This implementation does not update the store atomically.
+-/
+@[inline] public def fetchOrCreateNonatomic
   [Monad m] (key : κ) [MonadStore1Of key α m] (create : m α)
 : m α := do
   if let some val ← fetch? key then
@@ -53,3 +61,6 @@ public instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n wher
     let val ← create
     store key val
     return val
+
+@[inherit_doc fetchOrCreateNonatomic, deprecated fetchOrCreateNonatomic (since := "2026-11-14")]
+public abbrev fetchOrCreate := @fetchOrCreateNonatomic

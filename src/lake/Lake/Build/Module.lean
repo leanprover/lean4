@@ -755,6 +755,31 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
 public def Module.setupFacetConfig : ModuleFacetConfig setupFacet :=
   mkFacetJobConfig (buildable := false) recFetchSetup
 
+/--
+Remove cached file hashes of the module build outputs (in `.hash` files).
+Does not include the `ltar` hash.
+-/
+public def Module.clearOutputHashesCore (mod : Module) : IO PUnit := do
+  try
+    clearFileHash mod.oleanFile
+    clearFileHash mod.oleanServerFile
+    clearFileHash mod.oleanPrivateFile
+    clearFileHash mod.ileanFile
+    clearFileHash mod.irSigFile
+    clearFileHash mod.irFile
+    clearFileHash mod.cFile
+    clearFileHash mod.bcFile
+  catch e =>
+    error s!"failed to remove output hashes: {e}"
+
+/-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
+public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
+  try
+    clearFileHash mod.ltarFile
+  catch e =>
+    error s!"failed to remove ltar hash: {e}"
+  mod.clearOutputHashesCore
+
 /-- Remove all existing artifacts produced by a Lean build of the module. -/
 public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
   try
@@ -769,31 +794,10 @@ public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
     removeFileIfExists mod.bcFile
   catch e =>
     error s!"failed to remove output artifacts: {e}"
-
-/-- Remove all existing artifacts produced by a `leanir` build of the module. -/
-public def Module.clearIROutputArtifacts (mod : Module) : IO PUnit := do
-  try
-    removeFileIfExists mod.ltarFile
-    removeFileIfExists mod.irSigFile
-    removeFileIfExists mod.irFile
-    removeFileIfExists mod.cFile
-  catch e =>
-    error s!"failed to remove IR output artifacts: {e}"
-
-/-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
-public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
-  try
-    clearFileHash mod.ltarFile
-    clearFileHash mod.oleanFile
-    clearFileHash mod.oleanServerFile
-    clearFileHash mod.oleanPrivateFile
-    clearFileHash mod.ileanFile
-    clearFileHash mod.irSigFile
-    clearFileHash mod.irFile
-    clearFileHash mod.cFile
-    clearFileHash mod.bcFile
-  catch e =>
-    error s!"failed to remove output hashes: {e}"
+  finally
+    -- Done after deleting the corresponding artifacts,
+    -- so that a racing process does not recreate them in-between.
+    mod.clearOutputHashes
 
 /-- Remove any cached file hashes of the module IR build outputs (in `.hash` files). -/
 public def Module.clearIROutputHashes (mod : Module) : IO PUnit := do
@@ -805,10 +809,21 @@ public def Module.clearIROutputHashes (mod : Module) : IO PUnit := do
   catch e =>
     error s!"failed to remove IR output hashes: {e}"
 
+/-- Remove all existing artifacts produced by a `leanir` build of the module. -/
+public def Module.clearIROutputArtifacts (mod : Module) : IO PUnit := do
+  try
+    removeFileIfExists mod.ltarFile
+    removeFileIfExists mod.irSigFile
+    removeFileIfExists mod.irFile
+    removeFileIfExists mod.cFile
+  catch e =>
+    error s!"failed to remove IR output artifacts: {e}"
+  finally
+    -- Ordered as in `clearOutputArtifacts`
+    mod.clearIROutputHashes
+
 /-- Cache the file hashes of the module build outputs in `.hash` files. -/
 public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
-  -- Hashes on not conditional on module metadata (e.g., `isModule`).
-  -- Lake will determine which files to use (and which to delete) as part of the build proccess.
   try
     cacheFileHashIfExists mod.ltarFile
     cacheFileHashIfExists mod.oleanFile
@@ -1125,7 +1140,6 @@ def Module.buildLean
   let setup ← mkModuleSetup mod presetup
   let arts := mod.mkArtifacts presetup.srcFile presetup.isModule
   mod.clearOutputArtifacts
-  mod.clearOutputHashes
   compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
   mod.computeArtifacts setup.isModule presetup.postponeCompile
@@ -1223,6 +1237,7 @@ where
             -- hash, so only do it on a verified hash match. An mtime-only match
             -- leaves the hash unconfirmed, so rebuild instead.
             if status == .hashUpToDate then
+              mod.clearOutputHashesCore
               mod.unpackLtar mod.ltarFile depTrace.hash
             else
               discard <| mod.buildLean presetup
@@ -1242,6 +1257,7 @@ where
         unless (← mod.checkArtifactsExist presetup.isModule presetup.postponeCompile) do
           -- As above: restore on a hash match and rebuild on a mtime match.
           if status == .hashUpToDate then
+            mod.clearOutputHashesCore
             mod.unpackLtar mod.ltarFile depTrace.hash
           else
             discard <| mod.buildLean presetup
@@ -1331,7 +1347,6 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
       let irSetup ← mkModuleSetup mod presetup
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
       mod.clearIROutputArtifacts
-      mod.clearIROutputHashes
       compileLeanIR mod.irSetupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
     let arts ← mod.computeIRArtifacts elabArts upToDate
     let arts ← adjustMTime arts mod.irTraceFile

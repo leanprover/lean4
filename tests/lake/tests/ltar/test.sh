@@ -38,6 +38,37 @@ test_exp -f .lake/build/ir/Test.ltar
 rm -rf .lake/build .lake/cache/artifacts/*.[!l]*
 test_out "leantar" build +Test --no-build -v
 
+# Test that unpacking an archive does not keep a stale output hash
+# https://github.com/leanprover/lean4/issues/16407
+OLEAN_HASH_FILE=.lake/build/lib/lean/Test.olean.hash
+OLEAN_HASH=$(cat $OLEAN_HASH_FILE)
+STALE_HASH=0123456789abcdef
+check_olean_hash() {
+  echo "? $OLEAN_HASH_FILE is absent or contains $OLEAN_HASH"
+  test ! -f $OLEAN_HASH_FILE || test "$(cat $OLEAN_HASH_FILE)" = "$OLEAN_HASH"
+}
+test_cmd rm .lake/build/lib/lean/Test.olean
+echo -n $STALE_HASH > $OLEAN_HASH_FILE
+test_out "leantar" build +Test --no-build -v
+check_olean_hash
+
+# Test that unpacking an archive from the cache does not keep a stale output hash
+rm -rf .lake/build
+mkdir -p .lake/build/lib/lean
+echo -n $STALE_HASH > $OLEAN_HASH_FILE
+test_out "leantar" build +Test --no-build -v
+check_olean_hash
+
+# Test that a failure to cache the outputs of an unpacked archive does not keep
+# a stale output hash. A trace-only archive leaves no `.olean` to cache.
+rm -rf .lake/cache
+LEANTAR="$("$LAKE" env printenv LEAN_SYSROOT)/bin/leantar"
+test_cmd "$LEANTAR" -s -C .lake/build/lib/lean .lake/build/ir/Test.ltar Test.trace
+test_cmd rm .lake/build/lib/lean/Test.olean
+echo -n $STALE_HASH > $OLEAN_HASH_FILE
+LAKE_ARTIFACT_CACHE=true test_err "failed to cache artifact" build +Test --no-build -v
+check_olean_hash
+
 # Test caching an `ltar` through `-o` (with `restoreAllArtifacts = true`)
 # This tests caching the ltar from within `Module.packLtar`
 rm -rf .lake/cache .lake/build

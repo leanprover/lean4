@@ -1098,6 +1098,9 @@ def Module.packLtar
         | error "LLVM backend enabled but module outputs lack bitcode"
       args := addArt args "1" art
     return args
+  -- Remove any existing `ltar` first. It may be read-only if
+  -- restored from the cache and `leantar` cannot overwrite it on Windows.
+  removeFileIfExists self.ltarFile.toString
   proc (quiet := true) {cmd := (← getLeantar).toString, args}
   if (← self.pkg.isArtifactCacheWritable) then
     cacheArtifact self.ltarFile "ltar" (useLocalFile := ← self.pkg.restoreAllArtifacts)

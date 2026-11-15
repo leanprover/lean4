@@ -534,7 +534,6 @@ instance : BudgetedBEq ExprConfigCacheKey where
 abbrev InferTypeCache  := BudgetedCache ExprConfigCacheKey Expr
 abbrev FunInfoCache    := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache       := PersistentHashMap ExprConfigCacheKey Expr
-abbrev IsUnitLikeCache := PersistentHashMap ExprConfigCacheKey Bool
 
 structure DefEqCacheKey where
   private mk ::
@@ -586,7 +585,6 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
-  isUnitLike     : IsUnitLikeCache := {}
   /--
   Default unfoldings of applications of definitions (see `unfoldDefinition?`): the value of the head
   constant at its universe levels, beta-reduced with the arguments. This only depends on the
@@ -891,16 +889,16 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6, c7⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6, c7⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
 
 @[inline] def modifyUnfoldCache (f : UnfoldCache → UnfoldCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, c7, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, c7, f unfold⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, f unfold⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

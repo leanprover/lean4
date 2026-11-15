@@ -521,7 +521,7 @@ def fetchImportInfo
 
 /-- The `ModuleFacetConfig` for the builtin `importInfoFacet`. -/
 public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
-  mkFacetJobConfig fun mod => do
+  mkFacetJobConfig fun mod => ensureJob do
     let header ← (← mod.header.fetch).await
     fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
       (allowNonModules := mod.allowNonModules)
@@ -1495,7 +1495,7 @@ public def Module.oFacetConfig : ModuleFacetConfig oFacet :=
 
 def recComputeModuleLinkInfo
   (root : Module) (shouldExport : Bool)
-: FetchM (Job ModuleLinkInfo) := do
+: FetchM (Job ModuleLinkInfo) := ensureJob do
   /-
   Remark: We must build the root before we fetch the transitive imports
   so that errors in the import block of transitive imports will not kill this

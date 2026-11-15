@@ -142,3 +142,70 @@ def floatValues : Float → String → Nat
   | 5.0, "b" => 2
   | _, _ => 3
 #gen_match_eqns floatValues.match_1
+
+/-!
+Discriminants annotated with `h :`. The matcher applies the tree of tests to the proofs
+`Eq.refl s` and `HEq.refl s`.
+-/
+set_option linter.unusedVariables false
+
+def discrEq (s : String) : Nat :=
+  match h : s with
+  | "a" => 1
+  | "b" => 2
+  | _ => 3
+#gen_match_eqns discrEq.match_1
+
+def discrEqFirst (s : String) (n : Nat) : Nat :=
+  match h : s, n with
+  | "a", 0 => 1
+  | "b", _ => 2
+  | _, _ => 3
+#gen_match_eqns discrEqFirst.match_1
+
+def discrEqSecond (s : String) (n : Nat) : Nat :=
+  match s, h : n with
+  | "a", 5 => 1
+  | "b", 7 => 2
+  | _, _ => 3
+#gen_match_eqns discrEqSecond.match_1
+
+def discrEqBoth (s : String) (n : Nat) : Nat :=
+  match h₁ : s, h₂ : n with
+  | "a", 0 => 1
+  | "b", 1 => 2
+  | _, _ => 3
+#gen_match_eqns discrEqBoth.match_1
+
+def discrEqNested (o : Option String) : Nat :=
+  match h : o with
+  | some "a" => 1
+  | some "b" => 2
+  | _ => 3
+#gen_match_eqns discrEqNested.match_1
+
+def discrEqNonVar (s : String) : Nat :=
+  match h : s ++ "x" with
+  | "ax" => 1
+  | "bx" => 2
+  | _ => 3
+#gen_match_eqns discrEqNonVar.match_1
+
+/-! The proof for `i` is `HEq.refl i`. -/
+def discrHEq (n : Nat) (i : Fin n) (s : String) : Nat :=
+  match hn : n, hi : i, hs : s with
+  | _, _, "a" => 0
+  | _, _, "b" => 1
+  | _, _, _ => 2
+#gen_match_eqns discrHEq.match_1
+
+inductive V : Nat → Type where
+  | nil : V 0
+  | cons : String → V n → V (n+1)
+
+def discrHEqIndexed (n : Nat) (v : V n) : Nat :=
+  match hn : n, hv : v with
+  | _, .cons "a" _ => 0
+  | _, .cons "b" _ => 1
+  | _, _ => 2
+#gen_match_eqns discrHEqIndexed.match_1

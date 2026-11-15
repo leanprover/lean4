@@ -108,7 +108,7 @@ static const lean_string_object l_Lean_Compiler_LCNF_toDecl___closed__2_value = 
 static const lean_object* l_Lean_Compiler_LCNF_toDecl___closed__2 = (const lean_object*)&l_Lean_Compiler_LCNF_toDecl___closed__2_value;
 static lean_once_cell_t l_Lean_Compiler_LCNF_toDecl___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_LCNF_toDecl___closed__3;
-static const lean_ctor_object l_Lean_Compiler_LCNF_toDecl___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 24, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 1, 1, 0),LEAN_SCALAR_PTR_LITERAL(1, 1, 0, 1, 1, 1, 2, 1),LEAN_SCALAR_PTR_LITERAL(1, 1, 1, 0, 0, 0, 0, 0)}};
+static const lean_ctor_object l_Lean_Compiler_LCNF_toDecl___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 24, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 1, 1, 0),LEAN_SCALAR_PTR_LITERAL(1, 1, 0, 1, 1, 1, 2, 1),LEAN_SCALAR_PTR_LITERAL(1, 1, 1, 0, 1, 0, 0, 0)}};
 static const lean_object* l_Lean_Compiler_LCNF_toDecl___closed__4 = (const lean_object*)&l_Lean_Compiler_LCNF_toDecl___closed__4_value;
 static lean_once_cell_t l_Lean_Compiler_LCNF_toDecl___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint64_t l_Lean_Compiler_LCNF_toDecl___closed__5;
@@ -2279,7 +2279,7 @@ v___x_677_ = l_Lean_ConstantInfo_type(v_val_618_);
 v___x_678_ = 1;
 v___x_679_ = 0;
 v___x_680_ = 2;
-v___x_681_ = lean_alloc_ctor(0, 0, 20);
+v___x_681_ = lean_alloc_ctor(0, 0, 21);
 lean_ctor_set_uint8(v___x_681_, 0, v___x_670_);
 lean_ctor_set_uint8(v___x_681_, 1, v___x_670_);
 lean_ctor_set_uint8(v___x_681_, 2, v___x_670_);
@@ -2300,6 +2300,7 @@ lean_ctor_set_uint8(v___x_681_, 16, v___x_671_);
 lean_ctor_set_uint8(v___x_681_, 17, v___x_671_);
 lean_ctor_set_uint8(v___x_681_, 18, v___x_671_);
 lean_ctor_set_uint8(v___x_681_, 19, v___x_670_);
+lean_ctor_set_uint8(v___x_681_, 20, v___x_671_);
 v___x_682_ = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(v___x_681_);
 v___x_683_ = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(v___x_683_, 0, v___x_681_);
@@ -2706,7 +2707,7 @@ v___x_757_ = 0;
 v___x_758_ = 1;
 v___x_759_ = 0;
 v___x_760_ = 2;
-v___x_761_ = lean_alloc_ctor(0, 0, 20);
+v___x_761_ = lean_alloc_ctor(0, 0, 21);
 lean_ctor_set_uint8(v___x_761_, 0, v___x_757_);
 lean_ctor_set_uint8(v___x_761_, 1, v___x_757_);
 lean_ctor_set_uint8(v___x_761_, 2, v___x_757_);
@@ -2727,6 +2728,7 @@ lean_ctor_set_uint8(v___x_761_, 16, v___x_670_);
 lean_ctor_set_uint8(v___x_761_, 17, v___x_670_);
 lean_ctor_set_uint8(v___x_761_, 18, v___x_670_);
 lean_ctor_set_uint8(v___x_761_, 19, v___x_757_);
+lean_ctor_set_uint8(v___x_761_, 20, v___x_670_);
 v___x_762_ = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(v___x_761_);
 v___x_763_ = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(v___x_763_, 0, v___x_761_);
@@ -2958,9 +2960,9 @@ return v___x_828_;
 LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00Lean_Compiler_LCNF_toDecl_spec__1___boxed(lean_object* v___x_829_, lean_object* v_inst_830_, lean_object* v_a_831_, lean_object* v___y_832_, lean_object* v___y_833_, lean_object* v___y_834_, lean_object* v___y_835_, lean_object* v___y_836_){
 _start:
 {
-uint8_t v___x_15311__boxed_837_; lean_object* v_res_838_; 
-v___x_15311__boxed_837_ = lean_unbox(v___x_829_);
-v_res_838_ = l___private_Init_While_0__repeatM_erased___at___00Lean_Compiler_LCNF_toDecl_spec__1(v___x_15311__boxed_837_, v_inst_830_, v_a_831_, v___y_832_, v___y_833_, v___y_834_, v___y_835_);
+uint8_t v___x_15313__boxed_837_; lean_object* v_res_838_; 
+v___x_15313__boxed_837_ = lean_unbox(v___x_829_);
+v_res_838_ = l___private_Init_While_0__repeatM_erased___at___00Lean_Compiler_LCNF_toDecl_spec__1(v___x_15313__boxed_837_, v_inst_830_, v_a_831_, v___y_832_, v___y_833_, v___y_834_, v___y_835_);
 lean_dec(v___y_835_);
 lean_dec_ref(v___y_834_);
 lean_dec(v___y_833_);
@@ -3011,13 +3013,13 @@ return v___x_856_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_toDecl_spec__5___boxed(lean_object* v___x_857_, lean_object* v_sz_858_, lean_object* v_i_859_, lean_object* v_bs_860_, lean_object* v___y_861_, lean_object* v___y_862_, lean_object* v___y_863_, lean_object* v___y_864_, lean_object* v___y_865_){
 _start:
 {
-uint8_t v___x_15343__boxed_866_; size_t v_sz_boxed_867_; size_t v_i_boxed_868_; lean_object* v_res_869_; 
-v___x_15343__boxed_866_ = lean_unbox(v___x_857_);
+uint8_t v___x_15345__boxed_866_; size_t v_sz_boxed_867_; size_t v_i_boxed_868_; lean_object* v_res_869_; 
+v___x_15345__boxed_866_ = lean_unbox(v___x_857_);
 v_sz_boxed_867_ = lean_unbox_usize(v_sz_858_);
 lean_dec(v_sz_858_);
 v_i_boxed_868_ = lean_unbox_usize(v_i_859_);
 lean_dec(v_i_859_);
-v_res_869_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_toDecl_spec__5(v___x_15343__boxed_866_, v_sz_boxed_867_, v_i_boxed_868_, v_bs_860_, v___y_861_, v___y_862_, v___y_863_, v___y_864_);
+v_res_869_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_toDecl_spec__5(v___x_15345__boxed_866_, v_sz_boxed_867_, v_i_boxed_868_, v_bs_860_, v___y_861_, v___y_862_, v___y_863_, v___y_864_);
 lean_dec(v___y_864_);
 lean_dec_ref(v___y_863_);
 lean_dec(v___y_862_);

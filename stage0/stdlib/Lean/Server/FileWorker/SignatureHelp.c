@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SignatureHelp
-// Imports: public import Lean.Elab.InfoTree.Util public import Lean.Data.Lsp public import Init.Data.List.Sort.Basic import Lean.PrettyPrinter.Delaborator
+// Imports: public import Lean.Elab.InfoTree.Util public import Lean.Data.Lsp public import Init.Data.List.Sort.Basic import Init.Data.List.Sort.Impl import Lean.PrettyPrinter.Delaborator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -53,7 +53,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
-lean_object* l_List_mergeSort___redArg(lean_object*, lean_object*);
+lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -2898,7 +2898,7 @@ v_a_886_ = lean_ctor_get(v___x_885_, 0);
 lean_inc(v_a_886_);
 lean_dec_ref_known(v___x_885_, 1);
 v___x_887_ = lean_array_to_list(v_a_886_);
-v___x_888_ = l_List_mergeSort___redArg(v___x_887_, v___f_877_);
+v___x_888_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v___x_887_, v___f_877_);
 v___x_889_ = lean_array_mk(v___x_888_);
 v___x_917_ = lean_array_get_size(v___x_889_);
 v___x_918_ = lean_nat_dec_lt(v___x_883_, v___x_917_);
@@ -3150,6 +3150,7 @@ return v_res_963_;
 lean_object* runtime_initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -3167,6 +3168,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Sort_Impl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_PrettyPrinter_Delaborator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -3182,6 +3186,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin) {
@@ -3195,6 +3200,9 @@ res = initialize_Lean_Data_Lsp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Sort_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Sort_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator(builtin);

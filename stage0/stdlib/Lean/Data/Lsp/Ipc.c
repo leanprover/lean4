@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Ipc
-// Imports: public import Lean.Data.Lsp.Communication public import Lean.Data.Lsp.Diagnostics public import Lean.Data.Lsp.Extra import Init.Data.List.Sort.Basic public import Lean.Data.Lsp.LanguageFeatures import Init.While
+// Imports: public import Lean.Data.Lsp.Communication public import Lean.Data.Lsp.Diagnostics public import Lean.Data.Lsp.Extra import Init.Data.List.Sort.Impl public import Lean.Data.Lsp.LanguageFeatures import Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -79,7 +79,7 @@ lean_object* l_Lean_Json_opt___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_DiagnosticWith_fullRange___redArg(lean_object*);
 uint8_t l_Lean_Lsp_instOrdRange_ord(lean_object*, lean_object*);
 lean_object* l_Lean_IO_FS_Stream_writeLspNotification___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mergeSort___redArg(lean_object*, lean_object*);
+lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Json_Structured_toJson(lean_object*);
@@ -2799,7 +2799,7 @@ v_resetjp_643_:
 lean_object* v___f_646_; lean_object* v___x_647_; lean_object* v_sorted_648_; lean_object* v___x_649_; lean_object* v___x_651_; 
 v___f_646_ = ((lean_object*)(l_Lean_Lsp_Ipc_normalizePublishDiagnosticsParams___closed__0));
 v___x_647_ = lean_array_to_list(v_diagnostics_642_);
-v_sorted_648_ = l_List_mergeSort___redArg(v___x_647_, v___f_646_);
+v_sorted_648_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v___x_647_, v___f_646_);
 v___x_649_ = lean_array_mk(v_sorted_648_);
 if (v_isShared_645_ == 0)
 {
@@ -16035,7 +16035,7 @@ return v_res_4128_;
 lean_object* runtime_initialize_Lean_Data_Lsp_Communication(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_Diagnostics(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_LanguageFeatures(uint8_t builtin);
 lean_object* runtime_initialize_Init_While(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -16054,7 +16054,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Lsp_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Sort_Basic(builtin);
+res = runtime_initialize_Init_Data_List_Sort_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Lsp_LanguageFeatures(builtin);
@@ -16075,7 +16075,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Data_Lsp_Communication(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_Diagnostics(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
-lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_LanguageFeatures(uint8_t builtin);
 lean_object* initialize_Init_While(uint8_t builtin);
 static bool _G_initialized = false;
@@ -16092,7 +16092,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Sort_Basic(builtin);
+res = initialize_Init_Data_List_Sort_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_LanguageFeatures(builtin);

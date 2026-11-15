@@ -1672,7 +1672,7 @@ _start:
 lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; lean_object* v___x_436_; lean_object* v___x_437_; lean_object* v___x_438_; 
 v___x_433_ = ((lean_object*)(l_Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfHeadPred___at___00Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__2___closed__2));
 v___x_434_ = lean_unsigned_to_nat(22u);
-v___x_435_ = lean_unsigned_to_nat(427u);
+v___x_435_ = lean_unsigned_to_nat(429u);
 v___x_436_ = ((lean_object*)(l_Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfHeadPred___at___00Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__2___closed__1));
 v___x_437_ = ((lean_object*)(l_Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfHeadPred___at___00Lean_Elab_ComputedFields_getComputedFieldValue_spec__0_spec__0_spec__2___closed__0));
 v___x_438_ = l_mkPanicMessageWithDecl(v___x_437_, v___x_436_, v___x_435_, v___x_434_, v___x_433_);
@@ -1807,8 +1807,8 @@ goto v___jp_473_;
 else
 {
 lean_object* v___x_489_; 
-lean_dec_ref_known(v_a_450_, 5);
 lean_dec_ref(v_value_454_);
+lean_dec_ref_known(v_a_450_, 5);
 lean_dec_ref(v_ctorTerm_439_);
 if (v_isShared_453_ == 0)
 {
@@ -2390,8 +2390,8 @@ goto v___jp_586_;
 else
 {
 lean_object* v___x_602_; 
-lean_dec_ref(v_value_567_);
 lean_dec_ref_known(v_a_563_, 5);
+lean_dec_ref(v_value_567_);
 lean_dec_ref(v_ctorTerm_552_);
 if (v_isShared_566_ == 0)
 {

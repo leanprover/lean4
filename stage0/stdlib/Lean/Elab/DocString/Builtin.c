@@ -72244,8 +72244,8 @@ goto v___jp_24549_;
 else
 {
 lean_object* v_a_24613_; lean_object* v___x_24615_; uint8_t v_isShared_24616_; uint8_t v_isSharedCheck_24620_; 
-lean_dec_ref_known(v_snd_24592_, 1);
 lean_dec(v_a_24608_);
+lean_dec_ref_known(v_snd_24592_, 1);
 lean_dec(v_a_24604_);
 lean_dec(v_fst_24591_);
 lean_dec(v_fst_24590_);

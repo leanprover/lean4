@@ -7078,8 +7078,8 @@ return v___x_2158_;
 else
 {
 lean_object* v___x_2162_; lean_object* v___x_2163_; 
-lean_dec(v_proof_x3f_2130_);
 lean_dec_ref_known(v_target_x3f_2129_, 1);
+lean_dec(v_proof_x3f_2130_);
 lean_dec(v_a_2128_);
 lean_dec(v_acc_2110_);
 lean_dec_ref(v_lhs_2108_);

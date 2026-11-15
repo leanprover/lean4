@@ -20,7 +20,7 @@ public configuration CacheServiceS3Config (name : String) where
   artifactEndpoint : String := ""
   /-- Base URL for an S3-style service's revisions. -/
   revisionEndpoint : String := ""
-  /-- Whether the service scopes artifacts and revisions under different per-package scopes. -/
+  /-- Whether the service locates artifacts and revisions under different per-package scopes. -/
   hasPackageScopes : Bool := true
   deriving Inhabited
 

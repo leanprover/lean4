@@ -22,3 +22,4 @@ name = "rootFlat"
 kind = "s3"
 artifactEndpoint = "%URL%/ok/a2"
 revisionEndpoint = "%URL%/ok/r2"
+hasPackageScopes = false

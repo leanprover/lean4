@@ -569,7 +569,6 @@ end CacheToolchain
 /-! ## Cache Service Kind -/
 
 public inductive CacheServiceKind
-| undef
 | reservoir
 | s3
 deriving Inhabited, DecidableEq
@@ -588,7 +587,6 @@ public protected def toString (self : CacheServiceKind) : String :=
   match self with
   | .reservoir => "reservoir"
   | .s3 => "s3"
-  | .undef => "<undef>"
 
 public instance : ToString CacheServiceKind := ⟨CacheServiceKind.toString⟩
 
@@ -637,6 +635,7 @@ structure CacheServiceImpl where
   key : String := ""
   artifactEndpoint : String := ""
   revisionEndpoint : String := ""
+  hasPackageScopes : Bool := true
   /- Reservoir -/
   isReservoir : Bool := false
   apiEndpoint : String := ""
@@ -664,10 +663,6 @@ namespace CacheService
 /-- Returns what kind of cache service this is. -/
 @[inline] public def kind (service : CacheService) : CacheServiceKind :=
   if service.impl.isReservoir then .reservoir else .s3
-
-public theorem kind_ne_undef : kind s ≠ .undef := by
-  simp only [kind]
-  split <;> simp_all
 
 /-- Returns whether this is a Reservoir cache service configuration. -/
 @[inline] public def isReservoir (service : CacheService) : Bool :=
@@ -700,6 +695,10 @@ set_option linter.unusedVariables.funArgs false in
 @[inline] public def revisionEndpoint (service : CacheService) (h : service.isS3) : String :=
   service.impl.revisionEndpoint
 
+/-- Returns whether the service scopes artifacts and revisions under different per-package scopes. -/
+@[inline] public def hasPackageScopes (service : CacheService) : Bool :=
+  service.impl.hasPackageScopes
+
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
@@ -709,18 +708,19 @@ set_option linter.unusedVariables.funArgs false in
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
 @[inline] public def uploadService
-  (key artifactEndpoint revisionEndpoint : String)
-: CacheService := .mk {key, artifactEndpoint, revisionEndpoint}
+  (key artifactEndpoint revisionEndpoint : String) (hasPackageScopes : Bool := true)
+: CacheService := .mk {key, artifactEndpoint, revisionEndpoint, hasPackageScopes}
 
 /-- Constructs a `CacheService` to download artifacts and/or outputs from an S3 endpoint. -/
 @[inline] public def downloadService
-  (artifactEndpoint revisionEndpoint : String) (name? : Option CacheServiceName := none)
-: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint}
+  (artifactEndpoint revisionEndpoint : String)
+  (name? : Option CacheServiceName := none) (hasPackageScopes : Bool := true)
+: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint, hasPackageScopes}
 
 /-- Constructs a `CacheService` to download just artifacts from an S3 endpoint. -/
 @[inline] public def downloadArtsService
-  (artifactEndpoint : String) (name? : Option CacheServiceName := none)
-: CacheService := .mk {name?, artifactEndpoint}
+  (artifactEndpoint : String) (name? : Option CacheServiceName := none) (hasPackageScopes : Bool := true)
+: CacheService := .mk {name?, artifactEndpoint, hasPackageScopes}
 
 /-- Reconfigures the cache service to use the provided key (for uploads).-/
 @[inline] public def withKey (service : CacheService) (key : String) : CacheService :=

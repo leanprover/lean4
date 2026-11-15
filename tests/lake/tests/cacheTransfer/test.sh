@@ -64,12 +64,13 @@ echo "URL=$URL"
 # Point the configured cache services at the mock server.
 # Copied after the commit above so that it does not dirty the work tree.
 cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" \
-  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml" .
+  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml" \
+  "$TEST_DIR/scoped-override.toml" .
 mkdir -p service-dep
 cp "$TEST_DIR/service-dep.toml" service-dep/lakefile.toml
 cp "$TEST_DIR/dep/Dep.lean" service-dep/
 sed_i "s|%URL%|$URL|g" services.toml reservoir-upload.toml \
-  pkg-services.toml service-dep/lakefile.toml
+  pkg-services.toml service-dep/lakefile.toml scoped-override.toml
 
 # The option validation below expects no configured service, as in a default
 # installation; the transfer tests switch to the mock services
@@ -145,12 +146,16 @@ test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogu
 test_err 'unknown package `bogus`' cache get --package='bogus'
 test_err 'the `--rev` option is not supported for a multi-package `cache get`' \
   cache get --rev=bogus
-with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
+with_endpoints test_err 'multi-package `cache get` requires a Reservoir-style service' cache get
+LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service does not support `--scope` or `--repo`' \
+  cache get --scope='bogus' --service='flatRoot'
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 
 # Verify `cache put` rejects bad configurations
-with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
+with_endpoints test_err 'service requires `--scope` or `--repo` to be set' cache put bogus.jsonl
+LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service does not support `--scope` or `--repo`' \
+  cache put bogus.jsonl --scope='bogus' --service='flatRoot'
 test_err 'the `--rev` option is not supported for `cache put`' \
   cache put bogus.jsonl --scope='bogus' --rev=bogus
 test_err 'unknown package `bogus`' \
@@ -167,7 +172,7 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be
 # Verify `cache put-staged` rejects bad configurations
 test_err 'the `--rev` option must be set' \
   cache put-staged bogus --scope='bogus'
-test_err 'the `--scope` or `--repo` option must be set' \
+with_endpoints test_err 'service requires `--scope` or `--repo` to be set' \
   cache put-staged bogus --rev='bogus'
 test_err 'the `--package` option does nothing for `cache put-staged`' \
   cache put-staged bogus --scope='bogus' --rev='bogus' --package='bogus'
@@ -467,11 +472,11 @@ test_artifacts "$NUM_ARTS"
 # Verify a round trip through the `downloadCacheService` of the root and a dependency:
 # outputs uploaded without a scope are found by a `cache get` without options
 test_run -f pkg-services.toml build Test -o flat-root-outputs.jsonl
-test_run -f pkg-services.toml cache put flat-root-outputs.jsonl --scope= --service=flatRoot
+test_run -f pkg-services.toml cache put flat-root-outputs.jsonl --service=flatRoot
 test_run -f pkg-services.toml build @service-dep/Dep -o flat-dep-outputs.jsonl \
   --package=service-dep
 test_run -f pkg-services.toml cache put flat-dep-outputs.jsonl \
-  --package=service-dep --scope= --service=flatDep
+  --package=service-dep --service=flatDep
 # An unscoped upload stores artifacts at the endpoint root
 # and outputs under just the platform
 test_artifacts "$NUM_ARTS" "$STORE_DIR/a2"
@@ -511,6 +516,17 @@ test_artifacts "$NUM_DEP_REPLAY_ARTS"
 : > "$SERVER_LOG"
 test_not_out 'optArtifactCache' -f pkg-services.toml -v build @service-dep/Dep --no-build
 no_match_text "GET" "$SERVER_LOG"
+# Verify a `downloadCacheService` overridden by a service with package scopes
+# is skipped with a warning by a multi-package `cache get`
+# and is an error when the package is selected with `--package`
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_out \
+  'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
+  -f pkg-services.toml cache get
+test_artifacts "$NUM_ARTS"
+LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_err \
+  'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
+  -f pkg-services.toml cache get --package=service-dep
 test_run update
 
 # Verify `-o` with `--package` tracks the outputs of the selected dependency

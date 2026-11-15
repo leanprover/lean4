@@ -6,72 +6,72 @@ defaultUploadService = "ok"
 
 [[cache.service]]
 name = "ok"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/ok/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "deny"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/deny/a0"
 revisionEndpoint = "%URL%/deny/r0"
 
 [[cache.service]]
 name = "denyArtifacts"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/deny/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "denyRevisions"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/ok/a0"
 revisionEndpoint = "%URL%/deny/r0"
 
 [[cache.service]]
 name = "corrupt"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/corrupt/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "truncate"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/truncate/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "reset"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/reset/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "empty"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/empty/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "flaky"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/flaky/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "flakyCorrupt"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/flakycorrupt/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
 name = "badCount"
-type = "reservoir"
+kind = "reservoir"
 apiEndpoint = "%URL%/badcount/api/v1"
 
 [[cache.service]]
 name = "apiError"
-type = "reservoir"
+kind = "reservoir"
 apiEndpoint = "%URL%/apierror/api/v1"
 
 # Uploads to the unscoped services `service-dep.toml` and `pkg-services.toml`
@@ -79,12 +79,14 @@ apiEndpoint = "%URL%/apierror/api/v1"
 
 [[cache.service]]
 name = "flatDep"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/ok/a1"
 revisionEndpoint = "%URL%/ok/r1"
+hasPackageScopes = false
 
 [[cache.service]]
 name = "flatRoot"
-type = "s3"
+kind = "s3"
 artifactEndpoint = "%URL%/ok/a2"
 revisionEndpoint = "%URL%/ok/r2"
+hasPackageScopes = false

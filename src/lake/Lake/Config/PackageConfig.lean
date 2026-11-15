@@ -115,6 +115,8 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   package. When this package is a dependency, Lake will automatically try to fetch output mappings
   from this service before building the package's targets. If successful, artifacts will then be
   downloaded from the service on demand during the build.
+
+  **Note:** The specified service must be configured with `hasPackageScopes = false`.
   -/
   downloadCacheService?, downloadCacheService : Option String := none
 

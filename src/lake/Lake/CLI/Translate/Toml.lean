@@ -178,8 +178,7 @@ public protected def CacheService.toToml
     |>.insert `kind "s3"
     |>.insert `artifactEndpoint (service.artifactEndpoint (service.kind_eq_iff_isS3.mp h))
     |>.insert `revisionEndpoint (service.revisionEndpoint (service.kind_eq_iff_isS3.mp h))
-  | .undef =>
-    service.kind_ne_undef.elim h
+    |>.insert `hasPackageScopes service.hasPackageScopes
 
 /-! ## Package & Target Configuration Encoders -/
 
@@ -206,8 +205,6 @@ meta def genToToml
 
 local macro "gen_toml_encoders%" : command => do
   let cmds := #[]
-  -- Services
-  let cmds ← genToToml cmds ``CacheServiceConfig
   -- Targets
   let cmds ← genToToml cmds ``LeanConfig
   let cmds ← genToToml cmds ``LeanLibConfig

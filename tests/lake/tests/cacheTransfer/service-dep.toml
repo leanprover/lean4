@@ -21,3 +21,4 @@ name = "depFlat"
 kind = "s3"
 artifactEndpoint = "%URL%/ok/a1"
 revisionEndpoint = "%URL%/ok/r1"
+hasPackageScopes = false

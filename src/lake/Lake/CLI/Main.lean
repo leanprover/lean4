@@ -330,9 +330,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with service? := some service})
 | "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
-  -- TODO: determine empty scope from the service
-  let scope := if scope.isEmpty then .none else .ofString scope
-  modifyThe LakeOptions ({· with scope? := some scope})
+  modifyThe LakeOptions ({· with scope? := some (.ofString scope)})
 | "--repo" => do
   let repo ← takeOptArg "--repo" "GitHub repository"
   if let some e := validateRepo? repo then error e
@@ -550,6 +548,37 @@ def serviceNotFound (ws : Workspace) (service : String) : String :=
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
+def validateScope (service : CacheService) (scope? : Option CacheServiceScope) : LoggerIO CacheServiceScope := do
+  let scope := scope?.getD .none
+  if service.hasPackageScopes then
+    if scope.isNone then
+      error "service requires `--scope` or `--repo` to be set"
+  else
+    unless scope.isNone do
+      error "service does not support `--scope` or `--repo`"
+  return scope
+
+def validatePkgScope (pkg : Package) (service : CacheService) (scope? : Option CacheServiceScope) : LoggerIO CacheServiceScope := do
+  if service.isReservoir then
+    if let some scope := scope? then
+      unless scope.isRepo do
+        -- `--scope` with Reservoir would imply downloading artifacts for a different package.
+        -- This is likely user error (they meant `--repo`) rather than something actually useful.
+        error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
+          if you instead want to download artifacts for a fork of the package, use `--repo`"
+      return scope
+    else
+      pkg.reservoirScope?.getDM do
+        error s!"{pkg.prettyName}: not a Reservoir dependency"
+  else
+    validateScope service scope?
+
+def pkgServiceRequiresScope (pkg : Package) (service : CacheServiceName) : String :=
+  s!"{pkg.prettyName}: \
+  package's configured download service `{service}` requires a scope; \
+  only unscoped services are supported for `downloadCacheService`; \
+  ensure the service is configured with `hasPackageScopes = false`"
+
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -574,9 +603,8 @@ protected def get : CliM PUnit := do
       logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
       if opts.failLv ≤ .warning then
         failure
-    let some remoteScope := opts.scope?
-      | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
     let service ← computeDownloadArtsService ws opts
+    let remoteScope ← validateScope service opts.scope?
     let map ← CacheMap.load file
     let localScope := pkg?.elim ws.root.cacheScope (·.cacheScope)
     cache.writeMap localScope map service.name? (some remoteScope) overwrite
@@ -586,38 +614,43 @@ protected def get : CliM PUnit := do
     let platform := opts.platform?.getD .system
     let toolchain := opts.toolchain?.getD ws.cacheToolchain
     let service? ← computeDownloadService? ws opts
-    if let some remoteScope := opts.scope? then
-      let service := service?.getD ws.defaultCacheService
-      if !remoteScope.isRepo && service.isReservoir then
-        -- `--scope` with Reservoir would imply downloading artifacts for a different package.
-        -- This is likely user error (they meant `--repo`) rather than something actually useful.
-        error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
-          if you instead want to download artifacts for a fork of the package, use `--repo`"
+    if opts.scope?.isSome || pkg?.isSome then
+      -- single-package `cache get`
+      let service ← service?.getDM do
+        if opts.scope?.isSome then
+          return ws.defaultCacheService
+        else if let some pkg := pkg? then
+          if let some serviceName := pkg.downloadCacheService? then
+            let service ← ws.findCacheService serviceName.toString
+            if service.hasPackageScopes && !service.isReservoir then
+              error (pkgServiceRequiresScope pkg serviceName)
+            else
+              return service
+        return ws.defaultCacheService
       let pkg := pkg?.getD ws.root
+      let remoteScope ← validatePkgScope pkg service opts.scope?
       fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
-    else if service?.getD ws.defaultCacheService |>.isReservoir then
-      if let some pkg := pkg? then
-        let service ← service?.getDM do
-          if let some service := pkg.downloadCacheService? then
-            ws.findCacheService service.toString
-          else return ws.defaultCacheService
-        if service.isReservoir then
-          let some remoteScope := pkg.reservoirScope?
-            | error s!"{pkg.prettyName}: not a Reservoir dependency"
-          fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
-        else
-          fetchOutputs cache service pkg .none opts platform toolchain overwrite
-      else if opts.rev?.isSome then
+    else
+      -- multi-package `cache get`
+      if opts.rev?.isSome then
         error "the `--rev` option is not supported for a multi-package `cache get`"
-      else
+      else if service?.getD ws.defaultCacheService |>.isReservoir then
         -- TODO: Parallelize?
         let ok ← ws.packages.foldlM (start := 0) (init := true) (m := LoggerIO) fun ok pkg => do
           let service ←
             if let some service := service? then
               pure service
-            else if let some service := pkg.downloadCacheService? then
+            else if let some serviceName := pkg.downloadCacheService? then
               try
-                ws.findCacheService service.toString
+                let service ← ws.findCacheService serviceName.toString
+                if service.hasPackageScopes && !service.isReservoir then
+                  logWarning (pkgServiceRequiresScope pkg serviceName)
+                  if opts.failLv ≤ .warning then
+                    return false
+                  else
+                    return ok
+                else
+                  pure service
               catch _ =>
                 return false
             else
@@ -640,8 +673,8 @@ protected def get : CliM PUnit := do
               return false
         unless ok do
           error "failed to download artifacts for some dependencies"
-    else
-      error "to use `cache get` with a custom endpoint, the `--scope` or `--repo` option must be set"
+      else
+        error "multi-package `cache get` requires a Reservoir-style service"
 where
   computeDownloadService? ws opts := do
     if let some service := opts.service? then
@@ -775,8 +808,6 @@ protected def put : CliM PUnit := do
   processOptions lakeOption
   let file ← takeArg "mappings"
   let opts ← getThe LakeOptions
-  let some scope := opts.scope?
-    | error "the `--scope` or `--repo` option must be set"
   if opts.rev?.isSome then
     error "the `--rev` option is not supported for `cache put`; \
       to upload artifacts for different revisions, use the staging workflow, \
@@ -790,6 +821,7 @@ protected def put : CliM PUnit := do
   let platform := Internal.cachePlatform pkg (opts.platform?.getD .system)
   let toolchain := Internal.cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.cacheToolchain)
   let service ← computeUploadService opts.service? ws.lakeEnv ws.lakeConfig
+  let scope ← validateScope service opts.scope?
   let rev ← computePackageRev pkg.dir
   putCore rev file ws.lakeCache.artifactDir service scope platform toolchain
 
@@ -907,8 +939,6 @@ protected def putStaged : CliM PUnit := do
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
   let some rev := opts.rev?
     | error "the `--rev` option must be set"
-  let some scope := opts.scope?
-    | error "the `--scope` or `--repo` option must be set"
   if opts.package?.isSome then
     error "the `--package` option does nothing for `cache put-staged`"
   noArgsRem do
@@ -917,6 +947,7 @@ protected def putStaged : CliM PUnit := do
   let platform := opts.platform?.getD .none
   let toolchain := opts.toolchain?.getD .none
   let service ← computeUploadService opts.service? cfg.lakeEnv lakeCfg
+  let scope ← validateScope service opts.scope?
   let outputsFile := stagingDir / stagingOutputsFile
   putCore rev outputsFile stagingDir service scope platform toolchain
 

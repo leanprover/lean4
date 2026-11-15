@@ -172,6 +172,7 @@ public def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
 def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
+  withRegisterJob s!"{self.pkg.baseName}/{self.name}:extraDep" do
   let mut job := Job.nil s!"{self.pkg.baseName}/{self.name}:extraDep"
   job := job.mix (← self.pkg.extraDep.fetch)
   for target in self.extraDepTargets do

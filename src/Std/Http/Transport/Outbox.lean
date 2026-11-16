@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Http.Transport
 public import Std.Http.Internal.ChunkedBuffer
+import Init.Data.List.Impl
 
 public section
 

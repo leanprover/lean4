@@ -10,6 +10,7 @@ public import Std.Internal.Parsec
 public import Std.Http.Data
 public import Std.Internal.Parsec.ByteArray
 public import Std.Http.Protocol.H1.Config
+public import Std.Http.Protocol.H1.LineScan
 import Init.Data.String.Lossy
 
 /-!
@@ -140,8 +141,8 @@ Used for chunk-size lines in chunked transfer encoding.
 -/
 def hex : Parser Nat := do
   let zeros ← takeWhile (· == '0'.toUInt8)
-  let digits ← takeWhileUpTo isHexDigitByte 17
-  if digits.size > 16 then
+  let digits ← takeWhileUpTo isHexDigitByte (maxChunkSizeDigits + 1)
+  if digits.size > maxChunkSizeDigits then
     fail "chunk size too large"
   if zeros.size == 0 && digits.size == 0 then
     fail "expected hex digit"
@@ -188,7 +189,7 @@ and RFC 9112 §3 answer such a method with 501. A token followed by any other by
 `"invalid method"`.
 -/
 def parseMethod : Parser (Option Method) := do
-  let token ← parseToken 64
+  let token ← parseToken maxMethodLength
   match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
   | some (_, method) => return some method
   | none =>

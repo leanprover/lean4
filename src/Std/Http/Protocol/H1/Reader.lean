@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Http.Protocol.H1.Basic
+public import Std.Http.Protocol.H1.LineScan
 
 public section
 
@@ -145,9 +146,14 @@ structure Reader (dir : Direction) where
 
   /--
   How many unread bytes the last parse attempt ran out of without completing an item. The item is not
-  parsed again until more bytes arrive.
+  parsed again while `scan` shows that the bytes after them continue it (`LineScan.extend`).
   -/
   tried : Nat := 0
+
+  /--
+  Which bytes may follow the `tried` bytes without the item having to be parsed again.
+  -/
+  scan : LineScan := .opaque
 
 namespace Reader
 
@@ -187,7 +193,7 @@ Replaces the unread input after an item was consumed.
 -/
 @[inline]
 def setInput (input : ByteArray.Iterator) (reader : Reader dir) : Reader dir :=
-  { reader with input, tried := 0 }
+  { reader with input, tried := 0, scan := .opaque }
 
 /--
 Adds a header field to the head being read.

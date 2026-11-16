@@ -37,16 +37,16 @@ frame. -/
 @[instance_reducible] noncomputable def MonadicWP.withFrameClosure {m : Type v → Type w} [Monad m]
     {P : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE]
-    (base : MonadicWP m P E) : MonadicWP m P E where
-  toWP α := WP.withFrameClosure op (base.toWP α)
+    (base : MonadicWP m P E) : MonadicWP m P E :=
+  fun α => WP.withFrameClosure op (base α)
 
 theorem MonadicWP.isMonotone_withFrameClosure {m : Type v → Type w} [Monad m]
     {P : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE]
-    (base : MonadicWP m P E) (hmono : ∀ α, @WP.IsMonotone (m α) α P E (base.toWP α) _ _)
+    (base : MonadicWP m P E) (hmono : ∀ α, @WP.IsMonotone (m α) α P E (base α) _ _)
     (α : Type v) :
-    @WP.IsMonotone (m α) α P E ((MonadicWP.withFrameClosure op base).toWP α) _ _ :=
-  WP.isMonotone_withFrameClosure op (base.toWP α) (hmono α)
+    @WP.IsMonotone (m α) α P E (MonadicWP.withFrameClosure op base α) _ _ :=
+  WP.isMonotone_withFrameClosure op (base α) (hmono α)
 
 theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [Monad m]
     {P : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
@@ -54,19 +54,19 @@ theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [M
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E', opE (comp r r') E' = opE r (opE r' E'))
     (hunit : ∀ a, op e a = a) (hunitE : ∀ E', opE e E' = E')
-    (base : MonadicWP m P E) (hmono : ∀ α, @WP.IsMonotone (m α) α P E (base.toWP α) _ _)
+    (base : MonadicWP m P E) (hmono : ∀ α, @WP.IsMonotone (m α) α P E (base α) _ _)
     (hlax : @MonadicWP.IsLaxMonadMorphism m P E _ base _ _) :
     @MonadicWP.IsLaxMonadMorphism m P E _ (MonadicWP.withFrameClosure op base) _ _ := by
   refine @MonadicWP.IsLaxMonadMorphism.mk m P E _ (MonadicWP.withFrameClosure op base) _ _
     (fun x post E' => ?_) (fun x f post E' => ?_)
   · letI := base
-    show post x ⊑ (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
+    show post x ⊑ (((base _).trans (pure x)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     exact MonadicWP.pure_le_wp_pure (m := m) x (fun a => op r (post a)) (opE r E')
   · letI := base
-    show (((base.toWP _).trans x).frameClosure op).apply
-          (fun a => (((base.toWP _).trans (f a)).frameClosure op).apply post E') E'
-        ⊑ (((base.toWP _).trans (x >>= f)).frameClosure op).apply post E'
+    show (((base _).trans x).frameClosure op).apply
+          (fun a => (((base _).trans (f a)).frameClosure op).apply post E') E'
+        ⊑ (((base _).trans (x >>= f)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_

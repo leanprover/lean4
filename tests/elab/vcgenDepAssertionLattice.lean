@@ -61,9 +61,6 @@ theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
           | none => True
           | some r => post r (x st).2 h' := rfl
 
-instance : MonadicWP Stateful StateProp EStack⟨⟩ where
-  toWP _ := Stateful.instWP
-
 instance : MonadicWP.IsLaxMonadMorphism Stateful where
   pure_le x := by
     intro post eposts

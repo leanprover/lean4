@@ -16,7 +16,7 @@ set_option linter.missingDocs true
 open Lean.Order Std.WP
 
 /-!
-# MonadicWP Instances
+# Monadic WP Instances
 
 The weakest precondition interpretation of the base monads and of the monad transformers.
 
@@ -28,14 +28,16 @@ Every interpretation here is a monad morphism (`MonadicWP.IsMonadMorphism`) and 
 
 ## Pre-defined instances
 
-* `MonadicWP Id Prop EStack⟨⟩` — pure computations.
-* `MonadicWP (StateT σ m) (σ → Pred) EPosts` — stateful computations.
-* `MonadicWP (ExceptT ε m) Pred ((ε → Pred) × EPosts)` — computations with exceptions.
-* `MonadicWP (OptionT m) Pred ((Unit → Pred) × EPosts)` — computations with early termination.
-* `MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts` — reader computations.
-* `MonadicWP Option Prop (Unit → Prop)` — concrete early termination.
-* `MonadicWP (Except ε) Prop (ε → Prop)` — concrete exception type.
-* `MonadicWP (EStateM ε σ) (σ → Prop) (ε → σ → Prop)` — concrete error-state monad.
+* `WP (Id α) α Prop EStack⟨⟩` — pure computations.
+* `WP (StateT σ m α) α (σ → Pred) EPosts` — stateful computations.
+* `WP (ExceptT ε m α) α Pred ((ε → Pred) × EPosts)` — computations with exceptions.
+* `WP (OptionT m α) α Pred ((Unit → Pred) × EPosts)` — computations with early termination.
+* `WP (ReaderT ρ m α) α (ρ → Pred) EPosts` — reader computations.
+* `WP (Option α) α Prop (Unit → Prop)` — concrete early termination.
+* `WP (Except ε α) α Prop (ε → Prop)` — concrete exception type.
+* `WP (EStateM ε σ α) α (σ → Prop) (ε → σ → Prop)` — concrete error-state monad.
+
+Each family of instances is a `MonadicWP` interpretation of its monad.
 -/
 
 namespace Std.WP
@@ -47,10 +49,6 @@ instance Id.wpInst {α : Type u} : WP (Id α) α Prop EStack⟨⟩ where
   trans x := ⟨fun post _epost => post x⟩
 
 instance {α : Type u} : WP.IsMonotone (Id α) := fun x => ⟨fun _ _ _ _ _ hpost => hpost x⟩
-
-/-- `Id` interprets its programs with `Prop` assertions and no exceptions. -/
-instance Id.instWPMonad : MonadicWP Id.{u} Prop EStack⟨⟩ where
-  toWP _ := inferInstance
 
 instance : MonadicWP.IsMonadMorphism Id.{u} where
   trans_pure _ := rfl
@@ -66,16 +64,6 @@ instance {Pred : Type v} [WP (m (Except ε α)) (Except ε α) Pred EPosts]
     [PartialOrder Pred] [PartialOrder EPosts] [WP.IsMonotone (m (Except ε α))] :
     WP.IsMonotone (ExceptT ε m α) :=
   fun x => inferInstanceAs (PredTrans.pushExceptT (WP.trans x.run)).IsMonotone
-
-/-- `ExceptT` lifts a `MonadicWP` instance by adding an exception postcondition layer. -/
-instance ExceptT.instWPMonad {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] :
-    MonadicWP (ExceptT ε m) Pred ((ε → Pred) × EPosts) where
-  toWP _ := inferInstance
-
-/-- Monotonicity of `ExceptT` programs, stated at the interpretation that `MonadicWP` supplies. -/
-instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
-    [PartialOrder EPosts] [MonadicWP.IsMonotone m] : MonadicWP.IsMonotone (ExceptT ε m) :=
-  fun _ x => inferInstanceAs (PredTrans.pushExceptT (WP.trans x.run)).IsMonotone
 
 @[simp, grind =]
 theorem ExceptT.wp_apply_eq {α ε Pred EPosts} [Monad m] [MonadicWP m Pred EPosts]
@@ -121,16 +109,6 @@ instance {Pred : Type u} [WP (m (Option α)) (Option α) Pred EPosts]
     [PartialOrder Pred] [PartialOrder EPosts] [WP.IsMonotone (m (Option α))] :
     WP.IsMonotone (OptionT m α) :=
   fun x => inferInstanceAs (PredTrans.pushOptionT (WP.trans x.run)).IsMonotone
-
-/-- `OptionT` lifts a `MonadicWP` instance by adding a `Unit` exception postcondition layer. -/
-instance OptionT.instWPMonad {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] :
-    MonadicWP (OptionT m) Pred ((Unit → Pred) × EPosts) where
-  toWP _ := inferInstance
-
-/-- Monotonicity of `OptionT` programs, stated at the interpretation that `MonadicWP` supplies. -/
-instance {Pred : Type u} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
-    [PartialOrder EPosts] [MonadicWP.IsMonotone m] : MonadicWP.IsMonotone (OptionT m) :=
-  fun _ x => inferInstanceAs (PredTrans.pushOptionT (WP.trans x.run)).IsMonotone
 
 @[simp, grind =]
 theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPosts}
@@ -178,18 +156,6 @@ instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [WP (m (α × σ)) (α 
     WP.IsMonotone (StateT σ m α) :=
   fun x => inferInstanceAs (PredTrans.pushArg (WP.trans <| x.run ·)).IsMonotone
 
-/-- `StateT` lifts a `MonadicWP` instance by adding a state argument. -/
-instance (priority := low) StateT.instWPMonad {EPosts : Type v} {σ : Type u} {Pred : Type w}
-    [Monad m] [MonadicWP m Pred EPosts] :
-    MonadicWP (StateT σ m) (σ → Pred) EPosts where
-  toWP _ := inferInstance
-
-/-- Monotonicity of `StateT` programs, stated at the interpretation that `MonadicWP` supplies. -/
-instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [MonadicWP m Pred EPosts]
-    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP.IsMonotone m] :
-    MonadicWP.IsMonotone (StateT σ m) :=
-  fun _ x => inferInstanceAs (PredTrans.pushArg (WP.trans <| x.run ·)).IsMonotone
-
 @[simp, grind =]
 theorem StateT.wp_apply_eq {σ : Type u} [Monad m] [MonadicWP m Pred EPosts] (x : StateT σ m α)
     (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
@@ -222,17 +188,6 @@ instance {Pred : Type v} [WP (m α) α Pred EPosts] [PartialOrder Pred] [Partial
   fun x => ⟨fun _ _ _ _ heposts hpost r =>
     WP.wp_monotone (x := x.run r) (fun a => hpost a r) heposts⟩
 
-/-- `ReaderT` lifts a `MonadicWP` instance by adding a reader argument. -/
-instance ReaderT.instWPMonad {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] :
-    MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts where
-  toWP _ := inferInstance
-
-/-- Monotonicity of `ReaderT` programs, stated at the interpretation that `MonadicWP` supplies. -/
-instance {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [PartialOrder Pred]
-    [PartialOrder EPosts] [MonadicWP.IsMonotone m] : MonadicWP.IsMonotone (ReaderT ρ m) :=
-  fun _ x => ⟨fun _ _ _ _ heposts hpost r =>
-    WP.wp_monotone (x := x.run r) (fun a => hpost a r) heposts⟩
-
 @[simp, grind =]
 theorem ReaderT.wp_apply_eq {ρ : Type u} [Monad m] [MonadicWP m Pred EPosts] (x : ReaderT ρ m α)
     (post : α → ρ → Pred) (eposts : EPosts) (r : ρ) :
@@ -256,7 +211,7 @@ instance (priority := low) {Pred : Type v} [Monad m] [MonadicWP m Pred EPosts] [
 /-!
 ## Type Alias Instances
 
-`MonadicWP` instances for concrete monads that are type aliases for transformer stacks.
+`WP` instances for concrete monads that are type aliases for transformer stacks.
 -/
 
 /-- `Option`'s `WP` interpretation: `Prop` assertions and a `Unit`-indexed exception
@@ -269,11 +224,6 @@ instance {α : Type u} : WP.IsMonotone (Option α) := fun x =>
     cases x with
     | none => exact heposts ()
     | some a => exact hpost a⟩
-
-/-- `Option` interprets its programs with `Prop` assertions and a `Unit`-indexed exception
-postcondition. -/
-instance Option.instWPMonad : MonadicWP Option.{u} Prop (Unit → Prop) where
-  toWP _ := inferInstance
 
 instance : MonadicWP.IsMonadMorphism Option.{u} where
   trans_pure _ := rfl
@@ -289,11 +239,6 @@ instance {α : Type u} : WP.IsMonotone (Except ε α) := fun x =>
     cases x with
     | ok a => exact hpost a
     | error el => exact heposts el⟩
-
-/-- `Except ε` interprets its programs with `Prop` assertions and an `ε`-indexed exception
-postcondition. -/
-instance Except.instWPMonad : MonadicWP (Except ε) Prop (ε → Prop) where
-  toWP _ := inferInstance
 
 instance : MonadicWP.IsMonadMorphism (Except ε) where
   trans_pure _ := rfl
@@ -312,10 +257,6 @@ instance {α : Type} : WP.IsMonotone (EStateM ε σ α) := fun x =>
     cases x s with
     | ok a s' => exact hpost a s'
     | error el s' => exact heposts el s'⟩
-
-/-- `EStateM ε σ` interprets its programs combining state and exceptions. -/
-instance EStateM.instWPMonad : MonadicWP (EStateM ε σ) (σ → Prop) (ε → σ → Prop) where
-  toWP _ := inferInstance
 
 instance : MonadicWP.IsMonadMorphism (EStateM ε σ) where
   trans_pure _ := rfl

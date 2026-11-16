@@ -61,8 +61,7 @@ variable {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred] [PartialOrder EP
   [MonadicWP m Pred EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
 
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.pure (a : α) :
     Triple (Pure.pure (f := m) a) (post a) post eposts :=
@@ -100,8 +99,7 @@ theorem Spec.monadLift_StateT (x : m α) (post : α → σ → Pred) :
   Triple.intro (MonadicWP.le_wp_monadLift_StateT_apply x post)
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.monadLift_ReaderT (x : m α) (post : α → ρ → Pred) :
     Triple (MonadLift.monadLift x : ReaderT ρ m α) (fun r => wp x (fun a => post a r) eposts) post eposts :=
@@ -120,8 +118,7 @@ theorem Spec.monadLift_OptionT (x : m α) (post : α → Pred) (eposts : (Unit �
     Triple (MonadLift.monadLift x : OptionT m α) (wp x post eposts.snd) post eposts :=
   Triple.intro (MonadicWP.le_wp_monadLift_OptionT_apply x)
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.monadLift_Id (x : Id α) :
     Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (post x.run) post eposts :=
@@ -142,8 +139,7 @@ theorem Spec.UnfoldLift.monadLift_refl (x : m α) :
 attribute [refl] PartialOrder.rel_refl
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.monadMap_StateT
     (f : ∀{β}, m β → m β) {α} (x : StateT σ m α) (post : α → σ → Pred) :
@@ -152,8 +148,7 @@ theorem Spec.monadMap_StateT
   Triple.intro (by rw [MonadicWP.wp_monadMap_StateT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.monadMap_ReaderT
     (f : ∀{β}, m β → m β) {α} (x : ReaderT ρ m α) (post : α → ρ → Pred) :
@@ -162,8 +157,7 @@ theorem Spec.monadMap_ReaderT
   Triple.intro (by rw [MonadicWP.wp_monadMap_ReaderT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.monadMap_ExceptT
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
@@ -172,8 +166,7 @@ theorem Spec.monadMap_ExceptT
   Triple.intro (by rw [MonadicWP.wp_monadMap_ExceptT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.monadMap_OptionT
     (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
@@ -183,8 +176,7 @@ theorem Spec.monadMap_OptionT
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 @[spec]
 theorem Spec.monadMap_refl (x : m α) :
     Triple (MonadFunctorT.monadMap f x : m α)
@@ -206,8 +198,7 @@ theorem Spec.liftWith_StateT
       (fun ⟨a, s⟩ => post a s) eposts)
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.liftWith_ReaderT
     (f : (∀{β}, ReaderT ρ m β → m β) → m α) (post : α → ρ → Pred) :
@@ -244,8 +235,7 @@ theorem Spec.restoreM_StateT (x : m (α × σ)) (post : α → σ → Pred) :
   Triple.intro (MonadicWP.le_wp_restoreM_StateT_apply x)
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.restoreM_ReaderT (x : m α) (post : α → ρ → Pred) :
     Triple (MonadControl.restoreM (m:=m) x : ReaderT ρ m α)
@@ -253,8 +243,7 @@ theorem Spec.restoreM_ReaderT (x : m α) (post : α → ρ → Pred) :
   Triple.intro (by rw [MonadicWP.wp_restoreM_ReaderT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 @[spec]
 theorem Spec.restoreM_ExceptT (x : m (@Except.{u, u} ε α)) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (MonadControl.restoreM (m:=m) x : ExceptT ε m α)
@@ -262,8 +251,7 @@ theorem Spec.restoreM_ExceptT (x : m (@Except.{u, u} ε α)) (post : α → Pred
   Triple.intro (by rw [MonadicWP.wp_restoreM_ExceptT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 @[spec]
 theorem Spec.restoreM_OptionT (x : m (Option α)) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     Triple (MonadControl.restoreM (m:=m) x : OptionT m α)
@@ -274,8 +262,7 @@ theorem Spec.restoreM_OptionT (x : m (Option α)) (post : α → Pred) (eposts :
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 theorem Spec.liftWith_refl
     (f : (∀{β}, m β → m β) → m α) :
     Triple (MonadControlT.liftWith (m:=m) f : m α)
@@ -284,8 +271,7 @@ theorem Spec.liftWith_refl
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 theorem Spec.restoreM_refl (x : stM m m α) :
     Triple (MonadControlT.restoreM (m:=m) x : m α)
       (wp (Pure.pure x : m α) post eposts) post eposts :=
@@ -294,8 +280,7 @@ theorem Spec.restoreM_refl (x : stM m m α) :
 /-! # `ReaderT` -/
 
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.read_ReaderT (post : ρ → ρ → Pred) :
     Triple (MonadReaderOf.read : ReaderT ρ m ρ)
@@ -303,16 +288,14 @@ theorem Spec.read_ReaderT (post : ρ → ρ → Pred) :
   Triple.intro (by intro r; simpa [MonadReaderOf.read] using
     (MonadicWP.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts)))
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 theorem Spec.withReader_ReaderT (f : ρ → ρ) (x : ReaderT ρ m α) (post : α → ρ → Pred) :
     Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α)
       (fun r => wp x (fun a _ => post a r) eposts (f r)) post eposts :=
   Triple.intro (by rw [MonadicWP.wp_withReader_ReaderT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 theorem Spec.adapt_ReaderT (f : ρ → ρ') (x : ReaderT ρ' m α) (post : α → ρ → Pred) :
     Triple (ReaderT.adapt f x : ReaderT ρ m α)
       (fun r => wp x (fun a _ => post a r) eposts (f r)) post eposts :=
@@ -325,8 +308,7 @@ variable {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred] [PartialOrder EP
   [MonadicWP m Pred EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] {eposts : EPosts}
 
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.get_StateT (post : σ → σ → Pred) :
     Triple (MonadStateOf.get : StateT σ m σ)
@@ -337,8 +319,7 @@ theorem Spec.get_StateT (post : σ → σ → Pred) :
 
 
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.set_StateT (s : σ) (post : PUnit → σ → Pred) :
     Triple (set s : StateT σ m PUnit)
@@ -349,8 +330,7 @@ theorem Spec.set_StateT (s : σ) (post : PUnit → σ → Pred) :
 
 
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.modifyGet_StateT (f : σ → α × σ) (post : α → σ → Pred) :
     Triple (MonadStateOf.modifyGet f : StateT σ m α)
@@ -388,8 +368,7 @@ theorem Spec.UnfoldLift.withReader [MonadFunctor m n] [MonadWithReaderOf ρ m] (
 /-! # `ExceptT` -/
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (x.run : m (@Except.{u, u} ε α))
@@ -399,8 +378,7 @@ theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (eposts : (�
   Triple.intro (by simp [PartialOrder.rel_refl])
 
 
-omit [LawfulMonad m] in
-omit [MonadicWP.IsMonotone m] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] in
 @[spec]
 theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (MonadExceptOf.throw err : ExceptT ε m α) (eposts.fst err) post eposts :=
@@ -457,8 +435,7 @@ theorem Spec.orElse_Except (x : Except ε α) (h : Unit → Except ε α) :
 /-! # `OptionT` -/
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 @[spec]
 theorem Spec.run_OptionT (x : OptionT m α) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     Triple (x.run : m (Option α))
@@ -567,8 +544,7 @@ theorem Spec.adaptExcept_EStateM (f : ε → ε') (x : EStateM ε σ α)
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.throw_MonadExcept [MonadExceptOf ε m] (err : ε) :
     Triple (throw err : m α)
@@ -577,16 +553,14 @@ theorem Spec.throw_MonadExcept [MonadExceptOf ε m] (err : ε) :
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 theorem Spec.tryCatch_MonadExcept [MonadExceptOf ε m] (x : m α) (h : ε → m α) :
     Triple (tryCatch x h : m α)
       (wp (MonadExceptOf.tryCatch x h : m α) post eposts) post eposts :=
   Triple.intro (by rw [MonadicWP.wp_tryCatch_MonadExcept_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.throw_ReaderT [MonadExceptOf ε m] (err : ε) (post : α → ρ → Pred) :
     Triple (MonadExceptOf.throw (ε:=ε) err : ReaderT ρ m α)
@@ -594,8 +568,7 @@ theorem Spec.throw_ReaderT [MonadExceptOf ε m] (err : ε) (post : α → ρ →
   Triple.intro (by rw [MonadicWP.wp_throw_ReaderT_lift_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 @[spec]
 theorem Spec.throw_StateT [MonadExceptOf ε m] (err : ε) (post : α → σ → Pred) :
     Triple (MonadExceptOf.throw (ε:=ε) err : StateT σ m α)
@@ -603,7 +576,7 @@ theorem Spec.throw_StateT [MonadExceptOf ε m] (err : ε) (post : α → σ → 
   Triple.intro (by rw [MonadicWP.wp_throw_StateT_lift_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] in
+omit [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] [Monad m] in
 @[spec]
 theorem Spec.throw_ExceptT_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (eposts : (ε' → Pred) × EPosts) :
     Triple (MonadExceptOf.throw (ε:=ε) err : ExceptT ε' m α)
@@ -612,8 +585,7 @@ theorem Spec.throw_ExceptT_lift [MonadExceptOf ε m] (err : ε) (post : α → P
   Triple.intro (by rw [MonadicWP.wp_throw_lift_ExceptT_apply_eq]; apply WP.wp_monotone_post; intro r; cases r <;> rfl)
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.throw_Option_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     Triple (MonadExceptOf.throw (ε:=ε) err : OptionT m α)
@@ -622,8 +594,7 @@ theorem Spec.throw_Option_lift [MonadExceptOf ε m] (err : ε) (post : α → Pr
   Triple.intro (by rw [MonadicWP.wp_throw_lift_OptionT_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.tryCatch_ReaderT [MonadExceptOf ε m] (x : ReaderT ρ m α) (h : ε → ReaderT ρ m α)
     (post : α → ρ → Pred) :
@@ -633,8 +604,7 @@ theorem Spec.tryCatch_ReaderT [MonadExceptOf ε m] (x : ReaderT ρ m α) (h : ε
   Triple.intro (by rw [MonadicWP.wp_tryCatch_ReaderT_lift_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] in
 @[spec]
 theorem Spec.tryCatch_StateT [MonadExceptOf ε m] (x : StateT σ m α) (h : ε → StateT σ m α)
     (post : α → σ → Pred) :
@@ -644,7 +614,7 @@ theorem Spec.tryCatch_StateT [MonadExceptOf ε m] (x : StateT σ m α) (h : ε �
   Triple.intro (by rw [MonadicWP.wp_tryCatch_StateT_lift_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] in
+omit [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] [Monad m] in
 @[spec]
 theorem Spec.tryCatch_ExceptT_lift [MonadExceptOf ε m] (x : ExceptT ε' m α) (h : ε → ExceptT ε' m α)
     (post : α → Pred) (eposts : (ε' → Pred) × EPosts) :
@@ -654,8 +624,7 @@ theorem Spec.tryCatch_ExceptT_lift [MonadExceptOf ε m] (x : ExceptT ε' m α) (
   Triple.intro (by rw [MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq]; apply WP.wp_monotone_post; intro r; cases r <;> rfl)
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.tryCatch_OptionT_lift [MonadExceptOf ε m] (x : OptionT m α) (h : ε → OptionT m α)
     (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
@@ -668,8 +637,7 @@ theorem Spec.tryCatch_OptionT_lift [MonadExceptOf ε m] (x : OptionT m α) (h : 
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.monadMap_trans
     {n₁ : Type u → Type v} {n₂ : Type u → Type v}
@@ -682,8 +650,7 @@ theorem Spec.monadMap_trans
 
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.liftWith_trans
     {n₁ : Type u → Type v} {n₂ : Type u → Type v}
@@ -694,8 +661,7 @@ theorem Spec.liftWith_trans
   Triple.intro (by rw [MonadicWP.wp_liftWith_trans_apply_eq])
 
 
-omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] in
-omit [PartialOrder EPosts] in
+omit [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] [PartialOrder EPosts] [Monad m] in
 @[spec]
 theorem Spec.restoreM_trans
     {n₁ : Type u → Type v} {n₂ : Type u → Type v}

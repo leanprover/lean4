@@ -17,9 +17,8 @@ open Lean.Order Std.WP
 /-!
 # The Weakest Precondition Interpretation of a Monad
 
-`MonadicWP m Pred EPosts` carries a `WP (m α) α Pred EPosts` interpretation for every result type
-`α`. An instance supplies the `WP` interpretation of `m α` at low priority, so a program type with
-a bespoke interpretation keeps its own.
+`MonadicWP m Pred EPosts` abbreviates `∀ α, WP (m α) α Pred EPosts`: a `WP` interpretation of the
+programs `m α` for every result type `α`.
 
 The laws relate `WP.trans : m α → PredTrans Pred EPosts α` to the monad structure of
 `PredTrans Pred EPosts`:
@@ -35,21 +34,11 @@ namespace Std.WP
 
 /-- The weakest precondition interpretation of the programs `m α` of a monad `m`, for every result
 type `α`. -/
-class MonadicWP (m : Type u → Type v) (Pred : outParam (Type w)) (EPosts : outParam (Type w'))
-    [Monad m] where
-  /-- The weakest precondition interpretation of `m` at every result type. -/
-  toWP : ∀ α, WP (m α) α Pred EPosts
-
-/-- A monadic `WP` interpretation is sourced from the monad's `MonadicWP` instance. Low priority
-so a program type with a bespoke `WP` instance (e.g. a non-monadic one) is preferred. -/
-instance (priority := low)
-    {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} {α : Type u}
-    [Monad m] [inst : MonadicWP m Pred EPosts] :
-    WP (m α) α Pred EPosts :=
-  inst.toWP α
+abbrev MonadicWP (m : Type u → Type v) (Pred : Type w) (EPosts : Type w') :=
+  ∀ α, WP (m α) α Pred EPosts
 
 /-- The transformer of every program of the monad `m` is monotone. -/
-abbrev MonadicWP.IsMonotone (m : Type u → Type v) {Pred : Type w} {EPosts : Type w'} [Monad m]
+abbrev MonadicWP.IsMonotone (m : Type u → Type v) {Pred : Type w} {EPosts : Type w'}
     [MonadicWP m Pred EPosts] [PartialOrder Pred] [PartialOrder EPosts] : Prop :=
   ∀ α, WP.IsMonotone (m α)
 

@@ -39,6 +39,7 @@ theorem le_wp_read_ReaderT_apply [PartialOrder Pred] [PartialOrder EPosts] [Mona
   simpa [MonadReaderOf.read] using
     (MonadicWP.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts))
 
+omit [Monad m] in
 @[simp]
 theorem wp_adapt_ReaderT_apply_eq (f : ρ → ρ') (x : ReaderT ρ' m α) :
     wp (ReaderT.adapt f x : ReaderT ρ m α) post eposts =
@@ -109,6 +110,7 @@ theorem wp_getModify_EStateM_apply_eq (f : σ → σ) :
 
 /-! ## MonadExceptOf simp lemmas -/
 
+omit [Monad m] in
 @[simp]
 theorem wp_throwThe_apply_eq [MonadExceptOf ε m] (err : ε) :
     wp (throwThe ε err : m α) post eposts =
@@ -145,6 +147,7 @@ theorem le_wp_throw_OptionT_apply [PartialOrder Pred] [PartialOrder EPosts] [Mon
     (MonadicWP.pure_le_wp_pure (m := m) (x := none)
       (post := pushOption post eposts.fst) (eposts := eposts.snd))
 
+omit [Monad m] in
 @[simp]
 theorem wp_tryCatch_MonadExcept_apply_eq [MonadExceptOf ε m] (x : m α)
     (h : ε → m α) :
@@ -152,6 +155,7 @@ theorem wp_tryCatch_MonadExcept_apply_eq [MonadExceptOf ε m] (x : m α)
       wp (MonadExceptOf.tryCatch x h : m α) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_tryCatchThe_apply_eq [MonadExceptOf ε m] (x : m α) (h : ε → m α) :
     wp (tryCatchThe ε x h : m α) post eposts =
@@ -227,24 +231,28 @@ theorem wp_modifyGetThe_StateT_apply_eq (f : σ → α × σ) :
       wp (MonadStateOf.modifyGet f : StateT σ m α) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_get_MonadState_apply_eq [MonadStateOf σ m] :
     wp (MonadState.get : m σ) post eposts =
       wp (MonadStateOf.get : m σ) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_set_MonadState_apply_eq [MonadStateOf σ m] (x : σ) :
     wp (MonadState.set x : m PUnit) post eposts =
       wp (MonadStateOf.set x : m PUnit) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_modifyGet_MonadState_apply_eq [MonadStateOf σ m] (f : σ → α × σ) :
     wp (MonadState.modifyGet f : m α) post eposts =
       wp (MonadStateOf.modifyGet f : m α) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_read_MonadReader_apply_eq [MonadReaderOf ρ m] :
     wp (MonadReader.read : m ρ) post eposts =
@@ -270,6 +278,7 @@ theorem le_wp_monadLift_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [
     (MonadicWP.pure_le_wp_pure (m := m) (x := (a, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadLift_ReaderT_apply_eq (x : m α) :
     wp (MonadLift.monadLift x : ReaderT ρ m α) post eposts =
@@ -314,6 +323,7 @@ theorem wp_lift_OptionT_apply_eq (x : m α) :
 
 /-! ## MonadFunctor simp lemmas -/
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadMap_StateT_apply_eq
     (f : ∀{β}, m β → m β) {α} (x : StateT σ m α) (post : α → σ → Pred) (eposts : EPosts) :
@@ -322,6 +332,7 @@ theorem wp_monadMap_StateT_apply_eq
   funext s
   simp [MonadFunctor.monadMap, StateT.run]
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadMap_ReaderT_apply_eq
     (f : ∀{β}, m β → m β) {α} (x : ReaderT ρ m α) (post : α → ρ → Pred) (eposts : EPosts) :
@@ -330,6 +341,7 @@ theorem wp_monadMap_ReaderT_apply_eq
   funext r
   simp [MonadFunctor.monadMap, ReaderT.run]
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadMap_ExceptT_apply_eq
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (post : α → Pred)
@@ -338,6 +350,7 @@ theorem wp_monadMap_ExceptT_apply_eq
       wp (f x.run) (pushExcept post eposts.fst) eposts.snd := by
   simp [MonadFunctor.monadMap, ExceptT.run]
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadMap_OptionT_apply_eq
   (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
@@ -345,17 +358,20 @@ theorem wp_monadMap_OptionT_apply_eq
     wp (f x.run) (pushOption post eposts.fst) eposts.snd := by
   simp only [wp, MonadFunctor.monadMap, OptionT.run]; rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_withReader_ReaderT_apply_eq (f : ρ → ρ) (x : ReaderT ρ m α) :
     wp (MonadWithReaderOf.withReader f x : ReaderT ρ m α) post eposts =
       fun r => wp x (fun a _ => post a r) eposts (f r) := rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_withReader_MonadWithReader_apply_eq [MonadWithReaderOf ρ m]
     (f : ρ → ρ) (x : m α) :
     wp (MonadWithReader.withReader f x : m α) post eposts =
       wp (MonadWithReaderOf.withReader f x : m α) post eposts := rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_withTheReader_ReaderT_apply_eq (f : ρ → ρ) (x : ReaderT ρ m α) :
     wp (withTheReader ρ f x : ReaderT ρ m α) post eposts =
@@ -388,6 +404,7 @@ theorem wp_liftWith_StateT_apply_eq [LawfulMonad m]
       wp ((fun a => (a, s)) <$> f (fun x => x.run s)) (fun ⟨a, s⟩ => post a s) eposts := by
   simp [MonadControl.liftWith]
 
+omit [Monad m] in
 @[simp]
 theorem wp_liftWith_ReaderT_apply_eq
     (f : (∀{β}, ReaderT ρ m β → m β) → m α) :
@@ -430,6 +447,7 @@ theorem le_wp_restoreM_StateT_apply [PartialOrder Pred] [PartialOrder EPosts] [M
         (post := fun (x : PUnit × σ) => wp (pure (s'.fst, x.snd)) (fun (x : α × σ) => post x.fst x.snd) eposts)
         (eposts := eposts))
 
+omit [Monad m] in
 @[simp]
 theorem wp_restoreM_ReaderT_apply_eq (x : m α) :
     wp (MonadControl.restoreM (m:=m) x : ReaderT ρ m α) post eposts =
@@ -468,16 +486,19 @@ theorem wp_control_apply_eq [Bind n] [Monad m] [Monad n] [∀ α, WP (n α) α P
 section
 variable {m : Type u → Type v} [Monad m] [MonadicWP m Pred EPosts]
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadLift_refl_apply_eq [Pure m] (x : m α) :
     wp (MonadLiftT.monadLift x : m α) post eposts =
       wp (x : m α) post eposts := rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_monadMap_refl_apply_eq [Pure m] (x : m α) :
     wp (MonadFunctorT.monadMap f x : m α) post eposts =
       wp (f x : m α) post eposts := by rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_liftWith_refl_apply_eq [Pure m]
     (f : (∀{β}, m β → m β) → m α) :
@@ -485,6 +506,7 @@ theorem wp_liftWith_refl_apply_eq [Pure m]
       wp (f (fun x => x) : m α) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_restoreM_refl_apply_eq [Pure m] (x : stM m m α) :
     wp (MonadControlT.restoreM x : m α) post eposts =
@@ -564,18 +586,21 @@ end
 section
 variable {m : Type u → Type v} [Monad m] [MonadicWP m Pred EPosts] [MonadExceptOf ε m]
 
+omit [Monad m] in
 @[simp]
 theorem wp_throw_lift_ExceptT_apply_eq (err : ε) :
     wp (MonadExceptOf.throw (ε:=ε) err : ExceptT ε' m α) post eposts =
       wp (MonadExceptOf.throw (ε:=ε) err : m (Except ε' α)) (pushExcept post eposts.fst) eposts.snd := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_throw_lift_OptionT_apply_eq (err : ε) :
   wp (MonadExceptOf.throw (ε:=ε) err : OptionT m α) post eposts =
     wp (MonadExceptOf.throw (ε:=ε) err : m (Option α)) (pushOption post eposts.fst) eposts.snd := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_tryCatch_lift_ExceptT_apply_eq (x : ExceptT ε' m α) (h : ε → ExceptT ε' m α) :
     wp (MonadExceptOf.tryCatch (ε:=ε) x h : ExceptT ε' m α) post eposts =
@@ -583,6 +608,7 @@ theorem wp_tryCatch_lift_ExceptT_apply_eq (x : ExceptT ε' m α) (h : ε → Exc
         (pushExcept post eposts.fst) eposts.snd := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_tryCatch_lift_OptionT_apply_eq (x : OptionT m α) (h : ε → OptionT m α) :
   wp (MonadExceptOf.tryCatch (ε:=ε) x h : OptionT m α) post eposts =
@@ -590,6 +616,7 @@ theorem wp_tryCatch_lift_OptionT_apply_eq (x : OptionT m α) (h : ε → OptionT
       (pushOption post eposts.fst) eposts.snd := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_throw_ReaderT_lift_apply_eq (err : ε) :
     wp (MonadExceptOf.throw (ε:=ε) err : ReaderT ρ m α) post eposts =
@@ -604,6 +631,7 @@ theorem wp_throw_StateT_lift_apply_eq (err : ε) :
         StateT σ m α) post eposts := by
   rfl
 
+omit [Monad m] in
 @[simp]
 theorem wp_tryCatch_ReaderT_lift_apply_eq (x : ReaderT ρ m α) (h : ε → ReaderT ρ m α) :
     wp (MonadExceptOf.tryCatch (ε:=ε) x h : ReaderT ρ m α) post eposts =

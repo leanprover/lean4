@@ -51,7 +51,7 @@ instance {ε σ α : Type} (x : EStateM ε σ α) : WP.IsConjunctive x where
     cases x s <;> first | exact PartialOrder.rel_refl | exact meet_le_left _ _
 
 /-- The transformer of every program of the monad `m` is conjunctive. -/
-abbrev MonadicWP.IsConjunctive (m : Type u → Type v) {Pred : Type w} {EPosts : Type z} [Monad m]
+abbrev MonadicWP.IsConjunctive (m : Type u → Type v) {Pred : Type w} {EPosts : Type z}
     [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts] : Prop :=
   ∀ α (x : m α), WP.IsConjunctive x
 

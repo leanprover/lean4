@@ -185,18 +185,18 @@ variable {m : Type → Type} [Monad m]
 `costConj`-frame rule holds by construction. -/
 noncomputable instance TickT.instWPMonad [MonadicWP m Pred EPosts] [CompleteLattice Pred]
     [CompleteLattice EPosts] : MonadicWP (TickT m) (Nat → Pred) EPosts :=
-  MonadicWP.withFrameClosure (m := StateT Nat m) costConj StateT.instWPMonad
+  MonadicWP.withFrameClosure (m := StateT Nat m) costConj (fun _ => inferInstance)
 
 instance [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts]
     [MonadicWP.IsMonotone m] {α : Type} : WP.IsMonotone (TickT m α) :=
-  MonadicWP.isMonotone_withFrameClosure (m := StateT Nat m) costConj StateT.instWPMonad
+  MonadicWP.isMonotone_withFrameClosure (m := StateT Nat m) costConj (fun _ => inferInstance)
     (fun _ => inferInstance) α
 
 instance [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts]
     [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (TickT m) :=
   MonadicWP.isLaxMonadMorphism_withFrameClosure (m := StateT Nat m) costConj
-    costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
+    costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) (fun _ => inferInstance)
     (fun _ => inferInstance) inferInstance
 
 /-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`,

@@ -387,31 +387,39 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   guard <| ← isDefEqGuarded info.Pred Pred'
   let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' instWP' prog postSpec epostsSpec := rhs
     | throwError "target not a wp application {rhs}"
-  -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
-  -- spec spells `MonadicWP.toWP ?inst`; default transparency unfolds both after `?inst` synthesis.
-  guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
-  -- The spec's orders and laws (`PartialOrder Pred`, `WP.IsMonotone`, ...) are no arguments of
-  -- `wp`, so the unification above leaves them open. Synthesize each one whose type the
-  -- unification determined; the rule is cached per `WP` instance. A law instance is also cached
-  -- across specs, keyed by its class and first explicit argument.
-  for x in _xs, b in _bs do
-    unless b.isInstImplicit && x.isMVar do continue
-    let mvarId := x.mvarId!
-    if ← mvarId.isAssigned then continue
-    let ty ← instantiateMVars (← mvarId.getType)
-    if ty.hasExprMVar then continue
-    let key? := match ty.getAppFn with
-      | .const c _ =>
-        if lawClasses.contains c then ty.getAppArgs[0]?.map (c, ·) else none
-      | _ => none
-    if let some key := key? then
-      if let some inst := (← lawInstances.get)[key]? then
-        -- The class and its determining argument fix the instance up to definitional equality.
+  -- The spec's instance arguments are no arguments of the goal's `wp`, so unification leaves them
+  -- open: its `MonadicWP ?inst` interpretation, orders and laws (`PartialOrder Pred`,
+  -- `WP.IsMonotone`, ...). Synthesize each one whose type is determined; the rule is cached per
+  -- `WP` instance. A law instance is also cached across specs, keyed by its class and first
+  -- explicit argument.
+  let synthOpen : OptionT MetaM Unit := do
+    for x in _xs, b in _bs do
+      unless b.isInstImplicit && x.isMVar do continue
+      let mvarId := x.mvarId!
+      if ← mvarId.isAssigned then continue
+      let ty ← instantiateMVars (← mvarId.getType)
+      if ty.hasExprMVar then continue
+      let key? := match ty.getAppFn with
+        | .const c _ =>
+          if lawClasses.contains c then ty.getAppArgs[0]?.map (c, ·) else none
+        | _ => none
+      if let some key := key? then
+        if let some inst := (← lawInstances.get)[key]? then
+          -- The class and its determining argument fix the instance up to definitional equality.
+          mvarId.assign inst
+          continue
+      if let some inst ← (monadLift (synthInstance? ty) : OptionT MetaM (Option Expr)) then
         mvarId.assign inst
-        continue
-    if let some inst ← (monadLift (synthInstance? ty) : OptionT MetaM (Option Expr)) then
-      mvarId.assign inst
-      if let some key := key? then lawInstances.modify (·.insert key inst)
+        if let some key := key? then lawInstances.modify (·.insert key inst)
+  -- Fix the program and exception postcondition types first, so the spec's `MonadicWP`
+  -- interpretation is synthesized before its `WP` instance is compared with the goal's.
+  guard <| ← approxDefEq <| isDefEqGuarded info.Prog _Prog'
+  guard <| ← isDefEqGuarded info.EPosts _EPred'
+  synthOpen
+  -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
+  -- spec spells it as the interpretation of a `MonadicWP` binder at the result type.
+  guard <| ← withDefault <| isDefEqGuarded info.instWP (← instantiateMVars instWP')
+  synthOpen
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
   let mut ss := #[]

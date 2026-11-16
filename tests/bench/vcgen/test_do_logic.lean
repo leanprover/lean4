@@ -772,7 +772,7 @@ EPosts : Type u_2
 inst✝⁶ : Monad m
 inst✝⁵ : CompleteLattice Pred
 inst✝⁴ : CompleteLattice EPosts
-inst✝³ : MonadicWP m Pred EPosts
+inst✝³ : (α : Type) → WP (m α) α Pred EPosts
 inst✝² : LawfulMonad m
 inst✝¹ : ∀ (α : Type) (x : m α), (WP.trans x).IsMonotone
 inst✝ : MonadicWP.IsLaxMonadMorphism m

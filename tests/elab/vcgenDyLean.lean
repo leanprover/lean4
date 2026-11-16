@@ -270,8 +270,7 @@ instance (r : TraceProp): Lean.Order.PreservesSup (Lean.Order.meet r) where
       exact ⟨hytr.1, ⟨x, hx, hytr.2⟩⟩
 
 public
-instance: MonadicWP Traceful TraceProp EStack⟨⟩ where
-  toWP α := {
+instance {α : Type} : WP (Traceful α) α TraceProp EStack⟨⟩ where
     trans f := ⟨fun post _epost => ⟨
       fun trProof =>
         let (optRes, trOut) := f.run trProof.val.erase
@@ -283,7 +282,6 @@ instance: MonadicWP Traceful TraceProp EStack⟨⟩ where
         | none => True
         | some res => post res ⟨ trOutProof, h ⟩
     ⟩⟩
-  }
 
 public
 instance {α : Type} : WP.IsMonotone (Traceful α) := fun x => by

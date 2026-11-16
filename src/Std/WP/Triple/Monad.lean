@@ -27,15 +27,16 @@ variable {Pred : Type w} {EPosts : Type w'}
 
 namespace Triple
 
-variable {m : Type v → Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-  [MonadicWP m Pred EPosts] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+variable {m : Type v → Type u} [PartialOrder Pred]
+  [MonadicWP m Pred EPosts]
 
-omit [MonadicWP.IsMonotone m] in
-theorem pure (a : α) (h : pre ⊑ post a) :
+theorem pure [Monad m] [PartialOrder EPosts] [MonadicWP.IsLaxMonadMorphism m] (a : α)
+    (h : pre ⊑ post a) :
     Triple (pure (f := m) a) pre post eposts :=
   ⟨PartialOrder.rel_trans h (MonadicWP.pure_le_wp_pure a post eposts)⟩
 
-theorem bind (x : m α) (f : α → m β)
+theorem bind [Monad m] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
+    [MonadicWP.IsLaxMonadMorphism m] (x : m α) (f : α → m β)
     (mid : α → Pred)
     (hx : Triple x pre mid eposts)
     (hf : ∀ a, Triple (f a) (mid a) post eposts) :
@@ -45,12 +46,14 @@ theorem bind (x : m α) (f : α → m β)
       (WP.wp_monotone_post (fun a => (hf a).le_wp))
       (MonadicWP.bind_le_wp_bind x f post eposts))⟩
 
-theorem map [LawfulMonad m] (f : α → β) (x : m α)
+theorem map [Monad m] [LawfulMonad m] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
+    [MonadicWP.IsLaxMonadMorphism m] (f : α → β) (x : m α)
     (h : Triple x pre (fun a => post (f a)) eposts) :
     Triple (f <$> x) pre post eposts :=
   ⟨PartialOrder.rel_trans h.le_wp (MonadicWP.map_le_wp_map f x post eposts)⟩
 
-theorem seq [LawfulMonad m] (x : m (α → β)) (y : m α)
+theorem seq [Monad m] [LawfulMonad m] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
+    [MonadicWP.IsLaxMonadMorphism m] (x : m (α → β)) (y : m α)
     (h : Triple x pre (fun f => wp y (fun a => post (f a)) eposts) eposts) :
     Triple (x <*> y) pre post eposts :=
   ⟨PartialOrder.rel_trans h.le_wp (MonadicWP.seq_le_wp_seq x y post eposts)⟩

@@ -38,11 +38,8 @@ public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPApp) :
   let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).specBackwardRuleCache
   if let some rule := s[key]? then return rule
-  let lawInstances ← IO.mkRef (← get).lawInstanceCache
-  let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info lawInstances |>.run
+  let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
     | failure
-  let lawInstanceCache ← lawInstances.get
-  modify fun st => { st with lawInstanceCache }
   let rule ← rule.shareCommon
   modify fun st => { st with specBackwardRuleCache := st.specBackwardRuleCache.insert key rule }
   return rule

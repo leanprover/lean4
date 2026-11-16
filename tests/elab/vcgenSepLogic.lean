@@ -506,20 +506,19 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : MonadicWP HeapM HProp EStack⟨⟩ :=
-  MonadicWP.withFrameClosure (m := StateM Heap) (E := EStack⟨⟩) sepConj
-    (fun α => inferInstanceAs (WP (StateM Heap α) α (Heap → Prop) EStack⟨⟩))
+  fun α => WP.withFrameClosure (Prog := StateM Heap α) sepConj inferInstance
 
+-- `HProp` is a `def`, so instance search does not see the laws of `StateM Heap` at `HProp`; pass
+-- the laws at `Heap → Prop`.
 instance {α : Type} : WP.IsMonotone (HeapM α) :=
-  MonadicWP.isMonotone_withFrameClosure (m := StateM Heap) (E := EStack⟨⟩) sepConj
-    (fun α => inferInstanceAs (WP (StateM Heap α) α (Heap → Prop) EStack⟨⟩))
-    (fun α => inferInstanceAs (WP.IsMonotone (StateM Heap α))) α
+  MonadicWP.isMonotone_withFrameClosure (m := StateM Heap) sepConj α
+    (hmono := fun _ => (inferInstance : WP.IsMonotone (StateM Heap _)))
 
 instance : MonadicWP.IsLaxMonadMorphism HeapM :=
-  MonadicWP.isLaxMonadMorphism_withFrameClosure (m := StateM Heap) (E := EStack⟨⟩) sepConj
+  MonadicWP.isLaxMonadMorphism_withFrameClosure (m := StateM Heap) sepConj
     sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl)
-    (fun α => inferInstanceAs (WP (StateM Heap α) α (Heap → Prop) EStack⟨⟩))
-    (fun α => inferInstanceAs (WP.IsMonotone (StateM Heap α)))
-    (inferInstanceAs (MonadicWP.IsLaxMonadMorphism (StateM Heap)))
+    (hmono := fun _ => (inferInstance : WP.IsMonotone (StateM Heap _)))
+    (hlax := (inferInstance : MonadicWP.IsLaxMonadMorphism (StateM Heap)))
 
 /-- Every `HeapM` program frames every heap assertion `F`, under every guard `P`. -/
 @[grind .]

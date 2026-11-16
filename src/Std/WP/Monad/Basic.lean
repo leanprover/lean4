@@ -68,9 +68,9 @@ class MonadicWP.IsLaxMonadMorphism (m : Type u → Type v) {Pred : outParam (Typ
 
 namespace MonadicWP
 
-variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [Monad m] [MonadicWP m Pred EPosts]
+variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [MonadicWP m Pred EPosts]
 
-instance [IsMonadMorphism m] [PartialOrder Pred] [PartialOrder EPosts] :
+instance [Monad m] [IsMonadMorphism m] [PartialOrder Pred] [PartialOrder EPosts] :
     IsLaxMonadMorphism m where
   pure_le a := PartialOrder.rel_of_eq (IsMonadMorphism.trans_pure a).symm
   bind_le x f := PartialOrder.rel_of_eq (IsMonadMorphism.trans_bind x f).symm
@@ -83,7 +83,7 @@ The laws at the level of `wp`.
 
 section Strict
 
-variable [IsMonadMorphism m]
+variable [Monad m] [IsMonadMorphism m]
 
 theorem wp_pure_eq {α : Type u} (a : α) (post : α → Pred) (eposts : EPosts) :
     wp (pure a : m α) post eposts = post a :=
@@ -97,19 +97,22 @@ end Strict
 
 section Lax
 
-variable [PartialOrder Pred] [PartialOrder EPosts] [IsLaxMonadMorphism m]
+variable [PartialOrder Pred]
 
-theorem pure_le_wp_pure {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
+theorem pure_le_wp_pure [Monad m] [PartialOrder EPosts] [MonadicWP.IsLaxMonadMorphism m]
+    {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
     post x ⊑ wp (pure (f := m) x) post eposts :=
   IsLaxMonadMorphism.pure_le x post eposts
 
-theorem bind_le_wp_bind {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred)
+theorem bind_le_wp_bind [Monad m] [PartialOrder EPosts] [MonadicWP.IsLaxMonadMorphism m]
+    {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred)
     (eposts : EPosts) :
     wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts :=
   IsLaxMonadMorphism.bind_le x f post eposts
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
-theorem map_le_wp_map [LawfulMonad m] [MonadicWP.IsMonotone m] {α β : Type u} (f : α → β) (x : m α) :
+theorem map_le_wp_map [Monad m] [LawfulMonad m] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
+    [MonadicWP.IsLaxMonadMorphism m] {α β : Type u} (f : α → β) (x : m α) :
   ∀ post eposts, wp x (fun a => post (f a)) eposts ⊑ wp (f <$> x) post eposts := by
   intro post eposts
   rw [← bind_pure_comp]
@@ -119,7 +122,8 @@ theorem map_le_wp_map [LawfulMonad m] [MonadicWP.IsMonotone m] {α β : Type u} 
   intro a; exact pure_le_wp_pure (f a) post eposts
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
-theorem seq_le_wp_seq [LawfulMonad m] [MonadicWP.IsMonotone m] {α β : Type u} (f : m (α → β)) (x : m α) :
+theorem seq_le_wp_seq [Monad m] [LawfulMonad m] [PartialOrder EPosts] [MonadicWP.IsMonotone m]
+    [MonadicWP.IsLaxMonadMorphism m] {α β : Type u} (f : m (α → β)) (x : m α) :
   ∀ post eposts,
     wp f (fun g => wp x (fun a => post (g a)) eposts) eposts ⊑
       wp (f <*> x) post eposts := by

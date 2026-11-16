@@ -33,7 +33,7 @@ open Assertion
 universe u u₁ u₂ v w
 variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v}
   {Pred : Type (max u₁ u₂)} {EPosts : Type (max u₁ u₂)}
-variable [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+variable [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts]
 
 /-! ## Gadgets -/
 
@@ -62,9 +62,9 @@ open Gadget
 
 /-! ## Specifications -/
 
-omit [LawfulMonad m] in
 @[spec]
-theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+theorem Spec.forInPure [Monad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+    {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
@@ -88,9 +88,9 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
   rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
 
-omit [LawfulMonad m] in
 @[spec]
-theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
+theorem Spec.forInPure' [Monad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+    {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
@@ -154,11 +154,11 @@ end Gadget
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
 variable [Monad m] [Lean.Order.MonadTail m] [CompleteLattice Pred] [CompleteLattice EPosts]
-  [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+  [MonadicWP m Pred EPosts]
 
-omit [LawfulMonad m] in
 @[spec]
-theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
+theorem Spec.forInLoop_invariant_variant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+    {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
@@ -182,9 +182,8 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
   unfold forInLoopWithInvariantAndVariant
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
-omit [LawfulMonad m] in
 @[spec]
-theorem Spec.forInLoop_invariant
+theorem Spec.forInLoop_invariant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
@@ -206,9 +205,9 @@ theorem Spec.forInLoop_invariant
   unfold forInLoopWithInvariant
   exact Spec.forIn_loop measure inv einv step
 
-omit [LawfulMonad m] in
 @[spec]
-theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
+theorem Spec.forInLoop_variant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+    {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)

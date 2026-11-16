@@ -119,7 +119,7 @@ def unquoteHttpString? (s : String) : Option String :=
 Checks whether a string is a valid non-empty HTTP token.
 -/
 @[expose]
-def isToken (s : String) : Bool :=
+noncomputable def isToken (s : String) : Bool :=
   let s := s.toList
   ¬s.isEmpty ∧ s.all Char.tchar
 

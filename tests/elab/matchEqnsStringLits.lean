@@ -112,7 +112,7 @@ def lits : String → Nat
 
 /--
 info: theorem lits.eq_3 : lits "c" = 2 :=
-id
+Eq.trans (lits.eq_def "c")
   (Eq.mpr
     (id
       (congrFun' (congrArg Eq (lits.match_1.eq_3 (fun x => Nat) (fun _ => 0) (fun _ => 1) (fun _ => 2) fun x => 3)) 2))

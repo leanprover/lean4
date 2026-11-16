@@ -396,43 +396,47 @@ partial def mkConjProof (φ : Expr) : List Expr → MetaM Expr
     let_expr And a b := φ | throwError "vcgen +jp: expected `∧`{indentExpr φ}"
     return mkApp4 (mkConst ``And.intro) a b pf (← mkConjProof b pfs)
 
+/-- A binder of `?H` at a jump: an `∃` or a conjunct with its witness or proof, a conjunction with
+the proofs of its conjuncts, or a `let`. -/
+inductive Step where
+  | bind (e : Expr)
+  | conj (pfs : List Expr)
+  | letLocal
+
+/-- A proof of `φ` by the `step` at its head, with `k` proving the rest of `φ`. -/
+def mkStepProof (φ : Expr) (step : Step) (k : Expr → MetaM Expr) : MetaM Expr := do
+  match step with
+  | .letLocal =>
+    -- `bindLocal` drops a `let` that the rest of `φ` does not use.
+    let .letE _ _ v b _ := φ | k φ
+    k (b.instantiate1 v)
+  | .conj pfs =>
+    let_expr And a b := φ | throwError "vcgen +jp: expected `∧`{indentExpr φ}"
+    return mkApp4 (mkConst ``And.intro) a b (← mkConjProof a pfs) (← k b)
+  | .bind e =>
+    match_expr φ with
+    | Exists α p =>
+      return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p e (← k (p.beta #[e]))
+    | And a b => return mkApp4 (mkConst ``And.intro) a b e (← k b)
+    | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
+
+/-- A proof of `φ` by `steps`, with `k` proving the rest of `φ`. -/
+def mkStepsProof (φ : Expr) (steps : List Step) (k : Expr → MetaM Expr) : MetaM Expr :=
+  match steps with
+  | [] => k φ
+  | step :: steps => mkStepProof φ step fun φ => mkStepsProof φ steps k
+
 /-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump,
-whose `locals` witness its `∃`s and its conjuncts, and whose leaf has the conjuncts `leafPfs`. -/
-partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (locals : List LocalDecl)
+with one of the `steps` of its locals below each disjunct, and the conjuncts `leafPfs` in its
+leaf. -/
+partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (steps : List Step)
     (leafPfs : List Expr) : MetaM Expr := do
   let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
   mkOrIntro φ g 0 n fun φ => do
     if path.isEmpty then
       return ← mkConjProof φ leafPfs
-    let d :: locals := locals | throwError "vcgen +jp: missing local for{indentExpr φ}"
-    if d.value?.isSome then
-      -- `bindLocal` drops a `let` that the rest of `φ` does not use.
-      let .letE _ _ v b _ := φ | return ← mkTrieProof φ path locals leafPfs
-      return ← mkTrieProof (b.instantiate1 v) path locals leafPfs
-    let w := d.toExpr
-    match_expr φ with
-    | Exists α p =>
-      return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
-        (← mkTrieProof (p.beta #[w]) path locals leafPfs)
-    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path locals leafPfs)
-    | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
-
-/-- A proof of `φ`, the join hypothesis `?H` at the arguments of jump `k`: the values of `holes` at
-`k` witness the `∃`s, `eqPfs` prove the equations, and the `path` of the jump leads through the
-trie to its leaf with the conjuncts `leafPfs`. -/
-partial def mkJumpProof (φ : Expr) (holes : List Hole) (k : Nat) (eqPfs : List Expr)
-    (path : List (Nat × Nat)) (locals : List LocalDecl) (leafPfs : List Expr) : MetaM Expr := do
-  match holes with
-  | h :: holes =>
-    let_expr Exists α p := φ | throwError "vcgen +jp: expected `∃`{indentExpr φ}"
-    let w := h.vals[k]!
-    return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
-      (← mkJumpProof (p.beta #[w]) holes k eqPfs path locals leafPfs)
-  | [] =>
-    if eqPfs.isEmpty then return ← mkTrieProof φ path locals leafPfs
-    let_expr And a b := φ | throwError "vcgen +jp: expected `∧`{indentExpr φ}"
-    return mkApp4 (mkConst ``And.intro) a b (← mkConjProof a eqPfs)
-      (← mkTrieProof b path locals leafPfs)
+    let step :: steps := steps | throwError "vcgen +jp: missing local for{indentExpr φ}"
+    mkStepProof φ step fun φ => mkTrieProof φ path steps leafPfs
 
 /-- The `vcgen` simp normal form `e'` of `e` with a proof of `e = e'`, or `e` with `none` if
 `vcgen` has no simp methods or simp makes no progress. -/
@@ -491,7 +495,11 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
       let φ ← instantiateMVars (← jump.proof.getType)
       let eqPfsₖ ← eqParams.mapM fun j => mkJoinEqProof jump.args[j]! none
       let leafPfsₖ ← leafPfs[k]!.mapM fun (v, pf?) => mkJoinEqProof v pf?
+      -- The values of the holes at jump `k` witness the `∃`s above the equations and the trie.
+      let top := holes.toList.map (Step.bind ·.vals[k]!) ++
+        if eqParams.isEmpty then [] else [Step.conj eqPfsₖ.toList]
+      let steps := locals.toList.map fun d => if d.value?.isSome then .letLocal else .bind d.toExpr
       jump.proof.assign
-        (← mkJumpProof φ holes.toList k eqPfsₖ.toList paths[k]! locals.toList leafPfsₖ.toList)
+        (← mkStepsProof φ top fun φ => mkTrieProof φ paths[k]! steps leafPfsₖ.toList)
 
 end Lean.Elab.Tactic.VCGen

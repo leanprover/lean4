@@ -797,37 +797,22 @@ private def readMeasure (machine : Machine dir) : Nat :=
   2 * machine.reader.remainingBytes + if machine.reader.state matches .readBody _ then 1 else 0
 
 /--
-Whether a line feed follows the first `skip` unread bytes.
--/
-@[inline]
-private def lineFeedAfter (input : ByteArray.Iterator) (skip : Nat) : Bool :=
-  go input.array (input.pos + skip)
-where
-  go (bytes : ByteArray) (i : Nat) : Bool :=
-    if h : i < bytes.size then bytes[i] == '\n'.toUInt8 || go bytes (i + 1) else false
-  termination_by bytes.size - i
-
-/--
 Runs `parser` on the unread input. On success it continues with `next`, given the machine with the
 input advanced past the item, the parsed value, and the item's length in bytes. Otherwise the reader
 stops with `stop`. When the input ends inside the item, it asks for more, unless no more input will
 come (`connectionClosed`) or the item has already reached `limit` bytes (`badMessage`). Malformed
 bytes fail with `onError`, and a complete item longer than `limit` fails with `badMessage`.
 
-Every item ends in a line feed. After an incomplete attempt, the parser runs again only when a line
-feed has arrived since, when the input reaches `maxLine` bytes (where the parser's own limits
-decide), or when the input is over. A malformed byte that arrives after an incomplete attempt is
-therefore reported when its line ends.
+After an incomplete attempt the parser runs again as soon as any byte arrives: a byte that cannot
+continue the item fails it at once, as it would if the item had arrived in one read.
 -/
 @[inline]
-private def parseThen (machine : Machine dir) (parser : Parser α) (stop : β) (maxLine : Nat)
+private def parseThen (machine : Machine dir) (parser : Parser α) (stop : β)
     (next : Machine dir → α → Nat → Machine dir × β) (limit : Option Nat := none)
     (onError : Std.Internal.Parsec.Error → H1.Error := fun _ => .badMessage) : Machine dir × β :=
   let input := machine.reader.input
-  let tried := machine.reader.tried
-  if tried != 0 && !machine.reader.noMoreInput && input.remainingBytes < maxLine &&
-      !lineFeedAfter input tried then
-    let machine := machine.modifyReader ({ · with tried := input.remainingBytes })
+  if machine.reader.tried != 0 && input.remainingBytes == machine.reader.tried &&
+      !machine.reader.noMoreInput then
     (machine.addEvent (.needMoreData none), stop)
   else
     match parser input with
@@ -848,13 +833,6 @@ private def parseThen (machine : Machine dir) (parser : Parser α) (stop : β) (
         (machine.addEvent (.needMoreData none), stop)
     | .error _ err =>
       (machine.setFailure (onError err), stop)
-
-/--
-The longest field line the parser can still complete: past it, the line fails on a limit.
--/
-@[inline]
-private def maxFieldLine (config : Config) : Nat :=
-  config.maxHeaderNameLength + config.maxHeaderValueLength + 2 * config.maxSpaceSequence + 3
 
 /--
 Whether the unread input starts with a space or a tab, as an obs-fold line does.
@@ -1000,7 +978,7 @@ counts toward `maxBodySize`, so the wire size of a chunked body stays bounded ho
 chunks are.
 -/
 private def readChunkSize (machine : Machine dir) : Machine dir × BodyStep :=
-  parseThen machine (parseChunkSize machine.config) .stop machine.config.maxChunkLineLength
+  parseThen machine (parseChunkSize machine.config) .stop
     (limit := some machine.config.maxChunkLineLength)
     -- A size past 16 significant digits is over `maxChunkSize` too, so it gets the same 413.
     (onError := fun | .other "chunk size too large" => .entityTooLarge | _ => .badMessage)
@@ -1028,14 +1006,14 @@ private def readTrailerLine (machine : Machine dir)
   let strict := dir matches .receiving
   if !strict && count > 0 && startsWithWhitespace machine.reader.input then
     -- An obs-fold continues the last trailer field, which a client discards (RFC 9112 §5.2).
-    parseThen machine (parseObsFoldContinuation machine.config) .stop (maxFieldLine machine.config)
+    parseThen machine (parseObsFoldContinuation machine.config) .stop
         fun machine _ length =>
       if machine.reader.bodyBytesRead + length > machine.config.maxBodySize then
         (machine.setFailure .entityTooLarge, .stop)
       else
         (machine.modifyReader (·.addBodyBytes length), .next)
   else
-    parseThen machine (parseTrailerHeader machine.config strict) .stop (maxFieldLine machine.config)
+    parseThen machine (parseTrailerHeader machine.config strict) .stop
         fun machine field length =>
       match field with
       | some _ =>
@@ -1111,7 +1089,6 @@ incomplete line.
 @[inline]
 private def readRequestLine (machine : Machine .receiving) : Machine .receiving × Bool :=
   parseThen machine (parseRequestLineRawVersion machine.config) false
-    (machine.config.maxStartLineLength + 2 * machine.config.maxLeadingEmptyLines)
     (onError := classifyStartLineHardError) fun machine (method, uri, version) length =>
       -- The method and version are bounded, so a line over the limit is over it because of its
       -- target (RFC 9112 §3).
@@ -1131,7 +1108,6 @@ final head's fields, so a run of 1xx responses is bounded.
 @[inline]
 private def readStatusLine (machine : Machine .sending) : Machine .sending × Bool :=
   parseThen machine (parseStatusLineRawVersion machine.config) false
-    machine.config.maxStartLineLength
     (limit := some machine.config.maxStartLineLength) fun machine (status, version) length =>
       let headerBytes := machine.reader.headerBytesRead + if status.isInterim then length else 0
       if headerBytes > machine.config.maxHeaderBytes then
@@ -1178,7 +1154,7 @@ A client reads a header line that starts with whitespace as an obs-fold: it cont
 field's value, joined with a space (RFC 9112 §5.2). A server rejects it, as the line parser does.
 -/
 private def readObsFold (machine : Machine dir) : Machine dir × Bool :=
-  parseThen machine (parseObsFoldContinuation machine.config) false (maxFieldLine machine.config)
+  parseThen machine (parseObsFoldContinuation machine.config) false
       (onError := classifyFieldLineHardError) fun machine part length =>
     match machine.reader.messageHead.headers.map.entries.back? with
     | none => (machine.setFailure .badMessage, false)
@@ -1211,7 +1187,7 @@ private def readHeaderLine (machine : Machine dir) (count : Nat) : Machine dir �
   if (dir matches .sending) && count > 0 && startsWithWhitespace machine.reader.input then
     readObsFold machine
   else
-    parseThen machine (parseSingleHeader machine.config) false (maxFieldLine machine.config)
+    parseThen machine (parseSingleHeader machine.config) false
         (onError := classifyFieldLineHardError) fun machine field length =>
       match field with
       | some (name, value) =>
@@ -1362,12 +1338,12 @@ private theorem endBody_remainingBytes (m : Machine dir) ext :
 An item `parseThen` accepts is at least one byte long, so if `next` keeps the input it was given, a
 `parseThen` that does not stop leaves less than the measure of a reader in any state.
 -/
-private theorem parseThen_decreases {m : Machine dir} {p : Parser α} {stop : β} {maxLine : Nat}
+private theorem parseThen_decreases {m : Machine dir} {p : Parser α} {stop : β}
     {next : Machine dir → α → Nat → Machine dir × β} {limit : Option Nat}
     {onError : Std.Internal.Parsec.Error → H1.Error}
     (hnext : ∀ m' a n, (next m' a n).1.reader.remainingBytes = m'.reader.remainingBytes) :
-    (parseThen m p stop maxLine next limit onError).2 ≠ stop →
-      readMeasure (parseThen m p stop maxLine next limit onError).1 <
+    (parseThen m p stop next limit onError).2 ≠ stop →
+      readMeasure (parseThen m p stop next limit onError).1 <
         2 * m.reader.remainingBytes := by
   unfold parseThen
   dsimp only

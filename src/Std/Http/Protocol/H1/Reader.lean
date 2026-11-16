@@ -144,9 +144,8 @@ structure Reader (dir : Direction) where
   inMessage : Bool := false
 
   /--
-  How many unread bytes were already parsed without completing a line. The line is parsed again only
-  once a line feed arrives after them, so a line that arrives in pieces is parsed once, not once per
-  piece.
+  How many unread bytes the last parse attempt ran out of without completing an item. The item is not
+  parsed again until more bytes arrive.
   -/
   tried : Nat := 0
 

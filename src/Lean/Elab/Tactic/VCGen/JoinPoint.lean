@@ -456,19 +456,15 @@ def mkJoinEqProof (lhs : Expr) (pf? : Option Expr) : VCGenM Expr := do
   return mkApp2 (mkConst ``Eq.refl [← Sym.getLevel α]) α lhs
 
 /-- Assign `?H` of `jp` the anti-unifier of the arguments of its `jumps` above the trie of the
-jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof. The common parts and the
-hole values in `?H` are in `simp` normal form, so `simp` leaves the binder domains of the RHS
-goal `∀ xs, ?H xs → …` unchanged. `vcgen` processes the RHS goal after all goals below the
-registration, so every jump is known by then. -/
+jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof. The values in the leaves
+are in `simp` normal form, so `simp` leaves the binder domains of the RHS goal `∀ xs, ?H xs → …`
+unchanged. `vcgen` processes the RHS goal after all goals below the registration, so every jump
+is known by then. -/
 public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
   let jumpsLocals ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
-  let (paths, holes, eqPfs, leafPfs) ← jp.hyp.withContext do
+  let (paths, holes, eqParams, leafPfs) ← jp.hyp.withContext do
       forallTelescope (← jp.hyp.getType) fun xs _ => do
     let (eqs, columns, holes) ← antiUnifyJumps jp xs jumps
-    let lctx := holes.foldl (init := ← getLCtx) fun lctx h => lctx.mkLocalDecl h.fvarId `z h.type
-    -- The equations `xs[j] = g'` above the trie, with the proofs of `g = g'` over `xs` and `holes`.
-    let eqs ← withLCtx lctx (← getLocalInstances) do
-      eqs.mapM fun (j, g) => return (j, ← mkJoinEq (← Sym.inferType xs[j]!) xs[j]! g)
     -- The leaf of each jump `k`, with the proofs of `vals[k] = vals[k]'` in the context of `k`.
     let leaves ← (Array.range jumps.size).mapM fun k => do
       let decl ← jumps[k]!.proof.getDecl
@@ -477,23 +473,22 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
     let trieJumps := (jumpsLocals.zip leaves).map fun ((jump, locals), leaf) =>
       (jump, locals, mkAndN (leaf.map (·.2.1)).toList)
     let (trie, paths) ← mkTrie trieJumps 0
-    let binders := xs ++ holes.map (mkFVar ·.fvarId)
-    let (φ, eqPfs) ← withLCtx lctx (← getLocalInstances) do
-      let body := if eqs.isEmpty then trie else mkAnd (mkAndN (eqs.map (·.2.1)).toList) trie
-      let φ ← holes.foldrM (init := body) fun h φ => do
+    let eqTerms ← eqs.mapM fun (j, g) => do
+      let α ← Sym.inferType xs[j]!
+      return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α xs[j]! g
+    let body := if eqs.isEmpty then trie else mkAnd (mkAndN eqTerms.toList) trie
+    let lctx := holes.foldl (init := ← getLCtx) fun lctx h => lctx.mkLocalDecl h.fvarId `z h.type
+    let φ ← withLCtx lctx (← getLocalInstances) do
+      holes.foldrM (init := body) fun h φ => do
         return mkApp2 (mkConst ``Exists [← Sym.getLevel h.type]) h.type
           (← mkLambdaFVars #[mkFVar h.fvarId] φ)
-      let eqPfs ← eqs.mapM fun (j, _, pf?) => return (j, ← pf?.mapM (mkLambdaFVars binders ·))
-      return (φ, eqPfs)
     jp.hyp.assign (← mkLambdaFVars xs φ)
-    return (paths, holes, eqPfs, leaves.map (·.map fun (v, _, pf?) => (v, pf?)))
+    return (paths, holes, eqs.map (·.1), leaves.map (·.map fun (v, _, pf?) => (v, pf?)))
   for h : k in [:jumpsLocals.size] do
     let (jump, locals) := jumpsLocals[k]
     jump.proof.withContext do
       let φ ← instantiateMVars (← jump.proof.getType)
-      -- At jump `k`, `xs` are `jump.args` and the holes are their values at `k`.
-      let args := jump.args ++ holes.map (·.vals[k]!)
-      let eqPfsₖ ← eqPfs.mapM fun (j, pf?) => mkJoinEqProof jump.args[j]! (pf?.map (·.beta args))
+      let eqPfsₖ ← eqParams.mapM fun j => mkJoinEqProof jump.args[j]! none
       let leafPfsₖ ← leafPfs[k]!.mapM fun (v, pf?) => mkJoinEqProof v pf?
       jump.proof.assign
         (← mkJumpProof φ holes.toList k eqPfsₖ.toList paths[k]! locals.toList leafPfsₖ.toList)

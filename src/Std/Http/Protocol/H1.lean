@@ -509,7 +509,9 @@ private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
 
 /--
 Writes an informational (1xx) response at once. It has no content, so framing fields the caller set
-are left out (RFC 9110 §15.2), and a server never sends one to an HTTP/1.0 client.
+are left out (RFC 9110 §15.2), and a server never sends one to an HTTP/1.0 client. Like a final
+response it says HTTP/1.1 (RFC 9110 §6.2), and its `Connection` field limits keep-alive as a final
+head's does: a server that sends `close` processes no further requests (RFC 9112 §9.6).
 -/
 private def sendInterim (machine : Machine .receiving) (head : Response.Head) :
     Machine .receiving :=
@@ -517,10 +519,11 @@ private def sendInterim (machine : Machine .receiving) (head : Response.Head) :
     machine
   else
     let head : Response.Head := { head with
+      version := .v11
       headers := head.headers
         |>.erase Header.Name.contentLength
         |>.erase Header.Name.transferEncoding }
-    machine.modifyWriter fun w =>
+    machine.limitKeepAlive (d := .sending) head |>.modifyWriter fun w =>
       { w with outputData := w.outputData.push (ByteArray.empty ++ head) }
 
 /--

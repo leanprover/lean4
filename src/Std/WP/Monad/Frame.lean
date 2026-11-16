@@ -21,7 +21,10 @@ interpretation `base : MonadicWP m P E` through the `Lean.Order.PredTrans.frameC
 preconditions, so that every program frames every resource (`WP.frames_of_frameClosure`).
 `MonadicWP.isMonotone_withFrameClosure` and `MonadicWP.isLaxMonadMorphism_withFrameClosure` carry
 monotonicity and the lax monad morphism laws of the base interpretation over to it, for resource
-operators `op r` that act by `comp` with unit `e`.
+operators `op r` that act by `comp` with unit `e`. The base interpretation and its laws can state
+the assertion type as `P'`, definitionally equal to `P` with the same order: for a type synonym
+`HProp := Heap → Prop`, the frame operator acts on `HProp` while the laws of `StateM Heap` hold
+at `Heap → Prop`.
 -/
 
 open Lean.Order Std.WP
@@ -29,21 +32,29 @@ open Lean.Order Std.WP
 namespace Std.WP
 
 theorem MonadicWP.isMonotone_withFrameClosure {m : Type v → Type w}
-    {P : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
+    {P P' : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE]
-    [base : MonadicWP m P E] [hmono : MonadicWP.IsMonotone m] (α : Type v) :
-    @WP.IsMonotone (m α) α P E (WP.withFrameClosure op (base α)) _ _ :=
-  WP.isMonotone_withFrameClosure op (base α) inferInstance
+    [base : MonadicWP m P' E] [PartialOrder P'] [hmono : MonadicWP.IsMonotone m] (α : Type v)
+    (hP : P = P' := by rfl)
+    (hord : HEq (inferInstance : PartialOrder P) ‹PartialOrder P'› := by rfl) :
+    @WP.IsMonotone (m α) α P E (WP.withFrameClosure op (hP ▸ base α)) _ _ := by
+  subst hP
+  cases eq_of_heq hord
+  exact WP.isMonotone_withFrameClosure op (base α) inferInstance
 
 theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [Monad m]
-    {P : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
+    {P P' : Type u} {E : Type z} [CompleteLattice P] [CompleteLattice E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E', opE (comp r r') E' = opE r (opE r' E'))
     (hunit : ∀ a, op e a = a) (hunitE : ∀ E', opE e E' = E')
-    [base : MonadicWP m P E] [hmono : MonadicWP.IsMonotone m]
-    [hlax : MonadicWP.IsLaxMonadMorphism m] :
-    @MonadicWP.IsLaxMonadMorphism m P E _ (fun α => WP.withFrameClosure op (base α)) _ _ := by
+    [base : MonadicWP m P' E] [PartialOrder P'] [hmono : MonadicWP.IsMonotone m]
+    [hlax : MonadicWP.IsLaxMonadMorphism m]
+    (hP : P = P' := by rfl)
+    (hord : HEq (inferInstance : PartialOrder P) ‹PartialOrder P'› := by rfl) :
+    @MonadicWP.IsLaxMonadMorphism m P E _ (fun α => WP.withFrameClosure op (hP ▸ base α)) _ _ := by
+  subst hP
+  cases eq_of_heq hord
   refine @MonadicWP.IsLaxMonadMorphism.mk m P E _ (fun α => WP.withFrameClosure op (base α)) _ _
     (fun x post E' => ?_) (fun x f post E' => ?_)
   · show post x ⊑ (((base _).trans (pure x)).frameClosure op).apply post E'

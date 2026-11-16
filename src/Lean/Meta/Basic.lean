@@ -33,6 +33,8 @@ They are packed into the `MetaM` monad.
 namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
+/-- See `Config.stringLitToCtor`. -/
+builtin_initialize stringLitToCtorExceptionId : InternalExceptionId ← registerInternalExceptionId `stringLitToCtor
 
 /-- NOTE: value purely intended for equality comparison, *NOT* following the transparency lattice. -/
 def TransparencyMode.toUInt64 : TransparencyMode → UInt64
@@ -211,6 +213,15 @@ structure Config where
   Ignored if `Context.customCanUnfoldPredicate?` is set.
   -/
   canUnfoldPredicateConfig : CanUnfoldPredicateConfig := .default
+  /--
+  If `true`, `whnf` and `isDefEq` convert a `String` literal into the constructor application
+  `String.ofList [c₁, ..., cₙ]` when a reduction step needs its constructor, e.g., to reduce
+  `String.decEq` on two literals. The reductions enabled by this conversion are linear in the
+  size of the literal.
+  If `false`, the internal exception `stringLitToCtor` is thrown instead of performing the
+  conversion. See `withoutStringLitToCtor`.
+  -/
+  stringLitToCtor : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -234,6 +245,7 @@ private def Config.toKey (c : Config) : UInt64 :=
   (c.proj.toUInt64 <<< 19) |||
   (c.zetaHave.toUInt64 <<< 21) |||
   (c.zetaUnused.toUInt64 <<< 22) |||
+  (c.stringLitToCtor.toUInt64 <<< 24) |||
   (c.canUnfoldPredicateConfig.toBool.toUInt64 <<< 23)
 
 /-- Configuration with key produced by `Config.toKey`. -/
@@ -1396,6 +1408,13 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
   mapMetaM <| withReader fun ctx =>
     let config := f ctx.config
     { ctx with keyedConfig := { config } }
+
+/--
+Executes `x` with `Config.stringLitToCtor := false`. That is, `x` is interrupted with the internal
+exception `stringLitToCtor` if a reduction step needs the constructor of a `String` literal.
+-/
+@[inline] def withoutStringLitToCtor : n α → n α :=
+  withConfig ({ · with stringLitToCtor := false })
 
 @[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
   mapMetaM <| withReader fun ctx =>

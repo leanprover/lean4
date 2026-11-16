@@ -20,6 +20,7 @@ extern "C" void initialize_libuv() {
     initialize_libuv_tcp_socket();
     initialize_libuv_udp_socket();
     initialize_libuv_signal();
+    initialize_libuv_process();
     global_ev.start();
 }
 

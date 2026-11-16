@@ -4222,7 +4222,7 @@ goto v_resetjp_1452_;
 v_resetjp_1452_:
 {
 uint8_t v_useJP_1460_; 
-v_useJP_1460_ = lean_ctor_get_uint8(v___y_1435_, sizeof(void*)*6);
+v_useJP_1460_ = lean_ctor_get_uint8(v___y_1435_, sizeof(void*)*7);
 if (v_useJP_1460_ == 0)
 {
 lean_dec(v_a_1451_);

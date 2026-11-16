@@ -317,6 +317,9 @@ and log are saved to `traceFile`, if the build completes without a fatal error
       writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
+    -- Delete trace before build to prevent association of new outputs with
+    -- the old trace upon build failure and the reversion of the the inputs.
+    removeFileIfExists traceFile
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
@@ -480,7 +483,7 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        atomicWrite cacheFile normalized.toByteArray
+        writeBinFileAtomicIfNew cacheFile normalized.toByteArray
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -500,7 +503,7 @@ public def Cache.saveArtifact
         if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
           -- other functions can race to create the file
           unless e matches .alreadyExists .. do
-            atomicWrite cacheFile contents
+            writeBinFileAtomicIfNew cacheFile contents
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -508,29 +511,6 @@ public def Cache.saveArtifact
       return {descr, name := file.toString, path, mtime}
   catch e =>
     error s!"failed to cache artifact: {e}"
-where atomicWrite cacheFile contents := do
-  let tmpFile := cacheFile.addExtension "copy.tmp"
-  try discard <| IO.FS.Handle.mk tmpFile .writeNew catch _ => pure ()
-  let h ← IO.FS.Handle.mk tmpFile .readWrite
-  h.lock
-  if (← cacheFile.pathExists) then
-    try IO.FS.removeFile tmpFile catch _ => pure ()
-  else
-    h.rewind
-    -- A racing rename may leave us holding a handle to the cached artifact.
-    -- Thus, we must not write if the file already contains the expected contents.
-    unless (← h.readBinToEnd.toBaseIO).toOption.any (· == contents) do
-      h.rewind
-      -- Nonatomic write under the lock.
-      h.truncate
-      h.write contents
-      h.flush
-    -- Atomic rename. Must not overwrite because the `tmpFile` could be
-    -- an empty temporary file created by a racing rename and then a racing write.
-    try IO.FS.renameIfNew tmpFile cacheFile catch e =>
-      unless (← cacheFile.pathExists) do
-        throw e
-    try IO.FS.removeFile tmpFile catch _ => pure ()
 
 @[inline, inherit_doc Cache.saveArtifact]
 public def cacheArtifact
@@ -779,7 +759,6 @@ where
       removeFileIfExists file
       build
       clearFileHash file
-      removeFileIfExists traceFile
       computeArtifact file ext text
   setMTime art traceFile := do
     match (← getMTime traceFile |>.toBaseIO) with

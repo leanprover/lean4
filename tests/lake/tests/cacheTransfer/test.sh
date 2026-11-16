@@ -64,11 +64,14 @@ echo "URL=$URL"
 # Point the configured cache services at the mock server.
 # Copied after the commit above so that it does not dirty the work tree.
 cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" \
-  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml"  .
+  "$TEST_DIR/pkg-services.toml" "$TEST_DIR/reservoir-upload.toml" \
+  "$TEST_DIR/scoped-override.toml" "$TEST_DIR/reservoir-dep.toml" \
+  "$TEST_DIR/reservoir-override.toml" .
 mkdir -p service-dep
 cp "$TEST_DIR/service-dep.toml" service-dep/lakefile.toml
+cp "$TEST_DIR/dep/Dep.lean" service-dep/
 sed_i "s|%URL%|$URL|g" services.toml reservoir-upload.toml \
-  pkg-services.toml service-dep/lakefile.toml
+  pkg-services.toml service-dep/lakefile.toml scoped-override.toml reservoir-override.toml
 
 # The option validation below expects no configured service, as in a default
 # installation; the transfer tests switch to the mock services
@@ -142,14 +145,18 @@ test_err 'the `--rev` option does nothing' \
   cache get bogus.jsonl --scope='bogus' --rev='bogus' --wfail
 test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
 test_err 'unknown package `bogus`' cache get --package='bogus'
-test_err 'the `--rev` option is not supported for a multi-package Reservoir `cache get`' \
+test_err 'the `--rev` option is not supported for a multi-package `cache get`' \
   cache get --rev=bogus
-with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
+with_endpoints test_err 'multi-package `cache get` requires a Reservoir service' cache get
+LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service does not support `--scope` or `--repo`' \
+  cache get --scope='bogus' --service='flatRoot'
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 
 # Verify `cache put` rejects bad configurations
-with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
+with_endpoints test_err 'service requires `--scope` or `--repo` to be set' cache put bogus.jsonl
+LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service does not support `--scope` or `--repo`' \
+  cache put bogus.jsonl --scope='bogus' --service='flatRoot'
 test_err 'the `--rev` option is not supported for `cache put`' \
   cache put bogus.jsonl --scope='bogus' --rev=bogus
 test_err 'unknown package `bogus`' \
@@ -166,7 +173,7 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be
 # Verify `cache put-staged` rejects bad configurations
 test_err 'the `--rev` option must be set' \
   cache put-staged bogus --scope='bogus'
-test_err 'the `--scope` or `--repo` option must be set' \
+with_endpoints test_err 'service requires `--scope` or `--repo` to be set' \
   cache put-staged bogus --rev='bogus'
 test_err 'the `--package` option does nothing for `cache put-staged`' \
   cache put-staged bogus --scope='bogus' --rev='bogus' --package='bogus'
@@ -195,10 +202,16 @@ test_err 'outputs not found for revision' \
 
 # Verify dependencies that are not on Reservoir are skipped
 test_run -f non-reservoir.toml update
-test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
+test_out 'hello: skipping non-Reservoir package' -f non-reservoir.toml cache get
 # Verify such a dependency is an error when selected with `--package`
-test_err 'hello: not a Reservoir dependency' \
+test_err 'hello: a Reservoir service is configured, but the package is not a Reservoir dependency' \
   -f non-reservoir.toml cache get --package=hello
+test_run update
+
+# Verify an explicit `--service` takes precedence over the package's `downloadCacheService`
+test_run -f pkg-services.toml update
+LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service requires `--scope` or `--repo` to be set' \
+  -f pkg-services.toml cache get --package=service-dep --service=ok
 test_run update
 
 echo "# TRANSFER TESTS"
@@ -450,6 +463,12 @@ match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
+# Verify a build does not fetch from a `downloadCacheService` without a writable artifact cache
+test_run -f reservoir-dep.toml update
+: > "$SERVER_LOG"
+test_not_out 'optArtifactCache' -f reservoir-dep.toml -v build @service-dep/Dep
+no_match_text "GET" "$SERVER_LOG"
+
 # Verify transfers through cache services declared by packages:
 # an S3 service from a dependency and a Reservoir service from the root
 test_run -f pkg-services.toml update
@@ -462,6 +481,96 @@ test_out 'downloaded artifact' \
   -f pkg-services.toml cache get --repo=leanprover/test --service=rootReservoir
 match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG"
 test_artifacts "$NUM_ARTS"
+
+# Verify a round trip through the `downloadCacheService` of the root and a dependency:
+# outputs uploaded without a scope are found by a `cache get` without options
+test_run -f pkg-services.toml build Test -o flat-root-outputs.jsonl
+test_run -f pkg-services.toml cache put flat-root-outputs.jsonl --service=flatRoot
+test_run -f pkg-services.toml build @service-dep/Dep -o flat-dep-outputs.jsonl \
+  --package=service-dep
+test_run -f pkg-services.toml cache put flat-dep-outputs.jsonl \
+  --package=service-dep --service=flatDep
+# An unscoped upload stores artifacts at the endpoint root
+# and outputs under just the platform
+test_artifacts "$NUM_ARTS" "$STORE_DIR/a2"
+test_exp -f "$STORE_DIR"/r2/pt/*/"$(git rev-parse HEAD)".jsonl
+test_artifacts "$NUM_DEP_ARTS" "$STORE_DIR/a1"
+test_exp -f "$STORE_DIR"/r1/pt/*/"$(git -C service-dep rev-parse HEAD)".jsonl
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+test_out 'downloaded artifact' -f pkg-services.toml cache get
+match_text "GET /ok/r2/pt/" "$SERVER_LOG"
+match_text "GET /ok/r1/pt/" "$SERVER_LOG"
+test_artifacts $((NUM_ARTS + NUM_DEP_ARTS))
+test_run -f pkg-services.toml build Test @service-dep/Dep --no-build
+# Verify `--package` fetches just the selected package
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+test_out 'downloaded artifact' -f pkg-services.toml cache get --package=service-dep
+test_artifacts "$NUM_DEP_ARTS"
+test_run -f pkg-services.toml build @service-dep/Dep --no-build
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+test_out 'downloaded artifact' -f pkg-services.toml cache get --package=test
+test_artifacts "$NUM_ARTS"
+test_run -f pkg-services.toml build Test --no-build
+# Verify the recorded unscoped outputs fetch their artifacts on demand
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+test_run -f pkg-services.toml cache get --mappings-only
+test_artifacts 0
+test_out 'downloaded artifact' -f pkg-services.toml -v build Test @service-dep/Dep --no-build
+test_artifacts $((NUM_REPLAY_ARTS + NUM_DEP_REPLAY_ARTS))
+# Verify a build fetches a dependency's outputs from its `downloadCacheService`
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+test_out 'Fetched Dep' -f pkg-services.toml build @service-dep/Dep --no-build
+match_text "GET /ok/r1/pt/" "$SERVER_LOG"
+match_text "GET /ok/a1/" "$SERVER_LOG"
+test_artifacts "$NUM_DEP_REPLAY_ARTS"
+# Verify a build does not fetch them once the dependency has a build directory
+: > "$SERVER_LOG"
+test_not_out 'optArtifactCache' -f pkg-services.toml -v build @service-dep/Dep --no-build
+no_match_text "GET" "$SERVER_LOG"
+# Verify an on-demand fetch of `cache add` mappings for an unscoped service
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_run -f pkg-services.toml cache add flat-root-outputs.jsonl --service=flatRoot
+test_artifacts 0
+: > "$SERVER_LOG"
+test_out 'downloaded artifact' -f pkg-services.toml -v build Test --no-build
+match_text "GET /ok/a2/" "$SERVER_LOG"
+test_artifacts "$NUM_REPLAY_ARTS"
+# Verify a `downloadCacheService` overridden by a service with package scopes
+# is skipped with a warning by a multi-package `cache get`
+# and is an error when the package is selected with `--package`
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_out \
+  'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
+  -f pkg-services.toml cache get
+test_artifacts "$NUM_ARTS"
+LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_err \
+  'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
+  -f pkg-services.toml cache get --package=service-dep
+# Verify a build does not fetch through such a service and instead builds from source
+test_cmd rm -rf service-dep/.lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+LAKE_CONFIG="$WORK_DIR/scoped-override.toml" test_out \
+  'service-dep: package'"'"'s configured download service `depFlat` requires a scope' \
+  -f pkg-services.toml -v build @service-dep/Dep
+match_text 'Built Dep' produced.out
+no_match_text "GET" "$SERVER_LOG"
+test_run update
+
+# Verify a build fetches through a `downloadCacheService` overridden by a Reservoir service,
+# looking up the outputs under the dependency's Reservoir scope
+test_run -f reservoir-dep.toml update
+LAKE_ARTIFACT_CACHE=true test_run -f reservoir-dep.toml build @service-dep/Dep \
+  -o reservoir-dep-outputs.jsonl --package=service-dep
+test_run -f reservoir-dep.toml cache put reservoir-dep-outputs.jsonl \
+  --package=service-dep --repo=leanprover/service-dep
+test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+LAKE_CONFIG="$WORK_DIR/reservoir-override.toml" LAKE_ARTIFACT_CACHE=true \
+  test_out 'Fetched Dep' -f reservoir-dep.toml build @service-dep/Dep --no-build
+match_text "GET /ok/api/v1/packages/leanprover/service-dep/build-outputs" "$SERVER_LOG"
+match_text "GET /ok/api/v1/packages/leanprover/service-dep/artifacts/" "$SERVER_LOG"
 test_run update
 
 # Verify `-o` with `--package` tracks the outputs of the selected dependency
@@ -480,7 +589,7 @@ test_exp -d "$STORE_DIR/r0/leanprover/dep"
 test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
 : > "$SERVER_LOG"
 # The other dependencies are left alone, so none is reported as skipped
-test_not_out 'skipping non-Reservoir dependency' -f dep.toml cache get --package=dep
+test_not_out 'skipping non-Reservoir package' -f dep.toml cache get --package=dep
 match_text "POST /ok/api/v1/packages/leanprover/dep/artifacts" "$SERVER_LOG"
 test_exp -d "$CACHE_DIR/revisions/dep"
 test_artifacts "$NUM_DEP_ARTS"

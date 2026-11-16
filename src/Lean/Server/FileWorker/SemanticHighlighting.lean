@@ -10,6 +10,7 @@ public import Lean.Server.Requests
 public import Lean.Data.Markdown
 import Lean.DocString.View
 import Lean.DocString.Parser
+import Init.Data.List.Sort.Impl
 
 public section
 

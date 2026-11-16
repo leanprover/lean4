@@ -439,7 +439,25 @@ struct native_symbol_cache_entry {
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
 name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
+// Imported modules without native code, recorded by `runInitAttrs` and reset when a dynamic library
+// is loaded; guarded by the same mutex.
+name_hash_map<bool> * g_non_native_modules;
 std::shared_mutex * g_native_symbol_cache_mutex;
+
+/* getImportedDeclModule (env : Environment) (declName : Name) : Name */
+extern "C" obj_res lean_get_imported_decl_module(obj_arg env, obj_arg fn);
+
+/* markNonNativeModule (mod : @& Name) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_mark_non_native_module(b_obj_arg mod) {
+    std::unique_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
+    g_non_native_modules->insert({TO_REF(name, mod), true});
+    return box(0);
+}
+
+void reset_non_native_modules() {
+    std::unique_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
+    g_non_native_modules->clear();
+}
 
 class interpreter {
     // stack of IR variable slots
@@ -944,7 +962,9 @@ private:
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (decl_tag(e_new.m_decl) == decl_kind::Extern)
             e_new.m_native.m_prim = find_prim(fn);
-        if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
+        bool is_extern = decl_tag(e_new.m_decl) == decl_kind::Extern;
+        if ((m_prefer_native || is_extern || has_init_attribute(m_env, fn)) &&
+            (is_extern || !is_from_non_native_module(fn))) {
             string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
             // check for boxed version first
@@ -964,6 +984,14 @@ private:
         }
         g_native_symbol_cache->insert({ fn, e_new.m_native });
         return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
+    }
+
+    /** \brief Whether `fn` was imported from a module without native code. Requires `g_native_symbol_cache_mutex`. */
+    bool is_from_non_native_module(name const & fn) {
+        if (g_non_native_modules->empty())
+            return false;
+        name mod(lean_get_imported_decl_module(m_env.to_obj_arg(), fn.to_obj_arg()));
+        return !mod.is_anonymous() && g_non_native_modules->find(mod) != g_non_native_modules->end();
     }
 
     /** \brief Retrieve Lean declaration from elab_environment. */
@@ -1368,12 +1396,14 @@ void initialize_ir_interpreter() {
         register_trace_class(*ir::g_interpreter_step);
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
+    ir::g_non_native_modules = new name_hash_map<bool>();
     ir::g_native_symbol_cache_mutex = new std::shared_mutex();
 }
 
 void finalize_ir_interpreter() {
     delete ir::g_native_symbol_cache_mutex;
     delete ir::g_native_symbol_cache;
+    delete ir::g_non_native_modules;
     DEBUG_CODE({
         delete ir::g_interpreter_call;
         delete ir::g_interpreter_step;

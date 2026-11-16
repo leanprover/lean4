@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SemanticHighlighting
-// Imports: public import Lean.Server.Requests public import Lean.Data.Markdown import Lean.DocString.View import Lean.DocString.Parser
+// Imports: public import Lean.Server.Requests public import Lean.Data.Markdown import Lean.DocString.View import Lean.DocString.Parser import Init.Data.List.Sort.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -94,7 +94,7 @@ size_t lean_usize_shift_right(size_t, size_t);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
-lean_object* l_List_mergeSort___redArg(lean_object*, lean_object*);
+lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_SemanticTokenType_toNat(uint8_t);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -4316,7 +4316,7 @@ lean_object* v___f_1029_; lean_object* v_count_1030_; lean_object* v___x_1031_; 
 v___f_1029_ = ((lean_object*)(l_Lean_Server_FileWorker_handleOverlappingSemanticTokens___closed__0));
 v_count_1030_ = lean_array_get_size(v_tokens_1028_);
 v___x_1031_ = lean_array_to_list(v_tokens_1028_);
-v_tokens_1032_ = l_List_mergeSort___redArg(v___x_1031_, v___f_1029_);
+v_tokens_1032_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v___x_1031_, v___f_1029_);
 v___x_1033_ = lean_unsigned_to_nat(11u);
 v___x_1034_ = lean_nat_mul(v_count_1030_, v___x_1033_);
 v___x_1035_ = lean_unsigned_to_nat(10u);
@@ -18319,7 +18319,7 @@ v_snd_5707_ = lean_ctor_get(v_head_5704_, 1);
 v___f_5708_ = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_Server_FileWorker_dbgShowTokens_spec__5___redArg___closed__0));
 lean_inc(v_snd_5707_);
 v___x_5709_ = lean_array_to_list(v_snd_5707_);
-v___x_5710_ = l_List_mergeSort___redArg(v___x_5709_, v___f_5708_);
+v___x_5710_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v___x_5709_, v___f_5708_);
 lean_inc(v_fst_5706_);
 v___x_5711_ = l_Nat_reprFast(v_fst_5706_);
 v___x_5712_ = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_Server_FileWorker_dbgShowTokens_spec__5___redArg___closed__1));
@@ -18405,7 +18405,7 @@ goto v___jp_5743_;
 v___jp_5743_:
 {
 lean_object* v___x_5745_; lean_object* v___x_5746_; 
-v___x_5745_ = l_List_mergeSort___redArg(v___y_5744_, v___f_5741_);
+v___x_5745_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v___y_5744_, v___f_5741_);
 v___x_5746_ = l_List_forIn_x27_loop___at___00Lean_Server_FileWorker_dbgShowTokens_spec__5___redArg(v___x_5745_, v___x_5742_);
 lean_dec(v___x_5745_);
 return v___x_5746_;
@@ -22296,6 +22296,7 @@ lean_object* runtime_initialize_Lean_Server_Requests(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Markdown(uint8_t builtin);
 lean_object* runtime_initialize_Lean_DocString_View(uint8_t builtin);
 lean_object* runtime_initialize_Lean_DocString_Parser(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_SemanticHighlighting(uint8_t builtin) {
@@ -22313,6 +22314,9 @@ res = runtime_initialize_Lean_DocString_View(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_DocString_Parser(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Sort_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_FileWorker_keywordSemanticTokenMap = _init_l_Lean_Server_FileWorker_keywordSemanticTokenMap();
@@ -22337,6 +22341,7 @@ lean_object* initialize_Lean_Server_Requests(uint8_t builtin);
 lean_object* initialize_Lean_Data_Markdown(uint8_t builtin);
 lean_object* initialize_Lean_DocString_View(uint8_t builtin);
 lean_object* initialize_Lean_DocString_Parser(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_SemanticHighlighting(uint8_t builtin) {
 lean_object * res;
@@ -22352,6 +22357,9 @@ res = initialize_Lean_DocString_View(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString_Parser(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Sort_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_FileWorker_SemanticHighlighting(builtin);

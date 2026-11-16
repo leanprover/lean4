@@ -142,7 +142,8 @@ public def resolveRevision? (rev : GitRev) (repo : GitRepo) : BaseIO (Option Git
 
 /-- Resolves the revision to a valid commit hash within the repository. -/
 public def findCommit? (rev : GitRev) (repo : GitRepo) : BaseIO  (Option GitRev) := do
-  repo.captureGit? #["rev-parse", "--verify", "--end-of-options", rev ++ "^{commit}"]
+  -- `^0` is short for `^{commit}`, whose braces a Git built on the MSYS2 runtime would expand.
+  repo.captureGit? #["rev-parse", "--verify", "--end-of-options", rev ++ "^0"]
 
 public def resolveRevision (rev : GitRev) (repo : GitRepo) : LogIO GitRev := do
   if rev.isFullSha1 then return rev
@@ -187,7 +188,8 @@ public def branchExists (rev : GitRev) (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["show-ref", "--verify", s!"refs/heads/{rev}"]
 
 public def revisionExists (rev : GitRev) (repo : GitRepo) : BaseIO Bool := do
-  repo.testGit #["rev-parse", "--verify", rev ++ "^{commit}"]
+  -- `^0` rather than `^{commit}`, as in `findCommit?`
+  repo.testGit #["rev-parse", "--verify", rev ++ "^0"]
 
 public def getTags (repo : GitRepo) : BaseIO (List String) := do
   let some out ← repo.captureGit? #["tag"] | return []

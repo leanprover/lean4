@@ -37,7 +37,7 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_simp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_VCGen_runSimp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_VCGen_runSimp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Result_toSimpGoalResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -2631,7 +2631,7 @@ v_reusejp_914_:
 {
 lean_object* v___x_916_; lean_object* v_invariantAlts_917_; lean_object* v___x_918_; 
 v___x_916_ = lean_st_ref_put(v___y_876_, v___x_915_);
-v_invariantAlts_917_ = lean_ctor_get(v___y_875_, 4);
+v_invariantAlts_917_ = lean_ctor_get(v___y_875_, 5);
 lean_inc(v_head_885_);
 v___x_918_ = l_Lean_Elab_Tactic_VCGen_elabInvariant(v_invariantAlts_917_, v___x_896_, v_head_885_, v___y_877_, v___y_878_, v___y_879_, v___y_880_, v___y_881_, v___y_882_);
 if (lean_obj_tag(v___x_918_) == 0)
@@ -3186,7 +3186,7 @@ lean_dec_ref_known(v___x_1196_, 1);
 v___x_1198_ = lean_alloc_closure((void*)(l_Lean_Meta_Sym_Simp_simp___boxed), 11, 1);
 lean_closure_set(v___x_1198_, 0, v_a_1197_);
 lean_inc(v_val_1195_);
-v___x_1199_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_1195_, v___x_1198_, v___y_1183_, v___y_1187_, v___y_1188_, v___y_1189_, v___y_1190_, v___y_1191_, v___y_1192_);
+v___x_1199_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_1195_, v___x_1198_, v___y_1182_, v___y_1183_, v___y_1187_, v___y_1188_, v___y_1189_, v___y_1190_, v___y_1191_, v___y_1192_);
 if (lean_obj_tag(v___x_1199_) == 0)
 {
 lean_object* v_a_1200_; lean_object* v___x_1201_; 

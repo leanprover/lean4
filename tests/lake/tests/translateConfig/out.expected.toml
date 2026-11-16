@@ -32,6 +32,7 @@ name = "cdn"
 kind = "s3"
 artifactEndpoint = "https://example.com/a0"
 revisionEndpoint = "https://example.com/r0"
+hasPackageScopes = false
 
 [[cache_service]]
 name = "my-reservoir"

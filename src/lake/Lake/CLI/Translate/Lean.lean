@@ -294,9 +294,7 @@ def mkCacheServiceCommand
     | .s3 =>
       let artifactEndpoint := service.artifactEndpoint (service.kind_eq_iff_isS3.mp h)
       let revisionEndpoint := service.revisionEndpoint (service.kind_eq_iff_isS3.mp h)
-      `(.downloadService $(mkStrLit artifactEndpoint) $(mkStrLit revisionEndpoint))
-    | .undef =>
-      service.kind_ne_undef.elim h
+      `(.downloadService $(mkStrLit artifactEndpoint) $(mkStrLit revisionEndpoint) (hasPackageScopes := $(toLean service.hasPackageScopes)))
   `(cacheServiceCommand|cache_service $(mkIdent name):ident := $defn)
 
 /-! ## Package & Target Configuration Encoders -/

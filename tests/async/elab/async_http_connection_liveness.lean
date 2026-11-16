@@ -77,11 +77,17 @@ def within (ms : Nat) (action : Async Unit) : Async Bool :=
   Async.race (do action; pure true) (do sleep (.ofNat ms); pure false)
 
 -- Over TCP, a peer that requests a large response and never reads it gives up its connection
--- permit, so the next client is served, and shutdown completes.
+-- permit, so the next client is served, and shutdown completes. The response is streamed in pieces:
+-- Windows accepts a whole write, however large, while its send buffer has room, so a single write
+-- would never stall.
 #eval withTimeout "non-reading TCP peer" 20000 <| Async.block do
-  let big := ByteArray.mk (Array.replicate (32 * 1024 * 1024) 'x'.toUInt8)
+  let pieces := 128
   let handler : TestHandler := fun req =>
-    if toString req.line.uri == "/big" then Response.ok |>.bytes big else Response.ok |>.text "small"
+    if toString req.line.uri == "/big" then
+      Response.ok |>.stream fun out => do
+        for _ in [0:pieces] do
+          out.send (Chunk.ofByteArray bigBody)
+    else Response.ok |>.text "small"
   let config : Config := { stalledConfig with maxConnections := 1 }
   let server ← Server.serve (SocketAddressV4.mk (.ofParts 127 0 0 1) 0) handler config
   let some addr := server.localAddr | throw (IO.userError "the server has no address")
@@ -106,7 +112,7 @@ def within (ms : Nat) (action : Async Unit) : Async Bool :=
     match ← (try stalled.recv? 65536 catch _ => pure none) with
     | some chunk => received := received + chunk.size
     | none => break
-  unless received < big.size do
+  unless received < pieces * bigBody.size do
     throw (IO.userError s!"the abandoned response was still written in full ({received} bytes)")
 
 /-- A transport that counts how often the connection polls the socket for input. -/

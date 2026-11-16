@@ -3823,8 +3823,8 @@ return v___x_970_;
 }
 else
 {
-lean_dec_ref_known(v_a_930_, 1);
 lean_dec(v_a_932_);
+lean_dec_ref_known(v_a_930_, 1);
 lean_dec(v_a_928_);
 lean_dec_ref(v_prf_918_);
 lean_dec_ref(v___x_658_);

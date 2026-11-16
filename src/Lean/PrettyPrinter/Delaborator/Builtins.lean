@@ -993,9 +993,9 @@ private partial def delabLamAux (allNames : NameSet) : Delab := do
           | BinderInfo.strictImplicit, false => `(funBinder| ⦃$curNames*⦄)
           | BinderInfo.instImplicit, _ =>
             -- here `curNames.size == 1`
-            -- Approximation: if the name does not appear in the pretty printed body
-            -- then don't use the name, even if it is dependent.
-            if dep && curNames.any (fun n => stxBody.raw.hasIdent n.getId) then
+            -- Keep the name if it appears in the body or a later binder's type.
+            if dep && curNames.any (fun n =>
+                stxBody.raw.hasIdent n.getId || binders.any (fun binder => binder.raw.hasIdent n.getId)) then
               `(funBinder| [$curNames.back! : $(← mstxT)])
             else
               `(funBinder| [$(← mstxT)])

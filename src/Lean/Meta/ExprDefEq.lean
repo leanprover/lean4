@@ -995,10 +995,14 @@ def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) 
   mkFreshExprMVarAt lctx localInsts type MetavarKind.natural Name.anonymous numScopeArgs
 
 /--
-Like `mkAuxMVar`, but for an auxiliary metavariable that stands in for `mvarId` (with a smaller
-context or with fewer arguments). The new metavariable inherits the instance-typed mark of
-`mvarId`, so that the type check for instance-typed metavariables cannot be bypassed by assigning
-the replacement instead. See `MetavarContext.instanceTypedMVars`.
+Like `mkAuxMVar`, but for a metavariable that is meant to stand in for or replace `mvarId`.
+For example, sometimes we want to replace a metavariable with one that has a smaller context
+or fewer arguments. We therefore create the new, more restricted, metavariable with `mkAuxMVarFor`
+and assign it to the old one.
+
+Other than with `mkAuxMVar`, the new metavariable inherits the instance-typed mark of `mvarId`,
+so that the type check for instance-typed metavariables cannot be bypassed by assigning the
+replacement metavariable instead. See `MetavarContext.instanceTypedMVars`.
 -/
 def mkAuxMVarFor (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
     (numScopeArgs : Nat := 0) : MetaM Expr := do

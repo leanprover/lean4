@@ -210,6 +210,67 @@ Note: Removing the attribute may break proofs that rely on it. If it needs to be
 @[simp, deprecated "no replacement" (since := "2025-01-01")]
 theorem replacementDef_of_oldDef (n : Nat) (h : oldDef n = 2) : replacementDef n = 2 := h
 
+-- Constructors and projections of a deprecated type count as deprecated.
+structure Base where
+  n : Nat
+
+@[deprecated "no replacement" (since := "2025-01-01")]
+structure Ext extends Base where
+  m : Nat
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem Ext.m_eq (e : Ext) : e.m = e.m + 0 := rfl
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem Ext.n_eq (e : Ext) : e.n = e.n + 0 := rfl
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem Ext.mk_m (b : Base) (m : Nat) : (Ext.mk b m).m = m := rfl
+
+class OpClass (α : Type) where
+  op : α → α
+
+@[deprecated "no replacement" (since := "2025-01-01")]
+class OldOpClass (α : Type) extends OpClass α where
+  op_id (a : α) : op a = a
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem OldOpClass.op_eq {α : Type} [OldOpClass α] (a : α) : OpClass.op a = a :=
+  OldOpClass.op_id a
+
+-- Parent projections that are not subobjects count as well.
+class OpClass₁ (α : Type) extends OpClass α where
+  x : α
+
+class OpClass₂ (α : Type) extends OpClass α where
+  y : α
+
+@[deprecated "no replacement" (since := "2025-01-01")]
+class OldOpClass₂ (α : Type) extends OpClass₁ α, OpClass₂ α where
+  x_eq_y : x = y
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem OldOpClass₂.y_eq {α : Type} [OldOpClass₂ α] : (OpClass₂.y : α) = OpClass₁.x :=
+  OldOpClass₂.x_eq_y.symm
+
+/--
+warning: `OpClass₂.y_eq` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem OpClass₂.y_eq {α : Type} [OpClass₂ α] (h : (OpClass₂.y : α) = OpClass.op OpClass₂.y) :
+    (OpClass₂.y : α) = OpClass.op OpClass₂.y := h
+
 -- Deprecated definitions are only unfolded where they occur.
 #guard_msgs in
 @[simp, deprecated replacementDef (since := "2025-01-01")]

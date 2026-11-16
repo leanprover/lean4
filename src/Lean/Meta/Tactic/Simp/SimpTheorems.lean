@@ -459,7 +459,7 @@ private def isSimpTheoremGuardedBy (p : Name → Bool) (type : Expr) : MetaM Boo
     let some (_, lhs, _) := (← whnfR type).eq? |
       throwError "Unexpected kind of simp theorem{indentExpr type}"
     let keys ← DiscrTree.mkPath lhs (noIndexAtArgs := false)
-    if keys.any fun | .const n _ => p n | _ => false then
+    if keys.any fun | .const n _ | .proj n _ _ => p n | _ => false then
       return true
     -- Keys omit instances and implicit arguments, which `simp` matches up to definitional equality.
     -- Proofs never constrain matching, and reducible definitions may be unfolded away.

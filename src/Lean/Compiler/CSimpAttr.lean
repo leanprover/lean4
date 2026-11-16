@@ -75,7 +75,7 @@ private def lintComputable (fromDeclName : Name) : CoreM Unit := do
     return
   let env ← getEnv
   if isNoncomputable env fromDeclName then return
-  if (← getConstInfo fromDeclName) matches .recInfo _ then return
+  if ← isRec fromDeclName then return
   if env.isProjectionFn fromDeclName then return
   Linter.logLint linter.csimpNoncomputable (← getRef)
     m!"`{.ofConstName fromDeclName}` is replaced by a `@[csimp]` theorem but is not marked \

@@ -145,6 +145,24 @@ theorem oldDef_and' (n : Nat) : oldDef n = replacementDef n ∧ replacementDef 0
 @[simp, deprecated replacementDef (since := "2025-01-01")]
 def oldDef2 (n : Nat) : Nat := n + 1
 
+-- A declaration that is not deprecated is not reported, whatever its keys contain. Only the use
+-- of the deprecated declaration in its statement is.
+/--
+warning: `oldDef` has been deprecated: Use `replacementDef` instead
+
+Hint: Replace the deprecated name:
+  o̵l̵d̵D̵e̵f̵r̲e̲p̲l̲a̲c̲e̲m̲e̲n̲t̲D̲e̲f̲
+-/
+#guard_msgs in
+@[simp] theorem oldDef_eq_notDeprecated (n : Nat) : oldDef n = replacementDef n := rfl
+
+-- The exemption also applies when the declaration is deprecated in the same `attribute` command.
+set_option linter.deprecated false in
+theorem oldDef_eq_later (n : Nat) : oldDef n = replacementDef n := rfl
+
+#guard_msgs in
+attribute [simp, deprecated "no replacement" (since := "2025-01-01")] oldDef_eq_later
+
 /-!
 The same applies to `grind`, whose theorems are only activated once all symbols of their patterns
 occur in the goal.

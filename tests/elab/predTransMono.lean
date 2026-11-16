@@ -31,7 +31,7 @@ inductive Toggle where
   | flip
 
 instance : WP Toggle Bool Prop Unit where
-  trans _ := ⟨fun Q _ => Q true, fun hQ _ => hQ true⟩
+  trans _ := PredTrans.mk (fun Q _ => Q true) fun hQ _ => hQ true
 
 example {Q Q' : Bool → Prop} (h : Q ⊑ Q') : wp Toggle.flip Q () ⊑ wp Toggle.flip Q' () :=
   WP.wp_monotone_post h

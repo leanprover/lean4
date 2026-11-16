@@ -272,7 +272,7 @@ instance (r : TraceProp): Lean.Order.PreservesSup (Lean.Order.meet r) where
 public
 instance: WPMonad Traceful TraceProp EStack⟨⟩ where
   toWP α := {
-    trans f := ⟨fun post _epost => ⟨
+    trans f := PredTrans.mk (fun post _epost => ⟨
       fun trProof =>
         let (optRes, trOut) := f.run trProof.val.erase
         ∃ trOutProof: ProofTrace,
@@ -282,9 +282,9 @@ instance: WPMonad Traceful TraceProp EStack⟨⟩ where
         match optRes with
         | none => True
         | some res => post res ⟨ trOutProof, h ⟩
-    ⟩, by
+    ⟩) (by
       simp only [Lean.Order.PartialOrder.rel]
-      grind⟩
+      grind)
   }
 
   pure_le_wp_pure x := by

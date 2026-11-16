@@ -63,8 +63,8 @@ inductive Prog (α : Type) where
 
 instance : WP (Prog α) α Prop Thrown where
   trans
-    | .ret a => ⟨fun post _ => post a, fun hpost _ => hpost a⟩
-    | .throw e => ⟨fun _ epost => epost.onThrow e, fun _ hepost => hepost e⟩
+    | .ret a => PredTrans.mk (fun post _ => post a) fun hpost _ => hpost a
+    | .throw e => PredTrans.mk (fun _ epost => epost.onThrow e) fun _ hepost => hepost e
 
 axiom Q : String → Prop
 

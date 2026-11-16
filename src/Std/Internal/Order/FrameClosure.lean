@@ -154,19 +154,22 @@ supremum-preserving operators `op r` and its exception-channel companion `opE r`
 resources `r` of the `r`-upper-adjoint of `t` framed by `r` on both channels. It internalizes the
 frame rule into any `t` (see `PredTrans.frameClosure_frames`), with no assumption on `t`. -/
 noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
-    (t : PredTrans Pred EPosts β) : PredTrans Pred EPosts β where
-  apply Q E := ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))
-  apply_mono hQ hE := by
-    haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
-    haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
-    exact iInf_mono fun r => PreservesSup.upperAdjoint_mono _ <|
-      t.apply_mono (fun a => PreservesSup.map_mono (op r) (hQ a)) (PreservesSup.map_mono (opE r) hE)
+    (t : PredTrans Pred EPosts β) : PredTrans Pred EPosts β :=
+  PredTrans.mk
+    (fun Q E => ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)))
+    fun hQ hE => by
+      haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
+      haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
+      exact iInf_mono fun r => PreservesSup.upperAdjoint_mono _ <|
+        t.apply_mono (fun a => PreservesSup.map_mono (op r) (hQ a))
+          (PreservesSup.map_mono (opE r) hE)
 
 /-- Unfolding `frameClosure` through `apply`. -/
 theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
     (t : PredTrans Pred EPosts β) (Q : β → Pred) (E : EPosts) :
     (t.frameClosure op).apply Q E =
-      ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl
+      ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := by
+  simp only [frameClosure, PredTrans.apply_mk]
 
 /-- The frame rule, internalized: for supremum-preserving `op r` whose resources compose by `comp`
 with the action law `op (comp r r') = op r ∘ op r'`, and the matching companion law `hactE`, `op F`
@@ -179,12 +182,15 @@ theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPo
     op F ((t.frameClosure op).apply Q E) ⊑
       (t.frameClosure op).apply (fun a => op F (Q a)) (opE F E) := by
   haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
+  rw [apply_frameClosure op t (fun a => op F (Q a))]
   apply le_iInf
   intro F'
   apply PreservesSup.le_upperAdjoint (op F')
   rw [← hact F' F ((t.frameClosure op).apply Q E)]
   refine PartialOrder.rel_trans
-    (PreservesSup.map_mono (op (comp F' F)) (iInf_le _ (comp F' F))) ?_
+    (PreservesSup.map_mono (op (comp F' F))
+      (PartialOrder.rel_trans (PartialOrder.rel_of_eq (apply_frameClosure op t Q E))
+        (iInf_le _ (comp F' F)))) ?_
   refine PartialOrder.rel_trans (PreservesSup.upperAdjoint_le (op (comp F' F)) _) ?_
   apply PartialOrder.rel_of_eq
   rw [hactE F' F E]
@@ -200,6 +206,7 @@ theorem PredTrans.le_frameClosure_iff (op : R → Pred → Pred) [FrameOp op EPo
     pre ⊑ (t.frameClosure op).apply Q E ↔
       ∀ r, op r pre ⊑ t.apply (fun a => op r (Q a)) (opE r E) := by
   haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
+  rw [apply_frameClosure]
   constructor
   · intro h r
     exact PartialOrder.rel_trans
@@ -230,6 +237,7 @@ theorem PredTrans.frameClosure_le (op : R → Pred → Pred) [FrameOp op EPosts 
     (t : PredTrans Pred EPosts β) (Q : β → Pred) (E : EPosts) :
     (t.frameClosure op).apply Q E ⊑ t.apply Q E := by
   haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
+  rw [apply_frameClosure]
   refine PartialOrder.rel_trans (iInf_le _ e) ?_
   rw [show (fun a => op e (Q a)) = Q from funext fun a => hunit (Q a), hunitE E]
   have h := PreservesSup.upperAdjoint_le (op e) (t.apply Q E)

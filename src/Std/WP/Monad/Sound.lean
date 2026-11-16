@@ -52,21 +52,21 @@ instance Id.instLawfulWPMonadAttach : LawfulWPMonadAttach Id.{u} Prop EStack⟨�
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [CompleteLattice.ofProp_prop_eq] at h
+    simp only [WP.wp, WP.trans, PredTrans.apply_mk, CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance Option.instLawfulWPMonadAttach : LawfulWPMonadAttach Option.{u} Prop (Unit → Prop) where
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [CompleteLattice.ofProp_prop_eq] at h
+    simp only [WP.wp, WP.trans, PredTrans.apply_mk, CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance Except.instLawfulWPMonadAttach {ε : Type u} : LawfulWPMonadAttach (Except ε) Prop (ε → Prop) where
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [CompleteLattice.ofProp_prop_eq] at h
+    simp only [WP.wp, WP.trans, PredTrans.apply_mk, CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (EStateM ε σ) (σ → Prop) (ε → σ → Prop) where
@@ -74,7 +74,8 @@ instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (E
     obtain ⟨s, s', heq⟩ := hcan
     have hxs : x s = EStateM.Result.ok a s' := heq
     have h := hwp s (by simp)
-    simp only [wp, WP.trans, hxs] at h
+    simp only [wp, WP.trans, PredTrans.apply_mk] at h
+    simp only [hxs] at h
     simpa using h
 
 instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPosts}
@@ -198,7 +199,7 @@ theorem Id.of_run_eq_wp {α : Type u} {x : α} {prog : Id α}
   (h : Id.run prog = x) (P : α → Prop)
   (hwp : wp prog P ()) : P x := by
   rw [← h]
-  exact hwp
+  simpa only [Id.wp_apply_eq] using hwp
 
 /-- Soundness for `Option`: the postcondition takes a `some` case and a `none` case, and `wp prog`
 holds of `prog` itself. -/
@@ -207,8 +208,8 @@ theorem Option.of_eq_wp {α : Type u} {x prog : Option α}
   (hwp : wp prog (fun a => P (some a)) (fun _ => P none)) : P x := by
   subst h
   cases prog with
-  | none => exact hwp
-  | some a => exact hwp
+  | none => simpa only [Option.wp_apply_eq, pushOption_none] using hwp
+  | some a => simpa only [Option.wp_apply_eq, pushOption_some] using hwp
 
 /-- Soundness for `StateM`: if `wp prog P s` holds, then `P` holds of the value and final state of
 `StateT.run prog s`. -/
@@ -216,6 +217,7 @@ theorem StateM.of_run_eq_wp {x : α × σ} {prog : StateM σ α} {s : σ}
   (h : StateT.run prog s = x) (P : α × σ → Prop)
   (hwp : wp prog (fun a s' => P (a, s')) () s) : P x := by
   rw [← h]
+  simp only [StateT.wp_apply_eq, Id.wp_apply_eq] at hwp
   exact hwp
 
 /-- Soundness for `StateM`, at the value alone: if `wp prog P s` holds, then `P` holds of
@@ -224,6 +226,7 @@ theorem StateM.of_run'_eq_wp {α σ : Type} {x : α} {prog : StateM σ α} {s : 
   (h : StateT.run' prog s = x) (P : α → Prop)
   (hwp : wp prog (fun a _ => P a) () s) : P x := by
   rw [← h]
+  simp only [StateT.wp_apply_eq, Id.wp_apply_eq] at hwp
   exact hwp
 
 /-- Soundness for `ReaderM`: if `wp prog P r` holds, then `P` holds of `ReaderT.run prog r`. -/
@@ -231,6 +234,7 @@ theorem ReaderM.of_run_eq_wp {α ρ : Type} {x : α} {prog : ReaderM ρ α} {r :
   (h : ReaderT.run prog r = x) (P : α → Prop)
   (hwp : wp prog (fun a _ => P a) () r) : P x := by
   rw [← h]
+  simp only [ReaderT.wp_apply_eq, Id.wp_apply_eq] at hwp
   exact hwp
 
 /-- Soundness for `Except`: the postcondition takes an `ok` case and an `error` case, and
@@ -240,8 +244,8 @@ theorem Except.of_eq_wp {ε α : Type} {x prog : Except ε α}
   (hwp : wp prog (fun a => P (.ok a)) (fun e => P (.error e))) : P x := by
   subst h
   cases prog with
-  | ok a => simpa only [wp] using! hwp
-  | error e => simpa only [wp] using! hwp
+  | ok a => simpa only [Except.wp_apply_eq, pushExcept_ok] using hwp
+  | error e => simpa only [Except.wp_apply_eq, pushExcept_error] using hwp
 
 /-- Soundness for `EStateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
 theorem EStateM.of_run_eq_wp {ε σ α : Type} {x : EStateM.Result ε σ α}

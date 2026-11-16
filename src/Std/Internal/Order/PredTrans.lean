@@ -38,7 +38,8 @@ structure PredTrans (Pred : Type u) (EPosts : Type v) [PartialOrder Pred] [Parti
   /-- Apply the predicate transformer to a postcondition and exception postcondition. -/
   apply : (α → Pred) → EPosts → Pred
   /-- Larger postconditions give a larger precondition. -/
-  mono : ∀ {post post' : α → Pred} {eposts eposts' : EPosts}, post ⊑ post' → eposts ⊑ eposts' →
+  apply_mono : ∀ {post post' : α → Pred} {eposts eposts' : EPosts},
+    post ⊑ post' → eposts ⊑ eposts' →
     apply post eposts ⊑ apply post' eposts'
 
 attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] PredTrans
@@ -78,7 +79,7 @@ instance {Pred : Type u} [CCPO Pred] : CCPO (PredTrans Pred EPosts α) where
     · intro post post' eposts eposts' hpost heposts
       refine csup_le (chain_apply hc post eposts) fun p ⟨pt, hpt, hp⟩ => ?_
       subst hp
-      exact PartialOrder.rel_trans (pt.mono hpost heposts)
+      exact PartialOrder.rel_trans (pt.apply_mono hpost heposts)
         (le_csup (chain_apply hc post' eposts') ⟨pt, hpt, rfl⟩)
     · constructor
       · intro h pt hpt post eposts
@@ -89,8 +90,10 @@ instance {Pred : Type u} [CCPO Pred] : CCPO (PredTrans Pred EPosts α) where
         subst hp
         exact h pt hpt post eposts
 
-/-- Monotonicity of `pt` as a proposition. Every predicate transformer satisfies it by `mono`. -/
-@[deprecated "every `PredTrans` is monotone by its field `PredTrans.mono`" (since := "2026-11-16")]
+/-- Monotonicity of `pt` as a proposition. Every predicate transformer satisfies it by
+`apply_mono`. -/
+@[deprecated "every `PredTrans` is monotone by its field `PredTrans.apply_mono`"
+  (since := "2026-11-16")]
 def Monotone (pt : PredTrans Pred EPosts α) :=
   ∀ post post' eposts eposts', eposts ⊑ eposts' → post ⊑ post' → pt.apply post eposts ⊑ pt.apply post' eposts'
 
@@ -113,7 +116,7 @@ def pure (a : α) : PredTrans Pred EPosts α :=
 def bind (x : PredTrans Pred EPosts α) (f : α → PredTrans Pred EPosts β) :
     PredTrans Pred EPosts β :=
   ⟨fun post eposts => x.apply (fun a => (f a).apply post eposts) eposts,
-   fun hpost heposts => x.mono (fun a => (f a).mono hpost heposts) heposts⟩
+   fun hpost heposts => x.apply_mono (fun a => (f a).apply_mono hpost heposts) heposts⟩
 
 instance instMonad : Monad (PredTrans Pred EPosts) where
   pure := pure
@@ -194,7 +197,7 @@ over `σ → Pred` that threads the state through postconditions. -/
 def pushArg {σ : Type z} (x : σ → PredTrans Pred EPosts (α × σ)) :
     PredTrans (σ → Pred) EPosts α :=
   ⟨fun post eposts s => (x s).apply (fun (a, s) => post a s) eposts,
-   fun hpost heposts s => (x s).mono (fun p => hpost p.1 p.2) heposts⟩
+   fun hpost heposts s => (x s).apply_mono (fun p => hpost p.1 p.2) heposts⟩
 
 /-- Unfolding lemma for `pushArg`: applies the state-threaded transformer at state `s`. -/
 theorem apply_pushArg {σ : Type z} (x : σ → PredTrans Pred EPosts (α × σ))
@@ -206,7 +209,7 @@ The transformed result carries the final state. -/
 def popArg {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) (s : σ) :
     PredTrans Pred EPosts (α × σ) :=
   ⟨fun post eposts => x.apply (fun a s => post (a, s)) eposts s,
-   fun hpost heposts => x.mono (fun a s => hpost (a, s)) heposts s⟩
+   fun hpost heposts => x.apply_mono (fun a s => hpost (a, s)) heposts s⟩
 
 /-- Unfolding `popArg` through `apply`. -/
 theorem apply_popArg {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) (s : σ)
@@ -216,7 +219,7 @@ theorem apply_popArg {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) (s : 
 /-- Adds a state argument that the predicate transformer ignores. -/
 def liftArg {σ : Type z} (x : PredTrans Pred EPosts α) : PredTrans (σ → Pred) EPosts α :=
   ⟨fun post eposts s => x.apply (fun a => post a s) eposts,
-   fun hpost heposts s => x.mono (fun a => hpost a s) heposts⟩
+   fun hpost heposts s => x.apply_mono (fun a => hpost a s) heposts⟩
 
 /-- Unfolding `liftArg` through `apply`. -/
 theorem apply_liftArg {σ : Type z} (x : PredTrans Pred EPosts α)
@@ -286,7 +289,7 @@ postcondition for `ε`. The normal and error postconditions are combined via `pu
 def pushExceptT {ε : Type z} (x : PredTrans Pred EPosts (Except ε α)) :
     PredTrans Pred ((ε → Pred) × EPosts) α :=
   ⟨fun post eposts => x.apply (pushExcept post eposts.fst) eposts.snd,
-   fun hpost heposts => x.mono (fun | .ok a => hpost a | .error e => heposts.1 e) heposts.2⟩
+   fun hpost heposts => x.apply_mono (fun | .ok a => hpost a | .error e => heposts.1 e) heposts.2⟩
 
 /-- Unfolding lemma for `pushExceptT`. -/
 theorem apply_pushExceptT {ε : Type z}
@@ -302,7 +305,7 @@ postcondition for the `none` case. -/
 def pushOptionT (x : PredTrans Pred EPosts (Option α)) :
     PredTrans Pred ((Unit → Pred) × EPosts) α :=
   ⟨fun post eposts => x.apply (pushOption post eposts.fst) eposts.snd,
-   fun hpost heposts => x.mono (fun | .some a => hpost a | .none => heposts.1 ()) heposts.2⟩
+   fun hpost heposts => x.apply_mono (fun | .some a => hpost a | .none => heposts.1 ()) heposts.2⟩
 
 /-- Unfolding lemma for `pushOptionT`. -/
 theorem apply_pushOptionT (x : PredTrans Pred EPosts (Option α)) (post : α → Pred)
@@ -327,7 +330,8 @@ def tryCatch {ε : Type z} (x : PredTrans Pred ((ε → Pred) × EPosts) α)
     (handle : ε → PredTrans Pred ((ε → Pred) × EPosts) α) :
     PredTrans Pred ((ε → Pred) × EPosts) α :=
   ⟨fun post eposts => x.apply post ((fun e => (handle e).apply post eposts), eposts.snd),
-   fun hpost heposts => x.mono hpost ⟨fun e => (handle e).mono hpost heposts, heposts.2⟩⟩
+   fun hpost heposts =>
+     x.apply_mono hpost ⟨fun e => (handle e).apply_mono hpost heposts, heposts.2⟩⟩
 
 instance {ε : Type z} : MonadExceptOf ε (PredTrans Pred ((ε → Pred) × EPosts)) where
   throw := throw
@@ -367,7 +371,7 @@ theorem apply_MonadExcept_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
 /-- Adds a first exception postcondition that the predicate transformer ignores. -/
 def liftExcept {eh : Type z} [PartialOrder eh] (x : PredTrans Pred EPosts α) :
     PredTrans Pred (eh × EPosts) α :=
-  ⟨fun post eposts => x.apply post eposts.snd, fun hpost heposts => x.mono hpost heposts.2⟩
+  ⟨fun post eposts => x.apply post eposts.snd, fun hpost heposts => x.apply_mono hpost heposts.2⟩
 
 /-- Unfolding `liftExcept` through `apply`. -/
 theorem apply_liftExcept {eh : Type z} [PartialOrder eh] (x : PredTrans Pred EPosts α)
@@ -379,7 +383,7 @@ theorem apply_liftExcept {eh : Type z} [PartialOrder eh] (x : PredTrans Pred EPo
 def popExcept {eh : Type z} [PartialOrder eh] (x : PredTrans Pred (eh × EPosts) α) (h : eh) :
     PredTrans Pred EPosts α :=
   ⟨fun post eposts => x.apply post (h, eposts),
-   fun hpost heposts => x.mono hpost ⟨PartialOrder.rel_refl, heposts⟩⟩
+   fun hpost heposts => x.apply_mono hpost ⟨PartialOrder.rel_refl, heposts⟩⟩
 
 /-- Unfolding `popExcept` through `apply`. -/
 theorem apply_popExcept {eh : Type z} [PartialOrder eh] (x : PredTrans Pred (eh × EPosts) α)

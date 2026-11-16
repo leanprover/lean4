@@ -156,11 +156,11 @@ frame rule into any `t` (see `PredTrans.frameClosure_frames`), with no assumptio
 noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
     (t : PredTrans Pred EPosts β) : PredTrans Pred EPosts β where
   apply Q E := ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))
-  mono hQ hE := by
+  apply_mono hQ hE := by
     haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
     haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
     exact iInf_mono fun r => PreservesSup.upperAdjoint_mono _ <|
-      t.mono (fun a => PreservesSup.map_mono (op r) (hQ a)) (PreservesSup.map_mono (opE r) hE)
+      t.apply_mono (fun a => PreservesSup.map_mono (op r) (hQ a)) (PreservesSup.map_mono (opE r) hE)
 
 /-- Unfolding `frameClosure` through `apply`. -/
 theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]

@@ -92,7 +92,7 @@ theorem WP.wpTrans_apply_eq {Prog : Type u} {Value : Type v}
 /-!
 ## Derived WP Lemmas
 
-Monotonicity and weakening consequences of `PredTrans.mono`.
+Monotonicity and weakening consequences of `PredTrans.apply_mono`.
 -/
 
 namespace WP
@@ -103,17 +103,17 @@ variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
 theorem wp_monotone_post {x : Prog}
   {post post' : Value → Pred} {eposts : EPosts} (h : post ⊑ post') :
     wp x post eposts ⊑ wp x post' eposts :=
-  (WP.trans x).mono h PartialOrder.rel_refl
+  (WP.trans x).apply_mono h PartialOrder.rel_refl
 
 theorem wp_monotone {x : Prog}
   {post post' : Value → Pred} {eposts eposts' : EPosts} (h : post ⊑ post') (h' : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post' eposts' :=
-  (WP.trans x).mono h h'
+  (WP.trans x).apply_mono h h'
 
 theorem wp_monotone_epost {x : Prog}
   {post : Value → Pred} {eposts eposts' : EPosts} (h : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post eposts' :=
-  (WP.trans x).mono PartialOrder.rel_refl h
+  (WP.trans x).apply_mono PartialOrder.rel_refl h
 
 theorem wp_monotone_bot {x : Prog}
   {post : Value → Pred} {eposts : EPosts} :

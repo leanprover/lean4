@@ -154,26 +154,19 @@ supremum-preserving operators `op r` and its exception-channel companion `opE r`
 resources `r` of the `r`-upper-adjoint of `t` framed by `r` on both channels. It internalizes the
 frame rule into any `t` (see `PredTrans.frameClosure_frames`), with no assumption on `t`. -/
 noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
-    (t : PredTrans Pred EPosts β) : PredTrans Pred EPosts β :=
-  ⟨fun Q E => ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))⟩
+    (t : PredTrans Pred EPosts β) : PredTrans Pred EPosts β where
+  apply Q E := ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))
+  mono hQ hE := by
+    haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
+    haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
+    exact iInf_mono fun r => PreservesSup.upperAdjoint_mono _ <|
+      t.mono (fun a => PreservesSup.map_mono (op r) (hQ a)) (PreservesSup.map_mono (opE r) hE)
 
 /-- Unfolding `frameClosure` through `apply`. -/
 theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
     (t : PredTrans Pred EPosts β) (Q : β → Pred) (E : EPosts) :
     (t.frameClosure op).apply Q E =
       ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl
-
-/-- The frame closure carries monotonicity: if `t` is monotone, so is `t.frameClosure op`. -/
-theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op EPosts opE]
-    {t : PredTrans Pred EPosts β} (h : t.Monotone) :
-    (t.frameClosure op).Monotone := by
-  haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
-  haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
-  intro post post' eposts eposts' hE hP
-  simp only [PredTrans.apply_frameClosure]
-  refine iInf_mono fun r => PreservesSup.upperAdjoint_mono _ ?_
-  exact h _ _ _ _ (PreservesSup.map_mono (opE r) hE)
-    (fun a => PreservesSup.map_mono (op r) (hP a))
 
 /-- The frame rule, internalized: for supremum-preserving `op r` whose resources compose by `comp`
 with the action law `op (comp r r') = op r ∘ op r'`, and the matching companion law `hactE`, `op F`

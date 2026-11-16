@@ -65,13 +65,8 @@ class WP (Prog : Type u) (Value : outParam (Type v)) (Pred : outParam (Type w))
   trans : Prog → PredTrans Pred EPosts Value := wpTrans
   /-- Deprecated alias for `trans`; provide either field when defining an instance. -/
   wpTrans : Prog → PredTrans Pred EPosts Value := trans
-  /-- Monotonicity: weaker postconditions yield weaker preconditions. -/
-  trans_monotone (x : Prog) : trans x |>.Monotone := wp_trans_monotone x
-  /-- Deprecated alias for `trans_monotone`; provide either field when defining an instance. -/
-  wp_trans_monotone (x : Prog) : trans x |>.Monotone := trans_monotone x
 
 attribute [deprecated WP.trans (since := "2026-09-17")] WP.wpTrans
-attribute [deprecated WP.trans_monotone (since := "2026-09-17")] WP.wp_trans_monotone
 attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] WP
 
 /-- Weakest precondition of `x` for normal postcondition `post` and exception postcondition `eposts`.
@@ -97,7 +92,7 @@ theorem WP.wpTrans_apply_eq {Prog : Type u} {Value : Type v}
 /-!
 ## Derived WP Lemmas
 
-Monotonicity and weakening consequences of the `WP` monotonicity axiom.
+Monotonicity and weakening consequences of `PredTrans.mono`.
 -/
 
 namespace WP
@@ -108,17 +103,17 @@ variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
 theorem wp_monotone_post {x : Prog}
   {post post' : Value → Pred} {eposts : EPosts} (h : post ⊑ post') :
     wp x post eposts ⊑ wp x post' eposts :=
-  trans_monotone x post post' eposts eposts PartialOrder.rel_refl h
+  (WP.trans x).mono h PartialOrder.rel_refl
 
 theorem wp_monotone {x : Prog}
   {post post' : Value → Pred} {eposts eposts' : EPosts} (h : post ⊑ post') (h' : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post' eposts' :=
-  trans_monotone x post post' eposts eposts' h' h
+  (WP.trans x).mono h h'
 
 theorem wp_monotone_epost {x : Prog}
   {post : Value → Pred} {eposts eposts' : EPosts} (h : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post eposts' :=
-  trans_monotone x post post eposts eposts' h PartialOrder.rel_refl
+  (WP.trans x).mono PartialOrder.rel_refl h
 
 theorem wp_monotone_bot {x : Prog}
   {post : Value → Pred} {eposts : EPosts} :

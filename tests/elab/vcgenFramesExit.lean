@@ -88,12 +88,10 @@ inductive Prog | skip | exit
 /-- The base wp: `skip` hands the heap to the postcondition, `exit` to the exception
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
-  trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
-  trans_monotone x := by
-    intro Q Q' E E' hE hQ
+  trans x := ⟨fun Q E => (match x with | .skip => Q () | .exit => E), fun hQ hE => by
     cases x
     · exact hQ ()
-    · exact hE
+    · exact hE⟩
 
 /-- The interpretation that frames both channels by `sepConj`. -/
 @[instance_reducible] noncomputable instance : WP Prog Unit HProp HProp :=

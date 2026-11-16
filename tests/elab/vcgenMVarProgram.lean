@@ -40,10 +40,9 @@ axiom wp_bnd : ∀ {k : Nat → Lang} {Φ : Value → Prop},
   wp (Lang.bnd (fun x => Lang.add (k x) (Lang.nat 0))) Φ
 
 instance instWP_Lang : WP Lang Value Prop EStack⟨⟩ where
-  trans l := ⟨fun Φ _ => wp l Φ⟩
-  trans_monotone x := by
-    simp [PredTrans.Monotone, Lean.Order.PartialOrder.rel]
-    intros; apply wp_mono <;> trivial
+  trans l := ⟨fun Φ _ => wp l Φ, by
+    simp [Lean.Order.PartialOrder.rel]
+    intros; apply wp_mono <;> trivial⟩
 
 @[spec]
 theorem spec_nat {n : Nat} {Φ : Value → Prop} : ⦃ Φ ⟨.nat n, .nat⟩ ⦄ (Lang.nat n) ⦃ Φ; estack⟨⟩⦄ :=

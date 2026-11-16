@@ -52,4 +52,17 @@ Return `true` iff `declName` is the name of a type with builtin support in the r
 def isRuntimeBuiltinType (declName : Name) : Bool :=
   builtinRuntimeTypes.contains declName
 
+/--
+List of non-extern functions that have builtin runtime support
+-/
+def builtinRuntimeFunctions : Array Name := #[
+  ``unsafeCast
+]
+
+/--
+Return `true` iff `declName` is the name of a function with builtin support in the runtime.
+-/
+def isRuntimeBuiltinFunction (declName : Name) : Bool :=
+  builtinRuntimeFunctions.contains declName
+
 end Lean.Compiler.LCNF

@@ -529,10 +529,15 @@ private def buildPollSources
     if state.machine.canPullBodyNow ∧ requestBodyOpen then pure (some state.requestStream)
     else pure none
 
+  -- A pull that found too few bytes waits for input even once its reader is gone, as when another
+  -- case won the reader's select. `requestBody` stays out until input arrives, so without the socket
+  -- nothing would wake the loop when the reader asks again.
+  let pullStalled := requestBodyOpen ∧ ¬state.machine.canPullBodyNow
+
   -- Include the socket only when there is more to do than waiting for the handler alone.
   let pollSocket :=
-    !state.handler.isRunning ∨ state.respStream.isSome ∨
-    state.machine.writer.sentMessage ∨ (state.machine.canPullBody ∧ requestBodyInterested)
+    !state.handler.isRunning ∨ state.respStream.isSome ∨ state.machine.writer.sentMessage ∨
+    (state.machine.canPullBody ∧ requestBodyInterested) ∨ pullStalled
 
   let inputFull := state.machine.reader.remainingBytes ≥ inputLimit ∧ inputWanted.isNone
 

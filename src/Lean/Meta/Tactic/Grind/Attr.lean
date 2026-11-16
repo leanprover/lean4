@@ -246,8 +246,7 @@ private def Extension.isGuardedBy (ext : Extension) (p : Name → Bool) (declNam
   match (← getAttrKindFromOpt stx) with
   | .symbol _ | .funCC | .unfold => return p declName
   | .norm _ inv =>
-    let keys ← mkSimpTheoremKeysFromConst declName (inv := inv)
-    return keys.all (·.any fun | .const n _ => p n | _ => false)
+    isSimpTheoremFromConstGuardedBy p declName (inv := inv)
   | .inj => return allGuarded (ext.getState (← getEnv) |>.inj.find (.decl declName))
   | .ematch .user => return false
   | .ematch _ => declGuarded

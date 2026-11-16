@@ -41,8 +41,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
     unless (← isProp (← getConstInfo declName).type) do
       -- Definitions are only unfolded where they occur
       return p declName
-    let keys ← mkSimpTheoremKeysFromConst declName (inv := !stx[2].isNone)
-    return keys.all (·.any fun | .const n _ => p n | _ => false)
+    isSimpTheoremFromConstGuardedBy p declName (inv := !stx[2].isNone)
   registerBuiltinAttribute {
     ref   := ref
     name  := attrName

@@ -293,7 +293,9 @@ def checkDeprecatedAutomationAttr (ref : Syntax) (declName attrName : Name)
     unless ref.getHeadInfo matches .original .. do return
     let env ← getEnv
     unless isDeprecated env declName do return
-    -- Uses on terms that mention a deprecated declaration already cause a deprecation warning
+    -- If automation only uses `declName` on terms that mention a deprecated declaration, those uses
+    -- go away when that declaration is removed. This holds even for instances, whose use is not
+    -- reported.
     let isGuarded ← try isAutomationAttrGuardedBy attrName (isDeprecated env) declName ref
       catch _ => pure false
     if isGuarded then return

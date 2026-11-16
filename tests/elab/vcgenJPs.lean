@@ -345,7 +345,7 @@ b : Bool
 s✝ : Nat
 x✝¹ : PUnit
 x✝ s : Nat
-h✝ : b = true ∧ x✝ = 2 ∧ s = s✝ ∨ ¬b = true ∧ x✝ = 3 ∧ s = s✝
+h✝ : s = s✝ ∧ (b = true ∧ x✝ = 2 ∨ ¬b = true ∧ x✝ = 3)
 ⊢ 0 < x✝ + s
 -/
 #guard_msgs in

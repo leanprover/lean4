@@ -43,12 +43,12 @@ namespace BuildStoreRef
 @[inline] public def new (s : BuildStore := {}) : BaseIO BuildStoreRef :=
   Std.Mutex.new s
 
-/-- Atomically applies a pure modifucation to the build store. -/
-@[inline] public def modify (f : BuildStore → BuildStore)  (r : BuildStoreRef) : BaseIO Unit :=
+/-- Atomically applies a pure modification to the build store. -/
+@[inline] public def modify (f : BuildStore → BuildStore) (r : BuildStoreRef) : BaseIO Unit :=
   r.atomically (·.modify f)
 
-/-- Atomically pplies a pure modifucation to the build store and returns the paired value. -/
-@[inline] public def modifyGet (f : BuildStore → (α × BuildStore)) (r : BuildStoreRef)  : BaseIO α :=
+/-- Atomically applies a pure modification to the build store and returns the paired value. -/
+@[inline] public def modifyGet (f : BuildStore → (α × BuildStore)) (r : BuildStoreRef) : BaseIO α :=
   r.atomically (·.modifyGet f)
 
 /-- Reads the current value of the build store, returning a snapshot of its state. -/
@@ -61,14 +61,46 @@ namespace BuildStoreRef
 
 /--
 Atomically returns the build store's saved job for the build key {lean}`k`, if any.
-Otehrwise, returns {lean}`none`.
+Otherwise, returns {lean}`none`.
 -/
-@[inline] public def fetch? (k : BuildKey) [FamilyOut BuildData k α] (r : BuildStoreRef) : BaseIO (Option (Job α)) :=
+@[inline] public def fetch?
+  (k : BuildKey) [FamilyOut BuildData k α] (r : BuildStoreRef)
+: BaseIO (Option (Job α)) :=
   r.getMap fun s => cast (by simp) <| s.get? k
 
-/-- Atomically inserts a new build job into the build store. -/
-@[inline] public def store (k : BuildKey) [FamilyDef BuildData k α] (v : Job α)  (r : BuildStoreRef) : BaseIO Unit :=
-  r.modify (·.insert k (cast (by simp) v))
+/-- Atomically inserts a new build job into the build store. Does nothing if one already exists. -/
+@[inline] public def store
+  (k : BuildKey) [FamilyDef BuildData k α] (v : Job α) (r : BuildStoreRef)
+: BaseIO Unit :=
+  r.modify (·.insertIfNew k (cast (by simp) v))
+
+/--
+Atomically inserts a new build job into the build store and returns it.
+If one already exists, returns that instead.
+-/
+@[inline] def storeAndReturn
+  (k : BuildKey) [FamilyDef BuildData k α] (v : Job α) (r : BuildStoreRef)
+: BaseIO (Job α) :=
+  r.modifyGet fun s =>
+    let v := cast (by simp) v
+    let (v?, s) := s.getThenInsertIfNew? k v
+    (cast (by simp) <| v?.getD v, s)
+
+/--
+Returns the value of {lean}`k` in the store if it exists.
+Otherwise, runs {lean}`create` to generate it, stores it, and returns the result.
+-/
+@[inline] public def fetchOrCreate
+  [Monad m] [MonadLiftT BaseIO m]
+  (k : BuildKey) [FamilyDef BuildData k α] (create : m (Job α))
+  (r : BuildStoreRef)
+: m (Job α) := do
+  if let some val ← r.fetch? k then
+    return val
+  else
+    let val ← create
+    -- A racing create may occur, so return whichever wins
+    r.storeAndReturn k val
 
 end BuildStoreRef
 
@@ -94,7 +126,7 @@ returning the monadic result paired with the final state of the build store.
   let s ← ref.get
   return (a, s)
 
-/-- A monad equipped with a Lake build store. -/
+/-- Type class for monads equipped with a Lake build store. -/
 public abbrev MonadBuildStore (m) := MonadDStore BuildKey (Job <| BuildData ·) m
 
 public instance [Monad m] [MonadLiftT BaseIO m] : MonadBuildStore (BuildStoreT m) where

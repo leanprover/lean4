@@ -19,8 +19,10 @@ open Meta
 def evalCalc : Tactic
   | `(tactic| calc%$tk $steps:calcSteps) =>
     withRef tk do
-    closeMainGoalUsing `calc (checkNewUnassigned := false) fun target tag => do
+    -- The info node of the steps is opened before the main goal is taken, so that it records that
+    -- goal as the one being proved.
     withTacticInfoContext steps do
+    closeMainGoalUsing `calc (checkNewUnassigned := false) fun target tag => do
       let steps ← Term.mkCalcStepViews steps
       let target := (← instantiateMVars target).consumeMData
       let (val, mvarIds) ← withCollectingNewGoalsFrom (parentTag := tag) (tagSuffix := `calc) <| runTermElab do

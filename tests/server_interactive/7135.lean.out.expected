@@ -1,0 +1,94 @@
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 14, "character": 8}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 14, "character": 10}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 20, "character": 15}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 25, "character": 10}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 32, "character": 4}}
+{"rendered":
+ "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ True\n```",
+ "goals": ["case left\n⊢ True", "case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 39, "character": 12}}
+{"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 46, "character": 12}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 52, "character": 9}}
+{"rendered": "```lean\n⊢ ∀ (a : Nat), True\n```",
+ "goals": ["⊢ ∀ (a : Nat), True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 56, "character": 12}}
+{"rendered": "```lean\n⊢ ∀ (a : Nat × Nat), True\n```",
+ "goals": ["⊢ ∀ (a : Nat × Nat), True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 60, "character": 8}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 64, "character": 16}}
+{"rendered": "```lean\n⊢ ∀ (a : Nat), True\n```",
+ "goals": ["⊢ ∀ (a : Nat), True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 70, "character": 8}}
+{"rendered":
+ "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ True\n```",
+ "goals": ["case left\n⊢ True", "case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 75, "character": 22}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 80, "character": 15}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 86, "character": 5}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 92, "character": 16}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 96, "character": 14}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 101, "character": 14}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 105, "character": 17}}
+{"rendered":
+ "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ True\n```",
+ "goals": ["case left\n⊢ True", "case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 111, "character": 16}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 115, "character": 16}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 120, "character": 4}}
+{"rendered": "```lean\n⊢ ∀ (a : Nat), True\n```",
+ "goals": ["⊢ ∀ (a : Nat), True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 128, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 135, "character": 6}}
+null
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 143, "character": 13}}
+{"rendered":
+ "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ True\n```",
+ "goals": ["case left\n⊢ True", "case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 151, "character": 4}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///7135.lean"},
+ "position": {"line": 158, "character": 10}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}

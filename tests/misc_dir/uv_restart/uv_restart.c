@@ -5,11 +5,14 @@ re-initializes the task manager sees it.
 * Each `lean_init_task_manager` after a finalization starts a fresh event loop, so a timer created in
   that cycle fires.
 * Between cycles the event loop is torn down: it is not alive, and creating a timer fails.
-* A timer, signal or TCP socket created in one cycle and used in a later one fails, since the teardown
-  closed its handle. On a closed handle libuv would assert when starting the signal, and `listen` would
-  open a new socket for the closed handle and register it with the new loop.
+* A timer, signal, TCP or UDP socket created in one cycle and used in a later one fails, since the
+  teardown closed its handle. On a closed handle libuv would assert when starting the signal, and
+  `listen` would open a new socket for the closed handle and register it with the new loop. Sending
+  no data, which needs no libuv call, fails too.
 * A pending promise that only the event loop references stays pending through the teardown and is
-  released by the next one, which resolves its result with `none`.
+  released when the task manager restarts, which resolves its result with `none` and discards its
+  continuations. So a task of the new cycle that waits on it does not keep the next finalization
+  waiting.
 * Finalizing does not wait for threads the task manager does not own to stop calling into libuv: the
   loop thread gives way to such threads, so while several of them keep taking the loop lock it would
   never see that the loop stopped.
@@ -23,6 +26,8 @@ the test does not run on Windows.
 int printf(char const * fmt, ...);
 int usleep(unsigned int usec);
 unsigned int alarm(unsigned int seconds);
+// `FILE *` is a pointer.
+int fflush(void * stream);
 // `pthread_t` is a pointer-sized integer or pointer on the platforms this test runs on.
 typedef unsigned long long thread_handle;
 int pthread_create(thread_handle * thread, void const * attr, void * (*start)(void *), void * arg);
@@ -38,6 +43,9 @@ lean_object * lean_uv_signal_mk(uint32_t signum, uint8_t repeating);
 lean_object * lean_uv_signal_next(lean_object * signal);
 lean_object * lean_uv_tcp_new(void);
 lean_object * lean_uv_tcp_listen(lean_object * socket, int32_t backlog);
+lean_object * lean_uv_tcp_send(lean_object * socket, lean_object * data);
+lean_object * lean_uv_udp_new(void);
+lean_object * lean_uv_udp_send(lean_object * socket, lean_object * data, lean_object * addr);
 uint8_t lean_uv_event_loop_alive(void);
 
 static int g_failures = 0;
@@ -89,27 +97,73 @@ static int timer_fires(void) {
     return fired;
 }
 
-/* Expects the task manager to be running, and leaves it running. */
-static void check_pending_promise_kept_one_cycle(void) {
+/* The result of the promise of a timer that does not fire before the next finalization, or null. The
+   event loop holds the only reference to the promise. */
+static lean_object * pending_timer_result(void) {
     lean_object * timer = take_ok(lean_uv_timer_mk(3600000, 0), "Timer.mk");
     if (timer == NULL)
-        return;
+        return NULL;
     lean_object * promise = take_ok(lean_uv_timer_next(timer), "Timer.next");
     lean_dec(timer);
     if (promise == NULL)
-        return;
+        return NULL;
     lean_object * result = lean_io_promise_result_opt(promise);
     lean_dec(promise);
+    return result;
+}
+
+static int g_continuation_runs = 0;
+
+static lean_object * count_run(lean_object * value) {
+    g_continuation_runs++;
+    lean_dec(value);
+    return lean_box(0);
+}
+
+/* Expects the task manager to be running, and leaves it running. */
+static void check_pending_promise_released_at_restart(void) {
+    lean_object * result = pending_timer_result();
+    if (result == NULL)
+        return;
+    lean_inc(result);
+    lean_object * continuation = lean_task_map_core(lean_alloc_closure((void *)count_run, 1, 0), result, 0, 1, 0);
 
     lean_finalize_task_manager();
     CHECK(lean_io_get_task_state_core(result) != LEAN_TASK_STATE_FINISHED);
     lean_init_task_manager_using(2);
-    CHECK(lean_io_get_task_state_core(result) != LEAN_TASK_STATE_FINISHED);
-    lean_finalize_task_manager();
     CHECK(lean_io_get_task_state_core(result) == LEAN_TASK_STATE_FINISHED);
     if (lean_io_get_task_state_core(result) == LEAN_TASK_STATE_FINISHED)
         CHECK(lean_task_get(result) == lean_box(0));
+    CHECK(g_continuation_runs == 0);
+    lean_dec(continuation);
     lean_dec(result);
+}
+
+static lean_object * wait_for(lean_object * task, lean_object * unit) {
+    (void)unit;
+    lean_task_get(task);
+    lean_dec(task);
+    return lean_box(0);
+}
+
+/* Expects the task manager to be running, and leaves it running. A hang is turned into a failure by
+   `SIGALRM`, after flushing what earlier checks reported. */
+static void check_task_waiting_on_kept_promise(void) {
+    lean_object * result = pending_timer_result();
+    if (result == NULL)
+        return;
+    lean_finalize_task_manager();
+    lean_init_task_manager_using(2);
+
+    lean_object * waiter = lean_alloc_closure((void *)wait_for, 2, 1);
+    lean_closure_set(waiter, 0, result);
+    lean_object * task = lean_task_spawn_core(waiter, 0, 0);
+    fflush(0);
+    alarm(120);
+    lean_finalize_task_manager();
+    alarm(0);
+    CHECK(lean_io_get_task_state_core(task) == LEAN_TASK_STATE_FINISHED);
+    lean_dec(task);
     lean_init_task_manager_using(2);
 }
 
@@ -131,7 +185,7 @@ static void * call_into_libuv(void * arg) {
 }
 
 /* Expects the task manager to be running, and leaves it running. A hang is turned into a failure by
-   `SIGALRM`. */
+   `SIGALRM`, after flushing what earlier checks reported. */
 static void check_finalize_while_threads_call_into_libuv(void) {
     enum { num_threads = 4 };
     thread_handle threads[num_threads];
@@ -143,6 +197,7 @@ static void check_finalize_while_threads_call_into_libuv(void) {
             break;
         }
     }
+    fflush(0);
     alarm(120);
     for (int i = 0; i < 20; i++) {
         usleep(1000);
@@ -163,6 +218,7 @@ int main(void) {
     lean_object * timer = take_ok(lean_uv_timer_mk(10, 0), "Timer.mk");
     lean_object * signal = take_ok(lean_uv_signal_mk(28, 1), "Signal.mk");
     lean_object * socket = take_ok(lean_uv_tcp_new(), "TCP.Socket.new");
+    lean_object * udp_socket = take_ok(lean_uv_udp_new(), "UDP.Socket.new");
     lean_finalize_task_manager();
 
     CHECK(!lean_uv_event_loop_alive());
@@ -180,13 +236,20 @@ int main(void) {
     }
     if (socket != NULL) {
         expect_error(lean_uv_tcp_listen(socket, 1), "listen on a socket from the previous cycle");
+        expect_error(lean_uv_tcp_send(socket, lean_mk_empty_array()), "TCP send of no data on a socket from the previous cycle");
         lean_dec(socket);
+    }
+    if (udp_socket != NULL) {
+        expect_error(lean_uv_udp_send(udp_socket, lean_mk_empty_array(), lean_box(0)),
+                     "UDP send of no data on a socket from the previous cycle");
+        lean_dec(udp_socket);
     }
     lean_finalize_task_manager();
 
     lean_init_task_manager_using(2);
     CHECK(timer_fires());
-    check_pending_promise_kept_one_cycle();
+    check_pending_promise_released_at_restart();
+    check_task_waiting_on_kept_promise();
     check_finalize_while_threads_call_into_libuv();
     CHECK(timer_fires());
     lean_finalize_task_manager();

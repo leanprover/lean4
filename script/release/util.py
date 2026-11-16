@@ -242,9 +242,10 @@ class LocalRepo:
         self, branch: str, *, remote: str = "origin", remote_branch: str | None = None
     ) -> None:
         if remote_branch is None:
-            self.git("switch", "-C", branch, remote)  # Default branch
+            start = remote  # Default branch
         else:
-            self.git("switch", "-C", branch, f"{remote}/{remote_branch}")
+            start = f"{remote}/{remote_branch}"
+        self.git("switch", "--no-track", "-C", branch, start)
 
     def create_tag(self, tag: str, target: str) -> None:
         self.git("tag", "-f", tag, target)
@@ -267,7 +268,7 @@ class LocalRepo:
             "push",
             *(["-u"] if upstream else []),
             *(["--force-with-lease"] if force else []),
-            *(remote, branch),
+            *(remote, f"{branch}:{branch}"),
             silent=True,
         )
 

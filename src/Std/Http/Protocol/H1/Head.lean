@@ -127,15 +127,32 @@ def checkResponseHead (requestMethod : Method) (message : Message.Head .sending)
     | .invalid => .error .badMessage
 
 /--
-Whether a request asks for `100 Continue` before its body. A server must not send a 1xx response to
-an HTTP/1.0 client (RFC 9110 §15.2).
+Whether an `Expect` field line lists the expectation `100-continue`, compared case-insensitively. The
+line is split at the commas outside quoted strings (RFC 9110 §5.6.1, §5.6.4), so neither a member
+with a value (`100-continue=x`) nor one inside a quoted string (`a="b, 100-continue"`) matches.
+-/
+private def listsContinue (value : String) : Bool :=
+  let isContinue (member : String) := member.trimAscii.toString.toLower == "100-continue"
+  let (found, last, _, _) := value.foldl (init := (false, "", false, false))
+    fun (found, member, quoted, escaped) c =>
+      if escaped then (found, member.push c, quoted, false)
+      else if quoted && c == '\\' then (found, member.push c, quoted, true)
+      else if c == '"' then (found, member.push c, !quoted, false)
+      else if c == ',' && !quoted then (found || isContinue member, "", false, false)
+      else (found, member.push c, quoted, false)
+  found || isContinue last
+
+/--
+Whether a request asks for `100 Continue` before its body: its `Expect` field lines, which form one
+list, have the member `100-continue` (RFC 9110 §10.1.1). Other expectations are ignored. A server
+must not send a 1xx response to an HTTP/1.0 client (RFC 9110 §15.2).
 -/
 @[inline]
 def expectsContinue (message : Message.Head .receiving) : Bool :=
   message.version == .v11 &&
     match message.headers.getAll? Header.Name.expect with
-    | some #[value] => (Header.Expect.parse value).isSome
-    | _ => false
+    | some values => values.any (listsContinue ·.value)
+    | none => false
 
 /--
 The `Transfer-Encoding` value of a chunked message: the sender's own codings when they end in

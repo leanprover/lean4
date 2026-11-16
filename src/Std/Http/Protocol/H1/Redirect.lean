@@ -118,7 +118,8 @@ host to connect to.
   absolute URL without an authority, or with an empty host, resolves to `none`.
 
 * **Protocol-relative reference** (`//host/path`): authority comes from the reference,
-  scheme is inherited from `current` (RFC 3986 §5.2.2, R.authority defined).
+  scheme is inherited from `current` (RFC 3986 §5.2.2, R.authority defined). An empty host
+  (`///path`) resolves to `none`, as for an absolute URI.
 
 * **Path/query/fragment-only reference**: no authority in the reference, so the full
   origin is inherited from `current` — the redirect is same-origin.
@@ -138,7 +139,7 @@ private def resolveOrigin (current : URI.Origin) : URIReference → Option URI.O
       | .value v => v
       | _ => URI.Scheme.defaultPort current.scheme
 
-    some { scheme := current.scheme, host := auth.host, port }
+    if auth.host == .empty then none else some { scheme := current.scheme, host := auth.host, port }
 
   | .relative _ =>
     some current

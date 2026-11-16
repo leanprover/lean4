@@ -355,27 +355,24 @@ recognize (RFC 9112 §7.1.1).
 def parseChunkExt (limits : H1.Config) :
     Parser (Option (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   ows limits *> skipByte ';'.toUInt8 *> ows limits
-  let name ← (liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtNameLength) <* ows limits
+  let name ← liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtNameLength
 
   let some name := Chunk.ExtensionName.ofString? name
     | fail "invalid extension name"
 
-  if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
-    -- RFC 9112 §7.1.1: BWS is allowed around "=".
-    -- The `<* ows limits` after the name already consumed any trailing whitespace,
-    -- so these ows calls are no-ops in practice, but kept for explicit grammar correspondence.
-    ows limits *> skipByte '='.toUInt8 *> ows limits
-    if (← peekWhen? (· == '"'.toUInt8)).isSome then
-      let bytes ← parseQuotedString limits.maxChunkExtValueLength
-      return (String.fromUTF8? bytes >>= Chunk.ExtensionValue.ofString?).map (name, some ·)
+  -- BWS may follow a name only before "=" (RFC 9112 §7.1.1). After a name without a value,
+  -- whitespace must lead to the next ";", so `5;a \r\n` is malformed, as `5 \r\n` is.
+  let some () ← optionalUnlessEof (ows limits *> skipByte '='.toUInt8) | return some (name, none)
+  ows limits
+  if (← peekWhen? (· == '"'.toUInt8)).isSome then
+    let bytes ← parseQuotedString limits.maxChunkExtValueLength
+    return (String.fromUTF8? bytes >>= Chunk.ExtensionValue.ofString?).map (name, some ·)
 
-    let value ← liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength)
-    let some value := Chunk.ExtensionValue.ofString? value
-      | fail "invalid extension value"
+  let value ← liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength)
+  let some value := Chunk.ExtensionValue.ofString? value
+    | fail "invalid extension value"
 
-    return some (name, some value)
-
-  return some (name, none)
+  return some (name, some value)
 
 /--
 Parses the size and extensions of a chunk.

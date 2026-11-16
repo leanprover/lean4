@@ -9,13 +9,13 @@ reasoning and MBQI, and counterexamples reported in terms of the original proble
 set_option trace.Meta.Tactic.bv.epr true in
 /--
 trace: [Meta.Tactic.bv.epr] ✅️ Detected EPR problem
-  [Meta.Tactic.bv.epr] sort 0 : α with elements [a]
-  [Meta.Tactic.bv.epr] sort 1 : β with elements [b₁, b₂]
-  [Meta.Tactic.bv.epr] predicate R over [(0, α), (1, β)]
-  [Meta.Tactic.bv.epr] predicate Q over [(1, β)]
+  [Meta.Tactic.bv.epr] sort 0 : β with elements [b₁, b₂]
+  [Meta.Tactic.bv.epr] sort 2 : α with elements [a]
+  [Meta.Tactic.bv.epr] predicate R over [(2, α), (0, β)]
+  [Meta.Tactic.bv.epr] predicate Q over [(0, β)]
   [Meta.Tactic.bv.epr] ground fact: ¬(R a b₁ ∨ b₁ = b₂)
-  [Meta.Tactic.bv.epr] quantified fact [0, 1] : ∀ (x : α) (y : β), R x y → Q y ∨ y = b₁
-  [Meta.Tactic.bv.epr] quantified fact [1] : ∀ (y : β), Q y ↔ y = b₂
+  [Meta.Tactic.bv.epr] quantified fact [2, 0] : ∀ (x : α) (y : β), R x y → Q y ∨ y = b₁
+  [Meta.Tactic.bv.epr] quantified fact [0] : ∀ (y : β), Q y ↔ y = b₂
 -/
 #guard_msgs (trace, drop warning) in
 example (α : Type) (β : Type 1) (a : α) (b₁ b₂ : β) (f : β → β) (R : α → β → Prop) (Q : β → Prop)

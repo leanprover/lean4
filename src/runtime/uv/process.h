@@ -25,7 +25,8 @@ void initialize_libuv_process();
 //
 // The handle stays open until the child has exited, so that libuv reaps the child even when the
 // `Child` is dropped before: of the finalizer and the exit callback, the one that runs second closes
-// the handle. Both run under the loop lock, which guards `m_dropped`.
+// the handle. Both run under the loop lock, which guards `m_dropped`. A teardown closes a handle that
+// is still open.
 struct lean_uv_process_object {
     uv_process_t       m_uv_process;
     bool               m_setsid = false;     // Whether the child leads its own session and process group.
@@ -41,6 +42,9 @@ struct lean_uv_process_object {
 
 static inline lean_object * lean_uv_process_new(lean_uv_process_object * p) { return lean_alloc_external(g_uv_process_external_class, p); }
 static inline lean_uv_process_object * lean_to_uv_process(lean_object * o) { return (lean_uv_process_object *)(lean_get_external_data(o)); }
+
+// Closes a child's handle in the teardown. Call with the loop lock held.
+void process_close_for_exit(uv_process_t * handle);
 
 #endif
 

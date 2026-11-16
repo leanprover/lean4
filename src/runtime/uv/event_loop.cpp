@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
+#include "runtime/uv/process.h"
 #include "runtime/uv/signal.h"
 #include "runtime/uv/tcp.h"
 #include "runtime/uv/timer.h"
@@ -191,6 +192,10 @@ static void close_for_exit(uv_handle_t * handle, void *) {
         case UV_UDP:
             drop_handle_refs<lean_uv_udp_socket_object>(handle);
             break;
+        case UV_PROCESS:
+            // A process holds no Lean references.
+            process_close_for_exit(reinterpret_cast<uv_process_t *>(handle));
+            return;
         case UV_ASYNC:
             break;
         default:

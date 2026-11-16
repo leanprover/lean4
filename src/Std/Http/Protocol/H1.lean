@@ -1615,6 +1615,8 @@ private def parseChunkSizeBody (machine : Machine dir) :
   let (machine, result) := parseWith machine
     (parseChunkSize machine.config)
     (limit := some machine.config.maxChunkLineLength)
+    -- A size past 16 significant digits is over `maxChunkSize` too, so it gets the same 413.
+    (onHardError := fun | .other "chunk size too large" => .entityTooLarge | _ => .badMessage)
 
   match result with
   | some (size, ext) =>
@@ -1729,6 +1731,15 @@ Classifies hard request start-line parse failures into protocol-level errors.
 private def classifyStartLineHardError : Std.Internal.Parsec.Error → H1.Error
   | .other "uri too long" => .uriTooLong
   | .other "unrecognized method" => .unsupportedMethod
+  | _ => .badMessage
+
+/--
+Classifies hard field-line parse failures: a name or value over its limit is too large, as too many
+fields are (RFC 6585 §5 answers both with 431), and anything else is malformed.
+-/
+@[inline]
+private def classifyFieldLineHardError : Std.Internal.Parsec.Error → H1.Error
+  | .other "header name too long" | .other "header value too long" => .headersTooLarge
   | _ => .badMessage
 
 mutual
@@ -1871,6 +1882,7 @@ Consumes one field line, or the empty line that ends the header section.
 private partial def processFieldLine (machine : Machine dir) (headerCount : Nat) : Machine dir :=
   let start := machine.reader.input.remainingBytes
   let (machine, result) := parseWith machine (parseSingleHeader machine.config) (limit := none)
+    (onHardError := classifyFieldLineHardError)
   match result with
   | some (some (name, value)) => processParsedHeader machine headerCount start name value
   | some none => processHeaders machine |> processRead
@@ -1884,6 +1896,7 @@ not parse as a field line.
 private partial def processObsFold (machine : Machine .sending) : Machine .sending :=
   let start := machine.reader.input.remainingBytes
   let (machine, result) := parseWith machine (parseObsFoldContinuation machine.config) (limit := none)
+    (onHardError := classifyFieldLineHardError)
   match result, machine.reader.messageHead.headers.map.entries.back? with
   | none, _ => machine
   | some _, none => failBadMessage machine
@@ -1896,7 +1909,7 @@ private partial def processObsFold (machine : Machine .sending) : Machine .sendi
     if machine.reader.headerBytesRead + lineBytes > machine.config.maxHeaderBytes then
       machine.setFailure .headersTooLarge
     else if value.utf8ByteSize > machine.config.maxHeaderValueLength then
-      failBadMessage machine
+      machine.setFailure .headersTooLarge
     else
       match Header.Value.ofString? value with
       | some value =>

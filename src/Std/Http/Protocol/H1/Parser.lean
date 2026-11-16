@@ -311,13 +311,29 @@ public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × R
   return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
-Parses a single header field line.
+Fails with `"header value too long"` if a field value taken up to `limits.maxHeaderValueLength` goes
+on: a field-vchar follows once the whitespace after it is consumed. Trailing whitespace does not
+count toward the limit, and a value that ends at the limit with an invalid byte is malformed instead.
+-/
+def checkFieldValueLength (limits : H1.Config) (value : Option ByteSlice) : Parser Unit := do
+  if let some value := value then
+    if value.size == limits.maxHeaderValueLength then
+      if (← peekWhen? isFieldVChar) |>.isSome then
+        fail "header value too long"
+
+/--
+Parses a single header field line. Fails with `"header name too long"` or `"header value too long"`
+when the name or the value goes past its limit.
 
 `field-line = field-name ":" OWS field-value OWS`
 -/
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← parseToken limits.maxHeaderNameLength
+  if name.size == limits.maxHeaderNameLength then
+    if (← peekWhen? (tchar ∘ Char.ofUInt8)) |>.isSome then
+      fail "header name too long"
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
+  checkFieldValueLength limits value
 
   let name ← liftOption <| String.fromUTF8? name.toByteArray
   -- obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
@@ -348,7 +364,9 @@ RWS`, RFC 9112 §5.2): the leading whitespace, the field content and the termina
 content without the whitespace around it.
 -/
 public def parseObsFoldContinuation (limits : H1.Config) : Parser String := do
-  let value ← ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* crlf
+  let value ← ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
+  checkFieldValueLength limits value
+  crlf
   let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
   return value.trimAscii.toString
 

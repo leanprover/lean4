@@ -12,16 +12,12 @@ so the join hypothesis states the parts of the states that all jumps agree on ab
 disjunction over the jumps, and `grind` proves goals about those parts without a case split.
 -/
 
--- The example of the module docstring of `Lean.Elab.Tactic.VCGen.JoinPoint`: the field `.1`
--- agrees, the field `.2` becomes a hole, and the parameter `x` takes the place of its hole.
+-- The example of the module docstring of `Lean.Elab.Tactic.VCGen.JoinPoint`.
 def f (n : Nat) : StateM (Nat × Nat) Nat := do
   let mut x := 0
-  if n > 0 then
-    x := 1
-    modify fun (a, b) => (a + 1, b)
-  else
+  if n > 0 then x := 1 else
     x := 2
-    modify fun (a, _) => (a + 1, 0)
+    modify fun (a, _) => (a, 0)
   return x + 1
 
 /--
@@ -32,11 +28,11 @@ a✝² b✝¹ : Nat
 a✝¹ : (a✝², b✝¹) = t
 x✝¹ : PUnit
 x✝ a✝ b✝ : Nat
-h✝ : ∃ z, (a✝, b✝) = (a✝² + 1, z) ∧ (0 < n ∧ x✝ = 1 ∧ z = b✝¹ ∨ ¬0 < n ∧ x✝ = 2 ∧ z = 0)
-⊢ a✝ = t.fst + 1
+h✝ : ∃ z, (a✝, b✝) = (a✝², z) ∧ (0 < n ∧ x✝ = 1 ∧ z = b✝¹ ∨ ¬0 < n ∧ x✝ = 2 ∧ z = 0)
+⊢ a✝ = t.fst
 -/
 #guard_msgs in
-example : ⦃fun s => s = t⦄ f n ⦃fun _ s => s.1 = t.1 + 1⦄ := by
+example : ⦃fun s => s = t⦄ f n ⦃fun _ s => s.1 = t.1⦄ := by
   vcgen +jp [f]
   trace_state
   all_goals grind

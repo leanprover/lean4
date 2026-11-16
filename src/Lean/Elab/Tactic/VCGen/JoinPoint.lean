@@ -54,10 +54,12 @@ jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` conse
    `⊤ ⊑ wp⟦__do_jp () 1⟧ Q` with `__do_jp_spec () 1 ?pf₁` and records the jump. The `else` branch
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
-   `finalizeJoinPoint` anti-unifies the arguments of the jumps for each parameter other than
-   `r : Unit`, and states the anti-unifier above a disjunction with one disjunct per jump over the
-   locals of its branch. The arguments `1` and `2` of `x` have no common part, so the disjuncts
-   give the values of `x`: `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`. It proves
+   For each parameter other than `r : Unit`, `finalizeJoinPoint` computes the common part of its
+   arguments at the jumps, with a hole `z` where they differ. It states the equations of the
+   parameters with their common parts above a disjunction with one disjunct per jump, which binds
+   the locals of the branch and gives the values of the holes. The arguments `1` and `2` of `x`
+   have no common part, so the disjuncts give the values of `x`:
+   `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`. It proves
    `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a common local share its
    binder: the jumps of an `else if` chain share the conditions above them.
 
@@ -70,18 +72,14 @@ The RHS goal of step 1 thus receives the hypothesis
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
 parameters `r` and `x`.
 
-For a stateful program, `?H` also takes the states. Let `f` run in `StateM (Nat × Nat)`, with
-`modify fun (a, b) => (a + 1, b)` in the `then` branch and `modify fun (a, _) => (a + 1, 0)` in the
-`else` branch. From the state `(a, b)`, the jumps pass the states `(a + 1, b)` and `(a + 1, 0)`.
-Their anti-unifier is `(a + 1, z)`, with the hole `z` taking the value `b` at the first jump and `0`
-at the second:
+For a stateful program, `?H` also takes the state. Let `f` run in `StateM (Nat × Nat)` from the
+state `(a, b)`, and presume that the `else` branch resets the second component to `0`. Then `?H` is
 
 ```
-fun r x s => ∃ z, s = (a + 1, z) ∧ ((n > 0 ∧ x = 1 ∧ z = b) ∨ (¬n > 0 ∧ x = 2 ∧ z = 0))
+fun r x s => ∃ z, s = (a, z) ∧ ((n > 0 ∧ x = 1 ∧ z = b) ∨ (¬n > 0 ∧ x = 2 ∧ z = 0))
 ```
 
-The equation for `s` holds at every jump, so it stands above the disjunction, and `s.1 = a + 1`
-follows from `?H` without a case split. The section on anti-unification below gives the rules.
+so `s.1 = a` follows without a case split.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -242,13 +240,11 @@ partial def mkTrie (jumps : Array (Jump × Array LocalDecl × Expr)) (i : Nat) :
 /-!
 ## Anti-unification of the jump arguments
 
-For each parameter, `finalizeJoinPoint` anti-unifies its arguments at all jumps. Subterms that are
-one pointer stay, applications of one function are anti-unified argument by argument, and all other
-subterms become holes. `?H` states the anti-unifier once, above the trie of the jumps, and the leaf
-of each jump gives the values of the holes at that jump, as `z = b` and `z = 0` for `f` in
-`StateM (Nat × Nat)` above. A parameter whose anti-unifier is a hole takes the place of the hole:
-`?H` has no equation `x = z` and no binder `∃ z`, and the leaves give the values of `x`, as `x = 1`
-and `x = 2`.
+The common part of the arguments `t₁ … tₙ` of a parameter is their anti-unifier: the most specific
+term `g` with holes `z₁ … zₘ` such that each `tₖ` is `g` with the values of the holes at jump `k`.
+Subterms that are one pointer stay, applications of one function are anti-unified argument by
+argument, and all other subterms become holes. A parameter whose anti-unifier is a hole takes the
+place of the hole, as `x` does above: `?H` has no equation `x = z` and no binder `∃ z`.
 
 A `let` local of a branch stands for its value. After `match o with | 0 => x := s + 1 | _ => x := s
 + 2`, the jumps pass the locals `x₁ := s + 1` and `x₂ := s + 2`, whose anti-unifier is `s + z`

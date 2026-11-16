@@ -65,6 +65,51 @@ public structure FunModel where
   model : Std.HashMap Sym.ExprPtr FunModel.Entry := {}
   deriving Inhabited
 
+/--
+A quantified EPR fact prepared for MBQI.
+-/
+public structure EprTemplate.Quant where
+  fact : EPR.QuantifiedFact
+  /--
+  The instantiation constants used to build the "skolem instance" of `fact`.
+  -/
+  instConsts : Array Expr
+  /--
+  The guards and the negated body of `fact` instantiated with `instConsts`, as well as the lemmas
+  generated while reifying them.
+  -/
+  exprs : Array BVLogicalExpr
+
+/--
+A `Bool` predicate UF atom of an `EprTemplate`.
+-/
+public structure EprTemplate.PredAtom where
+  /--
+  The key of the predicate in a `FunModel`.
+  -/
+  pattern : Expr
+  /--
+  The congruence-relevant arguments that the predicate is applied to.
+  -/
+  args : Array ((w : Nat) × BVExpr w)
+
+/--
+The quantified facts of an EPR problem.
+-/
+public structure EprTemplate where
+  /--
+  The reification state that the expressions of the template live in.
+  -/
+  reifyState : BVDecide.State
+  /--
+  The quantifiers themselves.
+  -/
+  quants : Array EprTemplate.Quant
+  /--
+  The atoms of `reifyState` that are `Bool` UF atoms, by atom number.
+  -/
+  predAtoms : Std.HashMap Nat EprTemplate.PredAtom
+
 end Cegar
 
 namespace CegarM
@@ -129,6 +174,10 @@ public structure TheoryState where
   Caches for the hypothesis preprocessor.
   -/
   preprocessCaches : Grind.BVDecide.Caches := {}
+  /--
+  The reified quantifiers for EPR MBQI, built on the first model check.
+  -/
+  eprTemplate : Option Cegar.EprTemplate := none
   /--
   The incremental SAT solver.
   -/
@@ -219,7 +268,7 @@ public def getTacticContext : CegarM TacticContext := return (← read).tacticCo
 @[inline]
 public def hasRefinementProcedures : CegarM Bool := do
   let cfg := (← getTacticContext).config
-  return cfg.uf
+  return cfg.uf || cfg.epr
 
 @[inline]
 public def consumeSolverTime (ms : Nat) : CegarM Unit := do
@@ -262,6 +311,29 @@ public def run (ctx : TacticContext) (x : CegarM (Except CounterExample α)) : U
     StateRefT'.run' (ReaderT.run x ctx) state
 
 public def getSatSolver : CegarM Cadical.Solver := return (← get).theoryState.satSolver
+
+@[inline]
+public def liftPreProcessM (x : Normalize.PreProcessM α) : CegarM α := do
+  let target := .mvarIdTarget (← read).goal
+  let ctx := (← CegarM.getTacticContext).preProcessContext
+  let ctx :=
+    .new
+      ctx.mode
+      { ctx.config with
+          enums := false,
+          structures := false,
+          fixedInt := false,
+          shortCircuit := false
+          epr := false
+      }
+      true
+  let caches ← CegarM.takePreProcessCaches
+  let (val, state) ←
+    Normalize.PreProcessM.run ctx target do
+      Normalize.PreProcessM.setCaches caches
+      x
+  CegarM.setPreProcessCaches state.caches
+  return val
 
 public structure CounterExample where
   exprCex : Std.HashMap Expr BVExpr.PackedBitVec

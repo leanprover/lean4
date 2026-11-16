@@ -118,7 +118,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
 
   **Note:** The specified service must be configured with `hasPackageScopes = false`.
   -/
-  downloadCacheService?, downloadCacheService : Option String := none
+  downloadCacheService? @ downloadCacheService, downloadCacheService? : Option String := none
 
   /--
   The name of the script, executable, or library by `lake test` when
@@ -298,7 +298,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   * The workspace root's `enableArtifactCache` configuration (if set and this package is a dependency).
   * **Lake's default**: The package can use artifacts from the cache, but cannot write to it.
   -/
-  enableArtifactCache?, enableArtifactCache : Option Bool := none
+  enableArtifactCache? @ enableArtifactCache, enableArtifactCache? : Option Bool := none
 
   /--
   Whether, when the local artifact cache is enabled, Lake should copy all cached
@@ -310,7 +310,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   * The workspace root's `restoreAllArtifacts` configuration (if set and this package is a dependency).
   * **Lake's default**: `false`.
   -/
-  restoreAllArtifacts?, restoreAllArtifacts : Option Bool := none
+  restoreAllArtifacts? @ restoreAllArtifacts, restoreAllArtifacts? : Option Bool := none
 
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
@@ -346,7 +346,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
     will run built-in lints when no lint driver is configured (i.e., act like `true`
     as a fallback).
   -/
-  builtinLint?, builtinLint : Option Bool := none
+  builtinLint? @ builtinLint, builtinLint? : Option Bool := none
 
   /--
   Additional modules imported for each environment

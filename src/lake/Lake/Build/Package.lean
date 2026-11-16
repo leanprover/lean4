@@ -91,7 +91,8 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
     (← getTryCache)
     && !(← self.buildDir.pathExists) -- do not automatically clobber prebuilt artifacts
     && (
-      self.downloadCacheService?.isSome -- artifact caches
+      (self.downloadCacheService?.isSome -- artifact caches
+        && (← self.isArtifactCacheWritable))
       || self.preferReleaseBuild -- GitHub release
       || ( -- Reservoir
         (self.scope == "leanprover" || self.scope == "leanprover-community")

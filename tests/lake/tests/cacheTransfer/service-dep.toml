@@ -3,7 +3,6 @@
 # `test.sh` copies this to `service-dep/lakefile.toml`
 # and replaces `%URL%` with the URL of the running mock server.
 name = "service-dep"
-enableArtifactCache = true
 downloadCacheService = "depFlat"
 
 [[lean_lib]]

@@ -27,6 +27,10 @@ package test where
   releaseRepo := none
   buildArchive? := none
   preferReleaseBuild := false
+  downloadCacheService? := none
+  enableArtifactCache? := none
+  restoreAllArtifacts? := none
+  builtinLint? := none
   packagesDir := defaultPackagesDir
   leanOptions := #[⟨`pp.unicode.fun, true⟩]
   lintDriver := "b"

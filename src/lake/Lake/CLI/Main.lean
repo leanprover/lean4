@@ -540,22 +540,25 @@ def serviceNotFound (ws : Workspace) (service : String) : String :=
 @[inline] def _root_.Lake.Workspace.findCacheService (ws : Workspace) (service : String) : LoggerIO CacheService := do
   ws.findCacheService? service |>.getDM (error <| serviceNotFound ws service)
 
-@[inline] def _root_.Lake.Workspace.validateCacheService (ws : Workspace) (service : String) : LoggerIO Unit := do
-  unless (ws.findCacheService? service).isSome do
-    error (serviceNotFound ws service)
-
 -- since 2026-02-19
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
-def validateScope (service : CacheService) (scope? : Option CacheServiceScope) : LoggerIO CacheServiceScope := do
-  let scope := scope?.getD .none
+def validateScopeCore (service : CacheService) (scope : CacheServiceScope) : LoggerIO Unit := do
   if service.hasPackageScopes then
     if scope.isNone then
       error "service requires `--scope` or `--repo` to be set"
   else
     unless scope.isNone do
       error "service does not support `--scope` or `--repo`"
+
+@[inline] def _root_.Lake.Workspace.validateCacheService (ws : Workspace) (service : String) (scope? : Option CacheServiceScope) : LoggerIO Unit := do
+  let service ← ws.findCacheService service
+  validateScopeCore service (scope?.getD .none)
+
+@[inline] def validateScope (service : CacheService) (scope? : Option CacheServiceScope) : LoggerIO CacheServiceScope := do
+  let scope := scope?.getD .none
+  validateScopeCore service scope
   return scope
 
 def validatePkgScope (pkg : Package) (service : CacheService) (scope? : Option CacheServiceScope) : LoggerIO CacheServiceScope := do
@@ -666,7 +669,7 @@ protected def get : CliM PUnit := do
             catch _ =>
               return false
         unless ok do
-          error "failed to download artifacts for some dependencies"
+          error "failed to download artifacts for some packages"
       else
         error "multi-package `cache get` requires a Reservoir service"
 where
@@ -835,11 +838,12 @@ protected def add : CliM PUnit := do
   let service? ← id do
     let some service := opts.service?
       | return none
-    ws.validateCacheService service
+    ws.validateCacheService service opts.scope?
     return some (.ofString service)
+  let scope := opts.scope?.getD .none
   let map ← CacheMap.load file
   let overwrite := opts.overwrite?.getD true
-  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
+  ws.lakeCache.writeMap localScope map service? scope overwrite
 
 def stagingOutputsFile := "outputs.jsonl"
 
@@ -897,8 +901,9 @@ protected def unstage : CliM PUnit := do
   let service? ← id do
     let some service := opts.service?
       | return none
-    ws.validateCacheService service
+    ws.validateCacheService service opts.scope?
     return some (.ofString service)
+  let scope := opts.scope?.getD .none
   let map ← CacheMap.load (stagingDir / stagingOutputsFile)
   let descrs ← map.collectOutputDescrs
   let artDir := ws.lakeCache.artifactDir
@@ -925,7 +930,7 @@ protected def unstage : CliM PUnit := do
   unless ok do
     logError "failed to copy all outputs to the staging directory"
     exit 1
-  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
+  ws.lakeCache.writeMap localScope map service? scope overwrite
 
 protected def putStaged : CliM PUnit := do
   processOptions lakeOption

@@ -208,6 +208,12 @@ test_err 'hello: a Reservoir service is configured, but the package is not a Res
   -f non-reservoir.toml cache get --package=hello
 test_run update
 
+# Verify an explicit `--service` takes precedence over the package's `downloadCacheService`
+test_run -f pkg-services.toml update
+LAKE_CONFIG="$WORK_DIR/services.toml" test_err 'service requires `--scope` or `--repo` to be set' \
+  -f pkg-services.toml cache get --package=service-dep --service=ok
+test_run update
+
 echo "# TRANSFER TESTS"
 
 # The remaining tests transfer artifacts through the mock services
@@ -457,6 +463,12 @@ match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
+# Verify a build does not fetch from a `downloadCacheService` without a writable artifact cache
+test_run -f reservoir-dep.toml update
+: > "$SERVER_LOG"
+test_not_out 'optArtifactCache' -f reservoir-dep.toml -v build @service-dep/Dep
+no_match_text "GET" "$SERVER_LOG"
+
 # Verify transfers through cache services declared by packages:
 # an S3 service from a dependency and a Reservoir service from the root
 test_run -f pkg-services.toml update
@@ -517,6 +529,14 @@ test_artifacts "$NUM_DEP_REPLAY_ARTS"
 : > "$SERVER_LOG"
 test_not_out 'optArtifactCache' -f pkg-services.toml -v build @service-dep/Dep --no-build
 no_match_text "GET" "$SERVER_LOG"
+# Verify an on-demand fetch of `cache add` mappings for an unscoped service
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_run -f pkg-services.toml cache add flat-root-outputs.jsonl --service=flatRoot
+test_artifacts 0
+: > "$SERVER_LOG"
+test_out 'downloaded artifact' -f pkg-services.toml -v build Test --no-build
+match_text "GET /ok/a2/" "$SERVER_LOG"
+test_artifacts "$NUM_REPLAY_ARTS"
 # Verify a `downloadCacheService` overridden by a service with package scopes
 # is skipped with a warning by a multi-package `cache get`
 # and is an error when the package is selected with `--package`
@@ -541,14 +561,14 @@ test_run update
 # Verify a build fetches through a `downloadCacheService` overridden by a Reservoir service,
 # looking up the outputs under the dependency's Reservoir scope
 test_run -f reservoir-dep.toml update
-test_run -f reservoir-dep.toml build @service-dep/Dep -o reservoir-dep-outputs.jsonl \
-  --package=service-dep
+LAKE_ARTIFACT_CACHE=true test_run -f reservoir-dep.toml build @service-dep/Dep \
+  -o reservoir-dep-outputs.jsonl --package=service-dep
 test_run -f reservoir-dep.toml cache put reservoir-dep-outputs.jsonl \
   --package=service-dep --repo=leanprover/service-dep
 test_cmd rm -rf service-dep/.lake/build .lake/build "$CACHE_DIR"
 : > "$SERVER_LOG"
-LAKE_CONFIG="$WORK_DIR/reservoir-override.toml" test_out 'Fetched Dep' \
-  -f reservoir-dep.toml build @service-dep/Dep --no-build
+LAKE_CONFIG="$WORK_DIR/reservoir-override.toml" LAKE_ARTIFACT_CACHE=true \
+  test_out 'Fetched Dep' -f reservoir-dep.toml build @service-dep/Dep --no-build
 match_text "GET /ok/api/v1/packages/leanprover/service-dep/build-outputs" "$SERVER_LOG"
 match_text "GET /ok/api/v1/packages/leanprover/service-dep/artifacts/" "$SERVER_LOG"
 test_run update

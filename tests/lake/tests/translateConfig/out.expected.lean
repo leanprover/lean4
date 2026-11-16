@@ -5,8 +5,12 @@ open System Lake DSL
 package test where
   releaseRepo := ""
   buildArchive := ""
+  downloadCacheService := "cdn"
   testDriver := "b"
   lintDriver := "b"
+  enableArtifactCache := false
+  restoreAllArtifacts := false
+  builtinLint := false
   platformIndependent := true
 
 require "foo" / baz @ git "abcdef"

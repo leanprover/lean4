@@ -27,7 +27,7 @@ import Init.ByCases
 public section
 namespace Lean.Meta.Grind.NormSym
 open Sym.Simp (Simproc Result SimpM mkRflResult)
-open Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr share isSameExpr)
+open Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr share isSameExpr mkNotS mkAndS mkOrS mkExistsS)
 open Sym.Internal
 
 /-!
@@ -39,18 +39,6 @@ built with the maximal-sharing builders (`mkAppS`, ...); proofs are built withou
 The definitional reductions (beta, zeta, projections, matchers) are the shared ones in
 `Lean.Meta.Sym.Simp.Reduce`.
 -/
-
-private def mkNotS (p : Expr) : SimpM Expr := do
-  mkAppS (← mkConstS ``Not) p
-
-private def mkAndS (p q : Expr) : SimpM Expr := do
-  mkAppS₂ (← mkConstS ``And) p q
-
-private def mkOrS (p q : Expr) : SimpM Expr := do
-  mkAppS₂ (← mkConstS ``Or) p q
-
-private def mkExistsS (u : Level) (α p : Expr) : SimpM Expr := do
-  mkAppS₂ (← mkConstS ``Exists [u]) α p
 
 /-- Erases metadata. `grind` never internalizes `Expr.mdata`. -/
 def eraseMData : Simproc := fun e => do

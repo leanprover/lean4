@@ -60,6 +60,11 @@ The default element of the sort.
 @[inline]
 public def SortInfo.default (info : SortInfo) : Expr := info.elements[0]!
 
+public inductive PredEncoding where
+  | prop
+  | bool
+  deriving Inhabited, Hashable, DecidableEq
+
 /--
 Information about a particular predicate in a many-sorted EPR problem.
 -/
@@ -68,6 +73,10 @@ public structure PredInfo where
   For each of the predicate's arguments the sort it belongs to.
   -/
   argumentSorts : Array SortId
+  /--
+  Whether the predicate goes to `Prop` or `Bool`.
+  -/
+  encoding : PredEncoding
   deriving Inhabited
 
 /--

@@ -6,12 +6,12 @@ Authors: Henrik Böving
 module
 prelude
 public import Lean.Meta.Tactic.BVDecide.EPR.Basic
-import Lean.Meta.Tactic.BVDecide.EPR.BoolPolarityVisitor
 import Lean.Data.UnionFind
 import Lean.Util.ForEachExprWhere
 import Std.Tactic.BVDecide.EPR.BitVec
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
+import Lean.Meta.Tactic.BVDecide.EPR.PolarityVisitor
 
 /-!
 This module implements a Z3 style analysis of instantiation sets for the MBQI procedure on
@@ -62,7 +62,7 @@ sort encoding arguments, the predicate itself and `n` `BitVec` arguments.
 public def toBvPredAppArity? (e : Expr) : Option Nat :=
   match e.getAppFn with
   | .const name _ =>
-    match toBvPredArity[name]? with
+    match Option.or toBvPredPropArity[name]? toBvPredBoolArity[name]? with
     | some arity => if e.getAppNumArgs == 5 * arity + 1 then some arity else none
     | none => none
   | _ => none
@@ -232,7 +232,7 @@ def analyzeQuantifiedFact (problem : EprBvProblem) (fact : QuantifiedFact) : Bui
     let mut varMap := {}
     for x in xs, cls in vars do
       varMap := varMap.insert x cls
-    BoolPolarityVisitor.visitBool lhs (analyzeAtom problem varMap)
+    PolarityVisitor.visitBool lhs (analyzeAtom problem varMap)
 
 def freeze : BuildM InstSets := do
   let mut uf := (← get).uf

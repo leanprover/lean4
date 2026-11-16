@@ -42,6 +42,7 @@ def withDoneResult {m : Type → Type} [Monad m] (x : m Sym.Simp.Result) : m Sym
   | .step e' proof _ dep =>  return .step e' proof true dep
 
 inductive Target where
+  | hypTarget (mvar : MVarId) (hyps : Array Hyp)
   | mvarIdTarget (mvar : MVarId)
   | grindTarget (goal : Grind.Goal)
   deriving Inhabited
@@ -49,16 +50,9 @@ inductive Target where
 namespace Target
 
 def mvarId : Target → MVarId
+  | .hypTarget mvar _ => mvar
   | .mvarIdTarget mvar => mvar
   | .grindTarget goal => goal.mvarId
-
-def isGrind : Target → Bool
-  | .mvarIdTarget .. => false
-  | .grindTarget .. => true
-
-def isMVar : Target → Bool
-  | .mvarIdTarget .. => true
-  | .grindTarget .. => false
 
 end Target
 
@@ -305,7 +299,7 @@ so that `grind` knows that there is nothing left to do for this goal.
 -/
 def closeTarget (falseProof : Expr) : PreProcessM Unit := do
   match ← getTarget with
-  | .mvarIdTarget mvarId => mvarId.assignFalseProof falseProof
+  | .mvarIdTarget mvarId | .hypTarget mvarId .. => mvarId.assignFalseProof falseProof
   | .grindTarget .. => discard <| withGrindGoal <| Grind.closeGoal falseProof
 
 @[inline]

@@ -215,20 +215,27 @@ def setupGrindTarget (goal : Grind.Goal) : Grind.GrindM (Array FVarId × Grind.G
   let (fvarIds, mvarId) ← symByContradiction goal.mvarId
   return (fvarIds, { goal with mvarId })
 
-def setupTarget : PreProcessM (Option (Array Hyp)) := do
-  match ← PreProcessM.getTarget with
-  | .mvarIdTarget g =>
+public def collectMVarHyps (g : MVarId) : Sym.SymM (Array Hyp × MVarId) := do
     let g ← Sym.preprocessMVar g
     let (_, g) ← symByContradiction g
-    PreProcessM.setTarget <| .mvarIdTarget g
     g.withContext do
-      return some <| ← (← getPropHyps).mapM fun fvarId =>
+      let hyps ← (← getPropHyps).mapM fun fvarId =>
         return {
           name := ← fvarId.getUserName
           type := ← Sym.instantiateMVarsS (← fvarId.getType)
           value := mkFVar fvarId
           source := .lctx fvarId
         }
+      return (hyps, g)
+
+def setupTarget : PreProcessM (Option (Array Hyp)) := do
+  match ← PreProcessM.getTarget with
+  | .hypTarget _ hyps =>
+    return some hyps
+  | .mvarIdTarget g =>
+    let (hyps, g) ← collectMVarHyps g
+    PreProcessM.setTarget <| .mvarIdTarget g
+    return some hyps
   | .grindTarget g =>
     let isPush ← PreProcessM.isPushMode
     let (introduced, g) ← if isPush then pure (#[], g) else setupGrindTarget g

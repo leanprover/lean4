@@ -1086,6 +1086,17 @@ def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
 def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Ident :=
   return mkIdentFrom ref (← mkFreshBinderName) canonical
 
+@[inline] def withoutCheckDeprecated [MonadWithReaderOf Core.Context m] : m α → m α :=
+  withTheReader Core.Context (fun ctx => { ctx with checkDeprecated := .none })
+
+/--
+Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
+See `Core.DeprecationCheck.userWritten`.
+-/
+@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Core.Context m] : m α → m α :=
+  withTheReader Core.Context fun ctx =>
+    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
+
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
@@ -1095,7 +1106,9 @@ private def applyAttributesCore
   -/
   if declName == .anonymous then
     return
-  withDeclName declName do
+  -- Like the declaration's body, its attributes may refer to deprecated constants if it is deprecated
+  let isDeprecated := Linter.isDeprecated (← getEnv) declName || attrs.any (·.name == `deprecated)
+  (if isDeprecated then withoutCheckDeprecated else id) <| withDeclName declName do
     for attr in attrs do
       -- Use same visibility as for other signature elements, independent of call site
       withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do
@@ -1728,17 +1741,6 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
 
 -- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
 instance : MonadMacroAdapter TermElabM := inferInstance
-
-@[inline] def withoutCheckDeprecated [MonadWithReaderOf Core.Context m] : m α → m α :=
-  withTheReader Core.Context (fun ctx => { ctx with checkDeprecated := .none })
-
-/--
-Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
-See `Core.DeprecationCheck.userWritten`.
--/
-@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Core.Context m] : m α → m α :=
-  withTheReader Core.Context fun ctx =>
-    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
 
 /--
 Runs `x`, which elaborates `stx` or its macro expansion. If the kind of `stx` is deprecated, `x`

@@ -70,9 +70,18 @@ The RHS goal of step 1 thus receives the hypothesis
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
 parameters `r` and `x`.
 
-For a stateful program, `?H` also takes the states. In `StateM Nat`, with both jumps in the state
-`t`, it is `s = t ∧ ((n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2))`: the equation `s = t` holds at every jump,
-so it stands above the disjunction. The section on anti-unification below gives the general rule.
+For a stateful program, `?H` also takes the states. Let `f` run in `StateM (Nat × Nat)`, with
+`modify fun (a, b) => (a + 1, b)` in the `then` branch and `modify fun (a, _) => (a + 1, 0)` in the
+`else` branch. From the state `(a, b)`, the jumps pass the states `(a + 1, b)` and `(a + 1, 0)`.
+Their anti-unifier is `(a + 1, z)`, with the hole `z` taking the value `b` at the first jump and `0`
+at the second:
+
+```
+fun r x s => ∃ z, s = (a + 1, z) ∧ ((n > 0 ∧ x = 1 ∧ z = b) ∨ (¬n > 0 ∧ x = 2 ∧ z = 0))
+```
+
+The equation for `s` holds at every jump, so it stands above the disjunction, and `s.1 = a + 1`
+follows from `?H` without a case split. The section on anti-unification below gives the rules.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -233,26 +242,13 @@ partial def mkTrie (jumps : Array (Jump × Array LocalDecl × Expr)) (i : Nat) :
 /-!
 ## Anti-unification of the jump arguments
 
-In `StateM S` with `structure S where pc : Nat; r : Nat`, the jumps of a join point after
-`if c then modify f else modify g` pass the states
-
-```
-t₁ := { pc := s.pc + 4, r := s.r + 1 }
-t₂ := { pc := s.pc + 4, r := s.r + 2 }
-```
-
-The anti-unifier of `t₁` and `t₂` is `{ pc := s.pc + 4, r := s.r + z }`, with the hole `z` taking
-the value `1` at the first jump and `2` at the second. The join hypothesis `?H` states the
-anti-unifier once, above the trie of the jumps, and the leaf of each jump gives the values of the
-holes:
-
-```
-fun _ s' => ∃ z, s' = { pc := s.pc + 4, r := s.r + z } ∧ ((c ∧ z = 1) ∨ (¬c ∧ z = 2))
-```
-
-Thus `s'.pc = s.pc + 4` follows from `?H` without a case split. A parameter `x` whose anti-unifier
-is a hole `z` takes the place of `z`: `?H` has no equation `x = z` and no binder `∃ z`, and the
-leaves give the values of `x`.
+For each parameter, `finalizeJoinPoint` anti-unifies its arguments at all jumps. Subterms that are
+one pointer stay, applications of one function are anti-unified argument by argument, and all other
+subterms become holes. `?H` states the anti-unifier once, above the trie of the jumps, and the leaf
+of each jump gives the values of the holes at that jump, as `z = b` and `z = 0` for `f` in
+`StateM (Nat × Nat)` above. A parameter whose anti-unifier is a hole takes the place of the hole:
+`?H` has no equation `x = z` and no binder `∃ z`, and the leaves give the values of `x`, as `x = 1`
+and `x = 2`.
 
 A `let` local of a branch stands for its value. After `match o with | 0 => x := s + 1 | _ => x := s
 + 2`, the jumps pass the locals `x₁ := s + 1` and `x₂ := s + 2`, whose anti-unifier is `s + z`

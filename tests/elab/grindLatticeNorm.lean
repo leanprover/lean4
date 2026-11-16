@@ -72,6 +72,12 @@ example (p q : Prop) (r : Nat → Prop) (x y : l) :
     (⌜p⌝ ⊓ ⌜q⌝ ⊔ ⨆ i, ⌜r i⌝ : l) = ⌜(p ∧ q) ∨ ∃ i, r i⌝ := by grind
 
 example {σ : Type} (P Q : σ → l) (p : Prop) (s : σ) (h : P ⊑ Q ⊓ ⌜p⌝) : P s ⊑ Q s := by grind
+
+example (Ψ : Nat → l) : (⨆ n, ⌜n = 3⌝ ⊓ Ψ n) = Ψ 3 ∧ (⨆ n, ⌜3 = n⌝ ⊓ Ψ n) = Ψ 3 ∧
+    (⨆ n, Ψ n ⊓ ⌜n = 3⌝) = Ψ 3 ∧ (⨆ n, Ψ n ⊓ ⌜3 = n⌝) = Ψ 3 := by grind
+
+example (Ψ : Nat → l) : (⨆ n, ⌜n = 3⌝ ⊓ Ψ n) = Ψ 3 ∧ (⨆ n, ⌜3 = n⌝ ⊓ Ψ n) = Ψ 3 ∧
+    (⨆ n, Ψ n ⊓ ⌜n = 3⌝) = Ψ 3 ∧ (⨆ n, Ψ n ⊓ ⌜3 = n⌝) = Ψ 3 := by simp
 end
 
 /-! ## Predicate transformers -/

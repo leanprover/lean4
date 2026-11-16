@@ -13,7 +13,10 @@ import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Intro
+import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.ExprPtr
 import Lean.Elab.Tactic.VCGen.Util
+import Lean.Elab.Tactic.VCGen.Reduce
 
 open Lean Meta Sym Sym.Internal
 open Lean.Order
@@ -52,22 +55,23 @@ jumps to it. Without `+jp`, `vcgen` unfolds `__do_jp` at each jump, so `k` conse
    records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the RHS goal after all goals of the join body, so both jumps are known by then.
    `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
-   branch and its arguments, `fun r x => (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)`.
-   It proves `?pf₁ := Or.inl ⟨h₁, rfl, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl, rfl⟩`. Jumps under a
+   branch and its arguments other than `r : Unit`, `fun r x => (n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)`.
+   It proves `?pf₁ := Or.inl ⟨h₁, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl⟩`. Jumps under a
    common local share its binder: the jumps of an `else if` chain share the conditions above them.
+   A parameter that every jump passes the same term for gets its equation once, above the
+   disjunction.
 
 The RHS goal of step 1 thus receives the hypothesis
 
 ```
-(n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)
+(n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2)
 ```
 
 This `?H` is the strongest postcondition of the join body at its jumps to `__do_jp`, over the join
 parameters `r` and `x`.
 
-For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
-at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
-`n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
+For a stateful program, `?H` also takes the states. In `StateM Nat`, with both jumps in the state
+`t`, it is `s = t ∧ ((n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2))`.
 -/
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
@@ -94,7 +98,8 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     return none
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none
-  let jpTy ← Sym.inferType (.fvar jp)
+  let jpFVar ← mkFVarS jp
+  let jpTy ← Sym.inferType jpFVar
   let numParams ← Lean.Elab.Tactic.Do.getNumJoinParams jpTy info.Prog
   -- `Assertion` is a class abbreviation: `instAL` is `Assertion.mk instCL`, where `instCL` is the
   -- lattice instance of every elaborated `⌜·⌝`, or it is a local instance.
@@ -102,29 +107,33 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     | Std.WP.Assertion.mk _ instCL => pure instCL
     | _ =>
       let lvls := (← Sym.inferType info.instAL).getAppFn.constLevels!
-      mkAppNS (mkConst ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
+      mkAppNS (← mkConstS ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let some (hyp, top, specTy, rhsTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
       forallBoundedTelescope info.Pred info.excessArgs.size fun ss B => do
+    let xs ← xs.mapM (share ·)
+    let ss ← ss.mapM (share ·)
+    let B ← share B
     let some instB ← baseInstance? instCL ss | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
-    let top ← mkAppNS (mkConst ``Lean.Order.top [u]) #[B, instB]
-    let hyp ← mkFreshExprMVarAt lctx localInsts (← mkForallFVarsS (xs ++ ss) (mkSort .zero))
-      .syntheticOpaque
+    let top ← mkAppNS (← mkConstS ``Lean.Order.top [u]) #[B, instB]
+    let hyp ← share (← mkFreshExprMVarAt lctx localInsts
+      (← mkForallFVarsS (xs ++ ss) (← mkSortS .zero)) .syntheticOpaque)
     let entails (prog : Expr) : VCGenM Expr := do
       let wp ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog)) ss
-      let rel ← mkAppNS (mkConst ``PartialOrder.rel goalTy.getAppFn.constLevels!)
+      let rel ← mkAppNS (← mkConstS ``PartialOrder.rel goalTy.getAppFn.constLevels!)
         #[α, inst, top, wp]
       mkForallFVarsS (xs ++ ss) (← mkForallS `h .default (← mkAppNS hyp (xs ++ ss)) rel)
-    return some (hyp.mvarId!, top, ← entails (← mkAppNS (.fvar jp) xs), ← entails (← betaS val xs))
+    return some (hyp.mvarId!, top, ← entails (← mkAppNS jpFVar xs), ← entails (← betaS val xs))
     | return none
-  let rhs ← mkFreshExprSyntheticOpaqueMVar rhsTy (← goal.getTag)
+  let rhs ← share (← mkFreshExprSyntheticOpaqueMVar rhsTy (← goal.getTag))
   let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy rhs goalTy)
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
+  let spec ← mkFVarS decls[0]!
   let joinPoint : JoinPoint :=
-    { spec := .fvar decls[0]!, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
+    { spec, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.rhsGoal (joinPoint, #[]) }
   let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
@@ -142,8 +151,8 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   unless pre == jp.top do return none
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
-  let args := info.prog.getAppArgs ++ info.excessArgs
-  let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
+  let args ← (info.prog.getAppArgs ++ info.excessArgs).mapM (reduceHead ·)
+  let pf ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← mkMVarS jp.hyp) args))
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.modify jp.rhsGoal fun (jp, jumps) =>
@@ -192,10 +201,10 @@ partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : Me
 
 /-- The trie of the `jumps` from local `i` on, over the parameters `xs` of `?H`. Its disjuncts bind
 each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
-equations `xs = args` of each jump without local `i`. Returns the path of each jump, the index and
-number of the disjuncts it passes. -/
-partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
-    VCGenM (Expr × Array (List (Nat × Nat))) := do
+equations `xs[j] = args[j]` for `j ∈ leafParams` of each jump without local `i`. Returns the path of
+each jump, the index and number of the disjuncts it passes. -/
+partial def mkTrie (xs : Array Expr) (leafParams : Array Nat) (jumps : Array (Jump × Array LocalDecl))
+    (i : Nat) : VCGenM (Expr × Array (List (Nat × Nat))) := do
   let mut groups : Array (Array Nat) := #[]
   let mut byLocal : Std.HashMap FVarId Nat := {}
   for h : k in [:jumps.size] do
@@ -212,13 +221,13 @@ partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (
     let (jump, locals) := jumps[ks[0]!]!
     let (disjunct, subPaths) ← match locals[i]? with
       | some d =>
-        let (φ, subPaths) ← mkTrie xs (ks.map (jumps[·]!)) (i + 1)
+        let (φ, subPaths) ← mkTrie xs leafParams (ks.map (jumps[·]!)) (i + 1)
         let decl ← jump.proof.getDecl
         pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
       | none =>
-        let eqs ← xs.mapIdxM fun j x => do
-          let α ← Sym.inferType x
-          return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!
+        let eqs ← leafParams.mapM fun j => do
+          let α ← Sym.inferType xs[j]!
+          return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α xs[j]! jump.args[j]!
         pure (mkAndN eqs.toList, #[[]])
     disjuncts := disjuncts.push disjunct
     for (k, path) in ks.zip subPaths do
@@ -234,36 +243,64 @@ partial def mkEqsProof (φ : Expr) : MetaM Expr := do
   | _ => throwError "vcgen +jp: unexpected equations{indentExpr φ}"
 
 /-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump,
-from the witnesses `ws` of its `∃`s and its conjuncts. -/
-partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
+whose `locals` witness its `∃`s and its conjuncts. -/
+partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (locals : List LocalDecl) :
     MetaM Expr := do
   let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
   mkOrIntro φ g 0 n fun φ => do
     if path.isEmpty then
       return ← mkEqsProof φ
-    if let .letE _ _ v b _ := φ then
-      return ← mkTrieProof (b.instantiate1 v) path ws
-    let w :: ws := ws | throwError "vcgen +jp: missing witness for{indentExpr φ}"
+    let d :: locals := locals | throwError "vcgen +jp: missing local for{indentExpr φ}"
+    if d.value?.isSome then
+      -- `bindLocal` drops a `let` that the rest of `φ` does not use.
+      let .letE _ _ v b _ := φ | return ← mkTrieProof φ path locals
+      return ← mkTrieProof (b.instantiate1 v) path locals
+    let w := d.toExpr
     match_expr φ with
     | Exists α p =>
       return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
-        (← mkTrieProof (p.beta #[w]) path ws)
-    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path ws)
+        (← mkTrieProof (p.beta #[w]) path locals)
+    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path locals)
     | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
 
-/-- Assign `?H` of `jp` the trie of its `jumps`, `False` if no jump reaches `jp`, and each jump's
-`?pf` the proof along its path. `vcgen` processes the RHS goal of `jp` after all goals below the
-registration, so every jump is known by then. -/
+/-- The argument `jumps[k].args[j]` of every jump, if it is one term that mentions only locals
+common to all jumps. -/
+def commonArg? (jp : JoinPoint) (jumps : Array Jump) (j : Nat) : VCGenM (Option Expr) := do
+  let some jump₀ := jumps[0]? | return none
+  let a := jump₀.args[j]!
+  unless jumps.all (isSameExpr a ·.args[j]!) do return none
+  let decl₀ ← jump₀.proof.getDecl
+  let some fvarId ← withLCtx decl₀.lctx decl₀.localInstances (getMaxFVar? a) | return some a
+  let some d := decl₀.lctx.find? fvarId | return none
+  return if d.index ≤ (decl₀.lctx.get! jp.spec.fvarId!).index then some a else none
+
+/-- Assign `?H` of `jp` the equations of the parameters that all its `jumps` agree on, above the
+trie of the jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof. `vcgen`
+processes the RHS goal of `jp` after all goals below the registration, so every jump is known by
+then. -/
 public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
-  let jumps ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
-  let paths ← forallTelescope (← jp.hyp.getType) fun xs _ => do
-    let (φ, paths) ← mkTrie xs jumps 0
+  let jumpsLocals ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
+  let (paths, hasEqs) ← forallTelescope (← jp.hyp.getType) fun xs _ => do
+    let mut eqs := #[]
+    let mut leafParams := #[]
+    for h : j in [:xs.size] do
+      let α ← Sym.inferType xs[j]
+      -- A `PUnit` parameter, such as the result `__r` of a `Unit` statement, is irrelevant.
+      if α.isConstOf ``PUnit then continue
+      if let some a ← commonArg? jp jumps j then
+        eqs := eqs.push (mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α xs[j] a)
+      else
+        leafParams := leafParams.push j
+    let (trie, paths) ← mkTrie xs leafParams jumpsLocals 0
+    let φ := if eqs.isEmpty then trie else mkAnd (mkAndN eqs.toList) trie
     jp.hyp.assign (← mkLambdaFVars xs φ)
-    return paths
-  for ((jump, locals), path) in jumps.zip paths do
+    return (paths, !eqs.isEmpty)
+  for ((jump, locals), path) in jumpsLocals.zip paths do
     jump.proof.withContext do
-      let witnesses := (locals.filter (·.value?.isNone)).map (·.toExpr)
       let φ ← instantiateMVars (← jump.proof.getType)
-      jump.proof.assign (← mkTrieProof φ path witnesses.toList)
+      unless hasEqs do return ← jump.proof.assign (← mkTrieProof φ path locals.toList)
+      let_expr And a b := φ | throwError "vcgen +jp: expected `∧`{indentExpr φ}"
+      jump.proof.assign
+        (mkApp4 (mkConst ``And.intro) a b (← mkEqsProof a) (← mkTrieProof b path locals.toList))
 
 end Lean.Elab.Tactic.VCGen

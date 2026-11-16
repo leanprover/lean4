@@ -3,6 +3,15 @@ External Contribution Guidelines
 
 In the past, we accepted most pull requests. This practice produced hard to maintain code, performance problems, and bugs. In order to improve the quality and maintainability of our codebase, we've established the following guidelines for external contributions.
 
+Who Can Open Pull Requests
+-------
+
+The lean4 repository currently accepts pull requests only from the Lean FRO team and a small set of regular contributors. Pull requests from anyone else are closed automatically. Maintainers may reopen PRs where appropriate.
+
+If you have found a bug or want to propose a change, please [open an issue](https://github.com/leanprover/lean4/issues/new/choose) instead: a bug report, or an `RFC:` issue for a new feature as described below. Issues are triaged as described under [Reviews and Feedback](#reviews-and-feedback).
+
+The rest of these guidelines apply to everyone who opens pull requests.
+
 Helpful links
 -------
 

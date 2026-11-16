@@ -100,4 +100,7 @@ def is (s : Value) (h : String) : Bool :=
 instance : ToString Value where
   toString v := v.value
 
+instance : Encode .v11 Value where
+  encode out v := out ++ v.value
+
 end Std.Http.Header.Value

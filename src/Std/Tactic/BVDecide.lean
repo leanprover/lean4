@@ -12,6 +12,7 @@ public import Std.Tactic.BVDecide.KernelVM
 public import Std.Tactic.BVDecide.Normalize
 public import Std.Tactic.BVDecide.Reflect
 public import Std.Tactic.BVDecide.Syntax
+public import Std.Tactic.BVDecide.EPR
 public import Init.Sym.Lemmas
 public meta import Std.Tactic.BVDecide.Reflect
 

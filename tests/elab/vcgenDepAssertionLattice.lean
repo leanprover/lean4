@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Regression test for a *dependent* assertion language `(st : State) → st.Invariant → Prop`. Its order
 is the pointwise function order, but `vcgen`'s peel rule `le_of_forall_le` cannot currently be

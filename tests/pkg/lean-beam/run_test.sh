@@ -227,7 +227,9 @@ check_out_contains 'unavailable locally'
 
 printf 'beam-bundle-foreign\n' > "$project/lean-toolchain"
 capture_fail "$beam" --root "$project" serve
-check_out_contains 'is not a member of this Beam installation'
+check_out_contains "found via selector 'beam-bundle-foreign'"
+check_out_contains "bound Beam installation: $owned_toolchain"
+check_out_contains 'bundled Beam serves only its containing Lean installation'
 
 printf 'beam-bundle-matching\n' > "$project/lean-toolchain"
 "$beam" --root "$project" doctor > "$TMP_DIR/matching-doctor"

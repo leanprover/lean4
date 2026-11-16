@@ -257,6 +257,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   -- Always allow quoting private names.
   withoutExporting do
     let n ← realizeGlobalConstNoOverloadWithInfo stx[2]
+    withRef stx[2] <| checkDeprecatedCore n
     recordExtraModUseFromDecl (isMeta := false) n
     return toExpr n
 
@@ -405,6 +406,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   try
     pushScope
     let openDecls ← elabOpenDecl decl
+      (reportDeprecated := fun idStx declName => checkDeprecatedOpenedName idStx declName)
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
       withSaveInfoContext <| elabTerm e expectedType?
   finally

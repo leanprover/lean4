@@ -23,7 +23,7 @@ In compiled code, calls to {name}`ByteArray.append` are replaced with the much m
 {name (scope:="Init.Data.ByteArray.Basic")}`ByteArray.fastAppend`.
 -/
 @[expose, implicit_reducible]
-protected def append (a b : ByteArray) : ByteArray :=
+protected noncomputable def append (a b : ByteArray) : ByteArray :=
   ⟨⟨a.data.toList ++ b.data.toList⟩⟩
 
 @[simp]

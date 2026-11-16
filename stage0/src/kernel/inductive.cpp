@@ -73,7 +73,7 @@ static optional<name> get_first_cnstr(environment const & env, name const & d_na
     return optional<name>(head(cnstrs));
 }
 
-optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params) {
+optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, size_t num_params) {
     buffer<expr> args;
     expr const & d = get_app_args(type, args);
     if (!is_constant(d)) return none_expr();
@@ -93,7 +93,7 @@ expr expand_eta_struct(environment const & env, expr const & e_type, expr const 
     constructor_val ctor_val = env.get(*ctor_name).to_constructor_val();
     args.shrink(ctor_val.get_nparams());
     expr result = mk_app(mk_constant(*ctor_name, const_levels(I)), args);
-    for (unsigned i = 0; i < ctor_val.get_nfields(); i++) {
+    for (size_t i = 0; i < ctor_val.get_nfields(); i++) {
         result = mk_app(result, mk_proj(const_name(I), nat(i), e));
     }
     return result;
@@ -122,7 +122,7 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
 static void check_uniform_ind_occs(environment const & env, inductive_decl const & d) {
     if (!d.get_nparams().is_small())
         throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
-    unsigned nparams = d.get_nparams().get_small_value();
+    size_t nparams = d.get_nparams().get_small_value();
     levels lvls = lparams_to_levels(d.get_lparams());
     buffer<name> ind_names;
     for (inductive_type const & ind_type : d.get_types())
@@ -139,7 +139,7 @@ static void check_uniform_ind_occs(environment const & env, inductive_decl const
                     if (args.size() > nparams)
                         return true;
                     bool ok = args.size() == nparams && offset >= nparams && const_levels(fn) == lvls;
-                    for (unsigned i = 0; ok && i < nparams; i++)
+                    for (size_t i = 0; ok && i < nparams; i++)
                         ok = is_bvar(args[i], offset - 1 - i);
                     if (!ok)
                         throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
@@ -158,10 +158,10 @@ class add_inductive_fn {
     diagnostics *          m_diag;
     local_ctx              m_lctx;
     names      m_lparams;
-    unsigned               m_nparams;
+    size_t                 m_nparams;
     bool                   m_is_unsafe;
     buffer<inductive_type> m_ind_types;
-    buffer<unsigned>       m_nindices;
+    buffer<size_t>         m_nindices;
     level                  m_result_level;
     /* m_lparams ==> m_levels */
     levels                 m_levels;
@@ -176,7 +176,7 @@ class add_inductive_fn {
     level                  m_elim_level;
     bool                   m_K_target;
 
-    unsigned               m_nnested;
+    size_t                 m_nnested;
 
     struct rec_info {
         expr         m_C;        /* free variable for "main" motive */
@@ -190,7 +190,7 @@ class add_inductive_fn {
     buffer<rec_info>       m_rec_infos;
 
 public:
-    add_inductive_fn(environment const & env, diagnostics * diag, inductive_decl const & decl, unsigned nnested):
+    add_inductive_fn(environment const & env, diagnostics * diag, inductive_decl const & decl, size_t nnested):
         m_env(env), m_ngen(*g_ind_fresh), m_diag(diag), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
         m_nnested(nnested) {
         if (!decl.get_nparams().is_small())
@@ -202,7 +202,7 @@ public:
     type_checker tc() { return type_checker(m_env, m_lctx, m_diag, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
 
     /** Return type of the parameter at position `i` */
-    expr get_param_type(unsigned i) const {
+    expr get_param_type(size_t i) const {
         return m_lctx.get_local_decl(m_params[i]).get_type();
     }
 
@@ -249,7 +249,7 @@ public:
             check_no_metavar_no_fvar(m_env, ind_type.get_name(), type);
             tc().check(type, m_lparams);
             m_nindices.push_back(0);
-            unsigned i = 0;
+            size_t i = 0;
             type = whnf(type);
             while (is_pi(type)) {
                 if (i < m_nparams) {
@@ -294,7 +294,7 @@ public:
 
     /** \brief Return true if declaration is recursive */
     bool is_rec() {
-        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 expr t = constructor_type(cnstr);
@@ -323,7 +323,7 @@ public:
        function returning `T'` where `T'` is another inductive datatype (possibly equal to `T`)
        in the same mutual declaration. */
     bool is_reflexive() {
-        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 expr t = constructor_type(cnstr);
@@ -349,7 +349,7 @@ public:
         bool rec       = is_rec();
         bool reflexive = is_reflexive();
         names all = get_all_inductive_names();
-        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             name const & n = ind_type.get_name();
             buffer<name> cnstr_names;
@@ -366,12 +366,12 @@ public:
         where `I` is the inductive datatype at position `i` being declared,
         `As` are the global parameters of this declaration,
         and `t` does not contain any inductive datatype being declared. */
-    bool is_valid_ind_app(expr const & t, unsigned i) {
+    bool is_valid_ind_app(expr const & t, size_t i) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
         if (I != m_ind_cnsts[i] || args.size() != m_nparams + m_nindices[i])
             return false;
-        for (unsigned i = 0; i < m_nparams; i++) {
+        for (size_t i = 0; i < m_nparams; i++) {
             if (m_params[i] != args[i])
                 return false;
         }
@@ -380,7 +380,7 @@ public:
         Such occurrences are unsound in general. https://github.com/leanprover/lean4/issues/2125
         We also used to reject them in Lean 3.
         */
-        for (unsigned i = m_nparams; i < args.size(); i++) {
+        for (size_t i = m_nparams; i < args.size(); i++) {
             if (has_ind_occ(args[i]))
                 return false;
         }
@@ -388,12 +388,12 @@ public:
     }
 
     /** \brief Return some(i) iff `t` is of the form `I As t` where `I` the inductive `i`-th datatype being defined. */
-    optional<unsigned> is_valid_ind_app(expr const & t) {
-        for (unsigned i = 0; i < m_ind_types.size(); i++) {
+    optional<size_t> is_valid_ind_app(expr const & t) {
+        for (size_t i = 0; i < m_ind_types.size(); i++) {
             if (is_valid_ind_app(t, i))
-                return optional<unsigned>(i);
+                return optional<size_t>(i);
         }
-        return optional<unsigned>();
+        return optional<size_t>();
     }
 
     /** \brief Return true iff `e` is one of the inductive datatype being declared. */
@@ -411,7 +411,7 @@ public:
 
     /** \brief Return `some(d_idx)` iff `t` is a recursive argument, `d_idx` is the index of the
         recursive inductive datatype. Otherwise, return `none`. */
-    optional<unsigned> is_rec_argument(expr t) {
+    optional<size_t> is_rec_argument(expr t) {
         t = whnf(t);
         while (is_pi(t)) {
             expr local = mk_local_decl_for(t);
@@ -421,7 +421,7 @@ public:
     }
 
     /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
-    void check_positivity(expr t, name const & cnstr_name, int arg_idx) {
+    void check_positivity(expr t, name const & cnstr_name, size_t arg_idx) {
         t = whnf(t);
         if (!has_ind_occ(t)) {
             // nonrecursive argument
@@ -442,7 +442,7 @@ public:
     /** \brief Check whether the constructor declarations are type correct, parameters are in the expected positions,
         constructor fields are in acceptable universe levels, positivity constraints, and returns the expected result. */
     void check_constructors() {
-        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             name_set found_cnstrs;
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
@@ -455,7 +455,7 @@ public:
                 m_env.check_name(n);
                 check_no_metavar_no_fvar(m_env, n, t);
                 tc().check(t, m_lparams);
-                unsigned i = 0;
+                size_t i = 0;
                 while (is_pi(t)) {
                     if (i < m_nparams) {
                         if (!is_def_eq(binding_domain(t), get_param_type(i)))
@@ -485,20 +485,20 @@ public:
     }
 
     void declare_constructors() {
-        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
-            unsigned cidx = 0;
+            size_t cidx = 0;
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 name const & n = constructor_name(cnstr);
                 expr const & t = constructor_type(cnstr);
-                unsigned arity = 0;
+                size_t arity = 0;
                 expr it = t;
                 while (is_pi(it)) {
                     it = binding_body(it);
                     arity++;
                 }
                 lean_assert(arity >= m_nparams);
-                unsigned nfields = arity - m_nparams;
+                size_t nfields = arity - m_nparams;
                 m_env.check_name(n);
                 m_env.add_core(constant_info(constructor_val(n, m_lparams, t, ind_type.get_name(), cidx, m_nparams, nfields, m_is_unsafe)));
                 cidx++;
@@ -519,7 +519,7 @@ public:
             return true;
         }
 
-        unsigned num_intros = length(m_ind_types[0].get_cnstrs());
+        size_t num_intros = length(m_ind_types[0].get_cnstrs());
         if (num_intros > 1) {
             /* We have more than one constructor, then recursor for inductive predicate
                can only eliminate intro Prop. */
@@ -539,7 +539,7 @@ public:
                By eliminating to a non-proposition, we would not be revealing anything that is not already known. */
         constructor const & cnstr = head(m_ind_types[0].get_cnstrs());
         expr type  = constructor_type(cnstr);
-        unsigned i = 0;
+        size_t i = 0;
         buffer<expr> to_check; /* Arguments that we must check if occur in the result type */
         while (is_pi(type)) {
             expr fvar = mk_local_decl_for(type);
@@ -570,7 +570,7 @@ public:
             m_elim_level = mk_level_zero();
         } else {
             name u("u");
-            int i = 1;
+            size_t i = 1;
             while (std::find(m_lparams.begin(), m_lparams.end(), u) != m_lparams.end()) {
                 u = name("u").append_after(i);
                 i++;
@@ -590,7 +590,7 @@ public:
         if (!m_K_target)
             return;
         expr it = constructor_type(head(m_ind_types[0].get_cnstrs()));
-        unsigned i = 0;
+        size_t i = 0;
         while (is_pi(it)) {
             if (i < m_nparams) {
                 it = binding_body(it);
@@ -606,24 +606,24 @@ public:
     /** \brief Given `t` of the form `I As is` where `I` is one of the inductive datatypes being defined,
         As are the global parameters, and is the actual indices provided to it.
         Return the index of `I`, and store is in the argument `indices`. */
-    unsigned get_I_indices(expr const & t, buffer<expr> & indices) {
-        optional<unsigned> r = is_valid_ind_app(t);
+    size_t get_I_indices(expr const & t, buffer<expr> & indices) {
+        optional<size_t> r = is_valid_ind_app(t);
         lean_assert(r);
         buffer<expr> all_args;
         get_app_args(t, all_args);
-        for (unsigned i = m_nparams; i < all_args.size(); i++)
+        for (size_t i = m_nparams; i < all_args.size(); i++)
             indices.push_back(all_args[i]);
         return *r;
     }
 
     /** \brief Populate m_rec_infos. */
     void mk_rec_infos() {
-        unsigned d_idx = 0;
+        size_t d_idx = 0;
         /* First, populate the fields, m_C, m_indices, m_major */
         for (inductive_type const & ind_type : m_ind_types) {
             rec_info info;
             expr t      = ind_type.get_type();
-            unsigned i  = 0;
+            size_t i  = 0;
             t = whnf(t);
             while (is_pi(t)) {
                 if (i < m_nparams) {
@@ -657,7 +657,7 @@ public:
                 buffer<expr> v;   // inductive args
                 name cnstr_name = constructor_name(cnstr);
                 expr t          = constructor_type(cnstr);
-                unsigned i      = 0;
+                size_t i      = 0;
                 while (is_pi(t)) {
                     if (i < m_nparams) {
                         t = instantiate(binding_body(t), m_params[i]);
@@ -671,12 +671,12 @@ public:
                     i++;
                 }
                 buffer<expr> it_indices;
-                unsigned it_idx = get_I_indices(t, it_indices);
+                size_t it_idx = get_I_indices(t, it_indices);
                 expr C_app      = mk_app(m_rec_infos[it_idx].m_C, it_indices);
                 expr intro_app  = mk_app(mk_app(mk_constant(cnstr_name, m_levels), m_params), b_u);
                 C_app = mk_app(C_app, intro_app);
                 /* populate v using u */
-                for (unsigned i = 0; i < u.size(); i++) {
+                for (size_t i = 0; i < u.size(); i++) {
                     expr u_i    = u[i];
                     expr u_i_ty = whnf(infer_type(u_i));
                     buffer<expr> xs;
@@ -686,7 +686,7 @@ public:
                         u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                     }
                     buffer<expr> it_indices;
-                    unsigned it_idx = get_I_indices(u_i_ty, it_indices);
+                    size_t it_idx = get_I_indices(u_i_ty, it_indices);
                     expr C_app  = mk_app(m_rec_infos[it_idx].m_C, it_indices);
                     expr u_app  = mk_app(u_i, xs);
                     C_app = mk_app(C_app, u_app);
@@ -723,17 +723,17 @@ public:
 
     /** \brief Store all type formers in `Cs` */
     void collect_Cs(buffer<expr> & Cs) {
-        for (unsigned i = 0; i < m_ind_types.size(); i++)
+        for (size_t i = 0; i < m_ind_types.size(); i++)
             Cs.push_back(m_rec_infos[i].m_C);
     }
 
     /** \brief Store all minor premises in `ms`. */
     void collect_minor_premises(buffer<expr> & ms) {
-        for (unsigned i = 0; i < m_ind_types.size(); i++)
+        for (size_t i = 0; i < m_ind_types.size(); i++)
             ms.append(m_rec_infos[i].m_minors);
     }
 
-    recursor_rules mk_rec_rules(unsigned d_idx, buffer<expr> const & Cs, buffer<expr> const & minors, unsigned & minor_idx) {
+    recursor_rules mk_rec_rules(size_t d_idx, buffer<expr> const & Cs, buffer<expr> const & minors, size_t & minor_idx) {
         inductive_type const & d = m_ind_types[d_idx];
         levels lvls = get_rec_levels();
         buffer<recursor_rule> rules;
@@ -741,7 +741,7 @@ public:
             buffer<expr> b_u;
             buffer<expr> u;
             expr t = constructor_type(cnstr);
-            unsigned i = 0;
+            size_t i = 0;
             while (is_pi(t)) {
                 if (i < m_nparams) {
                     t = instantiate(binding_body(t), m_params[i]);
@@ -755,7 +755,7 @@ public:
                 i++;
             }
             buffer<expr> v;
-            for (unsigned i = 0; i < u.size(); i++) {
+            for (size_t i = 0; i < u.size(); i++) {
                 expr u_i    = u[i];
                 expr u_i_ty = whnf(infer_type(u_i));
                 buffer<expr> xs;
@@ -765,7 +765,7 @@ public:
                     u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                 }
                 buffer<expr> it_indices;
-                unsigned it_idx = get_I_indices(u_i_ty, it_indices);
+                size_t it_idx = get_I_indices(u_i_ty, it_indices);
                 name rec_name   = mk_rec_name(m_ind_types[it_idx].get_name());
                 expr rec_app    = mk_constant(rec_name, lvls);
                 rec_app         = mk_app(mk_app(mk_app(mk_app(mk_app(rec_app, m_params), Cs), minors), it_indices), mk_app(u_i, xs));
@@ -783,11 +783,11 @@ public:
     void declare_recursors() {
         buffer<expr> Cs; collect_Cs(Cs);
         buffer<expr> minors; collect_minor_premises(minors);
-        unsigned nminors   = minors.size();
-        unsigned nmotives  = Cs.size();
+        size_t nminors   = minors.size();
+        size_t nmotives  = Cs.size();
         names all          = get_all_inductive_names();
-        unsigned minor_idx = 0;
-        for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
+        size_t minor_idx = 0;
+        for (size_t d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             rec_info const & info = m_rec_infos[d_idx];
             expr C_app            = mk_app(mk_app(info.m_C, info.m_indices), info.m_major);
             expr rec_ty           = mk_pi(info.m_major, C_app);
@@ -817,7 +817,7 @@ public:
     void check_recursors() {
         buffer<expr> Cs; collect_Cs(Cs);
         buffer<expr> minors; collect_minor_premises(minors);
-        for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
+        for (size_t d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             name rec_name        = mk_rec_name(m_ind_types[d_idx].get_name());
             constant_info rec_ci = m_env.get(rec_name);
             /* (1) The recursor type must be well typed. */
@@ -827,7 +827,7 @@ public:
             for (constructor const & cnstr : m_ind_types[d_idx].get_cnstrs()) {
                 buffer<expr> b_u;
                 expr t     = constructor_type(cnstr);
-                unsigned i = 0;
+                size_t i = 0;
                 while (is_pi(t)) {
                     if (i < m_nparams) {
                         t = instantiate(binding_body(t), m_params[i]);
@@ -916,7 +916,7 @@ struct elim_nested_inductive_result {
         local_ctx lctx;
         buffer<expr> As;
         bool pi = is_pi(e);
-        for (unsigned i = 0; i < m_params.size(); i++) {
+        for (size_t i = 0; i < m_params.size(); i++) {
             if (!is_pi(e) && !is_lambda(e))
                 throw kernel_exception(aux_env, "failed to restore nested inductive types, fewer binders than parameters");
             As.push_back(lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e), binding_info(e)));
@@ -979,7 +979,7 @@ struct elim_nested_inductive_fn {
     buffer<pair<expr, name>>   m_nested_aux; /* The expressions stored here contains free vars in `m_params` */
     levels                     m_lvls;
     buffer<inductive_type>     m_new_types;
-    unsigned                   m_next_idx{1};
+    size_t                     m_next_idx{1};
 
     elim_nested_inductive_fn(environment const & env, declaration const & d):
         m_env(env), m_d(d), m_ngen(*g_nested_fresh) {
@@ -1016,11 +1016,11 @@ struct elim_nested_inductive_fn {
         if (!info || !info->is_inductive()) return optional<inductive_val>();
         buffer<expr> args;
         get_app_args(e, args);
-        unsigned nparams = info->to_inductive_val().get_nparams();
+        size_t nparams = info->to_inductive_val().get_nparams();
         if (nparams > args.size()) return optional<inductive_val>();
         bool is_nested   = false;
         bool loose_bvars = false;
-        for (unsigned i = 0; i < nparams; i++) {
+        for (size_t i = 0; i < nparams; i++) {
             if (has_loose_bvars(args[i])) {
                 loose_bvars = true;
             }
@@ -1042,8 +1042,8 @@ struct elim_nested_inductive_fn {
         return optional<inductive_val>(info->to_inductive_val());
     }
 
-    expr instantiate_pi_params(expr e, unsigned nparams, expr const * params) {
-        for (unsigned i = 0; i < nparams; i++) {
+    expr instantiate_pi_params(expr e, size_t nparams, expr const * params) {
+        for (size_t i = 0; i < nparams; i++) {
             if (!is_pi(e)) throw_ill_formed();
             e = binding_body(e);
         }
@@ -1060,7 +1060,7 @@ struct elim_nested_inductive_fn {
         name const & I_name   = const_name(fn);
         levels const & I_lvls = const_levels(fn);
         lean_assert(I_val->get_nparams() <= args.size());
-        unsigned I_nparams = I_val->get_nparams();
+        size_t I_nparams = I_val->get_nparams();
         expr IAs = mk_app(fn, I_nparams, args.data()); /* `I As` */
         /* Check whether we have already created an auxiliary inductive_type for `I As` */
         optional<name> auxI_name;
@@ -1123,9 +1123,9 @@ struct elim_nested_inductive_fn {
         return replace(e, [&](expr const & e, unsigned) { return replace_if_nested(lctx, As, e); });
     }
 
-    expr get_params(expr type, unsigned nparams, local_ctx & lctx, buffer<expr> & params) {
+    expr get_params(expr type, size_t nparams, local_ctx & lctx, buffer<expr> & params) {
         lean_assert(params.empty());
-        for (unsigned i = 0; i < nparams; i++) {
+        for (size_t i = 0; i < nparams; i++) {
             if (!is_pi(type)) throw kernel_exception(m_env, "invalid inductive datatype declaration, incorrect number of parameters");
             params.push_back(lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type)));
             type = instantiate(binding_body(type), params.back());
@@ -1136,12 +1136,12 @@ struct elim_nested_inductive_fn {
     elim_nested_inductive_result operator()() {
         inductive_decl ind_d(m_d);
         if (!ind_d.get_nparams().is_small()) throw_ill_formed();
-        unsigned d_nparams = ind_d.get_nparams().get_small_value();
+        size_t d_nparams = ind_d.get_nparams().get_small_value();
         to_buffer(ind_d.get_types(), m_new_types);
         if (m_new_types.size() == 0) throw kernel_exception(m_env, "invalid empty (mutual) inductive datatype declaration, it must contain at least one inductive type.");
         /* initialize m_params and m_params_lctx */
         get_params(m_new_types[0].get_type(), d_nparams, m_params_lctx, m_params);
-        unsigned qhead = 0;
+        size_t qhead = 0;
         /* Main elimination loop. */
         while (qhead < m_new_types.size()) {
             inductive_type ind_type = m_new_types[qhead];
@@ -1177,7 +1177,7 @@ struct elim_nested_inductive_fn {
    We compute the new recursor names using the first inductive datatype in the original declaration `d`,
    and the suffice `.rec_<idx>`. */
 static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_env, inductive_decl const & d) {
-    unsigned ntypes = length(d.get_types());
+    size_t ntypes = length(d.get_types());
     lean_assert(ntypes > 0);
     inductive_type const & main_type = head(d.get_types());
     name const & main_name  = main_type.get_name();
@@ -1190,8 +1190,8 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
        This is a little bit asymmetrical if `d` is a mutual declaration, but it makes sure we have simple names. */
     buffer<name>   old_rec_names;
     name_map<name> rec_map;
-    unsigned i = 0;
-    unsigned next_idx = 1;
+    size_t i = 0;
+    size_t next_idx = 1;
     for (name const & ind_name : all_names) {
         if (i >= ntypes) {
             old_rec_names.push_back(mk_rec_name(ind_name));
@@ -1235,7 +1235,7 @@ environment environment::add_inductive(declaration const & d) const {
     }
     check_uniform_ind_occs(*this, inductive_decl(d));
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
-    unsigned nnested = res.m_aux2nested.size();
+    size_t nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);
     environment aux_env = add_inductive_fn(*this, diag.get(), inductive_decl(res.m_aux_decl), nnested)();
     if (!nnested) {
@@ -1359,7 +1359,7 @@ expr string_lit_to_constructor(expr const & e) {
     std::vector<unsigned> cs;
     utf8_decode(s.to_std_string(), cs);
     expr r = *g_list_nil_char;
-    unsigned i = cs.size();
+    size_t i = cs.size();
     while (i > 0) {
         i--;
         r = mk_app(*g_list_cons_char, mk_app(*g_char_of_nat, mk_lit(literal(cs[i]))), r);

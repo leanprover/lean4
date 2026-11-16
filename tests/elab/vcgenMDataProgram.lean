@@ -2,6 +2,8 @@ import Std.WP
 import Lean
 import Std
 
+set_option sym.debug true
+
 set_option experimental.vcgen true
 
 /-! `vcgen` must classify a program wrapped in an `mdata` node, such as the

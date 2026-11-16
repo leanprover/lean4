@@ -13,6 +13,7 @@ import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.OccursCheck
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
@@ -108,21 +109,23 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   return some idx
 
 /-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
-def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+def preprocessDeclPattern (declName : Name) (zetaReduceLHSOnly := false) (num? : Option Nat := none) :
+    MetaM (List Name × Expr) := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (num? := num?)
   let type ← normalizeLevels type
   return (levelParams, type)
 
-def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false) : MetaM (List Name × Expr) := do
+def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) (zetaReduceLHSOnly := false)
+    (num? : Option Nat := none) : MetaM (List Name × Expr) := do
   let type ← inferType e
   let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type := type.instantiateLevelParams levelParams₀ us
-  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly)
+  let type ← preprocessType type (zetaReduceLHSOnly := zetaReduceLHSOnly) (num? := num?)
   let type ← normalizeLevels type
   return (levelParams, type)
 
@@ -210,11 +213,11 @@ If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
 public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessDeclPattern declName
+  let (levelParams, type) ← preprocessDeclPattern declName (num? := num?)
   mkPatternFromType levelParams type num?
 
 public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessExprPattern e levelParams
+  let (levelParams, type) ← preprocessExprPattern e levelParams (num? := num?)
   mkPatternFromType levelParams type num?
 
 @[inline]
@@ -569,6 +572,30 @@ def isQuasiOffsetCnstr (p : Expr) (e : Expr) : Bool :=
     k.hasLooseBVars && ((isNatValue? e).isSome || (isOffset? e).isSome)
   | _ => false
 
+/--
+Zeta-reduces the `let` telescope `e` in one pass: `let x₁ := v₁; …; let xₙ := vₙ; b` becomes
+`b[v₁, …, vₙ]`. It assumes `e` is maximally shared, and ensures the result is too.
+-/
+def instantiateLetsS (e : Expr) : SymM Expr := do
+  goS e #[]
+where
+  goS (e : Expr) (subst : Array Expr) : SymM Expr := do
+    match e with
+    | .letE _ _ v b _ => goS b (subst.push (← instantiateRevBetaS v subst))
+    | _ => instantiateRevBetaS e subst
+
+/--
+Like `instantiateLetsS`, but `e` does not need to be maximally shared. The result is maximally
+shared if `e` is.
+-/
+def instantiateLets (e : Expr) : SymM Expr := do
+  if (← isMaxShared e) then instantiateLetsS e else return go e #[]
+where
+  go (e : Expr) (subst : Array Expr) : Expr :=
+    match e with
+    | .letE _ _ v b _ => go b (subst.push (v.instantiateBetaRevRange 0 subst.size subst))
+    | _ => e.instantiateBetaRevRange 0 subst.size subst
+
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   -- A pattern subterm internalized into the same table as the target shares its pointer, so a
   -- pointer match is a closed term equal to the target with no variables left to bind.
@@ -581,9 +608,9 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   | .bvar bidx => assignExpr bidx e
   | .mdata _ p => process p e
   | .const declName us =>
-    processConst declName us e <||> checkLetVar p e <||> checkMVar p e
+    processConst declName us e <||> checkLet p e <||> checkLetVar p e <||> checkMVar p e
   | .sort u =>
-    processSort u e <||> checkLetVar p e <||> checkMVar p e
+    processSort u e <||> checkLet p e <||> checkLetVar p e <||> checkMVar p e
   | .app .. =>
     processApp p e <||> checkMVar p e
   | .forallE .. | .lam .. =>
@@ -600,7 +627,7 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     pushPending p e
     return true
   | .mvar _ | .lit _ =>
-    pure (p == e) <||> checkLetVar p e <||> checkMVar p e
+    pure (p == e) <||> checkLet p e <||> checkLetVar p e <||> checkMVar p e
   | .letE .. => unreachable!
 where
   checkMVar (p : Expr) (e : Expr) : UnifyM Bool := do
@@ -612,10 +639,15 @@ where
     else
       return false
 
+  checkLet (p : Expr) (e : Expr) : UnifyM Bool := do
+    let e := e.consumeMData
+    unless e.isLet do return false
+    process p (← instantiateLetsS e)
+
   checkLetVar (p : Expr) (e : Expr) : UnifyM Bool := do
     unless (← read).zetaDelta do return false
     let .fvar fvarId := e | return false
-    let some value ← fvarId.getValue? | return false
+    let some value ← getLetValueS? fvarId | return false
     process p value
 
   processOffset (p : Offset) (e : Offset) : UnifyM Bool := do
@@ -661,7 +693,7 @@ where
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e.consumeMData | checkLetVar p e
+    let .app fe ae := e.consumeMData | checkLet p e <||> checkLetVar p e
     unless (← processAppWithInfo fp fe (i - 1) info) do return false
     if h : i < info.argsInfo.size then
       let argInfo := info.argsInfo[i]
@@ -682,7 +714,7 @@ where
 
   processAppDefault (p : Expr) (e : Expr) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e.consumeMData | checkLetVar p e
+    let .app fe ae := e.consumeMData | checkLet p e <||> checkLetVar p e
     unless (← processAppDefault fp fe) do return false
     process ap ae
 
@@ -786,6 +818,8 @@ structure DefEqM.Context where
   lctxInitialNextIndex : Nat := 0
   /--
   If `unify` is `false`, it contains which variables can be assigned.
+  They must not occur in the values assigned to them. This holds when matching because the values
+  come from the target term, which is created before them. `DefEqM.occursCheck` relies on this invariant.
   -/
   mvarsNew : Array MVarId := #[]
   /--
@@ -830,10 +864,9 @@ where
       let fvarId ← mkFreshFVarId
       let fvar   ← mkFVarS fvarId
       let lctx   := lctx.mkLocalDecl fvarId n d₁
-      let localInsts := if let some className := isClass? (← getEnv) d₁ then
-        localInsts.push { className, fvar }
-      else
-        localInsts
+      let localInsts := match (← isClass? d₁) with
+        | some className => localInsts.push { className, fvar }
+        | none => localInsts
       go lctx localInsts (fvars.push fvar) b₁ b₂ (ds₂.push d₂)
     | _, _ => withLCtx lctx localInsts do
       unless (← checkDomains fvars ds₂) do return false
@@ -906,6 +939,18 @@ def mayAssign (t s : Expr) : SymM Bool := do
   let tMaxFVarDecl ← tMaxFVarId.getDecl
   return tMaxFVarDecl.index ≥ sMaxFVarDecl.index
 
+/--
+Returns `true` if assigning `mvarId := s` does not create a cyclic assignment, i.e., `mvarId` does
+not occur in `s`, taking assigned metavariables into account.
+Example: `?n =?= ?n * ?n` must not assign `?n`.
+
+The check is skipped when matching (see `DefEqM.Context.mvarsNew`), and costs `O(1)` if `s` does not
+contain metavariables. See `Sym.occursCheck`.
+-/
+def DefEqM.occursCheck (mvarId : MVarId) (s : Expr) : DefEqM Bool := do
+  if !(← read).unify then return true
+  Sym.occursCheck mvarId s
+
 @[inline] def whenUndefDo (x : DefEqM LBool) (k : DefEqM Bool) : DefEqM Bool := do
   match (← x) with
   | .true  => return true
@@ -921,6 +966,7 @@ Returns `false` if:
 - `tFn` is not a metavariable
 - `t` does not satisfy the Miller pattern condition
 - The assignment would violate scope (free variables in `fun x₁ ... xₙ => s` not in scope of `?m`)
+- The assignment would be cyclic (`?m` occurs in `s`)
 
 The `tFn` parameter must equal `t.getAppFn` (enforced by the proof argument).
 
@@ -935,6 +981,7 @@ def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAp
   else
     pure s
   if !(← mayAssign tFn s) then return .undef
+  if !(← DefEqM.occursCheck mvarId s) then return .undef
   if (← read).mvarsToCheckType.contains mvarId then
     unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← inferType s)) do
       return .false
@@ -965,6 +1012,7 @@ where
     if (← mvarId.isAssigned) then return false
     if !(← isAssignableMVar mvarId) then return false
     if !(← mayAssign t s) then return false
+    if !(← DefEqM.occursCheck mvarId s) then return false
     /-
     **Note**: we don't need to check the type of `mvarId` here even if the variable is marked for
     checking. This is the case because `tryAssignUnassigned` is invoked only from a context where `t` and `s` are the arguments
@@ -1078,11 +1126,11 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
         return false
       else if decl₁.index < decl₂.index then
         -- If `s` occurs after `t` and it is a let-decl, unfold and recurse
-        let some val₂ := decl₂.value? | return false
+        let some val₂ ← getLetValueS? fvarId₂ | return false
         isDefEqMain t val₂
       else
         -- If `t` occurs after `s`, and it is a let-decl, unfold and recurse
-        let some val₁ := decl₁.value? | return false
+        let some val₁ ← getLetValueS? fvarId₁ | return false
         isDefEqMain val₁ s
     else
       return fvarId₁ == fvarId₂
@@ -1095,9 +1143,6 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
   | .proj .., _ | _, .proj .. =>
     throwError "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
     return false
-  | .letE .., _ | _, .letE .. =>
-    throwError "unexpected let-declaration term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and zeta-reduce them"
-    return false
   | _, _ =>
     let tFn := t.getAppFn
     let sFn := s.getAppFn
@@ -1108,14 +1153,20 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     else
     whenUndefDo (tryAssignMillerPattern tFn t s rfl) do
     whenUndefDo (tryAssignMillerPattern sFn s t rfl) do
+    -- Zeta-reduce only after the assignments above, so that `?m =?= let x := v; b` assigns the `let`.
+    if t.isLet then
+      isDefEqMain (← instantiateLets t) s
+    else if s.isLet then
+      isDefEqMain t (← instantiateLets s)
+    else
     whenUndefDo (isDefEqOffset t s) do
     if let .fvar fvarId₁ := t then
       unless (← read).zetaDelta do return false
-      let some val₁ ← fvarId₁.getValue? | return false
+      let some val₁ ← getLetValueS? fvarId₁ | return false
       isDefEqMain val₁ s
     else if let .fvar fvarId₂ := s then
       unless (← read).zetaDelta do return false
-      let some val₂ ← fvarId₂.getValue? | return false
+      let some val₂ ← getLetValueS? fvarId₂ | return false
       isDefEqMain t val₂
     else
       isDefEqApp tFn t s rfl
@@ -1156,8 +1207,10 @@ inductive MkPreResultResult where
   `instMVars` are the metavariables created for instance arguments that `trySynthInstance` could
   not discharge. They may still be assigned while processing pending constraints; any that remain
   unassigned mean the pattern was not fully instantiated (see `main`).
+  `newMVars` are all the metavariables created for unassigned pattern variables, including
+  `instMVars`.
   -/
-  | success (mvarsToCheckType : Array MVarId) (instMVars : Array MVarId)
+  | success (mvarsToCheckType : Array MVarId) (instMVars : Array MVarId) (newMVars : Array MVarId)
 
 def mkPreResult : UnifyM MkPreResultResult := do
   let us ← (← get).uAssignment.toList.mapM fun
@@ -1170,6 +1223,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
   let mut args := #[]
   let mut mvarsToCheckType := #[]
   let mut instMVars := #[]
+  let mut newMVars := #[]
   for h : i in *...eAssignment.size do
     if let .some val := eAssignment[i] then
       if tPending.contains i then
@@ -1192,6 +1246,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
           continue
       let mvar ← mkFreshExprMVar type
       let mvar ← shareCommon mvar
+      newMVars := newMVars.push mvar.mvarId!
       if pattern.isInstance i then
         -- Synthesis failed above; record the placeholder so `main` can verify it gets resolved.
         instMVars := instMVars.push mvar.mvarId!
@@ -1200,7 +1255,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
           mvarsToCheckType := mvarsToCheckType.push mvar.mvarId!
       args := args.push mvar
   modify fun s => { s with args, us }
-  return .success mvarsToCheckType instMVars
+  return .success mvarsToCheckType instMVars newMVars
 
 def processPendingLevel : UnifyM Bool := do
   let uPending := (← get).uPending
@@ -1268,6 +1323,10 @@ abbrev UnifyM.run (pattern : Pattern) (unify : Bool) (zetaDelta : Bool) (k : Uni
 
 public structure MatchUnifyResult where
   us : List Level
+  /--
+  Values of the pattern variables. A pattern variable left unassigned is a fresh metavariable whose
+  type contains no assigned metavariables (see `instantiateNewMVarTypes`).
+  -/
   args : Array Expr
   /--
   Instance arguments that could not be synthesized, nor assigned while processing pending
@@ -1281,16 +1340,32 @@ def mkResult (unresolvedInsts : Array MVarId) : UnifyM MatchUnifyResult := do
   let s ← get
   return { s with unresolvedInsts }
 
+/--
+Instantiates the types of the metavariables in `newMVars` (see `mkPreResult`) that are still
+unassigned, e.g., the new goals of `BackwardRule.apply`. `mkPreResult` builds their types before the
+pending constraints are processed, and processing them may assign the metavariables these types
+mention. Example: `le_forall` has pattern `p ⊑ ∀ x : β, q x`, and the `∀` is a pending constraint.
+Thus, the goal `?h : ∀ x : ?β, p ⊑ ?q x` is created before `?β` and `?q` are assigned.
+-/
+def instantiateNewMVarTypes (newMVars : Array MVarId) : SymM Unit := do
+  for mvarId in newMVars do
+    if (← notM mvarId.isAssigned) then
+      let type := (← mvarId.getDecl).type
+      let type' ← instantiateMVarsS type
+      unless isSameExpr type type' do
+        mvarId.setType type'
+
 def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Option (MatchUnifyResult)) :=
   UnifyM.run p unify zetaDelta do
     unless (← process p.pattern e <&&> processDelayedLevels) do return none
     match (← mkPreResult) with
     | .failed => return none
-    | .success mvarsToCheckType instMVars =>
+    | .success mvarsToCheckType instMVars newMVars =>
       unless (← processPending mvarsToCheckType) do return none
       -- An instance may still be assigned while processing pending constraints; report only those
       -- that remain unresolved so the caller decides whether that is fatal.
       let unresolvedInsts ← instMVars.filterM fun m => return !(← m.isAssigned)
+      instantiateNewMVarTypes newMVars
       return some (← mkResult unresolvedInsts)
 
 /--

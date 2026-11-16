@@ -33,6 +33,23 @@ static uint64 extract_limb_bits64(Limb const * limbs, size_t num_limbs, size_t b
     return r;
 }
 
+/* Splits the number with little-endian digits `ds` into 64-bit words `w₀, …, wₖ` with `wₖ ≠ 0`,
+   and returns `w₀` if `k = 0`, and `mix(… mix(mix(w₀, w₁), w₂) …, wₖ)` otherwise.
+   The result does not depend on the digit size. */
+template<typename D> static uint64 hash_digits(D const * ds, size_t sz) {
+    static_assert(sizeof(D) == 4 || sizeof(D) == 8, "unexpected digit size");
+    constexpr size_t digits_per_word = sizeof(uint64) / sizeof(D);
+    while (sz > 0 && ds[sz - 1] == 0) sz--;
+    uint64 h = 0;
+    for (size_t i = 0; i < sz; i += digits_per_word) {
+        uint64 w = 0;
+        for (size_t j = 0; j < digits_per_word && i + j < sz; j++)
+            w |= static_cast<uint64>(ds[i + j]) << (8 * sizeof(D) * j);
+        h = i == 0 ? w : lean_uint64_mix_hash(h, w);
+    }
+    return h;
+}
+
 /***** GMP VERSION ******/
 #ifdef LEAN_USE_GMP
 mpz::mpz() {
@@ -259,6 +276,11 @@ mpz mpz::of_le_bytes(unsigned char const * data, size_t size) {
     mpz r;
     mpz_import(r.m_val, size, -1, 1, 0, 0, data);
     return r;
+}
+
+uint64 mpz::hash64() const {
+    static_assert(GMP_NAIL_BITS == 0, "GMP nails are not supported");
+    return hash_digits(mpz_limbs_read(m_val), mpz_size(m_val));
 }
 
 size_t mpz::trailing_zeros() const {
@@ -944,6 +966,10 @@ mpz mpz::of_le_bytes(unsigned char const * data, size_t size) {
     mpz r;
     r.set(num_digits, digits.data());
     return r;
+}
+
+uint64 mpz::hash64() const {
+    return hash_digits(m_digits, m_size);
 }
 
 mpz & mpz::operator&=(mpz const & o) {

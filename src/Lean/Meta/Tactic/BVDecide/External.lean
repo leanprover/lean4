@@ -108,7 +108,7 @@ where
     let cleanup := killAndWait child
     withTimeoutCheck budgetMs cleanup do
     withInterruptCheck cleanup do
-      -- TODO: replace me with a select once we get libuv process support
+      -- TODO: replace me with a select once the exit of a child process can be awaited
       match ← child.tryWait with
       | some exitCode =>
         let stdout ← IO.ofExcept stdout.get
@@ -176,7 +176,12 @@ public def addLrat (opts : SatOptions) (binary : Bool) : SatOptions :=
 
 public def addIncremental (opts : SatOptions) : SatOptions :=
   { opts with
-      options := opts.options.push ("ilb", 2)
+      options :=
+        opts.options
+          -- taken from bitwuzla
+          |>.push ("ilb", 2)
+          -- lucky is quadratic on incremental solves as each check call visits all variables
+          |>.push ("lucky", 0)
   }
 
 public def toArgs (opts : SatOptions) : Array String := Id.run do

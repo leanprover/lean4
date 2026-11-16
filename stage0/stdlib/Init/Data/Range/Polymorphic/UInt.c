@@ -509,6 +509,7 @@ v___x_161_ = lean_nat_add(v___x_160_, v_n_158_);
 lean_dec(v___x_160_);
 v___x_162_ = lean_cstr_to_nat("4294967296");
 v___x_163_ = lean_nat_dec_lt(v___x_161_, v___x_162_);
+lean_dec(v___x_162_);
 if (v___x_163_ == 0)
 {
 lean_object* v___x_164_; 
@@ -630,6 +631,7 @@ v___x_213_ = lean_cstr_to_nat("4294967296");
 v___x_214_ = lean_uint32_to_nat(v_lo_212_);
 v___x_215_ = lean_nat_sub(v___x_213_, v___x_214_);
 lean_dec(v___x_214_);
+lean_dec(v___x_213_);
 return v___x_215_;
 }
 }

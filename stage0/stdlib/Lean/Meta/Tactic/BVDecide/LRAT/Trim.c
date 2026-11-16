@@ -3098,10 +3098,10 @@ goto _start;
 v___jp_989_:
 {
 lean_object* v___x_993_; lean_object* v___x_994_; 
-v___x_993_ = l_Array_append___redArg(v_worklist_978_, v___y_990_);
-lean_dec_ref(v___y_990_);
-v___x_994_ = l_Array_append___redArg(v___x_993_, v___y_991_);
+v___x_993_ = l_Array_append___redArg(v_worklist_978_, v___y_991_);
 lean_dec_ref(v___y_991_);
+v___x_994_ = l_Array_append___redArg(v___x_993_, v___y_990_);
+lean_dec_ref(v___y_990_);
 v_worklist_964_ = v___x_994_;
 v_a_966_ = v_snd_992_;
 goto _start;
@@ -3114,21 +3114,21 @@ v___x_1003_ = lean_nat_dec_lt(v___x_968_, v___x_1002_);
 if (v___x_1003_ == 0)
 {
 lean_dec(v_id_977_);
-v___y_990_ = v___y_1001_;
-v___y_991_ = v___y_1000_;
-v_snd_992_ = v___y_999_;
+v___y_990_ = v___y_1000_;
+v___y_991_ = v___y_1001_;
+v_snd_992_ = v___y_997_;
 goto v___jp_989_;
 }
 else
 {
 size_t v___x_1004_; lean_object* v___x_1005_; lean_object* v_snd_1006_; 
 v___x_1004_ = lean_usize_of_nat(v___x_1002_);
-v___x_1005_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Tactic_BVDecide_LRAT_Trim_0__Lean_Meta_Tactic_BVDecide_LRAT_trim_useAnalysis_go_spec__4(v_id_977_, v___y_1001_, v___y_998_, v___x_1004_, v___y_997_, v_a_965_, v___y_999_);
+v___x_1005_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Tactic_BVDecide_LRAT_Trim_0__Lean_Meta_Tactic_BVDecide_LRAT_trim_useAnalysis_go_spec__4(v_id_977_, v___y_1001_, v___y_998_, v___x_1004_, v___y_999_, v_a_965_, v___y_997_);
 v_snd_1006_ = lean_ctor_get(v___x_1005_, 1);
 lean_inc(v_snd_1006_);
 lean_dec_ref(v___x_1005_);
-v___y_990_ = v___y_1001_;
-v___y_991_ = v___y_1000_;
+v___y_990_ = v___y_1000_;
+v___y_991_ = v___y_1001_;
 v_snd_992_ = v_snd_1006_;
 goto v___jp_989_;
 }
@@ -3150,9 +3150,9 @@ v___x_1018_ = lean_nat_dec_lt(v___x_968_, v___x_1016_);
 if (v___x_1018_ == 0)
 {
 lean_dec_ref(v___y_1008_);
-v___y_997_ = v___x_1011_;
+v___y_997_ = v_snd_1015_;
 v___y_998_ = v___x_1013_;
-v___y_999_ = v_snd_1015_;
+v___y_999_ = v___x_1011_;
 v___y_1000_ = v___y_1009_;
 v___y_1001_ = v___x_1017_;
 goto v___jp_996_;
@@ -3163,9 +3163,9 @@ size_t v___x_1019_; lean_object* v___x_1020_;
 v___x_1019_ = lean_usize_of_nat(v___x_1016_);
 v___x_1020_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Tactic_BVDecide_LRAT_Trim_0__Lean_Meta_Tactic_BVDecide_LRAT_trim_useAnalysis_go_spec__5(v___y_1008_, v___x_1013_, v___x_1019_, v___x_1017_);
 lean_dec_ref(v___y_1008_);
-v___y_997_ = v___x_1011_;
+v___y_997_ = v_snd_1015_;
 v___y_998_ = v___x_1013_;
-v___y_999_ = v_snd_1015_;
+v___y_999_ = v___x_1011_;
 v___y_1000_ = v___y_1009_;
 v___y_1001_ = v___x_1020_;
 goto v___jp_996_;

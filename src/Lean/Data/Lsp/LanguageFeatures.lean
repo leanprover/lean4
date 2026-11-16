@@ -428,8 +428,10 @@ structure CallHierarchyOutgoingCall where
 inductive SemanticTokenType where
   -- Used by Lean
   /--
-  A keyword. Verso and Markdown syntax in docstrings, such as bold/italic delimiters, list and
-  header markers, and thematic breaks, consists of keywords with the `markupSyntax` modifier.
+  A keyword.
+
+  Verso and Markdown syntax, such as bold/italic delimiters, list and header markers, and thematic
+  breaks, are annotated as keywords with the `markupSyntax` modifier.
   -/
   | keyword
   | variable
@@ -458,19 +460,12 @@ inductive SemanticTokenType where
   | decorator
   -- Extensions
   | leanSorryLike
-  -- Markup in Verso and Markdown docstrings
+  -- Verso and Markdown markup. In a docstring, these tokens have the `documentation` modifier.
   /--
-  Text in a docstring or module docstring that is not in a heading, blockquote, or list item. May
-  have the `markupBold` and `markupItalic` modifiers.
+  Text that is not in a heading, blockquote, or list item. May have the `markupBold` and
+  `markupItalic` modifiers.
   -/
-  | markupDocText
-  /--
-  Text outside of a docstring, such as in a Verso document, that is not in a heading, blockquote, or
-  list item. May have the `markupBold` and `markupItalic` modifiers. This token exists for tools
-  that highlight Verso documents, so that themes can style their text as ordinary text rather than
-  as documentation.
-  -/
-  | markupPlainText
+  | markupText
   /-- Text in a heading. May have the `markupBold` and `markupItalic` modifiers. -/
   | markupHeading
   /-- Text in a blockquote. May have the `markupBold` and `markupItalic` modifiers. -/
@@ -497,7 +492,7 @@ def SemanticTokenType.names : Array String :=
     "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
     "event", "method", "macro", "modifier", "comment", "string", "number",
     "regexp", "operator", "decorator", "leanSorryLike",
-    "markupDocText", "markupPlainText", "markupHeading", "markupQuote", "markupList",
+    "markupText", "markupHeading", "markupQuote", "markupList",
     "markupInlineCode", "markupCodeBlock", "markupUrl", "markupCrossReference"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
@@ -510,7 +505,8 @@ example {v : SemanticTokenType} : open SemanticTokenType in
 
 /--
 The semantic token modifiers that the LSP specification includes by default, followed by Lean's own.
-The standard modifiers are available to users who extend the Lean server.
+The only standard modifier used by Lean is `documentation`. The others are available to users who
+extend the Lean server.
 -/
 inductive SemanticTokenModifier where
   | declaration
@@ -521,6 +517,10 @@ inductive SemanticTokenModifier where
   | abstract
   | async
   | modification
+  /--
+  A token in documentation. Every Verso or Markdown markup token in a docstring or module docstring
+  has this modifier.
+  -/
   | documentation
   | defaultLibrary
   -- Extensions

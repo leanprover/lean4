@@ -527,42 +527,6 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
-/-- Literal applications that `internalize` handles specially. -/
-private inductive LitKind where
-  | notLit
-  /-- A `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, or `Int64` literal. -/
-  | nonParametric
-  /-- An `OfNat.ofNat` literal of type `BitVec _` or `Fin _`. -/
-  | ofNatFinBitVec
-
-/--
-Classifies the application `e`. For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
-The types of nonparametric literals are reduced using `whnfD`, but `BitVec` and `Fin` must occur syntactically.
--/
-private def getLitKind (e : Expr) : MetaM LitKind := do
-  match_expr e with
-  | OfNat.ofNat type n _ =>
-    unless n.consumeMData.isRawNatLit do return .notLit
-    match_expr type with
-    | BitVec w => return if (← isNatValue (← whnfD w)) then .ofNatFinBitVec else .notLit
-    | Fin k => return if (← isNonZeroNatValue (← whnfD k)) then .ofNatFinBitVec else .notLit
-    | _ =>
-      let .const declName _ := (← whnfD type).getAppFn | return .notLit
-      if declName == ``Nat || declName == ``Int
-          || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
-          || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
-        return .nonParametric
-      return .notLit
-  | Neg.neg _ _ a =>
-    let_expr OfNat.ofNat type n _ ← a | return .notLit
-    unless n.consumeMData.isRawNatLit do return .notLit
-    let .const declName _ := (← whnfD type).getAppFn | return .notLit
-    if declName == ``Int || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
-      return .nonParametric
-    return .notLit
-  | Char.ofNat n => return if (← isNatValue n) then .nonParametric else .notLit
-  | _ => return .notLit
-
 /--
 Internalizer for nonparametric literals (see `getLitKind`).
 For this kind of literal, we do **not** internalize its children nor

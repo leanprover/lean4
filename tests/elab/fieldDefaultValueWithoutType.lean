@@ -1,5 +1,5 @@
 
-structure S :=
+structure S where
 (x := true)
 
 def f (s : S) : Bool :=

@@ -29,6 +29,8 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PPoly_add_elim___redArg(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PPoly_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PPoly_dsum(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PPoly_dsum___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_Packed_0__Lean_Grind_CommRing_PPoly_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_Packed_0__Lean_Grind_CommRing_PPoly_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(lean_object*, lean_object*);
@@ -179,101 +181,163 @@ lean_dec(v_B_53_);
 return v_res_55_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl(lean_object* v_x_56_){
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_Packed_0__Lean_Grind_CommRing_PPoly_denote_match__1_splitter___redArg(lean_object* v_x_56_, lean_object* v_h__1_57_, lean_object* v_h__2_58_){
 _start:
 {
-lean_object* v___x_57_; 
-v___x_57_ = lean_obj_tag_nat(v_x_56_);
-return v___x_57_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl___boxed(lean_object* v_x_58_){
-_start:
+if (lean_obj_tag(v_x_56_) == 0)
 {
-lean_object* v_res_59_; 
-v_res_59_ = l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl(v_x_58_);
-lean_dec_ref(v_x_58_);
-return v_res_59_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(lean_object* v_t_60_, lean_object* v_k_61_){
-_start:
-{
-if (lean_obj_tag(v_t_60_) == 0)
-{
-lean_object* v_k_62_; lean_object* v_m_63_; lean_object* v_D_64_; lean_object* v_p_65_; lean_object* v___x_66_; 
-v_k_62_ = lean_ctor_get(v_t_60_, 0);
-lean_inc(v_k_62_);
-v_m_63_ = lean_ctor_get(v_t_60_, 1);
-lean_inc(v_m_63_);
-v_D_64_ = lean_ctor_get(v_t_60_, 2);
-lean_inc(v_D_64_);
-v_p_65_ = lean_ctor_get(v_t_60_, 3);
-lean_inc_ref(v_p_65_);
-lean_dec_ref_known(v_t_60_, 4);
-v___x_66_ = lean_apply_4(v_k_61_, v_k_62_, v_m_63_, v_D_64_, v_p_65_);
-return v___x_66_;
+lean_object* v_k_59_; lean_object* v___x_60_; 
+lean_dec(v_h__2_58_);
+v_k_59_ = lean_ctor_get(v_x_56_, 0);
+lean_inc(v_k_59_);
+lean_dec_ref_known(v_x_56_, 1);
+v___x_60_ = lean_apply_1(v_h__1_57_, v_k_59_);
+return v___x_60_;
 }
 else
 {
-lean_object* v_a_67_; lean_object* v_b_68_; lean_object* v___x_69_; 
-v_a_67_ = lean_ctor_get(v_t_60_, 0);
-lean_inc_ref(v_a_67_);
-v_b_68_ = lean_ctor_get(v_t_60_, 1);
-lean_inc_ref(v_b_68_);
-lean_dec_ref_known(v_t_60_, 2);
-v___x_69_ = lean_apply_2(v_k_61_, v_a_67_, v_b_68_);
-return v___x_69_;
+lean_object* v_k_61_; lean_object* v_d_62_; lean_object* v_v_63_; lean_object* v_p_64_; lean_object* v___x_65_; 
+lean_dec(v_h__1_57_);
+v_k_61_ = lean_ctor_get(v_x_56_, 0);
+lean_inc(v_k_61_);
+v_d_62_ = lean_ctor_get(v_x_56_, 1);
+lean_inc(v_d_62_);
+v_v_63_ = lean_ctor_get(v_x_56_, 2);
+lean_inc(v_v_63_);
+v_p_64_ = lean_ctor_get(v_x_56_, 3);
+lean_inc_ref(v_p_64_);
+lean_dec_ref_known(v_x_56_, 4);
+v___x_65_ = lean_apply_4(v_h__2_58_, v_k_61_, v_d_62_, v_v_63_, v_p_64_);
+return v___x_65_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim(lean_object* v_motive_70_, lean_object* v_ctorIdx_71_, lean_object* v_t_72_, lean_object* v_h_73_, lean_object* v_k_74_){
+LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_Packed_0__Lean_Grind_CommRing_PPoly_denote_match__1_splitter(lean_object* v_motive_66_, lean_object* v_x_67_, lean_object* v_h__1_68_, lean_object* v_h__2_69_){
 _start:
 {
-lean_object* v___x_75_; 
-v___x_75_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_72_, v_k_74_);
-return v___x_75_;
+if (lean_obj_tag(v_x_67_) == 0)
+{
+lean_object* v_k_70_; lean_object* v___x_71_; 
+lean_dec(v_h__2_69_);
+v_k_70_ = lean_ctor_get(v_x_67_, 0);
+lean_inc(v_k_70_);
+lean_dec_ref_known(v_x_67_, 1);
+v___x_71_ = lean_apply_1(v_h__1_68_, v_k_70_);
+return v___x_71_;
+}
+else
+{
+lean_object* v_k_72_; lean_object* v_d_73_; lean_object* v_v_74_; lean_object* v_p_75_; lean_object* v___x_76_; 
+lean_dec(v_h__1_68_);
+v_k_72_ = lean_ctor_get(v_x_67_, 0);
+lean_inc(v_k_72_);
+v_d_73_ = lean_ctor_get(v_x_67_, 1);
+lean_inc(v_d_73_);
+v_v_74_ = lean_ctor_get(v_x_67_, 2);
+lean_inc(v_v_74_);
+v_p_75_ = lean_ctor_get(v_x_67_, 3);
+lean_inc_ref(v_p_75_);
+lean_dec_ref_known(v_x_67_, 4);
+v___x_76_ = lean_apply_4(v_h__2_69_, v_k_72_, v_d_73_, v_v_74_, v_p_75_);
+return v___x_76_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim___boxed(lean_object* v_motive_76_, lean_object* v_ctorIdx_77_, lean_object* v_t_78_, lean_object* v_h_79_, lean_object* v_k_80_){
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl(lean_object* v_x_77_){
 _start:
 {
-lean_object* v_res_81_; 
-v_res_81_ = l_Lean_Grind_CommRing_PSumTree_ctorElim(v_motive_76_, v_ctorIdx_77_, v_t_78_, v_h_79_, v_k_80_);
-lean_dec(v_ctorIdx_77_);
-return v_res_81_;
+lean_object* v___x_78_; 
+v___x_78_ = lean_obj_tag_nat(v_x_77_);
+return v___x_78_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_leaf_elim___redArg(lean_object* v_t_82_, lean_object* v_leaf_83_){
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl___boxed(lean_object* v_x_79_){
 _start:
 {
-lean_object* v___x_84_; 
-v___x_84_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_82_, v_leaf_83_);
-return v___x_84_;
+lean_object* v_res_80_; 
+v_res_80_ = l_Lean_Grind_CommRing_PSumTree_ctorIdx___impl(v_x_79_);
+lean_dec_ref(v_x_79_);
+return v_res_80_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_leaf_elim(lean_object* v_motive_85_, lean_object* v_t_86_, lean_object* v_h_87_, lean_object* v_leaf_88_){
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(lean_object* v_t_81_, lean_object* v_k_82_){
 _start:
 {
-lean_object* v___x_89_; 
-v___x_89_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_86_, v_leaf_88_);
-return v___x_89_;
+if (lean_obj_tag(v_t_81_) == 0)
+{
+lean_object* v_k_83_; lean_object* v_m_84_; lean_object* v_D_85_; lean_object* v_p_86_; lean_object* v___x_87_; 
+v_k_83_ = lean_ctor_get(v_t_81_, 0);
+lean_inc(v_k_83_);
+v_m_84_ = lean_ctor_get(v_t_81_, 1);
+lean_inc(v_m_84_);
+v_D_85_ = lean_ctor_get(v_t_81_, 2);
+lean_inc(v_D_85_);
+v_p_86_ = lean_ctor_get(v_t_81_, 3);
+lean_inc_ref(v_p_86_);
+lean_dec_ref_known(v_t_81_, 4);
+v___x_87_ = lean_apply_4(v_k_82_, v_k_83_, v_m_84_, v_D_85_, v_p_86_);
+return v___x_87_;
+}
+else
+{
+lean_object* v_a_88_; lean_object* v_b_89_; lean_object* v___x_90_; 
+v_a_88_ = lean_ctor_get(v_t_81_, 0);
+lean_inc_ref(v_a_88_);
+v_b_89_ = lean_ctor_get(v_t_81_, 1);
+lean_inc_ref(v_b_89_);
+lean_dec_ref_known(v_t_81_, 2);
+v___x_90_ = lean_apply_2(v_k_82_, v_a_88_, v_b_89_);
+return v___x_90_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_node_elim___redArg(lean_object* v_t_90_, lean_object* v_node_91_){
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim(lean_object* v_motive_91_, lean_object* v_ctorIdx_92_, lean_object* v_t_93_, lean_object* v_h_94_, lean_object* v_k_95_){
 _start:
 {
-lean_object* v___x_92_; 
-v___x_92_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_90_, v_node_91_);
-return v___x_92_;
+lean_object* v___x_96_; 
+v___x_96_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_93_, v_k_95_);
+return v___x_96_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_node_elim(lean_object* v_motive_93_, lean_object* v_t_94_, lean_object* v_h_95_, lean_object* v_node_96_){
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_ctorElim___boxed(lean_object* v_motive_97_, lean_object* v_ctorIdx_98_, lean_object* v_t_99_, lean_object* v_h_100_, lean_object* v_k_101_){
 _start:
 {
-lean_object* v___x_97_; 
-v___x_97_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_94_, v_node_96_);
-return v___x_97_;
+lean_object* v_res_102_; 
+v_res_102_ = l_Lean_Grind_CommRing_PSumTree_ctorElim(v_motive_97_, v_ctorIdx_98_, v_t_99_, v_h_100_, v_k_101_);
+lean_dec(v_ctorIdx_98_);
+return v_res_102_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_leaf_elim___redArg(lean_object* v_t_103_, lean_object* v_leaf_104_){
+_start:
+{
+lean_object* v___x_105_; 
+v___x_105_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_103_, v_leaf_104_);
+return v___x_105_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_leaf_elim(lean_object* v_motive_106_, lean_object* v_t_107_, lean_object* v_h_108_, lean_object* v_leaf_109_){
+_start:
+{
+lean_object* v___x_110_; 
+v___x_110_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_107_, v_leaf_109_);
+return v___x_110_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_node_elim___redArg(lean_object* v_t_111_, lean_object* v_node_112_){
+_start:
+{
+lean_object* v___x_113_; 
+v___x_113_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_111_, v_node_112_);
+return v___x_113_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_PSumTree_node_elim(lean_object* v_motive_114_, lean_object* v_t_115_, lean_object* v_h_116_, lean_object* v_node_117_){
+_start:
+{
+lean_object* v___x_118_; 
+v___x_118_ = l_Lean_Grind_CommRing_PSumTree_ctorElim___redArg(v_t_115_, v_node_117_);
+return v___x_118_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Ring_CommSolver(uint8_t builtin);

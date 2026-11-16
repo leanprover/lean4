@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` weakens a concrete exception postcondition of a spec with pointwise verification
 conditions: for a bare `ε → Prop` such as the one of `Except ε`, and for a type such as `Thrown`

@@ -30,6 +30,9 @@ instance : EmptyCollection (RBArray α β cmp) := ⟨empty⟩
 public def mkEmpty (size : Nat) : RBArray α β cmp :=
   ⟨.empty, .mkEmpty size⟩
 
+@[inline] public def isEmpty (self : RBArray α β cmp) : Bool :=
+  self.toArray.isEmpty
+
 @[inline] public def find? (self : RBArray α β cmp) (a : α) : Option β :=
   self.toTreeMap.get? a
 

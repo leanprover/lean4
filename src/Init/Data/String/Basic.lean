@@ -350,6 +350,48 @@ theorem List.asString_injective {l₁ l₂ : List Char} (h : String.ofList l₁ 
 theorem String.ofList_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   ⟨ofList_injective, (· ▸ rfl)⟩
 
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ofList_ne_ofList`.
+
+Returns `false` if `l₁` and `l₂` have different characters at position `i`, or if exactly one of
+them has a character at position `i`. It assumes the two lists have at least `i` elements, and
+returns `true` otherwise.
+
+It traverses the two lists simultaneously, and is defined using recursors to minimize the number of
+steps the kernel has to perform when evaluating it.
+-/
+@[expose] noncomputable def String.Internal.sameCharAt (i : Nat) (l₁ l₂ : List Char) : Bool :=
+  Nat.rec (motive := fun _ => List Char → List Char → Bool)
+    (fun l₁ l₂ => List.rec (motive := fun _ => Bool)
+      (List.rec (motive := fun _ => Bool) true (fun _ _ _ => false) l₂)
+      (fun c₁ _ _ => List.rec (motive := fun _ => Bool) false (fun c₂ _ _ => Nat.beq c₁.toNat c₂.toNat) l₂)
+      l₁)
+    (fun _ f l₁ l₂ => List.rec (motive := fun _ => Bool) true
+      (fun _ l₁ _ => List.rec (motive := fun _ => Bool) true (fun _ l₂ _ => f l₁ l₂) l₂)
+      l₁)
+    i l₁ l₂
+
+theorem String.Internal.sameCharAt_self (i : Nat) (l : List Char) : sameCharAt i l l = true := by
+  induction i generalizing l with
+  | zero => cases l with
+    | nil => rfl
+    | cons c l => exact Nat.beq_refl _
+  | succ i ih => cases l with
+    | nil => rfl
+    | cons c l => exact ih l
+
+/--
+Auxiliary theorem for proving that two `String` literals are different. `i` is the first position
+where `l₁` and `l₂` differ, and `h` is `Eq.refl false`.
+-/
+theorem String.Internal.ofList_ne_ofList (l₁ l₂ : List Char) (i : Nat)
+    (h : sameCharAt i l₁ l₂ = false) : String.ofList l₁ ≠ String.ofList l₂ := by
+  intro h'
+  cases String.ofList_injective h'
+  rw [sameCharAt_self] at h
+  contradiction
+
 @[deprecated String.ofList_inj (since := "2025-10-30")]
 theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   String.ofList_inj
@@ -595,15 +637,15 @@ This means that `p ≤ s.rawEndPos` and `p` lies on a UTF-8 character boundary. 
 operation takes constant time.
 
 Examples:
- * `String.Pos.isValid "abc" ⟨0⟩ = true`
- * `String.Pos.isValid "abc" ⟨1⟩ = true`
- * `String.Pos.isValid "abc" ⟨3⟩ = true`
- * `String.Pos.isValid "abc" ⟨4⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨0⟩ = true`
- * `String.Pos.isValid "𝒫(A)" ⟨1⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨2⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨3⟩ = false`
- * `String.Pos.isValid "𝒫(A)" ⟨4⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨0⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨1⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨3⟩ = true`
+ * `String.Pos.Raw.isValid "abc" ⟨4⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨0⟩ = true`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨1⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨2⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨3⟩ = false`
+ * `String.Pos.Raw.isValid "𝒫(A)" ⟨4⟩ = true`
 -/
 @[extern "lean_string_is_valid_pos", expose]
 def Pos.Raw.isValid (s : @&String) (p : @& Pos.Raw) : Bool :=
@@ -1110,13 +1152,13 @@ theorem Slice.Pos.utf8Encode_get_eq_extract {s : Slice} (pos : s.Pos) (h : pos �
       (s.startInclusive.offset.byteIdx + pos.offset.byteIdx + (pos.get h).utf8Size) := by
   rw [get_eq_utf8DecodeChar pos h, List.utf8Encode_singleton, ByteArray.utf8EncodeChar_utf8DecodeChar]
 
-/-- Returns the byte at the given position in the string, or `none` if the position is the end
+/-- Returns the character at the given position in the string, or `none` if the position is the end
 position. -/
 @[expose]
 def Slice.Pos.get? {s : Slice} (pos : s.Pos) : Option Char :=
   if h : pos = s.endPos then none else some (pos.get h)
 
-/-- Returns the byte at the given position in the string, or panics if the position is the end
+/-- Returns the character at the given position in the string, or panics if the position is the end
 position. -/
 @[expose]
 def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
@@ -1209,7 +1251,7 @@ theorem Pos.ofToSlice_lt {s : String} {p q : s.toSlice.Pos} :
   simp [lt_iff, Slice.Pos.lt_iff]
 
 /--
-Returns the character at the position `pos` of a string, taking a proof that `p` is not the
+Returns the character at the position `pos` of a string, taking a proof that `pos` is not the
 past-the-end position.
 
 This function is overridden with an efficient implementation in runtime code.
@@ -1486,7 +1528,7 @@ theorem Pos.utf8ByteSize_byte {s : String} {pos : s.Pos} {h : pos ≠ s.endPos} 
 /-- Advances a valid position on a slice to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
 @[expose]
-def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
+noncomputable def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
   offset := pos.offset.increaseBy ((pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte)
   isValidForSlice := by
     obtain ⟨t₁, t₂, ht, ht'⟩ := copy_eq_append_get h
@@ -1496,18 +1538,6 @@ def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos wher
     rw [Pos.Raw.increaseBy_charUtf8Size]
     refine Pos.Raw.IsValid.append_left ?_ t₁
     exact Pos.Raw.isValid_singleton.2 (Or.inr rfl)
-
-/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
-given position is the past-the-end position. -/
-@[expose]
-def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
-  if h : pos = s.endPos then none else some (pos.next h)
-
-/-- Advances a valid position on a slice to the next valid position, or panics if the given
-position is the past-the-end position. -/
-@[expose]
-def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
-  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
 
 @[simp]
 theorem Slice.Pos.offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
@@ -1611,18 +1641,6 @@ theorem Pos.ofToSlice_next_toSlice {s : String} {pos : s.Pos} {h} :
 @[simp]
 theorem Slice.Pos.str_inj {s : Slice} (p₁ p₂ : s.Pos) : p₁.str = p₂.str ↔ p₁ = p₂ := by
   simp [Slice.Pos.ext_iff, String.Pos.ext_iff, Pos.Raw.ext_iff]
-
-/-- Advances a valid position on a string to the next valid position, or returns `none` if the
-given position is the past-the-end position. -/
-@[inline, expose]
-def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
-  pos.toSlice.next?.map Pos.ofToSlice
-
-/-- Advances a valid position on a string to the next valid position, or panics if the given
-position is the past-the-end position. -/
-@[inline, expose]
-def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
-  ofToSlice pos.toSlice.next!
 
 /-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
 @[inline, expose]
@@ -1822,9 +1840,9 @@ This is a legacy function. The recommended alternative is `String.Pos.get`, comb
 `String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:
-* `"abc".get ⟨1⟩ = 'b'`
-* `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
-* `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
+* `String.Pos.Raw.get "abc" ⟨1⟩ = 'b'`
+* `String.Pos.Raw.get "abc" ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
+* `String.Pos.Raw.get "L∃∀N" ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
 -/
 @[extern "lean_string_utf8_get", expose]
 def Pos.Raw.get (s : @& String) (p : @& Pos.Raw) : Char :=
@@ -1847,16 +1865,16 @@ abbrev utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char :=
 Returns the character at position `p` of a string. If `p` is not a valid position, returns `none`.
 
 This function is overridden with an efficient implementation in runtime code. See
-`String.utf8GetAux?` for the reference implementation.
+`String.Pos.Raw.utf8GetAux?` for the reference implementation.
 
 This is a legacy function. The recommended alternative is `String.Pos.get`, combined with
 `String.pos?` or another means of obtaining a `String.Pos`.
 
 Examples:
-* `"abc".get? ⟨1⟩ = some 'b'`
-* `"abc".get? ⟨3⟩ = none`
-* `"L∃∀N".get? ⟨1⟩ = some '∃'`
-* `"L∃∀N".get? ⟨2⟩ = none`
+* `String.Pos.Raw.get? "abc" ⟨1⟩ = some 'b'`
+* `String.Pos.Raw.get? "abc" ⟨3⟩ = none`
+* `String.Pos.Raw.get? "L∃∀N" ⟨1⟩ = some '∃'`
+* `String.Pos.Raw.get? "L∃∀N" ⟨2⟩ = none`
 -/
 @[extern "lean_string_utf8_get_opt", expose]
 def Pos.Raw.get? : (@& String) → (@& Pos.Raw) → Option Char
@@ -1872,13 +1890,13 @@ Returns the character at position `p` of a string. Panics if `p` is not a valid 
 See `String.pos?` and `String.Pos.get` for a safer alternative.
 
 This function is overridden with an efficient implementation in runtime code. See
-`String.utf8GetAux` for the reference implementation.
+`String.Pos.Raw.utf8GetAux` for the reference implementation.
 
 This is a legacy function. The recommended alternative is `String.Pos.get`, combined with
 `String.pos!` or another means of obtaining a `String.Pos`.
 
 Examples
-* `"abc".get! ⟨1⟩ = 'b'`
+* `String.Pos.Raw.get! "abc" ⟨1⟩ = 'b'`
 -/
 @[extern "lean_string_utf8_get_bang", expose]
 def Pos.Raw.get! (s : @& String) (p : @& Pos.Raw) : Char :=
@@ -2072,6 +2090,30 @@ theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
   simp [Slice.Pos.ext_iff, Slice.Pos.nextFast, Pos.Raw.ext_iff, Slice.Pos.get_eq_get_str]
   omega
 
+/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+@[expose]
+def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
+  if h : pos = s.endPos then none else some (pos.next h)
+
+/-- Advances a valid position on a slice to the next valid position, or panics if the given
+position is the past-the-end position. -/
+@[expose]
+def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
+  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
+
+/-- Advances a valid position on a string to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+@[inline, expose]
+def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
+  pos.toSlice.next?.map Pos.ofToSlice
+
+/-- Advances a valid position on a string to the next valid position, or panics if the given
+position is the past-the-end position. -/
+@[inline, expose]
+def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
+  ofToSlice pos.toSlice.next!
+
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
 @[inline, expose, implicit_reducible]
 def sliceTo (s : String) (p : s.Pos) : Slice :=
@@ -2156,7 +2198,7 @@ theorem sliceTo_toSlice {s : String} {p : s.Pos} :
 Given a string and two valid positions within the string, obtain a slice on the string formed by
 the two positions.
 
-This happens to be equivalent to the constructor of `String.Slice`.
+The result is equal to `{ str := s, startInclusive, endExclusive, startInclusive_le_endExclusive := h }`.
 -/
 @[inline, expose, implicit_reducible] -- For the defeq `(s.slice p₁ p₂).str = s`
 def slice (s : String) (startInclusive endExclusive : s.Pos)
@@ -2187,7 +2229,7 @@ theorem slice_toSlice {s : String} {p₁ p₂ : s.Pos} {h} :
     s.toSlice.slice p₁.toSlice p₂.toSlice h = s.slice p₁ p₂ h := rfl
 
 /-- Given a string and two valid positions within the string, obtain a slice on the string formed
-by the new bounds, or return `none` if the given end is strictly less then the given start. -/
+by the new bounds, or return `none` if the given end is strictly less than the given start. -/
 def slice? (s : String) (startInclusive endExclusive : s.Pos) :=
   if h : startInclusive ≤ endExclusive then
     some (s.slice startInclusive endExclusive h)
@@ -2670,9 +2712,9 @@ theorem extract_eq_copy_slice {s : String} (p₀ p₁ : s.Pos) (h : p₀ ≤ p�
 /--
 Copies a region of a slice to a new string.
 
-The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-allocated `String`.
+The region of `s` from `p₀` (inclusive) to `p₁` (exclusive) is copied to a newly-allocated `String`.
 
-If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
+If `p₀`'s offset is greater than or equal to that of `p₁`, then the resulting string is `""`.
 
 If possible, prefer `Slice.slice`, which avoids the allocation.
 -/
@@ -2733,19 +2775,19 @@ Returns the next position in a string after position `p`. If `p` is not a valid 
 `p = s.endPos`, returns the position one byte after `p`.
 
 A run-time bounds check is performed to determine whether `p` is at the end of the string. If a
-bounds check has already been performed, use `String.next'` to avoid a repeated check.
+bounds check has already been performed, use `String.Pos.Raw.next'` to avoid a repeated check.
 
 This is a legacy function. The recommended alternative is `String.Pos.next` or one of its
 variants like `String.Pos.next?`, combined with `String.pos` or another means of obtaining
-a `String.ValisPos`.
+a `String.Pos`.
 
 Some examples of edge cases:
-* `"abc".next ⟨3⟩ = ⟨4⟩`, since `3 = "abc".endPos`
-* `"L∃∀N".next ⟨2⟩ = ⟨3⟩`, since `2` points into the middle of a multi-byte UTF-8 character
+* `String.Pos.Raw.next "abc" ⟨3⟩ = ⟨4⟩`, since `⟨3⟩ = "abc".rawEndPos`
+* `String.Pos.Raw.next "L∃∀N" ⟨2⟩ = ⟨3⟩`, since `2` points into the middle of a multi-byte UTF-8 character
 
 Examples:
-* `"abc".get ("abc".next 0) = 'b'`
-* `"L∃∀N".get (0 |> "L∃∀N".next |> "L∃∀N".next) = '∀'`
+* `String.Pos.Raw.get "abc" (String.Pos.Raw.next "abc" 0) = 'b'`
+* `((0 : String.Pos.Raw) |>.next "L∃∀N" |>.next "L∃∀N" |>.get "L∃∀N") = '∀'`
 -/
 @[extern "lean_string_utf8_next", expose]
 def Pos.Raw.next (s : @& String) (p : @& Pos.Raw) : Pos.Raw :=
@@ -2773,7 +2815,7 @@ Returns the position in a string before a specified position, `p`. If `p = ⟨0�
 is greater than `rawEndPos`, returns the position one byte before `p`. Otherwise, if `p` occurs in the
 middle of a multi-byte character, returns the beginning position of that character.
 
-For example, `"L∃∀N".prev ⟨3⟩` is `⟨1⟩`, since byte 3 occurs in the middle of the multi-byte
+For example, `String.Pos.Raw.prev "L∃∀N" ⟨3⟩` is `⟨1⟩`, since byte 3 occurs in the middle of the multi-byte
 character `'∃'` that starts at byte 1.
 
 This is a legacy function. The recommended alternative is `String.Pos.prev` or one of its
@@ -2781,8 +2823,8 @@ variants like `String.Pos.prev?`, combined with `String.pos` or another means of
 a `String.Pos`.
 
 Examples:
-* `"abc".get ("abc".rawEndPos |> "abc".prev) = 'c'`
-* `"L∃∀N".get ("L∃∀N".rawEndPos |> "L∃∀N".prev |> "L∃∀N".prev |> "L∃∀N".prev) = '∃'`
+* `("abc".rawEndPos |>.prev "abc" |>.get "abc") = 'c'`
+* `("L∃∀N".rawEndPos |>.prev "L∃∀N" |>.prev "L∃∀N" |>.prev "L∃∀N" |>.get "L∃∀N") = '∃'`
 -/
 @[extern "lean_string_utf8_prev", expose]
 def Pos.Raw.prev : (@& String) → (@& Pos.Raw) → Pos.Raw
@@ -2797,13 +2839,13 @@ Returns `true` if a specified byte position is greater than or equal to the posi
 the end of a string. Otherwise, returns `false`.
 
 Examples:
-* `(0 |> "abc".next |> "abc".next |> "abc".atEnd) = false`
-* `(0 |> "abc".next |> "abc".next |> "abc".next |> "abc".next |> "abc".atEnd) = true`
-* `(0 |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".atEnd) = false`
-* `(0 |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".atEnd) = true`
-* `"abc".atEnd ⟨4⟩ = true`
-* `"L∃∀N".atEnd ⟨7⟩ = false`
-* `"L∃∀N".atEnd ⟨8⟩ = true`
+* `((0 : String.Pos.Raw) |>.next "abc" |>.next "abc" |>.atEnd "abc") = false`
+* `((0 : String.Pos.Raw) |>.next "abc" |>.next "abc" |>.next "abc" |>.next "abc" |>.atEnd "abc") = true`
+* `((0 : String.Pos.Raw) |>.next "L∃∀N" |>.next "L∃∀N" |>.next "L∃∀N" |>.atEnd "L∃∀N") = false`
+* `((0 : String.Pos.Raw) |>.next "L∃∀N" |>.next "L∃∀N" |>.next "L∃∀N" |>.next "L∃∀N" |>.atEnd "L∃∀N") = true`
+* `String.Pos.Raw.atEnd "abc" ⟨4⟩ = true`
+* `String.Pos.Raw.atEnd "L∃∀N" ⟨7⟩ = false`
+* `String.Pos.Raw.atEnd "L∃∀N" ⟨8⟩ = true`
 -/
 @[extern "lean_string_utf8_at_end", expose]
 def Pos.Raw.atEnd : (@& String) → (@& Pos.Raw) → Bool
@@ -2818,23 +2860,23 @@ Returns the character at position `p` of a string. Returns `(default : Char)`, w
 `p` is not a valid position.
 
 Requires evidence, `h`, that `p` is within bounds instead of performing a run-time bounds check as
-in `String.get`.
+in `String.Pos.Raw.get`.
 
 A typical pattern combines `get'` with a dependent `if`-expression to avoid the overhead of an
 additional bounds check. For example:
 ```
-def getInBounds? (s : String) (p : String.Pos) : Option Char :=
-  if h : s.atEnd p then none else some (s.get' p h)
+def getInBounds? (s : String) (p : String.Pos.Raw) : Option Char :=
+  if h : p.atEnd s then none else some (p.get' s h)
 ```
-Even with evidence of `¬ s.atEnd p`, `p` may be invalid if a byte index points into the middle of a
-multi-byte UTF-8 character. For example, `"L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)`.
+Even with evidence of `¬ p.atEnd s`, `p` may be invalid if a byte index points into the middle of a
+multi-byte UTF-8 character. For example, `String.Pos.Raw.get' "L∃∀N" ⟨2⟩ (by decide) = (default : Char)`.
 
 This is a legacy function. The recommended alternative is `String.Pos.get`, combined with
 `String.pos` or another means of obtaining a `String.Pos`.
 
 Examples:
-* `"abc".get' 0 (by decide) = 'a'`
-* `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
+* `String.Pos.Raw.get' "abc" 0 (by decide) = 'a'`
+* `let lean := "L∃∀N"; ((0 : String.Pos.Raw) |>.next lean |>.next lean |>.get' lean (by decide)) = '∀'`
 -/
 @[extern "lean_string_utf8_get_fast", expose]
 def Pos.Raw.get' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Char :=
@@ -2850,21 +2892,21 @@ def get' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Char :=
 Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
 valid position.
 
-Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is performed, as in
-`String.next`.
+Requires evidence, `h`, that `p` is within bounds. Unlike `String.Pos.Raw.next`, no run-time bounds
+check is performed.
 
-A typical pattern combines `String.next'` with a dependent `if`-expression to avoid the overhead of
+A typical pattern combines `String.Pos.Raw.next'` with a dependent `if`-expression to avoid the overhead of
 an additional bounds check. For example:
 ```
-def next? (s : String) (p : String.Pos) : Option Char :=
-  if h : s.atEnd p then none else s.get (s.next' p h)
+def next? (s : String) (p : String.Pos.Raw) : Option Char :=
+  if h : p.atEnd s then none else some ((p.next' s h).get s)
 ```
 
 This is a legacy function. The recommended alternative is `String.Pos.next`, combined with
 `String.pos` or another means of obtaining a `String.Pos`.
 
 Example:
-* `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
+* `String.Pos.Raw.get "abc" (String.Pos.Raw.next' "abc" 0 (by decide)) = 'b'`
 -/
 @[extern "lean_string_utf8_next_fast", expose, tagged_return]
 def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Pos.Raw :=
@@ -2976,12 +3018,12 @@ the position is invalid due to pointing at the middle of a UTF-8 byte sequence, 
 index of the next character after the position is returned.
 
 Examples:
-* `"L∃∀N".offsetOfPos ⟨0⟩ = 0`
-* `"L∃∀N".offsetOfPos ⟨1⟩ = 1`
-* `"L∃∀N".offsetOfPos ⟨2⟩ = 2`
-* `"L∃∀N".offsetOfPos ⟨4⟩ = 2`
-* `"L∃∀N".offsetOfPos ⟨5⟩ = 3`
-* `"L∃∀N".offsetOfPos ⟨50⟩ = 4`
+* `String.Pos.Raw.offsetOfPos "L∃∀N" ⟨0⟩ = 0`
+* `String.Pos.Raw.offsetOfPos "L∃∀N" ⟨1⟩ = 1`
+* `String.Pos.Raw.offsetOfPos "L∃∀N" ⟨2⟩ = 2`
+* `String.Pos.Raw.offsetOfPos "L∃∀N" ⟨4⟩ = 2`
+* `String.Pos.Raw.offsetOfPos "L∃∀N" ⟨5⟩ = 3`
+* `String.Pos.Raw.offsetOfPos "L∃∀N" ⟨50⟩ = 4`
 -/
 @[inline] def Pos.Raw.offsetOfPos (s : String) (pos : Pos.Raw) : Nat :=
   offsetOfPosAux s pos 0 0

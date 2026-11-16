@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
+import Lean.Meta.Match.Value
 public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Simp
@@ -365,8 +366,56 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
     r ← mkCongrFun r arg
   return some r
 
+/--
+Returns a normal form of `e` if it is a `match` value (e.g., a `String` or `Nat` literal).
+Two `match` values of the same type are different iff their normal forms are structurally different.
+-/
+private def matchValueKey? (e : Expr) : MetaM (Option Expr) := do
+  if (← isMatchValue e) then
+    return some (← normMatchValue (← normLitValue e))
+  else
+    return none
+
+/--
+Returns `true` if the match equation `matchEq` cannot rewrite a matcher application whose
+discriminants are described by `discrValues`: one of the discriminants is a value, and the
+corresponding pattern of `matchEq` is a different value.
+`discrValues[j]` is `some v` if the `j`-th discriminant is a value, where `v` is its normal form
+(see `matchValueKey?`), and `none` otherwise.
+
+Example: given `match "b" with | "a" => 1 | "b" => 2 | _ => 3`, the equation for the alternative
+`"a"` is skipped. The equation for `_` is not, because its pattern is a variable.
+-/
+private def skipMatchEqn (info : MatcherInfo) (discrValues : Array (Option Expr)) (matchEq : Name) : MetaM Bool := do
+  let some (_, lhs, _) := (← getConstVal matchEq).type.getForallBody.eq? | return false
+  let args := lhs.getAppArgs
+  for i in info.getDiscrRange, discrValue? in discrValues do
+    let some discrValue := discrValue? | continue
+    let some pat := args[i]? | continue
+    -- A pattern with loose bound variables is not a value.
+    if pat.hasLooseBVars then continue
+    let some patValue ← matchValueKey? pat | continue
+    if patValue != discrValue then return true
+  return false
+
+/--
+Rewrites the matcher application `e` using the first match equation of `matcherName` that applies.
+
+A `match` with many value alternatives has one equation per alternative, and each failed attempt
+instantiates the telescope of an equation, whose size is proportional to the number of
+alternatives. So, equations whose patterns are values different from the discriminants of `e`
+are skipped without trying them (see `skipMatchEqn`).
+-/
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
+  let some info ← getMatcherInfo? matcherName | return .continue
+  let args := e.getAppArgs
+  let discrValues ← info.getDiscrRange.toArray.mapM fun i => do
+    let some discr := args[i]? | return none
+    matchValueKey? discr
+  let hasValue := discrValues.any (·.isSome)
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
+    if hasValue then
+      if (← skipMatchEqn info discrValues matchEq) then continue
     -- Try lemma
     match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq), backwardRfl := (← isBackwardRflTheorem matchEq) }) with
     | none   => pure ()

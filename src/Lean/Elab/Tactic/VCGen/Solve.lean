@@ -14,8 +14,8 @@ public import Lean.Elab.Tactic.VCGen.BinderName
 public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InstantiateMVarsS
-import Init.Data.Prod
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -56,7 +56,8 @@ def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
   | .mdata _ e | .proj _ _ e => isDuplicable e
   | .lam .. | .forallE .. | .letE .. => false
-  | .app .. => e.isAppOf ``OfNat.ofNat
+  | .app .. => e.isAppOf ``OfNat.ofNat || (Sym.getBitVecValue? e).run.isSome
+    || (Sym.getCharValue? e).run.isSome
 
 /-- Strip an annotation, such as the `noImplicitLambda` metadata a tactic `have`/`let`/`suffices`
 leaves on the goal, so later strategies and the backward rules they invoke see the bare target. -/
@@ -64,35 +65,55 @@ def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
-/-- Split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
-def splitProdBinder (goal : MVarId) (target : Expr) : VCGenM MVarId :=
-  goal.withContext do
-  let .forallE _ dom body _ := target | return goal
-  let dom ← instantiateMVarsIfMVarAppS dom
-  let_expr c@Prod α β := dom | return goal
-  let us := c.constLevels!
-  let mk ← mkAppNS (← mkConstS ``Prod.mk us) #[α, β, .bvar 1, .bvar 0]
-  let newTarget := Expr.forallE `a α (.forallE `b β (body.instantiate1 mk) .default) .default
-  let g ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← shareCommon newTarget)
-  let motive := Expr.lam `p dom body .default
-  let prodForall ← mkAppNS (← mkConstS ``Prod.forall us) #[α, β, motive]
-  goal.assign <| mkApp4 (.const ``Iff.mpr []) target newTarget prodForall g
-  return g.mvarId!
+/-- Apply the backward rule `rule` of a `@[vcgen_rintro]` rule to `goal`. The types of the new goals
+are instantiated, so that the rule parameter `G` is beta-reduced at its arguments. -/
+def applyRIntroRule (goal : MVarId) (rule : BackwardRule) : VCGenM (Option (List MVarId)) := do
+  let .goals gs ← rule.apply goal | return none
+  some <$> gs.mapM fun g => do
+    let ty ← g.getType
+    let ty' ← instantiateMVarsS ty
+    if isSameExpr ty ty' then return g
+    g.replaceTargetDefEqFast ty'
 
-/-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
+/-- Strategy 1a: apply the first of the `@[vcgen_rintro]` rules `entries`, in priority order, that
+applies to the target of `goal`. -/
+def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
+    VCGenM (Option (List MVarId)) := do
+  for entry in entries.insertionSort (·.prio > ·.prio) do
+    if let some gs ← applyRIntroRule goal (← mkBackwardRuleForRIntroCached entry) then
+      trace[Elab.Tactic.Do.vcgen] "Applied rintro rule {entry.declName}"
+      return some gs
+    trace[Elab.Tactic.Do.vcgen] "Rintro rule {entry.declName} does not apply"
+  return none
+
+/-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
+`∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
+the binders between two matches are introduced at once. -/
 def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
+  let oldGoal ← instantiateBinderDomains oldGoal
   let mut goal ← match ← simpGoalTelescope oldGoal with
     | .closed => return some []
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
-  let mut target ← goal.getType
-  while target.isForall do
-    let n := numBindersToIntro target
-    let goal' ← if n == 0 then splitProdBinder goal target else introsHygienicN goal n
-    if goal' == goal then break
-    goal := goal'
-    target ← goal.getType
+  let rintros := (← read).rintros
+  let mut e ← goal.getType
+  let mut n := 0
+  repeat
+    match e with
+    | .forallE _ _ b _ =>
+      let entries := Sym.getMatch (← getMCtx) rintros e
+      unless entries.isEmpty do
+        goal ← introsHygienicN goal n
+        n := 0
+        if let some gs ← applyRIntroRules goal entries then return some gs
+      n := n + 1
+      e := b
+    | .letE _ _ _ b _ =>
+      n := n + 1
+      e := b
+    | _ => break
+  goal ← introsHygienicN goal n
   if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
   return some [goal]
@@ -182,9 +203,9 @@ def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
 following steps see the assigned form. -/
 def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let_expr c@PartialOrder.rel α inst pre rhs := target | return none
-  let α' ← instantiateMVarsIfMVarAppS α
-  let pre' ← instantiateMVarsIfMVarAppS pre
-  let rhs' ← instantiateMVarsIfMVarAppS rhs
+  let α' ← reduceHead α
+  let pre' ← reduceHead pre
+  let rhs' ← reduceHead rhs
   let rhs' := (← instantiateWPProg? rhs').getD rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))
@@ -266,15 +287,50 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
   return none
 
+/-- Replace the right-hand side of the entailment in `goal`'s target with `rhs` (which must be
+definitionally equal). -/
+def replaceRhsDefEq (goal : MVarId) (rhs : Expr) : VCGenM MVarId := do
+  let target ← goal.getType
+  let relArgs := target.getAppArgs
+  goal.replaceTargetDefEqFast (← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs))
+
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
 def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
     VCGenM MVarId := do
   let wp ← mkAppNS info.head <| info.args.set! 7 prog
-  let rhs ← mkAppNS wp info.excessArgs
+  replaceRhsDefEq goal (← mkAppNS wp info.excessArgs)
+
+/-- Put `let name : type := val; body` in front of the entailment in `goal`'s target, where `body` is
+the new right-hand side of the entailment, and introduce it as a local definition. -/
+def introLet (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+    VCGenM (FVarId × MVarId) := do
+  trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
   let target ← goal.getType
   let relArgs := target.getAppArgs
-  let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-  goal.replaceTargetDefEqFast newTarget
+  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
+  let goal ← goal.replaceTargetDefEqFast (.letE name type val target nondep)
+  let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
+  let .goal decls goal' ← Sym.intros goal #[name]
+    | throwError "Failed to intro the `let` {name}"
+  return (decls[0]!, goal')
+
+/-- Simplify the value `val` of `goal`'s target `pre ⊑ have name : type := val; body` with
+`Context.simpMethods`. Returns the new goal and the simplified value. The value of a dependent `let`
+(`nondep = false`) stays as written, since `body` can depend on it definitionally. -/
+def simpHaveValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+    VCGenM (MVarId × Expr) := do
+  unless nondep do return (goal, val)
+  let some methods := (← read).simpMethods | return (goal, val)
+  let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return (goal, val)
+  let target ← goal.getType
+  let relArgs := target.getAppArgs
+  let rel ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
+  let target' ← mkAppNS target.getAppFn
+    (relArgs.set! (relArgs.size - 1) (← mkHaveS name type val' body))
+  let u ← Sym.getLevel type
+  let h := mkApp6 (mkConst ``have_val_congr' [u, 1]) type (mkSort 0) val val' (.lam name type rel .default) h
+  let .goal goal ← (Sym.Simp.Result.step target' h).toSimpGoalResult goal | return (goal, val)
+  return (goal, val')
 
 /-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
 from the program in `goal`'s target, so the remaining strategies see the bare term. -/
@@ -282,8 +338,12 @@ def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := d
   let .mdata .. := info.prog | return none
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
-/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
-join point is registered, which adds the goal for its RHS. -/
+def wpReduceHead? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  let some prog ← reduceHead? info.prog | return none
+  return some (← replaceProgDefEq goal info prog)
+
+/-- Strategy 11a: introduce or zeta-substitute a `let` from the program head. Under `+jp`, an
+introduced join point is registered, which adds the goal for its RHS. -/
 def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (Scope × List MVarId)) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
@@ -292,25 +352,24 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
-    let prog ← mkAppRevS body' appArgs
-    return some (scope, [← replaceProgDefEq goal info prog])
-  else
-    trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
-    let prog ← mkAppRevS body appArgs
-    let wp ← mkAppNS info.head <| info.args.set! 7 prog
-    let rhs ← mkAppNS wp info.excessArgs
-    let target ← goal.getType
-    let relArgs := target.getAppArgs
-    let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-    let target := Expr.letE name type val target nondep
-    let goal ← goal.replaceTargetDefEqFast target
-    let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
-    let .goal decls goal' ← Sym.intros goal #[name]
-      | throwError "Failed to intro the `let` of{indentExpr info.prog}"
-    if appArgs.isEmpty then
-      if let some r ← registerJoinPoint scope goal' decls[0]! val info then
-        return some r
-    return some (scope, [goal'])
+    return some (scope, [← replaceProgDefEq goal info (← mkAppRevS body' appArgs)])
+  let wp ← mkAppNS info.head <| info.args.set! 7 (← mkAppRevS body appArgs)
+  let (jp, goal) ← introLet goal name type val (← mkAppNS wp info.excessArgs) nondep
+  if appArgs.isEmpty then
+    if let some r ← registerJoinPoint scope goal jp val info then
+      return some r
+  return some (scope, [goal])
+
+/-- Strategy 6: substitute or introduce a `let` or `have` at the head of the right-hand side of
+`pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. The
+value of a `have` is simplified first. -/
+def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
+  let .letE name type val body nondep := rhs | return none
+  let (goal, val) ← simpHaveValue goal name type (← reduceHead val) body nondep
+  if isDuplicable val then
+    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
+    return some (← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val]))
+  return some (← introLet goal name type val body nondep).2
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -324,12 +383,9 @@ def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
   let target ← goal.getType
   match h : target with
   | .app f rhs =>
-    let (result, simpState') ← Sym.Simp.SimpM.run
-      (do
-        let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
-        Sym.Simp.mkCongr target f rhs .rfl ar h)
-      methods {} (← get).simpState
-    modify fun st => { st with simpState := simpState' }
+    let result ← runSimp methods do
+      let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
+      Sym.Simp.mkCongr target f rhs .rfl ar h
     match ← result.toSimpGoalResult goal with
     | .closed => return some []
     | .goal g => return some [g]
@@ -341,9 +397,6 @@ concrete discriminant. -/
 def wpMatch? (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
-  if splitInfo matches .matcher .. then
-    if let some prog ← liftMetaM <| withReducible <| reduceRecMatcher? info.prog then
-      return some [← replaceProgDefEq goal info (← shareCommonInc prog)]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr info.prog}"
     | throwError "Failed to apply split rule for {indentExpr info.prog}"
@@ -363,16 +416,6 @@ def wpFVarZeta? (goal : MVarId) (info : WPApp) :
   let some val ← fvarId.getValue? | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
-  return some (← replaceProgDefEq goal info prog)
-
-/-- Strategy 11d: reduce a projection head in the program. -/
-def wpHeadReduce? (goal : MVarId) (info : WPApp) :
-    VCGenM (Option MVarId) := do
-  let f := info.prog.getAppFn
-  unless f matches .proj .. do return none
-  let some f' ← withReducibleAndInstances (reduceProj? f) | return none
-  let f' ← shareCommon (← liftMetaM <| unfoldReducible f')
-  let prog ← betaRevS f' info.prog.getAppRevArgs
   return some (← replaceProgDefEq goal info prog)
 
 /-- Stop or raise on a program with no applicable spec. With `errorOnMissingSpec` (default), raise a
@@ -426,7 +469,7 @@ def elabFrame (resourceTy : Expr) (entry : FrameEntry) (res : Sym.MatchUnifyResu
       let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some resourceTy)
       Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
       mkLetFVars fvs e
-    instantiateMVarsS frameExpr
+    shareCommon (← instantiateMVars frameExpr)
 
 /-- Find an unretired `frames` alternative matching the program (earliest source order wins),
 elaborate its frame at the resource type of `fp`'s operator, and retire it so it applies at most
@@ -456,9 +499,9 @@ def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
     (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
     Grind.GrindM (Option (FrameGoal × List MVarId)) := do
-  let fp ← mkFreshExprMVar le.appFn!.appArg!
+  let fp ← share (← mkFreshExprMVar le.appFn!.appArg!)
   let rhs ← mkAppNS W excessStates
-  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs])
+  let target ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs]))
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
@@ -580,12 +623,11 @@ The function performs the following steps in order:
    `σ₁ → ... → σₙ → Base`, introduce all excess state arguments.
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
-8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
-9. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
-10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
+8. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
+9. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
-11. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
-    hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
+10. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
+    introduce/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
 public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
@@ -603,7 +645,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
   if let some g ← instantiateGoal? goal target then return .goals scope [g]
 
-  let_expr PartialOrder.rel α inst pre rhs := target
+  let_expr PartialOrder.rel α _ pre rhs := target
     | return .stop (.noEntailment target)
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
@@ -615,9 +657,9 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
-  -- Phase 3: shape the `rhs` (reduce a component projection, decompose a lattice connective or a
-  -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← headReduceFstRhs? goal target α inst pre rhs then return .goals scope [g]
+  -- Phase 3: shape the `rhs` (decompose a lattice connective or a forall, then discharge a
+  -- residual entailment against the lifted hypothesis).
+  if let some g ← rhsLet? goal rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
@@ -631,6 +673,9 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goals scope [g]
+    if let some g ← wpReduceHead? goal info then
+      burnOne
+      return .goals scope [g]
     if let some (scope, gs) ← wpLet? scope goal info then
       burnOne
       return .goals scope gs
@@ -643,9 +688,6 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then
-      burnOne
-      return .goals scope [g]
-    if let some g ← wpHeadReduce? goal info then
       burnOne
       return .goals scope [g]
     let f := info.prog.getAppFn

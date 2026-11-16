@@ -1,5 +1,7 @@
 import Lean.Meta.Sym
 
+set_option sym.debug true
+
 /-!
 `Sym.preprocessType` must not zeta-delta ambient let-bound fvars unless explicitly
 requested (`zetaDelta := false` by default). Regression test from Sebastian Graf's

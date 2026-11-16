@@ -73,6 +73,38 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
     throw (IO.userError "Failed to register attribute: Attributes can only be registered during initialization")
   attributeMapRef.modify fun m => m.insert attr.name attr
 
+/--
+Names of the attributes, such as `simp` and `grind`, that add a declaration to a set of lemmas used
+by automation. Deprecated declarations should not be added to such sets.
+-/
+builtin_initialize automationAttrsRef :
+    IO.Ref (NameMap ((Name → Bool) → Name → Syntax → CoreM Bool)) ← IO.mkRef {}
+
+/--
+Registers `attrName` as an attribute that adds declarations to a set used by automation.
+
+`isGuardedBy p declName stx` should return whether automation only uses `declName`, as added by the
+attribute syntax `stx`, on terms that contain a constant satisfying `p`, for example because such
+a constant occurs in every discrimination tree key of `declName`.
+-/
+def registerAutomationAttr (attrName : Name)
+    (isGuardedBy : (Name → Bool) → Name → Syntax → CoreM Bool := fun _ _ _ => pure false) :
+    IO Unit :=
+  automationAttrsRef.modify (·.insert attrName isGuardedBy)
+
+/-- Returns whether `attrName` adds declarations to a set used by automation. -/
+def isAutomationAttr (attrName : Name) : IO Bool :=
+  return (← automationAttrsRef.get).contains attrName
+
+/--
+Returns whether automation only uses `declName`, as added by the automation attribute `attrName`
+with syntax `stx`, on terms that contain a constant satisfying `p` (see `registerAutomationAttr`).
+-/
+def isAutomationAttrGuardedBy (attrName : Name) (p : Name → Bool) (declName : Name)
+    (stx : Syntax) : CoreM Bool := do
+  let some isGuardedBy := (← automationAttrsRef.get).find? attrName | return false
+  isGuardedBy p declName stx
+
 /-!
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
   We have the following ones:

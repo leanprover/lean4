@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Test for `vcgen [f]` where `f` is defined by a root `match` on its arguments. With an opaque
 discriminant the constructor equations cannot rewrite the call, so the unfold theorem `f.eq_def`

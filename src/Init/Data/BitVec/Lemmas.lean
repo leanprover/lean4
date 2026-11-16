@@ -11,6 +11,7 @@ import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
 public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
+import Init.Data.List.Impl
 import Init.Data.List.TakeDrop
 import Init.Data.List.Nat.TakeDrop
 public import Init.Data.BitVec.Basic
@@ -3167,7 +3168,8 @@ theorem flattenList.toNatAux_eq {n : Nat} (xs : List (BitVec n)) :
   | case1 => simp [BitVec.flattenList.toNatAux, BitVec.flattenList]
   | case2 x => simp [BitVec.flattenList.toNatAux, BitVec.flattenList]
   | case3 x y rest xs mid ih1 ih2 =>
-    rw [BitVec.flattenList.toNatAux, ih1, ih2, ← toNat_flattenList_append, List.take_append_drop]
+    simp only [BitVec.flattenList.toNatAux]
+    rw [ih1, ih2, ← toNat_flattenList_append, List.take_append_drop]
 
 @[csimp] theorem flattenList_eq_flattenListFast :
     @BitVec.flattenList = @BitVec.flattenListFast := by

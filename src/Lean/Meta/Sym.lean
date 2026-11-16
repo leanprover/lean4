@@ -11,6 +11,7 @@ public import Lean.Meta.Sym.ExprPtr
 public import Lean.Meta.Sym.ObjectPtr
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.MaxFVar
+public import Lean.Meta.Sym.OccursCheck
 public import Lean.Meta.Sym.ReplaceS
 public import Lean.Meta.Sym.LooseBVarsS
 public import Lean.Meta.Sym.InstantiateS

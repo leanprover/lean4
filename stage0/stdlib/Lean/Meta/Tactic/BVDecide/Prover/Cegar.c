@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.BVDecide.Prover.Cegar
-// Imports: public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.BitVec public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Function public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Lemmas import Lean.Meta.Tactic.BVDecide.Prover.Bitblast import Lean.Meta.Tactic.BVDecide.External
+// Imports: public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.BitVec public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Function public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Lemmas public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Subsolver import Lean.Meta.Tactic.BVDecide.Prover.Bitblast import Lean.Meta.Tactic.BVDecide.External
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1884,6 +1884,7 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Basic(uin
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_BitVec(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Function(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Bitblast(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_External(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -1905,6 +1906,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_Prover_Bitblast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -1924,6 +1928,7 @@ lean_object* initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Basic(uint8_t bui
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_BitVec(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Function(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Lemmas(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Prover_Bitblast(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_External(uint8_t builtin);
 static bool _G_initialized = false;
@@ -1941,6 +1946,9 @@ res = initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Function(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_BVDecide_Prover_Bitblast(builtin);

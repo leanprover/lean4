@@ -14,11 +14,11 @@
 extern "C" {
 #endif
 lean_object* lean_obj_tag_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Void_nonemptyType___redArg();
-LEAN_EXPORT lean_object* l_Void_nonemptyType___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Void_nonemptyType(lean_object*);
+LEAN_EXPORT lean_object* l_ST_Internal_Void_nonemptyType___redArg();
+LEAN_EXPORT lean_object* l_ST_Internal_Void_nonemptyType___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_ST_Internal_Void_nonemptyType(lean_object*);
 lean_object* lean_void_mk(lean_object*);
-LEAN_EXPORT lean_object* l_Void_mk___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ST_Internal_Void_mk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_pure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ST_pure___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_pure(lean_object*, lean_object*, lean_object*);
@@ -242,7 +242,7 @@ LEAN_EXPORT lean_object* l_ST_Ref_modifyGet(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Void_nonemptyType___redArg(){
+LEAN_EXPORT lean_object* l_ST_Internal_Void_nonemptyType___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -250,15 +250,15 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Void_nonemptyType___redArg___boxed(lean_object* v___dummy_3_){
+LEAN_EXPORT lean_object* l_ST_Internal_Void_nonemptyType___redArg___boxed(lean_object* v___dummy_3_){
 _start:
 {
 lean_object* v_res_4_; 
-v_res_4_ = l_Void_nonemptyType___redArg();
+v_res_4_ = l_ST_Internal_Void_nonemptyType___redArg();
 return v_res_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Void_nonemptyType(lean_object* v_00_u03c3_5_){
+LEAN_EXPORT lean_object* l_ST_Internal_Void_nonemptyType(lean_object* v_00_u03c3_5_){
 _start:
 {
 lean_object* v___x_6_; 
@@ -266,7 +266,7 @@ v___x_6_ = lean_box(0);
 return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Void_mk___boxed(lean_object* v_00_u03c3_9_, lean_object* v_x_10_){
+LEAN_EXPORT lean_object* l_ST_Internal_Void_mk___boxed(lean_object* v_00_u03c3_9_, lean_object* v_x_10_){
 _start:
 {
 lean_object* v_res_11_; 

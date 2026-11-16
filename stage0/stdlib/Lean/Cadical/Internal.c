@@ -96,6 +96,8 @@ lean_object* lean_cadical_solver_assume(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_assume___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_cadical_solver_solve(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_solve___boxed(lean_object*, lean_object*);
+uint8_t lean_cadical_solver_solve_with_terminator(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_solveWithTerminator___boxed(lean_object*, lean_object*, lean_object*);
 uint32_t lean_cadical_solver_val(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_val___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_cadical_solver_flip(lean_object*, uint32_t);
@@ -745,425 +747,436 @@ v_r_209_ = lean_box(v_res_208_);
 return v_r_209_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_val___boxed(lean_object* v_s_213_, lean_object* v_lit_214_, lean_object* v_a_00___x40___internal___hyg_215_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_solveWithTerminator___boxed(lean_object* v_s_213_, lean_object* v_shouldTerminate_214_, lean_object* v_a_00___x40___internal___hyg_215_){
 _start:
 {
-uint32_t v_lit_boxed_216_; uint32_t v_res_217_; lean_object* v_r_218_; 
-v_lit_boxed_216_ = lean_unbox_uint32(v_lit_214_);
-lean_dec(v_lit_214_);
-v_res_217_ = lean_cadical_solver_val(v_s_213_, v_lit_boxed_216_);
+uint8_t v_res_216_; lean_object* v_r_217_; 
+v_res_216_ = lean_cadical_solver_solve_with_terminator(v_s_213_, v_shouldTerminate_214_);
+lean_dec_ref(v_shouldTerminate_214_);
 lean_dec(v_s_213_);
-v_r_218_ = lean_box_uint32(v_res_217_);
-return v_r_218_;
+v_r_217_ = lean_box(v_res_216_);
+return v_r_217_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_flip___boxed(lean_object* v_s_222_, lean_object* v_lit_223_, lean_object* v_a_00___x40___internal___hyg_224_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_val___boxed(lean_object* v_s_221_, lean_object* v_lit_222_, lean_object* v_a_00___x40___internal___hyg_223_){
 _start:
 {
-uint32_t v_lit_boxed_225_; uint8_t v_res_226_; lean_object* v_r_227_; 
-v_lit_boxed_225_ = lean_unbox_uint32(v_lit_223_);
-lean_dec(v_lit_223_);
-v_res_226_ = lean_cadical_solver_flip(v_s_222_, v_lit_boxed_225_);
-lean_dec(v_s_222_);
-v_r_227_ = lean_box(v_res_226_);
-return v_r_227_;
+uint32_t v_lit_boxed_224_; uint32_t v_res_225_; lean_object* v_r_226_; 
+v_lit_boxed_224_ = lean_unbox_uint32(v_lit_222_);
+lean_dec(v_lit_222_);
+v_res_225_ = lean_cadical_solver_val(v_s_221_, v_lit_boxed_224_);
+lean_dec(v_s_221_);
+v_r_226_ = lean_box_uint32(v_res_225_);
+return v_r_226_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_flippable___boxed(lean_object* v_s_231_, lean_object* v_lit_232_, lean_object* v_a_00___x40___internal___hyg_233_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_flip___boxed(lean_object* v_s_230_, lean_object* v_lit_231_, lean_object* v_a_00___x40___internal___hyg_232_){
 _start:
 {
-uint32_t v_lit_boxed_234_; uint8_t v_res_235_; lean_object* v_r_236_; 
-v_lit_boxed_234_ = lean_unbox_uint32(v_lit_232_);
-lean_dec(v_lit_232_);
-v_res_235_ = lean_cadical_solver_flippable(v_s_231_, v_lit_boxed_234_);
-lean_dec(v_s_231_);
-v_r_236_ = lean_box(v_res_235_);
-return v_r_236_;
+uint32_t v_lit_boxed_233_; uint8_t v_res_234_; lean_object* v_r_235_; 
+v_lit_boxed_233_ = lean_unbox_uint32(v_lit_231_);
+lean_dec(v_lit_231_);
+v_res_234_ = lean_cadical_solver_flip(v_s_230_, v_lit_boxed_233_);
+lean_dec(v_s_230_);
+v_r_235_ = lean_box(v_res_234_);
+return v_r_235_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_failed___boxed(lean_object* v_s_240_, lean_object* v_lit_241_, lean_object* v_a_00___x40___internal___hyg_242_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_flippable___boxed(lean_object* v_s_239_, lean_object* v_lit_240_, lean_object* v_a_00___x40___internal___hyg_241_){
 _start:
 {
-uint32_t v_lit_boxed_243_; uint8_t v_res_244_; lean_object* v_r_245_; 
-v_lit_boxed_243_ = lean_unbox_uint32(v_lit_241_);
-lean_dec(v_lit_241_);
-v_res_244_ = lean_cadical_solver_failed(v_s_240_, v_lit_boxed_243_);
-lean_dec(v_s_240_);
-v_r_245_ = lean_box(v_res_244_);
-return v_r_245_;
+uint32_t v_lit_boxed_242_; uint8_t v_res_243_; lean_object* v_r_244_; 
+v_lit_boxed_242_ = lean_unbox_uint32(v_lit_240_);
+lean_dec(v_lit_240_);
+v_res_243_ = lean_cadical_solver_flippable(v_s_239_, v_lit_boxed_242_);
+lean_dec(v_s_239_);
+v_r_244_ = lean_box(v_res_243_);
+return v_r_244_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_constrain___boxed(lean_object* v_s_249_, lean_object* v_lit_250_, lean_object* v_a_00___x40___internal___hyg_251_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_failed___boxed(lean_object* v_s_248_, lean_object* v_lit_249_, lean_object* v_a_00___x40___internal___hyg_250_){
 _start:
 {
-uint32_t v_lit_boxed_252_; lean_object* v_res_253_; 
-v_lit_boxed_252_ = lean_unbox_uint32(v_lit_250_);
-lean_dec(v_lit_250_);
-v_res_253_ = lean_cadical_solver_constrain(v_s_249_, v_lit_boxed_252_);
-lean_dec(v_s_249_);
-return v_res_253_;
+uint32_t v_lit_boxed_251_; uint8_t v_res_252_; lean_object* v_r_253_; 
+v_lit_boxed_251_ = lean_unbox_uint32(v_lit_249_);
+lean_dec(v_lit_249_);
+v_res_252_ = lean_cadical_solver_failed(v_s_248_, v_lit_boxed_251_);
+lean_dec(v_s_248_);
+v_r_253_ = lean_box(v_res_252_);
+return v_r_253_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_constraintFailed___boxed(lean_object* v_s_256_, lean_object* v_a_00___x40___internal___hyg_257_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_constrain___boxed(lean_object* v_s_257_, lean_object* v_lit_258_, lean_object* v_a_00___x40___internal___hyg_259_){
 _start:
 {
-uint8_t v_res_258_; lean_object* v_r_259_; 
-v_res_258_ = lean_cadical_solver_constraint_failed(v_s_256_);
-lean_dec(v_s_256_);
-v_r_259_ = lean_box(v_res_258_);
-return v_r_259_;
+uint32_t v_lit_boxed_260_; lean_object* v_res_261_; 
+v_lit_boxed_260_ = lean_unbox_uint32(v_lit_258_);
+lean_dec(v_lit_258_);
+v_res_261_ = lean_cadical_solver_constrain(v_s_257_, v_lit_boxed_260_);
+lean_dec(v_s_257_);
+return v_res_261_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_lookahead___boxed(lean_object* v_s_262_, lean_object* v_a_00___x40___internal___hyg_263_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_constraintFailed___boxed(lean_object* v_s_264_, lean_object* v_a_00___x40___internal___hyg_265_){
 _start:
 {
-uint32_t v_res_264_; lean_object* v_r_265_; 
-v_res_264_ = lean_cadical_solver_lookahead(v_s_262_);
-lean_dec(v_s_262_);
-v_r_265_ = lean_box_uint32(v_res_264_);
-return v_r_265_;
+uint8_t v_res_266_; lean_object* v_r_267_; 
+v_res_266_ = lean_cadical_solver_constraint_failed(v_s_264_);
+lean_dec(v_s_264_);
+v_r_267_ = lean_box(v_res_266_);
+return v_r_267_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resetAssumptions___boxed(lean_object* v_s_268_, lean_object* v_a_00___x40___internal___hyg_269_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_lookahead___boxed(lean_object* v_s_270_, lean_object* v_a_00___x40___internal___hyg_271_){
 _start:
 {
-lean_object* v_res_270_; 
-v_res_270_ = lean_cadical_solver_reset_assumptions(v_s_268_);
-lean_dec(v_s_268_);
-return v_res_270_;
+uint32_t v_res_272_; lean_object* v_r_273_; 
+v_res_272_ = lean_cadical_solver_lookahead(v_s_270_);
+lean_dec(v_s_270_);
+v_r_273_ = lean_box_uint32(v_res_272_);
+return v_r_273_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resetConstraint___boxed(lean_object* v_s_273_, lean_object* v_a_00___x40___internal___hyg_274_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resetAssumptions___boxed(lean_object* v_s_276_, lean_object* v_a_00___x40___internal___hyg_277_){
 _start:
 {
-lean_object* v_res_275_; 
-v_res_275_ = lean_cadical_solver_reset_constraint(v_s_273_);
-lean_dec(v_s_273_);
-return v_res_275_;
+lean_object* v_res_278_; 
+v_res_278_ = lean_cadical_solver_reset_assumptions(v_s_276_);
+lean_dec(v_s_276_);
+return v_res_278_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_status___boxed(lean_object* v_s_278_, lean_object* v_a_00___x40___internal___hyg_279_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resetConstraint___boxed(lean_object* v_s_281_, lean_object* v_a_00___x40___internal___hyg_282_){
 _start:
 {
-uint8_t v_res_280_; lean_object* v_r_281_; 
-v_res_280_ = lean_cadical_solver_status(v_s_278_);
-lean_dec(v_s_278_);
-v_r_281_ = lean_box(v_res_280_);
-return v_r_281_;
+lean_object* v_res_283_; 
+v_res_283_ = lean_cadical_solver_reset_constraint(v_s_281_);
+lean_dec(v_s_281_);
+return v_res_283_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_vars___boxed(lean_object* v_s_284_, lean_object* v_a_00___x40___internal___hyg_285_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_status___boxed(lean_object* v_s_286_, lean_object* v_a_00___x40___internal___hyg_287_){
 _start:
 {
-uint32_t v_res_286_; lean_object* v_r_287_; 
-v_res_286_ = lean_cadical_solver_vars(v_s_284_);
-lean_dec(v_s_284_);
-v_r_287_ = lean_box_uint32(v_res_286_);
-return v_r_287_;
+uint8_t v_res_288_; lean_object* v_r_289_; 
+v_res_288_ = lean_cadical_solver_status(v_s_286_);
+lean_dec(v_s_286_);
+v_r_289_ = lean_box(v_res_288_);
+return v_r_289_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resize___boxed(lean_object* v_s_291_, lean_object* v_minMaxVar_292_, lean_object* v_a_00___x40___internal___hyg_293_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_vars___boxed(lean_object* v_s_292_, lean_object* v_a_00___x40___internal___hyg_293_){
 _start:
 {
-uint32_t v_minMaxVar_boxed_294_; lean_object* v_res_295_; 
-v_minMaxVar_boxed_294_ = lean_unbox_uint32(v_minMaxVar_292_);
-lean_dec(v_minMaxVar_292_);
-v_res_295_ = lean_cadical_solver_resize(v_s_291_, v_minMaxVar_boxed_294_);
-lean_dec(v_s_291_);
-return v_res_295_;
+uint32_t v_res_294_; lean_object* v_r_295_; 
+v_res_294_ = lean_cadical_solver_vars(v_s_292_);
+lean_dec(v_s_292_);
+v_r_295_ = lean_box_uint32(v_res_294_);
+return v_r_295_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidOption___boxed(lean_object* v_opt_297_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resize___boxed(lean_object* v_s_299_, lean_object* v_minMaxVar_300_, lean_object* v_a_00___x40___internal___hyg_301_){
 _start:
 {
-uint8_t v_res_298_; lean_object* v_r_299_; 
-v_res_298_ = lean_cadical_solver_is_valid_option(v_opt_297_);
-lean_dec_ref(v_opt_297_);
-v_r_299_ = lean_box(v_res_298_);
-return v_r_299_;
+uint32_t v_minMaxVar_boxed_302_; lean_object* v_res_303_; 
+v_minMaxVar_boxed_302_ = lean_unbox_uint32(v_minMaxVar_300_);
+lean_dec(v_minMaxVar_300_);
+v_res_303_ = lean_cadical_solver_resize(v_s_299_, v_minMaxVar_boxed_302_);
+lean_dec(v_s_299_);
+return v_res_303_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isPreprocessingOption___boxed(lean_object* v_opt_301_){
-_start:
-{
-uint8_t v_res_302_; lean_object* v_r_303_; 
-v_res_302_ = lean_cadical_solver_is_preprocessing_option(v_opt_301_);
-lean_dec_ref(v_opt_301_);
-v_r_303_ = lean_box(v_res_302_);
-return v_r_303_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidLongOption___boxed(lean_object* v_opt_305_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidOption___boxed(lean_object* v_opt_305_){
 _start:
 {
 uint8_t v_res_306_; lean_object* v_r_307_; 
-v_res_306_ = lean_cadical_solver_is_valid_long_option(v_opt_305_);
+v_res_306_ = lean_cadical_solver_is_valid_option(v_opt_305_);
 lean_dec_ref(v_opt_305_);
 v_r_307_ = lean_box(v_res_306_);
 return v_r_307_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_get___boxed(lean_object* v_s_311_, lean_object* v_opt_312_, lean_object* v_a_00___x40___internal___hyg_313_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isPreprocessingOption___boxed(lean_object* v_opt_309_){
 _start:
 {
-uint32_t v_res_314_; lean_object* v_r_315_; 
-v_res_314_ = lean_cadical_solver_get(v_s_311_, v_opt_312_);
-lean_dec_ref(v_opt_312_);
-lean_dec(v_s_311_);
-v_r_315_ = lean_box_uint32(v_res_314_);
+uint8_t v_res_310_; lean_object* v_r_311_; 
+v_res_310_ = lean_cadical_solver_is_preprocessing_option(v_opt_309_);
+lean_dec_ref(v_opt_309_);
+v_r_311_ = lean_box(v_res_310_);
+return v_r_311_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidLongOption___boxed(lean_object* v_opt_313_){
+_start:
+{
+uint8_t v_res_314_; lean_object* v_r_315_; 
+v_res_314_ = lean_cadical_solver_is_valid_long_option(v_opt_313_);
+lean_dec_ref(v_opt_313_);
+v_r_315_ = lean_box(v_res_314_);
 return v_r_315_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_set___boxed(lean_object* v_s_320_, lean_object* v_opt_321_, lean_object* v_val_322_, lean_object* v_a_00___x40___internal___hyg_323_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_get___boxed(lean_object* v_s_319_, lean_object* v_opt_320_, lean_object* v_a_00___x40___internal___hyg_321_){
 _start:
 {
-uint32_t v_val_boxed_324_; uint8_t v_res_325_; lean_object* v_r_326_; 
-v_val_boxed_324_ = lean_unbox_uint32(v_val_322_);
-lean_dec(v_val_322_);
-v_res_325_ = lean_cadical_solver_set(v_s_320_, v_opt_321_, v_val_boxed_324_);
-lean_dec_ref(v_opt_321_);
-lean_dec(v_s_320_);
-v_r_326_ = lean_box(v_res_325_);
-return v_r_326_;
+uint32_t v_res_322_; lean_object* v_r_323_; 
+v_res_322_ = lean_cadical_solver_get(v_s_319_, v_opt_320_);
+lean_dec_ref(v_opt_320_);
+lean_dec(v_s_319_);
+v_r_323_ = lean_box_uint32(v_res_322_);
+return v_r_323_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_setLongOption___boxed(lean_object* v_s_330_, lean_object* v_opt_331_, lean_object* v_a_00___x40___internal___hyg_332_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_set___boxed(lean_object* v_s_328_, lean_object* v_opt_329_, lean_object* v_val_330_, lean_object* v_a_00___x40___internal___hyg_331_){
 _start:
 {
-uint8_t v_res_333_; lean_object* v_r_334_; 
-v_res_333_ = lean_cadical_solver_set_long_option(v_s_330_, v_opt_331_);
-lean_dec_ref(v_opt_331_);
-lean_dec(v_s_330_);
+uint32_t v_val_boxed_332_; uint8_t v_res_333_; lean_object* v_r_334_; 
+v_val_boxed_332_ = lean_unbox_uint32(v_val_330_);
+lean_dec(v_val_330_);
+v_res_333_ = lean_cadical_solver_set(v_s_328_, v_opt_329_, v_val_boxed_332_);
+lean_dec_ref(v_opt_329_);
+lean_dec(v_s_328_);
 v_r_334_ = lean_box(v_res_333_);
 return v_r_334_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidConfiguration___boxed(lean_object* v_opt_336_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_setLongOption___boxed(lean_object* v_s_338_, lean_object* v_opt_339_, lean_object* v_a_00___x40___internal___hyg_340_){
 _start:
 {
-uint8_t v_res_337_; lean_object* v_r_338_; 
-v_res_337_ = lean_cadical_solver_is_valid_configuration(v_opt_336_);
-lean_dec_ref(v_opt_336_);
-v_r_338_ = lean_box(v_res_337_);
-return v_r_338_;
+uint8_t v_res_341_; lean_object* v_r_342_; 
+v_res_341_ = lean_cadical_solver_set_long_option(v_s_338_, v_opt_339_);
+lean_dec_ref(v_opt_339_);
+lean_dec(v_s_338_);
+v_r_342_ = lean_box(v_res_341_);
+return v_r_342_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_configure___boxed(lean_object* v_s_342_, lean_object* v_opt_343_, lean_object* v_a_00___x40___internal___hyg_344_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidConfiguration___boxed(lean_object* v_opt_344_){
 _start:
 {
 uint8_t v_res_345_; lean_object* v_r_346_; 
-v_res_345_ = lean_cadical_solver_configure(v_s_342_, v_opt_343_);
-lean_dec_ref(v_opt_343_);
-lean_dec(v_s_342_);
+v_res_345_ = lean_cadical_solver_is_valid_configuration(v_opt_344_);
+lean_dec_ref(v_opt_344_);
 v_r_346_ = lean_box(v_res_345_);
 return v_r_346_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_optimize___boxed(lean_object* v_s_350_, lean_object* v_val_351_, lean_object* v_a_00___x40___internal___hyg_352_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_configure___boxed(lean_object* v_s_350_, lean_object* v_opt_351_, lean_object* v_a_00___x40___internal___hyg_352_){
 _start:
 {
-uint32_t v_val_boxed_353_; lean_object* v_res_354_; 
-v_val_boxed_353_ = lean_unbox_uint32(v_val_351_);
-lean_dec(v_val_351_);
-v_res_354_ = lean_cadical_solver_optimize(v_s_350_, v_val_boxed_353_);
+uint8_t v_res_353_; lean_object* v_r_354_; 
+v_res_353_ = lean_cadical_solver_configure(v_s_350_, v_opt_351_);
+lean_dec_ref(v_opt_351_);
 lean_dec(v_s_350_);
-return v_res_354_;
+v_r_354_ = lean_box(v_res_353_);
+return v_r_354_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_limit___boxed(lean_object* v_s_359_, lean_object* v_limit_360_, lean_object* v_val_361_, lean_object* v_a_00___x40___internal___hyg_362_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_optimize___boxed(lean_object* v_s_358_, lean_object* v_val_359_, lean_object* v_a_00___x40___internal___hyg_360_){
 _start:
 {
-uint32_t v_val_boxed_363_; uint8_t v_res_364_; lean_object* v_r_365_; 
-v_val_boxed_363_ = lean_unbox_uint32(v_val_361_);
-lean_dec(v_val_361_);
-v_res_364_ = lean_cadical_solver_limit(v_s_359_, v_limit_360_, v_val_boxed_363_);
-lean_dec_ref(v_limit_360_);
-lean_dec(v_s_359_);
-v_r_365_ = lean_box(v_res_364_);
-return v_r_365_;
+uint32_t v_val_boxed_361_; lean_object* v_res_362_; 
+v_val_boxed_361_ = lean_unbox_uint32(v_val_359_);
+lean_dec(v_val_359_);
+v_res_362_ = lean_cadical_solver_optimize(v_s_358_, v_val_boxed_361_);
+lean_dec(v_s_358_);
+return v_res_362_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidLimit___boxed(lean_object* v_s_369_, lean_object* v_limit_370_, lean_object* v_a_00___x40___internal___hyg_371_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_limit___boxed(lean_object* v_s_367_, lean_object* v_limit_368_, lean_object* v_val_369_, lean_object* v_a_00___x40___internal___hyg_370_){
 _start:
 {
-uint8_t v_res_372_; lean_object* v_r_373_; 
-v_res_372_ = lean_cadical_solver_is_valid_limit(v_s_369_, v_limit_370_);
-lean_dec_ref(v_limit_370_);
-lean_dec(v_s_369_);
+uint32_t v_val_boxed_371_; uint8_t v_res_372_; lean_object* v_r_373_; 
+v_val_boxed_371_ = lean_unbox_uint32(v_val_369_);
+lean_dec(v_val_369_);
+v_res_372_ = lean_cadical_solver_limit(v_s_367_, v_limit_368_, v_val_boxed_371_);
+lean_dec_ref(v_limit_368_);
+lean_dec(v_s_367_);
 v_r_373_ = lean_box(v_res_372_);
 return v_r_373_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_active___boxed(lean_object* v_s_376_, lean_object* v_a_00___x40___internal___hyg_377_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_isValidLimit___boxed(lean_object* v_s_377_, lean_object* v_limit_378_, lean_object* v_a_00___x40___internal___hyg_379_){
 _start:
 {
-uint32_t v_res_378_; lean_object* v_r_379_; 
-v_res_378_ = lean_cadical_solver_active(v_s_376_);
-lean_dec(v_s_376_);
-v_r_379_ = lean_box_uint32(v_res_378_);
-return v_r_379_;
+uint8_t v_res_380_; lean_object* v_r_381_; 
+v_res_380_ = lean_cadical_solver_is_valid_limit(v_s_377_, v_limit_378_);
+lean_dec_ref(v_limit_378_);
+lean_dec(v_s_377_);
+v_r_381_ = lean_box(v_res_380_);
+return v_r_381_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_redundant___boxed(lean_object* v_s_382_, lean_object* v_a_00___x40___internal___hyg_383_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_active___boxed(lean_object* v_s_384_, lean_object* v_a_00___x40___internal___hyg_385_){
 _start:
 {
-uint64_t v_res_384_; lean_object* v_r_385_; 
-v_res_384_ = lean_cadical_solver_redundant(v_s_382_);
-lean_dec(v_s_382_);
-v_r_385_ = lean_box_uint64(v_res_384_);
-return v_r_385_;
+uint32_t v_res_386_; lean_object* v_r_387_; 
+v_res_386_ = lean_cadical_solver_active(v_s_384_);
+lean_dec(v_s_384_);
+v_r_387_ = lean_box_uint32(v_res_386_);
+return v_r_387_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_irredundant___boxed(lean_object* v_s_388_, lean_object* v_a_00___x40___internal___hyg_389_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_redundant___boxed(lean_object* v_s_390_, lean_object* v_a_00___x40___internal___hyg_391_){
 _start:
 {
-uint64_t v_res_390_; lean_object* v_r_391_; 
-v_res_390_ = lean_cadical_solver_irredundant(v_s_388_);
-lean_dec(v_s_388_);
-v_r_391_ = lean_box_uint64(v_res_390_);
-return v_r_391_;
+uint64_t v_res_392_; lean_object* v_r_393_; 
+v_res_392_ = lean_cadical_solver_redundant(v_s_390_);
+lean_dec(v_s_390_);
+v_r_393_ = lean_box_uint64(v_res_392_);
+return v_r_393_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_simplify___boxed(lean_object* v_s_395_, lean_object* v_rounds_396_, lean_object* v_a_00___x40___internal___hyg_397_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_irredundant___boxed(lean_object* v_s_396_, lean_object* v_a_00___x40___internal___hyg_397_){
 _start:
 {
-uint32_t v_rounds_boxed_398_; uint8_t v_res_399_; lean_object* v_r_400_; 
-v_rounds_boxed_398_ = lean_unbox_uint32(v_rounds_396_);
-lean_dec(v_rounds_396_);
-v_res_399_ = lean_cadical_solver_simplify(v_s_395_, v_rounds_boxed_398_);
-lean_dec(v_s_395_);
-v_r_400_ = lean_box(v_res_399_);
-return v_r_400_;
+uint64_t v_res_398_; lean_object* v_r_399_; 
+v_res_398_ = lean_cadical_solver_irredundant(v_s_396_);
+lean_dec(v_s_396_);
+v_r_399_ = lean_box_uint64(v_res_398_);
+return v_r_399_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_terminate___boxed(lean_object* v_s_403_, lean_object* v_a_00___x40___internal___hyg_404_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_simplify___boxed(lean_object* v_s_403_, lean_object* v_rounds_404_, lean_object* v_a_00___x40___internal___hyg_405_){
 _start:
 {
-lean_object* v_res_405_; 
-v_res_405_ = lean_cadical_solver_terminate(v_s_403_);
+uint32_t v_rounds_boxed_406_; uint8_t v_res_407_; lean_object* v_r_408_; 
+v_rounds_boxed_406_ = lean_unbox_uint32(v_rounds_404_);
+lean_dec(v_rounds_404_);
+v_res_407_ = lean_cadical_solver_simplify(v_s_403_, v_rounds_boxed_406_);
 lean_dec(v_s_403_);
-return v_res_405_;
+v_r_408_ = lean_box(v_res_407_);
+return v_r_408_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_frozen___boxed(lean_object* v_s_409_, lean_object* v_lit_410_, lean_object* v_a_00___x40___internal___hyg_411_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_terminate___boxed(lean_object* v_s_411_, lean_object* v_a_00___x40___internal___hyg_412_){
 _start:
 {
-uint32_t v_lit_boxed_412_; uint8_t v_res_413_; lean_object* v_r_414_; 
-v_lit_boxed_412_ = lean_unbox_uint32(v_lit_410_);
-lean_dec(v_lit_410_);
-v_res_413_ = lean_cadical_solver_frozen(v_s_409_, v_lit_boxed_412_);
-lean_dec(v_s_409_);
-v_r_414_ = lean_box(v_res_413_);
-return v_r_414_;
+lean_object* v_res_413_; 
+v_res_413_ = lean_cadical_solver_terminate(v_s_411_);
+lean_dec(v_s_411_);
+return v_res_413_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_freeze___boxed(lean_object* v_s_418_, lean_object* v_lit_419_, lean_object* v_a_00___x40___internal___hyg_420_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_frozen___boxed(lean_object* v_s_417_, lean_object* v_lit_418_, lean_object* v_a_00___x40___internal___hyg_419_){
 _start:
 {
-uint32_t v_lit_boxed_421_; lean_object* v_res_422_; 
-v_lit_boxed_421_ = lean_unbox_uint32(v_lit_419_);
-lean_dec(v_lit_419_);
-v_res_422_ = lean_cadical_solver_freeze(v_s_418_, v_lit_boxed_421_);
-lean_dec(v_s_418_);
-return v_res_422_;
+uint32_t v_lit_boxed_420_; uint8_t v_res_421_; lean_object* v_r_422_; 
+v_lit_boxed_420_ = lean_unbox_uint32(v_lit_418_);
+lean_dec(v_lit_418_);
+v_res_421_ = lean_cadical_solver_frozen(v_s_417_, v_lit_boxed_420_);
+lean_dec(v_s_417_);
+v_r_422_ = lean_box(v_res_421_);
+return v_r_422_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_melt___boxed(lean_object* v_s_426_, lean_object* v_lit_427_, lean_object* v_a_00___x40___internal___hyg_428_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_freeze___boxed(lean_object* v_s_426_, lean_object* v_lit_427_, lean_object* v_a_00___x40___internal___hyg_428_){
 _start:
 {
 uint32_t v_lit_boxed_429_; lean_object* v_res_430_; 
 v_lit_boxed_429_ = lean_unbox_uint32(v_lit_427_);
 lean_dec(v_lit_427_);
-v_res_430_ = lean_cadical_solver_melt(v_s_426_, v_lit_boxed_429_);
+v_res_430_ = lean_cadical_solver_freeze(v_s_426_, v_lit_boxed_429_);
 lean_dec(v_s_426_);
 return v_res_430_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_fixed___boxed(lean_object* v_s_434_, lean_object* v_lit_435_, lean_object* v_a_00___x40___internal___hyg_436_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_melt___boxed(lean_object* v_s_434_, lean_object* v_lit_435_, lean_object* v_a_00___x40___internal___hyg_436_){
 _start:
 {
-uint32_t v_lit_boxed_437_; uint32_t v_res_438_; lean_object* v_r_439_; 
+uint32_t v_lit_boxed_437_; lean_object* v_res_438_; 
 v_lit_boxed_437_ = lean_unbox_uint32(v_lit_435_);
 lean_dec(v_lit_435_);
-v_res_438_ = lean_cadical_solver_fixed(v_s_434_, v_lit_boxed_437_);
+v_res_438_ = lean_cadical_solver_melt(v_s_434_, v_lit_boxed_437_);
 lean_dec(v_s_434_);
-v_r_439_ = lean_box_uint32(v_res_438_);
-return v_r_439_;
+return v_res_438_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_phase___boxed(lean_object* v_s_443_, lean_object* v_lit_444_, lean_object* v_a_00___x40___internal___hyg_445_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_fixed___boxed(lean_object* v_s_442_, lean_object* v_lit_443_, lean_object* v_a_00___x40___internal___hyg_444_){
 _start:
 {
-uint32_t v_lit_boxed_446_; lean_object* v_res_447_; 
-v_lit_boxed_446_ = lean_unbox_uint32(v_lit_444_);
-lean_dec(v_lit_444_);
-v_res_447_ = lean_cadical_solver_phase(v_s_443_, v_lit_boxed_446_);
-lean_dec(v_s_443_);
-return v_res_447_;
+uint32_t v_lit_boxed_445_; uint32_t v_res_446_; lean_object* v_r_447_; 
+v_lit_boxed_445_ = lean_unbox_uint32(v_lit_443_);
+lean_dec(v_lit_443_);
+v_res_446_ = lean_cadical_solver_fixed(v_s_442_, v_lit_boxed_445_);
+lean_dec(v_s_442_);
+v_r_447_ = lean_box_uint32(v_res_446_);
+return v_r_447_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_unphase___boxed(lean_object* v_s_451_, lean_object* v_lit_452_, lean_object* v_a_00___x40___internal___hyg_453_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_phase___boxed(lean_object* v_s_451_, lean_object* v_lit_452_, lean_object* v_a_00___x40___internal___hyg_453_){
 _start:
 {
 uint32_t v_lit_boxed_454_; lean_object* v_res_455_; 
 v_lit_boxed_454_ = lean_unbox_uint32(v_lit_452_);
 lean_dec(v_lit_452_);
-v_res_455_ = lean_cadical_solver_unphase(v_s_451_, v_lit_boxed_454_);
+v_res_455_ = lean_cadical_solver_phase(v_s_451_, v_lit_boxed_454_);
 lean_dec(v_s_451_);
 return v_res_455_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_conclude___boxed(lean_object* v_s_458_, lean_object* v_a_00___x40___internal___hyg_459_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_unphase___boxed(lean_object* v_s_459_, lean_object* v_lit_460_, lean_object* v_a_00___x40___internal___hyg_461_){
 _start:
 {
-lean_object* v_res_460_; 
-v_res_460_ = lean_cadical_solver_conclude(v_s_458_);
-lean_dec(v_s_458_);
-return v_res_460_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_usage___boxed(lean_object* v_a_00___x40___internal___hyg_462_){
-_start:
-{
-lean_object* v_res_463_; 
-v_res_463_ = lean_cadical_solver_usage();
+uint32_t v_lit_boxed_462_; lean_object* v_res_463_; 
+v_lit_boxed_462_ = lean_unbox_uint32(v_lit_460_);
+lean_dec(v_lit_460_);
+v_res_463_ = lean_cadical_solver_unphase(v_s_459_, v_lit_boxed_462_);
+lean_dec(v_s_459_);
 return v_res_463_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_configurations___boxed(lean_object* v_a_00___x40___internal___hyg_465_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_conclude___boxed(lean_object* v_s_466_, lean_object* v_a_00___x40___internal___hyg_467_){
 _start:
 {
-lean_object* v_res_466_; 
-v_res_466_ = lean_cadical_solver_configurations();
-return v_res_466_;
+lean_object* v_res_468_; 
+v_res_468_ = lean_cadical_solver_conclude(v_s_466_);
+lean_dec(v_s_466_);
+return v_res_468_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_statistics___boxed(lean_object* v_s_469_, lean_object* v_a_00___x40___internal___hyg_470_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_usage___boxed(lean_object* v_a_00___x40___internal___hyg_470_){
 _start:
 {
 lean_object* v_res_471_; 
-v_res_471_ = lean_cadical_solver_statistics(v_s_469_);
-lean_dec(v_s_469_);
+v_res_471_ = lean_cadical_solver_usage();
 return v_res_471_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resources___boxed(lean_object* v_s_474_, lean_object* v_a_00___x40___internal___hyg_475_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_configurations___boxed(lean_object* v_a_00___x40___internal___hyg_473_){
 _start:
 {
-lean_object* v_res_476_; 
-v_res_476_ = lean_cadical_solver_resources(v_s_474_);
-lean_dec(v_s_474_);
-return v_res_476_;
+lean_object* v_res_474_; 
+v_res_474_ = lean_cadical_solver_configurations();
+return v_res_474_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_state___boxed(lean_object* v_s_479_, lean_object* v_a_00___x40___internal___hyg_480_){
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_statistics___boxed(lean_object* v_s_477_, lean_object* v_a_00___x40___internal___hyg_478_){
 _start:
 {
-uint16_t v_res_481_; lean_object* v_r_482_; 
-v_res_481_ = lean_cadical_solver_state(v_s_479_);
-lean_dec(v_s_479_);
-v_r_482_ = lean_box(v_res_481_);
-return v_r_482_;
+lean_object* v_res_479_; 
+v_res_479_ = lean_cadical_solver_statistics(v_s_477_);
+lean_dec(v_s_477_);
+return v_res_479_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_resources___boxed(lean_object* v_s_482_, lean_object* v_a_00___x40___internal___hyg_483_){
+_start:
+{
+lean_object* v_res_484_; 
+v_res_484_ = lean_cadical_solver_resources(v_s_482_);
+lean_dec(v_s_482_);
+return v_res_484_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_Solver_state___boxed(lean_object* v_s_487_, lean_object* v_a_00___x40___internal___hyg_488_){
+_start:
+{
+uint16_t v_res_489_; lean_object* v_r_490_; 
+v_res_489_ = lean_cadical_solver_state(v_s_487_);
+lean_dec(v_s_487_);
+v_r_490_ = lean_box(v_res_489_);
+return v_r_490_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Bootstrap(uint8_t builtin);

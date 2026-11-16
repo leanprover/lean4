@@ -19824,8 +19824,8 @@ lean_dec(v_a_5707_);
 v_a_5710_ = lean_ctor_get(v_fst_5708_, 0);
 lean_inc(v_a_5710_);
 lean_dec(v_fst_5708_);
-v___y_4918_ = v_fst_5697_;
-v___y_4919_ = v_fst_5698_;
+v___y_4918_ = v_fst_5698_;
+v___y_4919_ = v_fst_5697_;
 v___y_4920_ = v___x_5700_;
 v_fst_4921_ = v_a_5710_;
 v_snd_4922_ = v_snd_5709_;
@@ -20162,8 +20162,8 @@ goto v_resetjp_4934_;
 v_resetjp_4934_:
 {
 size_t v_sz_4937_; lean_object* v___x_4938_; 
-v_sz_4937_ = lean_array_size(v___y_4918_);
-v___x_4938_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00LeanExport_dumpConstant_spec__16(v_sz_4937_, v___x_4924_, v___y_4918_, v_a_4910_, v_snd_4933_);
+v_sz_4937_ = lean_array_size(v___y_4919_);
+v___x_4938_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00LeanExport_dumpConstant_spec__16(v_sz_4937_, v___x_4924_, v___y_4919_, v_a_4910_, v_snd_4933_);
 if (lean_obj_tag(v___x_4938_) == 0)
 {
 lean_object* v_a_4939_; lean_object* v_fst_4940_; lean_object* v_snd_4941_; lean_object* v___x_4943_; uint8_t v_isShared_4944_; uint8_t v_isSharedCheck_5006_; 
@@ -20191,8 +20191,8 @@ goto v_resetjp_4942_;
 v_resetjp_4942_:
 {
 size_t v_sz_4945_; lean_object* v___x_4946_; 
-v_sz_4945_ = lean_array_size(v___y_4919_);
-v___x_4946_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00LeanExport_dumpConstant_spec__17(v_sz_4945_, v___x_4924_, v___y_4919_, v_a_4910_, v_snd_4941_);
+v_sz_4945_ = lean_array_size(v___y_4918_);
+v___x_4946_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00LeanExport_dumpConstant_spec__17(v_sz_4945_, v___x_4924_, v___y_4918_, v_a_4910_, v_snd_4941_);
 if (lean_obj_tag(v___x_4946_) == 0)
 {
 lean_object* v_a_4947_; lean_object* v_fst_4948_; lean_object* v_snd_4949_; lean_object* v___x_4951_; uint8_t v_isShared_4952_; uint8_t v_isSharedCheck_4997_; 
@@ -20476,7 +20476,7 @@ lean_object* v_a_5007_; lean_object* v___x_5009_; uint8_t v_isShared_5010_; uint
 lean_del_object(v___x_4935_);
 lean_del_object(v___x_4929_);
 lean_dec_ref(v_fst_4921_);
-lean_dec(v___y_4919_);
+lean_dec(v___y_4918_);
 v_a_5007_ = lean_ctor_get(v___x_4938_, 0);
 v_isSharedCheck_5014_ = !lean_is_exclusive(v___x_4938_);
 if (v_isSharedCheck_5014_ == 0)

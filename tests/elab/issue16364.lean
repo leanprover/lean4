@@ -54,19 +54,16 @@ example (b : Nat → Bool) (s₀ : S) :
 
 example (b : Nat → Bool) (s₀ : S) :
     ⦃fun s => s = s₀⦄ (diamonds% 12 b : StateM S Unit) ⦃fun _ s => s.pc = s₀.pc + 48⦄ := by
-  vcgen +jp
-  all_goals grind
+  vcgen +jp with finish
 
 example (b : Nat → Bool) (s₀ : S) :
     ⦃fun s => s = s₀⦄ (diamonds% 12 b : StateM S Unit)
     ⦃fun _ s => s₀.r + 12 ≤ s.r ∧ s.r ≤ s₀.r + 24⦄ := by
-  vcgen +jp
-  all_goals grind
+  vcgen +jp with finish
 
 example (b : Nat → Bool) (s₀ : W) :
     ⦃fun s => s = s₀⦄ (diamonds% 12 b : StateM W Unit) ⦃fun _ s => s.pc = s₀.pc + 48⦄ := by
-  vcgen +jp
-  all_goals grind
+  vcgen +jp with finish
 
 -- Three jumps from a `match`: `pc` agrees at all of them.
 def step (o : Option Nat) : StateM S Unit := do
@@ -78,8 +75,7 @@ def step (o : Option Nat) : StateM S Unit := do
 
 example (s₀ : S) :
     ⦃fun s => s = s₀⦄ step o ⦃fun _ s => s.pc = s₀.pc + 8⦄ := by
-  vcgen +jp [step]
-  all_goals grind
+  vcgen +jp [step] with finish
 
 /-- `n` sequential `match`es on `o i`. Alternative `0` sets `pc` to `0`, the other two add `4` to
 `pc`, and all three add `1` to `r`. -/
@@ -122,5 +118,4 @@ example (o : Nat → Nat) (s₀ : S) :
 
 example (o : Nat → Nat) (s₀ : W) :
     ⦃fun s => s = s₀⦄ (spoiled% 12 o : StateM W Unit) ⦃fun _ s => s.r = s₀.r + 12⦄ := by
-  vcgen +jp
-  all_goals grind
+  vcgen +jp with finish

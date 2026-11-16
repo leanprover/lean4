@@ -141,5 +141,4 @@ def twelveMatches (b : Nat → Bool) : StateM S Unit := do
   set s
 
 example : ⦃fun s => s = s₀⦄ twelveMatches b ⦃fun _ s => s.pc = s₀.pc + 48⦄ := by
-  vcgen +jp [twelveMatches]
-  all_goals grind
+  vcgen +jp [twelveMatches] with finish

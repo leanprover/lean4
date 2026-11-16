@@ -111,6 +111,19 @@ private def resolveInterestWaiter (waiter : Waiter Bool) (x : Bool) : BaseIO Boo
     return true
   waiter.race lose win
 
+/--
+How a closed channel ended.
+-/
+private inductive Ending where
+  /-- The body ended normally. -/
+  | clean
+  /--
+  The producer could not deliver the full body (e.g. connection closed mid-stream with a
+  `Content-Length` underflow). Surfaced to the consumer on the next `recv` after any already-buffered
+  chunks.
+  -/
+  | failed (err : IO.Error)
+
 private structure State where
   /--
   A single blocked producer waiting for a receiver.
@@ -128,9 +141,9 @@ private structure State where
   interestWaiter : Option (Async.Waiter Bool)
 
   /--
-  Whether the channel is closed.
+  How the channel ended, or `none` while it is open.
   -/
-  closed : Bool
+  ended : Option Ending := none
 
   /--
   Known size of the stream if available.
@@ -142,13 +155,6 @@ private structure State where
   These partial pieces are collapsed and emitted as a single chunk on the next complete send.
   -/
   pendingIncomplete : Option Incomplete := none
-
-  /--
-  Terminal error recorded when the producer could not deliver the full body
-  (e.g. connection closed mid-stream with a Content-Length underflow). Surfaced
-  to the consumer on the next `recv` after any already-buffered chunks.
-  -/
-  closeError : Option IO.Error := none
 
   /--
   Whether the channel closes once `pendingProducer` is received, as requested by `Stream.offer`.
@@ -174,9 +180,7 @@ def mkStream : Async Stream := do
     pendingProducer := none
     pendingConsumer := none
     interestWaiter := none
-    closed := false
     knownSize := none
-    closeError := none
   }
   return { state }
 
@@ -223,17 +227,17 @@ private def signalInterest [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLift
 private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
   let st ← get
-  return st.pendingProducer.isSome || st.closed
+  return st.pendingProducer.isSome || st.ended.isSome
 
 private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
   let st ← get
   return st.pendingConsumer.isSome
 
-private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
-    AtomicT State m Unit := do
+private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
+    (ending : Ending := .clean) : AtomicT State m Unit := do
   let st ← get
-  if st.closed then
+  if st.ended.isSome then
     return ()
 
   -- Bytes an incomplete `send` already accepted are delivered before the end of the stream. A
@@ -251,9 +255,9 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
         leftover := none
     | none =>
       let result :=
-        match st.closeError with
-        | some err => .error err
-        | none => .ok none
+        match ending with
+        | .failed err => .error err
+        | .clean => .ok none
       discard <| consumer.resolve result
 
   if let some waiter := st.interestWaiter then
@@ -274,7 +278,7 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
     pendingIncomplete := none
     closeAfterProducer := false
     knownSize
-    closed := true
+    ended := some ending
   }
 
 private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
@@ -300,7 +304,7 @@ private def recvReadyResult' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLi
     return .ok (some chunk)
 
   let st ← get
-  if let some err := st.closeError then
+  if let some (.failed err) := st.ended then
     return .error err
   else
     return .ok none
@@ -344,14 +348,12 @@ private def recv' (stream : Stream) : BaseIO (AsyncTask (Option Chunk)) := do
     if let some chunk ← Channel.tryRecv' then
       return AsyncTask.pure (some chunk)
 
-    let { closed, closeError, .. } ← get
-
-    if closed then
-      match closeError with
-      | some err => return Task.pure (.error err)
-      | none => return AsyncTask.pure none
-
     let st ← get
+
+    match st.ended with
+    | some (.failed err) => return Task.pure (.error err)
+    | some .clean => return AsyncTask.pure none
+    | none => pure ()
 
     if st.pendingConsumer.isSome then
       return Task.pure (.error (IO.Error.userError "only one blocked consumer is allowed"))
@@ -387,7 +389,7 @@ def closeIfAbandoned (stream : Stream) : Async Bool :=
   stream.state.atomically do
     Channel.pruneFinishedWaiters
     let st ← get
-    if !st.closed && st.pendingConsumer.isNone then
+    if st.ended.isNone && st.pendingConsumer.isNone then
       Channel.close'
       return true
     else
@@ -396,15 +398,12 @@ def closeIfAbandoned (stream : Stream) : Async Bool :=
 /--
 Closes the channel and records `err` as a terminal error. A subsequent `recv` that would have
 returned end-of-stream surfaces the error instead; already buffered chunks are still delivered first.
-This function does not overwrite an existing error.
+Does nothing once the channel closed, or once a chunk offered with `closeAfter` ended the body.
 -/
 def closeWithError (stream : Stream) (err : IO.Error) : Async Unit :=
   stream.state.atomically do
-    modify fun st =>
-      if st.closeError.isNone then { st with closeError := some err }
-      else st
-
-    Channel.close'
+    unless (← get).closeAfterProducer do
+      Channel.close' (.failed err)
 
 /--
 Checks whether the channel is closed.
@@ -412,7 +411,7 @@ Checks whether the channel is closed.
 @[always_inline, inline]
 def isClosed (stream : Stream) : Async Bool :=
   stream.state.atomically do
-    return (← get).closed
+    return (← get).ended.isSome
 
 /--
 Gets the known size if available.
@@ -590,7 +589,7 @@ private def collapseForSend
     Channel.pruneFinishedWaiters
     let st ← get
 
-    if st.closed then
+    if st.ended.isSome then
       return .error (.userError "channel closed")
 
     let merged := Channel.Incomplete.push st.pendingIncomplete chunk
@@ -612,7 +611,7 @@ private partial def send' (stream : Stream) (chunk : Chunk) : Async Unit := do
     Channel.pruneFinishedWaiters
     let st ← get
 
-    if st.closed then
+    if st.ended.isSome then
       return .error (IO.Error.userError "channel closed")
 
     if let some consumer := st.pendingConsumer then
@@ -683,7 +682,7 @@ def offer (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) (closeA
   let error? ← stream.state.atomically do
     Channel.pruneFinishedWaiters
     let st ← get
-    if st.closed then
+    if st.ended.isSome then
       return some (IO.Error.userError "channel closed")
 
     if toSend.data.isEmpty ∧ toSend.extensions.isEmpty then
@@ -725,7 +724,7 @@ def interestSelector (stream : Stream) : Selector Bool where
       let st ← get
       if st.pendingConsumer.isSome then
         return some true
-      else if st.closed then
+      else if st.ended.isSome then
         return some false
       else
         return none
@@ -740,7 +739,7 @@ def interestSelector (stream : Stream) : Selector Bool where
         let win promise := do
           promise.resolve (.ok true)
         waiter.race lose win
-      else if st.closed then
+      else if st.ended.isSome then
         let lose := return ()
         let win promise := do
           promise.resolve (.ok false)

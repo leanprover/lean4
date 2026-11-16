@@ -40,6 +40,9 @@ class Handler (σ : Type) where
   Header fields reach the handler as the client sent them. The server checks that `Host` holds a
   valid host but does not rewrite it, so one host can arrive spelled several ways (`Example.com`,
   `ex%61mple.com`): compare hosts through `Header.Host.parse`, not as strings.
+
+  The response is the final one, so its status cannot be 1xx: the server answers such a response
+  with `500 Internal Server Error` and calls `onFailure`.
   -/
   onRequest (self : σ) (request : Request Body.Stream) : ContextAsync (Response ResponseBody)
 

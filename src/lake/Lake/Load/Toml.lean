@@ -342,25 +342,6 @@ public protected def CacheServiceKind.decodeToml (v : Value) : EDecodeM CacheSer
 
 public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml⟩
 
-public def CacheService.decodeTomlCore
-  {name : String} (cfg : CacheServiceConfig name) (ref := Syntax.missing)
-: EDecodeM CacheService := do
-  let validateUrl name key url := do
-    if url.isEmpty then
-      throwDecodeErrorAt ref s!"cache service `{name}` is missing required key `{key}`"
-    else
-      return if url.back == '/' then url.dropEnd 1 |>.copy else url
-  match cfg.kind with
-  | .reservoir => do
-    let apiEndpoint ← validateUrl name "apiEndpoint" cfg.apiEndpoint
-    return .reservoirService apiEndpoint (some (.ofString name))
-  | .s3 => do
-    let artifactEndpoint ← validateUrl name "artifactEndpoint" cfg.artifactEndpoint
-    let revisionEndpoint ← validateUrl name "revisionEndpoint" cfg.revisionEndpoint
-    return .downloadService artifactEndpoint revisionEndpoint (some (.ofString name))
-  | _ =>
-    throwDecodeErrorAt ref s!"cache service `{name}` is missing required key `kind`"
-
 /-! ## Package & Target Configuration Decoders -/
 
 public structure TomlFieldInfo (σ : Type) where
@@ -422,15 +403,36 @@ end
 
 local macro "gen_service_toml_decoders%" : command => do
   let cmds := #[]
-  let cmds ← genDecodeToml cmds ``CacheServiceConfig
+  let cmds ← genDecodeToml cmds ``CacheServiceS3Config
+  let cmds ← genDecodeToml cmds ``CacheServiceReservoirConfig
   return ⟨mkNullNode cmds⟩
 
 gen_service_toml_decoders%
 
+public def CacheService.decodeTomlCore
+  (name : String) (t : Table) (ref := Syntax.missing)
+: EDecodeM CacheService := do
+  let validateUrl name key url : DecodeM String := do
+    if url.isEmpty then
+      logDecodeErrorAt ref s!"cache service `{name}` is missing required key `{key}`"
+      return url
+    else
+      return if url.back == '/' then url.dropEnd 1 |>.copy else url
+  let kind : CacheServiceKind ← (← t.decode? `type).getDM do t.decode `kind ref
+  match kind with
+  | .reservoir => ensureDecode do
+    let cfg ← @CacheServiceReservoirConfig.decodeToml name t
+    let apiEndpoint ← validateUrl name "apiEndpoint" cfg.apiEndpoint
+    return .reservoirService apiEndpoint (some (.ofString name))
+  | .s3 => ensureDecode do
+    let cfg ← @CacheServiceS3Config.decodeToml name t
+    let artifactEndpoint ← validateUrl name "artifactEndpoint" cfg.artifactEndpoint
+    let revisionEndpoint ← validateUrl name "revisionEndpoint" cfg.revisionEndpoint
+    return .downloadService artifactEndpoint revisionEndpoint (some (.ofString name)) cfg.hasPackageScopes
+
 @[inline] public protected def CacheService.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM CacheService  := do
   let name : String ← t.decode `name ref
-  let cfg : CacheServiceConfig name ← ensureDecode <| CacheServiceConfig.decodeToml t
-  decodeTomlCore cfg ref
+  decodeTomlCore name t ref
 
 public instance : DecodeToml CacheService := ⟨fun v => do CacheService.decodeToml (← v.decodeTable) v.ref⟩
 
@@ -439,8 +441,7 @@ public protected def CacheServiceMap.decodeToml (v : Value) : EDecodeM CacheServ
   ensureDecode <| vs.foldlM (init := ∅) fun map v => tryDecodeD map do
     let t : Table ← v.decodeTable
     let name : String ← t.decode `name v.ref
-    let cfg : CacheServiceConfig name ← ensureDecode <| CacheServiceConfig.decodeToml t
-    return map.insert (.mkSimple name) (← CacheService.decodeTomlCore cfg v.ref)
+    return map.insert (.mkSimple name) (← CacheService.decodeTomlCore name t v.ref)
 
 public instance : DecodeToml CacheServiceMap := ⟨CacheServiceMap.decodeToml⟩
 

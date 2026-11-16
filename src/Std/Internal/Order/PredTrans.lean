@@ -59,17 +59,13 @@ theorem apply_mono (t : PredTrans Pred EPosts α) {post post' : α → Pred}
   t.applyRaw_mono
 
 /-- The predicate transformer with the monotone function `apply`. -/
--- The orders are implicit, so that they come from the expected type. Then `apply` and `mk` carry
--- the same order terms, and `apply_mk` rewrites.
-def mk {Pred : Type u} {EPosts : Type v} {_ : PartialOrder Pred} {_ : PartialOrder EPosts}
-    (apply : (α → Pred) → EPosts → Pred)
+def mk (apply : (α → Pred) → EPosts → Pred)
     (apply_mono : ∀ {post post' : α → Pred} {eposts eposts' : EPosts},
       post ⊑ post' → eposts ⊑ eposts' → apply post eposts ⊑ apply post' eposts') :
     PredTrans Pred EPosts α :=
   ⟨apply, apply_mono⟩
 
-@[simp, grind norm] theorem apply_mk {Pred : Type u} {EPosts : Type v} {_ : PartialOrder Pred}
-    {_ : PartialOrder EPosts} (f : (α → Pred) → EPosts → Pred)
+@[simp, grind norm] theorem apply_mk (f : (α → Pred) → EPosts → Pred)
     (h : ∀ {post post' : α → Pred} {eposts eposts' : EPosts},
       post ⊑ post' → eposts ⊑ eposts' → f post eposts ⊑ f post' eposts') :
     (mk f @h).apply = f := (rfl)

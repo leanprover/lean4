@@ -88,6 +88,126 @@ set_option linter.deprecated.automationAttr false in
 @[simp, deprecated replacementThm (since := "2025-01-01")]
 theorem deprecatedThm7 (n : Nat) : replacementDef n = n + 1 := rfl
 
+/-!
+Simp theorems whose discrimination tree keys contain a deprecated declaration are not reported,
+since `simp` only uses them on terms that mention the deprecated declaration, which is already
+reported.
+-/
+
+@[deprecated replacementDef (since := "2025-01-01")]
+def oldDef (n : Nat) : Nat := n + 1
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_eq (n : Nat) : oldDef n = replacementDef n := rfl
+
+-- The key only needs to contain the deprecated declaration, not start with it.
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem succ_oldDef (n : Nat) : (oldDef n).succ = replacementDef n + 1 := rfl
+
+-- For `←`, the keys come from the right-hand side.
+#guard_msgs in
+@[simp ←, deprecated "no replacement" (since := "2025-01-01")]
+theorem eq_oldDef (n : Nat) : n + 2 = oldDef (n + 1) := rfl
+
+/--
+warning: `oldDef_eq'` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵ ̵←̵,̵ ̵deprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp ←, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_eq' (n : Nat) : oldDef (n + 1) = n + 2 := rfl
+
+-- Each simp theorem created from a conjunction needs to contain a deprecated declaration.
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_and (n : Nat) : oldDef n = replacementDef n ∧ oldDef 0 = 1 := ⟨rfl, rfl⟩
+
+/--
+warning: `oldDef_and'` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_and' (n : Nat) : oldDef n = replacementDef n ∧ replacementDef 0 = 1 := ⟨rfl, rfl⟩
+
+-- Deprecated definitions are only unfolded where they occur.
+#guard_msgs in
+@[simp, deprecated replacementDef (since := "2025-01-01")]
+def oldDef2 (n : Nat) : Nat := n + 1
+
+/-!
+The same applies to `grind`, whose theorems are only activated once all symbols of their patterns
+occur in the goal.
+-/
+
+#guard_msgs in
+@[grind =, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_eq2 (n : Nat) : oldDef n = replacementDef n := rfl
+
+#guard_msgs in
+@[grind ., deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_eq3 (n : Nat) : oldDef n = replacementDef n := rfl
+
+/--
+warning: `oldDef_eq4` is deprecated, but the `[grind]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[g̵r̵i̵n̵d ̵=̵_̵,̵ ̵d̵eprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[grind =_, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_eq4 (n : Nat) : oldDef n = replacementDef n := rfl
+
+#guard_msgs in
+@[grind →, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_fwd (n : Nat) (h : oldDef n = 1) : n = 0 := by simp only [oldDef] at h; omega
+
+#guard_msgs in
+@[grind inj, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_inj : Function.Injective oldDef := fun _ _ h => by simp only [oldDef] at h; omega
+
+#guard_msgs in
+@[grind norm, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldDef_norm (n : Nat) : oldDef n = replacementDef n := rfl
+
+#guard_msgs in
+@[grind, deprecated replacementDef (since := "2025-01-01")]
+def oldDef3 (n : Nat) : Nat := n + 1
+
+#guard_msgs in
+@[grind unfold, deprecated replacementDef (since := "2025-01-01")]
+def oldDef4 (n : Nat) : Nat := n + 1
+
+@[deprecated "no replacement" (since := "2025-01-01")]
+inductive OldPred : Nat → Prop
+  | zero : OldPred 0
+
+#guard_msgs in
+attribute [grind intro] OldPred
+
+/--
+warning: `OldPred` is deprecated, but the `[grind]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  a̵t̵t̵r̵i̵b̵u̵t̵e̵ ̵[̵g̵r̵i̵n̵d̵ ̵c̵a̵s̵e̵s̵]̵ ̵O̵l̵d̵P̵r̵e̵d̵
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+attribute [grind cases] OldPred
+
 /-! The `attribute` command -/
 
 @[deprecated replacementThm (since := "2025-01-01")]

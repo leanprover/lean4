@@ -291,7 +291,12 @@ def checkDeprecatedAutomationAttr (ref : Syntax) (declName attrName : Name)
     unless linter.deprecated.automationAttr.get (← getOptions) do return
     -- Not `Core.shouldCheckDeprecated`, which is disabled in the declaration being deprecated
     unless ref.getHeadInfo matches .original .. do return
-    unless isDeprecated (← getEnv) declName do return
+    let env ← getEnv
+    unless isDeprecated env declName do return
+    -- Uses on terms that mention a deprecated declaration already cause a deprecation warning
+    let isGuarded ← try isAutomationAttrGuardedBy attrName (isDeprecated env) declName ref
+      catch _ => pure false
+    if isGuarded then return
     let hint ← match removal? with
       | some removal => m!"Remove the attribute:".hint #[removal]
       | none => pure .nil

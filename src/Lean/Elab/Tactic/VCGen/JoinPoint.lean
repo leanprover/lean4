@@ -374,6 +374,12 @@ def antiUnifyJumps (jp : JoinPoint) (xs : Array Expr) (jumps : Array Jump) :
   let cutoff := (decl₀.lctx.get! jp.spec.fvarId!).index + 1
   let ctx : AUContext := { cutoff, lctxs := ← jumps.mapM fun jump => return (← jump.proof.getDecl).lctx }
   let go : AUM (Array (Nat × Expr) × Array Column) := do
+    -- A position whose subterms are the arguments of a parameter becomes that parameter.
+    for h : j in [:xs.size] do
+      unless types[j]!.isConstOf ``PUnit do
+        let x ← share xs[j]
+        let key := jumps.map ({ expr := ·.args[j]! })
+        modify fun s => { s with cache := s.cache.insert key (some x) }
     let mut eqs := #[]
     let mut columns := #[]
     for h : j in [:xs.size] do

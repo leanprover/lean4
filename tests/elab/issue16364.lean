@@ -170,3 +170,38 @@ example : ⦃fun s => s = s₀⦄ addZeroOrOne c ⦃fun _ s => s₀ ≤ s⦄ := 
   vcgen +jp [addZeroOrOne]
   trace_state
   all_goals grind
+
+-- The field `r` gets the argument of the parameter `x` at every jump, so it becomes `x` itself.
+def storeX (c : Bool) (y : Nat) : StateM S Nat := do
+  let mut x := 0
+  if c then
+    x := y + 1
+    modify fun s => { s with r := x }
+  else
+    x := y * 2
+    modify fun s => { s with r := x }
+  return x
+
+/--
+trace: case vc1
+c : Bool
+y : Nat
+s₀ s✝¹ : S
+x✝¹ : PUnit
+x✝ : Nat
+s✝ : S
+h✝ :
+  s✝ = { pc := s₀.pc, r := x✝ } ∧
+    ((c = true ∧
+        let x := y + 1;
+        x✝ = x) ∨
+      ¬c = true ∧
+        let x := y * 2;
+        x✝ = x)
+⊢ s✝.r = x✝
+-/
+#guard_msgs in
+example : ⦃fun s => s = s₀⦄ storeX c y ⦃fun x s => s.r = x⦄ := by
+  vcgen +jp [storeX]
+  trace_state
+  all_goals grind

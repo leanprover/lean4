@@ -10,7 +10,11 @@ Windows has no closed standard streams of this kind, so the test does nothing th
 def check (cond : Bool) (msg : String) : IO Unit :=
   unless cond do throw <| IO.userError msg
 
-/-- Uses each standard stream, and has a child process do so too, reporting to the file `args[0]`. -/
+/--
+Records what each standard stream refers to in the file `args[1]`, marking files that are mapped
+into the process, then uses each standard stream and has a child process do so too, reporting to the
+file `args[0]`.
+-/
 def source : String := "
 def attempt (act : IO Unit) : IO String := do
   match ← act.toBaseIO with
@@ -18,6 +22,12 @@ def attempt (act : IO Unit) : IO String := do
   | .error e => return toString e
 
 def main (args : List String) : IO Unit := do
+  let maps ← try IO.FS.lines \"/proc/self/maps\" catch _ => pure #[]
+  let links ← [0, 1, 2].mapM fun fd => do
+    let path ← try pure (← IO.FS.realPath s!\"/proc/self/fd/{fd}\").toString catch _ => pure \"\"
+    let mapped := !path.isEmpty && maps.any (·.endsWith s!\" {path}\")
+    return if mapped then s!\"mapped {path}\" else path
+  IO.FS.writeFile args[1]! (\"\\n\".intercalate links)
   let stdout ← attempt do
     let h ← IO.getStdout
     h.putStrLn \"to stdout\"
@@ -39,20 +49,30 @@ def main (args : List String) : IO Unit := do
   IO.FS.withTempDir fun dir => do
     let file := dir / "main.lean"
     let report := dir / "report"
+    let links := dir / "links"
     IO.FS.writeFile file source
     -- What the program and its child write to standard output when it is open.
     let childOut := "to stdout\nout\n".toUTF8
-    for (closed, expected) in [("<&-", childOut), (">&-", .empty), ("2>&-", childOut),
-        ("<&- >&- 2>&-", .empty)] do
+    for (closed, closedFds, expected) in [("<&-", [0], childOut), (">&-", [1], .empty),
+        ("2>&-", [2], childOut), ("<&- >&- 2>&-", [0, 1, 2], .empty)] do
       let out ← IO.Process.binOutput {
         cmd := "sh"
         args := #["-c", s!"exec \"$@\" {closed}", "sh", (← IO.appPath).toString, "--run",
-          file.toString, report.toString] }
+          file.toString, report.toString, links.toString] }
+      let fdLinks ← try IO.FS.lines links catch _ => pure #[]
+      -- On NixOS, `/lib64/ld-linux-x86-64.so.2` is nix-ld, which loads the actual dynamic loader and
+      -- leaves its file open. That file takes the place of a closed stream before the runtime
+      -- starts, so the cases that close that stream cannot be tested.
+      if closedFds.any fun fd => (fdLinks[fd]?.getD "").startsWith "mapped " then
+        for f in [links, report] do
+          try IO.FS.removeFile f catch _ => pure ()
+        continue
+      IO.FS.removeFile links
       let describe (bytes : ByteArray) : String :=
         match String.fromUTF8? bytes with
         | some s => s.quote
         | none => s!"non-UTF-8 bytes {(bytes.extract 0 256).toList} of {bytes.size}"
-      let details := s!"exit code {out.exitCode}, stdout {describe out.stdout}, stderr {describe out.stderr}"
+      let details := s!"exit code {out.exitCode}, stdout {describe out.stdout}, stderr {describe out.stderr}, streams {fdLinks}"
       check (out.exitCode == 0 && out.stdout == expected) s!"{closed}: {details}"
       let result ← IO.FS.readFile report
       check (result == "stdout: ok, stderr: ok, stdin: ok, child: 0") s!"{closed}: {result}; {details}"

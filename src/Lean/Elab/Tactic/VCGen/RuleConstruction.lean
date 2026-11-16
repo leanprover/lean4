@@ -128,6 +128,22 @@ partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
         mkFreshExprMVar (userName := `epostsImpl) hTy
 
 /--
+The monotonicity of the program type `m α`, as `h α` for `h : MonadicWP.IsMonotone m`, when the
+`MonadicWP m` interpretation at `α` is the goal's `WP` instance. Instance search caches `h` per
+monad, so the programs of `m` at all result types share one search. The query takes `Pred` from the
+goal and `EPosts` and the instances from instance search, as the instance arguments of a spec do,
+so that its cache key matches theirs.
+-/
+def monoOfMonad? (info : WPApp) : MetaM (Option Expr) := do
+  let .app m α := info.Prog | return none
+  let some cls ← observing? <| mkAppOptM `Std.WP.MonadicWP.IsMonotone
+      #[some m, some info.Pred, none, none, none, none]
+    | return none
+  unless ← isDefEqGuarded (mkApp (cls.getArg! 3) α) info.instWP do return none
+  let some h ← synthInstance? cls | return none
+  return some (mkApp h α)
+
+/--
 Create the proof term for the backward rule built from an instantiated spec theorem.
 In order for the backward rule to apply, the concrete precondition, postcondition and exception
 postcondition appearing in the spec may need to be generalized into rule parameters, emitting
@@ -231,8 +247,10 @@ def mkSpecBackwardProof (info : WPApp)
      the order `instPO` of the spec's `⊑`, an order or lattice of `EPosts`, and `mono`. The
      applications are built without type checks; the kernel checks the final proof. -/
   let poEPosts ← synthInstance (mkApp (mkConst ``PartialOrder [← getLevel info.EPosts]) info.EPosts)
-  let mono : MetaM Expr := do synthInstance (← mkAppOptM ``Std.WP.WP.IsMonotone
-    #[some info.Prog, none, none, none, some info.instWP, some instPO, some poEPosts])
+  let mono : MetaM Expr := do
+    if let some mono ← monoOfMonad? info then return mono
+    synthInstance (← mkAppOptM ``Std.WP.WP.IsMonotone
+      #[some info.Prog, none, none, none, some info.instWP, some instPO, some poEPosts])
   let wpLemma (n : Name) (instEPosts : Expr) (rest : Array Expr) : MetaM Expr := do
     return mkAppN (mkConst n info.head.constLevels!) (wpArgs ++ #[instPO, instEPosts, ← mono] ++ rest)
   let mut postAbstract := postSpec.consumeMData

@@ -7276,7 +7276,7 @@ goto v_resetjp_2438_;
 v_resetjp_2438_:
 {
 lean_object* v_src_2442_; lean_object* v_tc_x3f_2443_; lean_object* v_clashes_2444_; uint8_t v_fixed_2445_; uint8_t v_fixedToolchain_2468_; lean_object* v___x_2469_; lean_object* v___x_2470_; uint8_t v___x_2471_; 
-v_fixedToolchain_2468_ = lean_ctor_get_uint8(v_config_2282_, sizeof(void*)*28 + 6);
+v_fixedToolchain_2468_ = lean_ctor_get_uint8(v_config_2282_, sizeof(void*)*29 + 6);
 lean_dec_ref(v_config_2282_);
 v___x_2469_ = ((lean_object*)(l___private_Lake_Load_Resolve_0__Lake_Workspace_updateToolchain___closed__19));
 v___x_2470_ = lean_array_get_size(v_rootDeps_2236_);
@@ -10122,7 +10122,7 @@ goto v_resetjp_3224_;
 v_resetjp_3224_:
 {
 lean_object* v_src_3228_; lean_object* v_tc_x3f_3229_; lean_object* v_clashes_3230_; uint8_t v_fixed_3231_; uint8_t v_fixedToolchain_3254_; lean_object* v___x_3255_; lean_object* v___x_3256_; uint8_t v___x_3257_; 
-v_fixedToolchain_3254_ = lean_ctor_get_uint8(v_config_3066_, sizeof(void*)*28 + 6);
+v_fixedToolchain_3254_ = lean_ctor_get_uint8(v_config_3066_, sizeof(void*)*29 + 6);
 lean_dec_ref(v_config_3066_);
 v___x_3255_ = ((lean_object*)(l___private_Lake_Load_Resolve_0__Lake_Workspace_updateToolchain___closed__19));
 v___x_3256_ = lean_array_get_size(v_rootDeps_3021_);
@@ -15025,7 +15025,7 @@ v_baseName_4413_ = lean_ctor_get(v___x_4411_, 1);
 v_dir_4414_ = lean_ctor_get(v___x_4411_, 4);
 v_relManifestFile_4415_ = lean_ctor_get(v___x_4411_, 9);
 v_toWorkspaceConfig_4416_ = lean_ctor_get(v_config_4412_, 0);
-v_fixedToolchain_4417_ = lean_ctor_get_uint8(v_config_4412_, sizeof(void*)*28 + 6);
+v_fixedToolchain_4417_ = lean_ctor_get_uint8(v_config_4412_, sizeof(void*)*29 + 6);
 v___x_4418_ = l_Lake_defaultLakeDir;
 lean_inc_ref(v_toWorkspaceConfig_4416_);
 v___x_4419_ = l_System_FilePath_normalize(v_toWorkspaceConfig_4416_);

@@ -229,17 +229,19 @@ The whole token is read before it is looked up, so a read that ends inside a met
 more input instead of matching a shorter method (`UPDATE` inside `UPDATEREDIRECTREF`), and a
 method that only starts with a known one (`GETX`) is not read as it.
 
-A token the server does not recognize fails with `"unrecognized method"` when it is followed by the
-space that ends a method, or by more token bytes past the 64-byte limit: RFC 9110 §9.1 and RFC 9112
-§3 answer such a method with 501. A token followed by any other byte fails with `"invalid method"`.
+A token the server does not recognize gives `none` when the space that ends a method follows it, and
+fails with `"unrecognized method"` when more token bytes follow past the 64-byte limit: RFC 9110 §9.1
+and RFC 9112 §3 answer such a method with 501. A token followed by any other byte fails with
+`"invalid method"`.
 -/
-def parseMethod : Parser Method := do
+def parseMethod : Parser (Option Method) := do
   let token ← parseToken 64
   match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
-  | some (_, method) => return method
+  | some (_, method) => return some method
   | none =>
     let next ← peek!
-    if next == ' '.toUInt8 || tchar (Char.ofUInt8 next) then fail "unrecognized method"
+    if next == ' '.toUInt8 then return none
+    else if tchar (Char.ofUInt8 next) then fail "unrecognized method"
     else fail "invalid method"
 
 /--
@@ -284,14 +286,24 @@ def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × 
   return (uri, versionPair)
 
 /--
+Parses `method SP request-target SP HTTP-version CRLF`. An unrecognized method fails with
+`"unrecognized method"` only once the rest of the line parses, so an invalid request line gets 400
+(RFC 9112 §3) whatever its method, and only a valid one with an unrecognized method gets 501.
+-/
+def parseRequestLineParts (limits : H1.Config) : Parser (Method × RequestTarget × Nat × Nat) := do
+  skipLeadingRequestEmptyLines limits
+  let method? ← parseMethod <* sp
+  let (uri, version) ← parseRequestLineBody limits
+  let some method := method? | fail "unrecognized method"
+  return (method, uri, version)
+
+/--
 Parses a request line and returns a fully-typed `Request.Head`. A higher minor version of HTTP/1 is
 read as HTTP/1.1 (RFC 9110 §6.2).
 `request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
-  skipLeadingRequestEmptyLines limits
-  let method ← parseMethod <* sp
-  let (uri, (major, minor)) ← parseRequestLineBody limits
+  let (method, uri, major, minor) ← parseRequestLineParts limits
   if major == 1 ∧ minor ≥ 1 then
     return ⟨method, .v11, uri, .empty⟩
   else if major == 1 ∧ minor == 0 then
@@ -306,9 +318,7 @@ minor version of HTTP/1 is read as HTTP/1.1 (RFC 9110 §6.2).
 request-line = method SP request-target SP HTTP-version
 -/
 public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Option Version) := do
-  skipLeadingRequestEmptyLines limits
-  let method ← parseMethod <* sp
-  let (uri, (major, minor)) ← parseRequestLineBody limits
+  let (method, uri, major, minor) ← parseRequestLineParts limits
   return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--

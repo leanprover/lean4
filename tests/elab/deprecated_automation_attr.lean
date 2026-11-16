@@ -140,6 +140,76 @@ Note: Removing the attribute may break proofs that rely on it. If it needs to be
 @[simp, deprecated "no replacement" (since := "2025-01-01")]
 theorem oldDef_and' (n : Nat) : oldDef n = replacementDef n ∧ replacementDef 0 = 1 := ⟨rfl, rfl⟩
 
+/-!
+Discrimination tree keys omit instances and implicit arguments, so the left-hand side itself is
+checked for deprecated declarations as well.
+-/
+
+structure Foo where
+  n : Nat
+
+@[deprecated "no replacement" (since := "2025-01-01")]
+instance instAddFoo : Add Foo := ⟨fun a b => ⟨a.n + b.n⟩⟩
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem Foo.n_add (a b : Foo) : (a + b).n = a.n + b.n := rfl
+
+structure Vec (n : Nat) where
+  val : Nat
+
+@[deprecated "no replacement" (since := "2025-01-01")]
+def oldLen : Nat := 3
+
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem Vec.val_oldLen (v : Vec oldLen) : v.val = v.val + 0 := rfl
+
+-- Deprecated proofs on the left-hand side do not count, since `simp` ignores proofs when matching.
+@[deprecated "no replacement" (since := "2025-01-01")]
+theorem oldPos : 0 < 1 := Nat.zero_lt_one
+
+/--
+warning: `mk_oldPos` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem mk_oldPos : (⟨0, oldPos⟩ : Fin 1) = 0 := rfl
+
+-- Deprecated reducible definitions do not count, since `simp` sees through them.
+@[reducible, deprecated replacementDef (since := "2025-01-01")]
+def oldAbbrev (n : Nat) : Nat := replacementDef n
+
+/--
+warning: `oldAbbrev_eq` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem oldAbbrev_eq (n : Nat) : oldAbbrev n = n + 1 := rfl
+
+-- Deprecated declarations in hypotheses do not count.
+/--
+warning: `replacementDef_of_oldDef` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated "no replacement" (since := "2025-01-01")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp, deprecated "no replacement" (since := "2025-01-01")]
+theorem replacementDef_of_oldDef (n : Nat) (h : oldDef n = 2) : replacementDef n = 2 := h
+
 -- Deprecated definitions are only unfolded where they occur.
 #guard_msgs in
 @[simp, deprecated replacementDef (since := "2025-01-01")]
@@ -199,6 +269,10 @@ theorem oldDef_inj : Function.Injective oldDef := fun _ _ h => by simp only [old
 #guard_msgs in
 @[grind norm, deprecated "no replacement" (since := "2025-01-01")]
 theorem oldDef_norm (n : Nat) : oldDef n = replacementDef n := rfl
+
+#guard_msgs in
+@[grind norm, deprecated "no replacement" (since := "2025-01-01")]
+theorem Foo.n_add_norm (a b : Foo) : (a + b).n = a.n + b.n := rfl
 
 #guard_msgs in
 @[grind, deprecated replacementDef (since := "2025-01-01")]

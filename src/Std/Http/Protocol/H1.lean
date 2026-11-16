@@ -401,11 +401,14 @@ def noMoreInput (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with peerClosed := true })
 
 /--
-Set a known size for the message body, replacing any previous value.
+Set a known size for the message body, replacing any previous value. Once the machine has failed it
+is ignored, so an error response the machine sends in place of the caller's keeps the length of its
+own content.
 -/
 @[inline]
 def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
-  machine.modifyWriter (fun w => { w with knownSize := some size })
+  if machine.error.isSome then machine
+  else machine.modifyWriter (fun w => { w with knownSize := some size })
 
 /--
 Reconciles the body length the caller set (`knownSize`) with the framing fields of the message head

@@ -80,6 +80,15 @@ def expectOk (name : String) (machine : Machine .receiving) : IO String := do
   unless out.startsWith "HTTP/1.1 200 OK\r\n" && out.endsWith "\r\n\r\nabc" do
     throw <| IO.userError s!"matching Content-Length: got\n{out.quote}"
 
+#eval runGroup "server machine: a length set after a rejected head keeps the 500 intact" do
+  -- The machine answers with its own 500, so a length the handler sets afterwards must not become
+  -- that response's `Content-Length`.
+  let both := headers [(Header.Name.contentLength, "3"), (Header.Name.transferEncoding, "chunked")]
+  for size in [Body.Length.fixed 1, .fixed 0, .fixed 1234, .chunked] do
+    expect500 s!"setKnownSize {repr size} after the rejected head" <| server get
+      |>.send { status := .ok, headers := both }
+      |>.setKnownSize size
+
 #eval runGroup "server machine: Content-Length gives a streamed body its length" do
   let close := "GET / HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n"
   -- `Body.stream` sets `chunked` before its producer runs, and a producer may set the length

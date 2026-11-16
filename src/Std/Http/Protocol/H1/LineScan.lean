@@ -133,6 +133,12 @@ inductive LineScan where
   The line of kind `kind` ends inside a run of `cls` bytes, which may grow by `left` more.
   -/
   | run (kind : LineKind) (cls : LineScan.Class) (left : Nat)
+
+  /--
+  The line of kind `kind` has read `pos` bytes of its fixed-format part: `HTTP/d.d` after a
+  request-target, or `HTTP/d.d SP ddd` at the start of a status line.
+  -/
+  | fixed (kind : LineKind) (pos : Nat)
 deriving Inhabited, Repr, BEq
 
 namespace LineScan
@@ -147,6 +153,23 @@ extension token, after which only the parser may read on.
 @[inline]
 private def step (config : Config) (kind : LineKind) : LineScan → UInt8 → Option LineScan
   | .opaque, _ => none
+  | .fixed k pos, b =>
+    let isDigit := b ≥ '0'.toUInt8 && b ≤ '9'.toUInt8
+    -- `HTTP/d.d`: the name, a digit, a dot and a digit.
+    let version : Bool := match pos with
+      | 0 => b == 'H'.toUInt8 | 1 | 2 => b == 'T'.toUInt8 | 3 => b == 'P'.toUInt8
+      | 4 => b == '/'.toUInt8 | 6 => b == '.'.toUInt8 | _ => isDigit
+    if k != kind then none
+    else if pos < 8 then (if version then some (.fixed k (pos + 1)) else none)
+    else match k with
+      | .requestLine => if pos == 8 && b == '\r'.toUInt8 then some .opaque else none
+      | .statusLine =>
+        if pos == 8 then (if b == ' '.toUInt8 then some (.fixed k 9) else none)
+        else if pos < 12 then (if isDigit then some (.fixed k (pos + 1)) else none)
+        else if b == ' '.toUInt8 then some (.run k .fieldContent config.maxReasonPhraseLength)
+        else if b == '\r'.toUInt8 then some .opaque
+        else none
+      | _ => none
   | .run k cls left, b =>
     if k != kind then none
     else if left > 0 && cls.accepts b then some (.run k cls (left - 1))
@@ -325,14 +348,16 @@ def classify (kind : LineKind) (config : Config) (bytes : ByteArray) (start stop
       let m := skip Class.token.accepts bytes i stop
       if m == stop then runOf kind .token maxMethodLength (stop - i)
       else if byteAt bytes m != ' '.toUInt8 then .opaque
-      else if skip Class.target.accepts bytes (m + 1) stop == stop then
-        runOf kind .target config.maxUriLength (stop - (m + 1))
       else
-        .opaque
+        let t := skip Class.target.accepts bytes (m + 1) stop
+        if t == stop then runOf kind .target config.maxUriLength (stop - (m + 1))
+        else if byteAt bytes t == ' '.toUInt8 && stop - (t + 1) ≤ 8 then .fixed kind (stop - (t + 1))
+        else .opaque
   | .statusLine =>
-    -- `HTTP/d.d SP ddd SP` takes 13 bytes, and the reason phrase follows.
+    -- `HTTP/d.d SP ddd` takes 12 bytes, and an SP and the reason phrase may follow.
     let r := start + 13
-    if r ≤ stop && byteAt bytes (start + 12) == ' '.toUInt8 &&
+    if stop - start ≤ 12 then .fixed kind (stop - start)
+    else if byteAt bytes (start + 12) == ' '.toUInt8 &&
         skip Class.fieldContent.accepts bytes r stop == stop then
       runOf kind .fieldContent config.maxReasonPhraseLength (stop - r)
     else

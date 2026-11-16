@@ -10,6 +10,7 @@ public import Lean.Meta.DecLevel
 import Lean.Meta.CtorRecognizer
 public import Lean.Meta.HasAssignableMVar
 import Lean.Structure
+import Lean.NativeInitProbe
 import Init.Omega
 public section
 namespace Lean.Meta

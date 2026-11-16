@@ -403,12 +403,23 @@ private def failOpenBody (s : State) (cmds : Array Command) : State × Array Com
   | .closed => (s, cmds)
 
 /--
+Whether the peer may have sent input that the machine never read: the connection ends after an
+exchange whose request asked to keep it open, so the peer may have pipelined requests before it read
+the response that ends it. The connection does not read while a handler runs, so they can wait in the
+transport, which a close then answers with a reset (RFC 9112 §9.6).
+-/
+@[inline]
+private def peerMayHavePipelined (machine : H1.Machine .receiving) : Bool :=
+  let reader := machine.reader
+  !reader.noMoreInput && reader.isClosed && reader.messageHead.shouldKeepAlive
+
+/--
 Closes the connection at once, lingering only when `linger` is set and the peer may still send.
 -/
 @[inline]
 private def closeNow (s : State) (linger : Bool) (cmds : Array Command) : State × Array Command :=
   ({ s with phase := .closed, unwritten := 0, writeDeadline := none },
-    cmds.push (.close (linger && s.machine.peerMayStillSend)))
+    cmds.push (.close (linger && (s.machine.peerMayStillSend || peerMayHavePipelined s.machine))))
 
 /--
 Ends the connection: closes the request body, releases the response body and the handler's response,

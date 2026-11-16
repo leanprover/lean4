@@ -1271,6 +1271,23 @@ private def readComplete (machine : Machine dir) : Machine dir :=
   | .receiving, machine => closeReaderIfDone machine
 
 /--
+`pending`: a client with no request outstanding, before its first request or between exchanges. What
+arrives now answers no request (RFC 9112 §9.2), and what is left after a response must not be read
+as the next one (RFC 9112 §6.3). Line breaks alone are discarded; anything else leaves the message
+boundaries ambiguous, so the machine fails before another request goes out on the connection.
+-/
+private def readPending (machine : Machine dir) : Machine dir :=
+  let input := machine.reader.input
+  if machine.writer.isClosed then
+    machine.setReaderState .closed
+  else if input.atEnd then
+    machine
+  else if onlyLineEndsLeft input then
+    machine.modifyReader (·.setInput (input.forward input.remainingBytes))
+  else
+    machine.setFailure .badMessage |>.stopInput |>.closeWriter |>.addEvent .close
+
+/--
 One reader transition, by state. Returns `true` when the reader moved to a state that it processes
 in the same call.
 -/
@@ -1281,7 +1298,7 @@ private def readStep (machine : Machine dir) : Machine dir × Bool :=
   | .needHeader count => readHeaderLine machine count
   | .readBody state => readBodyItself machine state
   | .complete => (readComplete machine, false)
-  | .pending => (if machine.writer.isClosed then machine.setReaderState .closed else machine, false)
+  | .pending => (readPending machine, false)
   | .«continue» _ | .closed => (machine, false)
 
 /-! #### Termination -/

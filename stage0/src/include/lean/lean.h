@@ -1884,6 +1884,9 @@ LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
 LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
+LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a);
+/* Hash that depends on all bits of `a`. It is `a` itself if `a < 2^64`. */
+static inline uint64_t lean_nat_hash(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint64_t)lean_unbox(a) : lean_nat_big_hash(a); }
 
 static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {

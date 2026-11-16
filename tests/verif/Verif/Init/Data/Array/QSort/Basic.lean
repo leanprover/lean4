@@ -147,7 +147,8 @@ theorem sort_spec (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi) (hlo : lo < n
     exfalso
     have := (qpartition_spec lt asymm as lo hi h hhi).2.1
     simp only [heq] at this; omega
-  | case2 as lo hi w hlo hhi h mid hmid as1 heq hge ih1 _ ih2 =>
+  | case2 as lo hi w hlo hhi h mid hmid as1 heq hge =>
+    rename_i ih1 ih2
     have := qpartition_spec lt asymm as lo hi h hhi
     simp only [heq] at this
     obtain ⟨rp, hmh, pl, pr⟩ := this

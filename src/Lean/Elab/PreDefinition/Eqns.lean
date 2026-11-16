@@ -10,6 +10,7 @@ import Lean.Meta.HaveTelescope
 import Lean.Meta.LetToHave
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Rewrite
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.SplitIf
@@ -42,11 +43,33 @@ def unfoldThmType (declName : Name) : MetaM Expr := do
 
 /--
 Unfolds the application of `declName` on the left-hand side of an equality goal, using its
-unfolding theorem when available and delta reduction otherwise.
+unfolding theorem `declName.eq_def` when available and delta reduction otherwise.
+
+The unfolding theorem is used for nonrecursive definitions too. Delta reduction is cheap here, but
+the proof it produces can be expensive for the kernel. Given the goal `f a = rhs`, it produces
+`id (f a = rhs) h` where `h : body[a] = rhs`. This term only claims that `f a` and `body[a]` are
+definitionally equal. It does not record that the step was "unfold `f` once", and the kernel has to
+rediscover it with its own unfolding heuristics.
+
+Example: `f` is defined by a `match` on `String` literals, and `a` is the literal `"lit"`.
+The kernel has to check `f "lit" =?= f.match_1 .. "lit" ..`.
+1. `f.match_1` has `abbrev` reducibility hints, so the kernel unfolds it before `f`, and obtains
+   `dite ("lit" = "lit_0") ..`.
+2. If `f` and `dite` have the same definitional height, the kernel unfolds both.
+3. Unfolding `dite` exposes `Decidable.rec`, and the kernel evaluates `String.decEq "lit" "lit_0"`
+   to select a branch. The other side is `f.match_1 .. "lit" ..` again.
+4. The two sides never become syntactically equal, and the kernel evaluates the `match` down to the
+   alternative for `"lit"`.
+
+So, the kernel evaluates the whole `match` to check each equation theorem. This cost is not
+visible to `maxHeartbeats`.
+
+The proof `f.eq_def a` has type `f a = body[a]`, and the kernel has nothing to rediscover.
+The definitional step is checked only once, at `f.eq_def`, where the discriminant is a variable and
+the `match` cannot be evaluated.
 -/
 def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
-    -- Recursive definition: Use unfolding lemma
+  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := true) then
     let mut mvarId := mvarId
     let target ← mvarId.getType'
     let some (_, lhs, rhs) := target.eq? | throwError "unfoldLHS: Unexpected target {target}"
@@ -58,7 +81,6 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     mvarId.assign (← mkEqTrans h mvarNew)
     return mvarNew.mvarId!
   else
-    -- Else use delta reduction
     deltaLHS mvarId
 
 /--
@@ -101,11 +123,10 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    if (← tryURefl mvarId #[declName]) then
+    let rfl : MetaM Unit := do
+      unless (← tryURefl mvarId #[declName]) do throwError "`rfl` failed"
       trace[Elab.definition.eqns] "proved directly by rfl"
-      return ← instantiateMVars main
-
-    go (← unfoldLHS declName mvarId)
+    reflOrProve rfl do go (← unfoldLHS declName mvarId)
     instantiateMVars main
   where
   /--
@@ -117,30 +138,31 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
   -/
   go (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
-    if (← tryURefl mvarId) then
-      return ()
-    else if (← tryContradiction mvarId) then
-      return ()
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
-      go mvarId
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
-      go mvarId
-    else
-      let ctx ← Simp.mkContext (config := { dsimp := false })
-      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-      | TacticResultCNM.closed => return ()
-      | TacticResultCNM.modified mvarId => go mvarId
-      | TacticResultCNM.noChange =>
-        if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
-          mvarIds.forM go
-        else if let some mvarId ← rwMatcherLHS? mvarId then
-          go mvarId
-        else
-          throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
+    let rfl : MetaM Unit := do
+      unless (← tryURefl mvarId) do throwError "`rfl` failed"
+    reflOrProve rfl do
+      if (← tryContradiction mvarId) then
+        return ()
+      else if let some mvarId ← simpMatch? mvarId then
+        go mvarId
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
+        go mvarId
+      else if let some mvarId ← whnfReducibleLHS? mvarId then
+        go mvarId
+      else
+        let ctx ← Simp.mkContext (config := { dsimp := false })
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+        | TacticResultCNM.closed => return ()
+        | TacticResultCNM.modified mvarId => go mvarId
+        | TacticResultCNM.noChange =>
+          if let some mvarIds ← casesOnStuckLHS? mvarId then
+            mvarIds.forM go
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
+            mvarIds.forM go
+          else if let some mvarId ← rwMatcherLHS? mvarId then
+            go mvarId
+          else
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 /--
 Checks whether the left-hand side of a quantified equality depends on `fvarId`.

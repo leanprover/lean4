@@ -11686,7 +11686,7 @@ _start:
 lean_object* v___x_3167_; lean_object* v___x_3168_; lean_object* v___x_3169_; lean_object* v___x_3170_; lean_object* v___x_3171_; lean_object* v___x_3172_; 
 v___x_3167_ = ((lean_object*)(l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_canon_canonProj___closed__2));
 v___x_3168_ = lean_unsigned_to_nat(18u);
-v___x_3169_ = lean_unsigned_to_nat(1955u);
+v___x_3169_ = lean_unsigned_to_nat(1962u);
 v___x_3170_ = ((lean_object*)(l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_canon_canonProj___closed__1));
 v___x_3171_ = ((lean_object*)(l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_canon_canonProj___closed__0));
 v___x_3172_ = l_mkPanicMessageWithDecl(v___x_3171_, v___x_3170_, v___x_3169_, v___x_3168_, v___x_3167_);

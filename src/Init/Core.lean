@@ -1208,6 +1208,19 @@ theorem dite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t 
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
 
+/--
+Auxiliary theorem for proving the equations of `match` expressions with value patterns. The match
+compiler generates `dite (b = a) (Eq.ndrec_symm m) e` for testing whether the variable `b` is the
+value `a`.
+-/
+theorem dite_ndrec_symm_eq {α : Sort u} {a b : α} {inst : Decidable (b = a)} {motive : α → Sort v}
+    {m : motive a} {e : ¬ b = a → motive b} (r : (x : α) → motive x)
+    (h₁ : b = a → m = r a) (h₂ : (h : ¬ b = a) → e h = r b) :
+    dite (b = a) (Eq.ndrec_symm m) e = r b :=
+  match inst with
+  | isTrue h  => by subst h; exact h₁ rfl
+  | isFalse h => h₂ h
+
 @[deprecated dite_eq_right (since := "2026-07-21")]
 theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 

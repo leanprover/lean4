@@ -8,11 +8,33 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
+public import Lean.Linter.Init
+import Lean.Compiler.NoncomputableAttr
+import Lean.ProjFns
 import Lean.ExtraModUses
 
 public section
 
-namespace Lean.Compiler
+namespace Lean
+
+/--
+Enables the `csimpNoncomputable` linter, which warns when a `@[csimp]` theorem replaces a
+definition that is not marked `noncomputable`. A `@[csimp]` theorem only affects code compiled after
+it, so code compiled before it may still call the slow definition; marking the definition
+`noncomputable` turns such uses into errors.
+
+Recursors and structure projections cannot be marked `noncomputable` and are exempt.
+
+This linter is off by default. It is a member of the `linter.coreInternal` set, so it is enabled
+when building Lean itself.
+-/
+register_builtin_option linter.csimpNoncomputable : Bool := {
+  defValue := false
+  descr := "enable the `csimpNoncomputable` linter, which warns when a `@[csimp]` theorem \
+    replaces a definition that is not marked `noncomputable`."
+}
+
+namespace Compiler
 namespace CSimp
 
 structure Entry where
@@ -48,8 +70,20 @@ private def isConstantReplacement? (declName : Name) : CoreM (Option Entry) := d
       return none
   | _ => return none
 
+private def lintComputable (fromDeclName : Name) : CoreM Unit := do
+  unless Linter.getLinterValue linter.csimpNoncomputable (← Linter.getLinterOptions) do
+    return
+  let env ← getEnv
+  if isNoncomputable env fromDeclName then return
+  if ← isRec fromDeclName then return
+  if env.isProjectionFn fromDeclName then return
+  Linter.logLint linter.csimpNoncomputable (← getRef)
+    m!"`{.ofConstName fromDeclName}` is replaced by a `@[csimp]` theorem but is not marked \
+      `noncomputable`, so code compiled before this theorem may still use the slow definition."
+
 def add (declName : Name) (kind : AttributeKind) : CoreM Unit := do
   if let some entry ← isConstantReplacement? declName then
+    lintComputable entry.fromDeclName
     ext.add entry kind
   else
     throwError "invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported."
@@ -100,4 +134,5 @@ end CSimp
 def hasCSimpAttribute (env : Environment) (declName : Name) : Bool :=
   CSimp.ext.getState env |>.thmNames.contains declName
 
-end Lean.Compiler
+end Compiler
+end Lean

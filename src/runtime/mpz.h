@@ -306,6 +306,9 @@ public:
     */
     size_t size_in_bytes() const;
 
+    /** \brief Hash of the absolute value that depends on all of its bits. It is the absolute value itself if that is less than `2^64`. */
+    uint64 hash64() const;
+
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
     friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }

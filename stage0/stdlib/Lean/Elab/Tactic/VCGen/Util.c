@@ -104,7 +104,7 @@ uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_simpTelescope___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_VCGen_runSimp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_VCGen_runSimp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Result_toSimpGoalResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
@@ -3637,7 +3637,7 @@ v_a_1131_ = lean_ctor_get(v___x_1130_, 0);
 if (lean_obj_tag(v_a_1131_) == 0)
 {
 uint8_t v_debug_1132_; 
-v_debug_1132_ = lean_ctor_get_uint8(v_a_1118_, sizeof(void*)*6 + 2);
+v_debug_1132_ = lean_ctor_get_uint8(v_a_1118_, sizeof(void*)*7 + 2);
 if (v_debug_1132_ == 0)
 {
 lean_dec(v_ruleDesc_x3f_1117_);
@@ -4094,7 +4094,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_processHypotheses___redArg(lea
 _start:
 {
 uint8_t v_internalize_1273_; 
-v_internalize_1273_ = lean_ctor_get_uint8(v_a_1262_, sizeof(void*)*6 + 3);
+v_internalize_1273_ = lean_ctor_get_uint8(v_a_1262_, sizeof(void*)*7 + 3);
 if (v_internalize_1273_ == 0)
 {
 lean_object* v___x_1274_; 
@@ -5798,7 +5798,7 @@ lean_dec_ref_known(v___x_1947_, 1);
 v___x_1949_ = lean_alloc_closure((void*)(l_Lean_Meta_Sym_Simp_simpTelescope___boxed), 11, 1);
 lean_closure_set(v___x_1949_, 0, v_a_1948_);
 lean_inc(v_val_1946_);
-v___x_1950_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_1946_, v___x_1949_, v_a_1937_, v_a_1938_, v_a_1939_, v_a_1940_, v_a_1941_, v_a_1942_, v_a_1943_);
+v___x_1950_ = l_Lean_Elab_Tactic_VCGen_runSimp___redArg(v_val_1946_, v___x_1949_, v_a_1936_, v_a_1937_, v_a_1938_, v_a_1939_, v_a_1940_, v_a_1941_, v_a_1942_, v_a_1943_);
 if (lean_obj_tag(v___x_1950_) == 0)
 {
 lean_object* v_a_1951_; lean_object* v___x_1952_; 
@@ -8058,8 +8058,8 @@ goto v___jp_2308_;
 }
 else
 {
-lean_dec(v_tail_2450_);
 lean_dec_ref_known(v_mvarIds_2449_, 2);
+lean_dec(v_tail_2450_);
 v___y_2309_ = v___x_2335_;
 v___y_2310_ = v_snd_2332_;
 v___y_2311_ = v___x_2334_;

@@ -75,6 +75,16 @@ structure Config where
   Ignored by `mvcgen`.
   -/
   simp : Bool := true
+  /--
+  The maximum number of steps of each `Sym.simp` run that `vcgen` makes, as `maxSteps` of a
+  `register_sym_simp` variant. Ignored by `mvcgen`.
+  -/
+  simpMaxSteps : Nat := 100_000
+  /--
+  The maximum depth of reentrant `Sym.simp` calls through the discharger, as `maxDischargeDepth` of
+  a `register_sym_simp` variant. Ignored by `mvcgen`.
+  -/
+  simpMaxDischargeDepth : Nat := 2
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser

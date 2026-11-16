@@ -13,6 +13,7 @@ import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
+import Lean.Meta.Sym.OccursCheck
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
@@ -817,6 +818,8 @@ structure DefEqM.Context where
   lctxInitialNextIndex : Nat := 0
   /--
   If `unify` is `false`, it contains which variables can be assigned.
+  They must not occur in the values assigned to them. This holds when matching because the values
+  come from the target term, which is created before them. `DefEqM.occursCheck` relies on this invariant.
   -/
   mvarsNew : Array MVarId := #[]
   /--
@@ -936,6 +939,18 @@ def mayAssign (t s : Expr) : SymM Bool := do
   let tMaxFVarDecl ← tMaxFVarId.getDecl
   return tMaxFVarDecl.index ≥ sMaxFVarDecl.index
 
+/--
+Returns `true` if assigning `mvarId := s` does not create a cyclic assignment, i.e., `mvarId` does
+not occur in `s`, taking assigned metavariables into account.
+Example: `?n =?= ?n * ?n` must not assign `?n`.
+
+The check is skipped when matching (see `DefEqM.Context.mvarsNew`), and costs `O(1)` if `s` does not
+contain metavariables. See `Sym.occursCheck`.
+-/
+def DefEqM.occursCheck (mvarId : MVarId) (s : Expr) : DefEqM Bool := do
+  if !(← read).unify then return true
+  Sym.occursCheck mvarId s
+
 @[inline] def whenUndefDo (x : DefEqM LBool) (k : DefEqM Bool) : DefEqM Bool := do
   match (← x) with
   | .true  => return true
@@ -951,6 +966,7 @@ Returns `false` if:
 - `tFn` is not a metavariable
 - `t` does not satisfy the Miller pattern condition
 - The assignment would violate scope (free variables in `fun x₁ ... xₙ => s` not in scope of `?m`)
+- The assignment would be cyclic (`?m` occurs in `s`)
 
 The `tFn` parameter must equal `t.getAppFn` (enforced by the proof argument).
 
@@ -965,6 +981,7 @@ def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAp
   else
     pure s
   if !(← mayAssign tFn s) then return .undef
+  if !(← DefEqM.occursCheck mvarId s) then return .undef
   if (← read).mvarsToCheckType.contains mvarId then
     unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← inferType s)) do
       return .false
@@ -995,6 +1012,7 @@ where
     if (← mvarId.isAssigned) then return false
     if !(← isAssignableMVar mvarId) then return false
     if !(← mayAssign t s) then return false
+    if !(← DefEqM.occursCheck mvarId s) then return false
     /-
     **Note**: we don't need to check the type of `mvarId` here even if the variable is marked for
     checking. This is the case because `tryAssignUnassigned` is invoked only from a context where `t` and `s` are the arguments

@@ -7,10 +7,39 @@ open Std.WP
 set_option experimental.vcgen true
 
 /-!
-Regression test for #16364: with a structure state, `vcgen +jp` states the fields that every jump
-to a join point agrees on above the disjunction of the jumps, so `grind` closes the goals about
-those fields without a case split.
+Regression test for #16364: `vcgen +jp` anti-unifies the arguments of the jumps to a join point,
+so the join hypothesis states the parts of the states that all jumps agree on above the
+disjunction over the jumps, and `grind` proves goals about those parts without a case split.
 -/
+
+-- The example of the module docstring of `Lean.Elab.Tactic.VCGen.JoinPoint`: the field `.1`
+-- agrees, the field `.2` becomes a hole, and the parameter `x` takes the place of its hole.
+def f (n : Nat) : StateM (Nat × Nat) Nat := do
+  let mut x := 0
+  if n > 0 then
+    x := 1
+    modify fun (a, b) => (a + 1, b)
+  else
+    x := 2
+    modify fun (a, _) => (a + 1, 0)
+  return x + 1
+
+/--
+trace: case vc1
+n : Nat
+t : Nat × Nat
+a✝² b✝¹ : Nat
+a✝¹ : (a✝², b✝¹) = t
+x✝¹ : PUnit
+x✝ a✝ b✝ : Nat
+h✝ : ∃ z, (a✝, b✝) = (a✝² + 1, z) ∧ (0 < n ∧ x✝ = 1 ∧ z = b✝¹ ∨ ¬0 < n ∧ x✝ = 2 ∧ z = 0)
+⊢ a✝ = t.fst + 1
+-/
+#guard_msgs in
+example : ⦃fun s => s = t⦄ f n ⦃fun _ s => s.1 = t.1 + 1⦄ := by
+  vcgen +jp [f]
+  trace_state
+  all_goals grind
 
 structure S where
   pc : Nat
@@ -36,36 +65,18 @@ macro_rules
             $rest:term)
     go 0 n.getNat
 
-/--
-trace: case vc1
-b : Nat → Bool
-s₀ s✝¹ : S
-x✝ : PUnit
-s✝ : S
-h✝ : ∃ z, s✝ = { pc := s₀.pc + 4, r := s₀.r + z } ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
-⊢ s✝.pc = s₀.pc + 4
--/
-#guard_msgs in
-example (b : Nat → Bool) (s₀ : S) :
-    ⦃fun s => s = s₀⦄ (diamonds% 1 b : StateM S Unit) ⦃fun _ s => s.pc = s₀.pc + 4⦄ := by
-  vcgen +jp
-  trace_state
-  all_goals grind
-
+-- The reproducer of #16364.
 example (b : Nat → Bool) (s₀ : S) :
     ⦃fun s => s = s₀⦄ (diamonds% 12 b : StateM S Unit) ⦃fun _ s => s.pc = s₀.pc + 48⦄ := by
   vcgen +jp with finish
 
+-- The hull of each disjunction bounds its hole for `r`.
 example (b : Nat → Bool) (s₀ : S) :
     ⦃fun s => s = s₀⦄ (diamonds% 12 b : StateM S Unit)
     ⦃fun _ s => s₀.r + 12 ≤ s.r ∧ s.r ≤ s₀.r + 24⦄ := by
   vcgen +jp with finish
 
-example (b : Nat → Bool) (s₀ : W) :
-    ⦃fun s => s = s₀⦄ (diamonds% 12 b : StateM W Unit) ⦃fun _ s => s.pc = s₀.pc + 48⦄ := by
-  vcgen +jp with finish
-
--- Three jumps from a `match`: `pc` agrees at all of them.
+-- The hole for `r` takes the value `n`, a local of the branch `some n`.
 def step (o : Option Nat) : StateM S Unit := do
   match o with
   | some 0 => modify fun s => { s with pc := s.pc + 4, r := 0 }
@@ -96,26 +107,70 @@ macro_rules
             $rest:term)
     go 0 n.getNat
 
--- One jump spoils `pc`: `pc` becomes a hole, and `r` stays above the disjunction.
-/--
-trace: case vc1
-o : Nat → Nat
-s₀ s✝¹ : S
-x✝ : PUnit
-s✝ : S
-h✝ :
-  ∃ z,
-    s✝ = { pc := z, r := s₀.r + 1 } ∧
-      (o 0 = 0 ∧ z = 0 ∨ o 0 = 1 ∧ z = s₀.pc + 4 ∨ ∃ x, (x = 0 → False) ∧ (x = 1 → False) ∧ o 0 = x ∧ z = s₀.pc + 4)
-⊢ s✝.r = s₀.r + 1
--/
-#guard_msgs in
-example (o : Nat → Nat) (s₀ : S) :
-    ⦃fun s => s = s₀⦄ (spoiled% 1 o : StateM S Unit) ⦃fun _ s => s.r = s₀.r + 1⦄ := by
-  vcgen +jp
-  trace_state
-  all_goals grind
-
+-- One alternative spoils `pc`, so `pc` becomes a hole, and `r` stays above the disjunction. The
+-- fields are `BitVec 32`, whose disjunctions have no hull.
 example (o : Nat → Nat) (s₀ : W) :
     ⦃fun s => s = s₀⦄ (spoiled% 12 o : StateM W Unit) ⦃fun _ s => s.r = s₀.r + 12⦄ := by
   vcgen +jp with finish
+
+-- A reassignment `s := e` in a branch passes a `let` local with the value `e`. The values
+-- `s.r + 1` and `s.r * 2` of the locals `r` have no common part, so the hole for `r` takes the
+-- locals as its values.
+def addOrDouble (o : Nat) : StateM S Unit := do
+  let mut s ← get
+  match o with
+  | 0 =>
+    let r := s.r + 1
+    s := { s with pc := s.pc + 4, r }
+  | _ =>
+    let r := s.r * 2
+    s := { s with pc := s.pc + 4, r }
+  set s
+
+/--
+trace: case vc1
+o : Nat
+s₀ s✝¹ : S
+x✝¹ : PUnit
+x✝ s✝ : S
+h✝ :
+  ∃ z,
+    (x✝ = { pc := s₀.pc + 4, r := z } ∧ s✝ = s₀) ∧
+      ((o = 0 ∧
+          let r := s₀.r + 1;
+          z = r) ∨
+        ∃ x,
+          (x = 0 → False) ∧
+            o = x ∧
+              let r := s₀.r * 2;
+              z = r)
+⊢ x✝.pc = s₀.pc + 4
+-/
+#guard_msgs in
+example : ⦃fun s => s = s₀⦄ addOrDouble o ⦃fun _ s => s.pc = s₀.pc + 4⦄ := by
+  vcgen +jp [addOrDouble]
+  trace_state
+  all_goals grind
+
+-- The `let` locals `x` have the values `x + 0` and `x + (0 + 1)`, with the common part `x + z`.
+-- The hole values `0` and `0 + 1` are in `simp` normal form, so `simp` leaves the binder domain of
+-- the join RHS unchanged.
+def addZeroOrOne (c : Bool) : StateM Nat Unit := do
+  let mut x ← get
+  if c then x := x + 0 else x := x + (0 + 1)
+  set x
+
+/--
+trace: case vc1
+c : Bool
+s₀ s✝¹ : Nat
+x✝¹ : PUnit
+x✝ s✝ : Nat
+h✝ : ∃ z, (x✝ = s₀ + z ∧ s✝ = s₀) ∧ (c = true ∧ z = 0 ∨ ¬c = true ∧ z = 1)
+⊢ s₀ ≤ x✝
+-/
+#guard_msgs in
+example : ⦃fun s => s = s₀⦄ addZeroOrOne c ⦃fun _ s => s₀ ≤ s⦄ := by
+  vcgen +jp [addZeroOrOne]
+  trace_state
+  all_goals grind

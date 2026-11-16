@@ -1,6 +1,8 @@
 /-!
 This test checks that the LCNF constant folder evaluates literal applications of the conversions
-between the fixed-width unsigned integer types.
+between the fixed-width unsigned integer types. Literals of the signed fixed-width integer types, and
+`USize.ofNatLT` applied to a literal, become literals of their unsigned representation in the mono
+phase.
 -/
 
 /--
@@ -403,6 +405,76 @@ trace: [Compiler.saveBase] size: 1
 #guard_msgs in
 set_option trace.Compiler.saveBase true in
 def boolToUSizeFalse : USize := false.toUSize
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i8 : UInt8 :=
+      let _x.1 := 255;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i8 : Int8 := 255
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i16 : UInt16 :=
+      let _x.1 := 65535;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i16 : Int16 := 65535
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i32 : UInt32 :=
+      let _x.1 := 1;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i32 : Int32 := 1
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i64 : UInt64 :=
+      let _x.1 := 18446744073709551615;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i64 : Int64 := 18446744073709551615
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def isize : USize :=
+      let _x.1 := 7;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def isize : ISize := 7
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def usizeDefault : USize :=
+      let _x.1 := 0;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def usizeDefault : USize := default
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i32Wrap : UInt32 :=
+      let _x.1 := 4294967295;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i32Wrap : Int32 := 4294967295
 
 /--
 trace: [Compiler.saveBase] size: 5

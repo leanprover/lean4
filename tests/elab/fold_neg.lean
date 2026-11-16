@@ -1,7 +1,8 @@
 module
 /-!
 This test checks that the LCNF constant folder folds `UInt8.neg`/`UInt16.neg`/`UInt32.neg`/
-`UInt64.neg` applied to a literal.
+`UInt64.neg` applied to a literal, as well as the negation of the signed fixed-width integer types,
+whose literals are folded in the mono phase.
 -/
 
 public section
@@ -311,3 +312,53 @@ trace: [Compiler.saveBase] size: 1
 #guard_msgs in
 set_option trace.Compiler.saveBase true in
 def usNegVar (x : USize) : USize := -x
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i8NegMin : UInt8 :=
+      let _x.1 := 128;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i8NegMin : Int8 := -128
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i16NegOne : UInt16 :=
+      let _x.1 := 65535;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i16NegOne : Int16 := -1
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i32NegOne : UInt32 :=
+      let _x.1 := 4294967295;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i32NegOne : Int32 := -1
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def i64NegOne : UInt64 :=
+      let _x.1 := 18446744073709551615;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def i64NegOne : Int64 := -1
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def isizeNegOne : USize :=
+      let _x.1 := 18446744073709551615;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+def isizeNegOne : ISize := -1

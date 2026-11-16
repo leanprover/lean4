@@ -136,16 +136,16 @@ def clientError (response : String) (config : Protocol.H1.Config := {}) : Option
 
 #eval runCases <| [
     ("name over the limit", s!"HTTP/1.1 200 OK\r\n{repeatStr "N" 9}: v\r\nContent-Length: 0\r\n\r\n",
-      Error.headersTooLarge),
+      small, Error.headersTooLarge),
     ("value over the limit", s!"HTTP/1.1 200 OK\r\nX: {repeatStr "v" 17}\r\nContent-Length: 0\r\n\r\n",
-      .headersTooLarge),
+      small, .headersTooLarge),
     -- A client unfolds obs-fold (RFC 9112 §5.2); the unfolded value is held to the same limit.
     ("value over the limit after unfolding",
       s!"HTTP/1.1 200 OK\r\nX: {repeatStr "v" 10}\r\n {repeatStr "v" 10}\r\nContent-Length: 0\r\n\r\n",
-      .headersTooLarge),
+      small, .headersTooLarge),
     ("17-digit chunk size",
       s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n{repeatStr "f" 17}\r\nabc\r\n0\r\n\r\n",
-      .entityTooLarge)
-  ].map fun (name, response, error) => do
-    let err := clientError response small
+      {}, .entityTooLarge)
+  ].map fun (name, response, config, error) => do
+    let err := clientError response config
     check (err == some error) s!"client, {name}: expected {repr error}, got {repr err}"

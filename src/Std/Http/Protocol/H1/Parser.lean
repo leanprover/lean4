@@ -173,8 +173,9 @@ def hex : Parser Nat := do
   let zeros ← takeWhile (· == '0'.toUInt8)
   if zeros.size > 0 then
     -- A size of only zeros is complete; `go` still needs one digit when nothing came before it.
-    return (← optional (attempt (go 0 0))).getD 0
-  go 0 0
+    if (← peekWhen? isHexDigitByte) |>.isSome then go 0 0 else return 0
+  else
+    go 0 0
 where
   go (acc : Nat) (count : Nat) : Parser Nat := do
     match ← optional (attempt hexDigit) with

@@ -265,13 +265,18 @@ structure AUState where
   /-- The anti-unifier of each tuple of subterms, `none` if it has none. -/
   cache : Std.HashMap (Array ExprPtr) (Option Expr) := {}
 
-abbrev AUM := StateRefT AUState VCGenM
+/-- The index of the first local after `__do_jp_spec`, and the local context of each jump. -/
+structure AUContext where
+  cutoff : Nat
+  lctxs : Array LocalContext
+
+abbrev AUM := ReaderT AUContext (StateRefT AUState VCGenM)
 
 /-- `e` mentions only locals with an index below `cutoff`, the locals common to all jumps. -/
-def isCommon (cutoff : Nat) (e : Expr) : AUM Bool := do
+def isCommon (e : Expr) : AUM Bool := do
   let some fvarId ← getMaxFVar? e | return true
   let some d := (← getLCtx).find? fvarId | return false
-  return d.index < cutoff
+  return d.index < (← read).cutoff
 
 /-- The positions of `fn` applied to `n` arguments at which the anti-unifier has no hole: the
 instances, the proofs, and the arguments that a later argument or the result type depends on. -/
@@ -284,17 +289,12 @@ def rigidArgs (fn : Expr) (n : Nat) : MetaM (Array Bool) := do
 
 /-- A hole with the values `ts` at the jumps. Returns `none` if its type mentions a local of a
 branch. -/
-def mkHole (cutoff : Nat) (ts : Array Expr) : AUM (Option Expr) := do
+def mkHole (ts : Array Expr) : AUM (Option Expr) := do
   let type ← Sym.inferType ts[0]!
-  unless ← isCommon cutoff type do return none
+  unless ← isCommon type do return none
   let fvarId ← mkFreshFVarId
   modify fun s => { s with holes := s.holes.push { fvarId, type, vals := ts } }
   return some (← mkFVarS fvarId)
-
-/-- The index of the first local after `__do_jp_spec`, and the local context of each jump. -/
-structure AUContext where
-  cutoff : Nat
-  lctxs : Array LocalContext
 
 /-- The value `v` of `t`, if `t` is a `let` local of a branch in `lctx` other than a `have`.
 If `v` is again such a local, the value of `v`, and so on. -/
@@ -309,12 +309,12 @@ mutual
 /-- The anti-unifier of the subterms `ts` at one position of the jump arguments, or a hole with
 the values `ts` if `ts` have no common part. Returns `none` if that hole has a type that mentions
 a local of a branch. -/
-partial def antiUnify (ctx : AUContext) (ts : Array Expr) : AUM (Option Expr) := do
+partial def antiUnify (ts : Array Expr) : AUM (Option Expr) := do
   let key := ts.map ({ expr := · })
   if let some r := (← get).cache[key]? then return r
-  let r ← match ← commonPart ctx ts with
+  let r ← match ← commonPart ts with
     | some g => pure (some g)
-    | none => mkHole ctx.cutoff ts
+    | none => mkHole ts
   modify fun s => { s with cache := s.cache.insert key r }
   return r
 
@@ -323,17 +323,18 @@ stay, unless they mention a local of a branch. A `let` local of a branch at jump
 its value in the local context of jump `k`. Applications of one function to the same number of
 arguments are anti-unified argument by argument, if they differ only at positions that are not
 rigid. -/
-partial def commonPart (ctx : AUContext) (ts : Array Expr) : AUM (Option Expr) := do
+partial def commonPart (ts : Array Expr) : AUM (Option Expr) := do
   let t := ts[0]!
-  if ts.all (isSameExpr t ·) && (← isCommon ctx.cutoff t) then return some t
+  if ts.all (isSameExpr t ·) && (← isCommon t) then return some t
+  let ctx ← read
   let vs := ts.mapIdx fun k t => (lookThrough ctx.cutoff ctx.lctxs[k]! t).getD t
   unless (vs.zip ts).all fun (v, t) => isSameExpr v t do
-    return ← commonPart ctx vs
+    return ← commonPart vs
   let fn := t.getAppFn
   let n := t.getAppNumArgs
   unless n > 0 && ts.all (fun s => isSameExpr s.getAppFn fn && s.getAppNumArgs == n) do
     return none
-  unless ← isCommon ctx.cutoff fn do return none
+  unless ← isCommon fn do return none
   let saved ← get
   let rigid ← rigidArgs fn n
   let argss := ts.map (·.getAppArgs)
@@ -341,12 +342,12 @@ partial def commonPart (ctx : AUContext) (ts : Array Expr) : AUM (Option Expr) :
   for i in [:n] do
     let ai := argss.map (·[i]!)
     let a := ai[0]!
-    if ai.all (isSameExpr a ·) && (← isCommon ctx.cutoff a) then
+    if ai.all (isSameExpr a ·) && (← isCommon a) then
       args := args.push a
     else if rigid[i]?.getD true then
       set saved
       return none
-    else if let some a ← antiUnify ctx ai then
+    else if let some a ← antiUnify ai then
       args := args.push a
     else
       set saved
@@ -378,12 +379,12 @@ def antiUnifyJumps (jp : JoinPoint) (xs : Array Expr) (jumps : Array Jump) :
     for h : j in [:xs.size] do
       if types[j]!.isConstOf ``PUnit then continue
       let ts := jumps.map (·.args[j]!)
-      if let some g ← commonPart ctx ts then
+      if let some g ← commonPart ts then
         eqs := eqs.push (j, g)
       else
         columns := columns.push { lhs := xs[j], type := types[j]!, vals := ts }
     return (eqs, columns)
-  let ((eqs, columns), st) ← withLCtx decl₀.lctx decl₀.localInstances (go.run {})
+  let ((eqs, columns), st) ← withLCtx decl₀.lctx decl₀.localInstances ((go.run ctx).run {})
   let holeColumns := st.holes.map fun h => { lhs := mkFVar h.fvarId, type := h.type, vals := h.vals }
   return (eqs, columns ++ holeColumns, st.holes)
 

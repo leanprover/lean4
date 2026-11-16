@@ -125,7 +125,7 @@ where
       else
         return some root
     | BitVec w =>
-      unless (Sym.getNatValue? w).isSome do return none
+      unless Sym.isNatValue w do return none
       handleEqcWithConstType root Sym.getBitVecValue?
     | UInt8 => withFixedInt <| handleEqcWithConstType root Sym.getUInt8Value?
     | UInt16 => withFixedInt <| handleEqcWithConstType root Sym.getUInt16Value?
@@ -156,7 +156,7 @@ where
     let numBits ← Sym.share <| mkConst ``System.Platform.numBits
     let eqc ← Grind.getEqc numBits
     if eqc.isEmpty then return ()
-    if let some constant := eqc.find? (Sym.getNatValue? · |>.isSome) then
+    if let some constant := eqc.find? Sym.isNatValue then
       recordHyp {
         name := .anonymous
         type := ← Sym.share (← mkEq numBits constant),

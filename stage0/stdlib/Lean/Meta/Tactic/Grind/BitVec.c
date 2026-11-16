@@ -65,7 +65,7 @@ lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_rotateLeft(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_clz(lean_object*, lean_object*);
+lean_object* l_BitVec_clzFast(lean_object*, lean_object*);
 lean_object* l_BitVec_toInt(lean_object*, lean_object*);
 lean_object* l_Lean_mkIntLit(lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -4730,7 +4730,7 @@ lean_inc(v_fst_1382_);
 v_snd_1383_ = lean_ctor_get(v_val_1378_, 1);
 lean_inc(v_snd_1383_);
 lean_dec(v_val_1378_);
-v___x_1384_ = l_BitVec_clz(v_fst_1382_, v_snd_1383_);
+v___x_1384_ = l_BitVec_clzFast(v_fst_1382_, v_snd_1383_);
 lean_dec(v_snd_1383_);
 v___x_1385_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg(v_fst_1382_, v___x_1384_, v___y_1366_, v___y_1367_, v___y_1368_, v___y_1369_, v___y_1370_, v___y_1371_);
 if (lean_obj_tag(v___x_1385_) == 0)

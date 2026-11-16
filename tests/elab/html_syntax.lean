@@ -579,3 +579,13 @@ info: html%{<p /- c -/ a="1" -- d
   let src := "html%{<p /- c -/ a=\"1\" -- d\n  b>x</p>}"
   let .ok stx := Parser.runParserCategory (← getEnv) `term src | throwError "parse error"
   logInfo m!"{← PrettyPrinter.ppTerm ⟨stx⟩}"
+
+-- Numeric references above the largest code point are parsed as `0x110000`, and are not valid
+-- references.
+/-- info: (some 1114112, some 1114112, none, none, some 1114111) -/
+#guard_msgs in #eval
+  (Lean.Html.numericCharacterReference? "#1114112",
+   Lean.Html.numericCharacterReference? "#x99999999999999999999",
+   Lean.Html.characterReference? "#1114112",
+   Lean.Html.characterReference? "#x99999999999999999999",
+   Lean.Html.numericCharacterReference? "#x10FFFF")

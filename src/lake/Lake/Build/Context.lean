@@ -64,6 +64,12 @@ public structure BuildConfig extends LogConfig where
   or across all builds with the environment variable `MACOSX_DEPLOYMENT_TARGET`.
   -/
   macosxDeploymentTarget? : Option String := none
+  /--
+  When searching for a cached build on a package's `downloadCacheService`, Lake first tries
+  the package's head revision and then walks backwards through its Git history up to `maxRevs`,
+  trying to fetch mappings.
+  -/
+  maxRevs : Nat := 100
 
 /--
 Whether the build should show progress information.
@@ -149,3 +155,7 @@ public def getLeanOptOverrides [Functor m] [MonadBuild m]
 @[inline, inherit_doc BuildConfig.macosxDeploymentTarget?]
 public def getMacOSXDeploymentTarget? [Functor m] [MonadBuild m] : m (Option String) :=
   (·.macosxDeploymentTarget?) <$> getBuildConfig
+
+@[inline, inherit_doc BuildConfig.maxRevs]
+public def getMaxRevs [Functor m] [MonadBuild m] : m Nat :=
+  (·.maxRevs) <$> getBuildConfig

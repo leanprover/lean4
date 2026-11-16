@@ -1245,7 +1245,7 @@ hierarchical, and the string is split at the dots (`'.'`).
 def _root_.Substring.Raw.toName (s : Substring.Raw) : Name :=
   match splitNameLitAux s [] with
   | [] => .anonymous
-  | comps => comps.foldr (init := Name.anonymous)
+  | comps => comps.toArray.foldr (init := Name.anonymous)
     fun comp n =>
       let comp := Substring.Raw.Internal.toString comp
       if isIdBeginEscape (String.Internal.front comp) then

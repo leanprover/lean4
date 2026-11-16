@@ -10,7 +10,7 @@ public import Lean.Meta.Basic
 import Lean.Linter.Init
 import Lean.Elab.InfoTree.Main
 import Lean.ExtraModUses
-import Lean.Meta.Hint
+public import Lean.Meta.Hint
 import Init.Data.List.MapIdx
 import Init.Omega
 import Std.Time.Format
@@ -31,6 +31,12 @@ register_builtin_option linter.deprecated.deprecatedTarget : Bool := {
   defValue := true
   descr := "if true, warn when a `@[deprecated]` attribute points at a declaration that is \
     itself deprecated"
+}
+
+register_builtin_option linter.deprecated.automationAttr : Bool := {
+  defValue := true
+  descr := "if true, warn when a deprecated declaration is tagged with an attribute such as `simp` \
+    or `grind` that lets automation use it without a deprecation warning"
 }
 
 structure DeprecationEntry where
@@ -63,8 +69,8 @@ def mkSinceHint (stx : Syntax) : CoreM MessageData := do
 This is the predicate we use to decide whether the old and new type of a declaration differ for the
 purpose of error reporting.
 -/
-private def areTypesReduciblyDefEq (decl₁ decl₂ : ConstantInfo) : MetaM Bool := do
-  if decl₁.numLevelParams != decl₂.numLevelParams then
+private def areTypesReduciblyDefEq (decl₁ decl₂ : ConstantVal) : MetaM Bool := do
+  if decl₁.levelParams.length != decl₂.levelParams.length then
     return false
   let levels := decl₁.levelParams.mapIdx fun i _ => mkLevelParam <| Name.num `_deprecated i
   let type₁ := decl₁.instantiateTypeLevelParams levels
@@ -108,8 +114,8 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
                           m!"Deprecate in favor of `{.ofConstName next true}` instead:"
                           #[replacement.toString] (ref? := some id.raw))
                   logWarning msg
-          if let some oldDecl := env.find? declName then
-            if let some newDecl := env.find? newName then
+          if let some oldDecl := env.findConstVal? declName then
+            if let some newDecl := env.findConstVal? newName then
               if ← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl then
                 if typeChanged?.isSome then
                   logWarning "The `+typeChanged` marker is not needed because the updated constant has the same type."
@@ -160,16 +166,49 @@ def _root_.Lean.MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := do
   (← deprecatedAttr.getParam? env declName).newName?
 
-private def mkDeprecationHint? (declName newName : Name) : MetaM (Option MessageData) := do
-  let ref ← getRef
-  let .ident _ _ writtenName _ := ref | return none
-  if writtenName.hasMacroScopes then return none
-  unless (ref.getRange? (canonicalOnly := true)).isSome do return none
-  unless (← resolveGlobalName writtenName) == [(declName, [])] do return none
-  let some replacement ← unresolveNameGlobalAvoidingLocals? newName | return none
-  return some (← m!"Replace the deprecated name:".hint #[replacement.toString] (ref? := some ref))
+/--
+How a deprecation warning for a constant with a replacement suggests switching to the replacement.
+Suggestions are only made when the replacement has the same type as the deprecated constant.
+-/
+inductive DeprecationHint where
+  /-- No suggestion. -/
+  | none
+  /--
+  If the current ref is an identifier that resolves to the deprecated constant, offers to replace it
+  with the shortest name that resolves to the replacement.
+  -/
+  | ident
+  /--
+  Appends the message computed from the name of the replacement, such as a hint for syntax other
+  than a plain identifier, or a note explaining why no hint is offered.
+  -/
+  | custom (mk : Name → MetaM MessageData)
 
-def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := do
+/--
+Creates a hint that offers to replace `ref` by `replacement`. Returns the empty message if `ref`
+has no source position.
+-/
+def mkReplacementHint (ref : Syntax) (replacement : String) : MetaM MessageData := do
+  unless (ref.getRange? (canonicalOnly := true)).isSome do return .nil
+  m!"Replace the deprecated name:".hint #[replacement] (ref? := some ref)
+
+/--
+Creates the hint offered by `DeprecationHint.ident`: if the current ref is an identifier that
+resolves to `declName`, offers to replace it with the shortest name that resolves to `newName`.
+-/
+def mkIdentHint (declName newName : Name) : MetaM MessageData := do
+  let ref ← getRef
+  let .ident _ _ writtenName _ := ref | return .nil
+  if writtenName.hasMacroScopes then return .nil
+  unless (← resolveGlobalName writtenName) == [(declName, [])] do return .nil
+  let some replacement ← unresolveNameGlobalAvoidingLocals? newName | return .nil
+  mkReplacementHint ref replacement.toString
+
+/--
+Reports a use of `declName` at the current ref if it is deprecated. Callers should usually use
+`checkDeprecatedAt`, which respects `Core.Context.checkDeprecated`.
+-/
+def checkDeprecated (declName : Name) (hint : DeprecationHint) : MetaM Unit := do
   if getLinterValue linter.deprecated (← getLinterOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
     let extraMsg ← match attr.text?, attr.newName? with
@@ -180,8 +219,8 @@ def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := d
         let env ← getEnv
         let oldPfx := declName.getPrefix
         let newPfx := newName.getPrefix
-        let some oldDecl := env.find? declName | pure msg
-        let some newDecl := env.find? newName | pure msg
+        let some oldDecl := env.findConstVal? declName | pure msg
+        let some newDecl := env.findConstVal? newName | pure msg
         let typesReduciblyDefEq ← areTypesReduciblyDefEq oldDecl newDecl
         if !typesReduciblyDefEq then
           msg := msg ++ .note m!"The updated constant has a different type:{indentExpr newDecl.type}\
@@ -199,9 +238,67 @@ def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := d
             let pfxCompStr := if _ : pfxComps.length > 1 then m!"at least the last component `{pfxComps[0]}` of " else ""
             msg := msg ++ .note m!"`{.ofConstName newName true}` is protected. References to this \
               constant must include {pfxCompStr}its prefix `{newPfx}` even when inside its namespace."
-        if allowSuggestion && typesReduciblyDefEq then
-           if let some hint ← mkDeprecationHint? declName newName then
-            msg := msg ++ hint
+        if typesReduciblyDefEq then
+          match hint with
+          | .none => pure ()
+          | .ident => msg := msg ++ (← mkIdentHint declName newName)
+          | .custom mk => msg := msg ++ (← mk newName)
         pure msg
     logWarning <| .tagged ``deprecatedAttr <|
       m!"`{.ofConstName declName true}` has been deprecated" ++ extraMsg
+
+/--
+Reports a use of `declName` at `ref` if it is deprecated, unless deprecation checks are disabled at
+`ref` (see `Core.Context.checkDeprecated`).
+-/
+def checkDeprecatedAt (ref : Syntax) (declName : Name) (hint : DeprecationHint := .ident) :
+    MetaM Unit :=
+  withRef ref do
+    if (← Core.shouldCheckDeprecated ref) then
+      checkDeprecated declName hint
+
+/--
+Creates a suggestion that removes `elems[i]` from the list `elems` in the source of `whole`, together
+with the separator after it, or before it if it is the last element. If it is the only element, the
+suggestion removes `whole` instead. Returns `none` if any of the syntax
+has no position in the current file.
+-/
+def mkListRemovalSuggestion (whole : Syntax) (elems : Array Syntax) (i : Nat) :
+    CoreM (Option Hint.Suggestion) := do
+  let source := (← getFileMap).source
+  -- Syntax that a metaprogram parsed from a string has positions in that string, not in the file
+  unless whole.getSubstring?.map (·.str) |>.isEqSome source do return none
+  let some range := whole.getRange? (canonicalOnly := true) | return none
+  let some ranges := elems.mapM (·.getRange? (canonicalOnly := true)) | return none
+  let some elem := ranges[i]? | return none
+  if ranges.size == 1 then
+    return some { suggestion := "", span? := whole }
+  let (cutStart, cutStop) := match ranges[i + 1]? with
+    | some next => (elem.start, next.start)
+    | none => (ranges[i - 1]!.stop, elem.stop)
+  let text := range.start.extract source cutStart ++ cutStop.extract source range.stop
+  return some { suggestion := text, span? := whole }
+
+/--
+Reports that `declName` is deprecated but tagged with `attrName` at `ref`, where `attrName` adds
+declarations to a set used by automation (see `isAutomationAttr`). Automation uses such declarations
+without a deprecation warning, so the hint offers `removal?` to remove the attribute.
+-/
+def checkDeprecatedAutomationAttr (ref : Syntax) (declName attrName : Name)
+    (removal? : Option Hint.Suggestion) : MetaM Unit :=
+  withRef ref do
+    unless getLinterValue linter.deprecated (← getLinterOptions) do return
+    unless linter.deprecated.automationAttr.get (← getOptions) do return
+    -- Not `Core.shouldCheckDeprecated`, which is disabled in the declaration being deprecated
+    unless ref.getHeadInfo matches .original .. do return
+    unless isDeprecated (← getEnv) declName do return
+    let hint ← match removal? with
+      | some removal => m!"Remove the attribute:".hint #[removal]
+      | none => pure .nil
+    logWarning <| m!"`{.ofConstName declName true}` is deprecated, but the `[{attrName}]` attribute \
+      lets automation use it without a deprecation warning" ++ hint ++ .note m!"Removing the \
+      attribute may break proofs that rely on it. If it needs to be kept for now, this warning can \
+      be disabled with `set_option {linter.deprecated.automationAttr.name} false in`"
+
+builtin_initialize Core.checkDeprecatedAtRef.set fun ref declName =>
+  (checkDeprecatedAt ref declName).run'

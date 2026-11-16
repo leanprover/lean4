@@ -177,7 +177,7 @@ example (x : Nat) : x % 2 = 0 ∨ x % 2 = 1 := by
 -- Verify that `grobner` will not perform case splits unless explicitly asked for.
 example (x : Int) (h : x^2 = 0) : (if x > 0 then x else x)^3 = 0 := by
   fail_if_success grobner
-  grobner (splits := 1)
+  grobner (branches := 1)
 
 -- Verify that `grobner` will not instantiate theorems.
 example {xs ys zs : List α} : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by

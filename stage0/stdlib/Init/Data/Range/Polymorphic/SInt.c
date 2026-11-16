@@ -1102,6 +1102,7 @@ _start:
 lean_object* v___x_328_; uint32_t v___x_329_; 
 v___x_328_ = lean_unsigned_to_nat(2147483648u);
 v___x_329_ = lean_int32_of_nat(v___x_328_);
+lean_dec(v___x_328_);
 return v___x_329_;
 }
 }
@@ -1412,6 +1413,7 @@ _start:
 lean_object* v___x_433_; uint64_t v___x_434_; 
 v___x_433_ = lean_cstr_to_nat("9223372036854775807");
 v___x_434_ = lean_int64_of_nat(v___x_433_);
+lean_dec(v___x_433_);
 return v___x_434_;
 }
 }

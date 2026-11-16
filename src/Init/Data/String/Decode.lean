@@ -24,7 +24,7 @@ import Init.Omega
 
 This file contains the low-level proof that UTF-8 decoding and encoding are inverses.
 An important corollary is that attempting to decode a byte array that is valid UTF-8 will
-succeed, which is required for the definition of `String.toList`.
+succeed.
 -/
 
 /-! # `Char.utf8Size` -/
@@ -1093,6 +1093,45 @@ public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char
       else none
   else none
 
+/--
+Decodes a list of bytes as UTF-8, stopping at the first invalid sequence.
+
+This is the model used by `String.toList`. It is structurally recursive on the list, so the kernel
+reduces it in time linear in the number of bytes, unlike `ByteArray.utf8Decode?`, which indexes into
+an array.
+-/
+@[expose, implicit_reducible]
+public def String.Internal.utf8DecodeList : List UInt8 → List Char
+  | [] => []
+  | w :: ws =>
+    match h : parseFirstByte w with
+    | .invalid => []
+    | .done =>
+      match assemble₁ w h with
+      | some c => c :: utf8DecodeList ws
+      | none => []
+    | .oneMore =>
+      match ws with
+      | x :: ws =>
+        match assemble₂ w x with
+        | some c => c :: utf8DecodeList ws
+        | none => []
+      | _ => []
+    | .twoMore =>
+      match ws with
+      | x :: y :: ws =>
+        match assemble₃ w x y with
+        | some c => c :: utf8DecodeList ws
+        | none => []
+      | _ => []
+    | .threeMore =>
+      match ws with
+      | x :: y :: z :: ws =>
+        match assemble₄ w x y z with
+        | some c => c :: utf8DecodeList ws
+        | none => []
+      | _ => []
+
 @[inline, expose]
 public def ByteArray.validateUTF8At (bytes : ByteArray) (i : Nat) : Bool :=
   if h₀ : i < bytes.size then
@@ -1248,7 +1287,7 @@ theorem utf8DecodeChar?_append_eq_assemble₄ {l : List UInt8} {b : ByteArray} (
 /-!
 # Main theorems
 
-`utf8DecodeChar?_utf8EncodeChar_append` and `toByteArray_of_utf8DecodeChar?_eq_some` are the two main results that together
+`utf8DecodeChar?_utf8EncodeChar_append` and `toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some` are the two main results that together
 imply that UTF-8 encoding and decoding are inverse.
 -/
 
@@ -1271,6 +1310,38 @@ public theorem ByteArray.utf8DecodeChar?_utf8EncodeChar_append {b : ByteArray} {
     have hc' : (String.utf8EncodeChar c).length = 4 := String.length_utf8EncodeChar _ ▸ hc
     rw [utf8DecodeChar?_append_eq_assemble₄ hc' (parseFirstByte_utf8EncodeChar_eq_threeMore hc)]
     exact (assemble₄_eq_some_iff_utf8EncodeChar_eq.2 (List.eq_getElem_of_length_eq_four _ hc')).2
+
+public theorem String.Internal.utf8DecodeList_utf8EncodeChar_append {c : Char} {l : List UInt8} :
+    utf8DecodeList (String.utf8EncodeChar c ++ l) = c :: utf8DecodeList l := by
+  match hc : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
+  | 1, _, _ =>
+    obtain ⟨w, he⟩ : ∃ w, String.utf8EncodeChar c = [w] :=
+      ⟨_, List.eq_getElem_of_length_eq_one _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₁_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+  | 2, _, _ =>
+    obtain ⟨w, x, he⟩ : ∃ w x, String.utf8EncodeChar c = [w, x] :=
+      ⟨_, _, List.eq_getElem_of_length_eq_two _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₂_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+  | 3, _, _ =>
+    obtain ⟨w, x, y, he⟩ : ∃ w x y, String.utf8EncodeChar c = [w, x, y] :=
+      ⟨_, _, _, List.eq_getElem_of_length_eq_three _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₃_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
+  | 4, _, _ =>
+    obtain ⟨w, x, y, z, he⟩ : ∃ w x y z, String.utf8EncodeChar c = [w, x, y, z] :=
+      ⟨_, _, _, _, List.eq_getElem_of_length_eq_four _ (String.length_utf8EncodeChar c ▸ hc)⟩
+    obtain ⟨h₁, h₂⟩ := assemble₄_eq_some_iff_utf8EncodeChar_eq.2 he
+    rw [he, utf8DecodeList.eq_def]
+    dsimp only [List.cons_append, List.nil_append]
+    split <;> simp_all
 
 public theorem String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} (h : b.utf8DecodeChar? 0 = some c) :
     (String.utf8EncodeChar c).toByteArray = b.extract 0 c.utf8Size := by
@@ -1445,7 +1516,7 @@ public theorem ByteArray.utf8EncodeChar_utf8DecodeChar {b : ByteArray} {i : Nat}
 @[simp]
 public theorem List.utf8DecodeChar?_utf8Encode_singleton_append {b : ByteArray} {c : Char} :
     ByteArray.utf8DecodeChar? ([c].utf8Encode ++ b) 0 = some c := by
-  rw [List.utf8Encode, List.flatMap_cons, List.toByteArray_append,
+  rw [List.utf8Encode_eq_toByteArray, List.flatMap_cons, List.toByteArray_append,
     List.flatMap_nil, List.toByteArray_nil, ByteArray.append_empty,
     ByteArray.utf8DecodeChar?_utf8EncodeChar_append]
 
@@ -1457,7 +1528,7 @@ public theorem List.utf8DecodeChar?_utf8Encode_singleton {c : Char} :
 @[simp]
 public theorem List.utf8DecodeChar?_utf8Encode_cons {l : List Char} {c : Char} :
     ByteArray.utf8DecodeChar? (c::l).utf8Encode 0 = some c := by
-  rw [List.utf8Encode, List.flatMap_cons, List.toByteArray_append,
+  rw [List.utf8Encode_eq_toByteArray, List.flatMap_cons, List.toByteArray_append,
     ByteArray.utf8DecodeChar?_utf8EncodeChar_append]
 
 @[simp]
@@ -1470,8 +1541,10 @@ public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h
 namespace UInt8
 
 /--
-Predicate for whether a byte can appear as the first byte of the UTF-8 encoding of a Unicode
-scalar value.
+Predicate for whether a byte has the bit pattern of a UTF-8 leading byte, that is, one of the forms
+`0b0xxxxxxx`, `0b110xxxxx`, `0b1110xxxx` or `0b11110xxx`. Every first byte of the UTF-8 encoding of a
+Unicode scalar value satisfies this, but so do some bytes that never occur in valid UTF-8 (`0xC0`,
+`0xC1` and `0xF5` to `0xF7`).
 -/
 @[expose]
 public def IsUTF8FirstByte (c : UInt8) : Prop :=

@@ -47,6 +47,8 @@ $CP $GLIBC/lib/*crt* stage1/lib/
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a $LIBUV/lib/libuv.a stage1/lib/
 # bundle OpenSSL static libs
 cp $OPENSSL/lib/libssl.a $OPENSSL/lib/libcrypto.a stage1/lib/
+# compile against the bundled OpenSSL's headers, not those of the development shell's OpenSSL
+echo -n " -DOPENSSL_ROOT_DIR=$OPENSSL"
 # LLVM 19 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include/<target-triple>/'
 # but clang-19 that we use to compile is linked against 'llvm/lib/' and 'llvm/include'
 # https://github.com/llvm/llvm-project/issues/54955

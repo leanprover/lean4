@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 # `coinductive_fixpoint` beside a `vcgen` proof
 

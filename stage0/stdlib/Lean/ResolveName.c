@@ -6081,8 +6081,8 @@ if (v___x_2219_ == 0)
 {
 lean_object* v___x_2220_; 
 lean_inc(v_toPure_2212_);
-lean_dec_ref_known(v_x_2209_, 4);
 lean_dec(v_toBind_2211_);
+lean_dec_ref_known(v_x_2209_, 4);
 lean_dec_ref(v_inst_2208_);
 lean_dec_ref(v_inst_2207_);
 lean_dec_ref(v_inst_2206_);

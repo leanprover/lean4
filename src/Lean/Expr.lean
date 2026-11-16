@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.Hashable
+public import Init.System.IO
+public import Lean.Data.LBool
 public import Lean.Level
 import Init.Omega
 
@@ -22,8 +24,15 @@ inductive Literal where
   | strVal (val : String)
   deriving Inhabited, BEq, Repr
 
+/--
+Hash of `n` that depends on all of its bits. It is `n.toUInt64` if `n < 2^64`.
+In contrast, `hash n` is `n % 2^64`, so for example all multiples of `2^64` have the same `hash`.
+-/
+@[extern "lean_nat_hash"]
+opaque Literal.natHash (n : @& Nat) : UInt64
+
 protected def Literal.hash : Literal → UInt64
-  | .natVal v => hash v
+  | .natVal v => Literal.natHash v
   | .strVal v => hash v
 
 instance : Hashable Literal := ⟨Literal.hash⟩
@@ -119,7 +128,7 @@ abbrev MData.empty : MData := {}
 /--
 Cached hash code, cached results, and other data for `Expr`.
 -  hash           : 32-bits
--  approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
+-  approxDepth    : 8-bits
 -  hasFVar        : 1-bit -- does it contain free variables?
 -  hasExprMVar    : 1-bit -- does it contain metavariables?
 -  hasLevelMVar   : 1-bit -- does it contain level metavariables?
@@ -134,8 +143,8 @@ most will never have to use it.
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
 
-def Expr.Data.hash (c : Expr.Data) : UInt64 :=
-  c.toUInt32.toUInt64
+def Expr.Data.hash (c : Expr.Data) : UInt32 :=
+  c.toUInt32
 
 instance : BEq Expr.Data where
   beq (a b : UInt64) := a == b
@@ -168,17 +177,17 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | .instImplicit   => 3
 
 @[extern "lean_expr_mk_data"]
-opaque Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
+opaque Expr.mkData (h : UInt32) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data
 
 /-- Optimized version of `Expr.mkData` for applications. -/
 @[extern "lean_expr_mk_app_data"]
 opaque Expr.mkAppData (fData : Data) (aData : Data) : Data
 
-@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
+@[inline] def Expr.mkDataForBinder (h : UInt32) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
 
-@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
+@[inline] def Expr.mkDataForLet (h : UInt32) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
 
 instance : Repr Expr.Data where
@@ -470,22 +479,22 @@ inductive Expr where
 with
   @[computed_field, extern "lean_expr_data"]
   data : @& Expr → Data
-    | .const n lvls => mkData (mixHash 5 <| mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
-    | .bvar idx => mkData (mixHash 7 <| hash idx) (idx+1)
-    | .sort lvl => mkData (mixHash 11 <| hash lvl) 0 0 false false lvl.hasMVar lvl.hasParam
-    | .fvar fvarId => mkData (mixHash 13 <| hash fvarId) 0 0 true
-    | .mvar fvarId => mkData (mixHash 17 <| hash fvarId) 0 0 false true
+    | .const n lvls => mkData (mixHash 5 <| mixHash (hash n) (hash lvls)).toUInt32 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+    | .bvar idx => mkData (mixHash 7 <| hash idx).toUInt32 (idx+1)
+    | .sort lvl => mkData (mixHash 11 <| hash lvl).toUInt32 0 0 false false lvl.hasMVar lvl.hasParam
+    | .fvar fvarId => mkData (mixHash 13 <| hash fvarId).toUInt32 0 0 true
+    | .mvar fvarId => mkData (mixHash 17 <| hash fvarId).toUInt32 0 0 false true
     | .mdata _m e =>
       let d := e.data.approxDepth.toUInt32+1
-      mkData (mixHash d.toUInt64 <| e.data.hash) e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
+      mkData (mixHash32 19 e.data.hash) e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
     | .proj s i e =>
       let d := e.data.approxDepth.toUInt32+1
-      mkData (mixHash d.toUInt64 <| mixHash (hash s) <| mixHash (hash i) e.data.hash)
+      mkData (mixHash32 (mixHash 23 <| mixHash (hash s) (hash i)).toUInt32 e.data.hash)
           e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
     | .app f a => mkAppData f.data a.data
     | .lam _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
-      mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
+      mkDataForBinder (mixHash32 (mixHash32 29 t.data.hash) b.data.hash)
         (max t.data.looseBVarRange.toNat (b.data.looseBVarRange.toNat - 1))
         d
         (t.data.hasFVar || b.data.hasFVar)
@@ -494,23 +503,23 @@ with
         (t.data.hasLevelParam || b.data.hasLevelParam)
     | .forallE _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
-      mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
+      mkDataForBinder (mixHash32 (mixHash32 31 t.data.hash) b.data.hash)
         (max t.data.looseBVarRange.toNat (b.data.looseBVarRange.toNat - 1))
         d
         (t.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || b.data.hasExprMVar)
         (t.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || b.data.hasLevelParam)
-    | .letE _ t v b _ =>
+    | .letE _ t v b nondep =>
       let d := (max (max t.data.approxDepth.toUInt32 v.data.approxDepth.toUInt32) b.data.approxDepth.toUInt32) + 1
-      mkDataForLet (mixHash d.toUInt64 <| mixHash t.data.hash <| mixHash v.data.hash b.data.hash)
+      mkDataForLet (mixHash32 (mixHash32 (mixHash32 (if nondep then 41 else 37) t.data.hash) v.data.hash) b.data.hash)
         (max (max t.data.looseBVarRange.toNat v.data.looseBVarRange.toNat) (b.data.looseBVarRange.toNat - 1))
         d
         (t.data.hasFVar || v.data.hasFVar || b.data.hasFVar)
         (t.data.hasExprMVar || v.data.hasExprMVar || b.data.hasExprMVar)
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
-    | .lit l => mkData (mixHash 3 (hash l))
+    | .lit l => mkData (mixHash 3 (hash l)).toUInt32
 deriving Repr
 
 instance : Inhabited Expr where
@@ -535,7 +544,7 @@ def ctorName : Expr → String
   | proj ..    => "proj"
 
 protected def hash (e : Expr) : UInt64 :=
-  e.data.hash
+  e.data.hash.toUInt64
 
 instance : Hashable Expr := ⟨Expr.hash⟩
 
@@ -816,6 +825,40 @@ Binder names and annotations are taken into account.
 -/
 @[extern "lean_expr_equal"]
 opaque equal (a : @& Expr) (b : @& Expr) : Bool
+
+/--
+Budgeted version of `Expr.eqv`, ignoring binder names and annotations. Returns `.true` or `.false`
+when equality or inequality is established, and `.undef` when the budget is exhausted.
+
+Pointer equality, differing hashes, and comparison-local cache hits consume no budget. Bound
+variables, free variables, metavariables, sorts, and literals bypass the comparison cache. Their
+comparisons consume no budget, except that string contents are charged by UTF-8 byte length when
+pointer and length checks do not decide equality. Other expression comparisons consume one unit
+each. Metadata comparisons consume one unit per entry, skipping shared list tails and values.
+Metadata strings use the same byte accounting as string literals. Syntax metadata is additionally
+charged for constructor fields, array elements, and string or arbitrary-precision integer bytes in
+both unfolded representations before comparison. Names, universe levels, natural number literals,
+and non-string, non-syntax metadata values use ordinary equality. The accounting is an
+implementation detail; it does not bound the cost of these ordinary payload comparisons.
+
+**The underlying comparison breaks referential transparency.** Its result depends on pointer sharing:
+structurally equal inputs with the same budget may return `.true` when shared and `.undef` when
+allocated separately. It therefore runs in `BaseIO`. Use it for best-effort operations such as
+cache lookup, where `.undef` can be treated as a miss, rather than as a replacement for exact equality.
+-/
+@[extern "lean_expr_eqv_budgeted"]
+opaque eqvBudgeted (a : @& Expr) (b : @& Expr) (budget : USize) : BaseIO LBool
+
+/--
+Budgeted version of `Expr.equal`, taking binder names and annotations into account. Returns `.true`
+or `.false` when decided, and `.undef` on budget exhaustion. See `Expr.eqvBudgeted` for accounting.
+
+**The underlying comparison breaks referential transparency.** Pointer sharing can change the result
+between a definite answer and `.undef`, even for structurally identical inputs and the same budget.
+It therefore runs in `BaseIO` and is intended for best-effort operations such as cache lookup.
+-/
+@[extern "lean_expr_equal_budgeted"]
+opaque equalBudgeted (a : @& Expr) (b : @& Expr) (budget : USize) : BaseIO LBool
 
 /-- Return `true` if the given expression is a `.sort ..` -/
 def isSort : Expr → Bool
@@ -2000,6 +2043,28 @@ def updateLetE! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : E
 def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a
   | _,           g => g
+
+/--
+N-ary version of `updateApp!`. The result equal to `mkAppN newFn newArgs`, but application
+nodes of `e` are reused when their function and argument are pointer-equal to the new ones.
+-/
+def updateAppN (e : Expr) (newFn : Expr) (newArgs : Array Expr) : Expr :=
+  go e newArgs.size
+where
+  go : Expr → Nat → Expr
+    | e@(app f _), i + 1 => e.updateApp! (go f i) newArgs[i]!
+    | _,           i     => mkAppRange newFn 0 i newArgs
+
+/--
+Given `e = f a₁ ... aₙ`, runs `k f #[a₁, ..., aₙ]` to obtain a new function and arguments.
+If the function and arguments are pointer equal to the input to `k`, the result is pointer equal
+to `e`.
+-/
+@[inline] def mapAppN {m : Type → Type} [Monad m] (e : Expr)
+    (k : Expr → Array Expr → m (Expr × Array Expr)) : m Expr :=
+  e.withApp fun f args => do
+    let (newF, newArgs) ← k f args
+    return e.updateAppN newF newArgs
 
 /--
 Eta reduction. If `e` is of the form `(fun x => f x)`, then return `f`.

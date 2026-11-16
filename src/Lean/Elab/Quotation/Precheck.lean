@@ -114,10 +114,13 @@ private def isQuotLocal (quotLCtx : NameSet) (n : Name) : Bool :=
       -- As in `precheck`, identifiers produced by macro expansion are reported when elaborating the
       -- quotation's result, which also resolves overloads. Section variables shadow constants
       -- there, see `quoteSyntax`.
-      if let [(declName, _)] := consts then
+      if let [(declName, fields)] := consts then
         unless stx.getHeadInfo matches .synthetic .. || isQuotLocal (← read).quotLCtx val ||
             !(resolveSectionVariable (← readThe Term.Context).sectionVars val).isEmpty do
-          checkDeprecatedCore declName
+          -- Report at the constant's part of the identifier, excluding field notation, as in
+          -- `elabAppFnId`
+          withRef (stx.identComponents (nFields? := fields.length)).head! do
+            checkDeprecatedCore declName
       return
     if isQuotLocal (← read).quotLCtx val then
       return

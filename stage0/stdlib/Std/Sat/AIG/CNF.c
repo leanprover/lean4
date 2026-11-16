@@ -1467,7 +1467,7 @@ v___jp_674_:
 {
 lean_object* v_val_678_; lean_object* v_newCnf_679_; lean_object* v___x_680_; lean_object* v___x_682_; 
 v_val_678_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_addIte___redArg(v_cache_666_, v_cond_661_, v_ifTrue_662_, v_ifFalse_663_, v_idx_664_);
-v_newCnf_679_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_Decl_iteToCNF___redArg(v_idx_664_, v___x_671_, v___x_672_, v___x_673_, v___y_675_, v___y_676_, v___y_677_);
+v_newCnf_679_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_Decl_iteToCNF___redArg(v_idx_664_, v___x_671_, v___x_672_, v___x_673_, v___y_676_, v___y_675_, v___y_677_);
 v___x_680_ = l_Array_append___redArg(v_cnf_665_, v_newCnf_679_);
 lean_dec_ref(v_newCnf_679_);
 if (v_isShared_669_ == 0)
@@ -1502,8 +1502,8 @@ if (v___x_689_ == 0)
 {
 uint8_t v___x_690_; 
 v___x_690_ = 1;
-v___y_675_ = v___y_685_;
-v___y_676_ = v___y_686_;
+v___y_675_ = v___y_686_;
+v___y_676_ = v___y_685_;
 v___y_677_ = v___x_690_;
 goto v___jp_674_;
 }
@@ -1511,8 +1511,8 @@ else
 {
 uint8_t v___x_691_; 
 v___x_691_ = 0;
-v___y_675_ = v___y_685_;
-v___y_676_ = v___y_686_;
+v___y_675_ = v___y_686_;
+v___y_676_ = v___y_685_;
 v___y_677_ = v___x_691_;
 goto v___jp_674_;
 }

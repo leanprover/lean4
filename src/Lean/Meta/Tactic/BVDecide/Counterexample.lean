@@ -7,6 +7,7 @@ module
 prelude
 
 import Lean.Meta.Tactic.BVDecide.Reflect.SatAtBVLogical
+import Std.Tactic.BVDecide.Normalize.Prop
 public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.Basic
@@ -176,6 +177,8 @@ where
       match_expr var with
       | BitVec.ofBool x =>
         return (x, toExpr <| value.bv == 1)
+      | Std.Tactic.BVDecide.BitVec.ofProp x =>
+        return (x, mkConst (if value.bv == 1 then ``True else ``False))
       | UInt8.toBitVec x =>
         if h : value.w = 8 then
           return (x, toExpr <| UInt8.ofBitVec (h ▸ value.bv))

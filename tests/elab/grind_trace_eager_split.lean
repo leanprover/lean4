@@ -20,11 +20,11 @@ example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by
 
 /--
 info: Try these:
-  [apply] grind only [#7d84, (mkP)]
+  [apply] grind only [#71c8, (mkP)]
   [apply] grind only [(mkP)]
   [apply] grind [(mkP)] =>
-    · instantiate only [#7d84]
-    · instantiate only [#7d84]
+    · instantiate only [#71c8]
+    · instantiate only [#71c8]
 -/
 #guard_msgs in
 example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by
@@ -34,9 +34,9 @@ example (f : Nat → Nat) (h : ∀ x, f x = x) : f 0 = 0 := by
 
 /--
 info: Try these:
-  [apply] grind only [#7d84]
+  [apply] grind only [#71c8]
   [apply] grind only
-  [apply] grind => instantiate only [#7d84]
+  [apply] grind => instantiate only [#71c8]
 -/
 #guard_msgs in
 example (f : Nat → Nat) (h : ∀ x, f x = x) (_ : P) : f 0 = 0 := by

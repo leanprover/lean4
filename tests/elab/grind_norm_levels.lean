@@ -17,9 +17,9 @@ h_1 : g (g (a, b)) = (c, d)
     [prop] g (g (a, b)) = (c, d)
   [eqc] Equivalence classes
     [eqc] {c, (g (g (a, b))).fst, (g (a, b)).fst}
-      [eqc] {(c, d).fst}
+      [eqc] {((g (g (a, b))).fst, (g (g (a, b))).snd).fst, ((g (a, b)).fst, (g (a, b)).snd).fst}
     [eqc] {d, (g (g (a, b))).snd, (g (a, b)).snd}
-      [eqc] {(c, d).snd}
+      [eqc] {((g (g (a, b))).fst, (g (g (a, b))).snd).snd, ((g (a, b)).fst, (g (a, b)).snd).snd}
     [eqc] {g (g (a, b)), g (a, b), (c, d), ((g (g (a, b))).fst, (g (g (a, b))).snd), ((g (a, b)).fst, (g (a, b)).snd)}
 -/
 #guard_msgs in

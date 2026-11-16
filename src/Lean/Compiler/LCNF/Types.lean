@@ -185,7 +185,7 @@ where
     | .forallE .. => visitForall type #[]
     | .app ..  => type.withApp visitApp
     | .fvar .. => visitApp type #[]
-    | .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _) =>
+    | .proj ``Subtype 0 (.app (.const ``ST.Internal.Void.nonemptyType []) _) =>
       return mkConst ``lcVoid
     | _        => return mkConst ``lcAny
 

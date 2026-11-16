@@ -1352,6 +1352,7 @@ unsafe def roleExpandersForUnsafe (roleName : Ident) :
     try some <$> realizeGlobalConstNoOverload roleName
     catch | _ => pure none
   if let some x := x? then
+    Linter.checkDeprecatedAt roleName x
     let names := (docRoleExt.getState (← getEnv)).get? x |>.getD #[]
     let builtins := (← builtinDocRoles.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ builtins
@@ -1375,6 +1376,7 @@ unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
     try some <$> realizeGlobalConstNoOverload codeBlockName
     catch | _ => pure none
   if let some x := x? then
+    Linter.checkDeprecatedAt codeBlockName x
     let names := (docCodeBlockExt.getState (← getEnv)).get? x |>.getD #[]
     let names' := (← builtinDocCodeBlocks.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
@@ -1394,6 +1396,7 @@ unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     try some <$> realizeGlobalConstNoOverload directiveName
     catch | _ => pure none
   if let some x := x? then
+    Linter.checkDeprecatedAt directiveName x
     let names := (docDirectiveExt.getState (← getEnv)).get? x |>.getD #[]
     let names' := (← builtinDocDirectives.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
@@ -1412,6 +1415,7 @@ unsafe def commandExpandersForUnsafe (commandName : Ident) :
     try some <$> realizeGlobalConstNoOverload commandName
     catch | _ => pure none
   if let some x := x? then
+    Linter.checkDeprecatedAt commandName x
     let names := (docCommandExt.getState (← getEnv)).get? x |>.getD #[]
     let names' := (← builtinDocCommands.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'

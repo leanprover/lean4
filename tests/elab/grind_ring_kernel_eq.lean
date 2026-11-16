@@ -5,8 +5,7 @@ public meta import Lean.Meta.Sym.Arith.ToExpr
 
 /-!
 Check kernel reduction of ring certificate equality on equal and unequal powers, monomials,
-and polynomials, including computed monomials and signed coefficients. Exercise the one-pass
-addition certificates on interleaved terms and cancellation, with and without a characteristic.
+and polynomials, including computed monomials and signed coefficients.
 -/
 
 open Lean Meta Grind.CommRing
@@ -45,22 +44,3 @@ run_meta do
     let product := mkApp2 (mkConst ``Mon.mul_k) (toExpr a) (toExpr b)
     check ``Mon.beq' product (toExpr (a.mul b)) true
     check ``Mon.beq' product (toExpr a) false
-  let x := Grind.CommRing.Expr.var 0
-  let y := Grind.CommRing.Expr.var 1
-  let exprs := #[.num 0, .num (-3), x, y, x.add y, x.sub y, y.sub x,
-    (x.add y).pow 2, (x.add y).pow 2 |>.neg]
-  for a in exprs do
-    for b in exprs do
-      let p := a.toPoly
-      let q := b.toPoly
-      let r := p.combine q
-      let cert := mkApp2 (mkConst ``Poly.addEq_k) (toExpr p) (toExpr q)
-      checkBool (mkApp cert (toExpr r)) true
-      checkBool (mkApp cert (toExpr (r.addConst 1))) false
-      for c in [0, 2, 6, 11] do
-        let p := a.toPolyC c
-        let q := b.toPolyC c
-        let r := p.combineC q c
-        let cert := mkApp3 (mkConst ``Poly.addEqC_k) (toExpr p) (mkRawNatLit c) (toExpr q)
-        checkBool (mkApp cert (toExpr r)) true
-        checkBool (mkApp cert (toExpr (r.addConstC 1 c))) false

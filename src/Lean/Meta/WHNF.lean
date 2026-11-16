@@ -25,7 +25,9 @@ def toCtorIfLit : Expr → MetaM Expr
   | .lit (.natVal v) =>
     if v == 0 then return mkConst ``Nat.zero
     else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) =>
+  | .lit (.strVal v) => do
+    unless (← Lean.Meta.getConfig).stringLitToCtor do
+      throw <| .internal Lean.Meta.stringLitToCtorExceptionId
     Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
   | e => return e
 
@@ -37,14 +39,19 @@ namespace Lean.Meta
 /-! # Smart unfolding support -/
 -- ===========================
 
-set_option compiler.ignoreBorrowAnnotation true in
 /--
-Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
-It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
-to this module.
+Position of the recursive argument of each definition compiled by structural recursion, as
+registered by `Lean.Elab.Structural.registerEqnsInfo`.
 -/
-@[extern "lean_get_structural_rec_arg_pos"]
-opaque getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
+builtin_initialize structuralRecArgPosExt : MapDeclarationExtension Nat ←
+  mkMapDeclarationExtension (logWrites := true) (exportEntriesFn := fun env s =>
+    let all := s.toArray
+    -- Do not export for non-exposed defs at exported/server levels
+    let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray
+    { exported, server := exported, «private» := all })
+
+def getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat) :=
+  return structuralRecArgPosExt.find? (← getEnv) declName
 
 def smartUnfoldingSuffix := "_sunfold"
 
@@ -239,6 +246,20 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
   else
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
+/-- Checks whether a recursor major is a proof. If `isProofQuick` fails, rather than run `isProp (← inferType major)`, we infer the sort of the major using the recursor's info. -/
+private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
+  match ← isProofQuick major with
+    | .true => pure true
+    | .false => pure false
+    | .undef =>
+      let indInfo ← getConstVal recVal.getMajorInduct
+      /- If the type doesn't have large elimination, it must be a proof.
+         TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
+      if indInfo.levelParams.length = recLvls.length then
+        return true
+      let lvls := recLvls.tail!
+      isPropFormerType (← instantiateTypeLevelParams indInfo lvls)
+
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
@@ -250,7 +271,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       -- We use this trick because we abstract nested proofs occurring in definitions.
       -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
       withTransparency .all <| whnf major
-    else if !(← isProof major) then
+    else if !(← isMajorProof recVal recLvls major) then
       whnf major
     else
       pure major
@@ -826,6 +847,21 @@ register_builtin_option backward.whnf.reducibleClassField : Bool := {
 }
 
 /--
+`deltaBetaDefinition` for the application `e` of `fInfo` at universe levels `us`, cached in
+`Cache.unfold`: most applications get unfolded repeatedly, e.g. while `isDefEq` backtracks.
+-/
+private def deltaBetaCached (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM Expr := do
+  let key : ExprStructEq := e
+  let c := (← get).cache.unfold
+  if let some r := c.new.find? key then
+    return r
+  let r ← match c.old.find? key with
+    | some r => pure r
+    | none => pure <| (← instantiateValueLevelParams fInfo us).betaRev e.getAppRevArgs
+  modifyUnfoldCache (·.insert key r)
+  return r
+
+/--
 Default unfolding function. `e` is of the form `f.{us} a₁ ... aₙ`, and `fInfo` is the `ConstantInfo` for `f`.
 This function has special support for unfolding class fields.
 The support is particularly important when the user marks a class field as `[reducible]` and
@@ -838,16 +874,18 @@ a `[reducible]` class field, we also unfold the associated projection `instLENat
 private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
   if fInfo.hasValue then
     recordUnfold fInfo.name
-    deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if !(← getOptionFlags).reducibleClassField then
-        return some e
-      else if !(← getTransparency) matches .reducible then
-        return some e
-      else if (← isProjInst fInfo.name) then
-        let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
-        return mkAppN r e.getAppArgs |>.headBeta
-      else
-        return some e
+    if fInfo.levelParams.length != us.length then
+      return none
+    let e ← deltaBetaCached fInfo us e
+    if !(← getOptionFlags).reducibleClassField then
+      return some e
+    else if !(← getTransparency) matches .reducible then
+      return some e
+    else if (← isProjInst fInfo.name) then
+      let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
+      return mkAppN r e.getAppArgs |>.headBeta
+    else
+      return some e
   else
     if fInfo.isAxiom then
       recordUnfoldAxiom fInfo.name

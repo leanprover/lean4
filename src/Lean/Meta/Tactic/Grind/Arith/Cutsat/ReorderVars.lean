@@ -194,6 +194,7 @@ def reorderVars (force := false) : GoalM Unit := do
     elimEqs     := reorderVarMap s.elimEqs new2old |>.map fun c? =>
       c?.map fun c => { c.reorder old2new with depth? := some depth }
     elimStack   := s.elimStack.map fun x => old2new[x]!
+    active      := reorderVarMap s.active new2old
     occurs      := s.occurs.map fun _ => {}
     diseqSplits := {}
   }

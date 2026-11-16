@@ -34,7 +34,8 @@ def addDeclToUnfold (ext : SimpExtension) (declName : Name) (post inv : Bool) (p
     return false
 
 def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
-    (ref : Name := by exact decl_name%) : IO Unit :=
+    (ref : Name := by exact decl_name%) : IO Unit := do
+  registerAutomationAttr attrName
   registerBuiltinAttribute {
     ref   := ref
     name  := attrName

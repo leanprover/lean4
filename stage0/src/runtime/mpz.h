@@ -7,7 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include <cstddef>
 #ifdef LEAN_USE_GMP
+/* Some installations of GMP are not on a system include path, and the kernel is built with `-Werror=conversion`. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <gmp.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #else
 #include "runtime/mpn.h"
 #endif
@@ -67,6 +75,8 @@ public:
 
 #ifdef LEAN_USE_GMP
     void set(mpz_t r) const;
+    mpz_srcptr get_mpz_t() const { return m_val; }
+    mpz_ptr get_mpz_t() { return m_val; }
 #endif
 
     friend void swap(mpz & a, mpz & b) noexcept;
@@ -287,11 +297,17 @@ public:
     */
     size_t log2() const;
 
+    /** Return the number of trailing zero bits of the absolute value, or zero for zero. */
+    size_t trailing_zeros() const;
+
     /**
        \brief Return an upper bound on the size in bytes of the representation,
        i.e. the number of limbs times the bytes per limb. Used to bound memory usage.
     */
     size_t size_in_bytes() const;
+
+    /** \brief Hash of the absolute value that depends on all of its bits. It is the absolute value itself if that is less than `2^64`. */
+    uint64 hash64() const;
 
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }

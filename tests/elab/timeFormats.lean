@@ -270,11 +270,11 @@ def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
 -- ──────────────────────────────────────────────────────────────────────────────
 
 -- 23:13:12 → PM
-/-- info: "PM PM PM PM p" -/
+/-- info: "PM PM PM post meridiem p" -/
 #guard_msgs in #eval zoned₄.format "a aa aaa aaaa aaaaa"
-/-- info: "PM PM PM PM p" -/
+/-- info: "PM PM PM post meridiem p" -/
 #guard_msgs in #eval datetime₄.format "a aa aaa aaaa aaaaa"
-/-- info: "PM PM PM PM p" -/
+/-- info: "PM PM PM post meridiem p" -/
 #guard_msgs in #eval time₄.format "a aa aaa aaaa aaaaa"
 
 -- ──────────────────────────────────────────────────────────────────────────────
@@ -680,8 +680,8 @@ def DateSmall : GenericFormat .any := datespec("uu-MM-dd")
 -- Large / truncated year round-trip
 -- ──────────────────────────────────────────────────────────────────────────────
 
-/-- info: ("19343232432-01-04T01:04:03.000000000",
- Except.error "offset 4: expected: -",
+/-- info: ("+19343232432-01-04T01:04:03.000000000",
+ Except.ok (datetime("+19343232432-01-04T01:04:03.000000000")),
  datetime("1932-01-02T05:04:03.000000000")) -/
 #guard_msgs in
 #eval
@@ -699,7 +699,7 @@ def tuple3Mk (a : f) (b : g) (c : h) := some (a, b, c)
 def tuple4Mk (a : f) (b : g) (c : h) (d : i) := some (a, b, c, d)
 def tuple5Mk (a : f) (b : g) (c : h) (d : i) (e : j) := some (a, b, c, d, e)
 
--- u  (proleptic year: any / 2-digit / 4-digit / 5-digit)
+-- u  (proleptic year: any / 2-digit / 4-digit / at least 5 digits)
 def uFormat : GenericFormat .any := datespec("u uu uuuu uuuuu")
 #eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 1211 12311" |>.isOk)
 #eval do assert! (uFormat.parseBuilder tuple4Mk "12 11 1211 12311" |>.isOk)
@@ -710,7 +710,7 @@ def uFormat : GenericFormat .any := datespec("u uu uuuu uuuuu")
 #eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 -11 1211 12311" |>.isOk)
 #eval do assert! (not <| uFormat.parseBuilder tuple4Mk "11 1211 12134" |>.isOk)
 #eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 1 12 1234" |>.isOk)
-#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
 
 -- y  (year-of-era: always positive)
 def yFormat : GenericFormat .any := datespec("y yy yyyy yyyyy")
@@ -722,14 +722,14 @@ def yFormat : GenericFormat .any := datespec("y yy yyyy yyyyy")
 #eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 -1211 12311" |>.isOk)
 #eval do assert! (not <| yFormat.parseBuilder tuple4Mk "11 1211 12134" |>.isOk)
 #eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 1 12 1234" |>.isOk)
-#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
+#eval do assert! (yFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
 
--- D  (day-of-year: 1–3 letters)
+-- D  (day-of-year: 1–3 letters, each a minimum width)
 def doyFormat : GenericFormat .any := datespec("D DD DDD")
 #eval do assert! (doyFormat.parseBuilder tuple3Mk "1 12 123" |>.isOk)
 #eval do assert! (doyFormat.parseBuilder tuple3Mk "323 12 123" |>.isOk)
 #eval do assert! (not <| doyFormat.parseBuilder tuple3Mk "1 12 1234" |>.isOk)
-#eval do assert! (not <| doyFormat.parseBuilder tuple3Mk "1 123 123" |>.isOk)
+#eval do assert! (doyFormat.parseBuilder tuple3Mk "1 123 123" |>.isOk)
 
 -- d  (day-of-month: 1–2 letters)
 def domFormat : GenericFormat .any := datespec("d dd")

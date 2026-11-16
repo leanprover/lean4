@@ -448,7 +448,7 @@ def evalBitVecOfFin (n a : Expr) : DSimpM Result := do
 
 def evalBitVecOfNat (n a : Expr) : DSimpM Result := do
   let some a := getNatValue? a | return .rfl
-  if (getNatValue? n).isSome then return .rfl -- already in normal form
+  if Sym.isNatValue n then return .rfl -- already in normal form
   let some n ← evalNat n |>.run | return .rfl
   let e ← share <| toExpr (BitVec.ofNat n a)
   return .step e (done := true)

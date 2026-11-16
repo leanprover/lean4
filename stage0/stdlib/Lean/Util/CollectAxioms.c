@@ -64,7 +64,7 @@ lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_instInhabited___redArg();
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instInhabitedReaderT___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -960,10 +960,10 @@ return v___x_180_;
 v___jp_184_:
 {
 lean_object* v___x_190_; 
-v___x_190_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__2___redArg(v___y_185_, v___y_187_, v___y_188_, v___y_189_);
+v___x_190_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__2___redArg(v___y_188_, v___y_187_, v___y_186_, v___y_189_);
 lean_dec(v___y_189_);
-lean_dec(v___y_185_);
-v___y_169_ = v___y_186_;
+lean_dec(v___y_188_);
+v___y_169_ = v___y_185_;
 v___y_170_ = v___x_190_;
 goto v___jp_168_;
 }
@@ -976,18 +976,18 @@ if (v___x_197_ == 0)
 lean_dec(v___y_193_);
 lean_inc(v___y_196_);
 v___y_185_ = v___y_192_;
-v___y_186_ = v___y_195_;
+v___y_186_ = v___y_196_;
 v___y_187_ = v___y_194_;
-v___y_188_ = v___y_196_;
+v___y_188_ = v___y_195_;
 v___y_189_ = v___y_196_;
 goto v___jp_184_;
 }
 else
 {
 v___y_185_ = v___y_192_;
-v___y_186_ = v___y_195_;
+v___y_186_ = v___y_196_;
 v___y_187_ = v___y_194_;
-v___y_188_ = v___y_196_;
+v___y_188_ = v___y_195_;
 v___y_189_ = v___y_193_;
 goto v___jp_184_;
 }
@@ -997,7 +997,7 @@ v___jp_198_:
 lean_object* v___x_202_; lean_object* v___x_203_; lean_object* v___x_204_; lean_object* v___x_205_; uint8_t v___x_206_; 
 v___x_202_ = lean_mk_empty_array_with_capacity(v___y_201_);
 lean_dec(v___y_201_);
-v___x_203_ = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__1_spec__1(v___x_202_, v___y_199_);
+v___x_203_ = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__1_spec__1(v___x_202_, v___y_200_);
 v___x_204_ = lean_array_get_size(v___x_203_);
 v___x_205_ = lean_unsigned_to_nat(0u);
 v___x_206_ = lean_nat_dec_eq(v___x_204_, v___x_205_);
@@ -1010,26 +1010,26 @@ v___x_209_ = lean_nat_dec_le(v___x_205_, v___x_208_);
 if (v___x_209_ == 0)
 {
 lean_inc(v___x_208_);
-v___y_192_ = v___x_204_;
+v___y_192_ = v___y_199_;
 v___y_193_ = v___x_208_;
 v___y_194_ = v___x_203_;
-v___y_195_ = v___y_200_;
+v___y_195_ = v___x_204_;
 v___y_196_ = v___x_208_;
 goto v___jp_191_;
 }
 else
 {
-v___y_192_ = v___x_204_;
+v___y_192_ = v___y_199_;
 v___y_193_ = v___x_208_;
 v___y_194_ = v___x_203_;
-v___y_195_ = v___y_200_;
+v___y_195_ = v___x_204_;
 v___y_196_ = v___x_205_;
 goto v___jp_191_;
 }
 }
 else
 {
-v___y_169_ = v___y_200_;
+v___y_169_ = v___y_199_;
 v___y_170_ = v___x_203_;
 goto v___jp_168_;
 }
@@ -1041,8 +1041,8 @@ if (lean_obj_tag(v_axioms_212_) == 0)
 lean_object* v_size_213_; 
 v_size_213_ = lean_ctor_get(v_axioms_212_, 0);
 lean_inc(v_size_213_);
-v___y_199_ = v_axioms_212_;
-v___y_200_ = v___y_211_;
+v___y_199_ = v___y_211_;
+v___y_200_ = v_axioms_212_;
 v___y_201_ = v_size_213_;
 goto v___jp_198_;
 }
@@ -1050,8 +1050,8 @@ else
 {
 lean_object* v___x_214_; 
 v___x_214_ = lean_unsigned_to_nat(0u);
-v___y_199_ = v_axioms_212_;
-v___y_200_ = v___y_211_;
+v___y_199_ = v___y_211_;
+v___y_200_ = v_axioms_212_;
 v___y_201_ = v___x_214_;
 goto v___jp_198_;
 }
@@ -1254,7 +1254,7 @@ lean_ctor_set(v___x_379_, 0, v___x_377_);
 lean_ctor_set(v___x_379_, 1, v___x_378_);
 v___x_380_ = lean_obj_once(&l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0___closed__7, &l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0___closed__7_once, _init_l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0___closed__7);
 v___x_381_ = l_instInhabitedOfMonad___redArg(v___x_379_, v___x_380_);
-v___f_382_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
+v___f_382_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_382_, 0, v___x_381_);
 v___x_981__overap_383_ = lean_panic_fn_borrowed(v___f_382_, v_msg_357_);
 lean_dec_ref(v___f_382_);

@@ -166,6 +166,29 @@ lake_out() {
   fi
 }
 
+# Runs Lake with standard out to `produced.json` and standard error to `produced.err`, and checks
+# its exit code. For commands with a `--json` report.
+test_status_json() {
+  expected_rc=$1; shift
+  echo '$' lake "$@"
+  if "$LAKE" "$@" >produced.json 2>produced.err; then rc=$?; else rc=$?; fi
+  cat produced.json produced.err
+  if [ $rc != $expected_rc ]; then
+    echo "FAILURE: Expected Lake to exit with code $expected_rc, got $rc."
+    return 1
+  fi
+}
+
+match_json() {
+  echo "? jq -e '$1'"
+  if jq -e -- "$1" produced.json >/dev/null; then
+    return 0
+  else
+    echo "No match found"
+    return 1
+  fi
+}
+
 match_text() {
   echo "? grep -F \"$1\""
   if grep --color -F -- "$1" $2; then

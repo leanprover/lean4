@@ -192,8 +192,8 @@ name name::append_after(char const * s) const {
     return name(lean_name_append_after(to_obj_arg(), lean_mk_string(s)));
 }
 
-name name::append_after(unsigned i) const {
-    return name(lean_name_append_index_after(to_obj_arg(), lean_unsigned_to_nat(i)));
+name name::append_after(size_t i) const {
+    return name(lean_name_append_index_after(to_obj_arg(), lean_usize_to_nat(i)));
 }
 
 name name::replace_prefix(name const & prefix, name const & new_prefix) const {

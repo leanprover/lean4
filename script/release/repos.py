@@ -56,9 +56,6 @@ def _register(repo: ReleaseRepo) -> None:
 LEAN4 = ReleaseRepo(github=("leanprover", "lean4"))
 # Don't register this repo!
 
-LEAN4_NIGHTLY = ReleaseRepo(github=("leanprover", "lean4-nightly"))
-# Don't register this repo!
-
 
 # After the doc-gen4 bump PR has been merged, a workflow in this repo needs to
 # be manually triggered.
@@ -189,10 +186,8 @@ _register(LEAN_SEARCH_CLIENT)
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.
 #
-# For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch from the
-# nightly repo. To get the latest nightly fixes, you may need to merge the
-# latest `bump/nightly-YYYY-MM-DD` PRs, or merge `nightly-testing` directly.
-# After merging the PR, create a new `bump/v4.X+1.0` branch off of `master`.
+# For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch. After
+# merging the PR, create a new `bump/v4.X+1.0` branch off of `master`.
 #
 # For other releases, create a new branch off of `master` and use it for the PR.
 #
@@ -200,7 +195,6 @@ _register(LEAN_SEARCH_CLIENT)
 # Then, update the `stable` branch to point to the same commit.
 MATHLIB4 = ReleaseRepo(
     github=("leanprover-community", "mathlib4"),
-    nightly=ReleaseRepo(github=("leanprover-community", "mathlib4-nightly-testing")),
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
@@ -274,7 +268,7 @@ _register(ILLUMINATE)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 VERSO = ReleaseRepo(
     github=("leanprover", "verso"),
-    rc1_pr_base="downstream",
+    rc1_pr_base="bump",
     release_tag="lean",
     strong_deps=[PLAUSIBLE, ILLUMINATE],
     ignored_deps=[MATHLIB4],  # For benchmarks
@@ -417,31 +411,6 @@ _register(DOC_GEN4)
 BATTERIES.ignored_deps.append(DOC_GEN4)
 
 
-# To create a new release, open a PR into `master`. In it, bump the toolchain
-# and all dependencies.
-#
-# Once the release PR is merged, tag the resulting commit with the lean version.
-LEAN4EXPORT = ReleaseRepo(
-    github=("leanprover", "lean4export"),
-    rc1_pr_base="downstream",
-    release_tag="lean",
-)
-_register(LEAN4EXPORT)
-
-
-# To create a new release, open a PR into `master`. In it, bump the toolchain
-# and all dependencies.
-#
-# Once the release PR is merged, tag the resulting commit with the lean version.
-COMPARATOR = ReleaseRepo(
-    github=("leanprover", "comparator"),
-    rc1_pr_base="downstream",
-    release_tag="lean",
-    strong_deps=[LEAN4EXPORT],
-)
-_register(COMPARATOR)
-
-
 ###################
 ## Visualization ##
 ###################
@@ -495,6 +464,9 @@ def print_graphviz_dot(
         if repo.completed:
             attrs["style"] = "filled"
             attrs["color"] = "palegreen"
+        elif repo.completed is False:
+            attrs["style"] = "filled"
+            attrs["color"] = "lightgoldenrod1"
         print(f'  "{repo.gh_full_name}"{graphviz_attrs(**attrs)};')
 
         for dep in repo.strong_deps:

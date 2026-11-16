@@ -53,7 +53,7 @@ Logical conjunction of two `ReifiedBVLogical`.
 -/
 public def and (x y : SatAtBVLogical) : ReifyM SatAtBVLogical := do
   let bvExpr := .gate .and x.bvExpr y.bvExpr
-  let expr ← Sym.share <| mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (mkConst ``Gate.and) x.expr y.expr
+  let expr ← Sym.share <| mkApp3 (mkConst ``BVLogicalExpr.gate) (mkConst ``Gate.and) x.expr y.expr
   let proof := do
     return mkApp5
       (mkConst ``BVLogicalExpr.sat_and)

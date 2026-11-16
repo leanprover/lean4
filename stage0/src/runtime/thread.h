@@ -246,5 +246,4 @@ LEAN_EXPORT void run_thread_finalizers();
 LEAN_EXPORT void delete_thread_finalizer_manager();
 
 LEAN_EXPORT void run_with_thread_stack(std::function<void()> const & fn);
-LEAN_EXPORT void set_thread_stack_size_from_env();
 }

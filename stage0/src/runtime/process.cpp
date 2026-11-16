@@ -116,7 +116,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, uint8_t /* force */) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     if (!TerminateProcess(h, 1)) {
         return io_result_mk_error((sstream() << GetLastError()).str());
@@ -389,11 +389,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, uint8_t force) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     bool setsid = cnstr_get_uint8(child, 3 * sizeof(object *) + sizeof(pid_t));
-    if ((setsid ? killpg(pid, SIGKILL) : kill(pid, SIGKILL)) == -1) {
+    int sig = force ? SIGKILL : SIGTERM;
+    if ((setsid ? killpg(pid, sig) : kill(pid, sig)) == -1) {
         return io_result_mk_error(decode_io_error(errno, nullptr));
     }
     return lean_io_result_mk_ok(box(0));

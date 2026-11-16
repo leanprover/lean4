@@ -25,26 +25,32 @@ meta import Lean.Elab.Term.TermElabM
   if string.isEmpty then
     #[]
   else if string.length == 1 then
-    #[f (none, string.get 0, none)]
+    #[f (none, String.Pos.Raw.get string 0, none)]
   else Id.run do
     let mut result := Array.mkEmpty string.length
-    result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
+    result := result.push <| f (none, String.Pos.Raw.get string 0, String.Pos.Raw.get string ⟨1⟩)
     -- TODO: the following code is assuming all characters are ASCII
     for i in 2...string.length do
-      result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
-    result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
+      result := result.push <| f (String.Pos.Raw.get string ⟨i - 2⟩, String.Pos.Raw.get string ⟨i - 1⟩, String.Pos.Raw.get string ⟨i⟩)
+    result.push <| f (String.Pos.Raw.get string ⟨string.length - 2⟩, String.Pos.Raw.get string ⟨string.length - 1⟩, none)
 
-private def containsInOrderLower (a b : String) : Bool := Id.run do
-  if a.isEmpty then
-    return true
-  let mut aIt := a.mkIterator
-    -- TODO: the following code is assuming all characters are ASCII
-  for i in *...b.rawEndPos.byteIdx do
-    if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
-      aIt := aIt.next
-      if !aIt.hasNext then
-        return true
-  return false
+private partial def containsInOrderLower (a b : String) : Bool := Id.run do
+  go ⟨0⟩ ⟨0⟩
+where
+  go (aPos bPos : String.Pos.Raw) : Bool :=
+    if ha : aPos.atEnd a then
+      true
+    else if hb : bPos.atEnd b then
+      false
+    else
+      let ac := aPos.get' a ha
+      let bc := bPos.get' b hb
+      let bPos := bPos.next' b hb
+      if ac.toLower == bc.toLower then
+        let aPos := aPos.next' a ha
+        go aPos bPos
+      else
+        go aPos bPos
 
 /-- Represents the type of a single character. -/
 inductive CharType where
@@ -128,7 +134,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
       let mut matchScore? := none
 
-      if allowMatch (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩) patternRoles[patternIdx]! wordRoles[wordIdx]! then
+      if allowMatch (String.Pos.Raw.get pattern ⟨patternIdx⟩) (String.Pos.Raw.get word ⟨wordIdx⟩) patternRoles[patternIdx]! wordRoles[wordIdx]! then
         if patternIdx >= 1 then
           let runLength := runLengths[getIdx (patternIdx - 1) (wordIdx - 1)]! + 1
           runLengths := runLengths.set! (getIdx patternIdx wordIdx) runLength
@@ -197,7 +203,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     matchResult (patternIdx wordIdx : Nat) (patternRole wordRole : CharRole) (consecutive : Option Int) : Int := Id.run do
       let mut score : Int := 1
       /- Case-sensitive equality or beginning of a segment in pattern and word. -/
-      if (pattern.get ⟨patternIdx⟩) == (word.get ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
+      if (String.Pos.Raw.get pattern ⟨patternIdx⟩) == (String.Pos.Raw.get word ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
         score := score + 1
       /- Matched end of word with end of pattern -/
       if wordIdx == word.length - 1 && patternIdx == pattern.length - 1 then

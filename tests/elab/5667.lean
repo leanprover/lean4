@@ -1,3 +1,5 @@
+/-! Equation generation for structural and mutual recursion with multiple discriminants (#5667). -/
+
 inductive Expr where
   | const (i : BitVec 32)
   | op (op : Unit) (e1 : Expr)
@@ -25,10 +27,10 @@ info: optimize.eq_def (x✝ : Expr) :
 /--
 info: equations:
 @[backward_defeq] theorem optimize.eq_1 : ∀ (i : BitVec 32), optimize (Expr.const i) = Expr.const i
-theorem optimize.eq_2 : ∀ (e1 : Expr) (bop : Unit) (i : BitVec 32),
-  optimize e1 = Expr.const i → optimize (Expr.op bop e1) = Expr.op bop (Expr.const 0)
-theorem optimize.eq_3 : ∀ (e1 : Expr) (bop : Unit),
-  (∀ (i : BitVec 32), optimize e1 = Expr.const i → False) → optimize (Expr.op bop e1) = Expr.const 0
+theorem optimize.eq_2 : ∀ (e1 : Expr) (bop_1 : Unit) (i : BitVec 32),
+  optimize e1 = Expr.const i → optimize (Expr.op bop_1 e1) = Expr.op bop_1 (Expr.const 0)
+theorem optimize.eq_3 : ∀ (e1 : Expr) (bop_1 : Unit),
+  (∀ (i : BitVec 32), optimize e1 = Expr.const i → False) → optimize (Expr.op bop_1 e1) = Expr.const 0
 -/
 #guard_msgs in
 #print equations optimize

@@ -387,7 +387,7 @@ index 5e8e0166..f3b29134 100644
     PREFIX libuv
     GIT_REPOSITORY https://github.com/libuv/libuv
     # Sync version with flake.nix
-    GIT_TAG v1.48.0
+    GIT_TAG v1.53.0
     CMAKE_ARGS
       -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_AR}
       -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_POSITION_INDEPENDENT_CODE=ON
@@ -604,6 +604,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -Wl,-soname=libInit_shared.so")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -Wl,-soname=libleanshared_1.so")
   string(APPEND LEANSHARED_2_LINKER_FLAGS " -Wl,-soname=libleanshared_2.so")
+  string(APPEND LEANSHARED_3_LINKER_FLAGS " -Wl,-soname=libleanshared_3.so")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
@@ -615,6 +616,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_2_LINKER_FLAGS " -install_name @rpath/libleanshared_2.dylib")
+  string(APPEND LEANSHARED_3_LINKER_FLAGS " -install_name @rpath/libleanshared_3.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
@@ -653,7 +655,7 @@ endif()
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   # import libraries created by the stdlib.make targets
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_3 -lleanshared_2 -lleanshared_1 -lleanshared")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
   # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
@@ -975,6 +977,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     leanshared
     ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_3${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_2${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
@@ -1004,7 +1007,7 @@ else()
     VERBATIM
   )
 
-  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_3 -lleanshared_2 -lleanshared_1 -lleanshared")
 
   # NOTE: `mimalloc_paranoid` in front of `leanrt` and no `leanshared` to replace default allocator
   set(
@@ -1073,7 +1076,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX nanoda
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
-    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    GIT_TAG 8de7e0c4ed3052745a7f8725164efd9e76d84c56
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON
@@ -1091,7 +1094,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-leche
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-leche
-    GIT_TAG b46cb0e6138d975e657857526839a3c7d8a1df20
+    GIT_TAG 6810492c1ccc325b4a2bbf9dfe70bd07fd933da2
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build con-leche
     BUILD_IN_SOURCE ON
@@ -1100,6 +1103,28 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  # Windows distribution support is deferred pending runtime validation.
+  if(STAGE GREATER 0 AND NOT WIN32)
+    # Beam's plugin must be built with the toolchain that will load it.
+    ExternalProject_Add(
+      lean-beam
+      PREFIX lean-beam-native
+      EXCLUDE_FROM_ALL ON
+      GIT_REPOSITORY https://github.com/leanprover/lean-beam
+      GIT_TAG a9645d2033815fea9a91ce67f7e5f5c8b9eacc85
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${CMAKE_COMMAND}
+        -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        -P <SOURCE_DIR>/scripts/build-toolchain.cmake
+      BUILD_IN_SOURCE ON
+      BUILD_ALWAYS ON
+      INSTALL_COMMAND ${CMAKE_COMMAND}
+        -DLEAN_PREFIX=${CMAKE_BINARY_DIR}
+        -DPREFIX=${CMAKE_BINARY_DIR}
+        -P <SOURCE_DIR>/scripts/install-toolchain.cmake
+    )
+  endif()
+
   # Not in `ALL` as it's expensive; release CI builds it explicitly. Its only submodule is the
   # Aeneas verifier, which the binary does not need.
   ExternalProject_Add(
@@ -1107,7 +1132,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-ron
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-ron
-    GIT_TAG cb54c9a4e5f604a678b0230f96b8358b9fd73c82
+    GIT_TAG 42a086407cab3c400b359f75b5d24942825626b5
     GIT_SUBMODULES ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
@@ -1160,6 +1185,9 @@ if(STAGE GREATER 0 AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanc
     VERBATIM
   )
+  if(TARGET lean-beam)
+    add_dependencies(lean-beam lake leanc)
+  endif()
 endif()
 
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)

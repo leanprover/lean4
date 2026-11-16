@@ -32,7 +32,7 @@ def getLasts?' (a b : Array α) : Option (α × α) :=
   match _ : a.size, h : b.size with
   | 0, _ => none
   | _, 0 => none
-  | m + 1, n + 1 => some (a[m], b[n]'(h ▸ Nat.lt.base n))
+  | m + 1, n + 1 => some (a[m], b[n]'(h ▸ Nat.lt_add_one n))
 
 /-- info: some (4, 5) -/
 #guard_msgs in

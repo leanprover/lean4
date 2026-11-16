@@ -78,6 +78,11 @@ structure Context where
 
 abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
+
+/-- Runs `x` without reporting deprecated constants and syntax, like `Term.withoutCheckDeprecated`. -/
+@[inline] def withoutCheckDeprecated (x : CommandElabM α) : CommandElabM α :=
+  withReader ({ · with checkDeprecated := .none }) x
+
 structure Linter where
   run : Syntax → CommandElabM Unit
   name : Name := by exact decl_name%

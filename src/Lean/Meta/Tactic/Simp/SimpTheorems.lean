@@ -449,6 +449,24 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
   return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl, backwardRfl }
 
 /--
+Returns the discrimination tree keys of the simp theorems that
+`mkSimpTheoremFromConst declName (inv := inv)` creates, without creating them.
+-/
+def mkSimpTheoremKeysFromConst (declName : Name) (inv := false) :
+    MetaM (Array (Array SimpTheoremKey)) := do
+  let cinfo ← getConstVal declName
+  let val := mkConst declName (cinfo.levelParams.map mkLevelParam)
+  withSimpGlobalConfig do withoutExporting do
+    let type ← inferType val
+    checkTypeIsProp type
+    let types ← if inv || (← shouldPreprocess type) then
+        pure <| (← preprocess val type inv (isGlobal := false)).toArray.map (·.2)
+      else
+        pure #[type]
+    types.mapM fun type =>
+      return (← mkSimpTheoremKeys (← instantiateMVars type) (noIndexAtArgs := false)).1
+
+/--
 Creates a `SimpTheorem` from a global theorem.
 Because some theorems lead to multiple `SimpTheorems` (in particular conjunctions), returns an array.
 -/

@@ -61,7 +61,7 @@ check_olean_hash
 
 # Test that a failure to cache the outputs of an unpacked archive does not keep
 # a stale output hash. A trace-only archive leaves no `.olean` to cache.
-rm -rf .lake/cache
+rm -rf .lake/cache .lake/build/ir/Test.ltar
 LEANTAR="$("$LAKE" env printenv LEAN_SYSROOT)/bin/leantar"
 test_cmd "$LEANTAR" -s -C .lake/build/lib/lean .lake/build/ir/Test.ltar Test.trace
 test_cmd rm .lake/build/lib/lean/Test.olean

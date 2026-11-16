@@ -85,10 +85,10 @@ def foldChildrenM [Monad m] (f : σ → Key → Trie α → m σ) (init : σ) (t
 
 /--
 Whether the subterms `todo` match the remaining keys `ks[i:]` of a suffix, as when traversing its
-`chain`s. `next e todo` returns the key of `e` and `todo` with the arguments of `e` pushed.
+`chain`s. `key e` returns the key of `e` and data from which `push todo` pushes the arguments of `e`.
 -/
 @[specialize]
-def matchesSuffix [Monad m] (next : Expr → Array Expr → m (Key × Array Expr))
+def matchesSuffix [Monad m] (key : Expr → m (Key × β)) (push : Array Expr → β → Array Expr)
     (todo : Array Expr) (ks : Array Key) (i : Nat) : m Bool := do
   if h : i < ks.size then
     if todo.isEmpty then
@@ -96,13 +96,40 @@ def matchesSuffix [Monad m] (next : Expr → Array Expr → m (Key × Array Expr
     let e := todo.back!
     let todo := todo.pop
     if ks[i] == .star then
-      matchesSuffix next todo ks (i + 1)
+      matchesSuffix key push todo ks (i + 1)
     else
-      let (k, todo) ← next e todo
-      if ks[i] == k then matchesSuffix next todo ks (i + 1) else return false
+      let (k, args) ← key e
+      if ks[i] == k then matchesSuffix key push (push todo args) ks (i + 1) else return false
   else
     return todo.isEmpty
 termination_by ks.size - i
+
+/--
+Appends the values of the patterns below `c` matching the subterms `todo` to `result`. `key` and
+`push` are as for `matchesSuffix`; a subterm with key `Key.star` only matches `Key.star` patterns.
+-/
+@[specialize]
+partial def getMatchLoop [Monad m] (key : Expr → m (Key × β)) (push : Array Expr → β → Array Expr)
+    (todo : Array Expr) (c : Trie α) (result : Array α) : m (Array α) := do
+  if let .suffix ks i v := c then
+    return if (← matchesSuffix key push todo ks i) then result.push v else result
+  if todo.isEmpty then
+    return result ++ c.nodeValues
+  else if !c.hasChildren then
+    return result
+  else
+    let e := todo.back!
+    let todo := todo.pop
+    let (k, args) ← key e
+    -- `Key.star` children are wildcards, so `todo` is used again for the child for `k`
+    let result ← match c.starChild? with
+      | some c => getMatchLoop key push todo c result
+      | none   => pure result
+    if k == .star then
+      return result
+    match c.findChild? k with
+    | some c => getMatchLoop key push (push todo args) c result
+    | none   => return result
 
 /--
 Checks whether a trie node is empty (no values and no children).

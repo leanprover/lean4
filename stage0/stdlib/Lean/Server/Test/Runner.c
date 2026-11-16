@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Test.Runner
-// Imports: public import Lean.Widget import Lean.Server.FileWorker.WidgetRequests public import Lean.Server.GoTo
+// Imports: public import Lean.Widget import Lean.Server.FileWorker.WidgetRequests public import Lean.Server.GoTo import Init.Data.List.Sort.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -105,7 +105,7 @@ lean_object* l_Lean_Lsp_instFromJsonDiagnosticRelatedInformation_fromJson(lean_o
 lean_object* l_Lean_Lsp_DiagnosticWith_fullRange___redArg(lean_object*);
 uint8_t l_Lean_Lsp_instOrdRange_ord(lean_object*, lean_object*);
 lean_object* l_Lean_Widget_TaggedText_stripTags___redArg(lean_object*);
-lean_object* l_List_mergeSort___redArg(lean_object*, lean_object*);
+lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_Lean_Lsp_instToJsonRange_toJson(lean_object*);
@@ -14916,7 +14916,7 @@ v_sz_3741_ = lean_array_size(v_diags_3739_);
 v___x_3742_ = ((size_t)0ULL);
 v___x_3743_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_Test_Runner_Client_normalizeInteractiveDiagnostics_spec__0(v_sz_3741_, v___x_3742_, v_diags_3739_);
 v___x_3744_ = lean_array_to_list(v___x_3743_);
-v_sorted_3745_ = l_List_mergeSort___redArg(v___x_3744_, v___f_3740_);
+v_sorted_3745_ = l_List_MergeSort_Internal_mergeSortTR_u2082___redArg(v___x_3744_, v___f_3740_);
 v___x_3746_ = lean_array_mk(v_sorted_3745_);
 return v___x_3746_;
 }
@@ -33546,7 +33546,7 @@ _start:
 lean_object* v___x_9017_; lean_object* v___x_9018_; lean_object* v___x_9019_; lean_object* v___x_9020_; lean_object* v___x_9021_; lean_object* v___x_9022_; 
 v___x_9017_ = ((lean_object*)(l_Lean_Server_Test_Runner_processEdit___closed__10));
 v___x_9018_ = lean_unsigned_to_nat(11u);
-v___x_9019_ = lean_unsigned_to_nat(445u);
+v___x_9019_ = lean_unsigned_to_nat(446u);
 v___x_9020_ = ((lean_object*)(l_Lean_Server_Test_Runner_processEdit___closed__9));
 v___x_9021_ = ((lean_object*)(l_Lean_Server_Test_Runner_processEdit___closed__8));
 v___x_9022_ = l_mkPanicMessageWithDecl(v___x_9021_, v___x_9020_, v___x_9019_, v___x_9018_, v___x_9017_);
@@ -64976,6 +64976,7 @@ return v___x_17712_;
 lean_object* runtime_initialize_Lean_Widget(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_GoTo(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Test_Runner(uint8_t builtin) {
@@ -64992,6 +64993,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_GoTo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Sort_Impl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -65004,6 +65008,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Widget(uint8_t builtin);
 lean_object* initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin);
 lean_object* initialize_Lean_Server_GoTo(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Test_Runner(uint8_t builtin) {
 lean_object * res;
@@ -65016,6 +65021,9 @@ res = initialize_Lean_Server_FileWorker_WidgetRequests(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_GoTo(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Sort_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_Test_Runner(builtin);

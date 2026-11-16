@@ -10,7 +10,9 @@ open Std.Net
 Tests the lingering close (RFC 9112 §9.6). When the server answers before the end of an upload, with
 `413` to an upload far over `maxBodySize` or with `417` to `Expect: 100-continue` whose client sends
 its body at once, the client is still sending. The server shuts down its write side and drains the
-input before closing, so the client neither gets a reset on its sends nor loses the response.
+input before closing, so the client neither gets a reset on its sends nor loses the response. This
+holds as well when the server rejects a head before any of the body arrives, so it has no unread
+input when it closes.
 -/
 
 def withTimeout {α : Type} (name : String) (ms : Nat) (action : IO α) : IO α := do
@@ -31,10 +33,12 @@ def withTimeout {α : Type} (name : String) (ms : Nat) (action : IO α) : IO α 
 
 /--
 Uploads 4 MiB with the request head `extra` adds fields to, and checks that the response starts with
-`status` and that neither the sends nor the receives saw a reset.
+`status` and that neither the sends nor the receives saw a reset. With `awaitResponse`, the client
+receives the start of the response before it sends the body, so the server answers from the head
+alone.
 -/
 def checkLingers [Server.Handler σ] (name : String) (handler : σ) (config : Config) (extra : String)
-    (status : String) : IO Unit :=
+    (status : String) (awaitResponse : Bool := false) : IO Unit :=
   withTimeout name 20000 <| Async.block do
     let server ← Server.serve (SocketAddressV4.mk (.ofParts 127 0 0 1) 0) handler config
     let some addr := server.localAddr | throw (IO.userError "the server has no address")
@@ -44,14 +48,20 @@ def checkLingers [Server.Handler σ] (name : String) (handler : σ) (config : Co
     let piece := ByteArray.mk (Array.replicate 65536 'x'.toUInt8)
     client.send
       s!"POST / HTTP/1.1\x0d\nHost: a\x0d\n{extra}Content-Length: {pieces * piece.size}\x0d\n\x0d\n".toUTF8
+    let mut response := ByteArray.empty
+    let mut recvError : Option String := none
+    if awaitResponse then
+      try
+        if let some bytes ← client.recv? 65536 then
+          response := bytes
+      catch e =>
+        recvError := some (toString e)
     let mut sendError : Option String := none
     for _ in [0:pieces] do
       try client.send piece
       catch e =>
         sendError := some (toString e)
         break
-    let mut response := ByteArray.empty
-    let mut recvError : Option String := none
     repeat
       try
         match ← client.recv? 65536 with
@@ -73,3 +83,12 @@ def checkLingers [Server.Handler σ] (name : String) (handler : σ) (config : Co
 #eval checkLingers "lingering close after 417"
   (Server.Handler.ofFns (fun _ => Response.ok |>.text "ok") (onContinue := fun _ => pure false))
   { defaultConfig with lingeringTimeout := 3000 } "Expect: 100-continue\x0d\n" "HTTP/1.1 417"
+
+#eval checkLingers "lingering close after 413 to a head alone" okHandler
+  { defaultConfig with maxBodySize := 1024, lingeringTimeout := 3000 } "" "HTTP/1.1 413"
+  (awaitResponse := true)
+
+-- Two different `Content-Length` values make the head invalid (RFC 9112 §6.3).
+#eval checkLingers "lingering close after 400 to a head alone" okHandler
+  { defaultConfig with lingeringTimeout := 3000 } "Content-Length: 1\x0d\n" "HTTP/1.1 400"
+  (awaitResponse := true)

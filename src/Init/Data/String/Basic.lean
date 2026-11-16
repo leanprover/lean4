@@ -350,6 +350,48 @@ theorem List.asString_injective {l₁ l₂ : List Char} (h : String.ofList l₁ 
 theorem String.ofList_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   ⟨ofList_injective, (· ▸ rfl)⟩
 
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ofList_ne_ofList`.
+
+Returns `false` if `l₁` and `l₂` have different characters at position `i`, or if exactly one of
+them has a character at position `i`. It assumes the two lists have at least `i` elements, and
+returns `true` otherwise.
+
+It traverses the two lists simultaneously, and is defined using recursors to minimize the number of
+steps the kernel has to perform when evaluating it.
+-/
+@[expose] noncomputable def String.Internal.sameCharAt (i : Nat) (l₁ l₂ : List Char) : Bool :=
+  Nat.rec (motive := fun _ => List Char → List Char → Bool)
+    (fun l₁ l₂ => List.rec (motive := fun _ => Bool)
+      (List.rec (motive := fun _ => Bool) true (fun _ _ _ => false) l₂)
+      (fun c₁ _ _ => List.rec (motive := fun _ => Bool) false (fun c₂ _ _ => Nat.beq c₁.toNat c₂.toNat) l₂)
+      l₁)
+    (fun _ f l₁ l₂ => List.rec (motive := fun _ => Bool) true
+      (fun _ l₁ _ => List.rec (motive := fun _ => Bool) true (fun _ l₂ _ => f l₁ l₂) l₂)
+      l₁)
+    i l₁ l₂
+
+theorem String.Internal.sameCharAt_self (i : Nat) (l : List Char) : sameCharAt i l l = true := by
+  induction i generalizing l with
+  | zero => cases l with
+    | nil => rfl
+    | cons c l => exact Nat.beq_refl _
+  | succ i ih => cases l with
+    | nil => rfl
+    | cons c l => exact ih l
+
+/--
+Auxiliary theorem for proving that two `String` literals are different. `i` is the first position
+where `l₁` and `l₂` differ, and `h` is `Eq.refl false`.
+-/
+theorem String.Internal.ofList_ne_ofList (l₁ l₂ : List Char) (i : Nat)
+    (h : sameCharAt i l₁ l₂ = false) : String.ofList l₁ ≠ String.ofList l₂ := by
+  intro h'
+  cases String.ofList_injective h'
+  rw [sameCharAt_self] at h
+  contradiction
+
 @[deprecated String.ofList_inj (since := "2025-10-30")]
 theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   String.ofList_inj
@@ -1486,7 +1528,7 @@ theorem Pos.utf8ByteSize_byte {s : String} {pos : s.Pos} {h : pos ≠ s.endPos} 
 /-- Advances a valid position on a slice to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
 @[expose]
-def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
+noncomputable def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
   offset := pos.offset.increaseBy ((pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte)
   isValidForSlice := by
     obtain ⟨t₁, t₂, ht, ht'⟩ := copy_eq_append_get h
@@ -1496,18 +1538,6 @@ def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos wher
     rw [Pos.Raw.increaseBy_charUtf8Size]
     refine Pos.Raw.IsValid.append_left ?_ t₁
     exact Pos.Raw.isValid_singleton.2 (Or.inr rfl)
-
-/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
-given position is the past-the-end position. -/
-@[expose]
-def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
-  if h : pos = s.endPos then none else some (pos.next h)
-
-/-- Advances a valid position on a slice to the next valid position, or panics if the given
-position is the past-the-end position. -/
-@[expose]
-def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
-  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
 
 @[simp]
 theorem Slice.Pos.offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
@@ -1611,18 +1641,6 @@ theorem Pos.ofToSlice_next_toSlice {s : String} {pos : s.Pos} {h} :
 @[simp]
 theorem Slice.Pos.str_inj {s : Slice} (p₁ p₂ : s.Pos) : p₁.str = p₂.str ↔ p₁ = p₂ := by
   simp [Slice.Pos.ext_iff, String.Pos.ext_iff, Pos.Raw.ext_iff]
-
-/-- Advances a valid position on a string to the next valid position, or returns `none` if the
-given position is the past-the-end position. -/
-@[inline, expose]
-def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
-  pos.toSlice.next?.map Pos.ofToSlice
-
-/-- Advances a valid position on a string to the next valid position, or panics if the given
-position is the past-the-end position. -/
-@[inline, expose]
-def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
-  ofToSlice pos.toSlice.next!
 
 /-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
 @[inline, expose]
@@ -2071,6 +2089,30 @@ theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
   funext s pos h
   simp [Slice.Pos.ext_iff, Slice.Pos.nextFast, Pos.Raw.ext_iff, Slice.Pos.get_eq_get_str]
   omega
+
+/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+@[expose]
+def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
+  if h : pos = s.endPos then none else some (pos.next h)
+
+/-- Advances a valid position on a slice to the next valid position, or panics if the given
+position is the past-the-end position. -/
+@[expose]
+def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
+  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
+
+/-- Advances a valid position on a string to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+@[inline, expose]
+def Pos.next? {s : String} (pos : s.Pos) : Option s.Pos :=
+  pos.toSlice.next?.map Pos.ofToSlice
+
+/-- Advances a valid position on a string to the next valid position, or panics if the given
+position is the past-the-end position. -/
+@[inline, expose]
+def Pos.next! {s : String} (pos : s.Pos) : s.Pos :=
+  ofToSlice pos.toSlice.next!
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
 @[inline, expose, implicit_reducible]

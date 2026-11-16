@@ -28,7 +28,7 @@ lean_object* l_Lean_Omega_IntList_leading(lean_object*);
 lean_object* l_Int_neg___boxed(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_gcd(lean_object*);
+lean_object* l_Lean_Omega_IntList_gcdImpl(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_sdiv(lean_object*, lean_object*);
@@ -2433,7 +2433,7 @@ goto v_resetjp_679_;
 v_resetjp_679_:
 {
 lean_object* v_gcd_682_; lean_object* v___x_683_; uint8_t v___x_684_; 
-v_gcd_682_ = l_Lean_Omega_IntList_gcd(v_snd_678_);
+v_gcd_682_ = l_Lean_Omega_IntList_gcdImpl(v_snd_678_);
 v___x_683_ = lean_unsigned_to_nat(0u);
 v___x_684_ = lean_nat_dec_eq(v_gcd_682_, v___x_683_);
 if (v___x_684_ == 0)

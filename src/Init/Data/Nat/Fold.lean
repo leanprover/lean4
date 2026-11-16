@@ -27,7 +27,7 @@ Examples:
 * `Nat.fold 4 (fun i _ xs => xs.push i) #[] = #[0, 1, 2, 3]`
 * `Nat.fold 0 (fun i _ xs => xs.push i) #[] = #[]`
 -/
-@[specialize] def fold {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
+@[specialize] noncomputable def fold {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
   | 0,      f, a => a
   | succ n, f, a => f n (by omega) (fold n (fun i h => f i (by omega)) a)
 
@@ -71,7 +71,7 @@ Examples:
  * `Nat.any 7 (fun i _ => i % 2 = 0) = true`
  * `Nat.any 1 (fun i _ => i % 2 = 1) = false`
 -/
-@[specialize] def any : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
+@[specialize] noncomputable def any : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
   | 0,      f => false
   | succ n, f => any n (fun i h => f i (by omega)) || f n (by omega)
 
@@ -101,7 +101,7 @@ Examples:
  * `Nat.all 7 (fun i _ => i % 2 = 0) = false`
  * `Nat.all 1 (fun i _ => i % 2 = 0) = true`
 -/
-@[specialize] def all : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
+@[specialize] noncomputable def all : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
   | 0,      f => true
   | succ n, f => all n (fun i h => f i (by omega)) && f n (by omega)
 

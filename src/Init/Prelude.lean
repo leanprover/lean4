@@ -3206,7 +3206,7 @@ Examples:
 -/
 /- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
 Currently, the test `tests/elab/implicit_reducible_list_length.lean` fails if we make this change. -/
-@[instance_reducible] def List.length : List α → Nat
+@[instance_reducible] noncomputable def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
 
@@ -3251,7 +3251,7 @@ Examples:
 * `["water", "coffee", "soda", "juice"].set 1 "tea" = ["water", "tea", "soda", "juice"]`
 * `["water", "coffee", "soda", "juice"].set 4 "tea" = ["water", "coffee", "soda", "juice"]`
 -/
-def List.set : (l : List α) → (n : Nat) → (a : α) → List α
+noncomputable def List.set : (l : List α) → (n : Nat) → (a : α) → List α
   | cons _ as, 0,          b => cons b as
   | cons a as, Nat.succ n, b => cons a (set as n b)
   | nil,       _,          _ => nil
@@ -3296,7 +3296,7 @@ Examples:
   * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
 @[implicit_reducible]
-protected def List.append : (xs ys : List α) → List α
+protected noncomputable def List.append : (xs ys : List α) → List α
   | nil,       bs => bs
   | cons a as, bs => cons a (List.append as bs)
 
@@ -3325,7 +3325,7 @@ Examples:
 * `["one", "two", "three"].map (·.length) = [3, 3, 5]`
 * `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
 -/
-@[specialize, implicit_reducible] def List.map (f : α → β) : (l : List α) → List β
+@[specialize, implicit_reducible] noncomputable def List.map (f : α → β) : (l : List α) → List β
   | nil       => nil
   | cons a as => cons (f a) (map f as)
 
@@ -3640,7 +3640,7 @@ def ByteArray.size : (@& ByteArray) → Nat
 Returns the sequence of bytes in a character's UTF-8 encoding.
 -/
 @[implicit_reducible]
-def String.utf8EncodeChar (c : Char) : List UInt8 :=
+noncomputable def String.utf8EncodeChar (c : Char) : List UInt8 :=
   let v := c.val.toNat
   ite (LE.le v 0x7f)
     (List.cons (UInt8.ofNat v) List.nil)

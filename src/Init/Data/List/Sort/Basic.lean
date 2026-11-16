@@ -36,7 +36,7 @@ to `le`. `O(|xs| + |ys|)`.
 This implementation is not tail-recursive, but it is replaced at runtime by a proven-equivalent
 tail-recursive merge.
 -/
-def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a ≤ b) : List α :=
+noncomputable def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a ≤ b) : List α :=
   match xs, ys with
   | [], ys => ys
   | xs, [] => xs
@@ -76,7 +76,7 @@ It is replaced at runtime by an efficient implementation that has been proven to
 -/
 -- Because we want the sort to be stable, it is essential that we split the list in two contiguous
 -- sublists.
-def mergeSort : ∀ (xs : List α) (le : α → α → Bool := by exact fun a b => a ≤ b), List α
+noncomputable def mergeSort : ∀ (xs : List α) (le : α → α → Bool := by exact fun a b => a ≤ b), List α
   | [], _ => []
   | [a], _ => [a]
   | a :: b :: xs, le =>

@@ -25,7 +25,9 @@ def toCtorIfLit : Expr → MetaM Expr
   | .lit (.natVal v) =>
     if v == 0 then return mkConst ``Nat.zero
     else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) =>
+  | .lit (.strVal v) => do
+    unless (← Lean.Meta.getConfig).stringLitToCtor do
+      throw <| .internal Lean.Meta.stringLitToCtorExceptionId
     Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
   | e => return e
 

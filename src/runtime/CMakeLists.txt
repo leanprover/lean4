@@ -92,6 +92,7 @@ set(
   uv/dns.cpp
   uv/system.cpp
   uv/signal.cpp
+  uv/process.cpp
   openssl.cpp
   cadical.cpp
 )

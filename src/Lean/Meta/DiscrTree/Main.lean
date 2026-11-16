@@ -432,32 +432,8 @@ private def getStarResult (d : DiscrTree α) : Array α :=
   | none => result
   | some c => result ++ c.nodeValues
 
-private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-  if let .suffix ks i v := c then
-    let next e todo := do
-      let (k, args) ← getMatchKeyArgs e (root := false)
-      return (k, todo ++ args)
-    return if (← Trie.matchesSuffix next todo ks i) then result.push v else result
-  if todo.isEmpty then
-    return result ++ c.nodeValues
-  else if !c.hasChildren then
-    return result
-  else
-    let e     := todo.back!
-    let todo  := todo.pop
-    let (k, args) ← getMatchKeyArgs e (root := false)
-    /- We must always visit `Key.star` edges since they are wildcards.
-       Thus, `todo` is not used linearly when there is `Key.star` edge
-       and there is an edge for `k` and `k != Key.star`. -/
-    let result ← match c.starChild? with
-      | some c => getMatchLoop todo c result
-      | none   => pure result
-    match k with
-    | .star => return result
-    | _     =>
-      match c.findChild? k with
-      | some c => getMatchLoop (todo ++ args) c result
-      | none   => return result
+private def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) :=
+  c.getMatchLoop (getMatchKeyArgs (root := false)) (· ++ ·) todo result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with

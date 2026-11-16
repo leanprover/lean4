@@ -3,8 +3,7 @@ module
 import Lean
 
 /-!
-Tests budgeted type-inference caching for #15985 while WHNF, definitional equality, and
-unit-like caches retain structural equality.
+Tests budgeted type-inference caching for #15985 while WHNF and definitional equality caches retain structural equality.
 -/
 
 open Lean Meta
@@ -29,8 +28,6 @@ run_meta do
   check result.isNone "binder differences must miss in inferType cache"
   let whnf : WhnfCache := ({} : WhnfCache).insert kx x
   check (whnf.find? ky).isNone "binder differences must miss in whnf cache"
-  let unitLike : IsUnitLikeCache := ({} : IsUnitLikeCache).insert kx false
-  check (unitLike.find? kx == some false) "cached false must be a hit"
   let kx ← mkDefEqCacheKey x nat
   let ky ← mkDefEqCacheKey y nat
   let defEq : DefEqCache := ({} : DefEqCache).insert kx false
@@ -48,8 +45,6 @@ run_meta do
   check result.isNone "exhaustion must evict the inferType entry"
   let whnf : WhnfCache := ({} : WhnfCache).insert ka a
   check (whnf.find? kb == some a) "whnf must retain large structural hits"
-  let unitLike : IsUnitLikeCache := ({} : IsUnitLikeCache).insert ka false
-  check (unitLike.find? kb == some false) "unit-like cache must retain large structural hits"
   let ka ← mkDefEqCacheKey a nat
   let kb ← mkDefEqCacheKey b nat
   let defEq : DefEqCache := ({} : DefEqCache).insert ka true

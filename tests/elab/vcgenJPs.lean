@@ -273,18 +273,14 @@ theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ 
 /--
 trace: case vc1
 b : Nat → Bool
-s₀ s✝¹ : Nat
-x✝ : PUnit
-s✝ : Nat
+s₀ s✝¹ s✝ : Nat
 h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
 h✝ : b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 1
 
 case vc2
 b : Nat → Bool
-s₀ s✝¹ : Nat
-x✝ : PUnit
-s✝ : Nat
+s₀ s✝¹ s✝ : Nat
 h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
 h✝ : ¬b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 2
@@ -342,9 +338,7 @@ def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do
 trace: case vc1
 k : Nat
 b : Bool
-s✝ : Nat
-x✝¹ : PUnit
-x✝ s : Nat
+s✝ x✝ s : Nat
 h✝ : b = true ∧ x✝ = 2 ∧ s = s✝ ∨ ¬b = true ∧ x✝ = 3 ∧ s = s✝
 ⊢ 0 < x✝ + s
 -/

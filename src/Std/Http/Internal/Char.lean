@@ -296,6 +296,15 @@ def isFragmentChar (c : UInt8) : Bool :=
   isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
 
 /--
+Checks if a byte may appear in a request-target (RFC 9112 §3.2): a URI character of RFC 3986 other
+than `#`, since no form of request-target has a fragment. `%` starts a `pct-encoded` triplet, and
+`[` and `]` enclose an IP-literal host.
+-/
+@[inline]
+def isRequestTargetChar (c : UInt8) : Bool :=
+  isQueryChar c || c = '%'.toUInt8 || c = '['.toUInt8 || c = ']'.toUInt8
+
+/--
 Checks if a byte is a valid character in a URI userinfo component according to RFC 3986.
 `userinfo = *( unreserved/ sub-delims / ":" )`
 

@@ -245,14 +245,14 @@ def parseMethod : Parser Method := do
 Parses a request-target URI, up to `limits.maxUriLength` bytes.
 Fails with `"uri too long"` if the target exceeds the configured limit.
 
-The target ends at SP, or at CR or LF, which no target contains: a request line with no version
-then fails at once on the missing SP, instead of waiting for one (RFC 9112 §3).
+The target ends at the first byte no request-target contains, such as the CR of a line with no
+version, so the SP that must follow fails on that byte as soon as it arrives instead of waiting for
+an SP (RFC 9112 §3). Only a target byte past the limit makes the target too long.
 -/
 def parseURI (limits : H1.Config) : Parser ByteArray := do
-  let endsTarget (c : UInt8) := c == ' '.toUInt8 || c == '\r'.toUInt8 || c == '\n'.toUInt8
-  let uri ← takeUntilUpTo endsTarget limits.maxUriLength
+  let uri ← takeWhileUpTo isRequestTargetChar limits.maxUriLength
   if uri.size == limits.maxUriLength then
-    if (← peekWhen? (!endsTarget ·)) |>.isSome then
+    if (← peekWhen? isRequestTargetChar) |>.isSome then
       fail "uri too long"
 
   return uri.toByteArray

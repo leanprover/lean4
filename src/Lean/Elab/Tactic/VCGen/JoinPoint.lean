@@ -243,8 +243,8 @@ partial def mkTrie (jumps : Array (Jump × Array LocalDecl × Expr)) (i : Nat) :
 The common part of the arguments `t₁ … tₙ` of a parameter is their anti-unifier: the most specific
 term `g` with holes `z₁ … zₘ` such that each `tₖ` is `g` with the values of the holes at jump `k`.
 Subterms that are one pointer stay, applications of one function are anti-unified argument by
-argument, and all other subterms become holes. A parameter whose anti-unifier is a hole takes the
-place of the hole, as `x` does above: `?H` has no equation `x = z` and no binder `∃ z`.
+argument, and all other subterms become holes. A parameter without a common part, as `x` above,
+gets its values in the leaves.
 
 A `let` local of a branch stands for its value. After `match o with | 0 => x := s + 1 | _ => x := s
 + 2`, the jumps pass the locals `x₁ := s + 1` and `x₂ := s + 2`, whose anti-unifier is `s + z`
@@ -282,13 +282,10 @@ def rigidArgs (fn : Expr) (n : Nat) : MetaM (Array Bool) := do
     rigid := rigid.setIfInBounds i true
   return rigid
 
-/-- A hole with the values `ts` at the jumps, of type `type?` or the type of `ts[0]`. Returns
-`none` if the type mentions a local of a branch. -/
-def mkHole (cutoff : Nat) (ts : Array Expr) (type? : Option Expr := none) :
-    AUM (Option Expr) := do
-  let type ← match type? with
-    | some type => pure type
-    | none => Sym.inferType ts[0]!
+/-- A hole with the values `ts` at the jumps. Returns `none` if its type mentions a local of a
+branch. -/
+def mkHole (cutoff : Nat) (ts : Array Expr) : AUM (Option Expr) := do
+  let type ← Sym.inferType ts[0]!
   unless ← isCommon cutoff type do return none
   let fvarId ← mkFreshFVarId
   modify fun s => { s with holes := s.holes.push { fvarId, type, vals := ts } }
@@ -358,51 +355,37 @@ partial def commonPart (ctx : AUContext) (ts : Array Expr) : AUM (Option Expr) :
 
 end
 
-/-- The anti-unifier of the arguments of `jumps` for the parameters `xs` of `?H`. Returns the
-pairs `(j, g)` of the parameters `xs[j]` whose anti-unifier `g` is not a hole, each hole with the term
-that its leaf equates with its values (the hole itself, or the parameter that takes its place),
-and the holes that remain. The parameters of type `PUnit`, such as the result `__r` of a `Unit`
-statement, get no equation. -/
+/-- A column of the leaves: the equation `lhs = vals[k]` at type `type` in the leaf of jump `k`. -/
+structure Column where
+  lhs : Expr
+  type : Expr
+  vals : Array Expr
+
+/-- The anti-unifier of the arguments of `jumps` for the parameters `xs` of `?H`. Returns the pairs
+`(j, g)` of the parameters `xs[j]` with a common part `g`, the columns of the leaves, and the holes.
+A parameter without a common part has a column of its own. The parameters of type `PUnit`, such as
+the result `__r` of a `Unit` statement, get no equation. -/
 def antiUnifyJumps (jp : JoinPoint) (xs : Array Expr) (jumps : Array Jump) :
-    VCGenM (Array (Nat × Expr) × Array (Hole × Expr) × Array Hole) := do
+    VCGenM (Array (Nat × Expr) × Array Column × Array Hole) := do
   let some jump₀ := jumps[0]? | return (#[], #[], #[])
   let types ← xs.mapM (Sym.inferType ·)
   let decl₀ ← jump₀.proof.getDecl
   let cutoff := (decl₀.lctx.get! jp.spec.fvarId!).index + 1
   let ctx : AUContext := { cutoff, lctxs := ← jumps.mapM fun jump => return (← jump.proof.getDecl).lctx }
-  let go : AUM (Array (Option Expr)) := do
-    let mut gs := #[]
+  let go : AUM (Array (Nat × Expr) × Array Column) := do
+    let mut eqs := #[]
+    let mut columns := #[]
     for h : j in [:xs.size] do
-      if types[j]!.isConstOf ``PUnit then
-        gs := gs.push none
-        continue
+      if types[j]!.isConstOf ``PUnit then continue
       let ts := jumps.map (·.args[j]!)
-      if let some g ← antiUnify ctx ts then
-        gs := gs.push (some g)
+      if let some g ← commonPart ctx ts then
+        eqs := eqs.push (j, g)
       else
-        let some z ← mkHole cutoff ts types[j]!
-          | throwError "vcgen +jp: the parameter{indentExpr xs[j]}\nhas a type with a local of a branch"
-        gs := gs.push (some z)
-    return gs
-  let (gs, st) ← withLCtx decl₀.lctx decl₀.localInstances (go.run {})
-  -- A parameter takes the place of the hole that is its anti-unifier.
-  let mut param : Std.HashMap FVarId Expr := {}
-  for h : j in [:gs.size] do
-    if let some (.fvar z) := gs[j] then
-      if st.holes.any (·.fvarId == z) && !param.contains z then
-        param := param.insert z xs[j]!
-  let holes := st.holes.filter (!param.contains ·.fvarId)
-  let substitution := param.toArray
-  let fromHoles := substitution.map (mkFVar ·.1)
-  let toParams := substitution.map (·.2)
-  let mut eqs := #[]
-  for h : j in [:gs.size] do
-    let some g := gs[j] | continue
-    if let .fvar z := g then
-      if param[z]?.any (isSameExpr · xs[j]!) then continue
-    eqs := eqs.push (j, g.replaceFVars fromHoles toParams)
-  let leafLhss := st.holes.map fun h => (h, param[h.fvarId]?.getD (mkFVar h.fvarId))
-  return (eqs, leafLhss, holes)
+        columns := columns.push { lhs := xs[j], type := types[j]!, vals := ts }
+    return (eqs, columns)
+  let ((eqs, columns), st) ← withLCtx decl₀.lctx decl₀.localInstances (go.run {})
+  let holeColumns := st.holes.map fun h => { lhs := mkFVar h.fvarId, type := h.type, vals := h.vals }
+  return (eqs, columns ++ holeColumns, st.holes)
 
 /-- The proof of the conjunction `φ = mkAndN ps` from the proofs `pfs` of its conjuncts `ps`. -/
 partial def mkConjProof (φ : Expr) : List Expr → MetaM Expr
@@ -481,7 +464,7 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
   let jumpsLocals ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
   let (paths, holes, eqPfs, leafPfs) ← jp.hyp.withContext do
       forallTelescope (← jp.hyp.getType) fun xs _ => do
-    let (eqs, leafLhss, holes) ← antiUnifyJumps jp xs jumps
+    let (eqs, columns, holes) ← antiUnifyJumps jp xs jumps
     let lctx := holes.foldl (init := ← getLCtx) fun lctx h => lctx.mkLocalDecl h.fvarId `z h.type
     -- The equations `xs[j] = g'` above the trie, with the proofs of `g = g'` over `xs` and `holes`.
     let eqs ← withLCtx lctx (← getLocalInstances) do
@@ -490,7 +473,7 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
     let leaves ← (Array.range jumps.size).mapM fun k => do
       let decl ← jumps[k]!.proof.getDecl
       withLCtx decl.lctx decl.localInstances do
-        leafLhss.mapM fun (h, lhs) => return (h.vals[k]!, ← mkJoinEq h.type lhs h.vals[k]!)
+        columns.mapM fun c => return (c.vals[k]!, ← mkJoinEq c.type c.lhs c.vals[k]!)
     let trieJumps := (jumpsLocals.zip leaves).map fun ((jump, locals), leaf) =>
       (jump, locals, mkAndN (leaf.map (·.2.1)).toList)
     let (trie, paths) ← mkTrie trieJumps 0

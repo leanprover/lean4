@@ -123,11 +123,11 @@ structure LinCertStep where
 
 /-- The words encoding `st`, followed by `rest`. -/
 def LinCertStep.encodeWords (st : LinCertStep) (rest : List Nat) : List Nat :=
-  st.terms.size :: st.terms.toList.foldr (fun (c, i) acc => intToWord c :: i :: acc) (intToWord st.div :: rest)
+  st.terms.size :: st.terms.foldr (fun (c, i) acc => intToWord c :: i :: acc) (intToWord st.div :: rest)
 
 /-- The encoding of a certificate with the steps `steps` and the final divisor `g`. -/
 def encodeLinCert (steps : Array LinCertStep) (g : Int) : Nat :=
-  wordsToNat (steps.size :: steps.toList.foldr LinCertStep.encodeWords [intToWord g]).toArray
+  wordsToNat (steps.size :: steps.foldr LinCertStep.encodeWords [intToWord g]).toArray
 
 namespace LinCheck
 open Lean.KernelVM Lean.KernelVM.DSL

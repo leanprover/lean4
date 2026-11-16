@@ -105,8 +105,68 @@ end Abstraction
 namespace PruneThenAssign
 
 /-!
-After pruning an instance-typed `?inst x := fun _ => ?n`, assigning a wrong instance to `?n` must be
-rejected, exactly as it would be for `?inst` itself. Adapted from a test by Zongyuan Liu.
+After instance search prunes an instance argument under a binder, the pruned instance argument still
+has to have the right type at instance transparency. Adapted from a test by Zongyuan Liu and from
+scenario 2 of `tests/elab/9077.lean`.
+
+`isDefEq` unifies the out-param `r` with `G (?α x) (?q x)` and assigns `?q := fun _ => ?n`.
+Then it unifies `?n : Q (Copy E)` with the instance `Q E` from the goal.
+-/
+
+class P (α : Type) where p : Nat
+class Q (α : Type) extends P α where
+
+@[implicit_reducible]
+def Copy (α : Type) := α
+
+structure G (α : Type) (q : Q α) : Prop where
+
+class Out (p : outParam Prop) (α : Type) (q : Q α) (x : Nat)
+instance [q : Q α] : Out (G α q) α q x := ⟨⟩
+
+class Top (E : Type) (r : outParam Prop)
+instance [iQ : Q E] [∀ x : Nat, Out r (Copy E) iQ x] : Top E r := ⟨⟩
+
+/-- info: instTopOfOutCopy -/
+#guard_msgs in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
+variable (E : Type) [Q E] in
+#synth Top E _
+
+/-! Without a `Q (Copy E)` instance, `isDefEq` must reject `?n := (iQ : Q E)`. -/
+
+/--
+error: failed to synthesize
+  Top E ?m.1
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
+variable (E : Type) [Q E] in
+#synth Top E _
+
+/-!
+With a `Q (Copy E)` instance, `isDefEq` synthesizes it for `?n` after rejecting `iQ`. This needs
+`?n` to be instance-typed: otherwise `isDefEq` rejects the pruning step already.
+-/
+
+instance qCopy [Q E] : Q (Copy E) := ‹Q E›
+
+/-- info: instTopOfOutCopy -/
+#guard_msgs in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
+variable (E : Type) [Q E] in
+#synth Top E _
+
+end PruneThenAssign
+
+namespace MVarSelf
+
+/-!
+Solving `?inst x =?= ?inst y` by `?inst := fun _ => ?n` must succeed for an instance-typed `?inst`,
+and assigning a wrong instance to `?n` afterwards must be rejected, exactly as it would be for
+`?inst` itself.
 -/
 
 open Lean Meta ContextRestriction
@@ -114,27 +174,26 @@ open Lean Meta ContextRestriction
 /-- Has no `D` instance at instance transparency, so the fallback synthesis cannot help. -/
 def OtherUnit := Unit
 
-/-- Prune `?inst : Nat → D OtherUnit` by `?q =?= D.val OtherUnit (?inst x)` for an outer `?q`, then
-try `?inst x =?= iD`, where `iD : D Unit` only has the right type at default transparency. -/
-def pruneThenAssign : MetaM Unit := do
+/-- Unify `?inst x =?= ?inst y` for `?inst : Nat → D OtherUnit`, then try `?inst x =?= iD`, where
+`iD : D Unit` only has the right type at default transparency. -/
+def selfThenAssign : MetaM Unit := do
   let otherUnit := mkConst ``OtherUnit
-  let q ← mkFreshExprMVar (mkConst ``Nat)
   let inst ← mkFreshExprMVar (← mkArrow (mkConst ``Nat) (mkApp (mkConst ``D) otherUnit))
   inst.mvarId!.markInstanceTyped
-  withLocalDeclD `x (mkConst ``Nat) fun x => do
-    let pruned ← withConfig (fun c => { c with ctxApprox := true }) <|
-      isDefEq q (mkApp2 (mkConst ``D.val) otherUnit (mkApp inst x))
+  withLocalDeclD `x (mkConst ``Nat) fun x => withLocalDeclD `y (mkConst ``Nat) fun y => do
+    let solved ← withConfig (fun c => { c with constApprox := true }) <|
+      isDefEq (mkApp inst x) (mkApp inst y)
     let assigned ← isDefEq (mkApp inst x) (mkConst ``iD)
-    logInfo m!"pruned: {pruned}, wrong instance assigned: {assigned}"
+    logInfo m!"solved: {solved}, wrong instance assigned: {assigned}"
 
-/-- info: pruned: true, wrong instance assigned: true -/
+/-- info: solved: true, wrong instance assigned: true -/
 #guard_msgs in
 set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
-run_meta pruneThenAssign
+run_meta selfThenAssign
 
-/-- info: pruned: true, wrong instance assigned: false -/
+/-- info: solved: true, wrong instance assigned: false -/
 #guard_msgs in
 set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
-run_meta pruneThenAssign
+run_meta selfThenAssign
 
-end PruneThenAssign
+end MVarSelf

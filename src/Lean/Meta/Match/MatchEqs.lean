@@ -70,16 +70,22 @@ private def rwStringLitDite? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId
   let some s₁ := getStringValue? a | return none
   let some s₂ := getStringValue? b | return none
   let us := dite.constLevels!
-  let (lhs', proof) ←
-    if s₁ == s₂ then
-      let hc ← mkEqRefl a
-      pure (t.beta #[hc], mkAppN (mkConst ``dite_eq_left us) #[c, h, hc, α, t, e])
-    else
-      let hc := mkExpectedPropHint (← mkStringLitNeProof s₁ s₂) (mkNot c)
-      pure (e.beta #[hc], mkAppN (mkConst ``dite_eq_right us) #[c, h, hc, α, t, e])
-  let mvarNew ← mkFreshExprSyntheticOpaqueMVar (← mkEq lhs' rhs) (← mvarId.getTag)
-  mvarId.assign (← mkEqTrans proof mvarNew)
-  return some mvarNew.mvarId!
+  if s₁ == s₂ then
+    let hc ← mkEqRefl a
+    let proof := mkAppN (mkConst ``dite_eq_left us) #[c, h, hc, α, t, e]
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar (← mkEq (t.beta #[hc]) rhs) (← mvarId.getTag)
+    mvarId.assign (← mkEqTrans proof mvarNew)
+    return some mvarNew.mvarId!
+  else
+    let hc := mkExpectedPropHint (← mkStringLitNeProof s₁ s₂) (mkNot c)
+    -- The new goal is `e hc = rhs`, and `dite_eq_of_not` expects a proof of `∀ h, e h = rhs`.
+    -- The proof of the new goal is put under the binder without abstracting `hc`:
+    -- `e h` and `e hc` are definitionally equal by proof irrelevance.
+    -- See `dite_eq_of_not` for why the binder matters.
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar (← mkEq (e.beta #[hc]) rhs) (← mvarId.getTag)
+    let proof := mkLambda `h .default (mkNot c) mvarNew
+    mvarId.assign (mkAppN (mkConst ``dite_eq_of_not us) #[c, h, α, t, e, rhs, hc, proof])
+    return some mvarNew.mvarId!
 
 /--
 Removes the proofs of the discriminant equalities from the goal of `proveCondEqThm`.

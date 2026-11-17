@@ -188,6 +188,16 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain_deps(self.lrepo.path)
         util.run("./update-subverso.sh", cwd=self.lrepo.path)
 
+    def _bump_toolchain_verso_slides(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
+        self._bump_toolchain_deps(self.lrepo.path)
+
+        # These subprojects reference subverso via a path into the root's
+        # `.lake/packages`, and their manifests are gitignored, so they don't
+        # need a `lake update`.
+        self._bump_toolchain(self.lrepo.path / "demo-anchor-comments")
+        self._bump_toolchain(self.lrepo.path / "TestFixtures" / "external-example")
+
     def _bump_toolchain_verso_templates(self) -> None:
         util.run("./update-lean-version.sh", self.version.raw, cwd=self.lrepo.path)
 
@@ -267,6 +277,8 @@ class DownstreamChecker(RepoChecker):
             self._bump_toolchain_repl()
         elif self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
             self._bump_toolchain_verso()
+        elif self.rrepo.gh_full_name == repos.VERSO_SLIDES.gh_full_name:
+            self._bump_toolchain_verso_slides()
         elif self.rrepo.gh_full_name == repos.VERSO_TEMPLATES.gh_full_name:
             self._bump_toolchain_verso_templates()
         elif self.rrepo.gh_full_name == repos.REFERENCE_MANUAL.gh_full_name:

@@ -44,16 +44,19 @@ public def preprocessExpr (e : Expr) : SymM Expr := do
 /--
 How the kernel accepts `a = b` for a term `a` and its preprocessed form `b`.
 The kernel decides a conversion `a ≡ b` by reducing `let`s and beta redexes first, so a conversion
-over changed, nested `let`s costs time exponential in their depth. A `proof` passes each changed
-`let` and beta redex by congruence instead.
+over changed, nested `let`s costs time exponential in their depth. An `eq` proof passes each
+changed `let` and beta redex by congruence instead.
 -/
 inductive PreprocessProof where
   /-- `a` and `b` are equal up to binder names. -/
-  | same
-  /-- `a` and `b` differ, and no changed `let` or beta redex occurs in them. -/
-  | conv
+  | unchanged
+  /--
+  `a` and `b` differ, and the kernel accepts `a ≡ b` by a cheap conversion, because no changed
+  `let` or beta redex occurs in them.
+  -/
+  | defEq
   /-- `h : a = b`. -/
-  | proof (h : Expr)
+  | eq (h : Expr)
 
 abbrev PreprocessProofM := StateRefT (Std.HashMap (ExprPtr × ExprPtr) PreprocessProof) SymM
 
@@ -64,15 +67,15 @@ def mkReflS (b : Expr) : SymM Expr := do
 
 def PreprocessProof.toProof (r : PreprocessProof) (b : Expr) : SymM Expr :=
   match r with
-  | .proof h => return h
+  | .eq h => return h
   | _ => mkReflS b
 
-def PreprocessProof.isSame : PreprocessProof → Bool
-  | .same => true
+def PreprocessProof.isUnchanged : PreprocessProof → Bool
+  | .unchanged => true
   | _ => false
 
-def PreprocessProof.isProof : PreprocessProof → Bool
-  | .proof _ => true
+def PreprocessProof.isEq : PreprocessProof → Bool
+  | .eq _ => true
   | _ => false
 
 /--
@@ -82,7 +85,7 @@ from `b`; `a` occurs only in proof terms.
 partial def preprocessProof (a b : Expr) : PreprocessProofM PreprocessProof := do
   if let .mdata _ a' := a then return ← preprocessProof a' b
   if let .mdata _ b' := b then return ← preprocessProof a b'
-  if isSameExpr a b then return .same
+  if isSameExpr a b then return .unchanged
   let key := (⟨a⟩, ⟨b⟩)
   if let some r := (← get)[key]? then return r
   let r ← match a, b with
@@ -92,72 +95,72 @@ partial def preprocessProof (a b : Expr) : PreprocessProofM PreprocessProof := d
       withLocalDeclS n .default t' fun x => do
         let bodyB ← instantiateS body' #[x]
         let rb ← preprocessProof (body.instantiate1 x) bodyB
-        if rt.isSame && rv.isSame && rb.isSame then return .same
-        unless nondep do return .conv
+        if rt.isUnchanged && rv.isUnchanged && rb.isUnchanged then return .unchanged
+        unless nondep do return .defEq
         let β ← Sym.inferType bodyB
-        if β.containsFVar x.fvarId! then return .conv
+        if β.containsFVar x.fvarId! then return .defEq
         let h₁ ← rv.toProof v'
         let h₂ := mkLambda n .default t' ((← rb.toProof bodyB).abstract #[x])
         let f := mkLambda n .default t body
         let f' := mkLambda n .default t' body'
         let us := [← Sym.getLevel t', ← Sym.getLevel β]
-        return .proof (mkAppN (mkConst ``have_congr' us) #[t', β, v, v', f, f', h₁, h₂])
+        return .eq (mkAppN (mkConst ``have_congr' us) #[t', β, v, v', f, f', h₁, h₂])
     | .lam n t body bi, .lam _ t' body' _ =>
       let rt ← preprocessProof t t'
       withLocalDeclS n bi t' fun x => do
         let bodyB ← instantiateS body' #[x]
         match (← preprocessProof (body.instantiate1 x) bodyB) with
-        | .proof hb =>
+        | .eq hb =>
           let β ← Sym.inferType bodyB
           let us := [← Sym.getLevel t', ← Sym.getLevel β]
           let βf := mkLambda n bi t' (β.abstract #[x])
           let h := mkLambda n .default t' (hb.abstract #[x])
-          return .proof (mkApp5 (mkConst ``funext us) t' βf a b h)
-        | rb => return if rt.isSame && rb.isSame then .same else .conv
+          return .eq (mkApp5 (mkConst ``funext us) t' βf a b h)
+        | rb => return if rt.isUnchanged && rb.isUnchanged then .unchanged else .defEq
     | .forallE n t body bi, .forallE _ t' body' _ =>
       let rt ← preprocessProof t t'
       if !body.hasLooseBVars && !body'.hasLooseBVars then
         let rb ← preprocessProof body body'
-        if rt.isSame && rb.isSame then return .same
-        unless rt.isProof || rb.isProof do return .conv
+        if rt.isUnchanged && rb.isUnchanged then return .unchanged
+        unless rt.isEq || rb.isEq do return .defEq
         let us := [← Sym.getLevel t', ← Sym.getLevel body']
-        return .proof (mkApp6 (mkConst ``implies_congr us) t t' body body'
+        return .eq (mkApp6 (mkConst ``implies_congr us) t t' body body'
           (← rt.toProof t') (← rb.toProof body'))
       withLocalDeclS n bi t' fun x => do
         let bodyB ← instantiateS body' #[x]
         match (← preprocessProof (body.instantiate1 x) bodyB) with
-        | .proof hb =>
-          if rt.isProof then return .conv
-          unless (← Sym.inferType bodyB).isProp do return .conv
+        | .eq hb =>
+          if rt.isEq then return .defEq
+          unless (← Sym.inferType bodyB).isProp do return .defEq
           let h := mkLambda n .default t' (hb.abstract #[x])
-          return .proof (mkApp4 (mkConst ``forall_congr [← Sym.getLevel t'])
+          return .eq (mkApp4 (mkConst ``forall_congr [← Sym.getLevel t'])
             t' (mkLambda n bi t body) (mkLambda n bi t' body') h)
-        | rb => return if rt.isSame && rb.isSame then .same else .conv
+        | rb => return if rt.isUnchanged && rb.isUnchanged then .unchanged else .defEq
     | .app .., .app .. =>
       let fa := a.getAppFn
       let fb := b.getAppFn
       let as := a.getAppArgs
       let bs := b.getAppArgs
-      if as.size != bs.size then return .conv
+      if as.size != bs.size then return .defEq
       let rf ← preprocessProof fa fb
       let rs ← (as.zip bs).mapM fun (x, y) => preprocessProof x y
-      if rf.isSame && rs.all (·.isSame) then return .same
+      if rf.isUnchanged && rs.all (·.isUnchanged) then return .unchanged
       -- A beta redex is passed by congruence over its head, like a `let`.
-      unless fa.isLambda || rf.isProof || rs.any (·.isProof) do return .conv
-      let mut h? : Option Expr ← if rf.isProof || fa.isLambda then some <$> rf.toProof fb else pure none
+      unless fa.isLambda || rf.isEq || rs.any (·.isEq) do return .defEq
+      let mut h? : Option Expr ← if rf.isEq || fa.isLambda then some <$> rf.toProof fb else pure none
       let mut ty ← Sym.inferType fb
       let mut fA := fa
       let mut fB := fb
       for aᵢ in as, bᵢ in bs, rᵢ in rs do
-        let .forallE n dom body bi := ty | return .conv
+        let .forallE n dom body bi := ty | return .defEq
         let B ← instantiateS body #[bᵢ]
         let us := [← Sym.getLevel dom, ← Sym.getLevel B]
         match rᵢ, h? with
-        | .proof hᵢ, none =>
-          if body.hasLooseBVars then return .conv
+        | .eq hᵢ, none =>
+          if body.hasLooseBVars then return .defEq
           h? := some (mkApp6 (mkConst ``congrArg us) dom B aᵢ bᵢ fA hᵢ)
-        | .proof hᵢ, some h =>
-          if body.hasLooseBVars then return .conv
+        | .eq hᵢ, some h =>
+          if body.hasLooseBVars then return .defEq
           h? := some (mkApp8 (mkConst ``congr us) dom B fA fB aᵢ bᵢ h hᵢ)
         | _, some h =>
           h? := some (mkApp6 (mkConst ``congrFun us) dom (mkLambda n bi dom body) fA fB h aᵢ)
@@ -166,9 +169,9 @@ partial def preprocessProof (a b : Expr) : PreprocessProofM PreprocessProof := d
         fB := mkApp fB bᵢ
         ty := B
       return match h? with
-        | some h => .proof h
-        | none => .conv
-    | _, _ => return if a == b then .same else .conv
+        | some h => .eq h
+        | none => .defEq
+    | _, _ => return if a == b then .unchanged else .defEq
   modify (·.insert key r)
   return r
 
@@ -185,7 +188,7 @@ A proof of `e = e'` for the preprocessed form `e'` of `e`, where `e'` is maximal
 public def mkPreprocessProof? (e e' : Expr) : SymM (Option Expr) := do
   if !hasLetOrBetaRedex e then return none
   match (← (preprocessProof e e').run' {}) with
-  | .proof h => return some h
+  | .eq h => return some h
   | _ => return none
 
 /--

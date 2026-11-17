@@ -8,6 +8,9 @@ prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Transform
 import Lean.Util.ForEachExpr
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Tactic.Util
 public import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
 open Lean.Meta.Sym.Internal
@@ -35,6 +38,154 @@ public def preprocessExpr (e : Expr) : SymM Expr := do
   -- corresponding check must not have been disabled (e.g., via `withoutShareCommonChecks`).
   assert! (← getConfig).enforceUnfoldReducible
   shareCommon (← instantiateMVars e)
+
+/--
+How the kernel accepts `a = b` for a term `a` and its preprocessed form `b`.
+The kernel decides a conversion `a ≡ b` by reducing `let`s and beta redexes first, so a conversion
+over changed, nested `let`s costs time exponential in their depth. A `proof` passes each changed
+`let` and beta redex by congruence instead.
+-/
+inductive PreprocessEq where
+  /-- `a` and `b` are equal up to binder names. -/
+  | same
+  /-- `a` and `b` differ, and no changed `let` or beta redex occurs in them. -/
+  | conv
+  /-- `h : a = b`. -/
+  | proof (h : Expr)
+
+abbrev PreprocessEqM := StateRefT (Std.HashMap (ExprPtr × ExprPtr) PreprocessEq) SymM
+
+/-- `Eq.refl b`, a proof of `a = b` whenever `a ≡ b` is a cheap conversion. -/
+def mkReflS (b : Expr) : SymM Expr := do
+  let β ← Sym.inferType b
+  return mkApp2 (mkConst ``Eq.refl [← Sym.getLevel β]) β b
+
+def PreprocessEq.toProof (r : PreprocessEq) (b : Expr) : SymM Expr :=
+  match r with
+  | .proof h => return h
+  | _ => mkReflS b
+
+def PreprocessEq.isSame : PreprocessEq → Bool
+  | .same => true
+  | _ => false
+
+def PreprocessEq.isProof : PreprocessEq → Bool
+  | .proof _ => true
+  | _ => false
+
+/--
+Classifies `a = b`, where `b` is maximally shared. Types and levels for the congruence lemmas come
+from `b`; `a` occurs only in proof terms.
+-/
+partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
+  if let .mdata _ a' := a then return ← preprocessEq a' b
+  if let .mdata _ b' := b then return ← preprocessEq a b'
+  if isSameExpr a b then return .same
+  let key := (⟨a⟩, ⟨b⟩)
+  if let some r := (← get)[key]? then return r
+  let r ← match a, b with
+    | .letE n t v body _, .letE _ t' v' body' nondep =>
+      let rt ← preprocessEq t t'
+      let rv ← preprocessEq v v'
+      withLocalDeclS n .default t' fun x => do
+        let bodyB ← instantiateS body' #[x]
+        let rb ← preprocessEq (body.instantiate1 x) bodyB
+        if rt.isSame && rv.isSame && rb.isSame then return .same
+        unless nondep do return .conv
+        let β ← Sym.inferType bodyB
+        if β.containsFVar x.fvarId! then return .conv
+        let h₁ ← rv.toProof v'
+        let h₂ := mkLambda n .default t' ((← rb.toProof bodyB).abstract #[x])
+        let f := mkLambda n .default t body
+        let f' := mkLambda n .default t' body'
+        let us := [← Sym.getLevel t', ← Sym.getLevel β]
+        return .proof (mkAppN (mkConst ``have_congr' us) #[t', β, v, v', f, f', h₁, h₂])
+    | .lam n t body bi, .lam _ t' body' _ =>
+      let rt ← preprocessEq t t'
+      withLocalDeclS n bi t' fun x => do
+        let bodyB ← instantiateS body' #[x]
+        match (← preprocessEq (body.instantiate1 x) bodyB) with
+        | .proof hb =>
+          let β ← Sym.inferType bodyB
+          let us := [← Sym.getLevel t', ← Sym.getLevel β]
+          let βf := mkLambda n bi t' (β.abstract #[x])
+          let h := mkLambda n .default t' (hb.abstract #[x])
+          return .proof (mkApp5 (mkConst ``funext us) t' βf a b h)
+        | rb => return if rt.isSame && rb.isSame then .same else .conv
+    | .forallE n t body bi, .forallE _ t' body' _ =>
+      let rt ← preprocessEq t t'
+      withLocalDeclS n bi t' fun x => do
+        let bodyB ← instantiateS body' #[x]
+        match (← preprocessEq (body.instantiate1 x) bodyB) with
+        | .proof hb =>
+          unless (← Sym.inferType bodyB).isProp do return .conv
+          let h := mkLambda n .default t' (hb.abstract #[x])
+          return .proof (mkApp4 (mkConst ``forall_congr [← Sym.getLevel t'])
+            t' (mkLambda n bi t body) (mkLambda n bi t' body') h)
+        | rb => return if rt.isSame && rb.isSame then .same else .conv
+    | .app .., .app .. =>
+      let fa := a.getAppFn
+      let fb := b.getAppFn
+      let as := a.getAppArgs
+      let bs := b.getAppArgs
+      if as.size != bs.size then return .conv
+      let rf ← preprocessEq fa fb
+      let rs ← (as.zip bs).mapM fun (x, y) => preprocessEq x y
+      if rf.isSame && rs.all (·.isSame) then return .same
+      -- A beta redex is passed by congruence over its head, like a `let`.
+      unless fa.isLambda || rf.isProof || rs.any (·.isProof) do return .conv
+      let mut h? : Option Expr ← if rf.isProof || fa.isLambda then some <$> rf.toProof fb else pure none
+      let mut ty ← Sym.inferType fb
+      let mut fA := fa
+      let mut fB := fb
+      for aᵢ in as, bᵢ in bs, rᵢ in rs do
+        let .forallE n dom body bi := ty | return .conv
+        let B ← instantiateS body #[bᵢ]
+        let us := [← Sym.getLevel dom, ← Sym.getLevel B]
+        match rᵢ, h? with
+        | .proof hᵢ, none =>
+          if body.hasLooseBVars then return .conv
+          h? := some (mkApp6 (mkConst ``congrArg us) dom B aᵢ bᵢ fA hᵢ)
+        | .proof hᵢ, some h =>
+          if body.hasLooseBVars then return .conv
+          h? := some (mkApp8 (mkConst ``congr us) dom B fA fB aᵢ bᵢ h hᵢ)
+        | _, some h =>
+          h? := some (mkApp6 (mkConst ``congrFun us) dom (mkLambda n bi dom body) fA fB h aᵢ)
+        | _, none => pure ()
+        fA := mkApp fA aᵢ
+        fB := mkApp fB bᵢ
+        ty := B
+      return match h? with
+        | some h => .proof h
+        | none => .conv
+    | _, _ => return if a == b then .same else .conv
+  modify (·.insert key r)
+  return r
+
+/-- Returns `true` if `e` contains a `let` or a beta redex. -/
+def hasLetOrBetaRedex (e : Expr) : Bool :=
+  Option.isSome <| e.find? fun
+    | .letE .. | .app (.lam ..) _ => true
+    | _ => false
+
+/--
+Replaces the target `T` of `mvarId` by `f T`, maximally shared. The kernel accepts the new goal
+by a proof of `T = f T` if `f` changes a `let` or a beta redex in `T`, and by conversion otherwise.
+-/
+public def _root_.Lean.MVarId.transformTargetS (mvarId : MVarId) (f : Expr → MetaM Expr) :
+    SymM MVarId := mvarId.withContext do
+  let tag ← mvarId.getTag
+  let type ← mvarId.getType
+  let typeNew ← f type
+  if !isSameExpr type typeNew && hasLetOrBetaRedex type then
+    let typeNew ← shareCommon typeNew
+    if let .proof h ← (preprocessEq (← instantiateMVars type) typeNew).run' {} then
+      let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew tag
+      mvarId.assign (mkApp4 (mkConst ``Eq.mpr [← Sym.getLevel typeNew]) type typeNew h mvarNew)
+      return mvarNew.mvarId!
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew tag
+  mvarId.assign mvarNew
+  return mvarNew.mvarId!
 
 /--
 Helper function that removes gaps, instantiate metavariables, and applies `shareCommon`.

@@ -28,6 +28,7 @@ import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.EMatchDiagnostics
+import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Arith.Types
 public section
 namespace Lean.Meta.Grind
@@ -382,8 +383,7 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean || !config.revert then pure mvarId else mvarId.markAccessible
   let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
-  let mvarId ← mvarId.unfoldReducible
-  let mvarId ← mvarId.betaReduce
+  let mvarId ← mvarId.transformTargetS fun e => do Core.betaReduce (← Sym.unfoldReducible e)
   -- `have` wraps the goal type in `mdata` (`noImplicitLambda`), which would hide an implication
   -- or a universal quantifier from `introNext`.
   let mvarId ← mvarId.eraseIrrelevantMData

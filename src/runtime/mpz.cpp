@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <bit>
 #include <memory>
+#include <vector>
 #include <string>
 #include <cstring>
 #include "runtime/sstream.h"
@@ -16,6 +17,22 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 
 namespace lean {
+template<typename Limb>
+static uint64 extract_limb_bits64(Limb const * limbs, size_t num_limbs, size_t bit_offset) {
+    constexpr size_t limb_bits = sizeof(Limb) * 8;
+    size_t i = bit_offset / limb_bits;
+    size_t shift = bit_offset % limb_bits;
+    uint64 r = 0;
+    size_t got = 0;
+    while (got < 64 && i < num_limbs) {
+        r |= static_cast<uint64>(limbs[i] >> shift) << got;
+        got += limb_bits - shift;
+        shift = 0;
+        i++;
+    }
+    return r;
+}
+
 /* Splits the number with little-endian digits `ds` into 64-bit words `w₀, …, wₖ` with `wₖ ≠ 0`,
    and returns `w₀` if `k = 0`, and `mix(… mix(mix(w₀, w₁), w₂) …, wₖ)` otherwise.
    The result does not depend on the digit size. */
@@ -249,6 +266,16 @@ size_t mpz::log2() const {
 
 size_t mpz::size_in_bytes() const {
     return mpz_size(m_val) * sizeof(mp_limb_t);
+}
+
+uint64 mpz::extract_bits64(size_t bit_offset) const {
+    return extract_limb_bits64(mpz_limbs_read(m_val), mpz_size(m_val), bit_offset);
+}
+
+mpz mpz::of_le_bytes(unsigned char const * data, size_t size) {
+    mpz r;
+    mpz_import(r.m_val, size, -1, 1, 0, 0, data);
+    return r;
 }
 
 uint64 mpz::hash64() const {
@@ -924,6 +951,21 @@ size_t mpz::trailing_zeros() const {
 
 size_t mpz::size_in_bytes() const {
     return m_size * sizeof(mpn_digit);
+}
+
+uint64 mpz::extract_bits64(size_t bit_offset) const {
+    return extract_limb_bits64(m_digits, m_size, bit_offset);
+}
+
+mpz mpz::of_le_bytes(unsigned char const * data, size_t size) {
+    size_t num_digits = (size + sizeof(mpn_digit) - 1) / sizeof(mpn_digit);
+    if (num_digits == 0) return mpz();
+    std::vector<mpn_digit> digits(num_digits, 0);
+    for (size_t i = 0; i < size; i++)
+        digits[i / sizeof(mpn_digit)] |= static_cast<mpn_digit>(data[i]) << (8 * (i % sizeof(mpn_digit)));
+    mpz r;
+    r.set(num_digits, digits.data());
+    return r;
 }
 
 uint64 mpz::hash64() const {

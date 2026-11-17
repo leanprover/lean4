@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive.h"
 #include "kernel/quot.h"
 #include "kernel/trace.h"
+#include "kernel/kernel_vm.h"
 
 namespace lean {
 void initialize_kernel_module() {
@@ -26,9 +27,11 @@ void initialize_kernel_module() {
     initialize_inductive();
     initialize_quot();
     initialize_trace();
+    initialize_kernel_vm();
 }
 
 void finalize_kernel_module() {
+    finalize_kernel_vm();
     finalize_trace();
     finalize_quot();
     finalize_inductive();

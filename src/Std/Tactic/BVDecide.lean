@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast
 public import Std.Tactic.BVDecide.LRAT
+public import Std.Tactic.BVDecide.KernelVM
 public import Std.Tactic.BVDecide.Normalize
 public import Std.Tactic.BVDecide.Reflect
 public import Std.Tactic.BVDecide.Syntax

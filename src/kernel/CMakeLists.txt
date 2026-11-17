@@ -16,6 +16,7 @@ add_library(
   quot.cpp
   inductive.cpp
   trace.cpp
+  kernel_vm.cpp
 )
 
 # Counts and indices in the kernel are `size_t`: a lossy implicit conversion can alias distinct values.

@@ -119,6 +119,8 @@ private:
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);
     optional<expr> reduce_pow(expr const & e);
     optional<expr> reduce_shiftLeft(expr const & e);
+    optional<expr> reduce_nat_get(expr const & e, unsigned bytes);
+    optional<expr> reduce_kernel_vm(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
     type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe);

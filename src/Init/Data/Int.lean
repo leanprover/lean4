@@ -18,6 +18,7 @@ public import Init.Data.Int.Pow
 public import Init.Data.Int.Cooper
 public import Init.Data.Int.Kernel
 public import Init.Data.Int.Linear
+public import Init.Data.Int.LinearVM
 public import Init.Data.Int.OfNat
 public import Init.Data.Int.ToString
 public import Init.Data.Int.Package

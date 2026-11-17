@@ -10708,8 +10708,8 @@ goto v___jp_3946_;
 }
 else
 {
-lean_dec_ref_known(v_tail_3981_, 2);
 lean_dec(v_tail_3982_);
+lean_dec_ref_known(v_tail_3981_, 2);
 lean_dec(v___x_3963_);
 lean_dec_ref(v_k_3938_);
 lean_dec_ref(v_val_3937_);

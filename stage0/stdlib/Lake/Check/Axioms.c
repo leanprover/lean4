@@ -2692,23 +2692,23 @@ goto v___jp_861_;
 v___jp_853_:
 {
 uint8_t v___x_858_; 
-v___x_858_ = lean_nat_dec_le(v___y_857_, v___y_856_);
+v___x_858_ = lean_nat_dec_le(v___y_857_, v___y_855_);
 if (v___x_858_ == 0)
 {
 lean_object* v___x_859_; 
-lean_dec(v___y_856_);
+lean_dec(v___y_855_);
 lean_inc(v___y_857_);
-v___x_859_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lake_Check_usedAxioms_spec__0___redArg(v___y_854_, v___y_855_, v___y_857_, v___y_857_);
+v___x_859_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lake_Check_usedAxioms_spec__0___redArg(v___y_856_, v___y_854_, v___y_857_, v___y_857_);
 lean_dec(v___y_857_);
-lean_dec(v___y_854_);
+lean_dec(v___y_856_);
 return v___x_859_;
 }
 else
 {
 lean_object* v___x_860_; 
-v___x_860_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lake_Check_usedAxioms_spec__0___redArg(v___y_854_, v___y_855_, v___y_857_, v___y_856_);
+v___x_860_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lake_Check_usedAxioms_spec__0___redArg(v___y_856_, v___y_854_, v___y_857_, v___y_855_);
+lean_dec(v___y_855_);
 lean_dec(v___y_856_);
-lean_dec(v___y_854_);
 return v___x_860_;
 }
 }
@@ -2727,17 +2727,17 @@ v___x_868_ = lean_nat_dec_le(v___x_864_, v___x_867_);
 if (v___x_868_ == 0)
 {
 lean_inc(v___x_867_);
-v___y_854_ = v___x_863_;
-v___y_855_ = v___y_862_;
-v___y_856_ = v___x_867_;
+v___y_854_ = v___y_862_;
+v___y_855_ = v___x_867_;
+v___y_856_ = v___x_863_;
 v___y_857_ = v___x_867_;
 goto v___jp_853_;
 }
 else
 {
-v___y_854_ = v___x_863_;
-v___y_855_ = v___y_862_;
-v___y_856_ = v___x_867_;
+v___y_854_ = v___y_862_;
+v___y_855_ = v___x_867_;
+v___y_856_ = v___x_863_;
 v___y_857_ = v___x_864_;
 goto v___jp_853_;
 }

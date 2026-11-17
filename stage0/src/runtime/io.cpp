@@ -69,7 +69,7 @@ namespace lean {
 
 extern "C" LEAN_EXPORT void lean_io_result_show_error(b_obj_arg r) {
     object * err = io_result_get_error(r);
-    inc_ref(err);
+    inc(err);
     object * str = lean_io_error_to_string(err);
     std::cerr << "uncaught exception: " << string_cstr(str) << std::endl;
     dec_ref(str);
@@ -445,7 +445,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     }
     FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+        int errnum = errno;
+        close(fd);
+        return io_result_mk_error(decode_io_error(errnum, filename));
     } else {
         return io_result_mk_ok(io_wrap_handle(fp));
     }
@@ -885,16 +887,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
 
     if (nbytes == 0) return io_result_mk_ok(lean_alloc_sarray(1, 0, 0));
 
-#if !defined(LEAN_WINDOWS)
-    int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-    if (fd_urandom < 0) {
-        return io_result_mk_error(decode_io_error(errno, lean_mk_ascii_string_unchecked("/dev/urandom")));
-    }
-#endif
-
     if (lean_alloc_sarray_would_overflow(1, nbytes)) {
         return io_result_mk_error(decode_io_error(ENOMEM, NULL));
     }
+
+#if !defined(LEAN_WINDOWS)
+    int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+    if (fd_urandom < 0) {
+        int errnum = errno;
+        object * fname = lean_mk_ascii_string_unchecked("/dev/urandom");
+        obj_res ret = io_result_mk_error(decode_io_error(errnum, fname));
+        dec_ref(fname);
+        return ret;
+    }
+#endif
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     size_t remain = nbytes;
     uint8_t *dst = lean_sarray_cptr(res);
@@ -925,9 +931,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
         ssize_t nread = read(fd_urandom, dst, read_sz);
         if (nread < 0) {
             if (errno != EINTR) {
+                int errnum = errno;
                 close(fd_urandom);
                 dec_ref(res);
-                return io_result_mk_error(decode_io_error(errno, nullptr));
+                return io_result_mk_error(decode_io_error(errnum, nullptr));
             }
         } else {
             remain -= nread;
@@ -1352,6 +1359,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile() {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
         FILE* handle = fdopen(req.result, "r+");
+        if (!handle) {
+            int errnum = errno;
+            close(req.result);
+            uv_fs_t unlink_req;
+            uv_fs_unlink(NULL, &unlink_req, req.path, NULL);
+            uv_fs_req_cleanup(&unlink_req);
+            uv_fs_req_cleanup(&req);
+            return io_result_mk_error(decode_io_error(errnum, nullptr));
+        }
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
         uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());

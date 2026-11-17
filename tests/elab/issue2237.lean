@@ -20,16 +20,25 @@ abbrev plus : Term Γ a → Term Γ a
 
 /--
 error: failed to generate equational theorem for `plus`
-  failed to generate equality theorems for `match` expression `plus.match_1`
+  Tactic `subst` failed: invalid equality proof, it is not of the form (x = t) or (t = x)
+    x✝ ≍ n✝.lam
+  
   Γ✝ : Context
   a✝ : Ty
   motive✝ : Term Γ✝ a✝ → Sort u_1
-  n✝ : Term ( ✶ :: Γ✝) ✶
+  x✝ : Term Γ✝ a✝
   h_1✝ : (i : Lookup Γ✝ a✝) → motive✝ (Term.var i)
   h_2✝ : (n : Term ( ✶ :: Γ✝) ✶ ) → motive✝ n.lam
   h_3✝ : (a : Term ( ✶ :: Γ✝) ✶ ) → (m : Term Γ✝ ✶ ) → motive✝ (a.lam.ap m)
   h_4✝ : (l m : Term Γ✝ ✶ ) → motive✝ (l.ap m)
-  ⊢ (⋯ ▸ fun x motive h_1 h_2 h_3 h_4 h => ⋯ ▸ h_2 n✝) n✝.lam motive✝ h_1✝ h_2✝ h_3✝ h_4✝ ⋯ = h_2✝ n✝
+  n✝ : Term ( ✶ :: Γ✝) ✶
+  heq_1✝ : x✝ ≍ n✝.lam
+  ⊢ (match x✝ with
+      | Term.var i => h_1✝ i
+      | n.lam => h_2✝ n
+      | a.lam.ap m => h_3✝ a m
+      | l.ap m => h_4✝ l m) ≍
+      h_2✝ n✝
 -/
 #guard_msgs in
 #print equations plus

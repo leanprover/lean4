@@ -14,6 +14,7 @@ Tests how URIs, request-targets, ports, host names and status codes are read and
 - a port may have leading zeros (`port = *DIGIT`, RFC 3986 §3.2.3), and an authority-form target
   needs at least one port digit, so `file:///x` stays absolute-form;
 - a host name of the maximal 253 characters may end with the root `.`;
+- an empty authority (`file:///x`) is printed again and names no host (RFC 3986 §5.3);
 - a status code of 600–999 counts as a server error (RFC 9110 §15).
 -/
 
@@ -99,3 +100,15 @@ def run (machine : Machine dir) (n : Nat := 4) : Machine dir × String := Id.run
   expect status.isServerError "599 is not a server error"
   let some status := Status.ofCode none 499 | throw (IO.userError "ofCode 499")
   expect (!status.isServerError && status.isClientError) "499 is not a client error"
+
+-- RFC 3986 §5.3: an authority that is defined is printed, even when it is empty. An empty host names
+-- no host to connect to, and an http(s) target with one is rejected (RFC 9110 §4.2.1).
+#eval show IO Unit from do
+  for s in ["file:///tmp/junk.txt", "itms-services://?action=download-manifest", "x://y", "x:/y", "x:/",
+      "file:////host/share", "http:////evil.com/x"] do
+    let some u := URI.parse? s | throw (IO.userError s!"{s} did not parse")
+    expect (toString u == s) s!"{s} printed as {toString u}"
+  for s in ["file:///tmp/junk.txt", "http:////evil.com/x", "x://"] do
+    expect ((URI.parse? s).any (·.host?.isNone)) s!"{s} names a host"
+  for s in ["http:///x", "https://", "http:////evil.com/x"] do
+    expect (RequestTarget.parse? s).isNone s!"{s} was accepted as a request target"

@@ -6855,10 +6855,10 @@ return v___x_2079_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg___boxed(lean_object* v_x_2080_, lean_object* v_x_2081_, lean_object* v_x_2082_){
 _start:
 {
-size_t v_x_10440__boxed_2083_; lean_object* v_res_2084_; 
-v_x_10440__boxed_2083_ = lean_unbox_usize(v_x_2081_);
+size_t v_x_10437__boxed_2083_; lean_object* v_res_2084_; 
+v_x_10437__boxed_2083_ = lean_unbox_usize(v_x_2081_);
 lean_dec(v_x_2081_);
-v_res_2084_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg(v_x_2080_, v_x_10440__boxed_2083_, v_x_2082_);
+v_res_2084_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___redArg(v_x_2080_, v_x_10437__boxed_2083_, v_x_2082_);
 lean_dec(v_x_2082_);
 lean_dec_ref(v_x_2080_);
 return v_res_2084_;
@@ -7910,10 +7910,10 @@ return v___x_2416_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0___boxed(lean_object* v_00_u03b2_2417_, lean_object* v_x_2418_, lean_object* v_x_2419_, lean_object* v_x_2420_){
 _start:
 {
-size_t v_x_10923__boxed_2421_; lean_object* v_res_2422_; 
-v_x_10923__boxed_2421_ = lean_unbox_usize(v_x_2419_);
+size_t v_x_10920__boxed_2421_; lean_object* v_res_2422_; 
+v_x_10920__boxed_2421_ = lean_unbox_usize(v_x_2419_);
 lean_dec(v_x_2419_);
-v_res_2422_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0(v_00_u03b2_2417_, v_x_2418_, v_x_10923__boxed_2421_, v_x_2420_);
+v_res_2422_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_mkUnfoldAxiomsNote_spec__0_spec__0(v_00_u03b2_2417_, v_x_2418_, v_x_10920__boxed_2421_, v_x_2420_);
 lean_dec(v_x_2420_);
 lean_dec_ref(v_x_2418_);
 return v_res_2422_;

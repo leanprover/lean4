@@ -823,15 +823,14 @@ v___x_67_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grin
 v___x_68_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__3, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__3_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__3);
 v___x_69_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__0, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__0_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__0);
 v___x_70_ = lean_obj_once(&l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__2, &l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__2_once, _init_l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_registerNormTheorems_spec__2___redArg___closed__2);
-v___x_71_ = lean_alloc_ctor(0, 8, 0);
+v___x_71_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_71_, 0, v___x_70_);
 lean_ctor_set(v___x_71_, 1, v___x_69_);
 lean_ctor_set(v___x_71_, 2, v___x_68_);
 lean_ctor_set(v___x_71_, 3, v___x_69_);
 lean_ctor_set(v___x_71_, 4, v___x_69_);
 lean_ctor_set(v___x_71_, 5, v___x_69_);
-lean_ctor_set(v___x_71_, 6, v___x_69_);
-lean_ctor_set(v___x_71_, 7, v___x_67_);
+lean_ctor_set(v___x_71_, 6, v___x_67_);
 return v___x_71_;
 }
 }

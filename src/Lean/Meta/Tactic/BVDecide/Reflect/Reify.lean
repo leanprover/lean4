@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVExpr
 import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
 import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
 import Lean.Meta.Sym.LitValues
+import Lean.Util.SafeExponentiation
 import Lean.Meta.AppBuilder
 import Std.Tactic.BVDecide.Reflect
 import Lean.Meta.Sym.InferType
@@ -29,7 +30,9 @@ open Std.Tactic.BVDecide
 public def isValidBitVecAtom (e : Expr) : ReifyM (Option Nat) := do
   let t ← Sym.instantiateMVarsS (← Sym.inferType e)
   let_expr BitVec widthExpr := t | return none
-  return Sym.getNatValue? widthExpr
+  let some width := Sym.getNatValue? widthExpr | return none
+  unless isSafeBitVecWidth width do return none
+  return some width
 
 public def isValidBoolAtom (e : Expr) : ReifyM Bool := do
   let ty ← Sym.inferType e

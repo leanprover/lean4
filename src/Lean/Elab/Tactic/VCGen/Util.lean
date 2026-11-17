@@ -15,6 +15,11 @@ public import Lean.Meta.Sym.Intro
 public import Lean.Meta.Sym.Simp.Goal
 public import Lean.Meta.Sym.Simp.Telescope
 public import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.LooseBVarsS
+import Lean.Meta.Sym.AbstractS
+import Lean.Meta.Sym.Simp.Result
 
 open Lean Meta Sym Lean.Order
 
@@ -154,15 +159,89 @@ public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
   let goal ← instantiateBinderDomains goal
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
+/-- What `simpGoalTelescope` does with one binder `x : T` of the target. -/
+inductive TelescopeStep where
+  | keep
+  /-- `T` simplifies to `True`, and the binder goes away. -/
+  | drop
+  /-- `T` simplifies to `T'` by `h : T = T'`. -/
+  | rewrite (T' h : Expr)
+
+/-- A binder of the target with its original domain `d`, which refers to the earlier binders. -/
+structure TelescopeBinder where
+  name : Name
+  bi   : BinderInfo
+  d    : Expr
+  step : TelescopeStep
+
 /--
-Simplify the hypotheses of the goal's target `h₁ → … → hₙ → G` with `Context.simpMethods`, leaving
-`G` untouched, and thread the persistent simp cache through `VCGenM`'s state. `.noProgress` is
-forwarded to the caller.
+Simplify the non-dependent hypotheses of the goal's target `∀ x₁ … xₙ, G` with
+`Context.simpMethods`, leaving `G` untouched, and thread the persistent simp cache through
+`VCGenM`'s state. A hypothesis `xᵢ : T` that simplifies to `T'` by `h` is passed as `Eq.mp h xᵢ`:
+the new goal `?g` has `T'` in place of `T`, and the goal is assigned
+`fun x₁ … xₙ => ?g … (Eq.mp h xᵢ) …`. A hypothesis that simplifies to `True` goes away, and one
+that simplifies to `False` closes the goal. `.noProgress` is forwarded to the caller.
 -/
 public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
   let some methods := (← read).simpMethods | return .noProgress
+  goal.withContext do
   let target ← goal.getType
-  (← runSimp methods (Sym.Simp.simpTelescope target)).toSimpGoalResult goal
+  let isProp := (← Sym.inferType target).isProp
+  runSimp methods (go isProp target #[] #[])
+where
+  go (isProp : Bool) (e : Expr) (xs : Array Expr) (bs : Array TelescopeBinder) :
+      Sym.Simp.SimpM Sym.SimpGoalResult := do
+    let .forallE n d b bi := e | finish isProp e xs bs
+    let dI ← instantiateRevS d xs
+    withLocalDeclS n bi dI fun x => do
+      let xs' := xs.push x
+      if b.hasLooseBVar 0 then
+        return ← go isProp b xs' (bs.push { name := n, bi, d, step := .keep })
+      let r ← if xs.isEmpty then Sym.Simp.simp dI else Sym.Simp.withFreshTransientCache (Sym.Simp.simp dI)
+      let d' := r.getResultExpr dI
+      if isProp && (← isFalseExpr d') then
+        let h := match r with
+          | .step _ p .. => mkApp4 (mkConst ``Eq.mp [0]) dI d' p x
+          | .rfl .. => x
+        let G ← instantiateRevS b xs'
+        goal.assign (mkLambdas (bs.push { name := n, bi, d, step := .keep })
+          (mkApp2 (mkConst ``False.elim [0]) G h) xs')
+        return .closed
+      let step := if isProp && (← isTrueExpr d') then .drop else match r with
+        | .step d' p .. => .rewrite d' p
+        | .rfl .. => .keep
+      go isProp b xs' (bs.push { name := n, bi, d, step })
+
+  /-- Abstracts `xs` in `body` and binds them with the original domains of `bs`. -/
+  mkLambdas (bs : Array TelescopeBinder) (body : Expr) (xs : Array Expr) : Expr :=
+    bs.foldr (init := body.abstract xs) fun b body => mkLambda b.name b.bi b.d body
+
+  finish (isProp : Bool) (G : Expr) (xs : Array Expr) (bs : Array TelescopeBinder) :
+      Sym.Simp.SimpM Sym.SimpGoalResult := do
+    if isProp && !bs.isEmpty && (← isTrueExpr G) then
+      goal.assign (mkLambdas bs (mkConst ``True.intro) xs)
+      return .closed
+    if bs.all (·.step matches .keep) then return .noProgress
+    let mut target := G
+    let mut j := bs.size
+    for b in bs.reverse do
+      j := j - 1
+      target ← match b.step with
+        | .drop => lowerLooseBVarsS target 1 1
+        | .keep => mkForallS b.name b.bi b.d target
+        | .rewrite T' _ => do mkForallS b.name b.bi (← abstractFVarsPrefix T' j xs) target
+    let decl ← goal.getDecl
+    let g ← mkFreshExprMVarAt decl.lctx decl.localInstances target .syntheticOpaque decl.userName
+    let mut args := #[]
+    for b in bs, x in xs do
+      match b.step with
+      | .keep => args := args.push x
+      | .drop => pure ()
+      | .rewrite T' h =>
+        let T ← Sym.inferType x
+        args := args.push (mkApp4 (mkConst ``Eq.mp [← Sym.getLevel T]) T T' h x)
+    goal.assign (mkLambdas bs (mkAppN g args) xs)
+    return .goal g.mvarId!
 
 /--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a

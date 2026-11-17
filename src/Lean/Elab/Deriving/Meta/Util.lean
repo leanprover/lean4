@@ -1050,7 +1050,7 @@ private def mkVarIndexMap (vars : Array Expr) : FVarIdMap Nat := Id.run do
 /--
 Returns `fwdDeps` with `fwdDeps.size = vars.size` such that `fwdDeps[i]` is sorted, has no
 duplicates, and `j ∈ fwdDeps[i]` iff `vars[j]` transitively depends on `vars[i]`. This function
-assumes that the variables are provided in dependency order, so `j < i` for `j ∈ fwdDeps[i]`.
+assumes that the variables are provided in dependency order, so `i < j` for `j ∈ fwdDeps[i]`.
 -/
 private partial def computeForwardDeps (vars : Array Expr) :
     MetaM (Array (Array Nat)) := do
@@ -1091,6 +1091,7 @@ continuation fold over `leftVars` and `rightVars` in parallel.
 
 The function `f` receives an expression pair, the current state, and a continuation that receives
 an optional proof of equality and the new state. You should usually only provide a proof of
+equality if `hasRelevantForwardDeps` is true.
 
 Note however that the two expressions provided to `f` may not have the same type although they will
 always live in the same universe. Still, it is guaranteed that the types end up the same if all
@@ -1102,7 +1103,7 @@ You should note down these cases in `ignoreDep` which takes in the left-hand sid
 index in the `leftVars` array. `ignoreDep` affects which pairs have `hasRelevantForwardDeps` true:
 A pair has relevant forward dependencies if it has forward dependencies where `ignoreDep` evaluates
 to false. If you then always pass along a proof of equality if `hasRelevantForwardDeps` is true,
-you guarantee that both sides have the same type unless `ignoreDep` evaluated to false for them.
+you guarantee that both sides have the same type unless `ignoreDep` evaluated to true for them.
 If you however don't always provide such a proof of equality, you need to prepared to handle the
 case where `hasBackwardDeps` is true (i.e. both sides have potentially different types).
 
@@ -1618,7 +1619,7 @@ meta def deriveTypeInfo : DerivingHandler :=
               let some u ← getDecLevel? type | continue
               let inst ← synthInstanceDeriving (.app (.const ``TypeInfo [u]) type)
               let nm := mkApp2 (.const ``TypeInfo.inductName [u]) type inst
-              acc := mkApp2 (.const ``NameSet.insert []) acc (toExpr inductVal.name)
+              acc := mkApp2 (.const ``NameSet.insert []) acc nm
               acc := mkApp4 (.const ``TypeInfo.nestedTypes [u]) type inst field acc
             mkLambdaFVars #[accVar] acc
       | ``TypeInfo.inductName =>
@@ -1632,11 +1633,8 @@ meta def deriveTypeInfo : DerivingHandler :=
 meta initialize registerDerivingHandler ``TypeInfo deriveTypeInfo
 ```
 
-This function is a short-hand for running `makeInstancesUsingMutualHelper` where an `InstanceInfo`
-is generated using `InstanceInfo.usingCtor` for every inductive in the mutual block. If you need
-more control over which inductives to generate helpers for (e.g. only the ones that are actually
-provided to `deriving` for inherently non-recursive instances), you can use
-`InstanceInfo.usingCtor` directly.
+This function is a short-hand for running `makeInstancesUsingMutualBlock` where each `InstanceInfo`
+is generated using `InstanceInfo.usingCtor`.
 -/
 def makeInstancesUsingCtor (perField : Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (supportsPartial := true) (nonRec : Bool := false)

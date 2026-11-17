@@ -79,9 +79,9 @@ def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
     match_expr rhs with
-    | wp _ _ _ _ _ prog post eposts => some (pre, prog, post, eposts)
+    | wp _ _ _ _ _ _ _ prog post eposts => some (pre, prog, post, eposts)
     | _ => none
-  | Triple _ _ _ _ x _ _ pre post eposts => some (pre, x, post, eposts)
+  | Triple _ _ _ _ _ _ x _ pre post eposts => some (pre, x, post, eposts)
   | _ => none
 
 /-- Whether any metavariable from `mvarIds` occurs in `e`. -/
@@ -94,7 +94,7 @@ def conjunctiveArgs? (env : Environment) : Name → Option (Nat × List Nat)
   | ``And => some (2, [0, 1])
   | ``Lean.Order.iInf => some (4, [3])
   | ``Lean.Order.himp => some (4, [3])
-  | ``wp => some (8, [6, 7])
+  | ``wp => some (10, [8, 9])
   | ``Prod.fst | ``Prod.snd => some (3, [2])
   | ``Prod.mk => some (4, [2, 3])
   | ``ite | ``dite => some (5, [3, 4])

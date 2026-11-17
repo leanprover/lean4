@@ -27,49 +27,50 @@ namespace Std.WP
 
 /-- An `Id` program is conjunctive: its `wp` is evaluation at the result. -/
 instance {α : Type u} (x : Id α) : WP.IsConjunctive x where
-  meet_apply_le Q₁ Q₂ E₁ E₂ := by simp only [WP.trans, meet_apply]; exact PartialOrder.rel_refl
+  meet_apply_le Q₁ Q₂ E₁ E₂ := by
+    simp only [WP.trans_apply_eq, Id.wp_apply_eq, meet_apply]; exact PartialOrder.rel_refl
 
 /-- An `Option` program is conjunctive: its `wp` is evaluation at the result. -/
 instance {α : Type u} (x : Option α) : WP.IsConjunctive x where
   meet_apply_le Q₁ Q₂ E₁ E₂ := by
     cases x <;>
-      simp only [meet_apply, WP.trans, pushOption] <;>
+      simp only [WP.trans_apply_eq, Option.wp_apply_eq, meet_apply, pushOption] <;>
       exact PartialOrder.rel_refl
 
 /-- An `Except ε` program is conjunctive: its `wp` is evaluation at the result. -/
 instance {ε α : Type u} (x : Except ε α) : WP.IsConjunctive x where
   meet_apply_le Q₁ Q₂ E₁ E₂ := by
     cases x <;>
-      simp only [meet_apply, WP.trans, pushExcept] <;>
+      simp only [WP.trans_apply_eq, Except.wp_apply_eq, meet_apply, pushExcept] <;>
       exact PartialOrder.rel_refl
 
 /-- An `EStateM` program is conjunctive: its `wp` is evaluation at the result. -/
 instance {ε σ α : Type} (x : EStateM ε σ α) : WP.IsConjunctive x where
   meet_apply_le Q₁ Q₂ E₁ E₂ := by
     intro s
-    simp only [meet_apply, WP.trans]
+    simp only [WP.trans_apply_eq, EStateM.wp_apply_eq, meet_apply]
     cases x s <;> first | exact PartialOrder.rel_refl | exact meet_le_left _ _
 
 /-- The transformer of every program of the monad `m` is conjunctive. -/
 abbrev MonadicWP.IsConjunctive (m : Type u → Type v) {Pred : Type w} {EPosts : Type z}
-    [MonadicWP m Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts] : Prop :=
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] : Prop :=
   ∀ α (x : m α), WP.IsConjunctive x
 
 variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type z}
   [CompleteLattice Pred] [CompleteLattice EPosts]
 
 /-- A `StateT` program lifts conjunctivity from its base monad. -/
-instance {σ α : Type u} [WP (m (α × σ)) (α × σ) Pred EPosts] [WP.IsMonotone (m (α × σ))]
+instance {σ α : Type u} [WP (m (α × σ)) (α × σ) Pred EPosts]
     (x : StateT σ m α) [∀ s, WP.IsConjunctive (x.run s)] : WP.IsConjunctive x :=
   inferInstanceAs (PredTrans.pushArg (WP.trans <| x.run ·)).IsConjunctive
 
 /-- A `ReaderT` program lifts conjunctivity from its base monad. -/
-instance {ρ α : Type u} [WP (m α) α Pred EPosts] [WP.IsMonotone (m α)]
+instance {ρ α : Type u} [WP (m α) α Pred EPosts]
     (x : ReaderT ρ m α) [base : ∀ r, WP.IsConjunctive (x.run r)] :
     WP.IsConjunctive x where
   meet_apply_le Q₁ Q₂ E₁ E₂ := by
     intro r
-    simp only [meet_apply]
+    simp only [WP.trans, PredTrans.apply_mk, meet_apply]
     refine PartialOrder.rel_trans
       (PredTrans.IsConjunctive.meet_apply_le (pt := WP.trans (x.run r))
         (fun a => Q₁ a r) (fun a => Q₂ a r) E₁ E₂)
@@ -81,13 +82,13 @@ instance {ρ α : Type u} [WP (m α) α Pred EPosts] [WP.IsMonotone (m α)]
 /-- An `OptionT` program lifts conjunctivity from its base monad. -/
 instance {m : Type u → Type v} {α Pred : Type u} {EPosts : Type z} [CompleteLattice Pred]
     [CompleteLattice EPosts] [WP (m (Option α)) (Option α) Pred EPosts]
-    [WP.IsMonotone (m (Option α))] (x : OptionT m α) [WP.IsConjunctive x.run] :
+    (x : OptionT m α) [WP.IsConjunctive x.run] :
     WP.IsConjunctive x :=
   inferInstanceAs (PredTrans.pushOptionT (WP.trans x.run)).IsConjunctive
 
 /-- An `ExceptT` program lifts conjunctivity from its base monad. -/
 instance {ε α : Type u} [WP (m (Except ε α)) (Except ε α) Pred EPosts]
-    [WP.IsMonotone (m (Except ε α))] (x : ExceptT ε m α) [WP.IsConjunctive x.run] :
+    (x : ExceptT ε m α) [WP.IsConjunctive x.run] :
     WP.IsConjunctive x :=
   inferInstanceAs (PredTrans.pushExceptT (WP.trans x.run)).IsConjunctive
 

@@ -506,10 +506,7 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : MonadicWP HeapM HProp EStack⟨⟩ :=
-  fun α => WP.withFrameClosure (Prog := StateM Heap α) sepConj inferInstance
-
-instance {α : Type} : WP.IsMonotone (HeapM α) :=
-  MonadicWP.isMonotone_withFrameClosure (m := StateM Heap) sepConj α
+  ⟨fun α => WP.withFrameClosure (Prog := StateM Heap α) sepConj inferInstance⟩
 
 instance : MonadicWP.IsLaxMonadMorphism HeapM :=
   MonadicWP.isLaxMonadMorphism_withFrameClosure (m := StateM Heap) sepConj

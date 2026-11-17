@@ -29,13 +29,13 @@ namespace Std.WP
 
 /-- The transformer of the program `x` is conjunctive. -/
 abbrev WP.IsConjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
-    [WP Prog Value Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts] (x : Prog) : Prop :=
+    [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts] (x : Prog) : Prop :=
   (WP.trans x).IsConjunctive
 
 /-- The transformer of the program `x` is conjunctive. -/
 @[deprecated WP.IsConjunctive (since := "2026-11-13")]
 abbrev WPConjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
-    [WP Prog Value Pred EPosts] [CompleteLattice Pred] [CompleteLattice EPosts] (x : Prog) : Prop :=
+    [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts] (x : Prog) : Prop :=
   WP.IsConjunctive x
 
 end Std.WP

@@ -34,6 +34,8 @@ open Lean.Order Std.WP
 
 namespace Std.WP
 
+section
+
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
   [CompleteLattice Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
 
@@ -46,7 +48,7 @@ structure WP.Frames {R : Type t} (op : R → Pred → Pred) {opE : R → EPosts 
   op_wp_le_wp_op : ∀ (Q : Value → Pred) (E : EPosts),
     P ⊓ op F (wp x Q E) ⊑ wp x (fun a => op F (Q a)) (opE F E)
 
-theorem meet_op_wp_upperAdjoint_le_wp [WP.IsMonotone Prog] {R : Type t} {op : R → Pred → Pred}
+theorem meet_op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
     {x : Prog} {F : R} {P : Pred} {Q : Value → Pred} {E : EPosts}
     (hframes : WP.Frames op x F P) :
@@ -55,10 +57,8 @@ theorem meet_op_wp_upperAdjoint_le_wp [WP.IsMonotone Prog] {R : Type t} {op : R 
   haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
   haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
   refine PartialOrder.rel_trans (hframes.op_wp_le_wp_op _ _) ?_
-  apply WP.trans_monotone
-  · exact (PreservesSup.upperAdjoint_le (opE F) E)
-  · intro a
-    exact PreservesSup.upperAdjoint_le (op F) (Q a)
+  exact WP.wp_monotone (fun a => PreservesSup.upperAdjoint_le (op F) (Q a))
+    (PreservesSup.upperAdjoint_le (opE F) E)
 
 theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
@@ -76,7 +76,7 @@ theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
   rw [hf x]
   exact PredTrans.frameClosure_frames op comp hact hactE (f x) Q E F
 
-theorem WP.frames_of_conjunctive [WP.IsMonotone Prog] {x : Prog} [WP.IsConjunctive x]
+theorem WP.frames_of_conjunctive {x : Prog} [WP.IsConjunctive x]
     {opE : Pred → EPosts → EPosts} [FrameOp meet EPosts opE] {F P : Pred}
     (hF : P ⊓ F ⊑ wp x (fun _ => F) (opE F ⊤))
     (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
@@ -94,30 +94,46 @@ theorem WP.frames_of_conjunctive [WP.IsMonotone Prog] {x : Prog} [WP.IsConjuncti
     simp only [meet_apply]
     exact PartialOrder.rel_refl
 
+end
+
+section
+
+variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
+  [PartialOrder Pred] [PartialOrder EPosts] [CompleteLattice Pred] [CompleteLattice EPosts]
+  [CompleteLattice.OrderEq Pred] [CompleteLattice.OrderEq EPosts]
+
 /-- Reinterpret a `WP` so its weakest precondition is the `frameClosure` of the base
 wp over a family of supremum-preserving resource operators `op r` and the `FrameOp`-derived
-exception-channel companion. -/
+exception-channel companion. The lattices of `Pred` and `EPosts` have the orders of `base`. -/
 @[instance_reducible] noncomputable def WP.withFrameClosure {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
-    (base : WP Prog Value Pred EPosts) : WP Prog Value Pred EPosts where
-  trans x := (base.trans x).frameClosure op
+    (base : WP Prog Value Pred EPosts) : WP Prog Value Pred EPosts := by
+  have hP := CompleteLattice.OrderEq.toPartialOrder_eq (α := Pred)
+  have hE := CompleteLattice.OrderEq.toPartialOrder_eq (α := EPosts)
+  subst hP hE
+  exact { trans x := (base.trans x).frameClosure op }
 
-omit [WP Prog Value Pred EPosts] in
-theorem WP.isMonotone_withFrameClosure {R : Type t} (op : R → Pred → Pred)
+theorem WP.withFrameClosure_apply {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
-    (base : WP Prog Value Pred EPosts) (h : @WP.IsMonotone Prog _ _ _ base _ _) :
-    @WP.IsMonotone Prog _ _ _ (WP.withFrameClosure op base) _ _ :=
-  fun x => have := h x; inferInstanceAs ((base.trans x).frameClosure op).IsMonotone
+    (base : WP Prog Value Pred EPosts) (x : Prog) (Q : Value → Pred) (E : EPosts) :
+    ((WP.withFrameClosure op base).trans x).apply Q E =
+      ⨅ r, PreservesSup.upperAdjoint (op r)
+        ((base.trans x).apply (fun a => op r (Q a)) (opE r E)) := by
+  obtain ⟨hP⟩ := ‹CompleteLattice.OrderEq Pred›
+  obtain ⟨hE⟩ := ‹CompleteLattice.OrderEq EPosts›
+  subst hP hE
+  exact PredTrans.apply_frameClosure op (base.trans x) Q E
 
-omit [WP Prog Value Pred EPosts] in
 theorem WP.withFrameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
     (base : WP Prog Value Pred EPosts) (x : Prog) (Q : Value → Pred) (E : EPosts) (pre : Pred) :
     pre ⊑ (WP.withFrameClosure op base).wp x Q E ↔
-      ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E) :=
-  PredTrans.le_frameClosure_iff op (base.trans x)
+      ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E) := by
+  obtain ⟨hP⟩ := ‹CompleteLattice.OrderEq Pred›
+  obtain ⟨hE⟩ := ‹CompleteLattice.OrderEq EPosts›
+  subst hP hE
+  exact PredTrans.le_frameClosure_iff op (base.trans x)
 
-omit [WP Prog Value Pred EPosts] in
 theorem WP.le_wp_of_withFrameClosure_eq {R : Type t} {op : R → Pred → Pred}
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
     {base I : WP Prog Value Pred EPosts} (heq : I = WP.withFrameClosure op base)
@@ -126,5 +142,7 @@ theorem WP.le_wp_of_withFrameClosure_eq {R : Type t} {op : R → Pred → Pred}
     pre ⊑ I.wp x Q E := by
   subst heq
   exact (WP.withFrameClosure_le_wp_iff op base x Q E pre).mpr h
+
+end
 
 end Std.WP

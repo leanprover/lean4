@@ -3,9 +3,9 @@ import Std.WP
 /-!
 # `vcgen` over a partial order of assertions
 
-A `WP` interpretation is monotone for a partial order of assertions (`WP.IsMonotone`). This test gives a small command
-language `Cmd σ O` the assertions `σ → O` for an arbitrary partial order `O`. Quantitative program
-logics have assertions of this kind: the assertions of a quantum program map classical stores to
+A `WP` interpretation is a monotone predicate transformer for a partial order of assertions. This
+test gives a small command language `Cmd σ O` the assertions `σ → O` for an arbitrary partial order
+`O`. Quantitative program logics have assertions of this kind: the assertions of a quantum program map classical stores to
 quantum effects, and the Löwner order on effects is a partial order but not a lattice. `vcgen`
 reduces a triple of `Cmd σ O` to verification conditions in `O`.
 -/
@@ -36,9 +36,7 @@ theorem Cmd.wpo_mono (c : Cmd σ O) {Q Q' : σ → O} (h : Q ⊑ Q') : c.wpo Q �
   | seq c₁ c₂ ih₁ ih₂ => exact ih₁ (ih₂ h)
 
 instance : WP (Cmd σ O) Unit (σ → O) EStack⟨⟩ where
-  trans c := ⟨fun Q _ => c.wpo (Q ())⟩
-
-instance : WP.IsMonotone (Cmd σ O) := fun c => ⟨fun _ _ _ _ _ hQ => c.wpo_mono (hQ ())⟩
+  trans c := PredTrans.mk (fun Q _ => c.wpo (Q ())) fun hQ _ => c.wpo_mono (hQ ())
 
 variable {Q : Unit → σ → O} {E : EStack⟨⟩}
 

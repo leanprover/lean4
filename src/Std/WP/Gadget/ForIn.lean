@@ -63,7 +63,7 @@ open Gadget
 /-! ## Specifications -/
 
 @[spec]
-theorem Spec.forInPure [Monad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInPure [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
@@ -89,7 +89,7 @@ theorem Spec.forInPure [Monad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadM
   exact Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.forInPure' [Monad m] [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInPure' [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -157,7 +157,7 @@ variable [Monad m] [Lean.Order.MonadTail m] [CompleteLattice Pred] [CompleteLatt
   [MonadicWP m Pred EPosts]
 
 @[spec]
-theorem Spec.forInLoop_invariant_variant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoop_invariant_variant [MonadicWP.IsLaxMonadMorphism m]
     {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
@@ -183,7 +183,7 @@ theorem Spec.forInLoop_invariant_variant [MonadicWP.IsMonotone m] [MonadicWP.IsL
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec]
-theorem Spec.forInLoop_invariant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoop_invariant [MonadicWP.IsLaxMonadMorphism m]
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
@@ -206,7 +206,7 @@ theorem Spec.forInLoop_invariant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadM
   exact Spec.forIn_loop measure inv einv step
 
 @[spec]
-theorem Spec.forInLoop_variant [MonadicWP.IsMonotone m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoop_variant [MonadicWP.IsLaxMonadMorphism m]
     {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]

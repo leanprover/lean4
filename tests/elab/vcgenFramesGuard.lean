@@ -31,14 +31,10 @@ def run : List Instr → St → St
   | i :: p, s => run p (i.step s)
 
 instance : WP Instr Unit (St → Prop) Unit where
-  trans i := ⟨fun Q _ s => Q () (i.step s)⟩
-
-instance : WP.IsMonotone Instr := fun _ => ⟨fun _ _ _ _ _ hQ _ h => hQ () _ h⟩
+  trans i := PredTrans.mk (fun Q _ s => Q () (i.step s)) fun hQ _ _ h => hQ () _ h
 
 instance : WP (List Instr) Unit (St → Prop) Unit where
-  trans p := ⟨fun Q _ s => Q () (run p s)⟩
-
-instance : WP.IsMonotone (List Instr) := fun _ => ⟨fun _ _ _ _ _ hQ _ h => hQ () _ h⟩
+  trans p := PredTrans.mk (fun Q _ s => Q () (run p s)) fun hQ _ _ h => hQ () _ h
 
 section
 variable {Q : Unit → St → Prop} {E : Unit}

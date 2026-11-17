@@ -271,7 +271,7 @@ instance (r : TraceProp): Lean.Order.PreservesSup (Lean.Order.meet r) where
 
 public
 instance {α : Type} : WP (Traceful α) α TraceProp EStack⟨⟩ where
-    trans f := ⟨fun post _epost => ⟨
+    trans f := PredTrans.mk (fun post _epost => ⟨
       fun trProof =>
         let (optRes, trOut) := f.run trProof.val.erase
         ∃ trOutProof: ProofTrace,
@@ -281,25 +281,26 @@ instance {α : Type} : WP (Traceful α) α TraceProp EStack⟨⟩ where
         match optRes with
         | none => True
         | some res => post res ⟨ trOutProof, h ⟩
-    ⟩⟩
+    ⟩) (by
+      simp only [Lean.Order.PartialOrder.rel]
+      grind)
 
 public
-instance {α : Type} : WP.IsMonotone (Traceful α) := fun x => by
-  constructor
-  simp only [WP.trans, Lean.Order.PartialOrder.rel]
-  grind
+instance : MonadicWP Traceful TraceProp EStack⟨⟩ := ⟨fun _ => inferInstance⟩
 
 public
 instance: MonadicWP.IsLaxMonadMorphism Traceful where
   pure_le x := by
     intro post eposts
+    simp only [PredTrans.apply_pure, WP.trans_apply_eq]
     show post x ⊑ wp (pure x : Traceful _) post eposts
-    simp only [wp, WP.trans, Lean.Order.PartialOrder.rel, Traceful.run_pure]
+    simp only [wp, WP.trans, PredTrans.apply_mk, Lean.Order.PartialOrder.rel, Traceful.run_pure]
     grind
   bind_le x f := by
     intro post eposts
+    simp only [PredTrans.apply_Bind_bind, WP.trans_apply_eq]
     show wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
-    simp only [wp, WP.trans, Lean.Order.PartialOrder.rel, Traceful.run_bind]
+    simp only [wp, WP.trans, PredTrans.apply_mk, Lean.Order.PartialOrder.rel, Traceful.run_bind]
     grind [Trace.le_trans]
 
 end MvcgenSetup

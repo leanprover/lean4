@@ -48,8 +48,7 @@ Modus ponens for two Hoare triple specifications of a program `x`. This theorem 
 Let `h₁` establish a basic postcondition `post₁` for `x`, and let `h₂` establish the advanced
 postcondition `post₂` under the assumption `post₁`. Then `mp h₁ h₂` establishes `post₂` for `x`.
 -/
-theorem mp [WP.IsMonotone Prog] {x : Prog} [WP.IsConjunctive x]
-    [Heyting Pred] [Heyting EPosts]
+theorem mp {x : Prog} [WP.IsConjunctive x] [Heyting Pred] [Heyting EPosts]
     {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred} {eposts₁ eposts₂ : EPosts}
     (h₁ : Triple x pre₁ post₁ eposts₁)
     (h₂ : Triple x pre₂ (post₁ ⇨ post₂) (eposts₁ ⇨ eposts₂)) :
@@ -64,7 +63,7 @@ with postcondition `post`, together with the specification `hgoal` deriving the 
 `wp prog post' eposts'` from `post`. The premise `hp` restricts `obs` to observation: an assertion
 that holds after a successful run of `obs` already holds before it.
 -/
-theorem observe [WP.IsMonotone Prog] {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPosts]
+theorem observe {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPosts]
     [Heyting Pred] [Heyting EPosts]
     {obs : Prog} [WP.IsConjunctive obs] {prog : Prog'}
     {pre : Pred} {post : Value → Pred} {eposts : EPosts}

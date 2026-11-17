@@ -33,12 +33,7 @@ def Exp.eval : Exp → Nat
 def Tagged (_n : Nat) (α : Type) := α
 
 instance : WP (Tagged n Exp) Nat (Fin (n + 1) → Prop) EStack⟨⟩ where
-  trans e := ⟨fun Q _ i => Q (Exp.eval e) i⟩
-
-instance : WP.IsMonotone (Tagged n Exp) := fun _ => by
-  constructor
-  intro Q Q' _ _ _ hQ i h
-  exact hQ _ i h
+  trans e := PredTrans.mk (fun Q _ i => Q (Exp.eval e) i) fun hQ _ i h => hQ _ i h
 
 variable {n : Nat} {Q : Nat → Fin (n + 1) → Prop} {eposts : EStack⟨⟩}
 

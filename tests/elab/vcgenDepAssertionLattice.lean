@@ -41,17 +41,14 @@ pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 
 instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨⟩ where
-  trans f := ⟨fun post _epost =>
+  trans f := Lean.Order.PredTrans.mk (fun post _epost =>
     fun st _ =>
       let (optRes, stOut) := f.run st
       ∃ h : stOut.Invariant,
       match optRes with
       | none => True
-      | some res => post res stOut h⟩
-
-instance {α : Type} : WP.IsMonotone (Stateful α) := fun x => by
-  constructor
-  simp only [WP.trans, Lean.Order.PartialOrder.rel, Stateful.run]; grind
+      | some res => post res stOut h) (by
+    simp only [Lean.Order.PartialOrder.rel, Stateful.run]; grind)
 
 theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
     (post : α → StateProp) (eposts : EStack⟨⟩) (st : State) (h : st.Invariant) :
@@ -60,6 +57,8 @@ theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
           match (x st).1 with
           | none => True
           | some r => post r (x st).2 h' := rfl
+
+instance : MonadicWP Stateful StateProp EStack⟨⟩ := ⟨fun _ => inferInstance⟩
 
 instance : MonadicWP.IsLaxMonadMorphism Stateful where
   pure_le x := by

@@ -541,9 +541,12 @@ discrimination-tree key includes all arguments. Returns `none` for no-op equatio
 syntactically the RHS.
 -/
 def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
-    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
-    return (lhs, (eqTy, rhs))
+  -- The RHS of an unfold equation is the whole program. Zeta-reducing it copies each join point
+  -- `have __do_jp := …` into all its jumps.
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey (zetaReduceLHSOnly := true) declName
+    fun body => do
+      let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+      return (lhs, (eqTy, rhs))
   -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
   -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
   if pattern.pattern == rhs then return none
@@ -558,7 +561,8 @@ names. Returns `none` for a no-op equation whose LHS key equals its RHS.
 -/
 def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
     (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams
+      (zetaReduceLHSOnly := true) fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
   if pattern.pattern == rhs then return none

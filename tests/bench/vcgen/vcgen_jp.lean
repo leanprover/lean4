@@ -20,8 +20,8 @@ open Lean Order Parser Meta Elab Tactic Sym Std WP
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-#eval runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step] `(tactic| vcgen +jp) `(tactic| sorry)
-  [80, 120, 160]
+#eval runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop] `(tactic| vcgen +jp [IfsJP.step]) `(tactic| sorry)
+  [20, 30, 40]
 
 #eval runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step] `(tactic| vcgen +jp) `(tactic| sorry)
   [20, 40, 60]

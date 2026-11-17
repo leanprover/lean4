@@ -839,7 +839,9 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
     -- 3. compute the helper values
     infos ← infos.mapM fun info => do
       let extendedHelpers ← info.extendedHelpers.mapM fun helper => do
-        let value ← helper.mkValue recInsts globalCompute
+        let mut shouldExport ← pure (← getEnv).isExporting <&&> notM (isProp helper.type)
+        let value ← withExporting (isExporting := shouldExport)
+          (helper.mkValue recInsts globalCompute)
         let value := (← value.abstractM recInsts).instantiateBetaRevRange
           0 instanceValues.size instanceValues
         return { helper with value }
@@ -905,7 +907,7 @@ def makeInstancesUsingMutualBlock (infos : Array (InstanceInfo α))
           type := helper.type
           value := helper.value.get!
           declName := helper.declName.get!
-          kind := .def
+          kind := if ← isProp helper.type then .theorem else .def
           modifiers := { computeKind, isUnsafe, recKind := .partial }
           binders := .missing
           termination := .none

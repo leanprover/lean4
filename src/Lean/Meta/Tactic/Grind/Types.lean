@@ -805,7 +805,7 @@ inductive ToProcessElement where
   | solverDiseq (solverId : Nat) (lhs rhs : Expr)
 
 -- This type should be considered opaque outside this module.
-@[expose]  -- for codegen
+@[expose, implicit_reducible]  -- `expose` for codegen
 def ENodeMap := PHashMap ExprPtr ENode
 instance : Inhabited ENodeMap where
   default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type

@@ -183,6 +183,20 @@ instance : MonadMacroAdapter CoreM where
   getNextMacroScope := return (← get).nextMacroScope
   setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 
+/--
+Returns true if a declaration with the name `declName` was already declared modulo different
+private prefixes. Disregards private names from other modules.
+
+This function is used to implement `Macro.hasDecl`.
+-/
+def wasAlreadyDeclared (env : Environment) (declName : Name) : Bool :=
+  -- maybe we should consider reserved names here too but then `mkUnusedBaseName`
+  -- might go in an infinite loop
+  let env := env.setExporting false
+  env.contains declName
+    || env.contains (mkPrivateName env declName)
+    || (privateToUserName? declName).any env.contains
+
 def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let opts ← getOptions
@@ -197,8 +211,7 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
     hasDecl          := fun declName => do
       -- this is used (by mkUnusedBaseName) to find available names, so check
       -- for both private and public names
-      let env := env.setExporting false
-      return env.contains (mkPrivateName env declName) || env.contains (privateToUserName declName)
+      return wasAlreadyDeclared env declName
     getCurrNamespace := return currNamespace
     resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env opts currNamespace openDecls n
@@ -246,7 +259,7 @@ which names to avoid.
 -/
 @[specialize]
 partial def findUnusedName [Monad m] [MonadEnv m] (name : Name)
-    (avoid : Environment → Name → Bool := fun env name => env.contains name) :
+    (avoid : Environment → Name → Bool := wasAlreadyDeclared) :
     m Name := do
   let env ← getEnv
   if avoid env name then

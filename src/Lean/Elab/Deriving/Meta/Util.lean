@@ -806,7 +806,7 @@ private structure MakeInstancesState where
   newNames : NameSet := {}
 
 private def MakeInstancesState.avoid : MakeInstancesState → Environment → Name → Bool
-  | { newNames }, env, nm => env.contains nm || newNames.contains nm
+  | { newNames }, env, nm => wasAlreadyDeclared env nm || newNames.contains nm
 
 private def MakeInstancesState.add : MakeInstancesState → Name → MakeInstancesState
   | { newNames }, nm => { newNames := newNames.insert nm }

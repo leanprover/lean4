@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Lemmas
+import Lean.Util.SafeExponentiation
 
 public section
 
@@ -86,6 +87,17 @@ Helper function for reducing bitvector functions such as `shiftLeft` and `rotate
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
   let some i ← Nat.fromExpr? e.appArg! | return .continue
   return .done <| (← toExpr' (op v.value i))
+
+/--
+Helper function for reducing the left shift of a bitvector literal by a natural number literal.
+-/
+@[inline] private def reduceShiftLeftCore (declName : Name) (arity : Nat) (e : Expr) : SimpM DStep := do
+  unless e.isAppOfArity declName arity do return .continue
+  let some v ← fromExpr? e.appFn!.appArg! | return .continue
+  let some i ← Nat.fromExpr? e.appArg! | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkShiftLeft v.value.toNat i (warning := warning)) do return .continue
+  return .done <| (← toExpr' (v.value <<< i))
 
 /--
 Helper function for reducing `x <<< i` and `x >>> i` where `i` is a bitvector literal,
@@ -203,7 +215,7 @@ builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=
-  reduceShift ``BitVec.shiftLeft 3 BitVec.shiftLeft
+  reduceShiftLeftCore ``BitVec.shiftLeft 3
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for unsigned shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceUShiftRight (BitVec.ushiftRight _ _) :=
@@ -215,7 +227,7 @@ builtin_dsimproc [simp, seval] reduceSShiftRight (BitVec.sshiftRight _ _) :=
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft ((_ <<< _ : BitVec _)) :=
-  reduceShift ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+  reduceShiftLeftCore ``HShiftLeft.hShiftLeft 6
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft' ((_ <<< (_ : BitVec _) : BitVec _)) :=
@@ -380,6 +392,8 @@ builtin_dsimproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ 
   let_expr shiftLeftZeroExtend _ v m ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some m ← Nat.fromExpr? m | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkShiftLeft v.value.toNat m (warning := warning)) do return .continue
   return .done <| (← toExpr' (v.value.shiftLeftZeroExtend m))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine

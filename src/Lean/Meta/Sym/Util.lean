@@ -11,6 +11,8 @@ import Lean.Util.ForEachExpr
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Revert
+import Lean.Meta.Tactic.Intro
 public import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
 open Lean.Meta.Sym.Internal
@@ -114,10 +116,18 @@ partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
         | rb => return if rt.isSame && rb.isSame then .same else .conv
     | .forallE n t body bi, .forallE _ t' body' _ =>
       let rt ← preprocessEq t t'
+      if !body.hasLooseBVars && !body'.hasLooseBVars then
+        let rb ← preprocessEq body body'
+        if rt.isSame && rb.isSame then return .same
+        unless rt.isProof || rb.isProof do return .conv
+        let us := [← Sym.getLevel t', ← Sym.getLevel body']
+        return .proof (mkApp6 (mkConst ``implies_congr us) t t' body body'
+          (← rt.toProof t') (← rb.toProof body'))
       withLocalDeclS n bi t' fun x => do
         let bodyB ← instantiateS body' #[x]
         match (← preprocessEq (body.instantiate1 x) bodyB) with
         | .proof hb =>
+          if rt.isProof then return .conv
           unless (← Sym.inferType bodyB).isProp do return .conv
           let h := mkLambda n .default t' (hb.abstract #[x])
           return .proof (mkApp4 (mkConst ``forall_congr [← Sym.getLevel t'])
@@ -172,7 +182,7 @@ def hasLetOrBetaRedex (e : Expr) : Bool :=
 Replaces the target `T` of `mvarId` by `f T`, maximally shared. The kernel accepts the new goal
 by a proof of `T = f T` if `f` changes a `let` or a beta redex in `T`, and by conversion otherwise.
 -/
-public def _root_.Lean.MVarId.transformTargetS (mvarId : MVarId) (f : Expr → MetaM Expr) :
+public def _root_.Lean.MVarId.transformTargetS (mvarId : MVarId) (f : Expr → SymM Expr) :
     SymM MVarId := mvarId.withContext do
   let tag ← mvarId.getTag
   let type ← mvarId.getType
@@ -210,11 +220,39 @@ def preprocessLCtx (lctx : LocalContext) : SymM LocalContext := do
     fvarIdToDecl := fvarIdToDecl.insert decl.fvarId decl
   return { fvarIdToDecl, decls, auxDeclToFullName }
 
+/-- Returns `true` if preprocessing changes a `let` or a beta redex in `e`. -/
+def changesLetOrBetaRedex (e : Expr) : SymM Bool := do
+  if !hasLetOrBetaRedex e then return false
+  let e ← instantiateMVars e
+  return (← preprocessExpr e) != e
+
+/--
+Reverts the local context from the first hypothesis `h` that `changesLetOrBetaRedex`, preprocesses
+the reverted target with `transformTargetS`, and introduces the hypotheses again. Afterwards, the
+types of `h` and the hypotheses that follow it are preprocessed, and the kernel accepts them by a
+proof.
+-/
+def certifyLCtx (mvarId : MVarId) : SymM MVarId := mvarId.withContext do
+  let mut toRevert := #[]
+  for decl in (← getLCtx) do
+    if decl.isImplementationDetail then continue
+    if toRevert.isEmpty then
+      unless (← changesLetOrBetaRedex decl.type <||>
+          decl.value?.elim (pure false) changesLetOrBetaRedex) do continue
+    toRevert := toRevert.push decl.fvarId
+  if toRevert.isEmpty then return mvarId
+  let (reverted, mvarId) ← mvarId.revert toRevert (preserveOrder := true)
+  let mvarId ← mvarId.transformTargetS preprocessExpr
+  let (_, mvarId) ← mvarId.introNP reverted.size
+  return mvarId
+
 /--
 Instantiates assigned metavariables, applies `shareCommon`, and eliminates holes (aka `none` cells)
-in the local context.
+in the local context. Hypotheses that preprocessing changes under a `let` or a beta redex are first
+replaced by `certifyLCtx`.
 -/
 public def preprocessMVar (mvarId : MVarId) : SymM MVarId := do
+  let mvarId ← certifyLCtx mvarId
   let mvarDecl ← mvarId.getDecl
   let lctx ← preprocessLCtx mvarDecl.lctx
   let type ← preprocessExpr mvarDecl.type

@@ -13,8 +13,8 @@ fun x =>
   if c 0 then jp (x + 1) else jp (x + 2)
 ```
 
-Preprocessing turns `jps% N n` into `jps% Nat n`, once in the target and once in the type of a
-hypothesis.
+Preprocessing turns `jps% N n` into `jps% Nat n`, once in the target and once in the types of two
+hypotheses.
 -/
 
 abbrev N := Nat
@@ -47,5 +47,5 @@ opaque Q : Prop
 axiom q_of (f : Nat → Nat) : T f → Q
 
 set_option maxHeartbeats 3000 in
-example (v : T (jps% N 20)) : Q := by
-  sym => exact q_of _ v
+example (v : T (jps% N 20)) (w : T (jps% N 20)) : Q := by
+  sym => exact q_of _ w

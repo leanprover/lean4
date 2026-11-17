@@ -1294,9 +1294,12 @@ def FieldHelperProvider.doubleCases
     let inductInfo ← getConstInfoInduct input.induct
     withLocalDeclD `lhs input.typeApp fun lhs => do
     withLocalDeclD `rhs input.typeApp fun rhs => do
-      let fallbackBranch (cidxNeProof : Expr) :=
+      let lhsCIdx ← mkCtorIdxApp lhs
+      let fallbackBranch (cidxNeProof : Expr) := do
+        let cidxNeProof := mkApp4 (.const ``Ne.symm [1])
+          Nat.mkType (← mkCtorIdxApp rhs) lhsCIdx cidxNeProof
         differentCtor { inductInfo, lhs, rhs, cidxNeProof, val }
-      let res ← matchCtorIdxEq rhs (← mkCtorIdxApp lhs) tgt (fallbackBranch := fallbackBranch) fun hcidx => do
+      let res ← matchCtorIdxEq rhs lhsCIdx tgt (fallbackBranch := fallbackBranch) fun hcidx => do
         -- it is not be a free variable if the inductive has <= 1 constructor
         -- in which case `hcidx == (rfl : 0 = 0)`
         let toRevert := if hcidx.isFVar then #[rhs, hcidx] else #[rhs]

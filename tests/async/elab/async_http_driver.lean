@@ -191,7 +191,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := r.input (full "three")
   check (!r.receiving) "no read after Connection: close"
   let r := r.input .written
-  check (!lingered r.log) "nothing to linger for"
+  check (lingered r.log) "the peer has not closed and may still send: linger"
   checkCleanup r "pipeline"
   let out := bytesOf r.log
   check ((out.splitOn "HTTP/1.1 200 OK").length == 4) s!"three responses: {out.quote}"
@@ -341,16 +341,13 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   check (lingered r.log) "the peer may still send the body: linger"
   checkCleanup r "linger timeout"
 
--- A response body whose next chunk does not come in time ends the connection.
+-- The next chunk of a streamed response runs no deadline: it is the handler's to send.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/stall")) |>.input streamed |>.input (chunk "first")
   let r := r.at 10 |>.input .written
-  check (nextDeadline r.state == some (.linger, 10010)) s!"linger deadline: {repr (nextDeadline r.state)}"
-  let r := r.at 10010 |>.input (.deadline .linger)
-  check (reports r.log == #["request header timeout"]) s!"{reports r.log}"
-  check (has r.last "releaseResponse") s!"released: {tags r.last}"
-  let r := r.input .written
-  checkCleanup r "stalled producer"
+  check (nextDeadline r.state == none) s!"no deadline: {repr (nextDeadline r.state)}"
+  let r := r.at 600000 |>.input (.deadline .linger)
+  check (r.last.isEmpty && !r.state.isClosed) s!"no linger deadline runs: {tags r.last}"
 
 -- Writes that are never confirmed drop the connection without waiting for them.
 #eval show IO Unit from do
@@ -390,12 +387,9 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
 -- While a response streams, a write that is not confirmed drops it too; its body is released.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/")) |>.input streamed |>.input (chunk "x")
-  let r := r.at 10000 |>.input (.deadline .linger)
-  check (has r.last "releaseResponse") s!"released: {tags r.last}"
-  check (r.state.phase == .draining) "draining"
-  check (nextDeadline r.state == some (.write, 30000)) s!"the flush is bounded: {repr (nextDeadline r.state)}"
+  check (nextDeadline r.state == some (.write, 30000)) s!"the write deadline: {repr (nextDeadline r.state)}"
   let r := r.at 30000 |>.input (.deadline .write)
-  check (has r.last "close") s!"dropped: {tags r.last}"
+  check (has r.last "releaseResponse" && has r.last "close") s!"dropped, body released: {tags r.last}"
   checkCleanup r "write timeout while streaming"
 
 -- The final flush is bounded by the write deadline too.

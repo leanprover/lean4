@@ -183,19 +183,23 @@ The whole token is read before it is looked up, so a read that ends inside a met
 more input instead of matching a shorter method (`UPDATE` inside `UPDATEREDIRECTREF`), and a
 method that only starts with a known one (`GETX`) is not read as it.
 
-A token the server does not recognize gives `none` when the space that ends a method follows it, and
-fails with `"unrecognized method"` when more token bytes follow past the 64-byte limit: RFC 9110 §9.1
-and RFC 9112 §3 answer such a method with 501. A token followed by any other byte fails with
+A token the server does not recognize gives `none` when the space that ends a method follows it, so
+the line still has to parse before it gets 501 (RFC 9110 §9.1). A token longer than any method is
+skipped to its end, up to `maxStartLineLength`, for the same reason; only one longer still fails with
+`"unrecognized method"` at once (RFC 9112 §3). A token followed by any other byte fails with
 `"invalid method"`.
 -/
-def parseMethod : Parser (Option Method) := do
+def parseMethod (limits : H1.Config) : Parser (Option Method) := do
   let token ← parseToken maxMethodLength
   match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
   | some (_, method) => return some method
   | none =>
+    if token.size == maxMethodLength then
+      let rest ← takeWhileUpTo (fun c => tchar (Char.ofUInt8 c)) limits.maxStartLineLength
+      if rest.size == limits.maxStartLineLength then
+        if (← peekWhen? (fun c => tchar (Char.ofUInt8 c))).isSome then fail "unrecognized method"
     let next ← peek!
     if next == ' '.toUInt8 then return none
-    else if tchar (Char.ofUInt8 next) then fail "unrecognized method"
     else fail "invalid method"
 
 /--
@@ -235,7 +239,7 @@ request-line = method SP request-target SP HTTP-version
 public def parseRequestLineRawVersion (limits : H1.Config) :
     Parser (Method × RequestTarget × Option Version) := do
   skipLeadingRequestEmptyLines limits
-  let method? ← parseMethod <* sp
+  let method? ← parseMethod limits <* sp
   let rawUri ← parseURI limits <* sp
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget (requestTargetConfig limits) <* eof).run rawUri with
   | .ok res => pure res

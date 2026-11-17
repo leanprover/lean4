@@ -121,6 +121,61 @@ def LineScan.Class.accepts : LineScan.Class → UInt8 → Bool
   | .quoted, b => qdtext (Char.ofUInt8 b) || b ≥ 0x80
 
 /--
+The part of a chunk-size line (`chunk-size [ chunk-ext ]`) that its last byte belongs to.
+-/
+inductive LineScan.ChunkPart where
+  /--
+  The leading zeros of the chunk size.
+  -/
+  | zeros
+
+  /--
+  The significant hex digits of the chunk size.
+  -/
+  | digits
+
+  /--
+  `BWS` that must be followed by `;`: after the chunk size or an extension's value.
+  -/
+  | sep
+
+  /--
+  `BWS` after a `;`.
+  -/
+  | semi
+
+  /--
+  An extension name.
+  -/
+  | name
+
+  /--
+  `BWS` after an extension name, which only `=` or the next `;` may follow.
+  -/
+  | nameOws
+
+  /--
+  `BWS` after a `=`.
+  -/
+  | eq
+
+  /--
+  An unquoted extension value.
+  -/
+  | value
+
+  /--
+  A quoted extension value.
+  -/
+  | quoted
+
+  /--
+  A quoted extension value, just after a backslash.
+  -/
+  | escape
+deriving Inhabited, Repr, BEq
+
+/--
 Which bytes may follow the part of a line read so far without the parser having to see them.
 -/
 inductive LineScan where
@@ -139,9 +194,89 @@ inductive LineScan where
   request-target, or `HTTP/d.d SP ddd` at the start of a status line.
   -/
   | fixed (kind : LineKind) (pos : Nat)
+
+  /--
+  A chunk-size line ends in part `part`, which holds `n` bytes (zeros, digits, whitespace, or the
+  characters of a name or value so far), after `count` extensions were started.
+  -/
+  | chunk (part : LineScan.ChunkPart) (n count : Nat)
 deriving Inhabited, Repr, BEq
 
 namespace LineScan
+
+/--
+The scan of a chunk-size line after one more byte `b`, mirroring `parseChunkSize`; `none` when the
+parser has to see `b`. An extension is counted against `maxChunkExtensions` where the parser counts
+it: at the byte after it, at the `"` that closes its quoted value, or when its unquoted value reaches
+its limit. Past the limit, those bytes go to the parser.
+-/
+@[inline]
+private def chunkStep (config : Config) (part : ChunkPart) (n count : Nat) (b : UInt8) :
+    Option LineScan :=
+  let cr := b == '\r'.toUInt8
+  let semi := b == ';'.toUInt8
+  let ows := Class.ows.accepts b
+  let tok := Class.token.accepts b
+  let space := config.maxSpaceSequence
+  let maxValue := config.maxChunkExtValueLength
+  let counted := count ≤ config.maxChunkExtensions
+  -- The byte after the chunk size or a value: the end of the line, a `;`, or `BWS` before a `;`.
+  let next : Option LineScan :=
+    if cr then some .opaque
+    else if semi then some (.chunk .semi 0 (count + 1))
+    else if ows && 0 < space then some (.chunk .sep 1 count)
+    else none
+  match part with
+  | .zeros =>
+    if b == '0'.toUInt8 then some (.chunk .zeros (n + 1) count)
+    else if Class.hexDigit.accepts b then some (.chunk .digits 1 count)
+    else if n == 0 then none
+    else next
+  | .digits =>
+    if Class.hexDigit.accepts b then
+      if n < maxChunkSizeDigits then some (.chunk .digits (n + 1) count) else none
+    else next
+  | .sep =>
+    if ows then (if n < space then some (.chunk .sep (n + 1) count) else none)
+    else if semi then some (.chunk .semi 0 (count + 1))
+    else if cr && n == 0 then some .opaque
+    else none
+  | .semi =>
+    if ows then (if n < space then some (.chunk .semi (n + 1) count) else none)
+    else if tok && 0 < config.maxChunkExtNameLength then some (.chunk .name 1 count)
+    else none
+  | .name =>
+    if tok then (if n < config.maxChunkExtNameLength then some (.chunk .name (n + 1) count) else none)
+    else if ows then (if 0 < space then some (.chunk .nameOws 1 count) else none)
+    else if b == '='.toUInt8 then some (.chunk .eq 0 count)
+    else if (semi || cr) && counted then next
+    else none
+  | .nameOws =>
+    -- Whitespace after a name leads to `=` or to the next `;`, never to the end of the line.
+    if ows then (if n < space then some (.chunk .nameOws (n + 1) count) else none)
+    else if b == '='.toUInt8 then some (.chunk .eq 0 count)
+    else if semi && counted then next
+    else none
+  | .eq =>
+    if ows then (if n < space then some (.chunk .eq (n + 1) count) else none)
+    else if b == '"'.toUInt8 then some (.chunk .quoted 0 count)
+    else if tok && (1 < maxValue || (1 == maxValue && counted)) then some (.chunk .value 1 count)
+    else none
+  | .value =>
+    if tok then
+      if n + 1 < maxValue || (n + 1 == maxValue && counted) then some (.chunk .value (n + 1) count)
+      else none
+    else if counted then next
+    else none
+  | .quoted =>
+    if b == '"'.toUInt8 then (if counted then some (.chunk .sep 0 count) else none)
+    else if b == '\\'.toUInt8 then some (.chunk .escape n count)
+    else if Class.quoted.accepts b && n < maxValue then some (.chunk .quoted (n + 1) count)
+    else none
+  | .escape =>
+    if (quotedPairChar (Char.ofUInt8 b) || b ≥ 0x80) && n < maxValue then
+      some (.chunk .quoted (n + 1) count)
+    else none
 
 /--
 The scan after one more byte `b` of a line of kind `kind`, when the parser would again run out of
@@ -153,6 +288,7 @@ extension token, after which only the parser may read on.
 @[inline]
 private def step (config : Config) (kind : LineKind) : LineScan → UInt8 → Option LineScan
   | .opaque, _ => none
+  | .chunk part n count, b => if kind == .chunkLine then chunkStep config part n count b else none
   | .fixed k pos, b =>
     let isDigit := b ≥ '0'.toUInt8 && b ≤ '9'.toUInt8
     -- `HTTP/d.d`: the name, a digit, a dot and a digit.
@@ -188,10 +324,9 @@ private def step (config : Config) (kind : LineKind) : LineScan → UInt8 → Op
       | .fieldLine, .fieldContent | .foldLine, .fieldContent | .statusLine, .fieldContent =>
         if cr then some .opaque else none
       | .requestLine, .token =>
-        if b == ' '.toUInt8 && left < maxMethodLength then some (.run k .target config.maxUriLength)
+        if b == ' '.toUInt8 && left < maxMethodLength + config.maxStartLineLength then
+          some (.run k .target config.maxUriLength)
         else none
-      | .chunkLine, .token | .chunkLine, .zero | .chunkLine, .hexDigit =>
-        if cr then some .opaque else none
       | _, _ => none
 
 /--
@@ -255,73 +390,6 @@ private def fieldValue (kind : LineKind) (config : Config) (bytes : ByteArray) (
     .opaque
 
 /--
-Where a quoted string that starts at `i` ends within `bytes[i:stop]`.
--/
-private inductive Quoted where
-  /--
-  The input ends inside the string, which has `length` characters.
-  -/
-  | inside (length : Nat)
-
-  /--
-  The string ends just before `next`.
-  -/
-  | closed (next : Nat)
-
-  /--
-  The input ends just after a backslash.
-  -/
-  | escaping
-
-/--
-Reads a quoted string's content from `i`, after its opening `"`.
--/
-private def quoted (bytes : ByteArray) (i stop length : Nat) : Quoted :=
-  if _ : i < stop then
-    let b := byteAt bytes i
-    if b == '"'.toUInt8 then .closed (i + 1)
-    else if b == '\\'.toUInt8 then
-      if i + 1 < stop then quoted bytes (i + 2) stop (length + 1) else .escaping
-    else quoted bytes (i + 1) stop (length + 1)
-  else
-    .inside length
-termination_by stop - i
-
-/--
-The chunk extensions from `i`: `*( BWS ";" BWS name [ BWS "=" BWS value ] )`. Each call reads one;
-`fuel` bounds them.
--/
-private def extensions (config : Config) (bytes : ByteArray) (i stop : Nat) : Nat → LineScan
-  | 0 => .opaque
-  | fuel + 1 =>
-    let bws (start : Nat) := runOf .chunkLine .ows config.maxSpaceSequence (stop - start)
-    let j := skip Class.ows.accepts bytes i stop
-    if j == stop then bws i
-    else if byteAt bytes j != ';'.toUInt8 then .opaque
-    else
-      let k := skip Class.ows.accepts bytes (j + 1) stop
-      if k == stop then bws (j + 1)
-      else
-        let n := skip Class.token.accepts bytes k stop
-        if n == stop then runOf .chunkLine .token config.maxChunkExtNameLength (stop - k)
-        else
-          let m := skip Class.ows.accepts bytes n stop
-          if m == stop then bws n
-          else if byteAt bytes m != '='.toUInt8 then extensions config bytes m stop fuel
-          else
-            let p := skip Class.ows.accepts bytes (m + 1) stop
-            if p == stop then bws (m + 1)
-            else if byteAt bytes p == '"'.toUInt8 then
-              match quoted bytes (p + 1) stop 0 with
-              | .inside length => runOf .chunkLine .quoted config.maxChunkExtValueLength length
-              | .closed q => extensions config bytes q stop fuel
-              | .escaping => .opaque
-            else
-              let v := skip Class.token.accepts bytes p stop
-              if v == stop then runOf .chunkLine .token config.maxChunkExtValueLength (stop - p)
-              else extensions config bytes v stop fuel
-
-/--
 The end of the empty lines (`CRLF`) from `i` that may come before a request line.
 -/
 private def emptyLines (bytes : ByteArray) (i stop : Nat) : Nat :=
@@ -346,7 +414,8 @@ def classify (kind : LineKind) (config : Config) (bytes : ByteArray) (start stop
     if i < stop && (byteAt bytes i == '\r'.toUInt8 || byteAt bytes i == '\n'.toUInt8) then .opaque
     else
       let m := skip Class.token.accepts bytes i stop
-      if m == stop then runOf kind .token maxMethodLength (stop - i)
+      -- `parseMethod` skips a method past `maxMethodLength` for up to `maxStartLineLength` bytes.
+      if m == stop then runOf kind .token (maxMethodLength + config.maxStartLineLength) (stop - i)
       else if byteAt bytes m != ' '.toUInt8 then .opaque
       else
         let t := skip Class.target.accepts bytes (m + 1) stop
@@ -373,13 +442,8 @@ def classify (kind : LineKind) (config : Config) (bytes : ByteArray) (start stop
   | .foldLine =>
     fieldValue kind config bytes start stop
   | .chunkLine =>
-    let z := skip Class.zero.accepts bytes start stop
-    let d := skip Class.hexDigit.accepts bytes z stop
-    if d == stop then
-      if d == z then .run kind .zero config.maxChunkLineLength
-      else runOf kind .hexDigit maxChunkSizeDigits (d - z)
-    else
-      extensions config bytes d stop (config.maxChunkExtensions + 1)
+    -- The same transitions `extend` takes, so a line scanned in pieces gets the same scan.
+    ((LineScan.chunk .zeros 0 0).extend kind config bytes start stop).getD .opaque
 
 end LineScan
 

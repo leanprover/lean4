@@ -58,12 +58,13 @@ inductive Deadline where
   | idle
 
   /--
-  A request head that started arriving has to be complete; answered with 408.
+  A request head that started arriving has to be complete: answered with 408 once part of a head
+  arrived, and with a silent close when only empty lines did.
   -/
   | header
 
   /--
-  Body bytes that a reader waits for, or the next chunk of the response body, have to arrive;
+  Request body bytes that a reader waits for, or that the connection drains, have to arrive;
   answered with 408 when no response started, and otherwise by ending the connection.
   -/
   | linger
@@ -276,7 +277,7 @@ structure State where
 
   /--
   What the connection waits for besides its writes, and until when: an idle connection, a request
-  head, body bytes or a response chunk (`linger`), or an `Expect: 100-continue` decision. These
+  head, request body bytes (`linger`), or an `Expect: 100-continue` decision. These
   never overlap.
   -/
   wait : Option (Deadline × Nat) := none
@@ -403,15 +404,14 @@ private def failOpenBody (s : State) (cmds : Array Command) : State × Array Com
   | .closed => (s, cmds)
 
 /--
-Whether the peer may have sent input that the machine never read: the connection ends after an
-exchange whose request asked to keep it open, so the peer may have pipelined requests before it read
-the response that ends it. The connection does not read while a handler runs, so they can wait in the
-transport, which a close then answers with a reset (RFC 9112 §9.6).
+Whether the peer may have sent input that the machine never read: the machine stopped reading while
+the peer had not closed its side. The connection does not read while a handler runs, and the machine
+stops reading at a timeout or after the head of a tunnel, so such input, for example a pipelined
+request, can wait in the transport, which a close then answers with a reset (RFC 9112 §9.6).
 -/
 @[inline]
-private def peerMayHavePipelined (machine : H1.Machine .receiving) : Bool :=
-  let reader := machine.reader
-  !reader.noMoreInput && reader.isClosed && reader.messageHead.shouldKeepAlive
+private def peerMayHaveSentMore (machine : H1.Machine .receiving) : Bool :=
+  !machine.reader.peerClosed && machine.reader.isClosed
 
 /--
 Closes the connection at once, lingering only when `linger` is set and the peer may still send.
@@ -419,7 +419,7 @@ Closes the connection at once, lingering only when `linger` is set and the peer 
 @[inline]
 private def closeNow (s : State) (linger : Bool) (cmds : Array Command) : State × Array Command :=
   ({ s with phase := .closed, unwritten := 0, writeDeadline := none },
-    cmds.push (.close (linger && (s.machine.peerMayStillSend || peerMayHavePipelined s.machine))))
+    cmds.push (.close (linger && (s.machine.peerMayStillSend || peerMayHaveSentMore s.machine))))
 
 /--
 Ends the connection: closes the request body, releases the response body and the handler's response,
@@ -468,6 +468,11 @@ private def respond (s : State) (head : Response.Head) (size : Option Body.Lengt
       let machine := match size with
         | some size => s.machine.setKnownSize size
         | none => s.machine
+      -- A client may send a tunnel's bytes before the answer to `CONNECT`, and after any answer but
+      -- a 2xx, which ends HTTP on the connection, they would be read as requests.
+      let machine :=
+        if machine.reader.messageHead.method == .connect then { machine with keepAlive := false }
+        else machine
       let machine := (machine.send head).sendData data
       let machine := if ended then machine.userClosedBody else machine
       -- A body that is omitted (a `HEAD` response, 204, 304) or replaced by an error response
@@ -481,6 +486,21 @@ connection.
 private def timeOut (s : State) : State × Array Command :=
   ({ s with machine := s.machine.closeWithError .requestTimeout, wait := none },
     #[.report (.userError "request header timeout")])
+
+/--
+Whether part of a request head arrived: more than the empty lines a request line may follow.
+-/
+private def headStarted (machine : H1.Machine .receiving) : Bool :=
+  let input := machine.reader.input
+  machine.reader.state matches .needHeader _ ||
+    (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.pos).isSome
+
+/--
+Ends a request whose head stopped arriving with 408 (RFC 9110 §15.5.9). The machine answers only a
+complete head, so it is first made to wait for an answer.
+-/
+private def timeOutHead (s : State) : State × Array Command :=
+  timeOut { s with machine := { s.machine with writer := { s.machine.writer with state := .waitingHeaders } } }
 
 /--
 Restarts the write deadline, if one runs, from a write that completed at `time`.
@@ -499,7 +519,8 @@ Answers a deadline that passed.
 -/
 private def fire (cfg : Http.Config) (s : State) (now : Nat) : Deadline → Option (State × Array Command)
   | .idle => some (finish cfg s now true #[])
-  | .header | .linger => some (timeOut s)
+  | .header => some (if headStarted s.machine then timeOutHead s else timeOut s)
+  | .linger => some (timeOut s)
   | .write => some (finish cfg s now false #[.report (writeTimedOut cfg)])
   | .«continue» => decideContinue s false
 
@@ -623,12 +644,11 @@ private def dispatch (cfg : Http.Config) (s : State) (now : Nat) (cmds : Array C
 
 /--
 What the connection waits for besides its writes (`State.wait`): the `Expect: 100-continue` decision
-it asked, the next response chunk, body bytes, a request head, or, once its writes are confirmed,
-the next request on an idle connection.
+it asked, request body bytes, a request head, or, once its writes are confirmed, the next request on
+an idle connection. The next chunk of a streamed response has no deadline: it is the handler's.
 -/
 private def waitingFor (cfg : Http.Config) (s : State) : Option Deadline :=
   if s.asksContinue then some .«continue»
-  else if pullsResponse s then some .linger
   else if !wantsBytes cfg s then none
   else match s.machine.reader.state with
     | .needStartLine =>

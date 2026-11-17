@@ -51,9 +51,13 @@ structure Config where
   maxHeaderBytes : Nat := 65536
 
   /--
-  Timeout (in milliseconds) for receiving additional data while a request is actively being
-  processed (e.g. reading the request body). Applies after the request headers have been parsed
-  and replaces the keep-alive timeout for the duration of the request.
+  How long (in milliseconds) the connection waits for request body bytes it needs: bytes the
+  handler's reader waits for, or the rest of a body the connection drains once the response is
+  written. A body that stalls longer is answered with `408 Request Timeout` when no response started,
+  and otherwise ends the connection. It is also the time a handler has to decide on
+  `Expect: 100-continue`, and the longest a closing connection keeps reading to let the client close
+  first. It does not limit how long a handler takes, nor the gaps between the chunks of a streamed
+  response: a write that stalls is covered by `writeTimeout`.
   -/
   lingeringTimeout : Time.Millisecond.Offset := 10000
 

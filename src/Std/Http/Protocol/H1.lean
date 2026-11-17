@@ -769,7 +769,9 @@ def processWrite (machine : Machine dir) : Machine dir :=
 /--
 A server answers a failure with one error response, with a short `text/plain` explanation, unless a
 response was already started. The response it gives makes `sentMessage` hold, so later steps do
-nothing.
+nothing. A client that failed writes nothing more: a request head not yet written never goes out, so
+a request that failed before it was sent cannot reach the server (or run twice on a retry), and a
+body in progress stops.
 -/
 private def answerFailure (machine : Machine dir) : Machine dir :=
   match dir with
@@ -779,7 +781,7 @@ private def answerFailure (machine : Machine dir) : Machine dir :=
       if machine.writer.sentMessage then machine
       else machine.setWriterState .waitingHeaders |>.sendError error.responseStatus
     | none => machine
-  | .sending => machine
+  | .sending => if machine.failed && !machine.writer.isClosed then machine.endWrites else machine
 
 /-!
 ### Reading

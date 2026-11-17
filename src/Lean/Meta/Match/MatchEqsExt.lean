@@ -62,6 +62,13 @@ set_option compiler.ignoreBorrowAnnotation true in
 opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
 
 /-
+Forward definition of `genMatchCongrEqnImpl`.
+-/
+set_option compiler.ignoreBorrowAnnotation true in
+@[extern "lean_get_congr_match_equation_for"]
+opaque genMatchCongrEqn (matchDeclName : Name) (altIdx : Nat) : MetaM Name
+
+/-
 Forward definition of `genMatchCongrEqnsImpl`.
 -/
 set_option compiler.ignoreBorrowAnnotation true in

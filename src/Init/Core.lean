@@ -1221,6 +1221,22 @@ theorem dite_ndrec_symm_eq {α : Sort u} {a b : α} {inst : Decidable (b = a)} {
   | isTrue h  => by subst h; exact h₁ rfl
   | isFalse h => h₂ h
 
+/--
+Auxiliary theorem for proving the equations of `match` expressions with value patterns.
+It is used to skip a test `dite c t e` when `c` is false.
+
+The proof `h` of the remaining equation is under a binder, like `e` is. This is important for
+proof size when `e` is `fun _ => e'` and `e'` is itself a long chain of tests: the proof of
+`e' = b` is then in the same binder context as `e'`, so its subterms are shared with `e'`.
+With `dite_eq_right`, the proof for `e'` is outside of the binder, and every skipped test adds a
+copy of the remaining chain to the proof.
+-/
+theorem dite_eq_of_not {c : Prop} {inst : Decidable c} {α : Sort u} {t : c → α} {e : ¬ c → α} {b : α}
+    (hnc : ¬ c) (h : (hnc : ¬ c) → e hnc = b) : dite c t e = b :=
+  match inst with
+  | isTrue hc   => absurd hc hnc
+  | isFalse hnc => h hnc
+
 @[deprecated dite_eq_right (since := "2026-07-21")]
 theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 

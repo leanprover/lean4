@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide
-// Imports: public import Std.Tactic.BVDecide.Bitblast public import Std.Tactic.BVDecide.LRAT public import Std.Tactic.BVDecide.Normalize public import Std.Tactic.BVDecide.Reflect public import Std.Tactic.BVDecide.Syntax public import Init.Sym.Lemmas public meta import Std.Tactic.BVDecide.Reflect
+// Imports: public import Std.Tactic.BVDecide.Bitblast public import Std.Tactic.BVDecide.LRAT public import Std.Tactic.BVDecide.Normalize public import Std.Tactic.BVDecide.Reflect public import Std.Tactic.BVDecide.Syntax public import Std.Tactic.BVDecide.EPR public import Init.Sym.Lemmas public meta import Std.Tactic.BVDecide.Reflect
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Normalize(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_EPR(uint8_t builtin);
 lean_object* runtime_initialize_Init_Sym_Lemmas(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -41,6 +42,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_EPR(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Sym_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -62,6 +66,7 @@ lean_object* initialize_Std_Tactic_BVDecide_LRAT(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Normalize(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_EPR(uint8_t builtin);
 lean_object* initialize_Init_Sym_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin);
 static bool _G_initialized = false;
@@ -82,6 +87,9 @@ res = initialize_Std_Tactic_BVDecide_Reflect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Syntax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Tactic_BVDecide_EPR(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Sym_Lemmas(builtin);

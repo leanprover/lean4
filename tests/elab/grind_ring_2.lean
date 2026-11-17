@@ -71,9 +71,8 @@ example [CommRing α] (a b c : α)
 /--
 trace: [grind.ring.assert.basis] a + b + c + -3 = 0
 [grind.ring.assert.basis] 2 * b ^ 2 + 2 * (b * c) + 2 * c ^ 2 + -6 * b + -6 * c + 4 = 0
-[grind.ring.assert.basis] 3 * (b ^ 2 * c) + 3 * (b * c ^ 2) + -9 * b ^ 2 + -18 * (b * c) + -9 * c ^ 2 + 27 * b +
-          27 * c +
-        -20 =
+[grind.ring.assert.basis] b ^ 2 * c + b * c ^ 2 + -2 * c ^ 3 + -1 * b ^ 2 + -4 * (b * c) + 5 * c ^ 2 + 3 * b + -1 * c +
+        -4 =
       0
 [grind.ring.assert.basis] 6 * c ^ 3 + -18 * c ^ 2 + 12 * c + 4 = 0
 -/

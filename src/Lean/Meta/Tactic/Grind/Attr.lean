@@ -233,7 +233,7 @@ private def Extension.isGuardedBy (ext : Extension) (p : Name → Bool) (declNam
     (stx : Syntax) : MetaM Bool := do
   -- A theorem is only activated once all of its symbols occur in the goal
   let allGuarded {α} [TheoremLike α] (thms : List α) :=
-    !thms.isEmpty && thms.all (TheoremLike.getSymbols · |>.any fun | .const n => p n | _ => false)
+    !thms.isEmpty && thms.all (TheoremLike.getSymbols · |>.any fun | .const n | .proj n _ => p n | _ => false)
   let ematchGuarded (origins : Array Name) : CoreM Bool := do
     let thms := ext.getState (← getEnv) |>.ematch
     return allGuarded (origins.toList.flatMap (thms.find <| .decl ·))
@@ -246,8 +246,7 @@ private def Extension.isGuardedBy (ext : Extension) (p : Name → Bool) (declNam
   match (← getAttrKindFromOpt stx) with
   | .symbol _ | .funCC | .unfold => return p declName
   | .norm _ inv =>
-    let keys ← mkSimpTheoremKeysFromConst declName (inv := inv)
-    return keys.all (·.any fun | .const n _ => p n | _ => false)
+    isSimpTheoremFromConstGuardedBy p declName (inv := inv)
   | .inj => return allGuarded (ext.getState (← getEnv) |>.inj.find (.decl declName))
   | .ematch .user => return false
   | .ematch _ => declGuarded

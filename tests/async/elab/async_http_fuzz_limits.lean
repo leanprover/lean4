@@ -362,7 +362,7 @@ def fuzzStartLineLengthLimit (iterations : Nat) (seed0 : Nat) : IO Unit := do
 -- maxHeaderNameLength and maxHeaderValueLength
 -- ============================================================================
 
--- Property: header names exceeding maxHeaderNameLength → 400.
+-- Property: header names exceeding maxHeaderNameLength → 431.
 def fuzzHeaderNameLengthLimit (iterations : Nat) (seed0 : Nat) : IO Unit := do
   let limit : Nat := 16
   let config : Config := { lingeringTimeout := 1000, generateDate := false, maxHeaderNameLength := limit }
@@ -379,9 +379,9 @@ def fuzzHeaderNameLengthLimit (iterations : Nat) (seed0 : Nat) : IO Unit := do
     if nameLen ≤ limit then
       assertStatusPrefix s!"fuzzHeaderNameLen iter={i} seed={caseSeed} len={nameLen}" response "HTTP/1.1 200"
     else
-      assertStatusPrefix s!"fuzzHeaderNameLen iter={i} seed={caseSeed} len={nameLen}" response "HTTP/1.1 400"
+      assertStatusPrefix s!"fuzzHeaderNameLen iter={i} seed={caseSeed} len={nameLen}" response "HTTP/1.1 431"
 
--- Property: header values exceeding maxHeaderValueLength → 400.
+-- Property: header values exceeding maxHeaderValueLength → 431.
 def fuzzHeaderValueLengthLimit (iterations : Nat) (seed0 : Nat) : IO Unit := do
   let limit : Nat := 32
   let config : Config := {
@@ -403,7 +403,7 @@ def fuzzHeaderValueLengthLimit (iterations : Nat) (seed0 : Nat) : IO Unit := do
     if valueLen ≤ limit then
       assertStatusPrefix s!"fuzzHeaderValueLen iter={i} seed={caseSeed} len={valueLen}" response "HTTP/1.1 200"
     else
-      assertStatusPrefix s!"fuzzHeaderValueLen iter={i} seed={caseSeed} len={valueLen}" response "HTTP/1.1 400"
+      assertStatusPrefix s!"fuzzHeaderValueLen iter={i} seed={caseSeed} len={valueLen}" response "HTTP/1.1 431"
 
 -- ============================================================================
 -- Run all properties

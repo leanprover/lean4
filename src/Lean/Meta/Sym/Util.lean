@@ -107,4 +107,16 @@ public def normalizeLevels (e : Expr) : CoreM Expr := do
     | _ => return .continue
   Core.transform e (pre := pre)
 
+public def mkNotS (p : Expr) : SymM Expr := do
+  mkAppS (← mkConstS ``Not) p
+
+public def mkAndS (p q : Expr) : SymM Expr := do
+  mkAppS₂ (← mkConstS ``And) p q
+
+public def mkOrS (p q : Expr) : SymM Expr := do
+  mkAppS₂ (← mkConstS ``Or) p q
+
+public def mkExistsS (u : Level) (α p : Expr) : SymM Expr := do
+  mkAppS₂ (← mkConstS ``Exists [u]) α p
+
 end Lean.Meta.Sym

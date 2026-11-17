@@ -8770,15 +8770,14 @@ v___x_2597_ = lean_obj_once(&l_Lean_Meta_Closure_mkValueTypeClosureAux___closed_
 v___x_2598_ = lean_obj_once(&l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__2, &l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__2_once, _init_l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__2);
 v___x_2599_ = lean_obj_once(&l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__1, &l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__1_once, _init_l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__1);
 v___x_2600_ = lean_obj_once(&l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__0, &l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__0_once, _init_l_Lean_Meta_Closure_mkValueTypeClosureAux___closed__0);
-v___x_2601_ = lean_alloc_ctor(0, 8, 0);
+v___x_2601_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_2601_, 0, v___x_2600_);
 lean_ctor_set(v___x_2601_, 1, v___x_2599_);
 lean_ctor_set(v___x_2601_, 2, v___x_2598_);
 lean_ctor_set(v___x_2601_, 3, v___x_2599_);
 lean_ctor_set(v___x_2601_, 4, v___x_2599_);
 lean_ctor_set(v___x_2601_, 5, v___x_2599_);
-lean_ctor_set(v___x_2601_, 6, v___x_2599_);
-lean_ctor_set(v___x_2601_, 7, v___x_2597_);
+lean_ctor_set(v___x_2601_, 6, v___x_2597_);
 return v___x_2601_;
 }
 }

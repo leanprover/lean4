@@ -1996,15 +1996,14 @@ v___x_517_ = lean_obj_once(&l_Lean_Compiler_LCNF_shouldGenerateCode___closed__10
 v___x_518_ = lean_obj_once(&l_Lean_Compiler_LCNF_shouldGenerateCode___closed__9, &l_Lean_Compiler_LCNF_shouldGenerateCode___closed__9_once, _init_l_Lean_Compiler_LCNF_shouldGenerateCode___closed__9);
 v___x_519_ = lean_obj_once(&l_Lean_Compiler_LCNF_shouldGenerateCode___closed__3, &l_Lean_Compiler_LCNF_shouldGenerateCode___closed__3_once, _init_l_Lean_Compiler_LCNF_shouldGenerateCode___closed__3);
 v___x_520_ = lean_obj_once(&l_Lean_Compiler_LCNF_shouldGenerateCode___closed__8, &l_Lean_Compiler_LCNF_shouldGenerateCode___closed__8_once, _init_l_Lean_Compiler_LCNF_shouldGenerateCode___closed__8);
-v___x_521_ = lean_alloc_ctor(0, 8, 0);
+v___x_521_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_521_, 0, v___x_520_);
 lean_ctor_set(v___x_521_, 1, v___x_519_);
 lean_ctor_set(v___x_521_, 2, v___x_518_);
 lean_ctor_set(v___x_521_, 3, v___x_519_);
 lean_ctor_set(v___x_521_, 4, v___x_519_);
 lean_ctor_set(v___x_521_, 5, v___x_519_);
-lean_ctor_set(v___x_521_, 6, v___x_519_);
-lean_ctor_set(v___x_521_, 7, v___x_517_);
+lean_ctor_set(v___x_521_, 6, v___x_517_);
 return v___x_521_;
 }
 }

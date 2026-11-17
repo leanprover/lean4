@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Basic
 import Init.While
+import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta
 /-!
@@ -145,20 +146,25 @@ Return `some ⟨n, v⟩` if `e` is:
 - a `BitVec.ofNat` application
 - a `BitVec.ofNatLT` application
 that encode a `BitVec n` with value `v`.
+
+Returns `none` if the width `n` is not safe to evaluate (see `isSafeBitVecWidth`).
 -/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
   match_expr e with
   | BitVec.ofNat nExpr vExpr =>
     let n ← getNatValue? nExpr
+    guard (isSafeBitVecWidth n)
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
   | BitVec.ofNatLT nExpr vExpr _ =>
     let n ← getNatValue? nExpr
+    guard (isSafeBitVecWidth n)
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
   | _ =>
     let (v, type) ← getOfNatValue? e ``BitVec
     let n ← getNatValue? (← whnfD type.appArg!)
+    guard (isSafeBitVecWidth n)
     return ⟨n, BitVec.ofNat n v⟩
 
 /--
@@ -171,6 +177,7 @@ def getLitValueModulus? (α : Expr) : MetaM (Option Nat) := do
   | Fin n => getNatValue? n
   | BitVec w =>
     let some w ← getNatValue? w | return none
+    unless isSafeBitVecWidth w do return none
     return some (2 ^ w)
   | UInt8 => return some (2 ^ 8)
   | UInt16 => return some (2 ^ 16)

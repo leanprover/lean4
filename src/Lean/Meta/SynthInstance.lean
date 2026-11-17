@@ -38,7 +38,7 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
 }
 
 register_builtin_option tcUnifyInstanceImplicits : Bool := {
-  defValue := false
+  defValue := true
   descr := "when `false` (the default), type class resolution keeps an instance's arguments \
     non-assignable during unification, so that a would-be assignment (e.g. from defeq abuse picking \
     an instance for the wrong expected type) triggers synthesis instead. When `true` (the old \

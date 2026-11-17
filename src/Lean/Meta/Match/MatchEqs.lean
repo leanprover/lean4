@@ -189,7 +189,9 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
       (_, mvarId) ← introSubstEq mvarId
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
-  reflOrProve mvarId.refl (unfoldAndProve mvarId)
+  -- The target of a congruence equation is a `HEq`.
+  let rfl := do if (← mvarId.getType).isHEq then mvarId.hrefl else mvarId.refl
+  reflOrProve rfl (unfoldAndProve mvarId)
   instantiateMVars mvar0
 where
   unfoldAndProve (mvarId : MVarId) : MetaM Unit := do
@@ -252,6 +254,53 @@ where
        go (i+1) (altsNew.push altNew)
    else
      k altsNew
+
+/--
+Proves the match equation `type` of the alternative `altIdx` of `matchDeclName`:
+```
+∀ params motive ys alts, hs → matchDeclName params motive patterns alts = alt ys
+```
+where `hs` are the `numOverlaps` overlap hypotheses.
+
+If `rfl` does not prove it, the proof is an instance of the congruence equation of the alternative
+```
+∀ params motive discrs alts ys, discrs = patterns → hs → matchDeclName params motive discrs alts ≍ alt ys
+```
+with `discrs := patterns`. The hypotheses `discrs = patterns` are proved by reflexivity, and the
+result is `eq_of_heq (congr_eq params motive patterns alts ys rfl .. hs)`.
+So, the two theorems share one proof. This matters for a `match` with many literal alternatives,
+where the proof of each equation refutes every preceding alternative.
+
+The arguments of the congruence equation after `alts` are split by position: the variables `ys`,
+then `numDiscrs` hypotheses `discrs = patterns`, then `numOverlaps` overlap hypotheses.
+Both theorems have the same overlap hypotheses in the same order: `getEquationsForImpl` and
+`genMatchCongrEqnsImpl` build them with the same loop over `Overlaps.overlapping`, and both
+simplify them with `simpH?`.
+-/
+private def proveEqThm (matchDeclName : Name) (altIdx : Nat) (numDiscrs numOverlaps : Nat) (type : Expr) : MetaM Expr := withLCtx {} {} do
+  let mvar0 ← mkFreshExprSyntheticOpaqueMVar (← instantiateMVars type)
+  let (fvarIds, mvarId) ← mvar0.mvarId!.intros
+  reflOrProve mvarId.refl (useCongrEqn mvarId fvarIds[(fvarIds.size - numOverlaps)...*])
+  instantiateMVars mvar0
+where
+  useCongrEqn (mvarId : MVarId) (overlapHyps : Subarray FVarId) : MetaM Unit := mvarId.withContext do
+    let target ← mvarId.getType
+    let some (_, lhs, _) := target.eq? | throwError "equality expected{indentExpr target}"
+    let congrEqn := (← genMatchCongrEqns matchDeclName)[altIdx]!
+    let h := mkAppN (mkConst congrEqn lhs.getAppFn.constLevels!) lhs.getAppArgs
+    -- `args` are metavariables for `ys`, the hypotheses `patterns = patterns[ys]`, and `hs`.
+    let (args, _, _) ← forallMetaTelescope (← inferType h)
+    let numAltVars := args.size - numDiscrs - numOverlaps
+    -- Reflexivity assigns `ys`.
+    for arg in args[numAltVars...(numAltVars + numDiscrs)] do
+      if (← inferType arg).isHEq then arg.mvarId!.hrefl else arg.mvarId!.refl
+    for arg in args[(numAltVars + numDiscrs)...*], overlapHyp in overlapHyps do
+      unless (← isDefEq arg (mkFVar overlapHyp)) do
+        throwError "failed to prove match equation using `{.ofConstName congrEqn}`, overlap hypothesis mismatch{indentExpr target}"
+    let proof ← mkEqOfHEq (← instantiateMVars (mkAppN h args))
+    unless (← isDefEq target (← inferType proof)) do
+      throwError "failed to prove match equation using `{.ofConstName congrEqn}`{indentExpr target}"
+    mvarId.assign proof
 
 /-
 Creates conditional equations and splitter for the given match auxiliary declaration.
@@ -325,7 +374,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← mkArrowN hs thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
           let thmType ← unfoldNamedPattern thmType
-          let thmVal ← proveCondEqThm matchDeclName thmType
+          let thmVal ← proveEqThm matchDeclName i discrs.size hs.size thmType
           addDecl <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams
@@ -436,8 +485,7 @@ where go := withConfig (fun c => { c with etaStruct := .none }) do
           let thmType ← mkArrowN hs thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
           let thmType ← Match.unfoldNamedPattern thmType
-          -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)
-          -- match equation theorem after subst'ing the `heqs`.
+          -- The match equations are instances of these theorems, see `proveEqThm`.
           let thmVal ← Match.proveCondEqThm matchDeclName thmType
             (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
           unless (← getEnv).contains thmName do

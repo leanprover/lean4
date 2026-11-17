@@ -1482,7 +1482,7 @@ lean_dec(v___y_381_);
 if (v___x_387_ == 0)
 {
 lean_dec(v___y_384_);
-return v___y_382_;
+return v___y_383_;
 }
 else
 {
@@ -1496,7 +1496,7 @@ return v___x_386_;
 }
 else
 {
-return v___y_382_;
+return v___y_383_;
 }
 }
 }
@@ -1504,7 +1504,7 @@ else
 {
 lean_dec(v___y_384_);
 lean_dec(v___y_381_);
-return v___y_383_;
+return v___y_382_;
 }
 }
 v___jp_390_:
@@ -1552,8 +1552,8 @@ v___x_407_ = ((lean_object*)(l_Array_filterMapM___at___00__private_Std_Http_Data
 v___x_408_ = lean_nat_dec_lt(v___x_405_, v___x_406_);
 if (v___x_408_ == 0)
 {
-v___y_391_ = v___x_404_;
-v___y_392_ = v___y_403_;
+v___y_391_ = v___y_403_;
+v___y_392_ = v___x_404_;
 v___y_393_ = v___x_407_;
 goto v___jp_390_;
 }
@@ -1563,8 +1563,8 @@ size_t v___x_409_; size_t v___x_410_; lean_object* v___x_411_;
 v___x_409_ = ((size_t)0ULL);
 v___x_410_ = lean_usize_of_nat(v___x_406_);
 v___x_411_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1(v_codings_379_, v___x_409_, v___x_410_, v___x_407_);
-v___y_391_ = v___x_404_;
-v___y_392_ = v___y_403_;
+v___y_391_ = v___y_403_;
+v___y_392_ = v___x_404_;
 v___y_393_ = v___x_411_;
 goto v___jp_390_;
 }

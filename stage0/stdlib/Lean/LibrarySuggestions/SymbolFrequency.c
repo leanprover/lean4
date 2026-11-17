@@ -3637,12 +3637,12 @@ lean_object* v___x_1110_; lean_object* v___x_1111_; lean_object* v___x_1112_;
 v___x_1110_ = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_LibrarySuggestions_importedRelevantConstants___lam__1___closed__0));
 v___x_1111_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1111_, 0, v___x_1102_);
-lean_ctor_set(v___x_1111_, 1, v___y_1105_);
-lean_ctor_set(v___x_1111_, 2, v___y_1108_);
-v___x_1112_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_LibrarySuggestions_importedRelevantConstants_spec__4___redArg(v___y_1109_, v___y_1104_, v___y_1107_, v___x_1111_, v___x_1110_, v___x_1102_, v___y_1095_, v___y_1096_);
+lean_ctor_set(v___x_1111_, 1, v___y_1106_);
+lean_ctor_set(v___x_1111_, 2, v___y_1107_);
+v___x_1112_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_LibrarySuggestions_importedRelevantConstants_spec__4___redArg(v___y_1109_, v___y_1105_, v___y_1104_, v___x_1111_, v___x_1110_, v___x_1102_, v___y_1095_, v___y_1096_);
 lean_dec_ref(v___y_1095_);
 lean_dec_ref_known(v___x_1111_, 3);
-lean_dec_ref(v___y_1104_);
+lean_dec_ref(v___y_1105_);
 lean_dec(v___y_1109_);
 if (lean_obj_tag(v___x_1112_) == 0)
 {
@@ -3650,8 +3650,8 @@ lean_object* v_a_1113_; lean_object* v___x_1114_; size_t v_sz_1115_; size_t v___
 v_a_1113_ = lean_ctor_get(v___x_1112_, 0);
 lean_inc(v_a_1113_);
 lean_dec_ref_known(v___x_1112_, 1);
-v___x_1114_ = lean_mk_empty_array_with_capacity(v___y_1106_);
-lean_dec(v___y_1106_);
+v___x_1114_ = lean_mk_empty_array_with_capacity(v___y_1108_);
+lean_dec(v___y_1108_);
 v_sz_1115_ = lean_array_size(v_a_1113_);
 v___x_1116_ = ((size_t)0ULL);
 v___x_1117_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_LibrarySuggestions_importedRelevantConstants_spec__5___redArg(v_a_1113_, v_sz_1115_, v___x_1116_, v___x_1114_);
@@ -3661,7 +3661,7 @@ return v___x_1117_;
 else
 {
 lean_object* v_a_1118_; lean_object* v___x_1120_; uint8_t v_isShared_1121_; uint8_t v_isSharedCheck_1125_; 
-lean_dec(v___y_1106_);
+lean_dec(v___y_1108_);
 v_a_1118_ = lean_ctor_get(v___x_1112_, 0);
 v_isSharedCheck_1125_ = !lean_is_exclusive(v___x_1112_);
 if (v_isSharedCheck_1125_ == 0)
@@ -3704,7 +3704,7 @@ return v___x_1123_;
 v___jp_1126_:
 {
 lean_object* v___x_1131_; lean_object* v___x_1132_; lean_object* v___x_1133_; lean_object* v___x_1134_; uint8_t v___x_1135_; 
-v___x_1131_ = lean_array_get_size(v___y_1127_);
+v___x_1131_ = lean_array_get_size(v___y_1128_);
 v___x_1132_ = lean_nat_add(v___x_1131_, v___y_1130_);
 v___x_1133_ = lean_nat_sub(v___x_1132_, v___y_1129_);
 lean_dec(v___x_1132_);
@@ -3716,20 +3716,20 @@ if (v___x_1135_ == 0)
 lean_dec(v___x_1134_);
 lean_inc(v___y_1129_);
 v___y_1104_ = v___y_1127_;
-v___y_1105_ = v___y_1130_;
-v___y_1106_ = v___x_1131_;
-v___y_1107_ = v___y_1128_;
-v___y_1108_ = v___y_1129_;
+v___y_1105_ = v___y_1128_;
+v___y_1106_ = v___y_1130_;
+v___y_1107_ = v___y_1129_;
+v___y_1108_ = v___x_1131_;
 v___y_1109_ = v___y_1129_;
 goto v___jp_1103_;
 }
 else
 {
 v___y_1104_ = v___y_1127_;
-v___y_1105_ = v___y_1130_;
-v___y_1106_ = v___x_1131_;
-v___y_1107_ = v___y_1128_;
-v___y_1108_ = v___y_1129_;
+v___y_1105_ = v___y_1128_;
+v___y_1106_ = v___y_1130_;
+v___y_1107_ = v___y_1129_;
+v___y_1108_ = v___x_1131_;
 v___y_1109_ = v___x_1134_;
 goto v___jp_1103_;
 }
@@ -3745,8 +3745,8 @@ v___x_1142_ = lean_uint8_once(&l___private_Lean_LibrarySuggestions_SymbolFrequen
 if (v___x_1142_ == 0)
 {
 lean_inc(v_cancelTk_x3f_1139_);
-v___y_1127_ = v___y_1137_;
-v___y_1128_ = v_cancelTk_x3f_1139_;
+v___y_1127_ = v_cancelTk_x3f_1139_;
+v___y_1128_ = v___y_1137_;
 v___y_1129_ = v___x_1140_;
 v___y_1130_ = v___x_1140_;
 goto v___jp_1126_;
@@ -3754,8 +3754,8 @@ goto v___jp_1126_;
 else
 {
 lean_inc(v_cancelTk_x3f_1139_);
-v___y_1127_ = v___y_1137_;
-v___y_1128_ = v_cancelTk_x3f_1139_;
+v___y_1127_ = v_cancelTk_x3f_1139_;
+v___y_1128_ = v___y_1137_;
 v___y_1129_ = v___x_1140_;
 v___y_1130_ = v___x_1141_;
 goto v___jp_1126_;

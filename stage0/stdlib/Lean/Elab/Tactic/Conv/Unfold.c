@@ -825,8 +825,8 @@ goto v___jp_226_;
 else
 {
 lean_object* v_a_274_; lean_object* v___x_276_; uint8_t v_isShared_277_; uint8_t v_isSharedCheck_281_; 
-lean_dec_ref_known(v_a_238_, 1);
 lean_dec(v_fvarId_261_);
+lean_dec_ref_known(v_a_238_, 1);
 lean_dec_ref_known(v___x_236_, 3);
 v_a_274_ = lean_ctor_get(v___x_262_, 0);
 v_isSharedCheck_281_ = !lean_is_exclusive(v___x_262_);

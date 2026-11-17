@@ -13,6 +13,12 @@ example : (tryCatch (throw 3) (fun e => pure (e + 1)) :
       PredTrans Prop ((Nat → Prop) × Unit) Nat).apply (fun r => r = 4) (fun _ => False, ()) :=
   rfl
 
+-- An exception of an inner layer, caught under an outer exception layer.
+example : (tryCatchThe Nat (throwThe Nat 3) (fun e => pure (e + 1)) :
+      PredTrans Prop ((String → Prop) × ((Nat → Prop) × Unit)) Nat).apply (fun r => r = 4)
+    (fun _ => False, fun _ => False, ()) :=
+  rfl
+
 -- A transformer from a monotone function.
 def guardZero (P : Prop) : PredTrans Prop Unit Nat :=
   PredTrans.mk (fun Q _ => P ∧ Q 0) fun hQ _ h => ⟨h.1, hQ 0 h.2⟩

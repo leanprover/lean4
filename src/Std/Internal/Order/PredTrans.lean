@@ -430,6 +430,47 @@ theorem apply_popExcept {eh : Type z} [PartialOrder eh] (x : PredTrans Pred (eh 
     (h : eh) (post : α → Pred) (eposts : EPosts) :
     (x.popExcept h).apply post eposts = x.apply post (h, eposts) := (rfl)
 
+/-- The `tryCatch` of the `MonadExceptOf ε` instance on `PredTrans P E` is monotone in the
+protected transformer and in the handler. -/
+class IsMonotoneTryCatch (ε : Type z) (P : Type u) (E : Type v) [PartialOrder P]
+    [PartialOrder E] [MonadExceptOf ε (PredTrans P E)] : Prop where
+  /-- Larger arguments give a larger `tryCatch`. -/
+  tryCatch_mono {γ : Type _} {x x' : PredTrans P E γ} {h h' : ε → PredTrans P E γ} :
+    x ⊑ x' → h ⊑ h' → MonadExceptOf.tryCatch x h ⊑ MonadExceptOf.tryCatch x' h'
+
+instance {ε : Type z} : IsMonotoneTryCatch ε Pred ((ε → Pred) × EPosts) where
+  tryCatch_mono {_ x x' h h'} hx hh := by
+    intro post eposts
+    show x.apply post (fun e => (h e).apply post eposts, eposts.2) ⊑
+      x'.apply post (fun e => (h' e).apply post eposts, eposts.2)
+    have hhandle : x.apply post (fun e => (h e).apply post eposts, eposts.2) ⊑
+        x.apply post (fun e => (h' e).apply post eposts, eposts.2) :=
+      x.apply_mono PartialOrder.rel_refl ⟨fun e => hh e post eposts, PartialOrder.rel_refl⟩
+    exact PartialOrder.rel_trans hhandle (hx post _)
+
+instance {ε : Type u'} {ε' : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
+    [IsMonotoneTryCatch ε Pred EPosts] :
+    MonadExceptOf ε (PredTrans Pred ((ε' → Pred) × EPosts)) where
+  throw e := liftExcept (MonadExceptOf.throw (m := PredTrans Pred EPosts) e)
+  tryCatch x handle := mk
+    (fun post eposts =>
+      (MonadExceptOf.tryCatch (m := PredTrans Pred EPosts) (x.popExcept eposts.fst)
+        fun e => (handle e).popExcept eposts.fst).apply post eposts.snd)
+    (fun {_ post' _ eposts'} hpost heposts => by
+      refine PartialOrder.rel_trans (PredTrans.apply_mono _ hpost heposts.2) ?_
+      refine IsMonotoneTryCatch.tryCatch_mono ?_ ?_ post' eposts'.snd
+      · intro post E
+        exact x.apply_mono PartialOrder.rel_refl ⟨heposts.1, PartialOrder.rel_refl⟩
+      · intro e post E
+        exact (handle e).apply_mono PartialOrder.rel_refl ⟨heposts.1, PartialOrder.rel_refl⟩)
+
+instance {ε : Type u'} {ε' : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
+    [IsMonotoneTryCatch ε Pred EPosts] : IsMonotoneTryCatch ε Pred ((ε' → Pred) × EPosts) where
+  tryCatch_mono {_ _ _ _ _} hx hh := by
+    intro post eposts
+    exact IsMonotoneTryCatch.tryCatch_mono (fun post' E => hx post' (eposts.1, E))
+      (fun e post' E => hh e post' (eposts.1, E)) post eposts.2
+
 /-!
 ## State Instances
 
@@ -507,6 +548,15 @@ instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
   throw e := liftArg (MonadExceptOf.throw (m := PredTrans Pred EPosts) e)
   tryCatch x handle := pushArg fun s =>
     MonadExceptOf.tryCatch (m := PredTrans Pred EPosts) (x.popArg s) fun e => (handle e).popArg s
+
+instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
+    [IsMonotoneTryCatch ε Pred EPosts] : IsMonotoneTryCatch ε (σ → Pred) EPosts where
+  tryCatch_mono {_ x x' h h'} hx hh := by
+    intro post eposts s
+    exact IsMonotoneTryCatch.tryCatch_mono (x := x.popArg s) (x' := x'.popArg s)
+      (h := fun e => (h e).popArg s) (h' := fun e => (h' e).popArg s)
+      (fun post' E => hx (fun a s => post' (a, s)) E s)
+      (fun e post' E => hh e (fun a s => post' (a, s)) E s) (fun (a, s) => post a s) eposts
 
 end PredTrans
 

@@ -7,7 +7,7 @@ class Injects (H : Type u) (X : outParam (Type v)) where
   injective : Function.Injective coe
 
 /--
-warning: Extensionality theorem `ext` has a maximally general pattern and may be tried for every type
+warning: Extensionality theorem `Injects.ext` has a maximally general pattern and may be tried for every type
 -/
 #guard_msgs in
 @[ext] theorem Injects.ext {H : Type u} {X : Type v} [Injects H X] {a b : H}
@@ -159,6 +159,15 @@ warning: Extensionality theorem `Subsingleton.elim` has a maximally general patt
 attribute [local ext] Subsingleton.elim
 /-- info: Subsingleton.elim_iff.{u} {α : Sort u} [h : Subsingleton α] {a b : α} : a = b ↔ True -/
 #guard_msgs in #check Subsingleton.elim_iff
+end
+
+section
+set_option warning.ext.generalPattern false
+
+#guard_msgs in
+attribute [local ext] Subsingleton.elim
+
+example (a b : Unit) : a = b := by ext
 end
 
 

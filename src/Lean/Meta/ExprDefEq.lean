@@ -2010,6 +2010,16 @@ private partial def consumeLetIfZeta (e : Expr) : MetaM Expr := do
   else
     return e
 
+/--
+Synthesizes `fn` if it is an unassigned metavariable that is non-assignable only because it is in
+`synthesizableNonAssignableMVars`. Returns whether it was assigned.
+-/
+private def synthNonAssignableMVar? (fn : Expr) : MetaM Bool := do
+  let .mvar mvarId := fn | return false
+  unless (← read).synthesizableNonAssignableMVars.contains mvarId do return false
+  if (← mvarId.isAssigned) then return false
+  Meta.synthPending mvarId
+
 mutual
 
 private partial def isDefEqQuick (t s : Expr) : MetaM LBool := do
@@ -2100,6 +2110,11 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         toLBoolM <| processAssignment' t s
       else if !tAssign? && sAssign? then
         toLBoolM <| processAssignment' s t
+      else if !tAssign? && !sAssign? &&
+          (← synthNonAssignableMVar? tFn <||> synthNonAssignableMVar? sFn) then
+        -- A would-be assignment to an instance argument during type class resolution: the argument
+        -- has been synthesized instead.
+        toLBoolM <| Meta.isExprDefEqAux (← instantiateMVars t) (← instantiateMVars s)
       else if !tAssign? && !sAssign? then
         /- Trying to unify `?m ... =?= ?n ...` where both `?m` and `?n` cannot be assigned.
            This can happen when both of them are `syntheticOpaque` (e.g., metavars associated with tactics), or a metavariables

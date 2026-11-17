@@ -184,13 +184,15 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
       async.commitCheckEnv (← getEnv)
 
   if Elab.async.get (← getOptions) then
-    let cancelTk ← IO.CancelToken.new
-    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+    -- The result of a realization is shared across elaboration runs, so its kernel checks must not
+    -- be cancelled together with the run that happened to trigger it.
+    let cancelTk? ← if env.isRealizing then pure none else some <$> IO.CancelToken.new
+    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk?) fun _ => doAddAndCommit
     let t ← BaseIO.mapTask checkAct env.checked
     -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
     -- users should not worry about and other callers can add a separate task with ranges
     -- themselves, see `MutualDef`.
-    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
+    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? }
   else
     try
       doAddAndCommit

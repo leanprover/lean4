@@ -48,4 +48,4 @@ private theorem ex1 : ∀ {x : Bool} {v₁ : Nat} {y : Bool} {v₂ : Nat} (f : {
 fun {x} {v₁} {y} {v₂} f a b c => ex1._proof_1_1 f a b c
 private theorem ex2 : ∀ (n1 n2 n3 : Nat) (v1 w1 v : Vector Nat n1) (w1' : Vector Nat n3) (v2 w2 w : Vector Nat n2),
   n1 ≍ n3 → v1 = w1 → w1 ≍ w1' → v2 ≍ w2 → w1' ++ w2 ≍ v ++ w → v1 ++ v2 ≍ v ++ w :=
-fun n1 n2 n3 v1 w1 v w1' v2 w2 w => ex2._proof_1_3 n1 n2 n3 v1 w1 v w1' v2 w2 w
+fun n1 n2 n3 v1 w1 v w1' v2 w2 w => ex2._proof_1_1 n1 n2 n3 v1 w1 v w1' v2 w2 w

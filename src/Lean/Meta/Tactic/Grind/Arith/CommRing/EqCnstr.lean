@@ -92,11 +92,13 @@ otherwise. See `Poly.simpM?`.
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
+  let mut best? : Option EqCnstr := none
   for c in (← getCommRingState).basis do
     if !checkCoeff || noZeroDiv || c.p.lc.natAbs ≤ k.natAbs then
     if c.p.divides m then
-      return some c
-  return none
+      if best?.all (c.p.numTerms < ·.p.numTerms) then
+        best? := some c
+  return best?
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some

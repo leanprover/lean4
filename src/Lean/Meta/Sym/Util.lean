@@ -47,7 +47,7 @@ The kernel decides a conversion `a ≡ b` by reducing `let`s and beta redexes fi
 over changed, nested `let`s costs time exponential in their depth. A `proof` passes each changed
 `let` and beta redex by congruence instead.
 -/
-inductive PreprocessEq where
+inductive PreprocessProof where
   /-- `a` and `b` are equal up to binder names. -/
   | same
   /-- `a` and `b` differ, and no changed `let` or beta redex occurs in them. -/
@@ -55,23 +55,23 @@ inductive PreprocessEq where
   /-- `h : a = b`. -/
   | proof (h : Expr)
 
-abbrev PreprocessEqM := StateRefT (Std.HashMap (ExprPtr × ExprPtr) PreprocessEq) SymM
+abbrev PreprocessProofM := StateRefT (Std.HashMap (ExprPtr × ExprPtr) PreprocessProof) SymM
 
 /-- `Eq.refl b`, a proof of `a = b` whenever `a ≡ b` is a cheap conversion. -/
 def mkReflS (b : Expr) : SymM Expr := do
   let β ← Sym.inferType b
   return mkApp2 (mkConst ``Eq.refl [← Sym.getLevel β]) β b
 
-def PreprocessEq.toProof (r : PreprocessEq) (b : Expr) : SymM Expr :=
+def PreprocessProof.toProof (r : PreprocessProof) (b : Expr) : SymM Expr :=
   match r with
   | .proof h => return h
   | _ => mkReflS b
 
-def PreprocessEq.isSame : PreprocessEq → Bool
+def PreprocessProof.isSame : PreprocessProof → Bool
   | .same => true
   | _ => false
 
-def PreprocessEq.isProof : PreprocessEq → Bool
+def PreprocessProof.isProof : PreprocessProof → Bool
   | .proof _ => true
   | _ => false
 
@@ -79,19 +79,19 @@ def PreprocessEq.isProof : PreprocessEq → Bool
 Classifies `a = b`, where `b` is maximally shared. Types and levels for the congruence lemmas come
 from `b`; `a` occurs only in proof terms.
 -/
-partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
-  if let .mdata _ a' := a then return ← preprocessEq a' b
-  if let .mdata _ b' := b then return ← preprocessEq a b'
+partial def preprocessProof (a b : Expr) : PreprocessProofM PreprocessProof := do
+  if let .mdata _ a' := a then return ← preprocessProof a' b
+  if let .mdata _ b' := b then return ← preprocessProof a b'
   if isSameExpr a b then return .same
   let key := (⟨a⟩, ⟨b⟩)
   if let some r := (← get)[key]? then return r
   let r ← match a, b with
     | .letE n t v body _, .letE _ t' v' body' nondep =>
-      let rt ← preprocessEq t t'
-      let rv ← preprocessEq v v'
+      let rt ← preprocessProof t t'
+      let rv ← preprocessProof v v'
       withLocalDeclS n .default t' fun x => do
         let bodyB ← instantiateS body' #[x]
-        let rb ← preprocessEq (body.instantiate1 x) bodyB
+        let rb ← preprocessProof (body.instantiate1 x) bodyB
         if rt.isSame && rv.isSame && rb.isSame then return .same
         unless nondep do return .conv
         let β ← Sym.inferType bodyB
@@ -103,10 +103,10 @@ partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
         let us := [← Sym.getLevel t', ← Sym.getLevel β]
         return .proof (mkAppN (mkConst ``have_congr' us) #[t', β, v, v', f, f', h₁, h₂])
     | .lam n t body bi, .lam _ t' body' _ =>
-      let rt ← preprocessEq t t'
+      let rt ← preprocessProof t t'
       withLocalDeclS n bi t' fun x => do
         let bodyB ← instantiateS body' #[x]
-        match (← preprocessEq (body.instantiate1 x) bodyB) with
+        match (← preprocessProof (body.instantiate1 x) bodyB) with
         | .proof hb =>
           let β ← Sym.inferType bodyB
           let us := [← Sym.getLevel t', ← Sym.getLevel β]
@@ -115,9 +115,9 @@ partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
           return .proof (mkApp5 (mkConst ``funext us) t' βf a b h)
         | rb => return if rt.isSame && rb.isSame then .same else .conv
     | .forallE n t body bi, .forallE _ t' body' _ =>
-      let rt ← preprocessEq t t'
+      let rt ← preprocessProof t t'
       if !body.hasLooseBVars && !body'.hasLooseBVars then
-        let rb ← preprocessEq body body'
+        let rb ← preprocessProof body body'
         if rt.isSame && rb.isSame then return .same
         unless rt.isProof || rb.isProof do return .conv
         let us := [← Sym.getLevel t', ← Sym.getLevel body']
@@ -125,7 +125,7 @@ partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
           (← rt.toProof t') (← rb.toProof body'))
       withLocalDeclS n bi t' fun x => do
         let bodyB ← instantiateS body' #[x]
-        match (← preprocessEq (body.instantiate1 x) bodyB) with
+        match (← preprocessProof (body.instantiate1 x) bodyB) with
         | .proof hb =>
           if rt.isProof then return .conv
           unless (← Sym.inferType bodyB).isProp do return .conv
@@ -139,8 +139,8 @@ partial def preprocessEq (a b : Expr) : PreprocessEqM PreprocessEq := do
       let as := a.getAppArgs
       let bs := b.getAppArgs
       if as.size != bs.size then return .conv
-      let rf ← preprocessEq fa fb
-      let rs ← (as.zip bs).mapM fun (x, y) => preprocessEq x y
+      let rf ← preprocessProof fa fb
+      let rs ← (as.zip bs).mapM fun (x, y) => preprocessProof x y
       if rf.isSame && rs.all (·.isSame) then return .same
       -- A beta redex is passed by congruence over its head, like a `let`.
       unless fa.isLambda || rf.isProof || rs.any (·.isProof) do return .conv
@@ -179,17 +179,27 @@ def hasLetOrBetaRedex (e : Expr) : Bool :=
     | _ => false
 
 /--
-Replaces the target `T` of `mvarId` by `f T`, maximally shared. The kernel accepts the new goal
-by a proof of `T = f T` if `f` changes a `let` or a beta redex in `T`, and by conversion otherwise.
+A proof of `e = e'` for the preprocessed form `e'` of `e`, where `e'` is maximally shared, or
+`none` if the kernel accepts `e = e'` by a cheap conversion.
 -/
-public def _root_.Lean.MVarId.transformTargetS (mvarId : MVarId) (f : Expr → SymM Expr) :
+public def mkPreprocessProof? (e e' : Expr) : SymM (Option Expr) := do
+  if !hasLetOrBetaRedex e then return none
+  match (← (preprocessProof e e').run' {}) with
+  | .proof h => return some h
+  | _ => return none
+
+/--
+`transformTarget` with a proof: replaces the target `T` of `mvarId` by `f T`, maximally shared, and
+justifies the new goal by `mkPreprocessProof?`.
+-/
+public def _root_.Lean.MVarId.transformTargetEq (mvarId : MVarId) (f : Expr → SymM Expr) :
     SymM MVarId := mvarId.withContext do
   let tag ← mvarId.getTag
   let type ← mvarId.getType
   let typeNew ← f type
   if !isSameExpr type typeNew && hasLetOrBetaRedex type then
     let typeNew ← shareCommon typeNew
-    if let .proof h ← (preprocessEq (← instantiateMVars type) typeNew).run' {} then
+    if let some h ← mkPreprocessProof? (← instantiateMVars type) typeNew then
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew tag
       mvarId.assign (mkApp4 (mkConst ``Eq.mpr [← Sym.getLevel typeNew]) type typeNew h mvarNew)
       return mvarNew.mvarId!
@@ -227,12 +237,11 @@ def changesLetOrBetaRedex (e : Expr) : SymM Bool := do
   return (← preprocessExpr e) != e
 
 /--
-Reverts the local context from the first hypothesis `h` that `changesLetOrBetaRedex`, preprocesses
-the reverted target with `transformTargetS`, and introduces the hypotheses again. Afterwards, the
-types of `h` and the hypotheses that follow it are preprocessed, and the kernel accepts them by a
-proof.
+`preprocessLCtx` with a proof: reverts the local context from the first hypothesis `h` that
+`changesLetOrBetaRedex`, preprocesses the reverted target with `transformTargetEq`, and introduces
+the hypotheses again.
 -/
-def certifyLCtx (mvarId : MVarId) : SymM MVarId := mvarId.withContext do
+def _root_.Lean.MVarId.preprocessLCtxEq (mvarId : MVarId) : SymM MVarId := mvarId.withContext do
   let mut toRevert := #[]
   for decl in (← getLCtx) do
     if decl.isImplementationDetail then continue
@@ -242,17 +251,17 @@ def certifyLCtx (mvarId : MVarId) : SymM MVarId := mvarId.withContext do
     toRevert := toRevert.push decl.fvarId
   if toRevert.isEmpty then return mvarId
   let (reverted, mvarId) ← mvarId.revert toRevert (preserveOrder := true)
-  let mvarId ← mvarId.transformTargetS preprocessExpr
+  let mvarId ← mvarId.transformTargetEq preprocessExpr
   let (_, mvarId) ← mvarId.introNP reverted.size
   return mvarId
 
 /--
 Instantiates assigned metavariables, applies `shareCommon`, and eliminates holes (aka `none` cells)
 in the local context. Hypotheses that preprocessing changes under a `let` or a beta redex are first
-replaced by `certifyLCtx`.
+replaced by `MVarId.preprocessLCtxEq`.
 -/
 public def preprocessMVar (mvarId : MVarId) : SymM MVarId := do
-  let mvarId ← certifyLCtx mvarId
+  let mvarId ← mvarId.preprocessLCtxEq
   let mvarDecl ← mvarId.getDecl
   let lctx ← preprocessLCtx mvarDecl.lctx
   let type ← preprocessExpr mvarDecl.type

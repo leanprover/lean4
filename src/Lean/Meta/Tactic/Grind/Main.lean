@@ -383,7 +383,7 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean || !config.revert then pure mvarId else mvarId.markAccessible
   let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
-  let mvarId ← mvarId.transformTargetS fun e => do Core.betaReduce (← Sym.unfoldReducible e)
+  let mvarId ← mvarId.transformTargetEq fun e => do Core.betaReduce (← Sym.unfoldReducible e)
   -- `have` wraps the goal type in `mdata` (`noImplicitLambda`), which would hide an implication
   -- or a universal quantifier from `introNext`.
   let mvarId ← mvarId.eraseIrrelevantMData

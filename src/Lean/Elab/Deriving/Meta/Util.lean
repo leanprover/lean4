@@ -1864,7 +1864,7 @@ private def findRefoldsAndEquationsIn (instApp : Expr) (acc : LawDerivingAccumul
   lambdaTelescope value fun vars value => do
     value.withApp fun ctor ctorArgs => do
       matchConstCtor ctor (fun _ => pure acc) fun cval classLParams => do
-        if cval.numParams + cval.numParams != ctorArgs.size then
+        if cval.numParams + cval.numFields != ctorArgs.size then
           trace[Elab.Deriving] "Only found partial constructor application{indentExpr value}"
           return acc
         let instArgs := instApp.getAppArgs

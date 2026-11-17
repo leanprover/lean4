@@ -13,8 +13,10 @@ fun x =>
   if c 0 then jp (x + 1) else jp (x + 2)
 ```
 
+`bjps% ty n` builds the same join points as beta redexes `(fun jp => …) (fun x => …)`.
+
 Preprocessing turns `jps% N n` into `jps% Nat n`, once in the target and once in the types of two
-hypotheses.
+hypotheses, and `bjps% N n` into `bjps% Nat n` in the type of a hypothesis.
 -/
 
 abbrev N := Nat
@@ -35,6 +37,19 @@ macro_rules
           if c $idx then jp (x + 1) else jp (x + 2))
     `(fun (x : Nat) => $(← go 0 n.getNat))
 
+syntax "bjps% " term:max num : term
+
+macro_rules
+  | `(bjps% $ty $n) => do
+    let rec go (i k : Nat) : Lean.MacroM (Lean.TSyntax `term) := do
+      match k with
+      | 0 => `(x)
+      | k + 1 =>
+        let idx := Lean.Syntax.mkNumLit (toString i)
+        let inner ← go (i + 1) k
+        `((fun (jp : $ty → $ty) => if c $idx then jp (x + 1) else jp (x + 2)) (fun x => $inner))
+    `(fun (x : Nat) => $(← go 0 n.getNat))
+
 opaque P : (Nat → Nat) → Prop
 axiom p_all (f : Nat → Nat) : P f
 
@@ -49,3 +64,7 @@ axiom q_of (f : Nat → Nat) : T f → Q
 set_option maxHeartbeats 3000 in
 example (v : T (jps% N 20)) (w : T (jps% N 20)) : Q := by
   sym => exact q_of _ w
+
+set_option maxHeartbeats 3000 in
+example (v : T (bjps% N 20)) : Q := by
+  sym => exact q_of _ v

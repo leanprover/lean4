@@ -16,7 +16,8 @@ fun x =>
 `bjps% ty n` builds the same join points as beta redexes `(fun jp => …) (fun x => …)`.
 
 Preprocessing turns `jps% N n` into `jps% Nat n`, once in the target and once in the types of two
-hypotheses, and `bjps% N n` into `bjps% Nat n` in the type of a hypothesis.
+hypotheses, and `bjps% N n` into `bjps% Nat n` in the type of a hypothesis. In the target, it also
+reduces the beta redex `(fun α => α) Nat` in the binder type of each join point.
 -/
 
 abbrev N := Nat
@@ -55,6 +56,10 @@ axiom p_all (f : Nat → Nat) : P f
 
 set_option maxHeartbeats 3000 in
 example : P (jps% N 20) := by
+  sym => apply p_all
+
+set_option maxHeartbeats 3000 in
+example : P (jps% ((fun α : Type => α) Nat) 20) := by
   sym => apply p_all
 
 opaque T : (Nat → Nat) → Type

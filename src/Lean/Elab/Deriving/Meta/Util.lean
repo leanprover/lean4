@@ -57,9 +57,28 @@ partial def Lean.Meta.forceProcessDelayedAssignments : MetaM Unit := do
         continue
       if let some eassignment ← getExprMVarAssignment? dassignment.mvarIdPending then
         dassignment.mvarIdPending.withContext do
-          mvar.assign (← mkLambdaFVars dassignment.fvars eassignment)
+          mvar.assign (← mkLambda dassignment.fvars eassignment)
         modifyMCtx fun mctx => { mctx with dAssignment := mctx.dAssignment.erase mvar }
         progress := true
+where
+  /--
+  `MetavarContext.MkBinding.mkBinding` specialized for always generating lambdas. In the presence
+  of let declarations, the resulting expression may only be type correct after beta reduction with
+  the free variables.
+  -/
+  mkLambda (xs : Array Expr) (e : Expr) : MetaM Expr := do
+    let lctx ← getLCtx
+    let e ← e.abstractM xs
+    xs.size.foldRevM (init := e) fun i _ e => do
+      let x := xs[i]
+      let handleCDecl (n : Name) (type : Expr) (bi : BinderInfo) : MetaM Expr := do
+        let type ← type.abstractRangeM i xs
+        return .lam n type e bi
+      match lctx.getFVar! x with
+      | LocalDecl.cdecl _ _ n type bi _ =>
+        handleCDecl n type bi
+      | LocalDecl.ldecl _ _ n type value nondep _ =>
+        handleCDecl n type .default
 
 /--
 Convenience function for creating and registering an instance declaration with a given name, level

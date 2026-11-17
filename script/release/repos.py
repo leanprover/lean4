@@ -341,13 +341,14 @@ _register(REFERENCE_MANUAL)
 
 
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
-# all dependencies. Also bump the toolchain and dependencies in `examples/hero`.
+# all dependencies. Also bump the toolchain and dependencies in `examples/hero`,
+# including the mathlib rev.
 # Finally, run `scripts/update.sh`. For `v4.X.0-rc1` releases, you may need to
 # merge `nightly-testing` into the PR.
 LEAN_FRO_ORG = ReleaseRepo(
     github=("leanprover", "lean-fro.org"),
     rc1_pr_base="default",
-    strong_deps=[VERSO, VERSO_WEB_COMPONENTS],
+    strong_deps=[VERSO, VERSO_WEB_COMPONENTS, MATHLIB4],
 )
 _register(LEAN_FRO_ORG)
 

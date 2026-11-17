@@ -122,8 +122,8 @@ class DownstreamChecker(RepoChecker):
         else:
             util.edit(
                 path / "lakefile.lean",
-                r'git "v4\.[0-9]+(\.[0-9]+)?(-rc[0-9]+)?"',
-                f'git "{self.version}"',
+                r'(@\s*(?:git\s*)?)"v4\.[0-9]+(\.[0-9]+)?(-rc[0-9]+)?"',
+                rf'\1"{self.version}"',
             )
 
         util.run("lake", "update", cwd=path)
@@ -226,6 +226,13 @@ class DownstreamChecker(RepoChecker):
     def _bump_toolchain_lean_fro_org(self) -> None:
         self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
+
+        # The hero example project depends on mathlib, so we need to bump deps
+        # here explicitly.
+        hero = self.lrepo.path / "examples" / "hero"
+        self._bump_toolchain(hero)
+        self._bump_toolchain_deps(hero)
+
         util.run("scripts/update.sh", cwd=self.lrepo.path)
 
     def _bump_toolchain_bibtex_query(self) -> None:

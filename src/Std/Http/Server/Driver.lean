@@ -106,11 +106,6 @@ inductive Input where
   | writeFailed (err : IO.Error)
 
   /--
-  A write completed at `time` (monotonic milliseconds), while later writes may still be in flight.
-  -/
-  | writeProgress (time : Nat)
-
-  /--
   The handler returned a response with head `head` and body length `size`, if known. `data` holds
   body chunks that were available at once, and `ended` says that the body ended after them.
   -/
@@ -137,9 +132,10 @@ inductive Input where
   | bodyInterest (wanted : Bool)
 
   /--
-  The deadline of the given kind passed.
+  A deadline may have passed. `lastWrite` is when a write last completed (monotonic milliseconds),
+  which restarts the write deadline; `0` before any did.
   -/
-  | deadline (kind : Deadline)
+  | tick (lastWrite : Nat)
 
   /--
   The connection's context was cancelled: because its own deadline passed (`deadline`), or because
@@ -184,7 +180,8 @@ inductive Command where
   | failBody (err : IO.Error)
 
   /--
-  Close the response body, if one is held: nothing more is pulled from it.
+  Close the response body, if one is held, and release the handler's response if it has not come:
+  nothing more is pulled from either.
   -/
   | releaseResponse
 
@@ -192,11 +189,6 @@ inductive Command where
   Report a failure to the handler (`Handler.onFailure`).
   -/
   | report (err : IO.Error)
-
-  /--
-  The handler's response is no longer wanted: release it when it comes, instead of reporting it.
-  -/
-  | abandonHandler
 
   /--
   Close the transport, the last command. With `linger`, the peer may still be sending, so first shut
@@ -226,21 +218,6 @@ inductive Phase where
 deriving BEq, DecidableEq, Repr, Inhabited
 
 /--
-The request body handed to the handler of the current exchange.
--/
-inductive BodyState where
-  /--
-  No body is open: no handler started for this exchange, or the body ended or was closed.
-  -/
-  | closed
-
-  /--
-  Open. With `wanted`, its reader waits for data that has not arrived.
-  -/
-  | «open» (wanted : Bool)
-deriving BEq, DecidableEq, Repr, Inhabited
-
-/--
 The state of a connection. Everything about the exchange itself lives in the machine; this is what
 the connection adds: the handler, the request body handed to it, the writes and the deadlines.
 -/
@@ -261,9 +238,10 @@ structure State where
   handlerRunning : Bool := false
 
   /--
-  The request body.
+  The request body handed to the handler, while it is open: `some wanted`, where `wanted` says that its
+  reader waits for data that has not arrived.
   -/
-  body : BodyState := .closed
+  body : Option Bool := none
 
   /--
   Bytes written and not yet confirmed.
@@ -283,24 +261,11 @@ structure State where
   wait : Option (Deadline × Nat) := none
 
   /--
-  When the connection is dropped unless a write completes first (`Input.writeProgress`).
+  When the connection is dropped unless a write completes first (`Input.tick`).
   -/
   writeDeadline : Option Nat := none
 
 namespace State
-
-/--
-The state of a new connection served by `machine`.
--/
-def init (machine : H1.Machine .receiving) : State :=
-  { machine }
-
-/--
-Sets the `Date` field value the machine writes into response heads.
--/
-@[inline]
-def setDate (s : State) (date : Option Header.Value) : State :=
-  { s with machine := { s.machine with date } }
 
 /--
 Whether the interpreter has to report `Input.written`: written bytes are unconfirmed.
@@ -336,7 +301,7 @@ def wantsBytes (cfg : Http.Config) (s : State) : Bool :=
   s.phase == .serving && !m.reader.noMoreInput &&
     match m.reader.state with
     | .needStartLine | .needHeader _ => true
-    | .readBody _ => !m.canPullBody || (s.body matches .open true)
+    | .readBody _ => !m.canPullBody || s.body == some true
     | .complete => m.writer.sentMessage && m.reader.remainingBytes < cfg.maximumRecvSize
     | _ => false
 
@@ -351,7 +316,7 @@ Whether the connection watches the request body's reader, to learn when it waits
 -/
 @[inline]
 def wantsBodyInterest (s : State) : Bool :=
-  s.phase == .serving && (s.body matches .open false) && s.machine.canPullBody
+  s.phase == .serving && s.body == some false && s.machine.canPullBody
 
 /--
 Whether the connection pulls the next chunk of the response body: the machine takes more of it, and
@@ -375,13 +340,6 @@ def nextDeadline (s : State) : Option (Deadline × Nat) :=
     | none, wait => wait
 
 /--
-Whether the deadline of kind `kind` runs and passed at `now`.
--/
-private def due (s : State) (now : Nat) : Deadline → Bool
-  | .write => s.writeDeadline.any (· ≤ now)
-  | kind => s.wait.any fun (k, t) => k == kind && t ≤ now
-
-/--
 Why the request body stops before its end.
 -/
 private def bodyError (machine : H1.Machine .receiving) : IO.Error :=
@@ -399,19 +357,8 @@ complete.
 -/
 @[inline]
 private def failOpenBody (s : State) (cmds : Array Command) : State × Array Command :=
-  match s.body with
-  | .open _ => ({ s with body := .closed }, cmds.push (.failBody (bodyError s.machine)))
-  | .closed => (s, cmds)
-
-/--
-Whether the peer may have sent input that the machine never read: the machine stopped reading while
-the peer had not closed its side. The connection does not read while a handler runs, and the machine
-stops reading at a timeout or after the head of a tunnel, so such input, for example a pipelined
-request, can wait in the transport, which a close then answers with a reset (RFC 9112 §9.6).
--/
-@[inline]
-private def peerMayHaveSentMore (machine : H1.Machine .receiving) : Bool :=
-  !machine.reader.peerClosed && machine.reader.isClosed
+  if s.body.isSome then ({ s with body := none }, cmds.push (.failBody (bodyError s.machine)))
+  else (s, cmds)
 
 /--
 Closes the connection at once, lingering only when `linger` is set and the peer may still send.
@@ -419,7 +366,39 @@ Closes the connection at once, lingering only when `linger` is set and the peer 
 @[inline]
 private def closeNow (s : State) (linger : Bool) (cmds : Array Command) : State × Array Command :=
   ({ s with phase := .closed, unwritten := 0, writeDeadline := none },
-    cmds.push (.close (linger && (s.machine.peerMayStillSend || peerMayHaveSentMore s.machine))))
+    cmds.push (.close (linger && s.machine.peerMayStillSend)))
+
+/--
+What the connection waits for besides its writes (`State.wait`), and how long it gives: the
+`Expect: 100-continue` decision it asked, request body bytes, a request head, or, once its writes are
+confirmed, the next request on an idle connection. The next chunk of a streamed response has no
+deadline: it is the handler's.
+-/
+private def waitingFor (cfg : Http.Config) (s : State) : Option (Deadline × Nat) :=
+  if s.asksContinue then some (.«continue», ms cfg.lingeringTimeout)
+  else if !wantsBytes cfg s then none
+  else match s.machine.reader.state with
+    | .needStartLine =>
+      if !s.machine.reader.input.atEnd then some (.header, ms cfg.headerTimeout)
+      else if s.unwritten == 0 then some (.idle, ms cfg.keepAliveTimeout.val)
+      else none
+    | .needHeader _ => some (.header, ms cfg.headerTimeout)
+    | .readBody _ => some (.linger, ms cfg.lingeringTimeout)
+    | _ => none
+
+/--
+Sets the deadlines that run in `s`. A deadline that keeps running keeps its time, except `linger`,
+which every input restarts.
+-/
+private def rearm (cfg : Http.Config) (s : State) (now : Nat) : State :=
+  let wait := (waitingFor cfg s).map fun (kind, timeout) =>
+    match s.wait with
+    | some (k, t) => if k == kind && kind != .linger then (kind, t) else (kind, now + timeout)
+    | none => (kind, now + timeout)
+  { s with
+    wait
+    writeDeadline :=
+      if s.unwritten > 0 then some (s.writeDeadline.getD (now + ms cfg.writeTimeout)) else none }
 
 /--
 Ends the connection: closes the request body, releases the response body and the handler's response,
@@ -430,12 +409,8 @@ private def finish (cfg : Http.Config) (s : State) (now : Nat) (flush : Bool) (c
     State × Array Command :=
   let (s, cmds) := failOpenBody s cmds
   let cmds := cmds.push .releaseResponse
-  let cmds := if s.handlerRunning then cmds.push .abandonHandler else cmds
   let s := { s with handlerRunning := false, wait := none }
-  if flush && s.unwritten > 0 then
-    let writeDeadline := some (s.writeDeadline.getD (now + ms cfg.writeTimeout))
-    ({ s with phase := .draining, writeDeadline },
-      cmds)
+  if flush && s.unwritten > 0 then (rearm cfg { s with phase := .draining } now, cmds)
   else closeNow s flush cmds
 
 /--
@@ -525,8 +500,8 @@ private def fire (cfg : Http.Config) (s : State) (now : Nat) : Deadline → Opti
   | .«continue» => decideContinue s false
 
 /--
-Applies an input to a serving connection. An input from a source that is not armed, or a deadline
-that does not run or has not passed, is ignored (`none`).
+Applies an input to a serving connection. An input from a source that is not armed, or a tick when
+no deadline passed and no write completed since, is ignored (`none`).
 -/
 private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → Option (State × Array Command)
   | .resume => some (s, #[])
@@ -544,8 +519,6 @@ private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → Option
     else
       some ({ s with unwritten := 0, writeDeadline := none }, #[])
   | .writeFailed err => some (finish cfg s now false #[.report err])
-  | .writeProgress time =>
-    if s.writeDeadline.isNone then none else some (progressWrites cfg s time, #[])
   | .responded head size data ended =>
     if !s.handlerRunning then none else some (respond s head size data ended)
   | .handlerFailed err =>
@@ -564,8 +537,14 @@ private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → Option
   | .continueDecided accept => decideContinue s accept
   | .bodyInterest wanted =>
     if !wantsBodyInterest s then none
-    else some ({ s with body := if wanted then .open true else .closed }, #[])
-  | .deadline kind => if due s now kind then fire cfg s now kind else none
+    else some ({ s with body := if wanted then some true else none }, #[])
+  | .tick lastWrite =>
+    let s' := progressWrites cfg s lastWrite
+    match nextDeadline s' with
+    | some (kind, t) =>
+      if t ≤ now then fire cfg s' now kind
+      else if s'.writeDeadline != s.writeDeadline then some (s', #[]) else none
+    | none => none
   | .cancelled deadline =>
     if s.cancelled then
       none
@@ -580,15 +559,13 @@ private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → Option
 Hands the request body's waiting reader the next chunk, if the machine has one.
 -/
 private def deliverBody (s : State) (cmds : Array Command) : State × Array Command :=
-  match s.body with
-  | .open true =>
-    match s.machine.pullBody with
+  if s.body != some true then (s, cmds)
+  else match s.machine.pullBody with
     | (machine, none) => ({ s with machine }, cmds)
     | (machine, some pulled) =>
       -- An incomplete chunk is held by the body until the rest arrives, so its reader still waits.
-      ({ s with machine, body := if pulled.final then .closed else .open pulled.incomplete },
+      ({ s with machine, body := if pulled.final then none else some pulled.incomplete },
         cmds.push (.pushBody pulled.chunk pulled.incomplete pulled.final))
-  | _ => (s, cmds)
 
 /--
 Handles one event of the machine: a failure is reported, and an exchange that ended (`next`) closes
@@ -639,49 +616,8 @@ private def dispatch (cfg : Http.Config) (s : State) (now : Nat) (cmds : Array C
     else
       let size := m.bodyLength?
       let complete := size == some (.fixed 0)
-      ({ s with handlerRunning := true, body := if complete then .closed else .open false },
+      ({ s with handlerRunning := true, body := if complete then none else some false },
         cmds.push (.startHandler head size complete))
-
-/--
-What the connection waits for besides its writes (`State.wait`): the `Expect: 100-continue` decision
-it asked, request body bytes, a request head, or, once its writes are confirmed, the next request on
-an idle connection. The next chunk of a streamed response has no deadline: it is the handler's.
--/
-private def waitingFor (cfg : Http.Config) (s : State) : Option Deadline :=
-  if s.asksContinue then some .«continue»
-  else if !wantsBytes cfg s then none
-  else match s.machine.reader.state with
-    | .needStartLine =>
-      if !s.machine.reader.input.atEnd then some .header
-      else if s.unwritten == 0 then some .idle
-      else none
-    | .needHeader _ => some .header
-    | .readBody _ => some .linger
-    | _ => none
-
-/--
-How long a deadline of kind `kind` gives.
--/
-private def timeout (cfg : Http.Config) : Deadline → Nat
-  | .idle => ms cfg.keepAliveTimeout.val
-  | .header => ms cfg.headerTimeout
-  | .linger | .«continue» => ms cfg.lingeringTimeout
-  | .write => ms cfg.writeTimeout
-
-/--
-Sets the deadlines that run in `s`. A deadline that keeps running keeps its time, except `linger`,
-which every input restarts.
--/
-private def rearm (cfg : Http.Config) (s : State) (now : Nat) : State :=
-  let wait := (waitingFor cfg s).map fun kind =>
-    match s.wait with
-    | some (k, t) =>
-      if k == kind && kind != .linger then (kind, t) else (kind, now + timeout cfg kind)
-    | none => (kind, now + timeout cfg kind)
-  { s with
-    wait
-    writeDeadline :=
-      if s.unwritten > 0 then some (s.writeDeadline.getD (now + ms cfg.writeTimeout)) else none }
 
 /--
 Advances a serving connection after an input: hands the request body's reader what arrived, steps
@@ -711,9 +647,10 @@ def step (cfg : Http.Config) (s : State) (now : Nat) (input : Input) : State × 
     match input with
     | .written => closeNow s true #[]
     | .writeFailed err => closeNow s false #[.report err]
-    | .writeProgress time => (progressWrites cfg s time, #[])
-    | .deadline .write =>
-      if due s now .write then closeNow s false #[.report (writeTimedOut cfg)] else (s, #[])
+    | .tick lastWrite =>
+      let s := progressWrites cfg s lastWrite
+      if s.writeDeadline.any (· ≤ now) then closeNow s false #[.report (writeTimedOut cfg)]
+      else (s, #[])
     | _ => (s, #[])
   | .serving =>
     match apply cfg s now input with
@@ -724,7 +661,7 @@ def step (cfg : Http.Config) (s : State) (now : Nat) (input : Input) : State × 
 Starts a connection served by `machine` at time `now`.
 -/
 def start (cfg : Http.Config) (machine : H1.Machine .receiving) (now : Nat) : State × Array Command :=
-  step cfg (State.init machine) now .resume
+  step cfg { machine } now .resume
 
 theorem step_closed (cfg : Http.Config) (s : State) (now : Nat) (input : Input) (h : s.phase = .closed) :
     step cfg s now input = (s, #[]) := by

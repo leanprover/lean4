@@ -64,11 +64,6 @@ structure Server where
   private shutdownDone : Std.CancellationToken
 
   /--
-  Configuration of the server
-  -/
-  config : Std.Http.Config
-
-  /--
   The local socket address the server is bound to. When `serve` is called with a port of `0`, this
   reflects the ephemeral port assigned by the OS rather than the requested address.
   `none` for servers constructed without an associated listening socket (e.g. `serveConnection`).
@@ -76,22 +71,6 @@ structure Server where
   localAddr : Option Net.SocketAddress := none
 
 namespace Server
-
-/--
-Create a new `Server` structure with an optional configuration.
--/
-def new (config : Std.Http.Config := {}) (localAddr : Option Net.SocketAddress := none) :
-    IO Server := do
-  let context ← Std.CancellationContext.new
-  let activeConnections ← Std.Mutex.new 0
-  let connectionLimit ←
-    if config.maxConnections = 0 then
-      pure none
-    else
-      some <$> Std.Semaphore.new config.maxConnections
-  let shutdownDone ← Std.CancellationToken.new
-
-  return { context, activeConnections, connectionLimit, shutdownDone, config, localAddr }
 
 /--
 Triggers cancellation of all requests and the accept loop in the server. This function should be used
@@ -155,20 +134,21 @@ def serve {σ : Type} [Handler σ]
   server.bind addr
   server.listen backlog
   server.noDelay
-  let localAddr ← server.getSockName
-
-  let httpServer ← Server.new config (some localAddr)
+  let connectionLimit ←
+    if config.maxConnections = 0 then pure none
+    else some <$> Std.Semaphore.new config.maxConnections
+  let httpServer : Server := {
+    context := ← Std.CancellationContext.new
+    activeConnections := ← Std.Mutex.new 0
+    connectionLimit
+    shutdownDone := ← Std.CancellationToken.new
+    localAddr := some (← server.getSockName) }
 
   let runServer := do
     frameCancellation httpServer (action := do
       while true do
-        let permitAcquired ←
-          if let some limit := httpServer.connectionLimit then
-            let permit ← limit.acquire
-            await permit
-            pure true
-          else
-            pure false
+        if let some limit := connectionLimit then
+          await (← limit.acquire)
 
         let result ← Selectable.one #[
           .case (server.acceptSelector) (fun x => pure <| some x),
@@ -183,13 +163,11 @@ def serve {σ : Type} [Handler σ]
             | .error _ => pure Extensions.empty
 
           ContextAsync.background
-            (frameCancellation httpServer (releaseConnectionPermit := permitAcquired)
-              (action := do
-                serveConnection client handler config extensions))
+            (frameCancellation httpServer (releaseConnectionPermit := true)
+              (action := serveConnection client handler config extensions))
         | none =>
-          if permitAcquired then
-            if let some limit := httpServer.connectionLimit then
-              limit.release
+          if let some limit := connectionLimit then
+            limit.release
           break
     )
 

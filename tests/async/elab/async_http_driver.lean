@@ -52,7 +52,6 @@ def tag : Command → String
   | .failBody _ => "failBody"
   | .releaseResponse => "releaseResponse"
   | .report _ => "report"
-  | .abandonHandler => "abandonHandler"
   | .close _ => "close"
 
 def tags (cmds : Array Command) : Array String := cmds.map tag
@@ -117,7 +116,7 @@ def checkCleanup (r : Run) (what : String) : IO Unit := do
   check (ends == openBodies) s!"{what}: {openBodies} open bodies, {ends} ends ({tags r.log})"
   -- After closing, nothing happens any more.
   for i in [Input.resume, .received none, .written, .bodyInterest true, .pulled none,
-      .cancelled false, .deadline .idle, .received (some "GET / HTTP/1.1\r\n\r\n".toUTF8),
+      .cancelled false, .tick 0, .received (some "GET / HTTP/1.1\r\n\r\n".toUTF8),
       .continueDecided true] do
     check (step r.cfg r.state (r.now + 100000) i).2.isEmpty s!"{what}: a closed connection acted"
   check (nextDeadline r.state).isNone s!"{what}: a closed connection keeps a deadline"
@@ -300,11 +299,9 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
 #eval show IO Unit from do
   let r := Run.start
   check (nextDeadline r.state == some (.idle, 12000)) s!"idle deadline: {repr (nextDeadline r.state)}"
-  let r := r.at 11999 |>.input (.deadline .idle)
+  let r := r.at 11999 |>.input (.tick 0)
   check r.last.isEmpty "not due yet"
-  let r := r.at 12000 |>.input (.deadline .header)
-  check r.last.isEmpty "a deadline that does not run is ignored"
-  let r := r.input (.deadline .idle)
+  let r := r.at 12000 |>.input (.tick 0)
   check (!has r.last "write" && has r.last "close") s!"idle closes: {tags r.last}"
   checkCleanup r "idle"
 
@@ -323,7 +320,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   check (nextDeadline r.state == some (.header, 5100)) s!"header deadline: {repr (nextDeadline r.state)}"
   let r := r.at 1000 |>.input (req "st: x\r\nA: b")
   check (nextDeadline r.state == some (.header, 5100)) "more bytes keep the deadline"
-  let r := r.at 5100 |>.input (.deadline .header)
+  let r := r.at 5100 |>.input (.tick 0)
   check ((reports r.log)[0]? == some "request header timeout") s!"{reports r.log}"
   let r := r.input .written
   checkCleanup r "header timeout"
@@ -333,10 +330,10 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := Run.start |>.input (req (postPart "/slow" 10 "abc"))
   let r := r.input (.bodyInterest true) |>.at 50 |>.input (.bodyInterest true)
   check (nextDeadline r.state == some (.linger, 10050)) s!"linger deadline: {repr (nextDeadline r.state)}"
-  let r := r.at 10050 |>.input (.deadline .linger)
+  let r := r.at 10050 |>.input (.tick 0)
   check ((bytesOf r.last).startsWith "HTTP/1.1 408") s!"408: {(bytesOf r.last).quote}"
   check (count r.log "failBody" == 1 && ended r.log == 0) "the body fails"
-  check (has r.last "abandonHandler") "the handler's response is abandoned"
+  check (has r.last "releaseResponse") "the handler's response is released"
   let r := r.input .written
   check (lingered r.log) "the peer may still send the body: linger"
   checkCleanup r "linger timeout"
@@ -346,7 +343,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := Run.start |>.input (req (get "/stall")) |>.input streamed |>.input (chunk "first")
   let r := r.at 10 |>.input .written
   check (nextDeadline r.state == none) s!"no deadline: {repr (nextDeadline r.state)}"
-  let r := r.at 600000 |>.input (.deadline .linger)
+  let r := r.at 600000 |>.input (.tick 0)
   check (r.last.isEmpty && !r.state.isClosed) s!"no linger deadline runs: {tags r.last}"
 
 -- Writes that are never confirmed drop the connection without waiting for them.
@@ -354,7 +351,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := Run.start |>.input (req (get "/"))
   let r := r.input (full "x")
   check (nextDeadline r.state == some (.write, 30000)) s!"{repr (nextDeadline r.state)}"
-  let r := r.at 30000 |>.input (.deadline .write)
+  let r := r.at 30000 |>.input (.tick 0)
   check (has r.last "close" && !lingered r.last) s!"dropped: {tags r.last}"
   checkCleanup r "write timeout"
 
@@ -362,13 +359,13 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
 -- confirmed: a peer that keeps reading is not dropped while the outbox never goes idle.
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/")) |>.input (full "x")
-  let r := r.at 20000 |>.input (.writeProgress 20000)
+  let r := r.at 20000 |>.input (.tick 20000)
   check (nextDeadline r.state == some (.write, 50000)) s!"restarted: {repr (nextDeadline r.state)}"
-  let r := r.at 30000 |>.input (.deadline .write)
+  let r := r.at 30000 |>.input (.tick 0)
   check (!has r.last "close") s!"not due any more: {tags r.last}"
-  let r := r.input (.writeProgress 5000)
+  let r := r.input (.tick 5000)
   check (nextDeadline r.state == some (.write, 50000)) "an older completion does not move it back"
-  let r := r.at 50000 |>.input (.deadline .write)
+  let r := r.at 50000 |>.input (.tick 0)
   check (has r.last "close" && !lingered r.last) s!"no write completed for 30 s: {tags r.last}"
   checkCleanup r "write progress"
 
@@ -376,9 +373,9 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/" "Connection: close\r\n")) |>.input (full "bye")
   check (r.state.phase == .draining) "draining"
-  let r := r.at 25000 |>.input (.writeProgress 25000)
+  let r := r.at 25000 |>.input (.tick 25000)
   check (nextDeadline r.state == some (.write, 55000)) s!"restarted: {repr (nextDeadline r.state)}"
-  let r := r.at 30000 |>.input (.deadline .write)
+  let r := r.at 30000 |>.input (.tick 0)
   check (!has r.last "close") s!"not due any more: {tags r.last}"
   let r := r.input .written
   check (has r.last "close") s!"flushed: {tags r.last}"
@@ -388,7 +385,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
 #eval show IO Unit from do
   let r := Run.start |>.input (req (get "/")) |>.input streamed |>.input (chunk "x")
   check (nextDeadline r.state == some (.write, 30000)) s!"the write deadline: {repr (nextDeadline r.state)}"
-  let r := r.at 30000 |>.input (.deadline .write)
+  let r := r.at 30000 |>.input (.tick 0)
   check (has r.last "releaseResponse" && has r.last "close") s!"dropped, body released: {tags r.last}"
   checkCleanup r "write timeout while streaming"
 
@@ -398,7 +395,7 @@ def postPart (path : String) (declared : Nat) (sent : String) : String :=
   let r := r.at 10 |>.input (full "bye")
   check (r.state.phase == .draining) "draining"
   check (nextDeadline r.state == some (.write, 30010)) s!"{repr (nextDeadline r.state)}"
-  let r := r.at 30010 |>.input (.deadline .write)
+  let r := r.at 30010 |>.input (.tick 0)
   check (has r.last "close") s!"closed: {tags r.last}"
   checkCleanup r "flush timeout"
 
@@ -432,7 +429,7 @@ def expectPost : String :=
 #eval show IO Unit from do
   let r := Run.start |>.input (req expectPost)
   check (nextDeadline r.state == some (.continue, 10000)) s!"{repr (nextDeadline r.state)}"
-  let r := r.at 10000 |>.input (.deadline .continue)
+  let r := r.at 10000 |>.input (.tick 0)
   check ((bytesOf r.last).startsWith "HTTP/1.1 417") "417 on timeout"
   let r := r.input (.continueDecided true)
   check r.last.isEmpty "late decision ignored"
@@ -465,7 +462,7 @@ def expectPost : String :=
   let r := Run.start |>.input (req (get "/"))
   let r := r.input (.cancelled false)
   check ((bytesOf r.last).startsWith "HTTP/1.1 503") s!"503: {(bytesOf r.last).quote}"
-  check (has r.last "abandonHandler") "abandoned"
+  check (has r.last "releaseResponse") "released"
   check (r.input (.cancelled false)).last.isEmpty "a second shutdown is ignored"
   let r := r.input (full "late")
   check r.last.isEmpty "the late response is ignored"
@@ -545,7 +542,7 @@ def expectPost : String :=
   let r := Run.start |>.input (req (get "/"))
   for i in [Input.received none, .received (some "x".toUTF8), .pulled none,
       .pulled (some { data := "x".toUTF8 }), .bodyInterest true, .bodyInterest false,
-      .continueDecided true, .written, .deadline .linger] do
+      .continueDecided true, .written, .tick 0] do
     check (step r.cfg r.state r.now i).2.isEmpty s!"an input from a source that is not armed acted"
 
 /-! ## Statements that hold by construction -/

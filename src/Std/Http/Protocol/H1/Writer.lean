@@ -99,11 +99,6 @@ structure Writer (dir : Direction) where
   userClosedBody : Bool := false
 
   /--
-  Whether the body is left off the wire (a response to `HEAD`, or a status without content).
-  -/
-  omitBody : Bool := false
-
-  /--
   The total size of `userData`.
   -/
   userDataBytes : Nat := 0
@@ -128,56 +123,18 @@ def noMoreUserData {dir} (writer : Writer dir) : Bool :=
   | _ => writer.userClosedBody
 
 /--
-Whether the writer is closed.
--/
-@[inline]
-def isClosed (writer : Writer dir) : Bool :=
-  writer.state matches .closed
-
-/--
-The framing of the body: the length the caller set, else the length of a body given in full, else
-chunked.
--/
-def determineTransferMode (writer : Writer dir) : Body.Length :=
-  if let some mode := writer.knownSize then
-    mode
-  else if writer.userClosedBody then
-    .fixed writer.userDataBytes
-  else
-    .chunked
-
-/--
-Writes buffered body data as chunks. Empty chunks are dropped, since an empty chunk ends a chunked
-body.
--/
-def writeChunkedBody (writer : Writer dir) : Writer dir :=
-  if writer.userData.size = 0 then
-    writer
-  else
-    let data := writer.userData.filter (fun c => !c.data.isEmpty)
-    { writer with
-      userData := #[]
-      userDataBytes := 0
-      outputData := data.foldl ChunkedBuffer.pushChunk writer.outputData }
-
-/--
-Writes buffered body data and the last chunk, and completes the message.
--/
-def writeFinalChunk (writer : Writer dir) : Writer dir :=
-  let writer := writer.writeChunkedBody
-  { writer with
-    outputData := writer.outputData.push "0\r\n\r\n".toUTF8
-    state := .complete
-  }
-
-/--
-Writes buffered body data as it is: for a body of stated length, or one that ends when the
+Writes the buffered body data: as chunks when `chunked`, dropping empty ones, since an empty chunk
+ends a chunked body; otherwise as it is, for a body of stated length or one that ends when the
 connection closes.
 -/
-def writeRawBody (writer : Writer dir) : Writer dir :=
-  { writer with
-    outputData := writer.userData.foldl (fun buf c => buf.push c.data) writer.outputData,
-    userData := #[], userDataBytes := 0 }
+def writeBody (chunked : Bool) (writer : Writer dir) : Writer dir :=
+  let outputData :=
+    if chunked then
+      writer.userData.foldl (init := writer.outputData) fun buf c =>
+        if c.data.isEmpty then buf else buf.pushChunk c
+    else
+      writer.userData.foldl (fun buf c => buf.push c.data) writer.outputData
+  { writer with outputData, userData := #[], userDataBytes := 0 }
 
 end Writer
 

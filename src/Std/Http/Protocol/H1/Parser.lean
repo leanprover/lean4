@@ -21,32 +21,9 @@ reference used is https://httpwg.org/specs/rfc9112.html.
 namespace Std.Http.Protocol.H1
 
 open Std Std.Internal Parsec ByteArray Internal.Char
+open LineScan (Class)
 
 set_option linter.all true
-
-/--
-Checks if a byte is `field-content`, `HTAB / SP / VCHAR / obs-text`: the bytes of a field value and
-of a reason phrase.
--/
-@[inline]
-def isFieldContentByte (c : UInt8) : Bool :=
-  fieldContent (Char.ofUInt8 c)
-
-/--
-Checks if a byte may appear unescaped inside a quoted-string value.
-
-Allows `HTAB / SP / %x21 / %x23-5B / %x5D-7E` (strict ASCII-only; no obs-text).
--/
-@[inline]
-def isQdText (c : UInt8) : Bool :=
-  qdtext (Char.ofUInt8 c)
-
-/--
-Checks if a byte is optional whitespace (`OWS = SP / HTAB`, RFC 9110 §5.6.3).
--/
-@[inline]
-def isOwsByte (c : UInt8) : Bool :=
-  ows (Char.ofUInt8 c)
 
 -- Parser blocks
 
@@ -65,21 +42,12 @@ def optionalUnlessEof (p : Parser α) : Parser (Option α) := fun it =>
   | .error _ _ => .success it none
 
 /--
-Lifts an `Option` into the parser monad, failing with a generic message if the value is `none`.
--/
-def liftOption (x : Option α) : Parser α :=
-  if let some res := x then
-    return res
-  else
-    fail "expected value but got none"
-
-/--
 Parses an HTTP token (RFC 9110 §5.6.2): one or more token characters, up to `limit` bytes.
 Fails if the input starts with a non-token character or is empty.
 -/
 @[inline]
 def parseToken (limit : Nat) : Parser ByteSlice :=
-  takeWhileUpTo1 (fun c => tchar (Char.ofUInt8 c)) limit
+  takeWhileUpTo1 (Class.token.accepts ·) limit
 
 /--
 Parses a line terminator.
@@ -118,9 +86,9 @@ padding is rejected rather than silently truncated.
 -/
 @[inline]
 def ows (limits : H1.Config) : Parser Unit := do
-  discard <| takeWhileUpTo isOwsByte limits.maxSpaceSequence
+  discard <| takeWhileUpTo (Class.ows.accepts ·) limits.maxSpaceSequence
 
-  if (← peekWhen? isOwsByte) |>.isSome then
+  if (← peekWhen? (Class.ows.accepts ·)) |>.isSome then
     fail "invalid space sequence"
   else
     pure ()
@@ -141,7 +109,7 @@ Used for chunk-size lines in chunked transfer encoding.
 -/
 def hex : Parser Nat := do
   let zeros ← takeWhile (· == '0'.toUInt8)
-  let digits ← takeWhileUpTo isHexDigitByte (maxChunkSizeDigits + 1)
+  let digits ← takeWhileUpTo (Class.hexDigit.accepts ·) (maxChunkSizeDigits + 1)
   if digits.size > maxChunkSizeDigits then
     fail "chunk size too large"
   if zeros.size == 0 && digits.size == 0 then
@@ -195,9 +163,9 @@ def parseMethod (limits : H1.Config) : Parser (Option Method) := do
   | some (_, method) => return some method
   | none =>
     if token.size == maxMethodLength then
-      let rest ← takeWhileUpTo (fun c => tchar (Char.ofUInt8 c)) limits.maxStartLineLength
+      let rest ← takeWhileUpTo (Class.token.accepts ·) limits.maxStartLineLength
       if rest.size == limits.maxStartLineLength then
-        if (← peekWhen? (fun c => tchar (Char.ofUInt8 c))).isSome then fail "unrecognized method"
+        if (← peekWhen? (Class.token.accepts ·)).isSome then fail "unrecognized method"
     let next ← peek!
     if next == ' '.toUInt8 then return none
     else fail "invalid method"
@@ -211,9 +179,9 @@ version, so the SP that must follow fails on that byte as soon as it arrives ins
 an SP (RFC 9112 §3). Only a target byte past the limit makes the target too long.
 -/
 def parseURI (limits : H1.Config) : Parser ByteArray := do
-  let uri ← takeWhileUpTo isRequestTargetChar limits.maxUriLength
+  let uri ← takeWhileUpTo (Class.target.accepts ·) limits.maxUriLength
   if uri.size == limits.maxUriLength then
-    if (← peekWhen? isRequestTargetChar) |>.isSome then
+    if (← peekWhen? (Class.target.accepts ·)) |>.isSome then
       fail "uri too long"
 
   return uri.toByteArray
@@ -256,40 +224,26 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   return ⟨method, ← http1Version version, uri, .empty⟩
 
 /--
-Fails with `"header value too long"` if a field value taken up to `limits.maxHeaderValueLength` goes
-on: a field-vchar follows once the whitespace after it is consumed. Trailing whitespace does not
-count toward the limit, and a value that ends at the limit with an invalid byte is malformed instead.
+Parses a field value with the whitespace around it, `OWS field-value OWS`, and returns the value.
+Fails with `"header value too long"` if the value taken up to `limits.maxHeaderValueLength` goes on:
+a field-vchar follows once the whitespace after it is consumed. Trailing whitespace does not count
+toward the limit, and a value that ends at the limit with an invalid byte is malformed instead.
+obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
 -/
-def checkFieldValueLength (limits : H1.Config) (value : Option ByteSlice) : Parser Unit := do
+def parseFieldValue (limits : H1.Config) : Parser String := do
+  let limit := limits.maxHeaderValueLength
+  let value ← ows limits *> optional (takeWhileUpTo (Class.fieldContent.accepts ·) limit) <* ows limits
   if let some value := value then
-    if value.size == limits.maxHeaderValueLength then
-      if (← peekWhen? isFieldContentByte) |>.isSome then
+    if value.size == limit then
+      if (← peekWhen? (Class.fieldContent.accepts ·)) |>.isSome then
         fail "header value too long"
-
-/--
-Parses a single header field line. Fails with `"header name too long"` or `"header value too long"`
-when the name or the value goes past its limit.
-
-`field-line = field-name ":" OWS field-value OWS`
--/
-def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
-  let name ← parseToken limits.maxHeaderNameLength
-  if name.size == limits.maxHeaderNameLength then
-    if (← peekWhen? (tchar ∘ Char.ofUInt8)) |>.isSome then
-      fail "header name too long"
-  let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldContentByte limits.maxHeaderValueLength) <* ows limits
-  checkFieldValueLength limits value
-
-  let name ← liftOption <| String.fromUTF8? name.toByteArray
-  -- obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
   let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
-  let value := value.trimAsciiEnd.toString
-
-  return (name, value)
+  return value.trimAsciiEnd.toString
 
 /--
-Parses a single header field line, or returns `none` when it sees the blank line that
-terminates the header section.
+Parses a single header field line, or returns `none` when it sees the blank line that terminates the
+header section. Fails with `"header name too long"` or `"header value too long"` when the name or
+the value goes past its limit.
 
 ```
 field-line = field-name ":" OWS field-value OWS CRLF
@@ -301,19 +255,23 @@ public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × St
     crlf
     pure none
   else
-    some <$> (parseFieldLine limits <* crlf)
+    let name ← parseToken limits.maxHeaderNameLength
+    if name.size == limits.maxHeaderNameLength then
+      if (← peekWhen? (Class.token.accepts ·)) |>.isSome then
+        fail "header name too long"
+    skipByte ':'.toUInt8
+    let value ← parseFieldValue limits <* crlf
+    -- Token bytes are ASCII.
+    let some name := String.fromUTF8? name.toByteArray | fail "invalid field name"
+    return some (name, value)
 
 /--
 Parses the line that continues a field value after an obsolete line folding (`obs-fold = OWS CRLF
 RWS`, RFC 9112 §5.2): the leading whitespace, the field content and the terminating CRLF. Returns the
 content without the whitespace around it.
 -/
-public def parseObsFoldContinuation (limits : H1.Config) : Parser String := do
-  let value ← ows limits *> optional (takeWhileUpTo isFieldContentByte limits.maxHeaderValueLength) <* ows limits
-  checkFieldValueLength limits value
-  crlf
-  let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
-  return value.trimAscii.toString
+public def parseObsFoldContinuation (limits : H1.Config) : Parser String :=
+  parseFieldValue limits <* crlf
 
 /--
 Parses a quoted-string value, unescaping quoted-pairs, and returns its bytes.
@@ -339,7 +297,7 @@ where
           else
             loop (buf.push next) (length + 1)
         else fail s!"invalid quoted-pair byte: {Char.ofUInt8 next |>.quote}"
-    else if isQdText b || b ≥ 0x80 then
+    else if Class.quoted.accepts b then
       if length + 1 > maxLength then
         fail "quoted-string too long"
       else
@@ -359,24 +317,18 @@ recognize (RFC 9112 §7.1.1).
 def parseChunkExt (limits : H1.Config) :
     Parser (Option (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   ows limits *> skipByte ';'.toUInt8 *> ows limits
-  let name ← liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtNameLength
-
-  let some name := Chunk.ExtensionName.ofString? name
-    | fail "invalid extension name"
-
+  -- A token is ASCII, and a valid name and value, so only obs-text in a quoted value gives `none`.
+  let name := String.fromUTF8? (← parseToken limits.maxChunkExtNameLength).toByteArray >>=
+    Chunk.ExtensionName.ofString?
   -- BWS may follow a name only before "=" (RFC 9112 §7.1.1). After a name without a value,
   -- whitespace must lead to the next ";", so `5;a \r\n` is malformed, as `5 \r\n` is.
-  let some () ← optionalUnlessEof (ows limits *> skipByte '='.toUInt8) | return some (name, none)
+  let some () ← optionalUnlessEof (ows limits *> skipByte '='.toUInt8) | return name.map (·, none)
   ows limits
-  if (← peekWhen? (· == '"'.toUInt8)).isSome then
-    let bytes ← parseQuotedString limits.maxChunkExtValueLength
-    return (String.fromUTF8? bytes >>= Chunk.ExtensionValue.ofString?).map (name, some ·)
-
-  let value ← liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength)
-  let some value := Chunk.ExtensionValue.ofString? value
-    | fail "invalid extension value"
-
-  return some (name, some value)
+  let value ←
+    if (← peekWhen? (· == '"'.toUInt8)).isSome then parseQuotedString limits.maxChunkExtValueLength
+    else ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength
+  let value := String.fromUTF8? value >>= Chunk.ExtensionValue.ofString?
+  return name.bind fun name => value.map (name, some ·)
 
 /--
 Parses the size and extensions of a chunk.
@@ -430,50 +382,36 @@ public def parseTrailerHeader (limits : H1.Config) (strict : Bool := true) :
   return result
 
 /--
-Parses a reason phrase (text after status code).
-
-Allows `HTAB / SP / VCHAR / obs-text` bytes. A client ignores the phrase (RFC 9112 §4), so bytes
-that are not UTF-8 are replaced rather than rejected.
--/
-def parseReasonPhrase (limits : H1.Config) : Parser String := do
-  let bytes ← takeWhileUpTo isFieldContentByte limits.maxReasonPhraseLength
-  return String.fromUTF8Lossy bytes.toByteArray
-
-/--
-Parses a status-code (3 decimal digits), the following reason phrase, and the
-terminating CRLF; returns a typed `Status`.
+Parses a status line and returns the status and the version, `none` for a version this library does
+not know. The reason phrase, `HTAB / SP / VCHAR / obs-text` bytes, is checked and discarded: a
+client ignores it (RFC 9112 §4), so bytes that are not UTF-8 are replaced rather than rejected.
 
 A code of 000–099 is a well-formed `3DIGIT` that `Status` cannot hold. RFC 9110 §15 asks a client to
 process such a response as a 5xx, so it is read as `500 Internal Server Error`.
--/
-def parseStatusCode (limits : H1.Config) : Parser Status := do
-  let d1 ← digit
-  let d2 ← digit
-  let d3 ← digit
-  let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
-  -- Servers that send no reason phrase often leave out the space before it too.
-  let phrase := (← optional (sp *> parseReasonPhrase limits)).getD ""
-  crlf
-
-  if code < 100 then
-    return .internalServerError
-
-  if h : IsValidReasonPhrase phrase then
-    if let some status := Status.ofCode (some ⟨phrase, h⟩) code.toUInt16 then
-      return status
-
-  fail "invalid status code"
-
-/--
-Parses a status line and returns the status code and the version, `none` for a version this library
-does not know. Consumes and discards the reason phrase.
 
 status-line = HTTP-version SP status-code SP [ reason-phrase ] CRLF
 -/
 public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Option Version) := do
   let version ← parseHttpVersion <* sp
-  let status ← parseStatusCode limits
-  return (status, version)
+  let d1 ← digit
+  let d2 ← digit
+  let d3 ← digit
+  let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
+  -- Servers that send no reason phrase often leave out the space before it too.
+  let phrase ← optional <| sp *>
+    (String.fromUTF8Lossy ·.toByteArray) <$>
+      takeWhileUpTo (Class.fieldContent.accepts ·) limits.maxReasonPhraseLength
+  let phrase := phrase.getD ""
+  crlf
+
+  if code < 100 then
+    return (.internalServerError, version)
+
+  if h : IsValidReasonPhrase phrase then
+    if let some status := Status.ofCode (some ⟨phrase, h⟩) code.toUInt16 then
+      return (status, version)
+
+  fail "invalid status code"
 
 /--
 Parses a status line of HTTP/1.0 or HTTP/1.1 and returns a fully-typed `Response.Head`.

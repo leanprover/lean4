@@ -81,11 +81,6 @@ private inductive Woke (β : Type) where
   | writes
 
   /--
-  The connection's context was cancelled.
-  -/
-  | cancelled
-
-  /--
   A handler or an `Expect: 100-continue` decision answered; `none` once the channel is closed.
   -/
   | answer (answer : Option (Answer β))
@@ -94,11 +89,6 @@ private inductive Woke (β : Type) where
 What a connection keeps for its whole life.
 -/
 private structure Env (σ α β : Type) where
-  /--
-  The transport.
-  -/
-  socket : α
-
   /--
   The handler.
   -/
@@ -160,20 +150,10 @@ private structure Live (β : Type) where
   responseBody : Option β := none
 
   /--
-  An input that is known without waiting, reported before anything else.
-  -/
-  ready : Option Driver.Input := none
-
-  /--
   Until when, by `IO.monoMsNow`, the machine's `Date` stays current: the end of the second it was
   formatted for.
   -/
   dateUntil : Nat := 0
-
-  /--
-  The last write completion reported to the driver (`Outbox.completedAt`).
-  -/
-  completedSeen : Nat := 0
 
 /--
 Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and
@@ -194,7 +174,8 @@ private def refreshDate (config : Config) (now : Nat) (s : Driver.State) (live :
   let intoSecond := (wall.toMillisecondsSinceUnixEpoch.val % 1000).toNat
   let date :=
     Header.Value.ofString! (DateTime.ofTimestamp wall TimeZone.ZoneRules.UTC).toHTTPDateString
-  return (s.setDate (some date), { live with dateUntil := now + (1000 - intoSecond) })
+  return ({ s with machine := { s.machine with date := some date } },
+    { live with dateUntil := now + (1000 - intoSecond) })
 
 /--
 Turns the handler's result into an input, keeping the response body to pull from. The body chunks
@@ -223,7 +204,7 @@ private def responded [Body β] (result : Except IO.Error (Response β)) (live :
         else
           return (.responded res.line size #[chunk] false, live)
     catch err =>
-      return (.responded res.line none #[] false, { live with ready := some (.failed err) })
+      return (.handlerFailed err, live)
 
 /--
 A selector for the end of `task`.
@@ -243,20 +224,6 @@ private def writesInput (outbox : Outbox α) : BaseIO Driver.Input := do
   match ← outbox.error? with
   | some err => return .writeFailed err
   | none => return .written
-
-/--
-The input for a deadline of kind `kind` that passed. Only the outbox knows when a write last
-completed, so a completion the driver has not heard of is reported first, as `writeProgress`, which
-restarts the write deadline.
--/
-private def deadlineInput (outbox : Outbox α) (live : Live β) :
-    Driver.Deadline → BaseIO (Driver.Input × Live β)
-  | .write => do
-    let completedAt ← outbox.completedAt
-    if completedAt > live.completedSeen then
-      return (.writeProgress completedAt, { live with completedSeen := completedAt })
-    return (.deadline .write, live)
-  | kind => return (.deadline kind, live)
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still
@@ -322,20 +289,19 @@ private def perform
   | .releaseResponse => do
     if let some body := live.responseBody then
       if !(← Body.isClosed body) then Body.close body
-    return { live with responseBody := none }
-  | .report err => do
-    reportFailure env.handler err
-    return live
-  | .abandonHandler => do
     if let some task := live.handler then
       BaseIO.chainTask task fun
         | .ok res => discard <| EAsync.toBaseIO (ε := IO.Error) (Body.close res.body)
         | .error _ => pure ()
-    return { live with handler := none }
+    return { live with responseBody := none, handler := none }
+  | .report err => do
+    reportFailure env.handler err
+    return live
   | .close lingerFirst => do
     if lingerFirst then
-      linger env.socket env.config.lingeringTimeout env.config.maximumRecvSize.toUInt64 env.context
-    Transport.close env.socket
+      linger env.outbox.socket env.config.lingeringTimeout env.config.maximumRecvSize.toUInt64
+        env.context
+    Transport.close env.outbox.socket
     return live
 
 /--
@@ -345,12 +311,9 @@ private def wake
     {σ : Type} [Handler σ] [Body (Handler.ResponseBody σ)]
     (env : Env σ α (Handler.ResponseBody σ)) (live : Live (Handler.ResponseBody σ)) :
     Woke (Handler.ResponseBody σ) → Async (Driver.Input × Live (Handler.ResponseBody σ))
-  | .input (.deadline kind) => return (← deadlineInput env.outbox live kind)
+  | .input (.tick _) => return (.tick (← env.outbox.completedAt), live)
   | .input input => return (input, live)
   | .writes => return (← writesInput env.outbox, live)
-  | .cancelled => do
-    let reason ← env.context.getCancellationReason
-    return (.cancelled (reason matches some .deadline), live)
   | .answer (some (.response result)) => responded result live
   | .answer (some (.decision accept)) => return (.continueDecided accept, live)
   | .answer none => return (.failed (.userError "the connection's answers were closed"), live)
@@ -364,9 +327,6 @@ private def waitInput
     (env : Env σ α (Handler.ResponseBody σ)) (s : Driver.State)
     (live : Live (Handler.ResponseBody σ)) :
     Async (Driver.Input × Live (Handler.ResponseBody σ)) := do
-  if let some input := live.ready then
-    return (input, { live with ready := none })
-
   let mut writes := none
   if s.watchesWrites then
     match ← env.outbox.idle? with
@@ -375,9 +335,9 @@ private def waitInput
 
   let now ← IO.monoMsNow
   let deadline := Driver.nextDeadline s
-  if let some (kind, time) := deadline then
+  if let some (_, time) := deadline then
     if time ≤ now then
-      return (← deadlineInput env.outbox live kind)
+      return (.tick (← env.outbox.completedAt), live)
 
   -- A response chunk that is already there is taken without a select.
   let pullsResponse := Driver.pullsResponse s
@@ -404,7 +364,7 @@ private def waitInput
     selectables := selectables.push env.cancelCase
 
   if Driver.wantsBytes env.config s then
-    let recv := Transport.recvSelector env.socket (Driver.recvSize env.config s).toUInt64
+    let recv := Transport.recvSelector env.outbox.socket (Driver.recvSize env.config s).toUInt64
     selectables := selectables.push (.case recv fun data => pure (.input (.received data)))
 
   if s.handlerRunning || s.asksContinue then
@@ -427,58 +387,15 @@ private def waitInput
         return ← wake env live woke
   catch err => return (.failed err, live)
 
-  if let some (kind, time) := deadline then
+  if let some (_, time) := deadline then
     let sleep ← Selector.sleep ((time - now) * (1 : Millisecond.Offset))
-    selectables := selectables.push (.case sleep fun _ => pure (.input (.deadline kind)))
+    selectables := selectables.push (.case sleep fun _ => pure (.input (.tick 0)))
 
   if selectables.isEmpty then
     return (.failed (.userError "the connection waits for nothing"), live)
 
   try wake env live (← Selectable.one selectables)
   catch err => return (.failed err, live)
-
-/--
-Runs the connection: performs the driver's commands and reports what happened as its next input,
-until the driver closes the connection.
--/
-private def handle
-    {σ : Type} [Transport α] [h : Handler σ]
-    (socket : α)
-    (extensions : Extensions)
-    (config : Config)
-    (connectionContext : CancellationContext)
-    (handler : σ) : Async Unit := do
-
-  let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
-
-  let answers ← Std.CloseableChannel.new
-  let env : Env σ α (Handler.ResponseBody σ) := {
-    socket, handler, config, extensions, context := connectionContext, answers
-    outbox := ← Outbox.new socket
-    cancelCase := .case connectionContext.doneSelector fun _ => pure .cancelled
-    answerCase := .case answers.recvSelector fun answer => pure (.answer answer) }
-
-  let mut live : Live (Handler.ResponseBody σ) := {}
-  let mut s := Driver.State.init { config := config.toH1Config }
-  let mut input := Driver.Input.resume
-
-  try
-    repeat
-      let now ← IO.monoMsNow
-      let (s', l) ← refreshDate config now s live
-      let (s'', cmds) := Driver.step config s' now input
-      s := s''
-      live := l
-      for cmd in cmds do
-        live ← perform env live cmd
-      if s.isClosed then
-        break
-      let (i, l) ← waitInput env s live
-      input := i
-      live := l
-  catch err =>
-    reportFailure handler err
-    Transport.close socket
 
 end Connection
 
@@ -506,6 +423,36 @@ def serveConnection
     {σ : Type} [Transport t] [Handler σ]
     (client : t) (handler : σ)
     (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
-  Connection.handle client extensions config (← ContextAsync.getContext) handler
+  let context ← ContextAsync.getContext
+  let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
+  let answers ← Std.CloseableChannel.new
+  let env : Connection.Env σ t (Handler.ResponseBody σ) := {
+    handler, config, extensions, context, answers
+    outbox := ← Outbox.new client
+    cancelCase := .case context.doneSelector fun _ => do
+      return .input (.cancelled ((← context.getCancellationReason) matches some .deadline))
+    answerCase := .case answers.recvSelector fun answer => pure (.answer answer) }
+
+  let mut live : Connection.Live (Handler.ResponseBody σ) := {}
+  let mut s : Driver.State := { machine := { config := config.toH1Config } }
+  let mut input := Driver.Input.resume
+
+  try
+    repeat
+      let now ← IO.monoMsNow
+      let (s', l) ← Connection.refreshDate config now s live
+      let (s'', cmds) := Driver.step config s' now input
+      s := s''
+      live := l
+      for cmd in cmds do
+        live ← Connection.perform env live cmd
+      if s.isClosed then
+        break
+      let (i, l) ← Connection.waitInput env s live
+      input := i
+      live := l
+  catch err =>
+    Connection.reportFailure handler err
+    Transport.close client
 
 end Std.Http.Server

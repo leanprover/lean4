@@ -276,17 +276,16 @@ def Error.responseStatus : Error → Status
   | _ => .badRequest
 
 /--
-An error response the machine writes itself: `status` with `headers`, and its reason phrase as
-`text/plain` content (RFC 9110 §15.5, §15.6). A 505 lists the versions the server supports (RFC 9110
-§15.6.6).
+An error response the machine writes itself: `status`, and its reason phrase as `text/plain` content
+(RFC 9110 §15.5, §15.6). A 505 lists the versions the server supports (RFC 9110 §15.6.6).
 -/
-def errorResponse (status : Status) (headers : Headers := .empty) : Response.Head × ByteArray :=
+def errorResponse (status : Status) : Response.Head × ByteArray :=
   let content :=
     match status with
     | .httpVersionNotSupported =>
       "HTTP Version Not Supported: this server supports HTTP/1.0 and HTTP/1.1\n".toUTF8
     | _ => (status.reasonPhrase ++ "\n").toUTF8
-  ({ status, headers := headers.insert Header.Name.contentType (.mk "text/plain; charset=utf-8") },
-    content)
+  let headers := Headers.empty.insert Header.Name.contentType (.mk "text/plain; charset=utf-8")
+  ({ status, headers }, content)
 
 end Std.Http.Protocol.H1

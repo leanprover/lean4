@@ -196,51 +196,11 @@ def setInput (input : ByteArray.Iterator) (reader : Reader dir) : Reader dir :=
   { reader with input, tried := 0, scan := .opaque }
 
 /--
-Adds a header field to the head being read.
--/
-@[inline]
-def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
-  match dir with
-  | .sending | .receiving =>
-    let headers := reader.messageHead.headers.insert name value
-    { reader with messageHead := { reader.messageHead with headers } }
-
-/--
-Starts reading the next head on the same connection, keeping the unread input.
--/
-@[inline]
-def reset (reader : Reader dir) : Reader dir :=
-  { reader with
-    state := .needStartLine
-    bodyBytesRead := 0
-    headerBytesRead := 0
-    messageHead := {} }
-
-/--
-Starts reading the final response after an interim (1xx) one. The interim head's bytes stay counted
-toward `maxHeaderBytes`, so a run of 1xx responses is bounded.
--/
-@[inline]
-def resetAfterInterim (reader : Reader dir) : Reader dir :=
-  { reader with
-    state := .needStartLine
-    bodyBytesRead := 0
-    inMessage := false
-    messageHead := {} }
-
-/--
 The number of unread input bytes.
 -/
 @[inline]
 def remainingBytes (reader : Reader dir) : Nat :=
   reader.input.array.size - reader.input.pos
-
-/--
-Counts `n` more body bytes.
--/
-@[inline]
-def addBodyBytes (n : Nat) (reader : Reader dir) : Reader dir :=
-  { reader with bodyBytesRead := reader.bodyBytesRead + n }
 
 @[simp]
 theorem remainingBytes_eq (reader : Reader dir) :
@@ -251,21 +211,6 @@ theorem remainingBytes_eq (reader : Reader dir) :
 theorem input_setInput (input : ByteArray.Iterator) (reader : Reader dir) :
     (reader.setInput input).input = input := by
   unfold setInput; rfl
-
-@[simp]
-theorem input_addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) :
-    (reader.addHeader name value).input = reader.input := by
-  unfold addHeader; cases dir <;> rfl
-
-@[simp]
-theorem input_addBodyBytes (n : Nat) (reader : Reader dir) :
-    (reader.addBodyBytes n).input = reader.input := by
-  unfold addBodyBytes; rfl
-
-@[simp]
-theorem input_resetAfterInterim (reader : Reader dir) :
-    reader.resetAfterInterim.input = reader.input := by
-  unfold resetAfterInterim; rfl
 
 end Reader
 

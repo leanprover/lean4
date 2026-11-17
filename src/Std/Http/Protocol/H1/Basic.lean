@@ -66,6 +66,7 @@ def Message.Head.headers (m : Message.Head dir) : Headers :=
 /--
 The message head with its header fields replaced.
 -/
+@[inline]
 def Message.Head.setHeaders (m : Message.Head dir) (headers : Headers) : Message.Head dir :=
   match dir with
   | .receiving => { (m : Request.Head) with headers }

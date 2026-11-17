@@ -22,15 +22,22 @@ register_builtin_option exponentiation.threshold : Nat := {
 }
 
 /--
-Returns `true` if `n` is `≤ exponentiation.threshold`. Otherwise,
+Returns `true` if `n` is `≤ exponentiation.threshold` and fits in 32 bits. Otherwise,
 reports a warning and returns `false`.
 This method ensures there is at most one warning message of this kind in the message log.
+
+The runtime implementation of `Nat.pow` aborts the process when the exponent does not fit in
+32 bits, even if the user increased `exponentiation.threshold`.
 -/
 def checkExponent (n : Nat) (warning := true) : CoreM Bool := do
   let threshold ← getRecordedOption exponentiation.threshold
   if n > threshold then
     if (← pure warning <&&> logMessageKind `unsafe.exponentiation) then
       logWarning s!"exponent {n} exceeds the threshold {threshold}, exponentiation operation was not evaluated, use `set_option {exponentiation.threshold.name} <num>` to set a new threshold"
+    return false
+  else if n ≥ UInt32.size then
+    if (← pure warning <&&> logMessageKind `unsafe.exponentiation) then
+      logWarning s!"exponent {n} does not fit in 32 bits, exponentiation operation was not evaluated"
     return false
   else
     return true
@@ -74,5 +81,17 @@ def checkShiftLeft (a n : Nat) (warning := true) : CoreM Bool := do
     return false
   else
     return true
+
+/--
+Returns `true` if bit-vectors of width `w` are safe to evaluate.
+
+Most bit-vector operations compute `2^w`. The bound `2^32` comes from the runtime, not the kernel:
+`lean_nat_pow` (`src/runtime/object.cpp`) aborts the process when the base is greater than `1` and
+the exponent is greater than `UINT_MAX`, because `mpz::pow` takes the exponent as an
+`unsigned int`. Thus, procedures that evaluate bit-vector operations on literals must not build a
+`BitVec w` value unless this function returns `true`.
+-/
+def isSafeBitVecWidth (w : Nat) : Bool :=
+  w < UInt32.size
 
 end Lean

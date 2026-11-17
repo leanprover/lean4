@@ -672,6 +672,7 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
   if Sym.isNatValue n && (← read).bitVecOfNat then return .rfl
   if let some nv ← evalNat n |>.run then -- TODO: consider using dsimp
+    unless isSafeBitVecWidth nv do return .rfl
     let r ← mkBitVecLit (BitVec.ofNat nv a)
     return .step r (mkRflBitVec r nv) (done := true)
   else
@@ -689,6 +690,7 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
 def evalBitVecOfNatClamp (n a : Expr) : EvalM Result := do
   let some nv := getNatValue? n | return .rfl
   let some av := getNatValue? a | return .rfl
+  unless isSafeBitVecWidth nv do return .rfl
   let r ← mkBitVecLit (BitVec.ofNatClamp nv av)
   return .step r (mkRflBitVec r nv) (done := true)
 
@@ -721,18 +723,21 @@ def evalBitVecShiftLeft (αExpr : Expr) (a i : Expr) : EvalM Result := do
 def evalBitVecAppend (a b : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some b := getBitVecValue? b | return .rfl
+  unless isSafeBitVecWidth (a.n + b.n) do return .rfl
   let e ← mkBitVecLit (a.val ++ b.val)
   return .step e (mkRflBitVec e (a.n + b.n)) (done := true)
 
 def evalBitVecCast (m a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m ← evalNat m |>.run | return .rfl
+  unless isSafeBitVecWidth m do return .rfl
   let e ← mkBitVecLit (BitVec.ofNat m a.val.toNat)
   return .step e (mkRflBitVec e m) (done := true)
 
 def evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some v ← evalNat v |>.run | return .rfl
+  unless isSafeBitVecWidth v do return .rfl
   let e ← mkBitVecLit (op v a.val)
   return .step e (mkRflBitVec e v) (done := true)
 
@@ -740,12 +745,14 @@ def evalBitVecExtractLsb' (start len a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some start ← evalNat start |>.run | return .rfl
   let some len ← evalNat len |>.run | return .rfl
+  unless isSafeBitVecWidth len do return .rfl
   let e ← mkBitVecLit (a.val.extractLsb' start len)
   return .step e (mkRflBitVec e len) (done := true)
 
 def evalBitVecReplicate (i a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some i ← evalNat i |>.run | return .rfl
+  unless isSafeBitVecWidth (a.n * i) do return .rfl
   let e ← mkBitVecLit (a.val.replicate i)
   return .step e (mkRflBitVec e (a.n * i)) (done := true)
 
@@ -753,17 +760,20 @@ def evalBitVecShiftLeftZeroExtend (a m : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m ← evalNat m |>.run | return .rfl
   unless isSafeShiftLeft a.val.toNat m (← read).maxShiftLeft do return .rfl
+  unless isSafeBitVecWidth (a.n + m) do return .rfl
   let e ← mkBitVecLit (a.val.shiftLeftZeroExtend m)
   return .step e (mkRflBitVec e (a.n + m)) (done := true)
 
 def evalBitVecAllOnes (n : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← mkBitVecLit (BitVec.allOnes n)
   return .step e (mkRflBitVec e n) (done := true)
 
 def evalBitVecOfInt (n i : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
   let some i := getIntValue? i | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← mkBitVecLit (BitVec.ofInt n i)
   return .step e (mkRflBitVec e n) (done := true)
 
@@ -777,6 +787,7 @@ def evalBitVecToFin (a : Expr) : SimpM Result := do
 def evalBitVecOfFin (n a : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
   let some a := getFinValue? a | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← mkBitVecLit (BitVec.ofNat n a.val.val)
   return .step e (mkRflBitVec e n) (done := true)
 

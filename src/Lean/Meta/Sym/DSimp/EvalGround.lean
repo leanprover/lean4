@@ -410,18 +410,21 @@ abbrev evalBitVecNatBool (op : {n : Nat} → BitVec n → Nat → Bool) (a i : E
 abbrev evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : DSimpM Result := do
   let some v := getNatValue? v | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth v do return .rfl
   let e ← share <| toExpr <| op v a.val
   return .step e (done := true)
 
 def evalBitVecAppend (a b : Expr) : DSimpM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some b := getBitVecValue? b | return .rfl
+  unless isSafeBitVecWidth (a.n + b.n) do return .rfl
   let e ← share <| toExpr (a.val ++ b.val)
   return .step e (done := true)
 
 def evalBitVecCast (m a : Expr) : DSimpM Result := do
   let some m := getNatValue? m | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth m do return .rfl
   let e ← share <| toExpr <| BitVec.ofNat m a.val.toNat
   return .step e (done := true)
 
@@ -429,6 +432,7 @@ def evalBitVecShiftLeftZeroExtend (maxShiftLeft : Nat) (a m : Expr) : DSimpM Res
   let some a := getBitVecValue? a | return .rfl
   let some m := getNatValue? m | return .rfl
   unless isSafeShiftLeft a.val.toNat m maxShiftLeft do return .rfl
+  unless isSafeBitVecWidth (a.n + m) do return .rfl
   let e ← share <| toExpr <|a.val.shiftLeftZeroExtend m
   return .step e (done := true)
 
@@ -436,17 +440,20 @@ def evalBitVecExtractLsb' (start len a : Expr) : DSimpM Result := do
   let some start := getNatValue? start | return .rfl
   let some len := getNatValue? len | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth len do return .rfl
   let e ← share <| toExpr <| a.val.extractLsb' start len
   return .step e (done := true)
 
 def evalBitVecReplicate (i a : Expr) : DSimpM Result := do
   let some i := getNatValue? i | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth (a.n * i) do return .rfl
   let e ← share <| toExpr <| a.val.replicate i
   return .step e (done := true)
 
 def evalBitVecAllOnes (n : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr <| BitVec.allOnes n
   return .step e (done := true)
 
@@ -463,6 +470,7 @@ def evalBitVecToInt (a : Expr) : DSimpM Result := do
 def evalBitVecOfInt (n i : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
   let some i := getIntValue? i | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr <| BitVec.ofInt n i
   return .step e (done := true)
 
@@ -474,6 +482,7 @@ def evalBitVecToFin (a : Expr) : DSimpM Result := do
 def evalBitVecOfFin (n a : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
   let some a := getFinValue? a | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr <| BitVec.ofNat n a.val.val
   return .step e (done := true)
 
@@ -481,12 +490,14 @@ def evalBitVecOfNat (n a : Expr) : DSimpM Result := do
   let some a := getNatValue? a | return .rfl
   if Sym.isNatValue n then return .rfl -- already in normal form
   let some n ← evalNat n |>.run | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr (BitVec.ofNat n a)
   return .step e (done := true)
 
 def evalBitVecOfNatClamp (n a : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
   let some a := getNatValue? a | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr (BitVec.ofNatClamp n a)
   return .step e (done := true)
 

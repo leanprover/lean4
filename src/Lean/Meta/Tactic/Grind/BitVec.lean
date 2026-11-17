@@ -87,20 +87,21 @@ private def binOp (e : Expr) (eval : Expr → Expr → GoalM (Option Expr)) : Go
     (op : {n : Nat} → (m : Nat) → BitVec n → BitVec m) (e : Expr) : GoalM Unit := do
   unless e.isAppOfArity declName 3 do return ()
   let some m ← getNatValue? (e.getArg! 1) | return ()  -- occurs in the result type
+  unless isSafeBitVecWidth m do return ()
   unaryOp e fun r => do
     let some ⟨_, v⟩ ← getBitVecValue? r | return none
     some <$> mkBVLit m (op m v)
 
-/-- Table entry for extract-like `op : (i j : Nat) → BitVec n → BitVec m`. -/
-@[inline] private def extractBV (declName : Name)
-    (op : {n : Nat} → (i j : Nat) → BitVec n → (m : Nat) × BitVec m) (e : Expr) : GoalM Unit := do
+/-- Table entry for extract-like `op : (i j : Nat) → BitVec n → BitVec (width i j)`. -/
+@[inline] private def extractBV (declName : Name) (width : Nat → Nat → Nat)
+    (op : {n : Nat} → (i j : Nat) → BitVec n → BitVec (width i j)) (e : Expr) : GoalM Unit := do
   unless e.isAppOfArity declName 4 do return ()
   let some i ← getNatValue? (e.getArg! 1) | return ()  -- occurs in the result type
   let some j ← getNatValue? (e.getArg! 2) | return ()
+  unless isSafeBitVecWidth (width i j) do return ()
   unaryOp e fun r => do
     let some ⟨_, v⟩ ← getBitVecValue? r | return none
-    let ⟨m, w⟩ := op i j v
-    some <$> mkBVLit m w
+    some <$> mkBVLit (width i j) (op i j v)
 
 /-- Table entry for `op : BitVec n → BitVec n → BitVec n` (e.g. `&&&`) with a `BitVec` type guard. -/
 @[inline] private def binBV (declName : Name) (arity : Nat)
@@ -165,6 +166,7 @@ builtin_grind_propagator propagateBVToInt ↑BitVec.toInt := fun e => do
 builtin_grind_propagator propagateBVOfNat ↑BitVec.ofNat := fun e => do
   unless e.isAppOfArity ``BitVec.ofNat 2 do return ()
   let some w ← getNatValue? (e.getArg! 0) | return ()  -- occurs in the result type
+  unless isSafeBitVecWidth w do return ()
   unaryOp e fun r => do
     let some n ← getNatValue? r | return none
     some <$> mkBVLit w (BitVec.ofNat w n)
@@ -172,6 +174,7 @@ builtin_grind_propagator propagateBVOfNat ↑BitVec.ofNat := fun e => do
 builtin_grind_propagator propagateBVOfInt ↑BitVec.ofInt := fun e => do
   unless e.isAppOfArity ``BitVec.ofInt 2 do return ()
   let some w ← getNatValue? (e.getArg! 0) | return ()  -- occurs in the result type
+  unless isSafeBitVecWidth w do return ()
   unaryOp e fun r => do
     let some i ← getIntValue? r | return none
     some <$> mkBVLit w (BitVec.ofInt w i)
@@ -180,15 +183,16 @@ builtin_grind_propagator propagateBVSetWidth ↑BitVec.setWidth := extendBV ``Bi
 builtin_grind_propagator propagateBVSignExtend ↑BitVec.signExtend := extendBV ``BitVec.signExtend BitVec.signExtend
 
 builtin_grind_propagator propagateBVExtractLsb' ↑BitVec.extractLsb' :=
-  extractBV ``BitVec.extractLsb' fun start len v => ⟨len, v.extractLsb' start len⟩
+  extractBV ``BitVec.extractLsb' (fun _ len => len) fun start len v => v.extractLsb' start len
 builtin_grind_propagator propagateBVExtractLsb ↑BitVec.extractLsb :=
-  extractBV ``BitVec.extractLsb fun hi lo v => ⟨hi - lo + 1, v.extractLsb hi lo⟩
+  extractBV ``BitVec.extractLsb (fun hi lo => hi - lo + 1) fun hi lo v => v.extractLsb hi lo
 
 builtin_grind_propagator propagateBVReplicate ↑BitVec.replicate := fun e => do
   unless e.isAppOfArity ``BitVec.replicate 3 do return ()
   let some i ← getNatValue? (e.getArg! 1) | return ()  -- occurs in the result type
   unaryOp e fun r => do
     let some ⟨n, v⟩ ← getBitVecValue? r | return none
+    unless isSafeBitVecWidth (n * i) do return none
     some <$> mkBVLit (n * i) (v.replicate i)
 
 builtin_grind_propagator propagateBVAnd ↑HAnd.hAnd := binBV ``HAnd.hAnd 6 (· &&& ·)
@@ -201,6 +205,7 @@ builtin_grind_propagator propagateBVAppend ↑HAppend.hAppend := fun e => do
   binOp e fun r₁ r₂ => do
     let some ⟨n₁, v₁⟩ ← getBitVecValue? r₁ | return none
     let some ⟨n₂, v₂⟩ ← getBitVecValue? r₂ | return none
+    unless isSafeBitVecWidth (n₁ + n₂) do return none
     some <$> mkBVLit (n₁ + n₂) (v₁ ++ v₂)
 
 builtin_grind_propagator propagateBVShiftLeft ↑BitVec.shiftLeft :=

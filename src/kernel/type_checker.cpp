@@ -316,8 +316,7 @@ expr type_checker::infer_lit(expr const & e) {
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
-    if (has_loose_bvars(e))
-        throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
+    check_no_loose_bvars(env(),e);
 
     scope_rec_depth guard;
     check_system("type checker", /* do_check_interrupted */ true);

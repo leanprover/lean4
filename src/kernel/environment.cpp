@@ -98,6 +98,11 @@ void check_no_metavar_no_fvar(environment const & env, name const & n, expr cons
     check_no_fvar(env, n, e);
 }
 
+void check_no_loose_bvars (environment const & env, expr const & e) {
+    if (has_loose_bvars(e))
+        throw kernel_exception(env, "type checker does not support loose bound variables, replace them with free variables before invoking it");
+}
+
 static void check_name(environment const & env, name const & n) {
     if (env.find(n))
         throw already_declared_exception(env, n);

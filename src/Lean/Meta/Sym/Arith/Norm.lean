@@ -2005,7 +2005,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let mut invs ← if fc?.isSome then getInvVars vars else pure #[]
     let ainvsL := invAtomsList ainvs
     let linInst? ← if invs.isEmpty || rel == .eq then pure none else
-      MonadCanon.synthInstance? (mkApp2 (mkConst ``Std.IsLinearOrder [u]) ring.type order?.get!.leInst)
+      MonadCanon.synthInstance? (mkApp2 (mkConst ``Std.IsLinearOrder [u.succ]) ring.type order?.get!.leInst)
     if rel != .eq && linInst?.isNone then invs := #[]
     -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
     -- `3 = x`): `grind` and other tactics handle these directly. The sides are classified by

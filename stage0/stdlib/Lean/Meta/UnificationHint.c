@@ -9420,7 +9420,7 @@ v___jp_2929_:
 {
 lean_object* v___x_2933_; double v___x_2934_; double v___x_2935_; double v___x_2936_; double v___x_2937_; double v___x_2938_; lean_object* v___x_2939_; lean_object* v___x_2940_; lean_object* v___x_2941_; lean_object* v___x_2942_; lean_object* v___x_2943_; 
 v___x_2933_ = lean_io_mono_nanos_now();
-v___x_2934_ = lean_float_of_nat(v___y_2931_);
+v___x_2934_ = lean_float_of_nat(v___y_2930_);
 v___x_2935_ = lean_float_once(&l___private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate___closed__0, &l___private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate___closed__0_once, _init_l___private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate___closed__0);
 v___x_2936_ = lean_float_div(v___x_2934_, v___x_2935_);
 v___x_2937_ = lean_float_of_nat(v___x_2933_);
@@ -9433,7 +9433,7 @@ lean_ctor_set(v___x_2941_, 1, v___x_2940_);
 v___x_2942_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2942_, 0, v_a_2932_);
 lean_ctor_set(v___x_2942_, 1, v___x_2941_);
-v___x_2943_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate_spec__7(v_cls_2925_, v___x_2922_, v___x_2926_, v_options_2919_, v___x_2928_, v___y_2930_, v___f_2924_, v___x_2942_, v_a_2913_, v_a_2914_, v_a_2915_, v_a_2916_);
+v___x_2943_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate_spec__7(v_cls_2925_, v___x_2922_, v___x_2926_, v_options_2919_, v___x_2928_, v___y_2931_, v___f_2924_, v___x_2942_, v_a_2913_, v_a_2914_, v_a_2915_, v_a_2916_);
 return v___x_2943_;
 }
 v___jp_2944_:
@@ -9505,8 +9505,8 @@ goto v_reusejp_2967_;
 }
 v_reusejp_2967_:
 {
-v___y_2930_ = v_a_2958_;
-v___y_2931_ = v___x_2961_;
+v___y_2930_ = v___x_2961_;
+v___y_2931_ = v_a_2958_;
 v_a_2932_ = v___x_2968_;
 goto v___jp_2929_;
 }
@@ -9550,8 +9550,8 @@ goto v_reusejp_2975_;
 }
 v_reusejp_2975_:
 {
-v___y_2930_ = v_a_2958_;
-v___y_2931_ = v___x_2961_;
+v___y_2930_ = v___x_2961_;
+v___y_2931_ = v_a_2958_;
 v_a_2932_ = v___x_2976_;
 goto v___jp_2929_;
 }

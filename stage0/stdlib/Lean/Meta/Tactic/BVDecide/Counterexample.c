@@ -9453,7 +9453,7 @@ else
 lean_dec(v_x_3114_);
 if (lean_obj_tag(v_x_3112_) == 4)
 {
-lean_object* v_declName_3121_; lean_object* v___x_3122_; uint8_t v___y_3124_; lean_object* v___y_3125_; lean_object* v_lower_3126_; lean_object* v_upper_3127_; lean_object* v_fst_3148_; uint8_t v_snd_3149_; lean_object* v___x_3162_; lean_object* v___x_3163_; 
+lean_object* v_declName_3121_; lean_object* v___x_3122_; lean_object* v___y_3124_; uint8_t v___y_3125_; lean_object* v_lower_3126_; lean_object* v_upper_3127_; lean_object* v_fst_3148_; uint8_t v_snd_3149_; lean_object* v___x_3162_; lean_object* v___x_3163_; 
 v_declName_3121_ = lean_ctor_get(v_x_3112_, 0);
 lean_inc(v_declName_3121_);
 lean_dec_ref_known(v_x_3112_, 2);
@@ -9510,7 +9510,7 @@ v___x_3133_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___0
 if (lean_obj_tag(v___x_3133_) == 0)
 {
 lean_object* v___x_3134_; 
-lean_dec(v___y_3125_);
+lean_dec(v___y_3124_);
 lean_dec_ref(v_x_3113_);
 v___x_3134_ = lean_box(0);
 return v___x_3134_;
@@ -9537,12 +9537,12 @@ goto v_resetjp_3136_;
 v_resetjp_3136_:
 {
 lean_object* v___x_3139_; lean_object* v___x_3140_; lean_object* v___x_3141_; lean_object* v___x_3142_; lean_object* v___x_3144_; 
-v___x_3139_ = lean_array_get(v___x_3122_, v_x_3113_, v___y_3125_);
-lean_dec(v___y_3125_);
+v___x_3139_ = lean_array_get(v___x_3122_, v_x_3113_, v___y_3124_);
+lean_dec(v___y_3124_);
 lean_dec_ref(v_x_3113_);
 v___x_3140_ = l_Lean_mkAppN(v___x_3139_, v_val_3135_);
 lean_dec(v_val_3135_);
-v___x_3141_ = lean_box(v___y_3124_);
+v___x_3141_ = lean_box(v___y_3125_);
 v___x_3142_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3142_, 0, v___x_3140_);
 lean_ctor_set(v___x_3142_, 1, v___x_3141_);
@@ -9597,8 +9597,8 @@ v___x_3160_ = lean_unsigned_to_nat(0u);
 v___x_3161_ = lean_nat_dec_le(v___x_3159_, v___x_3160_);
 if (v___x_3161_ == 0)
 {
-v___y_3124_ = v_snd_3149_;
-v___y_3125_ = v___x_3158_;
+v___y_3124_ = v___x_3158_;
+v___y_3125_ = v_snd_3149_;
 v_lower_3126_ = v___x_3159_;
 v_upper_3127_ = v___x_3150_;
 goto v___jp_3123_;
@@ -9606,8 +9606,8 @@ goto v___jp_3123_;
 else
 {
 lean_dec(v___x_3159_);
-v___y_3124_ = v_snd_3149_;
-v___y_3125_ = v___x_3158_;
+v___y_3124_ = v___x_3158_;
+v___y_3125_ = v_snd_3149_;
 v_lower_3126_ = v___x_3160_;
 v_upper_3127_ = v___x_3150_;
 goto v___jp_3123_;

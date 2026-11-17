@@ -10939,14 +10939,14 @@ if (lean_obj_tag(v_h_x3f_3775_) == 0)
 {
 lean_object* v___x_3845_; 
 v___x_3845_ = ((lean_object*)(l___private_Lean_Elab_BuiltinDo_For_0__Lean_Elab_Do_mkForInPureWithInvariant___closed__3));
-v___y_3786_ = v___y_3809_;
-v___y_3787_ = v___y_3813_;
-v___y_3788_ = v___y_3811_;
-v___y_3789_ = v___y_3807_;
-v___y_3790_ = v___x_3844_;
-v___y_3791_ = v___y_3812_;
-v___y_3792_ = v___y_3810_;
-v___y_3793_ = v___y_3808_;
+v___y_3786_ = v___y_3811_;
+v___y_3787_ = v___y_3807_;
+v___y_3788_ = v___y_3809_;
+v___y_3789_ = v___y_3810_;
+v___y_3790_ = v___y_3808_;
+v___y_3791_ = v___y_3813_;
+v___y_3792_ = v___x_3844_;
+v___y_3793_ = v___y_3812_;
 v___y_3794_ = v___x_3845_;
 goto v___jp_3785_;
 }
@@ -10954,14 +10954,14 @@ else
 {
 lean_object* v___x_3846_; 
 v___x_3846_ = ((lean_object*)(l___private_Lean_Elab_BuiltinDo_For_0__Lean_Elab_Do_mkForInPureWithInvariant___closed__5));
-v___y_3786_ = v___y_3809_;
-v___y_3787_ = v___y_3813_;
-v___y_3788_ = v___y_3811_;
-v___y_3789_ = v___y_3807_;
-v___y_3790_ = v___x_3844_;
-v___y_3791_ = v___y_3812_;
-v___y_3792_ = v___y_3810_;
-v___y_3793_ = v___y_3808_;
+v___y_3786_ = v___y_3811_;
+v___y_3787_ = v___y_3807_;
+v___y_3788_ = v___y_3809_;
+v___y_3789_ = v___y_3810_;
+v___y_3790_ = v___y_3808_;
+v___y_3791_ = v___y_3813_;
+v___y_3792_ = v___x_3844_;
+v___y_3793_ = v___y_3812_;
 v___y_3794_ = v___x_3846_;
 goto v___jp_3785_;
 }
@@ -11330,9 +11330,9 @@ v___jp_3785_:
 lean_object* v___x_3795_; lean_object* v___x_3796_; lean_object* v___x_3797_; lean_object* v___x_3798_; 
 v___x_3795_ = lean_unsigned_to_nat(1u);
 v___x_3796_ = lean_mk_empty_array_with_capacity(v___x_3795_);
-v___x_3797_ = lean_array_push(v___x_3796_, v___y_3790_);
+v___x_3797_ = lean_array_push(v___x_3796_, v___y_3792_);
 lean_inc(v___y_3794_);
-v___x_3798_ = l___private_Lean_Elab_BuiltinDo_For_0__Lean_Elab_Do_ForInApp_mkCall(v_g_3773_, v_invClause_3774_, v___y_3794_, v___x_3797_, v___y_3789_, v___y_3793_, v___y_3786_, v___y_3792_, v___y_3788_, v___y_3791_, v___y_3787_);
+v___x_3798_ = l___private_Lean_Elab_BuiltinDo_For_0__Lean_Elab_Do_ForInApp_mkCall(v_g_3773_, v_invClause_3774_, v___y_3794_, v___x_3797_, v___y_3787_, v___y_3790_, v___y_3788_, v___y_3789_, v___y_3786_, v___y_3793_, v___y_3791_);
 lean_dec_ref(v___x_3797_);
 lean_dec(v_invClause_3774_);
 return v___x_3798_;

@@ -6600,8 +6600,8 @@ if (v___x_2477_ == 0)
 {
 lean_object* v___x_2478_; 
 lean_dec_ref(v_toMonadRef_2471_);
-lean_dec(v_toBind_2469_);
 lean_dec_ref_known(v_stx_2466_, 4);
+lean_dec(v_toBind_2469_);
 lean_dec(v_k_2467_);
 v___x_2478_ = lean_apply_2(v_toPure_2470_, lean_box(0), v_pre_2476_);
 return v___x_2478_;

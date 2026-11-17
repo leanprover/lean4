@@ -581,8 +581,8 @@ if (lean_obj_tag(v___x_257_) == 0)
 {
 lean_dec_ref_known(v___x_257_, 1);
 v___y_100_ = v___y_230_;
-v___y_101_ = v_a_234_;
-v___y_102_ = v___x_252_;
+v___y_101_ = v___x_252_;
+v___y_102_ = v_a_234_;
 v___y_103_ = v___x_253_;
 v___y_104_ = v_a_238_;
 v___y_105_ = v___y_45_;
@@ -610,8 +610,8 @@ return v___x_257_;
 else
 {
 v___y_100_ = v___y_230_;
-v___y_101_ = v_a_234_;
-v___y_102_ = v___x_252_;
+v___y_101_ = v___x_252_;
+v___y_102_ = v_a_234_;
 v___y_103_ = v___x_253_;
 v___y_104_ = v_a_238_;
 v___y_105_ = v___y_45_;
@@ -1335,14 +1335,14 @@ v___jp_99_:
 {
 lean_object* v___x_111_; lean_object* v_dummy_112_; lean_object* v_nargs_113_; lean_object* v___x_114_; lean_object* v___x_115_; lean_object* v___x_116_; lean_object* v___x_117_; lean_object* v___x_118_; lean_object* v_nargs_119_; lean_object* v___x_120_; lean_object* v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; 
 lean_inc(v___y_103_);
-v___x_111_ = l_Lean_mkConst(v___y_103_, v___y_102_);
+v___x_111_ = l_Lean_mkConst(v___y_103_, v___y_101_);
 v_dummy_112_ = lean_obj_once(&l_Lean_Expr_withAppAux___at___00Lean_Meta_Grind_propagateCtorIdxUp_spec__1___closed__0, &l_Lean_Expr_withAppAux___at___00Lean_Meta_Grind_propagateCtorIdxUp_spec__1___closed__0_once, _init_l_Lean_Expr_withAppAux___at___00Lean_Meta_Grind_propagateCtorIdxUp_spec__1___closed__0);
-v_nargs_113_ = l_Lean_Expr_getAppNumArgs(v___y_101_);
+v_nargs_113_ = l_Lean_Expr_getAppNumArgs(v___y_102_);
 lean_inc(v_nargs_113_);
 v___x_114_ = lean_mk_array(v_nargs_113_, v_dummy_112_);
 v___x_115_ = lean_nat_sub(v_nargs_113_, v___x_82_);
 lean_dec(v_nargs_113_);
-v___x_116_ = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(v___y_101_, v___x_114_, v___x_115_);
+v___x_116_ = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(v___y_102_, v___x_114_, v___x_115_);
 v___x_117_ = l_Lean_mkAppN(v___x_111_, v___x_116_);
 lean_dec_ref(v___x_116_);
 v___x_118_ = l_Lean_Expr_app___override(v___x_117_, v___x_90_);

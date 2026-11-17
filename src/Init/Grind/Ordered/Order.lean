@@ -18,7 +18,7 @@ namespace Lean.Grind
 
 namespace Preorder
 
-variable {α : Type u} [LE α] [LT α] [LawfulOrderLT α]
+variable {α : Sort u} [LE α] [LT α] [LawfulOrderLT α]
 
 theorem le_of_lt {a b : α} (h : a < b) : a ≤ b := (lt_iff_le_and_not_ge.mp h).1
 
@@ -55,7 +55,7 @@ end Preorder
 
 namespace PartialOrder
 
-variable {α : Type u} [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α]
+variable {α : Sort u} [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α]
 
 theorem le_iff_lt_or_eq {a b : α} : a ≤ b ↔ a < b ∨ a = b := by
   constructor
@@ -71,7 +71,7 @@ end PartialOrder
 
 namespace LinearOrder
 
-variable {α : Type u} [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
+variable {α : Sort u} [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
 
 theorem trichotomy (a b : α) : a < b ∨ a = b ∨ b < a := by
   cases le_total (a := a) (b := b) with

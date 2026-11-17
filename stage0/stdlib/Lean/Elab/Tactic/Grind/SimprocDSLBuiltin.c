@@ -2203,7 +2203,7 @@ return v_thms_909_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline(lean_object* v_stx_919_, lean_object* v_a_920_, lean_object* v_a_921_, lean_object* v_a_922_, lean_object* v_a_923_, lean_object* v_a_924_, lean_object* v_a_925_, lean_object* v_a_926_, lean_object* v_a_927_){
 _start:
 {
-size_t v___y_930_; lean_object* v___y_931_; lean_object* v_d_x3f_932_; lean_object* v___y_933_; lean_object* v___y_934_; lean_object* v___y_935_; lean_object* v___y_936_; lean_object* v___y_937_; lean_object* v___y_938_; lean_object* v___y_939_; lean_object* v___y_940_; lean_object* v___x_971_; uint8_t v___x_972_; 
+lean_object* v___y_930_; size_t v___y_931_; lean_object* v_d_x3f_932_; lean_object* v___y_933_; lean_object* v___y_934_; lean_object* v___y_935_; lean_object* v___y_936_; lean_object* v___y_937_; lean_object* v___y_938_; lean_object* v___y_939_; lean_object* v___y_940_; lean_object* v___x_971_; uint8_t v___x_972_; 
 v___x_971_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline___closed__4));
 lean_inc(v_stx_919_);
 v___x_972_ = l_Lean_Syntax_isOfKind(v_stx_919_, v___x_971_);
@@ -2323,8 +2323,8 @@ goto v_reusejp_992_;
 }
 v_reusejp_992_:
 {
-v___y_930_ = v___x_979_;
-v___y_931_ = v_val_982_;
+v___y_930_ = v_val_982_;
+v___y_931_ = v___x_979_;
 v_d_x3f_932_ = v___x_993_;
 v___y_933_ = v_a_920_;
 v___y_934_ = v_a_921_;
@@ -2344,8 +2344,8 @@ lean_object* v___x_995_;
 lean_dec(v___x_987_);
 lean_del_object(v___x_984_);
 v___x_995_ = lean_box(0);
-v___y_930_ = v___x_979_;
-v___y_931_ = v_val_982_;
+v___y_930_ = v_val_982_;
+v___y_931_ = v___x_979_;
 v_d_x3f_932_ = v___x_995_;
 v___y_933_ = v_a_920_;
 v___y_934_ = v_a_921_;
@@ -2365,9 +2365,9 @@ v___jp_929_:
 {
 lean_object* v_thms_941_; size_t v_sz_942_; lean_object* v___x_943_; 
 v_thms_941_ = lean_obj_once(&l___private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline___closed__2, &l___private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline___closed__2_once, _init_l___private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline___closed__2);
-v_sz_942_ = lean_array_size(v___y_931_);
-v___x_943_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline_spec__2(v___y_931_, v_sz_942_, v___y_930_, v_thms_941_, v___y_933_, v___y_934_, v___y_935_, v___y_936_, v___y_937_, v___y_938_, v___y_939_, v___y_940_);
-lean_dec_ref(v___y_931_);
+v_sz_942_ = lean_array_size(v___y_930_);
+v___x_943_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabSimprocRewriteInline_spec__2(v___y_930_, v_sz_942_, v___y_931_, v_thms_941_, v___y_933_, v___y_934_, v___y_935_, v___y_936_, v___y_937_, v___y_938_, v___y_939_, v___y_940_);
+lean_dec_ref(v___y_930_);
 if (lean_obj_tag(v___x_943_) == 0)
 {
 lean_object* v_a_944_; lean_object* v___x_945_; 

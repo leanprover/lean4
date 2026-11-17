@@ -129,7 +129,7 @@ public theorem minOn_eq_ite [LE β] [DecidableLE β] {f : α → β} {a b : α} 
   (rfl)
 
 @[deprecated minOn_eq_ite (since := "2026-07-21")]
-public theorem minOn_eq_if {β : Type u_1} {α : Sort u_2} [LE β] [DecidableLE β] {f : α → β} {a : α} {b : α} : minOn f a b = if f a ≤ f b then a else b := minOn_eq_ite
+public theorem minOn_eq_if {β : Sort u_1} {α : Sort u_2} [LE β] [DecidableLE β] {f : α → β} {a : α} {b : α} : minOn f a b = if f a ≤ f b then a else b := minOn_eq_ite
 
 public theorem minOn_eq_min [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α] [LE β]
     [DecidableLE β] {f : α → β} {a b : α} (hf : f a ≤ f b ↔ a ≤ b) :
@@ -219,7 +219,7 @@ public theorem maxOn_eq_ite [LE β] [DecidableLE β] {f : α → β} {a b : α} 
   simp only [maxOn_eq_minOn, minOn_eq_ite, LE.le_opposite_iff]
 
 @[deprecated maxOn_eq_ite (since := "2026-07-21")]
-public theorem maxOn_eq_if {β : Type u_1} {α : Sort u_2} [LE β] [DecidableLE β] {f : α → β} {a : α} {b : α} : maxOn f a b = if f b ≤ f a then a else b := maxOn_eq_ite
+public theorem maxOn_eq_if {β : Sort u_1} {α : Sort u_2} [LE β] [DecidableLE β] {f : α → β} {a : α} {b : α} : maxOn f a b = if f b ≤ f a then a else b := maxOn_eq_ite
 
 public theorem maxOn_eq_max [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α] [LE β]
     [DecidableLE β] {f : α → β} {a b : α} (hf : f b ≤ f a ↔ b ≤ a) :

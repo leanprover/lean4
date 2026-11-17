@@ -39,11 +39,11 @@ register_builtin_option pp.unicode.fun : Bool := {
 }
 register_builtin_option pp.match : Bool := {
   defValue := true
-  descr    := "(pretty printer) disable/enable 'match' notation"
+  descr    := "(pretty printer) disable/enable `match` notation"
 }
 register_builtin_option pp.sorrySource : Bool := {
   defValue := false
-  descr    := "(pretty printer) if true, pretty print 'sorry' with its originating source position, if available"
+  descr    := "(pretty printer) if true, pretty print `sorry` with its originating source position, if available"
 }
 register_builtin_option pp.coercions : Bool := {
   defValue := true

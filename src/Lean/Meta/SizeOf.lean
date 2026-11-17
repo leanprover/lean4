@@ -271,18 +271,26 @@ mutual
     let sizeOfBaseArgs := lhsArgs[*...(lhsArgs.size - info.numIndices - 1)]
     let indicesMajor := lhsArgs[(lhsArgs.size - info.numIndices - 1)...*]
     let sizeOfLevels := lhs.getAppFn.constLevels!
-    let rec
-      /-- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
+    /- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
         where `ys` are the indices + major.
         Recall that if `info.name` is part of a mutually inductive declaration, then the resulting application
         is not necessarily a `lhs.getAppFn` application.
         The result is an application of one of the `(← read),sizeOfFns` functions.
         We use this auxiliary function to builtin the motive of the recursor. -/
-      mkSizeOf (ys : Array Expr) : M Expr := do
+    let mkSizeOf (ys : Array Expr) : M Expr := do
+      let args := sizeOfBaseArgs ++ ys
       for sizeOfFn in (← read).sizeOfFns do
-        let candidate := mkAppN (mkAppN (mkConst sizeOfFn sizeOfLevels) sizeOfBaseArgs) ys
-        if (← isTypeCorrect candidate) then
-          return candidate
+        let sizeOfFnTy ← instantiateTypeLevelParams (←getConstInfo sizeOfFn).toConstantVal sizeOfLevels
+        forallBoundedTelescope (maxFVars? := args.size) sizeOfFnTy fun xs _ => do←
+          if xs.size != args.size then continue
+          let tyxs ← xs.mapM fun x => return (← inferType x).replaceFVars xs ys
+          let tyArgs ← ys.mapM (inferType ·)
+          for tyx in tyxs, tyy in tyArgs do
+            -- equality check between nested occurences in the kernel respects binder information and annotations, we must respect this here to avoid mapping motives to the wrong spec lemma
+            if tyx.equal tyy then
+              let candidate := mkAppN (mkConst sizeOfFn sizeOfLevels) args
+              trace[Meta.sizeOf] "Valid candidate for {ys} is\n {candidate}"
+              return candidate
       throwFailed
     let major := lhs.appArg!
     let majorType ← whnf (← inferType major)

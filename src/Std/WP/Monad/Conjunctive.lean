@@ -26,27 +26,28 @@ namespace Std.WP
 
 /-- An `Id` program is conjunctive: its `wp` is evaluation at the result. -/
 instance Id.instWPConjunctive {α : Type u} (x : Id α) : WPConjunctive x where
-  wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by simp only [WP.trans, meet_apply]; exact PartialOrder.rel_refl
+  wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
+    simp only [WP.trans_apply_eq, Id.wp_apply_eq, meet_apply]; exact PartialOrder.rel_refl
 
 /-- An `Option` program is conjunctive: its `wp` is evaluation at the result. -/
 instance Option.instWPConjunctive {α : Type u} (x : Option α) : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     cases x <;>
-      simp only [meet_apply, WP.trans, pushOption] <;>
+      simp only [WP.trans_apply_eq, Option.wp_apply_eq, meet_apply, pushOption] <;>
       exact PartialOrder.rel_refl
 
 /-- An `Except ε` program is conjunctive: its `wp` is evaluation at the result. -/
 instance Except.instWPConjunctive {ε α : Type u} (x : Except ε α) : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     cases x <;>
-      simp only [meet_apply, WP.trans, pushExcept] <;>
+      simp only [WP.trans_apply_eq, Except.wp_apply_eq, meet_apply, pushExcept] <;>
       exact PartialOrder.rel_refl
 
 /-- An `EStateM` program is conjunctive: its `wp` is evaluation at the result. -/
 instance EStateM.instWPConjunctive {ε σ α : Type} (x : EStateM ε σ α) : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     intro s
-    simp only [meet_apply, WP.trans]
+    simp only [WP.trans_apply_eq, EStateM.wp_apply_eq, meet_apply]
     cases x s <;> first | exact PartialOrder.rel_refl | exact meet_le_left _ _
 
 /-- A `StateT` program lifts conjunctivity from its base monad. -/

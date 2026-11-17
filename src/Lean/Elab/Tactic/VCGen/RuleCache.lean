@@ -53,12 +53,12 @@ Cache key: `(splitter name, instWP, excessArgs.size)`.
 public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     VCGenM BackwardRule := do
   let key := (splitInfo.splitterName, ExprPtr.mk info.instWP, info.excessArgs.size)
-  let s := (← get).splitBackwardRuleCache
+  let s := (← get).wpSplitBackwardRuleCache
   if let some rule := s[key]? then return rule
   let rule ← mkBackwardRuleForSplit splitInfo info
   let rule ← rule.shareCommon
   modify fun st =>
-    { st with splitBackwardRuleCache := st.splitBackwardRuleCache.insert key rule }
+    { st with wpSplitBackwardRuleCache := st.wpSplitBackwardRuleCache.insert key rule }
   return rule
 
 open Lean.Elab.Tactic.Do in

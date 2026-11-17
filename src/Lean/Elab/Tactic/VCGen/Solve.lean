@@ -86,13 +86,6 @@ def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
     trace[Elab.Tactic.Do.vcgen] "Rintro rule {entry.declName} does not apply"
   return none
 
-/-- The local `x` and the term `t` of an equation `x = t` that does not mention `x` in `t`. -/
-def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
-  let_expr Eq _ x t := φ | none
-  let .fvar xId := x | none
-  if t.containsFVar xId then none
-  return (xId, t)
-
 /-- Record in `scope.splitEqs` the hypotheses `h : x = t` for a local `x` among the local
 declarations of `goal` from index `start` on. -/
 def recordSplitEqs (scope : Scope) (goal : MVarId) (start : Nat) : MetaM Scope := goal.withContext do
@@ -354,7 +347,7 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
     let target' ← if inPre then mkAppNS c #[α, inst, e', rhs] else mkAppNS c #[α, inst, pre, e']
     let C := mkLambda `a .default α (mkTarget (.bvar 0))
     return some [← replaceTargetByEq goal α e e' C target' prf]
-  unless splitInfo.selectors.any (·.hasFVar) do return none
+  unless splitInfo.discriminants.any (·.hasFVar) do return none
   let some resTy := splitInfo.resTy | return none
   let some stateTypes := nonDependentDomains? resTy splitInfo.extraArgs.size | return none
   let rel ← mkAppNS c #[α, inst]

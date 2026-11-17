@@ -195,7 +195,7 @@ public structure State where
   The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
   This is sound because the instance is a subterm of the hash-consed goal target.
   -/
-  splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  wpSplitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping matchers to the backward rule that splits them in the precondition or on the
   right-hand side of an entailment. The particular rule depends on the matcher name, whether the

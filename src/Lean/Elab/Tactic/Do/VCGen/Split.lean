@@ -67,9 +67,8 @@ def extraArgs : SplitInfo → Array Expr
   | .cond e => e.getAppArgs.extract 4 e.getAppNumArgs
   | .matcher matcherApp => matcherApp.remaining
 
-/-- The terms that select an alternative: the condition of an `ite`/`dite`/`cond`, or the
-discriminants of a matcher. -/
-def selectors : SplitInfo → Array Expr
+/-- The discriminants of a matcher, or the condition of an `ite`/`dite`/`cond`. -/
+def discriminants : SplitInfo → Array Expr
   | .ite e | .dite e | .cond e => #[e.getArg! 1]
   | .matcher matcherApp => matcherApp.discrs
 

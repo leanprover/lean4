@@ -2030,7 +2030,7 @@ meta def deriveSize : DerivingHandler :=
 -- Deriving handler for `LawfulSize`
 meta partial def deriveLawfulSize : DerivingHandler :=
   mkInductiveDerivingHandler ``LawfulSize do
-    deriveLawTypeClassUsingCtor fun
+    deriveLawClassUsingCtor fun
       | ctx, ``LawfulSize.size_pos =>
         -- unfold the `Size.size` instance projection in the expression `0 < Size.size x`
         ctx.withUnfoldOnce <|
@@ -2078,7 +2078,7 @@ meta initialize
   registerDerivingHandler ``LawfulSize deriveLawfulSize
 ```
 -/
-def deriveLawTypeClassUsingCtor
+def deriveLawClassUsingCtor
     (perField : LawDerivingContext → Name → FieldHelperProvider α)
     (supportsRec : Bool := true) (nonRec : Bool := false)
     (preHelpers : DerivingM α := by exact pure ()) :
@@ -2365,8 +2365,11 @@ and pass both the instance application and its delta-reduced version to `perInst
 
 This function is currently limited to `derivedFrom` type classes that have the type as their only
 parameter (and e.g. don't have additional instance assumptions).
+
+You should prefer using `deriveLawClassUsingCtor` if the instances were derived using
+`makeInstancesUsingCtor` or `deriveTransformationInstPerConstructor`.
 -/
-def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
+def deriveLawClassSimple (className derivedFrom : Name)
     (perInstance : (inst : Expr) → (instValue : Expr) → DerivingM Bool) :
     DerivingHandler := fun names => do
   let state ← get
@@ -2382,7 +2385,7 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
         let hint := .hint' m!"Adding the command \
           `deriving instance {.ofConstName derivedFrom} for {.ofConstName name}` \
           may allow Lean to derive the missing instance."
-        throwError "Failed to derive `{.ofConstName typeClass}` for `{.ofConstName name}`; \
+        throwError "Failed to derive `{.ofConstName className}` for `{.ofConstName name}`; \
           it is a law type class for `{.ofConstName derivedFrom}` \
           but there is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`.\
           {hint}"
@@ -2406,8 +2409,7 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
           let instApp := mkAppN (.const instInfo.name (instInfo.levelParams.map Level.param)) vars
           let instValue := instInfo.value.beta vars
           let ctx := {
-            className := typeClass
-            levelParams
+            className, levelParams
             params := vars
             paramLCtx := ← getLCtx
             paramLInsts := ← getLocalInstances

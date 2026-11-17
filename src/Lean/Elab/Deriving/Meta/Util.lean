@@ -1206,32 +1206,34 @@ def FieldHelperProvider.doubleCasesSlow
     if tgt.hasFVar then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \
         `{.ofConstName input.fieldName}` depends on the type parameter or the field arguments"
-    withLocalDeclD `t input.typeApp fun discr => do
-      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun ival cval fields ctorApp => do
-      mkLambdaFVars #[discr] <| ← mkNondepCases discr tgt fun _ival cval' fields' ctorApp' => do
-        prependError m!"Error while processing constructor pair \
-            {.ofConstName cval.name}, {.ofConstName cval'.name}:" do
-          if cval.cidx = cval'.cidx then
-            sameCtor {
-              inductInfo := ival
-              ctorInfo := cval
-              leftFields := fields
-              rightFields := fields'
-              leftCtorApp := ctorApp
-              rightCtorApp := ctorApp'
-              val
-            }
-          else
-            differentCtor {
-              inductInfo := ival
-              leftCtor := cval
-              rightCtor := cval'
-              leftFields := fields
-              rightFields := fields'
-              leftCtorApp := ctorApp
-              rightCtorApp := ctorApp'
-              val
-            }
+    withLocalDeclD `lhs input.typeApp fun lhs => do
+    withLocalDeclD `rhs input.typeApp fun rhs => do
+      mkLambdaFVars #[lhs, rhs] <|
+        ← mkNondepCases lhs tgt fun ival cval fields ctorApp => do
+        mkNondepCases rhs tgt fun _ival cval' fields' ctorApp' => do
+          prependError m!"Error while processing constructor pair \
+              {.ofConstName cval.name}, {.ofConstName cval'.name}:" do
+            if cval.cidx = cval'.cidx then
+              sameCtor {
+                inductInfo := ival
+                ctorInfo := cval
+                leftFields := fields
+                rightFields := fields'
+                leftCtorApp := ctorApp
+                rightCtorApp := ctorApp'
+                val
+              }
+            else
+              differentCtor {
+                inductInfo := ival
+                leftCtor := cval
+                rightCtor := cval'
+                leftFields := fields
+                rightFields := fields'
+                leftCtorApp := ctorApp
+                rightCtorApp := ctorApp'
+                val
+              }
 
 /--
 Creates a helper that matches on the first two arguments, calling `sameCtor` for alternatives where

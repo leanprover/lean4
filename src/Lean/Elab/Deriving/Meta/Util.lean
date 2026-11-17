@@ -1055,6 +1055,8 @@ assumes that the variables are provided in dependency order, so `i < j` for `j �
 private partial def computeForwardDeps (vars : Array Expr) :
     MetaM (Array (Array Nat)) := do
   let mut fwdDeps : Array (Array Nat) := Array.emptyWithCapacity vars.size
+  -- not necessarily transitive, `j ∈ backDeps[i]` iff `vars[i]` depends directly on `vars[j]`
+  let mut backDeps : Array (Array Nat) := Array.emptyWithCapacity vars.size
   let idxOfVar : FVarIdMap Nat := mkVarIndexMap vars
   for h : j in 0...vars.size do
     let var := vars[j]
@@ -1068,12 +1070,13 @@ private partial def computeForwardDeps (vars : Array Expr) :
       let mut fwdDeps := fwdDeps
       -- `j` depends on `i` depends on `i'`
       -- so record that `j` depend on `i'` (transitively)
-      -- we maintain the invariant that `i' < i` for `i' ∈ fwdDeps[i]`
+      -- we maintain the invariant that `i' < i` for `i' ∈ backDeps[i]`
       -- so this doesn't touch `i` or break linearity (or termination)
-      for i' in fwdDeps[i]! do
+      for i' in backDeps[i]! do
         fwdDeps ← recordDep i' fwdDeps
       return fwdDeps.modify i (·.push j)
     fwdDeps := fwdDeps.push #[]
+    let mut myBackDeps := #[]
     for var in state.fvarIds do
       if let some i := idxOfVar.get? var then
         unless i < j do
@@ -1082,6 +1085,8 @@ private partial def computeForwardDeps (vars : Array Expr) :
           throwError "Expected the inputs of `{.ofConstName decl_name%}` to be provided \
             in dependency order but{fst}\ndepends on{snd}"
         fwdDeps ← recordDep i fwdDeps
+        myBackDeps := myBackDeps.push i
+    backDeps := backDeps.push myBackDeps
   return fwdDeps
 
 /--

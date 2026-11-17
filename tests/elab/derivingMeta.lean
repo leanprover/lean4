@@ -591,7 +591,7 @@ class IsSmallMyClass (α : Type u) [MyClass α] where
   small : ∀ x : α, (MyClass.convert x).Small
 
 meta partial def lawHandler := mkInductiveDerivingHandler ``IsSmallMyClass do
-  deriveLawTypeClassUsingCtor fun
+  deriveLawClassUsingCtor fun
     | ctx, ``IsSmallMyClass.small =>
       ctx.withUnfoldOnce <| .casesLaw fun ival cval fields ctorApp expectedType () => do
         let_expr Data.Small thing := expectedType
@@ -715,3 +715,72 @@ run_cmd lawHandler #[``TestNoReduction]
 run_cmd
   lawHandler #[``TestParams, ``TestRedundantForward, ``TestRedundantBackward,
     ``WithImplicit, ``WithExplicit, ``TestPrivate]
+
+/-!
+Test for dependency analysis in `foldSimilarVarsParallel`
+-/
+
+meta def showFieldDeps (ctor : Name) : MetaM Unit := do
+  let type := (← getConstInfoCtor ctor).type
+  forallTelescope type fun leftVars _ => do
+  forallTelescope type fun rightVars _ => do
+    let lines ← IO.mkRef #[]
+    let e ← foldSimilarVarsParallel leftVars rightVars (mkConst ``Unit) (init := ())
+      (fun pair _ k => do
+        let name ← pair.lhs.fvarId!.getUserName
+        lines.modify (·.push s!"{name}: hasRelevantForwardDeps = {pair.hasRelevantForwardDeps}, \
+          hasBackwardDeps = {pair.hasBackwardDeps}")
+        if pair.hasRelevantForwardDeps && !pair.hasBackwardDeps then
+          k (some (← mkSorry (← mkEq pair.lhs pair.rhs) (synthetic := false))) ()
+        else
+          k none ())
+      (fun _ => pure (mkConst ``Unit.unit))
+    check e
+    logInfo ("\n".intercalate (← lines.get).toList)
+
+inductive Term : Nat → Type where
+  | var (n : Nat) (i : Fin n) : Term n
+  | app (n : Nat) (f : Term n) (x : Term n) : Term n
+
+/--
+info: n: hasRelevantForwardDeps = true, hasBackwardDeps = false
+f: hasRelevantForwardDeps = false, hasBackwardDeps = false
+x: hasRelevantForwardDeps = false, hasBackwardDeps = false
+-/
+#guard_msgs in
+run_meta showFieldDeps ``Term.app
+
+structure ThreeFins where
+  n : Nat
+  a : Fin n
+  b : Fin n
+  c : Fin n
+
+/--
+info: n: hasRelevantForwardDeps = true, hasBackwardDeps = false
+a: hasRelevantForwardDeps = false, hasBackwardDeps = false
+b: hasRelevantForwardDeps = false, hasBackwardDeps = false
+c: hasRelevantForwardDeps = false, hasBackwardDeps = false
+-/
+#guard_msgs in
+run_meta showFieldDeps ``ThreeFins.mk
+
+/-!
+Dependencies are transitive: `c` depends on `n` through `b`, even though the type of `c` does not
+mention `n`. After the proofs for `n` and `b`, both copies of `c` have the same type.
+-/
+
+abbrev NatOf (_n : Nat) := Nat
+
+structure Chain where
+  n : Nat
+  b : NatOf n
+  c : Fin b
+
+/--
+info: n: hasRelevantForwardDeps = true, hasBackwardDeps = false
+b: hasRelevantForwardDeps = true, hasBackwardDeps = false
+c: hasRelevantForwardDeps = false, hasBackwardDeps = false
+-/
+#guard_msgs in
+run_meta showFieldDeps ``Chain.mk

@@ -28,12 +28,12 @@ monad class instances.
 
 namespace Lean.Order
 
-/-- A monotone predicate transformer from postconditions to preconditions.
-
-Given a return type `α`, an ordered type `Pred` of assertions, and an ordered type `EPosts` of
-exception postconditions, `PredTrans Pred EPosts α` is a function `(α → Pred) → EPosts → Pred`
-that is monotone in both arguments. `PredTrans.mk` builds one, `PredTrans.apply` applies it, and
-`PredTrans.apply_mono` states its monotonicity. -/
+/-- `PredTrans Pred EPosts α` is the type of monotone predicate transformers with result type `α`,
+over an ordered type `Pred` of assertions and an ordered type `EPosts` of exception
+postconditions. `PredTrans.apply : PredTrans Pred EPosts α → (α → Pred) → EPosts → Pred` runs the
+predicate transformer, and `PredTrans.apply_mono` proves that it is monotone in both ordered
+arguments. `PredTrans.mk` constructs predicate transformers. The definition of `PredTrans.apply`
+is opaque, for the efficiency of kernel reduction. -/
 structure PredTrans (Pred : Type u) (EPosts : Type v) [PartialOrder Pred] [PartialOrder EPosts]
     (α : Type w) where
   private mkRaw ::
@@ -52,7 +52,7 @@ variable {Pred : Type u} {EPosts : Type v} [PartialOrder Pred] [PartialOrder EPo
 def apply (t : PredTrans Pred EPosts α) (post : α → Pred) (eposts : EPosts) : Pred :=
   t.applyRaw post eposts
 
-/-- Larger postconditions give a larger precondition. -/
+/-- Stronger postconditions give a stronger precondition. -/
 theorem apply_mono (t : PredTrans Pred EPosts α) {post post' : α → Pred}
     {eposts eposts' : EPosts} :
     post ⊑ post' → eposts ⊑ eposts' → t.apply post eposts ⊑ t.apply post' eposts' :=
@@ -65,15 +65,15 @@ def mk (apply : (α → Pred) → EPosts → Pred)
     PredTrans Pred EPosts α :=
   ⟨apply, apply_mono⟩
 
-@[simp, grind norm] theorem apply_mk (f : (α → Pred) → EPosts → Pred)
-    (h : ∀ {post post' : α → Pred} {eposts eposts' : EPosts},
-      post ⊑ post' → eposts ⊑ eposts' → f post eposts ⊑ f post' eposts') :
+@[simp, grind norm] theorem apply_mk {f : (α → Pred) → EPosts → Pred}
+    {h : ∀ {post post' : α → Pred} {eposts eposts' : EPosts},
+      post ⊑ post' → eposts ⊑ eposts' → f post eposts ⊑ f post' eposts'} :
     (mk f @h).apply = f := (rfl)
 
 /-- Extensionality for predicate transformers. -/
-@[ext] theorem ext {t₁ t₂ : PredTrans Pred EPosts α}
-    (h : ∀ post eposts, t₁.apply post eposts = t₂.apply post eposts) : t₁ = t₂ := by
-  cases t₁; cases t₂; congr; funext post eposts; exact h post eposts
+@[ext] theorem ext {x y : PredTrans Pred EPosts α}
+    (h : ∀ post eposts, x.apply post eposts = y.apply post eposts) : x = y := by
+  cases x; cases y; congr; funext post eposts; exact h post eposts
 
 end PredTrans
 
@@ -134,8 +134,8 @@ instance {Pred : Type u} [CCPO Pred] : CCPO (PredTrans Pred EPosts α) where
 def Monotone (pt : PredTrans Pred EPosts α) :=
   ∀ post post' eposts eposts', eposts ⊑ eposts' → post ⊑ post' → pt.apply post eposts ⊑ pt.apply post' eposts'
 
-/-- Conjunctivity property for a predicate transformer: the meet of two preconditions lies below
-the precondition of the componentwise meet of the postconditions. -/
+/-- Finite conjunctivity property for a predicate transformer: the meet of two preconditions lies below
+the precondition of the componentwise meet of the postconditions. By extension, this holds for any non-empty, finite meet. -/
 def Conjunctive {Pred : Type u} {EPosts : Type v} [CompleteLattice Pred] [CompleteLattice EPosts]
     (pt : PredTrans Pred EPosts α) :=
   ∀ post₁ post₂ eposts₁ eposts₂,

@@ -65,7 +65,7 @@ def mk (apply : (α → Pred) → EPosts → Pred)
     PredTrans Pred EPosts α :=
   ⟨apply, apply_mono⟩
 
-@[simp, grind norm] theorem apply_mk {f : (α → Pred) → EPosts → Pred}
+theorem apply_mk {f : (α → Pred) → EPosts → Pred}
     {h : ∀ {post post' : α → Pred} {eposts eposts' : EPosts},
       post ⊑ post' → eposts ⊑ eposts' → f post eposts ⊑ f post' eposts'} :
     (mk f @h).apply = f := (rfl)

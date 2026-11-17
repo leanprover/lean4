@@ -1767,11 +1767,11 @@ partial def LawDerivingContext.withUnfoldOnce (ctx : LawDerivingContext)
         let mp := mkApp3 (.const ``Eq.mp [0]) t t' proof
         let mpr := mkApp3 (.const ``Eq.mpr_prop []) t t' proof
         withLocalDecl nm bi t' fun var => do
-          let (b', imp) ← goRewrite (b.instantiate1 (mp.app var))
+          let (b', imp) ← goRewrite (b.instantiate1 (mpr.app var))
           let e' ← mkForallFVars #[var] b'
           withLocalDeclD `h e' fun h => do
           withLocalDecl nm bi t fun origVar => do
-            return (e', ← mkLambdaFVars #[h, origVar] (imp.betaRev #[h.app (mpr.app origVar)]))
+            return (e', ← mkLambdaFVars #[h, origVar] (imp.betaRev #[h.app (mp.app origVar)]))
       | _ =>
         let (e', proof) ← ctx.unfoldOnce e filter
         return (e', mkApp3 (.const ``Eq.mpr [← getLevel e]) e e' proof)

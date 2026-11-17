@@ -703,6 +703,8 @@ where
       | .nat v =>
         if v < UInt32.size then
           emit "lean_unsigned_to_nat("; emit v; emit "u)"
+        else if v < UInt64.size then
+          emit "lean_uint64_to_nat("; emit v; emit "ULL)"
         else
           emit "lean_cstr_to_nat(\""; emit v; emit "\")"
       | .str v =>

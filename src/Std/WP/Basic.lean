@@ -56,6 +56,7 @@ The `WP` typeclass interprets a program type `Prog` whose results have type `Val
 predicate transformer `trans : Prog → PredTrans Pred EPosts Value`.
 -/
 
+set_option linter.deprecated false in
 /-- Weakest precondition interpretation of a program type `Prog` whose results have type `Value`,
 as a monotone predicate transformer over assertion language `Pred` with exception postconditions
 `EPosts`. -/
@@ -65,8 +66,17 @@ class WP (Prog : Type u) (Value : outParam (Type v)) (Pred : outParam (Type w))
   trans : Prog → PredTrans Pred EPosts Value := wpTrans
   /-- Deprecated alias for `trans`; provide either field when defining an instance. -/
   wpTrans : Prog → PredTrans Pred EPosts Value := trans
+  /-- Deprecated: every transformer is monotone by `PredTrans.apply_mono`. -/
+  trans_monotone (x : Prog) : PredTrans.Monotone (trans x) :=
+    fun _ _ _ _ heposts hpost => (trans x).apply_mono hpost heposts
+  /-- Deprecated alias for `trans_monotone`. -/
+  wp_trans_monotone (x : Prog) : PredTrans.Monotone (trans x) := trans_monotone x
 
 attribute [deprecated WP.trans (since := "2026-09-17")] WP.wpTrans
+attribute [deprecated "every transformer is monotone by `PredTrans.apply_mono`"
+  (since := "2026-11-16")] WP.trans_monotone
+attribute [deprecated "every transformer is monotone by `PredTrans.apply_mono`"
+  (since := "2026-09-17")] WP.wp_trans_monotone
 attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] WP
 
 /-- Weakest precondition of `x` for normal postcondition `post` and exception postcondition `eposts`.

@@ -599,6 +599,48 @@ private def blankLInst : LocalInstance where
   className := .anonymous
   fvar := .sort .zero
 
+private structure DepGraph (n : Nat) (inclusive : Bool) where
+  transitiveFwdDeps : Vector (Array (Fin n)) n :=
+    if inclusive then
+      Vector.ofFn fun i : Fin n => #[i]
+    else
+      Vector.replicate n #[]
+  directBackDeps : Vector (Array (Fin n)) n := Vector.replicate n #[]
+
+/-- Record that `i` depends on `j` -/
+private partial def DepGraph.recordDep
+    (d : DepGraph n inc) (i j : Fin n) : DepGraph n inc :=
+  let d := { d with directBackDeps := d.directBackDeps.modify i (insert · j) }
+  goFwd j d
+where
+  insert (xs : Array (Fin n)) (i : Fin n) : Array (Fin n) :=
+    -- we often add things in order
+    match xs.back? with
+    | none => #[i]
+    | some j =>
+      if j < i then xs.push i else if j = i then xs else xs.binInsert (· < ·) i
+  goFwd (j : Fin n) (d : DepGraph n inc) : DepGraph n inc :=
+    let prevSz := d.transitiveFwdDeps[j].size
+    let d := { d with transitiveFwdDeps := d.transitiveFwdDeps.modify j (insert · i) }
+    if d.transitiveFwdDeps[j].size = prevSz then
+      d -- already registered
+    else
+      d.directBackDeps[j].foldl (init := d) fun d j' => goFwd j' d
+
+private partial def DepGraph.topoSort (d : DepGraph n inc) : Array (Fin n) :=
+    Id.run <| StateT.run' (s := 0) do
+  Fin.foldlM n visit #[]
+where
+  visit (acc : Array (Fin n)) (i : Fin n) : StateM Nat (Array (Fin n)) := do
+    if (← get).testBit i then
+      return acc
+    else
+      modify fun visited => visited ||| 1 <<< i.val
+      let mut acc := acc
+      for dep in d.directBackDeps[i] do
+        acc ← visit acc dep
+      return acc.push i
+
 /--
 Given a list of metavariables corresponding to instance obligations, eliminate redundant instances,
 returning a suitable list of instance assumptions to be used in
@@ -613,13 +655,12 @@ private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MV
   let mut idxOfMVar : MVarIdMap (Fin n) := {}
   for h : i in 0...n do
     idxOfMVar := idxOfMVar.insert state.instanceMVars[i] ⟨i, h.2⟩
-  -- j ∈ fwdDeps[i] ↔ j = i or j depends on i
-  let mut fwdDeps : Array (Array (Fin n)) := Array.ofFn fun i : Fin n => #[i]
+  let mut depGraph : DepGraph n (inclusive := true) := {}
   for h : i in 0...n do
     let deps ← state.instanceMVars[i].getMVarDependencies
     for dep in deps do
       let some j := idxOfMVar.get? dep | continue
-      fwdDeps := fwdDeps.modify j (·.push ⟨i, h.2⟩)
+      depGraph := depGraph.recordDep ⟨i, h.2⟩ j
   let linsts ← getLocalInstances
   let lctx ← getLCtx
   let allLInsts := linsts ++ state.newLInsts
@@ -631,7 +672,7 @@ private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MV
   for h : i in 0...n do
     have h : i < n := h.2
     -- disable local instance for itself and mvars that depend on it
-    for dep in fwdDeps[i]! do
+    for dep in depGraph.transitiveFwdDeps[i] do
       newLInsts := newLInsts.set (dep + m - n) blankLInst
     let mvar := state.instanceMVars[i]
     let mvarType ← mvar.getType
@@ -641,12 +682,13 @@ private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MV
       let deps ← res.getMVarDependencies
       for dep in deps do
         let some j := idxOfMVar.get? dep | continue
-        fwdDeps := fwdDeps.modify j (·.push ⟨i, h⟩)
+        depGraph := depGraph.recordDep ⟨i, h⟩ j
     -- restore the local instances
-    for dep in fwdDeps[i]! do
+    for dep in depGraph.transitiveFwdDeps[i] do
       newLInsts := newLInsts.set (dep + m - n) oldLInsts[dep + m - n]
   let mut newMVars := #[]
-  for mvar in state.instanceMVars do
+  for i in depGraph.topoSort do
+    let mvar := state.instanceMVars[i]
     if ← mvar.isAssigned then
       continue
     mvar.setType (← instantiateMVars (← mvar.getType))
@@ -1060,42 +1102,28 @@ structure ExprPair where
   -/
   hasRelevantForwardDeps : Bool
 
-private def mkVarIndexMap (vars : Array Expr) : FVarIdMap Nat := Id.run do
+private def mkVarIndexMap (vars : Vector Expr n) : FVarIdMap (Fin n) := Id.run do
   let mut res := {}
-  for h : i in 0...vars.size do
-    res := res.insert vars[i].fvarId! i
+  for h : i in 0...n do
+    res := res.insert vars[i].fvarId! ⟨i, h.2⟩
   return res
 
 /--
-Returns `fwdDeps` with `fwdDeps.size = vars.size` such that `fwdDeps[i]` is sorted, has no
-duplicates, and `j ∈ fwdDeps[i]` iff `vars[j]` transitively depends on `vars[i]`. This function
-assumes that the variables are provided in dependency order, so `i < j` for `j ∈ fwdDeps[i]`.
+This function assumes that the variables are provided in dependency order, so `i < j` for
+`j ∈ fwdDeps[i]`.
 -/
-private partial def computeForwardDeps (vars : Array Expr) :
-    MetaM (Array (Array Nat)) := do
-  let mut fwdDeps : Array (Array Nat) := Array.emptyWithCapacity vars.size
+private partial def computeFVarDepGraph (vars : Array Expr) :
+    MetaM (DepGraph vars.size (inclusive := false)) := do
+  let n := vars.size
+  let vars : Vector Expr n := vars.toVector
+  let mut graph : DepGraph n (inclusive := false) := {}
   -- not necessarily transitive, `j ∈ backDeps[i]` iff `vars[i]` depends directly on `vars[j]`
   let mut backDeps : Array (Array Nat) := Array.emptyWithCapacity vars.size
-  let idxOfVar : FVarIdMap Nat := mkVarIndexMap vars
+  let idxOfVar : FVarIdMap (Fin n) := mkVarIndexMap vars
   for h : j in 0...vars.size do
     let var := vars[j]
     let type ← inferType var
     let state := collectFVars {} type
-    -- record that `j` depends on `i`
-    let rec recordDep (i : Nat) (fwdDeps : Array (Array Nat)) : MetaM (Array (Array Nat)) := do
-      if fwdDeps[i]!.back?.isEqSome j then
-        -- already noted down, nothing to do
-        return fwdDeps
-      let mut fwdDeps := fwdDeps
-      -- `j` depends on `i` depends on `i'`
-      -- so record that `j` depend on `i'` (transitively)
-      -- we maintain the invariant that `i' < i` for `i' ∈ backDeps[i]`
-      -- so this doesn't touch `i` or break linearity (or termination)
-      for i' in backDeps[i]! do
-        fwdDeps ← recordDep i' fwdDeps
-      return fwdDeps.modify i (·.push j)
-    fwdDeps := fwdDeps.push #[]
-    let mut myBackDeps := #[]
     for var in state.fvarIds do
       if let some i := idxOfVar.get? var then
         unless i < j do
@@ -1103,10 +1131,8 @@ private partial def computeForwardDeps (vars : Array Expr) :
           let snd := indentD m!"vars[{i}] = {Expr.fvar var} : {← var.getType}"
           throwError "Expected the inputs of `{.ofConstName decl_name%}` to be provided \
             in dependency order but{fst}\ndepends on{snd}"
-        fwdDeps ← recordDep i fwdDeps
-        myBackDeps := myBackDeps.push i
-    backDeps := backDeps.push myBackDeps
-  return fwdDeps
+        graph := graph.recordDep ⟨j, h.2⟩ i
+  return graph
 
 /--
 Given free variables `leftVars` and `rightVars` such that `mkForallFVars leftVars x` and
@@ -1140,18 +1166,19 @@ def foldSimilarVarsParallel [Monad m] [MonadEnv m] [MonadError m]
     (init : σ) (f : ExprPair → σ → (Option Expr → σ → m Expr) → m Expr)
     (finish : σ → m Expr) (ignoreDep : Expr → Nat → m Bool := fun _ _ => pure false) :
     m Expr := do
-  let allFwdDeps ← computeForwardDeps leftVars
+  let depGraph ← computeFVarDepGraph leftVars
+  let allFwdDeps := depGraph.transitiveFwdDeps
   let rec go (i : Nat) (rightVars : Array Expr) (s : σ) : m Expr := do
     if h : i < leftVars.size then
       let lhs := leftVars[i]
       let rhs := rightVars[i]!
-      let fwdDeps := allFwdDeps[i]!
+      let fwdDeps := allFwdDeps[i]
       let lhsType ← inferType lhs
       let rhsType ← inferType rhs
       let hasBackwardDeps := lhsType != rhsType
       let hasForwardDeps := !fwdDeps.isEmpty
       let hasRelevantForwardDeps ←
-        pure hasForwardDeps <&&> fwdDeps.anyM fun j => notM <| ignoreDep leftVars[j]! j
+        pure hasForwardDeps <&&> fwdDeps.anyM fun j => notM <| ignoreDep leftVars[j] j.val
       let pair : ExprPair := {
         lvl := ← getLevel lhsType
         type := lhsType

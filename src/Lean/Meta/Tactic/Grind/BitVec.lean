@@ -11,6 +11,7 @@ import Lean.Meta.LitValues
 import Lean.ToExpr
 import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta.Grind
 
@@ -113,13 +114,18 @@ private def binOp (e : Expr) (eval : Expr → Expr → GoalM (Option Expr)) : Go
     else
       return none
 
-/-- Table entry for `op : BitVec n → Nat → BitVec n` (shifts, rotations). -/
+/--
+Table entry for `op : BitVec n → Nat → BitVec n` (shifts, rotations).
+`isLeftShift` must be `true` for left shifts: they are evaluated only if `checkShiftLeft` succeeds.
+-/
 @[inline] private def shiftBV (declName : Name) (arity : Nat)
-    (op : {n : Nat} → BitVec n → Nat → BitVec n) (e : Expr) : GoalM Unit := do
+    (op : {n : Nat} → BitVec n → Nat → BitVec n) (e : Expr) (isLeftShift := false) : GoalM Unit := do
   unless e.isAppOfArity declName arity do return ()
   binOp e fun r₁ r₂ => do
     let some ⟨n, v⟩ ← getBitVecValue? r₁ | return none
     let some i ← getNatValue? r₂ | return none
+    if isLeftShift then
+      unless (← checkShiftLeft v.toNat i) do return none
     some <$> mkBVLit n (op v i)
 
 /-- Table entry for `op : BitVec n → Nat → Bool` (`getLsbD`, `getMsbD`). -/
@@ -198,7 +204,7 @@ builtin_grind_propagator propagateBVAppend ↑HAppend.hAppend := fun e => do
     some <$> mkBVLit (n₁ + n₂) (v₁ ++ v₂)
 
 builtin_grind_propagator propagateBVShiftLeft ↑BitVec.shiftLeft :=
-  shiftBV ``BitVec.shiftLeft 3 BitVec.shiftLeft
+  shiftBV ``BitVec.shiftLeft 3 BitVec.shiftLeft (isLeftShift := true)
 builtin_grind_propagator propagateBVUShiftRight ↑BitVec.ushiftRight :=
   shiftBV ``BitVec.ushiftRight 3 BitVec.ushiftRight
 builtin_grind_propagator propagateBVSShiftRight ↑BitVec.sshiftRight :=
@@ -208,21 +214,25 @@ builtin_grind_propagator propagateBVRotateLeft ↑BitVec.rotateLeft :=
 builtin_grind_propagator propagateBVRotateRight ↑BitVec.rotateRight :=
   shiftBV ``BitVec.rotateRight 3 BitVec.rotateRight
 
-/-- `x <<< i` and `x >>> i` where the shift amount is a `Nat` or a `BitVec`. -/
+/--
+`x <<< i` and `x >>> i` where the shift amount is a `Nat` or a `BitVec`.
+`isLeftShift` must be `true` for left shifts: they are evaluated only if `checkShiftLeft` succeeds.
+-/
 @[inline] private def hShiftBV (declName : Name)
-    (op : {n : Nat} → BitVec n → Nat → BitVec n) (e : Expr) : GoalM Unit := do
+    (op : {n : Nat} → BitVec n → Nat → BitVec n) (e : Expr) (isLeftShift := false) : GoalM Unit := do
   unless e.isAppOfArity declName 6 do return ()
   binOp e fun r₁ r₂ => do
     let some ⟨n, v⟩ ← getBitVecValue? r₁ | return none
-    if let some i ← getNatValue? r₂ then
-      some <$> mkBVLit n (op v i)
-    else if let some ⟨_, w⟩ ← getBitVecValue? r₂ then
-      some <$> mkBVLit n (op v w.toNat)
-    else
-      return none
+    let i ←
+      if let some i ← getNatValue? r₂ then pure i
+      else if let some ⟨_, w⟩ ← getBitVecValue? r₂ then pure w.toNat
+      else return none
+    if isLeftShift then
+      unless (← checkShiftLeft v.toNat i) do return none
+    some <$> mkBVLit n (op v i)
 
 builtin_grind_propagator propagateBVHShiftLeft ↑HShiftLeft.hShiftLeft :=
-  hShiftBV ``HShiftLeft.hShiftLeft (· <<< ·)
+  hShiftBV ``HShiftLeft.hShiftLeft (· <<< ·) (isLeftShift := true)
 builtin_grind_propagator propagateBVHShiftRight ↑HShiftRight.hShiftRight :=
   hShiftBV ``HShiftRight.hShiftRight (· >>> ·)
 

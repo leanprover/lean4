@@ -400,7 +400,7 @@ private def tryApplyCanonicalInstance (instType : Expr) :
           DiscrTree.mkPath body
         arg.mvarId!.setKind .syntheticOpaque
         outVars := outVars.push (arg.mvarId!, goodHypothesisKeys keys env)
-    unless ← isDefEqI instBody body do
+    unless ← withReducibleAndInstances <| isDefEq instBody body do
       return .error (.unifyFailed instEntry)
     let c ← instantiateMVars c
     if c.hasLevelMVar then
@@ -479,15 +479,17 @@ instance : Inhabited (DerivingM α) where
 nonrec def DerivingM.run (x : DerivingM α) (ctx : Deriving.Context) : TermElabM α :=
   (x.run ctx).run' {}
 
-private def pushInstanceHypothesis (type : Expr) (className : Name) : DerivingM Expr := do
+private def pushInstanceHypothesis (type : Expr) (className : Name) (allLInsts : LocalInstances)
+    : DerivingM (Expr × LocalInstances) := do
   -- We simply add the new metavariables as local instances for instance synthesis to pick up
   -- That way we can detect redundant instances more easily
   let mvarApp ← mkFreshRevertedMVarAt (← read).paramLCtx (← read).paramLInsts type
   let goal := mvarApp.getAppFn.mvarId!
+  let linst := { className, fvar := .mvar goal }
   modify fun state => {
     state with
     instanceMVars := state.instanceMVars.push goal
-    newLInsts := state.newLInsts.push { className, fvar := .mvar goal }
+    newLInsts := state.newLInsts.push linst
     invariant1 := by simpa using state.invariant1
     invariant2 i hi := by
       have := state.invariant1
@@ -496,7 +498,7 @@ private def pushInstanceHypothesis (type : Expr) (className : Name) : DerivingM 
       · rw [Array.getElem_push_lt hlt, state.invariant2 i hlt, Array.getElem_push_lt (by omega)]
       · rw [Array.getElem_push_eq, Array.getElem_push, dite_eq_right (by omega)]
   }
-  return mvarApp
+  return (mvarApp, allLInsts.push linst)
 
 /--
 Returns true if `e` contains any reference to inductives from the mutual block being operated on.
@@ -513,18 +515,33 @@ private def trySynthesize (type : Expr) (allLInsts : LocalInstances) : DerivingM
     return inst
   let some className ← isClass? type |
     throwError "type class instance expected{indentExpr type}"
-  for inst in allLInsts do
-    if inst.className == className then
-      if ← isDefEqI (← inferType inst.fvar) type then
-        return inst.fvar
-  return none
+  forallTelescope type fun vars body => do
+    for inst in allLInsts do
+      if inst.className == className then
+        let state ← (saveState : MetaM _)
+        let (instArgs, _, res) ← forallMetaTelescope (← inferType inst.fvar)
+        if ← withReducibleAndInstances <| isDefEq res body then
+          let instArgs ← instArgs.mapM instantiateMVars
+          let mctx ← getMCtx
+          if instArgs.any (·.hasAnyMVar (fun m => !(mctx.getDecl m).kind.isSyntheticOpaque)) then
+            state.restore
+            continue
+          return ← mkLambdaFVars (etaReduce := true) vars (mkAppN inst.fvar instArgs)
+        state.restore
+    return none
 
+/--
+Given `allLInsts = (← getLocalInstances) ++ (← get).newLInsts`, returns
+`(inst : type, newAllLInsts)` (we may add instances during the process that should be
+picked up by later calls of `synthInstanceDerivingAux`).
+-/
 private partial def synthInstanceDerivingAux (type : Expr) (allLInsts : LocalInstances)
-    (allowCanonicalInstanceReduction : Bool := true) : DerivingM Expr := withIncRecDepth do
+    (allowCanonicalInstanceReduction : Bool := true) :
+    DerivingM (Expr × LocalInstances) := withIncRecDepth do
   let some className ← isClass? type |
     throwError "type class instance expected{indentExpr type}"
   if let some res ← trySynthesize type allLInsts then
-    return res
+    return (res, allLInsts)
   let mut shouldTry := allowCanonicalInstanceReduction -- avoid loops
   if !deriving.reduceInstances.get (← getOptions) ||
       deriving.bindersVerbatim.get (← getOptions) then
@@ -534,27 +551,29 @@ private partial def synthInstanceDerivingAux (type : Expr) (allLInsts : LocalIns
     -- we *have* to reduce it, otherwise we end up with a useless instance like
     -- `instance [BEq (List Thing)] : BEq Thing`
     unless ← containsRecursiveDecl type do
-      return ← pushInstanceHypothesis type className
+      return ← pushInstanceHypothesis type className allLInsts
     -- also, try instance synthesis even if it was disabled through `deriving.bindersVerbatim`
     if let .some res ← withLCtx (← getLCtx) allLInsts <| trySynthInstance type then
-      return res
+      return (res, allLInsts)
   let state ← (saveState : MetaM _)
   -- try reducing e.g. `BEq (List α)` to `BEq α`
   let res ← tryApplyCanonicalInstance type
   match res with
   | .ok (assignment, outVars) =>
+    let mut allLInsts := allLInsts
     for (var, allow) in outVars do
-      let res ← synthInstanceDerivingAux (← var.getType) allLInsts allow
+      let (res, newAllLInsts) ← synthInstanceDerivingAux (← var.getType) allLInsts allow
       var.assign res
-    instantiateMVars assignment
+      allLInsts := newAllLInsts
+    return (← instantiateMVars assignment, allLInsts)
   | .error e =>
     if ← containsRecursiveDecl type then
       throwError "Got stuck at instance requirement for nested type while deriving an \
         instance for {.ofConstName (← read).className}:{indentExpr type}\n\
         Reason: {← e.toMessageData}"
     state.restore
-    let res ← pushInstanceHypothesis type className
-    let mvar := res.getAppFn.mvarId!
+    let res ← pushInstanceHypothesis type className allLInsts
+    let mvar := res.1.getAppFn.mvarId!
     modify fun state => { state with splitFailures := state.splitFailures.push (mvar, e) }
     return res
 
@@ -574,7 +593,7 @@ def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
     throwError "Invalid input to `{.ofConstName decl_name%}`, \
       the input expression contains metavariables that were not generated by this function"
   let allLInsts := (← getLocalInstances) ++ (← get).newLInsts
-  instantiateMVars <| ← synthInstanceDerivingAux e allLInsts
+  instantiateMVars <| (← synthInstanceDerivingAux e allLInsts).1
 
 private def blankLInst : LocalInstance where
   className := .anonymous
@@ -1439,9 +1458,11 @@ private def computeClassApp (typeApp : Expr) : DerivingM Expr := do
     let cres ← tryApplyCanonicalInstance t
     match cres with
     | .ok (val, subgoals) =>
-      let allLInsts := (← getLocalInstances) ++ (← get).newLInsts
+      let mut allLInsts := (← getLocalInstances) ++ (← get).newLInsts
       for (subgoal, allow) in subgoals do
-        subgoal.assign <| ← synthInstanceDerivingAux (← subgoal.getType) allLInsts allow
+        let (val, newAllLInsts) ← synthInstanceDerivingAux (← subgoal.getType) allLInsts allow
+        subgoal.assign val
+        allLInsts := newAllLInsts
       let val ← instantiateMVars val
       more := body.instantiate1 val
       res := res.app val
@@ -1726,10 +1747,15 @@ def LawDerivingContext.unfoldOnce (ctx : LawDerivingContext) (e : Expr)
       let mut proof := eqn.proof
       for arg in overArgs do
         if proof.isAppOfArity ``funext 5 then
+          -- fast and most common path
           proof := proof.appArg!.betaRev #[arg]
-        else
-          proof ← mkCongrFun proof arg
-      return .done { expr := eqn.unfolded.beta overArgs, proof? := proof }
+          continue
+        proof ← mkCongrFun proof arg
+      let rhs := eqn.unfolded.beta overArgs
+      return .done {
+        expr := rhs
+        proof? := mkExpectedPropHint proof (← mkEq e rhs)
+      }
     dpre e := do
       -- stop early
       return .done e
@@ -1947,11 +1973,7 @@ private def LawDerivingContext.ofRefoldsAndEquations
     let proj := eqn.projName
     let rhs ← applyRefolds eqn.unfolded refolds
     trace[Elab.Deriving] "Refolded{indentExpr eqn.unfolded}\n===>{indentExpr rhs}"
-    let eqn := {
-      eqn with
-      unfolded := rhs
-      proof := mkExpectedPropHint eqn.proof (← mkEq eqn.lhs rhs)
-    }
+    let eqn := { eqn with unfolded := rhs }
     ctx := {
       ctx with
       equations := ctx.equations.alter proj fun

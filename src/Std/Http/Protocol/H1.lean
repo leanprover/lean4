@@ -411,7 +411,24 @@ private def checkMessageHead (machine : Machine dir) : Except H1.Error BodyMode 
   | .sending => checkSendingMessageHead machine.writer.messageHead.method machine.reader.messageHead
 
 /--
-Returns `true` when an `Expect` header includes `100-continue`.
+Whether an `Expect` field line lists the expectation `100-continue`, compared case-insensitively. The
+line is split at the commas outside quoted strings (RFC 9110 §5.6.1, §5.6.4), so neither a member
+with a value (`100-continue=x`) nor one inside a quoted string (`a="b, 100-continue"`) matches.
+-/
+private def listsContinue (value : String) : Bool :=
+  let isContinue (member : String) := member.trimAscii.toString.toLower == "100-continue"
+  let (found, last, _, _) := value.foldl (init := (false, "", false, false))
+    fun (found, member, quoted, escaped) c =>
+      if escaped then (found, member.push c, quoted, false)
+      else if quoted && c == '\\' then (found, member.push c, quoted, true)
+      else if c == '"' then (found, member.push c, !quoted, false)
+      else if c == ',' && !quoted then (found || isContinue member, "", false, false)
+      else (found, member.push c, quoted, false)
+  found || isContinue last
+
+/--
+Returns `true` when the `Expect` field lines, which form one list (RFC 9110 §5.3), have the member
+`100-continue` (RFC 9110 §10.1.1). Other expectations are ignored.
 
 RFC 9110 §15.2: Since HTTP/1.0 did not define any 1xx status codes, a server MUST NOT send a 1xx response
 to an HTTP/1.0 client.
@@ -422,8 +439,8 @@ private def hasExpectContinue (message : Message.Head dir) : Bool :=
     false
   else
     match message.headers.getAll? Header.Name.expect with
-    | some #[value] => Header.Expect.parse value |>.isSome
-    | _ => false
+    | some values => values.any (listsContinue ·.value)
+    | none => false
 
 /--
 The `Transfer-Encoding` value for a chunked message: the caller's own codings when they end in
@@ -1165,9 +1182,17 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
         <| message.headers
         |>.erase Header.Name.contentLength
         |>.erase Header.Name.transferEncoding
+      -- Like a final head, an interim head says HTTP/1.1 (RFC 9110 §6.2), and a `close` in it ends
+      -- the connection after this exchange (RFC 9112 §9.6).
+      let (encoded, keepAlive) : ByteArray × Bool :=
+        match dir, message with
+        | .receiving, message =>
+          let message : Response.Head := { (message : Response.Head) with version := .v11 }
+          (ByteArray.empty ++ message, Message.Head.shouldKeepAlive (dir := .sending) message)
+        | .sending, message => (ByteArray.empty ++ message, true)
 
-      machine.modifyWriter (fun w => {
-        w with outputData := w.outputData.push (ByteArray.empty ++ message)
+      machine.updateKeepAlive keepAlive |>.modifyWriter (fun w => {
+        w with outputData := w.outputData.push encoded
       })
   else
     let framingInHeaders := hasFramingHeaders message
@@ -1301,6 +1326,29 @@ private def closeOnBadMessage (machine : Machine dir) : Machine dir :=
   |>.addEvent .close
 
 /--
+Whether the unread input holds nothing but `CR` and `LF` bytes. Scans in place and stops at the
+first other byte; `ByteArray.data` would box a copy of the whole buffer.
+-/
+private def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
+  (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
+
+/--
+Handles input that reaches a client with no request outstanding: after the final response of an
+exchange, or before the next request. It answers no request (RFC 9112 §9.2), and what follows a
+response must not be read as the next one (RFC 9112 §6.3). Line breaks alone are discarded (RFC 9112
+§2.2); anything else leaves the message boundaries ambiguous, so the connection fails before another
+request goes out on it.
+-/
+private def readIdleInput (machine : Machine dir) : Machine dir :=
+  let input := machine.reader.input
+  if input.atEnd then
+    machine
+  else if onlyLineEndsLeft input then
+    machine.modifyReader (·.advance machine.reader.remainingBytes)
+  else
+    closeOnBadMessage machine
+
+/--
 Returns total payload bytes currently buffered in `writer.userData`.
 -/
 @[inline]
@@ -1316,7 +1364,11 @@ or closes the writer/connection.
 private def processCompleteStep (machine : Machine dir) : Machine dir :=
   if machine.isReaderComplete then
     if machine.keepAlive then
-      resetForNextMessage machine
+      match dir with
+      | .receiving => resetForNextMessage machine
+      | .sending =>
+        let machine := readIdleInput machine
+        if machine.isReaderComplete then resetForNextMessage machine else machine
     else
       machine.setWriterState .closed
       |>.addEvent .close
@@ -1524,6 +1576,9 @@ private def errorResponseStatus (error : H1.Error) : Status :=
 On the server side (`.receiving`), answers a failure with one error response, with a short
 `text/plain` explanation, unless a response was already started. `send` marks that response as
 sent, so this does nothing on later steps.
+
+On the client side (`.sending`), stops writing: a request head the machine still holds is not sent,
+and no more body is, since the connection cannot carry the exchange any further (RFC 9112 §9.5).
 -/
 private def answerFailure (machine : Machine dir) : Machine dir :=
   match dir with
@@ -1535,7 +1590,11 @@ private def answerFailure (machine : Machine dir) : Machine dir :=
       else
         machine
     | none => machine
-  | .sending => machine
+  | .sending =>
+    if machine.failed ∧ ¬machine.isWriterClosed then
+      machine.closeWriter.addEvent .close
+    else
+      machine
 
 /--
 Utility result for body parser branches that could not make progress this step.
@@ -1644,15 +1703,27 @@ private def parseTrailerState (machine : Machine dir)
   -- trailers, only refuses those that would reframe the response.
   let strict := match dir with | .receiving => true | .sending => false
   let start := machine.reader.input.remainingBytes
+  let input := machine.reader.input
+  -- RFC 9112 §5.2: a user agent replaces an obs-fold in a response with SP. Such a line continues the
+  -- previous trailer field, which a client discards with it.
+  let folded := !strict ∧ count > 0 ∧ !input.atEnd ∧
+    (input.curr == ' '.toUInt8 ∨ input.curr == '\t'.toUInt8)
   let (machine, result) :=
-    parseWith machine (parseTrailerHeader machine.config strict) (limit := none)
+    if folded then
+      let (machine, part) :=
+        parseWith machine (parseObsFoldContinuation machine.config) (limit := none)
+      (machine, part.map fun _ => some ("", ""))
+    else
+      parseWith machine (parseTrailerHeader machine.config strict) (limit := none)
   let lineBytes := start - machine.reader.input.remainingBytes
   match result with
   | some (some _) =>
-    if count ≥ machine.config.maxTrailerHeaders then
+    if ¬folded ∧ count ≥ machine.config.maxTrailerHeaders then
       (machine.setFailure .badMessage, none, false)
     else if !fitsBodyLimit machine lineBytes then
       bodyTooLarge machine
+    else if folded then
+      (machine.addBodyBytes lineBytes, none, true)
     else
       (machine.addBodyBytes lineBytes |>.setReaderState (.readBody (.trailers ext (count + 1))),
         none, true)
@@ -1718,11 +1789,13 @@ private def typedHeader? (name : String) (value : String) : Option (Header.Name 
   Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value
 
 /--
-Whether the unread input holds nothing but `CR` and `LF` bytes. Scans in place and stops at the
-first other byte; `ByteArray.data` would box a copy of the whole buffer.
+Whether the unread input holds only empty lines a server ignores before a request line, possibly
+followed by the `CR` of one more: line ends that the request-line parser reads to their end without
+failing. A bare `LF`, or more empty lines than `maxLeadingEmptyLines`, fail the parser, so they get
+the answer they get when more input follows.
 -/
-private def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
-  (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
+private def onlyEmptyLinesLeft (config : Config) (input : ByteArray.Iterator) : Bool :=
+  onlyLineEndsLeft input && (parseRequestLineRawVersion config input matches .error _ .eof)
 
 /--
 Classifies hard request start-line parse failures into protocol-level errors.
@@ -1741,6 +1814,21 @@ fields are (RFC 6585 §5 answers both with 431), and anything else is malformed.
 private def classifyFieldLineHardError : Std.Internal.Parsec.Error → H1.Error
   | .other "header name too long" | .other "header value too long" => .headersTooLarge
   | _ => .badMessage
+
+/--
+The bytes of the empty lines (`CRLF`) at the start of `input`, up to `maxLeadingEmptyLines` of them.
+A server ignores them before a request line (RFC 9112 §2.2), so they do not count toward
+`maxStartLineLength`.
+-/
+private def leadingEmptyLineBytes (config : Config) (input : ByteArray.Iterator) : Nat := Id.run do
+  let mut n := 0
+  for _ in [0:config.maxLeadingEmptyLines] do
+    if input.array[input.idx + n]? == some '\r'.toUInt8 &&
+        input.array[input.idx + n + 1]? == some '\n'.toUInt8 then
+      n := n + 2
+    else
+      break
+  return n
 
 mutual
 
@@ -1761,7 +1849,9 @@ private partial def processReceivingStartLine (machine : Machine .receiving) : M
 
   match result with
   | some (method, uri, version) =>
-    if remaining - parsed.reader.input.remainingBytes > machine.config.maxStartLineLength then
+    let lineBytes := remaining - parsed.reader.input.remainingBytes -
+      leadingEmptyLineBytes machine.config machine.reader.input
+    if lineBytes > machine.config.maxStartLineLength then
       machine.setFailure .uriTooLong
     else
       match version with
@@ -1819,11 +1909,12 @@ private partial def processNeedStartLine (machine : Machine dir) : Machine dir :
   let reader := machine.reader
 
   -- Closed connection, no more data. RFC 9112 §2.2: a server ignores empty lines before a
-  -- request-line, so input that ends with nothing but line terminators ends it as plain EOF does.
+  -- request-line, so input that ends with nothing but such lines ends it as plain EOF does.
   -- A client reads a status line only once its request is sent, so EOF here leaves the exchange
   -- without a final response, which is incomplete (RFC 9112 §8).
   if reader.noMoreInput ∧
-      (reader.input.atEnd ∨ (dir matches .receiving ∧ onlyLineEndsLeft reader.input)) then
+      (reader.input.atEnd ∨
+        (dir matches .receiving ∧ onlyEmptyLinesLeft machine.config reader.input)) then
     match dir with
     | .receiving => machine.setReaderState .closed
     | .sending => machine.setFailure .connectionClosed
@@ -1991,7 +2082,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
     if machine.isWriterClosed then
       machine.setReaderState .closed
     else
-      machine
+      readIdleInput machine
   | .needStartLine =>
     processNeedStartLine machine
   | .needHeader headerCount =>

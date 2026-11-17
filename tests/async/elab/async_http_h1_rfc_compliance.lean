@@ -1407,9 +1407,9 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
     |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step |>.step
     |>.noMoreInput |>.step |>.assertNoError |>.run
 
--- 600–999 keep their code; 000–099, which `Status` cannot hold, are read as 500.
+-- Invalid codes, 000–099 and 600–999, are read as 500.
 #eval runGroup "RFC 9110 §15: a client reads status codes outside 100–599 as server errors" do
-  for (digits, want) in [("000", 500), ("001", 500), ("099", 500), ("600", 600), ("999", 999)] do
+  for (digits, want) in [("000", 500), ("001", 500), ("099", 500), ("600", 500), ("999", 500)] do
     MachineTester.sending s!"status {digits}"
       |>.send minimalGetRequest |>.step |>.feed s!"HTTP/1.1 {digits} X\r\nContent-Length: 0\r\n\r\n" |>.step
       |>.assertNoError

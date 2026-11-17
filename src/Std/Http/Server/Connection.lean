@@ -596,14 +596,17 @@ private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) 
 /--
 Whether the connection ends while the client may still be sending: the client has not closed its
 side, and the machine stopped before the end of a request, or, while it still took input, with input
-it never read. A request rejected from its head alone leaves `requestEnded` set, so only
-`machine.failed` shows it.
+it never read, or in an exchange whose request asked to keep the connection open. A request rejected
+from its head alone leaves `requestEnded` set, so only `machine.failed` shows it. The loop does not
+read while a handler runs, so requests the client pipelined meanwhile wait unread in the transport
+(RFC 9112 §9.3.2).
 -/
 private def peerMayStillSend (state : ConnectionState β) : Bool :=
   let reader := state.machine.reader
   ¬reader.peerClosed ∧
     (¬state.requestEnded ∨ ¬reader.inputStopped ∧
-      (state.machine.failed ∨ reader.remainingBytes > 0 ∨ reader.state matches .readBody _))
+      (state.machine.failed ∨ reader.remainingBytes > 0 ∨ reader.state matches .readBody _) ∨
+      (state.timer matches .request _) ∧ reader.shouldKeepAlive)
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still

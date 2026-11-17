@@ -16,8 +16,8 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 88, num: 1):
-    [kernel] OfNat.ofNat ↦ 88
+  [kernel] unfolded declarations (max: 84, num: 1):
+    [kernel] OfNat.ofNat ↦ 84
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

@@ -7084,9 +7084,9 @@ return v___x_2219_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___lam__0___boxed(lean_object* v_toType_2222_, lean_object* v___x_2223_, lean_object* v_x_2224_, lean_object* v___y_2225_, lean_object* v___y_2226_, lean_object* v___y_2227_, lean_object* v___y_2228_, lean_object* v___y_2229_, lean_object* v___y_2230_, lean_object* v___y_2231_){
 _start:
 {
-uint8_t v___x_1732__boxed_2232_; lean_object* v_res_2233_; 
-v___x_1732__boxed_2232_ = lean_unbox(v___x_2223_);
-v_res_2233_ = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___lam__0(v_toType_2222_, v___x_1732__boxed_2232_, v_x_2224_, v___y_2225_, v___y_2226_, v___y_2227_, v___y_2228_, v___y_2229_, v___y_2230_);
+uint8_t v___x_1729__boxed_2232_; lean_object* v_res_2233_; 
+v___x_1729__boxed_2232_ = lean_unbox(v___x_2223_);
+v_res_2233_ = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___lam__0(v_toType_2222_, v___x_1729__boxed_2232_, v_x_2224_, v___y_2225_, v___y_2226_, v___y_2227_, v___y_2228_, v___y_2229_, v___y_2230_);
 lean_dec(v___y_2230_);
 lean_dec_ref(v___y_2229_);
 lean_dec(v___y_2228_);
@@ -10324,9 +10324,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00Lean_Meta_getDefaultInstances___at___00__private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasHeterogeneousDefaultInstances_spec__0_spec__0___boxed(lean_object* v___x_3523_, lean_object* v___x_3524_, lean_object* v_a_3525_, lean_object* v_a_3526_){
 _start:
 {
-uint8_t v___x_5503__boxed_3527_; lean_object* v_res_3528_; 
-v___x_5503__boxed_3527_ = lean_unbox(v___x_3524_);
-v_res_3528_ = l_List_filterTR_loop___at___00Lean_Meta_getDefaultInstances___at___00__private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasHeterogeneousDefaultInstances_spec__0_spec__0(v___x_3523_, v___x_5503__boxed_3527_, v_a_3525_, v_a_3526_);
+uint8_t v___x_5494__boxed_3527_; lean_object* v_res_3528_; 
+v___x_5494__boxed_3527_ = lean_unbox(v___x_3524_);
+v_res_3528_ = l_List_filterTR_loop___at___00Lean_Meta_getDefaultInstances___at___00__private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasHeterogeneousDefaultInstances_spec__0_spec__0(v___x_3523_, v___x_5494__boxed_3527_, v_a_3525_, v_a_3526_);
 return v_res_3528_;
 }
 }
@@ -11113,8 +11113,8 @@ goto v___jp_3815_;
 }
 else
 {
-lean_dec_ref_known(v_fn_3811_, 2);
 lean_dec_ref(v_fn_3812_);
+lean_dec_ref_known(v_fn_3811_, 2);
 lean_del_object(v___x_3807_);
 v_as_x27_3789_ = v_tail_3798_;
 v_b_3790_ = v___x_3801_;

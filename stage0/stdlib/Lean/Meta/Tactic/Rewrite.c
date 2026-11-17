@@ -1381,9 +1381,9 @@ v___jp_428_:
 {
 lean_object* v___x_436_; lean_object* v___x_437_; lean_object* v___x_438_; 
 v___x_436_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_436_, 0, v___y_429_);
+lean_ctor_set(v___x_436_, 0, v___y_430_);
 v___x_437_ = lean_box(0);
-v___x_438_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__2___lam__0(v_fst_422_, v_a_427_, v___x_437_, v___x_436_, v___y_430_, v___y_431_, v___y_432_, v___y_433_, v___y_434_, v___y_435_);
+v___x_438_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__2___lam__0(v_fst_422_, v_a_427_, v___x_437_, v___x_436_, v___y_429_, v___y_431_, v___y_432_, v___y_433_, v___y_434_, v___y_435_);
 v___y_397_ = v___x_438_;
 goto v___jp_396_;
 }
@@ -1437,8 +1437,8 @@ v___x_468_ = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Rewrite_0__Le
 if (lean_obj_tag(v___x_468_) == 0)
 {
 lean_dec_ref_known(v___x_468_, 1);
-v___y_429_ = v_body_460_;
-v___y_430_ = v_j_452_;
+v___y_429_ = v_j_452_;
+v___y_430_ = v_body_460_;
 v___y_431_ = v___y_454_;
 v___y_432_ = v___y_455_;
 v___y_433_ = v___y_456_;
@@ -1496,8 +1496,8 @@ return v___x_474_;
 }
 else
 {
-v___y_429_ = v_body_460_;
-v___y_430_ = v_j_452_;
+v___y_429_ = v_j_452_;
+v___y_430_ = v_body_460_;
 v___y_431_ = v___y_454_;
 v___y_432_ = v___y_455_;
 v___y_433_ = v___y_456_;
@@ -3017,9 +3017,9 @@ return v___x_835_;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__4___boxed(lean_object* v_a_836_, lean_object* v___x_837_, lean_object* v_x_838_, lean_object* v_x_839_, lean_object* v_x_840_, lean_object* v___y_841_, lean_object* v___y_842_, lean_object* v___y_843_, lean_object* v___y_844_, lean_object* v___y_845_, lean_object* v___y_846_){
 _start:
 {
-uint8_t v___x_14945__boxed_847_; lean_object* v_res_848_; 
-v___x_14945__boxed_847_ = lean_unbox(v___x_837_);
-v_res_848_ = l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__4(v_a_836_, v___x_14945__boxed_847_, v_x_838_, v_x_839_, v_x_840_, v___y_841_, v___y_842_, v___y_843_, v___y_844_, v___y_845_);
+uint8_t v___x_14942__boxed_847_; lean_object* v_res_848_; 
+v___x_14942__boxed_847_ = lean_unbox(v___x_837_);
+v_res_848_ = l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__4(v_a_836_, v___x_14942__boxed_847_, v_x_838_, v_x_839_, v_x_840_, v___y_841_, v___y_842_, v___y_843_, v___y_844_, v___y_845_);
 lean_dec(v___y_845_);
 lean_dec_ref(v___y_844_);
 lean_dec(v___y_843_);
@@ -3058,13 +3058,13 @@ return v_res_869_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__2___boxed(lean_object* v_a_870_, lean_object* v___x_871_, lean_object* v_a_872_, lean_object* v_as_873_, lean_object* v_sz_874_, lean_object* v_i_875_, lean_object* v_b_876_, lean_object* v___y_877_, lean_object* v___y_878_, lean_object* v___y_879_, lean_object* v___y_880_, lean_object* v___y_881_, lean_object* v___y_882_){
 _start:
 {
-uint8_t v___x_15156__boxed_883_; size_t v_sz_boxed_884_; size_t v_i_boxed_885_; lean_object* v_res_886_; 
-v___x_15156__boxed_883_ = lean_unbox(v___x_871_);
+uint8_t v___x_15153__boxed_883_; size_t v_sz_boxed_884_; size_t v_i_boxed_885_; lean_object* v_res_886_; 
+v___x_15153__boxed_883_ = lean_unbox(v___x_871_);
 v_sz_boxed_884_ = lean_unbox_usize(v_sz_874_);
 lean_dec(v_sz_874_);
 v_i_boxed_885_ = lean_unbox_usize(v_i_875_);
 lean_dec(v_i_875_);
-v_res_886_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__2(v_a_870_, v___x_15156__boxed_883_, v_a_872_, v_as_873_, v_sz_boxed_884_, v_i_boxed_885_, v_b_876_, v___y_877_, v___y_878_, v___y_879_, v___y_880_, v___y_881_);
+v_res_886_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Rewrite_0__Lean_Meta_checkMotive_x3f_visit_spec__2(v_a_870_, v___x_15153__boxed_883_, v_a_872_, v_as_873_, v_sz_boxed_884_, v_i_boxed_885_, v_b_876_, v___y_877_, v___y_878_, v___y_879_, v___y_880_, v___y_881_);
 lean_dec(v___y_881_);
 lean_dec_ref(v___y_880_);
 lean_dec(v___y_879_);

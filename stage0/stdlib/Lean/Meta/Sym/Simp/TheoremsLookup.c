@@ -822,12 +822,12 @@ return v_res_232_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__2_spec__3___redArg___boxed(lean_object* v_x_233_, lean_object* v_x_234_, lean_object* v_x_235_, lean_object* v_x_236_, lean_object* v_x_237_){
 _start:
 {
-size_t v_x_2534__boxed_238_; size_t v_x_2535__boxed_239_; lean_object* v_res_240_; 
-v_x_2534__boxed_238_ = lean_unbox_usize(v_x_234_);
+size_t v_x_2497__boxed_238_; size_t v_x_2498__boxed_239_; lean_object* v_res_240_; 
+v_x_2497__boxed_238_ = lean_unbox_usize(v_x_234_);
 lean_dec(v_x_234_);
-v_x_2535__boxed_239_ = lean_unbox_usize(v_x_235_);
+v_x_2498__boxed_239_ = lean_unbox_usize(v_x_235_);
 lean_dec(v_x_235_);
-v_res_240_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__2_spec__3___redArg(v_x_233_, v_x_2534__boxed_238_, v_x_2535__boxed_239_, v_x_236_, v_x_237_);
+v_res_240_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__2_spec__3___redArg(v_x_233_, v_x_2497__boxed_238_, v_x_2498__boxed_239_, v_x_236_, v_x_237_);
 return v_res_240_;
 }
 }
@@ -1148,10 +1148,10 @@ return v___x_350_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__0_spec__0___redArg___boxed(lean_object* v_x_351_, lean_object* v_x_352_, lean_object* v_x_353_){
 _start:
 {
-size_t v_x_2800__boxed_354_; lean_object* v_res_355_; 
-v_x_2800__boxed_354_ = lean_unbox_usize(v_x_352_);
+size_t v_x_2763__boxed_354_; lean_object* v_res_355_; 
+v_x_2763__boxed_354_ = lean_unbox_usize(v_x_352_);
 lean_dec(v_x_352_);
-v_res_355_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__0_spec__0___redArg(v_x_351_, v_x_2800__boxed_354_, v_x_353_);
+v_res_355_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__0_spec__0___redArg(v_x_351_, v_x_2763__boxed_354_, v_x_353_);
 lean_dec(v_x_353_);
 lean_dec_ref(v_x_351_);
 return v_res_355_;
@@ -1266,15 +1266,14 @@ v___x_379_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__5, &l_
 v___x_380_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__4, &l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__4_once, _init_l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__4);
 v___x_381_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__0, &l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__0_once, _init_l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__0);
 v___x_382_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__3, &l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__3_once, _init_l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__3);
-v___x_383_ = lean_alloc_ctor(0, 8, 0);
+v___x_383_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_383_, 0, v___x_382_);
 lean_ctor_set(v___x_383_, 1, v___x_381_);
 lean_ctor_set(v___x_383_, 2, v___x_380_);
 lean_ctor_set(v___x_383_, 3, v___x_381_);
 lean_ctor_set(v___x_383_, 4, v___x_381_);
 lean_ctor_set(v___x_383_, 5, v___x_381_);
-lean_ctor_set(v___x_383_, 6, v___x_381_);
-lean_ctor_set(v___x_383_, 7, v___x_379_);
+lean_ctor_set(v___x_383_, 6, v___x_379_);
 return v___x_383_;
 }
 }
@@ -1768,10 +1767,10 @@ return v___x_523_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__0_spec__0___boxed(lean_object* v_00_u03b2_524_, lean_object* v_x_525_, lean_object* v_x_526_, lean_object* v_x_527_){
 _start:
 {
-size_t v_x_3131__boxed_528_; lean_object* v_res_529_; 
-v_x_3131__boxed_528_ = lean_unbox_usize(v_x_526_);
+size_t v_x_3092__boxed_528_; lean_object* v_res_529_; 
+v_x_3092__boxed_528_ = lean_unbox_usize(v_x_526_);
 lean_dec(v_x_526_);
-v_res_529_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__0_spec__0(v_00_u03b2_524_, v_x_525_, v_x_3131__boxed_528_, v_x_527_);
+v_res_529_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__0_spec__0(v_00_u03b2_524_, v_x_525_, v_x_3092__boxed_528_, v_x_527_);
 lean_dec(v_x_527_);
 lean_dec_ref(v_x_525_);
 return v_res_529_;
@@ -1788,12 +1787,12 @@ return v___x_536_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__2_spec__3___boxed(lean_object* v_00_u03b2_537_, lean_object* v_x_538_, lean_object* v_x_539_, lean_object* v_x_540_, lean_object* v_x_541_, lean_object* v_x_542_){
 _start:
 {
-size_t v_x_3142__boxed_543_; size_t v_x_3143__boxed_544_; lean_object* v_res_545_; 
-v_x_3142__boxed_543_ = lean_unbox_usize(v_x_539_);
+size_t v_x_3103__boxed_543_; size_t v_x_3104__boxed_544_; lean_object* v_res_545_; 
+v_x_3103__boxed_543_ = lean_unbox_usize(v_x_539_);
 lean_dec(v_x_539_);
-v_x_3143__boxed_544_ = lean_unbox_usize(v_x_540_);
+v_x_3104__boxed_544_ = lean_unbox_usize(v_x_540_);
 lean_dec(v_x_540_);
-v_res_545_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__2_spec__3(v_00_u03b2_537_, v_x_538_, v_x_3142__boxed_543_, v_x_3143__boxed_544_, v_x_541_, v_x_542_);
+v_res_545_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_Simp_getEqnTheorems_spec__2_spec__3(v_00_u03b2_537_, v_x_538_, v_x_3103__boxed_543_, v_x_3104__boxed_544_, v_x_541_, v_x_542_);
 return v_res_545_;
 }
 }
@@ -1956,15 +1955,14 @@ v___x_611_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__3, &
 v___x_612_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__2, &l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__2_once, _init_l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__2);
 v___x_613_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__0, &l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__0_once, _init_l_Lean_Meta_Sym_Simp_getUnfoldTheorem___closed__0);
 v___x_614_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__3, &l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__3_once, _init_l_Lean_Meta_Sym_Simp_getEqnTheorems___closed__3);
-v___x_615_ = lean_alloc_ctor(0, 8, 0);
+v___x_615_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_615_, 0, v___x_614_);
 lean_ctor_set(v___x_615_, 1, v___x_613_);
 lean_ctor_set(v___x_615_, 2, v___x_612_);
 lean_ctor_set(v___x_615_, 3, v___x_613_);
 lean_ctor_set(v___x_615_, 4, v___x_613_);
 lean_ctor_set(v___x_615_, 5, v___x_613_);
-lean_ctor_set(v___x_615_, 6, v___x_613_);
-lean_ctor_set(v___x_615_, 7, v___x_611_);
+lean_ctor_set(v___x_615_, 6, v___x_611_);
 return v___x_615_;
 }
 }

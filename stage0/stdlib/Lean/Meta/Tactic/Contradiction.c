@@ -2334,13 +2334,13 @@ return v_res_652_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ElimEmptyInductive_elim_spec__2___lam__0___boxed(lean_object* v_toInductionSubgoal_660_, lean_object* v_mvarId_661_, lean_object* v_fields_662_, lean_object* v_sz_663_, lean_object* v___x_664_, lean_object* v___x_665_, lean_object* v___x_666_, lean_object* v___y_667_, lean_object* v___y_668_, lean_object* v___y_669_, lean_object* v___y_670_, lean_object* v___y_671_, lean_object* v___y_672_){
 _start:
 {
-size_t v_sz_boxed_673_; size_t v___x_16000__boxed_674_; uint8_t v___x_16002__boxed_675_; lean_object* v_res_676_; 
+size_t v_sz_boxed_673_; size_t v___x_15997__boxed_674_; uint8_t v___x_15999__boxed_675_; lean_object* v_res_676_; 
 v_sz_boxed_673_ = lean_unbox_usize(v_sz_663_);
 lean_dec(v_sz_663_);
-v___x_16000__boxed_674_ = lean_unbox_usize(v___x_664_);
+v___x_15997__boxed_674_ = lean_unbox_usize(v___x_664_);
 lean_dec(v___x_664_);
-v___x_16002__boxed_675_ = lean_unbox(v___x_666_);
-v_res_676_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ElimEmptyInductive_elim_spec__2___lam__0(v_toInductionSubgoal_660_, v_mvarId_661_, v_fields_662_, v_sz_boxed_673_, v___x_16000__boxed_674_, v___x_665_, v___x_16002__boxed_675_, v___y_667_, v___y_668_, v___y_669_, v___y_670_, v___y_671_);
+v___x_15999__boxed_675_ = lean_unbox(v___x_666_);
+v_res_676_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_ElimEmptyInductive_elim_spec__2___lam__0(v_toInductionSubgoal_660_, v_mvarId_661_, v_fields_662_, v_sz_boxed_673_, v___x_15997__boxed_674_, v___x_665_, v___x_15999__boxed_675_, v___y_667_, v___y_668_, v___y_669_, v___y_670_, v___y_671_);
 lean_dec(v___y_671_);
 lean_dec_ref(v___y_670_);
 lean_dec(v___y_669_);
@@ -3024,10 +3024,10 @@ return v___x_863_;
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lam__0___boxed(lean_object* v_mvarId_866_, lean_object* v_fvarId_867_, lean_object* v___x_868_, lean_object* v___x_869_, lean_object* v___x_870_, lean_object* v_val_871_, lean_object* v___x_872_, lean_object* v___y_873_, lean_object* v___y_874_, lean_object* v___y_875_, lean_object* v___y_876_, lean_object* v___y_877_, lean_object* v___y_878_){
 _start:
 {
-uint8_t v___x_16122__boxed_879_; uint8_t v___x_16125__boxed_880_; lean_object* v_res_881_; 
-v___x_16122__boxed_879_ = lean_unbox(v___x_869_);
-v___x_16125__boxed_880_ = lean_unbox(v___x_872_);
-v_res_881_ = l_Lean_Meta_ElimEmptyInductive_elim___lam__0(v_mvarId_866_, v_fvarId_867_, v___x_868_, v___x_16122__boxed_879_, v___x_870_, v_val_871_, v___x_16125__boxed_880_, v___y_873_, v___y_874_, v___y_875_, v___y_876_, v___y_877_);
+uint8_t v___x_16119__boxed_879_; uint8_t v___x_16122__boxed_880_; lean_object* v_res_881_; 
+v___x_16119__boxed_879_ = lean_unbox(v___x_869_);
+v___x_16122__boxed_880_ = lean_unbox(v___x_872_);
+v_res_881_ = l_Lean_Meta_ElimEmptyInductive_elim___lam__0(v_mvarId_866_, v_fvarId_867_, v___x_868_, v___x_16119__boxed_879_, v___x_870_, v_val_871_, v___x_16122__boxed_880_, v___y_873_, v___y_874_, v___y_875_, v___y_876_, v___y_877_);
 lean_dec(v___y_877_);
 lean_dec_ref(v___y_876_);
 lean_dec(v___y_875_);

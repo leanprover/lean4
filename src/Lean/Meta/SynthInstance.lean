@@ -394,7 +394,7 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
     -- unification: a would-be assignment (e.g. from defeq abuse picking an instance for the wrong
     -- type) triggers synthesis instead. Resolves #9077.
     let nonAssignable : MVarIdSet :=
-      if tcUnifyInstanceImplicits.get (← getOptions) then {}
+      if (← getRecordedOption tcUnifyInstanceImplicits) then {}
       else .ofList (subgoals.map (·.mvarId!))
     withSynthesizableNonAssignable nonAssignable do
     if (← isDefEq mvarTypeBody instTypeBody) then

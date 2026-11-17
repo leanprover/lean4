@@ -2245,7 +2245,7 @@ private def constLevelAssignment : Level → (one : Bool) → NameMap Level → 
   | .max l l', isOne, set => constLevelAssignment l' isOne (constLevelAssignment l isOne set)
   | .imax l l', true, set => constLevelAssignment l' true (constLevelAssignment l true set)
   -- for imax = 0 we only need to check the right-hand side
-  | .imax _l l', false, set => constLevelAssignment l' true set
+  | .imax _l l', false, set => constLevelAssignment l' false set
   | .param u, isOne, set => set.insert u (if isOne then .one else .zero)
   | .mvar _, _, _ => unreachable!
 

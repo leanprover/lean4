@@ -286,7 +286,7 @@ where
   useCongrEqn (mvarId : MVarId) (overlapHyps : Subarray FVarId) : MetaM Unit := mvarId.withContext do
     let target ← mvarId.getType
     let some (_, lhs, _) := target.eq? | throwError "equality expected{indentExpr target}"
-    let congrEqn := (← genMatchCongrEqns matchDeclName)[altIdx]!
+    let congrEqn ← genMatchCongrEqn matchDeclName altIdx
     let h := mkAppN (mkConst congrEqn lhs.getAppFn.constLevels!) lhs.getAppArgs
     -- `args` are metavariables for `ys`, the hypotheses `patterns = patterns[ys]`, and `hs`.
     let (args, _, _) ← forallMetaTelescope (← inferType h)
@@ -416,88 +416,97 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 
-set_option compiler.ignoreBorrowAnnotation true in
 /--
-Generate the congruence equations for the given match auxiliary declaration.
+Generates the congruence equation of the alternative `altIdx` of the given match auxiliary
+declaration, and returns its name. It assumes `altIdx` is a valid alternative index.
+
 The congruence equations have a completely unrestricted left-hand side (arbitrary discriminants),
 and take propositional equations relating the discriminants to the patterns as arguments. In this
 sense they combine a congruence lemma with the regular equation lemma.
 Since the motive depends on the discriminants, they are `HEq` equations.
 
-The code duplicates a fair bit of the logic above, and has to repeat the calculation of the
-`notAlts`. One could avoid that and generate the generalized equations eagerly above, but they are
-not always needed, so for now we live with the code duplication.
+Each congruence equation is its own realization. So, a caller that needs the equation of one
+alternative does not pay for the other ones. For example, in a `match` with many literal
+alternatives and a catch-all, only the match equation of the catch-all needs its congruence
+equation, see `proveEqThm`.
+The statement of the equation uses the patterns of the alternatives that overlap `altIdx`, but
+not their congruence equations.
 -/
-@[export lean_get_congr_match_equations_for]
-def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
-  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
-  if matchInfo.numAlts == 0 then
-    return #[]
-  let firstEqnName := matchDeclName.str congrEqn1ThmSuffix
-  realizeConst matchDeclName firstEqnName go
-  let mut thmNames := #[]
-  for i in *...matchInfo.numAlts do
-    thmNames := thmNames.push <|(matchDeclName.str congrEqnThmSuffixBase).appendIndexAfter (i+1)
-  return thmNames
-where go := withConfig (fun c => { c with etaStruct := .none }) do
-  withConfig (fun c => { c with etaStruct := .none }) do
+private def realizeMatchCongrEqn (matchDeclName : Name) (altIdx : Nat) : MetaM Name := do
+  let thmName := (matchDeclName.str congrEqnThmSuffixBase).appendIndexAfter (altIdx + 1)
+  realizeConst matchDeclName thmName (go thmName)
+  return thmName
+where go (thmName : Name) := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
   let numDiscrEqs := matchInfo.getNumDiscrEqs
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
-    let mut eqnNames := #[]
     let params := xs[*...matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]!
     let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
-    let mut notAlts := #[]
-    let mut idx := 1
-    for i in *...alts.size do
-      let altInfo := matchInfo.altInfos[i]!
-      let thmName := (Name.str matchDeclName congrEqnThmSuffixBase).appendIndexAfter idx
-      eqnNames := eqnNames.push thmName
-      let notAlt ← do
-        let alt := alts[i]!
-        Match.forallAltVarsTelescope (← inferType alt) altInfo fun altVars args _mask altResultType => do
+    -- `∀ discrs altVars, discrs = patterns → False` for the alternative `i`
+    let mkNotAlt (i : Nat) : MetaM Expr := do
+      Match.forallAltVarsTelescope (← inferType alts[i]!) matchInfo.altInfos[i]! fun altVars _ _ altResultType => do
         let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
-        let mut heqsTypes := #[]
-        assert! patterns.size == discrs.size
-        for discr in discrs, pattern in patterns do
-          let heqType ← mkEqHEq discr pattern
-          heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
-        withLocalDeclsDND heqsTypes fun heqs => do
-          let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
-          let mut hs := #[]
-          for overlappedBy in matchInfo.overlaps.overlapping i do
-            let notAlt := notAlts[overlappedBy]!
-            let h ← instantiateForall notAlt patterns
-            if let some h ← simpH? h patterns.size then
-              hs := hs.push h
-          trace[Meta.Match.matchEqs] "hs: {hs}"
-          let mut notAlt := mkConst ``False
-          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
-          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
-          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-          let thmType ← mkHEq lhs rhs
-          let thmType ← mkArrowN hs thmType
-          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
-          let thmType ← Match.unfoldNamedPattern thmType
-          -- The match equations are instances of these theorems, see `proveEqThm`.
-          let thmVal ← Match.proveCondEqThm matchDeclName thmType
-            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
-          unless (← getEnv).contains thmName do
-            addDecl <| Declaration.thmDecl {
-              name        := thmName
-              levelParams := constInfo.levelParams
-              type        := thmType
-              value       := thmVal
-            }
-          return notAlt
-      notAlts := notAlts.push notAlt
-      idx := idx + 1
+        let mut notAlt := mkConst ``False
+        for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+          notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+        mkForallFVars (discrs ++ altVars) notAlt
+    let alt := alts[altIdx]!
+    Match.forallAltVarsTelescope (← inferType alt) matchInfo.altInfos[altIdx]! fun altVars args _mask altResultType => do
+      let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
+      let mut heqsTypes := #[]
+      assert! patterns.size == discrs.size
+      for discr in discrs, pattern in patterns do
+        let heqType ← mkEqHEq discr pattern
+        heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
+      withLocalDeclsDND heqsTypes fun heqs => do
+        let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
+        let mut hs := #[]
+        for overlappedBy in matchInfo.overlaps.overlapping altIdx do
+          let h ← instantiateForall (← mkNotAlt overlappedBy) patterns
+          if let some h ← simpH? h patterns.size then
+            hs := hs.push h
+        trace[Meta.Match.matchEqs] "hs: {hs}"
+        let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+        let thmType ← mkHEq lhs rhs
+        let thmType ← mkArrowN hs thmType
+        let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
+        let thmType ← Match.unfoldNamedPattern thmType
+        -- The match equations are instances of these theorems, see `proveEqThm`.
+        let thmVal ← Match.proveCondEqThm matchDeclName thmType
+          (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+        addDecl <| Declaration.thmDecl {
+          name        := thmName
+          levelParams := constInfo.levelParams
+          type        := thmType
+          value       := thmVal
+        }
+
+set_option compiler.ignoreBorrowAnnotation true in
+/--
+Generates the congruence equation of the alternative `altIdx` of the given match auxiliary
+declaration, and returns its name. See `realizeMatchCongrEqn`.
+-/
+@[export lean_get_congr_match_equation_for]
+def genMatchCongrEqnImpl (matchDeclName : Name) (altIdx : Nat) : MetaM Name := do
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  unless altIdx < matchInfo.numAlts do
+    throwError "`{matchDeclName}` does not have alternative {altIdx + 1}"
+  realizeMatchCongrEqn matchDeclName altIdx
+
+set_option compiler.ignoreBorrowAnnotation true in
+/--
+Generates the congruence equations of all alternatives of the given match auxiliary declaration,
+and returns their names. See `realizeMatchCongrEqn`.
+-/
+@[export lean_get_congr_match_equations_for]
+def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  (Array.range matchInfo.numAlts).mapM (realizeMatchCongrEqn matchDeclName)
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
@@ -516,18 +525,24 @@ builtin_initialize registerReservedNameAction fun name => do
   let _ ← MetaM.run' <| getEquationsForImpl p
   return true
 
-private def isMatchCongrEqName? (env : Environment) (n : Name) : Option Name := do
+/--
+If `n` is of the form `matchDeclName.congr_eq_<idx>`, returns `matchDeclName` and `idx`.
+-/
+private def isMatchCongrEqName? (env : Environment) (n : Name) : Option (Name × Nat) := do
   let .str p s := n | failure
-  guard <| isCongrEqnReservedNameSuffix s
+  let idx ← (← s.dropPrefix? congrEqnThmSuffixBasePrefix).toNat?
   guard <| isMatcherCore env p
-  return p
+  return (p, idx)
 
 builtin_initialize registerReservedNamePredicate (isMatchCongrEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
-  let some p := isMatchCongrEqName? (← getEnv) name |
+  let some (p, idx) := isMatchCongrEqName? (← getEnv) name |
     return false
-  let _ ← MetaM.run' <| genMatchCongrEqnsImpl p
+  let some matchInfo ← getMatcherInfo? p | return false
+  unless 0 < idx && idx ≤ matchInfo.numAlts do
+    return false
+  let _ ← MetaM.run' <| realizeMatchCongrEqn p (idx - 1)
   return true
 
 end Lean.Meta.Match

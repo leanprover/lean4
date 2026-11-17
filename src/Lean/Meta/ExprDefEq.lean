@@ -62,6 +62,18 @@ register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
 }
 
 /--
+Controls whether an auxiliary metavariable that `isDefEq` creates to stand for another metavariable
+(when it restricts the local context or the type of a metavariable, or when it assigns `?m := fun _ => ?aux`)
+gets the kind and the instance-typed mark of the original one. When `false`, the auxiliary metavariable
+is `.natural` and unmarked, as before the strict instance checks.
+-/
+register_builtin_option backward.isDefEq.auxMVarKind : Bool := {
+  defValue := true
+  descr    := "let auxiliary metavariables created by `isDefEq` inherit the kind and the \
+  instance-typed mark of the metavariable they stand for"
+}
+
+/--
 Controls whether, when checking the type of an assignment to an instance-implicit (`[..]`)
 metavariable, the transparency is capped at `.instances` so an ambient `.default`/`.all`
 does not let semireducible definitions be unfolded.
@@ -1048,6 +1060,15 @@ where
      how many metavariable arguments are representing dependencies.
 -/
 
+/-- The kind of an auxiliary metavariable standing for `mvarId`; see `backward.isDefEq.auxMVarKind`. -/
+def auxMVarKindFor (mvarId : MVarId) : MetaM MetavarKind := do
+  if (← getOptionFlags).auxMVarKind then return (← mvarId.getDecl).kind else return .natural
+
+/-- Marks `newMVarId` instance-typed if `mvarId` is; see `backward.isDefEq.auxMVarKind`. -/
+def copyInstanceTypedMark (mvarId newMVarId : MVarId) : MetaM Unit := do
+  if (← getOptionFlags).auxMVarKind && (← mvarId.isInstanceTyped) then
+    newMVarId.markInstanceTyped
+
 def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0)
     (kind : MetavarKind := .natural) : MetaM Expr := do
   mkFreshExprMVarAt lctx localInsts type kind Name.anonymous numScopeArgs
@@ -1186,9 +1207,8 @@ mutual
     let localInsts := mvarDecl.localInstances.eraseAll toErase.contains
     let mvarType ← check mvarDecl.type
     -- `newMVar` stands for `mvarId`, so restrictions on its assignments must carry over
-    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs (kind := mvarDecl.kind)
-    if (← mvarId.isInstanceTyped) then
-      newMVar.mvarId!.markInstanceTyped
+    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs (kind := (← auxMVarKindFor mvarId))
+    copyInstanceTypedMark mvarId newMVar.mvarId!
     mvarId.assign newMVar
     return newMVar
 
@@ -1230,9 +1250,8 @@ mutual
                Note that `mvarType` may be different from `eType`. -/
             let ctx ← read
             let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
-              (kind := (← f.mvarId!.getDecl).kind)
-            if (← f.mvarId!.isInstanceTyped) then
-              newMVar.mvarId!.markInstanceTyped
+              (kind := (← auxMVarKindFor f.mvarId!))
+            copyInstanceTypedMark f.mvarId! newMVar.mvarId!
             if (← assignToConstFun f args.size newMVar) then
               pure newMVar
             else
@@ -2058,9 +2077,8 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
     if mvarDecl.numScopeArgs == args₁.size || cfg.constApprox then
       let type ← inferType (mkAppN mvar args₁)
       -- `auxMVar` stands for `mvarId`, so restrictions on its assignments must carry over
-      let auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type (kind := mvarDecl.kind)
-      if (← mvarId.isInstanceTyped) then
-        auxMVar.mvarId!.markInstanceTyped
+      let auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type (kind := (← auxMVarKindFor mvarId))
+      copyInstanceTypedMark mvarId auxMVar.mvarId!
       assignConst mvar args₁.size auxMVar
     else
       pure false

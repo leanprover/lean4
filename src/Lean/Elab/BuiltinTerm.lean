@@ -366,6 +366,12 @@ When the two sides do not share a common-shape head, we fall back to a plain `is
 Per-argument `isDefEq` calls are best-effort: a failure at one position does not roll back
 successes at others.
 -/
+register_builtin_option backward.inferInstanceAs.skipInstArgs : Bool := {
+  defValue := true
+  descr    := "let `inferInstanceAs` unify its type argument with the expected type argument by \
+  argument, skipping instance-implicit positions, instead of with a single `isDefEq`"
+}
+
 private def unifyTypeForInferInstanceAs (type expectedType : Expr) : TermElabM Unit := do
   let typeFn := type.getAppFn
   let expectedFn := expectedType.getAppFn
@@ -398,7 +404,10 @@ private def unifyTypeForInferInstanceAs (type expectedType : Expr) : TermElabM U
   let type ← withSynthesize do
     let type ← elabType typeStx
     -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
-    unifyTypeForInferInstanceAs type expectedType
+    if backward.inferInstanceAs.skipInstArgs.get (← getOptions) then
+      unifyTypeForInferInstanceAs type expectedType
+    else
+      discard <| isDefEq type expectedType
     return type
   -- Re-infer instance-implicit args, so that synthesis is not influenced by the expected type's
   -- instance choices.

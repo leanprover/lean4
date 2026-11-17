@@ -1004,6 +1004,9 @@ structure Context where
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
   /-- Set of unassigned metavariables being abstracted. -/
   mvarIdsToAbstract  : MVarIdSet := {}
+  /-- Whether a metavariable created by `elimMVar` inherits the instance-typed mark; see
+  `backward.isDefEq.auxMVarKind`. -/
+  keepInstanceTypedMark : Bool := true
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Context MCore
@@ -1248,7 +1251,7 @@ mutual
           mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
           ngen := s.ngen.next
         }
-      if (← mvarId.isInstanceTyped) then
+      if (← read).keepInstanceTypedMark && (← mvarId.isInstanceTyped) then
         newMVarId.markInstanceTyped
       if !mvarDecl.kind.isSyntheticOpaque then
         mvarId.assign result
@@ -1391,18 +1394,19 @@ end MkBinding
 structure MkBindingM.Context where
   quotContext : Name
   lctx        : LocalContext
+  keepInstanceTypedMark : Bool := true
 
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
@@ -1411,10 +1415,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
 
 /--
   `isWellFormed lctx e` returns true iff

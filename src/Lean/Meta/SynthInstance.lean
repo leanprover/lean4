@@ -894,7 +894,7 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   check at `.instances` transparency. Setting it to `false` restores the historical `withDefault`
   behavior.
   -/
-  let bumpTransparency := !backward.isDefEq.respectTransparency.outParams.get (← getOptions)
+  let bumpTransparency := !(← getRecordedOption backward.isDefEq.respectTransparency.outParams)
   let defEq ← (if bumpTransparency then withDefault else id) <|
     withAssignableSyntheticOpaque <| isDefEq type resultType
   unless defEq do

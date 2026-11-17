@@ -174,8 +174,8 @@ the option up in a `KVMap`. The word is recomputed wherever the options change (
 `Core.Context.setOptions`) and defaulted from them at construction; `Core.Context.optionFlags_eq`
 guarantees that it always agrees with the options in scope.
 
-Bits 0 to 8 are the definitional-equality and unfolding compatibility flags read on every step of
-`isDefEq` and `whnf`. Bit 9 is `diagnostics`.
+Bits 0 to 8 and bit 10 are the definitional-equality and unfolding compatibility flags read on every
+step of `isDefEq` and `whnf`. Bit 9 is `diagnostics`.
 -/
 structure OptionFlags where
   private bits : UInt16
@@ -196,6 +196,7 @@ namespace OptionFlags
 @[inline] def smartUnfolding (f : OptionFlags) : Bool := f.bits &&& 0x080 != 0
 @[inline] def throwOnStuckAfterApp (f : OptionFlags) : Bool := f.bits &&& 0x100 != 0
 @[inline] def diag (f : OptionFlags) : Bool := f.bits &&& 0x200 != 0
+@[inline] def respectTransparencyInstances (f : OptionFlags) : Bool := f.bits &&& 0x400 != 0
 
 /--
 Resolves the flags from `opts`.
@@ -216,7 +217,8 @@ def ofOptions (opts : Options) : OptionFlags :=
       flag (getB `backward.isDefEq.lazyWhnfCore true) 0x040 |||
       flag (getB `smartUnfolding true) 0x080 |||
       flag (getB `backward.isDefEq.throwOnStuckAfterApp false) 0x100 |||
-      flag (diagnostics.get opts) 0x200 }
+      flag (diagnostics.get opts) 0x200 |||
+      flag (getB `backward.isDefEq.respectTransparency.instances true) 0x400 }
 
 end OptionFlags
 

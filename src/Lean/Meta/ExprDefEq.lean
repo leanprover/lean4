@@ -596,7 +596,7 @@ that happen to have a class type, which are created with `.natural` kind, nor to
 by `isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional).
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
-  unless backward.isDefEq.respectTransparency.instances.get (← getOptions) do
+  unless (← getOptionFlags).respectTransparencyInstances do
     return false
   unless (← mvarId.getKind) matches .synthetic do return false
   let some className ← isClass? (← mvarId.getDecl).type | return false
@@ -642,7 +642,7 @@ where
       else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return true
       else if (← mvarId.isInstanceTyped) then
-        return backward.isDefEq.respectTransparency.instanceSearchTypes.get (← getOptions)
+        return (← getOptionFlags).respectTransparencyInstanceSearchTypes
       else
         isInstanceMVar mvarId
     | .app f _ => go f

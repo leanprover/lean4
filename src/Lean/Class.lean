@@ -187,8 +187,11 @@ transparency. The instance-argument check of `simp`/`dsimp` (`dsimp.resynthInsta
 -/
 builtin_initialize laxInstanceDefeqExt : SimpleScopedEnvExtension Name NameSet ←
   registerSimpleScopedEnvExtension {
-    initial  := {}
-    addEntry := fun s n => s.insert n
+    initial    := {}
+    addEntry   := fun s n => s.insert n
+    -- read during type class resolution, see `Lean.Meta.SynthInstanceCache`
+    logWrites  := true
+    entryDecl? := some id
   }
 
 builtin_initialize

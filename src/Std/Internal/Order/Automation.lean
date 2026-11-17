@@ -99,6 +99,8 @@ attribute [simp, grind norm] PredTrans.apply_pure PredTrans.apply_Pure_pure Pred
   PredTrans.apply_MonadExcept_tryCatch PredTrans.apply_MonadState_get
   PredTrans.apply_MonadState_modifyGet PredTrans.apply_modify PredTrans.apply_modifyThe
   PredTrans.apply_MonadReader_read PredTrans.apply_frameClosure
+  PredTrans.apply_throw_liftExcept PredTrans.apply_tryCatch_liftExcept
+  PredTrans.apply_throw_liftArg PredTrans.apply_tryCatch_liftArg
   pushExcept_ok pushExcept_error pushOption_some pushOption_none
   FrameOp.pointwise_apply FrameOp.prod_fst FrameOp.prod_snd FrameOp.ignore_apply
 

@@ -471,6 +471,21 @@ instance {ε : Type u'} {ε' : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)
     exact IsMonotoneTryCatch.tryCatch_mono (fun post' E => hx post' (eposts.1, E))
       (fun e post' E => hh e post' (eposts.1, E)) post eposts.2
 
+theorem apply_throw_liftExcept {ε : Type u'} {ε' : Type z}
+    [MonadExceptOf ε (PredTrans Pred EPosts)] [IsMonotoneTryCatch ε Pred EPosts] (e : ε)
+    (post : α → Pred) (eposts : (ε' → Pred) × EPosts) :
+    (MonadExceptOf.throw e : PredTrans Pred ((ε' → Pred) × EPosts) α).apply post eposts
+      = (MonadExceptOf.throw e : PredTrans Pred EPosts α).apply post eposts.snd := (rfl)
+
+theorem apply_tryCatch_liftExcept {ε : Type u'} {ε' : Type z}
+    [MonadExceptOf ε (PredTrans Pred EPosts)] [IsMonotoneTryCatch ε Pred EPosts]
+    (x : PredTrans Pred ((ε' → Pred) × EPosts) α)
+    (handle : ε → PredTrans Pred ((ε' → Pred) × EPosts) α) (post : α → Pred)
+    (eposts : (ε' → Pred) × EPosts) :
+    (MonadExceptOf.tryCatch x handle).apply post eposts
+      = (MonadExceptOf.tryCatch (m := PredTrans Pred EPosts) (x.popExcept eposts.fst)
+          fun e => (handle e).popExcept eposts.fst).apply post eposts.snd := (rfl)
+
 /-!
 ## State Instances
 
@@ -548,6 +563,19 @@ instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
   throw e := liftArg (MonadExceptOf.throw (m := PredTrans Pred EPosts) e)
   tryCatch x handle := pushArg fun s =>
     MonadExceptOf.tryCatch (m := PredTrans Pred EPosts) (x.popArg s) fun e => (handle e).popArg s
+
+theorem apply_throw_liftArg {ε : Type u'} {σ : Type w} [MonadExceptOf ε (PredTrans Pred EPosts)]
+    (e : ε) (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadExceptOf.throw e : PredTrans (σ → Pred) EPosts α).apply post eposts s
+      = (MonadExceptOf.throw e : PredTrans Pred EPosts α).apply (fun a => post a s) eposts :=
+  (rfl)
+
+theorem apply_tryCatch_liftArg {ε : Type u'} {σ : Type w} [MonadExceptOf ε (PredTrans Pred EPosts)]
+    (x : PredTrans (σ → Pred) EPosts α) (handle : ε → PredTrans (σ → Pred) EPosts α)
+    (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadExceptOf.tryCatch x handle).apply post eposts s
+      = (MonadExceptOf.tryCatch (m := PredTrans Pred EPosts) (x.popArg s)
+          fun e => (handle e).popArg s).apply (fun (a, s) => post a s) eposts := (rfl)
 
 instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)]
     [IsMonotoneTryCatch ε Pred EPosts] : IsMonotoneTryCatch ε (σ → Pred) EPosts where

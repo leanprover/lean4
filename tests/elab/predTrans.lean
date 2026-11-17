@@ -1,5 +1,5 @@
 module
-import Std.Internal.Order.Automation
+import Std.Internal.Order
 open Lean.Order Std.Internal.Order
 
 /-! Examples of predicate transformers built with the public `PredTrans` API: the monad operations,

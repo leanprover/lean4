@@ -231,7 +231,7 @@ theorem Cache.IsExtensionBy_trans_right (cache1 : Cache aig cnf1) (cache2 : Cach
 Cache extension is a reflexive relation.
 -/
 theorem Cache.IsExtensionBy_rfl (cache : Cache aig cnf) {h} (hmarked : cache.marks[idx]'h = true) :
-    Cache.IsExtensionBy cache cache idx (have := cache.hmarks; omega) := by
+    Cache.IsExtensionBy cache cache idx (by have := cache.hmarks; omega) := by
   apply IsExtensionBy.mk
   · intros
     assumption
@@ -455,7 +455,7 @@ State extension is a reflexive relation.
 -/
 theorem State.IsExtensionBy_rfl (state : State aig) {h}
     (hmarked : state.cache.marks[idx]'h = true) :
-    State.IsExtensionBy state state idx (have := state.cache.hmarks; omega) := by
+    State.IsExtensionBy state state idx (by have := state.cache.hmarks; omega) := by
   apply Cache.IsExtensionBy_rfl <;> assumption
 
 /--

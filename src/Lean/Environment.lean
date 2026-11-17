@@ -3009,12 +3009,16 @@ private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : Exce
 
 /--
 Replays the difference between `newEnv` and `oldEnv` onto `dest`: the set of constants in `newEnv`
-but not `oldEnv` and the environment extension state for extensions defining `replay?`. If
-`skipExisting` is true, constants that are already in `dest` are not added. If `newEnv` and `dest`
-are not derived from `oldEnv`, the result is undefined.
+but not `oldEnv` and the environment extension state for extensions defining `replay?`. Constants
+that are already in `dest` are not added. If `newEnv` and `dest` are not derived from `oldEnv`, the
+result is undefined.
+
+The kernel does not type check the replayed constants again as it has done so in `newEnv`, unless
+`dest` already contains a different constant of the same name as one of them. In that case, the
+constants following it are type checked in `dest`, and none of them is added to the kernel
+environment if one is rejected.
 -/
-def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExisting := false) :
-    BaseIO Environment := do
+def replayConsts (dest : Environment) (oldEnv newEnv : Environment) : BaseIO Environment := do
   let numNewPrivateConsts := newEnv.asyncConstsMap.private.size - oldEnv.asyncConstsMap.private.size
   let newPrivateConsts := newEnv.asyncConstsMap.private.revList.take numNewPrivateConsts |>.reverse
   let numNewPublicConsts := newEnv.asyncConstsMap.public.size - oldEnv.asyncConstsMap.public.size
@@ -3023,12 +3027,12 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
   return { dest with
     asyncConstsMap := {
       «private» := newPrivateConsts.foldl (init := dest.asyncConstsMap.private) fun consts c =>
-        if skipExisting && (consts.find? c.constInfo.name).isSome then
+        if (consts.find? c.constInfo.name).isSome then
           consts
         else
           consts.add c
       «public» := newPublicConsts.foldl (init := dest.asyncConstsMap.public) fun consts c =>
-        if skipExisting && (consts.find? c.constInfo.name).isSome then
+        if (consts.find? c.constInfo.name).isSome then
           consts
         else
           consts.add c
@@ -3043,8 +3047,8 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
   }
 where
   /--
-  Returns `kenv` extended with the constants `consts`, copied from `newEnv` without type checking
-  them again, and with the environment extension changes between `oldEnv` and `newEnv`.
+  Returns `kenv` extended with the constants `consts` from `newEnv` and with the environment
+  extension changes between `oldEnv` and `newEnv`; see `replayConsts`.
   -/
   replayKernel (oldEnv newEnv : Kernel.Environment)
       (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
@@ -3059,15 +3063,35 @@ where
               (ext.getStateImpl oldEnv.extensions)
               (ext.getStateImpl newEnv.extensions)
               (consts.map (·.constInfo.name))) }
+    let kenvWithExts := kenv
+    -- Whether `kenv` has a constant that differs from the one of the same name in `newEnv`. The
+    -- constants after it may depend on it, so the type check in `newEnv` does not cover them.
+    let mut mustCheck := false
     for c in consts do
-      let name := c.constInfo.name
-      if skipExisting && (kenv.find? name).isSome then
-        continue
-      -- The kernel has type checked the constant where it was declared. It is missing from `newEnv`
-      -- if that failed and no fallback axiom could be added, and it may differ from `c` if one was.
-      if let some info := newEnv.find? name then
+      -- A constant is missing from `newEnv` if the kernel rejected it and no fallback axiom could be
+      -- added, and it may differ from `c` if one was.
+      let some info := newEnv.find? c.constInfo.name | continue
+      if let some existing := kenv.find? info.name then
+        unless isSameConst existing info do
+          mustCheck := true
+      else if !mustCheck || info.isUnsafe then
         kenv := kenv.add info
+      else
+        let decl ← match info with
+          | .thmInfo thm   => pure <| .thmDecl thm
+          | .defnInfo defn => pure <| .defnDecl defn
+          | .axiomInfo ax  => pure <| .axiomDecl ax
+          | .opaqueInfo op => pure <| .opaqueDecl op
+          | _              => return kenvWithExts
+        match kenv.addDeclCore 0 0 decl none with
+        | .ok kenv' => kenv := kenv'
+        | .error _  => return kenvWithExts
     return kenv
+  /-- Whether a constant depending on `c₁` is still type correct when `c₁` is replaced by `c₂`. -/
+  isSameConst (c₁ c₂ : ConstantInfo) : Bool :=
+    match c₁, c₂ with
+    | .thmInfo thm₁, .thmInfo thm₂ => thm₁.toConstantVal == thm₂.toConstantVal
+    | _, _ => c₁ == c₂
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
     Note that this function cannot guarantee that `typeName` is in fact the name of the type `α`. -/
@@ -3208,7 +3232,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     let replayKernel := fun kenv =>
       oldChecked.bind (sync := true) fun oldKEnv =>
         newChecked.map fun newKEnv =>
-          replayConsts.replayKernel (skipExisting := true) oldKEnv newKEnv exts newPrivateConsts kenv
+          replayConsts.replayKernel oldKEnv newKEnv exts newPrivateConsts kenv
     let res : RealizeConstResult := {
       newConsts.private := newPrivateConsts
       newConsts.public := newPublicConsts

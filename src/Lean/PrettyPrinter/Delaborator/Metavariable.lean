@@ -7,12 +7,13 @@ module
 
 prelude
 public import Lean.PrettyPrinter.Delaborator.Basic
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 
 public section
 
 namespace Lean.PrettyPrinter.Delaborator
-open Lean.Meta
+open Lean.Meta Lean.Internal.ErrorUtils
+
 
 /-!
 # Utilities for pretty printing metavariables and generating dynamic docstrings

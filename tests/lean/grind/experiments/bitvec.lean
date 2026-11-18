@@ -1120,7 +1120,7 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
       (decide (start + len - i ≤ w) &&
       x.getMsbD (w - (start + len - i)))) := by
   simp only [getMsbD_eq_getLsbD]
-  grind (splits := 12) [getLsbD_extractLsb', getLsbD_eq_getMsbD]
+  grind [getLsbD_extractLsb', getLsbD_eq_getMsbD]
 
 @[simp] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb =

@@ -1,4 +1,4 @@
-structure Foo (A B : Type) := f : Unit -> A
+structure Foo (A B : Type) where f : Unit -> A
 def foo (P : Type) : Foo ((p : P) -> Nat) ({p : P} -> Nat) := ⟨λ _ _ => 0⟩
 def bar (P : Type) : Foo ((p : P) -> Nat) ({p : P} -> Int) := ⟨λ _ _ => 0⟩
 

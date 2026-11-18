@@ -7,6 +7,7 @@ module
 prelude
 import Init.Grind.Propagator
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.OrHull
 import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public section
@@ -19,6 +20,10 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   else if (← isEqFalse e) then
     Cutsat.propagateLe e (eqTrue := false)
     Linear.propagateIneq e (eqTrue := false)
+
+builtin_grind_propagator propagateOrHull ↓Or := fun e => do
+  if (← isEqTrue e) then
+    Cutsat.assertOrHull e
 
 builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
   if (← isEqTrue e) then

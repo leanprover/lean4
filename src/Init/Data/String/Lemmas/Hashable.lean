@@ -6,9 +6,9 @@ Authors: Julia Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
 public import Init.Data.LawfulHashable
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Basic
 import Init.Data.String.Lemmas.Slice
 
 namespace String

@@ -5,6 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+/* The kernel is built with `-Werror=conversion`, which this header does not satisfy. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -124,8 +129,9 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanExternal    254
 #define LeanReserved    255
 
-#define LEAN_MAX_CTOR_FIELDS 256
-#define LEAN_MAX_CTOR_SCALARS_SIZE 1024
+// The number of object fields must be storable in `m_other:8`.
+#define LEAN_MAX_CTOR_NUM_OBJS 255
+#define LEAN_MAX_CTOR_SCALARS_SIZE 1023
 
 static inline bool lean_is_big_object_tag(uint8_t tag) {
     return tag == LeanArray || tag == LeanStructArray || tag == LeanScalarArray || tag == LeanString;
@@ -596,6 +602,8 @@ static inline void lean_free_small_object(lean_object * o) {
 #endif
 }
 
+LEAN_EXPORT void lean_dealloc(void * o, size_t sz);
+LEAN_EXPORT void * lean_alloc_memory(size_t sz);
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 
@@ -659,14 +667,14 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
    move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
    out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+// sync with tests/verif/Verif/runtime/RC.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
 /* Whether the count of `o` is thread-shared and not stuck, that is, one that increments still
    adjust. Read as unsigned, a persistent count (0), a single-threaded count and a stuck count all
    fall below every such count, so one comparison rejects them all. */
-// sync with tests/elab/rc_model.lean (`isUnstuckMt_unsigned`)
+// sync with tests/verif/Verif/runtime/RC.lean (`isUnstuckMt_unsigned`)
 static inline bool lean_is_unstuck_mt(lean_object * o) {
     return (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY;
 }
@@ -674,7 +682,7 @@ static inline bool lean_is_unstuck_mt(lean_object * o) {
 /* Whether the count of `o` is one no drop will ever free: persistent, or at or below the drop
    threshold. Read as unsigned, both fall below every unstuck thread-shared count, so one comparison
    catches both; so would a single-threaded count, which callers must have excluded first. */
-// sync with tests/elab/rc_model.lean (`isNeverFreed_unsigned`)
+// sync with tests/verif/Verif/runtime/RC.lean (`isNeverFreed_unsigned`)
 static inline bool lean_is_never_freed(lean_object * o) {
     assert(!lean_is_st(o));
     return (unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP;
@@ -687,7 +695,7 @@ static inline bool lean_is_never_freed(lean_object * o) {
    of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
    adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
    so a constant `n` folds this test away and never reaches the bound. */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_INC_MAX`)
+// sync with tests/verif/Verif/runtime/RC.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)0x10000)
 
 /* An overflowing single-threaded count lands at or below this: the inline increment wraps it into
@@ -696,13 +704,13 @@ static inline bool lean_is_never_freed(lean_object * o) {
    above it while at most 4094 maximal increments are in flight at once, two fewer than the sticky
    range already allows before a frozen count wraps into the single-threaded range (i.e. about
    equally safe to assume not to happen in practice). */
-// sync with tests/elab/rc_model.lean (`LEAN_RC_STUCK_ST`)
+// sync with tests/verif/Verif/runtime/RC.lean (`LEAN_RC_STUCK_ST`)
 #define LEAN_RC_STUCK_ST (INT_MIN + (int)LEAN_RC_INC_MAX)
 
 /* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
-// sync with tests/elab/rc_model.lean (`incRefN`)
+// sync with tests/verif/Verif/runtime/RC.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     // A count above this could wrap clean past the sticky range, on either the single-threaded or
     // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
@@ -729,7 +737,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
-// sync with tests/elab/rc_model.lean (`decRef`)
+// sync with tests/verif/Verif/runtime/RC.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);
@@ -757,6 +765,10 @@ static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
 }
 
+static inline lean_object* lean_obj_tag_nat(b_lean_obj_arg o) {
+    return lean_box(lean_obj_tag(o));
+}
+
 static inline lean_ctor_object * lean_to_ctor(lean_object * o) { assert(lean_is_ctor(o)); return (lean_ctor_object*)(o); }
 static inline lean_closure_object * lean_to_closure(lean_object * o) { assert(lean_is_closure(o)); return (lean_closure_object*)(o); }
 static inline lean_array_object * lean_to_array(lean_object * o) { assert(lean_is_array(o)); return (lean_array_object*)(o); }
@@ -777,7 +789,11 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
-    return lean_is_exclusive(o);
+    if (lean_is_scalar(o)) {
+        return 1;
+    } else {
+        return lean_is_exclusive(o);
+    }
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -846,7 +862,7 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 }
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
+    assert(tag <= LeanMaxCtorTag && num_objs <= LEAN_MAX_CTOR_NUM_OBJS && scalar_sz <= LEAN_MAX_CTOR_SCALARS_SIZE);
     lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
     lean_set_st_header(o, tag, num_objs);
     return o;
@@ -1345,6 +1361,10 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
     return lean_byte_array_uset(a, lean_unbox(i), b);
 }
 
+LEAN_EXPORT bool lean_byte_array_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
+LEAN_EXPORT uint8_t lean_byte_array_compare(b_lean_obj_arg s1, b_lean_obj_arg s2);
+static inline uint8_t lean_byte_array_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_byte_array_lt(s1, s2); }
+
 /* FloatArray (special case of Array of Scalars) */
 
 LEAN_EXPORT lean_obj_res lean_float_array_mk(lean_obj_arg a);
@@ -1417,7 +1437,6 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
     o->m_length = len;
     return (lean_object*)o;
 }
-LEAN_EXPORT size_t lean_utf8_strlen(char const * str);
 LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t n);
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
@@ -1465,11 +1484,44 @@ static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_o
     return lean_string_mark_linear(dst);
 }
 
-LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
+LEAN_EXPORT lean_obj_res lean_string_push_cold(lean_obj_arg s, uint32_t c);
+static inline lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c) {
+    if (LEAN_LIKELY(lean_is_exclusive(s))) {
+        lean_string_object * o = lean_to_string(s);
+        size_t sz = o->m_size; /* includes the terminating NUL */
+        if (LEAN_LIKELY(sz + 4 <= o->m_capacity)) {
+            unsigned char * d = (unsigned char *)o->m_data + sz - 1;
+            unsigned n;
+            if (c < 0x80) {
+                d[0] = (unsigned char)c;
+                n = 1;
+            } else if (c < 0x800) {
+                d[0] = (unsigned char)(0xc0 | (c >> 6));
+                d[1] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 2;
+            } else if (c < 0x10000) {
+                d[0] = (unsigned char)(0xe0 | (c >> 12));
+                d[1] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[2] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 3;
+            } else {
+                d[0] = (unsigned char)(0xf0 | (c >> 18));
+                d[1] = (unsigned char)(0x80 | ((c >> 12) & 0x3f));
+                d[2] = (unsigned char)(0x80 | ((c >> 6) & 0x3f));
+                d[3] = (unsigned char)(0x80 | (c & 0x3f));
+                n = 4;
+            }
+            d[n] = 0;
+            o->m_size = sz + n;
+            o->m_length++;
+            return s;
+        }
+    }
+    return lean_string_push_cold(s, c);
+}
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
-LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);
 LEAN_EXPORT uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
 static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
@@ -1517,8 +1569,9 @@ static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_string_of_usize(size_t);
 LEAN_EXPORT uint8_t lean_string_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp_lt(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp_compare(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
 LEAN_EXPORT uint64_t lean_slice_hash(b_lean_obj_arg);
-LEAN_EXPORT uint8_t lean_slice_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 
 /* Thunks */
 
@@ -1560,17 +1613,25 @@ LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
+/* All priorities above `Task.Priority.max` mean the same; `UINT_MAX` is reserved for synchronous tasks. */
+static inline unsigned lean_task_prio_of_nat(lean_obj_arg prio) {
+    if (LEAN_LIKELY(lean_is_scalar(prio) && lean_unbox(prio) < UINT_MAX))
+        return (unsigned)lean_unbox(prio);
+    lean_dec(prio);
+    return UINT_MAX - 1;
+}
+
 LEAN_EXPORT lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);
 /* Run a closure `Unit -> A` as a `Task A` */
-static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_unbox(prio), false); }
+static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_task_prio_of_nat(prio), false); }
 /* Convert a value `a : A` into `Task A` */
 LEAN_EXPORT lean_obj_res lean_task_pure(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool sync, bool keep_alive);
 /* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) (sync : Bool) : Task B */
-static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio, uint8_t sync) { return lean_task_bind_core(x, f, lean_unbox(prio), sync, false); }
+static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio, uint8_t sync) { return lean_task_bind_core(x, f, lean_task_prio_of_nat(prio), sync, false); }
 LEAN_EXPORT lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool sync, bool keep_alive);
 /* Task.map (f : A -> B) (t : Task A) (prio : Nat) (sync : Bool) : Task B */
-static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_unbox(prio), sync, false); }
+static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_task_prio_of_nat(prio), sync, false); }
 LEAN_EXPORT b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
 static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
@@ -1813,14 +1874,38 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_big_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
 LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
+LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a);
+/* Hash that depends on all bits of `a`. It is `a` itself if `a < 2^64`. */
+static inline uint64_t lean_nat_hash(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint64_t)lean_unbox(a) : lean_nat_big_hash(a); }
+
+static inline lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1))) {
+        size_t s1 = lean_unbox(a1);
+        /* `0 <<< s2 = 0` holds even for shift amounts that do not fit in a machine word. */
+        if (s1 == 0)
+            return a1;
+        if (LEAN_LIKELY(lean_is_scalar(a2))) {
+            size_t s2 = lean_unbox(a2);
+            if (LEAN_LIKELY(s2 < sizeof(size_t)*8)) {
+                size_t r = s1 << s2;
+                /* `(r >> s2) == s1` rules out bits shifted out of the machine word. */
+                if (r <= LEAN_MAX_SMALL_NAT && (r >> s2) == s1)
+                    return lean_box(r);
+            }
+        }
+    }
+    return lean_nat_big_shiftl(a1, a2);
+}
 
 static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
@@ -1846,6 +1931,7 @@ LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object *
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
 LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
@@ -2201,7 +2287,7 @@ static inline size_t lean_uint8_to_usize(uint8_t a) { return ((size_t)a); }
 /* UInt16 */
 
 LEAN_EXPORT uint16_t lean_uint16_of_big_nat(b_lean_obj_arg a);
-static inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (int16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
+static inline uint16_t lean_uint16_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint16_t)(lean_unbox(a)) : lean_uint16_of_big_nat(a); }
 /* Remark: the following function is used to implement the constructor `UInt16.mk`. We can't annotate constructors with `@&` */
 static inline uint16_t lean_uint16_of_nat_mk(lean_obj_arg a) { uint16_t r = lean_uint16_of_nat(a); lean_dec(a); return r; }
 static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
@@ -2282,6 +2368,30 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+#if !defined(__SIZEOF_INT128__)
+static inline uint64_t lean_uint64_add_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    return a >= modulus - b ? a - (modulus - b) : a + b;
+}
+#endif
+static inline uint64_t lean_uint64_mul_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    if (modulus == 0) return a * b;
+    if (modulus == 1) return 0;
+#if defined(__SIZEOF_INT128__)
+    __uint128_t product = (__uint128_t)a * (__uint128_t)b;
+    if (product <= UINT64_MAX) return (uint64_t)product % modulus;
+    return (uint64_t)(product % modulus);
+#else
+    /* Double and add keeps every intermediate below modulus without requiring 128-bit words. */
+    a %= modulus;
+    uint64_t result = 0;
+    while (b != 0) {
+        if (b & 1) result = lean_uint64_add_mod(result, a, modulus);
+        b >>= 1;
+        if (b != 0) a = lean_uint64_add_mod(a, a, modulus);
+    }
+    return result;
+#endif
+}
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
@@ -2311,6 +2421,14 @@ static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
     h ^= k;
     h *= m;
     return h;
+}
+static inline uint32_t lean_uint32_mix_hash(uint32_t h, uint32_t k) {
+    k *= 0xcc9e2d51;
+    k ^= k >> 15;
+    k *= 0x1b873593;
+    h ^= k;
+    h = (h << 13) | (h >> 19);
+    return h * 5 + 0xe6546b64;
 }
 
 /* UInt64 -> other */
@@ -3607,6 +3725,11 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
     return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
 }
 
+/* Ends the `-Wconversion` exemption from the top of this file. This must precede the pragma below, which would be undone by a later `pop`. */
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 // eliding unused parameter names is C23+, so ignore warning instead in the following
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3614,8 +3737,8 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
-    return lean_box(LEAN_MAX_CTOR_FIELDS);
+static inline lean_obj_res lean_get_max_ctor_num_objs(lean_obj_arg _unit) {
+    return lean_box(LEAN_MAX_CTOR_NUM_OBJS);
 }
 
 static inline lean_obj_res lean_get_max_ctor_scalars_size(lean_obj_arg _unit) {
@@ -3678,7 +3801,9 @@ static inline lean_obj_res lean_runtime_hold(b_lean_obj_arg a) {
     return lean_box(0);
 }
 
-#ifdef LEAN_EMSCRIPTEN
+// The compiler writes the scalar fields of static constructor objects 8 bytes at a time with this
+// macro, as one `m_objs` slot where pointers have 8 bytes and as two where they have 4.
+#if UINTPTR_MAX == UINT32_MAX
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
 #else
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))

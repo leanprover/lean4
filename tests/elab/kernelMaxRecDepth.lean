@@ -28,3 +28,19 @@ run_meta addDeepDef `tooDeep
 
 set_option maxRecDepth 100000 in
 run_meta addDeepDef `deepEnough
+
+/-!
+Huge `maxRecDepth` values must not wrap around to a small kernel limit (#15973), neither when
+converted to `USize` nor when scaled by the kernel's multiplier.
+-/
+
+private def addDeepDefWith (name : Name) (maxRecDepth : Nat) : MetaM Unit :=
+  withOptions (Lean.maxRecDepth.set · maxRecDepth) (addDeepDef name)
+
+-- Smallest value whose scaled kernel limit overflows: used to wrap to 0.
+run_meta addDeepDefWith `scaledWrapZero ((USize.size - 1) / 16 + 1)
+-- Used to wrap to a scaled limit of 16.
+run_meta addDeepDefWith `scaledWrapSmall ((USize.size - 1) / 16 + 2)
+run_meta addDeepDefWith `usizeMax (USize.size - 1)
+-- Used to reach the kernel as 1 after `Nat.toUSize`.
+run_meta addDeepDefWith `usizeWrap (USize.size + 1)

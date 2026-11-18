@@ -494,6 +494,7 @@ def testConfigs : List (String × ParserFn × Bool) := [
   ("blocks", blockStart (blocksFn {}), true),
   ("recoverBlock", blockStart (recoverBlockAtErrPos (blockFn {})), true),
   ("recoverBlocks", blockStart (recoverBlockAtErrPos (blocksFn {})), true),
+  ("blockTrailing", blockStart (recoverBlockAtErrPos (blockFn {recordTrailing := true})), true),
   ("directive", blockStart (directiveFn {}), true),
   ("blockOpener", (ignoreFn blockOpenerFn), false),
   ("lookaheadUnorderedListMarker",

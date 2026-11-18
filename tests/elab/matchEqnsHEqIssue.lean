@@ -1,8 +1,8 @@
-inductive Ty :=
+inductive Ty where
 | int: Ty
 | other: Ty
 
-inductive Tensor :=
+inductive Tensor where
 | int: Int -> Tensor
 | nested: List Tensor -> Tensor
 

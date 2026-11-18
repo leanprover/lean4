@@ -6,7 +6,7 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Lemmas.Splits
 import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic

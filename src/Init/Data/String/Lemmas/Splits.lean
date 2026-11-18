@@ -346,27 +346,27 @@ theorem Slice.Pos.Splits.of_next {s : Slice} {p : s.Pos} {hp}
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_next p hp)
   exact splits_next_right p hp
 
-/-- You might want to invoke `Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
 theorem Pos.Splits.prev {s : String} {p : s.Pos}
     (h : p.Splits (t₁ ++ singleton c) t₂) : (p.prev h.ne_startPos_of_singleton).Splits t₁ (singleton c ++ t₂) := by
   generalize h.ne_startPos_of_singleton = hp
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_prev_right p hp)
   exact splits_prev p hp
 
-/-- You might want to invoke `Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
 theorem Pos.Splits.of_prev {s : String} {p : s.Pos} {hp}
     (h : (p.prev hp).Splits t₁ (singleton c ++ t₂)) : p.Splits (t₁ ++ singleton c) t₂ := by
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_prev p hp)
   exact splits_prev_right p hp
 
-/-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
 theorem Slice.Pos.Splits.prev {s : Slice} {p : s.Pos}
     (h : p.Splits (t₁ ++ singleton c) t₂) : (p.prev h.ne_startPos_of_singleton).Splits t₁ (singleton c ++ t₂) := by
   generalize h.ne_startPos_of_singleton = hp
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_prev_right p hp)
   exact splits_prev p hp
 
-/-- You might want to invoke `Slice.Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
 theorem Slice.Pos.Splits.of_prev {s : Slice} {p : s.Pos} {hp}
     (h : (p.prev hp).Splits t₁ (singleton c ++ t₂)) : p.Splits (t₁ ++ singleton c) t₂ := by
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_prev p hp)
@@ -608,7 +608,7 @@ theorem Slice.Pos.Splits.splits_rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t
 /--
 Given a position that splits `s` into `t₁ ++ t₂` and `t₃` with witness `h`, construct a position
 `h.rotateLeft` that splits `s` into `t₁` and `t₂ ++ t₃`. Use `h.splits_rotateLeft` for the witness
-that `h.rotateLEft` splits `s` as required.
+that `h.rotateLeft` splits `s` as required.
 -/
 @[inline]
 def Slice.Pos.Splits.rotateLeft {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}

@@ -8,13 +8,15 @@ prelude
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Sym.LiftLet
 import Lean.Meta.Tactic.Replace
+import Lean.Meta.Sym.InstantiateMVarsS
 namespace Lean.Elab.Tactic.Grind
 open Meta
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symLiftLets] def evalSymLiftLets : GrindTactic := fun _ => withMainContext do
   ensureSym
   let goal ← getMainGoal
-  let target ← goal.mvarId.getType
+  -- `Sym.liftLets` requires instantiated metavariables.
+  let target ← liftSymM <| Sym.instantiateMVarsS (← goal.mvarId.getType)
   let target' ← liftSymM <| Sym.liftLets target
   if Sym.isSameExpr target target' then
     throwError "`lift_lets` made no progress"

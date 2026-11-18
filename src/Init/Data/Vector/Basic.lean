@@ -10,11 +10,8 @@ prelude
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
 import Init.Data.Array.Nat
 public import Init.Data.Array.DecidableEq
-public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.MapIdx
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
 import Init.Omega
 
 public section
@@ -191,6 +188,20 @@ This will perform the update destructively provided that the vector has a refere
 -/
 @[inline, expose] def set (xs : Vector α n) (i : Nat) (x : α) (h : i < n := by get_elem_tactic): Vector α n :=
   ⟨xs.toArray.set i x (by simp [*]), by simp⟩
+
+/--
+Replaces the element at index `i` with the result of applying `f` to it. If the index is out of
+bounds, returns the vector unchanged.
+
+Uses `Array.modify` to preserve in-place updates when the vector and its element are uniquely owned.
+
+Examples:
+ * `#v[1, 2, 3].modify 0 (· * 10) = #v[10, 2, 3]`
+ * `#v[1, 2, 3].modify 2 (· * 10) = #v[1, 2, 30]`
+ * `#v[1, 2, 3].modify 3 (· * 10) = #v[1, 2, 3]`
+-/
+@[inline, expose] def modify (xs : Vector α n) (i : Nat) (f : α → α) : Vector α n :=
+  ⟨xs.toArray.modify i f, by simp⟩
 
 /--
 Set an element in a vector using a `Nat` index. Returns the vector unchanged if the index is out of
@@ -602,10 +613,13 @@ Lexicographic comparator for vectors.
 - `v` is pairwise equivalent via `==` to `w`, or
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
-def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in 0...n do
-    if lt xs[i] ys[i] then
-      return true
-    else if xs[i] != ys[i] then
-      return false
-  return false
+def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
+  go 0
+where @[specialize, semireducible] go (i : Nat) : Bool :=
+  if h : n ≤ i then
+    false
+  else if lt xs[i] ys[i] then
+    true
+  else if xs[i] == ys[i] then
+    go (i + 1)
+  else false

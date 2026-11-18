@@ -96,7 +96,7 @@ def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
 /--
 Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNamePredicate fun env n => Id.run do
+builtin_initialize registerReservedNamePredicate isEqnLikeSuffix fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,
@@ -157,7 +157,7 @@ structure EqnsExtState where
 
 /-- A mapping from equational theorem to the declaration it was derived from.  -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 /--
 Runs `act` with the equation-affecting options restored to the values stored for `declName`
@@ -215,14 +215,26 @@ def isEqnThm (thmName : Name) : CoreM Bool := do
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
-  modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
-    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
+  -- unlogged: populated on demand and write-once, thus no observable change
+  modifyEnv fun env => eqnsExt.modifyState (log := .unlogged) env fun s => { s with
+    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm =>
+      have : Inhabited _ := ⟨mapInv⟩
+      -- Write-once, as for `MapDeclarationExtension.insert`. Re-registration with the same parent is
+      -- idempotent (e.g. `alreadyGenerated?` re-registers realized equations).
+      match mapInv.find? eqThm with
+      | some prev =>
+        if prev != declName then
+          panic! s!"equation theorem `{eqThm}` is already registered for `{prev}`"
+        else
+          mapInv
+      | none => mapInv.insert eqThm declName
   }
 
 /--
-Equation theorems are generated on demand, check whether they were generated in an imported file.
+Returns the equation theorems of `declName` if they are already in the environment, which includes
+those generated on demand in an imported file.
 -/
-private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
+partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv
   let eq1 := mkEqLikeNameFor env declName eqn1ThmSuffix
   if env.contains eq1 then

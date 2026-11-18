@@ -21,7 +21,7 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic.Grind
 open Meta
 
-private def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderIdent) : GrindTacticM Unit := do
+def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderIdent) : GrindTacticM Unit := do
   ensureSym
   let hygienic := tactic.hygienic.get (← getOptions)
   let goal ← getMainGoal
@@ -48,7 +48,7 @@ private def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderI
   | `(grind| intro (internalize := true) $ids:binderIdent*) => evalIntroCore true ids
   | _ => throwUnsupportedSyntax
 
-private def evalIntrosCore (internalize : Bool) : GrindTacticM Unit := do
+def evalIntrosCore (internalize : Bool) : GrindTacticM Unit := do
   ensureSym
   let hygienic := tactic.hygienic.get (← getOptions)
   let goal ← getMainGoal
@@ -66,7 +66,7 @@ private def evalIntrosCore (internalize : Bool) : GrindTacticM Unit := do
   | _ => throwUnsupportedSyntax
 
 /-- Get or create a `BackwardRule` for a declaration, using the name cache. -/
-private def getOrCreateBackwardRule (declName : Name) : GrindTacticM Sym.BackwardRule := do
+def getOrCreateBackwardRule (declName : Name) : GrindTacticM Sym.BackwardRule := do
   if let some rule := (← get).cache.backwardRuleName.find? declName then
     return rule
   let rule ← Sym.mkBackwardRuleFromDecl declName
@@ -74,7 +74,7 @@ private def getOrCreateBackwardRule (declName : Name) : GrindTacticM Sym.Backwar
   return rule
 
 /-- Get or create a `BackwardRule` for a term, using the syntax position cache. -/
-private def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardRule := do
+def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardRule := do
   let startPos := term.getPos?.map (·.byteIdx) |>.getD 0
   let endPos := term.getTailPos?.map (·.byteIdx) |>.getD 0
   let pos := (startPos, endPos)
@@ -98,7 +98,9 @@ private def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.B
   | `($id:ident) =>
     try
       let declName ← realizeGlobalConstNoOverload id
-      getOrCreateBackwardRule declName
+      let rule ← getOrCreateBackwardRule declName
+      Linter.checkDeprecatedAt id declName
+      pure rule
     catch _ =>
       getOrCreateBackwardRuleFromTerm term
   | _ =>
@@ -162,6 +164,9 @@ def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTactic
       thms := thms.push (← mkTheoremFromExpr decl.toExpr)
     else
       let declName ← realizeGlobalConstNoOverload id
+      -- Definitions are unfolded, acting on occurrences that are already in the goal.
+      unless (← isDefn? declName).isSome do
+        Linter.checkDeprecatedAt id declName
       extras := extras.push <| .const declName
       thms := thms ++ (← mkTheoremsFromDecl declName)
   return (extras, thms)

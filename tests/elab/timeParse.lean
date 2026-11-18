@@ -85,7 +85,7 @@ info: "2024-08-16T01:28:00.000000000Z"
     ISO8601UTC.format t
 
 /--
-info: "0000-12-31T22:28:12.000000000+09:00"
+info: "0000-01-01T22:28:12.000000000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -93,7 +93,7 @@ info: "0000-12-31T22:28:12.000000000+09:00"
     ISO8601UTC.format (t.convertZoneRules (TimeZone.ZoneRules.ofTimeZone jpTZ))
 
 /--
-info: "0000-12-31T00:00:00.000000000-03:00"
+info: "0000-01-01T00:00:00.000000000-03:00"
 -/
 #guard_msgs in
 #eval

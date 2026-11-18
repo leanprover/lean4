@@ -63,7 +63,8 @@ BASIC OPTIONS:
   --fail-fast           stop scheduling new build jobs after the first required failure
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
-  --json, -J            output JSON-formatted results (in `lake query`)
+  --json, -J            output JSON-formatted results (in `lake query`,
+                        `lake check` and `lake comparator`)
   --text                output results as plain text (in `lake query`)
 
 OUTPUT OPTIONS:
@@ -387,6 +388,16 @@ OPTIONS:
   --keep-public         Preserve all `public` imports for API stability
   --add-public          Add new imports as `public` if they were in the
                         original public closure
+  --add-downstream <MODULE>
+                        Add the module as an `import` to every checked
+                        module that does not reach it yet, except where
+                        that would create an import cycle
+  --add-public-downstream <MODULE>
+                        Like `--add-downstream`, but add the module as a
+                        `public import` wherever it is not reached through
+                        public imports yet. As these are passed on to
+                        importing modules, this adds far fewer imports.
+                        Only one of these two options can be used, once
   --explain             Show which constants require each import
   --fix                 Apply suggested fixes directly to source files
   --gh-style            Output in GitHub problem matcher format
@@ -409,20 +420,36 @@ def helpComparator :=
 USAGE:
   lake comparator [--config <FILE>] [--challenge-from-export <FILE>]
                   [--solution-from-export <FILE>] [--paranoid]
-                  [--inadvisably-no-sandbox]
+                  [--inadvisably-no-sandbox] [--json]
 
-Establishes that every named theorem in the solution proves the same statement
-as the challenge, uses no axiom outside the permitted list, and is accepted by
-the kernel.
+Establishes that every named theorem in a solution Lean file proves the same
+statement as in a challenge Lean file, uses no axiom outside the permitted
+list, and is accepted by the kernel.
 
-The project is untrusted input: its configuration is evaluated, and its code
-built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
-is ever loaded into Lake's own address space. `bubblewrap` is required, and
-needs either unprivileged user namespaces or to be installed setuid root.
+Note, that comparator has no way to figure out whether the statements in
+the challenge file properly correspond to the meaning intended by their author.
+It can only establish that the statements as written down are correct with
+a very high degree of certainty.
 
-The project has to carry a `lake-manifest.json`, because dependencies are
-resolved inside the sandbox and it cannot write to the project directory.
-Building the project once, before distributing it, is enough to write one.
+REQUIREMENTS:
+  Comparator is only able to provide these guarantees under the following
+  assumptions:
+  1. Everything (transitively) imported by the challenge file is trusted.
+  2. `lakefile.toml`/`lakefile.lean` and `lake-manifest.json` as well as
+     all the dependencies they require are trusted.
+  3. The project operates from a clean build, that is, there is no
+     pre-existing `.lake` directory.
+  4. You have `bubblewrap` installed for sandboxing the, potentially
+     dangerous, build of the solution. `bubblewrap` is currently only
+     available on Linux systems so comparator can only be safely
+     used on Linux.
+  5. You are not running `lake comparator` as a privileged user.
+  6. The lean default kernel, or with `--paranoid` at least one of
+     the used kernels, does not have a soundness issue that causes
+     it to accept an incorrect proof.
+  7. The solution file does not make use of unknown exploits against
+     other software or hardware on the machine you are running this on.
+
 
 OPTIONS:
   --config=<file>            JSON file describing the challenge (see below)
@@ -440,6 +467,8 @@ OPTIONS:
   --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
                              the result fully and is only advised for expert
                              users.
+  --json                     print a JSON report of every step instead of
+                             progress
 
 CONFIGURATION:
   The challenge author writes the file and distributes it with the project, so
@@ -456,7 +485,8 @@ CONFIGURATION:
 
   `challenge_module`, `solution_module`, `theorem_names` and
   `permitted_axioms` are required; the rest may be omitted.
-  `definition_names` lists the challenge's definition holes.
+  `definition_names` lists the challenge's definition holes, each of which the
+  challenge has to define as `sorry`.
   `permitted_axioms` is deliberately not defaulted: it is what the verdict
   means, so the challenge author states it. The three above are the ones
   `#print axioms` treats as a clean proof.
@@ -474,6 +504,43 @@ EXIT CODES:
   2                     could not start: `bwrap` or the manifest is missing,
                         or the configuration is missing, unreadable or
                         malformed
+
+JSON REPORT:
+  With `--json` comparator only prints one final JSON report to stdout
+  instead of continous progress. An example output looks as follows:
+
+  {\"version\": \"0.1.0\",
+   \"sandboxed\": true,
+   \"report\":
+   {\"resolve_dependencies\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"kernel_reports\":
+    {\"Lean default\":
+     {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"}},
+    \"export_solution\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"export_challenge\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"config\":
+    {\"theorem_names\": [\"comm\"],
+     \"solution_module\": \"Solution\",
+     \"permitted_axioms\": [\"propext\", \"Quot.sound\", \"Classical.choice\"],
+     \"definition_names\": null,
+     \"challenge_module\": \"Challenge\"},
+    \"compare_statements\":
+    {\"output\": {\"str\": {\"string\": \"\"}}, \"judgement\": \"success\"},
+    \"check_axioms\": {\"output\": {\"str\": {\"string\": \"\"}}, \"judgement\": \"success\"},
+    \"build_solution\":
+    {\"output\":
+     {\"proc\":
+      {\"stdout\": \"Build completed successfully (4 jobs).\\n\", \"stderr\": \"\"}},
+     \"judgement\": \"success\"},
+    \"build_challenge\":
+    {\"output\":
+     {\"proc\":
+      {\"stdout\": \"Build completed successfully (4 jobs).\\n\", \"stderr\": \"\"}},
+     \"judgement\": \"success\"}},
+   \"judgement\": \"accepted\"}
 
 EXPORTS:
   The `--*-from-export` options take an NDJSON export as generated by
@@ -506,6 +573,7 @@ def helpCheck :=
 
 USAGE:
   lake check [--from-export <FILE>] [--paranoid] [--inadvisably-no-sandbox]
+             [--json]
 
 Builds the default build targets, exports them, and replays the result through
 the kernel, erroring on any use of non-standard axioms.
@@ -528,6 +596,8 @@ OPTIONS:
   --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
                              the result fully and is only advised for expert
                              users.
+  --json                     print a JSON report of every step instead of
+                             progress
 
 EXPORTS:
   The `--from-export` option takes an NDJSON export as generated by
@@ -548,6 +618,27 @@ EXIT CODES:
                         build did not succeed
   2                     could not start: `bwrap` is missing, the project has
                         no `lake-manifest.json`, or it has no default targets
+
+JSON REPORT:
+  With `--json` check only prints one final JSON report to stdout
+  instead of continous progress. An example output looks as follows:
+
+
+  {\"version\": \"0.1.0\",
+   \"sandboxed\": true,
+   \"report\":
+   {\"resolve_dependencies\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"},
+    \"kernel_reports\":
+    {\"Lean default\":
+     {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"}},
+    \"check_axioms\":
+    {\"output\":
+     {\"str\": {\"string\": \"Uses axioms: propext, Classical.choice, Quot.sound\"}},
+     \"judgement\": \"success\"},
+    \"build_report\":
+    {\"output\": {\"proc\": {\"stdout\": \"\", \"stderr\": \"\"}}, \"judgement\": \"success\"}},
+   \"judgement\": \"accepted\"}
 
 ENVIRONMENT:
   COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
@@ -594,10 +685,10 @@ OPTIONS:
   --rev=<commit-hash>             lookup artifacts only for set revision
   --package=<name>                fetch outputs for set package
   --service=<name>                fetch outputs from set cache service
-  --repo=<github-repo>            GitHub repository of the package or its fork
-  --platform=<target-triple>      with Reservoir or --repo, set the platform
-  --toolchain=<name>              with Reservoir or --repo, set the toolchain
   --scope=<remote-scope>          verbatim scope for a custom endpoint
+  --repo=<github-repo>            GitHub repository of the package or its fork
+  --platform=<target-triple>      without --scope, set the platform
+  --toolchain=<name>              without --scope, set the toolchain
   --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
@@ -606,18 +697,20 @@ service. The cache service used can be specified via the `--service` option.
 Otherwise, Lake will use the configured default or, if none, Reservoir. See
 `lake cache services` for more information on how to configure services.
 
-By default, Lake will use Reservoir to download outputs for each
-dependency in the workspace (in order). Non-Reservoir dependencies will be
-skipped. If instead an input-to-outputs mappings file, `--scope`, or `--repo`
-is provided, Lake will default to downloading build outputs for the root
-package. In either case, if `--package` is specified, Lake will switch to
-only downloading outputs for it.
+If an input-to-outputs mappings file, `--scope`, `--repo`, or `--package`
+is provided, Lake will download outputs for a single package (by default,
+without `--package`, the workspace root). Otherwise (e.g., on a bare
+`lake cache get`), Lake will download outputs for each package in the
+workspace (in order). For a multi-package `get`, if a package has configured
+a `downloadCacheService`, that service will be used. Otherwise, by default,
+Lake uses Reservoir. Packages without a `downloadCacheService` that are not
+Reservoir dependencies will be skipped.
 
 To determine what to download, Lake searches for input-to-output mappings for
 a given build of a package via the cache service. This mapping is identified
 by a Git revision and prefixed with a scope derived from the package's name,
-GitHub repository, Lean toolchain, and current platform. The exact configuration
-can be customized using options.
+GitHub repository, Lean toolchain, and current platform. The specifics can be
+customized using options.
 
 For Reservoir, setting `--repo` will cause Lake to lookup outputs for the
 package by a repository name, rather than the package's. This can be used to
@@ -650,8 +743,8 @@ OPTIONS:
   --service=<name>                upload to set cache service
   --scope=<remote-scope>          upload under set scope verbatim
   --repo=<github-repo>            scope w/ repository + toolchain & platform
-  --toolchain=<name>              with --repo, sets the toolchain
-  --platform=<target-triple>      with --repo, sets the platform
+  --toolchain=<name>              without --scope, sets the toolchain
+  --platform=<target-triple>      without --scope, sets the platform
 
 Uploads the input-to-output mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
@@ -664,18 +757,18 @@ via `curl`. Thus, the service should generally be an S3-compatible bucket.
 The authentication key is set via the `LAKE_CACHE_KEY` environment variable.
 
 Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, uploads to the cache are prefixed with a scope to
-avoid clashes. This is controlled by `--scope` or `--repo`. With `--repo`,
-Lake will produce a scope by augmenting the repository with toolchain and
-platform information as it deems necessary. With `--scope`, Lake will use
-the specified scope verbatim.
+artifacts and outputs, uploads to a multi-package cache are prefixed with a
+scope to avoid clashes. This is controlled by `--scope` or `--repo`.
+With `--repo`, Lake will produce a scope by augmenting the repository with
+toolchain and platform information as it deems necessary. With `--scope`,
+Lake will use the specified scope verbatim.
 
 Artifacts are uploaded to the artifact endpoint with a file name derived
-from their Lake content hash (and prefixed by the repository or scope).
-The mappings file is uploaded to the revision endpoint with a file name
-derived from the package's current Git revision (and prefixed by the
-full scope). As such, the command will warn if the work tree currently
-has changes."
+from their Lake content hash and, in a multi-package cache, prefixed by
+the repository or scope. The mappings file is uploaded to the revision
+endpoint with a file name derived from the package's current Git revision
+(and prefixed by the full scope). As such, the command will warn if the work
+tree currently has changes."
 
 def helpCacheAdd :=
 "Add input-to-output mappings to the Lake cache
@@ -701,10 +794,10 @@ or be configured through the Lake system configuration (see the help page of
 `lake cache services` for details).
 
 Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, artifacts in a cache service are prefixed with a scope
-to avoid clashes. For Reservoir, this scope can either be a package (set via
-`--scope`) or a repository (set via `--repo`). For S3 services, both options
-are synonymous."
+artifacts and outputs, artifacts in a multi-package cache service are prefixed
+with a scope to avoid clashes. For Reservoir, this scope can either be a
+package (set via `--scope`) or a repository (set via `--repo`). For S3
+services, both options are synonymous."
 
 def helpCacheStage :=
 "Copy build outputs from the cache to a staging directory
@@ -744,8 +837,8 @@ OPTIONS:
   --service=<name>                upload to set cache service
   --scope=<remote-scope>          upload under set scope verbatim
   --repo=<github-repo>            scope w/ repository + toolchain & platform
-  --toolchain=<name>              with --repo, set the toolchain
-  --platform=<target-triple>      with --repo, set the platform
+  --toolchain=<name>              without --scope, set the toolchain
+  --platform=<target-triple>      without --scope, set the platform
 
 Works like `lake cache put` but uploads outputs from the staging directory
 instead of the Lake cache.
@@ -773,11 +866,12 @@ USAGE:
   lake cache services
 
 Prints the name of each configured remote cache services (one per line).
-Additional services can be added by modifying the system Lake configuration.
-The exact location of the this configuration file is system dependent and can
+Additional services can be added by modifying the system Lake configuration
+or by declaring them in a package configuration file with `cache_service`.
+The exact location of the system configuration file is system dependent and can
 be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.
 
-The configuration of the system cache could look something like the following:
+A system configuration of the cache could look something like the following:
 
   cache.defaultService = \"my-s3\"
   cache.defaultUploadService = \"my-s3\"
@@ -787,8 +881,12 @@ The configuration of the system cache could look something like the following:
   kind = \"s3\"
   artifactEndpoint = \"https://my-s3.com/a0\"
   revisionEndpoint = \"https://my-s3.com/r0\"
+  hasPackageScopes = true
 
-If no `cache.defaultService` is configured, Lake will use Reservoir by default."
+If no `cache.defaultService` is configured, Lake will use Reservoir by default.
+If `hasPackageScopes = true` (the default), the service is a multi-package
+cache and requires `--scope` or `--repo` for uploads and downloads. Otherwise,
+it is assumed to hold a single package and does not accept the options."
 
 def helpScriptCli :=
 "Manage Lake scripts

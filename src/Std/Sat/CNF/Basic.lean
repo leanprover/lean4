@@ -15,6 +15,7 @@ import Init.Data.List.Nat.Range
 import Init.Data.ByteArray.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
+import Init.Data.List.Impl
 import Init.Omega
 import Init.ByCases
 
@@ -27,6 +28,8 @@ namespace Sat
 A clause in a CNF.
 
 The literal `(i, b)` is satisfied if the assignment to `i` agrees with `b`.
+
+Clauses can be constructed from lists of literals using `Clause.ofLiterals`.
 -/
 structure CNF.Clause (α : Type u) where
   atoms : Array α
@@ -198,6 +201,10 @@ protected theorem ext {c1 c2 : Clause α} (h : c1.literals = c2.literals) : c1 =
 
 /--
 Build a `Clause` from a list of literals.
+
+Note that to profit from the memory compact representation of `Clause` it is important to never
+keep a full CNF as a `List (List (Literal α))` in memory. This function should ideally be used in
+streaming scenarios only.
 -/
 def ofLiterals (l : List (Literal α)) : Clause α :=
   l.foldl (fun c (atom, pol) => c.add atom pol) empty

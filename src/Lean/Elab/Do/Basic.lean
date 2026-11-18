@@ -10,6 +10,7 @@ meta import Init.Data.Erased
 public import Lean.Elab.Do.InferControlInfo
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Parser
 meta import Lean.Parser.Do
 import Init.Omega
@@ -562,11 +563,12 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
-          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
-        -- else -- would be too aggressive
-        --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+          return ← body.replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
+    -- `body` reaches the rest of the block through assigned metavariables. `instantiateMVars` stores
+    -- their instantiated values, so `mkLambdaFVars` traverses the rest of the block only once.
+    let body ← instantiateMVars body
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
 
@@ -806,22 +808,27 @@ def enterLoopBody (breakCont continueCont : DoElabM Expr) (returnCont : ReturnCo
   withReader (fun ctx => { ctx with contInfo }) body
 
 /--
-Prepare the context for elaborating the body of a `do` block that does not support `mut` vars,
-`break`, `continue` or `return`.
+Arrange the context for elaborating `doSeq` such that `break`, `continue`, `return` and
+reassignment of the `mut` variables in scope are errors.
 -/
-def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
-  let error := throwError "This `do` block does not support `break`, `continue` or `return`."
+def withoutControl (doSeq : TSyntax ``doSeq) (k : DoElabM Expr) : DoElabM Expr := do
+  let block := if (← getRef).isToken "finally" then m!"A `finally` block" else m!"This `do` block"
+  let info ← inferControlInfoSeq doSeq
+  let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
+  unless reassigned.isEmpty do
+    let noun := if reassigned.size == 1 then "variable" else "variables"
+    let vars := MessageData.andList (reassigned.toList.map (m!"`{·}`"))
+    throwError "{block} cannot reassign the `mut` {noun} {vars}."
+  let error := throwError "{block} does not support `break`, `continue` or `return`."
   let rc ← getReturnCont
   let contInfo := { breakCont := error, continueCont := error, returnCont := { rc with k _ := error }}
   let contInfo := ContInfo.toContInfoRef contInfo
   withReader (fun ctx => { ctx with contInfo }) k
 
-/--
-Prepare the context for elaborating the body of a `finally` block.
-There is no support for `mut` vars, `break`, `continue` or `return` in a `finally` block.
--/
-def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
-  withoutControl do
+/-- Prepare the context for elaborating the `finally` block `finSeq` with result type `resultType`. -/
+def enterFinally (finSeq : TSyntax ``doSeq) (resultType : Expr) (k : DoElabM Expr) :
+    DoElabM Expr := do
+  withoutControl finSeq do
   withDoBlockResultType resultType k
 
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/
@@ -1014,6 +1021,19 @@ private def elabDoElemFns (stx : DoElem) (cont : DoElemCont)
             throw ex
         | _ => throw ex
 
+/--
+Runs `x cont`, which elaborates the `do` element `stx` or its macro expansion, followed by `cont`,
+like `Term.withDeprecationContextForSyntax stx`. The rest of the block `cont` is not part of `stx`,
+so it is elaborated with the current deprecation checks.
+-/
+private def withDeprecationContextForDoElem (stx : Syntax) (cont : DoElemCont)
+    (x : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x cont
+  let checkDeprecated := (← readThe Core.Context).checkDeprecated
+  Term.withoutCheckDeprecatedSynthetic <|
+    x { cont with k := withTheReader Core.Context ({ · with checkDeprecated }) cont.k }
+
 private def DoElemCont.mkUnit (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
@@ -1033,20 +1053,21 @@ partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Boo
   if (← read).deadCode matches .deadSemantically then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
   withDeadCode .alive do -- we have warned for this doElem. No need to warn for every element of the block
-  let env ← getEnv
-  if let some (decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) then
-    let stxNew ← liftMacroM <| liftExcept stxNew?
+  if let some (decl, stxNew) ← Term.expandMacroReportingDeprecated? stx then
     return ← withTermInfoContext' decl stx mγ <|
       Term.withMacroExpansion stx stxNew <|
-        withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
+        withRef stxNew <| withDeprecationContextForDoElem stx cont (elabDoElem ⟨stxNew⟩ ·)
 
   let (doElems, stx) ← expandNestedActions stx
   if !doElems.isEmpty then
     return ← elabDoElems1 (doElems.push stx) cont
 
+  -- After `expandNestedActions`, as syntax with nested actions is elaborated again without them
+  Term.reportDeprecatedSyntax stx
   match doElemElabAttribute.getEntries (← getEnv) k with
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-  | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
+  | elabFns =>
+    withDeprecationContextForDoElem stx cont (elabDoElemFns stx · elabFns catchExPostpone)
 
 partial def elabDoElems1 (doElems : Array DoElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   if h : doElems.size = 0 then

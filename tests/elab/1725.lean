@@ -10,7 +10,7 @@ example (f : Fun α α) : α → α :=
 example (f : Fun α β) : (γ δ : Type) × (γ → δ) :=
   ⟨_, _, f⟩
 
-structure Equiv (α : Sort _) (β : Sort _) :=
+structure Equiv (α : Sort _) (β : Sort _) where
 (toFun    : α → β)
 (invFun   : β → α)
 

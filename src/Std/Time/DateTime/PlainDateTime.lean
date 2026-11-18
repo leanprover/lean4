@@ -62,94 +62,11 @@ def toWallTime (dt : PlainDateTime) : WallTime :=
 /--
 Converts a `WallTime` to a `PlainDateTime`.
 -/
-def ofWallTime (stamp : WallTime) : PlainDateTime := Id.run do
-  let leapYearEpoch := 11017
-  let daysPer400Y := 365 * 400 + 97
-  let daysPer100Y := 365 * 100 + 24
-  let daysPer4Y := 365 * 4 + 1
-
+def ofWallTime (stamp : WallTime) : PlainDateTime :=
   let nanos := stamp.toNanoseconds
-
-  let secs : Second.Offset := nanos.toSeconds
-  let remNano := Bounded.LE.byMod nanos.val 1000000000 (by decide)
-
-  let (remNano, secs) :=
-    if h : remNano.val < 0 then
-      (remNano.truncateTop (Int.le_sub_one_of_lt h) |>.add 1000000000 |>.expandBottom (by decide), secs - 1)
-    else
-      (remNano.truncateBottom (Int.not_lt.mp h), secs)
-
-  let daysSinceEpoch : Day.Offset := secs.toDays
-  let boundedDaysSinceEpoch := daysSinceEpoch
-
-  let mut rawDays := boundedDaysSinceEpoch - leapYearEpoch
-  let mut rem := Bounded.LE.byMod secs.val 86400 (by decide)
-
-  let ⟨remSecs, days⟩ :=
-    if h : rem.val ≤ -1 then
-      let remSecs := rem.truncateTop h
-      let remSecs : Bounded.LE 1 86399 := remSecs.add 86400
-      let rawDays := rawDays - 1
-      (remSecs.expandBottom (by decide), rawDays)
-    else
-      let h := rem.truncateBottom (Int.not_le.mp h)
-      (h, rawDays)
-
-  let mut quadracentennialCycles := days.val / daysPer400Y;
-  let mut remDays := days.val % daysPer400Y;
-
-  if remDays < 0 then
-    remDays := remDays + daysPer400Y
-    quadracentennialCycles := quadracentennialCycles - 1
-
-  let mut centenialCycles := remDays / daysPer100Y;
-
-  if centenialCycles = 4 then
-    centenialCycles := centenialCycles - 1
-
-  remDays := remDays - centenialCycles * daysPer100Y
-  let mut quadrennialCycles := remDays / daysPer4Y;
-
-  if quadrennialCycles = 25 then
-    quadrennialCycles := quadrennialCycles - 1
-
-  remDays := remDays - quadrennialCycles * daysPer4Y
-  let mut remYears := remDays / 365;
-
-  if remYears = 4 then
-    remYears := remYears - 1
-
-  remDays := remDays - remYears * 365
-
-  let mut year := 2000 + remYears + 4 * quadrennialCycles + 100 * centenialCycles + 400 * quadracentennialCycles
-  let months := [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 29];
-  let mut mon : Fin 13 := 0;
-
-  for monLen in months do
-    mon := mon + 1;
-    if remDays < monLen then
-      break
-    remDays := remDays - monLen
-
-  let mday : Fin 31 := Fin.ofNat _ (Int.toNat remDays)
-
-  let hmon ←
-    if h₁ : mon.val > 10
-      then do
-        year := year + 1
-        pure (Month.Ordinal.ofNat (mon.val - 10) (by omega))
-      else
-        pure (Month.Ordinal.ofNat (mon.val + 2) (by omega))
-
-  let second : Bounded.LE 0 59 := remSecs.emod 60 (by decide)
-  let minute : Bounded.LE 0 59 := (remSecs.ediv 60 (by decide)).emod 60 (by decide)
-  let hour : Bounded.LE 0 23 := remSecs.ediv 3600 (by decide)
-  let nano : Bounded.LE 0 999999999 := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
-
-  return {
-    date := PlainDate.ofYearMonthDayClip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
-    time := PlainTime.ofHourMinuteSecondsNano (hour.expandTop (by decide)) minute (second.expandTop (by decide)) nano
-  }
+  -- `/` floors, so wall times before 1970 fall on the previous day.
+  { date := PlainDate.ofEpochDay (.ofInt (nanos.val / 86400000000000))
+    time := PlainTime.ofNanoseconds nanos }
 
 /--
 Returns the local (civil) date of the `PlainDateTime` as a `Day.Offset` relative to 1970-01-01.
@@ -632,7 +549,7 @@ Converts a `WallTime` to a `PlainDate`.
 -/
 @[inline]
 def ofWallTime (wt : WallTime) : PlainDate :=
-  PlainDate.ofEpochDay wt.toDays
+  (PlainDateTime.ofWallTime wt).date
 
 instance : HSub PlainDate PlainDate Duration where
   hSub x y := x.toWallTime - y.toWallTime

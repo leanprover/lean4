@@ -301,6 +301,10 @@ def simpProj (e : Expr) : SimpM Result := do
   | some e => return { expr := e }
   | none =>
     let s := e.projExpr!
+    let r ← simp s
+    let eNew := e.updateProj! r.expr
+    let some h := r.proof? | return { expr := eNew }
+    -- The motive is only needed here. Type checking it visits `e`, and `simpProj` is nested along projection chains.
     let motive? ← withLocalDeclD `s (← inferType s) fun s => do
       let p := e.updateProj! s
       if (← dependsOn (← inferType p) s.fvarId!) then
@@ -312,13 +316,8 @@ def simpProj (e : Expr) : SimpM Result := do
         else
           return some motive
     if let some motive := motive? then
-      let r ← simp s
-      let eNew := e.updateProj! r.expr
-      match r.proof? with
-      | none => return { expr := eNew }
-      | some h =>
-        let hNew ← mkEqNDRec motive (← mkEqRefl e) h
-        return { expr := eNew, proof? := some hNew }
+      let hNew ← mkEqNDRec motive (← mkEqRefl e) h
+      return { expr := eNew, proof? := some hNew }
     else
       return { expr := (← dsimp e) }
 
@@ -375,6 +374,10 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
       IF we can simplify the domain.
       -/
       let rd ← simp domain
+      -- A proof of `p₁ = p₁` is dropped. The cast `h₁.substr a` below would otherwise survive inside
+      -- proof arguments that `simp` does not visit, so the result would never be equal to the
+      -- input and `visitPostContinue` would loop.
+      let rd := if rd.expr == domain then { expr := domain } else rd
       if let some h₁ := rd.proof? then
         /- Using
         ```

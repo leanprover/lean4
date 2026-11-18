@@ -24,7 +24,7 @@ namespace Lake
 
 /-! ## Build Lean & Static Lib -/
 
-private structure ModuleCollection where
+structure ModuleCollection where
   mods : Array Module := #[]
   modSet : ModuleSet := ∅
   hasErrors : Bool := false
@@ -64,7 +64,7 @@ where
 def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
-def LeanLib.recBuildElabArts (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildElabArts (self : LeanLib) : FetchM (Job Unit) := ensureJob do
   let mods ← (← self.modules.fetch).await
   mods.foldlM (init := Job.nil) fun job mod => do
     return job.mix <| ← mod.elabArts.fetch
@@ -73,7 +73,7 @@ def LeanLib.recBuildElabArts (self : LeanLib) : FetchM (Job Unit) := do
 public def LeanLib.elabArtsFacetConfig : LibraryFacetConfig elabArtsFacet :=
   mkFacetJobConfig recBuildElabArts
 
-def LeanLib.recBuildIRArts (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildIRArts (self : LeanLib) : FetchM (Job Unit) := ensureJob do
   let mods ← (← self.modules.fetch).await
   mods.foldlM (init := Job.nil) fun job mod => do
     return job.mix <| ← mod.irArts.fetch
@@ -172,6 +172,7 @@ public def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
 def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
+  withRegisterJob s!"{self.pkg.baseName}/{self.name}:extraDep" do
   let mut job := Job.nil s!"{self.pkg.baseName}/{self.name}:extraDep"
   job := job.mix (← self.pkg.extraDep.fetch)
   for target in self.extraDepTargets do

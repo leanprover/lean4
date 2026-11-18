@@ -16,6 +16,11 @@ a test picks one by pointing an endpoint at it (e.g. `.../corrupt/a0`):
   reset     disconnect without a response (curl writes no output file)
   empty     200 and a `Content-Length` but no body, for an object that is not
             in the store, so that curl leaves no output file to read
+  flaky     drop the first request for each object (as `reset`), then serve
+            and store normally, so that a retry succeeds
+  flakycorrupt
+            corrupt the first response for each object (as `corrupt`), then
+            serve normally, so that a retry succeeds
   badcount  Reservoir artifact URL lookup returns too few URLs
   apierror  Reservoir requests return an API error object
 
@@ -33,6 +38,7 @@ import argparse
 import json
 import os
 import sys
+import threading
 from enum import StrEnum
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlparse
@@ -47,6 +53,11 @@ DENY_BODY = (
 
 STORE = "."
 
+# Paths the per-path stateful fault modes (`flaky*`) have already seen.
+# Guarded by a lock: the threading server handles requests concurrently.
+SEEN_PATHS = set()
+SEEN_LOCK = threading.Lock()
+
 
 class Mode(StrEnum):
     """A fault mode, named by the first segment of a request path."""
@@ -57,6 +68,8 @@ class Mode(StrEnum):
     TRUNCATE = "truncate"
     RESET = "reset"
     EMPTY = "empty"
+    FLAKY = "flaky"
+    FLAKY_CORRUPT = "flakycorrupt"
     BAD_COUNT = "badcount"
     API_ERROR = "apierror"
 
@@ -123,6 +136,13 @@ class Handler(BaseHTTPRequestHandler):
         self.close_connection = True
         self.log("reset")
 
+    def first_request(self):
+        """Whether this is the first request for this path (fault mode included)."""
+        with SEEN_LOCK:
+            first = self.path not in SEEN_PATHS
+            SEEN_PATHS.add(self.path)
+            return first
+
     def serve(self, mode, path, ctype=None):
         try:
             with open(path, "rb") as f:
@@ -141,7 +161,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.not_found("no such object: %s" % self.path)
             return
         ctype = ctype or content_type(path)
-        if mode == Mode.CORRUPT:
+        if mode == Mode.CORRUPT or (mode == Mode.FLAKY_CORRUPT and self.first_request()):
             data = data[:-1] + bytes([data[-1] ^ 0xFF]) if data else b"corrupt"
             self.respond(200, data, ctype)
         elif mode == Mode.TRUNCATE:
@@ -203,7 +223,7 @@ class Handler(BaseHTTPRequestHandler):
         mode, parts, query = self.parse()
         if mode is None:
             self.not_found("no fault mode in path: %s" % self.path)
-        elif mode == Mode.RESET:
+        elif mode == Mode.RESET or (mode == Mode.FLAKY and self.first_request()):
             self.reset()
         elif mode == Mode.DENY:
             self.deny()
@@ -232,7 +252,7 @@ class Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(length)
         if mode is None:
             self.not_found("no fault mode in path: %s" % self.path)
-        elif mode == Mode.RESET:
+        elif mode == Mode.RESET or (mode == Mode.FLAKY and self.first_request()):
             self.reset()
         elif mode == Mode.DENY:
             self.deny()

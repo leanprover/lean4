@@ -1,0 +1,24 @@
+Input: "# Weekend {r}[x\n         abc\ndef\n\nWe went for a walk.\n"
+Failure: unexpected newline; expected ']'
+ --> 1:15
+  |
+1 | # Weekend {r}[x
+  |                ^
+  = consumed input prefix: 15 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.header
+   (Lean.Doc.Parser.headerMarker "#")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "Weekend "))
+    (Lean.Doc.Parser.Inline.role
+     "{"
+     `r
+     []
+     "}"
+     ["["]
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "x"))]
+     [<missing>])])
+Remaining:
+"abc\ndef\n\nWe went for a walk.\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

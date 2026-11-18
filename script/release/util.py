@@ -130,10 +130,6 @@ class ReleaseRepo:
     # Where to look for the toolchain, relative to the repo root.
     toolchain_file: str = "lean-toolchain"
 
-    # If present, nightly-related branches and tags are expected to be in this
-    # repo instead of the main repo.
-    nightly: Self | None = None
-
     # What to base the rc1 bump PR on.
     # - "default": Use the repo's default branch, usually master/main.
     # - "bump": Use the bump/v4.X.0 branch.
@@ -171,7 +167,8 @@ class ReleaseRepo:
     ignored_deps: list[Self] = field(default_factory=list)
 
     # Mutable
-    completed: bool = False
+    # None = untouched, False = started, True = completed
+    completed: bool | None = None
 
     @property
     def gh_owner(self) -> str:
@@ -210,11 +207,8 @@ class LocalRepo:
     def git_stdout(self, *args: Arg) -> str:
         return self.run_stdout("git", *args)
 
-    def _prepare_remotes(self, nightly: ReleaseRepo | None) -> None:
+    def _prepare_remotes(self) -> None:
         target = {"origin": self.rrepo}
-        if nightly:
-            target["nightly"] = nightly
-
         actual = {r.strip() for r in self.git_stdout("remote").splitlines()}
 
         for remote in actual - target.keys():
@@ -227,12 +221,12 @@ class LocalRepo:
             else:
                 self.git("remote", "add", name, url)
 
-    def prepare(self, nightly: ReleaseRepo | None = None) -> None:
+    def prepare(self) -> None:
         # Clone
         if not self.path.exists():
             run("gh", "repo", "clone", self.rrepo.gh_full_name, self.path)
 
-        self._prepare_remotes(nightly)
+        self._prepare_remotes()
 
         # Check worktree is ready
         self.git("diff", "--quiet")
@@ -240,8 +234,6 @@ class LocalRepo:
 
         # Fetch recent changes
         self.git("fetch", "--all", "--prune", "--prune-tags", "--force", silent=True)
-        if nightly:  # Some tags may have been pruned away
-            self.git("fetch", "--all", "--prune", silent=True)
 
     def switch(self, branch: str, remote: str = "origin") -> None:
         self.git("switch", "-C", branch, f"{remote}/{branch}")
@@ -344,12 +336,6 @@ def get_blocking_label(version: Version) -> str:
     return f"blocks-release-{version.base}"
 
 
-def get_latest_nightly_tag(grepo: Repository) -> Tag:
-    for tag in grepo.get_tags():
-        return tag
-    raise SystemExit("No lean4 nightly tags found")
-
-
 def get_file_contents(grepo: Repository, ref: str, path: str | Path) -> str:
     if isinstance(path, Path):
         assert not path.is_absolute()
@@ -379,7 +365,9 @@ def edit(
 def join_and(items: list[str]) -> str:
     if len(items) < 2:
         return "".join(items)
-    return f"{', '.join(items[:-1])} and {items[-1]}"
+    if len(items) == 2:
+        return " and ".join(items)
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
 
 
 #########
@@ -445,14 +433,14 @@ class CMakeVersion:
 
 
 def _parse_cmake_set(text: str, component: str) -> int:
-    match = re.search(rf"set\({component}\s+(\d+) ", text)
+    match = re.search(rf"set\({component}\s+(\d+)", text)
     if not match:
         raise ValueError(f"Failed to parse {component} from CMakeLists.txt")
     return int(match.group(1))
 
 
 def _update_cmake_set(text: str, component: str, value: int) -> str:
-    return re.sub(rf"set\({component}\s+\d+ ", f"set({component} {value} ", text)
+    return re.sub(rf"set\({component}\s+\d+", f"set({component} {value}", text)
 
 
 def get_cmake_version(grepo: Repository, ref: str) -> CMakeVersion:
@@ -496,7 +484,7 @@ def get_release_notes_index_path() -> str:
 
 
 def get_release_notes_title_for(version: Version, release: GitRelease) -> str:
-    date = release.published_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
+    date = release.published_at.astimezone(datetime.UTC).strftime("%Y-%m-%d")
     return f"Lean {version.raw} ({date})"
 
 

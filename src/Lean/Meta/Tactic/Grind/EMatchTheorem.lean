@@ -1208,7 +1208,10 @@ private partial def collectGroundPattern? (proof : Expr) (xs : Array Expr) (sear
   let go? : CollectorM (Option Expr) := do
     for place in searchPlaces do
       let place ← preprocessPattern place
-      if let some r ← visit? place then
+      -- `xs` may occur in `place` inside proofs (e.g., a hint `h _ _ ⋯` whose hole is a proof
+      -- parameter). They must be abstracted like in `collectPatterns?`, otherwise the
+      -- normalizer wraps terms containing these free variables as ground patterns.
+      if let some r ← visit? (place.abstract xs) then
         return r
     return none
   let (some p, s) ← go? { proof, xs } |>.run' {} { symPrios, minPrio } |>.run {}

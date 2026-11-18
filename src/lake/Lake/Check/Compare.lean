@@ -98,6 +98,9 @@ public def compareAt (challenge solution : LeanExport.ExportedEnv) (theoremTarge
     let .defnInfo solutionConst := solutionConst
       | throw s!"Solution constant is not a definition: '{target}'"
 
+    unless challengeConst.value.getLambdaBody.isAppOf ``sorryAx do
+      throw s!"Challenge definition is not sorried: '{target}'"
+
     if !definitionHoleMatches challengeConst solutionConst then
       throw s!"Const does not match between challenge and target '{target}'"
 

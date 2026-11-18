@@ -20,6 +20,23 @@ import Init.Data.Nat.Dvd
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+/--
+Reduces the coefficients of `c.p` modulo `c.d` using balanced residues. If the leading
+coefficient is coprime to `c.d`, `c.p` is first multiplied by its inverse modulo `c.d`, so that
+the leading coefficient becomes `±1`. Example: `32768 ∣ 5*x` becomes `32768 ∣ x`.
+-/
+def DvdCnstr.bmodCoeffs (c : DvdCnstr) : DvdCnstr :=
+  let d := c.d.natAbs
+  if d ≤ 1 then c else
+  let a := match c.p with
+    | .add k _ _ =>
+      if k.natAbs == 1 then 1 else
+      let (g, α, _) := gcdExt k d
+      if g == 1 then α else 1
+    | .num _ => 1
+  let p := (if a == 1 then c.p else c.p.mul a).bmodCoeffs d
+  if p == c.p then c else { d := c.d, p, h := .bmodCoeffs c a }
+
 def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=
   let c := if c.p.isSorted then
     c
@@ -27,10 +44,11 @@ def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=
     { d := c.d, p := c.p.norm, h :=.norm c }
   let g := c.p.gcdCoeffs c.d
   let g := if c.d < 0 then -g else g
-  if c.p.getConst % g == 0 && g != 1 then
+  let c := if c.p.getConst % g == 0 && g != 1 then
     { d := c.d/g, p := c.p.div g, h := .divCoeffs c }
   else
     c
+  c.bmodCoeffs
 
 /--
 Given an equation `c₁` containing the monomial `a*x`, and a divisibility constraint `c₂`
@@ -54,7 +72,8 @@ partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDe
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
   trace[grind.lia.assert] "{← c.pp}"
-  let c ← c.norm.applySubsts
+  -- Substitutions may reintroduce large coefficients, so we normalize again afterwards.
+  let c := (← c.norm.applySubsts).norm
   if c.isUnsat then
     trace[grind.lia.assert.unsat] "{← c.pp}"
     setInconsistent (.dvd c)
@@ -94,6 +113,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     let elim := { d, p := a₂_p₁.combine a₁_p₂, h := .solveElim c c' : DvdCnstr }
     elim.assert
   else
+    let c ← c.markStored
     trace[grind.lia.assert.store] "{← c.pp}"
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
@@ -101,7 +121,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
 /-- Asserts a constraint coming from the core. -/
 private def DvdCnstr.assertCore (c : DvdCnstr) : GoalM Unit := do
   if let some (re, rp, p) ← c.p.normCommRing? then
-    let c := { c with p, h := .commRingNorm c re rp : DvdCnstr}
+    let c := { d := c.d, p, h := .commRingNorm c re rp : DvdCnstr }
     c.assert
   else
     c.assert

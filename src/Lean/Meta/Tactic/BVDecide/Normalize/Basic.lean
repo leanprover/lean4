@@ -18,6 +18,9 @@ public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.BVDecide.Types
+public import Lean.Meta.Tactic.BVDecide.TacticContext
+public import Lean.Meta.Tactic.BVDecide.Normalize.Hyp
+public import Lean.Meta.Tactic.BVDecide.EPR.Basic
 
 public section
 
@@ -39,6 +42,7 @@ def withDoneResult {m : Type → Type} [Monad m] (x : m Sym.Simp.Result) : m Sym
   | .step e' proof _ dep =>  return .step e' proof true dep
 
 inductive Target where
+  | hypTarget (mvar : MVarId) (hyps : Array Hyp)
   | mvarIdTarget (mvar : MVarId)
   | grindTarget (goal : Grind.Goal)
   deriving Inhabited
@@ -46,16 +50,9 @@ inductive Target where
 namespace Target
 
 def mvarId : Target → MVarId
+  | .hypTarget mvar _ => mvar
   | .mvarIdTarget mvar => mvar
   | .grindTarget goal => goal.mvarId
-
-def isGrind : Target → Bool
-  | .mvarIdTarget .. => false
-  | .grindTarget .. => true
-
-def isMVar : Target → Bool
-  | .mvarIdTarget .. => true
-  | .grindTarget .. => false
 
 end Target
 
@@ -101,47 +98,6 @@ structure TypeAnalysis where
   -/
   uninteresting : Std.HashSet Name := {}
 
-inductive HypSource where
-  | lctx (fvar : FVarId)
-  | enumDomain (n : Name)
-  | structureProjection (e : Expr)
-  | andFlattened (s : HypSource)
-  | grind
-  deriving Inhabited, Hashable, BEq
-
-partial instance : ToMessageData HypSource where
-  toMessageData s :=
-    go s
-where
-  go (s : HypSource) : MessageData :=
-    match s with
-    | .lctx fvar => m!"assumption {mkFVar fvar}"
-    | .enumDomain n => m!"enum domain size lemma for {n}"
-    | .structureProjection e => m!"structure lemma projection: {e}"
-    | .andFlattened s => m!"and flattening from {go (stripFlatten s)}"
-    | .grind => m!"grind state"
-
-  stripFlatten (s : HypSource) : HypSource :=
-    match s with
-    | .andFlattened s => stripFlatten s
-    | _ => s
-
-structure Hyp where
-  name : Name
-  type : Expr
-  value : Expr
-  source : HypSource
-  deriving Inhabited
-
-instance : BEq Hyp where
-  beq lhs rhs := lhs.type == rhs.type
-
-instance : Hashable Hyp where
-  hash hyp := hash hyp.type
-
-instance : ToMessageData Hyp where
-  toMessageData hyp := toMessageData hyp.type
-
 /--
 The mode that the `bv_normalize` preprocessing pipeline runs in.
 -/
@@ -172,7 +128,7 @@ def restrictedTypes : Mode → Option (Array Name)
 /--
 Disables the configuration options that `mode` cannot support. In `push` mode these are the options
 that either depend on the context (e.g. enums, structures) or require a more clever incrementality
-scheme (e.g. `embeddedConstraintSubst`, `andFlattening`).
+scheme (e.g. `embeddedConstraintSubst`, `andFlattening`, `epr`).
 -/
 def adjustConfig (mode : Mode) (config : BVDecideConfig) : BVDecideConfig :=
   match mode with
@@ -183,7 +139,8 @@ def adjustConfig (mode : Mode) (config : BVDecideConfig) : BVDecideConfig :=
       fixedInt := false
       structures := false
       embeddedConstraintSubst := false
-      andFlattening := false }
+      andFlattening := false
+      epr := false }
 
 end Mode
 
@@ -201,14 +158,26 @@ structure PreProcessContext where
   The mode that the pipeline runs in.
   -/
   mode : Mode
+  /--
+  Whether the caches should be dropped as soon as possible or kept until the end of the pipeline.
+  -/
+  keepCaches : Bool
 
 /--
 Creates the context for a run of the pipeline in `mode`, disabling all configuration options that
 `mode` does not support.
 -/
-def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) : PreProcessContext where
-  config := mode.adjustConfig config
-  mode := mode
+def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) (keepCaches : Option Bool := none) :
+    PreProcessContext :=
+  let keepCaches := keepCaches.getD <| config.needsIncremental || mode.isPush
+  {
+    config := mode.adjustConfig config
+    mode := mode
+    keepCaches := keepCaches
+  }
+
+def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
+  .new (.solve ctx.restrictedTypes) ctx.config
 
 /--
 Identifies the `Sym.Simp` cache that a pass operates on.
@@ -270,6 +239,10 @@ structure PreProcessState where
   A didChange flag for our fixpoint simplification loop.
   -/
   didChange : Bool := false
+  /--
+  The BitVec encoded EPR problem extracted from the hypotheses, empty if none was detected.
+  -/
+  eprBvProblem : EPR.EprBvProblem := {}
 
 abbrev PreProcessM : Type → Type := ReaderT PreProcessContext StateRefT PreProcessState Grind.GrindM
 
@@ -326,7 +299,7 @@ so that `grind` knows that there is nothing left to do for this goal.
 -/
 def closeTarget (falseProof : Expr) : PreProcessM Unit := do
   match ← getTarget with
-  | .mvarIdTarget mvarId => mvarId.assignFalseProof falseProof
+  | .mvarIdTarget mvarId | .hypTarget mvarId .. => mvarId.assignFalseProof falseProof
   | .grindTarget .. => discard <| withGrindGoal <| Grind.closeGoal falseProof
 
 @[inline]
@@ -350,7 +323,7 @@ Drops the caches of all passes that maintain one. In `bv_decide_push` mode this 
 caches are the very thing that we want to hand to the next invocation.
 -/
 def dropPassCaches : PreProcessM Unit := do
-  if !(← isPushMode) then
+  if !(← read).keepCaches then
     setCaches {}
 
 @[inline]
@@ -464,17 +437,24 @@ def forHyps [Monad m] [MonadLiftT PreProcessM m] [MonadError m] (f : Hyp → m U
   hyps.forM f
 
 /--
-Runs `Sym.Simp` on `hyp`, using the cache identified by `cacheId` and updating it in place.
+Runs `Sym.Simp` on `e`, using the cache identified by `cacheId` and updating it in place.
 -/
-def simpHyp (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
-    (hyp : Hyp) : PreProcessM Hyp := do
+def simpExpr (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
+    (e : Expr) : PreProcessM Sym.Simp.Result := do
   let caches ← getCaches
   let simpState := { persistentCache := cacheId.get caches }
   setCaches <| cacheId.set {} caches
   let (res, s) ← Sym.Simp.SimpM.run (methods := methods) (config := config) (s := simpState) do
-    Sym.Simp.simp hyp.type
+    Sym.Simp.simp e
   setCaches <| cacheId.set s.persistentCache (← getCaches)
-  hyp.applySimpResult res
+  return res
+
+/--
+Runs `Sym.Simp` on `hyp`, using the cache identified by `cacheId` and updating it in place.
+-/
+def simpHyp (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
+    (hyp : Hyp) : PreProcessM Hyp := do
+  hyp.applySimpResult (← simpExpr cacheId methods config hyp.type)
 
 /--
 Runs `Sym.DSimp` on `hyp`, using the cache identified by `cacheId` and updating it in place.

@@ -130,10 +130,35 @@ set_option trace.Compiler.saveBase true in
 def utf8SizeFourBytes : Nat := '𝔸'.utf8Size
 
 /--
-trace: [Compiler.saveBase] size: 1
+trace: [Compiler.saveBase] size: 23
     def utf8SizeVar c : Nat :=
-      let _x.1 := Char.utf8Size c;
-      return _x.1
+      let v := c # 0;
+      let _x.1 := 127;
+      let _x.2 := UInt32.decLe v _x.1;
+      let _x.3 := _x.2 # 0;
+      cases _x.3 : Nat
+      | Bool.false =>
+        let _x.4 := 2047;
+        let _x.5 := UInt32.decLe v _x.4;
+        let _x.6 := _x.5 # 0;
+        cases _x.6 : Nat
+        | Bool.false =>
+          let _x.7 := 65535;
+          let _x.8 := UInt32.decLe v _x.7;
+          let _x.9 := _x.8 # 0;
+          cases _x.9 : Nat
+          | Bool.false =>
+            let _x.10 := 4;
+            return _x.10
+          | Bool.true =>
+            let _x.11 := 3;
+            return _x.11
+        | Bool.true =>
+          let _x.12 := 2;
+          return _x.12
+      | Bool.true =>
+        let _x.13 := 1;
+        return _x.13
 -/
 #guard_msgs in
 set_option trace.Compiler.saveBase true in

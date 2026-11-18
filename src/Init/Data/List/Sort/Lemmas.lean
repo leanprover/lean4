@@ -357,7 +357,7 @@ theorem mergeSort_of_pairwise : ∀ {l : List α} (_ : Pairwise le l), mergeSort
   | a :: b :: xs, h => by
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
-    rw [mergeSort]
+    simp only [mergeSort]
     rw [mergeSort_of_pairwise (splitInTwo_fst_pairwise ⟨a :: b :: xs, rfl⟩ h)]
     rw [mergeSort_of_pairwise (splitInTwo_snd_pairwise ⟨a :: b :: xs, rfl⟩ h)]
     rw [merge_of_le (splitInTwo_fst_le_splitInTwo_snd h)]

@@ -182,7 +182,7 @@ private def elabMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
           return (altLHS, rhs)
 
 private def elabMatchAlts (discrs : Array Term.Discr) (alts : Array DoMatchAltView) (dec : DoElemCont) : DoElabM (Expr × Array AltLHS × Array Expr) := do
-  let alts ← liftMacroM <| Term.expandMacrosInPatterns alts
+  let alts ← Term.expandMacrosInPatterns alts
   let matchType ← mkDepMatchMotive discrs (← mkMonadApp (← read).doBlockResultType)
   let (lhss, rhss) ← Array.unzip <$> alts.mapM (elabMatchAlt discrs matchType · dec)
   return (matchType, lhss, rhss)

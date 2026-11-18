@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Async
-// Imports: public import Std.Async.Basic public import Std.Async.ContextAsync public import Std.Async.Timer public import Std.Async.TCP public import Std.Async.UDP public import Std.Async.DNS public import Std.Async.Select public import Std.Async.Process public import Std.Async.System public import Std.Async.Signal public import Std.Async.IO
+// Imports: public import Std.Async.Basic public import Std.Async.ContextAsync public import Std.Async.Timer public import Std.Async.Watchdog public import Std.Async.TCP public import Std.Async.UDP public import Std.Async.DNS public import Std.Async.Select public import Std.Async.Process public import Std.Async.System public import Std.Async.Signal public import Std.Async.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* runtime_initialize_Std_Async_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Async_ContextAsync(uint8_t builtin);
 lean_object* runtime_initialize_Std_Async_Timer(uint8_t builtin);
+lean_object* runtime_initialize_Std_Async_Watchdog(uint8_t builtin);
 lean_object* runtime_initialize_Std_Async_TCP(uint8_t builtin);
 lean_object* runtime_initialize_Std_Async_UDP(uint8_t builtin);
 lean_object* runtime_initialize_Std_Async_DNS(uint8_t builtin);
@@ -38,6 +39,9 @@ res = runtime_initialize_Std_Async_ContextAsync(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Async_Timer(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Async_Watchdog(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Async_TCP(builtin);
@@ -76,6 +80,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Async_Basic(uint8_t builtin);
 lean_object* initialize_Std_Async_ContextAsync(uint8_t builtin);
 lean_object* initialize_Std_Async_Timer(uint8_t builtin);
+lean_object* initialize_Std_Async_Watchdog(uint8_t builtin);
 lean_object* initialize_Std_Async_TCP(uint8_t builtin);
 lean_object* initialize_Std_Async_UDP(uint8_t builtin);
 lean_object* initialize_Std_Async_DNS(uint8_t builtin);
@@ -96,6 +101,9 @@ res = initialize_Std_Async_ContextAsync(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Async_Timer(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Async_Watchdog(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Async_TCP(builtin);

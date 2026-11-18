@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-! `vcgen` ranks the specs available at a call site into priority bands: a spec named in the
 `vcgen [...]` list outranks a local hypothesis pulled in by `*`, which outranks a bracketed
 definition's unfolding, which outranks a spec collected from an ambient hypothesis. The call-site

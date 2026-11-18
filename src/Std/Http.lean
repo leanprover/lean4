@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Http.Server
-public import Std.Http.Test.Helpers
+import Std.Http.Test.Helpers
 
 public section
 
@@ -67,13 +67,13 @@ small and large payloads efficiently.
 ### Reading Headers
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   -- Access request method and URI
-  let method := req.head.method      -- Method.get, Method.post, etc.
-  let uri := req.head.uri            -- RequestTarget
+  let method := req.line.method      -- Method.get, Method.post, etc.
+  let uri := req.line.uri            -- RequestTarget
 
   -- Read a specific header
-  if let some contentType := req.head.headers.get? (.mk "content-type") then
+  if let some contentType := req.line.headers.get? (.mk "content-type") then
     IO.println s!"Content-Type: {contentType}"
 
   Response.ok |>.text "OK"
@@ -83,7 +83,7 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) :=
 
 `RequestTarget.query` is parsed using form-style key/value conventions (`k=v&...`), and `+` is decoded as a
 space in query components. If you need RFC 3986 opaque query handling, use the raw request target string
-(`toString req.head.uri`) and parse it with custom logic.
+(`toString req.line.uri`) and parse it with custom logic.
 
 ### Reading the Request Body
 
@@ -92,7 +92,7 @@ collected into memory. The `readAll` method reads the entire body, with an optio
 limit to protect against unbounded payloads.
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   -- Collect entire body as a String
   let bodyStr : String ← req.body.readAll
 
@@ -108,7 +108,8 @@ Responses are constructed using a builder API that starts from a status code and
 headers and a body. Common helpers exist for text, HTML, JSON, and binary responses, while
 still allowing full control over status codes and header values.
 
-Response builders produce `Async (Response Body.Stream)`.
+Response builders produce `Async (Response Body.Full)`, which converts to the `Response Body.Any` a
+handler returns.
 
 ```lean
 -- Text response
@@ -138,7 +139,7 @@ Response.ok
 For large responses or server-sent events, use streaming:
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   Response.ok
     |>.header! "Content-Type" "text/plain"
     |>.stream fun stream => do

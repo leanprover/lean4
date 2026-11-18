@@ -1805,6 +1805,18 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h
     (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
   @DHashMap.Raw.isEmpty_inter_comm _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
 
+@[simp]
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    ((m₁ ∪ m₂) ∩ m₃).isEmpty = ((m₁ ∩ m₃).isEmpty && (m₂ ∩ m₃).isEmpty) :=
+  @DHashMap.Raw.isEmpty_union_inter _ _ _ _ m₁.inner m₂.inner _ _ m₃.inner h₁.out h₂.out h₃.out
+
+@[simp]
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    (m₁ ∩ (m₂ ∪ m₃)).isEmpty = ((m₁ ∩ m₂).isEmpty && (m₁ ∩ m₃).isEmpty) :=
+  @DHashMap.Raw.isEmpty_inter_union _ _ _ _ m₁.inner m₂.inner _ _ m₃.inner h₁.out h₂.out h₃.out
+
 end Inter
 
 section Diff
@@ -3061,6 +3073,20 @@ theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
   rw [equiv_empty_iff_isEmpty (h₁.inter h₂), equiv_empty_iff_isEmpty (h₂.inter h₁),
     ← Bool.eq_iff_iff]
   exact isEmpty_inter_comm h₁ h₂
+
+@[simp]
+theorem union_inter_equiv_empty_iff [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ m₃ : HashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    ((m₁ ∪ m₂) ∩ m₃) ~m ∅ ↔ (m₁ ∩ m₃) ~m ∅ ∧ (m₂ ∩ m₃) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty ((h₁.union h₂).inter h₃), equiv_empty_iff_isEmpty (h₁.inter h₃),
+    equiv_empty_iff_isEmpty (h₂.inter h₃), isEmpty_union_inter h₁ h₂ h₃, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_equiv_empty_iff [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ m₃ : HashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    (m₁ ∩ (m₂ ∪ m₃)) ~m ∅ ↔ (m₁ ∩ m₂) ~m ∅ ∧ (m₁ ∩ m₃) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter (h₂.union h₃)), equiv_empty_iff_isEmpty (h₁.inter h₂),
+    equiv_empty_iff_isEmpty (h₁.inter h₃), isEmpty_inter_union h₁ h₂ h₃, Bool.and_eq_true]
 
 theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     emptyWithCapacity c ~m m ↔ m.isEmpty :=

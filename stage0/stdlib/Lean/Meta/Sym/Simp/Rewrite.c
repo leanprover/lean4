@@ -156,7 +156,6 @@ v_us_9_ = lean_ctor_get(v_expr_1_, 1);
 if (lean_obj_tag(v_us_9_) == 0)
 {
 lean_object* v_declName_10_; lean_object* v___x_11_; lean_object* v___x_12_; 
-lean_dec_ref(v_pattern_2_);
 v_declName_10_ = lean_ctor_get(v_expr_1_, 0);
 lean_inc(v_declName_10_);
 lean_dec_ref_known(v_expr_1_, 2);
@@ -177,9 +176,8 @@ v___jp_5_:
 {
 lean_object* v_levelParams_6_; lean_object* v___x_7_; lean_object* v___x_8_; 
 v_levelParams_6_ = lean_ctor_get(v_pattern_2_, 0);
-lean_inc(v_levelParams_6_);
-lean_dec_ref(v_pattern_2_);
 v___x_7_ = l_Lean_Expr_instantiateLevelParams(v_expr_1_, v_levelParams_6_, v_us_3_);
+lean_dec(v_us_3_);
 lean_dec_ref(v_expr_1_);
 v___x_8_ = l_Lean_mkAppN(v___x_7_, v_args_4_);
 return v___x_8_;
@@ -192,6 +190,7 @@ _start:
 lean_object* v_res_17_; 
 v_res_17_ = l___private_Lean_Meta_Sym_Simp_Rewrite_0__Lean_Meta_Sym_Simp_mkValue(v_expr_13_, v_pattern_14_, v_us_15_, v_args_16_);
 lean_dec_ref(v_args_16_);
+lean_dec_ref(v_pattern_14_);
 return v_res_17_;
 }
 }
@@ -2691,7 +2690,10 @@ v_levelParams_849_ = lean_ctor_get(v_pattern_818_, 0);
 lean_inc(v_levelParams_849_);
 lean_inc(v_a_833_);
 v___x_850_ = l___private_Lean_Meta_Sym_Simp_Rewrite_0__Lean_Meta_Sym_Simp_mkValue(v_expr_817_, v_pattern_818_, v_a_833_, v_fst_847_);
+lean_dec_ref(v_pattern_818_);
 v___x_851_ = l_Lean_Expr_instantiateLevelParams(v_rhs_819_, v_levelParams_849_, v_a_833_);
+lean_dec(v_a_833_);
+lean_dec(v_levelParams_849_);
 lean_dec_ref(v_rhs_819_);
 v___x_852_ = l_Lean_Meta_Sym_shareCommonInc(v___x_851_, v___y_807_, v___y_808_, v___y_809_, v___y_810_, v___y_811_, v___y_812_);
 if (lean_obj_tag(v___x_852_) == 0)
@@ -3493,7 +3495,7 @@ return v_res_1191_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Sym_Simp_Rewrite_0__Lean_Meta_Sym_Simp_rewriteUsing_spec__0(lean_object* v_d_1192_, lean_object* v_e_1193_, lean_object* v_as_1194_, size_t v_sz_1195_, size_t v_i_1196_, lean_object* v_b_1197_, lean_object* v___y_1198_, lean_object* v___y_1199_, lean_object* v___y_1200_, lean_object* v___y_1201_, lean_object* v___y_1202_, lean_object* v___y_1203_, lean_object* v___y_1204_, lean_object* v___y_1205_, lean_object* v___y_1206_){
 _start:
 {
-uint8_t v___y_1209_; lean_object* v___y_1210_; lean_object* v___y_1218_; uint8_t v___y_1219_; uint8_t v___y_1222_; lean_object* v___y_1223_; uint8_t v___y_1224_; uint8_t v___y_1225_; lean_object* v___y_1227_; uint8_t v___y_1228_; uint8_t v___y_1229_; lean_object* v___y_1233_; uint8_t v___y_1234_; uint8_t v___x_1236_; 
+uint8_t v___y_1209_; lean_object* v___y_1210_; lean_object* v___y_1218_; uint8_t v___y_1219_; lean_object* v___y_1222_; uint8_t v___y_1223_; uint8_t v___y_1224_; uint8_t v___y_1225_; lean_object* v___y_1227_; uint8_t v___y_1228_; uint8_t v___y_1229_; lean_object* v___y_1233_; uint8_t v___y_1234_; uint8_t v___x_1236_; 
 v___x_1236_ = lean_usize_dec_lt(v_i_1196_, v_sz_1195_);
 if (v___x_1236_ == 0)
 {
@@ -3795,21 +3797,21 @@ v___jp_1221_:
 {
 if (v___y_1225_ == 0)
 {
-v___y_1218_ = v___y_1223_;
+v___y_1218_ = v___y_1222_;
 v___y_1219_ = v___y_1224_;
 goto v___jp_1217_;
 }
 else
 {
-if (v___y_1222_ == 0)
+if (v___y_1223_ == 0)
 {
 v___y_1209_ = v___y_1224_;
-v___y_1210_ = v___y_1223_;
+v___y_1210_ = v___y_1222_;
 goto v___jp_1208_;
 }
 else
 {
-v___y_1218_ = v___y_1223_;
+v___y_1218_ = v___y_1222_;
 v___y_1219_ = v___y_1224_;
 goto v___jp_1217_;
 }
@@ -3829,8 +3831,8 @@ if (lean_obj_tag(v___y_1227_) == 0)
 {
 uint8_t v_contextDependent_1230_; 
 v_contextDependent_1230_ = lean_ctor_get_uint8(v___y_1227_, 1);
-v___y_1222_ = v___y_1229_;
-v___y_1223_ = v___y_1227_;
+v___y_1222_ = v___y_1227_;
+v___y_1223_ = v___y_1229_;
 v___y_1224_ = v___y_1228_;
 v___y_1225_ = v_contextDependent_1230_;
 goto v___jp_1221_;
@@ -3839,8 +3841,8 @@ else
 {
 uint8_t v_contextDependent_1231_; 
 v_contextDependent_1231_ = lean_ctor_get_uint8(v___y_1227_, sizeof(void*)*2 + 1);
-v___y_1222_ = v___y_1229_;
-v___y_1223_ = v___y_1227_;
+v___y_1222_ = v___y_1227_;
+v___y_1223_ = v___y_1229_;
 v___y_1224_ = v___y_1228_;
 v___y_1225_ = v_contextDependent_1231_;
 goto v___jp_1221_;

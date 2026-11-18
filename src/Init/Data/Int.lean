@@ -16,6 +16,7 @@ public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Order
 public import Init.Data.Int.Pow
 public import Init.Data.Int.Cooper
+public import Init.Data.Int.Kernel
 public import Init.Data.Int.Linear
 public import Init.Data.Int.OfNat
 public import Init.Data.Int.ToString

@@ -17,7 +17,7 @@ lean_object* l_Ord_opposite___redArg___lam__0___boxed(lean_object*, lean_object*
 lean_object* l_List_min_x3f___redArg(lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l_Option_instBEq_beq___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_instBEqOption_beq___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
@@ -782,7 +782,7 @@ v___x_222_ = lean_apply_1(v_inst_216_, v_fst_220_);
 v___x_223_ = l_Std_Internal_List_getValueCast_x3f___redArg(v_inst_217_, v_fst_220_, v_l_u2082_218_);
 v___x_224_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_224_, 0, v_snd_221_);
-v___x_225_ = l_Option_instBEq_beq___redArg(v___x_222_, v___x_223_, v___x_224_);
+v___x_225_ = l_instBEqOption_beq___redArg(v___x_222_, v___x_223_, v___x_224_);
 return v___x_225_;
 }
 }
@@ -922,7 +922,7 @@ lean_dec_ref(v_x_290_);
 v___x_293_ = l_Std_Internal_List_getValue_x3f___redArg(v_inst_287_, v_fst_291_, v_l_u2082_288_);
 v___x_294_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_294_, 0, v_snd_292_);
-v___x_295_ = l_Option_instBEq_beq___redArg(v_inst_289_, v___x_293_, v___x_294_);
+v___x_295_ = l_instBEqOption_beq___redArg(v_inst_289_, v___x_293_, v___x_294_);
 return v___x_295_;
 }
 }

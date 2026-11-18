@@ -245,6 +245,22 @@ partial def hasIdent (id : Name) : Syntax → Bool
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
   Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
+/--
+Erases the macro scopes that syntax quotations add to identifiers, e.g. so that syntax built by a
+quotation can be suggested as source text. Identifiers created from a name that already had macro
+scopes, such as an inaccessible name in a proof state, keep them.
+-/
+def eraseQuoteMacroScopes (stx : Syntax) : Syntax :=
+  stx.rewriteBottomUp fun
+    | ident info rawVal val preresolved =>
+      -- Quotations keep the identifier as written as its raw value, while identifiers created from
+      -- a name with macro scopes contain them (`x._@...`) in their raw value
+      if rawVal.contains '@' then
+        ident info rawVal val preresolved
+      else
+        ident info rawVal val.eraseMacroScopes preresolved
+    | stx => stx
+
 private def updateInfo : SourceInfo → String.Pos.Raw → String.Pos.Raw → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
     SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop } endPos

@@ -84,68 +84,20 @@ theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)�
     congr 1
     rw [CommSemiring.mul_comm]
 
-theorem ofRat_div' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.num : α) ≠ 0) :
-    (ofRat (a / b) : α) = ofRat a / ofRat b := by
-  replace hb : ((b⁻¹).den : α) ≠ 0 := by
-    simp only [Rat.den_inv, Rat.num_eq_zero, ne_eq]
-    rw [ite_eq_right (by intro h; simp_all)]
-    rw [← Ring.intCast_natCast]
-    by_cases h : 0 ≤ b.num
-    · have : (b.num.natAbs : Int) = b.num := Int.natAbs_of_nonneg h
-      rwa [this]
-    · have : (b.num.natAbs : Int) = -b.num := Int.ofNat_natAbs_of_nonpos (by omega)
-      rw [this, Ring.intCast_neg]
-      rwa [AddCommGroup.neg_eq_iff, AddCommGroup.neg_zero]
-  rw [Rat.div_def, ofRat_mul' ha hb, ofRat_inv, Field.div_eq_mul_inv (ofRat a)]
-
 theorem ofRat_div {α} [Field α] [IsCharP α 0] (a b : Rat) : (ofRat (a / b) : α) = ofRat a / ofRat b := by
   rw [Rat.div_def, ofRat_mul, ofRat_inv, Field.div_eq_mul_inv (ofRat a)]
 
 theorem ofRat_neg {α} [Field α] (a : Rat) : (ofRat (-a) : α) = -ofRat a := by
   simp [ofRat, Field.div_eq_mul_inv, Ring.intCast_neg, Ring.neg_mul]
 
-theorem ofRat_sub' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.den : α) ≠ 0) :
-    (ofRat (a - b) : α) = ofRat a - ofRat b := by
-  replace hb : ((-b).den : α) ≠ 0 := by simpa
-  rw [Rat.sub_eq_add_neg, ofRat_add' ha hb, ofRat_neg, Ring.sub_eq_add_neg]
-
 theorem ofRat_sub {α} [Field α] [IsCharP α 0] (a b : Rat) :
     (ofRat (a - b) : α) = ofRat a - ofRat b := by
   rw [Rat.sub_eq_add_neg, ofRat_add, ofRat_neg, Ring.sub_eq_add_neg]
-
-theorem ofRat_npow' {α} [Field α] {a : Rat} (ha : (a.den : α) ≠ 0) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := by
-  have h : ∀ n : Nat, ((a^n).den : α) ≠ 0 := by
-    intro n
-    rw [Rat.den_pow, ne_eq, Semiring.natCast_pow]
-    intro h
-    induction n with
-    | zero =>
-      rw [Semiring.pow_zero] at h
-      exact Field.zero_ne_one h.symm
-    | succ n ih' =>
-      rw [Semiring.pow_succ] at h
-      replace h := Field.of_mul_eq_zero h
-      rcases h with h | h
-      · exact ih' h
-      · exact ha h
-  induction n
-  next => simp [Field.div_eq_mul_inv, ofRat]
-  next n ih =>
-    rw [Rat.pow_succ, ofRat_mul' (h _) ha, ih, Semiring.pow_succ]
 
 theorem ofRat_npow {α} [Field α] [IsCharP α 0] (a : Rat) (n : Nat) : (ofRat (a^n) : α) = ofRat a ^ n := by
   induction n
   next => simp [Field.div_eq_mul_inv, ofRat]
   next n ih => rw [Rat.pow_succ, ofRat_mul, ih, Semiring.pow_succ]
-
-theorem ofRat_zpow' {α} [Field α] {a : Rat} (ha : (a.den : α) ≠ 0) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := by
-  cases n
-  next => rw [Int.ofNat_eq_natCast, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow' ha]
-  next =>
-    rw [Int.negSucc_eq, Rat.zpow_neg, Field.zpow_neg, ofRat_inv]
-    congr 1
-    have : (1 : Int) = (1 : Nat) := rfl
-    rw [this, ← Int.natCast_add, Rat.zpow_natCast, Field.zpow_natCast, ofRat_npow' ha]
 
 theorem ofRat_zpow {α} [Field α] [IsCharP α 0] (a : Rat) (n : Int) : (ofRat (a^n) : α) = ofRat a ^ n := by
   cases n

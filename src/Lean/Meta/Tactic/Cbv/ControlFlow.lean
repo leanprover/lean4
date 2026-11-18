@@ -9,6 +9,8 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.Sym.Simp.ControlFlow
+import Lean.Meta.Sym.Simp.Discharger
+import Lean.Meta.Sym.Simp.Forall
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
@@ -17,7 +19,7 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
-import Lean.Meta.Tactic.Cbv.TheoremsLookup
+import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Compiler.NoncomputableAttr
@@ -428,7 +430,7 @@ end Lean.Meta.Sym.Simp
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
-builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
+builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _ _) := simpCond
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then
@@ -440,9 +442,15 @@ public def reduceRecMatcher : Simproc := fun e => do
 builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _) :=
   (simpInterlaced · #[false,false,false,true]) >> reduceRecMatcher
 
+def dischargeOverlap : Discharger := fun e => do
+  if (← readThe Sym.Simp.Context).dischargeDepth > (← Sym.Simp.getConfig).maxDischargeDepth then
+    return .failed
+  withTheReader Sym.Simp.Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+    mkDischargerFromSimproc simpArrowTelescope e
+
 def tryMatchEquations (appFn : Name) : Simproc := fun e => do
   let thms ← getMatchTheorems appFn
-  thms.rewrite (d := dischargeNone) e
+  thms.rewrite (d := dischargeOverlap) e
 
 /-- Dispatch control flow constructs to their specialized simprocs.
 Precondition: `e` is an application. -/

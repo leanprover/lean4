@@ -51,7 +51,7 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
     simp [go, hr]
   | succ curr ih =>
     intro idx hidx
-    rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
+    simp only [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
     next hdiscr =>
       rw [ih]

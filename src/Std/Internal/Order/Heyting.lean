@@ -30,18 +30,6 @@ universe u v
 section Basic
 
 variable {α : Type u} [CompleteLattice α]
-
-/-- A complete lattice whose meets preserve suprema. The Heyting implication `⇨` is then a right
-adjoint, and `⊓` distributes over suprema of arbitrary families. The literature also calls such a
-lattice a frame. -/
-abbrev Heyting (α : Type u) [CompleteLattice α] : Prop := ∀ a : α, PreservesSup (meet a)
-
-/-- Heyting implication: the upper adjoint of the lattice meet. For `Prop` it is `→`. -/
-noncomputable def himp {α : Type u} [CompleteLattice α] (a b : α) : α :=
-  PreservesSup.upperAdjoint (meet a) b
-
-@[inherit_doc himp] scoped infixr:60 " ⇨ " => himp
-
 /-- Unit for `⇨`, the meet specialization of `PreservesSup.le_upperAdjoint`: `a ⊓ x ⊑ b → x ⊑ a ⇨ b`. -/
 theorem le_himp_of_meet_le_left {a b x : α} (h : a ⊓ x ⊑ b) : x ⊑ a ⇨ b := by
   unfold himp; exact PreservesSup.le_upperAdjoint (meet a) h
@@ -49,54 +37,6 @@ theorem le_himp_of_meet_le_left {a b x : α} (h : a ⊓ x ⊑ b) : x ⊑ a ⇨ b
 /-- Counit for `⇨`, the meet specialization of `PreservesSup.upperAdjoint_le`: `a ⊓ (a ⇨ b) ⊑ b`. -/
 theorem meet_himp_le {a b : α} [PreservesSup (meet a)] : a ⊓ (a ⇨ b) ⊑ b := by
   unfold himp; exact PreservesSup.upperAdjoint_le (meet a) b
-
-@[simp] theorem himp_prop_eq_imp (a b : Prop) : ((a ⇨ b : Prop) = (a → b)) := by
-  apply propext
-  constructor
-  · intro hab
-    have hs : (a ⇨ b : Prop) ⊑ (a → b) := by
-      unfold himp PreservesSup.upperAdjoint
-      apply sup_le
-      intro x hx hxTrue haTrue
-      have hax : a ⊓ x := by
-        simpa [meet_prop_eq_and] using (And.intro haTrue hxTrue)
-      exact hx hax
-    exact hs hab
-  · intro hab
-    have hx : a ⊓ (a → b) ⊑ b := by
-      intro hax
-      have hax' : a ∧ (a → b) := by
-        simpa [meet_prop_eq_and] using hax
-      exact hax'.right hax'.left
-    exact (PreservesSup.le_upperAdjoint (meet a) (b := b) (x := (a → b)) hx) hab
-
-/-- Pointwise characterization of Heyting implication on function lattices. -/
-@[simp] theorem himp_apply
-    {σ : Type v} {β : Type u} [CompleteLattice β]
-    (a b : σ → β) (s : σ) :
-    (a ⇨ b) s = (a s ⇨ b s) := by
-  classical
-  unfold himp PreservesSup.upperAdjoint
-  rw [sup_apply]
-  apply PartialOrder.rel_antisymm
-  · apply sup_le
-    intro y ⟨f, hf, hfs⟩
-    rw [← hfs]
-    have hsf : a s ⊓ f s ⊑ b s := by
-      simpa [meet_apply] using (hf s)
-    exact le_sup (c := fun z : β => a s ⊓ z ⊑ b s) hsf
-  · apply sup_le
-    intro y hy
-    let f : σ → β := fun t => if t = s then y else ⊥
-    have hf : a ⊓ f ⊑ b := by
-      intro t
-      simp only [meet_apply, f]
-      split
-      · next h => subst h; exact hy
-      · exact PartialOrder.rel_trans (meet_le_right ..) (bot_le ..)
-    have hs : f s = y := by simp [f]
-    exact le_sup (c := fun z => ∃ g, (a ⊓ g ⊑ b) ∧ g s = z) ⟨f, hf, hs⟩
-
 end Basic
 
 /-! ## Derived laws -/
@@ -222,7 +162,7 @@ theorem meet_le_of_le_himp_comm (h : Q ⊑ P ⇨ R) : P ⊓ Q ⊑ R := meet_le_o
 end Derived
 
 /-- `⊤ ⊑ (P ⇨ Q)` iff `P ⊑ Q`. -/
-@[simp] theorem top_le_himp_iff {l : Type u} [CompleteLattice l]
+theorem top_le_himp_iff {l : Type u} [CompleteLattice l]
     [Heyting l] (P Q : l) :
     ((⊤ : l) ⊑ P ⇨ Q) ↔ (P ⊑ Q) :=
   ⟨fun h => rel_trans

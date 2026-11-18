@@ -628,6 +628,33 @@ protected theorem mul_lt_mul_of_lt_of_lt {a b c d : Nat} (hac : a < c) (hbd : b 
     a * b < c * d :=
   Nat.mul_lt_mul_of_le_of_lt (Nat.le_of_lt hac) hbd (Nat.zero_lt_of_lt hac)
 
+/-- To compare two two-digit numbers in base `m`, you first compare the most significant digit and
+then compare the least significant digit. -/
+theorem mul_add_lt_iff_of_lt {a b c d m : Nat} (hc : c < m) (hd : d < m) :
+    a * m + c < b * m + d ↔ a < b ∨ (a = b ∧ c < d) := by
+  refine ⟨?_, ?_⟩
+  · rw [← Decidable.not_imp_not]
+    simp only [not_or, Nat.not_lt, not_and, and_imp]
+    intro h₁ h₂
+    obtain (h₁|rfl) := Nat.lt_or_eq_of_le h₁
+    · apply Nat.le_of_lt
+      calc b * m + d < b * m + m := Nat.add_lt_add_left hd (b * m)
+        _ = (b + 1) * m := (succ_mul b m).symm
+        _ ≤ a * m := mul_le_mul_right m h₁
+        _ ≤ a * m + c := le_add_right (a * m) c
+    · exact Nat.add_le_add_iff_left.mpr (h₂ rfl)
+  · rintro (h₁|⟨rfl, h₁⟩)
+    · calc a * m + c < a * m + m := Nat.add_lt_add_left hc (a * m)
+        _ = (a + 1) * m := (succ_mul a m).symm
+        _ ≤ b * m := mul_le_mul_right m h₁
+        _ ≤ b * m + d := le_add_right (b * m) d
+    · exact Nat.add_lt_add_left h₁ (a * m)
+
+theorem mul_add_le_iff_of_lt {a b c d m : Nat} (hc : c < m) (hd : d < m) :
+    a * m + c ≤ b * m + d ↔ a < b ∨ (a = b ∧ c ≤ d) := by
+  rw [← Nat.not_lt, mul_add_lt_iff_of_lt hd hc]
+  omega
+
 theorem succ_mul_succ (a b) : succ a * succ b = a * b + a + b + 1 := by
   rw [succ_mul, mul_succ]; rfl
 

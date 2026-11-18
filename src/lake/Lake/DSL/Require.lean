@@ -18,7 +18,7 @@ namespace Lake.DSL
 This module contains the expansion of the `require` DSL syntax used to specify package dependencies.
 -/
 
-@[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
+@[inline] def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
   if let some term := term? then withRef term ``(some $term) else ``(none)
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do

@@ -11,6 +11,8 @@ public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.CompletionName
 import Lean.Linter.Deprecated
+import Lean.Compiler.ImplementedByAttr
+import Lean.Compiler.LCNF.Util
 
 open Lean Meta
 
@@ -24,6 +26,9 @@ register_builtin_option genCtorIdx : Bool := {
 public def mkCtorIdxName (indName : Name) : Name :=
   Name.mkStr indName "ctorIdx"
 
+def mkCtorIdxImplName (indName : Name) : Name :=
+  Name.mkStr (mkCtorIdxName indName) "_impl"
+
 public def isCtorIdxCore? (env : Environment) (declName : Name) : Option InductiveVal := do
   let .str indName "ctorIdx" := declName | none
   let indInfo ← isInductiveCore? env indName
@@ -31,6 +36,37 @@ public def isCtorIdxCore? (env : Environment) (declName : Name) : Option Inducti
 
 public def isCtorIdx? (declName : Name) : MetaM (Option InductiveVal) := do
   return isCtorIdxCore? (← getEnv) declName
+
+def mkCtorIdxImpl (indName : Name) (levelParams : List Name) (declType : Expr) :
+    MetaM Name := do
+  let implName := mkCtorIdxImplName indName
+
+  let value ← forallTelescope declType fun args _ => do
+    let discr := args[args.size - 1]!
+    let indType ← inferType discr
+    let body := mkApp2 (mkConst ``getObjTagNat [← getLevel indType]) indType discr
+    mkLambdaFVars args body
+
+  let decl := .defnDecl {
+    name := implName
+    levelParams := levelParams
+    type := declType
+    value := value
+    hints := .opaque
+    safety := .unsafe
+  }
+
+  addDecl decl
+
+  modifyEnv fun env => addToCompletionBlackList env implName
+  modifyEnv fun env => addProtected env implName
+  if isMarkedMeta (← getEnv) indName then
+    modifyEnv (markMeta · implName)
+
+  setInlineAttribute implName .alwaysInline
+  compileDecl decl
+
+  return implName
 
 /--
 For an inductive type `T` with more than one function builds a function `T.ctorIdx : T → Nat` that
@@ -88,10 +124,19 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
       addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
-      if info.numCtors = 1 then
-        setInlineAttribute declName .macroInline
       if isMarkedMeta (← getEnv) indName then
         modifyEnv (markMeta · declName)
+      if info.numCtors = 1 then
+        setInlineAttribute declName .macroInline
+      else if !Compiler.LCNF.isRuntimeBuiltinType indName then
+        /-
+        This branch is not just an optimization, calling getObjTagNat on:
+        - a single ctor inductive is wrong if it is an inductive with trivial structure that gets
+          uwnrapped later
+        - built-in types like `Nat` and `Int` is wrong as they don't have a normal tag
+        -/
+        let implName ← mkCtorIdxImpl indName info.levelParams declType
+        setImplementedBy declName implName
       compileDecl decl
       enableRealizationsForConst declName
 

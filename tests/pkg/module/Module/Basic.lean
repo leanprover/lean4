@@ -590,6 +590,11 @@ public structure CustomMulT where
 public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
   hMul a b := { x := a + b.x }
 
+/-! Declaration-keyed extension entries of private declarations are not exported. -/
+
+structure PrivStruct where
+  x : Nat
+
 /-! Setup for #15393: proofs in `variable` binders of a `public section`. -/
 
 public section

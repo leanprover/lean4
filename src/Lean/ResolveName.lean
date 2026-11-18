@@ -31,19 +31,36 @@ def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName 
   if (← getEnv).contains reservedName then
     throwReservedNameNotAvailable declName reservedName
 
+/--
+A reserved name predicate. A name `n` with last component `s` is reserved if `isCandidate s` and
+`isReserved env n` hold.
+
+`isCandidate` depends only on the last component. Thus, name resolution evaluates it once per
+identifier, and not once for each namespace in which the identifier may be declared.
+-/
+structure ReservedNamePredicate where
+  isCandidate : String → Bool
+  isReserved : Environment → Name → Bool
+
 /-- Global reference containing all reserved name predicates. -/
 builtin_initialize reservedNamePredicatesRef : IO.Ref (Array (Environment → Name → Bool)) ← IO.mkRef #[]
 
+private builtin_initialize reservedNamePredsRef : IO.Ref (Array ReservedNamePredicate) ← IO.mkRef #[]
+
 /--
-Registers a new reserved name predicate.
+Registers a new reserved name predicate. See `ReservedNamePredicate`.
 -/
-def registerReservedNamePredicate (p : Environment → Name → Bool) : IO Unit := do
+def registerReservedNamePredicate (isCandidate : String → Bool) (isReserved : Environment → Name → Bool) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register reserved name suffix predicate, this operation can only be performed during initialization")
-  reservedNamePredicatesRef.modify fun ps => ps.push p
+  reservedNamePredicatesRef.modify fun ps => ps.push isReserved
+  reservedNamePredsRef.modify fun ps => ps.push { isCandidate, isReserved }
 
 builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment → Name → Bool)) ←
-  registerEnvExtension reservedNamePredicatesRef.get
+  registerEnvExtension reservedNamePredicatesRef.get (logWrites := true)
+
+private builtin_initialize reservedNamePredsExt : EnvExtension (Array ReservedNamePredicate) ←
+  registerEnvExtension reservedNamePredsRef.get (logWrites := true)
 
 /--
 Returns `true` if `name` is a reserved name.
@@ -548,21 +565,19 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
         | .str pre .. => go pre
         | _ => failure
       return (← go currNamespace)
-  /- Traverse the local context backwards looking for match `givenNameView`.
-     If `skipAuxDecl` we ignore `auxDecl` local declarations. -/
-  let findLocalDecl? (givenNameView : MacroScopesView) (skipAuxDecl : Bool) : Option LocalDecl :=
+  /- Traverse the local context backwards looking for match `givenNameView`. -/
+  let findLocalDecl? (givenNameView : MacroScopesView) : Option LocalDecl :=
     let givenName := givenNameView.review
     let localDecl? := lctx.decls.findSomeRev? fun localDecl? => do
       let localDecl ← localDecl?
       if localDecl.isAuxDecl then
-        guard (!skipAuxDecl)
         if let some fullDeclName := auxDeclToFullName.get? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
           matchLocalDecl? localDecl givenName
       else
         matchLocalDecl? localDecl givenName
-    if localDecl?.isSome || skipAuxDecl then
+    if localDecl?.isSome then
       localDecl?
     else
       -- Search auxDecls again trying an exact match of the given name
@@ -571,18 +586,17 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
         guard localDecl.isAuxDecl
         matchLocalDecl? localDecl givenName
   /-
-  We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
-  We set it to true if we found a global declaration `n` as we iterate over the `loop`.
-  Without this workaround, we would not be able to elaborate an example such as
+  We visit the prefixes of `n` from longest to shortest, collecting the removed components as
+  projections. At each prefix, the most recent matching local declaration wins, so `let rec` and
+  `where` declarations shadow earlier locals of the same name (#3079). An ordinary local wins
+  outright. Auxiliary declarations stand for global declarations still being defined, so they
+  instead compete with globals by longest prefix and win ties: in
   ```
   def foo.aux := 1
   def foo : Nat → Nat
     | n => foo.aux -- should not be interpreted as `(foo).aux`
   ```
-  See test `aStructPerfIssue.lean` for another example.
-  We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
-  Remark: we did not use to have the `globalDeclFound` parameter. Without this extra check we failed
-  to elaborate
+  the global `foo.aux` wins over a projection through the auxiliary declaration `foo`, while in
   ```
   example : Nat :=
     let n := 0
@@ -590,36 +604,25 @@ def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String))
   where
     m := 1
   ```
-  See issue #1850.
+  `m.succ` projects through `m` because there is no global `m.succ` (#1850). See also test
+  `aStructPerfIssue.lean`.
   -/
-  let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
-    let givenNameView := { view with name := n }
-    /-
-    Note that we use `globalDeclFound` instead of `globalDeclFoundNext` in the following test.
-    Reason: a local should shadow a global with the same name.
-    Consider the following example. See issue #3079
-    ```
-    def foo : Nat := 1
-
-    def bar : Nat :=
-      foo.add 1 -- should be 11
-    where
-      foo := 10
-    ```
-    -/
-    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && !projs.isEmpty) with
-    | some decl => return some (decl.toExpr, projs)
-    | none => match n with
-      | .str pre s =>
-        let mut globalDeclFoundNext := globalDeclFound
-        unless globalDeclFound do
-          let r ← resolveGlobalName (enableLog := false) givenNameView.review
-          let r := r.filter fun (_, fieldList) => fieldList.isEmpty
-          unless r.isEmpty do
-            globalDeclFoundNext := true
-        loop pre (s::projs) globalDeclFoundNext
-      | _ => return none
-  loop view.name [] (globalDeclFound := false)
+  let rec loop (n : Name) (projs : List String) (auxDecl? : Option (LocalDecl × List String)) := do
+    let mut auxDecl? := auxDecl?
+    if let some decl := findLocalDecl? { view with name := n } then
+      if !decl.isAuxDecl then
+        return some (decl.toExpr, projs)
+      auxDecl? := auxDecl? <|> some (decl, projs)
+    if let .str pre s := n then
+      return ← loop pre (s::projs) auxDecl?
+    let some (decl, projs) := auxDecl? | return none
+    if !projs.isEmpty then
+      -- a global prefix is longer than the auxiliary declaration's iff it leaves fewer projections
+      let r ← resolveGlobalName (enableLog := false) view.review
+      if r.any (·.2.length < projs.length) then
+        return none
+    return some (decl.toExpr, projs)
+  loop view.name [] none
 
 /--
 Finds an efficient name that unambiguously resolves to the given name `n₀`, if possible.

@@ -91,14 +91,14 @@ def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bo
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
-private def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
   let mut ys := #[]
   for b in mask, x in xs do
     if b then ys := ys.push x
   return ys
 
 /-- Appends `_1` etc to `base` unless `n == 1` -/
-private def numberNames (n : Nat) (base : String) : Array Name :=
+def numberNames (n : Nat) (base : String) : Array Name :=
   .ofFn (n := n) fun ⟨i, _⟩ =>
     if n == 1 then .mkSimple base else .mkSimple s!"{base}_{i+1}"
 
@@ -408,7 +408,10 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   | _ => return false
 
 builtin_initialize
-  registerReservedNamePredicate isInductName
+  registerReservedNamePredicate
+    (· matches "fixpoint_induct" | "coinduct" | "strong_coinduct" | "induct" | "strong_induct"
+      | "mutual_induct" | "strong_mutual_induct" | "mutual_fixpoint_induct")
+    isInductName
 
   registerReservedNameAction fun name => do
     if isInductName (← getEnv) name then
@@ -529,7 +532,8 @@ def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM U
       { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 builtin_initialize
-  registerReservedNamePredicate isPartialCorrectnessName
+  registerReservedNamePredicate (· matches "partial_correctness" | "mutual_partial_correctness")
+    isPartialCorrectnessName
 
   registerReservedNameAction fun name => do
     let .str p s := name | return false

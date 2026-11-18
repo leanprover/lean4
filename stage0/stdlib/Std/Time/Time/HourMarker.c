@@ -16,6 +16,7 @@ extern "C" {
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+lean_object* lean_obj_tag_nat(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -25,8 +26,8 @@ uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx___impl(uint8_t);
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -119,29 +120,22 @@ static lean_object* l_Std_Time_HourMarker_toRelative___closed__2;
 static lean_once_cell_t l_Std_Time_HourMarker_toRelative___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Time_HourMarker_toRelative___closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx(uint8_t v_x_1_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx___impl(uint8_t v_x_1_){
 _start:
 {
-if (v_x_1_ == 0)
-{
-lean_object* v___x_2_; 
-v___x_2_ = lean_unsigned_to_nat(0u);
-return v___x_2_;
-}
-else
-{
-lean_object* v___x_3_; 
-v___x_3_ = lean_unsigned_to_nat(1u);
+lean_object* v___x_2_; lean_object* v___x_3_; 
+v___x_2_ = lean_box(v_x_1_);
+v___x_3_ = lean_obj_tag_nat(v___x_2_);
+lean_dec(v___x_2_);
 return v___x_3_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx___boxed(lean_object* v_x_4_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorIdx___impl___boxed(lean_object* v_x_4_){
 _start:
 {
-uint8_t v_x_boxed_5_; lean_object* v_res_6_; 
-v_x_boxed_5_ = lean_unbox(v_x_4_);
-v_res_6_ = l_Std_Time_HourMarker_ctorIdx(v_x_boxed_5_);
+uint8_t v_x_4__boxed_5_; lean_object* v_res_6_; 
+v_x_4__boxed_5_ = lean_unbox(v_x_4_);
+v_res_6_ = l_Std_Time_HourMarker_ctorIdx___impl(v_x_4__boxed_5_);
 return v_res_6_;
 }
 }
@@ -382,483 +376,485 @@ return v_r_95_;
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqHourMarker(uint8_t v_x_96_, uint8_t v_y_97_){
 _start:
 {
-lean_object* v___x_98_; lean_object* v___x_99_; uint8_t v___x_100_; 
-v___x_98_ = l_Std_Time_HourMarker_ctorIdx(v_x_96_);
-v___x_99_ = l_Std_Time_HourMarker_ctorIdx(v_y_97_);
-v___x_100_ = lean_nat_dec_eq(v___x_98_, v___x_99_);
-lean_dec(v___x_99_);
+lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; uint8_t v___x_102_; 
+v___x_98_ = lean_box(v_x_96_);
+v___x_99_ = lean_obj_tag_nat(v___x_98_);
 lean_dec(v___x_98_);
-return v___x_100_;
+v___x_100_ = lean_box(v_y_97_);
+v___x_101_ = lean_obj_tag_nat(v___x_100_);
+lean_dec(v___x_100_);
+v___x_102_ = lean_nat_dec_eq(v___x_99_, v___x_101_);
+return v___x_102_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqHourMarker___boxed(lean_object* v_x_101_, lean_object* v_y_102_){
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqHourMarker___boxed(lean_object* v_x_103_, lean_object* v_y_104_){
 _start:
 {
-uint8_t v_x_20__boxed_103_; uint8_t v_y_21__boxed_104_; uint8_t v_res_105_; lean_object* v_r_106_; 
-v_x_20__boxed_103_ = lean_unbox(v_x_101_);
-v_y_21__boxed_104_ = lean_unbox(v_y_102_);
-v_res_105_ = l_Std_Time_instDecidableEqHourMarker(v_x_20__boxed_103_, v_y_21__boxed_104_);
-v_r_106_ = lean_box(v_res_105_);
-return v_r_106_;
+uint8_t v_x_23__boxed_105_; uint8_t v_y_24__boxed_106_; uint8_t v_res_107_; lean_object* v_r_108_; 
+v_x_23__boxed_105_ = lean_unbox(v_x_103_);
+v_y_24__boxed_106_ = lean_unbox(v_y_104_);
+v_res_107_ = l_Std_Time_instDecidableEqHourMarker(v_x_23__boxed_105_, v_y_24__boxed_106_);
+v_r_108_ = lean_box(v_res_107_);
+return v_r_108_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Time_instOrdHourMarker___lam__0(uint8_t v_x_107_, uint8_t v_x_108_){
+LEAN_EXPORT uint8_t l_Std_Time_instOrdHourMarker___lam__0(uint8_t v_x_109_, uint8_t v_x_110_){
 _start:
 {
-if (v_x_107_ == 0)
+if (v_x_109_ == 0)
 {
-if (v_x_108_ == 0)
-{
-uint8_t v___x_109_; 
-v___x_109_ = 1;
-return v___x_109_;
-}
-else
-{
-uint8_t v___x_110_; 
-v___x_110_ = 0;
-return v___x_110_;
-}
-}
-else
-{
-if (v_x_108_ == 0)
+if (v_x_110_ == 0)
 {
 uint8_t v___x_111_; 
-v___x_111_ = 2;
+v___x_111_ = 1;
 return v___x_111_;
 }
 else
 {
 uint8_t v___x_112_; 
-v___x_112_ = 1;
+v___x_112_ = 0;
 return v___x_112_;
 }
 }
+else
+{
+if (v_x_110_ == 0)
+{
+uint8_t v___x_113_; 
+v___x_113_ = 2;
+return v___x_113_;
+}
+else
+{
+uint8_t v___x_114_; 
+v___x_114_ = 1;
+return v___x_114_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_instOrdHourMarker___lam__0___boxed(lean_object* v_x_113_, lean_object* v_x_114_){
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_instOrdHourMarker___lam__0___boxed(lean_object* v_x_115_, lean_object* v_x_116_){
 _start:
 {
-uint8_t v_x_40__boxed_115_; uint8_t v_x_41__boxed_116_; uint8_t v_res_117_; lean_object* v_r_118_; 
-v_x_40__boxed_115_ = lean_unbox(v_x_113_);
-v_x_41__boxed_116_ = lean_unbox(v_x_114_);
-v_res_117_ = l_Std_Time_instOrdHourMarker___lam__0(v_x_40__boxed_115_, v_x_41__boxed_116_);
-v_r_118_ = lean_box(v_res_117_);
-return v_r_118_;
+uint8_t v_x_40__boxed_117_; uint8_t v_x_41__boxed_118_; uint8_t v_res_119_; lean_object* v_r_120_; 
+v_x_40__boxed_117_ = lean_unbox(v_x_115_);
+v_x_41__boxed_118_ = lean_unbox(v_x_116_);
+v_res_119_ = l_Std_Time_instOrdHourMarker___lam__0(v_x_40__boxed_117_, v_x_41__boxed_118_);
+v_r_120_ = lean_box(v_res_119_);
+return v_r_120_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_ofOrdinal___closed__0(void){
 _start:
 {
-lean_object* v___x_121_; lean_object* v___x_122_; 
-v___x_121_ = lean_unsigned_to_nat(12u);
-v___x_122_ = lean_nat_to_int(v___x_121_);
-return v___x_122_;
+lean_object* v___x_123_; lean_object* v___x_124_; 
+v___x_123_ = lean_unsigned_to_nat(12u);
+v___x_124_ = lean_nat_to_int(v___x_123_);
+return v___x_124_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Time_HourMarker_ofOrdinal(lean_object* v_time_123_){
+LEAN_EXPORT uint8_t l_Std_Time_HourMarker_ofOrdinal(lean_object* v_time_125_){
 _start:
 {
-lean_object* v___x_124_; uint8_t v___x_125_; 
-v___x_124_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_125_ = lean_int_dec_le(v___x_124_, v_time_123_);
-if (v___x_125_ == 0)
+lean_object* v___x_126_; uint8_t v___x_127_; 
+v___x_126_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_127_ = lean_int_dec_le(v___x_126_, v_time_125_);
+if (v___x_127_ == 0)
 {
-uint8_t v___x_126_; 
-v___x_126_ = 0;
-return v___x_126_;
+uint8_t v___x_128_; 
+v___x_128_ = 0;
+return v___x_128_;
 }
 else
 {
-uint8_t v___x_127_; 
-v___x_127_ = 1;
-return v___x_127_;
+uint8_t v___x_129_; 
+v___x_129_ = 1;
+return v___x_129_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ofOrdinal___boxed(lean_object* v_time_128_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ofOrdinal___boxed(lean_object* v_time_130_){
 _start:
 {
-uint8_t v_res_129_; lean_object* v_r_130_; 
-v_res_129_ = l_Std_Time_HourMarker_ofOrdinal(v_time_128_);
-lean_dec(v_time_128_);
-v_r_130_ = lean_box(v_res_129_);
-return v_r_130_;
+uint8_t v_res_131_; lean_object* v_r_132_; 
+v_res_131_ = l_Std_Time_HourMarker_ofOrdinal(v_time_130_);
+lean_dec(v_time_130_);
+v_r_132_ = lean_box(v_res_131_);
+return v_r_132_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_HourMarker_toAbsolute_spec__0(lean_object* v_a_131_){
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_HourMarker_toAbsolute_spec__0(lean_object* v_a_133_){
 _start:
 {
-lean_object* v___x_132_; 
-v___x_132_ = lean_nat_to_int(v_a_131_);
-return v___x_132_;
+lean_object* v___x_134_; 
+v___x_134_ = lean_nat_to_int(v_a_133_);
+return v___x_134_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__0(void){
 _start:
 {
-lean_object* v___x_133_; lean_object* v___x_134_; 
-v___x_133_ = lean_unsigned_to_nat(0u);
-v___x_134_ = lean_nat_to_int(v___x_133_);
-return v___x_134_;
+lean_object* v___x_135_; lean_object* v___x_136_; 
+v___x_135_ = lean_unsigned_to_nat(0u);
+v___x_136_ = lean_nat_to_int(v___x_135_);
+return v___x_136_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__1(void){
 _start:
 {
-lean_object* v___x_135_; lean_object* v___x_136_; 
-v___x_135_ = lean_unsigned_to_nat(23u);
-v___x_136_ = lean_nat_to_int(v___x_135_);
-return v___x_136_;
+lean_object* v___x_137_; lean_object* v___x_138_; 
+v___x_137_ = lean_unsigned_to_nat(23u);
+v___x_138_ = lean_nat_to_int(v___x_137_);
+return v___x_138_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__2(void){
 _start:
 {
-lean_object* v___x_137_; lean_object* v___x_138_; lean_object* v___x_139_; 
-v___x_137_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__1, &l_Std_Time_HourMarker_toAbsolute___closed__1_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__1);
-v___x_138_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_139_ = lean_int_add(v___x_138_, v___x_137_);
-return v___x_139_;
+lean_object* v___x_139_; lean_object* v___x_140_; lean_object* v___x_141_; 
+v___x_139_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__1, &l_Std_Time_HourMarker_toAbsolute___closed__1_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__1);
+v___x_140_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_141_ = lean_int_add(v___x_140_, v___x_139_);
+return v___x_141_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__3(void){
 _start:
 {
-lean_object* v___x_140_; lean_object* v___x_141_; lean_object* v___x_142_; 
-v___x_140_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_141_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__2, &l_Std_Time_HourMarker_toAbsolute___closed__2_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__2);
-v___x_142_ = lean_int_sub(v___x_141_, v___x_140_);
-return v___x_142_;
+lean_object* v___x_142_; lean_object* v___x_143_; lean_object* v___x_144_; 
+v___x_142_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_143_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__2, &l_Std_Time_HourMarker_toAbsolute___closed__2_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__2);
+v___x_144_ = lean_int_sub(v___x_143_, v___x_142_);
+return v___x_144_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__4(void){
 _start:
 {
-lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v_range_145_; 
-v___x_143_ = lean_obj_once(&l_Std_Time_instReprHourMarker_repr___closed__5, &l_Std_Time_instReprHourMarker_repr___closed__5_once, _init_l_Std_Time_instReprHourMarker_repr___closed__5);
-v___x_144_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__3, &l_Std_Time_HourMarker_toAbsolute___closed__3_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__3);
-v_range_145_ = lean_int_add(v___x_144_, v___x_143_);
-return v_range_145_;
+lean_object* v___x_145_; lean_object* v___x_146_; lean_object* v_range_147_; 
+v___x_145_ = lean_obj_once(&l_Std_Time_instReprHourMarker_repr___closed__5, &l_Std_Time_instReprHourMarker_repr___closed__5_once, _init_l_Std_Time_instReprHourMarker_repr___closed__5);
+v___x_146_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__3, &l_Std_Time_HourMarker_toAbsolute___closed__3_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__3);
+v_range_147_ = lean_int_add(v___x_146_, v___x_145_);
+return v_range_147_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__5(void){
 _start:
 {
-lean_object* v___x_146_; lean_object* v___x_147_; 
-v___x_146_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_147_ = lean_int_sub(v___x_146_, v___x_146_);
-return v___x_147_;
+lean_object* v___x_148_; lean_object* v___x_149_; 
+v___x_148_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_149_ = lean_int_sub(v___x_148_, v___x_148_);
+return v___x_149_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__6(void){
 _start:
 {
-lean_object* v_range_148_; lean_object* v___x_149_; lean_object* v___x_150_; 
-v_range_148_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
-v___x_149_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__5, &l_Std_Time_HourMarker_toAbsolute___closed__5_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__5);
-v___x_150_ = lean_int_emod(v___x_149_, v_range_148_);
-return v___x_150_;
+lean_object* v_range_150_; lean_object* v___x_151_; lean_object* v___x_152_; 
+v_range_150_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
+v___x_151_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__5, &l_Std_Time_HourMarker_toAbsolute___closed__5_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__5);
+v___x_152_ = lean_int_emod(v___x_151_, v_range_150_);
+return v___x_152_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__7(void){
 _start:
 {
-lean_object* v_range_151_; lean_object* v___x_152_; lean_object* v___x_153_; 
-v_range_151_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
-v___x_152_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__6, &l_Std_Time_HourMarker_toAbsolute___closed__6_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__6);
-v___x_153_ = lean_int_add(v___x_152_, v_range_151_);
-return v___x_153_;
+lean_object* v_range_153_; lean_object* v___x_154_; lean_object* v___x_155_; 
+v_range_153_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
+v___x_154_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__6, &l_Std_Time_HourMarker_toAbsolute___closed__6_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__6);
+v___x_155_ = lean_int_add(v___x_154_, v_range_153_);
+return v___x_155_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__8(void){
 _start:
 {
-lean_object* v_range_154_; lean_object* v___x_155_; lean_object* v___x_156_; 
-v_range_154_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
-v___x_155_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__7, &l_Std_Time_HourMarker_toAbsolute___closed__7_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__7);
-v___x_156_ = lean_int_emod(v___x_155_, v_range_154_);
-return v___x_156_;
+lean_object* v_range_156_; lean_object* v___x_157_; lean_object* v___x_158_; 
+v_range_156_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
+v___x_157_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__7, &l_Std_Time_HourMarker_toAbsolute___closed__7_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__7);
+v___x_158_ = lean_int_emod(v___x_157_, v_range_156_);
+return v___x_158_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__9(void){
 _start:
 {
-lean_object* v___x_157_; lean_object* v___x_158_; lean_object* v___x_159_; 
-v___x_157_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_158_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__8, &l_Std_Time_HourMarker_toAbsolute___closed__8_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__8);
-v___x_159_ = lean_int_add(v___x_158_, v___x_157_);
-return v___x_159_;
+lean_object* v___x_159_; lean_object* v___x_160_; lean_object* v___x_161_; 
+v___x_159_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_160_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__8, &l_Std_Time_HourMarker_toAbsolute___closed__8_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__8);
+v___x_161_ = lean_int_add(v___x_160_, v___x_159_);
+return v___x_161_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__10(void){
 _start:
 {
-lean_object* v___x_160_; lean_object* v___x_161_; 
-v___x_160_ = lean_unsigned_to_nat(24u);
-v___x_161_ = lean_nat_to_int(v___x_160_);
-return v___x_161_;
+lean_object* v___x_162_; lean_object* v___x_163_; 
+v___x_162_ = lean_unsigned_to_nat(24u);
+v___x_163_ = lean_nat_to_int(v___x_162_);
+return v___x_163_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__11(void){
 _start:
 {
-lean_object* v___x_162_; lean_object* v___x_163_; lean_object* v___x_164_; 
-v___x_162_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_163_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_164_ = lean_int_sub(v___x_163_, v___x_162_);
-return v___x_164_;
+lean_object* v___x_164_; lean_object* v___x_165_; lean_object* v___x_166_; 
+v___x_164_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_165_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_166_ = lean_int_sub(v___x_165_, v___x_164_);
+return v___x_166_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__12(void){
 _start:
 {
-lean_object* v_range_165_; lean_object* v___x_166_; lean_object* v___x_167_; 
-v_range_165_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
-v___x_166_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__11, &l_Std_Time_HourMarker_toAbsolute___closed__11_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__11);
-v___x_167_ = lean_int_emod(v___x_166_, v_range_165_);
-return v___x_167_;
+lean_object* v_range_167_; lean_object* v___x_168_; lean_object* v___x_169_; 
+v_range_167_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
+v___x_168_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__11, &l_Std_Time_HourMarker_toAbsolute___closed__11_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__11);
+v___x_169_ = lean_int_emod(v___x_168_, v_range_167_);
+return v___x_169_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__13(void){
 _start:
 {
-lean_object* v_range_168_; lean_object* v___x_169_; lean_object* v___x_170_; 
-v_range_168_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
-v___x_169_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__12, &l_Std_Time_HourMarker_toAbsolute___closed__12_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__12);
-v___x_170_ = lean_int_add(v___x_169_, v_range_168_);
-return v___x_170_;
+lean_object* v_range_170_; lean_object* v___x_171_; lean_object* v___x_172_; 
+v_range_170_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
+v___x_171_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__12, &l_Std_Time_HourMarker_toAbsolute___closed__12_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__12);
+v___x_172_ = lean_int_add(v___x_171_, v_range_170_);
+return v___x_172_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__14(void){
 _start:
 {
-lean_object* v_range_171_; lean_object* v___x_172_; lean_object* v___x_173_; 
-v_range_171_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
-v___x_172_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__13, &l_Std_Time_HourMarker_toAbsolute___closed__13_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__13);
-v___x_173_ = lean_int_emod(v___x_172_, v_range_171_);
-return v___x_173_;
+lean_object* v_range_173_; lean_object* v___x_174_; lean_object* v___x_175_; 
+v_range_173_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__4, &l_Std_Time_HourMarker_toAbsolute___closed__4_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__4);
+v___x_174_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__13, &l_Std_Time_HourMarker_toAbsolute___closed__13_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__13);
+v___x_175_ = lean_int_emod(v___x_174_, v_range_173_);
+return v___x_175_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toAbsolute___closed__15(void){
 _start:
 {
-lean_object* v___x_174_; lean_object* v___x_175_; lean_object* v___x_176_; 
-v___x_174_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_175_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__14, &l_Std_Time_HourMarker_toAbsolute___closed__14_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__14);
-v___x_176_ = lean_int_add(v___x_175_, v___x_174_);
-return v___x_176_;
+lean_object* v___x_176_; lean_object* v___x_177_; lean_object* v___x_178_; 
+v___x_176_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_177_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__14, &l_Std_Time_HourMarker_toAbsolute___closed__14_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__14);
+v___x_178_ = lean_int_add(v___x_177_, v___x_176_);
+return v___x_178_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toAbsolute(uint8_t v_marker_177_, lean_object* v_time_178_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toAbsolute(uint8_t v_marker_179_, lean_object* v_time_180_){
 _start:
 {
-if (v_marker_177_ == 0)
+if (v_marker_179_ == 0)
 {
-lean_object* v___x_179_; uint8_t v___x_180_; 
-v___x_179_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_180_ = lean_int_dec_eq(v_time_178_, v___x_179_);
-if (v___x_180_ == 0)
+lean_object* v___x_181_; uint8_t v___x_182_; 
+v___x_181_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_182_ = lean_int_dec_eq(v_time_180_, v___x_181_);
+if (v___x_182_ == 0)
 {
-lean_inc(v_time_178_);
-return v_time_178_;
+lean_inc(v_time_180_);
+return v_time_180_;
 }
 else
 {
-lean_object* v___x_181_; 
-v___x_181_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__9, &l_Std_Time_HourMarker_toAbsolute___closed__9_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__9);
-return v___x_181_;
+lean_object* v___x_183_; 
+v___x_183_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__9, &l_Std_Time_HourMarker_toAbsolute___closed__9_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__9);
+return v___x_183_;
 }
 }
 else
 {
-lean_object* v___x_182_; uint8_t v___x_183_; 
-v___x_182_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_183_ = lean_int_dec_eq(v_time_178_, v___x_182_);
-if (v___x_183_ == 0)
+lean_object* v___x_184_; uint8_t v___x_185_; 
+v___x_184_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_185_ = lean_int_dec_eq(v_time_180_, v___x_184_);
+if (v___x_185_ == 0)
 {
-lean_object* v___x_184_; lean_object* v___x_185_; lean_object* v___x_186_; 
-v___x_184_ = lean_int_add(v_time_178_, v___x_182_);
-v___x_185_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__10, &l_Std_Time_HourMarker_toAbsolute___closed__10_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__10);
-v___x_186_ = lean_int_emod(v___x_184_, v___x_185_);
-lean_dec(v___x_184_);
-return v___x_186_;
+lean_object* v___x_186_; lean_object* v___x_187_; lean_object* v___x_188_; 
+v___x_186_ = lean_int_add(v_time_180_, v___x_184_);
+v___x_187_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__10, &l_Std_Time_HourMarker_toAbsolute___closed__10_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__10);
+v___x_188_ = lean_int_emod(v___x_186_, v___x_187_);
+lean_dec(v___x_186_);
+return v___x_188_;
 }
 else
 {
-lean_object* v___x_187_; 
-v___x_187_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__15, &l_Std_Time_HourMarker_toAbsolute___closed__15_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__15);
-return v___x_187_;
+lean_object* v___x_189_; 
+v___x_189_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__15, &l_Std_Time_HourMarker_toAbsolute___closed__15_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__15);
+return v___x_189_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toAbsolute___boxed(lean_object* v_marker_188_, lean_object* v_time_189_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toAbsolute___boxed(lean_object* v_marker_190_, lean_object* v_time_191_){
 _start:
 {
-uint8_t v_marker_boxed_190_; lean_object* v_res_191_; 
-v_marker_boxed_190_ = lean_unbox(v_marker_188_);
-v_res_191_ = l_Std_Time_HourMarker_toAbsolute(v_marker_boxed_190_, v_time_189_);
-lean_dec(v_time_189_);
-return v_res_191_;
+uint8_t v_marker_boxed_192_; lean_object* v_res_193_; 
+v_marker_boxed_192_ = lean_unbox(v_marker_190_);
+v_res_193_ = l_Std_Time_HourMarker_toAbsolute(v_marker_boxed_192_, v_time_191_);
+lean_dec(v_time_191_);
+return v_res_193_;
 }
 }
-LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(lean_object* v___x_192_, lean_object* v_h_u2081_193_, lean_object* v_h_u2082_194_){
+LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(lean_object* v___x_194_, lean_object* v_h_u2081_195_, lean_object* v_h_u2082_196_){
 _start:
 {
-lean_object* v___x_195_; uint8_t v___x_196_; 
-v___x_195_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_196_ = lean_int_dec_lt(v___x_192_, v___x_195_);
-if (v___x_196_ == 0)
+lean_object* v___x_197_; uint8_t v___x_198_; 
+v___x_197_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_198_ = lean_int_dec_lt(v___x_194_, v___x_197_);
+if (v___x_198_ == 0)
 {
-lean_object* v___x_197_; 
-lean_dec(v_h_u2081_193_);
-v___x_197_ = lean_apply_1(v_h_u2082_194_, lean_box(0));
-return v___x_197_;
+lean_object* v___x_199_; 
+lean_dec(v_h_u2081_195_);
+v___x_199_ = lean_apply_1(v_h_u2082_196_, lean_box(0));
+return v___x_199_;
 }
 else
 {
-lean_object* v___x_198_; 
-lean_dec(v_h_u2082_194_);
-v___x_198_ = lean_apply_1(v_h_u2081_193_, lean_box(0));
-return v___x_198_;
+lean_object* v___x_200_; 
+lean_dec(v_h_u2082_196_);
+v___x_200_ = lean_apply_1(v_h_u2081_195_, lean_box(0));
+return v___x_200_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg___boxed(lean_object* v___x_199_, lean_object* v_h_u2081_200_, lean_object* v_h_u2082_201_){
+LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg___boxed(lean_object* v___x_201_, lean_object* v_h_u2081_202_, lean_object* v_h_u2082_203_){
 _start:
 {
-lean_object* v_res_202_; 
-v_res_202_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(v___x_199_, v_h_u2081_200_, v_h_u2082_201_);
-lean_dec(v___x_199_);
-return v_res_202_;
+lean_object* v_res_204_; 
+v_res_204_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(v___x_201_, v_h_u2081_202_, v_h_u2082_203_);
+lean_dec(v___x_201_);
+return v_res_204_;
 }
 }
-LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(lean_object* v___x_203_, lean_object* v_p_204_, lean_object* v_q_205_, lean_object* v_00_u03b1_206_, lean_object* v_h_207_, lean_object* v_h_u2081_208_, lean_object* v_h_u2082_209_){
+LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(lean_object* v___x_205_, lean_object* v_p_206_, lean_object* v_q_207_, lean_object* v_00_u03b1_208_, lean_object* v_h_209_, lean_object* v_h_u2081_210_, lean_object* v_h_u2082_211_){
 _start:
 {
-lean_object* v___x_210_; 
-v___x_210_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(v___x_203_, v_h_u2081_208_, v_h_u2082_209_);
-return v___x_210_;
+lean_object* v___x_212_; 
+v___x_212_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(v___x_205_, v_h_u2081_210_, v_h_u2082_211_);
+return v___x_212_;
 }
 }
-LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___boxed(lean_object* v___x_211_, lean_object* v_p_212_, lean_object* v_q_213_, lean_object* v_00_u03b1_214_, lean_object* v_h_215_, lean_object* v_h_u2081_216_, lean_object* v_h_u2082_217_){
+LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___boxed(lean_object* v___x_213_, lean_object* v_p_214_, lean_object* v_q_215_, lean_object* v_00_u03b1_216_, lean_object* v_h_217_, lean_object* v_h_u2081_218_, lean_object* v_h_u2082_219_){
 _start:
 {
-lean_object* v_res_218_; 
-v_res_218_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(v___x_211_, v_p_212_, v_q_213_, v_00_u03b1_214_, v_h_215_, v_h_u2081_216_, v_h_u2082_217_);
-lean_dec(v___x_211_);
-return v_res_218_;
+lean_object* v_res_220_; 
+v_res_220_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(v___x_213_, v_p_214_, v_q_215_, v_00_u03b1_216_, v_h_217_, v_h_u2081_218_, v_h_u2082_219_);
+lean_dec(v___x_213_);
+return v_res_220_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__0(lean_object* v_x_219_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__0(lean_object* v_x_221_){
 _start:
 {
 lean_internal_panic_unreachable();
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__1(lean_object* v_hour_220_, lean_object* v_x_221_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__1(lean_object* v_hour_222_, lean_object* v_x_223_){
 _start:
 {
-uint8_t v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; 
-v___x_222_ = 0;
-v___x_223_ = lean_box(v___x_222_);
-v___x_224_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_224_, 0, v_hour_220_);
-lean_ctor_set(v___x_224_, 1, v___x_223_);
-return v___x_224_;
+uint8_t v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; 
+v___x_224_ = 0;
+v___x_225_ = lean_box(v___x_224_);
+v___x_226_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_226_, 0, v_hour_222_);
+lean_ctor_set(v___x_226_, 1, v___x_225_);
+return v___x_226_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__0(void){
 _start:
 {
-lean_object* v___x_225_; lean_object* v___x_226_; 
-v___x_225_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_226_ = lean_int_neg(v___x_225_);
-return v___x_226_;
+lean_object* v___x_227_; lean_object* v___x_228_; 
+v___x_227_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_228_ = lean_int_neg(v___x_227_);
+return v___x_228_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__2(void){
 _start:
 {
-uint8_t v___x_228_; lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v___x_231_; 
-v___x_228_ = 1;
-v___x_229_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_230_ = lean_box(v___x_228_);
-v___x_231_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_231_, 0, v___x_229_);
-lean_ctor_set(v___x_231_, 1, v___x_230_);
-return v___x_231_;
+uint8_t v___x_230_; lean_object* v___x_231_; lean_object* v___x_232_; lean_object* v___x_233_; 
+v___x_230_ = 1;
+v___x_231_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_232_ = lean_box(v___x_230_);
+v___x_233_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_233_, 0, v___x_231_);
+lean_ctor_set(v___x_233_, 1, v___x_232_);
+return v___x_233_;
 }
 }
 static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__3(void){
 _start:
 {
-uint8_t v___x_232_; lean_object* v___x_233_; lean_object* v___x_234_; lean_object* v___x_235_; 
-v___x_232_ = 0;
-v___x_233_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_234_ = lean_box(v___x_232_);
-v___x_235_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_235_, 0, v___x_233_);
-lean_ctor_set(v___x_235_, 1, v___x_234_);
-return v___x_235_;
+uint8_t v___x_234_; lean_object* v___x_235_; lean_object* v___x_236_; lean_object* v___x_237_; 
+v___x_234_ = 0;
+v___x_235_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_236_ = lean_box(v___x_234_);
+v___x_237_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_237_, 0, v___x_235_);
+lean_ctor_set(v___x_237_, 1, v___x_236_);
+return v___x_237_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative(lean_object* v_hour_236_){
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative(lean_object* v_hour_238_){
 _start:
 {
-lean_object* v___x_237_; uint8_t v___x_238_; 
-v___x_237_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
-v___x_238_ = lean_int_dec_eq(v_hour_236_, v___x_237_);
-if (v___x_238_ == 0)
-{
 lean_object* v___x_239_; uint8_t v___x_240_; 
-v___x_239_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
-v___x_240_ = lean_int_dec_le(v_hour_236_, v___x_239_);
+v___x_239_ = lean_obj_once(&l_Std_Time_HourMarker_toAbsolute___closed__0, &l_Std_Time_HourMarker_toAbsolute___closed__0_once, _init_l_Std_Time_HourMarker_toAbsolute___closed__0);
+v___x_240_ = lean_int_dec_eq(v_hour_238_, v___x_239_);
 if (v___x_240_ == 0)
 {
-lean_object* v___x_241_; lean_object* v___x_242_; uint8_t v___x_243_; lean_object* v___x_244_; lean_object* v___x_245_; 
-v___x_241_ = lean_obj_once(&l_Std_Time_HourMarker_toRelative___closed__0, &l_Std_Time_HourMarker_toRelative___closed__0_once, _init_l_Std_Time_HourMarker_toRelative___closed__0);
-v___x_242_ = lean_int_add(v_hour_236_, v___x_241_);
-lean_dec(v_hour_236_);
-v___x_243_ = 1;
-v___x_244_ = lean_box(v___x_243_);
-v___x_245_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_245_, 0, v___x_242_);
-lean_ctor_set(v___x_245_, 1, v___x_244_);
-return v___x_245_;
+lean_object* v___x_241_; uint8_t v___x_242_; 
+v___x_241_ = lean_obj_once(&l_Std_Time_HourMarker_ofOrdinal___closed__0, &l_Std_Time_HourMarker_ofOrdinal___closed__0_once, _init_l_Std_Time_HourMarker_ofOrdinal___closed__0);
+v___x_242_ = lean_int_dec_le(v_hour_238_, v___x_241_);
+if (v___x_242_ == 0)
+{
+lean_object* v___x_243_; lean_object* v___x_244_; uint8_t v___x_245_; lean_object* v___x_246_; lean_object* v___x_247_; 
+v___x_243_ = lean_obj_once(&l_Std_Time_HourMarker_toRelative___closed__0, &l_Std_Time_HourMarker_toRelative___closed__0_once, _init_l_Std_Time_HourMarker_toRelative___closed__0);
+v___x_244_ = lean_int_add(v_hour_238_, v___x_243_);
+lean_dec(v_hour_238_);
+v___x_245_ = 1;
+v___x_246_ = lean_box(v___x_245_);
+v___x_247_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_247_, 0, v___x_244_);
+lean_ctor_set(v___x_247_, 1, v___x_246_);
+return v___x_247_;
 }
 else
 {
-uint8_t v___x_246_; 
-v___x_246_ = lean_int_dec_eq(v_hour_236_, v___x_239_);
-if (v___x_246_ == 0)
+uint8_t v___x_248_; 
+v___x_248_ = lean_int_dec_eq(v_hour_238_, v___x_241_);
+if (v___x_248_ == 0)
 {
-lean_object* v___f_247_; lean_object* v___f_248_; lean_object* v___x_249_; 
-v___f_247_ = ((lean_object*)(l_Std_Time_HourMarker_toRelative___closed__1));
-lean_inc(v_hour_236_);
-v___f_248_ = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__1), 2, 1);
-lean_closure_set(v___f_248_, 0, v_hour_236_);
-v___x_249_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(v_hour_236_, v___f_247_, v___f_248_);
-lean_dec(v_hour_236_);
-return v___x_249_;
-}
-else
-{
-lean_object* v___x_250_; 
-lean_dec(v_hour_236_);
-v___x_250_ = lean_obj_once(&l_Std_Time_HourMarker_toRelative___closed__2, &l_Std_Time_HourMarker_toRelative___closed__2_once, _init_l_Std_Time_HourMarker_toRelative___closed__2);
-return v___x_250_;
-}
-}
-}
-else
-{
-lean_object* v___x_251_; 
-lean_dec(v_hour_236_);
-v___x_251_ = lean_obj_once(&l_Std_Time_HourMarker_toRelative___closed__3, &l_Std_Time_HourMarker_toRelative___closed__3_once, _init_l_Std_Time_HourMarker_toRelative___closed__3);
+lean_object* v___f_249_; lean_object* v___f_250_; lean_object* v___x_251_; 
+v___f_249_ = ((lean_object*)(l_Std_Time_HourMarker_toRelative___closed__1));
+lean_inc(v_hour_238_);
+v___f_250_ = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__1), 2, 1);
+lean_closure_set(v___f_250_, 0, v_hour_238_);
+v___x_251_ = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(v_hour_238_, v___f_249_, v___f_250_);
+lean_dec(v_hour_238_);
 return v___x_251_;
+}
+else
+{
+lean_object* v___x_252_; 
+lean_dec(v_hour_238_);
+v___x_252_ = lean_obj_once(&l_Std_Time_HourMarker_toRelative___closed__2, &l_Std_Time_HourMarker_toRelative___closed__2_once, _init_l_Std_Time_HourMarker_toRelative___closed__2);
+return v___x_252_;
+}
+}
+}
+else
+{
+lean_object* v___x_253_; 
+lean_dec(v_hour_238_);
+v___x_253_ = lean_obj_once(&l_Std_Time_HourMarker_toRelative___closed__3, &l_Std_Time_HourMarker_toRelative___closed__3_once, _init_l_Std_Time_HourMarker_toRelative___closed__3);
+return v___x_253_;
 }
 }
 }

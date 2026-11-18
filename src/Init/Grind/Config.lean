@@ -26,7 +26,13 @@ structure Config where
   suggestions : Bool := false
   /-- If `locals` is `true`, `grind` will add all definitions from the current file. -/
   locals : Bool := false
-  /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
+  /--
+  Maximum number of branches created by case-splits in the search tree. A case-split with `n` cases
+  creates `n - 1` branches, or `n` if it splits a recursive type. Cases skipped by non-chronological
+  backtracking are not counted. It does not include splits performed during normalization.
+  -/
+  branches : Nat := 1024
+  /-- Deprecated and ignored, use `branches` instead. `splits := 0` is interpreted as `branches := 0`. -/
   splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
@@ -77,7 +83,7 @@ structure Config where
   /-- TODO -/
   lookahead : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
-  verbose : Bool := true
+  verbose : Bool := false
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
   clean : Bool := true
   /--
@@ -109,6 +115,23 @@ structure Config where
   -/
   zeta := true
   /--
+  When `true`, the normalizer distributes multiplication over addition and expands powers of
+  sums: `x * (y + 1)` becomes `x * y + x`. When `false` (default: `false`), such products and
+  powers are kept as atoms, and only products with a constant factor are expanded. Linear
+  arithmetic procedures treat nonlinear terms as atoms, so keeping them unexpanded preserves
+  equalities such as `x * (y + 1) = x * z` after `y + 1 = z` is derived.
+  -/
+  distrib := false
+  /--
+  The normalizer puts arithmetic terms in normal form only over types whose characteristic is
+  unknown or at most `maxChar` (default: `0`, i.e., characteristic zero such as `Nat`, `Int`, and
+  `Rat`). Over a type with a larger characteristic, such as `UInt64` or `BitVec 64`, coefficients
+  are reduced modulo the characteristic, so `x - y` would become `x + 18446744073709551615 * y`,
+  which hides the subtraction from rewrite rules and from the translation of `BitVec`/`UIntN`
+  terms into `Nat`. Such terms are left as written.
+  -/
+  maxChar : Nat := 0
+  /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
   This solver also support commutative semirings, fields, and normalizer non-commutative rings and
   semirings.
@@ -136,12 +159,25 @@ structure Config where
   /--
   Maximum number of steps performed by the `lia` solver while searching for an assignment
   satisfying the linear integer arithmetic constraints.
-  A step is counted for each variable processed during the search. This threshold prevents
-  case-split explosion in examples that require enumerating a huge number of cases
-  (e.g., Cooper conflict resolution with large coefficients).
+  A step is counted for each variable processed and each conflict resolved during the search.
+  This threshold prevents case-split explosion in examples that require enumerating a huge
+  number of cases (e.g., Cooper conflict resolution with large coefficients).
   When the threshold is reached, the search is interrupted, and the solver becomes incomplete.
   -/
   liaSteps : Nat := 10000
+  /--
+  Maximum number of times the `lia` solver reorders its variables during the search for an
+  assignment. Before opening a Cooper case split with more than `liaReorderCases` cases, the
+  solver orders the split variable first and restarts the search, so that the conflict surfaces
+  at a variable with a smaller coefficient. Set to `0` to disable.
+  -/
+  liaReorders : Nat := 8
+  /--
+  A Cooper case split in the `lia` solver triggers a variable reordering (see `liaReorders`)
+  only when it has more cases than this threshold. Enumerating a few cases is cheaper than
+  reordering and restarting the search.
+  -/
+  liaReorderCases : Nat := 16
   /--
   When `true` (default: `true`), applies the `[grind hom]` homomorphism rules and
   `[grind hom_pred]` predicates during internalization. Homomorphism rules translate
@@ -262,7 +298,7 @@ which can be used a starting point for minimal configurations.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure NoopConfig extends Config where
   -- Disable splitting
-  splits := 0
+  branches := 0
   -- We don't override the various `splitMatch` / `splitIte` settings separately.
 
   -- Disable e-matching
@@ -297,8 +333,8 @@ Lemmas tagged with the `@[lia]` attribute are instantiated via E-matching when r
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
-  -- Allow the default number of splits.
-  splits := ({} : Config).splits
+  -- Allow the default number of branches.
+  branches := ({} : Config).branches
   -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
   -- The active theorem set is restricted to lemmas tagged `@[lia]`, not the full `@[grind]` set.
   ematch := ({} : Config).ematch
@@ -312,8 +348,8 @@ A `grind` configuration that only uses `linarith`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure LinarithConfig extends NoopConfig where
   linarith := true
-  -- Allow the default number of splits.
-  splits := ({} : Config).splits
+  -- Allow the default number of branches.
+  branches := ({} : Config).branches
 
 /--
 A `grind` configuration that only uses `order`.
@@ -321,8 +357,8 @@ A `grind` configuration that only uses `order`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure OrderConfig extends NoopConfig where
   order := true
-  -- Allow the default number of splits.
-  splits := ({} : Config).splits
+  -- Allow the default number of branches.
+  branches := ({} : Config).branches
 
 /--
 A `grind` configuration that only uses `ring`.

@@ -112,6 +112,14 @@ def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
   }
 
 /--
+Closes the server socket: it stops listening, a pending accept fails, and so does every later
+operation. Closing twice does nothing.
+-/
+@[inline]
+def close (s : Server) : IO Unit :=
+  s.native.close
+
+/--
 Gets the local address of the server socket.
 -/
 @[inline]
@@ -160,14 +168,16 @@ def connect (s : Client) (addr : SocketAddress) : Async Unit :=
   Async.ofPromise <| s.native.connect addr
 
 /--
-Sends multiple data buffers through the client socket.
+Sends multiple data buffers through the client socket. Throws an `IO.Error.invalidArgument` if a
+buffer is 4 GiB or larger.
 -/
 @[inline]
 def sendAll (s : Client) (data : Array ByteArray) : Async Unit :=
   Async.ofPromise <| s.native.send data
 
 /--
-Sends data through the client socket.
+Sends data through the client socket. Throws an `IO.Error.invalidArgument` if `data` is 4 GiB or
+larger.
 -/
 @[inline]
 def send (s : Client) (data : ByteArray) : Async Unit :=
@@ -178,6 +188,8 @@ Receives data from the client socket. If data is received, it’s wrapped in .so
 the result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
+
+Throws an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB.
 -/
 @[inline]
 def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
@@ -186,7 +198,8 @@ def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
 and provides that data. Calling this function does not starts the data wait, so it must not be called
-in parallel with `recv?`.
+in parallel with `recv?`. Fails with an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB,
+like `recv?`.
 -/
 def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option ByteArray) :=
   {
@@ -227,6 +240,14 @@ Shuts down the write side of the client socket.
 @[inline]
 def shutdown (s : Client) : Async Unit :=
   Async.ofPromise <| s.native.shutdown
+
+/--
+Closes the client socket. Pending operations fail, and so does every later one. Writes still in
+flight are cancelled, so the peer may receive only part of them. Closing twice does nothing.
+-/
+@[inline]
+def close (s : Client) : IO Unit :=
+  s.native.close
 
 /--
 Gets the remote address of the client socket.

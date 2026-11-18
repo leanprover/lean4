@@ -395,6 +395,10 @@ namespace InternalSyntax
   scoped syntax (name := end_local_scope) "end_local_scope" num : command
 
   def endLocalScopeSyntax (depth : Nat) : Command := Unhygienic.run `(end_local_scope $(Syntax.mkNumLit (toString depth)))
+
+  /-- Elaborates the command without reporting deprecated constants and syntax. This command is for
+  internal use only. `expandInCmd` uses it for the commands in front of a deprecated declaration. -/
+  scoped syntax (name := without_check_deprecated) "without_check_deprecated " command : command
 end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
@@ -517,7 +521,7 @@ In such cases, the offending variable declaration should be moved down or into a
 only theorems that do depend on it follow it until the end of the section.
 -/
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
+  optional visibility >> "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 /-- Declares one or more universe variables.
 
 `universe u v`
@@ -680,9 +684,43 @@ Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will
 ```
 deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-18")
 ```
+
+Syntax can also be deprecated where it is declared, using `@[deprecated "..." (since := "...")]`
+on the `syntax`, `macro`, `elab` or `notation` command that declares it.
+
+The deprecation can be followed by `macro_rules`-style alternatives that rewrite the deprecated
+syntax into its replacement. When the user writes syntax matched by one of the alternatives, the
+warning offers the result as a "Try this" suggestion. Only the first alternative whose pattern
+matches is run; if it throws an exception (such as `Macro.throwUnsupported`), there is no
+suggestion.
+
+```
+deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
+  "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
+  | `(tactic| rwa $rws:rwRuleSeq $loc:location) =>
+    `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
+```
+
+As with `macro_rules`, the patterns are syntax quotations of the deprecated syntax kind and the
+right-hand sides run in `MacroM`. Alternatively, a single alternative with an identifier pattern,
+such as `| stx => f stx` for some `f : Macro`, receives every use of the deprecated syntax. In a
+module, the function `f` should be marked as `meta`. A single alternative with the pattern `_`, such
+as ``| _ => `(tactic| trivial)``, also receives every use, which is convenient for syntax without
+arguments.
+
+The result is printed as source text, so it should be syntax that can be kept in the source. There
+are some simple heuristics to ensure that the replacement parses correctly, but in more complex
+cases the result will need to be adjusted manually.
+
+Suggestions are only offered for deprecated syntax written by the user, not for deprecated syntax
+produced by a macro, and only if the syntax kind belongs to a single syntax category. A later
+`deprecated_syntax` command for the same syntax kind replaces the earlier one, including its
+alternatives.
 -/
 @[builtin_command_parser] def deprecatedSyntax := leading_parser
-  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
+  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >>
+    optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")") >>
+    optional Term.matchAlts
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 /--

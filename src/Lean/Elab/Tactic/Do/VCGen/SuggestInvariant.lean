@@ -165,8 +165,8 @@ def collectFVarsToRevert (e : Expr)(dontRevert : FVarId → Bool) : MetaM (Array
     let new := new.filter (not <| dontRevert ·.fvarId!)
     if new.size == xs.size then xs := new; break
     let types ← new.mapM inferType
-    let forbidden := .ofArray new
-    let s := (types.foldl collectFVars {visitedExpr := forbidden}).fvarIds |>.filter (not ∘ dontRevert)
+    let forbidden : FVarIdSet := new.foldl (·.insert ·.fvarId!) {}
+    let s := (types.foldl collectFVars {}).fvarIds |>.filter fun x => !forbidden.contains x && !dontRevert x
     xs := new ++ s.map mkFVar
     if s.isEmpty then break -- no need for another iteration; collectForwardDeps is idempotent
   return xs
@@ -318,28 +318,6 @@ def duplicateMVar (m : MVarId) : MetaM MVarId := do
   let e ← mkFreshExprMVarAt d.lctx d.localInstances d.type d.kind d.userName d.numScopeArgs
   return e.mvarId!
 
-/-- Remove the macro scopes introduced by quote expansion from the syntax. -/
-def eraseQuoteMacroScopesFromSyntax : Syntax → Syntax
-  | Syntax.ident info rawVal val preresolved =>
-    if rawVal.contains '@' then
-      -- This was an inaccessible name in the proof state. Its raw val looks like
-      --   "acc._@.external:file:///.../tests/lean/run/mvcgenInvariantsSuggestions.lean.2049968788._hygCtx._hyg.56"
-      -- Keep the macro scopes!
-      Syntax.ident info rawVal val preresolved
-    else
-      -- This was one of the names made inaccessible by quote expansion. Its raw val looks like
-      --   "xs"
-      -- Erase the macro scopes.
-      Syntax.ident info rawVal val.eraseMacroScopes preresolved
-  | Syntax.node info kind args =>
-    Syntax.node info kind (args.map eraseQuoteMacroScopesFromSyntax)
-  | Syntax.atom info val => Syntax.atom info val
-  | Syntax.missing => Syntax.missing
-
-/-- Remove the macro scopes introduced by quote expansion from the syntax. -/
-def eraseQuoteMacroScopesFromTSyntax (syn : TSyntax name) : TSyntax name :=
-  ⟨eraseQuoteMacroScopesFromSyntax syn.raw⟩
-
 /--
 A simple ad-hoc version of `SPred.Tactic.IsPure`, but without producing a proof and without
 involving the type class machinery.
@@ -401,10 +379,10 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
     let onReturn ← mkLambdaFVars #[letMuts] (tryHoistPure suffixPoint.letMutsPred)
     return some (success, onReturn, failureConds)
 
-  -- Quotes introduce macro scopes to any binders. `eraseQuoteMacroScopesFromTSyntax` removes just
+  -- Quotes introduce macro scopes to any binders. `Syntax.eraseQuoteMacroScopes` removes just
   -- those, and will not remove any inaccessible markers stemming from inaccessible free variables
   -- in the proof state.
-  eraseQuoteMacroScopesFromTSyntax <$> do
+  (⟨·.raw.eraseQuoteMacroScopes⟩) <$> do
   --
   -- Finally, build the syntax for the suggestion. It's a giant configuration space mess, because
   -- 1. Generally want to suggest something using `⇓ ⟨xs, letMuts⟩ => ...`, i.e. `PostCond.noThrow`.

@@ -238,7 +238,8 @@ mutual
       let numArgs := numArgs + 1
       if isSameExpr f g then
         mkHCongrProof' f g numArgs lhs rhs heq
-      else if (← hasSameType f g) then
+      else if (← hasSameTypeI f g) then
+        -- Must make the same choices as `isCongruentCheck.go`, which accepted this congruence.
         mkHCongrProof' f g numArgs lhs rhs heq
       else
         go f g numArgs

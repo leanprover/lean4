@@ -12,6 +12,7 @@ public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_
 public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.BitVec.Bootstrap  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Subtype.Basic  -- shake: keep (used in `init_grind_norm`)
 public import Init.Omega
 import Init.ByCases
 public section
@@ -29,19 +30,8 @@ theorem eq_false_eq (p : Prop) : (p = False) = ¬p := by simp
 theorem not_eq_prop (p q : Prop) : (¬(p = q)) = (p = ¬q) := by
   by_cases p <;> by_cases q <;> simp [*]
 
--- Remark: we disabled the following normalization rule because we want this information when implementing splitting heuristics
--- Implication as a clause
-theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
-  by_cases p <;> by_cases q <;> simp [*]
-
--- Unless `+splitImp` is used, `grind` will not be able to do much with this kind of implication.
--- Thus, this normalization step is enabled by default.
-theorem forall_imp_eq_or {α} (p : α → Prop) (q : Prop) : ((∀ a, p a) → q) = ((∃ a, ¬ p a) ∨ q) := by
-  rw [imp_eq]; simp
-
 theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
-theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
 theorem imp_false_eq (p : Prop) : (p → False) = ¬p := by simp
 theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
 
@@ -144,9 +134,6 @@ theorem exists_and_left {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, b �
 theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p x ∧ b) = ((∃ x, p x) ∧ b) := by
   apply propext; apply _root_.exists_and_right
 
-theorem zero_sub (a : Nat) : 0 - a = 0 := by
-  simp
-
 /-! Helper theorems for the simproc `Sym.Simp.simpNatRel`. -/
 theorem Nat.add_succ_eq_zero_eq_false (a k : Nat) : (a + (k + 1) = 0) = False :=
   eq_false (Nat.add_one_ne_zero (a + k))
@@ -181,6 +168,9 @@ init_grind_norm
   iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
+  -- Subtype: `grind` splits subtype binders eagerly (`[grind cases eager]`), so quantifiers over
+  -- a subtype are stated over the underlying type and the property.
+  Subtype.forall Subtype.exists
   -- ite
   ite_true_false ite_false_true
   -- Bool cond

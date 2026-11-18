@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-! Tests that `vcgen` is usable as a step inside `sym => …` blocks. -/
 
 open Std.WP Lean.Order

@@ -111,13 +111,20 @@ instance : MonadMkVar SemiringM where
       throwError "`grind` internal error, semiring term has not been internalized{indentExpr e}"
     mkSVarCore e
 
-def _root_.Lean.Grind.CommRing.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
+/--
+Denotes `e` in the envelope ring `OfSemiring.Q`. The atoms `toQ x` are new terms, so they are
+internalized here with generation `gen`.
+-/
+def _root_.Lean.Grind.CommRing.Expr.denoteAsRingExpr (e : SemiringExpr) (gen : Nat) : SemiringM Expr := do
   shareCommon (← go e)
 where
   go : SemiringExpr → SemiringM Expr
   | .num k     => denoteNum k
   | .natCast k => denoteNum k
-  | .var x   => return mkApp (← getToQFn) (← getSemiringState).vars[x]!
+  | .var x   => do
+    let e ← shareCommon (mkApp (← getToQFn) (← getSemiringState).vars[x]!)
+    internalize e gen
+    return e
   | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
   | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
   | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)

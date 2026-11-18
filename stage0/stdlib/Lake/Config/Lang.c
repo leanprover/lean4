@@ -13,14 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_obj_tag_nat(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___impl(uint8_t);
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -71,29 +72,22 @@ LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension___boxed(lean_object*);
 static const lean_closure_object l_Lake_instToStringConfigLang___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_ConfigLang_fileExtension___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_instToStringConfigLang___closed__0 = (const lean_object*)&l_Lake_instToStringConfigLang___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lake_instToStringConfigLang = (const lean_object*)&l_Lake_instToStringConfigLang___closed__0_value;
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx(uint8_t v_x_1_){
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___impl(uint8_t v_x_1_){
 _start:
 {
-if (v_x_1_ == 0)
-{
-lean_object* v___x_2_; 
-v___x_2_ = lean_unsigned_to_nat(0u);
-return v___x_2_;
-}
-else
-{
-lean_object* v___x_3_; 
-v___x_3_ = lean_unsigned_to_nat(1u);
+lean_object* v___x_2_; lean_object* v___x_3_; 
+v___x_2_ = lean_box(v_x_1_);
+v___x_3_ = lean_obj_tag_nat(v___x_2_);
+lean_dec(v___x_2_);
 return v___x_3_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___boxed(lean_object* v_x_4_){
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ctorIdx___impl___boxed(lean_object* v_x_4_){
 _start:
 {
-uint8_t v_x_boxed_5_; lean_object* v_res_6_; 
-v_x_boxed_5_ = lean_unbox(v_x_4_);
-v_res_6_ = l_Lake_ConfigLang_ctorIdx(v_x_boxed_5_);
+uint8_t v_x_4__boxed_5_; lean_object* v_res_6_; 
+v_x_4__boxed_5_ = lean_unbox(v_x_4_);
+v_res_6_ = l_Lake_ConfigLang_ctorIdx___impl(v_x_4__boxed_5_);
 return v_res_6_;
 }
 }
@@ -334,107 +328,109 @@ return v_r_95_;
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqConfigLang(uint8_t v_x_96_, uint8_t v_y_97_){
 _start:
 {
-lean_object* v___x_98_; lean_object* v___x_99_; uint8_t v___x_100_; 
-v___x_98_ = l_Lake_ConfigLang_ctorIdx(v_x_96_);
-v___x_99_ = l_Lake_ConfigLang_ctorIdx(v_y_97_);
-v___x_100_ = lean_nat_dec_eq(v___x_98_, v___x_99_);
-lean_dec(v___x_99_);
+lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; uint8_t v___x_102_; 
+v___x_98_ = lean_box(v_x_96_);
+v___x_99_ = lean_obj_tag_nat(v___x_98_);
 lean_dec(v___x_98_);
-return v___x_100_;
+v___x_100_ = lean_box(v_y_97_);
+v___x_101_ = lean_obj_tag_nat(v___x_100_);
+lean_dec(v___x_100_);
+v___x_102_ = lean_nat_dec_eq(v___x_99_, v___x_101_);
+return v___x_102_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instDecidableEqConfigLang___boxed(lean_object* v_x_101_, lean_object* v_y_102_){
+LEAN_EXPORT lean_object* l_Lake_instDecidableEqConfigLang___boxed(lean_object* v_x_103_, lean_object* v_y_104_){
 _start:
 {
-uint8_t v_x_20__boxed_103_; uint8_t v_y_21__boxed_104_; uint8_t v_res_105_; lean_object* v_r_106_; 
-v_x_20__boxed_103_ = lean_unbox(v_x_101_);
-v_y_21__boxed_104_ = lean_unbox(v_y_102_);
-v_res_105_ = l_Lake_instDecidableEqConfigLang(v_x_20__boxed_103_, v_y_21__boxed_104_);
-v_r_106_ = lean_box(v_res_105_);
-return v_r_106_;
+uint8_t v_x_23__boxed_105_; uint8_t v_y_24__boxed_106_; uint8_t v_res_107_; lean_object* v_r_108_; 
+v_x_23__boxed_105_ = lean_unbox(v_x_103_);
+v_y_24__boxed_106_ = lean_unbox(v_y_104_);
+v_res_107_ = l_Lake_instDecidableEqConfigLang(v_x_23__boxed_105_, v_y_24__boxed_106_);
+v_r_108_ = lean_box(v_res_107_);
+return v_r_108_;
 }
 }
 static uint8_t _init_l_Lake_ConfigLang_default(void){
 _start:
 {
-uint8_t v___x_107_; 
-v___x_107_ = 1;
-return v___x_107_;
+uint8_t v___x_109_; 
+v___x_109_ = 1;
+return v___x_109_;
 }
 }
 static uint8_t _init_l_Lake_instInhabitedConfigLang(void){
 _start:
 {
-uint8_t v___x_108_; 
-v___x_108_ = 1;
-return v___x_108_;
+uint8_t v___x_110_; 
+v___x_110_ = 1;
+return v___x_110_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_ofString_x3f(lean_object* v_x_117_){
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ofString_x3f(lean_object* v_x_119_){
 _start:
-{
-lean_object* v___x_118_; uint8_t v___x_119_; 
-v___x_118_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__0));
-v___x_119_ = lean_string_dec_eq(v_x_117_, v___x_118_);
-if (v___x_119_ == 0)
 {
 lean_object* v___x_120_; uint8_t v___x_121_; 
-v___x_120_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__1));
-v___x_121_ = lean_string_dec_eq(v_x_117_, v___x_120_);
+v___x_120_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__0));
+v___x_121_ = lean_string_dec_eq(v_x_119_, v___x_120_);
 if (v___x_121_ == 0)
 {
-lean_object* v___x_122_; 
-v___x_122_ = lean_box(0);
-return v___x_122_;
-}
-else
-{
-lean_object* v___x_123_; 
-v___x_123_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__2));
-return v___x_123_;
-}
-}
-else
+lean_object* v___x_122_; uint8_t v___x_123_; 
+v___x_122_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__1));
+v___x_123_ = lean_string_dec_eq(v_x_119_, v___x_122_);
+if (v___x_123_ == 0)
 {
 lean_object* v___x_124_; 
-v___x_124_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__3));
+v___x_124_ = lean_box(0);
 return v___x_124_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_ofString_x3f___boxed(lean_object* v_x_125_){
-_start:
-{
-lean_object* v_res_126_; 
-v_res_126_ = l_Lake_ConfigLang_ofString_x3f(v_x_125_);
-lean_dec_ref(v_x_125_);
-return v_res_126_;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension(uint8_t v_x_127_){
-_start:
-{
-if (v_x_127_ == 0)
-{
-lean_object* v___x_128_; 
-v___x_128_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__0));
-return v___x_128_;
 }
 else
 {
-lean_object* v___x_129_; 
-v___x_129_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__1));
-return v___x_129_;
+lean_object* v___x_125_; 
+v___x_125_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__2));
+return v___x_125_;
+}
+}
+else
+{
+lean_object* v___x_126_; 
+v___x_126_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__3));
+return v___x_126_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension___boxed(lean_object* v_x_130_){
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_ofString_x3f___boxed(lean_object* v_x_127_){
 _start:
 {
-uint8_t v_x_20__boxed_131_; lean_object* v_res_132_; 
-v_x_20__boxed_131_ = lean_unbox(v_x_130_);
-v_res_132_ = l_Lake_ConfigLang_fileExtension(v_x_20__boxed_131_);
-return v_res_132_;
+lean_object* v_res_128_; 
+v_res_128_ = l_Lake_ConfigLang_ofString_x3f(v_x_127_);
+lean_dec_ref(v_x_127_);
+return v_res_128_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension(uint8_t v_x_129_){
+_start:
+{
+if (v_x_129_ == 0)
+{
+lean_object* v___x_130_; 
+v___x_130_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__0));
+return v___x_130_;
+}
+else
+{
+lean_object* v___x_131_; 
+v___x_131_ = ((lean_object*)(l_Lake_ConfigLang_ofString_x3f___closed__1));
+return v___x_131_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension___boxed(lean_object* v_x_132_){
+_start:
+{
+uint8_t v_x_20__boxed_133_; lean_object* v_res_134_; 
+v_x_20__boxed_133_ = lean_unbox(v_x_132_);
+v_res_134_ = l_Lake_ConfigLang_fileExtension(v_x_20__boxed_133_);
+return v_res_134_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString_Basic(uint8_t builtin);

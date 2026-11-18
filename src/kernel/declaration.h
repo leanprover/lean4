@@ -273,19 +273,19 @@ structure InductiveVal extends ConstantVal where
 */
 class inductive_val : public object_ref {
 public:
-    inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, unsigned nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
+    inductive_val(name const & n, names const & lparams, expr const & type, size_t nparams,
+                  size_t nindices, names const & all, names const & cnstrs, size_t nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other) noexcept:object_ref(std::move(other)) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
     inductive_val & operator=(inductive_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    size_t get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
-    unsigned get_ncnstrs() const { return length(get_cnstrs()); }
-    unsigned get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
+    size_t get_ncnstrs() const { return length(get_cnstrs()); }
+    size_t get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     bool is_rec() const;
     bool is_unsafe() const;
     bool is_reflexive() const;
@@ -301,16 +301,16 @@ structure ConstructorVal extends ConstantVal where
 */
 class constructor_val : public object_ref {
 public:
-    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_unsafe);
+    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, size_t cidx, size_t nparams, size_t nfields, bool is_unsafe);
     constructor_val(constructor_val const & other):object_ref(other) {}
     constructor_val(constructor_val && other) noexcept:object_ref(std::move(other)) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
     constructor_val & operator=(constructor_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_induct() const { return static_cast<name const &>(cnstr_get_ref(*this, 1)); }
-    unsigned get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
-    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    size_t get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    size_t get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
     bool is_unsafe() const;
 };
 
@@ -322,13 +322,13 @@ structure RecursorRule where
 */
 class recursor_rule : public object_ref {
 public:
-    recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs);
+    recursor_rule(name const & cnstr, size_t nfields, expr const & rhs);
     recursor_rule(recursor_rule const & other):object_ref(other) {}
     recursor_rule(recursor_rule && other) noexcept:object_ref(std::move(other)) {}
     recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
     recursor_rule & operator=(recursor_rule && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     name const & get_cnstr() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
-    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    size_t get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     expr const & get_rhs() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
 };
 
@@ -348,8 +348,8 @@ structure RecursorVal extends ConstantVal where
 class recursor_val : public object_ref {
 public:
     recursor_val(name const & n, names const & lparams, expr const & type,
-                 names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                 unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe);
+                 names const & all, size_t nparams, size_t nindices, size_t nmotives,
+                 size_t nminors, recursor_rules const & rules, bool k, bool is_unsafe);
     recursor_val(recursor_val const & other):object_ref(other) {}
     recursor_val(recursor_val && other) noexcept:object_ref(std::move(other)) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
@@ -358,11 +358,11 @@ public:
     name const & get_name() const { return to_constant_val().get_name(); }
     name const & get_major_induct() const;
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
-    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
-    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
-    unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
+    size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    size_t get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    size_t get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    size_t get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
+    size_t get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
     bool is_k() const;
     bool is_unsafe() const;
@@ -442,7 +442,7 @@ public:
 
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
-    unsigned get_num_lparams() const { return length(get_lparams()); }
+    size_t get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     bool has_value(bool allow_opaque = false) const {
         return is_theorem() || is_definition() || (allow_opaque && is_opaque());

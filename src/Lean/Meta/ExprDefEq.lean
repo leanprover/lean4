@@ -86,6 +86,12 @@ register_builtin_option backward.isDefEq.respectTransparency.instances : Bool :=
   of an assignment to an instance-implicit metavariable"
 }
 
+register_builtin_option backward.isDefEq.respectTransparency.instances.natural : Bool := {
+  defValue := false
+  descr    := "if true, `backward.isDefEq.respectTransparency.instances` also applies to natural \
+  metavariables of class type, such as those created for `{..}` binders"
+}
+
 /--
 Controls whether non-instance implicit arguments get their transparency bumped to
 `TransparencyMode.implicit` during `isDefEq`.
@@ -603,14 +609,17 @@ parameter, identified by `.synthetic` kind together with a class type.
 
 Assignments to these are checked at exactly `.instances` transparency, so an ambient
 `.default`/`.all` does not let semireducible definitions be unfolded while checking the type of an
-instance assignment. This intentionally does not apply to ordinary implicit (`{..}`) metavariables
-that happen to have a class type, which are created with `.natural` kind, nor to classes exempted
-by `isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional).
+instance assignment. Natural metavariables of class type, such as those created for `{..}` binders,
+count only under `backward.isDefEq.respectTransparency.instances.natural`. Classes exempted by
+`isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional) never count.
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
   unless (← getOptionFlags).respectTransparencyInstances do
     return false
-  unless (← mvarId.getKind) matches .synthetic do return false
+  match (← mvarId.getKind) with
+  | .synthetic => pure ()
+  | .natural => unless (← getOptionFlags).respectTransparencyInstancesNatural do return false
+  | .syntheticOpaque => return false
   let some className ← isClass? (← mvarId.getDecl).type | return false
   return !isLaxInstanceDefeqClass (← getEnv) className
 

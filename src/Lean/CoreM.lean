@@ -198,6 +198,7 @@ namespace OptionFlags
 @[inline] def diag (f : OptionFlags) : Bool := f.bits &&& 0x200 != 0
 @[inline] def respectTransparencyInstances (f : OptionFlags) : Bool := f.bits &&& 0x400 != 0
 @[inline] def auxMVarKind (f : OptionFlags) : Bool := f.bits &&& 0x800 != 0
+@[inline] def respectTransparencyInstancesNatural (f : OptionFlags) : Bool := f.bits &&& 0x1000 != 0
 
 /--
 Resolves the flags from `opts`.
@@ -220,7 +221,8 @@ def ofOptions (opts : Options) : OptionFlags :=
       flag (getB `backward.isDefEq.throwOnStuckAfterApp false) 0x100 |||
       flag (diagnostics.get opts) 0x200 |||
       flag (getB `backward.isDefEq.respectTransparency.instances true) 0x400 |||
-      flag (getB `backward.isDefEq.auxMVarKind true) 0x800 }
+      flag (getB `backward.isDefEq.auxMVarKind true) 0x800 |||
+      flag (getB `backward.isDefEq.respectTransparency.instances.natural false) 0x1000 }
 
 end OptionFlags
 

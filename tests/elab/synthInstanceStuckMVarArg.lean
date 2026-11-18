@@ -1,8 +1,8 @@
 import Lean
 
 /-!
-Tests that type class resolution reports a goal as stuck without searching exactly where every
-candidate instance would have to assign a metavariable argument of the goal.
+Tests that type class resolution reports a goal as stuck without searching where an argument that is
+a type is a metavariable, and that it still fails where there is no instance to try.
 -/
 
 open Lean Meta
@@ -31,13 +31,13 @@ def synth (mk : Expr → Expr) : MetaM String := do
   let α ← mkFreshExprMVar (mkSort 1)
   return toStr (← trySynthInstance (mk α))
 
--- Every instance has to assign `?α`.
+-- Stuck on `?α`.
 /-- info: "stuck" -/
 #guard_msgs in
 #eval synth (mkApp (mkConst ``C))
 
--- An instance applies to any `?α`.
-/-- info: "some" -/
+-- Also where an instance applies to any `?α`: the goal is resolved once `?α` is assigned.
+/-- info: "stuck" -/
 #guard_msgs in
 #eval synth (mkApp (mkConst ``D))
 
@@ -64,7 +64,7 @@ def synth (mk : Expr → Expr) : MetaM String := do
 #guard_msgs in
 #eval synth fun α => mkApp (mkConst ``C) (mkApp (mkConst ``List [0]) α)
 
--- A local instance for another type has to assign `?α`.
+-- A local instance is an instance to try.
 /-- info: "stuck" -/
 #guard_msgs in
 #eval show MetaM String from do
@@ -72,13 +72,22 @@ def synth (mk : Expr → Expr) : MetaM String := do
   withLocalDecl `inst .instImplicit (mkApp (mkConst ``F) β) fun _ =>
   synth (mkApp (mkConst ``F))
 
--- A local instance for `?α` itself applies.
-/-- info: "some" -/
+/-- info: "stuck" -/
 #guard_msgs in
 #eval show MetaM String from do
   let α ← mkFreshExprMVar (mkSort 1)
   withLocalDecl `inst .instImplicit (mkApp (mkConst ``F) α) fun _ =>
   return toStr (← trySynthInstance (mkApp (mkConst ``F) α))
+
+class G (n : Nat) where
+instance : G n := ⟨⟩
+
+-- A metavariable that is not a type does not prevent the search.
+/-- info: "some" -/
+#guard_msgs in
+#eval show MetaM String from do
+  let n ← mkFreshExprMVar (mkConst ``Nat)
+  return toStr (← trySynthInstance (mkApp (mkConst ``G) n))
 
 /--
 error: typeclass instance problem is stuck, it is often due to metavariables

@@ -588,19 +588,8 @@ where
     else
       return if skip == 0 && todo.isEmpty then result.push v else result
 
-/-- Returns whether `e` is an unassigned metavariable that `isDefEq` cannot assign. -/
-def isRigidMVar (e : Expr) : MetaM Bool := do
-  let .mvar mvarId := e | return false
-  return !(← mvarId.isAssignable) && !(← mvarId.isAssigned) && !(← mvarId.isDelayedAssigned)
-
-/--
-Returns whether `getUnify d e` contains a value satisfying `p`, without collecting the values.
-
-With `rigidMVars`, a subterm of `e` that is a metavariable `isDefEq` cannot assign (`isRigidMVar`) is
-matched only by wildcards instead of by every pattern, i.e. the values counted are those whose
-patterns unify with `e` without assigning such a metavariable.
--/
-partial def hasUnify (d : DiscrTree α) (e : Expr) (p : α → Bool) (rigidMVars := false) : MetaM Bool :=
+/-- Returns whether `getUnify d e` contains a value satisfying `p`, without collecting the values. -/
+partial def hasUnify (d : DiscrTree α) (e : Expr) (p : α → Bool) : MetaM Bool :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
@@ -612,8 +601,6 @@ partial def hasUnify (d : DiscrTree α) (e : Expr) (p : α → Bool) (rigidMVars
       | none   => return false
       | some c => go 0 args c
 where
-  rigid (e : Expr) : MetaM Bool :=
-    pure rigidMVars <&&> isRigidMVar e
   go (skip : Nat) (todo : Array Expr) (c : Trie α) : MetaM Bool := do
     if let .suffix ks i v := c then
       return p v && (← goSuffix skip todo ks i)
@@ -626,9 +613,6 @@ where
         return false
       let e     := todo.back!
       let todo  := todo.pop
-      if (← rigid e) then
-        let some c := c.starChild? | return false
-        return (← go 0 todo c)
       let (k, args) ← getUnifyKeyArgs e (root := false)
       match k with
       | .star  => c.anyChildrenM fun k c => go k.arity todo c
@@ -648,8 +632,6 @@ where
           return false
         let e     := todo.back!
         let todo  := todo.pop
-        if (← rigid e) then
-          return (← pure (key == .star) <&&> goSuffix 0 todo ks (i + 1))
         let (k, args) ← getUnifyKeyArgs e (root := false)
         match k with
         | .star  => goSuffix key.arity todo ks (i + 1)

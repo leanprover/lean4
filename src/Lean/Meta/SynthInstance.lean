@@ -701,53 +701,45 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   else
     return none
 
+/-- Returns whether `e` is an unassigned metavariable that resolution cannot assign. -/
+private def isReadOnlyMVar (e : Expr) : MetaM Bool := do
+  let .mvar mvarId := e | return false
+  return !(← mvarId.isAssignable) && !(← mvarId.isAssigned) && !(← mvarId.isDelayedAssigned)
+
 /--
-Returns whether resolution of the root goal `type` is bound to throw `isDefEqStuck` on the first
-instance it tries: an indexed argument is a metavariable that resolution cannot assign, every
-instance that may unify with `type` has to assign such an argument, and there is such an instance.
+Returns whether the root goal `type` is to be reported as stuck without a search: an argument other
+than an instance is a type or type constructor that is a metavariable resolution cannot assign, as
+in `LE ?α` or `Monad ?m`, and there is an instance that may unify with `type`.
+
+Almost every such search ends up stuck, when it reaches an instance that has to assign the
+metavariable, but only after collecting all instances of the class. Where one would succeed, the
+goal is resolved once the metavariable is assigned instead.
 -/
 private def isStuckOnMVarArg (type : Expr) : MetaM Bool := do
   let fn := type.getAppFn
   let .const className _ := fn | return false
   let args := type.getAppArgs
-  unless (← args.anyM DiscrTree.isRigidMVar) do return false
+  unless (← args.anyM isReadOnlyMVar) do return false
   unless isClass (← getEnv) className do return false
-  -- The positions whose metavariable the discrimination tree indexes; see `DiscrTree.ignoreArg`.
   let infos := (← getFunInfoNArgs fn args.size).paramInfo
-  let mut stuckPos := #[]
-  for h : i in *...args.size do
-    let a := args[i]
-    if (← DiscrTree.isRigidMVar a) then
-      let indexed ← if h : i < infos.size then
-          let info := infos[i]
-          if info.isInstance then pure false
-          else if info.isImplicit || info.isStrictImplicit then isType a
-          else not <$> isProof a
-        else not <$> isProof a
-      if indexed then stuckPos := stuckPos.push i
-  if stuckPos.isEmpty then return false
+  let typeMVar ← (Array.range args.size).anyM fun i => do
+    let a := args[i]!
+    unless (← isReadOnlyMVar a) do return false
+    if h : i < infos.size then
+      if infos[i].isInstance then return false
+    isTypeFormer a
+  unless typeMVar do return false
   -- as in `getInstancesLazy`, so that an enclosing query records the same dependencies
   recordLocalInstClass className
   recordInstClassChanges className (getInstanceClassChanges (← getEnv) className)
-  let mut hasLocal := false
-  for linst in (← getLocalInstances) do
-    if linst.className == className then
-      let linstType ← instantiateMVars (← inferType linst.fvar)
-      unless linstType.getAppFn.isConstOf className && linstType.getAppNumArgs == args.size do
-        return false
-      let linstArgs := linstType.getAppArgs
-      unless stuckPos.any fun i => !linstArgs[i]!.getAppFn.isMVar do return false
-      hasLocal := true
-  let globalInstances ← getGlobalInstancesIndex
+  -- Without an instance to try, resolution fails instead.
+  if (← getLocalInstances).any (·.className == className) then return true
   let erasedInstances ← getErasedInstances
   let env ← getEnv
   -- as in `getInstancesLazy`
-  let isCandidate (e : InstanceEntry) : Bool := match e.val with
+  (← getGlobalInstancesIndex).hasUnify type fun e => match e.val with
     | .const constName _ => !erasedInstances.contains constName && !(env.isExporting && !env.contains constName)
     | _ => true
-  if (← globalInstances.hasUnify type isCandidate (rigidMVars := true)) then return false
-  -- Without a candidate, resolution fails instead.
-  pure hasLocal <||> globalInstances.hasUnify type isCandidate
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do

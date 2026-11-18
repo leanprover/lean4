@@ -38,22 +38,16 @@ public def isCtorIdxCore? (env : Environment) (declName : Name) : Option Inducti
 public def isCtorIdx? (declName : Name) : MetaM (Option InductiveVal) := do
   return isCtorIdxCore? (← getEnv) declName
 
-/--
-Whether the object tag of a value of the inductive type may differ from its constructor index, see
-`Compiler.LCNF.setCtorLayouts`.
--/
-def mayHaveExtCtorIdx (info : InductiveVal) : MetaM Bool := do
-  if info.numCtors ≤ maxCtorTag + 1 then return false
-  info.ctors.anyM fun ctor => return (← getConstInfoCtor ctor).numFields > 0
-
-def mkCtorIdxImpl (indName : Name) (levelParams : List Name) (declType : Expr) :
+def mkCtorIdxImpl (indName : Name) (numCtors : Nat) (levelParams : List Name) (declType : Expr) :
     MetaM Name := do
   let implName := mkCtorIdxImplName indName
+  -- The index of a constructor is its object tag unless it is at least `maxCtorTag`.
+  let getIdx := if numCtors > maxCtorTag then ``getObjCtorIdxNat else ``getObjTagNat
 
   let value ← forallTelescope declType fun args _ => do
     let discr := args[args.size - 1]!
     let indType ← inferType discr
-    let body := mkApp2 (mkConst ``getObjTagNat [← getLevel indType]) indType discr
+    let body := mkApp2 (mkConst getIdx [← getLevel indType]) indType discr
     mkLambdaFVars args body
 
   let decl := .defnDecl {
@@ -137,15 +131,14 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
         modifyEnv (markMeta · declName)
       if info.numCtors = 1 then
         setInlineAttribute declName .macroInline
-      else if !Compiler.LCNF.isRuntimeBuiltinType indName && !(← mayHaveExtCtorIdx info) then
+      else if !Compiler.LCNF.isRuntimeBuiltinType indName then
         /-
         This branch is not just an optimization, calling getObjTagNat on:
         - a single ctor inductive is wrong if it is an inductive with trivial structure that gets
           uwnrapped later
         - built-in types like `Nat` and `Int` is wrong as they don't have a normal tag
-        - an inductive with too many constructors for the object tag is wrong
         -/
-        let implName ← mkCtorIdxImpl indName info.levelParams declType
+        let implName ← mkCtorIdxImpl indName info.numCtors info.levelParams declType
         setImplementedBy declName implName
       compileDecl decl
       enableRealizationsForConst declName

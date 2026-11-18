@@ -1,12 +1,12 @@
 import Lean
 
 /-!
-Tests inductive types with more constructors than there are constructor object tags. Constructors
-with fields whose index does not fit the tag store it in an additional object field: allocation,
-pattern matching with and without default alternatives, `ctorIdx`, in-place and copying updates,
-changing the constructor of an object, decidable equality, multi-threaded marking, static literals,
-sharing, and compaction. The sizes cover both sides of the threshold of 244 constructors, and one
-type combines the additional field with spill objects.
+Tests inductive types with more constructors than fit into the constructor object tag. Unless all
+constructors of the type are unboxed scalars, those with index at least 243 store it in an
+additional object field: allocation, pattern matching with and without default alternatives,
+`ctorIdx`, in-place and copying updates, changing the constructor of an object, decidable equality,
+multi-threaded marking, static literals, sharing, and compaction. The sizes cover both sides of the
+threshold of 243 constructors, and one type combines the additional field with spill objects.
 -/
 
 open Lean
@@ -192,11 +192,13 @@ macro "many_ctors " name:ident n:num off:num m:num k:num : command => do
       check "bump literal" ($(id "val") ($(id "bump") $(id "lit")) == $(id "expected") (n - 1) 0 + (if $(id "kind") (n - 1) == 0 then 0 else 1))
       check "ctorIdx literal" ($(id "lit").ctorIdx == n - 1))
 
--- 244 constructors, the most whose indices all fit the tag
+-- 243 constructors, the most without an additional field
+many_ctors T243 243 0 2 0
+-- constructor 243 is the only one with an additional field and has no other fields
 many_ctors T244 244 0 2 0
--- constructor 243 has no fields, constructor 244 is the only one with an additional field
+-- constructor 243 has other fields
+many_ctors U244 244 1 2 0
 many_ctors T245 245 0 2 0
--- constructor 243 has a field
 many_ctors T300 300 1 2 0
 many_ctors U300 300 2 2 0
 -- constructor 245 needs both the additional field and a spill object
@@ -204,8 +206,23 @@ many_ctors S246 246 0 255 243
 
 deriving instance DecidableEq for T300
 
+/-- `big_enum E n` defines an inductive type `E` with `n` constructors without fields. -/
+macro "big_enum " name:ident n:num : command => do
+  let ctors ← (Array.range n.getNat).mapM fun i =>
+    `(Parser.Command.ctor| | $(mkIdent (.mkSimple s!"c{i}")):ident)
+  `(inductive $name where
+      $ctors:ctor*)
+
+-- represented by unboxed scalars
+big_enum E300 300
+
+@[noinline] def E300.get (i : Nat) : E300 :=
+  if i == 243 then .c243 else if i == 299 then .c299 else .c0
+
 unsafe def main : IO Unit := do
+  T243.test
   T244.test
+  U244.test
   T245.test
   T300.test
   U300.test
@@ -216,3 +233,6 @@ unsafe def main : IO Unit := do
     eq := eq && decide (t = T300.make i (2 ^ 70)) && !decide (t = T300.make ((i + 7) % 300) (2 ^ 70)) &&
       !decide (t = T300.bump t) == (T300.kind i != 0)
   check "T300 decEq" eq
+  check "enum ctorIdx" ((E300.get 243).ctorIdx == 243 && (E300.get 299).ctorIdx == 299 && (E300.get 0).ctorIdx == 0)
+  check "enum boxed ctorIdx" ([E300.get 243, E300.get 299].map (·.ctorIdx) == [243, 299])
+  check "enum match" ((match E300.get 243 with | .c243 => 1 | .c299 => 2 | _ => 3) == 1)

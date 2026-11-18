@@ -115,6 +115,8 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
+// Constructors whose index does not fit into the tag use `LeanMaxCtorTag` and store their index as a
+// boxed scalar in the first object field, see `lean_obj_ctor_idx_nat`.
 #define LeanMaxCtorTag  243
 #define LeanPromise     244
 #define LeanClosure     245
@@ -871,6 +873,13 @@ static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, uns
 static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     return lean_ctor_obj_cptr(o)[i];
+}
+
+/* The constructor index of a value of an inductive type that is a constructor object or a boxed scalar. */
+static inline lean_object* lean_obj_ctor_idx_nat(b_lean_obj_arg o) {
+    if (lean_is_scalar(o)) return o;
+    unsigned tag = lean_ptr_tag(o);
+    return tag == LeanMaxCtorTag ? lean_ctor_get(o, 0) : lean_box(tag);
 }
 
 static inline void lean_dec_ref_known(lean_object * o, unsigned objs) {

@@ -1390,6 +1390,13 @@ of a different type and that tag of that type will be loaded.
 unsafe opaque getObjTagNat {α : Sort u} (x : @& α) : Nat
 
 /--
+Load the constructor index of `x` as a natural number. Unlike `getObjTagNat`, this also covers
+constructors whose index does not fit into the object tag.
+-/
+@[extern "lean_obj_ctor_idx_nat", tagged_return]
+unsafe opaque getObjCtorIdxNat {α : Sort u} (x : @& α) : Nat
+
+/--
 The class `OfNat α n` powers the numeric literal parser. If you write
 `37 : α`, Lean will attempt to synthesize `OfNat α 37`, and will generate
 the term `(OfNat.ofNat 37 : α)`.

@@ -67,7 +67,11 @@ builtin_initialize extraModUses : SimplePersistentEnvExtension ExtraModUse (PHas
     addEntryFn m k := m.insert k
     addImportedFn _ := {}
     exportEntriesFnEx? := some fun _ _ entries =>
-      { exported := #[], server := #[], «private» := entries.toArray }
+      -- Environment branches cannot see each other's entries and so may record the same one.
+      let (_, entries) := entries.foldl (init := (({} : Std.HashSet ExtraModUse), #[]))
+        fun (seen, entries) entry =>
+          if seen.contains entry then (seen, entries) else (seen.insert entry, entries.push entry)
+      { exported := #[], server := #[], «private» := entries }
     asyncMode := .sync
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (·.contains ·) (·.insert ·)
   }

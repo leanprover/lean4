@@ -39,11 +39,10 @@ recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
-The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
 It uses binary partitioning to construct a tree of intermediate let bindings as in
 `let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
 -/
-syntax "%[" withoutPosition(term,*,? " | " term) "]" : term
+syntax (name := listTreeLit) "%[" withoutPosition(term,*,?) "]" : term
 
 namespace Lean
 
@@ -59,6 +58,6 @@ macro_rules
     if size < 64 then
       expandListLit size (size % 2 == 0) (← ``(List.nil))
     else
-      `(%[ $elems,* | List.nil ])
+      `(%[ $elems,* ])
 
 end Lean

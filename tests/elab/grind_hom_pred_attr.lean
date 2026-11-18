@@ -109,10 +109,3 @@ error: homomorphism predicates should be registered using the `@[grind hom_pred]
 -/
 #guard_msgs in
 example : True := by grind [hom_pred wu_lower]
-
-/-! `reset_grind_attrs%` clears the homo_pred extension. -/
-
-reset_grind_attrs%
-
-#guard_msgs in
-run_meta showPredMap

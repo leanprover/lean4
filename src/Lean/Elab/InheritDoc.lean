@@ -17,7 +17,7 @@ Uses documentation from a specified declaration.
 `@[inherit_doc decl]` is used to inherit the documentation from the declaration `decl`.
 -/
 @[builtin_doc]
-public builtin_initialize
+builtin_initialize
   registerBuiltinAttribute {
     name := `inherit_doc
     descr := "inherit documentation from a specified declaration"
@@ -30,6 +30,7 @@ public builtin_initialize
           | throwError "Invalid `[inherit_doc]` attribute: Could not infer doc source"
         -- allow inheriting private docstrings
         let declName ← withoutExporting <| Elab.realizeGlobalConstNoOverloadWithInfo id
+        Core.checkDeprecatedAt id declName
         if (← findSimpleDocString? (← getEnv) decl (includeBuiltin := false)).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
         -- Outside the server, we do not have access to all docstrings

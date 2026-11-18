@@ -5,7 +5,6 @@ public meta import VersoDocMd.Defs
 import all VersoDocMd.A
 
 open Lean Doc Elab Command
-open scoped Lean.Doc.Syntax
 
 public section
 
@@ -19,7 +18,7 @@ environment lookup without `Elab.inServer`.
 /-- Includes another declaration's docstring by reading it from the environment as the role
 elaborates. -/
 @[doc_role]
-meta def include_docstring' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def include_docstring' (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let target ← codeTargetName xs
   match (← (findInternalDocString? (← getEnv) target : IO _)) with
   | some (.inl str) => return .text str

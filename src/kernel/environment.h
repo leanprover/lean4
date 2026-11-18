@@ -96,9 +96,6 @@ public:
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
 
-    /** \brief Apply the function \c f to each constant */
-    void for_each_constant(std::function<void(constant_info const & d)> const & f) const;
-
     /** \brief Pointer equality */
     friend bool is_eqp(environment const & e1, environment const & e2) {
         return e1.raw() == e2.raw();
@@ -106,6 +103,7 @@ public:
 };
 
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);
+void check_no_loose_bvars(environment const & env, expr const & e);
 
 void initialize_environment();
 void finalize_environment();

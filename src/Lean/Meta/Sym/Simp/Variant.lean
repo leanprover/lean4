@@ -11,14 +11,19 @@ public section
 namespace Lean.Meta.Sym.Simp
 
 /--
-A named `Sym.simp` variant. Stores `pre`/`post` simproc chains as syntax
-(elaborated at use time in `GrindTacticM`) and configuration overrides.
+A named `Sym.simp` variant. Stores `pre`/`post` simproc chains and the discharger for extra
+theorems as syntax (elaborated at use time in `GrindTacticM`) and configuration overrides.
 -/
 structure SymSimpVariant where
   /-- Pre-processing simproc chain (elaborated at use time). -/
   pre?   : Option Syntax := none
   /-- Post-processing simproc chain (elaborated at use time). -/
   post?  : Option Syntax := none
+  /--
+  Discharger for the side conditions of the extra theorems provided at use time
+  (`simp myVariant [thm₁, thm₂, ...]`), elaborated at use time. `none` means no discharge.
+  -/
+  discharger? : Option Syntax := none
   /-- Configuration overrides. -/
   config : Config := {}
   deriving Inhabited

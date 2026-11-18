@@ -9,13 +9,11 @@ Author: Sofia Rodrigues
 #include "runtime/uv/event_loop.h"
 #include "runtime/uv/net_addr.h"
 
-namespace lean {
-
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 #include <uv.h>
-
 #endif
+
+namespace lean {
 
 // =======================================
 // DNS functions

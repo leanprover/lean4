@@ -1,5 +1,10 @@
 import Lean.Runtime
 
+/-!
+Checks that Lean is linked against libuv 1.x, or against none on Emscripten, which reports
+version 0. The minimum version bundled into releases is checked in CI instead.
+-/
+
 -- Non-emscripten build: expect the major version of LibUV
 /-- info: 1 -/
 #guard_msgs in

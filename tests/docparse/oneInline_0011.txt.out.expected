@@ -1,10 +1,14 @@
+Input: "![](logo.png)"
 Success! Final stack:
-  (Lean.Doc.Syntax.image
+  (Lean.Doc.Parser.Inline.image
    "!["
-   (str "\"\"")
+   (Lean.Doc.Parser.versoImageAlt "")
    "]"
-   (Lean.Doc.Syntax.url
+   (Lean.Doc.Parser.LinkTarget.url
     "("
-    (str "\"logo.png\"")
+    (Lean.Doc.Parser.versoLinkUrl "logo.png")
     ")"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  image (opener := "![") (alt := "") (closer := "]") (target := url (opener := "(") (url := "logo.png") (closer := ")"))

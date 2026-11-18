@@ -20,7 +20,7 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "αβγ".mkIterator.next.1
 #eval "αβγ".mkIterator.next.next.1
 #eval "αβγ".mkIterator.next.2
-#eval "αβ".data
+#eval "αβ".toList
 #eval "αβ".push 'a'
 #eval g "α"
 #eval "".mkIterator.curr
@@ -47,7 +47,7 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "abc" == "abc"
 #eval "abc" == "abd"
 #eval "αβγ".drop 1 |>.copy
-#eval "αβγ".takeRight 1
+#eval "αβγ".takeEnd 1 |>.copy
 
 def ss : Substring.Raw := "0123abcdαβγδ".toRawSubstring
 #eval ss.drop 4 |>.takeRight 4

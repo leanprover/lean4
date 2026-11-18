@@ -1063,18 +1063,11 @@ return v___x_331_;
 }
 else
 {
-if (v___x_331_ == 0)
-{
-return v___x_331_;
-}
-else
-{
 size_t v___x_332_; size_t v___x_333_; uint8_t v___x_334_; 
 v___x_332_ = ((size_t)0ULL);
 v___x_333_ = lean_usize_of_nat(v___x_330_);
 v___x_334_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__0_spec__0(v_a_328_, v_as_327_, v___x_332_, v___x_333_);
 return v___x_334_;
-}
 }
 }
 }
@@ -1287,11 +1280,13 @@ return v_res_435_;
 }
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_IndGroupInfo(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_RecArgInfo(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_PreDefinition_FixedParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

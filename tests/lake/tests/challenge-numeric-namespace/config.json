@@ -1,0 +1,7 @@
+{
+    "challenge_module": "Challenge.«12.34».«5»",
+    "solution_module": "Solution",
+    "theorem_names": ["«123».foo"],
+    "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+    "enable_nanoda": false
+}

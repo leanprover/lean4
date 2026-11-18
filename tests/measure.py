@@ -7,9 +7,9 @@ import resource
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
 
 
 @dataclass
@@ -41,9 +41,8 @@ class Result:
 
 PERF_METRICS = {
     "task-clock": PerfMetric("task-clock", factor=1e-9, unit="s"),
-    "wall-clock": PerfMetric("duration_time", factor=1e-9, unit="s"),
-    "instructions": PerfMetric("instructions"),
-    "cycles": PerfMetric("cycles"),
+    "instructions": PerfMetric("instructions:u"),
+    "cycles": PerfMetric("cycles:u"),
 }
 
 PERF_UNITS = {
@@ -52,16 +51,21 @@ PERF_UNITS = {
 }
 
 RUSAGE_METRICS = {
-    "maxrss": RusageMetric("ru_maxrss", factor=1000, unit="B"),  # KiB on linux
+    "maxrss": RusageMetric("ru_maxrss", factor=1024, unit="B"),  # KiB on linux
 }
 
-ALL_METRICS = {**PERF_METRICS, **RUSAGE_METRICS}
+# Measured around the command instead of via perf's `duration_time` event, which `perf stat -j`
+# reports as 0 in some perf versions (e.g. 7.2.6).
+TIME_METRICS = {"wall-clock"}
+
+ALL_METRICS = {**PERF_METRICS, **RUSAGE_METRICS, **{m: None for m in TIME_METRICS}}
 DEFAULT_METRICS = set(ALL_METRICS.keys())
 
 
-def resolve_metrics(metrics: set[str]) -> Tuple[set[str], set[str]]:
+def resolve_metrics(metrics: set[str]) -> tuple[set[str], set[str], set[str]]:
     perf = set()
     rusage = set()
+    timed = set()
     unknown = set()
 
     for metric in metrics:
@@ -69,13 +73,15 @@ def resolve_metrics(metrics: set[str]) -> Tuple[set[str], set[str]]:
             perf.add(metric)
         elif metric in RUSAGE_METRICS:
             rusage.add(metric)
+        elif metric in TIME_METRICS:
+            timed.add(metric)
         else:
             unknown.add(metric)
 
     if unknown:
         raise SystemExit(f"unknown metrics: {', '.join(unknown)}")
 
-    return perf, rusage
+    return perf, rusage, timed
 
 
 @dataclass
@@ -90,11 +96,14 @@ type PerfResults = dict[str, PerfResult]
 @dataclass
 class MeasureResult:
     perf: PerfResults
+    wall_clock: float
     stdout: str
     stderr: str
 
 
-def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResult:
+def measure_perf(
+    cmd: list[str], events: set[str], capture: bool, allow_failure: bool = False
+) -> MeasureResult:
     with tempfile.NamedTemporaryFile() as tmp:
         env = os.environ.copy()
         env["LC_ALL"] = "C"  # or perf may output syntactically invalid JSON
@@ -111,8 +120,12 @@ def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResu
         ]
 
         # Execute command
-        result = subprocess.run(cmd, env=env, capture_output=capture, encoding="utf-8")
-        if result.returncode != 0:
+        start = time.perf_counter()
+        result = subprocess.run(
+            cmd, env=env, capture_output=capture, encoding="utf-8", check=False
+        )
+        wall_clock = time.perf_counter() - start
+        if result.returncode != 0 and not allow_failure:
             if capture:
                 print(result.stdout, end="", file=sys.stdout)
                 print(result.stderr, end="", file=sys.stderr)
@@ -130,6 +143,7 @@ def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResu
 
         return MeasureResult(
             perf=perf,
+            wall_clock=wall_clock,
             stdout=result.stdout or "",
             stderr=result.stderr or "",
         )
@@ -161,11 +175,14 @@ def main(
     metrics: set[str],
     append: bool = True,
     capture: bool = False,
+    allow_failure: bool = False,
 ) -> tuple[str, str]:
-    perf_metrics, rusage_metrics = resolve_metrics(metrics)
+    perf_metrics, rusage_metrics, timed_metrics = resolve_metrics(metrics)
     perf_events = {PERF_METRICS[metric].event for metric in perf_metrics}
 
-    measured = measure_perf(cmd, perf_events, capture=capture)
+    measured = measure_perf(
+        cmd, perf_events, capture=capture, allow_failure=allow_failure
+    )
     perf = measured.perf
     rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
 
@@ -174,11 +191,12 @@ def main(
         results.append(get_perf_result(perf, metric))
     for metric in rusage_metrics:
         results.append(get_rusage_result(rusage, metric))
+    if "wall-clock" in timed_metrics:
+        results.append(Result(category="wall-clock", value=measured.wall_clock, unit="s"))
 
     with open(output, "a" if append else "w") as f:
         for result in results:
-            for topic in topics:
-                f.write(f"{result.fmt(topic)}\n")
+            f.writelines(f"{result.fmt(topic)}\n" for topic in topics)
 
     return measured.stdout, measured.stderr
 
@@ -189,6 +207,7 @@ class Args:
     default_metrics: bool
     output: Path
     append: bool
+    allow_failure: bool
     cmd: str
     args: list[str]
 
@@ -232,6 +251,12 @@ if __name__ == "__main__":
         help="append to the output file instead of overwriting it",
     )
     parser.add_argument(
+        "--allow-failure",
+        "-F",
+        action="store_true",
+        help="record measurements even if the measured command exits with a non-zero status",
+    )
+    parser.add_argument(
         "cmd",
         help="command to measure the resource usage of",
     )
@@ -253,4 +278,5 @@ if __name__ == "__main__":
         topics=args.topic,
         metrics=metrics,
         append=args.append,
+        allow_failure=args.allow_failure,
     )

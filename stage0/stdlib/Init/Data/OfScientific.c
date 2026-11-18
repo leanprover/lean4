@@ -662,6 +662,7 @@ _start:
 lean_object* v___y_146_; lean_object* v___x_152_; uint8_t v___x_153_; 
 v___x_152_ = lean_cstr_to_nat("9007199254740992");
 v___x_153_ = lean_nat_dec_lt(v_m_142_, v___x_152_);
+lean_dec(v___x_152_);
 if (v___x_153_ == 0)
 {
 goto v___jp_149_;
@@ -1295,11 +1296,13 @@ lean_object* runtime_initialize_Init_Data_Float_Float32(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Log2(uint8_t builtin);
 lean_object* runtime_initialize_Init_Meta(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_OfScientific(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_OfScientific_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

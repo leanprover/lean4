@@ -430,7 +430,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       rw [goCache_denote_eq]
       exact hinv
     · rw [← hres]
-      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
+      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz_eq_clzAuxRec]
       rw [denote_blastClz]
       intro idx hidx
       rw [goCache_denote_eq]

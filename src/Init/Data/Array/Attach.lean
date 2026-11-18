@@ -25,7 +25,7 @@ an array `xs : Array α`, given a proof that every element of `xs` in fact satis
 `Array.pmap`, named for “partial map,” is the equivalent of `Array.map` for such partial functions.
 -/
 @[expose]
-def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
+noncomputable def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
   (xs.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
 
 /--
@@ -811,6 +811,24 @@ and simplifies these to the function directly taking the value.
 
 @[wf_preprocess] theorem flatMap_unattach {P : α → Prop} {xs : Array (Subtype P)} {f : α → Array β} :
     xs.unattach.flatMap f = xs.flatMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem any_wfParam {xs : Array α} {f : α → Bool} :
+    (wfParam xs).any f = xs.attach.unattach.any f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem any_unattach {P : α → Prop} {xs : Array (Subtype P)} {f : α → Bool} :
+    xs.unattach.any f = xs.any fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_wfParam {xs : Array α} {f : α → Bool} :
+    (wfParam xs).all f = xs.attach.unattach.all f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_unattach {P : α → Prop} {xs : Array (Subtype P)} {f : α → Bool} :
+    xs.unattach.all f = xs.all fun ⟨x, h⟩ =>
       binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
   simp [wfParam]
 

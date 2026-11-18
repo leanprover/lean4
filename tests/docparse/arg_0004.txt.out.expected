@@ -1,4 +1,12 @@
-Failure @0 (⟨1, 0⟩): expected '(', '+', '-', expected identifier, string, or number or token
+Input: "\n(x:=1)"
+Failure: expected '(', '+', '-', identifier, string, or number or token
+ --> 1:0
+  |
+1 | 
+  | ^
+  = consumed input prefix: 0 bytes
 Final stack:
   <missing>
-Remaining: "\n(x:=1)"
+Remaining:
+"\n(x:=1)"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

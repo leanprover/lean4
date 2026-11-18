@@ -1414,7 +1414,7 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
     have := congrArg g h'
     simpa [h] using this
 
-@[deprecated BitVec.ne_intMin_of_msb_eq_false (since := "2025-10-26")]
+@[deprecated BitVec.ne_intMin_of_msb_eq_false +typeChanged (since := "2025-10-26")]
 theorem ne_intMin_of_lt_of_msb_false {x : BitVec w} (hw : 0 < w) (hx : x.msb = false) :
     x ≠ intMin w := by
   have := toNat_lt_of_msb_false hx

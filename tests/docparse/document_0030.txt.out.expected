@@ -1,0 +1,26 @@
+Input: "Text $$`x + y\n\nAfter\n"
+Failure: unterminated inline code; expected '`'
+ --> 1:7-1:8
+  |
+1 | Text $$`x + y
+  |        ^
+  = consumed input prefix: 13 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Text "))
+      (Lean.Doc.Parser.Inline.display_math
+       (Lean.Doc.Parser.displayMathMarker "$$")
+       (Lean.Doc.Parser.Inline.code
+        (Lean.Doc.Parser.codeDelimiter "`")
+        (Lean.Doc.Parser.versoCode
+         [(Lean.Doc.Parser.versoCodeLine
+           "x + y")])
+        <missing>))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

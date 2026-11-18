@@ -1,9 +1,11 @@
+/-! Equation generation for a well-founded monadic byte-slice loop. -/
+
 def Nat.Up (ub a i : Nat) := i < a ∧ i < ub
 
 theorem Nat.Up.next {ub i} (h : i < ub) : Up ub (i+1) i := ⟨Nat.lt_succ_self _, h⟩
 
 /-- A terminal byte slice, a suffix of a byte array. -/
-structure ByteSliceT := (arr : ByteArray) (off : Nat)
+structure ByteSliceT where (arr : ByteArray) (off : Nat)
 
 namespace ByteSliceT
 
@@ -19,7 +21,7 @@ end ByteSliceT
 def ByteArray.toSliceT (arr : ByteArray) : ByteSliceT := ⟨arr, 0⟩
 
 /-- A byte slice, given by a backing byte array, and an offset and length. -/
-structure ByteSlice := (arr : ByteArray) (off len : Nat)
+structure ByteSlice where (arr : ByteArray) (off len : Nat)
 
 namespace ByteSlice
 

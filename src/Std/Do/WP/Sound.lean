@@ -231,7 +231,7 @@ public theorem Except.of_wp_eq {ε α : Type} {x prog : Except ε α}
   ExceptT.of_wp_run (m := _root_.Id) (prog := prog) (x := x) P h hwp
 
 /-- Soundness lemma for `Except` without the equality hypothesis (deprecated). -/
-@[deprecated Except.of_wp_eq (since := "2026-01-26")]
+@[deprecated Except.of_wp_eq +typeChanged (since := "2026-01-26")]
 public theorem Except.of_wp {ε α : Type} {prog : Except ε α} (P : Except ε α → Prop) :
     (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P prog :=
   Except.of_wp_eq rfl P

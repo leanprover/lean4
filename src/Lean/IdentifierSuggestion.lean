@@ -7,11 +7,11 @@ module
 
 prelude
 public import Lean.Elab.DeclModifiers
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 import Init.Omega
 
 namespace Lean
-open Elab.Term
+open Elab.Term Internal.ErrorUtils
 
 set_option doc.verso true
 

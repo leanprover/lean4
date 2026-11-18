@@ -1,10 +1,17 @@
+Input: "**aa\nbb**"
 Success! Final stack:
-  (Lean.Doc.Syntax.bold
-   "**"
-   [(Lean.Doc.Syntax.text (str "\"aa\""))
-    (Lean.Doc.Syntax.linebreak
-     "line!"
-     (str "\"\\n\""))
-    (Lean.Doc.Syntax.text (str "\"bb\""))]
-   "**")
+  (Lean.Doc.Parser.Inline.bold
+   (Lean.Doc.Parser.boldDelimiter "**")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "aa"))
+    (Lean.Doc.Parser.Inline.linebreak "\n")
+    (Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "bb"))]
+   (Lean.Doc.Parser.boldDelimiter "**"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  bold (opener := "**") (closer := "**")
+    text (content := "aa")
+    linebreak (newline := "\n")
+    text (content := "bb")

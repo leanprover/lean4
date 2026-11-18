@@ -1,0 +1,41 @@
+Input: "a [b {c d](url) e\n\nNext\n"
+2 failures:
+Failure: unexpected ']'; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:9-1:10
+  |
+1 | a [b {c d](url) e
+  |          ^
+  = consumed input prefix: 9 bytes
+
+Failure: expected ']'
+ --> 1:17
+  |
+1 | a [b {c d](url) e
+  |                  ^
+  = consumed input prefix: 17 bytes
+
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "a "))
+      (Lean.Doc.Parser.Inline.link
+       "["
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "b "))
+        (Lean.Doc.Parser.Inline.role
+         "{"
+         `c
+         [(Lean.Doc.Parser.Arg.anon
+           (Lean.Doc.Parser.ArgVal.ident `d))]
+         <missing>
+         []
+         []
+         [])]
+       <missing>)])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Next"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: non-whitespace ']' at 9 not part of any token

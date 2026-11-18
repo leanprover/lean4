@@ -23,7 +23,7 @@ public def elabDoForward : Term.TermElab := fun _ _ =>
     `do←` may only appear as the last argument of a function application \
     inside an enclosing `do` block, optionally inside a `fun` binder"
 
-private def forwardHint (headApp : Term) (reason : MessageData) : MessageData :=
+def forwardHint (headApp : Term) (reason : MessageData) : MessageData :=
   m!"\
     `{headApp}` is not a valid `do←` wrapper: {reason}. The wrapper must have type \
     `(… → m α) → m α` for some `α` that is universally quantified in the wrapper's signature and \
@@ -35,7 +35,7 @@ Check that `probeExpr` (the elaboration of `headApp ?forwarded`) has the shape r
 the same `α` (and `α` not occurring in the slot's input types), and `α` does not occur in any
 *other* explicit argument of the elaborated probe.
 -/
-private def validateForwarder (headApp : Term) (forwarded probeExpr : Expr) : MetaM Unit := do
+def validateForwarder (headApp : Term) (forwarded probeExpr : Expr) : MetaM Unit := do
   let reject {α} (reason : MessageData) : MetaM α := throwError forwardHint headApp reason
   let probeType ← whnfD (← instantiateMVars (← inferType probeExpr))
   let .app _ alphaRet := probeType
@@ -81,7 +81,14 @@ public def tryElabForwardApp? (e : Term) (dec : DoElemCont) : DoElabM (Option Ex
   let bodyInfo ← InferControlInfo.ofSeq arg.body
   let forwarder ← EffectForwarder.ofCont bodyInfo dec
   let liftedBody ← controlAtTermElabM fun runInBase => do
-    Term.elabFunBinders (arg.binders.map (·.raw)) none fun bsExpr _ => runInBase do
+    -- The binders take their types from the wrapper's body slot.
+    let slotType ← instantiateMVars (← inferType forwarded)
+    let (binders, _, isPattern) ←
+      liftMacroM <| Term.expandFunBinders (arg.binders.map (·.raw)) (← `(_))
+    if isPattern then
+      throwError "\
+        A `do←` binder must be a variable. Bind a variable and `match` on it in the body."
+    Term.elabFunBinders binders (some slotType) fun bsExpr _ => runInBase do
       mkLambdaFVars bsExpr (← forwarder.lift (elabDoSeq arg.body))
   unless ← forwarded.mvarId!.checkedAssign liftedBody do
     throwError "the lifted body's type does not match the wrapper's body slot type"

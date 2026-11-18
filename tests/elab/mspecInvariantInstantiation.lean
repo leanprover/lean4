@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std.Do.WP.Basic
 
+set_option sym.debug true
+
 def tst (n : Nat) : Vector Bool n := Id.run do
   let mut res : Vector Bool n := .ofFn fun _ ↦ false
   for i in [:n] do
@@ -9,6 +11,7 @@ def tst (n : Nat) : Vector Bool n := Id.run do
         res := res.set! i true
   return res
 
+set_option linter.deprecated.syntax false in
 set_option warn.sorry false in
 open Std.Do in
 example (n i : Nat) (h : i < n) : (tst n)[i] = (i % 2 == 0) := by

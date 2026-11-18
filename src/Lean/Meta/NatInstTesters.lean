@@ -71,6 +71,12 @@ def isInstLENat (e : Expr) : MetaM Bool := do
 def isInstDvdNat (e : Expr) : MetaM Bool := do
   let_expr Nat.instDvd ← e | return false
   return true
+def isInstAndOpNat (e : Expr) : MetaM Bool := do
+  let_expr Nat.instAndOp ← e | return false
+  return true
+def isInstHAndNat (e : Expr) : MetaM Bool := do
+  let_expr instHAndOfAndOp _ i ← e | return false
+  isInstAndOpNat i
 end Structural
 
 namespace DefEq

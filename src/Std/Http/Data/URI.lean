@@ -122,13 +122,14 @@ def port (uri : URI) : UInt16 :=
   | none => URI.Scheme.defaultPort uri.scheme
 
 /--
-The host this URI addresses, or `none` when the URI carries no authority.
+The host this URI addresses, or `none` when the URI carries no authority or an empty host
+(`file:///path`).
 
-A URI without an authority cannot identify an origin to connect to, so callers that need to
-dispatch a request should treat `none` as malformed input rather than substituting a default host.
+Such a URI cannot identify an origin to connect to, so callers that need to dispatch a request
+should treat `none` as malformed input rather than substituting a default host.
 -/
 def host? (uri : URI) : Option URI.Host :=
-  uri.authority.map (·.host)
+  uri.authority.bind fun auth => if auth.host == .empty then none else some auth.host
 
 /--
 Returns the origin-form request target corresponding to this URI, dropping the scheme, authority,

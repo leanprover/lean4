@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast
-// Imports: public import Std.Tactic.BVDecide.Bitblast.BoolExpr public import Std.Tactic.BVDecide.Bitblast.BVExpr
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr public import Std.Tactic.BVDecide.Bitblast.EfficientEval public import Std.Tactic.BVDecide.Bitblast.Substitute
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_EfficientEval(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_Substitute(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr(builtin);
+lean_initialize_runtime_module();
+res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr(builtin);
+res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_EfficientEval(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_Substitute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -35,17 +41,21 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_Bitblast_EfficientEval(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_Bitblast_Substitute(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr(builtin);
+res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr(builtin);
+res = initialize_Std_Tactic_BVDecide_Bitblast_EfficientEval(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Tactic_BVDecide_Bitblast_Substitute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast(builtin);

@@ -11,6 +11,7 @@ import Lean.Meta.Sym.LitValues
 import Init.CbvSimproc
 import Lean.Meta.Tactic.Cbv.CbvSimproc
 import Lean.Meta.Tactic.Cbv.Util
+import Init.Data.String.Csimp
 
 namespace Lean.Meta.Tactic.Cbv
 

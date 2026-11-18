@@ -18,7 +18,7 @@ namespace Lean
 Enables the 'unnecessary `simpa`' linter. This will report if a use of
 `simpa` could be proven using `simp` or `simp at h` instead.
 -/
-register_option linter.unnecessarySimpa : Bool := {
+register_builtin_option linter.unnecessarySimpa : Bool := {
   defValue := true
   descr := "enable the 'unnecessary simpa' linter"
 }
@@ -33,6 +33,19 @@ open Lean Parser.Tactic Elab Meta Term Tactic Simp Linter
 def getLinterUnnecessarySimpa (o : LinterOptions) : Bool :=
   getLinterValue linter.unnecessarySimpa o
 
+private def logUnnecessarySimpa (initialState : SavedState) (ref : Syntax)
+    (replacement : TSyntax `tactic) : TacticM Unit := do
+  let mut msg := m!"`simp` already closes the goal"
+  if ← Meta.Tactic.TryThis.isValidTactic initialState replacement then
+    let suggestion : Meta.Hint.Suggestion := {
+      suggestion := replacement
+      span? := ref
+      diffGranularity := .none
+    }
+    let hint ← MessageData.hint "Use `simp` instead of `simpa`:" #[suggestion] (ref? := ref)
+    msg := msg ++ hint
+  logLint linter.unnecessarySimpa ref msg
+
 /--
 Core implementation of the `simpa` tactic, parameterized by whether the final
 unification of the simplified `using` term against the simplified goal should
@@ -44,6 +57,18 @@ private def evalSimpaCore (useReducible : Bool) : Tactic := fun stx => do
   match stx with
   | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
         $[[$args,*]]? $[using%$usingTk? $usingArg]?) => Elab.Tactic.focus do withSimpDiagnostics do
+    let initialState ← saveState
+    let mkSimpReplacement (loc : Option (TSyntax ``Parser.Tactic.location)) :
+        TacticM (TSyntax `tactic) := do
+      match squeeze.isSome, unfold.isSome with
+      | false, false =>
+        `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[$loc]?)
+      | false, true =>
+        `(tactic| simp! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[$loc]?)
+      | true, false =>
+        `(tactic| simp? $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[$loc]?)
+      | true, true =>
+        `(tactic| simp?! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[$loc]?)
     let stx ← `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?)
     let stats ← do
       let { ctx, simprocs, dischargeWrapper, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
@@ -56,7 +81,8 @@ private def evalSimpaCore (useReducible : Bool) : Tactic := fun stx => do
         let mkInfo ← mkInitialTacticInfo (mkNullNode #[tk, usingTk?.getD .missing])
         let (some (_, g), stats) ← simpGoal (← getMainGoal) ctx (simprocs := simprocs) (simplifyTarget := true) (discharge? := discharge?)
           | if getLinterUnnecessarySimpa (← getLinterOptions) then
-              logLint linter.unnecessarySimpa (← getRef) "try 'simp' instead of 'simpa'"
+              let ref ← getRef
+              logUnnecessarySimpa initialState ref (← mkSimpReplacement none)
             return {}
         -- Replace the goal; captured by `mkInfo` in `using` case below.
         replaceMainGoal [g]
@@ -102,9 +128,12 @@ private def evalSimpaCore (useReducible : Bool) : Tactic := fun stx => do
             | none =>
               if getLinterUnnecessarySimpa (← getLinterOptions) then
                 if let .fvar h := e then
-                  if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
-                    logLint linter.unnecessarySimpa (← getRef)
-                      m!"Try `simp at {Expr.fvar h}` instead of `simpa using {Expr.fvar h}`"
+                  if let some name := (← getLCtx).getRoundtrippingUserName? h then
+                    let hStx : TSyntax `term := ⟨mkIdent name⟩
+                    let hyp ← `(locationHyp| $hStx:term)
+                    let loc ← `(location| at $hyp:locationHyp)
+                    let ref ← getRef
+                    logUnnecessarySimpa initialState ref (← mkSimpReplacement (some loc))
             g.assign gCopy
             pure stats
           else if let some ldecl := (← getLCtx).findFromUserName? `this then

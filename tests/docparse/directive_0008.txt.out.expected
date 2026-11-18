@@ -1,0 +1,25 @@
+Input: ":::note\n%%%\nx := 1\n%%%\n:::\n"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter ":::")
+   `note
+   []
+   [(Lean.Doc.Parser.Block.metadata_block
+     "%%%"
+     (Term.structInstFields
+      [(Term.structInstField
+        (Term.structInstLVal `x [])
+        [[]
+         []
+         (Term.structInstFieldDef
+          ":="
+          []
+          (num "1"))])
+       []])
+     "%%%")]
+   (Lean.Doc.Parser.directiveDelimiter ":::"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  directive (opener := ":::") (name := note) (args := []) (closer := ":::")
+    metadata (opener := "%%%") (fields := 1) (closer := "%%%")

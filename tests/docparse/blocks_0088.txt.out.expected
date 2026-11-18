@@ -1,0 +1,22 @@
+Input: "Code: `blah\n\nblah\n\nblah`\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "Code: "))
+     (Lean.Doc.Parser.Inline.code
+      (Lean.Doc.Parser.codeDelimiter "`")
+      (Lean.Doc.Parser.versoCode
+       [(Lean.Doc.Parser.versoCodeLine "blah\n")
+        (Lean.Doc.Parser.versoCodeLine "\n")
+        (Lean.Doc.Parser.versoCodeLine "blah\n")
+        (Lean.Doc.Parser.versoCodeLine "\n")
+        (Lean.Doc.Parser.versoCodeLine "blah")])
+      (Lean.Doc.Parser.codeDelimiter "`"))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "Code: ")
+    code (opener := "`") (content := "blah\n\nblah\n\nblah") (closer := "`")
+    linebreak (newline := "\n")

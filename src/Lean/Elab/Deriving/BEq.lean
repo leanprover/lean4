@@ -206,8 +206,8 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-def mkBEqInstanceCmds (ctx : Context) (declName : Name) : TermElabM (Array Syntax) := do
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq #[declName])
+def mkBEqInstanceCmds (ctx : Context) (declNames : Array Name) : TermElabM (Array Syntax) := do
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq declNames)
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
@@ -222,22 +222,27 @@ def mkBEqEnumCmd (ctx : Context) (name : Name): TermElabM (Array Syntax) := do
 
 open Command
 
-def mkBEqInstance (declName : Name) : CommandElabM Unit := do
-  withoutExposeFromCtors declName do
+/-- Derives `BEq` for `declNames`, which must belong to the same mutual block. -/
+def mkBEqInstance (declNames : Array Name) : CommandElabM Unit := do
+  let declName := declNames[0]!
+  withoutExposeFromCtorsAll declNames do
     let ctx ← liftTermElabM <| mkContext ``BEq "beq" declName
     let cmds ← liftTermElabM <|
       if (← isEnumType declName) then
         mkBEqEnumCmd ctx declName
       else
-        mkBEqInstanceCmds ctx declName
+        mkBEqInstanceCmds ctx declNames
+    -- `mkInstName` picks names still free, so compute them before adding the instances.
+    let instNames ← liftTermElabM <| declNames.mapM (mkInstName ``BEq)
     cmds.forM elabCommand
     unless ctx.usePartial do
-      elabCommand (← `(attribute [method_specs] $(mkIdent ctx.instName):ident))
+      for instName in instNames do
+        elabCommand (← `(attribute [method_specs] $(mkIdent instName):ident))
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
-    for declName in declNames do
-      mkBEqInstance declName
+    for block in ← liftCoreM <| groupByMutualBlock declNames do
+      mkBEqInstance block
     return true
   else
     return false

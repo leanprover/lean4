@@ -50,12 +50,6 @@ def setProof (u v : NodeId) (p : ProofInfo) : OrderM Unit := do
     proofs := s.proofs.modify u fun es => es.insert v p
   }
 
-@[inline] def forEachSourceOf (u : NodeId) (f : NodeId → Weight → OrderM Unit) : OrderM Unit := do
-  (← getStruct).sources[u]!.forM f
-
-@[inline] def forEachTargetOf (u : NodeId) (f : NodeId → Weight → OrderM Unit) : OrderM Unit := do
-  (← getStruct).targets[u]!.forM f
-
 /-- Returns `true` if `k` is smaller than the shortest distance between `u` and `v` -/
 def isShorter (u v : NodeId) (k : Weight) : OrderM Bool := do
   if let some k' ← getDist? u v then
@@ -168,7 +162,7 @@ where
 Returns `true` if `e` is already `True` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
-private def isAlreadyTrue (e : Expr) : OrderM Bool := do
+def isAlreadyTrue (e : Expr) : OrderM Bool := do
   if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqTrue e'
   else
@@ -190,7 +184,7 @@ def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : Orde
 Returns `true` if `e` is already `False` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
-private def isAlreadyFalse (e : Expr) : OrderM Bool := do
+def isAlreadyFalse (e : Expr) : OrderM Bool := do
   if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqFalse e'
   else
@@ -282,14 +276,26 @@ public def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Un
     update
     propagatePending
 where
+  /-
+  **Note**: If the new edge shortens the path from `i` to `j`, then it also shortens the path from `i`
+  to `v` and the path from `u` to `j`. Thus, we only combine the sources of `u` and the targets of `v`
+  whose distance improves, instead of all of them. For example, if the nodes `0, ..., n` are the
+  numerals of an ordered ring, adding each numeral is linear instead of quadratic.
+  -/
   update : OrderM Unit := do
-    forEachTargetOf v fun j k₂ => do
+    let mut ts := #[]
+    for (j, k₂) in (← getStruct).targets[v]! do
+      if (← isShorter u j (k+k₂)) then ts := ts.push (j, k₂)
+    let mut ss := #[]
+    for (i, k₁) in (← getStruct).sources[u]! do
+      if (← isShorter i v (k₁+k)) then ss := ss.push (i, k₁)
+    for (j, k₂) in ts do
       /- Check whether new path: `u -(k)-> v -(k₂)-> j` is shorter -/
       updateIfShorter u j (k+k₂) v
-    forEachSourceOf u fun i k₁ => do
+    for (i, k₁) in ss do
       /- Check whether new path: `i -(k₁)-> u -(k)-> v` is shorter -/
       updateIfShorter i v (k₁+k) u
-      forEachTargetOf v fun j k₂ => do
+      for (j, k₂) in ts do
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 

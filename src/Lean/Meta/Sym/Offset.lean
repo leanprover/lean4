@@ -90,6 +90,17 @@ partial def isOffset (e : Expr) : Bool :=
   | HAdd.hAdd α _ _ _ _ b => isNatType α && (evalNat? b).isSome
   | _ => false
 
+/--
+Returns `true` if the pattern `p` is `a + k` over `Nat` where `k` contains pattern variables.
+Once the pattern variables are instantiated, such a subterm may match a numeral or an offset
+(e.g. `?m + ?n =?= 16` with `?m := 8`, `?n := 8`), so it must be indexed as a wildcard.
+See `isQuasiOffsetCnstr`.
+-/
+def isQuasiOffset (p : Expr) : Bool :=
+  match_expr p with
+  | HAdd.hAdd α _ _ _ _ k => isNatType α && k.hasLooseBVars
+  | _ => false
+
 /-- Variant of `isOffset?` that first checks if `declName` is `Nat.succ` or `HAdd.hAdd`. -/
 def isOffset' (declName : Name) (p : Expr) : Bool :=
   (declName == ``Nat.succ || declName == ``HAdd.hAdd) && isOffset p

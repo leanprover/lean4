@@ -317,6 +317,9 @@ and log are saved to `traceFile`, if the build completes without a fatal error
       writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
+    -- Delete trace before build to prevent association of new outputs with
+    -- the old trace upon build failure and the reversion of the the inputs.
+    removeFileIfExists traceFile
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
@@ -386,6 +389,19 @@ If `text := true`, `file` is hashed as a text file rather than a binary file.
 public def cacheFileHash (file : FilePath) (text := false) : IO Unit := do
   let hash ← computeFileHash file text
   writeFileHash file hash
+
+/--
+If `file` exists, computes its hash and saves it to a `.hash` file.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
+-/
+public def cacheFileHashIfExists (file : FilePath) (text := false) : IO Unit := do
+  try
+    let hash ← computeFileHash file text
+    writeFileHash file hash
+  catch
+    | .noFileOrDirectory .. => pure ()
+    | e => throw e
 
 /-- Remove the cached hash of a file (its `.hash` file) if it exists. -/
 public def clearFileHash (file : FilePath) : IO Unit := do
@@ -467,9 +483,7 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        -- other functions can race to create the file
-        -- use `writeFileIfNew` to prevent errors on races
-        writeFileIfNew cacheFile normalized
+        writeBinFileAtomicIfNew cacheFile normalized.toByteArray
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -489,8 +503,7 @@ public def Cache.saveArtifact
         if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
           -- other functions can race to create the file
           unless e matches .alreadyExists .. do
-            -- use `writeBinFileIfNew` to prevent errors on races
-            writeBinFileIfNew cacheFile contents
+            writeBinFileAtomicIfNew cacheFile contents
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -521,17 +534,16 @@ stored in the cached input-to-content mapping.
 @[specialize] def getArtifactsUsingCache?
   [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
-  if let some out ← (← getLakeCache).readOutputs? pkg.cacheScope inputHash then
-    try
-      return some (← resolveOutputs out)
-    catch e =>
-      let log ← takeLogFrom e
-      let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but some output(s) have issues:"
-      let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
-      logWarning msg
-      return none
-  else
+  try
+    (← (← getLakeCache).readOutputs? pkg.cacheScope inputHash).mapM resolveOutputs
+  catch e =>
+    let log ← takeLogFrom e
+    let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
+      but some output(s) have issues:"
+    let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
+    -- Must be `trace` to avoid breaking `--wfail` / `--iofail` builds
+    -- TODO: Figure out a way to split cache and build failures
+    logVerbose msg
     return none
 
 open ResolveOutputs in
@@ -606,7 +618,7 @@ public def resolveArtifact
         | .ok mtime =>
           return {descr, path, mtime}
         | .error e =>
-          error s!"downloaded succeeded, but artifact failed to resolve: {e}"
+          error s!"download succeeded, but artifact failed to resolve: {e}"
       else
         error s!"artifact cache service is not configured: {service}"
     else
@@ -665,6 +677,10 @@ public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : L
     logVerbose s!"restored artifact from cache to: {file}"
     writeFileHash file art.hash
   return art.useLocalFile file
+
+/-- **For internal use only.** -/
+@[inline] public def Internal.getOutputsRef? [Functor m] [MonadBuild m] (pkg : Package) : m (Option CacheRef) :=
+  readThe BuildContext <&> fun ctx => if pkg.wsIdx = ctx.outputsIdx then ctx.outputsRef? else none
 
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
@@ -725,9 +741,8 @@ public def buildArtifactUnlessUpToDate
           if let some art ← fetchArt? (restore := true) then
             return art
         doBuild depTrace traceFile
-    if pkg.isRoot then
-      if let some outputsRef := (← getBuildContext).outputsRef? then
-        outputsRef.insert inputHash art.descr platformIndependent
+    if let some ref ← Internal.getOutputsRef? pkg then
+      ref.insert inputHash art.descr platformIndependent
     setTrace art.trace
     setMTime art traceFile
   else
@@ -744,7 +759,6 @@ where
       removeFileIfExists file
       build
       clearFileHash file
-      removeFileIfExists traceFile
       computeArtifact file ext text
   setMTime art traceFile := do
     match (← getMTime traceFile |>.toBaseIO) with
@@ -852,24 +866,38 @@ which will be computed in the resulting `Job` before building.
     return art.path
 
 /--
+**For internal use only.**
 Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
-public def buildLeanO
+public def Internal.buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
-  (leanIncludeDir? : Option FilePath := none)
+  (leanIncludeDir? : Option (FilePath × BuildTrace) := none)
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
+    if let some (_, trace) := leanIncludeDir? then
+      -- Lean-produced C files contain `#include <lean/lean.h>`.
+      -- Usually this dependency is captured by the Lean trace, but not with an override.
+      addTrace trace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
     let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
       let lean ← getLeanInstall
-      let includeDir := leanIncludeDir?.getD lean.includeDir
+      let includeDir := leanIncludeDir?.elim lean.includeDir (·.1)
       let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
       compileO oFile srcFile args lean.cc
     return art.path
+
+/--
+Build an object file from a source fie job (i.e, a `lean -c` output)
+using the Lean toolchain's C compiler.
+-/
+@[inline] public def buildLeanO
+  (oFile : FilePath) (srcJob : Job FilePath)
+  (weakArgs traceArgs : Array String := #[])
+: SpawnM (Job FilePath) := Internal.buildLeanO oFile srcJob weakArgs traceArgs
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 public def buildStaticLib
@@ -957,14 +985,19 @@ public def buildSharedLibSync
   (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
   (args : Array String := #[]) (linker := "c++")
   (plugin := false) (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : JobM Dynlib := do
   -- shared libraries are platform-dependent artifacts
   addPlatformTrace
+  let macosxDeploymentTarget? :=
+    macosxDeploymentTarget? <|> (← getMacOSXDeploymentTarget?)
+  if let some ver := macosxDeploymentTarget? then
+    addPureTrace ver "MACOSX_DEPLOYMENT_TARGET"
   -- Lean plugins are required to have a specific name
   -- and thus need to restored from the cache with that name
   let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
     let baseArgs ← mkLinkArgs linkObjs linkLibs linkDeps
-    compileSharedLib libFile (baseArgs ++ args) linker
+    compileSharedLib libFile (baseArgs ++ args) linker macosxDeploymentTarget?
   return {name := libName, path := art.path, deps := linkLibs, plugin}
 
 /--
@@ -987,12 +1020,14 @@ public def buildSharedLib
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
   (plugin := false) (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addTrace (← extraDepTrace)
     addPureTrace traceArgs "traceArgs"
-    buildSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs) linker plugin linkDeps
+    buildSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs)
+      linker plugin linkDeps macosxDeploymentTarget?
 
 /--
 Build a shared library linking Lean by using the Lean toolchain's linker.
@@ -1001,8 +1036,7 @@ The library will statically link in `linkObjs` (e.g., object files or
 static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
 (and their transitive `deps`).
 
-Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
-`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+Additional arguments to the linker can be provided via `args`.
 
 If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
 This means it is expected to have a `initialize_<libName>` symbol.
@@ -1012,6 +1046,7 @@ public def buildLeanSharedLibSync
   (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
   (args : Array String := #[]) (plugin := false)
   (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : JobM Dynlib := do
   addLeanTrace
   addPlatformTrace -- shared libraries are platform-dependent artifacts
@@ -1019,7 +1054,7 @@ public def buildLeanSharedLibSync
   -- and thus need to restored from the cache with that name
   let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
     let args ← mkLeanLinkArgs linkObjs linkLibs args linkDeps (sharedLean := true)
-    compileSharedLib libFile args (← getLeanCc)
+    compileSharedLib libFile args (← getLeanCc) macosxDeploymentTarget?
   return {name := libName, path := art.path, deps := linkLibs, plugin}
 
 /--
@@ -1040,11 +1075,13 @@ public def buildLeanSharedLib
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (plugin := false)
   (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addPureTrace traceArgs "traceArgs"
-    buildLeanSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs) plugin linkDeps
+    buildLeanSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs)
+      plugin linkDeps macosxDeploymentTarget?
 
 /--
 Build an executable linking Lean by using the Lean toolchain's linker.
@@ -1063,12 +1100,18 @@ Additional arguments to the linker can be provided via `args`.
 public def buildLeanExeSync
   (exeFile : FilePath) (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
   (args : Array String := #[]) (sharedLean : Bool := false)
+  (macosxDeploymentTarget? : Option String := none)
 : JobM FilePath := do
   addLeanTrace
-  addPlatformTrace -- executables are platform-dependent artifacts
+  -- executables are platform-dependent artifacts
+  addPlatformTrace
+  let macosxDeploymentTarget? :=
+    macosxDeploymentTarget? <|> (← getMacOSXDeploymentTarget?)
+  if let some ver := macosxDeploymentTarget? then
+    addPureTrace ver "MACOSX_DEPLOYMENT_TARGET"
   let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
     let args ← mkLeanLinkArgs linkObjs linkLibs args (linkDeps := true) sharedLean
-    compileExe exeFile args (← getLeanCc)
+    compileExe exeFile args (← getLeanCc) macosxDeploymentTarget?
   return art.path
 
 /--
@@ -1090,8 +1133,9 @@ public def buildLeanExe
   (exeFile : FilePath)
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job FilePath) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addPureTrace traceArgs "traceArgs"
-    buildLeanExeSync exeFile objs libs (weakArgs ++ traceArgs) sharedLean
+    buildLeanExeSync exeFile objs libs (weakArgs ++ traceArgs) sharedLean macosxDeploymentTarget?

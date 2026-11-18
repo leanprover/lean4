@@ -287,11 +287,10 @@ appear in indices to be equal, which is too strong: we can have homogenenous equ
 two constructor applications with different fields but same indices.
 -/
 def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
-  -- Do not do anything unless can_elim_to_type.
   let .inductInfo indVal ← getConstInfo declName | return
-  let recInfo ← getConstInfo (mkRecName declName)
-  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  unless (← isLargeEliminating declName) do return
   if (← isPropFormerType indVal.type) then return
+  let recInfo ← getConstInfo (mkRecName declName)
   let noConfusionName := Name.mkStr declName "noConfusion"
 
   -- We take the level names from `.rec`, as that conveniently has an extra level parameter that
@@ -354,10 +353,8 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
             modifyEnv fun env => markNoConfusion env name (.perCtor arity fields)
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
-  -- Do not do anything unless can_elim_to_type. TODO: Extract to util
   let .inductInfo indVal ← getConstInfo declName | return
-  let recInfo ← getConstInfo (mkRecName declName)
-  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  unless (← isLargeEliminating declName) do return
   if (← isPropFormerType indVal.type) then return
 
   mkNoConfusionType declName
@@ -365,7 +362,9 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   mkNoConfusionCtors declName
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
-  if (← getEnv).contains ``noConfusionEnum then
+  -- A sort-polymorphic enum such as `inductive T : Sort u | a | b` passes `isEnumType`, but has no
+  -- `.ctorIdx`. Fall back to `mkNoConfusionCore`, which bails out on such types.
+  if (← getEnv).contains ``noConfusionEnum && (← getEnv).contains (mkCtorIdxName enumName) then
     mkNoConfusionType
     mkNoConfusion
   else
@@ -416,7 +415,7 @@ where
         if info.numCtors = 1 then
           withLocalDeclD `p P fun p => mkLambdaFVars #[p] p
         else
-          mkAppOptM ``noConfusionEnum #[none, none, none, ctorIdx, P, x, y, h]
+          mkAppOptM ``noConfusionEnum #[none, ctorIdx, P, x, y, h]
       let declName  := Name.mkStr enumName "noConfusion"
       addDecl <| Declaration.defnDecl {
         name        := declName

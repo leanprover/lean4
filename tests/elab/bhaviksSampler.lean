@@ -1,6 +1,8 @@
 import Std.Data.TreeMap
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 This test is based on code by Bhavik Mehta.
 It demonstrates that much of the boilerplate that he was forced to write for his proof
@@ -8,7 +10,7 @@ is now automated by the `mvcgen` tactic.
 -/
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 section VendoredFromMathlib
 

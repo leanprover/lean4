@@ -1,0 +1,29 @@
+Input: "* a\n\n%%%\nx := 1\n%%%\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "a"))])])])
+   (Lean.Doc.Parser.Block.metadata_block
+    "%%%"
+    (Term.structInstFields
+     [(Term.structInstField
+       (Term.structInstLVal `x [])
+       [[]
+        []
+        (Term.structInstFieldDef
+         ":="
+         []
+         (num "1"))])
+      []])
+    "%%%")]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        text (content := "a")
+  metadata (opener := "%%%") (fields := 1) (closer := "%%%")

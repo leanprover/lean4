@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 import Lean.Meta.StringLitProof
+import Init.Data.String.Csimp
 
 public section
 

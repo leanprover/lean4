@@ -18,9 +18,11 @@ import Lean.Meta.Tactic.Grind.Order.StructId
 import Lean.Meta.Tactic.Grind.Order.Util
 import Lean.Meta.Tactic.Grind.Order.Assert
 import Lean.Meta.Tactic.Grind.Order.Proof
+import Lean.Meta.Sym.Arith.Classify
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
+open Sym.Arith (getRing homoType?)
 
 def getType? (e : Expr) : Option Expr :=
   match_expr e with
@@ -37,8 +39,8 @@ def getType? (e : Expr) : Option Expr :=
       none
   | LE.le α _ _ _ => some α
   | LT.lt α _ _ _ => some α
-  | HAdd.hAdd α _ _ _ _ _ => some α
-  | HSub.hSub α _ _ _ _ _ => some α
+  | HAdd.hAdd α β γ _ _ _ => homoType? α β γ
+  | HSub.hSub α β γ _ _ _ => homoType? α β γ
   | OfNat.ofNat α _ _ => some α
   | _ => none
 
@@ -77,37 +79,37 @@ def split (p : Poly) : Poly × Poly × Int :=
     else
       (.add k m lhs, rhs, c)
 
-def mkRel (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : Expr :=
+def mkRel (s : Sym.Arith.Order) (kind : CnstrKind) (lhs rhs : Expr) : Expr :=
   let rel := match kind with
     | .le => s.leFn
     | .lt => s.ltFn?.get!
   mkApp2 rel lhs rhs
 
-def mkLeNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
+def mkLeNorm0 (s : Sym.Arith.Order) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
   mkApp5 (mkConst ``Grind.CommRing.le_norm0 [s.u]) s.type ringInst s.leInst lhs rhs
 
-def mkLtNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
+def mkLtNorm0 (s : Sym.Arith.Order) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
   mkApp5 (mkConst ``Grind.CommRing.lt_norm0 [s.u]) s.type ringInst s.ltInst?.get! lhs rhs
 
-def mkEqNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
+def mkEqNorm0 (s : Sym.Arith.Order) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
   mkApp4 (mkConst ``Grind.CommRing.eq_norm0 [s.u]) s.type ringInst lhs rhs
 
-def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Expr) : Expr :=
+def mkCnstrNorm0 (s : Sym.Arith.Order) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Expr) : Expr :=
   match kind with
   | .le => mkLeNorm0 s ringInst lhs rhs
   | .lt => mkLtNorm0 s ringInst lhs rhs
 
-open Sym.Arith (MonadCanon)
+open Sym.Arith (MonadCanon MonadRing getAddFn getIntCastFn)
 
 /--
 Returns `rel lhs (rhs + 0)`
 -/
 def mkDenote0 [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [MonadRing m]
-    (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : m Expr := do
+    (s : Sym.Arith.Order) (kind : CnstrKind) (lhs rhs : Expr) : m Expr := do
   let rhs' := mkApp2 (← getAddFn) rhs (mkApp (← getIntCastFn) (mkIntLit 0))
   return mkRel s kind lhs rhs'
 
-def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
+def mkCommRingCnstr? (s : Sym.Arith.Order) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
     return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
@@ -128,7 +130,7 @@ def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (O
     kind, u, v, k, e := e', h? := some h
   }
 
-def mkNonCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
+def mkNonCommRingCnstr? (s : Sym.Arith.Order) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
     return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
@@ -151,7 +153,7 @@ def mkNonCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCo
   }
 
 def mkCnstr? (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM (Option (Cnstr Expr)) := do
-  let s ← getStruct
+  let s ← getOrder
   if let some ringId := s.ringId? then
     if s.isCommRing then
       RingM.run ringId <| mkCommRingCnstr? s kind lhs rhs
@@ -171,6 +173,25 @@ def updateTermMap (e eNew h α : Expr) : GoalM Unit := do
     termMap    := s.termMap.insert { expr := e } { e := eNew, h, α }
     termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
   }
+
+/--
+Returns the `Nat` term `a` whose translation by `Arith.Cutsat.natToInt` may be the `Int` term `e`.
+
+**Note**: This function "inverts" `natToInt`: each case undoes a case of `natToInt'`, and they must
+be kept in sync. It does not check types or instances, so `a` is only a candidate: the caller must
+check that `natToInt a` is `e`.
+-/
+partial def toNatTerm? (e : Expr) : Option Expr :=
+  match_expr e with
+  | HAdd.hAdd _ _ _ _ a b => return mkNatAdd (← toNatTerm? a) (← toNatTerm? b)
+  | HMul.hMul _ _ _ _ a b => return mkNatMul (← toNatTerm? a) (← toNatTerm? b)
+  | HDiv.hDiv _ _ _ _ a b => return mkNatDiv (← toNatTerm? a) (← toNatTerm? b)
+  | HMod.hMod _ _ _ _ a b => return mkNatMod (← toNatTerm? a) (← toNatTerm? b)
+  | HPow.hPow _ _ _ _ a k => return mkNatPow (← toNatTerm? a) k
+  | NatCast.natCast _ _ a => some a
+  | _ => do
+    let n ← e.int?
+    if n ≥ 0 then some (mkNatLit n.toNat) else none
 
 def mkNode (e : Expr) : OrderM NodeId := do
   if let some nodeId := (← getStruct).nodeMap.find? { expr := e } then
@@ -195,15 +216,33 @@ def mkNode (e : Expr) : OrderM NodeId := do
     orderExt.markTerm e'
   return nodeId
 where
-  getOriginal? (e : Expr) : GoalM (Option Expr) := do
+  getOriginal? (e : Expr) : OrderM (Option Expr) := do
     if let some (e', _) := (← get').termMapInv.find? { expr := e } then
       return some e'
-    let_expr NatCast.natCast α _ a := e | return none
+    let_expr NatCast.natCast α _ a := e | getNatTerm? e
     if (← alreadyInternalized a) then
       updateTermMap a e (← mkEqRefl e) α
       return some a
     else
       return none
+  /--
+  Returns the internalized `Nat` term `a` such that `natToInt a` is the node `e`, and records
+  `a ↦ e` in `termMap`. For example, when internalizing `a + b ≤ c`:
+  - `internalize` does not call `adapt` on `a + b` because its parent `a + b ≤ c` is forbidden.
+  - When `internalize` processes `a + b ≤ c`, `adapt` translates it into `↑a + ↑b ≤ ↑c`, and
+    records only this pair in `termMap`.
+  - `internalizeCnstr` then creates the node `↑a + ↑b`, which has no entry in `termMapInv`.
+  - `getOriginal?` falls back to `getNatTerm?`, which returns `a + b`.
+  -/
+  getNatTerm? (e : Expr) : OrderM (Option Expr) := do
+    unless (← isInt) do return none
+    let some a := toNatTerm? e | return none
+    let a ← shareCommon a
+    unless (← alreadyInternalized a) do return none
+    let (e', h) ← Arith.Cutsat.natToInt a
+    unless isSameExpr e e' do return none
+    updateTermMap a e h (← getIntExpr)
+    return some a
 
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some c ← mkCnstr? e kind lhs rhs | return ()
@@ -264,7 +303,7 @@ def toOffsetTermNonCommRing? (e : Expr) : NonCommRingM (Option OffsetTermResult)
   return some { a, k, h }
 
 def toOffsetTerm? (e : Expr) : OrderM (Option OffsetTermResult) := do
-  let s ← getStruct
+  let s ← getOrder
   /-
   **Note**: If it is not a partial order, then it is not worth internalizing term
   since we will not be able to propagate implied equalities back to core.
@@ -330,8 +369,8 @@ def alreadyInternalizedHere (e : Expr) : OrderM Bool := do
 public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).order do return ()
   let some α := getType? e | return ()
-  let (α, e) ← adapt α e
   if isForbiddenParent parent? then return ()
+  let (α, e) ← adapt α e
   if let some structId ← getStructId? α then OrderM.run structId do
     if (← alreadyInternalizedHere e) then return ()
     match_expr e with

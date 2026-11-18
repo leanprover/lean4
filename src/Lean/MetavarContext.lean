@@ -267,6 +267,12 @@ this information, since typeclasses are entirely eliminated during elaboration.
 -/
 structure LocalInstance where
   className : Name
+  /--
+  The concrete typeclass instance, usually just a free variable. However, in some situations this
+  may also be any other term, in which case this local instance will simply never be erased.
+  Because of this, you should not pass such "exotic" local instances to functions that may clear
+  or revert variables that this value depends on.
+  -/
   fvar      : Expr
   deriving Inhabited
 
@@ -280,7 +286,14 @@ instance : Hashable LocalInstance where
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
+  localInsts.eraseP (fun inst => inst.fvar.isFVarOf fvarId)
+
+@[inline]
+def LocalInstances.eraseAll (localInsts : LocalInstances) (p : FVarId → Bool) : LocalInstances :=
+  localInsts.filter fun inst =>
+    match inst.fvar with
+    | .fvar f => !p f
+    | _ => true
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/
@@ -370,6 +383,17 @@ structure MetavarContext where
   /-- Assignment table for delayed abstraction metavariables.
   For more information about delayed abstraction, see the docstring for `DelayedMetavarAssignment`. -/
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
+  /--
+  Metavariables whose assignments must preserve the type up to `TransparencyMode.instances`.
+
+  Metavariables created for the instance-implicit arguments of an instance during typeclass
+  resolution are added to this set, and membership is propagated to the metavariables in
+  type-determining (spine) positions of values assigned to members. This maintains the
+  invariant that the final instantiation of such a metavariable has a type that agrees with
+  the metavariable's type at `.instances` transparency, so unification cannot commit to an
+  instance for a type that is different at instance-resolution time. See issue #9077.
+  -/
+  instanceTypedMVars : PersistentHashMap MVarId Unit := {}
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 
@@ -447,6 +471,20 @@ def _root_.Lean.MVarId.isAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m 
 
 def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).dAssignment.contains mvarId
+
+/--
+Mark `mvarId` so that assignments to it must preserve its type up to instance transparency.
+See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
+-/
+def _root_.Lean.MVarId.markInstanceTyped [MonadMCtx m] (mvarId : MVarId) : m Unit :=
+  modifyMCtx fun mctx => { mctx with instanceTypedMVars := mctx.instanceTypedMVars.insert mvarId () }
+
+/--
+Return `true` if assignments to `mvarId` must preserve its type up to instance transparency.
+See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
+-/
+def _root_.Lean.MVarId.isInstanceTyped [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
+  return (← getMCtx).instanceTypedMVars.contains mvarId
 
 /--
 Check whether a metavariable is assigned or delayed-assigned. A

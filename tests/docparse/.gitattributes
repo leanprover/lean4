@@ -2,3 +2,5 @@
 # because it throws off parser tests.
 *.txt eol=lf
 *.txt.out.expected eol=lf
+# CRLF input must be preserved byte-for-byte
+document_0003.txt -text

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Pattern
-// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.String.Pattern.Char public import Init.Data.String.Pattern.String public import Init.Data.String.Pattern.Pred
+// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.String.Pattern.Memcmp public import Init.Data.String.Pattern.Char public import Init.Data.String.Pattern.String public import Init.Data.String.Pattern.Pred
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,15 +14,21 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Pattern_Memcmp(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Pattern_Char(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Pattern_String(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Pattern_Pred(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Pattern(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Pattern_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Pattern_Memcmp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Pattern_Char(builtin);
@@ -44,6 +50,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Pattern_Memcmp(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Pattern_Char(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Pattern_String(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Pattern_Pred(uint8_t builtin);
@@ -53,6 +60,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_String_Pattern_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Pattern_Memcmp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Pattern_Char(builtin);

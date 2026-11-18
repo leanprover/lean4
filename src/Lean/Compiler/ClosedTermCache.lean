@@ -22,7 +22,7 @@ structure ClosedTermCache where
 builtin_initialize closedTermCacheExt : EnvExtension ClosedTermCache ←
   registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
     (replay? := some fun oldState newState _ s =>
-      let newExprs := newState.revExprs.take (newState.revExprs.length - oldState.revExprs.length)
+      let newExprs := takeNewEntries newState.revExprs oldState.revExprs
       newExprs.foldl (init := s) fun s e =>
         let c := newState.map.find! e
         { s with map := s.map.insert e c, constNames := s.constNames.insert c, revExprs := e :: s.revExprs })

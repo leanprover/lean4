@@ -5,16 +5,12 @@ def popcount : Nat → Nat
 termination_by n => n
 
 /--
-error: Tactic `decide` failed for proposition
-  popcount 123498203491224398 = 32
-because its `Decidable` instance
-  instDecidableEqNat (popcount 123498203491224398) 32
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (popcount 123498203491224398 = 32) (instDecidableEqNat (popcount 123498203491224398) 32)
+to `true` or `false`.
 
-After unfolding the instances `instDecidableEqNat` and `Nat.decEq`, reduction got stuck at the `Decidable` instance
-  match h : (popcount 123498203491224398).beq 32 with
-  | true => isTrue ⋯
-  | false => isFalse ⋯
+After unfolding the instances `instDecidableEqNat` and `Nat.decEq`, reduction got stuck at
+  (popcount 123498203491224398).beq 32
 -/
 #guard_msgs in
 example : popcount 123498203491224398 = 32 := by decide

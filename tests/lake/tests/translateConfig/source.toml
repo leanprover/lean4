@@ -15,6 +15,10 @@ irDir = "ir"
 releaseRepo = ""
 buildArchive = ""
 preferReleaseBuild = false
+downloadCacheService = "cdn"
+enableArtifactCache = false
+restoreAllArtifacts = false
+builtinLint = false
 packagesDir = ".lake/packages"
 buildType = "Release"
 leanOptions = []
@@ -71,3 +75,20 @@ name = "bar"
 git = "https://example.com"
 rev = "abc"
 subDir = "sub/dir"
+
+[[require]]
+name = "qux"
+path = "qux"
+copy = true
+
+[[cache_service]]
+name = "cdn"
+kind = "s3"
+artifactEndpoint = "https://example.com/a0"
+revisionEndpoint = "https://example.com/r0"
+hasPackageScopes = false
+
+[[cache_service]]
+name = "my-reservoir"
+kind = "reservoir"
+apiEndpoint = "https://example.com/api/v1"

@@ -11,7 +11,7 @@ import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Grind
 
-/-- Extension backing the `@[grind homo]` attribute. -/
+/-- Extension backing the `@[grind hom]` attribute. -/
 builtin_initialize homoExt : Sym.Simp.SymSimpExtension ← Sym.Simp.mkSymSimpExt
 
 /-- Returns the homomorphism rules tagged with the `[grind hom]` attribute. -/
@@ -106,13 +106,19 @@ private def checkEqInjection? (declName : Name) : MetaM (Option Name) := do
 
 /--
 Validates and registers a `[grind hom]` theorem, recording the source type of
-`=`-injection rules. See `validateHomoTheorem`.
+`=`-injection rules. See `validateHomoTheorem`. With `fallback := true`, the theorem is
+tried only when no other homomorphism rule applies (`Sym.Simp.Theorem.fallback`).
 -/
-def addHomoAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  Sym.Simp.addSymSimpDecl homoExt "grind hom" declName attrKind (validate := fun declName => do
+def addHomoAttr (declName : Name) (attrKind : AttributeKind) (fallback := false) : MetaM Unit := do
+  let validate (declName : Name) : MetaM Unit := do
     validateHomoTheorem declName
     if let some F ← checkEqInjection? declName then
-      homoSourceTypesExt.add F attrKind)
+      homoSourceTypesExt.add F attrKind
+  if fallback then
+    validate declName
+    homoExt.add { (← Sym.Simp.mkTheoremFromDecl declName) with fallback := true } attrKind
+  else
+    Sym.Simp.addSymSimpDecl homoExt declName attrKind (validate := validate)
 
 /-- A theorem tagged with the `[grind hom_pred]` attribute. -/
 structure HomoPredTheorem where
@@ -126,7 +132,7 @@ structure HomoPredTheorem where
 /-- Map from trigger head symbol to the `[grind hom_pred]` theorems it activates. -/
 abbrev HomoPredTheorems := NameMap (List HomoPredTheorem)
 
-/-- Extension backing the `@[grind homo_pred]` attribute. -/
+/-- Extension backing the `@[grind hom_pred]` attribute. -/
 builtin_initialize homoPredExt : SimpleScopedEnvExtension (Name × HomoPredTheorem) HomoPredTheorems ←
   registerSimpleScopedEnvExtension {
     initial  := {}

@@ -18,6 +18,7 @@ import Init.Data.Ord.UInt
 import Init.Data.ToString.Macro
 import Init.Data.List.Impl
 import Init.Data.Int.Repr
+import Init.Data.String.Lossy
 
 public section
 
@@ -720,7 +721,7 @@ structure FS.Stream where
   /--
   Reads text up to and including the next newline from the stream.
 
-  If the returned string is empty, an end-of-file marker (EOF) has been reached.
+  If the returned string does not end with a newline, an end-of-file marker (EOF) has been reached.
   An EOF does not actually close a stream, so further reads may block and return more data.
   -/
   getLine : IO String
@@ -855,7 +856,7 @@ Writing to a handle is typically buffered, and may not immediately modify the fi
 
 /--
 Reads UTF-8-encoded text up to and including the next line break from the handle. If the returned
-string is empty, an end-of-file marker (EOF) has been reached.
+string does not end with a line break, an end-of-file marker (EOF) has been reached.
 
 Encountering an EOF does not close a handle. Subsequent reads may block and return more data.
 -/
@@ -907,6 +908,12 @@ This function coincides with the [POSIX `rename`
 function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html).
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
+/--
+Moves a file or directory `old` to the new location `new`.
+Errors if `new` already exists.
+-/
+@[extern "lean_io_rename_if_new"] opaque renameIfNew (old new : @& FilePath) : IO Unit
 
 /--
 Creates a new hard link.
@@ -1395,9 +1402,15 @@ pipes, inherited from the parent, or null.
 If the stream is a pipe, then the parent process can use it to communicate with the child.
 -/
 inductive Stdio where
-  /-- The stream should be attached to a pipe. -/
+  /--
+  The stream should be attached to a pipe. The pipe carries bytes unchanged on all platforms; in
+  particular, line endings are not translated on Windows.
+  -/
   | piped
-  /-- The stream should be inherited from the parent process. -/
+  /--
+  The stream should be inherited from the parent process. On POSIX platforms, a parent process that
+  was started with that stream closed passes on the null device.
+  -/
   | inherit
   /-- The stream should be empty. -/
   | null
@@ -1418,7 +1431,12 @@ communication is possible.
 Configuration for the standard input, output, and error handles of a child process.
 -/
 structure StdioConfig where
-  /-- Configuration for the process' stdin handle. -/
+  /--
+  Configuration for the process' stdin handle.
+
+  A child process that inherits standard input can consume input meant for the parent or wait for
+  input from the terminal. Use `.null` for a child that is not supposed to read from the terminal.
+  -/
   stdin := Stdio.inherit
   /-- Configuration for the process' stdout handle. -/
   stdout := Stdio.inherit
@@ -1432,9 +1450,37 @@ Use `IO.Process.spawn` to start the child process. `IO.Process.output` and `IO.P
 used when the child process should be run to completion, with its output and/or error code captured.
 -/
 structure SpawnArgs extends StdioConfig where
-  /-- Command name. -/
+  /--
+  The command to run.
+
+  A command without a directory separator is searched for in the directories of the `PATH` variable
+  of the child process's environment. Any other relative path is relative to the child process's
+  working directory.
+
+  On POSIX platforms, an executable file that the system cannot run directly, such as a script
+  without a `#!` line, is run by `/bin/sh`.
+
+  On Windows, a command without a directory is first searched for where the system looks for
+  executables: in the directory of the current executable, the current working directory, the
+  system directories and the directories of the current process's `PATH`, in this order and with the
+  extension `.exe` if the command has none. Only if it is not found there, the child process's
+  working directory and the directories of its `PATH` are searched, also trying the extensions
+  `.com` and `.exe`.
+  -/
   cmd : String
-  /-- Arguments for the command. -/
+  /--
+  Arguments for the command, which the child process receives unchanged.
+
+  On Windows, where a process receives a single command line, the arguments are quoted as needed
+  according to the conventions of the Microsoft C runtime. Programs that split their command line
+  differently, such as `cmd.exe`, may see other arguments, and programs built on the Cygwin or
+  MSYS2 runtime expand wildcards and braces in arguments that did not need quotes.
+
+  In particular, a batch file (`.bat` or `.cmd`) is run by `cmd.exe`, which does not understand
+  this quoting: an argument containing `"` can end the quoted section, so that characters such as
+  `&` and `|` in it run further commands, and `%` expands variables even inside quotes. Untrusted
+  arguments must not be passed to a batch file.
+  -/
   args : Array String := #[]
   /-- The child process's working directory. Inherited from the parent current process if `none`. -/
   cwd : Option FilePath := none
@@ -1444,13 +1490,23 @@ structure SpawnArgs extends StdioConfig where
   The child process inherits the parent's environment, as modified by `env`. Keys in the array are
   the names of environment variables. A `none`, causes the entry to be removed from the environment,
   and `some` sets the variable to the new value, adding it if necessary. Variables are processed from left to right.
+
+  On Windows, the names of environment variables are not case-sensitive. Moreover, the child process
+  receives the parent's values of `HOMEDRIVE`, `HOMEPATH`, `LOGONSERVER`, `PATH`, `SYSTEMDRIVE`,
+  `SYSTEMROOT`, `TEMP`, `USERDOMAIN`, `USERNAME`, `USERPROFILE` and `WINDIR` unless `env` sets
+  them, even if `env` removes them or `inheritEnv` is `false`.
   -/
   env : Array (String × Option String) := #[]
-  /-- Inherit environment variables from the spawning process. -/
+  /--
+  Inherit environment variables from the spawning process. On Windows, some variables are inherited
+  in any case; see `env`.
+  -/
   inheritEnv : Bool := true
   /--
-  Starts the child process in a new session and process group using `setsid`. Currently a no-op on
-  non-POSIX platforms.
+  Starts the child process in a new session and process group using `setsid`.
+
+  This has no effect on Windows, where the closest equivalent would also detach the child process
+  from the console.
   -/
   setsid : Bool := false
 
@@ -1481,7 +1537,18 @@ structure Child (cfg : StdioConfig) where private mk ::
 Starts a child process with the provided configuration. The child process is spawned using operating
 system primitives, and it can be written in any language.
 
-The child process runs in parallel with the parent.
+The child process runs in parallel with the parent. Its exit is detected in the background, so it
+does not linger as a zombie process even if `IO.Process.Child.wait` is never called.
+
+Throws an error if the child process cannot be started, for example because the command does not
+exist or is not executable, or because the working directory does not exist. A command, argument,
+working directory or environment entry that contains a NUL character is an error as well.
+
+On POSIX platforms, the child process starts with the default action for every signal and with no
+signal blocked, even if the parent process ignores or blocks signals. For example, the child of a
+program that runs under `nohup` does not ignore `SIGHUP`.
+
+On Windows, the child process is terminated when the parent process exits.
 
 If the child process's standard input is a pipe, use `IO.Process.Child.takeStdin` to make it
 possible to close the child's standard input before the process terminates, which provides the child with an end-of-file marker.
@@ -1489,23 +1556,47 @@ possible to close the child's standard input before the process terminates, whic
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 /--
-Blocks until the child process has exited and returns its exit code.
+Blocks until the child process has exited and returns its exit code. It can be called any number of
+times, also from several threads at once. On POSIX platforms, the exit code of a child process that
+was terminated by a signal is 128 plus the number of the signal.
+
+Throws an error instead of blocking forever if it is called on the thread of the event loop before
+the child process is known to have exited, because that thread is the one that detects the exit. A
+task with `sync := true` runs on that thread if the task that it depends on is completed by the
+event loop, for example by a timer or a socket.
+
+On POSIX platforms, if other code in the same process reaps the child, for example a C library
+calling `waitpid(-1, …)`, this function never returns.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
 /--
 Checks whether the child has exited. Returns `none` if the process has not exited, or its exit code
 if it has.
+
+The exit of a child process is detected on the thread of the event loop, so `tryWait` keeps
+returning `none` for as long as its caller occupies that thread; see `IO.Process.Child.wait`.
 -/
 @[extern "lean_io_process_child_try_wait"] opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg →
     IO (Option UInt32)
 
 /--
-Terminates the child process using the `SIGTERM` signal or a platform analogue.
+Terminates the child process by sending it the `SIGKILL` signal, or `SIGTERM` if `force` is `false`.
+Does nothing if the child process has already exited.
 
-If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead.
+`SIGKILL` ends the process immediately. `SIGTERM` gives the process the chance to handle the signal,
+for example to clean up before exiting, or to ignore it.
+
+If the process was started using `SpawnArgs.setsid`, the signal is sent to the entire process group
+instead, including any members that remain after the child process has exited. Once all members of
+the group have exited, the system may give its identifier to a new process group, which a later
+call would signal instead.
+
+On Windows, the process is always terminated immediately using `TerminateProcess`, and `force` has
+no effect.
 -/
-@[extern "lean_io_process_child_kill"] opaque Child.kill {cfg : @& StdioConfig} : @& Child cfg → IO Unit
+@[extern "lean_io_process_child_kill"]
+opaque Child.kill {cfg : @& StdioConfig} (child : @& Child cfg) (force := true) : IO Unit
 
 /--
 Extracts the `stdin` field from a `Child` object, allowing the handle to be closed while maintaining
@@ -1520,8 +1611,11 @@ standard input is exhausted.
 @[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
-/-- Returns the operating system process id of the child process. -/
-@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : Child cfg → UInt32
+/--
+Returns the operating system process id of the child process. Once the child process has exited,
+the system may assign the same id to another process.
+-/
+@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32
 
 /--
 The result of running a process to completion.
@@ -1535,42 +1629,105 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code.
+The result of running a process to completion, with its output as bytes.
+-/
+structure BinOutput where
+  /-- The process's exit code. -/
+  exitCode : UInt32
+  /-- Everything that was written to the process's standard output. -/
+  stdout   : ByteArray
+  /-- Everything that was written to the process's standard error. -/
+  stderr   : ByteArray
+
+/--
+Runs a process to completion and captures its exit code and its output as bytes.
 The child process is run with a null standard input or the specified input if provided,
 and the current process blocks until it has run to completion.
 
+The input is written while the output is read, so the child may produce output before it has read
+all of its input. The child need not read all of its input. Errors in writing the input or reading
+the output are thrown only once the child has exited.
+
 The specifications of standard input, output, and error handles in `args` are ignored.
+
+Like `IO.Process.Child.wait`, this function throws an error on the thread of the event loop.
 -/
-def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
-  let child ←
+def binOutput (args : SpawnArgs) (input? : Option ByteArray := none) : IO BinOutput := do
+  let (child, written) ←
     if let some input := input? then
       let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
-      stdin.putStr input
-      stdin.flush
-      pure child
+      -- The task holds the only reference to `stdin`, so the child sees the end of its input when
+      -- the task finishes.
+      let written ← IO.asTask (prio := .dedicated) do
+        try
+          stdin.write input
+          stdin.flush
+        catch e =>
+          match e with
+          -- The child exited or closed its standard input early. Windows reports this as `EINVAL`
+          -- rather than `EPIPE`.
+          | .resourceVanished .. | .invalidArgument .. => pure ()
+          | e => throw e
+      pure (child, written)
     else
-      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
-  let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
-  let stderr ← child.stderr.readToEnd
+      pure (← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }, .pure (.ok ()))
+  let stdout ← IO.asTask (prio := .dedicated) child.stdout.readBinToEnd
+  let stderr ← child.stderr.readBinToEnd.toBaseIO
   let exitCode ← child.wait
-  let stdout ← IO.ofExcept stdout.get
-  pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
+  MonadExcept.ofExcept written.get
+  return {
+    exitCode
+    stdout := ← MonadExcept.ofExcept stdout.get
+    stderr := ← MonadExcept.ofExcept stderr
+  }
+
+private def decodeOutput (cmd stream : String) (bytes : ByteArray) : IO String :=
+  match String.fromUTF8? bytes with
+  | some s => pure s
+  | none => throw <| IO.userError s!"process '{cmd}' wrote non-UTF-8 data to its {stream}"
+
+/--
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion. The child need not read all of its
+input.
+
+Once the child has exited, an exception is thrown if its standard output or standard error is not
+valid UTF-8. Use `IO.Process.binOutput` to capture output that need not be UTF-8.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
+
+Like `IO.Process.Child.wait`, this function throws an error on the thread of the event loop.
+-/
+def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
+  let out ← binOutput args (input?.map (·.toUTF8))
+  return {
+    exitCode := out.exitCode
+    stdout := ← decodeOutput args.cmd "standard output" out.stdout
+    stderr := ← decodeOutput args.cmd "standard error" out.stderr
+  }
 
 /--
 Runs a process to completion, blocking until it terminates.
-The child process is run with a null standard input or the specified input if provided,
-If the child process terminates successfully with exit code 0, its standard output is returned.
-An exception is thrown if it terminates with any other exit code.
+The child process is run with a null standard input or the specified input if provided, which it
+need not read in full. If the child process terminates successfully with exit code 0, its standard
+output is returned.
+
+An exception is thrown if the child terminates with any other exit code; its message includes the
+standard error, with invalid UTF-8 replaced by `�` (`U+FFFD`). An exception is also thrown if the
+standard output is not valid UTF-8.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
+
+Like `IO.Process.Child.wait`, this function throws an error on the thread of the event loop.
 -/
 def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
-  let out ← output args input?
+  let out ← binOutput args (input?.map (·.toUTF8))
   if out.exitCode != 0 then
     throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
       \nstderr:\
-      \n{out.stderr}"
-  pure out.stdout
+      \n{String.fromUTF8Lossy out.stderr}"
+  decodeOutput args.cmd "standard output" out.stdout
 
 /--
 Terminates the current process with the provided exit code. `0` indicates success, all other values
@@ -1858,3 +2015,21 @@ in the program. At runtime, this will be a no-op as the C compiler will optimize
 -/
 @[extern "lean_runtime_hold"]
 def Runtime.hold (a : @& α) : BaseIO Unit := return
+
+/-- Copy the entire object graph into new memory.
+Scalar values, inductives, arrays, strings, and closures can always be copied.
+External objects and `ST.Ref`s are not supported.
+`Thunk`s, `Task`s, and `Promise`s can only be copied after becoming immutable:
+already-evaluated `Thunk`s, finished `Task`s, and resolved `Promise`s.
+
+The result:
+- has no allocation in common with the input
+- is reference-counted (single-threaded) even when the input wasn't
+- does not contribute to the input's reference count
+- has the same sharing as the input
+- has array and string capacities shrunken to their size
+
+Warning: closures produced by the interpreter capture the whole `Environment`
+which cannot be copied. -/
+@[extern "lean_runtime_deep_copy"]
+def Runtime.deepCopy (a : @& α) : IO α := return a

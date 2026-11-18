@@ -15,37 +15,37 @@ def f (x y : S) :=
   | _, _ => 5
 
 example : f a b < 2 → b = .mk2 y1 y2 → y1 = 2 → a = .mk4 y3 y4 → False := by
-  grind (splits := 0) [f.eq_def]
+  grind (branches := 0) [f.eq_def]
 
 example : b = .mk2 y1 y2 → y1 = 2 → a = .mk4 y3 y4 → f a b = 5 := by
-  grind (splits := 0) [f.eq_def]
+  grind (branches := 0) [f.eq_def]
 
 example : b = .mk2 y1 y2 → y1 = 2 → a = .mk3 n → f a b = 4 := by
-  grind (splits := 0) [f.eq_def]
+  grind (branches := 0) [f.eq_def]
 
 example : b = .mk2 y1 y2 → y1 = 1 → y2 = .mk4 s1 s2 → a = .mk3 n → f a b = 3 := by
-  grind (splits := 0) [f.eq_def]
+  grind (branches := 0) [f.eq_def]
 
 example : b = .mk2 y1 y2 → y1 = 1 → y2 = .mk4 s1 s2 → a = .mk2 s3 s4 → f a b = 3 := by
-  grind (splits := 0) [f.eq_def]
+  grind (branches := 0) [f.eq_def]
 
 example : f a b < 2 → b = .mk2 y1 y2 → y1 = 2 → a = .mk4 y3 y4 → False := by
-  grind (splits := 0) [f]
+  grind (branches := 0) [f]
 
 example : b = .mk2 y1 y2 → y1 = 2 → a = .mk4 y3 y4 → f a b = 5 := by
-  grind (splits := 0) [f]
+  grind (branches := 0) [f]
 
 example : b = .mk2 y1 y2 → y1 = 2 → a = .mk3 n → f a b = 4 := by
-  grind (splits := 0) [f]
+  grind (branches := 0) [f]
 
 example : b = .mk2 y1 y2 → y1 = 1 → y2 = .mk4 s1 s2 → a = .mk3 n → f a b = 3 := by
-  grind (splits := 0) [f]
+  grind (branches := 0) [f]
 
 example : b = .mk2 y1 y2 → y1 = 1 → y2 = .mk4 s1 s2 → a = .mk2 s3 s4 → f a b = 3 := by
-  grind (splits := 0) [f]
+  grind (branches := 0) [f]
 
 example : f a b > 1 := by
-  grind (splits := 1) [f.eq_def]
+  grind (branches := 1) [f.eq_def]
 
 example : f a b > 1 := by
   grind [f.eq_def]

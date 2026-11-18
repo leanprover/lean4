@@ -14,9 +14,6 @@ import Init.Data.Bool
 public section
 namespace Lean.Grind
 
-theorem rfl_true : true = true :=
-  rfl
-
 def intro_with_eq (p p' : Prop) (q : Sort u) (he : p = p') (h : p' → q) : p → q :=
   fun hp => h (he.mp hp)
 

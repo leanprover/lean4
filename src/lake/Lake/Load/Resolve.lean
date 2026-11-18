@@ -239,15 +239,32 @@ abbrev UpdateT := StateT (NameMap PackageEntry)
   x.run init
 
 /--
-Reuse manifest versions of root packages that should not be updated.
-Also, move the packages directory if its location has changed.
+Validates selective-update names and reuses manifest versions of root packages
+that should not be updated. Also moves the packages directory if its location
+has changed.
+
+If `toUpdate` is non-empty, each name must be a current root dependency or a
+package already present in the workspace manifest (matching is case-sensitive).
+Accepting manifest packages preserves `lake update <pkg>` after its `require`
+is removed, allowing the package to be removed from the manifest. Unknown names
+produce an error before materialization.
 -/
 def reuseManifest
   (ws : Workspace) (toUpdate : NameSet)
 : UpdateT LoggerIO PUnit := do
   let rootName := ws.root.prettyName
+  let validateNames (entries : Array PackageEntry) : UpdateT LoggerIO PUnit := do
+    unless toUpdate.isEmpty do
+      let mut known : NameSet :=
+        ws.root.depConfigs.foldl (fun s d => s.insert d.name) {}
+      for entry in entries do
+        known := known.insert entry.name
+      for name in toUpdate do
+        unless known.contains name do
+          error s!"unknown package `{name.toString (escape := false)}`"
   match (← Manifest.load ws.manifestFile |>.toBaseIO) with
   | .ok manifest =>
+    validateNames manifest.packages
     -- Reuse manifest versions
     unless toUpdate.isEmpty do
       manifest.packages.forM fun entry => do
@@ -265,6 +282,7 @@ def reuseManifest
         if let .error e ← doRename.toBaseIO then
           error s!"could not rename workspace packages directory: {e}"
   | .error (.noFileOrDirectory ..) =>
+    validateNames #[]
     logInfo s!"{rootName}: no previous manifest, creating one from scratch"
   | .error e =>
     unless toUpdate.isEmpty do
@@ -320,7 +338,7 @@ structure ToolchainCandidate where
   /-- Whether the candidate toolchain been fixed to particular version. -/
   fixed : Bool := false
 
-private structure ToolchainState where
+structure ToolchainState where
   /-- The name of depedency which provided the current candidate toolchain. -/
   src : Name
   /-- The current candidate toolchain version (if any). -/
@@ -414,8 +432,8 @@ Updates the workspace, materializing and reconfiguring dependencies.
 Dependencies are updated to latest specific revision matching that in `require`
 (e.g., if the `require` is `@master`, update to latest commit on master) or
 removed if the `require` is removed.
-If `tuUpdate` is empty, all direct dependencies of the workspace's root will be
-updated and/or remove. Otherwise, only those specified will be updated.
+If `toUpdate` is empty, all direct dependencies of the workspace's root will be
+updated and/or removed. Otherwise, only those specified will be updated.
 
 If `updateToolchain := true`, the workspace's toolchain is also updated to the
 latest toolchain compatible with the root and its direct dependencies.
@@ -457,42 +475,38 @@ def Workspace.updateAndMaterializeCore
   (updateToolchain := true)
 : LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
+  let numDeps := ws.root.depConfigs.size
+  -- Update and materialize the top-level dependenciess
+  let deps : Vector _ numDeps := Vector.mk ws.root.depConfigs.reverse (by simp [numDeps])
+  let matDeps ← deps.mapM fun dep => do
+    logVerbose s!"{ws.root.prettyName}: updating '{dep.name}' with {toJson dep.opts}"
+    updateAndMaterializeDep ws ws.root dep
+  -- Update the toolchain based on the top-level dependenciess
   if updateToolchain then
-    let numDeps := ws.root.depConfigs.size
-    -- Update and materialize the top-level dependenciess
-    let deps : Vector _ numDeps := Vector.mk ws.root.depConfigs.reverse (by simp [numDeps])
-    let matDeps ← deps.mapM fun dep => do
-      logVerbose s!"{ws.root.prettyName}: updating '{dep.name}' with {toJson dep.opts}"
-      updateAndMaterializeDep ws ws.root dep
-    -- Update the toolchain based on the top-level dependenciess
     ws.updateToolchain matDeps.toArray
-    -- Load the top-level dependenciess
-    let start := ws.packages.size
-    let ⟨ws, start_le⟩ ← id do
-      let mut ws' : {ws : Workspace // start ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
-      for h : i in 0...<numDeps do
-        let matDep := matDeps[i]
-        addDependencyEntries matDep
-        let lakeOpts := deps[i].opts
-        let ⟨ws, h⟩ ← ws'.val.addDepPackage' matDep lakeOpts leanOpts true
-        ws' := ⟨ws, Nat.le_trans ws'.property <| by simp [h]⟩
-      return ws'
-    let stop := ws.packages.size
-    let ws := ws.setDepIdxs ws.root (start...<stop).toArray ws.wsIdx_root_lt <| by
-      simp [Std.Rco.mem_toArray_iff_mem, Std.Rco.mem_iff, stop]
-    if start_ne : start ≠ stop then
-      -- Resolve the top-level dependencies' dependencies'
-      have start_lt : start < ws.packages.size := by
-        simpa [ws] using Nat.lt_of_le_of_ne start_le start_ne
-      ws.resolveDepsCore updateAndAddDep
-        start start_lt (start+1) (Nat.lt_add_one start)
-        (leanOpts := leanOpts) (reconfigure := true)
-    else
-      return ws.updateDepPkgs
-  else
+  -- Load the top-level dependenciess
+  let start := ws.packages.size
+  let ⟨ws, start_le⟩ ← id do
+    let mut ws' : {ws : Workspace // start ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
+    for h : i in 0...<numDeps do
+      let matDep := matDeps[i]
+      addDependencyEntries matDep
+      let lakeOpts := deps[i].opts
+      let ⟨ws, h⟩ ← ws'.val.addDepPackage' matDep lakeOpts leanOpts true
+      ws' := ⟨ws, Nat.le_trans ws'.property <| by simp [h]⟩
+    return ws'
+  let stop := ws.packages.size
+  let ws := ws.setDepIdxs ws.root (start...<stop).toArray ws.wsIdx_root_lt <| by
+    simp [Std.Rco.mem_toArray_iff_mem, Std.Rco.mem_iff, stop]
+  if start_ne : start ≠ stop then
+    -- Resolve the top-level dependencies' dependencies'
+    have start_lt : start < ws.packages.size := by
+      simpa [ws] using Nat.lt_of_le_of_ne start_le start_ne
     ws.resolveDepsCore updateAndAddDep
-      ws.root.wsIdx ws.wsIdx_root_lt ws.packages.size ws.wsIdx_root_lt
+      start start_lt (start+1) (Nat.lt_add_one start)
       (leanOpts := leanOpts) (reconfigure := true)
+  else
+    return ws.updateDepPkgs
 where
   @[inline] updateAndAddDep pkg dep ws := do
     let matDep ← updateAndMaterializeDep ws pkg dep
@@ -527,7 +541,8 @@ def Package.runPostUpdateHooks (pkg : Package) : LakeT LoggerIO PUnit := do
 Updates the workspace, writes the new Lake manifest, and runs package
 post-update hooks.
 
-See `Workspace.updateAndMaterializeCore` for details on the update process.
+See `reuseManifest` for selective-update name validation and
+`Workspace.updateAndMaterializeCore` for details on the update process.
 -/
 public def Workspace.updateAndMaterialize
   (ws : Workspace)

@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Data.String.Lemmas.Pattern.Basic
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Pattern
 public import Init.Data.String.Search
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Pattern
 import all Init.Data.String.Search
 import Init.Data.Option.Lemmas
 import Init.Data.String.Termination
@@ -27,7 +27,7 @@ set_option doc.verso true
 /-!
 # Verification of {name}`String.Slice.splitToSubslice`
 
-This PR verifies the {name}`String.Slice.splitToSubslice` function by relating it to a model
+This module verifies the {name}`String.Slice.splitToSubslice` function by relating it to a model
 implementation based on the {name}`String.Slice.Pattern.Model.PatternModel` class.
 
 This gives a low-level correctness proof from which higher-level API lemmas can be derived.

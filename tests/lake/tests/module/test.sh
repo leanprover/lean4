@@ -67,6 +67,14 @@ test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportA
 # Tests that the transitive module import of a private import does not include its artifacts
 test_run build Test.Module.ImportImport
 test_cmd_fails grep -F "Module.olean" .lake/build/ir/Test/Module/ImportImport.setup.json
+# but the server setup should include them, as the server loads the IR of every transitive import
+# https://github.com/leanprover/lean4/issues/14435
+test_out '"Test.Generated.Module"' setup-file Test/Module/ImportImport.lean
+# including through a chain of private imports
+test_out '"Test.Generated.Module"' setup-file Test/Module/ImportImportImport.lean
+# and for a file that is outside every library
+HEADER_JSON='{"isModule":true,"imports":[{"module":"Test.Module.ImportImport","isMeta":false,"isExported":false,"importAll":false}]}'
+test_out '"Test.Generated.Module"' setup-file External.lean "$HEADER_JSON"
 
 # Tests that `meta import` properly includes transitive import artifacts
 # IR should be included for a transitive `public meta import`
@@ -191,6 +199,29 @@ test_out "Built Test.Module.ImportAllMetaImport" build Test.Module.ImportAllMeta
 test_out "Built Test.NonModule.Import" build Test.NonModule.Import -v
 # should trigger a rebuild for a non-module transitive import
 test_out "Built Test.NonModule.ImportModuleImport" build Test.NonModule.ImportModuleImport -v
+
+# Tests that the server can import a module whose transitive private imports
+# are only available from the artifact cache
+# https://github.com/leanprover/lean4/issues/14435
+echo "# TEST: server import from the artifact cache"
+TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+export LAKE_CACHE_DIR="$(norm_path "$TEST_DIR")/.lake/cache"
+export LAKE_ARTIFACT_CACHE=true
+unset LAKE_RESTORE_ARTIFACTS
+# rebuild from the cache, which leaves only traces in the build directory
+rm -rf .lake/build
+test_run build Test.Module.ImportImport
+rm -rf .lake/build
+test_run build Test.Module.ImportImport
+test_exp ! -f .lake/build/lib/lean/Test/Module/Import.ir.sig
+test_exp ! -f .lake/build/lib/lean/Test/Generated/Module.ir.sig
+# without a setup, Lean can't find the imports in the build directory
+test_fails env lean -DElab.inServer=true Test/Module/ImportImportImport.lean
+# with the server setup, the header should elaborate like it does in the server
+echo '$' lake setup-file Test/Module/ImportImportImport.lean
+"$LAKE" setup-file Test/Module/ImportImportImport.lean > .lake/setup.json
+test_cmd grep -qF '"Test.Generated.Module"' .lake/setup.json
+test_run env lean --setup .lake/setup.json -DElab.inServer=true Test/Module/ImportImportImport.lean
 
 # Cleanup
 rm -f produced*

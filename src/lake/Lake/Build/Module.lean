@@ -1117,7 +1117,7 @@ def Module.packLtar
   -- Remove any existing `ltar` first. It may be read-only if
   -- restored from the cache and `leantar` cannot overwrite it on Windows.
   removeFileIfExists self.ltarFile.toString
-  proc (quiet := true) {cmd := (← getLeantar).toString, args}
+  Subprocess.ofFilePath (← getLeantar) |>.withArgs args |>.run
   if (← self.pkg.isArtifactCacheWritable) then
     cacheArtifact self.ltarFile "ltar" (useLocalFile := ← self.pkg.restoreAllArtifacts)
   else
@@ -1125,16 +1125,17 @@ def Module.packLtar
 
 def Module.unpackLtar (self : Module) (ltar : FilePath) (inputHash : Hash) : JobM Unit := do
   -- Archive has no `depHash` (packed with `-s`); supply it via `-j -` JSON stdin.
-  let input := Json.arr #[Json.mkObj [
-    ("file", toJson ltar.toString),
-    ("hash", toJson inputHash.hex)
-  ]]
-  let args := #[
-    "-C", self.leanLibDir.toString,
-    "-C", self.irDir.toString,
-    "-x", "-j", "-"
-  ]
-  proc (quiet := true) (input? := input.compress) {cmd := (← getLeantar).toString, args}
+  Subprocess.ofFilePath (← getLeantar)
+    |>.withStrInput (Json.arr #[Json.mkObj [
+      ("file", toJson ltar.toString),
+      ("hash", toJson inputHash.hex)
+    ]]).compress
+    |>.withArgs #[
+      "-C", self.leanLibDir.toString,
+      "-C", self.irDir.toString,
+      "-x", "-j", "-"
+    ]
+    |>.run
 
 def Module.recBuildLtar (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:ltar" <| withCurrPackage self.pkg do
@@ -1809,5 +1810,4 @@ where
       cmd := (← getLean).toString
       env := (← getAugmentedEnv)
     }
-    logVerbose (mkCmdLog spawnArgs)
     return spawnArgs

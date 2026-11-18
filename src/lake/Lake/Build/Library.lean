@@ -12,7 +12,7 @@ import Lake.Build.Targets
 import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
 import Lake.Build.Infos
-import Lake.Util.Proc
+import Lake.Util.Subprocess
 
 /-! # Library Facet Builds
 Build function definitions for a library's builtin facets.
@@ -113,8 +113,10 @@ public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
           let filelistPath := libFile.addExtension "filelist"
           let h ← IO.FS.Handle.mk filelistPath .write
           oFiles.forM fun f => h.putStr s!"{f}\n"
-          proc {cmd := "libtool", args := #["-static", "-o", libFile.toString,
-            "-filelist", filelistPath.toString]}
+          Subprocess.ofCommand "libtool"
+            |>.withArgs #["-static", "-o", libFile.toString,
+              "-filelist", filelistPath.toString]
+            |>.run
         else if System.Platform.isWindows then
           -- The Lean core build requires a thin static library
           -- with exported symbols as part of its build process on Windows.

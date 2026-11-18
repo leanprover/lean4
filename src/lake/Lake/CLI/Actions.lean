@@ -50,7 +50,7 @@ public def Package.uploadRelease
     #["release", "upload", tag, pkg.buildArchiveFile.toString, "--clobber"]
   if let some repo := pkg.releaseRepo? then
     args := args.append #["-R", repo]
-  proc {cmd := "gh", args}
+  Subprocess.ofCommand "gh" |>.withArgs args |>.run
 
 public def Package.resolveDriver
   (pkg : Package) (kind : String) (driver : String)
@@ -99,6 +99,7 @@ public def Package.lint
   else
     error s!"{pkg.prettyName}: invalid lint driver: unknown script or executable '{driver}'"
 
+set_option linter.deprecated false in
 /--
 Run `lean` on file using configuration from the workspace.
 
@@ -111,5 +112,7 @@ public def Workspace.evalLeanFile
 : IO UInt32 := do
   let spawnArgs ← ws.runBuild (cfg := buildConfig) do
     prepareLeanCommand leanFile moreArgs
+  discard <| LogIO.toBaseIO (cfg := buildConfig.toLogConfig) do
+    logVerbose (mkCmdLog spawnArgs)
   let child ← IO.Process.spawn spawnArgs
   child.wait

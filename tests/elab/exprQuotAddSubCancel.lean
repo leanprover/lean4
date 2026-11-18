@@ -322,10 +322,6 @@ end
 section
 open Elab Lean.Elab.Tactic.Grind Lean.Elab.ConfigEval
 
-/-- `∃ x, a = x` as a rewrite rule (`Sym.simp` has no `∀ xs, p xs` adapter). -/
-theorem exists_eq_True (a : α) : (∃ x, a = x) = True := by
-  simp
-
 /-- `Sym.simp` methods: ground evaluation, then rewriting with `declNames`. -/
 def mkMethods (declNames : Array Name) : MetaM Sym.Simp.Methods := do
   let rewrite ← Sym.mkSimprocFor declNames Sym.Simp.dischargeSimpSelf
@@ -338,8 +334,7 @@ def evalLemmas : Array Name := #[``Expr.eval.eq_1, ``Expr.eval.eq_2, ``Expr.eval
   ``Word.sub_self, ``Option.some.injEq, ``not_false_eq_true, ``ne_eq]
 
 def postLemmas : Array Name := #[``List.cons.injEq, ``IOEvent.IN.injEq, ``IOEvent.OUT.injEq,
-  ``List.length_cons, ``List.length_nil, ``eq_self, ``and_true, ``true_and, ``and_self,
-  ``exists_eq_True]
+  ``List.length_cons, ``List.length_nil, ``eq_self, ``and_true, ``true_and, ``and_self]
 
 /-- Options of `exec_sym`. -/
 structure ExecSymConfig where
@@ -382,6 +377,7 @@ def pruneInfeasibleSym (h : FVarId) : GrindTacticM Bool := withMainContext do
 def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
   let evalM ← mkMethods evalLemmas
   let postM ← mkMethods (evalLemmas ++ postLemmas)
+  let postM := { postM with post := postM.post.andThen Sym.Simp.simpExistsEq }
   let cacheKey? := if cfg.cache then some `execSym else none
   let unfoldCache ← IO.mkRef ({} : Std.HashMap Name Sym.Simp.Methods)
   let getUnfoldMethods (f : Name) : GrindTacticM Sym.Simp.Methods := do
@@ -567,6 +563,13 @@ theorem ends_in_input_sym : ∀ m l, Exec (.input "x") [] m l fun t _ l' =>
 theorem post_uses_path_hyp_sym : ∀ vx m l, l.get "x" = some vx →
     Exec (.cond (.var "x") .skip (.set "x" (.literal 1))) [] m l
       fun _ _ l' => l'.get "x" ≠ some 0 := by
+  sym => exec_sym
+
+opaque Q : Word → Prop
+
+/-- `Sym.Simp.simpExistsEq` eliminates `∃ v, v₀ = v ∧ Q v` with a non-equality conjunct. -/
+theorem exists_conj_post_sym : ∀ m l, (∀ w, Q w) →
+    Exec (.input "x") [] m l fun t _ _ => ∃ v, t = [.IN v] ∧ Q v := by
   sym => exec_sym
 
 section GrindBasicsTest

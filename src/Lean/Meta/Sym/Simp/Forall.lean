@@ -318,4 +318,46 @@ public def simpExistsPropDomain : Simproc := fun e => do
 public def simpForall : Simproc :=
   simpForall' simpArrow simp
 
+/--
+If `body` (with the bound variable `x` as loose bound variable `0`) is `x = a'` or `a' = x` for
+some `a'` not mentioning `x`, returns `a'` and whether `x` is on the left-hand side.
+-/
+def isEqBVar0? (body : Expr) : Option (Expr × Bool) :=
+  match_expr body with
+  | Eq _ lhs rhs =>
+    if lhs == .bvar 0 && !rhs.hasLooseBVars then some (rhs, true)
+    else if rhs == .bvar 0 && !lhs.hasLooseBVars then some (lhs, false)
+    else none
+  | _ => none
+
+/--
+Eliminates trivial existentials whose body pins down the bound variable:
+- `∃ x, x = a'` and `∃ x, a' = x` simplify to `True` (via `exists_eq` / `exists_eq'`);
+- `∃ x, x = a' ∧ p x`, `∃ x, a' = x ∧ p x`, `∃ x, p x ∧ x = a'`, and `∃ x, p x ∧ a' = x`
+  simplify to `p a'` (via `exists_eq_left`, `exists_eq_left'`, `exists_eq_right`, and
+  `exists_eq_right'`).
+
+This simproc is opt-in: it is not part of the default `Sym.simp` methods. Intended as a post-method.
+-/
+public def simpExistsEq : Simproc := fun e => do
+  let_expr Exists α fn := e | return .rfl
+  let .lam n _ body bi := fn | return .rfl
+  let u ← getLevel α
+  if let some (a', xOnLeft) := isEqBVar0? body then
+    let thm := if xOnLeft then ``exists_eq else ``exists_eq'
+    let h := mkApp2 (mkConst ``eq_true) e (mkApp2 (mkConst thm [u]) α a')
+    return .step (← getTrueExpr) h
+  let_expr And l r := body | return .rfl
+  let some (a', thm, pBody) :=
+      if let some (a', xOnLeft) := isEqBVar0? l then
+        some (a', if xOnLeft then ``exists_eq_left else ``exists_eq_left', r)
+      else if let some (a', xOnLeft) := isEqBVar0? r then
+        some (a', if xOnLeft then ``exists_eq_right else ``exists_eq_right', l)
+      else none
+    | return .rfl
+  let e' ← instantiateS pBody #[a']
+  let p := mkLambda n bi α pBody
+  let h := mkApp3 (mkConst ``propext) e e' (mkApp3 (mkConst thm [u]) α p a')
+  return .step e' h
+
 end Lean.Meta.Sym.Simp

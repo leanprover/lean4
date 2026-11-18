@@ -32735,7 +32735,7 @@ lean_object* v_val_10739_; lean_object* v___x_10740_; uint8_t v___x_10741_;
 v_val_10739_ = lean_ctor_get(v_v_10701_, 0);
 lean_inc(v_val_10739_);
 lean_dec_ref_known(v_v_10701_, 1);
-v___x_10740_ = lean_cstr_to_nat("4294967296");
+v___x_10740_ = lean_uint64_to_nat(4294967296ULL);
 v___x_10741_ = lean_nat_dec_lt(v_val_10739_, v___x_10740_);
 lean_dec(v___x_10740_);
 if (v___x_10741_ == 0)

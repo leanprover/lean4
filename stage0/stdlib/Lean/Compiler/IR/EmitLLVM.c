@@ -12725,7 +12725,7 @@ return v___x_4430_;
 else
 {
 lean_object* v___x_4433_; uint8_t v___x_4434_; 
-v___x_4433_ = lean_cstr_to_nat("4294967296");
+v___x_4433_ = lean_uint64_to_nat(4294967296ULL);
 v___x_4434_ = lean_nat_dec_lt(v_v_4388_, v___x_4433_);
 lean_dec(v___x_4433_);
 if (v___x_4434_ == 0)

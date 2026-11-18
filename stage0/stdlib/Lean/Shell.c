@@ -6424,7 +6424,7 @@ lean_object* v_val_2062_; lean_object* v___x_2063_; uint8_t v___x_2064_;
 v_val_2062_ = lean_ctor_get(v___x_2061_, 0);
 lean_inc(v_val_2062_);
 lean_dec_ref_known(v___x_2061_, 1);
-v___x_2063_ = lean_cstr_to_nat("4294967296");
+v___x_2063_ = lean_uint64_to_nat(4294967296ULL);
 v___x_2064_ = lean_nat_dec_lt(v_val_2062_, v___x_2063_);
 lean_dec(v___x_2063_);
 if (v___x_2064_ == 0)
@@ -8707,7 +8707,7 @@ lean_object* v_val_2712_; lean_object* v___x_2713_; uint8_t v___x_2714_;
 v_val_2712_ = lean_ctor_get(v___x_2711_, 0);
 lean_inc(v_val_2712_);
 lean_dec_ref_known(v___x_2711_, 1);
-v___x_2713_ = lean_cstr_to_nat("4294967296");
+v___x_2713_ = lean_uint64_to_nat(4294967296ULL);
 v___x_2714_ = lean_nat_dec_lt(v_val_2712_, v___x_2713_);
 lean_dec(v___x_2713_);
 if (v___x_2714_ == 0)

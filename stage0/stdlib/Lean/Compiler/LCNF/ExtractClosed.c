@@ -1320,7 +1320,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_ExtractClosed_shouldExtractLetVal
 _start:
 {
 lean_object* v___x_380_; 
-v___x_380_ = lean_cstr_to_nat("9223372036854775808");
+v___x_380_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_380_;
 }
 }

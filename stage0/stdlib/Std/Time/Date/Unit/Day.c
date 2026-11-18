@@ -2031,7 +2031,7 @@ static lean_object* _init_l_Std_Time_Day_Offset_toNanoseconds___closed__0(void){
 _start:
 {
 lean_object* v___x_593_; lean_object* v___x_594_; 
-v___x_593_ = lean_cstr_to_nat("86400000000000");
+v___x_593_ = lean_uint64_to_nat(86400000000000ULL);
 v___x_594_ = lean_nat_to_int(v___x_593_);
 return v___x_594_;
 }

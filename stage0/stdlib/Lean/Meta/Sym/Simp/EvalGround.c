@@ -79970,7 +79970,7 @@ static lean_object* _init_l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta
 _start:
 {
 lean_object* v___x_23330_; lean_object* v___x_23331_; 
-v___x_23330_ = lean_cstr_to_nat("4294967296");
+v___x_23330_ = lean_uint64_to_nat(4294967296ULL);
 v___x_23331_ = l_Lean_mkNatLit(v___x_23330_);
 return v___x_23331_;
 }
@@ -80063,7 +80063,7 @@ goto v_resetjp_23381_;
 v_resetjp_23381_:
 {
 lean_object* v___x_23384_; uint8_t v___x_23385_; 
-v___x_23384_ = lean_cstr_to_nat("4294967296");
+v___x_23384_ = lean_uint64_to_nat(4294967296ULL);
 v___x_23385_ = lean_nat_dec_lt(v_val_23380_, v___x_23384_);
 lean_dec(v___x_23384_);
 if (v___x_23385_ == 0)

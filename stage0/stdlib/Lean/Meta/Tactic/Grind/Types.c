@@ -3130,7 +3130,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_
 _start:
 {
 lean_object* v___x_29_; 
-v___x_29_ = lean_cstr_to_nat("9223372036854775808");
+v___x_29_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_29_;
 }
 }

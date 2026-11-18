@@ -4397,7 +4397,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstrai
 _start:
 {
 lean_object* v_minDepth_1512_; lean_object* v_relevantHypsIdxMap_1513_; lean_object* v___x_1514_; 
-v_minDepth_1512_ = lean_cstr_to_nat("4294967296");
+v_minDepth_1512_ = lean_uint64_to_nat(4294967296ULL);
 v_relevantHypsIdxMap_1513_ = lean_obj_once(&l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass___lam__0___closed__3, &l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass___lam__0___closed__3_once, _init_l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass___lam__0___closed__3);
 v___x_1514_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1514_, 0, v_relevantHypsIdxMap_1513_);

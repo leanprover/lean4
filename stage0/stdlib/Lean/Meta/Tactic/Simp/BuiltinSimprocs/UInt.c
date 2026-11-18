@@ -47938,7 +47938,7 @@ static lean_object* _init_l_USize_reduceToNat___redArg___closed__1(void){
 _start:
 {
 lean_object* v___x_17153_; lean_object* v___x_17154_; 
-v___x_17153_ = lean_cstr_to_nat("4294967296");
+v___x_17153_ = lean_uint64_to_nat(4294967296ULL);
 v___x_17154_ = l_Lean_mkNatLit(v___x_17153_);
 return v___x_17154_;
 }
@@ -48038,7 +48038,7 @@ lean_object* v_fst_17189_; lean_object* v___x_17190_; uint8_t v___x_17191_;
 v_fst_17189_ = lean_ctor_get(v_val_17185_, 0);
 lean_inc(v_fst_17189_);
 lean_dec(v_val_17185_);
-v___x_17190_ = lean_cstr_to_nat("4294967296");
+v___x_17190_ = lean_uint64_to_nat(4294967296ULL);
 v___x_17191_ = lean_nat_dec_lt(v_fst_17189_, v___x_17190_);
 lean_dec(v___x_17190_);
 if (v___x_17191_ == 0)

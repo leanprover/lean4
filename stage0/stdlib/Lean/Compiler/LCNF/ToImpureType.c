@@ -684,7 +684,7 @@ v___x_31_ = lean_nat_dec_lt(v_numCtors_25_, v___x_30_);
 if (v___x_31_ == 0)
 {
 lean_object* v___x_32_; uint8_t v___x_33_; 
-v___x_32_ = lean_cstr_to_nat("4294967296");
+v___x_32_ = lean_uint64_to_nat(4294967296ULL);
 v___x_33_ = lean_nat_dec_lt(v_numCtors_25_, v___x_32_);
 lean_dec(v___x_32_);
 if (v___x_33_ == 0)

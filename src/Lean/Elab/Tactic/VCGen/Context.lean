@@ -142,7 +142,7 @@ public structure Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
-/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+/-- A join point that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
   /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
   spec : Expr
@@ -154,6 +154,13 @@ public structure JoinPoint where
   rhsGoal : MVarId
   /-- The number of states that `?H` takes after the join parameters. -/
   numStates : Nat
+  deriving Inhabited
+
+/-- A join point in scope: `bound` to its RHS `val` until the first `wp` goal that jumps to it
+registers it. -/
+public inductive JoinPointState where
+  | bound (val : Expr)
+  | registered (jp : JoinPoint)
   deriving Inhabited
 
 /-- A jump to a join point with the arguments `args`, which include the states, and the proof
@@ -172,13 +179,10 @@ public structure Scope where
   /-- Index of the next local declaration to consider for local specs. -/
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
-  joinPoints : FVarIdMap JoinPoint := {}
+  joinPoints : FVarIdMap JoinPointState := {}
   /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
   on `x` reduces with them. -/
   splitEqs : FVarIdMap (Expr × FVarId) := {}
-  /-- The join points `__do_jp := val` that a spec hypothesis binds, before their registration at
-  the next `wp` goal whose postcondition jumps to them. Each entry is `val`. -/
-  pendingSpecJoinPoints : FVarIdMap Expr := {}
   deriving Inhabited
 
 public structure State where

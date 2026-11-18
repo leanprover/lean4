@@ -26,8 +26,9 @@ namespace Lean.Elab.Tactic.VCGen
 /-!
 # Join points (`vcgen +jp`)
 
-The do-elaborator shares the code after an `if` or a `match` through a join point. This module
-lets `vcgen +jp` prove that code once instead of once per branch. For example,
+The do-elaborator shares the code after an `if` or a `match` through a join point `__do_jp`, and a
+program or a specification can bind one as `__vcgen_jp` in any position. This module lets
+`vcgen +jp` prove that code once instead of once per branch. For example,
 
 ```
 def f (n : Nat) : Id Nat := do
@@ -72,24 +73,16 @@ parameters `r` and `x`.
 
 For a stateful program, `?H` also takes the states. In `StateM Nat`, with both jumps in the state
 `t`, it is `s = t ∧ ((n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2))`.
-
-A specification binds a join point under the name `__vcgen_jp`, in a hypothesis or in its
-precondition. For example, the precondition
-
-```
-fun s => have __vcgen_jp := fun (_ : Unit) => c₃
-  wp⟦Cmd.ite x (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ()))⟧ Q eposts s
-```
-
-shares the code `c₃` after an `if` between both branches. `vcgen +jp` registers `__vcgen_jp` at
-the first `wp` goal below the binding that jumps to it, either in its program or in its
-postcondition.
 -/
 
 /-- Whether `n` names a join point: `__do_jp`, which the do-elaborator binds, or `__vcgen_jp`, which
-a program or a specification binds to share a continuation. -/
+a program or a specification binds to share a continuation. Either name can carry a decimal suffix,
+as in `__vcgen_jp2`, so that one scope can bind several join points by name. -/
 public def isJoinPointName (n : Name) : Bool :=
-  Lean.Elab.Tactic.Do.isJP n || n.eraseMacroScopes == `__vcgen_jp
+  match n.eraseMacroScopes with
+  | .str .anonymous s => ["__do_jp", "__vcgen_jp"].any fun p =>
+      s.startsWith p && (s.drop p.length).all Char.isDigit
+  | _ => false
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
 read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
@@ -103,18 +96,35 @@ def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
   let_expr Std.WP.Assertion.mk _ c := a | return some inst
   return some c
 
-/-- Register the join point `jp := val` that `wpLet?` introduced into the goal
-`goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
-`__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
-`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if
-`jp` is no `__do_jp` or `__vcgen_jp` with a lambda RHS under `+jp`, or if the states have no base
+/-- Bind the join point `jp := val` in `scope`, for `registerJoinPoint` at the first `wp` goal
+below that jumps to it. Returns `scope` unchanged unless `jp` is a `__do_jp` or `__vcgen_jp` with a
+lambda RHS under `+jp`. -/
+public def bindJoinPoint (scope : Scope) (jp : FVarId) (val : Expr) : VCGenM Scope := do
+  unless (← read).useJP && isJoinPointName (← jp.getUserName) && val.isLambda do return scope
+  return { scope with joinPoints := scope.joinPoints.insert jp (.bound val) }
+
+/-- Register the join point `jp := val` in the goal `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the
+states `ss`, whose `wp` application is `info`. Returns `scope` with `jp`, `goal` with
+`__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post' eposts' ss`, and the goal
+`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post' eposts' ss` for the join RHS `val`. A jump
+`wp⟦jp ys⟧ post' eposts'` in the goal supplies `post'` and `eposts'`; otherwise `goal` jumps to `jp`
+from its program, with `post` and `eposts`. Returns `none` if `jp` is no `__do_jp` or `__vcgen_jp`
+with a lambda RHS under `+jp`, if `goal` does not mention `jp`, or if the states have no base
 lattice instance. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
   unless (← read).useJP && isJoinPointName (← jp.getUserName) && val.isLambda do
     return none
   let goalTy ← goal.getType
+  unless goalTy.containsFVar jp do return none
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none
+  let isJump (e : Expr) : Bool := Id.run do
+    let some j := isWPApp? e | return false
+    unless j.prog.getAppFn.isFVarOf jp do return false
+    return !j.head.hasLooseBVars && (j.args.toList.zipIdx.all fun (a, i) => i == 7 || !a.hasLooseBVars)
+  let info := match goalTy.find? isJump >>= isWPApp? with
+    | some jump => { jump with excessArgs := info.excessArgs }
+    | none => info
   let jpFVar ← mkFVarS jp
   let jpTy ← Sym.inferType jpFVar
   let numParams ← Lean.Elab.Tactic.Do.getNumJoinParams jpTy info.Prog
@@ -153,7 +163,7 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     { spec, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.rhsGoal (joinPoint, #[]) }
-  let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
+  let scope := { scope with joinPoints := scope.joinPoints.insert jp (.registered joinPoint) }
   return some (scope, [goal, joinPoint.rhsGoal])
 
 /-- Close the goal `⊤ ⊑ wp⟦jp args⟧ post eposts ss` of a jump to a join point of `scope` with
@@ -162,7 +172,7 @@ precondition other than `⊤` unfolds `jp` instead. -/
 public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some fv := info.prog.getAppFn.fvarId? | return none
-  let some jp := scope.joinPoints.get? fv | return none
+  let some (.registered jp) := scope.joinPoints.get? fv | return none
   goal.withContext do
   let_expr PartialOrder.rel _ _ pre _ := (← goal.getType) | return none
   unless pre == jp.top do return none

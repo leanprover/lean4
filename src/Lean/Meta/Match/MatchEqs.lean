@@ -785,8 +785,13 @@ where go (thmName : Name) := withConfig (fun c => { c with etaStruct := .none })
         let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
         let thmType ← Match.unfoldNamedPattern thmType
         -- The match equations are instances of these theorems, see `proveEqThm`.
-        let thmVal ← Match.proveCondEqThm matchDeclName thmType
-          (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+        -- The proof may create auxiliary definitions, such as a sparse `casesOn`. `thmName` is
+        -- the same name in every module that realizes this equation, and the same definition
+        -- cannot be imported from different modules. So, the auxiliary declarations must be
+        -- private to the realizing module.
+        let thmVal ← withDeclNameForAuxNaming (mkPrivateName (← getEnv) thmName) do
+          Match.proveCondEqThm matchDeclName thmType
+            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
         addDecl <| Declaration.thmDecl {
           name        := thmName
           levelParams := constInfo.levelParams

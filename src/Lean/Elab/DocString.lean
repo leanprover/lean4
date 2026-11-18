@@ -168,7 +168,8 @@ def addDeferredCheck (check : Dynamic) (imports : Array Name) (ref : Syntax) : D
     imports
     currNamespace := ← getCurrNamespace
     openDecls := ← getOpenDecls
-    options := ← getOptions
+    -- `Elab.async` must not influence the `.olean` output
+    options := (← getOptions).erase Elab.async.name
     check
   }
   modifyThe InternalState fun s => { s with deferred := s.deferred.push entry }

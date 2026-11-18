@@ -707,9 +707,12 @@ private def isReadOnlyMVar (e : Expr) : MetaM Bool := do
   return !(← mvarId.isAssignable) && !(← mvarId.isAssigned) && !(← mvarId.isDelayedAssigned)
 
 /--
-Returns whether the root goal `type` is to be reported as stuck without a search: an argument other
-than an instance is a type or type constructor that is a metavariable resolution cannot assign, as
-in `LE ?α` or `Monad ?m`, and there is an instance that may unify with `type`.
+Returns whether the root goal `type` is to be reported as stuck without a search: an explicit
+argument is a type or type constructor that is a metavariable resolution cannot assign, as in
+`LE ?α` or `Monad ?m`, and there is an instance that may unify with `type`.
+
+Implicit arguments are not considered: classes such as `Trans` are resolved while the types of their
+explicit arguments are unknown.
 
 Almost every such search ends up stuck, when it reaches an instance that has to assign the
 metavariable, but only after collecting all instances of the class. Where one would succeed, the
@@ -726,7 +729,7 @@ private def isStuckOnMVarArg (type : Expr) : MetaM Bool := do
     let a := args[i]!
     unless (← isReadOnlyMVar a) do return false
     if h : i < infos.size then
-      if infos[i].isInstance then return false
+      unless infos[i].isExplicit do return false
     isTypeFormer a
   unless typeMVar do return false
   -- as in `getInstancesLazy`, so that an enclosing query records the same dependencies

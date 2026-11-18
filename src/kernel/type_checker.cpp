@@ -1182,13 +1182,17 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
 
-    // `let x := v; b =?= let y := w; c`: bind `x` and `y` as let-bound locals, so that a join point
-    // `x` stays the head of its jumps `x a` in `b` instead of being copied into each of them.
+    // `let x := v; b =?= let y := w; c`: for functions `v` and `w`, bind `x` and `y` as let-bound
+    // locals, so that a join point `x` stays the head of its jumps `x a` instead of being copied.
     if (is_let(t) && is_let(s)) {
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        expr x = m_lctx.mk_local_decl(m_st->m_ngen, let_name(t), let_type(t), let_value(t));
-        expr y = m_lctx.mk_local_decl(m_st->m_ngen, let_name(s), let_type(s), let_value(s));
-        return is_def_eq(instantiate(let_body(t), x), instantiate(let_body(s), y));
+        if (is_lambda(let_value(t)) && is_lambda(let_value(s))) {
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            expr x = m_lctx.mk_local_decl(m_st->m_ngen, let_name(t), let_type(t), let_value(t));
+            expr y = m_lctx.mk_local_decl(m_st->m_ngen, let_name(s), let_type(s), let_value(s));
+            return is_def_eq(instantiate(let_body(t), x), instantiate(let_body(s), y));
+        }
+        // One zeta step on each side, so that `whnf_core` does not reduce a jump `x a` in `b` and `c`.
+        return is_def_eq(instantiate(let_body(t), let_value(t)), instantiate(let_body(s), let_value(s)));
     }
 
     // `x a⃗ =?= y b⃗` for locals `x` and `y`: compare `x =?= y` and `a⃗ =?= b⃗` before unfolding

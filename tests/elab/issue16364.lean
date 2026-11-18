@@ -73,6 +73,27 @@ example (b : Nat → Bool) (s₀ : S) :
     ⦃fun _ s => s₀.r + 12 ≤ s.r ∧ s.r ≤ s₀.r + 24⦄ := by
   vcgen +jp with finish
 
+-- The goals for two joins: `{ pc := s.pc + 4, r := s.r + z }` stays above the disjunction, which
+-- constrains only the hole `z`.
+/--
+trace: case vc1
+b : Nat → Bool
+s₀ s✝² : S
+x✝¹ : PUnit
+s✝¹ : S
+h✝¹ : ∃ z, s✝¹ = { pc := s₀.pc + 4, r := s₀.r + z } ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
+x✝ : PUnit
+s✝ : S
+h✝ : ∃ z, s✝ = { pc := s✝¹.pc + 4, r := s✝¹.r + z } ∧ (b 1 = true ∧ z = 1 ∨ ¬b 1 = true ∧ z = 2)
+⊢ s✝.pc = s₀.pc + 8
+-/
+#guard_msgs in
+example (b : Nat → Bool) (s₀ : S) :
+    ⦃fun s => s = s₀⦄ (diamonds% 2 b : StateM S Unit) ⦃fun _ s => s.pc = s₀.pc + 8⦄ := by
+  vcgen +jp
+  trace_state
+  all_goals grind
+
 -- The hole for `r` takes the value `n`, a local of the branch `some n`.
 def step (o : Option Nat) : StateM S Unit := do
   match o with
@@ -109,6 +130,32 @@ macro_rules
 example (o : Nat → Nat) (s₀ : W) :
     ⦃fun s => s = s₀⦄ (spoiled% 12 o : StateM W Unit) ⦃fun _ s => s.r = s₀.r + 12⦄ := by
   vcgen +jp with finish
+
+-- The goals for two joins: `pc` is a hole, and `r := s.r + 1` stays above the disjunction.
+/--
+trace: case vc1
+o : Nat → Nat
+s₀ s✝² : W
+x✝¹ : PUnit
+s✝¹ : W
+h✝¹ :
+  ∃ z,
+    s✝¹ = { pc := z, r := s₀.r + 1 } ∧
+      (o 0 = 0 ∧ z = 0 ∨ o 0 = 1 ∧ z = s₀.pc + 4 ∨ ∃ x, (x = 0 → False) ∧ (x = 1 → False) ∧ o 0 = x ∧ z = s₀.pc + 4)
+x✝ : PUnit
+s✝ : W
+h✝ :
+  ∃ z,
+    s✝ = { pc := z, r := s✝¹.r + 1 } ∧
+      (o 1 = 0 ∧ z = 0 ∨ o 1 = 1 ∧ z = s✝¹.pc + 4 ∨ ∃ x, (x = 0 → False) ∧ (x = 1 → False) ∧ o 1 = x ∧ z = s✝¹.pc + 4)
+⊢ s✝.r = s₀.r + 2
+-/
+#guard_msgs in
+example (o : Nat → Nat) (s₀ : W) :
+    ⦃fun s => s = s₀⦄ (spoiled% 2 o : StateM W Unit) ⦃fun _ s => s.r = s₀.r + 2⦄ := by
+  vcgen +jp
+  trace_state
+  all_goals grind
 
 -- A reassignment `s := e` in a branch passes a `let` local with the value `e`. The values
 -- `s.r + 1` and `s.r * 2` of the locals `r` have no common part, so the hole for `r` takes the

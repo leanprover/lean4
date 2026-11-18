@@ -18,6 +18,10 @@ class Injects (H : Type u) (X : outParam (Type v)) where
   coe : H → X
   injective : Function.Injective coe
 
+/--
+warning: Extensionality theorem `B.Injects.ext` has a maximally general pattern and may be tried for every type
+-/
+#guard_msgs in
 @[ext] theorem Injects.ext {H : Type u} {X : Type v} [Injects H X]
     {a b : H} (h : Injects.coe a = Injects.coe b) : a = b := Injects.injective h
 
@@ -36,6 +40,10 @@ class Injects (H : Type u) (X : outParam (Type v)) where
   coe : H → X
   injective : Function.Injective coe
 
+/--
+warning: Extensionality theorem `C.Injects.ext` has a maximally general pattern and may be tried for every type
+-/
+#guard_msgs in
 @[ext] theorem Injects.ext {H : Type u} {X : Type v} [Injects H X]
     {a b : H} (h : Injects.coe a = Injects.coe b) : a = b := Injects.injective h
 

@@ -303,4 +303,44 @@ instance : MonadicWP.IsMonadMorphism (EStateM ε σ) where
     simp only [bind, EStateM.bind]
     cases x s <;> rfl
 
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev Id.instWPMonad : MonadicWP Id.{u} Prop EStack⟨⟩ := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev ExceptT.instWPMonad {m : Type u → Type z} {ε : Type u} {Pred : Type v} {EPosts : Type w}
+    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
+    MonadicWP (ExceptT ε m) Pred ((ε → Pred) × EPosts) := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev OptionT.instWPMonad {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
+    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
+    MonadicWP (OptionT m) Pred ((Unit → Pred) × EPosts) := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev StateT.instWPMonad {m : Type u → Type z} {σ : Type u} {Pred : Type w} {EPosts : Type v}
+    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
+    MonadicWP (StateT σ m) (σ → Pred) EPosts := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev ReaderT.instWPMonad {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPosts : Type w}
+    [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
+    MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev Option.instWPMonad : MonadicWP Option.{u} Prop (Unit → Prop) := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev Except.instWPMonad {ε : Type u} : MonadicWP (Except ε) Prop (ε → Prop) := inferInstance
+
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+abbrev EStateM.instWPMonad {ε σ : Type} :
+    MonadicWP (EStateM ε σ) (σ → Prop) (ε → σ → Prop) := inferInstance
+
+end Deprecated
+
 end Std.WP

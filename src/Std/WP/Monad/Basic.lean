@@ -139,4 +139,26 @@ end Lax
 
 end MonadicWP
 
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated "use `[MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m]`" (since := "2026-11-18")]
+abbrev WPMonad (m : Type u → Type v) (Pred : Type w) (EPosts : Type w') [PartialOrder Pred]
+    [PartialOrder EPosts] := MonadicWP m Pred EPosts
+
+@[deprecated MonadicWP.bind_le_wp_bind (since := "2026-11-18")]
+abbrev WPMonad.bind_le_wp_bind := @MonadicWP.bind_le_wp_bind
+
+@[deprecated MonadicWP.map_le_wp_map (since := "2026-11-18")]
+abbrev WPMonad.map_le_wp_map := @MonadicWP.map_le_wp_map
+
+@[deprecated MonadicWP.pure_le_wp_pure (since := "2026-11-18")]
+abbrev WPMonad.pure_le_wp_pure := @MonadicWP.pure_le_wp_pure
+
+@[deprecated MonadicWP.seq_le_wp_seq (since := "2026-11-18")]
+abbrev WPMonad.seq_le_wp_seq := @MonadicWP.seq_le_wp_seq
+
+end Deprecated
+
 end Std.WP

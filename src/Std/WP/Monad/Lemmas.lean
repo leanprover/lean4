@@ -692,3 +692,265 @@ theorem wp_orElse_EStateM_apply_eq (x : EStateM ε σ α) (h : Unit → EStateM 
   cases x s <;> simp <;> rfl
 
 end Std.WP.MonadicWP
+
+namespace Std.WP
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated MonadicWP.le_wp_adapt_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_adapt_ExceptT_apply := @MonadicWP.le_wp_adapt_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_get_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_get_StateT_apply := @MonadicWP.le_wp_get_StateT_apply
+
+@[deprecated MonadicWP.le_wp_liftWith_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_liftWith_OptionT_apply := @MonadicWP.le_wp_liftWith_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_modifyGet_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_modifyGet_StateT_apply := @MonadicWP.le_wp_modifyGet_StateT_apply
+
+@[deprecated MonadicWP.le_wp_monadLift_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_monadLift_ExceptT_apply := @MonadicWP.le_wp_monadLift_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_monadLift_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_monadLift_OptionT_apply := @MonadicWP.le_wp_monadLift_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_monadLift_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_monadLift_StateT_apply := @MonadicWP.le_wp_monadLift_StateT_apply
+
+@[deprecated MonadicWP.le_wp_orElse_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_orElse_ExceptT_apply := @MonadicWP.le_wp_orElse_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_orElse_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_orElse_OptionT_apply := @MonadicWP.le_wp_orElse_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_read_ReaderT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_read_ReaderT_apply := @MonadicWP.le_wp_read_ReaderT_apply
+
+@[deprecated MonadicWP.le_wp_restoreM_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_restoreM_StateT_apply := @MonadicWP.le_wp_restoreM_StateT_apply
+
+@[deprecated MonadicWP.le_wp_set_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_set_StateT_apply := @MonadicWP.le_wp_set_StateT_apply
+
+@[deprecated MonadicWP.le_wp_throw_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_throw_ExceptT_apply := @MonadicWP.le_wp_throw_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_throw_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_throw_OptionT_apply := @MonadicWP.le_wp_throw_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_tryCatch_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_tryCatch_ExceptT_apply := @MonadicWP.le_wp_tryCatch_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_tryCatch_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_tryCatch_OptionT_apply := @MonadicWP.le_wp_tryCatch_OptionT_apply
+
+@[deprecated MonadicWP.wp_adaptExcept_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_adaptExcept_EStateM_apply_eq := @MonadicWP.wp_adaptExcept_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_adapt_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_adapt_ReaderT_apply_eq := @MonadicWP.wp_adapt_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_controlAt_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_controlAt_apply_eq := @MonadicWP.wp_controlAt_apply_eq
+
+@[deprecated MonadicWP.wp_control_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_control_apply_eq := @MonadicWP.wp_control_apply_eq
+
+@[deprecated MonadicWP.wp_getModify_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_getModify_EStateM_apply_eq := @MonadicWP.wp_getModify_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_getModify_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_getModify_StateT_apply_eq := @MonadicWP.wp_getModify_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_getThe_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_getThe_StateT_apply_eq := @MonadicWP.wp_getThe_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_get_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_get_EStateM_apply_eq := @MonadicWP.wp_get_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_get_MonadStateOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_get_MonadStateOf_lift_apply_eq := @MonadicWP.wp_get_MonadStateOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_get_MonadState_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_get_MonadState_apply_eq := @MonadicWP.wp_get_MonadState_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_ExceptT_apply_eq := @MonadicWP.wp_liftWith_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_ReaderT_apply_eq := @MonadicWP.wp_liftWith_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_StateT_apply_eq := @MonadicWP.wp_liftWith_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_refl_apply_eq := @MonadicWP.wp_liftWith_refl_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_trans_apply_eq := @MonadicWP.wp_liftWith_trans_apply_eq
+
+@[deprecated MonadicWP.wp_lift_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_lift_ExceptT_apply_eq := @MonadicWP.wp_lift_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_lift_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_lift_OptionT_apply_eq := @MonadicWP.wp_lift_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_lift_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_lift_StateT_apply_eq := @MonadicWP.wp_lift_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGetThe_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGetThe_StateT_apply_eq := @MonadicWP.wp_modifyGetThe_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGet_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGet_EStateM_apply_eq := @MonadicWP.wp_modifyGet_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGet_MonadStateOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGet_MonadStateOf_lift_apply_eq := @MonadicWP.wp_modifyGet_MonadStateOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGet_MonadState_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGet_MonadState_apply_eq := @MonadicWP.wp_modifyGet_MonadState_apply_eq
+
+@[deprecated MonadicWP.wp_modifyThe_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyThe_StateT_apply_eq := @MonadicWP.wp_modifyThe_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_modify_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_modify_EStateM_apply_eq := @MonadicWP.wp_modify_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_modify_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modify_StateT_apply_eq := @MonadicWP.wp_modify_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_monadLift_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadLift_ReaderT_apply_eq := @MonadicWP.wp_monadLift_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_monadLift_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadLift_refl_apply_eq := @MonadicWP.wp_monadLift_refl_apply_eq
+
+@[deprecated MonadicWP.wp_monadLift_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadLift_trans_apply_eq := @MonadicWP.wp_monadLift_trans_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_ExceptT_apply_eq := @MonadicWP.wp_monadMap_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_OptionT_apply_eq := @MonadicWP.wp_monadMap_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_ReaderT_apply_eq := @MonadicWP.wp_monadMap_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_StateT_apply_eq := @MonadicWP.wp_monadMap_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_refl_apply_eq := @MonadicWP.wp_monadMap_refl_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_trans_apply_eq := @MonadicWP.wp_monadMap_trans_apply_eq
+
+@[deprecated MonadicWP.wp_orElse_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_orElse_EStateM_apply_eq := @MonadicWP.wp_orElse_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_orElse_Except_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_orElse_Except_apply_eq := @MonadicWP.wp_orElse_Except_apply_eq
+
+@[deprecated MonadicWP.wp_orElse_Option_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_orElse_Option_apply_eq := @MonadicWP.wp_orElse_Option_apply_eq
+
+@[deprecated MonadicWP.wp_readThe_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_readThe_ReaderT_apply_eq := @MonadicWP.wp_readThe_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_read_MonadReaderOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_read_MonadReaderOf_lift_apply_eq := @MonadicWP.wp_read_MonadReaderOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_read_MonadReader_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_read_MonadReader_apply_eq := @MonadicWP.wp_read_MonadReader_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_ExceptT_apply_eq := @MonadicWP.wp_restoreM_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_OptionT_apply_eq := @MonadicWP.wp_restoreM_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_ReaderT_apply_eq := @MonadicWP.wp_restoreM_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_refl_apply_eq := @MonadicWP.wp_restoreM_refl_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_trans_apply_eq := @MonadicWP.wp_restoreM_trans_apply_eq
+
+@[deprecated MonadicWP.wp_set_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_set_EStateM_apply_eq := @MonadicWP.wp_set_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_set_MonadStateOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_set_MonadStateOf_lift_apply_eq := @MonadicWP.wp_set_MonadStateOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_set_MonadState_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_set_MonadState_apply_eq := @MonadicWP.wp_set_MonadState_apply_eq
+
+@[deprecated MonadicWP.wp_throwThe_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throwThe_apply_eq := @MonadicWP.wp_throwThe_apply_eq
+
+@[deprecated MonadicWP.wp_throw_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_EStateM_apply_eq := @MonadicWP.wp_throw_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_throw_Except_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_Except_apply_eq := @MonadicWP.wp_throw_Except_apply_eq
+
+@[deprecated MonadicWP.wp_throw_Option_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_Option_apply_eq := @MonadicWP.wp_throw_Option_apply_eq
+
+@[deprecated MonadicWP.wp_throw_ReaderT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_ReaderT_lift_apply_eq := @MonadicWP.wp_throw_ReaderT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_throw_StateT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_StateT_lift_apply_eq := @MonadicWP.wp_throw_StateT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_throw_lift_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_lift_ExceptT_apply_eq := @MonadicWP.wp_throw_lift_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_throw_lift_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_lift_OptionT_apply_eq := @MonadicWP.wp_throw_lift_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatchThe_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatchThe_apply_eq := @MonadicWP.wp_tryCatchThe_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_EStateM_apply_eq := @MonadicWP.wp_tryCatch_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_Except_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_Except_apply_eq := @MonadicWP.wp_tryCatch_Except_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_MonadExcept_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_MonadExcept_apply_eq := @MonadicWP.wp_tryCatch_MonadExcept_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_Option_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_Option_apply_eq := @MonadicWP.wp_tryCatch_Option_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_ReaderT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_ReaderT_lift_apply_eq := @MonadicWP.wp_tryCatch_ReaderT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_StateT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_StateT_lift_apply_eq := @MonadicWP.wp_tryCatch_StateT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_lift_ExceptT_apply_eq := @MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_lift_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_lift_OptionT_apply_eq := @MonadicWP.wp_tryCatch_lift_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_withReader_MonadWithReader_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_withReader_MonadWithReader_apply_eq := @MonadicWP.wp_withReader_MonadWithReader_apply_eq
+
+@[deprecated MonadicWP.wp_withReader_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_withReader_ReaderT_apply_eq := @MonadicWP.wp_withReader_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_withTheReader_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_withTheReader_ReaderT_apply_eq := @MonadicWP.wp_withTheReader_ReaderT_apply_eq
+
+end Deprecated
+
+end Std.WP

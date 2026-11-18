@@ -61,4 +61,19 @@ theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [M
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)
 
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated "use `⟨fun α => WP.withFrameClosure op (base.toWP α)⟩`, and \
+  `MonadicWP.isLaxMonadMorphism_withFrameClosure` for its laws" (since := "2026-11-18")]
+noncomputable abbrev WPMonad.withFrameClosure {m : Type v → Type w} {P : Type u} {E : Type z}
+    [PartialOrder P] [PartialOrder E] [CompleteLattice P] [CompleteLattice E]
+    [CompleteLattice.OrderEq P] [CompleteLattice.OrderEq E] {R : Type t} (op : R → P → P)
+    {opE : R → E → E} [FrameOp op E opE] (base : MonadicWP m P E) : MonadicWP m P E :=
+  ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩
+
+end Deprecated
+
 end Std.WP

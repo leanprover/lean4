@@ -92,4 +92,47 @@ instance {ε α : Type u} [WP (m (Except ε α)) (Except ε α) Pred EPosts]
     WP.IsConjunctive x :=
   inferInstanceAs (PredTrans.pushExceptT (WP.trans x.run)).IsConjunctive
 
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev Id.instWPConjunctive {α : Type u} (x : Id α) : WP.IsConjunctive x := inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev Option.instWPConjunctive {α : Type u} (x : Option α) : WP.IsConjunctive x := inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev Except.instWPConjunctive {ε α : Type u} (x : Except ε α) : WP.IsConjunctive x :=
+  inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev EStateM.instWPConjunctive {ε σ α : Type} (x : EStateM ε σ α) : WP.IsConjunctive x :=
+  inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev StateT.instWPConjunctive {m : Type u → Type v} {σ α : Type u} {Pred : Type w}
+    {EPosts : Type z} [CompleteLattice Pred] [CompleteLattice EPosts]
+    [WP (m (α × σ)) (α × σ) Pred EPosts] (x : StateT σ m α)
+    [∀ s, WP.IsConjunctive (x.run s)] : WP.IsConjunctive x := inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev ReaderT.instWPConjunctive {m : Type u → Type v} {ρ α : Type u} {Pred : Type w}
+    {EPosts : Type z} [CompleteLattice Pred] [CompleteLattice EPosts] [WP (m α) α Pred EPosts]
+    (x : ReaderT ρ m α) [∀ r, WP.IsConjunctive (x.run r)] : WP.IsConjunctive x := inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev OptionT.instWPConjunctive {m : Type u → Type v} {α Pred : Type u} {EPosts : Type z}
+    [CompleteLattice Pred] [CompleteLattice EPosts] [WP (m (Option α)) (Option α) Pred EPosts]
+    (x : OptionT m α) [WP.IsConjunctive x.run] : WP.IsConjunctive x := inferInstance
+
+@[deprecated "use the `WP.IsConjunctive` instance" (since := "2026-11-18")]
+abbrev ExceptT.instWPConjunctive {m : Type u → Type v} {ε α : Type u} {Pred : Type w}
+    {EPosts : Type z} [CompleteLattice Pred] [CompleteLattice EPosts]
+    [WP (m (Except ε α)) (Except ε α) Pred EPosts] (x : ExceptT ε m α)
+    [WP.IsConjunctive x.run] : WP.IsConjunctive x := inferInstance
+
+end Deprecated
+
 end Std.WP

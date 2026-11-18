@@ -57,7 +57,11 @@ static void thread_main(void * p) {
 size_t lthread::m_thread_stack_size = LEAN_DEFAULT_THREAD_STACK_SIZE;
 
 void lthread::set_thread_stack_size(size_t sz) {
-    m_thread_stack_size = sz + LEAN_STACK_BUFFER_SPACE;
+    if (sz > SIZE_MAX - LEAN_STACK_BUFFER_SPACE) {
+        m_thread_stack_size = SIZE_MAX;
+    } else {
+        m_thread_stack_size = sz + LEAN_STACK_BUFFER_SPACE;
+    }
 }
 
 size_t lthread::get_thread_stack_size() {

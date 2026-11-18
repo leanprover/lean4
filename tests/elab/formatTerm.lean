@@ -30,6 +30,8 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(command| def h (x : Nat) : Id Nat ensures r => r = x := pure x
 where finally
   | spec => skip)
+#eval fmt `(command| def t (x : Nat) : Except String Nat requires x > 0 ensures r => r = x throws e => e = "err" := pure x)
+#eval fmt `(command| def t2 (x : Nat) ensures r s => r = x throws e s => e = "err" throws (e : Nat) s => e = x := pure x)
 
 #eval fmt `(def foo := by
   · skip; skip
@@ -85,3 +87,8 @@ def foo : a b c d e f g a b c d e f g h where
   1 = 1 := rfl)
 
 #eval fmt `(by rw [] at h)
+
+-- `erased` is its own declaration form beside `let` and `have`
+#eval fmt `(do erased trace := 0; pure ())
+#eval fmt `(do erased mut trace : List Nat := []; trace := x :: trace.out)
+#eval fmt `(do erased mut n ← counter)

@@ -38,7 +38,25 @@ instance : Hashable Key := ⟨Key.hash⟩
 Discrimination tree trie. See `DiscrTree`.
 -/
 inductive Trie (α : Type) where
+    /--
+    In many use cases, tries do a lot of their actual discrimination near the root and end up with
+    long chains of singleton nodes. The special-cased `.chain key child` node is equivalent to
+    `.node #[] #[(key, child)]` but is more memory efficient.
+    -/
+  | chain (key : Key) (child : Trie α) : Trie α
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α
+    /--
+    A node shared by the tries of several imported modules, merged on first access (see
+    `DiscrTree.ofModuleRoots`). The merged node is never itself `lazy`.
+    -/
+  | lazy (t : Thunk (Trie α)) : Trie α
+    /--
+    Most paths end in a single value after the last branching point. The special-cased
+    `.suffix keys i v` node stands for the path of `v` through the remaining keys `keys[i:]`,
+    equivalent to `.chain` nodes for these keys ending in `.node #[v] #[]`, but takes a single node
+    instead of one per key, as `keys` is usually shared with `v`'s own keys.
+    -/
+  | suffix (keys : Array Key) (i : Nat) (v : α) : Trie α
 
 end DiscrTree
 

@@ -11,6 +11,7 @@ public import Lean.Language.Lean.Types
 public import Lean.Server.Snapshots
 public import Lean.Server.AsyncList
 public import Std.Sync.Mutex
+import Init.Data.ByteArray.Extra
 
 public section
 

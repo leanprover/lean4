@@ -5,7 +5,8 @@ Authors: Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
+
+set_option sym.debug true
 
 set_option experimental.vcgen true
 set_option grind.warning false
@@ -392,7 +393,7 @@ instance : Std.LawfulIdentity (α := HProp) sepConj emp where
   right_id := sepConj_emp
 
 attribute [local grind ←] PartialOrder.rel_of_eq
-attribute [local grind ←] le_ofProp
+attribute [local grind ←] CompleteLattice.le_ofProp
 
 /-! ## Pure facts and existentials via the lattice
 
@@ -411,7 +412,8 @@ theorem sepPure_apply (φ : Prop) (h : Heap) : sepPure φ h ↔ φ ∧ emp h := 
     · assumption
     · exact False.elim <| (bot_le (x := (fun _ => False : HProp))) h hφ
   · intro ⟨hφ, he⟩
-    exact (le_meet (emp : HProp) ⌜φ⌝ emp (le_ofProp emp φ hφ) PartialOrder.rel_refl) h he
+    exact (le_meet (emp : HProp) ⌜φ⌝ emp (CompleteLattice.le_ofProp emp φ hφ)
+      PartialOrder.rel_refl) h he
 
 theorem sepPure_sepConj_iff (P : Prop) (Q : HProp) (h : Heap) :
     (sepPure P ∗ Q) h ↔ P ∧ Q h := by
@@ -424,9 +426,12 @@ theorem sepPure_sepConj_iff (P : Prop) (Q : HProp) (h : Heap) :
     refine ⟨fun _ => none, h, fun _ => Or.inl rfl, (Heap.none_union h).symm, ?_, hQ⟩
     exact (sepPure_apply P _).mpr ⟨hP, fun _ => rfl⟩
 
-@[grind =] theorem sepPure_true_eq_emp : sepPure True = emp := by
+theorem sepPure_true_eq_emp : sepPure True = emp := by
   funext h; apply propext
   simp [sepPure_apply]
+
+@[grind =] theorem sepPure_eq_emp {φ : Prop} (h : φ) : sepPure φ = emp := by
+  simpa [h] using sepPure_true_eq_emp
 
 @[grind .] theorem sepPure_sepConj_le (P : Prop) (Q : HProp) : (sepPure P ∗ Q) ⊑ Q := by
   intro h hh
@@ -465,7 +470,7 @@ theorem ofProp_meet_apply (φ : Prop) (P : HProp) (h : Heap) : (⌜φ⌝ ⊓ P) 
     · assumption
     · exact False.elim <| (bot_le (x := (fun _ => False : HProp))) h hφ
   · intro ⟨hφ, hP⟩
-    exact (le_meet P ⌜φ⌝ P (le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
+    exact (le_meet P ⌜φ⌝ P (CompleteLattice.le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
 
 /-- `∗` preserves joins in its right argument, in `⨆` form. -/
 theorem sepConj_iSup {ι : Type} (F : HProp) (g : ι → HProp) :
@@ -479,7 +484,7 @@ theorem sepConj_iSup {ι : Type} (F : HProp) (g : ι → HProp) :
 
 /-- Assert a pure fact alongside a resource that is kept. -/
 @[grind ←] theorem le_ofProp_meet_self {φ : Prop} (X : HProp) (h : φ) : X ⊑ ⌜φ⌝ ⊓ X :=
-  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+  le_meet _ _ _ (CompleteLattice.le_ofProp _ _ h) PartialOrder.rel_refl
 
 /-! ## The magic wand as upper adjoint -/
 
@@ -501,20 +506,22 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
-  WPMonad.of_frameClosure (m := StateM Heap) sepConj sepConj_assoc emp_sepConj StateT.instWPMonad
+  WPMonad.withFrameClosure (m := StateM Heap) sepConj
+    sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl) StateT.instWPMonad
 
-/-- Every `HeapM` program frames every heap assertion `F`. -/
+/-- Every `HeapM` program frames every heap assertion `F`, under every guard `P`. -/
 @[grind .]
-theorem frames_sepConj {α : Type} (x : HeapM α) (F : HProp) : WP.Frames sepConj x F :=
-  WP.Frames.of_frameClosure sepConj sepConj sepConj_assoc
-    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
+theorem frames_sepConj {α : Type} (x : HeapM α) (F P : HProp) :
+    WP.Frames sepConj x F P :=
+  WP.frames_of_frameClosure sepConj sepConj sepConj_assoc (fun _ _ _ => rfl)
+    ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
 /-- Triple introduction from the base `StateM Heap` interpretation: prove the base triple with an
 arbitrary frame `F` held on both sides. -/
 theorem HeapM.triple_of_triple_StateM_run {α : Type} {x : HeapM α} {pre : HProp} {Q : α → HProp}
     (h : ∀ F : HProp, ⦃ (F ∗ pre).get ⦄ x.run ⦃ fun a => (F ∗ Q a).get ⦄) :
     ⦃ pre ⦄ x ⦃ Q ⦄ :=
-  ⟨WP.le_wp_of_frameClosure_eq rfl fun F => (h F).1⟩
+  ⟨WP.le_wp_of_withFrameClosure_eq rfl fun F => (h F).1⟩
 
 /-- The unreachable-branch spec: any postcondition holds from a `⊥` precondition. Passed to `vcgen`
 for a call in a branch whose verification conditions are contradictory. -/
@@ -723,7 +730,7 @@ theorem IsList_ne_le (xs : List Nat) (prev hd : Addr) (hhd : hd ≠ null) :
     exact (hhd ((sepPure_apply _ _).mp hh).1).elim
   | v :: vs =>
     rw [IsList_cons_eq]
-    refine ofProp_meet_le_left fun _ => iSup_le _ _ fun next => ?_
+    refine CompleteLattice.ofProp_meet_le fun _ => iSup_le _ _ fun next => ?_
     refine le_iSup_of_le v (le_iSup_of_le vs (le_iSup_of_le next (PartialOrder.rel_of_eq ?_)))
     rw [show (v :: vs = v :: vs) = True from propext ⟨fun _ => trivial, fun _ => rfl⟩,
       sepPure_true_eq_emp, emp_sepConj]
@@ -973,6 +980,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   mkResourceTy := fun _ => pure (mkConst ``HProp)
   opHead := ``sepConj
   proc := sepConjFrameProc
+  framesThm? := ``frames_sepConj
 
 /-! # Specifications -/
 
@@ -1002,7 +1010,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
 /-- One `alloc` takes the front cell of the pool and bumps the pointer. -/
 @[spec] theorem alloc_spec (k : Addr) :
     ⦃ Pool k ⦄ alloc ⦃ fun l => ⌜l = k ∧ l ≠ null⌝ ⊓ (l ↦ 0 ∗ Pool (k + 1)) ⦄ := by
-  refine ⟨PartialOrder.rel_trans (Pool_gt k) (ofProp_meet_le_left fun hk => ?_)⟩
+  refine ⟨PartialOrder.rel_trans (Pool_gt k) (CompleteLattice.ofProp_meet_le fun hk => ?_)⟩
   have hkn : k ≠ null := ne_null_of_allocPtr_lt hk
   rw [Pool, Unallocated_eq]
   refine Triple.le_wp ?_
@@ -1062,7 +1070,7 @@ theorem load_next_IsList_ne (xs : List Nat) (prev hd : Addr) (hhd : hd ≠ null)
   vcgen [load_spec] with (try finish)
   refine PartialOrder.rel_trans ?_
     (le_iSup_of_le v (le_iSup_of_le vs
-      (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
+      (le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) PartialOrder.rel_refl)))
   grind
 
 /-- Overwrite the prev field of a list head known to be non-null. -/
@@ -1085,7 +1093,7 @@ noncomputable abbrev ReverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr)
     (hle : xs.length ≤ n) :
     IsList xs null head ⊑ ReverseLoopInv xs n (null, head) := by
   refine le_iSup_of_le xs (le_iSup_of_le [] ?_)
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨hle, by simp⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨hle, by simp⟩) ?_
   show IsList xs null head ⊑ IsList xs null head ∗ IsList [] head null
   exact PartialOrder.rel_of_eq (by rw [IsList_nil_null, sepConj_emp])
 
@@ -1103,7 +1111,7 @@ noncomputable abbrev ReverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr)
   · grind
   refine PartialOrder.rel_trans (reverse_store_handoff_le v vs acc curr next prev hcn) ?_
   refine le_iSup_of_le vs (le_iSup_of_le (v :: acc) ?_)
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, by grind⟩) PartialOrder.rel_refl
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by grind, by grind⟩) PartialOrder.rel_refl
 
 /-- Break out of the reverse loop: `curr = null` forces the unvisited segment empty, so the
 invariant holds at any remaining budget. -/
@@ -1116,7 +1124,7 @@ invariant holds at any remaining budget. -/
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
   subst hrest
   refine le_iSup_of_le [] (le_iSup_of_le acc ?_)
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by simp, by simpa using hrev⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by simp, by simpa using hrev⟩) ?_
   show IsList acc null prev ⊑ IsList [] prev null ∗ IsList acc null prev
   exact PartialOrder.rel_of_eq (by rw [IsList_nil_null, emp_sepConj])
 
@@ -1172,7 +1180,7 @@ identity. -/
       x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys yprev y)) ?_
   · grind
   refine le_iSup_of_le v (le_iSup_of_le rest (le_iSup_of_le xprev ?_))
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hx⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by grind, hx⟩) ?_
   refine PartialOrder.rel_trans
     (le_sepConj_wand_refl _ (IsList (v :: rest ++ ys) xprev x)) ?_
   subst hxs
@@ -1198,7 +1206,7 @@ re-establish the loop invariant on the rest. -/
         IsList ys yprev y)) ?_
   · grind
   refine le_iSup_of_le w (le_iSup_of_le rest' (le_iSup_of_le t ?_))
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hu⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by grind, hu⟩) ?_
   have habs : IsList ((w :: rest') ++ ys) t u ∗ (t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v)
       ⊑ IsList (v :: (w :: rest') ++ ys) pt t := by
     refine PartialOrder.rel_trans (PartialOrder.rel_of_eq ?_)
@@ -1228,7 +1236,7 @@ holds at the exhausted budget. -/
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
   subst hrest
   refine le_iSup_of_le v (le_iSup_of_le [] (le_iSup_of_le pt ?_))
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by simp, ht⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by simp, ht⟩) ?_
   refine PartialOrder.rel_of_eq ?_
   rw [IsList_nil_null]
   grind
@@ -1492,7 +1500,7 @@ loop is at, so that index is in bounds. -/
 /-- Extending the prefix by one element adds that element to the sum. -/
 @[grind =] theorem sum_take_succ (xs : List Nat) (i : Nat) (h : i < xs.length) :
     (xs.take (i + 1)).sum = xs[i]! + (xs.take i).sum := by
-  rw [List.take_succ, List.sum_append, List.getElem?_eq_getElem h]
+  rw [List.take_add_one, List.sum_append, List.getElem?_eq_getElem h]
   simp [getElem!_pos, h]
   grind
 
@@ -1545,9 +1553,9 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) :
   vcgen frames | pop p => l ↦ z
   -- The pinned frame is cancelled, so what is left is to fold the representation into the abstract
   -- predicate. That fixes the spec's parameters, and `grind` closes the rest.
-  case vc5 => exact v
-  case vc6 => exact xs
-  case vc2 => exact le_Stack (v :: xs) p top
+  case vc4 => exact v
+  case vc5 => exact xs
+  case vc1 => exact le_Stack (v :: xs) p top
   all_goals grind
 
 /-- The payload list is a cons only through `hxs`; after `subst` the footprint pairs exactly. -/
@@ -1569,9 +1577,9 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) (k : Addr) :
   vcgen
   -- Fill the schematic frame, then fold the representation in the residual, which fixes the spec's
   -- unpinned parameter.
-  case vc2 => exact l ↦ z
-  case vc4 => exact xs
-  case vc5 =>
+  case vc1 => exact l ↦ z
+  case vc3 => exact xs
+  case vc4 =>
     exact PartialOrder.rel_trans
       (PartialOrder.rel_of_eq (by grind :
         p ↦ top ∗ IsList xs null top ∗ l ↦ z = l ↦ z ∗ p ↦ top ∗ IsList xs null top))

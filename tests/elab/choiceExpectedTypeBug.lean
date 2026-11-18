@@ -2,7 +2,7 @@ import Lean
 
 
 
-structure A :=
+structure A where
 (x : Nat := 10)
 
 def f : A :=

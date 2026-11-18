@@ -387,6 +387,7 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   rw [drop_take]
   simp
 
+set_option linter.deprecated false in
 set_option doc.verso true in
 /--
 This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated
@@ -517,13 +518,17 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
       · simp
       · rw [Nat.add_min_add_right]
 
-@[simp, grind =] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
+@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
     min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
     simp [findIdx_cons]
     split <;> split <;> simp_all [Nat.add_min_add_right]
+
+grind_pattern min_findIdx_findIdx => min (xs.findIdx p) (xs.findIdx q) where
+  p =/= q
+  gen < 2
 
 /-! ### findIdx? -/
 

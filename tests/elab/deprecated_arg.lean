@@ -1,6 +1,20 @@
+import Lean.Elab.Command
+import Std.Time
+
 /-
 Tests for the `deprecated_arg` attribute.
 -/
+
+open Lean Elab Command in
+/-- Elaborates `cmd`, replacing the current date in its messages with `<today>`. -/
+elab "#mask_today " cmd:command : command => do
+  let today ← try Std.Time.PlainDate.now catch _ =>
+    pure (Std.Time.DateTime.ofTimestamp (← Std.Time.Timestamp.now) .UTC).toPlainDate
+  let initMsgs ← modifyGet fun s => (s.messages, { s with messages := {} })
+  elabCommand cmd
+  let msgs ← (← get).messages.toList.mapM fun msg =>
+    return { msg with data := (← msg.data.toString).replace (toString today) "<today>" }
+  modify fun s => { s with messages := msgs.foldl (·.add ·) initMsgs }
 
 -- `newArg` is not a parameter of the declaration
 /--
@@ -29,9 +43,12 @@ def f3 (x : Nat) : Nat := x
 -- Valid usage without `since`: warns about missing `since`
 /--
 warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
 -/
 #guard_msgs in
-@[deprecated_arg old new]
+#mask_today @[deprecated_arg old new]
 def f4 (new : Nat) : Nat := new
 
 -- Valid usage with `since`: no warning
@@ -42,11 +59,17 @@ def f5 (new : Nat) : Nat := new
 -- Multiple renames without `since`: warns twice
 /--
 warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
 ---
 warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
 -/
 #guard_msgs in
-@[deprecated_arg old1 new1, deprecated_arg old2 new2]
+#mask_today @[deprecated_arg old1 new1, deprecated_arg old2 new2]
 def f6 (new1 new2 : Nat) : Nat := new1 + new2
 
 /-! ## Functional tests: warning + correct elaboration -/
@@ -159,9 +182,12 @@ def r1 (removed : Nat) : Nat := removed
 -- Valid removed arg without `since`: warns about missing `since`
 /--
 warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
 -/
 #guard_msgs in
-@[deprecated_arg removed]
+#mask_today @[deprecated_arg removed]
 def r2 (x : Nat) : Nat := x
 
 -- Valid removed arg with `since`: no warning
@@ -215,13 +241,8 @@ set_option linter.deprecated.arg false in
 #check r2 (removed := 42)
 
 -- Mix of renamed and removed on same declaration
-/--
-warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
----
-warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
--/
 #guard_msgs in
-@[deprecated_arg old new, deprecated_arg removed]
+@[deprecated_arg old new (since := "2026-03-23"), deprecated_arg removed (since := "2026-03-23")]
 def r4 (new : Nat) : Nat := new
 
 -- Renamed arg still warns
@@ -315,9 +336,12 @@ Hint: Delete this argument:
 -- Removed arg with text but no `since`: warns about missing `since`
 /--
 warning: `[deprecated_arg]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
 -/
 #guard_msgs in
-@[deprecated_arg dropped "use positional args"]
+#mask_today @[deprecated_arg dropped "use positional args"]
 def m3 (x : Nat) : Nat := x
 
 /--

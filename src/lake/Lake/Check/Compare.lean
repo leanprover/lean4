@@ -27,11 +27,6 @@ structure State where
 
 abbrev CompareM := ReaderT Context <| StateT State <| Except String
 
-deriving instance BEq for Lean.QuotKind
-deriving instance BEq for Lean.QuotVal
-deriving instance BEq for Lean.InductiveVal
-deriving instance BEq for Lean.ConstantInfo
-
 def addWorklist (n : Lean.Name) : CompareM Unit := do
   if !(← get).checked.contains n then
     modify fun s => { s with worklist := s.worklist.push n }
@@ -102,6 +97,9 @@ public def compareAt (challenge solution : LeanExport.ExportedEnv) (theoremTarge
       | throw s!"Challenge constant is not a definition: '{target}'"
     let .defnInfo solutionConst := solutionConst
       | throw s!"Solution constant is not a definition: '{target}'"
+
+    unless challengeConst.value.getLambdaBody.isAppOf ``sorryAx do
+      throw s!"Challenge definition is not sorried: '{target}'"
 
     if !definitionHoleMatches challengeConst solutionConst then
       throw s!"Const does not match between challenge and target '{target}'"

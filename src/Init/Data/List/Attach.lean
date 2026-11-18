@@ -26,7 +26,7 @@ a list `l : List α`, given a proof that every element of `l` in fact satisfies 
 functions.
 -/
 @[expose]
-def pmap {P : α → Prop} (f : ∀ a, P a → β) : ∀ l : List α, (H : ∀ a ∈ l, P a) → List β
+noncomputable def pmap {P : α → Prop} (f : ∀ a, P a → β) : ∀ l : List α, (H : ∀ a ∈ l, P a) → List β
   | [], _ => []
   | a :: l, H => f a (forall_mem_cons.1 H).1 :: pmap f l (forall_mem_cons.1 H).2
 
@@ -869,6 +869,24 @@ and simplifies these to the function directly taking the value.
 
 @[wf_preprocess] theorem flatMap_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → List β} :
     xs.unattach.flatMap f = xs.flatMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem any_wfParam {xs : List α} {f : α → Bool} :
+    (wfParam xs).any f = xs.attach.unattach.any f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem any_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → Bool} :
+    xs.unattach.any f = xs.any fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_wfParam {xs : List α} {f : α → Bool} :
+    (wfParam xs).all f = xs.attach.unattach.all f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → Bool} :
+    xs.unattach.all f = xs.all fun ⟨x, h⟩ =>
       binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
   simp [wfParam]
 

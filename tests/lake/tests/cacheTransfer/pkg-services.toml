@@ -1,0 +1,25 @@
+# A package that uses cache services declared by itself and its dependency.
+# `test.sh` replaces `%URL%` with the URL of the running mock server.
+name = "test"
+enableArtifactCache = true
+downloadCacheService = "rootFlat"
+
+[[lean_lib]]
+name = "Test"
+
+[[require]]
+name = "service-dep"
+path = "service-dep"
+
+[[cache_service]]
+name = "rootReservoir"
+kind = "reservoir"
+apiEndpoint = "%URL%/ok/api/v1"
+
+# An unscoped service
+[[cache_service]]
+name = "rootFlat"
+kind = "s3"
+artifactEndpoint = "%URL%/ok/a2"
+revisionEndpoint = "%URL%/ok/r2"
+hasPackageScopes = false

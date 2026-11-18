@@ -143,7 +143,7 @@ info: [GetElem.getElem,
 #eval SymM.run do
   logPatternKeyFor ``Nat.zero_add
   logPatternKeyFor ``Grind.Semiring.zero_mul
-  logPatternKeyFor ``forall_and_eq
+  logPatternKeyFor ``_root_.forall_and_eq
   logPatternKeyFor ``Array.eraseIdx_append
   logPatternKeyFor ``List.map_map
   logPatternKeyFor ``Std.HashMap.insertMany_append

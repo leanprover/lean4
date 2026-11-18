@@ -87,6 +87,30 @@ def set : (ds : FloatArray) → (i : @& Nat) → Float → (h : i < ds.size := b
 def set! : FloatArray → (@& Nat) → Float → FloatArray
   | ⟨ds⟩, i, d => ⟨ds.set! i d⟩
 
+/--
+Marks a float array as linear, which is a no-op logically.
+
+At runtime the array is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_sarray_mark_linear", expose]
+def markLinear (ds : FloatArray) : FloatArray := ds
+
+@[simp, grind =] theorem markLinear_eq {ds : FloatArray} : ds.markLinear = ds := rfl
+
+/--
+Returns `es`, propagating the linearity marker of `ds` onto it. This is a no-op logically.
+
+See also `FloatArray.markLinear`.
+-/
+@[never_extract, extern "lean_sarray_propagate_mark", expose]
+def propagateMark (ds : @& FloatArray) (es : FloatArray) : FloatArray := es
+
+@[simp, grind =] theorem propagateMark_eq {ds es : FloatArray} : ds.propagateMark es = es := rfl
+
 def isEmpty (s : FloatArray) : Bool :=
   s.size == 0
 

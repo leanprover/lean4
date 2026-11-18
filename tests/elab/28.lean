@@ -1,6 +1,6 @@
 
 
-structure bv (w : Nat) := (u:Unit)
+structure bv (w : Nat) where (u:Unit)
 
 inductive val : Type
 | bv (w : Nat) : bv w → val
@@ -12,7 +12,7 @@ inductive instr : Type
 | load : memtype -> val -> instr
 | store : Unit -> Unit -> Unit -> instr
 
-structure sim (a:Type) :=
+structure sim (a:Type) where
 (runSim : {z:Type} → (IO.Error → z) /- error continuation -/ → (a → z) /- normal continuation -/ →  z)
 
 instance monad : Monad sim :=

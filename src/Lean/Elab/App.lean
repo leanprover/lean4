@@ -10,7 +10,7 @@ public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 import Lean.Elab.DeprecatedArg
 import Init.Omega
 import Init.Data.List.MapIdx
@@ -18,7 +18,7 @@ import Init.Data.List.MapIdx
 public section
 
 namespace Lean.Elab.Term
-open Meta
+open Meta Internal.ErrorUtils
 
 /--
 Instructs the elaborator to elaborate applications of the given declaration without an expected
@@ -1840,6 +1840,32 @@ private def addProjTermInfo
     : TermElabM Expr :=
   addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force isDisplayableTerm
 
+/--
+Reports `constName`, which is used through field notation at the field `ref`, if it is deprecated.
+If the replacement is in the same namespace, offers to replace the field by it.
+-/
+private def checkDeprecatedField (ref : Syntax) (constName : Name) : TermElabM Unit :=
+  withRef ref <| checkDeprecatedCore constName <| .custom fun newName => do
+    if newName.getPrefix == constName.getPrefix then
+      Linter.mkReplacementHint ref newName.getString!
+    else
+      return .nil
+
+/--
+Reports the constant `e` resolved from the leading-dot identifier `ref` if it is deprecated, offering
+to replace `ref` by a leading-dot identifier for the replacement if it is in the same namespace, and by
+the replacement's shortest name otherwise.
+-/
+private def checkDeprecatedDotIdent (ref : Syntax) (e : Expr) : TermElabM Unit := do
+  let .const declName _ := e.getAppFn | return
+  withRef ref <| checkDeprecatedCore declName <| .custom fun newName => do
+    if newName.getPrefix == declName.getPrefix then
+      Linter.mkReplacementHint ref ("." ++ newName.getString!)
+    else if let some replacement ← unresolveNameGlobalAvoidingLocals? newName then
+      Linter.mkReplacementHint ref replacement.toString
+    else
+      return .nil
+
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
   let rec loop : Expr → List LVal → TermElabM Expr
@@ -1859,7 +1885,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
       if (← isInaccessiblePrivateName info.projFn) then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
-      let projFn ← withRef lval.getRef <| mkConst info.projFn levels
+      let projFn ← withRef lval.getRef <| withoutCheckDeprecated <| mkConst info.projFn levels
+      checkDeprecatedField lval.getRef info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
       let baseStructInfo ← getConstInfoInduct baseStructName
       let namedArg : NamedArg :=
@@ -1872,7 +1899,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         loop f lvals
     | LValResolution.const baseStructName structName constName levels =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
-      let projFn ← withRef lval.getRef <| mkConst constName levels
+      let projFn ← withRef lval.getRef <| withoutCheckDeprecated <| mkConst constName levels
+      checkDeprecatedField lval.getRef constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let (args, namedArgs) ← addLValArg baseStructName f args namedArgs projFn explicit
@@ -1925,7 +1953,7 @@ Elaborates the resolutions of a function. The `fns` array is the output of `reso
 -/
 private def elabAppFnResolutions (fRef : Syntax) (fns : List (Expr × Syntax × List Syntax × List Level)) (lvals : List LVal)
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
-    (acc : Array (TermElabResult Expr)) (forceTermInfo : Bool := false) :
+    (acc : Array (TermElabResult Expr)) (forceTermInfo : Bool := false) (isDotIdent : Bool := false) :
     TermElabM (Array (TermElabResult Expr)) := do
   let overloaded := overloaded || fns.length > 1
   -- Set `errToSorry` to `false` if `fns` > 1. See comment above about the interaction between `errToSorry` and `observing`.
@@ -1937,7 +1965,7 @@ private def elabAppFnResolutions (fRef : Syntax) (fns : List (Expr × Syntax × 
         let levels  := if idx == lastIdx then projLevels            else []
         LVal.fieldName field field.getId.getString! levels suffix? fRef
       let s ← observing do
-        checkDeprecated fIdent f
+        if isDotIdent then checkDeprecatedDotIdent fIdent f else checkDeprecated fIdent f
         let f ← addTermInfo fIdent f expectedType? (force := forceTermInfo)
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else return e
@@ -2057,12 +2085,39 @@ where
           throw ex
       | ex@(.internal _ _) => throw ex
 
+/--
+Adds a `ChoiceResolutionInfo` node for the alternative `chosenAltIdx` of the `choice` node
+`choiceStx` to the saved `InfoState` of a successful elaboration candidate.
+Since `observing` captures the `InfoState` of each candidate and `applyResult` restores it for
+the candidate that is eventually picked, the `ChoiceResolutionInfo` node ends up in the
+`InfoTree` if and only if the candidate is picked. `elabAppAux` drops it again from the
+candidates it retains for an ambiguity error, where no candidate is picked.
+-/
+private def addChoiceResolutionInfo (choiceStx : Syntax) (chosenAltIdx : Nat) :
+    TermElabResult Expr → TermElabResult Expr
+  | .ok e s =>
+    if s.meta.core.infoState.enabled then
+      let tree := InfoTree.node (.ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx }) {}
+      .ok e { s with meta.core.infoState.trees := s.meta.core.infoState.trees.push tree }
+    else
+      .ok e s
+  | r => r
+
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
-      f.getArgs.foldlM (init := acc) fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc
+      let mut acc := acc
+      for alt in f.getArgs, chosenAltIdx in 0...* do
+        let startIdx := acc.size
+        acc ← elabAppFn alt lvals namedArgs args expectedType? explicit ellipsis true acc
+        -- Record which alternative of the choice node each candidate stems from so that the
+        -- `InfoTree` contains the resolution of the choice node for the candidate that is
+        -- eventually committed in `applyResult`.
+        for candidateIdx in startIdx...acc.size do
+          acc := acc.modify candidateIdx (addChoiceResolutionInfo f chosenAltIdx)
+      return acc
   else
     let elabFieldName (e field : Syntax) (explicitUnivs : List Level) := do
       let comps := field.identComponents
@@ -2079,7 +2134,8 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabDottedIdent (id : Syntax) (explicitUnivs : List Level) : TermElabM (Array (TermElabResult Expr)) := do
       let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes explicitUnivs expectedType?
       -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
-      elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
+      elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+        (forceTermInfo := true) (isDotIdent := true)
     match f with
     | `($(e).$idx:fieldIdx)
     | `($e |>.$idx:fieldIdx) =>
@@ -2220,12 +2276,17 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
           let (tree?, msg) ← withoutModifyingState do
             s.restore
             let msg ← addMessageContext m!"{e} : {← inferType e}"
+            -- Drop the `ChoiceResolutionInfo` of the candidate: no candidate is committed when the
+            -- overload is ambiguous, so recording one as picked would be wrong.
+            let trees := s.meta.core.infoState.trees.filter fun
+              | .node (.ofChoiceResolutionInfo _) _ => false
+              | _ => true
             let tree? : Option InfoTree ←
-              if let some tree := s.meta.core.infoState.trees[0]? then
+              if !trees.isEmpty then
                 let ctx ← CommandContextInfo.save
                 pure <| some <| .context (.commandCtx ctx) <|
                   .node (.ofPartialTermInfo { elaborator := .anonymous, stx := (← getRef), lctx := (← getLCtx), expectedType? })
-                    s.meta.core.infoState.trees
+                    trees
               else
                 pure none
             return (tree?, msg)
@@ -2238,12 +2299,11 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
 
 /--
   We annotate recursive applications with their `Syntax` node to make sure we can produce error messages with
-  correct position information at `WF` and `Structural`.
+  correct position information at `WF` and `Structural`. `mkRecAppWithSyntax` stores a copy of the syntax that
+  does not reference the input string; otherwise, `Expr` traversals such as hash-consing would visit the whole
+  input string once per recursive application. The annotation must be erased before the definition is sent to
+  the kernel.
 -/
--- TODO: It is overkill to store the whole `Syntax` object, and we have to make sure we erase it later.
--- We should store only the position information in the future.
--- Recall that we will need to have a compact way of storing position information in the future anyway, if we
--- want to support debugging information
 private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
   if (← read).saveRecAppSyntax then
     let resultFn := e.getAppFn

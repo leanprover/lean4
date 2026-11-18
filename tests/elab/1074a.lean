@@ -1,3 +1,5 @@
+/-! Equation generation for recursive elimination of proofs. -/
+
 inductive Term : Type
 | id2: Term -> Term -> Term
 
@@ -19,10 +21,7 @@ def Brx.interp_nil (H: Brx a): H.interp = H.interp
   }
 
 /--
-info: Brx.interp.eq_1 (n z : Term) (H_2 : Brx (n.id2 z)) :
-  H_2.interp =
-    match ⋯ with
-    | ⋯ => Hz.interp
+info: Brx.interp.eq_1 (n z : Term) (H_2 : Brx (n.id2 z)) : H_2.interp = ⋯.interp
 -/
 #guard_msgs in
 #check Brx.interp.eq_1

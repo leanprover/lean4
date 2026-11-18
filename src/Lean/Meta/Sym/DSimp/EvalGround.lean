@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Offset
+import Lean.Util.SafeExponentiation
 namespace Lean.Meta.Sym.DSimp
 
 /-!
@@ -243,7 +244,29 @@ def evalPow (maxExponent : Nat) (α β : Expr) (a b : Expr) : DSimpM Result :=
 abbrev shift [ShiftLeft α] [ShiftRight α] (left : Bool) (a b : α) : α :=
   if left then a <<< b else a >>> b
 
-def evalShift (left : Bool) (α β : Expr) (a b : Expr) : DSimpM Result :=
+/--
+Returns `false` if `a : α` and `b : β` are literals such that `a <<< b` is not safe to evaluate
+(see `isSafeShiftLeft`). Only shift amounts that are not bounded by a machine word size are checked.
+-/
+def isSafeShiftLeftLits (maxShiftLeft : Nat) (α β a b : Expr) : Bool := Id.run do
+  let amount? : Option Nat := match_expr β with
+    | Nat => getNatValue? b
+    | Fin _ => (·.val.val) <$> getFinValue? b
+    | BitVec _ => (·.val.toNat) <$> getBitVecValue? b
+    | _ => none
+  let some amount := amount? | return true
+  let value? : Option Nat := match_expr α with
+    | Nat => getNatValue? a
+    | Int => Int.natAbs <$> getIntValue? a
+    | Fin _ => (·.val.val) <$> getFinValue? a
+    | BitVec _ => (·.val.toNat) <$> getBitVecValue? a
+    | _ => none
+  let some value := value? | return true
+  return isSafeShiftLeft value amount maxShiftLeft
+
+def evalShift (left : Bool) (maxShiftLeft : Nat) (α β : Expr) (a b : Expr) : DSimpM Result := do
+  if left then
+    unless isSafeShiftLeftLits maxShiftLeft α β a b do return .rfl
   if isSameExpr α β then
     match_expr α with
     | Nat => evalBinNat (shift left) a b
@@ -371,6 +394,13 @@ abbrev evalBitVecNatBitVec (op : {n : Nat} → BitVec n → Nat → BitVec n) (a
   let e ← share <| toExpr <| op a.val i
   return .step e (done := true)
 
+def evalBitVecShiftLeft (maxShiftLeft : Nat) (a i : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some i := getNatValue? i | return .rfl
+  unless isSafeShiftLeft a.val.toNat i maxShiftLeft do return .rfl
+  let e ← share <| toExpr <| a.val.shiftLeft i
+  return .step e (done := true)
+
 abbrev evalBitVecNatBool (op : {n : Nat} → BitVec n → Nat → Bool) (a i : Expr) : DSimpM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some i := getNatValue? i | return .rfl
@@ -380,24 +410,29 @@ abbrev evalBitVecNatBool (op : {n : Nat} → BitVec n → Nat → Bool) (a i : E
 abbrev evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : DSimpM Result := do
   let some v := getNatValue? v | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth v do return .rfl
   let e ← share <| toExpr <| op v a.val
   return .step e (done := true)
 
 def evalBitVecAppend (a b : Expr) : DSimpM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some b := getBitVecValue? b | return .rfl
+  unless isSafeBitVecWidth (a.n + b.n) do return .rfl
   let e ← share <| toExpr (a.val ++ b.val)
   return .step e (done := true)
 
 def evalBitVecCast (m a : Expr) : DSimpM Result := do
   let some m := getNatValue? m | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth m do return .rfl
   let e ← share <| toExpr <| BitVec.ofNat m a.val.toNat
   return .step e (done := true)
 
-def evalBitVecShiftLeftZeroExtend (a m : Expr) : DSimpM Result := do
+def evalBitVecShiftLeftZeroExtend (maxShiftLeft : Nat) (a m : Expr) : DSimpM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m := getNatValue? m | return .rfl
+  unless isSafeShiftLeft a.val.toNat m maxShiftLeft do return .rfl
+  unless isSafeBitVecWidth (a.n + m) do return .rfl
   let e ← share <| toExpr <|a.val.shiftLeftZeroExtend m
   return .step e (done := true)
 
@@ -405,17 +440,20 @@ def evalBitVecExtractLsb' (start len a : Expr) : DSimpM Result := do
   let some start := getNatValue? start | return .rfl
   let some len := getNatValue? len | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth len do return .rfl
   let e ← share <| toExpr <| a.val.extractLsb' start len
   return .step e (done := true)
 
 def evalBitVecReplicate (i a : Expr) : DSimpM Result := do
   let some i := getNatValue? i | return .rfl
   let some a := getBitVecValue? a | return .rfl
+  unless isSafeBitVecWidth (a.n * i) do return .rfl
   let e ← share <| toExpr <| a.val.replicate i
   return .step e (done := true)
 
 def evalBitVecAllOnes (n : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr <| BitVec.allOnes n
   return .step e (done := true)
 
@@ -432,6 +470,7 @@ def evalBitVecToInt (a : Expr) : DSimpM Result := do
 def evalBitVecOfInt (n i : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
   let some i := getIntValue? i | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr <| BitVec.ofInt n i
   return .step e (done := true)
 
@@ -443,19 +482,22 @@ def evalBitVecToFin (a : Expr) : DSimpM Result := do
 def evalBitVecOfFin (n a : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
   let some a := getFinValue? a | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr <| BitVec.ofNat n a.val.val
   return .step e (done := true)
 
 def evalBitVecOfNat (n a : Expr) : DSimpM Result := do
   let some a := getNatValue? a | return .rfl
-  if (getNatValue? n).isSome then return .rfl -- already in normal form
+  if Sym.isNatValue n then return .rfl -- already in normal form
   let some n ← evalNat n |>.run | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr (BitVec.ofNat n a)
   return .step e (done := true)
 
 def evalBitVecOfNatClamp (n a : Expr) : DSimpM Result := do
   let some n := getNatValue? n | return .rfl
   let some a := getNatValue? a | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← share <| toExpr (BitVec.ofNatClamp n a)
   return .step e (done := true)
 
@@ -501,6 +543,8 @@ def evalUInt64ToBitVec (a : Expr) : DSimpM Result := do
 
 public structure EvalStepConfig where
   maxExponent := 255
+  /-- Maximum left shift amount evaluated by `evalGround`. -/
+  maxShiftLeft := 65536
 
 /--
 Simplification procedure that evaluates ground terms of builtin types.
@@ -524,8 +568,8 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | HAnd.hAnd α _ _ _ a b => evalAnd α a b
   | HXor.hXor α _ _ _ a b => evalXOr α a b
   | HOr.hOr α _ _ _ a b => evalOr α a b
-  | HShiftLeft.hShiftLeft α β _ _ a b => evalShift (left := true) α β a b
-  | HShiftRight.hShiftRight α β _ _ a b => evalShift (left := false) α β a b
+  | HShiftLeft.hShiftLeft α β _ _ a b => evalShift (left := true) config.maxShiftLeft α β a b
+  | HShiftRight.hShiftRight α β _ _ a b => evalShift (left := false) config.maxShiftLeft α β a b
   | Inv.inv α _ a => evalInv α a
   | Neg.neg α _ a => return skipIfUnchanged e (← evalNeg α a)
   | Complement.complement α _ a => evalComplement α a
@@ -553,7 +597,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
     | BitVec _ => evalBitVecNatBool BitVec.getLsbD a i
     | _ => return .rfl
   | BitVec.append _ _ a b => evalBitVecAppend a b
-  | BitVec.shiftLeft _ a i => evalBitVecNatBitVec BitVec.shiftLeft a i
+  | BitVec.shiftLeft _ a i => evalBitVecShiftLeft config.maxShiftLeft a i
   | BitVec.ushiftRight _ a i => evalBitVecNatBitVec BitVec.ushiftRight a i
   | BitVec.sshiftRight _ a i => evalBitVecNatBitVec BitVec.sshiftRight a i
   | BitVec.sshiftRight' _ _ a b => evalBinBitVec' BitVec.sshiftRight' a b
@@ -580,7 +624,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | BitVec.signExtend _ v a => evalBitVecExtend BitVec.signExtend v a
   | BitVec.setWidth' _ w _ a => evalBitVecExtend BitVec.setWidth w a
   | BitVec.cast _ m _ a => evalBitVecCast m a
-  | BitVec.shiftLeftZeroExtend _ a m => evalBitVecShiftLeftZeroExtend a m
+  | BitVec.shiftLeftZeroExtend _ a m => evalBitVecShiftLeftZeroExtend config.maxShiftLeft a m
   | BitVec.extractLsb' _ start len a => evalBitVecExtractLsb' start len a
   | BitVec.replicate _ i a => evalBitVecReplicate i a
   | BitVec.allOnes n => evalBitVecAllOnes n

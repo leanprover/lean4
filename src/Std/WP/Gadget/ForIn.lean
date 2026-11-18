@@ -32,8 +32,8 @@ open Assertion
 
 universe u u₁ u₂ v w
 variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v}
-  {Pred : Type (max u₁ u₂)} {EPred : Type (max u₁ u₂)}
-variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+  {Pred : Type (max u₁ u₂)} {EPosts : Type (max u₁ u₂)}
+variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
 
 /-! ## Gadgets -/
 
@@ -67,7 +67,7 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
-    {epost : EPred}
+    {eposts : EPosts}
     (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur b)
@@ -77,12 +77,12 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
           | .done b' => inv (ForIn.toList xs) [] b')
-        epost) :
+        eposts) :
     Triple
       (forInPureWithInvariant xs init f inv)
       (inv [] (ForIn.toList xs) init)
       (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
-      epost := by
+      eposts := by
   unfold forInPureWithInvariant
   rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
@@ -92,7 +92,7 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
-    {epost : EPred}
+    {eposts : EPosts}
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) b)
@@ -102,12 +102,12 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
           | .done b' => inv (ForIn.toList xs) [] b')
-        epost) :
+        eposts) :
     Triple
       (forInPureWithInvariant' xs init f inv)
       (inv [] (ForIn.toList xs) init)
       (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
-      epost := by
+      eposts := by
   unfold forInPureWithInvariant'
   rw [PureForIn'.forIn'_eq]
   exact Spec.forIn'_list inv step
@@ -150,9 +150,9 @@ assertion language it evaluates in is the one the specification is applied at. -
 
 end Gadget
 
-variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
-  [WPMonad m Pred EPred]
+variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
+variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPosts]
+  [WPMonad m Pred EPosts]
 
 @[spec]
 theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
@@ -160,7 +160,7 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
     (inv : Bool → β → Pred)
-    (einv : EPred)
+    (einv : EPosts)
     (step : ∀ b (mb : γ),
       Triple
         (f () b)
@@ -185,7 +185,7 @@ theorem Spec.forInLoop_invariant
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
     (inv : Bool → β → Pred)
-    (einv : EPred)
+    (einv : EPosts)
     (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
@@ -208,7 +208,7 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
     (inv : WhileInvariant β Pred)
-    (einv : EPred)
+    (einv : EPosts)
     (step : ∀ b (mb : γ),
       Triple
         (f () b)

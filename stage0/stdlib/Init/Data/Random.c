@@ -1119,10 +1119,10 @@ _start:
 lean_object* v___x_346_; lean_object* v___x_347_; lean_object* v___x_348_; lean_object* v___x_349_; 
 v___x_346_ = l_IO_stdGenRef;
 v___x_347_ = l_mkStdGen(v_n_344_);
-v___x_348_ = lean_st_ref_swap(v___x_346_, v___x_347_);
-lean_dec(v___x_348_);
-v___x_349_ = lean_box(0);
-return v___x_349_;
+v___x_348_ = lean_box(0);
+v___x_349_ = lean_st_ref_swap(v___x_346_, v___x_347_);
+lean_dec(v___x_349_);
+return v___x_348_;
 }
 }
 LEAN_EXPORT lean_object* l_IO_setRandSeed___boxed(lean_object* v_n_350_, lean_object* v_a_351_){

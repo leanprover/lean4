@@ -7,12 +7,12 @@ module
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 public section
 namespace Lean.Elab
 open Lean.Parser.Term
 
-open Language
+open Language Internal.ErrorUtils
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
@@ -1224,6 +1224,9 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    for header in headers do
+      let info : DeclValueInfo := { header with isProof := (← isProp header.type) }
+      pushInfoLeaf <| .ofCustomInfo { stx := header.value, value := .mk info }
 
     -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.
@@ -1266,6 +1269,10 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
   elabAsync header view declId := do
     assert! view.kind.isTheorem
     let env ← getEnv
+    let env :=
+      if env.header.isModule && !isPrivateName declId.declName then
+        recordOriginalConstKind env declId.declName .thm
+      else env
     let async ← env.addConstAsync declId.declName .thm
       (exportedKind? :=
         guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
@@ -1524,7 +1531,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let mut reusedAllHeaders := true
   for h : i in *...ds.size, headerPromise in headerPromises do
     let d := ds[i]
-    let modifiers ← elabModifiers ⟨d[0]⟩
+    let modifiers ← elabModifiers ⟨d[0]⟩ (isExample := d[1].isOfKind ``Parser.Command.example)
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ←

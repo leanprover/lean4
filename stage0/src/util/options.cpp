@@ -16,39 +16,10 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name * g_verbose    = nullptr;
-static name * g_max_memory = nullptr;
-static name * g_timeout    = nullptr;
-
 void initialize_options() {
-    g_verbose    = new name("verbose");
-    mark_persistent(g_verbose->raw());
-    g_max_memory = new name("max_memory");
-    mark_persistent(g_max_memory->raw());
-    g_timeout    = new name("timeout");
-    mark_persistent(g_timeout->raw());
 }
 
 void finalize_options() {
-    delete g_verbose;
-    delete g_max_memory;
-    delete g_timeout;
-}
-
-name const & get_verbose_opt_name() {
-    return *g_verbose;
-}
-
-name const & get_max_memory_opt_name() {
-    return *g_max_memory;
-}
-
-name const & get_timeout_opt_name() {
-    return *g_timeout;
-}
-
-bool get_verbose(options const & opts) {
-    return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
 }
 
 /* getDefaultVerbose (_ : Unit) : Bool */

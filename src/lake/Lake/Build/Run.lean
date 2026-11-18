@@ -113,9 +113,10 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
-  let {log, action, wantsRebuild, buildTime, ..} := task.get.state
+  let {log, action, wantsRebuild, canceled, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
+  let canceled := canceled && !failed
   if wantsRebuild then
     modify fun s => if s.wantsRebuild then s else {s with wantsRebuild := true}
   if failed && !optional then
@@ -123,16 +124,16 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
-    (hasOutput || (showProgress && !useAnsi && action ≥ minAction))
+    (hasOutput || canceled || (showProgress && !useAnsi && action ≥ minAction))
   if showJob then
-    let verb := action.verb failed
-    let icon := if hasOutput then maxLv.icon else '✔'
+    let verb := if canceled then "Canceled" else action.verb failed
+    let icon := if hasOutput then maxLv.icon else if canceled then '⊘' else '✔'
     let opt := if optional then " (Optional)" else ""
     let time := if showTime && buildTime > 0 then s!" ({formatTime buildTime})" else ""
     let caption := s!"{icon} [{jobNo}/{totalJobs}]{opt} {verb} {caption}{time}"
     let caption :=
       if useAnsi then
-        let color := if hasOutput then maxLv.ansiColor else "32"
+        let color := if hasOutput then maxLv.ansiColor else if canceled then "33" else "32"
         Ansi.chalk color caption
       else
         caption
@@ -276,26 +277,32 @@ public def monitorJobs
 /-- Exit code to return if `--no-build` is set and a build is required. -/
 public def noBuildCode : ExitCode := 3
 
-def Workspace.saveOutputs
-  [logger : MonadLog BaseIO] (ws : Workspace) (outputsRef? : Option CacheRef)
-  (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
+def BuildContext.saveOutputs
+  [logger : MonadLog BaseIO] (bctx : BuildContext) (out : IO.FS.Stream) (outputsFile : FilePath)
 : BaseIO Unit := do
-  unless ws.isRootArtifactCacheWritable do
-    logWarning s!"{ws.root.prettyName}: \
+  let some ref := bctx.outputsRef?
+    | print! out "Build missing input-to-output mappings. (This is likely a bug in Lake.)\n"
+      return
+  let ws := bctx.workspace
+  -- TODO: Carry proof index is in bounds in `BuildContext` when its workspace is non-opaque.
+  let some pkg := ws.packages[bctx.outputsIdx]?
+    | print! out "Tracked package not found. (This is likely a bug in Lake.)\n"
+      return
+  have : MonadWorkspace Id := ⟨ws⟩
+  unless Id.run pkg.isArtifactCacheWritable do
+    logWarning s!"{pkg.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."
-  if let some ref := outputsRef? then
-    match (← (← ref.get).writeFile outputsFile ws.root.isPlatformIndependent ∅) with
-    | .ok _ log =>
-      if !log.isEmpty && isVerbose then
-        print! out "There were issues saving input-to-output mappings from the build:\n"
-        log.replay
-    | .error _ log =>
-      print! out "Failed to save input-to-output mappings from the build.\n"
-      if isVerbose then
-        log.replay
-  else
-    print! out "Workspace missing input-to-output mappings from build. (This is likely a bug in Lake.)\n"
+  let isVerbose := bctx.verbosity matches .verbose
+  match (← (← ref.get).writeFile outputsFile pkg.isPlatformIndependent ∅) with
+  | .ok _ log =>
+    if !log.isEmpty && isVerbose then
+      print! out "There were issues saving input-to-output mappings from the build:\n"
+      log.replay
+  | .error _ log =>
+    print! out "Failed to save input-to-output mappings from the build.\n"
+    if isVerbose then
+      log.replay
 
 def reportResult (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResult) : BaseIO Unit := do
   if result.failures.isEmpty then
@@ -351,7 +358,7 @@ def mkBuildContext
         return cfg.macosxDeploymentTarget?
     }
   outputsRef? := ← id do
-    if cfg.outputsFile?.isSome then
+    if cfg.outputsFile?.isSome && cfg.outputsIdx < ws.packages.size then
       some <$> CacheRef.mk
     else
       return none
@@ -386,12 +393,11 @@ def Workspace.startBuild
   compute.run.run'.run bctx |>.run nilTrace
 
 def finalizeBuild
-  (cfg : BuildConfig) (bctx : BuildContext ) (mctx : MonitorContext) (result : BuildResult α)
+  (cfg : BuildConfig) (bctx : BuildContext) (mctx : MonitorContext) (result : BuildResult α)
 : IO α := do
   reportResult cfg mctx.out result
   if let some outputsFile := cfg.outputsFile? then
-    bctx.workspace.saveOutputs (logger := mctx.logger)
-      bctx.outputsRef? mctx.out outputsFile (cfg.verbosity matches .verbose)
+    bctx.saveOutputs (logger := mctx.logger) mctx.out outputsFile
   match result.out with
   | .ok a =>
     return a

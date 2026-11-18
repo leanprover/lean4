@@ -27,8 +27,10 @@ public structure BuildConfig extends LogConfig where
   verbosity : Verbosity := .normal
   /-- Whether to print a message when the build finishes successfully (if not quiet). -/
   showSuccess : Bool := false
-  /-- File to save input-to-output mappings from the build of the workspace's root -/
+  /-- File to save tracked input-to-output mappings from the build of a package. -/
   outputsFile? : Option FilePath := none
+  /-- When tracking input-to-output mappings, the workspace index of the tracked package. -/
+  outputsIdx : Nat := 0
   /--
   Per-package Lean option overrides, applied to every module whose owning
   package's `baseName` appears as a key. When `recFetchSetup` builds module
@@ -62,6 +64,12 @@ public structure BuildConfig extends LogConfig where
   or across all builds with the environment variable `MACOSX_DEPLOYMENT_TARGET`.
   -/
   macosxDeploymentTarget? : Option String := none
+  /--
+  When searching for a cached build on a package's `downloadCacheService`, Lake first tries
+  the package's head revision and then walks backwards through its Git history up to `maxRevs`,
+  trying to fetch mappings.
+  -/
+  maxRevs : Nat := 100
 
 /--
 Whether the build should show progress information.
@@ -86,7 +94,7 @@ public structure BuildContext extends BuildConfig, Context where
   leanIncludeDirs : Array (Option (FilePath × BuildTrace))
   registeredJobs : JobQueue
   /--
-  Input-to-output(s) map for hashes of the root package's artifacts.
+  Input-to-output(s) map for hashes of the tracked package's artifacts.
   If `none`, tracking outputs is disabled for this build.
   -/
   outputsRef? : Option CacheRef := none
@@ -147,3 +155,7 @@ public def getLeanOptOverrides [Functor m] [MonadBuild m]
 @[inline, inherit_doc BuildConfig.macosxDeploymentTarget?]
 public def getMacOSXDeploymentTarget? [Functor m] [MonadBuild m] : m (Option String) :=
   (·.macosxDeploymentTarget?) <$> getBuildConfig
+
+@[inline, inherit_doc BuildConfig.maxRevs]
+public def getMaxRevs [Functor m] [MonadBuild m] : m Nat :=
+  (·.maxRevs) <$> getBuildConfig

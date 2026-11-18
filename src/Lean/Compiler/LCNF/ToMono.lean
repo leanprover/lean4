@@ -53,24 +53,6 @@ def argsToMonoWithFnType (args : Array (Arg .pure)) (type : Expr)
     result := result.push monoArg
   return result
 
-def argsToMonoRedArg (args : Array (Arg .pure)) (params : Array (Param .pure))
-    (redArgs : Array (Arg .pure)) : ToMonoM (Array (Arg .pure)) := do
-  let mut result := #[]
-  let mut argIdx := 0
-  for redArg in redArgs do
-    match redArg with
-    | .fvar fvarId =>
-      while params[argIdx]!.fvarId != fvarId do
-        argIdx := argIdx + 1
-      let arg ← argToMono args[argIdx]!
-      argIdx := argIdx + 1
-      result := result.push arg
-    | .erased | .type _ => pure ()
-  for arg in args[params.size...*] do
-    let arg ← argToMono arg
-    result := result.push arg
-  return result
-
 def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array (Arg .pure))
     : ToMonoM (LetValue .pure) := do
   let argsNewParams : Array (Arg .pure) := .replicate ctorInfo.numParams .erased
@@ -105,20 +87,12 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
       else
         ctorAppToMono ctorInfo args
     else
-      let env ← getEnv
-      if let some monoDecl ← getMonoDecl? declName then
-        if args.size >= monoDecl.params.size then
-          if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
-                             (.return retFVar)) := monoDecl.value then
-            let redArgDeclName := declName ++ `_redArg
-            if callName == redArgDeclName && retFVar == resultFVar then
-              let args ← argsToMonoRedArg args monoDecl.params callArgs
-              return .const redArgDeclName [] args
-        let args ← argsToMonoWithFnType args monoDecl.type
-        return .const declName [] args
-      else
-        let args ← args.mapM argToMono
-        return .const declName [] args
+      let args ←
+        if let some monoDecl ← getMonoDecl? declName then
+          argsToMonoWithFnType args monoDecl.type
+        else
+          args.mapM argToMono
+      return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
@@ -365,6 +339,8 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
       casesUIntToMono c ``UInt32 h
     else if h : c.typeName == ``UInt64 then
       casesUIntToMono c ``UInt64 h
+    else if h : c.typeName == ``USize then
+      casesUIntToMono c ``USize h
     else if h : c.typeName == ``Array then
       casesArrayToMono c h
     else if h : c.typeName == ``ByteArray then

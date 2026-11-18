@@ -7,6 +7,10 @@ module
 
 prelude
 public import Init.SimpLemmas
+public import Init.Classical
+public import Init.Data.BitVec.Basic
+import Init.ByCases
+import Init.Data.BitVec.Lemmas
 
 @[expose] public section
 
@@ -38,4 +42,15 @@ attribute [bv_normalize] not_false_iff
 attribute [bv_normalize] eq_iff_iff
 
 end Frontend.Normalize
+
+open Classical in
+/--
+Encode `a` as a `Bool`. This is used by bv_decide to treat propositional variables.
+-/
+noncomputable def Bool.ofProp (a : Prop) : Bool :=
+  decide a
+
+theorem Bool.eq_ofProp_eq_true (a : Prop) : a = (Bool.ofProp a = true) := by
+  simp [Bool.ofProp]
+
 end Std.Tactic.BVDecide

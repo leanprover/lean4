@@ -1,6 +1,10 @@
+Input: "%%%\n%%%"
 Success! Final stack:
-  (Lean.Doc.Syntax.metadata_block
+  (Lean.Doc.Parser.Block.metadata_block
    "%%%"
    (Term.structInstFields [])
    "%%%")
 All input consumed.
+Round-trip OK
+Decoded views:
+  metadata (opener := "%%%") (fields := 0) (closer := "%%%")

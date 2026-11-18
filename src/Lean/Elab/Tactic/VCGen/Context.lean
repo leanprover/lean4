@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Elab.Tactic.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Simp.DiscrTree
+public import Lean.Elab.Tactic.VCGen.RIntroAttr
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
@@ -57,10 +58,10 @@ public structure BackwardRules where
   /-- The backward rule for `Lean.Order.le_of_imp_top_le`. Introduces a bare pure
   precondition on the `Prop` lattice. -/
   propPreIntro : BackwardRule
-  /-- The backward rule for `Lean.Order.ofProp_le`. Introduces an embedded pure
+  /-- The backward rule for `Lean.Order.CompleteLattice.ofProp_le`. Introduces an embedded pure
   precondition `⌜p⌝` on any complete lattice. -/
   ofPropPreIntro : BackwardRule
-  /-- The backward rule for `Lean.Order.ofProp_meet_le`. Introduces the guard of a
+  /-- The backward rule for `Lean.Order.CompleteLattice.ofProp_meet_le`. Introduces the guard of a
   `⌜p⌝ ⊓ P` precondition on any complete lattice, leaving `P`. -/
   ofPropMeetPreIntro : BackwardRule
   /-- The backward rule for `Lean.Order.iSup_le`. Eliminates an `iSup` precondition,
@@ -89,8 +90,8 @@ public def mkBackwardRules : MetaM BackwardRules := do
     tripleIntro := ← mkBackwardRuleFromDecl ``Std.WP.Triple.intro
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
     propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
-    ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
-    ofPropMeetPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_meet_le
+    ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.CompleteLattice.ofProp_le
+    ofPropMeetPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.CompleteLattice.ofProp_meet_le
     iSupPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.iSup_le
     truePreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
     elimPre := ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
@@ -106,8 +107,14 @@ public structure Context where
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
   frameProcs : FrameProcs := {}
-  /-- User-customizable simp methods used to pre-simplify hypotheses. -/
-  hypSimpMethods : Option Sym.Simp.Methods := none
+  /-- The `@[vcgen_rintro]` rules, keyed by their conclusion. -/
+  rintros : DiscrTree RIntroEntry := .empty
+  /-- The `Sym.simp` methods that rewrite hypotheses, state arguments and verification conditions
+  with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
+  config option is `false`. -/
+  simpMethods : Option Sym.Simp.Methods := none
+  /-- The configuration of every `Sym.simp` run with `simpMethods`. -/
+  simpConfig : Sym.Simp.Config := {}
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
   whose body is a splitter and sets up shared-continuation handling instead of
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
@@ -135,16 +142,37 @@ public structure Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
+/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+public structure JoinPoint where
+  /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
+  spec : Expr
+  /-- The `⊤` of the goals of `__do_jp`, with their lattice instance. -/
+  top : Expr
+  /-- The metavariable `?H`, which `finalizeJoinPoint` assigns. -/
+  hyp : MVarId
+  /-- The goal for the join RHS, the value of `__do_jp`. -/
+  rhsGoal : MVarId
+  /-- The number of states that `?H` takes after the join parameters. -/
+  numStates : Nat
+  deriving Inhabited
+
+/-- A jump to a join point with the arguments `args`, which include the states, and the proof
+`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump. -/
+public structure Jump where
+  proof : MVarId
+  args : Array Expr
+  deriving Inhabited
+
 public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
-  /-- `__do_jp` fvars currently in scope. -/
-  jps : FVarIdMap JumpSiteInfo := {}
   /-- The most recently lifted pure precondition. `tryLiftedHyp` closes handoff VCs against
   it without walking the local context. -/
   lastLiftedPre? : Option FVarId := none
   /-- Index of the next local declaration to consider for local specs. -/
   nextDeclIdx : Nat := 0
+  /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
+  joinPoints : FVarIdMap JoinPoint := {}
   deriving Inhabited
 
 public structure State where
@@ -175,9 +203,11 @@ public structure State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the frame rule (`WP.Frames.op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
+  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
+  /-- Caches the backward rules of the `@[vcgen_rintro]` rules, keyed by declaration name. -/
+  rintroBackwardRuleCache : Std.HashMap Name BackwardRule := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--
@@ -190,8 +220,7 @@ public structure State where
   -/
   vcs : Array Grind.Goal := #[]
   /--
-  Persistent cache for the `Sym.Simp` simplifier used to pre-simplify hypotheses
-  before grind internalization. Threading this cache across VCGen iterations avoids
+  Persistent cache of `Context.simpMethods`. Threading this cache across VCGen iterations avoids
   re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).
   -/
   simpState : Sym.Simp.State := {}
@@ -208,15 +237,12 @@ public structure State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- The join points whose RHS goal `vcgen` has yet to process, keyed by that goal, with their
+  jumps so far. -/
+  pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}
 
 public abbrev VCGenM := ReaderT Context (StateRefT State Grind.GrindM)
 
-
-public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
-  { s with jps := s.jps.insert fv info }
-
-public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
-  s.jps.get? fv
 
 public def Scope.insertSpec (s : Scope) (thm : SpecTheorem) : Scope :=
   { s with specs := s.specs.insert thm }
@@ -229,7 +255,7 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
     let lctx ← getLCtx
     if scope.nextDeclIdx == lctx.decls.size then return scope
     let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
-      if decl.isAuxDecl then return scope
+      if decl.isImplementationDetail then return scope
       try
         if let some thm ← mkSpecTheoremFromLocal decl.fvarId (eval_prio low) then
           return scope.insertSpec thm
@@ -247,5 +273,12 @@ public def burnOne : VCGenM Unit :=
     | .limited (n+1) => .limited n
     | other => other }
 
+/-- Run `k` with `methods` and `Context.simpConfig` on the persistent simp state `State.simpState`.
+The state is taken out of `VCGenM`'s state for the run, so `k` updates it in place. -/
+public def runSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
+  let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
+  let (a, st) ← Sym.Simp.SimpM.run k methods (← read).simpConfig st
+  modify fun s => { s with simpState := st }
+  return a
 
 end Lean.Elab.Tactic.VCGen

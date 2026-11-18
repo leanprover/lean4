@@ -31,8 +31,9 @@ spec's precondition. `W` is the weakest footprint the rule leaves.
 goal          : P ⊑ wp prog Q E s⃗
    │ frame rule, introducing ?frame
    ▼
-split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op prog ?frame
-   where        W = wp prog (fun a => adj (op ?frame) (Q a)) E
+split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op (trans prog) ?frame G
+   where        W = wp prog (fun a => adj (op ?frame) (Q a)) (adj (opE ?frame) E)
+                G = fun t⃗ => ⌜t⃗ = s⃗⌝ ⊓ P
    │ spec rule, at a target the frameproc named
    ▼
 spec target   : ?footprint ⊑ W t⃗
@@ -108,7 +109,7 @@ public structure FrameGoal where
   frame : MVarId
   /-- The open footprint `?footprint`. Assign it to the part of `pre` that pays the spec. -/
   footprint : MVarId
-  /-- The framed application `W t⃗`, where `W = wp prog (fun a => adj (op ?frame) (Q a)) E` and `t⃗`
+  /-- The framed application `W t⃗`, where `W = wp prog (fun a => adj (op ?frame) (Q a)) (adj (opE ?frame) E)` and `t⃗`
   is the state named in phase one. `specProof` proves the entailment into it. -/
   framedApp : WPApp
   /-- The spec's precondition, with the spec's logical variables live: assignments made while
@@ -167,6 +168,9 @@ public structure FrameProc where
   mkResourceTy : WPApp → MetaM Expr
   /-- The frame inference metaprogram. -/
   proc : FrameInferenceProc
+  /-- A theorem `WP.Frames op x F P` for every program `x`, frame `F` and guard `P`. A `WP` built
+  as the `frameClosure` of a base `wp` has one. `vcgen` discharges every frame condition with it. -/
+  framesThm? : Option Name := none
 
 /-- The registered frame inference procedures, indexed by the program monad's head constant. -/
 public structure FrameProcs where
@@ -202,7 +206,7 @@ public def defaultFrameInferenceProc : FrameInferenceProc := fun i => do
   return .ofFrame i frame
 
 /-- The lattice meet operator over the goal's assertion type. -/
-private def meetOp (info : WPApp) : MetaM Expr :=
+def meetOp (info : WPApp) : MetaM Expr :=
   Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
 
 /-- The default frame operator: lattice meet `pre ⊓ frame`, the Hoare frame every complete lattice

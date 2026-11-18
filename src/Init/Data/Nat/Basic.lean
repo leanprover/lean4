@@ -59,7 +59,7 @@ Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
 * `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[specialize, expose] def «repeat» {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+@[specialize, expose] noncomputable def «repeat» {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
   | succ n, a => f («repeat» f n a)
 
@@ -122,10 +122,6 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 @[simp] theorem beq_eq : (Nat.beq x y = true) = (x = y) := propext <| Iff.intro Nat.eq_of_beq_eq_true (fun h => h ▸ (Nat.beq_refl x))
 @[simp] theorem ble_eq : (Nat.ble x y = true) = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
-
-instance : LawfulBEq Nat where
-  eq_of_beq h := by simpa using h
-  rfl := by simp [BEq.beq]
 
 theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
 theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp

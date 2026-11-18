@@ -88,6 +88,26 @@ example (xs : Array α) : xs.map id = xs := by
   . simp
   . simp
 
+example (a b : ULift α) (h : a.down = b.down) : a = b := by
+  ext
+  guard_target = a.down = b.down
+  exact h
+
+example (a b : PULift α) (h : a.down = b.down) : a = b := by
+  ext
+  guard_target = a.down = b.down
+  exact h
+
+example (a b : PLift α) (h : a.down = b.down) : a = b := by
+  ext
+  guard_target = a.down = b.down
+  exact h
+
+example (a b : MProd Nat Bool) (h1 : a.fst = b.fst) (h2 : a.snd = b.snd) : a = b := by
+  ext
+  · guard_target = a.fst = b.fst; exact h1
+  · guard_target = a.snd = b.snd; exact h2
+
 @[ext (iff := false)] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
 
 #guard_msgs (drop warning) in

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <cstdint>
 #include <cstring>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -22,7 +23,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
-#ifdef LEAN_EMSCRIPTEN
+#if defined(LEAN_EMSCRIPTEN) || UINTPTR_MAX == UINT32_MAX
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8MB for 32-bit
 #else
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 1024*1024*1024 // 1GB for 64-bit
@@ -30,26 +31,6 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static std::vector<std::function<void()>> * g_thread_local_reset_fns;
-
-static void initialize_thread_local_reset_fns() {
-    g_thread_local_reset_fns = new std::vector<std::function<void()>>();
-}
-
-static void finalize_thread_local_reset_fns() {
-    delete g_thread_local_reset_fns;
-}
-
-void register_thread_local_reset_fn(std::function<void()> fn) {
-    g_thread_local_reset_fns->push_back(fn);
-}
-
-void reset_thread_local() {
-    for (std::function<void()> const & fn : *g_thread_local_reset_fns) {
-        fn();
-    }
-}
-
 using runnable = std::function<void()>;
 
 extern "C" LEAN_EXPORT void lean_initialize_thread() {
@@ -61,7 +42,6 @@ extern "C" LEAN_EXPORT void lean_initialize_thread() {
 
 extern "C" LEAN_EXPORT void lean_finalize_thread() {
     run_thread_finalizers();
-    run_post_thread_finalizers();
 }
 
 static void thread_main(void * p) {
@@ -172,7 +152,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_thread_stack_size(size_t s
     return lean_box(0);
 }
 
-LEAN_EXPORT void set_thread_stack_size_from_env() {
+static void set_thread_stack_size_from_env() {
     const char * stack_size_env = std::getenv("LEAN_STACK_SIZE_KB");
     if (stack_size_env) {
         size_t sz = std::strtoull(stack_size_env, nullptr, 10);
@@ -195,22 +175,14 @@ LEAN_EXPORT void run_with_thread_stack(std::function<void()> const & fn) {
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv) {
-    set_thread_stack_size_from_env();
     lean_object * res = nullptr;
     run_with_thread_stack([&]() { res = main_fn(argc, argv); });
     return res;
 }
 
-LEAN_THREAD_VALUE(bool, g_finalizing, false);
-
-bool in_thread_finalization() {
-    return g_finalizing;
-}
-
 typedef std::vector<std::pair<thread_finalizer, void*>> thread_finalizers;
 
 void run_thread_finalizers_core(thread_finalizers & fns) {
-    g_finalizing = true;
     unsigned i = fns.size();
     while (i > 0) {
         --i;
@@ -221,7 +193,6 @@ void run_thread_finalizers_core(thread_finalizers & fns) {
 }
 
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
-LEAN_THREAD_PTR(thread_finalizers, g_post_finalizers);
 
 void delete_thread_finalizer_manager() {}
 
@@ -229,12 +200,6 @@ void register_thread_finalizer(thread_finalizer fn, void * p) {
     if (!g_finalizers)
         g_finalizers = new thread_finalizers();
     g_finalizers->emplace_back(fn, p);
-}
-
-void register_post_thread_finalizer(thread_finalizer fn, void * p) {
-    if (!g_post_finalizers)
-        g_post_finalizers = new thread_finalizers();
-    g_post_finalizers->emplace_back(fn, p);
 }
 
 void run_thread_finalizers(thread_finalizers * fns) {
@@ -246,18 +211,12 @@ void run_thread_finalizers(thread_finalizers * fns) {
 
 void run_thread_finalizers() {
     run_thread_finalizers(g_finalizers);
-    g_finalizers      = nullptr;
-}
-
-void run_post_thread_finalizers() {
-    run_thread_finalizers(g_post_finalizers);
-    g_post_finalizers = nullptr;
+    g_finalizers = nullptr;
 }
 
 void initialize_thread() {
-    initialize_thread_local_reset_fns();
+    // Must precede `initialize_libuv`, which starts the event loop thread.
+    set_thread_stack_size_from_env();
 }
-void finalize_thread() {
-    finalize_thread_local_reset_fns();
-}
+void finalize_thread() {}
 }

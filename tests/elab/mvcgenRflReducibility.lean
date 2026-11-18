@@ -1,5 +1,7 @@
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 This test case from Hax asserts that `mspec` doesn't use default reducibility when trying
 `SPred.entails.rfl`. If it did, then the `MyShl.shl a 32` would be unfolded deeply and we'd run

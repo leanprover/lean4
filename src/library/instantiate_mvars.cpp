@@ -12,6 +12,7 @@ Authors: Joachim Breitner
 #include "runtime/array_ref.h"
 #include "kernel/instantiate.h"
 #include "kernel/expr.h"
+#include "kernel/replace_fn.h"
 #include "library/scope_cache.h"
 
 /*
@@ -117,12 +118,12 @@ static name delayed_assignment_mvar_id_pending(delayed_assignment const & d) {
 /* Level metavariable instantiation. */
 class instantiate_lmvars_all_fn {
     metavar_ctx & m_mctx;
-    lean::unordered_map<lean_object *, level> m_cache;
+    replace_cache m_cache;
     std::vector<level> m_saved;
 
     inline level cache(level const & l, level r, bool shared) {
         if (shared) {
-            m_cache.insert(mk_pair(l.raw(), r));
+            m_cache.insert(l.raw(), 0, r);
         }
         return r;
     }
@@ -133,10 +134,8 @@ public:
             return l;
         bool shared = false;
         if (is_shared(l)) {
-            auto it = m_cache.find(l.raw());
-            if (it != m_cache.end()) {
-                return it->second;
-            }
+            if (lean_object * r = m_cache.find(l.raw()))
+                return level(r, true);
             shared = true;
         }
         switch (l.kind()) {
@@ -184,7 +183,7 @@ class instantiate_direct_fn {
        is encountered. Pass 2 is needed to resolve or write back such MVars. */
     bool m_has_updateable_delayed;
 
-    lean::unordered_map<lean_object *, expr> m_cache;
+    replace_cache m_cache;
     std::vector<expr> m_saved;
 
     level visit_level(level const & l) {
@@ -197,7 +196,7 @@ class instantiate_direct_fn {
 
     inline expr cache(expr const & e, expr r, bool shared) {
         if (shared) {
-            m_cache.insert(mk_pair(e.raw(), r));
+            m_cache.insert(e.raw(), 0, r);
         }
         return r;
     }
@@ -294,10 +293,8 @@ public:
             return e;
         bool shared = false;
         if (is_shared(e)) {
-            auto it = m_cache.find(e.raw());
-            if (it != m_cache.end()) {
-                return it->second;
-            }
+            if (lean_object * r = m_cache.find(e.raw()))
+                return expr(r, true);
             shared = true;
         }
 

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Arith.Types
 public import Lean.Meta.Sym.Arith.EvalNum
+public import Lean.Meta.Sym.Arith.Insts
 public import Lean.Meta.Sym.Arith.Classify
 public import Lean.Meta.Sym.Arith.MonadCanon
 public import Lean.Meta.Sym.Arith.MonadRing
@@ -18,3 +19,5 @@ public import Lean.Meta.Sym.Arith.DenoteExpr
 public import Lean.Meta.Sym.Arith.ToExpr
 public import Lean.Meta.Sym.Arith.VarRename
 public import Lean.Meta.Sym.Arith.Poly
+public import Lean.Meta.Sym.Arith.SafePoly
+public import Lean.Meta.Sym.Arith.Norm

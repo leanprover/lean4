@@ -45,7 +45,7 @@ def _root_.Int.Internal.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (Co
     -- Internalized operators instead of `mkIntMul` and `mkIntAdd`
     let e ← shareCommon (← canon e)
     let gen ← p.getGeneration
-    let some re ← CommRing.reify? e (gen := gen) | return none
+    let some re ← CommRing.reify? e | return none
     let some p' ← re.toPolyM? | return none
     let e' ← p'.denoteExpr
     let e' ← preprocessLight e'

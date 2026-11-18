@@ -218,10 +218,15 @@ private def resolveSimpIdTheorem? (simpArgTerm : Term) : TermElabM ResolveSimpId
     match simpArgTerm with
     | `($id:ident) =>
       try
-        if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
+        if let some e ← Term.withoutCheckDeprecated <| Term.resolveId? simpArgTerm (withInfo := true) then
           if let some simprocDeclName ← isSimproc? e then
+            withRef id <| Term.checkDeprecatedCore simprocDeclName
             return .simproc simprocDeclName
           else
+            -- Definitions are unfolded, acting on occurrences that are already in the goal.
+            if let .const declName _ := e then
+              unless (← isDefn? declName).isSome do
+                withRef id <| Term.checkDeprecatedCore declName
             return .expr e
         else
           let name := id.getId.eraseMacroScopes
@@ -362,8 +367,12 @@ private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (
         let name ← mkFreshId
         elabDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
       | .simproc declName =>
+        if inv then
+          throwErrorAt arg[1] m!"Invalid `←` modifier: `{.ofConstName declName}` is a simproc"
         return .addSimproc declName post
       | .ext ext₁? ext₂? h =>
+        if inv then
+          throwErrorAt arg[1] "Invalid `←` modifier: Cannot be used on a simp extension"
         return .ext ext₁? ext₂? h
       | .none    =>
         let name ← mkFreshId

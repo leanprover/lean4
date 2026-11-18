@@ -41,9 +41,9 @@ characters in a row satisfy `p`, then the resulting list will contain empty stri
 This is a legacy function. Use `String.split` instead.
 
 Examples:
-* `"coffee tea water".split (·.isWhitespace) = ["coffee", "tea", "water"]`
-* `"coffee  tea  water".split (·.isWhitespace) = ["coffee", "", "tea", "", "water"]`
-* `"fun x =>\n  x + 1\n".split (· == '\n') = ["fun x =>", "  x + 1", ""]`
+* `"coffee tea water".splitToList (·.isWhitespace) = ["coffee", "tea", "water"]`
+* `"coffee  tea  water".splitToList (·.isWhitespace) = ["coffee", "", "tea", "", "water"]`
+* `"fun x =>\n  x + 1\n".splitToList (· == '\n') = ["fun x =>", "  x + 1", ""]`
 -/
 @[inline] def splitToList (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []

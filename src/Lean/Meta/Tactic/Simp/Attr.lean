@@ -34,7 +34,14 @@ def addDeclToUnfold (ext : SimpExtension) (declName : Name) (post inv : Bool) (p
     return false
 
 def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
-    (ref : Name := by exact decl_name%) : IO Unit :=
+    (ref : Name := by exact decl_name%) : IO Unit := do
+  registerAutomationAttr attrName fun p declName stx => MetaM.run' do
+    if (← isSimproc declName <||> isBuiltinSimproc declName) then
+      return false
+    unless (← isProp (← getConstInfo declName).type) do
+      -- Definitions are only unfolded where they occur
+      return p declName
+    isSimpTheoremFromConstGuardedBy p declName (inv := !stx[2].isNone)
   registerBuiltinAttribute {
     ref   := ref
     name  := attrName

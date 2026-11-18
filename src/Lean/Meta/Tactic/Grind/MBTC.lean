@@ -99,11 +99,13 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
     unless (← ctx.isInterpreted e) do
       let f := e.getAppFn
       /-
-      Remark: we ignore type class instances and cast-like applications in model-based theory combination.
+      Remark: we ignore type class instances and envelope embeddings in model-based theory combination.
       `grind` treats instances as support elements, and they are handled by the canonicalizer.
-      cast-like internal operations and handled by their associated solver.
+      Envelope embeddings are handled by the solver that created them.
+      `NatCast.natCast` and `IntCast.intCast` are not skipped: `isInterpreted` decides whether
+      the target theory interprets the cast, e.g., cutsat interprets `Nat → Int` but not `Nat → ZMod n`.
       -/
-      if !(← isFnInstance f) && !isCastLikeFn f then
+      if !(← isFnInstance f) && !isEnvelopeEmbeddingFn f then
         let mut i := 0
         for arg in e.getAppArgs do
           let some arg ← getRoot? arg | pure ()
@@ -122,9 +124,6 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
               map := map.insert key [argInfo]
           i := i + 1
   if candidates.isEmpty then
-    return false
-  if (← get).split.num > (← getConfig).splits then
-    reportIssue! "skipping `mbtc`, maximum number of splits has been reached `(splits := {(← getConfig).splits})`"
     return false
   let result := candidates.toArray.qsort fun c₁ c₂ => c₁.lt c₂
   let result ← result.filterMapM fun info => do

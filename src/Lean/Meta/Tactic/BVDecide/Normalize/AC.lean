@@ -323,7 +323,7 @@ def bvAcNfpost : Sym.Simp.Simproc := fun e => withDoneResult do
 
 open Tactic
 
-public def bvAcNormalizePass : Pass where
+def bvAcNormalizePass : Pass where
   name := `bv_ac_nf
   run' := do
     let cfg ← PreProcessM.getConfig

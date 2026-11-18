@@ -123,8 +123,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
 
 private def mkRingContext (h : Expr) : ProofM Expr := do
   unless (← isCommRing) do return h
-  let ring ← withRingM do CommRing.getRing
-  let vars := ring.vars
+  let vars := (← withRingM do CommRing.getRingState).vars
   let ringVarDecls := (← get).ringVarDecls
   let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) >> collectMapVars ringVarDecls collectVar <| {}
   let vars'        := usedVars.toArray

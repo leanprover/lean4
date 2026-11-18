@@ -1,7 +1,7 @@
 import Init.System.IO
 
 
-structure MyState :=
+structure MyState where
   bs : Nat := 0 -- backtrackable state
   ps : Nat := 0 -- non backtrackable state
 

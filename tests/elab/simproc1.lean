@@ -13,7 +13,7 @@ simproc reduceFoo (foo _) := fun e => do
   return .done { expr := mkNatLit (n+10) }
 
 run_meta do
-  guard <| (← findDocString? (← getEnv) ``reduceFoo) = some "doc-comment for reduceFoo "
+  guard <| (← findDocString? (← getEnv) ``reduceFoo) = some "doc-comment for reduceFoo"
 
 example : x + foo 2 = 12 + x := by
   set_option simprocs false in fail_if_success simp

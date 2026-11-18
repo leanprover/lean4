@@ -12,12 +12,16 @@ import Lean.Meta.Sym.DSimp.Lambda
 import Lean.Meta.Sym.DSimp.Forall
 import Lean.Meta.Sym.DSimp.Let
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InstantiateMVarsS
 namespace Lean.Meta.Sym.DSimp
 open Lean.Meta.Sym.Internal
 
 def dsimpStep : DSimproc := fun e => do
   match e with
-  | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _ | .mvar _ => return .rfl
+  | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _ => return .rfl
+  | .mvar _ =>
+    let some e' ← instantiateAssignedMVarHeadS? e | return .rfl
+    return .step e'
   | .proj .. =>
     throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
   | .mdata _ b =>
@@ -30,7 +34,10 @@ def dsimpStep : DSimproc := fun e => do
   | .app ..     => dsimpAppArgs e
 
 abbrev cacheResult (e : Expr) (r : Result) : DSimpM Result := do
-  modify fun s => { s with cache := s.cache.insert { expr := e } r }
+  if e.hasMVar then
+    modify fun s => { s with transientCache := s.transientCache.insert { expr := e } r }
+  else
+    modify fun s => { s with cache := s.cache.insert { expr := e } r }
   return r
 
 set_option compiler.ignoreBorrowAnnotation true in
@@ -40,7 +47,8 @@ def dsimpImpl (e₁ : Expr) : DSimpM Result := withIncRecDepth do
   if numSteps >= (← getConfig).maxSteps then
     throwError "`dsimp` failed: maximum number of steps exceeded"
   let key : ExprPtr := { expr := e₁ }
-  if let some r := (← get).cache.find? key then
+  let s ← get
+  if let some r := (if e₁.hasMVar then s.transientCache else s.cache).find? key then
     return r
   let numSteps := numSteps + 1
   if numSteps % 1000 == 0 then

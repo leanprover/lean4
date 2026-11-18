@@ -1,6 +1,6 @@
 
 
-class OPClass (α : outParam Type) (β : Type) : Type := (u : Unit := ())
+class OPClass (α : outParam Type) (β : Type) : Type where (u : Unit := ())
 
 instance op₁ : OPClass Nat Nat := {}
 

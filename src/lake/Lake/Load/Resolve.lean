@@ -338,7 +338,7 @@ structure ToolchainCandidate where
   /-- Whether the candidate toolchain been fixed to particular version. -/
   fixed : Bool := false
 
-private structure ToolchainState where
+structure ToolchainState where
   /-- The name of depedency which provided the current candidate toolchain. -/
   src : Name
   /-- The current candidate toolchain version (if any). -/
@@ -475,42 +475,38 @@ def Workspace.updateAndMaterializeCore
   (updateToolchain := true)
 : LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
+  let numDeps := ws.root.depConfigs.size
+  -- Update and materialize the top-level dependenciess
+  let deps : Vector _ numDeps := Vector.mk ws.root.depConfigs.reverse (by simp [numDeps])
+  let matDeps ← deps.mapM fun dep => do
+    logVerbose s!"{ws.root.prettyName}: updating '{dep.name}' with {toJson dep.opts}"
+    updateAndMaterializeDep ws ws.root dep
+  -- Update the toolchain based on the top-level dependenciess
   if updateToolchain then
-    let numDeps := ws.root.depConfigs.size
-    -- Update and materialize the top-level dependenciess
-    let deps : Vector _ numDeps := Vector.mk ws.root.depConfigs.reverse (by simp [numDeps])
-    let matDeps ← deps.mapM fun dep => do
-      logVerbose s!"{ws.root.prettyName}: updating '{dep.name}' with {toJson dep.opts}"
-      updateAndMaterializeDep ws ws.root dep
-    -- Update the toolchain based on the top-level dependenciess
     ws.updateToolchain matDeps.toArray
-    -- Load the top-level dependenciess
-    let start := ws.packages.size
-    let ⟨ws, start_le⟩ ← id do
-      let mut ws' : {ws : Workspace // start ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
-      for h : i in 0...<numDeps do
-        let matDep := matDeps[i]
-        addDependencyEntries matDep
-        let lakeOpts := deps[i].opts
-        let ⟨ws, h⟩ ← ws'.val.addDepPackage' matDep lakeOpts leanOpts true
-        ws' := ⟨ws, Nat.le_trans ws'.property <| by simp [h]⟩
-      return ws'
-    let stop := ws.packages.size
-    let ws := ws.setDepIdxs ws.root (start...<stop).toArray ws.wsIdx_root_lt <| by
-      simp [Std.Rco.mem_toArray_iff_mem, Std.Rco.mem_iff, stop]
-    if start_ne : start ≠ stop then
-      -- Resolve the top-level dependencies' dependencies'
-      have start_lt : start < ws.packages.size := by
-        simpa [ws] using Nat.lt_of_le_of_ne start_le start_ne
-      ws.resolveDepsCore updateAndAddDep
-        start start_lt (start+1) (Nat.lt_add_one start)
-        (leanOpts := leanOpts) (reconfigure := true)
-    else
-      return ws.updateDepPkgs
-  else
+  -- Load the top-level dependenciess
+  let start := ws.packages.size
+  let ⟨ws, start_le⟩ ← id do
+    let mut ws' : {ws : Workspace // start ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
+    for h : i in 0...<numDeps do
+      let matDep := matDeps[i]
+      addDependencyEntries matDep
+      let lakeOpts := deps[i].opts
+      let ⟨ws, h⟩ ← ws'.val.addDepPackage' matDep lakeOpts leanOpts true
+      ws' := ⟨ws, Nat.le_trans ws'.property <| by simp [h]⟩
+    return ws'
+  let stop := ws.packages.size
+  let ws := ws.setDepIdxs ws.root (start...<stop).toArray ws.wsIdx_root_lt <| by
+    simp [Std.Rco.mem_toArray_iff_mem, Std.Rco.mem_iff, stop]
+  if start_ne : start ≠ stop then
+    -- Resolve the top-level dependencies' dependencies'
+    have start_lt : start < ws.packages.size := by
+      simpa [ws] using Nat.lt_of_le_of_ne start_le start_ne
     ws.resolveDepsCore updateAndAddDep
-      ws.root.wsIdx ws.wsIdx_root_lt ws.packages.size ws.wsIdx_root_lt
+      start start_lt (start+1) (Nat.lt_add_one start)
       (leanOpts := leanOpts) (reconfigure := true)
+  else
+    return ws.updateDepPkgs
 where
   @[inline] updateAndAddDep pkg dep ws := do
     let matDep ← updateAndMaterializeDep ws pkg dep

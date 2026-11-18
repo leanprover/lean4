@@ -1,5 +1,6 @@
 import Std.WP
-import Std.Tactic.Do
+
+set_option sym.debug true
 
 /-!
 # `coinductive_fixpoint` beside a `vcgen` proof

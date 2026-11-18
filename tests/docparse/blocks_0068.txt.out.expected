@@ -1,0 +1,14 @@
+Input: ">\n\nb\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.blockquote ">" [])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "b"))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  blockquote (marker := ">")
+  para
+    text (content := "b")
+    linebreak (newline := "\n")

@@ -11,11 +11,19 @@ public section
 namespace Lean.Meta.Sym.Arith
 open Grind.CommRing
 /-!
-`ToExpr` instances for `CommRing.Poly` types.
+`ToExpr` instances for `CommRing.Poly` types. Numerals are constructor applications on raw
+literals (`Int.ofNat n`, `Int.negSucc n`, and raw `Nat` literals), which the kernel evaluates
+without unfolding `OfNat.ofNat` and `Neg.neg` when it checks certificates.
 -/
 
+/-- `k` as `Int.ofNat n` or `Int.negSucc n` on a raw literal. -/
+def mkIntLitK (k : Int) : Expr :=
+  match k with
+  | .ofNat n => mkApp (mkConst ``Int.ofNat) (mkRawNatLit n)
+  | .negSucc n => mkApp (mkConst ``Int.negSucc) (mkRawNatLit n)
+
 def ofPower (p : Power) : Expr :=
-  mkApp2 (mkConst ``Power.mk) (toExpr p.x) (toExpr p.k)
+  mkApp2 (mkConst ``Power.mk) (mkRawNatLit p.x) (mkRawNatLit p.k)
 
 instance : ToExpr Power where
   toExpr := ofPower
@@ -32,8 +40,8 @@ instance : ToExpr Mon where
 
 def ofPoly (p : Poly) : Expr :=
   match p with
-  | .num k => mkApp (mkConst ``Poly.num) (toExpr k)
-  | .add k m p => mkApp3 (mkConst ``Poly.add) (toExpr k) (toExpr m) (ofPoly p)
+  | .num k => mkApp (mkConst ``Poly.num) (mkIntLitK k)
+  | .add k m p => mkApp3 (mkConst ``Poly.add) (mkIntLitK k) (toExpr m) (ofPoly p)
 
 instance : ToExpr Poly where
   toExpr := ofPoly
@@ -43,15 +51,15 @@ open Lean.Grind
 
 def ofRingExpr (e : CommRing.Expr) : Expr :=
   match e with
-  | .num k => mkApp (mkConst ``CommRing.Expr.num) (toExpr k)
-  | .intCast k => mkApp (mkConst ``CommRing.Expr.intCast) (toExpr k)
-  | .natCast k => mkApp (mkConst ``CommRing.Expr.natCast) (toExpr k)
-  | .var x => mkApp (mkConst ``CommRing.Expr.var) (toExpr x)
+  | .num k => mkApp (mkConst ``CommRing.Expr.num) (mkIntLitK k)
+  | .intCast k => mkApp (mkConst ``CommRing.Expr.intCast) (mkIntLitK k)
+  | .natCast k => mkApp (mkConst ``CommRing.Expr.natCast) (mkRawNatLit k)
+  | .var x => mkApp (mkConst ``CommRing.Expr.var) (mkRawNatLit x)
   | .add a b => mkApp2 (mkConst ``CommRing.Expr.add) (ofRingExpr a) (ofRingExpr b)
   | .mul a b => mkApp2 (mkConst ``CommRing.Expr.mul) (ofRingExpr a) (ofRingExpr b)
   | .sub a b => mkApp2 (mkConst ``CommRing.Expr.sub) (ofRingExpr a) (ofRingExpr b)
   | .neg a => mkApp (mkConst ``CommRing.Expr.neg) (ofRingExpr a)
-  | .pow a k => mkApp2 (mkConst ``CommRing.Expr.pow) (ofRingExpr a) (toExpr k)
+  | .pow a k => mkApp2 (mkConst ``CommRing.Expr.pow) (ofRingExpr a) (mkRawNatLit k)
 
 instance : ToExpr CommRing.Expr where
   toExpr := ofRingExpr

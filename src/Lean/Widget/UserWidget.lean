@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Elab.Eval
 public import Lean.Server.Rpc.RequestHandling
+import Lean.Language.Lean.Util
 
 public section
 
@@ -283,7 +284,7 @@ open Lean Server RequestM in
 def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask GetWidgetsResponse) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  mapTaskCostly (findInfoTreeAtPos doc (filemap.lspPosToUtf8Pos pos) (includeStop := true)) fun
+  mapTaskCostly (Language.Lean.findInfoTreeAtPos doc.initSnap doc.meta.text (filemap.lspPosToUtf8Pos pos) (includeStop := true)).asServerTask fun
     | some infoTree@(.context (.commandCtx cc) _) =>
       ContextInfo.runMetaM { cc with } {} do
       let env ← getEnv

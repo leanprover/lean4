@@ -245,7 +245,7 @@ open Lean Meta Std.WP Lean.Order
 /--
 The kind of a spec theorem.
 -/
-public inductive SpecTheoremKind where
+inductive SpecTheoremKind where
   /-- A Hoare triple spec: `⦃P⦄ prog ⦃Q⦄`. -/
   | triple
   /--
@@ -333,7 +333,7 @@ structure SpecTheorem where
   This is the key used in the discrimination tree.
   If the proof has type `∀ a b c d e, ⦃P⦄ prog ⦃Q⦄` and only `a`, `c` and `e` occur in `prog`,
   then the pattern is `prog[a:=#2, c:=#1, e:=#0]`.
-  For specs stated as `pre ⊑ wp prog post epost`, the pattern is keyed on `prog`.
+  For specs stated as `pre ⊑ wp prog post eposts`, the pattern is keyed on `prog`.
   -/
   pattern : Sym.Pattern
   /-- The proof for the theorem. -/
@@ -541,9 +541,12 @@ discrimination-tree key includes all arguments. Returns `none` for no-op equatio
 syntactically the RHS.
 -/
 def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
-    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
-    return (lhs, (eqTy, rhs))
+  -- The RHS of an unfold equation is the whole program. Zeta-reducing it copies each join point
+  -- `have __do_jp := …` into all its jumps.
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey (zetaReduceLHSOnly := true) declName
+    fun body => do
+      let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+      return (lhs, (eqTy, rhs))
   -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
   -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
   if pattern.pattern == rhs then return none
@@ -558,7 +561,8 @@ names. Returns `none` for a no-op equation whose LHS key equals its RHS.
 -/
 def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
     (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
-  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams
+      (zetaReduceLHSOnly := true) fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
   if pattern.pattern == rhs then return none
@@ -686,7 +690,7 @@ namespace Lean.Elab.Tactic.Do.SpecAttr
 
 def mkSpecAttr : AttributeImpl where
   name  := `spec
-  descr := "Marks Hoare triple specifications and simp theorems for use with `mvcgen` tactics"
+  descr := "Marks Hoare triple specifications and simp theorems for use with `vcgen`"
   -- .afterCompilation seems unnecessarily conservative, but the simp attribute impl needs it.
   -- The reason is that we cannot annotate definitions with `@[spec]` otherwise; the error is
   -- > trying to realize id.eq_1 but `enableRealizationsForConst` must be called for 'id' first

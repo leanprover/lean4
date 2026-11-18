@@ -1,5 +1,6 @@
-import Std.Tactic.Do
 import Std.WP
+
+set_option sym.debug true
 
 /-!
 Regression test for `vcgen`'s spec backward-rule cache. The rule built from an equality spec must

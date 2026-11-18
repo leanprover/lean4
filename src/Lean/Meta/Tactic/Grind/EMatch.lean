@@ -576,7 +576,7 @@ private def mkGeneralizedPatternEqProof (lhs : Expr) (rhs : Expr) (origin : Orig
 where
   checkEqvToLhs? (rhs : Expr) : GoalM (Option Expr) := withoutModifyingState do
     internalize rhs (← getGeneration lhs)
-    processNewFacts
+    processToDo
     if (← isEqv lhs rhs) then
       if heq then
         return some (← mkHEqProof lhs rhs)
@@ -760,7 +760,7 @@ where
 private partial def isValue (e : Expr) (strict : Bool) : MetaM Bool := do
   match_expr e with
   | Neg.neg _ _ e => isValue e strict
-  | OfNat.ofNat _ n _ => return (← getNatValue? n).isSome
+  | OfNat.ofNat _ n _ => isNatValue n
   | HDiv.hDiv _ _ _ _ a b => isValue a strict <&&> isValue b strict
   | _ =>
     if e.isLambda && !strict then return true
@@ -995,12 +995,8 @@ def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMa
     (← get).ematch.numInstances != numInstances
     ||
     (← get).ematch.numDelayedInstances != numDelayedInstances
-  if (← get).ematch.numDelayedInstances != numDelayedInstances then
-    /-
-    **Note**: If delayed instances were produced, new guards may have been internalized,
-    and we may have pending facts to process.
-    -/
-    processNewFacts
+  -- Matching offset patterns and activating guards internalizes terms, which queues work.
+  processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun s => { s with instanceMap := s.instanceMap.insertMany map.toArray }
   return (progress, map)
@@ -1015,6 +1011,8 @@ def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
 def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
   let numInstances := (← get).ematch.numInstances
   let (_, s) ← go |>.run
+  -- See `ematch'`: activating guards internalizes terms, which queues work.
+  processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun st => { st with instanceMap := st.instanceMap.insertMany s.instanceMap.toArray }
   return (← get).ematch.numInstances != numInstances

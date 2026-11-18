@@ -50,7 +50,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
-    Command.elabCommandTopLevel stx #[]
+    Command.elabCommandTopLevel stx
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }
@@ -346,7 +346,10 @@ def runFrontend
   let mut env := cmdState.env
   let finalOpts := cmdState.scopes[0]!.opts
 
-  for task in cmdState.codeQualityEntryTasks do
+  -- the fold cannot fail as `waitForFinalCmdState?` succeeded, so the header was processed
+  let codeQualityEntryTasks := Language.Lean.foldCmdSnaps? snap #[]
+    (· ++ ·.elabSnap.resultSnap.get.codeQualityEntryTasks) |>.getD #[]
+  for task in codeQualityEntryTasks do
     env := Lean.Linter.codeQualityLogExt.modifyState env fun entries => entries ++ task.get
 
   -- Saves `snapToSave` wrapped with the init-mod indices used by `runInitAttrsForModules` on load.

@@ -180,6 +180,22 @@ s!"{dep.fullName}: package not found on Reservoir.
     ...
 "
 
+@[inline] def mkPath
+  (wsDir relPkgsDir relSrc : FilePath) (dirName : String) (copy update : Bool)
+: IO FilePath := do
+  if copy then
+    let relDst := relPkgsDir / dirName
+    let dst := wsDir / relDst
+    if update then
+      removeDirAllIfExists dst
+    else if (← dst.pathExists) then
+      return relDst
+    let src := wsDir / relSrc
+    copyDirAll src dst
+    return relDst
+  else
+    return relSrc
+
 /--
 Materializes a configuration dependency.
 For Git dependencies, updates it to the latest input revision.
@@ -190,9 +206,10 @@ public def Dependency.materialize
 : LoggerIO MaterializedDep := do
   if let some src := dep.src? then
     match src with
-    | .path dir =>
-      let relPkgDir := relParentDir / dir
-      mkDep dep.prettyName relPkgDir "" (.path relPkgDir)
+    | .path dir copy =>
+      let relSrc := relParentDir / dir
+      let relPath ← mkPath wsDir relPkgsDir relSrc dep.dirName copy (update := true)
+      mkDep dep.prettyName (relPath) "" (.path relSrc copy)
     | .git url inputRev? subDir? => do
       let repoUrl := Git.filterUrl? url |>.getD ""
       materializeGit dep.prettyName (relPkgsDir / dep.dirName) url repoUrl inputRev? subDir?
@@ -250,11 +267,12 @@ Materializes a manifest package entry, cloning and/or checking it out as necessa
 public def PackageEntry.materialize
   (manifestEntry : PackageEntry)
   (lakeEnv : Env) (wsDir relPkgsDir : FilePath)
-: LoggerIO MaterializedDep :=
+: LoggerIO MaterializedDep := do
   match manifestEntry.src with
-  | .path (dir := relPkgDir) .. =>
-    mkDep relPkgDir ""
-  | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
+  | .path (dir := relSrc) (copy := copy) .. =>
+    let relPath ← mkPath wsDir relPkgsDir relSrc manifestEntry.dirName copy (update := false)
+    mkDep relPath ""
+  | .git (url := url) (rev := rev) (subDir? := subDir?) .. =>
     let relGitDir := relPkgsDir / manifestEntry.dirName
     let repo := GitRepo.mk (wsDir / relGitDir)
     let url := lakeEnv.pkgUrlMap.getD manifestEntry.name url

@@ -13,6 +13,7 @@ import Lean.Elab.Do.PatternVar
 
 public section
 
+
 namespace Lean.Elab.Do
 
 open Lean Meta Parser.Term
@@ -157,6 +158,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     ofLetOrReassign #[] none otherwise body?
   | `(doElem| let $[mut]? $_:letConfig $decl) =>
     ofLetOrReassignArrow false decl
+  | `(doElem| erased $[mut]? $_) => return .pure
   | `(doElem| $decl:letIdDeclNoBinders) =>
     ofLetOrReassign (← getLetIdDeclVars ⟨decl⟩) none none none
   | `(doElem| $decl:letPatDecl) =>

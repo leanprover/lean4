@@ -38,17 +38,47 @@ def getBitVecSize (domainSize : Nat) : Nat :=
   else
     bvSize + 1
 
-public def enumToBitVecSuffix : String := "enumToBitVec"
+def enumToBitVecSuffix : String := "enumToBitVec"
 def eqIffEnumToBitVecEqSuffix : String := "eq_iff_enumToBitVec_eq"
 def enumToBitVecLeSuffix : String := "enumToBitVec_le"
 def matchEqCondSuffix : String := "eq_cond_enumToBitVec"
+
+def mkRealizedName (env : Environment) (declName : Name) (suffix : String) : Name :=
+  mkPrivateName env (.str declName suffix)
+
+/--
+The inverse function to `mkRealizedName` for supported suffixes.
+-/
+def isRealizedName? (env : Environment) (name : Name) : Option (Name × String) := Id.run do
+  let .str p s := name | return none
+  if !isSupportedSuffix s then return none
+  let some declName := [p, privateToUserName p].find? (env.setExporting false).contains | return none
+  if name != mkRealizedName env declName s then return none
+  return some (declName, s)
+where
+  isSupportedSuffix (s : String) : Bool :=
+    s == enumToBitVecSuffix
+      || s == eqIffEnumToBitVecEqSuffix
+      || s == enumToBitVecLeSuffix
+      || s == matchEqCondSuffix
+
+/--
+For a given `fn` if it is an `enumToBitVec` function return the enum it is associated with.
+-/
+public def enumToBitVecType? (env : Environment) (fn : Name) : Option Name := Id.run do
+  let .str _ s := fn | return none
+  if s != enumToBitVecSuffix then return none
+  let some decl := env.setExporting false |>.find? fn | return none
+  let .forallE _ (.const enumType _) _ _ := decl.type | return none
+  if fn != mkRealizedName env enumType enumToBitVecSuffix then return none
+  return enumType
 
 /--
 Assuming that `declName` is an enum inductive construct a function of type `declName → BitVec w`
 that maps `declName` constructors to their numeric indices as `BitVec`.
 -/
 def getEnumToBitVecFor (declName : Name) : MetaM Name := do
-  let enumToBitVecName := Name.str declName enumToBitVecSuffix
+  let enumToBitVecName := mkRealizedName (← getEnv) declName enumToBitVecSuffix
   realizeConst declName enumToBitVecName do
     let env ← getEnv
     let .inductInfo inductiveInfo ← getConstInfo declName | throwError m!"{.ofConstName declName} is not an inductive."
@@ -86,7 +116,7 @@ Create a `cond` chain in `Sort u` of the form:
 bif input = discrs 0 then values[0] else bif input = discrs 1 then values 1 else ...
 ```
 -/
-private def mkCondChain {w : Nat} (input : Expr) (retType : Expr)
+def mkCondChain {w : Nat} (input : Expr) (retType : Expr)
     (discrs : Nat → BitVec w) (values : List Expr) (acc : Expr) : MetaM Expr := do
   let instBEq ← synthInstance (mkApp (mkConst ``BEq [0]) (toTypeExpr <| BitVec w))
   go input retType instBEq discrs values 0 acc
@@ -109,7 +139,7 @@ where
 /--
 Build `declName.recOn.{0} (motive := motive) value (f context[0]) (f context[1]) ...`
 -/
-private def enumCases (declName : Name) (motive : Expr)
+def enumCases (declName : Name) (motive : Expr)
     (value : Expr) (context : List α) (f : α → MetaM Expr) : MetaM Expr := do
   let args ← context.toArray.mapM (fun c => do return some (← f c))
   mkAppOptM (mkRecOnName declName) (#[some motive, some value] ++ args)
@@ -119,7 +149,7 @@ Assuming that `declName` is an enum inductive, construct a proof of
 `∀ (x y : declName) : x = y ↔ x.enumToBitVec = y.enumToBitVec`.
 -/
 def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
-  let eqIffEnumToBitVecEqName := Name.str declName eqIffEnumToBitVecEqSuffix
+  let eqIffEnumToBitVecEqName := mkRealizedName (← getEnv) declName eqIffEnumToBitVecEqSuffix
   realizeConst declName eqIffEnumToBitVecEqName do
     /-
     We prove the lemma by constructing an inverse to `enumToBitVec` and use the fact that all
@@ -182,7 +212,7 @@ Assuming that `declName` is an enum inductive, construct a proof of
 constructors of `declName`.
 -/
 def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
-  let enumToBitVecLeName := Name.str declName enumToBitVecLeSuffix
+  let enumToBitVecLeName := mkRealizedName (← getEnv) declName enumToBitVecLeSuffix
   realizeConst declName enumToBitVecLeName do
     let .inductInfo inductiveInfo ← getConstInfo declName | unreachable!
     let levelParamNames := inductiveInfo.levelParams
@@ -221,8 +251,8 @@ Generate a theorem that translates `.match_x` applications on enum inductives to
 assuming that it is a supported kind of match, see `matchIsSupported` for the currently available
 variants.
 -/
-private partial def getMatchEqCondForAux (declName : Name) (kind : MatchKind) : MetaM Name := do
-  let matchEqCondName := .str declName matchEqCondSuffix
+partial def getMatchEqCondForAux (declName : Name) (kind : MatchKind) : MetaM Name := do
+  let matchEqCondName := mkRealizedName (← getEnv) declName matchEqCondSuffix
   realizeConst declName matchEqCondName do
     let decl ←
       match kind with
@@ -351,17 +381,22 @@ def getMatchEqCondFor (declName : Name) : MetaM Name := do
 
 builtin_initialize
   registerReservedNamePredicate fun env name => Id.run do
-    let .str p s := name | return false
-    s == enumToBitVecSuffix || s == eqIffEnumToBitVecEqSuffix || s == enumToBitVecLeSuffix ||
-    (s == matchEqCondSuffix && isMatcherCore env p)
+    let some (declName, suffix) := isRealizedName? env name | return false
+    if suffix == matchEqCondSuffix then
+      isMatcherCore env declName
+    else
+      true
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    let .str p s := name | return false
-    unless s == enumToBitVecSuffix ||
-           s == eqIffEnumToBitVecEqSuffix ||
-           s == enumToBitVecLeSuffix do return false
-    if ← isEnumType p then
+    let some (p, s) := isRealizedName? (← getEnv) name | return false
+    if s == matchEqCondSuffix then
+      if ← isMatcher p then
+        discard <| MetaM.run' (getMatchEqCondFor p)
+        return true
+      else
+        return false
+    else if ← isEnumType p then
       if s == enumToBitVecSuffix then
         discard <| MetaM.run' (getEnumToBitVecFor p)
         return true
@@ -373,9 +408,6 @@ builtin_initialize
         return true
       else
         return false
-    else if (s == matchEqCondSuffix && (← isMatcher p)) then
-      discard <| MetaM.run' (getMatchEqCondFor p)
-      return true
     else
       return false
 
@@ -386,8 +418,7 @@ It will check if `x` is a constructor and if that is the case constant fold it t
 -/
 def enumToBitVecCtor : Sym.Simp.Simproc := fun e => do
   let .app (.const fn ..) (.const arg ..) := e | return .rfl
-  let .str p s := fn | return .rfl
-  if s != enumToBitVecSuffix then return .rfl
+  let some p := enumToBitVecType? (← getEnv) fn | return .rfl
   if !(← isEnumType p) then return .rfl
   let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
   let ctors := inductiveInfo.ctors
@@ -414,7 +445,7 @@ def enumEqToBitVecEq (index : Std.HashMap Name EnumInfo) : Sym.Simp.Simproc := f
 /--
 The state used for the post processing part of `enumsPass`.
 -/
-private structure PostProcessState where
+structure PostProcessState where
   /--
   A cache of terms we have already collected bounds for such that they don't get duplicated.
   -/
@@ -500,7 +531,8 @@ where
         hypotheses for it.
         -/
         if (← get).seen.contains ⟨e⟩ then return ()
-        let .app (.const (.str enumType _) ..) val := e | unreachable!
+        let .app (.const fn ..) val := e | unreachable!
+        let some enumType := enumToBitVecType? (← getEnv) fn | return ()
         unless relevantIndex.contains enumType do return ()
         let value ← Sym.share <| ← mkAppM (← getEnumToBitVecLeFor enumType) #[val]
         let type ← Sym.inferType value

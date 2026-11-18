@@ -59,11 +59,131 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
   mvarId.deltaTarget (· == ``Nat.Internal.elimOffset)
 
 /--
-If the left-hand side of the goal is `dite (a = b) t e` where `a` and `b` are `String` literals,
-rewrites it to the selected branch. Distinct literals are proved distinct with
-`mkStringLitNeProof`; reducing `String.decEq` instead compares them character by character.
+The codes of the `String` literals of a matcher: a mapping from a literal `s` to the numeral `n`
+such that `String.Internal.code s = n`, and a proof of this equation. See `getStrLitCodes`.
 -/
-private def rwStringLitDite? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+private abbrev StrLitCodes := Std.HashMap String (Expr × Expr)
+
+/--
+Returns `true` if `e` is a `String` literal that has a code in `StrLitCodes`.
+
+A literal with more than `256` characters does not have one: the kernel evaluates
+`String.Internal.codeOfList` with one multiplication for each character, on a number whose size
+is proportional to the number of characters already processed.
+-/
+private def hasStrLitCode (e : Expr) : Bool :=
+  match e with
+  | .lit (.strVal s) => s.length ≤ 256
+  | _ => false
+
+/--
+The minimum number of `String` literals of a matcher for which the auxiliary theorems
+`strLitCodes` (see `getStrLitCodes`) and `strLitChain` are generated.
+
+These theorems reduce the time the kernel takes to check the equations of a matcher with many
+literals, but each equation has to request them, and this request has a cost. With less than `32`
+literals, the equations are generated faster without them.
+-/
+private def minStrLits := 32
+
+/-- Returns `true` if at least `minStrLits` different `String` literals with a code occur in `e`. -/
+private def hasMinStrLits (e : Expr) : MetaM Bool := do
+  let (_, lits) ← e.forEach' visit |>.run {}
+  return lits.size ≥ minStrLits
+where
+  visit (e : Expr) : StateRefT (Std.HashSet String) MetaM Bool := do
+    if (← get).size ≥ minStrLits then return false
+    if hasStrLitCode e then
+      let .lit (.strVal s) := e | unreachable!
+      modify (·.insert s)
+    return true
+
+/-- Returns the `String` literals occurring in `e` that have a code, without duplicates. -/
+private def collectStrLits (e : Expr) : MetaM (Array String) := do
+  let (_, lits, _) ← e.forEach visit |>.run (#[], {})
+  return lits
+where
+  visit (e : Expr) : StateRefT (Array String × Std.HashSet String) MetaM Unit := do
+    unless hasStrLitCode e do return ()
+    let .lit (.strVal s) := e | return ()
+    modify fun (lits, visited) =>
+      if visited.contains s then (lits, visited) else (lits.push s, visited.insert s)
+
+/--
+Returns the codes of the `String` literals occurring in the definition of the matcher
+`matchDeclName`. Only literals with at most `256` characters have a code (see `hasStrLitCode`),
+and the result is empty if there are less than `minStrLits` different ones.
+
+The proof of an equation of a matcher with `n` `String` literal patterns contains up to `n-1`
+proofs that two of these literals are different, and there is one equation for each alternative.
+With `String.Internal.ne_of_code`, such a proof is a comparison between the codes of the two
+literals. Computing the code of a literal is the expensive step: the kernel evaluates
+`String.Internal.codeOfList` on its characters. So, it is performed once for each literal, in
+the auxiliary theorem
+```
+matchDeclName.strLitCodes : code "a" = n₁ ∧ code "b" = n₂ ∧ ...
+```
+and the proof for the literal `i` returned by this function is a projection of this theorem.
+-/
+private def getStrLitCodes (matchDeclName : Name) : MetaM StrLitCodes := do
+  -- A matcher with less than `minStrLits` alternatives is not traversed.
+  let some matchInfo ← getMatcherInfo? matchDeclName | return {}
+  if matchInfo.numAlts < minStrLits then return {}
+  let some value := (← getConstInfo matchDeclName).value? | return {}
+  unless (← hasMinStrLits value) do return {}
+  let thmName := mkPrivateName (← getEnv) matchDeclName ++ `strLitCodes
+  realizeConst matchDeclName thmName do
+    let mkFact (lit : String) : Expr × Expr :=
+      let (n, h) := mkStringLitCodeProof lit
+      let code := mkApp (mkConst ``String.Internal.code) (mkStrLit lit)
+      (mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) code n, h)
+    let lits ← collectStrLits value
+    let (type, value) := lits.pop.foldr (init := mkFact lits.back!) fun lit (type, value) =>
+      let (fact, h) := mkFact lit
+      (mkAnd fact type, mkApp4 (mkConst ``And.intro) fact type h value)
+    addDecl <| Declaration.thmDecl { name := thmName, levelParams := [], type, value }
+  -- The literals and their codes are retrieved from the statement of the theorem.
+  let getCode (fact : Expr) : String × Expr :=
+    -- `fact` is `code lit = n`
+    match fact.appFn!.appArg! with
+    | .app _ (.lit (.strVal lit)) => (lit, fact.appArg!)
+    | _ => unreachable!
+  let mut codes : StrLitCodes := {}
+  let mut type := (← getConstInfo thmName).type
+  let mut proof := mkConst thmName
+  repeat
+    let_expr And fact rest := type | break
+    let (lit, n) := getCode fact
+    codes := codes.insert lit (n, .proj ``And 0 proof)
+    type := rest
+    proof := .proj ``And 1 proof
+  let (lit, n) := getCode type
+  return codes.insert lit (n, proof)
+
+/--
+Returns a proof of `¬ a = b`, where `a` and `b` are the `String` literals `s₁` and `s₂`,
+which must be different.
+
+If both literals have a code in `codes`, the proof compares the codes. Otherwise, it compares the
+characters at the first position where the two literals differ (see `mkStringLitNeProof`).
+-/
+private def mkStrLitNeProof (codes : StrLitCodes) (a b : Expr) (s₁ s₂ : String) : MetaM Expr := do
+  let some (n₁, h₁) := codes[s₁]? | mkCharNeProof
+  let some (n₂, h₂) := codes[s₂]? | mkCharNeProof
+  let h := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false)
+  return mkApp7 (mkConst ``String.Internal.ne_of_code) a b n₁ n₂ h₁ h₂ h
+where
+  mkCharNeProof : MetaM Expr :=
+    return mkExpectedPropHint (← mkStringLitNeProof s₁ s₂)
+      (mkNot (mkApp3 (mkConst ``Eq [1]) (mkConst ``String) a b))
+
+/--
+If the left-hand side of the goal is `dite (a = b) t e` where `a` and `b` are `String` literals,
+rewrites it to the selected branch. Distinct literals are proved distinct with `mkStrLitNeProof`;
+reducing `String.decEq` instead compares them character by character.
+`codes` are the codes of the literals of the matcher, see `getStrLitCodes`.
+-/
+private def rwStringLitDite? (codes : StrLitCodes) (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
   let some (_, lhs, rhs) := (← mvarId.getType).eq? | return none
   let_expr dite@dite α c h t e := lhs | return none
   let_expr Eq _ a b := c | return none
@@ -77,7 +197,7 @@ private def rwStringLitDite? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId
     mvarId.assign (← mkEqTrans proof mvarNew)
     return some mvarNew.mvarId!
   else
-    let hc := mkExpectedPropHint (← mkStringLitNeProof s₁ s₂) (mkNot c)
+    let hc ← mkStrLitNeProof codes a b s₁ s₂
     -- The new goal is `e hc = rhs`, and `dite_eq_of_not` expects a proof of `∀ h, e h = rhs`.
     -- The proof of the new goal is put under the binder without abstracting `hc`:
     -- `e h` and `e hc` are definitionally equal by proof irrelevance.
@@ -150,6 +270,187 @@ private def stripDiscrEqProofs (matchDeclName : Name) (mvarId : MVarId) : MetaM 
   return mvarNew.mvarId!
 
 /--
+A matcher whose definition starts with a chain of tests on `String` literals
+```
+dite (x = "a₁") (Eq.ndrec_symm (alt₁ ())) fun _ => dite (x = "a₂") (Eq.ndrec_symm (alt₂ ())) fun _ => ... e
+```
+where `x` is its only discriminant. See `getStrLitChain?`.
+-/
+private structure StrLitChain where
+  /-- The number of arguments of the matcher. -/
+  arity    : Nat
+  /-- The position of the discriminant in the arguments of the matcher. -/
+  discrPos : Nat
+  /-- The literals tested by the chain. -/
+  lits     : Array String
+  /-- `altPos[i]` is the position, in the arguments of the matcher, of the alternative for `lits[i]`. -/
+  altPos   : Array Nat
+  /--
+  The term `e` after the last test. Its loose bound variables are the arguments of the matcher:
+  it is under `arity` binders.
+  -/
+  rest     : Expr
+
+/-- Returns `true` if `e` has a loose bound variable with index smaller than `n`. -/
+private partial def hasLooseBVarLt (e : Expr) (n : Nat) : Bool :=
+  go e 0
+where
+  go (e : Expr) (offset : Nat) : Bool :=
+    if e.looseBVarRange ≤ offset then false else
+    match e with
+    | .bvar idx => idx < offset + n
+    | .app f a => go f offset || go a offset
+    | .lam _ d b _ | .forallE _ d b _ => go d offset || go b (offset + 1)
+    | .letE _ t v b _ => go t offset || go v offset || go b (offset + 1)
+    | .mdata _ b | .proj _ _ b => go b offset
+    | _ => false
+
+/--
+Returns the chain of tests on `String` literals at the beginning of the definition of the matcher
+`matchDeclName`, if it has one with at least `minStrLits` tests. See `StrLitChain`.
+
+The `else` branch of a test is `fun h : ¬ x = "aᵢ" => ..`. No hypothesis `h` is used in a chain.
+`getStrLitChainThm` relies on this property.
+-/
+private def getStrLitChain? (matchDeclName : Name) : MetaM (Option StrLitChain) := do
+  let some matchInfo ← getMatcherInfo? matchDeclName | return none
+  unless matchInfo.numDiscrs == 1 && matchInfo.getNumDiscrEqs == 0 do return none
+  let some value := (← getConstInfo matchDeclName).value? | return none
+  let arity := matchInfo.arity
+  let discrPos := matchInfo.numParams + 1
+  let mut e := value
+  for _ in *...arity do
+    let .lam _ _ b _ := e | return none
+    e := b
+  -- `e` is under `arity + lits.size` binders: the arguments of the matcher, and one hypothesis for
+  -- each test that failed.
+  -- The hypotheses are the bound variables with index smaller than `lits.size`.
+  let mut lits := #[]
+  let mut altPos := #[]
+  repeat
+    let depth := arity + lits.size
+    let_expr dite α c inst t e' := e | break
+    let_expr Eq _ x v := c | break
+    let_expr Eq.ndrec_symm _ _ motive m _ := t | break
+    let .lit (.strVal lit) := v | break
+    let .lam _ _ rest _ := e' | break
+    let .app (.bvar altIdx) unit := m | break
+    unless x == .bvar (depth - 1 - discrPos) && unit.isConstOf ``Unit.unit do break
+    unless lits.size ≤ altIdx && altIdx < depth do break
+    if hasLooseBVarLt α lits.size || hasLooseBVarLt inst lits.size || hasLooseBVarLt motive lits.size then break
+    lits := lits.push lit
+    altPos := altPos.push (depth - 1 - altIdx)
+    e := rest
+  if lits.size < minStrLits || hasLooseBVarLt e lits.size then return none
+  return some { arity, discrPos, lits, altPos, rest := e.lowerLooseBVars lits.size lits.size }
+
+/--
+Returns the name of the auxiliary theorem for the matcher `matchDeclName`, which has the chain of
+tests `chain`.
+```
+matchDeclName.strLitChain : ∀ params motive x alts (r : motive x),
+  r = matchDeclName params motive x alts →
+  (x = "a₁" → r ≍ alt₁ ()) ∧ (¬ x = "a₁" → (x = "a₂" → r ≍ alt₂ ()) ∧ (¬ x = "a₂" → ... r ≍ e))
+```
+It is proved with a single traversal of the chain, and has one case for each alternative.
+The congruence equation for the literal `"aᵢ"` is the case `i` of this theorem: its proof
+selects the case with `i-1` proofs that `"aᵢ"` is different from the preceding literals.
+Proving each congruence equation directly traverses the chain up to the test `i`, and the
+kernel processes the tests that follow at each step.
+
+The variable `r` is used instead of the matcher application in the cases because the size of the
+latter is proportional to the number of alternatives, and each case is under a different number
+of binders.
+-/
+private def getStrLitChainThm (matchDeclName : Name) (chain : StrLitChain) : MetaM Name := do
+  let thmName := mkPrivateName (← getEnv) matchDeclName ++ `strLitChain
+  realizeConst matchDeclName thmName do
+    let info ← getConstInfo matchDeclName
+    let us := info.levelParams.map mkLevelParam
+    forallBoundedTelescope info.type chain.arity fun xs _ => do
+      let app := mkAppN (mkConst matchDeclName us) xs
+      let tests := (info.instantiateValueLevelParams! us).beta xs
+      withLocalDeclD `r (← inferType app) fun r => do
+        let (stmt, proof) ← mkCases r tests chain.lits.size
+        let type ← mkForallFVars (xs.push r) (.forallE `h (← mkEq r app) stmt .default)
+        let value ← mkLambdaFVars (xs.push r) proof
+        addDecl <| Declaration.thmDecl { name := thmName, levelParams := info.levelParams, type, value }
+  return thmName
+where
+  /--
+  Returns the statement of the cases of the first `n` tests of `tests`, and a proof for
+  `r = tests → statement`.
+  -/
+  mkCases (r tests : Expr) : Nat → MetaM (Expr × Expr)
+    | 0 => return (← mkHEq r tests, ← mkAppOptM ``heq_of_eq #[none, r, tests])
+    | n+1 => do
+      let_expr dite _ c inst t e := tests | unreachable!
+      let_expr Eq α b a := c | unreachable!
+      let_expr ndrec@Eq.ndrec_symm _ _ motive m _ := t | unreachable!
+      let .lam _ _ rest _ := e | unreachable!
+      let [u₁, u₂] := ndrec.constLevels! | unreachable!
+      let (q, h) ← mkCases r rest n
+      let heq := mkApp4 (mkConst ``HEq [u₁]) (motive.beta #[b]) r (motive.beta #[a]) m
+      let stmt := mkAnd (.forallE `h c heq .default) (.forallE `h (mkNot c) q .default)
+      let h := mkLambda `h .default (mkNot c) h
+      let proof := mkAppN (mkConst ``dite_ndrec_symm_cases [u₂, u₁]) #[α, a, b, inst, motive, m, e, r, q, h]
+      return (stmt, proof)
+
+/--
+Proves a goal `matchDeclName params motive a alts ≍ rhs` using the theorem
+`matchDeclName.strLitChain`, if `matchDeclName` has a chain of tests on `String` literals, and
+- `a` is one of the literals `"aᵢ"` of the chain and `rhs` is `altᵢ ()`. The case `i` of the
+  theorem is selected with proofs that `"aᵢ"` is different from the preceding literals.
+- `a` is a variable `x`, `rhs` is the term after the last test, and for each literal `"aᵢ"` of
+  the chain there is a hypothesis `x = "aᵢ" → False`. The last case of the theorem is selected
+  with these hypotheses.
+
+Returns `false` otherwise. See `getStrLitChainThm`.
+-/
+private def proveUsingStrLitChain? (matchDeclName : Name) (mvarId : MVarId) : MetaM Bool :=
+  mvarId.withContext do
+  let some chain ← getStrLitChain? matchDeclName | return false
+  let some (_, lhs, _, rhs) := (← mvarId.getType).heq? | return false
+  unless lhs.isAppOfArity matchDeclName chain.arity do return false
+  let args := lhs.getAppArgs
+  let a := args[chain.discrPos]!
+  let mkChainThm : MetaM Expr := do
+    let thmName ← getStrLitChainThm matchDeclName chain
+    return mkAppN (mkConst thmName lhs.getAppFn.constLevels!) (args ++ #[lhs, ← mkEqRefl lhs])
+  match a with
+  | .lit (.strVal lit) =>
+    let some i := chain.lits.idxOf? lit | return false
+    unless rhs == mkApp args[chain.altPos[i]!]! (mkConst ``Unit.unit) do return false
+    let mut proof ← mkChainThm
+    -- The first case does not need the codes of the literals.
+    let codes ← if i == 0 then pure {} else getStrLitCodes matchDeclName
+    for j in *...i do
+      let lit' := chain.lits[j]!
+      proof := mkApp (.proj ``And 1 proof) (← mkStrLitNeProof codes a (mkStrLit lit') lit lit')
+    mvarId.assign (mkApp (.proj ``And 0 proof) (← mkEqRefl a))
+    return true
+  | .fvar _ =>
+    unless rhs == chain.rest.instantiateRev args do return false
+    -- The hypotheses `a = "aᵢ" → False`
+    let mut hyps : Std.HashMap String Expr := {}
+    for localDecl in (← getLCtx) do
+      let .forallE _ d b _ := localDecl.type | continue
+      let_expr Eq _ x v := d | continue
+      let .lit (.strVal lit) := v | continue
+      if x == a && b.isConstOf ``False then
+        hyps := hyps.insert lit localDecl.toExpr
+    let mut hs := #[]
+    for lit in chain.lits do
+      let some h := hyps[lit]? | return false
+      hs := hs.push h
+    let mut proof ← mkChainThm
+    for h in hs do
+      proof := mkApp (.proj ``And 1 proof) h
+    mvarId.assign proof
+    return true
+  | _ => return false
+
+/--
 A `contradiction` variant for the goals of `proveCondEqThm`. It closes the goal if a hypothesis is
 - a disequality `h : a ≠ b`, or `h : a = b → False`, where `a` and `b` are definitionally equal,
 - a generalized disequality such as `h : ∀ ys, x = C ys → False` (see `processGenDiseq`), or
@@ -201,15 +502,16 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   instantiateMVars mvar0
 where
   unfoldAndProve (mvarId : MVarId) : MetaM Unit := do
+    if (← proveUsingStrLitChain? matchDeclName mvarId) then return
     let mvarId ← mvarId.deltaTarget (· == matchDeclName)
     let mvarId ← mvarId.heqOfEq
-    go (← stripDiscrEqProofs matchDeclName mvarId) 0
+    go (← getStrLitCodes matchDeclName) (← stripDiscrEqProofs matchDeclName mvarId) 0
 
-  go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
+  go (codes : StrLitCodes) (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
-      (do let some mvarId ← rwStringLitDite? mvarId | throwError "no `String` literal `dite`"
+      (do let some mvarId ← rwStringLitDite? codes mvarId | throwError "no `String` literal `dite`"
           return #[mvarId])
       <|>
       (do mvarId.refl; return #[])
@@ -239,7 +541,7 @@ where
       (substSomeVar mvarId)
       <|>
       (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
-    subgoals.forM (go · (depth+1))
+    subgoals.forM (go codes · (depth+1))
 
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
@@ -483,8 +785,13 @@ where go (thmName : Name) := withConfig (fun c => { c with etaStruct := .none })
         let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
         let thmType ← Match.unfoldNamedPattern thmType
         -- The match equations are instances of these theorems, see `proveEqThm`.
-        let thmVal ← Match.proveCondEqThm matchDeclName thmType
-          (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+        -- The proof may create auxiliary definitions, such as a sparse `casesOn`. `thmName` is
+        -- the same name in every module that realizes this equation, and the same definition
+        -- cannot be imported from different modules. So, the auxiliary declarations must be
+        -- private to the realizing module.
+        let thmVal ← withDeclNameForAuxNaming (mkPrivateName (← getEnv) thmName) do
+          Match.proveCondEqThm matchDeclName thmType
+            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
         addDecl <| Declaration.thmDecl {
           name        := thmName
           levelParams := constInfo.levelParams
@@ -523,7 +830,9 @@ private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
   guard <| isMatcherCore env p
   return p
 
-builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
+builtin_initialize
+  registerReservedNamePredicate (fun s => isEqnReservedNameSuffix s || s == "splitter")
+    (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
   let some p := isMatchEqName? (← getEnv) name |
@@ -540,7 +849,8 @@ private def isMatchCongrEqName? (env : Environment) (n : Name) : Option (Name ×
   guard <| isMatcherCore env p
   return (p, idx)
 
-builtin_initialize registerReservedNamePredicate (isMatchCongrEqName? · · |>.isSome)
+builtin_initialize
+  registerReservedNamePredicate isCongrEqnReservedNameSuffix (isMatchCongrEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
   let some (p, idx) := isMatchCongrEqName? (← getEnv) name |

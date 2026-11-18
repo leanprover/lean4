@@ -3143,7 +3143,7 @@ lean_object* v___x_1107_; lean_object* v___x_1108_; lean_object* v___x_1109_; le
 v___x_1107_ = ((lean_object*)(l_Lean_ParserCompiler_compileParserExpr___redArg___closed__2));
 lean_inc(v___y_1106_);
 v___x_1108_ = l_Lean_mkIdent(v___y_1106_);
-v___x_1109_ = l_Lean_mkIdent(v___y_1103_);
+v___x_1109_ = l_Lean_mkIdent(v___y_1104_);
 v___x_1110_ = lean_unsigned_to_nat(1u);
 v___x_1111_ = lean_mk_empty_array_with_capacity(v___x_1110_);
 v___x_1112_ = lean_array_push(v___x_1111_, v___x_1109_);
@@ -3163,14 +3163,14 @@ lean_ctor_set(v___x_1120_, 1, v___x_1107_);
 lean_ctor_set(v___x_1120_, 2, v___x_1119_);
 v___x_1121_ = 0;
 lean_inc(v___x_1093_);
-v___x_1122_ = l_Lean_Attribute_add(v___x_1093_, v___y_1106_, v___x_1120_, v___x_1121_, v___y_1102_, v___y_1101_);
+v___x_1122_ = l_Lean_Attribute_add(v___x_1093_, v___y_1106_, v___x_1120_, v___x_1121_, v___y_1105_, v___y_1101_);
 if (lean_obj_tag(v___x_1122_) == 0)
 {
 lean_dec_ref_known(v___x_1122_, 1);
 v_p_1065_ = v___x_1093_;
-v___y_1066_ = v___y_1104_;
-v___y_1067_ = v___y_1105_;
-v___y_1068_ = v___y_1102_;
+v___y_1066_ = v___y_1103_;
+v___y_1067_ = v___y_1102_;
+v___y_1068_ = v___y_1105_;
 v___y_1069_ = v___y_1101_;
 goto v___jp_1064_;
 }
@@ -3461,10 +3461,10 @@ lean_dec_ref_known(v_a_1191_, 1);
 v_name_1194_ = lean_ctor_get(v_defn_1192_, 1);
 lean_inc(v_name_1194_);
 v___y_1101_ = v___y_1137_;
-v___y_1102_ = v___y_1136_;
-v___y_1103_ = v_val_1193_;
-v___y_1104_ = v___y_1134_;
-v___y_1105_ = v___y_1135_;
+v___y_1102_ = v___y_1135_;
+v___y_1103_ = v___y_1134_;
+v___y_1104_ = v_val_1193_;
+v___y_1105_ = v___y_1136_;
 v___y_1106_ = v_name_1194_;
 goto v___jp_1100_;
 }
@@ -3478,10 +3478,10 @@ lean_dec_ref_known(v_a_1191_, 1);
 v_builtinName_1197_ = lean_ctor_get(v_defn_1195_, 0);
 lean_inc(v_builtinName_1197_);
 v___y_1101_ = v___y_1137_;
-v___y_1102_ = v___y_1136_;
-v___y_1103_ = v_val_1196_;
-v___y_1104_ = v___y_1134_;
-v___y_1105_ = v___y_1135_;
+v___y_1102_ = v___y_1135_;
+v___y_1103_ = v___y_1134_;
+v___y_1104_ = v_val_1196_;
+v___y_1105_ = v___y_1136_;
 v___y_1106_ = v_builtinName_1197_;
 goto v___jp_1100_;
 }

@@ -2444,13 +2444,13 @@ return v___x_690_;
 v___jp_649_:
 {
 lean_object* v_remaining_653_; lean_object* v___x_654_; lean_object* v___x_655_; lean_object* v___x_656_; 
-v_remaining_653_ = lean_nat_sub(v_limitSize_640_, v___y_650_);
+v_remaining_653_ = lean_nat_sub(v_limitSize_640_, v___y_651_);
 lean_dec(v_limitSize_640_);
-v___x_654_ = lean_nat_sub(v_userDataBytes_648_, v___y_650_);
-lean_dec(v___y_650_);
+v___x_654_ = lean_nat_sub(v_userDataBytes_648_, v___y_651_);
+lean_dec(v___y_651_);
 lean_dec(v_userDataBytes_648_);
 v___x_655_ = lean_alloc_ctor(0, 6, 2);
-lean_ctor_set(v___x_655_, 0, v___y_651_);
+lean_ctor_set(v___x_655_, 0, v___y_650_);
 lean_ctor_set(v___x_655_, 1, v___y_652_);
 lean_ctor_set(v___x_655_, 2, v_state_643_);
 lean_ctor_set(v___x_655_, 3, v_knownSize_644_);
@@ -2492,8 +2492,8 @@ v___x_670_ = lean_nat_dec_lt(v___x_658_, v___x_669_);
 if (v___x_670_ == 0)
 {
 lean_dec_ref(v_fst_666_);
-v___y_650_ = v_snd_668_;
-v___y_651_ = v_fst_667_;
+v___y_650_ = v_fst_667_;
+v___y_651_ = v_snd_668_;
 v___y_652_ = v_outputData_642_;
 goto v___jp_649_;
 }
@@ -2504,8 +2504,8 @@ v___x_671_ = ((size_t)0ULL);
 v___x_672_ = lean_usize_of_nat(v___x_669_);
 v___x_673_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Protocol_H1_Writer_writeFixedBody_spec__0(v_fst_666_, v___x_671_, v___x_672_, v_outputData_642_);
 lean_dec_ref(v_fst_666_);
-v___y_650_ = v_snd_668_;
-v___y_651_ = v_fst_667_;
+v___y_650_ = v_fst_667_;
+v___y_651_ = v_snd_668_;
 v___y_652_ = v___x_673_;
 goto v___jp_649_;
 }

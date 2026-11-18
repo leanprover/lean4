@@ -1173,7 +1173,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_ofWallTime___closed__0(void){
 _start:
 {
 lean_object* v___x_254_; lean_object* v___x_255_; 
-v___x_254_ = lean_cstr_to_nat("86400000000000");
+v___x_254_ = lean_uint64_to_nat(86400000000000ULL);
 v___x_255_ = lean_nat_to_int(v___x_254_);
 return v___x_255_;
 }
@@ -3418,7 +3418,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_addHours___closed__0(void){
 _start:
 {
 lean_object* v___x_844_; lean_object* v___x_845_; 
-v___x_844_ = lean_cstr_to_nat("3600000000000");
+v___x_844_ = lean_uint64_to_nat(3600000000000ULL);
 v___x_845_ = lean_nat_to_int(v___x_844_);
 return v___x_845_;
 }
@@ -3525,7 +3525,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_addMinutes___closed__0(void){
 _start:
 {
 lean_object* v___x_889_; lean_object* v___x_890_; 
-v___x_889_ = lean_cstr_to_nat("60000000000");
+v___x_889_ = lean_uint64_to_nat(60000000000ULL);
 v___x_890_ = lean_nat_to_int(v___x_889_);
 return v___x_890_;
 }

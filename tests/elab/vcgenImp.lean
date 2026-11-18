@@ -313,11 +313,10 @@ example : ⦃ fun _ _ => True ⦄ ⟦ x := 5; y := x + x ⟧ ⦃ fun _ _ s => s 
   vcgen
   simp [State.update]
 
-/-- A conditional: `vcgen` applies `Spec.ite`, leaving the guarded weakest precondition as a VC. -/
+/-- A conditional: `vcgen` applies `Spec.ite`, splits and leaves one VC per branch. -/
 example : ⦃ fun _ _ => True ⦄ ⟦ if x then y := 1 else y := 0 fi ⟧
     ⦃ fun _ _ s => s "y" = if s "x" ≠ 0 then 1 else 0 ⦄ := by
-  vcgen
-  simp only [wp_assign_eq, State.update, Expr.eval]; grind
+  vcgen with finish [State.update, Expr.eval]
 
 /-- A loop preserved vacuously: the guard fails immediately. -/
 example : ⦃ fun _ s => s "x" = 0 ⦄ ⟦ while x do x := x + 1 od ⟧ ⦃ fun _ _ s => s "x" = 0 ⦄ := by

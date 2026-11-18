@@ -1237,6 +1237,28 @@ theorem dite_eq_of_not {c : Prop} {inst : Decidable c} {α : Sort u} {t : c → 
   | isTrue hc   => absurd hc hnc
   | isFalse hnc => h hnc
 
+/--
+Auxiliary theorem for proving the equations of `match` expressions with value patterns.
+
+The match compiler generates a chain of tests
+```
+dite (b = a₁) (Eq.ndrec_symm m₁) fun _ => dite (b = a₂) (Eq.ndrec_symm m₂) fun _ => ... e
+```
+for the alternatives with value patterns `a₁`, `a₂`, ... This theorem is used to prove, with a
+single traversal of the chain, a theorem that states what the chain `r` is equal to in each case:
+```
+(b = a₁ → r ≍ m₁) ∧ (¬ b = a₁ → (b = a₂ → r ≍ m₂) ∧ (¬ b = a₂ → ... r ≍ e))
+```
+`q` is the statement for the remaining tests, and `h` its proof.
+-/
+theorem dite_ndrec_symm_cases {α : Sort u} {a b : α} {inst : Decidable (b = a)} {motive : α → Sort v}
+    {m : motive a} {e : ¬ b = a → motive b} {r : motive b} {q : Prop}
+    (h : (hn : ¬ b = a) → r = e hn → q) :
+    r = dite (b = a) (Eq.ndrec_symm m) e → (b = a → r ≍ m) ∧ (¬ b = a → q) :=
+  fun hr => match inst, hr with
+  | isTrue hc, hr   => ⟨fun _ => by subst hc; subst hr; exact HEq.rfl, fun hn => absurd hc hn⟩
+  | isFalse hn, hr  => ⟨fun hc => absurd hc hn, fun hn' => h hn' hr⟩
+
 @[deprecated dite_eq_right (since := "2026-07-21")]
 theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 

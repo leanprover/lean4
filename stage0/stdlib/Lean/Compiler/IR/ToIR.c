@@ -1483,7 +1483,7 @@ goto v_resetjp_482_;
 v_resetjp_482_:
 {
 lean_object* v___y_486_; lean_object* v___x_491_; uint8_t v___x_492_; 
-v___x_491_ = lean_cstr_to_nat("4294967296");
+v___x_491_ = lean_uint64_to_nat(4294967296ULL);
 v___x_492_ = lean_nat_dec_lt(v_val_481_, v___x_491_);
 lean_dec(v___x_491_);
 if (v___x_492_ == 0)

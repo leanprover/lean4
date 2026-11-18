@@ -1544,8 +1544,10 @@ def isFunCasesName (env : Environment) (name : Name) : Bool := Id.run do
   | _ => return false
 
 builtin_initialize
-  registerReservedNamePredicate isFunInductName
-  registerReservedNamePredicate isFunCasesName
+  registerReservedNamePredicate
+    (· matches "induct" | "induct_unfolding" | "mutual_induct" | "mutual_induct_unfolding")
+    isFunInductName
+  registerReservedNamePredicate (· matches "fun_cases" | "fun_cases_unfolding") isFunCasesName
 
   registerReservedNameAction fun name => do
     if isFunInductName (← getEnv) name then

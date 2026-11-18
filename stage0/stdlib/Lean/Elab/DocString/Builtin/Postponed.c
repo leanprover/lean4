@@ -1357,9 +1357,9 @@ lean_ctor_set(v___x_428_, 6, v_recordedDeps_421_);
 lean_ctor_set(v___x_428_, 7, v_messages_422_);
 lean_ctor_set(v___x_428_, 8, v_infoState_423_);
 lean_ctor_set(v___x_428_, 9, v_snapshotTasks_424_);
-v___x_429_ = lean_st_ref_put(v___y_425_, v___x_428_);
+v___x_429_ = lean_st_ref_put(v___y_416_, v___x_428_);
 v___x_430_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_430_, 0, v___y_416_);
+lean_ctor_set(v___x_430_, 0, v___y_425_);
 return v___x_430_;
 }
 v___jp_431_:
@@ -1404,7 +1404,7 @@ if (v_logWrites_448_ == 0)
 lean_object* v___x_453_; 
 lean_inc_ref(v_toEnvExtension_445_);
 v___x_453_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_445_, v_env_435_, v___f_451_, v_asyncMode_447_, v___x_405_, v___x_452_);
-v___y_416_ = v___x_449_;
+v___y_416_ = v___y_433_;
 v_nextMacroScope_417_ = v_nextMacroScope_436_;
 v_ngen_418_ = v_ngen_437_;
 v_auxDeclNGen_419_ = v_auxDeclNGen_438_;
@@ -1413,7 +1413,7 @@ v_recordedDeps_421_ = v_recordedDeps_440_;
 v_messages_422_ = v_messages_441_;
 v_infoState_423_ = v_infoState_442_;
 v_snapshotTasks_424_ = v_snapshotTasks_443_;
-v___y_425_ = v___y_433_;
+v___y_425_ = v___x_449_;
 v___y_426_ = v___x_453_;
 goto v___jp_415_;
 }
@@ -1424,7 +1424,7 @@ lean_inc_ref_n(v_toEnvExtension_445_, 2);
 v___x_454_ = l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrite(lean_box(0), v_toEnvExtension_445_, v_env_435_);
 lean_dec_ref(v_env_435_);
 v___x_455_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_445_, v___x_454_, v___f_451_, v_asyncMode_447_, v___x_405_, v___x_452_);
-v___y_416_ = v___x_449_;
+v___y_416_ = v___y_433_;
 v_nextMacroScope_417_ = v_nextMacroScope_436_;
 v_ngen_418_ = v_ngen_437_;
 v_auxDeclNGen_419_ = v_auxDeclNGen_438_;
@@ -1433,7 +1433,7 @@ v_recordedDeps_421_ = v_recordedDeps_440_;
 v_messages_422_ = v_messages_441_;
 v_infoState_423_ = v_infoState_442_;
 v_snapshotTasks_424_ = v_snapshotTasks_443_;
-v___y_425_ = v___y_433_;
+v___y_425_ = v___x_449_;
 v___y_426_ = v___x_455_;
 goto v___jp_415_;
 }

@@ -6018,16 +6018,16 @@ goto v___jp_1667_;
 }
 else
 {
-lean_dec(v_pre_1687_);
 lean_dec_ref_known(v_pre_1686_, 2);
+lean_dec(v_pre_1687_);
 lean_dec_ref_known(v_declName_1685_, 2);
 goto v___jp_1667_;
 }
 }
 else
 {
-lean_dec_ref_known(v_declName_1685_, 2);
 lean_dec(v_pre_1686_);
+lean_dec_ref_known(v_declName_1685_, 2);
 goto v___jp_1667_;
 }
 }

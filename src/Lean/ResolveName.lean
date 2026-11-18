@@ -31,19 +31,36 @@ def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName 
   if (← getEnv).contains reservedName then
     throwReservedNameNotAvailable declName reservedName
 
+/--
+A reserved name predicate. A name `n` with last component `s` is reserved if `isCandidate s` and
+`isReserved env n` hold.
+
+`isCandidate` depends only on the last component. Thus, name resolution evaluates it once per
+identifier, and not once for each namespace in which the identifier may be declared.
+-/
+structure ReservedNamePredicate where
+  isCandidate : String → Bool
+  isReserved : Environment → Name → Bool
+
 /-- Global reference containing all reserved name predicates. -/
 builtin_initialize reservedNamePredicatesRef : IO.Ref (Array (Environment → Name → Bool)) ← IO.mkRef #[]
 
+private builtin_initialize reservedNamePredsRef : IO.Ref (Array ReservedNamePredicate) ← IO.mkRef #[]
+
 /--
-Registers a new reserved name predicate.
+Registers a new reserved name predicate. See `ReservedNamePredicate`.
 -/
-def registerReservedNamePredicate (p : Environment → Name → Bool) : IO Unit := do
+def registerReservedNamePredicate (isCandidate : String → Bool) (isReserved : Environment → Name → Bool) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register reserved name suffix predicate, this operation can only be performed during initialization")
-  reservedNamePredicatesRef.modify fun ps => ps.push p
+  reservedNamePredicatesRef.modify fun ps => ps.push isReserved
+  reservedNamePredsRef.modify fun ps => ps.push { isCandidate, isReserved }
 
 builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment → Name → Bool)) ←
   registerEnvExtension reservedNamePredicatesRef.get (logWrites := true)
+
+private builtin_initialize reservedNamePredsExt : EnvExtension (Array ReservedNamePredicate) ←
+  registerEnvExtension reservedNamePredsRef.get (logWrites := true)
 
 /--
 Returns `true` if `name` is a reserved name.

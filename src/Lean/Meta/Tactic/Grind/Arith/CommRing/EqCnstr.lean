@@ -88,15 +88,27 @@ then the absolute value of the leading coefficient of the equation must not exce
 This ensures the rewrite is monic (i.e., `k₁ = 1` at `PolyDerivation.step`): it eliminates
 the monomial if the leading coefficient divides `k`, and it is a Euclidean remainder step
 otherwise. See `Poly.simpM?`.
+
+Among the candidates, it prefers equations whose leading coefficient divides `k`, and then
+equations with fewer terms. Such an equation eliminates the monomial with `k₁ = 1`. Otherwise,
+the rewrite is a remainder step, or, if `checkCoeffDvd` is disabled, it has `k₁ ≠ 1` and proves
+only `k₁ * lhs = rhs`, which is weaker in rings without `NoNatZeroDivisors`. Fewer terms keep
+intermediate polynomials small.
 -/
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
+  let mut best? : Option (EqCnstr × Bool) := none
   for c in (← getCommRingState).basis do
+    let dvd := c.p.lc ∣ k
     if !checkCoeff || noZeroDiv || c.p.lc.natAbs ≤ k.natAbs then
     if c.p.divides m then
-      return some c
-  return none
+      let better := match best? with
+        | none => true
+        | some (b, bDvd) => (dvd && !bDvd) || (dvd == bDvd && c.p.numTerms < b.p.numTerms)
+      if better then
+        best? := some (c, dvd)
+  return best?.map (·.1)
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some

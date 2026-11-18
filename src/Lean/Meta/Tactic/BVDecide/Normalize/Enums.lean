@@ -380,7 +380,7 @@ def getMatchEqCondFor (declName : Name) : MetaM Name := do
     throwError m!"{matchEqCondSuffix} lemma could not be established for {.ofConstName declName}"
 
 builtin_initialize
-  registerReservedNamePredicate fun env name => Id.run do
+  registerReservedNamePredicate isRealizedName?.isSupportedSuffix fun env name => Id.run do
     let some (declName, suffix) := isRealizedName? env name | return false
     if suffix == matchEqCondSuffix then
       isMatcherCore env declName

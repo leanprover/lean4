@@ -1216,7 +1216,7 @@ if (v___x_361_ == 0)
 {
 lean_object* v___x_362_; uint8_t v___x_363_; 
 lean_dec(v_a_357_);
-v___x_362_ = lean_cstr_to_nat("4294967296");
+v___x_362_ = lean_uint64_to_nat(4294967296ULL);
 v___x_363_ = lean_nat_dec_le(v___x_362_, v_n_346_);
 lean_dec(v___x_362_);
 if (v___x_363_ == 0)
@@ -1682,7 +1682,7 @@ return v___x_487_;
 else
 {
 lean_object* v___x_488_; uint8_t v___x_489_; 
-v___x_488_ = lean_cstr_to_nat("4294967296");
+v___x_488_ = lean_uint64_to_nat(4294967296ULL);
 v___x_489_ = lean_nat_dec_lt(v_n_483_, v___x_488_);
 lean_dec(v___x_488_);
 return v___x_489_;
@@ -1745,7 +1745,7 @@ if (v___x_516_ == 0)
 {
 lean_object* v___x_517_; uint8_t v___x_518_; 
 lean_dec(v_a_512_);
-v___x_517_ = lean_cstr_to_nat("4294967296");
+v___x_517_ = lean_uint64_to_nat(4294967296ULL);
 v___x_518_ = lean_nat_dec_le(v___x_517_, v_n_502_);
 lean_dec(v___x_517_);
 if (v___x_518_ == 0)
@@ -2240,7 +2240,7 @@ LEAN_EXPORT uint8_t l_Lean_isSafeBitVecWidth(lean_object* v_w_634_){
 _start:
 {
 lean_object* v___x_635_; uint8_t v___x_636_; 
-v___x_635_ = lean_cstr_to_nat("4294967296");
+v___x_635_ = lean_uint64_to_nat(4294967296ULL);
 v___x_636_ = lean_nat_dec_lt(v_w_634_, v___x_635_);
 lean_dec(v___x_635_);
 return v___x_636_;

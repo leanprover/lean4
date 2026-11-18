@@ -2927,8 +2927,8 @@ return v___x_585_;
 else
 {
 lean_object* v___x_586_; 
-lean_dec(v_pre_569_);
 lean_dec_ref_known(v_declName_568_, 2);
+lean_dec(v_pre_569_);
 v___x_586_ = lean_box(0);
 return v___x_586_;
 }
@@ -6253,7 +6253,7 @@ static lean_object* _init_l_Lean_Meta_getLitValueModulus_x3f___closed__2(void){
 _start:
 {
 lean_object* v___x_1337_; lean_object* v___x_1338_; 
-v___x_1337_ = lean_cstr_to_nat("4294967296");
+v___x_1337_ = lean_uint64_to_nat(4294967296ULL);
 v___x_1338_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1338_, 0, v___x_1337_);
 return v___x_1338_;

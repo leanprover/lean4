@@ -3916,7 +3916,7 @@ goto v_resetjp_1405_;
 }
 v_resetjp_1405_:
 {
-lean_object* v___x_1408_; lean_object* v_type_1409_; lean_object* v_value_1410_; lean_object* v___y_1412_; uint8_t v___y_1413_; lean_object* v___y_1414_; lean_object* v___y_1415_; lean_object* v___y_1416_; lean_object* v_fst_1429_; uint8_t v_snd_1430_; lean_object* v___y_1442_; lean_object* v___x_1446_; uint8_t v___x_1447_; 
+lean_object* v___x_1408_; lean_object* v_type_1409_; lean_object* v_value_1410_; lean_object* v___y_1412_; lean_object* v___y_1413_; lean_object* v___y_1414_; uint8_t v___y_1415_; lean_object* v___y_1416_; lean_object* v_fst_1429_; uint8_t v_snd_1430_; lean_object* v___y_1442_; lean_object* v___x_1446_; uint8_t v___x_1447_; 
 v___x_1408_ = lean_array_fget_borrowed(v___x_1351_, v_a_1352_);
 v_type_1409_ = lean_ctor_get(v___x_1408_, 1);
 v_value_1410_ = lean_ctor_get(v___x_1408_, 2);
@@ -4078,12 +4078,12 @@ lean_object* v___x_1417_; lean_object* v___x_1418_; lean_object* v___x_1420_;
 lean_inc_ref(v_value_1410_);
 v___x_1417_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_1417_, 0, v_value_1410_);
-lean_ctor_set_uint8(v___x_1417_, sizeof(void*)*1, v___y_1413_);
-v___x_1418_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__8___redArg(v_fst_1395_, v___y_1415_, v___x_1417_);
+lean_ctor_set_uint8(v___x_1417_, sizeof(void*)*1, v___y_1415_);
+v___x_1418_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__8___redArg(v_fst_1395_, v___y_1412_, v___x_1417_);
 if (v_isShared_1407_ == 0)
 {
 lean_ctor_set(v___x_1406_, 1, v___y_1416_);
-lean_ctor_set(v___x_1406_, 0, v___y_1412_);
+lean_ctor_set(v___x_1406_, 0, v___y_1413_);
 v___x_1420_ = v___x_1406_;
 goto v_reusejp_1419_;
 }
@@ -4091,7 +4091,7 @@ else
 {
 lean_object* v_reuseFailAlloc_1427_; 
 v_reuseFailAlloc_1427_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_1427_, 0, v___y_1412_);
+lean_ctor_set(v_reuseFailAlloc_1427_, 0, v___y_1413_);
 lean_ctor_set(v_reuseFailAlloc_1427_, 1, v___y_1416_);
 v___x_1420_ = v_reuseFailAlloc_1427_;
 goto v_reusejp_1419_;
@@ -4160,20 +4160,20 @@ v___x_1437_ = lean_nat_dec_le(v_snd_1404_, v___x_1436_);
 if (v___x_1437_ == 0)
 {
 lean_dec(v_snd_1404_);
-v___y_1412_ = v___x_1433_;
-v___y_1413_ = v_snd_1430_;
+v___y_1412_ = v_fst_1429_;
+v___y_1413_ = v___x_1433_;
 v___y_1414_ = v___x_1434_;
-v___y_1415_ = v_fst_1429_;
+v___y_1415_ = v_snd_1430_;
 v___y_1416_ = v___x_1436_;
 goto v___jp_1411_;
 }
 else
 {
 lean_dec(v___x_1436_);
-v___y_1412_ = v___x_1433_;
-v___y_1413_ = v_snd_1430_;
+v___y_1412_ = v_fst_1429_;
+v___y_1413_ = v___x_1433_;
 v___y_1414_ = v___x_1434_;
-v___y_1415_ = v_fst_1429_;
+v___y_1415_ = v_snd_1430_;
 v___y_1416_ = v_snd_1404_;
 goto v___jp_1411_;
 }
@@ -4397,7 +4397,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstrai
 _start:
 {
 lean_object* v_minDepth_1512_; lean_object* v_relevantHypsIdxMap_1513_; lean_object* v___x_1514_; 
-v_minDepth_1512_ = lean_cstr_to_nat("4294967296");
+v_minDepth_1512_ = lean_uint64_to_nat(4294967296ULL);
 v_relevantHypsIdxMap_1513_ = lean_obj_once(&l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass___lam__0___closed__3, &l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass___lam__0___closed__3_once, _init_l_Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass___lam__0___closed__3);
 v___x_1514_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1514_, 0, v_relevantHypsIdxMap_1513_);

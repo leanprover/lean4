@@ -392,6 +392,59 @@ theorem String.Internal.ofList_ne_ofList (l₁ l₂ : List Char) (i : Nat)
   rw [sameCharAt_self] at h
   contradiction
 
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ne_of_code`.
+
+`codeOfList l` is a natural number that identifies the list of characters `l`: two different lists
+have different codes. It is the value of the numeral in base `2^21` whose digits are
+`c.toNat + 1` for the characters `c` of `l`, the first character being the least significant
+digit. No digit is zero, so lists with different lengths also have different codes.
+This property is not needed for soundness, and is not proved: `String.Internal.ne_of_code` holds
+for any function, and the kernel rejects its proof if the two codes are equal.
+
+It is defined using a recursor to minimize the number of steps the kernel has to perform when
+evaluating it.
+-/
+@[expose] noncomputable def String.Internal.codeOfList (l : List Char) : Nat :=
+  List.rec (motive := fun _ => Nat) 0
+    (fun c _ n => Nat.add (Nat.add c.toNat 1) (Nat.mul 2097152 n)) l
+
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ne_of_code`.
+
+`code s` is a natural number that identifies the string `s`, see `codeOfList`.
+The kernel cannot evaluate `code s` efficiently when `s` is a literal. `String.Internal.code_ofList`
+is used instead.
+-/
+noncomputable def String.Internal.code (s : String) : Nat :=
+  codeOfList s.toList
+
+/--
+Auxiliary theorem for computing the code of a `String` literal. A literal is definitionally equal
+to `String.ofList l`, where `l` is the list of its characters, and `h` is `Eq.refl n`.
+-/
+theorem String.Internal.code_ofList (l : List Char) (n : Nat) (h : codeOfList l = n) :
+    code (String.ofList l) = n := by
+  simp [code, h]
+
+/--
+Auxiliary theorem for proving that two `String` literals are different: their codes `n₁` and `n₂`
+are different numerals, and `h` is `Eq.refl false`.
+
+The kernel evaluates `Nat.beq n₁ n₂` using arbitrary precision arithmetic, so the cost of this
+proof does not depend on the two literals, once their codes are known. Use this theorem instead of
+`String.Internal.ofList_ne_ofList` when many disequalities between the same literals are needed
+and the proofs `h₁` and `h₂` can be shared.
+-/
+theorem String.Internal.ne_of_code {s₁ s₂ : String} {n₁ n₂ : Nat} (h₁ : code s₁ = n₁)
+    (h₂ : code s₂ = n₂) (h : Nat.beq n₁ n₂ = false) : ¬ s₁ = s₂ := by
+  intro h'
+  subst h' h₁ h₂
+  rw [Nat.beq_refl] at h
+  contradiction
+
 @[deprecated String.ofList_inj (since := "2025-10-30")]
 theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   String.ofList_inj

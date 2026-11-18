@@ -177,6 +177,11 @@ def realizeExtIffTheorem (extName : Name) : TermElabM Name := do
 
 open Ext
 
+register_builtin_option warning.ext.generalPattern : Bool := {
+  defValue := true
+  descr := "Warn when an extensionality theorem has a maximally general pattern."
+}
+
 builtin_initialize registerBuiltinAttribute {
   name := `ext
   descr := "Marks a theorem as an extensionality theorem"
@@ -199,6 +204,10 @@ builtin_initialize registerBuiltinAttribute {
     let some (ty, lhs, rhs) := declTy.eq? | failNotEq
     unless lhs.isMVar && rhs.isMVar do failNotEq
     let keys ← withReducible <| DiscrTree.mkPath ty
+    if warning.ext.generalPattern.get (← getOptions) && keys == #[DiscrTree.Key.star] then
+      logWarningAt stx m!"\
+        Extensionality theorem `{.ofConstName declName (fullNames := true)}` has a maximally general pattern and may be \
+        tried for every type"
     let priority ← liftMacroM <| evalPrio (prio.getD (← `(prio| default)))
     extExtension.add {declName, keys, priority} kind
     -- Realize iff theorem

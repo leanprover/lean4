@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
 public import Init.Syntax
+import Lean.Elab.ExprQuot
 import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
@@ -275,6 +276,11 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     let arg ← collect stx[2]
     return stx.setArg 2 arg
   else if k == ``Lean.Parser.Term.inaccessible then
+    return stx
+  else if k == ``Lean.Parser.Term.exprQuot then
+    let ids ← ExprQuot.collectExprQuotPatternVars stx
+    for id in ids do
+      discard <| processVar id
     return stx
   else if k == strLitKind then
     return stx

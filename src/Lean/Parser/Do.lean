@@ -224,6 +224,11 @@ def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
   "match " >> optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >>
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
+@[builtin_doElem_parser low] def doMatchModulo := leading_parser:leadPrec
+  "match " >> atomic (optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >> Term.moduloParam) >>
+  optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >>
+  sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
+
 def doMatchExprAlts := ppDedent <| matchExprAlts (rhsParser := doSeq)
 def optMetaFalse :=
   optional (atomic ("(" >> nonReservedSymbol "meta" >>  " := " >> nonReservedSymbol "false" >> ") "))

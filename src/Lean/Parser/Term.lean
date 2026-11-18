@@ -418,6 +418,46 @@ def motive := leading_parser
   atomic ("(" >> nonReservedSymbol "motive" >> " := ") >>
     withoutPosition termParser >> ")" >> ppSpace
 
+def exprQuotEngine := leading_parser
+  "/" >> checkNoWsBefore "no space after '/'" >> identNoAntiquot
+
+def exprQuotItemPos := leading_parser "+"
+def exprQuotItemNeg := leading_parser "-"
+def exprQuotItemSign := exprQuotItemPos <|> exprQuotItemNeg
+
+def exprQuotItemPin : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotItemPin maxPrec (
+    "$" >> checkNoWsBefore "no space after '$'" >>
+      (identNoAntiquot <|> ("(" >> withoutPosition termParser >> ")")))
+
+def exprQuotItem := leading_parser
+  optional exprQuotItemSign >> (exprQuotItemPin <|> identNoAntiquot)
+
+def exprQuotItems := leading_parser
+  "[" >> sepBy exprQuotItem ", " (allowTrailingSep := true) >> "]"
+
+def exprQuotFlagPos := leading_parser "+" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+def exprQuotFlagNeg := leading_parser "-" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+def exprQuotFlag := atomic (exprQuotFlagPos <|> exprQuotFlagNeg)
+
+def exprQuotRel : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotRel maxPrec (
+    optional (checkNoWsBefore "no space before '/'" >> exprQuotEngine) >>
+    optional exprQuotItems >>
+    many exprQuotFlag)
+
+def exprQuotModuloEngineSlash := leading_parser exprQuotEngine
+def exprQuotModuloEngineBare := leading_parser identNoAntiquot
+def exprQuotModuloWithEngine := leading_parser
+  (exprQuotModuloEngineSlash <|> exprQuotModuloEngineBare) >> optional exprQuotItems >> many exprQuotFlag
+def exprQuotModuloItems := leading_parser exprQuotItems >> many exprQuotFlag
+def exprQuotModuloFlags := leading_parser many1 exprQuotFlag
+def exprQuotRelModulo := leading_parser
+  exprQuotModuloWithEngine <|> exprQuotModuloItems <|> exprQuotModuloFlags
+
+def moduloParam := leading_parser
+  atomic ("(" >> nonReservedSymbol "modulo" >> " := ") >> exprQuotRelModulo >> ")" >> ppSpace
+
 /--
 Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
 term `e` against each pattern `p` of a match alternative. When all patterns
@@ -453,6 +493,11 @@ they are not.
 -/
 @[builtin_term_parser] def «match» := leading_parser:leadPrec
   "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >>
+  " with" >> ppDedent matchAlts
+
+@[builtin_term_parser low] def matchModulo := leading_parser:leadPrec
+  "match " >> atomic (optional generalizingParam >> optional motive >> moduloParam) >>
+  optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >>
   " with" >> ppDedent matchAlts
 /--
 Empty match/ex falso. `nomatch e` is of arbitrary type `α : Sort u` if
@@ -1163,6 +1208,14 @@ appropriate parameter for the underlying monad's `ST` effects, then passes it to
 
 @[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
   "`(" >> ident >> "| " >> incQuotDepth (parserOfStack 1) >> ")"
+
+@[builtin_term_parser default+1] def exprQuot := leading_parser
+  atomic ("`(" >> checkNoWsBefore "no space before 'expr'" >> nonReservedSymbol "expr" >> exprQuotRel >> "| ") >>
+  withoutPosition (incQuotDepth termParser) >> ")"
+
+def exprQuotHoleApp := leading_parser
+  numLit >> many argument
+builtin_initialize registerBuiltinNodeKind ``exprQuotHoleApp
 
 /--
 Implementation of the `show_term` term elaborator.

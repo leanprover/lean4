@@ -466,12 +466,15 @@ def mkJoinEqProof (lhs : Expr) (pf? : Option Expr) : VCGenM Expr := do
   let α ← Sym.inferType lhs
   return mkApp2 (mkConst ``Eq.refl [← Sym.getLevel α]) α lhs
 
-/-- Assign `?H` of `jp` the anti-unifier of the arguments of its `jumps` above the trie of the
-jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof, and return the RHS goal
-`∀ xs, ?H xs → …` with its binders introduced. The values in the leaves are in `simp` normal form,
-so the RHS goal introduces `?H xs` without `simp`. `vcgen` processes the RHS goal after all goals
-below the registration, so every jump is known by then. -/
-public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM MVarId := do
+/-- If `goal` is the RHS goal `∀ xs, ?H xs → …` of a pending join point `jp`, assign `?H` the
+anti-unifier of the arguments of the jumps to `jp` above the trie of the jumps, `False` if no jump
+reaches `jp`, and each jump's `?pf` its proof, and return `goal` with its binders introduced.
+Otherwise return `goal`. The values in the leaves are in `simp` normal form, so the RHS goal
+introduces `?H xs` without `simp`. `vcgen` processes the RHS goal after all goals below the
+registration, so every jump is known by then. -/
+public def finalizeJoinPoint (goal : MVarId) : VCGenM MVarId := do
+  let some (jp, jumps) := (← get).pendingJoinPoints[goal]? | return goal
+  modify fun st => { st with pendingJoinPoints := st.pendingJoinPoints.erase goal }
   let jumpsLocals ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
   let (paths, holes, eqParams, leafPfs) ← jp.hyp.withContext do
       forallTelescope (← jp.hyp.getType) fun xs _ => do
@@ -507,6 +510,6 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM MVar
       let steps := locals.toList.map fun d => if d.value?.isSome then .letLocal else .bind d.toExpr
       jump.proof.assign
         (← mkStepsProof φ top fun φ => mkTrieProof φ paths[k]! steps leafPfsₖ.toList)
-  introsHygienic jp.rhsGoal
+  introsHygienic goal
 
 end Lean.Elab.Tactic.VCGen

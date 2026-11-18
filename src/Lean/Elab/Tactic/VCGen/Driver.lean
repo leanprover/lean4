@@ -118,11 +118,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   while let some s := worklist.back? do
     worklist := worklist.pop
     if ← s.goal.mvarId.isAssigned then continue
-    let mut next := s.goal
-    if let some (jp, jumps) := (← get).pendingJoinPoints[next.mvarId]? then
-      modify fun st => { st with pendingJoinPoints := st.pendingJoinPoints.erase next.mvarId }
-      next := { next with mvarId := ← finalizeJoinPoint jp jumps }
-    let goal ← processHypotheses next
+    let goal ← processHypotheses { s.goal with mvarId := ← finalizeJoinPoint s.goal.mvarId }
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
     | .stop reason =>

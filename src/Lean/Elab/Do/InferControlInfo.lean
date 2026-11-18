@@ -126,15 +126,34 @@ For pure handlers, use `fun stx => return ControlInfo.pure`.
 builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHandler ←
   mkControlInfoElemAttribute decl_name%
 
+/--
+The `ControlInfo` of every `doSeq` node visited in one `do` block, keyed by the address of the node.
+Every entry keeps its node alive, so an address identifies one node.
+-/
+structure ControlInfoCache where
+  ref : IO.Ref (Std.HashMap USize (DoSeq × ControlInfo))
+
+def ControlInfoCache.new : BaseIO ControlInfoCache :=
+  return ⟨← IO.mkRef {}⟩
+
+private unsafe def doSeqAddrImpl (stx : DoSeq) : USize := ptrAddrUnsafe stx.raw
+
+@[implemented_by doSeqAddrImpl]
+private opaque doSeqAddr (stx : DoSeq) : USize
+
 namespace InferControlInfo
+
+abbrev InferM := ReaderT ControlInfoCache TermElabM
 
 open InternalSyntax in
 mutual
 
-partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
+partial def ofElem (stx : DoElem) : InferM ControlInfo := do
   let env ← getEnv
-  if let some (_decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) then
-    let stxNew ← liftMacroM <| liftExcept stxNew?
+  let stxNew? ← withRef stx do
+    let some (_decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) | return none
+    some <$> (liftMacroM <| liftExcept stxNew? : TermElabM Syntax)
+  if let some stxNew := stxNew? then
     return ← ofElem ⟨stxNew⟩
 
   match stx with
@@ -254,7 +273,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
       "No `ControlInfo` inference handler found for `{kind}` in syntax {indentD stx}\n\
        Register a handler with `@[doElem_control_info {kind}]`."
 
-partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDecl, ``doPatDecl]) : TermElabM ControlInfo := do
+partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDecl, ``doPatDecl]) : InferM ControlInfo := do
   match decl with
   | `(doIdDecl| $x:ident $[: $_]? ← $rhs) =>
     let reassigns := if reassignment then #[x] else #[]
@@ -266,30 +285,37 @@ partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDe
 
 partial def ofLetOrReassign (reassigned : Array Ident) (rhs? : Option DoElem)
     (otherwise? : Option (TSyntax ``doSeqIndent)) (body? : Option (TSyntax ``doSeqIndent))
-    : TermElabM ControlInfo := do
+    : InferM ControlInfo := do
   let rhs ← match rhs? with | none => pure { : ControlInfo } | some rhs => ofElem rhs
   let otherwise ← match otherwise? with | none => pure { : ControlInfo } | some otherwise => ofSeq ⟨otherwise⟩
   let body ← match body? with | none => pure { : ControlInfo } | some body => ofSeq ⟨body⟩
   let info := rhs.sequence (body.alternative otherwise)
   return { info with reassigns := (reassigned.map TSyntax.getId).foldl NameSet.insert info.reassigns }
 
-partial def ofSeq (stx : DoSeq) : TermElabM ControlInfo := do
+partial def ofSeq (stx : DoSeq) : InferM ControlInfo := do
+  let cache := (← read).ref
+  let key := doSeqAddr stx
+  if let some (_, info) := (← cache.get)[key]? then
+    return info
   let mut info : ControlInfo := {}
   for elem in getDoElems stx do
     info := info.sequence (← ofElem elem)
+  cache.modify (·.insert key (stx, info))
   return info
 
-partial def ofOptionSeq (stx? : Option DoSeq) : TermElabM ControlInfo := do
+partial def ofOptionSeq (stx? : Option DoSeq) : InferM ControlInfo := do
   match stx? with | none => pure { : ControlInfo } | some stx => ofSeq stx
 
 end
 
 end InferControlInfo
 
-/-- Infer the `ControlInfo` of `doSeq`. -/
-def inferControlInfoSeq (doSeq : DoSeq) : TermElabM ControlInfo :=
-  InferControlInfo.ofSeq doSeq
+/-- Infer the `ControlInfo` of `doSeq`, reusing the results stored in `cache?`. -/
+def inferControlInfoSeq (doSeq : DoSeq) (cache? : Option ControlInfoCache := none) :
+    TermElabM ControlInfo := do
+  InferControlInfo.ofSeq doSeq |>.run (← cache?.getDM ControlInfoCache.new)
 
-/-- Infer the `ControlInfo` of a single doElem. -/
-def inferControlInfoElem (doElem : DoElem) : TermElabM ControlInfo :=
-  InferControlInfo.ofElem doElem
+/-- Infer the `ControlInfo` of a single doElem, reusing the results stored in `cache?`. -/
+def inferControlInfoElem (doElem : DoElem) (cache? : Option ControlInfoCache := none) :
+    TermElabM ControlInfo := do
+  InferControlInfo.ofElem doElem |>.run (← cache?.getDM ControlInfoCache.new)

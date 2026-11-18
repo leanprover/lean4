@@ -661,7 +661,8 @@ structure Environment where
   akin to how `checked` collects all declarations. We only use it as a fallback in
   `findAsyncCore?`/`getState`; see there.
   -/
-  private allRealizations : Task (NameMap AsyncConst) := .pure {}
+  private allRealizations : Task (VisibilityMap (NameMap AsyncConst)) :=
+    .pure { «private» := {}, «public» := {} }
   /--
   Indicates whether the environment is being used in an exported context, i.e. whether it should
   provide access to only the data to be imported by other modules participating in the module
@@ -920,6 +921,17 @@ set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_reserved_name"]
 private opaque isReservedName (env : Environment) (name : Name) : Bool
 
+/--
+Looks up a realized constant in the value of `allRealizations`. A constant that is not exported is
+found in the public scope as well, in its private form.
+-/
+private def findRealization? (env : Environment)
+    (allRealizations : VisibilityMap (NameMap AsyncConst)) (n : Name) : Option AsyncConst :=
+  if env.isExporting then
+    allRealizations.public.find? n <|> allRealizations.private.find? n
+  else
+    allRealizations.private.find? n
+
 @[inline] private def findAsyncConst? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConst := do
   if let some c := env.asyncConsts.find? n then
@@ -930,7 +942,7 @@ private opaque isReservedName (env : Environment) (name : Name) : Bool
     -- Constant generated in a different environment branch
     return c
   if !skipRealize && isReservedName env n then
-    if let some c := env.allRealizations.get.find? n then
+    if let some c := findRealization? env env.allRealizations.get n then
       return c
   -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
   -- by `addDeclCore` invariant.
@@ -959,7 +971,7 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
   | _ => Id.run do
     if isReservedName env n && !skipRealize then
       return env.allRealizations.map (sync := true) fun allRealizations => do
-        if let some c := allRealizations.find? n then
+        if let some c := findRealization? env allRealizations n then
           return c.constInfo
         none
     -- see `findAsyncCore?`
@@ -1152,7 +1164,7 @@ structure AddConstAsyncResult where
   private sigPromise : IO.Promise ConstantVal
   private constPromise : IO.Promise ConstPromiseVal
   private checkedEnvPromise : IO.Promise Kernel.Environment
-  private allRealizationsPromise : IO.Promise (NameMap AsyncConst)
+  private allRealizationsPromise : IO.Promise (VisibilityMap (NameMap AsyncConst))
 
 /-- Creates fallback info to be used in case promises are dropped unfulfilled. -/
 private def mkFallbackConstInfo (constName : Name) (kind : ConstantKind) : ConstantInfo :=
@@ -1793,7 +1805,7 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
         return ext.getStateImpl exts.get
       -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
       -- will just come to the same conclusion
-    else if let some c := env.allRealizations.get.find? asyncDecl then
+    else if let some c := env.allRealizations.get.private.find? asyncDecl then
       if let some exts := c.exts? then
         return ext.getStateImpl exts.get
     -- fallback; we could enforce that `asyncDecl` and its extension state always exist but the
@@ -3007,6 +3019,14 @@ such as in `#eval`.
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
+/-- Adds the given realized constants to the value of `Environment.allRealizations`. -/
+private def addRealizations (allRealizations : VisibilityMap (NameMap AsyncConst))
+    (newConsts : VisibilityMap (List AsyncConst)) : VisibilityMap (NameMap AsyncConst) where
+  «private» := newConsts.private.foldl (init := allRealizations.private) fun m c =>
+    m.insert c.constInfo.name c
+  «public» := newConsts.public.foldl (init := allRealizations.public) fun m c =>
+    m.insert c.constInfo.name c
+
 /--
 Replays the difference between `newEnv` and `oldEnv` onto `dest`: the set of constants in `newEnv`
 but not `oldEnv` and the environment extension state for extensions defining `replay?`. If
@@ -3037,9 +3057,8 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
       oldEnv.checked.bind (sync := true) fun oldKEnv =>
         newEnv.checked.map fun newKEnv =>
           replayKernel oldKEnv newKEnv exts newPrivateConsts kenv |>.toOption.getD kenv
-    allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
-      newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
-        allRealizations.insert c.constInfo.name c
+    allRealizations := dest.allRealizations.map (sync := true)
+      (addRealizations · { «private» := newPrivateConsts, «public» := newPublicConsts })
   }
 where
   /--
@@ -3300,9 +3319,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         | .error e => do
           exPromise.resolve e
           return kenv)
-    allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
-      res.newConsts.private.foldl (init := allRealizations) fun allRealizations c =>
-        allRealizations.insert c.constInfo.name c
+    allRealizations := env.allRealizations.map (sync := true) (addRealizations · res.newConsts)
   }
   return (env, exPromise.result?, res.dyn)
 

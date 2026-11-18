@@ -1,8 +1,3 @@
-/-
-Copyright (c) 2026 Lean FRO LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Andreas Reser
--/
 import Lean
 
 /-!
@@ -469,6 +464,51 @@ set_option linter.exprQuot.syntaxHole true in
 def noLintMatchExprAnonHole (e : Expr) : Nat :=
   match e with
   | `(?_) => 1
+  | _ => 0
+
+-- Normal `match (stx : Syntax)` must not elaborate discriminants during `match_syntax.expand`
+-- and `elabMatchSyntax` must not add any extra discriminant elaboration or hover InfoTree entry.
+private def discrMarker (s : Syntax) : Syntax := s
+
+private def countDiscrMarkerInfos (trees : PersistentArray InfoTree) : Nat :=
+  trees.foldl (init := (0 : Nat)) fun acc tree =>
+    tree.foldInfo (init := acc) fun _ info n =>
+      match info with
+      | .ofTermInfo ti =>
+        if ti.expr.isAppOfArity ``discrMarker 1 && !ti.isBinder then n + 1 else n
+      | _ => n
+
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let stx ← `(fun (s : Syntax) => match discrMarker s with | `(?_ + 1) => (1 : Nat) | _ => 0)
+  let savedInfo ← getInfoState
+  try
+    modifyInfoState fun s => { s with enabled := true, trees := {} }
+    let expanded ← match stx with
+      | `(fun ($s:ident : $ty) => $m) =>
+        let expandedMatch : Term := ⟨← Term.Quotation.match_syntax.expand m⟩
+        `(fun ($s:ident : $ty) => $expandedMatch)
+      | _ => throwError "unexpected test syntax"
+    let expandCount := countDiscrMarkerInfos (← getInfoTrees)
+    unless expandCount == 0 do
+      throwError "match_syntax.expand must not elaborate discriminants, got {expandCount}"
+    modifyInfoState fun s => { s with enabled := true, trees := {} }
+    discard <| Term.withoutModifyingElabMetaStateWithInfo <| Term.elabTerm expanded none
+    let baselineCount := countDiscrMarkerInfos (← getInfoTrees)
+    modifyInfoState fun s => { s with enabled := true, trees := {} }
+    discard <| Term.withoutModifyingElabMetaStateWithInfo <| Term.elabTerm stx none
+    let elabCount := countDiscrMarkerInfos (← getInfoTrees)
+    unless elabCount == baselineCount do
+      throwError "elabMatchSyntax duplicated discriminant elaboration: \
+        expected {baselineCount}, got {elabCount}"
+  finally
+    setInfoState savedInfo
+
+/-- error: Unknown identifier `missingSyntaxMatchRhsId` -/
+#guard_msgs in
+def syntaxMatchRhsErrorPreserved (s : Syntax) : Nat :=
+  match s with
+  | `(?_ + 1) => missingSyntaxMatchRhsId
   | _ => 0
 
 end ExprQuotDiagTest

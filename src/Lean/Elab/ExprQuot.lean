@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Copyright (c) 2026 Andres Erbsen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Andreas Reser
+Authors: Andres Erbsen
 -/
 module
 
@@ -2160,88 +2160,79 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
       let restoreMsgs : TermElabM Unit := do
         let curMsgs := (← getThe Core.State).messages
         modifyThe Core.State fun s => { s with messages := savedMsgs ++ curMsgs }
-      let e ←
-        try
-          let e ← withReader (fun ctx => { ctx with
-              fixedTermElabs := ctx.fixedTermElabs ++ fixedElabs.map (·.toFixedTermElabRef)
-            }) do
-              let e ← Term.elabTerm elabBodyStx none
-              Term.synthesizeSyntheticMVars (postpone := .partial)
-              instantiateMVars e
-          if (← getThe Core.State).messages.hasErrors then
-            restoreMsgs
-            throwAbortTerm
-          pure e
-        catch ex =>
-          restoreMsgs
-          throw ex
-      let curDepth := (← getMCtx).depth
-      let mctx ← getMCtx
-      let holeMVars ← (prepState.holeNames.zipIdx).mapM fun (holeName, hIdx) => do
-        if let some mvarId := mctx.findUserName? holeName then
-          return mkMVar mvarId
-        else
-          restoreMsgs
-          match prepState.kinds.getD hIdx (.hole none) with
-          | .splice _ _ =>
-            throwError "splice `$...` was eliminated during quotation elaboration:\
-              {indentD stx[4]}"
-          | .hole userName? =>
-            let hStr := match userName? with | some n => s!"?{n}" | none => "?_"
-            throwError "hole `{hStr}` was eliminated during quotation elaboration:\
-              {indentD stx[4]}"
-      let mut spliceMap : Std.HashMap MVarId Nat := {}
-      let mut orderedSplices : Array Expr := #[]
-      for (hIdx, sExpr) in spliceExprs do
-        let mv := holeMVars.getD hIdx default
-        let pos := orderedSplices.size
-        spliceMap := spliceMap.insert mv.mvarId! pos
-        orderedSplices := orderedSplices.push sExpr
-      let mut holeMap : Std.HashMap MVarId (Option Name) := {}
-      for h : hIdx in *...prepState.kinds.size do
-        if let .hole userName? := prepState.kinds[hIdx] then
+      try
+        let e ← withReader (fun ctx => { ctx with
+            fixedTermElabs := ctx.fixedTermElabs ++ fixedElabs.map (·.toFixedTermElabRef)
+          }) do
+            let e ← Term.elabTerm elabBodyStx none
+            Term.synthesizeSyntheticMVars (postpone := .partial)
+            instantiateMVars e
+        if (← getThe Core.State).messages.hasErrors then
+          throwAbortTerm
+        let curDepth := (← getMCtx).depth
+        let mctx ← getMCtx
+        let holeMVars ← (prepState.holeNames.zipIdx).mapM fun (holeName, hIdx) => do
+          if let some mvarId := mctx.findUserName? holeName then
+            return mkMVar mvarId
+          else
+            match prepState.kinds.getD hIdx (.hole none) with
+            | .splice _ _ =>
+              throwError "splice `$...` was eliminated during quotation elaboration:\
+                {indentD stx[4]}"
+            | .hole userName? =>
+              let hStr := match userName? with | some n => s!"?{n}" | none => "?_"
+              throwError "hole `{hStr}` was eliminated during quotation elaboration:\
+                {indentD stx[4]}"
+        let mut spliceMap : Std.HashMap MVarId Nat := {}
+        let mut orderedSplices : Array Expr := #[]
+        for (hIdx, sExpr) in spliceExprs do
           let mv := holeMVars.getD hIdx default
-          holeMap := holeMap.insert mv.mvarId! userName?
-      let mut pendingTCMap : Std.HashMap MVarId Expr := {}
-      for pm in (← get).pendingMVars do
-        if let some { kind := .typeClass _, .. } ← Term.getSyntheticMVarDecl? pm then
-          pendingTCMap := pendingTCMap.insert pm (← instantiateMVars (← pm.getDecl).type)
-      let r ← abstractMVars e
-      let (detMVars, detLMVars, validTCs) ←
-        computeTemplateDetermined curDepth r.mvars spliceMap pendingTCMap
-      let mut badMVars : Array MVarId := #[]
-      let mut varKinds : Array ExprTemplateVarKind := Array.emptyWithCapacity r.mvars.size
-      for mv in r.mvars do
-        let id := mv.mvarId!
-        if let some pos := spliceMap[id]? then
-          varKinds := varKinds.push (.splice pos)
-        else if let some userName? := holeMap[id]? then
-          varKinds := varKinds.push (.hole userName?)
-        else if validTCs.contains id then
-          varKinds := varKinds.push .tc
-        else if detMVars.contains id then
-          varKinds := varKinds.push .infer
-        else
-          badMVars := badMVars.push id
-      let mut lState := collectLevelMVars {} e
-      for mv in r.mvars do
-        lState := collectLevelMVars lState (← instantiateMVars (← mv.mvarId!.getDecl).type)
-      let mctxNow ← getMCtx
-      let badLMVars := lState.result.filter fun lmv =>
-        mctxNow.getLevelDepth lmv == curDepth && !detLMVars.contains lmv
-      if !badMVars.isEmpty || !badLMVars.isEmpty then
-        let autoHoleTypes ← autoHoleTypesRef.get
-        try
+          let pos := orderedSplices.size
+          spliceMap := spliceMap.insert mv.mvarId! pos
+          orderedSplices := orderedSplices.push sExpr
+        let mut holeMap : Std.HashMap MVarId (Option Name) := {}
+        for h : hIdx in *...prepState.kinds.size do
+          if let .hole userName? := prepState.kinds[hIdx] then
+            let mv := holeMVars.getD hIdx default
+            holeMap := holeMap.insert mv.mvarId! userName?
+        let mut pendingTCMap : Std.HashMap MVarId Expr := {}
+        for pm in (← get).pendingMVars do
+          if let some { kind := .typeClass _, .. } ← Term.getSyntheticMVarDecl? pm then
+            pendingTCMap := pendingTCMap.insert pm (← instantiateMVars (← pm.getDecl).type)
+        let r ← abstractMVars e
+        let (detMVars, detLMVars, validTCs) ←
+          computeTemplateDetermined curDepth r.mvars spliceMap pendingTCMap
+        let mut badMVars : Array MVarId := #[]
+        let mut varKinds : Array ExprTemplateVarKind := Array.emptyWithCapacity r.mvars.size
+        for mv in r.mvars do
+          let id := mv.mvarId!
+          if let some pos := spliceMap[id]? then
+            varKinds := varKinds.push (.splice pos)
+          else if let some userName? := holeMap[id]? then
+            varKinds := varKinds.push (.hole userName?)
+          else if validTCs.contains id then
+            varKinds := varKinds.push .tc
+          else if detMVars.contains id then
+            varKinds := varKinds.push .infer
+          else
+            badMVars := badMVars.push id
+        let mut lState := collectLevelMVars {} e
+        for mv in r.mvars do
+          lState := collectLevelMVars lState (← instantiateMVars (← mv.mvarId!.getDecl).type)
+        let mctxNow ← getMCtx
+        let badLMVars := lState.result.filter fun lmv =>
+          mctxNow.getLevelDepth lmv == curDepth && !detLMVars.contains lmv
+        if !badMVars.isEmpty || !badLMVars.isEmpty then
+          let autoHoleTypes ← autoHoleTypesRef.get
           reportTermBuildErrors e stx badMVars badLMVars pendingTCMap autoHoleTypes
-        finally
-          restoreMsgs
-      restoreMsgs
-      let tmpl : ExprTemplate := {
-        levelParams := r.paramNames.toList
-        lam         := normalizeOuterLamNames varKinds.size #[] r.expr
-        varKinds
-      }
-      return (tmpl, orderedSplices.toList)
+        let tmpl : ExprTemplate := {
+          levelParams := r.paramNames.toList
+          lam         := normalizeOuterLamNames varKinds.size #[] r.expr
+          varKinds
+        }
+        return (tmpl, orderedSplices.toList)
+      finally
+        restoreMsgs
   let (siteId, tmplExpr) ← mkAuxTmplExpr tmpl
   let splicesArrExpr ← mkArrayLit (mkConst ``Expr) splicesArgList
   let siteIdExpr := toExpr siteId
@@ -2320,6 +2311,11 @@ decreasing_by
   · simp_wf; have := Array.sizeOf_lt_of_mem (Array.getElem_mem h); omega
   · simp_wf; have := Array.sizeOf_lt_of_mem (Array.getElem_mem h); omega
 
+private def extractNonExprQuot? (patStx : Syntax) : Option Syntax :=
+  let pat := unwrapPatSyntaxParens patStx
+  let inner := if pat.getNumArgs == 1 then pat[0] else pat
+  if inner.isQuot && !isExprQuot inner then some inner else none
+
 /--
 Check ordinary syntax quotation patterns matching an `Expr`-typed discriminant column in
 `match`/`if let`/`let ... |` or `do match`: emit `linter.exprQuot.syntaxHole` for any named
@@ -2328,20 +2324,31 @@ type errors. Never flags `Syntax`/`TSyntax` discriminants.
 -/
 def checkSyntaxHoleInExprMatchPatterns (discrs : Array Expr)
     (altViews : Array (MatchAltView k)) : TermElabM Unit := do
-  let isExprCol ← discrs.mapM fun d => do
-    try
-      let ty ← withReducible <| whnf (← instantiateMVars (← inferType d))
-      return ty.isConstOf ``Lean.Expr
-    catch _ =>
-      return false
+  let mut quotCols : Array Bool := Array.replicate discrs.size false
+  let mut anyQuot := false
+  for alt in altViews do
+    for h : colIdx in *...alt.patterns.size do
+      if colIdx < discrs.size && (extractNonExprQuot? alt.patterns[colIdx]).isSome then
+        quotCols := quotCols.setIfInBounds colIdx true
+        anyQuot := true
+  unless anyQuot do
+    return
+  let mut isExprCol : Array Bool := Array.replicate discrs.size false
+  for h : colIdx in *...discrs.size do
+    if quotCols.getD colIdx false then
+      let isExpr ←
+        try
+          let ty ← withReducible <| whnf (← instantiateMVars (← inferType discrs[colIdx]))
+          pure (ty.isConstOf ``Lean.Expr)
+        catch _ =>
+          pure false
+      isExprCol := isExprCol.setIfInBounds colIdx isExpr
   unless isExprCol.any id do
     return
   for alt in altViews do
     for h : colIdx in *...alt.patterns.size do
       if isExprCol.getD colIdx false then
-        let pat := unwrapPatSyntaxParens alt.patterns[colIdx]
-        let inner := if pat.getNumArgs == 1 then pat[0] else pat
-        if inner.isQuot && !isExprQuot inner then
+        if let some inner := extractNonExprQuot? alt.patterns[colIdx] then
           Quotation.warnNamedSyntaxHolesInQuot inner.getQuotContent
           throwErrorAt inner "syntax quotation pattern on an `Expr` discriminant; \
             use `` `(expr| ...) ``"

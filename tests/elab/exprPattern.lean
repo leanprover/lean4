@@ -1,8 +1,3 @@
-/-
-Copyright (c) 2026 Lean FRO LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Andreas Reser
--/
 import Lean
 
 /-!
@@ -1134,9 +1129,59 @@ private def testPatHeadGuards : MetaM Unit := do
     check (← proofRootPat.match? {} h).isSome
       "closed Prop proof pattern must not be rejected against distinct Prop proof"
 
+private def testPublicApiEntryPoints : MetaM Unit := do
+  let natTy := mkConst ``Nat
+  let add1020 := mkApp2 (mkConst ``Nat.add) (mkNatLit 10) (mkNatLit 20)
+  let add0920 := mkApp2 (mkConst ``Nat.add) (mkNatLit 9) (mkNatLit 20)
+
+  -- `ExprPattern.matchOrElse`
+  let pat ← ExprPattern.compile {
+    levelParams := []
+    lam         := mkLambda `p .default natTy
+      (mkLambda `y .default natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 1) (mkBVar 0)))
+    numVars     := 2
+    namedIdx    := #[1]
+    firstOrder  := #[true, true]
+  }
+  let hit ← pat.matchOrElse {} #[0] #[mkNatLit 10] #[] add1020
+    (fun xs => return xs)
+    (fun () => throwError "ExprPattern.matchOrElse should match add1020")
+  check (hit.size == 1 && hit[0]! == mkNatLit 20) "matchOrElse capture mismatch"
+  let missed ← pat.matchOrElse {} #[0] #[mkNatLit 10] #[] add0920
+    (fun _ => return false)
+    (fun () => return true)
+  check missed "ExprPattern.matchOrElse should invoke onFail on mismatch"
+
+  -- `ExprTemplate.instantiate`
+  let tmpl : ExprTemplate := {
+    levelParams := []
+    lam         := mkLambda `x .default natTy
+      (mkLambda `h .default natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 1) (mkBVar 0)))
+    varKinds    := #[.splice 0, .hole (some `h)]
+  }
+  let built ← tmpl.instantiate {} #[mkNatLit 7]
+  match built with
+  | .app (.app fn a0) (.mvar mvId) =>
+    let decl ← mvId.getDecl
+    check (fn == mkConst ``Nat.add && a0 == mkNatLit 7 &&
+      decl.userName == `h && decl.kind matches .syntheticOpaque && decl.type == natTy)
+      "ExprTemplate.instantiate hole or splice mismatch"
+  | _ => throwError "unexpected ExprTemplate.instantiate output: {built}"
+
+  -- `Subterms.toList` and `MatchDiscriminants.toList`
+  let subArr := (subterms add1020).toArray.map (·.1)
+  let subList := (subterms add1020).toList.map (·.1)
+  check (subList == subArr.toList) "Subterms.toList mismatch vs toArray"
+  let innerMatchExpr := (← getConstInfo ``realNestedMatch).value!
+  let discrArr ← (matchDiscriminants innerMatchExpr).toArray
+  let discrList ← (matchDiscriminants innerMatchExpr).toList
+  check (discrList.map (·.1) == discrArr.toList.map (·.1))
+    "MatchDiscriminants.toList mismatch vs toArray"
+
 #guard_msgs in
 #eval show MetaM Unit from do
   testDagSerializationRoundTrip
   testPatHeadGuards
+  testPublicApiEntryPoints
 
 end ExprPatternTest

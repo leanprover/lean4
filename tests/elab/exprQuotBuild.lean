@@ -1,8 +1,3 @@
-/-
-Copyright (c) 2026 Lean FRO LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Andreas Reser
--/
 import Lean
 
 /-!
@@ -29,6 +24,10 @@ open Lean Meta Elab Tactic
 
 def myDefAlias := Nat
 abbrev myRedAlias := Nat
+@[reducible] def IdNatPoly (_ : Type u) : Type := Nat
+@[reducible] def IdNat0 (_ : Type) : Type := Nat
+opaque polyHoleTag {α : Type u} (x : IdNatPoly α) (h : α) : Nat
+opaque monoHoleTag {α : Type} (x : IdNat0 α) (h : α) : Nat
 
 private def check (cond : Bool) (msg : String) : MetaM Unit := do
   unless cond do
@@ -323,6 +322,54 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check ((← instantiateMVars (← mvF.getDecl).type) == mkApp (mkConst ``Fin) (mkMVar mvN))
     "dependent `?f` type must reference `?n`"
   Meta.check depHoles
+
+  -- Earlier hole placeholder remains valid inside a later hole's type.
+  let priorHoleDep ← `(expr| (fun (A : Type) (x : A) => x) ?A ?x)
+  let priorHoleMVs ← getMVars priorHoleDep
+  let [mvA, mvX] := priorHoleMVs.toList
+    | throwError "expected 2 holes for priorHoleDep, got {priorHoleMVs.size}"
+  check ((← mvA.getDecl).userName == `A && (← mvX.getDecl).userName == `x)
+    "priorHoleDep hole names mismatch"
+  check ((← instantiateMVars (← mvX.getDecl).type) == mkMVar mvA)
+    "later `?x` hole type must reference outer `?A` metavariable"
+  Meta.check priorHoleDep
+
+  -- Runtime hole-type resolution failures (polymorphic level / implicit type in hole type)
+  -- must fail cleanly inside `withNewMCtxDepth` without panicking or leaking temp mvars.
+  let mvsBeforeHoleFail := (← getMCtx).mvarCounter
+  match ← tryBuild `(expr/reducible| polyHoleTag $a ?h) with
+  | .ok _ => throwError "expected runtime failure for unresolved universe level in hole type"
+  | .error msg =>
+    check (msg.contains "expr quotation failed to resolve")
+      s!"unexpected polyHoleTag failure message: {msg}"
+  match ← tryBuild `(expr/reducible| monoHoleTag $a ?h) with
+  | .ok _ => throwError "expected runtime failure for unresolved implicit type in hole type"
+  | .error msg =>
+    check (msg.contains "expr quotation failed to resolve")
+      s!"unexpected monoHoleTag failure message: {msg}"
+  let polyHoleTmpl : ExprTemplate := {
+    levelParams := [`u]
+    lam         := mkLambda `h .default (mkSort (.succ (.param `u))) (mkBVar 0)
+    varKinds    := #[.hole (some `h)]
+  }
+  match ← tryBuild (polyHoleTmpl.instantiate {} #[]) with
+  | .ok _ => throwError "expected runtime failure for ExprTemplate level param in hole type"
+  | .error msg =>
+    check (msg.contains "expr quotation failed to resolve")
+      s!"unexpected polyHoleTmpl MetaM failure message: {msg}"
+  let symFail ← Lean.Meta.Sym.SymM.run do
+    try
+      discard <| polyHoleTmpl.instantiateSymSite `testPolyHole {} #[]
+      return none
+    catch ex =>
+      return some (← ex.toMessageData.toString)
+  match symFail with
+  | none => throwError "expected runtime failure for Sym ExprTemplate level param in hole type"
+  | some msg =>
+    check (msg.contains "expr quotation failed to resolve")
+      s!"unexpected polyHoleTmpl SymM failure message: {msg}"
+  check ((← getMCtx).mvarCounter == mvsBeforeHoleFail)
+    "failed runtime hole resolution must not leak metavariables"
 
   -- Caller metavariable inside splice stays untouched.
   let callerMV ← mkFreshExprMVar (some natTy) .natural `callerHole

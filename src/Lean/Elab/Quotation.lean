@@ -708,12 +708,9 @@ private def checkSyntaxHoleInStxMatch (discrs : TSyntaxArray `term)
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[|%$alt $[$patss],* => $rhss]*) => do
-    if !patss.any (·.any (fun
-      | `($_@$pat) => pat.raw.isQuot
-      | pat        => pat.raw.isQuot)) then
+    if !patss.any (·.any (fun pat => (unwrapStxMatchQuot pat).isSome)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
-    checkSyntaxHoleInStxMatch discrs patss
     let (altIdxMap, ignoreIfUnused, rhss) ← markRhss rhss
     -- call `getQuotKind` on all the patterns, which adds
     -- term info for all `(foo| ...)` as a side effect
@@ -724,8 +721,43 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     return stx
   | _ => throwUnsupportedSyntax
 
-@[builtin_term_elab «match»] def elabMatchSyntax : TermElab :=
-  adaptExpander match_syntax.expand
+private def hasNewErrorSince (savedNumMsgs : Nat) (log : MessageLog) : Bool :=
+  if log.reported.size + log.unreported.size <= savedNumMsgs then
+    false
+  else
+    let msgs := log.reportedPlusUnreported
+    Id.run do
+      for i in [savedNumMsgs:msgs.size] do
+        if h : i < msgs.size then
+          if msgs[i].severity matches .error then
+            return true
+      return false
+
+@[builtin_term_elab «match»] def elabMatchSyntax : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(match $[$discrs:term],* with $[|%$_ $[$patss],* => $_]*) =>
+    if !patss.any (·.any (fun pat => (unwrapStxMatchQuot pat).isSome)) then
+      throwUnsupportedSyntax
+    let savedState ← Term.saveState
+    let savedNumMsgs := (← Core.getMessageLog).reportedPlusUnreported.size
+    try
+      let stx' ← match_syntax.expand stx
+      let r ← withMacroExpansion stx stx' <| elabTerm stx' expectedType?
+      if hasNewErrorSince savedNumMsgs (← Core.getMessageLog) then
+        let postState ← Term.saveState
+        savedState.restore (restoreInfo := true)
+        checkSyntaxHoleInStxMatch discrs patss
+        postState.restore (restoreInfo := true)
+      return r
+    catch
+      | ex@(.error _ _) =>
+        let postState ← Term.saveState
+        savedState.restore (restoreInfo := true)
+        checkSyntaxHoleInStxMatch discrs patss
+        postState.restore (restoreInfo := true)
+        throw ex
+      | ex => throw ex
+  | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab noErrorIfUnused] def elabNoErrorIfUnused : TermElab := fun stx expectedType? =>
   match stx with

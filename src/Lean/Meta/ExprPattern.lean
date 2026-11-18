@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Copyright (c) 2026 Andres Erbsen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Andreas Reser
+Authors: Andres Erbsen
 -/
 module
 
@@ -536,23 +536,9 @@ structure ExprPattern where
   headGuard     : PatHeadGuard := .any
   deriving Inhabited
 
-/-- Construct a precompiled `ExprPattern` from serialized fields (used by elaborated patterns). -/
-def ExprPattern.mkCompiled (levelParams : List Name) (lam : Expr) (numVars : Nat)
-    (namedIdx : Array Nat) (firstOrder captureVars : Array Bool)
-    (closedProofsList : List (Expr × Expr)) (precomputed : Bool) : ExprPattern :=
-  let body := stripOuterLambdas numVars lam
-  { levelParams, lam, numVars, namedIdx, firstOrder, captureVars
-    closedProofs := closedProofsList.foldl (init := {}) fun m (k, v) => m.insert k v
-    patLevelNodes := computePatLevelNodes levelParams body
-    precomputed }
-
 /-- Return the body of `p` with the `p.numVars` outer lambdas stripped. -/
 def ExprPattern.body (p : ExprPattern) : Expr :=
   stripOuterLambdas p.numVars p.lam
-
-/-- Project the values of the named `?`-binders from the full variable assignment `σ`. -/
-def ExprPattern.named [Inhabited α] (p : ExprPattern) (σ : Array α) : Array α :=
-  p.namedIdx.map (σ.getD · default)
 
 @[inline]
 private def ExprPattern.shouldCapture (p : ExprPattern) (k : Nat) : Bool :=
@@ -672,33 +658,6 @@ def ExprPattern.compile (p : ExprPattern) : MetaM ExprPattern := do
             pure .any
         | _ => pure .any
   return { p with captureVars, closedProofs, patLevelNodes, precomputed := true, headGuard }
-
-/--
-Substitute runtime pin values `vals[j]` for the abstracted pattern variables at `idx[j]`.
-Indices in `idx` must be distinct and `< p.numVars`.
--/
-def ExprPattern.instantiate (p : ExprPattern) (idx : Array Nat) (vals : Array Expr) : ExprPattern :=
-  if idx.isEmpty then p else
-  let shift (i : Nat) := i - (idx.filter (· < i)).size
-  { p with
-    lam           := go p.numVars 0 p.lam
-    numVars       := p.numVars - idx.size
-    namedIdx      := p.namedIdx.map shift
-    firstOrder    := (p.firstOrder.zipIdx.filter (!idx.contains ·.2)).map (·.1)
-    captureVars   :=
-      if p.captureVars.isEmpty then #[]
-      else (p.captureVars.zipIdx.filter (!idx.contains ·.2)).map (·.1)
-    closedProofs  := {}
-    patLevelNodes := {}
-    precomputed   := false
-    headGuard     := .any }
-where
-  go : Nat → Nat → Expr → Expr
-    | n + 1, i, .lam x t b bi =>
-      match idx.idxOf? i with
-      | some j => go n (i + 1) (b.instantiate1 (vals.getD j default))
-      | none   => .lam x t (go n (i + 1) b) bi
-    | _, _, e => e
 
 private def eqModMData (a b : Expr) : Bool :=
   match a, b with
@@ -2536,21 +2495,71 @@ private def peelTemplateLambdas (n : Nat) (e : Expr)
   | _,     _            => (doms, e)
 
 private def levelHasTempMVar (mctx : MetavarContext) (baseDepth : Nat) : Level → Bool
-  | .mvar id  => mctx.getLevelDepth id > baseDepth
+  | .mvar id  => (mctx.findLevelDecl? id).any (·.depth > baseDepth)
   | .succ u   => levelHasTempMVar mctx baseDepth u
   | .max u v  => levelHasTempMVar mctx baseDepth u || levelHasTempMVar mctx baseDepth v
   | .imax u v => levelHasTempMVar mctx baseDepth u || levelHasTempMVar mctx baseDepth v
   | .zero | .param _ => false
 
-private def hasTempMVar (mctx : MetavarContext) (baseDepth : Nat) (e : Expr) : Bool :=
+private def hasTempMVar (mctx : MetavarContext) (baseDepth : Nat) (e : Expr)
+    (allowed : Std.HashSet MVarId := {}) : Bool :=
   if !e.hasMVar then
     false
   else
     (e.find? fun
-      | .mvar id    => (mctx.findDecl? id).any (·.depth > baseDepth)
+      | .mvar id    => !allowed.contains id && (mctx.findDecl? id).any (·.depth > baseDepth)
       | .sort u     => levelHasTempMVar mctx baseDepth u
       | .const _ us => us.any (levelHasTempMVar mctx baseDepth)
       | _           => false).isSome
+
+private abbrev HolePlaceholder := Nat × MVarId × Option Name
+private abbrev HolePlan := Nat × MVarId × Option Name × Expr
+
+private def validateTempHolePlans (baseDepth : Nat)
+    (holePlaceholders : Array HolePlaceholder) : MetaM (Array HolePlan) := do
+  if holePlaceholders.isEmpty then
+    return #[]
+  let mctx ← getMCtx
+  let mut priorTmpHoles : Std.HashSet MVarId := {}
+  let mut holePlans : Array HolePlan := Array.emptyWithCapacity holePlaceholders.size
+  for (idx, tmpId, userName?) in holePlaceholders do
+    let holeTy ← instantiateMVars (← tmpId.getDecl).type
+    if hasTempMVar mctx baseDepth holeTy priorTmpHoles then
+      throwError "expr quotation failed to resolve hole type at runtime:{indentExpr holeTy}"
+    priorTmpHoles := priorTmpHoles.insert tmpId
+    holePlans := holePlans.push (idx, tmpId, userName?, holeTy)
+  return holePlans
+
+private def hasAnyMVarInSet (e : Expr) (ids : Std.HashSet MVarId) : Bool :=
+  e.hasExprMVar && (e.find? fun
+    | .mvar id => ids.contains id
+    | _        => false).isSome
+
+private def materializeHolePlans [Monad m] [MonadLiftT MetaM m] [MonadError m]
+    (holePlans : Array HolePlan) (subst : Array Expr)
+    (prepTy : Expr → m Expr := pure) (prepMV : Expr → m Expr := pure) : m (Array Expr) := do
+  if holePlans.isEmpty then
+    return subst
+  let tmpHoleIds : Std.HashSet MVarId :=
+    holePlans.foldl (init := {}) fun s (_, tmpId, _, _) => s.insert tmpId
+  let mut finalSubst := subst
+  let mut tmpHoleMap : Std.HashMap MVarId Expr := {}
+  for (idx, tmpId, userName?, rawHoleTy) in holePlans do
+    let holeTy :=
+      if rawHoleTy.hasExprMVar && !tmpHoleMap.isEmpty then
+        rawHoleTy.replace fun
+          | .mvar id => tmpHoleMap[id]?
+          | _        => none
+      else
+        rawHoleTy
+    if hasAnyMVarInSet holeTy tmpHoleIds then
+      throwError "expr quotation failed to resolve hole type at runtime:{indentExpr holeTy}"
+    let holeTy ← prepTy holeTy
+    let holeMV ← liftM (m := MetaM) <|
+      mkFreshExprMVar (some holeTy) .syntheticOpaque (userName?.getD .anonymous)
+    tmpHoleMap := tmpHoleMap.insert tmpId holeMV
+    finalSubst := finalSubst.setIfInBounds idx (← prepMV holeMV)
+  return finalSubst
 
 private def isTCGoalReady (baseDepth : Nat) (tcTy : Expr) : MetaM Bool := do
   let mctx ← getMCtx
@@ -2622,7 +2631,7 @@ def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMa
     let (doms, body) := peelTemplateLambdas n lam
     let mut subst : Array Expr := Array.emptyWithCapacity doms.size
     let mut pendingTCs : Array MVarId := #[]
-    let mut holePlaceholders : Array (Nat × MVarId × Option Name) := #[]
+    let mut holePlaceholders : Array HolePlaceholder := #[]
     for h : i in *...doms.size do
       let expTyRaw := doms[i].instantiateRevRange 0 subst.size subst
       let mut expTy ← instantiateMVars expTyRaw
@@ -2678,27 +2687,9 @@ def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMa
             {indentExpr v}"
         finalSubst := finalSubst.setIfInBounds i v
       | .splice _ | .hole _ => pure ()
-    let holePlans ← holePlaceholders.mapM fun (idx, tmpId, userName?) => do
-      let holeTy ← instantiateMVars (← tmpId.getDecl).type
-      return (idx, tmpId, userName?, holeTy)
+    let holePlans ← validateTempHolePlans baseDepth holePlaceholders
     return (body, finalSubst, holePlans)
-  let mut finalSubst := substAfterSplices
-  if !holePlans.isEmpty then
-    let mctx ← getMCtx
-    let mut tmpHoleMap : Std.HashMap MVarId Expr := {}
-    for (idx, tmpId, userName?, rawHoleTy) in holePlans do
-      let holeTy :=
-        if rawHoleTy.hasExprMVar && !tmpHoleMap.isEmpty then
-          rawHoleTy.replace fun
-            | .mvar id => tmpHoleMap[id]?
-            | _        => none
-        else
-          rawHoleTy
-      if hasTempMVar mctx baseDepth holeTy then
-        throwError "expr quotation failed to resolve hole type at runtime:{indentExpr holeTy}"
-      let holeMV ← mkFreshExprMVar (some holeTy) .syntheticOpaque (userName?.getD .anonymous)
-      tmpHoleMap := tmpHoleMap.insert tmpId holeMV
-      finalSubst := finalSubst.setIfInBounds idx holeMV
+  let finalSubst ← materializeHolePlans holePlans substAfterSplices
   return body.instantiateRev finalSubst
 
 /--
@@ -2738,13 +2729,6 @@ private def ensureSymExpr (e : Expr) : Sym.SymM Expr := do
   else
     Sym.shareCommon (← instantiateMVars e)
 
-private def symLevelHasFreshTemp (mctx : MetavarContext) (baseDepth : Nat) : Level → Bool
-  | .mvar id   => mctx.getLevelDepth id > baseDepth
-  | .succ u    => symLevelHasFreshTemp mctx baseDepth u
-  | .max u v   => symLevelHasFreshTemp mctx baseDepth u || symLevelHasFreshTemp mctx baseDepth v
-  | .imax u v  => symLevelHasFreshTemp mctx baseDepth u || symLevelHasFreshTemp mctx baseDepth v
-  | .zero | .param _ => false
-
 private def symHasFreshTemp (mctx : MetavarContext) (baseDepth mvarCounterSaved : Nat)
     (e : Expr) : Bool :=
   if !e.hasMVar then
@@ -2752,8 +2736,8 @@ private def symHasFreshTemp (mctx : MetavarContext) (baseDepth mvarCounterSaved 
   else
     (e.find? fun
       | .mvar id    => (mctx.findDecl? id).any (·.index >= mvarCounterSaved)
-      | .sort u     => symLevelHasFreshTemp mctx baseDepth u
-      | .const _ us => us.any (symLevelHasFreshTemp mctx baseDepth)
+      | .sort u     => levelHasTempMVar mctx baseDepth u
+      | .const _ us => us.any (levelHasTempMVar mctx baseDepth)
       | _           => false).isSome
 
 private def getOrMkSymPattern (siteId : Name) (p : ExprPattern) : Sym.SymM Sym.Pattern := do
@@ -3001,7 +2985,7 @@ private def instantiateSymCore (siteId : Name) (tmpl : ExprTemplate)
     let (doms, _body) := peelTemplateLambdas n lam
     let mut subst : Array Expr := Array.emptyWithCapacity doms.size
     let mut pendingTCs : Array MVarId := #[]
-    let mut holePlaceholders : Array (Nat × MVarId × Option Name) := #[]
+    let mut holePlaceholders : Array HolePlaceholder := #[]
     for h : i in *...doms.size do
       let expTyRaw := doms[i].instantiateRevRange 0 subst.size subst
       let mut expTy ← instantiateMVars expTyRaw
@@ -3062,28 +3046,9 @@ private def instantiateSymCore (siteId : Name) (tmpl : ExprTemplate)
             {indentExpr v}"
         finalSubst := finalSubst.setIfInBounds i (← ensureSymExpr v)
       | .splice _ | .hole _ => pure ()
-    let holePlans ← holePlaceholders.mapM fun (idx, tmpId, userName?) => do
-      let holeTy ← instantiateMVars (← tmpId.getDecl).type
-      return (idx, tmpId, userName?, holeTy)
+    let holePlans ← validateTempHolePlans baseDepth holePlaceholders
     return (usResolved, finalSubst, holePlans)
-  let mut finalSubst := substAfterSplices
-  if !holePlans.isEmpty then
-    let mctx ← getMCtx
-    let mut tmpHoleMap : Std.HashMap MVarId Expr := {}
-    for (idx, tmpId, userName?, rawHoleTy) in holePlans do
-      let holeTy :=
-        if rawHoleTy.hasExprMVar && !tmpHoleMap.isEmpty then
-          rawHoleTy.replace fun
-            | .mvar id => tmpHoleMap[id]?
-            | _        => none
-        else
-          rawHoleTy
-      if hasTempMVar mctx baseDepth holeTy then
-        throwError "expr quotation failed to resolve hole type at runtime:{indentExpr holeTy}"
-      let holeTy ← ensureSymExpr holeTy
-      let holeMV ← mkFreshExprMVar (some holeTy) .syntheticOpaque (userName?.getD .anonymous)
-      tmpHoleMap := tmpHoleMap.insert tmpId holeMV
-      finalSubst := finalSubst.setIfInBounds idx (← Sym.shareCommon holeMV)
+  let finalSubst ← materializeHolePlans holePlans substAfterSplices ensureSymExpr Sym.shareCommon
   -- `bodyShared` and every entry of `finalSubst` are already maximally shared in `Sym.State`.
   let closedBody ← Sym.instantiateRevS bodyShared finalSubst
   if tmpl.levelParams.isEmpty then
@@ -3389,20 +3354,21 @@ private def structuralDiscrTreeGetMatch (mctx : MetavarContext) (fuel : Nat)
     | some c => structuralTrieGetMatch mctx fuel todo c acc
 
 -- Terminates modulo `MetaM` recursion depth (`withReducible <| Meta.whnf`) on acyclic `Nat` terms.
-private partial def reduceToNatLit? (e : Expr) : MetaM (Option Literal) := do
-  let e ← withReducible <| Meta.whnf e
-  match e.getAppFn with
-  | .lit v@(.natVal _) => return if e.getAppNumArgs == 0 then some v else none
-  | .const ``Nat.zero _ => return if e.getAppNumArgs == 0 then some (.natVal 0) else none
-  | .const ``Nat.succ _ =>
-    if e.getAppNumArgs == 1 then
-      let some (.natVal n) ← reduceToNatLit? e.appArg! | return none
-      return some (.natVal (n + 1))
-    else
-      return none
-  | .const ``OfNat.ofNat _ =>
-    if e.getAppNumArgs == 3 then reduceToNatLit? (e.getArg! 1) else return none
-  | _ => return none
+private partial def reduceToNatLit? (e : Expr) : MetaM (Option Literal) :=
+  withIncRecDepth do
+    let e ← withReducible <| Meta.whnf e
+    match e.getAppFn with
+    | .lit v@(.natVal _) => return if e.getAppNumArgs == 0 then some v else none
+    | .const ``Nat.zero _ => return if e.getAppNumArgs == 0 then some (.natVal 0) else none
+    | .const ``Nat.succ _ =>
+      if e.getAppNumArgs == 1 then
+        let some (.natVal n) ← reduceToNatLit? e.appArg! | return none
+        return some (.natVal (n + 1))
+      else
+        return none
+    | .const ``OfNat.ofNat _ =>
+      if e.getAppNumArgs == 3 then reduceToNatLit? (e.getArg! 1) else return none
+    | _ => return none
 
 private def reduciblePatKeys (rel : ResolvedExprMatchRel) (p : ExprPattern) :
     MetaM (Array DiscrTree.Key) :=

@@ -31,8 +31,8 @@ inspecting, and building Lean `Expr` values directly inside Lean expressions and
   Defines `firstHyp?` and `firstHyp` for backtracking hypothesis search over the main goal with
   atomic state rollback and no `sorry` leakage on failing branches.
 - **`Lean.Elab.Tactic.Grind.Sym`** (`src/Lean/Elab/Tactic/Grind/Sym.lean`):
-  Defines the low-priority `MonadSym GrindTacticM` instance so `` `(expr/sym| ...) `` works
-  directly inside `sym =>` tactics. Note: `Grind/Sym.lean` uses
+  Defines the generic low-priority `{m} [MonadLiftT GrindTacticM m] : MonadSym m` instance so
+  `` `(expr/sym| ...) `` works directly inside `sym =>` tactics. Note: `Grind/Sym.lean` uses
   `public import Lean.Elab.Tactic.Grind.Basic` so `Grind.Basic` requires no edits and avoids
   cyclic dependencies (`#synth MonadLiftT MetaM GrindTacticM` continues routing through
   `TermElabM`).

@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Copyright (c) 2026 Andres Erbsen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Andreas Reser
+Authors: Andres Erbsen
 -/
 module
 
@@ -32,11 +32,16 @@ the next hypothesis. Returns `none` if no hypothesis succeeds.
 def firstHyp? (f : Expr → Expr → TacticM α)
     (reverse : Bool := true) (except : List Expr := []) : TacticM (Option α) :=
   Term.withoutTacticIncrementality true <| Term.withoutErrToSorry <| withoutRecover do
-    (← getMainGoal).firstHyp? (reverse := reverse) (except := except) fun h ty => do
-      let s ← saveState
-      Tactic.tryCatch (f h ty) fun ex => do
-        s.restore (restoreInfo := true)
-        throw ex
+    (← getMainGoal).withContext do
+      let hyps ← (Meta.localHypTypes (reverse := reverse) (except := except) :
+        MetaM (Array (Expr × Expr)))
+      for (h, ty) in hyps do
+        let s ← saveState
+        if let some r ← Tactic.tryCatch (some <$> f h ty) fun _ => do
+            s.restore (restoreInfo := true)
+            return none then
+          return some r
+      return none
 
 /--
 Like `Lean.Elab.Tactic.firstHyp?`, but throws `"firstHyp: no hypothesis matched"` if no

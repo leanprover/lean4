@@ -209,25 +209,49 @@ public def spillCtorInfo (ctorName : Name) (size : Nat) : CtorInfo :=
 public structure CtorLayout where
   ctorInfo : CtorInfo
   fieldInfo : Array CtorFieldInfo
+  /--
+  The constructor index if it does not fit into the object tag and is stored as a boxed scalar in
+  object field 0 instead; the object tag is `maxCtorTag` then. See `setCtorLayouts`.
+  -/
+  extCidx? : Option Nat := none
   deriving Inhabited
 
 builtin_initialize ctorLayoutExt : MapDeclarationExtension CtorLayout ←
   mkMapDeclarationExtension (asyncMode := .sync)
 
-/-- Eagerly computes and persists the layout of constructor `ctorName`; see `compileDecls`. -/
-public def setCtorLayout (ctorName : Name) : CoreM Unit := do
-  unless (ctorLayoutExt.find? (← getEnv) ctorName).isSome do
-    let layout ← fillCache
-    checkCtorLayout layout
-    modifyEnv (ctorLayoutExt.insert · ctorName layout)
-where
-  checkCtorLayout (layout : CtorLayout) : CoreM Unit := do
+/--
+Eagerly computes and persists the layouts of the constructors of `indVal`; see `compileDecls`.
+
+An object tag can hold the constructor indices up to `maxCtorTag`. If a constructor with relevant
+fields has a greater index, all such constructors with index at least `maxCtorTag` use the object
+tag `maxCtorTag` and store their index in an additional object field (`CtorLayout.extCidx?`). The
+constructors without relevant fields and index `i` at least `maxCtorTag` of such a type are
+represented by the scalar `i + 1`, so that the tag `maxCtorTag` identifies the former ones. The
+layouts of all other inductive types are unaffected.
+-/
+public def setCtorLayouts (indVal : InductiveVal) : CoreM Unit := do
+  let env ← getEnv
+  if indVal.ctors.all (ctorLayoutExt.find? env · |>.isSome) then return
+  let mut layouts ← indVal.ctors.toArray.mapM (fillCache · (extTag := false))
+  if layouts.any fun layout => layout.ctorInfo.cidx > maxCtorTag && layout.ctorInfo.isRef then
+    layouts ← layouts.mapM fun layout => do
+      let info := layout.ctorInfo
+      if info.cidx < maxCtorTag then
+        return layout
+      else if info.isRef then
+        fillCache info.name (extTag := true)
+      else
+        return { layout with ctorInfo.cidx := info.cidx + 1 }
+  for layout in layouts do
     layout.ctorInfo.checkValid
-  fillCache : CoreM CtorLayout := do
+    modifyEnv (ctorLayoutExt.insert · layout.ctorInfo.name layout)
+where
+  /-- With `extTag`, the constructor index is stored in object field 0. -/
+  fillCache (ctorName : Name) (extTag : Bool) : CoreM CtorLayout := do
     let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
     Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
       let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
-      let mut nextIdx := 0
+      let mut nextIdx := if extTag then 1 else 0
       let mut has1BScalar := false
       let mut has2BScalar := false
       let mut has4BScalar := false
@@ -303,12 +327,13 @@ where
       return {
         ctorInfo := {
           name := ctorName
-          cidx := ctorInfo.cidx
+          cidx := if extTag then maxCtorTag else ctorInfo.cidx
           size := numObjs
           usize := numUSize
           ssize := nextOffset
         }
         fieldInfo := fields
+        extCidx? := if extTag then some ctorInfo.cidx else none
       }
 
 /--
@@ -339,7 +364,7 @@ public def compileInductives (typeNames : Array Name) : CoreM Unit := do
     let isPred ← Meta.MetaM.run' <| Meta.isPropFormerType iv.type
     for ctorName in iv.ctors do
       setOtherDeclMonoType ctorName
-      unless isPred do
-        setCtorLayout ctorName
+    unless isPred do
+      setCtorLayouts iv
 
 end Lean.Compiler.LCNF

@@ -83,6 +83,52 @@ def mkSpillObjs (ctorName : Name) (objArgs : Array (Arg .impure)) :
     args := (args.extract 0 start).push (.fvar decl.fvarId)
   return (decls, args)
 
+/--
+Prepends the constructor index to the object arguments of a constructor that stores it in a field
+(`CtorLayout.extCidx?`). Returns its declaration, if any, and the new arguments.
+-/
+def mkExtCidx (extCidx? : Option Nat) (objArgs : Array (Arg .impure)) :
+    CompilerM (Array (LetDecl .impure) × Array (Arg .impure)) := do
+  let some cidx := extCidx? | return (#[], objArgs)
+  let decl ← mkLetDecl (← mkFreshBinderName `_cidx) ImpureType.tagged (.lit (.nat cidx))
+  return (#[decl], #[.fvar decl.fvarId] ++ objArgs)
+
+/--
+Lowers a `cases` on `discr` of the inductive type `indName` that has alternatives for constructors
+storing their index in a field (`CtorLayout.extCidx?`), which `alts` pairs them with. These
+constructors share one object tag, so the default alternative of the `cases` on the object tag
+matches on that field.
+-/
+def lowerExtCases (indName : Name) (typeName : Name) (resultType : Expr) (discr : FVarId)
+    (alts : Array (Alt .impure × Option Nat)) : CompilerM (Code .impure) := do
+  let mut tagAlts := #[]
+  let mut cidxAlts := #[]
+  let mut default? := none
+  for (alt, extCidx?) in alts do
+    match alt, extCidx? with
+    | .ctorAlt info k, some cidx =>
+      cidxAlts := cidxAlts.push (.ctorAlt { info with cidx, size := 0, usize := 0, ssize := 0 } k)
+    | .default k, _ => default? := some k
+    | alt, _ => tagAlts := tagAlts.push alt
+  let cidxDecl ← mkLetDecl (← mkFreshBinderName `_cidx) ImpureType.tagged (.oproj 0 discr)
+  let mkCases (tagAlts cidxAlts : Array (Alt .impure)) : Code .impure :=
+    let cidxCases := .cases ⟨ImpureType.tagged.constName!, resultType, cidxDecl.fvarId, cidxAlts⟩
+    .cases ⟨typeName, resultType, discr, tagAlts.push (.default (.let cidxDecl cidxCases))⟩
+  let some default := default? | return mkCases tagAlts cidxAlts
+  -- The default alternative on the object tag is taken, so all other constructors the original
+  -- default alternative covers need their own alternative.
+  let jpDecl ← mkFunDecl (← mkFreshBinderName `_jp) resultType #[] default
+  let jmp := .jmp jpDecl.fvarId #[]
+  let covered : NameSet := tagAlts.foldl (init := {}) fun
+    | covered, .ctorAlt info .. => covered.insert info.name
+    | covered, _ => covered
+  let .inductInfo indVal ← getConstInfo indName | unreachable!
+  for ctorName in indVal.ctors do
+    let layout ← getCtorLayout ctorName
+    if layout.extCidx?.isNone && !covered.contains ctorName then
+      tagAlts := tagAlts.push (.ctorAlt layout.ctorInfo jmp)
+  return .jp jpDecl (mkCases tagAlts (cidxAlts.push (.default jmp)))
+
 def attachLetDecls (decls : Array (LetDecl .impure)) (code : Code .impure) : Code .impure :=
   decls.foldr (init := code) fun decl code => .let decl code
 
@@ -146,7 +192,7 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
       | .fvar fvarId =>
         let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
           | panic! "projection of non-structure type"
-        let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
+        let ⟨ctorInfo, fields, _⟩ ← getCtorLayout ctorName
         let spills ← lowerSpillObjs fvarId fields[i]!.spillDepth
         let ⟨result, type⟩ := lowerProj fvarId spills ctorInfo fields[i]!
         match result with
@@ -176,7 +222,7 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
           let res ← continueLet decl
           return res
 
-        let ⟨ctorInfo, fields⟩ ← getCtorLayout name
+        let ⟨ctorInfo, fields, extCidx?⟩ ← getCtorLayout name
         let irArgs := irArgs.extract (start := ctorVal.numParams)
         if irArgs.size != fields.size then
           -- An overapplied constructor arises from compiler
@@ -191,6 +237,7 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
               result := result.push irArgs[i]!
             | .usize .. | .scalar .. | .erased | .void => pure ()
           pure result
+        let (cidxDecl, objArgs) ← mkExtCidx extCidx? objArgs
         let (spills, objArgs) ← mkSpillObjs name objArgs
         let rec lowerNonObjectFields : ToImpureM (Code .impure) :=
           let rec loop (i : Nat) : ToImpureM (Code .impure) := do
@@ -209,7 +256,7 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
           loop 0
         let decl := ⟨decl.fvarId, decl.binderName, ctorInfo.type, .ctor ctorInfo objArgs⟩
         modifyLCtx fun lctx => lctx.addLetDecl decl
-        return attachLetDecls spills (.let decl (← lowerNonObjectFields))
+        return attachLetDecls (cidxDecl ++ spills) (.let decl (← lowerNonObjectFields))
     | some (.defnInfo ..) | some (.opaqueInfo ..) => mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
       -- Should have been caught by `ToLCNF`
@@ -298,17 +345,23 @@ partial def Code.toImpure (c : Code .pure) : ToImpureM (Code .impure) := do
       withNormFVarResult (← normFVar c.discr) fun discr => do
         let resultType ← toImpureType c.resultType
         let alts ← c.alts.mapM (·.toImpure discr)
-        return .cases ⟨(← nameToImpureType c.typeName).getAppFn.constName!, resultType, discr, alts⟩
+        let typeName := (← nameToImpureType c.typeName).getAppFn.constName!
+        if alts.all (·.2.isNone) then
+          return .cases ⟨typeName, resultType, discr, alts.map (·.1)⟩
+        else
+          lowerExtCases c.typeName typeName resultType discr alts
   | .return fvarId =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .return fvarId
   | .unreach type => return .unreach (← toImpureType type)
   | .fun .. => panic! "all local functions should be λ-lifted"
 
-partial def Alt.toImpure (discr : FVarId) (alt : Alt .pure) : ToImpureM (Alt .impure) := do
+/-- Also returns `CtorLayout.extCidx?` of the constructor. -/
+partial def Alt.toImpure (discr : FVarId) (alt : Alt .pure) :
+    ToImpureM (Alt .impure × Option Nat) := do
   match alt with
   | .alt ctorName params k =>
-    let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
+    let ⟨ctorInfo, fields, extCidx?⟩ ← getCtorLayout ctorName
     let spills ← lowerSpillObjs discr (fields.foldl (max · ·.spillDepth) 0)
     let lowerParams (params : Array (LCNF.Param .pure)) (fields : Array CtorFieldInfo) :
         ToImpureM (Code .impure) := do
@@ -328,8 +381,8 @@ partial def Alt.toImpure (discr : FVarId) (alt : Alt .pure) : ToImpureM (Alt .im
         | _, _ => panic! "mismatched fields and params"
       loop 0
     let body ← lowerParams params fields
-    return .ctorAlt ctorInfo (attachLetDecls spills body)
-  | .default k => return .default (← k.toImpure)
+    return (.ctorAlt ctorInfo (attachLetDecls spills body), extCidx?)
+  | .default k => return (.default (← k.toImpure), none)
 
 end
 

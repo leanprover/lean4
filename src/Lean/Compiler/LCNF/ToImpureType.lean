@@ -206,6 +206,13 @@ public def numSpillObjs (numObjs : Nat) : Nat :=
 public def spillCtorInfo (ctorName : Name) (size : Nat) : CtorInfo :=
   { name := ctorName ++ `spill, cidx := 0, size, usize := 0, ssize := 0 }
 
+/--
+The constructor information of the alternative for constructor `ctorName` in a `cases` on the field
+holding the constructor index `cidx` (`CtorLayout.extCidx?`).
+-/
+public def extCidxCtorInfo (ctorName : Name) (cidx : Nat) : CtorInfo :=
+  { name := ctorName ++ `cidx, cidx, size := 0, usize := 0, ssize := 0 }
+
 public structure CtorLayout where
   ctorInfo : CtorInfo
   fieldInfo : Array CtorFieldInfo

@@ -114,8 +114,8 @@ cases x : obj
 | _ =>
   let _cidx := oproj[0] x;
   cases _cidx : obj
-  | T.c300 => b
-  | T.c301 => c
+  | T.c300.cidx => b
+  | T.c301.cidx => c
 ```
 A default alternative becomes a join point, as it then also has to be reached from the `cases` on
 the field and from explicit alternatives for all other constructors with their own object tag:
@@ -136,7 +136,7 @@ cases x : obj
 | _ =>
   let _cidx := oproj[0] x;
   cases _cidx : obj
-  | T.c300 => b
+  | T.c300.cidx => b
   | _ => goto _jp
 ```
 -/
@@ -149,9 +149,9 @@ def lowerExtCases (indName : Name) (typeName : Name) (resultType : Expr) (discr 
     match alt, extCidx? with
     | .ctorAlt info k, some cidx =>
       -- Later passes take the constructor info of an alternative as the shape of the discriminant,
-      -- which here is the scalar field and not `discr`, so the info must have no fields. The shape
-      -- of `discr` is thus unknown for these constructors and its memory is not reused.
-      cidxAlts := cidxAlts.push (.ctorAlt { info with cidx, size := 0, usize := 0, ssize := 0 } k)
+      -- which here is the scalar field and not `discr`. The shape of `discr` is thus unknown for
+      -- these constructors and its memory is not reused.
+      cidxAlts := cidxAlts.push (.ctorAlt (extCidxCtorInfo info.name cidx) k)
     | .default k, _ => default? := some k
     | alt, _ => tagAlts := tagAlts.push alt
   let cidxDecl ← mkLetDecl (← mkFreshBinderName `_cidx) ImpureType.tagged (.oproj 0 discr)

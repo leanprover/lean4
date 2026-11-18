@@ -36,6 +36,15 @@ public:
     LEAN_EXPORT scope_max_heartbeat(size_t max);
 };
 
+/* Restore the thread local allocation count reported by `IO.getNumHeartbeats` at the end of its
+   scope */
+class LEAN_EXPORT scope_restore_num_heartbeats {
+    uint64_t m_old;
+public:
+    LEAN_EXPORT scope_restore_num_heartbeats();
+    LEAN_EXPORT ~scope_restore_num_heartbeats();
+};
+
 LEAN_EXPORT void check_heartbeat();
 
 /** \brief Threshold on the kernel type checker's recursion depth. `scope_rec_depth` throws a

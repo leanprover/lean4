@@ -42,3 +42,23 @@ run_meta do
   match (← getEnv).toKernelEnv.addDeclCore 500 0 decl none with
   | .ok _ => logInfo "accepted"
   | .error e => logInfo (e.toMessageData {})
+
+/-!
+Kernel checking does not count toward the elaborator's heartbeats, independently of whether it runs
+on the elaboration thread.
+-/
+
+/-- info: accepted using fewer than 100 elaborator heartbeats: true -/
+#guard_msgs in
+open Meta in
+run_meta do
+  let type ← mkEq (← mkAppM ``fib #[mkNatLit 20]) (mkNatLit 6765)
+  let value ← mkEqRefl (mkNatLit 6765)
+  let decl := .thmDecl { name := `fibEq, levelParams := [], type, value }
+  let kenv := (← getEnv).toKernelEnv
+  let before ← IO.getNumHeartbeats
+  let res := kenv.addDeclCore 0 0 decl none
+  let accepted := res matches .ok _
+  let used := (← IO.getNumHeartbeats) - before
+  unless accepted do throwError "rejected"
+  logInfo m!"accepted using fewer than 100 elaborator heartbeats: {decide (used < 100)}"

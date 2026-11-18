@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "runtime/thread.h"
+#include "runtime/alloc.h"
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
 #include "runtime/memory.h"
@@ -40,6 +41,9 @@ size_t get_max_heartbeat() { return g_max_heartbeat; }
 
 LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max) :
     m_max(g_max_heartbeat, max), m_curr(g_heartbeat, 0) {}
+
+LEAN_EXPORT scope_restore_num_heartbeats::scope_restore_num_heartbeats() : m_old(get_num_heartbeats()) {}
+LEAN_EXPORT scope_restore_num_heartbeats::~scope_restore_num_heartbeats() { set_heartbeats(m_old); }
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {

@@ -285,6 +285,8 @@ addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize) (d
 */
 extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat, size_t max_rec_depth,
     object * decl, object * opt_cancel_tk) {
+    // Whether the kernel runs on the elaboration thread must not affect the elaborator's limit.
+    scope_restore_num_heartbeats s0;
     scope_max_heartbeat s(max_heartbeat);
     scope_max_rec_depth s2(max_rec_depth);
     scope_cancel_tk s3(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));

@@ -566,6 +566,9 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
           return ← body.replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
+    -- `body` reaches the rest of the block through assigned metavariables. `instantiateMVars` stores
+    -- their instantiated values, so `mkLambdaFVars` traverses the rest of the block only once.
+    let body ← instantiateMVars body
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
 

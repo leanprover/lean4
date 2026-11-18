@@ -142,7 +142,7 @@ def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n]
     let matcherLevels ← match matcherApp.uElimPos? with
       | none => pure matcherApp.matcherLevels
       | some pos => do
-        let uElim ← liftMetaM <| getLevel resTy
+        let uElim := (← liftMetaM <| getLevel resTy).normalize
         pure <| matcherApp.matcherLevels.set! pos uElim
     -- Build partial application to infer alt types
     let matcherPartial := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params

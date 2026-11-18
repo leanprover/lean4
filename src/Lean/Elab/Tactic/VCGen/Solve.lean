@@ -275,6 +275,11 @@ def normalizePreToTop? (goal : MVarId) (pre target : Expr) : VCGenM (Option (Lis
     return some [g]
   return none
 
+/-- `MatcherApp.toExpr` with the `SymM` builders, so that the application shares its parts. -/
+def _root_.Lean.Meta.MatcherApp.toExprS (m : MatcherApp) : SymM Expr := do
+  mkAppNS (← mkConstS m.matcherName m.matcherLevels.toList)
+    (m.params ++ #[m.motive] ++ m.discrs ++ m.alts ++ m.remaining)
+
 /-- Reduce the matcher application `e` with a hypothesis `h : x = t` of `scope.splitEqs` for one of
 its discriminants `x`, when the matcher reduces once `t` replaces `x`. Returns the reduct `e'` and a
 proof of `e = e'`. -/
@@ -286,11 +291,11 @@ def reduceMatchBySplitEq? (scope : Scope) (splitInfo : Lean.Elab.Tactic.Do.Split
     let x := matcherApp.discrs[i]
     let .fvar xId := x | continue
     let some (t, hId) := scope.splitEqs.get? xId | continue
-    let withDiscr (d : Expr) : Expr := { matcherApp with discrs := matcherApp.discrs.set! i d }.toExpr
-    let some e' ← reduceHead? (← shareCommon (withDiscr t)) | continue
+    let withDiscr (d : Expr) : MatcherApp := { matcherApp with discrs := matcherApp.discrs.set! i d }
+    let some e' ← reduceHead? (← (withDiscr t).toExprS) | continue
     let xTy ← Sym.inferType x
     let eTy ← Sym.inferType e
-    let f := mkLambda `x .default xTy (withDiscr (.bvar 0))
+    let f := mkLambda `x .default xTy (withDiscr (.bvar 0)).toExpr
     let prf := mkApp6 (mkConst ``congrArg [← Sym.getLevel xTy, ← Sym.getLevel eTy])
       xTy eTy x t f (.fvar hId)
     return some (e', prf)
@@ -298,7 +303,7 @@ def reduceMatchBySplitEq? (scope : Scope) (splitInfo : Lean.Elab.Tactic.Do.Split
 
 /-- Replace the target `C a` of `goal` by `target'`, which is `C a'`, given `prf : a = a'` and the
 function `C : α → Prop`. -/
-def replaceTargetByEq (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM MVarId := do
+def replaceTargetEqFast (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM MVarId := do
   let target ← goal.getType
   let g' ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar target' (← goal.getTag)
   let hEq := mkApp6 (mkConst ``congrArg [← Sym.getLevel α, Level.one]) α (mkSort Level.zero) a a' C prf
@@ -331,11 +336,8 @@ where
       if b.hasLooseBVars then none
       go b n (acc.push d)
 
-/-- Strategies 5 and 9: split an `ite`/`dite`/`cond`/match application in the precondition (when
-`inPre`) or on the right-hand side of `pre ⊑ rhs`. The application can be applied to state
-arguments, as in `(match o with | some n => P n | none => Q) s`. A split needs a condition or a
-discriminant that mentions a local; the simp set of the verification conditions decides a closed one,
-as in `match "done" with | "start" => False | _ => True`. -/
+/-- Strategies 5 and 8: split an `ite`/`dite`/`cond`/match application in the precondition (when
+`inPre`) or on the right-hand side of `pre ⊑ rhs`. -/
 def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Bool) :
     VCGenM (Option (List MVarId)) := do
   let_expr c@PartialOrder.rel α inst pre rhs := target | return none
@@ -346,19 +348,23 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
       if inPre then mkApp4 c α inst e rhs else mkApp4 c α inst pre e
     let target' ← if inPre then mkAppNS c #[α, inst, e', rhs] else mkAppNS c #[α, inst, pre, e']
     let C := mkLambda `a .default α (mkTarget (.bvar 0))
-    return some [← replaceTargetByEq goal α e e' C target' prf]
+    return some [← replaceTargetEqFast goal α e e' C target' prf]
+  -- When every discriminant is closed, the `Sym.Simp.reduceControl` simproc of the verification
+  -- condition simp set decides the split application.
   unless splitInfo.discriminants.any (·.hasFVar) do return none
   let some resTy := splitInfo.resTy | return none
-  let some stateTypes := nonDependentDomains? resTy splitInfo.extraArgs.size | return none
+  let numStates := splitInfo.extraArgs.size
+  if (nonDependentDomains? resTy numStates).isNone then return none
   let rel ← mkAppNS c #[α, inst]
-  let rule ← mkBackwardRuleForAssertionSplitCached splitInfo resTy rel stateTypes inPre
+  let rule ← mkBackwardRuleForAssertionSplitCached splitInfo rel numStates inPre
   applySplitRule goal rule e
 
 /-- Phase 2: drive the precondition of `pre ⊑ rhs` toward `⊤`, lifting any pure content into the
 local context so a later spec application sees a `⊤` precondition. In order: cancel a redundant
 `⊓ ⊤`; lift an embedded `⌜φ⌝` (before state-argument introduction, which would otherwise leave
 `⌜φ⌝` applied to the introduced state); lift the guard of a `⌜φ⌝ ⊓ P`; eliminate an `iSup`;
-split an `ite`/`dite`/`cond`/match; introduce excess state arguments; drop a `True` precondition; lift a bare `Prop` precondition.
+split an `ite`/`dite`/`cond`/match; introduce excess state arguments; drop a `True` precondition;
+lift a bare `Prop` precondition.
 Returns the updated scope, recording any lifted hypothesis. -/
 def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     VCGenM (Option (Scope × List MVarId)) := do
@@ -491,11 +497,11 @@ def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
   if let some (prog', prf) ← reduceMatchBySplitEq? scope splitInfo info.prog then
     let_expr c@PartialOrder.rel α inst pre _ := (← goal.getType) | return none
-    let mkRhs (prog : Expr) : Expr := mkAppN (mkAppN info.head (info.args.set! 7 prog)) info.excessArgs
     let rhs' ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog')) info.excessArgs
     let target' ← mkAppNS c #[α, inst, pre, rhs']
+    let mkRhs (prog : Expr) : Expr := mkAppN (mkAppN info.head (info.args.set! 7 prog)) info.excessArgs
     let C := mkLambda `p .default info.Prog (mkApp4 c α inst pre (mkRhs (.bvar 0)))
-    return some [← replaceTargetByEq goal info.Prog info.prog prog' C target' prf]
+    return some [← replaceTargetEqFast goal info.Prog info.prog prog' C target' prf]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   applySplitRule goal rule info.prog
 
@@ -715,10 +721,10 @@ The function performs the following steps in order:
    `σ₁ → ... → σₙ → Base`, introduce all excess state arguments.
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
-8. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`.
+8. **Lattice decomposition**: decompose a lattice connective on the RHS with `splitLatticeOp?`,
+   or split an `ite`/`dite`/`cond`/match RHS with `assertionMatch?`.
 9. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
-    Otherwise split an `ite`/`dite`/`cond`/match RHS with `assertionMatch?`.
 10. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
     introduce/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
@@ -750,13 +756,13 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
-  -- Phase 3: shape the `rhs` (decompose a lattice connective or a forall, discharge a residual
-  -- entailment against the lifted hypothesis, then split an `ite`/`dite`/`cond`/match).
+  -- Phase 3: shape the `rhs` (decompose a lattice connective, an `ite`/`dite`/`cond`/match or a
+  -- forall, then discharge a residual entailment against the lifted hypothesis).
   if let some g ← rhsLet? goal rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
+  if let some gs ← assertionMatch? scope goal target (inPre := false) then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
-  if let some gs ← assertionMatch? scope goal target (inPre := false) then return .goals scope gs
 
   -- Phase 4: wp decomposition. The program-shape steps below all consume one unit of fuel
   -- (the `stepLimit` config option) when they make progress.

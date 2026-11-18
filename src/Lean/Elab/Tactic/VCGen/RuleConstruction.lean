@@ -384,7 +384,10 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
 
 /-! ## Split rules -/
 
-/-- The goal of a split rule as a function of the term that the rule splits. -/
+/-- The goal of a split rule as a function of the split term `t`. A `wp` split uses the goal
+`pre ⊑ wp t post eposts s₁ … sₙ` with the parameters `s₁ … sₙ, post, eposts, pre`. A precondition
+split uses the goal `t s₁ … sₙ ⊑ rhs` with the parameters `s₁ … sₙ, rhs`, and a right-hand side
+split uses `pre ⊑ t s₁ … sₙ` with the parameters `s₁ … sₙ, pre`. -/
 structure SplitTemplate where
   /-- The parameters of the goal other than the split term. -/
   params : Array Expr
@@ -395,13 +398,8 @@ structure SplitTemplate where
 
 open Lean.Elab.Tactic.Do in
 /-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher
-application `splitInfo` of type `resTy` in the goal that `withTemplate` describes.
-
-Uses `SplitInfo.withAbstract` to introduce abstract fvars for the split components, then
-`SplitInfo.splitWith` to build the splitting proof. Hypothesis types are discovered via
-`rwIfOrMatcher` inside the splitter telescope. `withTemplate` receives the abstract split term,
-introduces the parameters of the goal, and passes the `SplitTemplate` to its continuation. -/
-def mkBackwardRuleForSplitAt (splitInfo : SplitInfo) (resTy : Expr)
+application `splitInfo` of type `resTy` in the goal that `withTemplate` describes. -/
+@[inline] def mkBackwardRuleForSplitAt (splitInfo : SplitInfo) (resTy : Expr)
     (withTemplate : Expr → (SplitTemplate → MetaM Expr) → MetaM Expr) : MetaM BackwardRule := do
   let prf ←
     splitInfo.withAbstract resTy fun abstractInfo splitFVars => do
@@ -428,7 +426,7 @@ def mkBackwardRuleForSplitAt (splitInfo : SplitInfo) (resTy : Expr)
           -- For matchers, `bodyType` has the discriminant replaced by the constructor
           -- pattern (e.g., `Nat.zero` instead of `discr`), which is required for
           -- `rwMatcher` to discharge the equality hypotheses of congr equation theorems.
-          -- For ite/dite, `bodyType` equals `tmpl.mkGoal abstractTerm` so this is equivalent.
+          -- For ite/dite/cond, `bodyType` equals `tmpl.mkGoal abstractTerm` so this is equivalent.
           let term := tmpl.hole bodyType
           let res ← rwIfOrMatcher idx term
           if res.proof?.isNone then
@@ -455,13 +453,13 @@ public def mkBackwardRuleForSplit
     let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>
       return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
-    withLocalDeclD `Post (← mkArrow info.Value info.Pred) fun post => do
-    withLocalDeclD `EPosts info.EPosts fun eposts => do
+    withLocalDeclD `post (← mkArrow info.Value info.Pred) fun post => do
+    withLocalDeclD `eposts info.EPosts fun eposts => do
     let mkWP (prog : Expr) : Expr :=
       let args := info.args.take 7 ++ #[prog, post, eposts]
       mkAppN (mkAppN info.head args) ss
     let Pred' ← Meta.inferType (mkWP abstractProg)
-    withLocalDeclD `Pre Pred' fun pre => do
+    withLocalDeclD `pre Pred' fun pre => do
     let sampleGoal ← mkAppM ``PartialOrder.rel #[pre, mkWP abstractProg]
     let relHead := mkAppN sampleGoal.getAppFn (sampleGoal.getAppArgs.extract 0 3)
     k { params := ss ++ #[post, eposts, pre]
@@ -470,15 +468,19 @@ public def mkBackwardRuleForSplit
 
 open Lean.Elab.Tactic.Do in
 /-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher
-application `splitInfo` of type `resTy` in a goal `e s₁ … sₙ ⊑ rhs` (when `inPre`) or
-`pre ⊑ e s₁ … sₙ`. `rel` is the partial application `PartialOrder.rel α inst` of the goal, and
-`stateTypes` are the types of `s₁ … sₙ`. -/
-public def mkBackwardRuleForAssertionSplit (splitInfo : SplitInfo) (resTy rel : Expr)
-    (stateTypes : Array Expr) (inPre : Bool) : MetaM BackwardRule :=
+application `splitInfo` in a goal `e s₁ … sₙ ⊑ rhs` (when `inPre`) or `pre ⊑ e s₁ … sₙ`, where
+`numStates` is `n` and `rel` is the partial application `PartialOrder.rel α inst` of the goal. -/
+public def mkBackwardRuleForAssertionSplit (splitInfo : SplitInfo) (rel : Expr) (numStates : Nat)
+    (inPre : Bool) : MetaM BackwardRule := do
+  -- The types `σᵢ : Type ?uᵢ` of `s₁ … sₙ` are schematic, so the rule serves every state chain of
+  -- length `n`. In `Type ?uᵢ`, the level of the split application normalizes to a successor that
+  -- the goal's level unifies with.
+  let stateTypes ← (Array.range numStates).mapM fun _ => do
+    mkFreshExprMVar (mkSort (← mkFreshLevelMVar).succ)
+  let resTy ← stateTypes.foldrM (init := rel.getArg! 0) fun σ acc => mkArrow σ acc
   mkBackwardRuleForSplitAt splitInfo resTy fun _ k => do
-    let stateDecls := stateTypes.map fun ty => (`s, ty)
-    withLocalDeclsDND stateDecls fun ss => do
-    withLocalDeclD (if inPre then `Rhs else `Pre) (rel.getArg! 0) fun other => do
+    withLocalDeclsDND (stateTypes.map (`s, ·)) fun ss => do
+    withLocalDeclD (if inPre then `rhs else `pre) (rel.getArg! 0) fun other => do
     let argIdx := if inPre then 2 else 3
     k { params := ss.push other
         mkGoal := fun e =>

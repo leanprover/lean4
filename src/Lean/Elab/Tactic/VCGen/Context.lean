@@ -171,9 +171,8 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
-  /-- The hypotheses `h : x = t` for a local `x` in scope, such as the equation that each
-  alternative of a split carries, keyed by `x`. Each entry is `(t, h)`. A later `match` on `x`
-  reduces with `h` instead of splitting again. -/
+  /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
+  on `x` reduces with them. -/
   splitEqs : FVarIdMap (Expr × FVarId) := {}
   deriving Inhabited
 
@@ -187,25 +186,11 @@ public structure State where
   This is sound because the instance is a subterm of the hash-consed goal target.
   -/
   specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
-  /--
-  A cache mapping matchers to their splitting backward rule to apply.
-  The particular rule depends on the matcher name, the monad and the number of excess state
-  arguments that the weakest precondition target is applied to.
-
-  The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
-  This is sound because the instance is a subterm of the hash-consed goal target.
-  -/
+  /-- Cache for `mkBackwardRuleForSplit`, keyed by `(splitter name, instWP, excessArgs.size)`. -/
   wpSplitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
-  /--
-  A cache mapping matchers to the backward rule that splits them in the precondition or on the
-  right-hand side of an entailment. The particular rule depends on the matcher name, whether the
-  matcher is the precondition, the lattice instance of the entailment, and the type of the
-  matcher application.
-
-  The instance and the type are keyed by `ExprPtr`, so lookups compare them by pointer rather than
-  structurally. This is sound because both are subterms of the hash-consed goal target.
-  -/
-  assertionSplitBackwardRuleCache : Std.HashMap (Name × Bool × ExprPtr × ExprPtr) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForAssertionSplit`, keyed by
+  `(splitter name, inPre, lattice instance, numStates)`. -/
+  assertionSplitBackwardRuleCache : Std.HashMap (Name × Bool × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping lattice connectives to their backward rule to apply, keyed by the `head … cₙ`
   prefix of constant arguments the rule bakes in verbatim and the total argument count that fixes the

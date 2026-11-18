@@ -63,19 +63,15 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
 
 open Lean.Elab.Tactic.Do in
 /--
-Cached version of `mkBackwardRuleForAssertionSplit` for the split application `splitInfo` of type
-`resTy` in the precondition (when `inPre`) or on the right-hand side of the entailment
-`PartialOrder.rel α inst pre rhs`, where `rel` is `PartialOrder.rel α inst`. `stateTypes` are the
-binder domains of `resTy` that the split application is applied to; they do not depend on each
-other, so `resTy` determines them.
+Cached version of `mkBackwardRuleForAssertionSplit`.
 
-Cache key: `(splitter name, inPre, inst, resTy)`.
+Cache key: `(splitter name, inPre, inst, numStates)`.
 -/
-public def mkBackwardRuleForAssertionSplitCached (splitInfo : SplitInfo) (resTy rel : Expr)
-    (stateTypes : Array Expr) (inPre : Bool) : VCGenM BackwardRule := do
-  let key := (splitInfo.splitterName, inPre, ExprPtr.mk (rel.getArg! 1), ExprPtr.mk resTy)
+public def mkBackwardRuleForAssertionSplitCached (splitInfo : SplitInfo) (rel : Expr)
+    (numStates : Nat) (inPre : Bool) : VCGenM BackwardRule := do
+  let key := (splitInfo.splitterName, inPre, ExprPtr.mk (rel.getArg! 1), numStates)
   if let some rule := (← get).assertionSplitBackwardRuleCache[key]? then return rule
-  let rule ← mkBackwardRuleForAssertionSplit splitInfo resTy rel stateTypes inPre
+  let rule ← mkBackwardRuleForAssertionSplit splitInfo rel numStates inPre
   let rule ← rule.shareCommon
   modify fun st => { st with
     assertionSplitBackwardRuleCache := st.assertionSplitBackwardRuleCache.insert key rule }

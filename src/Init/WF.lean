@@ -538,6 +538,8 @@ either component retain the component's relationship to the original pair.
 -/
 @[wf_preprocess] theorem Prod.map_wfParam {x : α × β} {f : α → γ} {g : β → δ} :
     Prod.map f g (wfParam x) =
-      (binderNameHint x.1 f <| f (wfParam x.1),
-       binderNameHint x.2 g <| g (wfParam x.2)) := by
-  rfl
+      (f (wfParam x.1), g (wfParam x.2)) := rfl
+
+/-- Unfolds `Prod.map` on an explicit pair during well-founded recursion preprocessing. -/
+@[wf_preprocess] theorem Prod.map_mk_wf {a : α} {b : β} {f : α → γ} {g : β → δ} :
+    Prod.map f g (a, b) = (f a, g b) := rfl

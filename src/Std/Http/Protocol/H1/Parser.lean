@@ -267,12 +267,26 @@ def parseURI (limits : H1.Config) : Parser ByteArray := do
 /--
 The URI limits for a request-target. `maxUriLength` bounds the whole target, so no component limit
 lower than it rejects a target the server accepts as a whole, which RFC 9112 §3 would answer with
-`414`, not `400`. The host keeps its own limit, the length of a DNS name.
+`414`, not `400`. The host keeps its own limit, the length of a DNS name. `maxPathSegments` and
+`maxQueryParams` are checked on the parsed target instead (`exceedsElementLimits`).
 -/
 def requestTargetConfig (limits : H1.Config) : URI.Config :=
   let n := limits.maxUriLength
   { maxSchemeLength := n, maxUserInfoLength := n, maxSegmentLength := n, maxQueryLength := n,
     maxFragmentLength := n, maxPathSegments := n, maxTotalPathLength := n, maxQueryParams := n }
+
+/--
+Whether `target` has more path segments or query parameters than `limits.maxPathSegments` and
+`limits.maxQueryParams` allow. Empty segments and parameters count, as `URI.Config` counts them.
+-/
+def exceedsElementLimits (limits : H1.Config) (target : RequestTarget) : Bool :=
+  let over (path : URI.Path) (query : Option URI.Query) :=
+    limits.maxPathSegments.any (path.segments.size > ·) ||
+      limits.maxQueryParams.any (((query.map (·.size)).getD 0) > ·)
+  match target with
+  | .originForm path query => over path query
+  | .absoluteForm uri => over uri.path uri.query
+  | .authorityForm _ | .asteriskForm => false
 
 /--
 Shared core for request-line parsing: parses `request-target SP HTTP-version CRLF`
@@ -286,6 +300,10 @@ def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × 
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget (requestTargetConfig limits) <* eof).run rawUri with
   | .ok res => pure res
   | .error res => fail res
+  -- A configured element count is a limit on how much of the target the server parses, as
+  -- `maxUriLength` is, so it gets the same 414 (RFC 9110 §15.5.15).
+  if exceedsElementLimits limits uri then
+    fail "uri too long"
   let versionPair ← parseHttpVersionNumber <* crlf
   return (uri, versionPair)
 

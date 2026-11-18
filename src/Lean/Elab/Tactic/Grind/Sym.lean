@@ -304,6 +304,50 @@ def elabSimpVariant (variantName : Name) (extraThms : Array Theorem) : GrindTact
   let post ← addExtraTheorems (← elabOptSimproc v.post?) extraThms (← elabOptDischarger v.discharger?)
   return ({ pre, post}, v.config)
 
+/--
+Simplifies `goal`'s target with `methods` and `config`. Returns `none` if `goal` was closed, or
+`some goal'` (equal to `goal` if no progress was made).
+
+When `cacheKey?` is `some k`, the `Sym.Simp.State` stored in `State.cache.simpState` under the key
+`{ variant := k, extras := #[] }` is reused and the updated state is stored back. This key space is
+shared with `sym => simp`, which uses the variant name (or `.anonymous` for the default variant) as
+`variant`, so `k` must not be `.anonymous` or the name of a `Sym.simp` variant, and must uniquely
+identify the pair `(methods, config)`: reusing `k` with different methods or configuration would
+reuse cache entries computed by a different simplifier.
+-/
+public def simpGoal (goal : Meta.Grind.Goal) (methods : Sym.Simp.Methods)
+    (config : Sym.Simp.Config := {}) (cacheKey? : Option Name := none) :
+    GrindTacticM (Option Meta.Grind.Goal) := do
+  let simpState : Sym.Simp.State ← match cacheKey? with
+    | some k =>
+      let key : SimpCacheKey := { variant := k, extras := #[] }
+      pure <| (← get).cache.simpState[key]?.getD {}
+    | none => pure {}
+  let (r, simpState) ← liftSymM <| goal.withContext do
+    Sym.Simp.SimpM.run (methods := methods) (config := config) (s := simpState) do
+      (← Sym.Simp.simp (← goal.mvarId.getType)).toSimpGoalResult goal.mvarId
+  if let some k := cacheKey? then
+    let key : SimpCacheKey := { variant := k, extras := #[] }
+    modify fun s => { s with cache.simpState := s.cache.simpState.insert key simpState }
+  match r with
+  | .closed => return none
+  | .noProgress => return some goal
+  | .goal mvarId => return some { goal with mvarId }
+
+/--
+Simplifies the main goal's target with `methods` and `config` (optionally threading a persistent
+cache under `cacheKey?`), updating the main goal. Returns `true` if the main goal was closed.
+-/
+public def simpMainGoal (methods : Sym.Simp.Methods) (config : Sym.Simp.Config := {})
+    (cacheKey? : Option Name := none) : GrindTacticM Bool := do
+  let goal ← getMainGoal
+  match ← simpGoal goal methods config cacheKey? with
+  | none => replaceMainGoal []; return true
+  | some goal' =>
+    if goal'.mvarId != goal.mvarId then
+      replaceMainGoal [goal']
+    return false
+
 @[builtin_grind_tactic Parser.Tactic.Grind.symSimp] def evalSymSimp : GrindTactic := fun stx => withMainContext do
   ensureSym
   let `(grind| simp $[$variantId?]? $[[ $[$extraIds],* ]]?) := stx | throwUnsupportedSyntax

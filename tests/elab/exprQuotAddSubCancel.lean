@@ -8,8 +8,8 @@ over `` `(expr/reducible| ...) `` / `` `(expr/sym| ...) `` patterns. They handle
 constructor, user-defined (recursive) commands, preconditions and symbolic branching:
 - `exec_eval` (`TacticM` + `Meta.simp`), driving `solveUsingMeta`;
 - `sym => exec_sym` (`GrindTacticM` + `Sym.simp`), with `+eager` (simplify the state after each
-  step) and `+cache` (thread one `Sym.Simp.State` along a branch), driving `solveUsingSym` and
-  `solveUsingCSym`.
+  step) and `+cache` (reuse one persistent `Sym.Simp.State` across all goals of an `exec_sym` run
+  via `Grind.simpGoal`'s `cacheKey?`), driving `solveUsingSym` and `solveUsingCSym`.
 -/
 
 namespace ExprQuotAddSubCancel
@@ -345,7 +345,8 @@ def postLemmas : Array Name := #[``List.cons.injEq, ``IOEvent.IN.injEq, ``IOEven
 structure ExecSymConfig where
   /-- Simplify the state after every evaluation step, so goals do not grow. -/
   eager : Bool := false
-  /-- Reuse one `Sym.Simp.State` (simplifier cache) along each branch. -/
+  /-- Reuse one persistent `Sym.Simp.State` (simplifier cache) across all goals, stored in the
+  `sym =>` state under the cache key `` `execSym ``. -/
   cache : Bool := false
 
 declare_core_config_elab elabExecSymConfig ExecSymConfig
@@ -381,33 +382,17 @@ def pruneInfeasibleSym (h : FVarId) : GrindTacticM Bool := withMainContext do
 def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
   let evalM ← mkMethods evalLemmas
   let postM ← mkMethods (evalLemmas ++ postLemmas)
+  let cacheKey? := if cfg.cache then some `execSym else none
   let unfoldCache ← IO.mkRef ({} : Std.HashMap Name Sym.Simp.Methods)
-  let cache ← IO.mkRef ({} : Sym.Simp.State)
-  let currentGoal? ← IO.mkRef (none : Option MVarId)
-  let setSubgoals (gs : List Grind.Goal) : GrindTacticM Unit := do
-    currentGoal?.set (gs.head?.map (·.mvarId))
-    replaceMainGoal gs
   let getUnfoldMethods (f : Name) : GrindTacticM Sym.Simp.Methods := do
     if let some m := (← unfoldCache.get)[f]? then return m
     let thms := (← Sym.Simp.mkTheoremsFromDecl f).foldl (·.insert ·) ({} : Sym.Simp.Theorems)
     let m : Sym.Simp.Methods := { post := Sym.Simp.evalGround.andThen thms.rewrite }
     unfoldCache.modify (·.insert f m)
     return m
-  /- Simplifies `g`'s target with `evalM`, threading the cache iff `cfg.cache`. -/
-  let simpEval (g : Grind.Goal) : GrindTacticM (Option Grind.Goal) := do
-    let s ← if cfg.cache then cache.get else pure {}
-    let (r, s) ← liftSymM <| g.mvarId.withContext <|
-      Sym.Simp.SimpM.run (methods := evalM) (s := s) do
-        (← Sym.Simp.simp (← g.mvarId.getType)).toSimpGoalResult g.mvarId
-    if cfg.cache then cache.set s
-    match r with
-    | .closed => return none
-    | .noProgress => return some g
-    | .goal mvarId => return some { g with mvarId }
   /- Closes `lhs = some ?v`: simplify, then `rfl`, else a precondition. -/
   let solveLookup : GrindTacticM Unit := do
-    let some g ← simpEval (← getMainGoal) | replaceMainGoal []; return
-    replaceMainGoal [g]
+    if ← simpMainGoal evalM (cacheKey? := cacheKey?) then return
     if ← refl? then return
     if ← assumption? then return
     throwError "exec_sym: cannot evaluate{indentExpr (← getMainTarget)}"
@@ -415,23 +400,18 @@ def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
   let applyEval (rule : Name) : GrindTacticM Unit := focus do
     applyDecl rule
     focus solveLookup
-    let gs ← getUnsolvedGoals
-    let gs ← if cfg.eager then gs.filterMapM simpEval else pure gs
-    currentGoal?.set (gs.head?.map (·.mvarId))
-    setGoals gs
-  let apply (rule : Name) : GrindTacticM Unit := focus do
-    applyDecl rule
-    currentGoal?.set ((← getUnsolvedGoals).head?.map (·.mvarId))
+    if cfg.eager then
+      let gs ← (← getUnsolvedGoals).filterMapM fun g =>
+        simpGoal g evalM (cacheKey? := cacheKey?)
+      setGoals gs
   while !(← getUnsolvedGoals).isEmpty do
-    let goal ← getMainGoal
-    if cfg.cache && (← currentGoal?.get) != some goal.mvarId then cache.set {}
     headBetaMainGoal
     match ← getMainTarget with
-    | `(expr/sym| Exec .skip _ _ _ _) => apply ``Exec.skip
-    | `(expr/sym| Exec (.seq _ _) _ _ _ _) => apply ``Exec.seq_cps
+    | `(expr/sym| Exec .skip _ _ _ _) => applyDecl ``Exec.skip
+    | `(expr/sym| Exec (.seq _ _) _ _ _ _) => applyDecl ``Exec.seq_cps
     | `(expr/sym| Exec (.set _ _) _ _ _ _) => applyEval ``Exec.set
-    | `(expr/sym| Exec (.unset _) _ _ _ _) => apply ``Exec.unset
-    | `(expr/sym| Exec (.input _) _ _ _ _) => apply ``Exec.input
+    | `(expr/sym| Exec (.unset _) _ _ _ _) => applyDecl ``Exec.unset
+    | `(expr/sym| Exec (.input _) _ _ _ _) => applyDecl ``Exec.input
     | `(expr/sym| Exec (.output _) _ _ _ _) => applyEval ``Exec.output
     | `(expr/sym| Exec (.cond _ _ _) _ _ _ _) => applyEval ``Exec.cond_split
     | `(expr/sym| Exec ?c ?t ?m ?l ?post) =>
@@ -445,23 +425,15 @@ def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
         let g ← mkFreshExprSyntheticOpaqueMVar (← `(expr/sym| Exec $c' $t $m $l $post))
         let prf := mkAppN (mkConst ``Exec.congr_cmd) #[c, c', t, m, l, post, pf, g]
         goal.mvarId.assign prf
-        setSubgoals [{ goal with mvarId := g.mvarId! }]
+        replaceMainGoal [{ goal with mvarId := g.mvarId! }]
     | ty =>
       if isExecTelescope ty then
-        let (h, goal) ← intro1
-        if ← pruneInfeasibleSym h then
-          currentGoal?.set none
-        else
-          currentGoal?.set (some goal.mvarId)
+        let (h, _) ← intro1
+        discard <| pruneInfeasibleSym h
       else
-        let goal ← getMainGoal
-        match ← liftSymM (Sym.simpGoal goal.mvarId postM { maxSteps := 100000 }) with
-        | .closed => setSubgoals []
-        | r =>
-          if let .goal mvarId := r then replaceMainGoal [{ goal with mvarId }]
+        unless ← simpMainGoal postM { maxSteps := 100000 } do
           focus <| evalGrindTactic
             (← `(grind| first (internalize_all; finish) (cbv <;> finish)))
-          currentGoal?.set none
 
 @[grind_tactic execSymPort] def evalExecSym : GrindTactic := fun stx => do
   let cfg ← elabExecSymConfig stx[1]

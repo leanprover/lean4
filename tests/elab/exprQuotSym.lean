@@ -27,9 +27,10 @@ open Lean.Elab.Tactic.Grind (GrindTacticM)
 set_option sym.debug true
 
 /--
-info: instMonadLiftTOfMonadLift MetaM (StateRefT' IO.RealWorld Tactic.Grind.State TermElabM) GrindTacticM
+info: instMonadLiftTOfMonadLift MetaM (StateRefT' IO.RealWorld Tactic.Grind.State TermElabM)
+  GrindTacticM
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 #synth MonadLiftT MetaM Lean.Elab.Tactic.Grind.GrindTacticM
 
 private def check (cond : Bool) (msg : String) : MetaM Unit := do
@@ -213,7 +214,8 @@ run_meta SymM.run do
   let _ := scrutLet
 
   -- 3d. Term `let`, `eta`, offsets (`Nat.succ`, `?n + 1`), and raw Meta `.proj` scrutinees
-  let letTerm := mkLet `z (mkConst ``Nat) (mkNatLit 4) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkBVar 0))
+  let letTerm :=
+    mkLet `z (mkConst ``Nat) (mkNatLit 4) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkBVar 0))
   match letTerm with
   | `(expr/sym| Nat.add ?a $a) =>
     a.checkMaxShared "a from letE"
@@ -263,10 +265,10 @@ instance instNeedInstWrap {α : Type} [NeedInst α] : NeedInst (WrapNeed α) whe
 
 run_meta SymM.run do
   -- 3f. Reject missing/non-synthesizable pattern instance & unresolved instance constraints
-  let fakeInst ← mkFreshExprMVar (some (mkApp (mkConst ``NeedInst) (mkApp (mkConst ``WrapNeed) (mkConst ``UninstType))))
-  let wrapVal ← mkFreshExprMVar (some (mkApp (mkConst ``WrapNeed) (mkConst ``UninstType)))
-  let badNeed := mkApp3 (mkConst ``withNeedInst)
-    (mkApp (mkConst ``WrapNeed) (mkConst ``UninstType)) fakeInst wrapVal
+  let wrapUninst := mkApp (mkConst ``WrapNeed) (mkConst ``UninstType)
+  let fakeInst ← mkFreshExprMVar (some (mkApp (mkConst ``NeedInst) wrapUninst))
+  let wrapVal ← mkFreshExprMVar (some wrapUninst)
+  let badNeed := mkApp3 (mkConst ``withNeedInst) wrapUninst fakeInst wrapVal
   let mvarCounterPre := (← getMCtx).mvarCounter
   match badNeed with
   | `(expr/sym| @withNeedInst (WrapNeed ?α) (@instNeedInstWrap $α _) ?_) =>
@@ -422,17 +424,19 @@ theorem interactiveSymBlockTest (x y : Nat) : x + y = y + x := by
 /-! ## 4. Reject invalid `/sym` relations & monads cleanly -/
 
 /--
-error: expr quotation `/sym` requires a `[MonadSym]` monad (e.g. `SymM` or `GrindTacticM`), got expected type
+error: expr quotation `/sym` requires a `[MonadSym]` monad (e.g. `SymM` or `GrindTacticM`),
+got expected type
   Id Expr
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectSymBuildId : Id Expr := `(expr/sym| 1 + 2)
 
 /--
-error: expr quotation matching requires a monad with `[MonadSym]` (e.g. `SymM` or `GrindTacticM`), got result type
+error: expr quotation matching requires a monad with `[MonadSym]` (e.g. `SymM` or `GrindTacticM`),
+got result type
   Id Nat
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectSymMatchId (e : Expr) : Id Nat :=
   match e with
   | `(expr/sym| ?x) => let _ := x; 1

@@ -7,6 +7,9 @@ module
 
 prelude
 public import Lean.Elab.Term
+public import Lean.Linter.Init
+import Init.Omega
+import Init.Data.Array.Mem
 
 public section
 
@@ -61,5 +64,38 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
       | none       => loop p (s::projs)
     | _, _ => []
   loop extractionResult.name []
+
+/-- Collect named `?x` synthetic holes inside ordinary quotation content, ignoring `?_`,
+antiquotations, nested quotations, and `expr` quotations. -/
+def collectNamedSyntaxHoles (stx : Syntax) : Array (Syntax × Name) :=
+  go stx #[]
+where
+  go (cur : Syntax) (acc : Array (Syntax × Name)) : Array (Syntax × Name) :=
+    if cur.isOfKind `Lean.Parser.Term.syntheticHole then
+      if cur[1].isIdent then acc.push (cur, cur[1].getId.eraseMacroScopes) else acc
+    else if cur.isAntiquot || cur.isTokenAntiquot || cur.isAntiquotSplice ||
+        cur.isAntiquotSuffixSplice || cur.isQuot ||
+        cur.isOfKind `Lean.Parser.Term.exprQuot then
+      acc
+    else
+      match cur with
+      | .node _ _ args =>
+        args.foldl (init := acc) fun a child => go child a
+      | _ => acc
+  termination_by sizeOf cur
+  decreasing_by
+    simp_wf
+    have := Array.sizeOf_lt_of_mem ‹_›
+    omega
+
+/-- Emit `linter.exprQuot.syntaxHole` warnings for named `?x` holes inside ordinary syntax
+quotation content `quotContent` appearing in an `Expr` context. -/
+def warnNamedSyntaxHolesInQuot (quotContent : Syntax) : TermElabM Unit := do
+  unless Linter.getLinterValue Linter.linter.exprQuot.syntaxHole (← Linter.getLinterOptions) do
+    return
+  for (holeStx, name) in collectNamedSyntaxHoles quotContent do
+    Linter.logLintIf Linter.linter.exprQuot.syntaxHole holeStx
+      m!"named pattern variable `?{name}` inside ordinary syntax quotation in an `Expr` \
+         context; did you mean `` `(expr| ...) ``?"
 
 end Lean.Elab.Term.Quotation

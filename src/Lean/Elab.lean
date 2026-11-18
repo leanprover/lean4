@@ -74,3 +74,4 @@ public import Lean.Elab.ConfigEval
 public import Lean.Elab.ConfigEval.Builtins
 public import Lean.Elab.Tactic.Config
 public import Lean.Elab.ExprQuot
+public import Lean.Elab.ExprQuotCommand

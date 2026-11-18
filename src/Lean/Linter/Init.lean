@@ -115,6 +115,17 @@ register_builtin_option linter.coreInternal : Bool := {
     Lean repository itself and are not intended for use by non-core projects."
 }
 
+register_builtin_option linter.exprQuot.syntaxHole : Bool := {
+  defValue := true
+  descr := "warn when a named `?x` pattern variable appears inside an ordinary syntax quotation \
+    in an `Expr` context instead of `` `(expr| ...) ``"
+}
+
+register_builtin_option linter.exprQuot.numeralDefaulting : Bool := {
+  defValue := true
+  descr := "warn when an `` `(expr| ...) `` pattern relies on `OfNat` numeral defaulting to `Nat`"
+}
+
 /--
 Global registry of options associated with environment linters.
 These are precisely options, whose value will be snapshotted during `addDecl`.

@@ -204,7 +204,7 @@ def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat
   go 0 type #[]
 
 /--
-Creates a `Pattern` from a theorem.
+Creates a `Pattern` from the type of a theorem.
 
 The pattern is constructed by stripping leading universal quantifiers from the theorem's type.
 Each quantified variable becomes a pattern variable, with its type recorded in `varTypes` and

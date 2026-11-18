@@ -638,9 +638,10 @@ def ignoreUnusedNonDepNoSorry (e : Expr) : MetaM Nat :=
   | `(expr| ?x) => let _ := x; return 1
 
 /--
-info: 'ExprQuotMatchTest.ignoreUnusedNonDepNoSorry' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: 'ExprQuotMatchTest.ignoreUnusedNonDepNoSorry' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 #print axioms ignoreUnusedNonDepNoSorry
 
 set_option match.ignoreUnusedAlts true in
@@ -650,33 +651,37 @@ def ignoreUnusedDepNoSorry (n : Nat) (e : Expr) : MetaM (Fin (n + 1)) :=
   | 0, `(expr| ?x) => let _ := h; let _ := x; return ⟨0, by omega⟩
 
 /--
-info: 'ExprQuotMatchTest.ignoreUnusedDepNoSorry' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: 'ExprQuotMatchTest.ignoreUnusedDepNoSorry' depends on axioms:
+  [propext, Classical.choice, Quot.sound]
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 #print axioms ignoreUnusedDepNoSorry
 
 /--
-error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations (the `Expr` values may only be related, not equal)
+error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations
+(the `Expr` values may only be related, not equal)
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectEqProofOnQuot (e : Expr) : MetaM Nat :=
   match h : e with
   | `(expr| ?a) => let _ := (h, a); return 1
   | _ => return 0
 
 /--
-error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations (the `Expr` values may only be related, not equal)
+error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations
+(the `Expr` values may only be related, not equal)
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectEqProofOnNestedQuot (o : Option Expr) : MetaM Nat :=
   match h : o with
   | some `(expr| ?a) => let _ := (h, a); return 1
   | _ => return 0
 
 /--
-error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations (the `Expr` values may only be related, not equal)
+error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations
+(the `Expr` values may only be related, not equal)
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectEqProofOnCol1 (n : Nat) (e : Expr) : MetaM Nat :=
   match n, h : e with
   | 0, `(expr| ?a) => let _ := (h, a); return 1
@@ -691,18 +696,20 @@ def allowEqProofOnNonQuotCol0 (n : Nat) (e : Expr) : MetaM Nat :=
   | _, _ => return n
 
 /--
-error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations (the `Expr` values may only be related, not equal)
+error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations
+(the `Expr` values may only be related, not equal)
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectTermLetEq (e : Expr) : MetaM Nat :=
   let (eq := h) `(expr| ?a) := e
   let _ := (h, a)
   return 1
 
 /--
-error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations (the `Expr` values may only be related, not equal)
+error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations
+(the `Expr` values may only be related, not equal)
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectDoLetEq (e : Expr) : MetaM Nat := do
   let (eq := h) `(expr| ?a) := e | return 0
   let _ := (h, a)
@@ -784,9 +791,10 @@ def rejectInaccessibleParam (h : Nat = Nat) : MetaM Nat :=
 error: failed to synthesize instance of type class
   HAdd Nat String ?m.6
 
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Hint: Type class instance resolution failures can be inspected with the
+`set_option trace.Meta.synthInstance true` command.
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectInvalidAddTC (e : Expr) : MetaM Nat :=
   match e with
   | `(expr| 1 + "hello") => return 1
@@ -796,9 +804,10 @@ def rejectInvalidAddTC (e : Expr) : MetaM Nat :=
 error: failed to synthesize instance of type class
   HAdd Bool Nat ?m.8
 
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Hint: Type class instance resolution failures can be inspected with the
+`set_option trace.Meta.synthInstance true` command.
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectInvalidTypedBinderTC (e : Expr) : MetaM Nat :=
   match e with
   | `(expr| (?x : Bool) + 1) => let _ := x; return 1
@@ -815,19 +824,21 @@ def rejectNonMetaMonad (e : Expr) : Id Nat :=
   | _ => 0
 
 /--
-error: expr quotation matching requires a monad with `[MonadSym]` (e.g. `SymM` or `GrindTacticM`), got result type
+error: expr quotation matching requires a monad with `[MonadSym]` (e.g. `SymM` or `GrindTacticM`),
+got result type
   MetaM Nat
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectUnsupportedSym (e : Expr) : MetaM Nat :=
   match e with
   | `(expr/sym| ?x) => let _ := x; return 1
   | _ => return 0
 
 /--
-error: unknown expr quotation engine `bogus`; expected `structural`, `reducible`, `instances`, `defeq`, or `sym`
+error: unknown expr quotation engine `bogus`;
+expected `structural`, `reducible`, `instances`, `defeq`, or `sym`
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectBadEngine (e : Expr) : MetaM Nat :=
   match e with
   | `(expr/bogus| ?x) => let _ := x; return 1
@@ -1041,9 +1052,10 @@ example (e : Expr) (_h : e = mkConst ``Nat.zero) : True := by
   trivial
 
 /--
-error: unknown expr quotation engine `bogus`; expected `structural`, `reducible`, `instances`, `defeq`, or `sym`
+error: unknown expr quotation engine `bogus`;
+expected `structural`, `reducible`, `instances`, `defeq`, or `sym`
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectBadModNoQuot (e : Expr) : Nat :=
   match (modulo := bogus) e with
   | _ => 0

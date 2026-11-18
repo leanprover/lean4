@@ -81,27 +81,30 @@ def badPUnitLevel : MetaM Expr := `(expr| PUnit)
 error: failed to synthesize instance of type class
   HAdd Nat String ?m.5
 
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Hint: Type class instance resolution failures can be inspected with the
+`set_option trace.Meta.synthInstance true` command.
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def badConcreteTC : MetaM Expr := `(expr| 1 + "hello")
 
 /--
 error: failed to synthesize
   ToString ?m.1
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the
+`set_option diagnostics true` command.
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def badStuckTCUnderscore : MetaM Expr := `(expr| toString _)
 
 /--
 error: failed to synthesize
   ToString ?m.1
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the
+`set_option diagnostics true` command.
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def badStuckTCHole : MetaM Expr := `(expr| toString ?h)
 
 /--
@@ -163,16 +166,18 @@ but is expected to have type
 def badWrongMonadCore : CoreM Expr := `(expr| 1 + 2)
 
 /--
-error: expr quotation `/sym` requires a `[MonadSym]` monad (e.g. `SymM` or `GrindTacticM`), got expected type
+error: expr quotation `/sym` requires a `[MonadSym]` monad (e.g. `SymM` or `GrindTacticM`),
+got expected type
   MetaM Expr
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def badSymWrongMonad : MetaM Expr := `(expr/sym| 1 + 2)
 
 /--
-error: invalid relation item `-ExprQuotBuildTest.myDefAlias`: `structural` does not unfold `ExprQuotBuildTest.myDefAlias` by default
+error: invalid relation item `-ExprQuotBuildTest.myDefAlias`:
+`structural` does not unfold `ExprQuotBuildTest.myDefAlias` by default
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def badStructuralNegItem (a : Expr) : MetaM Expr :=
   `(expr/structural [-myDefAlias]| ($a : Nat))
 

@@ -30,18 +30,20 @@ namespace ExprPatternTest
 def sampleDef (n : Nat) : Nat := n + 1
 
 /--
-error: invalid relation item `-ExprPatternTest.sampleDef`: `structural` does not unfold `ExprPatternTest.sampleDef` by default
+error: invalid relation item `-ExprPatternTest.sampleDef`:
+`structural` does not unfold `ExprPatternTest.sampleDef` by default
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectMinusConstOnStructural (e : Expr) : MetaM Bool :=
   match e with
   | `(expr/structural[-sampleDef]| ?x) => let _ := x; return true
   | _ => return false
 
 /--
-error: invalid relation item `-simp`: `structural` does not unfold any simp-set definitions by default
+error: invalid relation item `-simp`:
+`structural` does not unfold any simp-set definitions by default
 -/
-#guard_msgs in
+#guard_msgs (whitespace := lax) in
 def rejectMinusSimpOnStructural (e : Expr) : MetaM Bool :=
   match e with
   | `(expr/structural[-simp]| ?x) => let _ := x; return true

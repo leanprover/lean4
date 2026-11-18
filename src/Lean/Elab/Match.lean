@@ -1205,6 +1205,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
   let (discrs, matchType, isDep, altRes) ← commitIfDidNotPostpone do
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
     let matchAlts ← expandMacrosInPatterns altViews
+    ExprQuot.checkSyntaxHoleInExprMatchPatterns (discrs.map (·.expr)) matchAlts
     if ExprQuot.hasExprQuotInAltViews matchAlts then
       ExprQuot.checkNoEqProofOnQuotDiscrs (discrs.map (·.h?)) matchAlts
       let extraPatternVarNames ← matchAlts.mapM fun alt => do

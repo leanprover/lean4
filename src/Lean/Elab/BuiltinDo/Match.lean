@@ -244,6 +244,7 @@ private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array D
   let (discrs, matchType, altsRes) ← mapTermElabM Term.commitIfDidNotPostpone do
     let discrs ← Term.withSynthesize <| elabDiscrs discrs
     let alts ← Term.expandMacrosInPatterns alts
+    Term.ExprQuot.checkSyntaxHoleInExprMatchPatterns (discrs.map (·.expr)) alts
     if Term.ExprQuot.hasExprQuotInAltViews alts then
       Term.ExprQuot.checkNoEqProofOnQuotDiscrs (discrs.map (·.h?)) alts
       let origAltsPats := alts.map fun alt => alt.patterns.map some

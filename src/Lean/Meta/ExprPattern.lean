@@ -15,6 +15,7 @@ public import Lean.Meta.FunInfo
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.WHNF
+import Init.Omega
 public import Lean.Meta.Match.MatcherApp.Basic
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.DiscrTree
@@ -74,9 +75,11 @@ inductive ExprMatchEngine where
   notes on `isDefEq` `let`-substitution and normalization).
   -/
   | defeq
-  /-- Sym matching engine (runtime implemented in B5). -/
+  /-- Sym matching engine backed by `Lean.Meta.Sym`. -/
   | sym
   deriving Inhabited, BEq, Repr
+
+builtin_initialize registerTraceClass `Meta.Match.expr
 
 /-- A static constant or simp-set item in an expr quotation relation `[items]` list. -/
 structure ExprMatchItem where
@@ -678,7 +681,7 @@ where
     if !e.hasLooseBVars then e else
     match e with
     | .bvar i =>
-      if i >= depth then
+      if i >= depth && i - depth < numVars then
         let k := numVars - 1 - (i - depth)
         match σ.getD k none with
         | some v => v
@@ -701,6 +704,35 @@ private def substAssignedLevels (e : Expr) (patParams : List Name)
     if lvlSubst.isEmpty then e
     else e.instantiateLevelParams (lvlSubst.map (·.1)) (lvlSubst.map (·.2))
 
+private def patTracePlaceholders (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array Expr) :
+    Array (Option Expr) := Id.run do
+  let mut res : Array (Option Expr) := Array.emptyWithCapacity p.numVars
+  let mut cur := p.lam
+  for i in *...p.numVars do
+    match cur with
+    | .lam n _ b _ =>
+      let e :=
+        if let some pos := pinIdxs.idxOf? i then
+          pins.getD pos default
+        else if p.namedIdx.contains i then
+          mkConst (Name.mkSimple s!"?{n.eraseMacroScopes}")
+        else
+          mkConst `_
+      res := res.push (some e)
+      cur := b
+    | _ => break
+  return res
+
+private def instantiatePatForTrace (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array Expr)
+    (levels : Array (Option Level)) (e : Expr) : Expr :=
+  let e := substAssignedLevels e p.levelParams levels
+  let subst := patTracePlaceholders p pinIdxs pins
+  substAssigned e subst p.numVars
+
+private def formatPatExpr (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array Expr)
+    (levels : Array (Option Level)) (e : Expr) : MetaM Format :=
+  ppExpr (instantiatePatForTrace p pinIdxs pins levels e)
+
 private def shouldUnfoldConstByRules (rulesRev : Array (Bool × Sum Name SimpTheorems))
     (declName : Name) : Bool := Id.run do
   for (pos, entry) in rulesRev do
@@ -714,8 +746,9 @@ private def shouldUnfoldConstByRules (rulesRev : Array (Bool × Sum Name SimpThe
   return false
 
 private structure StructState where
-  vars   : Array (Option Expr)
-  levels : Array (Option Level)
+  vars          : Array (Option Expr)
+  levels        : Array (Option Level)
+  firstMismatch? : Option MessageData := none
 
 private abbrev StructM := StateT StructState MetaM
 
@@ -726,6 +759,9 @@ private structure StructCtx where
   posFVars     : Array FVarId
   negFVars     : Array FVarId
   hasUnfolding : Bool
+  traceEnabled : Bool := false
+  pinIdxs      : Array Nat := #[]
+  pins         : Array Expr := #[]
 
 private def StructCtx.shouldUnfoldConst (ctx : StructCtx) (declName : Name) : Bool :=
   shouldUnfoldConstByRules ctx.itemRulesRev declName
@@ -735,12 +771,39 @@ private def StructCtx.shouldUnfoldFVar (ctx : StructCtx) (fv : FVarId) : Bool :=
   else if ctx.negFVars.contains fv then false
   else ctx.flags.zeta
 
-private def tryCheckpoint (act : StructM Bool) : StructM Bool := do
+private def tryCheckpoint (ctx : StructCtx) (act : StructM Bool) : StructM Bool := do
   let saved ← get
   if ← act then
+    if ctx.traceEnabled then
+      modify fun st => { st with firstMismatch? := saved.firstMismatch? }
     return true
-  set saved
+  let childMismatch? := (← get).firstMismatch?
+  set { saved with firstMismatch? := saved.firstMismatch?.orElse fun _ => childMismatch? }
   return false
+
+private def tryUnfoldBranch (ctx : StructCtx) (act : StructM Bool) : StructM Bool := do
+  if !ctx.traceEnabled then
+    return ← tryCheckpoint ctx act
+  let saved ← get
+  modify fun st => { st with firstMismatch? := none }
+  if ← act then
+    modify fun st => { st with firstMismatch? := saved.firstMismatch? }
+    return true
+  let childMismatch? := (← get).firstMismatch?
+  set { saved with firstMismatch? := childMismatch?.orElse fun _ => saved.firstMismatch? }
+  return false
+
+@[inline]
+private def recordMismatch (ctx : StructCtx) (pe e : Expr) (isPat : Bool)
+    (reason : String) : StructM Unit := do
+  if ctx.traceEnabled && (← get).firstMismatch?.isNone then
+    let st ← get
+    let patExpr :=
+      if isPat then instantiatePatForTrace ctx.pat ctx.pinIdxs ctx.pins st.levels pe
+      else pe
+    let msg ← addMessageContext
+      m!"first mismatch:{indentExpr patExpr}\nagainst:{indentExpr e}\n({reason})"
+    modify fun st => { st with firstMismatch? := some msg }
 
 private def withIncStructRecDepth (act : StructM α) : StructM α := fun s =>
   withIncRecDepth (act s)
@@ -890,14 +953,18 @@ private def matchInstArgDefEq (ctx : StructCtx) (pa f a : Expr) : StructM Bool :
 -- Mutual structural matching can unfold definitions, beta-reduce, or project arbitrarily deeply;
 -- guarded at runtime by `withIncStructRecDepth`.
 mutual
-  private partial def structAssign (ctx : StructCtx) (k : Nat) (rawV : Expr)
-      (bound : Array Expr) (lets : Array LetEntry) (args : Array Expr := #[]) : StructM Bool := do
+  private partial def structAssign (ctx : StructCtx) (k : Nat) (pe rawV : Expr)
+      (bound : Array Expr) (lets : Array LetEntry) (isPat : Bool)
+      (args : Array Expr := #[]) : StructM Bool := do
     let prev? := (← get).vars.getD k none
     if prev?.isNone && !ctx.pat.shouldCapture k then
       if bound.isEmpty || args.size == bound.size || !rawV.hasFVar then
         return true
       let wrapped := rewrapLets rawV lets
-      return !wrapped.hasAnyFVar (bound.contains <| .fvar ·)
+      if wrapped.hasAnyFVar (bound.contains <| .fvar ·) then
+        recordMismatch ctx pe wrapped isPat "bound variable escapes pattern capture"
+        return false
+      return true
     let wrapped := rewrapLets rawV lets
     let val ←
       if args.isEmpty then
@@ -920,6 +987,7 @@ mutual
         pure lamVal.eta
     if !bound.isEmpty && args.size < bound.size && val.hasFVar then
       if val.hasAnyFVar (bound.contains <| .fvar ·) then
+        recordMismatch ctx pe val isPat "bound variable escapes pattern capture"
         return false
     match prev? with
     | none =>
@@ -930,7 +998,7 @@ mutual
         return true
       let rhs := if args.isEmpty then rawV else val
       let rhsLets := if args.isEmpty then lets else #[]
-      return ← tryCheckpoint (structGo ctx v' rhs bound rhsLets (isPat := false) false)
+      return ← tryCheckpoint ctx (structGo ctx v' rhs bound rhsLets (isPat := false) false)
 
   private partial def structDirectMatch (ctx : StructCtx) (pe e : Expr)
       (bound : Array Expr) (lets : Array LetEntry) (isPat isOrigPat : Bool) : StructM Bool := do
@@ -938,10 +1006,10 @@ mutual
     | .app pf pa, .app f a =>
       if !(← structGo ctx pf f bound lets isPat isOrigPat) then
         return false
-      if ← tryCheckpoint (structGo ctx pa a bound lets isPat isOrigPat) then
+      if ← tryCheckpoint ctx (structGo ctx pa a bound lets isPat isOrigPat) then
         return true
       if isPat then
-        return ← tryCheckpoint (matchInstArgDefEq ctx pa f a)
+        return ← tryCheckpoint ctx (matchInstArgDefEq ctx pa f a)
       return false
     | .forallE _ pd pb _, .forallE x d b bi
     | .lam _ pd pb _,     .lam x d b bi =>
@@ -954,16 +1022,43 @@ mutual
       withLetDecl x t v (nondep := nondep) fun y =>
         structGo ctx (pb.instantiate1 y) (b.instantiate1 y) (bound.push y) lets isPat isOrigPat
     | .proj sn₁ i₁ pe', .proj sn₂ i₂ e' =>
-      if sn₁ != sn₂ || i₁ != i₂ then return false
+      if sn₁ != sn₂ || i₁ != i₂ then
+        recordMismatch ctx pe e isPat "projection mismatch"
+        return false
       structGo ctx pe' e' bound lets isPat isOrigPat
     | .const c₁ us₁, .const c₂ us₂ =>
-      if c₁ != c₂ then return false
-      matchLevelList ctx isPat us₁ us₂
-    | .sort u₁, .sort u₂ => matchLevel ctx isPat u₁ u₂
-    | .lit l₁,  .lit l₂  => return l₁ == l₂
-    | .fvar f₁, .fvar f₂ => return f₁ == f₂
-    | .mvar m₁, .mvar m₂ => return m₁ == m₂
-    | _,        _        => return pe == e
+      if c₁ != c₂ then
+        recordMismatch ctx pe e isPat "constant mismatch"
+        return false
+      if !(← matchLevelList ctx isPat us₁ us₂) then
+        recordMismatch ctx pe e isPat "universe level mismatch"
+        return false
+      return true
+    | .sort u₁, .sort u₂ =>
+      if !(← matchLevel ctx isPat u₁ u₂) then
+        recordMismatch ctx pe e isPat "universe level mismatch"
+        return false
+      return true
+    | .lit l₁, .lit l₂ =>
+      if l₁ != l₂ then
+        recordMismatch ctx pe e isPat "literal mismatch"
+        return false
+      return true
+    | .fvar f₁, .fvar f₂ =>
+      if f₁ != f₂ then
+        recordMismatch ctx pe e isPat "free variable mismatch"
+        return false
+      return true
+    | .mvar m₁, .mvar m₂ =>
+      if m₁ != m₂ then
+        recordMismatch ctx pe e isPat "metavariable mismatch"
+        return false
+      return true
+    | _, _ =>
+      if pe != e then
+        recordMismatch ctx pe e isPat "structural mismatch"
+        return false
+      return true
 
   private partial def matchProofIrrel (ctx : StructCtx) (pe e : Expr)
       (bound : Array Expr) (lets : Array LetEntry) (isPat isOrigPat : Bool) : StructM Bool := do
@@ -974,7 +1069,7 @@ mutual
       let some peTy := ctx.pat.closedProofs[pe]? | return false
       unless ← isProofSafe e do return false
       let some eTy ← inferTypeSafe e | return false
-      return ← tryCheckpoint (structGo ctx peTy eTy bound lets (isPat := false) false)
+      return ← tryCheckpoint ctx (structGo ctx peTy eTy bound lets (isPat := false) false)
     let st ← get
     let peResolved :=
       if isPat then substAssignedLevels pe ctx.pat.levelParams st.levels else pe
@@ -982,7 +1077,7 @@ mutual
       return false
     let some peTy ← inferTypeSafe peResolved | return false
     let some eTy ← inferTypeSafe e | return false
-    tryCheckpoint (structGo ctx peTy eTy bound lets
+    tryCheckpoint ctx (structGo ctx peTy eTy bound lets
       (isPat := isPat && !ctx.pat.levelParams.isEmpty) false)
 
   private partial def structGo (ctx : StructCtx) (pe e : Expr)
@@ -996,13 +1091,13 @@ mutual
           let k := ctx.pat.numVars - 1 - i
           let args := pe.getAppArgs
           if args.isEmpty then
-            return ← structAssign ctx k e bound lets
+            return ← structAssign ctx k pe e bound lets isPat
           if !ctx.pat.firstOrder.getD k false && args.all bound.contains && allDistinct args then
-            return ← structAssign ctx k e bound lets args
+            return ← structAssign ctx k pe e bound lets isPat args
       if !pe.hasLooseBVars && pe == e then
         if !isPat || !hasPatLevelFast ctx.pat isOrigPat pe then
           return true
-      if ← tryCheckpoint (structDirectMatch ctx pe e bound lets isPat isOrigPat) then
+      if ← tryCheckpoint ctx (structDirectMatch ctx pe e bound lets isPat isOrigPat) then
         return true
       if ← matchProofIrrel ctx pe e bound lets isPat isOrigPat then
         return true
@@ -1011,68 +1106,73 @@ mutual
       -- Lazy look-through on `e` and (if items/flags allow or pinned head) `pe`.
       if ctx.flags.zeta then
         if let .letE x t v b nondep := e then
-          if ← tryCheckpoint (withLetDecl x t v (nondep := nondep) fun y =>
-              let lets' := lets.push { fv := y.fvarId!, userName := x, type := t, val := v, nondep }
+          if ← tryUnfoldBranch ctx (withLetDecl x t v (nondep := nondep) fun y =>
+              let lets' := lets.push {
+                fv := y.fvarId!, userName := x, type := t, val := v, nondep
+              }
               structGo ctx pe (b.instantiate1 y) bound lets' isPat isOrigPat) then
             return true
       if let some e' ← unfoldFVarStep? ctx e lets then
-        if ← tryCheckpoint (structGo ctx pe e' bound lets isPat isOrigPat) then
+        if ← tryUnfoldBranch ctx (structGo ctx pe e' bound lets isPat isOrigPat) then
           return true
       if ctx.flags.beta && e.isHeadBetaTarget then
-        if ← tryCheckpoint (structGo ctx pe e.headBeta bound lets isPat isOrigPat) then
+        if ← tryUnfoldBranch ctx (structGo ctx pe e.headBeta bound lets isPat isOrigPat) then
           return true
       if ctx.flags.proj then
         if let .proj s i c := e then
           let c' ← reduceProjTarget ctx c lets
           if ctx.flags.zeta then
             if let .letE x t v b nondep := c' then
-              if ← tryCheckpoint (structGo ctx pe (mkLet x t v (mkProj s i b) nondep)
-                  bound lets isPat isOrigPat) then
+              if ← tryUnfoldBranch ctx
+                  (structGo ctx pe (mkLet x t v (mkProj s i b) nondep)
+                    bound lets isPat isOrigPat) then
                 return true
           if let some projected ← projectCore? c' i then
-            if ← tryCheckpoint (structGo ctx pe projected bound lets isPat isOrigPat) then
+            if ← tryUnfoldBranch ctx (structGo ctx pe projected bound lets isPat isOrigPat) then
               return true
       if let some e' ← unfoldConstStep? ctx e then
-        if ← tryCheckpoint (structGo ctx pe e' bound lets isPat isOrigPat) then
+        if ← tryUnfoldBranch ctx (structGo ctx pe e' bound lets isPat isOrigPat) then
           return true
       if ctx.flags.eta then
         if !pe.isLambda && e.isLambda then
           let eEta := e.eta
           if eEta != e then
-            if ← tryCheckpoint (structGo ctx pe eEta bound lets isPat isOrigPat) then
+            if ← tryUnfoldBranch ctx (structGo ctx pe eEta bound lets isPat isOrigPat) then
               return true
           if let some peExp ← etaExpandOne? ctx pe then
-            if ← tryCheckpoint (structGo ctx peExp e bound lets isPat false) then
+            if ← tryUnfoldBranch ctx (structGo ctx peExp e bound lets isPat false) then
               return true
         if pe.isLambda && !e.isLambda then
           if let some eExp ← etaExpandOne? ctx e then
-            if ← tryCheckpoint (structGo ctx pe eExp bound lets isPat isOrigPat) then
+            if ← tryUnfoldBranch ctx (structGo ctx pe eExp bound lets isPat isOrigPat) then
               return true
       if isPat && pe.isApp then
         if let .bvar i := pe.getAppFn then
           let k := ctx.pat.numVars - 1 - i
           if let some headVal := (← get).vars.getD k none then
             let peApplied := mkAppN headVal pe.getAppArgs
-            if ← tryCheckpoint (structGo ctx peApplied e bound lets (isPat := true) false) then
+            if ← tryUnfoldBranch ctx
+                (structGo ctx peApplied e bound lets (isPat := true) false) then
               return true
       if let some pe' ← unfoldFVarStep? ctx pe #[] then
-        if ← tryCheckpoint (structGo ctx pe' e bound lets isPat false) then
+        if ← tryUnfoldBranch ctx (structGo ctx pe' e bound lets isPat false) then
           return true
       if ctx.flags.beta && pe.isHeadBetaTarget then
-        if ← tryCheckpoint (structGo ctx pe.headBeta e bound lets isPat false) then
+        if ← tryUnfoldBranch ctx (structGo ctx pe.headBeta e bound lets isPat false) then
           return true
       if ctx.flags.zeta then
         if let .letE _ _ pv pb _ := pe then
-          if ← tryCheckpoint (structGo ctx (pb.instantiate1 pv) e bound lets isPat false) then
+          if ← tryUnfoldBranch ctx
+              (structGo ctx (pb.instantiate1 pv) e bound lets isPat false) then
             return true
       if ctx.flags.proj then
         if let .proj _ i pc := pe then
           let pc' ← reduceProjTarget ctx pc #[]
           if let some projected ← projectCore? pc' i then
-            if ← tryCheckpoint (structGo ctx projected e bound lets isPat false) then
+            if ← tryUnfoldBranch ctx (structGo ctx projected e bound lets isPat false) then
               return true
       if let some pe' ← unfoldConstStep? ctx pe then
-        if ← tryCheckpoint (structGo ctx pe' e bound lets isPat false) then
+        if ← tryUnfoldBranch ctx (structGo ctx pe' e bound lets isPat false) then
           return true
       return false
 end
@@ -1080,6 +1180,15 @@ end
 private def matchStructural? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
   let n := p.numVars
+  let traceEnabled ← isTracingEnabledFor `Meta.Match.expr
+  let mut initVars : Array (Option Expr) := .replicate n none
+  let mut resolvedPins : Array Expr :=
+    if traceEnabled then Array.emptyWithCapacity pins.size else #[]
+  for (idx, rawPin) in pinIdxs.zip pins do
+    let pin ← instantiateMVarsIfNeeded rawPin
+    initVars := initVars.setIfInBounds idx (some pin)
+    if traceEnabled then
+      resolvedPins := resolvedPins.push pin
   let ctx : StructCtx := {
     pat          := p
     flags        := rel.flags
@@ -1087,16 +1196,29 @@ private def matchStructural? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     posFVars     := rel.posFVars
     negFVars     := rel.negFVars
     hasUnfolding := rel.hasUnfolding
+    traceEnabled
+    pinIdxs      := if traceEnabled then pinIdxs else #[]
+    pins         := resolvedPins
   }
-  let mut initVars : Array (Option Expr) := .replicate n none
-  for (idx, rawPin) in pinIdxs.zip pins do
-    let pin ← instantiateMVarsIfNeeded rawPin
-    initVars := initVars.setIfInBounds idx (some pin)
   let initState : StructState := {
     vars   := initVars
     levels := .replicate p.levelParams.length none
   }
   let (ok, st) ← (structGo ctx p.body e #[] #[] (isPat := true) true).run initState
+  if traceEnabled then
+    let patExpr := instantiatePatForTrace p pinIdxs resolvedPins st.levels p.body
+    let eInst ← instantiateMVarsIfNeeded e
+    if ok then
+      trace[Meta.Match.expr]
+        "[structural] matched:{indentExpr patExpr}\nagainst:{indentExpr eInst}"
+    else
+      match st.firstMismatch? with
+      | some mm =>
+        trace[Meta.Match.expr]
+          "[structural] failed:{indentExpr patExpr}\nagainst:{indentExpr eInst}\n{mm}"
+      | none =>
+        trace[Meta.Match.expr]
+          "[structural] failed:{indentExpr patExpr}\nagainst:{indentExpr eInst}"
   if !ok then
     return none
   return p.namedIdx.mapM fun i => st.vars.getD i none
@@ -1359,6 +1481,84 @@ private def withRelUnfoldRules (rel : ResolvedExprMatchRel) (k : MetaM α) : Met
         canUnfoldDefault cfg info
       withCanUnfoldPred pred k
 
+private def replaceTracePatMVars (patMVs : Array (MVarId × Expr)) (e : Expr) : Expr :=
+  if patMVs.isEmpty || !e.hasExprMVar then e else
+    e.replace fun
+      | .mvar mvId => (patMVs.find? (·.1 == mvId)).map (·.2)
+      | _          => none
+
+private def findFirstDefEqMismatch (fuel : Nat) (patMVs : Array (MVarId × Expr))
+    (pe e : Expr) : MetaM MessageData := do
+  match fuel with
+  | 0 =>
+    let pSub := replaceTracePatMVars patMVs (← instantiateMVars pe)
+    addMessageContext m!"first mismatch:{indentExpr pSub}\nagainst:{indentExpr e}\n(defeq mismatch)"
+  | fuel + 1 =>
+    let pHead := pe.consumeMData
+    let eHead := e.consumeMData
+    match pHead, eHead with
+    | .app pf pa, .app ef ea =>
+      if ← isDefEq pf ef then
+        findFirstDefEqMismatch fuel patMVs pa ea
+      else
+        findFirstDefEqMismatch fuel patMVs pf ef
+    | .forallE n pd pb _, .forallE _ ed eb _ =>
+      if !(← isDefEq pd ed) then
+        findFirstDefEqMismatch fuel patMVs pd ed
+      else
+        withLocalDeclD n ed fun y =>
+          findFirstDefEqMismatch fuel patMVs (pb.instantiate1 y) (eb.instantiate1 y)
+    | .lam n pd pb _, .lam _ ed eb _ =>
+      if !(← isDefEq pd ed) then
+        findFirstDefEqMismatch fuel patMVs pd ed
+      else
+        withLocalDeclD n ed fun y =>
+          findFirstDefEqMismatch fuel patMVs (pb.instantiate1 y) (eb.instantiate1 y)
+    | _, _ =>
+      let pSub := replaceTracePatMVars patMVs (← instantiateMVars pe)
+      let eSub ← instantiateMVars e
+      addMessageContext
+        m!"first mismatch:{indentExpr pSub}\nagainst:{indentExpr eSub}\n(defeq mismatch)"
+
+private def traceDefEqResult (p : ExprPattern) (rel : ResolvedExprMatchRel)
+    (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) (matched : Bool) : MetaM Unit := do
+  let patExpr := instantiatePatForTrace p pinIdxs pins #[] p.body
+  let eng := match rel.engine with
+    | .reducible  => "reducible"
+    | .instances  => "instances"
+    | .defeq      => "defeq"
+    | .structural => "structural"
+    | .sym        => "sym"
+  if matched then
+    trace[Meta.Match.expr] "[{eng}] matched:{indentExpr patExpr}\nagainst:{indentExpr e}"
+    return ()
+  let mmMsg ←
+    withRelDefEqConfig (engineTransparency rel.engine) rel.flags rel.flags.zeta rel.flags.zeta do
+      withNewMCtxDepth do
+        let us ← p.levelParams.mapM fun _ => mkFreshLevelMVar
+        let lam := p.lam.instantiateLevelParams p.levelParams us
+        let placeholders := patTracePlaceholders p pinIdxs pins
+        let mut subst : Array Expr := Array.mkEmpty p.numVars
+        let mut patMVs : Array (MVarId × Expr) := #[]
+        let mut cur := lam
+        for i in *...p.numVars do
+          match cur with
+          | .lam n d b _ =>
+            if let some pinPos := pinIdxs.idxOf? i then
+              subst := subst.push (pins.getD pinPos default)
+            else
+              let ty := d.instantiateRevRange 0 subst.size subst
+              let uname := if p.namedIdx.contains i then n.eraseMacroScopes else `_
+              let mv ← mkFreshExprMVar (some ty) (userName := uname)
+              subst := subst.push mv
+              if let some ph := placeholders.getD i none then
+                patMVs := patMVs.push (mv.mvarId!, ph)
+            cur := b
+          | _ => break
+        let pe := cur.instantiateRevRange 0 subst.size subst
+        findFirstDefEqMismatch 64 patMVs pe e
+  trace[Meta.Match.expr] "[{eng}] failed:{indentExpr patExpr}\nagainst:{indentExpr e}\n{mmMsg}"
+
 private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
   let transparency := engineTransparency rel.engine
@@ -1392,7 +1592,10 @@ private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     else
       liftInspectedLetsGo p.numVars pinIdxs transparency rel.flags p.body e 0 16
         (countLeadingLetMData e) #[] runAt
-  withRelUnfoldRules rel runCore
+  let res ← withRelUnfoldRules rel runCore
+  if ← isTracingEnabledFor `Meta.Match.expr then
+    withRelUnfoldRules rel <| traceDefEqResult p rel pinIdxs pins e res.isSome
+  return res
 
 /--
 Match `p` with pre-resolved relation `rel` and direct pin values `pins` at `pinIdxs`, returning
@@ -1475,6 +1678,11 @@ def ExprPattern.matchOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m]
     (localItems : Array (Bool × Expr)) (e : Expr)
     (onMatch : Array Expr → m α) (onFail : Unit → m α) : m α :=
   p.matchSiteOrElse .anonymous rel pinIdxs pins localItems e onMatch onFail
+
+/-- Pretty-print the compiled body of `p`, replacing binders/wildcards/`$pin`s for diagnostics. -/
+def ExprPattern.formatBody (p : ExprPattern) (pinIdxs : Array Nat := #[])
+    (pins : Array Expr := #[]) : MetaM Format :=
+  formatPatExpr p pinIdxs pins #[] p.body
 
 /-! ## `ExprTemplate` and Runtime Term Building -/
 
@@ -1787,31 +1995,129 @@ private def checkSymPinEq (captured pinVal : Expr) : Sym.SymM Bool := do
     return ← Sym.isDefEqS ty1 ty2 (unify := false) (zetaDelta := true)
   return false
 
+private def symTracePrefixMatches (p : ExprPattern) (pinIdxs : Array Nat)
+    (pins : Array Expr) (vars : Array (Option Expr)) (pe e : Expr) :
+    Sym.SymM (Bool × Array (Option Expr)) := do
+  match pe with
+  | .mdata _ b => symTracePrefixMatches p pinIdxs pins vars b e
+  | .bvar i =>
+    let k := p.numVars - 1 - i
+    let e := (Sym.etaReduce e).consumeMData
+    if let some pos := pinIdxs.idxOf? k then
+      let ok ← checkSymPinEq e (pins.getD pos default)
+      return (ok, vars)
+    else
+      match vars.getD k none with
+      | none    => return (true, vars.setIfInBounds k (some e))
+      | some v' => return (← checkSymPinEq e v', vars)
+  | pe =>
+    let e' := (Sym.etaReduce e).consumeMData
+    if eqModMData pe e' then
+      return (true, vars)
+    match pe, e' with
+    | .app pf pa, .app ef ea =>
+      let (okF, vars) ← symTracePrefixMatches p pinIdxs pins vars pf ef
+      if !okF then return (false, vars)
+      symTracePrefixMatches p pinIdxs pins vars pa ea
+    | _, _ => return (false, vars)
+termination_by sizeOf pe
+
+private def findFirstSymMismatch (fuel : Nat) (p : ExprPattern) (pinIdxs : Array Nat)
+    (pins : Array Expr) (vars : Array (Option Expr)) (pe e : Expr) :
+    Sym.SymM (MessageData × Array (Option Expr)) := do
+  let mkMsg (pSub eSub : Expr) : Sym.SymM MessageData :=
+    addMessageContext
+      m!"first mismatch:{indentExpr pSub}\nagainst:{indentExpr eSub}\n(sym mismatch)"
+  match fuel with
+  | 0 =>
+    let pSub := instantiatePatForTrace p pinIdxs pins #[] pe
+    return (← mkMsg pSub e, vars)
+  | fuel + 1 =>
+    let pe := pe.consumeMData
+    let e := (Sym.etaReduce e).consumeMData
+    if let .letE _ _ pv pb _ := pe then
+      return ← findFirstSymMismatch fuel p pinIdxs pins vars (pb.instantiate1 pv) e
+    if let .letE x t v b nondep := e then
+      return ← withLetDecl x t v (nondep := nondep) fun y =>
+        findFirstSymMismatch fuel p pinIdxs pins vars pe (b.instantiate1 y)
+    if let .fvar fv := e.getAppFn then
+      if let some val ← Sym.getLetValueS? fv then
+        let e' := if e.isApp then val.betaRev e.getAppRevArgs else val
+        return ← findFirstSymMismatch fuel p pinIdxs pins vars pe e'
+    if e.isApp && e.getAppFn.isLambda then
+      return ← findFirstSymMismatch fuel p pinIdxs pins vars pe e.headBeta
+    if let .bvar i := pe.getAppFn then
+      let k := p.numVars - 1 - i
+      if pe.isApp then
+        if let some pos := pinIdxs.idxOf? k then
+          if e.isApp && pe.getAppNumArgs == e.getAppNumArgs then
+            let pinApp := mkAppN (pins.getD pos default) pe.getAppArgs
+            return ← findFirstSymMismatch fuel p pinIdxs pins vars pinApp e
+      else if let some v' := vars.getD k none then
+        return (← mkMsg v' e, vars)
+    match pe, e with
+    | .app pf pa, .app ef ea =>
+      let (okF, vars') ← symTracePrefixMatches p pinIdxs pins vars pf ef
+      if okF then
+        findFirstSymMismatch fuel p pinIdxs pins vars' pa ea
+      else
+        findFirstSymMismatch fuel p pinIdxs pins vars pf ef
+    | .forallE _ pd pb _, .forallE n ed eb _
+    | .lam _ pd pb _,     .lam n ed eb _ =>
+      let (okD, vars') ← symTracePrefixMatches p pinIdxs pins vars pd ed
+      if !okD then
+        findFirstSymMismatch fuel p pinIdxs pins vars pd ed
+      else
+        withLocalDeclD n ed fun y =>
+          findFirstSymMismatch fuel p pinIdxs pins vars' (pb.instantiate1 y) (eb.instantiate1 y)
+    | _, _ =>
+      let pSub := instantiatePatForTrace p pinIdxs pins #[] pe
+      return (← mkMsg pSub e, vars)
+
 private def matchSymCore? (siteId : Name) (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : Sym.SymM (Option (Array Expr)) := do
   validateSymResolvedRel rel
   let symPat ← getOrMkSymPattern siteId p
   let e ← ensureSymExpr e
+  let traceEnabled ← isTracingEnabledFor `Meta.Match.expr
+  let traceFail (msg : MessageData) : Sym.SymM (Option (Array Expr)) := do
+    if traceEnabled then
+      let patExpr := instantiatePatForTrace p pinIdxs pins #[] p.body
+      let eInst ← instantiateMVarsIfNeeded e
+      trace[Meta.Match.expr]
+        "[sym] failed:{indentExpr patExpr}\nagainst:{indentExpr eInst}\n{msg}"
+    return none
   let baseDepth := (← getMCtx).depth
   withNewMCtxDepth do
     let mvarCounterSaved := (← getMCtx).mvarCounter
-    let some res ← symPat.match? e (zetaDelta := true) | return none
+    let some res ← symPat.match? e (zetaDelta := true)
+      | if traceEnabled then
+          let initVars := Array.replicate p.numVars none
+          let (mmMsg, _) ← findFirstSymMismatch 64 p pinIdxs pins initVars p.body e
+          return ← traceFail mmMsg
+        return none
     unless res.unresolvedInsts.isEmpty do
-      return none
+      return ← traceFail m!"unresolved instance argument(s)"
     for h : i in *...pinIdxs.size do
       let pinIdx := pinIdxs[i]
       let pinVal ← ensureSymExpr (pins.getD i default)
       let captured ← Sym.instantiateMVarsS (res.args.getD pinIdx default)
       if symHasFreshTemp (← getMCtx) baseDepth mvarCounterSaved captured then
-        return none
+        return ← traceFail m!"fresh metavariable in pinned capture:{indentExpr captured}"
       unless ← checkSymPinEq captured pinVal do
-        return none
+        return ← traceFail
+          m!"first mismatch:{indentExpr pinVal}\nagainst:{indentExpr captured}\n(pin mismatch)"
     let mut namedOut : Array Expr := Array.emptyWithCapacity p.namedIdx.size
     for idx in p.namedIdx do
       let val ← Sym.instantiateMVarsS (res.args.getD idx default)
       if symHasFreshTemp (← getMCtx) baseDepth mvarCounterSaved val then
-        return none
+        return ← traceFail m!"fresh metavariable in captured term:{indentExpr val}"
       namedOut := namedOut.push val
+    if traceEnabled then
+      let patExpr := instantiatePatForTrace p pinIdxs pins #[] p.body
+      let eInst ← instantiateMVarsIfNeeded e
+      trace[Meta.Match.expr]
+        "[sym] matched:{indentExpr patExpr}\nagainst:{indentExpr eInst}"
     return some namedOut
 
 /--
@@ -2040,92 +2346,148 @@ private def dispatchCandidates {m : Type → Type v} [Monad m] {α : Type}
       onFail ()
   go 0
 
-private partial def stripMDataAppRev (e : Expr) (revArgs : Array Expr := #[]) :
+private def stripMDataAppRev (e : Expr) (revArgs : Array Expr := #[]) :
     Expr × Array Expr :=
   match e with
   | .mdata _ b => stripMDataAppRev b revArgs
   | .app f a   => stripMDataAppRev f (revArgs.push a)
   | _          => (e, revArgs)
 
-private inductive StructPatItem where
-  | expr (e : Expr) (bvarDepth : Nat)
-  | star
-  deriving Inhabited
+private def collectMDataAppArgs (e : Expr) (args : List Expr := []) : Expr × List Expr :=
+  match e with
+  | .mdata _ b => collectMDataAppArgs b args
+  | .app f a   => collectMDataAppArgs f (a :: args)
+  | _          => (e, args)
 
-private def pushRevExprArgs (revArgs : Array Expr) (bvarDepth : Nat)
-    (todo : Array StructPatItem) : Array StructPatItem :=
-  revArgs.foldl (init := todo) fun acc a => acc.push (.expr a bvarDepth)
+private theorem collectMDataAppArgs_sizeOf (e : Expr) (acc : List Expr) :
+    sizeOf (collectMDataAppArgs e acc).1 ≤ sizeOf e ∧
+      (∀ a ∈ (collectMDataAppArgs e acc).2, a ∈ acc ∨ sizeOf a < sizeOf e) := by
+  induction e generalizing acc with
+  | mdata m b ih =>
+    rcases ih acc with ⟨h1, h2⟩
+    have hm : sizeOf b ≤ sizeOf (Expr.mdata m b) := by
+      simp only [Expr.mdata.sizeOf_spec]; omega
+    refine ⟨Nat.le_trans h1 hm, fun a ha => ?_⟩
+    rcases h2 a ha with ha | ha
+    · exact .inl ha
+    · exact .inr (Nat.lt_of_lt_of_le ha hm)
+  | app f a ihf _ =>
+    rcases ihf (a :: acc) with ⟨h1, h2⟩
+    have hf : sizeOf f ≤ sizeOf (Expr.app f a) := by
+      simp only [Expr.app.sizeOf_spec]; omega
+    have haLt : sizeOf a < sizeOf (Expr.app f a) := by
+      simp only [Expr.app.sizeOf_spec]; omega
+    refine ⟨Nat.le_trans h1 hf, fun x hx => ?_⟩
+    rcases h2 x hx with hx | hx
+    · simp only [List.mem_cons] at hx
+      rcases hx with rfl | hx
+      · exact .inr haLt
+      · exact .inl hx
+    · exact .inr (Nat.lt_of_lt_of_le hx hf)
+  | _ => exact ⟨Nat.le_refl _, fun _ h => .inl h⟩
 
-private def pushRevStructArgsWithInst (fn : Expr) (revArgs : Array Expr) (bvarDepth : Nat)
-    (todo : Array StructPatItem) : MetaM (Array StructPatItem) := do
-  let nargs := revArgs.size
-  let finfo ← getFunInfoNArgs fn nargs
-  let mut acc := todo
-  for h : revIdx in *...nargs do
-    let fwdIdx := nargs - 1 - revIdx
-    let arg := revArgs[revIdx]
-    let isInst :=
-      if hInfo : fwdIdx < finfo.paramInfo.size then
-        finfo.paramInfo[fwdIdx].isInstance
-      else
-        false
-    acc := acc.push (if isInst then .star else .expr arg bvarDepth)
-  return acc
-
-private partial def structuralPatKeysAux (allowInst : Bool) (todo : Array StructPatItem)
-    (keys : Array DiscrTree.Key) : MetaM (Array DiscrTree.Key) := do
-  if todo.isEmpty then
-    return keys
-  let item := todo.back!
-  let todo := todo.pop
-  match item with
-  | .star =>
-    structuralPatKeysAux allowInst todo (keys.push .star)
-  | .expr raw bvarDepth =>
-    let e := raw.consumeMData
-    if !e.hasLooseBVars && !e.hasMVar then
-      if ← isProof e then
-        return ← structuralPatKeysAux allowInst todo (keys.push .star)
-    let (fn, revArgs) := stripMDataAppRev e
-    match fn with
+mutual
+  private def structuralPatKeysGo (allowInst : Bool) (raw : Expr) (bvarDepth : Nat)
+      (keys : Array DiscrTree.Key) : MetaM (Array DiscrTree.Key) := do
+    if !raw.hasLooseBVars && !raw.hasMVar then
+      if ← isProof raw then
+        return keys.push .star
+    let res := collectMDataAppArgs raw
+    let fn := res.1
+    let args := res.2
+    have hFnLe : sizeOf fn ≤ sizeOf raw := (collectMDataAppArgs_sizeOf raw []).1
+    have hArgsLt : ∀ a ∈ args, sizeOf a < sizeOf raw := fun a ha => by
+      rcases (collectMDataAppArgs_sizeOf raw []).2 a ha with h | h
+      · contradiction
+      · exact h
+    match hFn : fn with
     | .bvar idx =>
       if idx >= bvarDepth then
-        structuralPatKeysAux allowInst todo (keys.push .star)
-      else if revArgs.isEmpty then
-        structuralPatKeysAux allowInst todo (keys.push .other)
+        return keys.push .star
+      else if args.isEmpty then
+        return keys.push .other
       else
-        structuralPatKeysAux allowInst todo (keys.push .star)
+        return keys.push .star
     | .mvar _ =>
-      structuralPatKeysAux allowInst todo (keys.push .star)
+      return keys.push .star
     | .const declName _ =>
-      let nargs := revArgs.size
-      let todo ←
-        if allowInst && nargs > 0 then
-          pushRevStructArgsWithInst fn revArgs bvarDepth todo
-        else
-          pure (pushRevExprArgs revArgs bvarDepth todo)
-      structuralPatKeysAux allowInst todo (keys.push (.const declName nargs))
+      let nargs := args.length
+      let kAcc := keys.push (.const declName nargs)
+      if allowInst && nargs > 0 then
+        let finfo ← getFunInfoNArgs fn nargs
+        structuralPatKeysConstArgs allowInst raw bvarDepth finfo 0 args hArgsLt kAcc
+      else
+        structuralPatKeysArgs allowInst raw bvarDepth args hArgsLt kAcc
     | .fvar fv =>
-      let nargs := revArgs.size
-      let todo := pushRevExprArgs revArgs bvarDepth todo
-      structuralPatKeysAux allowInst todo (keys.push (.fvar fv nargs))
+      let kAcc := keys.push (.fvar fv args.length)
+      structuralPatKeysArgs allowInst raw bvarDepth args hArgsLt kAcc
     | .proj s idx structExpr =>
-      let nargs := revArgs.size
-      let todo := (pushRevExprArgs revArgs bvarDepth (todo.push (.expr structExpr bvarDepth)))
-      structuralPatKeysAux allowInst todo (keys.push (.proj s idx nargs))
+      have hStructLt : sizeOf structExpr < sizeOf raw := by
+        have h1 : sizeOf structExpr < sizeOf fn := by
+          rw [hFn]; simp only [Expr.proj.sizeOf_spec]; omega
+        exact Nat.lt_of_lt_of_le h1 hFnLe
+      let kAcc := keys.push (.proj s idx args.length)
+      let kAcc ← structuralPatKeysArgs allowInst raw bvarDepth args hArgsLt kAcc
+      structuralPatKeysGo allowInst structExpr bvarDepth kAcc
     | .forallE _ d b _ =>
-      if revArgs.isEmpty then
-        let todo := todo.push (.expr b (bvarDepth + 1)) |>.push (.expr d bvarDepth)
-        structuralPatKeysAux allowInst todo (keys.push .arrow)
+      if args.isEmpty then
+        have hd : sizeOf d < sizeOf raw := by
+          have h1 : sizeOf d < sizeOf fn := by
+            rw [hFn]; simp only [Expr.forallE.sizeOf_spec]; omega
+          exact Nat.lt_of_lt_of_le h1 hFnLe
+        have hb : sizeOf b < sizeOf raw := by
+          have h1 : sizeOf b < sizeOf fn := by
+            rw [hFn]; simp only [Expr.forallE.sizeOf_spec]; omega
+          exact Nat.lt_of_lt_of_le h1 hFnLe
+        let kAcc := keys.push .arrow
+        let kAcc ← structuralPatKeysGo allowInst d bvarDepth kAcc
+        structuralPatKeysGo allowInst b (bvarDepth + 1) kAcc
       else
-        structuralPatKeysAux allowInst todo (keys.push .star)
+        return keys.push .star
     | .lit v =>
-      if revArgs.isEmpty then
-        structuralPatKeysAux allowInst todo (keys.push (.lit v))
+      if args.isEmpty then
+        return keys.push (.lit v)
       else
-        structuralPatKeysAux allowInst todo (keys.push .other)
+        return keys.push .other
     | _ =>
-      structuralPatKeysAux allowInst todo (keys.push .other)
+      return keys.push .other
+  termination_by (sizeOf raw, 1, 0)
+
+  private def structuralPatKeysArgs (allowInst : Bool) (raw : Expr) (bvarDepth : Nat)
+      (l : List Expr) (hl : ∀ a ∈ l, sizeOf a < sizeOf raw)
+      (kAcc : Array DiscrTree.Key) : MetaM (Array DiscrTree.Key) := do
+    match hL : l with
+    | [] => return kAcc
+    | a :: tl =>
+      have ha : sizeOf a < sizeOf raw := hl a (hL ▸ List.mem_cons_self)
+      have _ : sizeOf tl < sizeOf l := by subst hL; simp; omega
+      let kAcc ← structuralPatKeysGo allowInst a bvarDepth kAcc
+      structuralPatKeysArgs allowInst raw bvarDepth tl
+        (fun x hx => hl x (hL ▸ List.mem_cons_of_mem a hx)) kAcc
+  termination_by (sizeOf raw, 0, sizeOf l)
+
+  private def structuralPatKeysConstArgs (allowInst : Bool) (raw : Expr) (bvarDepth : Nat)
+      (finfo : FunInfo) (fwdIdx : Nat) (l : List Expr) (hl : ∀ a ∈ l, sizeOf a < sizeOf raw)
+      (kAcc : Array DiscrTree.Key) : MetaM (Array DiscrTree.Key) := do
+    match hL : l with
+    | [] => return kAcc
+    | a :: tl =>
+      have ha : sizeOf a < sizeOf raw := hl a (hL ▸ List.mem_cons_self)
+      have _ : sizeOf tl < sizeOf l := by subst hL; simp; omega
+      let isInst :=
+        if hInfo : fwdIdx < finfo.paramInfo.size then
+          finfo.paramInfo[fwdIdx].isInstance
+        else
+          false
+      let kAcc ←
+        if isInst then
+          pure (kAcc.push .star)
+        else
+          structuralPatKeysGo allowInst a bvarDepth kAcc
+      structuralPatKeysConstArgs allowInst raw bvarDepth finfo (fwdIdx + 1) tl
+        (fun x hx => hl x (hL ▸ List.mem_cons_of_mem a hx)) kAcc
+  termination_by (sizeOf raw, 0, sizeOf l)
+end
 
 private def structuralPatKeys (allowInst : Bool) (p : ExprPattern) :
     MetaM (Array DiscrTree.Key) :=
@@ -2133,10 +2495,26 @@ private def structuralPatKeys (allowInst : Bool) (p : ExprPattern) :
     let us ← p.levelParams.mapM fun _ => mkFreshLevelMVar
     let lam := if us.isEmpty then p.lam else p.lam.instantiateLevelParams p.levelParams us
     let (_, body) := peelTemplateLambdas p.numVars lam
-    structuralPatKeysAux allowInst #[.expr body 0] (Array.mkEmpty 8)
+    structuralPatKeysGo allowInst body 0 (Array.mkEmpty 8)
 
-private def structuralScrutineeStep (e : Expr) (todo : Array Expr) :
-    Option (DiscrTree.Key × Array Expr) :=
+private def resolveHeadMVarPure (mctx : MetavarContext) : Nat → Expr → Expr
+  | 0, e => e
+  | fuel + 1, e =>
+    let cur := e.consumeMData
+    if !cur.hasExprMVar then
+      cur
+    else
+      let fn := cur.getAppFn.consumeMData
+      match fn with
+      | .mvar mv =>
+        match mctx.getExprAssignmentCore? mv with
+        | some fn' => resolveHeadMVarPure mctx fuel (mkAppN fn' cur.getAppArgs)
+        | none     => cur
+      | _ => cur
+
+private def structuralScrutineeStep (mctx : MetavarContext) (fuel : Nat)
+    (e : Expr) (todo : Array Expr) : Option (DiscrTree.Key × Array Expr) :=
+  let e := resolveHeadMVarPure mctx fuel e
   let (fn, revArgs) := stripMDataAppRev e
   match fn with
   | .mvar _ => none
@@ -2160,8 +2538,9 @@ private def structuralScrutineeStep (e : Expr) (todo : Array Expr) :
     if revArgs.isEmpty then some (.other, todo) else none
   | _ => some (.other, todo)
 
-private partial def structuralTrieGetMatch (todo : Array Expr) (t : DiscrTree.Trie Nat)
-    (acc : Array Nat) : Array Nat :=
+-- Terminates because every recursive call descends strictly into a sub-`Trie` of `t`.
+private partial def structuralTrieGetMatch (mctx : MetavarContext) (fuel : Nat)
+    (todo : Array Expr) (t : DiscrTree.Trie Nat) (acc : Array Nat) : Array Nat :=
   match t with
   | .chain key child =>
     if todo.isEmpty then
@@ -2170,9 +2549,9 @@ private partial def structuralTrieGetMatch (todo : Array Expr) (t : DiscrTree.Tr
       let e := todo.back!
       let todoPop := todo.pop
       if key == .star then
-        structuralTrieGetMatch todoPop child acc
-      else if let some (k, todoNext) := structuralScrutineeStep e todoPop then
-        if key == k then structuralTrieGetMatch todoNext child acc else acc
+        structuralTrieGetMatch mctx fuel todoPop child acc
+      else if let some (k, todoNext) := structuralScrutineeStep mctx fuel e todoPop then
+        if key == k then structuralTrieGetMatch mctx fuel todoNext child acc else acc
       else
         acc
   | .node vs cs =>
@@ -2185,30 +2564,32 @@ private partial def structuralTrieGetMatch (todo : Array Expr) (t : DiscrTree.Tr
       let todoPop := todo.pop
       let acc :=
         if cs[0].1 == .star then
-          structuralTrieGetMatch todoPop cs[0].2 acc
+          structuralTrieGetMatch mctx fuel todoPop cs[0].2 acc
         else
           acc
-      match structuralScrutineeStep e todoPop with
+      match structuralScrutineeStep mctx fuel e todoPop with
       | none => acc
       | some (.star, _) => acc
       | some (k, todoNext) =>
         match cs.binSearch (k, default) (fun a b => a.1 < b.1) with
         | none        => acc
-        | some (_, c) => structuralTrieGetMatch todoNext c acc
+        | some (_, c) => structuralTrieGetMatch mctx fuel todoNext c acc
 
-private def structuralDiscrTreeGetMatch (d : DiscrTree Nat) (e : Expr) : Array Nat :=
+private def structuralDiscrTreeGetMatch (mctx : MetavarContext) (fuel : Nat)
+    (d : DiscrTree Nat) (e : Expr) : Array Nat :=
   let acc :=
     match d.root.find? .star with
     | some (.node vs _) => vs
     | _                 => #[]
-  match structuralScrutineeStep e #[] with
+  match structuralScrutineeStep mctx fuel e #[] with
   | none            => acc
   | some (.star, _) => acc
   | some (k, todo)  =>
     match d.root.find? k with
     | none   => acc
-    | some c => structuralTrieGetMatch todo c acc
+    | some c => structuralTrieGetMatch mctx fuel todo c acc
 
+-- Terminates modulo `MetaM` recursion depth (`withReducible <| Meta.whnf`) on acyclic `Nat` terms.
 private partial def reduceToNatLit? (e : Expr) : MetaM (Option Literal) := do
   let e ← withReducible <| Meta.whnf e
   match e.getAppFn with
@@ -2299,39 +2680,53 @@ private def getOrMkMetaIndex (siteId : Name) (pats : Array ExprPattern) (rel : E
 /--
 Indexed CPS match dispatcher for consecutive single-slot alternatives sharing a `.structural`
 or `.reducible` relation `rel`. Builds and caches the `DiscrTree Nat` once per `siteId`, retrieves
-candidate indices (plus numeral fallback under `.reducible`), sorts & deduplicates them in source
-order, and invokes `tryAt[idx]` only on candidate branches.
+candidate indices lazily (plus numeral fallback under `.reducible`), sorts & deduplicates them in
+source order, and invokes `tryAt[idx]` only on candidate branches.
 -/
 def ExprPattern.matchIndexedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (siteId : Name) (pats : Array ExprPattern) (rel : ExprMatchRel) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
-  let (cands, e) ← liftM (m := MetaM) do
+  let cands ← liftM (m := MetaM) do
     let (resolved, tree) ← getOrMkMetaIndex siteId pats rel
-    let e ← instantiateMVarsIfNeeded scrutinee
-    match resolved.engine with
-    | .structural =>
-      return (sortAndDedupCands (structuralDiscrTreeGetMatch tree e), e)
-    | .reducible =>
-      let res ← withRelUnfoldRules resolved do
-        let mut res ← DiscrTree.getMatch tree e
-        if let some lit ← reduceToNatLit? e then
-          res := res ++ (← DiscrTree.getMatch tree (.lit lit))
-        pure res
-      return (sortAndDedupCands res, e)
-    | _ =>
-      throwError "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
-  dispatchCandidates cands e tryAt onFail
+    let cands ←
+      match resolved.engine with
+      | .structural =>
+        let fuel := maxRecDepth.get (← getOptions)
+        pure (sortAndDedupCands (structuralDiscrTreeGetMatch (← getMCtx) fuel tree scrutinee))
+      | .reducible =>
+        let res ← withRelUnfoldRules resolved do
+          let mut res ← DiscrTree.getMatch tree scrutinee
+          if let some lit ← reduceToNatLit? scrutinee then
+            res := res ++ (← DiscrTree.getMatch tree (.lit lit))
+          pure res
+        pure (sortAndDedupCands res)
+      | _ =>
+        throwError
+          "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
+    if ← isTracingEnabledFor `Meta.Match.expr then
+      let eng := if resolved.engine == .structural then "structural" else "reducible"
+      let scrut ← instantiateMVarsIfNeeded scrutinee
+      if cands.isEmpty then
+        trace[Meta.Match.expr]
+          "[indexed {eng}] 0 of {pats.size} candidate(s) matched index for:{indentExpr scrut}"
+      else
+        trace[Meta.Match.expr]
+          "[indexed {eng}] trying candidates {cands.toList} of {pats.size} for:{indentExpr scrut}"
+    return cands
+  dispatchCandidates cands scrutinee tryAt onFail
 
-private partial def annotateSymNatAndOffsets (e : Expr) : Expr :=
-  let e' := e.consumeMData
-  if (Sym.isOffset? e').isSome || Sym.isQuasiOffset e' || (Sym.isNatValue? e').isSome ||
-      e'.isConstOf ``Nat.zero || e'.isRawNatLit || e'.isLambda || e'.isSort then
-    DiscrTree.mkNoindexAnnotation e'
-  else
-    match e' with
-    | .app f a        => mkApp (annotateSymNatAndOffsets f) (annotateSymNatAndOffsets a)
-    | .forallE n d b bi => .forallE n (annotateSymNatAndOffsets d) (annotateSymNatAndOffsets b) bi
-    | _               => e'
+private def annotateSymNatAndOffsets : Expr → Expr
+  | .mdata _ b => annotateSymNatAndOffsets b
+  | e =>
+    if (Sym.isOffset? e).isSome || Sym.isQuasiOffset e || (Sym.isNatValue? e).isSome ||
+        e.isConstOf ``Nat.zero || e.isRawNatLit || e.isLambda || e.isSort then
+      DiscrTree.mkNoindexAnnotation e
+    else
+      match e with
+      | .app f a         => mkApp (annotateSymNatAndOffsets f) (annotateSymNatAndOffsets a)
+      | .forallE n d b bi =>
+        .forallE n (annotateSymNatAndOffsets d) (annotateSymNatAndOffsets b) bi
+      | _                => e
 
 private def mkSymPatDiscrTreeKeys (p : Sym.Pattern) : Array DiscrTree.Key :=
   let patExpr := annotateSymNatAndOffsets p.pattern
@@ -2340,16 +2735,18 @@ private def mkSymPatDiscrTreeKeys (p : Sym.Pattern) : Array DiscrTree.Key :=
   else
     Sym.Pattern.mkDiscrTreeKeys { p with pattern := patExpr }
 
-private partial def symResolveMVars (mctx : MetavarContext) (e : Expr) : Expr :=
-  if e.hasExprMVar then
-    match e.getAppFn with
-    | .mvar mvarId =>
-      match mctx.getExprAssignmentCore? mvarId with
-      | some v => symResolveMVars mctx (v.betaRev e.getAppRevArgs)
-      | none   => e
-    | _ => e
-  else
-    e
+private def symResolveMVars (mctx : MetavarContext) : Nat → Expr → Expr
+  | 0, e => e
+  | fuel + 1, e =>
+    if e.hasExprMVar then
+      match e.getAppFn with
+      | .mvar mvarId =>
+        match mctx.getExprAssignmentCore? mvarId with
+        | some v => symResolveMVars mctx fuel (v.betaRev e.getAppRevArgs)
+        | none   => e
+      | _ => e
+    else
+      e
 
 private def symGetKey (e : Expr) : DiscrTree.Key :=
   match e.getAppFn' with
@@ -2366,15 +2763,18 @@ private def symPushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   | .mdata _ e       => symPushArgsTodo todo e
   | _                => todo
 
-private partial def symZetaHeadLets (e : Expr) (subst : Array Expr := #[]) : Expr :=
-  match e.consumeMData with
+private def symZetaHeadLets (e : Expr) (subst : Array Expr := #[]) : Expr :=
+  match e with
+  | .mdata _ b => symZetaHeadLets b subst
   | .letE _ _ v b _ =>
     symZetaHeadLets b (subst.push (v.instantiateBetaRevRange 0 subst.size subst))
-  | e' =>
-    if subst.isEmpty then e' else e'.instantiateBetaRevRange 0 subst.size subst
+  | _ =>
+    if subst.isEmpty then e else e.instantiateBetaRevRange 0 subst.size subst
 
+-- Terminates modulo `SymM` recursion depth (`withIncRecDepth`) while unfolding head redexes.
 private partial def symTrieGetMatch (accRef : IO.Ref (Array Nat)) (mctx : MetavarContext)
-    (todo : Array Expr) (t : DiscrTree.Trie Nat) (visitStar : Bool := true) : Sym.SymM Unit :=
+    (fuel : Nat) (todo : Array Expr) (t : DiscrTree.Trie Nat) (visitStar : Bool := true) :
+    Sym.SymM Unit :=
   withIncRecDepth do
   match t with
   | .chain key child =>
@@ -2382,22 +2782,23 @@ private partial def symTrieGetMatch (accRef : IO.Ref (Array Nat)) (mctx : Metava
       return ()
     let raw := todo.back!
     let todoPop := todo.pop
-    let e := Sym.etaReduce (symResolveMVars mctx raw.consumeMData) |>.consumeMData
+    let e := Sym.etaReduce (symResolveMVars mctx fuel raw.consumeMData) |>.consumeMData
     if key == .star then
       if visitStar then
-        symTrieGetMatch accRef mctx todoPop child
+        symTrieGetMatch accRef mctx fuel todoPop child
     else
       if key == symGetKey e then
-        symTrieGetMatch accRef mctx (symPushArgsTodo todoPop e) child
+        symTrieGetMatch accRef mctx fuel (symPushArgsTodo todoPop e) child
       if e.isLet then
-        symTrieGetMatch accRef mctx (todoPop.push (symZetaHeadLets e)) (.chain key child)
+        symTrieGetMatch accRef mctx fuel (todoPop.push (symZetaHeadLets e)) (.chain key child)
           (visitStar := false)
       else if let .fvar fv := e.getAppFn then
         if let some val ← Sym.getLetValueS? fv then
           let nextE := if e.isApp then val.betaRev e.getAppRevArgs else val
-          symTrieGetMatch accRef mctx (todoPop.push nextE) (.chain key child) (visitStar := false)
+          symTrieGetMatch accRef mctx fuel (todoPop.push nextE) (.chain key child)
+            (visitStar := false)
       else if e.isApp && e.getAppFn.isLambda then
-        symTrieGetMatch accRef mctx (todoPop.push e.headBeta)
+        symTrieGetMatch accRef mctx fuel (todoPop.push e.headBeta)
           (.chain key child) (visitStar := false)
   | .node vs cs =>
     if todo.isEmpty then
@@ -2407,46 +2808,50 @@ private partial def symTrieGetMatch (accRef : IO.Ref (Array Nat)) (mctx : Metava
     else
       let raw := todo.back!
       let todoPop := todo.pop
-      let e := Sym.etaReduce (symResolveMVars mctx raw.consumeMData) |>.consumeMData
+      let e := Sym.etaReduce (symResolveMVars mctx fuel raw.consumeMData) |>.consumeMData
       if visitStar && cs[0].1 == .star then
-        symTrieGetMatch accRef mctx todoPop cs[0].2
+        symTrieGetMatch accRef mctx fuel todoPop cs[0].2
       let k := symGetKey e
       if k != .star then
         if let some (_, child) := cs.binSearch (k, default) (fun a b => a.1 < b.1) then
-          symTrieGetMatch accRef mctx (symPushArgsTodo todoPop e) child
+          symTrieGetMatch accRef mctx fuel (symPushArgsTodo todoPop e) child
       if e.isLet then
-        symTrieGetMatch accRef mctx (todoPop.push (symZetaHeadLets e)) (.node vs cs)
+        symTrieGetMatch accRef mctx fuel (todoPop.push (symZetaHeadLets e)) (.node vs cs)
           (visitStar := false)
       else if let .fvar fv := e.getAppFn then
         if let some val ← Sym.getLetValueS? fv then
           let nextE := if e.isApp then val.betaRev e.getAppRevArgs else val
-          symTrieGetMatch accRef mctx (todoPop.push nextE) (.node vs cs) (visitStar := false)
+          symTrieGetMatch accRef mctx fuel (todoPop.push nextE) (.node vs cs)
+            (visitStar := false)
       else if e.isApp && e.getAppFn.isLambda then
-        symTrieGetMatch accRef mctx (todoPop.push e.headBeta) (.node vs cs) (visitStar := false)
+        symTrieGetMatch accRef mctx fuel (todoPop.push e.headBeta) (.node vs cs)
+          (visitStar := false)
 
+-- Terminates modulo `SymM` recursion depth (`withIncRecDepth`) while unfolding head redexes.
 private partial def symRootMatch (accRef : IO.Ref (Array Nat)) (mctx : MetavarContext)
-    (d : DiscrTree Nat) (e : Expr) : Sym.SymM Unit :=
+    (fuel : Nat) (d : DiscrTree Nat) (e : Expr) : Sym.SymM Unit :=
   withIncRecDepth do
-  let e := Sym.etaReduce (symResolveMVars mctx e.consumeMData) |>.consumeMData
+  let e := Sym.etaReduce (symResolveMVars mctx fuel e.consumeMData) |>.consumeMData
   if let some child := d.root.find? (symGetKey e) then
-    symTrieGetMatch accRef mctx (symPushArgsTodo #[] e) child
+    symTrieGetMatch accRef mctx fuel (symPushArgsTodo #[] e) child
   if e.isLet then
-    symRootMatch accRef mctx d (symZetaHeadLets e)
+    symRootMatch accRef mctx fuel d (symZetaHeadLets e)
   else if let .fvar fv := e.getAppFn then
     if let some val ← Sym.getLetValueS? fv then
       let nextE := if e.isApp then val.betaRev e.getAppRevArgs else val
-      symRootMatch accRef mctx d nextE
+      symRootMatch accRef mctx fuel d nextE
   else if e.isApp && e.getAppFn.isLambda then
-    symRootMatch accRef mctx d e.headBeta
+    symRootMatch accRef mctx fuel d e.headBeta
 
 private def symDiscrTreeGetMatch (d : DiscrTree Nat) (e : Expr) : Sym.SymM (Array Nat) := do
   let mctx ← getMCtx
+  let fuel := maxRecDepth.get (← getOptions)
   let init :=
     match d.root.find? .star with
     | some (.node vs _) => vs
     | _                 => #[]
   let accRef ← IO.mkRef init
-  symRootMatch accRef mctx d e
+  symRootMatch accRef mctx fuel d e
   return sortAndDedupCands (← accRef.get)
 
 private def getOrMkSymIndex (siteId : Name) (pats : Array ExprPattern) :
@@ -2482,8 +2887,34 @@ def ExprPattern.matchSymIndexedOrElse {m : Type → Type v} [Monad m] [MonadSym 
     let tree ← getOrMkSymIndex siteId pats
     let e ← ensureSymExpr scrutinee
     let cands ← symDiscrTreeGetMatch tree e
+    if ← isTracingEnabledFor `Meta.Match.expr then
+      let scrut ← instantiateMVarsIfNeeded e
+      if cands.isEmpty then
+        trace[Meta.Match.expr]
+          "[indexed sym] 0 of {pats.size} candidate(s) matched index for:{indentExpr scrut}"
+      else
+        trace[Meta.Match.expr]
+          "[indexed sym] trying candidates {cands.toList} of {pats.size} for:{indentExpr scrut}"
     return (cands, e)
   dispatchCandidates cands e tryAt onFail
+
+/--
+Compute the `DiscrTree` key path that `p` produces under relation `rel`, or `none` if `rel` is not
+index-sound. Intended for diagnostics such as `#check_pattern`.
+-/
+def ExprPattern.discTreeKeys? (rel : ExprMatchRel) (p : ExprPattern) :
+    MetaM (Option (Array DiscrTree.Key)) := do
+  unless rel.isIndexSound do
+    return none
+  let resolved ← rel.resolveStatic
+  match resolved.engine with
+  | .structural => some <$> structuralPatKeys resolved.flags.inst p
+  | .reducible  => some <$> reduciblePatKeys resolved p
+  | .sym        =>
+    let symPat ← Sym.SymM.run <| Sym.mkPatternFromLambda p.lam p.levelParams p.numVars
+      (zetaDelta := false)
+    return some (mkSymPatDiscrTreeKeys symPat)
+  | _           => return none
 
 /--
 General entry point to instantiate a compiled `ExprTemplate` under relation `rel`, runtime

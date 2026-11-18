@@ -249,8 +249,31 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
   let stx ← quoteSyntax stx.getQuotContent
   mkSyntaxQuotation stx kind
 
+private def isExprOrMonadExpr (expectedType? : Option Expr) : TermElabM Bool := do
+  let some expTy := expectedType? | return false
+  try
+    let ty ← withReducible <| Meta.whnf (← instantiateMVars expTy)
+    if ty.isConstOf ``Lean.Expr then
+      return true
+    if let .app m arg := ty then
+      let argW ← withReducible <| Meta.whnf (← instantiateMVars arg)
+      if argW.isConstOf ``Lean.Expr && !m.hasExprMVar then
+        let monadInst ← Meta.trySynthInstance (← Meta.mkAppM ``Monad #[m])
+        return monadInst matches .some _
+    return false
+  catch _ =>
+    return false
+
+def elabStxQuot (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+  if Linter.getLinterValue Linter.linter.exprQuot.syntaxHole (← Linter.getLinterOptions) then
+    if ← isExprOrMonadExpr expectedType? then
+      let inner := if stx.getNumArgs == 1 then stx[0] else stx
+      if inner.isQuot then
+        warnNamedSyntaxHolesInQuot inner.getQuotContent
+  adaptExpander stxQuot.expand stx expectedType?
+
 macro "elab_stx_quot" kind:ident : command =>
-  `(@[builtin_term_elab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
+  `(@[builtin_term_elab $kind:ident] def elabQuot : TermElab := elabStxQuot)
 
 elab_stx_quot Parser.Term.quot
 elab_stx_quot Parser.Tactic.quot
@@ -647,6 +670,41 @@ private def checkUnusedAlts (stx : Syntax) (alts : Array Syntax) (altIdxMap : Na
       logErrorAt alts[i] s!"redundant alternative #{i+1}"
   return stx
 
+private def unwrapStxMatchQuot : Syntax → Option Syntax
+  | `($_@$pat) => if pat.raw.isQuot then some pat.raw else none
+  | pat        => if pat.isQuot then some pat else none
+
+private def checkExprTypeSilent (discr : Term) : TermElabM Bool := do
+  let savedMsgs ← Core.getMessageLog
+  try
+    withoutModifyingElabMetaStateWithInfo <| withoutErrToSorry do
+      let d ← Term.elabTerm discr none
+      let ty ← withReducible <| Meta.whnf (← instantiateMVars (← Meta.inferType d))
+      return ty.isConstOf ``Lean.Expr
+  catch _ =>
+    return false
+  finally
+    Core.setMessageLog savedMsgs
+
+private def checkSyntaxHoleInStxMatch (discrs : TSyntaxArray `term)
+    (patss : Array (TSyntaxArray `term)) : TermElabM Unit := do
+  let mut colChecked : Array (Option Bool) := Array.replicate discrs.size none
+  for pats in patss do
+    for h : colIdx in *...pats.size do
+      if let some quot := unwrapStxMatchQuot pats[colIdx] then
+        let isExpr ← match colChecked.getD colIdx none with
+          | some b => pure b
+          | none   =>
+            let b ←
+              if hD : colIdx < discrs.size then checkExprTypeSilent discrs[colIdx]
+              else pure false
+            colChecked := colChecked.setIfInBounds colIdx (some b)
+            pure b
+        if isExpr then
+          warnNamedSyntaxHolesInQuot quot.getQuotContent
+          throwErrorAt quot "syntax quotation pattern on an `Expr` discriminant; \
+            use `` `(expr| ...) ``"
+
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[|%$alt $[$patss],* => $rhss]*) => do
@@ -655,6 +713,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
       | pat        => pat.raw.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
+    checkSyntaxHoleInStxMatch discrs patss
     let (altIdxMap, ignoreIfUnused, rhss) ← markRhss rhss
     -- call `getQuotKind` on all the patterns, which adds
     -- term info for all `(foo| ...)` as a side effect

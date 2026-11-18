@@ -10,6 +10,8 @@ public import Lean.Meta.ExprPattern
 public import Lean.Meta.Match.Match
 public import Lean.Elab.MatchAltView
 public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Quotation.Util
+public import Lean.Linter.Init
 meta import Lean.Parser.Term
 meta import Lean.Parser.Do
 import Init.Syntax
@@ -881,13 +883,45 @@ structure CompiledExprSlot where
   selfPins      : Array (Ident × Name) := #[]
   deriving Inhabited
 
-/--
-Compile an `` `(expr[rel]| p) `` pattern in the current local context (which includes ordinary
-pattern vars and earlier quotation binders from the same alternative), without emitting an
-auxiliary declaration yet (deferred until `compileExprMatch`).
--/
-def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Array Expr) :
-    TermElabM CompiledExprSlot := withRef exprQuotStx do
+private def checkNumeralDefaultingMVars (pending : Array (MVarId × Expr × Syntax)) :
+    TermElabM Unit := do
+  let mut seen : Array Syntax := #[]
+  for (mvId, alpha, litStx) in pending do
+    if !seen.contains litStx then
+      if (← mvId.isAssigned) && (← instantiateMVars alpha).isConstOf ``Nat then
+        seen := seen.push litStx
+        Linter.logLintIf Linter.linter.exprQuot.numeralDefaulting litStx
+          m!"pattern numeral `{litStx}` relies on defaulting to `Nat`; \
+             add a type annotation such as `({litStx} : Nat)`"
+
+private structure PatInspectSnapshot where
+  varOrigins : Array String
+  deriving Inhabited
+
+private def patSubstTraceExpr (patVars : Array Expr) (e : Expr) : Expr :=
+  if !e.hasLooseBVars then e else go e 0
+where
+  go (cur : Expr) (depth : Nat) : Expr :=
+    if !cur.hasLooseBVars then cur else
+    match cur with
+    | .bvar i =>
+      if i >= depth && i - depth < patVars.size then
+        let k := patVars.size - 1 - (i - depth)
+        patVars.getD k cur
+      else cur
+    | .app f a          => .app (go f depth) (go a depth)
+    | .lam n t b bi     => .lam n (go t depth) (go b (depth + 1)) bi
+    | .forallE n t b bi => .forallE n (go t depth) (go b (depth + 1)) bi
+    | .letE n t v b nd  => .letE n (go t depth) (go v depth) (go b (depth + 1)) nd
+    | .mdata m b        => .mdata m (go b depth)
+    | .proj s i b       => .proj s i (go b depth)
+    | _                 => cur
+
+private def elabExprQuotPatternCore (exprQuotStx : Syntax) (ordVarIdx : Nat)
+    (ctxFVars : Array Expr) (collectSnap : Bool := false) :
+    TermElabM (CompiledExprSlot × Array (Nat × Expr) × Array (Bool × Expr) ×
+      PatPreprocessState × Option PatInspectSnapshot) :=
+  withRef exprQuotStx do
   let (rel, localItemExprs) ← elabExprMatchRel exprQuotStx[2]
   let (rewrittenStx, prepState) ← (preprocessExprPatStx exprQuotStx[4]).run {}
   -- Elaborate runtime `$pin` terms in the enclosing local context.
@@ -898,7 +932,7 @@ def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Arr
       pinExprs := pinExprs.push (idx, pinVal)
   -- Compile pattern in empty LCtx; keep `ignoreTCFailures := false` so invalid concrete
   -- instances (e.g. `1 + "hello"`) fail while genuinely stuck implicits stay postponed cleanly.
-  let (pat, pinIdxs) ← withoutModifyingElabMetaStateWithInfo <|
+  let (pat, pinIdxs, snap?) ← withoutModifyingElabMetaStateWithInfo <|
     withLCtx {} {} <| withoutErrToSorry <|
     withNewMCtxDepth do
       modify fun s => { s with
@@ -926,13 +960,29 @@ def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Arr
       let elabBodyStx := shiftElabPlaceholders baseOffset rewrittenStx
       let savedMsgs := (← getThe Core.State).messages
       modifyThe Core.State fun s => { s with messages := {} }
+      let checkNumDefault :=
+        Linter.getLinterValue Linter.linter.exprQuot.numeralDefaulting (← Linter.getLinterOptions)
       let (e, hasNewErrors) ←
         try
           let e ← withReader (fun ctx => { ctx with
               fixedTermElabs := ctx.fixedTermElabs ++ fixedElabs.map (·.toFixedTermElabRef)
             }) do
               let e ← Term.elabTerm elabBodyStx none
+              let mut pendingDefaultNat : Array (MVarId × Expr × Syntax) := #[]
+              if checkNumDefault then
+                Term.synthesizeSyntheticMVars (postpone := .yes)
+                let st ← get
+                for mvId in st.pendingMVars do
+                  if let some decl := st.syntheticMVars.get? mvId then
+                    if decl.kind matches .typeClass _ then
+                      let mvTy ← instantiateMVars (← mvId.getType)
+                      if mvTy.isAppOfArity ``OfNat 2 then
+                        let alpha := mvTy.appFn!.appArg!
+                        if alpha.isMVar then
+                          pendingDefaultNat := pendingDefaultNat.push (mvId, alpha, decl.stx)
               Term.synthesizeSyntheticMVars (postpone := .partial)
+              if checkNumDefault && !pendingDefaultNat.isEmpty then
+                checkNumeralDefaultingMVars pendingDefaultNat
               instantiateMVars e
           let newMsgs := (← getThe Core.State).messages
           modifyThe Core.State fun s => { s with messages := savedMsgs ++ newMsgs }
@@ -985,7 +1035,22 @@ def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Arr
         firstOrder
       }
       let pat ← (pat.compile : MetaM ExprPattern)
-      return (pat, pinIndices)
+      let snap? ←
+        if collectSnap then
+          let errInfos := (← get).mvarErrorInfos
+          let varOrigins ← r.mvars.mapM fun mv => do
+            let mvId := mv.mvarId!
+            match errInfos.find? (·.mvarId == mvId) with
+            | some info =>
+              match info.kind with
+              | .hole            => pure "explicit `_`/`?_`"
+              | .implicitArg _ _ => pure "unresolved implicit"
+              | .custom _        => pure "synthetic mvar"
+            | none => pure "explicit `_` / implicit"
+          pure (some { varOrigins })
+        else
+          pure none
+      return (pat, pinIndices, snap?)
   let pinExprList := pinExprs.map (·.2) |>.toList
   let pinsArrayExpr ← mkArrayLit (mkConst ``Expr) pinExprList
   let pinsLam ← mkLambdaFVars ctxFVars pinsArrayExpr
@@ -994,7 +1059,7 @@ def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Arr
     mkAppM ``Prod.mk #[toExpr pos, e]
   let localItemsArrayExpr ← mkArrayLit boolExprProd localItemExprList
   let localItemsLam ← mkLambdaFVars ctxFVars localItemsArrayExpr
-  return {
+  let slot : CompiledExprSlot := {
     ref := exprQuotStx
     ordVarIdx
     rel
@@ -1006,6 +1071,17 @@ def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Arr
     binders := prepState.binders
     selfPins := prepState.selfPins
   }
+  return (slot, pinExprs, localItemExprs, prepState, snap?)
+
+/--
+Compile an `` `(expr[rel]| p) `` pattern in the current local context (which includes ordinary
+pattern vars and earlier quotation binders from the same alternative), without emitting an
+auxiliary declaration yet (deferred until `compileExprMatch`).
+-/
+def elabExprQuotPattern (exprQuotStx : Syntax) (ordVarIdx : Nat) (ctxFVars : Array Expr) :
+    TermElabM CompiledExprSlot := do
+  let (slot, _) ← elabExprQuotPatternCore exprQuotStx ordVarIdx ctxFVars
+  return slot
 
 /-! ## Extracting expr quotations from match alternatives -/
 
@@ -2306,5 +2382,374 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
              but is expected to have type{indentExpr expTy}"
       throw ex
     | ex => throw ex
+
+/-! ## Diagnostics: `#check_pattern` and `linter.exprQuot.syntaxHole` -/
+
+private def unwrapPatSyntaxParens : Syntax → Syntax
+  | .node _ k args =>
+    if k == ``Parser.Term.paren || k == ``Parser.Term.typeAscription then
+      if h : 1 < args.size then unwrapPatSyntaxParens args[1] else .node .none k args
+    else if k == ``Parser.Term.namedPattern then
+      if h : 2 < args.size then unwrapPatSyntaxParens args[2] else .node .none k args
+    else .node .none k args
+  | stx => stx
+termination_by stx => sizeOf stx
+decreasing_by
+  · simp_wf; have := Array.sizeOf_lt_of_mem (Array.getElem_mem h); omega
+  · simp_wf; have := Array.sizeOf_lt_of_mem (Array.getElem_mem h); omega
+
+/--
+Check ordinary syntax quotation patterns matching an `Expr`-typed discriminant column in
+`match`/`if let`/`let ... |` or `do match`: emit `linter.exprQuot.syntaxHole` for any named
+`?x`, then throw a targeted error suggesting `` `(expr| ...) `` instead of cascading `Syntax`
+type errors. Never flags `Syntax`/`TSyntax` discriminants.
+-/
+def checkSyntaxHoleInExprMatchPatterns (discrs : Array Expr)
+    (altViews : Array (MatchAltView k)) : TermElabM Unit := do
+  let isExprCol ← discrs.mapM fun d => do
+    try
+      let ty ← withReducible <| whnf (← instantiateMVars (← inferType d))
+      return ty.isConstOf ``Lean.Expr
+    catch _ =>
+      return false
+  unless isExprCol.any id do
+    return
+  for alt in altViews do
+    for h : colIdx in *...alt.patterns.size do
+      if isExprCol.getD colIdx false then
+        let pat := unwrapPatSyntaxParens alt.patterns[colIdx]
+        let inner := if pat.getNumArgs == 1 then pat[0] else pat
+        if inner.isQuot && !isExprQuot inner then
+          Quotation.warnNamedSyntaxHolesInQuot inner.getQuotContent
+          throwErrorAt inner "syntax quotation pattern on an `Expr` discriminant; \
+            use `` `(expr| ...) ``"
+
+private def unwrapExprQuotStx : Syntax → Syntax
+  | .node _ k args =>
+    if k == ``Parser.Term.paren then
+      if h : 1 < args.size then unwrapExprQuotStx args[1] else .node .none k args
+    else .node .none k args
+  | stx => stx
+termination_by stx => sizeOf stx
+decreasing_by
+  simp_wf; have := Array.sizeOf_lt_of_mem (Array.getElem_mem h); omega
+
+private structure PatBodySiteSummary where
+  varRoles      : Std.HashMap Nat (Array String) := {}
+  fixedInsts    : Array String := #[]
+  polyInsts     : Array String := #[]
+
+private def collectPatApp (e : Expr) (acc : List Expr := []) : Expr × List Expr :=
+  match e with
+  | .mdata _ b => collectPatApp b acc
+  | .app f a   => collectPatApp f (a :: acc)
+  | _          => (e, acc)
+
+private theorem collectPatApp_sizeOf (e : Expr) (acc : List Expr) :
+    sizeOf (collectPatApp e acc).1 ≤ sizeOf e ∧
+      (∀ a ∈ (collectPatApp e acc).2, a ∈ acc ∨ sizeOf a < sizeOf e) := by
+  induction e generalizing acc with
+  | mdata m b ih =>
+    rcases ih acc with ⟨h1, h2⟩
+    have hm : sizeOf b ≤ sizeOf (Expr.mdata m b) := by
+      simp only [Expr.mdata.sizeOf_spec]; omega
+    refine ⟨Nat.le_trans h1 hm, fun a ha => ?_⟩
+    rcases h2 a ha with ha | ha
+    · exact .inl ha
+    · exact .inr (Nat.lt_of_lt_of_le ha hm)
+  | app f a ihf _ =>
+    rcases ihf (a :: acc) with ⟨h1, h2⟩
+    have hf : sizeOf f ≤ sizeOf (Expr.app f a) := by
+      simp only [Expr.app.sizeOf_spec]; omega
+    have haLt : sizeOf a < sizeOf (Expr.app f a) := by
+      simp only [Expr.app.sizeOf_spec]; omega
+    refine ⟨Nat.le_trans h1 hf, fun x hx => ?_⟩
+    rcases h2 x hx with hx | hx
+    · simp only [List.mem_cons] at hx
+      rcases hx with rfl | hx
+      · exact .inr haLt
+      · exact .inl hx
+    · exact .inr (Nat.lt_of_lt_of_le hx hf)
+  | _ => exact ⟨Nat.le_refl _, fun _ h => .inl h⟩
+
+private def collectPatBodySummary (pat : ExprPattern) (traceSubs : Array Expr) :
+    MetaM PatBodySiteSummary := do
+  let (_, st) ← (go pat.body 0).run {}
+  return st
+where
+  ppTraceSub (e : Expr) : MetaM Format :=
+    ppExpr (patSubstTraceExpr traceSubs e)
+  headLabel : Expr → String
+    | .const n _ => n.toString
+    | .fvar fv   => fv.name.toString
+    | .bvar i    =>
+      let k := pat.numVars - 1 - i
+      if k < traceSubs.size then
+        (traceSubs.getD k default).constName?.map toString |>.getD s!"#{i}"
+      else s!"#{i}"
+    | _          => "app"
+  goList (l : List Expr) (bound : Expr) (hl : ∀ x ∈ l, sizeOf x < sizeOf bound)
+      (depth : Nat) : StateT PatBodySiteSummary MetaM Unit := do
+    match hL : l with
+    | [] => pure ()
+    | a :: tl =>
+      have _ : sizeOf a < sizeOf bound := hl a (hL ▸ List.mem_cons_self)
+      have _ : sizeOf tl < sizeOf l := by subst hL; simp; omega
+      go a depth
+      goList tl bound (fun x hx => hl x (hL ▸ List.mem_cons_of_mem a hx)) depth
+  termination_by (sizeOf bound, 0, sizeOf l)
+  go (e : Expr) (depth : Nat) : StateT PatBodySiteSummary MetaM Unit := do
+    match hE : e with
+    | .mdata _ b => go b depth
+    | .app f a =>
+      let res := collectPatApp f [a]
+      let fn := res.1
+      let args := res.2
+      have hFnLt : sizeOf fn < sizeOf e := by
+        have h1 : sizeOf fn ≤ sizeOf f := (collectPatApp_sizeOf f [a]).1
+        have h2 : sizeOf f < sizeOf e := by
+          subst hE; simp only [Expr.app.sizeOf_spec]; omega
+        exact Nat.lt_of_le_of_lt h1 h2
+      have hArgsLt : ∀ x ∈ args, sizeOf x < sizeOf e := fun x hx => by
+        have h2 : sizeOf f < sizeOf e := by
+          subst hE; simp only [Expr.app.sizeOf_spec]; omega
+        have ha : sizeOf a < sizeOf e := by
+          subst hE; simp only [Expr.app.sizeOf_spec]; omega
+        rcases (collectPatApp_sizeOf f [a]).2 x hx with hx' | hx'
+        · simp only [List.mem_singleton] at hx'
+          subst hx'; exact ha
+        · exact Nat.lt_trans hx' h2
+      go fn depth
+      let finfo? ←
+        if !fn.hasLooseBVars then
+          try some <$> getFunInfoNArgs fn args.length catch _ => pure none
+        else
+          pure none
+      let mut i := 0
+      for arg in args do
+        let bi := finfo?.bind (·.paramInfo[i]?) |>.map (·.binderInfo) |>.getD .default
+        let roleStr := match bi with
+          | .instImplicit   => "inst"
+          | .implicit       => "implicit"
+          | .strictImplicit => "strictImplicit"
+          | .default        => "explicit"
+        if let .bvar idx := arg.consumeMData then
+          if idx >= depth && idx - depth < pat.numVars then
+            let k := pat.numVars - 1 - (idx - depth)
+            let siteDesc := s!"`{headLabel fn}` arg #{i} ({roleStr})"
+            modify fun s =>
+              let prev := s.varRoles.getD k #[]
+              { s with varRoles := s.varRoles.insert k (prev.push siteDesc) }
+        if bi.isInstImplicit then
+          let instDesc ←
+            if !arg.hasLooseBVars then do
+              let tyStr ←
+                try pure s!" : {← ppExpr (← instantiateMVars (← inferType arg))}"
+                catch _ => pure ""
+              pure s!"`{← ppTraceSub arg}`{tyStr} (at `{headLabel fn}` arg #{i})"
+            else
+              pure s!"`{← ppTraceSub arg}` (at `{headLabel fn}` arg #{i})"
+          modify fun s =>
+            if !arg.hasLooseBVars then
+              { s with fixedInsts := s.fixedInsts.push instDesc }
+            else
+              { s with polyInsts := s.polyInsts.push instDesc }
+        i := i + 1
+      have hB : ∀ x ∈ args, sizeOf x < sizeOf (Expr.app f a) := by
+        rw [← hE]; exact hArgsLt
+      goList args (Expr.app f a) hB depth
+    | .lam _ t b _ | .forallE _ t b _ =>
+      go t depth
+      go b (depth + 1)
+    | .letE _ t v b _ =>
+      go t depth
+      go v depth
+      go b (depth + 1)
+    | .proj _ _ b =>
+      go b depth
+    | _ => pure ()
+  termination_by (sizeOf e, 1, 0)
+
+private def formatRelSummary (rel : ExprMatchRel) (localItemStxs : Array (Bool × Syntax)) :
+    String := Id.run do
+  let rf := rel.resolveFlags
+  let flagParts := [
+    (if rf.inst then "+inst" else "-inst"),
+    (if rf.beta then "+beta" else "-beta"),
+    (if rf.zeta then "+zeta" else "-zeta"),
+    (if rf.proj then "+proj" else "-proj"),
+    (if rf.eta  then "+eta"  else "-eta")
+  ]
+  let engStr := match rel.engine with
+    | .structural => "structural"
+    | .reducible  => "reducible"
+    | .instances  => "instances"
+    | .defeq      => "defeq"
+    | .sym        => "sym"
+  let mut itemStrs : Array String := #[]
+  for item in rel.items do
+    let pfx := if item.positive then "+" else "-"
+    let tag := if item.isSimpSet then " [simp]" else ""
+    itemStrs := itemStrs.push s!"{pfx}{item.declName}{tag}"
+  for (pos, stx) in localItemStxs do
+    let pfx := if pos then "+" else "-"
+    let termStr := stx.reprint.map (·.trimAscii.toString) |>.getD (toString stx)
+    itemStrs := itemStrs.push s!"{pfx}${termStr} (local)"
+  let itemsDesc := if itemStrs.isEmpty then "none" else ", ".intercalate itemStrs.toList
+  return s!"{engStr} [{", ".intercalate flagParts}] (items: {itemsDesc})"
+
+private def extractLocalItemStxs (relStx : Syntax) : Array (Bool × Syntax) := Id.run do
+  let mut out := #[]
+  unless relStx[1].isNone do
+    let itemsStx := relStx[1][0]
+    for itemStx in itemsStx[1].getSepArgs do
+      let positive := itemStx[0].isNone || itemStx[0][0].isOfKind ``exprQuotItemPos
+      let target := itemStx[1]
+      if target.isOfKind ``exprQuotItemPin then
+        let term := if target.getNumArgs == 2 then target[1] else target[2]
+        out := out.push (positive, term)
+  return out
+
+private def indexingStatusSummary (rel : ExprMatchRel) (hasLocalItems : Bool)
+    (pat : ExprPattern) : MetaM String := do
+  if hasLocalItems then
+    return "ineligible (local `$x` items force linear fallback)"
+  if !rel.isIndexSound then
+    let reason := match rel.engine with
+      | .instances | .defeq => s!"engine `{repr rel.engine}` uses linear dispatch"
+      | .structural => "enabled look-through flag prevents static structural indexing"
+      | .reducible  => "disabled reduction flag prevents reducible `DiscrTree` indexing"
+      | .sym        => "`/sym` requires default flags and no `[items]` for indexing"
+    return s!"ineligible ({reason})"
+  let some keys ← pat.discTreeKeys? rel
+    | return "ineligible"
+  let keyStrs := keys.toList.map fun k => toString (format k)
+  return s!"eligible (DiscrTree keys: [{", ".intercalate keyStrs}])"
+
+private def renameAbstLevelParams (pat : ExprPattern) : ExprPattern := Id.run do
+  let hasAbst := pat.levelParams.any fun p => p.toString.startsWith "_abstMVar."
+  if !hasAbst then
+    return pat
+  let usedNames : NameSet := pat.levelParams.foldl (init := {}) fun s n =>
+    if n.toString.startsWith "_abstMVar." then s else s.insert n
+  let mut nextIdx := 1
+  let mut oldNames : List Name := []
+  let mut newLvls : List Level := []
+  let mut newParams : List Name := []
+  for p in pat.levelParams do
+    if p.toString.startsWith "_abstMVar." then
+      let mut cand := Name.mkSimple s!"u_{nextIdx}"
+      while usedNames.contains cand do
+        nextIdx := nextIdx + 1
+        cand := Name.mkSimple s!"u_{nextIdx}"
+      nextIdx := nextIdx + 1
+      oldNames := oldNames ++ [p]
+      newLvls := newLvls ++ [Level.param cand]
+      newParams := newParams ++ [cand]
+    else
+      newParams := newParams ++ [p]
+  let substExpr (e : Expr) : Expr := e.instantiateLevelParams oldNames newLvls
+  let mut newProofs : ExprMap Expr := {}
+  for (pf, ty) in pat.closedProofs.toList do
+    newProofs := newProofs.insert (substExpr pf) (substExpr ty)
+  return { pat with
+    levelParams  := newParams
+    lam          := substExpr pat.lam
+    closedProofs := newProofs }
+
+/--
+Elaborate and inspect a pattern quotation `` `(expr[rel]| p) `` for `#check_pattern`, reporting
+its compiled relation, binders (with higher-order arities), pins, wildcards/implicit positions,
+fixed and pattern-bound instances, universe parameters, closed-proof fast-path entries, and
+`DiscrTree` indexing eligibility without running the term-builder template elaborator.
+-/
+def inspectExprQuotPattern (ctxFVars : Array Expr) (stx : Syntax) :
+    TermElabM MessageData := do
+  let quotStx := unwrapExprQuotStx stx
+  unless isExprQuot quotStx do
+    throwErrorAt stx "expected an `` `(expr[rel]| p) `` pattern quotation"
+  let (slot, _, _, prepState, snap?) ←
+    elabExprQuotPatternCore quotStx 0 ctxFVars (collectSnap := true)
+  let pat := renameAbstLevelParams slot.pat
+  let mut varNames : Array Expr := Array.replicate pat.numVars (Lean.mkConst `_)
+  for (bId, idx) in prepState.binders.zip pat.namedIdx do
+    let bName := bId.getId.eraseMacroScopes
+    varNames := varNames.setIfInBounds idx (Lean.mkConst (Name.mkSimple s!"?{bName}"))
+  let mut pinHoleIdx := 0
+  let mut pinConsts : Array Expr := #[]
+  for h : hIdx in *...prepState.holes.size do
+    if let .pin term _ _ := prepState.holes[hIdx] then
+      let idx := slot.pinIdxs.getD pinHoleIdx 0
+      let termStr := term.reprint.map (·.trimAscii.toString) |>.getD (toString term)
+      let c := Lean.mkConst (Name.mkSimple s!"${termStr}")
+      varNames := varNames.setIfInBounds idx c
+      pinConsts := pinConsts.push c
+      pinHoleIdx := pinHoleIdx + 1
+  let bodyFmt ← pat.formatBody slot.pinIdxs pinConsts
+  let summary ← collectPatBodySummary pat varNames
+  let varDoms : Array Expr := Id.run do
+    let mut out : Array Expr := Array.emptyWithCapacity pat.numVars
+    let mut cur := pat.lam
+    for _ in *...pat.numVars do
+      match cur with
+      | .lam _ d b _ => out := out.push d; cur := b
+      | _ => break
+    return out
+  let binderLines ← (prepState.binders.zip pat.namedIdx).mapM fun (bId, idx) => do
+    let bName := bId.getId.eraseMacroScopes
+    let arity := prepState.binderArity.getD bId.getId 0
+    let fo := pat.firstOrder.getD idx true
+    let tyExpr := (varDoms.getD idx (Lean.mkSort .zero)).instantiateRev (varNames.extract 0 idx)
+    let tyFmt ← ppExpr tyExpr
+    let selfCnt := prepState.selfPins.filter (·.2 == bId.getId) |>.size
+    let selfNote := if selfCnt > 0 then s!", nonlinear self-pins={selfCnt}" else ""
+    let mode := if fo && arity == 0 then "first-order" else s!"higher-order arity={arity}"
+    return s!"?{bName} : {tyFmt} ({mode}{selfNote})"
+  let mut pinLines : Array String := #[]
+  pinHoleIdx := 0
+  for h : hIdx in *...prepState.holes.size do
+    if let .pin term _ _ := prepState.holes[hIdx] then
+      let idx := slot.pinIdxs.getD pinHoleIdx 0
+      let tyExpr := (varDoms.getD idx (Lean.mkSort .zero)).instantiateRev (varNames.extract 0 idx)
+      let tyFmt ← ppExpr tyExpr
+      let termStr := term.reprint.map (·.trimAscii.toString) |>.getD (toString term)
+      pinLines := pinLines.push s!"${termStr} : {tyFmt} (var #{idx})"
+      pinHoleIdx := pinHoleIdx + 1
+  let origins := snap?.map (·.varOrigins) |>.getD #[]
+  let mut wildcardLines : Array String := #[]
+  for k in *...pat.numVars do
+    if !pat.namedIdx.contains k && !slot.pinIdxs.contains k then
+      let tyExpr := (varDoms.getD k (Lean.mkSort .zero)).instantiateRev (varNames.extract 0 k)
+      let tyFmt ← ppExpr tyExpr
+      let origin := origins.getD k "wildcard"
+      let sites := summary.varRoles.getD k #[]
+      let siteStr :=
+        if sites.isEmpty then origin else s!"{origin} @ {", ".intercalate sites.toList}"
+      let capMode :=
+        if pat.captureVars.getD k true then "captured (repeated)" else "not captured"
+      wildcardLines := wildcardLines.push s!"var #{k} : {tyFmt} [{siteStr}; {capMode}]"
+  let proofLines ← pat.closedProofs.toList.mapM fun (pf, ty) => do
+    return s!"`{← ppExpr pf}` : `{← ppExpr ty}`"
+  let localItemStxs := extractLocalItemStxs quotStx[2]
+  let relDesc := formatRelSummary slot.rel localItemStxs
+  let idxDesc ← indexingStatusSummary slot.rel slot.hasLocalItems pat
+  let fmtList (xs : Array String) : String :=
+    if xs.isEmpty then "none" else ", ".intercalate xs.toList
+  let wildcardsStr :=
+    if wildcardLines.isEmpty then "none"
+    else "\n  " ++ "\n  ".intercalate wildcardLines.toList
+  let univStr :=
+    if pat.levelParams.isEmpty then "none"
+    else ", ".intercalate (pat.levelParams.map toString)
+  return m!"pattern: {bodyFmt}\n\
+    relation: {relDesc}\n\
+    binders: {fmtList binderLines}\n\
+    pins: {fmtList pinLines}\n\
+    wildcards:{if wildcardLines.isEmpty then " none" else wildcardsStr}\n\
+    fixed instances: {fmtList summary.fixedInsts}\n\
+    polymorphic instances: {fmtList summary.polyInsts}\n\
+    universe params: {univStr}\n\
+    closed proofs: {fmtList proofLines.toArray}\n\
+    indexing: {idxDesc}"
 
 end Lean.Elab.Term.ExprQuot

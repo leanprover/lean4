@@ -583,6 +583,12 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 /--
+`#check_pattern `(expr[rel]| p)` prints the compiled representation of a pattern quotation
+without evaluating it as a term template.
+-/
+@[builtin_command_parser] def checkPattern := leading_parser
+  "#check_pattern " >> termParser
+/--
 `#import_path Foo` prints the transitive import chain that brings the declaration `Foo`
 into the current file's scope.
 -/

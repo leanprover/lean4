@@ -24,12 +24,13 @@ def f (n : Nat) : StateM (Nat × Nat) Nat := do
 trace: case vc1
 n : Nat
 t : Nat × Nat
-a✝² b✝¹ : Nat
-a✝¹ : (a✝², b✝¹) = t
+a✝¹ b✝ : Nat
+a✝ : (a✝¹, b✝) = t
 x✝¹ : PUnit
-x✝ a✝ b✝ : Nat
-h✝ : ∃ z, (a✝, b✝) = (a✝², z) ∧ (0 < n ∧ x✝ = 1 ∧ z = b✝¹ ∨ ¬0 < n ∧ x✝ = 2 ∧ z = 0)
-⊢ a✝ = t.fst
+x✝ : Nat
+s✝ : Nat × Nat
+h✝ : ∃ z, s✝ = (a✝¹, z) ∧ (0 < n ∧ x✝ = 1 ∧ z = b✝ ∨ ¬0 < n ∧ x✝ = 2 ∧ z = 0)
+⊢ s✝.fst = t.fst
 -/
 #guard_msgs in
 example : ⦃fun s => s = t⦄ f n ⦃fun _ s => s.1 = t.1⦄ := by

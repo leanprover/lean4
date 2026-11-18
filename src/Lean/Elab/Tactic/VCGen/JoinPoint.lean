@@ -467,11 +467,11 @@ def mkJoinEqProof (lhs : Expr) (pf? : Option Expr) : VCGenM Expr := do
   return mkApp2 (mkConst ``Eq.refl [← Sym.getLevel α]) α lhs
 
 /-- Assign `?H` of `jp` the anti-unifier of the arguments of its `jumps` above the trie of the
-jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof. The values in the leaves
-are in `simp` normal form, so `simp` leaves the binder domains of the RHS goal `∀ xs, ?H xs → …`
-unchanged. `vcgen` processes the RHS goal after all goals below the registration, so every jump
-is known by then. -/
-public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
+jumps, `False` if no jump reaches `jp`, and each jump's `?pf` its proof, and return the RHS goal
+`∀ xs, ?H xs → …` with its binders introduced. The values in the leaves are in `simp` normal form,
+so the RHS goal introduces `?H xs` without `simp`. `vcgen` processes the RHS goal after all goals
+below the registration, so every jump is known by then. -/
+public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM MVarId := do
   let jumpsLocals ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
   let (paths, holes, eqParams, leafPfs) ← jp.hyp.withContext do
       forallTelescope (← jp.hyp.getType) fun xs _ => do
@@ -507,5 +507,6 @@ public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit
       let steps := locals.toList.map fun d => if d.value?.isSome then .letLocal else .bind d.toExpr
       jump.proof.assign
         (← mkStepsProof φ top fun φ => mkTrieProof φ paths[k]! steps leafPfsₖ.toList)
+  introsHygienic jp.rhsGoal
 
 end Lean.Elab.Tactic.VCGen

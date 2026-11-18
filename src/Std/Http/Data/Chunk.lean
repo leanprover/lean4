@@ -209,16 +209,27 @@ Interprets the chunk data as a UTF-8 encoded string.
 def toString? (chunk : Chunk) : Option String :=
   String.fromUTF8? chunk.data
 
+/--
+Appends the chunk-size line: the size in hexadecimal, the extensions and `\r\n`.
+-/
+def encodeSizeLine (out : ByteArray) (chunk : Chunk) : ByteArray :=
+  let out := chunk.extensions.foldl (init := appendHex out chunk.data.size) fun out (name, value) =>
+    let out := out ++ ';' ++ name.value
+    match value with
+    | some value => out ++ '=' ++ value.quote
+    | none => out
+  out ++ "\r\n"
+
 instance : Encode .v11 Chunk where
-  encode buffer chunk :=
-    let chunkLen := chunk.data.size
-    let exts := chunk.extensions.foldl (fun acc (name, value) =>
-      acc ++ ";" ++ name.value ++ (value.elim "" (fun x => "=" ++ x.quote))) ""
-    let size := Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk
-    buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
+  encode out chunk := encodeSizeLine out chunk ++ chunk.data ++ "\r\n"
 
 end Chunk
 
+/--
+Appends `chunk` with its framing. The data becomes a piece of its own, so it is not copied.
+-/
+def Internal.ChunkedBuffer.pushChunk (buffer : ChunkedBuffer) (chunk : Chunk) : ChunkedBuffer :=
+  (buffer.push (chunk.encodeSizeLine .empty) |>.push chunk.data).push "\r\n".toUTF8
 
 /--
 Trailer headers sent after the final chunk in HTTP/1.1 chunked transfer encoding.
@@ -323,9 +334,6 @@ def fold (trailer : Trailer) (init : α) (f : α → Header.Name → Header.Valu
   trailer.headers.fold init f
 
 instance : Encode .v11 Trailer where
-  encode buffer trailer :=
-    buffer.write "0\r\n".toUTF8
-    |> (Encode.encode .v11 · trailer.headers)
-    |>.write  "\r\n".toUTF8
+  encode out trailer := out ++ "0\r\n" ++ trailer.headers ++ "\r\n"
 
 end Trailer

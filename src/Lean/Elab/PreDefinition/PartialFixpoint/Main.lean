@@ -93,12 +93,12 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
         | .coinductiveFixpoint =>
           forallTelescopeReducing type fun xs e => do
             unless e.isProp do
-              throwError "`coinductive_fixpoint` can be only used to define predicates"
+              throwError "`coinductive_fixpoint` can only be used to define predicates"
             mkInstPiOfInstsForall xs (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
           forallTelescopeReducing type fun xs e => do
             unless e.isProp do
-              throwError "`inductive_fixpoint` can be only used to define predicates"
+              throwError "`inductive_fixpoint` can only be used to define predicates"
             mkInstPiOfInstsForall xs (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
@@ -159,7 +159,9 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
           replaceRecApps declNames fixedParamPerms f body
-        mkLambdaFVars #[f] body'
+        -- Values coming from `elabCoinductive` are a redex over the `.existential` lambda;
+        -- beta-reduce so monotonicity goals and errors are stated in terms of its body.
+        mkLambdaFVars #[f] body'.headBeta
 
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
@@ -186,7 +188,8 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
         pure (goal, ← instantiateMVars hmono)
     let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← mkFixOfMonFun packedType packedInst hmono
+    -- The `RecAppSyntax` markers are only needed for the monotonicity error messages above
+    let packedValue ← eraseRecAppSyntaxExpr (← mkFixOfMonFun packedType packedInst hmono)
 
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 

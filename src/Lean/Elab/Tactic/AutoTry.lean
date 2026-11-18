@@ -9,7 +9,7 @@ module
 prelude
 import Init.Try
 import Lean.Linter.Basic
-import Lean.Server.InfoUtils
+import Lean.Elab.InfoTree.Util
 import Lean.Elab.Tactic.Try
 import Lean.Elab.Tactic.Meta
 import Lean.Elab.BuiltinTerm

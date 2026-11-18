@@ -1,6 +1,10 @@
+Input: "[^1]"
 Success! Final stack:
-  (Lean.Doc.Syntax.footnote
+  (Lean.Doc.Parser.Inline.footnote
    "[^"
-   (str "\"1\"")
+   (Lean.Doc.Parser.versoRef "1")
    "]")
 All input consumed.
+Round-trip OK
+Decoded views:
+  footnote (opener := "[^") (name := "1") (closer := "]")

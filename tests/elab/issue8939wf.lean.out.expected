@@ -44,10 +44,9 @@ WellFounded.Nat.fix
                         Nat)
                   n, m, fuel, h with
                 | 0, m, x, x_1 => fun x => m + 1
-                | n.succ, 0, f, h => fun x => x ⟨n, ⟨1, ⟨f - 1, sorry⟩⟩⟩ (id ((fun f => sorry) f))
+                | n.succ, 0, f, h => fun x => x ⟨n, ⟨1, ⟨f - 1, sorry⟩⟩⟩ ((fun f => sorry) f)
                 | n.succ, m.succ, f, h => fun x =>
-                  x ⟨n, ⟨x ⟨n + 1, ⟨m, ⟨f - 1, sorry⟩⟩⟩ (id ((fun f => sorry) f)), ⟨f - 1, sorry⟩⟩⟩
-                    (id ((fun f => sorry) f)))
+                  x ⟨n, ⟨x ⟨n + 1, ⟨m, ⟨f - 1, sorry⟩⟩⟩ ((fun f => sorry) f), ⟨f - 1, sorry⟩⟩⟩ ((fun f => sorry) f))
                 a)
             a)
         a)

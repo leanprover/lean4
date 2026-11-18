@@ -646,6 +646,7 @@ _start:
 lean_object* v___x_148_; uint32_t v___x_149_; 
 v___x_148_ = lean_unsigned_to_nat(2147483648u);
 v___x_149_ = lean_int32_of_nat(v___x_148_);
+lean_dec(v___x_148_);
 return v___x_149_;
 }
 }
@@ -748,6 +749,7 @@ _start:
 lean_object* v___x_173_; uint64_t v___x_174_; 
 v___x_173_ = lean_cstr_to_nat("9223372036854775807");
 v___x_174_ = lean_int64_of_nat(v___x_173_);
+lean_dec(v___x_173_);
 return v___x_174_;
 }
 }
@@ -890,11 +892,13 @@ return v_r_213_;
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Round(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_ToNat(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Round(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

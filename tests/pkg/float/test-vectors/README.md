@@ -6,13 +6,16 @@ discovers every `*.txt.gz` file here, decompresses it with `gzip -dc`, and check
 model's `binary32`/`binary64` operations against it. There is no on-the-fly generation:
 these files are the source of truth.
 
-Each line is `<operand1> [<operand2>] <expected> <flags>` (the second operand is absent for
-unary operations), all fields hexadecimal, floats given as their bit patterns; 16 digits
-for `binary64`, 8 for `binary32`. The flags field is ignored (the model computes no
+Each line is `<operand1> [<operand2> [<operand3>]] <expected> <flags>` (one operand for
+unary operations, two for binary ones, three for the fused multiply-add), all fields
+hexadecimal, floats given as their bit patterns; 16 digits for `binary64`, 8 for
+`binary32`. The flags field is ignored (the model computes no
 exception flags) and NaN results are compared as a class (the model emits a canonical NaN).
 
 File names are `<precision>_<operation>` (e.g. `f64_add`, `f32_sqrt`); the subdirectory
-names the suite. Operations covered: `add sub mul div sqrt eq le lt`.
+names the suite. Operations covered: `add sub mul div sqrt mulAdd eq le lt`. `mulAdd` is
+TestFloat's name for the fused multiply-add `a * b + c`; it checks
+`Float.Model.fma`/`Float32.Model.fma`.
 
 Integer-to-float conversions are named `<int>_to_<precision>` (e.g. `i64_to_f64`,
 `ui32_to_f32`), with `<int>` one of `ui32 ui64 i32 i64`. These are unary: each line is
@@ -47,6 +50,44 @@ testfloat_gen -level 1 -rnear_even <precision>_<operation>
 testfloat_gen -level 1 -rnear_even <int>_to_<precision>
 testfloat_gen -level 1 -rminMag   <precision>_to_<int>     # custom build, see below
 ```
+
+The three-operand `<precision>_mulAdd` files are subsampled: level 1 emits about 6.1 million
+cases for a ternary operation (`-n` can only raise that count, never lower it), far too
+large to commit. Keep every 128th line, plus every triple drawn from the ten values
+`±0`, `±1`, `±∞`, and one quiet and one signaling NaN of each sign. The NaN bit patterns
+below occur in TestFloat's systematic sequence. This retains all 1000 combinations of
+these values, including signed-zero and infinity combinations, while keeping the files
+close to the size of the other suites.
+
+Systematic and randomized cases are interleaved throughout the stream. Sampling every
+128th line visits all nine operand mixes, but shares factors with the 88-value systematic
+operand cycle and can omit special values. Preserve the selected triples wherever they
+occur, rather than relying on a prefix of the output.
+
+Run this from `test-vectors/`, with `testfloat_gen` on `PATH`:
+
+```bash
+set -o pipefail
+for precision in f32 f64; do
+  testfloat_gen -seed 1 -level 1 -rnear_even "${precision}_mulAdd" |
+    awk '
+      BEGIN {
+        split("00000000 80000000 3F800000 BF800000 7F800000 FF800000 " \
+              "7F800001 FF800001 7FFFFFFF FFFFFFFF " \
+              "0000000000000000 8000000000000000 3FF0000000000000 BFF0000000000000 " \
+              "7FF0000000000000 FFF0000000000000 7FF0000000000001 FFF0000000000001 " \
+              "7FFFFFFFFFFFFFFF FFFFFFFFFFFFFFFF", values)
+        for (i in values) special[values[i]] = 1
+      }
+      NR % 128 == 1 || ($1 in special && $2 in special && $3 in special)
+    ' | gzip -n > "testfloat/${precision}_mulAdd.txt.gz"
+done
+```
+
+These files were generated on Linux x86-64 with glibc, using TestFloat's
+`Linux-x86_64-GCC` build. The fixed seed makes generation deterministic for a given
+build; different C libraries can produce different randomized operands. `gzip -n`
+omits timestamps and file names from the compressed output.
 
 The `<precision>_to_<int>` (float-to-integer) files use `-rminMag` (round toward zero) and
 require a `testfloat_gen` linked against a custom SoftFloat specialization, because the

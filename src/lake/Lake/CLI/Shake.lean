@@ -6,6 +6,7 @@ Authors: Mario Carneiro, Sebastian Ullrich
 module
 
 prelude
+public import Lean.Setup
 public import Lean.Util.Path
 import Lean.ExtraModUses
 import Lean.Parser.Module
@@ -39,6 +40,11 @@ public structure Args where
   mods : Array Name := #[]
   /-- The list of modules to minimize exclusively, otherwise all reachable ones. -/
   onlyMods : Array Name := #[]
+  /--
+  An import that every checked module should have, directly or transitively, where that does not
+  create an import cycle.
+  -/
+  addDownstream? : Option Import := none
 
 /-- We use `Nat` as a bitset for doing efficient set operations.
 The bit indexes will usually be a module index. -/
@@ -346,6 +352,17 @@ partial def initStateFromEnv (env : Environment) : State := Id.run do
   s := { s with transDepsOrig := s.transDeps }
   return s
 
+/--
+Returns for each module whether it is a reflexive-transitive import of `i`, disregarding visibility.
+-/
+def getImportClosure (s : State) (i : Nat) : Array Bool := Id.run do
+  let mut closure := Array.replicate s.mods.size false |>.set! i true
+  for j in (0...=i).toArray.reverse do
+    if closure[j]! then
+      for imp in s.mods[j]!.imports do
+        closure := closure.set! (s.env.getModuleIdx? imp.module |>.get!).toNat true
+  return closure
+
 /-- Register that we want to remove `tgt` from the imports of `src`. -/
 def Edits.remove (ed : Edits) (src : Name) (tgt : Import) : Edits :=
   match ed.get? src with
@@ -407,11 +424,12 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 * `srcSearchPath`: Used to find the path for error reporting purposes
 * `i`: the module index
 * `needs`: the module's calculated needs
+* `addDownstream`: if true, ensure that the module has the import `args.addDownstream?`
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
 def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
     (i : Nat) (needs : Needs) (headerStx : TSyntax ``Parser.Module.header) (args : Args)
-    (addOnly := false) : StateT State IO Unit := do
+    (addDownstream := false) (addOnly := false) : StateT State IO Unit := do
   let modName := (← get).modNames[i]!
   if isExtraRevModUse (← get).env i then
     modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
@@ -464,6 +482,12 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
         let k' := { k with isMeta := false, isExported := k.isExported && args.addPublic }
         deps := deps.union k' {j}
         reasons := reasons.insert (j, k') s!"`--keep-downstream`/extra rev use in `{s.modNames[j]!}`"
+  if let some imp := guard addDownstream *> args.addDownstream? then
+    let j : Nat := s.env.getModuleIdx? imp.module |>.get!
+    let k := NeedsKind.ofImport imp
+    deps := deps.union k {j}
+    reasons := reasons.insert (j, k) <|
+      if k.isExported then "`--add-public-downstream`" else "`--add-downstream`"
 
   -- Do transitive reduction of `needs` in `deps`.
   if !addOnly then
@@ -684,6 +708,10 @@ public def run (args : Args) (srcSearchPath : SearchPath := {}) : IO UInt32 := d
   let mut env ← finalizeImport s (isModule := true) imps {} (leakEnv := true) (loadExts := false)
   if env.header.moduleData.any (!·.isModule) then
     throw <| .userError "`lake shake` only works with `module`s currently"
+  if let some imp := args.addDownstream? then
+    if env.getModuleIdx? imp.module |>.isNone then
+      throw <| .userError s!"cannot add `{imp.module}` downstream, \
+        it is not imported by any of the checked modules"
   -- the one env ext we want to initialize
   let is := indirectModUseExt.toEnvExtension.getState env
   let newState ← indirectModUseExt.addImportedFn is.importedEntries { env := env, opts := {} }
@@ -707,10 +735,19 @@ public def run (args : Args) (srcSearchPath : SearchPath := {}) : IO UInt32 := d
     println! "The following changes will be made automatically:"
 
   -- Check all selected modules
-  for i in [0:s.mods.size], t in needs, header in headers do
-    match header.get with
+  let mut order := Array.range s.mods.size
+  -- The modules we must not add the `--add-(public-)downstream` import to, as doing so would
+  -- create an import cycle
+  let mut noAddDownstream := Array.replicate s.mods.size true
+  if let some imp := args.addDownstream? then
+    noAddDownstream := getImportClosure s (s.env.getModuleIdx? imp.module |>.get!).toNat
+    -- Visit them first so that their import closures are final when we add the import to the
+    -- remaining modules
+    order := order.filter (noAddDownstream[·]!) ++ order.filter (!noAddDownstream[·]!)
+  for i in order do
+    match headers[i]!.get with
     | .ok ⟨_, _, stx, _⟩ =>
-      visitModule pkgs srcSearchPath i t.get stx args
+      visitModule pkgs srcSearchPath i needs[i]!.get stx args (addDownstream := !noAddDownstream[i]!)
     | .error e =>
       println! e.toString
 

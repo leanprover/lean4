@@ -144,16 +144,20 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
     return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
   | Nat.lt a b =>
     return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
-  | LE.le _ i a b =>
+  | LE.le α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLENat i)
     return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
-  | LT.lt _ i a b =>
+  | LT.lt α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLTNat i)
     return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
-  | GE.ge _ i a b =>
+  | GE.ge α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLENat i)
     return { eq := false, lhs := (← toLinearExpr b), rhs := (← toLinearExpr a) }
-  | GT.gt _ i a b =>
+  | GT.gt α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLTNat i)
     return { eq := false, lhs := (← toLinearExpr b).inc, rhs := (← toLinearExpr a) }
   | _ => failure

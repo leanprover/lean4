@@ -1,3 +1,7 @@
+Input: "-other"
 Success! Final stack:
-  (Lean.Doc.Syntax.flag_off "-" `other)
+  (Lean.Doc.Parser.Arg.flag_off "-" `other)
 All input consumed.
+Round-trip OK
+Decoded views:
+  flag (sign := "-") (name := other) (isOn := false)

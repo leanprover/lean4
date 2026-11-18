@@ -1,0 +1,26 @@
+Input: "1. first\n2. second\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "1.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "first"))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "2.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "second"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ol (start := 1)
+    item (marker := "1.")
+      para
+        text (content := "first")
+    item (marker := "2.")
+      para
+        text (content := "second")
+        linebreak (newline := "\n")

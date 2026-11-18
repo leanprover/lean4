@@ -357,7 +357,7 @@ For example: suppose the subgoal is of the form `p → q → False` where `p` an
 hypotheses introduced during case analysis. If the proof is of the form `fun _ _ => h`, returns
 `some h`.
 -/
-private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
+private def getFalseProofEager? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
   if proof.hasSyntheticSorry then
     /- **Note**: We do not perform non-chronological backtracking if the proof
@@ -382,6 +382,49 @@ where
       let .lam _ _ b _ := proof | return none
       if b.hasLooseBVars then return none
       go b
+
+/--
+Similar to `getFalseProofEager?`, but without instantiating the proof, which would cost time
+proportional to the size of the proof at every enclosing case split. The proof of a subgoal that
+introduces hypotheses `xs` is usually of the form `fun xs => ?d xs`, where `?d` is delayed-assigned to
+`?p` abstracting `xs`. The body does not depend on `xs` if the summary of `?p` does not contain `xs`,
+see `getProofInfo`. The returned proof is not instantiated either.
+-/
+private partial def getFalseProof? (mvarId : MVarId) : GrindM (Option Expr) := mvarId.withContext do
+  let info ← getProofInfo (mkMVar mvarId)
+  if info.hasSorry || info.hasUnassigned then
+    /- **Note**: We do not perform non-chronological backtracking if the proof
+    contains synthetic `sorry`, or if it is not complete and may still depend on `xs`. -/
+    return none
+  go (mkMVar mvarId)
+where
+  go (proof : Expr) : GrindM (Option Expr) := do
+    let proof := proof.headBeta
+    if let .mvar m := proof.getAppFn then
+      if let some val ← getExprMVarAssignment? m then
+        return (← go (val.beta proof.getAppArgs))
+    match_expr proof with
+    | False.elim _ p => return some p
+    | False.casesOn _ p => return some p
+    | id α p => if α.isFalse then return some p else return none
+    | _ =>
+      let .lam .. := proof | return none
+      let n := proof.getNumHeadLambdas
+      let b := lambdaBody n proof
+      if !b.hasLooseBVars then return (← go b)
+      let .mvar d := b.getAppFn | fallback
+      let args := b.getAppArgs
+      unless args.size == n && args.toList.zipIdx.all (fun (a, i) => a == mkBVar (n - 1 - i)) do
+        return (← fallback)
+      let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? d | fallback
+      unless fvars.size == n do return (← fallback)
+      let info ← getProofInfo (mkMVar mvarIdPending)
+      if fvars.any fun x => info.fvars.contains x.fvarId! then return none
+      go (mkMVar mvarIdPending)
+  fallback : GrindM (Option Expr) := getFalseProofEager? mvarId
+  lambdaBody : Nat → Expr → Expr
+    | n+1, .lam _ _ b _ => lambdaBody n b
+    | _, e => e
 
 /-- Returns `true` if the given list can be compressed using `<;>` at `splitCore` -/
 private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
@@ -450,8 +493,10 @@ Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
 def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     (stopAtFirstFailure : Bool)
     (compress : Bool)
-    (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => do
+    (candidates? : Option (List SplitInfo) := none) : Action := fun goal _ kp => withHoistedDecls goal do
   let traceEnabled := (← getConfig).trace
+  let saved? ← saveStateIfTracing
+  let goal₀ := goal
   let mvarId ← goal.mkAuxMVar
   let cExpr := c.getExpr
   let ((mvarIds, anchorInfo?), goal) ← GoalM.run goal do
@@ -480,48 +525,85 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     return (mvarIds, anchorInfo?)
   let numSubgoals := mvarIds.length
   /-
-  **Split counter heuristic**: We do not increment `numSplits` for the first case (`i = 0`)
-  of a non-recursive split. This leverages non-chronological backtracking: if the first case
-  is solved using a proof that doesn't depend on the case hypothesis, we backtrack and close
-  the original goal directly. In this scenario, the case-split was "free", it didn't contribute
-  to the proof. By not counting it, we allow deeper exploration when case-splits turn out to be
-  irrelevant.
+  **Branch counter heuristic**: The first case (`i = 0`) of a non-recursive split does not create
+  a new branch. This leverages non-chronological backtracking (NCB): if the first case is solved
+  using a proof that doesn't depend on the case hypothesis, we backtrack and close the original
+  goal directly. In this scenario, the case-split was "free", it didn't contribute to the proof.
+  By not counting it, we allow deeper exploration when case-splits turn out to be irrelevant.
 
-  For recursive types or subsequent cases (`i > 0`), we always increment the counter since
+  For recursive types or subsequent cases (`i > 0`), we always create a new branch since
   these represent genuine branches in the proof search.
+
+  The branches are created when the case-split is performed, so that `numBranches` bounds the
+  size of the search tree, including the cases that have not been explored yet. The cases skipped
+  by NCB are removed again, see `closeByNCB`.
   -/
+  modifyThe State fun s => { s with numBranches := s.numBranches + if isRec then numSubgoals else numSubgoals - 1 }
+  let goalStack := goal.goalStack.push (goal.mvarId, goal.toGoalState)
+  let anchor ← goal.withContext <| c.getAnchor
   let subgoals := mvarIds.mapIdx fun i mvarId =>
-    let numSplits := goal.split.num
-    let numSplits := if i > 0 || isRec then numSplits + 1 else numSplits
     { goal with
-      mvarId
-      split.num := numSplits
+      mvarId, goalStack
       split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace }
+    |>.setIntroBase (mixHash anchor (hash i))
+  /-
+  **Note**: Stuck goals are returned to the caller, and they may be processed after this split completes,
+  e.g., by the next tactic in `grind => ...` mode. By then, the declarations hoisted to `goal` have been
+  declared in its proof and erased (see `withHoistedDecls`). Thus, we truncate the goal stack of stuck
+  goals to the one of `goal`, and they can only hoist declarations to the case splits enclosing `goal`.
+  -/
+  let exitSplit (gs : List Goal) : List Goal :=
+    gs.map fun g => { g with goalStack := g.goalStack.extract 0 goal.goalStack.size }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
-  for subgoal in subgoals do
+  /-
+  The state for performing non-chronological backtracking (NCB) using the given proof and tactic
+  sequence, if the case-split was kept even though NCB applies.
+  -/
+  let mut ncb? : Option (SavedState × Nat × Expr × List (TSyntax `grind)) := none
+  /- Closes `goal` using the proof `falseProof` of the `i`-th case, skipping the cases after it. -/
+  let closeByNCB (i : Nat) (falseProof : Expr) (seq : List (TSyntax `grind)) : GrindM ActionResult := do
+    modifyThe State fun s => { s with numBranches := s.numBranches - (numSubgoals - 1 - i) }
+    goal.mvarId.assignFalseProof (← goal.withContext <| mkHoistedDecls (← getHoistedDecls goal) falseProof (mkConst ``False))
+    return .closed seq
+  for subgoal in subgoals, i in [:numSubgoals] do
     match (← kp subgoal) with
     | .stuck gs =>
+      if let some (s, j, falseProof, seq) := ncb? then
+        -- Keeping the case-split failed, so we backtrack using the proof that does not need it.
+        s.restore
+        return (← closeByNCB j falseProof seq)
       if stopAtFirstFailure then
         /-
         **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
         because the caller will not be able to process the all failure/stuck goals anyway.
         -/
-        return .stuck gs
+        return .stuck (exitSplit gs)
       else
-        stuckNew := stuckNew ++ gs
+        stuckNew := stuckNew ++ exitSplit gs
     | .closed seq =>
       if let some falseProof ← getFalseProof? subgoal.mvarId then
-        goal.mvarId.assignFalseProof falseProof
-        return .closed seq
+        /-
+        **Note**: When tracing, NCB drops the case-split from the generated script only if `seq`
+        still closes the original goal. It may not, even though the proof does not use the
+        case-split: the case-split may have introduced terms used by E-matching, or changed the
+        candidates that `seq` references using anchors. Otherwise, we keep the case-split.
+        -/
+        if (← checkSeqAt saved? goal₀ seq) then
+          return (← closeByNCB i falseProof seq)
+        if ncb?.isNone then
+          ncb? := some (← saveState, i, falseProof, seq)
+        if !seq.isEmpty then
+          seqNew := seqNew.push seq
       else if !seq.isEmpty then
         /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
         seqNew := seqNew.push seq
+  let proof ← goal.withContext do mkHoistedDecls (← getHoistedDecls goal) (mkMVar mvarId) (← mvarId.getType)
   if (← goal.mvarId.getType).isFalse then
     /- **Note**: We add the marker to assist `getFalseExpr?` -/
-    goal.mvarId.assign (mkExpectedPropHint (← instantiateMVars (mkMVar mvarId)) (mkConst ``False))
+    goal.mvarId.assign (mkExpectedPropHint proof (mkConst ``False))
   else
-    goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+    goal.mvarId.assign proof
   if stuckNew.isEmpty then
     if let some anchorInfo := anchorInfo? then
       let cases ← anchorInfo.toSyntax

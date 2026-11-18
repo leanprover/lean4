@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Lemmas
+import Lean.Util.SafeExponentiation
 
 public section
 
@@ -64,6 +65,7 @@ Helper function for reducing homogeneous binary bitvector operators.
   unless e.isAppOfArity declName 3 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
   let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  unless isSafeBitVecWidth n do return .continue
   return .done <| (← toExpr' (op n v.value))
 
 /--
@@ -86,6 +88,17 @@ Helper function for reducing bitvector functions such as `shiftLeft` and `rotate
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
   let some i ← Nat.fromExpr? e.appArg! | return .continue
   return .done <| (← toExpr' (op v.value i))
+
+/--
+Helper function for reducing the left shift of a bitvector literal by a natural number literal.
+-/
+@[inline] private def reduceShiftLeftCore (declName : Name) (arity : Nat) (e : Expr) : SimpM DStep := do
+  unless e.isAppOfArity declName arity do return .continue
+  let some v ← fromExpr? e.appFn!.appArg! | return .continue
+  let some i ← Nat.fromExpr? e.appArg! | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkShiftLeft v.value.toNat i (warning := warning)) do return .continue
+  return .done <| (← toExpr' (v.value <<< i))
 
 /--
 Helper function for reducing `x <<< i` and `x >>> i` where `i` is a bitvector literal,
@@ -203,7 +216,7 @@ builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=
-  reduceShift ``BitVec.shiftLeft 3 BitVec.shiftLeft
+  reduceShiftLeftCore ``BitVec.shiftLeft 3
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for unsigned shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceUShiftRight (BitVec.ushiftRight _ _) :=
@@ -215,7 +228,7 @@ builtin_dsimproc [simp, seval] reduceSShiftRight (BitVec.sshiftRight _ _) :=
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft ((_ <<< _ : BitVec _)) :=
-  reduceShift ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+  reduceShiftLeftCore ``HShiftLeft.hShiftLeft 6
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft' ((_ <<< (_ : BitVec _) : BitVec _)) :=
@@ -243,6 +256,7 @@ builtin_dsimproc [simp, seval] reduceAppend ((_ ++ _ : BitVec _)) := fun e => do
   let_expr HAppend.hAppend _ _ _ _ a b ← e | return .continue
   let some v₁ ← fromExpr? a | return .continue
   let some v₂ ← fromExpr? b | return .continue
+  unless isSafeBitVecWidth (v₁.n + v₂.n) do return .continue
   return .done <| (← toExpr' (v₁.value ++ v₂.value))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -251,6 +265,7 @@ builtin_dsimproc [simp, seval] reduceCast (cast _ _) := fun e => do
   let_expr cast _ m _ v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some m ← Nat.fromExpr? m | return .continue
+  unless isSafeBitVecWidth m do return .continue
   return .done <| (← toExpr' (BitVec.ofNat m v.value.toNat))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -273,7 +288,17 @@ builtin_dsimproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
   let_expr BitVec.ofInt n i ← e | return .continue
   let some n ← Nat.fromExpr? n | return .continue
   let some i ← Int.fromExpr? i | return .continue
+  unless isSafeBitVecWidth n do return .continue
   return .done <| (← toExpr' (BitVec.ofInt n i))
+
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+/-- Simplification procedure for `BitVec.ofNatClamp` on literals. -/
+builtin_dsimproc [simp, seval] reduceOfNatClamp (BitVec.ofNatClamp _ _) := fun e => do
+  let_expr BitVec.ofNatClamp w n ← e | return .continue
+  let some w ← Nat.fromExpr? w | return .continue
+  let some n ← Nat.fromExpr? n | return .continue
+  unless isSafeBitVecWidth w do return .continue
+  return .done <| (← toExpr' (BitVec.ofNatClamp w n))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
@@ -281,6 +306,7 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let_expr BitVec.ofNat n v ← e | return .continue
   let some v ← Nat.fromExpr? v | return .continue
   if let some n ← Nat.fromExpr? n then
+    unless isSafeBitVecWidth n do return .continue
     let bv := BitVec.ofNat n v
     -- `BitVec.ofNat` is the normal form only when `bitVecOfNat := true`; otherwise
     -- literals must be rewritten to the `OfNat.ofNat` form produced by `toExpr'`.
@@ -362,6 +388,7 @@ builtin_dsimproc [simp, seval] reduceSetWidth' (setWidth' _ _) := fun e => do
   let some v ← fromExpr? v | return .continue
   let some w ← Nat.fromExpr? w | return .continue
   if h : v.n ≤ w then
+    unless isSafeBitVecWidth w do return .continue
     return .done <| (← toExpr' (v.value.setWidth' h))
   else
     return .continue
@@ -372,6 +399,9 @@ builtin_dsimproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ 
   let_expr shiftLeftZeroExtend _ v m ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some m ← Nat.fromExpr? m | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkShiftLeft v.value.toNat m (warning := warning)) do return .continue
+  unless isSafeBitVecWidth (v.n + m) do return .continue
   return .done <| (← toExpr' (v.value.shiftLeftZeroExtend m))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -381,6 +411,7 @@ builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e =>
   let some v ← fromExpr? v | return .continue
   let some start ← Nat.fromExpr? start | return .continue
   let some len ← Nat.fromExpr? len | return .continue
+  unless isSafeBitVecWidth len do return .continue
   return .done <| (← toExpr' (v.value.extractLsb' start len))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -390,6 +421,7 @@ builtin_dsimproc [simp, seval] reduceExtractLsb (extractLsb _ _ _) := fun e => d
   let some v ← fromExpr? v | return .continue
   let some hi ← Nat.fromExpr? hi | return .continue
   let some lo ← Nat.fromExpr? lo | return .continue
+  unless isSafeBitVecWidth (hi - lo + 1) do return .continue
   return .done <| (← toExpr' (v.value.extractLsb hi lo))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -398,6 +430,7 @@ builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   let_expr replicate _ i v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some i ← Nat.fromExpr? i | return .continue
+  unless isSafeBitVecWidth (v.n * i) do return .continue
   return .done <| (← toExpr' (v.value.replicate i))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -417,6 +450,7 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do
   let_expr allOnes n ← e | return .continue
   let some n ← Nat.fromExpr? n | return .continue
+  unless isSafeBitVecWidth n do return .continue
   return .done <| (← toExpr' (allOnes n))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -424,6 +458,7 @@ builtin_dsimproc [simp, seval] reduceBitVecOfFin (BitVec.ofFin _)  := fun e => d
   let_expr BitVec.ofFin w v ← e | return .continue
   let some w ← evalNat w |>.run | return .continue
   let some ⟨_, v⟩ ← getFinValue? v | return .continue
+  unless isSafeBitVecWidth w do return .continue
   return .done <| (← toExpr' (BitVec.ofNat w v.val))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine

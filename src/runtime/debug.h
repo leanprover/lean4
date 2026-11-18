@@ -36,11 +36,8 @@ void initialize_debug();
 void finalize_debug();
 LEAN_EXPORT void notify_assertion_violation(char const * file_name, int line, char const * condition);
 LEAN_EXPORT void enable_debug(char const * tag);
-LEAN_EXPORT void disable_debug(char const * tag);
 LEAN_EXPORT bool is_debug_enabled(char const * tag);
 LEAN_EXPORT void invoke_debugger();
-LEAN_EXPORT bool has_violations();
-LEAN_EXPORT void enable_debug_dialog(bool flag);
 // LCOV_EXCL_START
 /** \brief Exception used to sign that unreachable code was reached */
 class unreachable_reached : public exception {

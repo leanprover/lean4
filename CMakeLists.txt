@@ -22,10 +22,10 @@ foreach(var ${vars})
   # NOTE: does not catch `-DFOO:BAR=` typed uses
   elseif(currentType STREQUAL "UNINITIALIZED")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-    if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
+    if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
+    elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC|FORCE_GMP")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
   elseif(var MATCHES "USE_MIMALLOC")
@@ -45,15 +45,23 @@ endif()
 # Don't do anything with cadical/leantar on wasm
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   find_program(CADICAL cadical)
-  if(NOT CADICAL)
-    set(CADICAL_CXX c++)
-    if(CADICAL_USE_CUSTOM_CXX)
-      set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
-      # Use same platform flags as for Lean executables, in particular from `prepare-llvm-linux.sh`,
-      # but not Lean-specific `LEAN_EXTRA_CXX_FLAGS` such as fsanitize.
-      set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS}")
-      string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}/stage1" CADICAL_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-      set(CADICAL_LDFLAGS "${CADICAL_INTERNAL_LINKER_FLAGS} -Wl,-rpath=\\$$ORIGIN/../lib")
+  # `libcadical.a` is linked into the Lean libraries, so it has to be built with matching flags
+  # (position-independent, hidden visibility). Packagers can point these at their own build to
+  # avoid the source fetch below, but then have to provide all three.
+  set(CADICAL_LIB "" CACHE FILEPATH "Path to a static libcadical to link into the Lean libraries")
+  set(CADICAL_INCLUDE_DIR "" CACHE PATH "Directory containing cadical.hpp")
+  if(NOT (CADICAL AND CADICAL_LIB AND CADICAL_INCLUDE_DIR))
+    set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
+    set(CADICAL_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used to compile cadical")
+    set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS} ${CADICAL_EXTRA_CXX_FLAGS}")
+    option(CADICAL_USE_LEANC_LINKER_FLAGS "Link the cadical executable with the leanc linker flags" OFF)
+    set(CADICAL_LDFLAGS "")
+    if(CADICAL_USE_LEANC_LINKER_FLAGS)
+      string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}/stage1" CADICAL_LDFLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+      if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        # find the bundled `libc++.so`
+        string(APPEND CADICAL_LDFLAGS " -Wl,-rpath=\\$$ORIGIN/../lib")
+      endif()
     endif()
     find_program(CCACHE ccache)
     if(CCACHE)
@@ -64,24 +72,41 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
     endif()
     string(APPEND CADICAL_CXXFLAGS " -DNCLOSEFROM")
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+      string(APPEND CADICAL_CXXFLAGS " -fPIC")
+    endif()
+    if(NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
+      # do not re-export cadical from `libleanshared`
+      string(APPEND CADICAL_CXXFLAGS " -fvisibility=hidden")
+    endif()
     ExternalProject_Add(
       cadical
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical
-      GIT_TAG rel-2.1.2
+      GIT_TAG rel-3.0.1
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
         $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
-        CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS} LDFLAGS=${CADICAL_LDFLAGS}
+        CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS} LDFLAGS=${CADICAL_LDFLAGS} AR=${CMAKE_AR}
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND ""
+      BUILD_BYPRODUCTS
+        ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} ${CMAKE_BINARY_DIR}/cadical/libcadical.a
     )
-    set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX})
+    if(NOT CADICAL)
+      set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX})
+    endif()
+    if(NOT CADICAL_LIB)
+      set(CADICAL_LIB ${CMAKE_BINARY_DIR}/cadical/libcadical.a)
+    endif()
+    if(NOT CADICAL_INCLUDE_DIR)
+      set(CADICAL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/cadical/src/cadical/src)
+    endif()
     list(APPEND EXTRA_DEPENDS cadical)
   endif()
   find_program(LEANTAR leantar)
   if(NOT LEANTAR)
-    set(LEANTAR_VERSION v0.1.20)
+    set(LEANTAR_VERSION v0.1.22-pre1)
     if(CMAKE_SYSTEM_NAME MATCHES "Windows")
       set(LEANTAR_ARCHIVE_SUFFIX .zip)
       set(LEANTAR_TARGET x86_64-pc-windows-msvc)
@@ -106,9 +131,15 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     if(NOT EXISTS "${LEANTAR}")
       file(
         DOWNLOAD
-          https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
+          https://github.com/nomeata/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
         ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
+        STATUS LEANTAR_DOWNLOAD_STATUS
       )
+      list(GET LEANTAR_DOWNLOAD_STATUS 0 LEANTAR_DOWNLOAD_CODE)
+      if(NOT LEANTAR_DOWNLOAD_CODE EQUAL 0)
+        list(GET LEANTAR_DOWNLOAD_STATUS 1 LEANTAR_DOWNLOAD_ERROR)
+        message(FATAL_ERROR "Failed to download leantar: ${LEANTAR_DOWNLOAD_ERROR}")
+      endif()
       file(
         ARCHIVE_EXTRACT
         INPUT ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
@@ -116,8 +147,13 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       )
     endif()
   endif()
+  set(
+    CADICAL_ARGS
+    -DCADICAL=${CADICAL} -DCADICAL_LIB=${CADICAL_LIB} -DCADICAL_INCLUDE_DIR=${CADICAL_INCLUDE_DIR}
+  )
+  # stage0 never runs cadical so no need to link against it there.
   list(APPEND STAGE0_ARGS -DLEANTAR=${LEANTAR})
-  list(APPEND CL_ARGS -DCADICAL=${CADICAL} -DLEANTAR=${LEANTAR})
+  list(APPEND CL_ARGS ${CADICAL_ARGS} -DLEANTAR=${LEANTAR})
 endif()
 
 if(USE_MIMALLOC)
@@ -125,7 +161,7 @@ if(USE_MIMALLOC)
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_BRANCH dev3
-    GIT_TAG v3.4.1
+    GIT_TAG v3.4.5
     # Unnecessarily deep directory structure, but it saves us from a complicated
     # stage0 update for now. If we ever update the other dependencies like
     # cadical, it might be worth reorganizing the directory structure.
@@ -203,6 +239,10 @@ add_custom_target(update-stage0 COMMAND $(MAKE) -C stage1 update-stage0 DEPENDS 
 add_custom_target(update-stage0-commit COMMAND $(MAKE) -C stage1 update-stage0-commit DEPENDS stage1)
 
 add_custom_target(test COMMAND $(MAKE) -C stage1 test DEPENDS stage1)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten" AND NOT WIN32)
+  add_custom_target(lean-beam COMMAND $(MAKE) -C stage1 lean-beam DEPENDS stage1)
+endif()
 
 add_custom_target(
   bench

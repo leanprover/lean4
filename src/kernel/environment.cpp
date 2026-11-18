@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
 #include "runtime/sharecommon.h"
-#include "util/map_foreach.h"
 #include "util/io.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
@@ -25,7 +24,7 @@ extern "C" uint8 lean_environment_quot_init(object*);
 extern "C" object* lean_kernel_record_unfold (object*, object*);
 extern "C" object* lean_kernel_get_diag(object*);
 extern "C" object* lean_kernel_set_diag(object*, object*);
-extern "C" uint8* lean_kernel_diag_is_enabled(object*);
+extern "C" uint8 lean_kernel_diag_is_enabled(object*);
 
 void diagnostics::record_unfold(name const & decl_name) {
     m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg());
@@ -97,6 +96,11 @@ static void check_no_fvar(environment const & env, name const & n, expr const & 
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e) {
     check_no_metavar(env, n, e);
     check_no_fvar(env, n, e);
+}
+
+void check_no_loose_bvars (environment const & env, expr const & e) {
+    if (has_loose_bvars(e))
+        throw kernel_exception(env, "type checker does not support loose bound variables, replace them with free variables before invoking it");
 }
 
 static void check_name(environment const & env, name const & n) {
@@ -230,12 +234,23 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     definition_safety safety = head(vs).get_safety();
     if (safety == definition_safety::safe)
         throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
+    names const & lparams = head(vs).get_lparams();
     /* Check declarations header */
     if (check) {
         type_checker checker(*this, diag.get(), safety);
+        name_set found;
         for (definition_val const & v : vs) {
             if (v.get_safety() != safety)
                 throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
+            if (v.get_lparams() != lparams)
+                throw kernel_exception(*this, "invalid mutual definition, declarations must have the same universe level parameters");
+            /* The `check_name` in `check_constant_val` only sees `*this`, where none of the block's
+               own names have been declared yet, so duplicates within the block need their own check.
+               Otherwise every member but the last would be added and then overwritten. */
+            if (found.contains(v.get_name()))
+                throw kernel_exception(*this, sstream() << "invalid mutual definition, duplicate declaration name '"
+                                       << v.get_name() << "'");
+            found.insert(v.get_name());
             check_constant_val(*this, v.to_constant_val(), checker);
         }
     }
@@ -286,13 +301,6 @@ extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat
 extern "C" LEAN_EXPORT object * lean_add_decl_without_checking(object * env, object * decl) {
     return catch_kernel_exceptions<environment>([&]() {
             return environment(env).add(declaration(decl, true), false);
-        });
-}
-
-void environment::for_each_constant(std::function<void(constant_info const & d)> const & f) const {
-    smap_foreach(cnstr_get(raw(), 1), [&](object *, object * v) {
-            constant_info cinfo(v, true);
-            f(cinfo);
         });
 }
 

@@ -58,7 +58,7 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
+  docCommentOpen "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
 
 
 def namedPrio := leading_parser
@@ -129,10 +129,33 @@ def declId := leading_parser
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
+/-- The `given xs` clause of a `def` contract. It binds logical variables and scopes them over the
+`requires` and `ensures` clauses. A logical variable belongs to the specification alone. -/
+def givenClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "given" >>
+    withForbiddens #["requires", "ensures", "throws"]
+      (many1 (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))))
+/-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. -/
+def requiresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "requires" >>
+    withForbiddens #["ensures", "throws"] (atomic Term.basicFun <|> (ppSpace >> termParser)))
+/-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
+def ensuresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >> withForbidden "throws" Term.basicFun)
+/-- The `throws e => R` exception clause of a `def` contract, binding the raised exception `e`.
+An ascription `throws (e : ε) => R` selects the exception layer of type `ε`. -/
+def throwsClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "throws" >> withForbidden "throws" Term.basicFun)
+/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires`,
+`ensures` and `throws` in the type. -/
+def defTypeSpec := withForbiddens #["given", "requires", "ensures", "throws"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def optDeclSig := leading_parser
-  many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
+  withForbiddens #["given", "requires", "ensures", "throws"]
+    (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))) >>
+  optional defTypeSpec
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
   /-
@@ -184,6 +207,11 @@ def whereStructInst  := leading_parser
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
+/-- `given xs`/`requires P`/`ensures b => Q`/`throws e => R` contract clauses followed by the value
+of a `def`. Tried only after `declVal` fails. -/
+def contractDeclVal := leading_parser
+  optional givenClause >> optional requiresClause >> optional ensuresClause >>
+  many throwsClause >> withoutInfo declVal
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser
@@ -192,7 +220,8 @@ def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
-  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
+  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
+  (declVal <|> contractDeclVal) >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser
@@ -217,6 +246,13 @@ def computedField    := leading_parser
 def computedFields   := leading_parser
   "with" >> manyIndent (ppLine >> ppGroup computedField)
 /--
+Manually prove that the predicate functor is `Lean.Order.monotone`, instead of relying on the
+proof search performed by the `Lean.Order.monotonicity` tactic. Only supported on `coinductive`
+predicates and on `inductive` predicates that share a `mutual` block with a `coinductive` one.
+-/
+@[builtin_doc] def monotonicityBy := leading_parser
+  ppDedent ppLine >> "monotonicity_by " >> Tactic.tacticSeqIndentGt
+/--
 In Lean, every concrete type other than the universes
 and every type constructor other than dependent arrows
 is an instance of a general family of type constructions known as inductive types.
@@ -237,10 +273,10 @@ for more information.
 -/
 @[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
-  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving >> optional monotonicityBy
 @[builtin_doc] def «coinductive» := leading_parser
   "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
-  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving >> optional monotonicityBy
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
   recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
@@ -283,6 +319,18 @@ def «structure»          := leading_parser
   declModifiers false >>
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
+
+/--
+`recall` restates a previous declaration for illustrative purposes and checks that its type and
+optional value are definitionally equal to the original declaration.
+-/
+@[builtin_command_parser] def recallCmd := leading_parser
+  optional docComment >> "recall " >> ident >> ppIndent optDeclSig >> optional declVal
+
+/-- `recall?` suggests a `recall` statement for a previous declaration. -/
+@[builtin_command_parser] def recallQuestionCmd := leading_parser
+  "recall? " >> ident
+
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
@@ -347,6 +395,10 @@ namespace InternalSyntax
   scoped syntax (name := end_local_scope) "end_local_scope" num : command
 
   def endLocalScopeSyntax (depth : Nat) : Command := Unhygienic.run `(end_local_scope $(Syntax.mkNumLit (toString depth)))
+
+  /-- Elaborates the command without reporting deprecated constants and syntax. This command is for
+  internal use only. `expandInCmd` uses it for the commands in front of a deprecated declaration. -/
+  scoped syntax (name := without_check_deprecated) "without_check_deprecated " command : command
 end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
@@ -469,7 +521,7 @@ In such cases, the offending variable declaration should be moved down or into a
 only theorems that do depend on it follow it until the end of the section.
 -/
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
+  optional visibility >> "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 /-- Declares one or more universe variables.
 
 `universe u v`
@@ -632,9 +684,43 @@ Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will
 ```
 deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-18")
 ```
+
+Syntax can also be deprecated where it is declared, using `@[deprecated "..." (since := "...")]`
+on the `syntax`, `macro`, `elab` or `notation` command that declares it.
+
+The deprecation can be followed by `macro_rules`-style alternatives that rewrite the deprecated
+syntax into its replacement. When the user writes syntax matched by one of the alternatives, the
+warning offers the result as a "Try this" suggestion. Only the first alternative whose pattern
+matches is run; if it throws an exception (such as `Macro.throwUnsupported`), there is no
+suggestion.
+
+```
+deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
+  "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
+  | `(tactic| rwa $rws:rwRuleSeq $loc:location) =>
+    `(tactic| rw $rws:rwRuleSeq $loc:location <;> assumption)
+```
+
+As with `macro_rules`, the patterns are syntax quotations of the deprecated syntax kind and the
+right-hand sides run in `MacroM`. Alternatively, a single alternative with an identifier pattern,
+such as `| stx => f stx` for some `f : Macro`, receives every use of the deprecated syntax. In a
+module, the function `f` should be marked as `meta`. A single alternative with the pattern `_`, such
+as ``| _ => `(tactic| trivial)``, also receives every use, which is convenient for syntax without
+arguments.
+
+The result is printed as source text, so it should be syntax that can be kept in the source. There
+are some simple heuristics to ensure that the replacement parses correctly, but in more complex
+cases the result will need to be adjusted manually.
+
+Suggestions are only offered for deprecated syntax written by the user, not for deprecated syntax
+produced by a macro, and only if the syntax kind belongs to a single syntax category. A later
+`deprecated_syntax` command for the same syntax kind replaces the earlier one, including its
+alternatives.
 -/
 @[builtin_command_parser] def deprecatedSyntax := leading_parser
-  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
+  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >>
+    optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")") >>
+    optional Term.matchAlts
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 /--

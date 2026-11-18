@@ -520,17 +520,43 @@ theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
 @[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
-else isFalse fun ⟨h', _⟩ => h h'
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (Exists P) where
+  decide := if h : p then decide (P h) else false
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (Exists P) from
+      match hP h with
+      | isTrue h2 => ⟨h, h2⟩
+      | isFalse h2 => fun ⟨_, h2'⟩ => h2 h2'
+    | isFalse h => fun ⟨h', _⟩ => h h'
 
 @[inline]
 instance forall_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
-else isTrue fun h2 => absurd h2 h
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (∀ h, P h) where
+  decide := if h : p then decide (P h) else true
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (∀ h, P h) from
+      match hP h with
+      | isTrue h2 => fun _ => h2
+      | isFalse h2 => fun al => absurd (al h) h2
+    | isFalse h => fun h2 => absurd h2 h
+
+@[inline]
+instance forall_forall_prop_decidable {p} {α : Sort u} (P : (p → α) → Prop)
+    [hp : Decidable p] [hP : ∀ f, Decidable (P f)]
+    [hα : ∀ Q : α → Bool, Decidable (∀ x, Q x = true)] : Decidable (∀ f, P f) where
+  decide := if h : p then decide (∀ a, decide <| P fun _ => a) else decide (P h.elim)
+  reflects_decide :=
+    match hp with
+    | isTrue h =>
+      match hα (fun a => decide <| P fun _ => a) with
+      | isTrue h2 => fun f => of_decide_eq_true (h2 (f h))
+      | isFalse h2 => fun h' => h2 fun _ => decide_eq_true (h' _)
+    | isFalse h => show (decide (P h.elim)).Reflects (∀ h, P h) from
+      match hP h.elim with
+      | isTrue h2 => fun f => (funext (fun h' => absurd h' h) : f = h.elim) ▸ h2
+      | isFalse h2 => fun h' => absurd (h' _) h2
 
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
@@ -655,12 +681,12 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline, expose] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+abbrev decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
 This is the same as `decidable_of_iff` but the iff is flipped. -/
-@[inline, expose] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
+abbrev decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
   decidable_of_decidable_of_iff h.symm
 
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
@@ -669,11 +695,12 @@ instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
 instance [DecidablePred p] : DecidablePred (p ∘ f) :=
   fun x => inferInstanceAs (Decidable (p (f x)))
 
-/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
-(This is sometimes taken as an alternate definition of decidability.) -/
-@[expose] def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
-  | true, h => isTrue (h.1 rfl)
-  | false, h => isFalse (mt h.2 Bool.noConfusion)
+/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`. -/
+abbrev decidable_of_bool (b : Bool) (h : b ↔ a) : Decidable a :=
+  Decidable.intro b
+    (match b, h with
+    | true, h => h.1 rfl
+    | false, h => mt h.2 Bool.noConfusion)
 
 protected theorem Decidable.not_forall {p : α → Prop} [Decidable (∃ x, ¬p x)]
     [∀ x, Decidable (p x)] : (¬∀ x, p x) ↔ ∃ x, ¬p x :=
@@ -931,4 +958,3 @@ theorem Bool.dite_else_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : 
 
 @[deprecated Bool.dite_false_right_eq_false (since := "2026-07-21")]
 theorem Bool.dite_else_false_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else Bool.false) = Bool.false ↔ ∀ (h : p), x h = Bool.false := Bool.dite_false_right_eq_false
-

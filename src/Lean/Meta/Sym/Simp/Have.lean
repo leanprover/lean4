@@ -255,7 +255,7 @@ def toHave (e : Expr) (varDeps : Array (Array Nat)) : SymM Expr :=
       let varPos := varDeps[i]
       let ys := varPos.map fun i => xs[i]!
       let type := consumeForallN t varPos.size
-      let val ← share <| args[i].betaRev ys
+      let val ← share <| args[i].beta ys
       withLetDecl (nondep := true) n type val fun x => do
       go b (xs.push (← share x)) (i+1)
     else

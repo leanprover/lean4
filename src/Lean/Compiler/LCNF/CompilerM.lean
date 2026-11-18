@@ -558,7 +558,7 @@ def register [BEq α] [Hashable α] [Inhabited β] :
     IO (CacheExtension α β) :=
   CacheExtension.mk <$> registerEnvExtension (pure ([], {})) (asyncMode := .sync)  -- compilation is non-parallel anyway
     (replay? := some fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      let newEntries := takeNewEntries newState.1 oldState.1
       newEntries.foldl (init := s) fun s e =>
         (e :: s.1, s.2.insert e (newState.2.find! e)))
 

@@ -162,6 +162,9 @@ def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
 
+def ChoiceResolutionInfo.format (ctx : ContextInfo) (info : ChoiceResolutionInfo) : Format :=
+  f!"[ChoiceResolution] alternative {info.chosenAltIdx} of {info.stx.getNumArgs} ({(info.stx.getArg info.chosenAltIdx).getKind}) @ {formatStxRange ctx info.stx}"
+
 def DocInfo.format (ctx : ContextInfo) (info : DocInfo) : Format :=
   f!"[Doc] {info.stx.getKind} @ {formatElabInfo ctx info.toElabInfo}"
 
@@ -169,23 +172,24 @@ def DocElabInfo.format (ctx : ContextInfo) (info : DocElabInfo) : Format :=
   f!"[DocElab] {info.name} ({repr info.kind}) @ {formatElabInfo ctx info.toElabInfo}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
-  | ofTacticInfo i         => i.format ctx
-  | ofTermInfo i           => i.format ctx
-  | ofPartialTermInfo i    => pure <| i.format ctx
-  | ofCommandInfo i        => i.format ctx
-  | ofMacroExpansionInfo i => i.format ctx
-  | ofOptionInfo i         => i.format ctx
-  | ofErrorNameInfo i      => i.format ctx
-  | ofFieldInfo i          => i.format ctx
-  | ofCompletionInfo i     => i.format ctx
-  | ofUserWidgetInfo i     => pure <| i.format
-  | ofCustomInfo i         => pure <| Std.ToFormat.format i
-  | ofFVarAliasInfo i      => pure <| i.format
-  | ofFieldRedeclInfo i    => pure <| i.format ctx
-  | ofDelabTermInfo i      => i.format ctx
-  | ofChoiceInfo i         => pure <| i.format ctx
-  | ofDocInfo i            => pure <| i.format ctx
-  | ofDocElabInfo i        => pure <| i.format ctx
+  | ofTacticInfo i           => i.format ctx
+  | ofTermInfo i             => i.format ctx
+  | ofPartialTermInfo i      => pure <| i.format ctx
+  | ofCommandInfo i          => i.format ctx
+  | ofMacroExpansionInfo i   => i.format ctx
+  | ofOptionInfo i           => i.format ctx
+  | ofErrorNameInfo i        => i.format ctx
+  | ofFieldInfo i            => i.format ctx
+  | ofCompletionInfo i       => i.format ctx
+  | ofUserWidgetInfo i       => pure <| i.format
+  | ofCustomInfo i           => pure <| Std.ToFormat.format i
+  | ofFVarAliasInfo i        => pure <| i.format
+  | ofFieldRedeclInfo i      => pure <| i.format ctx
+  | ofDelabTermInfo i        => i.format ctx
+  | ofChoiceInfo i           => pure <| i.format ctx
+  | ofChoiceResolutionInfo i => pure <| i.format ctx
+  | ofDocInfo i              => pure <| i.format ctx
+  | ofDocElabInfo i          => pure <| i.format ctx
 
 def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
   match ctx with

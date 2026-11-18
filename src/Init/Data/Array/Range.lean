@@ -148,9 +148,10 @@ theorem count_range_1' {a s n} :
 
 /-! ### range -/
 
-@[grind _=_]
 theorem range_eq_range' {n : Nat} : range n = range' 0 n := by
   simp [range, range']
+
+grind_pattern range_eq_range' => range n, range' 0 n
 
 theorem range_succ_eq_map {n : Nat} : range (n + 1) = #[0] ++ map succ (range n) := by
   ext i h₁ h₂

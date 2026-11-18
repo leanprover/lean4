@@ -25,9 +25,21 @@ def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name
   unless thms.lemmaNames.isEmpty do
     throwError "`grind` normalization theorems have already been initialized"
   for declName in preDeclNames do
-    addSimpTheorem normExt declName (post := false) (inv := false) .global (eval_prio default)
+    addNormTheorem declName (post := false) (inv := false) .global
   for declName in postDeclNames do
-    addSimpTheorem normExt declName (post := true) (inv := false) .global (eval_prio default)
+    addNormTheorem declName (post := true) (inv := false) .global
+  -- The legacy `pushNot` simproc builds `b + 1 ≤ a` from `¬a ≤ b` by hand, using these theorems
+  -- only as proofs, so they are not in the `[grind norm]` set. The `Sym.simp` normalizer applies
+  -- them as rewrite rules instead, and `arith` normalizes the result.
+  -- TODO: tag them `[grind norm]` and delete the `Nat`/`Int` cases of the legacy `pushNot`.
+  normSymExt.add (.pre (← Sym.Simp.mkTheoremFromDecl ``Nat.not_le_eq)) .global
+  normSymExt.add (.pre (← Sym.Simp.mkTheoremFromDecl ``Int.not_le_eq)) .global
+  -- The declarations `getNormTheorems` unfolds.
+  addNormSymDeclToUnfold ``GE.ge .global
+  addNormSymDeclToUnfold ``GT.gt .global
+  addNormSymDeclToUnfold ``Nat.cast .global
+  addNormSymDeclToUnfold ``Bool.xor .global
+  addNormSymDeclToUnfold ``Ne .global
 
 -- TODO: should we make this extensible?
 private def isBoolEqTarget (declName : Name) : Bool :=
@@ -100,8 +112,8 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
    | Nat => return .visit { expr := mkNatLE (mkNatAdd b (mkNatLit 1)) a, proof? := some <| mkApp2 (mkConst ``Nat.not_le_eq) a b }
    | _ => return .continue
  | _ =>
-  if let .forallE n α b info := e then
-    if α.isProp && !b.hasLooseBVars then
+  if let .forallE n α b info := p then
+    if !b.hasLooseBVars && (← isProp α) then
       return .visit { expr := mkAnd α (mkNot b), proof? := some <| mkApp2 (mkConst ``Grind.not_implies) α b }
     else
       let p    := mkLambda n info α b
@@ -201,11 +213,5 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
         implicitDefEqProofs := false })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
-
-set_option compiler.ignoreBorrowAnnotation true in
-@[export lean_grind_normalize]
-def normalizeImp (e : Expr) (config : Grind.Config) : MetaM Expr := do
-  let (r, _) ← Meta.simp e (← Grind.getSimpContext config) (← Grind.getSimprocs)
-  return r.expr
 
 end Lean.Meta.Grind

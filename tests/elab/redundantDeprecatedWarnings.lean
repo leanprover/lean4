@@ -10,7 +10,16 @@ def baz (x : Nat) := x + 1
 @[deprecated foo (since:="2025-06-23")]
 def baz2 (x : Nat) := x + 1
 
-@[simp,deprecated bar (since:="2025-06-23")]
+/--
+warning: `qux` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵deprecated bar +typeChanged (since:="2025-06-23")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp,deprecated bar +typeChanged (since:="2025-06-23")]
 theorem qux (x : Nat) : foo x = baz x := rfl
 
 @[deprecated bar (since:="2025-06-23")]
@@ -18,7 +27,16 @@ theorem quux (x : Nat) : foo x = x + 1 := by
   rw [qux x]
   rfl
 
-@[simp, deprecated bar (since:="2025-06-23")]
+/--
+warning: `qux2` is deprecated, but the `[simp]` attribute lets automation use it without a deprecation warning
+
+Hint: Remove the attribute:
+  @[s̵i̵m̵p̵,̵ ̵deprecated bar +typeChanged (since:="2025-06-23")]
+
+Note: Removing the attribute may break proofs that rely on it. If it needs to be kept for now, this warning can be disabled with `set_option linter.deprecated.automationAttr false in`
+-/
+#guard_msgs in
+@[simp, deprecated bar +typeChanged (since:="2025-06-23")]
 theorem qux2 (x : Nat) : foo x = baz x := rfl
 
 @[deprecated "test" (since:="2025-06-23")]
@@ -51,7 +69,12 @@ def myFun (n : Nat) : Nat := Id.run do
 instance : BEq Nat where
   beq m n := m == baz n
 
-/-- warning: `baz` has been deprecated: Use `foo` instead -/
+/--
+warning: `baz` has been deprecated: Use `foo` instead
+
+Hint: Replace the deprecated name:
+  b̵a̵z̵f̲o̲o̲
+-/
 #guard_msgs in
 mutual
   inductive NotDep : Prop where

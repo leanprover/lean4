@@ -33,7 +33,9 @@ def zetaDeltaTarget (declFVarId : FVarId) : TacticM Unit := do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := withMainContext <| withRef declNameId do
-    let e ← withoutRecover <| elabTermForApply declNameId (mayPostpone := false)
+    -- Unfolding acts on occurrences that are already in the goal, so deprecated constants are not reported.
+    let e ← withoutRecover <| Term.withoutCheckDeprecated <|
+      elabTermForApply declNameId (mayPostpone := false)
     match e with
     | .const declName _ =>
       withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")

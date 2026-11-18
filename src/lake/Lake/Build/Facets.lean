@@ -80,6 +80,10 @@ public structure ModuleImportInfo where
   allTransTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module without the module system enabled. -/
   legacyTransTrace : BuildTrace
+  /-- The trace produced by mixing the `leanir` traces of `directArts` with their transitive imports. -/
+  irSigTrace : BuildTrace
+  /-- Transitive import trace for a `leanir` run over an importer of the module. -/
+  irSigTransTrace : BuildTrace
   deriving Inhabited
 
 /-- **For internal use only.** Information about the imports of this module. -/
@@ -93,8 +97,16 @@ public structure ModuleExportInfo where
   arts : ImportArtifacts
   /-- The trace of the module's public olean. -/
   artsTrace : BuildTrace
-  /-- The trace of the module's public olean and IR. -/
+  /-- Transitive import trace for an `import` of the module with the module system enabled. -/
+  transTrace : BuildTrace
+  deriving Inhabited
+
+/-- Information useful to importers of a module. Includes IR. -/
+public structure ModuleMetaExportInfo extends ModuleExportInfo where
+  /-- The trace of the module's public olean and IR (i.e., what a `meta import` needs). -/
   metaArtsTrace : BuildTrace
+  /-- The trace of the module's public olean and IR signature (i.e., what `leanir` needs). -/
+  irSigArtsTrace : BuildTrace
   /--
   Artifacts directly needed for an `import` of the module from a module without the module
   system enabled or `import all` of the module from a module with it enabled.
@@ -102,18 +114,21 @@ public structure ModuleExportInfo where
   allArts : ImportArtifacts
   /-- The trace produced by mixing the traces of `allArts`. -/
   allArtsTrace : BuildTrace
-  /-- Transitive import trace for an `import` of the module with the module system enabled. -/
-  transTrace : BuildTrace
   /-- Transitive import trace for a `meta import` of the module. -/
   metaTransTrace : BuildTrace
   /-- Transitive import trace for an `import all` of the module. -/
   allTransTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module without the module system enabled. -/
   legacyTransTrace : BuildTrace
+  /-- Transitive import trace for a `leanir` run over an importer of the module. -/
+  irSigTransTrace : BuildTrace
   deriving Inhabited
 
 /-- **For internal use only.** Information useful to importers of this module. -/
 builtin_facet exportInfo : Module => ModuleExportInfo
+
+/-- **For internal use only.** Information useful to `meta` importers of this module. -/
+builtin_facet metaExportInfo : Module => ModuleMetaExportInfo
 
 /-- Artifacts directly needed for an `import` of this module with the module system enabled. -/
 builtin_facet importArts : Module => ImportArtifacts
@@ -131,6 +146,12 @@ of the module (e.g., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
+
+/-- The artifacts of a Lean module's elaboration (e.g., `.olean`, `.ilean`). -/
+builtin_facet elabArts : Module => ModuleOutputArtifacts
+
+/-- The artifacts of a Lean module's code generation (e.g., `.ir.sig`, `.ir`, `.c`). -/
+builtin_facet irArts : Module => ModuleOutputArtifacts
 
 /-- A compressed archive (produced via `leantar`) of the module's build artifacts. -/
 builtin_facet ltar : Module => FilePath
@@ -203,16 +224,34 @@ builtin_facet linkInfoNoExport : Module => ModuleLinkInfo
 /-! ## Package Facets -/
 
 /--
-A package's *optional* cached build archive (e.g., from Reservoir or GitHub).
-Will NOT cause the whole build to fail if the archive cannot be fetched.
+A package's *optional* cached build.
+Will NOT cause the whole build to fail if the cache cannot be fetched.
+
+Either a build archive from Reservoir or GitHub, or
+an artifact cache from the package's `downloadCacheService`.
 -/
 builtin_facet optBuildCacheFacet @ optCache : Package => Bool
 
 /--
-A package's cached build archive (e.g., from Reservoir or GitHub).
-Will cause the whole build to fail if the archive cannot be fetched.
+A package's cached build.
+Will cause the whole build to fail if the cache cannot be fetched.
+
+Either a build archive from Reservoir or GitHub, or
+an artifact cache from the package's `downloadCacheService`.
 -/
 builtin_facet buildCacheFacet @ cache : Package => Unit
+
+/--
+A package's *optional* artifact cache from its `downloadCacheService`.
+Will NOT cause the whole build to fail if the cache cannot be fetched.
+-/
+builtin_facet optArtifactCache : Package => Bool
+
+/--
+A package's artifact cache from its `downloadCacheService`.
+Will cause the whole build to fail if the cache cannot be fetched.
+-/
+builtin_facet artifactCache : Package => Unit
 
 /--
 A package's *optional* build archive from Reservoir.
@@ -246,7 +285,13 @@ builtin_facet extraDep : Package => Unit
 /-- The library's default facets (as specified by its `defaultFacets` configuration). . -/
 builtin_facet default : LeanLib => Unit
 
-/-- A Lean library's Lean artifacts (e.g., `olean`, `ilean`, `c`). -/
+/-- A Lean library's Lean artifacts (e.g., `olean`, `ilean`). -/
+builtin_facet elabArts : LeanLib => Unit
+
+/-- A Lean library's Lean artifacts (e.g., `ir`, `ir.sig`, `c`). -/
+builtin_facet irArts : LeanLib => Unit
+
+/-- A Lean library's Lean artifacts. -/
 builtin_facet leanArts : LeanLib => Unit
 
 /-- A Lean library's static artifact. -/

@@ -8,12 +8,14 @@ module
 prelude
 public import Init.Control.Do
 public import Lean.Data.LOption
+public import Lean.Data.BudgetedCache
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
+import all Lean.Environment  -- for accessing `Environment.synthCacheRaw?`
 import Init.While
 
 public section
@@ -31,6 +33,8 @@ They are packed into the `MetaM` monad.
 namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
+/-- See `Config.stringLitToCtor`. -/
+builtin_initialize stringLitToCtorExceptionId : InternalExceptionId ← registerInternalExceptionId `stringLitToCtor
 
 /-- NOTE: value purely intended for equality comparison, *NOT* following the transparency lattice. -/
 def TransparencyMode.toUInt64 : TransparencyMode → UInt64
@@ -209,6 +213,15 @@ structure Config where
   Ignored if `Context.customCanUnfoldPredicate?` is set.
   -/
   canUnfoldPredicateConfig : CanUnfoldPredicateConfig := .default
+  /--
+  If `true`, `whnf` and `isDefEq` convert a `String` literal into the constructor application
+  `String.ofList [c₁, ..., cₙ]` when a reduction step needs its constructor, e.g., to reduce
+  `String.decEq` on two literals. The reductions enabled by this conversion are linear in the
+  size of the literal.
+  If `false`, the internal exception `stringLitToCtor` is thrown instead of performing the
+  conversion. See `withoutStringLitToCtor`.
+  -/
+  stringLitToCtor : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -232,6 +245,7 @@ private def Config.toKey (c : Config) : UInt64 :=
   (c.proj.toUInt64 <<< 19) |||
   (c.zetaHave.toUInt64 <<< 21) |||
   (c.zetaUnused.toUInt64 <<< 22) |||
+  (c.stringLitToCtor.toUInt64 <<< 24) |||
   (c.canUnfoldPredicateConfig.toBool.toUInt64 <<< 23)
 
 /-- Configuration with key produced by `Config.toKey`. -/
@@ -359,6 +373,35 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  The maximum result size (`synthInstance.maxSize` unless overridden by the caller). It prunes
+  answers during the search, so a result, success or failure, obtained under a different limit must
+  not be reused.
+  -/
+  maxResultSize     : Nat
+  /--
+  The definitional-equality and unfolding flags in effect for the query
+  (`Core.Context.optionFlags`). Being part of the key, the search reads them without recording;
+  other options are recorded per entry (`SynthInstanceCacheEntry.deps`).
+  -/
+  optionFlags       : OptionFlags
+  /--
+  Whether `trace.Meta.synthInstance` is enabled. With the trace enabled, a query is thus only served
+  from the cache if it was already traced.
+  -/
+  tracing           : Bool
+  /--
+  `Environment.isExporting`, which determines the instances and definition bodies visible to the
+  query: results of the public and the private scope must not be shared.
+  -/
+  isExporting       : Bool
+  /--
+  For a key whose free variables are normalized (see `Lean.Meta.SynthNorm`), these are the types of
+  the free variables `type` mentions, by canonical position. Free variables are abstracted to loose
+  bound variables, so that structurally identical queries in different local contexts share an
+  entry. Empty for other keys.
+  -/
+  normFVarTypes     : Array Expr := #[]
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -371,7 +414,102 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/--
+The local instances a cached type class resolution result depends on: the local instances of the
+consulted classes (`RecordedDeps.localInstClasses`), with free variables normalized jointly with the
+query type, together with the types of those free variables by canonical position.
+-/
+structure SynthInstanceRelevantLocalInsts where
+  /--
+  The classes whose local instances the search consulted. A context is matched by its local
+  instances of these classes, in order, and ignoring all others.
+  -/
+  classes         : Array Name
+  /--
+  The local instances of `classes` in the context of the search, with each free variable replaced by
+  a loose bound variable for its canonical position. The free variables of the query type come first,
+  so a position means the same in the key and here.
+  -/
+  canonLocalInsts : LocalInstances
+  /--
+  The type of each free variable by canonical position, abstracted over the preceding ones: those of
+  the query type, the local instances and, transitively, their types. Equal values mean the contexts
+  agree up to renaming of free variables.
+  -/
+  fvarTypes       : Array Expr
+  deriving BEq
+
+/-- A type class resolution result together with the dependencies it was computed under. -/
+structure SynthInstanceCacheEntry where
+  deps    : RecordedDeps
+  result? : Option AbstractMVarsResult
+
+/--
+An entry keyed by the query type alone (normalized over its own free variables): it is valid in a
+context whose local instances of `relevant.classes` normalize to `relevant.canonLocalInsts`.
+-/
+structure SynthInstanceSharedEntry extends SynthInstanceCacheEntry where
+  relevant : SynthInstanceRelevantLocalInsts
+
+/--
+Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
+records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
+recorded dependencies still hold in the current context. What the search never observes does not
+partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`), the
+changes of the global instances of the consulted classes (`RecordedDeps.instClassChanges`), the
+generations of the other generation-tracked extensions read, i.e. unification hints
+(`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
+against whose later changes of declaration-keyed state the entry is validated. The search runs with
+`Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
+panics.
+
+A result is stored in `raw` under its raw key, with the query type and all local instances, and in
+`shared` under the query type alone with its free variables normalized, for contexts whose local
+instances of the consulted classes agree (`SynthInstanceSharedEntry.relevant`). `shared` keeps only
+the `maxSharedEntries` most recent entries per key, bounding the scan on a lookup and the growth of
+the persistent tier.
+
+The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
+current `Meta.State`. Context-free entries are also stored in the persistent tier,
+`Environment.synthCache`, which serves them in later commands. The persistent tier rolls back
+together with the environment, and thus with the counters its entries are validated against.
+
+These counters roll back with the environment, after which a different change can bring them back.
+The entries in the transient tier survive `SavedState.restore`, which therefore drops those the
+rollback invalidates (`SynthInstanceCache.rollBack`) and carries the latest recording start
+(`Environment.raiseRecordingConstGen`) over, so that changes the surviving entries depend on stay
+logged. Restoring a state with constants the current environment lacks, such as `Term.observing`
+followed by `applyResult`, instead takes the cache saved with that state, which is consistent with
+the restored environment and still has the entries the preceding rollback dropped.
+
+As the cache survives rollbacks, custom metaprograms that roll back the environment bypassing
+`SavedState.restore` (e.g. `Core.SavedState.restore` in lifted `CoreM` code) and then change it
+without clearing the cache (e.g. through `liftCommandElabM`) should call `resetSynthInstanceCache`,
+as otherwise a stale entry can be revalidated.
+-/
+structure SynthInstanceCache where
+  raw    : PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry) := {}
+  shared : PersistentHashMap SynthInstanceCacheKey (List SynthInstanceSharedEntry) := {}
+  deriving Inhabited
+
+/--
+Persistent tier of the type class resolution cache, which survives the current command. It holds
+only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
+rolls back together with the counters its entries are validated against. A change of the instances
+in effect only invalidates the entries whose search consulted the class it affects
+(`RecordedDeps.instClassChanges`): an invalidated entry is rejected when it is looked up (see
+`RecordedDeps`), and replaced when its query is stored again.
+-/
+def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
+  match env.synthCacheRaw? with
+  -- safety: only `setSynthCache` stores a value
+  | some v => unsafe unsafeCast v
+  | none   => {}
+
+/-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
+def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
+    Environment :=
+  { env with synthCacheRaw? := some (unsafe unsafeCast c) }
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -388,9 +526,14 @@ instance : BEq ExprConfigCacheKey where
 instance : Hashable ExprConfigCacheKey where
   hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
-abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
-abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
-abbrev WhnfCache      := PersistentHashMap ExprConfigCacheKey Expr
+instance : BudgetedBEq ExprConfigCacheKey where
+  beq a b budget := do
+    if a.configKey != b.configKey then return .false
+    a.expr.equalBudgeted b.expr budget
+
+abbrev InferTypeCache  := BudgetedCache ExprConfigCacheKey Expr
+abbrev FunInfoCache    := PersistentHashMap InfoCacheKey FunInfo
+abbrev WhnfCache       := PersistentHashMap ExprConfigCacheKey Expr
 
 structure DefEqCacheKey where
   private mk ::
@@ -410,6 +553,29 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
+Maximum number of entries in each generation of `UnfoldCache`. On Mathlib, larger limits barely
+reduce the instruction count further but keep many more unfolded values alive.
+-/
+def unfoldCacheLimit : Nat := 1024
+
+/--
+Two-generation cache: entries are inserted into `new`; when it reaches `unfoldCacheLimit` entries,
+it becomes `old` and the previous `old` is dropped. A hit in `old` is copied back into `new`. This
+keeps recently used entries while bounding the cache to `2 * unfoldCacheLimit` entries.
+-/
+structure UnfoldCache where
+  new     : PersistentExprStructMap Expr := {}
+  old     : PersistentExprStructMap Expr := {}
+  newSize : Nat := 0
+  deriving Inhabited
+
+def UnfoldCache.insert (c : UnfoldCache) (k : ExprStructEq) (v : Expr) : UnfoldCache :=
+  if c.newSize < unfoldCacheLimit then
+    { c with new := c.new.insert k v, newSize := c.newSize + 1 }
+  else
+    { new := ({} : PersistentExprStructMap Expr).insert k v, old := c.new, newSize := 1 }
+
+/--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
@@ -419,6 +585,12 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
+  /--
+  Default unfoldings of applications of definitions (see `unfoldDefinition?`): the value of the head
+  constant at its universe levels, beta-reduced with the arguments. This only depends on the
+  application and the environment, whose existing constants never change.
+  -/
+  unfold         : UnfoldCache := {}
   deriving Inhabited
 
 /--
@@ -620,10 +792,44 @@ instance : AddMessageContext MetaM where
 protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), «meta» := (← get) }
 
+/--
+Drops the entries a rollback to an environment `env` invalidates: those stamped after changes it
+undoes, i.e. with a larger `trackedGen` or declaration change log position (along one environment
+branch both only grow), and those recorded after constants it removes, as a constant of the same
+name added later would count as unobserved (`Environment.checkDeclChangeLog`).
+-/
+def SynthInstanceCache.rollBack (c : SynthInstanceCache) (env : Environment) : SynthInstanceCache :=
+  { raw := rollBackEntries (·.deps) c.raw, shared := rollBackEntries (·.deps) c.shared }
+where
+  rollBackEntries {α} (deps : α → RecordedDeps)
+      (m : PersistentHashMap SynthInstanceCacheKey (List α)) :=
+    m.foldl (init := m) fun m key entries =>
+      match entries.filter fun e =>
+          (deps e).baseTrackedGen ≤ env.trackedGen &&
+          (deps e).baseChangeLogPos ≤ env.declChangeLog.size &&
+          (deps e).baseConstGen ≤ env.constGen with
+      | []       => m.erase key
+      | entries' => if entries'.length == entries.length then m else m.insert key entries'
+
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
+  -- `Meta.Cache` is kept, except for the type class resolution cache; see `SynthInstanceCache`.
+  let env ← getEnv
+  let restored := b.core.env
+  let stampsRolledBack := env.trackedGen != restored.trackedGen ||
+    env.declChangeLog.size != restored.declChangeLog.size || env.constGen != restored.constGen
   b.core.restore
-  modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+  -- The surviving entries may have observed declarations up to the latest recording start, so
+  -- changes to those must stay logged.
+  modifyThe Core.State fun s =>
+    { s with env := s.env.raiseRecordingConstGen env.recordingConstGen }
+  modify fun s => { s with
+    mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed
+    cache := if restored.constGen > env.constGen then
+      { s.cache with synthInstance := b.meta.cache.synthInstance }
+    else if stampsRolledBack then
+      { s.cache with synthInstance := s.cache.synthInstance.rollBack restored }
+    else s.cache }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
 def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : MetaM α) :
@@ -683,13 +889,16 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
+
+@[inline] def modifyUnfoldCache (f : UnfoldCache → UnfoldCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, f unfold⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
@@ -707,7 +916,9 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
 
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
+/-- Resets both tiers of the type class resolution cache; see `SynthInstanceCache`. -/
+def resetSynthInstanceCache : MetaM Unit := do
+  modifyThe Core.State fun s => { s with env := { s.env with synthCacheRaw? := none } }
   modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
@@ -1196,6 +1407,13 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
     let config := f ctx.config
     { ctx with keyedConfig := { config } }
 
+/--
+Executes `x` with `Config.stringLitToCtor := false`. That is, `x` is interrupted with the internal
+exception `stringLitToCtor` if a reduction step needs the constructor of a `String` literal.
+-/
+@[inline] def withoutStringLitToCtor : n α → n α :=
+  withConfig ({ · with stringLitToCtor := false })
+
 @[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
     let config := c.config
@@ -1304,8 +1522,10 @@ private def Context.setTransparency (ctx : Context) (transparency : Transparency
   { ctx with keyedConfig := ctx.keyedConfig.setTransparency transparency }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  -- We avoid `withConfig` for performance reasons.
-  mapMetaM <| withReader (·.setTransparency mode)
+  -- We avoid `withConfig` for performance reasons. `setTransparency` rebuilds `Config`,
+  -- `ConfigWithKey` and `Context`, so skip it when the mode is already in effect.
+  mapMetaM <| withReader fun ctx =>
+    if ctx.config.transparency == mode then ctx else ctx.setTransparency mode
 
 /-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
@@ -1338,8 +1558,7 @@ Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
-    let modeOld := ctx.config.transparency
-    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
+    if ctx.config.transparency.lt mode then ctx.setTransparency mode else ctx
 
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
@@ -1974,7 +2193,7 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
     unless decl.isImplementationDetail do
       if let some className ← isClass? decl.type then
         -- Ensure we don't add the same local instance multiple times.
-        unless localInsts.any fun localInst => localInst.fvar.fvarId! == decl.fvarId do
+        unless localInsts.any fun localInst => localInst.fvar.isFVarOf decl.fvarId do
           localInsts := localInsts.push { className, fvar := decl.toExpr }
   if localInsts.size == size then
     k
@@ -2058,7 +2277,7 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let lctx' := fvarIds.foldl (·.erase ·) lctx
-  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  let localInsts' := localInsts.eraseAll fvarIds.contains
   withLCtx lctx' localInsts' k
 
 /--
@@ -2270,7 +2489,8 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   return (res, e)
 
 def getPPContext : MetaM PPContext := do
-  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+  -- unrestricted: message rendering only
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptionsUnrestricted),
            currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
 
 /-- Pretty-print the given expression. -/
@@ -2557,9 +2777,13 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
 def isDefEqD (t s : Expr) : MetaM Bool :=
   withDefault <| isDefEq t s
 
-/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+/--
+Similar to `isDefEq`, but uses `.implicit` transparency: only `[reducible]`, `[instance_reducible]`,
+and `[implicit_reducible]` definitions can be unfolded. This is the transparency `isDefEq` uses
+for instance-implicit arguments, so it is the right choice for comparing instances.
+-/
 def isDefEqI (t s : Expr) : MetaM Bool :=
-  withReducibleAndInstances <| isDefEq t s
+  withImplicit <| isDefEq t s
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--
@@ -2591,7 +2815,8 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     return e
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  -- unrestricted: profiler collection only
+  profileitM Exception s!"instantiate metavars" (← getOptionsUnrestricted) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
     instantiateMVars e
 
@@ -2666,7 +2891,10 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : 
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (realize : MetaM Dynamic) (coreCtx : Core.Context) env opts := do
-    let coreCtx := { coreCtx with options := opts }
+    let coreCtx := { coreCtx with
+      options := opts
+      optionFlags := .ofOptions opts, optionFlags_eq := rfl
+    }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
@@ -2709,6 +2937,8 @@ achieve deterministic results despite the non-deterministic choice of which thre
 realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
 called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
 visible only after calling `realizeConst`. See below for more details on the replayed effects.
+Consequently, if `realize` depends on multiple constants, `forConst` must be one whose realization
+environment contains all others; see `Environment.realizationEnvContains`.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed
@@ -2745,7 +2975,8 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
-        logError <| ex.toMessageData (← getOptions)
+        -- unrestricted: message rendering only
+        logError <| ex.toMessageData (← getOptionsUnrestricted)
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)
@@ -2767,6 +2998,7 @@ where
   realizeAndReport (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with
       options := opts
+      optionFlags := .ofOptions opts, optionFlags_eq := rfl
       maxHeartbeats := Core.getMaxHeartbeats opts
     }
     let act :=
@@ -2816,8 +3048,7 @@ namespace PPContext
 def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
   Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
                         openDecls := ppCtx.openDecls
-                        fileName := "<PrettyPrinter>", fileMap := default
-                        diag     := getDiag ppCtx.opts }
+                        fileName := "<PrettyPrinter>", fileMap := default }
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
@@ -2829,6 +3060,9 @@ end PPContext
 Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
 The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
 comprise the expressions that are included in the message data.
+
+Runs with the default `Meta.Config`. To preserve the caller’s configuration, capture it with
+`getConfig` and restore it inside `f` using `withConfig`.
 -/
 def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
   .lazy

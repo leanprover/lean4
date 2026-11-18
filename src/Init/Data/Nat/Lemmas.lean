@@ -628,6 +628,33 @@ protected theorem mul_lt_mul_of_lt_of_lt {a b c d : Nat} (hac : a < c) (hbd : b 
     a * b < c * d :=
   Nat.mul_lt_mul_of_le_of_lt (Nat.le_of_lt hac) hbd (Nat.zero_lt_of_lt hac)
 
+/-- To compare two two-digit numbers in base `m`, you first compare the most significant digit and
+then compare the least significant digit. -/
+theorem mul_add_lt_iff_of_lt {a b c d m : Nat} (hc : c < m) (hd : d < m) :
+    a * m + c < b * m + d ↔ a < b ∨ (a = b ∧ c < d) := by
+  refine ⟨?_, ?_⟩
+  · rw [← Decidable.not_imp_not]
+    simp only [not_or, Nat.not_lt, not_and, and_imp]
+    intro h₁ h₂
+    obtain (h₁|rfl) := Nat.lt_or_eq_of_le h₁
+    · apply Nat.le_of_lt
+      calc b * m + d < b * m + m := Nat.add_lt_add_left hd (b * m)
+        _ = (b + 1) * m := (succ_mul b m).symm
+        _ ≤ a * m := mul_le_mul_right m h₁
+        _ ≤ a * m + c := le_add_right (a * m) c
+    · exact Nat.add_le_add_iff_left.mpr (h₂ rfl)
+  · rintro (h₁|⟨rfl, h₁⟩)
+    · calc a * m + c < a * m + m := Nat.add_lt_add_left hc (a * m)
+        _ = (a + 1) * m := (succ_mul a m).symm
+        _ ≤ b * m := mul_le_mul_right m h₁
+        _ ≤ b * m + d := le_add_right (b * m) d
+    · exact Nat.add_lt_add_left h₁ (a * m)
+
+theorem mul_add_le_iff_of_lt {a b c d m : Nat} (hc : c < m) (hd : d < m) :
+    a * m + c ≤ b * m + d ↔ a < b ∨ (a = b ∧ c ≤ d) := by
+  rw [← Nat.not_lt, mul_add_lt_iff_of_lt hd hc]
+  omega
+
 theorem succ_mul_succ (a b) : succ a * succ b = a * b + a + b + 1 := by
   rw [succ_mul, mul_succ]; rfl
 
@@ -1037,8 +1064,8 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   rw [Nat.mul_div_right _ (zero_lt_of_ne_zero hb), Nat.mul_comm]
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
-protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
+protected theorem div_lt_div_right (ha : a ≠ 0) (hc : a ∣ c) : b / a < c / a ↔ b < c := by
+  rw [div_lt_iff_lt_mul (Nat.pos_of_ne_zero ha), Nat.div_mul_cancel hc]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1049,7 +1076,7 @@ protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a)
     rw [Nat.pos_iff_ne_zero] <;> rintro rfl <;> simp at * <;> contradiction
 
 theorem lt_div_iff_mul_lt_of_dvd (hc : c ≠ 0) (hcb : c ∣ b) : a < b / c ↔ a * c < b := by
-  simp [← Nat.div_lt_div_right _ _ hcb, hc, Nat.pos_iff_ne_zero, Nat.dvd_mul_left]
+  simp [← Nat.div_lt_div_right _ hcb, hc, Nat.pos_iff_ne_zero]
 
 protected theorem div_mul_div_le (a b c d : Nat) :
     (a / b) * (c / d) ≤ (a * c) / (b * d) := by
@@ -1740,12 +1767,6 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
-
-grind_pattern shiftLeft_add => m <<< (n + k) where
-  m =/= 0
-
-grind_pattern shiftLeft_add => (m <<< n) <<< k where
-  m =/= 0
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]

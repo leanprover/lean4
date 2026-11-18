@@ -28,7 +28,7 @@ lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_neg(lean_object*);
 lean_object* l_List_findIdx_x3f_go___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_gcd(lean_object*);
+lean_object* l_Lean_Omega_IntList_gcdImpl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_toList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_ofList(lean_object*);
@@ -130,7 +130,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_gcd(lean_object* v_xs_21_){
 _start:
 {
 lean_object* v___x_22_; 
-v___x_22_ = l_Lean_Omega_IntList_gcd(v_xs_21_);
+v___x_22_ = l_Lean_Omega_IntList_gcdImpl(v_xs_21_);
 return v___x_22_;
 }
 }
@@ -339,11 +339,13 @@ return v___x_97_;
 }
 lean_object* runtime_initialize_Init_Omega_IntList(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega_IntList(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Omega_Coeffs(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Omega_IntList(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

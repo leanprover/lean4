@@ -1,0 +1,29 @@
+Input: "{foo}[abcdefg hijk\nmore text\n\nAfter\n"
+Failure: unexpected newline; expected ']'
+ --> 2:9
+  |
+2 | more text
+  |          ^
+  = consumed input prefix: 28 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.role
+       "{"
+       `foo
+       []
+       "}"
+       ["["]
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText
+          "abcdefg hijk"))
+        (Lean.Doc.Parser.Inline.linebreak "\n")
+        (Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "more text"))]
+       [<missing>])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -22,6 +22,7 @@ _start:
 {
 lean_object* v___x_3_; 
 v___x_3_ = l_Lean_Expr_cleanupAnnotations(v_e_2_);
+lean_dec_ref(v_e_2_);
 switch(lean_obj_tag(v___x_3_))
 {
 case 7:
@@ -92,11 +93,13 @@ return v_r_21_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_UnusedBinders(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -88,9 +88,6 @@ public opaque lookahead (s : @& Solver) : BaseIO Int32
 @[extern "lean_cadical_solver_reset_assumptions"]
 public opaque resetAssumptions (s : @& Solver) : BaseIO Unit
 
-@[extern "lean_cadical_solver_reset_constraint"]
-public opaque resetConstraint (s : @& Solver) : BaseIO Unit
-
 @[extern "lean_cadical_solver_status"]
 public opaque status (s : @& Solver) : BaseIO Status
 

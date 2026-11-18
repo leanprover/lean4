@@ -40,19 +40,22 @@ public def steady : State := ⟨4⟩
 public def adding : State := ⟨8⟩
 
 @[inline]
-public def solving : State := ⟨16⟩
+public def addingConstraint : State := ⟨16⟩
 
 @[inline]
-public def satisfied : State := ⟨32⟩
+public def solving : State := ⟨32⟩
 
 @[inline]
-public def unsatisfied : State := ⟨64⟩
+public def satisfied : State := ⟨64⟩
 
 @[inline]
-public def deleting : State := ⟨128⟩
+public def unsatisfied : State := ⟨128⟩
 
 @[inline]
-public def inconclusive : State := ⟨256⟩
+public def deleting : State := ⟨256⟩
+
+@[inline]
+public def inconclusive : State := ⟨512⟩
 
 @[inline]
 def ready : State :=
@@ -66,7 +69,7 @@ def ready : State :=
 
 @[inline]
 def valid : State :=
-  ⟨ready.bits ||| adding.bits⟩
+  ⟨ready.bits ||| adding.bits ||| addingConstraint.bits⟩
 
 @[inline]
 def invalid : State :=
@@ -90,6 +93,8 @@ public def toString (s : State) : String :=
     "STEADY"
   else if s == .adding then
     "ADDING"
+  else if s == .addingConstraint then
+    "ADDING_CONSTRAINT"
   else if s == .solving then
     "SOLVING"
   else if s == .satisfied then

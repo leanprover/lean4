@@ -165,12 +165,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_cadical_solver_reset_assumptions(b_lean
     return unit();
 }
 
-/* Solver.resetConstraint (s : @& Solver) : BaseIO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_cadical_solver_reset_constraint(b_lean_obj_arg s) {
-    to_solver(s)->reset_constraint();
-    return unit();
-}
-
 /* Solver.state (s : @& Solver) : BaseIO UInt16 */
 extern "C" LEAN_EXPORT uint16_t lean_cadical_solver_state(b_lean_obj_arg s) {
     return static_cast<uint16_t>(to_solver(s)->state());
@@ -377,7 +371,6 @@ LEAN_CADICAL_UNREACHABLE(lean_obj_res, lean_cadical_solver_constrain, b_lean_obj
 LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_constraint_failed, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(uint32_t, lean_cadical_solver_lookahead, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(lean_obj_res, lean_cadical_solver_reset_assumptions, b_lean_obj_arg)
-LEAN_CADICAL_UNREACHABLE(lean_obj_res, lean_cadical_solver_reset_constraint, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(uint16_t, lean_cadical_solver_state, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(uint8_t, lean_cadical_solver_status, b_lean_obj_arg)
 LEAN_CADICAL_UNREACHABLE(uint32_t, lean_cadical_solver_vars, b_lean_obj_arg)

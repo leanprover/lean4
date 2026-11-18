@@ -27,8 +27,11 @@ LEAN_EXPORT void reset_heartbeat();
 LEAN_EXPORT void set_max_heartbeat(size_t max);
 LEAN_EXPORT size_t get_max_heartbeat();
 
-/* Update the thread local max heartbeat */
-class LEAN_EXPORT scope_max_heartbeat : flet<size_t> {
+/* Update the thread local max heartbeat and reset the current count to 0 for the duration of its
+   scope */
+class LEAN_EXPORT scope_max_heartbeat {
+    flet<size_t> m_max;
+    flet<size_t> m_curr;
 public:
     LEAN_EXPORT scope_max_heartbeat(size_t max);
 };

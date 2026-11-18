@@ -38,7 +38,8 @@ extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
 
-LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
+LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max) :
+    m_max(g_max_heartbeat, max), m_curr(g_heartbeat, 0) {}
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {

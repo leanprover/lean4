@@ -301,9 +301,9 @@ def reduceMatchBySplitEq? (scope : Scope) (splitInfo : Lean.Elab.Tactic.Do.Split
     return some (e', prf)
   return none
 
-/-- Replace the target `C a` of `goal` by `target'`, which is `C a'`, given `prf : a = a'` and the
-function `C : α → Prop`. -/
-def replaceTargetEqFast (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM MVarId := do
+/-- Rewrite the target `C a` of `goal` to `target'`, which is `C a'`, by `congrArg C prf`, where
+`prf : a = a'` and `C : α → Prop`. -/
+def replaceTargetCongr (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM MVarId := do
   let target ← goal.getType
   let g' ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar target' (← goal.getTag)
   let hEq := mkApp6 (mkConst ``congrArg [← Sym.getLevel α, Level.one]) α (mkSort Level.zero) a a' C prf
@@ -344,11 +344,9 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
   let e := if inPre then pre else rhs
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e | return none
   if let some (e', prf) ← reduceMatchBySplitEq? scope splitInfo e then
-    let mkTarget (e : Expr) : Expr :=
-      if inPre then mkApp4 c α inst e rhs else mkApp4 c α inst pre e
     let target' ← if inPre then mkAppNS c #[α, inst, e', rhs] else mkAppNS c #[α, inst, pre, e']
-    let C := mkLambda `a .default α (mkTarget (.bvar 0))
-    return some [← replaceTargetEqFast goal α e e' C target' prf]
+    let targetC := if inPre then mkApp4 c α inst (.bvar 0) rhs else mkApp4 c α inst pre (.bvar 0)
+    return some [← replaceTargetCongr goal α e e' (mkLambda `a .default α targetC) target' prf]
   -- When every discriminant is closed, the `Sym.Simp.reduceControl` simproc of the verification
   -- condition simp set decides the split application.
   unless splitInfo.discriminants.any (·.hasFVar) do return none
@@ -499,9 +497,9 @@ def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
     let_expr c@PartialOrder.rel α inst pre _ := (← goal.getType) | return none
     let rhs' ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog')) info.excessArgs
     let target' ← mkAppNS c #[α, inst, pre, rhs']
-    let mkRhs (prog : Expr) : Expr := mkAppN (mkAppN info.head (info.args.set! 7 prog)) info.excessArgs
-    let C := mkLambda `p .default info.Prog (mkApp4 c α inst pre (mkRhs (.bvar 0)))
-    return some [← replaceTargetEqFast goal info.Prog info.prog prog' C target' prf]
+    let rhsC := mkAppN (mkAppN info.head (info.args.set! 7 (.bvar 0))) info.excessArgs
+    let C := mkLambda `p .default info.Prog (mkApp4 c α inst pre rhsC)
+    return some [← replaceTargetCongr goal info.Prog info.prog prog' C target' prf]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   applySplitRule goal rule info.prog
 

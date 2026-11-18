@@ -92,6 +92,10 @@ def wrapInnerLet (n : Nat) : Nat :=
   let y := Nat.add n (nat_lit 1)
   Nat.succ (Nat.add y y)
 
+def mkDefWithLet : Nat :=
+  let y := nat_lit 2
+  y
+
 /--
 Build a left-leaning `Nat.add` spine of `depth` steps containing `x` at each step and `leaf` at
 the bottom.
@@ -192,6 +196,18 @@ private def testWildcardAndUnassignedMVarCapture : MetaM Unit := do
       checkExprEq stepRes[1]! x s!"spine rhs at step {step}"
       cur := stepRes[0]!
     checkExprEq cur unassignedMv "spine bottom unassigned mvar"
+
+    -- Nested assigned mvar inside a captured subterm stays uninstantiated under `.structural`
+    -- (for `O(|pattern|)` perf), while `instantiateMVars` resolves it cleanly.
+    let nestedAssigned ← mkFreshExprMVar (mkConst ``Nat)
+    nestedAssigned.mvarId!.assign (mkNatLit 9)
+    let nestedCapTerm :=
+      mkApp2 (mkConst ``Nat.add) bigWildLhs (mkApp (mkConst ``Nat.succ) nestedAssigned)
+    let some xsNested ← pat.matchResolved? rel nestedCapTerm
+      | throwError "expected nested assigned mvar match"
+    check xsNested[0]!.hasExprMVar "expected uninstantiated nested assigned mvar under structural"
+    checkExprEq (← instantiateMVars xsNested[0]!)
+      (mkApp (mkConst ``Nat.succ) (mkNatLit 9)) "instantiated nested capture"
 
     -- Multi-occurrence wildcard must still be captured and checked for equality.
     let lamDupWild :=
@@ -593,6 +609,31 @@ private def testEnginesFlagsAndRewrap : MetaM Unit := do
   resetTraceState
   check (!hitLet100) "100-let term must not match Nat.zero"
   check (numDefEqTraces <= 2) s!"expected <= 2 top-level isDefEq traces, got {numDefEqTraces}"
+
+  -- 0-let constructor miss skips the 2nd zeta fallback `isDefEq` call (`<= 1` trace), while a
+  -- non-let surface def whose RHS unfolds to `let` (`mkDefWithLet`) still succeeds via fallback.
+  resetTraceState
+  let hitZeroMiss ← withOptions (·.setBool `trace.Meta.isDefEq true) do
+    match mkApp (mkConst ``Nat.succ) (mkConst ``Nat.zero) with
+    | `(expr/defeq| Nat.zero) => pure true
+    | _ => pure false
+  let numZeroTraces := (← getTraces).size
+  resetTraceState
+  check (!hitZeroMiss) "Nat.succ Nat.zero must not match Nat.zero"
+  check (numZeroTraces <= 1) s!"expected <= 1 isDefEq trace on ctor miss, got {numZeroTraces}"
+
+  let dupVarPat ← ExprPattern.compile {
+    levelParams := []
+    lam := mkLambda `a .default natTy <| mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkBVar 0)
+    numVars := 1
+    namedIdx := #[0]
+    firstOrder := #[true]
+  }
+  let defeqRel ← ({ engine := .defeq } : ExprMatchRel).resolve
+  let letTarget := mkApp2 (mkConst ``Nat.add) (mkConst ``mkDefWithLet) (mkRawNatLit 2)
+  let some dupRes ← dupVarPat.matchResolved? defeqRel letTarget
+    | throwError "expected /defeq fallback to unfold mkDefWithLet"
+  check (← isDefEq dupRes[0]! (mkRawNatLit 2)) "matched ?a must be defeq to 2"
 
   -- Head pin & higher-order pin under `structural +beta` and `structural[+testOpaqueDef]`.
   let addOneLam := mkLambda `z .default natTy (mkNatAdd (mkBVar 0) (mkNatLit 1))

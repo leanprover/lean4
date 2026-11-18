@@ -1,16 +1,24 @@
+/-
+Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andreas Reser
+-/
 module
 
 public import Lean
 
 /-!
-Spike A tests verifying `exprQuot` auxiliary pattern constants under the Lean module system
-(`public meta def`, `private meta def`, `@[expose] public def`, non-exposed `public def`,
-and `meta section`).
+Module-system tests for `expr` quotation matching (`public meta def`, `private meta def`,
+`@[expose] public def`, non-exposed `public def`, and `meta section`).
 -/
 
 open Lean Meta
 
-namespace ExprQuotSpikeAModule
+namespace ExprQuotMatchModule
+
+private meta def check (cond : Bool) (msg : String) : MetaM Unit := do
+  unless cond do
+    throwError msg
 
 public meta def pubMetaMatch (e : Expr) : MetaM Bool :=
   match e with
@@ -47,13 +55,14 @@ def insideMetaSection (e : Expr) : MetaM Nat := do
 
 end
 
+#guard_msgs in
 #eval show MetaM Unit from do
   let one := mkNatLit 1
   let add11 := mkNatAdd one one
-  assert! (← pubMetaMatch add11)
-  assert! (← privMetaMatch (mkNatAdd (mkNatLit 0) one)) == some one
-  assert! (← exposedNonMetaMatch (mkNatMul one one)) == 1
-  assert! (← publicNonExposedMatch add11) == 2
-  assert! (← insideMetaSection add11) == 1
+  check (← pubMetaMatch add11) "pubMetaMatch failed"
+  check ((← privMetaMatch (mkNatAdd (mkNatLit 0) one)) == some one) "privMetaMatch failed"
+  check ((← exposedNonMetaMatch (mkNatMul one one)) == 1) "exposedNonMetaMatch failed"
+  check ((← publicNonExposedMatch add11) == 2) "publicNonExposedMatch failed"
+  check ((← insideMetaSection add11) == 1) "insideMetaSection failed"
 
-end ExprQuotSpikeAModule
+end ExprQuotMatchModule

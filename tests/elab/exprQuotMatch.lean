@@ -1,14 +1,35 @@
+/-
+Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andreas Reser
+-/
 import Lean
 
 /-!
-Spike A tests for quasi-quoted `Expr` pattern matching (`(expr[rel]| ...)`),
-native `match`/`if let`/`let ... |`/`do` integration, `match (modulo := rel)`,
-join-point fall-through without code duplication, and error diagnostics.
+Tests for `Lean.Elab.ExprQuot` pattern elaboration and native `match`/`do` integration:
+- Syntax/tokenization coexistence (`expr + 1`, `(exprFoo)`, `(expression|$x)`, `(expr|$a + $b)`)
+- Basic, nonlinear `$x`, higher-order `?P x`, `?f ?a`, wildcard `_`/`?_`, `(?x : T)`, and stuck vs
+  concrete invalid typeclass synthesis (`1 + "hello"`, `(?x : Bool) + 1`, `toString ?x`)
+- Engines, `[items]`, `±flags`, `match (modulo := rel)`, and local `$v` relation items
+- Nested, multi-discriminant, `as`-pattern, or-pattern, struct pattern, and `do` integration
+  (`if let`, `let ... |`, `let ... <- ... |`, `let mut pat := ... |`, `backward.do.legacy true`)
+- Join-point fall-through (no code duplication), single discriminant evaluation, `sorryAx`-free
+  `match.ignoreUnusedAlts true`, deduplicated `exprPatExt` constants, and clean error diagnostics
+  (exhaustiveness, `match h : e`, repeated `?x`, type mismatch, redundancy, inaccessible position,
+  structured `MonadLiftT MetaM` check)
 -/
 
 open Lean Meta
 
-namespace ExprQuotSpikeA
+namespace ExprQuotMatchTest
+
+private def check (cond : Bool) (msg : String) : MetaM Unit := do
+  unless cond do
+    throwError msg
+
+private def checkTerm (cond : Bool) (msg : String) : Lean.Elab.TermElabM Unit := do
+  unless cond do
+    throwError msg
 
 /-! ## 1. Syntax & tokenization coexistence -/
 
@@ -39,7 +60,7 @@ def checkLeadingAntiquotWithSpace (a b : Expr) (e : Expr) : MetaM Bool := do
   | `(expr| $a + $b) => return true
   | _ => return false
 
-/-! ## 2. Basic matching, non-linear, HO, wildcards, pins, relations -/
+/-! ## 2. Basic, non-linear, HO, `(?x : T)`, stuck TC vs invalid TC, and relations -/
 
 def matchAddSplit (e : Expr) : MetaM (Option (Expr × Expr)) :=
   match e with
@@ -61,9 +82,29 @@ def matchHigherOrder (e : Expr) : MetaM (Option Expr) :=
   | `(expr| fun x => ?P x) => return some P
   | _ => return none
 
+def matchFirstOrderApp (e : Expr) : MetaM (Option (Expr × Expr)) :=
+  match e with
+  | `(expr| ?f ?a) => return some (f, a)
+  | _ => return none
+
 def matchConstBinder (e : Expr) : MetaM (Option Expr) :=
   match e with
   | `(expr| fun (_ : Nat) => ?c) => return some c
+  | _ => return none
+
+def matchTypeAscribedProj (e : Expr) : MetaM (Option Expr) :=
+  match e with
+  | `(expr| (?p : Nat × Nat).1) => return some p
+  | _ => return none
+
+def matchDefEqTypedBinder (e : Expr) : MetaM (Option Expr) :=
+  match e with
+  | `(expr/defeq| (?x : Nat)) => return some x
+  | _ => return none
+
+def matchStuckToStringImplicit (e : Expr) : MetaM (Option Expr) :=
+  match e with
+  | `(expr| toString ?x) => return some x
   | _ => return none
 
 abbrev myAbbrevId (n : Nat) : Nat := n
@@ -78,7 +119,8 @@ def testRelations (e : Expr) : MetaM (Array String) := do
     let _ := x; hits := hits.push "structural_def"
   if let `(expr/defeq| Nat.zero) := e then hits := hits.push "defeq_def_0"
   if let `(expr/structural[+myDefId]| Nat.zero) := e then hits := hits.push "structural_plus_item"
-  if let `(expr/reducible[-myAbbrevId]| Nat.zero) := e then hits := hits.push "reducible_minus_item"
+  if let `(expr/reducible[-myAbbrevId]| Nat.zero) := e then
+    hits := hits.push "reducible_minus_item"
   if let `(expr/structural[+simp]| Nat.zero) := e then hits := hits.push "simp_set_0"
   if let `(expr/structural +beta| Nat.add ?a Nat.zero) := e then
     if a == mkNatLit 2 then hits := hits.push "beta"
@@ -93,7 +135,7 @@ def testBlockedFlagInDefeq (e : Expr) : MetaM Bool :=
   | `(expr/defeq -zeta| Nat.add 2 1) => return true
   | _ => return false
 
-def testLocalLetPinItem (x : Expr) : MetaM Bool := do
+def testLocalLetPinItem : MetaM Bool := do
   withLocalDeclD `z (mkConst ``Nat) fun z =>
     withLetDecl `v (mkConst ``Nat) (mkConst ``Nat.zero) fun v =>
       withLetDecl `w (mkConst ``Nat) (mkConst ``Nat.zero) fun w => do
@@ -114,11 +156,10 @@ def testLocalLetPinItem (x : Expr) : MetaM Bool := do
         let defeqMinusVBlocked ← match targetV with
           | `(expr/defeq[-$v]| $z + Nat.zero) => pure true
           | _ => pure false
-        let _ := x
         return !structuralDefaultBlocked && structuralPlusV &&
           !structuralPlusVLeavesWBlocked && defeqDefaultUnfolds && !defeqMinusVBlocked
 
-/-! ## 3. Nested, multi-discriminant, as-pattern, or-pattern, cross-pattern pins -/
+/-! ## 3. Nested, multi-discriminant, `as`-pattern, or-pattern, cross-pattern pins -/
 
 inductive Wrap where
   | pair (a b : Expr)
@@ -149,7 +190,7 @@ def matchGeneralizeShadow (a : Nat) (h : a = a) (e : Expr) : MetaM (Nat × Nat) 
     return (1, 0)
   | _ => return (0, a)
 
-/-! ## 4. Term `if let` & `let ... | fallback`, plus `do` integration & control flow -/
+/-! ## 4. Term `if let` & `let ... |`, `do` control flow, `let mut pat`, `backward.do.legacy` -/
 
 def termIfLet (e : Expr) : MetaM (Option Expr) :=
   if let `(expr| ?a + ?b) := e then
@@ -197,12 +238,46 @@ def doLetArrowElse (mk : MetaM Expr) : MetaM Nat := do
   let _ := (a, b)
   return 7
 
-def doLetMutBinders (e : Expr) : MetaM Nat := do
-  let `(expr| ?a + ?b) := e | return 0
+def doLetMutExprBinders (e : Expr) : MetaM Nat := do
+  let mut `(expr| ?a + ?b) := e | return 0
+  if a == b then
+    a := mkNatLit 99
+  return if a == mkNatLit 99 then 2 else 1
+
+def doLetMutTupleAndLegacy (e : Expr) : MetaM (Option Expr) := do
+  let `(expr| ?a + ?b) := e | return none
   let mut k := 1
   if a == b then
     k := k + 1
-  return k
+  return some (if k == 2 then a else b)
+
+section LegacyDo
+set_option backward.do.legacy true
+
+def legacyDoPatterns (e : Expr) (mk : MetaM Expr) : MetaM Nat := do
+  let `(expr| ?a + ?b) := e | return 100
+  let _ := (a, b)
+  let `(expr| ?c * _) ← mk | return 200
+  let _ := c
+  if let `(expr| 0 + ?r) := e then
+    let _ := r
+    return 1
+  else
+    match e with
+    | `(expr| ?x + $x) => return 2
+    | _ => return 3
+
+/--
+error: repeated pattern variable `?x`; use `$x` to pin
+-/
+#guard_msgs in
+def rejectLegacyDoRepeatedLetElse (e : Expr) : MetaM Nat := do
+  let mut k := 0
+  let `(expr| ?x + ?x) := e | return k
+  let _ := x
+  return k + 1
+
+end LegacyDo
 
 def matchInTermElabAndStateAndOption (e : Expr) : Lean.Elab.TermElabM (Option Nat) := do
   let act : OptionT (StateT Nat MetaM) Nat := do
@@ -220,7 +295,7 @@ def matchInTermElabAndStateAndOption (e : Expr) : Lean.Elab.TermElabM (Option Na
   | some v => return some (v + finalState)
   | none => return some finalState
 
-/-! ## 5. Zero code duplication & single discriminant evaluation verification -/
+/-! ## 5. Zero code duplication, single discriminant eval, and `exprPatExt` deduplication -/
 
 @[noinline] def markerA (n : Nat) : Nat := n + 1
 @[noinline] def markerB (n : Nat) : Nat := n + 2
@@ -250,21 +325,40 @@ def dupCheckDo (xs : List Expr) : MetaM Nat := do
     acc := acc + markerCont 4
   return acc
 
+-- Identical patterns across branches / or-patterns must reuse one `exprPat` aux constant.
+def sharedPatDedup (p : Expr × Nat) : MetaM Nat :=
+  match p with
+  | (`(expr| Nat.add ?a (Nat.succ ?b)), 0)
+  | (`(expr| Nat.add ?a (Nat.succ ?b)), 1) => let _ := (a, b); return 1
+  | (`(expr| Nat.add ?x (Nat.succ ?y)), _) => let _ := (x, y); return 2
+  | _ => return 3
+
 private def countConstOccs (target : Name) (e : Expr) : Nat :=
   e.foldConsts 0 fun n acc => if n == target then acc + 1 else acc
 
+#guard_msgs in
 #eval show MetaM Unit from do
   let env ← getEnv
   for (declName, checks) in [
     (``dupCheckTerm, [(``markerA, 1), (``markerB, 1), (``markerElse, 1)]),
     (``dupCheckDo, [(``markerA, 1), (``markerB, 1), (``markerElse, 1), (``markerCont, 1)])
   ] do
-    let info := env.find? declName |>.get!
-    let val := info.value!
+    let some info := env.find? declName
+      | throwError "missing declaration {declName}"
+    let some val := info.value?
+      | throwError "expected value for {declName}"
     for (mName, expected) in checks do
       let cnt := countConstOccs mName val
-      if cnt != expected then
-        throwError "expected {expected} occurrence(s) of {mName} in {declName}, got {cnt}"
+      check (cnt == expected)
+        s!"expected {expected} occurrence(s) of {mName} in {declName}, got {cnt}"
+
+  -- Verify `sharedPatDedup` created at most 1 `exprPat` aux constant for its 3 slots.
+  let mut sharedPatConsts : Array Name := #[]
+  for (n, _) in env.constants do
+    if (``sharedPatDedup).isPrefixOf n && n.toString.contains "exprPat" then
+      sharedPatConsts := sharedPatConsts.push n
+  check (sharedPatConsts.size == 1)
+    s!"expected 1 deduplicated exprPat constant in sharedPatDedup, got {sharedPatConsts.size}"
 
 def testSingleDiscrEval : MetaM Unit := do
   let counter ← IO.mkRef 0
@@ -280,10 +374,11 @@ def testSingleDiscrEval : MetaM Unit := do
   let env ← getEnv
   let (res, _, _) ← act.toIO { fileName := "", fileMap := default } { env }
   let c ← counter.get
-  assert! res == 3
-  assert! c == 1
+  check (res == 3) s!"expected res = 3, got {res}"
+  check (c == 1) s!"expected single discriminant evaluation c = 1, got {c}"
 
-#eval testSingleDiscrEval
+#guard_msgs in
+#eval show MetaM Unit from testSingleDiscrEval
 
 /-! ## 6. `match (modulo := rel)` integration checks -/
 
@@ -302,7 +397,6 @@ def matchModuloWithItemsAndFlags (e : Expr) : MetaM String :=
 def matchModuloDoAndNested (mk : MetaM Expr) (n : Nat) : MetaM Nat := do
   match (dependent := false) (modulo := defeq) ← mk with
   | `(expr| myDefId 0) =>
-    -- Nested ordinary match in RHS must remain completely untouched
     let p := (n, n + 1)
     match p with
     | (0, k) => return k
@@ -320,104 +414,144 @@ def ordinaryTupleMatchAfterModulo (p : Nat × Nat) : Nat :=
   | (0, b) => b
   | (a, b) => a + b
 
-/-! ## 7. Runtime tests for positive semantic checks -/
+/-! ## 7. Runtime semantic tests (`#guard_msgs`) -/
 
+#guard_msgs in
 #eval show MetaM Unit from do
   withLocalDeclD `x (mkConst ``Nat) fun x =>
   withLocalDeclD `y (mkConst ``Nat) fun y => do
   let e1 := mkNatAdd x y
-  assert! (← checkLeadingAntiquotNoSpace x y e1)
-  assert! (← checkLeadingAntiquotWithSpace x y e1)
-  assert! !(← checkLeadingAntiquotNoSpace y x e1)
-  assert! (← matchAddSplit e1).isSome
-  assert! (← matchSameAdd (mkNatAdd x x)).isSome
-  assert! (← matchSameAdd e1).isNone
-  assert! (← matchWithWildcards (mkNatAdd (mkNatAdd x y) (mkNatLit 1))).isSome
+  check (← checkLeadingAntiquotNoSpace x y e1) "no-space leading antiquot match failed"
+  check (← checkLeadingAntiquotWithSpace x y e1) "spaced leading antiquot match failed"
+  check (!(← checkLeadingAntiquotNoSpace y x e1)) "swapped leading antiquot unexpectedly matched"
+  check (← matchAddSplit e1).isSome "matchAddSplit failed"
+  check ((← matchSameAdd (mkNatAdd x x)) == some x) "matchSameAdd equal failed"
+  check (← matchSameAdd e1).isNone "matchSameAdd distinct unexpectedly matched"
+  check (← matchWithWildcards (mkNatAdd (mkNatAdd x y) (mkNatLit 1))).isSome
+    "matchWithWildcards failed"
 
-  -- Higher-order pattern checks
+  -- First-order `?f ?a` vs higher-order `fun x => ?P x`.
+  let appExpr := mkApp (mkConst ``Nat.succ) x
+  check ((← matchFirstOrderApp appExpr) == some (mkConst ``Nat.succ, x))
+    "first-order ?f ?a failed"
   let natTy := mkConst ``Nat
   let lamApp := mkLambda `x .default natTy (mkNatAdd (mkBVar 0) (mkNatLit 1))
-  let ho? ← matchHigherOrder lamApp
-  assert! ho?.isSome
-  assert! (← matchConstBinder lamApp).isNone
+  check (← matchHigherOrder lamApp).isSome "higher-order ?P x failed"
+  check (← matchConstBinder lamApp).isNone "const-binder matched dependent body"
   let constLam := mkLambda `x .default natTy (mkNatLit 5)
-  assert! (← matchConstBinder constLam) == some (mkNatLit 5)
+  check ((← matchConstBinder constLam) == some (mkNatLit 5)) "matchConstBinder failed"
 
-  -- Relation tests
+  -- Type constraints `(?x : T)` & stuck implicit `toString ?x`.
+  let pairVal ← mkAppM ``Prod.mk #[mkNatLit 1, mkNatLit 2]
+  check ((← matchTypeAscribedProj (← mkAppM ``Prod.fst #[pairVal])) == some pairVal)
+    "type-ascribed projection (?p : Nat × Nat).1 failed"
+  check ((← matchDefEqTypedBinder (mkNatLit 3)) == some (mkNatLit 3))
+    "defeq typed binder on Nat failed"
+  check (← matchDefEqTypedBinder (mkConst ``Bool.true)).isNone
+    "defeq typed binder (?x : Nat) must reject Bool.true"
+  let toStrNat ← mkAppM ``toString #[mkNatLit 7]
+  check ((← matchStuckToStringImplicit toStrNat) == some (mkNatLit 7))
+    "stuck implicit toString ?x failed"
+
+  -- Relations.
   let abbrevTarget := mkApp (mkConst ``myAbbrevId) (mkConst ``Nat.zero)
   let h1 ← testRelations abbrevTarget
-  assert! h1.contains "structural_abbrev:false"
-  assert! h1.contains "reducible_0"
-  assert! !h1.contains "reducible_minus_item"
-  assert! !h1.contains "structural_plus_item"
+  check (h1.contains "structural_abbrev:false") "structural_abbrev check failed"
+  check (h1.contains "reducible_0") "reducible_0 failed"
+  check (!h1.contains "reducible_minus_item") "reducible_minus_item failed"
+  check (!h1.contains "structural_plus_item") "structural_plus_item failed"
 
   let defTarget := mkApp (mkConst ``myDefId) (mkConst ``Nat.zero)
   let h2 ← testRelations defTarget
-  assert! h2.contains "structural_def"
-  assert! !h2.contains "reducible_0"
-  assert! h2.contains "defeq_def_0"
-  assert! h2.contains "structural_plus_item"
+  check (h2.contains "structural_def") "structural_def failed"
+  check (!h2.contains "reducible_0") "reducible unfolded myDefId"
+  check (h2.contains "defeq_def_0") "defeq_def_0 failed"
+  check (h2.contains "structural_plus_item") "structural_plus_item failed"
 
   let simpTarget := mkApp (mkConst ``mySimpId) (mkConst ``Nat.zero)
-  assert! (← testRelations simpTarget).contains "simp_set_0"
+  check ((← testRelations simpTarget).contains "simp_set_0") "simp_set_0 failed"
 
-  let betaTarget := mkApp (mkLambda `z .default natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkConst ``Nat.zero))) (mkNatLit 2)
-  assert! (← testRelations betaTarget).contains "beta"
+  let betaTarget := mkApp
+    (mkLambda `z .default natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkConst ``Nat.zero)))
+    (mkNatLit 2)
+  check ((← testRelations betaTarget).contains "beta") "+beta failed"
 
-  let zetaTarget := mkLet `z natTy (mkNatLit 2) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkConst ``Nat.zero))
-  assert! (← testRelations zetaTarget).contains "zeta"
-  let zetaTargetLits := mkLet `z natTy (mkNatLit 2) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkNatLit 1))
-  assert! !(← testBlockedFlagInDefeq zetaTargetLits)
+  let zetaTarget :=
+    mkLet `z natTy (mkNatLit 2) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkConst ``Nat.zero))
+  check ((← testRelations zetaTarget).contains "zeta") "+zeta failed"
+  let zetaTargetLits :=
+    mkLet `z natTy (mkNatLit 2) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkNatLit 1))
+  check (!(← testBlockedFlagInDefeq zetaTargetLits)) "-zeta unexpectedly unfolded let"
 
-  let projTarget := mkProj ``Prod 0 (mkApp4 (mkConst ``Prod.mk [0, 0]) natTy natTy (mkConst ``Nat.zero) (mkConst ``Nat.zero))
-  assert! (← testRelations projTarget).contains "proj"
+  let zeroPair := mkApp4 (mkConst ``Prod.mk [0, 0]) natTy natTy
+    (mkConst ``Nat.zero) (mkConst ``Nat.zero)
+  let projTarget := mkProj ``Prod 0 zeroPair
+  check ((← testRelations projTarget).contains "proj") "+proj failed"
 
   let etaTarget := mkLambda `z .default natTy (mkApp (mkConst ``Nat.succ) (mkBVar 0))
-  assert! (← testRelations etaTarget).contains "eta"
+  check ((← testRelations etaTarget).contains "eta") "+eta failed"
 
-  assert! (← testLocalLetPinItem x)
+  check (← testLocalLetPinItem) "local let item overrides failed"
 
-  -- Nested + cross-pattern pins + or-pattern + as-pattern
+  -- Nested + cross-pattern pins + or-pattern + as-pattern.
   let eMul := mkNatMul x (mkNatLit 3)
   let eTail := mkNatAdd y (mkNatLit 3)
-  assert! (← matchNested (some (.pair e1 eMul, [eTail]))) == "matched1:true:true"
-  assert! (← matchNested (some (.single e1, []))) == "as:true:true:true"
-  assert! (← matchNested (some (.pair (mkNatAdd (mkNatLit 0) x) y, []))) == "or:true:true"
-  assert! (← matchPairOrdPin (x, e1))
+  check ((← matchNested (some (.pair e1 eMul, [eTail]))) == "matched1:true:true")
+    "matchNested pair failed"
+  check ((← matchNested (some (.single e1, []))) == "as:true:true:true")
+    "matchNested as-pattern failed"
+  check ((← matchNested (some (.pair (mkNatAdd (mkNatLit 0) x) y, []))) == "or:true:true")
+    "matchNested or-pattern failed"
+  check (← matchPairOrdPin (x, e1)) "matchPairOrdPin failed"
 
-  -- Control flow
-  let (s, outs) ← doControlFlowTest [mkNatAdd (mkNatLit 0) x, e1, mkNatMul (mkNatLit 5) (mkNatLit 6)]
-  assert! s == 111
-  assert! outs.length == 4
+  -- Control flow & `let mut pat`.
+  let doInputs := [mkNatAdd (mkNatLit 0) x, e1, mkNatMul (mkNatLit 5) (mkNatLit 6)]
+  let (s, outs) ← doControlFlowTest doInputs
+  check (s == 111 && outs.length == 4) "doControlFlowTest failed"
+  check ((← doLetMutExprBinders (mkNatAdd x x)) == 2) "doLetMutExprBinders equal failed"
+  check ((← doLetMutExprBinders e1) == 1) "doLetMutExprBinders distinct failed"
+  check ((← doLetMutTupleAndLegacy (mkNatAdd x x)) == some x) "doLetMutTupleAndLegacy failed"
+  check ((← legacyDoPatterns e1 (pure (mkNatMul x y))) == 3) "legacyDoPatterns distinct failed"
+  check ((← legacyDoPatterns (mkNatAdd x x) (pure (mkNatMul x y))) == 2)
+    "legacyDoPatterns equal failed"
+  check ((← legacyDoPatterns (mkNatLit 0) (pure e1)) == 100)
+    "legacyDoPatterns fallback 1 failed"
+  check ((← legacyDoPatterns e1 (pure (mkNatLit 0))) == 200)
+    "legacyDoPatterns fallback 2 failed"
 
-  -- match (modulo := ...)
+#guard_msgs in
 #eval show MetaM Unit from do
   withLocalDeclD `x (mkConst ``Nat) fun x =>
   withLocalDeclD `y (mkConst ``Nat) fun y => do
   let e1 := mkNatAdd x y
   let defTarget := mkApp (mkConst ``myDefId) (mkConst ``Nat.zero)
   let defLitTarget := mkApp (mkConst ``myDefId) (mkNatLit 0)
-  assert! (← matchModuloSharedAndOverride defLitTarget) == "exact_structural"
-  assert! (← matchModuloSharedAndOverride defTarget) == "modulo_defeq"
-  assert! (← matchModuloSharedAndOverride (mkNatLit 0)) == "modulo_defeq"
-  assert! (← matchModuloWithItemsAndFlags (mkNatLit 0)) == "merged"
-  assert! (← matchModuloDoAndNested (pure (mkNatLit 0)) 0) == 1
-  assert! (← matchModuloMultiDiscr (mkNatLit 0) 0) == 10
-  assert! (← matchModuloMultiDiscr (mkNatLit 0) 4) == 5
+  check ((← matchModuloSharedAndOverride defLitTarget) == "exact_structural")
+    "modulo structural override failed"
+  check ((← matchModuloSharedAndOverride defTarget) == "modulo_defeq")
+    "modulo defeq fallback failed"
+  check ((← matchModuloSharedAndOverride (mkNatLit 0)) == "modulo_defeq")
+    "modulo defeq literal failed"
+  check ((← matchModuloWithItemsAndFlags (mkNatLit 0)) == "merged")
+    "modulo merged items/flags failed"
+  check ((← matchModuloDoAndNested (pure (mkNatLit 0)) 0) == 1)
+    "modulo do and nested failed"
+  check ((← matchModuloMultiDiscr (mkNatLit 0) 0) == 10) "modulo multi-discr 0 failed"
+  check ((← matchModuloMultiDiscr (mkNatLit 0) 4) == 5) "modulo multi-discr k failed"
 
-  -- Additional API runtime checks
-  assert! (← termIfLet e1) == some x
-  assert! (← termIfLet (mkNatLit 0)).isNone
-  assert! (← termAndDoLetElse e1) == 99
-  assert! (← termAndDoLetElse (mkNatAdd (mkNatMul x y) (mkNatLit 1))) == 1
-  assert! (← monadicDiscrInDo (pure (mkNatAdd (mkNatLit 1) (mkNatLit 1)))) == 10
-  assert! (← monadicDiscrInDo (pure e1)) == 20
-  assert! (← doLetArrowElse (pure e1)) == 7
-  assert! (← doLetArrowElse (pure (mkNatLit 0))) == 42
-  assert! (← doLetMutBinders (mkNatAdd x x)) == 2
-  assert! (← doLetMutBinders e1) == 1
-  assert! (← matchGeneralizeShadow 42 rfl e1) == (1, 0)
-  assert! (← matchGeneralizeShadow 42 rfl (mkNatLit 0)) == (0, 42)
+  check ((← termIfLet e1) == some x) "termIfLet hit failed"
+  check (← termIfLet (mkNatLit 0)).isNone "termIfLet miss failed"
+  check ((← termAndDoLetElse e1) == 99) "termAndDoLetElse fallback failed"
+  check ((← termAndDoLetElse (mkNatAdd (mkNatMul x y) (mkNatLit 1))) == 1)
+    "termAndDoLetElse hit failed"
+  check ((← monadicDiscrInDo (pure (mkNatAdd (mkNatLit 1) (mkNatLit 1)))) == 10)
+    "monadicDiscrInDo hit failed"
+  check ((← monadicDiscrInDo (pure e1)) == 20) "monadicDiscrInDo miss failed"
+  check ((← doLetArrowElse (pure e1)) == 7) "doLetArrowElse hit failed"
+  check ((← doLetArrowElse (pure (mkNatLit 0))) == 42) "doLetArrowElse fallback failed"
+  check ((← matchGeneralizeShadow 42 rfl e1) == (1, 0)) "matchGeneralizeShadow hit failed"
+  check ((← matchGeneralizeShadow 42 rfl (mkNatLit 0)) == (0, 42))
+    "matchGeneralizeShadow miss failed"
 
 def matchModuloGeneralizingFalse (e : Expr) (h : e = e) : MetaM Bool :=
   let _ := h
@@ -430,21 +564,27 @@ def matchNoSpacePipeWithEngine (a b e : Expr) : MetaM Bool :=
   | `(expr/defeq|$a + $b) => return true
   | _ => return false
 
+#guard_msgs in
 #eval show Lean.Elab.TermElabM Unit from do
   withLocalDeclD `x (mkConst ``Nat) fun x =>
   withLocalDeclD `y (mkConst ``Nat) fun y => do
   let e1 := mkNatAdd x y
-  assert! (← matchInTermElabAndStateAndOption e1) == some 30
-  assert! (← matchInTermElabAndStateAndOption (mkNatLit 0)) == some 6
-  assert! (← matchModuloGeneralizingFalse (mkNatLit 0) rfl)
-  assert! (← matchNoSpacePipeWithEngine (mkNatLit 0) (mkNatLit 1) (mkApp (mkConst ``myDefId) (mkNatLit 0) |> fun z => mkNatAdd z (mkNatLit 1)))
+  checkTerm ((← matchInTermElabAndStateAndOption e1) == some 30)
+    "TermElabM + StateT + OptionT hit failed"
+  checkTerm ((← matchInTermElabAndStateAndOption (mkNatLit 0)) == some 6)
+    "TermElabM + StateT + OptionT miss failed"
+  checkTerm (← matchModuloGeneralizingFalse (mkNatLit 0) rfl)
+    "matchModuloGeneralizingFalse failed"
+  let folded := mkNatAdd (mkApp (mkConst ``myDefId) (mkNatLit 0)) (mkNatLit 1)
+  checkTerm (← matchNoSpacePipeWithEngine (mkNatLit 0) (mkNatLit 1) folded)
+    "matchNoSpacePipeWithEngine failed"
   let co ← Lean.Elab.liftMacroM <| checkSyntaxQuotCoexist (← `(1)) (← `(2))
-  assert! co.size == 5
+  checkTerm (co.size == 5) "checkSyntaxQuotCoexist size failed"
   let ex1 ← Lean.Elab.liftMacroM <| checkExpressionCategoryNoSpace (mkIdent `foo)
   let ex2 ← Lean.Elab.liftMacroM <| checkExpressionCategorySpace (mkIdent `foo)
-  assert! ex1.raw == ex2.raw
+  checkTerm (ex1.raw == ex2.raw) "expression category spacing mismatch"
 
-/-! ## 8. Exhaustiveness, redundancy, `match h :`, and negative tests -/
+/-! ## 8. Exhaustiveness, `match.ignoreUnusedAlts` without `sorryAx`, redundancy, diagnostics -/
 
 /--
 error: Missing cases:
@@ -467,7 +607,7 @@ def missingNestedCatchAll (o : Option Expr) : MetaM Nat :=
 
 /--
 error: Redundant alternative: Any expression matching
-  __eq_1_0✝
+  `(expr| ?x)
 will match one of the preceding alternatives
 -/
 #guard_msgs in
@@ -478,7 +618,7 @@ def redundantAfterWildcard (e : Expr) : MetaM Nat :=
 
 /--
 error: Redundant alternative: Any expression matching
-  some __eq_2_0✝
+  some `(expr| ?x)
 will match one of the preceding alternatives
 -/
 #guard_msgs in
@@ -487,6 +627,30 @@ def redundantNestedAfterSome (o : Option Expr) : MetaM Nat :=
   | none => return 0
   | some _ => return 1
   | some `(expr| ?x) => let _ := x; return 2
+
+set_option match.ignoreUnusedAlts true in
+def ignoreUnusedNonDepNoSorry (e : Expr) : MetaM Nat :=
+  match e with
+  | _ => return 0
+  | `(expr| ?x) => let _ := x; return 1
+
+/--
+info: 'ExprQuotMatchTest.ignoreUnusedNonDepNoSorry' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in
+#print axioms ignoreUnusedNonDepNoSorry
+
+set_option match.ignoreUnusedAlts true in
+def ignoreUnusedDepNoSorry (n : Nat) (e : Expr) : MetaM (Fin (n + 1)) :=
+  match h : n, e with
+  | k, _ => let _ := h; return ⟨min k n, by omega⟩
+  | 0, `(expr| ?x) => let _ := h; let _ := x; return ⟨0, by omega⟩
+
+/--
+info: 'ExprQuotMatchTest.ignoreUnusedDepNoSorry' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in
+#print axioms ignoreUnusedDepNoSorry
 
 /--
 error: `h:` equality proof is not supported on a discriminant matched with `expr` quotations (the `Expr` values may only be related, not equal)
@@ -550,6 +714,26 @@ def rejectRepeatedBinder (e : Expr) : MetaM Nat :=
   | `(expr| ?x + ?x) => let _ := x; return 1
   | _ => return 0
 
+/--
+error: repeated pattern variable `?x`; use `$x` to pin
+-/
+#guard_msgs in
+def rejectRepeatedBinderInDoLetElse (e : Expr) : MetaM Nat := do
+  let `(expr| ?x + ?x) := e | return 0
+  let _ := x
+  return 1
+
+/--
+error: repeated pattern variable `?x`; use `$x` to pin
+-/
+#guard_msgs in
+def rejectRepeatedBinderInDoIfLet (e : Expr) : MetaM Nat := do
+  if let `(expr| ?x + ?x) := e then
+    let _ := x
+    return 1
+  else
+    return 0
+
 /-- error: unknown identifier `unknownPin` in `$`-pin (did you mean `?unknownPin`?) -/
 #guard_msgs in
 def rejectUnknownPin (e : Expr) : MetaM Nat :=
@@ -558,8 +742,8 @@ def rejectUnknownPin (e : Expr) : MetaM Nat :=
   | _ => return 0
 
 /--
-error: Type mismatch
-  __eq_0_0✝
+error: type mismatch
+  `(expr| ?x)
 has type
   Expr
 but is expected to have type
@@ -572,12 +756,54 @@ def rejectTypeMismatch (n : Nat) : MetaM Nat :=
   | _ => return 0
 
 /--
+error: type mismatch
+  `(expr| ?x)
+has type
+  Expr
+but is expected to have type
+  Nat
+-/
+#guard_msgs in
+def rejectNestedTypeMismatch (o : Option Nat) : MetaM Nat :=
+  match o with
+  | some `(expr| ?x) => let _ := x; return 1
+  | _ => return 0
+
+/--
+error: invalid `expr` quotation pattern: quotation occurs in an inaccessible or parameter position
+-/
+#guard_msgs in
+def rejectInaccessibleParam (h : Nat = Nat) : MetaM Nat :=
+  match h with
+  | @Eq.refl _ `(expr| ?x) => let _ := x; return 1
+
+/--
+error: failed to synthesize instance of type class
+  HAdd Nat String ?m.6
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+def rejectInvalidAddTC (e : Expr) : MetaM Nat :=
+  match e with
+  | `(expr| 1 + "hello") => return 1
+  | _ => return 0
+
+/--
+error: failed to synthesize instance of type class
+  HAdd Bool Nat ?m.8
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+def rejectInvalidTypedBinderTC (e : Expr) : MetaM Nat :=
+  match e with
+  | `(expr| (?x : Bool) + 1) => let _ := x; return 1
+  | _ => return 0
+
+/--
 error: expr quotation matching requires a monad lifting `MetaM`, got result type
   Id Nat
-failed to synthesize
-  MonadLiftT MetaM Id
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 def rejectNonMetaMonad (e : Expr) : Id Nat :=
@@ -646,26 +872,26 @@ def allowMutVarPin (e : Expr) : MetaM Bool := do
     x := mkNatLit 2
     return false
 
+#guard_msgs in
 #eval show MetaM Unit from do
   withLocalDeclD `x (mkConst ``Nat) fun x =>
   withLocalDeclD `y (mkConst ``Nat) fun y => do
   let e1 := mkNatAdd x y
-  assert! (← allowEqProofOnNonQuotCol0 0 e1) == 1
-  assert! (← allowEqProofOnNonQuotCol0 7 e1) == 7
-  assert! (← allowMutVarPin (mkNatAdd (mkNatLit 1) y))
-  assert! !(← allowMutVarPin (mkNatAdd (mkNatLit 2) y))
+  check ((← allowEqProofOnNonQuotCol0 0 e1) == 1) "allowEqProofOnNonQuotCol0 0 failed"
+  check ((← allowEqProofOnNonQuotCol0 7 e1) == 7) "allowEqProofOnNonQuotCol0 7 failed"
+  check (← allowMutVarPin (mkNatAdd (mkNatLit 1) y)) "allowMutVarPin hit failed"
+  check (!(← allowMutVarPin (mkNatAdd (mkNatLit 2) y))) "allowMutVarPin miss failed"
 
-/-! ## 10. Adversarial regression tests (Spike A review) -/
+/-! ## 9. Dependent `h :`, proof irrelevance, sorts, modulo pins, and HO edge cases -/
 
-inductive SpikeAVec (α : Type) : Nat → Type where
-  | nil  : SpikeAVec α 0
-  | cons : α → SpikeAVec α n → SpikeAVec α (n + 1)
+inductive TestVec (α : Type) : Nat → Type where
+  | nil  : TestVec α 0
+  | cons : α → TestVec α n → TestVec α (n + 1)
 
 def depH1 (n : Nat) (h : n = n) (e : Expr) : MetaM (Fin (n + 1)) :=
   match h1 : n, e with
   | 0, `(expr| Nat.zero) =>
-    let _ := h
-    let _ := h1
+    let _ := h; let _ := h1
     return ⟨0, by omega⟩
   | 0, `(expr| Nat.succ _) =>
     let _ := h1
@@ -686,7 +912,7 @@ def depHAs (n : Nat) (e : Expr) : MetaM (Fin (n + 1)) :=
     let _ := h1
     return ⟨min k n, by omega⟩
 
-def depVecH : {n : Nat} → SpikeAVec Expr n → MetaM Nat
+def depVecH : {n : Nat} → TestVec Expr n → MetaM Nat
   | _, .nil => return 0
   | n + 1, v@(.cons e _) =>
     match h1 : n + 1, hv : v, e with
@@ -821,46 +1047,54 @@ def rejectBadModFlagNoQuot (e : Expr) : MetaM Nat := do
   match (modulo := +badflag) e with
   | _ => return 0
 
+#guard_msgs in
 #eval show MetaM Unit from do
   let z := mkConst ``Nat.zero
   let sz := mkApp (mkConst ``Nat.succ) z
   let addZ ← mkAppM ``HAdd.hAdd #[z, z]
-  assert! (← depH1 0 rfl z).val == 0
-  assert! (← depH1 0 rfl sz).val == 0
-  assert! (← depH1 1 rfl addZ).val == 0
-  assert! (← depH1 2 rfl z).val == 2
-  assert! (← depHAs 0 z).val == 0
-  assert! (← depHAs 1 z).val == 1
-  assert! (← depVecH (.cons z .nil)) == 1
-  assert! (← depVecH (.cons sz .nil)) == 2
-  assert! (← depVecH (.cons (mkApp2 (mkConst ``Nat.add) z z) .nil)) == 3
-  assert! (← nonDepHFall 0 z) == 10
-  assert! (← nonDepHFall 0 sz) == 20
-  assert! (← nonDepHFall 0 addZ) == 30
+  check ((← depH1 0 rfl z).val == 0) "depH1 0 zero failed"
+  check ((← depH1 0 rfl sz).val == 0) "depH1 0 succ failed"
+  check ((← depH1 1 rfl addZ).val == 0) "depH1 1 add failed"
+  check ((← depH1 2 rfl z).val == 2) "depH1 2 zero failed"
+  check ((← depHAs 0 z).val == 0) "depHAs 0 failed"
+  check ((← depHAs 1 z).val == 1) "depHAs 1 failed"
+  check ((← depVecH (.cons z .nil)) == 1) "depVecH 1 failed"
+  check ((← depVecH (.cons sz .nil)) == 2) "depVecH 2 failed"
+  check ((← depVecH (.cons (mkApp2 (mkConst ``Nat.add) z z) .nil)) == 3) "depVecH 3 failed"
+  check ((← nonDepHFall 0 z) == 10) "nonDepHFall 10 failed"
+  check ((← nonDepHFall 0 sz) == 20) "nonDepHFall 20 failed"
+  check ((← nonDepHFall 0 addZ) == 30) "nonDepHFall 30 failed"
 
   withLocalDeclD `hTrue (mkConst ``True) fun hTrue =>
-  withLocalDeclD `hFalse (mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (mkNatLit 1) (mkNatLit 2)) fun hFalse =>
-  withLocalDeclD `hRefl0 (mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (mkNatLit 0) (mkNatLit 0)) fun hRefl0 => do
-  assert! (← checkProofTrueIntro hTrue)
-  assert! !(← checkProofTrueIntro hFalse)
-  assert! (← checkProofRefl0 (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 0)))
-  assert! (← checkProofRefl0 hRefl0)
-  assert! !(← checkProofRefl0 (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 1)))
+  withLocalDeclD `hFalse
+    (mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (mkNatLit 1) (mkNatLit 2)) fun hFalse =>
+  withLocalDeclD `hRefl0
+    (mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (mkNatLit 0) (mkNatLit 0)) fun hRefl0 => do
+  check (← checkProofTrueIntro hTrue) "checkProofTrueIntro true failed"
+  check (!(← checkProofTrueIntro hFalse)) "checkProofTrueIntro false unexpectedly matched"
+  check (← checkProofRefl0 (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 0)))
+    "checkProofRefl0 refl0 failed"
+  check (← checkProofRefl0 hRefl0) "checkProofRefl0 hRefl0 failed"
+  check (!(← checkProofRefl0 (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 1))))
+    "checkProofRefl0 refl1 unexpectedly matched"
 
-  assert! (← checkSortProp (mkSort 0))
-  assert! !(← checkSortProp (mkSort 1))
-  assert! !(← checkSortType0 (mkSort 0))
-  assert! (← checkSortType0 (mkSort 1))
-  assert! !(← checkSortType0 (mkSort 2))
-  assert! !(← checkSortTypeU (mkSort 0))
-  assert! (← checkSortTypeU (mkSort 1))
-  assert! (← checkSortTypeU (mkSort 2))
-  assert! (← checkSortAny (mkSort 0))
-  assert! (← checkSortAny (mkSort 2))
+  check (← checkSortProp (mkSort 0)) "Prop check failed"
+  check (!(← checkSortProp (mkSort 1))) "Prop matched Sort 1"
+  check (!(← checkSortType0 (mkSort 0))) "Type matched Prop"
+  check (← checkSortType0 (mkSort 1)) "Type check failed"
+  check (!(← checkSortType0 (mkSort 2))) "Type matched Sort 2"
+  check (!(← checkSortTypeU (mkSort 0))) "Type _ matched Prop"
+  check (← checkSortTypeU (mkSort 1)) "Type _ Sort 1 failed"
+  check (← checkSortTypeU (mkSort 2)) "Type _ Sort 2 failed"
+  check (← checkSortAny (mkSort 0)) "Sort _ Sort 0 failed"
+  check (← checkSortAny (mkSort 2)) "Sort _ Sort 2 failed"
 
-  assert! !(← checkStructBetaZero (mkNatLit 0))
-  assert! !(← checkStructBetaLit (mkApp2 (mkConst ``Nat.add) (mkNatLit 2) (mkNatLit 3)))
-  assert! !(← checkStructBetaSucc (mkLambda `x .default (mkConst ``Nat) (mkApp (mkConst ``Nat.succ) (mkBVar 0))))
+  check (!(← checkStructBetaZero (mkNatLit 0))) "structural +beta unfolded OfNat"
+  check (!(← checkStructBetaLit (mkApp2 (mkConst ``Nat.add) (mkNatLit 2) (mkNatLit 3))))
+    "structural +beta unfolded Nat.add"
+  check (!(← checkStructBetaSucc
+    (mkLambda `x .default (mkConst ``Nat) (mkApp (mkConst ``Nat.succ) (mkBVar 0)))))
+    "structural +beta applied eta"
 
   let natTy := mkConst ``Nat
   let tenPlusTwenty := mkApp2 (mkConst ``Nat.add) (mkNatLit 10) (mkNatLit 20)
@@ -873,8 +1107,9 @@ def rejectBadModFlagNoQuot (e : Expr) : MetaM Nat := do
   let expectedWrapped :=
     mkLet `x natTy tenPlusTwenty <|
       mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkBVar 0)
-  let some wrapped ← checkStructZetaWrap eLet | panic! "expected zeta wrap"
-  assert! wrapped == expectedWrapped
+  let some wrapped ← checkStructZetaWrap eLet
+    | throwError "expected zeta wrap"
+  check (wrapped == expectedWrapped) "wrapped zeta mismatch"
 
   let eHO :=
     mkLambda `z .default natTy <|
@@ -886,24 +1121,30 @@ def rejectBadModFlagNoQuot (e : Expr) : MetaM Nat := do
     mkLambda `z .default natTy <|
     mkLet `x natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkNatLit 1)) <|
       mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkBVar 0)
-  let some hoWrapped ← checkStructZetaHO eHO | panic! "expected HO zeta wrap"
-  assert! hoWrapped == expectedHO
+  let some hoWrapped ← checkStructZetaHO eHO
+    | throwError "expected HO zeta wrap"
+  check (hoWrapped == expectedHO) "HO wrapped zeta mismatch"
 
   withLetDecl `cx natTy tenPlusTwenty fun cx => do
-    let some cxRes ← checkStructZetaWrap (mkApp2 (mkConst ``Nat.add) cx (mkNatLit 0)) | panic! "expected cx"
-    assert! cxRes == cx
+    let some cxRes ← checkStructZetaWrap (mkApp2 (mkConst ``Nat.add) cx (mkNatLit 0))
+      | throwError "expected cx"
+    check (cxRes == cx) "cx let-fvar should stay bare"
 
   let projZero := mkProj ``Prod 0 (mkApp4 (mkConst ``Prod.mk [0, 0]) natTy natTy z z)
-  assert! !(← checkDefeqNoProj projZero)
+  check (!(← checkDefeqNoProj projZero)) "defeq -proj unexpectedly reduced proj"
 
   let instExpr ← mkAppM ``toString #[mkNatLit 7]
-  assert! (← checkStructInst instExpr)
+  check (← checkStructInst instExpr) "structural +inst toString failed"
 
   withLetDecl `v natTy z fun v => do
     let target := mkApp2 (mkConst ``Nat.add) v (mkNatLit 0)
-    assert! (← checkModuloNoCapture v (mkConst ``Nat.succ, target)) == 1
-    assert! (← testDoModPin v [(mkConst ``Nat.succ, target), (z, z)]) == 11
-  assert! (← checkMotiveBeforeModulo 0 (mkApp (mkLambda `x .default (mkConst ``Expr) (mkBVar 0)) z)).val == 0
+    check ((← checkModuloNoCapture v (mkConst ``Nat.succ, target)) == 1)
+      "checkModuloNoCapture failed"
+    check ((← testDoModPin v [(mkConst ``Nat.succ, target), (z, z)]) == 11)
+      "testDoModPin failed"
+  let motiveBeta := mkApp (mkLambda `x .default (mkConst ``Expr) (mkBVar 0)) z
+  check ((← checkMotiveBeforeModulo 0 motiveBeta).val == 0)
+    "checkMotiveBeforeModulo failed"
 
 def testMixedHOPinAndFirstOrder (e : Expr) : MetaM (Option Expr) :=
   match e with
@@ -1014,6 +1255,7 @@ def testSelfPinLinterClean (e : Expr) : MetaM Bool :=
   | `(expr| ?p + $p) => return true
   | _ => return false
 
+#guard_msgs in
 #eval show MetaM Unit from do
   let z := mkConst ``Nat.zero
   let sz := mkApp (mkConst ``Nat.succ) z
@@ -1025,52 +1267,75 @@ def testSelfPinLinterClean (e : Expr) : MetaM Bool :=
     let forallPx := mkForall `x .default natTy (mkApp P (mkBVar 0))
     let p0 := mkApp P (mkNatLit 0)
     let conj := mkApp2 (mkConst ``And) forallPx p0
-    assert! (← testMixedHOPinAndFirstOrder conj) == some P
-  assert! (← testTopAsH eAdd) == some (eAdd, one)
-  assert! (← testReorderedStructVars (mkNatLit 5, mkNatAdd (mkNatLit 5) one)) == 1
-  assert! (← testReorderedStructVars (mkNatLit 5, mkNatAdd (mkNatLit 5) two)) == 2
-  assert! (← testReorderedStructVars (mkNatLit 5, mkNatLit 9)) == 3
+    check ((← testMixedHOPinAndFirstOrder conj) == some P)
+      "testMixedHOPinAndFirstOrder failed"
+  check ((← testTopAsH eAdd) == some (eAdd, one)) "testTopAsH failed"
+  check ((← testReorderedStructVars (mkNatLit 5, mkNatAdd (mkNatLit 5) one)) == 1)
+    "testReorderedStructVars 1 failed"
+  check ((← testReorderedStructVars (mkNatLit 5, mkNatAdd (mkNatLit 5) two)) == 2)
+    "testReorderedStructVars 2 failed"
+  check ((← testReorderedStructVars (mkNatLit 5, mkNatLit 9)) == 3)
+    "testReorderedStructVars 3 failed"
   let idZero := mkApp (mkConst ``myDefId) (mkNatLit 0)
-  assert! (← testModuloOrAlt (← mkAppM ``Prod.mk #[mkNatLit 7, idZero])) == some (mkNatLit 7)
-  assert! (← testModuloOrAlt (← mkAppM ``Prod.mk #[idZero, mkNatLit 8])) == some (mkNatLit 8)
-  assert! (← testGenShadowName eAdd rfl)
-  assert! !(← testGenShadowName z rfl)
-  assert! (← testDepTwoGroupsH 0 rfl z).val == 0
-  assert! (← testDepTwoGroupsH 1 rfl sz).val == 0
-  assert! (← testDepTwoGroupsH 2 rfl eAdd).val == 2
-  assert! (← testDoDepModulo 0 idZero).val == 0
+  check ((← testModuloOrAlt (← mkAppM ``Prod.mk #[mkNatLit 7, idZero])) == some (mkNatLit 7))
+    "testModuloOrAlt 7 failed"
+  check ((← testModuloOrAlt (← mkAppM ``Prod.mk #[idZero, mkNatLit 8])) == some (mkNatLit 8))
+    "testModuloOrAlt 8 failed"
+  check (← testGenShadowName eAdd rfl) "testGenShadowName hit failed"
+  check (!(← testGenShadowName z rfl)) "testGenShadowName miss failed"
+  check ((← testDepTwoGroupsH 0 rfl z).val == 0) "testDepTwoGroupsH 0 failed"
+  check ((← testDepTwoGroupsH 1 rfl sz).val == 0) "testDepTwoGroupsH 1 failed"
+  check ((← testDepTwoGroupsH 2 rfl eAdd).val == 2) "testDepTwoGroupsH 2 failed"
+  check ((← testDoDepModulo 0 idZero).val == 0) "testDoDepModulo failed"
   withLetDecl `v natTy z fun v => do
-    assert! (← testCacheIsolation (mkApp (mkConst ``myDefId) z) v) == (false, true, false, true)
+    check ((← testCacheIsolation (mkApp (mkConst ``myDefId) z) v) == (false, true, false, true))
+      "testCacheIsolation failed"
   let depBody ← Lean.Elab.Term.TermElabM.run' do
-    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize (← `(fun (α : Type) (x : α) => x = x)) none)
-  let depForall := match depBody with
-    | .lam n1 t1 (.lam n2 t2 b bi2) bi1 => mkForall n1 bi1 t1 (mkForall n2 bi2 t2 b)
-    | _ => unreachable!
-  assert! (← testDepHOForall depForall) == some depBody
+    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize
+      (← `(fun (α : Type) (x : α) => x = x)) none)
+  let some depForall := (
+    match depBody with
+    | .lam n1 t1 (.lam n2 t2 b bi2) bi1 => some (mkForall n1 bi1 t1 (mkForall n2 bi2 t2 b))
+    | _ => none)
+    | throwError "expected depBody lam"
+  check ((← testDepHOForall depForall) == some depBody) "testDepHOForall failed"
   let depEqBody ← Lean.Elab.Term.TermElabM.run' do
-    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize (← `(fun (α : Type) (x : α) => x)) none)
+    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize
+      (← `(fun (α : Type) (x : α) => x)) none)
   let depEqForall ← Lean.Elab.Term.TermElabM.run' do
-    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize (← `(∀ (α : Type) (x : α), x = x)) none)
-  assert! (← testDepHOEq depEqForall) == some depEqBody
-  withLocalDeclD `F (← Lean.Elab.Term.TermElabM.run' <| Lean.Elab.Term.elabTermAndSynthesize (← `((α : Type) → α → Prop)) none) fun F => do
-    let lhs := mkForall `α .default (mkSort 1) (mkForall `x .default (mkBVar 0) (mkApp2 F (mkBVar 1) (mkBVar 0)))
-    let rhs := mkForall `β .default (mkSort 1) (mkForall `y .default (mkBVar 0) (mkApp2 F (mkBVar 1) (mkBVar 0)))
-    assert! (← testDepHOPin (mkApp2 (mkConst ``And) lhs rhs)) == some F
+    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize
+      (← `(∀ (α : Type) (x : α), x = x)) none)
+  check ((← testDepHOEq depEqForall) == some depEqBody) "testDepHOEq failed"
+  let fTy ← Lean.Elab.Term.TermElabM.run' <|
+    Lean.Elab.Term.elabTermAndSynthesize (← `((α : Type) → α → Prop)) none
+  withLocalDeclD `F fTy fun F => do
+    let lhs := mkForall `α .default (mkSort 1)
+      (mkForall `x .default (mkBVar 0) (mkApp2 F (mkBVar 1) (mkBVar 0)))
+    let rhs := mkForall `β .default (mkSort 1)
+      (mkForall `y .default (mkBVar 0) (mkApp2 F (mkBVar 1) (mkBVar 0)))
+    check ((← testDepHOPin (mkApp2 (mkConst ``And) lhs rhs)) == some F) "testDepHOPin failed"
   let finForall ← Lean.Elab.Term.TermElabM.run' do
-    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize (← `(∀ (n : Nat) (v : Fin n), v.val < n)) none)
-  assert! (← testDepHOFin finForall).isSome
-  let eLetNested := mkLambda `x .default natTy (mkLet `y natTy (mkNatAdd (mkBVar 0) one) (mkNatAdd (mkBVar 0) two))
-  assert! (← testLetHONested eLetNested) == some (mkLambda `y .default natTy (mkNatAdd (mkBVar 0) two))
+    instantiateMVars (← Lean.Elab.Term.elabTermAndSynthesize
+      (← `(∀ (n : Nat) (v : Fin n), v.val < n)) none)
+  check (← testDepHOFin finForall).isSome "testDepHOFin failed"
+  let eLetNested :=
+    mkLambda `x .default natTy
+      (mkLet `y natTy (mkNatAdd (mkBVar 0) one) (mkNatAdd (mkBVar 0) two))
+  check ((← testLetHONested eLetNested) ==
+    some (mkLambda `y .default natTy (mkNatAdd (mkBVar 0) two))) "testLetHONested failed"
   let eLetFlat := mkLet `y natTy one (mkNatAdd (mkBVar 0) two)
-  assert! (← testLetHOFlat eLetFlat) == some (mkLambda `y .default natTy (mkNatAdd (mkBVar 0) two))
+  check ((← testLetHOFlat eLetFlat) ==
+    some (mkLambda `y .default natTy (mkNatAdd (mkBVar 0) two))) "testLetHOFlat failed"
   let eLetUnused := mkLet `y natTy one (mkNatLit 42)
-  assert! (← testLetHOFlat eLetUnused) == some (mkLambda `y .default natTy (mkNatLit 42))
+  check ((← testLetHOFlat eLetUnused) ==
+    some (mkLambda `y .default natTy (mkNatLit 42))) "testLetHOFlat unused failed"
   withLocalDeclD `P (← mkArrow natTy (mkSort 0)) fun P => do
     let e2 := mkApp2 (mkConst ``And)
       (mkForall `x .default natTy (mkApp P (mkBVar 0)))
-      (mkForall `y .default natTy (mkApp (mkLambda `z .default natTy (mkApp P (mkBVar 0))) (mkBVar 0)))
-    assert! (← testTwoHOBetaEta e2) == some P
-  assert! (← testSelfPinLinterClean (mkNatAdd one one))
-  assert! !(← testSelfPinLinterClean eAdd)
+      (mkForall `y .default natTy
+        (mkApp (mkLambda `z .default natTy (mkApp P (mkBVar 0))) (mkBVar 0)))
+    check ((← testTwoHOBetaEta e2) == some P) "testTwoHOBetaEta failed"
+  check (← testSelfPinLinterClean (mkNatAdd one one)) "testSelfPinLinterClean hit failed"
+  check (!(← testSelfPinLinterClean eAdd)) "testSelfPinLinterClean miss failed"
 
-end ExprQuotSpikeA
+end ExprQuotMatchTest

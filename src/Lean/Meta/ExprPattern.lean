@@ -39,15 +39,31 @@ Defines:
 
 namespace Lean.Meta
 
-/-- Engine selecting how an `ExprPattern` is matched against a target `Expr`. -/
+/--
+Engine selecting how an `ExprPattern` is matched against a target `Expr`.
+
+Note on `let` preservation: `/structural +zeta` is the faithful non-substituting look-through
+engine. The `isDefEq`-based engines (`/reducible`, `/instances`, `/defeq`) lift and re-wrap outer
+or inspected `let` expressions when possible, but still fall back to `isDefEq` substitution when a
+`let` value depends on a pattern binder, and may return captures in `isDefEq`-normalized form.
+-/
 inductive ExprMatchEngine where
   /-- Truly syntactic structural matching (modulo `mdata`, assigned metavariables, and proofs). -/
   | structural
-  /-- Definitional equality with `.reducible` transparency as the base unfold set. -/
+  /--
+  Definitional equality with `.reducible` transparency as the base unfold set (see `ExprMatchEngine`
+  notes on `isDefEq` `let`-substitution and normalization).
+  -/
   | reducible
-  /-- Definitional equality with `.instances` transparency as the base unfold set. -/
+  /--
+  Definitional equality with `.instances` transparency as the base unfold set (see `ExprMatchEngine`
+  notes on `isDefEq` `let`-substitution and normalization).
+  -/
   | instances
-  /-- Definitional equality with `.default` transparency as the base unfold set. -/
+  /--
+  Definitional equality with `.default` transparency as the base unfold set (see `ExprMatchEngine`
+  notes on `isDefEq` `let`-substitution and normalization).
+  -/
   | defeq
   /-- Sym matching engine (runtime implemented in B5). -/
   | sym
@@ -1227,6 +1243,28 @@ mutual
   termination_by (sizeOf pe, whnfFuel, 1, letFuel)
 end
 
+private def mayIntroduceLet (env : Environment) (fuel : Nat) (e : Expr) : Nat × Bool :=
+  if e.hasFVar then
+    (0, true)
+  else
+    match fuel with
+    | 0 => (0, true)
+    | fuel + 1 =>
+      match e with
+      | .letE .. | .fvar _ | .proj .. => (fuel, true)
+      | .const c _ =>
+        match env.find? c with
+        | some (.defnInfo _) => (fuel, true)
+        | _ => (fuel, false)
+      | .mdata _ b => mayIntroduceLet env fuel b
+      | .app f a =>
+        let (fuel, hit) := mayIntroduceLet env fuel f
+        if hit then (fuel, true) else mayIntroduceLet env fuel a
+      | .lam _ t b _ | .forallE _ t b _ =>
+        let (fuel, hit) := mayIntroduceLet env fuel t
+        if hit then (fuel, true) else mayIntroduceLet env fuel b
+      | .bvar _ | .sort _ | .lit _ | .mvar _ => (fuel, false)
+
 private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
   let transparency := match rel.engine with
@@ -1235,6 +1273,7 @@ private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     | .instances  => .instances
     | .defeq      => .default
     | .sym        => .reducible
+  let env ← getEnv
   let e ← instantiateMVarsIfNeeded e
   let pins ← pins.mapM instantiateMVarsIfNeeded
   let runAt (target : Expr) (liftedLets : Array LetEntry) : MetaM (Option (Array Expr)) := do
@@ -1245,8 +1284,17 @@ private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
         match ← runDefEqOnce p pinIdxs pins transparency rel.flags false false target with
         | some σ => pure (some σ)
         | none   =>
-          runDefEqOnce p pinIdxs pins transparency rel.flags
-            rel.flags.zeta rel.flags.zeta target
+          -- Skip the zeta fallback when no `let`s were lifted and bounded inspection finds no
+          -- `fvar`s, `letE`s, projections, or unfoldable definitions that could expose a `let`.
+          let needZeta := !liftedLets.isEmpty ||
+            (mayIntroduceLet env 64 target).2 ||
+            (mayIntroduceLet env 64 p.body).2 ||
+            pins.any fun pin => (mayIntroduceLet env 64 pin).2
+          if needZeta then
+            runDefEqOnce p pinIdxs pins transparency rel.flags
+              rel.flags.zeta rel.flags.zeta target
+          else
+            pure none
     return res.map fun σ =>
       if liftedLets.isEmpty then σ else σ.map (rewrapLets · liftedLets)
   let runCore :=
@@ -1274,6 +1322,10 @@ private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
 /--
 Match `p` with pre-resolved relation `rel` and direct pin values `pins` at `pinIdxs`, returning
 bound values in `p.namedIdx` order. Does not re-resolve simp items or rebuild `p.lam` per call.
+
+Under `.structural`, captured subterms are not deeply mvar-instantiated below head position (for
+`O(|pattern|)` performance); callers inspecting captured values structurally should run
+`instantiateMVars` if nested assigned metavariables need resolving.
 -/
 def ExprPattern.matchResolvedPins? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
@@ -1285,12 +1337,19 @@ def ExprPattern.matchResolvedPins? (p : ExprPattern) (rel : ResolvedExprMatchRel
   | .reducible | .instances | .defeq =>
     matchDefEq? p rel pinIdxs pins e
 
-/-- Match `p` against `e` under a pre-resolved relation `rel`. -/
+/--
+Match `p` against `e` under a pre-resolved relation `rel`. See `matchResolvedPins?` regarding
+nested assigned metavariables in captured subterms.
+-/
 def ExprPattern.matchResolved? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (e : Expr) : MetaM (Option (Array Expr)) :=
   p.matchResolvedPins? rel #[] #[] e
 
-/-- Match `p` against `e` under relation `rel` and optional runtime local-def unfold items. -/
+/--
+Match `p` against `e` under relation `rel` and optional runtime local-def unfold items.
+Captured subterms under `.structural` are not deeply mvar-instantiated below head position; call
+`instantiateMVars` if inspecting nested assigned metavariables structurally.
+-/
 def ExprPattern.match? (p : ExprPattern) (rel : ExprMatchRel) (e : Expr)
     (localItems : Array (Bool × Expr) := #[]) : MetaM (Option (Array Expr)) := do
   let r ← rel.resolve localItems
@@ -1303,7 +1362,7 @@ def ExprPattern.arg (xs : Array Expr) (i : Nat) : Expr :=
 
 /--
 CPS matching combinator accepting a pre-resolved relation `rel`, avoiding per-call rule resolution
-and pin lambda reconstruction.
+and pin lambda reconstruction. See `matchResolvedPins?` regarding nested assigned metavariables.
 -/
 @[inline]
 def ExprPattern.matchResolvedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
@@ -1316,6 +1375,8 @@ def ExprPattern.matchResolvedOrElse {m : Type → Type v} [Monad m] [MonadLiftT 
 /--
 CPS matching combinator resolving `rel` via the runtime site cache keyed by `siteId`, pre-seeding
 `pins` at `pinIdxs` directly without rebuilding `p.lam`, and invoking `onMatch` or `onFail`.
+Captured subterms under `.structural` are not deeply mvar-instantiated below head position; call
+`instantiateMVars` if inspecting nested assigned metavariables structurally.
 -/
 @[inline]
 def ExprPattern.matchSiteOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
@@ -1331,6 +1392,7 @@ def ExprPattern.matchSiteOrElse {m : Type → Type v} [Monad m] [MonadLiftT Meta
 CPS matching combinator used by native `match`/`let`/`if let` compilation on `Expr` patterns.
 Pre-seeds `pins` at `pinIdxs` directly without rebuilding `p.lam`, resolves `rel`, matches against
 `e`, and invokes `onMatch` with the bound `?`-variables or `onFail ()` if matching fails.
+See `matchSiteOrElse` regarding nested assigned metavariables in captured subterms.
 -/
 @[inline]
 def ExprPattern.matchOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}

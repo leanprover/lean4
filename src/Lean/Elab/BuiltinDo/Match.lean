@@ -166,21 +166,30 @@ def withElaboratedLHS {α} (patternVarDecls : Array Term.PatternVarDecl) (patter
 
 private abbrev DoMatchAltView := Term.MatchAltView ``doSeq
 
-private def elabMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
-    (alt : DoMatchAltView) (dec : DoElemCont) : DoElabM (AltLHS × Expr) := withRef alt.ref do
+private def elabDoMatchAltCore {α : Type} (discrs : Array Term.Discr) (matchType : Expr)
+    (alt : DoMatchAltView)
+    (k : AltLHS → Array Expr → (List LocalDecl → Array Expr → TermElabM Expr) → TermElabM α)
+    (dec : DoElemCont) : DoElabM α := withRef alt.ref do
   let (patternVars, alt) ← Term.collectPatternVars alt
   trace[Elab.do.match] "patternVars: {patternVars}"
   controlAtTermElabM fun runInBase => do
   Term.withPatternVars patternVars fun patternVarDecls => do
     withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS =>
       Term.withEqs discrs altLHS.patterns fun eqs =>
-        withLocalInstances altLHS.fvarDecls <| runInBase do
-          trace[Elab.do.match] "elabMatchAlt: {alt.lhs}"
-          let rhs ← elabDoSeq alt.rhs dec
-          let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs
-          let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
-          trace[Elab.do.match] "rhs: {rhs}"
-          return (altLHS, rhs)
+        k altLHS eqs fun extraInsts extraFVars =>
+          withLocalInstances (altLHS.fvarDecls ++ extraInsts) <| runInBase do
+            trace[Elab.do.match] "elabMatchAlt: {alt.lhs}"
+            let rhs ← elabDoSeq alt.rhs dec
+            let xs :=
+              altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs ++ extraFVars
+            let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
+            trace[Elab.do.match] "rhs: {rhs}"
+            return rhs
+
+private def elabMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
+    (alt : DoMatchAltView) (dec : DoElemCont) : DoElabM (AltLHS × Expr) :=
+  elabDoMatchAltCore discrs matchType alt
+    (fun altLHS _ finish => return (altLHS, ← finish [] #[])) dec
 
 private def isNonDepMatchType (matchType : Expr) (numDiscrs : Nat) : Bool :=
   go matchType numDiscrs
@@ -191,22 +200,16 @@ where
     | _, _ => false
 
 private def elabExprMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
-    (alt : DoMatchAltView) (specs : Array Term.ExprQuot.AltExprSlotSpec) (dec : DoElemCont) :
-    DoElabM Term.ExprQuot.ExprMatchAlt := withRef alt.ref do
-  let (patternVars, alt) ← Term.collectPatternVars alt
-  trace[Elab.do.match] "patternVars: {patternVars}"
-  controlAtTermElabM fun runInBase => do
-  Term.withPatternVars patternVars fun patternVarDecls => do
-    withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS =>
-      Term.withEqs discrs altLHS.patterns fun eqs =>
-        Term.ExprQuot.withElaboratedExprSlots specs altLHS.fvarDecls.toArray eqs fun slots quotFVarDecls =>
-          withLocalInstances (altLHS.fvarDecls ++ quotFVarDecls.toList) <| runInBase do
-            trace[Elab.do.match] "elabExprMatchAlt: {alt.lhs}"
-            let rhs ← elabDoSeq alt.rhs dec
-            let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs ++ quotFVarDecls.map LocalDecl.toExpr
-            let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
-            trace[Elab.do.match] "rhs: {rhs}"
-            return { altLHS, eqsCount := eqs.size, slots, quotFVarDecls, rhs }
+    (alt : DoMatchAltView) (origPats : Array (Option Syntax))
+    (specs : Array Term.ExprQuot.AltExprSlotSpec) (dec : DoElemCont) :
+    DoElabM Term.ExprQuot.ExprMatchAlt :=
+  elabDoMatchAltCore discrs matchType alt
+    (fun altLHS eqs finish =>
+      Term.ExprQuot.withElaboratedExprSlots specs altLHS.patterns altLHS.fvarDecls.toArray eqs
+          fun slots quotFVarDecls => do
+        let rhs ← finish quotFVarDecls.toList (quotFVarDecls.map LocalDecl.toExpr)
+        return { altLHS, eqsCount := eqs.size, slots, quotFVarDecls, rhs, origPats })
+    dec
 
 private def elabMatchAlts (discrs : Array Term.Discr) (alts : Array DoMatchAltView) (dec : DoElemCont) : DoElabM (Expr × Array AltLHS × Array Expr) := do
   let matchType ← mkDepMatchMotive discrs (← mkMonadApp (← read).doBlockResultType)
@@ -227,6 +230,10 @@ private def compileMatch (discrs : Array Term.Discr) (matchType : Expr) (lhss : 
   trace[Elab.do.match] "result: {r}"
   return r
 
+private inductive DoMatchAltResult where
+  | ordinary (lhss : List AltLHS) (rhss : Array Expr)
+  | exprQuot (alts : Array Term.ExprQuot.ExprMatchAlt)
+
 private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView)
     (nondupDec : DoElemCont) : DoElabM Expr := do
   let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs)
@@ -239,27 +246,29 @@ private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array D
     let alts ← Term.expandMacrosInPatterns alts
     if Term.ExprQuot.hasExprQuotInAltViews alts then
       Term.ExprQuot.checkNoEqProofOnQuotDiscrs (discrs.map (·.h?)) alts
+      let origAltsPats := alts.map fun alt => alt.patterns.map some
       let (ordAlts, altSpecs) ← Term.ExprQuot.extractAltExprQuots alts
       let matchType ← mkDepMatchMotive discrs (← mkMonadApp (← read).doBlockResultType)
-      let exprAlts ← (ordAlts.zip altSpecs).mapM fun (alt, specs) =>
-        elabExprMatchAlt discrs matchType alt specs dec
+      let exprAlts ← (Array.range ordAlts.size).mapM fun idx =>
+        elabExprMatchAlt discrs matchType (ordAlts.getD idx default) (origAltsPats.getD idx #[])
+          (altSpecs.getD idx #[]) dec
       Term.synthesizeSyntheticMVars
       let matchType ← instantiateMVars matchType
       let lhss ← Term.instantiateAltLHSs (exprAlts.map (·.altLHS))
       let exprAlts ← (exprAlts.zip lhss.toArray).mapM fun (alt, newLHS) =>
         Term.ExprQuot.instantiateExprMatchAltMVars alt newLHS
-      return (discrs, matchType, Sum.inr exprAlts)
+      return (discrs, matchType, DoMatchAltResult.exprQuot exprAlts)
     else
       let (matchType, lhss, rhss) ← elabMatchAlts discrs alts dec
       Term.synthesizeSyntheticMVars
       let lhss ← Term.instantiateAltLHSs lhss
-      return (discrs, matchType, Sum.inl (lhss, rhss))
+      return (discrs, matchType, DoMatchAltResult.ordinary lhss rhss)
   match altsRes with
-  | Sum.inl (lhss, rhss) => compileMatch discrs matchType lhss rhss
-  | Sum.inr exprAlts =>
+  | .ordinary lhss rhss => compileMatch discrs matchType lhss rhss
+  | .exprQuot exprAlts =>
     let isDep := !isNonDepMatchType matchType discrs.size
     Term.ExprQuot.compileExprMatch (discrs.map (·.expr)) (discrs.map fun d => d.h?.map (·.getId))
-      matchType isDep exprAlts Term.reportMatcherResultErrors Term.reportUnusedAlt
+      matchType isDep exprAlts Term.reportMatcherResultErrors Term.reportUnusedAltMsg
 
 def isSyntaxMatch (alts : Array (TSyntax ``matchAlt)) : Bool :=
   alts.any (fun alt =>

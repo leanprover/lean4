@@ -277,6 +277,9 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx.setArg 2 arg
   else if k == ``Lean.Parser.Term.inaccessible then
     return stx
+  else if k == ``Lean.Parser.Term.exprQuotPatSlot then
+    discard <| processVar stx[0]
+    return stx
   else if k == ``Lean.Parser.Term.exprQuot then
     let ids ← ExprQuot.collectExprQuotPatternVars stx
     for id in ids do

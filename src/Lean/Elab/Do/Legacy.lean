@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Util
+import Lean.Elab.ExprQuot
 meta import Lean.Parser.Do
 import Init.Omega
 
@@ -671,12 +672,18 @@ def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
 
 -- support both regular and syntax match
 def getPatternVarsEx (pattern : Syntax) : TermElabM (Array Var) :=
-  getPatternVars pattern <|>
-  Quotation.getPatternVars pattern
+  if ExprQuot.hasExprQuotInPat pattern then
+    getPatternVars pattern
+  else
+    Quotation.getPatternVars pattern <|>
+    getPatternVars pattern
 
 def getPatternsVarsEx (patterns : Array Syntax) : TermElabM (Array Var) :=
-  getPatternsVars patterns <|>
-  Quotation.getPatternsVars patterns
+  if patterns.any ExprQuot.hasExprQuotInPat then
+    getPatternsVars patterns
+  else
+    Quotation.getPatternsVars patterns <|>
+    getPatternsVars patterns
 
 def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Var) := do
   -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser

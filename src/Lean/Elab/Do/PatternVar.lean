@@ -10,6 +10,7 @@ public import Lean.Elab.Term
 meta import Lean.Parser.Do
 import Lean.Elab.PatternVar
 import Lean.Elab.Quotation
+import Lean.Elab.ExprQuot
 
 public section
 
@@ -25,13 +26,19 @@ open Lean Meta Parser.Term
 -- of the catch-all "unsupported pattern in syntax match".
 def getPatternVarsEx (pattern : Term) : TermElabM (Array Ident) :=
   open TSyntax.Compat in -- until PatternVar := Ident
-  Term.Quotation.getPatternVars pattern <|>
-  Term.getPatternVars pattern
+  if Term.ExprQuot.hasExprQuotInPat pattern then
+    Term.getPatternVars pattern
+  else
+    Term.Quotation.getPatternVars pattern <|>
+    Term.getPatternVars pattern
 
 def getPatternsVarsEx (patterns : Array Term) : TermElabM (Array Ident) :=
   open TSyntax.Compat in -- until PatternVar := Ident
-  Term.Quotation.getPatternsVars patterns <|>
-  Term.getPatternsVars patterns
+  if patterns.any (Term.ExprQuot.hasExprQuotInPat ·) then
+    Term.getPatternsVars patterns
+  else
+    Term.Quotation.getPatternsVars patterns <|>
+    Term.getPatternsVars patterns
 
 private def getLetIdVars (letId : TSyntax ``letId) : TermElabM (Array Ident) := do
   match letId with

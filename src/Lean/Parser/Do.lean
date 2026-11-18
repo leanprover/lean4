@@ -224,8 +224,15 @@ def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
   "match " >> optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >>
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
+/--
+Pattern matching inside a `do` block with a default `expr` quotation relation `(modulo := rel)`.
+Supports `(dependent := ...)`, `(generalizing := ...)`, `(motive := ...)`, and `(modulo := rel)`
+options and forwards `(modulo := rel)` to all `` `(expr| ...) `` patterns in the alternatives
+unless overridden per pattern.
+-/
 @[builtin_doElem_parser low] def doMatchModulo := leading_parser:leadPrec
-  "match " >> atomic (optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >> Term.moduloParam) >>
+  "match " >> atomic (optional dependentParam >> optional Term.generalizingParam >>
+    optional Term.motive >> Term.moduloParam) >>
   optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >>
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 

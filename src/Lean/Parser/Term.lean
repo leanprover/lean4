@@ -418,43 +418,69 @@ def motive := leading_parser
   atomic ("(" >> nonReservedSymbol "motive" >> " := ") >>
     withoutPosition termParser >> ")" >> ppSpace
 
+/-- Engine override suffix `/engine` (`structural`, `reducible`, `instances`, `defeq`, `sym`) for
+`expr` quotation relations. -/
 def exprQuotEngine := leading_parser
   "/" >> checkNoWsBefore "no space after '/'" >> identNoAntiquot
 
+/-- Positive item prefix `+` permitting unfolding in an `expr` quotation relation. -/
 def exprQuotItemPos := leading_parser "+"
+/-- Negative item prefix `-` blocking unfolding in an `expr` quotation relation. -/
 def exprQuotItemNeg := leading_parser "-"
+/-- Optional `+`/`-` unfold polarity prefix on an `expr` quotation relation item. -/
 def exprQuotItemSign := exprQuotItemPos <|> exprQuotItemNeg
 
+/-- Dynamic local-definition pin `$x` or `$(e)` inside an `expr` quotation `[items]` list. -/
 def exprQuotItemPin : Parser :=
   leadingNode `Lean.Parser.Term.exprQuotItemPin maxPrec (
     "$" >> checkNoWsBefore "no space after '$'" >>
       (identNoAntiquot <|> ("(" >> withoutPosition termParser >> ")")))
 
+/-- Constant, simp-set, or local-definition item inside an `expr` quotation `[items]` list. -/
 def exprQuotItem := leading_parser
   optional exprQuotItemSign >> (exprQuotItemPin <|> identNoAntiquot)
 
+/-- Bracketed `[±item, ...]` unfold rule override list in an `expr` quotation relation. -/
 def exprQuotItems := leading_parser
   "[" >> sepBy exprQuotItem ", " (allowTrailingSep := true) >> "]"
 
-def exprQuotFlagPos := leading_parser "+" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
-def exprQuotFlagNeg := leading_parser "-" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+/-- Positive flag override `+flag` (`inst`, `beta`, `zeta`, `proj`, `eta`) in an `expr` quotation
+relation. -/
+def exprQuotFlagPos := leading_parser
+  "+" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+/-- Negative flag override `-flag` (`inst`, `beta`, `zeta`, `proj`, `eta`) in an `expr` quotation
+relation. -/
+def exprQuotFlagNeg := leading_parser
+  "-" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+/-- Explicit `±flag` reduction override in an `expr` quotation relation. -/
 def exprQuotFlag := atomic (exprQuotFlagPos <|> exprQuotFlagNeg)
 
+/-- Relation modifier suffix `[/engine] [[±item, ...]] [±flag ...]` on `` `(expr...| ...) ``. -/
 def exprQuotRel : Parser :=
   leadingNode `Lean.Parser.Term.exprQuotRel maxPrec (
     optional (checkNoWsBefore "no space before '/'" >> exprQuotEngine) >>
     optional exprQuotItems >>
     many exprQuotFlag)
 
+/-- Slash-prefixed engine selector (`/engine`) inside `(modulo := rel)`. -/
 def exprQuotModuloEngineSlash := leading_parser exprQuotEngine
+/-- Bare engine selector (`engine`) inside `(modulo := rel)`. -/
 def exprQuotModuloEngineBare := leading_parser identNoAntiquot
+/-- `(modulo := ...)` relation specification beginning with an engine name. -/
 def exprQuotModuloWithEngine := leading_parser
-  (exprQuotModuloEngineSlash <|> exprQuotModuloEngineBare) >> optional exprQuotItems >> many exprQuotFlag
+  (exprQuotModuloEngineSlash <|> exprQuotModuloEngineBare) >>
+  optional exprQuotItems >> many exprQuotFlag
+/-- `(modulo := ...)` relation specification beginning with an `[items]` list. -/
 def exprQuotModuloItems := leading_parser exprQuotItems >> many exprQuotFlag
+/-- `(modulo := ...)` relation specification consisting only of `±flag` overrides. -/
 def exprQuotModuloFlags := leading_parser many1 exprQuotFlag
+/-- Body of a `(modulo := rel)` option on `match` (engine, `[items]`, and/or `±flags`). -/
 def exprQuotRelModulo := leading_parser
   exprQuotModuloWithEngine <|> exprQuotModuloItems <|> exprQuotModuloFlags
 
+/-- Default matching relation option `(modulo := rel)` for `match` expressions using
+`` `(expr| ...) `` patterns. Per-pattern `/engine`, `[items]`, and `±flags` extend or override
+this default. -/
 def moduloParam := leading_parser
   atomic ("(" >> nonReservedSymbol "modulo" >> " := ") >> exprQuotRelModulo >> ")" >> ppSpace
 
@@ -495,6 +521,12 @@ they are not.
   "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >>
   " with" >> ppDedent matchAlts
 
+/--
+Pattern matching with a default `expr` quotation relation `(modulo := rel)`.
+Allows combining `(generalizing := ...)`, `(motive := ...)`, and `(modulo := rel)` in any order;
+`(modulo := rel)` sets the default matching engine/items/flags for `` `(expr| ...) `` patterns in
+the alternatives unless overridden per pattern.
+-/
 @[builtin_term_parser low] def matchModulo := leading_parser:leadPrec
   "match " >> atomic (optional generalizingParam >> optional motive >> moduloParam) >>
   optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >>
@@ -1209,13 +1241,31 @@ appropriate parameter for the underlying monad's `ST` effects, then passes it to
 @[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
   "`(" >> ident >> "| " >> incQuotDepth (parserOfStack 1) >> ")"
 
+/--
+Quasi-quoted `Expr` pattern quotation `` `(expr| p) `` or `` `(expr/engine [items] ±flags| p) ``.
+Inside pattern matches (`match`, `let`, `if let`, `do`-block matches), `?x` and `?P x y` bind
+matched subexpressions of type `Expr`, `$e` pins runtime `Expr` values, and `_` acts as a
+wildcard. Optional relation modifiers configure the matching engine (`/structural`, `/reducible`,
+`/instances`, `/defeq`, `/sym`), unfold rules (`[±c, ...]`), and flags (`±inst`, `±beta`, `±zeta`,
+`±proj`, `±eta`).
+-/
 @[builtin_term_parser default+1] def exprQuot := leading_parser
-  atomic ("`(" >> checkNoWsBefore "no space before 'expr'" >> nonReservedSymbol "expr" >> exprQuotRel >> "| ") >>
+  atomic ("`(" >> checkNoWsBefore "no space before 'expr'" >>
+    nonReservedSymbol "expr" >> exprQuotRel >> "| ") >>
   withoutPosition (incQuotDepth termParser) >> ")"
 
+/-- Internal syntax node wrapping a preprocessed `?P x y` / `$f a b` hole application in an `expr`
+quotation pattern. Not intended for direct user syntax. -/
 def exprQuotHoleApp := leading_parser
   numLit >> many argument
 builtin_initialize registerBuiltinNodeKind ``exprQuotHoleApp
+
+/-- Internal syntax node pairing a synthetic match placeholder identifier with the original `expr`
+quotation syntax for pattern elaboration and error attribution. Not intended for direct user
+syntax. -/
+def exprQuotPatSlot := leading_parser
+  ident >> exprQuot
+builtin_initialize registerBuiltinNodeKind ``exprQuotPatSlot
 
 /--
 Implementation of the `show_term` term elaborator.

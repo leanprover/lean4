@@ -75,31 +75,30 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
          return true
 
 /--
-  Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
+  Similar to `synthesizeInstMVarCore?`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
-private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
+private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM (Option Bool) :=
   instMVar.withContext do
     try
-      synthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?)
+      synthesizeInstMVarCore? instMVar (extraErrorMsg? := extraErrorMsg?)
     catch
-      | ex@(.error ..) => logException ex; return true
+      | ex@(.error ..) => logException ex; return some true
       | _              => unreachable!
 
 /-- Returns `true` if `instMVar` got stuck before and none of the metavariables it was blocked on has been assigned since. -/
 private def isStuckTCUnchanged (instMVar : MVarId) : TermElabM Bool := do
   let some (mvarIds, levelMVarIds) := (← get).stuckTCMVars.get? instMVar | return false
-  if (← instMVar.isAssigned) then return false
   if (← mvarIds.anyM fun mvarId => return (← mvarId.isAssigned) || (← mvarId.isDelayedAssigned)) then return false
   if (← levelMVarIds.anyM isLevelMVarAssigned) then return false
   return true
 
 /--
 Records the metavariables `instMVar`'s goal is blocked on. We only record when they are the only
-input that can change, i.e., the instance metavariable is unassigned and the local instances contain
-no metavariables.
+input that can change, i.e., the local instances contain no metavariables. A stuck synthesis depends
+on the type of `instMVar` only, so `instMVar` itself can be assigned, e.g. to `?m x` by `elimMVarDeps`.
 -/
 private def recordStuckTC (instMVar : MVarId) : TermElabM Unit := instMVar.withContext do
-  if (← instMVar.isAssigned) || (← read).ignoreTCFailures then return
+  if (← read).ignoreTCFailures then return
   for localInst in (← getLocalInstances) do
     if (← instantiateMVars (← inferType localInst.fvar)).hasMVar then return
   let type ← instantiateMVars (← instMVar.getType)
@@ -566,10 +565,9 @@ mutual
     match mvarSyntheticDecl.kind with
     | .typeClass extraErrorMsg? =>
       if (← isStuckTCUnchanged mvarId) then return false
-      if (← synthesizePendingInstMVar mvarId extraErrorMsg?) then
-        return true
-      recordStuckTC mvarId
-      return false
+      let some synthesized ← synthesizePendingInstMVar mvarId extraErrorMsg?
+        | recordStuckTC mvarId; return false
+      return synthesized
     | .coe _header? expectedType e _f? _ => mvarId.withContext do
       if (← withDefault do isDefEq (← inferType e) expectedType) then
         -- Types may be defeq now due to mvar assignments, type class

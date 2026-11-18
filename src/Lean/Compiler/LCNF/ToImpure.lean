@@ -98,6 +98,47 @@ Lowers a `cases` on `discr` of the inductive type `indName` that has alternative
 storing their index in a field (`CtorLayout.extCidx?`), which `alts` pairs them with. These
 constructors share one object tag, so the default alternative of the `cases` on the object tag
 matches on that field.
+
+For example, if `T.c1` has its own object tag and `T.c300` and `T.c301` store their index in a
+field,
+```
+cases x : obj
+| T.c1 => a
+| T.c300 => b
+| T.c301 => c
+```
+is lowered to
+```
+cases x : obj
+| T.c1 => a
+| _ =>
+  let _cidx := oproj[0] x;
+  cases _cidx : obj
+  | T.c300 => b
+  | T.c301 => c
+```
+A default alternative becomes a join point, as it then also has to be reached from the `cases` on
+the field and from explicit alternatives for all other constructors with their own object tag:
+```
+cases x : obj
+| T.c1 => a
+| T.c300 => b
+| _ => d
+```
+is lowered to
+```
+jp _jp : obj := d;
+cases x : obj
+| T.c1 => a
+| T.c0 => goto _jp
+| T.c2 => goto _jp
+...
+| _ =>
+  let _cidx := oproj[0] x;
+  cases _cidx : obj
+  | T.c300 => b
+  | _ => goto _jp
+```
 -/
 def lowerExtCases (indName : Name) (typeName : Name) (resultType : Expr) (discr : FVarId)
     (alts : Array (Alt .impure × Option Nat)) : CompilerM (Code .impure) := do

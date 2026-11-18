@@ -716,6 +716,27 @@ def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → Do
   doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
 /--
+Moves every unassigned natural or synthetic metavariable `?m` of `e` whose local context contains
+one of `xs` to the local context `lctx`, if the type of `?m` mentions no `xs` and no metavariable
+whose local context contains one of `xs`. Returns `e` with the moved metavariables instantiated.
+-/
+private def hoistMVars (lctx : LocalContext) (insts : LocalInstances) (xs : Array Expr)
+    (e : Expr) : MetaM Expr := do
+  let fvarIds := xs.map Expr.fvarId!
+  let dependsOnXs (decl : MetavarDecl) := fvarIds.any decl.lctx.contains
+  let mut moved := false
+  for mvarId in ← getMVarsNoDelayed e do
+    let decl ← mvarId.getDecl
+    if decl.kind.isSyntheticOpaque || !dependsOnXs decl then continue
+    if ← mvarId.isReadOnly then continue
+    let type ← instantiateMVars decl.type
+    if type.hasAnyFVar fvarIds.contains then continue
+    if ← (← getMVars type).anyM fun m => return dependsOnXs (← m.getDecl) then continue
+    mvarId.assign (← mkFreshExprMVarAt lctx insts type decl.kind decl.userName)
+    moved := true
+  if moved then instantiateMVars e else return e
+
+/--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
 elaborated once to fill in the RHS of this join point.
@@ -753,11 +774,14 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   let body? : Option Expr ← observingPostpone elabBody
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
+    let outerLCtx ← getLCtx
+    let outerInsts ← getLocalInstances
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
     let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
-    mkLambdaFVars (#[r] ++ muts) (← instantiateMVars e)
+    let e ← hoistMVars outerLCtx outerInsts (#[r] ++ muts) (← instantiateMVars e)
+    mkLambdaFVars (#[r] ++ muts) e
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     joinRhsMVar.mvarId!.withContext do
       throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\

@@ -216,7 +216,7 @@ run_cmd do
   checkScaling "manyMut" manyMut 20 2.5
   checkScaling "flatActions" flatActions 50 2.9
   checkScaling "ifSeqTyped" (ifSeq true) 50 2.9
-  checkScaling "ifSeqUntyped" (ifSeq false) 10 4.2
+  checkScaling "ifSeqUntyped" (ifSeq false) 10 3.6
   checkScaling "nestedIf" nestedIf 20 2.7
   checkScaling "postpone" postpone 10 6.0
   checkScaling "nestedTry" nestedTry 4 3.8

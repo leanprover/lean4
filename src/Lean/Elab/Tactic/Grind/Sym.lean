@@ -31,22 +31,32 @@ public instance (priority := low) {m : Type → Type v} [MonadLiftT GrindTacticM
     Meta.MonadSym m where
   liftSym x := liftM (liftSymM x)
 
-def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderIdent) : GrindTacticM Unit := do
-  ensureSym
+/-- Introduces one binder from the main goal, optionally internalizing it into the `grind`
+state, and updates the main goal. -/
+public def intro1 (internalize : Bool := false) : GrindTacticM (FVarId × Meta.Grind.Goal) := do
   let hygienic := tactic.hygienic.get (← getOptions)
   let goal ← getMainGoal
-  let goal ←
-    if ids.isEmpty then
-      match (← liftSymM <| Grind.Goal.introN goal 1 hygienic) with
-      | .goal _ goal => pure goal
-      | .failed => throwError "`intro` failed, no binders to introduce"
-    else
-      let names ← ids.mapM fun id => match id with
-        | `(binderIdent| $name:ident) => pure name.getId
-        | `(binderIdent| $_) => mkFreshBinderNameForTactic `h
-      match (← liftSymM <| Grind.Goal.intros goal names hygienic) with
-      | .goal _ goal => pure goal
-      | .failed => throwError "`intro` failed"
+  match (← liftSymM <| Grind.Goal.introN goal 1 hygienic) with
+  | .goal xs goal =>
+    let some fvarId := xs[0]? | throwError "`intro1` failed"
+    let goal ← if internalize then liftGrindM <| Grind.Goal.internalizeAll goal else pure goal
+    replaceMainGoal [goal]
+    return (fvarId, goal)
+  | .failed => throwError "`intro` failed, no binders to introduce"
+
+def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderIdent) : GrindTacticM Unit := do
+  ensureSym
+  if ids.isEmpty then
+    discard <| intro1 internalize
+    return
+  let hygienic := tactic.hygienic.get (← getOptions)
+  let goal ← getMainGoal
+  let names ← ids.mapM fun id => match id with
+    | `(binderIdent| $name:ident) => pure name.getId
+    | `(binderIdent| $_) => mkFreshBinderNameForTactic `h
+  let goal ← match (← liftSymM <| Grind.Goal.intros goal names hygienic) with
+    | .goal _ goal => pure goal
+    | .failed => throwError "`intro` failed"
   let goal ← if internalize then liftGrindM <| Grind.Goal.internalizeAll goal else pure goal
   replaceMainGoal [goal]
 
@@ -75,47 +85,84 @@ def evalIntrosCore (internalize : Bool) : GrindTacticM Unit := do
   | `(grind| intros (internalize := true)) => evalIntrosCore true
   | _ => throwUnsupportedSyntax
 
+/-- Returns the instantiated target type of the main goal. -/
+public def getMainTarget : GrindTacticM Expr := do
+  instantiateMVars (← (← getMainGoal).mvarId.getType)
+
+/-- Head-beta-reduces the target of the main goal if it is a head-beta redex, preserving
+maximally shared representation via `Sym.share`. -/
+public def headBetaMainGoal : GrindTacticM Unit := do
+  let goal ← getMainGoal
+  let ty ← instantiateMVars (← goal.mvarId.getType)
+  if ty.isHeadBetaTarget then
+    let mvarId ← goal.mvarId.replaceTargetDefEq (← liftSymM (Sym.share ty.headBeta))
+    replaceMainGoal [{ goal with mvarId }]
+
 /-- Get or create a `BackwardRule` for a declaration, using the name cache. -/
-def getOrCreateBackwardRule (declName : Name) : GrindTacticM Sym.BackwardRule := do
+public def getOrCreateBackwardRule (declName : Name) : GrindTacticM Sym.BackwardRule := do
   if let some rule := (← get).cache.backwardRuleName.find? declName then
     return rule
   let rule ← Sym.mkBackwardRuleFromDecl declName
   modify fun s => { s with cache.backwardRuleName := s.cache.backwardRuleName.insert declName rule }
   return rule
 
-/-- Get or create a `BackwardRule` for a term, using the syntax position cache. -/
-def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardRule := do
+/--
+Get or create a `BackwardRule` for a term. An identifier that is not shadowed by a local
+declaration of the main goal and resolves to a global constant uses the name cache
+(`getOrCreateBackwardRule`); any other term is elaborated in the main goal's context and cached by
+syntax position.
+-/
+public def getOrCreateBackwardRuleFromTerm (term : Syntax) : GrindTacticM Sym.BackwardRule :=
+  withMainContext do
+  if let `($id:ident) := term then
+    if ((← getLCtx).findFromUserName? id.getId).isNone then
+      if let some declName ← observing? (realizeGlobalConstNoOverloadWithInfo id) then
+        return ← getOrCreateBackwardRule declName
   let startPos := term.getPos?.map (·.byteIdx) |>.getD 0
   let endPos := term.getTailPos?.map (·.byteIdx) |>.getD 0
   let pos := (startPos, endPos)
   if let some rule := (← get).cache.backwardRuleSyntax.find? pos then
     return rule
-  let e ← withMainContext do
-    let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVars (postpone := .no)
-    instantiateMVars e
-  let rule ← Sym.mkBackwardRuleFromExpr e
+  let e ← Term.elabTerm term none
+  Term.synthesizeSyntheticMVars (postpone := .no)
+  let rule ← Sym.mkBackwardRuleFromExpr (← instantiateMVars e)
   modify fun s => { s with cache.backwardRuleSyntax := s.cache.backwardRuleSyntax.insert pos rule }
   return rule
+
+/-- Applies a `Sym.BackwardRule` to the main goal, replacing it with the resulting subgoals. -/
+public def applyBackwardRule (rule : Sym.BackwardRule) : GrindTacticM Unit := do
+  let goal ← getMainGoal
+  match (← liftSymM <| Grind.Goal.apply goal rule) with
+  | .goals subgoals => replaceMainGoal subgoals
+  | .failed => throwError "`apply` failed, rule is not applicable"
+
+/-- Applies a cached `Sym.BackwardRule` built from declaration `declName` to the main goal. -/
+public def applyDecl (declName : Name) : GrindTacticM Unit := do
+  applyBackwardRule (← getOrCreateBackwardRule declName)
+
+/-- Attempts to close the main goal by reflexivity (`Eq.refl`). Returns `true` on success. -/
+public def refl? : GrindTacticM Bool := do
+  let goal ← getMainGoal
+  let rule ← getOrCreateBackwardRule ``Eq.refl
+  let res ← observing? do
+    match (← liftSymM <| Grind.Goal.apply goal rule) with
+    | .goals [] => replaceMainGoal []
+    | _ => failure
+  return res.isSome
+
+/-- Attempts to close the main goal using a matching hypothesis in the local context.
+Returns `true` on success. -/
+public def assumption? : GrindTacticM Bool := do
+  let goal ← getMainGoal
+  if ← goal.assumption then
+    replaceMainGoal []
+    return true
+  return false
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symApply] def evalSymApply : GrindTactic := fun stx => do
   ensureSym
   let `(grind| apply $term:term) := stx | throwUnsupportedSyntax
-  let goal ← getMainGoal
-  goal.withContext do
-  -- Try to interpret as a declaration name for efficient caching
-  let rule ← match term with
-  | `($id:ident) =>
-    try
-      let declName ← realizeGlobalConstNoOverload id
-      getOrCreateBackwardRule declName
-    catch _ =>
-      getOrCreateBackwardRuleFromTerm term
-  | _ =>
-    getOrCreateBackwardRuleFromTerm term
-  match (← liftSymM <| Grind.Goal.apply goal rule) with
-  | .goals subgoals => replaceMainGoal subgoals
-  | .failed => throwError "`apply` failed, rule is not applicable"
+  applyBackwardRule (← getOrCreateBackwardRuleFromTerm term)
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symInternalize] def evalSymInternalize : GrindTactic := fun stx => do
   ensureSym

@@ -380,18 +380,12 @@ def pruneInfeasibleSym (h : FVarId) : GrindTacticM Bool := withMainContext do
 def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
   let evalM ← mkMethods evalLemmas
   let postM ← mkMethods (evalLemmas ++ postLemmas)
-  let ruleCache ← IO.mkRef ({} : Std.HashMap Name Sym.BackwardRule)
   let unfoldCache ← IO.mkRef ({} : Std.HashMap Name Sym.Simp.Methods)
   let cache ← IO.mkRef ({} : Sym.Simp.State)
   let currentGoal? ← IO.mkRef (none : Option MVarId)
   let setSubgoals (gs : List Grind.Goal) : GrindTacticM Unit := do
     currentGoal?.set (gs.head?.map (·.mvarId))
     replaceMainGoal gs
-  let getRule (decl : Name) : GrindTacticM Sym.BackwardRule := do
-    if let some r := (← ruleCache.get)[decl]? then return r
-    let r ← Sym.mkBackwardRuleFromDecl decl
-    ruleCache.modify (·.insert decl r)
-    return r
   let getUnfoldMethods (f : Name) : GrindTacticM Sym.Simp.Methods := do
     if let some m := (← unfoldCache.get)[f]? then return m
     let thms := (← Sym.Simp.mkTheoremsFromDecl f).foldl (·.insert ·) ({} : Sym.Simp.Theorems)
@@ -409,59 +403,57 @@ def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
     | .closed => return none
     | .noProgress => return some g
     | .goal mvarId => return some { g with mvarId }
-  let applyRule (g : Grind.Goal) (rule : Name) : GrindTacticM (List Grind.Goal) := do
-    let .goals gs ← liftSymM (g.apply (← getRule rule))
-      | throwError "exec_sym: {rule} does not apply"
-    return gs
   /- Closes `lhs = some ?v`: simplify, then `rfl`, else a precondition. -/
-  let solveLookup (g : Grind.Goal) : GrindTacticM Unit := do
-    let some g ← simpEval g | return
-    if let .goals [] ← liftSymM (g.apply (← getRule ``Eq.refl)) then return
-    unless ← closeByHyp g.mvarId do
-      throwError "exec_sym: cannot evaluate{indentExpr (← g.mvarId.getType)}"
+  let solveLookup : GrindTacticM Unit := do
+    let some g ← simpEval (← getMainGoal) | replaceMainGoal []; return
+    replaceMainGoal [g]
+    if ← refl? then return
+    if ← assumption? then return
+    throwError "exec_sym: cannot evaluate{indentExpr (← getMainTarget)}"
   /- Applies `rule`, solves its leading evaluation premise, and continues with the rest. -/
-  let applyEval (g : Grind.Goal) (rule : Name) : GrindTacticM Unit := do
-    let gEval :: gs ← applyRule g rule | throwError "exec_sym: {rule} has no premise"
-    solveLookup gEval
+  let applyEval (rule : Name) : GrindTacticM Unit := focus do
+    applyDecl rule
+    focus solveLookup
+    let gs ← getUnsolvedGoals
     let gs ← if cfg.eager then gs.filterMapM simpEval else pure gs
-    setSubgoals gs
+    currentGoal?.set (gs.head?.map (·.mvarId))
+    setGoals gs
+  let apply (rule : Name) : GrindTacticM Unit := focus do
+    applyDecl rule
+    currentGoal?.set ((← getUnsolvedGoals).head?.map (·.mvarId))
   while !(← getUnsolvedGoals).isEmpty do
     let goal ← getMainGoal
     if cfg.cache && (← currentGoal?.get) != some goal.mvarId then cache.set {}
-    let ty ← goal.mvarId.getType
-    let goal ← if !ty.isHeadBetaTarget then pure goal else do
-      let mvarId ← goal.mvarId.replaceTargetDefEq (← liftSymM (Sym.share ty.headBeta))
-      let goal := { goal with mvarId }
-      replaceMainGoal [goal]
-      pure goal
-    let apply rule := do setSubgoals (← applyRule goal rule)
-    match ← goal.mvarId.getType with
+    headBetaMainGoal
+    match ← getMainTarget with
     | `(expr/sym| Exec .skip _ _ _ _) => apply ``Exec.skip
     | `(expr/sym| Exec (.seq _ _) _ _ _ _) => apply ``Exec.seq_cps
-    | `(expr/sym| Exec (.set _ _) _ _ _ _) => applyEval goal ``Exec.set
+    | `(expr/sym| Exec (.set _ _) _ _ _ _) => applyEval ``Exec.set
     | `(expr/sym| Exec (.unset _) _ _ _ _) => apply ``Exec.unset
     | `(expr/sym| Exec (.input _) _ _ _ _) => apply ``Exec.input
-    | `(expr/sym| Exec (.output _) _ _ _ _) => applyEval goal ``Exec.output
-    | `(expr/sym| Exec (.cond _ _ _) _ _ _ _) => applyEval goal ``Exec.cond_split
-    | `(expr/sym| Exec ?c ?t ?m ?l ?post) => goal.mvarId.withContext do
-      let some f := c.getAppFn.constName? | throwError "exec_sym: cannot unfold{indentExpr c}"
-      let .step c' pf .. ← liftSymM <|
-        Sym.Simp.SimpM.run' (methods := ← getUnfoldMethods f) (Sym.Simp.simp c)
-        | throwError "exec_sym: cannot unfold{indentExpr c}"
-      let c' ← liftSymM (Sym.share c')
-      let g ← mkFreshExprSyntheticOpaqueMVar (← `(expr/sym| Exec $c' $t $m $l $post))
-      let prf := mkAppN (mkConst ``Exec.congr_cmd) #[c, c', t, m, l, post, pf, g]
-      goal.mvarId.assign prf
-      setSubgoals [{ goal with mvarId := g.mvarId! }]
+    | `(expr/sym| Exec (.output _) _ _ _ _) => applyEval ``Exec.output
+    | `(expr/sym| Exec (.cond _ _ _) _ _ _ _) => applyEval ``Exec.cond_split
+    | `(expr/sym| Exec ?c ?t ?m ?l ?post) =>
+      let goal ← getMainGoal
+      goal.mvarId.withContext do
+        let some f := c.getAppFn.constName? | throwError "exec_sym: cannot unfold{indentExpr c}"
+        let .step c' pf .. ← liftSymM <|
+          Sym.Simp.SimpM.run' (methods := ← getUnfoldMethods f) (Sym.Simp.simp c)
+          | throwError "exec_sym: cannot unfold{indentExpr c}"
+        let c' ← liftSymM (Sym.share c')
+        let g ← mkFreshExprSyntheticOpaqueMVar (← `(expr/sym| Exec $c' $t $m $l $post))
+        let prf := mkAppN (mkConst ``Exec.congr_cmd) #[c, c', t, m, l, post, pf, g]
+        goal.mvarId.assign prf
+        setSubgoals [{ goal with mvarId := g.mvarId! }]
     | ty =>
       if isExecTelescope ty then
-        let .goal #[h] goal ← liftSymM (goal.introN 1) | throwError "exec_sym: intro failed"
-        replaceMainGoal [goal]
+        let (h, goal) ← intro1
         if ← pruneInfeasibleSym h then
           currentGoal?.set none
         else
           currentGoal?.set (some goal.mvarId)
       else
+        let goal ← getMainGoal
         match ← liftSymM (Sym.simpGoal goal.mvarId postM { maxSteps := 100000 }) with
         | .closed => setSubgoals []
         | r =>

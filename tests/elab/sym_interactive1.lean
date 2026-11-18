@@ -211,3 +211,28 @@ example (as : List Nat) (h : as = []) (h1 : as.length = b) : b = 0 := by
   sym =>
     instantiate
     by_contra
+
+/-! ## `apply` with identifiers: global constants (with implicit arguments) and shadowing locals -/
+
+theorem symApplyTarget {p : Prop} (hp : p) : p ∧ True := ⟨hp, trivial⟩
+
+example (h : myP 1) : myP 1 ∧ True := by
+  sym =>
+    apply symApplyTarget
+    apply h
+
+example (h : myP 1) : myP 1 ∧ True := by
+  sym =>
+    apply @symApplyTarget (myP 1)
+    apply h
+
+axiom symApplyShadowed : myQ 0
+
+-- A local hypothesis shadows the global constant of the same name.
+example (symApplyShadowed : myP 2) : myP 2 := by
+  sym =>
+    apply symApplyShadowed
+
+example : myQ 0 := by
+  sym =>
+    apply symApplyShadowed

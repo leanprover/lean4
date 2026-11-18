@@ -21,12 +21,15 @@ import Lean.Compiler.NoncomputableAttr
 public section
 
 /-!
-# Quasi-Quoted `Expr` Pattern Elaboration and Native `match` Compilation
+# Quasi-Quoted `Expr` Pattern Elaboration, Term Building, and Native `match` Compilation
 
 Implements:
 - `` `(expr[rel]| p) `` pattern parsing/preprocessing (`?x` binders, `?P x y` higher-order binders,
   `$e` pins, `_` wildcards), elaboration via `elabExprQuotHoleApp` and `elabExprQuotPatSlot`, and
   per-module deduplicated `ExprPattern` auxiliary constants (`exprPatExt`).
+- `` `(expr[rel]| t) `` term-position template building (`elabExprQuotTerm`, `exprTmplExt`),
+  preserving sharing and zero beta-reduction, checking splice types under `rel`, synthesizing
+  splice-dependent type-class instances at runtime, and opening `?h`/`?_` `refine` holes.
 - `match (modulo := rel)` macro expansion for both term-mode and `do`-mode matches.
 - Native `match`/`if let`/`let ... |` join-point dispatch (`compileExprMatch`), mixing ordinary
   constructors and `Expr` quotations cleanly with exact exhaustiveness/redundancy diagnostics and
@@ -277,10 +280,12 @@ private def elabPinExpr (termStx : Syntax) (isIdentPin : Bool) : TermElabM Expr 
 
 /--
 Elaborate `exprQuotRel` syntax into a static `ExprMatchRel` plus any dynamic `$x` item pins
-evaluated in the current local context.
+evaluated in the current local context. Pattern quotations default to `.structural`, while
+term-building quotations pass `defaultEngine := .defeq`.
 -/
-def elabExprMatchRel (relStx : Syntax) : TermElabM (ExprMatchRel × Array (Bool × Expr)) := do
-  let mut engine : ExprMatchEngine := .structural
+def elabExprMatchRel (relStx : Syntax) (defaultEngine : ExprMatchEngine := .structural) :
+    TermElabM (ExprMatchRel × Array (Bool × Expr)) := do
+  let mut engine : ExprMatchEngine := defaultEngine
   unless relStx[0].isNone do
     engine ← elabExprMatchEngine relStx[0][0]
   let mut items : Array ExprMatchItem := #[]
@@ -423,11 +428,45 @@ private structure PatCacheKey where
 private builtin_initialize exprPatExt : EnvExtension (Std.HashMap PatCacheKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
-private def mkAuxPatConst (pat : ExprPattern) : TermElabM Expr := do
+private structure TmplCacheKey where
+  levelParams : List Name
+  lam         : Expr
+  varKinds    : Array ExprTemplateVarKind
+  isPrivate   : Bool
+  isMeta      : Bool
+  deriving BEq, Hashable
+
+private builtin_initialize exprTmplExt : EnvExtension (Std.HashMap TmplCacheKey Name) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+private def auxDeclContextFlags : TermElabM (Bool × Bool) := do
   let env ← getEnv
   let isMeta := (← read).isMetaSection || (← read).declName?.any (isMarkedMeta env) ||
     (← read).declName?.isNone
   let isPrivate := env.header.isModule && !env.isExporting
+  return (isPrivate, isMeta)
+
+private def addAuxClosedDecl (auxBase : Name) (isPrivate isMeta : Bool)
+    (type value : Expr) : TermElabM Name := do
+  let env ← getEnv
+  let baseName ← Term.mkAuxName auxBase
+  let auxName := if isPrivate then mkPrivateName env baseName else baseName
+  let decl := Declaration.defnDecl {
+    name        := auxName
+    levelParams := []
+    type
+    value
+    hints       := .opaque
+    safety      := .safe
+  }
+  let logCompileErrors := !(← read).isNoncomputableSection &&
+    !(← read).declName?.any (Lean.isNoncomputable env)
+  addAndCompile decl (logCompileErrors := logCompileErrors) (markMeta := isMeta)
+  return auxName
+
+private def mkAuxPatConst (pat : ExprPattern) : TermElabM Expr := do
+  let env ← getEnv
+  let (isPrivate, isMeta) ← auxDeclContextFlags
   let key : PatCacheKey := {
     levelParams := pat.levelParams
     lam         := pat.lam
@@ -455,21 +494,43 @@ private def mkAuxPatConst (pat : ExprPattern) : TermElabM Expr := do
     mkListLitExpr pairTy proofPairs,
     toExpr pat.precomputed
   ]
-  let baseName ← Term.mkAuxName `exprPat
-  let patAuxName := if isPrivate then mkPrivateName env baseName else baseName
-  let decl := Declaration.defnDecl {
-    name        := patAuxName
-    levelParams := []
-    type        := mkConst ``ExprPattern
-    value       := patVal
-    hints       := .opaque
-    safety      := .safe
-  }
-  let logCompileErrors := !(← read).isNoncomputableSection &&
-    !(← read).declName?.any (Lean.isNoncomputable env)
-  addAndCompile decl (logCompileErrors := logCompileErrors) (markMeta := isMeta)
+  let patAuxName ← addAuxClosedDecl `exprPat isPrivate isMeta (mkConst ``ExprPattern) patVal
   modifyEnv fun env => exprPatExt.modifyState env (·.insert key patAuxName)
   return mkConst patAuxName
+
+private def quoteExprTemplateVarKind : ExprTemplateVarKind → Expr
+  | .splice pos     => mkApp (mkConst ``ExprTemplateVarKind.splice) (toExpr pos)
+  | .hole userName? =>
+    let optTy := mkConst ``Name
+    let optExpr := match userName? with
+      | none   => mkApp (mkConst ``Option.none [0]) optTy
+      | some n => mkApp2 (mkConst ``Option.some [0]) optTy (toExpr n)
+    mkApp (mkConst ``ExprTemplateVarKind.hole) optExpr
+  | .tc             => mkConst ``ExprTemplateVarKind.tc
+  | .infer          => mkConst ``ExprTemplateVarKind.infer
+
+private def mkAuxTmplConst (tmpl : ExprTemplate) : TermElabM Expr := do
+  let env ← getEnv
+  let (isPrivate, isMeta) ← auxDeclContextFlags
+  let key : TmplCacheKey := {
+    levelParams := tmpl.levelParams
+    lam         := tmpl.lam
+    varKinds    := tmpl.varKinds
+    isPrivate
+    isMeta
+  }
+  let state := exprTmplExt.getState env
+  let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
+  if let some cachedName := cached? then
+    return mkConst cachedName
+  let tmplVal := mkApp3 (mkConst ``ExprTemplate.mk)
+    (mkListLitExpr (mkConst ``Name) (tmpl.levelParams.map toExpr))
+    (← quoteExpr tmpl.lam)
+    (← mkArrayLit (mkConst ``ExprTemplateVarKind)
+      (tmpl.varKinds.toList.map quoteExprTemplateVarKind))
+  let tmplAuxName ← addAuxClosedDecl `exprTmpl isPrivate isMeta (mkConst ``ExprTemplate) tmplVal
+  modifyEnv fun env => exprTmplExt.modifyState env (·.insert key tmplAuxName)
+  return mkConst tmplAuxName
 
 /-! ## Pattern preprocessing & elaboration -/
 
@@ -648,7 +709,8 @@ def elabExprQuotHoleApp : TermElab := fun stx expectedType? => do
       isDistinctBinder := isDistinctBinder.push false
   let mut pTy ←
     if fvarBinders.isEmpty then
-      withLCtx {} {} mkFreshTypeMVar
+      let u ← withLCtx {} {} mkFreshLevelMVar
+      withLCtx {} {} <| mkFreshExprMVar (some (mkSort u))
     else
       let u ← withLCtx {} {} mkFreshLevelMVar
       let retTyFunTy ← mkForallFVars fvarBinders (mkSort u)
@@ -1653,8 +1715,401 @@ def compileExprMatch (discrs : Array Expr) (discrHNames : Array (Option Name))
   -- 2. Bind non-fvar discriminants once when non-dependent, then emit join-point dispatch.
   bindDiscrsAndDispatch discrs discrHNames matchType isDep isExhaustive alts 0 #[]
 
-/-- Term-position elaboration stub for `` `(expr[rel]| t) `` (implemented in B3). -/
-@[builtin_term_elab Lean.Parser.Term.exprQuot] def elabExprQuotTerm : TermElab := fun stx _ => do
-  throwErrorAt stx "expr quotation `{stx}` in term (building) position is not implemented yet (B3)"
+/-! ## Term-position building `` `(expr[rel]| t) `` -/
+
+private inductive TermPlaceholderKind where
+  | splice (term : Syntax) (isIdent : Bool)
+  | hole (userName? : Option Name)
+  deriving Inhabited
+
+private structure TermPreprocessState where
+  kinds           : Array TermPlaceholderKind := #[]
+  holeNames       : Array Name := #[]
+  namedHoleIdxs   : NameMap Nat := {}
+  namedSpliceIdxs : NameMap Nat := {}
+
+private def recordTermPlaceholder (k : TermPlaceholderKind) (baseName : Name) :
+    StateT TermPreprocessState TermElabM (Nat × Name) := do
+  let idx := (← get).kinds.size
+  let holeName ← mkFreshUserName baseName
+  modify fun s => { s with
+    kinds     := s.kinds.push k
+    holeNames := s.holeNames.push holeName
+  }
+  return (idx, holeName)
+
+private def recordTermSplice (aqTerm : Syntax) :
+    StateT TermPreprocessState TermElabM (Nat × Name) := do
+  if aqTerm.isIdent then
+    let name := aqTerm.getId
+    if let some idx := (← get).namedSpliceIdxs.find? name then
+      return (idx, (← get).holeNames.getD idx `__eqSplice)
+    let (idx, holeName) ← recordTermPlaceholder (.splice aqTerm true) (`__eqSplice ++ name)
+    modify fun s => { s with namedSpliceIdxs := s.namedSpliceIdxs.insert name idx }
+    return (idx, holeName)
+  else
+    recordTermPlaceholder (.splice aqTerm false) `__eqSplice
+
+private def recordTermHole (holeStx : Syntax) :
+    StateT TermPreprocessState TermElabM (Nat × Name) := do
+  if holeStx[1].isIdent then
+    let id : Ident := ⟨holeStx[1]⟩
+    let name := id.getId
+    if let some idx := (← get).namedHoleIdxs.find? name then
+      return (idx, (← get).holeNames.getD idx name)
+    let (idx, holeName) ← recordTermPlaceholder (.hole (some name)) (`__eqHole ++ name)
+    modify fun s => { s with namedHoleIdxs := s.namedHoleIdxs.insert name idx }
+    return (idx, holeName)
+  else
+    recordTermPlaceholder (.hole none) `__eqHole_anon
+
+private def preprocessTermAppHead (fnStx : Syntax)
+    (elabArgs : StateT TermPreprocessState TermElabM (Array Syntax)) :
+    StateT TermPreprocessState TermElabM (Option Syntax) := do
+  if fnStx.isOfKind ``Parser.Term.syntheticHole then
+    let (idx, holeName) ← recordTermHole fnStx
+    let newArgs ← elabArgs
+    return some <| mkHoleAppOrApp fnStx idx holeName newArgs
+  else if fnStx.isAntiquot && !fnStx.isEscapedAntiquot then
+    let aqTerm := fnStx.getAntiquotTerm
+    if aqTerm.isOfKind ``Parser.Term.hole then
+      throwErrorAt fnStx "expected `$e` splice; use `?_` for a metavariable hole"
+    let newArgs ← elabArgs
+    let (idx, holeName) ← recordTermSplice aqTerm
+    return some <| mkHoleAppOrApp fnStx idx holeName newArgs
+  else
+    return none
+
+private def preprocessExprTermStx (stx : Syntax) :
+    StateT TermPreprocessState TermElabM Syntax := do
+  if stx.isOfKind ``Parser.Term.syntheticHole then
+    let (idx, _) ← recordTermHole stx
+    return mkPlaceholderSyntax stx idx
+  if stx.isAntiquot then
+    if stx.isEscapedAntiquot then
+      return Syntax.unescapeAntiquot stx
+    let aqTerm := stx.getAntiquotTerm
+    if aqTerm.isOfKind ``Parser.Term.hole then
+      throwErrorAt stx "expected `$e` splice; use `?_` for a metavariable hole"
+    let (idx, _) ← recordTermSplice aqTerm
+    return mkPlaceholderSyntax stx idx
+  if stx.isQuot || isExprQuot stx then
+    return stx
+  match stx with
+  | .node i k args =>
+    if k == ``Parser.Term.app then
+      if _h0 : 0 < args.size then
+        if h1 : 1 < args.size then
+          let fnStx := args[0]
+          let argsNode := args[1]
+          let elabArgs : StateT TermPreprocessState TermElabM (Array Syntax) :=
+            match hNode : argsNode with
+            | .node _ _ innerArgs => do
+              let mut out := Array.emptyWithCapacity innerArgs.size
+              for hMem : a in innerArgs do
+                have hSub1 : sizeOf a < sizeOf innerArgs := Array.sizeOf_lt_of_mem hMem
+                have hSub2 : sizeOf argsNode < sizeOf args :=
+                  Array.sizeOf_lt_of_mem (Array.getElem_mem h1)
+                have hNodeSize : sizeOf innerArgs < sizeOf argsNode := by
+                  rw [hNode]; simp_wf; omega
+                have hSize : sizeOf a < 1 + sizeOf i + sizeOf k + sizeOf args := by omega
+                out := out.push (← preprocessExprTermStx a)
+              return out
+            | _ => return #[]
+          if let some res ← preprocessTermAppHead fnStx elabArgs then
+            return res
+    let mut newArgs := Array.emptyWithCapacity args.size
+    for a in args do
+      newArgs := newArgs.push (← preprocessExprTermStx a)
+    return .node i k newArgs
+  | _ => return stx
+termination_by sizeOf stx
+
+private def addExprDepsAtDepth (curDepth : Nat) (ty : Expr)
+    (detM : MVarIdSet) (detL : Std.HashSet LMVarId) :
+    TermElabM (MVarIdSet × Std.HashSet LMVarId) := do
+  let ty ← instantiateMVars ty
+  let mvs ← getMVars ty
+  let lvs := (collectLevelMVars {} ty).result
+  let mctx ← getMCtx
+  let mut detM' := detM
+  for m in mvs do
+    if (mctx.findDecl? m).any (·.depth == curDepth) then
+      detM' := detM'.insert m
+  let mut detL' := detL
+  for l in lvs do
+    if mctx.getLevelDepth l == curDepth then
+      detL' := detL'.insert l
+  return (detM', detL')
+
+private def exprMVarsAndLevelsSubset (curDepth : Nat) (mctx : MetavarContext)
+    (e : Expr) (detM : MVarIdSet) (detL : Std.HashSet LMVarId) : TermElabM Bool := do
+  let e ← instantiateMVars e
+  let mvs ← getMVars e
+  for m in mvs do
+    if (mctx.findDecl? m).any (·.depth == curDepth) then
+      unless detM.contains m do
+        return false
+  let lvs := (collectLevelMVars {} e).result
+  for l in lvs do
+    if mctx.getLevelDepth l == curDepth then
+      unless detL.contains l do
+        return false
+  return true
+
+private def levelMVarsSubset (curDepth : Nat) (mctx : MetavarContext)
+    (u : Level) (detL : Std.HashSet LMVarId) : Bool :=
+  let lvs := (collectLevelMVars {} (mkSort u)).result
+  lvs.all fun l =>
+    if mctx.getLevelDepth l == curDepth then detL.contains l else true
+
+private def computeTemplateDetermined (curDepth : Nat) (rMVars : Array Expr)
+    (spliceMap : Std.HashMap MVarId Nat) (pendingTCMap : Std.HashMap MVarId Expr) :
+    TermElabM (MVarIdSet × Std.HashSet LMVarId × MVarIdSet) := do
+  let mut detM : MVarIdSet := {}
+  let mut detL : Std.HashSet LMVarId := {}
+  let mut validTCs : MVarIdSet := {}
+  let mut expanded : MVarIdSet := {}
+  for (mId, _) in spliceMap do
+    detM := detM.insert mId
+  for _ in *...(rMVars.size + 2) do
+    let mut progressed := false
+    let curList := detM.toList
+    for mId in curList do
+      unless expanded.contains mId do
+        expanded := expanded.insert mId
+        if let some decl := (← getMCtx).findDecl? mId then
+          let (detM', detL') ← addExprDepsAtDepth curDepth decl.type detM detL
+          if detM'.size != detM.size || detL'.size != detL.size then
+            progressed := true
+          detM := detM'
+          detL := detL'
+    for mv in rMVars do
+      let id := mv.mvarId!
+      if pendingTCMap.contains id && !validTCs.contains id then
+        let tcTy ← instantiateMVars (← id.getDecl).type
+        let mctx ← getMCtx
+        let inputsOk ←
+          match ← inspectClassGoalInputs? tcTy with
+          | none => exprMVarsAndLevelsSubset curDepth mctx tcTy detM detL
+          | some (inExprs, inLvls) =>
+            let eOk ← inExprs.allM (exprMVarsAndLevelsSubset curDepth mctx · detM detL)
+            let lOk := inLvls.all (levelMVarsSubset curDepth mctx · detL)
+            pure (eOk && lOk)
+        if inputsOk then
+          validTCs := validTCs.insert id
+          let (detM', detL') ← addExprDepsAtDepth curDepth tcTy detM detL
+          detM := detM'
+          detL := detL'
+          progressed := true
+    unless progressed do
+      break
+  return (detM, detL, validTCs)
+
+private def reportTermBuildErrors (e : Expr) (refStx : Syntax)
+    (badMVars : Array MVarId) (badLMVars : Array LMVarId)
+    (pendingTCMap : Std.HashMap MVarId Expr)
+    (autoHoleTypes : Std.HashMap MVarId (Option Name)) : TermElabM Unit := do
+  -- Keep only `badMVars` errors in `Core.State.messages` while calling `logUnassigned*`
+  -- so `MonadLog.hasErrors` does not mask them; callers restore saved messages in `finally`.
+  for id in badMVars do
+    if pendingTCMap.contains id then
+      if let some syn ← Term.getSyntheticMVarDecl? id then
+        try
+          let tcTy ← instantiateMVars (← id.getDecl).type
+          discard <| synthInstance tcTy
+        catch ex =>
+          logErrorAt syn.stx ex.toMessageData
+          throwAbortTerm
+      let tcTy ← instantiateMVars (← id.getDecl).type
+      throwErrorAt refStx "failed to synthesize instance of type class{indentExpr tcTy}"
+    if let some syn ← Term.getSyntheticMVarDecl? id then
+      throwErrorAt syn.stx
+        "invalid `expr` quotation: unresolved coercion or postponed elaboration\
+         {indentExpr (← instantiateMVars (← id.getDecl).type)}"
+    if let some userName? := autoHoleTypes[id]? then
+      let holeStr := match userName? with
+        | some n => s!"?{n}"
+        | none   => "?_"
+      throwErrorAt refStx
+        "invalid `expr` quotation: hole `{holeStr}` has unresolved type; \
+         add a type annotation `({holeStr} : T)`"
+  if h : 0 < badMVars.size then
+    if ← Term.logUnassignedUsingErrorInfos badMVars then
+      throwAbortTerm
+    let firstId := badMVars[0]
+    let ty ← instantiateMVars (← firstId.getDecl).type
+    let mut ref := refStx
+    for info in (← get).mvarErrorInfos do
+      if info.mvarId == firstId then
+        ref := info.ref
+        break
+    throwErrorAt ref
+      "invalid `expr` quotation: unresolved placeholder or implicit argument of type{indentExpr ty}"
+  unless badLMVars.isEmpty do
+    if ← Term.logUnassignedLevelMVarsUsingErrorInfos badLMVars then
+      throwAbortTerm
+    throwErrorAt refStx
+      "invalid `expr` quotation: unresolved universe level metavariables in{indentExpr e}"
+
+/--
+Elaborate a term-position `` `(expr[rel]| t) `` quotation into a `MetaM Expr` expression that
+substitutes runtime `$e` splices into a compile-time closed template without beta-reduction or
+metavariable allocation for splices, checks splice types under `rel`, synthesizes splice-dependent
+type-class instances at run time, and instantiates `?h` / `?_` refine holes cleanly.
+-/
+@[builtin_term_elab Lean.Parser.Term.exprQuot] def elabExprQuotTerm : TermElab :=
+    fun stx expectedType? => withRef stx do
+  let (rel, localItemExprs) ← elabExprMatchRel stx[2] (defaultEngine := .defeq)
+  if rel.engine == .sym then
+    throwErrorAt stx "expr quotation `/sym` building engine is not implemented yet (Spike B / B5)"
+  let (rewrittenStx, prepState) ← (preprocessExprTermStx stx[4]).run {}
+  let mut spliceExprs : Array (Nat × Expr) := #[]
+  for h : idx in *...prepState.kinds.size do
+    if let .splice term isId := prepState.kinds[idx] then
+      let sVal ← elabPinExpr term isId
+      spliceExprs := spliceExprs.push (idx, sVal)
+  let (tmpl, splicesArgList) ← withoutModifyingElabMetaStateWithInfo <|
+    withLCtx {} {} <| withoutErrToSorry <| Term.withoutAutoBoundImplicit <|
+    withNewMCtxDepth do
+      modify fun s => { s with
+        syntheticMVars := {}
+        pendingMVars := []
+        mvarErrorInfos := []
+        levelMVarErrorInfos := []
+      }
+      let autoHoleTypesRef ← IO.mkRef ({} : Std.HashMap MVarId (Option Name))
+      let mut fixedElabs : Array FixedTermElab := #[]
+      for h : idx in *...prepState.holeNames.size do
+        let holeName := prepState.holeNames[idx]
+        let kind := prepState.kinds.getD idx (.hole none)
+        fixedElabs := fixedElabs.push fun expTy? => do
+          if let some mvarId := (← getMCtx).findUserName? holeName then
+            Term.ensureHasType expTy? (← instantiateMVars (mkMVar mvarId))
+          else
+            let u ← withLCtx {} {} mkFreshLevelMVar
+            let tyMV ← withLCtx {} {} <| mkFreshExprMVar (some (mkSort u))
+            let mv ← withLCtx {} {} <| mkFreshExprMVar (some tyMV) .syntheticOpaque holeName
+            if let .hole userName? := kind then
+              if expTy?.isNone then
+                autoHoleTypesRef.modify (·.insert tyMV.mvarId! userName?)
+            Term.ensureHasType expTy? mv
+      let baseOffset := (← read).fixedTermElabs.size
+      let elabBodyStx := shiftElabPlaceholders baseOffset rewrittenStx
+      let savedMsgs := (← getThe Core.State).messages
+      modifyThe Core.State fun s => { s with messages := {} }
+      let restoreMsgs : TermElabM Unit := do
+        let curMsgs := (← getThe Core.State).messages
+        modifyThe Core.State fun s => { s with messages := savedMsgs ++ curMsgs }
+      let e ←
+        try
+          let e ← withReader (fun ctx => { ctx with
+              fixedTermElabs := ctx.fixedTermElabs ++ fixedElabs.map (·.toFixedTermElabRef)
+            }) do
+              let e ← Term.elabTerm elabBodyStx none
+              Term.synthesizeSyntheticMVars (postpone := .partial)
+              instantiateMVars e
+          if (← getThe Core.State).messages.hasErrors then
+            restoreMsgs
+            throwAbortTerm
+          pure e
+        catch ex =>
+          restoreMsgs
+          throw ex
+      let curDepth := (← getMCtx).depth
+      let mctx ← getMCtx
+      let holeMVars ← (prepState.holeNames.zipIdx).mapM fun (holeName, hIdx) => do
+        if let some mvarId := mctx.findUserName? holeName then
+          return mkMVar mvarId
+        else
+          restoreMsgs
+          match prepState.kinds.getD hIdx (.hole none) with
+          | .splice _ _ =>
+            throwError "splice `$...` was eliminated during quotation elaboration:\
+              {indentD stx[4]}"
+          | .hole userName? =>
+            let hStr := match userName? with | some n => s!"?{n}" | none => "?_"
+            throwError "hole `{hStr}` was eliminated during quotation elaboration:\
+              {indentD stx[4]}"
+      let mut spliceMap : Std.HashMap MVarId Nat := {}
+      let mut orderedSplices : Array Expr := #[]
+      for (hIdx, sExpr) in spliceExprs do
+        let mv := holeMVars.getD hIdx default
+        let pos := orderedSplices.size
+        spliceMap := spliceMap.insert mv.mvarId! pos
+        orderedSplices := orderedSplices.push sExpr
+      let mut holeMap : Std.HashMap MVarId (Option Name) := {}
+      for h : hIdx in *...prepState.kinds.size do
+        if let .hole userName? := prepState.kinds[hIdx] then
+          let mv := holeMVars.getD hIdx default
+          holeMap := holeMap.insert mv.mvarId! userName?
+      let mut pendingTCMap : Std.HashMap MVarId Expr := {}
+      for pm in (← get).pendingMVars do
+        if let some { kind := .typeClass _, .. } ← Term.getSyntheticMVarDecl? pm then
+          pendingTCMap := pendingTCMap.insert pm (← instantiateMVars (← pm.getDecl).type)
+      let r ← abstractMVars e
+      let (detMVars, detLMVars, validTCs) ←
+        computeTemplateDetermined curDepth r.mvars spliceMap pendingTCMap
+      let mut badMVars : Array MVarId := #[]
+      let mut varKinds : Array ExprTemplateVarKind := Array.emptyWithCapacity r.mvars.size
+      for mv in r.mvars do
+        let id := mv.mvarId!
+        if let some pos := spliceMap[id]? then
+          varKinds := varKinds.push (.splice pos)
+        else if let some userName? := holeMap[id]? then
+          varKinds := varKinds.push (.hole userName?)
+        else if validTCs.contains id then
+          varKinds := varKinds.push .tc
+        else if detMVars.contains id then
+          varKinds := varKinds.push .infer
+        else
+          badMVars := badMVars.push id
+      let mut lState := collectLevelMVars {} e
+      for mv in r.mvars do
+        lState := collectLevelMVars lState (← instantiateMVars (← mv.mvarId!.getDecl).type)
+      let mctxNow ← getMCtx
+      let badLMVars := lState.result.filter fun lmv =>
+        mctxNow.getLevelDepth lmv == curDepth && !detLMVars.contains lmv
+      if !badMVars.isEmpty || !badLMVars.isEmpty then
+        let autoHoleTypes ← autoHoleTypesRef.get
+        try
+          reportTermBuildErrors e stx badMVars badLMVars pendingTCMap autoHoleTypes
+        finally
+          restoreMsgs
+      restoreMsgs
+      let tmpl : ExprTemplate := {
+        levelParams := r.paramNames.toList
+        lam         := r.expr
+        varKinds
+      }
+      return (tmpl, orderedSplices.toList)
+  let tmplConst ← mkAuxTmplConst tmpl
+  let splicesArrExpr ← mkArrayLit (mkConst ``Expr) splicesArgList
+  let callExpr ←
+    if rel.items.isEmpty && localItemExprs.isEmpty then
+      let resolvedRelExpr := quoteResolvedExprMatchRel rel
+      mkAppM ``ExprTemplate.instantiateResolved #[tmplConst, resolvedRelExpr, splicesArrExpr]
+    else
+      let relExpr ← quoteExprMatchRel rel
+      let boolExprProd := mkApp2 (mkConst ``Prod [0, 0]) (mkConst ``Bool) (mkConst ``Expr)
+      let localItemList ← localItemExprs.toList.mapM fun (pos, e) =>
+        mkAppM ``Prod.mk #[toExpr pos, e]
+      let localItemsArrExpr ← mkArrayLit boolExprProd localItemList
+      let siteIdExpr := toExpr (tmplConst.constName?.getD .anonymous)
+      mkAppM ``ExprTemplate.instantiateSite
+        #[siteIdExpr, tmplConst, relExpr, splicesArrExpr, localItemsArrExpr]
+  try
+    Term.ensureHasType expectedType? callExpr
+  catch
+    | ex@(.error _ _) =>
+      if let some expTy := expectedType? then
+        let metaExprTy := mkApp (mkConst ``MetaM) (mkConst ``Expr)
+        let expTy ← instantiateMVars expTy
+        unless ← isDefEq metaExprTy expTy do
+          throwErrorAt stx
+            "type mismatch{indentD stx}\nhas type{indentExpr metaExprTy}\n\
+             but is expected to have type{indentExpr expTy}"
+      throw ex
+    | ex => throw ex
 
 end Lean.Elab.Term.ExprQuot

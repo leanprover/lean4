@@ -147,6 +147,9 @@ def testLocalLetPinItem : MetaM Bool := do
         let structuralPlusV ← match targetV with
           | `(expr/structural[+$v]| $z + Nat.zero) => pure true
           | _ => pure false
+        let structuralUnsignedV ← match targetV with
+          | `(expr/structural[$v]| $z + Nat.zero) => pure true
+          | _ => pure false
         let structuralPlusVLeavesWBlocked ← match targetW with
           | `(expr/structural[+$v]| $z + Nat.zero) => pure true
           | _ => pure false
@@ -156,7 +159,7 @@ def testLocalLetPinItem : MetaM Bool := do
         let defeqMinusVBlocked ← match targetV with
           | `(expr/defeq[-$v]| $z + Nat.zero) => pure true
           | _ => pure false
-        return !structuralDefaultBlocked && structuralPlusV &&
+        return !structuralDefaultBlocked && structuralPlusV && structuralUnsignedV &&
           !structuralPlusVLeavesWBlocked && defeqDefaultUnfolds && !defeqMinusVBlocked
 
 /-! ## 3. Nested, multi-discriminant, `as`-pattern, or-pattern, cross-pattern pins -/
@@ -846,7 +849,12 @@ def rejectWildcardPin (e : Expr) : MetaM Nat :=
   | _ => return 0
 
 /--
-error: expr quotation ``(expr| 1 + 2)` in term (building) position is not implemented yet (B3)
+error: type mismatch
+  `(expr| 1 + 2)
+has type
+  MetaM Expr
+but is expected to have type
+  Expr
 -/
 #guard_msgs in
 def rejectTermBuildingQuot : MetaM Expr :=

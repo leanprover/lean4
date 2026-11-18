@@ -420,13 +420,16 @@ def motive := leading_parser
 
 /-- Engine override suffix `/engine` (`structural`, `reducible`, `instances`, `defeq`, `sym`) for
 `expr` quotation relations. -/
-def exprQuotEngine := leading_parser
-  "/" >> checkNoWsBefore "no space after '/'" >> identNoAntiquot
+def exprQuotEngine : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotEngine maxPrec (
+    "/" >> checkNoWsBefore "no space after '/'" >> identNoAntiquot)
 
 /-- Positive item prefix `+` permitting unfolding in an `expr` quotation relation. -/
-def exprQuotItemPos := leading_parser "+"
+def exprQuotItemPos : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotItemPos maxPrec "+"
 /-- Negative item prefix `-` blocking unfolding in an `expr` quotation relation. -/
-def exprQuotItemNeg := leading_parser "-"
+def exprQuotItemNeg : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotItemNeg maxPrec "-"
 /-- Optional `+`/`-` unfold polarity prefix on an `expr` quotation relation item. -/
 def exprQuotItemSign := exprQuotItemPos <|> exprQuotItemNeg
 
@@ -437,21 +440,25 @@ def exprQuotItemPin : Parser :=
       (identNoAntiquot <|> ("(" >> withoutPosition termParser >> ")")))
 
 /-- Constant, simp-set, or local-definition item inside an `expr` quotation `[items]` list. -/
-def exprQuotItem := leading_parser
-  optional exprQuotItemSign >> (exprQuotItemPin <|> identNoAntiquot)
+def exprQuotItem : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotItem maxPrec (
+    optional exprQuotItemSign >> (exprQuotItemPin <|> identNoAntiquot))
 
 /-- Bracketed `[±item, ...]` unfold rule override list in an `expr` quotation relation. -/
-def exprQuotItems := leading_parser
-  "[" >> sepBy exprQuotItem ", " (allowTrailingSep := true) >> "]"
+def exprQuotItems : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotItems maxPrec (
+    "[" >> sepBy exprQuotItem ", " (allowTrailingSep := true) >> "]")
 
 /-- Positive flag override `+flag` (`inst`, `beta`, `zeta`, `proj`, `eta`) in an `expr` quotation
 relation. -/
-def exprQuotFlagPos := leading_parser
-  "+" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+def exprQuotFlagPos : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotFlagPos maxPrec (
+    "+" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot)
 /-- Negative flag override `-flag` (`inst`, `beta`, `zeta`, `proj`, `eta`) in an `expr` quotation
 relation. -/
-def exprQuotFlagNeg := leading_parser
-  "-" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot
+def exprQuotFlagNeg : Parser :=
+  leadingNode `Lean.Parser.Term.exprQuotFlagNeg maxPrec (
+    "-" >> checkNoWsBefore "no space before flag name" >> identNoAntiquot)
 /-- Explicit `±flag` reduction override in an `expr` quotation relation. -/
 def exprQuotFlag := atomic (exprQuotFlagPos <|> exprQuotFlagNeg)
 

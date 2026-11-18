@@ -1048,9 +1048,16 @@ private def withLocalDefItems (zetaFlag : Bool) (posFVars negFVars : Array FVarI
       posSet := posSet.insert fv
     withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := posSet }) x
 
-private def runDefEqOnce (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array Expr)
-    (transparency : TransparencyMode) (flags : ResolvedExprMatchFlags)
-    (withZeta withZetaDelta : Bool) (curE : Expr) : MetaM (Option (Array Expr)) := do
+private def engineTransparency : ExprMatchEngine → TransparencyMode
+  | .structural => .none
+  | .reducible  => .reducible
+  | .instances  => .instances
+  | .defeq      => .default
+  | .sym        => .reducible
+
+private def withRelDefEqConfig (transparency : TransparencyMode)
+    (flags : ResolvedExprMatchFlags) (withZeta withZetaDelta : Bool)
+    (k : MetaM α) : MetaM α :=
   withOptions (fun opts =>
     if !flags.proj then opts.setBool `backward.isDefEq.lazyWhnfCore false else opts) <|
   withConfig (fun cfg => { cfg with
@@ -1062,7 +1069,12 @@ private def runDefEqOnce (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array E
     zetaUnused := withZeta
     proj       := if flags.proj then .yesWithDelta else .no
     etaStruct  := if flags.eta then .all else .none
-  }) do
+  }) k
+
+private def runDefEqOnce (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array Expr)
+    (transparency : TransparencyMode) (flags : ResolvedExprMatchFlags)
+    (withZeta withZetaDelta : Bool) (curE : Expr) : MetaM (Option (Array Expr)) := do
+  withRelDefEqConfig transparency flags withZeta withZetaDelta do
     withNewMCtxDepth do
       let us ← p.levelParams.mapM fun _ => mkFreshLevelMVar
       let lam := p.lam.instantiateLevelParams p.levelParams us
@@ -1131,18 +1143,7 @@ private def needsWhnfForComposite (pe e : Expr) : Bool :=
 
 private def whnfNoZeta (transparency : TransparencyMode) (flags : ResolvedExprMatchFlags)
     (e : Expr) : MetaM Expr :=
-  withOptions (fun opts =>
-    if !flags.proj then opts.setBool `backward.isDefEq.lazyWhnfCore false else opts) <|
-  withConfig (fun cfg => { cfg with
-    transparency
-    beta       := flags.beta
-    zeta       := false
-    zetaDelta  := false
-    zetaHave   := false
-    zetaUnused := false
-    proj       := if flags.proj then .yesWithDelta else .no
-    etaStruct  := if flags.eta then .all else .none
-  }) (whnf e)
+  withRelDefEqConfig transparency flags false false (whnf e)
 
 mutual
   private def liftInspectedLetsStep (numVars : Nat) (pinIdxs : Array Nat)
@@ -1265,14 +1266,26 @@ private def mayIntroduceLet (env : Environment) (fuel : Nat) (e : Expr) : Nat ×
         if hit then (fuel, true) else mayIntroduceLet env fuel b
       | .bvar _ | .sort _ | .lit _ | .mvar _ => (fuel, false)
 
+private def withRelUnfoldRules (rel : ResolvedExprMatchRel) (k : MetaM α) : MetaM α :=
+  withLocalDefItems rel.flags.zeta rel.posFVars rel.negFVars do
+    if rel.itemRulesRev.isEmpty then
+      k
+    else
+      let pred (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+        for (pos, entry) in rel.itemRulesRev do
+          match entry with
+          | .inl c =>
+            if c == info.name then
+              return pos
+          | .inr thms =>
+            if simpTheoremsUnfolds thms info.name then
+              return pos
+        canUnfoldDefault cfg info
+      withCanUnfoldPred pred k
+
 private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
-  let transparency := match rel.engine with
-    | .structural => .none
-    | .reducible  => .reducible
-    | .instances  => .instances
-    | .defeq      => .default
-    | .sym        => .reducible
+  let transparency := engineTransparency rel.engine
   let env ← getEnv
   let e ← instantiateMVarsIfNeeded e
   let pins ← pins.mapM instantiateMVarsIfNeeded
@@ -1303,21 +1316,7 @@ private def matchDefEq? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     else
       liftInspectedLetsGo p.numVars pinIdxs transparency rel.flags p.body e 0 16
         (countLeadingLetMData e) #[] runAt
-  withLocalDefItems rel.flags.zeta rel.posFVars rel.negFVars do
-    if rel.itemRulesRev.isEmpty then
-      runCore
-    else
-      let pred (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
-        for (pos, entry) in rel.itemRulesRev do
-          match entry with
-          | .inl c =>
-            if c == info.name then
-              return pos
-          | .inr thms =>
-            if simpTheoremsUnfolds thms info.name then
-              return pos
-        canUnfoldDefault cfg info
-      withCanUnfoldPred pred runCore
+  withRelUnfoldRules rel runCore
 
 /--
 Match `p` with pre-resolved relation `rel` and direct pin values `pins` at `pinIdxs`, returning
@@ -1400,6 +1399,242 @@ def ExprPattern.matchOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m]
     (localItems : Array (Bool × Expr)) (e : Expr)
     (onMatch : Array Expr → m α) (onFail : Unit → m α) : m α :=
   p.matchSiteOrElse .anonymous rel pinIdxs pins localItems e onMatch onFail
+
+/-! ## `ExprTemplate` and Runtime Term Building -/
+
+/-- Role of an abstracted parameter inside a compiled `ExprTemplate`. -/
+inductive ExprTemplateVarKind where
+  /-- Runtime `$e` splice parameter receiving `splices[splicePos]`. -/
+  | splice (splicePos : Nat)
+  /-- Explicit `?h` / `?_` hole materialized as a fresh `.syntheticOpaque` mvar at runtime. -/
+  | hole (userName? : Option Name)
+  /-- Dependent type-class instance synthesized at runtime once input types are resolved. -/
+  | tc
+  /-- Auxiliary type or `outParam` parameter inferred from splice types and TC resolution. -/
+  | infer
+  deriving Inhabited, BEq, Hashable, Repr
+
+/--
+Compiled closed template `lam = fun x₀ … xₙ₋₁ => body` (modulo `levelParams`) produced by a
+term-position `` `(expr[rel]| t) `` quotation.
+-/
+structure ExprTemplate where
+  /-- Universe parameter names abstracted in `lam`. -/
+  levelParams : List Name
+  /-- Template expression wrapped in `varKinds.size` outer lambdas. -/
+  lam         : Expr
+  /-- Classification of each outer lambda parameter during instantiation. -/
+  varKinds    : Array ExprTemplateVarKind
+  deriving Inhabited, BEq, Hashable
+
+/--
+Inspect a pending type-class goal `goalType`. Returns `some (inputExprs, inputLevels)` listing
+the non-`outParam` argument expressions (plus outer binder domains) and non-output universe levels,
+or `none` if the goal head is not a known constant.
+-/
+def inspectClassGoalInputs? (goalType : Expr) :
+    MetaM (Option (Array Expr × Array Level)) := do
+  forallTelescopeReducing goalType fun xs typeBody => do
+    let typeBody ← whnf typeBody
+    let mut inExprs : Array Expr := #[]
+    for x in xs do
+      inExprs := inExprs.push (← x.fvarId!.getType)
+    let .const declName us := typeBody.getAppFn
+      | return none
+    let env ← getEnv
+    let outArgs := (getOutParamPositions? env declName).getD #[]
+    let outLvls := (getOutLevelParamPositions? env declName).getD #[]
+    let mut inLvls : Array Level := #[]
+    for (u, i) in us.zipIdx do
+      unless outLvls.contains i do
+        inLvls := inLvls.push u
+    let args := typeBody.getAppArgs
+    for h : i in *...args.size do
+      unless outArgs.contains i do
+        inExprs := inExprs.push args[i]
+    return some (inExprs, inLvls)
+
+private def peelTemplateLambdas (n : Nat) (e : Expr)
+    (doms : Array Expr := #[]) : Array Expr × Expr :=
+  match n, e with
+  | k + 1, .lam _ d b _ => peelTemplateLambdas k b (doms.push d)
+  | _,     _            => (doms, e)
+
+private def levelHasTempMVar (mctx : MetavarContext) (baseDepth : Nat) : Level → Bool
+  | .mvar id  => mctx.getLevelDepth id > baseDepth
+  | .succ u   => levelHasTempMVar mctx baseDepth u
+  | .max u v  => levelHasTempMVar mctx baseDepth u || levelHasTempMVar mctx baseDepth v
+  | .imax u v => levelHasTempMVar mctx baseDepth u || levelHasTempMVar mctx baseDepth v
+  | .zero | .param _ => false
+
+private def hasTempMVar (mctx : MetavarContext) (baseDepth : Nat) (e : Expr) : Bool :=
+  if !e.hasMVar then
+    false
+  else
+    (e.find? fun
+      | .mvar id    => (mctx.findDecl? id).any (·.depth > baseDepth)
+      | .sort u     => levelHasTempMVar mctx baseDepth u
+      | .const _ us => us.any (levelHasTempMVar mctx baseDepth)
+      | _           => false).isSome
+
+private def isTCGoalReady (baseDepth : Nat) (tcTy : Expr) : MetaM Bool := do
+  let mctx ← getMCtx
+  match ← inspectClassGoalInputs? tcTy with
+  | none => return !hasTempMVar mctx baseDepth tcTy
+  | some (inExprs, inLvls) =>
+    return !(inExprs.any (hasTempMVar mctx baseDepth) ||
+      inLvls.any (levelHasTempMVar mctx baseDepth))
+
+private def synthTCWithError (tcMV : MVarId) (tcTy : Expr) : MetaM Unit := do
+  let inst ←
+    try
+      synthInstance tcTy
+    catch ex =>
+      throwError "expr quotation failed to synthesize dependent instance{indentExpr tcTy}\n\
+        {ex.toMessageData}"
+  tcMV.assign inst
+
+private def resolveReadyTCsGo (baseDepth : Nat) (fuel : Nat)
+    (pending : Array MVarId) : MetaM (Array MVarId) := do
+  if pending.isEmpty then
+    return #[]
+  match fuel with
+  | 0 => return pending
+  | fuel + 1 =>
+    let mut stillPending : Array MVarId := #[]
+    let mut progressed := false
+    for tcMV in pending do
+      let tcTy ← instantiateMVars (← tcMV.getDecl).type
+      if ← isTCGoalReady baseDepth tcTy then
+        synthTCWithError tcMV tcTy
+        progressed := true
+      else
+        stillPending := stillPending.push tcMV
+    if progressed && !stillPending.isEmpty then
+      resolveReadyTCsGo baseDepth fuel stillPending
+    else
+      return stillPending
+
+private def resolveReadyTCs (baseDepth : Nat) (pending : Array MVarId) :
+    MetaM (Array MVarId) :=
+  resolveReadyTCsGo baseDepth pending.size pending
+
+/--
+Instantiate a compiled `ExprTemplate` under a pre-resolved relation `rel` and runtime splice
+values `splices`. Preserves caller pointer sharing and caller metavariables inside `splices`,
+allocates zero metavariables for splices, checks splice types with `isDefEq` under `rel`,
+synthesizes splice-dependent type-class instances, and materializes fresh `.syntheticOpaque`
+metavariables in the caller's `MCtx` for `?h` / `?_` holes.
+-/
+def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMatchRel)
+    (splices : Array Expr) : MetaM Expr := do
+  if rel.engine == .sym then
+    throwError "expr quotation `/sym` building engine is not implemented yet (Spike B / B5)"
+  let n := tmpl.varKinds.size
+  if n == 0 && tmpl.levelParams.isEmpty then
+    return tmpl.lam
+  let baseDepth := (← getMCtx).depth
+  let transparency := engineTransparency rel.engine
+  let (body, substAfterSplices, holePlans) ← withNewMCtxDepth do
+    let us ← tmpl.levelParams.mapM fun _ => mkFreshLevelMVar
+    let lam :=
+      if us.isEmpty then tmpl.lam
+      else tmpl.lam.instantiateLevelParams tmpl.levelParams us
+    let (doms, body) := peelTemplateLambdas n lam
+    let mut subst : Array Expr := Array.emptyWithCapacity doms.size
+    let mut pendingTCs : Array MVarId := #[]
+    let mut holePlaceholders : Array (Nat × MVarId × Option Name) := #[]
+    for h : i in *...doms.size do
+      let expTyRaw := doms[i].instantiateRevRange 0 subst.size subst
+      let mut expTy ← instantiateMVars expTyRaw
+      match tmpl.varKinds.getD i .infer with
+      | .infer =>
+        let mv ← mkFreshExprMVar (some expTy)
+        subst := subst.push mv
+      | .tc =>
+        let mv ← mkFreshExprMVar (some expTy) .synthetic
+        subst := subst.push mv
+        pendingTCs := pendingTCs.push mv.mvarId!
+      | .splice pos =>
+        if !pendingTCs.isEmpty && hasTempMVar (← getMCtx) baseDepth expTy then
+          pendingTCs ← resolveReadyTCs baseDepth pendingTCs
+          expTy ← instantiateMVars expTy
+        let val := splices.getD pos default
+        let argTy ← instantiateMVars (← inferType val)
+        let ok ← withRelUnfoldRules rel <|
+          withRelDefEqConfig transparency rel.flags rel.flags.zeta rel.flags.zeta <|
+            isDefEq argTy expTy
+        unless ok do
+          let expTyShown ← instantiateMVars expTy
+          throwError "expr quotation splice type mismatch: argument{indentExpr val}\n\
+            has type{indentExpr argTy}\nbut is expected to have type{indentExpr expTyShown}"
+        subst := subst.push val
+      | .hole userName? =>
+        let mv ← mkFreshExprMVar (some expTy) .syntheticOpaque
+        subst := subst.push mv
+        holePlaceholders := holePlaceholders.push (i, mv.mvarId!, userName?)
+    if !pendingTCs.isEmpty then
+      pendingTCs ← resolveReadyTCs baseDepth pendingTCs
+      for tcMV in pendingTCs do
+        let tcTy ← instantiateMVars (← tcMV.getDecl).type
+        if hasTempMVar (← getMCtx) baseDepth tcTy then
+          throwError "expr quotation failed to resolve dependent instance{indentExpr tcTy}"
+        synthTCWithError tcMV tcTy
+    let mctx ← getMCtx
+    for u in us do
+      let u' ← instantiateLevelMVars u
+      if levelHasTempMVar mctx baseDepth u' then
+        throwError "expr quotation failed to resolve universe level at runtime"
+    let body ← instantiateMVars body
+    let mut finalSubst := subst
+    for h : i in *...doms.size do
+      match tmpl.varKinds.getD i .infer with
+      | .infer | .tc =>
+        let v ← instantiateMVars (finalSubst.getD i default)
+        if hasTempMVar (← getMCtx) baseDepth v then
+          throwError "expr quotation failed to resolve implicit argument at runtime:\
+            {indentExpr v}"
+        finalSubst := finalSubst.setIfInBounds i v
+      | .splice _ | .hole _ => pure ()
+    let holePlans ← holePlaceholders.mapM fun (idx, tmpId, userName?) => do
+      let holeTy ← instantiateMVars (← tmpId.getDecl).type
+      return (idx, tmpId, userName?, holeTy)
+    return (body, finalSubst, holePlans)
+  let mut finalSubst := substAfterSplices
+  if !holePlans.isEmpty then
+    let mctx ← getMCtx
+    let mut tmpHoleMap : Std.HashMap MVarId Expr := {}
+    for (idx, tmpId, userName?, rawHoleTy) in holePlans do
+      let holeTy :=
+        if rawHoleTy.hasExprMVar && !tmpHoleMap.isEmpty then
+          rawHoleTy.replace fun
+            | .mvar id => tmpHoleMap[id]?
+            | _        => none
+        else
+          rawHoleTy
+      if hasTempMVar mctx baseDepth holeTy then
+        throwError "expr quotation failed to resolve hole type at runtime:{indentExpr holeTy}"
+      let holeMV ← mkFreshExprMVar (some holeTy) .syntheticOpaque (userName?.getD .anonymous)
+      tmpHoleMap := tmpHoleMap.insert tmpId holeMV
+      finalSubst := finalSubst.setIfInBounds idx holeMV
+  return body.instantiateRev finalSubst
+
+/--
+Instantiate a compiled `ExprTemplate`, resolving `rel` and optional runtime local `$x` items
+through the runtime per-site cache keyed by `siteId`.
+-/
+def ExprTemplate.instantiateSite (siteId : Name) (tmpl : ExprTemplate) (rel : ExprMatchRel)
+    (splices : Array Expr) (localItems : Array (Bool × Expr) := #[]) : MetaM Expr := do
+  let r ← rel.resolve localItems siteId
+  tmpl.instantiateResolved r splices
+
+/--
+General entry point to instantiate a compiled `ExprTemplate` under relation `rel`, runtime
+`splices`, and optional local `$x` definition overrides.
+-/
+def ExprTemplate.instantiate (tmpl : ExprTemplate) (rel : ExprMatchRel)
+    (splices : Array Expr) (localItems : Array (Bool × Expr) := #[]) : MetaM Expr :=
+  ExprTemplate.instantiateSite .anonymous tmpl rel splices localItems
 
 /-! ## `ExprContext` and Goal/Expression Sources -/
 

@@ -30,9 +30,8 @@ open Lean.Order
 open Std.Internal
 open Assertion
 
-universe u u₁ u₂ v w
-variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v}
-  {Pred : Type (max u₁ u₂)} {EPosts : Type (max u₁ u₂)}
+universe u u₁ u₂ v w wₚ wₑ
+variable {α : Type u₁} {β : Type u₂} {m : Type u₂ → Type v} {Pred : Type wₚ} {EPosts : Type wₑ}
 variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
 
 /-! ## Gadgets -/
@@ -111,6 +110,57 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
   unfold forInPureWithInvariant'
   rw [PureForIn'.forIn'_eq]
   exact Spec.forIn'_list inv step
+
+/-- `Spec.forIn_pure_earlyReturn` for a `forInPureWithInvariant` loop. The loop's invariant ranges
+over the loop state `(r?, b)`, and the specification evaluates it at `r? = none`. -/
+@[spec default+10]
+theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
+    {γ δ : Type u₂} {xs : ρ} {init : β}
+    {f : α → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {post : δ → Pred} {eposts : EPosts}
+    (inv : List α → List α → Option γ × β → Pred)
+    (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
+      have __vcgen_jp := fun x b => kRet (some x, b) x;
+      ⦃ inv pref (cur :: suff) (none, b) ⦄ f cur (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => inv (pref ++ [cur]) suff (none, b')
+          | .done (none, b') => inv (ForIn.toList xs) [] (none, b')
+          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .yield (some _, _) => ⊥; eposts ⦄)
+    (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ inv [] (ForIn.toList xs) (none, init) ⦄
+    (forInPureWithInvariant xs (none, init) f inv >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; eposts ⦄ :=
+  Spec.forIn_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
+
+/-- `Spec.forIn'_pure_earlyReturn` for a `forInPureWithInvariant'` loop. The loop's invariant
+ranges over the loop state `(r?, b)`, and the specification evaluates it at `r? = none`. -/
+@[spec default+10]
+theorem Spec.forInPure'_earlyReturn {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
+    [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
+    {γ δ : Type u₂} {xs : ρ} {init : β}
+    {f : (a : α) → a ∈ xs → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {post : δ → Pred} {eposts : EPosts}
+    (inv : List α → List α → Option γ × β → Pred)
+    (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
+      have __vcgen_jp := fun x b => kRet (some x, b) x;
+      ⦃ inv pref (cur :: suff) (none, b) ⦄
+      f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => inv (pref ++ [cur]) suff (none, b')
+          | .done (none, b') => inv (ForIn.toList xs) [] (none, b')
+          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .yield (some _, _) => ⊥; eposts ⦄)
+    (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ inv [] (ForIn.toList xs) (none, init) ⦄
+    (forInPureWithInvariant' xs (none, init) f inv >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; eposts ⦄ :=
+  Spec.forIn'_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
+
 
 section Loop
 
@@ -226,6 +276,90 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
       einv := by
   unfold forInLoopWithVariant
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
+
+/-- `Spec.forIn_loop_earlyReturn` for a `forInLoopWithInvariantAndVariant` loop. The loop's
+invariant and measure range over the loop state `(r?, b)`, and the specification evaluates the
+invariant at `r? = none`. -/
+@[spec default+10]
+theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
+    {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
+    {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
+    [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
+    (measure : Option ω × β → Fun)
+    (inv : Bool → Option ω × β → Pred)
+    (einv : EPosts)
+    (step : ∀ b (mb : γ),
+      have __vcgen_jp := fun x b => kRet (some x, b) x;
+      ⦃ (Variant.ofMeasure (Pred := Pred) measure).EvalsTo (none, b) mb ⊓ inv false (none, b) ⦄
+      f () (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') =>
+            (Variant.ofMeasure (Pred := Pred) measure).EvalsBelow (none, b') mb ⊓
+              inv false (none, b')
+          | .done (none, b') => inv true (none, b')
+          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .yield (some _, _) => ⊥; einv ⦄)
+    (exit : ∀ b, ⦃ inv true (none, b) ⦄ k (none, b) ⦃ post; einv ⦄) :
+    ⦃ inv false (none, init) ⦄
+    (forInLoopWithInvariantAndVariant l (none, init) f (WhileInvariant.mk inv) measure >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; einv ⦄ :=
+  Spec.forIn_loop_earlyReturn (Variant.ofMeasure measure)
+    (WhileInvariant.mk fun exit b => inv exit (none, b)) einv step exit
+
+/-- `Spec.forIn_loop_earlyReturn` for a `forInLoopWithInvariant` loop. The loop's invariant ranges
+over the loop state `(r?, b)`, and the specification evaluates it at `r? = none`. -/
+@[spec default+10]
+theorem Spec.forInLoop_invariant_earlyReturn {ω δ : Type u}
+    {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
+    {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
+    [∀ P : Pred, PreservesSup (meet P)]
+    (measure : Variant (Option ω × β) Pred)
+    (inv : Bool → Option ω × β → Pred)
+    (einv : EPosts)
+    (step : ∀ b (mb : measure.γ),
+      have __vcgen_jp := fun x b => kRet (some x, b) x;
+      ⦃ measure.EvalsTo (none, b) mb ⊓ inv false (none, b) ⦄ f () (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => measure.EvalsBelow (none, b') mb ⊓ inv false (none, b')
+          | .done (none, b') => inv true (none, b')
+          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .yield (some _, _) => ⊥; einv ⦄)
+    (exit : ∀ b, ⦃ inv true (none, b) ⦄ k (none, b) ⦃ post; einv ⦄) :
+    ⦃ inv false (none, init) ⦄
+    (forInLoopWithInvariant l (none, init) f (WhileInvariant.mk inv) >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; einv ⦄ :=
+  Spec.forIn_loop_earlyReturn measure (WhileInvariant.mk fun exit b => inv exit (none, b)) einv
+    step exit
+
+/-- `Spec.forIn_loop_earlyReturn` for a `forInLoopWithVariant` loop. The loop's measure ranges over
+the loop state `(r?, b)`, and its invariant over the mutable variables `b`. -/
+@[spec default+10]
+theorem Spec.forInLoop_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
+    {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
+    {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
+    [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
+    (measure : Option ω × β → Fun)
+    (inv : WhileInvariant β Pred)
+    (einv : EPosts)
+    (step : ∀ b (mb : γ),
+      have __vcgen_jp := fun x b => kRet (some x, b) x;
+      ⦃ (Variant.ofMeasure (Pred := Pred) measure).EvalsTo (none, b) mb ⊓ inv false b ⦄
+      f () (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') =>
+            (Variant.ofMeasure (Pred := Pred) measure).EvalsBelow (none, b') mb ⊓ inv false b'
+          | .done (none, b') => inv true b'
+          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .yield (some _, _) => ⊥; einv ⦄)
+    (exit : ∀ b, ⦃ inv true b ⦄ k (none, b) ⦃ post; einv ⦄) :
+    ⦃ inv false init ⦄
+    (forInLoopWithVariant l (none, init) f measure >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; einv ⦄ :=
+  Spec.forIn_loop_earlyReturn (Variant.ofMeasure measure) inv einv step exit
+
 
 end Loop
 

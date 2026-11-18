@@ -37,14 +37,18 @@ trees, so that a later attempt with `report := true` reports the failure once.
 -/
 public def elabInvariant (ctx : Context) (n : Nat) (mv : MVarId) (report : Bool) : SymM Bool := do
   let some alt := ctx.invariantAlts[n]? | return false
-  -- The tactic takes the source range of `alt`, where its errors are reported.
+  -- Each tactic takes the source range that its errors are reported at: `exact` the range of the
+  -- right-hand side, `rename_i` the range of the label and its binders.
   let tac ← match alt with
     | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) =>
         let dot := alt[0]
-        withRef alt `(tactic| (with_annotate_state $dot skip; exact $rhs))
+        let exactTac ← withRef rhs `(tactic| exact $rhs)
+        withRef alt `(tactic| (with_annotate_state $dot skip; $exactTac))
     | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $args* => $rhs) =>
         let hdr := mkNullNode #[alt[0], alt[1], alt[2]]
-        withRef alt `(tactic| (rename_i $args*; with_annotate_state $hdr skip; exact $rhs))
+        let renameTac ← withRef alt[1] `(tactic| rename_i $args*)
+        let exactTac ← withRef rhs `(tactic| exact $rhs)
+        withRef alt `(tactic| ($renameTac; with_annotate_state $hdr skip; $exactTac))
     | _ => return false
   let s ← Meta.saveState
   try

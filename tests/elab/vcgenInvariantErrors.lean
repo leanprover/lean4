@@ -2,8 +2,8 @@ import Std.WP
 set_option experimental.vcgen true
 
 /-!
-`vcgen` reports an `invariants` alternative that fails to elaborate once, at the alternative, and
-elaborates the alternatives in the context of the enclosing declaration.
+`vcgen` reports an `invariants` alternative that fails to elaborate once, at the part of the
+alternative that fails, and elaborates the alternatives in the context of the enclosing declaration.
 -/
 
 open Std.WP Lean.Order
@@ -20,6 +20,7 @@ the other one.
 -/
 
 /--
+@ +4:4...40
 error: typeclass instance problem is stuck
   Assertion ?_
 
@@ -27,6 +28,7 @@ Note: Lean will not try to resolve this typeclass instance problem because the t
 
 Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 ---
+@ +5:4...75
 error: Type mismatch
   WhileInvariant.ofInvariantAndBreak (fun x => ⌜True⌝) fun i => ⌜i = 0⌝
 has type
@@ -35,7 +37,7 @@ of sort `Type` but is expected to have type
   Variant Nat Prop
 of sort `Type (_ + 1)`
 -/
-#guard_msgs (error) in
+#guard_msgs (error, positions := true) in
 set_option pp.mvars false in
 theorem countDown_swapped (n : Nat) : ⦃⌜True⌝⦄ countDown n ⦃fun r => ⌜r = 0⌝⦄ := by
   vcgen [countDown] invariants
@@ -57,6 +59,7 @@ def sumDef (l : List Nat) : Nat := Id.run do
   return acc
 
 /--
+@ +5:44...48
 error: Type mismatch
   true
 has type
@@ -64,12 +67,44 @@ has type
 but is expected to have type
   Nat
 -/
-#guard_msgs (error) in
+#guard_msgs (error, positions := true) in
 theorem sumDef_eq (l : List Nat) : sumDef l = l.sum := by
   generalize h : sumDef l = r
   apply Id.of_run_eq_wp h
   vcgen [sumDef] invariants
   · fun _pref suff acc => ⌜acc + suff.sum = true⌝
+  all_goals sorry
+
+/-! A right-hand side of the wrong type is reported at the right-hand side. -/
+
+/--
+@ +3:4...13
+error: Type mismatch
+  5
+has type
+  Nat
+but is expected to have type
+  WhileInvariant Nat Prop
+-/
+#guard_msgs (error, positions := true) in
+theorem countDown_nat (n : Nat) : ⦃⌜True⌝⦄ countDown n ⦃fun r => ⌜r = 0⌝⦄ := by
+  vcgen [countDown] invariants
+  · (5 : Nat)
+  · Variant.ofMeasure fun (i : Nat) => i
+  all_goals sorry
+
+/-! A labelled alternative with more binders than inaccessible names is reported at its label. -/
+
+/--
+@ +5:4...30
+error: too many variable names provided
+-/
+#guard_msgs (error, positions := true) in
+theorem sumDef_eq' (l : List Nat) : sumDef l = l.sum := by
+  generalize h : sumDef l = r
+  apply Id.of_run_eq_wp h
+  vcgen [sumDef] invariants
+  | inv1 a b c d e f g h i j k => fun _pref suff acc => ⌜acc + suff.sum = l.sum⌝
   all_goals sorry
 
 /-! An alternative names the universe parameters of the declaration. -/

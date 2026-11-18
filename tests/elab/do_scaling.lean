@@ -195,30 +195,31 @@ def heartbeatsOf (mk : Ident → Nat → CommandElabM Command) (tag : String) (n
   return (← IO.getNumHeartbeats) - start
 
 /--
-Elaborates the family `mk` at sizes `n`, `2n` and `4n` and throws unless
-`d₂ / d₁ ≤ bound / 10`. A run at size `n / 4` fills the caches first.
+Elaborates the family `mk` at sizes `n`, `2n` and `4n` and throws unless `d₂ / d₁ ≤ bound`.
+A run at size `n / 4` fills the caches first.
 -/
-def checkScaling (tag : String) (mk : Ident → Nat → CommandElabM Command) (n bound : Nat) :
-    CommandElabM Unit := do
+def checkScaling (tag : String) (mk : Ident → Nat → CommandElabM Command) (n : Nat)
+    (bound : Float) : CommandElabM Unit := do
   discard <| heartbeatsOf mk s!"{tag}_warm" (max 1 (n / 4))
   let h₁ ← heartbeatsOf mk tag n
   let h₂ ← heartbeatsOf mk tag (2 * n)
   let h₄ ← heartbeatsOf mk tag (4 * n)
-  unless 10 * (h₄ - h₂) ≤ bound * (h₂ - h₁) do
+  let ratio := (h₄ - h₂).toFloat / (h₂ - h₁).toFloat
+  unless ratio ≤ bound do
     throwError "`{tag}`: heartbeats {h₁}, {h₂}, {h₄} at sizes {n}, {2 * n}, {4 * n} give \
-      d₂ / d₁ = {h₄ - h₂} / {h₂ - h₁}, above the bound {bound} / 10"
+      d₂ / d₁ = {ratio}, above the bound {bound}"
 
 run_cmd do
-  checkScaling "nestedMatchBind" nestedMatchBind 50 25
-  checkScaling "reassignSeq" reassignSeq 100 25
-  checkScaling "deepActions" deepActions 100 25
-  checkScaling "flatActions" flatActions 50 30
-  checkScaling "ifSeqTyped" (ifSeq true) 50 34
-  checkScaling "ifSeqUntyped" (ifSeq false) 10 42
-  checkScaling "nestedIf" nestedIf 20 31
-  checkScaling "postpone" postpone 10 60
-  checkScaling "nestedTry" nestedTry 4 39
-  checkScaling "nestedFor" nestedFor 6 29
-  checkScaling "manyMut" manyMut 20 33
-  checkScaling "arms" arms 50 32
-  checkScaling "elseIfs" elseIfs 50 31
+  checkScaling "nestedMatchBind" nestedMatchBind 50 2.5
+  checkScaling "reassignSeq" reassignSeq 100 2.5
+  checkScaling "deepActions" deepActions 100 2.5
+  checkScaling "flatActions" flatActions 50 3.0
+  checkScaling "ifSeqTyped" (ifSeq true) 50 3.4
+  checkScaling "ifSeqUntyped" (ifSeq false) 10 4.2
+  checkScaling "nestedIf" nestedIf 20 3.1
+  checkScaling "postpone" postpone 10 6.0
+  checkScaling "nestedTry" nestedTry 4 3.9
+  checkScaling "nestedFor" nestedFor 6 2.9
+  checkScaling "manyMut" manyMut 20 3.3
+  checkScaling "arms" arms 50 3.2
+  checkScaling "elseIfs" elseIfs 50 3.1

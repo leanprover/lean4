@@ -110,10 +110,9 @@ private partial def visit (e : Expr) (expectedType? : Option Expr := none) : M E
         let type ← instantiateMVars type
         let inferredType ← inferType e
         /- Prefer the proof's inferred type when it is compatible at implicit transparency.
-           Structure-field default tactics may elaborate against a more refined goal than the
-           application-spine type. Keep the expected type only when it preserves an otherwise
-           opaque interface, as required by tactic type-correctness checks. -/
-        if type.hasMVar || (← isDefEqI type inferredType) then
+           Structure-field defaults may refine the application-spine type. Failed comparisons
+           must preserve both the expected interface and its unassigned metavariables. -/
+        if (← checkpointDefEq <| isDefEqI type inferredType) then
           pure inferredType
         else
           pure type

@@ -1,3 +1,7 @@
+import Lean
+
+/-! Nested proof abstraction preserves application-domain interfaces (#14467). -/
+
 opaque Bytes : Type
 opaque Bytes.length : Bytes → Nat
 
@@ -26,3 +30,22 @@ def DeferredWitness.branch (w : DeferredWitness α) : DeferredWitness α :=
   match w.values with
   | [] => { values := [] }
   | x :: xs => { values := x :: xs }
+
+@[irreducible] def WrappedDefault (n : Nat) : Prop := n = n
+
+structure OpaqueDefault where
+  n : Nat
+  witness : WrappedDefault n := by unfold WrappedDefault; rfl
+
+open Lean Meta in
+run_meta do
+  let n ← mkFreshExprMVar (mkConst ``Nat)
+  let proof ← mkEqRefl (mkApp2 (mkConst ``Nat.add) n (mkNatLit 0))
+  let value := mkApp2 (mkConst ``OpaqueDefault.mk) n proof
+  let result ← abstractNestedProofs value (cache := false)
+  let actual ← inferType result.appArg!
+  let expected := mkApp (mkConst ``WrappedDefault) n
+  unless ← isDefEqI actual expected do
+    throwError "default proof lost its interface: {actual} instead of {expected}"
+  if ← n.mvarId!.isAssigned then
+    throwError "default proof comparison assigned the structure argument"

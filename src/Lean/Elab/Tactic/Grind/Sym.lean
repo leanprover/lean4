@@ -160,6 +160,35 @@ public def assumption? : GrindTacticM Bool := do
   return false
 
 /--
+Runs `step` repeatedly until no unsolved goals remain. If `headBeta` is `true`, the main goal's
+target is head-beta-reduced (see `headBetaMainGoal`) before each `step`.
+-/
+public def whileGoals (step : GrindTacticM Unit) (headBeta : Bool := false) :
+    GrindTacticM Unit := do
+  while !(← getUnsolvedGoals).isEmpty do
+    if headBeta then headBetaMainGoal
+    step
+
+/--
+Runs `tac` on the main goal, then runs `first` focused on the first resulting subgoal and `rest`
+focused on each remaining one (skipping subgoals that `first` already solved). The resulting
+unsolved goals replace the main goal, in order.
+-/
+public def andThenSubgoals (tac : GrindTacticM Unit) (first : GrindTacticM Unit)
+    (rest : GrindTacticM Unit := pure ()) : GrindTacticM Unit := focus do
+  tac
+  let g :: gs ← getUnsolvedGoals | return
+  setGoals [g]
+  first
+  let mut acc := (← getUnsolvedGoals).toArray
+  for g in gs do
+    setGoals [g]
+    if (← getUnsolvedGoals).isEmpty then continue
+    rest
+    acc := acc ++ (← getUnsolvedGoals)
+  setGoals acc.toList
+
+/--
 Try `f h ty` on each non-implementation-detail hypothesis `(h, ty)` of the main goal and return
 the first succeeding result `some r`.
 

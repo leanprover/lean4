@@ -546,6 +546,33 @@ def getMainTarget : TacticM Expr := do
 def withMainContext (x : TacticM α) : TacticM α := do
   (← getMainGoal).withContext x
 
+/--
+Runs `step` repeatedly until no unsolved goals remain. Each `step` is expected to make progress on
+the main goal (e.g., close it or replace it with simpler subgoals).
+-/
+def whileGoals (step : TacticM Unit) : TacticM Unit := do
+  while !(← getUnsolvedGoals).isEmpty do
+    step
+
+/--
+Runs `tac` on the main goal, then runs `first` focused on the first resulting subgoal and `rest`
+focused on each remaining one (skipping subgoals that `first` already solved). The resulting
+unsolved goals replace the main goal, in order.
+-/
+def andThenSubgoals (tac : TacticM Unit) (first : TacticM Unit) (rest : TacticM Unit := pure ()) :
+    TacticM Unit := focus do
+  tac
+  let g :: gs ← getUnsolvedGoals | return
+  setGoals [g]
+  first
+  let mut acc := (← getUnsolvedGoals).toArray
+  for g in gs do
+    setGoals [g]
+    if (← getUnsolvedGoals).isEmpty then continue
+    rest
+    acc := acc ++ (← getUnsolvedGoals)
+  setGoals acc.toList
+
 /-- Evaluate `tac` at `mvarId`, and return the list of resulting subgoals. -/
 def evalTacticAt (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
   let gs ← getGoals

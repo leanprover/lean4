@@ -306,8 +306,8 @@ def execEvalStep : TacticM Unit := withMainContext do
       focus (evalTactic (← `(tactic| exec_post)))
 
 /-- Symbolically executes all `Exec` goals, discharging side goals and postconditions. -/
-def execEvalCore : TacticM Unit := do
-  while !(← getUnsolvedGoals).isEmpty do execEvalStep
+def execEvalCore : TacticM Unit :=
+  whileGoals execEvalStep
 
 scoped elab "exec_eval" : tactic => execEvalCore
 
@@ -396,24 +396,21 @@ def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
     if ← refl? then return
     if ← assumption? then return
     throwError "exec_sym: cannot evaluate{indentExpr (← getMainTarget)}"
-  /- Applies `rule`, solves its leading evaluation premise, and continues with the rest. -/
-  let applyEval (rule : Name) : GrindTacticM Unit := focus do
-    applyDecl rule
-    focus solveLookup
-    if cfg.eager then
-      let gs ← (← getUnsolvedGoals).filterMapM fun g =>
-        simpGoal g evalM (cacheKey? := cacheKey?)
-      setGoals gs
-  while !(← getUnsolvedGoals).isEmpty do
-    headBetaMainGoal
+  /- Simplifies the remaining premises iff `cfg.eager`. -/
+  let simpRest : GrindTacticM Unit := do
+    if cfg.eager then discard <| simpMainGoal evalM (cacheKey? := cacheKey?)
+  whileGoals (headBeta := true) do
     match ← getMainTarget with
     | `(expr/sym| Exec .skip _ _ _ _) => applyDecl ``Exec.skip
     | `(expr/sym| Exec (.seq _ _) _ _ _ _) => applyDecl ``Exec.seq_cps
-    | `(expr/sym| Exec (.set _ _) _ _ _ _) => applyEval ``Exec.set
+    | `(expr/sym| Exec (.set _ _) _ _ _ _) =>
+      andThenSubgoals (applyDecl ``Exec.set) solveLookup simpRest
     | `(expr/sym| Exec (.unset _) _ _ _ _) => applyDecl ``Exec.unset
     | `(expr/sym| Exec (.input _) _ _ _ _) => applyDecl ``Exec.input
-    | `(expr/sym| Exec (.output _) _ _ _ _) => applyEval ``Exec.output
-    | `(expr/sym| Exec (.cond _ _ _) _ _ _ _) => applyEval ``Exec.cond_split
+    | `(expr/sym| Exec (.output _) _ _ _ _) =>
+      andThenSubgoals (applyDecl ``Exec.output) solveLookup simpRest
+    | `(expr/sym| Exec (.cond _ _ _) _ _ _ _) =>
+      andThenSubgoals (applyDecl ``Exec.cond_split) solveLookup simpRest
     | `(expr/sym| Exec ?c ?t ?m ?l ?post) =>
       let goal ← getMainGoal
       goal.mvarId.withContext do
@@ -610,5 +607,13 @@ example : True := by
   sym => check_grind_basics
 
 end GrindBasicsTest
+
+-- `Tactic.andThenSubgoals` dispatches `first` and `rest` to the subgoals of `constructor`.
+open Lean.Elab.Tactic in
+example : True ∧ (True ∧ True) := by
+  run_tac do
+    andThenSubgoals (evalTactic (← `(tactic| constructor)))
+      (evalTactic (← `(tactic| exact trivial)))
+      (evalTactic (← `(tactic| exact ⟨trivial, trivial⟩)))
 
 end ExprQuotAddSubCancel

@@ -2657,6 +2657,24 @@ extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
 // =======================================
 // ByteArray & FloatArray
 
+extern "C" LEAN_EXPORT uint8_t lean_byte_array_get_panic() {
+    lean_panic("Error: index out of bounds");
+    return 0;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_byte_array_set_panic(lean_obj_arg a) {
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
+}
+
+extern "C" LEAN_EXPORT double lean_float_array_get_panic() {
+    lean_panic("Error: index out of bounds");
+    return 0.0;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_float_array_set_panic(lean_obj_arg a) {
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
+}
+
 size_t lean_nat_to_size_t(obj_arg n) {
     if (lean_is_scalar(n)) {
         return lean_unbox(n);

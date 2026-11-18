@@ -13,7 +13,7 @@ public import Std.Http.Data.Response
 public import Std.Http.Data.Chunk
 public import Std.Http.Data.Body.Basic
 public import Std.Http.Data.Body.Any
-public import Init.Data.ByteArray
+public import Init.Data.ByteArray.Basic
 
 public section
 
@@ -62,6 +62,47 @@ private structure Producer where
   -/
   done : IO.Promise Bool
 
+/--
+Joins byte arrays held newest first into one, copying each byte once. `size` is their total size.
+-/
+private def joinPieces (pieces : List ByteArray) (size : Nat) : ByteArray :=
+  match pieces with
+  | [piece] => piece
+  | _ => pieces.foldr (fun piece acc => acc ++ piece) (.emptyWithCapacity size)
+
+/--
+The pieces of a chunk that `Stream.send ... (incomplete := true)` accepted. The state is shared
+between threads, so a byte array in it is never exclusive and appending to it would copy every
+buffered byte; the pieces are joined once, when the chunk is complete.
+-/
+private structure Incomplete where
+  /--
+  The pieces' bytes, newest first.
+  -/
+  pieces : List ByteArray
+
+  /--
+  The total size of `pieces`.
+  -/
+  size : Nat
+
+  /--
+  The extensions of the oldest piece that has any.
+  -/
+  extensions : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)
+
+private def Incomplete.push (pending : Option Incomplete) (chunk : Chunk) : Incomplete :=
+  match pending with
+  | none => { pieces := [chunk.data], size := chunk.data.size, extensions := chunk.extensions }
+  | some pending => {
+      pieces := chunk.data :: pending.pieces
+      size := pending.size + chunk.data.size
+      extensions := if pending.extensions.isEmpty then chunk.extensions else pending.extensions
+    }
+
+private def Incomplete.toChunk (pending : Incomplete) : Chunk :=
+  { data := joinPieces pending.pieces pending.size, extensions := pending.extensions }
+
 open Async in
 private def resolveInterestWaiter (waiter : Waiter Bool) (x : Bool) : BaseIO Bool := do
   let lose := return false
@@ -69,6 +110,19 @@ private def resolveInterestWaiter (waiter : Waiter Bool) (x : Bool) : BaseIO Boo
     promise.resolve (.ok x)
     return true
   waiter.race lose win
+
+/--
+How a closed channel ended.
+-/
+private inductive Ending where
+  /-- The body ended normally. -/
+  | clean
+  /--
+  The producer could not deliver the full body (e.g. connection closed mid-stream with a
+  `Content-Length` underflow). Surfaced to the consumer on the next `recv` after any already-buffered
+  chunks.
+  -/
+  | failed (err : IO.Error)
 
 private structure State where
   /--
@@ -87,9 +141,9 @@ private structure State where
   interestWaiter : Option (Async.Waiter Bool)
 
   /--
-  Whether the channel is closed.
+  How the channel ended, or `none` while it is open.
   -/
-  closed : Bool
+  ended : Option Ending := none
 
   /--
   Known size of the stream if available.
@@ -100,14 +154,12 @@ private structure State where
   Buffered partial chunk data accumulated from `Stream.send ... (incomplete := true)`.
   These partial pieces are collapsed and emitted as a single chunk on the next complete send.
   -/
-  pendingIncompleteChunk : Option Chunk := none
+  pendingIncomplete : Option Incomplete := none
 
   /--
-  Terminal error recorded when the producer could not deliver the full body
-  (e.g. connection closed mid-stream with a Content-Length underflow). Surfaced
-  to the consumer on the next `recv` after any already-buffered chunks.
+  Whether the channel closes once `pendingProducer` is received, as requested by `Stream.offer`.
   -/
-  closeError : Option IO.Error := none
+  closeAfterProducer : Bool := false
 deriving Nonempty
 
 end Channel
@@ -128,9 +180,7 @@ def mkStream : Async Stream := do
     pendingProducer := none
     pendingConsumer := none
     interestWaiter := none
-    closed := false
     knownSize := none
-    closeError := none
   }
   return { state }
 
@@ -177,12 +227,59 @@ private def signalInterest [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLift
 private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
   let st ← get
-  return st.pendingProducer.isSome || st.closed
+  return st.pendingProducer.isSome || st.ended.isSome
 
 private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
   let st ← get
   return st.pendingConsumer.isSome
+
+private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
+    (ending : Ending := .clean) : AtomicT State m Unit := do
+  let st ← get
+  if st.ended.isSome then
+    return ()
+
+  -- Bytes an incomplete `send` already accepted are delivered before the end of the stream. A
+  -- blocked producer's chunk would have to come first, and it is dropped below, so they are too.
+  let mut leftover :=
+    if st.pendingProducer.isSome then none
+    else st.pendingIncomplete.map (·.toChunk) |>.filter (·.data.size > 0)
+  let mut knownSize := st.knownSize
+
+  if let some consumer := st.pendingConsumer then
+    match leftover with
+    | some chunk =>
+      if ← consumer.resolve (.ok (some chunk)) then
+        knownSize := decreaseKnownSize knownSize chunk
+        leftover := none
+    | none =>
+      let result :=
+        match ending with
+        | .failed err => .error err
+        | .clean => .ok none
+      discard <| consumer.resolve result
+
+  if let some waiter := st.interestWaiter then
+    discard <| resolveInterestWaiter waiter false
+
+  if let some producer := st.pendingProducer then
+    discard <| producer.done.resolve false
+
+  -- A leftover chunk waits as a producer nobody blocks on, which a closed stream still delivers.
+  let pendingProducer ← leftover.mapM fun chunk => do
+    return { chunk, done := ← IO.Promise.new : Producer }
+
+  set {
+    st with
+    pendingProducer
+    pendingConsumer := none
+    interestWaiter := none
+    pendingIncomplete := none
+    closeAfterProducer := false
+    knownSize
+    ended := some ending
+  }
 
 private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
     AtomicT State m (Option Chunk) := do
@@ -192,8 +289,11 @@ private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT Base
       st with
       pendingProducer := none
       knownSize := decreaseKnownSize st.knownSize producer.chunk
+      closeAfterProducer := false
     }
     discard <| producer.done.resolve true
+    if st.closeAfterProducer then
+      close'
     return some producer.chunk
   else
     return none
@@ -204,38 +304,10 @@ private def recvReadyResult' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLi
     return .ok (some chunk)
 
   let st ← get
-  if let some err := st.closeError then
+  if let some (.failed err) := st.ended then
     return .error err
   else
     return .ok none
-
-private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
-    AtomicT State m Unit := do
-  let st ← get
-  if st.closed then
-    return ()
-
-  if let some consumer := st.pendingConsumer then
-    let result :=
-      match st.closeError with
-      | some err => .error err
-      | none => .ok none
-    discard <| consumer.resolve result
-
-  if let some waiter := st.interestWaiter then
-    discard <| resolveInterestWaiter waiter false
-
-  if let some producer := st.pendingProducer then
-    discard <| producer.done.resolve false
-
-  set {
-    st with
-    pendingProducer := none
-    pendingConsumer := none
-    interestWaiter := none
-    pendingIncompleteChunk := none
-    closed := true
-  }
 
 end Channel
 
@@ -272,17 +344,16 @@ private def recv' (stream : Stream) : BaseIO (AsyncTask (Option Chunk)) := do
   stream.state.atomically do
     Channel.pruneFinishedWaiters
 
-    let { closed, closeError, .. } ← get
-
-    if closed then
-      match closeError with
-      | some err => return Task.pure (.error err)
-      | none => return AsyncTask.pure none
-
+    -- A closed stream still delivers the chunk `close` left pending.
     if let some chunk ← Channel.tryRecv' then
       return AsyncTask.pure (some chunk)
 
     let st ← get
+
+    match st.ended with
+    | some (.failed err) => return Task.pure (.error err)
+    | some .clean => return AsyncTask.pure none
+    | none => pure ()
 
     if st.pendingConsumer.isSome then
       return Task.pure (.error (IO.Error.userError "only one blocked consumer is allowed"))
@@ -318,7 +389,7 @@ def closeIfAbandoned (stream : Stream) : Async Bool :=
   stream.state.atomically do
     Channel.pruneFinishedWaiters
     let st ← get
-    if !st.closed && st.pendingConsumer.isNone then
+    if st.ended.isNone && st.pendingConsumer.isNone then
       Channel.close'
       return true
     else
@@ -327,15 +398,12 @@ def closeIfAbandoned (stream : Stream) : Async Bool :=
 /--
 Closes the channel and records `err` as a terminal error. A subsequent `recv` that would have
 returned end-of-stream surfaces the error instead; already buffered chunks are still delivered first.
-This function does not overwrite an existing error.
+Does nothing once the channel closed, or once a chunk offered with `closeAfter` ended the body.
 -/
 def closeWithError (stream : Stream) (err : IO.Error) : Async Unit :=
   stream.state.atomically do
-    modify fun st =>
-      if st.closeError.isNone then { st with closeError := some err }
-      else st
-
-    Channel.close'
+    unless (← get).closeAfterProducer do
+      Channel.close' (.failed err)
 
 /--
 Checks whether the channel is closed.
@@ -343,7 +411,7 @@ Checks whether the channel is closed.
 @[always_inline, inline]
 def isClosed (stream : Stream) : Async Bool :=
   stream.state.atomically do
-    return (← get).closed
+    return (← get).ended.isSome
 
 /--
 Gets the known size if available.
@@ -401,42 +469,32 @@ def recvSelector (stream : Stream) : Selector (Option Chunk) where
 Iterates over chunks until the channel closes.
 -/
 @[inline]
-protected partial def forIn
+protected def forIn
     {β : Type} (stream : Stream) (acc : β)
-    (step : Chunk → β → Async (ForInStep β)) : Async β := do
-
-  let rec @[specialize] loop (stream : Stream) (acc : β) : Async β := do
+    (step : Chunk → β → Async (ForInStep β)) : Async β :=
+  EAsync.forIn acc fun _ acc => do
     if let some chunk ← stream.recv then
-      match ← step chunk acc with
-      | .done res => return res
-      | .yield res => loop stream res
+      step chunk acc
     else
-      return acc
-
-  loop stream acc
+      return .done acc
 
 /--
 Context-aware iteration over chunks until the channel closes.
 -/
 @[inline]
-protected partial def forIn'
+protected def forIn'
     {β : Type} (stream : Stream) (acc : β)
-    (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β := do
-
-  let rec @[specialize] loop (stream : Stream) (acc : β) : ContextAsync β := do
+    (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β :=
+  ContextAsync.forIn acc fun _ acc => do
     let data ← Selectable.one #[
       .case stream.recvSelector pure,
       .case (← ContextAsync.doneSelector) (fun _ => pure none),
     ]
 
     if let some chunk := data then
-      match ← step chunk acc with
-      | .done res => return res
-      | .yield res => loop stream res
+      step chunk acc
     else
-      return acc
-
-  loop stream acc
+      return .done acc
 
 /--
 Abstracts over how the next chunk is received, allowing `readAll` to work in both `Async`
@@ -463,27 +521,34 @@ instance : NextChunk ContextAsync where
 /--
 Reads all remaining chunks and decodes them into `α`.
 
-Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync` (also stops if the
-context is cancelled).
+Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync`, where a context cancelled
+before the end of the stream makes it throw instead of returning the bytes read so far.
 -/
 partial def readAll
     [FromByteArray α]
-    [Monad m] [MonadExceptOf IO.Error m] [NextChunk m]
+    [Monad m] [MonadExceptOf IO.Error m] [MonadLiftT Async m] [NextChunk m]
     (stream : Stream)
     (maximumSize : Option UInt64 := none) :
     m α := do
 
-  let rec loop (result : ByteArray) : m ByteArray := do
+  -- The continuation of each receive captures the bytes read so far and marks them as shared
+  -- between threads, so appending to one byte array would copy all of them each time.
+  let rec loop (pieces : List ByteArray) (size : Nat) : m ByteArray := do
     match ← NextChunk.nextChunk stream with
-    | none => return result
+    | none =>
+      -- Only a cancelled context ends the read while the stream is still open.
+      unless ← (stream.isClosed : Async Bool) do
+        throw (.userError "the read was cancelled before the body ended")
+      return Channel.joinPieces pieces size
     | some chunk =>
-      let result := result ++ chunk.data
+      let size := size + chunk.data.size
       if let some max := maximumSize then
-        if result.size.toUInt64 > max then
+        if size.toUInt64 > max then
+          (stream.close : Async Unit)
           throw (.userError s!"body exceeded maximum size of {max} bytes")
-      loop result
+      loop (chunk.data :: pieces) size
 
-  let result ← loop ByteArray.empty
+  let result ← loop [] 0
 
   match FromByteArray.fromByteArray result with
   | .ok a => return a
@@ -524,23 +589,17 @@ private def collapseForSend
     Channel.pruneFinishedWaiters
     let st ← get
 
-    if st.closed then
+    if st.ended.isSome then
       return .error (.userError "channel closed")
 
-    let merged := match st.pendingIncompleteChunk with
-      | some pending =>
-        {
-          data := pending.data ++ chunk.data
-          extensions := if pending.extensions.isEmpty then chunk.extensions else pending.extensions
-        }
-      | none => chunk
+    let merged := Channel.Incomplete.push st.pendingIncomplete chunk
 
     if incomplete then
-      set { st with pendingIncompleteChunk := some merged }
+      set { st with pendingIncomplete := some merged }
       return .ok none
     else
-      set { st with pendingIncompleteChunk := none }
-      return .ok (some merged)
+      set { st with pendingIncomplete := none }
+      return .ok (some merged.toChunk)
 
 /--
 Sends a chunk, retrying if a select-mode consumer races and loses. If no consumer is ready,
@@ -552,7 +611,7 @@ private partial def send' (stream : Stream) (chunk : Chunk) : Async Unit := do
     Channel.pruneFinishedWaiters
     let st ← get
 
-    if st.closed then
+    if st.ended.isSome then
       return .error (IO.Error.userError "channel closed")
 
     if let some consumer := st.pendingConsumer then
@@ -606,6 +665,46 @@ def send (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async 
     send' stream toSend
 
 /--
+Hands `chunk` to the receiver without waiting for it: a consumer blocked in `recv` gets it at once;
+otherwise the chunk stays pending and the next `recv` returns it. With `closeAfter`, the channel
+closes once the chunk is received.
+
+`incomplete` buffers the chunk as in `send`. A second `offer` while a chunk is still pending throws.
+-/
+def offer (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) (closeAfter : Bool := false) :
+    Async Unit := do
+  let toSend ←
+    match ← collapseForSend stream chunk (incomplete && !closeAfter) with
+    | .error err => throw err
+    | .ok none => return
+    | .ok (some toSend) => pure toSend
+  let done ← IO.Promise.new
+  let error? ← stream.state.atomically do
+    Channel.pruneFinishedWaiters
+    let st ← get
+    if st.ended.isSome then
+      return some (IO.Error.userError "channel closed")
+
+    if toSend.data.isEmpty ∧ toSend.extensions.isEmpty then
+      if closeAfter then Channel.close'
+      return none
+
+    if let some consumer := st.pendingConsumer then
+      set { st with pendingConsumer := none }
+      if ← consumer.resolve (.ok (some toSend)) then
+        modify fun st => { st with knownSize := Channel.decreaseKnownSize st.knownSize toSend }
+        if closeAfter then Channel.close'
+        return none
+
+    let st ← get
+    if st.pendingProducer.isSome then
+      return some (IO.Error.userError "only one blocked producer is allowed")
+    set { st with pendingProducer := some { chunk := toSend, done }, closeAfterProducer := closeAfter }
+    return none
+  if let some err := error? then
+    throw err
+
+/--
 Returns `true` when a consumer is currently blocked waiting for data.
 -/
 def hasInterest (stream : Stream) : Async Bool :=
@@ -625,7 +724,7 @@ def interestSelector (stream : Stream) : Selector Bool where
       let st ← get
       if st.pendingConsumer.isSome then
         return some true
-      else if st.closed then
+      else if st.ended.isSome then
         return some false
       else
         return none
@@ -640,7 +739,7 @@ def interestSelector (stream : Stream) : Selector Bool where
         let win promise := do
           promise.resolve (.ok true)
         waiter.race lose win
-      else if st.closed then
+      else if st.ended.isSome then
         let lose := return ()
         let win promise := do
           promise.resolve (.ok false)
@@ -664,12 +763,15 @@ error so consumers observe the failure instead of a clean end-of-stream.
 -/
 def stream (gen : Stream → Async Unit) : Async Stream := do
   let s ← mkStream
+  s.setKnownSize (some .chunked)
+
   background <| do
     try
       gen s
       s.close
     catch err =>
       s.closeWithError err
+
   return s
 
 /--
@@ -737,7 +839,6 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Request Body.Stream) := do
   let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
 
   return Request.Builder.body builder s
 
@@ -754,7 +855,6 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Response Body.Stream) := do
   let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
 
   return Response.Builder.body builder s
 

@@ -9,8 +9,14 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.Discharger
+import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Reduce
 import Lean.Meta.WHNF
+import Lean.Meta.Match.Value
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
@@ -101,9 +107,9 @@ public def simpCond : Simproc := fun e => do
     match (← simp c) with
     | .rfl _ cd =>
       if isSameExpr c (← getBoolTrueExpr) then
-        return .step a (mkApp3 (mkConst ``cond_true f.constLevels!) α a b) (contextDependent := cd)
+        return .step a (mkApp3 (mkConst ``Bool.cond_true f.constLevels!) α a b) (contextDependent := cd)
       else if isSameExpr c (← getBoolFalseExpr) then
-        return .step b (mkApp3 (mkConst ``cond_false f.constLevels!) α a b) (contextDependent := cd)
+        return .step b (mkApp3 (mkConst ``Bool.cond_false f.constLevels!) α a b) (contextDependent := cd)
       else
         return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>
@@ -119,14 +125,15 @@ public def simpCond : Simproc := fun e => do
 
 /--
 Simplifies a `match`-expression.
+
+The `match` compiler decides value patterns, e.g. `"a"` or `5`, with `DecidableEq` instances
+that `reduceMatcherApp?` does not unfold at reducible transparency. When a discriminant is a
+value, the `match` is rewritten with its equations instead, and the simplifier discharges their
+overlap hypotheses, e.g. `"c" = "a" → False`.
 -/
 def simpMatch (declName : Name) : Simproc := fun e => do
-  if let some e' ← reduceRecMatcher? e then
-    -- Iota-reduction may expose kernel `Expr.proj` terms via struct-eta,
-    -- which the structural simplifier cannot consume directly.
-    let e'' ← Sym.foldProjs e'
-    let e'' ← share e''
-    return .step e'' (← mkEqRefl e'')
+  if let some e' ← reduceMatcherApp? e then
+    return .step e' (← mkEqRefl e')
   let some info ← getMatcherInfo? declName
     | return .rfl
   -- **Note**: Simplify only the discriminants
@@ -135,7 +142,14 @@ def simpMatch (declName : Name) : Simproc := fun e => do
   let r ← simpAppArgRange e start stop
   match r with
   | .step .. => return r
-  | .rfl _ cd => return mkRflResult (done := true) (contextDependent := cd)
+  | .rfl _ cd =>
+    if (← e.getAppArgs.anyM (isMatchValue ·) start stop) then
+      let thms ← getMatchTheorems declName
+      match (← thms.rewrite dischargeSimpSelf e) with
+      | .step e' h done cd' => return .step e' h done (contextDependent := cd || cd')
+      | .rfl _ cd' => return mkRflResult (done := true) (contextDependent := cd || cd')
+    else
+      return mkRflResult (done := true) (contextDependent := cd)
 
 /--
 Simplifies control-flow expressions such as `if-then-else` and `match` expressions.
@@ -152,5 +166,12 @@ public def simpControl : Simproc := fun e => do
     simpDIte e
   else
     simpMatch declName e
+
+/--
+Like `simpControl`, but does not block the simplifier: when the condition or the discriminants
+are not decided, the branches are visited too.
+-/
+public def reduceControl : Simproc := fun e =>
+  return (← simpControl e).markAsNotDone
 
 end Lean.Meta.Sym.Simp

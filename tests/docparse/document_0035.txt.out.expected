@@ -1,0 +1,31 @@
+Input: ":::dir\nx {c\n:::\n\nAfter\n"
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 2:4
+  |
+2 | x {c
+  |     ^
+  = consumed input prefix: 11 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.directive
+     (Lean.Doc.Parser.directiveDelimiter ":::")
+     `dir
+     []
+     [(Lean.Doc.Parser.Block.para
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "x "))
+        (Lean.Doc.Parser.Inline.role
+         "{"
+         `c
+         []
+         <missing>
+         []
+         []
+         [])])]
+     (Lean.Doc.Parser.directiveDelimiter ":::"))
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

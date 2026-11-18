@@ -23,6 +23,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(OPENSSL_VERSION_NUMBER);
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg o) {
+    return lean_unsigned_to_nat(OpenSSL_version_num());
+}
+
 #else
 
 namespace lean {
@@ -33,6 +37,10 @@ void finalize_openssl() {}
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
+    return lean_box(0);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg o) {
     return lean_box(0);
 }
 

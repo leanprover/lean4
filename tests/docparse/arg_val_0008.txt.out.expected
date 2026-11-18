@@ -1,0 +1,11 @@
+Input: "\"a\nb\""
+Failure: unexpected token; expected a string argument on one line
+ --> 1:0-2:2
+  |
+1 | "a
+  | ^^
+  = consumed input prefix: 5 bytes
+Final stack:
+  (Lean.Doc.Parser.ArgVal.str <missing>)
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

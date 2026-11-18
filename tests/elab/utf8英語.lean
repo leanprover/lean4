@@ -1,16 +1,16 @@
 import Lean.Util.TestExtern
 
 /-!
-Tests UTF-8 encoding and decoding: `String.toUTF8`, `String.ofByteArray`,
+Tests UTF-8 encoding and decoding: `String.toByteArray`, `String.toUTF8`, `String.ofByteArray`,
 `ByteArray.validateUTF8`, and byte access via `String.getUTF8Byte` and
 `String.Internal.ugetUTF8Byte`.
 -/
 
 deriving instance DecidableEq for ByteArray
 
-test_extern String.toUTF8 ""
-test_extern String.toUTF8 "\x00"
-test_extern String.toUTF8 "$£€𐍈"
+test_extern String.toByteArray ""
+test_extern String.toByteArray "\x00"
+test_extern String.toByteArray "$£€𐍈"
 
 macro "test_extern'" t:term " => " v:term : command =>
   `(test_extern $t
@@ -27,7 +27,7 @@ macro "validate" arr:term " => " "↯" : command =>
 macro "validate" arr:term " => " str:term : command =>
   `(test_extern' ByteArray.validateUTF8 $arr => true
     test_extern' String.ofByteArray $arr (with_decl_name% _validate by native_decide) => $str
-    test_extern' String.toUTF8 $str => $arr
+    test_extern' String.toByteArray $str => $arr
     #guard checkGet $str ($arr : ByteArray).data)
 
 validate ⟨#[]⟩ => ""

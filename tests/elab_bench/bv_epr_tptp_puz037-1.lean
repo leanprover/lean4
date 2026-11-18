@@ -1,0 +1,224 @@
+import Std.Tactic.BVDecide
+/-
+source: TPTP v9.3.1 PUZ037-1 (CNF_UNS), epr_experiment/tptp_epr/CNF_UNS/PUZ037-1.p
+translated by the tptp_epr driver of bv_epr 0.13.0 (-Dtrace.tptp_epr=true)
+bv_epr 0.13.0: Unsatisfiable in 3.22 s
+-/
+
+theorem TPTP_PUZ037_1 :
+  ∀ {α : Type} [αNonempty : Nonempty α] (b r g o y w : α)
+    (state :
+      α →
+        α →
+          α →
+            α →
+              α →
+                α →
+                  α →
+                    α →
+                      α →
+                        α →
+                          α →
+                            α →
+                              α →
+                                α →
+                                  α →
+                                    α →
+                                      α →
+                                        α →
+                                          α →
+                                            α →
+                                              α →
+                                                α →
+                                                  α →
+                                                    α →
+                                                      α →
+                                                        α →
+                                                          α →
+                                                            α →
+                                                              α →
+                                                                α →
+                                                                  α →
+                                                                    α →
+                                                                      α →
+                                                                        α →
+                                                                          α →
+                                                                            α →
+                                                                              α →
+                                                                                α →
+                                                                                  α →
+                                                                                    α →
+                                                                                      α →
+                                                                                        α →
+                                                                                          α →
+                                                                                            α →
+                                                                                              α →
+                                                                                                α →
+                                                                                                  α →
+                                                                                                    α →
+                                                                                                      α →
+                                                                                                        α →
+                                                                                                          α →
+                                                                                                            α →
+                                                                                                              α →
+                                                                                                                α →
+                                                                                                                  Prop),
+    ¬state b b b b b b b b b r r r g g g o o o y y y r r r g g g o o o y y y r r r g g g o o o y y y w w w w w w w w
+          w →
+      state b b b b b b b b b r r r g g g o o o y y y g g g o o o y y y r r r r r r g g g o o o y y y w w w w w w w
+          w w →
+        (∀
+            (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 A4 X8 A8 C2 X9 D7 D1 Y1 B4 B8 C1 C3 W2 W4 C7 A2 X1 W3 B1 C4 X6 A9
+              D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 A3 W1 B5 W8 Y2 X2 B9 B6 W7 : α),
+            ¬state W7 W6 W5 W8 A1 W4 W1 W2 W3 Y1 Y2 Y3 X1 X2 X3 X4 X5 X6 X7 X8 X9 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3
+                  B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6 D7 ∨
+              state W1 W8 W7 W2 A1 W6 W3 W4 W5 X1 X2 X3 X4 X5 X6 X7 X8 X9 Y1 Y2 Y3 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3
+                B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6 D7) →
+          (∀
+              (C6 B2 X3 A1 A6 Y3 C5 E2 C9 E1 E5 B3 D6 A5 D9 A4 X8 C2 A8 X9 D7 D1 Y1 C1 B8 B4 E6 C3 D8 C7 A2 X1 B1 C4
+                A9 X6 D3 X7 C8 D5 E3 D4 X4 B7 A7 D2 X5 E4 A3 B5 Y2 X2 B9 B6 : α),
+              ¬state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 Y1 Y2 Y3 X1 X2 X3 X4 X5 X6 X7 X8
+                    X9 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6 D7 D8 D9 E1 E2 E3 E4 E5 E6 ∨
+                state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 X1 X2 X3 X4 X5 X6 X7 X8 X9 Y1
+                  Y2 Y3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6 D7 D8 D9 E1 E2 E3 E4 E5 E6) →
+            (∀
+                (C6 B2 X3 A1 W5 A6 C5 Y3 C9 B3 D6 A5 A4 X8 C2 A8 X9 D7 D1 Y1 C1 B8 B4 C3 W2 W4 C7 A2 X1 W3 B1 C4 A9
+                  X6 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 A3 W1 B5 W8 Y2 X2 B9 B6 W7 : α),
+                ¬state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4
+                      D5 D6 Y1 Y2 Y3 X1 X2 X3 X4 X5 X6 X7 X8 X9 W7 W8 W1 W6 D7 W2 W5 W4 W3 ∨
+                  state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4
+                    D5 D6 X1 X2 X3 X4 X5 X6 X7 X8 X9 Y1 Y2 Y3 W1 W2 W3 W8 D7 W4 W7 W6 W5) →
+              (∀
+                  (C6 B2 X3 A1 A6 U2 V4 Y3 C5 C9 Y5 V3 B3 D6 A5 A4 U3 A8 C2 D1 Y1 B4 B8 C1 C3 W2 C7 U5 A2 X1 B1 W3
+                    C4 A9 D3 V1 C8 D5 D4 U1 V2 B7 D2 A7 A3 W1 B5 Y4 Y2 V5 X2 B9 B6 U4 : α),
+                  ¬state A1 A2 A3 A4 A5 A6 V1 U1 Y1 A7 A8 W1 V2 U2 Y2 X1 A9 B1 B2 B3 B4 B5 B6 W2 V3 U3 Y3 X2 B7 B8
+                        B9 C1 C2 C3 C4 W3 V4 U4 Y4 X3 C5 C6 C7 C8 C9 V5 U5 Y5 D1 D2 D3 D4 D5 D6 ∨
+                    state A1 A2 A3 A4 A5 A6 X1 X2 X3 A7 A8 Y1 Y2 Y3 Y4 Y5 A9 B1 B2 B3 B4 B5 B6 U1 U2 U3 U4 U5 B7 B8
+                      B9 C1 C2 C3 C4 V1 V2 V3 V4 V5 C5 C6 C7 C8 C9 W1 W2 W3 D1 D2 D3 D4 D5 D6) →
+                (∀
+                    (C6 B2 X3 A1 A6 Y3 C5 C9 E2 E1 E5 B3 D6 A5 D9 X8 A4 A8 C2 X9 D7 D1 Y1 C1 B8 B4 E6 C3 D8 C7 A2 X1
+                      B1 C4 A9 X6 D3 X7 C8 D5 E3 D4 X4 B7 A7 D2 X5 E4 A3 B5 Y2 X2 B9 B6 : α),
+                    ¬state A1 A2 A3 Y1 Y2 Y3 A4 A5 A6 A7 X9 A8 A9 B1 B2 B3 X1 B4 B5 B6 B7 B8 X8 B9 C1 C2 C3 C4 X2 C5
+                          C6 C7 C8 C9 X7 D1 D2 D3 D4 D5 X3 D6 D7 D8 D9 E1 E2 E3 X6 X5 X4 E4 E5 E6 ∨
+                      state A1 A2 A3 X1 X2 X3 A4 A5 A6 A7 Y3 A8 A9 B1 B2 B3 X4 B4 B5 B6 B7 B8 Y2 B9 C1 C2 C3 C4 X5
+                        C5 C6 C7 C8 C9 Y1 D1 D2 D3 D4 D5 X6 D6 D7 D8 D9 E1 E2 E3 X9 X8 X7 E4 E5 E6) →
+                  (∀
+                      (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 X8 A4 A8 C2 X9 D7 D1 Y1 B4 B8 C1 C3 W2 W4 C7 A2 X1 B1 W3
+                        C4 X6 A9 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 W1 A3 B5 W8 Y2 X2 B9 B6 W7 : α),
+                      ¬state Y1 Y2 Y3 A1 A2 A3 A4 A5 A6 X9 A7 A8 A9 B1 B2 B3 B4 X1 W1 W8 W7 X8 B5 B6 B7 B8 B9 C1 C2
+                            X2 W2 C3 W6 X7 C4 C5 C6 C7 C8 C9 D1 X3 W3 W4 W5 D2 D3 D4 D5 D6 D7 X6 X5 X4 ∨
+                        state X1 X2 X3 A1 A2 A3 A4 A5 A6 Y3 A7 A8 A9 B1 B2 B3 B4 X4 W3 W2 W1 Y2 B5 B6 B7 B8 B9 C1 C2
+                          X5 W4 C3 W8 Y1 C4 C5 C6 C7 C8 C9 D1 X6 W5 W6 W7 D2 D3 D4 D5 D6 D7 X9 X8 X7) →
+                    (∀
+                        (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 A4 X8 A8 C2 X9 D7 D1 Y1 B4 B8 C1 C3 W2 W4 C7 A2 X1 B1
+                          W3 C4 X6 A9 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 A3 W1 B5 W8 Y2 X2 B9 B6 W7 : α),
+                        ¬state Y1 A1 A2 Y2 A3 A4 Y3 A5 A6 W7 W8 W1 X1 A7 A8 A9 B1 B2 B3 B4 X9 W6 B5 W2 X2 B6 B7 B8
+                              B9 C1 C2 C3 X8 W5 W4 W3 X3 C4 C5 C6 C7 C8 C9 D1 X7 X4 D2 D3 X5 D4 D5 X6 D6 D7 ∨
+                          state X1 A1 A2 X2 A3 A4 X3 A5 A6 W1 W2 W3 X4 A7 A8 A9 B1 B2 B3 B4 Y3 W8 B5 W4 X5 B6 B7 B8
+                            B9 C1 C2 C3 Y2 W7 W6 W5 X6 C4 C5 C6 C7 C8 C9 D1 Y1 X7 D2 D3 X8 D4 D5 X9 D6 D7) →
+                      (∀
+                          (C6 B2 X3 A1 A6 Y3 C5 C9 E2 E1 E5 B3 D6 A5 D9 A4 X8 C2 A8 X9 D7 D1 Y1 C1 B8 B4 E6 C3 D8 C7
+                            A2 X1 B1 C4 X6 A9 D3 X7 C8 D5 E3 D4 X4 B7 A7 D2 X5 E4 A3 B5 Y2 X2 B9 B6 : α),
+                          ¬state A1 Y1 A2 A3 Y2 A4 A5 Y3 A6 A7 A8 A9 B1 X1 B2 B3 B4 B5 B6 X9 B7 B8 B9 C1 C2 X2 C3 C4
+                                C5 C6 C7 X8 C8 C9 D1 D2 D3 X3 D4 D5 D6 D7 D8 X7 D9 E1 X4 E2 E3 X5 E4 E5 X6 E6 ∨
+                            state A1 X1 A2 A3 X2 A4 A5 X3 A6 A7 A8 A9 B1 X4 B2 B3 B4 B5 B6 Y3 B7 B8 B9 C1 C2 X5 C3
+                              C4 C5 C6 C7 Y2 C8 C9 D1 D2 D3 X6 D4 D5 D6 D7 D8 Y1 D9 E1 X7 E2 E3 X8 E4 E5 X9 E6) →
+                        (∀
+                            (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 A4 X8 A8 C2 X9 D7 D1 Y1 B8 B4 C1 C3 W2 W4 C7 A2 X1
+                              B1 W3 C4 X6 A9 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 W1 A3 B5 W8 Y2 X2 B9 B6 W7 : α),
+                            ¬state A1 A2 Y1 A3 A4 Y2 A5 A6 Y3 A7 A8 A9 B1 B2 X1 W1 W8 W7 X9 B3 B4 B5 B6 B7 B8 B9 X2
+                                  W2 C1 W6 X8 C2 C3 C4 C5 C6 C7 C8 X3 W3 W4 W5 X7 C9 D1 D2 D3 X4 D4 D5 X5 D6 D7 X6 ∨
+                              state A1 A2 X1 A3 A4 X2 A5 A6 X3 A7 A8 A9 B1 B2 X4 W3 W2 W1 Y3 B3 B4 B5 B6 B7 B8 B9 X5
+                                W4 C1 W8 Y2 C2 C3 C4 C5 C6 C7 C8 X6 W5 W6 W7 Y1 C9 D1 D2 D3 X7 D4 D5 X8 D6 D7 X9) →
+                          (∀
+                              (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 A4 X8 A8 C2 X9 D7 D1 Y1 B4 B8 C1 C3 W2 W4 C7 A2
+                                X1 W3 B1 C4 X6 A9 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 A3 W1 B5 W8 Y2 X2 B9 B6 W7 : α),
+                              ¬state W1 W8 W7 W2 A1 W6 W3 W4 W5 X1 X2 X3 X4 X5 X6 X7 X8 X9 Y1 Y2 Y3 A2 A3 A4 A5 A6
+                                    A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6
+                                    D7 ∨
+                                state W7 W6 W5 W8 A1 W4 W1 W2 W3 Y1 Y2 Y3 X1 X2 X3 X4 X5 X6 X7 X8 X9 A2 A3 A4 A5 A6
+                                  A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6
+                                  D7) →
+                            (∀
+                                (C6 B2 X3 A1 A6 Y3 C5 E2 C9 E1 E5 B3 D6 A5 D9 A4 X8 C2 A8 X9 D7 D1 Y1 C1 B8 B4 E6 C3
+                                  D8 C7 A2 X1 B1 C4 A9 X6 D3 X7 C8 D5 E3 D4 X4 B7 A7 D2 X5 E4 A3 B5 Y2 X2 B9 B6 :
+                                  α),
+                                ¬state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 X1 X2 X3 X4 X5
+                                      X6 X7 X8 X9 Y1 Y2 Y3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6 D7 D8 D9 E1 E2 E3 E4
+                                      E5 E6 ∨
+                                  state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 Y1 Y2 Y3 X1
+                                    X2 X3 X4 X5 X6 X7 X8 X9 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 D5 D6 D7 D8 D9 E1 E2 E3 E4
+                                    E5 E6) →
+                              (∀
+                                  (C6 B2 X3 A1 W5 A6 C5 Y3 C9 B3 D6 A5 A4 X8 C2 A8 X9 D7 D1 Y1 C1 B8 B4 C3 W2 W4 C7
+                                    A2 X1 B1 W3 C4 A9 X6 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 A3 W1 B5 W8 Y2 X2 B9 B6
+                                    W7 : α),
+                                  ¬state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7
+                                        C8 C9 D1 D2 D3 D4 D5 D6 X1 X2 X3 X4 X5 X6 X7 X8 X9 Y1 Y2 Y3 W1 W2 W3 W8 D7
+                                        W4 W7 W6 W5 ∨
+                                    state A1 A2 A3 A4 A5 A6 A7 A8 A9 B1 B2 B3 B4 B5 B6 B7 B8 B9 C1 C2 C3 C4 C5 C6 C7
+                                      C8 C9 D1 D2 D3 D4 D5 D6 Y1 Y2 Y3 X1 X2 X3 X4 X5 X6 X7 X8 X9 W7 W8 W1 W6 D7 W2
+                                      W5 W4 W3) →
+                                (∀
+                                    (C6 B2 X3 A1 A6 U2 V4 Y3 C5 C9 Y5 B3 V3 D6 A5 A4 U3 A8 C2 D1 Y1 B4 B8 C1 C3 W2
+                                      U5 C7 A2 X1 B1 W3 C4 A9 D3 V1 C8 D5 D4 U1 V2 B7 D2 A7 A3 W1 B5 Y4 Y2 V5 X2 B9
+                                      B6 U4 : α),
+                                    ¬state A1 A2 A3 A4 A5 A6 X1 X2 X3 A7 A8 Y1 Y2 Y3 Y4 Y5 A9 B1 B2 B3 B4 B5 B6 U1
+                                          U2 U3 U4 U5 B7 B8 B9 C1 C2 C3 C4 V1 V2 V3 V4 V5 C5 C6 C7 C8 C9 W1 W2 W3 D1
+                                          D2 D3 D4 D5 D6 ∨
+                                      state A1 A2 A3 A4 A5 A6 V1 U1 Y1 A7 A8 W1 V2 U2 Y2 X1 A9 B1 B2 B3 B4 B5 B6 W2
+                                        V3 U3 Y3 X2 B7 B8 B9 C1 C2 C3 C4 W3 V4 U4 Y4 X3 C5 C6 C7 C8 C9 V5 U5 Y5 D1
+                                        D2 D3 D4 D5 D6) →
+                                  (∀
+                                      (C6 B2 X3 A1 A6 Y3 C5 C9 E2 E1 E5 B3 D6 A5 D9 X8 A4 A8 C2 X9 D7 D1 Y1 C1 B8 B4
+                                        E6 C3 D8 C7 A2 X1 B1 C4 A9 X6 D3 X7 C8 D5 E3 D4 X4 B7 A7 D2 X5 E4 A3 B5 Y2
+                                        X2 B9 B6 : α),
+                                      ¬state A1 A2 A3 X1 X2 X3 A4 A5 A6 A7 Y3 A8 A9 B1 B2 B3 X4 B4 B5 B6 B7 B8 Y2 B9
+                                            C1 C2 C3 C4 X5 C5 C6 C7 C8 C9 Y1 D1 D2 D3 D4 D5 X6 D6 D7 D8 D9 E1 E2 E3
+                                            X9 X8 X7 E4 E5 E6 ∨
+                                        state A1 A2 A3 Y1 Y2 Y3 A4 A5 A6 A7 X9 A8 A9 B1 B2 B3 X1 B4 B5 B6 B7 B8 X8
+                                          B9 C1 C2 C3 C4 X2 C5 C6 C7 C8 C9 X7 D1 D2 D3 D4 D5 X3 D6 D7 D8 D9 E1 E2 E3
+                                          X6 X5 X4 E4 E5 E6) →
+                                    (∀
+                                        (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 X8 A4 A8 C2 X9 D7 D1 Y1 B4 B8 C1 C3 W2
+                                          W4 C7 A2 X1 W3 B1 C4 A9 X6 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 W1 A3 B5 W8 Y2
+                                          X2 B9 B6 W7 : α),
+                                        ¬state X1 X2 X3 A1 A2 A3 A4 A5 A6 Y3 A7 A8 A9 B1 B2 B3 B4 X4 W3 W2 W1 Y2 B5
+                                              B6 B7 B8 B9 C1 C2 X5 W4 C3 W8 Y1 C4 C5 C6 C7 C8 C9 D1 X6 W5 W6 W7 D2
+                                              D3 D4 D5 D6 D7 X9 X8 X7 ∨
+                                          state Y1 Y2 Y3 A1 A2 A3 A4 A5 A6 X9 A7 A8 A9 B1 B2 B3 B4 X1 W1 W8 W7 X8 B5
+                                            B6 B7 B8 B9 C1 C2 X2 W2 C3 W6 X7 C4 C5 C6 C7 C8 C9 D1 X3 W3 W4 W5 D2 D3
+                                            D4 D5 D6 D7 X6 X5 X4) →
+                                      (∀
+                                          (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 A4 X8 A8 C2 X9 D7 D1 Y1 B4 B8 C1 C3
+                                            W2 W4 C7 A2 X1 B1 W3 C4 A9 X6 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 A3 W1 B5
+                                            W8 Y2 X2 B9 B6 W7 : α),
+                                          ¬state X1 A1 A2 X2 A3 A4 X3 A5 A6 W1 W2 W3 X4 A7 A8 A9 B1 B2 B3 B4 Y3 W8
+                                                B5 W4 X5 B6 B7 B8 B9 C1 C2 C3 Y2 W7 W6 W5 X6 C4 C5 C6 C7 C8 C9 D1 Y1
+                                                X7 D2 D3 X8 D4 D5 X9 D6 D7 ∨
+                                            state Y1 A1 A2 Y2 A3 A4 Y3 A5 A6 W7 W8 W1 X1 A7 A8 A9 B1 B2 B3 B4 X9 W6
+                                              B5 W2 X2 B6 B7 B8 B9 C1 C2 C3 X8 W5 W4 W3 X3 C4 C5 C6 C7 C8 C9 D1 X7
+                                              X4 D2 D3 X5 D4 D5 X6 D6 D7) →
+                                        (∀
+                                            (C6 B2 X3 A1 A6 Y3 C5 C9 E2 E1 E5 B3 D6 A5 D9 X8 A4 C2 A8 X9 D7 D1 Y1 C1
+                                              B8 B4 E6 C3 D8 C7 A2 X1 B1 C4 A9 X6 D3 X7 C8 D5 E3 D4 X4 B7 A7 D2 X5
+                                              E4 A3 B5 Y2 X2 B9 B6 : α),
+                                            ¬state A1 X1 A2 A3 X2 A4 A5 X3 A6 A7 A8 A9 B1 X4 B2 B3 B4 B5 B6 Y3 B7 B8
+                                                  B9 C1 C2 X5 C3 C4 C5 C6 C7 Y2 C8 C9 D1 D2 D3 X6 D4 D5 D6 D7 D8 Y1
+                                                  D9 E1 X7 E2 E3 X8 E4 E5 X9 E6 ∨
+                                              state A1 Y1 A2 A3 Y2 A4 A5 Y3 A6 A7 A8 A9 B1 X1 B2 B3 B4 B5 B6 X9 B7
+                                                B8 B9 C1 C2 X2 C3 C4 C5 C6 C7 X8 C8 C9 D1 D2 D3 X3 D4 D5 D6 D7 D8 X7
+                                                D9 E1 X4 E2 E3 X5 E4 E5 X6 E6) →
+                                          (∀
+                                              (C6 B2 X3 A1 W5 A6 Y3 C5 C9 B3 D6 A5 X8 A4 A8 C2 X9 D7 D1 Y1 B8 B4 C1
+                                                C3 W2 W4 C7 A2 X1 W3 B1 C4 A9 X6 D3 X7 C8 D5 W6 D4 X4 B7 A7 D2 X5 W1
+                                                A3 B5 W8 Y2 X2 B9 B6 W7 : α),
+                                              ¬state A1 A2 X1 A3 A4 X2 A5 A6 X3 A7 A8 A9 B1 B2 X4 W3 W2 W1 Y3 B3 B4
+                                                    B5 B6 B7 B8 B9 X5 W4 C1 W8 Y2 C2 C3 C4 C5 C6 C7 C8 X6 W5 W6 W7
+                                                    Y1 C9 D1 D2 D3 X7 D4 D5 X8 D6 D7 X9 ∨
+                                                state A1 A2 Y1 A3 A4 Y2 A5 A6 Y3 A7 A8 A9 B1 B2 X1 W1 W8 W7 X9 B3 B4
+                                                  B5 B6 B7 B8 B9 X2 W2 C1 W6 X8 C2 C3 C4 C5 C6 C7 C8 X3 W3 W4 W5 X7
+                                                  C9 D1 D2 D3 X4 D4 D5 X5 D6 D7 X6) →
+                                            False
+  := by
+  epr (cegarRounds := 1000)

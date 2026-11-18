@@ -43,16 +43,38 @@ class Transport (α : Type) where
   recvSelector : α → UInt64 → Selector (Option ByteArray)
 
   /--
-  Close the transport connection.
+  Close the transport connection, cancelling any write still in flight.
   The default implementation is a no-op; override this for transports that require explicit teardown.
-  For `Socket.Client`, the runtime closes the file descriptor when the object is finalized.
   -/
   close : α → IO Unit := fun _ => pure ()
 
+  /--
+  Shut down the write side of the connection: the peer reads end-of-stream after everything already
+  written, while this side can still read. Returns `false` when the transport cannot, which is what
+  the default implementation does.
+  -/
+  shutdown : α → Async Bool := fun _ => pure false
+
 instance : Transport Socket.Client where
   recv client expect := client.recv? expect
-  sendAll client data := client.sendAll data
+  sendAll client data := do
+    let promise ← client.native.send data
+    -- A finished send needs no await, and a pending one is mapped on the thread that completes it
+    -- instead of in a task of its own.
+    if ← IO.hasFinished promise.result? then
+      match promise.result?.get with
+      | some (.ok ()) => pure ()
+      | some (.error e) => throw e
+      | none => throw (IO.userError "the promise linked to the Async was dropped")
+    else
+      Async.ofAsyncTask <| promise.result?.map (sync := true) fun
+        | none => .error (IO.userError "the promise linked to the Async was dropped")
+        | some res => res
   recvSelector client expect := client.recvSelector expect
+  close client := client.close
+  shutdown client := do
+    client.shutdown
+    return true
 
 namespace Internal
 

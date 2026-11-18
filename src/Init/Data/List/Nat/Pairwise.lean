@@ -97,7 +97,7 @@ theorem Nodup.idxOf_getElem [BEq α] [LawfulBEq α] {xs : List α} (H : Nodup xs
       have hne : (a == l[j]) = false := by
         rw [beq_eq_false_iff_ne]
         exact fun hc => H.1 (hc ▸ getElem_mem hj)
-      rw [getElem_cons_succ, idxOf_cons, hne, cond_false, ih H.2 j hj]
+      simp [getElem_cons_succ, idxOf_cons, hne, ih H.2 j hj]
 
 grind_pattern Nodup.idxOf_getElem => Nodup xs, idxOf (xs[i]'h) xs
 

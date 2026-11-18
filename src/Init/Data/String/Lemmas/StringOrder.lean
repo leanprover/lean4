@@ -6,13 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Data.String.Compare
 public import Init.Data.String.Basic
-public import Init.Data.Order.Classes
-import Init.Data.List.Lex
-import Init.Data.Char.Lemmas
-import Init.Data.Char.Order
-import Init.Data.Order.Factories
-import Init.Data.Order.Lemmas
+import Init.Data.String.Lemmas.Decode
 
 public section
 
@@ -20,30 +16,41 @@ open Std
 
 namespace String
 
-@[simp] protected theorem not_le {a b : String} : ¬ a ≤ b ↔ b < a := Decidable.not_not
-@[simp] protected theorem not_lt {a b : String} : ¬ a < b ↔ b ≤ a := Iff.rfl
-@[simp] protected theorem le_refl (a : String) : a ≤ a := List.le_refl _
-@[simp] protected theorem lt_irrefl (a : String) : ¬ a < a := List.lt_irrefl _
+@[deprecated Std.not_le +typeChanged (since := "2026-10-09")]
+protected theorem not_le {a b : String} : ¬ a ≤ b ↔ b < a := Std.not_le
+@[deprecated Std.not_lt +typeChanged (since := "2026-10-09")]
+protected theorem not_lt {a b : String} : ¬ a < b ↔ b ≤ a := Std.not_lt
+@[deprecated Std.le_refl +typeChanged (since := "2026-10-09")]
+protected theorem le_refl (a : String) : a ≤ a := Std.le_refl _
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem lt_irrefl (a : String) : ¬ a < a := Std.lt_irrefl
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem le_trans {a b c : String} : a ≤ b → b ≤ c → a ≤ c := Std.le_trans
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem lt_trans {a b c : String} : a < b → b < c → a < c := Std.lt_trans
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem le_total (a b : String) : a ≤ b ∨ b ≤ a := Std.le_total
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem le_antisymm {a b : String} : a ≤ b → b ≤ a → a = b := Std.le_antisymm
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem lt_asymm {a b : String} (h : a < b) : ¬ b < a := Std.not_gt_of_lt h
+@[deprecated Std.lt_irrefl +typeChanged (since := "2026-10-09")]
+protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := Std.ne_of_lt h
 
-attribute [local instance] Char.notLTTrans Char.ltTrichotomous Char.ltAsymm
+@[simp]
+theorem toList_lt_toList_iff {s t : String} : s.toList < t.toList ↔ s < t := by
+  simp [← toByteArray_lt_toByteArray_iff, toList_lt_toList_iff_toByteArray_lt_toByteArray]
 
-protected theorem le_trans {a b c : String} : a ≤ b → b ≤ c → a ≤ c := List.le_trans
-protected theorem lt_trans {a b c : String} : a < b → b < c → a < c := List.lt_trans
-protected theorem le_total (a b : String) : a ≤ b ∨ b ≤ a := List.le_total _ _
-protected theorem le_antisymm {a b : String} : a ≤ b → b ≤ a → a = b := fun h₁ h₂ => String.ext (List.le_antisymm (as := a.toList) (bs := b.toList) h₁ h₂)
-protected theorem lt_asymm {a b : String} (h : a < b) : ¬ b < a := List.lt_asymm h
-protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by
-  have := String.lt_irrefl a
-  intro h; subst h; contradiction
+@[deprecated toList_lt_toList_iff +typeChanged (since := "2026-10-09")]
+theorem lt_iff {s t : String} : s < t ↔ s.toList < t.toList :=
+  toList_lt_toList_iff.symm
 
-instance instIsLinearOrder : IsLinearOrder String := by
-  apply IsLinearOrder.of_le
-  case le_antisymm => constructor; apply String.le_antisymm
-  case le_trans => constructor; apply String.le_trans
-  case le_total => constructor; apply String.le_total
+@[simp]
+theorem toList_le_toList_iff {s t : String} : s.toList ≤ t.toList ↔ s ≤ t := by
+  simp [← toByteArray_le_toByteArray_iff, toList_le_toList_iff_toByteArray_le_toByteArray]
 
-instance : LawfulOrderLT String where
-  lt_iff a b := by
-    simp [← String.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+@[simp]
+theorem compare_toList_toList {s t : String} : compare s.toList t.toList = compare s t := by
+  simp [← compare_toByteArray_toByteArray, compare_toList_toList_eq_compare_toByteArray_toByteArray]
 
 end String

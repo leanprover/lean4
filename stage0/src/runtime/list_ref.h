@@ -241,7 +241,7 @@ template<typename T> list_ref<T> append(list_ref<T> const & l1, list_ref<T> cons
         buffer<object*> tmp;
         l1.get_cons_cells(tmp);
         list_ref<T> r = l2;
-        unsigned i = tmp.size();
+        size_t i = tmp.size();
         while (i > 0) {
             --i;
             r = cons(head<T>(tmp[i]), r);

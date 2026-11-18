@@ -33,7 +33,7 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
     MetaM (Expr × Array (Option MVarId) × Array (Option MVarId)) := do
   let funInfo ← getFunInfoNArgs f args.size
   let some congrThm ← mkCongrSimpCore? f funInfo (← getCongrSimpKinds f funInfo) (subsingletonInstImplicitRhs := false)
-    | throwError "'congr' conv tactic failed to create congruence theorem"
+    | throwError "`congr` conv tactic failed to create congruence theorem"
   let mut eNew := f
   let mut proof := congrThm.proof
   let mut mvarIdsNew := #[]
@@ -68,7 +68,7 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
     | .heq | .fixedNoParam => unreachable!
   if congrThm.argKinds.size < args.size then
     if congrThm.argKinds.size == 0 then
-      throwError "'congr' conv tactic failed to create congruence theorem"
+      throwError "`congr` conv tactic failed to create congruence theorem"
     let (proof', mvarIdsNew', mvarIdsNewInsts') ←
       mkCongrThm origTag eNew args[funInfo.getArity...*] addImplicitArgs nameSubgoals
     for arg in args[funInfo.getArity...*] do
@@ -100,7 +100,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
     mvarId.assign proof
     return mvarIdsNew.toList ++ mvarIdsNewInsts.toList
   else
-    throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
+    throwError "invalid `congr` conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
@@ -110,7 +110,7 @@ def congrFunN (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let (lhs, rhs) ← getLhsRhsCore mvarId
   let lhs := (← instantiateMVars lhs).cleanupAnnotations
   unless lhs.isApp do
-    throwError "invalid 'arg 0' conv tactic, application expected{indentExpr lhs}"
+    throwError "invalid `arg 0` conv tactic, application expected{indentExpr lhs}"
   lhs.withApp fun f xs => do
     let (g, mvarNew) ← mkConvGoalFor f
     mvarId.assign (← xs.foldlM (init := mvarNew) Meta.mkCongrFun)
@@ -250,7 +250,7 @@ def evalArg (tacticName : String) (i : Int) (explicit : Bool) : TacticM Unit := 
     let (lhs, rhs) ← getLhsRhsCore mvarId
     let lhs := (← instantiateMVars lhs).cleanupAnnotations
     let .app f a := lhs
-      | throwError "invalid 'fun' conv tactic, application expected{indentExpr lhs}"
+      | throwError "invalid `fun` conv tactic, application expected{indentExpr lhs}"
     let (g, mvarNew) ← mkConvGoalFor f
     mvarId.assign (← Meta.mkCongrFun mvarNew a)
     resolveRhs "fun" rhs (.app g a)
@@ -307,8 +307,8 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
     else
       let lhsType ← whnfD (← inferType lhs)
       unless lhsType.isForall do
-        throwError "invalid 'ext' conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
-      let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
+        throwError "invalid `ext` conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
+      let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | throwError "`apply funext` unexpected result"
       let userNames := if let some userName := userName? then [userName] else []
       let (_, mvarId) ← mvarId.introN 1 userNames
       markAsConvGoal mvarId

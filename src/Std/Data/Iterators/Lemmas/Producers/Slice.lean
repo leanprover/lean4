@@ -79,13 +79,6 @@ theorem toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
     s.iter.toArray = s.toArray := by
   simp [Internal.iter_eq_iter, Internal.toArray_eq_toArray_iter]
 
-@[deprecated toArray_iter (since := "2025-11-13")]
-theorem toArray_eq_toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β]
-    [Finite α Id] :
-    s.toArray = s.iter.toArray := by
-  simp
-
 @[simp]
 theorem toList_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
     [Iterator α Id β]
@@ -93,24 +86,11 @@ theorem toList_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
     s.iter.toList = s.toList := by
   simp [Internal.iter_eq_iter, Internal.toList_eq_toList_iter]
 
-@[deprecated toList_iter (since := "2025-11-13")]
-theorem toList_eq_toList_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β]
-    [Finite α Id] :
-    s.toList = s.iter.toList := by
-  simp
-
 @[simp]
 theorem toListRev_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] [Finite α Id] :
     s.iter.toListRev = s.toListRev := by
   simp [Internal.iter_eq_iter, Internal.toListRev_eq_toListRev_iter]
-
-@[deprecated toListRev_iter (since := "2025-11-13")]
-theorem toListRev_eq_toListRev_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [Finite α Id] :
-    s.toListRev = s.iter.toListRev := by
-  simp
 
 theorem fold_iter [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] [IteratorLoop α Id Id] [Iterators.Finite α Id] {s : Slice γ} :

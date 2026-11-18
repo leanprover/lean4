@@ -4,11 +4,11 @@ open Lean
 
 /-!
 Tests that a closure saved via `CompactedRegion.save` with `allowClosures := true` in one process
-loads and runs correctly in a *separate* process: the `v3` lib relocation table must re-point the
+loads and runs correctly in a *separate* process: the lib relocation table must re-point the
 closure's fn pointer to the loader process's address space.
 -/
 unsafe def main (args : List String) : IO UInt32 := do
-  let tmpFile : System.FilePath := "./_compact_closure_cross_test.olean"
+  let tmpFile : System.FilePath := "./_tmp_compact_closure_cross_test.olean"
 
   match args with
   | ["save"] =>

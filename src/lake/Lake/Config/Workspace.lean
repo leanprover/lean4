@@ -134,7 +134,7 @@ public theorem wsIdx_root_lt {ws : Workspace} :
   ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache?
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
-@[deprecated enableArtifactCache? (since := "2026-02-03")]
+@[deprecated enableArtifactCache? +typeChanged (since := "2026-02-03")]
 public def enableArtifactCache (ws : Workspace) : Bool :=
   ws.enableArtifactCache?.getD false
 
@@ -175,10 +175,12 @@ This is configured through {lit}`cache.defaultUploadService` in the system Lake 
 /--
 Returns the configured cache service with the given name.
 
-This is configured through {lit}`cache.service` entries in the system Lake configuration.
+This is configured through {lit}`cache.service` entries in the system Lake configuration,
+and {lit}`cache_service` entries in package configurations.
 -/
 @[inline] public def findCacheService? (ws : Workspace) (service : String) : Option CacheService :=
-  ws.lakeConfig.cacheServices.find? (.mkSimple service)
+  ws.lakeConfig.cacheServices.find? (.mkSimple service) <|>
+  ws.packages.findSome? (·.cacheServices.find? (.mkSimple service))
 
 /-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=

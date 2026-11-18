@@ -92,7 +92,7 @@ instance : MonadAttach (ExceptCpsT ε m) := .trivial
 
 @[simp] theorem run_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT ε m β) : run (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) = x >>= fun a => run (f a) := rfl
 
-@[deprecated throw_bind (since := "2026-03-13")]
+@[deprecated throw_bind +typeChanged (since := "2026-03-13")]
 theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run (throw e >>= f : ExceptCpsT ε m β) = run (throw e) := rfl
 
 @[simp] theorem runK_pure :
@@ -116,7 +116,7 @@ theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run 
 
 @[simp] theorem runCatch_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT β m β) : runCatch (ExceptCpsT.lift x >>= f : ExceptCpsT β m β) = x >>= fun a => runCatch (f a) := rfl
 
-@[deprecated throw_bind (since := "2026-03-13")]
+@[deprecated throw_bind +typeChanged (since := "2026-03-13")]
 theorem runCatch_bind_throw [Monad m] (e : β) (f : α → ExceptCpsT β m β) : runCatch (throw e >>= f : ExceptCpsT β m β) = pure e := rfl
 
 end ExceptCpsT

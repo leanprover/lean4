@@ -1,12 +1,17 @@
+Input: "Newlines are preserved\nin paragraphs."
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str "\"Newlines are preserved\""))
-     (Lean.Doc.Syntax.linebreak
-      "line!"
-      (str "\"\\n\""))
-     (Lean.Doc.Syntax.text
-      (str "\"in paragraphs.\""))]
-    "}")]
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Newlines are preserved"))
+     (Lean.Doc.Parser.Inline.linebreak "\n")
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "in paragraphs."))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "Newlines are preserved")
+    linebreak (newline := "\n")
+    text (content := "in paragraphs.")

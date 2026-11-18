@@ -1,7 +1,7 @@
 open Lean Grind
 
 /--
-error: error while initializing `grind ring` operators:
+error: error while initializing arithmetic operators:
 instance for `HAdd.hAdd` ⏎
   instHAdd
 is not definitionally equal to the expected one ⏎
@@ -13,7 +13,7 @@ example [CommRing α] [Add α] (a b : α) : a = OfNat.ofNat (α := α) 5 → b =
   grind
 
 /--
-error: error while initializing `grind ring` operators:
+error: error while initializing arithmetic operators:
 instance for `HMul.hMul` ⏎
   instHMul
 is not definitionally equal to the expected one ⏎
@@ -25,7 +25,7 @@ example [CommRing α] [Mul α] (a b : α) : a = OfNat.ofNat (α := α) 5 → b =
   grind
 
 /--
-error: error while initializing `grind ring` operators:
+error: error while initializing arithmetic operators:
 instance for `HSub.hSub` ⏎
   instHSub
 is not definitionally equal to the expected one ⏎
@@ -38,7 +38,7 @@ example [CommRing α] [Sub α] (a b : α) : a = OfNat.ofNat (α := α) 5 → b =
   grind
 
 /--
-error: error while initializing `grind ring` operators:
+error: error while initializing arithmetic operators:
 instance for `HPow.hPow` ⏎
   inst_1
 is not definitionally equal to the expected one ⏎
@@ -50,7 +50,7 @@ example [CommRing α] [HPow α Nat α] (a b : α) : a = OfNat.ofNat (α := α) 5
   grind
 
 /--
-error: error while initializing `grind ring` operators:
+error: error while initializing arithmetic operators:
 instance for `Neg.neg` ⏎
   inst_1
 is not definitionally equal to the expected one ⏎
@@ -62,7 +62,7 @@ example [CommRing α] [Neg α] (a : α) : a = 5 → -a = -5 := by
   grind
 
 /--
-error: error while initializing `grind ring` operators:
+error: error while initializing arithmetic operators:
 instance for `Inv.inv` ⏎
   inst_1
 is not definitionally equal to the expected one ⏎

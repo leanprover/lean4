@@ -31,14 +31,14 @@ public abbrev JobM := FetchT <| EStateT Log.Pos JobState BaseIO
 /-- Construct a `FetchM` monad from its full functional representation. -/
 @[inline] public def JobM.ofFn
   (f : IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α))
+    BuildStoreRef → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α))
 : JobM α := .mk fun fetch => fun pkg? stack store ctx => .mk fun s =>
   f fetch pkg? stack store ctx s
 
 /-- Convert a `JobM` monad to its full functional representation. -/
 @[inline] public def JobM.toFn (self : JobM α) :
   IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α)
+    BuildStoreRef → BuildContext → JobState → BaseIO (EResult Log.Pos JobState α)
 := fun fetch pkg? stack store ctx s => self.run fetch pkg? stack store ctx |>.run s
 
 public instance (priority := high) : MonadStateOf JobState JobM := inferInstance
@@ -102,14 +102,14 @@ public abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 /-- Construct a `SpawnM` monad from its full functional representation. -/
 @[inline] public def SpawnM.ofFn
   (f : IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → BuildTrace → BaseIO α)
+    BuildStoreRef → BuildContext → BuildTrace → BaseIO α)
 : SpawnM α := .mk fun fetch => fun pkg? stack store ctx s =>
   f fetch pkg? stack store ctx s
 
 /-- Convert a `SpawnM` monad to its full functional representation. -/
 @[inline] public def SpawnM.toFn (self : SpawnM α) :
   IndexBuildFn RecBuildM → Option Package → CallStack BuildKey →
-    IO.Ref BuildStore → BuildContext → BuildTrace → BaseIO α
+    BuildStoreRef → BuildContext → BuildTrace → BaseIO α
 := fun fetch pkg? stack store ctx s => self.run fetch pkg? stack store ctx |>.run s
 
 @[inline] public def JobM.runSpawnM (x : SpawnM α) : JobM α := .ofFn fun fn pkg? stack store ctx s =>
@@ -189,17 +189,50 @@ Logs the job's log and throws if there was an error.
 -/
 public protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
-  | .error n {log, ..} => log.replay; throw n
-  | .ok a {log, ..} => log.replay; pure a
+  | .error e {log, ..} =>
+    let iniPos ← getLogPos
+    log.replay
+    throw ⟨iniPos.val + e.val⟩
+  | .ok a {log, ..} =>
+    log.replay
+    return a
 
-/-- Apply `f` asynchronously to the job's output. -/
+/-- Fail the current job as canceled (no log entry; see `JobState.canceled`). -/
+public def cancelJob : JobM α := do
+  modify ({· with canceled := true})
+  failure
+
+/--
+Like `wait?`, but a canceled job cancels the current job as well (via
+`cancelJob`), so `none` only ever means a genuine failure.
+-/
+public def waitUnlessCanceled? (self : Job α) : JobM (Option α) := do
+  match (← self.wait) with
+  | .ok a _ => return some a
+  | r@(.error ..) => if r.isCanceled then cancelJob else return none
+
+/--
+The result of a job continuation canceled by the build's cancellation token
+(see `BuildConfig.failFast`). The trace-level entry only gives `Job.await` a
+message to replay; classification uses `JobState.canceled`.
+-/
+@[inline] def canceledResult (s : JobState) : JobResult α :=
+  .error s.log.endPos
+    {s.logEntry (.trace "canceled after earlier build failure") with canceled := true}
+
+/--
+Apply `f` asynchronously to the job's output.
+If the build's cancellation token is set, errors without running `f`.
+-/
 @[nospecialize] public protected def mapM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := .ofFn fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
-    | .ok a s =>
+    | .ok a s => do
+      if let some tk := ctx.cancelTk? then
+        if ← tk.isSet then return canceledResult s
       let trace := mixTrace trace s.trace
       withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {s with trace}
     | .error n s => return .error n s
@@ -207,6 +240,7 @@ public protected def await (self : Job α) : LogIO α := do
 /--
 Apply `f` asynchronously to the job's output
 and asynchronously await the resulting job.
+If the build's cancellation token is set, errors without running `f`.
 -/
 @[nospecialize] public def bindM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
@@ -215,6 +249,8 @@ and asynchronously await the resulting job.
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
+      if let some tk := ctx.cancelTk? then
+        if ← tk.isSet then return Task.pure (canceledResult sa)
       let trace := mixTrace trace sa.trace
       match (← withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {sa with trace}) with
       | .ok job sa =>

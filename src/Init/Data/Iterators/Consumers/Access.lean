@@ -103,7 +103,7 @@ def Iter.Total.atIdxSlow? {α β} [Iterator α Id β] [Productive α Id]
     (n : Nat) (it : Iter.Total (α := α) β) : Option β :=
   it.it.atIdxSlow? n
 
-@[inline, inherit_doc Iter.atIdxSlow?, deprecated Iter.atIdxSlow? (since := "2026-01-28")]
+@[inline, inherit_doc Iter.atIdxSlow?, deprecated Iter.atIdxSlow? +typeChanged (since := "2026-01-28")]
 def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β]
     (n : Nat) (it : Iter.Partial (α := α) β) : Option β :=
   it.it.atIdxSlow? n

@@ -38,6 +38,49 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   cutsatExt.modifyState f
 
+/-- Returns `true` if cutsat natively supports `type`. -/
+def isSupportedType (type : Expr) : GoalM Bool := do
+  if isNatType type || isIntType type then
+    return true
+  else match_expr type with
+    | Fin _ => return true
+    | BitVec _ => return true
+    | UInt8 => return true
+    | UInt16 => return true
+    | UInt32 => return true
+    | UInt64 => return true
+    | USize => return true
+    | Int8 => return true
+    | Int16 => return true
+    | Int32 => return true
+    | Int64 => return true
+    | ISize => return true
+    | _ => return false
+
+/-- Returns `true` if cutsat is enabled and natively supports `type`, i.e., cutsat handles it. -/
+def isCutsatType (type : Expr) : GoalM Bool := do
+  (return (← getConfig).lia) <&&> isSupportedType type
+
+/--
+Returns `true` if numerals of the embedded type `α` can be evaluated, i.e., their
+embedded (`Fin.val`/`toNat`/`toInt`) value can be computed directly. Such numerals are
+not given embedding-accessor applications. Currently this means the modulus of `α` is
+known, but future embedded types may be evaluable without one.
+-/
+def canBeEvaluated (α : Expr) : GoalM Bool :=
+  match_expr α with
+  | Fin n => isNatValue n
+  | BitVec w => isNatValue w
+  | UInt8 => return true
+  | UInt16 => return true
+  | UInt32 => return true
+  | UInt64 => return true
+  | Int8 => return true
+  | Int16 => return true
+  | Int32 => return true
+  | Int64 => return true
+  | _ => return false -- USize, ISize
+
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
   if (← isInconsistent) then return true
@@ -89,6 +132,27 @@ where
 def _root_.Int.Internal.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
   let vars ← getVars
   return (← p.denoteExpr (vars[·]!))
+
+/-!
+`markStored` records the split depth of the current goal in a constraint that is stored in the
+cutsat state. A constraint that was already stored keeps its depth.
+-/
+
+def EqCnstr.markStored (c : EqCnstr) : GoalM EqCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
+
+def DvdCnstr.markStored (c : DvdCnstr) : GoalM DvdCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
+
+def LeCnstr.markStored (c : LeCnstr) : GoalM LeCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
+
+def DiseqCnstr.markStored (c : DiseqCnstr) : GoalM DiseqCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
 
 def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   match c.p with

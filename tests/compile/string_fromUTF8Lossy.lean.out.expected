@@ -1,0 +1,6 @@
+all bytes, length ≤ 2: ok
+boundary bytes, length ≤ 4: ok
+random: ok
+true
+true
+true

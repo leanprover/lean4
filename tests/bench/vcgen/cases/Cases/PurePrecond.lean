@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Exercises pure propositional hypotheses in preconditions. `flipp` flips a `Bool` state, but
@@ -8,11 +8,11 @@ so VC generation must introduce and discharge these pure preconditions. `step` f
 preserving `b = true`.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace PurePrecond
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def flipp (_ : Bool) : StateM Bool Unit := modify not
 

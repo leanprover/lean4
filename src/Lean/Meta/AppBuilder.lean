@@ -106,6 +106,14 @@ def mkEqSymm (h : Expr) : MetaM Expr := do
       return mkApp4 (mkConst ``Eq.symm [u]) α a b h
     | none => throwAppBuilderException ``Eq.symm ("equality proof expected" ++ hasTypeMsg h hType)
 
+/-- Given `h₁ : @Eq α a b` and `h₂ : @Eq α b c` with `α : Sort u`, returns `@Eq.trans α a b c h₁ h₂`. -/
+def mkEqTransCore (u : Level) (α a b c h₁ h₂ : Expr) : Expr :=
+  mkApp6 (mkConst ``Eq.trans [u]) α a b c h₁ h₂
+
+/-- Given `h₁ : a = b` and `h₂ : b = c` for propositions `a b c`, returns a proof of `a = c`. -/
+def mkEqTransCoreProp (a b c h₁ h₂ : Expr) : Expr :=
+  mkEqTransCore 1 (mkSort 0) a b c h₁ h₂
+
 /-- Given `h₁ : a = b` and `h₂ : b = c`, returns a proof of `a = c`. -/
 def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
   if h₁.isAppOf ``Eq.refl then
@@ -118,7 +126,7 @@ def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     match hType₁.eq?, hType₂.eq? with
     | some (α, a, b), some (_, _, c) =>
       let u ← getLevel α
-      return mkApp6 (mkConst ``Eq.trans [u]) α a b c h₁ h₂
+      return mkEqTransCore u α a b c h₁ h₂
     | none, _ => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
@@ -441,8 +449,21 @@ def mkEqRec (motive h1 h2 : Expr) : MetaM Expr := do
       | _ =>
         throwAppBuilderException ``Eq.rec ("invalid motive" ++ indentExpr motive)
 
-def mkEqMP (eqProof pr : Expr) : MetaM Expr :=
-  mkAppM ``Eq.mp #[eqProof, pr]
+/--
+Returns `Eq.mp h a : β` for `h : α = β` and `a : α`, without inferring or checking the
+types of `h` and `a`. Use this when `α` is only definitionally equal to the type of `a`
+in a way `isDefEq` may fail to establish (e.g. after `zetaDelta` and ground evaluation).
+-/
+def mkEqMPCore (α β h a : Expr) : MetaM Expr := do
+  let u ← getLevel α
+  return mkApp4 (mkConst ``Eq.mp [u]) α β h a
+
+/-- Given `h : α = β` and `a : α`, returns `Eq.mp h a : β`. The type of `a` is not checked. -/
+def mkEqMP (eqProof pr : Expr) : MetaM Expr := do
+  let eqType ← infer eqProof
+  match eqType.eq? with
+  | some (_, α, β) => mkEqMPCore α β eqProof pr
+  | none => throwAppBuilderException ``Eq.mp ("equality proof expected" ++ hasTypeMsg eqProof eqType)
 
 def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
   mkAppM ``Eq.mpr #[eqProof, pr]

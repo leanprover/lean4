@@ -1,6 +1,6 @@
 namespace Ex1
 
-inductive T: Type :=
+inductive T: Type where
   | mk: String → Option T → T
 
 def runT: T → Nat
@@ -64,7 +64,7 @@ end Ex2
 
 namespace Ex3
 
-inductive ProgramType := | Op | Assign | Block
+inductive ProgramType where | Op | Assign | Block
 
 section
 set_option hygiene false
@@ -73,7 +73,7 @@ notation "Assign" => Program ProgramType.Assign
 notation "Block"  => Program ProgramType.Block
 end
 
-inductive Program: (type: ProgramType) → Type :=
+inductive Program: (type: ProgramType) → Type where
   | mkOp: String → Block → Op
   | mkAssign: String → Op → Assign
   | mkBlock: Assign → Block

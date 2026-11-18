@@ -36,7 +36,12 @@ register_option myOwn.newOpt : Bool := { defValue := true, descr := "the replace
 @[deprecated myOwn.newOpt (since := "2026-01-15")]
 register_option myOwn.deprecatedByName : Bool := { defValue := true, descr := "an option" }
 
-/-- warning: `myOwn.deprecatedByName` has been deprecated: Use `myOwn.newOpt` instead -/
+/--
+warning: `myOwn.deprecatedByName` has been deprecated: Use `myOwn.newOpt` instead
+
+Hint: Replace the deprecated name:
+  m̵y̵O̵w̵n̵.̵d̵e̵p̵r̵e̵c̵a̵t̵e̵d̵B̵y̵N̵a̵m̵e̵m̲y̲O̲w̲n̲.̲n̲e̲w̲O̲p̲t̲
+-/
 #guard_msgs in
 def usesDeprecatedByName (o : Options) : Bool := myOwn.deprecatedByName.get o
 

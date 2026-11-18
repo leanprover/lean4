@@ -158,7 +158,8 @@ def mkUnexpander (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Mac
     else
       elabCommand macroDecl
     if let some delabDecl := (← liftMacroM <| mkUnexpander attrKind pat qrhs |>.run) then
-      elabCommand delabDecl
+      -- Deprecated constants on the right-hand side were reported by the quotation precheck.
+      withoutCheckDeprecated <| elabCommand delabDecl
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

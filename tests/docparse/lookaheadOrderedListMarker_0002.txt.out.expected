@@ -1,0 +1,6 @@
+Input: "2. "
+Success! Final stack:
+  "Lean.Doc.Parser.OrderedListType.numDot 2"
+Remaining:
+"2. "
+Round-trip not tested: this parser classifies input rather than producing document syntax

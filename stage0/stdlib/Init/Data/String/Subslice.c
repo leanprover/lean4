@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -166,7 +166,7 @@ v_str_33_ = lean_ctor_get(v_s_29_, 0);
 v_startInclusive_34_ = lean_ctor_get(v_s_29_, 1);
 v___x_35_ = lean_nat_add(v_startInclusive_34_, v_startInclusive_31_);
 v___x_36_ = lean_nat_add(v_startInclusive_34_, v_endExclusive_32_);
-v___x_37_ = lean_string_utf8_extract(v_str_33_, v___x_35_, v___x_36_);
+v___x_37_ = lean_string_utf8_extract_fast(v_str_33_, v___x_35_, v___x_36_);
 lean_dec(v___x_36_);
 lean_dec(v___x_35_);
 return v___x_37_;
@@ -192,7 +192,7 @@ v_str_45_ = lean_ctor_get(v_s_41_, 0);
 v_startInclusive_46_ = lean_ctor_get(v_s_41_, 1);
 v___x_47_ = lean_nat_add(v_startInclusive_46_, v_startInclusive_43_);
 v___x_48_ = lean_nat_add(v_startInclusive_46_, v_endExclusive_44_);
-v___x_49_ = lean_string_utf8_extract(v_str_45_, v___x_47_, v___x_48_);
+v___x_49_ = lean_string_utf8_extract_fast(v_str_45_, v___x_47_, v___x_48_);
 lean_dec(v___x_48_);
 lean_dec(v___x_47_);
 return v___x_49_;
@@ -689,11 +689,13 @@ return v_res_202_;
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_IsEmpty(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Subslice(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

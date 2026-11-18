@@ -10,7 +10,7 @@ subDir = "backend"
 
 [[lean_lib]]
 name = "GroveStdlib"
-root = "GroveStdlib"
+roots = ["GroveStdlib"]
 
 [[lean_exe]]
 name = "grove-stdlib"

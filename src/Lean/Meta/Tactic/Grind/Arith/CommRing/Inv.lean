@@ -11,7 +11,7 @@ public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
 private def checkVars : RingM Unit := do
-  let s ← getRing
+  let s ← getRingState
   let mut num := 0
   for ({ expr }, var) in s.varMap do
     if h : var < s.vars.size then
@@ -30,16 +30,16 @@ private def checkPoly (p : Poly) : RingM Unit := do
 
 private def checkBasis : RingM Unit := do
   let mut x := 0
-  for c in (← getCommRing).basis do
+  for c in (← getCommRingState).basis do
     checkPoly c.p
     x := x + 1
 
 private def checkQueue : RingM Unit := do
-  for c in (← getCommRing).queue do
+  for c in (← getCommRingState).queue do
     checkPoly c.p
 
 private def checkDiseqs : RingM Unit := do
-  for c in (← getCommRing).diseqs do
+  for c in (← getCommRingState).diseqs do
     checkPoly c.d.p
 
 private def checkRingInvs : RingM Unit := do

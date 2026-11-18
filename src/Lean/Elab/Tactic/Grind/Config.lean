@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.ConfigEval
+import Lean.Linter.Deprecated
 
 public section
 namespace Lean.Elab.Tactic
@@ -22,6 +23,19 @@ private declare_term_config_elab elabGrindConfigCore Grind.Config
     (evalConfig : Term → TermElabM Grind.Config) where
   option config := fun _ item => evalConfig ⟨item.value⟩
 
+/--
+Reports that `splits` is deprecated if `config` changes it with respect to `init`, and interprets
+`splits := 0` as `branches := 0`.
+-/
+private def elabDeprecatedSplits (stx : Syntax) (init config : Grind.Config) : CoreM Grind.Config := do
+  if config.splits == init.splits then
+    return config
+  Linter.logLintIf Linter.linter.deprecated stx
+    "`splits` has been deprecated, use `branches` instead"
+  if config.splits == 0 then
+    return { config with branches := 0 }
+  return config
+
 local macro "make_elab_grind_config" fn:ident struct:ident : command => do
   let cfg := mkIdent `cfg
   let init := mkIdent `init
@@ -31,11 +45,13 @@ local macro "make_elab_grind_config" fn:ident struct:ident : command => do
         ($init : $struct := {})
         ($logExceptions : Bool := true) :
         TacticM Grind.Config := do
-      elabGrindConfigCore $cfg { $init with }
+      let $init : Grind.Config := { $init with }
+      let config ← elabGrindConfigCore $cfg $init
         (evalConfig := fun c => do
           let cfg : $struct ← evalExprWithElab c
           return { cfg with })
-        (logExceptions := $logExceptions && (← read).recover))
+        (logExceptions := $logExceptions && (← read).recover)
+      elabDeprecatedSplits $cfg $init config)
 
 make_elab_grind_config elabGrindConfig Grind.Config
 make_elab_grind_config elabGrindConfigInteractive Grind.ConfigInteractive
@@ -48,9 +64,10 @@ namespace Grind
 
 def elabConfigItems (init : Grind.Config) (items : Array Syntax) :
     TermElabM Grind.Config := do
-  elabGrindConfigCore (mkNullNode items) init
+  let config ← elabGrindConfigCore (mkNullNode items) init
     (evalConfig := fun c => evalExprWithElab c)
     (logExceptions := false)
+  elabDeprecatedSplits (mkNullNode items) init config
 
 def withConfigItems (items : Array Syntax)
     (k : GrindTacticM α) : GrindTacticM α := do
@@ -59,6 +76,7 @@ def withConfigItems (items : Array Syntax)
   else
     let config := (← read).ctx.config
     let config ← elabConfigItems config items
-    withReader (fun c => { c with ctx.config := config }) do k
+    let activeSolvers ← Meta.Grind.Solvers.activeIds config
+    withReader (fun c => { c with ctx.config := config, ctx.activeSolvers := activeSolvers }) do k
 
 end Lean.Elab.Tactic.Grind

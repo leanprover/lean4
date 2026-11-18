@@ -55,7 +55,7 @@ theorem Power2.mul' : Power2 n → Power2 m → Power2 (n*m)
  | h1, base => by simp_all
  | h1, ind h2 => mul_left_comm .. ▸ ind (mul' h1 h2)
 
-inductive tm : Type :=
+inductive tm : Type where
   | C : Nat → tm
   | P : tm → tm → tm
 
@@ -63,7 +63,7 @@ open tm
 
 set_option hygiene false in
 infixl:40 " ==> " => step
-inductive step : tm → tm → Prop :=
+inductive step : tm → tm → Prop where
   | ST_PlusConstConst : ∀ n1 n2,
       P (C n1) (C n2) ==> C (n1 + n2)
   | ST_Plus1 : ∀ t1 t1' t2,

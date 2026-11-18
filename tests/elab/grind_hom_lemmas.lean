@@ -16,7 +16,7 @@ def showMatches (declName : Name) : MetaM Unit := do
   lambdaTelescope value fun _ body => SymM.run do
     let body ← share body
     let thms ← Grind.getHomoTheorems
-    for thm in thms.getMatch body do
+    for thm in thms.getMatch (← getMCtx) body do
       logInfo m!"{thm.expr}"
 
 /--
@@ -50,8 +50,6 @@ info: @BitVec.toNat_add
 run_meta showMatches ``bvAdd
 
 /--
-info: UInt8.toBitVec_ofNat
----
 info: @UInt8.toBitVec_mul
 -/
 #guard_msgs in
@@ -73,10 +71,6 @@ def u8Eq (x y z : UInt8) : Prop := (x + y) * z = z
 def u8ToNat (x y : UInt8) : Prop := (x + y).toNat = x.toNat
 
 def finEq (n : Nat) (a b : Fin n) : Prop := a + b = b
-
-def listLen (l₁ l₂ : List Nat) : Prop := (l₁ ++ l₂).length = l₁.length
-
-def intCast (a b : Nat) : Prop := ((a + b * a : Nat) : Int) = 0
 
 def i64Eq (a b : Int64) : Prop := a * b = b
 
@@ -111,22 +105,6 @@ info: a + b = b
 -/
 #guard_msgs in
 run_meta applyHomo ``finEq
-
-/--
-info: (l₁ ++ l₂).length = l₁.length
-==>
-l₁.length + l₂.length = l₁.length
--/
-#guard_msgs in
-run_meta applyHomo ``listLen
-
-/--
-info: ↑(a + b * a) = 0
-==>
-↑a + ↑b * ↑a = 0
--/
-#guard_msgs in
-run_meta applyHomo ``intCast
 
 /--
 info: a * b = b
@@ -189,7 +167,8 @@ a.toBitVec.toInt < b.toBitVec.toInt
 #guard_msgs in
 run_meta applyHomo ``i64Lt
 
-/-! Signed bitvector comparisons are translated into `Int`. -/
+/-! Signed bitvector comparisons are `Bool`-valued; they are translated into `decide` of
+the `Int` comparison, which `grind` connects to the proposition itself. -/
 
 def bvSle (x y : BitVec 8) : Prop := x.sle y
 def bvSlt (x y : BitVec 8) : Prop := x.slt y
@@ -197,7 +176,7 @@ def bvSlt (x y : BitVec 8) : Prop := x.slt y
 /--
 info: x.sle y = true
 ==>
-x.toInt ≤ y.toInt
+decide (x.toInt ≤ y.toInt) = true
 -/
 #guard_msgs in
 run_meta applyHomo ``bvSle
@@ -205,7 +184,7 @@ run_meta applyHomo ``bvSle
 /--
 info: x.slt y = true
 ==>
-x.toInt < y.toInt
+decide (x.toInt < y.toInt) = true
 -/
 #guard_msgs in
 run_meta applyHomo ``bvSlt

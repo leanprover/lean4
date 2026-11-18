@@ -36,10 +36,6 @@ instance : TransOrd Int8 :=
 instance : LawfulEqOrd Int8 where
   eq_of_compare h := compareOfLessAndEq_eq_eq Int8.le_refl Int8.not_le |>.mp h
 
-instance : LawfulOrderOrd Int8 where
-  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-
 end Int8
 
 namespace Int16
@@ -53,10 +49,6 @@ instance : TransOrd Int16 :=
 
 instance : LawfulEqOrd Int16 where
   eq_of_compare h := compareOfLessAndEq_eq_eq Int16.le_refl Int16.not_le |>.mp h
-
-instance : LawfulOrderOrd Int16 where
-  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
 
 end Int16
 
@@ -72,10 +64,6 @@ instance : TransOrd Int32 :=
 instance : LawfulEqOrd Int32 where
   eq_of_compare h := compareOfLessAndEq_eq_eq Int32.le_refl Int32.not_le |>.mp h
 
-instance : LawfulOrderOrd Int32 where
-  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-
 end Int32
 
 namespace Int64
@@ -90,10 +78,6 @@ instance : TransOrd Int64 :=
 instance : LawfulEqOrd Int64 where
   eq_of_compare h := compareOfLessAndEq_eq_eq Int64.le_refl Int64.not_le |>.mp h
 
-instance : LawfulOrderOrd Int64 where
-  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-
 end Int64
 
 namespace ISize
@@ -107,9 +91,5 @@ instance : TransOrd ISize :=
 
 instance : LawfulEqOrd ISize where
   eq_of_compare h := compareOfLessAndEq_eq_eq ISize.le_refl ISize.not_le |>.mp h
-
-instance : LawfulOrderOrd ISize where
-  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
-  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
 
 end ISize

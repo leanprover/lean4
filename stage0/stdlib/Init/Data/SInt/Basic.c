@@ -2713,6 +2713,7 @@ _start:
 lean_object* v___x_807_; uint32_t v___x_808_; 
 v___x_807_ = lean_unsigned_to_nat(2147483648u);
 v___x_808_ = lean_int32_of_nat(v___x_807_);
+lean_dec(v___x_807_);
 return v___x_808_;
 }
 }
@@ -3586,6 +3587,7 @@ _start:
 lean_object* v___x_1184_; uint64_t v___x_1185_; 
 v___x_1184_ = lean_cstr_to_nat("9223372036854775807");
 v___x_1185_ = lean_int64_of_nat(v___x_1184_);
+lean_dec(v___x_1184_);
 return v___x_1185_;
 }
 }
@@ -5166,11 +5168,13 @@ return v_r_1867_;
 }
 lean_object* runtime_initialize_Init_Data_UInt_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Extra(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

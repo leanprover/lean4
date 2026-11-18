@@ -168,7 +168,7 @@ public def getLeanArgs : m (Array String) :=
 
 set_option linter.deprecated false in
 @[inline, inherit_doc Cache.getArtifact?,
-deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) : m (Option Artifact) :=
   getLakeCache >>= (·.getArtifact? descr)
 

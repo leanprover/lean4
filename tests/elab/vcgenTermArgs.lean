@@ -1,5 +1,6 @@
-import Std.Internal.Do
-import Std.Tactic.Do
+import Std.WP
+
+set_option sym.debug true
 
 /-!
 Tests that `vcgen [...]` accepts arbitrary term arguments, mirroring `simp [...]`.
@@ -7,9 +8,9 @@ A term proving a Hoare triple / `⊑ wp` spec is registered as a spec; any other
 handled as a simp lemma (equation), exactly as `simp` would.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-! Equation term argument: `show lhs = rhs from h` rewrites an opaque program action. -/
 section

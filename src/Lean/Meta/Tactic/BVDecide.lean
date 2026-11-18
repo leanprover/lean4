@@ -14,3 +14,4 @@ public import Lean.Meta.Tactic.BVDecide.Counterexample
 public import Lean.Meta.Tactic.BVDecide.Reflect
 public import Lean.Meta.Tactic.BVDecide.Main
 public import Lean.Meta.Tactic.BVDecide.TacticContext
+public import Lean.Meta.Tactic.BVDecide.EPR

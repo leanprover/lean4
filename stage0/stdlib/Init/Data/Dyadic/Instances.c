@@ -19,15 +19,17 @@ lean_object* l_Dyadic_instNatCast___lam__0(lean_object*);
 lean_object* l_Dyadic_sub(lean_object*, lean_object*);
 lean_object* l_Dyadic_ofInt(lean_object*);
 lean_object* l_Dyadic_mul(lean_object*, lean_object*);
+lean_object* l_Dyadic_ofInt___boxed(lean_object*);
 lean_object* l_Dyadic_neg(lean_object*);
 lean_object* l_Dyadic_instOfNat(lean_object*);
 lean_object* l_Dyadic_mul___boxed(lean_object*, lean_object*);
 lean_object* l_Dyadic_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instCommRing___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instCommRing___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Dyadic_instCommRing___lam__1___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Dyadic_instCommRing___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_instCommRing___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Dyadic_instCommRing___closed__0 = (const lean_object*)&l_Dyadic_instCommRing___closed__0_value;
-static const lean_closure_object l_Dyadic_instCommRing___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_instCommRing___lam__1, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Dyadic_instCommRing___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_instCommRing___lam__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Dyadic_instCommRing___closed__1 = (const lean_object*)&l_Dyadic_instCommRing___closed__1_value;
 static const lean_closure_object l_Dyadic_instCommRing___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_add, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Dyadic_instCommRing___closed__2 = (const lean_object*)&l_Dyadic_instCommRing___closed__2_value;
@@ -43,7 +45,7 @@ static const lean_closure_object l_Dyadic_instCommRing___closed__7_value = {.m_h
 static const lean_object* l_Dyadic_instCommRing___closed__7 = (const lean_object*)&l_Dyadic_instCommRing___closed__7_value;
 static const lean_closure_object l_Dyadic_instCommRing___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_sub, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Dyadic_instCommRing___closed__8 = (const lean_object*)&l_Dyadic_instCommRing___closed__8_value;
-static const lean_closure_object l_Dyadic_instCommRing___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_ofInt, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Dyadic_instCommRing___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_ofInt___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Dyadic_instCommRing___closed__9 = (const lean_object*)&l_Dyadic_instCommRing___closed__9_value;
 static const lean_closure_object l_Dyadic_instCommRing___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Dyadic_instOfNat, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Dyadic_instCommRing___closed__10 = (const lean_object*)&l_Dyadic_instCommRing___closed__10_value;
@@ -72,14 +74,25 @@ lean_dec(v___x_7_);
 return v___x_8_;
 }
 }
+LEAN_EXPORT lean_object* l_Dyadic_instCommRing___lam__1___boxed(lean_object* v_x1_9_, lean_object* v_x2_10_){
+_start:
+{
+lean_object* v_res_11_; 
+v_res_11_ = l_Dyadic_instCommRing___lam__1(v_x1_9_, v_x2_10_);
+lean_dec(v_x1_9_);
+return v_res_11_;
+}
+}
 lean_object* runtime_initialize_Init_Data_Dyadic_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Ordered_Ring(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Dyadic_Instances(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Dyadic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

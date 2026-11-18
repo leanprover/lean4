@@ -28,13 +28,11 @@ Irreducible decidable instance
 opaque unknownProp : Prop
 
 /--
-error: Tactic `decide` failed for proposition
-  unknownProp
-because its `Decidable` instance
-  Classical.propDecidable unknownProp
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide unknownProp (Classical.propDecidable unknownProp)
+to `true` or `false`.
 
-After unfolding the instance `Classical.propDecidable`, reduction got stuck at the `Decidable` instance
+After unfolding the instance `Classical.propDecidable`, reduction got stuck at
   Classical.choice ⋯
 
 Hint: Reduction got stuck on `Classical.choice`, which indicates that a `Decidable` instance is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. The `decide` tactic works by evaluating a decision procedure via reduction, and it cannot make progress with such instances. This can occur due to the `open scoped Classical` command, which enables the instance `Classical.propDecidable`.
@@ -60,13 +58,11 @@ def baz (n : Nat) : Decidable (Nice n) := by
 instance : Decidable (Nice n) := baz n
 
 /--
-error: Tactic `decide` failed for proposition
-  Nice 102
-because its `Decidable` instance
-  instDecidableNice
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (Nice 102) instDecidableNice
+to `true` or `false`.
 
-After unfolding the instances `baz` and `instDecidableNice`, reduction got stuck at the `Decidable` instance
+After unfolding the instances `baz` and `instDecidableNice`, reduction got stuck at
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `«inferInstanceAs»` or `decidable_of_decidable_of_iff` to alter a proposition.
@@ -80,13 +76,11 @@ Following `Decidable.rec` to give better messages
 -/
 
 /--
-error: Tactic `decide` failed for proposition
-  ¬Nice 102
-because its `Decidable` instance
-  instDecidableNot
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (¬Nice 102) instDecidableNot
+to `true` or `false`.
 
-After unfolding the instances `baz`, `instDecidableNice`, and `instDecidableNot`, reduction got stuck at the `Decidable` instance
+After unfolding the instances `baz`, `instDecidableNice`, and `instDecidableNot`, reduction got stuck at
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `«inferInstanceAs»` or `decidable_of_decidable_of_iff` to alter a proposition.

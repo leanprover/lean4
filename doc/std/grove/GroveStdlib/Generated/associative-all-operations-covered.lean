@@ -9,26 +9,8 @@ open Grove.Framework Widget
 
 namespace GroveStdlib.Generated.«associative-all-operations-covered»
 
-def «all-covered» : Assertion.Fact where
-  widgetId := "associative-all-operations-covered"
-  factId := "all-covered"
-  assertionId := "all-covered"
-  state := {
-    assertionId := "all-covered"
-    description := "All operations should be covered"
-    passed := false
-    message := "There were 19697 operations that were not covered."
-  }
-  metadata := {
-    status := .bad
-    comment := "Still missing some!"
-  }
-
-def table : Assertion.Data  where
-  widgetId := "associative-all-operations-covered"
-  facts := #[
-    «all-covered»,
-  ]
+def table : RestoreStateM Assertion.Data :=
+  readSavedState savedStateFile%
 
 def restoreState : RestoreStateM Unit := do
-  addAssertion table
+  addAssertion (← table)

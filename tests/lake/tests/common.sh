@@ -46,6 +46,17 @@ else
 fi
 norm_dirname() { norm_path "$(dirname -- "$1")";  }
 
+# Copy the given paths into the ignored `work/` directory and `cd` into it, so that tests
+# which mutate their inputs or initialize a Git repository leave the checked-in source tree
+# untouched. The copies are made writable because `cp` propagates the source mode and CI
+# runs the suite with tracked files read-only.
+copy_to_work() {
+  mkdir -p work
+  cp -r "$@" work/
+  chmod -R u+w work
+  cd work
+}
+
 init_git() {
   echo "# initialize test repository"
   set -x
@@ -116,6 +127,19 @@ test_status() {
   fi
 }
 
+test_status_out() {
+  expected_rc=$1; shift
+  expected=$1; shift
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  match_text "$expected" produced.out
+  if [ $rc = $expected_rc ]; then
+    return 0
+  else
+    echo "FAILURE: Expected Lake to exit with code $expected_rc."
+    return 1
+  fi
+}
+
 program_out() {
   echo '$' "$@"
   if "$@" >produced.out 2>&1; then
@@ -139,6 +163,29 @@ lake_out() {
     cat produced.out
     echo "Lake exited with code $rc"
     return $rc
+  fi
+}
+
+# Runs Lake with standard out to `produced.json` and standard error to `produced.err`, and checks
+# its exit code. For commands with a `--json` report.
+test_status_json() {
+  expected_rc=$1; shift
+  echo '$' lake "$@"
+  if "$LAKE" "$@" >produced.json 2>produced.err; then rc=$?; else rc=$?; fi
+  cat produced.json produced.err
+  if [ $rc != $expected_rc ]; then
+    echo "FAILURE: Expected Lake to exit with code $expected_rc, got $rc."
+    return 1
+  fi
+}
+
+match_json() {
+  echo "? jq -e '$1'"
+  if jq -e -- "$1" produced.json >/dev/null; then
+    return 0
+  else
+    echo "No match found"
+    return 1
   fi
 }
 
@@ -222,7 +269,7 @@ test_err() {
   if match_text "$expected" produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
-      return $rc
+      return 1
     fi
   else
     return 1
@@ -295,7 +342,7 @@ test_no_out() {
   return $rc
 }
 
-test_no_warn() {
+test_no_stderr() {
   echo '$' lake "$@"
   if "$LAKE" "$@" 2>produced.out; then
     diff produced.out /dev/null

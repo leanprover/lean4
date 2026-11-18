@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.ProofInstInfo
+import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Omega
 namespace Lean.Meta.Sym.DSimp
 open Lean.Meta.Sym.Internal
@@ -35,14 +36,16 @@ and rewrite every argument.
 
 /--
 Walks the application spine and `dsimp`s each argument unless `ProofInstInfo` marks it
-as a proof or instance. The function head itself is not recursively simplified — atomic
-heads (`.const`, `.fvar`) are no-ops anyway, and complex heads can be handled by
-user-supplied `pre`/`post` simprocs.
+as a proof or instance. The function head itself is not recursively simplified, so
+`pre`/`post` simprocs that rewrite heads (e.g. `zetaDelta` for let-bound `.fvar` heads,
+or beta for lambda heads) must match on the whole application.
 -/
 public def dsimpAppArgs (e : Expr) : DSimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then return .rfl
   let f := e.getAppFn
+  if f.isMVar then
+    if let some e' ← instantiateAssignedMVarHeadS? e then return .step e'
   let info? ← getProofInstInfoOfExpr? f
   let argsInfo? := info?.map (·.argsInfo)
   go argsInfo? numArgs e

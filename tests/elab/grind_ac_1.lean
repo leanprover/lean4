@@ -50,4 +50,4 @@ example (a b c : Nat) : max a (max b c) = max (max b 0) (max a c) := by
   grind only
 
 example (a b c : Nat) : max a (max b c) = max (max b 0) (max a c) ∧ min a b = min b a := by
-  grind (splits := 0) only
+  grind (branches := 0) only

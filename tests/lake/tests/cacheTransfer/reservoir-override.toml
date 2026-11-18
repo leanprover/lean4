@@ -1,0 +1,8 @@
+# A system configuration that overrides the dependency's `downloadCacheService`
+# (`depFlat` in `service-dep.toml`) with a Reservoir service.
+# `test.sh` replaces `%URL%` with the URL of the running mock server.
+
+[[cache.service]]
+name = "depFlat"
+kind = "reservoir"
+apiEndpoint = "%URL%/ok/api/v1"

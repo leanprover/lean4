@@ -7,21 +7,21 @@ Every reassignment is a bind whose continuation is the rest of the block.
 
 open Lean Elab Command
 
-def g (x : Nat) : StateM Nat Nat := pure (x + 1)
+set_option maxRecDepth 100000
 
-def mkInput (n : Nat) : String := Id.run do
-  let vars := (List.range 10).map (s!"x{·}")
-  let mut s := "set_option maxRecDepth 100000 in\nnoncomputable def f : StateM Nat Nat := do\n"
-  for v in vars do
-    s := s ++ s!"  let mut {v} := 0\n"
-  for i in [0:n] do
-    s := s ++ s!"  x{i % 10} ← g x{i % 10}\n"
-  return s ++ s!"  pure ({" + ".intercalate vars})\n"
+def g (x : Nat) : StateM Nat Nat := pure (x + 1)
 
 elab "#bench" : command => do
   let n := if (← IO.getEnv "TEST_BENCH") == some "1" then 800 else 20
-  match Parser.runParserCategory (← getEnv) `command (mkInput n) with
-  | .ok stx => elabCommand stx
-  | .error e => throwError e
+  let xs := (Array.range 10).map fun j => mkIdent (.mkSimple s!"x{j}")
+  let decls ← xs.mapM fun x => `(Parser.Term.doSeqItem| let mut $x := 0)
+  let steps ← (Array.range n).mapM fun i =>
+    let x := xs[i % 10]!
+    `(Parser.Term.doSeqItem| $x:ident ← g $x)
+  let sum ← (xs.extract 1).foldlM (init := (xs[0]! : Term)) fun t x => `($t + $x)
+  elabCommand (← `(noncomputable def $(mkIdent `f) : StateM Nat Nat := do
+    $decls*
+    $steps*
+    pure $sum))
 
 #bench

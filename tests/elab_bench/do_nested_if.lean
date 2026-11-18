@@ -8,22 +8,21 @@ control-flow information of every level covers all deeper levels.
 
 open Lean Elab Command
 
-def indent (k : Nat) : String := "".pushn ' ' (2 * k)
-
-def mkInput (n : Nat) : String := Id.run do
-  let mut s := "set_option maxRecDepth 100000 in\n\
-    noncomputable def f (b : Nat → Bool) : StateM Nat Nat := do\n  let mut acc : Nat := 0\n"
-  for i in [0:n] do
-    s := s ++ s!"{indent (i+1)}if b {i} then\n{indent (i+2)}acc := acc + {i}\n"
-  s := s ++ s!"{indent (n+1)}acc := 0\n"
-  for i in (List.range n).reverse do
-    s := s ++ s!"{indent (i+1)}acc := acc * {i+2}\n"
-  return s ++ "  pure acc\n"
+set_option maxRecDepth 100000
 
 elab "#bench" : command => do
   let n := if (← IO.getEnv "TEST_BENCH") == some "1" then 160 else 5
-  match Parser.runParserCategory (← getEnv) `command (mkInput n) with
-  | .ok stx => elabCommand stx
-  | .error e => throwError e
+  let acc := mkIdent `acc
+  let mut inner : Array (TSyntax ``Parser.Term.doSeqItem) :=
+    #[← `(Parser.Term.doSeqItem| $acc:ident := 0)]
+  for i in (List.range n).reverse do
+    inner := #[← `(Parser.Term.doSeqItem| if b $(quote i) then
+                    $acc:ident := $acc + $(quote i)
+                    $inner*),
+               ← `(Parser.Term.doSeqItem| $acc:ident := $acc * $(quote (i + 2)))]
+  elabCommand (← `(noncomputable def $(mkIdent `f) (b : Nat → Bool) : StateM Nat Nat := do
+    let mut $acc : Nat := 0
+    $inner*
+    pure $acc))
 
 #bench

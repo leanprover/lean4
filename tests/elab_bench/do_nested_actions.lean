@@ -8,23 +8,25 @@ Benchmark: two families of nested actions `(← …)` in a single `let`.
 
 open Lean Elab Command
 
+set_option maxRecDepth 100000
+
 def a : StateM Nat Nat := get
 
 def g (x : Nat) : StateM Nat Nat := pure (x + 1)
 
-def mkFlat (n : Nat) : String :=
-  "set_option maxRecDepth 100000 in\nnoncomputable def flat : StateM Nat Nat := do\n  let r := " ++
-    " + ".intercalate (List.replicate n "(← a)") ++ "\n  pure r\n"
-
-def mkDeep (n : Nat) : String :=
-  "set_option maxRecDepth 100000 in\nnoncomputable def deep : StateM Nat Nat := do\n  let r := " ++
-    "".intercalate (List.replicate n "(← g ") ++ "0" ++ "".pushn ')' n ++ "\n  pure r\n"
-
 elab "#bench" : command => do
   let bench := (← IO.getEnv "TEST_BENCH") == some "1"
-  for input in [mkFlat (if bench then 400 else 10), mkDeep (if bench then 800 else 10)] do
-    match Parser.runParserCategory (← getEnv) `command input with
-    | .ok stx => elabCommand stx
-    | .error e => throwError e
+  let first ← `((← a))
+  let flat ← (Array.range ((if bench then 400 else 10) - 1)).foldlM (init := first)
+    fun t _ => `($t + (← a))
+  elabCommand (← `(noncomputable def $(mkIdent `flat) : StateM Nat Nat := do
+    let r := $flat
+    pure r))
+  let zero ← `(0)
+  let deep ← (Array.range (if bench then 800 else 10)).foldlM (init := zero)
+    fun t _ => `((← g $t))
+  elabCommand (← `(noncomputable def $(mkIdent `deep) : StateM Nat Nat := do
+    let r := $deep
+    pure r))
 
 #bench

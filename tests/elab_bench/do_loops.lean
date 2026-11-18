@@ -10,35 +10,38 @@ Benchmark: two `for` loop families.
 
 open Lean Elab Command
 
-def indent (k : Nat) : String := "".pushn ' ' (2 * k)
+set_option maxRecDepth 100000
 
-def mkNested (d : Nat) : String := Id.run do
-  let mut s := "set_option maxRecDepth 100000 in\n\
-    noncomputable def nested (xs : List Nat) : StateM Nat Nat := do\n  let mut acc : Nat := 0\n"
-  for i in [0:d] do
-    s := s ++ s!"{indent (i+1)}for y{i} in xs do\n"
-    s := s ++ s!"{indent (i+2)}if y{i} = {i} then continue\n"
-    s := s ++ s!"{indent (i+2)}if y{i} = {i+1} then break\n"
-    s := s ++ s!"{indent (i+2)}if acc > {1000+i} then return acc\n"
-    s := s ++ s!"{indent (i+2)}acc := acc + y{i}\n"
-  return s ++ "  pure acc\n"
+def elabNested (d : Nat) : CommandElabM Unit := do
+  let acc := mkIdent `acc
+  let mut inner : Array (TSyntax ``Parser.Term.doSeqItem) := #[]
+  for i in (List.range d).reverse do
+    let y := mkIdent (.mkSimple s!"y{i}")
+    inner := #[← `(Parser.Term.doSeqItem| for $y:ident in xs do
+                    if $y = $(quote i) then continue
+                    if $y = $(quote (i + 1)) then break
+                    if $acc > $(quote (1000 + i)) then return $acc
+                    $acc:ident := $acc + $y
+                    $inner*)]
+  elabCommand (← `(noncomputable def $(mkIdent `nested) (xs : List Nat) : StateM Nat Nat := do
+    let mut $acc : Nat := 0
+    $inner*
+    pure $acc))
 
-def mkManyMut (m : Nat) : String := Id.run do
-  let vars := (List.range m).map (s!"x{·}")
-  let mut s := "set_option maxRecDepth 100000 in\n\
-    noncomputable def manyMut (xs : List Nat) : StateM Nat Nat := do\n"
-  for v in vars do
-    s := s ++ s!"  let mut {v} : Nat := 0\n"
-  s := s ++ "  for y in xs do\n"
-  for v in vars do
-    s := s ++ s!"    {v} := {v} + y\n"
-  return s ++ s!"  pure ({" + ".intercalate vars})\n"
+def elabManyMut (m : Nat) : CommandElabM Unit := do
+  let xs := (Array.range m).map fun j => mkIdent (.mkSimple s!"x{j}")
+  let decls ← xs.mapM fun x => `(Parser.Term.doSeqItem| let mut $x : Nat := 0)
+  let body ← xs.mapM fun x => `(Parser.Term.doSeqItem| $x:ident := $x + y)
+  let sum ← (xs.extract 1).foldlM (init := (xs[0]! : Term)) fun t x => `($t + $x)
+  elabCommand (← `(noncomputable def $(mkIdent `manyMut) (ys : List Nat) : StateM Nat Nat := do
+    $decls*
+    for y in ys do
+      $body*
+    pure $sum))
 
 elab "#bench" : command => do
   let bench := (← IO.getEnv "TEST_BENCH") == some "1"
-  for input in [mkNested (if bench then 48 else 3), mkManyMut (if bench then 160 else 10)] do
-    match Parser.runParserCategory (← getEnv) `command input with
-    | .ok stx => elabCommand stx
-    | .error e => throwError e
+  elabNested (if bench then 48 else 3)
+  elabManyMut (if bench then 160 else 10)
 
 #bench

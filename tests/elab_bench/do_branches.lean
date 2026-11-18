@@ -10,34 +10,30 @@ variables.
 
 open Lean Elab Command
 
-def vars : List String := (List.range 4).map (s!"x{·}")
-
-def header (name : String) : String := Id.run do
-  let mut s := s!"set_option maxRecDepth 100000 in\n\
-    noncomputable def {name} (k : Nat) : StateM Nat Nat := do\n"
-  for v in vars do
-    s := s ++ s!"  let mut {v} : Nat := 0\n"
-  return s
-
-def footer : String := s!"  pure ({" + ".intercalate vars})\n"
-
-def mkArms (n : Nat) : String := Id.run do
-  let mut s := header "arms" ++ "  match k with\n"
-  for i in [0:n] do
-    s := s ++ s!"  | {i} => x{i % 4} := {i}\n"
-  return s ++ "  | _ => x0 := 1\n" ++ footer
-
-def mkElseIfs (n : Nat) : String := Id.run do
-  let mut s := header "elseIfs"
-  for i in [0:n] do
-    s := s ++ s!"  {if i == 0 then "if" else "else if"} k = {i} then\n    x{i % 4} := {i}\n"
-  return s ++ "  else\n    x0 := 1\n" ++ footer
+set_option maxRecDepth 100000
 
 elab "#bench" : command => do
   let n := if (← IO.getEnv "TEST_BENCH") == some "1" then 500 else 10
-  for input in [mkArms n, mkElseIfs n] do
-    match Parser.runParserCategory (← getEnv) `command input with
-    | .ok stx => elabCommand stx
-    | .error e => throwError e
+  let xs := (Array.range 4).map fun j => mkIdent (.mkSimple s!"x{j}")
+  let x0 := xs[0]!
+  let decls ← xs.mapM fun x => `(Parser.Term.doSeqItem| let mut $x : Nat := 0)
+  let sum ← (xs.extract 1).foldlM (init := (x0 : Term)) fun t x => `($t + $x)
+  let rhss ← (Array.range n).mapM fun i =>
+    let x := xs[i % 4]!
+    `(doSeq| $x:ident := $(quote i))
+  let pats ← (Array.range n).mapM fun i => `($(quote i))
+  elabCommand (← `(noncomputable def $(mkIdent `arms) (k : Nat) : StateM Nat Nat := do
+    $decls*
+    match k with
+    $[| $pats:term => $rhss:doSeq]*
+    | _ => $x0:ident := 1
+    pure $sum))
+  let conds ← (Array.range n).mapM fun i => `(Parser.Term.doIfCond| k = $(quote i))
+  elabCommand (← `(noncomputable def $(mkIdent `elseIfs) (k : Nat) : StateM Nat Nat := do
+    $decls*
+    if k = $(quote n) then $x0:ident := 0
+    $[else if $conds:doIfCond then $rhss]*
+    else $x0:ident := 1
+    pure $sum))
 
 #bench

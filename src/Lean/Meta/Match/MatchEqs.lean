@@ -830,7 +830,9 @@ private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
   guard <| isMatcherCore env p
   return p
 
-builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
+builtin_initialize
+  registerReservedNamePredicate (fun s => isEqnReservedNameSuffix s || s == "splitter")
+    (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
   let some p := isMatchEqName? (← getEnv) name |
@@ -847,7 +849,8 @@ private def isMatchCongrEqName? (env : Environment) (n : Name) : Option (Name ×
   guard <| isMatcherCore env p
   return (p, idx)
 
-builtin_initialize registerReservedNamePredicate (isMatchCongrEqName? · · |>.isSome)
+builtin_initialize
+  registerReservedNamePredicate isCongrEqnReservedNameSuffix (isMatchCongrEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
   let some (p, idx) := isMatchCongrEqName? (← getEnv) name |

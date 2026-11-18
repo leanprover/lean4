@@ -423,12 +423,10 @@ def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
   let applyEval (g : Grind.Goal) (rule : Name) : GrindTacticM Unit := do
     let gEval :: gs ← applyRule g rule | throwError "exec_sym: {rule} has no premise"
     solveLookup gEval
-    let gs ← gs.filterM fun g => notM g.mvarId.isAssigned
     let gs ← if cfg.eager then gs.filterMapM simpEval else pure gs
     setSubgoals gs
-  while !(← getGoals).isEmpty do
+  while !(← getUnsolvedGoals).isEmpty do
     let goal ← getMainGoal
-    if ← goal.mvarId.isAssigned then setSubgoals []; continue
     if cfg.cache && (← currentGoal?.get) != some goal.mvarId then cache.set {}
     let ty ← goal.mvarId.getType
     let goal ← if !ty.isHeadBetaTarget then pure goal else do
@@ -468,13 +466,8 @@ def execSymCore (cfg : ExecSymConfig) : GrindTacticM Unit := do
         | .closed => setSubgoals []
         | r =>
           if let .goal mvarId := r then replaceMainGoal [{ goal with mvarId }]
-          let s ← Elab.Tactic.Grind.saveState
-          try focus (evalGrindTactic (← `(grind| finish)))
-          catch _ =>
-            s.restore
-            focus do
-              evalGrindTactic (← `(grind| cbv))
-              if !(← getGoals).isEmpty then evalGrindTactic (← `(grind| finish))
+          focus <| evalGrindTactic
+            (← `(grind| first (internalize_all; finish) (cbv <;> finish)))
           currentGoal?.set none
 
 @[grind_tactic execSymPort] def evalExecSym : GrindTactic := fun stx => do
@@ -608,5 +601,49 @@ theorem ends_in_input_eval : ∀ m l, Exec (.input "x") [] m l fun t _ l' =>
 theorem ends_in_input_sym : ∀ m l, Exec (.input "x") [] m l fun t _ l' =>
     ∃ v, t = [.IN v] ∧ l'.get "x" = some v := by
   sym => exec_sym
+
+theorem post_uses_path_hyp_sym : ∀ vx m l, l.get "x" = some vx →
+    Exec (.cond (.var "x") .skip (.set "x" (.literal 1))) [] m l
+      fun _ _ l' => l'.get "x" ≠ some 0 := by
+  sym => exec_sym
+
+section GrindBasicsTest
+open Lean Meta Elab Lean.Elab.Tactic.Grind
+
+scoped syntax (name := checkGrindBasics) "check_grind_basics" : grind
+
+@[grind_tactic checkGrindBasics] def evalCheckGrindBasics : GrindTactic := fun _ => do
+  let goal ← getMainGoal
+  let assigned ← mkFreshExprMVar (some (mkConst ``True))
+  assigned.mvarId!.assign (mkConst ``True.intro)
+  setGoals [{ goal with mvarId := assigned.mvarId! }, goal]
+  let main ← getMainGoal
+  unless main.mvarId == goal.mvarId do
+    throwError "Grind.getMainGoal did not skip assigned goal"
+  withEnableInfoTree true do
+    let before := (← getInfoTrees).size
+    (do
+      pushInfoLeaf (.ofTermInfo {
+        elaborator := `test
+        stx := Syntax.missing
+        lctx := ← getLCtx
+        expectedType? := none
+        expr := mkConst ``True.intro
+      })
+      unless (← getInfoTrees).size > before do
+        throwError "info tree did not grow"
+      throwError "backtrack")
+    <|> pure ()
+    unless (← getInfoTrees).size == before do
+      throwError "Grind.<|> leaked InfoTree state"
+  goal.mvarId.assign (mkConst ``True.intro)
+  replaceMainGoal [{ goal with mvarId := assigned.mvarId! }]
+  unless (← getGoals).isEmpty do
+    throwError "Grind.replaceMainGoal did not drop assigned goal"
+
+example : True := by
+  sym => check_grind_basics
+
+end GrindBasicsTest
 
 end ExprQuotAddSubCancel

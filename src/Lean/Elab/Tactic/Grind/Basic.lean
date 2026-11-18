@@ -259,11 +259,15 @@ Non-backtracking `try`/`catch`.
 
 /--
 Backtracking `try`/`catch`. This is used for the `MonadExcept` instance for `GrindTacticM`.
+
+The saved state is restored with `restoreInfo := true`: `Grind.evalFirst` (and hence `first` and
+`try`) backtracks via `<|>`, i.e., via this function directly, so restoring the `InfoState` keeps
+`InfoTree` entries pushed by failed branches from leaking into the final info tree.
 -/
 @[inline] protected def tryCatchRestore {α} (x : GrindTacticM α) (h : Exception → GrindTacticM α)
     : GrindTacticM α := do
   let b ← saveState
-  try x catch ex => b.restore; h ex
+  try x catch ex => b.restore (restoreInfo := true); h ex
 
 instance : MonadExcept Exception GrindTacticM where
   throw    := throw
@@ -325,7 +329,7 @@ where
   loop : List Goal → GrindTacticM Goal
     | [] => throwNoGoalsToBeSolved
     | goal :: goals => do
-      if goal.inconsistent then
+      if goal.inconsistent || (← goal.mvarId.isAssigned) then
         loop goals
       else
         setGoals (goal :: goals)
@@ -371,9 +375,19 @@ def ensureSym : GrindTacticM Unit := do
     throwError "tactic is only available in `sym =>` mode"
 
 def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
-  let goals := goals.filter fun goal => !goal.inconsistent
+  let goals ← goals.filterM fun goal =>
+    return !goal.inconsistent && !(← goal.mvarId.isAssigned)
   let (_ :: goals') ← getGoals | throwNoGoalsToBeSolved
+  let goals' ← dropSolved goals'
   modify fun s => { s with goals := goals ++ goals' }
+where
+  dropSolved : List Goal → GrindTacticM (List Goal)
+    | [] => return []
+    | g :: gs => do
+      if g.inconsistent || (← g.mvarId.isAssigned) then
+        dropSolved gs
+      else
+        return g :: gs
 
 def liftGoalM (k : GoalM α) : GrindTacticM α := do
   let goal ← getMainGoal

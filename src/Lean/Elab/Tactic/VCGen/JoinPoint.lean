@@ -72,7 +72,24 @@ parameters `r` and `x`.
 
 For a stateful program, `?H` also takes the states. In `StateM Nat`, with both jumps in the state
 `t`, it is `s = t ∧ ((n > 0 ∧ x = 1) ∨ (¬n > 0 ∧ x = 2))`.
+
+A specification binds a join point under the name `__vcgen_jp`, in a hypothesis or in its
+precondition. For example, the precondition
+
+```
+fun s => have __vcgen_jp := fun (_ : Unit) => c₃
+  wp⟦Cmd.ite x (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ()))⟧ Q eposts s
+```
+
+shares the code `c₃` after an `if` between both branches. `vcgen +jp` registers `__vcgen_jp` at
+the first `wp` goal below the binding that jumps to it, either in its program or in its
+postcondition.
 -/
+
+/-- Whether `n` names a join point: `__do_jp`, which the do-elaborator binds, or `__vcgen_jp`, which
+a program or a specification binds to share a continuation. -/
+public def isJoinPointName (n : Name) : Bool :=
+  Lean.Elab.Tactic.Do.isJP n || n.eraseMacroScopes == `__vcgen_jp
 
 /-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
 read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
@@ -90,11 +107,11 @@ def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
 `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
 `∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if
-`jp` is no `__do_jp` with a lambda RHS under `+jp`, or if the states have no base lattice
-instance. -/
+`jp` is no `__do_jp` or `__vcgen_jp` with a lambda RHS under `+jp`, or if the states have no base
+lattice instance. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
-  unless (← read).useJP && Lean.Elab.Tactic.Do.isJP (← jp.getUserName) && val.isLambda do
+  unless (← read).useJP && isJoinPointName (← jp.getUserName) && val.isLambda do
     return none
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none

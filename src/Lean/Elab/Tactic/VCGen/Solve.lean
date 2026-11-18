@@ -86,13 +86,18 @@ def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
     trace[Elab.Tactic.Do.vcgen] "Rintro rule {entry.declName} does not apply"
   return none
 
-/-- Record in `scope.splitEqs` the hypotheses `h : x = t` for a local `x` among the local
-declarations of `goal` from index `start` on. -/
+/-- Record in `scope` the hypotheses `h : x = t` for a local `x`, and the join points
+`__do_jp := val` or `__vcgen_jp := val` with a lambda `val`, among the local declarations of `goal`
+from index `start` on. -/
 def recordSplitEqs (scope : Scope) (goal : MVarId) (start : Nat) : MetaM Scope := goal.withContext do
   return (← getLCtx).foldl (start := start) (init := scope) fun scope d =>
-    match fvarEq? d.type with
-    | some (xId, t) => { scope with splitEqs := scope.splitEqs.insert xId (t, d.fvarId) }
-    | none => scope
+    match fvarEq? d.type, d.value? with
+    | some (xId, t), _ => { scope with splitEqs := scope.splitEqs.insert xId (t, d.fvarId) }
+    | none, some val =>
+      if isJoinPointName d.userName && val.isLambda then
+        { scope with pendingSpecJoinPoints := scope.pendingSpecJoinPoints.insert d.fvarId val }
+      else scope
+    | none, none => scope
 
 /-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
 `∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
@@ -130,15 +135,18 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   return some (← recordSplitEqs scope goal start, [goal])
 
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
-introduce it into the local context. -/
-def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+introduce it into the local context and record it in `scope` like `forallIntro?` does. -/
+def targetLetIntro? (scope : Scope) (goal : MVarId) (target : Expr) :
+    VCGenM (Option (Scope × MVarId)) := do
   let .letE name _ val body _ := target | return none
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    return some (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
+    return some (scope, ← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
   else
     trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
-    return some (← introsHygienic goal)
+    let start := (← goal.getDecl).lctx.numIndices
+    let goal ← introsHygienic goal
+    return some (← recordSplitEqs scope goal start, goal)
 
 /-- Strategy 3: unfold a `Triple` target into the underlying lattice entailment. -/
 def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
@@ -459,13 +467,16 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
 /-- Strategy 6: substitute or introduce a `let` or `have` at the head of the right-hand side of
 `pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. The
 value of a `have` is simplified first. -/
-def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
+def rhsLet? (scope : Scope) (goal : MVarId) (rhs : Expr) : VCGenM (Option (Scope × MVarId)) := do
   let .letE name type val body nondep := rhs | return none
   let (goal, val) ← simpHaveValue goal name type (← reduceHead val) body nondep
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    return some (← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val]))
-  return some (← introLet goal name type val body nondep).2
+    return some (scope, ← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val]))
+  let (jp, goal) ← introLet goal name type val body nondep
+  if isJoinPointName name && val.isLambda then
+    return some ({ scope with pendingSpecJoinPoints := scope.pendingSpecJoinPoints.insert jp val }, goal)
+  return some (scope, goal)
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -502,6 +513,27 @@ def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
     return some [← replaceTargetCongr goal info.Prog info.prog prog' C target' prf]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   applySplitRule goal rule info.prog
+
+/-- Strategy 11a: register a join point `__vcgen_jp := val` that a spec hypothesis binds, at the first
+`wp` goal that jumps to it. A jump `wp⟦__vcgen_jp xs⟧ post eposts` in the postcondition is the
+template of the join point's goals, at the states of the goal. A jump in the program jumps with the
+goal's own postcondition, so the goal is the template. -/
+def registerSpecJoinPoint? (scope : Scope) (goal : MVarId) (info : WPApp) :
+    VCGenM (Option (Scope × List MVarId)) := do
+  if scope.pendingSpecJoinPoints.isEmpty then return none
+  let post := info.args[8]!
+  for (jp, val) in scope.pendingSpecJoinPoints.toList do
+    let isJump (e : Expr) : Bool := Id.run do
+      let some j := isWPApp? e | return false
+      unless j.prog.getAppFn.isFVarOf jp do return false
+      return !j.head.hasLooseBVars && (j.args.toList.zipIdx.all fun (a, i) => i == 7 || !a.hasLooseBVars)
+    let template? := match post.find? isJump with
+      | some jump => (isWPApp? jump).map ({ · with excessArgs := info.excessArgs })
+      | none => if info.prog.containsFVar jp then some info else none
+    let some template := template? | continue
+    let scope := { scope with pendingSpecJoinPoints := scope.pendingSpecJoinPoints.erase jp }
+    if let some r ← registerJoinPoint scope goal jp val template then return some r
+  return none
 
 /-- Strategy 11c: zeta-unfold a local let-bound fvar used as the program head. -/
 def wpFVarZeta? (goal : MVarId) (info : WPApp) :
@@ -736,7 +768,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   if let some g ← consumeMData? goal target then return .goals scope [g]
   if let some g ← consumeBinderNameHint? goal target then return .goals scope [g]
   if let some (scope, gs) ← forallIntro? scope goal target then return .goals scope gs
-  if let some g ← targetLetIntro? goal target then return .goals scope [g]
+  if let some (scope, g) ← targetLetIntro? scope goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]
   if let some g ← bareWPToLe? goal target then return .goals scope [g]
   if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
@@ -756,7 +788,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 3: shape the `rhs` (decompose a lattice connective, an `ite`/`dite`/`cond`/match or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← rhsLet? goal rhs then return .goals scope [g]
+  if let some (scope, g) ← rhsLet? scope goal rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← assertionMatch? scope goal target (inPre := false) then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
@@ -771,6 +803,8 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goals scope [g]
+    if let some (scope, gs) ← registerSpecJoinPoint? scope goal info then
+      return .goals scope gs
     if let some g ← wpReduceHead? goal info then
       burnOne
       return .goals scope [g]

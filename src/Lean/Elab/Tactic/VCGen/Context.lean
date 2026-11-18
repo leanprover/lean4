@@ -176,6 +176,9 @@ public structure Scope where
   /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
   on `x` reduces with them. -/
   splitEqs : FVarIdMap (Expr × FVarId) := {}
+  /-- The join points `__do_jp := val` that a spec hypothesis binds, before their registration at
+  the next `wp` goal whose postcondition jumps to them. Each entry is `val`. -/
+  pendingSpecJoinPoints : FVarIdMap Expr := {}
   deriving Inhabited
 
 public structure State where

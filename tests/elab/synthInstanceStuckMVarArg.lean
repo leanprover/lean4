@@ -1,8 +1,8 @@
 import Lean
 
 /-!
-Tests that type class resolution reports a goal as stuck without searching where an argument that is
-a type is a metavariable, and that it still fails where there is no instance to try.
+Tests that type class resolution reports a goal as stuck without searching where an explicit
+argument that is a type is a metavariable, and that it still fails where there is no instance to try.
 -/
 
 open Lean Meta
@@ -88,6 +88,17 @@ instance : G n := ⟨⟩
 #eval show MetaM String from do
   let n ← mkFreshExprMVar (mkConst ``Nat)
   return toStr (← trySynthInstance (mkApp (mkConst ``G) n))
+
+class H {α : Type} (a : α) where
+instance {a : α} : H a := ⟨⟩
+
+-- Nor does an implicit type argument.
+/-- info: "some" -/
+#guard_msgs in
+#eval show MetaM String from do
+  let α ← mkFreshExprMVar (mkSort 1)
+  let a ← mkFreshExprMVar α
+  return toStr (← trySynthInstance (mkApp2 (mkConst ``H) α a))
 
 /--
 error: typeclass instance problem is stuck, it is often due to metavariables

@@ -10,7 +10,7 @@ def y := x
 
 /-- info: true -/
 #guard_msgs in
-#eval withPtrEq x y (fun _ => dbgTrace (">> " ++ toString x ++ " == " ++ toString y) $ fun _ => x == y) TrustMe -- should not print message
+#eval withPtrEqUnsafe x y (fun _ => dbgTrace (">> " ++ toString x ++ " == " ++ toString y) $ fun _ => x == y) TrustMe -- should not print message
 
 /--
 info: >> (1, 2) == (1, 2)
@@ -18,4 +18,4 @@ info: >> (1, 2) == (1, 2)
 info: true
 -/
 #guard_msgs in
-#eval withPtrEq x (mk 1) (fun _ => dbgTrace (">> " ++ toString x ++ " == " ++ toString y) $ fun _ => x == y) TrustMe -- should print message
+#eval withPtrEqUnsafe x (mk 1) (fun _ => dbgTrace (">> " ++ toString x ++ " == " ++ toString y) $ fun _ => x == y) TrustMe -- should print message

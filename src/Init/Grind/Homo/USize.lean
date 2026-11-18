@@ -22,8 +22,19 @@ attribute [grind hom]
   USize.toBitVec_and USize.toBitVec_or USize.toBitVec_xor USize.toBitVec_shiftLeft USize.toBitVec_shiftRight
   USize.toBitVec_zero USize.toBitVec_one USize.toBitVec_not USize.toBitVec_neg
   USize.eq_iff_toBitVec_eq
-  USize.toBitVec_ofNat USize.toBitVec_ofNat'
   USize.toBitVec_toUInt8 USize.toBitVec_toUInt16 USize.toBitVec_toUInt32 USize.toBitVec_toUInt64 USize.toBitVec_toISize
+
+
+/- The core `USize.toBitVec_ofNat` rules produce literals in `BitVec.ofNat` form; `grind`
+keeps `BitVec` literals in `OfNat.ofNat` form, so they are restated with a canonical
+right-hand side. -/
+@[grind hom] theorem Lean.Grind.USize.toBitVec_OfNat_ofNat (a : Nat) :
+    (OfNat.ofNat a : USize).toBitVec = OfNat.ofNat a :=
+  (USize.toBitVec_ofNat a).trans BitVec.ofNat_eq_ofNat.symm
+
+@[grind hom] theorem Lean.Grind.USize.toBitVec_ofNat (a : Nat) :
+    (USize.ofNat a).toBitVec = OfNat.ofNat a :=
+  (USize.toBitVec_ofNat' a).trans BitVec.ofNat_eq_ofNat.symm
 
 @[grind hom] theorem Lean.Grind.USize.toNat_eq_toBitVec_toNat (x : USize) : x.toNat = x.toBitVec.toNat := rfl
 

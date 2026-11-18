@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_io_promise_result_opt(lean_object*);
 lean_object* l_BaseIO_chainTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* lean_io_promise_new();
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -64,8 +64,9 @@ v___x_13_ = lean_box(0);
 v___x_14_ = lean_io_promise_resolve(v___x_13_, v_promise_11_);
 v___x_15_ = 1;
 v___x_16_ = lean_box(v___x_15_);
-v___x_17_ = lean_st_ref_set(v_setRef_12_, v___x_16_);
-return v___x_17_;
+v___x_17_ = lean_st_ref_swap(v_setRef_12_, v___x_16_);
+lean_dec(v___x_17_);
+return v___x_13_;
 }
 }
 LEAN_EXPORT lean_object* l_IO_CancelToken_set___boxed(lean_object* v_tk_18_, lean_object* v_a_19_){
@@ -157,11 +158,13 @@ return v_r_57_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_System_CancelToken(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

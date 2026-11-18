@@ -39,7 +39,7 @@ def mix (a b : UInt64) : UInt64 :=
   else if b == 0 then a
   else mixHash a b
 
-public partial def getAnchor (e : Expr) : GrindM UInt64 := do
+partial def getAnchorCore (e : Expr) : GrindM UInt64 := do
   if let some a := (← get).anchors.find? { expr := e } then
     return a
   let a ← match e with
@@ -51,26 +51,29 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
       if (← isMatcher declName) then pure 0
       else pure <| hashName declName
     | .fvar fvarId =>
-      let userName := (← fvarId.getDecl).userName
-      pure <| hashName userName
-    | .mdata _ b => getAnchor b
+      if let some a := (← get).fvarAnchors.find? fvarId then
+        pure a
+      else
+        -- A variable not introduced through `registerFVarAnchor`, e.g., by a `grind` tactic.
+        pure <| hash (← fvarId.getDecl).userName.eraseMacroScopes
+    | .mdata _ b => getAnchorCore b
     | .letE n v t b _ =>
-      pure <| mix (hashName n) <| mix (← getAnchor t) <| mix (← getAnchor v) (← getAnchor b)
+      pure <| mix (hashName n) <| mix (← getAnchorCore t) <| mix (← getAnchorCore v) (← getAnchorCore b)
     | .lam n d b _ | .forallE n d b _ =>
-      pure <| mix (hashName n) <| mix (← getAnchor d) (← getAnchor b)
-    | .proj _ i s => pure <| mix (hash i) (← getAnchor s)
+      pure <| mix (hashName n) <| mix (← getAnchorCore d) (← getAnchorCore b)
+    | .proj _ i s => pure <| mix (hash i) (← getAnchorCore s)
     | .bvar idx => pure <| hash idx
     | .lit v => pure <| hash v
     | .app .. => e.withApp fun f args => do
       if isMarkedSubsingletonConst f && args.size == 2 then
         -- **Note**: we only visit the type of marked subsingleton terms.
-        getAnchor args[0]!
+        getAnchorCore args[0]!
       else
         let pinfos ← if f.hasLooseBVars then
           pure #[]
         else
           pure <| (← getFunInfo f).paramInfo
-        let mut r ← getAnchor f
+        let mut r ← getAnchorCore f
         for h : i in *...args.size do
           let arg := args[i]
           if h : i < pinfos.size then
@@ -78,13 +81,18 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
             -- **Note**: we ignore instances we computing stable hash codes
             -- TODO: evaluate whether we should ignore regular implicit arguments too.
             unless info.isImplicit do
-              r := mix r (← getAnchor arg)
+              r := mix r (← getAnchorCore arg)
           else
-            r := mix r (← getAnchor arg)
+            r := mix r (← getAnchorCore arg)
         pure r
     | .sort _ | .mvar _ => pure 0
   modify fun s => { s with anchors := s.anchors.insert { expr := e } a }
   return a
+
+/-- Returns the anchor of `e`, or `0` if anchors are disabled. See `Context.anchors`. -/
+public def getAnchor (e : Expr) : GrindM UInt64 := do
+  unless (← anchorsEnabled) do return 0
+  getAnchorCore e
 
 /--
 Example: `{ numDigits := 4, anchorPrefix := 0x0c88 }.matches 0x0c88ab10ef20206a` returns `true`

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Beta
@@ -37,10 +38,12 @@ where
     }
 
 /--
-Returns `true` if the parent is relevant for congruence closure.
+Returns `true` if the parent is relevant for congruence closure. `MatchCond` nodes are not in the
+congruence table (see `internalizeMatchCond`): reinserting one would add it, hashed on the current
+root of its argument, of which it is not a registered parent, and the entry would go stale.
 -/
 private def isCongrRelevant (parent : Expr) : Bool :=
-  parent.isApp || parent.isArrow
+  (parent.isApp && !isMatchCond parent) || parent.isArrow
 
 /--
 Removes `root` parents from the congruence table.
@@ -132,8 +135,7 @@ private def getFunWithGivenDomain? (lams : Array Expr) (d : Expr) : Option Expr 
     | _ => false
 
 private def propagateUnitConstFuns (lams₁ lams₂ : Array Expr) : GoalM Unit := do
-  if h : lams₁.size = 0 then return () else
-  if h : lams₂.size = 0 then return () else
+  if lams₁.isEmpty || lams₂.isEmpty then return ()
   for lam₁ in lams₁ do
     -- Remark: we have heterogeneous equivalence classes. So, we may have functions
     -- with different domains in the same equivalence class.
@@ -147,11 +149,12 @@ private def propagateUnitConstFuns (lams₁ lams₂ : Array Expr) : GoalM Unit :
       let sub := mkApp (mkConst ``Subsingleton [u]) d₁
       pure (← synthInstance? sub).isSome
     if isTarget then
-      let some (.lam _ d₁ b₂ _) := getFunWithGivenDomain? lams₂ d₁ | pure ()
+      let some lam₂ := getFunWithGivenDomain? lams₂ d₁ | pure ()
+      let .lam _ _ b₂ _ := lam₂ | pure ()
       let val ← preprocessLight <| mkApp2 (mkConst ``default [u]) d₁ inhInst
       let lhs := b₁.instantiate1 val
       let rhs := b₂.instantiate1 val
-      let h ← mkEqProof lams₁[0] lams₂[0]
+      let h ← mkEqProof lam₁ lam₂
       pushNewFact <| mkExpectedPropHint (← mkCongrFun h val) (← mkEq lhs rhs)
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
@@ -226,15 +229,19 @@ where
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
+    let heqProofs := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
+    -- We must also retrieve `rhsRoot`: it may be a parent of `lhsRoot.self`, and
+    -- `reinsertParents` may have updated its `congr` field. See #15871.
+    let rhsRoot ← getENode rhsRoot.self
     setENode rhsNode.root { rhsRoot with
       next       := lhsRoot.next
       size       := rhsRoot.size + lhsRoot.size
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
-      heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
+      heqProofs
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot
+    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot heqProofs
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -266,7 +273,7 @@ where
       we must ensure it is root `m` of its congruence class if the root is not already
       in the `False` equivalence class.
       This can happen when the equality `n = m` is still has to be processed. That is,
-      it is in the `newFacts` todo array.
+      it is in the `toProcess` todo array.
       A similar swap is performed at `addCongrTable`.
       -/
       if isFalseRoot && n.self.isAppOfArity ``Eq 3 && !n.isCongrRoot then
@@ -278,20 +285,20 @@ where
           setENode n.self { n with congr := n.self }
           setENode e { (← getENode e) with congr := n.self }
 
-/-- Ensures collection of equations to be processed is empty. -/
-private def resetNewFacts : GoalM Unit :=
-  modify fun s => { s with newFacts := #[] }
+/-- Discards all pending work. -/
+private def resetToProcess : GoalM Unit :=
+  modify fun s => { s with toProcess := #[] }
 
-/-- Pops and returns the next equality to be processed. -/
-private def popNextFact? : GoalM (Option NewFact) := do
-  let r := (← get).newFacts.back?
+/-- Pops and returns the next element to be processed. -/
+private def popToProcess? : GoalM (Option ToProcessElement) := do
+  let r := (← get).toProcess.back?
   if r.isSome then
-    modify fun s => { s with newFacts := s.newFacts.pop }
+    modify fun s => { s with toProcess := s.toProcess.pop }
   return r
 
 private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
-  processNewFacts
+  processToDo
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -361,23 +368,31 @@ where
       addEqCore lhs rhs proof isHEq
 
 set_option compiler.ignoreBorrowAnnotation true in
-@[export lean_grind_process_new_facts]
-private def processNewFactsImpl : GoalM Unit := do
+@[export lean_grind_process_to_do]
+private def processToDoImpl : GoalM Unit := do
   repeat
     if (← isInconsistent) then
-      resetNewFacts
+      resetToProcess
       return ()
     checkSystem "grind"
-    let some next ← popNextFact? | return ()
+    let some next ← popToProcess? | return ()
     match next with
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen
+    | .propagateUp e => propagateUp e
+    | .internalizeRhsAddEq lhs rhs proof gen =>
+      internalize rhs gen
+      addEqStep lhs rhs proof false
+    | .solverEq id lhs rhs => Solvers.newEq id lhs rhs
+    | .solverDiseq id lhs rhs => Solvers.newDiseq id lhs rhs
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   if fact.isTrue then return ()
   if (← isInconsistent) then return ()
-  resetNewFacts
+  -- Work queued since the last drain, e.g. by internalizing patterns of activated theorems.
+  processToDo
+  if (← isInconsistent) then return ()
   addFactStep fact proof generation
 
 /-- Adds a new hypothesis. -/

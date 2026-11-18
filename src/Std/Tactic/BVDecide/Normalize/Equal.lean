@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Package
 
 @[expose] public section
 

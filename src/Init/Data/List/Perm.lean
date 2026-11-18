@@ -9,6 +9,7 @@ prelude
 import all Init.Data.List.Attach
 public import Init.Data.List.Attach
 import Init.Data.List.Erase
+public import Init.Data.List.Impl
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
@@ -468,7 +469,7 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   by_cases xl : x ∈ l <;> by_cases yl : y ∈ l <;> simp [xl, yl]
   if xy : x = y then simp [xy] else
   simp [List.insert, xl, yl, xy, Ne.symm xy]
-  constructor
+  constructor!
 
 end LawfulBEq
 

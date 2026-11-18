@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind
-// Imports: public import Lean.Meta.Tactic.Grind.Attr public import Lean.Meta.Tactic.Grind.MarkAccessible public import Lean.Meta.Tactic.Grind.Types public import Lean.Meta.Tactic.Grind.Util public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.Injection public import Lean.Meta.Tactic.Grind.Core public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons public import Lean.Meta.Tactic.Grind.Inv public import Lean.Meta.Tactic.Grind.Proof public import Lean.Meta.Tactic.Grind.Propagate public import Lean.Meta.Tactic.Grind.BitVec public import Lean.Meta.Tactic.Grind.PP public import Lean.Meta.Tactic.Grind.Simp public import Lean.Meta.Tactic.Grind.Ctor public import Lean.Meta.Tactic.Grind.Parser public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.Grind.EMatch public import Lean.Meta.Tactic.Grind.Main public import Lean.Meta.Tactic.Grind.CasesMatch public import Lean.Meta.Tactic.Grind.Arith public import Lean.Meta.Tactic.Grind.Ext public import Lean.Meta.Tactic.Grind.MatchCond public import Lean.Meta.Tactic.Grind.MatchDiscrOnly public import Lean.Meta.Tactic.Grind.Diseq public import Lean.Meta.Tactic.Grind.MBTC public import Lean.Meta.Tactic.Grind.Lookahead public import Lean.Meta.Tactic.Grind.LawfulEqCmp public import Lean.Meta.Tactic.Grind.ReflCmp public import Lean.Meta.Tactic.Grind.SynthInstance public import Lean.Meta.Tactic.Grind.AC public import Lean.Meta.Tactic.Grind.VarRename public import Lean.Meta.Tactic.Grind.ProofUtil public import Lean.Meta.Tactic.Grind.PropagateInj public import Lean.Meta.Tactic.Grind.Order public import Lean.Meta.Tactic.Grind.Anchor public import Lean.Meta.Tactic.Grind.Action public import Lean.Meta.Tactic.Grind.EMatchTheoremParam public import Lean.Meta.Tactic.Grind.EMatchAction public import Lean.Meta.Tactic.Grind.Filter public import Lean.Meta.Tactic.Grind.CollectParams public import Lean.Meta.Tactic.Grind.Finish public import Lean.Meta.Tactic.Grind.RegisterCommand
+// Imports: public import Lean.Meta.Tactic.Grind.Attr public import Lean.Meta.Tactic.Grind.MarkAccessible public import Lean.Meta.Tactic.Grind.Types public import Lean.Meta.Tactic.Grind.Util public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.Injection public import Lean.Meta.Tactic.Grind.Core public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons public import Lean.Meta.Tactic.Grind.Inv public import Lean.Meta.Tactic.Grind.Proof public import Lean.Meta.Tactic.Grind.Propagate public import Lean.Meta.Tactic.Grind.PropagateChar public import Lean.Meta.Tactic.Grind.BitVec public import Lean.Meta.Tactic.Grind.PP public import Lean.Meta.Tactic.Grind.Simp public import Lean.Meta.Tactic.Grind.Ctor public import Lean.Meta.Tactic.Grind.Parser public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.Grind.EMatch public import Lean.Meta.Tactic.Grind.Main public import Lean.Meta.Tactic.Grind.CasesMatch public import Lean.Meta.Tactic.Grind.Arith public import Lean.Meta.Tactic.Grind.Ext public import Lean.Meta.Tactic.Grind.MatchCond public import Lean.Meta.Tactic.Grind.MatchDiscrOnly public import Lean.Meta.Tactic.Grind.Diseq public import Lean.Meta.Tactic.Grind.MBTC public import Lean.Meta.Tactic.Grind.Lookahead public import Lean.Meta.Tactic.Grind.LawfulEqCmp public import Lean.Meta.Tactic.Grind.ReflCmp public import Lean.Meta.Tactic.Grind.SynthInstance public import Lean.Meta.Tactic.Grind.AC public import Lean.Meta.Tactic.Grind.VarRename public import Lean.Meta.Tactic.Grind.ProofUtil public import Lean.Meta.Tactic.Grind.PropagateInj public import Lean.Meta.Tactic.Grind.Order public import Lean.Meta.Tactic.Grind.Homomorphism public import Lean.Meta.Tactic.Grind.Anchor public import Lean.Meta.Tactic.Grind.Action public import Lean.Meta.Tactic.Grind.EMatchTheoremParam public import Lean.Meta.Tactic.Grind.EMatchAction public import Lean.Meta.Tactic.Grind.Filter public import Lean.Meta.Tactic.Grind.CollectParams public import Lean.Meta.Tactic.Grind.Finish public import Lean.Meta.Tactic.Grind.RegisterCommand public import Lean.Meta.Tactic.Grind.BVDecide
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2848,6 +2848,7 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(u
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Inv(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Proof(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Propagate(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_PropagateChar(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_BitVec(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_PP(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin);
@@ -2872,6 +2873,7 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_VarRename(uint8_t builtin
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_ProofUtil(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_PropagateInj(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Order(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Homomorphism(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Anchor(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(uint8_t builtin);
@@ -2880,11 +2882,14 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Filter(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_CollectParams(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Finish(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_RegisterCommand(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_BVDecide(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Attr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2916,6 +2921,9 @@ res = runtime_initialize_Lean_Meta_Tactic_Grind_Proof(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Propagate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_PropagateChar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_BitVec(builtin);
@@ -2990,6 +2998,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_Homomorphism(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Anchor(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -3012,6 +3023,9 @@ res = runtime_initialize_Lean_Meta_Tactic_Grind_Finish(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_RegisterCommand(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_BVDecide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l___private_Lean_Meta_Tactic_Grind_0__Lean_initFn_00___x40_Lean_Meta_Tactic_Grind_1240498661____hygCtx___hyg_2_();
@@ -3181,6 +3195,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(uint8_t b
 lean_object* initialize_Lean_Meta_Tactic_Grind_Inv(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Proof(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Propagate(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_PropagateChar(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_BitVec(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_PP(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin);
@@ -3205,6 +3220,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_VarRename(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ProofUtil(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_PropagateInj(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Order(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Homomorphism(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Anchor(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(uint8_t builtin);
@@ -3213,6 +3229,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Filter(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_CollectParams(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Finish(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_RegisterCommand(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_BVDecide(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind(uint8_t builtin) {
 lean_object * res;
@@ -3249,6 +3266,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Proof(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Propagate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_PropagateChar(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_BitVec(builtin);
@@ -3323,6 +3343,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Homomorphism(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Anchor(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -3345,6 +3368,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Finish(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_RegisterCommand(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_BVDecide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind(builtin);

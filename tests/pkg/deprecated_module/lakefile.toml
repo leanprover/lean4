@@ -6,6 +6,7 @@ name = "Main"
 roots = [
   "DeprecatedModule.New",
   "DeprecatedModule.Old",
+  "DeprecatedModule.GoodModule",
   "DeprecatedModule.OldNoMessage",
   "DeprecatedModule.OldDouble",
   "DeprecatedModule.Transitive",

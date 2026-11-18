@@ -35,10 +35,7 @@ the number is too large.
 Returns `2^8 - 1` for natural numbers greater than or equal to `2^8`.
 -/
 def UInt8.ofNatClamp (n : Nat) : UInt8 :=
-  if h : n < UInt8.size then
-    UInt8.ofNatLT n h
-  else
-    UInt8.ofNatLT (UInt8.size - 1) (by decide)
+  ⟨BitVec.ofNatClamp 8 n⟩
 
 @[inherit_doc UInt8.ofNatClamp, deprecated UInt8.ofNatClamp (since := "2026-05-04")]
 def UInt8.ofNatTruncate (n : Nat) : UInt8 :=
@@ -91,10 +88,7 @@ the number is too large.
 Returns `2^16 - 1` for natural numbers greater than or equal to `2^16`.
 -/
 def UInt16.ofNatClamp (n : Nat) : UInt16 :=
-  if h : n < UInt16.size then
-    UInt16.ofNatLT n h
-  else
-    UInt16.ofNatLT (UInt16.size - 1) (by decide)
+  ⟨BitVec.ofNatClamp 16 n⟩
 
 @[inherit_doc UInt16.ofNatClamp, deprecated UInt16.ofNatClamp (since := "2026-05-04")]
 def UInt16.ofNatTruncate (n : Nat) : UInt16 :=
@@ -160,10 +154,7 @@ the number is too large.
 Returns `2^32 - 1` for natural numbers greater than or equal to `2^32`.
 -/
 def UInt32.ofNatClamp (n : Nat) : UInt32 :=
-  if h : n < UInt32.size then
-    UInt32.ofNatLT n h
-  else
-    UInt32.ofNatLT (UInt32.size - 1) (by decide)
+  ⟨BitVec.ofNatClamp 32 n⟩
 
 @[inherit_doc UInt32.ofNatClamp, deprecated UInt32.ofNatClamp (since := "2026-05-04")]
 def UInt32.ofNatTruncate (n : Nat) : UInt32 :=
@@ -266,10 +257,7 @@ the number is too large.
 Returns `2^64 - 1` for natural numbers greater than or equal to `2^64`.
 -/
 def UInt64.ofNatClamp (n : Nat) : UInt64 :=
-  if h : n < UInt64.size then
-    UInt64.ofNatLT n h
-  else
-    UInt64.ofNatLT (UInt64.size - 1) (by decide)
+  ⟨BitVec.ofNatClamp 64 n⟩
 
 @[inherit_doc UInt64.ofNatClamp, deprecated UInt64.ofNatClamp (since := "2026-05-04")]
 def UInt64.ofNatTruncate (n : Nat) : UInt64 :=
@@ -357,10 +345,7 @@ Returns `USize.size - 1`, which is  `2^64 - 1` or `2^32 - 1` depending on the pl
 numbers greater than or equal to `USize.size`.
 -/
 def USize.ofNatClamp (n : Nat) : USize :=
-  if h : n < USize.size then
-    USize.ofNatLT n h
-  else
-    USize.ofNatLT (USize.size - 1) (Nat.pred_lt (Nat.ne_zero_of_lt USize.size_pos))
+  ⟨BitVec.ofNatClamp System.Platform.numBits n⟩
 
 @[inherit_doc USize.ofNatClamp, deprecated USize.ofNatClamp (since := "2026-05-04")]
 def USize.ofNatTruncate (n : Nat) : USize :=

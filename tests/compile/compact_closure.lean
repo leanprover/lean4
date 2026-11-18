@@ -4,10 +4,10 @@ open Lean
 
 /-!
 Tests `CompactedRegion.save`/`read` with `allowClosures := true`: closures (with captured data)
-are serialized in the `v3` olean format and round-trip within the same process.
+are serialized in the olean format and round-trip within the same process.
 -/
 unsafe def main : IO Unit := do
-  let tmpFile : System.FilePath := "./_compact_closure_test.olean"
+  let tmpFile : System.FilePath := "./_tmp_compact_closure_test.olean"
 
   -- Simple closure with captured string
   let captured := "hello"

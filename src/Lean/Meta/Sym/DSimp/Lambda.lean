@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.Util
 namespace Lean.Meta.Sym.DSimp
 
 /--
@@ -27,8 +28,8 @@ where
       -- earlier binders in this telescope.
       let d ← instantiateRevBetaS d fvars
       match (← dsimp d) with
-      | .rfl _ => withLocalDecl n c d fun x => go b (fvars.push x) modified
-      | .step d' _ => withLocalDecl n c d' fun x => go b (fvars.push x) true
+      | .rfl _ => withLocalDeclS n c d fun x => go b (fvars.push x) modified
+      | .step d' _ => withLocalDeclS n c d' fun x => go b (fvars.push x) true
     | _ =>
       let r ← dsimp (← instantiateRevBetaS e fvars)
       match r with

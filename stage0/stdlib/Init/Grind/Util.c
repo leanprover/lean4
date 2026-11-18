@@ -20,7 +20,7 @@ uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -634,7 +634,7 @@ static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__14(vo
 _start:
 {
 lean_object* v___x_232_; 
-v___x_232_ = l_Array_mkArray0(lean_box(0));
+v___x_232_ = l_Array_mkArray0___redArg();
 return v___x_232_;
 }
 }
@@ -707,11 +707,13 @@ return v_res_266_;
 lean_object* runtime_initialize_Init_Data_Cast(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Classical(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

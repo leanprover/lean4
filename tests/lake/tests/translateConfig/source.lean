@@ -27,6 +27,10 @@ package test where
   releaseRepo := none
   buildArchive? := none
   preferReleaseBuild := false
+  downloadCacheService? := none
+  enableArtifactCache? := none
+  restoreAllArtifacts? := none
+  builtinLint? := none
   packagesDir := defaultPackagesDir
   leanOptions := #[⟨`pp.unicode.fun, true⟩]
   lintDriver := "b"
@@ -43,6 +47,11 @@ package test where
 require "foo" / "baz" @ "git#abcdef"
 require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"
+require qux from copy "qux"
+
+cache_service cdn :=
+  .downloadService "https://example.com/a0" "https://example.com/r0" (hasPackageScopes := false)
+cache_service "my-reservoir" := .reservoirService "https://example.com/api/v1"
 
 @[default_target]
 lean_lib A where

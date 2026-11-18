@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Time.Format
 public meta import Std.Time.Format
+meta import Init.Data.String.TakeDrop
 
 public section
 
@@ -16,98 +17,6 @@ namespace Time
 open Lean Parser Command Std
 
 set_option linter.all true
-
-private meta def convertText : Text → MacroM (TSyntax `term)
-  | .short          => `(Std.Time.Text.short)
-  | .full           => `(Std.Time.Text.full)
-  | .narrow         => `(Std.Time.Text.narrow)
-  | .twoLetterShort => `(Std.Time.Text.twoLetterShort)
-
-private meta def convertNumber : Number → MacroM (TSyntax `term)
-  | ⟨padding⟩ => `(Std.Time.Number.mk $(quote padding))
-
-private meta def convertFraction : Fraction → MacroM (TSyntax `term)
-  | .nano => `(Std.Time.Fraction.nano)
-  | .truncated digits => `(Std.Time.Fraction.truncated $(quote digits))
-
-private meta def convertYear : Year → MacroM (TSyntax `term)
-  | .any => `(Std.Time.Year.any)
-  | .twoDigit => `(Std.Time.Year.twoDigit)
-  | .fourDigit => `(Std.Time.Year.fourDigit)
-  | .extended n => `(Std.Time.Year.extended $(quote n))
-
-private meta def convertZoneId : ZoneId → MacroM (TSyntax `term)
-  | .unknown => `(Std.Time.ZoneId.unknown)
-  | .short   => `(Std.Time.ZoneId.short)
-  | .full    => `(Std.Time.ZoneId.full)
-
-private meta def convertZoneName : ZoneName → MacroM (TSyntax `term)
-  | .short => `(Std.Time.ZoneName.short)
-  | .full  => `(Std.Time.ZoneName.full)
-
-private meta def convertOffsetX : OffsetX → MacroM (TSyntax `term)
-  | .hour => `(Std.Time.OffsetX.hour)
-  | .hourMinute => `(Std.Time.OffsetX.hourMinute)
-  | .hourMinuteColon => `(Std.Time.OffsetX.hourMinuteColon)
-  | .hourMinuteSecond => `(Std.Time.OffsetX.hourMinuteSecond)
-  | .hourMinuteSecondColon => `(Std.Time.OffsetX.hourMinuteSecondColon)
-
-private meta def convertOffsetO : OffsetO → MacroM (TSyntax `term)
-  | .short => `(Std.Time.OffsetO.short)
-  | .full  => `(Std.Time.OffsetO.full)
-
-private meta def convertOffsetZ : OffsetZ → MacroM (TSyntax `term)
-  | .hourMinute => `(Std.Time.OffsetZ.hourMinute)
-  | .full => `(Std.Time.OffsetZ.full)
-  | .hourMinuteSecondColon => `(Std.Time.OffsetZ.hourMinuteSecondColon)
-
-private meta def convertModifier : Modifier → MacroM (TSyntax `term)
-  | .G p => do `(Std.Time.Modifier.G $(← convertText p))
-  | .y p => do `(Std.Time.Modifier.y $(← convertYear p))
-  | .u p => do `(Std.Time.Modifier.u $(← convertYear p))
-  | .Y p => do `(Std.Time.Modifier.Y $(← convertYear p))
-  | .D p => do `(Std.Time.Modifier.D $(← convertNumber p))
-  | .M (.inl num) => do `(Std.Time.Modifier.M (.inl $(← convertNumber num)))
-  | .M (.inr txt) => do `(Std.Time.Modifier.M (.inr $(← convertText txt)))
-  | .L (.inl num) => do `(Std.Time.Modifier.L (.inl $(← convertNumber num)))
-  | .L (.inr txt) => do `(Std.Time.Modifier.L (.inr $(← convertText txt)))
-  | .d p => do `(Std.Time.Modifier.d $(← convertNumber p))
-  | .Q (.inl num) => do `(Std.Time.Modifier.Q (.inl $(← convertNumber num)))
-  | .Q (.inr txt) => do `(Std.Time.Modifier.Q (.inr $(← convertText txt)))
-  | .q (.inl num) => do `(Std.Time.Modifier.q (.inl $(← convertNumber num)))
-  | .q (.inr txt) => do `(Std.Time.Modifier.q (.inr $(← convertText txt)))
-  | .w p => do `(Std.Time.Modifier.w $(← convertNumber p))
-  | .W p => do `(Std.Time.Modifier.W $(← convertNumber p))
-  | .E p => do `(Std.Time.Modifier.E $(← convertText p))
-  | .e (.inl num) => do `(Std.Time.Modifier.e (.inl $(← convertNumber num)))
-  | .e (.inr txt) => do `(Std.Time.Modifier.e (.inr $(← convertText txt)))
-  | .c (.inl num) => do `(Std.Time.Modifier.c (.inl $(← convertNumber num)))
-  | .c (.inr txt) => do `(Std.Time.Modifier.c (.inr $(← convertText txt)))
-  | .F p => do `(Std.Time.Modifier.F $(← convertNumber p))
-  | .a p => do `(Std.Time.Modifier.a $(← convertText p))
-  | .b p => do `(Std.Time.Modifier.b $(← convertText p))
-  | .B p => do `(Std.Time.Modifier.B $(← convertText p))
-  | .h p => do `(Std.Time.Modifier.h $(← convertNumber p))
-  | .K p => do `(Std.Time.Modifier.K $(← convertNumber p))
-  | .k p => do `(Std.Time.Modifier.k $(← convertNumber p))
-  | .H p => do `(Std.Time.Modifier.H $(← convertNumber p))
-  | .m p => do `(Std.Time.Modifier.m $(← convertNumber p))
-  | .s p => do `(Std.Time.Modifier.s $(← convertNumber p))
-  | .S p => do `(Std.Time.Modifier.S $(← convertFraction p))
-  | .A p => do `(Std.Time.Modifier.A $(← convertNumber p))
-  | .n p => do `(Std.Time.Modifier.n $(← convertNumber p))
-  | .N p => do `(Std.Time.Modifier.N $(← convertNumber p))
-  | .V p => do `(Std.Time.Modifier.V $(← convertZoneId p))
-  | .z p => do `(Std.Time.Modifier.z $(← convertZoneName p))
-  | .v p => do `(Std.Time.Modifier.v $(← convertZoneName p))
-  | .O p => do `(Std.Time.Modifier.O $(← convertOffsetO p))
-  | .X p => do `(Std.Time.Modifier.X $(← convertOffsetX p))
-  | .x p => do `(Std.Time.Modifier.x $(← convertOffsetX p))
-  | .Z p => do `(Std.Time.Modifier.Z $(← convertOffsetZ p))
-
-private meta def convertFormatPart : FormatPart → MacroM (TSyntax `term)
-  | .string s => `(.string $(Syntax.mkStrLit s))
-  | .modifier mod => do `(.modifier $(← convertModifier mod))
 
 private meta def syntaxNat (n : Nat) : MacroM (TSyntax `term) := do
   let info ← MonadRef.mkInfoFromRefPos
@@ -150,6 +59,14 @@ private meta def convertDateTime (d : Std.Time.DateTime) (identifier := false) :
     `(Std.Time.DateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRules $(Syntax.mkStrLit d.timezone.name))
   else
     `(Std.Time.DateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
+
+/--
+Whether a bracketed zone id names a fixed zone rather than a database entry: an offset such as
+`+01:00` or `GMT+01:00`, or `TimeZone.GMT`'s name.
+-/
+private meta def isFixedZoneId (name : String) : Bool :=
+  let offset := if name.startsWith "GMT" then (name.drop 3).copy else name
+  name == TimeZone.GMT.name || (TimeZone.Offset.fromOffset offset).isOk
 
 /--
 Defines a syntax for zoned datetime values. It expects a string representing a datetime with
@@ -219,7 +136,7 @@ macro_rules
       | .ok res => do return ← convertDateTime res
       | .error _ =>
         match DateTime.fromLeanDateTimeWithIdentifierString date.getString with
-        | .ok res => do return ← convertDateTime res (identifier := true)
+        | .ok res => do return ← convertDateTime res (identifier := !isFixedZoneId res.timezone.name)
         | .error res => Macro.throwErrorAt date s!"error: {res}"
 
   | `(zoned( $date:str, $timezone )) => do

@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Sym.Arith.EvalNum
 import Init.Grind.Util
 import Init.Omega
 public import Lean.Meta.HasAssignableMVar
@@ -311,7 +312,7 @@ private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo
   repeat
     let n ← getENode curr
     if n.generation < maxGeneration then
-      if let some (eArg, k') ← isOffset? curr |>.run then
+      if let some (eArg, k') ← Sym.Arith.isOffset? curr |>.run then
         if let some c ← assignGenInfo? genInfo? c e |>.run then
           if k' < k then
             let c := c.updateGen n.generation
@@ -325,7 +326,7 @@ private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo
             internalize eArg' (n.generation+1)
             if let some c ← matchArg? c pArg eArg' |>.run then
               pushChoice (c.updateGen n.generation)
-      else if let some k' ← evalNat curr |>.run then
+      else if let some k' ← Sym.Arith.evalNat? curr |>.run then
         if let some c ← assignGenInfo? genInfo? c e |>.run then
           if k' >= k then
             let eArg' := mkNatLit (k' - k)
@@ -575,7 +576,7 @@ private def mkGeneralizedPatternEqProof (lhs : Expr) (rhs : Expr) (origin : Orig
 where
   checkEqvToLhs? (rhs : Expr) : GoalM (Option Expr) := withoutModifyingState do
     internalize rhs (← getGeneration lhs)
-    processNewFacts
+    processToDo
     if (← isEqv lhs rhs) then
       if heq then
         return some (← mkHEqProof lhs rhs)
@@ -759,7 +760,7 @@ where
 private partial def isValue (e : Expr) (strict : Bool) : MetaM Bool := do
   match_expr e with
   | Neg.neg _ _ e => isValue e strict
-  | OfNat.ofNat _ n _ => return (← getNatValue? n).isSome
+  | OfNat.ofNat _ n _ => isNatValue n
   | HDiv.hDiv _ _ _ _ a b => isValue a strict <&&> isValue b strict
   | _ =>
     if e.isLambda && !strict then return true
@@ -994,12 +995,8 @@ def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMa
     (← get).ematch.numInstances != numInstances
     ||
     (← get).ematch.numDelayedInstances != numDelayedInstances
-  if (← get).ematch.numDelayedInstances != numDelayedInstances then
-    /-
-    **Note**: If delayed instances were produced, new guards may have been internalized,
-    and we may have pending facts to process.
-    -/
-    processNewFacts
+  -- Matching offset patterns and activating guards internalizes terms, which queues work.
+  processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun s => { s with instanceMap := s.instanceMap.insertMany map.toArray }
   return (progress, map)
@@ -1014,6 +1011,8 @@ def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
 def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
   let numInstances := (← get).ematch.numInstances
   let (_, s) ← go |>.run
+  -- See `ematch'`: activating guards internalizes terms, which queues work.
+  processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun st => { st with instanceMap := st.instanceMap.insertMany s.instanceMap.toArray }
   return (← get).ematch.numInstances != numInstances

@@ -22,7 +22,7 @@ example (a b : α) :
     (haveI : Nonempty α := ⟨a⟩
      f a)
     = b := by
-  grind
+  grind +verbose
 
 /--
 trace: [grind.assert] @Eq α c (@f α (@Lean.Grind.nestedProof (Nonempty α) (@Nonempty.intro α a)) a)

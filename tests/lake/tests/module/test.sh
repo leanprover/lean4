@@ -46,6 +46,14 @@ test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteTransI
 test_run build Test.Module.PromoteMetaImport
 test_cmd grep -F "ImportImport.olean.private" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
 test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
+# an `import all` of a module should not block a later transitive `meta import` of it
+# from propagating meta reachability to that module's own non-exported imports
+test_run build Test.Module.MetaRevisitAll
+test_cmd grep -F "ImportImport.olean.private" .lake/build/ir/Test/Module/MetaRevisitAll.setup.json
+test_cmd grep -F "Module.olean" .lake/build/ir/Test/Module/MetaRevisitAll.setup.json
+# and likewise when the `import all` is itself transitive
+test_run build Test.Module.MetaRevisitTransAll
+test_cmd grep -F "Module.olean" .lake/build/ir/Test/Module/MetaRevisitTransAll.setup.json
 # should be imported by a non-module
 test_run build Test.NonModule.Import
 test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json

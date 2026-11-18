@@ -1,8 +1,8 @@
 
 
-class Base (α : Type) := (u:Unit)
-class Depends (α : Type) [Base α] := (u:Unit)
-class Top := (u:Unit)
+class Base (α : Type) where (u:Unit)
+class Depends (α : Type) [Base α] where (u:Unit)
+class Top where (u:Unit)
 
 instance AllBase {α : Type} : Base α := {u:=()}
 instance DependsNotConstrainingImplicit {α : Type} [Base α] : Depends α := {u:=()}

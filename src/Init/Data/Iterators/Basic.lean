@@ -177,7 +177,7 @@ structure Iter {α : Type w} (β : Type w) where
   internalState : α
 
 /-- Wraps the state of an iterator into an `Iter` object. -/
-add_decl_doc IterM.mk
+add_decl_doc Iter.mk
 
 /--
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the
@@ -229,7 +229,7 @@ inductive IterStep (α β) where
   | yield : (it : α) → (out : β) → IterStep α β
   /--
   `IterStep.skip it` describes the situation that an iterator does not emit anything in this
-  iteration and provides `it'` as the succeeding iterator.
+  iteration and provides `it` as the succeeding iterator.
 
   Allowing `skip` steps is necessary to generate efficient code from a loop over an iterator.
   -/
@@ -387,7 +387,8 @@ section Monadic
 abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
-@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk']
+/-- The constructor has been renamed. -/
+@[deprecated IterM.mk (since := "2025-12-01"), inline, expose]
 def Iterators.toIterM := @IterM.mk
 
 theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :

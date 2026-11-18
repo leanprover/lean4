@@ -116,10 +116,10 @@ When the user asks for "status" or you need to report on PRs between checklist r
 
 The nightly build system uses branches and tags across two repositories:
 
-- `leanprover/lean4` has **branches** `nightly` and `nightly-with-mathlib` tracking the latest nightly builds
+- `leanprover/lean4` has a **branch** `nightly` tracking the latest nightly build
 - `leanprover/lean4-nightly` has **dated tags** like `nightly-2026-01-23`
 
-When a nightly succeeds with mathlib, all three should point to the same commit. Don't confuse these: branches are in the main lean4 repo, dated tags are in lean4-nightly.
+When a nightly succeeds, both should point to the same commit. Don't confuse these: the branch is in the main lean4 repo, dated tags are in lean4-nightly.
 
 ## CI Failures: Investigate Immediately
 

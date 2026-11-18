@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.TCP
-// Imports: public import Init.System.Promise public import Init.Data.SInt public import Std.Net
+// Imports: public import Init.System.Promise public import Init.Data.SInt.Basic public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34,10 +34,14 @@ lean_object* lean_uv_tcp_accept(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_accept___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_try_accept(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_tryAccept___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_wait_acceptable(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_waitAcceptable___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_cancel_accept(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelAccept___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_shutdown(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_shutdown___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_close(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_close___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_getpeername(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_getsockname(lean_object*);
@@ -149,75 +153,95 @@ lean_dec(v_socket_59_);
 return v_res_61_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelAccept___boxed(lean_object* v_socket_64_, lean_object* v_a_00___x40___internal___hyg_65_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_waitAcceptable___boxed(lean_object* v_socket_64_, lean_object* v_a_00___x40___internal___hyg_65_){
 _start:
 {
 lean_object* v_res_66_; 
-v_res_66_ = lean_uv_tcp_cancel_accept(v_socket_64_);
+v_res_66_ = lean_uv_tcp_wait_acceptable(v_socket_64_);
 lean_dec(v_socket_64_);
 return v_res_66_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_shutdown___boxed(lean_object* v_socket_69_, lean_object* v_a_00___x40___internal___hyg_70_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelAccept___boxed(lean_object* v_socket_69_, lean_object* v_a_00___x40___internal___hyg_70_){
 _start:
 {
 lean_object* v_res_71_; 
-v_res_71_ = lean_uv_tcp_shutdown(v_socket_69_);
+v_res_71_ = lean_uv_tcp_cancel_accept(v_socket_69_);
 lean_dec(v_socket_69_);
 return v_res_71_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object* v_socket_74_, lean_object* v_a_00___x40___internal___hyg_75_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_shutdown___boxed(lean_object* v_socket_74_, lean_object* v_a_00___x40___internal___hyg_75_){
 _start:
 {
 lean_object* v_res_76_; 
-v_res_76_ = lean_uv_tcp_getpeername(v_socket_74_);
+v_res_76_ = lean_uv_tcp_shutdown(v_socket_74_);
 lean_dec(v_socket_74_);
 return v_res_76_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object* v_socket_79_, lean_object* v_a_00___x40___internal___hyg_80_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_close___boxed(lean_object* v_socket_79_, lean_object* v_a_00___x40___internal___hyg_80_){
 _start:
 {
 lean_object* v_res_81_; 
-v_res_81_ = lean_uv_tcp_getsockname(v_socket_79_);
+v_res_81_ = lean_uv_tcp_close(v_socket_79_);
 lean_dec(v_socket_79_);
 return v_res_81_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object* v_socket_84_, lean_object* v_a_00___x40___internal___hyg_85_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object* v_socket_84_, lean_object* v_a_00___x40___internal___hyg_85_){
 _start:
 {
 lean_object* v_res_86_; 
-v_res_86_ = lean_uv_tcp_nodelay(v_socket_84_);
+v_res_86_ = lean_uv_tcp_getpeername(v_socket_84_);
 lean_dec(v_socket_84_);
 return v_res_86_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object* v_socket_91_, lean_object* v_enable_92_, lean_object* v_delay_93_, lean_object* v_a_00___x40___internal___hyg_94_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object* v_socket_89_, lean_object* v_a_00___x40___internal___hyg_90_){
 _start:
 {
-uint8_t v_enable_boxed_95_; uint32_t v_delay_boxed_96_; lean_object* v_res_97_; 
-v_enable_boxed_95_ = lean_unbox(v_enable_92_);
-v_delay_boxed_96_ = lean_unbox_uint32(v_delay_93_);
-lean_dec(v_delay_93_);
-v_res_97_ = lean_uv_tcp_keepalive(v_socket_91_, v_enable_boxed_95_, v_delay_boxed_96_);
-lean_dec(v_socket_91_);
-return v_res_97_;
+lean_object* v_res_91_; 
+v_res_91_ = lean_uv_tcp_getsockname(v_socket_89_);
+lean_dec(v_socket_89_);
+return v_res_91_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object* v_socket_94_, lean_object* v_a_00___x40___internal___hyg_95_){
+_start:
+{
+lean_object* v_res_96_; 
+v_res_96_ = lean_uv_tcp_nodelay(v_socket_94_);
+lean_dec(v_socket_94_);
+return v_res_96_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object* v_socket_101_, lean_object* v_enable_102_, lean_object* v_delay_103_, lean_object* v_a_00___x40___internal___hyg_104_){
+_start:
+{
+uint8_t v_enable_boxed_105_; uint32_t v_delay_boxed_106_; lean_object* v_res_107_; 
+v_enable_boxed_105_ = lean_unbox(v_enable_102_);
+v_delay_boxed_106_ = lean_unbox_uint32(v_delay_103_);
+lean_dec(v_delay_103_);
+v_res_107_ = lean_uv_tcp_keepalive(v_socket_101_, v_enable_boxed_105_, v_delay_boxed_106_);
+lean_dec(v_socket_101_);
+return v_res_107_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Net(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_UV_TCP(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_SInt(builtin);
+res = runtime_initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Net(builtin);
@@ -234,7 +258,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_System_Promise(uint8_t builtin);
-lean_object* initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Std_Net(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_UV_TCP(uint8_t builtin) {
@@ -244,7 +268,7 @@ _G_initialized = true;
 res = initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt(builtin);
+res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Net(builtin);

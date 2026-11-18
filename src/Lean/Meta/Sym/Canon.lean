@@ -9,8 +9,11 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ExprPtr
 import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.SynthInstance
+import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
+import Lean.Meta.LitValues
+import Lean.Meta.AppBuilder
 import Lean.Meta.Sym.Eta
 import Lean.Meta.WHNF
 import Init.Grind.Util
@@ -39,13 +42,16 @@ when, for example, a term had a forward dependency. That is, the term is not dir
 there is a type that depends on it.
 
 - **Eta**: `fun x => f x` → `f`
+- **Beta**: `(fun x => f x) a` → `f a`
 - **Projection**: `⟨a, b⟩.1` → `a` (structure projections, not class projections)
 - **Match/ite/cond**: reduced when discriminant is a constructor or literal
 - **Nat arithmetic**: ground evaluation (`2 + 1` → `3`) and offset normalization
   (`n.succ + 1` → `n + 2`)
 
-**Note**: Eta is applied only if the lambda is occurring inside of a type. For lambdas occurring
-in non type positions, we want to leverage the support in `grind` for lambda-expressions.
+**Note**: Eta and beta are applied only inside of types. They ensure that definitionally equal
+types such as `(fun X => Fin (X.size + 1)) (Vector.singleton 1)` and `Fin 2` become structurally
+identical after canonicalization. For lambdas occurring in non type positions, we want to
+leverage the support in `grind` for lambda-expressions.
 
 ## Instance canonicalization
 
@@ -90,6 +96,17 @@ structure Context where
 abbrev CanonM := ReaderT Context SymM
 
 /--
+Returns the value of a `Nat` numeral argument of `OfNat.ofNat`, which may nest `OfNat.ofNat`
+at any depth, e.g. `@OfNat.ofNat Nat (@OfNat.ofNat Nat 4 _) _`.
+-/
+partial def getNestedNatValue? (e : Expr) : Option Nat := do
+  match e.consumeMData with
+  | .lit (.natVal n) => return n
+  | e =>
+    let_expr OfNat.ofNat _ n _ := e | failure
+    getNestedNatValue? n
+
+/--
 Auxiliary function for normalizing the arguments of `OfNat.ofNat` during canonicalization.
 This is needed because satellite solvers create `Nat` and `Int` numerals using the
 APIs `mkNatLit` and `mkIntLit`, which produce terms of the form
@@ -114,13 +131,13 @@ representations for `(0 : Nat)` and `(0 : Int)`, complicating reasoning.
 -/
 -- Remark: This is not a great solution. We should consider writing a custom canonicalizer for
 -- `OfNat.ofNat` and other constants with built-in support in `grind`.
-private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
+def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
   if h : args.size = 3 then
     let mut args : Vector Expr 3 := h ▸ args.toVector
     let mut modified := false
     if args[1].isAppOf ``OfNat.ofNat then
       -- If nested `OfNat.ofNat`, convert to raw nat literal
-      let some val ← getNatValue? args[1] | pure ()
+      let some val := getNestedNatValue? args[1] | pure ()
       args := args.set 1 (mkRawNatLit val)
       modified := true
     let inst := args[2]
@@ -131,6 +148,53 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
     else if modified then
       return some args.toArray
   return none
+
+/--
+Normalizes numeric literals of wrapping types during canonicalization. Two kinds of
+non-canonical spellings are handled:
+- `BitVec.ofNat`/`BitVec.ofNatLT`/`Fin.ofNat` applications with literal arguments (e.g.,
+  `1#2`, `Fin.ofNat 3 2`) are converted into the `OfNat.ofNat` representation.
+- `OfNat.ofNat` literals of `Fin` and the fixed-width types (see `getLitValueModulus?`) whose numeral
+  is out of range (e.g., `(300 : UInt8)`) are reduced modulo the type's cardinality.
+- `Char.ofNat` applied to an `OfNat.ofNat` numeral is converted into the character literal, i.e.,
+  `Char.ofNat` applied to the raw literal.
+
+Different representations of the same literal may reach the canonicalizer (e.g., the proposition
+of a `dite` `Decidable` instance keeps the spelling used in the source), and `grind`
+assumes distinct interpreted nodes denote distinct values (see `valueInconsistency` at
+`Grind.addEqStep`), so all representations of the same literal must canonicalize to the same
+term. The result is definitionally equal to the input.
+-/
+public def normNumLit? (e : Expr) : MetaM (Option Expr) := do
+  match_expr e with
+  | BitVec.ofNat w a =>
+    if let some r ← bitVecOfNatForm e then
+      return some r
+    else
+      -- Symbolic width: `BitVec.ofNat w a` is definitionally `OfNat.ofNat (BitVec w) a`, but the
+      -- numeral cannot be reduced modulo `2^w`.
+      let some v ← getNatValue? a | return none
+      return some (← mkNumeral (mkApp (mkConst ``BitVec) w) v)
+  | BitVec.ofNatLT _ _ _ => bitVecOfNatForm e
+  | Fin.ofNat n _ a =>
+    let some n ← getNatValue? n | return none
+    let some a ← getNatValue? a | return none
+    if n == 0 then return none
+    return some (← mkNumeral (mkApp (mkConst ``Fin) (mkNatLit n)) (a % n))
+  | OfNat.ofNat α n _ =>
+    let some m ← getLitValueModulus? α | return none
+    let some v ← getNatValue? n | return none
+    if m == 0 || v < m then return none
+    return some (← mkNumeral α (v % m))
+  | Char.ofNat n =>
+    if e.isCharLit then return none
+    let some v ← getNatValue? n | return none
+    return some (toExpr (Char.ofNat v))
+  | _ => return none
+where
+  bitVecOfNatForm (e : Expr) : MetaM (Option Expr) := do
+    let some ⟨w, v⟩ ← Meta.getBitVecValue? e | return none
+    return some (← mkNumeral (mkApp (mkConst ``BitVec) (mkNatLit w)) v.toNat)
 
 abbrev withCaching (e : Expr) (k : CanonM Expr) : CanonM Expr := do
   if (← read).insideType then
@@ -206,6 +270,12 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
+def mkOffset (e : Expr) (offset : Nat) : Expr :=
+  if offset == 0 then
+    e
+  else
+    mkNatAdd e (mkNatLit offset)
+
 /--
 Reduce a projection function application (e.g., `@Sigma.fst _ _ ⟨a, b⟩` → `a`).
 Class projections are not reduced — they are support elements handled by instance synthesis.
@@ -275,15 +345,34 @@ where
       withReader (fun ctx => { ctx with insideType := true }) <| canon e
 
   /--
-  Canonicalize `e : type` where `e` is an instance by trying to resynthesize `type`.
-  If `report` is `true`, we report an issue when the instance cannot be resynthesized.
+  Canonicalize `e : type` where `e` is an instance.
+
+  If `type` can be resynthesized, the synthesized instance is the canonical one (see
+  `checkDefEqInst`). Otherwise, if `e` is an application of a class projection, it is
+  canonicalized as an application. This covers class fields that are not global instances,
+  e.g., `NatCast α` via `Grind.Semiring.natCast α inst`: the same field may be spelled through
+  different parent paths (`Ring.toSemiring ..` vs `CommSemiring.toSemiring ..`), and
+  canonicalizing the class instance argument makes the spellings converge.
+  If `report` is `true`, we report an issue when neither applies.
+
+  The fallback is for exceptional cases. In the `Grind` algebraic hierarchy only
+  `Semiring.natCast` and `Ring.intCast` are not global instances (to avoid conflicts with
+  `NatCast`/`IntCast` instances in downstream libraries), and such terms are produced by `grind`'s
+  own normalization rules, not by users. Limitations: only spellings of the same field converge,
+  since two different fields (or a field and a global instance) are never compared; and a
+  genuinely missing instance is not reported when `e` is an application of a class projection.
   -/
   canonInstCore (e : Expr) (type : Expr) (report := true) : CanonM Expr := do
-    let some inst ← Sym.synthInstance? type |
+    if let some inst ← Sym.synthInstance? type then
+      checkDefEqInst e inst
+    else
+      if let .const declName _ := e.getAppFn then
+        if let some info ← getProjectionFnInfo? declName then
+          if e.isApp && info.fromClass then
+            return (← canonAppDefault e)
       if report then
         reportIssue! "failed to canonicalize instance{indentExpr e}\nfailed to synthesize{indentExpr type}"
       return e
-    checkDefEqInst e inst
 
   /--
   Canonicalize an instance by trying to resynthesize it without caching.
@@ -310,6 +399,19 @@ where
   /-- `withCaching` + `canonInst'` -/
   canonInst (e : Expr) (report := true) : CanonM Expr := withCaching e do
     canonInst' e report
+
+  /--
+  Canonicalizes the instance `inst` of `@OfNat.ofNat α n inst`, where `ofNat` is the function
+  and `α` and `n` are already canonicalized. The instance is resynthesized for `OfNat α n`, not for
+  its own type: the latter may still contain the original spelling of the numeral (e.g.,
+  `instOfNatNat (OfNat.ofNat 4)` after `normOfNatArgs?` replaced `n` with a raw literal), and
+  resynthesizing for it returns `inst` unchanged. Then two spellings of the same literal would
+  produce distinct interpreted nodes (see `valueInconsistency` at `Grind.addEqStep`).
+  Not cached on `inst` alone since the result depends on `α` and `n`; the enclosing application
+  is cached by `canon`.
+  -/
+  canonOfNatInst (ofNat α n inst : Expr) : CanonM Expr := do
+    canonInstCore inst (mkApp2 (mkConst ``OfNat ofNat.constLevels!) α n)
 
   /--
   Canonicalize a proposition that is also a term instance.
@@ -439,7 +541,11 @@ where
           match_expr arg with
           | g@Grind.nestedDecidable prop h => canonInstDec g prop h arg
           | g@Grind.nestedProof prop h => canonInstProp g prop h arg
-          | _ => canonInst arg
+          | _ =>
+            if i == 2 && f.isConstOf ``OfNat.ofNat then
+              canonOfNatInst f args[0]! args[1]! arg
+            else
+              canonInst arg
       unless isSameExpr arg arg' do
         args := args.set i arg'
         modified := true
@@ -459,15 +565,21 @@ where
 
   postReduce (e : Expr) : CanonM Expr := do
     if isNatArithApp e then
-      if let some e ← evalNat e |>.run then
+      if let some e ← Sym.Arith.evalNat? e |>.run then
         return mkNatLit e
-      else if let some (e, k) ← isOffset? e |>.run then
-        mkOffset e k
+      else if let some (e, k) ← Sym.Arith.isOffset? e |>.run then
+        return mkOffset e k
       else
         return e
     else
       let f := e.getAppFn
       let .const declName _ := f | return e
+      if declName == ``BitVec.ofNat || declName == ``BitVec.ofNatLT || declName == ``Fin.ofNat
+          || declName == ``OfNat.ofNat || declName == ``Char.ofNat then
+        if let some e' ← normNumLit? e then
+          return (← canon e')
+        else
+          return e
       if let some info ← getProjectionFnInfo? declName then
         return (← reduceProjFn? info e).getD e
       else
@@ -496,6 +608,11 @@ where
     -- Remark: We currently don't normalize dependent-if-then-else occurring in types.
     | _ =>
       let f := e.getAppFn
+      if f.isLambda && (← read).insideType then
+        -- Beta-reduce redexes inside types so that definitionally equal types are
+        -- structurally identical after canonicalization, e.g.
+        -- `(fun X => Fin (X.size + 1)) (Vector.singleton 1)` and `Fin 2`.
+        return (← canon e.headBeta)
       let .const declName _ := f | canonAppAndPost e
       if (← isMatcher declName) then
         canonMatch e

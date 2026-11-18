@@ -76,7 +76,7 @@ n : Nat
 -/
 #guard_msgs in
 example (n : Nat) : ∀ (h : 5 ≤ n), f (f n) + p h = 0 := by
-  sym =>
+  sym +verbose =>
     simp_grind [f_idem]
 
 -- Discharging `0 < m` needs both the internalized prefix hypothesis `h₁` and the
@@ -95,7 +95,7 @@ h₁ : 2 ≤ n
 -/
 #guard_msgs in
 example (n m : Nat) (h₁ : 2 ≤ n) : ∀ (h : n ≤ m), f (f m) + p h = 0 := by
-  sym =>
+  sym +verbose =>
     simp_grind [f_idem]
 
 -- Failure: `0 < n` cannot be discharged, so `f_idem` must not be applied.
@@ -110,7 +110,7 @@ n : Nat
 -/
 #guard_msgs in
 example (n : Nat) : f (f n) + 0 = f n + 0 := by
-  sym =>
+  sym +verbose =>
     simp_grind [f_idem, Nat.add_zero]
 
 -- The side condition `0 < n` does not hold, but the hypotheses are contradictory.
@@ -173,5 +173,5 @@ h₁ : 2 ≤ n
 -/
 #guard_msgs in
 example (n m : Nat) (h₁ : 2 ≤ n) : ∀ (h : n ≤ m), f (f m) + p h = 0 := by
-  sym =>
+  sym +verbose =>
     simp fIdemGrind

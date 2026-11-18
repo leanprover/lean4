@@ -29,12 +29,20 @@ private def getParamSubst : List Name → List Level → Name → Option Level
   | _,     _,     _  => none
 
 /--
+Native implementation of `instantiateLevelParamsCore (getParamSubst paramNames lvls) e`: the same
+traversal and results, without a closure call for every visited node.
+-/
+@[extern "lean_expr_instantiate_level_params"]
+private opaque instantiateLevelParamsImpl (e : @& Expr) (paramNames : @& List Name)
+    (lvls : @& List Level) : Expr
+
+/--
 Instantiate universe level parameters names `paramNames` with `lvls` in `e`.
 If the two lists have different length, the smallest one is used.
 -/
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
   if paramNames.isEmpty || lvls.isEmpty then e else
-    instantiateLevelParamsCore (getParamSubst paramNames lvls) e
+    instantiateLevelParamsImpl e paramNames lvls
 
 /--
 Instantiate universe level parameters names `paramNames` with `lvls` in `e`.

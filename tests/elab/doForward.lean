@@ -195,6 +195,45 @@ example : IO Nat := do
     return acc + n
   return total
 
+/-! ### Binder types
+
+The binders of a forwarded body take their types from the wrapper's body slot. -/
+
+-- Field notation on a binder resolves.
+/-- info: 3 -/
+#guard_msgs in
+#eval show IO Nat from do
+  let mut n := 0
+  withInjected #[1, 2, 3] (fun as => do← n := as.size)
+  return n
+
+-- An ascribed binder is accepted.
+/-- info: 3 -/
+#guard_msgs in
+#eval show IO Nat from do
+  let mut n := 0
+  withInjected #[1, 2, 3] (fun (as : Array Nat) => do← n := as.size)
+  return n
+
+/-- A wrapper that invokes `k` with two arguments. -/
+def withInjected2 [Monad m] (x : α) (y : β) (k : α → β → m γ) : m γ := k x y
+
+-- Every binder takes its type from the wrapper.
+/-- info: 5 -/
+#guard_msgs in
+#eval show IO Nat from do
+  let mut n := 0
+  withInjected2 #[1, 2] "abc" (fun as s => do← n := as.size + s.length)
+  return n
+
+-- A pattern binder is rejected.
+/-- error: A `do←` binder must be a variable. Bind a variable and `match` on it in the body. -/
+#guard_msgs in
+example : IO Nat := do
+  let mut n := 0
+  withInjected (1, 2) (fun (a, b) => do← n := a + b)
+  return n
+
 /-! ### Control-info assertion -/
 
 -- The forwarded body has two regular exits (both `if` branches fall through).

@@ -1,6 +1,6 @@
 
 
-structure ConstantFunction (α β : Type) :=
+structure ConstantFunction (α β : Type) where
 (f : α → β)
 (h : ∀ a₁ a₂, f a₁ = f a₂)
 

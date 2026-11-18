@@ -11,6 +11,7 @@ public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.Types
 import Init.Omega
+import Lean.Runtime
 
 public section
 
@@ -82,6 +83,14 @@ inductive LitValue where
   | usize (val : UInt64)
   -- TODO: add constructors for `Int`, `Float`, ...
   deriving Inhabited, BEq, Hashable
+
+def Nat.isPossibleRef (n : Nat) : Bool :=
+  n > 2^31 - 1
+
+def LitValue.isPossibleRef : LitValue → Bool
+  | .str .. => true
+  | .nat val => Nat.isPossibleRef val
+  | _ => false
 
 def LitValue.toExpr : LitValue → Expr
   | .nat v => .lit (.natVal v)
@@ -157,6 +166,14 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
 
 def CtorInfo.type (info : CtorInfo) : Expr :=
   if info.isRef then ImpureType.object else ImpureType.tagged
+
+def CtorInfo.checkValid (info : CtorInfo) : CoreM Unit := do
+  if info.cidx > maxCtorTag && info.isRef then
+    throwError s!"tag for constructor '{info.name}' is too big, this is a limitation of the current runtime"
+  if info.size > maxCtorNumObjs then
+    throwError s!"constructor '{info.name}' has too many object fields"
+  if info.ssize + info.usize * usizeSize > maxCtorScalarsSize then
+    throwError s!"constructor '{info.name}' has too many scalar fields"
 
 inductive LetValue (pu : Purity) where
   /--

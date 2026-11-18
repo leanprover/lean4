@@ -38,7 +38,7 @@ trace: [grind.lia.model] x := 121
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (x y z w v : Int) : problem x y z w v → False := by
-  fail_if_success grind
+  fail_if_success grind +verbose
   sorry
 
 /-- info: true -/

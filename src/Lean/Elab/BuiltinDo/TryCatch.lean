@@ -43,7 +43,7 @@ private def elabDoCatch (lifter : EffectForwarder) (body : Expr) (catch_ : TSynt
       return catcher catch_
 
 @[builtin_doElem_elab Lean.Parser.Term.doTry] def elabDoTry : DoElab := fun stx dec => do
-  let `(doTry| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) := stx | throwUnsupportedSyntax
+  let `(doTry| try $trySeq:doSeq $[$catches]* $[finally%$finTk? $finSeq?]?) := stx | throwUnsupportedSyntax
 --  let `(doTry| try $trySeq:doSeq $[catch $xs $[: $eTypes?]? => $catchSeqs]* $[finally $finSeq?]?) := stx | throwUnsupportedSyntax
   checkMutVarsForShadowing <| catches.filterMap (fun | `(doCatch| catch $x:ident $[: $_]? => $_) => some x | _ => none)
   if catches.isEmpty && finSeq?.isNone then
@@ -66,16 +66,16 @@ private def elabDoCatch (lifter : EffectForwarder) (body : Expr) (catch_ : TSynt
         elabDoCatch lifter body (← `(doCatch| catch x => match x with $matchAlts))
       | `(doCatch| $catch_) =>
         elabDoCatch lifter body catch_
-    match finSeq? with
-      | none => pure body
-      | some finSeq => do
+    match finTk?, finSeq? with
+      | some finTk, some finSeq => withRef finTk do
         let β ← mkFreshResultType `β
         Term.registerMVarErrorHoleInfo β.mvarId! finSeq
-        let fin ← enterFinally β <| elabDoSeq finSeq (← DoElemCont.mkPure β)
+        let fin ← enterFinally finSeq β <| elabDoSeq finSeq (← DoElemCont.mkPure β)
         let instMonadFinally ← Term.mkInstMVar <| mkApp (mkConst ``MonadFinally [mi.u, mi.v]) mi.m
         let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m
         pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
           mi.m lifter.liftedDoBlockResultType β instMonadFinally instFunctor body fin
+      | _, _ => pure body
   -- `info` already combines try and catch arms via `ControlInfo.alternative`,
   -- so its `noFallthrough` is the right liveness signal for the continuation.
   ((← lifter.restoreCont).withDeadCodeFromInfo info).mkBindUnlessPure body

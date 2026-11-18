@@ -5,11 +5,11 @@ Authors: Andres Erbsen, Leonardo de Moura
 -/
 module
 prelude
+-- The `[grind hom]` solver evaluates ground terms with `Sym.simp`, whose proofs use these lemmas.
+public import Init.Sym.Lemmas
 public import Init.Grind.Homo.BitVec
 public import Init.Grind.Homo.Fin
-public import Init.Grind.Homo.Nat
-public import Init.Grind.Homo.Int
-public import Init.Grind.Homo.List
+public import Init.Grind.Homo.Extra
 public import Init.Grind.Homo.UInt8
 public import Init.Grind.Homo.UInt16
 public import Init.Grind.Homo.UInt32

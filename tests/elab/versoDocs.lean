@@ -10,10 +10,11 @@ open Lean Doc Elab Term
 
 
 @[doc_code_block]
-def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
+def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.ofList))
 
 @[doc_directive]
-def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
  /--
@@ -114,6 +115,73 @@ def splitSuchThat (p : α → Prop) [DecidablePred p] : List α → (List α × 
       (x :: pre, post)
     else
       ([], x :: xs)
+
+/-!
+Docstrings on definitions by well-founded recursion and `partial_fixpoint` can refer to the
+definition and its parameters, even when the recursion goes through an auxiliary packed definition.
+The auxiliary definition doesn't receive the docstring. This is a regression test for issue #15828.
+-/
+namespace WFRec
+
+#guard_msgs in
+/-- {lean}`g 1 2` -/
+def g : Nat → Nat → Prop
+  | 0, _ => True
+  | n+1, m => g (n/2) m
+termination_by n _ => n
+decreasing_by omega
+
+#guard_msgs in
+/-- {lean}`n` and {lean}`p1` -/
+def p1 (n m : Nat) : Nat := if n < 10 then p1 (n + 1) (m + 1) else m
+
+#guard_msgs in
+/-- {lean}`m` -/
+def p3 (n k m : Nat) : Nat := if n < 10 then p3 (n + 1) (k + 1) m else m
+
+#guard_msgs in
+/-- {lean}`n` -/
+def q (n : Nat) (h : n ≤ 10) : Nat := if h' : n < 10 then q (n + 1) h' else n
+
+#guard_msgs in
+/-- {lean}`t1` -/
+def t1 (n m : Nat) : Nat := if n < 10 then t1 (n + 1) m else m
+
+#guard_msgs in
+/-- {lean}`t2` -/
+def t2 (m n : Nat) : Nat := if n < 10 then t2 m (n + 1) else m
+
+#guard_msgs in
+mutual
+/-- {lean}`isEven n` -/
+def isEven (n : Nat) : Bool := if n = 0 then true else isOdd (n - 1)
+termination_by n
+/-- {lean}`isOdd n` and {lean}`isEven` -/
+def isOdd (n : Nat) : Bool := if n = 0 then false else isEven (n - 1)
+termination_by n
+end
+
+#guard_msgs in
+/-- {lean}`loop n m` -/
+def loop (n m : Nat) : Option Nat := if n = 0 then some m else loop (n + 1) m
+partial_fixpoint
+
+/--
+info: g: true, g._unary: false
+p1: true, p1._unary: false
+isEven: true, isOdd: true, isEven._mutual: false
+loop: true, loop.mutual: false
+-/
+#guard_msgs in
+#eval show Command.CommandElabM Unit from do
+  let env ← getEnv
+  let has (n : Name) : IO Bool := return (← findDocString? env n).isSome
+  IO.println s!"g: {← has ``g}, g._unary: {← has ``g._unary}"
+  IO.println s!"p1: {← has ``p1}, p1._unary: {← has ``p1._unary}"
+  IO.println s!"isEven: {← has ``isEven}, isOdd: {← has ``isOdd}, isEven._mutual: {← has ``isEven._mutual}"
+  IO.println s!"loop: {← has ``loop}, loop.mutual: {← has ``loop.mutual}"
+
+end WFRec
 
 /--
 An induction principle for {name}`Nat.gcd`'s reference implementation via Euclid's algorithm.
@@ -241,8 +309,8 @@ error: Unknown constant `b`
 
 Hint: Insert a fully-qualified name:
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
-  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲S̲t̲d̲.̲T̲i̲m̲e̲.̲M̲o̲d̲i̲f̲i̲e̲r̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
 -/
 #guard_msgs in
 /--
@@ -354,7 +422,6 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -373,14 +440,12 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
--/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
-/- Commented out for bootstrapping
 /--
 info:
 
@@ -392,12 +457,16 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
--/
 
 /--
 {syntaxCat}`term`
 -/
 def stxDoc := ()
+
+/--
+The source still locates content whose boundary spaces were stripped: {syntaxCat}` term `
+-/
+def stxDocPadded := ()
 
 /--
 {syntaxCat}`thing`
@@ -587,7 +656,7 @@ end ShadowedBuiltin
 
 open Lean in
 @[doc_role]
-def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 /-! {r}`foo` -/
@@ -609,7 +678,7 @@ end ShadowedNonBuiltin
 namespace DoubleShadowed
 
 @[doc_role]
-def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def lit (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 namespace Inner
@@ -911,3 +980,46 @@ category: term
     IO.println s!"category: {atom.category}"
 
 end KwAtomPublicTests
+
+/-!
+A role that takes a single code element reports content that is not code at that content, and a
+wrong number of code elements at the arguments, brackets included.
+-/
+
+/--
+@ +2:7...12
+error: Expected code
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[text `Nat.add`]
+-/
+def notCode := 0
+
+/--
+@ +2:6...27
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[`Nat.add` `Nat.mul`]
+-/
+def twoCodes := 0
+
+/--
+@ +2:6...8
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[]
+-/
+def noCode := 0
+
+/-! Whitespace around the code element is not content. -/
+
+#guard_msgs in
+/--
+{name}[ `Nat.add` ]
+-/
+def spaceAroundCode := 0

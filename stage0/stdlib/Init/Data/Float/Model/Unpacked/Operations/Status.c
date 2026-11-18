@@ -24,22 +24,22 @@ _start:
 {
 switch(lean_obj_tag(v_x_1_))
 {
-case 0:
+case 2:
 {
 uint8_t v___x_2_; 
-v___x_2_ = 0;
+v___x_2_ = 1;
 return v___x_2_;
 }
-case 1:
+case 3:
 {
 uint8_t v___x_3_; 
-v___x_3_ = 0;
+v___x_3_ = 1;
 return v___x_3_;
 }
 default: 
 {
 uint8_t v___x_4_; 
-v___x_4_ = 1;
+v___x_4_ = 0;
 return v___x_4_;
 }
 }
@@ -110,11 +110,13 @@ return v_r_19_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_Status(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

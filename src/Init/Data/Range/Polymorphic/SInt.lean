@@ -8,7 +8,7 @@ module
 prelude
 
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.SInt
+public import Init.Data.SInt.Lemmas
 import all Init.Data.SInt.Basic
 import all Init.Data.Range.Polymorphic.Internal.SignedBitVec
 import Init.ByCases

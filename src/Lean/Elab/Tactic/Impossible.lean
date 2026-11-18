@@ -77,7 +77,9 @@ def evalImpossible : Tactic := fun stx => do
     setGoals [innerMVarId]
     withTacticInfoContext byTk do
       evalTactic tacs
-      done
+    -- Report unsolved goals outside the `by` info node so that the goal view shows the goal of an
+    -- empty block instead of "no goals" after admitting it.
+    done
     -- Hand the proof to the kernel via a private aux decl so kernel errors
     -- surface here rather than being absorbed by the outer `sorry`. Close
     -- over remaining (possibly level) mvars so a parametric counter-example

@@ -1,0 +1,9 @@
+Input: "Escaped \\*stars\\* and \\\\backslash and \\{braces\\}"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.text
+   (Lean.Doc.Parser.versoText
+    "Escaped \\*stars\\* and \\\\backslash and \\{braces\\}"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  text (content := "Escaped *stars* and \\backslash and {braces}")

@@ -10,7 +10,7 @@ set -uxo pipefail
 
 GMP=${GMP:-$(brew --prefix)}
 LIBUV=${LIBUV:-$(brew --prefix)}
-OPENSSL=${OPENSSL:-$(brew --prefix openssl@3)}
+OPENSSL=${OPENSSL:-$(brew --prefix openssl@4)}
 
 [[ -d llvm ]] || (mkdir llvm; gtar xf $1 --strip-components 1 --directory llvm)
 [[ -d llvm-host ]] || if [[ "$#" -gt 1 ]]; then
@@ -27,8 +27,9 @@ gcp -L llvm/bin/clang stage1/bin/
 gcp -L llvm/bin/ld64.lld stage1/bin/
 # a static archiver!
 gcp -L llvm/bin/llvm-ar stage1/bin/
-# dependencies of the above
-$CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
+# dependencies of the above; the unversioned names are symlinks, so glob to also catch the
+# versioned files the binaries actually reference (`@rpath/libLLVM.<major>.<minor>.dylib`)
+$CP llvm/lib/lib{clang-cpp,LLVM}*.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits,float,__float*}.h stage1/include/clang
@@ -50,6 +51,9 @@ if [[ -L llvm-host ]]; then
   gcp $GMP/lib/libgmp.a stage1/lib/
   gcp $LIBUV/lib/libuv.a stage1/lib/
   gcp $OPENSSL/lib/libssl.a $OPENSSL/lib/libcrypto.a stage1/lib/
+  # compile against the bundled OpenSSL's headers, not those of whichever OpenSSL is linked into
+  # the Homebrew prefix
+  echo -n " -DOPENSSL_ROOT_DIR=$OPENSSL"
   echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lssl -lcrypto'"
 else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"

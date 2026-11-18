@@ -1,5 +1,6 @@
-import Std.Internal.Do
-import Std.Tactic.Do
+import Std.WP
+
+set_option sym.debug true
 
 /-! `vcgen` ranks the specs available at a call site into priority bands: a spec named in the
 `vcgen [...]` list outranks a local hypothesis pulled in by `*`, which outranks a bracketed
@@ -16,8 +17,8 @@ the same program, including when the program's state type is a variable. `namedS
 unfolding at a recursive call.
 -/
 
-open Std.Internal.Do Lean.Order
-set_option mvcgen.warning false
+open Std.WP Lean.Order
+set_option experimental.vcgen true
 set_option linter.unusedVariables false
 
 abbrev P := ExceptT String (StateM (List Char))

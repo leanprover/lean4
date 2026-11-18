@@ -1,15 +1,21 @@
+Input: "``` scheme (dialect:=\"chicken\")\n(define x 4)\nx\n```"
 Success! Final stack:
-  (Lean.Doc.Syntax.codeblock
-   "```"
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
    [`scheme
-    [(Lean.Doc.Syntax.named
+    [(Lean.Doc.Parser.Arg.named
       "("
       `dialect
       ":="
-      (Lean.Doc.Syntax.arg_str
+      (Lean.Doc.Parser.ArgVal.str
        (str "\"chicken\""))
       ")")]]
-   "\n"
-   (str "\"(define x 4)\\nx\\n\"")
-   "```")
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeLine
+      "(define x 4)\n")
+     (Lean.Doc.Parser.versoCodeLine "x\n")])
+   (Lean.Doc.Parser.codeBlockFence "```"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  codeblock (openFence := "```") (name? := some scheme) (args := [named (parens := some ("(", ")")) (name := dialect) (assign := ":=") (val := str (lit := "chicken") (value := "chicken"))]) (content := "(define x 4)\nx\n") (closeFence := "```")

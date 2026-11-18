@@ -280,7 +280,9 @@ open Command in
   match stx with
   | `(norm_cast_add_elim $id:ident) =>
     Elab.Command.liftCoreM do MetaM.run' do
-     addElim (← realizeGlobalConstNoOverload id)
+      let declName ← realizeGlobalConstNoOverload id
+      Linter.checkDeprecatedAt id declName
+      addElim declName
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.NormCast

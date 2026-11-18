@@ -47,6 +47,17 @@ inductive LocalDeclKind
   | auxDecl
   deriving Inhabited, Repr, DecidableEq, Hashable
 
+/--
+Determines the local declaration kind of a binder using its name.
+
+Names that begin with `__` are implementation details (`.implDetail`).
+-/
+def LocalDeclKind.ofBinderName (binderName : Name) : LocalDeclKind :=
+  if binderName.isImplementationDetail then
+    .implDetail
+  else
+    .default
+
 /-- A declaration for a `LocalContext`. This is used to register which free variables are in scope.
 
 See `LocalDecl.index`, `LocalDecl.fvarId`, `LocalDecl.userName`, `LocalDecl.type` for accessors for
@@ -275,7 +286,6 @@ def mkEmpty : Unit → LocalContext := fun _ => {}
 
 def empty : LocalContext := {}
 
-@[export lean_local_ctx_is_empty]
 def isEmpty (lctx : LocalContext) : Bool :=
   lctx.fvarIdToDecl.isEmpty
 
@@ -367,7 +377,6 @@ private partial def popTailNoneAux (a : PArray (Option LocalDecl)) : PArray (Opt
     | none   => popTailNoneAux a.pop
     | some _ => a
 
-@[export lean_local_ctx_erase]
 def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>

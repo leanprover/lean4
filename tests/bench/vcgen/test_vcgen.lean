@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 import Cases
 import Driver
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-!
 # VCGen Test Suite
@@ -23,9 +23,12 @@ Each case exercises a different aspect of the VC generation:
 - `DiteSplit`: Dependent if-then-else (`if h : cond then ...`)
 - `MatchIota`: Pattern matching with concrete discriminants (iota-reduced, no split)
 - `MatchSplit`: Pattern matching with symbolic discriminant (state), exercising match split
+- `IfsJP`: several `if`s with a shared continuation, exercising `vcgen +jp`
+- `MatchesJP`: several `match`es with a shared continuation, exercising `vcgen +jp` on matchers
+- `WideJP`: one join point reached by many jumps, exercising `vcgen +jp` on wide disjunctions
 -/
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Parser Meta Elab Tactic Sym Std WP
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
@@ -57,28 +60,34 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
     `(tactic| vcgen) `(tactic| grind) [10]
+  runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop]
+    `(tactic| vcgen +jp [IfsJP.step]) `(tactic| sorry) [3]
+  runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step]
+    `(tactic| vcgen +jp) `(tactic| sorry) [3]
+  runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
+    `(tactic| vcgen +jp) `(tactic| sorry) [4]
 
--- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
+-- Verify `simp [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--
-trace: s✝ : Nat
-a✝ : s✝ = 0
-h✝⁹ : ¬0 < s✝
-h✝⁸ : ¬1 < s✝ + 1
-h✝⁷ : ¬2 < s✝ + 2
-h✝⁶ : ¬3 < s✝ + 3
-h✝⁵ : ¬4 < s✝ + 4
-h✝⁴ : ¬5 < s✝ + 5
-h✝³ : ¬6 < s✝ + 6
-h✝² : ¬7 < s✝ + 7
-h✝¹ : ¬8 < s✝ + 8
-h✝ : ¬9 < s✝ + 9
-⊢ s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10
+trace: s : Nat
+a✝ : s ≤ 0
+h✝⁹ : ¬0 < s
+h✝⁸ : ¬1 < s + 1
+h✝⁷ : ¬2 < s + 2
+h✝⁶ : ¬3 < s + 3
+h✝⁵ : ¬4 < s + 4
+h✝⁴ : ¬5 < s + 5
+h✝³ : ¬6 < s + 6
+h✝² : ¬7 < s + 7
+h✝¹ : ¬8 < s + 8
+h✝ : ¬9 < s + 9
+⊢ s + 10 = 10
 -/
 #guard_msgs in
 open GetThrowSet in
 example : Goal 10 := by
   simp only [Goal, loop, step]
-  vcgen simplifying_assumptions [Nat.add_assoc]
+  vcgen simp [Nat.add_assoc]
   case vc11 => trace_state; grind
   all_goals grind
 

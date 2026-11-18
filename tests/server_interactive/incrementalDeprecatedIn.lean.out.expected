@@ -1,0 +1,23 @@
+d 0
+d 1
+d 2
+d 2.5
+n 0
+n 1
+n 2
+n 2.5
+{"version": 2,
+ "uri": "file:///incrementalDeprecatedIn.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 10, "character": 55},
+    "end": {"line": 11, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 10, "character": 55},
+    "end": {"line": 14, "character": 19}}}]}

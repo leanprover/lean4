@@ -65,7 +65,7 @@ def unusedSimpArgs : Linter where
             let maskAcc ←
               if let some (_, maskAcc) := (← masksMap.get)[range]? then
                 unless mask.size = maskAcc.size do
-                  throwErrorAt info.stx "Simp argument mask size mismatch}: {maskAcc.size} vs. {mask.size}"
+                  throwErrorAt info.stx "Simp argument mask size mismatch: {maskAcc.size} vs. {mask.size}"
                 pure <| Array.zipWith (· || ·) mask maskAcc
               else
                 pure mask

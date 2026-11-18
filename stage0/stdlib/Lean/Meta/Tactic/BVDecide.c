@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.BVDecide
-// Imports: public import Lean.Meta.Tactic.BVDecide.External public import Lean.Meta.Tactic.BVDecide.LRAT public import Lean.Meta.Tactic.BVDecide.Normalize public import Lean.Meta.Tactic.BVDecide.Attr public import Lean.Meta.Tactic.BVDecide.Prover public import Lean.Meta.Tactic.BVDecide.Counterexample public import Lean.Meta.Tactic.BVDecide.Reflect public import Lean.Meta.Tactic.BVDecide.Main public import Lean.Meta.Tactic.BVDecide.TacticContext
+// Imports: public import Lean.Meta.Tactic.BVDecide.External public import Lean.Meta.Tactic.BVDecide.LRAT public import Lean.Meta.Tactic.BVDecide.Normalize public import Lean.Meta.Tactic.BVDecide.Attr public import Lean.Meta.Tactic.BVDecide.Prover public import Lean.Meta.Tactic.BVDecide.Counterexample public import Lean.Meta.Tactic.BVDecide.Reflect public import Lean.Meta.Tactic.BVDecide.Main public import Lean.Meta.Tactic.BVDecide.TacticContext public import Lean.Meta.Tactic.BVDecide.EPR
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,11 +22,14 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Counterexample(uint8_t
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Reflect(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Main(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_TacticContext(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_EPR(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_External(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -54,6 +57,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_TacticContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_BVDecide_EPR(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -72,6 +78,7 @@ lean_object* initialize_Lean_Meta_Tactic_BVDecide_Counterexample(uint8_t builtin
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Reflect(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Main(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_TacticContext(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_BVDecide_EPR(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_BVDecide(uint8_t builtin) {
 lean_object * res;
@@ -102,6 +109,9 @@ res = initialize_Lean_Meta_Tactic_BVDecide_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_BVDecide_TacticContext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_BVDecide_EPR(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide(builtin);

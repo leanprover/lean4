@@ -506,21 +506,12 @@ return v_e_126_;
 }
 else
 {
-if (v___x_127_ == 0)
-{
 lean_object* v___f_129_; lean_object* v___x_130_; 
 v___f_129_ = lean_alloc_closure((void*)(l_Lean_Meta_FVarSubst_apply___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_129_, 0, v_s_125_);
 v___x_130_ = lean_replace_expr(v___f_129_, v_e_126_);
 lean_dec_ref(v___f_129_);
 return v___x_130_;
-}
-else
-{
-lean_dec(v_s_125_);
-lean_inc_ref(v_e_126_);
-return v_e_126_;
-}
 }
 }
 else
@@ -789,11 +780,13 @@ return v_res_204_;
 lean_object* runtime_initialize_Lean_Data_AssocList(uint8_t builtin);
 lean_object* runtime_initialize_Lean_LocalContext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Util_ReplaceExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_AssocList(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

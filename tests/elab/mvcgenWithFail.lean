@@ -1,5 +1,7 @@
 import Std
 
+set_option sym.debug true
+
 /-!
   `mvcgen with grind` should behave like `induction ... with grind` and fail if `grind` fails on
   one of the goals.
@@ -7,7 +9,7 @@ import Std
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 set_option warn.sorry false
 
 variable {α : Type}

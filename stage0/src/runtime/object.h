@@ -74,7 +74,7 @@ inline object ** cnstr_obj_cptr(object * o) { return lean_ctor_obj_cptr(o); }
 inline uint8 * cnstr_scalar_cptr(object * o) { return lean_ctor_scalar_cptr(o); }
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) { return lean_alloc_ctor(tag, num_objs, scalar_sz); }
 inline unsigned cnstr_tag(b_obj_arg o) { lean_assert(is_cnstr(o)); return lean_ptr_tag(o); }
-inline void cnstr_set_tag(b_obj_arg o, unsigned tag) { lean_ctor_set_tag(o, tag); }
+inline void cnstr_set_tag(b_obj_arg o, uint8_t tag) { lean_ctor_set_tag(o, tag); }
 inline b_obj_res cnstr_get(b_obj_arg o, unsigned i) { return lean_ctor_get(o, i); }
 inline void cnstr_set(u_obj_arg o, unsigned i, obj_arg v) { lean_ctor_set(o, i, v); }
 inline void cnstr_release(u_obj_arg o, unsigned i) { lean_ctor_release(o, i); }
@@ -221,7 +221,6 @@ inline uint8 * sarray_cptr(object * o) { return lean_sarray_cptr(o); }
 
 inline obj_res byte_array_mk(obj_arg a) { return lean_byte_array_mk(a); }
 inline obj_res byte_array_data(obj_arg a) { return lean_byte_array_data(a); }
-inline obj_res copy_byte_array(obj_arg a) { return lean_copy_byte_array(a); }
 inline obj_res mk_empty_byte_array(b_obj_arg capacity) { return lean_mk_empty_byte_array(capacity); }
 inline obj_res byte_array_size(b_obj_arg a) { return lean_byte_array_size(a); }
 inline uint8 byte_array_get(b_obj_arg a, b_obj_arg i) { return lean_byte_array_get(a, i); }
@@ -245,7 +244,6 @@ inline obj_res string_push(obj_arg s, uint32 c) { return lean_string_push(s, c);
 inline obj_res string_append(obj_arg s1, b_obj_arg s2) { return lean_string_append(s1, s2); }
 inline obj_res string_length(b_obj_arg s) { return lean_string_length(s); }
 inline obj_res string_mk(obj_arg cs) { return lean_string_mk(cs); }
-inline obj_res string_data(obj_arg s) { return lean_string_data(s); }
 inline uint32  string_utf8_get(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_get(s, i); }
 inline obj_res string_utf8_next(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_next(s, i); }
 inline obj_res string_utf8_prev(b_obj_arg s, b_obj_arg i) { return lean_string_utf8_prev(s, i); }
@@ -254,7 +252,6 @@ inline uint8 string_utf8_at_end(b_obj_arg s, b_obj_arg i) { return lean_string_u
 inline obj_res string_utf8_extract(b_obj_arg s, b_obj_arg b, b_obj_arg e) { return lean_string_utf8_extract(s, b, e); }
 inline obj_res string_utf8_byte_size(b_lean_obj_arg s) { return lean_string_utf8_byte_size(s); }
 inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return lean_string_eq(s1, s2); }
-LEAN_EXPORT bool string_eq(b_obj_arg s1, char const * s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return lean_string_ne(s1, s2); }
 inline bool string_lt(b_obj_arg s1, b_obj_arg s2) { return lean_string_lt(s1, s2); }
 inline uint8 string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return string_eq(s1, s2); }
@@ -474,8 +471,8 @@ LEAN_EXPORT void io_eprintln(obj_arg s);
 // ST ref primitives
 inline obj_res st_mk_ref(obj_arg v) { return lean_st_mk_ref(v); }
 inline obj_res st_ref_get(b_obj_arg r) { return lean_st_ref_get(r); }
-inline obj_res st_ref_set(b_obj_arg r, obj_arg v) { return lean_st_ref_set(r, v); }
-inline obj_res st_ref_reset(b_obj_arg r) { return lean_st_ref_reset(r); }
+inline obj_res st_ref_put(b_obj_arg r, obj_arg v) { return lean_st_ref_put(r, v); }
+inline obj_res st_ref_take(b_obj_arg r) { return lean_st_ref_take(r); }
 inline obj_res st_ref_swap(b_obj_arg r, obj_arg v) { return lean_st_ref_swap(r, v); }
 
 obj_res lean_promise_new();

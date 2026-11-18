@@ -1,6 +1,16 @@
 import Lean.Runtime
 
--- Non-emscripten build: expect the major version of OpenSSL (3)
-/-- info: 3 -/
+/-!
+Checks that Lean is compiled against OpenSSL 3 or newer, the minimum required by `src/CMakeLists.txt`,
+and that the headers it is compiled against have the same major version as the library it is linked
+against.
+-/
+
+-- Non-emscripten build: expect OpenSSL 3 or newer
+/-- info: true -/
 #guard_msgs in
-#eval if !System.Platform.isEmscripten then Lean.openSSLVersion >>> 28 else 3
+#eval if !System.Platform.isEmscripten then decide (Lean.openSSLVersion >>> 28 ≥ 3) else true
+
+/-- info: true -/
+#guard_msgs in
+#eval Lean.openSSLVersion >>> 28 == Lean.openSSLLinkedVersion >>> 28

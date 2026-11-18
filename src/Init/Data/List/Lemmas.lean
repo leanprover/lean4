@@ -353,7 +353,7 @@ theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by simp
 
 @[simp, grind =] theorem mem_cons : a ∈ b :: l ↔ a = b ∨ a ∈ l :=
   ⟨fun h => by cases h <;> simp [Membership.mem, *],
-   fun | Or.inl rfl => by constructor | Or.inr h => by constructor; assumption⟩
+   fun | Or.inl rfl => by constructor! | Or.inr h => by constructor; assumption⟩
 
 theorem eq_or_mem_of_mem_cons {a b : α} {l : List α} :
     a ∈ b :: l → a = b ∨ a ∈ l := List.mem_cons.mp
@@ -503,7 +503,7 @@ theorem forall_mem_iff_forall_getElem {P : α → Prop} {l : List α} :
   · rintro h _ ⟨i, hi, rfl⟩
     exact h i hi
 
-@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
+@[deprecated forall_mem_iff_forall_getElem +typeChanged (since := "2026-01-29")]
 theorem forall_getElem {l : List α} {p : α → Prop} :
     (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a :=
   forall_mem_iff_forall_getElem.symm
@@ -1374,7 +1374,7 @@ theorem foldr_filter {p : α → Bool} {f : α → β → β} {l : List α} {ini
   | cons a l IH => by_cases h : p (f a) <;> simp [*]
 
 theorem map_filter_eq_foldr {f : α → β} {p : α → Bool} {as : List α} :
-    map f (filter p as) = foldr (fun a bs => bif p a then f a :: bs else bs) [] as := by
+    map f (filter p as) = foldr (fun a bs => if p a then f a :: bs else bs) [] as := by
   induction as with
   | nil => rfl
   | cons head _ ih =>
@@ -2870,7 +2870,7 @@ example {xs : List Nat} : xs.foldr (· + ·) 1 > 0 := by
 ```
 -/
 @[expose]
-def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
+noncomputable def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) {b : β} (_ : motive b)
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
   | nil, _, _, hb, _ => hb
   | x :: l, op, b, hb, hl =>

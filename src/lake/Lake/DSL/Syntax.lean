@@ -100,7 +100,7 @@ This is the `require` DSL syntax used to specify package dependencies.
 -/
 
 public syntax fromPath :=
-  term
+  &"copy "? term
 
 public syntax fromGit :=
   &"git " term:max ("@" term:max)? ("/" term)?
@@ -110,17 +110,18 @@ public syntax fromSource :=
 
 /--
 Specifies a specific source from which to draw the package dependency.
-Dependencies that are downloaded from a remote source will be placed
-into the workspace's `packagesDir`.
+Dependencies that are downloaded from a remote source or copied from a
+relative path will be placed into the workspace's `packagesDir`.
 
 **Path Dependencies**
 
 ```
-from <path>
+from [copy] <path>
 ```
 
-Lake loads the package located at a fixed `path` relative to the
-requiring package's directory.
+Lake locates the package at a fixed `path` relative to the requiring
+package's directory. With `copy`, the package will be loaded from a local
+workspace copy rather than being loaded directly from the source.
 
 **Git Dependencies**
 
@@ -342,7 +343,6 @@ public abbrev InputDirCommand := TSyntax ``inputDirCommand
 public instance : Coe InputDirCommand Command where
   coe x := ⟨x.raw⟩
 
-
 /-!
 ## External Library Target Declaration
 -/
@@ -367,6 +367,25 @@ The term should build the external library's **static** library.
 scoped syntax (name := externLibCommand)
   (docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec
 : command
+
+/-!  # Cache Service Declaration -/
+
+/-- Define a cache service for the package.
+
+```lean
+cache_service «service-name» :=
+  /- term of type `CacheService` -/
+```
+-/
+scoped syntax (name := cacheServiceCommand)
+  (docComment)? (Term.attributes)? "cache_service " (identOrStr)? declVal
+: command
+
+@[inherit_doc cacheServiceCommand]
+public abbrev CacheServiceCommand := TSyntax ``cacheServiceCommand
+
+public instance : Coe CacheServiceCommand Command where
+  coe x := ⟨x.raw⟩
 
 /-!
 # Script Declarations
@@ -464,7 +483,7 @@ meta if System.Platform.isWindows then
 extern_lib winOnlyLib := ...
 else meta if System.Platform.isOSX then
 extern_lib macOnlyLib := ...
-else
+else meta if System.Platform.isLinux then
 extern_lib linuxOnlyLib := ...
 ```
 -/

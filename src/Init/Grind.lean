@@ -11,14 +11,12 @@ public import Init.Grind.Lemmas
 public import Init.Grind.Cases
 public import Init.Grind.Propagator
 public import Init.Grind.Util
-public import Init.Grind.Offset
 public import Init.Grind.PP
 public import Init.Grind.Ring
+public import Init.Grind.ToInt
 public import Init.Grind.Module
 public import Init.Grind.Ordered
 public import Init.Grind.Ext
-public import Init.Grind.ToInt
-public import Init.Grind.ToIntLemmas
 public import Init.Grind.Attr
 public import Init.Grind.AC
 public import Init.Grind.Injective

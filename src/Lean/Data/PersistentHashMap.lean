@@ -374,6 +374,65 @@ def forM {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : α 
 def foldl {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : σ → α → β → σ) (init : σ) : σ :=
   Id.run <| map.foldlM (pure <| f · · ·) init
 
+/--
+Implementation of `foldlNewEntries`. `insert` copies only the nodes on the path from the root to the
+modified slot and shares all other nodes and entries with the original map, so the entries of `new`
+whose keys are not in `old` all lie in the parts of `new` not physically shared with `old`. The walk
+skips shared nodes and entries by pointer equality and filters the rest with `old.contains`, since a
+rebuilt node may also contain keys of `old`. It visits the remaining entries in the same order as
+`foldl`, so it agrees with the reference implementation, and costs the number of insertions rather
+than the size of the map when `new` was derived from `old` by insertions. Without such sharing it
+degrades to a full traversal of `new`. In-place updates of unshared nodes cannot break this: a node
+updated in place was not reachable from any other map, so it is not reachable from `old`.
+-/
+private unsafe def foldlNewEntriesUnsafe {_ : BEq α} {_ : Hashable α} (f : σ → α → β → σ)
+    (new old : PersistentHashMap α β) (init : σ) : σ :=
+  go new.root old.root init
+where
+  visit (acc : σ) (k : α) (v : β) : σ :=
+    if old.contains k then acc else f acc k v
+  goCollision (ks : Array α) (vs : Array β) (h : ks.size = vs.size) (i : Nat) (acc : σ) : σ :=
+    if hi : i < ks.size then
+      goCollision ks vs h (i + 1) (visit acc ks[i] (vs[i]'(h ▸ hi)))
+    else
+      acc
+  goAll : Node α β → σ → σ
+    | .collision ks vs h, acc => goCollision ks vs h 0 acc
+    | .entries es, acc => es.foldl (init := acc) fun acc e => match e with
+      | .null => acc
+      | .entry k v => visit acc k v
+      | .ref n => goAll n acc
+  goEntries (nes oes : Array (Entry α β (Node α β))) (i : Nat) (acc : σ) : σ :=
+    if hi : i < nes.size then
+      let ne := nes[i]
+      let oe := if h : i < oes.size then oes[i] else .null
+      let acc :=
+        if ptrEq ne oe then acc
+        else match ne with
+          | .null => acc
+          | .entry k v => visit acc k v
+          | .ref n => match oe with
+            | .ref o => go n o acc
+            | _ => goAll n acc
+      goEntries nes oes (i + 1) acc
+    else
+      acc
+  go (new old : Node α β) (acc : σ) : σ :=
+    if ptrEq new old then acc
+    else match new, old with
+      | .entries nes, .entries oes => goEntries nes oes 0 acc
+      | _, _ => goAll new acc
+
+/--
+Folds `f` over the entries of `new` whose keys are not in `old`, in the order of `foldl`. If `new`
+was derived from `old` by insertions, the cost is proportional to the number of insertions rather
+than to the size of `new`.
+-/
+@[implemented_by foldlNewEntriesUnsafe]
+def foldlNewEntries {_ : BEq α} {_ : Hashable α} (f : σ → α → β → σ)
+    (new old : PersistentHashMap α β) (init : σ) : σ :=
+  new.foldl (init := init) fun acc k v => if old.contains k then acc else f acc k v
+
 protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
     (map : @&PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
   let intoError : ForInStep σ → Except σ σ

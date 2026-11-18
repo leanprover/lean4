@@ -35,6 +35,23 @@ inductive SolverMode where
   | default
 
 /--
+How much symmetry breaking for EPR problems `bv_decide` should attempt.
+-/
+inductive EprSymBreak where
+  /--
+  Perform no additional symmetry breaking beyond the sound problem encoding.
+  -/
+  | off
+  /--
+  Slightly improve the problem encoding to break the search space in half at little additional cost.
+  -/
+  | simple
+  /--
+  Introduce as much symmetry breaking as possible.
+  -/
+  | full
+
+/--
 The configuration options for `bv_decide`.
 -/
 structure BVDecideConfig where
@@ -95,50 +112,43 @@ structure BVDecideConfig where
   for `bv_decide`.
   -/
   solverMode : SolverMode := .proof
+  /--
+  Enable support for uninterpreted functions over `BitVec` and `Bool` by counterexample-guided
+  abstraction refinement.
+  -/
+  uf : Bool := false
+  /--
+  The number of iterations that the CEGAR refinement loop may run up to.
+  -/
+  cegarRounds : Nat := 1000
+  /--
+  Encode many-sorted EPR (effectively propositional) problems in the hypotheses into `BitVec`.
+  Note that this has to be always used together with `uf` if predicates occur in the problem.
+  -/
+  epr : Bool := false
+  /--
+  How much effort bv_decide should put into breaking symmetries of EPR problems.
+  -/
+  eprSymBreak : EprSymBreak := .simple
+  /--
+  Guide the MBQI procedure for EPR problems with Z3 style instantiation sets and projections.
+  -/
+  eprProjections : Bool := true
+
+/--
+Configuration for the `epr` tactic.
+-/
+structure EprConfig extends BVDecideConfig where
+  structures := false
+  fixedInt := false
+  enums := false
+  uf := true
+  epr := true
+
+/--
+Whether this configuration requires the solver to use incremental solving.
+-/
+def BVDecideConfig.needsIncremental (cfg : BVDecideConfig) : Bool :=
+  cfg.uf || cfg.epr
 
 end Lean.Elab.Tactic.BVDecide
-
-
-namespace Lean.Parser
-
-namespace Tactic
-
-/--
-This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
-already stored on disk. It is called with the name of an LRAT file in the same directory as the
-current Lean file:
-```
-bv_check "proof.lrat"
-```
--/
-syntax (name := bvCheck) "bv_check " optConfig str : tactic
-
-@[tactic_alt bvDecideMacro]
-syntax (name := bvDecide) "bv_decide" optConfig : tactic
-
-
-@[tactic_alt bvTraceMacro]
-syntax (name := bvTrace) "bv_decide?" optConfig : tactic
-
-@[tactic_alt bvNormalizeMacro]
-syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
-
-end Tactic
-
-/--
-Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
-`bv_decide` tactic.
--/
-syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
-
-/--
-Auxiliary attribute for builtin `bv_normalize` simprocs.
--/
-syntax (name := bvNormalizeProcBuiltinAttr) "builtin_bv_normalize_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
-
-macro_rules
-  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [bv_normalize] $n:ident ($pattern:term) := $body) => do
-    `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
-      attribute [$kind builtin_bv_normalize_proc $[$pre?]?] $n)
-
-end Lean.Parser

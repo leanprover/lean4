@@ -168,6 +168,18 @@ private def evalTacticWithState (initialState : Tactic.SavedState) (tac : TSynta
     currState.restore
 
 /--
+Returns whether `tac` succeeds when replayed in `initialState`. The current tactic state is restored
+after the check; elaboration info produced by the replay is retained.
+-/
+def isValidTactic (initialState : Tactic.SavedState) (tac : TSyntax `tactic)
+    (expectedType? : Option Expr := none) : TacticM Bool := do
+  try
+    evalTacticWithState initialState tac expectedType?
+    return true
+  catch _ =>
+    return false
+
+/--
 Returns a possibly modified version of `tac` that succeeds in `initialState`, prepending
 `expose_names` if necessary. If `expectedType?` is non-`none`, the tactic is only considered to have
 "succeeded" if the resulting goal is equal (up to `Expr` equality modulo metavariable instantiation)
@@ -180,17 +192,15 @@ Remark: We cannot determine if a tactic requires `expose_names` merely by inspec
 private def mkValidatedTactic (tac : TSyntax `tactic) (msg : MessageData)
     (initialState : Tactic.SavedState) (expectedType? : Option Expr := none) :
     TacticM (Option (TSyntax `tactic × MessageData)) := do
-  try
-    evalTacticWithState initialState tac expectedType?
+  if ← isValidTactic initialState tac expectedType? then
     return some (tac, msg)
-  catch _ =>
+  else
     -- Note: we must use `(expose_names; _)` and not `· expose_names; _` to avoid generating
     -- spurious tactic-abort exceptions, since these tactics may not close the goal
     let tac ← `(tactic| (expose_names; $tac))
-    try
-      evalTacticWithState initialState tac expectedType?
+    if ← isValidTactic initialState tac expectedType? then
       return some (tac, m!"(expose_names; {msg})")
-    catch _ =>
+    else
       return none
 
 private def mkFailedToMakeTacticMsg (targetKind : MessageData) (invalidTactic : MessageData) : MessageData :=

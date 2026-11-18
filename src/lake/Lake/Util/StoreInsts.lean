@@ -19,8 +19,15 @@ public instance {cmp : κ → κ → Ordering} [Monad m] [Std.LawfulEqCmp cmp] :
   fetch? k := modifyGet fun m => (m.get? k, m)
   store k a := modify (·.insert k a)
 
+/-
+For the `StateRefT'` instances, a lookup must only *read* the ref (`get`), never `modifyGet` it.
+`ST.Ref.modifyGet` takes the cell (atomic exchange with null) and holds it for the whole tree search,
+so every fetch of every build thread would be serialized through one spinlock. A read of a persistent
+map needs no exclusion: `get` holds the cell only long enough to bump a reference count. Only `store`
+(an insert) needs to take the cell.
+-/
 public instance {cmp : κ → κ → Ordering} [MonadLiftT (ST ω) m] [Monad m] [Std.LawfulEqCmp cmp] : MonadDStore κ β (StateRefT' ω (Std.DTreeMap κ β cmp) m) where
-  fetch? k := modifyGet fun m => (m.get? k, m)
+  fetch? k := (·.get? k) <$> get
   store k a := modify (·.insert k a)
 
 public instance [Monad m] : MonadStore κ α (StateT (RBArray κ α cmp) m) where
@@ -28,7 +35,7 @@ public instance [Monad m] : MonadStore κ α (StateT (RBArray κ α cmp) m) wher
   store k a := modify (·.insert k a)
 
 public instance [MonadLiftT (ST ω) m] [Monad m] : MonadStore κ α (StateRefT' ω (RBArray κ α cmp) m) where
-  fetch? k := modifyGet fun m => (m.find? k, m)
+  fetch? k := (·.find? k) <$> get
   store k a := modify (·.insert k a)
 
 public instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) where
@@ -36,7 +43,7 @@ public instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) where
   store k a := modify (·.insert k a)
 
 public instance [MonadLiftT (ST ω) m] [Monad m] : MonadStore Name α (StateRefT' ω (NameMap α) m) where
-  fetch? k := modifyGet fun m => (m.find? k, m)
+  fetch? k := (·.find? k) <$> get
   store k a := modify (·.insert k a)
 
 public instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1Of k α m where

@@ -126,8 +126,9 @@ public def BuildMetadata.parse (contents : String) : Except String BuildMetadata
 public def BuildMetadata.ofFetch (inputHash : Hash) (outputs : Json) : BuildMetadata :=
   {depHash := inputHash, outputs? := outputs, synthetic := true, inputs := #[], log := {}}
 
-partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
-  inputs.foldl (init := {}) fun r trace =>
+partial def serializeInputs (inputs : List BuildTrace) : Array (String × Json) :=
+  -- `foldr` restores mix order, since `inputs` is stored reversed (see `BuildTrace.inputs`)
+  inputs.foldr (init := {}) fun trace r =>
     let val :=
       if trace.inputs.isEmpty then
         toJson trace.hash

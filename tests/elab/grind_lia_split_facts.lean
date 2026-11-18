@@ -62,6 +62,6 @@ Without sharing, each of the `64` leaves substitutes all `6` variables (`384` st
 -/
 open Lean Meta in
 #eval show MetaM Unit from do
-  let some (.thmInfo info) := (← getEnv).find? ``disj6._proof_1 | throwError "unknown theorem"
+  let some (.thmInfo info) := (← getEnv).find? ``disj6._proof_1_1 | throwError "unknown theorem"
   let ((), (_, n)) ← (countApps ``Int.Internal.Linear.eq_le_subst_nonneg info.value).run ({}, 0)
   unless n < 64 do throwError "unexpected number of substitution steps: {n}"

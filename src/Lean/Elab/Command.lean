@@ -553,13 +553,6 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : Comma
 open Language in
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   let lintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
-  if !Elab.async.get (← getOptions) then
-    withoutModifyingEnv do
-      runLinters stx (codeQualityEntriesPromise? := lintersCodeQualityEntriesPromise)
-      modify fun s => { s with codeQualityEntryTasks :=
-        s.codeQualityEntryTasks.push (lintersCodeQualityEntriesPromise.resultD #[]) }
-    return
-
   -- We create a promise for the info trees produced by the linters
   let lintersInfoPromise ← IO.Promise.new (α := InfoTree)
 
@@ -581,10 +574,16 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
     modifyInfoState fun _ => infoSt
     runLinters stx lintersInfoPromise lintersCodeQualityEntriesPromise
 
-  let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
-    BaseIO.mapTask (t := treeTask) fun _ =>
-      lintAct infoSt
-  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  let infoStTask := (← getInfoState).substituteLazy
+  if Elab.async.get (← getOptions) then
+    let task ← BaseIO.bindTask (sync := true) (t := infoStTask) fun infoSt =>
+      BaseIO.mapTask (t := treeTask) fun _ =>
+        lintAct infoSt
+    logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  else
+    let _ ← IO.wait treeTask
+    let snap ← lintAct (← IO.wait infoStTask)
+    logSnapshotTask { stx? := none, task := .pure snap, cancelTk? := none }
   modify fun s => { s with codeQualityEntryTasks :=
     s.codeQualityEntryTasks.push (lintersCodeQualityEntriesPromise.resultD #[]) }
 
@@ -620,17 +619,6 @@ open Language in
 def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
   if (← statefulLintersRef.get).isEmpty then return
   let statefulLintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
-  if !Elab.async.get (← getOptions) then
-    -- We only block when switching the `Elab.async` in the middle of elaborating a file.
-    let prev := (← prevLinterStatesTask (← get).prevLinterStates).get
-    let postSt ← withoutModifyingEnv <|
-      runStatefulLinters stx prev (codeQualityEntriesPromise? := statefulLintersCodeQualityEntriesPromise)
-    modify fun s => { s with
-      prevLinterStates := some (.pure postSt)
-      codeQualityEntryTasks := s.codeQualityEntryTasks.push <|
-        statefulLintersCodeQualityEntriesPromise.resultD #[] }
-    return
-
   let mut snaps := (← get).snapshotTasks
   if let some elabSnap := (← read).snap? then
     snaps := snaps.push { stx? := none, cancelTk? := none, task := elabSnap.new.result!.map (sync := true) toSnapshotTree }
@@ -654,11 +642,18 @@ def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
     let postSt ← runStatefulLinters stx prev lintersInfoPromise statefulLintersCodeQualityEntriesPromise
     statePromise.resolve postSt
 
-  let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
-    BaseIO.bindTask (t := treeTask) fun _ =>
-      BaseIO.mapTask (t := prevTask) fun prev =>
-        lintAct (prev, infoSt)
-  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  let infoStTask := (← getInfoState).substituteLazy
+  if Elab.async.get (← getOptions) then
+    let task ← BaseIO.bindTask (sync := true) (t := infoStTask) fun infoSt =>
+      BaseIO.bindTask (t := treeTask) fun _ =>
+        BaseIO.mapTask (t := prevTask) fun prev =>
+          lintAct (prev, infoSt)
+    logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  else
+    let _ ← IO.wait treeTask
+    -- We only block on `prevTask` when switching `Elab.async` in the middle of elaborating a file.
+    let snap ← lintAct (← IO.wait prevTask, ← IO.wait infoStTask)
+    logSnapshotTask { stx? := none, task := .pure snap, cancelTk? := none }
 
   let infoHole ← liftCoreM mkFreshMVarId
   modifyInfoState fun s => { s with

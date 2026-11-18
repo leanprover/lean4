@@ -739,22 +739,22 @@ private def hasNewErrorSince (savedNumMsgs : Nat) (log : MessageLog) : Bool :=
     if !patss.any (·.any (fun pat => (unwrapStxMatchQuot pat).isSome)) then
       throwUnsupportedSyntax
     let savedState ← Term.saveState
-    let savedNumMsgs := (← Core.getMessageLog).reportedPlusUnreported.size
+    let log ← Core.getMessageLog
+    let savedNumMsgs := log.reported.size + log.unreported.size
+    let checkOnError : TermElabM Unit := do
+      let postState ← Term.saveState
+      savedState.restore (restoreInfo := true)
+      checkSyntaxHoleInStxMatch discrs patss
+      postState.restore (restoreInfo := true)
     try
       let stx' ← match_syntax.expand stx
       let r ← withMacroExpansion stx stx' <| elabTerm stx' expectedType?
       if hasNewErrorSince savedNumMsgs (← Core.getMessageLog) then
-        let postState ← Term.saveState
-        savedState.restore (restoreInfo := true)
-        checkSyntaxHoleInStxMatch discrs patss
-        postState.restore (restoreInfo := true)
+        checkOnError
       return r
     catch
       | ex@(.error _ _) =>
-        let postState ← Term.saveState
-        savedState.restore (restoreInfo := true)
-        checkSyntaxHoleInStxMatch discrs patss
-        postState.restore (restoreInfo := true)
+        checkOnError
         throw ex
       | ex => throw ex
   | _ => throwUnsupportedSyntax

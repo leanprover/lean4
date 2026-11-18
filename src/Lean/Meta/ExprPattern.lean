@@ -2703,18 +2703,15 @@ def ExprTemplate.instantiateSite (siteId : Name) (tmpl : ExprTemplate) (rel : Ex
 
 /-! ## `/sym` matching & term building (`SymM`) -/
 
-private structure SymPatCacheState where
-  bySite : Std.HashMap Name (Nat × Sym.Pattern) := {}
-  byKey  : Std.HashMap (List Name × Expr × Nat) (Nat × Sym.Pattern) := {}
+private structure SymSiteKeyCache (κ α : Type) [BEq κ] [Hashable κ] where
+  bySite : Std.HashMap Name (Nat × α) := {}
+  byKey  : Std.HashMap κ (Nat × α) := {}
 
-private builtin_initialize exprSymPatExt : Sym.SymExtension SymPatCacheState ←
+private builtin_initialize exprSymPatExt :
+    Sym.SymExtension (SymSiteKeyCache (List Name × Expr × Nat) Sym.Pattern) ←
   Sym.registerSymExtension (return {})
 
-private structure SymTmplCacheState where
-  bySite : Std.HashMap Name (Nat × Expr) := {}
-  byKey  : Std.HashMap Expr (Nat × Expr) := {}
-
-private builtin_initialize exprSymTmplExt : Sym.SymExtension SymTmplCacheState ←
+private builtin_initialize exprSymTmplExt : Sym.SymExtension (SymSiteKeyCache Expr Expr) ←
   Sym.registerSymExtension (return {})
 
 private structure SymIdxCacheState where
@@ -2740,25 +2737,32 @@ private def symHasFreshTemp (mctx : MetavarContext) (baseDepth mvarCounterSaved 
       | .const _ us => us.any (levelHasTempMVar mctx baseDepth)
       | _           => false).isSome
 
-private def getOrMkSymPattern (siteId : Name) (p : ExprPattern) : Sym.SymM Sym.Pattern := do
+@[inline]
+private def getOrMkSymSiteKey {κ α : Type} [BEq κ] [Hashable κ]
+    (ext : Sym.SymExtension (SymSiteKeyCache κ α)) (siteId : Name) (mkKey : Unit → κ)
+    (mk : Sym.SymM α) : Sym.SymM α := do
   let constGen := (← getEnv).constGen
-  let st ← exprSymPatExt.getState
+  let st ← ext.getState
   if !siteId.isAnonymous then
     if let some (gen, cached) := st.bySite[siteId]? then
       if gen == constGen then
         return cached
   else
-    let k := (p.levelParams, p.lam, p.numVars)
+    let k := mkKey ()
     if let some (gen, cached) := st.byKey[k]? then
       if gen == constGen then
         return cached
-  let pat ← Sym.mkPatternFromLambda p.lam p.levelParams p.numVars (zetaDelta := false)
-  exprSymPatExt.modifyState fun s =>
+  let val ← mk
+  ext.modifyState fun s =>
     if !siteId.isAnonymous then
-      { s with bySite := s.bySite.insert siteId (constGen, pat) }
+      { s with bySite := s.bySite.insert siteId (constGen, val) }
     else
-      { s with byKey := s.byKey.insert (p.levelParams, p.lam, p.numVars) (constGen, pat) }
-  return pat
+      { s with byKey := s.byKey.insert (mkKey ()) (constGen, val) }
+  return val
+
+private def getOrMkSymPattern (siteId : Name) (p : ExprPattern) : Sym.SymM Sym.Pattern :=
+  getOrMkSymSiteKey exprSymPatExt siteId (fun _ => (p.levelParams, p.lam, p.numVars)) do
+    Sym.mkPatternFromLambda p.lam p.levelParams p.numVars (zetaDelta := false)
 
 private def checkSymPinEq (captured pinVal : Expr) : Sym.SymM Bool := do
   if ← Sym.isDefEqS captured pinVal (unify := false) (zetaDelta := true) then
@@ -2935,25 +2939,10 @@ def ExprPattern.matchSymSiteOrElse {m : Type → Type v} [Monad m] [MonadSym m] 
   | some xs => onMatch xs
   | none    => onFail ()
 
-private def getOrMkSymTemplate (siteId : Name) (tmpl : ExprTemplate) : Sym.SymM Expr := do
-  let constGen := (← getEnv).constGen
-  let st ← exprSymTmplExt.getState
-  if !siteId.isAnonymous then
-    if let some (gen, cached) := st.bySite[siteId]? then
-      if gen == constGen then
-        return cached
-  else
-    if let some (gen, cached) := st.byKey[tmpl.lam]? then
-      if gen == constGen then
-        return cached
-  -- Share closed template once per site; never run `shareCommon` on open `hasLooseBVars` bodies.
-  let lamShared ← Sym.shareCommon (← Sym.foldProjs tmpl.lam)
-  exprSymTmplExt.modifyState fun s =>
-    if !siteId.isAnonymous then
-      { s with bySite := s.bySite.insert siteId (constGen, lamShared) }
-    else
-      { s with byKey := s.byKey.insert tmpl.lam (constGen, lamShared) }
-  return lamShared
+private def getOrMkSymTemplate (siteId : Name) (tmpl : ExprTemplate) : Sym.SymM Expr :=
+  getOrMkSymSiteKey exprSymTmplExt siteId (fun _ => tmpl.lam) do
+    -- Share closed template once per site; never run `shareCommon` on open `hasLooseBVars` bodies.
+    Sym.shareCommon (← Sym.foldProjs tmpl.lam)
 
 private def synthSymTCWithError (tcMV : MVarId) (tcTy : Expr) : Sym.SymM Unit := do
   let inst ←

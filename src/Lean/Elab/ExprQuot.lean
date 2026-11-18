@@ -208,19 +208,16 @@ private def validateAndLiftModuloPins (modRelStx : Syntax) :
     validateFlags (#[inner[0]] ++ inner[1].getArgs)
     return (modRelStx, lifted)
 
+private def mergeOptMatchParam (label : String) (p1 p2 : Syntax) : MacroM Syntax := do
+  if !p1.isNone && !p2.isNone then
+    Macro.throwErrorAt p2 s!"duplicate `({label} := ...)` parameter in `match`"
+  return if !p1.isNone then p1 else p2
+
 /-- Expand term-level `match (modulo := rel) ...` into `match ...` with merged relations. -/
 @[builtin_macro Lean.Parser.Term.matchModulo] def expandMatchModulo : Macro := fun stx => do
-  let gen1 := stx[1]
-  let mot1 := stx[2]
+  let gen ← mergeOptMatchParam "generalizing" stx[1] stx[4]
+  let mot ← mergeOptMatchParam "motive" stx[2] stx[5]
   let modParam := stx[3]
-  let gen2 := stx[4]
-  let mot2 := stx[5]
-  if !gen1.isNone && !gen2.isNone then
-    Macro.throwErrorAt gen2 "duplicate `(generalizing := ...)` parameter in `match`"
-  if !mot1.isNone && !mot2.isNone then
-    Macro.throwErrorAt mot2 "duplicate `(motive := ...)` parameter in `match`"
-  let gen := if !gen1.isNone then gen1 else gen2
-  let mot := if !mot1.isNone then mot1 else mot2
   let (modRel, liftedPins) ← validateAndLiftModuloPins modParam[3]
   let alts := rewriteMatchAltsModulo modRel stx[8]
   let mut res : Term :=
@@ -231,22 +228,10 @@ private def validateAndLiftModuloPins (modRelStx : Syntax) :
 
 /-- Expand `do`-level `match (modulo := rel) ...` into `doMatch` with merged relations. -/
 @[builtin_macro Lean.Parser.Term.doMatchModulo] def expandDoMatchModulo : Macro := fun stx => do
-  let dep1 := stx[1]
-  let gen1 := stx[2]
-  let mot1 := stx[3]
+  let dep ← mergeOptMatchParam "dependent" stx[1] stx[5]
+  let gen ← mergeOptMatchParam "generalizing" stx[2] stx[6]
+  let mot ← mergeOptMatchParam "motive" stx[3] stx[7]
   let modParam := stx[4]
-  let dep2 := stx[5]
-  let gen2 := stx[6]
-  let mot2 := stx[7]
-  if !dep1.isNone && !dep2.isNone then
-    Macro.throwErrorAt dep2 "duplicate `(dependent := ...)` parameter in `match`"
-  if !gen1.isNone && !gen2.isNone then
-    Macro.throwErrorAt gen2 "duplicate `(generalizing := ...)` parameter in `match`"
-  if !mot1.isNone && !mot2.isNone then
-    Macro.throwErrorAt mot2 "duplicate `(motive := ...)` parameter in `match`"
-  let dep := if !dep1.isNone then dep1 else dep2
-  let gen := if !gen1.isNone then gen1 else gen2
-  let mot := if !mot1.isNone then mot1 else mot2
   let (modRel, liftedPins) ← validateAndLiftModuloPins modParam[3]
   let alts := rewriteMatchAltsModulo modRel stx[10]
   let mut res : TSyntax `doElem :=
@@ -2299,12 +2284,12 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
 /-! ## Diagnostics: `#check_pattern` and `linter.exprQuot.syntaxHole` -/
 
 private def unwrapPatSyntaxParens : Syntax → Syntax
-  | .node _ k args =>
+  | stx@(.node _ k args) =>
     if k == ``Parser.Term.paren || k == ``Parser.Term.typeAscription then
-      if h : 1 < args.size then unwrapPatSyntaxParens args[1] else .node .none k args
+      if h : 1 < args.size then unwrapPatSyntaxParens args[1] else stx
     else if k == ``Parser.Term.namedPattern then
-      if h : 2 < args.size then unwrapPatSyntaxParens args[2] else .node .none k args
-    else .node .none k args
+      if h : 2 < args.size then unwrapPatSyntaxParens args[2] else stx
+    else stx
   | stx => stx
 termination_by stx => sizeOf stx
 decreasing_by
@@ -2354,10 +2339,10 @@ def checkSyntaxHoleInExprMatchPatterns (discrs : Array Expr)
             use `` `(expr| ...) ``"
 
 private def unwrapExprQuotStx : Syntax → Syntax
-  | .node _ k args =>
+  | stx@(.node _ k args) =>
     if k == ``Parser.Term.paren then
-      if h : 1 < args.size then unwrapExprQuotStx args[1] else .node .none k args
-    else .node .none k args
+      if h : 1 < args.size then unwrapExprQuotStx args[1] else stx
+    else stx
   | stx => stx
 termination_by stx => sizeOf stx
 decreasing_by

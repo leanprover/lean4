@@ -13,6 +13,7 @@ public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
 import Lean.Util.CollectFVars
+import Lean.Meta.FunInfo
 
 public section
 namespace Lean.Meta
@@ -700,8 +701,59 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   else
     return none
 
+/--
+Returns whether resolution of the root goal `type` is bound to throw `isDefEqStuck` on the first
+instance it tries: an indexed argument is a metavariable that resolution cannot assign, every
+instance that may unify with `type` has to assign such an argument, and there is such an instance.
+-/
+private def isStuckOnMVarArg (type : Expr) : MetaM Bool := do
+  let fn := type.getAppFn
+  let .const className _ := fn | return false
+  let args := type.getAppArgs
+  unless (← args.anyM DiscrTree.isRigidMVar) do return false
+  unless isClass (← getEnv) className do return false
+  -- The positions whose metavariable the discrimination tree indexes; see `DiscrTree.ignoreArg`.
+  let infos := (← getFunInfoNArgs fn args.size).paramInfo
+  let mut stuckPos := #[]
+  for h : i in *...args.size do
+    let a := args[i]
+    if (← DiscrTree.isRigidMVar a) then
+      let indexed ← if h : i < infos.size then
+          let info := infos[i]
+          if info.isInstance then pure false
+          else if info.isImplicit || info.isStrictImplicit then isType a
+          else not <$> isProof a
+        else not <$> isProof a
+      if indexed then stuckPos := stuckPos.push i
+  if stuckPos.isEmpty then return false
+  -- as in `getInstancesLazy`, so that an enclosing query records the same dependencies
+  recordLocalInstClass className
+  recordInstClassChanges className (getInstanceClassChanges (← getEnv) className)
+  let mut hasLocal := false
+  for linst in (← getLocalInstances) do
+    if linst.className == className then
+      let linstType ← instantiateMVars (← inferType linst.fvar)
+      unless linstType.getAppFn.isConstOf className && linstType.getAppNumArgs == args.size do
+        return false
+      let linstArgs := linstType.getAppArgs
+      unless stuckPos.any fun i => !linstArgs[i]!.getAppFn.isMVar do return false
+      hasLocal := true
+  let globalInstances ← getGlobalInstancesIndex
+  let erasedInstances ← getErasedInstances
+  let env ← getEnv
+  -- as in `getInstancesLazy`
+  let isCandidate (e : InstanceEntry) : Bool := match e.val with
+    | .const constName _ => !erasedInstances.contains constName && !(env.isExporting && !env.contains constName)
+    | _ => true
+  if (← globalInstances.hasUnify type isCandidate (rigidMVars := true)) then return false
+  -- Without a candidate, resolution fails instead.
+  pure hasLocal <||> globalInstances.hasUnify type isCandidate
+
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
+     if (← isStuckOnMVarArg type) then
+       trace[Meta.synthInstance] "stuck on a metavariable argument"
+       Meta.throwIsDefEqStuck
      let mvar ← mkFreshExprMVar type
      let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do

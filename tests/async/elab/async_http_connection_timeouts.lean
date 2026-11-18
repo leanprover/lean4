@@ -6,9 +6,11 @@ public meta import Std.Http.Test.Helpers
 /-!
 Tests the timeouts of a server connection: a request head that keeps arriving slowly is cut off at
 the header deadline, a request body that stalls is answered with 408 and cancels the handler's
-context with `.deadline`, a connection's own timeout leaves the context it is served in alone,
-cancelling that context answers a request in progress with 503, and a response body that stalls is
-cut off with a single failure report.
+context with `.deadline`, a connection's own timeout leaves the context it is served in alone, and
+cancelling that context answers a request in progress with 503. A response body may pause longer
+than `lingeringTimeout`, since only waits on the client are timed. A timeout is reported once, named
+after the wait that ran out, and a partial head pipelined after a request is bounded by
+`headerTimeout`, not `keepAliveTimeout`.
 -/
 
 open Std.Async
@@ -96,20 +98,59 @@ private def within [Inhabited α] (name : String) (ms : Time.Millisecond.Offset)
   finally
     client.close
 
-#eval runGroup "a response body that stalls is cut off and reported once" <| Async.block do
+/--
+Serves `raw` with `onRequest` under `cfg`, then closes the client once the server ends, and returns
+what the server wrote and every `onFailure` report.
+-/
+private def serveRecording (raw : String) (onRequest : TestHandler) (cfg : Config)
+    (limit : Time.Millisecond.Offset := 3000) : IO (String × Array String) := Async.block do
   let (client, server) ← Mock.new
   let failures ← IO.mkRef #[]
-  let handler : Server.StatelessHandler := {
-    onRequest := fun _ => Response.ok |>.stream fun s => do
-      s.send (Chunk.ofByteArray "first".toUTF8)
-      sleep 5000
-    onFailure := fun e => failures.modify (·.push (toString e)) }
+  let handler : Server.StatelessHandler :=
+    { onRequest, onFailure := fun e => failures.modify (·.push (toString e)) }
   try
-    client.send (mkGet).toUTF8
-    let cfg : Config := { defaultConfig with lingeringTimeout := 300 }
-    within "the server" 2000 (Server.serveConnection server handler cfg |>.run)
-    let failures ← failures.get
-    unless failures.size == 1 do
-      throw <| IO.userError s!"expected one failure, got {failures}"
+    client.send raw.toUTF8
+    within "the server" limit (Server.serveConnection server handler cfg |>.run)
+    let out ← client.recv?
+    return (String.fromUTF8! (out.getD .empty), ← failures.get)
   finally
     client.close
+
+-- The handler may pause between chunks as long as it wants, as server-sent events and long polling
+-- do. Only the waits on the client are timed.
+#eval runGroup "a response body that pauses longer than lingeringTimeout completes" do
+  for (label, raw) in [("Connection: close", mkGetClose "/"), ("HTTP/1.0", "GET / HTTP/1.0\x0d\n\x0d\n")] do
+    let (out, failures) ← serveRecording raw
+      (fun _ => Response.ok |>.stream fun s => do
+        s.send (Chunk.ofByteArray "first".toUTF8)
+        sleep 600
+        s.send (Chunk.ofByteArray "second".toUTF8))
+      { defaultConfig with lingeringTimeout := 200 }
+    unless out.endsWith "second" || out.endsWith "0\x0d\n\x0d\n" do
+      throw <| IO.userError s!"{label}: the response was cut:\n{out.quote}"
+    unless out.contains "first" && out.contains "second" && failures.isEmpty do
+      throw <| IO.userError s!"{label}: got failures {failures} and\n{out.quote}"
+
+-- A timeout is one failure, named after the wait that ran out, and an idle connection that times
+-- out is no failure at all.
+#eval runGroup "a timeout is reported once" do
+  for (label, raw, cfg, want) in [
+      ("head", "GET / HTTP/1.1\x0d\nHost: a\x0d\n", { defaultConfig with headerTimeout := 200 },
+        #["request header timeout"]),
+      ("body", "POST / HTTP/1.1\x0d\nHost: a\x0d\nContent-Length: 10\x0d\n\x0d\nabc",
+        { defaultConfig with lingeringTimeout := 200 }, #["request timeout"]),
+      ("idle after a response", mkGet "/", { defaultConfig with keepAliveTimeout := ⟨200, by decide⟩ }, #[])
+    ] do
+    let (_, failures) ← serveRecording raw okHandler cfg
+    unless failures == want do
+      throw <| IO.userError s!"{label}: expected {want}, got {failures}"
+
+-- A request head that arrived with the previous request starts its header deadline once that
+-- request is answered, not the keep-alive timeout.
+#eval runGroup "a partial head pipelined after a request is cut off at the header deadline" do
+  let cfg : Config := { defaultConfig with headerTimeout := 200, keepAliveTimeout := ⟨5000, by decide⟩ }
+  let start ← IO.monoMsNow
+  let (out, failures) ← serveRecording (mkGet "/a" ++ "GET /b HTTP/1.1\x0d\nHost") okHandler cfg (limit := 2000)
+  unless (← IO.monoMsNow) - start < 2000 && out.startsWith "HTTP/1.1 200" &&
+      failures == #["request header timeout"] do
+    throw <| IO.userError s!"expected the 200 and a header timeout, got failures {failures} and\n{out.quote}"

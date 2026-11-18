@@ -778,6 +778,12 @@ Processes a finished header block:
 private def processHeaders (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
   let machine := machine.updateKeepAlive machine.reader.messageHead.shouldKeepAlive
+  -- A client may send tunnel bytes right after `CONNECT`, before it reads the answer, so whatever
+  -- the server answers, the bytes after the head are not read as another request (RFC 9110 §9.3.6).
+  let machine : Machine dir :=
+    match dir, machine with
+    | .receiving, machine => machine.updateKeepAlive (machine.reader.messageHead.method != .connect)
+    | .sending, machine => machine
 
   match checkMessageHead machine with
   | .error err => machine.setFailure err
@@ -1418,7 +1424,9 @@ otherwise treats queued bytes as protocol error.
 -/
 @[inline]
 private partial def processFixedZeroBody (machine : Machine dir) : Machine dir :=
-  if machine.writer.userData.isEmpty then
+  -- Empty chunks carry no bytes, so they cannot overflow the zero length.
+  if bufferedUserDataBytes machine.writer == 0 then
+    let machine := machine.modifyWriter ({ · with userData := #[] })
     if machine.writer.userClosedBody then
       completeWriterMessage machine
     else

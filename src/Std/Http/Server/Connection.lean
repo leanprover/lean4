@@ -270,6 +270,11 @@ private structure ConnectionState (β : Type) where
   dateSecond : Option Int := none
   /-- The current request was read to its end, or none has started. -/
   requestEnded : Bool := true
+  /--
+  The loop ended the connection itself, after reporting why; the machine's own failure that follows
+  is a consequence, not another failure.
+  -/
+  aborted : Bool := false
 
 /--
 Keeps `machine.date` current when `Config.generateDate` is set, formatting it at most once per
@@ -351,16 +356,24 @@ private def processH1Events
 
       let newStream ← Body.mkStream
 
+      -- Input already buffered is the start of the next request, so its head is due by the header
+      -- deadline; only an empty connection waits under the keep-alive timeout.
+      let timer ←
+        if st.machine.reader.remainingBytes > 0 then
+          pure (Timer.header ((← IO.monoMsNow) + config.headerTimeout.toInt.toNat))
+        else
+          pure .keepAlive
       st := { st with
         requestStream := newStream
         response := ← Std.Channel.new
         respStream := none
-        timer := .keepAlive
+        timer
         handler := st.handler.abandon
       }
 
     | .failed err =>
-      reportFailure handler (toString err)
+      unless st.aborted do
+        reportFailure handler (toString err)
 
       endRequestStream st s!"the request body is incomplete: {err}"
 
@@ -430,7 +443,8 @@ private def abortWith [Body β] (state : ConnectionState β) (status : Status) :
   if let some res := state.respStream then
     if ¬(← Body.isClosed res) then Body.close res
   return { state with
-    machine := state.machine.closeWithError status, handler := state.handler.abandon, respStream := none }
+    machine := state.machine.closeWithError status, handler := state.handler.abandon, respStream := none
+    aborted := true }
 
 /--
 Processes a single async I/O event and updates the connection state.
@@ -489,7 +503,7 @@ private def handleRecvEvent
     return (state, false)
 
   | .timeout =>
-    reportFailure handler "request header timeout"
+    reportFailure handler (if state.timer matches .header _ then "request header timeout" else "request timeout")
     return (← abortWith state .requestTimeout, false)
 
   | .shutdown =>
@@ -564,10 +578,17 @@ private def buildPollSources
 
   let inputFull := state.machine.reader.remainingBytes ≥ inputLimit ∧ inputWanted.isNone
 
+  -- The request timer times a wait on the client: for more of the request, or for a body chunk a
+  -- reader asked for. A wait on the handler alone is not timed, since a response may pause as long
+  -- as the handler wants (server-sent events, long polling); a peer that stops reading is bounded
+  -- by `writeTimeout`.
+  let waitsOnPeer := inputWanted.isSome ∨ pullStalled ∨ (state.machine.canPullBody ∧ requestBodyInterested)
+  let timer := if (state.timer matches .request _) ∧ ¬waitsOnPeer then none else some state.timer
+
   return {
     -- After EOF the socket stays readable, returning `none` at once, so polling it would spin.
     socket := if pollSocket ∧ ¬state.machine.reader.noMoreInput ∧ ¬inputFull then some socket else none
-    timer := if pollSocket then some state.timer else none
+    timer := if pollSocket then timer else none
     expect := inputWanted.join
     response := if state.handler.isRunning then some state.response else none
     responseBody := state.respStream
@@ -596,17 +617,17 @@ private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) 
 /--
 Whether the connection ends while the client may still be sending: the client has not closed its
 side, and the machine stopped before the end of a request, or, while it still took input, with input
-it never read, or in an exchange whose request asked to keep the connection open. A request rejected
-from its head alone leaves `requestEnded` set, so only `machine.failed` shows it. The loop does not
-read while a handler runs, so requests the client pipelined meanwhile wait unread in the transport
-(RFC 9112 §9.3.2).
+it never read, or at the end of an exchange. A request rejected from its head alone leaves
+`requestEnded` set, so only `machine.failed` shows it. The loop does not read while a handler runs,
+so requests the client pipelined meanwhile wait unread in the transport (RFC 9112 §9.3.2), whether
+or not the request asked to keep the connection open.
 -/
 private def peerMayStillSend (state : ConnectionState β) : Bool :=
   let reader := state.machine.reader
   ¬reader.peerClosed ∧
     (¬state.requestEnded ∨ ¬reader.inputStopped ∧
       (state.machine.failed ∨ reader.remainingBytes > 0 ∨ reader.state matches .readBody _) ∨
-      (state.timer matches .request _) ∧ reader.shouldKeepAlive)
+      (state.timer matches .request _))
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still

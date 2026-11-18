@@ -12,8 +12,9 @@ Tests the lingering close (RFC 9112 §9.6). When the server answers before the e
 its body at once, the client is still sending. The server shuts down its write side and drains the
 input before closing, so the client neither gets a reset on its sends nor loses the response. This
 holds as well when the server rejects a head before any of the body arrives, so it has no unread
-input when it closes, and when it ends a keep-alive connection (`Connection: close` from the handler,
-or `500` when the handler fails) while the client has pipelined another request.
+input when it closes, and whenever it ends the connection after an exchange while the client has
+pipelined another request: for `Connection: close` from the client or the handler, an HTTP/1.0
+request, `maxRequests`, or `500` when the handler fails.
 -/
 
 def withTimeout {α : Type} (name : String) (ms : Nat) (action : IO α) : IO α := do
@@ -113,11 +114,12 @@ instance : Transport Recorded where
     return true
 
 /--
-Sends `GET /b` while the handler of `GET /a` runs. The connection does not read while a handler
-runs, so `/b` is still unread when the handler's `answer` ends the connection: the server must
-answer `/a` alone with `status` and shut down its write side before it closes.
+Sends `GET /b` while the handler of `first`, a request for `/a`, runs. The connection does not read
+while a handler runs, so `/b` is still unread when the connection ends after `answer`: the server
+must answer `/a` alone with `status` and shut down its write side before it closes.
 -/
-def checkPipelined (name : String) (answer : ContextAsync (Response Body.Any)) (status : String) :
+def checkPipelined (name : String) (answer : ContextAsync (Response Body.Any)) (status : String)
+    (first : String := mkGet "/a") (config : Config := { defaultConfig with lingeringTimeout := 3000 }) :
     IO Unit :=
   withTimeout name 20000 <| Async.block do
     let (client, server) ← Mock.new
@@ -130,8 +132,8 @@ def checkPipelined (name : String) (answer : ContextAsync (Response Body.Any)) (
         discard <| await proceed.result?
       answer
     let serving ← async (t := AsyncTask) (ContextAsync.run (Server.serveConnection
-      ({ server, shutFirst } : Recorded) handler { defaultConfig with lingeringTimeout := 3000 }))
-    client.send (mkGet "/a").toUTF8
+      ({ server, shutFirst } : Recorded) handler config))
+    client.send first.toUTF8
     discard <| await started.result?
     client.send (mkGet "/b").toUTF8
     proceed.resolve ()
@@ -154,3 +156,14 @@ def checkPipelined (name : String) (answer : ContextAsync (Response Body.Any)) (
 
 #eval checkPipelined "500 with a pipelined request" (throw (IO.userError "handler failed"))
   "HTTP/1.1 500"
+
+-- The connection ends after this exchange whoever asked for it, so `/b` is unread in each case.
+#eval checkPipelined "Connection: close from the client with a pipelined request"
+  (Response.ok |>.text "a") "HTTP/1.1 200" (first := mkGetClose "/a")
+
+#eval checkPipelined "an HTTP/1.0 request with a pipelined request"
+  (Response.ok |>.text "a") "HTTP/1.1 200" (first := "GET /a HTTP/1.0\x0d\n\x0d\n")
+
+#eval checkPipelined "maxRequests 1 with a pipelined request"
+  (Response.ok |>.text "a") "HTTP/1.1 200"
+  (config := { defaultConfig with lingeringTimeout := 3000, maxRequests := 1 })

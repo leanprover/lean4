@@ -148,6 +148,9 @@ def lowerExtCases (indName : Name) (typeName : Name) (resultType : Expr) (discr 
   for (alt, extCidx?) in alts do
     match alt, extCidx? with
     | .ctorAlt info k, some cidx =>
+      -- Later passes take the constructor info of an alternative as the shape of the discriminant,
+      -- which here is the scalar field and not `discr`, so the info must have no fields. The shape
+      -- of `discr` is thus unknown for these constructors and its memory is not reused.
       cidxAlts := cidxAlts.push (.ctorAlt { info with cidx, size := 0, usize := 0, ssize := 0 } k)
     | .default k, _ => default? := some k
     | alt, _ => tagAlts := tagAlts.push alt

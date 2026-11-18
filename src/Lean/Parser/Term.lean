@@ -466,8 +466,8 @@ def exprQuotFlag := atomic (exprQuotFlagPos <|> exprQuotFlagNeg)
 def exprQuotRel : Parser :=
   leadingNode `Lean.Parser.Term.exprQuotRel maxPrec (
     optional (checkNoWsBefore "no space before '/'" >> exprQuotEngine) >>
-    optional exprQuotItems >>
-    many exprQuotFlag)
+    optional (ppSpace >> exprQuotItems) >>
+    many (ppSpace >> exprQuotFlag))
 
 /-- Slash-prefixed engine selector (`/engine`) inside `(modulo := rel)`. -/
 def exprQuotModuloEngineSlash := leading_parser exprQuotEngine
@@ -476,11 +476,11 @@ def exprQuotModuloEngineBare := leading_parser identNoAntiquot
 /-- `(modulo := ...)` relation specification beginning with an engine name. -/
 def exprQuotModuloWithEngine := leading_parser
   (exprQuotModuloEngineSlash <|> exprQuotModuloEngineBare) >>
-  optional exprQuotItems >> many exprQuotFlag
+  optional (ppSpace >> exprQuotItems) >> many (ppSpace >> exprQuotFlag)
 /-- `(modulo := ...)` relation specification beginning with an `[items]` list. -/
-def exprQuotModuloItems := leading_parser exprQuotItems >> many exprQuotFlag
+def exprQuotModuloItems := leading_parser exprQuotItems >> many (ppSpace >> exprQuotFlag)
 /-- `(modulo := ...)` relation specification consisting only of `±flag` overrides. -/
-def exprQuotModuloFlags := leading_parser many1 exprQuotFlag
+def exprQuotModuloFlags := leading_parser exprQuotFlag >> many (ppSpace >> exprQuotFlag)
 /-- Body of a `(modulo := rel)` option on `match` (engine, `[items]`, and/or `±flags`). -/
 def exprQuotRelModulo := leading_parser
   exprQuotModuloWithEngine <|> exprQuotModuloItems <|> exprQuotModuloFlags

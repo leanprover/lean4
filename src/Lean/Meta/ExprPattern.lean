@@ -1522,9 +1522,11 @@ private def resolveReadyTCs (baseDepth : Nat) (pending : Array MVarId) :
 /--
 Instantiate a compiled `ExprTemplate` under a pre-resolved relation `rel` and runtime splice
 values `splices`. Preserves caller pointer sharing and caller metavariables inside `splices`,
-allocates zero metavariables for splices, checks splice types with `isDefEq` under `rel`,
-synthesizes splice-dependent type-class instances, and materializes fresh `.syntheticOpaque`
-metavariables in the caller's `MCtx` for `?h` / `?_` holes.
+allocates zero metavariables for splices, checks splice types with `isDefEq` under `rel` (running
+under `withNewMCtxDepth` so caller metavariables with unknown types are left unassigned and fail
+the check cleanly if a concrete or mismatched expected type is required), synthesizes
+splice-dependent type-class instances, and materializes fresh `.syntheticOpaque` metavariables in
+the caller's `MCtx` for `?h` / `?_` holes.
 -/
 def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMatchRel)
     (splices : Array Expr) : MetaM Expr := do
@@ -1560,6 +1562,9 @@ def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMa
           pendingTCs ← resolveReadyTCs baseDepth pendingTCs
           expTy ← instantiateMVars expTy
         let val := splices.getD pos default
+        if val.hasLooseBVars then
+          throwError "expr quotation splice expression contains loose bound variable:\
+            {indentExpr val}"
         let argTy ← instantiateMVars (← inferType val)
         let ok ← withRelUnfoldRules rel <|
           withRelDefEqConfig transparency rel.flags rel.flags.zeta rel.flags.zeta <|

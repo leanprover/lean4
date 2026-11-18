@@ -181,9 +181,38 @@ def doIfCond    :=
     ppDedent ppSpace >> ppRealFill ("else " >> doSeq))
 @[builtin_doElem_parser] def doUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
+/--
+A standard binder clause `[h :] pat in xs` inside a `for` loop, where `h :` optionally names
+a membership proof `x ∈ xs`.
+-/
 def doForDecl := leading_parser
   optional (atomic (ident >> " : ")) >> termParser >> " in " >>
     withForbiddens #["do", "invariant", "decreasing"] termParser
+
+/--
+A refutable-pattern clause `case [h :] pat in xs` inside a `for` loop. Non-matching elements
+are skipped via `continue`; writing `case` on an irrefutable pattern is reported as a redundant
+alternative.
+-/
+def doForCaseDecl := leading_parser (withAnonymousAntiquot := false)
+  atomic (nonReservedSymbol "case" >> notFollowedBy ("in" <|> ":") "identifier") >>
+    ppSpace >> optional (atomic (ident >> " : ")) >>
+    termParser >> " in " >>
+    withForbiddens #["do", "invariant", "decreasing"] termParser
+
+/--
+A membership-proof-first refutable-pattern clause `h : case pat in xs` inside a `for` loop.
+Non-matching elements are skipped via `continue`; writing `case` on an irrefutable pattern is
+reported as a redundant alternative.
+-/
+def doForProofCaseDecl := leading_parser (withAnonymousAntiquot := false)
+  atomic (ident >> " : " >> nonReservedSymbol "case" >>
+      notFollowedBy ("in" <|> ":") "identifier") >>
+    ppSpace >> termParser >> " in " >>
+    withForbiddens #["do", "invariant", "decreasing"] termParser
+
+private def doForDeclItem : Parser :=
+  doForProofCaseDecl <|> doForCaseDecl <|> doForDecl
 /--
 The optional `invariant` clause of a loop, written like a `fun`: the invariant annotates the loop so
 `vcgen` reads it from the program, and mutable variables are referenced by name.
@@ -207,13 +236,15 @@ def doLoopDecreasing := leading_parser
     withForbidden "do" (atomic basicFun <|> (ppSpace >> termParser)))
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
+`for case pat in e do s` iterates over `e` using refutable pattern `pat`, skipping non-matching
+elements via `continue` (reporting a redundant alternative if `pat` is irrefutable).
 `break` and `continue` are supported inside `for` loops.
 `for x in e, x2 in e2, ... do s` iterates over the given collections in parallel,
 until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
+  "for " >> sepBy1 doForDeclItem ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
     " do " >> doSeq
 
 def dependentParam := leading_parser
@@ -386,8 +417,12 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 /-- `unless e do s` is a nicer way to write `if !e do s`. -/
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
+/--
+`for x in e do s` (or `for case pat in e do s`) used in term position creates an implicit `do`
+block around the loop. See the `do`-element `for` syntax for details.
+-/
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
+  "for " >> sepBy1 doForDeclItem ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
     " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally

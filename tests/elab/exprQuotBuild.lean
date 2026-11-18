@@ -383,6 +383,24 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     check (msg.contains "expr quotation splice type mismatch")
       s!"unexpected ite condition mismatch message: {msg}"
 
+  -- 5b. B3 polish: loose-bvar splice precheck & caller mvar with unknown type.
+  let loose := mkBVar 0
+  match ← tryBuild `(expr| $loose + $a) with
+  | .ok _ => throwError "expected runtime error for loose bound variable splice"
+  | .error msg =>
+    check (msg.contains "expr quotation splice expression contains loose bound variable")
+      s!"unexpected loose-bvar error message: {msg}"
+
+  let unkTy ← mkFreshTypeMVar
+  let unkMV ← mkFreshExprMVar (some unkTy)
+  match ← tryBuild `(expr| ($unkMV : Nat) + $a) with
+  | .ok _ => throwError "expected runtime splice type mismatch for unknown-type caller mvar"
+  | .error msg =>
+    check (msg.contains "expr quotation splice type mismatch")
+      s!"unexpected unknown-type caller mvar message: {msg}"
+    check (!(← unkMV.mvarId!.isAssigned) && !(← unkTy.mvarId!.isAssigned))
+      "failed splice check must not mutate caller metavariables or their types"
+
   -- 6. Round-trip `subterms` + pattern `match` + term-position build + `ExprContext.fill`.
   let mulExpr := mkApp2 (mkConst ``Nat.mul) (mkNatLit 2) (mkNatLit 3)
   let root := mkApp2 (mkConst ``Nat.add) mulExpr (mkNatLit 4)
@@ -404,5 +422,24 @@ theorem tacticBuildAndRefine (n : Nat) : n + 0 = n := by
     let pat ← `(expr| @Nat.add_zero $nExpr)
     let goal ← getMainGoal
     goal.assign pat
+
+-- Pretty-printer spacing for relation items and flags (`ppSpace` checks).
+/--
+info: "`(expr/reducible [+Nat.add, -Nat.mul] -eta| 1 + 2)"
+"match (modulo := defeq [+Nat.add] +zeta) (0 : Nat) with\n| _ => 1"
+"match (modulo := [+Nat.add] +zeta) (0 : Nat) with\n| _ => 1"
+"match (modulo := +zeta -eta) (0 : Nat) with\n| _ => 1"
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let env ← getEnv
+  for src in [
+    "`(expr/reducible[+Nat.add, -Nat.mul]-eta| 1 + 2)",
+    "match (modulo := defeq[+Nat.add]+zeta) (0 : Nat) with | _ => 1",
+    "match (modulo := [+Nat.add]+zeta) (0 : Nat) with | _ => 1",
+    "match (modulo := +zeta -eta) (0 : Nat) with | _ => 1"
+  ] do
+    let .ok stx := Parser.runParserCategory env `term src | throwError "parse failed: {src}"
+    IO.println (repr (← PrettyPrinter.ppTerm ⟨stx⟩).pretty)
 
 end ExprQuotBuildTest

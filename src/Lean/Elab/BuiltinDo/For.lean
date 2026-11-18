@@ -21,22 +21,72 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+private structure ParsedDoForDecl where
+  caseTk? : Option Syntax
+  h?      : Option Ident
+  pattern : Term
+  xs      : Term
+
+private def parseDoForDecl (decl : Syntax) : MacroM ParsedDoForDecl := do
+  if decl.isOfKind ``Lean.Parser.Term.doForCaseDecl then
+    let h? := if decl[1].isNone then none else some ⟨decl[1][0]⟩
+    return { caseTk? := some decl[0], h?, pattern := ⟨decl[2]⟩, xs := ⟨decl[4]⟩ }
+  else if decl.isOfKind ``Lean.Parser.Term.doForProofCaseDecl then
+    return {
+      caseTk? := some decl[2]
+      h?      := some ⟨decl[0]⟩
+      pattern := ⟨decl[3]⟩
+      xs      := ⟨decl[5]⟩
+    }
+  else
+    let `(doForDecl| $[$h? : ]? $pattern in $xs) := decl | Macro.throwUnsupported
+    return { caseTk? := none, h?, pattern, xs }
+
+private def wrapForCaseMatch (caseTk : Syntax) (pat : Term) (body : TSyntax ``doSeq) :
+    MacroM (Ident × TSyntax ``doSeq) := do
+  let x ← Term.mkFreshIdent pat
+  let m0 ← withRef pat `(doElem| match $x:term with | $pat => $body)
+  let m1 ← withRef caseTk `(doElem| match $x:term with | _ => continue)
+  let alts0 := m0.raw.getArg 6
+  let alts1 := m1.raw.getArg 6
+  let merged := mkNullNode ((alts0.getArg 0).getArgs ++ (alts1.getArg 0).getArgs)
+  let matchElem : DoElem := ⟨m0.raw.setArg 6 (alts0.setArg 0 merged)⟩
+  let body' ← withRef pat `(doSeq| $matchElem:doElem)
+  return (x, body')
+
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
   | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doLoopInvariant]? $[$_dec:doLoopDecreasing]? do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doLoopInvariant]? $[$dec:doLoopDecreasing]? do $body) =>
-    let decls := decls.getElems
-    if let some inv := inv then
+  | _ =>
+    unless stx.isOfKind ``Lean.Parser.Term.doFor do
+      Macro.throwUnsupported
+    let tk := stx[0]
+    let decls := stx[1].getSepArgs
+    if decls.isEmpty then
+      Macro.throwUnsupported
+    let inv? : Option (TSyntax ``doLoopInvariant) :=
+      if stx[2].isNone then none else some ⟨stx[2][0]⟩
+    let dec? : Option (TSyntax ``doLoopDecreasing) :=
+      if stx[3].isNone then none else some ⟨stx[3][0]⟩
+    let body : TSyntax ``doSeq := ⟨stx[5]⟩
+    if let some inv := inv? then
       if decls.size > 1 then
         Macro.throwErrorAt inv "The `invariant` clause takes a `for` loop over a single collection."
-    let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
+    let d0 ← parseDoForDecl decls[0]!
+    let h? := d0.h?
+    let pattern := d0.pattern
+    let xs := d0.xs
     let mut doElems := #[]
     let mut body := body
     -- Expand `pattern` into an `Ident` `x`:
     let x ←
-      if pattern.raw.isIdent then
+      if let some caseTk := d0.caseTk? then
+        let (x, body') ← wrapForCaseMatch caseTk pattern body
+        body := body'
+        pure x
+      else if pattern.raw.isIdent then
         pure ⟨pattern⟩
       else if pattern.raw.isOfKind ``Lean.Parser.Term.hole then
         Term.mkFreshIdent pattern
@@ -66,25 +116,32 @@ open Lean.Meta
             body
         ```
       -/
-      let `(doForDecl| $[$h? : ]? $y in $ys) := doForDecl | Macro.throwUnsupported
-      if let some h := h? then
+      let d ← parseDoForDecl doForDecl
+      if let some h := d.h? then
         Macro.throwErrorAt h "The proof annotation here has not been implemented yet."
+      let yPat := d.pattern
+      let ys := d.xs
       /- Recall that `@` (explicit) disables `coeAtOutParam`.
          We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
       let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
       let s := mkIdentFrom ys (← withFreshMacroScope <| MonadQuotation.addMacroScope `__s)
       doElems := doElems.push (← `(doSeqItem| let mut $s := $toStreamApp:term))
+      let (y, stepBody) : Term × TSyntax ``doSeq ←
+        if let some caseTk := d.caseTk? then
+          let (yId, stepBody) ← wrapForCaseMatch caseTk yPat body
+          pure (yId, stepBody)
+        else
+          pure (yPat, body)
       body ← `(doSeq|
         match @Std.Stream.next? _ _ _ $s with
           | none => break
           | some ($y, s') =>
             $s:ident := s'
-            do $body)
+            do $stepBody)
     doElems := doElems.push
       (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs
-        $[$inv:doLoopInvariant]? $[$dec:doLoopDecreasing]? do $body))
+        $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]? do $body))
     `(doElem| do $doElems*)
-  | _ => Macro.throwUnsupported
 
 /-- Demand the class that the `invariant` clause's specification is stated over, so that the
 container that lacks it is reported at the clause. -/

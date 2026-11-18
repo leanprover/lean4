@@ -94,7 +94,7 @@ private def unwrapModuloRel (modRelStx : Syntax) :
   else if inner.isOfKind ``exprQuotModuloItems then
     (none, some inner[0], inner[1].getArgs)
   else
-    (none, none, inner[0].getArgs)
+    (none, none, #[inner[0]] ++ inner[1].getArgs)
 
 private def mergeExprQuotRel (modRelStx patRelStx : Syntax) : Syntax :=
   let patEng? := if patRelStx[0].isNone then none else some patRelStx[0][0]
@@ -203,7 +203,7 @@ private def validateAndLiftModuloPins (modRelStx : Syntax) :
     let newInner := inner.setArg 0 newItems
     return (modRelStx.setArg 0 newInner, lifted')
   else
-    validateFlags inner[0].getArgs
+    validateFlags (#[inner[0]] ++ inner[1].getArgs)
     return (modRelStx, lifted)
 
 /-- Expand term-level `match (modulo := rel) ...` into `match ...` with merged relations. -/

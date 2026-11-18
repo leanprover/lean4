@@ -243,6 +243,14 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     let bodyInfo ← match body? with | none => pure {} | some body => ofSeq ⟨body⟩
     return otherwiseInfo.alternative bodyInfo
   | _ =>
+    if stx.raw.isOfKind ``Parser.Term.doFor then
+      let info ← ofSeq ⟨stx.raw[5]⟩
+      return { info with  -- keep only reassigns and returnsEarly
+        numRegularExits := 1,
+        continues := false,
+        breaks := false,
+        noFallthrough := false,
+      }
     let kind := stx.raw.getKind
     let handlers := controlInfoElemAttribute.getEntries (← getEnv) kind
     for handler in handlers do

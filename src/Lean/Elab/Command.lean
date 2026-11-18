@@ -550,6 +550,22 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? 
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
+/--
+Runs `act` on the result of `after` and on a fork of the current state as by `wrapAsyncAsSnapshot`,
+reporting it as a new snapshot task. If `Elab.async` is set, `act` runs in a separate task once
+`after` has finished. Otherwise, it runs immediately, blocking on `after`.
+-/
+def forkAsSnapshot {α : Type} (after : Task α) (act : α → CommandElabM Unit)
+    (desc : String := by exact decl_name%.toString) : CommandElabM Unit := do
+  let cancelTk ← IO.CancelToken.new
+  let act ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) (desc := desc) act
+  if Elab.async.get (← getOptions) then
+    let task ← BaseIO.mapTask (t := after) act
+    logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  else
+    let snap ← act (← IO.wait after)
+    logSnapshotTask { stx? := none, task := .pure snap, cancelTk? := none }
+
 open Language in
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   let lintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
@@ -565,25 +581,15 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
 
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
-  let cancelTk ← IO.CancelToken.new
-  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+  let infoStTask := (← getInfoState).substituteLazy.bind (sync := true) fun infoSt =>
+    treeTask.map (sync := true) fun _ => infoSt
+  forkAsSnapshot infoStTask fun infoSt => do
     let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
     -- do not double-report
     let messages := messages.markAllReported
     modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
     runLinters stx lintersInfoPromise lintersCodeQualityEntriesPromise
-
-  let infoStTask := (← getInfoState).substituteLazy
-  if Elab.async.get (← getOptions) then
-    let task ← BaseIO.bindTask (sync := true) (t := infoStTask) fun infoSt =>
-      BaseIO.mapTask (t := treeTask) fun _ =>
-        lintAct infoSt
-    logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
-  else
-    let _ ← IO.wait treeTask
-    let snap ← lintAct (← IO.wait infoStTask)
-    logSnapshotTask { stx? := none, task := .pure snap, cancelTk? := none }
   modify fun s => { s with codeQualityEntryTasks :=
     s.codeQualityEntryTasks.push (lintersCodeQualityEntriesPromise.resultD #[]) }
 
@@ -604,16 +610,9 @@ def runModuleLintersAsync (cmds : Array Syntax) : CommandElabM Unit := do
   let codeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
   modify fun s => { s with codeQualityEntryTasks :=
     s.codeQualityEntryTasks.push (codeQualityEntriesPromise.resultD #[]) }
-  if !Elab.async.get (← getOptions) then
-    withoutModifyingEnv do
-      runModuleLinters cmds codeQualityEntriesPromise
-    return
-  let cancelTk ← IO.CancelToken.new
   -- TODO: support code actions in module linters
-  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ =>
+  forkAsSnapshot (.pure ()) fun _ =>
     runModuleLinters cmds codeQualityEntriesPromise
-  let task ← BaseIO.asTask (lintAct ())
-  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
 open Language in
 def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
@@ -633,27 +632,18 @@ def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
   -- We create a promise for the info trees produced by the linters
   let lintersInfoPromise ← IO.Promise.new (α := InfoTree)
 
-  let cancelTk ← IO.CancelToken.new
-  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun (prev, infoSt) => do
+  -- Without `Elab.async`, `prevTask` can only be unfinished after switching the option in the
+  -- middle of a file.
+  let inputTask := (← getInfoState).substituteLazy.bind (sync := true) fun infoSt =>
+    treeTask.bind (sync := true) fun _ =>
+      prevTask.map (sync := true) fun prev => (prev, infoSt)
+  forkAsSnapshot inputTask fun (prev, infoSt) => do
     let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
     let messages := messages.markAllReported
     modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
     let postSt ← runStatefulLinters stx prev lintersInfoPromise statefulLintersCodeQualityEntriesPromise
     statePromise.resolve postSt
-
-  let infoStTask := (← getInfoState).substituteLazy
-  if Elab.async.get (← getOptions) then
-    let task ← BaseIO.bindTask (sync := true) (t := infoStTask) fun infoSt =>
-      BaseIO.bindTask (t := treeTask) fun _ =>
-        BaseIO.mapTask (t := prevTask) fun prev =>
-          lintAct (prev, infoSt)
-    logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
-  else
-    let _ ← IO.wait treeTask
-    -- We only block on `prevTask` when switching `Elab.async` in the middle of elaborating a file.
-    let snap ← lintAct (← IO.wait prevTask, ← IO.wait infoStTask)
-    logSnapshotTask { stx? := none, task := .pure snap, cancelTk? := none }
 
   let infoHole ← liftCoreM mkFreshMVarId
   modifyInfoState fun s => { s with

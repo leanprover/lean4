@@ -254,7 +254,32 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   for (n, _) in env.constants do
     if (``sharedTmplDedup).isPrefixOf n && n.toString.contains "exprTmpl" then
       tmplCount := tmplCount + 1
-  check (tmplCount == 1) s!"expected 1 deduplicated exprTmpl const, got {tmplCount}"
+  check (tmplCount == 0) s!"expected 0 extra exprTmpl consts, got {tmplCount}"
+  let some dedupVal := (env.find? ``sharedTmplDedup).bind (·.value?)
+    | throwError "expected value for sharedTmplDedup"
+  let rec collectTmplPayloads (e : Expr) (st : Nat × Array String) : Nat × Array String :=
+    let st := match e with
+      | .app (.const fn _) (.lit (.strVal s)) =>
+        if fn == ``ExprTemplate.decode then
+          (st.1 + 1, if st.2.contains s then st.2 else st.2.push s)
+        else
+          st
+      | _ => st
+    match e with
+    | .app f a         => collectTmplPayloads a (collectTmplPayloads f st)
+    | .lam _ t b _     => collectTmplPayloads b (collectTmplPayloads t st)
+    | .forallE _ t b _ => collectTmplPayloads b (collectTmplPayloads t st)
+    | .letE _ t v b _  => collectTmplPayloads b (collectTmplPayloads v (collectTmplPayloads t st))
+    | .mdata _ b       => collectTmplPayloads b st
+    | .proj _ _ b      => collectTmplPayloads b st
+    | _                => st
+  let (tmplCalls, tmplPayloads) := collectTmplPayloads dedupVal (0, #[])
+  check (tmplCalls == 2 && tmplPayloads.size == 1)
+    s!"expected 2 decode calls and 1 unique payload in sharedTmplDedup, \
+       got calls={tmplCalls} uniq={tmplPayloads.size}"
+  let hasClosedIR := (Array.range 32).any fun i =>
+    (Lean.IR.findEnvDecl env (``sharedTmplDedup ++ (`_closed).appendIndexAfter i)).isSome
+  check hasClosedIR "expected ExtractClosed `_closed_` IR decl for sharedTmplDedup"
 
   -- Polymorphic & monad lifts.
   check ((← polyBuild a b) == typedAdd) "polyBuild mismatch"

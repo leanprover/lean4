@@ -21,10 +21,11 @@ inspecting, and building Lean `Expr` values directly inside Lean expressions and
     `localHypDecls`, `subterms`, and `matchDiscriminants`.
 - **`Lean.Elab.ExprQuot`** (`src/Lean/Elab/ExprQuot.lean`):
   Front-end preprocessing (`?x` binders, higher-order `?P x y`, `$e` pins/splices, `_`/`?_`
-  wildcards), elaboration into closed auxiliary constants (`exprPatExt`, `exprPatArrExt`,
-  `exprTmplExt`), `(modulo := rel)` macro expansion, native `match` compilation
-  (`compileExprMatch`), `for case` support, and diagnostics (`#check_pattern`,
-  `checkSyntaxHoleInExprMatchPatterns`, `numeralDefaulting` lint).
+  wildcards), elaboration into deduplicated `(siteId, ExprPattern.decode ...)` /
+  `ExprTemplate.decode ...` expressions (`exprPatExt`, `exprPatArrExt`, `exprTmplExt`) hoisted
+  into shared closed terms by LCNF `ExtractClosed` (`ClosedTermCache`), `(modulo := rel)` macro
+  expansion, native `match` compilation (`compileExprMatch`), `for case` support, and diagnostics
+  (`#check_pattern`, `checkSyntaxHoleInExprMatchPatterns`, `numeralDefaulting` lint).
 - **`Lean.Elab.Tactic.Grind.Sym`** (`src/Lean/Elab/Tactic/Grind/Sym.lean`):
   Defines the low-priority `MonadSym GrindTacticM` instance so `` `(expr/sym| ...) `` works
   directly inside `sym =>` tactics. Note: `Grind/Sym.lean` uses
@@ -66,12 +67,18 @@ Flags and `[items]` details:
     falls back to `Meta.isDefEq` `let`-substitution when a `let` value depends on a pattern
     binder (and captures may be in `isDefEq`-normalized form).
 - **Performance fast paths**:
+  - `PatHeadGuard` (`fastRejectStructural`) performs an `O(1)` head+arity fast-reject before
+    state allocation in `/structural` matching when tracing is disabled.
   - Pattern variables that are unnamed wildcards occurring once (`captureVars[k] = false`) are
     never materialized on empty/closed captures.
   - Closed subterms compare syntactically (`pe == e`, including pointer equality) **before**
     falling back to `isProof` / type comparison via precomputed `closedProofs`.
   - `.const` and `.sort` universe levels are checked structurally and unified consistently
     across repeated `levelParams` occurrences (`patLevelNodes`).
+  - Compiled `ExprPattern` and `ExprTemplate` values serialize into compact lossless 6-bit ASCII
+    DAG strings (`ExprPattern.encode`/`decode`, `ExprTemplate.encode`/`decode`) so LCNF
+    `ExtractClosed`/`ClosedTermCache` hoists and deduplicates them cleanly inside the enclosing
+    declaration without extra `addAndCompile` auxiliary declarations.
   - Pins (`$e`) pre-seed `σ` directly without rebuilding `lam` per match, and static relations
     cache resolved `[items]` per call site (`siteId`).
 - **`/sym` engine notes**:

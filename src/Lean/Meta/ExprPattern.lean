@@ -1743,7 +1743,7 @@ def ExprPattern.arg (xs : Array Expr) (i : Nat) : Expr :=
 CPS matching combinator accepting a pre-resolved relation `rel`, avoiding per-call rule resolution
 and pin lambda reconstruction. See `matchResolvedPins?` regarding nested assigned metavariables.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchResolvedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (p : ExprPattern) (rel : ResolvedExprMatchRel) (pinIdxs : Array Nat) (pins : Array Expr)
     (e : Expr) (onMatch : Array Expr → m α) (onFail : Unit → m α) : m α := do
@@ -1757,7 +1757,7 @@ CPS matching combinator resolving `rel` via the runtime site cache keyed by `sit
 Captured subterms under `.structural` are not deeply mvar-instantiated below head position; call
 `instantiateMVars` if inspecting nested assigned metavariables structurally.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchSiteOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (siteId : Name) (p : ExprPattern) (rel : ExprMatchRel) (pinIdxs : Array Nat)
     (pins : Array Expr) (localItems : Array (Bool × Expr)) (e : Expr)
@@ -1773,7 +1773,7 @@ Pre-seeds `pins` at `pinIdxs` directly without rebuilding `p.lam`, resolves `rel
 `e`, and invokes `onMatch` with the bound `?`-variables or `onFail ()` if matching fails.
 See `matchSiteOrElse` regarding nested assigned metavariables in captured subterms.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (p : ExprPattern) (rel : ExprMatchRel) (pinIdxs : Array Nat) (pins : Array Expr)
     (localItems : Array (Bool × Expr)) (e : Expr)
@@ -2926,7 +2926,7 @@ def ExprPattern.matchSym? (p : ExprPattern) (rel : ExprMatchRel) (e : Expr)
 CPS matching combinator for `/sym` with a pre-resolved static relation `rel`, caching the
 compiled `Sym.Pattern` in `Sym.SymExtension` keyed by `siteId`.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchSymResolvedOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
     (siteId : Name) (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr)
@@ -2939,7 +2939,7 @@ def ExprPattern.matchSymResolvedOrElse {m : Type → Type v} [Monad m] [MonadSym
 CPS matching combinator for `/sym`, validating `rel`/`localItems` at runtime and caching the
 compiled `Sym.Pattern` in `Sym.SymExtension` keyed by `siteId`.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchSymSiteOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
     (siteId : Name) (p : ExprPattern) (rel : ExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (localItems : Array (Bool × Expr)) (e : Expr)
@@ -3095,7 +3095,7 @@ private def instantiateSymCore (siteId : Name) (tmpl : ExprTemplate)
 Instantiate a compiled `ExprTemplate` in any `[MonadSym m]` monad with a pre-resolved static
 `/sym` relation `rel`, caching the folded & maximally shared closed template per `siteId`.
 -/
-@[nospecialize]
+@[inline]
 def ExprTemplate.instantiateSymResolved {m : Type → Type v} [Monad m] [MonadSym m]
     (siteId : Name) (tmpl : ExprTemplate) (rel : ResolvedExprMatchRel)
     (splices : Array Expr) : m Expr :=
@@ -3105,7 +3105,7 @@ def ExprTemplate.instantiateSymResolved {m : Type → Type v} [Monad m] [MonadSy
 Instantiate a compiled `ExprTemplate` in any `[MonadSym m]` monad under `/sym`, validating `rel`
 and `localItems` at runtime and caching the shared closed template per `siteId`.
 -/
-@[nospecialize]
+@[inline]
 def ExprTemplate.instantiateSymSite {m : Type → Type v} [Monad m] [MonadSym m]
     (siteId : Name) (tmpl : ExprTemplate) (rel : ExprMatchRel)
     (splices : Array Expr) (localItems : Array (Bool × Expr) := #[]) : m Expr :=
@@ -3127,7 +3127,6 @@ private def sortAndDedupCands (cands : Array Nat) : Array Nat := Id.run do
       prev? := some c
   return out
 
-@[nospecialize]
 private def dispatchCandidatesGo {m : Type → Type v} [Monad m] {α : Type}
     (cands : Array Nat) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) (i : Nat) : m α := do
@@ -3141,7 +3140,6 @@ private def dispatchCandidatesGo {m : Type → Type v} [Monad m] {α : Type}
     onFail ()
 termination_by cands.size - i
 
-@[nospecialize]
 private def dispatchCandidates {m : Type → Type v} [Monad m] {α : Type}
     (cands : Array Nat) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α :=
@@ -3433,19 +3431,20 @@ private def reduciblePatKeys (rel : ResolvedExprMatchRel) (p : ExprPattern) :
     return keys
 
 private structure CachedMetaIndex where
-  constGen    : Nat
-  declLogSize : Nat
-  isExporting : Bool
-  mainModule  : Name
-  relSpec     : ExprMatchRel
-  resolved    : ResolvedExprMatchRel
-  tree        : DiscrTree Nat
+  constGen     : Nat
+  declLogSize  : Nat
+  isExporting  : Bool
+  mainModule   : Name
+  relSpec      : ExprMatchRel
+  resolved     : ResolvedExprMatchRel
+  tree         : DiscrTree Nat
+  hasNatLitKey : Bool
 
 private builtin_initialize metaIndexCacheRef : IO.Ref (Std.HashMap Name CachedMetaIndex) ←
   IO.mkRef {}
 
 private def getOrMkMetaIndex (siteId : Name) (pats : Array ExprPattern) (rel : ExprMatchRel) :
-    MetaM (ResolvedExprMatchRel × DiscrTree Nat) := do
+    MetaM (ResolvedExprMatchRel × DiscrTree Nat × Bool) := do
   let env ← getEnv
   let constGen := env.constGen
   let declLogSize := env.declChangeLog.size
@@ -3456,9 +3455,10 @@ private def getOrMkMetaIndex (siteId : Name) (pats : Array ExprPattern) (rel : E
       if entry.constGen == constGen && entry.declLogSize == declLogSize &&
           entry.isExporting == isExporting && entry.mainModule == mainModule &&
           entry.relSpec == rel then
-        return (entry.resolved, entry.tree)
+        return (entry.resolved, entry.tree, entry.hasNatLitKey)
   let resolved ← rel.resolveStaticCached (siteId ++ `_rel)
   let mut tree : DiscrTree Nat := {}
+  let mut hasNatLitKey := false
   match resolved.engine with
   | .structural =>
     for h : i in *...pats.size do
@@ -3467,6 +3467,8 @@ private def getOrMkMetaIndex (siteId : Name) (pats : Array ExprPattern) (rel : E
   | .reducible =>
     for h : i in *...pats.size do
       let keys ← reduciblePatKeys resolved pats[i]
+      if keys.getD 0 .star matches .lit (.natVal _) then
+        hasNatLitKey := true
       tree := tree.insertKeyValue keys i
   | _ =>
     throwError "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
@@ -3474,9 +3476,39 @@ private def getOrMkMetaIndex (siteId : Name) (pats : Array ExprPattern) (rel : E
     metaIndexCacheRef.modify fun m =>
       m.insert siteId {
         constGen, declLogSize, isExporting, mainModule,
-        relSpec := rel, resolved, tree
+        relSpec := rel, resolved, tree, hasNatLitKey
       }
-  return (resolved, tree)
+  return (resolved, tree, hasNatLitKey)
+
+private def matchIndexedCandidates (siteId : Name) (pats : Array ExprPattern)
+    (rel : ExprMatchRel) (scrutinee : Expr) : MetaM (Array Nat) := do
+  let (resolved, tree, hasNatLitKey) ← getOrMkMetaIndex siteId pats rel
+  let cands ←
+    match resolved.engine with
+    | .structural =>
+      let fuel := maxRecDepth.get (← getOptions)
+      pure (sortAndDedupCands (structuralDiscrTreeGetMatch (← getMCtx) fuel tree scrutinee))
+    | .reducible =>
+      let res ← withRelUnfoldRules resolved do
+        let mut res ← DiscrTree.getMatch tree scrutinee
+        if hasNatLitKey then
+          if let some lit ← reduceToNatLit? scrutinee then
+            res := res ++ (← DiscrTree.getMatch tree (.lit lit))
+        pure res
+      pure (sortAndDedupCands res)
+    | _ =>
+      throwError
+        "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
+  if ← isTracingEnabledFor `Meta.Match.expr then
+    let eng := if resolved.engine == .structural then "structural" else "reducible"
+    let scrut ← instantiateMVarsIfNeeded scrutinee
+    if cands.isEmpty then
+      trace[Meta.Match.expr]
+        "[indexed {eng}] 0 of {pats.size} candidate(s) matched index for:{indentExpr scrut}"
+    else
+      trace[Meta.Match.expr]
+        "[indexed {eng}] trying candidates {cands.toList} of {pats.size} for:{indentExpr scrut}"
+  return cands
 
 /--
 Indexed CPS match dispatcher for consecutive single-slot alternatives sharing a `.structural`
@@ -3484,37 +3516,11 @@ or `.reducible` relation `rel`. Builds and caches the `DiscrTree Nat` once per `
 candidate indices lazily (plus numeral fallback under `.reducible`), sorts & deduplicates them in
 source order, and invokes `tryAt[idx]` only on candidate branches.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchIndexedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (siteId : Name) (pats : Array ExprPattern) (rel : ExprMatchRel) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
-  let cands ← liftM (m := MetaM) do
-    let (resolved, tree) ← getOrMkMetaIndex siteId pats rel
-    let cands ←
-      match resolved.engine with
-      | .structural =>
-        let fuel := maxRecDepth.get (← getOptions)
-        pure (sortAndDedupCands (structuralDiscrTreeGetMatch (← getMCtx) fuel tree scrutinee))
-      | .reducible =>
-        let res ← withRelUnfoldRules resolved do
-          let mut res ← DiscrTree.getMatch tree scrutinee
-          if let some lit ← reduceToNatLit? scrutinee then
-            res := res ++ (← DiscrTree.getMatch tree (.lit lit))
-          pure res
-        pure (sortAndDedupCands res)
-      | _ =>
-        throwError
-          "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
-    if ← isTracingEnabledFor `Meta.Match.expr then
-      let eng := if resolved.engine == .structural then "structural" else "reducible"
-      let scrut ← instantiateMVarsIfNeeded scrutinee
-      if cands.isEmpty then
-        trace[Meta.Match.expr]
-          "[indexed {eng}] 0 of {pats.size} candidate(s) matched index for:{indentExpr scrut}"
-      else
-        trace[Meta.Match.expr]
-          "[indexed {eng}] trying candidates {cands.toList} of {pats.size} for:{indentExpr scrut}"
-    return cands
+  let cands ← (matchIndexedCandidates siteId pats rel scrutinee : MetaM (Array Nat))
   dispatchCandidates cands scrutinee tryAt onFail
 
 private def annotateSymNatAndOffsets : Expr → Expr
@@ -3675,30 +3681,33 @@ private def getOrMkSymIndex (siteId : Name) (pats : Array ExprPattern) :
       { s with entries := s.entries.insert siteId (constGen, tree) }
   return tree
 
+private def matchSymIndexedCandidates (siteId : Name) (pats : Array ExprPattern)
+    (rel : ResolvedExprMatchRel) (scrutinee : Expr) : Sym.SymM (Array Nat × Expr) := do
+  validateSymResolvedRel rel
+  let tree ← getOrMkSymIndex siteId pats
+  let e ← ensureSymExpr scrutinee
+  let cands ← symDiscrTreeGetMatch tree e
+  if ← isTracingEnabledFor `Meta.Match.expr then
+    let scrut ← instantiateMVarsIfNeeded e
+    if cands.isEmpty then
+      trace[Meta.Match.expr]
+        "[indexed sym] 0 of {pats.size} candidate(s) matched index for:{indentExpr scrut}"
+    else
+      trace[Meta.Match.expr]
+        "[indexed sym] trying candidates {cands.toList} of {pats.size} for:{indentExpr scrut}"
+  return (cands, e)
+
 /--
 Indexed CPS match dispatcher for consecutive single-slot `/sym` alternatives in any `[MonadSym m]`
 monad. Builds and caches a `Sym.Simp.DiscrTree Nat` in `Sym.SymExtension` keyed by `siteId`,
 retrieves candidate indices modulo `let`/`zetaDelta`/beta/eta/offsets/numerals, sorts & deduplicates
 them in source order, and invokes `tryAt[idx]` only on candidate branches.
 -/
-@[nospecialize]
+@[inline]
 def ExprPattern.matchSymIndexedOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
     (siteId : Name) (pats : Array ExprPattern) (rel : ResolvedExprMatchRel) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
-  let (cands, e) ← MonadSym.liftSym do
-    validateSymResolvedRel rel
-    let tree ← getOrMkSymIndex siteId pats
-    let e ← ensureSymExpr scrutinee
-    let cands ← symDiscrTreeGetMatch tree e
-    if ← isTracingEnabledFor `Meta.Match.expr then
-      let scrut ← instantiateMVarsIfNeeded e
-      if cands.isEmpty then
-        trace[Meta.Match.expr]
-          "[indexed sym] 0 of {pats.size} candidate(s) matched index for:{indentExpr scrut}"
-      else
-        trace[Meta.Match.expr]
-          "[indexed sym] trying candidates {cands.toList} of {pats.size} for:{indentExpr scrut}"
-    return (cands, e)
+  let (cands, e) ← MonadSym.liftSym (matchSymIndexedCandidates siteId pats rel scrutinee)
   dispatchCandidates cands e tryAt onFail
 
 /--

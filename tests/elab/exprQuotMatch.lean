@@ -339,6 +339,27 @@ def sharedPatDedup (p : Expr × Nat) : MetaM Nat :=
 private def countConstOccs (target : Name) (e : Expr) : Nat :=
   e.foldConsts 0 fun n acc => if n == target then acc + 1 else acc
 
+private def collectDecodePayloads (decodeFn : Name) (e : Expr) : Nat × Array String :=
+  go e (0, #[])
+where
+  go (e : Expr) (st : Nat × Array String) : Nat × Array String :=
+    let st := match e with
+      | .app (.const fn _) (.lit (.strVal s)) =>
+        if fn == decodeFn then
+          let (cnt, uniq) := st
+          (cnt + 1, if uniq.contains s then uniq else uniq.push s)
+        else
+          st
+      | _ => st
+    match e with
+    | .app f a         => go a (go f st)
+    | .lam _ t b _     => go b (go t st)
+    | .forallE _ t b _ => go b (go t st)
+    | .letE _ t v b _  => go b (go v (go t st))
+    | .mdata _ b       => go b st
+    | .proj _ _ b      => go b st
+    | _                => st
+
 #guard_msgs in
 #eval show MetaM Unit from do
   let env ← getEnv
@@ -355,13 +376,23 @@ private def countConstOccs (target : Name) (e : Expr) : Nat :=
       check (cnt == expected)
         s!"expected {expected} occurrence(s) of {mName} in {declName}, got {cnt}"
 
-  -- Verify `sharedPatDedup` created at most 1 `exprPat` aux constant for its 3 slots.
+  -- Verify `sharedPatDedup` emits 0 extra `exprPat` aux constants and 1 unique
+  -- `ExprPattern.decode` payload across its 3 quotation slots (hoisted via `ExtractClosed`).
   let mut sharedPatConsts : Array Name := #[]
   for (n, _) in env.constants do
     if (``sharedPatDedup).isPrefixOf n && n.toString.contains "exprPat" then
       sharedPatConsts := sharedPatConsts.push n
-  check (sharedPatConsts.size == 1)
-    s!"expected 1 deduplicated exprPat constant in sharedPatDedup, got {sharedPatConsts.size}"
+  check (sharedPatConsts.isEmpty)
+    s!"expected 0 extra exprPat constants in sharedPatDedup, got {sharedPatConsts.size}"
+  let some sharedVal := (env.find? ``sharedPatDedup).bind (·.value?)
+    | throwError "expected value for sharedPatDedup"
+  let (patDecodeCalls, patPayloads) := collectDecodePayloads ``ExprPattern.decode sharedVal
+  check (patDecodeCalls >= 1 && patPayloads.size == 1)
+    s!"expected >=1 decode call and 1 unique payload in sharedPatDedup, \
+       got calls={patDecodeCalls} uniq={patPayloads.size}"
+  let hasClosedIR := (Array.range 32).any fun i =>
+    (Lean.IR.findEnvDecl env (``sharedPatDedup ++ (`_closed).appendIndexAfter i)).isSome
+  check hasClosedIR "expected ExtractClosed `_closed_` IR decl for sharedPatDedup"
 
 def testSingleDiscrEval : MetaM Unit := do
   let counter ← IO.mkRef 0

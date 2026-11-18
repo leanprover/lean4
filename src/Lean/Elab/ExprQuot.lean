@@ -18,7 +18,6 @@ import Init.Syntax
 import Init.Data.Array.Mem
 import Init.Omega
 import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -28,7 +27,8 @@ public section
 Implements:
 - `` `(expr[rel]| p) `` pattern parsing/preprocessing (`?x` binders, `?P x y` higher-order binders,
   `$e` pins, `_` wildcards), elaboration via `elabExprQuotHoleApp` and `elabExprQuotPatSlot`, and
-  per-module deduplicated `ExprPattern` auxiliary constants (`exprPatExt`).
+  per-module deduplicated `(siteId, ExprPattern.decode ...)` expressions (`exprPatExt`), hoisted
+  into shared closed constants automatically by `ExtractClosed`.
 - `` `(expr[rel]| t) `` term-position template building (`elabExprQuotTerm`, `exprTmplExt`),
   preserving sharing and zero beta-reduction, checking splice types under `rel`, synthesizing
   splice-dependent type-class instances at runtime, and opening `?h`/`?_` `refine` holes.
@@ -408,118 +408,82 @@ private structure PatCacheKey where
   numVars     : Nat
   namedIdx    : Array Nat
   firstOrder  : Array Bool
-  isPrivate   : Bool
-  isMeta      : Bool
   deriving BEq, Hashable
 
-private builtin_initialize exprPatExt : EnvExtension (Std.HashMap PatCacheKey Name) ←
+private builtin_initialize exprPatExt : EnvExtension (Std.HashMap PatCacheKey (Name × Expr)) ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
 private structure TmplCacheKey where
   levelParams : List Name
   lam         : Expr
   varKinds    : Array ExprTemplateVarKind
-  isPrivate   : Bool
-  isMeta      : Bool
   deriving BEq, Hashable
 
-private builtin_initialize exprTmplExt : EnvExtension (Std.HashMap TmplCacheKey Name) ←
+private builtin_initialize exprTmplExt : EnvExtension (Std.HashMap TmplCacheKey (Name × Expr)) ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
-private def auxDeclContextFlags : TermElabM (Bool × Bool) := do
-  let env ← getEnv
-  let isMeta := (← read).isMetaSection || (← read).declName?.any (isMarkedMeta env) ||
-    (← read).declName?.isNone
-  let isPrivate := env.header.isModule && !env.isExporting
-  return (isPrivate, isMeta)
+private builtin_initialize siteIdCounterRef : IO.Ref Nat ← IO.mkRef 0
 
-private def addAuxClosedDecl (auxBase : Name) (isPrivate isMeta : Bool)
-    (type value : Expr) : TermElabM Name := do
+private def mkUniqueSiteId (kind : Name) : TermElabM Name := do
   let env ← getEnv
-  let baseName ← Term.mkAuxName auxBase
-  let auxName := if isPrivate then mkPrivateName env baseName else baseName
-  let decl := Declaration.defnDecl {
-    name        := auxName
-    levelParams := []
-    type
-    value
-    hints       := .opaque
-    safety      := .safe
-  }
-  let logCompileErrors := !(← read).isNoncomputableSection &&
-    !(← read).declName?.any (Lean.isNoncomputable env)
-  addAndCompile decl (logCompileErrors := logCompileErrors) (markMeta := isMeta)
-  return auxName
+  let id ← siteIdCounterRef.modifyGet fun n => (n + 1, n + 1)
+  let base := match (← read).declName? with
+    | some d => env.mainModule ++ d
+    | none   => env.mainModule
+  return base ++ kind.appendIndexAfter id
 
-private def mkAuxPatConst (pat : ExprPattern) : TermElabM Expr := do
+private def mkAuxPatExpr (pat : ExprPattern) : TermElabM (Name × Expr) := do
   let env ← getEnv
-  let (isPrivate, isMeta) ← auxDeclContextFlags
   let key : PatCacheKey := {
     levelParams := pat.levelParams
     lam         := pat.lam
     numVars     := pat.numVars
     namedIdx    := pat.namedIdx
     firstOrder  := pat.firstOrder
-    isPrivate
-    isMeta
   }
-  let state := exprPatExt.getState env
-  let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
-  if let some cachedName := cached? then
-    return mkConst cachedName
+  if let some cached := (exprPatExt.getState env)[key]? then
+    return cached
   let encoded ← match pat.encode with
     | .ok s      => pure s
     | .error err => throwError "internal error encoding expr pattern: {err}"
+  let siteId ← mkUniqueSiteId `exprPat
   let patVal := mkApp (mkConst ``ExprPattern.decode) (mkStrLit encoded)
-  let patAuxName ← addAuxClosedDecl `exprPat isPrivate isMeta (mkConst ``ExprPattern) patVal
-  modifyEnv fun env => exprPatExt.modifyState env (·.insert key patAuxName)
-  return mkConst patAuxName
+  let res := (siteId, patVal)
+  modifyEnv fun env => exprPatExt.modifyState env (·.insert key res)
+  return res
 
-private structure PatArrCacheKey where
-  patNames  : Array Name
-  isPrivate : Bool
-  isMeta    : Bool
-  deriving BEq, Hashable
-
-private builtin_initialize exprPatArrExt : EnvExtension (Std.HashMap PatArrCacheKey Name) ←
+private builtin_initialize exprPatArrExt :
+    EnvExtension (Std.HashMap (Array Name) (Name × Expr)) ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
-private def mkAuxPatArrConst (patConsts : Array Expr) : TermElabM Expr := do
+private def mkAuxPatArrExpr (pats : Array (Name × Expr)) : TermElabM (Name × Expr) := do
   let env ← getEnv
-  let (isPrivate, isMeta) ← auxDeclContextFlags
-  let patNames := patConsts.map (·.constName?.getD .anonymous)
-  let key : PatArrCacheKey := { patNames, isPrivate, isMeta }
-  let state := exprPatArrExt.getState env
-  let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
-  if let some cachedName := cached? then
-    return mkConst cachedName
-  let arrTy := mkApp (mkConst ``Array [0]) (mkConst ``ExprPattern)
-  let arrVal ← mkArrayLit (mkConst ``ExprPattern) patConsts.toList
-  let arrName ← addAuxClosedDecl `exprPatArr isPrivate isMeta arrTy arrVal
-  modifyEnv fun env => exprPatArrExt.modifyState env (·.insert key arrName)
-  return mkConst arrName
+  let key := pats.map (·.1)
+  if let some cached := (exprPatArrExt.getState env)[key]? then
+    return cached
+  let siteId ← mkUniqueSiteId `exprPatArr
+  let arrVal ← mkArrayLit (mkConst ``ExprPattern) (pats.map (·.2)).toList
+  let res := (siteId, arrVal)
+  modifyEnv fun env => exprPatArrExt.modifyState env (·.insert key res)
+  return res
 
-private def mkAuxTmplConst (tmpl : ExprTemplate) : TermElabM Expr := do
+private def mkAuxTmplExpr (tmpl : ExprTemplate) : TermElabM (Name × Expr) := do
   let env ← getEnv
-  let (isPrivate, isMeta) ← auxDeclContextFlags
   let key : TmplCacheKey := {
     levelParams := tmpl.levelParams
     lam         := tmpl.lam
     varKinds    := tmpl.varKinds
-    isPrivate
-    isMeta
   }
-  let state := exprTmplExt.getState env
-  let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
-  if let some cachedName := cached? then
-    return mkConst cachedName
+  if let some cached := (exprTmplExt.getState env)[key]? then
+    return cached
   let encoded ← match tmpl.encode with
     | .ok s      => pure s
     | .error err => throwError "internal error encoding expr template: {err}"
+  let siteId ← mkUniqueSiteId `exprTmpl
   let tmplVal := mkApp (mkConst ``ExprTemplate.decode) (mkStrLit encoded)
-  let tmplAuxName ← addAuxClosedDecl `exprTmpl isPrivate isMeta (mkConst ``ExprTemplate) tmplVal
-  modifyEnv fun env => exprTmplExt.modifyState env (·.insert key tmplAuxName)
-  return mkConst tmplAuxName
+  let res := (siteId, tmplVal)
+  modifyEnv fun env => exprTmplExt.modifyState env (·.insert key res)
+  return res
 
 /-! ## Pattern preprocessing & elaboration -/
 
@@ -1360,8 +1324,8 @@ private def buildMatchSiteError (failCall : Expr) (ex : Exception) (isSym : Bool
                 got result type{indentExpr retTy}\n{ex.toMessageData}"
   throw ex
 
-private def buildSlotMatchCall (slot : CompiledExprSlot)
-    (patConst scrutinee onMatchLam onFailLam : Expr) (ctxArgs : Array Expr) : TermElabM Expr := do
+private def buildSlotMatchCall (slot : CompiledExprSlot) (siteId : Name)
+    (patExpr scrutinee onMatchLam onFailLam : Expr) (ctxArgs : Array Expr) : TermElabM Expr := do
   let pinIdxsExpr ←
     if slot.pinIdxs.isEmpty then
       pure (Expr.app (mkConst ``Array.empty [0]) (mkConst ``Nat))
@@ -1372,36 +1336,36 @@ private def buildSlotMatchCall (slot : CompiledExprSlot)
       Expr.app (mkConst ``Array.empty [0]) (mkConst ``Expr)
     else
       (slot.pinsLam.beta ctxArgs)
-  let siteIdExpr := toExpr (patConst.constName?.getD .anonymous)
+  let siteIdExpr := toExpr siteId
   if slot.rel.engine == .sym then
     if slot.rel.items.isEmpty && !slot.hasLocalItems then
       let resolvedRelExpr := quoteResolvedExprMatchRel slot.rel
       mkAppM ``ExprPattern.matchSymResolvedOrElse
-        #[siteIdExpr, patConst, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee,
+        #[siteIdExpr, patExpr, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee,
           onMatchLam, onFailLam]
     else
       let relExpr ← quoteExprMatchRel slot.rel
       let localItemsExpr := (slot.localItemsLam.beta ctxArgs)
       mkAppM ``ExprPattern.matchSymSiteOrElse
-        #[siteIdExpr, patConst, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
+        #[siteIdExpr, patExpr, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
           onMatchLam, onFailLam]
   else if slot.rel.items.isEmpty && !slot.hasLocalItems then
     -- Emit a closed `ResolvedExprMatchRel` so the compiler hoists it with zero allocation.
     let resolvedRelExpr := quoteResolvedExprMatchRel slot.rel
     mkAppM ``ExprPattern.matchResolvedOrElse
-      #[patConst, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee, onMatchLam, onFailLam]
+      #[patExpr, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee, onMatchLam, onFailLam]
   else
     let relExpr ← quoteExprMatchRel slot.rel
     let localItemsExpr := (slot.localItemsLam.beta ctxArgs)
     mkAppM ``ExprPattern.matchSiteOrElse
-      #[siteIdExpr, patConst, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
+      #[siteIdExpr, patExpr, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
         onMatchLam, onFailLam]
 
 private def buildSlotChainGo (jpAlt : Expr) (alt : ExprMatchAlt) (ordFVars eqs : Array Expr)
     (failCall : Expr) (slotIdx : Nat) (quotFVars ctxArgs : Array Expr) : TermElabM Expr := do
   if h : slotIdx < alt.slots.size then
     let slot := alt.slots[slotIdx]
-    let patConst ← mkAuxPatConst slot.pat
+    let (siteId, patExpr) ← mkAuxPatExpr slot.pat
     let scrutinee := ordFVars.getD slot.ordVarIdx default
     let onMatchLam ← withLocalDeclD (← mkFreshUserName `__xs)
         (mkApp (mkConst ``Array [0]) (mkConst ``Expr)) fun xsVar => do
@@ -1412,7 +1376,7 @@ private def buildSlotChainGo (jpAlt : Expr) (alt : ExprMatchAlt) (ordFVars eqs :
     let onFailLam ← withLocalDeclD `_ (mkConst ``Unit) fun _u =>
       mkLambdaFVars #[_u] failCall
     try
-      buildSlotMatchCall slot patConst scrutinee onMatchLam onFailLam ctxArgs
+      buildSlotMatchCall slot siteId patExpr scrutinee onMatchLam onFailLam ctxArgs
     catch ex =>
       buildMatchSiteError failCall ex (isSym := slot.rel.engine == .sym)
   else
@@ -1578,7 +1542,7 @@ private def buildIndexedSlotRun (jpAlts : Array Expr) (alts : Array ExprMatchAlt
     (i runEnd : Nat) (colDiscrs : Array Expr) (col0 : Nat) (failCall : Expr) :
     TermElabM Expr := do
   let rel0 := (alts.getD i default).slots.getD 0 default |>.rel
-  let mut patConsts : Array Expr := #[]
+  let mut patEntries : Array (Name × Expr) := #[]
   let mut tryFns : Array Expr := #[]
   let retTy ← inferType failCall
   let failFnTy ← mkArrow (mkConst ``Unit) retTy
@@ -1588,8 +1552,8 @@ private def buildIndexedSlotRun (jpAlts : Array Expr) (alts : Array ExprMatchAlt
     let altK := alts.getD k default
     let slot := altK.slots.getD 0 default
     let jpAlt := jpAlts.getD k default
-    let patConst ← mkAuxPatConst slot.pat
-    patConsts := patConsts.push patConst
+    let patEntry@(patSiteId, patExpr) ← mkAuxPatExpr slot.pat
+    patEntries := patEntries.push patEntry
     let some ordMap := mapSimpleAllVarArgs altK colDiscrs
       | throwError "internal error in expr quotation index compilation: failed to map vars"
     let tryFn ←
@@ -1606,13 +1570,13 @@ private def buildIndexedSlotRun (jpAlts : Array Expr) (alts : Array ExprMatchAlt
             mkLambdaFVars #[xsVar] body
           let matchCall ←
             try
-              buildSlotMatchCall slot patConst scrutVar onMatchLam failVar ordMap
+              buildSlotMatchCall slot patSiteId patExpr scrutVar onMatchLam failVar ordMap
             catch ex =>
               buildMatchSiteError failCall ex (isSym := rel0.engine == .sym)
           mkLambdaFVars #[scrutVar, failVar] matchCall
     tryFns := tryFns.push tryFn
-  let patArrConst ← mkAuxPatArrConst patConsts
-  let siteIdExpr := toExpr (patArrConst.constName?.getD .anonymous)
+  let (arrSiteId, patArrExpr) ← mkAuxPatArrExpr patEntries
+  let siteIdExpr := toExpr arrSiteId
   let scrutinee := colDiscrs.getD col0 default
   let tryAtArr ← mkArrayLit tryFnTy tryFns.toList
   let onFailLam ← withLocalDeclD `_ (mkConst ``Unit) fun _u => mkLambdaFVars #[_u] failCall
@@ -1620,11 +1584,11 @@ private def buildIndexedSlotRun (jpAlts : Array Expr) (alts : Array ExprMatchAlt
     if rel0.engine == .sym then
       let resolvedRelExpr := quoteResolvedExprMatchRel rel0
       mkAppM ``ExprPattern.matchSymIndexedOrElse
-        #[siteIdExpr, patArrConst, resolvedRelExpr, scrutinee, tryAtArr, onFailLam]
+        #[siteIdExpr, patArrExpr, resolvedRelExpr, scrutinee, tryAtArr, onFailLam]
     else
       let relExpr ← quoteExprMatchRel rel0
       mkAppM ``ExprPattern.matchIndexedOrElse
-        #[siteIdExpr, patArrConst, relExpr, scrutinee, tryAtArr, onFailLam]
+        #[siteIdExpr, patArrExpr, relExpr, scrutinee, tryAtArr, onFailLam]
   catch ex =>
     buildMatchSiteError failCall ex (isSym := rel0.engine == .sym)
 
@@ -2278,9 +2242,9 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
         varKinds
       }
       return (tmpl, orderedSplices.toList)
-  let tmplConst ← mkAuxTmplConst tmpl
+  let (siteId, tmplExpr) ← mkAuxTmplExpr tmpl
   let splicesArrExpr ← mkArrayLit (mkConst ``Expr) splicesArgList
-  let siteIdExpr := toExpr (tmplConst.constName?.getD .anonymous)
+  let siteIdExpr := toExpr siteId
   if rel.engine == .sym then
     if let some expTy := expectedType? then
       let expTyInst ← instantiateMVars expTy
@@ -2302,7 +2266,7 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
       if rel.items.isEmpty && localItemExprs.isEmpty then
         let resolvedRelExpr := quoteResolvedExprMatchRel rel
         pure <| mkAppN (mkConst ``ExprTemplate.instantiateSymResolved [v])
-          #[mExpr, monadMV, symMV, siteIdExpr, tmplConst, resolvedRelExpr, splicesArrExpr]
+          #[mExpr, monadMV, symMV, siteIdExpr, tmplExpr, resolvedRelExpr, splicesArrExpr]
       else
         let relExpr ← quoteExprMatchRel rel
         let boolExprProd := mkApp2 (mkConst ``Prod [0, 0]) (mkConst ``Bool) (mkConst ``Expr)
@@ -2310,11 +2274,11 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
           mkAppM ``Prod.mk #[toExpr pos, e]
         let localItemsArrExpr ← mkArrayLit boolExprProd localItemList
         pure <| mkAppN (mkConst ``ExprTemplate.instantiateSymSite [v])
-          #[mExpr, monadMV, symMV, siteIdExpr, tmplConst, relExpr,
+          #[mExpr, monadMV, symMV, siteIdExpr, tmplExpr, relExpr,
             splicesArrExpr, localItemsArrExpr]
     else if rel.items.isEmpty && localItemExprs.isEmpty then
       let resolvedRelExpr := quoteResolvedExprMatchRel rel
-      mkAppM ``ExprTemplate.instantiateResolved #[tmplConst, resolvedRelExpr, splicesArrExpr]
+      mkAppM ``ExprTemplate.instantiateResolved #[tmplExpr, resolvedRelExpr, splicesArrExpr]
     else
       let relExpr ← quoteExprMatchRel rel
       let boolExprProd := mkApp2 (mkConst ``Prod [0, 0]) (mkConst ``Bool) (mkConst ``Expr)
@@ -2322,7 +2286,7 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
         mkAppM ``Prod.mk #[toExpr pos, e]
       let localItemsArrExpr ← mkArrayLit boolExprProd localItemList
       mkAppM ``ExprTemplate.instantiateSite
-        #[siteIdExpr, tmplConst, relExpr, splicesArrExpr, localItemsArrExpr]
+        #[siteIdExpr, tmplExpr, relExpr, splicesArrExpr, localItemsArrExpr]
   try
     Term.ensureHasType expectedType? callExpr
   catch

@@ -395,15 +395,52 @@ run_meta do
     let (goalRes, _) ← (matchInGoalM t).run goal
     check (goalRes == some exp) "expected GoalM match/build"
 
-  -- Env deduplication: repeated identical patterns emit 1 `exprPat` const.
+  -- Env deduplication: repeated identical patterns/templates emit 0 extra consts, 1 unique
+  -- `decode` payload each, and share one `siteId` across duplicate template sites.
   let env ← getEnv
   let loopPatCount := env.constants.fold (init := 0) fun acc n _ =>
     if (``symSiteCacheLoop).isPrefixOf n && n.toString.contains "exprPat" then acc + 1 else acc
   let loopTmplCount := env.constants.fold (init := 0) fun acc n _ =>
     if (``symSiteCacheLoop).isPrefixOf n && n.toString.contains "exprTmpl" then acc + 1 else acc
-  check (loopPatCount == 1) s!"expected 1 exprPat const for symSiteCacheLoop, got {loopPatCount}"
-  check (loopTmplCount == 1)
-    s!"expected 1 deduplicated exprTmpl const for symSiteCacheLoop, got {loopTmplCount}"
+  check (loopPatCount == 0) s!"expected 0 extra exprPat consts for symSiteCacheLoop, \
+    got {loopPatCount}"
+  check (loopTmplCount == 0) s!"expected 0 extra exprTmpl consts for symSiteCacheLoop, \
+    got {loopTmplCount}"
+  let some loopVal := (env.find? ``symSiteCacheLoop).bind (·.value?)
+    | throwError "expected value for symSiteCacheLoop"
+  let rec collectInfo (e : Expr) (st : Array String × Array String × Array Expr) :
+      Array String × Array String × Array Expr :=
+    let st := match e with
+      | .app (.const fn _) (.lit (.strVal s)) =>
+        let (pats, tmpls, sites) := st
+        if fn == ``ExprPattern.decode then
+          (if pats.contains s then pats else pats.push s, tmpls, sites)
+        else if fn == ``ExprTemplate.decode then
+          (pats, if tmpls.contains s then tmpls else tmpls.push s, sites)
+        else
+          st
+      | _ =>
+        if e.isAppOfArity ``ExprTemplate.instantiateSymResolved 7 then
+          let siteArg := e.getArg! 3
+          let (pats, tmpls, sites) := st
+          (pats, tmpls, if sites.contains siteArg then sites else sites.push siteArg)
+        else
+          st
+    match e with
+    | .app f a         => collectInfo a (collectInfo f st)
+    | .lam _ t b _     => collectInfo b (collectInfo t st)
+    | .forallE _ t b _ => collectInfo b (collectInfo t st)
+    | .letE _ t v b _  => collectInfo b (collectInfo v (collectInfo t st))
+    | .mdata _ b       => collectInfo b st
+    | .proj _ _ b      => collectInfo b st
+    | _                => st
+  let (patPayloads, tmplPayloads, tmplSiteIds) := collectInfo loopVal (#[], #[], #[])
+  check (patPayloads.size == 1)
+    s!"expected 1 unique ExprPattern.decode payload in symSiteCacheLoop, got {patPayloads.size}"
+  check (tmplPayloads.size == 1)
+    s!"expected 1 unique ExprTemplate.decode payload in symSiteCacheLoop, got {tmplPayloads.size}"
+  check (tmplSiteIds.size == 1)
+    s!"expected 1 shared template siteId in symSiteCacheLoop, got {tmplSiteIds.size}"
 
 syntax (name := testSymQuotTactic) "test_sym_quot" : grind
 

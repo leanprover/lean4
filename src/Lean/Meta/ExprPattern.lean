@@ -43,8 +43,8 @@ Defines:
   - precomputed pattern `levelParam` node sets and `.const`/`.sort` universe level checks,
   - direct pin pre-seeding and per-site `ResolvedExprMatchRel` runtime caching, and
   - lazy look-through with consistent `let`-rewrapping across structural and `isDefEq` engines.
-- `ExprContext` (`ExprContext.fill`), `localHypTypes`, `localHypDecls`, `Subterms` (`subterms`),
-  and `MatchDiscriminants` (`matchDiscriminants`).
+- `ExprContext` (`ExprContext.fill`), `localHypTypes`, `localHypDecls`, `MVarId.firstHyp?`,
+  `MVarId.firstHyp`, `Subterms` (`subterms`), and `MatchDiscriminants` (`matchDiscriminants`).
 -/
 
 namespace Lean.Meta
@@ -3818,6 +3818,39 @@ def localHypDecls (reverse : Bool := false) (except : List Expr := []) :
   return if reverse then res.reverse else res
 
 /--
+Run `f h ty` on each non-implementation-detail hypothesis `(h, ty)` in `mvarId`'s local context
+and return the first succeeding result `some r`.
+
+Hypotheses are tried newest first by default (`reverse := true`, matching Rocq `match goal`); pass
+`reverse := false` for oldest first. Free variables listed in `except` are skipped, and assigned
+metavariables in `ty` are instantiated before `f` is called. Each failing attempt backtracks state
+via `observing?` before trying the next hypothesis, returning `none` if none succeed. In `TacticM`,
+prefer `Lean.Elab.Tactic.firstHyp?`, which also disables error recovery and rolls back info trees.
+-/
+def _root_.Lean.MVarId.firstHyp? {ε : Type} [Monad m] [MonadControlT MetaM m]
+    [MonadLiftT MetaM m] [MonadBacktrack s m] [MonadExcept ε m]
+    (mvarId : MVarId) (f : Expr → Expr → m α)
+    (reverse : Bool := true) (except : List Expr := []) : m (Option α) :=
+  mvarId.withContext do
+    let hyps ← (localHypTypes (reverse := reverse) (except := except) :
+      MetaM (Array (Expr × Expr)))
+    for (h, ty) in hyps do
+      if let some r ← observing? (f h ty) then
+        return some r
+    return none
+
+/--
+Like `MVarId.firstHyp?`, but throws `"firstHyp: no hypothesis matched"` if no hypothesis succeeds.
+-/
+def _root_.Lean.MVarId.firstHyp {ε : Type} [Monad m] [MonadControlT MetaM m]
+    [MonadLiftT MetaM m] [MonadBacktrack s m] [MonadExcept ε m] [MonadError m]
+    (mvarId : MVarId) (f : Expr → Expr → m α)
+    (reverse : Bool := true) (except : List Expr := []) : m α := do
+  match ← mvarId.firstHyp? f (reverse := reverse) (except := except) with
+  | some a => return a
+  | none   => throwError "firstHyp: no hypothesis matched"
+
+/--
 Lazy stream of closed subterms of an `Expr`, each paired with its `ExprContext`.
 Created by `subterms`. Supports `for (sub, ctx) in subterms e do ...` with early exit (`break`),
 plus `.toArray` and `.toList`.
@@ -3843,6 +3876,9 @@ With `dedup := true` (default), structurally equal subterms are deduplicated via
 only the first occurrence's `ExprContext`); with `dedup := false`, every occurrence is emitted with
 its own `ExprContext`. With `includeAppPrefixes := false` (default), intermediate curried
 application prefixes are omitted while head and argument `ExprContext` chains stay complete.
+
+Note: `subterms` traverses `e` syntactically without `instantiateMVars` (`Tactic.getMainTarget`
+and `localHypTypes` already instantiate mvars; raw `MVarId.getType` callers should do so first).
 -/
 def subterms (e : Expr) (dedup : Bool := true) (includeAppPrefixes : Bool := false) : Subterms :=
   { expr := e, dedup, includeAppPrefixes }

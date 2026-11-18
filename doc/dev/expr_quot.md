@@ -18,7 +18,8 @@ inspecting, and building Lean `Expr` values directly inside Lean expressions and
     `matchResolvedOrElse`, `matchSymSiteOrElse`, `matchSymResolvedOrElse`), shared-relation
     `DiscrTree` dispatchers (`matchIndexedOrElse`, `matchSymIndexedOrElse`), and `MonadSym`.
   - Context and sources: `ExprContext` (`ExprContext.fill`), `localHypTypes`,
-    `localHypDecls`, `subterms`, and `matchDiscriminants`.
+    `localHypDecls`, `MVarId.firstHyp?`, `MVarId.firstHyp`, `subterms`, and
+    `matchDiscriminants`.
 - **`Lean.Elab.ExprQuot`** (`src/Lean/Elab/ExprQuot.lean`):
   Front-end preprocessing (`?x` binders, higher-order `?P x y`, `$e` pins/splices, `_`/`?_`
   wildcards), elaboration into deduplicated `(siteId, ExprPattern.decode ...)` /
@@ -26,6 +27,9 @@ inspecting, and building Lean `Expr` values directly inside Lean expressions and
   into shared closed terms by LCNF `ExtractClosed` (`ClosedTermCache`), `(modulo := rel)` macro
   expansion, native `match` compilation (`compileExprMatch`), `for case` support, and diagnostics
   (`#check_pattern`, `checkSyntaxHoleInExprMatchPatterns`, `numeralDefaulting` lint).
+- **`Lean.Elab.Tactic.FirstHyp`** (`src/Lean/Elab/Tactic/FirstHyp.lean`):
+  Defines `firstHyp?` and `firstHyp` for backtracking hypothesis search over the main goal with
+  atomic state rollback and no `sorry` leakage on failing branches.
 - **`Lean.Elab.Tactic.Grind.Sym`** (`src/Lean/Elab/Tactic/Grind/Sym.lean`):
   Defines the low-priority `MonadSym GrindTacticM` instance so `` `(expr/sym| ...) `` works
   directly inside `sym =>` tactics. Note: `Grind/Sym.lean` uses
@@ -129,12 +133,51 @@ order and single-evaluation deduplication:
     pattern elaborator and numeral-defaulting context.
 - **Sources and `ExprContext`**:
   - `localHypTypes (reverse := false) (except := [])`: yields non-implDetail hypotheses in the
-    local context (oldest first by default).
-  - `localHypDecls`: includes local `let` declaration values.
+    local context (oldest first by default) with metavariables instantiated.
+  - `localHypDecls (reverse := false) (except := [])`: also includes dependent `let` values.
+  - `firstHyp` / `firstHyp?` (`TacticM`) and `MVarId.firstHyp` / `MVarId.firstHyp?` (`MetaM` /
+    `MonadBacktrack`): try `f h ty` across `localHypTypes` (`reverse := true` newest first by
+    default), entering the goal's local context automatically and rolling back state atomically on
+    failure (`firstHyp` throws `"firstHyp: no hypothesis matched"` when none succeeds).
   - `subterms e (dedup := true)` and `matchDiscriminants e`: yield closed subterms outermost
     first, each paired with an `ExprContext`. Because `dedup := true` by default, shared DAG
     subterms are visited once along their first context path. `ExprContext.fill` substitutes a
-    replacement expression back into the hole while preserving unchanged subtrees.
+    replacement expression back into the hole while preserving unchanged subtrees. Note that
+    `subterms` traverses `e` syntactically without calling `instantiateMVars`, while
+    `matchDiscriminants` instantiates metavariables first.
+
+## Idioms for Porting Rocq `match goal` Tactics
+
+- **Backtracking hypothesis search**: Use `firstHyp` (`TacticM`) or `goal.firstHyp` (`MetaM` /
+  `MonadBacktrack`) when an arm may mutate the goal before failing (e.g. `specialize` or recursive
+  search). Its `reverse := true` default matches Rocq's newest-first order; handle multi-hypothesis
+  patterns by nesting `except` and pinning shared terms with `$P`:
+  ```lean
+  firstHyp fun h1 ty1 => do
+    let `(expr/reducible| (?P : Prop) → _) := ty1 | failure
+    firstHyp (except := [h1]) fun h2 ty2 => do
+      let `(expr/reducible| $P) := ty2 | failure
+      ...
+  ```
+- **Contextual `change` and `rewrite`**: Match a target subterm and its `ExprContext` via
+  ``for case (`(expr| pat), ctx) in subterms ...`` and apply contextual `change` with
+  `goal.replaceTargetDefEq (ctx.fill e')`. For contextual `rewrite`, pass an equality `eq` directly
+  to `goal.rewrite (← goal.getType) eq` (followed by `goal.replaceTargetEq`); `kabstract` handles
+  dependent occurrences (such as `Decidable` instances in `ite`) cleanly without fragile
+  path-to-occurrence mapping.
+- **Direct `MVarId` steps over `Syntax` round-tripping**: Drive tactics from `FVarId`/`Expr` using
+  `goal.assign`, `goal.cases`, `goal.clear`, `goal.note`, and `replaceMainGoal` rather than
+  quoting tactic syntax with `Term.exprToSyntax`, which breaks on inaccessible `h✝` names or stale
+  contexts. When tactic syntax is unavoidable (e.g. `generalize ... at *`), call
+  `Term.exprToSyntax` inside `withMainContext`.
+- **Context and metavariable hygiene**: `firstHyp` and `MVarId.firstHyp` enter the goal's context
+  automatically; when calling `localHypTypes` or `localHypDecls` directly in `TacticM`, wrap the
+  block in `withMainContext`. `getMainTarget` and `localHypTypes` instantiate metavariables,
+  whereas `subterms` traverses syntactically (call `instantiateMVars` first on `MVarId.getType`
+  or `inferType` results).
+- **Filtering `match` discriminants**: Lean's compiled `match`es often carry generalized index
+  discriminants alongside the value being split; filter `matchDiscriminants` with a typed pattern
+  such as `` `(expr/reducible| (?x : MyType)) ``.
 
 ## Diagnostics
 

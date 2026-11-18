@@ -2,8 +2,11 @@ import Lean
 
 /-!
 Tests for `Lean.MVarId.firstHyp?`, `Lean.MVarId.firstHyp`, `Lean.Elab.Tactic.firstHyp?`,
-and `Lean.Elab.Tactic.firstHyp`:
+`Lean.Elab.Tactic.firstHyp`, `Lean.Elab.Tactic.Grind.firstHyp?`, and
+`Lean.Elab.Tactic.Grind.firstHyp`:
 - `MVarId.firstHyp` / `firstHyp?` in `MetaM`, `ExceptT`, and `TacticM`
+- `Grind.firstHyp` / `Grind.firstHyp?` in `GrindTacticM` (`sym =>`) with atomic `Grind.SavedState`
+  rollback (including `InfoTree` restoration)
 - Default `reverse := true` (newest first) vs `reverse := false` (oldest first)
 - Pattern matching `(h, ty)` via `` `(expr/reducible| ...) `` and nested
   `firstHyp (except := [h1])` with `$P` pins for multi-hypothesis matching
@@ -477,5 +480,183 @@ example : True := by
   run_tac firstHyp fun _ _ => pure ()
 
 end TacticNoMatchAndNoGoals
+
+/-! ## 7. `Grind.firstHyp?` / `Grind.firstHyp` in `sym =>` mode -/
+
+section GrindFirstHypTests
+open Lean.Elab.Tactic.Grind
+
+section GrindOrderAndExcept
+
+scoped syntax (name := testGrindOrder) "test_grind_first_hyp_order" : grind
+
+@[grind_tactic testGrindOrder] def evalTestGrindOrder : GrindTactic := fun _ => do
+  let parsePTag := fun _ ty => do
+    match ty with
+    | `(expr/reducible| pTag ?n) =>
+      let some k ← getNatValue? n | throwError "not nat"
+      return k
+    | _ => throwError "no"
+  let newest? ← Grind.firstHyp? parsePTag
+  let oldest? ← Grind.firstHyp? (reverse := false) parsePTag
+  let distinctPair ← Grind.firstHyp fun h1 ty1 =>
+    match ty1 with
+    | `(expr/reducible| pTag ?_) =>
+      Grind.firstHyp (except := [h1]) fun h2 ty2 =>
+        match ty2 with
+        | `(expr/reducible| pTag ?_) => return (h1 != h2)
+        | _                          => throwError "no"
+    | _ => throwError "no"
+  logInfo m!"({newest?}, {oldest?}, {distinctPair})"
+  (← getMainGoal).mvarId.assign (mkConst ``True.intro)
+  replaceMainGoal []
+
+/-- info: (some (30), some (10), true) -/
+#guard_msgs in
+example : pTag 10 → pTag 20 → pTag 30 → True := by
+  sym =>
+    intros~
+    test_grind_first_hyp_order
+
+end GrindOrderAndExcept
+
+section GrindRollbackAllFail
+
+scoped syntax (name := testGrindRollbackAllFail) "test_grind_first_hyp_rollback_all_fail" : grind
+
+@[grind_tactic testGrindRollbackAllFail] def evalTestGrindRollbackAllFail : GrindTactic :=
+  fun _ => withEnableInfoTree true do
+    let sideMVar ← mkFreshExprMVar (some (mkConst ``Nat))
+    let goalsBefore ← Grind.getGoals
+    let msgCountBefore := (← Core.getMessageLog).toList.length
+    let infoCountBefore := (← getInfoTrees).size
+    let levelNamesBefore ← Term.getLevelNames
+
+    let noneRes : Option Unit ← Grind.firstHyp? fun h _ => do
+      sideMVar.mvarId!.assign (mkNatLit 99)
+      let g ← getMainGoal
+      let g1 ← mkFreshExprMVar (some (mkConst ``True))
+      let g2 ← mkFreshExprMVar (some (mkConst ``True))
+      replaceMainGoal [{ g with mvarId := g1.mvarId! }, { g with mvarId := g2.mvarId! }]
+      logInfo m!"stray info {h}"
+      pushInfoLeaf (.ofTermInfo {
+        elaborator := `test
+        stx := Syntax.missing
+        lctx := ← getLCtx
+        expectedType? := none
+        expr := h
+      })
+      Term.setLevelNames [`bogusGrindLevel]
+      throwError "fail all"
+
+    let afterNoneOk :=
+      noneRes.isNone &&
+      !(← sideMVar.mvarId!.isAssigned) &&
+      (← Grind.getGoals).map (·.mvarId) == goalsBefore.map (·.mvarId) &&
+      (← Core.getMessageLog).toList.length == msgCountBefore &&
+      (← getInfoTrees).size == infoCountBefore &&
+      (← Term.getLevelNames) == levelNamesBefore
+    logInfo m!"{afterNoneOk}"
+    (← getMainGoal).mvarId.assign (mkConst ``True.intro)
+    replaceMainGoal []
+
+/-- info: true -/
+#guard_msgs in
+example : pTag 1 → pTag 2 → True := by
+  sym =>
+    intros~
+    test_grind_first_hyp_rollback_all_fail
+
+end GrindRollbackAllFail
+
+section GrindRollbackPartialArm
+
+scoped syntax (name := testGrindRollback) "test_grind_first_hyp_rollback" : grind
+
+@[grind_tactic testGrindRollback] def evalTestGrindRollback : GrindTactic := fun _ =>
+  withEnableInfoTree true do
+    let sideMVar ← mkFreshExprMVar (some (mkConst ``Nat))
+    let msgCountBefore := (← Core.getMessageLog).toList.length
+    let infoCountBefore := (← getInfoTrees).size
+    let levelNamesBefore ← Term.getLevelNames
+    let mutatedRef ← IO.mkRef (false, false)
+    let ok ← Grind.firstHyp (reverse := false) fun h ty => do
+      if ty == mkApp (mkConst ``pTag) (mkNatLit 1) then
+        sideMVar.mvarId!.assign (mkNatLit 123)
+        logInfo m!"leaked info"
+        pushInfoLeaf (.ofTermInfo {
+          elaborator := `test
+          stx := Syntax.missing
+          lctx := ← getLCtx
+          expectedType? := none
+          expr := h
+        })
+        Term.setLevelNames [`bogusGrindLevel2]
+        mutatedRef.set
+          ((← Core.getMessageLog).toList.length > msgCountBefore,
+           (← getInfoTrees).size > infoCountBefore)
+        throwError "arm 1 failed"
+      let (msgsGrew, infoGrew) ← mutatedRef.get
+      let clean :=
+        !(← sideMVar.mvarId!.isAssigned) &&
+        (← Core.getMessageLog).toList.length == msgCountBefore &&
+        (← getInfoTrees).size == infoCountBefore &&
+        (← Term.getLevelNames) == levelNamesBefore
+      let goal ← getMainGoal
+      unless ← isDefEq ty (← goal.mvarId.getType) do
+        throwError "wrong hyp"
+      goal.mvarId.assign h
+      replaceMainGoal []
+      return (msgsGrew, infoGrew, clean)
+    let (a, b, c) := ok
+    logInfo m!"({a}, {b}, {c})"
+
+/-- info: (true, true, true) -/
+#guard_msgs in
+example : pTag 1 → pTag 2 → pTag 2 := by
+  sym =>
+    intros~
+    test_grind_first_hyp_rollback
+
+end GrindRollbackPartialArm
+
+section GrindNoMatch
+
+scoped syntax (name := testGrindNoMatch) "test_grind_first_hyp_no_match" : grind
+
+@[grind_tactic testGrindNoMatch] def evalTestGrindNoMatch : GrindTactic := fun _ =>
+  Grind.firstHyp fun _ _ => throwError "never"
+
+/--
+error: firstHyp: no hypothesis matched
+-/
+#guard_msgs in
+example (h : Nat) : True := by
+  sym =>
+    test_grind_first_hyp_no_match
+    done
+
+end GrindNoMatch
+
+section GrindNoGoals
+
+scoped syntax (name := testGrindNoGoals) "test_grind_first_hyp_no_goals" : grind
+
+@[grind_tactic testGrindNoGoals] def evalTestGrindNoGoals : GrindTactic := fun _ => do
+  (← getMainGoal).mvarId.assign (mkConst ``True.intro)
+  replaceMainGoal []
+  Grind.firstHyp fun _ _ => pure ()
+
+/--
+error: No goals to be solved
+-/
+#guard_msgs in
+example : True := by
+  sym =>
+    test_grind_first_hyp_no_goals
+
+end GrindNoGoals
+
+end GrindFirstHypTests
 
 end FirstHypTest

@@ -159,6 +159,42 @@ public def assumption? : GrindTacticM Bool := do
     return true
   return false
 
+/--
+Try `f h ty` on each non-implementation-detail hypothesis `(h, ty)` of the main goal and return
+the first succeeding result `some r`.
+
+Hypotheses are tried newest first by default (`reverse := true`); pass `reverse := false` for
+oldest first. Free variables listed in `except` are skipped, and assigned metavariables in `ty`
+are instantiated before `f` is invoked inside the main goal's local context.
+
+Execution runs inside `Term.withoutTacticIncrementality true`, `Term.withoutErrToSorry`, and
+`withoutRecover`. If an arm fails, `Grind.SavedState` is atomically rolled back with
+`restoreInfo := true` before trying the next hypothesis. Returns `none` if no hypothesis succeeds.
+-/
+public def firstHyp? (f : Expr → Expr → GrindTacticM α)
+    (reverse : Bool := true) (except : List Expr := []) : GrindTacticM (Option α) :=
+  Term.withoutTacticIncrementality true <| Term.withoutErrToSorry <| withoutRecover do
+    (← getMainGoal).mvarId.withContext do
+      let hyps ← (Meta.localHypTypes (reverse := reverse) (except := except) :
+        MetaM (Array (Expr × Expr)))
+      let s ← Grind.saveState
+      for (h, ty) in hyps do
+        if let some r ← Grind.tryCatch (some <$> f h ty) fun _ => do
+            s.restore (restoreInfo := true)
+            return none then
+          return some r
+      return none
+
+/--
+Like `Lean.Elab.Tactic.Grind.firstHyp?`, but throws `"firstHyp: no hypothesis matched"` if no
+hypothesis succeeds.
+-/
+public def firstHyp (f : Expr → Expr → GrindTacticM α)
+    (reverse : Bool := true) (except : List Expr := []) : GrindTacticM α := do
+  match ← firstHyp? f (reverse := reverse) (except := except) with
+  | some a => return a
+  | none   => throwError "firstHyp: no hypothesis matched"
+
 @[builtin_grind_tactic Parser.Tactic.Grind.symApply] def evalSymApply : GrindTactic := fun stx => do
   ensureSym
   let `(grind| apply $term:term) := stx | throwUnsupportedSyntax

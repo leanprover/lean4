@@ -209,22 +209,23 @@ def isExecTelescope : Lean.Expr → Bool
   | .mdata _ b => isExecTelescope b
   | e => e.headBeta.isAppOf ``Exec
 
-/-- Closes an evaluation or lookup goal `g : lhs = some ?v` with a precondition
-`h : lhs = some v`. -/
-def closeByHyp (g : MVarId) : MetaM Bool := do
-  let tgt ← g.getType
-  let r ← g.firstHyp? (m := MetaM) fun h ty => do
-    match ty with
-    | `(expr/reducible| (_ : Option Word) = some _) =>
-      unless ← isDefEq ty tgt do failure
-      g.assign h
-    | _ => failure
-  return r.isSome
-
 /-! ## Solver 1: `exec_eval` in `TacticM` -/
 
 section
 open Elab Tactic
+
+/-- Closes an evaluation or lookup goal `lhs = some ?v` with a precondition
+`h : lhs = some v`. -/
+def closeByHyp : TacticM Bool := do
+  let tgt ← getMainTarget
+  let r ← Tactic.firstHyp? fun h ty => do
+    match ty with
+    | `(expr/reducible| (_ : Option Word) = some _) =>
+      unless ← isDefEq ty tgt do failure
+      (← getMainGoal).assign h
+      replaceMainGoal []
+    | _ => failure
+  return r.isSome
 
 /-- Closes the main goal if the path condition `h : v = 0` / `h : v ≠ 0` just introduced is
 infeasible: refuted by `decide` (for closed `v`), or contradicting an earlier path condition. -/
@@ -293,9 +294,9 @@ def execEvalStep : TacticM Unit := withMainContext do
   | `(expr/reducible| (_ : Option Word) = some _) => focus do
     evalTactic (← `(tactic| try exec_simp))
     let [g] ← getUnsolvedGoals | return
-    unless (← observing? g.refl).isSome || (← closeByHyp g) do
-      throwError "exec_eval: cannot evaluate{indentExpr (← g.getType)}"
-    replaceMainGoal []
+    if (← observing? g.refl).isSome then replaceMainGoal []; return
+    if ← closeByHyp then return
+    throwError "exec_eval: cannot evaluate{indentExpr (← g.getType)}"
   | ty =>
     if isExecTelescope ty then
       let (h, g) ← g.intro1
@@ -366,14 +367,14 @@ def pruneInfeasibleSym (h : FVarId) : GrindTacticM Bool := withMainContext do
     g.assign (← mkAbsurd tgt (.fvar h) (← mkDecideProof (mkNot p)))
     replaceMainGoal []
     return true
-  let r ← g.firstHyp? (m := MetaM) (except := [.fvar h]) fun h' ty => do
+  let r ← firstHyp? (except := [.fvar h]) fun h' ty => do
     match p, ty with
     | `(expr/reducible| ¬ (?q : Prop)), `(expr/reducible| $q) =>
       g.assign (← mkAbsurd tgt h' (.fvar h))
     | _, `(expr/reducible| ¬ $p) =>
       g.assign (← mkAbsurd tgt (.fvar h) h')
     | _, _ => failure
-  if r.isSome then replaceMainGoal []
+    replaceMainGoal []
   return r.isSome
 
 /-- The `exec_sym` loop. -/

@@ -208,7 +208,7 @@ def checkScaling (tag : String) (mk : Ident → Nat → CommandElabM Command) (n
     throwError "`{tag}`: heartbeats {h₁}, {h₂}, {h₄} at sizes {n}, {2 * n}, {4 * n} give \
       d₂ / d₁ = {h₄ - h₂} / {h₂ - h₁}, above the bound {bound} / 10"
 
-elab "#check_do_scaling" : command => do
+run_cmd do
   checkScaling "nestedMatchBind" nestedMatchBind 50 25
   checkScaling "reassignSeq" reassignSeq 100 25
   checkScaling "deepActions" deepActions 100 25
@@ -222,5 +222,3 @@ elab "#check_do_scaling" : command => do
   checkScaling "manyMut" manyMut 20 33
   checkScaling "arms" arms 50 32
   checkScaling "elseIfs" elseIfs 50 31
-
-#check_do_scaling

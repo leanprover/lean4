@@ -276,10 +276,11 @@ def normalizePreToTop? (goal : MVarId) (pre target : Expr) : VCGenM (Option (Lis
   return none
 
 /-- `MatcherApp.toExpr` with the `SymM` builders, so that the application shares its parts. -/
-def _root_.Lean.Meta.MatcherApp.toExprS (m : MatcherApp) : SymM Expr := do
+def Lean.Meta.MatcherApp.toExprS (m : MatcherApp) : SymM Expr := do
   mkAppNS (← mkConstS m.matcherName m.matcherLevels.toList)
     (m.params ++ #[m.motive] ++ m.discrs ++ m.alts ++ m.remaining)
 
+open Lean.Elab.Tactic.VCGen in
 /-- Reduce the matcher application `e` with a hypothesis `h : x = t` of `scope.splitEqs` for one of
 its discriminants `x`, when the matcher reduces once `t` replaces `x`. Returns the reduct `e'` and a
 proof of `e = e'`. -/

@@ -114,7 +114,7 @@ host to connect to.
 
 * **Absolute URI**: scheme and authority come directly from the URI. Per RFC 3986 §5.2.2 an
   absolute reference takes its authority from the reference and does not inherit the base's, so an
-  absolute URL without an authority resolves to `none`.
+  absolute URL without an authority, or with an empty host, resolves to `none`.
 
 * **Protocol-relative reference** (`//host/path`): authority comes from the reference,
   scheme is inherited from `current` (RFC 3986 §5.2.2, R.authority defined).
@@ -124,12 +124,12 @@ host to connect to.
 -/
 private def resolveOrigin (current : URI.Origin) : URIReference → Option URI.Origin
   | .absolute af =>
-    af.authority.map fun auth =>
+    af.authority.bind fun auth =>
       let port : UInt16 :=
         match auth.port with
         | .value v => v
         | _ => URI.Scheme.defaultPort af.scheme
-      { scheme := af.scheme, host := auth.host, port }
+      if auth.host == .empty then none else some { scheme := af.scheme, host := auth.host, port }
 
   | .relative { authority := some auth, .. } =>
     let port : UInt16 :=

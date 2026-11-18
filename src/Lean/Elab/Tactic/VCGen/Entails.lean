@@ -39,6 +39,13 @@ public def unfoldTriple (goal : MVarId) : VCGenM MVarId := do
     | throwError "Failed to unfold the Triple target of {goal}"
   return goal
 
+/-- The local `x` and the term `t` of an equation `x = t` whose `t` does not mention `x`. -/
+public def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
+  let_expr Eq _ x t := φ | none
+  let .fvar xId := x | none
+  if t.containsFVar xId then none
+  return (xId, t)
+
 /-- Decide whether `substEqHyp?` can substitute the equation `eqn` in the goal `eqn → G`.
 
 Consider this goal:
@@ -62,12 +69,11 @@ The result is `none` in these variations of the goal:
   of `hs` mentions `s`.
 * `s` is a `let` variable. -/
 def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr × Bool)) := do
-  let eqn ← instantiateMVarsS eqn
-  let_expr Eq _ x t := eqn | return none
-  let .fvar fvarId := x | return none
+  let some (fvarId, t) := fvarEq? (← instantiateMVarsS eqn) | return none
+  let x := mkFVar fvarId
   let lctx ← getLCtx
   let some decl := lctx.find? fvarId | return none
-  if decl.isLet || t.containsFVar fvarId then return none
+  if decl.isLet then return none
   -- The `maxFVar` entries of `G` let `abstractFVarsRange` skip the subterms without `x`.
   let some maxFVarId ← getMaxFVar? G | return none
   if (← maxFVarId.getDecl).index < decl.index then return none

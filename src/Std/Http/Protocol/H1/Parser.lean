@@ -173,8 +173,9 @@ def hex : Parser Nat := do
   let zeros ← takeWhile (· == '0'.toUInt8)
   if zeros.size > 0 then
     -- A size of only zeros is complete; `go` still needs one digit when nothing came before it.
-    return (← optional (attempt (go 0 0))).getD 0
-  go 0 0
+    if (← peekWhen? isHexDigitByte) |>.isSome then go 0 0 else return 0
+  else
+    go 0 0
 where
   go (acc : Nat) (count : Nat) : Parser Nat := do
     match ← optional (attempt hexDigit) with
@@ -228,27 +229,33 @@ The whole token is read before it is looked up, so a read that ends inside a met
 more input instead of matching a shorter method (`UPDATE` inside `UPDATEREDIRECTREF`), and a
 method that only starts with a known one (`GETX`) is not read as it.
 
-A token the server does not recognize fails with `"unrecognized method"` when it is followed by the
-space that ends a method, or by more token bytes past the 64-byte limit: RFC 9110 §9.1 and RFC 9112
-§3 answer such a method with 501. A token followed by any other byte fails with `"invalid method"`.
+A token the server does not recognize gives `none` when the space that ends a method follows it, and
+fails with `"unrecognized method"` when more token bytes follow past the 64-byte limit: RFC 9110 §9.1
+and RFC 9112 §3 answer such a method with 501. A token followed by any other byte fails with
+`"invalid method"`.
 -/
-def parseMethod : Parser Method := do
+def parseMethod : Parser (Option Method) := do
   let token ← parseToken 64
   match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
-  | some (_, method) => return method
+  | some (_, method) => return some method
   | none =>
     let next ← peek!
-    if next == ' '.toUInt8 || tchar (Char.ofUInt8 next) then fail "unrecognized method"
+    if next == ' '.toUInt8 then return none
+    else if tchar (Char.ofUInt8 next) then fail "unrecognized method"
     else fail "invalid method"
 
 /--
 Parses a request-target URI, up to `limits.maxUriLength` bytes.
 Fails with `"uri too long"` if the target exceeds the configured limit.
+
+The target ends at the first byte no request-target contains, such as the CR of a line with no
+version, so the SP that must follow fails on that byte as soon as it arrives instead of waiting for
+an SP (RFC 9112 §3). Only a target byte past the limit makes the target too long.
 -/
 def parseURI (limits : H1.Config) : Parser ByteArray := do
-  let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength
+  let uri ← takeWhileUpTo isRequestTargetChar limits.maxUriLength
   if uri.size == limits.maxUriLength then
-    if (← peekWhen? (· != ' '.toUInt8)) |>.isSome then
+    if (← peekWhen? isRequestTargetChar) |>.isSome then
       fail "uri too long"
 
   return uri.toByteArray
@@ -279,14 +286,24 @@ def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × 
   return (uri, versionPair)
 
 /--
+Parses `method SP request-target SP HTTP-version CRLF`. An unrecognized method fails with
+`"unrecognized method"` only once the rest of the line parses, so an invalid request line gets 400
+(RFC 9112 §3) whatever its method, and only a valid one with an unrecognized method gets 501.
+-/
+def parseRequestLineParts (limits : H1.Config) : Parser (Method × RequestTarget × Nat × Nat) := do
+  skipLeadingRequestEmptyLines limits
+  let method? ← parseMethod <* sp
+  let (uri, version) ← parseRequestLineBody limits
+  let some method := method? | fail "unrecognized method"
+  return (method, uri, version)
+
+/--
 Parses a request line and returns a fully-typed `Request.Head`. A higher minor version of HTTP/1 is
 read as HTTP/1.1 (RFC 9110 §6.2).
 `request-line = method SP request-target SP HTTP-version`
 -/
 public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
-  skipLeadingRequestEmptyLines limits
-  let method ← parseMethod <* sp
-  let (uri, (major, minor)) ← parseRequestLineBody limits
+  let (method, uri, major, minor) ← parseRequestLineParts limits
   if major == 1 ∧ minor ≥ 1 then
     return ⟨method, .v11, uri, .empty⟩
   else if major == 1 ∧ minor == 0 then
@@ -301,19 +318,33 @@ minor version of HTTP/1 is read as HTTP/1.1 (RFC 9110 §6.2).
 request-line = method SP request-target SP HTTP-version
 -/
 public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Option Version) := do
-  skipLeadingRequestEmptyLines limits
-  let method ← parseMethod <* sp
-  let (uri, (major, minor)) ← parseRequestLineBody limits
+  let (method, uri, major, minor) ← parseRequestLineParts limits
   return (method, uri, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
 /--
-Parses a single header field line.
+Fails with `"header value too long"` if a field value taken up to `limits.maxHeaderValueLength` goes
+on: a field-vchar follows once the whitespace after it is consumed. Trailing whitespace does not
+count toward the limit, and a value that ends at the limit with an invalid byte is malformed instead.
+-/
+def checkFieldValueLength (limits : H1.Config) (value : Option ByteSlice) : Parser Unit := do
+  if let some value := value then
+    if value.size == limits.maxHeaderValueLength then
+      if (← peekWhen? isFieldVChar) |>.isSome then
+        fail "header value too long"
+
+/--
+Parses a single header field line. Fails with `"header name too long"` or `"header value too long"`
+when the name or the value goes past its limit.
 
 `field-line = field-name ":" OWS field-value OWS`
 -/
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← parseToken limits.maxHeaderNameLength
+  if name.size == limits.maxHeaderNameLength then
+    if (← peekWhen? (tchar ∘ Char.ofUInt8)) |>.isSome then
+      fail "header name too long"
   let value ← skipByte ':'.toUInt8 *> ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
+  checkFieldValueLength limits value
 
   let name ← liftOption <| String.fromUTF8? name.toByteArray
   -- obs-text need not be UTF-8; it is kept as opaque data, with any invalid sequence replaced.
@@ -337,6 +368,18 @@ public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × St
     pure none
   else
     some <$> (parseFieldLine limits <* crlf)
+
+/--
+Parses the line that continues a field value after an obsolete line folding (`obs-fold = OWS CRLF
+RWS`, RFC 9112 §5.2): the leading whitespace, the field content and the terminating CRLF. Returns the
+content without the whitespace around it.
+-/
+public def parseObsFoldContinuation (limits : H1.Config) : Parser String := do
+  let value ← ows limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* ows limits
+  checkFieldValueLength limits value
+  crlf
+  let value := String.fromUTF8Lossy <| value.map (·.toByteArray) |>.getD .empty
+  return value.trimAscii.toString
 
 /--
 Parses a backslash-escaped character inside a quoted-string.
@@ -533,6 +576,9 @@ def parseReasonPhrase (limits : H1.Config) : Parser String := do
 /--
 Parses a status-code (3 decimal digits), the following reason phrase, and the
 terminating CRLF; returns a typed `Status`.
+
+A code of 000–099 is a well-formed `3DIGIT` that `Status` cannot hold. RFC 9110 §15 asks a client to
+process such a response as a 5xx, so it is read as `500 Internal Server Error`.
 -/
 def parseStatusCode (limits : H1.Config) : Parser Status := do
   let d1 ← digit
@@ -542,6 +588,9 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   -- Servers that send no reason phrase often leave out the space before it too.
   let phrase := (← optional (sp *> parseReasonPhrase limits)).getD ""
   crlf
+
+  if code < 100 then
+    return .internalServerError
 
   if h : IsValidReasonPhrase phrase then
     if let some status := Status.ofCode (some ⟨phrase, h⟩) code.toUInt16 then

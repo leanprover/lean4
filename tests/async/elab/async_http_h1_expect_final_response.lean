@@ -29,7 +29,8 @@ def runToHalt (machine : Machine .receiving) : Option String := Id.run do
     |>.sendData #[Chunk.ofByteArray "ok".toUTF8] |>.userClosedBody
   let some out := runToHalt answered
     | throw <| IO.userError "the machine did not halt after its final response"
-  unless out == "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok" do
+  -- RFC 9110 §10.1.1: the response ends the exchange without the body, so it says so.
+  unless out == "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 2\r\n\r\nok" do
     throw <| IO.userError s!"unexpected output {out.quote}"
   -- A `canContinue` after the final response writes nothing more.
   let some out := runToHalt (answered.step.1.canContinue .«continue»)

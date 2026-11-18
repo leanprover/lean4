@@ -1226,9 +1226,11 @@ environment environment::add_inductive(declaration const & d) const {
         inductive_decl ind_d(d);
         for (inductive_type const & ind_type : ind_d.get_types()) {
             check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
+            check_no_loose_bvars(*this, ind_type.get_type());
             check_no_nested_aux(*this, ind_type.get_name(), ind_type.get_type());
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
+                check_no_loose_bvars(*this, constructor_type(cnstr));
                 check_no_nested_aux(*this, constructor_name(cnstr), constructor_type(cnstr));
             }
         }

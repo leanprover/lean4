@@ -1982,6 +1982,14 @@ Note: include `import Std.Tactic.BVDecide`
 syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : tactic
 
 /--
+Extract the EPR (effectively propositional first order logic) components out of the goal and try
+to solve with a decision procedure for EPR.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+syntax (name := epr) "epr" optConfig : tactic
+
+/--
 `massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.
 ```lean
 example (P Q : SPred σs) : Q ⊢ₛ P → Q := by

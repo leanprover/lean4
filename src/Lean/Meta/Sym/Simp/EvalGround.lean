@@ -10,6 +10,7 @@ import Init.Sym.Lemmas
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.StringLitProof
 import Lean.Meta.Offset
+import Lean.Util.SafeExponentiation
 import Init.Data.UInt.Lemmas
 namespace Lean.Meta.Sym.Simp
 
@@ -96,6 +97,8 @@ abbrev evalUnaryFin' (op : {n : Nat} → Fin n → Fin n) (αExpr : Expr) (a : E
 public structure EvalStepConfig where
   /-- Maximum exponent evaluated by `evalGround`. -/
   maxExponent := 255
+  /-- Maximum left shift amount evaluated by `evalGround`. -/
+  maxShiftLeft := 65536
   /--
   When `true` (default: `true`), bit-vector literals are represented with `BitVec.ofNat`;
   otherwise the `OfNat.ofNat` form is used (the representation used by `grind`).
@@ -311,7 +314,29 @@ def evalPow (α β : Expr) (a b : Expr) : EvalM Result := do
 abbrev shift [ShiftLeft α] [ShiftRight α] (left : Bool) (a b : α) : α :=
   if left then a <<< b else a >>> b
 
-def evalShift (left : Bool) (α β : Expr) (a b : Expr) : EvalM Result :=
+/--
+Returns `false` if `a : α` and `b : β` are literals such that `a <<< b` is not safe to evaluate
+(see `isSafeShiftLeft`). Only shift amounts that are not bounded by a machine word size are checked.
+-/
+def isSafeShiftLeftLits (maxShiftLeft : Nat) (α β a b : Expr) : Bool := Id.run do
+  let amount? : Option Nat := match_expr β with
+    | Nat => getNatValue? b
+    | Fin _ => (·.val.val) <$> getFinValue? b
+    | BitVec _ => (·.val.toNat) <$> getBitVecValue? b
+    | _ => none
+  let some amount := amount? | return true
+  let value? : Option Nat := match_expr α with
+    | Nat => getNatValue? a
+    | Int => Int.natAbs <$> getIntValue? a
+    | Fin _ => (·.val.val) <$> getFinValue? a
+    | BitVec _ => (·.val.toNat) <$> getBitVecValue? a
+    | _ => none
+  let some value := value? | return true
+  return isSafeShiftLeft value amount maxShiftLeft
+
+def evalShift (left : Bool) (α β : Expr) (a b : Expr) : EvalM Result := do
+  if left then
+    unless isSafeShiftLeftLits (← read).maxShiftLeft α β a b do return .rfl
   if isSameExpr α β then
     match_expr α with
     | Nat => evalBinNat (shift left) a b
@@ -647,6 +672,7 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
   if Sym.isNatValue n && (← read).bitVecOfNat then return .rfl
   if let some nv ← evalNat n |>.run then -- TODO: consider using dsimp
+    unless isSafeBitVecWidth nv do return .rfl
     let r ← mkBitVecLit (BitVec.ofNat nv a)
     return .step r (mkRflBitVec r nv) (done := true)
   else
@@ -664,6 +690,7 @@ def evalBitVecOfNat (n a : Expr) : EvalM Result := do
 def evalBitVecOfNatClamp (n a : Expr) : EvalM Result := do
   let some nv := getNatValue? n | return .rfl
   let some av := getNatValue? a | return .rfl
+  unless isSafeBitVecWidth nv do return .rfl
   let r ← mkBitVecLit (BitVec.ofNatClamp nv av)
   return .step r (mkRflBitVec r nv) (done := true)
 
@@ -686,21 +713,31 @@ abbrev evalBitVecNatBitVec (αExpr : Expr) (op : {n : Nat} → BitVec n → Nat 
   let e ← mkBitVecLit (op a.val i)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
 
+def evalBitVecShiftLeft (αExpr : Expr) (a i : Expr) : EvalM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some i := getNatValue? i | return .rfl
+  unless isSafeShiftLeft a.val.toNat i (← read).maxShiftLeft do return .rfl
+  let e ← mkBitVecLit (a.val.shiftLeft i)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
+
 def evalBitVecAppend (a b : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some b := getBitVecValue? b | return .rfl
+  unless isSafeBitVecWidth (a.n + b.n) do return .rfl
   let e ← mkBitVecLit (a.val ++ b.val)
   return .step e (mkRflBitVec e (a.n + b.n)) (done := true)
 
 def evalBitVecCast (m a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m ← evalNat m |>.run | return .rfl
+  unless isSafeBitVecWidth m do return .rfl
   let e ← mkBitVecLit (BitVec.ofNat m a.val.toNat)
   return .step e (mkRflBitVec e m) (done := true)
 
 def evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some v ← evalNat v |>.run | return .rfl
+  unless isSafeBitVecWidth v do return .rfl
   let e ← mkBitVecLit (op v a.val)
   return .step e (mkRflBitVec e v) (done := true)
 
@@ -708,29 +745,35 @@ def evalBitVecExtractLsb' (start len a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some start ← evalNat start |>.run | return .rfl
   let some len ← evalNat len |>.run | return .rfl
+  unless isSafeBitVecWidth len do return .rfl
   let e ← mkBitVecLit (a.val.extractLsb' start len)
   return .step e (mkRflBitVec e len) (done := true)
 
 def evalBitVecReplicate (i a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some i ← evalNat i |>.run | return .rfl
+  unless isSafeBitVecWidth (a.n * i) do return .rfl
   let e ← mkBitVecLit (a.val.replicate i)
   return .step e (mkRflBitVec e (a.n * i)) (done := true)
 
 def evalBitVecShiftLeftZeroExtend (a m : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m ← evalNat m |>.run | return .rfl
+  unless isSafeShiftLeft a.val.toNat m (← read).maxShiftLeft do return .rfl
+  unless isSafeBitVecWidth (a.n + m) do return .rfl
   let e ← mkBitVecLit (a.val.shiftLeftZeroExtend m)
   return .step e (mkRflBitVec e (a.n + m)) (done := true)
 
 def evalBitVecAllOnes (n : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← mkBitVecLit (BitVec.allOnes n)
   return .step e (mkRflBitVec e n) (done := true)
 
 def evalBitVecOfInt (n i : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
   let some i := getIntValue? i | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← mkBitVecLit (BitVec.ofInt n i)
   return .step e (mkRflBitVec e n) (done := true)
 
@@ -744,6 +787,7 @@ def evalBitVecToFin (a : Expr) : SimpM Result := do
 def evalBitVecOfFin (n a : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
   let some a := getFinValue? a | return .rfl
+  unless isSafeBitVecWidth n do return .rfl
   let e ← mkBitVecLit (BitVec.ofNat n a.val.val)
   return .step e (mkRflBitVec e n) (done := true)
 
@@ -911,7 +955,7 @@ def evalGroundCore (e : Expr) : EvalM Result :=
     | BitVec _ => evalBitVecNatBool BitVec.getLsbD a i
     | _ => return .rfl
   | BitVec.append _ _ a b => evalBitVecAppend a b
-  | BitVec.shiftLeft w a i => evalBitVecNatBitVec (mkBitVecType w) BitVec.shiftLeft a i
+  | BitVec.shiftLeft w a i => evalBitVecShiftLeft (mkBitVecType w) a i
   | BitVec.ushiftRight w a i => evalBitVecNatBitVec (mkBitVecType w) BitVec.ushiftRight a i
   | BitVec.sshiftRight w a i => evalBitVecNatBitVec (mkBitVecType w) BitVec.sshiftRight a i
   | BitVec.sshiftRight' n _ a b => evalBinBitVec' BitVec.sshiftRight' (mkBitVecType n) a b

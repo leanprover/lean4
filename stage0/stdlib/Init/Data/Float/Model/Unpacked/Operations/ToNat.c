@@ -363,7 +363,7 @@ static lean_object* _init_l_Float_Model_UnpackedFloat_toUInt32___closed__0(void)
 _start:
 {
 lean_object* v___x_66_; lean_object* v___x_67_; 
-v___x_66_ = lean_cstr_to_nat("4294967296");
+v___x_66_ = lean_uint64_to_nat(4294967296ULL);
 v___x_67_ = lean_nat_to_int(v___x_66_);
 return v___x_67_;
 }
@@ -712,7 +712,7 @@ static lean_object* _init_l_Float_Model_UnpackedFloat_toInt64___closed__0(void){
 _start:
 {
 lean_object* v___x_166_; 
-v___x_166_ = lean_cstr_to_nat("9223372036854775808");
+v___x_166_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_166_;
 }
 }
@@ -747,7 +747,7 @@ static uint64_t _init_l_Float_Model_UnpackedFloat_toInt64___closed__4(void){
 _start:
 {
 lean_object* v___x_173_; uint64_t v___x_174_; 
-v___x_173_ = lean_cstr_to_nat("9223372036854775807");
+v___x_173_ = lean_uint64_to_nat(9223372036854775807ULL);
 v___x_174_ = lean_int64_of_nat(v___x_173_);
 lean_dec(v___x_173_);
 return v___x_174_;

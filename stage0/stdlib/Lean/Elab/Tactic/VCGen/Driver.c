@@ -6526,16 +6526,16 @@ goto v___jp_2357_;
 v___jp_2344_:
 {
 lean_object* v_entries_2349_; lean_object* v___x_2350_; lean_object* v___x_2351_; lean_object* v___x_2352_; lean_object* v___x_2353_; 
-v_entries_2349_ = lean_ctor_get(v___y_2347_, 1);
+v_entries_2349_ = lean_ctor_get(v___y_2346_, 1);
 lean_inc_ref(v_entries_2349_);
-lean_dec_ref(v___y_2347_);
+lean_dec_ref(v___y_2346_);
 v___x_2350_ = lean_array_get_size(v_entries_2349_);
 v___x_2351_ = l_Array_filterMapM___at___00Lean_Elab_Tactic_VCGen_run_spec__2(v_entries_2349_, v___x_2343_, v___x_2350_);
 lean_dec_ref(v_entries_2349_);
 v___x_2352_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_2352_, 0, v___y_2345_);
 lean_ctor_set(v___x_2352_, 1, v_a_2348_);
-lean_ctor_set(v___x_2352_, 2, v___y_2346_);
+lean_ctor_set(v___x_2352_, 2, v___y_2347_);
 lean_ctor_set(v___x_2352_, 3, v___x_2351_);
 v___x_2353_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2353_, 0, v___x_2352_);
@@ -6601,8 +6601,8 @@ if (v___x_2374_ == 0)
 {
 lean_dec_ref(v_vcs_2366_);
 v___y_2345_ = v_invariants_2365_;
-v___y_2346_ = v_inlineHandledInvariants_2367_;
-v___y_2347_ = v_frameDB_2364_;
+v___y_2346_ = v_frameDB_2364_;
+v___y_2347_ = v_inlineHandledInvariants_2367_;
 v_a_2348_ = v___x_2355_;
 goto v___jp_2344_;
 }
@@ -6619,8 +6619,8 @@ v_a_2377_ = lean_ctor_get(v___x_2376_, 0);
 lean_inc(v_a_2377_);
 lean_dec_ref_known(v___x_2376_, 1);
 v___y_2345_ = v_invariants_2365_;
-v___y_2346_ = v_inlineHandledInvariants_2367_;
-v___y_2347_ = v_frameDB_2364_;
+v___y_2346_ = v_frameDB_2364_;
+v___y_2347_ = v_inlineHandledInvariants_2367_;
 v_a_2348_ = v_a_2377_;
 goto v___jp_2344_;
 }

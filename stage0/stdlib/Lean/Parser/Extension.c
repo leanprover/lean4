@@ -12660,8 +12660,8 @@ goto v___jp_4023_;
 }
 else
 {
-lean_dec(v_pre_4047_);
 lean_dec_ref_known(v_pre_4046_, 2);
+lean_dec(v_pre_4047_);
 lean_dec_ref_known(v_declName_4045_, 2);
 lean_dec(v_a_4038_);
 lean_dec(v_catName_4010_);
@@ -12673,8 +12673,8 @@ goto v___jp_4023_;
 }
 else
 {
-lean_dec_ref_known(v_declName_4045_, 2);
 lean_dec(v_pre_4046_);
+lean_dec_ref_known(v_declName_4045_, 2);
 lean_dec(v_a_4038_);
 lean_dec(v_catName_4010_);
 v___y_4024_ = v_a_4043_;

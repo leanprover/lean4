@@ -226,6 +226,39 @@ private def Extension.hasFunCCAttr (ext : Extension) (declName : Name) : CoreM B
   return ext.getState (← getEnv) |>.funCC.contains declName
 
 /--
+Returns whether `grind` only uses `declName`, as added to `ext` by the attribute syntax `stx`, on
+terms that contain a constant satisfying `p` (see `registerAutomationAttr`).
+-/
+private def Extension.isGuardedBy (ext : Extension) (p : Name → Bool) (declName : Name)
+    (stx : Syntax) : MetaM Bool := do
+  -- A theorem is only activated once all of its symbols occur in the goal
+  let allGuarded {α} [TheoremLike α] (thms : List α) :=
+    !thms.isEmpty && thms.all (TheoremLike.getSymbols · |>.any fun | .const n | .proj n _ => p n | _ => false)
+  let ematchGuarded (origins : Array Name) : CoreM Bool := do
+    let thms := ext.getState (← getEnv) |>.ematch
+    return allGuarded (origins.toList.flatMap (thms.find <| .decl ·))
+  let declGuarded : MetaM Bool := do
+    let info ← getConstInfo declName
+    if wasOriginallyTheorem (← getEnv) declName || info.isCtor || info.isAxiom then
+      ematchGuarded #[declName]
+    else
+      ematchGuarded ((← getEqnsFor? declName).getD #[])
+  match (← getAttrKindFromOpt stx) with
+  | .symbol _ | .funCC | .unfold => return p declName
+  | .norm _ inv =>
+    isSimpTheoremFromConstGuardedBy p declName (inv := inv)
+  | .inj => return allGuarded (ext.getState (← getEnv) |>.inj.find (.decl declName))
+  | .ematch .user => return false
+  | .ematch _ => declGuarded
+  | .intro =>
+    let some info ← isCasesAttrPredicateCandidate? declName false | return false
+    ematchGuarded info.ctors.toArray
+  | .infer =>
+    if (← isCasesAttrCandidate declName false) then return false
+    declGuarded
+  | .cases _ | .ext | .homo _ | .homoPred => return false
+
+/--
 Auxiliary function for registering `grind`, `grind!`, `grind?`, and `grind!?` attributes.
 `grind!` is like `grind` but selects minimal indexable subterms.
 The `grind?` and `grind!?` are aliases for `grind` and `grind!` which displays patterns using `logInfo`.
@@ -237,7 +270,7 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
     | false, true  => attrName.appendAfter "?"
     | true,  false => attrName.appendAfter "!"
     | true,  true  => attrName.appendAfter "!?"
-  registerAutomationAttr name
+  registerAutomationAttr name fun p declName stx => (ext.isGuardedBy p declName stx).run'
   registerBuiltinAttribute {
     ref, name
     descr :=

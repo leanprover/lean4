@@ -2560,15 +2560,14 @@ v___x_804_ = lean_obj_once(&l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__
 v___x_805_ = lean_obj_once(&l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__9, &l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__9_once, _init_l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__9);
 v___x_806_ = lean_obj_once(&l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3, &l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3_once, _init_l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__3);
 v___x_807_ = lean_obj_once(&l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__8, &l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__8_once, _init_l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__8);
-v___x_808_ = lean_alloc_ctor(0, 8, 0);
+v___x_808_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_808_, 0, v___x_807_);
 lean_ctor_set(v___x_808_, 1, v___x_806_);
 lean_ctor_set(v___x_808_, 2, v___x_805_);
 lean_ctor_set(v___x_808_, 3, v___x_806_);
 lean_ctor_set(v___x_808_, 4, v___x_806_);
 lean_ctor_set(v___x_808_, 5, v___x_806_);
-lean_ctor_set(v___x_808_, 6, v___x_806_);
-lean_ctor_set(v___x_808_, 7, v___x_804_);
+lean_ctor_set(v___x_808_, 6, v___x_804_);
 return v___x_808_;
 }
 }

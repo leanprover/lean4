@@ -8996,7 +8996,7 @@ static lean_object* _init_l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tac
 _start:
 {
 lean_object* v___x_2293_; 
-v___x_2293_ = lean_cstr_to_nat("18446744073709551615");
+v___x_2293_ = lean_uint64_to_nat(18446744073709551615ULL);
 return v___x_2293_;
 }
 }

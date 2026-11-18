@@ -408,7 +408,10 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   | _ => return false
 
 builtin_initialize
-  registerReservedNamePredicate isInductName
+  registerReservedNamePredicate
+    (· matches "fixpoint_induct" | "coinduct" | "strong_coinduct" | "induct" | "strong_induct"
+      | "mutual_induct" | "strong_mutual_induct" | "mutual_fixpoint_induct")
+    isInductName
 
   registerReservedNameAction fun name => do
     if isInductName (← getEnv) name then
@@ -529,7 +532,8 @@ def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM U
       { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 builtin_initialize
-  registerReservedNamePredicate isPartialCorrectnessName
+  registerReservedNamePredicate (· matches "partial_correctness" | "mutual_partial_correctness")
+    isPartialCorrectnessName
 
   registerReservedNameAction fun name => do
     let .str p s := name | return false

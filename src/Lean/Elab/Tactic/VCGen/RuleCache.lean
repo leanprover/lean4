@@ -52,18 +52,29 @@ Cache key: `(splitter name, instWP, excessArgs.size)`.
 -/
 public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     VCGenM BackwardRule := do
-  let cacheKey := match splitInfo with
-    | .ite .. => ``ite
-    | .dite .. => ``dite
-    | .cond .. => ``cond
-    | .matcher matcherApp => matcherApp.matcherName
-  let key := (cacheKey, ExprPtr.mk info.instWP, info.excessArgs.size)
-  let s := (← get).splitBackwardRuleCache
+  let key := (splitInfo.splitterName, ExprPtr.mk info.instWP, info.excessArgs.size)
+  let s := (← get).wpSplitBackwardRuleCache
   if let some rule := s[key]? then return rule
   let rule ← mkBackwardRuleForSplit splitInfo info
   let rule ← rule.shareCommon
   modify fun st =>
-    { st with splitBackwardRuleCache := st.splitBackwardRuleCache.insert key rule }
+    { st with wpSplitBackwardRuleCache := st.wpSplitBackwardRuleCache.insert key rule }
+  return rule
+
+open Lean.Elab.Tactic.Do in
+/--
+Cached version of `mkBackwardRuleForAssertionSplit`.
+
+Cache key: `(splitter name, inPre, inst, numStates)`.
+-/
+public def mkBackwardRuleForAssertionSplitCached (splitInfo : SplitInfo) (rel : Expr)
+    (numStates : Nat) (inPre : Bool) : VCGenM BackwardRule := do
+  let key := (splitInfo.splitterName, inPre, ExprPtr.mk (rel.getArg! 1), numStates)
+  if let some rule := (← get).assertionSplitBackwardRuleCache[key]? then return rule
+  let rule ← mkBackwardRuleForAssertionSplit splitInfo rel numStates inPre
+  let rule ← rule.shareCommon
+  modify fun st => { st with
+    assertionSplitBackwardRuleCache := st.assertionSplitBackwardRuleCache.insert key rule }
   return rule
 
 /--

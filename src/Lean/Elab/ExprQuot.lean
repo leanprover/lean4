@@ -339,46 +339,27 @@ def elabExprMatchRel (relStx : Syntax) (defaultEngine : ExprMatchEngine := .stru
 
 /-! ## Compile-time pattern quoting and deduplicated auxiliary constant emission -/
 
-private def quoteBinderInfo (bi : BinderInfo) : Expr :=
-  mkConst <| match bi with
-    | .default        => ``BinderInfo.default
-    | .implicit       => ``BinderInfo.implicit
-    | .strictImplicit => ``BinderInfo.strictImplicit
-    | .instImplicit   => ``BinderInfo.instImplicit
+private def stripExprMData : Expr → Expr
+  | .mdata _ b        => stripExprMData b
+  | .app f a          => .app (stripExprMData f) (stripExprMData a)
+  | .lam n t b bi     => .lam n (stripExprMData t) (stripExprMData b) bi
+  | .forallE n t b bi => .forallE n (stripExprMData t) (stripExprMData b) bi
+  | .letE n t v b nd  => .letE n (stripExprMData t) (stripExprMData v) (stripExprMData b) nd
+  | .proj s i b       => .proj s i (stripExprMData b)
+  | e                 => e
 
-private def quoteLevel : Level → TermElabM Expr
-  | .zero      => return mkConst ``Level.zero
-  | .succ u    => return mkApp (mkConst ``Level.succ) (← quoteLevel u)
-  | .max u v   => return mkApp2 (mkConst ``Level.max) (← quoteLevel u) (← quoteLevel v)
-  | .imax u v  => return mkApp2 (mkConst ``Level.imax) (← quoteLevel u) (← quoteLevel v)
-  | .param n   => return mkApp (mkConst ``Level.param) (toExpr n)
-  | .mvar _    => throwError "internal error in expr quotation: unexpected universe metavariable"
-
-private def quoteExpr : Expr → TermElabM Expr
-  | .bvar i => return mkApp (mkConst ``Expr.bvar) (toExpr i)
-  | .sort u => return mkApp (mkConst ``Expr.sort) (← quoteLevel u)
-  | .const n us => do
-    let usExpr ← us.mapM quoteLevel
-    let levelType := mkConst ``Level
-    let nil := mkApp (mkConst ``List.nil [0]) levelType
-    let cons := mkApp (mkConst ``List.cons [0]) levelType
-    let listExpr := usExpr.foldr (init := nil) fun u acc => mkApp2 cons u acc
-    return mkApp2 (mkConst ``Expr.const) (toExpr n) listExpr
-  | .app f a => return mkApp2 (mkConst ``Expr.app) (← quoteExpr f) (← quoteExpr a)
-  | .lam n t b bi =>
-    return mkApp4 (mkConst ``Expr.lam) (toExpr n) (← quoteExpr t) (← quoteExpr b)
-      (quoteBinderInfo bi)
-  | .forallE n t b bi =>
-    return mkApp4 (mkConst ``Expr.forallE) (toExpr n) (← quoteExpr t) (← quoteExpr b)
-      (quoteBinderInfo bi)
-  | .letE n t v b nd =>
-    return mkApp5 (mkConst ``Expr.letE) (toExpr n) (← quoteExpr t) (← quoteExpr v)
-      (← quoteExpr b) (toExpr nd)
-  | .lit l => return mkApp (mkConst ``Expr.lit) (toExpr l)
-  | .mdata _ e => quoteExpr e
-  | .proj s i e => return mkApp3 (mkConst ``Expr.proj) (toExpr s) (toExpr i) (← quoteExpr e)
-  | .fvar _ | .mvar _ =>
-    throwError "internal error in expr quotation: compiled pattern is not closed"
+private def normalizeOuterLamNames (numVars : Nat) (namedIdx : Array Nat) (e : Expr) : Expr :=
+  go 0 e
+where
+  go (i : Nat) : Expr → Expr
+    | .mdata _ b => go i b
+    | .lam n t b bi =>
+      if i < numVars then
+        let n' := if namedIdx.contains i then n.eraseMacroScopes else `_
+        .lam n' (stripExprMData t) (go (i + 1) b) bi
+      else
+        .lam n (stripExprMData t) (stripExprMData b) bi
+    | cur => stripExprMData cur
 
 private def quoteExprMatchEngine : ExprMatchEngine → Expr
   | .structural => mkConst ``ExprMatchEngine.structural
@@ -420,11 +401,6 @@ def quoteExprMatchRel (rel : ExprMatchRel) : TermElabM Expr := do
   let itemsArr ← mkArrayLit (mkConst ``ExprMatchItem) (rel.items.map quoteExprMatchItem).toList
   return mkApp3 (mkConst ``ExprMatchRel.mk)
     (quoteExprMatchEngine rel.engine) itemsArr (quoteExprMatchFlags rel.flags)
-
-private def mkListLitExpr (elemTy : Expr) (elems : List Expr) : Expr :=
-  let nil := mkApp (mkConst ``List.nil [0]) elemTy
-  let cons := mkApp (mkConst ``List.cons [0]) elemTy
-  elems.foldr (init := nil) fun e acc => mkApp2 cons e acc
 
 private structure PatCacheKey where
   levelParams : List Name
@@ -491,20 +467,10 @@ private def mkAuxPatConst (pat : ExprPattern) : TermElabM Expr := do
   let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
   if let some cachedName := cached? then
     return mkConst cachedName
-  let pairTy := mkApp2 (mkConst ``Prod [0, 0]) (mkConst ``Expr) (mkConst ``Expr)
-  let proofPairs ← pat.closedProofs.toList.mapM fun (k, v) => do
-    return mkApp4 (mkConst ``Prod.mk [0, 0]) (mkConst ``Expr) (mkConst ``Expr)
-      (← quoteExpr k) (← quoteExpr v)
-  let patVal := mkAppN (mkConst ``ExprPattern.mkCompiled) #[
-    mkListLitExpr (mkConst ``Name) (pat.levelParams.map toExpr),
-    ← quoteExpr pat.lam,
-    toExpr pat.numVars,
-    ← mkArrayLit (mkConst ``Nat) (pat.namedIdx.toList.map toExpr),
-    ← mkArrayLit (mkConst ``Bool) (pat.firstOrder.toList.map toExpr),
-    ← mkArrayLit (mkConst ``Bool) (pat.captureVars.toList.map toExpr),
-    mkListLitExpr pairTy proofPairs,
-    toExpr pat.precomputed
-  ]
+  let encoded ← match pat.encode with
+    | .ok s      => pure s
+    | .error err => throwError "internal error encoding expr pattern: {err}"
+  let patVal := mkApp (mkConst ``ExprPattern.decode) (mkStrLit encoded)
   let patAuxName ← addAuxClosedDecl `exprPat isPrivate isMeta (mkConst ``ExprPattern) patVal
   modifyEnv fun env => exprPatExt.modifyState env (·.insert key patAuxName)
   return mkConst patAuxName
@@ -533,17 +499,6 @@ private def mkAuxPatArrConst (patConsts : Array Expr) : TermElabM Expr := do
   modifyEnv fun env => exprPatArrExt.modifyState env (·.insert key arrName)
   return mkConst arrName
 
-private def quoteExprTemplateVarKind : ExprTemplateVarKind → Expr
-  | .splice pos     => mkApp (mkConst ``ExprTemplateVarKind.splice) (toExpr pos)
-  | .hole userName? =>
-    let optTy := mkConst ``Name
-    let optExpr := match userName? with
-      | none   => mkApp (mkConst ``Option.none [0]) optTy
-      | some n => mkApp2 (mkConst ``Option.some [0]) optTy (toExpr n)
-    mkApp (mkConst ``ExprTemplateVarKind.hole) optExpr
-  | .tc             => mkConst ``ExprTemplateVarKind.tc
-  | .infer          => mkConst ``ExprTemplateVarKind.infer
-
 private def mkAuxTmplConst (tmpl : ExprTemplate) : TermElabM Expr := do
   let env ← getEnv
   let (isPrivate, isMeta) ← auxDeclContextFlags
@@ -558,11 +513,10 @@ private def mkAuxTmplConst (tmpl : ExprTemplate) : TermElabM Expr := do
   let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
   if let some cachedName := cached? then
     return mkConst cachedName
-  let tmplVal := mkApp3 (mkConst ``ExprTemplate.mk)
-    (mkListLitExpr (mkConst ``Name) (tmpl.levelParams.map toExpr))
-    (← quoteExpr tmpl.lam)
-    (← mkArrayLit (mkConst ``ExprTemplateVarKind)
-      (tmpl.varKinds.toList.map quoteExprTemplateVarKind))
+  let encoded ← match tmpl.encode with
+    | .ok s      => pure s
+    | .error err => throwError "internal error encoding expr template: {err}"
+  let tmplVal := mkApp (mkConst ``ExprTemplate.decode) (mkStrLit encoded)
   let tmplAuxName ← addAuxClosedDecl `exprTmpl isPrivate isMeta (mkConst ``ExprTemplate) tmplVal
   modifyEnv fun env => exprTmplExt.modifyState env (·.insert key tmplAuxName)
   return mkConst tmplAuxName
@@ -1029,7 +983,7 @@ private def elabExprQuotPatternCore (exprQuotStx : Syntax) (ordVarIdx : Nat)
           throwError "pin `$...` was eliminated during pattern elaboration:{indentD exprQuotStx[4]}"
       let pat : ExprPattern := {
         levelParams := r.paramNames.toList
-        lam         := r.expr
+        lam         := normalizeOuterLamNames r.numMVars namedIdx r.expr
         numVars     := r.numMVars
         namedIdx
         firstOrder
@@ -1408,7 +1362,11 @@ private def buildMatchSiteError (failCall : Expr) (ex : Exception) (isSym : Bool
 
 private def buildSlotMatchCall (slot : CompiledExprSlot)
     (patConst scrutinee onMatchLam onFailLam : Expr) (ctxArgs : Array Expr) : TermElabM Expr := do
-  let pinIdxsExpr ← mkArrayLit (mkConst ``Nat) (slot.pinIdxs.toList.map toExpr)
+  let pinIdxsExpr ←
+    if slot.pinIdxs.isEmpty then
+      pure (Expr.app (mkConst ``Array.empty [0]) (mkConst ``Nat))
+    else
+      mkArrayLit (mkConst ``Nat) (slot.pinIdxs.toList.map toExpr)
   let pinsExpr :=
     if slot.pinIdxs.isEmpty then
       Expr.app (mkConst ``Array.empty [0]) (mkConst ``Expr)
@@ -2316,7 +2274,7 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
       restoreMsgs
       let tmpl : ExprTemplate := {
         levelParams := r.paramNames.toList
-        lam         := r.expr
+        lam         := normalizeOuterLamNames varKinds.size #[] r.expr
         varKinds
       }
       return (tmpl, orderedSplices.toList)

@@ -983,4 +983,160 @@ private def testContextAndSources : MetaM Unit := do
   check (← allowMinusAfterPlusMerged (mkApp (mkConst ``sampleDef) (mkNatLit 0)))
     "merged [+sampleDef, -sampleDef] should match sampleDef 0 literally"
 
+/-! ## Compact DAG Serialization & `PatHeadGuard` Fast-Reject Tests -/
+
+private def exprExactEq : Expr → Expr → Bool
+  | .bvar i₁, .bvar i₂ => i₁ == i₂
+  | .sort u₁, .sort u₂ => u₁ == u₂
+  | .const n₁ us₁, .const n₂ us₂ => n₁ == n₂ && us₁ == us₂
+  | .app f₁ a₁, .app f₂ a₂ => exprExactEq f₁ f₂ && exprExactEq a₁ a₂
+  | .lam n₁ t₁ b₁ bi₁, .lam n₂ t₂ b₂ bi₂ =>
+    n₁ == n₂ && bi₁ == bi₂ && exprExactEq t₁ t₂ && exprExactEq b₁ b₂
+  | .forallE n₁ t₁ b₁ bi₁, .forallE n₂ t₂ b₂ bi₂ =>
+    n₁ == n₂ && bi₁ == bi₂ && exprExactEq t₁ t₂ && exprExactEq b₁ b₂
+  | .letE n₁ t₁ v₁ b₁ nd₁, .letE n₂ t₂ v₂ b₂ nd₂ =>
+    n₁ == n₂ && nd₁ == nd₂ && exprExactEq t₁ t₂ && exprExactEq v₁ v₂ && exprExactEq b₁ b₂
+  | .lit l₁, .lit l₂ => l₁ == l₂
+  | .proj s₁ i₁ b₁, .proj s₂ i₂ b₂ => s₁ == s₂ && i₁ == i₂ && exprExactEq b₁ b₂
+  | _, _ => false
+
+private def testDagSerializationRoundTrip : MetaM Unit := do
+  let uLvl := Level.param `u
+  let vLvl := Level.param `v
+  let complexLvl := Level.imax (.succ uLvl) (.max .zero vLvl)
+  let bigNat : Nat := (2 ^ 100) + 1234567890123456789
+  let uniStr := "λ ∀ α — β 🚀"
+  let uniName := Name.str (.num `Root 42) uniStr
+  let proofTerm := mkConst ``True.intro
+  let body :=
+    mkLambda `a .default (mkSort complexLvl) <|
+    mkLambda `b .implicit (mkConst ``Nat) <|
+    mkForall `c .strictImplicit (mkConst ``Nat) <|
+    mkForall `d .instImplicit (mkApp (mkConst ``Inhabited [uLvl]) (mkSort vLvl)) <|
+    mkLet `x (mkConst ``Nat) (mkLit (.natVal bigNat)) (nondep := false) <|
+    mkLet `h (mkConst ``String) (mkLit (.strVal uniStr)) (nondep := true) <|
+    mkAppN (mkConst uniName [complexLvl]) #[
+      mkProj `Prod 0 (mkBVar 5),
+      proofTerm,
+      mkBVar 0
+    ]
+  let pat0 : ExprPattern := {
+    levelParams := [`u, `v]
+    lam         := body
+    numVars     := 1
+    namedIdx    := #[0]
+    firstOrder  := #[true]
+  }
+  let pat ← pat0.compile
+  let encoded ← match pat.encode with
+    | .ok s    => pure s
+    | .error e => throwError "pat.encode failed: {e}"
+  check (encoded.toList.all fun c => c.toNat >= 48 && c.toNat <= 111)
+    "encoded pattern string must only use printable ASCII `'0'..'o'`"
+  let decoded ← match ExprPattern.decodeExcept encoded with
+    | .ok d    => pure d
+    | .error e => throwError "pat.decode failed: {e}"
+  check (decoded.levelParams == pat.levelParams) "levelParams round-trip mismatch"
+  check (exprExactEq decoded.lam pat.lam) "pattern lam strict round-trip mismatch"
+  check (decoded.numVars == pat.numVars) "numVars round-trip mismatch"
+  check (decoded.namedIdx == pat.namedIdx) "namedIdx round-trip mismatch"
+  check (decoded.firstOrder == pat.firstOrder) "firstOrder round-trip mismatch"
+  check (decoded.captureVars == pat.captureVars) "captureVars round-trip mismatch"
+  check (decoded.precomputed == pat.precomputed) "precomputed round-trip mismatch"
+  check (decoded.headGuard == pat.headGuard) "headGuard round-trip mismatch"
+  check (decoded.closedProofs.contains proofTerm) "closedProofs round-trip missing True.intro"
+  check (decoded.patLevelNodes.size == pat.patLevelNodes.size) "patLevelNodes round-trip mismatch"
+
+  let tmpl : ExprTemplate := {
+    levelParams := [`u, `v]
+    lam         := body
+    varKinds    := #[.splice 0, .hole none, .hole (some uniName), .tc, .infer]
+  }
+  let tmplEnc ← match tmpl.encode with
+    | .ok s    => pure s
+    | .error e => throwError "tmpl.encode failed: {e}"
+  let tmplDec ← match ExprTemplate.decodeExcept tmplEnc with
+    | .ok d    => pure d
+    | .error e => throwError "tmpl.decode failed: {e}"
+  check (tmplDec.levelParams == tmpl.levelParams) "tmpl levelParams round-trip mismatch"
+  check (exprExactEq tmplDec.lam tmpl.lam) "tmpl lam strict round-trip mismatch"
+  check (tmplDec.varKinds == tmpl.varKinds) "tmpl varKinds round-trip mismatch"
+
+  -- Corrupt payloads must fail cleanly in `decodeExcept`.
+  check (ExprPattern.decodeExcept "" matches .error _) "empty pattern blob must fail"
+  check (ExprPattern.decodeExcept "!" matches .error _) "non-ASCII character must fail"
+  check (ExprTemplate.decodeExcept encoded matches .error _) "version mismatch must fail"
+
+private def testPatHeadGuards : MetaM Unit := do
+  -- 1. `.const` guard on `Nat.add ?x _`, including assigned head `.mvar` scrutinee.
+  let addPat ← ExprPattern.compile {
+    levelParams := []
+    lam         := mkLambda `x .default (mkConst ``Nat)
+      (mkLambda `w .default (mkConst ``Nat)
+        (mkApp2 (mkConst ``Nat.add) (mkBVar 1) (mkBVar 0)))
+    numVars     := 2
+    namedIdx    := #[0]
+    firstOrder  := #[true]
+  }
+  check (addPat.headGuard == .const ``Nat.add 2)
+    s!"expected const Nat.add 2 guard, got {repr addPat.headGuard}"
+  let add12 := mkApp2 (mkConst ``Nat.add) (mkNatLit 1) (mkNatLit 2)
+  let mul12 := mkApp2 (mkConst ``Nat.mul) (mkNatLit 1) (mkNatLit 2)
+  check ((← addPat.match? {} mul12) == none) "mul12 should miss Nat.add"
+  let mv ← mkFreshExprMVar (mkConst ``Nat)
+  mv.mvarId!.assign add12
+  let some #[hit] ← addPat.match? {} mv
+    | throwError "assigned mvar scrutinee must NOT be falsely rejected by headGuard"
+  checkExprEq hit (mkNatLit 1) "assigned mvar match capture mismatch"
+
+  -- 2. `.pinApp` guard on `($f : Nat → Nat) ?x` (const pin, lambda pin, assigned mvar pin).
+  let natToNat := mkForall `n .default (mkConst ``Nat) (mkConst ``Nat)
+  let pinAppPat ← ExprPattern.compile {
+    levelParams := []
+    lam         := mkLambda `f .default natToNat
+      (mkLambda `x .default (mkConst ``Nat) (mkApp (mkBVar 1) (mkBVar 0)))
+    numVars     := 2
+    namedIdx    := #[1]
+    firstOrder  := #[true, true]
+  }
+  check (pinAppPat.headGuard == .pinApp 0 1)
+    s!"expected pinApp 0 1 guard, got {repr pinAppPat.headGuard}"
+  let resolvedStruct ← ({} : ExprMatchRel).resolveStatic
+  let succ3 := mkApp (mkConst ``Nat.succ) (mkNatLit 3)
+  let some #[capSucc] ← pinAppPat.matchResolvedPins? resolvedStruct #[0]
+      #[mkConst ``Nat.succ] succ3
+    | throwError "pinApp with Nat.succ pin should match Nat.succ 3"
+  checkExprEq capSucc (mkNatLit 3) "pinApp capture mismatch"
+  check ((← pinAppPat.matchResolvedPins? resolvedStruct #[0]
+      #[mkConst ``Nat.pred] succ3) == none) "pinApp with Nat.pred pin should reject Nat.succ 3"
+  let idLam := mkLambda `n .default (mkConst ``Nat) (mkBVar 0)
+  let idApp3 := mkApp idLam (mkNatLit 3)
+  let some #[capLam] ← pinAppPat.matchResolvedPins? resolvedStruct #[0] #[idLam] idApp3
+    | throwError "pinApp with lambda pin should match lambda app"
+  checkExprEq capLam (mkNatLit 3) "pinApp lambda capture mismatch"
+  let pinMV ← mkFreshExprMVar natToNat
+  pinMV.mvarId!.assign (mkConst ``Nat.succ)
+  let some #[capMV] ← pinAppPat.matchResolvedPins? resolvedStruct #[0] #[pinMV] succ3
+    | throwError "pinApp with assigned mvar pin must NOT be falsely rejected"
+  checkExprEq capMV (mkNatLit 3) "pinApp mvar pin capture mismatch"
+
+  -- 3. Closed `Prop` proof pattern keeps `headGuard = .any` and matches distinct proofs.
+  let proofRootPat ← ExprPattern.compile {
+    levelParams := []
+    lam         := mkConst ``True.intro
+    numVars     := 0
+    namedIdx    := #[]
+    firstOrder  := #[]
+  }
+  check (proofRootPat.headGuard == .any)
+    s!"closed proof root must have .any headGuard, got {repr proofRootPat.headGuard}"
+  withLocalDeclD `h (mkConst ``True) fun h => do
+    check (← proofRootPat.match? {} h).isSome
+      "closed Prop proof pattern must not be rejected against distinct Prop proof"
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  testDagSerializationRoundTrip
+  testPatHeadGuards
+
 end ExprPatternTest

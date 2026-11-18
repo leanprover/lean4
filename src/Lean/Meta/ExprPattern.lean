@@ -485,6 +485,26 @@ private def stripOuterLambdas : Nat → Expr → Expr
   | n + 1, .lam _ _ b _ => stripOuterLambdas n b
   | _,     e            => e
 
+/-- Structural root head and arity summary used for `O(1)` fast rejection in `matchStructural?`. -/
+inductive PatHeadGuard where
+  /-- No static head guard (root variable, zero-arity pin, or proof-irrelevant root). -/
+  | any
+  /-- Root must match `.const declName _` applied to `arity` arguments (modulo `mdata`/mvars). -/
+  | const (declName : Name) (arity : Nat)
+  /-- Root must match pattern variable `varIdx` applied to `arity` non-`Prop` arguments. -/
+  | pinApp (varIdx : Nat) (arity : Nat)
+  /-- Root (modulo `mdata` and head metavariables) must be a lambda. -/
+  | lam
+  /-- Root (modulo `mdata` and head metavariables) must be a forall/pi type. -/
+  | forallE
+  /-- Root (modulo `mdata` and head metavariables) must be a `Sort`. -/
+  | sort
+  /-- Root (modulo `mdata` and head metavariables) must equal literal `val`. -/
+  | lit (val : Literal)
+  /-- Root (modulo `mdata` and head metavariables) must be projection `.proj typeName idx _`. -/
+  | proj (typeName : Name) (idx : Nat)
+  deriving Inhabited, BEq, Repr
+
 /--
 A compiled `Expr` pattern `lam = fun x₀ … xₙ₋₁ => body`, closed up to `levelParams`.
 Wildcards, unresolved implicits, pins (`$e`), and `?`-binders are all abstracted as lambdas;
@@ -512,6 +532,8 @@ structure ExprPattern where
   patLevelNodes : ExprSet := {}
   /-- `true` if `compile` populated `captureVars` and `closedProofs`. -/
   precomputed   : Bool := false
+  /-- Precomputed root head/arity guard for fast rejection in `matchStructural?`. -/
+  headGuard     : PatHeadGuard := .any
   deriving Inhabited
 
 /-- Construct a precompiled `ExprPattern` from serialized fields (used by elaborated patterns). -/
@@ -616,7 +638,40 @@ def ExprPattern.compile (p : ExprPattern) : MetaM ExprPattern := do
   let captureVars := computeCaptureVars body p.numVars p.namedIdx
   let closedProofs ← collectClosedProofs p.levelParams body
   let patLevelNodes := computePatLevelNodes p.levelParams body
-  return { p with captureVars, closedProofs, patLevelNodes, precomputed := true }
+  let rootMayBeProof :=
+    !body.hasLooseBVars &&
+    (closedProofs.contains body.consumeMData || hasPatLevelParam p.levelParams body)
+  let headGuard ←
+    if rootMayBeProof then
+      pure .any
+    else
+      match body.consumeMData with
+      | .forallE ..    => pure .forallE
+      | .lam ..        => pure .lam
+      | .sort ..       => pure .sort
+      | .lit l         => pure (.lit l)
+      | .proj sn idx _ => pure (.proj sn idx)
+      | pe =>
+        let fn := pe.getAppFn'
+        let arity := pe.getAppNumArgs'
+        match fn with
+        | .const c _ => pure (.const c arity)
+        | .bvar i =>
+          if arity > 0 && i < p.numVars then
+            let k := p.numVars - 1 - i
+            try
+              withLCtx {} {} <| lambdaBoundedTelescope p.lam p.numVars fun xs _ => do
+                if xs.size == p.numVars then
+                  if h : k < xs.size then
+                    if !(← isProp (← inferType xs[k])) then
+                      return .pinApp k arity
+                return .any
+            catch _ =>
+              pure .any
+          else
+            pure .any
+        | _ => pure .any
+  return { p with captureVars, closedProofs, patLevelNodes, precomputed := true, headGuard }
 
 /--
 Substitute runtime pin values `vals[j]` for the abstracted pattern variables at `idx[j]`.
@@ -635,7 +690,8 @@ def ExprPattern.instantiate (p : ExprPattern) (idx : Array Nat) (vals : Array Ex
       else (p.captureVars.zipIdx.filter (!idx.contains ·.2)).map (·.1)
     closedProofs  := {}
     patLevelNodes := {}
-    precomputed   := false }
+    precomputed   := false
+    headGuard     := .any }
 where
   go : Nat → Nat → Expr → Expr
     | n + 1, i, .lam x t b bi =>
@@ -1177,8 +1233,53 @@ mutual
       return false
 end
 
+private def fastRejectStructural (p : ExprPattern) (pinIdxs : Array Nat) (pins : Array Expr)
+    (e : Expr) : Bool :=
+  match p.headGuard with
+  | .any => false
+  | .const c arity =>
+    let fn := e.getAppFn'
+    !fn.isMVar && !(fn.isConstOf c && e.getAppNumArgs' == arity)
+  | .pinApp k arity =>
+    let fn := e.getAppFn'
+    if fn.isMVar then
+      false
+    else
+      match pinIdxs.idxOf? k with
+      | some pinPos =>
+        let rawPin := pins.getD pinPos default
+        if !rawPin.hasExprMVar then
+          if let .const c _ := rawPin.getAppFn' then
+            !(fn.isConstOf c && e.getAppNumArgs' == rawPin.getAppNumArgs' + arity)
+          else
+            e.getAppNumArgs' < arity
+        else
+          e.getAppNumArgs' < arity
+      | none => e.getAppNumArgs' < arity
+  | .lam =>
+    let e0 := e.consumeMData
+    !e.getAppFn'.isMVar && !e0.isLambda
+  | .forallE =>
+    let e0 := e.consumeMData
+    !e.getAppFn'.isMVar && !e0.isForall
+  | .sort =>
+    let e0 := e.consumeMData
+    !e.getAppFn'.isMVar && !e0.isSort
+  | .lit l =>
+    let e0 := e.consumeMData
+    !e.getAppFn'.isMVar && e0 != .lit l
+  | .proj sn idx =>
+    !e.getAppFn'.isMVar &&
+      match e.consumeMData with
+      | .proj sn2 idx2 _ => sn != sn2 || idx != idx2
+      | _                => true
+
 private def matchStructural? (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
+  if !rel.hasUnfolding && rel.posFVars.isEmpty && rel.itemRulesRev.isEmpty &&
+      fastRejectStructural p pinIdxs pins e then
+    unless ← isTracingEnabledFor `Meta.Match.expr do
+      return none
   let n := p.numVars
   let traceEnabled ← isTracingEnabledFor `Meta.Match.expr
   let mut initVars : Array (Option Expr) := .replicate n none
@@ -1642,7 +1743,7 @@ def ExprPattern.arg (xs : Array Expr) (i : Nat) : Expr :=
 CPS matching combinator accepting a pre-resolved relation `rel`, avoiding per-call rule resolution
 and pin lambda reconstruction. See `matchResolvedPins?` regarding nested assigned metavariables.
 -/
-@[inline]
+@[nospecialize]
 def ExprPattern.matchResolvedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (p : ExprPattern) (rel : ResolvedExprMatchRel) (pinIdxs : Array Nat) (pins : Array Expr)
     (e : Expr) (onMatch : Array Expr → m α) (onFail : Unit → m α) : m α := do
@@ -1656,7 +1757,7 @@ CPS matching combinator resolving `rel` via the runtime site cache keyed by `sit
 Captured subterms under `.structural` are not deeply mvar-instantiated below head position; call
 `instantiateMVars` if inspecting nested assigned metavariables structurally.
 -/
-@[inline]
+@[nospecialize]
 def ExprPattern.matchSiteOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (siteId : Name) (p : ExprPattern) (rel : ExprMatchRel) (pinIdxs : Array Nat)
     (pins : Array Expr) (localItems : Array (Bool × Expr)) (e : Expr)
@@ -1672,7 +1773,7 @@ Pre-seeds `pins` at `pinIdxs` directly without rebuilding `p.lam`, resolves `rel
 `e`, and invokes `onMatch` with the bound `?`-variables or `onFail ()` if matching fails.
 See `matchSiteOrElse` regarding nested assigned metavariables in captured subterms.
 -/
-@[inline]
+@[nospecialize]
 def ExprPattern.matchOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (p : ExprPattern) (rel : ExprMatchRel) (pinIdxs : Array Nat) (pins : Array Expr)
     (localItems : Array (Bool × Expr)) (e : Expr)
@@ -1710,6 +1811,696 @@ structure ExprTemplate where
   /-- Classification of each outer lambda parameter during instantiation. -/
   varKinds    : Array ExprTemplateVarKind
   deriving Inhabited, BEq, Hashable
+
+/-! ## Compact DAG serialization for compiled `ExprPattern` and `ExprTemplate` -/
+
+private def patternBlobVersion : UInt8 := 1
+private def templateBlobVersion : UInt8 := 2
+
+private inductive EncodedName where
+  | anonymous
+  | str (parent : Nat) (val : String)
+  | num (parent : Nat) (val : Nat)
+  deriving BEq, Hashable
+
+private inductive EncodedLevel where
+  | zero
+  | succ (u : Nat)
+  | max (u v : Nat)
+  | imax (u v : Nat)
+  | param (name : Nat)
+  deriving BEq, Hashable
+
+private inductive EncodedExpr where
+  | bvar (idx : Nat)
+  | sort (lvl : Nat)
+  | const (declName : Nat) (lvls : Array Nat)
+  | app (fn arg : Nat)
+  | lam (name : Nat) (type body : Nat) (bi : BinderInfo)
+  | forallE (name : Nat) (type body : Nat) (bi : BinderInfo)
+  | letE (name : Nat) (type val body : Nat) (nondep : Bool)
+  | litNat (val : Nat)
+  | litStr (val : String)
+  | proj (typeName : Nat) (idx : Nat) (struct : Nat)
+  deriving BEq, Hashable
+
+private structure DagEncState where
+  names      : Array EncodedName := #[]
+  nameMap    : Std.HashMap EncodedName Nat := {}
+  nameCache  : Std.HashMap Name Nat := {}
+  levels     : Array EncodedLevel := #[]
+  levelMap   : Std.HashMap EncodedLevel Nat := {}
+  levelCache : Std.HashMap Level Nat := {}
+  exprs      : Array EncodedExpr := #[]
+  exprMap    : Std.HashMap EncodedExpr Nat := {}
+  exprCache  : ExprStructMap Nat := {}
+
+private def internEncodedName (node : EncodedName) (orig : Name) :
+    StateT DagEncState (Except String) Nat := do
+  let st ← get
+  if let some idx := st.nameMap[node]? then
+    set { st with nameCache := st.nameCache.insert orig idx }
+    return idx
+  let idx := st.names.size
+  set { st with
+    names     := st.names.push node
+    nameMap   := st.nameMap.insert node idx
+    nameCache := st.nameCache.insert orig idx
+  }
+  return idx
+
+private def internName (n : Name) : StateT DagEncState (Except String) Nat := do
+  if let some idx := (← get).nameCache[n]? then
+    return idx
+  let node : EncodedName ← match n with
+    | .anonymous => pure .anonymous
+    | .str p s   => pure (.str (← internName p) s)
+    | .num p k   => pure (.num (← internName p) k)
+  internEncodedName node n
+
+private def internEncodedLevel (node : EncodedLevel) (orig : Level) :
+    StateT DagEncState (Except String) Nat := do
+  let st ← get
+  if let some idx := st.levelMap[node]? then
+    set { st with levelCache := st.levelCache.insert orig idx }
+    return idx
+  let idx := st.levels.size
+  set { st with
+    levels     := st.levels.push node
+    levelMap   := st.levelMap.insert node idx
+    levelCache := st.levelCache.insert orig idx
+  }
+  return idx
+
+private def internLevel (u : Level) : StateT DagEncState (Except String) Nat := do
+  if let some idx := (← get).levelCache[u]? then
+    return idx
+  let node : EncodedLevel ← match u with
+    | .zero     => pure .zero
+    | .succ a   => pure (.succ (← internLevel a))
+    | .max a b  => pure (.max (← internLevel a) (← internLevel b))
+    | .imax a b => pure (.imax (← internLevel a) (← internLevel b))
+    | .param n  => pure (.param (← internName n))
+    | .mvar _   => throw "cannot encode Level.mvar"
+  internEncodedLevel node u
+
+private def internEncodedExpr (node : EncodedExpr) (orig : Expr) :
+    StateT DagEncState (Except String) Nat := do
+  let st ← get
+  if let some idx := st.exprMap[node]? then
+    set { st with exprCache := st.exprCache.insert orig idx }
+    return idx
+  let idx := st.exprs.size
+  set { st with
+    exprs     := st.exprs.push node
+    exprMap   := st.exprMap.insert node idx
+    exprCache := st.exprCache.insert orig idx
+  }
+  return idx
+
+private def internExpr (e : Expr) : StateT DagEncState (Except String) Nat := do
+  if let some idx := (← get).exprCache[(e : ExprStructEq)]? then
+    return idx
+  match e with
+  | .mdata _ b        => internExpr b
+  | .fvar _           => throw "cannot encode Expr.fvar"
+  | .mvar _           => throw "cannot encode Expr.mvar"
+  | .bvar i           => internEncodedExpr (.bvar i) e
+  | .sort u           => internEncodedExpr (.sort (← internLevel u)) e
+  | .const n us       =>
+    let nIdx ← internName n
+    let usIdxs ← us.toArray.mapM internLevel
+    internEncodedExpr (.const nIdx usIdxs) e
+  | .app f a          => internEncodedExpr (.app (← internExpr f) (← internExpr a)) e
+  | .lam n t b bi     =>
+    internEncodedExpr (.lam (← internName n) (← internExpr t) (← internExpr b) bi) e
+  | .forallE n t b bi =>
+    internEncodedExpr (.forallE (← internName n) (← internExpr t) (← internExpr b) bi) e
+  | .letE n t v b nd  =>
+    internEncodedExpr
+      (.letE (← internName n) (← internExpr t) (← internExpr v) (← internExpr b) nd) e
+  | .lit (.natVal n)  => internEncodedExpr (.litNat n) e
+  | .lit (.strVal s)  => internEncodedExpr (.litStr s) e
+  | .proj s i b       => internEncodedExpr (.proj (← internName s) i (← internExpr b)) e
+
+private def writeUInt8 (b : UInt8) (buf : ByteArray) : ByteArray :=
+  buf.push b
+
+private def writeBool (b : Bool) (buf : ByteArray) : ByteArray :=
+  buf.push (if b then 1 else 0)
+
+private def writeNat (n : Nat) (buf : ByteArray) : ByteArray :=
+  if n < 128 then
+    buf.push n.toUInt8
+  else
+    writeNat (n / 128) (buf.push ((n % 128).toUInt8 ||| 0x80))
+termination_by n
+decreasing_by simp_wf; omega
+
+private def writeString (s : String) (buf : ByteArray) : ByteArray :=
+  let utf8 := s.toUTF8
+  (writeNat utf8.size buf) ++ utf8
+
+private def binderInfoToByte : BinderInfo → UInt8
+  | .default        => 0
+  | .implicit       => 1
+  | .strictImplicit => 2
+  | .instImplicit   => 3
+
+private def byteToBinderInfo : UInt8 → Except String BinderInfo
+  | 0 => .ok .default
+  | 1 => .ok .implicit
+  | 2 => .ok .strictImplicit
+  | 3 => .ok .instImplicit
+  | b => .error s!"invalid BinderInfo tag {b}"
+
+private def writeDagTables (st : DagEncState) (buf : ByteArray) : ByteArray := Id.run do
+  let mut out := writeNat st.names.size buf
+  for n in st.names do
+    match n with
+    | .anonymous => out := writeUInt8 0 out
+    | .str p s   => out := writeString s (writeNat p (writeUInt8 1 out))
+    | .num p k   => out := writeNat k (writeNat p (writeUInt8 2 out))
+  out := writeNat st.levels.size out
+  for u in st.levels do
+    match u with
+    | .zero      => out := writeUInt8 0 out
+    | .succ a    => out := writeNat a (writeUInt8 1 out)
+    | .max a b   => out := writeNat b (writeNat a (writeUInt8 2 out))
+    | .imax a b  => out := writeNat b (writeNat a (writeUInt8 3 out))
+    | .param nm  => out := writeNat nm (writeUInt8 4 out)
+  out := writeNat st.exprs.size out
+  for e in st.exprs do
+    match e with
+    | .bvar i              => out := writeNat i (writeUInt8 0 out)
+    | .sort u              => out := writeNat u (writeUInt8 1 out)
+    | .const n us          =>
+      out := writeNat us.size (writeNat n (writeUInt8 2 out))
+      for u in us do
+        out := writeNat u out
+    | .app f a             => out := writeNat a (writeNat f (writeUInt8 3 out))
+    | .lam n t b bi        =>
+      out := writeUInt8 (binderInfoToByte bi)
+        (writeNat b (writeNat t (writeNat n (writeUInt8 4 out))))
+    | .forallE n t b bi    =>
+      out := writeUInt8 (binderInfoToByte bi)
+        (writeNat b (writeNat t (writeNat n (writeUInt8 5 out))))
+    | .letE n t v b nd     =>
+      out := writeBool nd (writeNat b (writeNat v (writeNat t (writeNat n (writeUInt8 6 out)))))
+    | .litNat v            => out := writeNat v (writeUInt8 7 out)
+    | .litStr s            => out := writeString s (writeUInt8 8 out)
+    | .proj s i b          => out := writeNat b (writeNat i (writeNat s (writeUInt8 9 out)))
+  return out
+
+private def writeAsciiVarNat (n : Nat) (out : String) : String :=
+  if n < 32 then
+    out.push (Char.ofNat (n + 48))
+  else
+    writeAsciiVarNat (n / 32) (out.push (Char.ofNat (((n % 32) ||| 32) + 48)))
+termination_by n
+decreasing_by simp_wf; omega
+
+private def encodeBytesAscii (bytes : ByteArray) : String :=
+  let out := writeAsciiVarNat bytes.size ""
+  go 0 out
+where
+  push6 (v : Nat) (s : String) : String :=
+    s.push (Char.ofNat ((v &&& 0x3f) + 48))
+  go (i : Nat) (s : String) : String :=
+    if h0 : i + 2 < bytes.size then
+      let b0 := bytes[i].toNat
+      let b1 := bytes[i + 1].toNat
+      let b2 := bytes[i + 2].toNat
+      let s := push6 (b0 >>> 2) s
+      let s := push6 (((b0 &&& 3) <<< 4) ||| (b1 >>> 4)) s
+      let s := push6 (((b1 &&& 0xf) <<< 2) ||| (b2 >>> 6)) s
+      let s := push6 (b2 &&& 0x3f) s
+      go (i + 3) s
+    else if h1 : i + 1 < bytes.size then
+      let b0 := bytes[i].toNat
+      let b1 := bytes[i + 1].toNat
+      let s := push6 (b0 >>> 2) s
+      let s := push6 (((b0 &&& 3) <<< 4) ||| (b1 >>> 4)) s
+      push6 ((b1 &&& 0xf) <<< 2) s
+    else if h2 : i < bytes.size then
+      let b0 := bytes[i].toNat
+      let s := push6 (b0 >>> 2) s
+      push6 ((b0 &&& 3) <<< 4) s
+    else
+      s
+  termination_by bytes.size - i
+
+private def readAsciiChunk6 (raw : ByteArray) (idx : Nat) : Except String Nat :=
+  if h : idx < raw.size then
+    let v := raw[idx].toNat
+    if v >= 48 && v <= 111 then
+      .ok (v - 48)
+    else
+      .error "invalid 6-bit ASCII character in serialized payload"
+  else
+    .error "unexpected EOF while reading 6-bit ASCII payload"
+
+private def readAsciiVarNat (raw : ByteArray) (pos : Nat) : Except String (Nat × Nat) :=
+  go pos 0 1 (raw.size - pos)
+where
+  go (pos acc mult : Nat) : Nat → Except String (Nat × Nat)
+    | 0 => .error "unexpected EOF while reading ASCII length header"
+    | fuel + 1 => do
+      let v ← readAsciiChunk6 raw pos
+      let acc' := acc + (v &&& 0x1f) * mult
+      if (v &&& 0x20) == 0 then
+        return (acc', pos + 1)
+      else
+        go (pos + 1) acc' (mult * 32) fuel
+
+private def decodeBytesAscii (s : String) : Except String ByteArray := do
+  let raw := s.toUTF8
+  let (byteLen, payloadStart) ← readAsciiVarNat raw 0
+  let fullGroups := byteLen / 3
+  let rem := byteLen % 3
+  let expectedPayloadChars := fullGroups * 4 + (if rem == 0 then 0 else rem + 1)
+  unless raw.size == payloadStart + expectedPayloadChars do
+    throw "corrupt byte-length header in serialized payload"
+  let mut out := ByteArray.emptyWithCapacity byteLen
+  let mut pos := payloadStart
+  for _ in *...fullGroups do
+    let c0 ← readAsciiChunk6 raw pos
+    let c1 ← readAsciiChunk6 raw (pos + 1)
+    let c2 ← readAsciiChunk6 raw (pos + 2)
+    let c3 ← readAsciiChunk6 raw (pos + 3)
+    out := out.push (((c0 <<< 2) ||| (c1 >>> 4)).toUInt8)
+    out := out.push ((((c1 &&& 0xf) <<< 4) ||| (c2 >>> 2)).toUInt8)
+    out := out.push ((((c2 &&& 0x3) <<< 6) ||| c3).toUInt8)
+    pos := pos + 4
+  if rem == 1 then
+    let c0 ← readAsciiChunk6 raw pos
+    let c1 ← readAsciiChunk6 raw (pos + 1)
+    unless (c1 &&& 0xf) == 0 do
+      throw "non-zero padding bits in serialized payload"
+    out := out.push (((c0 <<< 2) ||| (c1 >>> 4)).toUInt8)
+  else if rem == 2 then
+    let c0 ← readAsciiChunk6 raw pos
+    let c1 ← readAsciiChunk6 raw (pos + 1)
+    let c2 ← readAsciiChunk6 raw (pos + 2)
+    unless (c2 &&& 0x3) == 0 do
+      throw "non-zero padding bits in serialized payload"
+    out := out.push (((c0 <<< 2) ||| (c1 >>> 4)).toUInt8)
+    out := out.push ((((c1 &&& 0xf) <<< 4) ||| (c2 >>> 2)).toUInt8)
+  unless out.size == byteLen do
+    throw "decoded ByteArray size mismatch"
+  return out
+
+private structure DagDecState where
+  bytes  : ByteArray
+  pos    : Nat := 0
+  names  : Array Name := #[]
+  levels : Array Level := #[]
+  exprs  : Array Expr := #[]
+
+private abbrev DagDecM := StateT DagDecState (Except String)
+
+private def decReadByte : DagDecM UInt8 := do
+  let st ← get
+  if h : st.pos < st.bytes.size then
+    let b := st.bytes[st.pos]
+    set { st with pos := st.pos + 1 }
+    return b
+  else
+    throw "unexpected EOF in binary payload"
+
+private def decReadBool : DagDecM Bool := do
+  match ← decReadByte with
+  | 0 => return false
+  | 1 => return true
+  | b => throw s!"invalid Bool tag {b}"
+
+private def decReadNat : DagDecM Nat := do
+  let st ← get
+  let (val, nextPos) ← liftM (go st.bytes st.pos 0 1 (st.bytes.size - st.pos))
+  set { st with pos := nextPos }
+  return val
+where
+  go (bytes : ByteArray) (pos acc mult : Nat) : Nat → Except String (Nat × Nat)
+    | 0 => .error "unexpected EOF while reading Nat"
+    | fuel + 1 =>
+      if h : pos < bytes.size then
+        let b := bytes[pos].toNat
+        let acc' := acc + (b &&& 0x7f) * mult
+        if (b &&& 0x80) == 0 then
+          .ok (acc', pos + 1)
+        else
+          go bytes (pos + 1) acc' (mult * 128) fuel
+      else
+        .error "unexpected EOF while reading Nat"
+
+private def decReadString : DagDecM String := do
+  let len ← decReadNat
+  let st ← get
+  if len > st.bytes.size - st.pos then
+    throw "string length exceeds remaining payload bytes"
+  let slice := st.bytes.extract st.pos (st.pos + len)
+  set { st with pos := st.pos + len }
+  let some str := String.fromUTF8? slice
+    | throw "invalid UTF-8 string in serialized payload"
+  return str
+
+private def decCheckCount (count : Nat) (minBytesPerElem : Nat := 1) : DagDecM Unit := do
+  let st ← get
+  if count * minBytesPerElem > st.bytes.size - st.pos then
+    throw "decoded collection count exceeds remaining payload bytes"
+
+private def decGetName (idx : Nat) : DagDecM Name := do
+  let names := (← get).names
+  if h : idx < names.size then
+    return names[idx]
+  else
+    throw s!"invalid Name DAG index {idx}"
+
+private def decGetLevel (idx : Nat) : DagDecM Level := do
+  let levels := (← get).levels
+  if h : idx < levels.size then
+    return levels[idx]
+  else
+    throw s!"invalid Level DAG index {idx}"
+
+private def decGetExpr (idx : Nat) : DagDecM Expr := do
+  let exprs := (← get).exprs
+  if h : idx < exprs.size then
+    return exprs[idx]
+  else
+    throw s!"invalid Expr DAG index {idx}"
+
+private def decodeDagTables : DagDecM Unit := do
+  let numNames ← decReadNat
+  decCheckCount numNames
+  let mut names := Array.emptyWithCapacity numNames
+  for _ in *...numNames do
+    let tag ← decReadByte
+    let n ← match tag with
+      | 0 => pure .anonymous
+      | 1 =>
+        let pIdx ← decReadNat
+        let s ← decReadString
+        let some p := names[pIdx]? | throw s!"invalid parent Name DAG index {pIdx}"
+        pure (.str p s)
+      | 2 =>
+        let pIdx ← decReadNat
+        let k ← decReadNat
+        let some p := names[pIdx]? | throw s!"invalid parent Name DAG index {pIdx}"
+        pure (.num p k)
+      | _ => throw s!"invalid Name DAG tag {tag}"
+    names := names.push n
+  modify fun st => { st with names }
+  let numLevels ← decReadNat
+  decCheckCount numLevels
+  let mut levels := Array.emptyWithCapacity numLevels
+  for _ in *...numLevels do
+    let tag ← decReadByte
+    let u ← match tag with
+      | 0 => pure .zero
+      | 1 =>
+        let aIdx ← decReadNat
+        let some a := levels[aIdx]? | throw s!"invalid Level DAG index {aIdx}"
+        pure (.succ a)
+      | 2 =>
+        let aIdx ← decReadNat
+        let bIdx ← decReadNat
+        let some a := levels[aIdx]? | throw s!"invalid Level DAG index {aIdx}"
+        let some b := levels[bIdx]? | throw s!"invalid Level DAG index {bIdx}"
+        pure (.max a b)
+      | 3 =>
+        let aIdx ← decReadNat
+        let bIdx ← decReadNat
+        let some a := levels[aIdx]? | throw s!"invalid Level DAG index {aIdx}"
+        let some b := levels[bIdx]? | throw s!"invalid Level DAG index {bIdx}"
+        pure (.imax a b)
+      | 4 =>
+        let n ← decGetName (← decReadNat)
+        pure (.param n)
+      | _ => throw s!"invalid Level DAG tag {tag}"
+    levels := levels.push u
+  modify fun st => { st with levels }
+  let numExprs ← decReadNat
+  decCheckCount numExprs
+  let mut exprs := Array.emptyWithCapacity numExprs
+  for _ in *...numExprs do
+    let tag ← decReadByte
+    let e ← match tag with
+      | 0 => pure (.bvar (← decReadNat))
+      | 1 => pure (.sort (← decGetLevel (← decReadNat)))
+      | 2 =>
+        let n ← decGetName (← decReadNat)
+        let usLen ← decReadNat
+        decCheckCount usLen
+        let mut us : Array Level := Array.emptyWithCapacity usLen
+        for _ in *...usLen do
+          us := us.push (← decGetLevel (← decReadNat))
+        pure (.const n us.toList)
+      | 3 =>
+        let fIdx ← decReadNat
+        let aIdx ← decReadNat
+        let some f := exprs[fIdx]? | throw s!"invalid Expr DAG index {fIdx}"
+        let some a := exprs[aIdx]? | throw s!"invalid Expr DAG index {aIdx}"
+        pure (.app f a)
+      | 4 =>
+        let n ← decGetName (← decReadNat)
+        let tIdx ← decReadNat
+        let bIdx ← decReadNat
+        let bi ← liftM (byteToBinderInfo (← decReadByte))
+        let some t := exprs[tIdx]? | throw s!"invalid Expr DAG index {tIdx}"
+        let some b := exprs[bIdx]? | throw s!"invalid Expr DAG index {bIdx}"
+        pure (.lam n t b bi)
+      | 5 =>
+        let n ← decGetName (← decReadNat)
+        let tIdx ← decReadNat
+        let bIdx ← decReadNat
+        let bi ← liftM (byteToBinderInfo (← decReadByte))
+        let some t := exprs[tIdx]? | throw s!"invalid Expr DAG index {tIdx}"
+        let some b := exprs[bIdx]? | throw s!"invalid Expr DAG index {bIdx}"
+        pure (.forallE n t b bi)
+      | 6 =>
+        let n ← decGetName (← decReadNat)
+        let tIdx ← decReadNat
+        let vIdx ← decReadNat
+        let bIdx ← decReadNat
+        let nd ← decReadBool
+        let some t := exprs[tIdx]? | throw s!"invalid Expr DAG index {tIdx}"
+        let some v := exprs[vIdx]? | throw s!"invalid Expr DAG index {vIdx}"
+        let some b := exprs[bIdx]? | throw s!"invalid Expr DAG index {bIdx}"
+        pure (.letE n t v b nd)
+      | 7 => pure (.lit (.natVal (← decReadNat)))
+      | 8 => pure (.lit (.strVal (← decReadString)))
+      | 9 =>
+        let s ← decGetName (← decReadNat)
+        let i ← decReadNat
+        let bIdx ← decReadNat
+        let some b := exprs[bIdx]? | throw s!"invalid Expr DAG index {bIdx}"
+        pure (.proj s i b)
+      | _ => throw s!"invalid Expr DAG tag {tag}"
+    exprs := exprs.push e
+  modify fun st => { st with exprs }
+
+/--
+Serialize a closed `ExprPattern` into a printable 6-bit ASCII DAG payload for compact storage in
+elaborated auxiliary constants. Fails if `lam` or `closedProofs` contain open variables or level
+metavariables.
+-/
+def ExprPattern.encode (p : ExprPattern) : Except String String := do
+  let ((lpIdxs, lamIdx, proofIdxs, guardKind), st) ← (do
+    let lpIdxs ← p.levelParams.toArray.mapM internName
+    let lamIdx ← internExpr p.lam
+    let proofIdxs ← p.closedProofs.toList.toArray.mapM fun (k, v) => do
+      return (← internExpr k, ← internExpr v)
+    let guardKind ← match p.headGuard with
+      | .any          => pure (0, 0, 0, "")
+      | .const c a    => pure (1, ← internName c, a, "")
+      | .pinApp k a   => pure (2, k, a, "")
+      | .lam          => pure (3, 0, 0, "")
+      | .forallE      => pure (4, 0, 0, "")
+      | .sort         => pure (5, 0, 0, "")
+      | .lit (.natVal n) => pure (6, n, 0, "")
+      | .lit (.strVal s) => pure (7, 0, 0, s)
+      | .proj sn idx  => pure (8, ← internName sn, idx, "")
+    return (lpIdxs, lamIdx, proofIdxs, guardKind)).run {}
+  let mut buf := writeUInt8 patternBlobVersion ByteArray.empty
+  buf := writeDagTables st buf
+  buf := writeNat lpIdxs.size buf
+  for idx in lpIdxs do
+    buf := writeNat idx buf
+  buf := writeNat lamIdx buf
+  buf := writeNat p.numVars buf
+  buf := writeNat p.namedIdx.size buf
+  for idx in p.namedIdx do
+    buf := writeNat idx buf
+  buf := writeNat p.firstOrder.size buf
+  for b in p.firstOrder do
+    buf := writeBool b buf
+  buf := writeNat p.captureVars.size buf
+  for b in p.captureVars do
+    buf := writeBool b buf
+  buf := writeNat proofIdxs.size buf
+  for (kIdx, vIdx) in proofIdxs do
+    buf := writeNat vIdx (writeNat kIdx buf)
+  buf := writeBool p.precomputed buf
+  let (gTag, gA, gB, gStr) := guardKind
+  buf := writeUInt8 gTag.toUInt8 buf
+  match gTag with
+  | 1 | 2 | 8 => buf := writeNat gB (writeNat gA buf)
+  | 6         => buf := writeNat gA buf
+  | 7         => buf := writeString gStr buf
+  | _         => pure ()
+  return encodeBytesAscii buf
+
+/-- Decode an `ExprPattern` from a string produced by `ExprPattern.encode`, returning errors. -/
+def ExprPattern.decodeExcept (encoded : String) : Except String ExprPattern := do
+  let bytes ← decodeBytesAscii encoded
+  let (pat, st) ← (do
+    let ver ← decReadByte
+    unless ver == patternBlobVersion do
+      throw s!"unsupported ExprPattern blob version {ver}"
+    decodeDagTables
+    let lpCount ← decReadNat
+    decCheckCount lpCount
+    let mut levelParams : Array Name := Array.emptyWithCapacity lpCount
+    for _ in *...lpCount do
+      levelParams := levelParams.push (← decGetName (← decReadNat))
+    let lam ← decGetExpr (← decReadNat)
+    let numVars ← decReadNat
+    let namedCount ← decReadNat
+    decCheckCount namedCount
+    let mut namedIdx := Array.emptyWithCapacity namedCount
+    for _ in *...namedCount do
+      namedIdx := namedIdx.push (← decReadNat)
+    let foCount ← decReadNat
+    decCheckCount foCount
+    let mut firstOrder := Array.emptyWithCapacity foCount
+    for _ in *...foCount do
+      firstOrder := firstOrder.push (← decReadBool)
+    let capCount ← decReadNat
+    decCheckCount capCount
+    let mut captureVars := Array.emptyWithCapacity capCount
+    for _ in *...capCount do
+      captureVars := captureVars.push (← decReadBool)
+    let pfCount ← decReadNat
+    decCheckCount pfCount 2
+    let mut closedProofs : ExprMap Expr := {}
+    for _ in *...pfCount do
+      let k ← decGetExpr (← decReadNat)
+      let v ← decGetExpr (← decReadNat)
+      closedProofs := closedProofs.insert k v
+    let precomputed ← decReadBool
+    let gTag ← decReadByte
+    let headGuard : PatHeadGuard ← match gTag with
+      | 0 => pure .any
+      | 1 => pure (.const (← decGetName (← decReadNat)) (← decReadNat))
+      | 2 => pure (.pinApp (← decReadNat) (← decReadNat))
+      | 3 => pure .lam
+      | 4 => pure .forallE
+      | 5 => pure .sort
+      | 6 => pure (.lit (.natVal (← decReadNat)))
+      | 7 => pure (.lit (.strVal (← decReadString)))
+      | 8 => pure (.proj (← decGetName (← decReadNat)) (← decReadNat))
+      | _ => throw s!"invalid PatHeadGuard tag {gTag}"
+    let levelParamsList := levelParams.toList
+    let patLevelNodes := computePatLevelNodes levelParamsList (stripOuterLambdas numVars lam)
+    return ({
+      levelParams := levelParamsList
+      lam
+      numVars
+      namedIdx
+      firstOrder
+      captureVars
+      closedProofs
+      patLevelNodes
+      precomputed
+      headGuard
+    } : ExprPattern)).run { bytes }
+  unless st.pos == bytes.size do
+    throw "trailing bytes in ExprPattern blob"
+  return pat
+
+/--
+Decode an `ExprPattern` produced by `ExprPattern.encode` for runtime auxiliary constants.
+Panics if the internal compiler-emitted payload is corrupt.
+-/
+def ExprPattern.decode (encoded : String) : ExprPattern :=
+  match ExprPattern.decodeExcept encoded with
+  | .ok p    => p
+  | .error e => panic! s!"ExprPattern.decode: {e}"
+
+/--
+Serialize a closed `ExprTemplate` into a printable 6-bit ASCII DAG payload for compact storage in
+elaborated auxiliary constants. Fails if `lam` contains open variables or level metavariables.
+-/
+def ExprTemplate.encode (tmpl : ExprTemplate) : Except String String := do
+  let ((lpIdxs, lamIdx, kinds), st) ← (do
+    let lpIdxs ← tmpl.levelParams.toArray.mapM internName
+    let lamIdx ← internExpr tmpl.lam
+    let kinds : Array (Nat × Nat) ← tmpl.varKinds.mapM fun (k : ExprTemplateVarKind) =>
+      match k with
+      | .splice pos    => pure (0, pos)
+      | .hole none     => pure (1, 0)
+      | .hole (some n) => do return (2, ← internName n)
+      | .tc            => pure (3, 0)
+      | .infer         => pure (4, 0)
+    return (lpIdxs, lamIdx, kinds)).run {}
+  let mut buf := writeUInt8 templateBlobVersion ByteArray.empty
+  buf := writeDagTables st buf
+  buf := writeNat lpIdxs.size buf
+  for idx in lpIdxs do
+    buf := writeNat idx buf
+  buf := writeNat lamIdx buf
+  buf := writeNat kinds.size buf
+  for (tag, payload) in kinds do
+    buf := writeUInt8 tag.toUInt8 buf
+    if tag == 0 || tag == 2 then
+      buf := writeNat payload buf
+  return encodeBytesAscii buf
+
+/-- Decode an `ExprTemplate` from a string produced by `ExprTemplate.encode`, returning errors. -/
+def ExprTemplate.decodeExcept (encoded : String) : Except String ExprTemplate := do
+  let bytes ← decodeBytesAscii encoded
+  let (tmpl, st) ← (do
+    let ver ← decReadByte
+    unless ver == templateBlobVersion do
+      throw s!"unsupported ExprTemplate blob version {ver}"
+    decodeDagTables
+    let lpCount ← decReadNat
+    decCheckCount lpCount
+    let mut levelParams : Array Name := Array.emptyWithCapacity lpCount
+    for _ in *...lpCount do
+      levelParams := levelParams.push (← decGetName (← decReadNat))
+    let lam ← decGetExpr (← decReadNat)
+    let kCount ← decReadNat
+    decCheckCount kCount
+    let mut varKinds := Array.emptyWithCapacity kCount
+    for _ in *...kCount do
+      let tag ← decReadByte
+      let vk : ExprTemplateVarKind ← match tag with
+        | 0 => pure (.splice (← decReadNat))
+        | 1 => pure (.hole none)
+        | 2 => pure (.hole (some (← decGetName (← decReadNat))))
+        | 3 => pure .tc
+        | 4 => pure .infer
+        | _ => throw s!"invalid ExprTemplateVarKind tag {tag}"
+      varKinds := varKinds.push vk
+    return ({
+      levelParams := levelParams.toList
+      lam
+      varKinds
+    } : ExprTemplate)).run { bytes }
+  unless st.pos == bytes.size do
+    throw "trailing bytes in ExprTemplate blob"
+  return tmpl
+
+/--
+Decode an `ExprTemplate` produced by `ExprTemplate.encode` for runtime auxiliary constants.
+Panics if the internal compiler-emitted payload is corrupt.
+-/
+def ExprTemplate.decode (encoded : String) : ExprTemplate :=
+  match ExprTemplate.decodeExcept encoded with
+  | .ok t    => t
+  | .error e => panic! s!"ExprTemplate.decode: {e}"
 
 /--
 Inspect a pending type-class goal `goalType`. Returns `some (inputExprs, inputLevels)` listing
@@ -2135,6 +2926,7 @@ def ExprPattern.matchSym? (p : ExprPattern) (rel : ExprMatchRel) (e : Expr)
 CPS matching combinator for `/sym` with a pre-resolved static relation `rel`, caching the
 compiled `Sym.Pattern` in `Sym.SymExtension` keyed by `siteId`.
 -/
+@[nospecialize]
 def ExprPattern.matchSymResolvedOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
     (siteId : Name) (p : ExprPattern) (rel : ResolvedExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr)
@@ -2147,6 +2939,7 @@ def ExprPattern.matchSymResolvedOrElse {m : Type → Type v} [Monad m] [MonadSym
 CPS matching combinator for `/sym`, validating `rel`/`localItems` at runtime and caching the
 compiled `Sym.Pattern` in `Sym.SymExtension` keyed by `siteId`.
 -/
+@[nospecialize]
 def ExprPattern.matchSymSiteOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
     (siteId : Name) (p : ExprPattern) (rel : ExprMatchRel)
     (pinIdxs : Array Nat) (pins : Array Expr) (localItems : Array (Bool × Expr)) (e : Expr)
@@ -2302,6 +3095,7 @@ private def instantiateSymCore (siteId : Name) (tmpl : ExprTemplate)
 Instantiate a compiled `ExprTemplate` in any `[MonadSym m]` monad with a pre-resolved static
 `/sym` relation `rel`, caching the folded & maximally shared closed template per `siteId`.
 -/
+@[nospecialize]
 def ExprTemplate.instantiateSymResolved {m : Type → Type v} [Monad m] [MonadSym m]
     (siteId : Name) (tmpl : ExprTemplate) (rel : ResolvedExprMatchRel)
     (splices : Array Expr) : m Expr :=
@@ -2311,6 +3105,7 @@ def ExprTemplate.instantiateSymResolved {m : Type → Type v} [Monad m] [MonadSy
 Instantiate a compiled `ExprTemplate` in any `[MonadSym m]` monad under `/sym`, validating `rel`
 and `localItems` at runtime and caching the shared closed template per `siteId`.
 -/
+@[nospecialize]
 def ExprTemplate.instantiateSymSite {m : Type → Type v} [Monad m] [MonadSym m]
     (siteId : Name) (tmpl : ExprTemplate) (rel : ExprMatchRel)
     (splices : Array Expr) (localItems : Array (Bool × Expr) := #[]) : m Expr :=
@@ -2332,19 +3127,25 @@ private def sortAndDedupCands (cands : Array Nat) : Array Nat := Id.run do
       prev? := some c
   return out
 
+@[nospecialize]
+private def dispatchCandidatesGo {m : Type → Type v} [Monad m] {α : Type}
+    (cands : Array Nat) (scrutinee : Expr)
+    (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) (i : Nat) : m α := do
+  if h : i < cands.size then
+    let idx := cands[i]
+    if hIdx : idx < tryAt.size then
+      tryAt[idx] scrutinee (fun _ => dispatchCandidatesGo cands scrutinee tryAt onFail (i + 1))
+    else
+      dispatchCandidatesGo cands scrutinee tryAt onFail (i + 1)
+  else
+    onFail ()
+termination_by cands.size - i
+
+@[nospecialize]
 private def dispatchCandidates {m : Type → Type v} [Monad m] {α : Type}
     (cands : Array Nat) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α :=
-  let rec go (i : Nat) : m α := do
-    if h : i < cands.size then
-      let idx := cands[i]
-      if hIdx : idx < tryAt.size then
-        tryAt[idx] scrutinee (fun _ => go (i + 1))
-      else
-        go (i + 1)
-    else
-      onFail ()
-  go 0
+  dispatchCandidatesGo cands scrutinee tryAt onFail 0
 
 private def stripMDataAppRev (e : Expr) (revArgs : Array Expr := #[]) :
     Expr × Array Expr :=
@@ -2683,6 +3484,7 @@ or `.reducible` relation `rel`. Builds and caches the `DiscrTree Nat` once per `
 candidate indices lazily (plus numeral fallback under `.reducible`), sorts & deduplicates them in
 source order, and invokes `tryAt[idx]` only on candidate branches.
 -/
+@[nospecialize]
 def ExprPattern.matchIndexedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
     (siteId : Name) (pats : Array ExprPattern) (rel : ExprMatchRel) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
@@ -2879,6 +3681,7 @@ monad. Builds and caches a `Sym.Simp.DiscrTree Nat` in `Sym.SymExtension` keyed 
 retrieves candidate indices modulo `let`/`zetaDelta`/beta/eta/offsets/numerals, sorts & deduplicates
 them in source order, and invokes `tryAt[idx]` only on candidate branches.
 -/
+@[nospecialize]
 def ExprPattern.matchSymIndexedOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
     (siteId : Name) (pats : Array ExprPattern) (rel : ResolvedExprMatchRel) (scrutinee : Expr)
     (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
@@ -3035,8 +3838,11 @@ application prefixes are omitted while head and argument `ExprContext` chains st
 def subterms (e : Expr) (dedup : Bool := true) (includeAppPrefixes : Bool := false) : Subterms :=
   { expr := e, dedup, includeAppPrefixes }
 
+-- Structural traversal on `cur : Expr`; `partial` avoids `WellFounded.fix`/`brecOn`
+-- LCNF and code-generation overhead on every polymorphic `[Monad m]` instantiation.
 mutual
-  private def subtermsVisitSpine [Monad m] (dedup : Bool)
+  @[nospecialize]
+  private partial def subtermsVisitSpine [Monad m] (dedup : Bool)
       (f : Expr × ExprContext → β → m (ForInStep β))
       (p : Expr) (upper : List ExprContextFrame) (acc : β) :
       StateT ExprSet m (ForInStep β) :=
@@ -3046,9 +3852,9 @@ mutual
       | .done b  => return .done b
       | .yield b => subtermsGo dedup false f pa (.appArg p pf :: upper) b
     | fn => subtermsGo dedup false f fn upper acc
-  termination_by (sizeOf p, 2)
 
-  private def subtermsStepChildren [Monad m] (dedup includeAppPrefixes : Bool)
+  @[nospecialize]
+  private partial def subtermsStepChildren [Monad m] (dedup includeAppPrefixes : Bool)
       (f : Expr × ExprContext → β → m (ForInStep β))
       (cur : Expr) (frames : List ExprContextFrame) (curAcc : β) :
       StateT ExprSet m (ForInStep β) :=
@@ -3080,9 +3886,9 @@ mutual
     | .proj _ _ b =>
       subtermsGo dedup includeAppPrefixes f b (.proj cur :: frames) curAcc
     | _ => pure (.yield curAcc)
-  termination_by (sizeOf cur, 0)
 
-  private def subtermsGo [Monad m] (dedup includeAppPrefixes : Bool)
+  @[nospecialize]
+  private partial def subtermsGo [Monad m] (dedup includeAppPrefixes : Bool)
       (f : Expr × ExprContext → β → m (ForInStep β))
       (cur : Expr) (frames : List ExprContextFrame) (acc : β) :
       StateT ExprSet m (ForInStep β) :=
@@ -3099,17 +3905,19 @@ mutual
         | .done b  => return .done b
         | .yield b => curAcc := b
       subtermsStepChildren dedup includeAppPrefixes f cur frames curAcc
-  termination_by (sizeOf cur, 1)
 end
 
 /-- Iterate over closed `(subterm, ctx)` pairs in `s`. -/
+@[nospecialize]
 def Subterms.forIn [Monad m] (s : Subterms) (init : β)
     (f : Expr × ExprContext → β → m (ForInStep β)) : m β := do
   let (step, _) ← (subtermsGo s.dedup s.includeAppPrefixes f s.expr [] init).run ({} : ExprSet)
   return match step with
     | .done b | .yield b => b
 
-instance [Monad m] : ForIn m Subterms (Expr × ExprContext) where
+@[nospecialize]
+instance instForInSubtermsProdExprExprContext [Monad m] :
+    ForIn m Subterms (Expr × ExprContext) where
   forIn := Subterms.forIn
 
 /-- Collect all yielded `(subterm, ctx)` pairs from `s` into an `Array`. -/
@@ -3151,38 +3959,33 @@ def matchDiscriminants (e : Expr) (alsoCasesOn : Bool := false) (dedup : Bool :=
     MatchDiscriminants :=
   { expr := e, alsoCasesOn, dedup }
 
-private def collectAppSpineArgsSub (n : Nat) (cur : Expr) (upper : List ExprContextFrame) :
-    List ({ e : Expr // sizeOf e < sizeOf cur } × List ExprContextFrame) :=
-  go n cur upper (Nat.le_refl _) []
+private def collectAppSpineArgs (n : Nat) (cur : Expr) (upper : List ExprContextFrame) :
+    List (Expr × List ExprContextFrame) :=
+  go n cur upper []
 where
-  go : (k : Nat) → (p : Expr) → List ExprContextFrame → sizeOf p ≤ sizeOf cur →
-      List ({ e : Expr // sizeOf e < sizeOf cur } × List ExprContextFrame) →
-      List ({ e : Expr // sizeOf e < sizeOf cur } × List ExprContextFrame)
-    | k + 1, p@(.app pf pa), upper, hp, acc =>
-      have hpa : sizeOf pa < sizeOf cur := by
-        have hlt : sizeOf pa < sizeOf (Expr.app pf pa) := by decreasing_tactic
-        exact Nat.lt_of_lt_of_le hlt hp
-      have hpf : sizeOf pf ≤ sizeOf cur := by
-        have hlt : sizeOf pf < sizeOf (Expr.app pf pa) := by decreasing_tactic
-        exact Nat.le_of_lt (Nat.lt_of_lt_of_le hlt hp)
-      go k pf (.appFn p pa :: upper) hpf ((⟨pa, hpa⟩, .appArg p pf :: upper) :: acc)
-    | _, _, _, _, acc => acc
+  go : Nat → Expr → List ExprContextFrame → List (Expr × List ExprContextFrame) →
+      List (Expr × List ExprContextFrame)
+    | k + 1, p@(.app pf pa), upper, acc =>
+      go k pf (.appFn p pa :: upper) ((pa, .appArg p pf :: upper) :: acc)
+    | _, _, _, acc => acc
 
+-- Structural traversal on `cur : Expr`; `partial` avoids `WellFounded.fix`/`brecOn`
+-- LCNF and code-generation overhead on every polymorphic `[Monad m]` instantiation.
 mutual
-  private def matchDiscriminantsGoArgs [Monad m] [MonadLiftT MetaM m] {β : Type}
+  @[nospecialize]
+  private partial def matchDiscriminantsGoArgs [Monad m] [MonadLiftT MetaM m] {β : Type}
       (alsoCasesOn dedup : Bool) (f : Expr × ExprContext → β → m (ForInStep β))
-      (parent : Expr)
-      (entries : List ({ e : Expr // sizeOf e < sizeOf parent } × List ExprContextFrame))
+      (entries : List (Expr × List ExprContextFrame))
       (acc : β) : StateT (ExprSet × ExprSet) m (ForInStep β) := do
     match entries with
     | [] => return .yield acc
-    | (⟨arg, _⟩, argFrames) :: rest =>
+    | (arg, argFrames) :: rest =>
       match ← matchDiscriminantsGo alsoCasesOn dedup f arg argFrames acc with
       | .done b  => return .done b
-      | .yield b => matchDiscriminantsGoArgs alsoCasesOn dedup f parent rest b
-  termination_by (sizeOf parent, 1, entries.length)
+      | .yield b => matchDiscriminantsGoArgs alsoCasesOn dedup f rest b
 
-  private def matchDiscriminantsStepChildren [Monad m] [MonadLiftT MetaM m] {β : Type}
+  @[nospecialize]
+  private partial def matchDiscriminantsStepChildren [Monad m] [MonadLiftT MetaM m] {β : Type}
       (alsoCasesOn dedup : Bool) (f : Expr × ExprContext → β → m (ForInStep β))
       (cur : Expr) (frames : List ExprContextFrame) (acc : β) :
       StateT (ExprSet × ExprSet) m (ForInStep β) :=
@@ -3210,9 +4013,9 @@ mutual
     | .proj _ _ b =>
       matchDiscriminantsGo alsoCasesOn dedup f b (.proj cur :: frames) acc
     | _ => pure (.yield acc)
-  termination_by (sizeOf cur, 0, 0)
 
-  private def matchDiscriminantsGo [Monad m] [MonadLiftT MetaM m] {β : Type}
+  @[nospecialize]
+  private partial def matchDiscriminantsGo [Monad m] [MonadLiftT MetaM m] {β : Type}
       (alsoCasesOn dedup : Bool) (f : Expr × ExprContext → β → m (ForInStep β))
       (cur : Expr) (frames : List ExprContextFrame) (acc : β) :
       StateT (ExprSet × ExprSet) m (ForInStep β) :=
@@ -3226,12 +4029,12 @@ mutual
         modify fun (vis, em) => (vis.insert cur, em)
       if cur.isApp && cur.getAppFn.isConst then
         if let some app ← liftM (matchMatcherApp? cur alsoCasesOn : MetaM (Option MatcherApp)) then
-          let argEntries := collectAppSpineArgsSub cur.getAppNumArgs cur frames
+          let argEntries := collectAppSpineArgs cur.getAppNumArgs cur frames
           let discrStart := app.params.size + 1
           let discrEnd := discrStart + app.discrs.size
           let mut curAcc := acc
           let mut idx := 0
-          for (⟨arg, _⟩, argFrames) in argEntries do
+          for (arg, argFrames) in argEntries do
             if idx >= discrStart && idx < discrEnd && !arg.hasLooseBVars then
               let shouldEmit ←
                 if dedup then
@@ -3248,12 +4051,12 @@ mutual
                 | .done b  => return .done b
                 | .yield b => curAcc := b
             idx := idx + 1
-          return ← matchDiscriminantsGoArgs alsoCasesOn dedup f cur argEntries curAcc
+          return ← matchDiscriminantsGoArgs alsoCasesOn dedup f argEntries curAcc
       matchDiscriminantsStepChildren alsoCasesOn dedup f cur frames acc
-  termination_by (sizeOf cur, 2, 0)
 end
 
 /-- Iterate over closed `(discr, ctx)` pairs in `d`. -/
+@[nospecialize]
 def MatchDiscriminants.forIn [Monad m] [MonadLiftT MetaM m] (d : MatchDiscriminants) (init : β)
     (f : Expr × ExprContext → β → m (ForInStep β)) : m β := do
   let e ← (instantiateMVarsIfNeeded d.expr : MetaM Expr)
@@ -3262,7 +4065,9 @@ def MatchDiscriminants.forIn [Monad m] [MonadLiftT MetaM m] (d : MatchDiscrimina
   return match step with
     | .done b | .yield b => b
 
-instance [Monad m] [MonadLiftT MetaM m] : ForIn m MatchDiscriminants (Expr × ExprContext) where
+@[nospecialize]
+instance instForInMatchDiscriminantsProdExprExprContext [Monad m] [MonadLiftT MetaM m] :
+    ForIn m MatchDiscriminants (Expr × ExprContext) where
   forIn := MatchDiscriminants.forIn
 
 /-- Collect all yielded `(discr, ctx)` pairs from `d` into an `Array`. -/

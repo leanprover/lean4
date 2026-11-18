@@ -5,7 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-import Lean.Elab.Tactic.Grind.Basic
+public import Lean.Elab.Tactic.Grind.Basic
+public import Lean.Meta.ExprPattern
 import Lean.Elab.Tactic.Grind.SimprocDSL
 import Lean.Meta.Sym.Grind
 import Lean.Meta.Sym.Simp.Variant
@@ -20,6 +21,15 @@ import Lean.Elab.Tactic.Location
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic.Grind
 open Meta
+
+/--
+Low-priority `MonadSym` instance for monads lifting `GrindTacticM` (such as `GrindTacticM` itself),
+declared here rather than in `Grind.Basic` to preserve `MonadLiftT MetaM GrindTacticM` resolution
+via `TermElabM`.
+-/
+public instance (priority := low) {m : Type → Type v} [MonadLiftT GrindTacticM m] :
+    Meta.MonadSym m where
+  liftSym x := liftM (liftSymM x)
 
 def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderIdent) : GrindTacticM Unit := do
   ensureSym

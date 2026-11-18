@@ -180,13 +180,18 @@ where
       else
         mask
 
-def mkPatternCore (type : Expr) (levelParams : List Name) (varTypes : Array Expr) (pattern : Expr) : MetaM Pattern := do
+def mkPatternCoreFromVars (levelParams : List Name) (varTypes : Array Expr)
+    (varInfos? : Option ProofInstInfo) (pattern : Expr) : MetaM Pattern := do
   let fnInfos ← mkProofInstInfoMapFor pattern
   let checkTypeMask := mkCheckTypeMask pattern varTypes.size
   let checkTypeMask? := if checkTypeMask.all (· == false) then none else some checkTypeMask
+  return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
+
+def mkPatternCore (type : Expr) (levelParams : List Name) (varTypes : Array Expr)
+    (pattern : Expr) : MetaM Pattern := do
   let varInfos? ← forallBoundedTelescope type varTypes.size fun xs _ =>
     mkProofInstArgInfo? xs
-  return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
+  mkPatternCoreFromVars levelParams varTypes varInfos? pattern
 
 def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat) : MetaM Pattern := do
   let hugeNumber := 10000000
@@ -199,7 +204,7 @@ def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat
   go 0 type #[]
 
 /--
-Creates a `Pattern` from the type of a theorem.
+Creates a `Pattern` from a theorem.
 
 The pattern is constructed by stripping leading universal quantifiers from the theorem's type.
 Each quantified variable becomes a pattern variable, with its type recorded in `varTypes` and
@@ -218,6 +223,39 @@ public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : Met
 public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
   let (levelParams, type) ← preprocessExprPattern e levelParams (num? := num?)
   mkPatternFromType levelParams type num?
+
+/--
+Creates a `Pattern` from a closed lambda `fun x₁ … xₙ => body` abstracting `numVars` pattern
+variables and `levelParams₀` universe parameters, running standard `Sym` preprocessing
+(folding kernel projections, unfolding reducible constants, beta/eta/zeta reduction) on binder
+domains and `body`.
+-/
+public def mkPatternFromLambda (lam : Expr) (levelParams₀ : List Name) (numVars : Nat)
+    (zetaDelta := false) : MetaM Pattern := do
+  let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
+  let us := levelParams.map mkLevelParam
+  let lam := if us.isEmpty then lam else lam.instantiateLevelParams levelParams₀ us
+  let lam ← foldProjs lam
+  lambdaBoundedTelescope lam numVars fun xs body => do
+    unless xs.size == numVars do
+      throwError "expected {numVars} outer lambda binders in pattern template, got {xs.size}"
+    let lctx ← xs.foldlM (init := ← getLCtx) fun lctx x => do
+      let decl ← x.fvarId!.getDecl
+      let ty ← preprocessType decl.type (zetaDelta := zetaDelta)
+      return lctx.modifyLocalDecl x.fvarId! fun d => d.setType ty
+    withLCtx' lctx do
+      let body ← instantiateMVars body
+      let body ← Sym.unfoldReducible body
+      let body ← Core.betaReduce body
+      let body ← zetaReduce body (zetaDelta := zetaDelta)
+      let body ← etaReduceAll body
+      let body ← normalizeLevels body
+      let varTypes ← (Array.range xs.size).mapM fun i => do
+        let x := xs.getD i default
+        let ty ← normalizeLevels (← x.fvarId!.getDecl).type
+        return ty.abstract (xs.extract 0 i)
+      let varInfos? ← mkProofInstArgInfo? xs
+      mkPatternCoreFromVars levelParams varTypes varInfos? (body.abstract xs)
 
 @[inline]
 def mkPatternFromTypeWithKey (levelParams : List Name) (type : Expr) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do

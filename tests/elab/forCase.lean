@@ -100,6 +100,23 @@ private def zipMultiCaseBoth (xs ys : List (Option Nat)) : List (Nat × Nat) := 
 #guard zipMultiCase2 [10, 20, 30, 40] [none, some 1, none, some 2] == [(20, 1), (40, 2)]
 #guard zipMultiCaseBoth [some 0, some 1, none, some 9, some 5]
   [some 10, some 20, some 30, some 40, some 50] == [(1, 20)]
+#guard zipMultiCaseBoth [some 1, some 2, some 3] [some 10, none, some 30] == [(1, 10), (3, 30)]
+
+/--
+error: Type mismatch
+  h
+has type
+  x✝ ∈ xs
+but is expected to have type
+  some x ∈ xs
+-/
+#guard_msgs in
+private def proofBinderTypeCheck (xs : List (Option Nat)) : Id Nat := do
+  let mut acc := 0
+  for h : case (some x) in xs do
+    have : some x ∈ xs := h
+    acc := acc + x
+  return acc
 
 private def sumCaseIdent (cases : List Nat) : Nat := Id.run do
   let mut acc := 0

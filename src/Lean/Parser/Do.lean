@@ -192,7 +192,9 @@ def doForDecl := leading_parser
 /--
 A refutable-pattern clause `case [h :] pat in xs` inside a `for` loop. Non-matching elements
 are skipped via `continue`; writing `case` on an irrefutable pattern is reported as a redundant
-alternative.
+alternative. When paired with a membership proof `h :` (`case h : pat in xs`), `h` is bound for
+the raw element variable (`_ ∈ xs`, consistent with `for h : (a, b) in xs`), and parallel clauses
+(`for case p in xs, case q in ys`) advance all collections lockstep before checking patterns.
 -/
 def doForCaseDecl := leading_parser (withAnonymousAntiquot := false)
   atomic (nonReservedSymbol "case" >> notFollowedBy ("in" <|> ":") "identifier") >>
@@ -203,7 +205,8 @@ def doForCaseDecl := leading_parser (withAnonymousAntiquot := false)
 /--
 A membership-proof-first refutable-pattern clause `h : case pat in xs` inside a `for` loop.
 Non-matching elements are skipped via `continue`; writing `case` on an irrefutable pattern is
-reported as a redundant alternative.
+reported as a redundant alternative. As with `for h : (a, b) in xs`, `h` has type `_ ∈ xs` for the
+unrefined element variable, and parallel clauses advance all collections lockstep before matching.
 -/
 def doForProofCaseDecl := leading_parser (withAnonymousAntiquot := false)
   atomic (ident >> " : " >> nonReservedSymbol "case" >>

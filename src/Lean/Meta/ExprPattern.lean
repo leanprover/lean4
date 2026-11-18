@@ -16,6 +16,15 @@ public import Lean.Meta.AppBuilder
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.WHNF
 public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Sym.SymM
+import Lean.Meta.DiscrTree
+import Lean.Meta.Sym.Pattern
+import Lean.Meta.Sym.Offset
+import Lean.Meta.Sym.Simp.DiscrTree
+import Lean.Meta.Sym.SynthInstance
+import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Meta.Sym.Eta
 
 public section
 
@@ -129,6 +138,59 @@ def ExprMatchRel.resolveFlags (rel : ExprMatchRel) : ResolvedExprMatchFlags :=
     eta  := rel.flags.eta.getD d }
 
 /--
+Typeclass for monads capable of executing `Lean.Meta.Sym.SymM` computations, used by
+`` `(expr/sym| ...) `` matching and term-building quotations.
+-/
+class MonadSym (m : Type → Type v) where
+  /-- Lift a `SymM` computation into `m`. -/
+  liftSym {α : Type} : Sym.SymM α → m α
+
+instance [MonadLiftT Sym.SymM m] : MonadSym m where
+  liftSym x := liftM x
+
+private def validateSymFlags (flags : ResolvedExprMatchFlags) : CoreM Unit := do
+  unless flags.inst do
+    throwError "expr quotation `/sym` relation does not support disabling `-inst`"
+  unless flags.beta do
+    throwError "expr quotation `/sym` relation does not support disabling `-beta`"
+  unless flags.zeta do
+    throwError "expr quotation `/sym` relation does not support disabling `-zeta`"
+  unless flags.proj do
+    throwError "expr quotation `/sym` relation does not support disabling `-proj`"
+  unless flags.eta do
+    throwError "expr quotation `/sym` relation does not support disabling `-eta`"
+
+private def validateSymRelCore (rel : ExprMatchRel) (localItems : Array (Bool × Expr) := #[]) :
+    CoreM Unit := do
+  if rel.engine == .sym then
+    unless rel.items.isEmpty do
+      throwError "expr quotation `/sym` relation does not support `[items]` unfold overrides"
+    unless localItems.isEmpty do
+      throwError "expr quotation `/sym` relation does not support local `$x` unfold overrides"
+    validateSymFlags rel.resolveFlags
+
+/--
+Return `true` when `a` and `b` share the same runtime matching behavior (same engine, static
+item overrides, and resolved `±flag` defaults).
+-/
+def ExprMatchRel.sameStaticBehavior (a b : ExprMatchRel) : Bool :=
+  a.engine == b.engine && a.items == b.items && a.resolveFlags == b.resolveFlags
+
+/--
+Return `true` if shared-relation `DiscrTree` indexing is sound for static relation `rel`:
+- `.structural` when `rel.items` is empty and `beta`/`zeta`/`proj`/`eta` are all `false`;
+- `.reducible` when `beta`/`zeta`/`proj`/`eta` are all `true`;
+- `.sym` (which validates no `[items]` or disabled flags).
+-/
+def ExprMatchRel.isIndexSound (rel : ExprMatchRel) : Bool :=
+  let f := rel.resolveFlags
+  match rel.engine with
+  | .structural => rel.items.isEmpty && !f.beta && !f.zeta && !f.proj && !f.eta
+  | .reducible  => f.beta && f.zeta && f.proj && f.eta
+  | .sym        => rel.items.isEmpty && f.inst && f.beta && f.zeta && f.proj && f.eta
+  | .instances | .defeq => false
+
+/--
 A pre-validated, pre-resolved matching relation produced by `ExprMatchRel.resolveStatic` and
 `ResolvedExprMatchRel.withLocalItems`. Caching this across repeated match attempts avoids repeating
 simp-extension lookups and declaration validation per scrutinee.
@@ -147,6 +209,14 @@ structure ResolvedExprMatchRel where
   /-- `true` if any unfolding feature or item override is active. -/
   hasUnfolding  : Bool := false
   deriving Inhabited
+
+private def validateSymResolvedRel (rel : ResolvedExprMatchRel) : CoreM Unit := do
+  if rel.engine == .sym then
+    unless rel.itemRulesRev.isEmpty do
+      throwError "expr quotation `/sym` relation does not support `[items]` unfold overrides"
+    unless rel.posFVars.isEmpty && rel.negFVars.isEmpty do
+      throwError "expr quotation `/sym` relation does not support local `$x` unfold overrides"
+    validateSymFlags rel.flags
 
 private def simpTheoremsUnfolds (thms : SimpTheorems) (declName : Name) : Bool :=
   thms.isDeclToUnfold declName ||
@@ -172,6 +242,7 @@ private builtin_initialize resolvedRelCacheRef : IO.Ref (Std.HashMap Name Cached
 
 private def resolveStaticCore (rel : ExprMatchRel) :
     MetaM (ResolvedExprMatchRel × Array (Nat × SimpExtension × Bool)) := do
+  validateSymRelCore rel
   if rel.items.isEmpty then
     return (emptyResolvedRel rel, #[])
   let env ← getEnv
@@ -231,6 +302,7 @@ without re-calling `getSimpExtension?` or re-validating constants.
 -/
 def ExprMatchRel.resolveStaticCached (siteId : Name) (rel : ExprMatchRel) :
     MetaM ResolvedExprMatchRel := do
+  validateSymRelCore rel
   if rel.items.isEmpty then
     return emptyResolvedRel rel
   if siteId.isAnonymous then
@@ -290,6 +362,9 @@ the current local context; `-$x` fails if neither `+zeta` nor a prior `+$x` enab
 -/
 def ResolvedExprMatchRel.withLocalItems (r : ResolvedExprMatchRel)
     (localItems : Array (Bool × Expr)) : MetaM ResolvedExprMatchRel := do
+  validateSymResolvedRel r
+  if r.engine == .sym && !localItems.isEmpty then
+    throwError "expr quotation `/sym` relation does not support local `$x` unfold overrides"
   if localItems.isEmpty then
     let hasUnf := r.flags.beta || r.flags.zeta || r.flags.proj || r.flags.eta ||
       !r.itemRulesRev.isEmpty
@@ -330,6 +405,7 @@ def ResolvedExprMatchRel.withLocalItems (r : ResolvedExprMatchRel)
 def ExprMatchRel.resolve (rel : ExprMatchRel)
     (localItems : Array (Bool × Expr) := #[]) (siteId : Name := .anonymous) :
     MetaM ResolvedExprMatchRel := do
+  validateSymRelCore rel localItems
   let r ←
     if rel.items.isEmpty then
       pure (emptyResolvedRel rel)
@@ -1330,7 +1406,7 @@ def ExprPattern.matchResolvedPins? (p : ExprPattern) (rel : ResolvedExprMatchRel
     (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : MetaM (Option (Array Expr)) := do
   match rel.engine with
   | .sym =>
-    throwError "expr quotation `/sym` matching engine is not implemented yet (Spike B / B5)"
+    throwError "expr quotation `/sym` requires `[MonadSym m]` (e.g. `SymM` or `GrindTacticM`)"
   | .structural =>
     matchStructural? p rel pinIdxs pins e
   | .reducible | .instances | .defeq =>
@@ -1494,8 +1570,9 @@ private def synthTCWithError (tcMV : MVarId) (tcTy : Expr) : MetaM Unit := do
         {ex.toMessageData}"
   tcMV.assign inst
 
-private def resolveReadyTCsGo (baseDepth : Nat) (fuel : Nat)
-    (pending : Array MVarId) : MetaM (Array MVarId) := do
+private def resolveReadyTCsGo {m : Type → Type} [Monad m] [MonadLiftT MetaM m]
+    (synth : MVarId → Expr → m Unit) (baseDepth : Nat) (fuel : Nat)
+    (pending : Array MVarId) : m (Array MVarId) := do
   if pending.isEmpty then
     return #[]
   match fuel with
@@ -1504,20 +1581,21 @@ private def resolveReadyTCsGo (baseDepth : Nat) (fuel : Nat)
     let mut stillPending : Array MVarId := #[]
     let mut progressed := false
     for tcMV in pending do
-      let tcTy ← instantiateMVars (← tcMV.getDecl).type
-      if ← isTCGoalReady baseDepth tcTy then
-        synthTCWithError tcMV tcTy
+      let tcTy ← liftM (m := MetaM) (instantiateMVars (← tcMV.getDecl).type)
+      if ← liftM (m := MetaM) (isTCGoalReady baseDepth tcTy) then
+        synth tcMV tcTy
         progressed := true
       else
         stillPending := stillPending.push tcMV
     if progressed && !stillPending.isEmpty then
-      resolveReadyTCsGo baseDepth fuel stillPending
+      resolveReadyTCsGo synth baseDepth fuel stillPending
     else
       return stillPending
 
-private def resolveReadyTCs (baseDepth : Nat) (pending : Array MVarId) :
-    MetaM (Array MVarId) :=
-  resolveReadyTCsGo baseDepth pending.size pending
+private def resolveReadyTCs {m : Type → Type} [Monad m] [MonadLiftT MetaM m]
+    (synth : MVarId → Expr → m Unit) (baseDepth : Nat) (pending : Array MVarId) :
+    m (Array MVarId) :=
+  resolveReadyTCsGo synth baseDepth pending.size pending
 
 /--
 Instantiate a compiled `ExprTemplate` under a pre-resolved relation `rel` and runtime splice
@@ -1531,7 +1609,7 @@ the caller's `MCtx` for `?h` / `?_` holes.
 def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMatchRel)
     (splices : Array Expr) : MetaM Expr := do
   if rel.engine == .sym then
-    throwError "expr quotation `/sym` building engine is not implemented yet (Spike B / B5)"
+    throwError "expr quotation `/sym` requires `[MonadSym m]` (e.g. `SymM` or `GrindTacticM`)"
   let n := tmpl.varKinds.size
   if n == 0 && tmpl.levelParams.isEmpty then
     return tmpl.lam
@@ -1559,7 +1637,7 @@ def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMa
         pendingTCs := pendingTCs.push mv.mvarId!
       | .splice pos =>
         if !pendingTCs.isEmpty && hasTempMVar (← getMCtx) baseDepth expTy then
-          pendingTCs ← resolveReadyTCs baseDepth pendingTCs
+          pendingTCs ← resolveReadyTCs synthTCWithError baseDepth pendingTCs
           expTy ← instantiateMVars expTy
         let val := splices.getD pos default
         if val.hasLooseBVars then
@@ -1579,7 +1657,7 @@ def ExprTemplate.instantiateResolved (tmpl : ExprTemplate) (rel : ResolvedExprMa
         subst := subst.push mv
         holePlaceholders := holePlaceholders.push (i, mv.mvarId!, userName?)
     if !pendingTCs.isEmpty then
-      pendingTCs ← resolveReadyTCs baseDepth pendingTCs
+      pendingTCs ← resolveReadyTCs synthTCWithError baseDepth pendingTCs
       for tcMV in pendingTCs do
         let tcTy ← instantiateMVars (← tcMV.getDecl).type
         if hasTempMVar (← getMCtx) baseDepth tcTy then
@@ -1632,6 +1710,780 @@ def ExprTemplate.instantiateSite (siteId : Name) (tmpl : ExprTemplate) (rel : Ex
     (splices : Array Expr) (localItems : Array (Bool × Expr) := #[]) : MetaM Expr := do
   let r ← rel.resolve localItems siteId
   tmpl.instantiateResolved r splices
+
+/-! ## `/sym` matching & term building (`SymM`) -/
+
+private structure SymPatCacheState where
+  bySite : Std.HashMap Name (Nat × Sym.Pattern) := {}
+  byKey  : Std.HashMap (List Name × Expr × Nat) (Nat × Sym.Pattern) := {}
+
+private builtin_initialize exprSymPatExt : Sym.SymExtension SymPatCacheState ←
+  Sym.registerSymExtension (return {})
+
+private structure SymTmplCacheState where
+  bySite : Std.HashMap Name (Nat × Expr) := {}
+  byKey  : Std.HashMap Expr (Nat × Expr) := {}
+
+private builtin_initialize exprSymTmplExt : Sym.SymExtension SymTmplCacheState ←
+  Sym.registerSymExtension (return {})
+
+private structure SymIdxCacheState where
+  entries : Std.HashMap Name (Nat × DiscrTree Nat) := {}
+
+private builtin_initialize exprSymIdxExt : Sym.SymExtension SymIdxCacheState ←
+  Sym.registerSymExtension (return {})
+
+private def ensureSymExpr (e : Expr) : Sym.SymM Expr := do
+  if ← Sym.isMaxShared e then
+    Sym.instantiateMVarsS e
+  else
+    Sym.shareCommon (← instantiateMVars e)
+
+private def symLevelHasFreshTemp (mctx : MetavarContext) (baseDepth : Nat) : Level → Bool
+  | .mvar id   => mctx.getLevelDepth id > baseDepth
+  | .succ u    => symLevelHasFreshTemp mctx baseDepth u
+  | .max u v   => symLevelHasFreshTemp mctx baseDepth u || symLevelHasFreshTemp mctx baseDepth v
+  | .imax u v  => symLevelHasFreshTemp mctx baseDepth u || symLevelHasFreshTemp mctx baseDepth v
+  | .zero | .param _ => false
+
+private def symHasFreshTemp (mctx : MetavarContext) (baseDepth mvarCounterSaved : Nat)
+    (e : Expr) : Bool :=
+  if !e.hasMVar then
+    false
+  else
+    (e.find? fun
+      | .mvar id    => (mctx.findDecl? id).any (·.index >= mvarCounterSaved)
+      | .sort u     => symLevelHasFreshTemp mctx baseDepth u
+      | .const _ us => us.any (symLevelHasFreshTemp mctx baseDepth)
+      | _           => false).isSome
+
+private def getOrMkSymPattern (siteId : Name) (p : ExprPattern) : Sym.SymM Sym.Pattern := do
+  let constGen := (← getEnv).constGen
+  let st ← exprSymPatExt.getState
+  if !siteId.isAnonymous then
+    if let some (gen, cached) := st.bySite[siteId]? then
+      if gen == constGen then
+        return cached
+  else
+    let k := (p.levelParams, p.lam, p.numVars)
+    if let some (gen, cached) := st.byKey[k]? then
+      if gen == constGen then
+        return cached
+  let pat ← Sym.mkPatternFromLambda p.lam p.levelParams p.numVars (zetaDelta := false)
+  exprSymPatExt.modifyState fun s =>
+    if !siteId.isAnonymous then
+      { s with bySite := s.bySite.insert siteId (constGen, pat) }
+    else
+      { s with byKey := s.byKey.insert (p.levelParams, p.lam, p.numVars) (constGen, pat) }
+  return pat
+
+private def checkSymPinEq (captured pinVal : Expr) : Sym.SymM Bool := do
+  if ← Sym.isDefEqS captured pinVal (unify := false) (zetaDelta := true) then
+    return true
+  -- Allow proof irrelevance when a direct `$h` pin binds a proof term.
+  if (← isProof captured) && (← isProof pinVal) then
+    let ty1 ← ensureSymExpr (← inferType captured)
+    let ty2 ← ensureSymExpr (← inferType pinVal)
+    return ← Sym.isDefEqS ty1 ty2 (unify := false) (zetaDelta := true)
+  return false
+
+private def matchSymCore? (siteId : Name) (p : ExprPattern) (rel : ResolvedExprMatchRel)
+    (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr) : Sym.SymM (Option (Array Expr)) := do
+  validateSymResolvedRel rel
+  let symPat ← getOrMkSymPattern siteId p
+  let e ← ensureSymExpr e
+  let baseDepth := (← getMCtx).depth
+  withNewMCtxDepth do
+    let mvarCounterSaved := (← getMCtx).mvarCounter
+    let some res ← symPat.match? e (zetaDelta := true) | return none
+    unless res.unresolvedInsts.isEmpty do
+      return none
+    for h : i in *...pinIdxs.size do
+      let pinIdx := pinIdxs[i]
+      let pinVal ← ensureSymExpr (pins.getD i default)
+      let captured ← Sym.instantiateMVarsS (res.args.getD pinIdx default)
+      if symHasFreshTemp (← getMCtx) baseDepth mvarCounterSaved captured then
+        return none
+      unless ← checkSymPinEq captured pinVal do
+        return none
+    let mut namedOut : Array Expr := Array.emptyWithCapacity p.namedIdx.size
+    for idx in p.namedIdx do
+      let val ← Sym.instantiateMVarsS (res.args.getD idx default)
+      if symHasFreshTemp (← getMCtx) baseDepth mvarCounterSaved val then
+        return none
+      namedOut := namedOut.push val
+    return some namedOut
+
+/--
+Match compiled pattern `p` against `e` using the `Lean.Meta.Sym` matching engine in `SymM`,
+checking any `$e` pins at `pinIdxs` with `Sym.isDefEqS` (`unify := false`) and rejecting
+unresolved instances or fresh temporary metavariables.
+-/
+def ExprPattern.matchSym? (p : ExprPattern) (rel : ExprMatchRel) (e : Expr)
+    (pinIdxs : Array Nat := #[]) (pins : Array Expr := #[]) :
+    Sym.SymM (Option (Array Expr)) := do
+  validateSymRelCore rel
+  matchSymCore? .anonymous p (emptyResolvedRel rel) pinIdxs pins e
+
+/--
+CPS matching combinator for `/sym` with a pre-resolved static relation `rel`, caching the
+compiled `Sym.Pattern` in `Sym.SymExtension` keyed by `siteId`.
+-/
+def ExprPattern.matchSymResolvedOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
+    (siteId : Name) (p : ExprPattern) (rel : ResolvedExprMatchRel)
+    (pinIdxs : Array Nat) (pins : Array Expr) (e : Expr)
+    (onMatch : Array Expr → m α) (onFail : Unit → m α) : m α := do
+  match ← MonadSym.liftSym (matchSymCore? siteId p rel pinIdxs pins e) with
+  | some xs => onMatch xs
+  | none    => onFail ()
+
+/--
+CPS matching combinator for `/sym`, validating `rel`/`localItems` at runtime and caching the
+compiled `Sym.Pattern` in `Sym.SymExtension` keyed by `siteId`.
+-/
+def ExprPattern.matchSymSiteOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
+    (siteId : Name) (p : ExprPattern) (rel : ExprMatchRel)
+    (pinIdxs : Array Nat) (pins : Array Expr) (localItems : Array (Bool × Expr)) (e : Expr)
+    (onMatch : Array Expr → m α) (onFail : Unit → m α) : m α := do
+  let res? ← MonadSym.liftSym do
+    validateSymRelCore rel localItems
+    matchSymCore? siteId p (emptyResolvedRel rel) pinIdxs pins e
+  match res? with
+  | some xs => onMatch xs
+  | none    => onFail ()
+
+private def getOrMkSymTemplate (siteId : Name) (tmpl : ExprTemplate) : Sym.SymM Expr := do
+  let constGen := (← getEnv).constGen
+  let st ← exprSymTmplExt.getState
+  if !siteId.isAnonymous then
+    if let some (gen, cached) := st.bySite[siteId]? then
+      if gen == constGen then
+        return cached
+  else
+    if let some (gen, cached) := st.byKey[tmpl.lam]? then
+      if gen == constGen then
+        return cached
+  -- Share closed template once per site; never run `shareCommon` on open `hasLooseBVars` bodies.
+  let lamShared ← Sym.shareCommon (← Sym.foldProjs tmpl.lam)
+  exprSymTmplExt.modifyState fun s =>
+    if !siteId.isAnonymous then
+      { s with bySite := s.bySite.insert siteId (constGen, lamShared) }
+    else
+      { s with byKey := s.byKey.insert tmpl.lam (constGen, lamShared) }
+  return lamShared
+
+private def synthSymTCWithError (tcMV : MVarId) (tcTy : Expr) : Sym.SymM Unit := do
+  let inst ←
+    if let some inst ← Sym.synthInstance? tcTy then
+      pure inst
+    else
+      try
+        Meta.synthInstance tcTy
+      catch ex =>
+        throwError "expr quotation failed to synthesize dependent instance{indentExpr tcTy}\n\
+          {ex.toMessageData}"
+  tcMV.assign (← Sym.shareCommon inst)
+
+private def instantiateSymCore (siteId : Name) (tmpl : ExprTemplate)
+    (rel : ResolvedExprMatchRel) (splices : Array Expr) : Sym.SymM Expr := do
+  validateSymResolvedRel rel
+  let lamShared ← getOrMkSymTemplate siteId tmpl
+  let n := tmpl.varKinds.size
+  if n == 0 && tmpl.levelParams.isEmpty then
+    return lamShared
+  let baseDepth := (← getMCtx).depth
+  let (domsShared, bodyShared) := peelTemplateLambdas n lamShared
+  let _ := domsShared
+  let (usResolved, substAfterSplices, holePlans) ← withNewMCtxDepth do
+    let us ← tmpl.levelParams.mapM fun _ => mkFreshLevelMVar
+    let lam :=
+      if us.isEmpty then lamShared
+      else lamShared.instantiateLevelParams tmpl.levelParams us
+    let (doms, _body) := peelTemplateLambdas n lam
+    let mut subst : Array Expr := Array.emptyWithCapacity doms.size
+    let mut pendingTCs : Array MVarId := #[]
+    let mut holePlaceholders : Array (Nat × MVarId × Option Name) := #[]
+    for h : i in *...doms.size do
+      let expTyRaw := doms[i].instantiateRevRange 0 subst.size subst
+      let mut expTy ← instantiateMVars expTyRaw
+      match tmpl.varKinds.getD i .infer with
+      | .infer =>
+        let mv ← mkFreshExprMVar (some expTy)
+        subst := subst.push mv
+      | .tc =>
+        let mv ← mkFreshExprMVar (some expTy) .synthetic
+        subst := subst.push mv
+        pendingTCs := pendingTCs.push mv.mvarId!
+      | .splice pos =>
+        if !pendingTCs.isEmpty && hasTempMVar (← getMCtx) baseDepth expTy then
+          pendingTCs ← resolveReadyTCs synthSymTCWithError baseDepth pendingTCs
+          expTy ← instantiateMVars expTy
+        let rawVal := splices.getD pos default
+        if rawVal.hasLooseBVars then
+          throwError "expr quotation splice expression contains loose bound variable:\
+            {indentExpr rawVal}"
+        let val ← ensureSymExpr rawVal
+        let argTy ← instantiateMVars (← inferType val)
+        let ok ←
+          if Sym.isSameExpr argTy expTy then
+            pure true
+          else
+            withTransparency .default <| isDefEq argTy expTy
+        unless ok do
+          let expTyShown ← instantiateMVars expTy
+          throwError "expr quotation splice type mismatch: argument{indentExpr val}\n\
+            has type{indentExpr argTy}\nbut is expected to have type{indentExpr expTyShown}"
+        subst := subst.push val
+      | .hole userName? =>
+        let mv ← mkFreshExprMVar (some expTy) .syntheticOpaque
+        subst := subst.push mv
+        holePlaceholders := holePlaceholders.push (i, mv.mvarId!, userName?)
+    if !pendingTCs.isEmpty then
+      pendingTCs ← resolveReadyTCs synthSymTCWithError baseDepth pendingTCs
+      for tcMV in pendingTCs do
+        let tcTy ← instantiateMVars (← tcMV.getDecl).type
+        if hasTempMVar (← getMCtx) baseDepth tcTy then
+          throwError "expr quotation failed to resolve dependent instance{indentExpr tcTy}"
+        synthSymTCWithError tcMV tcTy
+    let mctx ← getMCtx
+    let mut usResolved : List Level := []
+    for u in us do
+      let u' ← instantiateLevelMVars u
+      if levelHasTempMVar mctx baseDepth u' then
+        throwError "expr quotation failed to resolve universe level at runtime"
+      usResolved := u' :: usResolved
+    usResolved := usResolved.reverse
+    let mut finalSubst := subst
+    for h : i in *...doms.size do
+      match tmpl.varKinds.getD i .infer with
+      | .infer | .tc =>
+        let v ← instantiateMVars (finalSubst.getD i default)
+        if hasTempMVar (← getMCtx) baseDepth v then
+          throwError "expr quotation failed to resolve implicit argument at runtime:\
+            {indentExpr v}"
+        finalSubst := finalSubst.setIfInBounds i (← ensureSymExpr v)
+      | .splice _ | .hole _ => pure ()
+    let holePlans ← holePlaceholders.mapM fun (idx, tmpId, userName?) => do
+      let holeTy ← instantiateMVars (← tmpId.getDecl).type
+      return (idx, tmpId, userName?, holeTy)
+    return (usResolved, finalSubst, holePlans)
+  let mut finalSubst := substAfterSplices
+  if !holePlans.isEmpty then
+    let mctx ← getMCtx
+    let mut tmpHoleMap : Std.HashMap MVarId Expr := {}
+    for (idx, tmpId, userName?, rawHoleTy) in holePlans do
+      let holeTy :=
+        if rawHoleTy.hasExprMVar && !tmpHoleMap.isEmpty then
+          rawHoleTy.replace fun
+            | .mvar id => tmpHoleMap[id]?
+            | _        => none
+        else
+          rawHoleTy
+      if hasTempMVar mctx baseDepth holeTy then
+        throwError "expr quotation failed to resolve hole type at runtime:{indentExpr holeTy}"
+      let holeTy ← ensureSymExpr holeTy
+      let holeMV ← mkFreshExprMVar (some holeTy) .syntheticOpaque (userName?.getD .anonymous)
+      tmpHoleMap := tmpHoleMap.insert tmpId holeMV
+      finalSubst := finalSubst.setIfInBounds idx (← Sym.shareCommon holeMV)
+  -- `bodyShared` and every entry of `finalSubst` are already maximally shared in `Sym.State`.
+  let closedBody ← Sym.instantiateRevS bodyShared finalSubst
+  if tmpl.levelParams.isEmpty then
+    return closedBody
+  else
+    Sym.shareCommon (closedBody.instantiateLevelParams tmpl.levelParams usResolved)
+
+/--
+Instantiate a compiled `ExprTemplate` in any `[MonadSym m]` monad with a pre-resolved static
+`/sym` relation `rel`, caching the folded & maximally shared closed template per `siteId`.
+-/
+def ExprTemplate.instantiateSymResolved {m : Type → Type v} [Monad m] [MonadSym m]
+    (siteId : Name) (tmpl : ExprTemplate) (rel : ResolvedExprMatchRel)
+    (splices : Array Expr) : m Expr :=
+  MonadSym.liftSym (instantiateSymCore siteId tmpl rel splices)
+
+/--
+Instantiate a compiled `ExprTemplate` in any `[MonadSym m]` monad under `/sym`, validating `rel`
+and `localItems` at runtime and caching the shared closed template per `siteId`.
+-/
+def ExprTemplate.instantiateSymSite {m : Type → Type v} [Monad m] [MonadSym m]
+    (siteId : Name) (tmpl : ExprTemplate) (rel : ExprMatchRel)
+    (splices : Array Expr) (localItems : Array (Bool × Expr) := #[]) : m Expr :=
+  MonadSym.liftSym do
+    validateSymRelCore rel localItems
+    instantiateSymCore siteId tmpl (emptyResolvedRel rel) splices
+
+/-! ## Shared-relation `DiscrTree` match dispatch -/
+
+private def sortAndDedupCands (cands : Array Nat) : Array Nat := Id.run do
+  if cands.size <= 1 then
+    return cands
+  let sorted := cands.qsort (· < ·)
+  let mut out : Array Nat := Array.emptyWithCapacity sorted.size
+  let mut prev? : Option Nat := none
+  for c in sorted do
+    if prev? != some c then
+      out := out.push c
+      prev? := some c
+  return out
+
+private def dispatchCandidates {m : Type → Type v} [Monad m] {α : Type}
+    (cands : Array Nat) (scrutinee : Expr)
+    (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α :=
+  let rec go (i : Nat) : m α := do
+    if h : i < cands.size then
+      let idx := cands[i]
+      if hIdx : idx < tryAt.size then
+        tryAt[idx] scrutinee (fun _ => go (i + 1))
+      else
+        go (i + 1)
+    else
+      onFail ()
+  go 0
+
+private partial def stripMDataAppRev (e : Expr) (revArgs : Array Expr := #[]) :
+    Expr × Array Expr :=
+  match e with
+  | .mdata _ b => stripMDataAppRev b revArgs
+  | .app f a   => stripMDataAppRev f (revArgs.push a)
+  | _          => (e, revArgs)
+
+private inductive StructPatItem where
+  | expr (e : Expr) (bvarDepth : Nat)
+  | star
+  deriving Inhabited
+
+private def pushRevExprArgs (revArgs : Array Expr) (bvarDepth : Nat)
+    (todo : Array StructPatItem) : Array StructPatItem :=
+  revArgs.foldl (init := todo) fun acc a => acc.push (.expr a bvarDepth)
+
+private def pushRevStructArgsWithInst (fn : Expr) (revArgs : Array Expr) (bvarDepth : Nat)
+    (todo : Array StructPatItem) : MetaM (Array StructPatItem) := do
+  let nargs := revArgs.size
+  let finfo ← getFunInfoNArgs fn nargs
+  let mut acc := todo
+  for h : revIdx in *...nargs do
+    let fwdIdx := nargs - 1 - revIdx
+    let arg := revArgs[revIdx]
+    let isInst :=
+      if hInfo : fwdIdx < finfo.paramInfo.size then
+        finfo.paramInfo[fwdIdx].isInstance
+      else
+        false
+    acc := acc.push (if isInst then .star else .expr arg bvarDepth)
+  return acc
+
+private partial def structuralPatKeysAux (allowInst : Bool) (todo : Array StructPatItem)
+    (keys : Array DiscrTree.Key) : MetaM (Array DiscrTree.Key) := do
+  if todo.isEmpty then
+    return keys
+  let item := todo.back!
+  let todo := todo.pop
+  match item with
+  | .star =>
+    structuralPatKeysAux allowInst todo (keys.push .star)
+  | .expr raw bvarDepth =>
+    let e := raw.consumeMData
+    if !e.hasLooseBVars && !e.hasMVar then
+      if ← isProof e then
+        return ← structuralPatKeysAux allowInst todo (keys.push .star)
+    let (fn, revArgs) := stripMDataAppRev e
+    match fn with
+    | .bvar idx =>
+      if idx >= bvarDepth then
+        structuralPatKeysAux allowInst todo (keys.push .star)
+      else if revArgs.isEmpty then
+        structuralPatKeysAux allowInst todo (keys.push .other)
+      else
+        structuralPatKeysAux allowInst todo (keys.push .star)
+    | .mvar _ =>
+      structuralPatKeysAux allowInst todo (keys.push .star)
+    | .const declName _ =>
+      let nargs := revArgs.size
+      let todo ←
+        if allowInst && nargs > 0 then
+          pushRevStructArgsWithInst fn revArgs bvarDepth todo
+        else
+          pure (pushRevExprArgs revArgs bvarDepth todo)
+      structuralPatKeysAux allowInst todo (keys.push (.const declName nargs))
+    | .fvar fv =>
+      let nargs := revArgs.size
+      let todo := pushRevExprArgs revArgs bvarDepth todo
+      structuralPatKeysAux allowInst todo (keys.push (.fvar fv nargs))
+    | .proj s idx structExpr =>
+      let nargs := revArgs.size
+      let todo := (pushRevExprArgs revArgs bvarDepth (todo.push (.expr structExpr bvarDepth)))
+      structuralPatKeysAux allowInst todo (keys.push (.proj s idx nargs))
+    | .forallE _ d b _ =>
+      if revArgs.isEmpty then
+        let todo := todo.push (.expr b (bvarDepth + 1)) |>.push (.expr d bvarDepth)
+        structuralPatKeysAux allowInst todo (keys.push .arrow)
+      else
+        structuralPatKeysAux allowInst todo (keys.push .star)
+    | .lit v =>
+      if revArgs.isEmpty then
+        structuralPatKeysAux allowInst todo (keys.push (.lit v))
+      else
+        structuralPatKeysAux allowInst todo (keys.push .other)
+    | _ =>
+      structuralPatKeysAux allowInst todo (keys.push .other)
+
+private def structuralPatKeys (allowInst : Bool) (p : ExprPattern) :
+    MetaM (Array DiscrTree.Key) :=
+  withNewMCtxDepth do
+    let us ← p.levelParams.mapM fun _ => mkFreshLevelMVar
+    let lam := if us.isEmpty then p.lam else p.lam.instantiateLevelParams p.levelParams us
+    let (_, body) := peelTemplateLambdas p.numVars lam
+    structuralPatKeysAux allowInst #[.expr body 0] (Array.mkEmpty 8)
+
+private def structuralScrutineeStep (e : Expr) (todo : Array Expr) :
+    Option (DiscrTree.Key × Array Expr) :=
+  let (fn, revArgs) := stripMDataAppRev e
+  match fn with
+  | .mvar _ => none
+  | .const declName _ =>
+    let todo := revArgs.foldl (init := todo) fun acc a => acc.push a
+    some (.const declName revArgs.size, todo)
+  | .fvar fv =>
+    let todo := revArgs.foldl (init := todo) fun acc a => acc.push a
+    some (.fvar fv revArgs.size, todo)
+  | .proj s idx structExpr =>
+    let todo := revArgs.foldl (init := todo.push structExpr) fun acc a => acc.push a
+    some (.proj s idx revArgs.size, todo)
+  | .forallE _ d b _ =>
+    if revArgs.isEmpty then
+      some (.arrow, todo.push b |>.push d)
+    else
+      none
+  | .lit v =>
+    if revArgs.isEmpty then some (.lit v, todo) else some (.other, todo)
+  | .bvar _ =>
+    if revArgs.isEmpty then some (.other, todo) else none
+  | _ => some (.other, todo)
+
+private partial def structuralTrieGetMatch (todo : Array Expr) (t : DiscrTree.Trie Nat)
+    (acc : Array Nat) : Array Nat :=
+  match t with
+  | .chain key child =>
+    if todo.isEmpty then
+      acc
+    else
+      let e := todo.back!
+      let todoPop := todo.pop
+      if key == .star then
+        structuralTrieGetMatch todoPop child acc
+      else if let some (k, todoNext) := structuralScrutineeStep e todoPop then
+        if key == k then structuralTrieGetMatch todoNext child acc else acc
+      else
+        acc
+  | .node vs cs =>
+    if todo.isEmpty then
+      acc ++ vs
+    else if h : cs.size = 0 then
+      acc
+    else
+      let e := todo.back!
+      let todoPop := todo.pop
+      let acc :=
+        if cs[0].1 == .star then
+          structuralTrieGetMatch todoPop cs[0].2 acc
+        else
+          acc
+      match structuralScrutineeStep e todoPop with
+      | none => acc
+      | some (.star, _) => acc
+      | some (k, todoNext) =>
+        match cs.binSearch (k, default) (fun a b => a.1 < b.1) with
+        | none        => acc
+        | some (_, c) => structuralTrieGetMatch todoNext c acc
+
+private def structuralDiscrTreeGetMatch (d : DiscrTree Nat) (e : Expr) : Array Nat :=
+  let acc :=
+    match d.root.find? .star with
+    | some (.node vs _) => vs
+    | _                 => #[]
+  match structuralScrutineeStep e #[] with
+  | none            => acc
+  | some (.star, _) => acc
+  | some (k, todo)  =>
+    match d.root.find? k with
+    | none   => acc
+    | some c => structuralTrieGetMatch todo c acc
+
+private partial def reduceToNatLit? (e : Expr) : MetaM (Option Literal) := do
+  let e ← withReducible <| Meta.whnf e
+  match e.getAppFn with
+  | .lit v@(.natVal _) => return if e.getAppNumArgs == 0 then some v else none
+  | .const ``Nat.zero _ => return if e.getAppNumArgs == 0 then some (.natVal 0) else none
+  | .const ``Nat.succ _ =>
+    if e.getAppNumArgs == 1 then
+      let some (.natVal n) ← reduceToNatLit? e.appArg! | return none
+      return some (.natVal (n + 1))
+    else
+      return none
+  | .const ``OfNat.ofNat _ =>
+    if e.getAppNumArgs == 3 then reduceToNatLit? (e.getArg! 1) else return none
+  | _ => return none
+
+private def reduciblePatKeys (rel : ResolvedExprMatchRel) (p : ExprPattern) :
+    MetaM (Array DiscrTree.Key) :=
+  withRelUnfoldRules rel <| withNewMCtxDepth do
+    let us ← p.levelParams.mapM fun _ => mkFreshLevelMVar
+    let lam := if us.isEmpty then p.lam else p.lam.instantiateLevelParams p.levelParams us
+    let (doms, body) := peelTemplateLambdas p.numVars lam
+    let mut subst : Array Expr := Array.emptyWithCapacity doms.size
+    for h : i in *...doms.size do
+      let dom := doms[i].instantiateRevRange 0 subst.size subst
+      let mv ← mkFreshExprMVar (some dom) .natural
+      subst := subst.push mv
+    let patBody := body.instantiateRev subst
+    let keys ← DiscrTree.mkPath patBody
+    let patWhnf ← withReducible <| Meta.whnf patBody
+    let fnW := patWhnf.getAppFn
+    if fnW.isLambda || fnW.isSort || fnW.isMVar || fnW.isLet || fnW.isBVar then
+      return #[.star]
+    if let some lit ← reduceToNatLit? patWhnf then
+      return #[.lit lit]
+    if patWhnf.isAppOf ``Nat.succ || patWhnf.isConstOf ``Nat.zero ||
+        patWhnf.isAppOf ``OfNat.ofNat then
+      return #[.star]
+    if keys.getD 0 .star == .other then
+      return #[.star]
+    return keys
+
+private structure CachedMetaIndex where
+  constGen    : Nat
+  declLogSize : Nat
+  isExporting : Bool
+  mainModule  : Name
+  relSpec     : ExprMatchRel
+  resolved    : ResolvedExprMatchRel
+  tree        : DiscrTree Nat
+
+private builtin_initialize metaIndexCacheRef : IO.Ref (Std.HashMap Name CachedMetaIndex) ←
+  IO.mkRef {}
+
+private def getOrMkMetaIndex (siteId : Name) (pats : Array ExprPattern) (rel : ExprMatchRel) :
+    MetaM (ResolvedExprMatchRel × DiscrTree Nat) := do
+  let env ← getEnv
+  let constGen := env.constGen
+  let declLogSize := env.declChangeLog.size
+  let isExporting := env.isExporting
+  let mainModule := env.mainModule
+  if !siteId.isAnonymous then
+    if let some entry := (← metaIndexCacheRef.get)[siteId]? then
+      if entry.constGen == constGen && entry.declLogSize == declLogSize &&
+          entry.isExporting == isExporting && entry.mainModule == mainModule &&
+          entry.relSpec == rel then
+        return (entry.resolved, entry.tree)
+  let resolved ← rel.resolveStaticCached (siteId ++ `_rel)
+  let mut tree : DiscrTree Nat := {}
+  match resolved.engine with
+  | .structural =>
+    for h : i in *...pats.size do
+      let keys ← structuralPatKeys resolved.flags.inst pats[i]
+      tree := tree.insertKeyValue keys i
+  | .reducible =>
+    for h : i in *...pats.size do
+      let keys ← reduciblePatKeys resolved pats[i]
+      tree := tree.insertKeyValue keys i
+  | _ =>
+    throwError "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
+  unless siteId.isAnonymous do
+    metaIndexCacheRef.modify fun m =>
+      m.insert siteId {
+        constGen, declLogSize, isExporting, mainModule,
+        relSpec := rel, resolved, tree
+      }
+  return (resolved, tree)
+
+/--
+Indexed CPS match dispatcher for consecutive single-slot alternatives sharing a `.structural`
+or `.reducible` relation `rel`. Builds and caches the `DiscrTree Nat` once per `siteId`, retrieves
+candidate indices (plus numeral fallback under `.reducible`), sorts & deduplicates them in source
+order, and invokes `tryAt[idx]` only on candidate branches.
+-/
+def ExprPattern.matchIndexedOrElse {m : Type → Type v} [Monad m] [MonadLiftT MetaM m] {α : Type}
+    (siteId : Name) (pats : Array ExprPattern) (rel : ExprMatchRel) (scrutinee : Expr)
+    (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
+  let (cands, e) ← liftM (m := MetaM) do
+    let (resolved, tree) ← getOrMkMetaIndex siteId pats rel
+    let e ← instantiateMVarsIfNeeded scrutinee
+    match resolved.engine with
+    | .structural =>
+      return (sortAndDedupCands (structuralDiscrTreeGetMatch tree e), e)
+    | .reducible =>
+      let res ← withRelUnfoldRules resolved do
+        let mut res ← DiscrTree.getMatch tree e
+        if let some lit ← reduceToNatLit? e then
+          res := res ++ (← DiscrTree.getMatch tree (.lit lit))
+        pure res
+      return (sortAndDedupCands res, e)
+    | _ =>
+      throwError "internal error: unsupported engine `{repr resolved.engine}` for `DiscrTree` index"
+  dispatchCandidates cands e tryAt onFail
+
+private partial def annotateSymNatAndOffsets (e : Expr) : Expr :=
+  let e' := e.consumeMData
+  if (Sym.isOffset? e').isSome || Sym.isQuasiOffset e' || (Sym.isNatValue? e').isSome ||
+      e'.isConstOf ``Nat.zero || e'.isRawNatLit || e'.isLambda || e'.isSort then
+    DiscrTree.mkNoindexAnnotation e'
+  else
+    match e' with
+    | .app f a        => mkApp (annotateSymNatAndOffsets f) (annotateSymNatAndOffsets a)
+    | .forallE n d b bi => .forallE n (annotateSymNatAndOffsets d) (annotateSymNatAndOffsets b) bi
+    | _               => e'
+
+private def mkSymPatDiscrTreeKeys (p : Sym.Pattern) : Array DiscrTree.Key :=
+  let patExpr := annotateSymNatAndOffsets p.pattern
+  if DiscrTree.hasNoindexAnnotation patExpr then
+    #[.star]
+  else
+    Sym.Pattern.mkDiscrTreeKeys { p with pattern := patExpr }
+
+private partial def symResolveMVars (mctx : MetavarContext) (e : Expr) : Expr :=
+  if e.hasExprMVar then
+    match e.getAppFn with
+    | .mvar mvarId =>
+      match mctx.getExprAssignmentCore? mvarId with
+      | some v => symResolveMVars mctx (v.betaRev e.getAppRevArgs)
+      | none   => e
+    | _ => e
+  else
+    e
+
+private def symGetKey (e : Expr) : DiscrTree.Key :=
+  match e.getAppFn' with
+  | .lit v            => .lit v
+  | .const declName _ => .const declName e.getAppNumArgs'
+  | .fvar fvarId      => .fvar fvarId e.getAppNumArgs'
+  | .forallE ..       => .arrow
+  | _                 => .other
+
+private def symPushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
+  match e with
+  | .app f a         => symPushArgsTodo (todo.push a) f
+  | .forallE _ d b _ => todo.push b |>.push d
+  | .mdata _ e       => symPushArgsTodo todo e
+  | _                => todo
+
+private partial def symZetaHeadLets (e : Expr) (subst : Array Expr := #[]) : Expr :=
+  match e.consumeMData with
+  | .letE _ _ v b _ =>
+    symZetaHeadLets b (subst.push (v.instantiateBetaRevRange 0 subst.size subst))
+  | e' =>
+    if subst.isEmpty then e' else e'.instantiateBetaRevRange 0 subst.size subst
+
+private partial def symTrieGetMatch (accRef : IO.Ref (Array Nat)) (mctx : MetavarContext)
+    (todo : Array Expr) (t : DiscrTree.Trie Nat) (visitStar : Bool := true) : Sym.SymM Unit :=
+  withIncRecDepth do
+  match t with
+  | .chain key child =>
+    if todo.isEmpty then
+      return ()
+    let raw := todo.back!
+    let todoPop := todo.pop
+    let e := Sym.etaReduce (symResolveMVars mctx raw.consumeMData) |>.consumeMData
+    if key == .star then
+      if visitStar then
+        symTrieGetMatch accRef mctx todoPop child
+    else
+      if key == symGetKey e then
+        symTrieGetMatch accRef mctx (symPushArgsTodo todoPop e) child
+      if e.isLet then
+        symTrieGetMatch accRef mctx (todoPop.push (symZetaHeadLets e)) (.chain key child)
+          (visitStar := false)
+      else if let .fvar fv := e.getAppFn then
+        if let some val ← Sym.getLetValueS? fv then
+          let nextE := if e.isApp then val.betaRev e.getAppRevArgs else val
+          symTrieGetMatch accRef mctx (todoPop.push nextE) (.chain key child) (visitStar := false)
+      else if e.isApp && e.getAppFn.isLambda then
+        symTrieGetMatch accRef mctx (todoPop.push e.headBeta)
+          (.chain key child) (visitStar := false)
+  | .node vs cs =>
+    if todo.isEmpty then
+      accRef.modify (· ++ vs)
+    else if h : cs.size = 0 then
+      return ()
+    else
+      let raw := todo.back!
+      let todoPop := todo.pop
+      let e := Sym.etaReduce (symResolveMVars mctx raw.consumeMData) |>.consumeMData
+      if visitStar && cs[0].1 == .star then
+        symTrieGetMatch accRef mctx todoPop cs[0].2
+      let k := symGetKey e
+      if k != .star then
+        if let some (_, child) := cs.binSearch (k, default) (fun a b => a.1 < b.1) then
+          symTrieGetMatch accRef mctx (symPushArgsTodo todoPop e) child
+      if e.isLet then
+        symTrieGetMatch accRef mctx (todoPop.push (symZetaHeadLets e)) (.node vs cs)
+          (visitStar := false)
+      else if let .fvar fv := e.getAppFn then
+        if let some val ← Sym.getLetValueS? fv then
+          let nextE := if e.isApp then val.betaRev e.getAppRevArgs else val
+          symTrieGetMatch accRef mctx (todoPop.push nextE) (.node vs cs) (visitStar := false)
+      else if e.isApp && e.getAppFn.isLambda then
+        symTrieGetMatch accRef mctx (todoPop.push e.headBeta) (.node vs cs) (visitStar := false)
+
+private partial def symRootMatch (accRef : IO.Ref (Array Nat)) (mctx : MetavarContext)
+    (d : DiscrTree Nat) (e : Expr) : Sym.SymM Unit :=
+  withIncRecDepth do
+  let e := Sym.etaReduce (symResolveMVars mctx e.consumeMData) |>.consumeMData
+  if let some child := d.root.find? (symGetKey e) then
+    symTrieGetMatch accRef mctx (symPushArgsTodo #[] e) child
+  if e.isLet then
+    symRootMatch accRef mctx d (symZetaHeadLets e)
+  else if let .fvar fv := e.getAppFn then
+    if let some val ← Sym.getLetValueS? fv then
+      let nextE := if e.isApp then val.betaRev e.getAppRevArgs else val
+      symRootMatch accRef mctx d nextE
+  else if e.isApp && e.getAppFn.isLambda then
+    symRootMatch accRef mctx d e.headBeta
+
+private def symDiscrTreeGetMatch (d : DiscrTree Nat) (e : Expr) : Sym.SymM (Array Nat) := do
+  let mctx ← getMCtx
+  let init :=
+    match d.root.find? .star with
+    | some (.node vs _) => vs
+    | _                 => #[]
+  let accRef ← IO.mkRef init
+  symRootMatch accRef mctx d e
+  return sortAndDedupCands (← accRef.get)
+
+private def getOrMkSymIndex (siteId : Name) (pats : Array ExprPattern) :
+    Sym.SymM (DiscrTree Nat) := do
+  let constGen := (← getEnv).constGen
+  let st ← exprSymIdxExt.getState
+  if !siteId.isAnonymous then
+    if let some (gen, cached) := st.entries[siteId]? then
+      if gen == constGen then
+        return cached
+  let mut tree : DiscrTree Nat := {}
+  for h : i in *...pats.size do
+    let pat := pats[i]
+    let patSite := if siteId.isAnonymous then .anonymous else siteId ++ .num `pat i
+    let symPat ← getOrMkSymPattern patSite pat
+    tree := tree.insertKeyValue (mkSymPatDiscrTreeKeys symPat) i
+  unless siteId.isAnonymous do
+    exprSymIdxExt.modifyState fun s =>
+      { s with entries := s.entries.insert siteId (constGen, tree) }
+  return tree
+
+/--
+Indexed CPS match dispatcher for consecutive single-slot `/sym` alternatives in any `[MonadSym m]`
+monad. Builds and caches a `Sym.Simp.DiscrTree Nat` in `Sym.SymExtension` keyed by `siteId`,
+retrieves candidate indices modulo `let`/`zetaDelta`/beta/eta/offsets/numerals, sorts & deduplicates
+them in source order, and invokes `tryAt[idx]` only on candidate branches.
+-/
+def ExprPattern.matchSymIndexedOrElse {m : Type → Type v} [Monad m] [MonadSym m] {α : Type}
+    (siteId : Name) (pats : Array ExprPattern) (rel : ResolvedExprMatchRel) (scrutinee : Expr)
+    (tryAt : Array (Expr → (Unit → m α) → m α)) (onFail : Unit → m α) : m α := do
+  let (cands, e) ← MonadSym.liftSym do
+    validateSymResolvedRel rel
+    let tree ← getOrMkSymIndex siteId pats
+    let e ← ensureSymExpr scrutinee
+    let cands ← symDiscrTreeGetMatch tree e
+    return (cands, e)
+  dispatchCandidates cands e tryAt onFail
 
 /--
 General entry point to instantiate a compiled `ExprTemplate` under relation `rel`, runtime

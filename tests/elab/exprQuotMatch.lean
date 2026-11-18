@@ -814,14 +814,15 @@ def rejectNonMetaMonad (e : Expr) : Id Nat :=
   | `(expr| ?a + ?b) => let _ := (a, b); 1
   | _ => 0
 
+/--
+error: expr quotation matching requires a monad with `[MonadSym]` (e.g. `SymM` or `GrindTacticM`), got result type
+  MetaM Nat
+-/
+#guard_msgs in
 def rejectUnsupportedSym (e : Expr) : MetaM Nat :=
   match e with
   | `(expr/sym| ?x) => let _ := x; return 1
   | _ => return 0
-
-/-- error: expr quotation `/sym` matching engine is not implemented yet (Spike B / B5) -/
-#guard_msgs in
-#eval rejectUnsupportedSym (mkNatLit 0)
 
 /--
 error: unknown expr quotation engine `bogus`; expected `structural`, `reducible`, `instances`, `defeq`, or `sym`

@@ -101,6 +101,18 @@ def ControlInfo.alternative (a b : ControlInfo) : ControlInfo := {
     noFallthrough := a.noFallthrough && b.noFallthrough,
   }
 
+/--
+The `ControlInfo` of a `for` loop with body summary `bodyInfo`: preserves `reassigns` and
+`returnsEarly` while absorbing loop-local `break` and `continue` with one regular exit.
+-/
+def ControlInfo.forLoop (bodyInfo : ControlInfo) : ControlInfo := {
+  bodyInfo with
+  numRegularExits := 1
+  continues       := false
+  breaks          := false
+  noFallthrough   := false
+}
+
 instance : ToMessageData ControlInfo where
   toMessageData info := m!"breaks: {info.breaks}, continues: {info.continues},
     returnsEarly: {info.returnsEarly}, numRegularExits: {info.numRegularExits},
@@ -188,13 +200,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     ControlInfo.alternative {} <$> ofSeq elseSeq
   -- For/Repeat
   | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doLoopInvariant]? $[$_:doLoopDecreasing]? do $bodySeq) =>
-    let info ← ofSeq bodySeq
-    return { info with  -- keep only reassigns and returnsEarly
-      numRegularExits := 1,
-      continues := false,
-      breaks := false,
-      noFallthrough := false,
-    }
+    ControlInfo.forLoop <$> ofSeq bodySeq
   | `(doRepeat| repeat $[$_:doLoopInvariant]? $[$_:doLoopDecreasing]? $bodySeq) =>
     -- A break-less `repeat` never falls through; the elaborator injects an `unreachable!` so the
     -- surrounding continuation still has a polymorphic value to hand back, and any dead-code
@@ -244,13 +250,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     return otherwiseInfo.alternative bodyInfo
   | _ =>
     if stx.raw.isOfKind ``Parser.Term.doFor then
-      let info ← ofSeq ⟨stx.raw[5]⟩
-      return { info with  -- keep only reassigns and returnsEarly
-        numRegularExits := 1,
-        continues := false,
-        breaks := false,
-        noFallthrough := false,
-      }
+      return ControlInfo.forLoop (← ofSeq ⟨stx.raw[5]⟩)
     let kind := stx.raw.getKind
     let handlers := controlInfoElemAttribute.getEntries (← getEnv) kind
     for handler in handlers do

@@ -296,11 +296,17 @@ def elabExprMatchRel (relStx : Syntax) (defaultEngine : ExprMatchEngine := .stru
       let positive := itemStx[0].isNone || itemStx[0][0].isOfKind ``exprQuotItemPos
       let target := itemStx[1]
       if target.isOfKind ``exprQuotItemPin then
+        if engine == .sym then
+          throwErrorAt itemStx
+            "expr quotation `/sym` relation does not support local `$x` unfold overrides"
         let (pinTerm, isId) :=
           if target.getNumArgs == 2 then (target[1], true) else (target[2], false)
         let e ← elabPinExpr pinTerm isId
         localItems := localItems.push (positive, e)
       else
+        if engine == .sym then
+          throwErrorAt itemStx
+            "expr quotation `/sym` relation does not support `[items]` unfold overrides"
         let id : Ident := ⟨target⟩
         let name := id.getId.eraseMacroScopes
         if (← getSimpExtension? name).isSome then
@@ -312,6 +318,9 @@ def elabExprMatchRel (relStx : Syntax) (defaultEngine : ExprMatchEngine := .stru
   for flagStx in relStx[2].getArgs do
     let val := flagStx.isOfKind ``exprQuotFlagPos
     let flagName := flagStx[1].getId.eraseMacroScopes
+    if engine == .sym && !val then
+      throwErrorAt flagStx
+        "expr quotation `/sym` relation does not support disabling `-{flagName}`"
     match flagName with
     | `inst => flags := { flags with inst := some val }
     | `beta => flags := { flags with beta := some val }
@@ -497,6 +506,30 @@ private def mkAuxPatConst (pat : ExprPattern) : TermElabM Expr := do
   let patAuxName ← addAuxClosedDecl `exprPat isPrivate isMeta (mkConst ``ExprPattern) patVal
   modifyEnv fun env => exprPatExt.modifyState env (·.insert key patAuxName)
   return mkConst patAuxName
+
+private structure PatArrCacheKey where
+  patNames  : Array Name
+  isPrivate : Bool
+  isMeta    : Bool
+  deriving BEq, Hashable
+
+private builtin_initialize exprPatArrExt : EnvExtension (Std.HashMap PatArrCacheKey Name) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+private def mkAuxPatArrConst (patConsts : Array Expr) : TermElabM Expr := do
+  let env ← getEnv
+  let (isPrivate, isMeta) ← auxDeclContextFlags
+  let patNames := patConsts.map (·.constName?.getD .anonymous)
+  let key : PatArrCacheKey := { patNames, isPrivate, isMeta }
+  let state := exprPatArrExt.getState env
+  let cached? := state[key]? <|> if isPrivate then state[{ key with isPrivate := false }]? else none
+  if let some cachedName := cached? then
+    return mkConst cachedName
+  let arrTy := mkApp (mkConst ``Array [0]) (mkConst ``ExprPattern)
+  let arrVal ← mkArrayLit (mkConst ``ExprPattern) patConsts.toList
+  let arrName ← addAuxClosedDecl `exprPatArr isPrivate isMeta arrTy arrVal
+  modifyEnv fun env => exprPatArrExt.modifyState env (·.insert key arrName)
+  return mkConst arrName
 
 private def quoteExprTemplateVarKind : ExprTemplateVarKind → Expr
   | .splice pos     => mkApp (mkConst ``ExprTemplateVarKind.splice) (toExpr pos)
@@ -1276,19 +1309,59 @@ private def withSlotLetBindings (binders : Array Ident) (xsVar : Expr) (j : Nat)
     k quotFVars ctxArgs
 termination_by binders.size - j
 
-private def buildMatchSiteError (failCall : Expr) (ex : Exception) : TermElabM Expr := do
+private def buildMatchSiteError (failCall : Expr) (ex : Exception) (isSym : Bool := false) :
+    TermElabM Expr := do
   let retTy ← inferType failCall
   let retTyWhnf ← whnf retTy
+  let reqMsg :=
+    if isSym then "a monad with `[MonadSym]` (e.g. `SymM` or `GrindTacticM`)"
+    else "a monad lifting `MetaM`"
   if !retTyWhnf.isApp then
-    throwError "expr quotation matching requires a monad lifting `MetaM`, \
-                got result type{indentExpr retTy}"
+    throwError "expr quotation matching requires {reqMsg}, got result type{indentExpr retTy}"
   let m := retTyWhnf.appFn!
   let monadInst? ← trySynthInstance (← mkAppM ``Monad #[m])
-  let liftInst? ← trySynthInstance (← mkAppOptM ``MonadLiftT #[mkConst ``MetaM, m])
+  let liftInst? ←
+    if isSym then
+      trySynthInstance (← mkAppM ``Meta.MonadSym #[m])
+    else
+      trySynthInstance (← mkAppOptM ``MonadLiftT #[mkConst ``MetaM, m])
   if !(monadInst? matches .some _) || !(liftInst? matches .some _) then
-    throwError "expr quotation matching requires a monad lifting `MetaM`, \
+    throwError "expr quotation matching requires {reqMsg}, \
                 got result type{indentExpr retTy}\n{ex.toMessageData}"
   throw ex
+
+private def buildSlotMatchCall (slot : CompiledExprSlot)
+    (patConst scrutinee onMatchLam onFailLam : Expr) (ctxArgs : Array Expr) : TermElabM Expr := do
+  let pinIdxsExpr ← mkArrayLit (mkConst ``Nat) (slot.pinIdxs.toList.map toExpr)
+  let pinsExpr :=
+    if slot.pinIdxs.isEmpty then
+      Expr.app (mkConst ``Array.empty [0]) (mkConst ``Expr)
+    else
+      (slot.pinsLam.beta ctxArgs)
+  let siteIdExpr := toExpr (patConst.constName?.getD .anonymous)
+  if slot.rel.engine == .sym then
+    if slot.rel.items.isEmpty && !slot.hasLocalItems then
+      let resolvedRelExpr := quoteResolvedExprMatchRel slot.rel
+      mkAppM ``ExprPattern.matchSymResolvedOrElse
+        #[siteIdExpr, patConst, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee,
+          onMatchLam, onFailLam]
+    else
+      let relExpr ← quoteExprMatchRel slot.rel
+      let localItemsExpr := (slot.localItemsLam.beta ctxArgs)
+      mkAppM ``ExprPattern.matchSymSiteOrElse
+        #[siteIdExpr, patConst, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
+          onMatchLam, onFailLam]
+  else if slot.rel.items.isEmpty && !slot.hasLocalItems then
+    -- Emit a closed `ResolvedExprMatchRel` so the compiler hoists it with zero allocation.
+    let resolvedRelExpr := quoteResolvedExprMatchRel slot.rel
+    mkAppM ``ExprPattern.matchResolvedOrElse
+      #[patConst, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee, onMatchLam, onFailLam]
+  else
+    let relExpr ← quoteExprMatchRel slot.rel
+    let localItemsExpr := (slot.localItemsLam.beta ctxArgs)
+    mkAppM ``ExprPattern.matchSiteOrElse
+      #[siteIdExpr, patConst, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
+        onMatchLam, onFailLam]
 
 private def buildSlotChainGo (jpAlt : Expr) (alt : ExprMatchAlt) (ordFVars eqs : Array Expr)
     (failCall : Expr) (slotIdx : Nat) (quotFVars ctxArgs : Array Expr) : TermElabM Expr := do
@@ -1296,12 +1369,6 @@ private def buildSlotChainGo (jpAlt : Expr) (alt : ExprMatchAlt) (ordFVars eqs :
     let slot := alt.slots[slotIdx]
     let patConst ← mkAuxPatConst slot.pat
     let scrutinee := ordFVars.getD slot.ordVarIdx default
-    let pinIdxsExpr ← mkArrayLit (mkConst ``Nat) (slot.pinIdxs.toList.map toExpr)
-    let pinsExpr :=
-      if slot.pinIdxs.isEmpty then
-        Expr.app (mkConst ``Array.empty [0]) (mkConst ``Expr)
-      else
-        (slot.pinsLam.beta ctxArgs)
     let onMatchLam ← withLocalDeclD (← mkFreshUserName `__xs)
         (mkApp (mkConst ``Array [0]) (mkConst ``Expr)) fun xsVar => do
       let body ← withSlotLetBindings slot.binders xsVar 0 quotFVars ctxArgs
@@ -1311,20 +1378,9 @@ private def buildSlotChainGo (jpAlt : Expr) (alt : ExprMatchAlt) (ordFVars eqs :
     let onFailLam ← withLocalDeclD `_ (mkConst ``Unit) fun _u =>
       mkLambdaFVars #[_u] failCall
     try
-      if slot.rel.items.isEmpty && !slot.hasLocalItems then
-        -- Emit a closed `ResolvedExprMatchRel` so the compiler hoists it with zero allocation.
-        let resolvedRelExpr := quoteResolvedExprMatchRel slot.rel
-        mkAppM ``ExprPattern.matchResolvedOrElse
-          #[patConst, resolvedRelExpr, pinIdxsExpr, pinsExpr, scrutinee, onMatchLam, onFailLam]
-      else
-        let relExpr ← quoteExprMatchRel slot.rel
-        let localItemsExpr := (slot.localItemsLam.beta ctxArgs)
-        let siteIdExpr := toExpr (patConst.constName?.getD .anonymous)
-        mkAppM ``ExprPattern.matchSiteOrElse
-          #[siteIdExpr, patConst, relExpr, pinIdxsExpr, pinsExpr, localItemsExpr, scrutinee,
-            onMatchLam, onFailLam]
+      buildSlotMatchCall slot patConst scrutinee onMatchLam onFailLam ctxArgs
     catch ex =>
-      buildMatchSiteError failCall ex
+      buildMatchSiteError failCall ex (isSym := slot.rel.engine == .sym)
   else
     let allArgs := ordFVars ++ eqs ++ quotFVars
     if allArgs.isEmpty then
@@ -1456,6 +1512,88 @@ private def buildGroupChain (jpAlts : Array Expr) (alts : Array ExprMatchAlt)
     return cur
 termination_by j
 
+private def slotDiscrColumn? (alt : ExprMatchAlt) : Option Nat :=
+  if h : 0 < alt.slots.size then
+    let slot := alt.slots[0]
+    alt.altLHS.fvarDecls[slot.ordVarIdx]?.bind fun decl =>
+      alt.altLHS.patterns.findIdx? fun
+        | .var fv => fv == decl.fvarId
+        | _       => false
+  else
+    none
+
+private def indexedRunEnd? (alts : Array ExprMatchAlt) (i : Nat) : Option (Nat × Nat) := do
+  let alt0 ← alts[i]?
+  guard (isSimpleAllVarAlt alt0 && alt0.slots.size == 1)
+  let slot0 ← alt0.slots[0]?
+  guard (!slot0.hasLocalItems && slot0.rel.isIndexSound)
+  let col0 ← slotDiscrColumn? alt0
+  let mut runEnd := i
+  while runEnd + 1 < alts.size do
+    let some altJ := alts[runEnd + 1]? | break
+    unless isSimpleAllVarAlt altJ && altJ.slots.size == 1 do break
+    let some slotJ := altJ.slots[0]? | break
+    unless !slotJ.hasLocalItems && slotDiscrColumn? altJ == some col0 &&
+        slotJ.rel.sameStaticBehavior slot0.rel do
+      break
+    runEnd := runEnd + 1
+  guard (runEnd > i)
+  return (runEnd, col0)
+
+private def buildIndexedSlotRun (jpAlts : Array Expr) (alts : Array ExprMatchAlt)
+    (i runEnd : Nat) (colDiscrs : Array Expr) (col0 : Nat) (failCall : Expr) :
+    TermElabM Expr := do
+  let rel0 := (alts.getD i default).slots.getD 0 default |>.rel
+  let mut patConsts : Array Expr := #[]
+  let mut tryFns : Array Expr := #[]
+  let retTy ← inferType failCall
+  let failFnTy ← mkArrow (mkConst ``Unit) retTy
+  let tryFnTy ← mkArrow (mkConst ``Expr) (← mkArrow failFnTy retTy)
+  let arrExprTy := mkApp (mkConst ``Array [0]) (mkConst ``Expr)
+  for k in i...=runEnd do
+    let altK := alts.getD k default
+    let slot := altK.slots.getD 0 default
+    let jpAlt := jpAlts.getD k default
+    let patConst ← mkAuxPatConst slot.pat
+    patConsts := patConsts.push patConst
+    let some ordMap := mapSimpleAllVarArgs altK colDiscrs
+      | throwError "internal error in expr quotation index compilation: failed to map vars"
+    let tryFn ←
+      withLocalDeclD (← mkFreshUserName `__scrut) (mkConst ``Expr) fun scrutVar => do
+        withLocalDeclD (← mkFreshUserName `__fail) failFnTy fun failVar => do
+          let onMatchLam ← withLocalDeclD (← mkFreshUserName `__xs) arrExprTy fun xsVar => do
+            let body ← withSlotLetBindings slot.binders xsVar 0 #[] ordMap
+              fun quotFVars _ =>
+                let allArgs := ordMap ++ quotFVars
+                return if allArgs.isEmpty then
+                  mkApp jpAlt (mkConst ``Unit.unit)
+                else
+                  mkAppN jpAlt allArgs
+            mkLambdaFVars #[xsVar] body
+          let matchCall ←
+            try
+              buildSlotMatchCall slot patConst scrutVar onMatchLam failVar ordMap
+            catch ex =>
+              buildMatchSiteError failCall ex (isSym := rel0.engine == .sym)
+          mkLambdaFVars #[scrutVar, failVar] matchCall
+    tryFns := tryFns.push tryFn
+  let patArrConst ← mkAuxPatArrConst patConsts
+  let siteIdExpr := toExpr (patArrConst.constName?.getD .anonymous)
+  let scrutinee := colDiscrs.getD col0 default
+  let tryAtArr ← mkArrayLit tryFnTy tryFns.toList
+  let onFailLam ← withLocalDeclD `_ (mkConst ``Unit) fun _u => mkLambdaFVars #[_u] failCall
+  try
+    if rel0.engine == .sym then
+      let resolvedRelExpr := quoteResolvedExprMatchRel rel0
+      mkAppM ``ExprPattern.matchSymIndexedOrElse
+        #[siteIdExpr, patArrConst, resolvedRelExpr, scrutinee, tryAtArr, onFailLam]
+    else
+      let relExpr ← quoteExprMatchRel rel0
+      mkAppM ``ExprPattern.matchIndexedOrElse
+        #[siteIdExpr, patArrConst, relExpr, scrutinee, tryAtArr, onFailLam]
+  catch ex =>
+    buildMatchSiteError failCall ex (isSym := rel0.engine == .sym)
+
 private def buildExprMatchDispatch (discrHNames : Array (Option Name)) (origDiscrs : Array Expr)
     (isDep isExhaustive : Bool) (alts : Array ExprMatchAlt) (jpAlts : Array Expr)
     (startIdx : Nat) (curDiscrs : Array Expr) (origEqs? : Option (Array Expr))
@@ -1499,13 +1637,21 @@ private def buildExprMatchDispatch (discrHNames : Array (Option Name)) (origDisc
     return mkAppN r minors
   | some i =>
     if hFirst : startIdx <= i ∧ i < alts.size then
-      let mut iEnd := i
-      while hNext : iEnd + 1 < alts.size do
-        if !alts[iEnd + 1].slots.isEmpty &&
-            canGroupSameSkeleton (alts.getD i default) alts[iEnd + 1] then
-          iEnd := iEnd + 1
-        else
-          break
+      let indexedRun? :=
+        if !isDep && discrHNames.all (·.isNone) then indexedRunEnd? alts i else none
+      let iEnd :=
+        match indexedRun? with
+        | some (runEnd, _) => runEnd
+        | none =>
+          Id.run do
+            let mut e := i
+            while hNext : e + 1 < alts.size do
+              if !alts[e + 1].slots.isEmpty &&
+                  canGroupSameSkeleton (alts.getD i default) alts[e + 1] then
+                e := e + 1
+              else
+                break
+            return e
       let nextIdx := max (i + 1) (iEnd + 1)
       let hasNext := nextIdx < alts.size
       let getNonDepRetType : TermElabM Expr :=
@@ -1547,6 +1693,10 @@ private def buildExprMatchDispatch (discrHNames : Array (Option Name)) (origDisc
 
       withFailJP fun mkFailCall => do
         let altI := alts[i]
+        if let some (runEnd, col0) := indexedRun? then
+          if startIdx == i then
+            return ← buildIndexedSlotRun jpAlts alts i runEnd curDiscrs col0
+              (← mkFailCall curDiscrs #[])
         if startIdx == i && i == iEnd && !isDep && discrHNames.all (·.isNone) &&
             isSimpleAllVarAlt altI then
           if let some ordMap := mapSimpleAllVarArgs altI curDiscrs then
@@ -1576,7 +1726,20 @@ private def buildExprMatchDispatch (discrHNames : Array (Option Name)) (origDisc
           withEqsFor discrHNames curDiscrs failArgs #[] 0 fun eqs => do
             let combinedEqs ← combineOrigEqs discrHNames origDiscrs origEqs? failArgs eqs
             let failCall ← mkFailCall failArgs combinedEqs
-            let chain ← buildGroupChain jpAlts alts i ordFVars combinedEqs iEnd failCall
+            let chain ←
+              if let some (runEnd, col0) := indexedRun? then
+                let colDiscrs ← altI.altLHS.patterns.toArray.mapM fun pat =>
+                  match pat with
+                  | .var fv =>
+                    match altI.altLHS.fvarDecls.findIdx? (·.fvarId == fv) with
+                    | some idx => pure (ordFVars.getD idx default)
+                    | none     =>
+                      throwError "internal error in expr quotation index compilation"
+                  | _ =>
+                    throwError "internal error in expr quotation index compilation"
+                buildIndexedSlotRun jpAlts alts i runEnd colDiscrs col0 failCall
+              else
+                buildGroupChain jpAlts alts i ordFVars combinedEqs iEnd failCall
             mkLambdaFVars (ordFVars ++ eqs) chain
         let catchAllMinor ←
           mkCatchAllMinor discrHNames origDiscrs curDiscrs origEqs? catchAllLHS mkFailCall
@@ -1961,8 +2124,6 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
 @[builtin_term_elab Lean.Parser.Term.exprQuot] def elabExprQuotTerm : TermElab :=
     fun stx expectedType? => withRef stx do
   let (rel, localItemExprs) ← elabExprMatchRel stx[2] (defaultEngine := .defeq)
-  if rel.engine == .sym then
-    throwErrorAt stx "expr quotation `/sym` building engine is not implemented yet (Spike B / B5)"
   let (rewrittenStx, prepState) ← (preprocessExprTermStx stx[4]).run {}
   let mut spliceExprs : Array (Nat × Expr) := #[]
   for h : idx in *...prepState.kinds.size do
@@ -2085,8 +2246,39 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
       return (tmpl, orderedSplices.toList)
   let tmplConst ← mkAuxTmplConst tmpl
   let splicesArrExpr ← mkArrayLit (mkConst ``Expr) splicesArgList
+  let siteIdExpr := toExpr (tmplConst.constName?.getD .anonymous)
+  if rel.engine == .sym then
+    if let some expTy := expectedType? then
+      let expTyInst ← instantiateMVars expTy
+      if expTyInst.isApp then
+        let mKnown ← instantiateMVars expTyInst.appFn!
+        if !mKnown.hasMVar then
+          let monadInst? ← trySynthInstance (← mkAppM ``Monad #[mKnown])
+          let symInst? ← trySynthInstance (← mkAppM ``Meta.MonadSym #[mKnown])
+          unless (monadInst? matches .some _) && (symInst? matches .some _) do
+            throwErrorAt stx "expr quotation `/sym` requires a `[MonadSym]` monad \
+              (e.g. `SymM` or `GrindTacticM`), got expected type{indentExpr expTy}"
   let callExpr ←
-    if rel.items.isEmpty && localItemExprs.isEmpty then
+    if rel.engine == .sym then
+      let v ← mkFreshLevelMVar
+      let mTy ← mkArrow (mkSort (.succ .zero)) (mkSort (.succ v))
+      let mExpr ← mkFreshExprMVar (some mTy)
+      let monadMV ← Term.mkInstMVar (← mkAppM ``Monad #[mExpr])
+      let symMV ← Term.mkInstMVar (← mkAppM ``Meta.MonadSym #[mExpr])
+      if rel.items.isEmpty && localItemExprs.isEmpty then
+        let resolvedRelExpr := quoteResolvedExprMatchRel rel
+        pure <| mkAppN (mkConst ``ExprTemplate.instantiateSymResolved [v])
+          #[mExpr, monadMV, symMV, siteIdExpr, tmplConst, resolvedRelExpr, splicesArrExpr]
+      else
+        let relExpr ← quoteExprMatchRel rel
+        let boolExprProd := mkApp2 (mkConst ``Prod [0, 0]) (mkConst ``Bool) (mkConst ``Expr)
+        let localItemList ← localItemExprs.toList.mapM fun (pos, e) =>
+          mkAppM ``Prod.mk #[toExpr pos, e]
+        let localItemsArrExpr ← mkArrayLit boolExprProd localItemList
+        pure <| mkAppN (mkConst ``ExprTemplate.instantiateSymSite [v])
+          #[mExpr, monadMV, symMV, siteIdExpr, tmplConst, relExpr,
+            splicesArrExpr, localItemsArrExpr]
+    else if rel.items.isEmpty && localItemExprs.isEmpty then
       let resolvedRelExpr := quoteResolvedExprMatchRel rel
       mkAppM ``ExprTemplate.instantiateResolved #[tmplConst, resolvedRelExpr, splicesArrExpr]
     else
@@ -2095,7 +2287,6 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
       let localItemList ← localItemExprs.toList.mapM fun (pos, e) =>
         mkAppM ``Prod.mk #[toExpr pos, e]
       let localItemsArrExpr ← mkArrayLit boolExprProd localItemList
-      let siteIdExpr := toExpr (tmplConst.constName?.getD .anonymous)
       mkAppM ``ExprTemplate.instantiateSite
         #[siteIdExpr, tmplConst, relExpr, splicesArrExpr, localItemsArrExpr]
   try
@@ -2103,8 +2294,12 @@ type-class instances at run time, and instantiates `?h` / `?_` refine holes clea
   catch
     | ex@(.error _ _) =>
       if let some expTy := expectedType? then
-        let metaExprTy := mkApp (mkConst ``MetaM) (mkConst ``Expr)
         let expTy ← instantiateMVars expTy
+        if rel.engine == .sym then
+          throwErrorAt stx "expr quotation `/sym` requires a `[MonadSym]` monad \
+            (e.g. `SymM` or `GrindTacticM`), got expected type{indentExpr expTy}\n\
+            {ex.toMessageData}"
+        let metaExprTy := mkApp (mkConst ``MetaM) (mkConst ``Expr)
         unless ← isDefEq metaExprTy expTy do
           throwErrorAt stx
             "type mismatch{indentD stx}\nhas type{indentExpr metaExprTy}\n\

@@ -163,10 +163,11 @@ but is expected to have type
 def badWrongMonadCore : CoreM Expr := `(expr| 1 + 2)
 
 /--
-error: expr quotation `/sym` building engine is not implemented yet (Spike B / B5)
+error: expr quotation `/sym` requires a `[MonadSym]` monad (e.g. `SymM` or `GrindTacticM`), got expected type
+  MetaM Expr
 -/
 #guard_msgs in
-def badSymStub : MetaM Expr := `(expr/sym| 1 + 2)
+def badSymWrongMonad : MetaM Expr := `(expr/sym| 1 + 2)
 
 /--
 error: invalid relation item `-ExprQuotBuildTest.myDefAlias`: `structural` does not unfold `ExprQuotBuildTest.myDefAlias` by default

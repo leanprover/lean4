@@ -283,14 +283,17 @@ mutual
         let sizeOfFnTy ← instantiateTypeLevelParams (←getConstInfo sizeOfFn).toConstantVal sizeOfLevels
         forallBoundedTelescope (maxFVars? := args.size) sizeOfFnTy fun xs _ => do←
           if xs.size != args.size then continue
-          let tyxs ← xs.mapM fun x => return (← inferType x).replaceFVars xs ys
-          let tyArgs ← ys.mapM (inferType ·)
+          let tyxs ← xs.mapM fun x => return (← inferType x).replaceFVars xs args
+          let tyArgs ← args.mapM (inferType ·)
+          let mut isValid := true
           for tyx in tyxs, tyy in tyArgs do
             -- equality check between nested occurences in the kernel respects binder information and annotations, we must respect this here to avoid mapping motives to the wrong spec lemma
-            if tyx.equal tyy then
-              let candidate := mkAppN (mkConst sizeOfFn sizeOfLevels) args
-              trace[Meta.sizeOf] "Valid candidate for {ys} is\n {candidate}"
-              return candidate
+            unless tyx.equal tyy do
+              isValid := false
+              break
+          if isValid then
+            let candidate := mkAppN (mkConst sizeOfFn sizeOfLevels) args
+            return candidate
       throwFailed
     let major := lhs.appArg!
     let majorType ← whnf (← inferType major)

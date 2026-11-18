@@ -1,6 +1,8 @@
+module
+
 import Lean
 
-/-! Regression candidates for the Prod.map cases of #14496. -/
+/-! Regression tests for the Prod.map cases of #14496. -/
 
 inductive Typ where
   | int

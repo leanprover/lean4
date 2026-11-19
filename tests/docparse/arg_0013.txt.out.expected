@@ -1,0 +1,16 @@
+Input: "(x:=\"y)"
+Failure: unterminated string literal
+ --> 1:4-1:5
+  |
+1 | (x:="y)
+  |     ^
+  = consumed input prefix: 4 bytes
+Final stack:
+  (Lean.Doc.Parser.Arg.named
+   "("
+   `x
+   ":="
+   (Lean.Doc.Parser.ArgVal.str <missing>)
+   ")")
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

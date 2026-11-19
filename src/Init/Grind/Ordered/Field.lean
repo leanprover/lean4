@@ -8,14 +8,18 @@ module
 prelude
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
+import Init.Grind.Ordered.Order
+import Init.RCases
 
 public section
+
+open Std
 
 namespace Lean.Grind
 
 namespace Field.IsOrdered
 
-variable {R : Type u} [Field R] [LinearOrder R] [OrderedRing R]
+variable {R : Type u} [Field R] [LE R] [LT R] [LawfulOrderLT R] [IsLinearOrder R] [OrderedRing R]
 
 open OrderedAdd
 open OrderedRing

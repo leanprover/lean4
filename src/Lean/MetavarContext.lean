@@ -10,6 +10,8 @@ public import Init.ShareCommon
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
 import Init.Data.Slice
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -245,6 +247,18 @@ very simple unification and/or non-nested TC. So, if the "app builder" becomes a
 we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
 -/
 
+structure LevelMetavarDecl where
+  /-- The nesting depth of this metavariable. We do not want
+  unification subproblems to influence the results of parent
+  problems. The depth keeps track of this information and ensures
+  that unification subproblems cannot leak information out, by unifying
+  based on depth. -/
+  depth : Nat
+  /-- This field tracks how old a metavariable is. It is set using a counter at `MetavarContext`.
+  We primarily use the index of a level metavariable for pretty printing. -/
+  index : Nat
+  deriving Inhabited
+
 /--
 `LocalInstance` represents a local typeclass instance registered by and for
 the elaborator. It stores the name of the typeclass in `className`, and the
@@ -253,6 +267,12 @@ this information, since typeclasses are entirely eliminated during elaboration.
 -/
 structure LocalInstance where
   className : Name
+  /--
+  The concrete typeclass instance, usually just a free variable. However, in some situations this
+  may also be any other term, in which case this local instance will simply never be erased.
+  Because of this, you should not pass such "exotic" local instances to functions that may clear
+  or revert variables that this value depends on.
+  -/
   fvar      : Expr
   deriving Inhabited
 
@@ -266,7 +286,14 @@ instance : Hashable LocalInstance where
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
+  localInsts.eraseP (fun inst => inst.fvar.isFVarOf fvarId)
+
+@[inline]
+def LocalInstances.eraseAll (localInsts : LocalInstances) (p : FVarId → Bool) : LocalInstances :=
+  localInsts.filter fun inst =>
+    match inst.fvar with
+    | .fvar f => !p f
+    | _ => true
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/
@@ -307,7 +334,8 @@ structure MetavarDecl where
   kind           : MetavarKind
   /-- See comment at `CheckAssignment` `Meta/ExprDefEq.lean` -/
   numScopeArgs   : Nat := 0
-  /-- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext` -/
+  /-- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext`.
+  We also use it for pretty printing anonymous metavariables. -/
   index          : Nat
   deriving Inhabited
 
@@ -338,9 +366,12 @@ structure MetavarContext where
   depth          : Nat := 0
   /-- At what depth level mvars can be assigned. -/
   levelAssignDepth : Nat := 0
+  /-- Counter for setting the field `index` at `LevelMetavarDecl`. -/
+  lmvarCounter   : Nat := 0
   /-- Counter for setting the field `index` at `MetavarDecl` -/
   mvarCounter    : Nat := 0
-  lDepth         : PersistentHashMap LMVarId Nat := {}
+  /-- Level metavariable declarations. -/
+  lDecls         : PersistentHashMap LMVarId LevelMetavarDecl := {}
   /-- Metavariable declarations. -/
   decls          : PersistentHashMap MVarId MetavarDecl := {}
   /-- Index mapping user-friendly names to ids. -/
@@ -352,6 +383,17 @@ structure MetavarContext where
   /-- Assignment table for delayed abstraction metavariables.
   For more information about delayed abstraction, see the docstring for `DelayedMetavarAssignment`. -/
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
+  /--
+  Metavariables whose assignments must preserve the type up to `TransparencyMode.instances`.
+
+  Metavariables created for the instance-implicit arguments of an instance during typeclass
+  resolution are added to this set, and membership is propagated to the metavariables in
+  type-determining (spine) positions of values assigned to members. This maintains the
+  invariant that the final instantiation of such a metavariable has a type that agrees with
+  the metavariable's type at `.instances` transparency, so unification cannot commit to an
+  instance for a type that is different at instance-resolution time. See issue #9077.
+  -/
+  instanceTypedMVars : PersistentHashMap MVarId Unit := {}
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 
@@ -398,14 +440,20 @@ def MetavarContext.getDelayedMVarAssignmentCore? (mctx : MetavarContext) (mvarId
 def MetavarContext.getDelayedMVarAssignmentExp (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
   mctx.dAssignment.find? mvarId
 
+@[export lean_delayed_mvar_assignment_fvars]
+def DelayedMetavarAssignment.fvarsExp (d : DelayedMetavarAssignment) : Array Expr := d.fvars
+
+@[export lean_delayed_mvar_assignment_mvar_id_pending]
+def DelayedMetavarAssignment.mvarIdPendingExp (d : DelayedMetavarAssignment) : MVarId := d.mvarIdPending
+
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
   return (← getMCtx).getDelayedMVarAssignmentCore? mvarId
 
 /-- Given a sequence of delayed assignments
    ```
-   mvarId₁ := mvarId₂ ...;
+   mvarId₁ := fun ... => mvarId₂;
    ...
-   mvarIdₙ := mvarId_root ...  -- where `mvarId_root` is not delayed assigned
+   mvarIdₙ := fun ... => mvarId_root  -- where `mvarId_root` is not delayed assigned
    ```
    in `mctx`, `getDelayedRoot mctx mvarId₁` return `mvarId_root`.
    If `mvarId₁` is not delayed assigned then return `mvarId₁` -/
@@ -425,6 +473,20 @@ def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarI
   return (← getMCtx).dAssignment.contains mvarId
 
 /--
+Mark `mvarId` so that assignments to it must preserve its type up to instance transparency.
+See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
+-/
+def _root_.Lean.MVarId.markInstanceTyped [MonadMCtx m] (mvarId : MVarId) : m Unit :=
+  modifyMCtx fun mctx => { mctx with instanceTypedMVars := mctx.instanceTypedMVars.insert mvarId () }
+
+/--
+Return `true` if assignments to `mvarId` must preserve its type up to instance transparency.
+See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
+-/
+def _root_.Lean.MVarId.isInstanceTyped [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
+  return (← getMCtx).instanceTypedMVars.contains mvarId
+
+/--
 Check whether a metavariable is assigned or delayed-assigned. A
 delayed-assigned metavariable is already 'solved' but the solution cannot be
 substituted yet because we have to wait for some other metavariables to be
@@ -436,16 +498,26 @@ def _root_.Lean.MVarId.isAssignedOrDelayedAssigned [Monad m] [MonadMCtx m] (mvar
   let mctx ← getMCtx
   return mctx.eAssignment.contains mvarId || mctx.dAssignment.contains mvarId
 
+def MetavarContext.findLevelDecl? (mctx : MetavarContext) (mvarId : LMVarId) : Option LevelMetavarDecl :=
+  mctx.lDecls.find? mvarId
+
+def MetavarContext.getLevelDecl (mctx : MetavarContext) (mvarId : LMVarId) : LevelMetavarDecl :=
+  match mctx.lDecls.find? mvarId with
+  | some decl => decl
+  | none      => panic! s!"unknown universe metavariable {mvarId.name}"
+
 def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
   let mctx ← getMCtx
-  match mctx.lDepth.find? mvarId with
-  | some d => return d >= mctx.levelAssignDepth
-  | _      => panic! "unknown universe metavariable"
+  let decl := mctx.getLevelDecl mvarId
+  return decl.depth >= mctx.levelAssignDepth
+
+def MetavarContext.findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
+  mctx.decls.find? mvarId
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
   | some decl => decl
-  | none      => panic! "unknown metavariable"
+  | none      => panic! s!"unknown metavariable {mvarId.name}"
 
 def _root_.Lean.MVarId.isAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   let mctx ← getMCtx
@@ -476,33 +548,9 @@ def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | .proj _ _ e      => pure e.hasMVar <&&> hasAssignedMVar e
   | .mvar mvarId     => mvarId.isAssigned <||> mvarId.isDelayedAssigned
 
-/-- Return true iff the given level contains a metavariable that can be assigned. -/
-def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
-  | .succ lvl       => pure lvl.hasMVar <&&> hasAssignableLevelMVar lvl
-  | .max lvl₁ lvl₂  => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
-  | .imax lvl₁ lvl₂ => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
-  | .mvar mvarId    => isLevelMVarAssignable mvarId
-  | .zero           => return false
-  | .param _        => return false
-
-/-- Return `true` iff expression contains a metavariable that can be assigned. -/
-def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
-  | .const _ lvls    => lvls.anyM hasAssignableLevelMVar
-  | .sort lvl        => hasAssignableLevelMVar lvl
-  | .app f a         => (pure f.hasMVar <&&> hasAssignableMVar f) <||> (pure a.hasMVar <&&> hasAssignableMVar a)
-  | .letE _ t v b _  => (pure t.hasMVar <&&> hasAssignableMVar t) <||> (pure v.hasMVar <&&> hasAssignableMVar v) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .forallE _ d b _ => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .lam _ d b _     => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .fvar _          => return false
-  | .bvar _          => return false
-  | .lit _           => return false
-  | .mdata _ e       => pure e.hasMVar <&&> hasAssignableMVar e
-  | .proj _ _ e      => pure e.hasMVar <&&> hasAssignableMVar e
-  | .mvar mvarId     => mvarId.isAssignable
-
 /--
   Add `mvarId := u` to the universe metavariable assignment.
-  This method does not check whether `mvarId` is already assigned, nor it checks whether
+  This method does not check whether `mvarId` is already assigned, nor does it check whether
   a cycle is being introduced.
   This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
 -/
@@ -515,7 +563,7 @@ def assignLevelMVarExp (m : MetavarContext) (mvarId : LMVarId) (val : Level) : M
 
 /--
 Add `mvarId := x` to the metavariable assignment.
-This method does not check whether `mvarId` is already assigned, nor it checks whether
+This method does not check whether `mvarId` is already assigned, nor does it check whether
 a cycle is being introduced, or whether the expression has the right type.
 This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
@@ -581,7 +629,7 @@ def instantiateMVarsCore (mctx : MetavarContext) (e : Expr) : Expr × MetavarCon
     instantiateExprMVars e
   runST fun _ => instantiate e |>.run |>.run mctx
 
-/-
+/--
 Substitutes assigned metavariables in `e` with their assigned value according to the
 `MetavarContext`, recursively.
 
@@ -596,6 +644,16 @@ run_meta do
   let e' ← instantiateMVars e
   -- e' is `Nat.succ 42`, `?m.773` is assigned to `42`
 ```
+
+There are a few gotchas concerning delayed assignments.
+
+* Regular assignments take precedence over delayed ones. This happens when an error occurs, in which
+  case Lean assigns `sorry` to all unassigned metavariables, delayed assigned or not.
+* Unless a delayed assigned metavariable `?m := fun fvars => ?pending` is fully applied to its free
+  variables `fvars`, it will not be instantiated to `?pending`.
+* A delayed assigned metavariable `?m := fun fvars => ?pending` that occurs fully applied `?m fvars`
+  will not be instantiated to `?pending` unless (1) `?pending` is assigned, and (2) the
+  assignment to `?pending` is ground (i.e., does not contain unassigned metavariables).
 -/
 def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   if !e.hasMVar then
@@ -776,9 +834,6 @@ def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf :
 
 namespace MetavarContext
 
-@[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext := fun _ => {}
-
 /-- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
@@ -811,10 +866,11 @@ def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Nam
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
 def addLevelMVarDecl (mctx : MetavarContext) (mvarId : LMVarId) : MetavarContext :=
-  { mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
-
-def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
-  mctx.decls.find? mvarId
+  { mctx with
+    lmvarCounter := mctx.lmvarCounter + 1
+    lDecls := mctx.lDecls.insert mvarId {
+      depth := mctx.depth
+      index := mctx.lmvarCounter } }
 
 def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
   mctx.userNames.find? userName
@@ -893,13 +949,18 @@ def setFVarBinderInfo (mctx : MetavarContext) (mvarId : MVarId)
     (fvarId : FVarId) (bi : BinderInfo) : MetavarContext :=
   mctx.modifyExprMVarLCtx mvarId (·.setBinderInfo fvarId bi)
 
+def setFVarType (mctx : MetavarContext) (mvarId : MVarId)
+    (fvarId : FVarId) (type : Expr) : MetavarContext :=
+  mctx.modifyExprMVarLCtx mvarId (·.setType fvarId type)
+
 def findLevelDepth? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
-  mctx.lDepth.find? mvarId
+  (mctx.findLevelDecl? mvarId).map LevelMetavarDecl.depth
 
 def getLevelDepth (mctx : MetavarContext) (mvarId : LMVarId) : Nat :=
-  match mctx.findLevelDepth? mvarId with
-  | some d => d
-  | none   => panic! "unknown metavariable"
+  (mctx.getLevelDecl mvarId).depth
+
+def findLevelIndex? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
+  (mctx.findLevelDecl? mvarId).map LevelMetavarDecl.index
 
 def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
   match mctx.findDecl? mvarId with
@@ -937,7 +998,7 @@ structure State where
   cache          : Std.HashMap ExprStructEq Expr := {}
 
 structure Context where
-  mainModule         : Name
+  quotContext        : Name
   preserveOrder      : Bool
   /-- When creating binders for abstracted metavariables, we use the following `BinderInfo`. -/
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
@@ -953,7 +1014,7 @@ instance : MonadMCtx M where
 
 private def mkFreshBinderName (n : Name := `x) : M Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← read).mainModule n fresh
+  return addMacroScope (← read).quotContext n fresh
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
@@ -1270,6 +1331,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
 /--
 Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
 This function trusts that `xs` has all forward dependencies that appear in `e` and that the variables are in order.
+It will panic when any of the `xs` is neither a free variable nor a metavariable.
 
 - If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
@@ -1325,20 +1387,20 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
 end MkBinding
 
 structure MkBindingM.Context where
-  mainModule : Name
-  lctx       : LocalContext
+  quotContext : Name
+  lctx        : LocalContext
 
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
@@ -1347,10 +1409,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
 
 /--
   `isWellFormed lctx e` returns true iff
@@ -1464,7 +1526,7 @@ structure UnivMVarParamResult where
 
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : LMVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
+  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } |>.run { mctx, nextParamIdx }
   { mctx          := s.mctx
     newParamNames := s.paramNames
     nextParamIdx  := s.nextParamIdx
@@ -1514,6 +1576,14 @@ the given fvar doesn't exist in its context, nothing happens.
 def setFVarBinderInfo [MonadMCtx m] (mvarId : MVarId) (fvarId : FVarId)
     (bi : BinderInfo) : m Unit :=
   modifyMCtx (·.setFVarBinderInfo mvarId fvarId bi)
+
+/--
+Set the `BinderInfo` of an fvar. If the given metavariable is not declared or
+the given fvar doesn't exist in its context, nothing happens.
+-/
+def setFVarType [MonadMCtx m] (mvarId : MVarId) (fvarId : FVarId)
+    (type : Expr) : m Unit :=
+  modifyMCtx (·.setFVarType mvarId fvarId type)
 
 end MVarId
 

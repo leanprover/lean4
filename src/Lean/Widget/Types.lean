@@ -44,7 +44,7 @@ or use a value of `javascript` identical to that of another definition
 annotated with `@[widget_module]`.
 This makes it possible for the infoview to load the module.
 
-See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
+See the [manual entry](https://lean-lang.org/examples/1900-1-1-widgets/)
 for more information on how to use the widgets system. -/
 structure Module where
   /-- A JS [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)

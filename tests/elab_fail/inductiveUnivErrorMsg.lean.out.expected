@@ -1,0 +1,8 @@
+inductiveUnivErrorMsg.lean:2:0-2:20: error: Constructor field `Foo` of `Bar.foobar` contains universe level metavariables at the expression
+  Sort ?u
+in its type
+  Sort ?u
+inductiveUnivErrorMsg.lean:6:0-6:27: error: Constructor field `Foo` of `Bar2.foobar` contains universe level metavariables at the expression
+  Sort ?u
+in its type
+  Sort ?u

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.MatchUtil
-public import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 

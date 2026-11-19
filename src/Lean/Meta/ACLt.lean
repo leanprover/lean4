@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.FunInfo
-public import Lean.Meta.DiscrTree
-
+public import Lean.Meta.DiscrTree.Main
+import Init.Data.Range.Polymorphic.Iterators
+import Lean.Meta.FunInfo
 public section
-
 namespace Lean
 
 def Expr.ctorWeight : Expr → UInt8
@@ -121,7 +118,7 @@ where
         let infos ← getParamsInfo aFn aArgs.size
         for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i]!.isInstImplicit then
+          if !infos[i]!.isInstance then
             if (← lt aArgs[i]! bArgs[i]!) then
               return true
             else if (← lt bArgs[i]! aArgs[i]!) then
@@ -137,7 +134,10 @@ where
     match a with
     -- Atomic
     | .bvar i ..    => return i < b.bvarIdx!
-    | .fvar id ..   => return Name.lt id.name b.fvarId!.name
+    -- We want to ensure that fvars are sorted in declaration order (#12136). This is not
+    -- necessarily the case with `Name.lt` when hierarchical names are used as they are compared
+    -- bottom-up.
+    | .fvar id ..   => return (← id.findDecl?).get!.index < (← b.fvarId!.findDecl?).get!.index
     | .mvar id ..   => return Name.lt id.name b.mvarId!.name
     | .sort u ..    => return Level.normLt u b.sortLevel!
     | .const n ..   => return Name.lt n b.constName! -- We ignore the levels
@@ -159,7 +159,7 @@ where
         let infos ← getParamsInfo f args.size
         for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i]!.isInstImplicit then
+          if !infos[i]!.isInstance then
             if !(← lt args[i]! b) then
               return false
         for h : i in infos.size...args.size do
@@ -175,6 +175,7 @@ where
     return !(← allChildrenLt a b)
 
   lpo (a b : Expr) : MetaM Bool := do
+    checkSystem "Lean.Meta.acLt"
     -- Case 1: `a < b` if for some child `b_i` of `b`, we have `b_i >= a`
     if (← someChildGe b a) then
       return true

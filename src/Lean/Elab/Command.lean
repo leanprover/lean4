@@ -6,13 +6,12 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Command.Scope
 public import Lean.Elab.SetOption
-public import Lean.Language.Basic
-public import Lean.Meta.ForEachExpr
+import Lean.Elab.DeprecatedSyntax.Basic
+public import Lean.Linter.PersistentLintLog
 public meta import Lean.Parser.Command
 
 public section
@@ -20,78 +19,17 @@ public section
 namespace Lean.Elab.Command
 
 /--
-A `Scope` records the part of the `CommandElabM` state that respects scoping,
-such as the data for `universe`, `open`, and `variable` declarations, the current namespace,
-and currently enabled options.
-The `CommandElabM` state contains a stack of scopes, and only the top `Scope`
-on the stack is read from or modified. There is always at least one `Scope` on the stack,
-even outside any `section` or `namespace`, and each new pushed `Scope`
-starts as a modified copy of the previous top scope.
+Opaque linter state. Similar to `EnvExtensionState` for environment extensions.
 -/
-structure Scope where
-  /--
-  The component of the `namespace` or `section` that this scope is associated to.
-  For example, `section a.b.c` and `namespace a.b.c` each create three scopes with headers
-  named `a`, `b`, and `c`.
-  This is used for checking the `end` command. The "base scope" has `""` as its header.
-  -/
-  header        : String
-  /--
-  The current state of all set options at this point in the scope. Note that this is the
-  full current set of options and does *not* simply contain the options set
-  while this scope has been active.
-  -/
-  opts          : Options := {}
-  /-- The current namespace. The top-level namespace is represented by `Name.anonymous`. -/
-  currNamespace : Name := Name.anonymous
-  /-- All currently `open`ed namespaces and names. -/
-  openDecls     : List OpenDecl := []
-  /-- The current list of names for universe level variables to use for new declarations. This is managed by the `universe` command. -/
-  levelNames    : List Name := []
-  /--
-  The current list of binders to use for new declarations.
-  This is managed by the `variable` command.
-  Each binder is represented in `Syntax` form, and it is re-elaborated
-  within each command that uses this information.
-
-  This is also used by commands, such as `#check`, to create an initial local context,
-  even if they do not work with binders per se.
-  -/
-  varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
-  /--
-  Globally unique internal identifiers for the `varDecls`.
-  There is one identifier per variable introduced by the binders
-  (recall that a binder such as `(a b c : Ty)` can produce more than one variable),
-  and each identifier is the user-provided variable name with a macro scope.
-  This is used by `TermElabM` in `Lean.Elab.Term.Context` to help with processing macros
-  that capture these variables.
-  -/
-  varUIds       : Array Name := #[]
-  /-- `include`d section variable names (from `varUIds`) -/
-  includedVars  : List Name := []
-  /-- `omit`ted section variable names (from `varUIds`) -/
-  omittedVars  : List Name := []
-  /--
-  If true (default: false), all declarations that fail to compile
-  automatically receive the `noncomputable` modifier.
-  A scope with this flag set is created by `noncomputable section`.
-
-  Recall that a new scope inherits all values from its parent scope,
-  so all sections and namespaces nested within a `noncomputable` section also have this flag set.
-  -/
-  isNoncomputable : Bool := false
-  isPublic : Bool := false
-  /--
-  Attributes that should be applied to all matching declaration in the section. Inherited from
-  parent scopes.
-  -/
-  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
-  deriving Inhabited
+opaque LinterStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+@[expose] def LinterState : Type := LinterStateSpec.fst
+instance : Inhabited LinterState := LinterStateSpec.snd
 
 structure State where
   env            : Environment
   messages       : MessageLog := {}
   scopes         : List Scope := [{ header := "" }]
+  usedQuotCtxts  : NameSet := {}
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
@@ -99,14 +37,22 @@ structure State where
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
+  prevLinterStates : Option (Task (Array LinterState)) := none
+  /--
+  Tasks for the code quality entries logged by the linters of the current command. Like `messages`,
+  this is per command: the language processor starts each command with an empty array and reports
+  the tasks in `Language.Lean.CommandResultSnapshot.codeQualityEntryTasks`.
+  -/
+  codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
   deriving Nonempty
 
 structure Context where
   fileName       : String
   fileMap        : FileMap
   currRecDepth   : Nat := 0
-  cmdPos         : String.Pos := 0
+  cmdPos         : String.Pos.Raw := 0
   macroStack     : MacroStack := []
+  quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
   /--
@@ -127,12 +73,57 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /-- Forwarded to `Core.Context.checkDeprecated`. -/
+  checkDeprecated : Core.DeprecationCheck := .all
 
 abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
+
+/-- Runs `x` without reporting deprecated constants and syntax, like `Term.withoutCheckDeprecated`. -/
+@[inline] def withoutCheckDeprecated (x : CommandElabM α) : CommandElabM α :=
+  withReader ({ · with checkDeprecated := .none }) x
+
 structure Linter where
   run : Syntax → CommandElabM Unit
   name : Name := by exact decl_name%
+
+structure ModuleLinter where
+  run : Array Syntax → CommandElabM Unit
+  name : Name := by exact decl_name%
+
+/--
+A handle to a registered stateful linter, returned by `registerStatefulLinter`.
+`σ` is the linter's persistent state, and `τ` is the pre-phase output type.
+-/
+structure StatefulLinter (σ τ : Type) where private mk ::
+  private idx : Nat
+deriving Inhabited
+
+/-- The type-erased registry entry for a stateful linter. -/
+structure StatefulLinterEntry where
+  init : LinterState
+  pre  : Syntax → (prev : Array LinterState) → CommandElabM (Option LinterState)
+  post : Syntax → (prev : Array LinterState) → (preSt : Array (Option LinterState)) → CommandElabM LinterState
+
+namespace StatefulLinter
+
+private unsafe def prevStateImpl [Inhabited σ] (l : StatefulLinter σ τ) (prev : Array LinterState) : σ :=
+  unsafeCast prev[l.idx]!
+@[implemented_by prevStateImpl]
+opaque prevState [Inhabited σ] (l : StatefulLinter σ τ) (prev : Array LinterState) : σ
+
+private unsafe def preStateImpl (l : StatefulLinter σ τ) (preSt : Array (Option LinterState)) : Option τ :=
+  (preSt[l.idx]!).map unsafeCast
+@[implemented_by preStateImpl]
+opaque preState (l : StatefulLinter σ τ) (preSt : Array (Option LinterState)) : Option τ
+
+end StatefulLinter
+
+/-- A typed accessor to a linter's previous state. -/
+abbrev PrevStateFn := {σ τ : Type} → [Inhabited σ] → StatefulLinter σ τ → σ
+
+/-- A typed accessor to a linter's pre-phase output. -/
+abbrev PreStateFn := {σ τ : Type} → StatefulLinter σ τ → Option τ
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -141,7 +132,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 Remark: see comment at TermElabM
 -/
 @[always_inline]
-instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
+instance : Monad CommandElabM := let i : Monad CommandElabM := inferInstance; { pure := i.pure, bind := i.bind }
 
 /--
 Like `Core.tryCatchRuntimeEx`; runtime errors are generally used to abort term elaboration, so we do
@@ -173,11 +164,67 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
     environment (which only contains `import`ed objects). -/
 builtin_initialize lintersRef : IO.Ref (Array Linter) ← IO.mkRef #[]
+builtin_initialize moduleLintersRef : IO.Ref (Array ModuleLinter) ← IO.mkRef #[]
+builtin_initialize statefulLintersRef : IO.Ref (Array StatefulLinterEntry) ← IO.mkRef #[]
 builtin_initialize registerTraceClass `Elab.lint
 
 def addLinter (l : Linter) : IO Unit := do
   let ls ← lintersRef.get
   lintersRef.set (ls.push l)
+
+def addModuleLinter (l : ModuleLinter) : IO Unit := do
+  let ls ← moduleLintersRef.get
+  moduleLintersRef.set (ls.push l)
+
+/--
+Registers a stateful linter and returns its handle (used by other linters to read its state).
+Must be called during initialization.
+
+### Lifecycle Phases
+* **`pre`**: Reads the previous command's persistant state (via `readPrevPostState`)
+and optionally outputs a pre-phase state (type `Option τ`).
+* **`post`**: Reads the previous command's state and all current pre-phase outputs
+(via `readPrevPostState` and `readCurrentPreState`), then produces the new state (type `σ`)
+for the next command.
+
+### State Access Rules
+* **Self**: Access its own persistent and pre-phase states directly via `selfPrevPostState` and
+`selfCurrentPreState`.
+* **Others**: Access other linters' states only via the `readPrevPostState` and
+`readCurrentPreState` closures that take typed handles of other linters.
+
+### Commands with Parse Errors
+Unlike regular linters, stateful linters also run on commands with parse errors. Their messages are
+discarded there (unless `showPartialSyntaxErrors` is set), but their info trees are kept, so code
+actions from `MessageData.hint` would be offered without the corresponding message. Linters should
+not produce hints when `(← read).suppressElabErrors` is set.
+-/
+unsafe def registerStatefulLinterImpl (init : σ)
+    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
+       fun _ _ _ => pure none)
+    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+    IO (StatefulLinter σ τ) := do
+  unless (← initializing) do
+    throw <| .userError "stateful linters can only be registered during initialization"
+  let ls ← statefulLintersRef.get
+  let idx := ls.size
+  statefulLintersRef.set <| ls.push
+    { init := unsafeCast init
+      pre  := fun stx prev =>
+        (·.map unsafeCast) <$> pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev)
+      post := fun stx prev preSt =>
+        unsafeCast <$> post stx (unsafeCast prev[idx]!) ((preSt[idx]!).map unsafeCast)
+          (fun l => l.prevState prev) (fun l => l.preState preSt) }
+  return ⟨idx⟩
+
+@[inherit_doc registerStatefulLinterImpl, implemented_by registerStatefulLinterImpl]
+opaque registerStatefulLinter (init : σ)
+    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
+       fun _ _ _ => pure none)
+    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+    IO (StatefulLinter σ τ)
 
 instance : MonadInfoTree CommandElabM where
   getInfoState      := return (← get).infoState
@@ -217,6 +264,18 @@ instance : MonadDeclNameGenerator CommandElabM where
   getDeclNGen := return (← get).auxDeclNGen
   setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
+protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
+protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
+
+protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
+  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
+
+instance : MonadQuotation CommandElabM where
+  getCurrMacroScope   := Command.getCurrMacroScope
+  getContext          := do (← read).quotContext?.getDM getMainModule
+  withFreshMacroScope := Command.withFreshMacroScope
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -232,16 +291,20 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     currNamespace      := scope.currNamespace
     openDecls          := scope.openDecls
     initHeartbeats     := heartbeats
+    quotContext        := (← MonadQuotation.getMainModule)
     currMacroScope     := ctx.currMacroScope
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
-    suppressElabErrors := ctx.suppressElabErrors }
+    suppressElabErrors := ctx.suppressElabErrors
+    checkDeprecated    := ctx.checkDeprecated }
   let x : EIO _ _ := x.run coreCtx {
     env
     ngen := s.ngen
     auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
+    -- accumulate lazy assignments from all `CoreM` lifts
+    infoState.lazyAssignment := s.infoState.lazyAssignment
     traceState := s.traceState
     snapshotTasks := s.snapshotTasks
   }
@@ -293,15 +356,19 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
-def runLinters (stx : Syntax) : CommandElabM Unit := do
+def runLinters (stx : Syntax) (infoTreePromise? : Option (IO.Promise InfoTree) := .none)
+    (codeQualityEntriesPromise? : Option (IO.Promise (Array Linter.CodeQualityLogEntry)) := .none) : CommandElabM Unit := do
   profileitM Exception "linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running linters") do
       let linters ← lintersRef.get
+      let producedInfoTrees ← IO.mkRef ({} : PersistentArray InfoTree)
+      let producedCodeQualityEntries ← IO.mkRef (#[] : Array Linter.CodeQualityLogEntry)
       unless linters.isEmpty do
         for linter in linters do
           withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
               (tag := linter.name.toString) do
             let savedState ← get
+            let originalSize := savedState.infoState.trees.size
             try
               linter.run stx
             catch ex =>
@@ -313,7 +380,107 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             finally
               -- TODO: it would be good to preserve even more state (#4363) but preserving info
               -- trees currently breaks from linters adding context-less info nodes
+              let newInfoState ← getInfoState
+              let newState := Linter.codeQualityLogExt.getState (← get).env
+              if newInfoState.enabled then
+                producedInfoTrees.modify fun old =>
+                  old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
               modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+              let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
+              producedCodeQualityEntries.modify (· ++ newState.extract oldStateSize)
+
+      if let some infoTreePromise := infoTreePromise? then
+        if (← getInfoState).enabled then
+          infoTreePromise.resolve <|
+            mkLinterInfoGroupNode (← producedInfoTrees.get)
+
+      if let some codeQualityEntriesPromise := codeQualityEntriesPromise? then
+        codeQualityEntriesPromise.resolve (← producedCodeQualityEntries.get)
+
+def runModuleLinters (cmds : Array Syntax)
+    (codeQualityEntriesPromise? : Option (IO.Promise (Array Linter.CodeQualityLogEntry)) := .none) : CommandElabM Unit := do
+  profileitM Exception "module linting" (← getOptions) do
+    withTraceNode `Elab.lint (fun _ => return m!"running module linters") do
+      let linters ← moduleLintersRef.get
+      let producedCodeQualityEntries ← IO.mkRef (#[] : Array Linter.CodeQualityLogEntry)
+      unless linters.isEmpty do
+        for linter in linters do
+          withTraceNode `Elab.lint (fun _ => return m!"running module linter: {.ofConstName linter.name}")
+              (tag := linter.name.toString) do
+            let savedState ← get
+            try
+              linter.run cmds
+            catch ex =>
+              match ex with
+              | Exception.error ref msg =>
+                logException (.error ref m!"module linter {.ofConstName linter.name} failed: {msg}")
+              | Exception.internal _ _ =>
+                logException ex
+            finally
+              let newState := Linter.codeQualityLogExt.getState (← get).env
+              modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+              let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
+              producedCodeQualityEntries.modify (· ++ newState.extract oldStateSize)
+      if let some codeQualityEntriesPromise := codeQualityEntriesPromise? then
+        codeQualityEntriesPromise.resolve (← producedCodeQualityEntries.get)
+
+def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
+    (infoTreePromise? : Option (IO.Promise InfoTree) := .none)
+    (codeQualityEntriesPromise? : Option (IO.Promise (Array Linter.CodeQualityLogEntry)) := .none)
+     : CommandElabM (Array LinterState) := do
+  profileitM Exception "stateful linting" (← getOptions) do
+    withTraceNode `Elab.lint (fun _ => return m!"running stateful linters") do
+      let linters ← statefulLintersRef.get
+      let producedInfoTrees ← IO.mkRef ({} : PersistentArray InfoTree)
+      let producedCodeQualityEntries ← IO.mkRef (#[] : Array Linter.CodeQualityLogEntry)
+      let run {α : Type} (phase : String) (idx : Nat) (onError : CommandElabM α)
+          (act : CommandElabM α) : CommandElabM α :=
+        withTraceNode `Elab.lint
+            (fun _ => return m!"running stateful linter #{idx} ({phase})")
+            (tag := toString idx) do
+          let savedState ← get
+          let originalSize := savedState.infoState.trees.size
+          try
+            act
+          catch ex =>
+            match ex with
+            | .error ref msg =>
+              logException (.error ref m!"stateful linter #{idx} ({phase}) failed: {msg}")
+            | .internal _ _ => logException ex
+            onError
+          finally
+            let newInfoState ← getInfoState
+            if newInfoState.enabled then
+              producedInfoTrees.modify fun old =>
+                old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
+            let newState := Linter.codeQualityLogExt.getState (← get).env
+            modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+            let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
+            producedCodeQualityEntries.modify (· ++ newState.extract oldStateSize)
+      let mut preSt : Array (Option LinterState) := .emptyWithCapacity linters.size
+      let mut i := 0
+      for l in linters do
+        preSt := preSt.push (← run "pre" i (pure none) (l.pre stx prev))
+        i := i + 1
+      let mut postSt : Array LinterState := .emptyWithCapacity linters.size
+      i := 0
+      for l in linters do
+        postSt := postSt.push (← run "post" i (pure prev[i]!) (l.post stx prev preSt))
+        i := i + 1
+      if let some infoTreePromise := infoTreePromise? then
+        if (← getInfoState).enabled then
+          infoTreePromise.resolve <|
+            mkLinterInfoGroupNode (← producedInfoTrees.get)
+      if let some codeQualityEntriesPromise := codeQualityEntriesPromise? then
+        codeQualityEntriesPromise.resolve (← producedCodeQualityEntries.get)
+      return postSt
+
+def initialLinterStates : BaseIO (Array LinterState) := do
+  return (← statefulLintersRef.get).map (·.init)
+
+def prevLinterStatesTask : Option (Task (Array LinterState)) → BaseIO (Task (Array LinterState))
+  | some prev => return prev
+  | none      => return .pure (← initialLinterStates)
 
 /--
 Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
@@ -328,10 +495,12 @@ def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option 
     CommandElabM (α → EIO Exception β) := do
   let ctx ← read
   let ctx := { ctx with cancelTk? }
-  let (childNGen, parentNGen) := (← getDeclNGen).mkChild
-  setDeclNGen parentNGen
+  let (childNGen, parentNGen) := (← get).ngen.mkChild
+  modify fun s => { s with ngen := parentNGen }
+  let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentDeclNGen
   let st ← get
-  let st := { st with auxDeclNGen := childNGen }
+  let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   return (act · |>.run ctx |>.run' st)
 
 open Language in
@@ -353,7 +522,7 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? 
         withTraceNode `Elab.async (fun _ => return desc) do
           act a
       catch e =>
-        logError e.toMessageData
+        logException e
       finally
         addTraceAsMessages
       get
@@ -383,10 +552,16 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : Comma
 
 open Language in
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
+  let lintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
   if !Elab.async.get (← getOptions) then
     withoutModifyingEnv do
-      runLinters stx
+      runLinters stx (codeQualityEntriesPromise? := lintersCodeQualityEntriesPromise)
+      modify fun s => { s with codeQualityEntryTasks :=
+        s.codeQualityEntryTasks.push (lintersCodeQualityEntriesPromise.resultD #[]) }
     return
+
+  -- We create a promise for the info trees produced by the linters
+  let lintersInfoPromise ← IO.Promise.new (α := InfoTree)
 
   -- linters should have access to the complete info tree and message log
   let mut snaps := (← get).snapshotTasks
@@ -404,24 +579,95 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
     let messages := messages.markAllReported
     modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
-    runLinters stx
+    runLinters stx lintersInfoPromise lintersCodeQualityEntriesPromise
 
   let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
     BaseIO.mapTask (t := treeTask) fun _ =>
       lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  modify fun s => { s with codeQualityEntryTasks :=
+    s.codeQualityEntryTasks.push (lintersCodeQualityEntriesPromise.resultD #[]) }
 
-protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
-protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
+  let infoHole ← liftCoreM mkFreshMVarId
+  modifyInfoState fun s => { s with
+    trees          := s.trees.modify 0 (pushInfoChild · (.hole infoHole))
+    lazyAssignment := s.lazyAssignment
+      |>.insert infoHole (lintersInfoPromise.resultD default)
+  }
 
-protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
-  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
-  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
+open Language in
+/--
+Runs the module linters on `cmds`, the commands of the module, asynchronously if `Elab.async` is
+set.
+-/
+def runModuleLintersAsync (cmds : Array Syntax) : CommandElabM Unit := do
+  if (← moduleLintersRef.get).isEmpty then return
+  let codeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
+  modify fun s => { s with codeQualityEntryTasks :=
+    s.codeQualityEntryTasks.push (codeQualityEntriesPromise.resultD #[]) }
+  if !Elab.async.get (← getOptions) then
+    withoutModifyingEnv do
+      runModuleLinters cmds codeQualityEntriesPromise
+    return
+  let cancelTk ← IO.CancelToken.new
+  -- TODO: support code actions in module linters
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ =>
+    runModuleLinters cmds codeQualityEntriesPromise
+  let task ← BaseIO.asTask (lintAct ())
+  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
-instance : MonadQuotation CommandElabM where
-  getCurrMacroScope   := Command.getCurrMacroScope
-  getMainModule       := Command.getMainModule
-  withFreshMacroScope := Command.withFreshMacroScope
+open Language in
+def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
+  if (← statefulLintersRef.get).isEmpty then return
+  let statefulLintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
+  if !Elab.async.get (← getOptions) then
+    -- We only block when switching the `Elab.async` in the middle of elaborating a file.
+    let prev := (← prevLinterStatesTask (← get).prevLinterStates).get
+    let postSt ← withoutModifyingEnv <|
+      runStatefulLinters stx prev (codeQualityEntriesPromise? := statefulLintersCodeQualityEntriesPromise)
+    modify fun s => { s with
+      prevLinterStates := some (.pure postSt)
+      codeQualityEntryTasks := s.codeQualityEntryTasks.push <|
+        statefulLintersCodeQualityEntriesPromise.resultD #[] }
+    return
+
+  let mut snaps := (← get).snapshotTasks
+  if let some elabSnap := (← read).snap? then
+    snaps := snaps.push { stx? := none, cancelTk? := none, task := elabSnap.new.result!.map (sync := true) toSnapshotTree }
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+  let treeTask ← tree.waitAll
+
+  let prevTask ← prevLinterStatesTask (← get).prevLinterStates
+  let statePromise ← IO.Promise.new (α := Array LinterState)
+  let inits ← initialLinterStates
+  modify fun s => { s with prevLinterStates := some (statePromise.resultD inits) }
+
+  -- We create a promise for the info trees produced by the linters
+  let lintersInfoPromise ← IO.Promise.new (α := InfoTree)
+
+  let cancelTk ← IO.CancelToken.new
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun (prev, infoSt) => do
+    let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
+    let messages := messages.markAllReported
+    modify fun st => { st with messages := st.messages ++ messages }
+    modifyInfoState fun _ => infoSt
+    let postSt ← runStatefulLinters stx prev lintersInfoPromise statefulLintersCodeQualityEntriesPromise
+    statePromise.resolve postSt
+
+  let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
+    BaseIO.bindTask (t := treeTask) fun _ =>
+      BaseIO.mapTask (t := prevTask) fun prev =>
+        lintAct (prev, infoSt)
+  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+
+  let infoHole ← liftCoreM mkFreshMVarId
+  modifyInfoState fun s => { s with
+    trees          := s.trees.modify 0 (pushInfoChild · (.hole infoHole))
+    lazyAssignment := s.lazyAssignment
+      |>.insert infoHole (lintersInfoPromise.resultD default)
+  }
+  modify fun s => { s with codeQualityEntryTasks :=
+    s.codeQualityEntryTasks.push <| statefulLintersCodeQualityEntriesPromise.resultD #[] }
 
 /--
 Registers a command elaborator for the given syntax node kind.
@@ -443,7 +689,8 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
   let ctx := PartialContextInfo.commandCtx {
-    env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace,
+    env := s.env, cmdEnv? := some s.env, fileMap := ctx.fileMap, mctx := {},
+    currNamespace := scope.currNamespace,
     openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
   }
   return InfoTree.context ctx tree
@@ -454,6 +701,10 @@ Disables incremental command reuse *and* reporting for `act` if `cond` is true b
 -/
 def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : CommandElabM α := do
   let opts ← getOptions
+  -- Cancel old elaboration when discarding it (for commands without incrementality support)
+  if cond then
+    if let some old := (← read).snap?.bind (·.old?) then
+      old.val.cancelRec
   withReader (fun ctx => { ctx with snap? := ctx.snap?.filter fun snap => Id.run do
     if let some old := snap.old? then
       if cond && opts.getBool `trace.Elab.reuse then
@@ -461,8 +712,18 @@ def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : Command
     return !cond
   }) act
 
+/--
+Warns if the kind of `stx` is deprecated. Must run inside the info tree context of the command, as
+the warning may come with a code action.
+-/
+private def checkDeprecatedCommand (stx : Syntax) : CommandElabM Unit := do
+  if isDeprecatedSyntax (← getEnv) stx.getKind then
+    liftCoreM <| checkDeprecatedSyntax stx (← read).macroStack
+
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
-  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
+  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) do
+    checkDeprecatedCommand stx
+    throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
       (do
@@ -470,7 +731,8 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
         -- supported commands)
         withoutCommandIncrementality (!(← isIncrementalElab elabFn.declName)) do
         withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) do
-         elabFn.value stx)
+          checkDeprecatedCommand stx
+          elabFn.value stx)
       (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /-- Elaborate `x` with `stx` on the macro stack -/
@@ -479,7 +741,6 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : Com
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← get).nextMacroScope
   setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 
@@ -508,7 +769,7 @@ structure MacroExpandedSnapshot extends Snapshot where
 deriving TypeName
 open Language in
 instance : ToSnapshotTree MacroExpandedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform, ← s.next.mapM (·.transform)⟩
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
   try
@@ -533,6 +794,7 @@ where go := do
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew?) =>
           withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
+            checkDeprecatedCommand stx
             let stxNew ← liftMacroM <| liftExcept stxNew?
             withMacroExpansion stx stxNew do
               -- Support incrementality; see also Note [Incremental Macros]
@@ -592,8 +854,9 @@ where go := do
         | _ =>
           match commandElabAttribute.getEntries s.env k with
           | []      =>
-            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
-              throwError "elaboration function for '{k}' has not been implemented"
+            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) do
+              checkDeprecatedCommand stx
+              throwError "elaboration function for `{k}` has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ =>
       withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
@@ -612,38 +875,87 @@ builtin_initialize
   registerTraceClass `Elab.snapshotTree
 
 /--
+If `hint?` is `some hint`, establishes a new context for macro scope naming and runs `act` in it,
+otherwise runs `act` directly without changes.
+
+Context names as documented in Note `Macro Scope Representation` help with avoiding rebuilds and
+`prefer_native` lookup misses from macro scopes in declaration names and other exported information.
+This function establishes a new context with a globally unique name by combining the name of the
+current module with `hint` while also checking for previously used `hint`s in the same module.
+Thus `hint` does not need to be unique but ensuring it is usually unique helps with keeping the
+context name stable.
+
+In the current implementation, we call `withInitQuotContext` once in `elabCommandTopLevel` using the
+source input of the command as the hint. This helps with keeping macro scopes stable on changes to
+other parts of the file but not on changes to the command itself. Thus in each *declaration*
+elaborator we call `withInitQuotContext` again with the declaration name(s) as a hint so that
+changes to any other part of the declaration do not change the context name.
+-/
+def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : CommandElabM Unit := do
+  let some hint := hint?
+    | act
+  let mut idx := hint.toUInt32.toNat
+  while (← get).usedQuotCtxts.contains ((← getMainModule).num idx |>.str "_hygCtx") do
+    idx := idx + 1
+  let quotCtx := (← getMainModule).num idx |>.str "_hygCtx"
+  let nextMacroScope := (← get).nextMacroScope
+  try
+    modify fun st => { st with
+      usedQuotCtxts  := st.usedQuotCtxts.insert quotCtx
+      nextMacroScope := firstFrontendMacroScope + 1
+    }
+    withReader (fun ctx => { ctx with
+      quotContext?   := some quotCtx
+      currMacroScope := firstFrontendMacroScope
+    }) act
+  finally
+    modify ({ · with nextMacroScope })
+
+private partial def recordUsedSyntaxKinds (stx : Syntax) : CommandElabM Unit := do
+  if let .node _ k .. := stx then
+    -- do not record builtin parsers, they do not have to be imported
+    if !(← Parser.builtinSyntaxNodeKindSetRef.get).contains k then
+      recordExtraModUseFromDecl (isMeta := true) k
+  stx.forArgsM recordUsedSyntaxKinds
+
+/--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
-  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-  let initInfoTrees ← getResetInfoTrees
+  -- initialize quotation context using hash of input string
+  let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
+  withInitQuotContext (ss?.map (hash ·.toString.trimAscii.copy)) do
+  -- Reset messages and info state, which are both per-command
+  modify fun st => { st with messages := {}, infoState := { enabled := st.infoState.enabled } }
   try
-    try
-      -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-      -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
-      -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-      elabCommand stx
-    finally
-      -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
-      -- be the caller of this function and add new messages and info trees
-      if let some snap := (← read).snap? then
-        snap.new.resolve default
-
-    -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
-    -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
-    -- rather than engineer a general solution.
-    unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
-      withLogging do
-        runLintersAsync stx
+    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+    -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
+    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+    elabCommand stx
   finally
-    let msgs := (← get).messages
-    modify fun st => { st with
-      messages := initMsgs ++ msgs
-      infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
-    }
+    -- This call could be placed at a prior point in this function except that it
+    -- would then record uses of `#guard_msgs` before that elaborator is run, which
+    -- would increase noise in related tests. Thus all other things being equal, we
+    -- place it here.
+    recordUsedSyntaxKinds stx
+    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+    -- be the caller of this function and add new messages and info trees
+    if let some snap := (← read).snap? then
+      snap.new.resolve default
+
+  -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+  -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+  -- rather than engineer a general solution.
+  unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+    withLogging do
+      -- On partial syntax, `logMessage` would discard the linters' warnings, but code actions
+      -- attached to them via hints would still reach the info tree.
+      unless (← read).suppressElabErrors do
+        runLintersAsync stx
+      runStatefulLintersAsync stx
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do
@@ -682,7 +994,8 @@ private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Contex
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable }
+    isNoncomputableSection := scope.isNoncomputable
+    isMetaSection          := scope.isMeta }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
@@ -770,10 +1083,10 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           if xs.all (·.isFVar) then
             Term.withoutAutoBoundImplicit <| elabFn xs
           else
-            -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort levelZero` is an arbitrary placeholder)
+            -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort Level.zero` is an arbitrary placeholder)
             -- and then rebuild the local context from scratch.
             -- Resetting prevents the local context from including the original fvars from `xs`.
-            let ctxType ← Meta.mkForallFVars' xs (mkSort levelZero)
+            let ctxType ← Meta.mkForallFVars' xs (mkSort Level.zero)
             Meta.withLCtx {} {} <| Meta.forallBoundedTelescope ctxType xs.size fun xs _ =>
               Term.withoutAutoBoundImplicit <| elabFn xs
 
@@ -833,6 +1146,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors
+      checkDeprecated := ctx.checkDeprecated
     } |>.run {
       env := s.env
       nextMacroScope := s.nextMacroScope
@@ -872,8 +1186,6 @@ only have an effect for the remainder of the `CommandElabM` computation passed h
 and do not affect subsequent commands.
 
 *Warning:* when using this from `MetaM` monads, the caches are *not* reset.
-If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
-to reset the instance cache.
 While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
 -/
@@ -881,19 +1193,24 @@ def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : Cor
   -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.
   MonadExcept.ofExcept (← liftCommandElabMCore (observing cmd) throwOnError)
 
-/--
-Given a command elaborator `cmd`, returns a new command elaborator that
-first evaluates any local `set_option ... in ...` clauses and then invokes `cmd` on what remains.
--/
-partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
-  if stx.getKind == ``Lean.Parser.Command.in &&
-     stx[0].getKind == ``Lean.Parser.Command.set_option then
-      let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
-      Command.withScope (fun scope => { scope with opts }) do
-        withSetOptionIn cmd stx[2]
-  else
-    cmd stx
-
 export Elab.Command (Linter addLinter)
+
+namespace Parser.Command
+
+/--
+Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
+used to generate visibility syntax for declarations that is independent of the presence of
+`public section`s.
+-/
+def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
+  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
+
+/--
+Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
+-/
+def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
+  visibility.ofBool <| !attrKind matches `(attrKind| local)
+
+end Parser.Command
 
 end Lean

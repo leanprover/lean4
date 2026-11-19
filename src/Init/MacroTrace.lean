@@ -9,8 +9,9 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
-public import Init.Data.ToString.Macro
-public import Init.Meta
+public meta import Init.Meta
+public import Init.Notation
+import Init.Data.ToString.Macro
 
 public section
 

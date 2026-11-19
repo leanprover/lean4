@@ -1,0 +1,3 @@
+export LEAN_ABORT_ON_NONLINEAR=1
+TEST_EXIT=nonzero
+export LEAN_BACKTRACE=0

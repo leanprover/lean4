@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.Cached
 public import Std.Sat.AIG.CachedLemmas
 
 @[expose] public section

@@ -1,0 +1,49 @@
+31
+38
+45
+52
+59
+66
+73
+7
+43
+51
+57
+63
+69
+75
+@OfNat.ofNat.{0} Nat (nat_lit 81) (instOfNatNat (nat_lit 81))
+[Meta.debug] fun {G : Type 1} [inst : Group.{1} G] =>
+      @Group.mk.{1}
+        (Prod.{1, 1} G
+          (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))))))
+        (@instMonoidProd.{1, 1} G
+          (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))))))
+          (@Group.toMonoid.{1} G inst)
+          (@Group.toMonoid.{1}
+            (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))))))
+            (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))))
+              inst
+              (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))) inst
+                (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))) inst
+                  (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)) inst
+                    (@instGroupProd.{1, 1} G (Prod.{1, 1} G G) inst (@instGroupProd.{1, 1} G G inst inst))))))))
+        (@instInvProd_elab.{1, 1} G
+          (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))))))
+          (@Group.toInv.{1} G inst)
+          (@Group.toInv.{1}
+            (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))))))
+            (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))))
+              inst
+              (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))) inst
+                (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))) inst
+                  (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)) inst
+                    (@instGroupProd.{1, 1} G (Prod.{1, 1} G G) inst (@instGroupProd.{1, 1} G G inst inst))))))))
+        (@instGroupProd._proof_1.{1, 1} G
+          (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))))) inst
+          (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))))
+            inst
+            (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)))) inst
+              (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G))) inst
+                (@instGroupProd.{1, 1} G (Prod.{1, 1} G (Prod.{1, 1} G G)) inst
+                  (@instGroupProd.{1, 1} G (Prod.{1, 1} G G) inst (@instGroupProd.{1, 1} G G inst inst)))))))

@@ -10,6 +10,8 @@ public import Init.Data.ToString.Basic
 
 public section
 
+open Lean
+
 namespace Lean
 
 inductive LBool where
@@ -38,12 +40,12 @@ instance : ToString LBool := ⟨toString⟩
 
 end LBool
 
-end Lean
+def Bool.toLBool : Bool → LBool
+  | true  => LBool.true
+  | false => LBool.false
 
-def Bool.toLBool : Bool → Lean.LBool
-  | true  => Lean.LBool.true
-  | false => Lean.LBool.false
-
-@[inline] def toLBoolM {m : Type → Type} [Monad m] (x : m Bool) : m Lean.LBool := do
+@[inline] def toLBoolM {m : Type → Type} [Monad m] (x : m Bool) : m LBool := do
   let b ← x
   pure b.toLBool
+
+end Lean

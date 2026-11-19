@@ -1,0 +1,10 @@
+def Op.f : {ishapes : List S} → {oshape : S} → Op ishapes oshape → T oshape :=
+fun x x_1 x_2 =>
+  match x, x_1, x_2 with
+  | [shape, .(shape)], .(shape), Op.binary .(shape) => Classical.ofNonempty
+  | [[m, n], [.(n), p]], [.(m), .(p)], Op.gemm => Classical.ofNonempty
+def Op.f2 : {ishapes : List S} → {oshape : S} → Op ishapes oshape → T oshape :=
+fun x x_1 x_2 =>
+  match x, x_1, x_2 with
+  | .([head, head]), head, Op.binary .(head) => Classical.ofNonempty
+  | .([[m, n], [n, p]]), .([m, p]), Op.gemm => Classical.ofNonempty

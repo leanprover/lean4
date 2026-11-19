@@ -8,5 +8,3 @@ module
 prelude
 public import Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.Bitwise.Lemmas
-
-public section

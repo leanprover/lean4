@@ -1,0 +1,10 @@
+Input: "x:=\"y\""
+Success! Final stack:
+  (Lean.Doc.Parser.Arg.named_no_paren
+   `x
+   ":="
+   (Lean.Doc.Parser.ArgVal.str (str "\"y\"")))
+All input consumed.
+Round-trip OK
+Decoded views:
+  named (parens := none) (name := x) (assign := ":=") (val := str (lit := "y") (value := "y"))

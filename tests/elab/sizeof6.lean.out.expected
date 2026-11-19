@@ -1,0 +1,23 @@
+theorem Foo.mk.sizeOf_spec : ∀ (args : Lean.PersistentArray Foo), sizeOf (Foo.mk args) = 1 + sizeOf args :=
+fun args => congrArg (Nat.add 1) (Foo._sizeOf_2_eq args)
+theorem Foo._sizeOf_2_eq : ∀ (x : Lean.PersistentArray Foo), Foo._sizeOf_2 x = sizeOf x :=
+fun x =>
+  Lean.PersistentArray.rec
+    (fun root tail size shift tailOff =>
+      Eq.trans
+        (congrArg (fun x => ((x.add (sizeOf size)).add (sizeOf shift)).add (sizeOf tailOff))
+          (congr (congrArg (fun x => (Nat.add 1 x).add) (Foo._sizeOf_3_eq root)) (Foo._sizeOf_4_eq tail)))
+        (Eq.symm (Lean.PersistentArray.mk.sizeOf_spec root tail size shift tailOff)))
+    x
+theorem Foo._sizeOf_3_eq : ∀ (x : Lean.PersistentArrayNode Foo), Foo._sizeOf_3 x = sizeOf x :=
+fun x =>
+  Lean.PersistentArrayNode.rec
+    (fun cs cs_ih => Eq.trans (congrArg (Nat.add 1) cs_ih) (Eq.symm (Lean.PersistentArrayNode.node.sizeOf_spec cs)))
+    (fun vs =>
+      Eq.trans (congrArg (Nat.add 1) (Foo._sizeOf_4_eq vs)) (Eq.symm (Lean.PersistentArrayNode.leaf.sizeOf_spec vs)))
+    (fun toList toList_ih => Eq.trans (congrArg (Nat.add 1) toList_ih) (Eq.symm (Array.mk.sizeOf_spec toList)))
+    (Eq.refl (sizeOf []))
+    (fun head tail head_ih tail_ih =>
+      Eq.trans (congr (congrArg (fun x => (Nat.add 1 x).add) head_ih) tail_ih)
+        (Eq.symm (List.cons.sizeOf_spec head tail)))
+    x

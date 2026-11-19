@@ -1,6 +1,0 @@
-typeIncorrectPat.lean:2:1-2:17: error: Type mismatch in pattern: Pattern
-  true
-has type
-  Bool
-but is expected to have type
-  fst✝

@@ -1,0 +1,2 @@
+f2.eq_4 (y z x_2 : Nat) (x_3 : y = 5 → z = 6 → False) : f2 x_2.succ y z = 2 * f2 x_2 y z
+f3.eq_5 (y z x_2 : Nat) (x_3 : y = 5 → z = 6 → False) (x_4 : y = 6 → z = 4 → False) : f3 x_2.succ y z = 2 * f3 x_2 y z

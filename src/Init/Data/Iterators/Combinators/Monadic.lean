@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Data.Iterators.Combinators.Monadic.Append
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
+public import Init.Data.Iterators.Combinators.Monadic.FlatMap
+public import Init.Data.Iterators.Combinators.Monadic.Take
 public import Init.Data.Iterators.Combinators.Monadic.ULift
-
-public section

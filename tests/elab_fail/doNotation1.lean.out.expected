@@ -1,0 +1,55 @@
+doNotation1.lean:4:0-4:1: error: Variable `y` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `y`, consider using `let y` instead
+doNotation1.lean:8:3-8:4: error: Variable `y` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `y`, consider using `let y` instead
+doNotation1.lean:12:2-12:3: error: Variable `p` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `p`, consider using `let p` instead
+doNotation1.lean:20:7-20:23: error: Type mismatch
+  Vector'.cons 1 v
+has type
+  Vector' Nat (n + 1)
+but is expected to have type
+  Vector' Nat n
+doNotation1.lean:25:7-25:11: error: Type mismatch
+  true
+has type
+  Bool
+but is expected to have type
+  Nat
+doNotation1.lean:35:2-35:7: error: `break` must be nested inside a loop
+doNotation1.lean:39:2-39:10: error: `continue` must be nested inside a loop
+doNotation1.lean:43:0-43:9: warning: This `do` element and its control-flow region are dead code. Consider removing it.
+def f10 : Nat → IO Unit :=
+fun x => IO.println x
+doNotation1.lean:53:0-53:13: error: Type mismatch
+  IO.mkRef true
+has type
+  BaseIO (IO.Ref Bool)
+but is expected to have type
+  IO Unit
+doNotation1.lean:57:7-57:11: error: Application type mismatch: The argument
+  true
+has type
+  Bool
+but is expected to have type
+  Unit
+in the application
+  pure true
+doNotation1.lean:65:2-65:20: error: Type mismatch
+  IO.println "hello"
+has type
+  IO Unit
+but is expected to have type
+  IO Bool
+doNotation1.lean:72:0-72:18: warning: This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it.
+doNotation1.lean:77:0-77:32: warning: This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it.
+doNotation1.lean:77:21-77:31: error: typeclass instance problem is stuck
+  ToString ?m
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `ToString` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
+doNotation1.lean:81:0-81:3: error: Type mismatch. The `do` element has monadic result type
+  Unit
+but the rest of the `do` block has monadic result type
+  List (Nat × Nat)

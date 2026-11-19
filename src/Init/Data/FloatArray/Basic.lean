@@ -6,11 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
-public import Init.Data.Float
-public import Init.Data.Option.Basic
+public import Init.Data.Float.Float
 import Init.Ext
-public import Init.Data.Array.DecidableEq
+public import Init.GetElem
+public import Init.Data.ToString.Extra
 
 public section
 universe u
@@ -31,9 +30,6 @@ attribute [ext] FloatArray
 def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
 
-@[deprecated emptyWithCapacity (since := "2025-03-12")]
-abbrev mkEmpty := emptyWithCapacity
-
 def empty : FloatArray :=
   emptyWithCapacity 0
 
@@ -47,7 +43,7 @@ instance : EmptyCollection FloatArray where
 def push : FloatArray → Float → FloatArray
   | ⟨ds⟩, b => ⟨ds.push b⟩
 
-@[extern "lean_float_array_size"]
+@[extern "lean_float_array_size", tagged_return]
 def size : (@& FloatArray) → Nat
   | ⟨ds⟩ => ds.size
 
@@ -90,6 +86,30 @@ def set : (ds : FloatArray) → (i : @& Nat) → Float → (h : i < ds.size := b
 @[extern "lean_float_array_set"]
 def set! : FloatArray → (@& Nat) → Float → FloatArray
   | ⟨ds⟩, i, d => ⟨ds.set! i d⟩
+
+/--
+Marks a float array as linear, which is a no-op logically.
+
+At runtime the array is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_sarray_mark_linear", expose]
+def markLinear (ds : FloatArray) : FloatArray := ds
+
+@[simp, grind =] theorem markLinear_eq {ds : FloatArray} : ds.markLinear = ds := rfl
+
+/--
+Returns `es`, propagating the linearity marker of `ds` onto it. This is a no-op logically.
+
+See also `FloatArray.markLinear`.
+-/
+@[never_extract, extern "lean_sarray_propagate_mark", expose]
+def propagateMark (ds : @& FloatArray) (es : FloatArray) : FloatArray := es
+
+@[simp, grind =] theorem propagateMark_eq {ds es : FloatArray} : ds.propagateMark es = es := rfl
 
 def isEmpty (s : FloatArray) : Bool :=
   s.size == 0
@@ -134,7 +154,7 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatA
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn m FloatArray Float where
+instance [Monad m] : ForIn m FloatArray Float where
   forIn := FloatArray.forIn
 
 /-- See comment at `forInUnsafe` -/
@@ -149,6 +169,8 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
+    else if start < as.size then
+      fold (USize.ofNat start) (USize.ofNat as.size) init
     else
       pure init
   else

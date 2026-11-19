@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Unfold
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Location
 
 public section
@@ -34,13 +33,15 @@ def zetaDeltaTarget (declFVarId : FVarId) : TacticM Unit := do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := withMainContext <| withRef declNameId do
-    let e ← withoutRecover <| elabTermForApply declNameId (mayPostpone := false)
+    -- Unfolding acts on occurrences that are already in the goal, so deprecated constants are not reported.
+    let e ← withoutRecover <| Term.withoutCheckDeprecated <|
+      elabTermForApply declNameId (mayPostpone := false)
     match e with
     | .const declName _ =>
       withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
     | .fvar declFVarId =>
       unless ← declFVarId.isLetVar do
-        throwError "tactic 'unfold' failed, local variable '{Expr.fvar declFVarId}' has no definition"
+        throwError "Tactic `unfold` failed: Local variable `{Expr.fvar declFVarId}` has no definition"
       withLocation loc (zetaDeltaLocalDecl declFVarId) (zetaDeltaTarget declFVarId) (throwTacticEx `unfold · m!"did not unfold '{e}'")
     | _ => throwTacticEx `unfold (← getMainGoal) m!"expression {e} is not a global or local constant"
 

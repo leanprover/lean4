@@ -10,24 +10,27 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/elab_environment.h"
 
 namespace lean {
-/* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) (decl : Declaration) : Environment
+/* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) : Environment
 
    Updates an elab environment with a given kernel environment.
 
    NOTE: Ideally this language switching would not be necessary and we could do all this in Lean
    only but the old code generator still needs a C++ `elab_environment::add`
    that throws C++ exceptions. */
-extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg kenv, obj_arg decl);
+extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg kenv);
 
 elab_environment elab_environment::add(declaration const & d, bool check) const {
     environment kenv = to_kernel_env().add(d, check);
-    return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), kenv.to_obj_arg(), d.to_obj_arg()));
+    return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), kenv.to_obj_arg()));
 }
 
-extern "C" LEAN_EXPORT object * lean_elab_add_decl(object * env, size_t max_heartbeat, object * decl,
-    object * opt_cancel_tk) {
+extern "C" LEAN_EXPORT object * lean_elab_add_decl(object * env, size_t max_heartbeat, size_t max_rec_depth,
+    object * decl, object * opt_cancel_tk) {
+    // Whether the kernel runs on the elaboration thread must not affect the elaborator's limit.
+    scope_restore_num_heartbeats s0;
     scope_max_heartbeat s(max_heartbeat);
-    scope_cancel_tk s2(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
+    scope_max_rec_depth s2(max_rec_depth);
+    scope_cancel_tk s3(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
     return catch_kernel_exceptions<elab_environment>([&]() {
             return elab_environment(env).add(declaration(decl, true));
         });
@@ -63,5 +66,10 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * obj_env, le
     return catch_kernel_exceptions<object*>([&]() {
         return type_checker(env.to_kernel_env(), local_ctx(lctx)).check(expr(a)).steal();
     });
+}
+
+/* getBelieverTrustLevel (_ : Unit) : UInt32 */
+extern "C" LEAN_EXPORT uint32 lean_internal_get_believer_trust_level(obj_arg) {
+   return LEAN_BELIEVER_TRUST_LEVEL;
 }
 }

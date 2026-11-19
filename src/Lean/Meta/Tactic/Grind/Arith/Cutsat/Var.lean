@@ -4,24 +4,86 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.IntInstTesters
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.IntInstTesters
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+set_option compiler.ignoreBorrowAnnotation true in
+@[extern "lean_cutsat_propagate_nonlinear"]
+opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
+
+set_option compiler.ignoreBorrowAnnotation true in
+/-- Reactivates the inactive variable `x` (see `State.active`). -/
+@[extern "lean_grind_cutsat_reactivate_var"] -- forward definition
+opaque reactivateVar (x : Var) : GoalM Unit
+
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural
+
+private def isNonlinearTerm (e : Expr) : MetaM Bool := do
+  match_expr e with
+  | HMul.hMul _ _ _ i _ _ => isInstHMulInt i
+  | HDiv.hDiv _ _ _ i _ b => notM (isIntValue b) <&&> isInstHDivInt i
+  | HMod.hMod _ _ _ i _ b => notM (isIntValue b) <&&> isInstHModInt i
+  | HPow.hPow _ _ _ i a b =>
+    unless (← isInstHPowInt i) do return false
+    notM (isIntValue a) <||> notM (isIntValue b)
+  | _ => return false
+
+private def registerNonlinearOcc (arg : Expr) (x : Var) : GoalM Unit := do
+  let y ← mkVar arg
+  if (← get').elimEqs[y]!.isSome then
+    if (← propagateNonlinearTerm y x) then
+      return ()
+  let occs := (← get').nonlinearOccs.find? y |>.getD []
+  unless x ∈ occs do
+  modify' fun s => { s with nonlinearOccs := s.nonlinearOccs.insert y (x::occs) }
+
+private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit := do
+  match_expr e with
+  | HMul.hMul _ _ _ _ a b => go a; go b
+  | HDiv.hDiv _ _ _ _ _ b => registerNonlinearOcc b x
+  | HMod.hMod _ _ _ _ _ b => registerNonlinearOcc b x
+  | HPow.hPow _ _ _ _ a b =>
+    if !(← isIntValue a) then
+      registerNonlinearOcc a x
+    if (← notM (isIntValue b) <&&> notM (isNatValue b)) then
+      -- Recall that `b : Nat`, we must create `NatCast.natCast b` and watch it.
+      let (b', _) ← mkNatVar b
+      internalize b' (← getGeneration b)
+      registerNonlinearOcc b' x
+  | _ => return ()
+where
+  go (e : Expr) : GoalM Unit := do
+    match_expr e with
+    | HMul.hMul _ _ _ i a b =>
+      if (← isInstHMulInt i) then
+        go a; go b
+      else
+        registerNonlinearOcc e x
+    | _ => registerNonlinearOcc e x
+
+/-- Asserts the facts about the new variable `x` whose denotation is `e`. -/
+def assertVarFacts (e : Expr) (x : Var) : GoalM Unit := do
+  assertNatCast e x
+  assertNonneg e x
+  if (← isNonlinearTerm e) then
+    registerNonlinearOccsAt e x
+
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_mk_var]
 def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
+    unless (← get').active[var]! do
+      reactivateVar var
     return var
   let var : Var := (← get').vars.size
-  trace[grind.debug.cutsat.internalize] "{expr} ↦ #{var}"
+  trace[grind.debug.lia.internalize] "{expr} ↦ #{var}"
   modify' fun s => { s with
     vars      := s.vars.push expr
     varMap    := s.varMap.insert { expr } var
@@ -31,11 +93,10 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     diseqs    := s.diseqs.push {}
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
+    active    := s.active.push true
   }
-  markAsCutsatTerm expr
-  assertNatCast expr var
-  assertNonneg expr var
-  assertToIntBounds expr var
+  cutsatExt.markTerm expr
+  assertVarFacts expr var
   return var
 
 def isInt (e : Expr) : GoalM Bool := do
@@ -87,5 +148,51 @@ where
       go a (← addMonomial b p)
     else
       addMonomial e p
+
+/--
+Returns `true` if `toLinearExpr` decomposes `e`: `e` is a numeral, `-a`, `a + b`, `a - b`,
+`k * a`, or `a * k` for a numeral `k`.
+-/
+private def isLinearArith (e : Expr) : GoalM Bool := do
+  match_expr e with
+  | OfNat.ofNat _ _ _ => isIntValue e
+  | Neg.neg _ i _ => isInstNegInt i
+  | HAdd.hAdd _ _ _ i _ _ => isInstHAddInt i
+  | HSub.hSub _ _ _ i _ _ => isInstHSubInt i
+  | HMul.hMul _ _ _ i a b =>
+    unless (← isInstHMulInt i) do return false
+    isIntValue a <||> isIntValue b
+  | _ => return false
+
+/--
+Returns the polynomial `p` of `e` if `e` is in the normal form produced by the `grind` preprocessor,
+and `none` otherwise. The normal form is a left-nested sum of monomials `k * a` (`k ∉ {0, 1}`) or
+`a`, followed by an optional nonzero numeral, where no atom `a` is decomposed by `toLinearExpr`.
+For terms in this form, `p.denote'` is definitionally equal to `e` by unfolding.
+
+Terms in dependent positions may not be in normal form because the preprocessor cannot rewrite
+them. The caller must normalize them using `toLinearExpr` and `Int.Internal.Linear.Expr.norm`.
+-/
+partial def toPoly? (e : Expr) : GoalM (Option Poly) := do
+  if let some k ← getIntValue? e then
+    return some (.num k)
+  let some (a, b) ← isAdd? e | monomial? e (.num 0)
+  if let some k ← getIntValue? b then
+    if k == 0 then return none
+    go a (.num k)
+  else
+    let some p ← monomial? b (.num 0) | return none
+    go a p
+where
+  monomial? (e : Expr) (p : Poly) : GoalM (Option Poly) := do
+    if let some (k, a) ← isMul? e then
+      if k == 0 || k == 1 || (← isLinearArith a) then return none
+      return some (.add k (← mkVar a) p)
+    if (← isLinearArith e) then return none
+    return some (.add 1 (← mkVar e) p)
+  go (e : Expr) (p : Poly) : GoalM (Option Poly) := do
+    let some (a, b) ← isAdd? e | monomial? e p
+    let some p ← monomial? b p | return none
+    go a p
 
 end Lean.Meta.Grind.Arith.Cutsat

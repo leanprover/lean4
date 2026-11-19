@@ -3,11 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Config.Package
-import Lake.DSL.Attributes
-import Lake.DSL.DeclUtil
-import Lake.DSL.Syntax
+public import Lake.DSL.Syntax
+import Lake.Config.Package  -- shake: keep (builtin macro output dependency)
+import Lake.DSL.Extensions
 
 open Lean Parser Elab Command
 
@@ -24,20 +25,26 @@ def elabPackageCommand : CommandElab := fun stx => do
   withRef kw do
   let configId : Ident ← `(pkgConfig)
   let id ← mkConfigDeclIdent nameStx?
-  let name := Name.quoteFrom id id.getId
-  let ty := Syntax.mkCApp ``PackageConfig #[name]
+  let origName := Name.quoteFrom id id.getId
+  let ⟨wsIdx, name⟩ := nameExt.getState (← getEnv)
+  let baseName := match name with
+    | .anonymous => origName
+    | name => Name.quoteFrom id name
+  let wsIdx := quote wsIdx
+  let keyName := Syntax.mkCApp ``Name.num #[baseName, wsIdx]
+  let ty := Syntax.mkCApp ``PackageConfig #[keyName, origName]
   elabConfig ``PackageConfig configId ty cfg
   let attr ← `(Term.attrInstance| «package»)
   let attrs := #[attr] ++ expandAttrs attrs?
   let id := mkIdentFrom id packageDeclName
-  let decl ← `({name := $name, config := $configId})
+  let decl ← `({baseName := $baseName, origName := $origName, keyName := $keyName, config := $configId})
   let cmd ← `($[$doc?]? @[$attrs,*] abbrev $id : PackageDecl := $decl)
   withMacroExpansion stx cmd <| elabCommand cmd
-
-abbrev PackageCommand := TSyntax ``packageCommand
-
-instance : Coe PackageCommand Command where
-  coe x := ⟨x.raw⟩
+  let nameId := mkIdentFrom id <| packageDeclName.str "name"
+  elabCommand <| ← `(
+    @[deprecated "Use `__name__` instead." (since := "2025-09-18")]
+    abbrev $nameId := __name__
+  )
 
 @[builtin_macro postUpdateDecl]
 def expandPostUpdateDecl : Macro := fun stx => do
@@ -46,9 +53,8 @@ def expandPostUpdateDecl : Macro := fun stx => do
     `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := do $seq $[$wds?:whereDecls]?)
   | `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$wds?:whereDecls]?) => withRef kw do
     let pkg ← expandOptSimpleBinder pkg?
-    let pkgName := mkIdentFrom pkg `_package.name
     let attr ← `(Term.attrInstance| «post_update»)
     let attrs := #[attr] ++ expandAttrs attrs?
     `($[$doc?]? @[$attrs,*] def postUpdateHook : PostUpdateHookDecl :=
-      {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?:whereDecls]?)
+      {pkg := __name__, fn := fun $pkg => $defn} $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed post_update declaration"

@@ -6,15 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PullLetDecls
 public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Simp
-public import Lean.Compiler.LCNF.PullFunDecls
-public import Lean.Compiler.LCNF.ReduceJpArity
 public import Lean.Compiler.LCNF.JoinPoints
 public import Lean.Compiler.LCNF.Specialize
-public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.ToMono
 public import Lean.Compiler.LCNF.LambdaLifting
 public import Lean.Compiler.LCNF.FloatLetIn
@@ -23,6 +18,18 @@ public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.ToImpure
+public import Lean.Compiler.LCNF.PushProj
+public import Lean.Compiler.LCNF.ResetReuse
+public import Lean.Compiler.LCNF.SimpCase
+public import Lean.Compiler.LCNF.InferBorrow
+public import Lean.Compiler.LCNF.ExplicitBoxing
+public import Lean.Compiler.LCNF.ExplicitRC
+public import Lean.Compiler.LCNF.CoalesceRC
+public import Lean.Compiler.LCNF.Toposort
+public import Lean.Compiler.LCNF.ExpandResetReuse
+public import Lean.Compiler.LCNF.SimpleGroundExpr
 
 public section
 
@@ -49,6 +56,7 @@ def trace (phase := Phase.base) : Pass where
 def saveBase : Pass where
   occurrence := 0
   phase := .base
+  phaseOut := .base
   name := `saveBase
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveBase
@@ -58,9 +66,22 @@ def saveBase : Pass where
 def saveMono : Pass where
   occurrence := 0
   phase := .mono
+  phaseOut := .mono
   name := `saveMono
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveMono
+    return decl
+  shouldAlwaysRunCheck := true
+
+def saveImpure : Pass where
+  occurrence := 0
+  phase := .impure
+  phaseOut := .impure
+  name := `saveImpure
+  run decls := decls.mapM fun decl => do
+    let decl ← normalizeFVarIds decl
+    decl.saveImpure
+    modifyEnv fun env => recordFinalImpureDecl env decl.name
     return decl
   shouldAlwaysRunCheck := true
 
@@ -69,7 +90,7 @@ end Pass
 open Pass
 
 def builtinPassManager : PassManager := {
-  passes := #[
+  basePasses := #[
     init,
     pullInstances,
     cse (shouldElimFunDecls := false),
@@ -85,7 +106,11 @@ def builtinPassManager : PassManager := {
     -/
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
+    -- Should be as early as possible but after `eagerLambdaLifting` to make sure instances are
+    -- checked without nested functions whose bodies specialization does not require access to.
+    checkTemplateVisibility,
     specialize,
+    findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
@@ -93,6 +118,8 @@ def builtinPassManager : PassManager := {
     -- pass must be run for each phase; see `base/monoTransparentDeclsExt`
     inferVisibility (phase := .base),
     toMono,
+  ]
+  monoPasses := #[
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
     structProjCases,
@@ -102,14 +129,33 @@ def builtinPassManager : PassManager := {
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
-    elimDeadBranches,
     lambdaLifting,
+  ]
+  monoPassesNoLambda := #[
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
+    elimDeadBranches,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),
     extractClosed,
+    toImpure,
+  ]
+  impurePasses := #[
+    pushProj (occurrence := 0),
+    insertResetReuse,
+    elimDeadVars (phase := .impure) (occurrence := 0),
+    simpCase,
+    inferBorrow,
+    explicitBoxing,
+    explicitRc,
+    expandResetReuse,
+    coalesceRC,
+    pushProj (occurrence := 1),
+    detectSimpleGround,
+    inferVisibility (phase := .impure),
+    toposortPass,
+    saveImpure, -- End of impure phase
   ]
 }
 
@@ -147,6 +193,7 @@ builtin_initialize
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal `cpass kind
+      ensureAttrDeclIsMeta `cpass declName kind
       discard <| addPass declName
     applicationTime := .afterCompilation
   }
@@ -154,6 +201,7 @@ builtin_initialize
 builtin_initialize
   registerTraceClass `Compiler.saveBase (inherited := true)
   registerTraceClass `Compiler.saveMono (inherited := true)
+  registerTraceClass `Compiler.saveImpure (inherited := true)
   registerTraceClass `Compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

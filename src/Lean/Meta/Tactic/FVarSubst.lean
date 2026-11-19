@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Data.AssocList
-public import Lean.Expr
 public import Lean.LocalContext
 public import Lean.Util.ReplaceExpr
 

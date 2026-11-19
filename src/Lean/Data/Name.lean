@@ -6,7 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Ord
+public import Init.Data.Ord.Basic
+import Init.Data.String.TakeDrop
+import Init.Data.Ord.String
+import Init.Data.Ord.UInt
+import Init.Data.String.Search
+import Init.Data.String.Length
 
 public section
 namespace Lean
@@ -92,6 +97,15 @@ def quickCmpAux : Name → Name → Ordering
     | Ordering.eq => n.quickCmpAux n'
     | ord => ord
 
+private def quickCmpImpl (n₁ n₂ : Name) : Ordering :=
+  if unsafe ptrEq n₁ n₂ then
+    Ordering.eq
+  else
+    match compare n₁.hash n₂.hash with
+    | Ordering.eq => quickCmpAux n₁ n₂
+    | ord => ord
+
+@[implemented_by quickCmpImpl]
 def quickCmp (n₁ n₂ : Name) : Ordering :=
   match compare n₁.hash n₂.hash with
   | Ordering.eq => quickCmpAux n₁ n₂
@@ -100,16 +114,10 @@ def quickCmp (n₁ n₂ : Name) : Ordering :=
 def quickLt (n₁ n₂ : Name) : Bool :=
   quickCmp n₁ n₂ == Ordering.lt
 
-/-- Returns true if the name has any numeric components. -/
-def hasNum : Name → Bool
-  | .anonymous => false
-  | .str p _ => p.hasNum
-  | .num _ _ => true
-
 /-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-  | str p s => s.get 0 == '_' || isInternal p
+  | str p s => s.front == '_' || isInternal p
   | num p _ => isInternal p
   | _       => false
 
@@ -120,7 +128,7 @@ We use name parts starting with `_` internally to create auxiliary names (e.g., 
 This function checks if any component of the name starts with `_`, or is numeric.
 -/
 def isInternalOrNum : Name → Bool
-  | .str p s => s.get 0 == '_' || isInternalOrNum p
+  | .str p s => s.front == '_' || isInternalOrNum p
   | .num _ _ => true
   | _       => false
 
@@ -143,7 +151,7 @@ def isInternalDetail : Name → Bool
 where
   /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
   matchPrefix (s : String) (pre : String) :=
-    s.startsWith pre && (s |>.drop pre.length |>.all fun c => c.isDigit || c == '_')
+    (s.dropPrefix? pre).any (·.all fun c => c.isDigit || c == '_')
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.
@@ -192,7 +200,7 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
 /-- Return true if the name is in a namespace associated to metaprogramming. -/
 def isMetaprogramming (n : Name) : Bool :=
   let components := n.components
-  components.head? == some `Lean || (components.any fun n => n == `Tactic || n == `Linter)
+  components.head?.any (· == `Lean) || (components.any (· matches `Tactic | `Linter | `Simproc | `Meta))
 
 end Name
 end Lean

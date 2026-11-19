@@ -10,8 +10,6 @@ public import Lean.Elab.PreDefinition.MkInhabitant
 public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 public import Lean.Elab.Tactic.Monotonicity
-public import Init.Internal.Order.Basic
-public import Lean.Meta.PProdN
 public import Lean.Meta.Order
 
 public section
@@ -26,13 +24,10 @@ open Lean.Order
 private def replaceRecApps (recFnNames : Array Name) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
   assert! recFnNames.size = fixedParamPerms.perms.size
   let t ← inferType f
-  return e.replace fun e => do
-    let fn := e.getAppFn
-    guard fn.isConst
-    let idx ← recFnNames.idxOf? fn.constName!
-    let args := e.getAppArgs
+  Meta.transform e fun e => e.withApp fun fn args => do
+    let some idx := fn.constName?.bind (recFnNames.idxOf? ·) | return .continue
     let varying := fixedParamPerms.perms[idx]!.pickVarying args
-    return mkAppN (PProdN.proj recFnNames.size idx t f) varying
+    return .continue (mkAppN (PProdN.proj recFnNames.size idx t f) varying)
 
 /--
 For pretty error messages:
@@ -78,7 +73,7 @@ private def mkMonoPProd : (hmono₁ hmono₂ : Expr × Expr) → MetaM (Expr × 
   let hmonoProof ← mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono1Proof, hmono2Proof]
   return (← inferType hmonoProof, hmonoProof)
 
-def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
+def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint`, `inductive_fixpoint` or `coinductive_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
@@ -91,17 +86,20 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
   let insts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
+      trace[Elab.definition.partialFixpoint] "preDef.value: {preDef.value}, xs: {xs}, _body: {_body}"
       let type ← instantiateForall preDef.type xs
       let inst ←
         match hints[i]!.fixpointType with
         | .coinductiveFixpoint =>
-          unless type.isProp do
-            throwError "`coinductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ReverseImplicationOrder.instCompleteLattice)
+          forallTelescopeReducing type fun xs e => do
+            unless e.isProp do
+              throwError "`coinductive_fixpoint` can only be used to define predicates"
+            mkInstPiOfInstsForall xs (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
-          unless type.isProp do
-            throwError "`inductive_fixpoint` can be only used to define predicates"
-          pure (mkConst ``ImplicationOrder.instCompleteLattice)
+          forallTelescopeReducing type fun xs e => do
+            unless e.isProp do
+              throwError "`inductive_fixpoint` can only be used to define predicates"
+            mkInstPiOfInstsForall xs (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])
           catch _ =>
@@ -114,7 +112,9 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       mkLambdaFVars xs inst
 
   let declNames := preDefs.map (·.declName)
-  let fixedParamPerms ← getFixedParamPerms preDefs
+  let fixedParamPerms ← withoutModifyingEnv do
+    preDefs.forM (addAsAxiom ·)
+    getFixedParamPerms preDefs
   fixedParamPerms.perms[0]!.forallTelescope preDefs[0]!.type fun fixedArgs => do
     -- Either: ∀ x y, CCPO (rᵢ x y)
     -- Or:     ∀ x y, CompleteLattice (rᵢ x y)
@@ -128,10 +128,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- Or:     CompleteLattice (∀ x y, rᵢ x y)
     let insts' ← insts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
-        let mut inst := inst
-        for x in xs.reverse do
-          inst ← mkInstPiOfInstForall x inst
-        pure inst
+        mkInstPiOfInstsForall xs inst
 
     -- Either: CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- Or:     CompleteLattice ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
@@ -162,7 +159,9 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
           replaceRecApps declNames fixedParamPerms f body
-        mkLambdaFVars #[f] body'
+        -- Values coming from `elabCoinductive` are a redex over the `.existential` lambda;
+        -- beta-reduce so monotonicity goals and errors are stated in terms of its body.
+        mkLambdaFVars #[f] body'.headBeta
 
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
@@ -189,7 +188,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         pure (goal, ← instantiateMVars hmono)
     let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← mkFixOfMonFun packedType packedInst hmono
+    -- The `RecAppSyntax` markers are only needed for the monotonicity error messages above
+    let packedValue ← eraseRecAppSyntaxExpr (← mkFixOfMonFun packedType packedInst hmono)
 
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 
@@ -217,8 +217,8 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let value ← mkLambdaFVars (etaReduce := true) params value
         pure { preDef with value }
 
-    Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
-    addAndCompilePartialRec preDefs
+    Mutual.addPreDefsFromUnary docCtx preDefs preDefsNonrec preDefNonRec
+    addAndCompilePartialRec docCtx preDefs
     let preDefs ← preDefs.mapM (Mutual.cleanPreDef ·)
     PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms (hints.map (·.fixpointType))
     Mutual.addPreDefAttributes preDefs

@@ -1,0 +1,12 @@
+∃ x, x > 1 : Prop
+∃ x y, x > y : Prop
+∃ x y, x > y : Prop
+∃ x y, x > y : Prop
+(α : Type u_1) × (n : Nat) × Vector' α n : Type (u_1 + 1)
+(α : Type) × (n : Nat) × Vector' α n : Type 1
+(α : Type) × (n : Nat) × Vector' α n : Type 1
+(α : Type u_1) ×' (n : Nat) ×' Vector' α n : Type (u_1 + 1)
+(α : Type) ×' (n : Nat) ×' Vector' α n : Type 1
+(α : Type) ×' (n : Nat) ×' Vector' α n : Type 1
+Vector' : Type u_1 → Nat → Type u_1
+fun α => (n : Nat) × Vector' α n : Type → Type

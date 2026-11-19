@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Date.Unit.Day
-public import Std.Time.Date.Unit.Month
 public import Std.Time.Date.Unit.Year
 public import Std.Time.Date.Unit.Weekday
 public import Std.Time.Date.Unit.Week
@@ -33,7 +31,7 @@ Convert `Week.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofWeeks (week : Week.Offset) : Day.Offset :=
-  week.mul 7
+  week.mul 7 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Week.Offset`.

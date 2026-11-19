@@ -1,0 +1,12 @@
+name = "test"
+defaultTargets = ["foo", "bar"]
+
+[[lean_exe]]
+name = "foo"
+root = "Main"
+srcDir = "foo"
+
+[[lean_exe]]
+name = "bar"
+root = "Main"
+srcDir = "bar"

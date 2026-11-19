@@ -1,0 +1,12 @@
+Input: "  ```\n  content\n  ```\n"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
+   []
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeLine "content\n")])
+   (Lean.Doc.Parser.codeBlockFence "```"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  codeblock (openFence := "```") (name? := none) (args := []) (content := "content\n") (closeFence := "```")

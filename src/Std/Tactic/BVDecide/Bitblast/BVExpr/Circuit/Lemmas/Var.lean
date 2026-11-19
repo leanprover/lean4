@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Omega
 
 @[expose] public section
 
@@ -39,12 +42,11 @@ theorem go_get_aux (aig : AIG BVBit) (a : Nat) (curr : Nat) (hcurr : curr ≤ w)
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
+    rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx)]
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
     · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
+      simp
     · apply go_le_size
   · dsimp only at hgo
     rw [← hgo]
@@ -94,12 +96,12 @@ theorem go_denote_eq (aig : AIG BVBit) (a : Nat) (assign : Assignment) (curr : N
   generalize hgo : go aig w a curr s hcurr = res
   unfold go at hgo
   split at hgo
-  · next hlt =>
+  next hlt =>
     dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · rw [← heq]
         rw [go_denote_mem_prefix]

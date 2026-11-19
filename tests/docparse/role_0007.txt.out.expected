@@ -1,0 +1,21 @@
+Input: "{emph}[two\nlines]"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.role
+   "{"
+   `emph
+   []
+   "}"
+   ["["]
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "two"))
+    (Lean.Doc.Parser.Inline.linebreak "\n")
+    (Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "lines"))]
+   ["]"])
+All input consumed.
+Round-trip OK
+Decoded views:
+  role (braceOpen := "{") (name := emph) (args := []) (braceClose := "}") (brackets := some ("[", "]"))
+    text (content := "two")
+    linebreak (newline := "\n")
+    text (content := "lines")

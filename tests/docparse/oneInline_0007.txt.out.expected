@@ -1,0 +1,16 @@
+Input: "`` fo\no `"
+Failure: unterminated inline code; expected '``'
+ --> 1:0-1:2
+  |
+1 | `` fo
+  | ^^
+  = consumed input prefix: 5 bytes
+Final stack:
+  (Lean.Doc.Parser.Inline.code
+   (Lean.Doc.Parser.codeDelimiter "``")
+   (Lean.Doc.Parser.versoCode
+    [(Lean.Doc.Parser.versoCodeLine " fo")])
+   <missing>)
+Remaining:
+"\no `"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -1,0 +1,25 @@
+Input: ": an excellent idea\n\n Let's say more!\n\n: more\n\n"
+Failure: expected description body with indentation at least 1
+ --> 7:0
+  |
+7 | 
+  | ^
+  = consumed input prefix: 47 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
+      ":"
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "an excellent idea"))]
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "Let's say more!"))])])
+     (Lean.Doc.Parser.DescItem.item
+      ":"
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "more"))]
+      <missing>)])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

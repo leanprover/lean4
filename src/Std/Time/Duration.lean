@@ -7,13 +7,14 @@ module
 
 prelude
 public import Std.Time.Date
-public import Std.Time.Time
+public import Init.Data.String.Basic
+public import Init.Data.String.Length
 
 public section
 
 namespace Std
 namespace Time
-open Internal
+open Time.Internal
 
 set_option linter.all true
 
@@ -58,7 +59,7 @@ instance : Inhabited Duration where
 instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
-    simp <;> exact Int.le_total n 0 |>.symm
+    simp ; exact Int.le_total n 0 |>.symm
 
 instance : Ord Duration where
   compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
@@ -93,13 +94,14 @@ Creates a new `Duration` out of `Second.Offset`.
 @[inline]
 def ofSeconds (s : Second.Offset) : Duration := by
   refine ⟨s, ⟨0, by decide⟩, ?_⟩
-  simp <;> exact Int.le_total s.val 0 |>.symm
+  simp ; exact Int.le_total s.val 0 |>.symm
 
 /--
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
 def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
-  refine ⟨s.tdiv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
+  -- TODO: we should be using `s.toSeconds` here, but the proof below depends on this form.
+  refine ⟨s.tdiv 1000000000 |>.cast (by decide +kernel), Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
 
   cases Int.le_total s.val 0
   next n => exact Or.inr (And.intro (tdiv_neg n (by decide)) (mod_nonpos 1000000000 n (by decide)))
@@ -119,7 +121,7 @@ Creates a new `Duration` out of `Millisecond.Offset`.
 -/
 @[inline]
 def ofMillisecond (s : Millisecond.Offset) : Duration :=
-  ofNanoseconds (s.mul 1000000)
+  ofNanoseconds (s.toNanoseconds)
 
 /--
 Checks if the duration is zero seconds and zero nanoseconds.
@@ -171,14 +173,14 @@ Converts a `Duration` to a `Minute.Offset`
 -/
 @[inline]
 def toMinutes (tm : Duration) : Minute.Offset :=
-  tm.second.tdiv 60
+  tm.second.toMinutes
 
 /--
 Converts a `Duration` to a `Day.Offset`
 -/
 @[inline]
 def toDays (tm : Duration) : Day.Offset :=
-  tm.second.tdiv 86400
+  tm.second.toDays
 
 /--
 Normalizes `Second.Offset` and `NanoSecond.span` in order to build a new `Duration` out of it.
@@ -248,7 +250,7 @@ Adds a `Minute.Offset` to a `Duration`
 -/
 @[inline]
 def addMinutes (t : Duration) (m : Minute.Offset) : Duration :=
-  let seconds := m.mul 60
+  let seconds := m.toSeconds
   t.addSeconds seconds
 
 /--
@@ -256,7 +258,7 @@ Subtracts a `Minute.Offset` from a `Duration`
 -/
 @[inline]
 def subMinutes (t : Duration) (m : Minute.Offset) : Duration :=
-  let seconds := m.mul 60
+  let seconds := m.toSeconds
   t.subSeconds seconds
 
 /--
@@ -264,7 +266,7 @@ Adds an `Hour.Offset` to a `Duration`
 -/
 @[inline]
 def addHours (t : Duration) (h : Hour.Offset) : Duration :=
-  let seconds := h.mul 3600
+  let seconds := h.toSeconds
   t.addSeconds seconds
 
 /--
@@ -272,7 +274,7 @@ Subtracts an `Hour.Offset` from a `Duration`
 -/
 @[inline]
 def subHours (t : Duration) (h : Hour.Offset) : Duration :=
-  let seconds := h.mul 3600
+  let seconds := h.toSeconds
   t.subSeconds seconds
 
 /--
@@ -280,7 +282,7 @@ Adds a `Day.Offset` to a `Duration`
 -/
 @[inline]
 def addDays (t : Duration) (d : Day.Offset) : Duration :=
-  let seconds := d.mul 86400
+  let seconds := d.toSeconds
   t.addSeconds seconds
 
 /--
@@ -288,7 +290,7 @@ Subtracts a `Day.Offset` from a `Duration`
 -/
 @[inline]
 def subDays (t : Duration) (d : Day.Offset) : Duration :=
-  let seconds := d.mul 86400
+  let seconds := d.toSeconds
   t.subSeconds seconds
 
 /--
@@ -296,7 +298,7 @@ Adds a `Week.Offset` to a `Duration`
 -/
 @[inline]
 def addWeeks (t : Duration) (w : Week.Offset) : Duration :=
-  let seconds := w.mul 604800
+  let seconds := w.toSeconds
   t.addSeconds seconds
 
 /--
@@ -304,7 +306,7 @@ Subtracts a `Week.Offset` from a `Duration`
 -/
 @[inline]
 def subWeeks (t : Duration) (w : Week.Offset) : Duration :=
-  let seconds := w.mul 604800
+  let seconds := w.toSeconds
   t.subSeconds seconds
 
 instance : HAdd Duration Day.Offset Duration where
@@ -379,11 +381,25 @@ instance : HMul Int Duration Duration where
 instance : HMul Duration Int Duration where
   hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
 
+instance : HMul Nat Duration Duration where
+  hMul i d := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+instance : HMul Duration Nat Duration where
+  hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+/-- Divides by an integer, rounding toward zero to whole nanoseconds. -/
+instance : HDiv Duration Int Duration where
+  hDiv d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val.tdiv i)
+
+/-- Divides by a natural number, rounding toward zero to whole nanoseconds. -/
+instance : HDiv Duration Nat Duration where
+  hDiv d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val.tdiv i)
+
 instance : HAdd PlainTime Duration PlainTime where
    hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)
 
 instance : HSub PlainTime Duration PlainTime where
-   hSub pt d := PlainTime.ofNanoseconds (d.toNanoseconds - pt.toNanoseconds)
+   hSub pt d := PlainTime.ofNanoseconds (pt.toNanoseconds - d.toNanoseconds)
 
 end Duration
 end Time

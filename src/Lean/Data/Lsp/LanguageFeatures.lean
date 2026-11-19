@@ -7,9 +7,11 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Data.Lsp.Basic
-meta import Lean.Data.Json
+public import Lean.Expr
+public import Init.Data.String.Search
+public import Init.Data.Array.GetLit
+meta import Lean.Data.Json.FromToJson.Basic
 
 public section
 
@@ -33,7 +35,7 @@ inductive CompletionItemKind where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
-  toJson a := toJson (a.toCtorIdx + 1)
+  toJson a := toJson (a.ctorIdx + 1)
 
 instance : FromJson CompletionItemKind where
   fromJson? v := do
@@ -51,7 +53,7 @@ inductive CompletionItemTag where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemTag where
-  toJson t := toJson (t.toCtorIdx + 1)
+  toJson t := toJson (t.ctorIdx + 1)
 
 instance : FromJson CompletionItemTag where
   fromJson? v := do
@@ -59,6 +61,10 @@ instance : FromJson CompletionItemTag where
     return CompletionItemTag.ofNat (i-1)
 
 structure CompletionItem where
+  -- When adjusting this type, make sure to adjust `ResolvableCompletionList.compressFast`
+  -- as well, which is our `(toJson l).compress` fast path.
+  -- (Completion downstream of Mathlib can output gigantic JSON,
+  -- so we want to avoid all redundant allocs)
   label          : String
   detail?        : Option String := none
   documentation? : Option MarkupContent := none
@@ -83,6 +89,112 @@ structure CompletionItem where
 structure CompletionList where
   isIncomplete : Bool
   items        : Array CompletionItem
+  deriving FromJson, ToJson
+
+/--
+Identifier that is sent from the server to the client as part of the `CompletionItem.data?` field.
+Needed to resolve the `CompletionItem` when the client sends a `completionItem/resolve` request
+for that item, again containing the `data?` field provided by the server.
+-/
+inductive CompletionIdentifier where
+  | const (declName : Name)
+  | fvar (id : Lean.FVarId)
+  deriving BEq, Hashable
+
+instance : ToJson CompletionIdentifier where
+  toJson
+  | .const declName =>
+    .str s!"c{toString declName}"
+  | .fvar id =>
+    .str s!"f{toString id.name}"
+
+instance : FromJson CompletionIdentifier where
+  fromJson?
+    | .str s =>
+      let c := s.front
+      if c == 'c' then
+        let declName := String.Pos.Raw.extract s ⟨1⟩ s.rawEndPos |>.toName
+        .ok <| .const declName
+      else if c == 'f' then
+        let id := ⟨String.Pos.Raw.extract s ⟨1⟩ s.rawEndPos |>.toName⟩
+        .ok <| .fvar id
+      else
+        .error "Expected string with prefix `c` or `f` in `FromJson` instance of `CompletionIdentifier`."
+    | _ => .error "Expected string in `FromJson` instance of `CompletionIdentifier`."
+
+structure ResolvableCompletionItemData where
+  uri   : DocumentUri
+  pos   : Position
+  /-- Position of the completion info that this completion item was created from. -/
+  cPos? : Option Nat := none
+  id?   : Option CompletionIdentifier := none
+  deriving BEq, Hashable
+
+instance : ToJson ResolvableCompletionItemData where
+  toJson d := Id.run do
+    let mut arr : Array Json := #[
+      toJson d.uri,
+      d.pos.line,
+      d.pos.character,
+    ]
+    if let some cPos := d.cPos? then
+      arr := arr.push <| toJson cPos
+    if let some id := d.id? then
+      arr := arr.push <| toJson id
+    Json.arr arr
+
+instance : FromJson ResolvableCompletionItemData where
+  fromJson?
+    | .arr elems => do
+      if elems.size < 3 then
+        .error "Expected array of size 3 in `FromJson` instance of `ResolvableCompletionItemData"
+      let uri : DocumentUri ← fromJson? elems[0]!
+      let line : Nat ← fromJson? elems[1]!
+      let character : Nat ← fromJson? elems[2]!
+      let mut cPos? : Option Nat := none
+      let mut id? : Option CompletionIdentifier := none
+      if let .ok (some cPos) := elems[3]?.mapM fromJson? then
+        cPos? := some cPos
+      if let .ok (some id) := elems[3]?.mapM fromJson? then
+        id? := some id
+      if let .ok (some cPos) := elems[4]?.mapM fromJson? then
+        cPos? := some cPos
+      if let .ok (some id) := elems[4]?.mapM fromJson? then
+        id? := some id
+      let pos := { line, character }
+      return {
+        uri
+        pos
+        cPos?
+        id?
+      }
+    | _ => .error "Expected array in `FromJson` instance of `ResolvableCompletionItemData`"
+
+structure ResolvableCompletionItem where
+  label          : String
+  detail?        : Option String := none
+  documentation? : Option MarkupContent := none
+  kind?          : Option CompletionItemKind := none
+  textEdit?      : Option InsertReplaceEdit := none
+  sortText?      : Option String := none
+  data?          : Option ResolvableCompletionItemData := none
+  tags?          : Option (Array CompletionItemTag) := none
+  /-
+  deprecated? : boolean
+  preselect? : boolean
+  filterText? : string
+  insertText? : string
+  insertTextFormat? : InsertTextFormat
+  insertTextMode? : InsertTextMode
+  additionalTextEdits? : TextEdit[]
+  commitCharacters? : string[]
+  command? : Command
+  -/
+  deriving FromJson, ToJson, Inhabited, BEq, Hashable
+
+structure ResolvableCompletionList where
+  isIncomplete : Bool
+  items        : Array ResolvableCompletionItem
   deriving FromJson, ToJson
 
 structure CompletionParams extends TextDocumentPositionParams where
@@ -315,6 +427,12 @@ structure CallHierarchyOutgoingCall where
 
 inductive SemanticTokenType where
   -- Used by Lean
+  /--
+  A keyword.
+
+  Verso and Markdown syntax, such as bold/italic delimiters, list and header markers, and thematic
+  breaks, are annotated as keywords with the `markupSyntax` modifier.
+  -/
   | keyword
   | variable
   | property
@@ -342,6 +460,30 @@ inductive SemanticTokenType where
   | decorator
   -- Extensions
   | leanSorryLike
+  -- Verso and Markdown markup. In a docstring, these tokens have the `documentation` modifier.
+  /--
+  Text that is not in a heading, blockquote, or list item. May have the `markupBold` and
+  `markupItalic` modifiers.
+  -/
+  | markupText
+  /-- Text in a heading. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupHeading
+  /-- Text in a blockquote. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupQuote
+  /-- Text in a list item. May have the `markupBold` and `markupItalic` modifiers. -/
+  | markupList
+  /-- The content of inline code or inline math. -/
+  | markupInlineCode
+  /-- A line of a code block. -/
+  | markupCodeBlock
+  /-- A URL in a link, image, autolink, or link reference definition. -/
+  | markupUrl
+  /--
+  A reference label.
+
+  The label is that of a link reference definition, of a reference-style link, or of a footnote.
+  -/
+  | markupCrossReference
   deriving ToJson, FromJson, BEq, Hashable
 
 -- must be in the same order as the constructors
@@ -349,10 +491,12 @@ def SemanticTokenType.names : Array String :=
   #["keyword", "variable", "property", "function", "namespace", "type", "class",
     "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
     "event", "method", "macro", "modifier", "comment", "string", "number",
-    "regexp", "operator", "decorator", "leanSorryLike"]
+    "regexp", "operator", "decorator", "leanSorryLike",
+    "markupText", "markupHeading", "markupQuote", "markupList",
+    "markupInlineCode", "markupCodeBlock", "markupUrl", "markupCrossReference"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
-  tokenType.toCtorIdx
+  tokenType.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenType} : open SemanticTokenType in
@@ -360,9 +504,9 @@ example {v : SemanticTokenType} : open SemanticTokenType in
   cases v <;> native_decide
 
 /--
-The semantic token modifiers included by default in the LSP specification.
-Not used by the Lean core, but implementing them here allows them to be
-utilized by users extending the Lean server.
+The semantic token modifiers that the LSP specification includes by default, followed by Lean's own.
+The only standard modifier used by Lean is `documentation`. The others are available to users who
+extend the Lean server.
 -/
 inductive SemanticTokenModifier where
   | declaration
@@ -373,22 +517,117 @@ inductive SemanticTokenModifier where
   | abstract
   | async
   | modification
+  /--
+  A token in documentation. Every Verso or Markdown markup token in a docstring or module docstring
+  has this modifier.
+  -/
   | documentation
   | defaultLibrary
-  deriving ToJson, FromJson
+  -- Extensions
+  /-- Bold text, such as `*bold*` in Verso or `**bold**` in Markdown. -/
+  | markupBold
+  /-- Emphasized text, typically shown in italics, such as `_emph_` in Verso or Markdown. -/
+  | markupItalic
+  /--
+  Verso or Markdown syntax, such as a bold/italic delimiter, a list or header marker, a fence, or a
+  thematic break. Markup syntax consists of `keyword` tokens with this modifier, so that themes will
+  style it like keywords by default but can single it out when they want to.
+  -/
+  | markupSyntax
+  deriving ToJson, FromJson, BEq, Hashable, Repr
 
 -- must be in the same order as the constructors
 def SemanticTokenModifier.names : Array String :=
   #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
-    "async", "modification", "documentation", "defaultLibrary"]
+    "async", "modification", "documentation", "defaultLibrary",
+    "markupBold", "markupItalic", "markupSyntax"]
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
-  modifier.toCtorIdx
+  modifier.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenModifier} : open SemanticTokenModifier in
     names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
   cases v <;> native_decide
+
+/-- Every modifier, in the order of `names`. -/
+def SemanticTokenModifier.all : Array SemanticTokenModifier :=
+  #[.declaration, .definition, .readonly, .static, .deprecated, .abstract,
+    .async, .modification, .documentation, .defaultLibrary,
+    .markupBold, .markupItalic, .markupSyntax]
+
+-- sanity check
+example : SemanticTokenModifier.all.map (·.toNat) = Array.range SemanticTokenModifier.names.size := by
+  native_decide
+
+/--
+A set of semantic token modifiers.
+
+Use the standard set notation for them:
+* The empty set is `{}`
+* The set with the modifiers `a` and `b` is `{a, b}`
+* Union, intersection, and difference are invoked via the `Union`, `Inter`, and `SDiff` instances
+* `m ∈ s` is membership.
+-/
+structure SemanticTokenModifiers where
+  private mk ::
+  /-- The set as encoded in LSP. The bit `m.toNat` is set for each modifier `m` in the set. -/
+  toBits : Nat
+  deriving Inhabited, DecidableEq, Hashable
+
+namespace SemanticTokenModifiers
+
+/-- The empty set. -/
+def empty : SemanticTokenModifiers := ⟨0⟩
+
+/-- The set that contains only `m`. -/
+def singleton (m : SemanticTokenModifier) : SemanticTokenModifiers := ⟨1 <<< m.toNat⟩
+
+/-- The union of `s` and `t`. -/
+def union (s t : SemanticTokenModifiers) : SemanticTokenModifiers := ⟨s.toBits ||| t.toBits⟩
+
+/-- The intersection of `s` and `t`. -/
+def inter (s t : SemanticTokenModifiers) : SemanticTokenModifiers := ⟨s.toBits &&& t.toBits⟩
+
+/-- The modifiers of `s` that are not in `t`. -/
+def sdiff (s t : SemanticTokenModifiers) : SemanticTokenModifiers :=
+  ⟨s.toBits ^^^ (s.toBits &&& t.toBits)⟩
+
+/-- The set that LSP encodes as `bits`, for a client of the server that decodes its tokens. -/
+def ofBits (bits : Nat) : SemanticTokenModifiers := ⟨bits⟩
+
+instance : ToJson SemanticTokenModifiers := ⟨fun s => toJson s.toBits⟩
+
+instance : FromJson SemanticTokenModifiers := ⟨fun j => ofBits <$> fromJson? j⟩
+
+instance : EmptyCollection SemanticTokenModifiers := ⟨empty⟩
+
+instance : Singleton SemanticTokenModifier SemanticTokenModifiers := ⟨singleton⟩
+
+instance : Union SemanticTokenModifiers := ⟨union⟩
+
+instance : Inter SemanticTokenModifiers := ⟨inter⟩
+
+instance : SDiff SemanticTokenModifiers := ⟨sdiff⟩
+
+instance : Insert SemanticTokenModifier SemanticTokenModifiers := ⟨fun m s => s ∪ singleton m⟩
+
+instance : Membership SemanticTokenModifier SemanticTokenModifiers :=
+  ⟨fun s m => s.toBits.testBit m.toNat = true⟩
+
+instance (m : SemanticTokenModifier) (s : SemanticTokenModifiers) : Decidable (m ∈ s) :=
+  inferInstanceAs (Decidable (s.toBits.testBit m.toNat = true))
+
+/-- The modifiers in `s`, in the same order as in `SemanticTokenModifier.all`. -/
+def toArray (s : SemanticTokenModifiers) : Array SemanticTokenModifier :=
+  SemanticTokenModifier.all.filter (· ∈ s)
+
+/-- The set in set notation, such as `{}` or `{markupBold, markupItalic}`. -/
+instance : Repr SemanticTokenModifiers where
+  reprPrec s _ :=
+    .nestD <| .bracket "{" (.joinSep (s.toArray.toList.map repr) ("," ++ .line)) "}"
+
+end SemanticTokenModifiers
 
 structure SemanticTokensLegend where
   tokenTypes     : Array String
@@ -425,12 +664,18 @@ inductive FoldingRangeKind where
   | comment
   | imports
   | region
+  /--
+  The value of a declaration whose type is a proposition, for example the proof of a theorem. This
+  kind is a Lean-specific extension of LSP.
+  -/
+  | proof
 
 instance : ToJson FoldingRangeKind where
   toJson
     | FoldingRangeKind.comment => "comment"
     | FoldingRangeKind.imports => "imports"
     | FoldingRangeKind.region  => "region"
+    | FoldingRangeKind.proof   => "proof"
 
 structure FoldingRange where
   startLine : Nat
@@ -592,6 +837,25 @@ structure SignatureHelpParams extends TextDocumentPositionParams, WorkDoneProgre
 structure SignatureHelpOptions extends WorkDoneProgressOptions where
   triggerCharacters? : Option (Array String) := none
   retriggerCharacters? : Option (Array String) := none
+  deriving FromJson, ToJson
+
+structure DocumentColorParams extends WorkDoneProgressParams, PartialResultParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+structure Color where
+  red : Float
+  green : Float
+  blue : Float
+  alpha : Float
+  deriving FromJson, ToJson
+
+structure ColorInformation where
+  range : Range
+  color : Color
+  deriving FromJson, ToJson
+
+structure DocumentColorOptions extends WorkDoneProgressOptions where
   deriving FromJson, ToJson
 
 end Lsp

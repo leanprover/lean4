@@ -6,13 +6,67 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Zip
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Nat.Gcd
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Dvd
+import Init.PropLemmas
+import Init.RCases
 
 public section
 
 @[expose] section
+
+-- We replay some `List` theory here in order to avoid importing `List` theory.
+namespace List
+
+private theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
+
+private theorem getElem?_map {f : α → β} : ∀ {l : List α} {i : Nat}, (map f l)[i]? = Option.map f l[i]?
+  | [], _ => rfl
+  | _ :: _, 0 => by simp
+  | _ :: l, i+1 => by simp [getElem?_map, getElem?_cons_succ]
+
+private theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
+    (zipWithAll f as bs)[i]? = match as[i]?, bs[i]? with
+      | none, none => .none | a?, b? => some (f a? b?) := by
+  induction as generalizing bs i with
+  | nil => induction bs generalizing i with
+    | nil => simp
+    | cons b bs bih => cases i <;> simp_all [getElem?_cons_succ]
+  | cons a as aih => cases bs with
+    | nil =>
+      specialize @aih []
+      cases i <;> simp_all [getElem?_cons_succ]
+    | cons b bs => cases i <;> simp_all [getElem?_cons_succ]
+
+private theorem map_id (l : List α) : map (id : α → α) l = l := by
+  induction l <;> simp_all
+
+private theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
+
+private theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
+    (zipWith f as bs)[i]? = match as[i]?, bs[i]? with
+      | some a, some b => some (f a b) | _, _ => none := by
+  induction as generalizing bs i with
+  | nil => cases bs with
+    | nil => simp
+    | cons b bs => simp
+  | cons a as aih => cases bs with
+    | nil => simp
+    | cons b bs => cases i <;> simp_all [getElem?_cons_succ]
+
+private theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
+
+private theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
+
+private theorem length_map {as : List α} (f : α → β) : (as.map f).length = as.length := by
+  induction as with
+  | nil => simp [List.map]
+  | cons _ as ih => simp [List.map, ih]
+
+end List
 
 namespace Lean.Omega
 
@@ -31,7 +85,7 @@ def get (xs : IntList) (i : Nat) : Int := xs[i]?.getD 0
 
 @[simp] theorem get_nil : get ([] : IntList) i = 0 := rfl
 @[simp] theorem get_cons_zero : get (x :: xs) 0 = x := by simp [get]
-@[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := by simp [get]
+@[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := by simp [get, List.getElem?_cons_succ]
 
 theorem get_map {xs : IntList} (h : f 0 = 0) : get (xs.map f) i = f (xs.get i) := by
   simp only [get, List.getElem?_map]
@@ -71,13 +125,25 @@ theorem add_def (xs ys : IntList) :
   simp only [get, add_def, List.getElem?_zipWithAll]
   cases xs[i]? <;> cases ys[i]? <;> simp
 
-@[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def]
-@[simp] theorem nil_add (xs : IntList) : [] + xs = xs := by simp [add_def]
+@[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def, List.map_id']
+@[simp] theorem nil_add (xs : IntList) : [] + xs = xs := by simp [add_def, List.map_id']
 @[simp] theorem cons_add_cons (x) (xs : IntList) (y) (ys : IntList) :
     (x :: xs) + (y :: ys) = (x + y) :: (xs + ys) := by simp [add_def]
 
 /-- Implementation of `*` on `IntList`. -/
-def mul (xs ys : IntList) : IntList := List.zipWith (· * ·) xs ys
+noncomputable def mul (xs ys : IntList) : IntList := List.zipWith (· * ·) xs ys
+
+/--
+Runtime implementation of `IntList.mul`, which avoids `List.zipWith` because its runtime
+implementation is not available here.
+-/
+def mulImpl : IntList → IntList → IntList
+  | x :: xs, y :: ys => x * y :: mulImpl xs ys
+  | _, _ => []
+
+@[csimp] theorem mul_eq_mulImpl : @mul = @mulImpl := by
+  funext xs ys
+  induction xs generalizing ys <;> cases ys <;> simp_all [mul, mulImpl]
 
 instance : Mul IntList := ⟨mul⟩
 
@@ -90,7 +156,10 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
 
 @[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := rfl
 @[simp] theorem mul_nil_right : xs * ([] : IntList) = [] := List.zipWith_nil_right
-@[simp] theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := rfl
+@[simp] theorem mul_cons_cons : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := rfl
+
+@[deprecated mul_cons_cons (since := "2026-02-26")]
+theorem mul_cons₂ : (x::xs : IntList) * (y::ys) = (x * y) :: (xs * ys) := mul_cons_cons
 
 /-- Implementation of negation on `IntList`. -/
 def neg (xs : IntList) : IntList := xs.map fun x => -x
@@ -155,10 +224,10 @@ theorem mul_distrib_left (xs ys zs : IntList) : (xs + ys) * zs = xs * zs + ys * 
     | cons _ _ =>
       cases zs with
       | nil => simp
-      | cons _ _ => simp_all
+      | cons _ _ => simp_all [List.map_id']
   | cons x xs ih₁ =>
     cases ys with
-    | nil => simp_all
+    | nil => simp_all [List.map_id']
     | cons _ _ =>
       cases zs with
       | nil => simp
@@ -175,7 +244,7 @@ theorem mul_neg_left (xs ys : IntList) : (-xs) * ys = -(xs * ys) := by
 attribute [local simp] add_def neg_def sub_def in
 theorem sub_eq_add_neg (xs ys : IntList) : xs - ys = xs + (-ys) := by
   induction xs generalizing ys with
-  | nil => simp
+  | nil => simp [List.map_id']
   | cons x xs ih =>
     cases ys with
     | nil => simp
@@ -190,7 +259,19 @@ theorem sub_eq_add_neg (xs ys : IntList) : xs - ys = xs + (-ys) := by
     | cons y ys => simp_all [Int.mul_assoc]
 
 /-- The sum of the entries of an `IntList`. -/
-def sum (xs : IntList) : Int := xs.foldr (· + ·) 0
+noncomputable def sum (xs : IntList) : Int := xs.foldr (· + ·) 0
+
+/--
+Runtime implementation of `IntList.sum`, which avoids `List.foldr` because its runtime
+implementation is not available here.
+-/
+def sumImpl : IntList → Int
+  | [] => 0
+  | x :: xs => x + sumImpl xs
+
+@[csimp] theorem sum_eq_sumImpl : @sum = @sumImpl := by
+  funext xs
+  induction xs <;> simp_all [sum, sumImpl]
 
 @[simp] theorem sum_nil : sum ([] : IntList) = 0 := rfl
 @[simp] theorem sum_cons : sum (x::xs : IntList) = x + sum xs := rfl
@@ -198,10 +279,10 @@ def sum (xs : IntList) : Int := xs.foldr (· + ·) 0
 attribute [local simp] sum add_def in
 theorem sum_add (xs ys : IntList) : (xs + ys).sum = xs.sum + ys.sum := by
   induction xs generalizing ys with
-  | nil => simp
+  | nil => simp [List.map_id']
   | cons x xs ih =>
     cases ys with
-    | nil => simp
+    | nil => simp [List.map_id']
     | cons y ys => simp_all [Int.add_assoc, Int.add_left_comm]
 
 @[simp]
@@ -224,7 +305,10 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
 
 @[local simp] theorem dot_nil_left : dot ([] : IntList) ys = 0 := rfl
 @[simp] theorem dot_nil_right : dot xs ([] : IntList) = 0 := by simp [dot]
-@[simp] theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := rfl
+@[simp] theorem dot_cons_cons : dot (x::xs) (y::ys) = x * y + dot xs ys := rfl
+
+@[deprecated dot_cons_cons (since := "2026-02-26")]
+theorem dot_cons₂ : dot (x::xs) (y::ys) = x * y + dot xs ys := dot_cons_cons
 
 -- theorem dot_comm (xs ys : IntList) : dot xs ys = dot ys xs := by
 --   rw [dot, dot, mul_comm]
@@ -242,7 +326,7 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
       cases ys with
       | nil => simp
       | cons y ys =>
-        simp only [set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
+        simp only [set_cons_zero, dot_cons_cons, get_cons_zero, Int.sub_mul]
         rw [Int.add_right_comm, Int.add_comm (x * y), Int.sub_add_cancel]
     | succ i =>
       cases ys with
@@ -265,7 +349,7 @@ theorem dot_of_left_zero (w : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
     cases ys with
     | nil => simp
     | cons y ys =>
-      rw [dot_cons₂, w x (by simp), ih]
+      rw [dot_cons_cons, w x (by simp [List.mem_cons_self]), ih]
       · simp
       · intro x m
         apply w
@@ -278,7 +362,19 @@ def sdiv (xs : IntList) (g : Int) : IntList := xs.map fun x => x / g
 @[simp] theorem sdiv_cons : sdiv (x::xs) g = (x / g) :: sdiv xs g := rfl
 
 /-- The gcd of the absolute values of the entries of an `IntList`. -/
-def gcd (xs : IntList) : Nat := xs.foldr (fun x g => Nat.gcd x.natAbs g) 0
+noncomputable def gcd (xs : IntList) : Nat := xs.foldr (fun x g => Nat.gcd x.natAbs g) 0
+
+/--
+Runtime implementation of `IntList.gcd`, which avoids `List.foldr` because its runtime
+implementation is not available here.
+-/
+def gcdImpl : IntList → Nat
+  | [] => 0
+  | x :: xs => Nat.gcd x.natAbs (gcdImpl xs)
+
+@[csimp] theorem gcd_eq_gcdImpl : @gcd = @gcdImpl := by
+  funext xs
+  induction xs <;> simp_all [gcd, gcdImpl]
 
 @[simp] theorem gcd_nil : gcd [] = 0 := rfl
 @[simp] theorem gcd_cons : gcd (x :: xs) = Nat.gcd x.natAbs (gcd xs) := rfl
@@ -314,7 +410,7 @@ theorem dvd_gcd (xs : IntList) (c : Nat) (w : ∀ {a : Int}, a ∈ xs → (c : I
     simp
     apply Nat.dvd_gcd
     · apply w
-      simp
+      simp [List.mem_cons_self]
     · apply ih
       intro b m
       apply w
@@ -346,7 +442,7 @@ attribute [simp] Int.zero_dvd
     cases ys with
     | nil => simp
     | cons y ys =>
-      rw [dot_cons₂, Int.add_emod,
+      rw [dot_cons_cons, Int.add_emod,
         ← Int.emod_emod_of_dvd (x * y) (gcd_cons_div_left),
         ← Int.emod_emod_of_dvd (dot xs ys) (Int.ofNat_dvd.mpr gcd_cons_div_right)]
       simp_all
@@ -361,7 +457,7 @@ theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x
     cases ys with
     | nil => rfl
     | cons y ys =>
-      rw [dot_cons₂, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
+      rw [dot_cons_cons, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
         Int.zero_mul, Int.add_zero]
 
 @[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := rfl
@@ -402,7 +498,7 @@ theorem dvd_bmod_dot_sub_dot_bmod (m : Nat) (xs ys : IntList) :
     cases ys with
     | nil => simp
     | cons y ys =>
-      simp only [IntList.dot_cons₂, List.map_cons]
+      simp only [IntList.dot_cons_cons, List.map_cons]
       specialize ih ys
       rw [Int.sub_emod, Int.bmod_emod] at ih
       rw [Int.sub_emod, Int.bmod_emod, Int.add_emod, Int.add_emod (Int.bmod x m * y),

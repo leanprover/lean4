@@ -1,0 +1,1 @@
+assertAfterBug.lean:56:8-56:24: warning: declaration uses `sorry`

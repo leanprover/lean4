@@ -7,8 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Server.Rpc.Basic
-public import Lean.Server.InfoUtils
 public import Lean.Widget.TaggedText
 public import Lean.Widget.Basic
 

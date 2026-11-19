@@ -1,0 +1,18 @@
+Input: " ```\n (define x 4)\n x\n```"
+Failure: expected closing '```' for the code block opened on line 1 at column 1
+ --> 4:0-4:3
+  |
+4 | ```
+  | ^^^
+  = consumed input prefix: 22 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
+   []
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeLine
+      "(define x 4)\n")
+     (Lean.Doc.Parser.versoCodeLine "x\n")])
+   <missing>)
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -7,8 +7,6 @@ module
 
 prelude
 public import Lean.Meta.ArgsPacker
-public import Lean.Elab.PreDefinition.Basic
-public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.WF.Eqns
 
 public section

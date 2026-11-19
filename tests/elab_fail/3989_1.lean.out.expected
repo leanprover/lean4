@@ -1,0 +1,10 @@
+3989_1.lean:4:0: error: expected else-alternative for `match_expr`, i.e., `| _ => ...`
+3989_1.lean:1:22-1:32: error: Function expected at
+  MetaM
+but this term has type
+  ?m
+
+Note: Expected a function because this term is being applied to the argument
+  Expr
+
+Hint: The identifier `MetaM` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.

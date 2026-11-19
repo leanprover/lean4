@@ -1,0 +1,12 @@
+name = "structure_docstrings"
+defaultTargets = ["StructureDocstrings", "StructureDocstringsTest"]
+
+[[lean_lib]]
+name = "StructureDocstrings"
+roots = ["StructureDocstrings.A", "StructureDocstrings.B"]
+
+[[lean_lib]]
+name = "StructureDocstringsTest"
+# Elab.inServer to allow docstring tests to access .server level data
+leanOptions = { Elab.inServer = true }
+roots = ["StructureDocstrings.C"]

@@ -1,0 +1,19 @@
+Input: "![](logo.png\nabc"
+Failure: expected ')'
+ --> 1:12
+  |
+1 | ![](logo.png
+  |             ^
+  = consumed input prefix: 12 bytes
+Final stack:
+  (Lean.Doc.Parser.Inline.image
+   "!["
+   (Lean.Doc.Parser.versoImageAlt "")
+   "]"
+   (Lean.Doc.Parser.LinkTarget.url
+    "("
+    (Lean.Doc.Parser.versoLinkUrl "logo.png")
+    <missing>))
+Remaining:
+"\nabc"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

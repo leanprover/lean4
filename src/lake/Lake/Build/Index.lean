@@ -3,9 +3,13 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Build.Fetch
 import Lake.Config.Monad
 import Lake.Build.Topological
+import Lake.Util.StoreInsts
 
 /-!
 # The Lake Build Index
@@ -21,27 +25,32 @@ open System (FilePath)
 
 namespace Lake
 
+@[inline] def fetchOrCreate'
+  (key : BuildKey) (create : FetchM ((Job (BuildData key))))
+: FetchM (Job (BuildData key)) := do
+  (← readThe BuildStoreRef).fetchOrCreate key create
+
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := do
+def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
   match info with
-  | .target pkg target =>
+  | .target pkg target => do
     if let some decl := pkg.findTargetDecl? target then
       if h : decl.kind.isAnonymous then
-        let key := BuildKey.packageTarget pkg.name target
-        fetchOrCreate key do (decl.targetConfig h).fetchFn pkg
+        let key := BuildKey.packageTarget pkg.keyName target
+        fetchOrCreate' key do (decl.targetConfig h).fetchFn pkg
       else
         let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩
         let job := Job.pure (kind := kind) <| decl.mkConfigTarget pkg
         return cast (by simp [decl.data_eq_target h]) job
     else
       error s!"invalid target '{info}': target not found in package"
-  | .facet target kind data facet =>
+  | .facet target kind data facet => do
     if let some config := (← getWorkspace).findFacetConfig? facet then
       if h : config.kind = kind then
         let recFetch := config.fetchFn <| cast (by simp [h]) data
         if config.memoize then
           let key := BuildKey.facet target facet
-          fetchOrCreate key recFetch
+          fetchOrCreate' key recFetch
         else
           recFetch
       else
@@ -58,5 +67,5 @@ def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.ke
 Run a recursive Lake build using the Lake build index
 and a topological / suspending scheduler.
 -/
-@[inline] def FetchT.run (x : FetchT m α) : RecBuildT m α :=
-  x recFetchWithIndex
+@[inline] public nonrec def FetchT.run (x : FetchT m α) : RecBuildT m α :=
+  x.run recFetchWithIndex

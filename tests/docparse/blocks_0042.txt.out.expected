@@ -1,0 +1,44 @@
+Input: "Here's some error recovery for directives.\n\n::::foo 5\n\nIndeed.\n\nIt is.\n:::: a\n\nx\n"
+2 failures:
+Failure: expected closing '::::' for the directive opened on line 3 at column 0
+ --> 8:0-8:4
+  |
+8 | :::: a
+  | ^^^^
+  = consumed input prefix: 71 bytes
+
+Failure: unterminated directive opened on line 8; expected '::::'
+ --> 8:0-8:4
+  |
+8 | :::: a
+  | ^^^^
+  = consumed input prefix: 81 bytes
+
+Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Here's some error recovery for directives."))])
+   (Lean.Doc.Parser.Block.directive
+    (Lean.Doc.Parser.directiveDelimiter "::::")
+    `foo
+    [(Lean.Doc.Parser.Arg.anon
+      (Lean.Doc.Parser.ArgVal.num (num "5")))]
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "Indeed."))])
+     (Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "It is."))])]
+    <missing>)
+   (Lean.Doc.Parser.Block.directive
+    (Lean.Doc.Parser.directiveDelimiter "::::")
+    `a
+    []
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "x"))
+       (Lean.Doc.Parser.Inline.linebreak "\n")])]
+    <missing>)]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

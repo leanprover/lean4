@@ -3,7 +3,12 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Package
+public import Lake.Config.LakefileConfig
+public import Lake.Load.Config
 import Lake.Load.Lean.Elab
 import Lake.Load.Lean.Eval
 
@@ -17,21 +22,7 @@ open Lean
 
 namespace Lake
 
-/--
-Elaborate a Lean configuration file into a `Package`.
-The resulting package does not yet include any dependencies.
--/
-def loadLeanConfig (cfg : LoadConfig)
-: LogIO (Package × Environment) := do
+/-- Elaborate a Lake configuration file written in Lean and extract the Lake configuration.  -/
+public def loadLeanConfig  (cfg : LoadConfig) : LogIO LakefileConfig := do
   let configEnv ← importConfigFile cfg
-  let {name, config} ← IO.ofExcept <| PackageDecl.loadFromEnv configEnv cfg.leanOpts
-  let pkg : Package := {
-    name, config
-    dir := cfg.pkgDir
-    relDir := cfg.relPkgDir
-    configFile := cfg.configFile
-    relConfigFile := cfg.relConfigFile
-    scope := cfg.scope
-    remoteUrl := cfg.remoteUrl
-  }
-  return (← pkg.loadFromEnv configEnv cfg.leanOpts, configEnv)
+  LakefileConfig.loadFromEnv configEnv cfg.leanOpts

@@ -6,12 +6,13 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.SimpLemmas
 public import Init.NotationExtra
 
 public section
 
 namespace Prod
+
+attribute [grind =] Prod.map_fst Prod.map_snd
 
 instance [BEq α] [BEq β] [ReflBEq α] [ReflBEq β] : ReflBEq (α × β) where
   rfl {a} := by cases a; simp [BEq.beq]
@@ -57,7 +58,7 @@ Examples:
  * `(1, 2).swap = (2, 1)`
  * `("orange", -87).swap = (-87, "orange")`
 -/
-@[expose] def swap : α × β → β × α := fun p => (p.2, p.1)
+@[expose, implicit_reducible] def swap : α × β → β × α := fun p => (p.2, p.1)
 
 @[simp, grind =]
 theorem swap_swap : ∀ x : α × β, swap (swap x) = x

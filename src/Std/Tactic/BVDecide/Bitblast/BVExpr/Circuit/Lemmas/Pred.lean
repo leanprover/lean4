@@ -6,11 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Ult
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsbD
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
+import Init.Omega
 
 @[expose] public section
 
@@ -52,7 +50,7 @@ theorem bitblast_Inv_of_Inv (input : BVExpr.WithCache BVPred aig)
   unfold bitblast
   dsimp only
   split
-  · next op _ _ =>
+  next op _ _ =>
     cases op
     · dsimp only
       apply BVExpr.Cache.Inv_cast

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Moritz Doll
 module
 
 prelude
-public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Split
 public import Lean.Elab.Tactic.Conv.Basic
 public import Lean.Elab.Tactic.SimpTrace

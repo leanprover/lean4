@@ -7,12 +7,17 @@ Authors: Joe Hendrix
 module
 
 prelude
+import all Init.Data.Nat.Bitwise.Basic
+public import Init.BinderPredicates
 public import Init.Data.Bool
-public import Init.Data.Int.Pow
-public import all Init.Data.Nat.Bitwise.Basic
-public import Init.Data.Nat.Lemmas
-public import Init.Data.Nat.Simproc
-public import Init.TacticsExtra
+public import Init.Data.Nat.Log2
+import Init.ByCases
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
+import Init.TacticsExtra
 
 public section
 
@@ -78,8 +83,7 @@ noncomputable def div2Induction {motive : Nat → Sort u}
     simp only [HAnd.hAnd, AndOp.and, land] at andz
     simp only [HAnd.hAnd, AndOp.and, land]
     unfold bitwise
-    cases mod_two_eq_zero_or_one x with | _ p =>
-      simp [xz, p, andz]
+    cases mod_two_eq_zero_or_one x with | _ p => simp [xz, p, andz]
 
 /-! ### testBit -/
 
@@ -134,9 +138,6 @@ theorem testBit_eq_decide_div_mod_eq {x : Nat} : testBit x i = decide (x / 2^i %
   | succ i hyp =>
     simp [hyp, Nat.div_div_eq_div_mul, Nat.pow_succ']
 
-@[deprecated testBit_eq_decide_div_mod_eq (since := "2025-04-04")]
-abbrev testBit_to_div_mod := @testBit_eq_decide_div_mod_eq
-
 theorem toNat_testBit (x i : Nat) :
     (x.testBit i).toNat = x / 2 ^ i % 2 := by
   rw [testBit_eq_decide_div_mod_eq]
@@ -156,9 +157,6 @@ theorem exists_testBit_of_ne_zero {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i
     | Or.inr mod2_eq =>
       apply Exists.intro 0
       simp_all
-
-@[deprecated exists_testBit_of_ne_zero (since := "2025-04-04")]
-abbrev ne_zero_implies_bit_true := @exists_testBit_of_ne_zero
 
 theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ testBit y i := by
   induction y using Nat.div2Induction generalizing x with
@@ -182,12 +180,8 @@ theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i �
         apply Exists.intro 0
         simp only [testBit_zero]
         revert lsb_diff
-        cases mod_two_eq_zero_or_one x with | _ p =>
-          cases mod_two_eq_zero_or_one y with | _ q =>
-            simp [p,q]
-
-@[deprecated exists_testBit_ne_of_ne (since := "2025-04-04")]
-abbrev ne_implies_bit_diff := @exists_testBit_ne_of_ne
+        cases mod_two_eq_zero_or_one x with
+        | _ p => cases mod_two_eq_zero_or_one y with | _ q => simp [p,q]
 
 /--
 `eq_of_testBit_eq` allows proving two natural numbers are equal
@@ -201,6 +195,11 @@ theorem eq_of_testBit_eq {x y : Nat} (pred : ∀i, testBit x i = testBit y i) : 
     have p := pred i
     contradiction
 
+theorem eq_iff_testBit_eq {n m : Nat} : n = m ↔ ∀ i, Nat.testBit n i = Nat.testBit m i := by
+  refine ⟨?_, Nat.eq_of_testBit_eq⟩
+  rintro rfl
+  simp
+
 theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i ≥ n, testBit x i := by
   induction x using div2Induction generalizing n with
   | ind x hyp =>
@@ -212,7 +211,7 @@ theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i �
       exact Exists.intro j (And.intro (Nat.zero_le _) jp)
     | succ n =>
       have x_ge_n : x / 2 ≥ 2 ^ n := by
-          simpa [le_div_iff_mul_le, ← Nat.pow_succ'] using p
+          simpa [le_div_iff_mul_le, ← Nat.pow_succ'] using! p
       have ⟨j, jp⟩ := @hyp x_pos n x_ge_n
       apply Exists.intro (j+1)
       apply And.intro
@@ -221,9 +220,6 @@ theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i �
       case right =>
         simpa using jp.right
 
-@[deprecated exists_ge_and_testBit_of_ge_two_pow (since := "2025-04-04")]
-abbrev ge_two_pow_implies_high_bit_true := @exists_ge_and_testBit_of_ge_two_pow
-
 theorem ge_two_pow_of_testBit {x : Nat} (p : testBit x i = true) : x ≥ 2^i := by
   simp only [Nat.testBit_eq_decide_div_mod_eq] at p
   apply Decidable.by_contra
@@ -231,15 +227,22 @@ theorem ge_two_pow_of_testBit {x : Nat} (p : testBit x i = true) : x ≥ 2^i := 
   have x_lt : x < 2^i := Nat.lt_of_not_le not_ge
   simp [div_eq_of_lt x_lt] at p
 
-@[deprecated ge_two_pow_of_testBit (since := "2025-04-04")]
-abbrev testBit_implies_ge := @ge_two_pow_of_testBit
-
 theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := by
   match p : x.testBit i with
   | false => trivial
   | true =>
     exfalso
     exact Nat.not_le_of_gt lt (ge_two_pow_of_testBit p)
+
+theorem testBit_of_two_pow_le_and_two_pow_add_one_gt {n i : Nat}
+    (hle : 2^i ≤ n) (hgt : n < 2^(i + 1)) : n.testBit i = true := by
+  rcases exists_ge_and_testBit_of_ge_two_pow hle with ⟨i', ⟨_, _⟩⟩
+  have : i = i' := by
+    false_or_by_contra
+    have : 2 ^ (i + 1) ≤ 2 ^ i' := Nat.pow_le_pow_of_le (by decide) (by omega)
+    have : n.testBit i' = false := testBit_lt_two_pow (by omega)
+    simp_all only [Bool.false_eq_true]
+  rwa [this]
 
 theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = false) : x < 2^n := by
   apply Decidable.by_contra
@@ -249,19 +252,22 @@ theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = fal
   have test_false := p _ i_ge_n
   simp [test_true] at test_false
 
+theorem testBit_log2 {n : Nat} (h : n ≠ 0) : n.testBit n.log2 = true := by
+  have := log2_eq_iff (n := n) (k := n.log2) (by omega)
+  apply testBit_of_two_pow_le_and_two_pow_add_one_gt <;> omega
+
 private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
   induction x with
   | zero =>
     trivial
   | succ x hyp =>
     have p : 2 ≤ x + 2 := Nat.le_add_left _ _
-    simp [Nat.mod_eq (x+2) 2, p, hyp]
+    simp [Nat.mod_eq_ite (x+2) 2, p, hyp]
     cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
 private theorem testBit_succ_zero : testBit (x + 1) 0 = !(testBit x 0) := by
   simp only [testBit_eq_decide_div_mod_eq, Nat.pow_zero, Nat.div_one, succ_mod_two]
-  cases Nat.mod_two_eq_zero_or_one x with | _ p =>
-    simp [p]
+  cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
 theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = !(testBit x i) := by
   simp only [testBit_eq_decide_div_mod_eq, add_div_left, Nat.two_pow_pos, succ_mod_two]
@@ -277,8 +283,7 @@ theorem testBit_mul_two_pow_add_eq (a b i : Nat) :
           testBit_mul_two_pow_add_eq a,
           testBit_two_pow_add_eq,
           Nat.succ_mod_two]
-    cases mod_two_eq_zero_or_one a with
-    | _ p => simp [p]
+    cases mod_two_eq_zero_or_one a with | _ p => simp [p]
 
 theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     testBit (2^i + x) j = testBit x j := by
@@ -298,7 +303,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     testBit (x % 2^j) i = (decide (i < j) && testBit x i) := by
   induction x using Nat.strongRecOn generalizing j i with
   | ind x hyp =>
-    rw [mod_eq]
+    rw [mod_eq_ite]
     rcases Nat.lt_or_ge x (2^j) with x_lt_j | x_ge_j
     · have not_j_le_x := Nat.not_le_of_gt x_lt_j
       simp [not_j_le_x]
@@ -358,9 +363,6 @@ theorem testBit_bool_toNat (b : Bool) (i : Nat) :
   simp [testBit_eq_decide_div_mod_eq,
         Nat.mod_eq_of_lt]
 
-@[deprecated testBit_bool_toNat (since := "2025-06-22")]
-abbrev testBit_bool_to_nat := @testBit_bool_toNat
-
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/
 theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by
@@ -413,9 +415,9 @@ theorem testBit_bitwise (of_false_false : f false false = false) (x y i : Nat) :
           simp [x_zero, p, yi, of_false_false]
     else if y_zero : y = 0 then
       simp [x_zero, y_zero]
-      cases p : f true false <;>
-        cases xi : testBit x i <;>
-          simp [p, xi, of_false_false]
+      cases p : f true false <;> (try simp only [Bool.false_eq_true, ↓reduceIte]) <;>
+        cases testBit x i <;>
+          simp [p, of_false_false]
     else
       simp only [x_zero, y_zero, ←Nat.two_mul]
       cases i with
@@ -460,10 +462,10 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
   | succ n hyp =>
     unfold bitwise
     if x_zero : x = 0 then
-      simp only [x_zero, if_pos]
+      simp only [x_zero, ite_eq_left]
       by_cases p : f false true = true <;> simp [p, right]
     else if y_zero : y = 0 then
-      simp only [x_zero, y_zero, if_pos]
+      simp only [x_zero, y_zero, ite_eq_left]
       by_cases p : f true false = true <;> simp [p, left]
     else
       simp only [x_zero, y_zero]
@@ -495,17 +497,14 @@ theorem bitwise_mod_two_pow (of_false_false : f false false = false := by rfl) :
 @[simp, grind =] theorem testBit_and (x y i : Nat) : (x &&& y).testBit i = (x.testBit i && y.testBit i) := by
   simp [HAnd.hAnd, AndOp.and, land, testBit_bitwise ]
 
-
 @[simp, grind =] protected theorem and_self (x : Nat) : x &&& x = x := by
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_comm]
 
-@[grind _=_]
 protected theorem and_assoc (x y z : Nat) : (x &&& y) &&& z = x &&& (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_assoc]
@@ -534,15 +533,9 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
   simp only [testBit_and, testBit_mod_two_pow]
   cases testBit x i <;> simp
 
-@[deprecated and_two_pow_sub_one_eq_mod (since := "2025-03-18")]
-abbrev and_pow_two_sub_one_eq_mod := @and_two_pow_sub_one_eq_mod
-
 theorem and_two_pow_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
   rw [and_two_pow_sub_one_eq_mod]
   apply Nat.mod_eq_of_lt lt
-
-@[deprecated and_two_pow_sub_one_of_lt_two_pow (since := "2025-03-18")]
-abbrev and_pow_two_sub_one_of_lt_two_pow := @and_two_pow_sub_one_of_lt_two_pow
 
 @[simp] theorem and_mod_two_eq_one : (a &&& b) % 2 = 1 ↔ a % 2 = 1 ∧ b % 2 = 1 := by
   simp only [mod_two_eq_one_iff_testBit_zero]
@@ -577,32 +570,28 @@ theorem and_mod_two_pow : (a &&& b) % 2 ^ n = (a % 2 ^ n) &&& (b % 2 ^ n) :=
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem or_comm (x y : Nat) : x ||| y = y ||| x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_comm]
 
-@[grind _=_]
 protected theorem or_assoc (x y z : Nat) : (x ||| y) ||| z = x ||| (y ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_assoc]
 
-@[grind _=_]
+@[grind =]
 theorem and_or_distrib_left (x y z : Nat) : x &&& (y ||| z) = (x &&& y) ||| (x &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_left]
 
-@[grind _=_]
-theorem and_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y &&& z) := by
+@[grind =]
+theorem and_or_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_right]
 
-@[grind _=_]
 theorem or_and_distrib_left (x y z : Nat) : x ||| (y &&& z) = (x ||| y) &&& (x ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_left]
 
-@[grind _=_]
 theorem or_and_distrib_right (x y z : Nat) : (x &&& y) ||| z = (x ||| z) &&& (y ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_right]
@@ -637,11 +626,38 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
 theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
   bitwise_mod_two_pow
 
+theorem or_mod_two : (a ||| b) % 2 = a % 2 ||| b % 2 :=
+  bitwise_mod_two_pow (n := 1)
+
+@[simp]
+theorem or_eq_zero_iff {n m : Nat} : n ||| m = 0 ↔ n = 0 ∧ m = 0 := by
+  simp [Nat.eq_iff_testBit_eq, forall_and]
+
+@[simp]
+theorem or_pos_iff {n m : Nat} : 0 < n ||| m ↔ 0 < n ∨ 0 < m := by
+  rw [Nat.pos_iff_ne_zero, ne_eq, Nat.or_eq_zero_iff, Decidable.not_and_iff_not_or_not,
+    Nat.pos_iff_ne_zero, Nat.pos_iff_ne_zero]
+
+private theorem add_eq_or_add_and (a b : Nat) :
+    a + b = (a % 2 ||| b % 2) + (a % 2 &&& b % 2) + 2 * (a / 2 + b / 2) := by
+  rw [← Nat.mod_add_div (a + b) 2]
+  obtain (ha|ha) := Nat.mod_two_eq_zero_or_one a <;> obtain (hb|hb) := Nat.mod_two_eq_zero_or_one b
+  all_goals (simp [ha, hb]; omega)
+
+theorem or_le_add {a b : Nat} : a ||| b ≤ a + b := by
+  induction b using Nat.div2Induction generalizing a with
+  | ind b hb =>
+    obtain (rfl|h) := Nat.eq_zero_or_pos b
+    · simp
+    · rw [add_eq_or_add_and, ← Nat.mod_add_div (a ||| b) 2, or_mod_two, or_div_two]
+      have := hb h (a := a / 2)
+      omega
+
 /-! ### xor -/
 
 @[simp, grind =] theorem testBit_xor (x y i : Nat) :
     (x ^^^ y).testBit i = ((x.testBit i) ^^ (y.testBit i)) := by
-  simp [HXor.hXor, Xor.xor, xor, testBit_bitwise ]
+  simp [HXor.hXor, XorOp.xor, xor, testBit_bitwise ]
 
 @[simp, grind =] theorem zero_xor (x : Nat) : 0 ^^^ x = x := by
    apply Nat.eq_of_testBit_eq
@@ -655,12 +671,10 @@ theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem xor_comm (x y : Nat) : x ^^^ y = y ^^^ x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.xor_comm]
 
-@[grind _=_]
 protected theorem xor_assoc (x y z : Nat) : (x ^^^ y) ^^^ z = x ^^^ (y ^^^ z) := by
    apply Nat.eq_of_testBit_eq
    simp
@@ -678,12 +692,12 @@ instance : Std.LawfulCommIdentity (α := Nat) (· ^^^ ·) 0 where
 theorem xor_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ^^^ y < 2^n :=
   bitwise_lt_two_pow left right
 
-@[grind _=_]
+@[grind =]
 theorem and_xor_distrib_right {a b c : Nat} : (a ^^^ b) &&& c = (a &&& c) ^^^ (b &&& c) := by
   apply Nat.eq_of_testBit_eq
   simp [Bool.and_xor_distrib_right]
 
-@[grind _=_]
+@[grind =]
 theorem and_xor_distrib_left {a b c : Nat} : a &&& (b ^^^ c) = (a &&& b) ^^^ (a &&& c) := by
   apply Nat.eq_of_testBit_eq
   simp [Bool.and_xor_distrib_left]
@@ -732,9 +746,6 @@ theorem testBit_two_pow_mul_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
           Nat.div_eq_of_lt b_lt,
           Nat.two_pow_pos i]
 
-@[deprecated testBit_two_pow_mul_add (since := "2025-03-18")]
-abbrev testBit_mul_pow_two_add := @testBit_two_pow_mul_add
-
 @[grind =]
 theorem testBit_two_pow_mul :
     testBit (2 ^ i * a) j = (decide (j ≥ i) && testBit a (j-i)) := by
@@ -748,9 +759,6 @@ theorem testBit_two_pow_mul :
 theorem testBit_mul_two_pow (x j i : Nat) :
     (x * 2 ^ i).testBit j = (decide (i ≤ j) && x.testBit (j - i)) := by
   rw [Nat.mul_comm, testBit_two_pow_mul]
-
-@[deprecated testBit_two_pow_mul (since := "2025-03-18")]
-abbrev testBit_mul_pow_two := @testBit_two_pow_mul
 
 theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
     2^i * a + b = 2^i * a ||| b := by
@@ -767,8 +775,10 @@ theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
                  _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
 
-@[deprecated two_pow_add_eq_or_of_lt (since := "2025-03-18")]
-abbrev mul_add_lt_is_or := @two_pow_add_eq_or_of_lt
+theorem or_two_pow_eq_add_of_lt {a n : Nat} (h : a < 2 ^ n) : a ||| 2 ^ n = a + 2 ^ n := by
+  have h' := Nat.two_pow_add_eq_or_of_lt h 1
+  simp only [Nat.mul_one] at h'
+  rw [Nat.or_comm, ← h', Nat.add_comm]
 
 /-! ### shiftLeft and shiftRight -/
 
@@ -797,15 +807,12 @@ theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = 
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
   simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
 
-@[grind _=_]
 theorem shiftLeft_and_distrib {a b : Nat} : (a &&& b) <<< i = a <<< i &&& b <<< i :=
   shiftLeft_bitwise_distrib
 
-@[grind _=_]
 theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i :=
   shiftLeft_bitwise_distrib
 
-@[grind _=_]
 theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< i :=
   shiftLeft_bitwise_distrib
 
@@ -814,7 +821,6 @@ theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< 
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
   exact (Bool.beq_eq_decide_eq _ _).symm
 
-@[grind _=_]
 theorem shiftRight_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) >>> i = bitwise f (a >>> i) (b >>> i) := by
   simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]
@@ -850,11 +856,20 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
   rw [shiftLeft_eq, Nat.mul_comm]
   rw [two_pow_add_eq_or_of_lt b_lt]
 
+@[simp]
+theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
+  simp [shiftLeft_eq, mul_eq_zero]
+
+@[simp]
+theorem shiftLeft_pos_iff {n m : Nat} : 0 < n <<< m ↔ 0 < n := by
+  simp [Nat.pos_iff_ne_zero]
+
+instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
+
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by
-  induction n using div2Induction generalizing m
-  next n ih =>
+  induction n using div2Induction generalizing m with | _ n ih
   have : n / 2 ≤ m / 2 := by
     rcases n with (_|n)
     · simp
@@ -875,7 +890,181 @@ theorem and_le_right {n m : Nat} : n &&& m ≤ m :=
   le_of_testBit (by simp)
 
 theorem left_le_or {n m : Nat} : n ≤ n ||| m :=
-  le_of_testBit (by simpa using fun i => Or.inl)
+  le_of_testBit (by simp [imp_or_left_iff_true])
 
 theorem right_le_or {n m : Nat} : m ≤ n ||| m :=
-  le_of_testBit (by simpa using fun i => Or.inr)
+  le_of_testBit (by simp [imp_or_right_iff_true])
+
+/-! ### Trailing zeros -/
+
+/-- A bit-by-bit specification used to verify the chunked implementation. -/
+private noncomputable def trailingZerosBits (n : Nat) : Nat :=
+  n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+    ((nat_lit 2).ble n).rec (nat_lit 0)
+      (((n.mod (nat_lit 2)).beq (nat_lit 0)).rec (nat_lit 0)
+        ((ih (n.div (nat_lit 2))).succ))) n
+
+private theorem trailingZerosBits_rec_irrel {n k k' : Nat} (hk : n ≤ k) (hk' : n ≤ k') :
+    (k.rec (fun _ => 0) (fun _ ih n =>
+      ((2).ble n).rec 0 (((n % 2).beq 0).rec 0 ((ih (n / 2)).succ))) n : Nat) =
+    (k'.rec (fun _ => 0) (fun _ ih n =>
+      ((2).ble n).rec 0 (((n % 2).beq 0).rec 0 ((ih (n / 2)).succ))) n : Nat) := by
+  induction k generalizing n k' with
+  | zero => cases hk; cases k' <;> rfl
+  | succ k ih =>
+    cases k'
+    · cases hk'; rfl
+    · dsimp only
+      cases h : Nat.ble 2 n
+      · rfl
+      · cases (n % 2).beq 0
+        · rfl
+        · have hn := Nat.log2_terminates n (Nat.le_of_ble_eq_true h)
+          exact congrArg Nat.succ
+            (ih (Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hn hk))
+              (Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hn hk')))
+
+private theorem trailingZerosBits_def (n : Nat) :
+    trailingZerosBits n = if n = 0 then 0 else if n % 2 = 0 then trailingZerosBits (n / 2) + 1 else 0 := by
+  rw [trailingZerosBits, trailingZerosBits]
+  cases n with
+  | zero => rfl
+  | succ n =>
+    simp only [Nat.succ_ne_zero, ↓reduceIte]
+    cases h : Nat.ble 2 (n + 1)
+    · have h' : ¬ 2 ≤ n + 1 := fun hn => Bool.noConfusion (h.symm.trans (Nat.ble_eq_true_of_le hn))
+      have : n = 0 := by omega
+      subst n
+      rfl
+    · cases hb : ((n + 1).mod 2).beq 0
+      · have he : (n + 1) % 2 ≠ 0 := Nat.ne_of_beq_eq_false hb
+        rw [ite_eq_right he]
+      · have he : (n + 1) % 2 = 0 := Nat.eq_of_beq_eq_true hb
+        rw [ite_eq_left he]
+        exact congrArg Nat.succ
+          (trailingZerosBits_rec_irrel (n := (n + 1) / 2) (k := n) (by omega) (Nat.le_refl _))
+
+private theorem trailingZerosBits_eq_zero_of_mod_eq {n : Nat} (h : n % 2 = 1) :
+    trailingZerosBits n = 0 := by
+  rw [trailingZerosBits_def]
+  split <;> simp_all
+
+private theorem trailingZerosBits_two_mul {n : Nat} (h : n ≠ 0) :
+    trailingZerosBits (2 * n) = trailingZerosBits n + 1 := by
+  rw [trailingZerosBits_def, ite_eq_right (by omega)]
+  simp
+
+private theorem trailingZerosBits_two_pow_mul {n : Nat} (h : n ≠ 0) (k : Nat) :
+    trailingZerosBits (2 ^ k * n) = trailingZerosBits n + k := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    rw [Nat.pow_succ', Nat.mul_assoc,
+      trailingZerosBits_two_mul (Nat.mul_ne_zero (Nat.ne_of_gt (Nat.two_pow_pos k)) h), ih]
+    omega
+
+private theorem trailingZerosBits_mod_two_pow {n k : Nat} (h : n % 2 ^ k ≠ 0) :
+    trailingZerosBits (n % 2 ^ k) = trailingZerosBits n := by
+  induction k generalizing n with
+  | zero => simp only [Nat.pow_zero, Nat.mod_one, ne_eq, not_true_eq_false] at h
+  | succ k ih =>
+    rcases Nat.mod_two_eq_zero_or_one n with hn | hn
+    · obtain ⟨m, rfl⟩ := Nat.dvd_of_mod_eq_zero hn
+      rw [Nat.pow_succ', Nat.mul_mod_mul_left] at h ⊢
+      have hm : m % 2 ^ k ≠ 0 := by omega
+      have hm' : m ≠ 0 := by intro hz; simp [hz] at hm
+      rw [trailingZerosBits_two_mul hm, trailingZerosBits_two_mul hm', ih hm]
+    · rw [trailingZerosBits_eq_zero_of_mod_eq hn]
+      apply trailingZerosBits_eq_zero_of_mod_eq
+      rwa [Nat.mod_mod_of_dvd _ (by rw [Nat.pow_succ']; exact Nat.dvd_mul_right ..)]
+
+private theorem trailingZeros_lowWord_eq_mod (n : Nat) :
+    (0xffffffffffffffff).land n = n % 2 ^ 64 := by
+  change (2 ^ 64 - 1) &&& n = n % 2 ^ 64
+  rw [Nat.and_comm, Nat.and_two_pow_sub_one_eq_mod]
+
+-- The recursor mirrors `trailingZeros`; `trailingZerosBits` unfolds to its local bit counter.
+private theorem trailingZeros_rec_eq_bits {n fuel : Nat} (h : n ≤ fuel) :
+    (fuel.rec (fun _ => 0) (fun _ ih n =>
+      (n.beq 0).rec
+        ((((0xffffffffffffffff).land n).beq 0).rec
+          (trailingZerosBits ((0xffffffffffffffff).land n))
+          ((ih (n >>> 64)).add 64)) 0) n : Nat) = trailingZerosBits n := by
+  induction fuel generalizing n with
+  | zero => cases h; rfl
+  | succ fuel ih =>
+    dsimp only
+    cases hz : n.beq 0
+    · have hn : n ≠ 0 := Nat.ne_of_beq_eq_false hz
+      cases hw : ((0xffffffffffffffff).land n).beq 0
+      · have hw' : n % 2 ^ 64 ≠ 0 := by
+          rw [← trailingZeros_lowWord_eq_mod]
+          exact Nat.ne_of_beq_eq_false hw
+        simpa only [trailingZeros_lowWord_eq_mod] using trailingZerosBits_mod_two_pow hw'
+      · have hw' : n % 2 ^ 64 = 0 := by
+          rw [← trailingZeros_lowWord_eq_mod]
+          exact Nat.eq_of_beq_eq_true hw
+        have hlt : n >>> 64 < n := by
+          rw [Nat.shiftRight_eq_div_pow]
+          exact Nat.div_lt_self (Nat.pos_of_ne_zero hn) (by decide)
+        rw [ih (by omega)]
+        have heq : 2 ^ 64 * (n / 2 ^ 64) = n := Nat.mul_div_cancel' (Nat.dvd_of_mod_eq_zero hw')
+        have hq : n / 2 ^ 64 ≠ 0 := by intro hz; rw [hz, Nat.mul_zero] at heq; omega
+        simpa only [Nat.shiftRight_eq_div_pow, heq] using (trailingZerosBits_two_pow_mul hq 64).symm
+    · have hn := Nat.eq_of_beq_eq_true hz
+      subst n
+      rfl
+
+private theorem trailingZeros_eq_bits (n : Nat) : trailingZeros n = trailingZerosBits n :=
+  trailingZeros_rec_eq_bits (Nat.le_refl n)
+
+theorem trailingZeros_def (n : Nat) :
+    trailingZeros n = if n = 0 then 0 else if n % 2 = 0 then trailingZeros (n / 2) + 1 else 0 := by
+  simp only [trailingZeros_eq_bits]
+  exact trailingZerosBits_def n
+
+@[simp] theorem trailingZeros_zero : trailingZeros 0 = 0 := rfl
+
+theorem trailingZeros_eq_zero_of_mod_eq {n : Nat} (h : n % 2 = 1) :
+    trailingZeros n = 0 := by
+  rw [trailingZeros_def]
+  split <;> simp_all
+
+theorem trailingZeros_two_mul {n : Nat} (h : n ≠ 0) :
+    trailingZeros (2 * n) = trailingZeros n + 1 := by
+  rw [trailingZeros_def, ite_eq_right (by omega)]
+  simp
+
+/-- The trailing-zero count is the index of the least significant set bit. -/
+theorem trailingZeros_eq_of_testBit {n i : Nat} (hi : n.testBit i = true)
+    (hlo : ∀ j < i, n.testBit j = false) : n.trailingZeros = i := by
+  induction i generalizing n with
+  | zero => exact trailingZeros_eq_zero_of_mod_eq (mod_two_eq_one_iff_testBit_zero.mpr hi)
+  | succ i ih =>
+    have hn : n ≠ 0 := by intro h; simp [h] at hi
+    have heven : n % 2 = 0 := mod_two_eq_zero_iff_testBit_zero.mpr (hlo 0 (by omega))
+    rw [trailingZeros_def, ite_eq_right hn, ite_eq_left heven]
+    congr 1
+    apply ih
+    · simpa only [testBit_succ] using hi
+    · intro j hj
+      rw [← testBit_succ]
+      exact hlo (j + 1) (by omega)
+
+theorem testBit_trailingZeros {n : Nat} (hn : n ≠ 0) : n.testBit n.trailingZeros = true := by
+  induction n using Nat.div2Induction with
+  | ind n ih =>
+    rw [trailingZeros_def, ite_eq_right hn]
+    split
+    next heven =>
+      rw [testBit_add_one]
+      apply ih (by omega)
+      omega
+    next hodd =>
+      rw [testBit_zero]
+      simp [show n % 2 = 1 by omega]
+
+theorem trailingZeros_lt_of_lt_two_pow {n w : Nat} (hn : n ≠ 0) (hw : n < 2 ^ w) :
+    n.trailingZeros < w := by
+  have h := ge_two_pow_of_testBit (testBit_trailingZeros hn)
+  exact (Nat.pow_lt_pow_iff_right (by decide : 1 < 2)).mp (Nat.lt_of_le_of_lt h hw)

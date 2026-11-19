@@ -7,7 +7,7 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 #include "runtime/uv/net_addr.h"
-#include "runtime/object_ref.h"
+#include "runtime/uv/util.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
@@ -15,18 +15,26 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class * g_uv_udp_socket_external_class = NULL;
+inline lean_external_class * g_uv_udp_socket_external_class = nullptr;
 void initialize_libuv_udp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
 
-// Structure for managing a single UDP socket object, including promise handling,
-// connection state, and read/write buffers.
-typedef struct {
-    uv_udp_t *      m_uv_udp;           // LibUV UDP handle.
-    lean_object *   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
-    lean_object *   m_byte_array;       // The received data stored.
-} lean_uv_udp_socket_object;
+// A UDP socket. Allocated with `new`; the close callback deletes it.
+struct lean_uv_udp_socket_object {
+    uv_udp_t      m_uv_udp; // LibUV UDP handle.
+    uv_pending_op m_read;   // `recv` (payload: the receive buffer) or `waitReadable` (none).
+
+    // The loop holds a reference to the socket while a read is pending.
+    unsigned loop_refs() const {
+        return m_read.pending();
+    }
+
+    // Every Lean reference the socket holds. The loop's reference to the socket itself is not one.
+    std::array<owned_ref *, 2> lean_refs() {
+        return {&m_read.m_promise, &m_read.m_payload};
+    }
+};
 
 // =======================================
 // UDP socket object manipulation functions.
@@ -38,24 +46,24 @@ static inline lean_uv_udp_socket_object* lean_to_uv_udp_socket(lean_object * o) 
 // =======================================
 // UDP Socket Operations
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new(obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg addr, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_arg addr, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg data, b_obj_arg opt_addr, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t buffer_size, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new();
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg addr);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_arg addr);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg data_array, b_obj_arg opt_addr);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t buffer_size);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket);
 
 // =======================================
 // UDP Socket Utility Functions
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getpeername(b_obj_arg socket, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getpeername(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, uint8_t enable, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, uint8_t enable, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg socket, uint32_t ttl, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, uint8_t membership, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_arg socket, b_obj_arg interface_addr, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_ttl(b_obj_arg socket, uint32_t ttl, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, uint8_t enable);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, uint8_t enable);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg socket, uint32_t ttl);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, uint8_t membership);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_arg socket, b_obj_arg interface_addr);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_ttl(b_obj_arg socket, uint32_t ttl);
 
 }

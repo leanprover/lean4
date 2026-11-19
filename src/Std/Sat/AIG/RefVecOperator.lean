@@ -9,5 +9,3 @@ prelude
 public import Std.Sat.AIG.RefVecOperator.Map
 public import Std.Sat.AIG.RefVecOperator.Zip
 public import Std.Sat.AIG.RefVecOperator.Fold
-
-@[expose] public section

@@ -7,14 +7,24 @@ module
 
 prelude
 public import Lean.Linter.Util
+public import Lean.Linter.AmbiguousOpen
 public import Lean.Linter.Builtin
+public import Lean.Linter.CheckUnivs
+public import Lean.Linter.CodeQuality
 public import Lean.Linter.ConstructorAsVariable
+public import Lean.Linter.DefProp
 public import Lean.Linter.Deprecated
+public import Lean.Linter.DocsOnAlt
 public import Lean.Linter.UnusedVariables
 public import Lean.Linter.MissingDocs
 public import Lean.Linter.Omit
 public import Lean.Linter.List
 public import Lean.Linter.Sets
 public import Lean.Linter.UnusedSimpArgs
-
-public section
+public import Lean.Linter.Coe
+public import Lean.Linter.GlobalAttributeIn
+public import Lean.Linter.EnvLinter
+public import Lean.Linter.PersistentLintLog
+public import Lean.Linter.Extra
+public import Lean.Linter.TacticTypeCheck
+public import Lean.Linter.CoreInternal

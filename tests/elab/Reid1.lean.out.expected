@@ -1,0 +1,12 @@
+@ConstantFunction.f Nat (Option.{0} Nat) (@myFun Nat)
+  (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) : Option.{0} Nat
+@ConstantFunction.f Nat (Option.{0} Nat) (@myFun Nat)
+  (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) : Option.{0} Nat
+@ConstantFunction.f Nat (Option.{0} Nat) (myFun' Nat)
+  (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) : Option.{0} Nat
+@ConstantFunction.f Nat (Option.{0} Nat) (myFun' Nat)
+  (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) : Option.{0} Nat
+@ConstantFunction.f Nat Nat c (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) : Nat
+(fun (c : ConstantFunction Nat (Option.{0} Nat)) =>
+    @ConstantFunction.f Nat (Option.{0} Nat) c (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))
+  (@myFun Nat) : Option.{0} Nat

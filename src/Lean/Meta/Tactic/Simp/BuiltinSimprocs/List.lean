@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Meta.LitValues
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
 public section
@@ -14,6 +13,7 @@ public section
 namespace List
 open Lean Meta Simp
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `List.replicate` applied to a `Nat` literal. -/
 -- We don't always want `List.replicate_succ` as a `simp` lemma,
 -- so we use this `dsimproc` to unfold `List.replicate` applied to literals.

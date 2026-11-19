@@ -1,0 +1,39 @@
+L1.{u} (α : Type u) : Type u
+@L1.cons : {α : Type u_1} → α → L1 α → L1 α
+@L2.cons : {α : Type u_1} → α → L2 α → L2 α
+@A.cons : {α : Type u_1} → {β : Type u_2} → α → β → A α β → A α β
+A.nil : A Nat Bool
+isEven : Nat → Prop
+isOdd.s (n : Nat) : isEven n → isOdd (n + 1)
+@isEven.rec : ∀ {motive_1 : (a : Nat) → isEven a → Prop} {motive_2 : (a : Nat) → isOdd a → Prop},
+  motive_1 0 isEven.z →
+    (∀ (n : Nat) (a : isOdd n), motive_2 n a → motive_1 (n + 1) ⋯) →
+      (∀ (n : Nat) (a : isEven n), motive_1 n a → motive_2 (n + 1) ⋯) → ∀ {a : Nat} (t : isEven a), motive_1 a t
+@V.nil : {α : Type u_1} → V α 0
+@V.cons : {α : Type u_1} → {n : Nat} → α → V α n → V α (n + 1)
+@V.rec : {α : Type u_2} →
+  {motive : (a : Nat) → V α a → Sort u_1} →
+    motive 0 V.nil →
+      ({n : Nat} → (a : α) → (a_1 : V α n) → motive n a_1 → motive (n + 1) (V.cons a a_1)) →
+        {a : Nat} → (t : V α a) → motive a t
+@V.noConfusion : {P : Sort u_1} →
+  {α : Type u_2} →
+    {a : Nat} →
+      {t : V α a} → {α' : Type u_2} → {a' : Nat} → {t' : V α' a'} → α = α' → a = a' → t ≍ t' → V.noConfusionType P t t'
+@V.brecOn : {α : Type u_2} →
+  {motive : (a : Nat) → V α a → Sort u_1} →
+    {a : Nat} → (t : V α a) → ((a : Nat) → (t : V α a) → V.below t → motive a t) → motive a t
+@V.casesOn : {α : Type u_2} →
+  {motive : (a : Nat) → V α a → Sort u_1} →
+    {a : Nat} →
+      (t : V α a) → motive 0 V.nil → ({n : Nat} → (a : α) → (a_1 : V α n) → motive (n + 1) (V.cons a a_1)) → motive a t
+@V.recOn : {α : Type u_2} →
+  {motive : (a : Nat) → V α a → Sort u_1} →
+    {a : Nat} →
+      (t : V α a) →
+        motive 0 V.nil →
+          ({n : Nat} → (a : α) → (a_1 : V α n) → motive n a_1 → motive (n + 1) (V.cons a a_1)) → motive a t
+@V.below : {α : Type u_2} → {motive : (a : Nat) → V α a → Sort u_1} → {a : Nat} → V α a → Sort (max (u_2 + 1) u_1)
+tst : Dec True
+@T1.mk : {β : Type u_1} → β → β → T1 β
+@MyEq.refl : ∀ {α : Type} {a : α}, MyEq a a

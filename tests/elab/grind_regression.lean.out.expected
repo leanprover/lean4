@@ -1,0 +1,16 @@
+Try this:
+  [apply] [grind =] for pattern: [@HMul.hMul #2 _ _ _ (@OfNat.ofNat _ `[1] _) #0]
+Try this:
+  [apply] [grind =] for pattern: [@HMul.hMul #2 _ _ _ #0 (@OfNat.ofNat _ `[1] _)]
+Try these:
+  [apply] [grind =] for pattern: [@HMul.hMul #2 _ _ _ (@Inv.inv _ _ #0) #0]
+  [apply] [grind .] for pattern: [@Inv.inv #2 _ #0]
+Try these:
+  [apply] [grind =] for pattern: [@HMul.hMul #2 _ _ _ #0 (@Inv.inv _ _ #0)]
+  [apply] [grind .] for pattern: [@Inv.inv #2 _ #0]
+Try these:
+  [apply] [grind =] for pattern: [@HMul.hMul #3 _ _ _ (@Inv.inv _ _ #1) (@HMul.hMul _ _ _ _ #1 #0)]
+  [apply] [grind! .] for pattern: [@Inv.inv #3 _ #1, @HMul.hMul _ _ _ _ #1 #0]
+Try these:
+  [apply] [grind =] for pattern: [@HMul.hMul #3 _ _ _ #1 (@HMul.hMul _ _ _ _ (@Inv.inv _ _ #1) #0)]
+  [apply] [grind! .] for pattern: [@HMul.hMul #3 _ _ _ (@Inv.inv _ _ #1) #0]

@@ -1,0 +1,8 @@
+phashmap_inst_coherence.lean:13:53-13:54: error: Application type mismatch: The argument
+  m
+has type
+  @PersistentHashMap Nat Nat instBEqOfDecidableEq instHashableNat
+but is expected to have type
+  @PersistentHashMap Nat Nat ?m natDiffHash
+in the application
+  m.find?

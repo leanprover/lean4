@@ -1,0 +1,26 @@
+@f_main_eq : ∀ {x : Nat} {b : Bool},
+  f x b =
+    match x, b with
+    | 0, true => 1
+    | 0, false => 2
+    | 1, true => 3
+    | 1, x => 4
+    | x.succ.succ, true => f x true
+    | x.succ.succ, b => f x !b
+g_main_eq : ∀ (xs ys : List Nat),
+  g xs ys =
+    match xs, ys with
+    | [], y :: ys => y
+    | [], x => 0
+    | x :: x_1 :: xs, ys => g xs ys
+    | x :: xs, y :: ys => g xs ys + y
+    | x :: xs, [] => g xs []
+foo_main_eq : ∀ (xs : List Nat),
+  foo xs =
+    match xs with
+    | [] => []
+    | x :: xs =>
+      have y := 2 * x;
+      match xs with
+      | [] => []
+      | x :: xs => (y + x) :: foo xs

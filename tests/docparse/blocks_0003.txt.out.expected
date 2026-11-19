@@ -1,0 +1,29 @@
+Input: "I can describe lists like this one:\n\n* a\n* b"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "I can describe lists like this one:"))])
+   (Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "a"))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "b"))])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "I can describe lists like this one:")
+  ul
+    item (marker := "*")
+      para
+        text (content := "a")
+    item (marker := "*")
+      para
+        text (content := "b")

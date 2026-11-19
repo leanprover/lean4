@@ -1,0 +1,8 @@
+partial def f.loop._unsafe_rec : (i : Nat) → Bool :=
+fun (i : Nat) =>
+  let v : Bool := Bool.true;
+  @ite.{1} Bool (@Eq.{1} Bool v v) (instDecidableEqBool v v)
+    (f.loop._unsafe_rec
+      (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) i
+        (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+    v

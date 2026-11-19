@@ -1,0 +1,5 @@
+def pro : Bool :=
+have x := 42;
+false
+def f : Nat → Nat :=
+fun x => Nat.brecOn x f._f

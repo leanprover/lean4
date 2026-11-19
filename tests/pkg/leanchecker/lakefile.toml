@@ -1,0 +1,6 @@
+name = "leanchecker_test"
+defaultTargets = ["LeanCheckerTests"]
+
+[[lean_lib]]
+name = "LeanCheckerTests"
+globs = ["LeanCheckerTests.+"]

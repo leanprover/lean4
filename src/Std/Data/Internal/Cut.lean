@@ -6,7 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Std.Classes.Ord.Basic
+public import Init.Data.Order.Ord
+import Init.RCases
 
 @[expose] public section
 

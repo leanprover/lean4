@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Message
 public import Lean.InternalExceptionId
-public import Lean.Data.Options
-public import Lean.Util.MonadCache
 -- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
 -- all declared explanations:
-public import Lean.ErrorExplanations
+public import Lean.ErrorExplanation
 
 public section
 
@@ -108,6 +105,25 @@ function directly.
 protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α :=
   withRef ref <| Lean.throwNamedError name msg
 
+/-- Like `mkUnknownIdentifierMessage`, but does not tag the message. -/
+def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+    (declHint := Name.anonymous) : m MessageData := do
+  let mut msg := msg
+  let env ← getEnv
+  if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
+    let c := .withContext {
+      env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
+    msg := match (env.setExporting false).getModuleIdxFor? declHint with
+      | none     =>
+        msg ++ .note m!"A private declaration `{c}` (from the current module) exists but would need to be public to access here."
+      | some idx =>
+        let mod := env.header.moduleNames[idx]!
+        if isPrivateName declHint then
+          msg ++ .note m!"A private declaration `{c}` (from `{mod}`) exists but would need to be public to access here."
+        else
+          msg ++ .note m!"A public declaration `{c}` exists but is imported privately; consider adding `public import {mod}`."
+  return msg
+
 /--
 Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
@@ -120,12 +136,7 @@ a private declaration that is not accessible in the current context.
 -/
 def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
     (declHint := Name.anonymous) : m MessageData := do
-  let mut msg := msg
-  let env ← getEnv
-  if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
-    let c := .withContext {
-      env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
-    msg := msg ++ .note m!"A private declaration `{c}` exists but is not accessible in the current context."
+  let msg ← mkUnknownIdentifierMessageCore msg declHint
   return MessageData.tagged unknownIdentifierMessageTag msg
 
 /--
@@ -142,7 +153,7 @@ Throw an unknown constant error message.
 The end position of the range of `ref` should point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownConstantAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (constName : Name) : m α := do
+def throwUnknownConstantAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (constName : Name) : m α :=
   throwUnknownIdentifierAt (declHint := constName) ref m!"Unknown constant `{.ofConstName constName}`"
 
 /--
@@ -208,6 +219,11 @@ instance [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
 instance [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : MonadRecDepth (MonadCacheT α β m) :=
   inferInstanceAs (MonadRecDepth (StateRefT' _ _ _))
 
+instance [Monad m] [MonadRecDepth m] : MonadRecDepth (OptionT m) where
+  withRecDepth d x := OptionT.mk (MonadRecDepth.withRecDepth d x.run)
+  getRecDepth      := OptionT.lift MonadRecDepth.getRecDepth
+  getMaxRecDepth   := OptionT.lift MonadRecDepth.getMaxRecDepth
+
 /--
 Throw a "maximum recursion depth has been reached" exception using the given reference syntax.
 -/
@@ -221,7 +237,10 @@ but it is also produced by `MacroM` which implemented in the prelude, and intern
 been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
-  ex matches error _ (.tagged `runtime.maxRecDepth _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxRecDepth
+  else
+    false
 
 /--
 Increment the current recursion depth and then execute `x`.
@@ -231,7 +250,7 @@ We use this combinator to prevent stack overflows.
 @[inline] def withIncRecDepth [Monad m] [MonadError m] [MonadRecDepth m] (x : m α) : m α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
-  if curr == max then
+  if max != 0 && curr == max then
     throwMaxRecDepthAt (← getRef)
   else
     MonadRecDepth.withRecDepth (curr+1) x

@@ -6,10 +6,10 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Std.Internal.Parsec
-public import Std.Internal.Parsec.ByteArray
+import Init.Data.Int.Repr
+import Init.Data.ByteArray.Extra
 
 public section
 
@@ -162,6 +162,7 @@ structure TZifV2 extends TZifV1 where
   footer : Option String
   deriving Repr, Inhabited
 
+set_option linter.extra.dupNamespace false in
 /--
 Represents a TZif file, which can be either version 1 or version 2.
 -/
@@ -204,10 +205,10 @@ private def manyN (n : Nat) (p : Parser α) : Parser (Array α) := do
     result := result.push x
   return result
 
-private def pu64 : Parser UInt64 := ByteArray.toUInt64LE! <$> take 8
-private def pi64 : Parser Int64 := toInt64 <$> take 8
-private def pu32 : Parser UInt32 := toUInt32 <$> take 4
-private def pi32 : Parser Int32 := toInt32 <$> take 4
+private def pu64 : Parser UInt64 := ByteArray.toUInt64LE! <$> ByteSlice.toByteArray <$> take 8
+private def pi64 : Parser Int64 := toInt64 <$> ByteSlice.toByteArray <$> take 8
+private def pu32 : Parser UInt32 := toUInt32 <$> ByteSlice.toByteArray <$> take 4
+private def pi32 : Parser Int32 := toInt32 <$> ByteSlice.toByteArray <$> take 4
 private def pu8 : Parser UInt8 := any
 private def pbool : Parser Bool := (· != 0) <$> pu8
 

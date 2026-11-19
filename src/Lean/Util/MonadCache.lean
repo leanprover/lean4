@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.StateRef
 public import Std.Data.HashMap.Basic
 
 public section
@@ -83,7 +82,7 @@ instance [Alternative m] : Alternative (MonadCacheT α β m) := inferInstanceAs 
 
 end MonadCacheT
 
-/- Similar to `MonadCacheT`, but using `StateT` instead of `StateRefT` -/
+/-- Similar to `MonadCacheT`, but using `StateT` instead of `StateRefT` -/
 @[expose] def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [Hashable α] := StateT (Std.HashMap α β) m
 
 namespace MonadStateCacheT

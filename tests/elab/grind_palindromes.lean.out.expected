@@ -1,0 +1,10 @@
+Try these:
+  [apply] [grind =] for pattern: [@last #4 (@cons _ #2 #3) #0]
+  [apply] [grind =>] for pattern: [@nil #4, @last _ (@cons _ #2 #3) #0]
+Try these:
+  [apply] [grind
+    =] for pattern: [@HAppend.hAppend (List #2) (List _) (List _) _ (@dropLast _ #1) (@cons _ (@last _ #1 #0) (@nil _))]
+  [apply] [grind
+    =>] for pattern: [@nil #2, @HAppend.hAppend (List _) (List _) (List _) _ (@dropLast _ #1) (@cons _ (@last _ #1 #0) (@nil _))]
+  [apply] [grind! .] for pattern: [@dropLast #2 #1]
+  [apply] [grind! =>] for pattern: [@nil #2, @dropLast _ #1]

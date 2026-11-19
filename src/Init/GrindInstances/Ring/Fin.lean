@@ -6,30 +6,20 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Data.Zero
-public import Init.Grind.Ring.Basic
-public import all Init.GrindInstances.ToInt
+import all Init.Data.Zero
 public import Init.Data.Fin.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Omega
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.MinMax
 
 public section
 
 namespace Lean.Grind
 
 namespace Fin
-
--- TODO: we should replace this at runtime with either repeated squaring,
--- or a GMP accelerated function.
-@[expose]
-def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
-
-instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
-  hPow := Fin.npow
-
-instance [NeZero n] : Pow (Fin n) Nat where
-  pow := Fin.npow
-
-@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := rfl
-@[simp] theorem pow_succ [NeZero n] (a : Fin n) (n : Nat) : a ^ (n+1) = a ^ n * a := rfl
 
 theorem add_assoc (a b c : Fin n) : a + b + c = a + (b + c) := by
   cases a; cases b; cases c; simp [Fin.add_def, Nat.add_assoc]
@@ -68,8 +58,8 @@ theorem sub_eq_add_neg [NeZero n] (a b : Fin n) : a - b = a + -b := by
   cases a; cases b; simp [Fin.neg_def, Fin.sub_def, Fin.add_def, Nat.add_comm]
 
 private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
-  cases a; simp [Fin.neg_def]
-  next a h => cases a; simp; next a =>
+  obtain ⟨a, h⟩ := a; simp [Fin.neg_def]
+  cases a; simp; next a =>
    rw [Nat.self_sub_mod n (a+1)]
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
    rw [Nat.self_sub_mod, Nat.sub_sub_eq_min, Nat.min_eq_right (Nat.le_of_lt h)]
@@ -119,12 +109,14 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   mul_one := Fin.mul_one
   left_distrib := Fin.left_distrib
   zero_mul := Fin.zero_mul
-  pow_zero _ := by rfl
-  pow_succ _ _ := by rfl
+  pow_zero := Fin.pow_zero
+  pow_succ := Fin.pow_succ
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
-  neg_zsmul i a := by simp [intCast_neg, neg_mul]
+  neg_zsmul i a := by
+    change (((-i) : Int) : Fin n)* a = - ((i : Fin n) * a)
+    simp [intCast_neg, neg_mul]
   zsmul_natCast_eq_nsmul _ _ := rfl
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
@@ -134,21 +126,15 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
     simp only [Nat.zero_mod]
     simp only [Fin.mk.injEq])
 
-example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
-example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
 
-instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
-  toInt_pow x k := by
-    induction k with
-    | zero =>
-      match n, i with
-      | 1, _ => rfl
-      | (n + 2), _ =>
-        simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
-        rw [Int.emod_eq_of_lt] <;> omega
-    | succ k ih =>
-      rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
-        ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
+
+instance : PowIdentity (Fin 2) 2 where
+  pow_eq x := by
+    ext
+    rw [Fin.val_pow]
+    match x with
+    | ⟨0, _⟩ => rfl
+    | ⟨1, _⟩ => rfl
 
 end Fin
 

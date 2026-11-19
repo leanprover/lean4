@@ -1,0 +1,31 @@
+theorem ex1 : ∀ {n : Nat} (a b : Nat) (as : Vec Nat n), foo (Vec.cons a as) (Vec.cons b as) id 0 = a + b :=
+fun {n} a b as =>
+  of_eq_true
+    (Eq.trans
+      (Eq.trans
+        (congrFun'
+          (congrArg Eq
+            (Eq.trans
+              (congrArg (fun x => x (Vec.cons a as) (Vec.cons b as) (fun v w => 0) fun a n a_1 b a_2 v w => a + b)
+                (congr (congrArg (foo.match_1 (fun n x x_1 v w => Nat) (n + 1)) (map_id (Vec.cons a as)))
+                  (map_id (Vec.cons b as))))
+              (foo.match_1.eq_2 (fun n x x_1 v w => Nat) a n as b as (Vec.cons a as) (Vec.cons b as) (fun v w => 0)
+                fun a n a_1 b a_2 v w => a + b)))
+          (a + b))
+        Nat.add_left_cancel_iff._simp_1)
+      (eq_self b))
+theorem ex2 : ∀ {b : Bool}, b = false → bla b (fun x => x + 1) id 10 = 10 :=
+fun {b} h =>
+  of_eq_true
+    (Eq.trans
+      (congrFun'
+        (congrArg Eq
+          (congrArg
+            (fun x =>
+              (match (motive := Bool → Nat → Nat) x with
+                | true => fun x => x + 1
+                | false => id)
+                10)
+            h))
+        10)
+      (eq_self 10))

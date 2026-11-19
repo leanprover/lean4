@@ -9,26 +9,104 @@ prelude
 public import Lean.ImportingFlag
 public import Lean.Data.KVMap
 public import Lean.Data.NameMap.Basic
+import Init.Data.ToString.Macro
 
 public section
 
 namespace Lean
 
-@[expose] def Options := KVMap
+structure Options where
+  private map : NameMap DataValue
+  /--
+  Whether any option with prefix `trace` is set. This does *not* imply that any of such option is
+  set to `true` but it does capture the most common case that no such option has ever been touched.
+  -/
+  hasTrace : Bool
 
-def Options.empty : Options  := {}
+namespace Options
+
+def empty : Options where
+  map := {}
+  hasTrace := false
+
+@[export lean_options_get_empty]
+private def getEmpty (_ : Unit) : Options := .empty
+
 instance : Inhabited Options where
-  default := {}
-instance : ToString Options := inferInstanceAs (ToString KVMap)
-instance : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
-instance : BEq Options := inferInstanceAs (BEq KVMap)
+  default := .empty
+instance : ToString Options where
+  toString o := private toString o.map.toList
+instance [Monad m] : ForIn m Options (Name × DataValue) where
+  forIn o init f := private forIn o.map init f
+instance : BEq Options where
+  beq o1 o2 := private o1.map.beq o2.map
+instance : EmptyCollection Options where
+  emptyCollection := .empty
+
+@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+  o.map.find? k
+
+@[deprecated find? (since := "2026-01-15")]
+def find := find?
+
+@[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
+  o.map.find? k |>.bind KVMap.Value.ofDataValue?
+
+@[inline] def get {α : Type} [KVMap.Value α] (o : Options) (k : Name) (defVal : α) : α :=
+  o.get? k |>.getD defVal
+
+@[inline] def getBool (o : Options) (k : Name) (defVal : Bool := false) : Bool :=
+  o.get k defVal
+
+@[inline] def contains (o : Options) (k : Name) : Bool :=
+  o.map.contains k
+
+@[inline] def insert (o : Options) (k : Name) (v : DataValue) : Options where
+  map := o.map.insert k v
+  hasTrace := o.hasTrace || (`trace).isPrefixOf k
+
+def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options :=
+  o.insert k (KVMap.Value.toDataValue v)
+
+@[inline] def setBool (o : Options) (k : Name) (v : Bool) : Options :=
+  o.set k v
+
+def erase (o : Options) (k : Name) : Options where
+  map := o.map.erase k
+  -- `erase` is expected to be used even more rarely than `set` so O(n) is fine
+  hasTrace := o.map.keys.any (`trace).isPrefixOf
+
+def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
+  map := o1.map.mergeWith f o2.map
+  hasTrace := o1.hasTrace || o2.hasTrace
+
+end Options
+
+structure OptionDeprecation where
+  since    : String
+  text?    : Option String := none
+  /-- The option to use instead, taken from the `@[deprecated <name>]` attribute. -/
+  newName? : Option Name := none
+  deriving Inhabited
 
 structure OptionDecl where
+  name     : Name
   declName : Name := by exact decl_name%
   defValue : DataValue
-  group    : String := ""
   descr    : String := ""
+  deprecation? : Option OptionDeprecation := none
   deriving Inhabited
+
+def OptionDecl.fullDescr (self : OptionDecl) : String := Id.run do
+  let mut descr := self.descr
+  if (`backward).isPrefixOf self.name then
+    unless descr.isEmpty do
+      descr := descr ++ "\n\n"
+    descr := descr ++ "\
+      This is a backwards compatibility option, intended to help migrating to new Lean releases. \
+      It may be removed without further notice 6 months after their introduction. \
+      Please report an issue if you rely on this option."
+  pure descr
 
 @[expose] def OptionDecls := NameMap OptionDecl
 
@@ -47,13 +125,6 @@ def registerOption (name : Name) (decl : OptionDecl) : IO Unit := do
 
 def getOptionDecls : IO OptionDecls := optionDeclsRef.get
 
-@[export lean_get_option_decls_array]
-def getOptionDeclsArray : IO (Array (Name × OptionDecl)) := do
-  let decls ← getOptionDecls
-  return decls.foldl
-   (fun (r : Array (Name × OptionDecl)) k v => r.push (k, v))
-   #[]
-
 def getOptionDecl (name : Name) : IO OptionDecl := do
   let decls ← getOptionDecls
   let (some decl) ← pure (decls.find? name) | throw $ IO.userError s!"Unknown option `{name}`"
@@ -69,21 +140,29 @@ def getOptionDescr (name : Name) : IO String := do
 
 class MonadOptions (m : Type → Type) where
   getOptions : m Options
+  /--
+  Returns the options without the check of `getOptions` for recording computations. Only for reads
+  that cannot influence a result cached by such a computation: message rendering, trace and
+  profiler collection, diagnostics, and limits that are part of the cache key or throw when
+  exceeded. See `Lean.getRecordedOption`.
+  -/
+  getOptionsUnrestricted : m Options := getOptions
 
-export MonadOptions (getOptions)
+export MonadOptions (getOptions getOptionsUnrestricted)
 
 instance [MonadLift m n] [MonadOptions m] : MonadOptions n where
   getOptions := liftM (getOptions : m _)
+  getOptionsUnrestricted := liftM (getOptionsUnrestricted : m _)
 
 variable [Monad m] [MonadOptions m]
 
 def getBoolOption (k : Name) (defValue := false) : m Bool := do
   let opts ← getOptions
-  return opts.getBool k defValue
+  return opts.get k defValue
 
 def getNatOption (k : Name) (defValue := 0) : m Nat := do
   let opts ← getOptions
-  return opts.getNat k defValue
+  return opts.get k defValue
 
 class MonadWithOptions (m : Type → Type) where
   withOptions (f : Options → Options) (x : m α) : m α
@@ -97,10 +176,10 @@ instance [MonadFunctor m n] [MonadWithOptions m] : MonadWithOptions n where
    the term being delaborated should be treated as a pattern. -/
 
 def withInPattern [MonadWithOptions m] (x : m α) : m α :=
-  withOptions (fun o => o.setBool `_inPattern true) x
+  withOptions (fun o => o.set `_inPattern true) x
 
 def Options.getInPattern (o : Options) : Bool :=
-  o.getBool `_inPattern
+  o.get `_inPattern false
 
 /-- A strongly-typed reference to an option. -/
 protected structure Option (α : Type) where
@@ -112,8 +191,8 @@ namespace Option
 
 protected structure Decl (α : Type) where
   defValue : α
-  group    : String := ""
   descr    : String := ""
+  deprecation? : Option OptionDeprecation := none
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name
@@ -121,8 +200,19 @@ protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Op
 protected def get [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
   opts.get opt.name opt.defValue
 
+@[export lean_options_get_bool]
+private def getBool (opts : Options) (name : Name) (defValue : Bool) : Bool :=
+  opts.get name defValue
+
+protected def getM [Monad m] [MonadOptions m] [KVMap.Value α] (opt : Lean.Option α) : m α :=
+  return opt.get (← getOptions)
+
 protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
   opts.set opt.name val
+
+@[export lean_options_update_bool]
+private def updateBool (opts : Options) (name : Name) (val : Bool) : Options :=
+  opts.set name val
 
 /-- Similar to `set`, but update `opts` only if it doesn't already contains an setting for `opt.name` -/
 protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
@@ -130,18 +220,40 @@ protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option �
 
 protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl α) (ref : Name := by exact decl_name%) : IO (Lean.Option α) := do
   registerOption name {
+    name
     declName := ref
     defValue := KVMap.Value.toDataValue decl.defValue
-    group := decl.group
     descr := decl.descr
+    deprecation? := decl.deprecation?
   }
   return { name := name, defValue := decl.defValue }
 
-macro (name := registerBuiltinOption) doc?:(docComment)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
-  `($[$doc?]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+macro (name := registerBuiltinOption) doc?:(docComment)? vis?:(visibility)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
+  `($[$doc?]? $[$vis?:visibility]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
-macro (name := registerOption) doc?:(docComment)? "register_option" name:ident " : " type:term " := " decl:term : command =>
-  `($[$doc?]? initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+private meta def declWithDeprecation (attr : Syntax) (type decl : Term) : MacroM Term := do
+  let `(attr| deprecated $[$id?]? $[$text?]? $[$_typeChanged?]? $[(since := $since?)]?) := attr | return decl
+  let since : Term ← match since? with | some s => pure s | none => `("")
+  let text : Term ← match text? with | some text => `(some $text) | none => `(none)
+  let newName : Term ← match id? with | some id => `(some ($id).name) | none => `(none)
+  `({ ($decl : Lean.Option.Decl $type) with
+      deprecation? := some { since := $since, text? := $text, newName? := $newName } })
+
+macro (name := registerOption) mods:declModifiers "register_option" name:ident " : " type:term " := " decl:term : command => do
+  let attr? := mods.raw.find? (·.isOfKind ``Lean.deprecated)
+  -- The `deprecation?` field is internal: it is populated from the `@[deprecated]` attribute below.
+  let field? := decl.raw.find? (·.getId == `deprecation?)
+  let decl ← match attr?, field? with
+    | some _, some field =>
+      Macro.throwErrorAt field "remove the `deprecation?` field: it is populated automatically from \
+        the option's `@[deprecated]` attribute"
+    | none, some field =>
+      Macro.throwErrorAt field "do not set the `deprecation?` field directly; it is an internal \
+        implementation detail. Deprecate the option with a `@[deprecated \"...\" (since := \"...\")]` \
+        attribute instead"
+    | some attr, none => declWithDeprecation attr type decl
+    | none, none => pure decl
+  `($mods:declModifiers initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option
 

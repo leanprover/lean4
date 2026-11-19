@@ -7,10 +7,7 @@ module
 
 prelude
 public import Init.Data.Option.Lemmas
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -22,8 +19,8 @@ This file provides an iterator combinator `IterM.zip` that combines two iterator
 of pairs.
 -/
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators
 
 variable {m : Type w → Type w'}
   {α₁ : Type w} {β₁ : Type w} [Iterator α₁ m β₁]
@@ -33,10 +30,48 @@ variable {m : Type w → Type w'}
 Internal state of the `zip` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure Zip (α₁ : Type w) (m : Type w → Type w') {β₁ : Type w} [Iterator α₁ m β₁] (α₂ : Type w) (β₂ : Type w) where
+structure Iterators.Types.Zip (α₁ : Type w) (m : Type w → Type w') {β₁ : Type w} [Iterator α₁ m β₁]
+    (α₂ : Type w) (β₂ : Type w) where
   left : IterM (α := α₁) m β₁
   memoizedLeft : (Option { out : β₁ // ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out })
   right : IterM (α := α₂) m β₂
+
+/--
+Given two iterators `left` and `right`, `left.zip right` is an iterator that yields pairs of
+outputs of `left` and `right`. When one of them terminates,
+the `zip` iterator will also terminate.
+
+**Marble diagram:**
+
+```text
+left               --a        ---b        --c
+right                 --x         --y        --⊥
+left.zip right     -----(a, x)------(b, y)-----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if either `left` or `right` is finite and the other is productive
+* `Productive` instance: only if `left` and `right` are productive
+
+There are situations where `left.zip right` is finite (or productive) but none of the instances
+above applies. For example, if the computation happens in an `Except` monad and `left` immediately
+fails when calling `step`, then `left.zip right` will also do so. In such a case, the `Finite`
+(or `Productive`) instance needs to be proved manually.
+
+**Performance:**
+
+This combinator incurs an additional O(1) cost with each step taken by `left` or `right`.
+
+Right now, the compiler does not unbox the internal state, leading to worse performance than
+possible.
+-/
+@[always_inline, inline]
+def IterM.zip (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
+    IterM (α := Types.Zip α₁ m α₂ β₂) m (β₁ × β₂) :=
+  ⟨⟨left, none, right⟩⟩
+
+namespace Iterators.Types
 
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
@@ -70,57 +105,21 @@ instance Zip.instIterator [Monad m] :
   step it :=
     match hm : it.internalState.memoizedLeft with
     | none => do
-      match ← it.internalState.left.step with
+      match (← it.internalState.left.step).inflate with
       | .yield it₁' out hp =>
-          pure <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
+          pure <| .deflate <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
       | .skip it₁' hp =>
-          pure <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
+          pure <| .deflate <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
       | .done hp =>
-          pure <| .done (.doneLeft hm hp)
+          pure <| .deflate <| .done (.doneLeft hm hp)
     | some out₁ => do
-      match ← it.internalState.right.step with
+      match (← it.internalState.right.step).inflate with
       | .yield it₂' out₂ hp =>
-          pure <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
+          pure <| .deflate <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
       | .skip it₂' hp =>
-          pure <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
+          pure <| .deflate <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
       | .done hp =>
-          pure <| .done (.doneRight hm hp)
-
-/--
-Given two iterators `left` and `right`, `left.zip right` is an iterator that yields pairs of
-outputs of `left` and `right`. When one of them terminates,
-the `zip` iterator will also terminate.
-
-**Marble diagram:**
-
-```text
-left               --a        ---b        --c
-right                 --x         --y        --⊥
-left.zip right     -----(a, x)------(b, y)-----⊥
-```
-
-**Termination properties:**
-
-* `Finite` instance: only if either `left` or `right` is finite and the other is productive
-* `Productive` instance: only if `left` and `right` are productive
-
-There are situations where `left.zip right` is finite (or productive) but none of the instances
-above applies. For example, if the computation happens in an `Except` monad and `left` immediately
-fails when calling `step`, then `left.zip right` will also do so. In such a case, the `Finite`
-(or `Productive`) instance needs to be proved manually.
-
-**Performance:**
-
-This combinator incurs an additional O(1) cost with each step taken by `left` or `right`.
-
-Right now, the compiler does not unbox the internal state, leading to worse performance than
-possible.
--/
-@[always_inline, inline]
-def IterM.zip
-    (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
-    IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) :=
-  toIterM ⟨left, none, right⟩ m _
+          pure <| .deflate <| .done (.doneRight hm hp)
 
 variable (m) in
 def Zip.Rel₁ [Finite α₁ m] [Productive α₂ m] :
@@ -151,7 +150,7 @@ theorem Zip.rel₁_of_right [Finite α₁ m] [Productive α₂ m]
 
 def Zip.instFinitenessRelation₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
-  rel := Zip.Rel₁ m
+  Rel := Zip.Rel₁ m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -217,7 +216,7 @@ theorem Zip.rel₂_of_left [Productive α₁ m] [Finite α₂ m]
 
 def Zip.instFinitenessRelation₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
-  rel := Zip.Rel₂ m
+  Rel := Zip.Rel₂ m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -284,7 +283,7 @@ theorem Zip.rel₃_of_right [Productive α₁ m] [Productive α₂ m]
 
 def Zip.instProductivenessRelation [Monad m] [Productive α₁ m] [Productive α₂ m] :
     ProductivenessRelation (Zip α₁ m α₂ β₂) m where
-  rel := Zip.Rel₃ m
+  Rel := Zip.Rel₃ m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -313,28 +312,8 @@ instance Zip.instProductive [Monad m] [Productive α₁ m] [Productive α₂ m] 
     Productive (Zip α₁ m α₂ β₂) m :=
   Productive.of_productivenessRelation Zip.instProductivenessRelation
 
-instance Zip.instIteratorCollect [Monad m] [Monad n] :
-    IteratorCollect (Zip α₁ m α₂ β₂) m n :=
-  .defaultImplementation
-
-instance Zip.instIteratorCollectPartial [Monad m] [Monad n] :
-    IteratorCollectPartial (Zip α₁ m α₂ β₂) m n :=
-  .defaultImplementation
-
 instance Zip.instIteratorLoop [Monad m] [Monad n] :
     IteratorLoop (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation
 
-instance Zip.instIteratorLoopPartial [Monad m] [Monad n] :
-    IteratorLoopPartial (Zip α₁ m α₂ β₂) m n :=
-  .defaultImplementation
-
-instance Zip.instIteratorSize [Monad m] [Finite (Zip α₁ m α₂ β₂) m] :
-    IteratorSize (Zip α₁ m α₂ β₂) m :=
-  .defaultImplementation
-
-instance Zip.instIteratorSizePartial [Monad m] :
-    IteratorSizePartial (Zip α₁ m α₂ β₂) m :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

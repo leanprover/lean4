@@ -1,0 +1,2 @@
+foldProjs.lean:17:0-17:7: warning: declaration uses `sorry`
+foldProjs.lean:24:0-24:7: warning: declaration uses `sorry`

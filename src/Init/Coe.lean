@@ -116,7 +116,7 @@ On top of these instances this file defines several auxiliary type classes:
   * `CoeOTC := CoeOut* Coe*`
   * `CoeHTC := CoeHead? CoeOut* Coe*`
   * `CoeHTCT := CoeHead? CoeOut* Coe* CoeTail?`
-  * `CoeDep := CoeHead? CoeOut* Coe* CoeTail? | CoeDep`
+  * `CoeT := CoeHead? CoeOut* Coe* CoeTail? | CoeDep`
 
 -/
 

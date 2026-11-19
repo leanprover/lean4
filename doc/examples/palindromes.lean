@@ -94,10 +94,8 @@ theorem List.palindrome_of_eq_reverse (h : as.reverse = as) : Palindrome as := b
   next   => exact Palindrome.nil
   next a => exact Palindrome.single a
   next a b as ih =>
-    have : a = b := by simp_all
-    subst this
-    have : as.reverse = as := by simp_all
-    exact Palindrome.sandwich a (ih this)
+    obtain ⟨rfl, h, -⟩ := by simpa using h
+    exact Palindrome.sandwich b (ih h)
 
 /-!
 We now define a function that returns `true` iff `as` is a palindrome.

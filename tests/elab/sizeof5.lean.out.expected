@@ -1,0 +1,6 @@
+theorem Expr.app2.sizeOf_spec : ∀ (f : String) (args : Vec Expr 2),
+  sizeOf (Expr.app2 f args) = 1 + sizeOf f + sizeOf args :=
+fun f args => congrArg (1 + sizeOf f).add (Expr._sizeOf_2_eq 2 args)
+theorem Expr.app3.sizeOf_spec : ∀ (f : String) (args : Vec Expr 3),
+  sizeOf (Expr.app3 f args) = 1 + sizeOf f + sizeOf args :=
+fun f args => congrArg (1 + sizeOf f).add (Expr._sizeOf_2_eq 3 args)

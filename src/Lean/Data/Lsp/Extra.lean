@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.TextSync
 public import Lean.Server.Rpc.Basic
 
@@ -64,8 +63,8 @@ an ILean finalization notification for the worker and the document version desig
 Used for test stability in tests that use the .ileans.
 -/
 structure WaitForILeansParams where
-  uri     : DocumentUri
-  version : Nat
+  uri?     : Option DocumentUri := none
+  version? : Option Nat := none
   deriving FromJson, ToJson
 
 structure WaitForILeans where
@@ -126,6 +125,18 @@ structure PlainTermGoal where
   deriving FromJson, ToJson
 
 structure ModuleHierarchyOptions where
+  deriving FromJson, ToJson
+
+structure HighlightMatchesOptions where
+  deriving FromJson, ToJson
+
+structure RpcOptions where
+  highlightMatchesProvider? : Option HighlightMatchesOptions := none
+  /--
+  The latest RPC wire format supported by the server.
+  Defaults to `v0` when `none`.
+  -/
+  rpcWireFormat? : Option RpcWireFormat := none
   deriving FromJson, ToJson
 
 structure LeanModule where
@@ -202,11 +213,18 @@ structure RpcConnected where
 
 /-- `$/lean/rpc/call` client->server request.
 
-A request to execute a procedure bound for RPC. If an incorrect session ID is present, the server
-errors with `RpcNeedsReconnect`.
+A request to execute a procedure bound for RPC.
+If an incorrect session ID is present, the server errors with `RpcNeedsReconnect`.
 
-Extending TDPP is weird. But in Lean, symbols exist in the context of a position within a source
-file. So we need this to refer to code in the environment at that position. -/
+Extends `TextDocumentPositionParams` because in Lean,
+symbols exist in the context of a position within a source file
+(e.g., `foo` is defined below but not above `def foo`).
+We use the position to resolve the set of defined constants,
+registered RPC methods, etc.
+
+Both the request and the response may contain `RpcEncodable` data.
+It is serialized following the `RpcWireFormat`.
+-/
 structure RpcCallParams extends TextDocumentPositionParams where
   sessionId : UInt64
   /-- Procedure to invoke. Must be fully qualified. -/
@@ -221,7 +239,8 @@ A notification to release remote references. Should be sent by the client when i
 structure RpcReleaseParams where
   uri : DocumentUri
   sessionId : UInt64
-  refs : Array RpcRef
+  /-- Array of RPC references to release. -/
+  refs : Array Json
   deriving FromJson, ToJson
 
 /-- `$/lean/rpc/keepAlive` client->server notification.

@@ -1,0 +1,20 @@
+Input: "scheme dialect:=\"chicken\" +43 99"
+Failure: expected flag name
+ --> 1:27-1:28
+  |
+1 | scheme dialect:="chicken" +43 99
+  |                            ^
+  = consumed input prefix: 27 bytes
+Final stack:
+ • `scheme
+ • [(Lean.Doc.Parser.Arg.named_no_paren
+      `dialect
+      ":="
+      (Lean.Doc.Parser.ArgVal.str
+       (str "\"chicken\"")))
+     (Lean.Doc.Parser.Arg.flag_on "+" <missing>)
+     (Lean.Doc.Parser.Arg.anon
+      (Lean.Doc.Parser.ArgVal.num (num "99")))]
+
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: non-whitespace '4' at 27 not part of any token

@@ -11,6 +11,8 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/uv/tcp.h"
 #include "runtime/uv/dns.h"
 #include "runtime/uv/udp.h"
+#include "runtime/uv/signal.h"
+#include "runtime/uv/process.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
 #include "runtime/utf8.h"

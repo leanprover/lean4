@@ -9,6 +9,7 @@ module
 
 prelude
 public import Init.System.ST
+public import Init.Control.Reader
 
 public section
 
@@ -19,7 +20,7 @@ A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref ω σ`
 
 The macro `StateRefT σ m α` infers `ω` from `m`. It should normally be used instead.
 -/
-@[expose] def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type := ReaderT (ST.Ref ω σ) m α
+@[expose, instance_reducible] def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type := ReaderT (ST.Ref ω σ) m α
 
 /-! Recall that `StateRefT` is a macro that infers `ω` from the `m`. -/
 
@@ -64,6 +65,7 @@ instance [Monad m] : Monad (StateRefT' ω σ m) := inferInstanceAs (Monad (Reade
 instance : MonadLift m (StateRefT' ω σ m) := ⟨StateRefT'.lift⟩
 instance (σ m) : MonadFunctor m (StateRefT' ω σ m) := inferInstanceAs (MonadFunctor m (ReaderT _ _))
 instance [Alternative m] [Monad m] : Alternative (StateRefT' ω σ m) := inferInstanceAs (Alternative (ReaderT _ _))
+instance [Monad m] [MonadAttach m] : MonadAttach (StateRefT' ω σ m) := inferInstanceAs (MonadAttach (ReaderT _ _))
 
 /--
 Retrieves the current value of the monad's mutable state.

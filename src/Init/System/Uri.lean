@@ -6,9 +6,15 @@ Authors: Chris Lovett
 module
 
 prelude
-public import Init.Data.String.Extra
-public import Init.Data.Nat.Linear
 public import Init.System.FilePath
+import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
+import Init.Data.String.Search
+import Init.Omega
+import Init.System.Platform
+import Init.While
+import Init.Data.String.Length
+import Init.Data.Iterators.Combinators.Take
 
 public section
 
@@ -88,33 +94,42 @@ a single unicode code point and these will also be decoded correctly. -/
 def unescapeUri (s: String) : String :=
   UriEscape.decodeUri s
 
+private def normalizeDriveLetter (uri : String) : String :=
+  -- lower-case drive letters seem to be preferred in URIs
+  match (uri.chars.take 2).toList with
+  | [driveLetter, ':'] => if driveLetter.isUpper then uri.decapitalize else uri
+  | _ => uri
+
 /-- Convert the given FilePath to a "file:///encodedpath" Uri. -/
 def pathToUri (fname : System.FilePath) : String := Id.run do
   let mut uri := fname.normalize.toString
   if System.Platform.isWindows then
-    -- normalize drive letter
-    -- lower-case drive letters seem to be preferred in URIs
-    if uri.length >= 2 && (uri.get 0).isUpper && uri.get ⟨1⟩ == ':' then
-      uri := uri.set 0 (uri.get 0).toLower
+    uri := normalizeDriveLetter uri
     uri := uri.map (fun c => if c == '\\' then '/' else c)
   uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
   let result := if uri.startsWith "/" then "file://" ++ uri else "file:///" ++ uri
   result
 
+-- On Windows, the path "/c:/temp" needs to become "C:/temp"
+private def normalizeDriveExpression (p : String.Slice) : String :=
+  match (p.chars.take 3).toList with
+  | ['/', driveLetter, ':'] =>
+    if driveLetter.isAlpha then
+      (p.drop 1).copy.capitalize
+    else p.copy
+  | _ => p.copy
+
 /-- Convert the given uri to a FilePath stripping the 'file://' prefix,
 ignoring the optional host name. -/
-def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
-  if !uri.startsWith "file://" then
-    none
-  else
-    let mut p := (unescapeUri uri).drop "file://".length
-    p := p.dropWhile (λ c => c != '/') -- drop the hostname.
-    -- On Windows, the path "/c:/temp" needs to become "C:/temp"
-    if System.Platform.isWindows && p.length >= 2 &&
-        p.get 0 == '/' && (p.get ⟨1⟩).isAlpha && p.get ⟨2⟩ == ':' then
-      -- see also `pathToUri`
-      p := p.drop 1 |>.modify 0 .toUpper
-    some p
+def fileUriToPath? (uri : String) : Option System.FilePath :=
+  match (unescapeUri uri).dropPrefix? "file://" with
+  | none => none
+  | some p =>
+    let p := p.dropWhile (fun c => c != '/') -- drop the hostname.
+    if System.Platform.isWindows then
+      some ((normalizeDriveExpression p).map (fun c => if c == '/' then '\\' else c))
+    else
+      some p.copy
 
 end Uri
 end System

@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Data.Json
 public import Lean.Data.Lsp.BasicAux
+public import Init.Data.Option.Coe
 
 public section
 

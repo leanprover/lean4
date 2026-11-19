@@ -1,0 +1,2 @@
+f ∘ g ∘ g : Nat → Bool
+id : Nat → Nat

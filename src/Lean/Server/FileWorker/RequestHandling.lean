@@ -13,13 +13,15 @@ public import Lean.Server.FileWorker.SemanticHighlighting
 public import Lean.Server.FileWorker.SignatureHelp
 public import Lean.Server.Completion
 public import Lean.Server.References
-meta import Lean.Parser.Module
+public import Lean.Server.Completion.CompletionItemCompression
 
 public import Lean.Widget.Diff
+import Lean.Language.Lean.Util
 
 public section
 
 namespace Lean.Server.FileWorker
+open Lean
 open Lsp
 open RequestM
 open Snapshots
@@ -28,7 +30,7 @@ open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def findCompletionCmdDataAtPos
     (doc : EditableDocument)
-    (pos : String.Pos)
+    (pos : String.Pos.Raw)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
   -- However, most completions don't need trailing whitespace at the term level;
@@ -37,10 +39,10 @@ def findCompletionCmdDataAtPos
   -- will do.
   -- Synthetic field completion in `{ }` doesn't care about whitespace;
   -- synthetic field completion in `where` only needs to gather the expected type.
-  findCmdDataAtPos doc pos (includeStop := true)
+  Language.Lean.findCmdDataAtPos doc.initSnap doc.meta.text pos (includeStop := true)
 
 def handleCompletion (p : CompletionParams)
-    : RequestM (RequestTask CompletionList) := do
+    : RequestM (RequestTask ResolvableCompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
@@ -48,7 +50,7 @@ def handleCompletion (p : CompletionParams)
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
-    Completion.find? p doc.meta.text pos cmdStx infoTree caps
+    Completion.find? doc.meta.uri p.position doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -65,18 +67,20 @@ def handleCompletionItemResolve (item : CompletionItem)
     | return .pure item
   let some id := data.id?
     | return .pure item
-  let pos := text.lspPosToUtf8Pos data.params.position
+  let some cPos := data.cPos?
+    | return .pure item
+  let pos := text.lspPosToUtf8Pos data.pos
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item
-    Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
+    Completion.resolveCompletionItem? text pos cmdStx infoTree item id cPos
 
 open Elab in
 def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover :=
+  let mkHover (s : String) (r : Lean.Syntax.Range) : Hover :=
     let s := Hover.rewriteExamples s
     {
       contents := {
@@ -97,7 +101,6 @@ def handleHover (p : HoverParams)
           let docStr ← findDocString? snap.env kind
           return docStr.map (·, stx.getRange?.get!)
         | none => pure none
-
       -- now try info tree
       if let some result := snap.infoTree.hoverableInfoAtM? (m := Id) hoverPos then
         let ctx := result.ctx
@@ -140,28 +143,28 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       locationLinksOfInfo doc.meta kind info snap.infoTree
 
 open Language in
-def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
+def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
-  findCmdParsedSnap doc hoverPos |>.bindCostly fun
+  Lean.findCmdParsedSnap doc.initSnap doc.meta.text hoverPos |>.asServerTask.bindCostly fun
     | some cmdParsed =>
       let t := toSnapshotTree cmdParsed.elabSnap |>.foldSnaps [] fun snap oldGoals => Id.run do
         let some stx := snap.stx?
           | return .pure (oldGoals, .proceed (foldChildren := false))
         let some (pos, tailPos, trailingPos) := getPositions stx
           | return .pure (oldGoals, .proceed (foldChildren := true))
-        let snapRange : String.Range := ⟨pos, trailingPos⟩
+        let snapRange : Lean.Syntax.Range := ⟨pos, trailingPos⟩
         -- When there is no trailing whitespace, we also consider snapshots directly before the
         -- cursor.
         let hasNoTrailingWhitespace := tailPos == trailingPos
         if ! text.rangeContainsHoverPos snapRange hoverPos (includeStop := hasNoTrailingWhitespace) then
           return .pure (oldGoals, .proceed (foldChildren := false))
 
-        return snap.task.asServerTask.mapCheap fun tree => Id.run do
+        return snap.task.map (sync := true) fun tree => Id.run do
           let some infoTree := tree.element.infoTree?
             | return (oldGoals, .proceed (foldChildren := true))
 
           let goals := infoTree.goalsAt? text hoverPos
-          let optimalSnapRange : String.Range := ⟨pos, tailPos⟩
+          let optimalSnapRange : Lean.Syntax.Range := ⟨pos, tailPos⟩
           let isOptimalGoalSet :=
             text.rangeContainsHoverPos optimalSnapRange hoverPos
                 (includeStop := hasNoTrailingWhitespace)
@@ -170,13 +173,13 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
             return (goals, .done)
 
           return (goals, .proceed (foldChildren := true))
-      t.mapCheap fun
+      t.asServerTask.mapCheap fun
         | []    => none
         | goals => goals
     | none =>
       .pure none
 where
-  getPositions (stx : Syntax) : Option (String.Pos × String.Pos × String.Pos) := do
+  getPositions (stx : Syntax) : Option (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
     let pos ← stx.getPos? (canonicalOnly := true)
     let tailPos ← stx.getTailPos? (canonicalOnly := true)
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)
@@ -227,7 +230,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTaskCostly (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
+  mapTaskCostly (Language.Lean.findInfoTreeAtPos doc.initSnap doc.meta.text hoverPos (includeStop := true)).asServerTask <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
     let ty ← ci.runMetaM i.lctx do
@@ -264,12 +267,12 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   let highlightRefs? (snaps : Array Snapshot) : IO (Option (Array DocumentHighlight)) := do
     let trees := snaps.map (·.infoTree)
-    let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
+    let (refs, _) ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
     for ident in refs.findAt p.position (includeStop := true) do
       if let some info := refs.get? ident then
-        if let some ⟨definitionRange, _⟩ := info.definition? then
-          ranges := ranges.push definitionRange
+        if let some loc := info.definition? then
+          ranges := ranges.push loc.range
         ranges := ranges.append <| info.usages.map (·.range)
     if ranges.isEmpty then
       return none
@@ -298,7 +301,7 @@ def NamespaceEntry.finish (text : FileMap) (syms : Array DocumentSymbol) (endStx
     -- we can assume that commands always have at least one position (see `parseCommand`)
     let range := match endStx with
       | some endStx => (mkNullNode #[stx, endStx]).getRange?.get!
-      | none        =>  { stx.getRange?.get! with stop := text.source.endPos }
+      | none        =>  { stx.getRange?.get! with stop := text.source.rawEndPos }
     let name := name.foldr (fun x y => y ++ x) Name.anonymous
     prevSiblings.push <| DocumentSymbol.mk {
       -- anonymous sections are represented by `«»` name components
@@ -333,7 +336,7 @@ where
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(end $(id)?) =>
+      | `(end $[$id $[.$_]?]?) =>
         let rec popStack n syms
           | [] => toDocumentSymbols text stxs syms []
           | entry :: stack =>
@@ -373,18 +376,57 @@ where
 partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t := doc.cmdSnaps.waitAll
-  mapTaskCostly t fun (snaps, _) => do
-    let stxs := snaps.map (·.stx)
-    let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
-    return ranges
+  let text := doc.meta.text
+  mapTaskCostly (waitCmdStxs doc.initSnap).asServerTask fun stxs => do
+    let (_, ranges) ← StateT.run (addRanges text [] stxs.toList) #[]
+    let trees ← IO.wait (waitPartialInfoTrees doc.initSnap)
+    let (_, proofRanges) ← StateT.run (s := #[]) do
+      for cmdTrees in trees do
+        RequestM.checkCancelled
+        for tree in cmdTrees do
+          addProofRanges text tree
+    -- VS Code keeps only one of multiple folding ranges with the same start line, so we prefer
+    -- the proof over the region of its declaration
+    let proofStartLines : Std.HashSet Nat :=
+      proofRanges.foldl (init := {}) (·.insert ·.startLine)
+    return ranges.filter (!proofStartLines.contains ·.startLine) ++ proofRanges
   where
+    /-- Waits for the syntax of the header and of all commands. -/
+    waitCmdStxs (initSnap : Language.Lean.InitialSnapshot) : Task (Array Syntax) :=
+      mapCmdSnaps initSnap (.pure ·.stx) |>.map (sync := true) (#[initSnap.stx] ++ ·)
+
+    /--
+    Waits for the info trees of all commands. The info trees are partial: they contain holes for
+    asynchronous elaboration, for example of proofs, and we do not wait for these holes.
+    `DeclValueInfo` nodes are outside of the holes.
+    -/
+    waitPartialInfoTrees (initSnap : Language.Lean.InitialSnapshot) :
+        Task (Array (PersistentArray Elab.InfoTree)) :=
+      mapCmdSnaps initSnap fun cmdParsed =>
+        cmdParsed.elabSnap.resultSnap.task.map (sync := true) (·.cmdState.infoState.trees)
+
+    /-- Waits for the snapshots of all commands and for the result of `f` on each of them. -/
+    mapCmdSnaps {β : Type} (initSnap : Language.Lean.InitialSnapshot)
+        (f : Language.Lean.CommandParsedSnapshot → Task β) : Task (Array β) := Id.run do
+      let some headerParsed := initSnap.result? | .pure #[]
+      headerParsed.processedSnap.task.bind (sync := true) fun headerProcessed => Id.run do
+        let some headerSuccess := headerProcessed.result? | .pure #[]
+        headerSuccess.firstCmdSnap.task.bind (sync := true) (mapCmdSnapsFrom f #[])
+
+    mapCmdSnapsFrom {β : Type} (f : Language.Lean.CommandParsedSnapshot → Task β) (acc : Array β)
+        (cmdParsed : Language.Lean.CommandParsedSnapshot) : Task (Array β) :=
+      f cmdParsed |>.bind (sync := true) fun b =>
+        let acc := acc.push b
+        match cmdParsed.nextCmdSnap? with
+        | some next => next.task.bind (sync := true) (mapCmdSnapsFrom f acc)
+        | none      => .pure acc
+
     isImport stx := stx.isOfKind ``Lean.Parser.Module.header || stx.isOfKind ``Lean.Parser.Command.open
 
     addRanges (text : FileMap) sections
     | [] => do
       if let (_, start)::rest := sections then
-        addRange text FoldingRangeKind.region start text.source.endPos
+        addRange text FoldingRangeKind.region start text.source.rawEndPos
         addRanges text rest []
     | stx::stxs => do
       RequestM.checkCancelled
@@ -393,7 +435,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
       | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
-      | `(end $(id)?) => do
+      | `(end $[$id $[.$_]?]?) => do
         let rec popRanges n sections := do
           if let (size, start)::rest := sections then
             if size == n then
@@ -441,6 +483,15 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
       | _ =>
         addRangeFromSyntax text FoldingRangeKind.region stx
 
+    addProofRanges (text : FileMap) (tree : Elab.InfoTree) : StateT (Array FoldingRange) RequestM Unit :=
+      tree.foldInfoM (init := ()) fun _ info _ => do
+        let .ofCustomInfo { stx, value } := info | return
+        let some { headerRef, isProof := true, .. } := value.get? Elab.Term.DeclValueInfo | return
+        -- Starting at the end of the header lets folding hide the full proof, even if it starts
+        -- on a new line
+        addRange text FoldingRangeKind.proof (headerRef.getTailPos? (canonicalOnly := true))
+          (stx.getTailPos? (canonicalOnly := true))
+
     addRangeFromSyntax (text : FileMap) kind stx := addRange text kind stx.getPos? stx.getTailPos?
 
     addRange (text : FileMap) kind start? stop? := do
@@ -457,7 +508,7 @@ def handleSignatureHelp (p : SignatureHelpParams) : RequestM (RequestTask (Optio
   let doc ← readDoc
   let text := doc.meta.text
   let requestedPos := text.lspPosToUtf8Pos p.position
-  mapTaskCostly (findCmdDataAtPos doc requestedPos (includeStop := false)) fun cmdData? => do
+  mapTaskCostly (Language.Lean.findCmdDataAtPos doc.initSnap doc.meta.text requestedPos (includeStop := false)).asServerTask fun cmdData? => do
     let some (cmdStx, tree) := cmdData?
       | return none
     SignatureHelp.findSignatureHelp? text p.context? cmdStx tree requestedPos
@@ -474,7 +525,21 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
   let t ← RequestM.asTask waitLoop
   RequestM.bindTaskCheap t fun doc? => do
     let doc ← liftExcept doc?
-    return doc.reporter.mapCheap (fun _ => pure WaitForDiagnostics.mk)
+    -- We wait on both the reporter and `cmdSnaps` so that all request handlers that use
+    -- `IO.hasFinished` on `doc.cmdSnaps` are guaranteed to have finished when
+    -- `waitForDiagnostics` returns.
+    return doc.reporter.bindCheap (fun _ => doc.cmdSnaps.waitAll)
+      |>.mapCheap fun _ => pure WaitForDiagnostics.mk
+
+def handleDocumentColor (_ : DocumentColorParams) :
+    RequestM (RequestTask (Array ColorInformation)) :=
+  -- By default, if no document color provider is registered, VS Code itself provides
+  -- a color picker decoration for all parts of the file that look like CSS colors.
+  -- Disabling this setting on the client-side is not possible because of
+  -- https://github.com/microsoft/vscode/issues/91533,
+  -- so we just provide an empty document color provider here that overrides the
+  -- VS Code one.
+  return .pure #[]
 
 builtin_initialize
   registerLspRequestHandler
@@ -485,8 +550,9 @@ builtin_initialize
   registerLspRequestHandler
     "textDocument/completion"
     CompletionParams
-    CompletionList
+    ResolvableCompletionList
     handleCompletion
+    (serialize? := some (·.compressFast))
   registerLspRequestHandler
     "completionItem/resolve"
     CompletionItem
@@ -532,6 +598,11 @@ builtin_initialize
     SignatureHelpParams
     (Option SignatureHelp)
     handleSignatureHelp
+  registerLspRequestHandler
+    "textDocument/documentColor"
+    DocumentColorParams
+    (Array ColorInformation)
+    handleDocumentColor
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

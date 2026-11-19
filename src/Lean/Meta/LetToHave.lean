@@ -12,6 +12,8 @@ public import Lean.AddDecl
 public import Lean.Meta.Transform
 public import Lean.Util.CollectFVars
 public import Lean.Util.CollectMVars
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -45,7 +47,7 @@ Optimizations, present and future:
   however checking for `let`s is O(n), so we only try this for expressions with a small `approxDepth`.
   (We can consider precomputing this somehow.)
   - The cache is currently responsible for the check.
-  - We also do it before entering telescopes, to avoid unnecesasry fvar overhead.
+  - We also do it before entering telescopes, to avoid unnecessary fvar overhead.
 - If we are not currently inside a `let`, then we do not need to do full typechecking.
 - We try to reuse Exprs to promote subexpression sharing.
 - We might consider not transforming lets to haves if we are in a proof that is not inside a `let`.
@@ -394,8 +396,8 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     return { expr := e.updateProj! struct, type? := lastFieldTy }
 
 private partial def visit (e : Expr) : M Result := do
-  withTraceNode `Meta.letToHave.debug (fun res =>
-      return m!"{if res.isOk then checkEmoji else crossEmoji} visit (check := {(← read).check}){indentExpr e}") do
+  withTraceNode `Meta.letToHave.debug (fun _ =>
+      return m!"visit (check := {(← read).check}){indentExpr e}") do
     match e with
     | .bvar .. => throwError "unexpected bound variable {e}"
     | .fvar .. => visitFVar e
@@ -413,8 +415,8 @@ end
 
 private def main (e : Expr) : MetaM Expr := do
   Prod.fst <$> withTraceNode `Meta.letToHave (fun
-      | .ok (_, msg) => pure m!"{checkEmoji} {msg}"
-      | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
+      | .ok (_, msg) => pure msg
+      | .error ex => pure ex.toMessageData) do
     if hasDepLet e then
       withTrackingZetaDelta <|
       withTransparency TransparencyMode.all <|

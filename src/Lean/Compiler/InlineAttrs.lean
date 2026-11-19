@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Attributes
+import Lean.Meta.RecExt
 
 public section
 
@@ -33,13 +34,8 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
   unless info.all.length = 1 do
     -- We do not allow `[macro_inline]` attributes at mutual recursive definitions
     return false
-  let env ← getEnv
-  let isRec (declName' : Name) : Bool :=
-    isBRecOnRecursor env declName' ||
-    declName' == ``WellFounded.fix ||
-    declName' == declName ++ `_unary -- Auxiliary declaration created by `WF` module
-  if Option.isSome <| info.value.find? fun e => e.isConst && isRec e.constName! then
-    -- It contains a `brecOn` or `WellFounded.fix` application. So, it should be recursvie
+  if (← Meta.isRecursiveDefinition declName) then
+    -- It is recursive
     return false
   return true
 
@@ -72,11 +68,14 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
      (`macro_inline, "mark definition to always be inlined before ANF conversion", .macroInline),
      (`always_inline, "mark definition to be always inlined", .alwaysInline)]
     fun declName kind => do
-      ofExcept <| (checkIsDefinition (← getEnv) declName).mapError fun e =>
-        s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
       if kind matches .macroInline then
+        if !(checkIsDefinition (← getEnv) declName |>.isOk) then
+          throwError "invalid `[macro_inline]` attribute, `{.ofConstName declName}` must be an exposed definition"
         unless (← isValidMacroInline declName) do
-          throwError "Cannot add `[macro_inline]` attribute to `{declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
+          throwError "Cannot add `[macro_inline]` attribute to `{.ofConstName declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
+      else
+        ofExcept <| (checkIsDefinition (← withoutExporting <| getEnv) declName).mapError fun e =>
+          s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
 
 def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
   inlineAttrs.setValue env declName kind

@@ -1,0 +1,55 @@
+{"version": 2,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics": []}
+{"version": 2,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics": []}
+w
+w
+{"version": 1,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics": []}
+{"version": 1,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}},
+   "message": "\"import\"",
+   "fullRange":
+   {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}}}]}
+{"version": 2,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}},
+   "message": "\"import\"",
+   "fullRange":
+   {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}}}]}
+{"version": 2,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 9}},
+   "message": "Tactic `assumption` failed\n\n⊢ False",
+   "fullRange":
+   {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 9}}}]}
+{"version": 3,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics": []}
+{"version": 2,
+ "uri": "file:///incrementalCommand.lean",
+ "isIncremental": false,
+ "diagnostics": []}

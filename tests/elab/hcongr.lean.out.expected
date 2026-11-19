@@ -1,0 +1,39 @@
+∀ (α α' : Type),
+  α = α' →
+    ∀ (β β' : Type),
+      β = β' →
+        ∀ (n n' : Nat),
+          n = n' →
+            ∀ (f : α → β) (f' : α' → β'),
+              f ≍ f' → ∀ (a : Vec α n) (a' : Vec α' n'), a ≍ a' → Vec.map f a ≍ Vec.map f' a'
+fun α α' e_1 =>
+  Eq.ndrec (motive := fun α' =>
+    ∀ (β β' : Type),
+      β = β' →
+        ∀ (n n' : Nat),
+          n = n' →
+            ∀ (f : α → β) (f' : α' → β'),
+              f ≍ f' → ∀ (a : Vec α n) (a' : Vec α' n'), a ≍ a' → Vec.map f a ≍ Vec.map f' a')
+    (fun β β' e_2 =>
+      Eq.ndrec (motive := fun β' =>
+        ∀ (n n' : Nat),
+          n = n' →
+            ∀ (f : α → β) (f' : α → β'), f ≍ f' → ∀ (a : Vec α n) (a' : Vec α n'), a ≍ a' → Vec.map f a ≍ Vec.map f' a')
+        (fun n n' e_3 =>
+          Eq.ndrec (motive := fun n' =>
+            ∀ (f f' : α → β), f ≍ f' → ∀ (a : Vec α n) (a' : Vec α n'), a ≍ a' → Vec.map f a ≍ Vec.map f' a')
+            (fun f f' e_4 =>
+              Eq.ndrec (motive := fun f' => ∀ (a a' : Vec α n), a ≍ a' → Vec.map f a ≍ Vec.map f' a')
+                (fun a a' e_5 => eq_of_heq e_5 ▸ HEq.refl (Vec.map f a)) (eq_of_heq e_4))
+            e_3)
+        e_2)
+    e_1
+∀ (n n' : Nat),
+  n = n' → ∀ (f f' : Nat → Nat), f = f' → ∀ (a : Vec Nat n) (a' : Vec Nat n'), a ≍ a' → Vec.map f a ≍ Vec.map f' a'
+fun n n' e_1 =>
+  Eq.ndrec (motive := fun n' =>
+    ∀ (f f' : Nat → Nat), f = f' → ∀ (a : Vec Nat n) (a' : Vec Nat n'), a ≍ a' → Vec.map f a ≍ Vec.map f' a')
+    (fun f f' e_2 =>
+      Eq.ndrec (motive := fun f' => ∀ (a a' : Vec Nat n), a ≍ a' → Vec.map f a ≍ Vec.map f' a')
+        (fun a a' e_3 => eq_of_heq e_3 ▸ HEq.refl (Vec.map f a)) e_2)
+    e_1

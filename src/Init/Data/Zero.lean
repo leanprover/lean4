@@ -6,7 +6,7 @@ Authors: Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Init.Core
+public import Init.Tactics
 
 public section
 
@@ -47,6 +47,7 @@ The fundamental scalar multiplication in an additive monoid.
 This function should not be used directly;
 it is often used to implement an instance for scalar multiplication.
 -/
+@[expose]
 def nsmulRec [Zero M] [Add M] : Nat → M → M
   | 0, _ => 0
   | n + 1, a => nsmulRec n a + a

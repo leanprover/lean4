@@ -1,0 +1,8 @@
+name = "test"
+enableArtifactCache = false
+
+[[lean_lib]]
+name = "Test"
+
+[[lean_lib]]
+name = "Ignored"

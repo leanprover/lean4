@@ -21,7 +21,7 @@ register_builtin_option linter.omit : Bool := {
 
 def «omit» : Linter where
   run stx := do
-    unless linter.omit.get (← getOptions) do
+    unless getLinterValue linter.omit (← getLinterOptions) do
       return
     if let some stx := stx.find? (·.isOfKind ``Lean.Parser.Command.«omit») then
       logLint linter.omit stx m!"`omit` should be avoided in favor of restructuring your \

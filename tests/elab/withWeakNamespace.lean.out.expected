@@ -1,0 +1,8 @@
+1 + 2 : Nat
+Bar.g : Nat
+Bar.g : Nat
+Foo.f : Nat
+C.x : Nat
+1 * 2 : Nat
+Parent.Child.childDef : Nat
+Parent.Child.childDef : Nat

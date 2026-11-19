@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Syntax
-public import Lean.Parser.Syntax
 
 public section
 
@@ -18,7 +17,7 @@ open Lean.Parser.Command
 
 /-- Convert `macro` arg into a `syntax` command item and a pattern element -/
 partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `stx × Term) := do
-  let (id?, id, stx) ← match (← liftMacroM <| expandMacros stx) with
+  let (id?, id, stx) ← match (← liftTermElabM <| Term.expandMacrosReportingDeprecated stx) with
     | `(macroArg| $id:ident:$stx) => pure (some id, (id : Term), stx)
     | `(macroArg| $stx:stx)       => pure (none, (← `(x)), stx)
     | _                           => throwUnsupportedSyntax
@@ -65,7 +64,7 @@ where
           let id := id.getId.eraseMacroScopes
           let kind := (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
           return ⟨Syntax.mkAntiquotNode kind term⟩
-        | _ => throwError "unknown parser declaration/category/alias '{id}'"
+        | _ => throwError "unknown parser declaration/category/alias `{id}`"
     | stx, term => do
       -- can't match against `` `(stx| ($stxs*)) `` as `*` is interpreted as the `stx` operator
       if stx.raw.isOfKind ``Parser.Syntax.paren then

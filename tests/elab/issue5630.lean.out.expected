@@ -1,0 +1,3 @@
+issue5630.lean:2:0-2:7: warning: declaration uses `sorry`
+issue5630.lean:7:0-7:7: warning: declaration uses `sorry`
+issue5630.lean:12:0-12:7: warning: declaration uses `sorry`

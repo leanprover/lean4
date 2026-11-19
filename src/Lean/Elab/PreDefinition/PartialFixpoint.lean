@@ -9,5 +9,3 @@ prelude
 public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 public import Lean.Elab.PreDefinition.PartialFixpoint.Main
 public import Lean.Elab.PreDefinition.PartialFixpoint.Induction
-
-public section

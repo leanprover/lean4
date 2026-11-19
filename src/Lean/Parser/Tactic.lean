@@ -20,7 +20,10 @@ builtin_initialize
   register_parser_alias tacticSeq
   register_parser_alias tacticSeqIndentGt
 
-/- This is a fallback tactic parser for any identifier which exists only
+-- Don't make this a docstring, because it shows up at unfortunate places
+-- in hovers and completion:
+/-
+This is a fallback tactic parser for any identifier which exists only
 to improve syntax error messages.
 ```
 example : True := by foo -- unknown tactic
@@ -52,24 +55,7 @@ example (n : Nat) : n = n := by
   optional Term.motive >> sepBy1 Term.matchDiscr ", " >>
   " with " >> ppDedent matchAlts
 
-/--
-The tactic
-```
-intro
-| pat1 => tac1
-| pat2 => tac2
-```
-is the same as:
-```
-intro x
-match x with
-| pat1 => tac1
-| pat2 => tac2
-```
-That is, `intro` can be followed by match arms and it introduces the values while
-doing a pattern match. This is equivalent to `fun` with match arms in term mode.
--/
-@[builtin_tactic_parser] def introMatch := leading_parser
+@[builtin_tactic_parser, tactic_alt intro] def introMatch := leading_parser
   nonReservedSymbol "intro" >> matchAlts
 
 builtin_initialize

@@ -1,0 +1,124 @@
+-- Enable the deprecated syntax linter (test framework disables all linters)
+set_option linter.deprecated.syntax true
+
+-- A test-local copy of `let_fun`, which is itself deprecated in core
+syntax:lead (name := oldHave) "old_have " ident " := " term "; " term : term
+macro_rules | `(old_have $x := $v; $b) => `(have $x := $v; $b)
+
+-- Test 1: Direct usage of deprecated term syntax → warning
+deprecated_syntax oldHave "use `have` instead" (since := "2026-03-24")
+
+-- Note: the paren macro expands to the inner expression, but the warning
+-- is attributed to the inner expression written by the user.
+#check (old_have x := 1; x)
+
+/--
+  Test 2: Macro that expands to deprecated syntax → warning at macro call site
+  It will not warn at macro definition, as it is defined via
+  single backtick and hence does not trigger a pre-check.
+-/
+syntax "my_wrapper " : term
+macro_rules | `(my_wrapper) => `(old_have x := 1; x)
+
+#check (my_wrapper)
+
+-- Test 2b: Nested macros — A expands to B, B expands to deprecated syntax.
+-- Warning names immediate producer (innerMacro) and its caller (outerMacro).
+syntax "innerMacro " : term
+macro_rules | `(innerMacro) => `(old_have x := 1; x)
+syntax "outerMacro " : term
+macro_rules | `(outerMacro) => `(innerMacro)
+
+-- Use `let` binding to avoid parens adding another macro layer
+def nested_test := outerMacro
+
+-- Test 3: set_option linter.deprecated.syntax false suppresses warnings
+set_option linter.deprecated.syntax false in
+#check (old_have x := 1; x)
+
+-- Test 4: Non-deprecated syntax → no warning
+#check (42 : Nat)
+
+-- Test 5: deprecated_syntax for a tactic
+syntax "myDepTac" : tactic
+macro_rules | `(tactic| myDepTac) => `(tactic| trivial)
+
+deprecated_syntax tacticMyDepTac "use `trivial` instead" (since := "2026-03-24")
+
+example : True := by myDepTac
+
+-- Test 6: Quotation precheck warns at macro definition time
+-- Define a custom syntax, give it a macro expansion, then deprecate it
+syntax "oldThing" : term
+macro_rules | `(oldThing) => `(42)
+deprecated_syntax termOldThing "use `42` instead" (since := "2026-03-24")
+
+-- A macro whose RHS quotation uses the deprecated syntax → warning at definition site
+syntax "usesOld " : term
+macro_rules | `(usesOld) => ``(oldThing)
+
+-- Test 7: set_option linter.deprecated.syntax false suppresses quotation precheck warning
+syntax "usesOld2 " : term
+set_option linter.deprecated.syntax false in
+macro_rules | `(usesOld2) => ``(oldThing)
+
+-- Test 8: Quotation that does NOT use deprecated syntax → no warning
+syntax "usesNew " : term
+macro_rules | `(usesNew) => ``(42)
+
+-- Test 9: deprecated_syntax for a command — direct usage
+syntax "myDepCmd " : command
+macro_rules | `(myDepCmd) => `(#check 42)
+
+deprecated_syntax commandMyDepCmd "use `#check` instead" (since := "2026-03-24")
+
+myDepCmd
+
+-- Test 9b: Macro that expands to deprecated command → warning at macro call site
+syntax "myWrapperCmd " : command
+macro_rules | `(myWrapperCmd) => `(myDepCmd)
+
+myWrapperCmd
+
+-- Test 9c: set_option linter.deprecated.syntax false suppresses command warning
+set_option linter.deprecated.syntax false in
+myDepCmd
+
+-- Test 10: deprecated syntax inside a `@[deprecated]` definition → no warning,
+-- matching the suppression rule for deprecated constants (RFC #8942)
+@[deprecated "use something else" (since := "2026-07-24")]
+def deprecatedUsesOldTerm : Nat := oldThing
+
+@[deprecated "use something else" (since := "2026-07-24")]
+theorem deprecatedUsesOldTac : True := by myDepTac
+
+-- Test 10b: the same syntax outside a deprecated definition still warns
+def freshUsesOldTerm : Nat := oldThing
+
+-- Test 11: a deprecated tactic warns once, although its expansion uses itself and the deprecated
+-- `myDepTac`
+syntax (name := depRec) "depRec " num : tactic
+macro_rules
+  | `(tactic| depRec 0) => `(tactic| myDepTac)
+  | `(tactic| depRec $n) => `(tactic| depRec $(Lean.quote (n.getNat - 1)))
+deprecated_syntax depRec "use `trivial` instead" (since := "2026-09-23")
+
+example : True := by depRec 2
+
+-- Test 11b: a macro that expands to the deprecated tactic still warns once at its call site
+macro "wrapsDepRec" : tactic => `(tactic| depRec 1)
+
+example : True := by wrapsDepRec
+
+-- Test 12: deprecated syntax produced by a macro in a checked quotation is not reported at the
+-- quotation, which does not contain it, but where the quotation's result is elaborated
+syntax "wrapsOld " ident : term
+macro_rules | `(wrapsOld $_) => `(oldThing)
+def someIdent := 0
+macro "usesWrapsOld" : term => ``(wrapsOld someIdent)
+
+#check usesWrapsOld
+
+-- Test 12b: deprecated syntax written in a macro argument in a checked quotation is reported
+macro "idTerm " x:term:max : term => `($x)
+macro "usesIdTerm" : term => ``(idTerm (oldThing + someIdent))

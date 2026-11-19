@@ -1,0 +1,2 @@
+grind_pattern2.lean:51:0-51:7: warning: declaration uses `sorry`
+grind_pattern2.lean:55:8-55:13: warning: declaration uses `sorry`

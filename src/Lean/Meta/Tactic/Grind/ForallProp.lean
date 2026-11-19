@@ -4,21 +4,22 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Internalize
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.EqResolution
-
+public import Init.Grind.Propagator
+import Init.Simproc
+import Init.Grind.Norm
+import Lean.Meta.Tactic.Grind.ForallAnd
+import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Anchor
+import Lean.Meta.Tactic.Grind.EqResolution
+import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Init.Grind.Lemmas
 public section
-
 namespace Lean.Meta.Grind
 /--
-If `parent` is a projection-application `proj_i c`,
-check whether the root of the equivalence class containing `c` is a constructor-application `ctor ... a_i ...`.
-If so, internalize the term `proj_i (ctor ... a_i ...)` and add the equality `proj_i (ctor ... a_i ...) = a_i`.
+Propagator for dependent forall terms
+`forall (h : p), q[h]` where p is a proposition.
 -/
 def propagateForallPropUp (e : Expr) : GoalM Unit := do
   let .forallE n p q bi := e | return ()
@@ -54,35 +55,67 @@ where
       -- (a → b) = True → b = False → a = False
       pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
-private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
-  let_expr eq_true _ p := proof | return none
-  let .fvar fvarId := p | return none
-  return some fvarId
-
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
 private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) (prios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
   try
-    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false)
+    -- **Note**: for local theorems, we want to use very general patterns, this is why we set `minIndexable := true`
+    -- The same approach is used in Z3.
+    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false) (minIndexable := true)
   catch _ =>
     return none
 
+/-- Returns `true` if `thm?` is none or its patterns are different from the ones in `thm'` -/
+private def isNewPat (patternsFoundSoFar : Array (List Expr)) (thm' : EMatchTheorem) : Bool :=
+  patternsFoundSoFar.all fun ps => thm'.patterns != ps
+
+private partial def getOrigin (proof : Expr) : GoalM Origin := do
+  match_expr proof with
+  | eq_true _ p => getOrigin p
+  | Eq.mp _ _ _ p => getOrigin p
+  | _ =>
+    if let .fvar fvarId := proof then
+      return .fvar fvarId
+    else
+      let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
+      return .local ((`local).appendIndexAfter idx)
+
+/--
+Given a proof of an `EMatchTheorem`, returns `true`, if there are no
+anchor references restricting the search, or there is an anchor
+references `ref` s.t. `ref` matches `proof`.
+-/
+def checkAnchorRefsEMatchTheoremProof (proof : Expr) : GrindM Bool := do
+  let some anchorRefs ← getAnchorRefs | return true
+  let anchor ← getAnchor (← inferType proof)
+  return anchorRefs.any (·.matches anchor)
+
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
-  let origin ← if let some fvarId := isEqTrueHyp? proof then
-    pure <| .fvar fvarId
-  else
-    let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
-    pure <| .local ((`local).appendIndexAfter idx)
+  let origin ← getOrigin proof
   let proof := mkOfEqTrueCore e proof
+  -- **Note**: Do we really need to restrict the instantiation of local theorems?
+  -- **Note**: Should we distinguish anchors restricting case-splits and local theorems?
+  unless (← checkAnchorRefsEMatchTheoremProof proof) do return ()
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
-  -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight (← getSymbolPriorities) then
-    activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft (← getSymbolPriorities) then
-    activateTheorem thm gen
+  let mut patternsFoundSoFar := #[]
+  let symPrios ← getSymbolPriorities
+  let minPrio := eval_prio default -- We only consider symbols with default priority and above when collecting singleton patterns.
+  let thms ← mkEMatchTheoremUsingSingletonPatterns origin #[] proof minPrio symPrios
+  for thm in thms do
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight symPrios then
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft symPrios then
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
   if (← get).ematch.newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) (← getSymbolPriorities) then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) symPrios then
       activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"
@@ -98,7 +131,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let u ← getLevel α
       let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
       let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
-      addNewRawFact proof prop (← getGeneration e) (.forallProp e)
+      addNewRawFact proof prop (← getGeneration e) (.forallProp e) .other
     else
       let h ← mkEqFalseProof e
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
@@ -108,24 +141,23 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       trace_goal[grind.eqResolution] "{e}, {e'}"
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
-      addNewRawFact h' e' (← getGeneration e) (.forallProp e)
+      addNewRawFact h' e' (← getGeneration e) (.forallProp e) .other
+    if b.hasLooseBVars then
+      unless (← isProp a) do
+        /-
+        We used to waste a lot of time trying to process terms such as
+        ```
+        ∀ (h : i + 1 ≤ w), x.abs.getLsbD i = x.abs[i]
+        ```
+        as E-matching theorems. They are "dependent" implications, and should be handled
+        by `propagateForallPropUp`.
+        -/
+        addLocalEMatchTheorems e
     else
-      if b.hasLooseBVars then
-        unless (← isProp a) do
-          /-
-          We used to waste a lot of time trying to process terms such as
-          ```
-          ∀ (h : i + 1 ≤ w), x.abs.getLsbD i = x.abs[i]
-          ```
-          as E-matching theorems. They are "dependent" implications, and should be handled
-          by `propagateForallPropUp`.
-          -/
-          addLocalEMatchTheorems e
-      else
-        unless (← alreadyInternalized b) do return ()
-        if (← isEqFalse b <&&> isProp a) then
-        -- (a → b) = True → b = False → a = False
-        pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
+      unless (← alreadyInternalized b) do return ()
+      if (← isEqFalse b <&&> isProp a) then
+      -- (a → b) = True → b = False → a = False
+      pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
 builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
   if (← isEqFalse e) then
@@ -134,7 +166,7 @@ builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
     let notP := mkApp (mkConst ``Not) (mkApp p (.bvar 0) |>.headBeta)
     let prop := mkForall `x .default α notP
     let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
-    addNewRawFact proof prop (← getGeneration e) (.existsProp e)
+    addNewRawFact proof prop (← getGeneration e) (.existsProp e) .other
 
 private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
   if let .forallE n d b _ := e then
@@ -146,9 +178,8 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
 
 /--
 Applies the following rewriting rules:
-- `Grind.imp_true_eq`
+- `implies_true`
 - `Grind.imp_false_eq`
-- `Grind.forall_imp_eq_or`
 - `Grind.true_imp_eq`
 - `Grind.false_imp_eq`
 - `Grind.imp_self_eq`
@@ -156,7 +187,7 @@ Applies the following rewriting rules:
 - `forall_false`
 - `Grind.forall_or_forall`
 - `Grind.forall_forall_or`
-- `Grind.forall_and`
+- `Grind.forall_and` (see `forallImpAnd?`)
 -/
 builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
   let .forallE varName d b info := e | return .continue
@@ -165,15 +196,10 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
     | True => if (← isProp b) then return .done { expr := b, proof? := mkApp (mkConst ``Grind.true_imp_eq) b }
     | False => if (← isProp b) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.false_imp_eq) b }
     | _ =>
-    if let .forallE aName α pRaw info' := d then
-      if (← pure pRaw.hasLooseBVars <&&> isProp d) then
-        let p := mkLambda aName info' α pRaw
-        let q := b
-        let u ← getLevel α
-        let expr := mkOr (mkApp2 (mkConst ``Exists [u]) α (mkLambda aName info' α (mkNot pRaw))) q
-        return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_imp_eq_or [u]) α p q }
-    else match_expr b with
-    | True => if (← isProp d) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_true_eq) d }
+    match_expr b with
+    | True =>
+      -- `d` may be a type, e.g. after the body of `∀ t : α, p t` has been simplified to `True`.
+      return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``implies_true [← getLevel d]) d }
     | False => if (← isProp d) then return .visit { expr := mkNot d, proof? := mkApp (mkConst ``Grind.imp_false_eq) d }
     | _ => if (← isProp d <&&> isDefEq d b) then
       return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_self_eq) d }
@@ -190,7 +216,7 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
       if (← isDefEq (← inferType p) (mkForall varName info d (mkSort 0))) then
         return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``forall_false) p }
     | _ => pure ()
-  -- We try to apply `forall_and`, `forall_or_forall`, and `forall_forall_or` whether `b` has loose bound variables or not.
+  -- We try to apply `forall_or_forall` and `forall_forall_or` whether `b` has loose bound variables or not.
   if b.isApp && b.getAppNumArgs == 2 then
     let .const bDeclName _ := b.appFn!.appFn! | return .continue
     if bDeclName == ``Or then
@@ -215,14 +241,8 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
         let v ← withLocalDeclD varName α fun a => getLevel (βRaw.instantiate1 a)
         let expr := mkForall varName info α (mkForall bName .default βRaw (mkOr (pRaw.liftLooseBVars 0 1) qRaw))
         return .visit { expr, proof? := mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q }
-    else if bDeclName == ``And then
-      let pRaw := b.appFn!.appArg!
-      let qRaw := b.appArg!
-      let p := mkLambda varName info d pRaw
-      let q := mkLambda varName info d qRaw
-      let expr := mkAnd (mkForall varName info d pRaw) (mkForall varName info d qRaw)
-      let u ← getLevel d
-      return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_and [u]) d p q }
+  if let some (lhs, rhs, h) ← forallImpAnd? e then
+    return .visit { expr := mkAnd lhs rhs, proof? := h }
   -- None of the rules were applicable
   return .continue
 

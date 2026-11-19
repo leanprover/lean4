@@ -3,13 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.DSL.DeclUtil
-import Lean.Parser.Term
+public import Lake.DSL.DeclUtil
 
 open Lean Parser Elab Command
-
-open System (FilePath)
 
 /-!
 This module defines the syntax of the Lake DSL. The syntax is defined separately from the elaborator
@@ -18,6 +17,12 @@ allows the reference manual to document the DSL syntax.
 -/
 
 namespace Lake.DSL
+
+/--
+A macro that expands to the assigned name of package
+during the Lakefile's elaboration.
+-/
+scoped syntax (name := nameConst) "__name__" : term
 
 /--
 A macro that expands to the path of package's directory
@@ -32,7 +37,7 @@ if the option has not been set) during the Lakefile's elaboration.
 Configuration arguments are set either via the Lake CLI (by the `-K` option)
 or via the `with` clause in a `require` statement.
 -/
-scoped syntax (name := getConfig) "get_config? " ident :term
+scoped syntax (name := getConfig) "get_config? " ident : term
 
 /-!
 # Package Declarations
@@ -52,7 +57,14 @@ There can only be one `package` declaration per Lake configuration file.
 The defined package configuration will be available for reference as `_package`.
 -/
 scoped syntax (name := packageCommand)
-(docComment)? (Term.attributes)? "package " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "package " (identOrStr)? optConfig
+: command
+
+@[inherit_doc packageCommand]
+public abbrev PackageCommand := TSyntax ``packageCommand
+
+public instance : Coe PackageCommand Command where
+  coe x := ⟨x.raw⟩
 
 /--
 Declare a post-`lake update` hook for the package.
@@ -77,8 +89,8 @@ post_update pkg do
 ```
 -/
 scoped syntax (name := postUpdateDecl)
-optional(docComment) optional(Term.attributes)
-"post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo)
+  optional(docComment) optional(Term.attributes)
+  "post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 : command
 
 
@@ -87,28 +99,29 @@ optional(docComment) optional(Term.attributes)
 This is the `require` DSL syntax used to specify package dependencies.
 -/
 
-syntax fromPath :=
-  term
+public syntax fromPath :=
+  &"copy "? term
 
-syntax fromGit :=
+public syntax fromGit :=
   &"git " term:max ("@" term:max)? ("/" term)?
 
-syntax fromSource :=
+public syntax fromSource :=
   fromGit <|> fromPath
 
 /--
 Specifies a specific source from which to draw the package dependency.
-Dependencies that are downloaded from a remote source will be placed
-into the workspace's `packagesDir`.
+Dependencies that are downloaded from a remote source or copied from a
+relative path will be placed into the workspace's `packagesDir`.
 
 **Path Dependencies**
 
 ```
-from <path>
+from [copy] <path>
 ```
 
-Lake loads the package located a fixed `path` relative to the
-requiring package's directory.
+Lake locates the package at a fixed `path` relative to the requiring
+package's directory. With `copy`, the package will be loaded from a local
+workspace copy rather than being loaded directly from the source.
 
 **Git Dependencies**
 
@@ -122,37 +135,37 @@ branch, or tag. If none is provided, Lake defaults to `master`. After checkout,
 Lake loads the package located in `subDir` (or the repository root if no
 subdirectory is specified).
 -/
-syntax fromClause :=
+public syntax fromClause :=
   " from " fromSource
 
-/-
+/--
 A `NameMap String` of Lake options used to configure the dependency.
 This is equivalent to passing `-K` options to the dependency on the command line.
 -/
-syntax withClause :=
+public syntax withClause :=
   " with " term
 
-syntax verSpec :=
+public syntax verSpec :=
   &"git "? term:max
 
 /--
 The version of the package to require.
 To specify a Git revision, use the syntax `@ git <rev>`.
 -/
-syntax verClause :=
+public syntax verClause :=
   " @ " verSpec
 
-syntax depName :=
+public syntax depName :=
   atomic(str " / ")? identOrStr
 
-syntax depSpec :=
+public syntax depSpec :=
   depName (verClause)? (fromClause)? (withClause)?
 
 /--
 Adds a new package dependency to the workspace. The general syntax is:
 
 ```
-require ["<scope>" /] <pkg-name> [@ <version>]
+require ["<scope>" /] <pkg-name> [@ [git]? <version>]
   [from <source>] [with <options>]
 ```
 
@@ -171,15 +184,21 @@ used to configure the dependency. This is equivalent to passing `-K`
 options to the dependency on the command line.
 -/
 scoped syntax (name := requireDecl)
-(docComment)? "require " depSpec : command
+  (docComment)? "require " depSpec
+: command
 
+@[inherit_doc requireDecl]
+public abbrev RequireDecl := TSyntax ``requireDecl
+
+public instance : Coe RequireDecl Command where
+  coe x := ⟨x.raw⟩
 
 /-!
 # DSL for Targets & Facets
 Syntax for declaring Lake targets and facets.
 -/
 
-syntax buildDeclSig :=
+public syntax buildDeclSig :=
   identOrStr (ppSpace simpleBinder)? Term.typeSpec declValSimple
 
 /-!
@@ -197,7 +216,8 @@ module_facet «facet-name» (mod : Module) : α :=
 The `mod` parameter (and its type specifier) is optional.
 -/
 scoped syntax (name := moduleFacetDecl)
-(docComment)? (Term.attributes)? "module_facet " buildDeclSig : command
+  (docComment)? (Term.attributes)? "module_facet " buildDeclSig
+: command
 
 /--
 Define a new package facet. Has one form:
@@ -210,7 +230,8 @@ package_facet «facet-name» (pkg : Package) : α :=
 The `pkg` parameter (and its type specifier) is optional.
 -/
 scoped syntax (name := packageFacetDecl)
-(docComment)? (Term.attributes)? "package_facet " buildDeclSig : command
+  (docComment)? (Term.attributes)? "package_facet " buildDeclSig
+: command
 
 /--
 Define a new library facet. Has one form:
@@ -223,7 +244,8 @@ library_facet «facet-name» (lib : LeanLib) : α :=
 The `lib` parameter (and its type specifier) is optional.
 -/
 scoped syntax (name := libraryFacetDecl)
-(docComment)? (Term.attributes)? "library_facet " buildDeclSig : command
+  (docComment)? (Term.attributes)? "library_facet " buildDeclSig
+: command
 
 
 /-!
@@ -243,7 +265,8 @@ It is of type `NPackage _package.name` to provably demonstrate the package
 provided is the package in which the target is defined.
 -/
 scoped syntax (name := targetCommand)
-(docComment)? (Term.attributes)? "target " buildDeclSig : command
+  (docComment)? (Term.attributes)? "target " buildDeclSig
+: command
 
 
 /-!
@@ -262,7 +285,14 @@ lean_lib «target-name» where /- config opts -/
 ```
 -/
 scoped syntax (name := leanLibCommand)
-(docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig
+: command
+
+@[inherit_doc leanLibCommand]
+public abbrev LeanLibCommand := TSyntax ``leanLibCommand
+
+public instance : Coe LeanLibCommand Command where
+  coe x := ⟨x.raw⟩
 
 /--
 Define a new Lean binary executable target for the package.
@@ -276,27 +306,48 @@ lean_exe «target-name» where /- config opts -/
 ```
 -/
 scoped syntax (name := leanExeCommand)
-(docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig
+: command
+
+@[inherit_doc leanExeCommand]
+public abbrev LeanExeCommand := TSyntax ``leanExeCommand
+
+public instance : Coe LeanExeCommand Command where
+  coe x := ⟨x.raw⟩
 
 /--
 Define a new input file target for the package.
 Can optionally be provided with a configuration of type `InputFileConfig`.
 -/
 scoped syntax (name := inputFileCommand)
-(docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig
+: command
+
+@[inherit_doc inputFileCommand]
+public abbrev InputFileCommand := TSyntax ``inputFileCommand
+
+public instance : Coe InputFileCommand Command where
+  coe x := ⟨x.raw⟩
 
 /--
 Define a new input directory target for the package.
 Can optionally be provided with a configuration of type `InputDirConfig`.
 -/
 scoped syntax (name := inputDirCommand)
-(docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig : command
+  (docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig
+: command
+
+@[inherit_doc inputDirCommand]
+public abbrev InputDirCommand := TSyntax ``inputDirCommand
+
+public instance : Coe InputDirCommand Command where
+  coe x := ⟨x.raw⟩
 
 /-!
 ## External Library Target Declaration
 -/
 
-syntax externLibDeclSpec :=
+public syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple
 
 /--
@@ -314,7 +365,27 @@ provided is the package in which the target is defined.
 The term should build the external library's **static** library.
 -/
 scoped syntax (name := externLibCommand)
-(docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec : command
+  (docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec
+: command
+
+/-!  # Cache Service Declaration -/
+
+/-- Define a cache service for the package.
+
+```lean
+cache_service «service-name» :=
+  /- term of type `CacheService` -/
+```
+-/
+scoped syntax (name := cacheServiceCommand)
+  (docComment)? (Term.attributes)? "cache_service " (identOrStr)? declVal
+: command
+
+@[inherit_doc cacheServiceCommand]
+public abbrev CacheServiceCommand := TSyntax ``cacheServiceCommand
+
+public instance : Coe CacheServiceCommand Command where
+  coe x := ⟨x.raw⟩
 
 /-!
 # Script Declarations
@@ -322,7 +393,7 @@ scoped syntax (name := externLibCommand)
 DSL definitions to define a Lake script for a package.
 -/
 
-syntax scriptDeclSpec :=
+public syntax scriptDeclSpec :=
   identOrStr (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 
 /--
@@ -341,9 +412,8 @@ script «script-name» (args) do
 ```
 -/
 scoped syntax (name := scriptDecl)
-(docComment)? optional(Term.attributes) "script " scriptDeclSpec : command
-
-end DSL
+  (docComment)? optional(Term.attributes) "script " scriptDeclSpec
+: command
 
 /-!
 # Version Literals
@@ -351,10 +421,15 @@ end DSL
 Defines the `v!"<ver>"` syntax for version literals.
 -/
 
-/-- A Lake version literal. -/
-scoped syntax:max (name := verLit) "v!" noWs interpolatedStr(term) : term
+/-- Helper gadget for decoding versions from arbitrary terms. -/
+scoped syntax:lead (name := evalVer)
+  "eval_ver%" term
+: term
 
-namespace DSL
+/-- A Lake version literal. -/
+scoped syntax:max (name := verLit)
+  "v!" noWs interpolatedStr(term)
+: term
 
 /-!
 # DSL for Build Key
@@ -362,15 +437,18 @@ namespace DSL
 Notation for specifying build keys in a package.
 -/
 
-syntax facetSuffix := atomic(":" noWs) ident
-syntax packageTargetLit := atomic("+" noWs)? ident
+public syntax facetSuffix := atomic(":" noWs) ident
+public syntax packageTargetLit := atomic("+" noWs)? ident
 
 /-- A module target key literal (with optional facet). -/
-scoped syntax:max "`+" noWs ident facetSuffix* : term
+scoped syntax:max (name := moduleTargetKeyLit)
+  "`+" noWs ident facetSuffix*
+: term
 
 /-- A package target key literal (with optional facet). -/
-scoped syntax:max "`@" (noWs ident)?
-  (atomic(noWs "/" noWs) packageTargetLit)? (noWs facetSuffix)* : term
+scoped syntax:max (name := packageTargetKeyLit)
+  "`@" (noWs ident)?  (atomic(noWs "/" noWs) packageTargetLit)? (noWs facetSuffix)*
+: term
 
 /-!
 # Elaboration-Time Control Flow
@@ -383,7 +461,7 @@ The `do` command syntax groups multiple similarly indented commands together.
 The group can then be passed to another command that usually only accepts a
 single command (e.g., `meta if`).
 -/
-syntax cmdDo := ("do" many1Indent(command)) <|> command
+public syntax cmdDo := ("do" many1Indent(command)) <|> command
 
 /--
 The `meta if` command has two forms:
@@ -405,12 +483,13 @@ meta if System.Platform.isWindows then
 extern_lib winOnlyLib := ...
 else meta if System.Platform.isOSX then
 extern_lib macOnlyLib := ...
-else
+else meta if System.Platform.isLinux then
 extern_lib linuxOnlyLib := ...
 ```
 -/
 scoped syntax (name := metaIf)
-"meta " "if " term " then " cmdDo (" else " cmdDo)? : command
+  "meta " "if " term " then " cmdDo (" else " cmdDo)?
+: command
 
 /--
 Executes a term of type `IO α` at elaboration-time

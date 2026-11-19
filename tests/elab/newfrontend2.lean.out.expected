@@ -1,0 +1,11 @@
+if (0 == 1) = true then true else false : Bool
+foo (some x) x : Nat
+let x := 1;
+x + 1 : Nat
+match 1 with
+| x => x + 1 : Int
+let x := 1;
+x + 1 : Nat
+match 1 with
+| x => x + 1 : Int
+fun x1 x2 => g (x1, 1) x2 : Nat → Nat → Nat

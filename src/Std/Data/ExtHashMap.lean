@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Data.ExtHashMap.Basic
 public import Std.Data.ExtHashMap.Lemmas
-
-@[expose] public section

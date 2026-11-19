@@ -1,0 +1,15 @@
+Input: "![alt text is good](logo.png)"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.image
+   "!["
+   (Lean.Doc.Parser.versoImageAlt
+    "alt text is good")
+   "]"
+   (Lean.Doc.Parser.LinkTarget.url
+    "("
+    (Lean.Doc.Parser.versoLinkUrl "logo.png")
+    ")"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  image (opener := "![") (alt := "alt text is good") (closer := "]") (target := url (opener := "(") (url := "logo.png") (closer := ")"))

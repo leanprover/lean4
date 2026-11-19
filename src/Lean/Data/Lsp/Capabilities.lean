@@ -8,7 +8,6 @@ module
 
 prelude
 public import Lean.Data.JsonRpc
-public import Lean.Data.Lsp.TextSync
 public import Lean.Data.Lsp.LanguageFeatures
 public import Lean.Data.Lsp.CodeActions
 public import Lean.Data.Lsp.Extra
@@ -66,10 +65,21 @@ structure WorkspaceClientCapabilities where
 
 structure LeanClientCapabilities where
   /--
+  Whether the client supports incremental `textDocument/publishDiagnostics` updates.
+  If `none` or `false`, the server will never set `PublishDiagnosticsParams.isIncremental?`
+  and always report full diagnostic updates that replace the previous one.
+  -/
+  incrementalDiagnosticSupport? : Option Bool := none
+  /--
   Whether the client supports `DiagnosticWith.isSilent = true`.
   If `none` or `false`, silent diagnostics will not be served to the client.
   -/
   silentDiagnosticSupport? : Option Bool := none
+  /--
+  The latest RPC wire format supported by the client.
+  Defaults to `v0` when `none`.
+  -/
+  rpcWireFormat? : Option RpcWireFormat := none
   deriving ToJson, FromJson
 
 structure ClientCapabilities where
@@ -80,6 +90,13 @@ structure ClientCapabilities where
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
 
+def ClientCapabilities.incrementalDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some incrementalDiagnosticSupport := lean.incrementalDiagnosticSupport?
+    | return false
+  return incrementalDiagnosticSupport
+
 def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
   let some lean := c.lean?
     | return false
@@ -87,8 +104,16 @@ def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool :
     | return false
   return silentDiagnosticSupport
 
+def ClientCapabilities.rpcWireFormat (c : ClientCapabilities) : RpcWireFormat := Id.run do
+  let some lean := c.lean?
+    | return .v0
+  let some v := lean.rpcWireFormat?
+    | return .v0
+  return v
+
 structure LeanServerCapabilities where
   moduleHierarchyProvider? : Option ModuleHierarchyOptions
+  rpcProvider? : Option RpcOptions
   deriving FromJson, ToJson
 
 -- TODO largely unimplemented
@@ -110,6 +135,7 @@ structure ServerCapabilities where
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
   signatureHelpProvider?    : Option SignatureHelpOptions    := none
+  colorProvider?            : Option DocumentColorOptions    := none
   experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 

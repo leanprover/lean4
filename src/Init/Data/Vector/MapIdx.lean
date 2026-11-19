@@ -6,11 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.MapIdx
-public import all Init.Data.Array.Basic
-public import all Init.Data.Vector.Basic
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Attach
-public import Init.Data.Vector.Lemmas
+import Init.ByCases
 
 public section
 
@@ -97,18 +96,7 @@ theorem mem_zipIdx_iff_getElem? {x : α × Nat} {xs : Vector α n} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mem_zipIdx_iff_getElem?]
 
-@[deprecated toList_zipIdx (since := "2025-01-27")]
-abbrev toList_zipWithIndex := @toList_zipIdx
-@[deprecated getElem_zipIdx (since := "2025-01-27")]
-abbrev getElem_zipWithIndex := @getElem_zipIdx
-@[deprecated mk_mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
-abbrev mk_mem_zipWithIndex_iff_le_and_getElem?_sub := @mk_mem_zipIdx_iff_le_and_getElem?_sub
-@[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-27")]
-abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
-@[deprecated mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
-abbrev mem_zipWithIndex_iff_le_and_getElem?_sub := @mem_zipIdx_iff_le_and_getElem?_sub
-@[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-27")]
-abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
+
 
 /-! ### mapFinIdx -/
 
@@ -229,9 +217,6 @@ theorem mapFinIdx_eq_replicate_iff {xs : Vector α n} {f : (i : Nat) → α → 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapFinIdx_eq_replicate_iff]
 
-@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapFinIdx_eq_mkVector_iff := @mapFinIdx_eq_replicate_iff
-
 @[simp, grind =] theorem mapFinIdx_reverse {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (n - 1 - i) a (by omega))).reverse := by
   rcases xs with ⟨xs, rfl⟩
@@ -256,8 +241,7 @@ theorem mapIdx_eq_zipIdx_map {xs : Vector α n} {f : Nat → α → β} :
     xs.mapIdx f = xs.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
 
-@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-27")]
-abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
+
 
 @[grind =]
 theorem mapIdx_append {xs : Vector α n} {ys : Vector α m} :
@@ -365,9 +349,6 @@ theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapIdx_eq_replicate_iff]
 
-@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
-
 @[simp, grind =] theorem mapIdx_reverse {xs : Vector α n} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (n - 1 - i)) xs).reverse := by
   rcases xs with ⟨xs, rfl⟩
@@ -382,7 +363,7 @@ theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m] {xs : Vector α n}
       = Array.mapFinIdxM.map xs.toArray (fun i x h => f i x (size_toArray xs ▸ h))
         i j (size_toArray _ ▸ inv) bs.toArray := by
     match i with
-    | 0 => simp only [mapFinIdxM.map, map_pure, Array.mapFinIdxM.map, Nat.sub_zero]
+    | 0 => simp [mapFinIdxM.map, map_pure, Array.mapFinIdxM.map, Nat.sub_zero]
     | k + 1 =>
       simp only [mapFinIdxM.map, map_bind, Array.mapFinIdxM.map, getElem_toArray]
       conv => lhs; arg 2; intro; rw [go]

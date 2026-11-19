@@ -1,0 +1,7 @@
+@wk_comp.eq_1 : ∀ {n l : Nat} (σ : Wk n l), wk_comp Wk.id σ = σ
+@wk_comp.eq_2 : ∀ {m l : Nat} (x : Wk m l) (m_3 : Nat) (ρ : Wk m_3 m), wk_comp ρ.step x = (wk_comp ρ x).step
+@wk_comp.eq_def : ∀ {n m l : Nat} (x : Wk n m) (x_1 : Wk m l),
+  wk_comp x x_1 =
+    match n, m, x, x_1 with
+    | n, .(n), Wk.id, σ => σ
+    | .(m_1.succ), m, ρ.step, σ => (wk_comp ρ σ).step

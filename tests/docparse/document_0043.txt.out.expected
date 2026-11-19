@@ -1,0 +1,30 @@
+Input: "*bold `code\nmore*\n\nNext\n"
+Failure: unterminated inline code; expected '`'
+ --> 1:6-1:7
+  |
+1 | *bold `code
+  |       ^
+  = consumed input prefix: 11 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.bold
+       (Lean.Doc.Parser.boldDelimiter "*")
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "bold "))
+        (Lean.Doc.Parser.Inline.code
+         (Lean.Doc.Parser.codeDelimiter "`")
+         (Lean.Doc.Parser.versoCode
+          [(Lean.Doc.Parser.versoCodeLine
+            "code")])
+         <missing>)
+        (Lean.Doc.Parser.Inline.linebreak "\n")
+        (Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "more"))]
+       (Lean.Doc.Parser.boldDelimiter "*"))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Next"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -1,8 +1,8 @@
-open Lean.Grind
+open Std Lean.Grind
 
 -- TODO which other systems, e.g. Mathematica, Isabelle, nlia, can handle these?
 
-variable (R : Type) [CommRing R] [LinearOrder R] [OrderedRing R]
+variable (R : Type) [CommRing R] [LE R] [LT R] [LawfulOrderLT R] [IsLinearOrder R] [OrderedRing R]
 
 example (a : R) : 0 ≤ a^2 := by grind
 example (a : R) : 0 ≤ a^6 := by grind

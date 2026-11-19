@@ -4,38 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Basic
-public import Lean.Expr
-
 public section
-
 namespace Lean.Meta.Simp.Arith
-/-
-To prevent the kernel from accidentally reducing the atoms in the equation while typechecking,
-we abstract over them.
--/
-def withAbstractAtoms (atoms : Array Expr) (type : Name) (k : Array Expr → MetaM (Option (Expr × Expr))) :
-    MetaM (Option (Expr × Expr)) := do
-  let type := mkConst type
-  let rec go (i : Nat) (atoms' : Array Expr) (xs : Array Expr) (args : Array Expr) : MetaM (Option (Expr × Expr)) := do
-    if h : i < atoms.size then
-      let atom := atoms[i]
-      if atom.isFVar then
-        go (i+1) (atoms'.push atom) xs args
-      else
-        withLocalDeclD (← mkFreshUserName `x) type fun x =>
-          go (i+1) (atoms'.push x) (xs.push x) (args.push atom)
-    else
-      if xs.isEmpty then
-        k atoms'
-      else
-        let some (r, p) ← k atoms' | return none
-        let r := (← mkLambdaFVars xs r).beta args
-        let p := mkAppN (← mkLambdaFVars xs p) args
-        return some (r, p)
-  go 0 #[] #[] #[]
 
 private def isSupportedType (type : Expr) : Bool :=
   match_expr type with
@@ -48,11 +20,20 @@ private def isSupportedCommRingType (type : Expr) : Bool :=
   | Int => true
   | _ => false
 
+private def isNumeral (e : Expr) : Bool :=
+  if e.isRawNatLit then true else
+  match_expr e with
+  | OfNat.ofNat _ n _ => n.isRawNatLit
+  | Neg.neg _ _ a =>
+    let_expr OfNat.ofNat _ n _ := a | false
+    n.isRawNatLit
+  | _ => false
+
 /-- Quick filter for linear terms. -/
 def isLinearTerm? (e : Expr) : Option Expr :=
   match_expr e with
   | HAdd.hAdd α _ _ _ _ _ => .guard isSupportedType α
-  | HMul.hMul α _ _ _ _ _ => .guard isSupportedType α
+  | HMul.hMul α _ _ _ a b => if isNumeral a || isNumeral b then .guard isSupportedType α else none
   | HSub.hSub α _ _ _ _ _ => .guard isSupportedCommRingType α
   | Neg.neg α _ _ => .guard isSupportedCommRingType α
   | Nat.succ _ => some Nat.mkType

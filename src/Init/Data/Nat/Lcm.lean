@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Data.Nat.Gcd
-public import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Dvd
+import Init.Data.Nat.Lemmas
+import Init.RCases
 
 public section
 

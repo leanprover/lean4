@@ -1,0 +1,2 @@
+4462.lean:6:0-6:7: warning: declaration uses `sorry`
+4462.lean:13:0-13:7: warning: declaration uses `sorry`

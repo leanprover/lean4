@@ -6,9 +6,11 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Dvd
 public import Init.NotationExtra
-public import Init.RCases
+public import Init.Data.Nat.Div.Basic
+import Init.Data.Nat.Dvd
+import Init.RCases
+import Init.WFTactics
 
 public section
 
@@ -58,7 +60,7 @@ theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
   cases n with
   | zero => simp
   | succ n =>
-    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
+    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `(rfl)` instead
     rw [gcd_succ]
     exact gcd_zero_left _
 instance : Std.LawfulIdentity gcd 0 where
@@ -129,6 +131,9 @@ theorem gcd_assoc (m n k : Nat) : gcd (gcd m n) k = gcd m (gcd n k) :=
       (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_right n k)))
 instance : Std.Associative gcd := ⟨gcd_assoc⟩
 
+theorem gcd_left_comm (m n k : Nat) : gcd m (gcd n k) = gcd n (gcd m k) := by
+  rw [← gcd_assoc, ← gcd_assoc, gcd_comm m n]
+
 @[simp] theorem gcd_one_right (n : Nat) : gcd n 1 = 1 := (gcd_comm n 1).trans (gcd_one_left n)
 
 theorem gcd_mul_left (m n k : Nat) : gcd (m * n) (m * k) = m * gcd n k := by
@@ -182,16 +187,8 @@ theorem gcd_dvd_gcd_of_dvd_right {m k : Nat} (n : Nat) (H : m ∣ k) : gcd n m �
 theorem gcd_dvd_gcd_mul_left_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
   gcd_dvd_gcd_of_dvd_left _ (Nat.dvd_mul_left _ _)
 
-@[deprecated gcd_dvd_gcd_mul_left_left (since := "2025-04-01")]
-theorem gcd_dvd_gcd_mul_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
-  gcd_dvd_gcd_mul_left_left m n k
-
 theorem gcd_dvd_gcd_mul_right_left (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
   gcd_dvd_gcd_of_dvd_left _ (Nat.dvd_mul_right _ _)
-
-@[deprecated gcd_dvd_gcd_mul_right_left (since := "2025-04-01")]
-theorem gcd_dvd_gcd_mul_right (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
-  gcd_dvd_gcd_mul_right_left m n k
 
 theorem gcd_dvd_gcd_mul_left_right (m n k : Nat) : gcd m n ∣ gcd m (k * n) :=
   gcd_dvd_gcd_of_dvd_right _ (Nat.dvd_mul_left _ _)
@@ -241,10 +238,6 @@ theorem gcd_left_eq_iff {m m' n : Nat} : gcd m n = gcd m' n ↔ ∀ k, k ∣ n �
 
 @[simp] theorem gcd_add_mul_right_right (m n k : Nat) : gcd m (n + k * m) = gcd m n := by
   simp [gcd_rec m (n + k * m), gcd_rec m n]
-
-@[deprecated gcd_add_mul_right_right (since := "2025-03-31")]
-theorem gcd_add_mul_self (m n k : Nat) : gcd m (n + k * m) = gcd m n :=
-  gcd_add_mul_right_right _ _ _
 
 @[simp] theorem gcd_add_mul_left_right (m n k : Nat) : gcd m (n + m * k) = gcd m n := by
   rw [Nat.mul_comm, gcd_add_mul_right_right]
@@ -389,11 +382,6 @@ def dvdProdDvdOfDvdProd {k m n : Nat} (h : k ∣ m * n) :
     rw [hd, ← gcd_mul_right]
     exact Nat.dvd_gcd (Nat.dvd_mul_right _ _) h
 
-@[inherit_doc dvdProdDvdOfDvdProd, deprecated dvdProdDvdOfDvdProd (since := "2025-04-01")]
-def prod_dvd_and_dvd_of_dvd_prod {k m n : Nat} (H : k ∣ m * n) :
-    {d : {m' // m' ∣ m} × {n' // n' ∣ n} // k = d.1.val * d.2.val} :=
-  dvdProdDvdOfDvdProd H
-
 protected theorem dvd_mul {k m n : Nat} : k ∣ m * n ↔ ∃ k₁ k₂, k₁ ∣ m ∧ k₂ ∣ n ∧ k₁ * k₂ = k := by
   refine ⟨fun h => ?_, ?_⟩
   · obtain ⟨⟨⟨k₁, hk₁⟩, ⟨k₂, hk₂⟩⟩, rfl⟩ := dvdProdDvdOfDvdProd h
@@ -409,10 +397,6 @@ theorem gcd_mul_right_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gc
   exact Nat.mul_dvd_mul
     (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_right m' n') h') hm')
     (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_left n' m') h') hn')
-
-@[deprecated gcd_mul_right_dvd_mul_gcd (since := "2025-04-02")]
-theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n :=
-  gcd_mul_right_dvd_mul_gcd k m n
 
 theorem gcd_mul_left_dvd_mul_gcd (k m n : Nat) : gcd (m * n) k ∣ gcd m k * gcd n k := by
   simpa [gcd_comm, Nat.mul_comm] using gcd_mul_right_dvd_mul_gcd _ _ _

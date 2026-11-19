@@ -1,0 +1,169 @@
+theorem ex₁ : ∀ (x y z : Nat), max (0 + max x (max z (max (0 + 0) (max 1 0 + 0 + 0) * y))) y = max (max x y) z :=
+fun x y z =>
+  Eq.mpr
+    (id
+      (congr
+        (congrArg Eq
+          (Eq.trans
+            (congrFun'
+              (congrArg max
+                (Eq.trans
+                  (congrArg (HAdd.hAdd 0)
+                    (Eq.trans
+                      (congrArg (max x)
+                        (congrArg (max z)
+                          (Eq.trans
+                            (congrFun'
+                              (congrArg HMul.hMul
+                                (Eq.trans
+                                  (congr
+                                    (congrArg max
+                                      ((fun x inst =>
+                                          id
+                                            (Lean.Data.AC.Context.eq_of_norm
+                                              { op := HAdd.hAdd, assoc := Nat.instAssociativeHAdd,
+                                                comm := some { down := Nat.instCommutativeHAdd }, idem := none,
+                                                vars := [{ value := x, neutral := some { down := inst } }],
+                                                arbitrary := x }
+                                              ((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 0))
+                                              (Lean.Data.AC.Expr.var 0) (Eq.refl true)))
+                                        0 Nat.instLawfulIdentityHAddOfNat))
+                                    (Eq.trans
+                                      (congrFun'
+                                        (congrArg HAdd.hAdd
+                                          (congrFun'
+                                            (congrArg HAdd.hAdd
+                                              ((fun x inst x_1 =>
+                                                  id
+                                                    (Lean.Data.AC.Context.eq_of_norm
+                                                      { op := max, assoc := Nat.instAssociativeMax,
+                                                        comm := some { down := Nat.instCommutativeMax },
+                                                        idem := some { down := Nat.instIdempotentOpMax },
+                                                        vars :=
+                                                          [{ value := x, neutral := some { down := inst } },
+                                                            { value := x_1, neutral := none }],
+                                                        arbitrary := x }
+                                                      ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 0))
+                                                      (Lean.Data.AC.Expr.var 1) (Eq.refl true)))
+                                                0 Nat.instLawfulIdentityMaxOfNat 1))
+                                            0))
+                                        0)
+                                      ((fun x inst x_1 =>
+                                          id
+                                            (Lean.Data.AC.Context.eq_of_norm
+                                              { op := HAdd.hAdd, assoc := Nat.instAssociativeHAdd,
+                                                comm := some { down := Nat.instCommutativeHAdd }, idem := none,
+                                                vars :=
+                                                  [{ value := x, neutral := some { down := inst } },
+                                                    { value := x_1, neutral := none }],
+                                                arbitrary := x }
+                                              (((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 0)).op
+                                                (Lean.Data.AC.Expr.var 0))
+                                              (Lean.Data.AC.Expr.var 1) (Eq.refl true)))
+                                        0 Nat.instLawfulIdentityHAddOfNat 1)))
+                                  ((fun x inst x_1 =>
+                                      id
+                                        (Lean.Data.AC.Context.eq_of_norm
+                                          { op := max, assoc := Nat.instAssociativeMax,
+                                            comm := some { down := Nat.instCommutativeMax },
+                                            idem := some { down := Nat.instIdempotentOpMax },
+                                            vars :=
+                                              [{ value := x, neutral := some { down := inst } },
+                                                { value := x_1, neutral := none }],
+                                            arbitrary := x }
+                                          ((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 1))
+                                          (Lean.Data.AC.Expr.var 1) (Eq.refl true)))
+                                    0 Nat.instLawfulIdentityMaxOfNat 1)))
+                              y)
+                            ((fun x x_1 inst =>
+                                id
+                                  (Lean.Data.AC.Context.eq_of_norm
+                                    { op := HMul.hMul, assoc := Nat.instAssociativeHMul,
+                                      comm := some { down := Nat.instCommutativeHMul }, idem := none,
+                                      vars :=
+                                        [{ value := x, neutral := none },
+                                          { value := x_1, neutral := some { down := inst } }],
+                                      arbitrary := x }
+                                    ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 0)) (Lean.Data.AC.Expr.var 0)
+                                    (Eq.refl true)))
+                              y 1 Nat.instLawfulIdentityHMulOfNat))))
+                      ((fun x x_1 x_2 =>
+                          id
+                            (Lean.Data.AC.Context.eq_of_norm
+                              { op := max, assoc := Nat.instAssociativeMax,
+                                comm := some { down := Nat.instCommutativeMax },
+                                idem := some { down := Nat.instIdempotentOpMax },
+                                vars :=
+                                  [{ value := x, neutral := none }, { value := x_1, neutral := none },
+                                    { value := x_2, neutral := none }],
+                                arbitrary := x }
+                              ((Lean.Data.AC.Expr.var 0).op ((Lean.Data.AC.Expr.var 2).op (Lean.Data.AC.Expr.var 1)))
+                              ((Lean.Data.AC.Expr.var 0).op ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 2)))
+                              (Eq.refl true)))
+                        x y z)))
+                  ((fun x inst x_1 =>
+                      id
+                        (Lean.Data.AC.Context.eq_of_norm
+                          { op := HAdd.hAdd, assoc := Nat.instAssociativeHAdd,
+                            comm := some { down := Nat.instCommutativeHAdd }, idem := none,
+                            vars :=
+                              [{ value := x, neutral := some { down := inst } }, { value := x_1, neutral := none }],
+                            arbitrary := x }
+                          ((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 1)) (Lean.Data.AC.Expr.var 1)
+                          (Eq.refl true)))
+                    0 Nat.instLawfulIdentityHAddOfNat (max x (max y z)))))
+              y)
+            ((fun x x_1 x_2 =>
+                id
+                  (Lean.Data.AC.Context.eq_of_norm
+                    { op := max, assoc := Nat.instAssociativeMax, comm := some { down := Nat.instCommutativeMax },
+                      idem := some { down := Nat.instIdempotentOpMax },
+                      vars :=
+                        [{ value := x, neutral := none }, { value := x_1, neutral := none },
+                          { value := x_2, neutral := none }],
+                      arbitrary := x }
+                    (((Lean.Data.AC.Expr.var 0).op ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 2))).op
+                      (Lean.Data.AC.Expr.var 1))
+                    ((Lean.Data.AC.Expr.var 0).op ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 2)))
+                    (Eq.refl true)))
+              x y z)))
+        ((fun x x_1 x_2 =>
+            id
+              (Lean.Data.AC.Context.eq_of_norm
+                { op := max, assoc := Nat.instAssociativeMax, comm := some { down := Nat.instCommutativeMax },
+                  idem := some { down := Nat.instIdempotentOpMax },
+                  vars :=
+                    [{ value := x, neutral := none }, { value := x_1, neutral := none },
+                      { value := x_2, neutral := none }],
+                  arbitrary := x }
+                (((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 1)).op (Lean.Data.AC.Expr.var 2))
+                ((Lean.Data.AC.Expr.var 0).op ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 2))) (Eq.refl true)))
+          x y z)))
+    (Eq.refl (max x (max y z)))
+theorem ex₃ : ∀ (n : Nat), (fun x => n + x) = fun x => x + n :=
+fun n =>
+  Eq.mpr
+    (id
+      (congr
+        (congrArg Eq
+          (funext fun x =>
+            (fun x x_1 =>
+                id
+                  (Lean.Data.AC.Context.eq_of_norm
+                    { op := HAdd.hAdd, assoc := Nat.instAssociativeHAdd,
+                      comm := some { down := Nat.instCommutativeHAdd }, idem := none,
+                      vars := [{ value := x, neutral := none }, { value := x_1, neutral := none }], arbitrary := x }
+                    ((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 1))
+                    ((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 1)) (Eq.refl true)))
+              n x))
+        (funext fun x =>
+          (fun x x_1 =>
+              id
+                (Lean.Data.AC.Context.eq_of_norm
+                  { op := HAdd.hAdd, assoc := Nat.instAssociativeHAdd, comm := some { down := Nat.instCommutativeHAdd },
+                    idem := none, vars := [{ value := x, neutral := none }, { value := x_1, neutral := none }],
+                    arbitrary := x }
+                  ((Lean.Data.AC.Expr.var 1).op (Lean.Data.AC.Expr.var 0))
+                  ((Lean.Data.AC.Expr.var 0).op (Lean.Data.AC.Expr.var 1)) (Eq.refl true)))
+            n x)))
+    (Eq.refl fun x => n + x)

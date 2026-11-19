@@ -1,0 +1,1690 @@
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 20, "character": 3},
+        "end": {"line": 20, "character": 3}},
+       "newText":
+       " field1 := _\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _ "}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 20, "character": 2},
+     "end": {"line": 20, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 20, "character": 3},
+       "end": {"line": 20, "character": 3}},
+      "newText":
+      " field1 := _\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _ "}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 22, "character": 15}, "end": {"line": 22, "character": 15}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 22, "character": 16},
+        "end": {"line": 22, "character": 16}},
+       "newText":
+       " field1 := _\n                 field2 := _\n                 sh := _\n                 longerFieldName := _\n                 field3 := _ "}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 22, "character": 15},
+     "end": {"line": 22, "character": 15}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 22, "character": 16},
+       "end": {"line": 22, "character": 16}},
+      "newText":
+      " field1 := _\n                 field2 := _\n                 sh := _\n                 longerFieldName := _\n                 field3 := _ "}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 22, "character": 15},
+    "end": {"line": 22, "character": 15}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 27, "character": 2}, "end": {"line": 27, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 26, "character": 0},
+        "end": {"line": 26, "character": 0}},
+       "newText":
+       "  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 27, "character": 2},
+     "end": {"line": 27, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 26, "character": 0},
+       "end": {"line": 26, "character": 0}},
+      "newText":
+      "  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 27, "character": 2}, "end": {"line": 27, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 31, "character": 0},
+        "end": {"line": 31, "character": 0}},
+       "newText":
+       "    field1 := _\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 32, "character": 2},
+     "end": {"line": 32, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 31, "character": 0},
+       "end": {"line": 31, "character": 0}},
+      "newText":
+      "    field1 := _\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 37, "character": 2}, "end": {"line": 37, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 36, "character": 3},
+        "end": {"line": 36, "character": 3}},
+       "newText":
+       "\n    field1 := _\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 37, "character": 2},
+     "end": {"line": 37, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 36, "character": 3},
+       "end": {"line": 36, "character": 3}},
+      "newText":
+      "\n    field1 := _\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 37, "character": 2}, "end": {"line": 37, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 40, "character": 2}, "end": {"line": 40, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 39, "character": 16},
+        "end": {"line": 39, "character": 16}},
+       "newText":
+       "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 40, "character": 2},
+     "end": {"line": 40, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 39, "character": 16},
+       "end": {"line": 39, "character": 16}},
+      "newText":
+      "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 40, "character": 2}, "end": {"line": 40, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 44, "character": 2}, "end": {"line": 44, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 42, "character": 16},
+        "end": {"line": 42, "character": 16}},
+       "newText":
+       "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 44, "character": 2},
+     "end": {"line": 44, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 42, "character": 16},
+       "end": {"line": 42, "character": 16}},
+      "newText":
+      "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 44, "character": 2}, "end": {"line": 44, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 50, "character": 17}, "end": {"line": 50, "character": 17}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 50, "character": 18},
+        "end": {"line": 50, "character": 18}},
+       "newText":
+       "\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 50, "character": 17},
+     "end": {"line": 50, "character": 17}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 50, "character": 18},
+       "end": {"line": 50, "character": 18}},
+      "newText":
+      "\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 50, "character": 17},
+    "end": {"line": 50, "character": 17}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 58, "character": 2}, "end": {"line": 58, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 57, "character": 18},
+        "end": {"line": 57, "character": 18}},
+       "newText":
+       "\n    field2 := _\n    sh := _\n    longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 58, "character": 2},
+     "end": {"line": 58, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 57, "character": 18},
+       "end": {"line": 57, "character": 18}},
+      "newText":
+      "\n    field2 := _\n    sh := _\n    longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 58, "character": 2}, "end": {"line": 58, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 64, "character": 16},
+        "end": {"line": 64, "character": 16}},
+       "newText": "\n  field2 := _\n  sh := _\n  longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 65, "character": 2},
+     "end": {"line": 65, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 64, "character": 16},
+       "end": {"line": 64, "character": 16}},
+      "newText": "\n  field2 := _\n  sh := _\n  longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 70, "character": 30}, "end": {"line": 70, "character": 30}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 70, "character": 31},
+        "end": {"line": 70, "character": 31}},
+       "newText": ", sh := _, longerFieldName := _, field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 70, "character": 30},
+     "end": {"line": 70, "character": 30}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 70, "character": 31},
+       "end": {"line": 70, "character": 31}},
+      "newText": ", sh := _, longerFieldName := _, field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 70, "character": 30},
+    "end": {"line": 70, "character": 30}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 75, "character": 94}, "end": {"line": 75, "character": 94}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 75, "character": 95},
+        "end": {"line": 75, "character": 95}},
+       "newText": ",\n    field2 := _, longerFieldName := _, field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 75, "character": 94},
+     "end": {"line": 75, "character": 94}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 75, "character": 95},
+       "end": {"line": 75, "character": 95}},
+      "newText": ",\n    field2 := _, longerFieldName := _, field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 75, "character": 94},
+    "end": {"line": 75, "character": 94}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 81, "character": 17}, "end": {"line": 81, "character": 17}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 81, "character": 18},
+        "end": {"line": 81, "character": 18}},
+       "newText": ", longerFieldName := _, field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 81, "character": 17},
+     "end": {"line": 81, "character": 17}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 81, "character": 18},
+       "end": {"line": 81, "character": 18}},
+      "newText": ", longerFieldName := _, field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 81, "character": 17},
+    "end": {"line": 81, "character": 17}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 86, "character": 13}, "end": {"line": 86, "character": 13}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 86, "character": 14},
+        "end": {"line": 86, "character": 14}},
+       "newText":
+       "\n    field1 := _\n    field2 := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 86, "character": 13},
+     "end": {"line": 86, "character": 13}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 86, "character": 14},
+       "end": {"line": 86, "character": 14}},
+      "newText":
+      "\n    field1 := _\n    field2 := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 86, "character": 13},
+    "end": {"line": 86, "character": 13}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 94, "character": 40}, "end": {"line": 94, "character": 40}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 94, "character": 41},
+        "end": {"line": 94, "character": 41}},
+       "newText": ", field2 := _, longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 94, "character": 40},
+     "end": {"line": 94, "character": 40}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 94, "character": 41},
+       "end": {"line": 94, "character": 41}},
+      "newText": ", field2 := _, longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 94, "character": 40},
+    "end": {"line": 94, "character": 40}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 99, "character": 95}, "end": {"line": 99, "character": 95}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 99, "character": 96},
+        "end": {"line": 99, "character": 96}},
+       "newText": ",\n              field2 := _, longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 99, "character": 95},
+     "end": {"line": 99, "character": 95}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 99, "character": 96},
+       "end": {"line": 99, "character": 96}},
+      "newText": ",\n              field2 := _, longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 99, "character": 95},
+    "end": {"line": 99, "character": 95}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 106, "character": 2}, "end": {"line": 106, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 105, "character": 16},
+        "end": {"line": 105, "character": 16}},
+       "newText": "\n  field2 := _\n  sh := _\n  longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 106, "character": 2},
+     "end": {"line": 106, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 105, "character": 16},
+       "end": {"line": 105, "character": 16}},
+      "newText": "\n  field2 := _\n  sh := _\n  longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 106, "character": 2},
+    "end": {"line": 106, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 112, "character": 27},
+  "end": {"line": 112, "character": 27}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 112, "character": 28},
+        "end": {"line": 112, "character": 28}},
+       "newText":
+       "\n              field2 := _\n              sh := _\n              longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 112, "character": 27},
+     "end": {"line": 112, "character": 27}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 112, "character": 28},
+       "end": {"line": 112, "character": 28}},
+      "newText":
+      "\n              field2 := _\n              sh := _\n              longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 112, "character": 27},
+    "end": {"line": 112, "character": 27}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 117, "character": 12},
+  "end": {"line": 117, "character": 12}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 117, "character": 13},
+        "end": {"line": 117, "character": 13}},
+       "newText":
+       "\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 117, "character": 12},
+     "end": {"line": 117, "character": 12}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 117, "character": 13},
+       "end": {"line": 117, "character": 13}},
+      "newText":
+      "\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 117, "character": 12},
+    "end": {"line": 117, "character": 12}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 121, "character": 2}, "end": {"line": 121, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 120, "character": 13},
+        "end": {"line": 120, "character": 13}},
+       "newText":
+       "\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 121, "character": 2},
+     "end": {"line": 121, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 120, "character": 13},
+       "end": {"line": 120, "character": 13}},
+      "newText":
+      "\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 121, "character": 2},
+    "end": {"line": 121, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 124, "character": 2}, "end": {"line": 124, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 123, "character": 26},
+        "end": {"line": 123, "character": 26}},
+       "newText":
+       "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 124, "character": 2},
+     "end": {"line": 124, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 123, "character": 26},
+       "end": {"line": 123, "character": 26}},
+      "newText":
+      "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 124, "character": 2},
+    "end": {"line": 124, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 128, "character": 2}, "end": {"line": 128, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 127, "character": 0},
+        "end": {"line": 127, "character": 0}},
+       "newText":
+       "  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 128, "character": 2},
+     "end": {"line": 128, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 127, "character": 0},
+       "end": {"line": 127, "character": 0}},
+      "newText":
+      "  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 128, "character": 2},
+    "end": {"line": 128, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 136, "character": 2}, "end": {"line": 136, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 135, "character": 16},
+        "end": {"line": 135, "character": 16}},
+       "newText": ", sh := _, longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 136, "character": 2},
+     "end": {"line": 136, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 135, "character": 16},
+       "end": {"line": 135, "character": 16}},
+      "newText": ", sh := _, longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 136, "character": 2},
+    "end": {"line": 136, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 142, "character": 2}, "end": {"line": 142, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 140, "character": 12},
+        "end": {"line": 140, "character": 12}},
+       "newText":
+       "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 142, "character": 2},
+     "end": {"line": 142, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 140, "character": 12},
+       "end": {"line": 140, "character": 12}},
+      "newText":
+      "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 142, "character": 2},
+    "end": {"line": 142, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 144, "character": 12},
+  "end": {"line": 144, "character": 12}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 144, "character": 12},
+        "end": {"line": 144, "character": 12}},
+       "newText":
+       " field1 := _\n             field2 := _\n             sh := _\n             longerFieldName := _\n             field3 := _ "}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 144, "character": 12},
+     "end": {"line": 144, "character": 12}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 144, "character": 12},
+       "end": {"line": 144, "character": 12}},
+      "newText":
+      " field1 := _\n             field2 := _\n             sh := _\n             longerFieldName := _\n             field3 := _ "}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 144, "character": 12},
+    "end": {"line": 144, "character": 12}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 147, "character": 2}, "end": {"line": 147, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 146, "character": 12},
+        "end": {"line": 146, "character": 12}},
+       "newText":
+       "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 147, "character": 2},
+     "end": {"line": 147, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 146, "character": 12},
+       "end": {"line": 146, "character": 12}},
+      "newText":
+      "\n  field1 := _\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 147, "character": 2},
+    "end": {"line": 147, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 152, "character": 2}, "end": {"line": 152, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 150, "character": 13},
+        "end": {"line": 150, "character": 13}},
+       "newText":
+       "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 152, "character": 2},
+     "end": {"line": 152, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 150, "character": 13},
+       "end": {"line": 150, "character": 13}},
+      "newText":
+      "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 152, "character": 2},
+    "end": {"line": 152, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 156, "character": 17},
+  "end": {"line": 156, "character": 17}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 156, "character": 18},
+        "end": {"line": 156, "character": 18}},
+       "newText":
+       "\n    field2 := _\n    sh := _\n    longerFieldName := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 156, "character": 17},
+     "end": {"line": 156, "character": 17}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 156, "character": 18},
+       "end": {"line": 156, "character": 18}},
+      "newText":
+      "\n    field2 := _\n    sh := _\n    longerFieldName := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 156, "character": 17},
+    "end": {"line": 156, "character": 17}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 158, "character": 23},
+  "end": {"line": 158, "character": 23}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 158, "character": 24},
+        "end": {"line": 158, "character": 24}},
+       "newText":
+       "\n             field2 := _\n             sh := _\n             longerFieldName := _\n             field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 158, "character": 23},
+     "end": {"line": 158, "character": 23}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 158, "character": 24},
+       "end": {"line": 158, "character": 24}},
+      "newText":
+      "\n             field2 := _\n             sh := _\n             longerFieldName := _\n             field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 158, "character": 23},
+    "end": {"line": 158, "character": 23}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 163, "character": 12},
+  "end": {"line": 163, "character": 12}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 163, "character": 13},
+        "end": {"line": 163, "character": 13}},
+       "newText":
+       "\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 163, "character": 12},
+     "end": {"line": 163, "character": 12}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 163, "character": 13},
+       "end": {"line": 163, "character": 13}},
+      "newText":
+      "\n    field2 := _\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 163, "character": 12},
+    "end": {"line": 163, "character": 12}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 167, "character": 2}, "end": {"line": 167, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 165, "character": 22},
+        "end": {"line": 165, "character": 22}},
+       "newText":
+       "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 167, "character": 2},
+     "end": {"line": 167, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 165, "character": 22},
+       "end": {"line": 165, "character": 22}},
+      "newText":
+      "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 167, "character": 2},
+    "end": {"line": 167, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 171, "character": 2}, "end": {"line": 171, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 169, "character": 22},
+        "end": {"line": 169, "character": 22}},
+       "newText":
+       "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 171, "character": 2},
+     "end": {"line": 171, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 169, "character": 22},
+       "end": {"line": 169, "character": 22}},
+      "newText":
+      "\n  field2 := _\n  sh := _\n  longerFieldName := _\n  field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 171, "character": 2},
+    "end": {"line": 171, "character": 2}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 176, "character": 17},
+  "end": {"line": 176, "character": 17}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 176, "character": 18},
+        "end": {"line": 176, "character": 18}},
+       "newText":
+       "\n    field1 := 0\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 176, "character": 17},
+     "end": {"line": 176, "character": 17}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 176, "character": 18},
+       "end": {"line": 176, "character": 18}},
+      "newText":
+      "\n    field1 := 0\n    sh := _\n    longerFieldName := _\n    field3 := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 176, "character": 17},
+    "end": {"line": 176, "character": 17}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 186, "character": 13},
+  "end": {"line": 186, "character": 13}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 186, "character": 14},
+        "end": {"line": 186, "character": 14}},
+       "newText": "\n    n := ?_ + 4"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 186, "character": 13},
+     "end": {"line": 186, "character": 13}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 186, "character": 14},
+       "end": {"line": 186, "character": 14}},
+      "newText": "\n    n := ?_ + 4"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 186, "character": 13},
+    "end": {"line": 186, "character": 13}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 190, "character": 27},
+  "end": {"line": 190, "character": 27}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 190, "character": 28},
+        "end": {"line": 190, "character": 28}},
+       "newText": " fst := _\n                             snd := _ "}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 190, "character": 27},
+     "end": {"line": 190, "character": 27}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 190, "character": 28},
+       "end": {"line": 190, "character": 28}},
+      "newText": " fst := _\n                             snd := _ "}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 190, "character": 27},
+    "end": {"line": 190, "character": 27}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 192, "character": 38},
+  "end": {"line": 192, "character": 38}},
+ "context": {"diagnostics": []}}
+[{"title": "Add missing fields",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 192, "character": 39},
+        "end": {"line": 192, "character": 39}},
+       "newText": "\n                              snd := _"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+    "range":
+    {"start": {"line": 192, "character": 38},
+     "end": {"line": 192, "character": 38}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Add missing fields:
+{"title": "Add missing fields",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 192, "character": 39},
+       "end": {"line": 192, "character": 39}},
+      "newText": "\n                              snd := _"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+   "range":
+   {"start": {"line": 192, "character": 38},
+    "end": {"line": 192, "character": 38}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 199, "character": 16},
+  "end": {"line": 199, "character": 16}},
+ "context": {"diagnostics": []}}
+[]
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 203, "character": 17},
+  "end": {"line": 203, "character": 17}},
+ "context": {"diagnostics": []}}
+[]
+{"textDocument": {"uri": "file:///structInstFieldHints.lean"},
+ "range":
+ {"start": {"line": 213, "character": 70},
+  "end": {"line": 213, "character": 70}},
+ "context": {"diagnostics": []}}
+[]

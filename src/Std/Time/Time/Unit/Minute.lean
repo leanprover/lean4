@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Rat
-public import Std.Time.Internal
 public import Std.Time.Time.Unit.Second
 
 public section
@@ -15,7 +13,6 @@ public section
 namespace Std
 namespace Time
 namespace Minute
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -64,6 +61,18 @@ instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
 instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
 
 instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
+
+instance : HMul Int Offset Offset := inferInstanceAs <| HMul Int (UnitVal _) (UnitVal _)
+
+instance : HMul Offset Int Offset := inferInstanceAs <| HMul (UnitVal _) Int (UnitVal _)
+
+instance : HMul Nat Offset Offset := inferInstanceAs <| HMul Nat (UnitVal _) (UnitVal _)
+
+instance : HMul Offset Nat Offset := inferInstanceAs <| HMul (UnitVal _) Nat (UnitVal _)
+
+instance : HDiv Offset Int Offset := inferInstanceAs <| HDiv (UnitVal _) Int (UnitVal _)
+
+instance : HDiv Offset Nat Offset := inferInstanceAs <| HDiv (UnitVal _) Nat (UnitVal _)
 
 namespace Ordinal
 

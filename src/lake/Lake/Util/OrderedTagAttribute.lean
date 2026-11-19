@@ -3,18 +3,20 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Attributes
+public import Lean.Attributes
 
 open Lean
 namespace Lake
 
-structure OrderedTagAttribute where
+public structure OrderedTagAttribute where
   attr : AttributeImpl
   ext  : PersistentEnvExtension Name Name (Array Name)
   deriving Inhabited
 
-def registerOrderedTagAttribute (name : Name) (descr : String)
+public def registerOrderedTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) : IO OrderedTagAttribute := do
   let ext ← registerPersistentEnvExtension {
     name            := ref
@@ -39,12 +41,12 @@ def registerOrderedTagAttribute (name : Name) (descr : String)
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext }
 
-def OrderedTagAttribute.hasTag (attr : OrderedTagAttribute) (env : Environment) (decl : Name) : Bool :=
+public def OrderedTagAttribute.hasTag (attr : OrderedTagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
   | none        => (attr.ext.getState env).contains decl
 
 /-- Get all tagged declaration names, both those imported and those in the current module. -/
-def OrderedTagAttribute.getAllEntries (attr : OrderedTagAttribute) (env : Environment) : Array Name :=
+public def OrderedTagAttribute.getAllEntries (attr : OrderedTagAttribute) (env : Environment) : Array Name :=
   let s := attr.ext.toEnvExtension.getState env
   s.importedEntries.flatMap id ++ s.state

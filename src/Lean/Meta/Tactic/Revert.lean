@@ -24,7 +24,8 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
     unless clearAuxDeclsInsteadOfRevert do
       for fvarId in fvarIds do
         if (← fvarId.getDecl) |>.isAuxDecl then
-          throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
+          throwError "Failed to revert `{mkFVar fvarId}`: It is an auxiliary declaration created to \
+            represent a recursive reference to an in-progress definition"
     let fvars := fvarIds.map mkFVar
     let toRevert ← collectForwardDeps fvars preserveOrder
     /- We should clear any `auxDecl` in `toRevert` -/
@@ -64,5 +65,20 @@ def _root_.Lean.MVarId.revertFrom (mvarId : MVarId) (fvarId : FVarId) : MetaM (A
     let localDecl ← fvarId.getDecl
     let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index) fun fvarIds decl => fvarIds.push decl.fvarId
     mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
+
+/--
+Reverts all free variables in the goal `mvarId`.
+**Remark**: Auxiliary local declarations are cleared.
+-/
+def _root_.Lean.MVarId.revertAll (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  mvarId.checkNotAssigned `revertAll
+  let mut toRevert := #[]
+  for fvarId in (← getLCtx).getFVarIds do
+    unless (← fvarId.getDecl).isAuxDecl do
+      toRevert := toRevert.push fvarId
+  let (_, mvarId) ← mvarId.revert toRevert
+    (preserveOrder := true)
+    (clearAuxDeclsInsteadOfRevert := true)
+  return mvarId
 
 end Lean.Meta

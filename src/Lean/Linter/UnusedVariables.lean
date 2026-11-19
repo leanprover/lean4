@@ -78,7 +78,7 @@ foobar n -- not linted
 -/
 
 namespace Lean.Linter
-open Lean.Elab.Command Lean.Server Std
+open Lean.Elab.Command Lean.Server
 
 /-- Enables or disables all unused variable linter warnings -/
 register_builtin_option linter.unusedVariables : Bool := {
@@ -176,6 +176,8 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
+      if !builtin then
+        ensureAttrDeclIsMeta name decl kind
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let declType := (← getConstInfo decl).type
       unless declType.isConstOf ``IgnoreFunction do
@@ -232,7 +234,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
   (stack[5]? |>.any fun (stx, _) => match stx[0] with
-    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
+    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[protected]? $[noncomputable]?) =>
       attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implemented_by $_))
     | _ => false))
 
@@ -367,11 +369,11 @@ structure References where
   the spans for `foo`, `bar`, and `baz`. Global definitions are always treated as used.
   (It would be nice to be able to detect unused global definitions but this requires more
   information than the linter framework can provide.) -/
-  constDecls : Std.HashSet String.Range := ∅
+  constDecls : Std.HashSet Lean.Syntax.Range := ∅
   /-- The collection of all local declarations, organized by the span of the declaration.
   We collapse all declarations declared at the same position into a single record using
   `FVarDefinition.aliases`. -/
-  fvarDefs : Std.HashMap String.Range FVarDefinition := ∅
+  fvarDefs : Std.HashMap Lean.Syntax.Range FVarDefinition := ∅
   /-- The set of `FVarId`s that are used directly. These may or may not be aliases. -/
   fvarUses : Std.HashSet FVarId := ∅
   /-- A mapping from alias to original FVarId. We don't guarantee that the value is not itself
@@ -384,7 +386,7 @@ structure References where
 
 /-- Collect information from the `infoTrees` into `References`.
 See `References` for more information about the return value. -/
-partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range)
+partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : Lean.Syntax.Range)
     (linterSets : LinterSets) :
     StateRefT References IO Unit := ReaderT.run (r := false) <| go infoTrees none
 where
@@ -492,7 +494,7 @@ def unusedVariables : Linter where
 
     let infoTrees := (← get).infoState.trees.toArray
 
-    let linterSets := linterSetsExt.getState (← getEnv)
+    let linterSets := (linterSetsExt.getState (← getEnv)).merged
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange linterSets).run {}
@@ -568,7 +570,13 @@ def unusedVariables : Linter where
 
     -- Sort the outputs by position
     for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
-      logLint linter.unusedVariables declStx m!"unused variable `{userName}`"
+      let suggestion : Meta.Hint.Suggestion := s!"_{userName}"
+      let suggestion := { suggestion with span? := declStx, diffGranularity := .none }
+      let hint ← liftCoreM <| MessageData.hint
+        m!"The binding can be removed (if unused) or named `_` (if used implicitly). \
+          Alternatively, prefix the name with `_` to silence this warning:" #[suggestion]
+      logLint linter.unusedVariables declStx
+        (m!"Variable name `{userName}` is not explicitly referenced." ++ hint)
 
 builtin_initialize addLinter unusedVariables
 

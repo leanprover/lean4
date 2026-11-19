@@ -12,3 +12,10 @@ of the `cmake-modules` repository:
 ```bash
 ./update-modules.sh /path-to-lean4-repo/src/cmake/Modules
 ```
+
+Afterwards, reformat them by running the following command from the root of this
+repository:
+
+```bash
+scripts/fmt
+```

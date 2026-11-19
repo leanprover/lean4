@@ -1,0 +1,17 @@
+Input: "[Wikipedia](https://en.wikipedia.org)"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.link
+   "["
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "Wikipedia"))]
+   "]"
+   (Lean.Doc.Parser.LinkTarget.url
+    "("
+    (Lean.Doc.Parser.versoLinkUrl
+     "https://en.wikipedia.org")
+    ")"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  link (opener := "[") (closer := "]") (target := url (opener := "(") (url := "https://en.wikipedia.org") (closer := ")"))
+    text (content := "Wikipedia")

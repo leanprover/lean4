@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.MatchUtil
 public import Lean.Meta.Tactic.Assumption
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Apply
+import Lean.Meta.HasNotBit
+import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.LitValues
 
 public section
 
@@ -80,7 +82,11 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
 
 end ElimEmptyInductive
 
-private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
+/--
+Closes `mvarId` if the type of `fvarId` is an empty inductive type. `fuel` is the number of goals
+visited by the search. Returns `true` iff the goal has been closed.
+-/
+def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
   mvarId.withContext do
     if (← isElimEmptyInductiveCandidate fvarId) then
       commitWhen do
@@ -109,17 +115,14 @@ where
     | _ => acc
 
 /--
-  Close goal if `localDecl` is a "generalized disequality". Example:
-  ```
-  h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
-  ```
-  This kind of hypotheses is created when we generate conditional equations for match expressions.
+Given `h : type` where `type` is a "generalized disequality" (see `processGenDiseq`), returns a
+proof of `False` if the equality hypotheses of `type` can be proved by reflexivity.
 -/
-private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
-  assert! isGenDiseq localDecl.type
-  let val? ← withNewMCtxDepth do
-    let (args, _, _) ← forallMetaTelescope localDecl.type
-    let mask  := mkGenDiseqMask localDecl.type
+def mkGenDiseqFalseProof? (h type : Expr) : MetaM (Option Expr) := do
+  assert! isGenDiseq type
+  withNewMCtxDepth do
+    let (args, _, _) ← forallMetaTelescope type
+    let mask  := mkGenDiseqMask type
     for arg in args, useRefl in mask do
       if useRefl then
         /- Remark: we should not try to use `refl` for equalities that have forward dependencies because
@@ -140,15 +143,34 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
         if let some (_, lhs, _,  _) ← matchHEq? (← inferType arg) then
           unless (← isDefEq arg (← mkHEqRefl lhs)) do
             return none
-    let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
+    let falseProof ← instantiateMVars (mkAppN h args)
     if (← hasAssignableMVar falseProof) then
       return none
-    return some (← mkFalseElim (← mvarId.getType) falseProof)
-  if let some val := val? then
-    mvarId.assign val
-    return true
-  else
-    return false
+    return some falseProof
+
+/--
+  Close goal if `localDecl` is a "generalized disequality". Example:
+  ```
+  h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
+  ```
+  This kind of hypotheses is created when we generate conditional equations for match expressions.
+-/
+def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
+  let some falseProof ← mkGenDiseqFalseProof? localDecl.toExpr localDecl.type | return false
+  mvarId.assign (← mkFalseElim (← mvarId.getType) falseProof)
+  return true
+
+/--
+Closes `mvarId` if `h : lhs = rhs` equates two distinct `Float`/`Float32` literals, and returns
+`true` in that case. Tactics such as `injection` would instead unfold the float model on both sides,
+which is very slow.
+-/
+def _root_.Lean.MVarId.closeIfDistinctFloatLits (mvarId : MVarId) (h lhs rhs : Expr) :
+    MetaM Bool := mvarId.withContext do
+  unless (← floatLitValuesEq? lhs rhs) == some false do return false
+  let hne ← mkDecideProof (mkNot (← mkEq lhs rhs))
+  mvarId.assign (← mkAbsurd (← mvarId.getType) h hne)
+  return true
 
 /--
 Return `true` if goal `mvarId` has contradictory hypotheses.
@@ -167,6 +189,10 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
             -- We use `False.elim` because `p`'s type may be Type
             mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp localDecl.toExpr (mkFVar pFVarId)))
             return true
+        -- (h : Nat.hasNotBit mask i) where that bit is set
+        if let some prf ← refutableHasNotBit? localDecl.type then
+          mvarId.assign (← mkAbsurd (← mvarId.getType) prf localDecl.toExpr)
+          return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
           if (← isDefEq lhs rhs) then
@@ -220,6 +246,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
 Try to close the goal using "contradictions" such as
 - Contradictory hypotheses `h₁ : p` and `h₂ : ¬ p`.
 - Contradictory disequality `h : x ≠ x`.
+- Contradictory bit mask test: `h : Nat.hasNotBit mask i` where that bit is set
 - Contradictory equality between different constructors, e.g., `h : List.nil = List.cons x xs`.
 - Empty inductive types, e.g., `x : Fin 0`.
 - Decidable propositions that evaluate to false, i.e., a hypothesis `h : p` s.t. `decide p` reduces to `false`.

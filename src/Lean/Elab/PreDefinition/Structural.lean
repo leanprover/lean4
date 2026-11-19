@@ -7,5 +7,3 @@ module
 
 prelude
 public import Lean.Elab.PreDefinition.Structural.Main
-
-public section

@@ -1,0 +1,1993 @@
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 5, "character": 34}, "end": {"line": 5, "character": 34}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 5, "character": 7},
+        "end": {"line": 5, "character": 34}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 5, "character": 34},
+     "end": {"line": 5, "character": 34}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 5, "character": 7},
+        "end": {"line": 5, "character": 34}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 5, "character": 34},
+     "end": {"line": 5, "character": 34}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 5, "character": 7},
+       "end": {"line": 5, "character": 34}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 5, "character": 34}, "end": {"line": 5, "character": 34}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 5, "character": 7},
+       "end": {"line": 5, "character": 34}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 5, "character": 34}, "end": {"line": 5, "character": 34}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 8, "character": 33}, "end": {"line": 8, "character": 33}},
+ "context": {"diagnostics": []}}
+[{"title": "Import LeanServerTestRefsTest0 from Lean.Server.Test.Refs",
+  "kind": "refactor",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 8, "character": 10},
+        "end": {"line": 8, "character": 33}},
+       "newText": "LeanServerTestRefsTest0"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 8, "character": 33},
+     "end": {"line": 8, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title":
+  "Import Lean.Server.Test.LeanServerTestRefsTest0' from Lean.Server.Test.Refs",
+  "kind": "refactor",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 8, "character": 10},
+        "end": {"line": 8, "character": 33}},
+       "newText": "Lean.Server.Test.LeanServerTestRefsTest0'"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 8, "character": 33},
+     "end": {"line": 8, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "refactor",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 8, "character": 10},
+        "end": {"line": 8, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 8, "character": 33},
+     "end": {"line": 8, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import all unambiguous unknown identifiers",
+  "kind": "quickfix",
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "allUnknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 8, "character": 33},
+     "end": {"line": 8, "character": 33}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import LeanServerTestRefsTest0 from Lean.Server.Test.Refs:
+{"title": "Import LeanServerTestRefsTest0 from Lean.Server.Test.Refs",
+ "kind": "refactor",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 8, "character": 33}, "end": {"line": 8, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.LeanServerTestRefsTest0' from Lean.Server.Test.Refs:
+{"title":
+ "Import Lean.Server.Test.LeanServerTestRefsTest0' from Lean.Server.Test.Refs",
+ "kind": "refactor",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "Lean.Server.Test.LeanServerTestRefsTest0'"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 8, "character": 33}, "end": {"line": 8, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "refactor",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 8, "character": 33}, "end": {"line": 8, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import all unambiguous unknown identifiers:
+{"title": "Import all unambiguous unknown identifiers",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 17, "character": 7},
+       "end": {"line": 17, "character": 48}},
+      "newText": "LeanServerTestRefsTest0'"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "allUnknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 8, "character": 33}, "end": {"line": 8, "character": 33}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 12, "character": 34}, "end": {"line": 12, "character": 34}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 12, "character": 7},
+        "end": {"line": 12, "character": 34}},
+       "newText": "Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 12, "character": 34},
+     "end": {"line": 12, "character": 34}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 12, "character": 7},
+        "end": {"line": 12, "character": 34}},
+       "newText": "test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 12, "character": 34},
+     "end": {"line": 12, "character": 34}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Test1 from Lean.Server.Test.Refs:
+{"title": "Import Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 12, "character": 7},
+       "end": {"line": 12, "character": 34}},
+      "newText": "Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 12, "character": 34},
+    "end": {"line": 12, "character": 34}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import test10 from Lean.Server.Test.Refs:
+{"title": "Import test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 12, "character": 7},
+       "end": {"line": 12, "character": 34}},
+      "newText": "test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 12, "character": 34},
+    "end": {"line": 12, "character": 34}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 21, "character": 34}, "end": {"line": 21, "character": 34}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 21, "character": 7},
+        "end": {"line": 21, "character": 34}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 21, "character": 34},
+     "end": {"line": 21, "character": 34}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 21, "character": 7},
+        "end": {"line": 21, "character": 34}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 21, "character": 34},
+     "end": {"line": 21, "character": 34}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 21, "character": 7},
+       "end": {"line": 21, "character": 34}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 21, "character": 34},
+    "end": {"line": 21, "character": 34}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 21, "character": 7},
+       "end": {"line": 21, "character": 34}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 21, "character": 34},
+    "end": {"line": 21, "character": 34}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 24, "character": 33}, "end": {"line": 24, "character": 33}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.test9 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.test9"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test8 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.test8"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test7 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.test7"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.Test6 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.Test6"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.Test5 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.Test5"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.Test4 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.Test4"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.Test3 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.Test3"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.Test2 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.Test2"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 24, "character": 7},
+        "end": {"line": 24, "character": 33}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 24, "character": 33},
+     "end": {"line": 24, "character": 33}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.test9 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test9 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.test9"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test8 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test8 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.test8"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test7 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test7 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.test7"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.Test6 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test6 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.Test6"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.Test5 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test5 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.Test5"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.Test4 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test4 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.Test4"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.Test3 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test3 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.Test3"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.Test2 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test2 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.Test2"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 24, "character": 7},
+       "end": {"line": 24, "character": 33}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 24, "character": 33},
+    "end": {"line": 24, "character": 33}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 28, "character": 34}, "end": {"line": 28, "character": 34}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 28, "character": 7},
+        "end": {"line": 28, "character": 34}},
+       "newText": "Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 28, "character": 34},
+     "end": {"line": 28, "character": 34}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 28, "character": 7},
+        "end": {"line": 28, "character": 34}},
+       "newText": "test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 28, "character": 34},
+     "end": {"line": 28, "character": 34}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import all unambiguous unknown identifiers",
+  "kind": "quickfix",
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "allUnknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 28, "character": 34},
+     "end": {"line": 28, "character": 34}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Test1 from Lean.Server.Test.Refs:
+{"title": "Import Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 28, "character": 34},
+    "end": {"line": 28, "character": 34}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import test10 from Lean.Server.Test.Refs:
+{"title": "Import test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 28, "character": 34},
+    "end": {"line": 28, "character": 34}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import all unambiguous unknown identifiers:
+{"title": "Import all unambiguous unknown identifiers",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 17, "character": 7},
+       "end": {"line": 17, "character": 48}},
+      "newText": "LeanServerTestRefsTest0'"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "allUnknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 28, "character": 34},
+    "end": {"line": 28, "character": 34}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 46, "character": 40}, "end": {"line": 46, "character": 40}},
+ "context": {"diagnostics": []}}
+[{"title": "Change to veryLongAndHopefullyVeryUniqueFoo0",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 46, "character": 7},
+        "end": {"line": 46, "character": 40}},
+       "newText": "veryLongAndHopefullyVeryUniqueFoo0"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 46, "character": 40},
+     "end": {"line": 46, "character": 40}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Change to veryLongAndHopefullyVeryUniqueFoobar0",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 46, "character": 7},
+        "end": {"line": 46, "character": 40}},
+       "newText": "veryLongAndHopefullyVeryUniqueFoobar0"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 46, "character": 40},
+     "end": {"line": 46, "character": 40}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Change to veryLongAndHopefullyVeryUniqueFoo0:
+{"title": "Change to veryLongAndHopefullyVeryUniqueFoo0",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 46, "character": 7},
+       "end": {"line": 46, "character": 40}},
+      "newText": "veryLongAndHopefullyVeryUniqueFoo0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 46, "character": 40},
+    "end": {"line": 46, "character": 40}},
+   "context": {"diagnostics": []}}}}
+Resolution of Change to veryLongAndHopefullyVeryUniqueFoobar0:
+{"title": "Change to veryLongAndHopefullyVeryUniqueFoobar0",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 46, "character": 7},
+       "end": {"line": 46, "character": 40}},
+      "newText": "veryLongAndHopefullyVeryUniqueFoobar0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 46, "character": 40},
+    "end": {"line": 46, "character": 40}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 49, "character": 65}, "end": {"line": 49, "character": 65}},
+ "context": {"diagnostics": []}}
+[{"title": "Change to Foobar.veryLongAndHopefullyVeryUniqueBar0",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 49, "character": 32},
+        "end": {"line": 49, "character": 65}},
+       "newText": "veryLongAndHopefullyVeryUniqueBar0"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 49, "character": 65},
+     "end": {"line": 49, "character": 65}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Change to Foobar.veryLongAndHopefullyVeryUniqueBar0:
+{"title": "Change to Foobar.veryLongAndHopefullyVeryUniqueBar0",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 49, "character": 32},
+       "end": {"line": 49, "character": 65}},
+      "newText": "veryLongAndHopefullyVeryUniqueBar0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 49, "character": 65},
+    "end": {"line": 49, "character": 65}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 52, "character": 57}, "end": {"line": 52, "character": 57}},
+ "context": {"diagnostics": []}}
+[{"title": "Change to Foobar.veryLongAndHopefullyVeryUniqueFoobar0",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 52, "character": 21},
+        "end": {"line": 52, "character": 57}},
+       "newText": "veryLongAndHopefullyVeryUniqueFoobar0"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 52, "character": 57},
+     "end": {"line": 52, "character": 57}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Change to Foobar.veryLongAndHopefullyVeryUniqueFoobar0:
+{"title": "Change to Foobar.veryLongAndHopefullyVeryUniqueFoobar0",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 52, "character": 21},
+       "end": {"line": 52, "character": 57}},
+      "newText": "veryLongAndHopefullyVeryUniqueFoobar0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 52, "character": 57},
+    "end": {"line": 52, "character": 57}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 55, "character": 47}, "end": {"line": 55, "character": 47}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "public import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 55, "character": 20},
+        "end": {"line": 55, "character": 47}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 55, "character": 47},
+     "end": {"line": 55, "character": 47}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "public import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 55, "character": 20},
+        "end": {"line": 55, "character": 47}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 55, "character": 47},
+     "end": {"line": 55, "character": 47}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import all unambiguous unknown identifiers",
+  "kind": "quickfix",
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "allUnknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 55, "character": 47},
+     "end": {"line": 55, "character": 47}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "public import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 55, "character": 47},
+    "end": {"line": 55, "character": 47}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "public import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 55, "character": 47},
+    "end": {"line": 55, "character": 47}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import all unambiguous unknown identifiers:
+{"title": "Import all unambiguous unknown identifiers",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 17, "character": 7},
+       "end": {"line": 17, "character": 48}},
+      "newText": "LeanServerTestRefsTest0'"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "allUnknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 55, "character": 47},
+    "end": {"line": 55, "character": 47}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 57, "character": 32}, "end": {"line": 57, "character": 32}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 57, "character": 5},
+        "end": {"line": 57, "character": 32}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 57, "character": 32},
+     "end": {"line": 57, "character": 32}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 57, "character": 5},
+        "end": {"line": 57, "character": 32}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 57, "character": 32},
+     "end": {"line": 57, "character": 32}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import all unambiguous unknown identifiers",
+  "kind": "quickfix",
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "allUnknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 57, "character": 32},
+     "end": {"line": 57, "character": 32}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 57, "character": 32},
+    "end": {"line": 57, "character": 32}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 57, "character": 32},
+    "end": {"line": 57, "character": 32}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import all unambiguous unknown identifiers:
+{"title": "Import all unambiguous unknown identifiers",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 17, "character": 7},
+       "end": {"line": 17, "character": 48}},
+      "newText": "LeanServerTestRefsTest0'"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "allUnknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 57, "character": 32},
+    "end": {"line": 57, "character": 32}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 60, "character": 53}, "end": {"line": 60, "character": 53}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "public meta import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 60, "character": 26},
+        "end": {"line": 60, "character": 53}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 60, "character": 53},
+     "end": {"line": 60, "character": 53}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "public meta import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 60, "character": 26},
+        "end": {"line": 60, "character": 53}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 60, "character": 53},
+     "end": {"line": 60, "character": 53}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import all unambiguous unknown identifiers",
+  "kind": "quickfix",
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "allUnknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 60, "character": 53},
+     "end": {"line": 60, "character": 53}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "public meta import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 60, "character": 53},
+    "end": {"line": 60, "character": 53}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "public meta import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 60, "character": 53},
+    "end": {"line": 60, "character": 53}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import all unambiguous unknown identifiers:
+{"title": "Import all unambiguous unknown identifiers",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 17, "character": 7},
+       "end": {"line": 17, "character": 48}},
+      "newText": "LeanServerTestRefsTest0'"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "allUnknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 60, "character": 53},
+    "end": {"line": 60, "character": 53}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+ "range":
+ {"start": {"line": 62, "character": 32}, "end": {"line": 62, "character": 32}},
+ "context": {"diagnostics": []}}
+[{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "public meta import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 62, "character": 5},
+        "end": {"line": 62, "character": 32}},
+       "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 62, "character": 32},
+     "end": {"line": 62, "character": 32}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 1, "character": 0},
+        "end": {"line": 1, "character": 0}},
+       "newText": "public meta import Lean.Server.Test.Refs\n"},
+      {"range":
+       {"start": {"line": 62, "character": 5},
+        "end": {"line": 62, "character": 32}},
+       "newText": "Lean.Server.Test.Refs.test10"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "unknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 62, "character": 32},
+     "end": {"line": 62, "character": 32}},
+    "context": {"diagnostics": []}}}},
+ {"title": "Import all unambiguous unknown identifiers",
+  "kind": "quickfix",
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "allUnknownIdentifiers",
+   "params":
+   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+    "range":
+    {"start": {"line": 62, "character": 32},
+     "end": {"line": 62, "character": 32}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.Test1 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "public meta import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 62, "character": 32},
+    "end": {"line": 62, "character": 32}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs:
+{"title": "Import Lean.Server.Test.Refs.test10 from Lean.Server.Test.Refs",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "public meta import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.test10"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "unknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 62, "character": 32},
+    "end": {"line": 62, "character": 32}},
+   "context": {"diagnostics": []}}}}
+Resolution of Import all unambiguous unknown identifiers:
+{"title": "Import all unambiguous unknown identifiers",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 1, "character": 0},
+       "end": {"line": 1, "character": 0}},
+      "newText": "import Lean.Server.Test.Refs\n"},
+     {"range":
+      {"start": {"line": 17, "character": 7},
+       "end": {"line": 17, "character": 48}},
+      "newText": "LeanServerTestRefsTest0'"},
+     {"range":
+      {"start": {"line": 28, "character": 7},
+       "end": {"line": 28, "character": 34}},
+      "newText": "Test1"},
+     {"range":
+      {"start": {"line": 55, "character": 20},
+       "end": {"line": 55, "character": 47}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 57, "character": 5},
+       "end": {"line": 57, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 60, "character": 26},
+       "end": {"line": 60, "character": 53}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 62, "character": 5},
+       "end": {"line": 62, "character": 32}},
+      "newText": "Lean.Server.Test.Refs.Test1"},
+     {"range":
+      {"start": {"line": 8, "character": 10},
+       "end": {"line": 8, "character": 33}},
+      "newText": "LeanServerTestRefsTest0"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName": "allUnknownIdentifiers",
+  "params":
+  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
+   "range":
+   {"start": {"line": 62, "character": 32},
+    "end": {"line": 62, "character": 32}},
+   "context": {"diagnostics": []}}}}

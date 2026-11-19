@@ -10,14 +10,18 @@ prelude
 public import Init.Data.Range
 public import Init.Data.OfScientific
 public import Init.Data.Hashable
-public import Init.Data.ToString.Macro
 public import Std.Data.TreeMap.Raw.Basic
+public import Init.Data.Ord.String
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.Substring
+import Init.Data.ToString.Macro
 
 public section
 
 namespace Lean
 
--- mantissa * 10^-exponent
+/-- A decimal number represented as `mantissa * 10^-exponent`. -/
 structure JsonNumber where
   mantissa : Int
   exponent : Nat
@@ -40,7 +44,11 @@ private partial def countDigits (n : Nat) : Nat :=
       loop (n/10) (digits+1)
   loop n 1
 
--- convert mantissa * 10^-exponent to 0.mantissa * 10^exponent
+/-- Represents `n = mantissa * 10^-exponent` as `(sign, mantissa', exponent')`,
+where `sign ∈ {-1,0,1}` and `n = sign * 0.mantissa' * 10^exponent'`.
+
+This is a normal form: if `m1 * 10^-e1 = m2 * 10^-e2`,
+then `normalize ⟨m1, e1⟩ == normalize ⟨m2, e2⟩`. -/
 protected def normalize : JsonNumber → Int × Nat × Int
   | ⟨m, e⟩ => Id.run do
     if m = 0 then (0, 0, 0)
@@ -60,26 +68,26 @@ protected def normalize : JsonNumber → Int × Nat × Int
 def lt (a b : JsonNumber) : Bool :=
   let (as, am, ae) := a.normalize
   let (bs, bm, be) := b.normalize
-  match (as, bs) with
-  | (-1, 1) => true
-  | (1, -1) => false
-  | _ =>
+  if as ≠ bs then as < bs
+  else if as = 0 then false -- 0 ≮ 0
+  else
     let ((am, ae), (bm, be)) :=
-      if as = -1 && bs = -1 then
+      if as = -1 then
         ((bm, be), (am, ae))
       else
         ((am, ae), (bm, be))
-    let amDigits := countDigits am
-    let bmDigits := countDigits bm
-    -- align the mantissas
-    let (am, bm) :=
-      if amDigits < bmDigits then
-        (am * 10^(bmDigits - amDigits), bm)
-      else
-        (am, bm * 10^(amDigits - bmDigits))
     if ae < be then true
     else if ae > be then false
-    else am < bm
+    else
+      let amDigits := countDigits am
+      let bmDigits := countDigits bm
+      -- align the mantissas
+      let (am, bm) :=
+        if amDigits < bmDigits then
+          (am * 10^(bmDigits - amDigits), bm)
+        else
+          (am, bm * 10^(amDigits - bmDigits))
+      am < bm
 
 instance ltProp : LT JsonNumber :=
   ⟨fun a b => lt a b = true⟩
@@ -94,6 +102,8 @@ instance : Ord JsonNumber where
     else Ordering.eq
 
 protected def toString : JsonNumber → String
+  -- the exponent branch below would leave no digit after the point for a zero mantissa
+  | ⟨0, _⟩ => "0"
   | ⟨m, 0⟩ => m.repr
   | ⟨m, e⟩ =>
     let sign := if m ≥ 0 then "" else "-"
@@ -111,20 +121,20 @@ protected def toString : JsonNumber → String
       s!"{sign}{left}"
     else
       let right := e' + m % e'
-        |>.repr.toSubstring.drop 1
+        |>.repr.toRawSubstring.drop 1
         |>.dropRightWhile (fun c => c = '0')
         |>.toString
       let exp := if exp = 0 then "" else "e" ++ exp.repr
       s!"{sign}{left}.{right}{exp}"
 
--- shift a JsonNumber by a specified amount of places to the left
+/-- `shiftl n s` shifts `n` by `s` places to the left, i.e., multiplies it by `10^s`. -/
 protected def shiftl : JsonNumber → Nat → JsonNumber
   -- if s ≤ e, then 10 ^ (s - e) = 1, and hence the mantissa remains unchanged.
   -- otherwise, the expression pads the mantissa with zeroes
   -- to accommodate for the remaining places to shift.
   | ⟨m, e⟩, s => ⟨m * (10 ^ (s - e) : Nat), e - s⟩
 
--- shift a JsonNumber by a specified amount of places to the right
+/-- `shiftr n s` shifts `n` by `s` places to the right, i.e., divides it by `10^s`. -/
 protected def shiftr : JsonNumber → Nat → JsonNumber
   | ⟨m, e⟩, s => ⟨m, e + s⟩
 
@@ -173,6 +183,7 @@ end JsonNumber
 
 def strLt (a b : String) := Decidable.decide (a < b)
 
+/-- A [JSON](https://www.json.org/json-en.html) value. -/
 inductive Json where
   | null
   | bool (b : Bool)
@@ -203,7 +214,7 @@ private partial def beq' : Json → Json → Bool
   | _,      _      => false
 
 instance : BEq Json where
-  beq := beq'
+  beq := private beq'
 
 private partial def hash' : Json → UInt64
   | null   => 11
@@ -216,7 +227,7 @@ private partial def hash' : Json → UInt64
     mixHash 29 <| kvPairs.foldl (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
 
 instance : Hashable Json where
-  hash := hash'
+  hash := private hash'
 
 def mkObj (o : List (String × Json)) : Json :=
   obj <| Std.TreeMap.Raw.ofList o

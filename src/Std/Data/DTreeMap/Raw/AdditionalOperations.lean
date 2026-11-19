@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.DTreeMap.Raw.Basic
 public import Std.Data.DTreeMap.AdditionalOperations
 
 @[expose] public section
@@ -26,7 +25,7 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
 
 namespace Std.DTreeMap
-open Internal (Impl)
+open Std.DTreeMap.Internal (Impl)
 
 namespace Raw
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ

@@ -9,7 +9,7 @@ assignees: ''
 
 ### Prerequisites
 
-Please put an X between the brackets as you perform the following steps:
+<!-- Please put an X between the brackets as you perform the following steps: -->
 
 * [ ] Check that your issue is not already filed:
       https://github.com/leanprover/lean4/issues
@@ -18,6 +18,9 @@ Please put an X between the brackets as you perform the following steps:
 * [ ] Test your test case against the latest nightly release, for example on
       https://live.lean-lang.org/#project=lean-nightly
       (You can also use the settings there to switch to “Lean nightly”)
+* [ ] When reporting a perceived soundness bug: Does it affect `lake check --paranoid`?
+      If in doubt, please reach out on security@lean-fro.org for responsible disclosure.
+
 
 ### Description
 

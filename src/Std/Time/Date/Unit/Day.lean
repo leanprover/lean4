@@ -61,6 +61,18 @@ instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
 
 instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
+instance : HMul Int Offset Offset := inferInstanceAs <| HMul Int (UnitVal _) (UnitVal _)
+
+instance : HMul Offset Int Offset := inferInstanceAs <| HMul (UnitVal _) Int (UnitVal _)
+
+instance : HMul Nat Offset Offset := inferInstanceAs <| HMul Nat (UnitVal _) (UnitVal _)
+
+instance : HMul Offset Nat Offset := inferInstanceAs <| HMul (UnitVal _) Nat (UnitVal _)
+
+instance : HDiv Offset Int Offset := inferInstanceAs <| HDiv (UnitVal _) Int (UnitVal _)
+
+instance : HDiv Offset Nat Offset := inferInstanceAs <| HDiv (UnitVal _) Nat (UnitVal _)
+
 namespace Ordinal
 
 /--
@@ -174,70 +186,70 @@ Convert `Day.Offset` into `Nanosecond.Offset`.
 -/
 @[inline]
 def toNanoseconds (days : Day.Offset) : Nanosecond.Offset :=
-  days.mul 86400000000000
+  days.mul 86400000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Nanosecond.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofNanoseconds (ns : Nanosecond.Offset) : Day.Offset :=
-  ns.ediv 86400000000000
+  ns.ediv 86400000000000 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Millisecond.Offset`.
 -/
 @[inline]
 def toMilliseconds (days : Day.Offset) : Millisecond.Offset :=
-  days.mul 86400000
+  days.mul 86400000 |>.cast (by decide +kernel)
 
 /--
 Convert `Millisecond.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofMilliseconds (ms : Millisecond.Offset) : Day.Offset :=
-  ms.ediv 86400000
+  ms.ediv 86400000 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Second.Offset`.
 -/
 @[inline]
 def toSeconds (days : Day.Offset) : Second.Offset :=
-  days.mul 86400
+  days.mul 86400 |>.cast (by decide +kernel)
 
 /--
 Convert `Second.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : Day.Offset :=
-  secs.ediv 86400
+  secs.ediv 86400 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (days : Day.Offset) : Minute.Offset :=
-  days.mul 1440
+  days.mul 1440 |>.cast (by decide +kernel)
 
 /--
 Convert `Minute.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofMinutes (minutes : Minute.Offset) : Day.Offset :=
-  minutes.ediv 1440
+  minutes.ediv 1440 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (days : Day.Offset) : Hour.Offset :=
-  days.mul 24
+  days.mul 24 |>.cast (by decide +kernel)
 
 /--
 Convert `Hour.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofHours (hours : Hour.Offset) : Day.Offset :=
-  hours.ediv 24
+  hours.ediv 24 |>.cast (by decide +kernel)
 
 end Offset
 end Day

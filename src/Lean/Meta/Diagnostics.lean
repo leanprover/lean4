@@ -6,9 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.PrettyPrinter
 public import Lean.Meta.Basic
-public import Lean.Meta.Instances
+import Lean.PrettyPrinter
 
 public section
 
@@ -40,7 +39,8 @@ def DiagSummary.isEmpty (s : DiagSummary) : Bool :=
   s.data.isEmpty
 
 def mkDiagSummary (cls : Name) (counters : PHashMap Name Nat) (p : Name → Bool := fun _ => true) : MetaM DiagSummary := do
-  let threshold := diagnostics.threshold.get (← getOptions)
+  -- unrestricted: diagnostics only
+  let threshold := diagnostics.threshold.get (← getOptionsUnrestricted)
   let entries := collectAboveThreshold counters threshold p Name.lt
   if entries.isEmpty then
     return {}
@@ -86,9 +86,13 @@ def appendSection (m : Array MessageData) (cls : Name) (header : String) (s : Di
 /-- Logs diagnostics and resets the counters -/
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
+    -- Diagnostic output may reference private declarations (e.g. `_match_*`,
+    -- `_sparseCasesOn_*`) that are not visible in exporting mode (issue #13581).
+    withoutExporting do
     let unfoldCounter := (← get).diag.unfoldCounter
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
+    let unfoldAxiom ← mkDiagSummary `reduction (← get).diag.unfoldAxiomCounter
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
     let heu ← mkDiagSummary `def_eq (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
@@ -99,10 +103,12 @@ def reportDiag : MetaM Unit := do
     let m := appendSection m `reduction "unfolded instances" unfoldInstance
     let m := appendSection m `reduction "unfolded reducible declarations" unfoldReducible
     let m := appendSection m `type_class "used instances" inst
+    -- unrestricted: diagnostics only
     let m := appendSection m `type_class
-              s!"max synth pending failures (maxSynthPendingDepth: {maxSynthPendingDepth.get (← getOptions)}), use `set_option maxSynthPendingDepth <limit>`"
+              s!"max synth pending failures (maxSynthPendingDepth: {maxSynthPendingDepth.get (← getOptionsUnrestricted)}), use `set_option maxSynthPendingDepth <limit>`"
               synthPending (resultSummary := false)
     let m := appendSection m `def_eq "heuristic for solving `f a =?= f b`" heu
+    let m := appendSection m `reduction "Axioms (possibly imported non-exposed defs) that were tried to be unfolded" unfoldAxiom
     let m := appendSection m `kernel "unfolded declarations" unfoldKernel
     unless m.isEmpty do
       let m := m.push "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"

@@ -3,10 +3,10 @@ import Lean
 open Lean
 
 def mkEqX (bidx : Nat) : Expr :=
-  mkApp3 (mkConst ``Eq [levelOne]) (mkConst ``Nat []) (.bvar bidx) (.bvar bidx)
+  mkApp3 (mkConst ``Eq [Level.one]) (mkConst ``Nat []) (.bvar bidx) (.bvar bidx)
 
 def mkReflX (bidx : Nat) : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Nat []) (.bvar bidx)
+  mkApp2 (mkConst ``Eq.refl [Level.one]) (mkConst ``Nat []) (.bvar bidx)
 
 def mkAnds (n : Nat) : Expr :=
   match n with

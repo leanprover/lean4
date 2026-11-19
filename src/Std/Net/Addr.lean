@@ -124,6 +124,9 @@ end IPv4Addr
 
 namespace SocketAddressV4
 
+instance : ToString SocketAddressV4 where
+  toString sa := toString sa.addr ++ ":" ++ toString sa.port
+
 instance : Coe SocketAddressV4 SocketAddress where
   coe addr := .v4 addr
 
@@ -139,7 +142,8 @@ def ofParts (a b c d e f g h : UInt16) : IPv6Addr :=
 
 /--
 Try to parse `s` as an IPv6 address according to
-[RFC 2373](https://datatracker.ietf.org/doc/html/rfc2373), returning `none` on failure.
+[RFC 2373](https://datatracker.ietf.org/doc/html/rfc2373), returning `none` on failure. A zone
+suffix such as `%eth0` is rejected, since an `IPv6Addr` has no zone.
 -/
 @[extern "lean_uv_pton_v6"]
 opaque ofString (s : @&String) : Option IPv6Addr
@@ -160,6 +164,9 @@ instance : Coe IPv6Addr IPAddr where
 end IPv6Addr
 
 namespace SocketAddressV6
+
+instance : ToString SocketAddressV6 where
+  toString sa := "[" ++ toString sa.addr ++ "]:" ++ toString sa.port
 
 instance : Coe SocketAddressV6 SocketAddress where
   coe addr := .v6 addr
@@ -185,6 +192,11 @@ instance : ToString IPAddr where
 end IPAddr
 
 namespace SocketAddress
+
+instance : ToString SocketAddress where
+  toString
+    | .v4 sa => toString sa
+    | .v6 sa => toString sa
 
 /--
 Obtain the `AddressFamily` associated with a `SocketAddress`.

@@ -1,2 +1,2 @@
-rm -rf .lake/build
+rm -rf .lake
 rm -f lake-manifest.json

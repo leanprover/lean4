@@ -1,0 +1,8 @@
+Try these:
+  [apply] [grind =] for pattern: [op #1 #0]
+  [apply] [grind =_] for pattern: [op #0 #1]
+grind_heartbeats.lean:4:17-4:24: warning: declaration uses `sorry`
+Try these:
+  [apply] [grind =] for pattern: [op (op #2 #1) #0]
+  [apply] [grind =_] for pattern: [op #2 (op #1 #0)]
+grind_heartbeats.lean:5:17-5:25: warning: declaration uses `sorry`

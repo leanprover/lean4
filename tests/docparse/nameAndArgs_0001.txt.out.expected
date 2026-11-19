@@ -1,0 +1,12 @@
+Input: "leanExample context := 2"
+Success! Final stack:
+ • `leanExample
+ • [(Lean.Doc.Parser.Arg.named_no_paren
+      `context
+      ":="
+      (Lean.Doc.Parser.ArgVal.num (num "2")))]
+
+All input consumed.
+Round-trip OK
+Decoded views:
+  named (parens := none) (name := context) (assign := ":=") (val := num (lit := 2) (value := 2))

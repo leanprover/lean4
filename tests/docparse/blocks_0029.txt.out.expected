@@ -1,0 +1,24 @@
+Input: "1. Hello\n\n2. World"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "1.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "Hello"))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "2.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "World"))])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ol (start := 1)
+    item (marker := "1.")
+      para
+        text (content := "Hello")
+    item (marker := "2.")
+      para
+        text (content := "World")

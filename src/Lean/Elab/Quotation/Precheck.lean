@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.KeyedDeclsAttribute
-public import Lean.Parser.Command  -- for `precheckedQuot`
-public import Lean.Elab.Term
 public import Lean.Elab.Quotation.Util
+import Lean.Elab.DeprecatedSyntax.Basic
 
 public section
 
@@ -59,6 +57,7 @@ unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
   }
 
 partial def precheck : Precheck := fun stx => do
+  checkDeprecatedQuotedSyntax stx
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
     if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; pure true) (fun _ => pure false) then
       return
@@ -69,7 +68,7 @@ partial def precheck : Precheck := fun stx => do
   if let some stx' ← liftMacroM <| expandMacro? stx then
     precheck stx'
     return
-  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
+  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind `{stx.getKind}` found{indentD stx}
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
   hasQuotedIdent
@@ -90,6 +89,15 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
 private def isSectionVariable (e : Expr) : TermElabM Bool := do
   return (← read).sectionFVars.any fun _ v => e == v
 
+/-- Whether `n` is a variable bound in the quotation, possibly followed by field projections. -/
+private def isQuotLocal (quotLCtx : NameSet) (n : Name) : Bool :=
+  -- Macro scopes belong to the variable, not the projections, as in `resolveGlobalName`
+  let view := extractMacroScopes n
+  let rec loop : Name → Bool
+    | n@(.str p _) => quotLCtx.contains { view with name := n }.review || loop p
+    | _ => false
+  loop view.name
+
 @[builtin_quot_precheck ident] def precheckIdent : Precheck := fun stx =>
   match stx with
   | Syntax.ident _    _      val preresolved => do
@@ -102,12 +110,22 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
        notation "x++" => x.foo
        ```
     -/
-    if let _::_ ← realizeGlobalNameWithInfos stx val then
+    if let consts@(_::_) ← realizeGlobalNameWithInfos stx val then
+      -- As in `precheck`, identifiers produced by macro expansion are reported when elaborating the
+      -- quotation's result, which also resolves overloads. Section variables shadow constants
+      -- there, see `quoteSyntax`.
+      if let [(declName, fields)] := consts then
+        unless stx.getHeadInfo matches .synthetic .. || isQuotLocal (← read).quotLCtx val ||
+            !(resolveSectionVariable (← readThe Term.Context).sectionVars val).isEmpty do
+          -- Report at the constant's part of the identifier, excluding field notation, as in
+          -- `elabAppFnId`
+          withRef (stx.identComponents (nFields? := fields.length)).head! do
+            checkDeprecatedCore declName
       return
-    if (← read).quotLCtx.contains val then
+    if isQuotLocal (← read).quotLCtx val then
       return
     let rs ← try resolveName stx val [] [] catch _ => pure []
-    for (e, _) in rs do
+    for (e, _, _) in rs do
       match e with
       | Expr.fvar _      .. =>
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then

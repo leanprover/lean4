@@ -1,0 +1,22 @@
+Input: "[t][a]b]\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.link
+      "["
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "t"))]
+      "]"
+      (Lean.Doc.Parser.LinkTarget.ref
+       "["
+       (Lean.Doc.Parser.versoRef "a")
+       "]"))
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "b"))])]
+Remaining:
+"]\n"
+Round-trip OK
+Decoded views:
+  para
+    link (opener := "[") (closer := "]") (target := ref (opener := "[") (name := "a") (closer := "]"))
+      text (content := "t")
+    text (content := "b")

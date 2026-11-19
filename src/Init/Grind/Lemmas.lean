@@ -4,20 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Core
-public import Init.SimpLemmas
-public import Init.Classical
-public import Init.ByCases
-public import Init.Grind.Util
-
+public import Init.Grind.Ring.Basic
+public import Init.NotationExtra
+public import Init.GetElem
+import Init.ByCases
+import Init.Classical
+import Init.Data.Bool
 public section
-
 namespace Lean.Grind
-
-theorem rfl_true : true = true :=
-  rfl
 
 def intro_with_eq (p p' : Prop) (q : Sort u) (he : p = p') (h : p' → q) : p → q :=
   fun hp => h (he.mp hp)
@@ -77,6 +72,9 @@ theorem eq_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a = b) = a := by s
 
 theorem eq_congr  {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) : (a₁ = b₁) = (a₂ = b₂) := by simp [*]
 theorem eq_congr' {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = b₂) (h₂ : b₁ = a₂) : (a₁ = b₁) = (a₂ = b₂) := by rw [h₁, h₂, Eq.comm (a := a₂)]
+
+theorem heq_congr  {α : Sort u} {β : Sort u} {a₁ b₁ : α} {a₂ b₂ : β} (h₁ : a₁ ≍ a₂) (h₂ : b₁ ≍ b₂) : (a₁ = b₁) = (a₂ = b₂) := by cases h₁; cases h₂; rfl
+theorem heq_congr' {α : Sort u} {β : Sort u} {a₁ b₁ : α} {a₂ b₂ : β} (h₁ : a₁ ≍ b₂) (h₂ : b₁ ≍ a₂) : (a₁ = b₁) = (a₂ = b₂) := by cases h₁; cases h₂; rw [@Eq.comm _ a₁]
 
 /-! Ne -/
 
@@ -184,5 +182,44 @@ theorem decide_eq_false {p : Prop} {_ : Decidable p} : p = False → decide p = 
 
 theorem of_lookahead (p : Prop) (h : (¬ p) → False) : p = True := by
   simp at h; simp [h]
+
+/-! Nat propagators -/
+
+theorem Nat.and_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ &&& k₂ → a &&& b = k := by simp_all
+theorem Nat.xor_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ ^^^ k₂ → a ^^^ b = k := by simp_all
+theorem Nat.or_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ ||| k₂ → a ||| b = k := by simp_all
+theorem Nat.shiftLeft_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ <<< k₂ → a <<< b = k := by simp_all
+theorem Nat.shiftRight_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ >>> k₂ → a >>> b = k := by simp_all
+
+/-! Literal evaluation propagators -/
+
+theorem eval_congr₁ {α : Sort u} {β : Sort v} {f : α → β} {a a' : α} {b : β}
+    (h₁ : a = a') (h₂ : f a' = b) : f a = b := by
+  subst h₁; exact h₂
+
+theorem eval_congr₂ {α₁ : Sort u} {α₂ : Sort v} {β : Sort w} {f : α₁ → α₂ → β}
+    {a₁ a₁' : α₁} {a₂ a₂' : α₂} {b : β}
+    (h₁ : a₁ = a₁') (h₂ : a₂ = a₂') (h₃ : f a₁' a₂' = b) : f a₁ a₂ = b := by
+  subst h₁; subst h₂; exact h₃
+
+/-
+**Note**: the universe parameter order in the following theorem must match
+`GetElem.getElem` since the propagators reuse its level list.
+-/
+theorem getElem_congr {coll : Type u} {idx : Type v} {elem : Type w} {valid : coll → idx → Prop}
+    [GetElem coll idx elem valid] {as bs : coll} {i j : idx} {w₁ : valid as i} {a : elem}
+    (h₁ : as = bs) (h₂ : i = j) (h₃ : ∀ w₂ : valid bs j, bs[j]'w₂ = a) : as[i]'w₁ = a := by
+  subst h₁; subst h₂; exact h₃ w₁
+
+/-! Semiring propagators -/
+
+theorem Semiring.one_mul_congr {α} [Semiring α] {a b : α} (h : a = 1) : a*b = b := by
+  simp [h, Semiring.one_mul]
+theorem Semiring.zero_mul_congr {α} [Semiring α] {a b : α} (h : a = 0) : a*b = 0 := by
+  simp [h, Semiring.zero_mul]
+theorem Semiring.mul_one_congr {α} [Semiring α] {a b : α} (h : b = 1) : a*b = a := by
+  simp [h, Semiring.mul_one]
+theorem Semiring.mul_zero_congr {α} [Semiring α] {a b : α} (h : b = 0) : a*b = 0 := by
+  simp [h, Semiring.mul_zero]
 
 end Lean.Grind

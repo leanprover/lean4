@@ -1,0 +1,2 @@
+ext1.lean:94:0-94:7: warning: declaration uses `sorry`
+ext1.lean:100:0-100:7: warning: declaration uses `sorry`

@@ -282,7 +282,7 @@ theorem BinTree.find_insert_of_ne (b : BinTree β) (ne : k ≠ k') (v : β)
   let ⟨t, h⟩ := b; simp
   induction t with simp
   | leaf =>
-    intros le
+    intro le
     exact Nat.lt_of_le_of_ne le ne
   | node left key value right ihl ihr =>
     let .node hl hr bl br := h

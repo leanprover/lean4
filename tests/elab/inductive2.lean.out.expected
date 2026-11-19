@@ -1,0 +1,16 @@
+inductive isEvenList.{u_1} : {α : Type u_1} → List α → Prop
+number of parameters: 1
+constructors:
+isEvenList.nil : ∀ (α : Type u_1), @isEvenList α (@List.nil α)
+isEvenList.cons : ∀ {α : Type u_1} (h : α) {t : List α}, @isOddList α t → @isEvenList α (@List.cons α h t)
+isEvenList.nil : ∀ (α : Type u_1), @isEvenList α (@List.nil α)
+@isEvenList.cons : ∀ {α : Type u_1} (h : α) {t : List α}, @isOddList α t → @isEvenList α (@List.cons α h t)
+@isOddList.cons : ∀ {α : Type u_1} (h : α) {t : List α}, @isEvenList α t → @isOddList α (@List.cons α h t)
+isEvenList.nil Nat : @isEvenList Nat (@List.nil Nat)
+@isEvenList.cons Nat (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
+  (@List.cons Nat (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) (@List.nil Nat))
+  (@isOddList.cons Nat (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) (@List.nil Nat)
+    (isEvenList.nil
+      Nat)) : @isEvenList Nat
+  (@List.cons Nat (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
+    (@List.cons Nat (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) (@List.nil Nat)))

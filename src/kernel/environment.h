@@ -29,7 +29,7 @@ namespace lean {
 class diagnostics : public object_ref {
 public:
     diagnostics(diagnostics const & other):object_ref(other) {}
-    diagnostics(diagnostics && other):object_ref(std::move(other)) {}
+    diagnostics(diagnostics && other) noexcept:object_ref(std::move(other)) {}
     explicit diagnostics(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit diagnostics(obj_arg o):object_ref(o) {}
     ~diagnostics() {}
@@ -74,13 +74,13 @@ class LEAN_EXPORT environment : public object_ref {
     environment add_inductive(declaration const & d) const;
 public:
     environment(environment const & other):object_ref(other) {}
-    environment(environment && other):object_ref(std::move(other)) {}
+    environment(environment && other) noexcept:object_ref(std::move(other)) {}
     explicit environment(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit environment(obj_arg o):object_ref(o) {}
     ~environment() {}
 
     environment & operator=(environment const & other) { object_ref::operator=(other); return *this; }
-    environment & operator=(environment && other) { object_ref::operator=(std::move(other)); return *this; }
+    environment & operator=(environment && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     diagnostics get_diag() const;
     environment set_diag(diagnostics const & diag) const;
@@ -96,9 +96,6 @@ public:
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
 
-    /** \brief Apply the function \c f to each constant */
-    void for_each_constant(std::function<void(constant_info const & d)> const & f) const;
-
     /** \brief Pointer equality */
     friend bool is_eqp(environment const & e1, environment const & e2) {
         return e1.raw() == e2.raw();
@@ -106,6 +103,7 @@ public:
 };
 
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);
+void check_no_loose_bvars(environment const & env, expr const & e);
 
 void initialize_environment();
 void finalize_environment();

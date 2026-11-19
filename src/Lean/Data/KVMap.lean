@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.List.Impl
 public import Init.Data.Format.Syntax
+public import Init.Data.ToString.Name
+public import Init.Data.ToString.Extra
 
 public section
 
@@ -41,7 +42,6 @@ def DataValue.sameCtor : DataValue → DataValue → Bool
   | .ofSyntax _, .ofSyntax _ => true
   | _,           _           => false
 
-@[export lean_data_value_to_string]
 def DataValue.str : DataValue → String
   | .ofString v => v
   | .ofBool v   => toString v
@@ -183,7 +183,7 @@ def updateSyntax (m : KVMap) (k : Name) (f : Syntax → Syntax) : KVMap :=
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
   forIn kv.entries init f
 
-instance : ForIn m KVMap (Name × DataValue) where
+instance [Monad m] : ForIn m KVMap (Name × DataValue) where
   forIn := KVMap.forIn
 
 def subsetAux : List (Name × DataValue) → KVMap → Bool

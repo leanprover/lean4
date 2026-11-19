@@ -17,11 +17,11 @@ public:
     explicit string_ref(std::string const & s):object_ref(mk_string(s)) {}
     explicit string_ref(sstream const & strm):string_ref(strm.str()) {}
     string_ref(string_ref const & other):object_ref(other) {}
-    string_ref(string_ref && other):object_ref(std::move(other)) {}
+    string_ref(string_ref && other) noexcept:object_ref(std::move(other)) {}
     explicit string_ref(obj_arg o):object_ref(o) {}
     string_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     string_ref & operator=(string_ref const & other) { object_ref::operator=(other); return *this; }
-    string_ref & operator=(string_ref && other) { object_ref::operator=(std::move(other)); return *this; }
+    string_ref & operator=(string_ref && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     /* Number of bytes used to store the string in UTF8.
        Remark: it does not include the null character added in the end to make it efficient to
        convert to C string. */
@@ -33,8 +33,6 @@ public:
     friend bool operator==(string_ref const & s1, string_ref const & s2) { return string_eq(s1.raw(), s2.raw()); }
     friend bool operator!=(string_ref const & s1, string_ref const & s2) { return string_ne(s1.raw(), s2.raw()); }
     friend bool operator<(string_ref const & s1, string_ref const & s2) { return string_lt(s1.raw(), s2.raw()); }
-    friend bool operator==(string_ref const & s1, char const * s2) { return string_eq(s1.raw(), s2); }
-    friend bool operator!=(string_ref const & s1, char const * s2) { return !(s1 == s2); }
 };
 typedef list_ref<string_ref> string_refs;
 };

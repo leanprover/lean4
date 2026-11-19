@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.BinderPredicates
+public import Init.NotationExtra
 
 public section
 

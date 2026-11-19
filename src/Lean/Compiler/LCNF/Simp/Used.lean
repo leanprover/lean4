@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Simp.SimpM
+import Init.Omega
 
 public section
 
@@ -23,7 +24,7 @@ def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
 /--
 Mark all free variables occurring in `arg` as used.
 -/
-def markUsedArg (arg : Arg) : SimpM Unit :=
+def markUsedArg (arg : Arg .pure) : SimpM Unit :=
   match arg with
   | .fvar fvarId => markUsedFVar fvarId
   -- Locally declared variables do not occur in types.
@@ -32,7 +33,7 @@ def markUsedArg (arg : Arg) : SimpM Unit :=
 /--
 Mark all free variables occurring in `e` as used.
 -/
-def markUsedLetValue (e : LetValue) : SimpM Unit := do
+def markUsedLetValue (e : LetValue .pure) : SimpM Unit := do
   match e with
   | .lit .. | .erased => return ()
   | .proj _ _ fvarId => markUsedFVar fvarId
@@ -43,14 +44,14 @@ def markUsedLetValue (e : LetValue) : SimpM Unit := do
 Mark all free variables occurring on the right-hand side of the given let declaration as used.
 This is information is used to eliminate dead local declarations.
 -/
-def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
+def markUsedLetDecl (letDecl : LetDecl .pure) : SimpM Unit :=
   markUsedLetValue letDecl.value
 
 mutual
 /--
 Mark all free variables occurring in `code` as used.
 -/
-partial def markUsedCode (code : Code) : SimpM Unit := do
+partial def markUsedCode (code : Code .pure) : SimpM Unit := do
   match code with
   | .let decl k => markUsedLetDecl decl; markUsedCode k
   | .jp decl k | .fun decl k => markUsedFunDecl decl; markUsedCode k
@@ -62,7 +63,7 @@ partial def markUsedCode (code : Code) : SimpM Unit := do
 /--
 Mark all free variables occurring in `funDecl` as used.
 -/
-partial def markUsedFunDecl (funDecl : FunDecl) : SimpM Unit :=
+partial def markUsedFunDecl (funDecl : FunDecl .pure) : SimpM Unit :=
   markUsedCode funDecl.value
 end
 
@@ -81,10 +82,10 @@ let _x.2 := true
 <code>
 ```
 -/
-def attachCodeDecls (decls : Array CodeDecl) (code : Code) : SimpM Code := do
+def attachCodeDecls (decls : Array (CodeDecl .pure)) (code : Code .pure) : SimpM (Code .pure) := do
   go decls.size code
 where
-  go (i : Nat) (code : Code) : SimpM Code := do
+  go (i : Nat) (code : Code .pure) : SimpM (Code .pure) := do
     if i > 0 then
       let decl := decls[i-1]!
       if (← isUsed decl.fvarId) then

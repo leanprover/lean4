@@ -1,0 +1,4 @@
+bitvec_fin_literal_norm.lean:3:0-3:7: warning: declaration uses `sorry`
+bitvec_fin_literal_norm.lean:8:0-8:7: warning: declaration uses `sorry`
+bitvec_fin_literal_norm.lean:13:0-13:7: warning: declaration uses `sorry`
+bitvec_fin_literal_norm.lean:18:0-18:7: warning: declaration uses `sorry`

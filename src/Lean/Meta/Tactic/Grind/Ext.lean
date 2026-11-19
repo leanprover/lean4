@@ -4,21 +4,28 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.SynthInstance
-
+import Lean.Meta.Tactic.Grind.SynthInstance
 public section
-
 namespace Lean.Meta.Grind
 /-! Extensionality theorems support. -/
 
 def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := withNewMCtxDepth do
   unless (← getGeneration e) < (← getMaxGeneration) do return ()
+  let_expr Eq α lhs rhs := e | return ()
   let c ← mkConstWithFreshMVarLevels thm.declName
   let (mvars, bis, type) ← withDefault <| forallMetaTelescopeReducing (← inferType c)
-  unless (← isDefEq e type) do
+  let_expr Eq α' lhs' rhs' := type | return ()
+  let matchTerm (p : Expr) (e : Expr) : GoalM Bool := do
+    if p.isMVar then
+      p.mvarId!.assign e
+      return true
+    else
+      isDefEq p e
+  let matchEqs : GoalM Bool := do
+    isDefEq α α' <&&> matchTerm lhs' lhs <&&> matchTerm rhs' rhs
+  unless (← matchEqs) do
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nis not definitionally equal to{indentExpr type}"
     return ()
   -- Instantiate type class instances
@@ -33,7 +40,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   -- `e` is equal to `False`
   let eEqFalse ← mkEqFalseProof e
   -- So, we use `Eq.mp` to build a `proof` of `False`
-  let proof := mkApp4 (mkConst ``Eq.mp [levelZero]) e (← getFalseExpr) eEqFalse proof
+  let proof := mkApp4 (mkConst ``Eq.mp [Level.zero]) e (← getFalseExpr) eEqFalse proof
   let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
   let proof' ← instantiateMVars (← mkLambdaFVars mvars proof)
   let prop' ← inferType proof'
@@ -41,6 +48,6 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
     return ()
   trace[grind.ext] "{thm.declName}: {prop'}"
-  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName)
+  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName) .other
 
 end Lean.Meta.Grind

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Meta.Inductive
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
@@ -16,7 +15,7 @@ public section
 namespace Lean.Elab.Deriving.Repr
 open Lean.Parser.Term
 open Meta
-open Std
+open _root_.Std
 
 def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
   let header ← mkHeader `Repr 1 indVal
@@ -32,7 +31,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
   forallTelescopeReducing ctorVal.type fun xs _ => do
     let mut fields ← `(Format.nil)
     if xs.size != numParams + fieldNames.size then
-      throwError "'deriving Repr' failed, unexpected number of fields in structure"
+      throwError "`deriving Repr` failed, unexpected number of fields in structure"
     for h : i in *...fieldNames.size do
       let fieldName := fieldNames[i]
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
@@ -42,7 +41,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
       if (← isType x <||> isProof x) then
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ "_")
       else
-        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.length) + " := ".length)
+        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.chars.length) + " := ".lengthAssumingAscii)
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ (Format.group (Format.nest $indent (repr ($target.$(mkIdent fieldName):ident)))))
     `(Format.bracket "{ " $fields:term " }")
 
@@ -113,9 +112,10 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkReprInstanceCmd (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "repr" declName
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr #[declName])
+/-- Builds one aux-function block for the mutual block of `declNames` and an instance for each. -/
+private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext ``Repr "repr" declNames[0]!
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds
 
@@ -123,9 +123,10 @@ open Command
 
 def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
-    for declName in declNames do
-      let cmds ← liftTermElabM <| mkReprInstanceCmd declName
-      cmds.forM elabCommand
+    for block in ← liftCoreM <| groupByMutualBlock declNames do
+      withoutExposeFromCtorsAll block do
+        let cmds ← liftTermElabM <| mkReprInstanceCmds block
+        cmds.forM elabCommand
     return true
   else
     return false

@@ -1,0 +1,13 @@
+private theorem ex₁ : ∀ (a b c : Int), a + 2 * b = 0 → c + b = -b → a = c :=
+fun a b c => ex₁._proof_1_1 a b c
+private theorem ex₂ : ∀ (a b c : Int), a + 2 * b = 0 → a = c → c + b = -b :=
+fun a b c => ex₂._proof_1_1 a b c
+private theorem ex₃ : ∀ (a b c : Int), a + b + c = 0 → a = c → b = 4 → c = -2 :=
+fun a b c => ex₃._proof_1_1 a b c
+private theorem ex₄ : ∀ (a b c d : Int), a = 2 * b + 2 * c → a - 2 * b - 2 * d ≠ 0 → c ≠ d :=
+fun a b c d => ex₄._proof_1_1 a b c d
+private theorem ex₅ : ∀ (a b c : Int), c = a → a + b ≤ 3 → 2 < b + c → a + b = 3 :=
+fun a b c => ex₅._proof_1_1 a b c
+private theorem ex₆ : ∀ (a b : Int),
+  3 ≤ a + b → b + a ≠ 3 → a ≠ 4 - b → a ≠ 5 - b → a ≠ -b + 6 → b + a ≠ 7 → a + b ≠ 8 → b + a < 9 → False :=
+fun a b => ex₆._proof_1_1 a b

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+source ../common.sh
+
+./clean.sh
+
+# ---
+# Test the behavior of `lake query`
+# ---
+
+echo "# SETUP"
+
+# Ensure modules are built
+test_run build lib
+
+echo "# COMMON TESTS"
+
+# Test failure to build a query-only target
+test_err "not a build target" build +A:imports
+
+# Test querying a custom target
+test_eq "foo" query foo
+test_eq '"foo"' query foo --json
+
+# Test querying imports
+test_eq "B" query +A:imports
+test_eq '["C","B"]' query +A:transImports --json
+
+# Test querying a module's setup JSON
+$LAKE query +A:setup --json | $LAKE env lean --run pretty.lean |
+  diff -u --strip-trailing-cr .lake/build/ir/A.setup.json -
+
+# Test querying a module's dependency hash
+match_text $($LAKE query +A:depHash) .lake/build/lib/lean/A.trace
+test_eq "\"$($LAKE query +A:depHash)\"" query +A:depHash --json
+
+# Test querying deps
+$LAKE query :deps | diff -u --strip-trailing-cr <(cat << 'EOF'
+dep
+dupDep
+EOF
+) -
+test_eq '["deepDep.3","dupDep.2","dep.1"]' query :transDeps --json
+
+echo "# UNCOMMON TESTS"
+set -x
+
+# Check that logs are not written to stdout
+$LAKE query | diff - /dev/null
+
+# Test querying library modules
+$LAKE query lib:modules | sort | diff -u --strip-trailing-cr <(cat << 'EOF'
+A
+B
+C
+EOF
+) -
+
+# Test that querying an executable
+# returns its path which can then be executed
+`$LAKE query a`
+
+# Test querying multiple targets
+test `$LAKE query foo foo | wc -l` = 2
+test `$LAKE query a b | wc -l` = 2
+
+set +x
+
+# Cleanup
+rm -f produced.out

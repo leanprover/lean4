@@ -1,30 +1,51 @@
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
+Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone, Henrik Böving
 -/
 module
 
 prelude
+public import Init.Control.Do
 public import Init.System.IOError
 public import Init.System.FilePath
-public import Init.System.ST
-public import Init.Data.Ord
-public import Init.Data.String.Extra
+import Init.Data.String.TakeDrop
+import Init.Data.String.Search
+public import Init.Data.Ord.Basic
+public import Init.Data.String.Basic
+import Init.Data.List.MapIdx
+import Init.Data.Ord.UInt
+import Init.Data.ToString.Macro
+import Init.Data.List.Impl
+import Init.Data.Int.Repr
+import Init.Data.String.Lossy
 
 public section
 
 open System
 
+opaque IO.RealWorld.nonemptyType : NonemptyType.{0}
 /--
 A representation of “the real world” that's used in `IO` monads to ensure that `IO` actions are not
 reordered.
 -/
-/- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
-   Makes sure we never reorder `IO` operations.
+@[expose] def IO.RealWorld : Type := IO.RealWorld.nonemptyType.type
 
-   TODO: mark opaque -/
-@[expose] def IO.RealWorld : Type := Unit
+instance IO.RealWorld.instNonempty : Nonempty IO.RealWorld :=
+  by exact IO.RealWorld.nonemptyType.property
+
+/--
+An `IO` monad that cannot throw exceptions.
+-/
+@[expose] def BaseIO (α : Type) := ST IO.RealWorld α
+
+instance : Monad BaseIO := inferInstanceAs (Monad (ST IO.RealWorld))
+instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (ST IO.RealWorld))
+instance : MonadAttach BaseIO := inferInstanceAs (MonadAttach (ST IO.RealWorld))
+
+@[always_inline, inline]
+def BaseIO.map (f : α → β) (x : BaseIO α) : BaseIO β :=
+  f <$> x
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -39,21 +60,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
-
-instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
-instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
-instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
-instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
-
-/--
-An `IO` monad that cannot throw exceptions.
--/
-@[expose] def BaseIO := EIO Empty
-
-instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
-instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
+@[expose] def EIO (ε : Type) (α : Type) : Type := EST ε IO.RealWorld α
 
 /--
 Runs a `BaseIO` action, which cannot throw an exception, in any other `EIO` monad.
@@ -64,7 +71,7 @@ lifting](lean-manual://section/lifting-monads) rather being than called explicit
 @[always_inline, inline]
 def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
-  | EStateM.Result.ok a s => EStateM.Result.ok a s
+  | .mk a s => .ok a s
 
 instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
@@ -75,8 +82,8 @@ action that returns an `Except` value.
 @[always_inline, inline]
 def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match act s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
-  | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
+  | .ok a s     => .mk (.ok a) s
+  | .error ex s => .mk (.error ex) s
 
 /--
 Handles any exception that might be thrown by an `EIO ε` action, transforming it into an
@@ -85,8 +92,26 @@ exception-free `BaseIO` action.
 @[always_inline, inline]
 def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match act s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex s => h ex s
+  | .ok a s     => .mk a s
+  | .error ex s => h ex s
+
+instance : Monad (EIO ε) := inferInstanceAs (Monad (EST ε IO.RealWorld))
+instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EST ε IO.RealWorld))
+instance : MonadAttach (EIO ε) := inferInstanceAs (MonadAttach (EST ε IO.RealWorld))
+instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EST ε IO.RealWorld))
+instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
+instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EST ε IO.RealWorld α))
+
+@[always_inline, inline]
+def EIO.map (f : α → β) (x : EIO ε α) : EIO ε β :=
+  f <$> x
+
+@[always_inline, inline]
+protected def EIO.throw (e : ε) : EIO ε α := throw e
+
+@[always_inline, inline]
+protected def EIO.tryCatch (x : EIO ε α) (handle : ε → EIO ε α) : EIO ε α :=
+  MonadExceptOf.tryCatch x handle
 
 /--
 Converts an `Except ε` action into an `EIO ε` action.
@@ -94,10 +119,20 @@ Converts an `Except ε` action into an `EIO ε` action.
 If the `Except ε` action throws an exception, then the resulting `EIO ε` action throws the same
 exception. Otherwise, the value is returned.
 -/
+@[always_inline, inline]
 def EIO.ofExcept (e : Except ε α) : EIO ε α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw e
+
+@[always_inline, inline]
+def EIO.adapt (f : ε → ε') (m : EIO ε α) : EIO ε' α :=
+  fun s => match m s with
+  | .ok a s => .ok a s
+  | .error e s => .error (f e) s
+
+@[deprecated EIO.adapt (since := "2025-09-29"), always_inline, inline]
+def EIO.adaptExcept (f : ε → ε') (m : EIO ε α) : EIO ε' α := EIO.adapt f m
 
 open IO (Error) in
 /--
@@ -119,7 +154,7 @@ Converts an `EIO ε` action into an `IO` action by translating any exceptions th
 `IO.Error`s using `f`.
 -/
 @[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
-  act.adaptExcept f
+  act.adapt f
 
 /--
 Converts an `EIO ε` action that might throw an exception of type `ε` into an exception-free `IO`
@@ -132,7 +167,7 @@ action that returns an `Except` value.
 Runs an `IO` action in some other `EIO` monad, using `f` to translate `IO` exceptions.
 -/
 @[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
-  act.adaptExcept f
+  act.adapt f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
@@ -152,8 +187,8 @@ duplicate, or delete calls to this function. The side effect may even be hoisted
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
 @[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
-  match fn.run () with
-  | EStateM.Result.ok a _ => a
+  match fn (unsafeCast Unit.unit) with
+  | .mk a _ => a
 
 /--
 Executes arbitrary side effects in a pure context, with exceptions indicated via `Except`. This a
@@ -171,7 +206,7 @@ causing the side effect to occur at initialization time, even if it would otherw
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
   unsafeBaseIO fn.toBaseIO
 
-@[inline, inherit_doc EIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
+@[inline, inherit_doc unsafeEIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
 
@@ -396,9 +431,9 @@ If `nBytes` is `0`, returns immediately with an empty buffer.
 /--
 Pauses execution for the specified number of milliseconds.
 -/
-def sleep (ms : UInt32) : BaseIO Unit :=
+opaque sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
-  fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
+  fun s => dbgSleep ms fun _ => .mk () s
 
 /--
 Runs `act` in a separate `Task`, with priority `prio`. Because `IO` actions may throw an exception
@@ -534,15 +569,26 @@ Waits for the task to finish, then returns its result.
   return t.get
 
 /--
-Waits until any of the tasks in the list has finished, then return its result.
+Waits until any of the tasks in the list has finished, then returns its result.
 -/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
     (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
   return tasks[0].get
 
 /--
+Given a non-empty list of tasks, wait for the first to complete.
+Return the value and the list of remaining tasks.
+-/
+def waitAny' (tasks : List (Task α)) (h : 0 < tasks.length := by exact Nat.zero_lt_succ _) :
+    BaseIO (α × List (Task α)) := do
+  let (i, a) ← IO.waitAny
+    (tasks.mapIdx fun i t => t.map (sync := true) fun a => (i, a))
+    (by simp_all)
+  return (a, tasks.eraseIdx i)
+
+/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
-heartbeat count is the number of “small” memory allocations performed in a thread.
+heartbeat count is the number of "small" memory allocations performed in a thread.
 
 Heartbeats used to implement timeouts that are more deterministic across different hardware.
 -/
@@ -641,7 +687,7 @@ File handles wrap the underlying operating system's file descriptors. There is n
 to close a file: when the last reference to a file handle is dropped, the file is closed
 automatically.
 
-Handles have an associated read/write cursor that determines the where reads and writes occur in the
+Handles have an associated read/write cursor that determines where reads and writes occur in the
 file.
 -/
 opaque FS.Handle : Type := Unit
@@ -675,7 +721,7 @@ structure FS.Stream where
   /--
   Reads text up to and including the next newline from the stream.
 
-  If the returned string is empty, an end-of-file marker (EOF) has been reached.
+  If the returned string does not end with a newline, an end-of-file marker (EOF) has been reached.
   An EOF does not actually close a stream, so further reads may block and return more data.
   -/
   getLine : IO String
@@ -752,7 +798,7 @@ An exception is thrown if the file cannot be opened.
 /--
 Acquires an exclusive or shared lock on the handle. Blocks to wait for the lock if necessary.
 
-Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+Acquiring an exclusive lock while already possessing a shared lock will **not** reliably succeed: it
 works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_lock"] opaque lock (h : @& Handle) (exclusive := true) : IO Unit
@@ -760,7 +806,7 @@ works on Unix-like systems but not on Windows.
 Tries to acquire an exclusive or shared lock on the handle and returns `true` if successful. Will
 not block if the lock cannot be acquired, but instead returns `false`.
 
-Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+Acquiring an exclusive lock while already possessing a shared lock will **not** reliably succeed: it
 works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_try_lock"] opaque tryLock (h : @& Handle) (exclusive := true) : IO Bool
@@ -801,7 +847,7 @@ Encountering an EOF does not close a handle. Subsequent reads may block and retu
 -/
 @[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
 /--
-Writes the provided bytes to the the handle.
+Writes the provided bytes to the handle.
 
 Writing to a handle is typically buffered, and may not immediately modify the file on disk. Use
 `IO.FS.Handle.flush` to write changes to buffers to the associated device.
@@ -810,7 +856,7 @@ Writing to a handle is typically buffered, and may not immediately modify the fi
 
 /--
 Reads UTF-8-encoded text up to and including the next line break from the handle. If the returned
-string is empty, an end-of-file marker (EOF) has been reached.
+string does not end with a line break, an end-of-file marker (EOF) has been reached.
 
 Encountering an EOF does not close a handle. Subsequent reads may block and return more data.
 -/
@@ -862,6 +908,24 @@ This function coincides with the [POSIX `rename`
 function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html).
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
+/--
+Moves a file or directory `old` to the new location `new`.
+Errors if `new` already exists.
+-/
+@[extern "lean_io_rename_if_new"] opaque renameIfNew (old new : @& FilePath) : IO Unit
+
+/--
+Creates a new hard link.
+
+The `link` path will be a link pointing to the `orig` path.
+Note that systems often require these two paths to both be located on the same filesystem.
+If `orig` names a symbolic link, it is platform-specific whether the symbolic link is followed.
+
+This function coincides with the [POSIX `link`
+function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html).
+-/
+@[extern "lean_io_hard_link"] opaque hardLink (orig link : @& FilePath) : IO Unit
 
 /--
 Creates a temporary file in the most secure manner possible, returning both a `Handle` to the
@@ -969,11 +1033,11 @@ and/or return data.
 partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
-    if line.length == 0 then
+    if line.isEmpty then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -1067,6 +1131,8 @@ structure Metadata where
   Whether the file is an ordinary file, a directory, a symbolic link, or some other kind of file.
   -/
   type     : FileType
+  /-- The number of hard links to the file. -/
+  numLinks : UInt64
   deriving Repr
 
 end FS
@@ -1300,7 +1366,7 @@ def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → Fi
     removeFile path
 
 /--
-Creates a temporary directory in the most secure manner possible, providing a its path to an `IO`
+Creates a temporary directory in the most secure manner possible, providing its path to an `IO`
 action. Afterwards, all files in the temporary directory are recursively deleted, regardless of how
 or when they were created.
 
@@ -1336,9 +1402,15 @@ pipes, inherited from the parent, or null.
 If the stream is a pipe, then the parent process can use it to communicate with the child.
 -/
 inductive Stdio where
-  /-- The stream should be attached to a pipe. -/
+  /--
+  The stream should be attached to a pipe. The pipe carries bytes unchanged on all platforms; in
+  particular, line endings are not translated on Windows.
+  -/
   | piped
-  /-- The stream should be inherited from the parent process. -/
+  /--
+  The stream should be inherited from the parent process. On POSIX platforms, a parent process that
+  was started with that stream closed passes on the null device.
+  -/
   | inherit
   /-- The stream should be empty. -/
   | null
@@ -1359,7 +1431,12 @@ communication is possible.
 Configuration for the standard input, output, and error handles of a child process.
 -/
 structure StdioConfig where
-  /-- Configuration for the process' stdin handle. -/
+  /--
+  Configuration for the process' stdin handle.
+
+  A child process that inherits standard input can consume input meant for the parent or wait for
+  input from the terminal. Use `.null` for a child that is not supposed to read from the terminal.
+  -/
   stdin := Stdio.inherit
   /-- Configuration for the process' stdout handle. -/
   stdout := Stdio.inherit
@@ -1373,9 +1450,37 @@ Use `IO.Process.spawn` to start the child process. `IO.Process.output` and `IO.P
 used when the child process should be run to completion, with its output and/or error code captured.
 -/
 structure SpawnArgs extends StdioConfig where
-  /-- Command name. -/
+  /--
+  The command to run.
+
+  A command without a directory separator is searched for in the directories of the `PATH` variable
+  of the child process's environment. Any other relative path is relative to the child process's
+  working directory.
+
+  On POSIX platforms, an executable file that the system cannot run directly, such as a script
+  without a `#!` line, is run by `/bin/sh`.
+
+  On Windows, a command without a directory is first searched for where the system looks for
+  executables: in the directory of the current executable, the current working directory, the
+  system directories and the directories of the current process's `PATH`, in this order and with the
+  extension `.exe` if the command has none. Only if it is not found there, the child process's
+  working directory and the directories of its `PATH` are searched, also trying the extensions
+  `.com` and `.exe`.
+  -/
   cmd : String
-  /-- Arguments for the command. -/
+  /--
+  Arguments for the command, which the child process receives unchanged.
+
+  On Windows, where a process receives a single command line, the arguments are quoted as needed
+  according to the conventions of the Microsoft C runtime. Programs that split their command line
+  differently, such as `cmd.exe`, may see other arguments, and programs built on the Cygwin or
+  MSYS2 runtime expand wildcards and braces in arguments that did not need quotes.
+
+  In particular, a batch file (`.bat` or `.cmd`) is run by `cmd.exe`, which does not understand
+  this quoting: an argument containing `"` can end the quoted section, so that characters such as
+  `&` and `|` in it run further commands, and `%` expands variables even inside quotes. Untrusted
+  arguments must not be passed to a batch file.
+  -/
   args : Array String := #[]
   /-- The child process's working directory. Inherited from the parent current process if `none`. -/
   cwd : Option FilePath := none
@@ -1385,13 +1490,23 @@ structure SpawnArgs extends StdioConfig where
   The child process inherits the parent's environment, as modified by `env`. Keys in the array are
   the names of environment variables. A `none`, causes the entry to be removed from the environment,
   and `some` sets the variable to the new value, adding it if necessary. Variables are processed from left to right.
+
+  On Windows, the names of environment variables are not case-sensitive. Moreover, the child process
+  receives the parent's values of `HOMEDRIVE`, `HOMEPATH`, `LOGONSERVER`, `PATH`, `SYSTEMDRIVE`,
+  `SYSTEMROOT`, `TEMP`, `USERDOMAIN`, `USERNAME`, `USERPROFILE` and `WINDIR` unless `env` sets
+  them, even if `env` removes them or `inheritEnv` is `false`.
   -/
   env : Array (String × Option String) := #[]
-  /-- Inherit environment variables from the spawning process. -/
+  /--
+  Inherit environment variables from the spawning process. On Windows, some variables are inherited
+  in any case; see `env`.
+  -/
   inheritEnv : Bool := true
   /--
-  Starts the child process in a new session and process group using `setsid`. Currently a no-op on
-  non-POSIX platforms.
+  Starts the child process in a new session and process group using `setsid`.
+
+  This has no effect on Windows, where the closest equivalent would also detach the child process
+  from the console.
   -/
   setsid : Bool := false
 
@@ -1422,7 +1537,18 @@ structure Child (cfg : StdioConfig) where private mk ::
 Starts a child process with the provided configuration. The child process is spawned using operating
 system primitives, and it can be written in any language.
 
-The child process runs in parallel with the parent.
+The child process runs in parallel with the parent. Its exit is detected in the background, so it
+does not linger as a zombie process even if `IO.Process.Child.wait` is never called.
+
+Throws an error if the child process cannot be started, for example because the command does not
+exist or is not executable, or because the working directory does not exist. A command, argument,
+working directory or environment entry that contains a NUL character is an error as well.
+
+On POSIX platforms, the child process starts with the default action for every signal and with no
+signal blocked, even if the parent process ignores or blocks signals. For example, the child of a
+program that runs under `nohup` does not ignore `SIGHUP`.
+
+On Windows, the child process is terminated when the parent process exits.
 
 If the child process's standard input is a pipe, use `IO.Process.Child.takeStdin` to make it
 possible to close the child's standard input before the process terminates, which provides the child with an end-of-file marker.
@@ -1430,23 +1556,47 @@ possible to close the child's standard input before the process terminates, whic
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 /--
-Blocks until the child process has exited and return its exit code.
+Blocks until the child process has exited and returns its exit code. It can be called any number of
+times, also from several threads at once. On POSIX platforms, the exit code of a child process that
+was terminated by a signal is 128 plus the number of the signal.
+
+Throws an error instead of blocking forever if it is called on the thread of the event loop before
+the child process is known to have exited, because that thread is the one that detects the exit. A
+task with `sync := true` runs on that thread if the task that it depends on is completed by the
+event loop, for example by a timer or a socket.
+
+On POSIX platforms, if other code in the same process reaps the child, for example a C library
+calling `waitpid(-1, …)`, this function never returns.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
 /--
 Checks whether the child has exited. Returns `none` if the process has not exited, or its exit code
 if it has.
+
+The exit of a child process is detected on the thread of the event loop, so `tryWait` keeps
+returning `none` for as long as its caller occupies that thread; see `IO.Process.Child.wait`.
 -/
 @[extern "lean_io_process_child_try_wait"] opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg →
     IO (Option UInt32)
 
 /--
-Terminates the child process using the `SIGTERM` signal or a platform analogue.
+Terminates the child process by sending it the `SIGKILL` signal, or `SIGTERM` if `force` is `false`.
+Does nothing if the child process has already exited.
 
-If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead.
+`SIGKILL` ends the process immediately. `SIGTERM` gives the process the chance to handle the signal,
+for example to clean up before exiting, or to ignore it.
+
+If the process was started using `SpawnArgs.setsid`, the signal is sent to the entire process group
+instead, including any members that remain after the child process has exited. Once all members of
+the group have exited, the system may give its identifier to a new process group, which a later
+call would signal instead.
+
+On Windows, the process is always terminated immediately using `TerminateProcess`, and `force` has
+no effect.
 -/
-@[extern "lean_io_process_child_kill"] opaque Child.kill {cfg : @& StdioConfig} : @& Child cfg → IO Unit
+@[extern "lean_io_process_child_kill"]
+opaque Child.kill {cfg : @& StdioConfig} (child : @& Child cfg) (force := true) : IO Unit
 
 /--
 Extracts the `stdin` field from a `Child` object, allowing the handle to be closed while maintaining
@@ -1461,8 +1611,11 @@ standard input is exhausted.
 @[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
-/-- Returns the operating system process id of the child process. -/
-@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : Child cfg → UInt32
+/--
+Returns the operating system process id of the child process. Once the child process has exited,
+the system may assign the same id to another process.
+-/
+@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32
 
 /--
 The result of running a process to completion.
@@ -1476,48 +1629,120 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code.
+The result of running a process to completion, with its output as bytes.
+-/
+structure BinOutput where
+  /-- The process's exit code. -/
+  exitCode : UInt32
+  /-- Everything that was written to the process's standard output. -/
+  stdout   : ByteArray
+  /-- Everything that was written to the process's standard error. -/
+  stderr   : ByteArray
+
+/--
+Runs a process to completion and captures its exit code and its output as bytes.
 The child process is run with a null standard input or the specified input if provided,
 and the current process blocks until it has run to completion.
 
+The input is written while the output is read, so the child may produce output before it has read
+all of its input. The child need not read all of its input. Errors in writing the input or reading
+the output are thrown only once the child has exited.
+
 The specifications of standard input, output, and error handles in `args` are ignored.
+
+Like `IO.Process.Child.wait`, this function throws an error on the thread of the event loop.
 -/
-def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
-  let child ←
+def binOutput (args : SpawnArgs) (input? : Option ByteArray := none) : IO BinOutput := do
+  let (child, written) ←
     if let some input := input? then
       let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
-      stdin.putStr input
-      stdin.flush
-      pure child
+      -- The task holds the only reference to `stdin`, so the child sees the end of its input when
+      -- the task finishes.
+      let written ← IO.asTask (prio := .dedicated) do
+        try
+          stdin.write input
+          stdin.flush
+        catch e =>
+          match e with
+          -- The child exited or closed its standard input early. Windows reports this as `EINVAL`
+          -- rather than `EPIPE`.
+          | .resourceVanished .. | .invalidArgument .. => pure ()
+          | e => throw e
+      pure (child, written)
     else
-      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
-  let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
-  let stderr ← child.stderr.readToEnd
+      pure (← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }, .pure (.ok ()))
+  let stdout ← IO.asTask (prio := .dedicated) child.stdout.readBinToEnd
+  let stderr ← child.stderr.readBinToEnd.toBaseIO
   let exitCode ← child.wait
-  let stdout ← IO.ofExcept stdout.get
-  pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
+  MonadExcept.ofExcept written.get
+  return {
+    exitCode
+    stdout := ← MonadExcept.ofExcept stdout.get
+    stderr := ← MonadExcept.ofExcept stderr
+  }
+
+private def decodeOutput (cmd stream : String) (bytes : ByteArray) : IO String :=
+  match String.fromUTF8? bytes with
+  | some s => pure s
+  | none => throw <| IO.userError s!"process '{cmd}' wrote non-UTF-8 data to its {stream}"
+
+/--
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion. The child need not read all of its
+input.
+
+Once the child has exited, an exception is thrown if its standard output or standard error is not
+valid UTF-8. Use `IO.Process.binOutput` to capture output that need not be UTF-8.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
+
+Like `IO.Process.Child.wait`, this function throws an error on the thread of the event loop.
+-/
+def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
+  let out ← binOutput args (input?.map (·.toUTF8))
+  return {
+    exitCode := out.exitCode
+    stdout := ← decodeOutput args.cmd "standard output" out.stdout
+    stderr := ← decodeOutput args.cmd "standard error" out.stderr
+  }
 
 /--
 Runs a process to completion, blocking until it terminates.
-The child process is run with a null standard input or the specified input if provided,
-If the child process terminates successfully with exit code 0, its standard output is returned.
-An exception is thrown if it terminates with any other exit code.
+The child process is run with a null standard input or the specified input if provided, which it
+need not read in full. If the child process terminates successfully with exit code 0, its standard
+output is returned.
+
+An exception is thrown if the child terminates with any other exit code; its message includes the
+standard error, with invalid UTF-8 replaced by `�` (`U+FFFD`). An exception is also thrown if the
+standard output is not valid UTF-8.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
+
+Like `IO.Process.Child.wait`, this function throws an error on the thread of the event loop.
 -/
 def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
-  let out ← output args input?
+  let out ← binOutput args (input?.map (·.toUTF8))
   if out.exitCode != 0 then
     throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
       \nstderr:\
-      \n{out.stderr}"
-  pure out.stdout
+      \n{String.fromUTF8Lossy out.stderr}"
+  decodeOutput args.cmd "standard output" out.stdout
 
 /--
 Terminates the current process with the provided exit code. `0` indicates success, all other values
 indicate failure.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
+
+/--
+Terminates the current process with the provided exit code. `0` indicates success, all other values
+indicate failure.
+
+Calling this function is equivalent to calling
+[`std::_Exit`](https://en.cppreference.com/w/cpp/utility/program/_Exit.html).
+-/
+@[extern "lean_io_force_exit"] opaque forceExit : UInt8 → IO α
 
 end Process
 
@@ -1527,7 +1752,7 @@ end Process
 /--
 POSIX-style file permissions.
 
-The `FileRight` structure describes these permissions for a file's owner, members of it's designated
+The `FileRight` structure describes these permissions for a file's owner, members of its designated
 group, and all others.
 -/
 structure AccessRight where
@@ -1593,44 +1818,16 @@ the `IO` monad.
 -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
+instance : MonadLift (ST IO.RealWorld) BaseIO where
+  monadLift mx := fun s =>
+    match mx s with
+    | .mk s a => .mk s a
 
 /--
 Creates a new mutable reference cell that contains `a`.
 -/
 def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
-
-/--
-Mutable cell that can be passed around for purposes of cooperative task cancellation: request
-cancellation with `CancelToken.set` and check for it with `CancelToken.isSet`.
-
-This is a more flexible alternative to `Task.cancel` as the token can be shared between multiple
-tasks.
--/
-structure CancelToken where
-  private ref : IO.Ref Bool
-deriving Nonempty
-
-namespace CancelToken
-
-/-- Creates a new cancellation token. -/
-def new : BaseIO CancelToken :=
-  CancelToken.mk <$> IO.mkRef false
-
-/-- Activates a cancellation token. Idempotent. -/
-def set (tk : CancelToken) : BaseIO Unit :=
-  tk.ref.set true
-
-/-- Checks whether the cancellation token has been activated. -/
-def isSet (tk : CancelToken) : BaseIO Bool :=
-  tk.ref.get
-
--- separate definition as otherwise no unboxed version is generated
-@[export lean_io_cancel_token_is_set]
-private def isSetExport := @isSet
-
-end CancelToken
 
 namespace FS
 namespace Stream
@@ -1740,11 +1937,11 @@ and/or return data.
 partial def lines (s : Stream) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← s.getLine
-    if line.length == 0 then
+    if line.isEmpty then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -1801,7 +1998,7 @@ unsafe def Runtime.markPersistent (a : α) : BaseIO α := return a
 
 set_option linter.unusedVariables false in
 /--
-Discards the passed owned reference. This leads to `a` any any object reachable from it never being
+Discards the passed owned reference. This leads to `a` and any object reachable from it never being
 freed. This can be a useful optimization for eliding deallocation time of big object graphs that are
 kept alive close to the end of the process anyway (in which case calling `Runtime.markPersistent`
 would be similarly costly to deallocation). It is still considered a safe operation as it cannot
@@ -1809,3 +2006,30 @@ lead to undefined behavior.
 -/
 @[extern "lean_runtime_forget"]
 def Runtime.forget (a : α) : BaseIO Unit := return
+
+set_option linter.unusedVariables false in
+/--
+Ensures `a` remains at least alive until the call site by holding a reference to `a`. This can be useful
+for unsafe code (such as an FFI) that relies on a Lean object not being freed until after some point
+in the program. At runtime, this will be a no-op as the C compiler will optimize away this call.
+-/
+@[extern "lean_runtime_hold"]
+def Runtime.hold (a : @& α) : BaseIO Unit := return
+
+/-- Copy the entire object graph into new memory.
+Scalar values, inductives, arrays, strings, and closures can always be copied.
+External objects and `ST.Ref`s are not supported.
+`Thunk`s, `Task`s, and `Promise`s can only be copied after becoming immutable:
+already-evaluated `Thunk`s, finished `Task`s, and resolved `Promise`s.
+
+The result:
+- has no allocation in common with the input
+- is reference-counted (single-threaded) even when the input wasn't
+- does not contribute to the input's reference count
+- has the same sharing as the input
+- has array and string capacities shrunken to their size
+
+Warning: closures produced by the interpreter capture the whole `Environment`
+which cannot be copied. -/
+@[extern "lean_runtime_deep_copy"]
+def Runtime.deepCopy (a : @& α) : IO α := return a

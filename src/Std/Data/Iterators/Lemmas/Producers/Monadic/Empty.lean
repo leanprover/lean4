@@ -8,15 +8,14 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Monadic.Empty
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 @[simp]
 theorem IterM.step_empty {m β} [Monad m] :
-    (IterM.empty m β).step = pure ⟨.done, rfl⟩ :=
+    (IterM.empty m β).step = pure (.deflate ⟨.done, rfl⟩) :=
   rfl
 
 @[simp]
@@ -63,4 +62,4 @@ theorem IterM.drain_empty {m β} [Monad m] [LawfulMonad m] :
     (IterM.empty m β).drain = pure .unit := by
   simp [IterM.drain_eq_fold]
 
-end Std.Iterators
+end Std

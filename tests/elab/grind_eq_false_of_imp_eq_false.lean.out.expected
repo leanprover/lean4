@@ -1,0 +1,3 @@
+Try this:
+  [apply] [grind =] for pattern: [@map #2 #1 #0 (@nil _)]
+grind_eq_false_of_imp_eq_false.lean:7:8-7:23: warning: declaration uses `sorry`

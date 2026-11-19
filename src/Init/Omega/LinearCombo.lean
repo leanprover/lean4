@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Omega.Coeffs
-public import Init.Data.ToString.Macro
+import Init.Data.Int.Lemmas
+import Init.Data.ToString.Macro
+import Init.RCases
 
 public section
 
@@ -23,6 +25,17 @@ We use this data structure while processing hypotheses.
 
 namespace Lean.Omega
 
+private local instance : Append String where
+  append := String.Internal.append
+
+private local instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (m + 1)
+
+private local instance : Repr Int where
+  reprPrec i prec := if i < 0 then Repr.addAppParen (toString i) prec else toString i
+
 /-- Internal representation of a linear combination of atoms, and a constant term. -/
 structure LinearCombo where
   /-- Constant term. -/
@@ -34,8 +47,10 @@ deriving DecidableEq, Repr
 namespace LinearCombo
 
 instance : ToString LinearCombo where
-  toString lc :=
-    s!"{lc.const}{String.join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
+  toString lc := private
+    let terms := lc.coeffs.toList.foldl (init := ("", 0)) fun (sofar, i) c =>
+      (String.Internal.append sofar s!" + {c} * x{i+1}", i + 1)
+    s!"{lc.const}{terms.1}"
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

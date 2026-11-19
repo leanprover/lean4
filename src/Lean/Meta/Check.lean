@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.Sorry
+import Init.Data.Range.Polymorphic.Iterators
+import Lean.OriginalConstKind
 
 public section
 
@@ -77,7 +78,10 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
     -- but we don't want these assignments to leak out of the function.
     -- Note: we shouldn't instantiate mvars in `visit` to prevent leakage.
     withoutModifyingState do
-      visit (← instantiateMVars a) (← instantiateMVars b)
+      let traceState ← getTraceState
+      let r ← visit (← instantiateMVars a) (← instantiateMVars b)
+      setTraceState traceState
+      return r
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
@@ -194,6 +198,24 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
     throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
+/-- Adds note about definitions not unfolded because of the module system, if any. -/
+def mkUnfoldAxiomsNote (givenType expectedType : Expr) : MetaM MessageData := do
+  let env ← getEnv
+  if env.header.isModule then
+    let origDiag := (← get).diag
+    try
+      let _ ← observing <| withSetOption diagnostics true <| isDefEq givenType expectedType
+      let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
+        let count := count - origDiag.unfoldAxiomCounter.findD n 0
+        guard <| count > 0 && getOriginalConstKind? env n matches some .defn
+        return m!"{.ofConstName n} ↦ {count}"
+      if !blocked.isEmpty then
+        return MessageData.note m!"The following definitions were not unfolded because \
+          their definition is not exposed:{indentD <| .joinSep blocked Format.line}"
+    finally
+      modify ({ · with diag := origDiag })
+  return .nil
+
 /--
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 Adds the type’s types unless they are defeq.
@@ -205,14 +227,16 @@ function. Any expressions appearing in the trailing message should be included i
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
-  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
-    try
+  let config ← getConfig
+  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) <|
+      withConfig (fun _ => config) do
+    let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
       if (← isDefEqGuarded givenTypeType expectedTypeType) then
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
         let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-        return m!"has type{indentExpr givenType}\n\
+        pure m!"has type{indentExpr givenType}\n\
           but is expected to have type{indentExpr expectedType}{trailing}"
       else
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
@@ -220,12 +244,13 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
         let trailing := match trailing? with
           | none => inlineExprTrailing expectedTypeType
           | some trailing => inlineExpr expectedTypeType ++ trailing
-        return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+        pure m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
           but is expected to have type{indentExpr expectedType}\nof sort{trailing}"
     catch _ =>
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
       let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
+      pure m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}")
+    return msg ++ (← mkUnfoldAxiomsNote givenType expectedType)
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,
@@ -306,16 +331,38 @@ where
       check b
 
 /--
-Throw an exception if `e` is not type correct.
+Throw an exception if `e` is not type correct at the given transparency.
 -/
-def check (e : Expr) : MetaM Unit :=
-  withTraceNode `Meta.check (fun res =>
-      return m!"{if res.isOk then checkEmoji else crossEmoji} {e}") do
+def check (e : Expr) (transparency : TransparencyMode := .all) : MetaM Unit :=
+  withTraceNode `Meta.check (fun _ =>
+      return m!"{e}") do
     try
-      withTransparency TransparencyMode.all $ checkAux e
+      withTransparency transparency $ checkAux e
     catch ex =>
       trace[Meta.check] ex.toMessageData
       throw ex
+
+/--
+Runs `x` and, on any error, lazily checks whether `e` is type-correct at `instances` transparency.
+If not, appends an explanatory note to the error message.
+
+This is useful for tactics like `rw` and `simp` whose failure modes can be caused by
+prior tactics (such as `unfold`) leaving the goal in a state that's type-correct only at
+`.default` transparency, preventing unification etc at `.instances`.
+-/
+def withInstancesTypeCheckNote [MonadControlT MetaM m] [Monad m] (e : Expr) (x : m α) : m α := do
+  let typeCheckNote := MessageData.ofLazyM (es := #[e]) do
+    try
+      check e .implicit
+      return .nil
+    catch e =>
+      return MessageData.note m!"The target expression is not type-correct \
+        under the `implicit` transparency level, which may have triggered the failure. \
+        This is usually caused by unfolding of semireducible definitions in prior tactic steps. \
+        Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.\n\
+        Full error:\
+        {indentD e.toMessageData}"
+  Meta.mapError x (· ++ typeCheckNote)
 
 /--
 Return true if `e` is type correct.
@@ -326,6 +373,17 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
     pure true
   catch _ =>
     pure false
+
+/--
+Throw an exception if `e` cannot be type checked using the kernel.
+This function is used for debugging purposes only.
+Be sure to share common expressions in `e` before calling this function for good performance.
+-/
+def checkWithKernel (e : Expr) : MetaM Unit := do
+  let e ← instantiateExprMVars e
+  match Kernel.check (← getEnv) (← getLCtx) e with
+  | .ok .. => return ()
+  | .error ex => throwError "kernel type checker failed at{indentExpr e}\nwith error message\n{ex.toMessageData (← getOptions)}"
 
 builtin_initialize
   registerTraceClass `Meta.check

@@ -72,7 +72,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -80,17 +80,20 @@ def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual $auxDefs:command* end)
 
-private def mkHashableInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "hash" declName
-  let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable #[declName])
+/-- Builds one aux-function block for the mutual block of `declNames` and an instance for each. -/
+private def mkHashableInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext ``Hashable "hash" declNames[0]!
+  let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable declNames)
   trace[Elab.Deriving.hashable] "\n{cmds}"
   return cmds
 
 def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive)  then
-    for declName in declNames do
-      let cmds ← liftTermElabM <| mkHashableInstanceCmds declName
-      cmds.forM elabCommand
+    for block in ← liftCoreM <| groupByMutualBlock declNames do
+      withoutExposeFromCtorsAll block do
+        let cmds ← liftTermElabM <| mkHashableInstanceCmds block
+        cmds.forM elabCommand
     return true
   else
     return false

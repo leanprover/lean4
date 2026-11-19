@@ -68,6 +68,7 @@ namespace Expr
 @[inline] def and? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``And
 
+/-- Recognizes `x1 ≍ x2`, returns `some (α1, x1, α2, x2)`.  -/
 @[inline] def heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
   p.app4? ``HEq
 

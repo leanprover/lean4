@@ -1,0 +1,3 @@
+grind_cutsat_nat_eq.lean:84:0-84:7: warning: declaration uses `sorry`
+grind_cutsat_nat_eq.lean:94:0-94:7: warning: declaration uses `sorry`
+grind_cutsat_nat_eq.lean:128:0-128:7: warning: declaration uses `sorry`

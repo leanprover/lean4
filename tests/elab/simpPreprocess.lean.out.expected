@@ -1,0 +1,17 @@
+theorem ex : ∀ (p q r : Prop), p ∧ q ∧ r → (¬q ∨ r) ∧ (¬r ∨ q) ∧ p :=
+fun p q r h =>
+  of_eq_true
+    (Eq.trans
+      (congr
+        (congrArg And
+          (Eq.trans (congr (congrArg Or (Eq.trans (congrArg Not (eq_true h.2.1)) not_true_eq_false)) (eq_true h.2.2))
+            (or_true False)))
+        (Eq.trans
+          (congr
+            (congrArg And
+              (Eq.trans
+                (congr (congrArg Or (Eq.trans (congrArg Not (eq_true h.2.2)) not_true_eq_false)) (eq_true h.2.1))
+                (or_true False)))
+            (eq_true h.1))
+          (and_self True)))
+      (and_self True))

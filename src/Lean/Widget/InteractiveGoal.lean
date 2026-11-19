@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Meta.PPGoal
 public import Lean.Widget.InteractiveCode
 public import Lean.Data.Lsp.Extra
 

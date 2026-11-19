@@ -12,4 +12,4 @@ public import Std.Do.SPred.Notation
 public import Std.Do.SPred.Laws
 public import Std.Do.SPred.DerivedLaws
 
-@[expose] public section
+set_option linter.missingDocs true

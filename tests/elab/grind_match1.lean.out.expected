@@ -1,0 +1,48 @@
+[grind.assert] (match as, bs with
+      | [], x => bs
+      | head :: head_1 :: tail, [] => []
+      | x :: xs, ys => x :: g xs ys) =
+      d
+[grind.split.candidate] match as, bs with
+    | [], x => bs
+    | head :: head_1 :: tail, [] => []
+    | x :: xs, ys => x :: g xs ys
+[grind.assert] as = []
+[grind.assert] ¬d = bs
+[grind.assert] (match as, bs with
+      | [], x => bs
+      | head :: head_1 :: tail, [] => []
+      | x :: xs, ys => x :: g xs ys) =
+      bs
+[grind.assert] (match a with
+      | [] => true
+      | head :: tail => false) =
+      b
+[grind.split.candidate] match a with
+    | [] => true
+    | head :: tail => false
+[grind.assert] a = []
+[grind.assert] b = false
+[grind.assert] (match a with
+      | [] => true
+      | head :: tail => false) =
+      true
+f'.match_1.eq_1.{u_1} (motive : List Nat → Sort u_1) (h_1 : Unit → motive [])
+  (h_2 : (head : Nat) → (tail : List Nat) → motive (head :: tail)) :
+  (match [] with
+    | [] => h_1 ()
+    | head :: tail => h_2 head tail) =
+    h_1 ()
+[grind.assert] (match a with
+      | [] => true
+      | head :: tail => false) =
+      b
+[grind.split.candidate] match a with
+    | [] => true
+    | head :: tail => false
+[grind.assert] a = []
+[grind.assert] b = false
+[grind.assert] (match a with
+      | [] => true
+      | head :: tail => false) =
+      true

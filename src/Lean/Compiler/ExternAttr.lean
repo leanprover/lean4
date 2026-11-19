@@ -6,12 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.List.BasicAux
-public import Lean.Expr
-public import Lean.Environment
-public import Lean.Attributes
 public import Lean.ProjFns
-public import Lean.Meta.Basic
+public import Lean.Attributes
+import Init.Data.String.Lemmas.Order
+import Init.Data.String.OrderInstances
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -22,7 +21,7 @@ inductive ExternEntry where
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)
   /-- Call to a Lean function without exported IR. -/
-  | opaque   (fn : Name)
+  | opaque
   deriving BEq, Hashable
 
 /--
@@ -59,10 +58,6 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
       entries := entries.push <| ExternEntry.inline backend str
   return { entries := entries.toList }
 
--- Forward declaration
-@[extern "lean_add_extern"]
-opaque addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit
-
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
     name := `extern
@@ -74,36 +69,36 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
         if let some (.thmInfo ..) := env.find? declName then
           -- We should not mark theorems as extern
           return ()
-        addExtern declName externAttrData
+        compileDecls #[declName]
   }
 
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
   externAttr.getParam? env n
 
-private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
-  | 0,   it, r => (it, r)
-  | n+1, it, r =>
-    if !it.hasNext then (it, r)
-    else
-      let c := it.curr
-      if '0' <= c && c <= '9'
-      then parseOptNum n it.next (r*10 + (c.toNat - '0'.toNat))
-      else (it, r)
+private def parseOptNum (pattern : String.Slice) (it : pattern.Pos) (r : Nat) : pattern.Pos × Nat :=
+  if h : it.IsAtEnd then (it, r)
+  else
+    let c := it.get h
+    if '0' <= c && c <= '9'
+    then
+      parseOptNum pattern (it.next h) (r*10 + (c.toNat - '0'.toNat))
+    else (it, r)
+termination_by it
 
-def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
-  | 0,   _,  r => r
-  | i+1, it, r =>
-    if ¬ it.hasNext then r
-    else let c := it.curr
-      if c ≠ '#' then expandExternPatternAux args i it.next (r.push c)
-      else
-        let it      := it.next
-        let (it, j) := parseOptNum it.remainingBytes it 0
-        let j       := j-1
-        expandExternPatternAux args i it (r ++ args.getD j "")
+def expandExternPatternAux (args : List String) (pattern : String) (it : pattern.Pos) (r : String) : String :=
+  if h : it.IsAtEnd then r
+  else let c := it.get h
+    if c ≠ '#' then expandExternPatternAux args pattern (it.next h) (r.push c)
+    else
+      let it₁      := it.next h
+      let (it₂, j) := parseOptNum (pattern.sliceFrom it₁) (String.Slice.startPos _) 0
+      let j       := j-1
+      have : it < String.Pos.ofSliceFrom it₂ := Std.lt_of_lt_of_le String.Pos.lt_next String.Pos.le_ofSliceFrom
+      expandExternPatternAux args pattern (String.Pos.ofSliceFrom it₂) (r ++ args.getD j "")
+termination_by it
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
-  expandExternPatternAux args pattern.length pattern.mkIterator ""
+  expandExternPatternAux args pattern pattern.startPos ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
   fn ++ "(" ++ ((args.intersperse ", ").foldl (·++·) "") ++ ")"

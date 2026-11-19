@@ -6,10 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ScopedEnvExtension
-public import Lean.Util.Recognizers
-public import Lean.Meta.Basic
-public import Lean.Meta.DiscrTree
 public import Lean.Meta.SynthInstance
 
 public section
@@ -36,12 +32,13 @@ private def config : ConfigWithKey :=
   { iota := false, proj := .no : Config }.toConfigWithKey
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
-  { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
+  { hints with discrTree := hints.discrTree.insertKeyValue e.keys e.val }
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {
     addEntry := UnificationHints.add
     initial  := {}
+    trackGen := true
   }
 
 structure UnificationConstraint where
@@ -100,13 +97,21 @@ builtin_initialize
       discard <| addUnificationHint declName kind |>.run
   }
 
+/--
+Returns the unification hints in effect, recording their generation inside a recording computation
+(`recordExtGenAccess`). The only way to read them during type class resolution.
+-/
+private def getRecordedHints : CoreM UnificationHints := do
+  recordExtGenAccess unificationHintExtension.ext.toEnvExtension
+  return unificationHintExtension.getState (genRecorded := true) (← getEnv)
+
 def tryUnificationHints (t s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.hint] "{t} =?= {s}"
   unless (← getConfig).unificationHints do
     return false
   if t.isMVar then
     return false
-  let hints := unificationHintExtension.getState (← getEnv)
+  let hints ← getRecordedHints
   let candidates ← withConfigWithKey config <| hints.discrTree.getMatch t
   for candidate in candidates do
     if (← tryCandidate candidate) then
@@ -118,7 +123,7 @@ where
 
   tryCandidate candidate : MetaM Bool :=
     withTraceNode `Meta.isDefEq.hint
-      (return m!"{exceptBoolEmoji ·} hint {candidate} at {t} =?= {s}") do
+      (fun _ => return m!"hint {candidate} at {t} =?= {s}") do
     checkpointDefEq do
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar

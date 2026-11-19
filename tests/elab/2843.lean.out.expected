@@ -1,0 +1,2 @@
+2843.lean:5:0-5:7: warning: declaration uses `sorry`
+2843.lean:13:0-13:7: warning: declaration uses `sorry`

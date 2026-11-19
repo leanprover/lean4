@@ -1,0 +1,2 @@
+@Nat.rec : {motive : Nat → Sort u_1} → motive Nat.zero → ((n : Nat) → motive n → motive n.succ) → (t : Nat) → motive t
+Functor.map : (?m → ?m) → m ?m → m ?m

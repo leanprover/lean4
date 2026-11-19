@@ -7,7 +7,11 @@ Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth B
 module
 
 prelude
-public import Init.Data.BitVec.Bootstrap
+import Init.Ext
+public import Init.Data.BitVec.Basic
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BitVec.Bootstrap
 
 public section
 
@@ -49,11 +53,11 @@ instance instDecidableForallBitVecSucc (P : BitVec (n+1) → Prop) [DecidablePre
 
 instance instDecidableExistsBitVecZero (P : BitVec 0 → Prop) [Decidable (P 0#0)] :
     Decidable (∃ v, P v) :=
-  decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
+  decidable_of_iff (¬ ∀ v, ¬ P v) (by exact Classical.not_forall_not)
 
 instance instDecidableExistsBitVecSucc (P : BitVec (n+1) → Prop) [DecidablePred P]
     [Decidable (∀ (x : Bool) (v : BitVec n), ¬ P (v.cons x))] : Decidable (∃ v, P v) :=
-  decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
+  decidable_of_iff (¬ ∀ v, ¬ P v) (by exact Classical.not_forall_not)
 
 /--
 For small numerals this isn't necessary (as typeclass search can use the above two instances),

@@ -1,0 +1,12 @@
+Input: "\"foo"
+Failure: unterminated string literal; expected '(', '+', '-' or token
+ --> 1:0-1:1
+  |
+1 | "foo
+  | ^
+  = consumed input prefix: 0 bytes
+Final stack:
+  (Lean.Doc.Parser.ArgVal.str <missing>)
+Remaining:
+"\"foo"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

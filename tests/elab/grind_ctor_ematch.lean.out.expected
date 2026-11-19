@@ -1,0 +1,8 @@
+Try this:
+  [apply] [grind .] for pattern: [Even `[0]]
+Try these:
+  [apply] [grind .] for pattern: [Even (#1 + 2)]
+  [apply] [grind →] for pattern: [Even #1]
+Try these:
+  [apply] [grind =] for pattern: [f (f #0)]
+  [apply] [grind =_] for pattern: [f #0]

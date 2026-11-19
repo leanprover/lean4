@@ -1,0 +1,13 @@
+name = "test"
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"
+globs = "Test.+"
+
+[[lean_lib]]
+name = "ErrorTest"
+
+[[require]]
+name = "dep"
+path = "dep"

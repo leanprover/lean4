@@ -1,0 +1,2 @@
+levelNGen.lean:6:4-6:9: warning: declaration uses `sorry`
+levelNGen.lean:11:29-11:34: warning: declaration uses `sorry`

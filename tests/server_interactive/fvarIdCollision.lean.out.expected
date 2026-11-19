@@ -1,0 +1,10 @@
+{"textDocument": {"uri": "file:///fvarIdCollision.lean"},
+ "position": {"line": 12, "character": 9}}
+[{"targetUri": "file:///fvarIdCollision.lean",
+  "targetSelectionRange":
+  {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 9}},
+  "targetRange":
+  {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 9}},
+  "originSelectionRange":
+  {"start": {"line": 12, "character": 7},
+   "end": {"line": 12, "character": 12}}}]

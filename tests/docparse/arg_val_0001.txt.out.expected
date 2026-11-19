@@ -1,0 +1,8 @@
+Input: "1"
+Success! Final stack:
+  (Lean.Doc.Parser.Arg.anon
+   (Lean.Doc.Parser.ArgVal.num (num "1")))
+All input consumed.
+Round-trip OK
+Decoded views:
+  anon (val := num (lit := 1) (value := 1))

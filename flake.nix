@@ -18,59 +18,101 @@
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old-aarch = import inputs.nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
 
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; };
+      llvmPackages = pkgs.llvmPackages_19;
+
+      # Also provides the headers for release builds, which link `LIBUV` below built from the same
+      # source. Sync version with src/CMakeLists.txt and with `LIBUV_SRC_VERSION` in
+      # .github/workflows/build-template.yml, where it must also be at least the checked minimum.
+      libuvPinned = pkgs.libuv.overrideAttrs {
+        version = "1.53.0";
+        src = pkgs.fetchFromGitHub {
+          owner = "libuv";
+          repo = "libuv";
+          rev = "v1.53.0";
+          hash = "sha256-AC1LS6PfieP8IjGhoIwm0WcLNIsUgULyP7V4HuvSqbg=";
+        };
+        doCheck = false;
+      };
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
-          stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
+          stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache pkg-config
-            lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
+            cmake gmp libuvPinned ccache pkg-config openssl openssl.dev
+            llvmPackages.bintools  # wrapped lld
+            llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI
+            samply  # for `lake samply` end-to-end test
           ];
           # https://github.com/NixOS/nixpkgs/issues/60919
           hardeningDisable = [ "all" ];
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
-        } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-          GMP = (pkgsDist.gmp.override { withStatic = true; }).overrideAttrs (attrs:
-            pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
-              # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
-              hardeningDisable = [ "stackprotector" ];
-            });
+        } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux (let
+          # Build OpenSSL statically using pkgsDist's old-glibc stdenv,
+          # so the resulting static libs don't require newer glibc symbols.
+          # Sync version with `OPENSSL_SRC_VERSION` and major version with `openssl@4` in
+          # .github/workflows/build-template.yml, and major version with script/prepare-llvm-macos.sh.
+          opensslForDist = pkgsDist.stdenv.mkDerivation {
+            name = "openssl-static-4.1.0";
+            src = pkgs.fetchFromGitHub {
+              owner = "openssl";
+              repo = "openssl";
+              rev = "openssl-4.1.0";
+              hash = "sha256-adqRWTdNKPwBnwMnIeFThSoiwc3sZpBX/3AWNpWUeGw=";
+            };
+            nativeBuildInputs = [ pkgsDist.perl ];
+            configurePhase = ''
+              patchShebangs .
+              ./config --prefix=$out no-shared no-tests
+            '';
+            buildPhase = "make -j$NIX_BUILD_CORES";
+            installPhase = "make install_sw";
+          };
+          # nixpkgs-older ships GMP 6.1.2, but Lean requires 6.3.0: earlier versions
+          # contain bugs that can make Lean produce unsound results. Reuse pkgsDist's
+          # own packaging (fat build on x86, PIC, static), built from the same source
+          # as `pkgs.gmp` so releases and development use one GMP version.
+          gmpForDist = (pkgsDist.gmp.override { cxx = false; withStatic = true; }).overrideAttrs (attrs: {
+            name = "gmp-${pkgs.gmp.version}";
+            inherit (pkgs.gmp) src;
+            configureFlags = attrs.configureFlags ++ [
+              "--disable-shared"
+              # nixpkgs 18.03 pins the build triple only on ARM, but GMP's config.guess
+              # runtime-probes the CPU via /proc/cpuinfo on x86 too, which is broken on
+              # the multicore CI runners.
+              "--build=${pkgsDist.stdenv.buildPlatform.config}"
+            ];
+            doCheck = false;
+          } // pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
+            # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
+            hardeningDisable = [ "stackprotector" ];
+          });
+        in {
+          GMP = gmpForDist;
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];
-            # Sync version with CMakeLists.txt
-            version = "1.48.0";
-            src = pkgs.fetchFromGitHub {
-              owner = "libuv";
-              repo = "libuv";
-              rev = "v1.48.0";
-              sha256 = "100nj16fg8922qg4m2hdjh62zv4p32wyrllsvqr659hdhjc03bsk";
-            };
+            name = "libuv-${libuvPinned.version}";
+            inherit (libuvPinned) version src;
             doCheck = false;
           });
+          OPENSSL = opensslForDist;
+          OPENSSL_DEV = opensslForDist;
           GLIBC = pkgsDist.glibc;
           GLIBC_DEV = pkgsDist.glibc.dev;
           GCC_LIB = pkgsDist.gcc.cc.lib;
           ZLIB = pkgsDist.zlib;
           # for CI coredumps
           GDB = pkgsDist.gdb;
-        });
+        }));
     in {
-      packages.${system} = {
-        # to be removed when Nix CI is not needed anymore
-        inherit (lean-packages) cacheRoots test update-stage0-commit ciShell;
-        deprecated = lean-packages;
-      };
-
       devShells.${system} = {
         # The default development shell for working on lean itself
         default = devShellWithDist pkgs;
         oldGlibc = devShellWithDist pkgsDist-old;
         oldGlibcAArch = devShellWithDist pkgsDist-old-aarch;
       };
-    }) ["x86_64-linux" "aarch64-linux"]);
+    }) ["x86_64-linux" "aarch64-linux" "aarch64-darwin"]);
 }

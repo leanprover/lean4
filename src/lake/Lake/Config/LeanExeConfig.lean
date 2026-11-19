@@ -3,15 +3,19 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Build.Facets
-import Lake.Config.LeanConfig
+public import Lake.Build.Facets
+public import Lake.Config.LeanConfig
+meta import all Lake.Config.Meta
+import Lake.Config.Meta
 
 namespace Lake
 open Lean System
 
 /-- A Lean executable's declarative configuration. -/
-configuration LeanExeConfig (name : Name) extends LeanConfig where
+public configuration LeanExeConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the executable's
   Lean source file. Defaults simply to said `srcDir`.
@@ -79,7 +83,7 @@ configuration LeanExeConfig (name : Name) extends LeanConfig where
 
 deriving Inhabited
 
-instance : EmptyCollection (LeanExeConfig n) := ⟨{}⟩
+namespace LeanExeConfig
 
 /-- The executable's name. -/
-abbrev LeanExeConfig.name (_ : LeanExeConfig n) := n
+public abbrev name (_ : LeanExeConfig n) := n

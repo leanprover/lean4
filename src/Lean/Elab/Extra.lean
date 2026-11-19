@@ -77,6 +77,34 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
+@[builtin_term_elab listTreeLit] def elabListLitAux : TermElab := fun stx expectedType? => do
+  let elemStxs := stx[1].getSepArgs
+  let (u, α, listType) ← getListInfo expectedType?
+  let nil := mkApp (Lean.mkConst ``List.nil [u]) α
+  let cons := mkApp (Lean.mkConst ``List.cons [u]) α
+  let elems ← elemStxs.mapM (elabTermEnsuringType · α)
+  return mkTree cons listType elems 0 elems.size nil
+where
+  getListInfo (expectedType? : Option Expr) : TermElabM (Level × Expr × Expr) := do
+    let mut u ← mkFreshLevelMVar
+    let mut α ← mkFreshExprMVar (mkSort (mkLevelSucc u))
+    let mut listType := mkApp (Lean.mkConst ``List [u]) α
+    if let some expectedType := expectedType? then
+      discard <| isDefEq expectedType (mkApp (Lean.mkConst ``List [u]) α)
+      u ← instantiateLevelMVars u
+      α ← instantiateMVars α
+      listType ← instantiateMVars listType
+    return (u, α, listType)
+
+  mkTree (cons listType : Expr) (elems : Array Expr) (lo hi : Nat) (tail : Expr) : Expr :=
+    if h : hi - lo < 8 then
+      elems.foldr (mkApp2 cons) tail (start := hi) (stop := lo)
+    else
+      let mid := lo + (hi - lo) / 2
+      mkLet `x listType (mkTree cons listType elems mid hi tail)
+        (mkTree cons listType elems lo mid (.bvar 0))
+  termination_by hi - lo
+
 namespace Op
 /-!
 
@@ -205,11 +233,10 @@ where
         go e
     | _ =>
       withRef s do
-        match (← liftMacroM <| expandMacroImpl? (← getEnv) s) with
-        | some (macroName, s?) =>
-          let s' ← liftMacroM <| liftExcept s?
+        match (← expandMacroReportingDeprecated? s) with
+        | some (macroName, s') =>
           withPushMacroExpansionStack s s' do
-            return .macroExpansion macroName s s' (← go s')
+            return .macroExpansion macroName s s' (← withDeprecationContextForSyntax s <| go s')
         | none => processLeaf s
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
@@ -546,7 +573,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let mut maxType := r.max?.get!
       /- If `noProp == true` and `maxType` is `Prop`, then set `maxType := Bool`. `See toBoolIfNecessary` -/
       if noProp then
-        if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
+        if (← withNewMCtxDepth <| isDefEq maxType (mkSort Level.zero)) then
           maxType := Lean.mkConst ``Bool
       let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
@@ -557,7 +584,7 @@ where
   toBoolIfNecessary (e : Expr) : TermElabM Expr := do
     if noProp then
       -- We use `withNewMCtxDepth` to make sure metavariables are not assigned
-      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort levelZero)) then
+      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort Level.zero)) then
         return (← ensureHasType (Lean.mkConst ``Bool) e)
     return e
 
@@ -573,11 +600,16 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
   | some expectedType =>
     try
       mkDefault expectedType
-    catch ex => try
+    catch _ => try
       mkOfNonempty expectedType
     catch _ =>
       if stx[1].isNone then
-        throw ex
+        throwError "\
+          failed to synthesize '{.ofConstName ``Inhabited}' or '{.ofConstName ``Nonempty}' instance for\
+          {indentExpr expectedType}\n\
+          \n\
+          If this type is defined using the 'structure' or 'inductive' command, \
+          you can try adding a 'deriving Nonempty' clause to it."
       else
         -- It is in the context of an `unsafe` constant. We can use sorry instead.
         -- Another option is to make a recursive application since it is unsafe.

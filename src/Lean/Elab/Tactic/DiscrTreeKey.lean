@@ -6,7 +6,6 @@ Authors: Tomas Skrivan, Matthew Robert Ballard
 module
 
 prelude
-public import Init.Tactics
 public import Lean.Elab.Command
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 
@@ -41,8 +40,9 @@ private def getType (t : TSyntax `term) : TermElabM Expr := do
     if let some ldecl := (← getLCtx).findFromUserName? id.getId then
       return ldecl.type
     else
-      let info ← getConstInfo (← realizeGlobalConstNoOverloadWithInfo id)
-      return info.type
+      let declName ← realizeGlobalConstNoOverloadWithInfo id
+      Linter.checkDeprecatedAt id declName
+      return (← getConstVal declName).type
   else
     Term.elabTerm t none
 

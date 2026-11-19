@@ -7,7 +7,8 @@ module
 
 prelude
 public import Std.Data.HashMap.Basic
-public import Std.Data.HashMap.Lemmas
 public import Std.Data.HashMap.AdditionalOperations
-
-@[expose] public section
+public import Std.Data.HashMap.Iterator
+public import Std.Data.HashMap.Lemmas
+public import Std.Data.HashMap.IteratorLemmas
+public import Std.Data.HashMap.DecidableEquiv

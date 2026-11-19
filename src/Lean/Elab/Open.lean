@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Log
 public import Lean.Elab.Util
 public import Lean.Parser.Command
 meta import Lean.Parser.Command
+public import Lean.Linter.AmbiguousOpen
+public import Lean.Linter.Deprecated
+import Init.Omega
 
 public section
 
@@ -34,7 +36,7 @@ instance : MonadResolveName (M (m := m)) where
   getCurrNamespace   := return (← get).currNamespace
   getOpenDecls       := return (← get).openDecls
 
-def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
+def resolveId [MonadOptions m] [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
   let declName := ns ++ idStx.getId
   if (← getEnv).contains declName then
     return declName
@@ -44,7 +46,13 @@ def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
 private def addOpenDecl (decl : OpenDecl) : M (m:=m) Unit :=
   modify fun s => { s with openDecls := decl :: s.openDecls }
 
-private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : M (m:=m) Name := do
+/--
+Uniquely resolves the identifier `idStx` in the provided namespaces `nss`.
+
+If the identifier does not indicate a name in exactly one of the namespaces, an exception is thrown.
+-/
+def resolveNameUsingNamespacesCore [MonadOptions m] [MonadResolveName m]
+    (nss : List Name) (idStx : Syntax) : m Name := do
   let mut exs := #[]
   let mut result := #[]
   for ns in nss do
@@ -62,29 +70,43 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
   if h : result.size = 1 then
     return result[0]
   else
-    withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
+    withRef idStx do throwError "ambiguous identifier `{idStx.getId}`, possible interpretations: {result.map mkConst}"
 
-def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+/--
+Elaborates `stx`, returning the resulting open declarations. `reportDeprecated` is called on each
+identifier that is resolved relative to an opened namespace and on the declaration it refers to,
+see `checkDeprecatedOpenedName`.
+-/
+def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m]
+    (stx : TSyntax ``Parser.Command.openDecl)
+    (reportDeprecated : Syntax → Name → m Unit := fun _ _ => pure ()) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
+        let resolved ← resolveNamespace ns
+        Linter.checkAmbiguousOpen ns resolved
+        for ns in resolved do
           addOpenDecl (OpenDecl.simple ns [])
           activateScoped ns
     | `(Parser.Command.openDecl| scoped $nss*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
+        let resolved ← resolveNamespace ns
+        Linter.checkAmbiguousOpen ns resolved
+        for ns in resolved do
           activateScoped ns
     | `(Parser.Command.openDecl| $ns ($ids*)) =>
       let nss ← resolveNamespace ns
+      Linter.checkAmbiguousOpen ns nss
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
+        reportDeprecated idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
-    | `(Parser.Command.openDecl| $ns hiding $ids*) =>
-      let ns ← resolveUniqueNamespace ns
+    | `(Parser.Command.openDecl| $nsStx hiding $ids*) =>
+      let ns ← resolveUniqueNamespace nsStx
+      Linter.checkAmbiguousOpen nsStx [ns]
       activateScoped ns
       for id in ids do
         let declName ← resolveId ns id
@@ -92,23 +114,39 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
           addConstInfo id declName
       let ids := ids.map (·.getId) |>.toList
       addOpenDecl (OpenDecl.simple ns ids)
-    | `(Parser.Command.openDecl| $ns renaming $[$froms -> $tos],*) =>
-      let ns ← resolveUniqueNamespace ns
+    | `(Parser.Command.openDecl| $nsStx renaming $[$froms -> $tos],*) =>
+      let ns ← resolveUniqueNamespace nsStx
+      Linter.checkAmbiguousOpen nsStx [ns]
       for («from», to) in froms.zip tos do
         let declName ← resolveId ns «from»
         if (← getInfoState).enabled then
           addConstInfo «from» declName
           addConstInfo to declName
+        reportDeprecated «from» declName
         addOpenDecl (OpenDecl.explicit to.getId declName)
     | _ => throwUnsupportedSyntax
     return (← get).openDecls
 
-def resolveNameUsingNamespaces [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
+/--
+Reports `declName` if it is deprecated, where `idStx` refers to `declName` relative to an opened
+namespace. If the replacement is in that namespace, offers to replace `idStx` by the replacement
+relative to it.
+-/
+def checkDeprecatedOpenedName (idStx : Syntax) (declName : Name) : MetaM Unit := do
+  let numParts := idStx.getId.eraseMacroScopes.getNumParts
+  let ns := (List.range numParts).foldl (fun n _ => n.getPrefix) declName
+  Linter.checkDeprecatedAt idStx declName <| .custom fun newName => do
+    if ns.isPrefixOf newName && newName != ns then
+      Linter.mkReplacementHint idStx (newName.replacePrefix ns .anonymous).toString
+    else
+      return .nil
+
+def resolveNameUsingNamespaces [MonadOptions m] [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
-    resolveNameUsingNamespacesCore nss idStx
+    resolveNameUsingNamespacesCore (m := M) nss idStx
 
 end OpenDecl
 
-export OpenDecl (elabOpenDecl resolveNameUsingNamespaces)
+export OpenDecl (elabOpenDecl resolveNameUsingNamespaces checkDeprecatedOpenedName)
 
 end Lean.Elab

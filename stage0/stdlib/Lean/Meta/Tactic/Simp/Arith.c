@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.Arith
-// Imports: Lean.Meta.Tactic.Simp.Arith.Nat Lean.Meta.Tactic.Simp.Arith.Int
+// Imports: public import Lean.Meta.Tactic.Simp.Arith.Nat public import Lean.Meta.Tactic.Simp.Arith.Int
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,81 +13,101 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_Meta_Simp_Arith_isDvdCnstr(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object*);
-uint8_t l_Lean_Meta_Simp_Arith_isLinearCnstr(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object*);
 uint8_t l_Lean_Meta_Simp_Arith_isLinearTerm(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object* x_1) {
+uint8_t l_Lean_Meta_Simp_Arith_isLinearCnstr(lean_object*);
+uint8_t l_Lean_Meta_Simp_Arith_isDvdCnstr(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object* v_parent_x3f_1_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_parent_x3f_1_) == 0)
 {
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
+uint8_t v___x_2_; 
+v___x_2_ = 0;
+return v___x_2_;
 }
 else
 {
-lean_object* x_3; uint8_t x_4; uint8_t x_7; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-lean_dec_ref(x_1);
-lean_inc(x_3);
-x_7 = l_Lean_Meta_Simp_Arith_isLinearTerm(x_3);
-if (x_7 == 0)
+lean_object* v_val_3_; uint8_t v___x_4_; 
+v_val_3_ = lean_ctor_get(v_parent_x3f_1_, 0);
+v___x_4_ = l_Lean_Meta_Simp_Arith_isLinearTerm(v_val_3_);
+if (v___x_4_ == 0)
 {
-uint8_t x_8; 
-lean_inc(x_3);
-x_8 = l_Lean_Meta_Simp_Arith_isLinearCnstr(x_3);
-x_4 = x_8;
-goto block_6;
+uint8_t v___x_5_; 
+v___x_5_ = l_Lean_Meta_Simp_Arith_isLinearCnstr(v_val_3_);
+if (v___x_5_ == 0)
+{
+uint8_t v___x_6_; 
+v___x_6_ = l_Lean_Meta_Simp_Arith_isDvdCnstr(v_val_3_);
+return v___x_6_;
 }
 else
 {
-x_4 = x_7;
-goto block_6;
+return v___x_5_;
 }
-block_6:
-{
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = l_Lean_Meta_Simp_Arith_isDvdCnstr(x_3);
-return x_5;
 }
 else
 {
-lean_dec(x_3);
-return x_4;
+return v___x_4_;
 }
 }
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object* v_parent_x3f_7_){
 _start:
 {
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_Simp_Arith_parentIsTarget(x_1);
-x_3 = lean_box(x_2);
-return x_3;
+uint8_t v_res_8_; lean_object* v_r_9_; 
+v_res_8_ = l_Lean_Meta_Simp_Arith_parentIsTarget(v_parent_x3f_7_);
+lean_dec(v_parent_x3f_7_);
+v_r_9_ = lean_box(v_res_8_);
+return v_r_9_;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Simp_Arith_Nat(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Simp_Arith_Int(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_Arith(uint8_t builtin, lean_object* w) {
+lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Nat(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Int(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Simp_Arith_Nat(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_Arith_Int(builtin, lean_io_mk_world());
+res = runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Simp_Arith(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Meta_Tactic_Simp_Arith_Nat(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Arith_Int(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_Arith(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Meta_Tactic_Simp_Arith_Nat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Simp_Arith_Int(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Simp_Arith(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Tactic_Simp_Arith(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Tactic_Simp_Arith(builtin);
 }
 #ifdef __cplusplus
 }

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.Id
 public import Init.Data.List.Impl
 
 public section
@@ -21,7 +20,7 @@ inductive AssocList (α : Type u) (β : Type v) where
   deriving Inhabited
 
 namespace AssocList
-variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 abbrev empty : AssocList α β :=
   nil
@@ -111,11 +110,11 @@ def all (p : α → β → Bool) : AssocList α β → Bool
       | ForInStep.yield d => loop d es
   loop init as
 
-instance : ForIn m (AssocList α β) (α × β) where
+instance [Monad m] : ForIn m (AssocList α β) (α × β) where
   forIn := AssocList.forIn
 
 end Lean.AssocList
 
-def List.toAssocList' {α : Type u} {β : Type v} : List (α × β) → Lean.AssocList α β
+def Lean.List.toAssocList' {α : Type u} {β : Type v} : List (α × β) → Lean.AssocList α β
   | []          => Lean.AssocList.nil
   | (a,b) :: es => Lean.AssocList.cons a b (toAssocList' es)

@@ -1,0 +1,3 @@
+moduleKeywords.lean:1:0-1:6: error: cannot use `public import` without `module`
+moduleKeywords.lean:1:7-1:11: error: cannot use `meta import` without `module`
+moduleKeywords.lean:2:7-2:10: error: cannot use `import all` without `module`

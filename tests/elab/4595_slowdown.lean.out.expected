@@ -1,0 +1,12 @@
+4595_slowdown.lean:106:14-106:25: warning: declaration uses `sorry`
+4595_slowdown.lean:138:9-138:17: warning: declaration uses `sorry`
+4595_slowdown.lean:156:8-156:16: warning: declaration uses `sorry`
+4595_slowdown.lean:183:8-183:14: warning: declaration uses `sorry`
+4595_slowdown.lean:185:8-185:14: warning: declaration uses `sorry`
+4595_slowdown.lean:188:0-188:8: warning: declaration uses `sorry`
+4595_slowdown.lean:196:8-196:19: warning: declaration uses `sorry`
+4595_slowdown.lean:199:8-199:15: warning: declaration uses `sorry`
+4595_slowdown.lean:209:4-209:13: warning: declaration uses `sorry`
+4595_slowdown.lean:231:8-231:14: warning: declaration uses `sorry`
+4595_slowdown.lean:233:8-233:16: warning: declaration uses `sorry`
+4595_slowdown.lean:235:4-235:11: warning: declaration uses `sorry`

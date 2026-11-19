@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 module
 
 prelude
-public import Lean.Parser.Attr
-public import Lean.Parser.Level
+public import Lean.Parser.Term.Basic
 public import Lean.Parser.Term.Doc
+import Lean.DocString.Parser
+public import Lean.PrettyPrinter.Formatter
+import Lean.DocString.Formatter
 
 public section
 
@@ -16,93 +18,209 @@ namespace Lean
 namespace Parser
 
 namespace Command
+
+/--
+Parses the opening delimiter `sym` of a documentation comment (`/-- ... -/` or `/-! ... -/`).
+
+Lean's `whitespace` parser considers comments to be whitespace, but the text of a documentation comment
+may begin with a comment marker, so the delimiter's trailing whitespace is only the substring that
+satisfies `Char.isWhitespace`.
+-/
+def docCommentOpen (sym : String) : Parser where
+  info := symbolInfo sym
+  fn c s :=
+    let startPos := s.pos
+    let s := symbolFn sym c s
+    if s.hasError then s
+    else
+      match s.stxStack.back with
+      | .atom (.original _ _ trailing _) _ =>
+        -- The token's trailing whitespace only needs to be cut when a comment follows the delimiter.
+        if trailing.all (·.isWhitespace) then s
+        else
+          -- The whitespace here is a prefix of what the token's own scan accepted, so a tab or an
+          -- isolated carriage return has already been reported.
+          let stopPos := startPos + sym
+          let s := takeWhileFn (·.isWhitespace) c (s.setPos stopPos)
+          let info :=
+            SourceInfo.original
+              (c.mkEmptySubstringAt startPos) startPos
+              (c.substring (startPos := stopPos) (stopPos := s.pos)) stopPos
+          s.popSyntax.pushSyntax (.atom info sym)
+      | _ => s
+
+@[combinator_formatter docCommentOpen, expose]
+def docCommentOpen.formatter (sym : String) : PrettyPrinter.Formatter :=
+  PrettyPrinter.Formatter.symbolNoAntiquot.formatter sym
+@[combinator_parenthesizer docCommentOpen, expose]
+def docCommentOpen.parenthesizer (sym : String) : PrettyPrinter.Parenthesizer :=
+  PrettyPrinter.Parenthesizer.symbolNoAntiquot.parenthesizer sym
+
+/--
+Parses the closing delimiter of a documentation comment at the current position, which
+`finishCommentBlock` has already matched, together with the whitespace after it.
+-/
+def docCommentCloseFn : ParserFn := fun c s =>
+  let closerPos := s.pos
+  let stopPos := closerPos + "-/"
+  let s := whitespace c (s.setPos stopPos)
+  let info :=
+    SourceInfo.original
+      (c.mkEmptySubstringAt closerPos) closerPos (c.substring stopPos s.pos) stopPos
+  s.pushSyntax (.atom info "-/")
+
+open Lean.Parser in
+def versoCommentBodyFn : ParserFn := fun c s =>
+  -- The opening `/--` or `/-!` is the token on the stack, and its trailing whitespace reaches the
+  -- content where this parser starts.
+  let openPos? := if s.stxStack.isEmpty then none else s.stxStack.back.getPos?
+  match openPos? with
+  | none => s.mkError "internal error: expected the documentation comment's opening delimiter"
+  | some openPos =>
+    let startPos := s.pos
+    let s := finishCommentBlock (pushMissingOnError := true) 1 c s
+    if !s.hasError then
+      let iniSz := s.stackSize
+      let commentEndPos := s.pos
+      let endPos := c.prev (c.prev commentEndPos)
+      let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
+      let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
+      let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap openPos startPos endPos
+      -- The docstring parses with no recovered errors. This makes it easy to know that the recovered
+      -- errors in the end are due to the docstring.
+      let iniErrs := s.recoveredErrors
+      let s := Doc.Parser.documentFn blockCtxt c' ({ s with recoveredErrors := #[] }.setPos startPos)
+      let s :=
+        if s.errorMsg.isSome || !s.recoveredErrors.isEmpty || !c'.atEnd s.pos then
+          -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
+          -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
+          -- consideration. So, at this stage, we push an indication of the failure, and then later,
+          -- when adding docstrings, the failing case is re-parsed and the errors are reported then.
+          -- We don't just parse them later because then the syntax of the docs doesn't end up as part
+          -- of the syntax of the actual program.
+          let s := s.restore iniSz endPos
+          let leading := c.mkEmptySubstringAt startPos
+          let trailing := c.mkEmptySubstringAt endPos
+          let s :=
+            s.pushSyntax <|
+            .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
+          s.mkNode Doc.parseFailureKind iniSz
+        else s
+      -- A docstring's own errors are reported when it is re-parsed, so we only restore the initial
+      -- errors.
+      let s := { s with recoveredErrors := iniErrs }
+      docCommentCloseFn c s
+    else s
+
+def versoCommentBody : Parser :=
+  -- The markup is a document, or a parse failure node when it does not parse.
+  let info := { Doc.Parser.documentInfo with
+    collectKinds := (Doc.Parser.documentInfo.collectKinds · |>.insert Doc.parseFailureKind)
+  }
+  node `Lean.Parser.Command.versoCommentBody { info, fn := versoCommentBodyFn }
+
+
+@[combinator_parenthesizer versoCommentBody]
+def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+
+open PrettyPrinter Formatter in
+open Syntax.MonadTraverser in
+@[combinator_formatter versoCommentBody]
+def versoCommentBody.formatter : PrettyPrinter.Formatter := do
+  checkKind `Lean.Parser.Command.versoCommentBody
+  visitArgs do
+    visitAtom `«-/»
+    let markup ← getCur
+    -- Markup that did not parse is kept as the text that was written.
+    let text :=
+      if markup.isOfKind Doc.parseFailureKind then markup[0].getAtomVal
+      else Doc.Parser.versoDocumentToString (⟨markup⟩ : Doc.VersoDocument)
+    let text := text.trimAsciiEnd.copy
+    if text.contains '\n' then
+      -- Content that spans lines puts each delimiter on a line of its own. The pretty printer
+      -- does the right thing with indentation and text nodes that contain newlines.
+      pushWhitespace "\n"
+      push text
+      pushWhitespace "\n"
+    else
+      -- Content on one line keeps the delimiters on its line, unless the comment does not fit.
+      PrettyPrinter.Formatter.group do
+        pushLine
+        push text
+        pushLine
+    goLeft
+
+open Lean.Parser in
+/--
+Parses the text of a documentation comment that is not read as Verso markup, then its closing
+delimiter. The text is one atom whose trailing whitespace is the spaces and newlines before the
+closing delimiter, and the closing delimiter is an atom of its own.
+-/
+def commentBodyFn : ParserFn := fun c s =>
+  let startPos := s.pos
+  let s := finishCommentBlock (pushMissingOnError := true) 1 c s
+  if s.hasError then s
+  else
+    let closerPos := c.prev (c.prev s.pos)
+    let textEnd := Id.run do
+      let mut pos := closerPos
+      while pos > startPos do
+        let prev := c.prev pos
+        let ch := c.get prev
+        if ch == ' ' || ch == '\n' then pos := prev else break
+      return pos
+    let info := SourceInfo.original (c.mkEmptySubstringAt startPos) startPos
+      (c.substring textEnd closerPos) textEnd
+    let s := s.pushSyntax (.atom info (c.extract startPos textEnd))
+    docCommentCloseFn c (s.setPos closerPos)
+
 def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
+  node `Lean.Parser.Command.commentBody { fn := commentBodyFn }
 
-@[combinator_parenthesizer commentBody, expose]
+@[combinator_parenthesizer commentBody]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinator_formatter commentBody, expose]
-def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
-/-- A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
-a regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
+open PrettyPrinter Formatter in
+open Syntax.MonadTraverser in
+@[combinator_formatter commentBody]
+def commentBody.formatter : PrettyPrinter.Formatter := do
+  checkKind `Lean.Parser.Command.commentBody
+  visitArgs do
+    visitAtom `«-/»
+    -- The text is printed with the whitespace that separates it from the closing delimiter, which
+    -- is its trailing whitespace in the source.
+    let stx ← getCur
+    let .atom info val := stx | throwError m!"not an atom: {stx}"
+    let ws := info.getTrailing?.map (·.toString) |>.getD " "
+    pushToken info (val ++ ws) false
+    goLeft
+    pushLine
 
-A `docComment` node contains a `/--` atom and then the remainder of the comment, `foo -/` in this
-example. Use `TSyntax.getDocString` to extract the body text from a doc string syntax node. -/
+/--
+A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like a
+regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
+
+At parse time, `docComment` checks the value of the `doc.verso` option. If it is true, the contents
+are parsed as Verso markup. If not, the contents are treated as plain text or Markdown. Use
+`plainDocComment` to always treat the contents as plain text.
+
+A plain text doc comment node contains a `/--` atom and then a node holding the comment's text as an
+atom and its closing `-/` atom. Use `TSyntax.getDocString` to extract the text from a doc string
+syntax node.  A Verso comment node contains the `/--` atom, the document's syntax tree, and a
+closing `-/` atom.
+-/
 -- @[builtin_doc] -- FIXME: suppress the hover
+@[run_builtin_parser_attribute_hooks]
 def docComment := leading_parser
-  ppDedent $ "/--" >> ppSpace >> commentBody >> ppLine
+  ppDedent $ docCommentOpen "/--" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+
+@[inherit_doc docComment, run_builtin_parser_attribute_hooks]
+def plainDocComment : Parser := Doc.Parser.withoutVersoSyntax docComment
+
 end Command
-
-builtin_initialize
-  registerBuiltinParserAttribute `builtin_tactic_parser ``Category.tactic .both
-  registerBuiltinDynamicParserAttribute `tactic_parser `tactic
-
-@[inline] def tacticParser (rbp : Nat := 0) : Parser :=
-  categoryParser `tactic rbp
-
-@[inline] def convParser (rbp : Nat := 0) : Parser :=
-  categoryParser `conv rbp
-
-namespace Tactic
-
-/-- `sepByIndentSemicolon(p)` parses a sequence of `p` optionally followed by `;`,
-similar to `manyIndent(p ";"?)`, except that if two occurrences of `p` occur on the same line,
-the `;` is mandatory. This is used by tactic parsing, so that
-```
-example := by
-  skip
-  skip
-```
-is legal, but `by skip skip` is not - it must be written as `by skip; skip`. -/
-@[run_builtin_parser_attribute_hooks, builtin_doc]
-def sepByIndentSemicolon (p : Parser) : Parser :=
-  sepByIndent p "; " (allowTrailingSep := true)
-
-/-- `sepBy1IndentSemicolon(p)` parses a (nonempty) sequence of `p` optionally followed by `;`,
-similar to `many1Indent(p ";"?)`, except that if two occurrences of `p` occur on the same line,
-the `;` is mandatory. This is used by tactic parsing, so that
-```
-example := by
-  skip
-  skip
-```
-is legal, but `by skip skip` is not - it must be written as `by skip; skip`. -/
-@[run_builtin_parser_attribute_hooks, builtin_doc]
-def sepBy1IndentSemicolon (p : Parser) : Parser :=
-  sepBy1Indent p "; " (allowTrailingSep := true)
-
-builtin_initialize
-  register_parser_alias sepByIndentSemicolon
-  register_parser_alias sepBy1IndentSemicolon
-
-@[builtin_doc] def tacticSeq1Indented : Parser := leading_parser
-  sepBy1IndentSemicolon tacticParser
-/-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
-It runs the tactics in sequence, and fails if the goal is not solved. -/
-@[builtin_doc] def tacticSeqBracketed : Parser := leading_parser
-  "{ " >> sepByIndentSemicolon tacticParser >> ppDedent ppLine >> "}"
-
-/-- A sequence of tactics in brackets, or a delimiter-free indented sequence of tactics.
-Delimiter-free indentation is determined by the *first* tactic of the sequence. -/
-@[builtin_doc] def tacticSeq := leading_parser
-  tacticSeqBracketed <|> tacticSeq1Indented
-
-/-- Same as [`tacticSeq`] but requires delimiter-free tactic sequence to have strict indentation.
-The strict indentation requirement only apply to *nested* `by`s, as top-level `by`s do not have a
-position set. -/
-@[builtin_doc] def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
-  tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented)
-
-/- Raw sequence for quotation and grouping -/
-def seq1 :=
-  node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser ";\n" (allowTrailingSep := true)
-
-end Tactic
 
 def darrow : Parser := " => "
 def semicolonOrLinebreak := ";" <|> checkLinebreakBefore >> pushNone
-
 
 namespace Term
 
@@ -112,12 +230,13 @@ namespace Term
 @[builtin_term_parser] def byTactic := leading_parser:leadPrec
   ppAllowUngrouped >> "by " >> Tactic.tacticSeqIndentGt
 
-/-
+/--
   This is the same as `byTactic`, but it uses a different syntax kind. This is
   used by `show` and `suffices` instead of `byTactic` because these syntaxes don't
   support arbitrary terms where `byTactic` is accepted. Mathport uses this to e.g.
   safely find-replace `by exact $e` by `$e` in any context without causing
-  incorrect syntax when the full expression is `show $T by exact $e`. -/
+  incorrect syntax when the full expression is `show $T by exact $e`.
+-/
 def byTactic' := leading_parser
   "by " >> Tactic.tacticSeqIndentGt
 
@@ -147,81 +266,8 @@ def optSemicolon (p : Parser) : Parser :=
 Every proposition is propositionally equal to either `True` or `False`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
-/--
-A *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.
-For example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.
 
-The way this works is that holes create fresh metavariables.
-The elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.
-This is often known as *unification*.
 
-Normally, all holes must be solved for. However, there are a few contexts where this is not necessary:
-* In `match` patterns, holes are catch-all patterns.
-* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.
-
-Related concept: implicit parameters are automatically filled in with holes during the elaboration process.
-
-See also `?m` syntax (synthetic holes).
--/
-@[builtin_term_parser] def hole := leading_parser
-  "_"
-/--
-A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should be synthesized using tactics.
-- `?_` creates a fresh metavariable with an auto-generated name.
-- `?m` either refers to a pre-existing metavariable named `m` or creates a fresh metavariable with that name.
-
-In particular, the synthetic hole syntax creates "synthetic opaque metavariables",
-the same kind of metavariable used to represent goals in the tactic state.
-
-Synthetic holes are similar to holes in that `_` also creates metavariables,
-but synthetic opaque metavariables have some different properties:
-- In tactics such as `refine`, only synthetic holes yield new goals.
-- During elaboration, unification will not solve for synthetic opaque metavariables, they are "opaque".
-  This is to prevent counterintuitive behavior such as disappearing goals.
-- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.
-
-## Delayed assigned metavariables
-
-This section gives an overview of some technical details of synthetic holes, which you should feel free to skip.
-Understanding delayed assignments is mainly useful for those who are working on tactics and other metaprogramming.
-It is included here until there is a suitable place for it in the reference manual.
-
-When a synthetic hole appears under a binding construct, such as for example `fun (x : α) (y : β) => ?s`,
-the system creates a *delayed assignment*. This consists of
-1. A metavariable `?m` of type `(x : α) → (y : β) → γ x y` whose local context is the local context outside the `fun`,
-  where `γ x y` is the type of `?s`. Recall that `x` and `y` appear in the local context of `?s`.
-2. A delayed assignment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
-
-Then, this function elaborates as `fun (x : α) (y : β) => ?m x y`, where one should understand `x` and `y` here
-as being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.
-
-Once `?s` is fully solved for, in the sense that after metavariable instantiation it is a metavariable-free term `e`,
-then we can make the assignment `?m := fun (x' : α) (y' : β) => e[x := x', y := y']`.
-(Implementation note: Lean only instantiates full applications `?m x' y'` of delayed assigned metavariables, to skip forming this function.)
-This delayed assignment mechanism is essential to the operation of basic tactics like `intro`,
-and a good mental model is that it is a way to "apply" the metavariable `?s` by substituting values in for some of its local variables.
-While it would be easier to immediately assign `?s := ?m x y`,
-delayed assignment preserves `?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,
-which is exactly what tactics like `intro` need.
-
-By default, delayed assigned metavariables pretty print with what they are delayed assigned to.
-The delayed assigned metavariables themselves can be pretty printed using `set_option pp.mvars.delayed true`.
-
-For more information, see the "Gruesome details" module docstrings in `Lean.MetavarContext`.
--/
-@[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> "_")
-/--
-The `⋯` term denotes a term that was omitted by the pretty printer.
-The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
-and these options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.
-
-It is only meant to be used for pretty printing.
-However, in case it is copied and pasted from the Infoview, `⋯` logs a warning and elaborates like `_`.
--/
-@[builtin_term_parser] def omission := leading_parser
-  "⋯"
-def binderIdent : Parser  := ident <|> hole
 /--
 The `sorry` term is a temporary placeholder for a missing proof or value.
 
@@ -277,6 +323,13 @@ Can also be used for creating simple functions when combined with `·`. Here are
 -/
 @[builtin_term_parser] def paren := leading_parser
   hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
+
+/-- Strip leading `paren` wrappers from `stx`. -/
+partial def dropParens : Syntax → Syntax := fun stx =>
+  match stx with
+  | `(($stx)) => dropParens stx
+  | _         => stx
+
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.
@@ -286,8 +339,6 @@ are turned into a new anonymous constructor application. For example,
 -/
 @[builtin_term_parser] def anonymousCtor := leading_parser
   "⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", " (allowTrailingSep := true))) >> "⟩"
-def optIdent : Parser :=
-  optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser
   "from " >> termParser
 def showRhs := fromTerm <|> byTactic'
@@ -298,8 +349,6 @@ an optional `x :`, then a term `ty`, then `from val` or `by tac`. -/
 @[builtin_term_parser] def «suffices» := leading_parser:leadPrec
   withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
-def typeSpec := leading_parser " : " >> termParser
-def optType : Parser := optional typeSpec
 /--
 `@x` disables automatic insertion of implicit parameters of the constant `x`.
 `@e` for any term `e` also disables the insertion of implicit lambdas at this position.
@@ -312,77 +361,6 @@ In contrast to regular patterns, `e` may be an arbitrary term of the appropriate
 -/
 @[builtin_term_parser] def inaccessible := leading_parser
   ".(" >> withoutPosition termParser >> ")"
-def binderType (requireType := false) : Parser :=
-  if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := leading_parser
-  atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
-def binderDefault := leading_parser
-  " := " >> termParser
-
-open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
-@[combinator_parenthesizer Lean.Parser.Term.binderDefault, expose] def binderDefault.parenthesizer : Parenthesizer := do
-  let prec := match (← getCur) with
-    -- must parenthesize to distinguish from `binderTactic`
-    | `(binderDefault| := by $_) => maxPrec
-    | _                          => 0
-  visitArgs do
-    term.parenthesizer prec
-    visitToken
-
-/--
-Explicit binder, like `(x y : A)` or `(x y)`.
-Default values can be specified using `(x : A := v)` syntax, and tactics using `(x : A := by tac)`.
--/
-@[builtin_doc] def explicitBinder (requireType := false) := leading_parser ppGroup <|
-  "(" >> withoutPosition (many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault)) >> ")"
-/--
-Implicit binder, like `{x y : A}` or `{x y}`.
-In regular applications, whenever all parameters before it have been specified,
-then a `_` placeholder is automatically inserted for this parameter.
-Implicit parameters should be able to be determined from the other arguments and the return type
-by unification.
-
-In `@` explicit mode, implicit binders behave like explicit binders.
--/
-@[builtin_doc] def implicitBinder (requireType := false) := leading_parser ppGroup <|
-  "{" >> withoutPosition (many1 binderIdent >> binderType requireType) >> "}"
-def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
-def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
-/--
-Strict-implicit binder, like `⦃x y : A⦄` or `⦃x y⦄`.
-In contrast to `{ ... }` implicit binders, strict-implicit binders do not automatically insert
-a `_` placeholder until at least one subsequent explicit parameter is specified.
-Do *not* use strict-implicit binders unless there is a subsequent explicit parameter.
-Assuming this rule is followed, for fully applied expressions implicit and strict-implicit binders have the same behavior.
-
-Example: If `h : ∀ ⦃x : A⦄, x ∈ s → p x` and `hs : y ∈ s`,
-then `h` by itself elaborates to itself without inserting `_` for the `x : A` parameter,
-and `h hs` has type `p y`.
-In contrast, if `h' : ∀ {x : A}, x ∈ s → p x`, then `h` by itself elaborates to have type `?m ∈ s → p ?m`
-with `?m` a fresh metavariable.
--/
-@[builtin_doc] def strictImplicitBinder (requireType := false) := leading_parser ppGroup <|
-  strictImplicitLeftBracket >> many1 binderIdent >>
-  binderType requireType >> strictImplicitRightBracket
-/--
-Instance-implicit binder, like `[C]` or `[inst : C]`.
-In regular applications without `@` explicit mode, it is automatically inserted
-and solved for by typeclass inference for the specified class `C`.
-In `@` explicit mode, if `_` is used for an instance-implicit parameter, then it is still solved for by typeclass inference;
-use `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.
--/
-@[builtin_doc] def instBinder := leading_parser ppGroup <|
-  "[" >> withoutPosition (optIdent >> termParser) >> "]"
-/-- A `bracketedBinder` matches any kind of binder group that uses some kind of brackets:
-* An explicit binder like `(x y : A)`
-* An implicit binder like `{x y : A}`
-* A strict implicit binder, `⦃y z : A⦄` or its ASCII alternative `{{y z : A}}`
-* An instance binder `[A]` or `[x : A]` (multiple variables are not allowed here)
--/
-@[builtin_doc] def bracketedBinder (requireType := false) :=
-  withAntiquot (mkAntiquot "bracketedBinder" decl_name% (isPseudoKind := true)) <|
-    explicitBinder requireType <|> strictImplicitBinder requireType <|>
-    implicitBinder requireType <|> instBinder
 
 /-
 It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
@@ -485,34 +463,6 @@ e.g. because it has no constructors.
 
 @[builtin_term_parser] def «nofun» := leading_parser "nofun"
 
-/-
-Syntax category for structure instance notation fields.
-Does not initialize `registerBuiltinDynamicParserAttribute` since this category is not meant to be user-extensible.
--/
-builtin_initialize
-  registerBuiltinParserAttribute `builtin_structInstFieldDecl_parser ``Category.structInstFieldDecl
-@[inline] def structInstFieldDeclParser (rbp : Nat := 0) : Parser :=
-  categoryParser `structInstFieldDecl rbp
-def optEllipsis := leading_parser
-  optional " .."
-def structInstArrayRef := leading_parser
-  "[" >> withoutPosition termParser >> "]"
-def structInstLVal := leading_parser
-  (ident <|> fieldIdx <|> structInstArrayRef) >>
-  many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
-def structInstFieldBinder :=
-  withAntiquot (mkAntiquot "structInstFieldBinder" decl_name% (isPseudoKind := true)) <|
-    binderIdent <|> bracketedBinder
-def optTypeForStructInst : Parser := optional (atomic (typeSpec >> notFollowedBy "}" "}"))
-/- `x` is an abbreviation for `x := x` -/
-def structInstField := ppGroup <| leading_parser
-  structInstLVal >> optional (many (checkColGt >> ppSpace >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
-/-
-Tags the structure instance field syntax with a `Lean.Parser.Term.structInstFields` syntax node.
-This node is used to enable structure instance field completion in the whitespace
-of a structure instance notation.
--/
-def structInstFields (p : Parser) : Parser := node `Lean.Parser.Term.structInstFields p
 /--
 Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
 inherited. If `e` is itself a variable called `x`, it can be elided:
@@ -535,6 +485,13 @@ def structInstFieldDef := leading_parser
 def structInstFieldEqns := leading_parser
   optional "private" >> matchAlts
 
+/--
+Synthesizes a default value for a structure, making use of `Inhabited` instances for
+missing fields, as well as `Inhabited` instances for parent structures.
+-/
+@[builtin_term_parser] def structInstDefault := leading_parser
+  "struct_inst_default%"
+
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
 def funStrictImplicitBinder :=
@@ -548,9 +505,9 @@ def funBinder : Parser :=
 -- NOTE: we disable anonymous antiquotations to ensure that `fun $b => ...`
 -- remains a `term` antiquotation
 def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
-  ppGroup (many1 (ppSpace >> funBinder) >> optType >> unicodeSymbol " ↦" " =>") >> ppSpace >> termParser
+  ppGroup (many1 (ppSpace >> funBinder) >> optType >> unicodeSymbol " ↦" " =>" (preserveForPP := true)) >> ppSpace >> termParser
 @[builtin_term_parser] def «fun» := leading_parser:maxPrec
-  ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
+  ppAllowUngrouped >> unicodeSymbol "λ" "fun" (preserveForPP := true) >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 def withAnonymousAntiquot := leading_parser
@@ -568,7 +525,7 @@ Being borrowed only affects the ABI and runtime behavior of the function when co
 
 When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
 
-Please see https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing for a complete description.
+Please see https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=ffi-borrowing for a complete description.
 -/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec
@@ -582,6 +539,31 @@ existent in the current context, or else fails.
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
 @[builtin_term_parser] def doubleQuotedName := leading_parser
   "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
+
+/--
+`+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
+-/
+def posConfigItem := leading_parser
+  " +" >> checkNoWsBefore >> ident
+/--
+`-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
+-/
+def negConfigItem := leading_parser
+  " -" >> checkNoWsBefore >> ident
+/--
+`(opt := val)` sets the `opt` configuration option to `val`.
+
+As a special case, `(config := ...)` sets the entire configuration.
+-/
+def valConfigItem := leading_parser
+  atomic (" (" >> ident >> " := ") >> withoutPosition termParser >> ")"
+/-- A configuration item. -/
+def configItem := leading_parser
+  posConfigItem <|> negConfigItem <|> valConfigItem
+/-- Configuration options for tactics, commands, and other elaborators. -/
+@[run_builtin_parser_attribute_hooks]
+def optConfig := leading_parser
+  many (checkColGt >> configItem)
 
 def letId := leading_parser (withAnonymousAntiquot := false)
   (ppSpace >> binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
@@ -955,6 +937,39 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
 /--
+`inferInstanceAs α` synthesizes an instance of type `α` and then adjusts it to conform to the
+expected type `β`, which must be inferable from context.
+
+Example:
+```
+def D := Nat
+instance : Inhabited D := inferInstanceAs (Inhabited Nat)
+```
+
+The adjustment will make sure that when the resulting instance will not "leak" the RHS `Nat` when
+reduced at transparency levels below `semireducible`, i.e. where `D` would not be unfolded either,
+preventing "defeq abuse".
+
+More specifically, given the "source type" (the argument) and "target type" (the expected type),
+`inferInstanceAs` synthesizes an instance for the source type and then unfolds and rewraps its
+components (fields, nested instances) as necessary to make them compatible with the target type. The
+individual steps are represented by the following options, which all default to enabled and can be
+disabled to help with porting:
+
+* `backward.inferInstanceAs.wrap`: master switch for instance adjustment in both `inferInstanceAs`
+  and the default deriving handler
+* `backward.inferInstanceAs.wrap.reuseSubInstances`: reuse existing instances for the target type
+  for sub-instance fields to avoid non-defeq instance diamonds
+* `backward.inferInstanceAs.wrap.instances`: wrap non-reducible instances in auxiliary definitions
+* `backward.inferInstanceAs.wrap.data`: wrap data fields in auxiliary definitions (proof fields are
+  always wrapped)
+
+If you just need to synthesize an instance without transporting between types, use `inferInstance`
+instead, potentially with a type annotation for the expected type.
+-/
+@[builtin_term_parser] def «inferInstanceAs» := leading_parser
+  "inferInstanceAs" >> (((" $ " <|> " <| ") >> termParser minPrec) <|> (ppSpace >> termParser argPrec))
+/--
 `value_of% x` elaborates to the value of `x`, which can be a local or global definition.
 -/
 @[builtin_term_parser] def valueOf := leading_parser
@@ -975,6 +990,10 @@ If `x` cannot be cleared (due to dependencies), it will keep `x` without failing
   "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 @[builtin_term_parser] def waitIfContainsMVar := leading_parser
   "wait_if_contains_mvar% " >> "?" >> ident >> "; " >> termParser
+/-- `wait_for_expected_type% e` elaborates `e` against its expected type, postponing while that type
+is an unassigned metavariable so an `outParam` determined by instance synthesis is resolved first. -/
+@[builtin_term_parser] def waitForExpectedType := leading_parser
+  "wait_for_expected_type% " >> termParser
 
 @[builtin_term_parser] def defaultOrOfNonempty := leading_parser
   "default_or_ofNonempty% " >> optional "unsafe"
@@ -985,6 +1004,14 @@ We use them to implement `macro_rules` and `elab_rules`
 -/
 @[builtin_term_parser] def noErrorIfUnused := leading_parser
   "no_error_if_unused% " >> termParser
+
+/--
+`contract_eposts% e` unfolds the `EPostSlot.set` applications and `⊥` in `e`, e.g. to an
+`estack⟨...⟩` expression. Used in the expansion of `throws` clauses of a `def` contract to yield
+simpler specs.
+-/
+@[builtin_term_parser] def contractEPosts := leading_parser
+  "contract_eposts% " >> termParser
 
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
@@ -1030,15 +1057,28 @@ the available context).
 -/
 def identProjKind := `Lean.Parser.Term.identProj
 
+@[builtin_term_parser] def dotIdent := leading_parser
+  "." >> checkNoWsBefore >> rawIdent
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
 
-/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
-@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
-  checkStackTop isIdent "expected preceding identifier" >>
+/-- Predicate for what `explicitUniv` can follow. It is only meant to be used on an identifier
+that becomes the head constant of an application. -/
+def isIdentOrDotIdentOrProj (stx : Syntax) : Bool :=
+  isIdent stx || stx.isOfKind ``dotIdent || stx.isOfKind ``proj
+
+/-- Syntax for `.{u, ...}` itself. Generally the `explicitUniv` trailing parser suffices.
+However, for `e |>.x.{u} a1 a2 a3` notation we need to be able to express explicit universes in the
+middle of the syntax. -/
+def explicitUnivSuffix : Parser :=
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
+/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
+@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
+  checkStackTop isIdentOrDotIdentOrProj "expected preceding identifier" >>
+  explicitUnivSuffix
 /-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
@@ -1051,7 +1091,7 @@ If present, the identifier `h` is bound to a proof of `x = e`. -/
 It is especially useful for avoiding parentheses with repeated applications.
 -/
 @[builtin_term_parser] def pipeProj   := trailing_parser:minPrec
-  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> many argument
+  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> optional explicitUnivSuffix >> many argument
 @[builtin_term_parser] def pipeCompletion := trailing_parser:minPrec
   " |>."
 
@@ -1068,7 +1108,7 @@ See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/
 @[builtin_term_parser] def subst := trailing_parser:75
-  " ▸ " >> sepBy1 (termParser 75) " ▸ "
+  " ▸ " >> termParser 75
 
 def bracketedBinderF := bracketedBinder  -- no default arg
 instance : Coe (TSyntax ``bracketedBinderF) (TSyntax ``bracketedBinder) where coe s := ⟨s⟩
@@ -1092,6 +1132,10 @@ interpolated string literal) to stderr. It should only be used for debugging.
 -/
 @[builtin_term_parser] def dbgTrace := leading_parser:leadPrec
   withPosition ("dbg_trace" >> (interpolatedStr termParser <|> termParser)) >>
+  optSemicolon termParser
+/-- Term-level form of the interactive debugger. See the `doIdbg` do element for full documentation. -/
+@[builtin_term_parser] def «idbg» := leading_parser:leadPrec
+  withPosition ("idbg " >> checkColGt >> termParser) >>
   optSemicolon termParser
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtin_term_parser] def assert := leading_parser:leadPrec
@@ -1120,9 +1164,6 @@ appropriate parameter for the underlying monad's `ST` effects, then passes it to
 @[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
   "`(" >> ident >> "| " >> incQuotDepth (parserOfStack 1) >> ")"
 
-@[builtin_term_parser] def dotIdent := leading_parser
-  "." >> checkNoWsBefore >> rawIdent
-
 /--
 Implementation of the `show_term` term elaborator.
 -/
@@ -1140,6 +1181,14 @@ def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
     >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
+/--
+  Useful for syntax quotations. Note that generic patterns such as `` `(matchExprAltExpr| | ... => $rhs) `` should also
+  work with other `rhsParser`s (of arity 1). -/
+def matchExprAltExpr := matchExprAlt termParser
+
+instance : Coe (TSyntax ``matchExprAltExpr) (TSyntax ``matchExprAlt) where
+  coe stx := ⟨stx.raw⟩
+
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 
@@ -1197,6 +1246,14 @@ string or a `MessageData` term.
 @[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
   "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
 
+/--
+Representation of an expression with metadata used during pretty printing for the `pp.mdata` option.
+-/
+@[run_builtin_parser_attribute_hooks]
+def mdataDiagnostic := leading_parser
+  group ("[" >> "mdata" >> many (group <| ppSpace >> ident >> optional (":" >> termParser)) >> "]") >>
+  ppSpace >> termParser
+
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser
@@ -1217,6 +1274,7 @@ builtin_initialize
   register_parser_alias attrKind
   register_parser_alias optSemicolon
   register_parser_alias structInstFields
+  register_parser_alias optConfig
 
 end Parser
 end Lean

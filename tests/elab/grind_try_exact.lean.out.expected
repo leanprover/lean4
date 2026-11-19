@@ -1,0 +1,2 @@
+grind_try_exact.lean:6:8-6:12: warning: declaration uses `sorry`
+grind_try_exact.lean:32:8-32:12: warning: declaration uses `sorry`

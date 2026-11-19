@@ -4,16 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.SimpLemmas
-public import Init.PropLemmas
-public import Init.Classical
-public import Init.ByCases
-public import Init.Data.Int.Linear
-public import Init.Data.Int.Pow
-public import Init.Grind.Ring.Field
-
+public import Init.Data.Int.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Linear  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Rat.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.BitVec.Bootstrap  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Subtype.Basic  -- shake: keep (used in `init_grind_norm`)
+public import Init.Omega
+import Init.ByCases
 public section
 
 namespace Lean.Grind
@@ -29,19 +30,8 @@ theorem eq_false_eq (p : Prop) : (p = False) = ¬p := by simp
 theorem not_eq_prop (p q : Prop) : (¬(p = q)) = (p = ¬q) := by
   by_cases p <;> by_cases q <;> simp [*]
 
--- Remark: we disabled the following normalization rule because we want this information when implementing splitting heuristics
--- Implication as a clause
-theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
-  by_cases p <;> by_cases q <;> simp [*]
-
--- Unless `+splitImp` is used, `grind` will not be able to do much with this kind of implication.
--- Thus, this normalization step is enabled by default.
-theorem forall_imp_eq_or {α} (p : α → Prop) (q : Prop) : ((∀ a, p a) → q) = ((∃ a, ¬ p a) ∨ q) := by
-  rw [imp_eq]; simp
-
 theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
-theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
 theorem imp_false_eq (p : Prop) : (p → False) = ¬p := by simp
 theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
 
@@ -87,6 +77,7 @@ theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.nat
 theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
 theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
 theorem natCast_pow (a b : Nat) : (NatCast.natCast (a ^ b : Nat) : Int) = (NatCast.natCast a : Int) ^ b := by simp
+theorem natCast_id (a : Nat) : NatCast.natCast a = a := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
@@ -143,17 +134,43 @@ theorem exists_and_left {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, b �
 theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p x ∧ b) = ((∃ x, p x) ∧ b) := by
   apply propext; apply _root_.exists_and_right
 
-theorem zero_sub (a : Nat) : 0 - a = 0 := by
-  simp
+/-! Helper theorems for the simproc `Sym.Simp.simpNatRel`. -/
+theorem Nat.add_succ_eq_zero_eq_false (a k : Nat) : (a + (k + 1) = 0) = False :=
+  eq_false (Nat.add_one_ne_zero (a + k))
+theorem Nat.zero_eq_add_succ_eq_false (a k : Nat) : (0 = a + (k + 1)) = False :=
+  eq_false fun h => Nat.add_one_ne_zero (a + k) h.symm
+theorem Nat.add_succ_le_zero_eq_false (a k : Nat) : (a + (k + 1) ≤ 0) = False :=
+  eq_false (Nat.not_add_one_le_zero (a + k))
+theorem Nat.zero_le_eq_true (a : Nat) : (0 ≤ a) = True :=
+  eq_true (Nat.zero_le a)
+
+attribute [local instance] Semiring.natCast Ring.intCast
+theorem smul_nat_eq_mul {α} [Semiring α] (n : Nat) (a : α) : n • a = NatCast.natCast n * a := by
+  rw [Semiring.nsmul_eq_natCast_mul]
+
+theorem smul_int_eq_mul {α} [Ring α] (i : Int) (a : α) : i • a = Int.cast i * a := by
+  rw [Ring.zsmul_eq_intCast_mul]
+
+theorem Int.subNatNat_eq (a b : Nat) : Int.subNatNat a b = NatCast.natCast a - NatCast.natCast b := by
+  apply Int.subNatNat_eq_coe
+
+theorem Int.sign_eq (x : Int) : x.sign = if x > 0 then 1 else if x < 0 then -1 else 0 := by
+  split; simp [*]
+  split; simp [*]
+  have : x = 0 := by omega
+  simp [*]
 
 -- Remark: for additional `grind` simprocs, check `Lean/Meta/Tactic/Grind`
 init_grind_norm
   /- Pre theorems -/
   |
   /- Post theorems -/
-  iff_eq heq_eq_eq
+  iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
+  -- Subtype: `grind` splits subtype binders eagerly (`[grind cases eager]`), so quantifiers over
+  -- a subtype are stated over the underlying type and the property.
+  Subtype.forall Subtype.exists
   -- ite
   ite_true_false ite_false_true
   -- Bool cond
@@ -175,26 +192,50 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
-  Nat.one_pow Nat.zero_sub
+  Nat.one_pow Nat.zero_sub Nat.sub_zero
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
   Int.negSucc_eq
-  natCast_div natCast_mod
+  natCast_div natCast_mod natCast_id
   natCast_add natCast_mul natCast_pow
   Int.one_pow
-  Int.pow_zero Int.pow_one
+  Int.pow_zero Int.pow_one Int.subNatNat_eq
   -- Int op folding
   Int.add_def Int.mul_def Int.ofNat_eq_coe
-  Int.Linear.sub_fold Int.Linear.neg_fold
+  Int.Internal.Linear.sub_fold Int.Internal.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
+  -- Int alternative div and mod. We just expand them
+  Int.fdiv_eq_ediv Int.tdiv_eq_ediv
+  Int.fmod_eq_emod Int.tmod_eq_emod Int.bmod_eq_emod
+  -- Int sign. We just expand it
+  Int.sign_eq
   -- Function composition
   Function.const_apply Function.comp_apply Function.const_comp
   Function.comp_const Function.true_comp Function.false_comp
+  -- SMul normalizer
+  smul_int_eq_mul smul_nat_eq_mul
+  -- NatCast & IntCast for algebraic structures
+  Semiring.natCast_add
+  Semiring.natCast_pow
+  Semiring.natCast_mul
+  Ring.intCast_add
+  Ring.intCast_mul
+  Ring.intCast_pow
+  Ring.intCast_sub
+  -- OfScientific
+  LawfulOfScientific.ofScientific_def
+  -- Rationals
+  Rat.zpow_neg
   -- Field
   Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  -- Semiring
+  Semiring.one_mul Semiring.mul_one
+  Semiring.zero_mul Semiring.mul_zero
+  -- Bitvectors
+  BitVec.ofNatLT_eq_ofNat BitVec.pow_eq
 
 end Lean.Grind

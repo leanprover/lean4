@@ -1,0 +1,16 @@
+[grind.ematch.pattern] Array.size_set: [@Array.size #4 (@Array.set _ #3 #2 #1 #0)]
+[grind.ematch.pattern] Array.getElem_set_ne: [@getElem (Array #7) `[Nat] _ _ _ (@Array.set _ #6 #5 #3 #4) #2 _]
+grind_ematch1.lean:48:8-48:14: warning: declaration uses `sorry`
+[grind.ematch.pattern] Rtrans: [R #4 #3, R #3 #2]
+grind_ematch1.lean:84:18-84:27: warning: declaration uses `sorry`
+grind_ematch1.lean:109:18-109:24: warning: declaration uses `sorry`
+grind_ematch1.lean:128:20-128:23: warning: declaration uses `sorry`
+grind_ematch1.lean:149:18-149:24: warning: declaration uses `sorry`
+grind_ematch1.lean:155:18-155:21: warning: declaration uses `sorry`
+grind_ematch1.lean:178:18-178:24: warning: declaration uses `sorry`
+grind_ematch1.lean:184:18-184:24: warning: declaration uses `sorry`
+grind_ematch1.lean:191:21-191:26: warning: declaration uses `sorry`
+[grind.ematch.instance] pqBad: P a b → Q a c
+grind_ematch1.lean:209:8-209:10: warning: declaration uses `sorry`
+grind_ematch1.lean:224:8-224:10: warning: declaration uses `sorry`
+?m = ?m : Prop

@@ -6,9 +6,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.PrettyPrinter.Delaborator
-public import Lean.PrettyPrinter.Parenthesizer
-public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Delaborator.Basic
+import Lean.PrettyPrinter.Delaborator
 public import Lean.Parser.Module
 public import Lean.ParserCompiler
 public import Lean.Util.NumObjs
@@ -32,7 +31,6 @@ def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
 
 register_builtin_option pp.exprSizes : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) prefix each embedded expression with its sizes in the format \
     (size disregarding sharing/size with sharing/size with max sharing)"
 }
@@ -67,11 +65,8 @@ def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
     let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
     formatCategory `term stx
 
-@[export lean_pp_expr]
-def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
-    { fileName := "<PrettyPrinter>", fileMap := default }
-    { env := env }
+def ppLevel (l : Level) : MetaM Format := do
+  ppCategory `level (← delabLevel l (prec := 0))
 
 def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx
 
@@ -113,7 +108,7 @@ builtin_initialize
     ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e
     ppConstNameWithInfos := fun ctx n => ctx.runMetaM <| withoutContext <| ppConstNameWithInfos n
     ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx
-    ppLevel := fun ctx l => return l.format (mvars := getPPMVarsLevels ctx.opts)
+    ppLevel := fun ctx l => ctx.runMetaM <| withoutContext <| ppLevel l
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 

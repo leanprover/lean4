@@ -6,12 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
-public import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
-public import Init.Data.Vector.Zip
-public import Init.Data.Vector.MapIdx
-public import Init.Data.Array.Range
+import all Init.Data.Array.Basic
+import all Init.Data.Vector.Basic
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.ByCases
+import Init.Data.Array.Find
+import Init.Data.Array.Range
+import Init.Data.Vector.MapIdx
+import Init.Data.Vector.Zip
 
 public section
 
@@ -76,11 +79,15 @@ theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   ext <;> simp <;> omega
 
-@[grind _=_]
 theorem range'_append {s m n step : Nat} :
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
   rw [← toArray_inj]
   simp [Array.range'_append]
+
+grind_pattern range'_append => range' s m step ++ range' (s + step * m) n step
+
+grind_pattern range'_append => range' s (m + n) step where
+  s =/= _ + _ * _ -- This cuts off an infinite chain of instantiations.
 
 @[simp] theorem range'_append_1 {s m n : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)
@@ -138,9 +145,10 @@ theorem count_range_1' {a s n} :
 @[simp, grind =] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
   simp [Vector.range]
 
-@[grind _=_]
 theorem range_eq_range' {n : Nat} : range n = range' 0 n := by
   simp [range, range', Array.range_eq_range']
+
+grind_pattern range_eq_range' => range n, range' 0 n
 
 theorem range_succ_eq_map {n : Nat} :
     range (n + 1) =

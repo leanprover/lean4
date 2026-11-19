@@ -41,11 +41,11 @@ theorem WF.map [BEq α] [Hashable α] {m : Raw α β} {f : α → β → γ} (h 
 
 end Raw
 
-@[inline, inherit_doc DHashMap.filterMap] def filterMap [BEq α] [Hashable α] (f : α → β → Option γ)
+@[cbv_opaque, inline, inherit_doc DHashMap.filterMap] def filterMap [BEq α] [Hashable α] (f : α → β → Option γ)
     (m : HashMap α β) : HashMap α γ :=
   ⟨m.inner.filterMap f⟩
 
-@[inline, inherit_doc DHashMap.map] def map [BEq α] [Hashable α] (f : α → β → γ) (m : HashMap α β) :
+@[cbv_opaque, inline, inherit_doc DHashMap.map] def map [BEq α] [Hashable α] (f : α → β → γ) (m : HashMap α β) :
     HashMap α γ :=
   ⟨m.inner.map f⟩
 

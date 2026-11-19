@@ -6,6 +6,6 @@ vscode:
     - leanprover.lean4
 
 tasks:
-  - name: Release build
-    init: cmake --preset release
+  - name: Build
+    init: cmake --preset dev
     command: make -C build/release -j$(nproc || sysctl -n hw.logicalcpu)

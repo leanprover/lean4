@@ -6,12 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Option.Basic
-public import Init.Data.Option.List
-public import Init.Data.Option.Array
 public import Init.Data.Array.Attach
-public import Init.Data.List.Attach
-public import Init.BinderPredicates
+public import Init.Data.Option.Lemmas
+import Init.Data.Bool
+import Init.Data.Option.Array
+import Init.Data.Option.List
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -75,10 +75,7 @@ theorem attach_map_val (o : Option α) (f : α → β) :
     (o.attach.map fun (i : {i // o = some i}) => f i) = o.map f := by
   cases o <;> simp
 
-@[deprecated attach_map_val (since := "2025-02-17")]
-abbrev attach_map_coe := @attach_map_val
-
-@[simp, grind =]theorem attach_map_subtype_val (o : Option α) :
+@[simp] theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
   (attach_map_val _ _).trans (congrFun Option.map_id _)
 
@@ -86,10 +83,7 @@ theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H 
     ((o.attachWith p H).map fun (i : { i // p i}) => f i.val) = o.map f := by
   cases o <;> simp
 
-@[deprecated attachWith_map_val (since := "2025-02-17")]
-abbrev attachWith_map_coe := @attachWith_map_val
-
-@[simp, grind =] theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a, o = some a → p a) :
+@[simp] theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a, o = some a → p a) :
     (o.attachWith p H).map Subtype.val = o :=
   (attachWith_map_val _ _ _).trans (congrFun Option.map_id _)
 
@@ -97,7 +91,7 @@ theorem attach_eq_some : ∀ (o : Option α) (x : {x // o = some x}), o.attach =
   | none, ⟨x, h⟩ => by simp at h
   | some a, ⟨x, h⟩ => by simpa using h
 
-@[grind]
+@[grind ←]
 theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach :=
   attach_eq_some
 
@@ -174,23 +168,23 @@ theorem toArray_attachWith {p : α → Prop} {o : Option α} {h} :
     o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp [toList]
 
-@[grind =] theorem attach_map {o : Option α} (f : α → β) :
+@[grind =]
+theorem attach_map {o : Option α} (f : α → β) :
     (o.map f).attach = o.attach.map (fun ⟨x, h⟩ => ⟨f x, map_eq_some_iff.2 ⟨_, h, rfl⟩⟩) := by
   cases o <;> simp
 
-@[grind =] theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), o.map f = some b → P b} :
+@[grind =]
+theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), o.map f = some b → P b} :
     (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun _ h => H _ (map_eq_some_iff.2 ⟨_, h, rfl⟩))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
-@[grind =] theorem map_attach_eq_pmap {o : Option α} (f : { x // o = some x } → β) :
+@[grind =]
+theorem map_attach_eq_pmap {o : Option α} (f : { x // o = some x } → β) :
     o.attach.map f = o.pmap (fun a (h : o = some a) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp
 
-@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
-abbrev map_attach := @map_attach_eq_pmap
-
-@[simp, grind =] theorem map_attachWith {l : Option α} {P : α → Prop} {H : ∀ (a : α), l = some a → P a}
+@[simp] theorem map_attachWith {l : Option α} {P : α → Prop} {H : ∀ (a : α), l = some a → P a}
     (f : { x // P x } → β) :
     (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
   cases l <;> simp_all
@@ -206,12 +200,12 @@ theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, o
     o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
   cases o <;> simp_all
 
-@[grind =] theorem attach_bind {o : Option α} {f : α → Option β} :
+theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
       o.attach.bind fun ⟨x, h⟩ => (f x).attach.map fun ⟨y, h'⟩ => ⟨y, bind_eq_some_iff.2 ⟨_, h, h'⟩⟩ := by
   cases o <;> simp
 
-@[grind =] theorem bind_attach {o : Option α} {f : {x // o = some x} → Option β} :
+theorem bind_attach {o : Option α} {f : {x // o = some x} → Option β} :
     o.attach.bind f = o.pbind fun a h => f ⟨a, h⟩ := by
   cases o <;> simp
 
@@ -219,7 +213,7 @@ theorem pbind_eq_bind_attach {o : Option α} {f : (a : α) → o = some a → Op
     o.pbind f = o.attach.bind fun ⟨x, h⟩ => f x h := by
   cases o <;> simp
 
-@[grind =] theorem attach_filter {o : Option α} {p : α → Bool} :
+theorem attach_filter {o : Option α} {p : α → Bool} :
     (o.filter p).attach =
       o.attach.bind fun ⟨x, h⟩ => if h' : p x then some ⟨x, by simp_all⟩ else none := by
   cases o with
@@ -235,12 +229,12 @@ theorem pbind_eq_bind_attach {o : Option α} {f : (a : α) → o = some a → Op
     · rintro ⟨h, rfl⟩
       simp [h]
 
-@[grind =] theorem filter_attachWith {P : α → Prop} {o : Option α} {h : ∀ x, o = some x → P x} {q : α → Bool} :
+theorem filter_attachWith {P : α → Prop} {o : Option α} {h : ∀ x, o = some x → P x} {q : α → Bool} :
     (o.attachWith P h).filter q =
       (o.filter q).attachWith P (fun _ h' => h _ (eq_some_of_filter_eq_some h')) := by
   cases o <;> simp [filter_some] <;> split <;> simp
 
-@[grind =] theorem filter_attach {o : Option α} {p : {x // o = some x} → Bool} :
+theorem filter_attach {o : Option α} {p : {x // o = some x} → Bool} :
     o.attach.filter p = o.pbind fun a h => if p ⟨a, h⟩ then some ⟨a, h⟩ else none := by
   cases o <;> simp [filter_some]
 
@@ -284,7 +278,7 @@ theorem toArray_pmap {p : α → Prop} {o : Option α} {f : (a : α) → p a →
     (o.pmap f h).toArray = o.attach.toArray.map (fun x => f x.1 (h _ x.2)) := by
   cases o <;> simp
 
-@[grind =] theorem attach_pfilter {o : Option α} {p : (a : α) → o = some a → Bool} :
+theorem attach_pfilter {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).attach =
       o.attach.pbind fun x h => if h' : p x (by simp_all) then
         some ⟨x.1, by simpa [pfilter_eq_some_iff] using ⟨_, h'⟩⟩ else none := by
@@ -328,7 +322,7 @@ If this function is encountered in a proof state, the right approach is usually 
 
 It is a synonym for `Option.map Subtype.val`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl
@@ -445,4 +439,144 @@ theorem all_unattach {p : α → Prop} {o : Option { x // p x }} {q : α → Boo
     o.unattach.all q = o.all (q ∘ Subtype.val) := by
   cases o <;> simp
 
+/-! ### Well-founded recursion preprocessing setup -/
+
+@[wf_preprocess] theorem map_wfParam {o : Option α} {f : α → β} :
+    (wfParam o).map f = o.attach.unattach.map f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem map_unattach {P : α → Prop} {o : Option (Subtype P)} {f : α → β} :
+    o.unattach.map f = o.map fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem bind_wfParam {o : Option α} {f : α → Option β} :
+    (wfParam o).bind f = o.attach.unattach.bind f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem bind_unattach {P : α → Prop} {o : Option (Subtype P)} {f : α → Option β} :
+    o.unattach.bind f = o.bind fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem filter_wfParam {o : Option α} {p : α → Bool} :
+    (wfParam o).filter p = o.attach.unattach.filter p := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filter_unattach {P : α → Prop} {o : Option (Subtype P)} {p : α → Bool} :
+    o.unattach.filter p = (o.filter fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x)).unattach := by
+  cases o with
+  | none => rfl
+  | some a => simp only [filter_some, unattach_some, binderNameHint, wfParam]; split <;> rfl
+
+@[wf_preprocess] theorem any_wfParam {o : Option α} {p : α → Bool} :
+    (wfParam o).any p = o.attach.unattach.any p := by
+  simp [wfParam]
+
+/-- Variant of `any_unattach` in the form needed by well-founded recursion preprocessing. -/
+@[wf_preprocess] theorem any_unattach' {P : α → Prop} {o : Option (Subtype P)} {p : α → Bool} :
+    o.unattach.any p = o.any fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem all_wfParam {o : Option α} {p : α → Bool} :
+    (wfParam o).all p = o.attach.unattach.all p := by
+  simp [wfParam]
+
+/-- Variant of `all_unattach` in the form needed by well-founded recursion preprocessing. -/
+@[wf_preprocess] theorem all_unattach' {P : α → Prop} {o : Option (Subtype P)} {p : α → Bool} :
+    o.unattach.all p = o.all fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem elim_wfParam {o : Option α} {b : β} {f : α → β} :
+    (wfParam o).elim b f = o.attach.unattach.elim b f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem elim_unattach {P : α → Prop} {o : Option (Subtype P)} {b : β} {f : α → β} :
+    o.unattach.elim b f = o.elim b fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem mapM_wfParam [Applicative m] {o : Option α} {f : α → m β} :
+    (wfParam o).mapM f = o.attach.unattach.mapM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem mapM_unattach [Applicative m] {P : α → Prop} {o : Option (Subtype P)}
+    {f : α → m β} :
+    o.unattach.mapM f = o.mapM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem bindM_wfParam [Pure m] {o : Option α} {f : α → m (Option β)} :
+    (wfParam o).bindM f = o.attach.unattach.bindM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem bindM_unattach [Pure m] {P : α → Prop} {o : Option (Subtype P)}
+    {f : α → m (Option β)} :
+    o.unattach.bindM f = o.bindM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem filterM_wfParam [Applicative m] {o : Option α} {p : α → m Bool} :
+    (wfParam o).filterM p = o.attach.unattach.filterM p := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filterM_unattach [Applicative m] [LawfulApplicative m] {P : α → Prop}
+    {o : Option (Subtype P)} {p : α → m Bool} :
+    o.unattach.filterM p = unattach <$> o.filterM fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x) := by
+  cases o with
+  | none => simp [Option.filterM]
+  | some a =>
+    simp only [Option.filterM, unattach_some, binderNameHint, wfParam, Functor.map_map]
+    congr 1; funext b; cases b <;> rfl
+
+@[wf_preprocess] theorem forM_wfParam [Pure m] {o : Option α} {f : α → m PUnit} :
+    (wfParam o).forM f = o.attach.unattach.forM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem forM_unattach [Pure m] {P : α → Prop} {o : Option (Subtype P)}
+    {f : α → m PUnit} :
+    o.unattach.forM f = o.forM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[always_inline]
+instance : MonadAttach Option where
+  CanReturn x a := x = some a
+  attach x := x.attach
+
+instance : LawfulMonadAttach Option where
+  map_attach {α} x := by simp [MonadAttach.attach]
+  canReturn_map_imp {α P x a} := by
+    cases x
+    · simp [MonadAttach.CanReturn]
+    · simp +contextual [MonadAttach.CanReturn, eq_comm, Subtype.property]
+
 end Option
+
+namespace OptionT
+
+instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
+    WeaklyLawfulMonadAttach (OptionT m) where
+  map_attach {α} x := by
+    apply OptionT.ext
+    conv => rhs; rw [← WeaklyLawfulMonadAttach.map_attach (x := x.run)]
+    simp only [Functor.map, OptionT.bind, OptionT.mk, MonadAttach.attach, map_eq_pure_bind, bind_assoc]
+    apply bind_congr; intro a
+    match a with
+    | ⟨some a, _⟩ => simp [OptionT.pure, OptionT.mk]
+    | ⟨none, _⟩ => simp
+
+instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+    LawfulMonadAttach (OptionT m) where
+  canReturn_map_imp {α P x a} h := by
+    simp only [MonadAttach.CanReturn, OptionT.run_map] at h
+    have := LawfulMonadAttach.canReturn_map_imp' h
+    simp only [Option.map_eq_some_iff] at this
+    obtain ⟨_, _, a, rfl, rfl⟩ := this
+    exact a.property
+
+end OptionT

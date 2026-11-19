@@ -11,6 +11,12 @@ public import Std.Sync.Channel
 public import Std.Sync.Mutex
 public import Std.Sync.RecursiveMutex
 public import Std.Sync.Barrier
+public import Std.Sync.Semaphore
 public import Std.Sync.SharedMutex
+public import Std.Sync.Notify
+public import Std.Sync.Broadcast
+public import Std.Sync.StreamMap
+public import Std.Sync.CancellationToken
+public import Std.Sync.CancellationContext
 
 @[expose] public section

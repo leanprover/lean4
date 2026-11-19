@@ -6,13 +6,23 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Namespace
+public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
+public import Lean.OriginalConstKind
+public import Lean.AutoDecl
+import Lean.Linter.Init
+import Lean.Compiler.MetaAttr
+import Lean.Util.RecDepth
+import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
 
 namespace Lean
+
+/-- Converts `maxRecDepth` for the kernel, mapping values that do not fit in `USize` to `0` (unlimited). -/
+private def kernelMaxRecDepth (opts : Options) : USize :=
+  let max := maxRecDepth.get opts
+  if max < USize.size then max.toUSize else 0
 
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
@@ -20,16 +30,26 @@ def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Decl
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
 
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
+  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
+    (!debug.skipKernelTC.get opts)
 
-@[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  Environment.addDeclAux env opts decl cancelTk?
+open Linter in
+/--
+Saves the state of `Lean.Option`s associated with environment linters into `envLinterSnapshotExt`
+-/
+def snapshotEnvLinterOptions (declName : Name) : CoreM Unit := do
+  let envLinterOpts ← envLinterOptionsRef.get
+  unless envLinterOpts.isEmpty do
+    let linterOptions ← getLinterOptions
+    unless ← isAutoDeclOrPrivate_Internal declName do
+      let mut snapshot : NameMap Bool := {}
+      for opt in envLinterOpts do
+        snapshot := snapshot.insert opt.name (getLinterValue opt linterOptions)
+      modifyEnv (envLinterSnapshotExt.insert · declName snapshot)
 
 private def isNamespaceName : Name → Bool
   | .str .anonymous _ => true
@@ -37,9 +57,11 @@ private def isNamespaceName : Name → Bool
   | _                 => false
 
 private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  -- namespaces are based on the un-encoded name (`isNamespaceName` is false for any private name)
+  let name := privateToUserName name
   match name with
     | .str _ s =>
-      if s.get 0 == '_' then
+      if s.front == '_' then
         -- Do not register namespaces that only contain internal declarations.
         env
       else
@@ -49,33 +71,50 @@ where go env
   | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
   | _        => env
 
-private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
-  mkMapDeclarationExtension
-
-/--
-Returns the kind of the declaration as originally declared instead of as exported. This information
-is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented. Returns `none`
-if the declaration was not found.
--/
-def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
-  privateConstKindsExt.find? env declName <|>
-    (env.setExporting false |>.findAsync? declName).map (·.kind)
-
-/--
-Checks whether the declaration was originally declared as a theorem; see also
-`Lean.getOriginalConstKind?`. Returns `false` if the declaration was not found.
--/
-def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
-  getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
-
 /-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
-declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+declarations with `sorryAx` generate the "declaration uses `sorry`" warning. -/
 register_builtin_option warn.sorry : Bool := {
   defValue := true
   descr    := "warn about uses of `sorry` in declarations added to the environment"
 }
 
-def addDecl (decl : Declaration) : CoreM Unit := do
+/--
+If the `warn.sorry` option is set to true and there are no errors in the log already,
+logs a warning if the declaration uses `sorry`.
+-/
+def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
+  if warn.sorry.get (← getOptions) then
+    if !(← MonadLog.hasErrors) && decl.hasSorry then
+      -- Find an actual sorry expression to use for `sorry`.
+      -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
+      let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
+        let s' ← addMessageContext s
+        modify fun arr => arr.push (s.isSyntheticSorry, s')
+      let (_, sorries) ← findSorry |>.run #[] |>.run'
+      -- Prefer reporting a synthetic sorry.
+      -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
+      -- that's where a user should direct their focus.
+      if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
+        logWarning <| .tagged `hasSorry m!"declaration uses `{s}`"
+      else
+        -- This case should not happen, but it ensures a warning will get logged no matter what.
+        logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
+
+builtin_initialize
+  registerTraceClass `addDecl
+
+/--
+Records that `declName` is about to be added as a declaration of kind `kind` that is exported as a
+different kind; see `getOriginalConstKind?`. `addDecl` does this by itself, so this function is
+needed only where `addDecl` is run on a different environment branch, in order to make the
+information available on the current branch early.
+-/
+def recordOriginalConstKind (env : Environment) (declName : Name) (kind : ConstantKind) :
+    Environment :=
+  privateConstKindsExt.insert env declName kind
+
+private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
+  withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
   -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
@@ -87,28 +126,50 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedInfo? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      if (← getEnv).header.isModule then
+      if !forceExpose && (← getEnv).header.isModule then
+        trace[addDecl] "exporting theorem {thm.name} as axiom"
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn | .mutualDefnDecl [defn] =>
-      if (← getEnv).header.isModule && !(← getEnv).isExporting then
-        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
+      if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
+        trace[addDecl] "exporting definition {defn.name} as axiom"
+        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety != .safe }
       pure (defn.name, .defnInfo defn, .defn)
+    | .opaqueDecl op =>
+      if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
+        trace[addDecl] "exporting opaque {op.name} as axiom"
+        exportedInfo? := some <| .axiomInfo { op with }
+      pure (op.name, .opaqueInfo op, .opaque)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-    | _ => return (← doAdd)
+    | _ =>
+      trace[addDecl] "no matching async adding rules, adding synchronously"
+      return (← doAdd)
+
+  -- Check early so we can avoid related env ext panics that would happen before the check in the
+  -- kernel.
+  if (← getEnv).containsOnBranch name then
+    throwKernelException <| .alreadyDeclared (← getEnv).toKernelEnv name
 
   if decl.getTopLevelNames.all isPrivateName then
-    exportedInfo? := none
+    if (← ResolveName.backward.privateInPublic.getM) then
+      trace[addDecl] "private decl under `privateInPublic`, exporting as is"
+      exportedInfo? := some info
+    else
+      trace[addDecl] "not exporting private declaration at all"
+      exportedInfo? := none
   else
     -- preserve original constant kind in extension if different from exported one
     if exportedInfo?.isSome then
-      modifyEnv (privateConstKindsExt.insert · name kind)
+      -- may already have been done by `recordOriginalConstKind`
+      if (privateConstKindsExt.find? (asyncMode := .local) (← getEnv) name).isNone then
+        modifyEnv (privateConstKindsExt.insert · name kind)
     else
+      trace[addDecl] "no matching exporting rules, exporting as is"
       exportedInfo? := some info
 
+  let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
-  let env ← getEnv
   let async ← env.addConstAsync (reportExts := false) name kind
     (exportedKind? := exportedInfo?.map (.ofConstantInfo))
   -- report preliminary constant info immediately
@@ -126,8 +187,10 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     let cancelTk ← IO.CancelToken.new
     let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
     let t ← BaseIO.mapTask checkAct env.checked
-    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+    -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+    -- users should not worry about and other callers can add a separate task with ranges
+    -- themselves, see `MutualDef`.
+    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
   else
     try
       doAddAndCommit
@@ -136,10 +199,8 @@ def addDecl (decl : Declaration) : CoreM Unit := do
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
-        if warn.sorry.get (← getOptions) then
-          if !(← MonadLog.hasErrors) && decl.hasSorry then
-            logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+        warnIfUsesSorry decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException
@@ -176,9 +237,22 @@ where
         return
       catch _ => pure ()
 
+/--
+Adds the given declaration to the environment's private scope, deriving a suitable presentation in
+the public scope if under the module system and if the declaration is not private. If `forceExpose`
+is true, exposes the declaration body, i.e. preserves the full representation in the public scope,
+independently of `Environment.isExporting` and even for theorems.
+-/
+def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
+  addDeclCore decl forceExpose
+  discard <| decl.getTopLevelNames.mapM snapshotEnvLinterOptions
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
+def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true)
+    (markMeta : Bool := false) : CoreM Unit := do
   addDecl decl
-  compileDecl decl
+  if markMeta then
+    for n in decl.getNames do
+      modifyEnv (Lean.markMeta · n)
+  compileDecl decl (logErrors := logCompileErrors)
 
 end Lean

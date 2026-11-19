@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Attributes
-public import Lean.Declaration
-public import Lean.MonadEnv
 public import Lean.Elab.InfoTree
-public import Lean.Compiler.LCNF.PhaseExt
 
 public section
 
@@ -56,13 +52,14 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
     -- IR is (currently) exported always, so access to private decls is fine here.
     withoutExporting do
       let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      Core.checkDeprecatedAt fnNameStx fnName
       let fnDecl ← getConstVal fnName
       unless decl.levelParams.length == fnDecl.levelParams.length do
-        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has {fnDecl.levelParams.length} universe level parameter(s), but `{declName}` has {decl.levelParams.length}"
+        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has {fnDecl.levelParams.length} universe level parameter(s), but `{.ofConstName declName}` has {decl.levelParams.length}"
       let declType := decl.type
       let fnType ← Core.instantiateTypeLevelParams fnDecl (decl.levelParams.map mkLevelParam)
       unless declType == fnType do
-        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has type{indentExpr fnType}\nbut `{declName}` has type{indentExpr declType}"
+        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has type{indentExpr fnType}\nbut `{.ofConstName declName}` has type{indentExpr declType}"
       if decl.name == fnDecl.name then
         throwError "Invalid `implemented_by` argument `{fnName}`: Definition cannot be implemented by itself"
       return fnName

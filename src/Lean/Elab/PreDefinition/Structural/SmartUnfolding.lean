@@ -8,14 +8,14 @@ module
 prelude
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural.Basic
-public import Lean.Meta.Match.MatcherApp.Basic
 
 public section
 
 namespace Lean.Elab.Structural
 open Meta
 
-partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recArgPos : Nat) : MetaM PreDefinition := do
+partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recFns : Array (Name × Nat)) :
+    MetaM PreDefinition := do
   return { preDef with
     declName  := mkSmartUnfoldingNameFor preDef.declName
     value     := (← visit preDef.value)
@@ -26,11 +26,12 @@ where
      Auxiliary method for annotating `match`-alternatives with `markSmartUnfoldingMatch` and `markSmartUnfoldingMatchAlt`.
 
      It uses the following approach:
-     - Whenever it finds a `match` application `e` s.t. `recArgHasLooseBVarsAt preDef.declName recArgPos e`,
+     - Whenever it finds a `match` application `e` s.t. `recArgHasLooseBVarsAt fnName recArgPos e`
+       for some function `fnName` of the mutual group with recursive argument at `recArgPos`,
        it marks the `match` with `markSmartUnfoldingMatch`, and each alternative that does not contain a nested marked `match`
        is marked with `markSmartUnfoldingMatchAlt`.
 
-     Recall that the condition `recArgHasLooseBVarsAt preDef.declName recArgPos e` is the one used at `mkBRecOn`.
+     Recall that this is the condition used at `mkBRecOn`.
   -/
   visit (e : Expr) : MetaM Expr := do
     match e with
@@ -47,7 +48,7 @@ where
           return mkAppN (← visit f) (← args.mapM visit)
       match (← matchMatcherApp? e) with
       | some matcherApp =>
-        if !recArgHasLooseBVarsAt preDef.declName recArgPos e then
+        if recFns.all fun (fnName, recArgPos) => !recArgHasLooseBVarsAt fnName recArgPos e then
           processApp e
         else
           let mut altsNew := #[]
@@ -64,12 +65,15 @@ where
       | _ => processApp e
     | _ => return e
 
-partial def addSmartUnfoldingDef (preDef : PreDefinition) (recArgPos : Nat) : TermElabM Unit := do
+partial def addSmartUnfoldingDef
+    (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (recFns : Array (Name × Nat)) :
+    TermElabM Unit := do
   if (← isProp preDef.type) then
     return ()
   else
     withEnableInfoTree false do
-      let preDefSUnfold ← addSmartUnfoldingDefAux preDef recArgPos
-      addNonRec preDefSUnfold (cleanupValue := true)
+      let preDefSUnfold ← addSmartUnfoldingDefAux preDef recFns
+      -- `structuralRecursion` has already abstracted the nested proofs in `preDef.value`
+      addNonRec docCtx preDefSUnfold (cleanupValue := true) (abstractProofs := false)
 
 end Lean.Elab.Structural

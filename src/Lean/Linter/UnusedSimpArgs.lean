@@ -29,17 +29,24 @@ private def warnUnused (stx : Syntax) (i : Nat) : CoreM Unit := do
     otherArgs := otherArgs.push simpArgs[j]
   let stx' := Tactic.setSimpParams stx otherArgs
   let suggestion : Meta.Hint.Suggestion := stx'
-  let suggestion := { suggestion with span? := stx }
-  let hint ← MessageData.hint "Omit it from the simp argument list." #[ suggestion ]
+  let suggestion := { suggestion with span? := stx, diffGranularity := .none }
+  let mut hint ← MessageData.hint "Omit it from the simp argument list." #[ suggestion ]
+  -- Add hint about `←`
+  let isInv := argStx.getKind == ``Lean.Parser.Tactic.simpLemma && !argStx[1].isNone
+  if isInv then
+    hint := hint ++ .note m!"Simp arguments with `←` have the additional effect of removing \
+      the other direction from the simp set, even if the simp argument itself is unused. \
+      If the hint above does not work, try replacing `←` with `-` to only get that effect \
+      and silence this warning."
   logLint Tactic.linter.unusedSimpArgs argStx (msg ++ hint)
 
 def unusedSimpArgs : Linter where
   run cmdStx := do
-    if !Tactic.linter.unusedSimpArgs.get (← getOptions) then return
+    if !getLinterValue Tactic.linter.unusedSimpArgs (← getLinterOptions) then return
     let some cmdStxRange := cmdStx.getRange?  | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let masksMap : IO.Ref (Std.HashMap String.Range (Syntax × Array Bool)) ← IO.mkRef {}
+    let masksMap : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Array Bool)) ← IO.mkRef {}
 
     for tree in infoTrees do
       tree.visitM' (postNode := fun ci info _ => do
@@ -58,7 +65,7 @@ def unusedSimpArgs : Linter where
             let maskAcc ←
               if let some (_, maskAcc) := (← masksMap.get)[range]? then
                 unless mask.size = maskAcc.size do
-                  throwErrorAt info.stx "Simp argument mask size mismatch}: {maskAcc.size} vs. {mask.size}"
+                  throwErrorAt info.stx "Simp argument mask size mismatch: {maskAcc.size} vs. {mask.size}"
                 pure <| Array.zipWith (· || ·) mask maskAcc
               else
                 pure mask

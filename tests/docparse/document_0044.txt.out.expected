@@ -1,0 +1,33 @@
+Input: "{foo}[{bar !}[x]]\n\nNext\n"
+Failure: unexpected '!'; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:11-1:12
+  |
+1 | {foo}[{bar !}[x]]
+  |            ^
+  = consumed input prefix: 11 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.role
+       "{"
+       `foo
+       []
+       "}"
+       ["["]
+       [(Lean.Doc.Parser.Inline.role
+         "{"
+         `bar
+         []
+         <missing>
+         "}"
+         ["["]
+         [(Lean.Doc.Parser.Inline.text
+           (Lean.Doc.Parser.versoText "x"))]
+         ["]"])]
+       ["]"])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Next"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

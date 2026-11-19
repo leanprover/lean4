@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.LazyDiscrTree
-public import Lean.Meta.Tactic.Assumption
 public import Lean.Meta.Tactic.Rewrite
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.SolveByElim
@@ -18,6 +17,7 @@ public section
 
 namespace Lean.Meta.Rewrites
 
+open Lean
 open Lean.Meta.LazyDiscrTree (InitEntry MatchResult)
 open Lean.Meta.SolveByElim
 
@@ -43,18 +43,21 @@ inductive RwDirection : Type where
   | forward : RwDirection
   | backward : RwDirection
 
-private def addImport (name : Name) (constInfo : ConstantInfo) :
+private def addImport (name : Name) (c : AsyncConstantInfo) :
     MetaM (Array (InitEntry (Name × RwDirection))) := do
-  if constInfo.isUnsafe then return #[]
+  if c.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
+  -- Don't report deprecated lemmas.
+  if Linter.isDeprecated (← getEnv) name then return #[]
   -- We now remove some injectivity lemmas which are not useful to rewrite by.
   match name with
   | .str _ n => if n = "injEq" ∨ n = "sizeOf_spec" ∨ n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
   | _ => pure ()
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[]
+  -- Only the signature is needed; this avoids blocking on async theorem bodies (lean4#13705).
   withNewMCtxDepth do withReducible do
-    forallTelescopeReducing constInfo.type fun _ type => do
+    forallTelescopeReducing c.toConstantVal.type fun _ type => do
       match type.getAppFnArgs with
       | (``Eq, #[_, lhs, rhs])
       | (``Iff, #[lhs, rhs]) => do
@@ -89,16 +92,12 @@ def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .sta
 def createModuleTreeRef : MetaM (LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection)) :=
   LazyDiscrTree.createModuleTreeRef addImport droppedKeys
 
-private def ExtState := IO.Ref (Option (LazyDiscrTree (Name × RwDirection)))
-
-private builtin_initialize ExtState.default : IO.Ref (Option (LazyDiscrTree (Name × RwDirection))) ← do
+/-- Process-global cache for the imported-declarations discrimination tree. This must *not* live in
+an environment extension: the snapshot used by `--incr-load` compacts the whole environment object
+(including non-persistent extension state), and a mutable `IO.Ref` baked into the read-only mapped
+region is unsound to read or write. A process-global ref is rebuilt per process instead. -/
+private builtin_initialize ext : IO.Ref (Option (LazyDiscrTree (Name × RwDirection))) ←
   IO.mkRef .none
-
-private instance : Inhabited ExtState where
-  default := ExtState.default
-
-private builtin_initialize ext : EnvExtension ExtState ←
-  registerEnvExtension (IO.mkRef .none)
 
 /--
 The maximum number of constants an individual task may perform.

@@ -8,12 +8,14 @@ module
 prelude
 public import Lean.Data.AssocList
 public import Lean.Data.Format
+public import Lean.Data.Html
 public import Lean.Data.Json
 public import Lean.Data.JsonRpc
 public import Lean.Data.KVMap
 public import Lean.Data.LBool
 public import Lean.Data.LOption
 public import Lean.Data.Lsp
+public import Lean.Data.Markdown
 public import Lean.Data.Name
 public import Lean.Data.NameMap
 public import Lean.Data.OpenDecl
@@ -25,10 +27,9 @@ public import Lean.Data.Position
 public import Lean.Data.PrefixTree
 public import Lean.Data.SMap
 public import Lean.Data.Trie
-public import Lean.Data.Xml
 public import Lean.Data.NameTrie
-public import Lean.Data.RBTree
-public import Lean.Data.RBMap
+public import Lean.Data.RBTree -- deprecated_module: ignore
+public import Lean.Data.RBMap -- deprecated_module: ignore
 public import Lean.Data.RArray
-
-public section
+public import Lean.Data.Iterators
+public import Lean.Data.UnionFind

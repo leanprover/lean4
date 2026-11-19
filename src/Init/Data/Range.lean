@@ -8,5 +8,3 @@ module
 prelude
 public import Init.Data.Range.Basic
 public import Init.Data.Range.Lemmas
-
-public section

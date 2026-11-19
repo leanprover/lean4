@@ -39,7 +39,6 @@ class reducibility_hints : public object_ref {
 public:
     static reducibility_hints mk_opaque() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Opaque))); }
     static reducibility_hints mk_abbreviation() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Abbreviation))); }
-    static reducibility_hints mk_regular(unsigned h);
     reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
     bool is_abbrev() const { return kind() == reducibility_hints_kind::Abbreviation; }
@@ -61,11 +60,10 @@ structure ConstantVal where
 */
 class constant_val : public object_ref {
 public:
-    constant_val(name const & n, names const & lparams, expr const & type);
     constant_val(constant_val const & other):object_ref(other) {}
-    constant_val(constant_val && other):object_ref(std::move(other)) {}
+    constant_val(constant_val && other) noexcept:object_ref(std::move(other)) {}
     constant_val & operator=(constant_val const & other) { object_ref::operator=(other); return *this; }
-    constant_val & operator=(constant_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    constant_val & operator=(constant_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
@@ -77,11 +75,10 @@ structure AxiomVal extends ConstantVal where
 */
 class axiom_val : public object_ref {
 public:
-    axiom_val(name const & n, names const & lparams, expr const & type, bool is_unsafe);
     axiom_val(axiom_val const & other):object_ref(other) {}
-    axiom_val(axiom_val && other):object_ref(std::move(other)) {}
+    axiom_val(axiom_val && other) noexcept:object_ref(std::move(other)) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
-    axiom_val & operator=(axiom_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    axiom_val & operator=(axiom_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -105,9 +102,9 @@ class definition_val : public object_ref {
 public:
     definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety, names const & all);
     definition_val(definition_val const & other):object_ref(other) {}
-    definition_val(definition_val && other):object_ref(std::move(other)) {}
+    definition_val(definition_val && other) noexcept:object_ref(std::move(other)) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
-    definition_val & operator=(definition_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    definition_val & operator=(definition_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -126,11 +123,10 @@ structure TheoremVal extends ConstantVal where
 */
 class theorem_val : public object_ref {
 public:
-    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all);
     theorem_val(theorem_val const & other):object_ref(other) {}
-    theorem_val(theorem_val && other):object_ref(std::move(other)) {}
+    theorem_val(theorem_val && other) noexcept:object_ref(std::move(other)) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
-    theorem_val & operator=(theorem_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    theorem_val & operator=(theorem_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -146,11 +142,10 @@ structure OpaqueVal extends ConstantVal where
 */
 class opaque_val : public object_ref {
 public:
-    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe, names const & all);
     opaque_val(opaque_val const & other):object_ref(other) {}
-    opaque_val(opaque_val && other):object_ref(std::move(other)) {}
+    opaque_val(opaque_val && other) noexcept:object_ref(std::move(other)) {}
     opaque_val & operator=(opaque_val const & other) { object_ref::operator=(other); return *this; }
-    opaque_val & operator=(opaque_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    opaque_val & operator=(opaque_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -179,9 +174,9 @@ class inductive_type : public object_ref {
 public:
     inductive_type(name const & id, expr const & type, constructors const & cnstrs);
     inductive_type(inductive_type const & other):object_ref(other) {}
-    inductive_type(inductive_type && other):object_ref(std::move(other)) {}
+    inductive_type(inductive_type && other) noexcept:object_ref(std::move(other)) {}
     inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
-    inductive_type & operator=(inductive_type && other) { object_ref::operator=(std::move(other)); return *this; }
+    inductive_type & operator=(inductive_type && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
     constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_get_ref(*this, 2)); }
@@ -203,9 +198,8 @@ class declaration : public object_ref {
     object * get_val_obj() const { return cnstr_get(raw(), 0); }
     object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
 public:
-    declaration();
     declaration(declaration const & other):object_ref(other) {}
-    declaration(declaration && other):object_ref(std::move(other)) {}
+    declaration(declaration && other) noexcept:object_ref(std::move(other)) {}
     /* low-level constructors */
     explicit declaration(object * o):object_ref(o) {}
     explicit declaration(b_obj_arg o, bool b):object_ref(o, b) {}
@@ -213,7 +207,7 @@ public:
     declaration_kind kind() const { return static_cast<declaration_kind>(obj_tag(raw())); }
 
     declaration & operator=(declaration const & other) { object_ref::operator=(other); return *this; }
-    declaration & operator=(declaration && other) { object_ref::operator=(std::move(other)); return *this; }
+    declaration & operator=(declaration && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.raw() == d2.raw(); }
 
@@ -224,7 +218,10 @@ public:
     bool is_mutual() const { return kind() == declaration_kind::MutualDefinition; }
     bool is_inductive() const { return kind() == declaration_kind::Inductive; }
     bool is_unsafe() const;
-    bool has_value() const { return is_theorem() || is_definition(); }
+    /** \brief Only definitions have values for the purpose of reduction and
+        type checking. Theorems used to be like that; now they are treated like
+        opaque declarations. */
+    bool has_value() const { return is_definition(); }
 
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_get_ref(raw(), 0)); }
     definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_get_ref(raw(), 0)); }
@@ -240,33 +237,22 @@ inline optional<declaration> some_declaration(declaration && o) { return optiona
 bool use_unsafe(environment const & env, expr const & e);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
-declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
-                          definition_safety safety = definition_safety::safe);
-declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val);
-declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
-declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
 
 /** \brief Similar to mk_definition but infer the value of unsafe flag.
     That is, set it to true if \c t or \c v contains a unsafe declaration. */
 declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & lparams,
                                          expr const & t, expr const & v, reducibility_hints const & hints);
-declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & lparams,
-                                         expr const & t, expr const & v);
-/** \brief Similar to mk_axiom but infer the value of unsafe flag.
-    That is, set it to true if \c t or \c v contains a unsafe declaration. */
-declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
-                                    names const & lparams, expr const & t);
 
 /** \brief View for manipulating declaration.induct_decl constructor.
     | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool) */
 class inductive_decl : public object_ref {
 public:
     inductive_decl(inductive_decl const & other):object_ref(other) {}
-    inductive_decl(inductive_decl && other):object_ref(std::move(other)) {}
+    inductive_decl(inductive_decl && other) noexcept:object_ref(std::move(other)) {}
     inductive_decl(declaration const & d):object_ref(d) { lean_assert(d.is_inductive()); }
     inductive_decl & operator=(inductive_decl const & other) { object_ref::operator=(other); return *this; }
-    inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(std::move(other)); return *this; }
+    inductive_decl & operator=(inductive_decl && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(raw(), 0)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 1)); }
     inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_get_ref(raw(), 2)); }
@@ -287,19 +273,19 @@ structure InductiveVal extends ConstantVal where
 */
 class inductive_val : public object_ref {
 public:
-    inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, unsigned nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
+    inductive_val(name const & n, names const & lparams, expr const & type, size_t nparams,
+                  size_t nindices, names const & all, names const & cnstrs, size_t nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
     inductive_val(inductive_val const & other):object_ref(other) {}
-    inductive_val(inductive_val && other):object_ref(std::move(other)) {}
+    inductive_val(inductive_val && other) noexcept:object_ref(std::move(other)) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
-    inductive_val & operator=(inductive_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    inductive_val & operator=(inductive_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    size_t get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
-    unsigned get_ncnstrs() const { return length(get_cnstrs()); }
-    unsigned get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
+    size_t get_ncnstrs() const { return length(get_cnstrs()); }
+    size_t get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     bool is_rec() const;
     bool is_unsafe() const;
     bool is_reflexive() const;
@@ -315,16 +301,16 @@ structure ConstructorVal extends ConstantVal where
 */
 class constructor_val : public object_ref {
 public:
-    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_unsafe);
+    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, size_t cidx, size_t nparams, size_t nfields, bool is_unsafe);
     constructor_val(constructor_val const & other):object_ref(other) {}
-    constructor_val(constructor_val && other):object_ref(std::move(other)) {}
+    constructor_val(constructor_val && other) noexcept:object_ref(std::move(other)) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
-    constructor_val & operator=(constructor_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    constructor_val & operator=(constructor_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_induct() const { return static_cast<name const &>(cnstr_get_ref(*this, 1)); }
-    unsigned get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
-    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    size_t get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    size_t get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
     bool is_unsafe() const;
 };
 
@@ -336,13 +322,13 @@ structure RecursorRule where
 */
 class recursor_rule : public object_ref {
 public:
-    recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs);
+    recursor_rule(name const & cnstr, size_t nfields, expr const & rhs);
     recursor_rule(recursor_rule const & other):object_ref(other) {}
-    recursor_rule(recursor_rule && other):object_ref(std::move(other)) {}
+    recursor_rule(recursor_rule && other) noexcept:object_ref(std::move(other)) {}
     recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
-    recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(std::move(other)); return *this; }
+    recursor_rule & operator=(recursor_rule && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     name const & get_cnstr() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
-    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    size_t get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     expr const & get_rhs() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
 };
 
@@ -362,21 +348,21 @@ structure RecursorVal extends ConstantVal where
 class recursor_val : public object_ref {
 public:
     recursor_val(name const & n, names const & lparams, expr const & type,
-                 names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                 unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe);
+                 names const & all, size_t nparams, size_t nindices, size_t nmotives,
+                 size_t nminors, recursor_rules const & rules, bool k, bool is_unsafe);
     recursor_val(recursor_val const & other):object_ref(other) {}
-    recursor_val(recursor_val && other):object_ref(std::move(other)) {}
+    recursor_val(recursor_val && other) noexcept:object_ref(std::move(other)) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
-    recursor_val & operator=(recursor_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    recursor_val & operator=(recursor_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     name const & get_major_induct() const;
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
-    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
-    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
-    unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
+    size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    size_t get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    size_t get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    size_t get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
+    size_t get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
     bool is_k() const;
     bool is_unsafe() const;
@@ -398,14 +384,13 @@ class quot_val : public object_ref {
 public:
     quot_val(name const & n, names const & lparams, expr const & type, quot_kind k);
     quot_val(quot_val const & other):object_ref(other) {}
-    quot_val(quot_val && other):object_ref(std::move(other)) {}
+    quot_val(quot_val && other) noexcept:object_ref(std::move(other)) {}
     quot_val & operator=(quot_val const & other) { object_ref::operator=(other); return *this; }
-    quot_val & operator=(quot_val && other) { object_ref::operator=(std::move(other)); return *this; }
+    quot_val & operator=(quot_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    quot_kind get_quot_kind() const;
 };
 
 /*
@@ -426,7 +411,6 @@ class constant_info : public object_ref {
     object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(to_val(), 0)); }
 public:
-    constant_info();
     constant_info(declaration const & d);
     constant_info(definition_val const & v);
     constant_info(quot_val const & v);
@@ -434,14 +418,14 @@ public:
     constant_info(constructor_val const & v);
     constant_info(recursor_val const & v);
     constant_info(constant_info const & other):object_ref(other) {}
-    constant_info(constant_info && other):object_ref(std::move(other)) {}
+    constant_info(constant_info && other) noexcept:object_ref(std::move(other)) {}
     explicit constant_info(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit constant_info(obj_arg o):object_ref(o) {}
 
     constant_info_kind kind() const { return static_cast<constant_info_kind>(cnstr_tag(raw())); }
 
     constant_info & operator=(constant_info const & other) { object_ref::operator=(other); return *this; }
-    constant_info & operator=(constant_info && other) { object_ref::operator=(std::move(other)); return *this; }
+    constant_info & operator=(constant_info && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(constant_info const & d1, constant_info const & d2) { return d1.raw() == d2.raw(); }
 
@@ -458,7 +442,7 @@ public:
 
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
-    unsigned get_num_lparams() const { return length(get_lparams()); }
+    size_t get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     bool has_value(bool allow_opaque = false) const {
         return is_theorem() || is_definition() || (allow_opaque && is_opaque());

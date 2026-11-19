@@ -1,0 +1,25 @@
+Input: "(x 42)"
+2 failures:
+Failure: expected ':='
+ --> 1:3-1:4
+  |
+1 | (x 42)
+  |    ^
+  = consumed input prefix: 3 bytes
+
+Failure: expected identifier, string, or number
+ --> 1:5-1:6
+  |
+1 | (x 42)
+  |      ^
+  = consumed input prefix: 5 bytes
+
+Final stack:
+  (Lean.Doc.Parser.Arg.named
+   "("
+   `x
+   <missing>
+   <missing>
+   ")")
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

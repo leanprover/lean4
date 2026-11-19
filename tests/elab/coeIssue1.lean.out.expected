@@ -1,0 +1,1 @@
+bvmul (sext (Expr.r (Reg.rax 64)) 64) (sext e 64) : Expr (bv 128)

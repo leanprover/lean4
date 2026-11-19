@@ -1,0 +1,3 @@
+grind_attrs.lean:34:21-34:47: warning: declaration uses `sorry`
+grind_attrs.lean:40:21-40:53: warning: declaration uses `sorry`
+grind_attrs.lean:46:21-46:43: warning: declaration uses `sorry`

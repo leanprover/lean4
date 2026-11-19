@@ -8,7 +8,6 @@ module
 
 prelude
 public import Lean.Meta.Basic
-public import Lean.ScopedEnvExtension
 public import Lean.ReservedNameAction
 
 public section

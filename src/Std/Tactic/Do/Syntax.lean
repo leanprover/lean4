@@ -7,96 +7,185 @@ module
 
 prelude
 public import Std.Do
-public import Init.NotationExtra
+public import Std.WP.Tactic
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+public import Init.Data.Array.GetLit
+public import Init.Grind.Interactive
+                                      -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
-                               -- a broken goal view due to the builtin delaborator for `MGoalEntails`
+
+
+namespace Lean.Elab.Tactic.Do.VCGen
+
+structure Config where
+  /--
+  If `true` (the default), we will try to prove VCs via `mvcgen_trivial`, which is extensible
+  via `macro_rules`.
+  -/
+  trivial : Bool := true
+  /--
+  If `true` (the default), we will simplify every generated VC after trying
+  `mvcgen_trivial` by running `mleave`. (Note that this can be expensive.)
+  -/
+  leave : Bool := true
+  /--
+  If `true` (the default), we substitute away let-declarations that are used at most once before
+  starting VC generation and will do the same for every VC generated.
+  -/
+  elimLets : Bool := true
+  /--
+  If `false` (the default), then we aggressively split `if` and `match` statements and inline join
+  points unconditionally. For some programs this causes exponential blowup of VCs.
+  Set this flag to choose a more conservative (but slightly lossy) encoding that traverses
+  every join point only once and yields a formula the size of which is linear in the number of
+  control flow splits.
+  -/
+  jp : Bool := false
+  /--
+  If set to `some n`, `mvcgen` will only do 42 steps of the VC generation procedure.
+  This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
+  -/
+  stepLimit : Option Nat := none
+  /--
+  If `true` (the default), report a hard error when no `@[spec]` theorem matches the
+  current program head. If `false`, leave such goals as unsolved VCs for the user to
+  discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
+  the new prototypical `vcgen` opts into it via `(errorOnMissingSpec := false)`.
+  -/
+  errorOnMissingSpec : Bool := true
+  /--
+  If `true`, `vcgen` checks failed `BackwardRule.apply` calls by retrying after
+  `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
+  forgot a normalization; `vcgen` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `vcgen`.
+  -/
+  debug : Bool := false
+  /--
+  If `true` (the default in grind mode), `vcgen` calls `Grind.processHypotheses` on
+  each emitted VC, internalising local hypotheses into the parent's E-graph so that
+  downstream grind steps share context. The tactic-level entry point disables this
+  when there is no `with` clause (no grind step will consume the E-graph anyway).
+  Ignored by `mvcgen`.
+  -/
+  internalize : Bool := true
+  /--
+  If `true` (the default), `vcgen` rewrites hypotheses, state arguments and verification
+  conditions with the `@[vcgen_simp]` theorems and those of its `simp [...]` clause.
+  Ignored by `mvcgen`.
+  -/
+  simp : Bool := true
+  /--
+  The maximum number of steps of each `Sym.simp` run that `vcgen` makes, as `maxSteps` of a
+  `register_sym_simp` variant. Ignored by `mvcgen`.
+  -/
+  simpMaxSteps : Nat := 100_000
+  /--
+  The maximum depth of reentrant `Sym.simp` calls through the discharger, as `maxDischargeDepth` of
+  a `register_sym_simp` variant. Ignored by `mvcgen`.
+  -/
+  simpMaxDischargeDepth : Nat := 2
+end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
 
-namespace Attr
-
-/--
-Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` tactics.
-
-* When used on a theorem `foo_spec : Triple (foo a b c) P Q`, then `mspec` and `mvcgen` will use
-  `foo_spec` as a specification for calls to `foo`.
-* Otherwise, when used on a definition that `@[simp]` would work on, it is added to the internal
-  simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
-  applications of constants.
--/
-syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
-
-end Attr
-
 namespace Tactic
 
-@[inherit_doc Lean.Parser.Tactic.massumptionMacro]
+@[tactic_alt Lean.Parser.Tactic.massumptionMacro]
 syntax (name := massumption) "massumption" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mclearMacro]
+@[tactic_alt Lean.Parser.Tactic.mclearMacro]
 syntax (name := mclear) "mclear" colGt ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mconstructorMacro]
+@[tactic_alt Lean.Parser.Tactic.mclearMacro]
+macro (name := mclearError) "mclear" : tactic => Macro.throwError "`mclear` expects an identifier"
+
+@[tactic_alt Lean.Parser.Tactic.mconstructorMacro]
 syntax (name := mconstructor) "mconstructor" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mexactMacro]
+@[tactic_alt Lean.Parser.Tactic.mexactMacro]
 syntax (name := mexact) "mexact" colGt term : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mexfalsoMacro]
+@[tactic_alt Lean.Parser.Tactic.mexactMacro]
+macro (name := mexactError) "mexact" : tactic => Macro.throwError "`mexact` expects a term"
+
+@[tactic_alt Lean.Parser.Tactic.mexfalsoMacro]
 syntax (name := mexfalso) "mexfalso" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mexistsMacro]
+@[tactic_alt Lean.Parser.Tactic.mexistsMacro]
 syntax (name := mexists) "mexists" term,+ : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mframeMacro]
+@[tactic_alt Lean.Parser.Tactic.mexistsMacro]
+macro (name := mexistsError) "mexists" : tactic => Macro.throwError "`mexists` expects at least one term"
+
+@[tactic_alt Lean.Parser.Tactic.mframeMacro]
 syntax (name := mframe) "mframe" : tactic
 
 /-- Duplicate a stateful `Std.Do.SPred` hypothesis. -/
 syntax (name := mdup) "mdup" ident " => " ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mhaveMacro]
+@[tactic_alt Lean.Parser.Tactic.mhaveMacro]
 syntax (name := mhave) "mhave" ident optional(":" term) " := " term : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mreplaceMacro]
+@[tactic_alt Lean.Parser.Tactic.mhaveMacro]
+macro (name := mhaveError) "mhave" : tactic => Macro.throwError "The syntax is `mhave h := term`"
+
+@[tactic_alt Lean.Parser.Tactic.mreplaceMacro]
 syntax (name := mreplace) "mreplace" ident optional(":" term) " := " term : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mrightMacro]
+@[tactic_alt Lean.Parser.Tactic.mreplaceMacro]
+macro (name := mreplaceError) "mreplace" : tactic => Macro.throwError "The syntax is `mreplace h := term`"
+
+@[tactic_alt Lean.Parser.Tactic.mrightMacro]
 syntax (name := mright) "mright" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mleftMacro]
+@[tactic_alt Lean.Parser.Tactic.mleftMacro]
 syntax (name := mleft) "mleft" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mpureMacro]
+@[tactic_alt Lean.Parser.Tactic.mpureMacro]
 syntax (name := mpure) "mpure" colGt ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mpureIntroMacro]
-macro (name := mpureIntro) "mpure_intro" : tactic =>
-  `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
+@[tactic_alt Lean.Parser.Tactic.mpureMacro]
+macro (name := mpureError) "mpure" : tactic => Macro.throwError "`mpure` expects an identifier"
 
-@[inherit_doc Lean.Parser.Tactic.mrevertMacro]
-syntax (name := mrevert) "mrevert" colGt ident : tactic
+@[tactic_alt Lean.Parser.Tactic.mpureIntroMacro]
+syntax (name := mpureIntro) "mpure_intro" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mrenameIMacro]
+@[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
 syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mspecializeMacro]
+@[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
+macro (name := mrenameIError) "mrename_i" : tactic => Macro.throwError "`mrename_i` expects at least one identifier"
+
+@[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
 syntax (name := mspecialize) "mspecialize" ident (colGt term:max)* : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mspecializePureMacro]
+@[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
+macro (name := mspecializeError) "mspecialize" : tactic => Macro.throwError "The syntax is `mspecialize h term*`"
+
+@[tactic_alt Lean.Parser.Tactic.mspecializePureMacro]
 syntax (name := mspecializePure) "mspecialize_pure" term (colGt term:max)* " => " ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mstartMacro]
+@[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
+macro (name := mspecializePureError) "mspecialize_pure" : tactic => Macro.throwError "The syntax is `mspecialize_pure h term*`"
+
+@[tactic_alt Lean.Parser.Tactic.mstartMacro]
 syntax (name := mstart) "mstart" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mstopMacro]
+@[tactic_alt Lean.Parser.Tactic.mstopMacro]
 syntax (name := mstop) "mstop" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mleaveMacro]
+@[tactic_alt Lean.Parser.Tactic.mleaveMacro]
 macro (name := mleave) "mleave" : tactic =>
   `(tactic| (try simp only [
-              $(mkIdent ``Std.Do.SPred.entails_cons):term,
+              $(mkIdent ``Std.Do.SPred.down_pure):term,
+              $(mkIdent ``Std.Do.SPred.apply_pure):term,
+              -- $(mkIdent ``Std.Do.SPred.entails_cons):term, -- Ineffective until #9015 lands
+              $(mkIdent ``Std.Do.SPred.entails_1):term,
+              $(mkIdent ``Std.Do.SPred.entails_2):term,
+              $(mkIdent ``Std.Do.SPred.entails_3):term,
+              $(mkIdent ``Std.Do.SPred.entails_4):term,
+              $(mkIdent ``Std.Do.SPred.entails_5):term,
               $(mkIdent ``Std.Do.SPred.entails_nil):term,
               $(mkIdent ``Std.Do.SPred.and_cons):term,
               $(mkIdent ``Std.Do.SPred.and_nil):term,
@@ -118,8 +207,20 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
               $(mkIdent ``Std.Do.SVal.getThe_here):term,
               $(mkIdent ``Std.Do.SVal.getThe_there):term,
+              $(mkIdent ``Std.Do.ExceptConds.entails.refl):term,
+              $(mkIdent ``Std.Do.ExceptConds.entails_true):term,
+              $(mkIdent ``Std.Do.ExceptConds.entails_false):term,
+              $(mkIdent ``ULift.down_ite):term,
+              $(mkIdent ``ULift.down_dite):term,
+              $(mkIdent ``List.Cursor.prefix_at):term,
+              $(mkIdent ``List.Cursor.suffix_at):term,
+              $(mkIdent ``List.Cursor.current_at):term,
+              $(mkIdent ``List.Cursor.tail_at):term,
               $(mkIdent ``and_imp):term,
-              $(mkIdent ``true_implies):term]))
+              $(mkIdent ``and_true):term,
+              $(mkIdent ``dite_eq_ite):term,
+              $(mkIdent ``exists_prop):term,
+              $(mkIdent ``true_implies):term] at *))
 
 declare_syntax_cat mcasesPat
 syntax mcasesPatAlts := sepBy1(mcasesPat, " | ")
@@ -162,8 +263,11 @@ where
     | args   => args.mapM go |>.map (.alts ·.toList)
   | _ => none
 
-@[inherit_doc Lean.Parser.Tactic.mcasesMacro]
+@[tactic_alt Lean.Parser.Tactic.mcasesMacro]
 syntax (name := mcases) "mcases" ident " with " mcasesPat : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mcasesMacro]
+macro (name := mcasesError) "mcases" : tactic => Macro.throwError "The syntax is `mcases h with pat`"
 
 declare_syntax_cat mrefinePat
 syntax binderIdent : mrefinePat
@@ -199,15 +303,21 @@ where
   | `(mrefinePat| ($pat)) => go pat
   | _ => none
 
-@[inherit_doc Lean.Parser.Tactic.mrefineMacro]
+@[tactic_alt Lean.Parser.Tactic.mrefineMacro]
 syntax (name := mrefine) "mrefine" mrefinePat : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mrefineMacro]
+macro (name := mrefineError) "mrefine" : tactic => Macro.throwError "`mrefine` expects a pattern"
 
 declare_syntax_cat mintroPat
 syntax mcasesPat : mintroPat
 syntax "∀" binderIdent : mintroPat
 
-@[inherit_doc Lean.Parser.Tactic.mintroMacro]
+@[tactic_alt Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mintroMacro]
+macro (name := mintroError) "mintro" : tactic => Macro.throwError "`mintro` expects at least one pattern"
 
 macro_rules
   | `(tactic| mintro $pat₁ $pat₂ $pats:mintroPat*) => `(tactic| mintro $pat₁; mintro $pat₂ $pats*)
@@ -217,6 +327,20 @@ macro_rules
     | `(mintroPat| ∀$_:binderIdent) => Macro.throwUnsupported -- handled by a builtin elaborator
     | `(mintroPat| $pat:mcasesPat) => `(tactic| mintro h; mcases h with $pat)
     | _ => Macro.throwUnsupported -- presently unreachable
+
+declare_syntax_cat mrevertPat
+
+syntax ident : mrevertPat
+syntax "∀" optional(num) : mrevertPat
+
+@[tactic_alt Lean.Parser.Tactic.mrevertMacro]
+syntax (name := mrevert) "mrevert" (ppSpace colGt mrevertPat)* : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mrevertMacro]
+macro (name := mrevertError) "mrevert" : tactic => Macro.throwError "`mrevert` expects at least one pattern"
+
+macro_rules
+  | `(tactic| mrevert $pat₁ $pat₂ $pats:mrevertPat*) => `(tactic| mrevert $pat₁; mrevert $pat₂ $pats*)
 
 /--
 `mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.
@@ -234,38 +358,89 @@ Like `mspec`, but does not attempt slight simplification and closing of trivial 
 ```
 mspec_no_simp $spec
 all_goals
-  ((try simp only [SPred.true_intro_simp, SVal.curry_cons, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+  ((try simp only [SPred.true_intro_simp, SPred.apply_pure]);
    (try mpure_intro; trivial))
 ```
 -/
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
-  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
+  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)) <;> mspec_no_bind $[$spec]?))
 
-@[inherit_doc Lean.Parser.Tactic.mspecMacro]
+@[tactic_alt Lean.Parser.Tactic.mspecMacro]
 macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
              all_goals ((try simp only [
                           $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SVal.curry_cons):term,
-                          $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
-                          $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
-                          $(mkIdent ``Std.Do.SVal.getThe_here):term,
-                          $(mkIdent ``Std.Do.SVal.getThe_there):term])
+                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
                         (try mpure_intro; trivial))))
 
-@[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
+syntax "mvcgen_trivial_extensible" : tactic
+
+/--
+`mvcgen_trivial` is the tactic automatically called by `mvcgen` to discharge VCs.
+It tries to discharge the VC by applying `(try mpure_intro); trivial` and otherwise delegates to
+`mvcgen_trivial_extensible`.
+Users are encouraged to extend `mvcgen_trivial_extensible` instead of this tactic in order not to
+override the default `(try mpure_intro); trivial` behavior.
+-/
+macro "mvcgen_trivial" : tactic =>
+  `(tactic| first
+    | (try mpure_intro); trivial
+    | try mvcgen_trivial_extensible
+  )
+
+/--
+In induction alternative, which can have 1 or more cases on the left
+and `_`, `?_`, or a tactic sequence after the `=>`.
+-/
+syntax vcAlt := "| " sepBy1(caseArg, " | ") " => " tacticSeq -- `case` tactic has "case " instead of "| "
+
+/--
+After `with`, there is an optional tactic that runs on all branches, and
+then a list of alternatives.
+-/
+syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
+
+@[tactic_alt Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (invariantAlts)? (vcAlts)? : tactic
+
+deprecated_syntax Lean.Parser.Tactic.mvcgen "use `vcgen` instead" (since := "2026-08-21")
 
 /--
-Like `mvcgen`, but does not attempt to prove trivial VCs via `mpure_intro; trivial`.
+A hint tactic that expands to `mvcgen invariants?`.
 -/
-syntax (name := mvcgenNoTrivial) "mvcgen_no_trivial" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+syntax (name := mvcgenHint) "mvcgen?" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
 
-/--
-Like `mvcgen_no_trivial`, but `mvcgen_step 42` will only do 42 steps of the VC generation procedure.
-This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
--/
-syntax (name := mvcgenStep) "mvcgen_step" optConfig
- (num)? (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
+deprecated_syntax Lean.Parser.Tactic.mvcgenHint "use `vcgen` instead" (since := "2026-08-21")
+
+deprecated_syntax massumption "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mclear "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mconstructor "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mexact "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mexfalso "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mexists "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mframe "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mdup "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mhave "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mreplace "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mright "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mleft "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mpure "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mpureIntro "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mrenameI "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecialize "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecializePure "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mstart "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mstop "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mleave "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mcases "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mrefine "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mintro "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mrevert "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecNoBind "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecNoSimp "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspec "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax tacticMvcgen_trivial_extensible "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax tacticMvcgen_trivial "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")

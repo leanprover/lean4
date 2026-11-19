@@ -11,5 +11,3 @@ public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.PrettyPrinter.Delaborator.Builtins
-
-public section

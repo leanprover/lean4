@@ -1,0 +1,2 @@
+grind_ematch_patterns.lean:24:0-24:7: warning: declaration uses `sorry`
+grind_ematch_patterns.lean:37:8-37:15: warning: declaration uses `sorry`

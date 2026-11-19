@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.ByteArray.Extra
 
 public section
 universe u
@@ -26,7 +27,7 @@ class RandomGen (g : Type u) where
      and a new generator. -/
   next  : g → Nat × g
   /--
-    The 'split' operation allows one to obtain two distinct random number
+    The `split` operation allows one to obtain two distinct random number
     generators. This is very useful in functional programs (for example, when
     passing a random number generator down to recursive calls). -/
   split : g → g × g
@@ -36,7 +37,14 @@ structure StdGen where
   s1 : Nat
   s2 : Nat
 
-instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
+/-- Returns a standard number generator. -/
+def mkStdGen (s : Nat := 0) : StdGen :=
+  let q  := s / 2147483562
+  let s1 := s % 2147483562
+  let s2 := q % 2147483398
+  ⟨s1 + 1, s2 + 1⟩
+
+instance : Inhabited StdGen := ⟨mkStdGen⟩
 
 /-- The range of values returned by `StdGen` -/
 def stdRange := (1, 2147483562)
@@ -76,13 +84,6 @@ instance : RandomGen StdGen := {
   next   := stdNext,
   split  := stdSplit
 }
-
-/-- Returns a standard number generator. -/
-def mkStdGen (s : Nat := 0) : StdGen :=
-  let q  := s / 2147483562
-  let s1 := s % 2147483562
-  let s2 := q % 2147483398
-  ⟨s1 + 1, s2 + 1⟩
 
 /--
 Auxiliary function for randomNatVal.

@@ -1,0 +1,2 @@
+Try this:
+  [apply] exact qux xs (by try?)

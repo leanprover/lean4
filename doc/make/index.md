@@ -1,6 +1,6 @@
 These are instructions to set up a working development environment for those who wish to make changes to Lean itself. It is part of the [Development Guide](../dev/index.md).
 
-We strongly suggest that new users instead follow the [Quickstart](../quickstart.md) to get started using Lean, since this sets up an environment that can automatically manage multiple Lean toolchain versions, which is necessary when working within the Lean ecosystem.
+We strongly suggest that new users instead follow the [Installation Instructions](https://lean-lang.org/install/) to get started using Lean, since this sets up an environment that can automatically manage multiple Lean toolchain versions, which is necessary when working within the Lean ecosystem.
 
 Requirements
 ------------
@@ -9,6 +9,7 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [LibUV](https://libuv.org/)
+- [OpenSSL](https://www.openssl.org/)
 
 Platform-Specific Setup
 -----------------------
@@ -30,10 +31,15 @@ cd lean4
 cmake --preset release
 make -C build/release -j$(nproc || sysctl -n hw.logicalcpu)
 ```
+
+For development, `cmake --preset dev-release` (reusing the same `build/release` output directory) is recommended instead.
+
 You can replace `$(nproc || sysctl -n hw.logicalcpu)` with the desired parallelism amount.
 
 The above commands will compile the Lean library and binaries into the
 `stage1` subfolder; see below for details.
+
+Linux and macOS release toolchains also include [Lean Beam](https://github.com/leanprover/lean-beam). To include it in a local build on these platforms, run `make -C build/release lean-beam` after the ordinary build. This target fetches a pinned Beam revision and builds its CLI, daemon, MCP server, and plugin with the local toolchain. The executables reuse the toolchain's shared Lean and Lake libraries. The bundled `lean-beam` and `lean-beam-mcp` use only that toolchain and do not build additional runtimes when invoked in a project. Windows distribution support is deferred pending further validation.
 
 You should not usually run `cmake --install` after a successful build.
 See [Dev setup using elan](../dev/index.md#dev-setup-using-elan) on how to properly set up your editor to use the correct stage depending on the source directory.
@@ -53,10 +59,18 @@ There are also two alternative presets that combine some of these options you ca
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
 
-* `-DUSE_LAKE=ON`\
-  Experimental option to build the core libraries using Lake instead of `lean.mk`.  Caveats:
-  * As native code compilation is still handled by cmake, changes to stage0/ (such as from `git pull`) are picked up only when invoking the build via `make`, not via `Refresh Dependencies` in the editor.
-  * `USE_LAKE` is not yet compatible with `LAKE_ARTIFACT_CACHE`
+* `-DUSE_GMP=`\
+  Use GMP for arbitrary-precision integers (default `ON`). Lean requires GMP
+  6.3.0 or newer, because earlier versions contain bugs that can make Lean
+  produce unsound results. Set `-DUSE_GMP=OFF` to use Lean's built-in bignum
+  implementation instead, which needs no external GMP (safest; some performance
+  cost).
+
+* `-DFORCE_GMP=`\
+  Build against the GMP found on the system even if it is older than 6.3.0
+  (default `OFF`). Not recommended: Lean may produce unsound results in corner
+  cases. Independent kernels that do not depend on GMP will catch the
+  unsoundness.
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated.

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.MetaAttr
 
 public section
 
@@ -44,10 +43,20 @@ partial def inferMeta (decls : Array Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
   for decl in decls do
-    if metaExt.isTagged (← getEnv) decl.name then
+    if isMarkedMeta (← getEnv) decl.name then
       trace[compiler.ir.inferMeta] m!"Marking {decl.name} as meta because it is tagged with `meta`"
       modifyEnv (setDeclMeta · decl.name)
       setClosureMeta decl
+
+/--
+Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
+should have been checked at declaration time in case of attributes. We do not solely want to rely on
+errors from the interpreter itself as those depend on whether we are running in the server.
+-/
+@[export lean_eval_check_meta]
+private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
+  if getIRPhases env declName == .runtime then
+      throw s!"Cannot evaluate constant `{declName}` as it is neither marked nor imported as `meta`"
 
 builtin_initialize
   registerTraceClass `compiler.ir.inferMeta

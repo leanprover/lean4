@@ -8,9 +8,11 @@ module
 prelude
 public import Init.Data.Array.TakeDrop
 public import Std.Data.DHashMap.Basic
-public import all Std.Data.DHashMap.Internal.Defs
+import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.HashesTo
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.UInt.Lemmas
 
 @[expose] public section
 
@@ -43,6 +45,7 @@ open Std.Internal
 /-! # Setting up the infrastructure -/
 
 /-- Internal implementation detail of the hash map -/
+@[implicit_reducible]
 def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α) :
     AssocList α β :=
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
@@ -216,7 +219,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm
-  · next l t ih =>
+  next l t ih =>
     simp only [List.foldl_cons]
     apply ih
     exact hg.trans (Perm.append h hfg.symm)
@@ -230,10 +233,6 @@ theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
     (Array.replicate c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
 
-set_option linter.missingDocs false in
-@[deprecated replicate (since := "2025-03-18")]
-abbrev mkArray := @replicate
-
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}
     (hd : HashesTo m[i].toList i.toNat m.size → HashesTo d.toList i.toNat m.size)
@@ -241,7 +240,7 @@ theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h
   refine ⟨fun j hj => ?_⟩
   simp only [Array.uset, Array.getElem_set, Array.size_set]
   split
-  · next hij => exact hij ▸ (hd (hm.hashes_to _ _))
+  next hij => exact hij ▸ (hd (hm.hashes_to _ _))
   · exact hm.hashes_to j (by simpa using hj)
 
 /-- This is the general theorem to show that modification operations preserve well-formedness of
@@ -291,12 +290,29 @@ def getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
   (bucket m.1.buckets m.2 a).getKey? a
 
 /-- Internal implementation detail of the hash map -/
+@[implicit_reducible]
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 
 /-- Internal implementation detail of the hash map -/
 def getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : β a :=
   (bucket m.1.buckets m.2 a).getCast a h
+
+/-- Internal implementation detail of the hash map -/
+def getEntryₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntry a h
+
+/-- Internal implementation detail of the hash map -/
+def getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option ((a : α) × β a) :=
+  (bucket m.1.buckets m.2 a).getEntry? a
+
+/-- Internal implementation detail of the hash map -/
+def getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry!ₘ [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw₀ α β) (a : α) : (a : α) × β a :=
+  (bucket m.1.buckets m.2 a).getEntry! a
 
 /-- Internal implementation detail of the hash map -/
 def getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) : β a :=
@@ -395,6 +411,38 @@ def insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) 
   | .nil => m
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
 
+/-- Internal implementation detail of the hash map -/
+def eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List α) : Raw₀ α β :=
+  match l with
+  | .nil => m
+  | .cons hd tl => eraseListₘ (m.erase hd) tl
+
+/-- Internal implementation detail of the hash map -/
+def diffₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then
+    filterₘ m₁ (fun k _ => !containsₘ m₂ k)
+  else
+    eraseManyEntries m₁ (toListModel m₂.1.buckets)
+
+/-- Internal implementation detail of the hash map -/
+def insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
+  match l with
+  | .nil => m
+  | .cons hd tl => insertListIfNewₘ (m.insertIfNew hd.1 hd.2) tl
+
+/-- Internal implementation detail of the hash map -/
+def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then
+    insertListIfNewₘ m₂ (toListModel m₁.1.buckets)
+  else
+    insertListₘ m₁ (toListModel m₂.1.buckets)
+
+/-- Internal implementation detail of the hash map -/
+def interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) : Raw₀ α β :=
+  match m.getEntry?ₘ k with
+  | some kv' => sofar.insertₘ kv'.1 kv'.2
+  | none => sofar
+
 section
 
 variable {β : Type v}
@@ -443,6 +491,18 @@ theorem get?_eq_get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β)
 theorem get_eq_getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
     get m a h = getₘ m a (by exact h) := (rfl)
 
+theorem getEntry_eq_getEntryₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
+    getEntry m a h = getEntryₘ m a (by exact h) := (rfl)
+
+theorem getEntry?_eq_getEntry?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    getEntry? m a = getEntry?ₘ m a := (rfl)
+
+theorem getEntryD_eq_getEntryDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : (a : α) × β a) :
+    getEntryD m a fallback = getEntryDₘ m a fallback := (rfl)
+
+theorem getEntry!_eq_getEntry!ₘ [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw₀ α β) (a : α) :
+    getEntry! m a = getEntry!ₘ m a := (rfl)
+
 theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) :
     getD m a fallback = getDₘ m a fallback := by
   simp [getD, getDₘ, get?ₘ, List.getValueCastD_eq_getValueCast?, bucket]
@@ -470,22 +530,16 @@ theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : �
 
 theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     m.insert a b = m.insertₘ a b := by
-  rw [insert, insertₘ, containsₘ, bucket]
-  dsimp only [Array.ugetElem_eq_getElem, Array.uset]
-  split
-  · simp only [replaceₘ, Subtype.mk.injEq, Raw.mk.injEq, true_and]
-    rw [Array.set_set, updateBucket]
-    simp only [Array.uset, Array.ugetElem_eq_getElem]
-  · rfl
+  simp [insert, insertₘ, containsₘ, bucket, replaceₘ, updateBucket, consₘ]
 
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) : m.alter a f = m.alterₘ a f := by
-    dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]
-    split
-    · congr 2
-      · simp only [withComputedSize, bucket_updateBucket]
-      · simp only [Array.uset, bucket, Array.ugetElem_eq_getElem, Array.set_set, updateBucket]
-    · congr
+  simp only [alter, alterₘ, containsₘ, ← bucket_eq]
+  simp only [AssocList.contains_eq, Array.uset_eq_set, Array.set_set, buckets_withComputedSize,
+    bucket_updateBucket]
+  split
+  · rfl
+  · rfl
 
 theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : β a → β a) : m.modify a f = m.alter a (·.map f) := by
@@ -493,7 +547,7 @@ theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
   split
   · dsimp
     split
-    · next h =>
+    next h =>
       simp only [AssocList.contains_eq] at h
       simp only [AssocList.modify_eq_alter, AssocList.contains_eq,
         containsKey_of_perm AssocList.toList_alter, ← modifyKey_eq_alterKey,
@@ -510,12 +564,12 @@ variable {β : Type v}
 
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
     (f : Option β → Option β) : Const.alter m a f = Const.alterₘ m a f := by
-    dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]
+    simp only [alter, alterₘ, containsₘ, ← bucket_eq]
     split
     · congr 2
-      · simp only [withComputedSize, bucket_updateBucket]
+      · simp only [withComputedSize, bucket_updateBucket, AssocList.contains_eq]
       · simp only [Array.uset, bucket, Array.ugetElem_eq_getElem, Array.set_set, updateBucket]
-    · congr
+    · rfl
 
 theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
     (f : β → β) : Const.modify m a f = Const.alter m a (·.map f) := by
@@ -523,7 +577,7 @@ theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun
   split
   · dsimp
     split
-    · next h =>
+    next h =>
       simp only [AssocList.contains_eq] at h
       simp only [AssocList.Const.modify_eq_alter, AssocList.contains_eq,
         containsKey_of_perm AssocList.Const.toList_alter, ← Const.modifyKey_eq_alterKey,
@@ -612,6 +666,42 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
   | cons hd tl ih =>
     simp only [List.foldl_cons, insertListₘ]
     apply ih
+
+theorem eraseManyEntries_eq_eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    eraseManyEntries m l = eraseListₘ m (l.map (·.1)) := by
+  simp only [eraseManyEntries, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+      (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
+        (List.foldl (fun m' p => ⟨m'.val.erase p.1, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+      t.val.eraseListₘ (l.map (·.1)) from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp [eraseListₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons]
+    apply ih
+
+theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    insertManyIfNew m l = insertListIfNewₘ m l := by
+  simp only [insertManyIfNew, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+    (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insertIfNew a b)) → P m → P m' }),
+      (List.foldl (fun m' p => ⟨m'.val.insertIfNew p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    t.val.insertListIfNewₘ l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp [insertListIfNewₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons, insertListIfNewₘ]
+    apply ih
+
+theorem interSmallerFn_eq_interSmallerFnₘ [BEq α] [Hashable α] (m sofar : Raw₀ α β) (k : α) :
+    interSmallerFn m sofar k = interSmallerFnₘ m sofar k := by
+  rw [interSmallerFn, interSmallerFnₘ]
+  rw [getEntry?_eq_getEntry?ₘ]
+  congr
+  ext
+  rw [insert_eq_insertₘ]
 
 section
 

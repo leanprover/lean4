@@ -1,0 +1,4 @@
+def square : (x : Nat) → Nat :=
+fun (x : Nat) => @mul Nat.S x x
+fun (x : Nat) => @mul Nat.S x x : (x : Nat) → S.carrier Nat.S
+fun (y : Int) => @mul Int.S y y : (y : Int) → S.carrier Int.S

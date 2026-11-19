@@ -8,5 +8,5 @@ module
 prelude
 public import Init.Data.ToString.Basic
 public import Init.Data.ToString.Macro
-
-public section
+public import Init.Data.ToString.Name
+public import Init.Data.ToString.Extra

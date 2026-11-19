@@ -6,10 +6,14 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Pairwise
-public import Init.Data.List.Erase
-public import Init.Data.List.Find
-public import all Init.Data.List.Attach
+import all Init.Data.List.Attach
+public import Init.Data.List.Attach
+import Init.Data.List.Erase
+public import Init.Data.List.Impl
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
 
 public section
 
@@ -249,13 +253,13 @@ theorem exists_perm_sublist {l₁ l₂ l₂' : List α} (s : l₁ <+ l₂) (p : 
   | cons x _ IH =>
     match s with
     | .cons _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨l₁', p', s'.cons _⟩
-    | .cons₂ _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨x :: l₁', p'.cons x, s'.cons₂ _⟩
+    | .cons_cons _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨x :: l₁', p'.cons x, s'.cons_cons _⟩
   | swap x y l' =>
     match s with
     | .cons _ (.cons _ s) => exact ⟨_, .rfl, (s.cons _).cons _⟩
-    | .cons _ (.cons₂ _ s) => exact ⟨x :: _, .rfl, (s.cons _).cons₂ _⟩
-    | .cons₂ _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons₂ _).cons _⟩
-    | .cons₂ _ (.cons₂ _ s) => exact ⟨x :: y :: _, .swap .., (s.cons₂ _).cons₂ _⟩
+    | .cons _ (.cons_cons _ s) => exact ⟨x :: _, .rfl, (s.cons _).cons_cons _⟩
+    | .cons_cons _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons_cons _).cons _⟩
+    | .cons_cons _ (.cons_cons _ s) => exact ⟨x :: y :: _, .swap .., (s.cons_cons _).cons_cons _⟩
   | trans _ _ IH₁ IH₂ =>
     let ⟨_, pm, sm⟩ := IH₁ s
     let ⟨r₁, pr, sr⟩ := IH₂ sm
@@ -274,7 +278,7 @@ theorem Sublist.exists_perm_append {l₁ l₂ : List α} : l₁ <+ l₂ → ∃ 
   | Sublist.cons a s =>
     let ⟨l, p⟩ := Sublist.exists_perm_append s
     ⟨a :: l, (p.cons a).trans perm_middle.symm⟩
-  | Sublist.cons₂ a s =>
+  | Sublist.cons_cons a s =>
     let ⟨l, p⟩ := Sublist.exists_perm_append s
     ⟨l, p.cons a⟩
 
@@ -300,7 +304,7 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
 theorem Perm.count_eq [BEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
-/-
+/--
 This theorem is a variant of `Perm.foldl_eq` defined in Mathlib which uses typeclasses rather
 than the explicit `comm` argument.
 -/
@@ -320,7 +324,7 @@ theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ 
     refine (IH₁ comm init).trans (IH₂ ?_ _)
     intros; apply comm <;> apply p₁.symm.subset <;> assumption
 
-/-
+/--
 This theorem is a variant of `Perm.foldr_eq` defined in Mathlib which uses typeclasses rather
 than the explicit `comm` argument.
 -/
@@ -465,9 +469,40 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   by_cases xl : x ∈ l <;> by_cases yl : y ∈ l <;> simp [xl, yl]
   if xy : x = y then simp [xy] else
   simp [List.insert, xl, yl, xy, Ne.symm xy]
-  constructor
+  constructor!
 
 end LawfulBEq
+
+/-- Two lists without duplicates are permutations of each other if and only if
+they have the same elements. -/
+theorem perm_ext_iff_of_nodup {l₁ l₂ : List α} (d₁ : Nodup l₁) (d₂ : Nodup l₂) :
+    l₁ ~ l₂ ↔ ∀ a, a ∈ l₁ ↔ a ∈ l₂ := by
+  classical
+  rw [perm_iff_count]
+  refine ⟨fun h a => by rw [← count_pos_iff, ← count_pos_iff, h], fun h a => ?_⟩
+  rw [d₁.count, d₂.count]
+  simp only [h a]
+
+/-- A list with no duplicates that is a subset of another list is no longer than
+that list. -/
+theorem Nodup.length_le_of_subset {l₁ l₂ : List α}
+    (h₁ : l₁.Nodup) (hsub : l₁ ⊆ l₂) : l₁.length ≤ l₂.length := by
+  classical
+  induction l₁ generalizing l₂ with
+  | nil => simp
+  | cons a t ih =>
+    rw [nodup_cons] at h₁
+    have ha : a ∈ l₂ := hsub (mem_cons_self ..)
+    have htsub : t ⊆ l₂.erase a := by
+      intro x hx
+      have hxa : x ≠ a := fun h => h₁.1 (h ▸ hx)
+      exact (mem_erase_of_ne hxa).2 (hsub (mem_cons_of_mem _ hx))
+    have hih := ih h₁.2 htsub
+    have hlen : (l₂.erase a).length = l₂.length - 1 := by rw [length_erase]; simp [ha]
+    have hpos : 1 ≤ l₂.length := length_pos_of_mem ha
+    calc t.length + 1 ≤ (l₂.erase a).length + 1 := Nat.succ_le_succ hih
+      _ = (l₂.length - 1) + 1 := by rw [hlen]
+      _ = l₂.length := Nat.sub_add_cancel hpos
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=
@@ -493,7 +528,7 @@ theorem Perm.pairwise {R : α → α → Prop} {l l' : List α} (hl : l ~ l') (h
 If two lists are sorted by an antisymmetric relation, and permutations of each other,
 they must be equal.
 -/
-theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
+theorem Perm.eq_of_pairwise : ∀ {l₁ l₂ : List α}
     (_ : ∀ a b, a ∈ l₁ → b ∈ l₂ → le a b → le b a → a = b)
     (_ : l₁.Pairwise le) (_ : l₂.Pairwise le) (_ : l₁ ~ l₂), l₁ = l₂
   | [], [], _, _, _, _ => rfl
@@ -513,7 +548,7 @@ theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
             (rel_of_pairwise_cons h₁ bm) (rel_of_pairwise_cons h₂ am)
     subst ab
     simp only [perm_cons] at h
-    have := Perm.eq_of_sorted
+    have := Perm.eq_of_pairwise
       (fun x y hx hy => w x y (mem_cons_of_mem a hx) (mem_cons_of_mem a hy))
       h₁.tail h₂.tail h
     simp_all
@@ -600,8 +635,24 @@ theorem sum_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.sum = l₂.sum :
   | swap => simpa [List.sum_cons] using Nat.add_left_comm ..
   | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
 
+theorem prod_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.prod = l₂.prod := by
+  induction h with
+  | nil => simp
+  | cons _ _ ih => simp [ih]
+  | swap => simpa [List.prod_cons] using Nat.mul_left_comm ..
+  | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
+
+theorem all_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
+  rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
+
+theorem any_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.any f = l₂.any f := by
+  rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
+
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₁.sum
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₂.sum
+
+grind_pattern Perm.prod_nat => l₁ ~ l₂, l₁.prod
+grind_pattern Perm.prod_nat => l₁ ~ l₂, l₂.prod
 
 end Perm
 

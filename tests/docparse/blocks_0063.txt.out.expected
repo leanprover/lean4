@@ -1,0 +1,55 @@
+Input: "* note[^f]\n\n  [^f]: the footnote\n\n* See [docs][ref]\n\n  [ref]: https://example.com\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "note"))
+         (Lean.Doc.Parser.Inline.footnote
+          "[^"
+          (Lean.Doc.Parser.versoRef "f")
+          "]")])
+       (Lean.Doc.Parser.Block.footnote_ref
+        "[^"
+        (Lean.Doc.Parser.versoRef "f")
+        "]:"
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "the footnote"))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "See "))
+         (Lean.Doc.Parser.Inline.link
+          "["
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "docs"))]
+          "]"
+          (Lean.Doc.Parser.LinkTarget.ref
+           "["
+           (Lean.Doc.Parser.versoRef "ref")
+           "]"))])
+       (Lean.Doc.Parser.Block.link_ref
+        "["
+        (Lean.Doc.Parser.versoRef "ref")
+        "]:"
+        (Lean.Doc.Parser.versoLinkRefUrl
+         "https://example.com"))])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        text (content := "note")
+        footnote (opener := "[^") (name := "f") (closer := "]")
+      footnoteRef (opener := "[^") (name := "f") (closer := "]:")
+        text (content := "the footnote")
+    item (marker := "*")
+      para
+        text (content := "See ")
+        link (opener := "[") (closer := "]") (target := ref (opener := "[") (name := "ref") (closer := "]"))
+          text (content := "docs")
+      linkRef (opener := "[") (name := "ref") (closer := "]:") (url := "https://example.com")

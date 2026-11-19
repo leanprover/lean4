@@ -1,0 +1,11 @@
+Try these:
+  [apply] [grind =] for pattern: [@G'.p #3 (@HAdd.hAdd (G' _) (G' _) (G' _) _ #1 #0)]
+  [apply] [grind =_] for pattern: [@HAdd.hAdd #3 _ _ _ (@G'.p _ #1) (@G'.p _ #0)]
+Try these:
+  [apply] [grind =] for pattern: [@G'.p #1 (@OfNat.ofNat (G' _) `[0] _)]
+  [apply] [grind =_] for pattern: [@OfNat.ofNat #1 `[0] _]
+  [apply] [grind! .] for pattern: [@OfNat.ofNat (G' #1) `[0] _]
+Try these:
+  [apply] [grind =] for pattern: [@G'.p #2 (@Neg.neg (G' _) _ #0)]
+  [apply] [grind =_] for pattern: [@Neg.neg #2 _ (@G'.p _ #0)]
+  [apply] [grind! .] for pattern: [@Neg.neg (G' #2) _ #0]

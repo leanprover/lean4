@@ -6,10 +6,8 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Lean.Elab.InfoTree.Main
-public import Lean.DocString.Extension
-
-public section
+import Lean.Elab.InfoTree.Main
+import Lean.DocString.Markdown
 
 namespace Lean
 
@@ -30,12 +28,16 @@ builtin_initialize
       | `(attr| inherit_doc $[$id?:ident]?) => withRef stx[0] do
         let some id := id?
           | throwError "Invalid `[inherit_doc]` attribute: Could not infer doc source"
-        let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
+        -- allow inheriting private docstrings
+        let declName ← withoutExporting <| Elab.realizeGlobalConstNoOverloadWithInfo id
+        Core.checkDeprecatedAt id declName
         if (← findSimpleDocString? (← getEnv) decl (includeBuiltin := false)).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
-        let some doc ← findSimpleDocString? (← getEnv) declName
-          | logWarningAt id m!"{← mkConstWithLevelParams declName} does not have a doc string"
-        -- This docstring comes from the environment, so documentation links have already been validated
-        addDocStringCore decl doc
+        -- Outside the server, we do not have access to all docstrings
+        if !(← getEnv).header.isModule || Elab.inServer.get (← getOptions) then
+          if (← findInternalDocString? (← getEnv) declName).isNone then
+            logWarningAt id m!"{← mkConstWithLevelParams declName} does not have a doc string"
+        addInheritedDocString decl declName
       | _  => throwError "Invalid `[inherit_doc]` attribute syntax"
+    applicationTime := AttributeApplicationTime.afterCompilation
   }

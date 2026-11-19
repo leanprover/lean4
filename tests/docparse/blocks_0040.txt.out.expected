@@ -1,0 +1,47 @@
+Input: "Here's some error recovery for directives.\n\n::::foo\n\nIndeed.\n\nIt is.\n\n:::\n"
+3 failures:
+Failure: expected identifier
+ --> 9:3
+  |
+9 | :::
+  |    ^
+  = consumed input prefix: 73 bytes
+
+Failure: unterminated directive opened on line 3; expected '::::'
+ --> 3:0-3:4
+  |
+3 | ::::foo
+  | ^^^^
+  = consumed input prefix: 74 bytes
+
+Failure: unterminated directive opened on line 9; expected ':::'
+ --> 9:0-9:3
+  |
+9 | :::
+  | ^^^
+  = consumed input prefix: 74 bytes
+
+Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Here's some error recovery for directives."))])
+   (Lean.Doc.Parser.Block.directive
+    (Lean.Doc.Parser.directiveDelimiter "::::")
+    `foo
+    []
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "Indeed."))])
+     (Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "It is."))])
+     (Lean.Doc.Parser.Block.directive
+      (Lean.Doc.Parser.directiveDelimiter ":::")
+      <missing>
+      []
+      []
+      <missing>)]
+    <missing>)]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

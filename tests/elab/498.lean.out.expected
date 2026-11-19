@@ -1,0 +1,4 @@
+@Kind.missingFlagArg.inj : ∀ {flag : Flag} {inputFlag : InputFlag} {msg : String} {flag_1 : Flag}
+  {inputFlag_1 : InputFlag} {msg_1 : String},
+  Kind.missingFlagArg flag inputFlag msg = Kind.missingFlagArg flag_1 inputFlag_1 msg_1 →
+    flag = flag_1 ∧ inputFlag = inputFlag_1 ∧ msg = msg_1

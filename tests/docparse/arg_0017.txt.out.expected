@@ -1,0 +1,17 @@
+Input: "(x := 42\n)"
+Failure: expected ')'
+ --> 1:8
+  |
+1 | (x := 42
+  |         ^
+  = consumed input prefix: 8 bytes
+Final stack:
+  (Lean.Doc.Parser.Arg.named
+   "("
+   `x
+   ":="
+   (Lean.Doc.Parser.ArgVal.num (num "42"))
+   <missing>)
+Remaining:
+"\n)"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

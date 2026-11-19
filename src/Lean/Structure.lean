@@ -8,10 +8,11 @@ Helper functions for retrieving structure information.
 module
 
 prelude
-public import Init.Control.Option
-public import Lean.Environment
 public import Lean.ProjFns
 public import Lean.Exception
+public import Init.While
+public import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -84,7 +85,8 @@ private structure StructureState where
   map : PersistentHashMap Name StructureInfo := {}
   deriving Inhabited
 
-builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+private builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+  logWrites       := true
   mkInitial       := pure ((), {})
   addImportedFn   := fun _ => pure ((), {})
   addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })
@@ -107,11 +109,17 @@ Every structure created by `structure` or `class` has such an entry.
 This should be followed up with `setStructureParents` and `setStructureResolutionOrder`.
 -/
 def registerStructure (env : Environment) (e : StructureDescr) : Environment :=
-  structureExt.addEntry env {
-    structName := e.structName
-    fieldNames := e.fields.map fun e => e.fieldName
-    fieldInfo  := e.fields.qsort StructureFieldInfo.lt
-  }
+  have : Inhabited Environment := ⟨env⟩
+  -- Write-once, as for `MapDeclarationExtension.insert`, except for `setStructureParents` below
+  -- adding the parent info once the parent projections exist.
+  if structureExt.getState env |>.snd.map.contains e.structName then
+    panic! s!"structure `{e.structName}` is already registered"
+  else
+    structureExt.addEntry (log := .decl e.structName) env {
+      structName := e.structName
+      fieldNames := e.fields.map fun e => e.fieldName
+      fieldInfo  := e.fields.qsort StructureFieldInfo.lt
+    }
 
 /--
 Sets parent projection info for a structure defined in the current module.
@@ -119,8 +127,8 @@ Throws an error if the structure has not already been registered with `Lean.regi
 -/
 def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name) (parentInfo : Array StructureParentInfo) : m Unit := do
   let some info := structureExt.getState (← getEnv) |>.snd.map.find? structName
-    | throwError "cannot set structure parents for '{structName}', structure not defined in current module"
-  modifyEnv fun env => structureExt.addEntry env { info with parentInfo }
+    | throwError "cannot set structure parents for `{structName}`, structure not defined in current module"
+  modifyEnv (structureExt.addEntry (log := .decl structName) · { info with parentInfo })
 
 /-- Gets the `StructureInfo` if `structName` has been declared as a structure to the elaborator. -/
 def getStructureInfo? (env : Environment) (structName : Name) : Option StructureInfo :=
@@ -143,8 +151,7 @@ Gets the constructor of an inductive type that has exactly one constructor.
 This is meant to be used with types that have had been registered as a structure by `registerStructure`,
 but this is not checked.
 
-Warning: these do *not* need to be "structure-likes". A structure-like is non-recursive,
-and structure-likes have special kernel support.
+Warning: this does not check that the type has no indices.
 -/
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
@@ -357,9 +364,9 @@ where
 /--
 Returns true iff `constName` is a non-recursive inductive datatype that has only one constructor and no indices.
 
-Such types have special kernel support. This must be in sync with `is_structure_like`.
+Such types have special kernel support (e.g. the eta rule). This must be in sync with `is_non_rec_structure()`.
 -/
-def isStructureLike (env : Environment) (constName : Name) : Bool :=
+def isNonRecStructure (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
@@ -367,7 +374,7 @@ def isStructureLike (env : Environment) (constName : Name) : Bool :=
 /--
 Returns the constructor of the structure named `constName` if it is a non-recursive single-constructor inductive type with no indices.
 -/
-def getStructureLikeCtor? (env : Environment) (constName : Name) : Option ConstructorVal :=
+def getNonRecStructureCtor? (env : Environment) (constName : Name) : Option ConstructorVal :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, .. }) =>
     match env.find? ctorName with
@@ -375,8 +382,8 @@ def getStructureLikeCtor? (env : Environment) (constName : Name) : Option Constr
     | _ => panic! "ill-formed environment"
   | _ => none
 
-/-- Returns the number of fields for a structure-like type -/
-def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=
+/-- Returns the number of fields for a non-recursive structure type. -/
+def getNonRecStructureNumFields (env : Environment) (constName : Name) : Nat :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctor], numIndices := 0, .. }) =>
     match env.find? ctor with
@@ -420,7 +427,7 @@ We use an environment extension to cache resolution orders.
 These are not expensive to compute, but worth caching, and we save olean storage space.
 -/
 builtin_initialize structureResolutionExt : EnvExtension StructureResolutionState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 /-- Gets the resolution order if it has already been cached. -/
 private def getStructureResolutionOrder? (env : Environment) (structName : Name) : Option (Array Name) :=
@@ -428,7 +435,8 @@ private def getStructureResolutionOrder? (env : Environment) (structName : Name)
 
 /-- Caches a structure's resolution order. -/
 private def setStructureResolutionOrder [MonadEnv m] (structName : Name) (resolutionOrder : Array Name) : m Unit :=
-  modifyEnv fun env => structureResolutionExt.modifyState env fun s =>
+  -- unlogged: a mere cache of a pure computation over tracked inputs
+  modifyEnv fun env => structureResolutionExt.modifyState (log := .unlogged) env fun s =>
     { s with resolutions := s.resolutions.insert structName resolutionOrder }
 
 /-- "The `badParent` must come after the `conflicts`. -/

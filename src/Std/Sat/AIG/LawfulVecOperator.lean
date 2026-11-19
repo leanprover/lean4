@@ -6,8 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.LawfulOperator
 public import Std.Sat.AIG.RefVec
+import Init.Omega
 
 @[expose] public section
 

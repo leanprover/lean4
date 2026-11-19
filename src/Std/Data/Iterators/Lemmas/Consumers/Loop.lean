@@ -6,17 +6,14 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.List.Control
-public import Init.Data.Iterators.Consumers.Collect
-public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Lemmas.Basic
 public import Init.Data.Iterators.Lemmas.Consumers.Loop
 public import Std.Data.Iterators.Lemmas.Consumers.Collect
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
     [Iterator α₁ Id β] [Iterator α₂ Id β] [Finite α₁ Id] [Finite α₂ Id]
@@ -48,4 +45,4 @@ theorem Iter.Equiv.fold_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
     ita.fold (init := init) f = itb.fold (init := init) f := by
   simp [Iter.fold_eq_foldM, h.foldM_eq]
 
-end Std.Iterators
+end Std

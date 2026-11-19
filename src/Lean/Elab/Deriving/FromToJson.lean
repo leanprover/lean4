@@ -6,11 +6,8 @@ Authors: Sebastian Ullrich, Dany Fabian
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
-public import Lean.Data.Json.FromToJson.Basic
-meta import Lean.Parser.Do
 
 public section
 
@@ -31,7 +28,7 @@ def mkFromJsonHeader (indVal : InductiveVal) : TermElabM Header := do
 
 def mkJsonField (n : Name) : CoreM (Bool × Term) := do
   let .str .anonymous s := n | throwError "invalid json field name {n}"
-  let s₁ := s.dropRightWhile (· == '?')
+  let s₁ := s.dropEndWhile (· == '?') |>.copy
   return (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonBodyForStruct (header : Header) (indName : Name) : TermElabM Term := do
@@ -113,14 +110,18 @@ def mkFromJsonBodyForStruct (indName : Name) : TermElabM Term := do
 
 def mkFromJsonBodyForInduct (ctx : Context) (indName : Name) : TermElabM Term := do
   let indVal ← getConstInfoInduct indName
-  let alts ← mkAlts indVal
-  let auxTerm ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
-  `($auxTerm)
+  let (ctors, alts) := (← mkAlts indVal).unzip
+  `(match Json.getTag? json with
+    | some tag => match tag with
+      $[| $(ctors.map Syntax.mkStrLit) => $(alts)]*
+      | _ => Except.error "no inductive constructor matched"
+    | none => Except.error "no inductive tag found")
 where
-  mkAlts (indVal : InductiveVal) : TermElabM (Array Term) := do
+  mkAlts (indVal : InductiveVal) : TermElabM (Array (String × Term)) := do
   let mut alts := #[]
   for ctorName in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctorName
+    let ctorStr := ctorName.eraseMacroScopes.getString!
     let alt ← do forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut binders   := #[]
         let mut userNames := #[]
@@ -144,11 +145,14 @@ where
         else
           ``(none)
         let stx ←
-          `((Json.parseTagged json $(quote ctorName.eraseMacroScopes.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
-            (fun jsons => do
-              $[let $identNames:ident ← $fromJsons:doExpr]*
-              return $(mkIdent ctorName):ident $identNames*))
-        pure (stx, ctorInfo.numFields)
+          if ctorInfo.numFields == 0 then
+            `(return $(mkIdent ctorName):ident $identNames*)
+          else
+            `((Json.parseCtorFields json $(quote ctorStr) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
+              (fun jsons => do
+                $[let $identNames:ident ← $fromJsons:doExpr]*
+                return $(mkIdent ctorName):ident $identNames*))
+        pure ((ctorStr, stx), ctorInfo.numFields)
       alts := alts.push alt
   -- the smaller cases, especially the ones without fields are likely faster
   let alts' := alts.qsort (fun (_, x) (_, y) => x < y)
@@ -215,13 +219,13 @@ def mkFromJsonMutualBlock (ctx : Context) : TermElabM Command := do
     end)
 
 private def mkToJsonInstance (declName : Name) : TermElabM (Array Command) := do
-  let ctx ← mkContext "toJson" declName
+  let ctx ← mkContext ``ToJson "toJson" declName
   let cmds := #[← mkToJsonMutualBlock ctx] ++ (← mkInstanceCmds ctx ``ToJson #[declName])
   trace[Elab.Deriving.toJson] "\n{cmds}"
   return cmds
 
 private def mkFromJsonInstance (declName : Name) : TermElabM (Array Command) := do
-  let ctx ← mkContext "fromJson" declName
+  let ctx ← mkContext ``FromJson "fromJson" declName
   let cmds := #[← mkFromJsonMutualBlock ctx] ++ (← mkInstanceCmds ctx ``FromJson #[declName])
   trace[Elab.Deriving.fromJson] "\n{cmds}"
   return cmds

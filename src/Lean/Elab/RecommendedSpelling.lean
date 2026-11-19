@@ -6,8 +6,6 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Lean.Parser.Term.Doc
-public import Lean.Parser.Command
 public import Lean.Elab.Command
 
 public section
@@ -20,6 +18,7 @@ open Lean.Parser.Command
 @[builtin_command_elab «recommended_spelling»] def elabRecommendedSpelling : CommandElab
   | `(«recommended_spelling»|$[$docs:docComment]? recommended_spelling $spelling:str for $«notation»:str in [$[$decls:ident],*]) => do
     let declNames ← liftTermElabM <| decls.mapM (fun decl => realizeGlobalConstNoOverloadWithInfo decl)
+    declNames.forM (recordExtraModUseFromDecl (isMeta := false))
     let recommendedSpelling : RecommendedSpelling := {
       «notation» := «notation».getString
       recommendedSpelling := spelling.getString
@@ -32,7 +31,7 @@ open Lean.Parser.Command
 def allRecommendedSpellings : MetaM (Array RecommendedSpelling) := do
   let all := recommendedSpellingExt.toEnvExtension.getState (← getEnv)
       |>.importedEntries
-      |>.push (recommendedSpellingExt.exportEntriesFn (← getEnv) (recommendedSpellingExt.getState (← getEnv)) .exported)
+      |>.push ((recommendedSpellingExt.exportEntriesFn (← getEnv) (recommendedSpellingExt.getState (← getEnv))).exported)
   return all.flatMap id
 
 end Lean.Elab.Term.Doc

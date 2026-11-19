@@ -1,0 +1,12 @@
+Input: "_ aa_"
+Failure: unexpected space or newline after opener
+ --> 1:0-1:1
+  |
+1 | _ aa_
+  | ^
+  = consumed input prefix: 0 bytes
+Final stack:
+  <missing>
+Remaining:
+"_ aa_"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

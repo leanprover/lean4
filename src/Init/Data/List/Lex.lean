@@ -6,10 +6,26 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Lemmas
-public import Init.Data.List.Nat.TakeDrop
+import Init.Data.Order.Lemmas
+public import Init.Data.BEq
+public import Init.Data.Ord.Basic
+public import Init.Data.Function
+public import Init.Data.Order.Classes
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.TacticsExtra
+import Init.Data.Order.LemmasExtra
+import Init.Data.Nat.Compare
 
 public section
+
+open Std
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -18,10 +34,26 @@ namespace List
 
 /-! ### Lexicographic ordering -/
 
+instance [LT α] [Std.Asymm (α := List α) (· < ·)] : LawfulOrderLT (List α) where
+  lt_iff := by
+    simp only [LE.le, List.le, Classical.not_not, iff_and_self]
+    apply Std.Asymm.asymm
+
 @[simp] theorem lex_lt [LT α] {l₁ l₂ : List α} : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
 @[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
+@[simp]
+protected theorem not_lt [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+
+@[deprecated List.not_lt (since := "2025-10-26")]
 protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+
+@[simp]
+protected theorem not_le [LT α] {l₁ l₂ : List α} :
+    ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
+  Classical.not_not
+
+@[deprecated List.not_le (since := "2025-10-26")]
 protected theorem not_le_iff_gt [LT α] {l₁ l₂ : List α} :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Classical.not_not
@@ -61,14 +93,21 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
 
 @[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex.nil
 
+theorem nil_lt_iff [LT α] {l : List α} : [] < l ↔ l ≠ [] := by
+  cases l <;> simp
+
 theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b ∧ Lex r l₁ l₂ :=
   ⟨fun | .rel h => .inl h | .cons h => .inr ⟨rfl, h⟩,
     fun | .inl h => Lex.rel h | .inr ⟨rfl, h⟩ => Lex.cons h⟩
 
 theorem cons_lt_cons_iff [LT α] {a b} {l₁ l₂ : List α} :
     (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
-  dsimp only [instLT, List.lt]
+  simp only [LT.lt, List.lt]
   simp [cons_lex_cons_iff]
+
+theorem cons_lt_cons_of_lt [LT α] {a b : α} {l₁ l₂ : List α} (h : a < b) :
+    a :: l₁ < b :: l₂ := by
+  simp [cons_lt_cons_iff, h]
 
 @[simp] theorem cons_lt_cons_self [LT α] [i₀ : Std.Irrefl (· < · : α → α → Prop)] {l₁ l₂ : List α} :
     (a :: l₁) < (a :: l₂) ↔ l₁ < l₂ := by
@@ -79,12 +118,11 @@ theorem not_cons_lex_cons_iff [DecidableEq α] [DecidableRel r] {a b} {l₁ l₂
   rw [cons_lex_cons_iff, not_or, Decidable.not_and_iff_or_not, and_or_left]
 
 theorem cons_le_cons_iff [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
     {a b} {l₁ l₂ : List α} :
     (a :: l₁) ≤ (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ ≤ l₂ := by
-  dsimp only [instLE, instLT, List.le, List.lt]
+  simp only [LE.le, LT.lt, List.le, List.lt]
   open Classical in
   simp only [not_cons_lex_cons_iff, ne_eq]
   constructor
@@ -93,32 +131,35 @@ theorem cons_le_cons_iff [LT α]
       apply Decidable.byContradiction
       intro h₃
       apply h₂
-      exact i₂.antisymm _ _ h₁ h₃
+      exact i₂.trichotomous _ _ h₁ h₃
     · if h₃ : a < b then
         exact .inl h₃
       else
         right
-        exact ⟨i₂.antisymm _ _ h₃ h₁, h₂⟩
+        exact ⟨i₂.trichotomous _ _ h₃ h₁, h₂⟩
   · rintro (h | ⟨h₁, h₂⟩)
     · left
-      exact ⟨i₁.asymm _ _ h, fun w => i₀.irrefl _ (w ▸ h)⟩
+      exact ⟨i₁.asymm _ _ h, fun w => Irrefl.irrefl _ (w ▸ h)⟩
     · right
-      exact ⟨fun w => i₀.irrefl _ (h₁ ▸ w), h₂⟩
+      exact ⟨fun w => Irrefl.irrefl _ (h₁ ▸ w), h₂⟩
 
 theorem not_lt_of_cons_le_cons [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
     {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : ¬ b < a := by
   rw [cons_le_cons_iff] at h
   rcases h with h | ⟨rfl, h⟩
   · exact i₁.asymm _ _ h
-  · exact i₀.irrefl _
+  · exact Irrefl.irrefl _
+
+theorem left_le_left_of_cons_le_cons [LT α] [LE α] [IsLinearOrder α]
+    [LawfulOrderLT α] {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : a ≤ b := by
+  simpa [not_lt] using not_lt_of_cons_le_cons h
 
 theorem le_of_cons_le_cons [LT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
     {a} {l₁ l₂ : List α} (h : a :: l₁ ≤ a :: l₂) : l₁ ≤ l₂ := by
   rw [cons_le_cons_iff] at h
   rcases h with h | ⟨_, h⟩
@@ -156,21 +197,16 @@ theorem lex_trans {r : α → α → Prop}
 protected theorem lt_trans [LT α]
     [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  simp only [instLT, List.lt] at h₁ h₂ ⊢
+  simp only [LT.lt, List.lt] at h₁ h₂ ⊢
   exact lex_trans (fun h₁ h₂ => i₁.trans h₁ h₂) h₁ h₂
 
 instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := List.lt_trans h₁ h₂
 
-@[deprecated List.le_antisymm (since := "2024-12-13")]
-protected abbrev lt_antisymm := @List.le_antisymm
 
-protected theorem lt_of_le_of_lt [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+
+protected theorem lt_of_le_of_lt [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
   induction h₂ generalizing l₁ with
   | nil => simp_all
@@ -180,11 +216,8 @@ protected theorem lt_of_le_of_lt [LT α]
     | nil => simp_all
     | cons c l₁ =>
       apply Lex.rel
-      replace h₁ := not_lt_of_cons_le_cons h₁
-      apply Classical.byContradiction
-      intro h₂
-      have := i₃.trans h₁ h₂
-      contradiction
+      replace h₁ := left_le_left_of_cons_le_cons h₁
+      exact lt_of_le_of_lt h₁ hab
   | cons w₃ ih =>
     rename_i a as bs
     cases l₁ with
@@ -194,21 +227,14 @@ protected theorem lt_of_le_of_lt [LT α]
       by_cases w₅ : a = c
       · subst w₅
         exact Lex.cons (ih (le_of_cons_le_cons h₁))
-      · exact Lex.rel (Classical.byContradiction fun w₆ => w₅ (i₂.antisymm _ _ w₄ w₆))
+      · simp only [not_lt] at w₄
+        exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
-protected theorem le_trans [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+protected theorem le_trans [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
 
-instance [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+instance [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := List.le_trans h₁ h₂
 
@@ -248,22 +274,22 @@ theorem not_lex_total {r : α → α → Prop}
     obtain (_ | _) := not_lex_total h l₁ l₂ <;> contradiction
 
 protected theorem le_total [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
-  not_lex_total i.total l₂ l₁
+    [i : Std.Asymm (· < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
+  not_lex_total i.total_not.total l₂ l₁
 
-instance [LT α]
-    [Std.Total (¬ · < · : α → α → Prop)] :
+protected theorem le_total_of_asymm [LT α]
+    [i : Std.Asymm (· < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
+  List.le_total l₁ l₂
+
+instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total := List.le_total
 
-@[simp] protected theorem not_lt [LT α]
-    {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-
-@[simp] protected theorem not_le [LT α]
-    {l₁ l₂ : List α} : ¬ l₂ ≤ l₁ ↔ l₁ < l₂ := Classical.not_not
+instance instIsLinearOrder [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
+    IsLinearOrder (List α) := IsLinearOrder.of_le
 
 protected theorem le_of_lt [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)]
+    [i : Std.Asymm (· < · : α → α → Prop)]
     {l₁ l₂ : List α} (h : l₁ < l₂) : l₁ ≤ l₂ := by
   obtain (h' | h') := List.le_total l₁ l₂
   · exact h'
@@ -271,9 +297,8 @@ protected theorem le_of_lt [LT α]
     exact h' h
 
 protected theorem le_iff_lt_or_eq [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Total (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
     {l₁ l₂ : List α} : l₁ ≤ l₂ ↔ l₁ < l₂ ∨ l₁ = l₂ := by
   constructor
   · intro h
@@ -457,9 +482,8 @@ protected theorem lt_iff_exists [LT α] {l₁ l₂ : List α} :
   simp
 
 protected theorem le_iff_exists [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)] {l₁ l₂ : List α} :
+    [Std.Trichotomous (· < · : α → α → Prop)] {l₁ l₂ : List α} :
     l₁ ≤ l₂ ↔
       (l₁ = l₂.take l₁.length) ∨
         (∃ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length),
@@ -472,7 +496,11 @@ protected theorem le_iff_exists [LT α]
     conv => lhs; simp +singlePass [exists_comm]
   · simpa using Std.Irrefl.irrefl
   · simpa using Std.Asymm.asymm
-  · simpa using Std.Antisymm.antisymm
+  · simpa using Std.Trichotomous.trichotomous
+
+theorem lt_of_getElem_zero [LT α] {l₁ l₂ : List α} (h₁ : 0 < l₁.length) (h₂ : 0 < l₂.length)
+    (h : l₁[0]'h₁ < l₂[0]'h₂) : l₁ < l₂ :=
+  List.lt_iff_exists.2 (Or.inr ⟨0, by simp_all⟩)
 
 theorem append_left_lt [LT α] {l₁ l₂ l₃ : List α} (h : l₂ < l₃) :
     l₁ ++ l₂ < l₁ ++ l₃ := by
@@ -481,9 +509,8 @@ theorem append_left_lt [LT α] {l₁ l₂ l₃ : List α} (h : l₂ < l₃) :
   | cons a l₁ ih => simp [cons_lt_cons_iff, ih]
 
 theorem append_left_le [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     {l₁ l₂ l₃ : List α} (h : l₂ ≤ l₃) :
     l₁ ++ l₂ ≤ l₁ ++ l₃ := by
   induction l₁ with
@@ -502,6 +529,50 @@ theorem IsPrefix.le [LT α] [Std.Irrefl (· < · : α → α → Prop)]
   rcases h with ⟨_, rfl⟩
   apply le_append_left
 
+theorem append_lt_append_iff_of_length_eq [LT α] {l₁ l₂ l₃ l₄ : List α}
+    (h : l₁.length = l₂.length) :
+    l₁ ++ l₃ < l₂ ++ l₄ ↔ l₁ < l₂ ∨ (l₁ = l₂ ∧ l₃ < l₄) := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;>
+    simp_all [List.cons_lt_cons_iff, and_or_left, or_assoc, and_assoc]
+
+theorem append_le_append_iff_of_length_eq [LT α] [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)] {l₁ l₂ l₃ l₄ : List α}
+    (h : l₁.length = l₂.length) :
+    l₁ ++ l₃ ≤ l₂ ++ l₄ ↔ l₁ < l₂ ∨ (l₁ = l₂ ∧ l₃ ≤ l₄) := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;>
+    simp_all [List.cons_lt_cons_iff, List.cons_le_cons_iff, and_or_left, or_assoc, and_assoc]
+
+theorem append_right_lt_iff_of_length_eq [LT α] [Std.Irrefl (· < · : α → α → Prop)]
+    {l₁ l₂ : List α} (l₃ : List α) (h : l₁.length = l₂.length) :
+    l₁ ++ l₃ < l₂ ++ l₃ ↔ l₁ < l₂ := by
+  simp [append_lt_append_iff_of_length_eq h, Std.lt_irrefl]
+
+theorem append_right_le_iff_of_length_eq [LT α] [Std.Irrefl (· < · : α → α → Prop)]
+    {l₁ l₂ : List α} (l₃ : List α) (h : l₁.length = l₂.length) :
+    l₁ ++ l₃ ≤ l₂ ++ l₃ ↔ l₁ ≤ l₂ :=
+  not_congr (append_right_lt_iff_of_length_eq l₃ h.symm)
+
+@[simp]
+theorem append_left_lt_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (l₁ : List α)
+    {l₂ l₃ : List α} : l₁ ++ l₂ < l₁ ++ l₃ ↔ l₂ < l₃ := by
+  simp [append_lt_append_iff_of_length_eq (l₁ := l₁) (l₂ := l₁) rfl, Std.lt_irrefl]
+
+@[simp]
+theorem append_left_le_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (l₁ : List α)
+    {l₂ l₃ : List α} : l₁ ++ l₂ ≤ l₁ ++ l₃ ↔ l₂ ≤ l₃ :=
+  not_congr (append_left_lt_iff l₁)
+
+theorem append_lt_append_of_lt_of_not_prefix [LT α] {l₁ l₂ l₃ l₄ : List α} (h₁ : l₁ < l₂)
+    (h₂ : ¬ l₁ <+: l₂) : l₁ ++ l₃ < l₂ ++ l₄ := by
+  revert h₁; induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all [List.cons_lt_cons_iff, or_imp]
+
+attribute [local congr] and_congr_right_eq in
+theorem append_lt_append_iff_lt_of_prefix [LT α] {l₁ l₂ l₃ l₄ : List α}
+    (h₁ : l₁ <+: l₂ → l₁ = l₂) (h₂ : l₂ <+: l₁ → l₂ = l₁) :
+    l₁ ++ l₃ < l₂ ++ l₄ ↔ l₁ < l₂ ∨ (l₁ = l₂ ∧ l₃ < l₄) := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;>
+    simp_all +contextual [List.cons_lt_cons_iff, and_or_left, or_assoc, and_assoc]
+
 protected theorem map_lt [LT α] [LT β]
     {l₁ l₂ : List α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ < l₂) :
     map f l₁ < map f l₂ := by
@@ -515,12 +586,10 @@ protected theorem map_lt [LT α] [LT β]
     simp [cons_lt_cons_iff, w, h]
 
 protected theorem map_le [LT α] [LT β]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Irrefl (· < · : β → β → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
-    [Std.Antisymm (¬ · < · : β → β → Prop)]
+    [Std.Trichotomous (· < · : β → β → Prop)]
     {l₁ l₂ : List α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ ≤ l₂) :
     map f l₁ ≤ map f l₂ := by
   rw [List.le_iff_exists] at h ⊢
@@ -532,5 +601,73 @@ protected theorem map_le [LT α] [LT β]
     refine ⟨i, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
     · simp +contextual [w₁]
     · simpa using w _ _ w₂
+
+/-- See `map_lt_map_iff` for a variant with fewer proof obligations for `f` but with some mild
+assumptions on the order on `α` and `β`. -/
+theorem map_lt_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
+    (hfinj : Function.Injective f) {l₁ l₂ : List α} :
+    l₁.map f < l₂.map f ↔ l₁ < l₂ := by
+  induction l₂ generalizing l₁ with
+  | nil => simp
+  | cons b bs ih =>
+    cases l₁ with
+    | nil => simp
+    | cons a as => simp [List.cons_lt_cons_iff, ih, hf, hfinj.eq_iff]
+
+-- Move these to a better file
+
+/-- See `map_lt_map_iff_of_injective` for a variant which does not assume anything about the order
+on `α` and `β`, but with more assumptions on `f`. -/
+theorem map_lt_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
+    {l₁ l₂ : List α} : l₁.map f < l₂.map f ↔ l₁ < l₂ :=
+  map_lt_map_iff_of_injective _ (fun _ _ => Std.lt_iff_of_strictMono hf)
+    (Std.injective_of_strictMono hf)
+
+theorem map_le_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
+    (hfinj : Function.Injective f) {l₁ l₂ : List α} :
+    l₁.map f ≤ l₂.map f ↔ l₁ ≤ l₂ :=
+  not_congr (map_lt_map_iff_of_injective f hf hfinj)
+
+theorem map_le_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
+    {l₁ l₂ : List α} : l₁.map f ≤ l₂.map f ↔ l₁ ≤ l₂ :=
+  not_congr (map_lt_map_iff f hf)
+
+theorem flatMap_lt_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → List β)
+    (hf : ∀ a b, a < b → f a < f b)
+    (hp : ∀ a b, f a <+: f b → a = b)
+    (hx : ∀ a, f a ≠ [])
+    {l₁ l₂ : List α} :
+    l₁.flatMap f < l₂.flatMap f ↔ l₁ < l₂ := by
+  induction l₂ generalizing l₁ <;> cases l₁ <;>
+    simp_all [List.nil_lt_iff, append_lt_append_iff_lt_of_prefix
+      (fun h => congrArg f (hp ..)) (fun h => congrArg f (hp ..)),
+      Std.lt_iff_of_strictMono hf, Std.inj_of_strictMono hf, List.cons_lt_cons_iff]
+
+theorem flatMap_le_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → List β)
+    (hf : ∀ a b, a < b → f a < f b)
+    (hp : ∀ a b, f a <+: f b → a = b)
+    (hx : ∀ a, f a ≠ [])
+    {l₁ l₂ : List α} :
+    l₁.flatMap f ≤ l₂.flatMap f ↔ l₁ ≤ l₂ :=
+  not_congr (flatMap_lt_flatMap_iff f hf hp hx)
+
+protected theorem compare_eq_compare_take_min_then [Ord α] {l₁ l₂ : List α} :
+    compare l₁ l₂ =
+      (compare (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))).then
+        (compare l₁.length l₂.length) := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> rfl
+  | cons x xs ih =>
+    cases l₂ with
+    | nil => rfl
+    | cons y ys =>
+      rw [List.length_cons, List.length_cons, Nat.add_min_add_right, List.take_succ_cons,
+        List.take_succ_cons, List.compare_cons_cons, List.compare_cons_cons, ih, Ordering.then_assoc,
+        Nat.compare_eq_ite_lt (_ + 1), Nat.compare_eq_ite_lt xs.length]
+      simp only [Nat.add_lt_add_iff_right]
 
 end List

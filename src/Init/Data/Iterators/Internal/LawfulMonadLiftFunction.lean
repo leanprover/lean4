@@ -6,9 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Basic
-public import Init.Control.Lawful.Basic
-public import Init.NotationExtra
 public import Init.Control.Lawful.MonadLift
 
 public section
@@ -58,7 +55,7 @@ theorem LawfulMonadLiftFunction.lift_map [LawfulMonad m] [LawfulMonad n]
 theorem LawfulMonadLiftFunction.lift_seq [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftFunction lift] (mf : m (α → β)) (ma : m α) :
     lift (mf <*> ma) = lift mf <*> (lift ma : n α) := by
-  simp only [seq_eq_bind, lift_map, lift_bind]
+  simp only [seq_eq_bind_map, lift_map, lift_bind]
 
 theorem LawfulMonadLiftFunction.lift_seqLeft [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftFunction lift] (x : m α) (y : m β) :
@@ -73,7 +70,7 @@ theorem LawfulMonadLiftFunction.lift_seqRight [LawfulMonad m] [LawfulMonad n]
 abbrev idToMonad [Monad m] ⦃α : Type u⦄ (x : Id α) : m α :=
     pure x.run
 
-def LawfulMonadLiftFunction.idToMonad [Monad m] [LawfulMonad m] :
+theorem LawfulMonadLiftFunction.idToMonad [LawfulMonad m] :
     LawfulMonadLiftFunction (m := Id) (n := m) idToMonad where
   lift_pure := by simp [Internal.idToMonad]
   lift_bind := by simp [Internal.idToMonad]
@@ -98,7 +95,7 @@ instance [LawfulMonadLiftBindFunction (n := n) (fun _ _ f x => lift x >>= f)] [L
     simpa using LawfulMonadLiftBindFunction.liftBind_bind (n := n)
       (liftBind := fun _ _ f x => lift x >>= f) (β := β) (γ := γ) (δ := γ) pure x g
 
-def LawfulMonadLiftBindFunction.id [Monad m] [LawfulMonad m] :
+theorem LawfulMonadLiftBindFunction.id [LawfulMonad m] :
     LawfulMonadLiftBindFunction (m := Id) (n := m) (fun _ _ f x => f x.run) where
   liftBind_pure := by simp
   liftBind_bind := by simp
@@ -113,6 +110,11 @@ instance {n : Type u → Type w} [Monad n] [LawfulMonad n] :
     LawfulMonadLiftBindFunction (fun γ δ (f : γ → n δ) (x : Id γ) => f x.run) where
   liftBind_pure := by simp
   liftBind_bind := by simp
+
+instance {m : Type u → Type v} [Monad m] [LawfulMonad m] :
+    LawfulMonadLiftBindFunction (m := m) (n := m) (fun _ _ => flip Bind.bind) where
+  liftBind_pure := by simp [flip]
+  liftBind_bind := by simp [flip]
 
 end LiftBind
 

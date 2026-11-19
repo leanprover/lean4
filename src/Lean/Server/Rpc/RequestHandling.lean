@@ -7,23 +7,21 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Extra
 public import Lean.Server.Requests
 
-public import Lean.Server.Rpc.Basic
 
 public section
 
 namespace Lean.Server
 
-private structure RpcProcedure where
+structure RpcProcedure where private mk ::
   wrapper : (sessionId : UInt64) → Json → RequestM (RequestTask Json)
   deriving Inhabited
 
 /- We store the builtin RPC handlers in a Ref and users' handlers in an extension. This ensures
 that users don't need to import core Lean modules to make builtin handlers work, but also that
 they *can* easily create custom handlers and use them in the same file. -/
-builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
+private builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
   IO.mkRef {}
 builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
   mkMapDeclarationExtension
@@ -33,8 +31,12 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
   env.evalConstCheck RpcProcedure opts ``RpcProcedure procName
 
 @[implemented_by evalRpcProcedureUnsafe]
-opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
+private opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
+
+/-- Checks whether a builtin RPC procedure exists with the given name. -/
+def existsBuiltinRpcProcedure (method : Name) : IO Bool := do
+  return (← builtinRpcProcedures.get).contains method
 
 open RequestM in
 def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
@@ -44,7 +46,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   if let some proc := (← builtinRpcProcedures.get).find? p.method then
     RequestM.asTask do
       let t ← proc.wrapper p.sessionId p.params
-      match t.get with
+      match ← t.wait with
       | .ok r => return r
       | .error err => throw err
   else
@@ -95,7 +97,7 @@ def wrapRpcProcedure (method : Name) paramType respType
       | Except.error e => throw e
       | Except.ok ret =>
         seshRef.modifyGet fun st =>
-          rpcEncode ret st.objects |>.map id ({st with objects := ·})
+          rpcEncode ret |>.run st.objects |>.map id ({st with objects := ·})
 
 def registerBuiltinRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
@@ -123,7 +125,7 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
     let stx ← ``(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))
     let c ← Lean.Elab.Term.elabTerm stx procT
     instantiateMVars c
-  addAndCompile <| Declaration.defnDecl {
+  let decl := Declaration.defnDecl {
         name        := wrappedName
         type        := procT
         value       := proc
@@ -131,6 +133,9 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
         levelParams := []
         hints := ReducibilityHints.opaque
       }
+  addDecl decl
+  modifyEnv (markMeta · wrappedName)
+  compileDecl decl
   setEnv <| userRpcProcedures.insert (← getEnv) method wrappedName
 
 builtin_initialize registerBuiltinAttribute {
@@ -140,7 +145,8 @@ builtin_initialize registerBuiltinAttribute {
     The function must have type `α → RequestM (RequestTask β)` with
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun decl _ _ =>
+  add := fun decl _ attrKind => do
+    ensureAttrDeclIsMeta `server_rpc_method decl attrKind
     registerRpcProcedure decl
 }
 

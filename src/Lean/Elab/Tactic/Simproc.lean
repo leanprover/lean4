@@ -7,11 +7,7 @@ module
 
 prelude
 public import Init.Simproc
-public import Lean.ReservedNameAction
 public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.Term
 public import Lean.Elab.Command
 
 public section
@@ -36,7 +32,8 @@ def checkSimprocType (declName : Name) : CoreM Bool := do
   match decl.type with
   | .const ``Simproc _ => pure false
   | .const ``DSimproc _ => pure true
-  | _ => throwError "unexpected type at '{declName}', 'Simproc' expected"
+  | _ => throwError "Unexpected type for simproc pattern: Expected `{.ofConstName ``Simproc}` or \
+          `{.ofConstName ``DSimproc}`, but `{declName}` has type{indentExpr decl.type}"
 
 namespace Command
 

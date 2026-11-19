@@ -1,0 +1,2 @@
+rm -rf work bar1/.git bar2/.lake .lake
+rm -f lake-manifest.json produced.out

@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Parser.Term
 public import Lean.Elab.Match
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Induction
 
 public section

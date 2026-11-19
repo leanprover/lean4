@@ -72,34 +72,43 @@
    {"start": {"line": 68, "character": 2},
     "end": {"line": 68, "character": 18}}},
   {"source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 71, "character": 8},
+    "end": {"line": 71, "character": 17}},
+   "message": "declaration uses `sorry`",
+   "fullRange":
+   {"start": {"line": 71, "character": 8},
+    "end": {"line": 71, "character": 17}}},
+  {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 75, "character": 44},
-    "end": {"line": 75, "character": 48}},
+   {"start": {"line": 81, "character": 44},
+    "end": {"line": 81, "character": 48}},
    "message":
    "Type mismatch\n  true\nhas type\n  Bool\nbut is expected to have type\n  Nat",
    "fullRange":
-   {"start": {"line": 75, "character": 44},
-    "end": {"line": 75, "character": 48}}},
+   {"start": {"line": 81, "character": 44},
+    "end": {"line": 81, "character": 48}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 82, "character": 4},
-    "end": {"line": 82, "character": 30}},
+   {"start": {"line": 88, "character": 4},
+    "end": {"line": 88, "character": 30}},
    "message": "too many variable names provided",
    "fullRange":
-   {"start": {"line": 82, "character": 4},
-    "end": {"line": 82, "character": 30}}},
+   {"start": {"line": 88, "character": 4},
+    "end": {"line": 88, "character": 30}}},
   {"source": "Lean 4",
    "severity": 3,
    "range":
-   {"start": {"line": 86, "character": 0}, "end": {"line": 87, "character": 0}},
+   {"start": {"line": 92, "character": 0}, "end": {"line": 93, "character": 0}},
    "message": "Goals accomplished!",
    "leanTags": [2],
    "isSilent": true,
    "fullRange":
-   {"start": {"line": 86, "character": 0},
-    "end": {"line": 94, "character": 13}}}]}
+   {"start": {"line": 92, "character": 0},
+    "end": {"line": 100, "character": 13}}}]}
 {"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
  "position": {"line": 22, "character": 2}}
 {"rendered":

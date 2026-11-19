@@ -69,6 +69,12 @@ theorem loop_nat (n : Nat) : ⦃⌜True⌝⦄ loop n ⦃fun r => ⌜r = 0⌝⦄ 
   | inv3 => ⌜True⌝
   all_goals sorry
 
+theorem loop_inv2 (n : Nat) : ⦃⌜True⌝⦄ loop n ⦃fun r => ⌜r = 0⌝⦄ := by
+  vcgen [loop] invariants
+  | inv2 => Variant.ofMeasure fun (i : Nat) => i
+  case inv1 => exact WhileInvariant.ofInvariantAndBreak (fun _ => ⌜True⌝) (fun i => ⌜i = 0⌝)
+  all_goals sorry
+
 theorem sumDef_bool (l : List Nat) : sumDef l = l.sum := by
   generalize h : sumDef l = r
   apply Id.of_run_eq_wp h

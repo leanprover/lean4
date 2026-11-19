@@ -430,11 +430,11 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
 
 /-- `vcgen` step inside `sym => …` blocks. -/
 @[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
-def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
-  let goal ← Lean.Elab.Tactic.Grind.getMainGoal
+def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx =>
   -- The `vcgen` keyword shows the goal before and the goals after VC generation, so the goals after
   -- remain visible when a `with` clause discharges them.
-  let mkInfo ← Lean.Elab.Tactic.Grind.mkInitialTacticInfo stx[0]
+  Lean.Elab.Tactic.Grind.withTacticInfoContext stx[0] do
+  let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM <|
     run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
@@ -448,7 +448,6 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore
     return invGoals ++ result.vcs.toList
   Lean.Elab.Tactic.Grind.replaceMainGoal newGoals
-  withInfoContext (pure ()) mkInfo
 
 /-- Validate the optional `with` clause of `vcgen`. It must be a `grind`-mode step so it can share
 `vcgen`'s internalised E-graph; the `vcgenDischarge` category's `tactic` alternative is a catch-all

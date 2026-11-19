@@ -333,7 +333,8 @@ where
     | some ps => return ps
     | none =>
       let .decl fn := k | unreachable!
-      let some sig ← getImpureSignature? fn | throwError "Failed to find LCNF signature for {fn}"
+      let some sig ← getImpureSignature? fn | throwError "Failed to find LCNF signature for `{.ofConstName fn}`; \
+        its module may have been built with `meta.restrict`, which disables code generation"
       return sig.params
 
   /-- For each ps[i], if ps[i] is owned, then mark args[i] as owned. -/

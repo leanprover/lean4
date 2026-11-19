@@ -497,12 +497,13 @@ protected def forIn'
       return .done acc
 
 /--
-Abstracts over how the next chunk is received, allowing `readAll` to work in both `Async`
-(no cancellation) and `ContextAsync` (races with cancellation via `doneSelector`).
+Abstracts over how the next chunk is received, allowing `readAll` and `drain` to work in both
+`Async` (no cancellation) and `ContextAsync` (races with cancellation via `doneSelector`).
 -/
 class NextChunk (m : Type → Type) where
   /--
-  Receives the next chunk, stopping at EOF or (in `ContextAsync`) when the context is cancelled.
+  Receives the next chunk, or `none` at the end of the stream. In `ContextAsync`, throws once the
+  context is cancelled and the stream has neither a chunk ready nor ended.
   -/
   nextChunk : Stream → m (Option Chunk)
 
@@ -514,9 +515,13 @@ instance : NextChunk ContextAsync where
   nextChunk stream := do
     Selectable.one #[
       .case stream.recvSelector pure,
-      .case (← ContextAsync.doneSelector) (fun _ => pure none),
+      -- The select picks either when both are ready, so a stream that can answer without waiting
+      -- still does: a cancelled context must not end the read early or hide `closeWithError`.
+      .case (← ContextAsync.doneSelector) fun _ => do
+        let some next ← stream.tryRecvBody
+          | throw (.userError "the read was cancelled before the body ended")
+        return next
     ]
-
 
 /--
 Reads all remaining chunks and decodes them into `α`.
@@ -535,11 +540,7 @@ partial def readAll
   -- between threads, so appending to one byte array would copy all of them each time.
   let rec loop (pieces : List ByteArray) (size : Nat) : m ByteArray := do
     match ← NextChunk.nextChunk stream with
-    | none =>
-      -- Only a cancelled context ends the read while the stream is still open.
-      unless ← (stream.isClosed : Async Bool) do
-        throw (.userError "the read was cancelled before the body ended")
-      return Channel.joinPieces pieces size
+    | none => return Channel.joinPieces pieces size
     | some chunk =>
       let size := size + chunk.data.size
       if let some max := maximumSize then
@@ -560,8 +561,8 @@ Drains all remaining chunks from the stream, discarding their contents.
 If `drainLimit` is given, at most that many bytes are consumed; when the limit is exceeded the
 stream is closed (via `closeStream`) and no error is raised.
 
-Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync` (also stops if the
-context is cancelled).
+Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync`, where a context
+cancelled before the end of the stream makes it throw.
 -/
 partial def drain
     [Monad m] [NextChunk m]

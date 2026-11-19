@@ -56,7 +56,7 @@ private def elabDoCatch (lifter : EffectForwarder) (body : Expr) (catch_ : TSynt
   -- So we need to pack up our effects and unpack them after the `try`.
   -- We could optimize for the terminal action case by omitting the state tuple ... in the future.
   let mi := (← read).monadInfo
-  let info ← inferControlInfoElem stx
+  let info ← inferControlInfoElem stx (← read).controlInfoCache
   let lifter ← EffectForwarder.ofCont info dec
   let body ← do
     let body ← lifter.lift (elabDoSeq trySeq)

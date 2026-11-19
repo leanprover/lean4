@@ -4,12 +4,13 @@ open Std Http
 open Std.Http.Protocol.H1
 
 /-!
-Tests the answer to a single field or chunk over a size limit. A field name over
+Tests the answer to a single request line, field or chunk over a size limit. A field name over
 `maxHeaderNameLength` or a field value over `maxHeaderValueLength` gets 431, as too many fields or
 too many field bytes do (RFC 6585 §5: "when a single header field is at fault"). A chunk size of more
 than 16 significant hex digits gets 413, as a chunk over `maxChunkSize` does. A field or size that
 only ends in an invalid byte at the limit is not too long and gets 400. A client fails with the same
-errors.
+errors. A request line over `maxStartLineLength` gets 414, and the empty lines a server ignores
+before it (RFC 9112 §2.2) do not count toward the limit.
 
 Each request is fed as every prefix and as two reads split at every byte boundary, so the answer
 does not depend on where a read ends (#16035).
@@ -118,6 +119,16 @@ def chunked : String := "POST / HTTP/1.1\r\nHost: a\r\nTransfer-Encoding: chunke
   expect413 "17 digits after leading zeros" s!"{chunked}000{repeatStr "f" 16}" "f\r\nabc\r\n0\r\n\r\n",
   expect413 "16 digits over maxChunkSize" s!"{chunked}{repeatStr "f" 16}\r" "\nabc\r\n0\r\n\r\n",
   expect400 "16 digits, then an invalid byte" s!"{chunked}{repeatStr "f" 16}" "g\r\nabc\r\n0\r\n\r\n"]
+
+def shortLine : Protocol.H1.Config := { maxStartLineLength := 64 }
+
+-- The leading empty line does not count, the line's own CRLF does: 64 bytes fit, and 65 get 414
+-- once the line ends.
+#eval runCases [
+  expectAccepted "an empty line, then a line at the limit"
+    s!"\r\nGET /{repeatStr "a" 48} HTTP/1.1\r\nHost: a\r\n\r\n" shortLine,
+  expectRejectedAt "an empty line, then a line one byte over the limit"
+    s!"\r\nGET /{repeatStr "a" 49} HTTP/1.1\r" "\nHost: a\r\n\r\n" .uriTooLong "HTTP/1.1 414 " shortLine]
 
 /-- Sends a GET, feeds `response` as a client, and returns the machine's error. -/
 def clientError (response : String) (config : Protocol.H1.Config := {}) : Option Error := Id.run do

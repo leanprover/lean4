@@ -2457,7 +2457,11 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
       return true
     if t.isConst && s.isConst then
-      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+      if t.constName! == s.constName! then
+        -- Rolling back a failed level comparison keeps the unit-like fallback independent.
+        if ← checkpointDefEq (isListLevelDefEqAux t.constLevels! s.constLevels!) then
+          return true
+      isDefEqUnitLike t s
     else if (← pure t.isApp <&&> pure s.isApp) then
       if (← isDefEqApp t s) then return true
       isDefEqAppFallback t s

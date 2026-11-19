@@ -22,11 +22,6 @@ namespace ForCaseTest
 
 open Lean Meta
 
-private inductive Item where
-  | num (n : Nat)
-  | tag (name : String) (val : Option Nat)
-  deriving BEq, Repr
-
 /-! ## 1. Ordinary Refutable Patterns, Annotated Binders, Multi-Collection, Term Position -/
 
 private def sumSome (xs : List (Option Nat)) : Nat := Id.run do
@@ -38,6 +33,11 @@ private def sumSome (xs : List (Option Nat)) : Nat := Id.run do
 #guard sumSome [] == 0
 #guard sumSome [none, none] == 0
 #guard sumSome [none, some 3, none, some 7, some 2] == 12
+
+private inductive Item where
+  | num (n : Nat)
+  | tag (name : String) (val : Option Nat)
+  deriving BEq, Repr
 
 private def collectTagged (xs : List Item) : List (String × Nat) := Id.run do
   let mut out := []
@@ -77,11 +77,15 @@ private def zipMultiCase1 (xs : List (Option Nat)) (ys : List Nat) : List (Nat �
     out := out.concat (x, y)
   return out
 
+#guard zipMultiCase1 [none, some 1, some 2, none] [10, 20, 30, 40] == [(1, 20), (2, 30)]
+
 private def zipMultiCase2 (xs : List Nat) (ys : List (Option Nat)) : List (Nat × Nat) := Id.run do
   let mut out := []
   for x in xs, case (some y) in ys do
     out := out.concat (x, y)
   return out
+
+#guard zipMultiCase2 [10, 20, 30, 40] [none, some 1, none, some 2] == [(20, 1), (40, 2)]
 
 private def zipMultiCaseBoth (xs ys : List (Option Nat)) : List (Nat × Nat) := Id.run do
   let mut out := []
@@ -91,8 +95,6 @@ private def zipMultiCaseBoth (xs ys : List (Option Nat)) : List (Nat × Nat) := 
     out := out.concat (x, y)
   return out
 
-#guard zipMultiCase1 [none, some 1, some 2, none] [10, 20, 30, 40] == [(1, 20), (2, 30)]
-#guard zipMultiCase2 [10, 20, 30, 40] [none, some 1, none, some 2] == [(20, 1), (40, 2)]
 #guard zipMultiCaseBoth [some 0, some 1, none, some 9, some 5]
   [some 10, some 20, some 30, some 40, some 50] == [(1, 20)]
 #guard zipMultiCaseBoth [some 1, some 2, some 3] [some 10, none, some 30] == [(1, 10), (3, 30)]
@@ -219,23 +221,36 @@ private def legacyExprQuot (xs : List (Expr × Expr)) : MetaM (List (Expr × Exp
     out := out.concat (h, P)
   return out
 
-end LegacyMode
-
-/-! ## 3. `Expr` Quotations & Composition with All 4 Sources (`localHypTypes`, etc.) -/
-
-private def myAliasDef := Nat
-
-private def testExprQuotSources : MetaM Unit := do
+#guard_msgs in
+run_meta do
   let natTy := mkConst ``Nat
   let propSort := mkSort 0
   withLocalDeclD `P propSort fun p =>
   withLocalDeclD `Q propSort fun q =>
-  withLocalDeclD `hNat natTy fun hNat =>
+  withLocalDeclD `hNat natTy fun _ =>
   withLocalDeclD `hImp1 (mkForall `a .default p q) fun hImp1 =>
   withLocalDeclD `hImp2 (mkForall `b .default q natTy) fun hImp2 =>
-  withLetDecl `v natTy (mkNatLit 7) (nondep := false) fun v =>
-  withLocalDeclD `hAlias (mkConst ``myAliasDef) fun hAlias => do
-    -- 1. Nested `for case` over `localHypTypes` implementing chain rule matching.
+  withLetDecl `v natTy (mkNatLit 7) (nondep := false) fun _ => do
+    let legacyOut ← legacyExprQuot (← localHypTypes).toList
+    unless legacyOut == [(hImp1, p), (hImp2, q)] do
+      throwError "unexpected `legacyExprQuot` output"
+
+end LegacyMode
+
+/-! ## 3. `Expr` Quotations & Composition with All 4 Sources (`localHypTypes`, etc.) -/
+
+section LocalHypTypesChain
+
+#guard_msgs in
+run_meta do
+  let natTy := mkConst ``Nat
+  let propSort := mkSort 0
+  withLocalDeclD `P propSort fun p =>
+  withLocalDeclD `Q propSort fun q =>
+  withLocalDeclD `hNat natTy fun _ =>
+  withLocalDeclD `hImp1 (mkForall `a .default p q) fun hImp1 =>
+  withLocalDeclD `hImp2 (mkForall `b .default q natTy) fun hImp2 => do
+    -- Nested `for case` over `localHypTypes` implementing chain rule matching.
     let hyps ← localHypTypes
     let mut chains : List (Expr × Expr × Expr × Expr) := []
     for case (hx, `(expr| ?A → ?B)) in hyps do
@@ -244,63 +259,91 @@ private def testExprQuotSources : MetaM Unit := do
     unless chains == [(hImp1, hImp2, p, natTy)] do
       throwError "unexpected nested localHypTypes match result"
 
-    -- 2. Relation modifier on quotation pattern inside `for case`.
+end LocalHypTypesChain
+
+section LocalHypTypesAlias
+
+private def myAliasDef := Nat
+
+#guard_msgs in
+run_meta do
+  let natTy := mkConst ``Nat
+  let propSort := mkSort 0
+  withLocalDeclD `P propSort fun _ =>
+  withLocalDeclD `hNat natTy fun hNat =>
+  withLocalDeclD `hImp (mkForall `a .default propSort natTy) fun _ =>
+  withLetDecl `v natTy (mkNatLit 7) (nondep := false) fun v =>
+  withLocalDeclD `hAlias (mkConst ``myAliasDef) fun hAlias => do
     let mut aliasHits : List Expr := []
-    for case (h, `(expr/structural [myAliasDef]| Nat)) in hyps do
+    for case (h, `(expr/structural [myAliasDef]| Nat)) in (← localHypTypes) do
       aliasHits := aliasHits.concat h
     unless aliasHits == [hNat, v, hAlias] do
       throwError "expected `hNat`, `v`, and `hAlias` match via `[myAliasDef]`"
 
-    -- 3. `localHypDecls` including `let` values and early `return`.
-    let decls ← localHypDecls
+end LocalHypTypesAlias
+
+section LocalHypDeclsLet
+
+#guard_msgs in
+run_meta do
+  let natTy := mkConst ``Nat
+  withLocalDeclD `hNat natTy fun _ =>
+  withLetDecl `other natTy (mkNatLit 5) (nondep := false) fun _ =>
+  withLetDecl `v natTy (mkNatLit 7) (nondep := false) fun v =>
+  withLetDecl `vAfter natTy (mkNatLit 7) (nondep := false) fun _ => do
     let mut foundLet : Option Expr := none
-    for case (hv, _, some `(expr| 7)) in decls do
+    for case (hv, _, some `(expr| 7)) in (← localHypDecls) do
       foundLet := some hv
       break
     unless foundLet == some v do
       throwError "expected `let v := 7` match in `localHypDecls`"
 
-    -- 4. `subterms` + `for case` + `ExprContext.fill` + early `break`.
-    let e := mkApp2 (mkConst ``Nat.add)
-      (mkApp2 (mkConst ``Nat.mul) (mkNatLit 2) (mkNatLit 3))
-      (mkApp2 (mkConst ``Nat.mul) (mkNatLit 4) (mkNatLit 5))
-    let mut firstReplaced := e
-    for case (`(expr| Nat.mul ?u ?v), ctx) in subterms e do
-      firstReplaced := ctx.fill (← `(expr| Nat.add $v $u))
-      break
-    let expectedFirst := mkApp2 (mkConst ``Nat.add)
-      (mkApp2 (mkConst ``Nat.add) (mkNatLit 3) (mkNatLit 2))
-      (mkApp2 (mkConst ``Nat.mul) (mkNatLit 4) (mkNatLit 5))
-    unless firstReplaced == expectedFirst do
-      throwError "unexpected subterms + fill result"
+end LocalHypDeclsLet
 
-    -- 5. `matchDiscriminants` + `for case` + early `return` from helper.
-    let matchE :=
-      mkApp4 (mkConst ``Nat.casesOn [1]) (mkLambda `n .default natTy natTy)
-        (mkApp2 (mkConst ``Nat.add) (mkNatLit 8) (mkNatLit 9))
-        (mkNatLit 0)
-        (mkLambda `n .default natTy (mkBVar 0))
-    let findAddDiscr : MetaM (Option Expr) := do
-      for case (`(expr| Nat.add ?a ?b), ctx) in matchDiscriminants matchE (alsoCasesOn := true) do
-        return some (ctx.fill (← `(expr| Nat.add $b $a)))
-      return none
-    let some swappedMatchE ← findAddDiscr
-      | throwError "expected early return hit in `matchDiscriminants`"
-    let expectedMatchE :=
-      mkApp4 (mkConst ``Nat.casesOn [1]) (mkLambda `n .default natTy natTy)
-        (mkApp2 (mkConst ``Nat.add) (mkNatLit 9) (mkNatLit 8))
-        (mkNatLit 0)
-        (mkLambda `n .default natTy (mkBVar 0))
-    unless swappedMatchE == expectedMatchE do
-      throwError "unexpected `matchDiscriminants` + fill result"
-
-    -- 6. Legacy mode `for case (h, `(expr| ?P → _))` check.
-    let legacyOut ← legacyExprQuot hyps.toList
-    unless legacyOut == [(hImp1, p), (hImp2, q)] do
-      throwError "unexpected `legacyExprQuot` output"
+section SubtermsFill
 
 #guard_msgs in
-#eval show MetaM Unit from testExprQuotSources
+run_meta do
+  let e := mkApp2 (mkConst ``Nat.add)
+    (mkApp2 (mkConst ``Nat.mul) (mkNatLit 2) (mkNatLit 3))
+    (mkApp2 (mkConst ``Nat.mul) (mkNatLit 4) (mkNatLit 5))
+  let mut firstReplaced := e
+  for case (`(expr| Nat.mul ?u ?v), ctx) in subterms e do
+    firstReplaced := ctx.fill (← `(expr| Nat.add $v $u))
+    break
+  let expectedFirst := mkApp2 (mkConst ``Nat.add)
+    (mkApp2 (mkConst ``Nat.add) (mkNatLit 3) (mkNatLit 2))
+    (mkApp2 (mkConst ``Nat.mul) (mkNatLit 4) (mkNatLit 5))
+  unless firstReplaced == expectedFirst do
+    throwError "unexpected subterms + fill result"
+
+end SubtermsFill
+
+section MatchDiscriminantsFill
+
+#guard_msgs in
+run_meta do
+  let natTy := mkConst ``Nat
+  let matchE :=
+    mkApp4 (mkConst ``Nat.casesOn [1]) (mkLambda `n .default natTy natTy)
+      (mkApp2 (mkConst ``Nat.add) (mkNatLit 8) (mkNatLit 9))
+      (mkNatLit 0)
+      (mkLambda `n .default natTy (mkBVar 0))
+  let findAddDiscr : MetaM (Option Expr) := do
+    for case (`(expr| Nat.add ?a ?b), ctx) in matchDiscriminants matchE (alsoCasesOn := true) do
+      return some (ctx.fill (← `(expr| Nat.add $b $a)))
+    return none
+  let some swappedMatchE ← findAddDiscr
+    | throwError "expected early return hit in `matchDiscriminants`"
+  let expectedMatchE :=
+    mkApp4 (mkConst ``Nat.casesOn [1]) (mkLambda `n .default natTy natTy)
+      (mkApp2 (mkConst ``Nat.add) (mkNatLit 9) (mkNatLit 8))
+      (mkNatLit 0)
+      (mkLambda `n .default natTy (mkBVar 0))
+  unless swappedMatchE == expectedMatchE do
+    throwError "unexpected `matchDiscriminants` + fill result"
+
+end MatchDiscriminantsFill
 
 /-! ## 4. Irrefutable Pattern Redundant-Alternative Diagnostics & Pretty-Printing -/
 

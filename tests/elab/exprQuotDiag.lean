@@ -18,11 +18,9 @@ namespace ExprQuotDiagTest
 open Lean Meta Elab Tactic
 open Lean.Meta.Sym (SymM)
 
-opaque customF : Nat → Nat
-def customUnfold (n : Nat) : Nat := n + 1
-opaque carryProof {P : Prop} (h : P) (x : Nat) : Nat
-
 /-! ## 1. `#check_pattern` command (pattern path only, no term-builder) -/
+
+section CheckPatternStructuralWildcard
 
 /--
 info: pattern: ?x + _
@@ -40,6 +38,10 @@ indexing: eligible (DiscrTree keys: [HAdd.hAdd, Nat, Nat, Nat, instHAdd, Nat, in
 -/
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr| (?x : Nat) + _)
+
+end CheckPatternStructuralWildcard
+
+section CheckPatternPlusInstPoly
 
 /--
 info: pattern: ?a + ?b
@@ -60,6 +62,10 @@ indexing: eligible (DiscrTree keys: [HAdd.hAdd, *, *, *, *, *, *])
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr +inst| ?a + ?b)
 
+end CheckPatternPlusInstPoly
+
+section CheckPatternHigherOrderBinder
+
 /--
 info: pattern: fun x => ?P x
 relation: structural [-inst, -beta, -zeta, -proj, -eta] (items: none)
@@ -75,6 +81,10 @@ indexing: eligible (DiscrTree keys: [◾])
 -/
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr| fun x : Nat => ?P x)
+
+end CheckPatternHigherOrderBinder
+
+section CheckPatternNonlinearSelfPin
 
 /--
 info: pattern: ?x + ?x
@@ -95,6 +105,13 @@ indexing: eligible (DiscrTree keys: [HAdd.hAdd, *, *, *, *, *, *])
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr| ?x + $x)
 
+end CheckPatternNonlinearSelfPin
+
+section CheckPatternReducibleItems
+
+def customUnfold (n : Nat) : Nat := n + 1
+opaque carryProof {P : Prop} (h : P) (x : Nat) : Nat
+
 /--
 info: pattern: carryProof trivial ?x
 relation: reducible [+inst, +beta, +zeta, +proj, +eta] (items: +ExprQuotDiagTest.customUnfold)
@@ -109,6 +126,10 @@ indexing: eligible (DiscrTree keys: [ExprQuotDiagTest.carryProof, True, *, *])
 -/
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr/reducible [+customUnfold]| carryProof trivial ?x)
+
+end CheckPatternReducibleItems
+
+section CheckPatternIneligibleLookThrough
 
 /--
 info: pattern: id ?x
@@ -126,6 +147,10 @@ indexing: ineligible (enabled look-through flag prevents static structural index
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr +beta| _root_.id ?x)
 
+end CheckPatternIneligibleLookThrough
+
+section CheckPatternSymRelation
+
 /--
 info: pattern: Nat.succ ?n
 relation: sym [+inst, +beta, +zeta, +proj, +eta] (items: none)
@@ -140,6 +165,8 @@ indexing: eligible (DiscrTree keys: [*])
 -/
 #guard_msgs (whitespace := lax) in
 #check_pattern `(expr/sym| Nat.succ ?n)
+
+end CheckPatternSymRelation
 
 section CheckWithSectionVar
 variable (pinVal : Expr)
@@ -162,11 +189,19 @@ indexing: eligible (DiscrTree keys: [HAdd.hAdd, Nat, Nat, Nat, instHAdd, Nat, in
 
 end CheckWithSectionVar
 
+section CheckPatternInvalidArgError
+
 /-- error: expected an `` `(expr[rel]| p) `` pattern quotation -/
 #guard_msgs in
 #check_pattern (1 + 2)
 
+end CheckPatternInvalidArgError
+
 /-! ## 2. `trace.Meta.Match.expr` reporting alternatives and first mismatch subterm -/
+
+section TraceStructuralMatch
+
+opaque customF : Nat → Nat
 
 private def traceStructMatch (e : Expr) : MetaM Nat :=
   match e with
@@ -176,7 +211,7 @@ private def traceStructMatch (e : Expr) : MetaM Nat :=
   | _                                => return 0
 
 /--
-info: res=(3, 0)
+info: res=3
 ---
 trace: [Meta.Match.expr] [indexed structural] trying candidates [2] of 3 for:
       customF (1 + 2)
@@ -184,7 +219,17 @@ trace: [Meta.Match.expr] [indexed structural] trying candidates [2] of 3 for:
       customF ?n
     against:
       customF (1 + 2)
-[Meta.Match.expr] [indexed structural] trying candidates [1] of 3 for:
+-/
+#guard_msgs (whitespace := lax) in
+run_meta withOptions (fun o => o.setBool `trace.Meta.Match.expr true) do
+  let e1 ← `(expr| customF ((1 : Nat) + (2 : Nat)))
+  let r1 ← traceStructMatch e1
+  logInfo m!"res={r1}"
+
+/--
+info: res=0
+---
+trace: [Meta.Match.expr] [indexed structural] trying candidates [1] of 3 for:
       2 * 3
 [Meta.Match.expr] [structural] failed:
       ?a * ?a
@@ -198,11 +243,13 @@ trace: [Meta.Match.expr] [indexed structural] trying candidates [2] of 3 for:
 -/
 #guard_msgs (whitespace := lax) in
 run_meta withOptions (fun o => o.setBool `trace.Meta.Match.expr true) do
-  let e1 ← `(expr| customF ((1 : Nat) + (2 : Nat)))
-  let r1 ← traceStructMatch e1
   let e2 ← `(expr| (2 : Nat) * (3 : Nat))
   let r2 ← traceStructMatch e2
-  logInfo m!"res=({r1}, {r2})"
+  logInfo m!"res={r2}"
+
+end TraceStructuralMatch
+
+section TraceDefeqMatch
 
 private def traceNonIndexedMatch (e : Expr) : MetaM Nat :=
   match e with
@@ -232,6 +279,10 @@ run_meta withOptions (fun o => o.setBool `trace.Meta.Match.expr true) do
   let e ← `(expr| (3 : Nat) + (2 : Nat))
   let r ← traceNonIndexedMatch e
   logInfo m!"defeq={r}"
+
+end TraceDefeqMatch
+
+section TraceSymMatch
 
 private def traceSymMatch (e : Expr) : SymM Nat :=
   match e with
@@ -265,7 +316,11 @@ run_meta withOptions (fun o => o.setBool `trace.Meta.Match.expr true) do
     let r ← traceSymMatch e
     logInfo m!"sym={r}"
 
+end TraceSymMatch
+
 /-! ## 3. Repeated `?x` and out-of-scope `$x` errors -/
+
+section DiagRepeatedVar
 
 /-- error: repeated pattern variable `?x`; use `$x` to pin -/
 #guard_msgs in
@@ -274,6 +329,10 @@ def diagRepeatedVar (e : Expr) : MetaM Bool :=
   | `(expr| ?x + ?x) => let _ := x; return true
   | _ => return false
 
+end DiagRepeatedVar
+
+section DiagOutOfScopePinPat
+
 /-- error: unknown identifier `missingVar` in `$`-pin (did you mean `?missingVar`?) -/
 #guard_msgs in
 def diagOutOfScopePinPat (e : Expr) : MetaM Bool :=
@@ -281,12 +340,20 @@ def diagOutOfScopePinPat (e : Expr) : MetaM Bool :=
   | `(expr| $missingVar + (?y : Nat)) => let _ := y; return true
   | _ => return false
 
+end DiagOutOfScopePinPat
+
+section DiagOutOfScopePinTerm
+
 /-- error: unknown identifier `missingTermVar` in `$`-pin (did you mean `?missingTermVar`?) -/
 #guard_msgs in
 def diagOutOfScopePinTerm : MetaM Expr :=
   `(expr| $missingTermVar + (1 : Nat))
 
+end DiagOutOfScopePinTerm
+
 /-! ## 4. `linter.exprQuot.numeralDefaulting` -/
+
+section LintNumeralDefaultRight
 
 /--
 warning: pattern numeral `1` relies on defaulting to `Nat`;
@@ -301,6 +368,10 @@ def lintNumeralDefaultRight (e : Expr) : MetaM Bool :=
   | `(expr| ?x + 1) => let _ := x; return true
   | _ => return false
 
+end LintNumeralDefaultRight
+
+section LintNumeralDefaultLeft
+
 /--
 warning: pattern numeral `1` relies on defaulting to `Nat`;
 add a type annotation such as `(1 : Nat)`
@@ -313,6 +384,10 @@ def lintNumeralDefaultLeft (e : Expr) : MetaM Bool :=
   match e with
   | `(expr| 1 + ?x) => let _ := x; return true
   | _ => return false
+
+end LintNumeralDefaultLeft
+
+section LintNumeralDefaultBare
 
 /--
 warning: pattern numeral `1` relies on defaulting to `Nat`;
@@ -327,6 +402,10 @@ def lintNumeralDefaultBare (e : Expr) : MetaM Bool :=
   | `(expr| 1) => return true
   | _ => return false
 
+end LintNumeralDefaultBare
+
+section NoLintNumeralAnnotated
+
 -- Negative cases: annotated / `Nat`-typed patterns must NOT lint!
 set_option linter.exprQuot.numeralDefaulting true in
 #guard_msgs in
@@ -338,7 +417,11 @@ def noLintNumeralAnnotated (e : Expr) : MetaM Nat :=
   | `(expr| (1 : Int) + ?x) => let _ := x; return 4
   | _                       => return 0
 
+end NoLintNumeralAnnotated
+
 /-! ## 5. Strictly scoped `linter.exprQuot.syntaxHole` -/
+
+section LintSyntaxHoleMatchExpr
 
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
@@ -355,6 +438,10 @@ def lintSyntaxHoleMatchExpr (e : Expr) : Nat :=
   | `(?x + 1) => 1
   | _ => 0
 
+end LintSyntaxHoleMatchExpr
+
+section LintSyntaxHoleIfLetExpr
+
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
 did you mean `` `(expr| ...) ``?
@@ -367,6 +454,10 @@ error: syntax quotation pattern on an `Expr` discriminant; use `` `(expr| ...) `
 set_option linter.exprQuot.syntaxHole true in
 def lintSyntaxHoleIfLetExpr (e : Expr) : Nat :=
   if let `(?x + 1) := e then 1 else 0
+
+end LintSyntaxHoleIfLetExpr
+
+section LintSyntaxHoleDoMatchExpr
 
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
@@ -383,6 +474,10 @@ def lintSyntaxHoleDoMatchExpr (e : Expr) : MetaM Nat := do
   | `(?x + 1) => return 1
   | _ => return 0
 
+end LintSyntaxHoleDoMatchExpr
+
+section LintSyntaxHoleDoLetElseExpr
+
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
 did you mean `` `(expr| ...) ``?
@@ -396,6 +491,10 @@ set_option linter.exprQuot.syntaxHole true in
 def lintSyntaxHoleDoLetElseExpr (e : Expr) : MetaM Nat := do
   let `(?x + 1) := e | return 0
   return 1
+
+end LintSyntaxHoleDoLetElseExpr
+
+section LintSyntaxHoleFunPipeExpr
 
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
@@ -411,6 +510,10 @@ def lintSyntaxHoleFunPipeExpr : Expr → Nat
   | `(?x) => 1
   | _ => 0
 
+end LintSyntaxHoleFunPipeExpr
+
+section LintSyntaxHoleTermExpr
+
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
 did you mean `` `(expr| ...) ``?
@@ -421,6 +524,10 @@ Note: This linter can be disabled with `set_option linter.exprQuot.syntaxHole fa
 set_option linter.exprQuot.syntaxHole true in
 def lintSyntaxHoleTermExpr : Expr :=
   `(?x + 1)
+
+end LintSyntaxHoleTermExpr
+
+section LintSyntaxHoleMonadExpr
 
 /--
 warning: named pattern variable `?x` inside ordinary syntax quotation in an `Expr` context;
@@ -433,16 +540,29 @@ set_option linter.exprQuot.syntaxHole true in
 def lintSyntaxHoleMonadExpr : MetaM Expr :=
   `(?x + 1)
 
+end LintSyntaxHoleMonadExpr
+
 -- Negative cases: `?_`, tactic quotations, and `Syntax`/`TSyntax` must NEVER lint!
+
+section NoLintAnonymousHole
+
 set_option linter.exprQuot.syntaxHole true in
 #guard_msgs in
 def noLintAnonymousHole : TacticM (TSyntax `tactic) :=
   `(tactic| refine ?_)
 
+end NoLintAnonymousHole
+
+section NoLintSyntaxQuot
+
 set_option linter.exprQuot.syntaxHole true in
 #guard_msgs in
 def noLintSyntaxQuot : MetaM (TSyntax `term) :=
   `(term| ?x)
+
+end NoLintSyntaxQuot
+
+section NoLintMatchSyntax
 
 set_option linter.exprQuot.syntaxHole true in
 #guard_msgs in
@@ -451,12 +571,20 @@ def noLintMatchSyntax (stx : Syntax) : Nat :=
   | `(?_ + 1) => 1
   | _ => 0
 
+end NoLintMatchSyntax
+
+section NoLintMatchSyntaxNamed
+
 set_option linter.exprQuot.syntaxHole true in
 #guard_msgs in
 def noLintMatchSyntaxNamed (stx : TSyntax `term) : Nat :=
   match stx with
   | `(?x + 1) => 1
   | _ => 0
+
+end NoLintMatchSyntaxNamed
+
+section NoLintMatchExprAnonHole
 
 set_option linter.exprQuot.syntaxHole true in
 /-- error: syntax quotation pattern on an `Expr` discriminant; use `` `(expr| ...) `` -/
@@ -465,6 +593,10 @@ def noLintMatchExprAnonHole (e : Expr) : Nat :=
   match e with
   | `(?_) => 1
   | _ => 0
+
+end NoLintMatchExprAnonHole
+
+section SyntaxMatchDiscrInfoPreserved
 
 -- Normal `match (stx : Syntax)` must not elaborate discriminants during `match_syntax.expand`
 -- and `elabMatchSyntax` must not add any extra discriminant elaboration or hover InfoTree entry.
@@ -504,11 +636,17 @@ private def countDiscrMarkerInfos (trees : PersistentArray InfoTree) : Nat :=
   finally
     setInfoState savedInfo
 
+end SyntaxMatchDiscrInfoPreserved
+
+section SyntaxMatchRhsErrorPreserved
+
 /-- error: Unknown identifier `missingSyntaxMatchRhsId` -/
 #guard_msgs in
 def syntaxMatchRhsErrorPreserved (s : Syntax) : Nat :=
   match s with
   | `(?_ + 1) => missingSyntaxMatchRhsId
   | _ => 0
+
+end SyntaxMatchRhsErrorPreserved
 
 end ExprQuotDiagTest

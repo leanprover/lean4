@@ -15,15 +15,40 @@ namespace ExprQuotRegressionsTest
 open Lean Meta
 open Lean.Meta.Sym (SymM)
 
-opaque rTag : Nat → Nat → Nat
-opaque pTag : Nat → Prop
-
 /-! ## 1. Distinct anonymous hypotheses & non-conflating wildcards -/
+
+section WildcardsDistinctArgs
+
+opaque rTag : Nat → Nat → Nat
 
 private def matchWildcardArgs (e : Expr) : MetaM (Option (Expr × Expr)) :=
   match e with
   | `(expr| rTag _ _) => return some (e.appFn!.appArg!, e.appArg!)
   | _                 => return none
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  -- Multiple `_` wildcards inside `rTag _ _` never unify distinct arguments.
+  let diff ← `(expr| rTag 1 2)
+  let hitDiff ← matchWildcardArgs diff
+  let okWildcard := hitDiff.any fun (a, b) => a == mkNatLit 1 && b == mkNatLit 2
+  logInfo m!"{okWildcard}"
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  -- Non-named `_` wildcards in mixed named+wildcard pattern never force equality.
+  let twoWildcard : Expr → MetaM Bool
+    | `(expr| rTag _ ?x) => let _ := x; return true
+    | _                  => return false
+  logInfo m!"{← twoWildcard (← `(expr| rTag 7 8))}"
+
+end WildcardsDistinctArgs
+
+section AnonHypothesesDistinct
+
+opaque pTag : Nat → Prop
 
 private def collectMatchingHyps : MetaM (Array (Name × Expr)) := do
   let mut out := #[]
@@ -31,21 +56,10 @@ private def collectMatchingHyps : MetaM (Array (Name × Expr)) := do
     out := out.push (`hit, a)
   return out
 
-/-- info: (true, true, 3) -/
+/-- info: 3 -/
 #guard_msgs in
 run_meta do
-  -- Multiple `_` wildcards inside `rTag _ _` never unify distinct arguments
-  let diff ← `(expr| rTag 1 2)
-  let hitDiff ← matchWildcardArgs diff
-  let okWildcard := hitDiff.any fun (a, b) => a == mkNatLit 1 && b == mkNatLit 2
-
-  -- Non-named `_` wildcards in mixed named+wildcard pattern never force equality
-  let twoWildcard : Expr → MetaM Bool
-    | `(expr| rTag _ ?x) => let _ := x; return true
-    | _                  => return false
-  let okMixed ← twoWildcard (← `(expr| rTag 7 8))
-
-  -- Distinct anonymous `_` hypotheses in the local context remain distinct in `localHypTypes`
+  -- Distinct anonymous `_` hypotheses in the local context remain distinct in `localHypTypes`.
   let anonHits ←
     withLocalDeclD `_ (mkApp (mkConst ``pTag) (mkNatLit 10)) fun _ =>
     withLocalDeclD `_ (mkConst ``Nat) fun _ =>
@@ -64,9 +78,13 @@ run_meta do
   let expected := #[mkNatLit 10, mkNatLit 20, mkNatLit 30]
   let okOrder := anonHits.size == 3 && matchedArgs == expected
   let hitCount : Nat := if okOrder then 3 else 0
-  logInfo m!"({okWildcard}, {okMixed}, {hitCount})"
+  logInfo m!"{hitCount}"
+
+end AnonHypothesesDistinct
 
 /-! ## 2. Commit vs fall-through: zero side-effect / MCtx leakage -/
+
+section NonLinearCommit
 
 private def nonLinearCommitTest (e : Expr) (logRef : IO.Ref (Array String)) : MetaM Nat :=
   match e with
@@ -81,6 +99,21 @@ private def nonLinearCommitTest (e : Expr) (logRef : IO.Ref (Array String)) : Me
   | _ => do
     logRef.modify (·.push "fallback")
     return 0
+
+/-- info: (2, [arm2], true) -/
+#guard_msgs in
+run_meta do
+  let logRef ← IO.mkRef #[]
+  let mv ← mkFreshExprMVar (some (mkConst ``Nat))
+  let t1 ← `(expr| $mv + (5 : Nat))
+  let r1 ← nonLinearCommitTest t1 logRef
+  -- Failed `arm1` (`?a + $a`) MUST NOT assign `mv := 5` into `MCtx` before committing `arm2`!
+  let mvStillFree := !(← mv.mvarId!.isAssigned)
+  logInfo m!"({r1}, {(← logRef.get).toList}, {mvStillFree})"
+
+end NonLinearCommit
+
+section SymCommit
 
 private def symCommitTest (e : Expr) (pinVal : Expr) (logRef : IO.Ref (Array String)) :
     SymM Nat :=
@@ -97,29 +130,23 @@ private def symCommitTest (e : Expr) (pinVal : Expr) (logRef : IO.Ref (Array Str
     logRef.modify (·.push "symFallback")
     return 0
 
-/-- info: (2, [arm2], true, 2, [symArm2], true) -/
+/-- info: (2, [symArm2], true) -/
 #guard_msgs in
 run_meta do
-  let logRef ← IO.mkRef #[]
-  let mv ← mkFreshExprMVar (some (mkConst ``Nat))
-  let t1 ← `(expr| $mv + (5 : Nat))
-  let r1 ← nonLinearCommitTest t1 logRef
-  -- Failed `arm1` (`?a + $a`) MUST NOT assign `mv := 5` into `MCtx` before committing `arm2`!
-  let mvStillFree := !(← mv.mvarId!.isAssigned)
-  let log1 ← logRef.get
-
   let symLogRef ← IO.mkRef #[]
   let pin4 ← `(expr| (4 : Nat))
   let (symRes, symFree) ← SymM.run do
     let mvSym ← mkFreshExprMVar (some (mkConst ``Nat))
     let tSym ← `(expr| $mvSym + (9 : Nat))
     let r ← symCommitTest tSym pin4 symLogRef
-    let symAssigned ← mvSym.mvarId!.isAssigned
-    return (r, !symAssigned)
-  let symLog ← symLogRef.get
-  logInfo m!"({r1}, {log1.toList}, {mvStillFree}, {symRes}, {symLog.toList}, {symFree})"
+    return (r, !(← mvSym.mvarId!.isAssigned))
+  logInfo m!"({symRes}, {(← symLogRef.get).toList}, {symFree})"
 
--- Commit inside `do` `if let` / `let ... |` control flow without fallback leak
+end SymCommit
+
+section DoCommitControlFlow
+
+-- Commit inside `do` `if let` / `let ... |` control flow without fallback leak.
 private def doCommitControlFlow (e : Expr) (trace : IO.Ref (Array String)) : MetaM Nat := do
   if let `(expr| ?x + $x) := e then
     trace.modify (·.push "ifLet")
@@ -140,12 +167,16 @@ run_meta do
   let r ← doCommitControlFlow (← `(expr| 1 + 2)) ref
   logInfo m!"({r}, {(← ref.get).toList})"
 
+end DoCommitControlFlow
+
 /-! ## 3. Stale-context checks across goal / LCtx mutations -/
 
-/-- info: (true, true, true) -/
+section StaleLocalLetPin
+
+/-- info: true -/
 #guard_msgs in
 run_meta do
-  -- 3a. Mutating local `let` bindings across invocations of the same call site must not read stale
+  -- Mutating local `let` bindings across invocations of the same call site must not read stale
   -- cached local `$x` unfoldings.
   let runAtLet (v : Nat) : MetaM Bool :=
     withLetDecl `k (mkConst ``Nat) (mkNatLit v) fun kVar => do
@@ -154,21 +185,38 @@ run_meta do
       | _                                        => return false
   let resA ← runAtLet 5
   let resB ← runAtLet 6
-  let okLocalItem := resA && !resB
+  logInfo m!"{resA && !resB}"
 
-  -- 3b. Clearing an `fvar` in a goal (`MVarId.clear`) drops it from subsequent `localHypTypes`
-  let okClearedGoal ← withLocalDeclD `h1 (mkApp (mkConst ``pTag) (mkNatLit 1)) fun h1 =>
-    withLocalDeclD `h2 (mkApp (mkConst ``pTag) (mkNatLit 2)) fun h2 => do
+end StaleLocalLetPin
+
+section ClearedFVarDropped
+
+opaque qTag : Nat → Prop
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  -- Clearing an `fvar` in a goal (`MVarId.clear`) drops it from subsequent `localHypTypes`.
+  let okClearedGoal ← withLocalDeclD `h1 (mkApp (mkConst ``qTag) (mkNatLit 1)) fun h1 =>
+    withLocalDeclD `h2 (mkApp (mkConst ``qTag) (mkNatLit 2)) fun h2 => do
       let g ← mkFreshExprSyntheticOpaqueMVar (mkConst ``True)
       let gCleared ← g.mvarId!.clear h1.fvarId!
       gCleared.withContext do
         let mut seen : Array Expr := #[]
-        for case (_, `(expr| pTag ?n)) in (← localHypTypes) do
+        for case (_, `(expr| qTag ?n)) in (← localHypTypes) do
           seen := seen.push n
         let stillHasH2 := (← localHypDecls).any (·.1 == h2)
         return seen == #[mkNatLit 2] && stillHasH2
+  logInfo m!"{okClearedGoal}"
 
-  -- 3c. Goal switching across states updates `ExprContext.fill` against the live target
+end ClearedFVarDropped
+
+section GoalSwitchFillLiveTarget
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  -- Goal switching across states updates `ExprContext.fill` against the live target.
   let target1 ← `(expr| ((1 : Nat) + (2 : Nat)) + (3 : Nat))
   let target2 ← `(expr| ((4 : Nat) + (5 : Nat)) + (6 : Nat))
   let g1 ← mkFreshExprMVar target1
@@ -184,6 +232,8 @@ run_meta do
   let filled2 ← rewriteSub g2
   let okGoals := filled1 == some (← `(expr| (99 : Nat) + (3 : Nat))) &&
     filled2 == some (← `(expr| (88 : Nat) + (6 : Nat)))
-  logInfo m!"({okLocalItem}, {okClearedGoal}, {okGoals})"
+  logInfo m!"{okGoals}"
+
+end GoalSwitchFillLiveTarget
 
 end ExprQuotRegressionsTest

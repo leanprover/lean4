@@ -21,7 +21,6 @@ open Lean Meta Elab Tactic
 
 opaque pTag : Nat → Prop
 opaque qTag : Nat → Prop
-@[reducible] def pTagRed (n : Nat) : Prop := pTag n
 
 private def check (cond : Bool) (msg : String) : MetaM Unit := do
   unless cond do
@@ -29,55 +28,75 @@ private def check (cond : Bool) (msg : String) : MetaM Unit := do
 
 /-! ## 1. `MVarId.firstHyp?` / `MVarId.firstHyp` in `MetaM` and `ExceptT` -/
 
-/-- info: (some (3), some (1), [3, 2, 1], [1, 2, 3], some (2), true, true, true) -/
+section MetaMOrderAndTraversal
+
+/-- info: (some (3), some (1), true, [3, 2, 1], [1, 2, 3]) -/
 #guard_msgs in
 run_meta do
-  let (revHit, fwdHit, rv, fv, exHit, noneIsNone, exErr, excOk) ←
-    withLocalDeclD `h1 (mkApp (mkConst ``pTag) (mkNatLit 1)) fun h1 =>
+  let res ←
+    withLocalDeclD `h1 (mkApp (mkConst ``pTag) (mkNatLit 1)) fun _ =>
     withLocalDeclD `h2 (mkApp (mkConst ``pTag) (mkNatLit 2)) fun _ =>
-    withLocalDeclD `h3 (mkApp (mkConst ``pTag) (mkNatLit 3)) fun h3 => do
-      let goal ← mkFreshExprMVar (some (mkConst ``True))
-      let mvarId := goal.mvarId!
-      let revHit ← mvarId.firstHyp? fun _ ty => do
+    withLocalDeclD `h3 (mkApp (mkConst ``pTag) (mkNatLit 3)) fun _ => do
+      let mvarId := (← mkFreshExprMVar (some (mkConst ``True))).mvarId!
+      let parsePTag := fun _ ty => do
         match ty with
         | `(expr| pTag ?n) =>
           let some k ← getNatValue? n | throwError "not nat"
           return k
         | _ => throwError "no match"
-      let fwdHit ← mvarId.firstHyp? (reverse := false) fun _ ty => do
-        match ty with
-        | `(expr| pTag ?n) =>
-          let some k ← getNatValue? n | throwError "not nat"
-          return k
-        | _ => throwError "no match"
+      let revHit ← mvarId.firstHyp? parsePTag
+      let fwdHit ← mvarId.firstHyp? (reverse := false) parsePTag
       let revVisited ← IO.mkRef #[]
       let noneHit : Option Unit ← mvarId.firstHyp? fun _ ty => do
         match ty with
         | `(expr| pTag ?n) =>
-          if let some k ← getNatValue? n then
-            revVisited.modify (·.push k)
+          if let some k ← getNatValue? n then revVisited.modify (·.push k)
           throwError "reject"
         | _ => throwError "no match"
       let fwdVisited ← IO.mkRef #[]
       let _ : Option Unit ← mvarId.firstHyp? (reverse := false) fun _ ty => do
         match ty with
         | `(expr| pTag ?n) =>
-          if let some k ← getNatValue? n then
-            fwdVisited.modify (·.push k)
+          if let some k ← getNatValue? n then fwdVisited.modify (·.push k)
           throwError "reject"
         | _ => throwError "no match"
-      let exHit ← mvarId.firstHyp? (except := [h3, mkMData .empty h1]) fun _ ty => do
+      return (revHit, fwdHit, noneHit.isNone, (← revVisited.get).toList,
+        (← fwdVisited.get).toList)
+  let (revHit, fwdHit, noneOk, rv, fv) := res
+  logInfo m!"({revHit}, {fwdHit}, {noneOk}, {rv}, {fv})"
+
+end MetaMOrderAndTraversal
+
+section MetaMExceptFilter
+
+/-- info: some (2) -/
+#guard_msgs in
+run_meta do
+  let exHit ←
+    withLocalDeclD `h1 (mkApp (mkConst ``pTag) (mkNatLit 1)) fun h1 =>
+    withLocalDeclD `h2 (mkApp (mkConst ``pTag) (mkNatLit 2)) fun _ =>
+    withLocalDeclD `h3 (mkApp (mkConst ``pTag) (mkNatLit 3)) fun h3 => do
+      let mvarId := (← mkFreshExprMVar (some (mkConst ``True))).mvarId!
+      mvarId.firstHyp? (except := [h3, mkMData .empty h1]) fun _ ty => do
         match ty with
         | `(expr| pTag ?n) =>
           let some k ← getNatValue? n | throwError "not nat"
           return k
         | _ => throwError "no match"
-      let exErr ← try
-        let _ ← mvarId.firstHyp fun _ _ => (throwError "fail" : MetaM Unit)
-        pure false
-      catch ex =>
-        pure ((← ex.toMessageData.toString) == "firstHyp: no hypothesis matched")
-      -- Verify `ExceptT` works via `{ε : Type}` polymorphism on `MVarId.firstHyp?`.
+  logInfo m!"{exHit}"
+
+end MetaMExceptFilter
+
+section MetaMExceptTPolymorphism
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  -- Verify `ExceptT` works via `{ε : Type}` polymorphism on `MVarId.firstHyp?`.
+  let excOk ←
+    withLocalDeclD `h1 (mkApp (mkConst ``pTag) (mkNatLit 1)) fun _ =>
+    withLocalDeclD `h2 (mkApp (mkConst ``pTag) (mkNatLit 2)) fun _ => do
+      let mvarId := (← mkFreshExprMVar (some (mkConst ``True))).mvarId!
       let excRes ← (mvarId.firstHyp? (m := ExceptT String MetaM) fun _ ty =>
         match ty with
         | `(expr| pTag 2) => return 22
@@ -85,10 +104,25 @@ run_meta do
       let excOk : Bool := match excRes with
         | .ok (some 22) => true
         | _             => false
-      let rv ← revVisited.get
-      let fv ← fwdVisited.get
-      return (revHit, fwdHit, rv.toList, fv.toList, exHit, noneHit.isNone, exErr, excOk)
-  logInfo m!"({revHit}, {fwdHit}, {rv}, {fv}, {exHit}, {noneIsNone}, {exErr}, {excOk})"
+      return excOk
+  logInfo m!"{excOk}"
+
+end MetaMExceptTPolymorphism
+
+section MetaMNoMatchErrors
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  let exErr ←
+    withLocalDeclD `h1 (mkApp (mkConst ``pTag) (mkNatLit 1)) fun _ => do
+      let mvarId := (← mkFreshExprMVar (some (mkConst ``True))).mvarId!
+      try
+        let _ ← mvarId.firstHyp fun _ _ => (throwError "fail" : MetaM Unit)
+        pure false
+      catch ex =>
+        pure ((← ex.toMessageData.toString) == "firstHyp: no hypothesis matched")
+  logInfo m!"{exErr}"
 
 /--
 error: firstHyp: no hypothesis matched
@@ -98,7 +132,11 @@ run_meta do
   let goal ← mkFreshExprMVar (some (mkConst ``True))
   goal.mvarId!.firstHyp fun _ _ => (pure () : MetaM Unit)
 
+end MetaMNoMatchErrors
+
 /-! ## 2. `MetaM` rollback, `.implDetail` skip, and assigned mvar instantiation -/
+
+section MetaMRollbackAndImplDetail
 
 /-- info: (true, (true, true)) -/
 #guard_msgs in
@@ -128,7 +166,13 @@ run_meta do
       return (res, visited == #[hNew, hOld], !(← sideMVar.mvarId!.isAssigned))
   logInfo m!"{ok}"
 
+end MetaMRollbackAndImplDetail
+
 /-! ## 3. `Tactic.firstHyp`, `MVarId.firstHyp` in `TacticM`, `except`, `$P`, `withMainContext` -/
+
+section ModusPonens
+
+@[reducible] def pTagRed (n : Nat) : Prop := pTag n
 
 private def solveByModusPonens : TacticM Unit := do
   firstHyp fun h1 ty1 => do
@@ -151,29 +195,28 @@ theorem modusPonensExample (a b : Nat) (h1 : pTagRed a) (h2 : pTag a → qTag b)
     (h3 : pTag b) : qTag b := by
   run_tac solveByModusPonens
 
+end ModusPonens
+
+section TacticOrderAndExceptAfterIntro
+
 /-
-Verify `firstHyp` works immediately after `intro` without explicit `withMainContext`,
-`MVarId.firstHyp?`/`MVarId.firstHyp` work directly in `TacticM`, `reverse := true` vs `false`
-ordering works, and `except := [h1]` skips `h1` in nested calls.
+Verify `firstHyp?` works immediately after `intro` without explicit `withMainContext`,
+`reverse := true` vs `false` ordering works, and `except := [h1]` skips `h1` in nested calls.
 -/
-/-- info: (some (30), some (10), some (20), true, true) -/
+/-- info: (some (30), some (10), true) -/
 #guard_msgs in
 example : pTag 10 → pTag 20 → pTag 30 → True := by
   intro h1 h2 h3
   run_tac do
+    let parsePTag := fun _ ty => do
+      match ty with
+      | `(expr/reducible| pTag ?n) =>
+        let some k ← getNatValue? n | throwError "not nat"
+        return k
+      | _ => throwError "no"
     -- Executed directly after `intro` without an outer `withMainContext`:
-    let newest? ← firstHyp? fun _ ty => do
-      match ty with
-      | `(expr/reducible| pTag ?n) =>
-        let some k ← getNatValue? n | throwError "not nat"
-        return k
-      | _ => throwError "no"
-    let oldest? ← firstHyp? (reverse := false) fun _ ty => do
-      match ty with
-      | `(expr/reducible| pTag ?n) =>
-        let some k ← getNatValue? n | throwError "not nat"
-        return k
-      | _ => throwError "no"
+    let newest? ← firstHyp? parsePTag
+    let oldest? ← firstHyp? (reverse := false) parsePTag
     -- With `except := [h1]`, reflexive `pTag ?_` on `h1` must find a distinct `h2 ≠ h1`.
     let distinctPair ← firstHyp fun h1 ty1 =>
       match ty1 with
@@ -183,30 +226,44 @@ example : pTag 10 → pTag 20 → pTag 30 → True := by
           | `(expr/reducible| pTag ?_) => return (h1 != h2)
           | _                          => throwError "no"
       | _ => throwError "no"
-    let (directTacticM?, directHit) ← withMainContext do
-      let lctx ← getLCtx
-      let some h1Decl := lctx.findFromUserName? `h1 | throwError "missing h1"
-      let some h3Decl := lctx.findFromUserName? `h3 | throwError "missing h3"
-      let goal ← getMainGoal
-      let d? ← goal.firstHyp? (except := [mkFVar h3Decl.fvarId]) fun _ ty => do
-        match ty with
-        | `(expr/reducible| pTag ?n) =>
-          let some k ← getNatValue? n | throwError "not nat"
-          return k
-        | _ => throwError "no"
-      let dHit ← goal.firstHyp fun h ty =>
-        match ty with
-        | `(expr| pTag 10) => return (h == mkFVar h1Decl.fvarId)
-        | _                => throwError "no"
-      return (d?, dHit)
-    logInfo m!"({newest?}, {oldest?}, {directTacticM?}, {directHit}, {distinctPair})"
+    logInfo m!"({newest?}, {oldest?}, {distinctPair})"
   exact trivial
+
+end TacticOrderAndExceptAfterIntro
+
+section MVarIdInTacticM
+
+/-- info: (some (20), true) -/
+#guard_msgs in
+example : pTag 10 → pTag 20 → pTag 30 → True := by
+  intro h1 h2 h3
+  run_tac withMainContext do
+    let lctx ← getLCtx
+    let some h1Decl := lctx.findFromUserName? `h1 | throwError "missing h1"
+    let some h3Decl := lctx.findFromUserName? `h3 | throwError "missing h3"
+    let goal ← getMainGoal
+    let d? ← goal.firstHyp? (except := [mkFVar h3Decl.fvarId]) fun _ ty => do
+      match ty with
+      | `(expr/reducible| pTag ?n) =>
+        let some k ← getNatValue? n | throwError "not nat"
+        return k
+      | _ => throwError "no"
+    let dHit ← goal.firstHyp fun h ty =>
+      match ty with
+      | `(expr| pTag 10) => return (h == mkFVar h1Decl.fvarId)
+      | _                => throwError "no"
+    logInfo m!"({d?}, {dHit})"
+  exact trivial
+
+end MVarIdInTacticM
 
 /-! ## 4. Atomic `Tactic.SavedState` rollback (mvars, goals, messages, info trees, term state) -/
 
-/-- info: (true, true, true, true, true, true, true, true) -/
+section SavedStateRollbackAllFail
+
+/-- info: true -/
 #guard_msgs in
-example : pTag 1 → pTag 2 → pTag 2 := by
+example : pTag 1 → pTag 2 → True := by
   intro h1 h2
   run_tac withEnableInfoTree true do
     let sideMVar ← mkFreshExprMVar (some (mkConst ``Nat))
@@ -215,7 +272,6 @@ example : pTag 1 → pTag 2 → pTag 2 := by
     let infoCountBefore := (← getInfoTrees).size
     let levelNamesBefore ← Term.getLevelNames
 
-    -- First, verify `firstHyp?` returns `none` and rolls back when all arms fail.
     let noneRes : Option Unit ← firstHyp? fun h _ => do
       sideMVar.mvarId!.assign (mkNatLit 99)
       let g1 ← mkFreshExprMVar (some (mkConst ``True))
@@ -240,11 +296,27 @@ example : pTag 1 → pTag 2 → pTag 2 := by
       (← Core.getMessageLog).toList.length == msgCountBefore &&
       (← getInfoTrees).size == infoCountBefore &&
       (← Term.getLevelNames) == levelNamesBefore
+    logInfo m!"{afterNoneOk}"
+  exact trivial
 
-    -- Next, verify arm 1 (`h1` with `reverse := false`) mutates everything, fails, and rolls
-    -- back 100% before arm 2 (`h2`) inspects state and closes the goal.
+end SavedStateRollbackAllFail
+
+section SavedStateRollbackPartialArm
+
+/-- info: (true, true, true, true, true, true, true) -/
+#guard_msgs in
+example : pTag 1 → pTag 2 → pTag 2 := by
+  intro h1 h2
+  run_tac withEnableInfoTree true do
+    let sideMVar ← mkFreshExprMVar (some (mkConst ``Nat))
+    let goalsBefore ← getGoals
+    let msgCountBefore := (← Core.getMessageLog).toList.length
+    let infoCountBefore := (← getInfoTrees).size
+    let levelNamesBefore ← Term.getLevelNames
+    -- Arm 1 (`h1` with `reverse := false`) mutates everything, fails, and rolls back 100%
+    -- before arm 2 (`h2`) inspects state and closes the goal.
     let mutatedRef ← IO.mkRef (false, false)
-    let arm2Checks ← firstHyp (reverse := false) fun h ty => do
+    let checks ← firstHyp (reverse := false) fun h ty => do
       if ty == mkApp (mkConst ``pTag) (mkNatLit 1) then
         sideMVar.mvarId!.assign (mkNatLit 123)
         let g1 ← mkFreshExprMVar (some (mkConst ``True))
@@ -260,9 +332,9 @@ example : pTag 1 → pTag 2 → pTag 2 := by
           expr := h
         })
         Term.setLevelNames [`bogusLevel2]
-        let msgsGrew := (← Core.getMessageLog).toList.length > msgCountBefore
-        let infoGrew := (← getInfoTrees).size > infoCountBefore
-        mutatedRef.set (msgsGrew, infoGrew)
+        mutatedRef.set
+          ((← Core.getMessageLog).toList.length > msgCountBefore,
+           (← getInfoTrees).size > infoCountBefore)
         throwError "arm 1 failed"
       let (msgsGrew, infoGrew) ← mutatedRef.get
       let mvarClean := !(← sideMVar.mvarId!.isAssigned)
@@ -275,12 +347,15 @@ example : pTag 1 → pTag 2 → pTag 2 := by
         throwError "wrong hyp"
       goal.assign h
       replaceMainGoal []
-      return (afterNoneOk, msgsGrew, infoGrew, mvarClean, goalsClean, msgsClean,
-        infoClean, levelsClean)
-    let (a, b, c, d, e, f, g, h) := arm2Checks
-    logInfo m!"({a}, {b}, {c}, {d}, {e}, {f}, {g}, {h})"
+      return (msgsGrew, infoGrew, mvarClean, goalsClean, msgsClean, infoClean, levelsClean)
+    let (a, b, c, d, e, f, g) := checks
+    logInfo m!"({a}, {b}, {c}, {d}, {e}, {f}, {g})"
+
+end SavedStateRollbackPartialArm
 
 /-! ## 5. Interactive recovery safety (`withRecover true` + failing `evalTactic`) -/
+
+section RecoverSafetyTheorem
 
 /-- info: (true, true, true, true) -/
 #guard_msgs in
@@ -321,6 +396,10 @@ theorem recoverSafetyTest (hGood : qTag 2) (hBad1 : pTag 1) (hBad2 : pTag 2) (b 
     let sameMsgs := (← Core.getMessageLog).toList.length == msgCountBefore
     logInfo m!"({visitedAll && expectedCount}, {noSorry}, {noErrors}, {sameMsgs})"
 
+end RecoverSafetyTheorem
+
+section RecoverSafetyErrorCleanup
+
 /-- info: (true, true, true) -/
 #guard_msgs in
 run_meta do
@@ -343,7 +422,11 @@ run_meta do
       return (threw, clean)
   logInfo m!"({ok.1}, {ok.2}, true)"
 
+end RecoverSafetyErrorCleanup
+
 /-! ## 6. `Tactic.firstHyp` `.implDetail` skip, mvar instantiation, and error cases -/
+
+section TacticImplDetailAndMVarInst
 
 /-- info: (true, true) -/
 #guard_msgs in
@@ -367,6 +450,10 @@ run_meta do
         out.get
   logInfo m!"{res}"
 
+end TacticImplDetailAndMVarInst
+
+section TacticNoMatchAndNoGoals
+
 /--
 error: firstHyp: no hypothesis matched
 -/
@@ -388,5 +475,7 @@ error: No goals to be solved
 example : True := by
   exact trivial
   run_tac firstHyp fun _ _ => pure ()
+
+end TacticNoMatchAndNoGoals
 
 end FirstHypTest

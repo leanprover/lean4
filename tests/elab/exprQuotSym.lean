@@ -51,11 +51,26 @@ private def withTestGrindTacticM (k : GrindTacticM α) : MetaM α := do
 
 /-! ## 1. Polymorphic `[MonadSym]` & stacked monads -/
 
+section PolyBuildAndMatch
+
 def polyBuildAndMatch [Monad m] [Meta.MonadSym m] (a : Expr) : m (Option (Expr × Expr)) := do
   let t ← `(expr/sym| $a + 1)
   match t with
   | `(expr/sym| ?x + ?y) => return some (x, y)
   | _                    => return none
+
+run_meta SymM.run do
+  let a := mkNatLit 3
+  let some (x, y) ← polyBuildAndMatch a
+    | throwError "polyBuildAndMatch failed"
+  x.checkMaxShared "polyBuild x"
+  y.checkMaxShared "polyBuild y"
+  check (x == a) "expected x == 3"
+  check (y == (← `(expr/sym| (1 : Nat)))) "expected y == 1"
+
+end PolyBuildAndMatch
+
+section StackedStateTSymM
 
 def stackedSymMatch (e : Expr) : StateT Nat SymM (Option Expr) := do
   let n ← get
@@ -63,6 +78,17 @@ def stackedSymMatch (e : Expr) : StateT Nat SymM (Option Expr) := do
   match e with
   | `(expr/sym| ?a + $a) => return some a
   | _                    => return none
+
+run_meta SymM.run do
+  let a := mkNatLit 3
+  let dbl ← `(expr/sym| $a + $a)
+  let (res?, cnt) ← (stackedSymMatch dbl).run 0
+  check (cnt == 1) "expected StateT counter 1"
+  check (res? == some a) "expected stacked StateT SymM nonlinear match"
+
+end StackedStateTSymM
+
+section GrindTacticMInference
 
 def grindTacticSymTest : GrindTacticM Unit := do
   -- `do`-block inference without explicit annotation on `(expr/sym| ...)`
@@ -74,38 +100,26 @@ def grindTacticSymTest : GrindTacticM Unit := do
       throwError "unexpected capture in GrindTacticM: {x}"
   | _ => throwError "failed match in GrindTacticM: {t}"
 
-run_meta do
-  SymM.run do
-    let a := mkNatLit 3
-    let some (x, y) ← polyBuildAndMatch a
-      | throwError "polyBuildAndMatch failed"
-    x.checkMaxShared "polyBuild x"
-    y.checkMaxShared "polyBuild y"
-    check (x == a) "expected x == 3"
-    check (y == (← `(expr/sym| (1 : Nat)))) "expected y == 1"
-    let dbl := ← `(expr/sym| $a + $a)
-    let (res?, cnt) ← (stackedSymMatch dbl).run 0
-    check (cnt == 1) "expected StateT counter 1"
-    check (res? == some a) "expected stacked StateT SymM nonlinear match"
-  withTestGrindTacticM grindTacticSymTest
+run_meta withTestGrindTacticM grindTacticSymTest
+
+end GrindTacticMInference
 
 /-! ## 2. `/sym` term building (`(expr/sym| t)`) -/
 
-def unboxedWrap (x : Nat) : Nat := x + 1
+section ClosedTemplateFoldProjs
 
-class CustomSymOp (α : Type) where
-  op : α → α
-
-instance : CustomSymOp Nat where
-  op := Nat.succ
-
+-- Closed template + projection folding + maximal sharing
 run_meta SymM.run do
-  -- 2a. Closed template + projection folding + maximal sharing
   let closed ← `(expr/sym| (1, 2).1)
   closed.checkMaxShared "closed"
   check (closed.find? (·.isProj)).isNone "expected foldProjs to eliminate `.proj`"
 
-  -- 2b. Unshared MetaM splice becomes maximally shared & preserves pointer sharing
+end ClosedTemplateFoldProjs
+
+section UnsharedSplicePointerSharing
+
+-- Unshared `MetaM` splice becomes maximally shared & preserves pointer sharing
+run_meta SymM.run do
   let rawA := mkApp2 (mkConst ``Nat.add) (mkNatLit 2) (mkNatLit 3)
   check (!(← isMaxShared rawA)) "expected fresh rawA to start unshared"
   let built ← `(expr/sym| $rawA + $rawA)
@@ -114,20 +128,36 @@ run_meta SymM.run do
   let argL := built.appFn!.appArg!
   check (isSameExpr argL argR) "expected identical pointer for repeated splice `$rawA + $rawA`"
 
-  -- 2c. Zero beta-reduction on `$P $y`
+end UnsharedSplicePointerSharing
+
+section ZeroBetaReduction
+
+-- Zero beta-reduction on `$P $y`
+run_meta SymM.run do
   let idLam := mkLambda `x .default (mkConst ``Nat) (mkBVar 0)
   let zero := mkNatLit 0
   let noBeta ← `(expr/sym| ($idLam : Nat → Nat) $zero)
   noBeta.checkMaxShared "noBeta"
   check noBeta.isApp "expected zero beta reduction on `$P $y`"
 
-  -- 2d. Universe-polymorphic template passes `checkMaxShared`
+end ZeroBetaReduction
+
+section UniversePolymorphicTemplates
+
+-- Universe-polymorphic templates pass `checkMaxShared`
+run_meta SymM.run do
+  let zero := mkNatLit 0
   let nilNat ← `(expr/sym| (@List.nil Nat))
   nilNat.checkMaxShared "nilNat"
   let idApp ← `(expr/sym| id $zero)
   idApp.checkMaxShared "idApp with levelParams"
 
-  -- 2e. Runtime `.syntheticOpaque` holes (`?h` shared vs `?_` distinct, fresh per call)
+end UniversePolymorphicTemplates
+
+section RuntimeSyntheticOpaqueHoles
+
+-- Runtime `.syntheticOpaque` holes (`?h` shared vs `?_` distinct, fresh per call)
+run_meta SymM.run do
   let withSharedHoles ← `(expr/sym| (?h : Nat) + ?h)
   withSharedHoles.checkMaxShared "withSharedHoles"
   let hR := withSharedHoles.appArg!
@@ -144,15 +174,38 @@ run_meta SymM.run do
   check (a1L.isMVar && a1R.isMVar && a1L != a1R) "expected distinct `?_` MVarIds"
   check (a1L != a2L) "expected fresh hole MVarId per instantiation call"
 
-  -- 2f. Caller metavariable in splice is preserved unassigned
+end RuntimeSyntheticOpaqueHoles
+
+section CallerMVarPreservedInSplice
+
+-- Caller metavariable in splice is preserved unassigned
+run_meta SymM.run do
   let callerMV ← mkFreshExprMVar (some (mkConst ``Nat))
   let withCallerMV ← `(expr/sym| $callerMV + 1)
   withCallerMV.checkMaxShared "withCallerMV"
   check (!(← callerMV.mvarId!.isAssigned)) "caller mvar must remain unassigned"
 
-  -- 2g. Dependent typeclass synthesis + runtime splice type mismatch
+end CallerMVarPreservedInSplice
+
+section DependentInstanceSynthesis
+
+class CustomSymOp (α : Type) where
+  op : α → α
+
+instance : CustomSymOp Nat where
+  op := Nat.succ
+
+run_meta SymM.run do
+  let zero := mkNatLit 0
   let customApp ← `(expr/sym| CustomSymOp.op $zero)
   customApp.checkMaxShared "customApp"
+
+end DependentInstanceSynthesis
+
+section RuntimeSpliceTypeMismatch
+
+-- Runtime splice type mismatch fails cleanly
+run_meta SymM.run do
   let badSplice := mkConst ``Bool.true
   let threw ←
     try
@@ -162,19 +215,16 @@ run_meta SymM.run do
       pure true
   check threw "expected splice type mismatch to fail at runtime"
 
+end RuntimeSpliceTypeMismatch
+
 /-! ## 3. `/sym` matching invariants -/
+
+section ProofWildcardAndIrrelevance
 
 opaque propCarrier {P : Prop} (h : P) (x : Nat) : Nat
 
-class NeedInst (α : Type) where
-  tag : Nat
-
-def withNeedInst {α : Type} [NeedInst α] (x : α) : α := x
-
-opaque UninstType : Type
-
+-- Skipped proof wildcard `_` works cleanly without false temp-mvar rejection
 run_meta SymM.run do
-  -- 3a. Skipped proof wildcard `_` works cleanly without false temp-mvar rejection
   let pTrue : Expr := mkConst ``True.intro
   let eProof ← `(expr/sym| propCarrier $pTrue 42)
   match eProof with
@@ -183,7 +233,9 @@ run_meta SymM.run do
     check (v == (← `(expr/sym| (42 : Nat)))) "expected v == 42"
   | _ => throwError "expected propCarrier match"
 
-  -- 3b. Direct `$h` proof pin succeeds by proof irrelevance
+-- Direct `$h` proof pin succeeds by proof irrelevance
+run_meta SymM.run do
+  let pTrue : Expr := mkConst ``True.intro
   let pTrue2 ← mkFreshExprMVar (some (mkConst ``True))
   pTrue2.mvarId!.assign (mkConst ``True.intro)
   let thmProof : Expr ← mkAppM ``propCarrier #[pTrue2, mkNatLit 9]
@@ -192,10 +244,15 @@ run_meta SymM.run do
     check (w == mkNatLit 9) "expected w == 9"
   | _ => throwError "expected proof pin match by proof irrelevance"
 
-  -- 3c. `$e` pin comparison via `isDefEqS` + `let` fvar `zetaDelta`
+end ProofWildcardAndIrrelevance
+
+section PinZetaDeltaLetFVar
+
+-- `$e` pin comparison via `isDefEqS` + `let` fvar `zetaDelta`
+run_meta SymM.run do
   let one := mkNatLit 1
   let two := mkNatLit 2
-  let scrutLet ← withLetDecl `k (mkConst ``Nat) one fun kVar => do
+  let _ ← withLetDecl `k (mkConst ``Nat) one fun kVar => do
     let body ← `(expr/sym| $kVar + 5)
     match body with
     | `(expr/sym| $one + ?rhs) =>
@@ -206,9 +263,13 @@ run_meta SymM.run do
     | `(expr/sym| $two + ?_) => throwError "unexpected match of pin 2 against `k := 1`"
     | _ => pure ()
     pure body
-  let _ := scrutLet
 
-  -- 3d. Term `let`, `eta`, offsets (`Nat.succ`, `?n + 1`), and raw Meta `.proj` scrutinees
+end PinZetaDeltaLetFVar
+
+section TermLetEUnfold
+
+-- Term `let` unfolds before matching
+run_meta SymM.run do
   let letTerm :=
     mkLet `z (mkConst ``Nat) (mkNatLit 4) (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkBVar 0))
   match letTerm with
@@ -217,12 +278,24 @@ run_meta SymM.run do
     check (a == mkNatLit 4) "expected letE unfolded to Nat.add 4 4"
   | _ => throwError "expected letE match"
 
+end TermLetEUnfold
+
+section EtaReductionMatch
+
+-- Eta-reducible lambda matches bare function head
+run_meta SymM.run do
   let etaTerm := mkLambda `x .default (mkConst ``Nat) (mkApp (mkConst ``Nat.succ) (mkBVar 0))
   match etaTerm with
   | `(expr/sym| ?f) =>
     check (f == mkConst ``Nat.succ) "expected eta-reduced `Nat.succ` capture"
   | _ => throwError "expected eta match"
 
+end EtaReductionMatch
+
+section RawProjMatch
+
+-- Raw Meta `.proj` scrutinees fold to `Prod.fst` before matching
+run_meta SymM.run do
   let rawProj := Expr.proj ``Prod 0 (mkApp4 (mkConst ``Prod.mk [0, 0])
     (mkConst ``Nat) (mkConst ``Nat) (mkNatLit 11) (mkNatLit 12))
   match rawProj with
@@ -232,6 +305,12 @@ run_meta SymM.run do
       "expected folded proj capture"
   | _ => throwError "expected folded `.proj` match"
 
+end RawProjMatch
+
+section NatOffsetMatch
+
+-- Offset pattern `?n + 1` matches numeric literal `5`
+run_meta SymM.run do
   let five : Expr := mkNatLit 5
   match five with
   | `(expr/sym| (?n : Nat) + 1) =>
@@ -239,7 +318,12 @@ run_meta SymM.run do
     check (n == mkNatLit 4) "expected `?n + 1` matching literal `5` to bind `4`"
   | _ => throwError "expected offset match"
 
-  -- 3e. Caller metavariable preserved & ZERO fresh temp mvars leaked on match failure/success
+end NatOffsetMatch
+
+section CallerMVarNoTempLeak
+
+-- Caller metavariable preserved & ZERO fresh temp mvars leaked on match failure/success
+run_meta SymM.run do
   let callerMV ← mkFreshExprMVar (some (mkConst ``Nat))
   let withMV := mkApp2 (mkConst ``Nat.add) callerMV callerMV
   let mvarCounterBefore := (← getMCtx).mvarCounter
@@ -252,14 +336,27 @@ run_meta SymM.run do
   check (mvarCounterBefore == mvarCounterAfter)
     "pattern matching must not leak fresh temporary metavariables into caller MCtx"
 
+end CallerMVarNoTempLeak
+
+section UnresolvedInstanceRejection
+
+class NeedInst (α : Type) where
+  tag : Nat
+
+section RejectMissingPatternInstance
+
+def withNeedInst {α : Type} [NeedInst α] (x : α) : α := x
+
+opaque UninstType : Type
+
 structure WrapNeed (α : Type) where
   val : α
 
 instance instNeedInstWrap {α : Type} [NeedInst α] : NeedInst (WrapNeed α) where
   tag := 1
 
+-- Reject missing/non-synthesizable pattern instance cleanly without leaking temp mvars
 run_meta SymM.run do
-  -- 3f. Reject missing/non-synthesizable pattern instance & unresolved instance constraints
   let wrapUninst := mkApp (mkConst ``WrapNeed) (mkConst ``UninstType)
   let fakeInst ← mkFreshExprMVar (some (mkApp (mkConst ``NeedInst) wrapUninst))
   let wrapVal ← mkFreshExprMVar (some wrapUninst)
@@ -276,8 +373,13 @@ run_meta SymM.run do
   | `(expr/sym| withNeedInst ?_) => pure ()
   | _ => throwError "expected direct wildcard match"
 
-  -- Reject programmatic pattern with `.instImplicit` binder (`unresolvedInsts` non-empty)
-  let mvarCounterPre2 := (← getMCtx).mvarCounter
+end RejectMissingPatternInstance
+
+section RejectUnresolvedInstImplicit
+
+-- Reject programmatic pattern with `.instImplicit` binder (`unresolvedInsts` non-empty)
+run_meta SymM.run do
+  let mvarCounterPre := (← getMCtx).mvarCounter
   let patWithInst : ExprPattern :=
     { levelParams := []
       lam := mkLambda `α .default (mkSort 1)
@@ -288,12 +390,16 @@ run_meta SymM.run do
       firstOrder := #[true, true] }
   let res? ← patWithInst.matchSym? { engine := .sym } (mkConst ``True)
   check res?.isNone "expected unresolved `.instImplicit` instance binder to fail cleanly"
-  check ((← getMCtx).mvarCounter == mvarCounterPre2)
+  check ((← getMCtx).mvarCounter == mvarCounterPre)
     "unresolvedInsts rejection must not leak temporary mvars"
 
-  -- 3g. ReaderT stacked over `GrindTacticM` (verifying polymorphic `[MonadLiftT GrindTacticM m]`)
-  pure ()
+end RejectUnresolvedInstImplicit
 
+end UnresolvedInstanceRejection
+
+section ReaderTGrindTacticM
+
+-- `ReaderT` stacked over `GrindTacticM` (verifying polymorphic `[MonadLiftT GrindTacticM m]`)
 def readerGrindSym (e : Expr) : ReaderT Nat GrindTacticM (Option Expr) := do
   let _ctx ← read
   match e with
@@ -309,34 +415,92 @@ run_meta withTestGrindTacticM do
   let expected ← `(expr/sym| (2 : Nat) + 1)
   check (swapped? == some expected) "expected ReaderT GrindTacticM swap"
 
-/-! ## 3h. Head & repeated pins + `GrindM`/`GoalM`/`SimpM`/`DSimpM` + `sym =>` + cache reuse -/
+end ReaderTGrindTacticM
+
+/-! ## 4. Head & repeated pins, `GrindM`/`GoalM`/`SimpM`/`DSimpM`, cache reuse & `sym =>` -/
+
+section HeadAndRepeatedPin
 
 opaque symBinOp : Nat → Nat → Nat
 
-def matchInGrindM (e : Expr) : Meta.Grind.GrindM (Option Expr) := do
+def matchHeadAndRepeatedPin (f e : Expr) : SymM Bool :=
   match e with
-  | `(expr/sym| ?x + 1) => return some (← `(expr/sym| $x + 2))
-  | _                    => return none
+  | `(expr/sym| $f ?x $x) => let _ := x; return true
+  | _                      => return false
 
-def matchInGoalM (e : Expr) : Meta.Grind.GoalM (Option Expr) := do
-  match e with
-  | `(expr/sym| ?x + 1) => return some (← `(expr/sym| $x + 2))
-  | _                    => return none
+run_meta SymM.run do
+  let f := mkConst ``symBinOp
+  let sameArgs ← `(expr/sym| symBinOp 3 3)
+  let diffArgs ← `(expr/sym| symBinOp 3 4)
+  check (← matchHeadAndRepeatedPin f sameArgs) "expected head+repeated pin `$f ?x $x` match"
+  check (!(← matchHeadAndRepeatedPin f diffArgs)) "expected mismatch on `$f ?x $x`"
+
+end HeadAndRepeatedPin
+
+section SimpMMonadSym
 
 def matchInSimpM (e : Expr) : Sym.Simp.SimpM (Option Expr) := do
   match e with
   | `(expr/sym| ?x + 1) => return some (← `(expr/sym| $x + 2))
   | _                    => return none
 
+run_meta SymM.run do
+  let t ← `(expr/sym| (3 : Nat) + 1)
+  let exp ← `(expr/sym| (3 : Nat) + 2)
+  check ((← Sym.Simp.SimpM.run' (matchInSimpM t)) == some exp) "expected SimpM match/build"
+
+end SimpMMonadSym
+
+section DSimpMMonadSym
+
 def matchInDSimpM (e : Expr) : Sym.DSimp.DSimpM (Option Expr) := do
   match e with
   | `(expr/sym| ?x + 1) => return some (← `(expr/sym| $x + 2))
   | _                    => return none
 
-def matchHeadAndRepeatedPin (f e : Expr) : SymM Bool :=
+run_meta SymM.run do
+  let t ← `(expr/sym| (3 : Nat) + 1)
+  let exp ← `(expr/sym| (3 : Nat) + 2)
+  check ((← Sym.DSimp.DSimpM.run' (matchInDSimpM t)) == some exp) "expected DSimpM match/build"
+
+end DSimpMMonadSym
+
+section GrindMMonadSym
+
+def matchInGrindM (e : Expr) : Meta.Grind.GrindM (Option Expr) := do
   match e with
-  | `(expr/sym| $f ?x $x) => let _ := x; return true
-  | _                      => return false
+  | `(expr/sym| ?x + 1) => return some (← `(expr/sym| $x + 2))
+  | _                    => return none
+
+run_meta do
+  let params ← Meta.Grind.mkDefaultParams {}
+  Meta.Grind.GrindM.run (params := params) do
+    let t ← `(expr/sym| (3 : Nat) + 1)
+    let exp ← `(expr/sym| (3 : Nat) + 2)
+    check ((← matchInGrindM t) == some exp) "expected GrindM match/build"
+
+end GrindMMonadSym
+
+section GoalMMonadSym
+
+def matchInGoalM (e : Expr) : Meta.Grind.GoalM (Option Expr) := do
+  match e with
+  | `(expr/sym| ?x + 1) => return some (← `(expr/sym| $x + 2))
+  | _                    => return none
+
+run_meta do
+  let params ← Meta.Grind.mkDefaultParams {}
+  Meta.Grind.GrindM.run (params := params) do
+    let t ← `(expr/sym| (3 : Nat) + 1)
+    let exp ← `(expr/sym| (3 : Nat) + 2)
+    let mv := (← mkFreshExprMVar (mkConst ``True)).mvarId!
+    let goal ← Meta.Grind.mkGoalCore mv
+    let (goalRes, _) ← (matchInGoalM t).run goal
+    check (goalRes == some exp) "expected GoalM match/build"
+
+end GoalMMonadSym
+
+section SymSiteCacheReuse
 
 def symSiteCacheLoop (e : Expr) : SymM (Nat × Expr) := do
   let mut count := 0
@@ -350,48 +514,27 @@ def symSiteCacheLoop (e : Expr) : SymM (Nat × Expr) := do
     last ← `(expr/sym| (3, 4).2)
   return (count, last)
 
+-- Per-site cache reuse: 1st run populates `exprSymPatExt` & `exprSymTmplExt`; subsequent
+-- runs add zero new expressions to `Sym.State.share` or `MCtx`.
+run_meta SymM.run do
+  let prodT ← `(expr/sym| (3 : Nat) * 4)
+  let shareCount : SymM Nat := do
+    return (← getThe Sym.State).share.set.fold (init := 0) fun acc _ => acc + 1
+  let (c1, _) ← symSiteCacheLoop prodT
+  check (c1 == 50) "expected 50 matches in loop"
+  let shareSizeAfterFirst ← shareCount
+  let mvarCountAfterFirst := (← getMCtx).mvarCounter
+  let (c2, closed) ← symSiteCacheLoop prodT
+  check (c2 == 50) "expected 50 matches on cached loop"
+  closed.checkMaxShared "cached closed template"
+  check ((← shareCount) == shareSizeAfterFirst)
+    "cached closed template and pattern reuse must allocate zero extra share nodes"
+  check ((← getMCtx).mvarCounter == mvarCountAfterFirst)
+    "cached sym site loop must allocate zero caller metavariables"
+
+-- Env deduplication: repeated identical patterns/templates emit 0 extra consts, 1 unique
+-- `decode` payload each, and share one `siteId` across duplicate template sites.
 run_meta do
-  SymM.run do
-    let f := mkConst ``symBinOp
-    let sameArgs ← `(expr/sym| symBinOp 3 3)
-    let diffArgs ← `(expr/sym| symBinOp 3 4)
-    check (← matchHeadAndRepeatedPin f sameArgs) "expected head+repeated pin `$f ?x $x` match"
-    check (!(← matchHeadAndRepeatedPin f diffArgs)) "expected mismatch on `$f ?x $x`"
-
-    let t ← `(expr/sym| (3 : Nat) + 1)
-    let exp ← `(expr/sym| (3 : Nat) + 2)
-    check ((← Sym.Simp.SimpM.run' (matchInSimpM t)) == some exp) "expected SimpM match/build"
-    check ((← Sym.DSimp.DSimpM.run' (matchInDSimpM t)) == some exp) "expected DSimpM match/build"
-
-    -- Per-site cache reuse: 1st run populates `exprSymPatExt` & `exprSymTmplExt`; subsequent
-    -- runs add zero new expressions to `Sym.State.share` or `MCtx`.
-    let prodT ← `(expr/sym| (3 : Nat) * 4)
-    let shareCount : SymM Nat := do
-      return (← getThe Sym.State).share.set.fold (init := 0) fun acc _ => acc + 1
-    let (c1, _) ← symSiteCacheLoop prodT
-    check (c1 == 50) "expected 50 matches in loop"
-    let shareSizeAfterFirst ← shareCount
-    let mvarCountAfterFirst := (← getMCtx).mvarCounter
-    let (c2, closed) ← symSiteCacheLoop prodT
-    check (c2 == 50) "expected 50 matches on cached loop"
-    closed.checkMaxShared "cached closed template"
-    check ((← shareCount) == shareSizeAfterFirst)
-      "cached closed template and pattern reuse must allocate zero extra share nodes"
-    check ((← getMCtx).mvarCounter == mvarCountAfterFirst)
-      "cached sym site loop must allocate zero caller metavariables"
-
-  let params ← Meta.Grind.mkDefaultParams {}
-  Meta.Grind.GrindM.run (params := params) do
-    let t ← `(expr/sym| (3 : Nat) + 1)
-    let exp ← `(expr/sym| (3 : Nat) + 2)
-    check ((← matchInGrindM t) == some exp) "expected GrindM match/build"
-    let mv := (← mkFreshExprMVar (mkConst ``True)).mvarId!
-    let goal ← Meta.Grind.mkGoalCore mv
-    let (goalRes, _) ← (matchInGoalM t).run goal
-    check (goalRes == some exp) "expected GoalM match/build"
-
-  -- Env deduplication: repeated identical patterns/templates emit 0 extra consts, 1 unique
-  -- `decode` payload each, and share one `siteId` across duplicate template sites.
   let env ← getEnv
   let loopPatCount := env.constants.fold (init := 0) fun acc n _ =>
     if (``symSiteCacheLoop).isPrefixOf n && n.toString.contains "exprPat" then acc + 1 else acc
@@ -437,6 +580,10 @@ run_meta do
   check (tmplSiteIds.size == 1)
     s!"expected 1 shared template siteId in symSiteCacheLoop, got {tmplSiteIds.size}"
 
+end SymSiteCacheReuse
+
+section InteractiveSymTacticBlock
+
 syntax (name := testSymQuotTactic) "test_sym_quot" : grind
 
 @[grind_tactic testSymQuotTactic] def evalTestSymQuotTactic : Grind.GrindTactic := fun _ =>
@@ -453,7 +600,11 @@ syntax (name := testSymQuotTactic) "test_sym_quot" : grind
 theorem interactiveSymBlockTest (x y : Nat) : x + y = y + x := by
   sym => test_sym_quot
 
-/-! ## 4. Reject invalid `/sym` relations & monads cleanly -/
+end InteractiveSymTacticBlock
+
+/-! ## 5. Reject invalid `/sym` relations & monads cleanly -/
+
+section RejectNonMonadSym
 
 /--
 error: expr quotation `/sym` requires a `[MonadSym]` monad (e.g. `SymM` or `GrindTacticM`),
@@ -473,6 +624,10 @@ def rejectSymMatchId (e : Expr) : Id Nat :=
   match e with
   | `(expr/sym| ?x) => let _ := x; 1
   | _ => 0
+
+end RejectNonMonadSym
+
+section RejectUnsupportedPatModifiers
 
 /-- error: expr quotation `/sym` relation does not support `[items]` unfold overrides -/
 #guard_msgs in
@@ -495,6 +650,10 @@ def rejectSymPatNegFlag (e : Expr) : SymM Nat :=
   | `(expr/sym -zeta| ?x) => let _ := x; return 1
   | _ => return 0
 
+end RejectUnsupportedPatModifiers
+
+section RejectUnsupportedBuildModifiers
+
 /-- error: expr quotation `/sym` relation does not support `[items]` unfold overrides -/
 #guard_msgs in
 def rejectSymBuildItems : SymM Expr := `(expr/sym [+Nat.add]| 1 + 2)
@@ -515,6 +674,10 @@ def rejectSymBuildNegProj : SymM Expr := `(expr/sym -proj| 1 + 2)
 #guard_msgs in
 def rejectSymBuildNegEta : SymM Expr := `(expr/sym -eta| 1 + 2)
 
+end RejectUnsupportedBuildModifiers
+
+section RuntimeRejectDisabledFlag
+
 -- Runtime validation on programmatic `ExprMatchRel`
 run_meta SymM.run do
   let badRel : ExprMatchRel := { engine := .sym, flags := { eta := some false } }
@@ -532,5 +695,7 @@ run_meta SymM.run do
     catch _ =>
       pure true
   check threw "expected runtime reject on `-eta` under `.sym`"
+
+end RuntimeRejectDisabledFlag
 
 end ExprQuotSymTest

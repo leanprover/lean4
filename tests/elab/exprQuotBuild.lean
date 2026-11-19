@@ -22,13 +22,6 @@ namespace ExprQuotBuildTest
 
 open Lean Meta Elab Tactic
 
-def myDefAlias := Nat
-abbrev myRedAlias := Nat
-@[reducible] def IdNatPoly (_ : Type u) : Type := Nat
-@[reducible] def IdNat0 (_ : Type) : Type := Nat
-opaque polyHoleTag {α : Type u} (x : IdNatPoly α) (h : α) : Nat
-opaque monoHoleTag {α : Type} (x : IdNat0 α) (h : α) : Nat
-
 private def check (cond : Bool) (msg : String) : MetaM Unit := do
   unless cond do
     throwError msg
@@ -172,6 +165,8 @@ got expected type
 #guard_msgs (whitespace := lax) in
 def badSymWrongMonad : MetaM Expr := `(expr/sym| 1 + 2)
 
+def myDefAlias := Nat
+
 /--
 error: invalid relation item `-ExprQuotBuildTest.myDefAlias`:
 `structural` does not unfold `ExprQuotBuildTest.myDefAlias` by default
@@ -180,34 +175,14 @@ error: invalid relation item `-ExprQuotBuildTest.myDefAlias`:
 def badStructuralNegItem (a : Expr) : MetaM Expr :=
   `(expr/structural [-myDefAlias]| ($a : Nat))
 
-/-! ## 2. Template deduplication, monad lifting, & closed relation hoisting -/
+/-! ## 2. Zero beta-reduction, pointer sharing, dedup, and monad lifting -/
 
-def polyBuild [Monad m] [MonadLiftT MetaM m] (a b : Expr) : m Expr :=
-  `(expr| $a + $b)
+/-! ### Zero beta-reduction on `$P $y` and `fun x => $P x` -/
 
-def tacBuild (a b : Expr) : TacticM Expr :=
-  `(expr| $a + $b)
-
-def termBuild (a b : Expr) : TermElabM Expr :=
-  `(expr| $a + $b)
-
-def stateBuild (a b : Expr) : StateT Nat MetaM Expr := do
-  modify (· + 1)
-  `(expr| $a + $b)
-
-def sharedTmplDedup (a b x y : Expr) : MetaM (Expr × Expr) := do
-  let e1 ← `(expr| Nat.add $a $b)
-  let e2 ← `(expr/structural| Nat.add $x $y)
-  return (e1, e2)
-
-def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
-  `(expr| Nat.mul $(← `(expr| Nat.add $a $b)) $c)
-
-/-! ## 3. Runtime tests: sharing, zero-beta, holes, relations, dependent TCs, round-trips -/
+section ZeroBetaReduction
 
 #guard_msgs in
 #eval show MetaM Unit from do
-  -- 1. Zero beta-reduction on `$P $y` and `fun x => $P x`.
   let natTy := mkConst ``Nat
   let pFun := mkLambda `x .default natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkNatLit 1))
   let y := mkNatLit 41
@@ -228,7 +203,14 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check (reduced == mkApp2 (mkConst ``Nat.add) (mkNatLit 41) (mkNatLit 1))
     "explicit Core.betaReduce mismatch"
 
-  -- 2. Pointer sharing on repeated `$x` and zero runtime mvar allocation for splices.
+end ZeroBetaReduction
+
+/-! ### Pointer sharing (`$x + $x`) and zero runtime mvar allocation -/
+
+section PointerSharingAndZeroMVars
+
+#guard_msgs in
+#eval show MetaM Unit from do
   let x := mkNatLit 7
   let dbl ← `(expr| $x + $x)
   match dbl with
@@ -244,10 +226,53 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check (mvsAfter == mvsBefore) "typed splice build must allocate zero runtime metavariables"
   Meta.check typedAdd
 
-  -- Nested splice & template deduplication (`sharedTmplDedup`).
+end PointerSharingAndZeroMVars
+
+/-! ### Nested splice build -/
+
+section NestedSpliceBuild
+
+def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
+  `(expr| Nat.mul $(← `(expr| Nat.add $a $b)) $c)
+
+#guard_msgs in
+#eval show MetaM Unit from do
   let nested ← nestedSpliceBuild (mkNatLit 2) (mkNatLit 3) (mkNatLit 4)
-  check (nested == mkApp2 (mkConst ``Nat.mul) (mkApp2 (mkConst ``Nat.add) (mkNatLit 2) (mkNatLit 3))
-    (mkNatLit 4)) "nested splice build mismatch"
+  let expected :=
+    mkApp2 (mkConst ``Nat.mul) (mkApp2 (mkConst ``Nat.add) (mkNatLit 2) (mkNatLit 3)) (mkNatLit 4)
+  check (nested == expected) "nested splice build mismatch"
+
+end NestedSpliceBuild
+
+/-! ### Template deduplication and closed relation hoisting (`sharedTmplDedup`) -/
+
+section SharedTemplateDedup
+
+def sharedTmplDedup (a b x y : Expr) : MetaM (Expr × Expr) := do
+  let e1 ← `(expr| Nat.add $a $b)
+  let e2 ← `(expr/structural| Nat.add $x $y)
+  return (e1, e2)
+
+private partial def collectTmplPayloads (e : Expr) (st : Nat × Array String) :
+    Nat × Array String :=
+  let st := match e with
+    | .app (.const fn _) (.lit (.strVal s)) =>
+      if fn == ``ExprTemplate.decode then
+        (st.1 + 1, if st.2.contains s then st.2 else st.2.push s)
+      else
+        st
+    | _ => st
+  match e with
+  | .app f a         => collectTmplPayloads a (collectTmplPayloads f st)
+  | .lam _ t b _     => collectTmplPayloads b (collectTmplPayloads t st)
+  | .forallE _ t b _ => collectTmplPayloads b (collectTmplPayloads t st)
+  | .letE _ t v b _  => collectTmplPayloads b (collectTmplPayloads v (collectTmplPayloads t st))
+  | .mdata _ b       => collectTmplPayloads b st
+  | .proj _ _ b      => collectTmplPayloads b st
+  | _                => st
+
+#guard_msgs in
+#eval show MetaM Unit from do
   let env ← getEnv
   let mut tmplCount := 0
   for (n, _) in env.constants do
@@ -256,22 +281,6 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check (tmplCount == 0) s!"expected 0 extra exprTmpl consts, got {tmplCount}"
   let some dedupVal := (env.find? ``sharedTmplDedup).bind (·.value?)
     | throwError "expected value for sharedTmplDedup"
-  let rec collectTmplPayloads (e : Expr) (st : Nat × Array String) : Nat × Array String :=
-    let st := match e with
-      | .app (.const fn _) (.lit (.strVal s)) =>
-        if fn == ``ExprTemplate.decode then
-          (st.1 + 1, if st.2.contains s then st.2 else st.2.push s)
-        else
-          st
-      | _ => st
-    match e with
-    | .app f a         => collectTmplPayloads a (collectTmplPayloads f st)
-    | .lam _ t b _     => collectTmplPayloads b (collectTmplPayloads t st)
-    | .forallE _ t b _ => collectTmplPayloads b (collectTmplPayloads t st)
-    | .letE _ t v b _  => collectTmplPayloads b (collectTmplPayloads v (collectTmplPayloads t st))
-    | .mdata _ b       => collectTmplPayloads b st
-    | .proj _ _ b      => collectTmplPayloads b st
-    | _                => st
   let (tmplCalls, tmplPayloads) := collectTmplPayloads dedupVal (0, #[])
   check (tmplCalls == 2 && tmplPayloads.size == 1)
     s!"expected 2 decode calls and 1 unique payload in sharedTmplDedup, \
@@ -280,12 +289,61 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     (Lean.IR.findEnvDecl env (``sharedTmplDedup ++ (`_closed).appendIndexAfter i)).isSome
   check hasClosedIR "expected ExtractClosed `_closed_` IR decl for sharedTmplDedup"
 
-  -- Polymorphic & monad lifts.
+end SharedTemplateDedup
+
+/-! ### Polymorphic & monad-lifted builders -/
+
+section MonadLifting
+
+def polyBuild [Monad m] [MonadLiftT MetaM m] (a b : Expr) : m Expr :=
+  `(expr| $a + $b)
+
+def tacBuild (a b : Expr) : TacticM Expr :=
+  `(expr| $a + $b)
+
+def termBuild (a b : Expr) : TermElabM Expr :=
+  `(expr| $a + $b)
+
+def stateBuild (a b : Expr) : StateT Nat MetaM Expr := do
+  modify (· + 1)
+  `(expr| $a + $b)
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let a := mkNatLit 1
+  let b := mkNatLit 2
+  let typedAdd ← `(expr| ($a : Nat) + ($b : Nat))
   check ((← polyBuild a b) == typedAdd) "polyBuild mismatch"
-  let ((stRes, stCnt)) ← (stateBuild a b).run 0
+  let (stRes, stCnt) ← (stateBuild a b).run 0
   check (stRes == typedAdd && stCnt == 1) "stateBuild mismatch"
 
-  -- 3. `refine` holes (`?h`, `?_`), shared `?h`, distinct `?_`, fresh per call, Prop & dep.
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let a := mkNatLit 1
+  let b := mkNatLit 2
+  let typedAdd ← `(expr| ($a : Nat) + ($b : Nat))
+  check ((← termBuild a b) == typedAdd) "termBuild mismatch"
+
+#guard_msgs in
+example : True := by
+  run_tac do
+    let a := mkNatLit 1
+    let b := mkNatLit 2
+    let typedAdd ← `(expr| ($a : Nat) + ($b : Nat))
+    check ((← tacBuild a b) == typedAdd) "tacBuild mismatch"
+    closeMainGoal `tacBuild (mkConst ``True.intro)
+
+end MonadLifting
+
+/-! ## 3. `refine` holes and caller metavariables -/
+
+/-! ### Named (`?h`), anonymous (`?_`), fresh per call, and `Prop`-typed holes -/
+
+section RefineHolesBasic
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let natTy := mkConst ``Nat
   let holeNamed ← `(expr| (?h : Nat) + (?h : Nat))
   let mvsNamed ← getMVars holeNamed
   let [mvH] := mvsNamed.toList
@@ -313,6 +371,14 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check (hProp.isMVar && (← hProp.mvarId!.getDecl).kind matches .syntheticOpaque &&
     (← inferType hProp) == propP) "`(?hp : $propP)` failed for `Prop` splice"
 
+end RefineHolesBasic
+
+/-! ### Dependent hole types (`@Sigma.mk` and earlier-hole binders) -/
+
+section RefineHolesDependent
+
+#guard_msgs in
+#eval show MetaM Unit from do
   let depHoles ← `(expr| @Sigma.mk Nat Fin ?n ?f)
   let depMVs ← getMVars depHoles
   let [mvN, mvF] := depMVs.toList
@@ -334,8 +400,20 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     "later `?x` hole type must reference outer `?A` metavariable"
   Meta.check priorHoleDep
 
-  -- Runtime hole-type resolution failures (polymorphic level / implicit type in hole type)
-  -- must fail cleanly inside `withNewMCtxDepth` without panicking or leaking temp mvars.
+end RefineHolesDependent
+
+/-! ### Runtime hole-type resolution failures (`withNewMCtxDepth`, no mvar leak) -/
+
+section HoleResolutionTagFailures
+
+@[reducible] def IdNatPoly (_ : Type u) : Type := Nat
+@[reducible] def IdNat0 (_ : Type) : Type := Nat
+opaque polyHoleTag {α : Type u} (x : IdNatPoly α) (h : α) : Nat
+opaque monoHoleTag {α : Type} (x : IdNat0 α) (h : α) : Nat
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let a := mkNatLit 1
   let mvsBeforeHoleFail := (← getMCtx).mvarCounter
   match ← tryBuild `(expr/reducible| polyHoleTag $a ?h) with
   | .ok _ => throwError "expected runtime failure for unresolved universe level in hole type"
@@ -347,6 +425,18 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   | .error msg =>
     check (msg.contains "expr quotation failed to resolve")
       s!"unexpected monoHoleTag failure message: {msg}"
+  check ((← getMCtx).mvarCounter == mvsBeforeHoleFail)
+    "failed runtime hole resolution must not leak metavariables"
+
+end HoleResolutionTagFailures
+
+/-! ### Runtime hole-type level-param failure on `ExprTemplate` (`MetaM` & `SymM`) -/
+
+section HoleResolutionTemplateFailures
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let mvsBeforeHoleFail := (← getMCtx).mvarCounter
   let polyHoleTmpl : ExprTemplate := {
     levelParams := [`u]
     lam         := mkLambda `h .default (mkSort (.succ (.param `u))) (mkBVar 0)
@@ -371,7 +461,15 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check ((← getMCtx).mvarCounter == mvsBeforeHoleFail)
     "failed runtime hole resolution must not leak metavariables"
 
-  -- Caller metavariable inside splice stays untouched.
+end HoleResolutionTemplateFailures
+
+/-! ### Caller metavariable preservation inside splices -/
+
+section CallerMVarPreservation
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let natTy := mkConst ``Nat
   let callerMV ← mkFreshExprMVar (some natTy) .natural `callerHole
   let builtCaller ← `(expr| ($callerMV : Nat) + 1)
   check (!(← callerMV.mvarId!.isAssigned)) "caller metavariable must remain unassigned"
@@ -379,7 +477,19 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   | .app (.app _ lhs) _ => check (ptrEq lhs callerMV) "caller mvar pointer must stay intact"
   | _ => throwError "expected binary app for builtCaller"
 
-  -- 4. Runtime splice type checking under configured relations & flags.
+end CallerMVarPreservation
+
+/-! ## 4. Runtime splice type checking under configured relations & flags -/
+
+/-! ### Transparency levels and named relation items (`[±items]`) -/
+
+namespace SpliceRelationItems
+
+def myDefAlias := Nat
+abbrev myRedAlias := Nat
+
+#guard_msgs in
+#eval show MetaM Unit from do
   withLocalDeclD `aDef (mkConst ``myDefAlias) fun aDef =>
   withLocalDeclD `aRed (mkConst ``myRedAlias) fun aRed => do
     check (← tryBuild `(expr| ($aDef : Nat))).isOk "default `.defeq` must accept myDefAlias"
@@ -396,6 +506,15 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     check (← tryBuild `(expr/structural [myDefAlias]| ($aDef : Nat))).isOk
       "`/structural [myDefAlias]` must accept myDefAlias"
 
+end SpliceRelationItems
+
+/-! ### Beta and zeta reduction flags (`±beta`, `-zeta`, `[$d]`) -/
+
+section SpliceBetaZetaFlags
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let natTy := mkConst ``Nat
   let betaTy := mkApp (mkLambda `z .default (mkSort 1) natTy) natTy
   withLocalDeclD `aBeta betaTy fun aBeta => do
     check (← tryBuild `(expr| ($aBeta : Nat))).isOk "default `/defeq` must reduce beta in type"
@@ -413,7 +532,18 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     check (← tryBuild `(expr/defeq [$(d)] -zeta| ($xd : Nat))).isOk
       "`/defeq [$(d)] -zeta` must allow unfolding `$(d)`"
 
-  -- 5. Runtime dependent type-class synthesis (success & failure) & splice type errors.
+end SpliceBetaZetaFlags
+
+/-! ## 5. Dependent type-class synthesis and runtime splice error checks -/
+
+/-! ### Dependent type-class synthesis successes -/
+
+section DependentTCSuccess
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let a := mkNatLit 1
+  let b := mkNatLit 2
   let eAdd ← `(expr| $a + $b)
   let eEq ← `(expr| $a == $b)
   let eIte ← `(expr| if $(mkConst ``True) then $a else $b)
@@ -423,17 +553,10 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     Meta.check built
 
   let three := mkNatLit 3
-  let four := mkNatLit 4
   withLocalDeclD `fa (mkApp (mkConst ``Fin) three) fun fa =>
-  withLocalDeclD `fb (mkApp (mkConst ``Fin) three) fun fb =>
-  withLocalDeclD `fc (mkApp (mkConst ``Fin) four) fun fc => do
+  withLocalDeclD `fb (mkApp (mkConst ``Fin) three) fun fb => do
     Meta.check (← `(expr| ($fa : Fin $three) + ($fb : Fin $three)))
     Meta.check (← `(expr| ($fa : Fin $three) == ($fb : Fin $three)))
-    match ← tryBuild `(expr| ($fa : Fin $three) == ($fc : Fin $three)) with
-    | .ok _ => throwError "expected runtime splice mismatch for Fin 4 vs Fin 3"
-    | .error msg =>
-      check (msg.contains "expr quotation splice type mismatch")
-        s!"unexpected Fin mismatch message: {msg}"
 
   withLocalDeclD `α (mkSort 1) fun α =>
   withLocalDeclD `instAdd (mkApp (mkConst ``Add [0]) α) fun _ =>
@@ -442,6 +565,26 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     let builtLocalTC ← `(expr| ($xα : $α) + ($yα : $α))
     Meta.check builtLocalTC
 
+end DependentTCSuccess
+
+/-! ### Runtime splice type mismatches and dependent TC failures -/
+
+section RuntimeSpliceAndTCFailures
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let a := mkNatLit 1
+  let b := mkNatLit 2
+  let three := mkNatLit 3
+  let four := mkNatLit 4
+  withLocalDeclD `fa (mkApp (mkConst ``Fin) three) fun fa =>
+  withLocalDeclD `fc (mkApp (mkConst ``Fin) four) fun fc => do
+    match ← tryBuild `(expr| ($fa : Fin $three) == ($fc : Fin $three)) with
+    | .ok _ => throwError "expected runtime splice mismatch for Fin 4 vs Fin 3"
+    | .error msg =>
+      check (msg.contains "expr quotation splice type mismatch")
+        s!"unexpected Fin mismatch message: {msg}"
+
   let sHi := mkStrLit "hi"
   match ← tryBuild `(expr| $a == $sHi) with
   | .ok _ => throwError "expected runtime splice type mismatch for `1 == \"hi\"`"
@@ -449,6 +592,8 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     check (msg.contains "expr quotation splice type mismatch")
       s!"unexpected splice mismatch message: {msg}"
 
+  let natTy := mkConst ``Nat
+  let pFun := mkLambda `x .default natTy (mkApp2 (mkConst ``Nat.add) (mkBVar 0) (mkNatLit 1))
   match ← tryBuild `(expr| toString $pFun) with
   | .ok _ => throwError "expected runtime TC failure for `toString (Nat → Nat)`"
   | .error msg =>
@@ -461,7 +606,15 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     check (msg.contains "expr quotation splice type mismatch")
       s!"unexpected ite condition mismatch message: {msg}"
 
-  -- 5b. B3 polish: loose-bvar splice precheck & caller mvar with unknown type.
+end RuntimeSpliceAndTCFailures
+
+/-! ### Loose-bvar splice precheck and unknown-type caller metavariables -/
+
+section SpliceHygieneChecks
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let a := mkNatLit 1
   let loose := mkBVar 0
   match ← tryBuild `(expr| $loose + $a) with
   | .ok _ => throwError "expected runtime error for loose bound variable splice"
@@ -479,7 +632,16 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
     check (!(← unkMV.mvarId!.isAssigned) && !(← unkTy.mvarId!.isAssigned))
       "failed splice check must not mutate caller metavariables or their types"
 
-  -- 6. Round-trip `subterms` + pattern `match` + term-position build + `ExprContext.fill`.
+end SpliceHygieneChecks
+
+/-! ## 6. Round-trip, tactic integration, and pretty-printing -/
+
+/-! ### Round-trip `subterms` + pattern `match` + term-position build + `ExprContext.fill` -/
+
+section SubtermsFillRoundTrip
+
+#guard_msgs in
+#eval show MetaM Unit from do
   let mulExpr := mkApp2 (mkConst ``Nat.mul) (mkNatLit 2) (mkNatLit 3)
   let root := mkApp2 (mkConst ``Nat.add) mulExpr (mkNatLit 4)
   let mut rewritten := root
@@ -493,7 +655,12 @@ def nestedSpliceBuild (a b c : Expr) : MetaM Expr := do
   check (rewritten == expectedRewritten) "subterms + match + build + fill round-trip failed"
   Meta.check rewritten
 
--- Tactic integration test: build goal-closing expression with `?h` refine hole inside `TacticM`.
+end SubtermsFillRoundTrip
+
+/-! ### Tactic integration (`TacticM`) -/
+
+section TacticIntegration
+
 theorem tacticBuildAndRefine (n : Nat) : n + 0 = n := by
   run_tac do
     let nExpr := (← getLocalDeclFromUserName `n).toExpr
@@ -501,7 +668,12 @@ theorem tacticBuildAndRefine (n : Nat) : n + 0 = n := by
     let goal ← getMainGoal
     goal.assign pat
 
--- Pretty-printer spacing for relation items and flags (`ppSpace` checks).
+end TacticIntegration
+
+/-! ### Pretty-printer spacing for relation items and flags (`ppSpace`) -/
+
+section PrettyPrinterSpacing
+
 /--
 info: "`(expr/reducible [+Nat.add, -Nat.mul] -eta| 1 + 2)"
 "match (modulo := defeq [+Nat.add] +zeta) (0 : Nat) with\n| _ => 1"
@@ -519,5 +691,7 @@ info: "`(expr/reducible [+Nat.add, -Nat.mul] -eta| 1 + 2)"
   ] do
     let .ok stx := Parser.runParserCategory env `term src | throwError "parse failed: {src}"
     IO.println (repr (← PrettyPrinter.ppTerm ⟨stx⟩).pretty)
+
+end PrettyPrinterSpacing
 
 end ExprQuotBuildTest

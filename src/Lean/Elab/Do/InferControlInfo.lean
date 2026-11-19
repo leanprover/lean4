@@ -132,27 +132,16 @@ private opaque ControlInfoMapPointed : NonemptyType.{0}
 /-- A map from `doSeq` nodes, compared by pointer, to their `ControlInfo`. -/
 def ControlInfoMap : Type := ControlInfoMapPointed.type
 
-instance : Nonempty ControlInfoMap :=
-  by exact ControlInfoMapPointed.property
+instance : Nonempty ControlInfoMap := ControlInfoMapPointed.property
 
-private unsafe def ControlInfoMap.emptyImpl : ControlInfoMap :=
-  unsafeCast (mkPtrMap : PtrMap DoSeq ControlInfo)
+def ControlInfoMap.empty : ControlInfoMap :=
+  unsafe unsafeCast (mkPtrMap : PtrMap DoSeq ControlInfo)
 
-@[implemented_by ControlInfoMap.emptyImpl]
-opaque ControlInfoMap.empty : ControlInfoMap
+def ControlInfoMap.find? (m : ControlInfoMap) (stx : DoSeq) : Option ControlInfo :=
+  unsafe (unsafeCast m : PtrMap DoSeq ControlInfo).find? stx
 
-private unsafe def ControlInfoMap.findImpl? (m : ControlInfoMap) (stx : DoSeq) : Option ControlInfo :=
-  (unsafeCast m : PtrMap DoSeq ControlInfo).find? stx
-
-@[implemented_by ControlInfoMap.findImpl?]
-opaque ControlInfoMap.find? (m : ControlInfoMap) (stx : DoSeq) : Option ControlInfo
-
-private unsafe def ControlInfoMap.insertImpl (m : ControlInfoMap) (stx : DoSeq) (info : ControlInfo) :
-    ControlInfoMap :=
-  unsafeCast ((unsafeCast m : PtrMap DoSeq ControlInfo).insert stx info)
-
-@[implemented_by ControlInfoMap.insertImpl]
-opaque ControlInfoMap.insert (m : ControlInfoMap) (stx : DoSeq) (info : ControlInfo) : ControlInfoMap
+def ControlInfoMap.insert (m : ControlInfoMap) (stx : DoSeq) (info : ControlInfo) : ControlInfoMap :=
+  unsafe unsafeCast ((unsafeCast m : PtrMap DoSeq ControlInfo).insert stx info)
 
 /-- The `ControlInfo` of every `doSeq` node visited in one `do` block. -/
 structure ControlInfoCache where

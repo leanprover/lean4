@@ -9,6 +9,8 @@ dependent. The task manager must still be running tasks at that point, rather th
 being already gone. Each mode installs the stream on a different kind of thread:
 
 * `dedicated`: a dedicated task, once the task manager is shutting down, with a `(sync := true)` dependent.
+  The stream is installed as stderr, and a stream holding a large payload as stdout afterwards. The thread
+  frees stdout first, so the promise is only resolved after a long cleanup, which the exit must wait for.
 * `pool`: a pool task, once the task manager is shutting down.
 * `poolIdle`: a pool task that finishes before `main` returns, so its worker is idle when the exit starts.
 * `poolSync`: as `pool`, with a `(sync := true)` dependent. It runs while the thread frees the stream and
@@ -33,11 +35,24 @@ def mkStream (promise : IO.Promise Unit) : IO.FS.Stream where
   -- `promise.result?` would capture that task instead, and the promise would be dropped at once.
   isTty := do promise.resolve (); return false
 
-/-- Installs the stream on the current thread. -/
-def installStream (mode : String) (sync := false) : IO Unit := do
+/-- Installs the stream on the current thread, as stdout or as stderr. -/
+def installStream (mode : String) (sync := false) (stderr := false) : IO Unit := do
   let promise ← IO.Promise.new (α := Unit)
   discard <| IO.mapTask (sync := sync) (fun _ => IO.println s!"{mode}: the dependent ran") promise.result?
-  discard <| IO.setStdout (mkStream promise)
+  if stderr then
+    discard <| IO.setStderr (mkStream promise)
+  else
+    discard <| IO.setStdout (mkStream promise)
+
+/-- A stream whose only purpose is to hold `payload`, so that freeing it takes a while. -/
+def mkPayloadStream (payload : Array (Array Nat)) : IO.FS.Stream where
+  flush := pure ()
+  read _ := pure .empty
+  write _ := pure ()
+  getLine := pure ""
+  putStr _ := pure ()
+  -- Never called. Indexes the payload at runtime, so that the closure captures the array itself.
+  isTty := return payload[(← IO.monoMsNow) % payload.size]?.isSome
 
 def runChild (mode : String) : IO Unit := do
   let proc ← IO.Process.spawn {
@@ -62,7 +77,10 @@ def main (args : List String) : IO Unit := do
   | ["dedicated"] =>
     discard <| IO.asTask (prio := .dedicated) do
       waitForShutdown
-      installStream "dedicated" (sync := true)
+      installStream "dedicated" (sync := true) (stderr := true)
+      -- Thread-local streams are freed in the reverse order of their first use, so this one goes first.
+      let t ← IO.monoMsNow
+      discard <| IO.setStdout (mkPayloadStream ((Array.range 100000).map fun i => #[i + t]))
     IO.println "dedicated: child returns from main"
   | ["pool"] =>
     discard <| IO.asTask do

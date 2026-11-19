@@ -2,12 +2,10 @@
 A task that is still running when `main` returns can wait for a pool task that is queued during the
 exit, and the process still exits.
 
-When `main` returns, the exit keeps running tasks until none is running or queued. A pool task queued
-during the exit must therefore still run, so a thread waiting for it, directly or through `Task.map`,
-`Task.bind`, `IO.waitAny` or `Task.get`, is not blocked forever. The task may be queued by a dedicated
-task, by a pool task that then waits for it, or by a dedicated task finishing.
-
-Tasks see `IO.checkCanceled` during the exit, so the tasks here that would otherwise run forever stop.
+During the exit, pool tasks still run while a task waits, so a thread waiting for a pool task queued
+during the exit, directly or through `Task.map`, `Task.bind`, `IO.waitAny` or `Task.get`, is not blocked
+forever. The task may be queued by a dedicated task, by a pool task that then waits for it, or by a
+dedicated task finishing.
 
 Each mode starts and waits differently. The parent runs each child, which is the compiled binary, hence
 `.no_interpret`, and kills it if it has not exited after a few seconds.
@@ -18,15 +16,6 @@ def waitForShutdown : IO Unit := do
   -- `IO.checkCanceled` holds for every task once the task manager shuts down.
   while !(← IO.checkCanceled) do
     IO.sleep 10
-
-def sleepUntilCanceled : IO Unit := do
-  while !(← IO.checkCanceled) do
-    IO.sleep 10
-
-partial def respawnUntilCanceled : IO Unit := do
-  IO.sleep 10
-  unless ← IO.checkCanceled do
-    discard <| IO.asTask respawnUntilCanceled
 
 def startAndWait (mode : String) : IO Unit := do
   match mode with
@@ -57,11 +46,17 @@ def startAndWait (mode : String) : IO Unit := do
     let t ← IO.asTask (prio := .dedicated) (IO.sleep 50)
     discard <| IO.wait (← IO.mapTask (fun _ => pure 42) t)
   | "waitAnyRunning" =>
-    let never ← IO.asTask sleepUntilCanceled
-    let soon ← IO.asTask (prio := .dedicated) (IO.sleep 100)
-    discard <| IO.waitAny [never, soon]
-  | "forever" =>
-    discard <| IO.asTask respawnUntilCanceled
+    -- `running` does not stop when canceled: it runs until `waitAny` has returned.
+    let release ← IO.Promise.new (α := Unit)
+    let running ← IO.asTask do
+      discard <| IO.wait release.result?
+      return 0
+    let soon ← IO.asTask (pure 42 : IO Nat)
+    let r ← IO.waitAny [running, soon]
+    let stillRunning := !(← IO.hasFinished running)
+    release.resolve ()
+    unless stillRunning && r matches .ok 42 do
+      throw <| .userError "`IO.waitAny` did not return the finished task while the other one was running"
   | "process" =>
     -- `IO.Process.output` reads the child's output on a dedicated task.
     let out ← IO.Process.output { cmd := (← IO.appPath).toString, args := #["echo"] }
@@ -102,5 +97,5 @@ def main (args : List String) : IO Unit := do
   | [mode] => child mode
   | _ =>
     for mode in ["wait", "waitAny", "get", "map", "bind", "nested", "pool", "prio", "mapDedicated",
-        "waitAnyRunning", "forever", "process"] do
+        "waitAnyRunning", "process"] do
       runChild mode

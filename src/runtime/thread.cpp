@@ -212,9 +212,18 @@ void run_thread_finalizers(thread_finalizers * fns) {
     }
 }
 
+// Set while this thread runs its finalizers.
+LEAN_THREAD_VALUE(bool, g_running_finalizers, false);
+
 void run_thread_finalizers() {
+    // A finalizer calling `lean_finalize_thread` must not free the list being run; the running call also runs what
+    // that finalizer registers.
+    if (g_running_finalizers)
+        return;
+    g_running_finalizers = true;
     run_thread_finalizers(g_finalizers);
     g_finalizers = nullptr;
+    g_running_finalizers = false;
 }
 
 void initialize_thread() {

@@ -28,9 +28,6 @@ mapDedicated: the task finished
 waitAnyRunning: child exited with code 0
 waitAnyRunning: child returns from main
 waitAnyRunning: the task finished
-forever: child exited with code 0
-forever: child returns from main
-forever: the task finished
 process: child exited with code 0
 process: child returns from main
 process: the task finished

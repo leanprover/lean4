@@ -1827,7 +1827,9 @@ partial def LawDerivingContext.withUnfoldOnce (ctx : LawDerivingContext)
           let e' ← mkForallFVars #[var] b'
           withLocalDeclD `h e' fun h => do
           withLocalDecl nm bi t fun origVar => do
-            return (e', ← mkLambdaFVars #[h, origVar] (imp.betaRev #[h.app (mp.app origVar)]))
+
+            return (e', ← mkLambdaFVars #[h, origVar]
+              (imp.replaceFVar var (mp.app origVar) |>.betaRev #[h.app (mp.app origVar)]))
       | _ =>
         let (e', proof) ← ctx.unfoldOnce e filter
         return (e', mkApp3 (.const ``Eq.mpr [← getLevel e]) e e' proof)

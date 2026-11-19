@@ -1035,6 +1035,14 @@ def mkNestedPatternSolution? (t s : Expr) : DefEqM (Option Expr) := do
   return some sol
 
 /--
+Solves `?m a₁ … aₙ =?= s` for a Miller pattern (see `isMillerPatternArgs`) with
+`?m := fun x₁ … xₙ => s[aᵢ ↦ xᵢ]`. Returns `none` if `t` is not a Miller pattern.
+-/
+def mkMillerPatternSolution? (t s : Expr) : DefEqM (Option Expr) := do
+  unless (← isMillerPatternArgs t) do return none
+  if t.isApp then return some (← mkLambdaFVarsS t.getAppArgs s) else return some s
+
+/--
 Returns `true` if the maximal free variable in `s` is less than or equal to the maximal free variable
 in `t`. We use this function when `t` is a metavariable, and we are trying to assign `t := s`.
 -/
@@ -1055,28 +1063,25 @@ def mayAssign (t s : Expr) : SymM Bool := do
 
 /--
 Attempts to solve a unification constraint `t =?= s` where `t` has the form `?m a₁ ... aₙ`
-and satisfies the Miller pattern condition (all `aᵢ` are distinct, newly-introduced free variables),
-or forms a nested pattern (see `mkNestedPatternSolution?`).
+and forms a Miller pattern (see `mkMillerPatternSolution?`) or a nested pattern
+(see `mkNestedPatternSolution?`).
 
-If successful, assigns `?m := fun x₁ ... xₙ => s` (for a nested pattern, the solution of
-`mkNestedPatternSolution?`) and returns `true`.
+If successful, assigns the solution to `?m` and returns `true`.
 Returns `false` if:
 - `tFn` is not a metavariable
-- `t` satisfies neither the Miller pattern condition nor the nested pattern condition
-- The assignment would violate scope (free variables in `fun x₁ ... xₙ => s` not in scope of `?m`)
+- `t` forms neither a Miller pattern nor a nested pattern
+- The assignment would violate scope (free variables of the solution not in scope of `?m`)
 
 The `tFn` parameter must equal `t.getAppFn` (enforced by the proof argument).
 
 Remark: `t` may be of the form `?m`.
 -/
-def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEqM LBool := do
+def tryAssignNestedMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) :
+    DefEqM LBool := do
   let .mvar mvarId := tFn | return .undef
   if !(← isAssignableMVar mvarId) then return .undef
-  let s ← if (← isMillerPatternArgs t) then
-    if t.isApp then mkLambdaFVarsS t.getAppArgs s else pure s
-  else
-    let some s ← mkNestedPatternSolution? t s | return .undef
-    pure s
+  let some s ← (OptionT.mk (mkMillerPatternSolution? t s) <|> OptionT.mk (mkNestedPatternSolution? t s)).run
+    | return .undef
   if !(← mayAssign tFn s) then return .undef
   if (← read).mvarsToCheckType.contains mvarId then
     unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← Meta.inferType s)) do
@@ -1246,8 +1251,8 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     else if (← isAssignedMVar sFn) then
       isDefEqMain t (← instantiateMVarsS s)
     else
-    whenUndefDo (tryAssignMillerPattern tFn t s rfl) do
-    whenUndefDo (tryAssignMillerPattern sFn s t rfl) do
+    whenUndefDo (tryAssignNestedMillerPattern tFn t s rfl) do
+    whenUndefDo (tryAssignNestedMillerPattern sFn s t rfl) do
     -- Zeta-reduce only after the assignments above, so that `?m =?= let x := v; b` assigns the `let`.
     if t.isLet then
       isDefEqMain (← instantiateLets t) s

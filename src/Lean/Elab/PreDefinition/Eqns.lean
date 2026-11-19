@@ -10,6 +10,7 @@ import Lean.Meta.HaveTelescope
 import Lean.Meta.LetToHave
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Rewrite
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.SplitIf
@@ -42,11 +43,33 @@ def unfoldThmType (declName : Name) : MetaM Expr := do
 
 /--
 Unfolds the application of `declName` on the left-hand side of an equality goal, using its
-unfolding theorem when available and delta reduction otherwise.
+unfolding theorem `declName.eq_def` when available and delta reduction otherwise.
+
+The unfolding theorem is used for nonrecursive definitions too. Delta reduction is cheap here, but
+the proof it produces can be expensive for the kernel. Given the goal `f a = rhs`, it produces
+`id (f a = rhs) h` where `h : body[a] = rhs`. This term only claims that `f a` and `body[a]` are
+definitionally equal. It does not record that the step was "unfold `f` once", and the kernel has to
+rediscover it with its own unfolding heuristics.
+
+Example: `f` is defined by a `match` on `String` literals, and `a` is the literal `"lit"`.
+The kernel has to check `f "lit" =?= f.match_1 .. "lit" ..`.
+1. `f.match_1` has `abbrev` reducibility hints, so the kernel unfolds it before `f`, and obtains
+   `dite ("lit" = "lit_0") ..`.
+2. If `f` and `dite` have the same definitional height, the kernel unfolds both.
+3. Unfolding `dite` exposes `Decidable.rec`, and the kernel evaluates `String.decEq "lit" "lit_0"`
+   to select a branch. The other side is `f.match_1 .. "lit" ..` again.
+4. The two sides never become syntactically equal, and the kernel evaluates the `match` down to the
+   alternative for `"lit"`.
+
+So, the kernel evaluates the whole `match` to check each equation theorem. This cost is not
+visible to `maxHeartbeats`.
+
+The proof `f.eq_def a` has type `f a = body[a]`, and the kernel has nothing to rediscover.
+The definitional step is checked only once, at `f.eq_def`, where the discriminant is a variable and
+the `match` cannot be evaluated.
 -/
 def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
-    -- Recursive definition: Use unfolding lemma
+  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := true) then
     let mut mvarId := mvarId
     let target ← mvarId.getType'
     let some (_, lhs, rhs) := target.eq? | throwError "unfoldLHS: Unexpected target {target}"
@@ -58,21 +81,139 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     mvarId.assign (← mkEqTrans h mvarNew)
     return mvarNew.mvarId!
   else
-    -- Else use delta reduction
     deltaLHS mvarId
 
 /--
-Rewrites the matcher application `e` with the congruence equation of the first alternative that
-applies. Arguments of `e` beyond the arity of the matcher are applied to the result.
+Rewrites the matcher application `e` using the congruence equation of the first alternative that
+applies. Returns `none` if no alternative applies. Arguments of `e` beyond the arity of the
+matcher are applied to the result.
+
+Example: the matcher application
+```
+match "b" with
+| "a" => 1
+| "b" => 2
+| _ => 3
+```
+is rewritten to `2` using the congruence equation of the second alternative
+```
+congr_eq_2 : ∀ motive x h_1 h_2 h_3, x = "b" →
+  (match x with | "a" => h_1 () | "b" => h_2 () | _ => h_3 x) ≍ h_2 ()
+```
+
+The alternatives are tried in order with `rwMatcher`. To try an alternative, `rwMatcher`
+instantiates its congruence equation, and proves each hypothesis `discr = pattern` by reflexivity
+or by assumption. In the example, the first alternative does not apply because `"b" = "a"` cannot
+be proved, and the second one applies because `"b" = "b"` is proved by reflexivity.
+
+An attempt is expensive when the matcher has many alternatives: the congruence equation has one
+argument for each of them. For a `match` with `n` literal alternatives, the equation of the last
+one would need `n` attempts. So, an alternative is skipped, without trying it, when the attempt
+is known to fail:
+1. a discriminant and the corresponding pattern are different literals (see `litValue?`), so the
+   hypothesis `discr = pattern` cannot be proved by reflexivity, and
+2. the local context has no hypotheses (see `hasHyp`), so it cannot be proved by assumption.
+
+In the example, the first alternative is skipped if the local context has no hypotheses.
+If it contains `h : "b" = "a"`, the first alternative is tried, and it applies.
 -/
 def rwMatcherApp? (e : Expr) : MetaM (Option Simp.Result) := do
   let some app ← matchMatcherApp? e | return none
   let f := { app with remaining := #[] }.toExpr
+  let discrLits ← app.discrs.mapM litValue?
+  let altLits ←
+    if !discrLits.any (·.isSome) then pure #[]
+    else if (← hasHyp) then pure #[]
+    else getAltLits app
   for i in *...app.numAlts do
+    if let some patLits := altLits[i]? then
+      if isDifferent discrLits patLits then continue
     let r ← rwMatcher i f
     if r.expr != f then
       return some (← r.addExtraArgs app.remaining)
   return none
+where
+  /-- Returns `true` if `n` is a `Nat` numeral. -/
+  isNumeral (n : Expr) : Bool := n.isRawNatLit || n.nat?.isSome
+
+  /--
+  Returns `true` if `e` has the shape of a literal supported by `litValue?`, and recognizing it
+  does not require evaluating its type: the type is a constant, or `Fin n` or `BitVec n` where
+  `n` is a numeral.
+  -/
+  isLitCandidate (e : Expr) : Bool :=
+    match_expr e with
+    | OfNat.ofNat type _ _ =>
+      match_expr type with
+      | Nat => true | Int => true
+      | UInt8 => true | UInt16 => true | UInt32 => true | UInt64 => true
+      | Fin n => isNumeral n
+      | BitVec n => isNumeral n
+      | _ => false
+    | Neg.neg type _ _ => type.isConstOf ``Int
+    | Char.ofNat _ => true
+    | BitVec.ofNat n _ => isNumeral n
+    | _ => false
+
+  /--
+  Returns `e` if it is a literal in its standard representation: a `String` literal, or a numeral
+  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Fin n`, or
+  `BitVec n`. Two such literals of the same type denote different values if and only if they are
+  structurally different.
+
+  The standard representation is the one `normLitValue` produces. A literal that is not in its
+  standard representation is not accepted. For example, `(5 : UInt8)` elaborated using a local
+  instance of `OfNat UInt8 5`: the functions that recognize literals do not inspect the instance,
+  and this term may denote a number different from `5`.
+
+  `e` is first checked with `isLitCandidate`, because these functions reduce the type of `e`. For
+  example, they evaluate `n` in `BitVec n`.
+  `Float` and `Float32` literals are not supported: `5` and `5.0` denote the same value, and
+  `normLitValue` does not change them.
+  -/
+  litValue? (e : Expr) : MetaM (Option Expr) := do
+    if e.isStringLit then return some e
+    unless isLitCandidate e do return none
+    unless (← isMatchValue e) do return none
+    if (← normLitValue e) == e then return some e else return none
+
+  /--
+  Returns `true` if the local context may contain a hypothesis: a local declaration whose type is
+  a proposition, or is in a universe that may be `Prop`.
+  A hypothesis may prove `discr = pattern` by assumption even if `discr` and `pattern` are
+  different literals, because the local context may be inconsistent. Only the universe of each
+  type is inspected: comparing a type with `discr = pattern` may unfold definitions and use
+  unification hints.
+  -/
+  hasHyp : MetaM Bool := do
+    -- The most recent declarations are visited first, as `assumption` does.
+    let hyp? ← (← getLCtx).findDeclRevM? fun localDecl => do
+      if localDecl.isImplementationDetail then return none
+      let .sort u ← instantiateMVars (← inferType localDecl.type) | return some ()
+      if u.isNeverZero then return none else return some ()
+    return hyp?.isSome
+
+  /-- Returns, for each alternative of the matcher, the literals (see `litValue?`) in its patterns. -/
+  getAltLits (app : MatcherApp) : MetaM (Array (Array (Option Expr))) := do
+    let mut type := (← getConstVal app.matcherName).type
+    for _ in *...(app.numParams + 1 + app.numDiscrs) do
+      let .forallE _ _ b _ := type | return #[]
+      type := b
+    let mut altLits := #[]
+    for _ in *...app.numAlts do
+      let .forallE _ d b _ := type | return #[]
+      -- The type of an alternative is `∀ fields, motive patterns`.
+      altLits := altLits.push (← d.getForallBody.getAppArgs.mapM litValue?)
+      type := b
+    return altLits
+
+  /-- Returns `true` if a discriminant and the corresponding pattern are different literals. -/
+  isDifferent (discrLits patLits : Array (Option Expr)) : Bool := Id.run do
+    for discrLit? in discrLits, patLit? in patLits do
+      let some discrLit := discrLit? | continue
+      let some patLit := patLit? | continue
+      if discrLit != patLit then return true
+    return false
 
 /--
 Rewrites a matcher application on the left-hand side of an equality goal with `rwMatcherApp?`.
@@ -101,11 +242,10 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    if (← tryURefl mvarId #[declName]) then
+    let rfl : MetaM Unit := do
+      unless (← tryURefl mvarId #[declName]) do throwError "`rfl` failed"
       trace[Elab.definition.eqns] "proved directly by rfl"
-      return ← instantiateMVars main
-
-    go (← unfoldLHS declName mvarId)
+    reflOrProve rfl do go (← unfoldLHS declName mvarId)
     instantiateMVars main
   where
   /--
@@ -117,30 +257,31 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
   -/
   go (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
-    if (← tryURefl mvarId) then
-      return ()
-    else if (← tryContradiction mvarId) then
-      return ()
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
-      go mvarId
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
-      go mvarId
-    else
-      let ctx ← Simp.mkContext (config := { dsimp := false })
-      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-      | TacticResultCNM.closed => return ()
-      | TacticResultCNM.modified mvarId => go mvarId
-      | TacticResultCNM.noChange =>
-        if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
-          mvarIds.forM go
-        else if let some mvarId ← rwMatcherLHS? mvarId then
-          go mvarId
-        else
-          throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
+    let rfl : MetaM Unit := do
+      unless (← tryURefl mvarId) do throwError "`rfl` failed"
+    reflOrProve rfl do
+      if (← tryContradiction mvarId) then
+        return ()
+      else if let some mvarId ← simpMatch? mvarId then
+        go mvarId
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
+        go mvarId
+      else if let some mvarId ← whnfReducibleLHS? mvarId then
+        go mvarId
+      else
+        let ctx ← Simp.mkContext (config := { dsimp := false })
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+        | TacticResultCNM.closed => return ()
+        | TacticResultCNM.modified mvarId => go mvarId
+        | TacticResultCNM.noChange =>
+          if let some mvarIds ← casesOnStuckLHS? mvarId then
+            mvarIds.forM go
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
+            mvarIds.forM go
+          else if let some mvarId ← rwMatcherLHS? mvarId then
+            go mvarId
+          else
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 /--
 Checks whether the left-hand side of a quantified equality depends on `fvarId`.

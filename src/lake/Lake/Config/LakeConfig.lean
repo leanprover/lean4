@@ -15,11 +15,19 @@ open System Lean
 namespace Lake
 
 set_option linter.unusedVariables false in
-public configuration CacheServiceConfig (name : String) where
-  kind, type : CacheServiceKind := .undef
-  apiEndpoint : String := ""
+public configuration CacheServiceS3Config (name : String) where
+  /-- Base URL for an S3-style service's artifacts. -/
   artifactEndpoint : String := ""
+  /-- Base URL for an S3-style service's revisions. -/
   revisionEndpoint : String := ""
+  /-- Whether the service locates artifacts and revisions under different per-package scopes. -/
+  hasPackageScopes : Bool := true
+  deriving Inhabited
+
+set_option linter.unusedVariables false in
+public configuration CacheServiceReservoirConfig (name : String) where
+  /-- Base URL for a Reservoir-style service's API. -/
+  apiEndpoint : String := ""
   deriving Inhabited
 
 public abbrev CacheServiceMap :=  NameMap CacheService

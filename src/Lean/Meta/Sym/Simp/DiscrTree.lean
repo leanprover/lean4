@@ -162,28 +162,10 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   | .mdata _ e => pushArgsTodo todo e
   | _ => todo
 
-partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
-  if let .suffix ks i v := c then
-    let next e todo :=
-      let e := resolveAssignedMVars mctx <| etaReduce e
-      (getKey e, pushArgsTodo todo e)
-    if Id.run (Trie.matchesSuffix (pure <| next · ·) todo ks i) then result.push v else result
-  else if todo.isEmpty then
-    result ++ c.nodeValues
-  else if !c.hasChildren then
-    result
-  else
-    let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
-    let todo  := todo.pop
-    /- We must always visit `Key.star` edges since they are wildcards.
-      Thus, `todo` is not used linearly when there is `Key.star` edge
-      and there is an edge for `k` and `k != Key.star`. -/
-    let result := match c.starChild? with
-      | some c => getMatchLoop mctx todo c result
-      | none   => result
-    match c.findChild? (getKey e) with
-    | none   => result
-    | some c => getMatchLoop mctx (pushArgsTodo todo e) c result
+def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) :
+    Array α :=
+  let key e := let e := resolveAssignedMVars mctx <| etaReduce e; pure (getKey e, e)
+  Id.run <| c.getMatchLoop key pushArgsTodo todo result
 
 /--
 Retrieves all values whose patterns match the expression `e`.

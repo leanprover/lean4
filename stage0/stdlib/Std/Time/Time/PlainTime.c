@@ -1208,7 +1208,7 @@ static lean_object* _init_l_Std_Time_PlainTime_toNanoseconds___closed__0(void){
 _start:
 {
 lean_object* v___x_342_; lean_object* v___x_343_; 
-v___x_342_ = lean_cstr_to_nat("3600000000000");
+v___x_342_ = lean_uint64_to_nat(3600000000000ULL);
 v___x_343_ = lean_nat_to_int(v___x_342_);
 return v___x_343_;
 }
@@ -1217,7 +1217,7 @@ static lean_object* _init_l_Std_Time_PlainTime_toNanoseconds___closed__1(void){
 _start:
 {
 lean_object* v___x_344_; lean_object* v___x_345_; 
-v___x_344_ = lean_cstr_to_nat("60000000000");
+v___x_344_ = lean_uint64_to_nat(60000000000ULL);
 v___x_345_ = lean_nat_to_int(v___x_344_);
 return v___x_345_;
 }

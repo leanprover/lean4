@@ -13,6 +13,7 @@ public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.WHNF
+import Lean.Meta.ForEachExpr
 public import Init.Data.Format.Macro
 import Lean.ExtraModUses
 public section
@@ -447,6 +448,46 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | _ =>
         logWarning m!"'{origin.key}' is a 'rfl' simp theorem, unexpected resulting type{indentExpr type}"
   return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl, backwardRfl }
+
+/--
+Returns whether `simp` only rewrites with the simp theorem `type` on terms that contain a constant
+satisfying `p`.
+-/
+private def isSimpTheoremGuardedBy (p : Name → Bool) (type : Expr) : MetaM Bool := do
+  withNewMCtxDepth do
+    let (_, _, type) ← forallMetaTelescopeReducing type
+    let some (_, lhs, _) := (← whnfR type).eq? |
+      throwError "Unexpected kind of simp theorem{indentExpr type}"
+    let keys ← DiscrTree.mkPath lhs (noIndexAtArgs := false)
+    if keys.any fun | .const n _ | .proj n _ _ => p n | _ => false then
+      return true
+    -- Keys omit instances and implicit arguments, which `simp` matches up to definitional equality.
+    -- Proofs never constrain matching, and reducible definitions may be unfolded away.
+    let found ← IO.mkRef false
+    forEachExpr' lhs fun e => do
+      if (← found.get) || (← isProof e) then return false
+      if let .const n _ := e then
+        if p n && !(← isReducible n) then found.set true
+      return true
+    found.get
+
+/--
+Returns whether `simp` only rewrites with the simp theorems that
+`mkSimpTheoremFromConst declName (inv := inv)` creates on terms that contain a constant satisfying
+`p`.
+-/
+def isSimpTheoremFromConstGuardedBy (p : Name → Bool) (declName : Name) (inv := false) :
+    MetaM Bool := do
+  let cinfo ← getConstVal declName
+  let val := mkConst declName (cinfo.levelParams.map mkLevelParam)
+  withSimpGlobalConfig do withoutExporting do
+    let type ← inferType val
+    checkTypeIsProp type
+    let types ← if inv || (← shouldPreprocess type) then
+        pure <| (← preprocess val type inv (isGlobal := false)).toArray.map (·.2)
+      else
+        pure #[type]
+    types.allM fun type => do isSimpTheoremGuardedBy p (← instantiateMVars type)
 
 /--
 Creates a `SimpTheorem` from a global theorem.

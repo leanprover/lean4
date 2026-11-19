@@ -25,7 +25,9 @@ def toCtorIfLit : Expr → MetaM Expr
   | .lit (.natVal v) =>
     if v == 0 then return mkConst ``Nat.zero
     else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) =>
+  | .lit (.strVal v) => do
+    unless (← Lean.Meta.getConfig).stringLitToCtor do
+      throw <| .internal Lean.Meta.stringLitToCtorExceptionId
     Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
   | e => return e
 
@@ -1055,6 +1057,13 @@ def reducePow (a b : Expr) : MetaM (Option Expr) :=
   trace[Meta.isDefEq.whnf.reduceBinOp] "{a} ^ {b}"
   return mkRawNatLit <| a ^ b
 
+def reduceShiftLeft (a b : Expr) : MetaM (Option Expr) :=
+  withNatValue a fun a =>
+  withNatValue b fun b => OptionT.run do
+  guard (← checkShiftLeft a b)
+  trace[Meta.isDefEq.whnf.reduceBinOp] "{a} <<< {b}"
+  return mkRawNatLit <| a <<< b
+
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
   withNatValue a fun a =>
   withNatValue b fun b =>
@@ -1081,7 +1090,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     | ``Nat.land => reduceBinNatOp Nat.land a1 a2
     | ``Nat.lor  => reduceBinNatOp Nat.lor a1 a2
     | ``Nat.xor  => reduceBinNatOp Nat.xor a1 a2
-    | ``Nat.shiftLeft  => reduceBinNatOp Nat.shiftLeft a1 a2
+    | ``Nat.shiftLeft  => reduceShiftLeft a1 a2
     | ``Nat.shiftRight => reduceBinNatOp Nat.shiftRight a1 a2
     | _ => return none
   | _ =>

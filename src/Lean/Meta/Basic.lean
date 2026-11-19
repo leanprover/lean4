@@ -33,6 +33,8 @@ They are packed into the `MetaM` monad.
 namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
+/-- See `Config.stringLitToCtor`. -/
+builtin_initialize stringLitToCtorExceptionId : InternalExceptionId ← registerInternalExceptionId `stringLitToCtor
 
 /-- NOTE: value purely intended for equality comparison, *NOT* following the transparency lattice. -/
 def TransparencyMode.toUInt64 : TransparencyMode → UInt64
@@ -211,6 +213,15 @@ structure Config where
   Ignored if `Context.customCanUnfoldPredicate?` is set.
   -/
   canUnfoldPredicateConfig : CanUnfoldPredicateConfig := .default
+  /--
+  If `true`, `whnf` and `isDefEq` convert a `String` literal into the constructor application
+  `String.ofList [c₁, ..., cₙ]` when a reduction step needs its constructor, e.g., to reduce
+  `String.decEq` on two literals. The reductions enabled by this conversion are linear in the
+  size of the literal.
+  If `false`, the internal exception `stringLitToCtor` is thrown instead of performing the
+  conversion. See `withoutStringLitToCtor`.
+  -/
+  stringLitToCtor : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -234,6 +245,7 @@ private def Config.toKey (c : Config) : UInt64 :=
   (c.proj.toUInt64 <<< 19) |||
   (c.zetaHave.toUInt64 <<< 21) |||
   (c.zetaUnused.toUInt64 <<< 22) |||
+  (c.stringLitToCtor.toUInt64 <<< 24) |||
   (c.canUnfoldPredicateConfig.toBool.toUInt64 <<< 23)
 
 /-- Configuration with key produced by `Config.toKey`. -/
@@ -522,7 +534,6 @@ instance : BudgetedBEq ExprConfigCacheKey where
 abbrev InferTypeCache  := BudgetedCache ExprConfigCacheKey Expr
 abbrev FunInfoCache    := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache       := PersistentHashMap ExprConfigCacheKey Expr
-abbrev IsUnitLikeCache := PersistentHashMap ExprConfigCacheKey Bool
 
 structure DefEqCacheKey where
   private mk ::
@@ -574,7 +585,6 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
-  isUnitLike     : IsUnitLikeCache := {}
   /--
   Default unfoldings of applications of definitions (see `unfoldDefinition?`): the value of the head
   constant at its universe levels, beta-reduced with the arguments. This only depends on the
@@ -879,16 +889,16 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6, c7⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6, c7⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6, c7⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
 
 @[inline] def modifyUnfoldCache (f : UnfoldCache → UnfoldCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, c7, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, c7, f unfold⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, unfold⟩ => ⟨c1, c2, c3, c4, c5, c6, f unfold⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
@@ -1396,6 +1406,13 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
   mapMetaM <| withReader fun ctx =>
     let config := f ctx.config
     { ctx with keyedConfig := { config } }
+
+/--
+Executes `x` with `Config.stringLitToCtor := false`. That is, `x` is interrupted with the internal
+exception `stringLitToCtor` if a reduction step needs the constructor of a `String` literal.
+-/
+@[inline] def withoutStringLitToCtor : n α → n α :=
+  withConfig ({ · with stringLitToCtor := false })
 
 @[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
   mapMetaM <| withReader fun ctx =>

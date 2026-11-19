@@ -108,11 +108,6 @@ structure Writer (dir : Direction) where
   messageHead : Message.Head dir.swap := {}
 
   /--
-  Whether the user has called `send` to provide the outgoing message head.
-  -/
-  sentMessage : Bool := false
-
-  /--
   Set when the user has finished sending body data, allowing fixed-size framing
   to be determined upfront.
   -/
@@ -132,6 +127,16 @@ structure Writer (dir : Direction) where
   userDataBytes : Nat := 0
 
 namespace Writer
+
+/--
+Whether the writer is past waiting for the outgoing message head: `send` accepted it, or the writer
+closed. Interim (1xx) responses leave it `false`.
+-/
+@[inline]
+def sentMessage (writer : Writer dir) : Bool :=
+  match writer.state with
+  | .pending | .waitingHeaders => false
+  | _ => true
 
 /--
 Returns `true` when no more user body data will arrive: either the user called

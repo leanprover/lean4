@@ -530,6 +530,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
     return lean_panic_fn(def_val, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
+extern "C" LEAN_EXPORT b_lean_obj_res lean_array_get_borrowed_panic(b_lean_obj_arg def_val) {
+    lean_panic("Error: index out of bounds");
+    return def_val;
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
     return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
@@ -947,16 +952,21 @@ class task_manager {
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
+        /* Extract everything from `t` before setting m_value.  Once m_value
+           is set, lock-free readers (lean_task_get) can observe the result,
+           drop their last ref, and free `t` — so `t` must not be accessed
+           after the store.  This is safe because handle_finished only uses
+           `imp`, never `t`. */
+        lean_task_imp * imp = t->m_imp;
+        t->m_imp   = nullptr;
         t->m_value = v;
-        lean_task_imp * imp = t->m_imp.exchange(nullptr, std::memory_order_relaxed);
-        handle_finished(lock, t, imp);
-        /* After the task has been finished and we propagated
-           dependencies, we can release `imp` and keep just the value */
+        /* `t` may be freed at any point after this line. */
+        handle_finished(lock, imp);
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -1079,6 +1089,15 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        /* Fast path for finished tasks (incl. Task.pure): m_value is set
+           atomically and m_imp is cleared before m_value is stored in
+           resolve_core, so no lock is needed. */
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp.load(std::memory_order_relaxed) == nullptr);
@@ -1598,11 +1617,8 @@ extern "C" LEAN_EXPORT object * lean_nat_big_xor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    // Special case for shifted value is 0.
-    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
-        return lean_box(0);
-    }
+// `lean_nat_shiftl` handles `a1 == 0`, which the exponent check below would otherwise reject.
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     auto a = lean_is_scalar(a1)
            ? mpz::of_size_t(lean_unbox(a1))
            : mpz_value(a1);
@@ -1726,6 +1742,10 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     if (lean_is_scalar(a))
         return sizeof(size_t); // a scalar occupies one machine word
     return mpz_value(a).size_in_bytes();
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a) {
+    return mpz_value(a).hash64();
 }
 
 static size_t trailing_zeros(size_t n) {

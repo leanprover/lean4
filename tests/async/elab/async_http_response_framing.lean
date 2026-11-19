@@ -195,3 +195,59 @@ private def ok200Head : String :=
   let (_, step3) := machine4.step
   unless step3.events.any (fun | .close => true | _ => false) do
     throw <| IO.userError s!"expected .close event for empty HTTP/1.0 body:\n{repr step3.events}"
+
+-- Handler failures reported to `onFailure`
+
+private structure Counting where
+  failures : IO.Ref Nat
+  seen : IO.Ref (Array String)
+  respond : TestHandler
+
+private instance : Server.Handler Counting where
+  onRequest self req := do
+    self.seen.modify (·.push (toString req.line.uri))
+    self.respond req
+  onFailure self _ := self.failures.modify (· + 1)
+
+/-- Serves `raw`, then EOF; returns the bytes written, the targets served and the `onFailure` count. -/
+private def serveCounting (raw : String) (respond : TestHandler) : IO (String × Array String × Nat) := do
+  let failures ← IO.mkRef 0
+  let seen ← IO.mkRef #[]
+  let (client, server) ← Mock.new
+  let response ← Async.block do
+    client.send raw.toUTF8
+    client.getSendChan.close
+    Std.Http.Server.serveConnection server ({ failures, seen, respond } : Counting) defaultConfig |>.run
+    let res ← client.recv?
+    pure (res.getD .empty)
+  return (String.fromUTF8! response, ← seen.get, ← failures.get)
+
+-- RFC 9110 §15.2: a 1xx is interim, so a handler cannot end the exchange with one.
+#eval runGroup "A 1xx as the handler's final response" do
+  for (status, raw) in [
+      (Status.«continue», "GET / HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n"),
+      (.processing, "GET / HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n"),
+      (.earlyHints, "GET / HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n"),
+      (.switchingProtocols, "GET / HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n"),
+      (.earlyHints, "GET / HTTP/1.0\x0d\n\x0d\n")] do
+    let (text, _, failures) ← serveCounting raw fun _ => Response.withStatus status |>.text ""
+    unless text.startsWith "HTTP/1.1 500" do
+      throw <| IO.userError s!"{status.toCode}: expected a 500 first:\n{text.quote}"
+    unless failures > 0 do
+      throw <| IO.userError s!"{status.toCode}: onFailure was not called"
+
+-- RFC 9112 §6.3: a response whose body does not match its Content-Length is cut short, so the
+-- connection ends and the handler hears of it.
+#eval runGroup "A streamed body that does not match its Content-Length" do
+  let (text, seen, failures) ← serveCounting
+    "GET /a HTTP/1.1\x0d\nHost: a\x0d\n\x0d\nGET /b HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n"
+    fun _ => Response.ok |>.header! "Content-Length" "500"
+      |>.stream fun s => s.send (Chunk.ofByteArray "123456789".toUTF8)
+  unless seen == #["/a"] do throw <| IO.userError s!"short body: served {seen}"
+  unless (text.splitOn "HTTP/1.1 ").length == 2 && text.endsWith "123456789" do
+    throw <| IO.userError s!"short body: expected one short response:\n{text.quote}"
+  unless failures > 0 do throw <| IO.userError "short body: onFailure was not called"
+  let (_, _, failures) ← serveCounting "GET / HTTP/1.1\x0d\nHost: a\x0d\n\x0d\n"
+    fun _ => Response.ok |>.header! "Content-Length" "3"
+      |>.stream fun s => s.send (Chunk.ofByteArray "abcd".toUTF8)
+  unless failures > 0 do throw <| IO.userError "long body: onFailure was not called"

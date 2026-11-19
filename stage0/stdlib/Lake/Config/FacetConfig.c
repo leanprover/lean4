@@ -215,7 +215,7 @@ _start:
 lean_object* v_res_30_; 
 v_res_30_ = l_Lake_instInhabitedFacetConfig_default___redArg___lam__0(v_x_22_, v___y_23_, v___y_24_, v___y_25_, v___y_26_, v___y_27_, v___y_28_);
 lean_dec_ref(v___y_27_);
-lean_dec(v___y_26_);
+lean_dec_ref(v___y_26_);
 lean_dec(v___y_25_);
 lean_dec(v___y_24_);
 lean_dec_ref(v___y_23_);
@@ -234,9 +234,9 @@ return v___x_33_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedFacetConfig_default___redArg___lam__1___boxed(lean_object* v_x_34_, lean_object* v___y_35_){
 _start:
 {
-uint8_t v_x_438__boxed_36_; lean_object* v_res_37_; 
-v_x_438__boxed_36_ = lean_unbox(v_x_34_);
-v_res_37_ = l_Lake_instInhabitedFacetConfig_default___redArg___lam__1(v_x_438__boxed_36_, v___y_35_);
+uint8_t v_x_447__boxed_36_; lean_object* v_res_37_; 
+v_x_447__boxed_36_ = lean_unbox(v_x_34_);
+v_res_37_ = l_Lake_instInhabitedFacetConfig_default___redArg___lam__1(v_x_447__boxed_36_, v___y_35_);
 lean_dec(v___y_35_);
 return v_res_37_;
 }
@@ -1990,7 +1990,7 @@ v_fetchFn_496_ = lean_ctor_get(v_self_487_, 1);
 lean_inc_ref(v_fetchFn_496_);
 lean_dec_ref(v_self_487_);
 lean_inc_ref(v_a_493_);
-lean_inc(v_a_492_);
+lean_inc_ref(v_a_492_);
 lean_inc(v_a_491_);
 lean_inc(v_a_490_);
 v___x_497_ = lean_apply_8(v_fetchFn_496_, v_info_488_, v_a_489_, v_a_490_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, lean_box(0));
@@ -2003,7 +2003,7 @@ _start:
 lean_object* v_res_507_; 
 v_res_507_ = l_Lake_KFacetConfig_run___redArg(v_self_498_, v_info_499_, v_a_500_, v_a_501_, v_a_502_, v_a_503_, v_a_504_, v_a_505_);
 lean_dec_ref(v_a_504_);
-lean_dec(v_a_503_);
+lean_dec_ref(v_a_503_);
 lean_dec(v_a_502_);
 lean_dec(v_a_501_);
 return v_res_507_;
@@ -2017,7 +2017,7 @@ v_fetchFn_523_ = lean_ctor_get(v_self_514_, 1);
 lean_inc_ref(v_fetchFn_523_);
 lean_dec_ref(v_self_514_);
 lean_inc_ref(v_a_520_);
-lean_inc(v_a_519_);
+lean_inc_ref(v_a_519_);
 lean_inc(v_a_518_);
 lean_inc(v_a_517_);
 v___x_524_ = lean_apply_8(v_fetchFn_523_, v_info_515_, v_a_516_, v_a_517_, v_a_518_, v_a_519_, v_a_520_, v_a_521_, lean_box(0));
@@ -2030,7 +2030,7 @@ _start:
 lean_object* v_res_540_; 
 v_res_540_ = l_Lake_KFacetConfig_run(v_kind_525_, v_00_u03b1_526_, v_facet_527_, v_00_u03b2_528_, v_inst_529_, v_inst_530_, v_self_531_, v_info_532_, v_a_533_, v_a_534_, v_a_535_, v_a_536_, v_a_537_, v_a_538_);
 lean_dec_ref(v_a_537_);
-lean_dec(v_a_536_);
+lean_dec_ref(v_a_536_);
 lean_dec(v_a_535_);
 lean_dec(v_a_534_);
 lean_dec(v_facet_527_);

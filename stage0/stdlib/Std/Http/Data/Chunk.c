@@ -60,7 +60,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_Http_Headers_toList(lean_object*);
 extern lean_object* l_ByteArray_empty;
 lean_object* l_Std_Http_Headers_merge(lean_object*, lean_object*);
-uint8_t l_Std_Http_Internal_isToken(lean_object*);
+uint8_t l_Std_Http_Internal_isTokenImpl(lean_object*);
 lean_object* l_Std_Internal_instInhabitedMultiMap_default___redArg();
 uint8_t l_ByteArray_isEmpty(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -680,7 +680,7 @@ _start:
 {
 uint8_t v___x_179_; 
 lean_inc_ref(v_s_178_);
-v___x_179_ = l_Std_Http_Internal_isToken(v_s_178_);
+v___x_179_ = l_Std_Http_Internal_isTokenImpl(v_s_178_);
 if (v___x_179_ == 0)
 {
 lean_object* v___x_180_; 

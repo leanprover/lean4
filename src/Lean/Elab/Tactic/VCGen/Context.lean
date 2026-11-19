@@ -188,6 +188,9 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
+  /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
+  on `x` reduces with them. -/
+  splitEqs : FVarIdMap (Expr × FVarId) := {}
   deriving Inhabited
 
 public structure State where
@@ -200,15 +203,11 @@ public structure State where
   This is sound because the instance is a subterm of the hash-consed goal target.
   -/
   specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
-  /--
-  A cache mapping matchers to their splitting backward rule to apply.
-  The particular rule depends on the matcher name, the monad and the number of excess state
-  arguments that the weakest precondition target is applied to.
-
-  The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
-  This is sound because the instance is a subterm of the hash-consed goal target.
-  -/
-  splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForSplit`, keyed by `(splitter name, instWP, excessArgs.size)`. -/
+  wpSplitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForAssertionSplit`, keyed by
+  `(splitter name, inPre, lattice instance, numStates)`. -/
+  assertionSplitBackwardRuleCache : Std.HashMap (Name × Bool × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping lattice connectives to their backward rule to apply, keyed by the `head … cₙ`
   prefix of constant arguments the rule bakes in verbatim and the total argument count that fixes the

@@ -395,6 +395,10 @@ namespace InternalSyntax
   scoped syntax (name := end_local_scope) "end_local_scope" num : command
 
   def endLocalScopeSyntax (depth : Nat) : Command := Unhygienic.run `(end_local_scope $(Syntax.mkNumLit (toString depth)))
+
+  /-- Elaborates the command without reporting deprecated constants and syntax. This command is for
+  internal use only. `expandInCmd` uses it for the commands in front of a deprecated declaration. -/
+  scoped syntax (name := without_check_deprecated) "without_check_deprecated " command : command
 end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are

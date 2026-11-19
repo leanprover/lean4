@@ -13,6 +13,7 @@ public import Std.Http.Transport.Outbox
 public import Std.Http.Protocol.H1
 public import Std.Http.Server.Config
 public import Std.Http.Server.Handler
+import Std.Async.Watchdog
 
 public section
 
@@ -68,18 +69,32 @@ structure Connection (α : Type) where
 namespace Connection
 
 /--
-Events produced by the async select loop in `receiveWithTimeout`.
-Each variant corresponds to one possible outcome of waiting for I/O.
+Events the connection loop reacts to: data from the peer, the response and its body, the request
+body's reader, the write in flight running late, and the connection ending.
 -/
 private inductive Recv (β : Type)
   | bytes (x : Option ByteArray)
   | responseBody (x : Option Chunk)
   | bodyInterest (x : Bool)
   | response (x : (Except IO.Error (Response β)))
+  | writeDue
   | timeout
-  | keepAliveTimeout
   | shutdown
   | close
+
+/--
+The timeout that applies while the connection waits on its peer.
+-/
+private inductive Timer where
+  /--
+  The connection is idle between requests, and closes quietly once the keep-alive timeout passes
+  after its last write completes.
+  -/
+  | keepAlive
+  /-- A request head is being read, and must be complete by `deadline`, a value of `IO.monoMsNow`. -/
+  | header (deadline : Nat)
+  /-- A request head was read, and the connection fails when a wait takes longer than `timeout`. -/
+  | request (timeout : Millisecond.Offset)
 
 /--
 The set of I/O sources to wait on during a single poll iteration.
@@ -87,16 +102,28 @@ Each `Option` field is `none` when that source is not currently active.
 -/
 private structure PollSources (α β : Type) where
   socket : Option α
-  /-- Whether to arm the timeout that applies while the connection waits on its peer. -/
-  timer : Bool
+  timer : Option Timer
+  /-- When the write in flight fails the outbox, while the keep-alive timeout waits for it. -/
+  writeDue : Option Nat := none
   expect : Option Nat
   response : Option (Std.Channel (Except IO.Error (Response β)))
   responseBody : Option β
   requestBody : Option Body.Stream
-  timeout : Millisecond.Offset
-  keepAliveTimeout : Option Millisecond.Offset
-  headerTimeout : Option Timestamp
   connectionContext : CancellationContext
+  /-- No request is in progress, so a timeout closes the connection without a response. -/
+  idle : Bool
+
+/--
+The event to report once the connection context is cancelled. The connection's own timeout closes
+an idle connection without a response and answers a started request with 408.
+-/
+private def cancelledEvent (wd : Watchdog) (ctx : CancellationContext) (idle : Bool) :
+    BaseIO (Recv β) := do
+  if ← wd.hasFired then
+    return if idle then .close else .timeout
+  match ← ctx.getCancellationReason with
+  | some .deadline => return .timeout
+  | _ => return .shutdown
 
 /--
 Calls `Handler.onFailure`, dropping any error it throws, so the connection's own handling and cleanup
@@ -112,7 +139,7 @@ Calls `Handler.onFailure` and returns `.close` on transport errors.
 -/
 private def pollNextEvent
     {σ β : Type} [Transport α] [Handler σ] [Body β]
-    (config : Config) (handler : σ) (sources : PollSources α β)
+    (config : Config) (handler : σ) (wd : Watchdog) (sources : PollSources α β)
     : Async (Recv β) := do
   let expectedBytes := sources.expect
     |>.getD config.defaultPayloadBytes
@@ -120,24 +147,16 @@ private def pollNextEvent
     |>.toUInt64
 
   let mut selectables : Array (Selectable (Recv β)) := #[
-    .case sources.connectionContext.doneSelector (fun _ => do
-      let reason ← sources.connectionContext.getCancellationReason
-      match reason with
-      | some .deadline => pure .timeout
-      | _ => pure .shutdown)
+    .case sources.connectionContext.doneSelector (fun _ =>
+      cancelledEvent wd sources.connectionContext sources.idle)
   ]
 
   if let some socket := sources.socket then
     selectables := selectables.push (.case (Transport.recvSelector socket expectedBytes) (Recv.bytes · |> pure))
 
-  if sources.timer then
-    if sources.keepAliveTimeout.isNone then
-      if let some timeout := sources.headerTimeout then
-        selectables := selectables.push (.case (← Selector.sleep (timeout - (← Timestamp.now)).toMilliseconds) (fun _ => pure .timeout))
-      else
-        selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .timeout))
-    else
-      selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .keepAliveTimeout))
+  if let some due := sources.writeDue then
+    let wait := Millisecond.Offset.ofNat (due - (← IO.monoMsNow))
+    selectables := selectables.push (.case (← Selector.sleep wait) (fun _ => pure .writeDue))
 
   if let some responseBody := sources.responseBody then
     selectables := selectables.push (.case (Body.recvSelector responseBody) (Recv.responseBody · |> pure))
@@ -206,31 +225,56 @@ private def applyResponse
     return (machineWithHead, some res.body)
 
 /--
+The handler of the current request.
+-/
+private inductive HandlerState (β : Type) where
+  /-- No handler runs. -/
+  | idle
+  /-- The handler runs, and the loop waits for its response. -/
+  | running (task : Task (Except IO.Error (Response β)))
+  /-- The handler still runs, but its response will not be written, as after a timeout. -/
+  | abandoned (task : Task (Except IO.Error (Response β)))
+
+namespace HandlerState
+
+private def isRunning : HandlerState β → Bool
+  | .running _ => true
+  | _ => false
+
+/-- Stops waiting for the response of a running handler. -/
+private def abandon : HandlerState β → HandlerState β
+  | .running task => .abandoned task
+  | state => state
+
+private def task? : HandlerState β → Option (Task (Except IO.Error (Response β)))
+  | .running task | .abandoned task => some task
+  | .idle => none
+
+end HandlerState
+
+/--
 All mutable state carried through the connection processing loop.
 Bundled into a struct so it can be passed to and returned from helper functions.
 -/
 private structure ConnectionState (β : Type) where
   machine : H1.Machine .receiving
   requestStream : Body.Stream
-  keepAliveTimeout : Option Millisecond.Offset
-  currentTimeout : Millisecond.Offset
-  headerTimeout : Option Timestamp
+  timer : Timer
   response : Std.Channel (Except IO.Error (Response β))
   respStream : Option β
-  requiresData : Bool
-  expectData : Option Nat
-  handlerDispatched : Bool
+  /-- Set when the machine asked for more input in the last step, with the bytes it expects if known. -/
+  inputWanted : Option (Option Nat) := none
+  handler : HandlerState β := .idle
   pendingHead : Option Request.Head
-  /-- The final chunk of the request body was handed to `requestStream`, which closes once it is read. -/
-  requestFinalOffered : Bool := false
-  /-- The task of the dispatched handler, until the loop reads its response. -/
-  handlerTask : Option (Task (Except IO.Error (Response β))) := none
   /-- The second, since the Unix epoch, that `machine.date` was formatted for. -/
   dateSecond : Option Int := none
-  /-- The client closed its side of the connection. -/
-  peerClosed : Bool := false
   /-- The current request was read to its end, or none has started. -/
   requestEnded : Bool := true
+  /--
+  The loop ended the connection itself, after reporting why; the machine's own failure that follows
+  is a consequence, not another failure.
+  -/
+  aborted : Bool := false
 
 /--
 Keeps `machine.date` current when `Config.generateDate` is set, formatting it at most once per
@@ -250,11 +294,12 @@ private def refreshDate (config : Config) (state : ConnectionState β) : IO (Con
 /--
 Ends `state.requestStream` once the machine produces no more of the body. It closes cleanly only when
 no body bytes are left undelivered; otherwise a handler reading it gets an error saying `reason`, so a
-truncated body never looks complete.
+truncated body never looks complete. A final chunk already offered keeps its clean end, since
+`Stream.closeWithError` leaves it alone.
 -/
 private def endRequestStream (state : ConnectionState β) (reason : String) : Async Unit := do
   let stream := state.requestStream
-  if state.requestFinalOffered || (← stream.isClosed) then
+  if ← stream.isClosed then
     return
   if (← stream.getKnownSize) == some (.fixed 0) then
     stream.close
@@ -278,17 +323,14 @@ private def processH1Events
   for event in events do
     match event with
     | .needMoreData expect =>
-      st := { st with requiresData := true, expectData := expect }
+      st := { st with inputWanted := some expect }
 
     | .needAnswer => pure ()
 
     | .endHeaders head =>
 
-      -- Sets the pending head and removes the KeepAlive or Header timeout.
       st := { st with
-        currentTimeout := config.lingeringTimeout
-        keepAliveTimeout := none
-        headerTimeout := none
+        timer := .request config.lingeringTimeout
         pendingHead := some head
         requestEnded := false
       }
@@ -314,23 +356,28 @@ private def processH1Events
 
       let newStream ← Body.mkStream
 
+      -- Input already buffered is the start of the next request, so its head is due by the header
+      -- deadline; only an empty connection waits under the keep-alive timeout.
+      let timer ←
+        if st.machine.reader.remainingBytes > 0 then
+          pure (Timer.header ((← IO.monoMsNow) + config.headerTimeout.toInt.toNat))
+        else
+          pure .keepAlive
       st := { st with
         requestStream := newStream
         response := ← Std.Channel.new
         respStream := none
-        keepAliveTimeout := some config.keepAliveTimeout.val
-        currentTimeout := config.keepAliveTimeout.val
-        headerTimeout := none
-        handlerDispatched := false
-        requestFinalOffered := false
+        timer
+        handler := st.handler.abandon
       }
 
     | .failed err =>
-      reportFailure handler (toString err)
+      unless st.aborted do
+        reportFailure handler (toString err)
 
       endRequestStream st s!"the request body is incomplete: {err}"
 
-      st := { st with requiresData := false, pendingHead := none }
+      st := { st with inputWanted := none, pendingHead := none }
       break
 
     | .closeBody =>
@@ -346,7 +393,7 @@ private def processH1Events
 /--
 Dispatches a pending request head to the handler if one is waiting.
 Spawns the handler as an async task and routes its result back through `state.response`.
-Returns the updated state with `pendingHead` cleared and `handlerDispatched` set.
+Returns the updated state with `pendingHead` cleared and the handler running.
 -/
 private def dispatchPendingRequest
     {σ : Type} [Handler σ]
@@ -359,7 +406,7 @@ private def dispatchPendingRequest
       |>.asTask
 
     BaseIO.chainTask task (discard ∘ state.response.send)
-    return { state with pendingHead := none, handlerDispatched := true, handlerTask := some task }
+    return { state with pendingHead := none, handler := .running task }
   else
     return state
 
@@ -388,12 +435,24 @@ private def tryDrainBody [Body β]
     pure (machine.userClosedBody, none)
 
 /--
+Ends the connection with `status`. The response body in progress can no longer be sent, so it is
+closed, and the loop stops waiting on it.
+-/
+private def abortWith [Body β] (state : ConnectionState β) (status : Status) :
+    Async (ConnectionState β) := do
+  if let some res := state.respStream then
+    if ¬(← Body.isClosed res) then Body.close res
+  return { state with
+    machine := state.machine.closeWithError status, handler := state.handler.abandon, respStream := none
+    aborted := true }
+
+/--
 Processes a single async I/O event and updates the connection state.
 Returns the updated state and `true` if the connection should be closed immediately.
 -/
 private def handleRecvEvent
     {σ β : Type} [Handler σ] [Body β]
-    (handler : σ) (config : Config)
+    (handler : σ) (config : Config) (outbox : Outbox α)
     (event : Recv β) (state : ConnectionState β)
     : Async (ConnectionState β × Bool) := do
 
@@ -402,17 +461,14 @@ private def handleRecvEvent
 
     let mut st := state
 
-    -- After the first byte after idle we switch from keep-alive timeout to per-request header timeout.
-    if st.keepAliveTimeout.isSome then
-      st := { st with
-        keepAliveTimeout := none
-        headerTimeout := some <| (← Timestamp.now) + config.headerTimeout
-      }
+    -- The first byte after idle starts the request head, which the header timeout bounds.
+    if st.timer matches .keepAlive then
+      st := { st with timer := .header ((← IO.monoMsNow) + config.headerTimeout.toInt.toNat) }
 
     return ({ st with machine := st.machine.feed bs }, false)
 
   | .bytes none =>
-    return ({ state with machine := state.machine.noMoreInput, peerClosed := true }, false)
+    return ({ state with machine := state.machine.noMoreInput }, false)
 
   | .responseBody (some chunk) =>
     return ({ state with machine := state.machine.sendData #[chunk] }, false)
@@ -432,35 +488,41 @@ private def handleRecvEvent
       if let some pulled := pulledChunk then
         try
           st.requestStream.offer pulled.chunk pulled.incomplete (closeAfter := pulled.final)
-          if pulled.final then
-            st := { st with requestFinalOffered := true }
         catch e => reportFailure handler e
 
       return (st, false)
     else
       return (state, false)
 
-  | .close | .keepAliveTimeout => return (state, true)
+  | .close => return (state, true)
+
+  | .writeDue =>
+    -- The keep-alive timeout starts once the last response is written, so wait for that write
+    -- under the write timeout, which fails the outbox if the peer stopped reading.
+    outbox.awaitIdle
+    return (state, false)
 
   | .timeout =>
-    reportFailure handler "request header timeout"
-    return ({ state with machine := state.machine.closeWithError .requestTimeout, handlerDispatched := false }, false)
+    reportFailure handler (if state.timer matches .header _ then "request header timeout" else "request timeout")
+    return (← abortWith state .requestTimeout, false)
 
   | .shutdown =>
-    return ({ state with machine := state.machine.closeWithError .serviceUnavailable, handlerDispatched := false }, false)
+    return (← abortWith state .serviceUnavailable, false)
 
   | .response (.error err) =>
     reportFailure handler err
-    return ({ state with
-      machine := state.machine.closeWithError .internalServerError
-      handlerDispatched := false
-      handlerTask := none }, false)
+    return ({ (← abortWith state .internalServerError) with handler := .idle }, false)
 
   | .response (.ok res) =>
-    let state := { state with handlerTask := none }
+    let state := { state with handler := .idle }
     if state.machine.failed then
       if ¬(← Body.isClosed res.body) then Body.close res.body
-      return ({ state with handlerDispatched := false }, false)
+      return (state, false)
+    else if res.line.status.isInformational then
+      -- RFC 9110 §15.2: a 1xx response is interim, so it cannot end the exchange.
+      if ¬(← Body.isClosed res.body) then Body.close res.body
+      reportFailure handler s!"the handler returned the interim status {res.line.status.toCode} as its final response"
+      return ({ state with machine := state.machine.closeWithError .internalServerError }, false)
     else
       let state ← refreshDate config state
       let (newMachine, newRespStream) ← applyResponse state.machine res
@@ -477,20 +539,20 @@ private def handleRecvEvent
             reportFailure handler e
             pure (newMachine, some body, true)
 
-      return ({ state with machine := drainedMachine, handlerDispatched := false, respStream := drainedRespStream }, shouldClose)
+      return ({ state with machine := drainedMachine, respStream := drainedRespStream }, shouldClose)
 
 /--
 Computes the active `PollSources` for the current connection state.
 Determines which IO sources need attention and whether to include the socket.
 
 Once `inputLimit` bytes of input wait unread and the machine needs no more to make progress
-(`needsInput`), the socket is left out, so the rest waits in the kernel and pushes back on the
-client, for example while a response streams.
+(`inputWanted` is `none`), the socket is left out, so the rest waits in the kernel and pushes back on
+the client, for example while a response streams.
 -/
 private def buildPollSources
     {α β : Type} [Transport α]
     (socket : α) (connectionContext : CancellationContext) (state : ConnectionState β)
-    (needsInput : Bool) (inputLimit : Nat)
+    (inputWanted : Option (Option Nat)) (inputLimit : Nat)
     : Async (PollSources α β) := do
   let requestBodyOpen ←
     if state.machine.canPullBody then pure !(← Body.isClosed state.requestStream)
@@ -504,25 +566,35 @@ private def buildPollSources
     if state.machine.canPullBodyNow ∧ requestBodyOpen then pure (some state.requestStream)
     else pure none
 
+  -- A pull that found too few bytes waits for input even once its reader is gone, as when another
+  -- case won the reader's select. `requestBody` stays out until input arrives, so without the socket
+  -- nothing would wake the loop when the reader asks again.
+  let pullStalled := requestBodyOpen ∧ ¬state.machine.canPullBodyNow
+
   -- Include the socket only when there is more to do than waiting for the handler alone.
   let pollSocket :=
-    state.requiresData ∨ !state.handlerDispatched ∨ state.respStream.isSome ∨
-    state.machine.writer.sentMessage ∨ (state.machine.canPullBody ∧ requestBodyInterested)
+    !state.handler.isRunning ∨ state.respStream.isSome ∨ state.machine.writer.sentMessage ∨
+    (state.machine.canPullBody ∧ requestBodyInterested) ∨ pullStalled
 
-  let inputFull := state.machine.reader.remainingBytes ≥ inputLimit ∧ ¬needsInput
+  let inputFull := state.machine.reader.remainingBytes ≥ inputLimit ∧ inputWanted.isNone
+
+  -- The request timer times a wait on the client: for more of the request, or for a body chunk a
+  -- reader asked for. A wait on the handler alone is not timed, since a response may pause as long
+  -- as the handler wants (server-sent events, long polling); a peer that stops reading is bounded
+  -- by `writeTimeout`.
+  let waitsOnPeer := inputWanted.isSome ∨ pullStalled ∨ (state.machine.canPullBody ∧ requestBodyInterested)
+  let timer := if (state.timer matches .request _) ∧ ¬waitsOnPeer then none else some state.timer
 
   return {
     -- After EOF the socket stays readable, returning `none` at once, so polling it would spin.
     socket := if pollSocket ∧ ¬state.machine.reader.noMoreInput ∧ ¬inputFull then some socket else none
-    timer := pollSocket
-    expect := state.expectData
-    response := if state.handlerDispatched then some state.response else none
+    timer := if pollSocket then timer else none
+    expect := inputWanted.join
+    response := if state.handler.isRunning then some state.response else none
     responseBody := state.respStream
     requestBody := requestBody
-    timeout := state.currentTimeout
-    keepAliveTimeout := state.keepAliveTimeout
-    headerTimeout := state.headerTimeout
     connectionContext := connectionContext
+    idle := state.timer matches .keepAlive
   }
 
 /--
@@ -544,15 +616,18 @@ private def reportWriteFailure [Handler σ] (handler : σ) (outbox : Outbox α) 
 
 /--
 Whether the connection ends while the client may still be sending: the client has not closed its
-side, and the machine stopped before the end of a request, or with input it never read. The
-machine's `noMoreInput` is also set when the machine itself stops reading a request, as after a
-`417`, so it does not show that the client is done.
+side, and the machine stopped before the end of a request, or, while it still took input, with input
+it never read, or at the end of an exchange. A request rejected from its head alone leaves
+`requestEnded` set, so only `machine.failed` shows it. The loop does not read while a handler runs,
+so requests the client pipelined meanwhile wait unread in the transport (RFC 9112 §9.3.2), whether
+or not the request asked to keep the connection open.
 -/
 private def peerMayStillSend (state : ConnectionState β) : Bool :=
-  let machine := state.machine
-  ¬state.peerClosed ∧
-    (¬state.requestEnded ∨ ¬machine.reader.noMoreInput ∧
-      (machine.failed ∨ machine.reader.remainingBytes > 0 ∨ machine.reader.state matches .readBody _))
+  let reader := state.machine.reader
+  ¬reader.peerClosed ∧
+    (¬state.requestEnded ∨ ¬reader.inputStopped ∧
+      (state.machine.failed ∨ reader.remainingBytes > 0 ∨ reader.state matches .readBody _) ∨
+      (state.timer matches .request _))
 
 /--
 Closes a connection's side gracefully (RFC 9112 §9.6). Closing a socket while the client is still
@@ -580,15 +655,48 @@ private def linger [Transport α] (socket : α) (timeout : Millisecond.Offset) (
       break
 
 /--
+Times a wait on the socket with the watchdog. While the connection is idle, the keep-alive timeout
+starts once the outbox's writes complete, since the peer may still be reading the response; until
+then, returns when the write in flight fails the outbox, so the loop can wake for it.
+-/
+private def armTimer (config : Config) (wd : Watchdog) (outbox : Outbox α) :
+    Timer → BaseIO (Option Nat)
+  | .keepAlive => do
+    if let some idle ← outbox.idle? then
+      wd.armAfter idle config.keepAliveTimeout.val
+      outbox.writeDeadline?
+    else
+      wd.arm config.keepAliveTimeout.val
+      return none
+  | .header deadline => do
+    wd.armUntil deadline
+    return none
+  | .request timeout => do
+    wd.arm timeout
+    return none
+
+/--
+Closes the response body that `event` carries, for an event that a timeout replaces.
+-/
+private def discardEvent [Body β] : Recv β → Async Unit
+  | .response (.ok res) => do
+    if ¬(← Body.isClosed res.body) then Body.close res.body
+  | _ => pure ()
+
+/--
 Runs the main request/response processing loop for a single connection.
 Drives the HTTP/1.1 state machine through four phases each iteration:
 hand output to the outbox, process H1 events, dispatch pending requests, poll for I/O.
+
+`wd` enforces the connection's timeouts by cancelling `connectionContext`. Lingering watches
+`serverContext` instead, so that a connection that timed out still lingers after its 408.
 -/
-private def handle
+private def run
     {σ : Type} [Transport α] [h : Handler σ]
     (connection : Connection α)
     (config : Config)
-    (connectionContext : CancellationContext)
+    (serverContext connectionContext : CancellationContext)
+    (wd : Watchdog)
     (handler : σ) : Async Unit := do
 
   let _ : Body (Handler.ResponseBody σ) := Handler.responseBodyInstance
@@ -599,14 +707,9 @@ private def handle
   let mut state : ConnectionState (Handler.ResponseBody σ) := {
     machine := connection.machine
     requestStream := initStream
-    keepAliveTimeout := some config.keepAliveTimeout.val
-    currentTimeout := config.keepAliveTimeout.val
-    headerTimeout := none
+    timer := .keepAlive
     response := ← Std.Channel.new
     respStream := none
-    requiresData := false
-    expectData := none
-    handlerDispatched := false
     pendingHead := none
   }
 
@@ -635,24 +738,18 @@ private def handle
     state ← dispatchPendingRequest handler connection.extensions connectionContext state
 
     -- Phase 4: wait for the next IO event when any source needs attention.
-    if state.requiresData ∨ state.handlerDispatched ∨ state.respStream.isSome ∨ state.machine.canPullBody then
-      let needsInput := state.requiresData
-      state := { state with requiresData := false }
-      let sources ← buildPollSources socket connectionContext state needsInput config.maximumRecvSize
-      let event ← pollNextEvent config handler sources
-      -- The keep-alive timeout is armed when the response is handed to the outbox, but the
-      -- connection is idle only once the response is written, so it counts from then.
-      if event matches .keepAliveTimeout then
-        match ← outbox.idleFor? with
-        | none =>
-          outbox.awaitIdle
-          continue
-        | some idle =>
-          let remaining := config.keepAliveTimeout.val.toInt - idle
-          if remaining > 0 then
-            state := { state with currentTimeout := .ofInt remaining }
-            continue
-      let (newState, shouldClose) ← handleRecvEvent handler config event state
+    if state.inputWanted.isSome ∨ state.handler.isRunning ∨ state.respStream.isSome ∨ state.machine.canPullBody then
+      let inputWanted := state.inputWanted
+      state := { state with inputWanted := none }
+      let mut sources ← buildPollSources socket connectionContext state inputWanted config.maximumRecvSize
+      if let some timer := sources.timer then
+        sources := { sources with writeDue := ← armTimer config wd outbox timer }
+      let mut event ← pollNextEvent config handler wd sources
+      -- A deadline that passed while another source won is reported instead of that event.
+      if ← wd.disarm then
+        discardEvent event
+        event ← cancelledEvent wd connectionContext sources.idle
+      let (newState, shouldClose) ← handleRecvEvent handler config outbox event state
       state := newState
       if shouldClose then break
 
@@ -665,7 +762,7 @@ private def handle
 
     -- A handler still running returns a response nobody will write. Its body is closed when it
     -- arrives, so a producer streaming into it does not wait forever.
-    if let some task := state.handlerTask then
+    if let some task := state.handler.task? then
       background do
         if let .ok res ← Async.ofTask task then
           Body.close res.body
@@ -674,9 +771,26 @@ private def handle
     reportWriteFailure handler outbox
 
     if !(← outbox.failed) ∧ peerMayStillSend state then
-      linger socket config.lingeringTimeout config.maximumRecvSize.toUInt64 connectionContext
+      linger socket config.lingeringTimeout config.maximumRecvSize.toUInt64 serverContext
   finally
     Transport.close socket
+
+/--
+Serves a single connection under a child of `serverContext`, whose watchdog enforces the
+connection's timeouts.
+-/
+private def handle
+    {σ : Type} [Transport α] [Handler σ]
+    (connection : Connection α)
+    (config : Config)
+    (serverContext : CancellationContext)
+    (handler : σ) : Async Unit := do
+  -- A child context, so that a timeout cancels only this connection.
+  let connectionContext ← serverContext.fork
+  let wd ← Watchdog.new connectionContext
+  -- Cancelling the context once the connection ends also stops the watchdog.
+  try run connection config serverContext connectionContext wd handler
+  finally connectionContext.cancel .cancel
 
 end Connection
 

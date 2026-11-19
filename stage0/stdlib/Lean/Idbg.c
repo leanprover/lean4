@@ -7230,7 +7230,7 @@ return v___x_1790_;
 LEAN_EXPORT lean_object* l_Lean_Idbg_idbgServer(lean_object* v_siteId_1795_, lean_object* v_exprJson_1796_){
 _start:
 {
-lean_object* v___y_1799_; lean_object* v_a_1800_; uint8_t v___y_1820_; lean_object* v___y_1821_; lean_object* v___y_1822_; lean_object* v___y_1823_; lean_object* v_val_1824_; lean_object* v_a_1832_; lean_object* v_a_1884_; lean_object* v___f_1886_; uint16_t v_port_1887_; lean_object* v___x_1888_; lean_object* v_addr_1889_; lean_object* v_server_x3f_1890_; lean_object* v___x_1891_; lean_object* v___x_1892_; lean_object* v_a_1893_; lean_object* v___x_1895_; uint8_t v_isShared_1896_; uint8_t v_isSharedCheck_1951_; 
+lean_object* v___y_1799_; lean_object* v_a_1800_; lean_object* v___y_1820_; uint8_t v___y_1821_; lean_object* v___y_1822_; lean_object* v___y_1823_; lean_object* v_val_1824_; lean_object* v_a_1832_; lean_object* v_a_1884_; lean_object* v___f_1886_; uint16_t v_port_1887_; lean_object* v___x_1888_; lean_object* v_addr_1889_; lean_object* v_server_x3f_1890_; lean_object* v___x_1891_; lean_object* v___x_1892_; lean_object* v_a_1893_; lean_object* v___x_1895_; uint8_t v_isShared_1896_; uint8_t v_isSharedCheck_1951_; 
 v___f_1886_ = ((lean_object*)(l_Lean_Idbg_idbgServer___closed__0));
 v_port_1887_ = l_Lean_Idbg_idbgPort(v_siteId_1795_);
 v___x_1888_ = lean_obj_once(&l_Lean_Idbg_idbgServer___closed__1, &l_Lean_Idbg_idbgServer___closed__1_once, _init_l_Lean_Idbg_idbgServer___closed__1);
@@ -7355,8 +7355,8 @@ v___x_1825_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1825_, 0, v_val_1824_);
 v___x_1826_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1826_, 0, v___x_1825_);
-lean_inc_ref(v___y_1821_);
-v___x_1827_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_1822_, v___y_1820_, v___x_1826_, v___y_1821_);
+lean_inc_ref(v___y_1822_);
+v___x_1827_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_1820_, v___y_1821_, v___x_1826_, v___y_1822_);
 if (lean_obj_tag(v___x_1827_) == 0)
 {
 lean_object* v_a_1828_; lean_object* v___x_1829_; 
@@ -7445,9 +7445,9 @@ goto v_reusejp_1847_;
 }
 v_reusejp_1847_:
 {
-v___y_1820_ = v___x_1841_;
-v___y_1821_ = v___f_1839_;
-v___y_1822_ = v___x_1840_;
+v___y_1820_ = v___x_1840_;
+v___y_1821_ = v___x_1841_;
+v___y_1822_ = v___f_1839_;
 v___y_1823_ = v_a_1838_;
 v_val_1824_ = v___x_1848_;
 goto v___jp_1819_;
@@ -7492,9 +7492,9 @@ goto v_reusejp_1855_;
 }
 v_reusejp_1855_:
 {
-v___y_1820_ = v___x_1841_;
-v___y_1821_ = v___f_1839_;
-v___y_1822_ = v___x_1840_;
+v___y_1820_ = v___x_1840_;
+v___y_1821_ = v___x_1841_;
+v___y_1822_ = v___f_1839_;
 v___y_1823_ = v_a_1838_;
 v_val_1824_ = v___x_1856_;
 goto v___jp_1819_;
@@ -9303,7 +9303,7 @@ return v___x_2398_;
 LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00Lean_Idbg_idbgClientLoopImpl_spec__3___redArg(lean_object* v_a_2404_, lean_object* v_apply_2405_, lean_object* v___x_2406_){
 _start:
 {
-lean_object* v___y_2409_; lean_object* v___x_2411_; lean_object* v_a_2413_; lean_object* v_a_2428_; lean_object* v___y_2433_; uint8_t v___y_2434_; lean_object* v___y_2435_; lean_object* v_val_2436_; lean_object* v___x_2443_; 
+lean_object* v___y_2409_; lean_object* v___x_2411_; lean_object* v_a_2413_; lean_object* v_a_2428_; lean_object* v___y_2433_; lean_object* v___y_2434_; uint8_t v___y_2435_; lean_object* v_val_2436_; lean_object* v___x_2443_; 
 v___x_2411_ = lean_box(0);
 v___x_2443_ = lean_uv_tcp_new();
 if (lean_obj_tag(v___x_2443_) == 0)
@@ -9459,8 +9459,8 @@ goto v_reusejp_2482_;
 v_reusejp_2482_:
 {
 v___y_2433_ = v___f_2474_;
-v___y_2434_ = v___x_2476_;
-v___y_2435_ = v___x_2475_;
+v___y_2434_ = v___x_2475_;
+v___y_2435_ = v___x_2476_;
 v_val_2436_ = v___x_2483_;
 goto v___jp_2432_;
 }
@@ -9505,8 +9505,8 @@ goto v_reusejp_2490_;
 v_reusejp_2490_:
 {
 v___y_2433_ = v___f_2474_;
-v___y_2434_ = v___x_2476_;
-v___y_2435_ = v___x_2475_;
+v___y_2434_ = v___x_2475_;
+v___y_2435_ = v___x_2476_;
 v_val_2436_ = v___x_2491_;
 goto v___jp_2432_;
 }
@@ -9842,7 +9842,7 @@ lean_ctor_set(v___x_2437_, 0, v_val_2436_);
 v___x_2438_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2438_, 0, v___x_2437_);
 lean_inc_ref(v___y_2433_);
-v___x_2439_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_2435_, v___y_2434_, v___x_2438_, v___y_2433_);
+v___x_2439_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_2434_, v___y_2435_, v___x_2438_, v___y_2433_);
 if (lean_obj_tag(v___x_2439_) == 0)
 {
 lean_object* v_a_2440_; lean_object* v___x_2441_; 

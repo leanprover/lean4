@@ -498,7 +498,7 @@ return v_res_132_;
 LEAN_EXPORT lean_object* l___private_Std_Async_Watchdog_0__Std_Async_Watchdog_round(lean_object* v_wd_133_){
 _start:
 {
-lean_object* v_ctx_135_; lean_object* v_state_136_; lean_object* v_wake_137_; lean_object* v_timer_138_; lean_object* v___f_139_; uint8_t v___y_141_; lean_object* v___y_142_; lean_object* v___x_182_; lean_object* v___x_183_; 
+lean_object* v_ctx_135_; lean_object* v_state_136_; lean_object* v_wake_137_; lean_object* v_timer_138_; lean_object* v___f_139_; lean_object* v___y_141_; uint8_t v___y_142_; lean_object* v___x_182_; lean_object* v___x_183_; 
 v_ctx_135_ = lean_ctor_get(v_wd_133_, 0);
 v_state_136_ = lean_ctor_get(v_wd_133_, 1);
 v_wake_137_ = lean_ctor_get(v_wd_133_, 2);
@@ -527,10 +527,10 @@ goto v___jp_146_;
 v___jp_140_:
 {
 lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; 
-v___x_143_ = lean_io_promise_result_opt(v___y_142_);
-lean_dec(v___y_142_);
+v___x_143_ = lean_io_promise_result_opt(v___y_141_);
+lean_dec(v___y_141_);
 v___x_144_ = lean_unsigned_to_nat(0u);
-v___x_145_ = l_BaseIO_chainTask___redArg(v___x_143_, v___f_139_, v___x_144_, v___y_141_);
+v___x_145_ = l_BaseIO_chainTask___redArg(v___x_143_, v___f_139_, v___x_144_, v___y_142_);
 return v___x_145_;
 }
 v___jp_146_:
@@ -587,8 +587,8 @@ case 2:
 {
 lean_dec_ref(v___f_148_);
 lean_dec_ref(v_wd_133_);
-v___y_141_ = v___x_151_;
-v___y_142_ = v___x_147_;
+v___y_141_ = v___x_147_;
+v___y_142_ = v___x_151_;
 goto v___jp_140_;
 }
 default: 
@@ -656,8 +656,8 @@ v___x_174_ = lean_io_promise_result_opt(v_a_167_);
 lean_dec(v_a_167_);
 v___x_175_ = lean_unsigned_to_nat(0u);
 v___x_176_ = l_BaseIO_chainTask___redArg(v___x_174_, v___f_148_, v___x_175_, v___x_152_);
-v___y_141_ = v___x_151_;
-v___y_142_ = v___x_147_;
+v___y_141_ = v___x_147_;
+v___y_142_ = v___x_151_;
 goto v___jp_140_;
 }
 }

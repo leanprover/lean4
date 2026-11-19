@@ -41,6 +41,10 @@ Benchmarks belonging to the old framework are not included in this description.
   Benchmarks that compile lean files and measure the execution of the resulting binary,
   as well as optionally run the same lean file through the interpreter.
   These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
+- `deprecated`:
+  Tests of deprecated functionality, run without the deprecation linters.
+  Its subdirectories are piles that work like the top-level piles of the same name.
+  See [Deprecated functionality](#deprecated-functionality).
 - `docparse`:
   Docstring parsing tests.
 - `elab`:
@@ -158,6 +162,24 @@ Otherwise, create a new test directory or pile:
 4. Document the new directory in this readme file
    by updating the directory structure section above.
 5. Optionally update [`lint.py`](lint.py) if it makes sense.
+
+### Deprecated functionality
+
+Deprecated functionality is still part of the product and should stay tested until it is removed.
+Its tests live in the piles under `deprecated`, which run without the deprecation linters.
+The contract is that removing a deprecated feature only requires deleting its tests in `deprecated`
+without leaving a hole in the test coverage of the rest of the product:
+
+- A test in `deprecated` may only test deprecated functionality.
+  Split out anything else into a test in the main piles.
+- When deprecating something, move the tests that are about it to `deprecated`,
+  and migrate all other tests that use it to the replacement.
+  The deprecation warnings in the main piles point out these tests.
+  If a test covers both the deprecated feature and its replacement,
+  duplicate it rather than keeping it in `deprecated`:
+  one copy in `deprecated` using the deprecated feature, one in the main piles using the replacement.
+  Otherwise the replacement loses its coverage when the deprecated feature is removed.
+- When removing something deprecated, delete its tests in `deprecated`.
 
 ### Keep the source tree clean
 

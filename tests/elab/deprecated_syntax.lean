@@ -1,12 +1,16 @@
 -- Enable the deprecated syntax linter (test framework disables all linters)
 set_option linter.deprecated.syntax true
 
+-- A test-local copy of `let_fun`, which is itself deprecated in core
+syntax:lead (name := oldHave) "old_have " ident " := " term "; " term : term
+macro_rules | `(old_have $x := $v; $b) => `(have $x := $v; $b)
+
 -- Test 1: Direct usage of deprecated term syntax → warning
-deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-24")
+deprecated_syntax oldHave "use `have` instead" (since := "2026-03-24")
 
 -- Note: the paren macro expands to the inner expression, but the warning
 -- is attributed to the inner expression written by the user.
-#check (let_fun x := 1; x)
+#check (old_have x := 1; x)
 
 /--
   Test 2: Macro that expands to deprecated syntax → warning at macro call site
@@ -14,14 +18,14 @@ deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-
   single backtick and hence does not trigger a pre-check.
 -/
 syntax "my_wrapper " : term
-macro_rules | `(my_wrapper) => `(let_fun x := 1; x)
+macro_rules | `(my_wrapper) => `(old_have x := 1; x)
 
 #check (my_wrapper)
 
 -- Test 2b: Nested macros — A expands to B, B expands to deprecated syntax.
 -- Warning names immediate producer (innerMacro) and its caller (outerMacro).
 syntax "innerMacro " : term
-macro_rules | `(innerMacro) => `(let_fun x := 1; x)
+macro_rules | `(innerMacro) => `(old_have x := 1; x)
 syntax "outerMacro " : term
 macro_rules | `(outerMacro) => `(innerMacro)
 
@@ -30,7 +34,7 @@ def nested_test := outerMacro
 
 -- Test 3: set_option linter.deprecated.syntax false suppresses warnings
 set_option linter.deprecated.syntax false in
-#check (let_fun x := 1; x)
+#check (old_have x := 1; x)
 
 -- Test 4: Non-deprecated syntax → no warning
 #check (42 : Nat)

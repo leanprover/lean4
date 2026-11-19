@@ -9,6 +9,7 @@ Author: Leonardo de Moura, Mac Malone
 #include "runtime/sstream.h"
 #include "runtime/exception.h"
 #include "library/dynlib.h"
+#include "library/ir_interpreter.h"
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -73,6 +74,7 @@ extern "C" LEAN_EXPORT obj_res lean_dynlib_load(b_obj_arg path) {
         return io_result_mk_error((sstream()
             << "error loading library " << string_cstr(path) << ": " << GetLastError()).str());
     }
+    ir::reset_non_native_modules();
     return io_result_mk_ok(wrap_dynlib(h));
 #else
     // Both dynlibs and plugins are loaded with RTLD_GLOBAL.
@@ -86,6 +88,7 @@ extern "C" LEAN_EXPORT obj_res lean_dynlib_load(b_obj_arg path) {
         return io_result_mk_error((sstream()
             << "error loading library, " << dlerror()).str());
     }
+    ir::reset_non_native_modules();
     return io_result_mk_ok(wrap_dynlib(h));
 #endif
 }

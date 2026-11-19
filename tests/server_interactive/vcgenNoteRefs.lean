@@ -71,3 +71,21 @@ def sumWrong (xs : List Nat) : Id Nat
     acc := acc + x
   return acc
    --^ $/lean/plainGoal
+
+/-! A `return` inside a loop owns the verification conditions of the returned value, and the loop
+annotations own those of the loop. -/
+
+def findZero (xs : Array Nat) : Except String Nat
+    ensures r => r < xs.size ∧ xs[r]! = 1
+    throws e => e = "no zero" := do
+  let mut i := 0
+  while i < xs.size
+    invariant _ => i ≤ xs.size
+     --^ $/lean/plainGoal
+    decreasing xs.size - i
+     --^ $/lean/plainGoal
+  do
+    if xs[i]! = 0 then return i
+                        --^ $/lean/plainGoal
+    i := i + 1
+  throw "no zero"

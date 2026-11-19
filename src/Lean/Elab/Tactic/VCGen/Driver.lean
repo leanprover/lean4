@@ -144,16 +144,20 @@ def openNoteRef (parts : Array (Syntax × Expr)) (goal : MVarId) : VCGenM Nat :=
   modify fun s => { s with noteRefs := s.noteRefs.push { parts, goal, mctx } }
   return (← get).noteRefs.size
 
-/-- The arguments of the program of `info` that carry a `do` note, each with the annotations of its
-note and without the note. Spec application removes the note from an argument that becomes the
-program of a subgoal. -/
-def notedArgs (info : WPApp) : MetaM (Array (Array (Syntax × Expr) × Expr)) :=
-  info.prog.getAppArgs.filterMapM fun arg =>
+/-- The arguments of the program `prog` that carry a `do` note, each with the annotations of its
+note and without the note. A step that makes an argument the program of a subgoal, such as a spec
+application or the split of an `if`, removes the note from it. -/
+def notedArgs (prog : Expr) : MetaM (Array (Array (Syntax × Expr) × Expr)) :=
+  prog.getAppArgs.filterMapM fun arg =>
     return (← noteParts? arg).map (·, arg.consumeMData)
 
-/-- The program of the goal `pre ⊑ wp prog post eposts s₁ … sₙ`. -/
+/-- The program of the goal `∀ xs, pre ⊑ wp prog post eposts s₁ … sₙ`, where the binders `xs` are
+the hypotheses of a branch. -/
 def wpProg? (goal : MVarId) : MetaM (Option Expr) := do
-  let_expr PartialOrder.rel _ _ _ rhs := (← goal.getType) | return none
+  let mut target := (← goal.getType).consumeMData
+  while let .forallE _ _ body _ := target do
+    target := body.consumeMData
+  let_expr PartialOrder.rel _ _ _ rhs := target | return none
   return (isWPApp? rhs).map (·.prog)
 
 public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
@@ -180,18 +184,28 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       unless alts.isEmpty do
         contRef? := some ref
         ref ← openNoteRef (alts.map fun (alt, hole) => (alt, .mvar hole)) goal.mvarId
-      let notes ← if let some info := spec? then notedArgs info else pure #[]
-      for mv in subgoals.reverse do
+      let notes ← if let some prog ← wpProg? goal.mvarId then notedArgs prog else pure #[]
+      let progs ← subgoals.mapM fun g => wpProg? g
+      -- A spec application that covers a noted argument together with the code after it, so that
+      -- no subgoal has the argument as its program, gives the note to its subgoals outside the post
+      -- side.
+      let mut coverRef? : Option Nat := none
+      if spec?.isSome then
+        if let some (parts, _) := notes.find? fun (_, arg) => !progs.contains (some arg) then
+          coverRef? := some (← openNoteRef parts goal.mvarId)
+      for (mv, prog?) in (subgoals.zip progs).toList.reverse do
         let mut item : WorkItem := { goal := { goal with mvarId := mv }, scope, ref, contRef? }
         if spec?.isSome then
           if let some contRef := contRef? then
             if postSide.contains mv then
               item := { item with ref := contRef }
           item := { item with contRef? := none }
-        unless notes.isEmpty do
-          if let some prog ← wpProg? mv then
-            if let some (parts, _) := notes.find? (·.2 == prog) then
-              item := { item with ref := ← openNoteRef parts mv, contRef? := some item.ref }
+          if let some coverRef := coverRef? then
+            unless postSide.contains mv do
+              item := { item with ref := coverRef }
+        if let some prog := prog? then
+          if let some (parts, _) := notes.find? (·.2 == prog) then
+            item := { item with ref := ← openNoteRef parts mv, contRef? := some item.ref }
         worklist := worklist.push item
 
 public structure Result where

@@ -643,9 +643,10 @@ def splitLatticeOpCallback : VCGenM (MVarId → Grind.GrindM (Option (List MVarI
     let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
     splitLatticeOp? m rhs
 
-/-- The subgoals of applying the spec rule `rule` that state the postconditions of the spec: the
-premises `?postImpl` and `?epostsImpl` that `mkSpecBackwardProof` introduces. `goals` are the
-subgoals in the order of `rule.resultPos`. -/
+/-- The subgoals of applying the spec rule `rule` that continue with the code after the program: the
+premises `?postImpl` and `?epostsImpl` that `mkSpecBackwardProof` introduces for the postconditions,
+and a premise `exit` of the spec, such as the code after a loop that the spec covers together with
+the loop. `goals` are the subgoals in the order of `rule.resultPos`. -/
 def postSideGoals (rule : Sym.BackwardRule) (goals : List MVarId) : Array MVarId := Id.run do
   let mut names := #[]
   let mut e := rule.expr
@@ -654,7 +655,7 @@ def postSideGoals (rule : Sym.BackwardRule) (goals : List MVarId) : Array MVarId
     e := b
   let mut postSide := #[]
   for (pos, goal) in rule.resultPos.zip goals do
-    if names[pos]? matches some `postImpl | some `epostsImpl then
+    if names[pos]? matches some `postImpl | some `epostsImpl | some `exit then
       postSide := postSide.push goal
   return postSide
 

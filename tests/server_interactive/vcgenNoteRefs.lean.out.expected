@@ -61,7 +61,17 @@
    "unproved verification conditions for the contract of `sumWrong`; discharge them in a `where finally | spec => ...` section of the definition\ncase vc2\nxs : List Nat\nacc✝ : Nat\nacc : Nat := (ForIn.toList xs).length\n⊢ acc = xs.sum",
    "fullRange":
    {"start": {"line": 71, "character": 2},
-    "end": {"line": 71, "character": 12}}}]}
+    "end": {"line": 71, "character": 12}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 87, "character": 23},
+    "end": {"line": 87, "character": 31}},
+   "message":
+   "unproved verification conditions for the contract of `findZero`; discharge them in a `where finally | spec => ...` section of the definition\ncase vc3\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : xs[b✝]! = 0\n⊢ xs[b✝]! = 1",
+   "fullRange":
+   {"start": {"line": 87, "character": 23},
+    "end": {"line": 87, "character": 31}}}]}
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
  "position": {"line": 18, "character": 7}}
 {"rendered":
@@ -120,3 +130,24 @@
  "```lean\ncase vc2\nxs : List Nat\nacc✝ : Nat\nacc : Nat := (ForIn.toList xs).length\n⊢ acc = xs.sum\n```",
  "goals":
  ["case vc2\nxs : List Nat\nacc✝ : Nat\nacc : Nat := (ForIn.toList xs).length\n⊢ acc = xs.sum"]}
+{"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
+ "position": {"line": 82, "character": 7}}
+{"rendered":
+ "```lean\ncase vc1\nxs : Array Nat\n⊢ 0 ≤ xs.size\n```\n---\n```lean\ncase vc5\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : ¬xs[b✝]! = 0\ni : Nat := b✝ + 1\n⊢ i ≤ xs.size\n```\n---\n```lean\ncase vc6\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝ : ¬b✝ < xs.size\n⊢ b✝ ≤ xs.size\n```",
+ "goals":
+ ["case vc1\nxs : Array Nat\n⊢ 0 ≤ xs.size",
+  "case vc5\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : ¬xs[b✝]! = 0\ni : Nat := b✝ + 1\n⊢ i ≤ xs.size",
+  "case vc6\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝ : ¬b✝ < xs.size\n⊢ b✝ ≤ xs.size"]}
+{"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
+ "position": {"line": 84, "character": 7}}
+{"rendered":
+ "```lean\ncase vc4\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : ¬xs[b✝]! = 0\ni : Nat := b✝ + 1\n⊢ (Variant.ofMeasure fun x =>\n        match x with\n        | (fst, a) => xs.size - a).EvalsBelow\n    (none, i) mb✝\n```",
+ "goals":
+ ["case vc4\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : ¬xs[b✝]! = 0\ni : Nat := b✝ + 1\n⊢ (Variant.ofMeasure fun x =>\n        match x with\n        | (fst, a) => xs.size - a).EvalsBelow\n    (none, i) mb✝"]}
+{"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
+ "position": {"line": 87, "character": 26}}
+{"rendered":
+ "```lean\ncase vc2\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : xs[b✝]! = 0\n⊢ b✝ < xs.size\n```\n---\n```lean\ncase vc3\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : xs[b✝]! = 0\n⊢ xs[b✝]! = 1\n```",
+ "goals":
+ ["case vc2\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : xs[b✝]! = 0\n⊢ b✝ < xs.size",
+  "case vc3\nxs : Array Nat\nb✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun x =>\n          match x with\n          | (fst, a) => xs.size - a).EvalsTo\n      (none, b✝) mb✝ ⊓\n    match (none, b✝) with\n    | (fst, i) => i ≤ xs.size\nh✝¹ : b✝ < xs.size\nh✝ : xs[b✝]! = 0\n⊢ xs[b✝]! = 1"]}

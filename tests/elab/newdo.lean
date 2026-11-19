@@ -206,11 +206,10 @@ trace: [Elab.do] let x := 42;
               else
                 let x := x + i;
                 pure (ForInStep.yield (none, x))
-    let __r : Option ?m.166 := __s.fst
-    let x : ?m.166 := __s.snd
-    match __r with
+    match __s.fst with
       | some r => pure r
       | none =>
+        let x := __s.snd;
         let x := x + 13;
         let x := x + 13;
         let x := x + 13;

@@ -752,16 +752,27 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   -- We need observingPostpone to decouple elaboration problems from the RHS and the body.
   let body? : Option Expr ← observingPostpone elabBody
 
+  let throwJoinRhsBug {α} (joinRhs : Expr) : DoElabM α :=
+    joinRhsMVar.mvarId!.withContext do
+      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
+        to metavariable\n{joinRhsMVar.mvarId!}"
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
-    let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
-    mkLambdaFVars (#[r] ++ muts) (← instantiateMVars e)
+    let e ← instantiateMVars (← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k)
+    let xs := #[r] ++ muts
+    unless callerInfo.numRegularExits > 1 && e.hasExprMVar do
+      return ← mkLambdaFVars xs e
+    -- `mkLambdaFVars` turns the unassigned `body` into a delayed assignment, so the metavariables
+    -- of `e` keep the parameters `xs` in their local context instead of being reverted over them.
+    let body ← mkFreshExprSyntheticOpaqueMVar mγ
+    let joinRhs ← mkLambdaFVars xs body
+    unless ← body.mvarId!.checkedAssign e do
+      throwJoinRhsBug (← mkLambdaFVars xs e)
+    return joinRhs
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
-    joinRhsMVar.mvarId!.withContext do
-      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
-        to metavariable\n{joinRhsMVar.mvarId!}"
+    throwJoinRhsBug joinRhs
 
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.

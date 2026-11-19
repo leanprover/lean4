@@ -154,9 +154,6 @@ public structure JoinPoint where
   rhsGoal : MVarId
   /-- The number of states that `?H` takes after the join parameters. -/
   numStates : Nat
-  /-- The postcondition and the exception postconditions of the goals of `__do_jp`. -/
-  post : Expr
-  eposts : Expr
   deriving Inhabited
 
 /-- A jump to a join point with the arguments `args`, which include the states, and the proof

@@ -98,10 +98,8 @@ def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
   return some c
 
 /-- Register the join point `jp := val` that the goal `goal : pre ⊑ wp⟦…⟧ post eposts ss` binds, so
-that the jumps below `goal` share one proof of `val`. The jumps are assumed to have the
-postcondition `post` and the exception postconditions `eposts` of `goal`. Returns the new scope and
-the goals for the program of `goal` and for `val`, or `none` if `jp` is no join point under
-`+jp`. -/
+that the jumps below `goal` share one proof of `val`. Returns the new scope and the goals for the
+program of `goal` and for `val`, or `none` if `jp` is no join point under `+jp`. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
   unless (← read).useJP && isJoinPointName (← jp.getUserName) && val.isLambda do
@@ -143,8 +141,7 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
   let spec ← mkFVarS decls[0]!
   let joinPoint : JoinPoint :=
-    { spec, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size, post := info.post,
-      eposts := info.args[9]! }
+    { spec, top, hyp, rhsGoal := rhs.mvarId!, numStates := info.excessArgs.size }
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.rhsGoal (joinPoint, #[]) }
   let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
@@ -152,16 +149,14 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
 
 /-- Close the goal `⊤ ⊑ wp⟦jp args⟧ post eposts ss` of a jump to a join point of `scope` with
 `__do_jp_spec args ss ?pf`, where `finalizeJoinPoint` assigns `?pf : ?H args ss`. A jump with a
-precondition other than `⊤`, or with other postconditions than the registration of `jp`, unfolds
-`jp` instead. -/
+precondition other than `⊤` unfolds `jp` instead. -/
 public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some fv := info.prog.getAppFn.fvarId? | return none
   let some jp := scope.joinPoints.get? fv | return none
   goal.withContext do
   let_expr PartialOrder.rel _ _ pre _ := (← goal.getType) | return none
-  unless pre == jp.top && isSameExpr info.post jp.post && isSameExpr info.args[9]! jp.eposts do
-    return none
+  unless pre == jp.top do return none
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
   let args ← (info.prog.getAppArgs ++ info.excessArgs).mapM (reduceHead ·)

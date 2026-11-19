@@ -443,15 +443,8 @@ proves once. `Spec.seq_ite` shares the code after an `if`. -/
   triple_of_wp fun _ _ => by simp only [wp_seq_eq, wp_ite_eq]
 
 example : ⦃ fun _ _ => True ⦄ ⟦ if b then y := 1 else y := 2 fi; z := y ⟧
-    ⦃ fun _ _ s => s "z" > 0 ⦄ := by
-  vcgen +jp
-  case vc1 => obtain ⟨-, ⟨-, rfl⟩ | ⟨-, rfl⟩⟩ := ‹_› <;> simp [State.update]
-
-example : ⦃ fun _ _ => True ⦄ ⟦ if b then y := 1 else y := 2 fi; z := y ⟧
-    ⦃ fun _ _ s => s "z" > 0 ⦄ := by
-  vcgen
-  case vc1 => grind [Expr.eval]
-  case vc2 => grind [Expr.eval]
+    ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
+  vcgen +jp with finish
 
 -- Two join points of a program, told apart by their suffixes, prove `z := y` once for all four
 -- paths.
@@ -460,23 +453,12 @@ example : ⦃ fun _ _ => True ⦄
      have __vcgen_jp2 := fun (_ : Unit) =>
        Cmd.ite ⟪c⟫ (.seq ⟦ y := 1 ⟧ (__vcgen_jp1 ())) (.seq ⟦ y := 2 ⟧ (__vcgen_jp1 ()))
      Cmd.ite ⟪b⟫ (.seq ⟦ x := 1 ⟧ (__vcgen_jp2 ())) (.seq ⟦ x := 2 ⟧ (__vcgen_jp2 ())))
-    ⦃ fun _ _ s => s "z" > 0 ⦄ := by
-  vcgen +jp
-  case vc1 => obtain ⟨_, _, _, -, ⟨-, -, rfl⟩ | ⟨-, -, rfl⟩⟩ := ‹_› <;> simp [State.update]
+    ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
+  vcgen +jp with finish
 
 -- A join point without a jump.
 example : ⦃ fun _ _ => True ⦄
     (have __vcgen_jp := fun (_ : Unit) => ⟦ z := y ⟧
      ⟦ y := 1 ⟧)
     ⦃ fun _ _ s => s "y" = 1 ⦄ := by
-  vcgen +jp
-  case vc1 => grind [Expr.eval]
-
--- A jump in non-tail position has another postcondition than the registration of `__vcgen_jp`,
--- so it unfolds `__vcgen_jp`.
-example : ⦃ fun _ _ => True ⦄
-    (have __vcgen_jp := fun (_ : Unit) => ⟦ y := 1 ⟧
-     Cmd.seq (__vcgen_jp ()) ⟦ z := y ⟧)
-    ⦃ fun _ _ s => s "z" = 1 ⦄ := by
-  vcgen +jp
-  case vc1 => grind [Expr.eval]
+  vcgen +jp with finish

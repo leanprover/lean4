@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.WPApp
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
@@ -82,9 +83,9 @@ fun r x s => ∃ z, s = (a, z) ∧ ((n > 0 ∧ x = 1 ∧ z = b) ∨ (¬n > 0 ∧
 so `s.1 = a` follows without a case split.
 -/
 
-/-- The lattice instance of the assertions `B` of a goal `pre ⊑ rhs`, read off the order `instPO` of
-`B` in the goal: `CompleteLattice.toPartialOrder instCL` gives `instCL`, and the orders of `Prop`,
-`Unit`, functions and pairs give the corresponding lattices. -/
+/-- The lattice instance of the assertions `B` of a goal `pre ⊑ rhs` with the order `instPO`. The
+library orders of `Prop`, `Unit`, functions, pairs and lattices give it directly. Other orders give
+the synthesized lattice whose order is `instPO`. -/
 partial def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
   match_expr instPO with
   | CompleteLattice.toPartialOrder _ instCL => return some instCL
@@ -101,7 +102,17 @@ partial def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
     let some latticeβ ← latticeOfOrder? instβ | return none
     let prod ← mkConstS ``Lean.Order.instCompleteLatticeProd instPO.getAppFn.constLevels!
     return some (← mkAppNS prod #[α, β, latticeα, latticeβ])
-  | _ => return none
+  | _ =>
+    if instPO.hasLooseBVars then return none
+    let orderTy ← Sym.inferType instPO
+    let_expr PartialOrder B := orderTy | return none
+    let us := orderTy.getAppFn.constLevels!
+    let some instCL ← Sym.synthInstance? (← mkAppS (← mkConstS ``CompleteLattice us) B)
+      | return none
+    let instCL ← shareCommon instCL
+    let order ← mkAppNS (← mkConstS ``CompleteLattice.toPartialOrder us) #[B, instCL]
+    unless ← Sym.isDefEqI order instPO do return none
+    return some instCL
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal
 `goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with

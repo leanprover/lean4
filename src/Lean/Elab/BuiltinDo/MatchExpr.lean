@@ -37,7 +37,7 @@ open Lean.Meta
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do
   let `(doMatchExpr| match_expr $[(meta := false)%$metaFalseTk?]? $discr with $alts) := stx | throwUnsupportedSyntax
-  let info ← inferControlInfoElem stx
+  let info ← inferControlInfoElem stx (← read).controlInfoCache
   if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
     let x := mkIdentFrom discr (← mkFreshUserName `__x)
     elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) do

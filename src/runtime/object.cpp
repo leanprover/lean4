@@ -530,6 +530,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
     return lean_panic_fn(def_val, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
+extern "C" LEAN_EXPORT b_lean_obj_res lean_array_get_borrowed_panic(b_lean_obj_arg def_val) {
+    lean_panic("Error: index out of bounds");
+    return def_val;
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
     return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
@@ -947,16 +952,21 @@ class task_manager {
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
+        /* Extract everything from `t` before setting m_value.  Once m_value
+           is set, lock-free readers (lean_task_get) can observe the result,
+           drop their last ref, and free `t` — so `t` must not be accessed
+           after the store.  This is safe because handle_finished only uses
+           `imp`, never `t`. */
+        lean_task_imp * imp = t->m_imp;
+        t->m_imp   = nullptr;
         t->m_value = v;
-        lean_task_imp * imp = t->m_imp.exchange(nullptr, std::memory_order_relaxed);
-        handle_finished(lock, t, imp);
-        /* After the task has been finished and we propagated
-           dependencies, we can release `imp` and keep just the value */
+        /* `t` may be freed at any point after this line. */
+        handle_finished(lock, imp);
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -1079,6 +1089,15 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        /* Fast path for finished tasks (incl. Task.pure): m_value is set
+           atomically and m_imp is cleared before m_value is stored in
+           resolve_core, so no lock is needed. */
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp.load(std::memory_order_relaxed) == nullptr);

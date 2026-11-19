@@ -714,15 +714,30 @@ def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → Do
   doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
 /--
-`fun xs => e` for `e : type` through a delayed assignment, so the metavariables of `e` keep `xs` in
-their local context. Returns `none` if `e` is not well-scoped in the current local context.
+Elaborates the right-hand side `e : type` of a join point with parameters `xs` and returns
+`fun xs => e`. The specification is `do mkLambdaFVars xs (← instantiateMVars (← k))`.
+
+`mkLambdaFVars` reverts every pending metavariable of `e` over `xs`, and the enclosing join points
+revert it again, so a metavariable created `d` join points deep ends up applied to `O(d)` arguments.
+If `lazy` holds and `e` contains metavariables, the abstraction instead goes through a delayed
+assignment: the metavariables of `e` keep `xs` in their local context, and `instantiateMVars`
+substitutes `e` once. The closure computation of `let rec` finds the placeholder of a `let rec`
+declared in `k` only through the delayed assignments that `mkLambdaFVars` creates for it, so such a
+`k` is abstracted eagerly.
 -/
-private def mkLambdaFVarsDelayed (xs : Array Expr) (e type : Expr) : MetaM (Option Expr) := do
+private def mkJoinRhs (xs : Array Expr) (type : Expr) (lazy : Bool) (k : DoElabM Expr) :
+    DoElabM Expr := do
+  let numLetRecs := (← getThe Term.State).letRecsToLift.length
+  let e ← instantiateMVars (← k)
+  let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
+  unless lazy && e.hasExprMVar && !declaresLetRec do
+    return ← mkLambdaFVars xs e
   let body ← mkFreshExprSyntheticOpaqueMVar type
-  let lam ← mkLambdaFVars xs body
+  let joinRhs ← mkLambdaFVars xs body
+  -- An ill-scoped `e` falls back to the specification, whose assignment the caller reports.
   unless ← body.mvarId!.checkedAssign e do
-    return none
-  return some lam
+    return ← mkLambdaFVars xs e
+  return joinRhs
 
 /--
 Call `caller` with a duplicable proxy of `dec`.
@@ -761,30 +776,16 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   -- We need observingPostpone to decouple elaboration problems from the RHS and the body.
   let body? : Option Expr ← observingPostpone elabBody
 
-  let throwJoinRhsBug {α} (joinRhs : Expr) : DoElabM α :=
-    joinRhsMVar.mvarId!.withContext do
-      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
-        to metavariable\n{joinRhsMVar.mvarId!}"
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
-    let numLetRecs := (← getThe Term.State).letRecsToLift.length
-    let e ← instantiateMVars (← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k)
-    let xs := #[r] ++ muts
-    -- The closure computation of `let rec` finds the placeholder of a `let rec` declared in `e` only
-    -- if `mkLambdaFVars` reverts it, so such an `e` is abstracted eagerly.
-    let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
-    unless callerInfo.numRegularExits > 1 && e.hasExprMVar && !declaresLetRec do
-      let joinRhs ← mkLambdaFVars xs e
-      unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
-        throwJoinRhsBug joinRhs
-      return joinRhs
-    -- `mkLambdaFVarsDelayed` checks the scope of `e`, and `joinRhs` only applies a delayed assignment.
-    let some joinRhs ← mkLambdaFVarsDelayed xs e mγ
-      | throwJoinRhsBug (← mkLambdaFVars xs e)
-    joinRhsMVar.mvarId!.assign joinRhs
-    return joinRhs
+    mkJoinRhs (#[r] ++ muts) mγ (lazy := callerInfo.numRegularExits > 1)
+      (withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k)
+  unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
+    joinRhsMVar.mvarId!.withContext do
+      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
+        to metavariable\n{joinRhsMVar.mvarId!}"
 
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.

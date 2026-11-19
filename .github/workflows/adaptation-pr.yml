@@ -90,6 +90,8 @@ jobs:
           filter: tree:0
           fetch-depth: 0
 
+      # If you update this, you'll probably also want to update
+      # `pr-release.yml`.
       - name: Create adaptation PR
         id: create-adaptation-pr
         uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master

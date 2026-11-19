@@ -1,0 +1,9 @@
+fmtMissingFormatterPrivate.lean:12:0-12:14: warning: no auto-formatter registered for syntax kind commandMy_local_cmd_
+
+Note: This linter can be disabled with `set_option linter.fmt.missing false`
+fmtMissingFormatterPrivate.lean:13:0-13:15: warning: no auto-formatter registered for syntax kind commandMy_public_cmd_
+
+Note: This linter can be disabled with `set_option linter.fmt.missing false`
+fmtMissingFormatterPrivate.lean:19:0-19:15: warning: no auto-formatter registered for syntax kind commandMy_public_cmd_
+
+Note: This linter can be disabled with `set_option linter.fmt.missing false`

@@ -66,10 +66,12 @@ def parse_pr_title(title: str) -> tuple[str, str] | None:
 
 
 def parse_backport_pr_body(body: str) -> int | None:
-    match = re.search(r"Backport .* from #(\d+)", body)
+    # Old format: "Backport <sha> from #N."
+    # Current format: "Backport of #N to `branch`."
+    match = re.search(r"(Backport .* from|Backport of) #(\d+)", body)
     if not match:
         return
-    return int(match.group(1))
+    return int(match.group(2))
 
 
 def get_previously_released_prs(refman: Path, version: Version) -> set[int]:

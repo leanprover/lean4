@@ -80,6 +80,16 @@ def expectOk (name : String) (machine : Machine .receiving) : IO String := do
   unless out.startsWith "HTTP/1.1 200 OK\r\n" && out.endsWith "\r\n\r\nabc" do
     throw <| IO.userError s!"matching Content-Length: got\n{out.quote}"
 
+  -- An empty chunk carries no bytes, so it does not overflow a zero length, as it does not overflow
+  -- a body that already has all its bytes.
+  let out ← expectOk "empty chunk on a zero-length body" <| server
+      "GET / HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n"
+    |>.setKnownSize (.fixed 0)
+    |>.send { status := .ok }
+    |>.sendData #[Chunk.empty] |>.userClosedBody
+  unless out.startsWith "HTTP/1.1 200 OK\r\n" && out.endsWith "Content-Length: 0\r\n\r\n" do
+    throw <| IO.userError s!"empty chunk on a zero-length body: got\n{out.quote}"
+
 #eval runGroup "server machine: Content-Length gives a streamed body its length" do
   let close := "GET / HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n"
   -- `Body.stream` sets `chunked` before its producer runs, and a producer may set the length

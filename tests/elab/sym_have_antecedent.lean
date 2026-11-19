@@ -313,7 +313,8 @@ axiom modify_spec' (f : Nat → Nat) (Q : Unit → Nat → Prop) :
 /--
 trace: case vc1
 s₀ s✝ : Nat
-s' : Nat := g s₀
+a✝ : s✝ = s₀
+s' : Nat := g s✝
 ⊢ R s' ∨ R s'
 -/
 #guard_msgs (trace, drop warning) in
@@ -324,7 +325,7 @@ example (s₀ : Nat) :
   all_goals sorry
 
 -- `vcgen` continues with the program after the `have` of a precondition. It simplifies the value
--- and substitutes a literal value.
+-- and substitutes a variable or a literal value.
 def bump : StateM Nat Unit := modify (· * 2)
 
 def keep : StateM Nat Unit := modify id
@@ -338,13 +339,16 @@ axiom keep_spec {Q : Unit → Nat → Prop} :
 example : ⦃fun _ => True⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => s = s⦄ := by
   vcgen [bump_spec]
 
--- The first value `1 * 2` simplifies to the literal `2`, which `vcgen` substitutes. The second
--- value `(if b then 2 else 2) * 2` is introduced.
+-- The hypothesis `s = 1` stays, so the first value `s * 2` and the second value
+-- `(if b then v else v) * 2` are introduced. The value of `v✝` mentions `s`, so the verification
+-- condition keeps `s`.
 /--
 trace: case vc1
 s✝ : Nat
+a✝ : s✝ = 1
+v✝ : Nat := s✝ * 2
 x✝¹ : Bool
-v : Nat := (if x✝¹ = true then 2 else 2) * 2
+v : Nat := (if x✝¹ = true then v✝ else v✝) * 2
 x✝ : Bool
 ⊢ 0 < if x✝ = true then v else v
 -/
@@ -354,10 +358,12 @@ example : ⦃fun s => s = 1⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => 0
   trace_state
   all_goals sorry
 
--- The value `s` becomes the literal `1`, which `vcgen` substitutes.
+-- The value `s` is a variable, which `vcgen` substitutes. The verification condition substitutes the
+-- hypothesis `s = 1`.
 /--
 trace: case vc1
 s✝ : Nat
+a✝ : s✝ = 1
 x✝ : Bool
 ⊢ 0 < if x✝ = true then 1 else 1
 -/

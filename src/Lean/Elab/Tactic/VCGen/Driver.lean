@@ -86,12 +86,20 @@ def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 `simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
 `until`, a missing spec or the step limit leaves behind keeps its program as written.
+Before `simp`, a hypothesis `h : x = t` of `scope.eqs` is substituted into the target when no other
+local mentions `x`.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
 -/
-public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) : VCGenM Unit := do
+public def emitVC (scope : Scope) (goal : Grind.Goal) (reason : SolveResult.StopReason) :
+    VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
   if reason matches .noEntailment .. | .noProgress .. then
+    let lctx := (← goal.mvarId.getDecl).lctx
+    let onlyInTarget (x : FVarId) := scope.eqs.get? x |>.all fun (_, h) => lctx.all fun d =>
+      d.fvarId == h || !(d.type.containsFVar x || d.value?.any (·.containsFVar x))
+    if let some mvarId ← substEqs scope goal.mvarId onlyInTarget then
+      goal := { goal with mvarId }
     -- An invariant from an `invariants` alternative is assigned while the target is built, as in
     -- `?inv pref suff (a, b)`. Instantiating it lets `simp` reduce the body of the invariant.
     let target ← goal.mvarId.getType
@@ -122,7 +130,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
     | .stop reason =>
-      emitVC goal reason
+      emitVC s.scope goal reason
     | .goals scope subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.

@@ -86,18 +86,18 @@ def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
     trace[Elab.Tactic.Do.vcgen] "Rintro rule {entry.declName} does not apply"
   return none
 
-/-- Record in `scope.splitEqs` the hypotheses `h : x = t` for a local `x` among the local
+/-- Record in `scope.eqs` the hypotheses `h : x = t` for a local `x` among the local
 declarations of `goal` from index `start` on. -/
-def recordSplitEqs (scope : Scope) (goal : MVarId) (start : Nat) : MetaM Scope := goal.withContext do
+def recordEqs (scope : Scope) (goal : MVarId) (start : Nat) : MetaM Scope := goal.withContext do
   return (← getLCtx).foldl (start := start) (init := scope) fun scope d =>
     match fvarEq? d.type with
-    | some (xId, t) => { scope with splitEqs := scope.splitEqs.insert xId (t, d.fvarId) }
+    | some (xId, t) => { scope with eqs := scope.eqs.insert xId (t, d.fvarId) }
     | none => scope
 
 /-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
 `∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
-the binders between two matches are introduced at once. The introduced equations `x = t` for a
-local `x` are recorded in `Scope.splitEqs`. -/
+the binders between two matches are introduced at once. A hypothesis `a ∧ b` with a conjunct
+`x = t` on a local `x` is split. The introduced equations `x = t` are recorded in `Scope.eqs`. -/
 def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
     VCGenM (Option (Scope × List MVarId)) := do
   unless target.isForall do return none
@@ -112,12 +112,22 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   let mut n := 0
   repeat
     match e with
-    | .forallE _ _ b _ =>
+    | .forallE _ φ b _ =>
       let entries := Sym.getMatch (← getMCtx) rintros e
       unless entries.isEmpty do
         goal ← introsHygienicN goal n
         n := 0
-        if let some gs ← applyRIntroRules goal entries then return some (scope, gs)
+        if let some gs ← applyRIntroRules goal entries then
+          return some (← recordEqs scope goal start, gs)
+      if !b.hasLooseBVar 0 && φ.isAppOfArity ``And 2 && hasEqConjunct φ then
+        goal ← introsHygienicN goal n
+        n := 0
+        let target ← goal.getType
+        let .forallE nm φ G _ := target | unreachable!
+        let some g ← goal.withContext (splitConjHyp? goal target nm φ G) | unreachable!
+        goal := g
+        e ← goal.getType
+        continue
       n := n + 1
       e := b
     | .letE _ _ _ b _ =>
@@ -127,7 +137,26 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   goal ← introsHygienicN goal n
   if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
-  return some (← recordSplitEqs scope goal start, [goal])
+  return some (← recordEqs scope goal start, [goal])
+
+/-- Substitute the hypotheses `h : x = t` of `scope.eqs` with `p x` in the target of `goal`, the
+latest hypothesis first. Returns `none` when no hypothesis applies. -/
+public def substEqs (scope : Scope) (goal : MVarId) (p : FVarId → Bool) : VCGenM (Option MVarId) :=
+  goal.withContext do
+    if scope.eqs.isEmpty then return none
+    let lctx ← getLCtx
+    let hyps := scope.eqs.foldl (init := #[]) fun hyps x (_, h) =>
+      match p x, lctx.find? h with
+      | true, some d => hyps.push (d.index, h)
+      | _, _ => hyps
+    if hyps.isEmpty then return none
+    let mut goal := goal
+    let mut progress := false
+    for (_, h) in hyps.qsort (·.1 > ·.1) do
+      if let some g ← goal.withContext (substEq? goal h) then
+        goal := g
+        progress := true
+    return if progress then some goal else none
 
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
@@ -230,17 +259,17 @@ def stripMeetTopPre? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
     | throwError "Failed to cancel the `⊓ ⊤` precondition of {goal}"
   return some g
 
-/-- Strategy 5: lift an embedded pure precondition `⌜φ⌝` into the local context, leaving `⊤`
-as the residual precondition. Runs before state-argument introduction, which would otherwise
-leave `⌜φ⌝` applied to the introduced arguments. Returns the new goal and the hypothesis, if any. -/
-def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × Option FVarId)) := do
+/-- Strategy 5: turn an embedded pure precondition `⌜φ⌝` into the hypothesis `φ`, leaving `⊤` as the
+residual precondition. Runs before state-argument introduction, which would otherwise leave `⌜φ⌝`
+applied to the introduced arguments. -/
+def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
   let_expr CompleteLattice.ofProp _l _inst φ := pre | return none
   if φ.isTrue then return none
   return some (← introPre (← read).backwardRules.ofPropPreIntro goal)
 
-/-- Strategy 5: lift the pure `φ` of a `⌜φ⌝ ⊓ P` precondition into the local context, leaving
+/-- Strategy 5: turn the pure `φ` of a `⌜φ⌝ ⊓ P` precondition into the hypothesis `φ`, leaving
 `P ⊑ rhs`. -/
-def ofPropMeetPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × Option FVarId)) := do
+def ofPropMeetPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
   let_expr Lean.Order.meet _l _inst lhs _rest := pre | return none
   let_expr CompleteLattice.ofProp _l' _inst' _φ := lhs | return none
   return some (← introPre (← read).backwardRules.ofPropMeetPreIntro goal)
@@ -253,10 +282,10 @@ def iSupPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
     | throwError "Failed to eliminate the `iSup` precondition of {goal}"
   return some g
 
-/-- Strategy 7: move a bare `Prop` precondition `φ ⊑ rhs` into the local context via
-`le_of_imp_top_le`, leaving `⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
-`φ` carries information worth keeping. Returns the new goal and the introduced hypothesis, if any. -/
-def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × Option FVarId)) := do
+/-- Strategy 7: turn a bare `Prop` precondition `φ ⊑ rhs` into the hypothesis `φ` via
+`le_of_imp_top_le`, leaving `φ → ⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
+`φ` carries information worth keeping. -/
+def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option MVarId) := do
   unless α.isProp do return none
   if pre.isAppOf ``Lean.Order.top then return none
   return some (← introPre (← read).backwardRules.propPreIntro goal)
@@ -280,17 +309,17 @@ def _root_.Lean.Meta.MatcherApp.toExprS (m : MatcherApp) : SymM Expr := do
   mkAppNS (← mkConstS m.matcherName m.matcherLevels.toList)
     (m.params ++ #[m.motive] ++ m.discrs ++ m.alts ++ m.remaining)
 
-/-- Reduce the matcher application `e` with a hypothesis `h : x = t` of `scope.splitEqs` for one of
+/-- Reduce the matcher application `e` with a hypothesis `h : x = t` of `scope.eqs` for one of
 its discriminants `x`, when the matcher reduces once `t` replaces `x`. Returns the reduct `e'` and a
 proof of `e = e'`. -/
-def reduceMatchBySplitEq? (scope : Scope) (splitInfo : Lean.Elab.Tactic.Do.SplitInfo) (e : Expr) :
+def reduceMatchByEq? (scope : Scope) (splitInfo : Lean.Elab.Tactic.Do.SplitInfo) (e : Expr) :
     VCGenM (Option (Expr × Expr)) := do
   let .matcher matcherApp := splitInfo | return none
-  if scope.splitEqs.isEmpty || splitInfo.resTy.isNone then return none
+  if scope.eqs.isEmpty || splitInfo.resTy.isNone then return none
   for h : i in [:matcherApp.discrs.size] do
     let x := matcherApp.discrs[i]
     let .fvar xId := x | continue
-    let some (t, hId) := scope.splitEqs.get? xId | continue
+    let some (t, hId) := scope.eqs.get? xId | continue
     let withDiscr (d : Expr) : MatcherApp := { matcherApp with discrs := matcherApp.discrs.set! i d }
     let some e' ← reduceHead? (← (withDiscr t).toExprS) | continue
     let xTy ← Sym.inferType x
@@ -343,7 +372,7 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
   let_expr c@PartialOrder.rel α inst pre rhs := target | return none
   let e := if inPre then pre else rhs
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e | return none
-  if let some (e', prf) ← reduceMatchBySplitEq? scope splitInfo e then
+  if let some (e', prf) ← reduceMatchByEq? scope splitInfo e then
     let target' ← if inPre then mkAppNS c #[α, inst, e', rhs] else mkAppNS c #[α, inst, pre, e']
     let targetC := if inPre then mkApp4 c α inst (.bvar 0) rhs else mkApp4 c α inst pre (.bvar 0)
     return some [← replaceTargetCongr goal α e e' (mkLambda `a .default α targetC) target' prf]
@@ -357,6 +386,17 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
   let rule ← mkBackwardRuleForAssertionSplitCached splitInfo rel numStates inPre
   applySplitRule goal rule e
 
+/-- Introduce the hypothesis `φ` of the goal `φ → rhs` that a precondition-intro rule leaves, and
+record the newest local in `Scope.lastLiftedPre?`. -/
+def liftPre (scope : Scope) (goal : MVarId) : VCGenM (Scope × List MVarId) := do
+  let n := (← goal.getDecl).lctx.numIndices
+  let some (scope, gs) ← forallIntro? scope goal (← goal.getType)
+    | throwError "Failed to intro the lifted precondition of {goal}"
+  let [g] := gs | return (scope, gs)
+  let lctx := (← g.getDecl).lctx
+  if lctx.numIndices == n then return (scope, gs)
+  return ({ scope with lastLiftedPre? := lctx.lastDecl.map (·.fvarId) }, gs)
+
 /-- Phase 2: drive the precondition of `pre ⊑ rhs` toward `⊤`, lifting any pure content into the
 local context so a later spec application sees a `⊤` precondition. In order: cancel a redundant
 `⊓ ⊤`; lift an embedded `⌜φ⌝` (before state-argument introduction, which would otherwise leave
@@ -368,10 +408,10 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
     VCGenM (Option (Scope × List MVarId)) := do
   if let some g ← stripMeetTopPre? goal pre then
     return some (scope, [g])
-  if let some (g, h) ← ofPropPreIntro? goal pre then
-    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
-  if let some (g, h) ← ofPropMeetPreIntro? goal pre then
-    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
+  if let some g ← ofPropPreIntro? goal pre then
+    return some (← liftPre scope g)
+  if let some g ← ofPropMeetPreIntro? goal pre then
+    return some (← liftPre scope g)
   if let some g ← iSupPreIntro? goal pre then
     return some (scope, [g])
   if let some gs ← assertionMatch? scope goal target (inPre := true) then
@@ -379,8 +419,8 @@ def normalizePre? (scope : Scope) (goal : MVarId) (α pre target : Expr) :
   if let some goal' ← introsExcessArgs goal then return some (scope, [goal'])
   if let some gs ← normalizePreToTop? goal pre target then
     return some (scope, gs)
-  if let some (g, h) ← barePreIntro? goal α pre then
-    return some ({ scope with lastLiftedPre? := h <|> scope.lastLiftedPre? }, [g])
+  if let some g ← barePreIntro? goal α pre then
+    return some (← liftPre scope g)
   return none
 
 /-- Replace the right-hand side of the entailment in `goal`'s target with `rhs` (which must be
@@ -493,7 +533,7 @@ concrete discriminant. -/
 def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
-  if let some (prog', prf) ← reduceMatchBySplitEq? scope splitInfo info.prog then
+  if let some (prog', prf) ← reduceMatchByEq? scope splitInfo info.prog then
     let_expr c@PartialOrder.rel α inst pre _ := (← goal.getType) | return none
     let rhs' ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog')) info.excessArgs
     let target' ← mkAppNS c #[α, inst, pre, rhs']
@@ -698,6 +738,8 @@ def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
     if let some res ← applySpec scope goal info thm fp providedFrame? then
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
+  if let some g ← substEqs scope goal info.prog.containsFVar then
+    return .goals scope [g]
   stopOrErrorOnMissingSpec info.prog info.M candidates
 
 /--

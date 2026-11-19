@@ -64,9 +64,9 @@ example (hFalse : False) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄
 example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen with finish
 
-/-! A lifted equation `x = t` on a local variable `x` replaces `x` by `t` in the rest of the goal.
-The postcondition `r = 41 ∧ s = 41` of `peek_spec` is split into its conjuncts, and `r = 41` pins
-`r`, so `bump_41` applies to `bump r`. `sym.debug` checks the `SymM` invariants of both steps. -/
+/-! The postcondition `r = 41 ∧ s = 41` of `peek_spec` is split into the hypotheses `r = 41` and
+`s = 41`. No spec matches `bump r`, so `vcgen` substitutes `r = 41`, and `bump_41` applies to
+`bump 41`. `sym.debug` checks the `SymM` invariants of both steps. -/
 
 set_option sym.debug true
 
@@ -83,8 +83,9 @@ def bump (n : Nat) : StateM Nat Nat := pure (n + 1)
 example : ⦃ fun s => s = 41 ⦄ (do let r ← peek; bump r) ⦃ fun r s => r = 42 ∧ s = 41 ⦄ := by
   vcgen with finish
 
-/-! After the substitution, the equation `r = 3` stays a hypothesis only when another hypothesis
-mentions `r`. In the first VC, `h : r < 5` mentions `r`. In the second VC, no hypothesis does. -/
+/-! An emitted verification condition substitutes the hypothesis `r = 3` only when no other
+hypothesis mentions `r`. In the first VC, `r < 5` mentions `r`, so the target stays `r = 4`. In the
+second VC, the target `r = 4` becomes `3 = 4`, which simplifies to `False`. -/
 
 def three : StateM Nat Nat := pure 3
 
@@ -101,7 +102,7 @@ trace: case vc1
 s✝¹ a✝² s✝ : Nat
 a✝¹ : a✝² < 5
 a✝ : a✝² = 3
-⊢ False
+⊢ a✝² = 4
 ---
 warning: declaration uses `sorry`
 -/
@@ -113,7 +114,8 @@ example : ⦃ fun _ => True ⦄ three ⦃ fun r _ => r = 4 ⦄ := by
 
 /--
 trace: case vc1
-s✝¹ a✝ s✝ : Nat
+s✝¹ a✝¹ s✝ : Nat
+a✝ : a✝¹ = 3
 ⊢ False
 ---
 warning: declaration uses `sorry`

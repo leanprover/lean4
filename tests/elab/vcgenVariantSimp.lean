@@ -4,7 +4,8 @@ set_option experimental.intrinsic true
 
 /-!
 `vcgen` rewrites the decrease of a `decreasing` measure to a comparison of measure values. The
-lifted precondition `(Variant.ofMeasure f).EvalsTo i mb ⊓ inv` stays unsimplified.
+lifted precondition yields the hypothesis `mb = i` on the measure value `mb`, which the verification
+condition substitutes: for `decreasing i`, the decrease is `i - 1 < i`.
 -/
 
 open Std.WP Lean.Order
@@ -20,34 +21,28 @@ def countDown (n : Nat) : Id Nat := do
 
 /--
 trace: case vc1
-n : Nat
-a✝¹ : ⌜True⌝
-i : Nat
+n i : Nat
 a✝ :
   have exit := true;
   if exit = true then i = 0 else True
 ⊢ i = 0
 
 case vc2
-n : Nat
-a✝¹ : ⌜True⌝
-i✝ mb✝ : Nat
+n i✝ mb✝ : Nat
+a✝¹ : mb✝ = i✝
 a✝ :
-  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓
-    have exit := false;
-    if exit = true then i✝ = 0 else True
+  have exit := false;
+  if exit = true then i✝ = 0 else True
 h✝ : 0 < i✝
 i : Nat := i✝ - 1
-⊢ i < mb✝
+⊢ i < i✝
 
 case vc3
-n : Nat
-a✝¹ : ⌜True⌝
-i mb✝ : Nat
+n i mb✝ : Nat
+a✝¹ : mb✝ = i
 a✝ :
-  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓
-    have exit := false;
-    if exit = true then i = 0 else True
+  have exit := false;
+  if exit = true then i = 0 else True
 h✝ : ¬0 < i
 ⊢ i = 0
 -/
@@ -66,55 +61,24 @@ def countInto : StateM (Nat × Nat) Unit := do
 
 /--
 trace: case vc1
-a✝³ b✝² : Nat
-a✝² : a✝³ ≤ b✝²
+a✝⁴ b✝² : Nat
+a✝³ : a✝⁴ ≤ b✝²
 b✝¹ : PUnit
-mb✝ a✝¹ b✝ : Nat
-a✝ :
-  ((Variant.ofMeasure fun x x_1 =>
-            match x_1 with
-            | (lo, hi) => hi - lo).EvalsTo
-        b✝¹ mb✝ ⊓
-      fun x =>
-      match x with
-      | (a, a_1) => a ≤ a_1)
-    (a✝¹, b✝)
-h✝ : a✝¹ < b✝
-⊢ b✝ - (a✝¹ + 1) < mb✝
+mb✝ a✝² b✝ : Nat
+a✝¹ : mb✝ = b✝ - a✝²
+a✝ : a✝² ≤ b✝
+h✝ : a✝² < b✝
+⊢ b✝ - (a✝² + 1) < b✝ - a✝²
 
 case vc2
-a✝³ b✝² : Nat
-a✝² : a✝³ ≤ b✝²
+a✝⁴ b✝² : Nat
+a✝³ : a✝⁴ ≤ b✝²
 b✝¹ : PUnit
-mb✝ a✝¹ b✝ : Nat
-a✝ :
-  ((Variant.ofMeasure fun x x_1 =>
-            match x_1 with
-            | (lo, hi) => hi - lo).EvalsTo
-        b✝¹ mb✝ ⊓
-      fun x =>
-      match x with
-      | (a, a_1) => a ≤ a_1)
-    (a✝¹, b✝)
-h✝ : a✝¹ < b✝
-⊢ a✝¹ + 1 ≤ b✝
-
-case vc3
-a✝³ b✝² : Nat
-a✝² : a✝³ ≤ b✝²
-b✝¹ : PUnit
-mb✝ a✝¹ b✝ : Nat
-a✝ :
-  ((Variant.ofMeasure fun x x_1 =>
-            match x_1 with
-            | (lo, hi) => hi - lo).EvalsTo
-        b✝¹ mb✝ ⊓
-      fun x =>
-      match x with
-      | (a, a_1) => a ≤ a_1)
-    (a✝¹, b✝)
-h✝ : ¬a✝¹ < b✝
-⊢ a✝¹ ≤ b✝
+mb✝ a✝² b✝ : Nat
+a✝¹ : mb✝ = b✝ - a✝²
+a✝ : a✝² ≤ b✝
+h✝ : a✝² < b✝
+⊢ a✝² + 1 ≤ b✝
 -/
 #guard_msgs in
 theorem countInto_spec :

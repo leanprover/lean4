@@ -46,20 +46,19 @@ public def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
   if t.containsFVar xId then none
   return (xId, t)
 
-/-- Decide whether `substEqHyp?` can substitute the equation `eqn` in the goal `eqn → G`.
+/-- Decide whether `substEq?` can substitute the hypothesis `eqn` in the target `G`.
 
 Consider this goal:
 ```
 s  : Nat
 hs : 0 < s
 i  : Fin s
-⊢ s = 41 → P s
+h  : s = 41
+⊢ P s
 ```
-Here `eqn` is `s = 41` and `G` is `P s`. The result is `some (s, 41, P #0, false)`: the variable,
-its value, `G` with `s` abstracted to `#0`, and whether `s = 41` is unused after the substitution.
-`substEqHyp?` then uses `fun y => P y` as the motive and continues with `s = 41 → P 41`. The types of
-`hs` and `i` mention `s`, so `s = 41` stays a hypothesis. Without `hs` and `i`, the equation is
-unused, and `substEqHyp?` continues with `P 41`.
+Here `eqn` is `s = 41` and `G` is `P s`. The result is `some (s, 41, P #0)`: the variable, its
+value, and `G` with `s` abstracted to `#0`. `substEq?` then uses `fun y => P y` as the motive and
+continues with `P 41`.
 
 The result is `none` in these variations of the goal:
 * `G` is `P 0`. `s` does not occur in `G`, so there is nothing to substitute.
@@ -68,7 +67,7 @@ The result is `none` in these variations of the goal:
   can mention `s`, but not a local whose type mentions `s`. Thus `G := P s` is fine although the type
   of `hs` mentions `s`.
 * `s` is a `let` variable. -/
-def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr × Bool)) := do
+def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr)) := do
   let some (fvarId, t) := fvarEq? (← instantiateMVarsS eqn) | return none
   let x := mkFVar fvarId
   let lctx ← getLCtx
@@ -77,82 +76,54 @@ def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr × B
   -- The `maxFVar` entries of `G` let `abstractFVarsRange` skip the subterms without `x`.
   let some maxFVarId ← getMaxFVar? G | return none
   if (← maxFVarId.getDecl).index < decl.index then return none
-  -- `valueDep`: a `let` value mentions `x`, so `x = t` keeps information about that `let`.
-  let (deps, valueDep) := lctx.foldl (start := decl.index + 1) (init := (#[], false))
-    fun (acc, valueDep) d =>
-      (if d.type.containsFVar fvarId then acc.push d.toExpr else acc,
-       valueDep || d.value?.any (·.containsFVar fvarId))
+  let deps := lctx.foldl (start := decl.index + 1) (init := #[]) fun acc d =>
+    if d.type.containsFVar fvarId then acc.push d.toExpr else acc
   -- The first `x` makes `xs[0]` the minimal variable, as `abstractFVarsRange` requires. The last
   -- `x` maps `x` to `#0`. Each local in `deps` maps to an index of at least `1`, so
   -- `looseBVarRange == 1` holds iff `G` mentions no local whose type mentions `x`.
   let xs := (#[x] ++ deps).push x
   let body ← abstractFVarsRange G 0 xs
   unless body.looseBVarRange == 1 do return none
-  return some (x, t, body, deps.isEmpty && !valueDep)
+  return some (x, t, body)
 
-/-- Whether the conjunction `φ` has a conjunct that `eqSubstCandidate?` accepts for `G`. -/
-partial def hasSubstConjunct (φ G : Expr) : VCGenM Bool := do
+/-- Whether the conjunction `φ` has a conjunct `x = t` on a local `x`. -/
+public partial def hasEqConjunct (φ : Expr) : Bool :=
   match_expr φ with
-  | And a b => hasSubstConjunct a G <||> hasSubstConjunct b G
-  | _ => return (← eqSubstCandidate? φ G).isSome
+  | And a b => hasEqConjunct a || hasEqConjunct b
+  | _ => (fvarEq? φ).isSome
 
 /-- Curry the hypothesis `a ∧ b` of the goal `a ∧ b → G` into `a → b → G` when a conjunct is an
-equation that `substEqHyp?` substitutes. -/
-def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
+equation `x = t` on a local `x`. -/
+public def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
     VCGenM (Option MVarId) := do
   let_expr And a b := φ | return none
-  unless ← hasSubstConjunct φ G do return none
+  unless hasEqConjunct φ do return none
   let newTarget ← mkForallS nm .default a (← mkForallS nm .default b G)
   let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
   goal.assign (mkApp4 (mkConst ``Iff.mpr) target newTarget (mkApp3 (mkConst ``and_imp) a b G) k)
   return some k.mvarId!
 
-/-- Substitute `t` for `x` in `G` in the goal `x = t → G`, leaving `x = t → G[t/x]`. When the
-equation is unused after the substitution, leave `G[t/x]`. `x` stays in the local context. Returns
-the new goal and whether it keeps the hypothesis `x = t`. -/
-def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option (MVarId × Bool)) := do
-  let some (x, t, body, unused) ← eqSubstCandidate? eqn G | return none
+/-- Substitute `t` for `x` in the target `G` of `goal`, given the hypothesis `h : x = t`, leaving
+`G[t/x]`. Must run in `goal`'s context. -/
+public def substEq? (goal : MVarId) (h : FVarId) : VCGenM (Option MVarId) := do
+  let eqn ← h.getType
+  let G ← goal.getType
+  let some (x, t, body) ← eqSubstCandidate? eqn G | return none
   let α ← Sym.inferType x
   let u ← Sym.getLevel α
   let motive ← mkLambdaS (← x.fvarId!.getUserName) .default α body
-  let G' ← instantiateRevBetaS body #[t]
-  let (k, kPrf) ← if unused then
-      let k ← shareCommon (← liftMetaM <| mkFreshExprSyntheticOpaqueMVar G')
-      pure (k, ← mkLambdaS nm .default eqn k)
-    else
-      let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← mkForallS nm .default eqn G')
-      pure (k, k)
-  goal.assign (mkApp5 (mkConst ``Lean.Sym.imp_subst [u]) α x t motive kPrf)
+  let k ← shareCommon (← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← instantiateRevBetaS body #[t]))
+  goal.assign (mkApp6 (mkConst ``Lean.Sym.imp_subst [u]) α x t motive
+    (mkLambda `h .default eqn k) (mkFVar h))
   trace[Elab.Tactic.Do.vcgen] "subst: {x} := {t}"
-  return some (k.mvarId!, !unused)
+  return some k.mvarId!
 
-/-- Apply precondition-intro rule `rule` to `goal`, then introduce the freed hypothesis,
-leaving `⊤` as the residual precondition. Returns the new goal and the last introduced hypothesis,
-or `none` when every conjunct is an equation that `substEqHyp?` leaves unused. -/
-public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × Option FVarId) := do
+/-- Apply precondition-intro rule `rule` to `goal`, leaving the goal `φ → ⊤ ⊑ rhs` for
+`forallIntro?`. -/
+public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM MVarId := do
   let .goals [goal] ← rule.applyChecked goal
     | throwError "Failed to apply precondition intro rule to {goal}"
-  let mut goal := goal
-  let mut pending := 1
-  let mut last? : Option FVarId := none
-  while pending > 0 do
-    let target ← goal.getType
-    let .forallE nm φ G _ := target
-      | throwError "Failed to intro the lifted precondition of {goal}"
-    unless G.hasLooseBVars do
-      if let some g ← goal.withContext (splitConjHyp? goal target nm φ G) then
-        goal := g
-        pending := pending + 1
-        continue
-      if let some (g, keep) ← goal.withContext (substEqHyp? goal nm φ G) then
-        goal := g
-        unless keep do
-          pending := pending - 1
-          continue
-    goal ← introsHygienicN goal 1
-    last? := (← goal.withContext getLCtx).lastDecl.map (·.fvarId)
-    pending := pending - 1
-  return (goal, last?)
+  return goal
 
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through

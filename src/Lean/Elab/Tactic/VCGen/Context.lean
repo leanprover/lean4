@@ -173,9 +173,10 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
-  /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
-  on `x` reduces with them. -/
-  splitEqs : FVarIdMap (Expr × FVarId) := {}
+  /-- The hypotheses `h : x = t` on a local `x`, stored as `x ↦ (t, h)`. `forallIntro?` adds them.
+  A `match` on `x` reduces with them, and a spec lookup that finds no spec and the emitted
+  verification conditions substitute them. -/
+  eqs : FVarIdMap (Expr × FVarId) := {}
   deriving Inhabited
 
 public structure State where

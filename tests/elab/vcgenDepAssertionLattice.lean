@@ -61,9 +61,13 @@ theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
 instance : MonadicWP Stateful StateProp EStack⟨⟩ := ⟨fun _ => inferInstance⟩
 
 instance : MonadicWP.IsLaxMonadMorphism Stateful where
-  pure_le_wp_pure x post eposts := by
+  pure_le x := by
+    intro post eposts
     intro st h hp; exact ⟨h, hp⟩
-  bind_le_wp_bind x f post eposts := by
+  bind_le x f := by
+    intro post eposts
+    show Lean.Order.PartialOrder.rel (wp x (fun a => wp (f a) post eposts) eposts)
+      (wp (x >>= f) post eposts)
     intro st h hp
     simp only [Stateful.trans_apply_eq, bind] at hp ⊢
     grind

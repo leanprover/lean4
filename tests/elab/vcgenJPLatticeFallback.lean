@@ -21,8 +21,10 @@ theorem M.wp_apply_eq {α : Type} (x : M α) (post : α → Prop ×' Prop) (epos
   simp only [WP.wp, WP.trans, PredTrans.apply_mk]
 
 instance : MonadicWP.IsMonadMorphism M where
-  wp_pure_eq x post eposts := M.wp_apply_eq (pure x) post eposts
-  wp_bind_eq x f post eposts := by simp only [M.wp_apply_eq]; rfl
+  trans_pure x := PredTrans.ext fun _ _ => by
+    simp only [WP.trans_apply_eq, PredTrans.apply_Pure_pure, M.wp_apply_eq]; rfl
+  trans_bind _ _ := PredTrans.ext fun _ _ => by
+    simp only [WP.trans_apply_eq, PredTrans.apply_Bind_bind, M.wp_apply_eq]; rfl
 
 def ifs (n : Nat) : M Nat := do
   let mut x := 0

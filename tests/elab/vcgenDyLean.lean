@@ -290,10 +290,16 @@ instance : MonadicWP Traceful TraceProp EStack⟨⟩ := ⟨fun _ => inferInstanc
 
 public
 instance: MonadicWP.IsLaxMonadMorphism Traceful where
-  pure_le_wp_pure x post eposts := by
+  pure_le x := by
+    intro post eposts
+    simp only [PredTrans.apply_Pure_pure, WP.trans_apply_eq]
+    show post x ⊑ wp (pure x : Traceful _) post eposts
     simp only [wp, WP.trans, PredTrans.apply_mk, Lean.Order.PartialOrder.rel, Traceful.run_pure]
     grind
-  bind_le_wp_bind x f post eposts := by
+  bind_le x f := by
+    intro post eposts
+    simp only [PredTrans.apply_Bind_bind, WP.trans_apply_eq]
+    show wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
     simp only [wp, WP.trans, PredTrans.apply_mk, Lean.Order.PartialOrder.rel, Traceful.run_bind]
     grind [Trace.le_trans]
 

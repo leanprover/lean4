@@ -160,7 +160,7 @@ theorem TickT.wp_apply_eq [Monad m] [CompleteLattice Pred] [CompleteLattice EPos
 theorem TickT.le_wp_tick [Monad m] [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
     (Q : Unit → Nat → Pred) (E : EPosts) (n : Nat) :
     Q () (n + 1) ⊑ WP.wp (tick (m := m)).run Q E n := by
-  apply MonadicWP.pure_le_wp_pure (post := Function.uncurry Q) (x := (PUnit.unit, n + 1))
+  apply MonadicWP.le_wp_pure (post := Function.uncurry Q) (x := (PUnit.unit, n + 1))
 
 /-! ### A cost-discarding program has an unsatisfiable `wp` -/
 

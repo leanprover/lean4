@@ -187,7 +187,7 @@ theorem Spec.liftWith_StateT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorp
   Triple.intro (by
     intro s
     simp [MonadicWP.wp_liftWith_StateT_apply_eq f]
-    exact MonadicWP.map_le_wp_map (fun a => (a, s)) (f (fun x => x.run s))
+    exact MonadicWP.wp_le_wp_map (fun a => (a, s)) (f (fun x => x.run s))
       (fun ⟨a, s⟩ => post a s) eposts)
 
 
@@ -206,7 +206,7 @@ theorem Spec.liftWith_ExceptT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMor
       (wp (f (fun x => x.run)) post eposts.snd) post eposts :=
   Triple.intro (by
     simp [MonadicWP.wp_liftWith_ExceptT_apply_eq f]
-    exact MonadicWP.map_le_wp_map Except.ok (f (fun x => x.run))
+    exact MonadicWP.wp_le_wp_map Except.ok (f (fun x => x.run))
       (pushExcept post eposts.fst) eposts.snd)
 
 
@@ -274,7 +274,7 @@ theorem Spec.read_ReaderT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     Triple (MonadReaderOf.read : ReaderT ρ m ρ)
       (fun r => post r r) post eposts :=
   Triple.intro (by intro r; simpa [MonadReaderOf.read] using
-    (MonadicWP.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts)))
+    (MonadicWP.le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts)))
 
 theorem Spec.withReader_ReaderT (f : ρ → ρ) (x : ReaderT ρ m α) (post : α → ρ → Pred) :
     Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α)
@@ -300,7 +300,7 @@ theorem Spec.get_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     Triple (MonadStateOf.get : StateT σ m σ)
       (fun s => post s s) post eposts :=
   Triple.intro (by intro s; simpa [get_StateT] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := (s, s))
+    (MonadicWP.le_wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts)))
 
 
@@ -311,7 +311,7 @@ theorem Spec.set_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m] (s : σ)
     Triple (set s : StateT σ m PUnit)
       (fun _ => post ⟨⟩ s) post eposts :=
   Triple.intro (by intro _; simpa [MonadStateOf.set] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := (PUnit.unit, s))
+    (MonadicWP.le_wp_pure (m := m) (x := (PUnit.unit, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts)))
 
 
@@ -322,7 +322,7 @@ theorem Spec.modifyGet_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     Triple (MonadStateOf.modifyGet f : StateT σ m α)
       (fun s => post (f s).1 (f s).2) post eposts :=
   Triple.intro (by intro s; simpa [MonadStateOf.modifyGet] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := f s)
+    (MonadicWP.le_wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (eposts := eposts)))
 
 end StateTSpec
@@ -368,7 +368,7 @@ theorem Spec.throw_ExceptT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     (err : ε) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (MonadExceptOf.throw err : ExceptT ε m α) (eposts.fst err) post eposts :=
   Triple.intro (by simpa [pushExcept] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := Except.error err)
+    (MonadicWP.le_wp_pure (m := m) (x := Except.error err)
       (post := pushExcept post eposts.fst)
       (eposts := eposts.snd)))
 

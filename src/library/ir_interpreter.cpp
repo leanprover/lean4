@@ -193,6 +193,9 @@ option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+/* isMetaRestricted : BaseIO Bool */
+extern "C" uint8 lean_is_meta_restricted();
+
 extern "C" object * lean_ir_find_env_decl_boxed(object * env, object * n);
 option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl_boxed(env.to_obj_arg(), n.to_obj_arg()));
@@ -202,7 +205,6 @@ extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static name * g_interpreter_prefer_native = nullptr;
-static name * g_compiler_enable = nullptr;
 DEBUG_CODE(static name * g_interpreter_step = nullptr;)
 DEBUG_CODE(static name * g_interpreter_call = nullptr;)
 
@@ -478,7 +480,6 @@ class interpreter {
     options const & m_opts;
     // if `false`, use IR code where possible
     bool m_prefer_native;
-    bool m_compiler_enabled;
     struct constant_cache_entry {
       bool m_is_scalar;
       value m_val;
@@ -1000,8 +1001,8 @@ private:
     decl get_decl(name const & fn) {
         option_ref<decl> d = find_ir_decl(m_env, fn);
         if (!d) {
-            if (!m_compiler_enabled)
-                throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'; note that code generation is disabled by `compiler.enable`");
+            if (lean_is_meta_restricted())
+                throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'; note that code generation is disabled by `meta.restrict`");
             throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'");
         }
         return d.get().value();
@@ -1227,7 +1228,6 @@ private:
 public:
     explicit interpreter(elab_environment const & env, options const & opts) : m_env(env), m_opts(opts) {
         m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
-        m_compiler_enabled = opts.get_bool(*g_compiler_enable, true);
     }
 
     interpreter(interpreter const &) = delete;
@@ -1390,8 +1390,6 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 void initialize_ir_interpreter() {
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
     mark_persistent(ir::g_interpreter_prefer_native->raw());
-    ir::g_compiler_enable = new name({"compiler", "enable"});
-    mark_persistent(ir::g_compiler_enable->raw());
     ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
@@ -1417,6 +1415,5 @@ void finalize_ir_interpreter() {
     });
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
-    delete ir::g_compiler_enable;
 }
 }

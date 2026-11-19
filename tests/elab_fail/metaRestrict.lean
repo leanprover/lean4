@@ -1,9 +1,8 @@
 import Lean
 
 /-!
-Tests `-Dmeta.restrict=true -Dcompiler.enable=false`: no declaration of the module is compiled, so
-nothing that would run the module's code works, while everything else elaborates as usual, and
-restricted options cannot be changed from within the file.
+Tests `-Dmeta.restrict=true`: no declaration of the module is compiled, so nothing that would run
+the module's code works, while everything else elaborates as usual.
 -/
 
 open Lean Elab Command
@@ -55,27 +54,21 @@ elab "my_tac" : tactic => pure ()
 
 example : True := by my_tac; trivial
 
-/-! Restricted options cannot be changed from within the file. -/
+/-! A custom SAT solver cannot be used. -/
 
-set_option compiler.enable true
-
-set_option compiler.enable true in
-syntax "my_cmd'" : command
-
-set_option meta.restrict false
-
-example : True := by
-  set_option compiler.enable true in
-  trivial
-
-example : True :=
-  set_option compiler.enable true in
-  trivial
+example (x : BitVec 8) : x = x := by bv_decide
 
 set_option sat.solver "/bin/false" in
 example (x : BitVec 8) : x = x := by bv_decide
 
-/-! Other options are unaffected. -/
+/-! The option cannot be reset from within the file. -/
 
-set_option pp.all true in
-example : True := trivial
+set_option meta.restrict false
+
+syntax "my_cmd'" : command
+
+set_option meta.restrict false in
+syntax "my_cmd''" : command
+
+set_option sat.solver "/bin/false" in
+example (x : BitVec 8) : x = x := by bv_decide

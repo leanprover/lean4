@@ -284,6 +284,9 @@ def runFrontend
     (incrHeaderSaveFileName? : Option System.FilePath := none)
     : IO (Option Environment) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
+  restrictMetaIfRequested opts
+  if let some setup := setup? then
+    restrictMetaIfRequested setup.options.toOptions
   let inputCtx := Parser.mkInputContext input fileName
   -- default `cmdlineSnapshots` to true (not done as default value for API back-compat reasons)
   -- except when full-snapshotting so that enough information for resumption is available

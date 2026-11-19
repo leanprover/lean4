@@ -31,7 +31,6 @@ builtin_initialize registerTraceClass `Meta.Tactic.bv.epr.instSets
 
 register_builtin_option sat.solver : String := {
   defValue := ""
-  restricted := true
   descr :=
     "Name of the SAT solver used by Lean.Elab.Tactic.BVDecide tactics.\n
      1. If this is set to something besides the empty string they will use that binary.\n

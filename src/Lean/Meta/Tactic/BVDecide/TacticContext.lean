@@ -55,6 +55,8 @@ where
   determineSolver : CoreM System.FilePath := do
     let opts ← getOptions
     let option := sat.solver.get opts
+    if option != "" && (← isMetaRestricted) then
+      throwError "The option `sat.solver` cannot be used because `meta.restrict` is set"
     if option == "" then
       let cadicalPath := (← IO.appPath).parent.get! / "cadical" |>.withExtension System.FilePath.exeExtension
       if ← cadicalPath.pathExists then

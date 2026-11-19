@@ -11,7 +11,6 @@ public import Lean.Elab.Exception
 public import Lean.Log
 public import Lean.AuxRecursor
 public import Lean.Compiler.Old
-public import Lean.Compiler.Options
 
 public section
 
@@ -180,8 +179,8 @@ set_option compiler.ignoreBorrowAnnotation true in
 opaque hasCompileError (env : Environment) (constName : Name) : Bool
 
 private def throwCompileError [Monad m] [MonadError m] [MonadOptions m] (constName : Name) : m α := do
-  unless Compiler.compiler.enable.get (← getOptions) do
-    throwError "Cannot evaluate `{.ofConstName constName}`: code generation is disabled by `compiler.enable`"
+  if meta.restrict.get (← getOptions) then
+    throwError "Cannot evaluate `{.ofConstName constName}`: code generation is disabled by `meta.restrict`"
   -- Otherwise compilation already emitted an error, so abort silently
   Elab.throwAbortCommand
 

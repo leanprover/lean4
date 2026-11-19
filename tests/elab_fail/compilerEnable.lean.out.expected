@@ -1,6 +1,0 @@
-2
-compilerEnable.lean:13:0-13:5: error: Failed to find LCNF signature for f
-compilerEnable.lean:15:4-15:5: error: Failed to find LCNF signature for f
-compilerEnable.lean:21:0-21:5: error: Cannot evaluate `_eval`: code generation is disabled by `compiler.enable`
-2
-compilerEnable.lean:27:0-27:5: error: Failed to find LCNF signature for g'

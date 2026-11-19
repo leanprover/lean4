@@ -95,8 +95,6 @@ structure OptionDecl where
   defValue : DataValue
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
-  /-- Whether `set_option` rejects changes to the option when `meta.restrict` is set. -/
-  restricted : Bool := false
   deriving Inhabited
 
 def OptionDecl.fullDescr (self : OptionDecl) : String := Id.run do
@@ -195,8 +193,6 @@ protected structure Decl (α : Type) where
   defValue : α
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
-  /-- Whether `set_option` rejects changes to the option when `meta.restrict` is set. -/
-  restricted : Bool := false
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name
@@ -229,7 +225,6 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
     defValue := KVMap.Value.toDataValue decl.defValue
     descr := decl.descr
     deprecation? := decl.deprecation?
-    restricted := decl.restricted
   }
   return { name := name, defValue := decl.defValue }
 
@@ -261,5 +256,25 @@ macro (name := registerOption) mods:declModifiers "register_option" name:ident "
   `($mods:declModifiers initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option
+
+register_builtin_option meta.restrict : Bool := {
+  defValue := false
+  descr := "Restrict what code can be run during elaboration: no declaration of the module is \
+    compiled, so none of its code can be run during elaboration or by importing modules, and \
+    `sat.solver` cannot be used. Only has an effect when given on the command line or in the \
+    module setup, in which case it cannot be reset using `set_option`."
+}
+
+private builtin_initialize metaRestrictedRef : IO.Ref Bool ← IO.mkRef false
+
+/-- Enables the restrictions of `meta.restrict` for the remainder of the process if it is set in `opts`. -/
+def restrictMetaIfRequested (opts : Options) : BaseIO Unit := do
+  if meta.restrict.get opts then
+    metaRestrictedRef.set true
+
+/-- Returns whether the restrictions of `meta.restrict` are enabled for this process. -/
+@[export lean_is_meta_restricted]
+def isMetaRestricted : BaseIO Bool :=
+  metaRestrictedRef.get
 
 end Lean

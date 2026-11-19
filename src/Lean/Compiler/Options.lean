@@ -51,11 +51,4 @@ register_builtin_option compiler.inLeanIR : Bool := {
   descr := "Internal. Indicates whether the compiler is currently running in `leanir`."
 }
 
-register_builtin_option compiler.enable : Bool := {
-  defValue := true
-  restricted := true
-  descr := "Generate code for declarations. Declarations elaborated while this option is disabled \
-    cannot be run, neither during elaboration nor by importing modules."
-}
-
 end Lean.Compiler

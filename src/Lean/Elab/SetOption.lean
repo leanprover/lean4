@@ -17,14 +17,6 @@ register_builtin_option linter.deprecated.options : Bool := {
   descr := "if true, generate deprecation warnings for deprecated options"
 }
 
-register_builtin_option meta.restrict : Bool := {
-  defValue := false
-  restricted := true
-  descr := "Reject changes via `set_option` to options that control what code can be run during \
-    elaboration, such as `compiler.enable`, so that the values given on the command line cannot be \
-    overridden from within the file."
-}
-
 variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
 private def throwUnconfigurable {α} (optionName : Name) : m α :=
@@ -73,9 +65,6 @@ def elabSetOption (id : Syntax) (val : Syntax) : m (Options × OptionDecl) := do
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
   let rec setOption (val : DataValue) : m (Options × OptionDecl) := do
     validateOptionValue optionName decl val
-    if decl.restricted && meta.restrict.get (← getOptions) then
-      throwError "Invalid `set_option` command: The option `{optionName}` cannot be changed \
-        because `meta.restrict` is set"
     return ((← getOptions).set optionName val, decl)
   match val.isStrLit? with
   | some str => setOption (DataValue.ofString str)

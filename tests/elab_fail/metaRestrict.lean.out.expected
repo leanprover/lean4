@@ -1,31 +1,28 @@
-metaRestrict.lean:32:0-32:5: error: Cannot evaluate `_eval`: code generation is disabled by `compiler.enable`
-metaRestrict.lean:34:0-34:5: error: Cannot evaluate `_eval`: code generation is disabled by `compiler.enable`
-metaRestrict.lean:36:0-36:5: error: Cannot evaluate `_eval`: code generation is disabled by `compiler.enable`
-metaRestrict.lean:38:24-38:37: error: Tactic `native_decide` failed: Could not evaluate decidable instance. Error: Cannot evaluate `_example._native.native_decide.decl_1`: code generation is disabled by `compiler.enable`
-metaRestrict.lean:40:0-40:7: error: Cannot evaluate `_eval`: code generation is disabled by `compiler.enable`
-metaRestrict.lean:44:0-44:25: error: (interpreter) unknown declaration 'commandMy_cmd'; note that code generation is disabled by `compiler.enable`
-metaRestrict.lean:46:0-46:30: error: (interpreter) unknown declaration 'termMy_term'; note that code generation is disabled by `compiler.enable`
-metaRestrict.lean:46:0-46:30: error: invalid syntax node kind `termMy_term`
-metaRestrict.lean:48:11-48:18: error(lean.unknownIdentifier): Unknown identifier `my_term`
-metaRestrict.lean:50:0-50:20: error: (interpreter) unknown declaration 'termℕ''; note that code generation is disabled by `compiler.enable`
-metaRestrict.lean:50:0-50:20: error: invalid syntax node kind `termℕ'`
-metaRestrict.lean:50:0-50:20: error: Cannot evaluate `_aux_elab_fail_metaRestrict___unexpand_Nat_1`: code generation is disabled by `compiler.enable`
-metaRestrict.lean:52:16-52:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+metaRestrict.lean:31:0-31:5: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:33:0-33:5: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:35:0-35:5: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:37:24-37:37: error: Tactic `native_decide` failed: Could not evaluate decidable instance. Error: Cannot evaluate `_example._native.native_decide.decl_1`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:39:0-39:7: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:43:0-43:25: error: (interpreter) unknown declaration 'commandMy_cmd'; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:45:0-45:30: error: (interpreter) unknown declaration 'termMy_term'; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:45:0-45:30: error: invalid syntax node kind `termMy_term`
+metaRestrict.lean:47:11-47:18: error(lean.unknownIdentifier): Unknown identifier `my_term`
+metaRestrict.lean:49:0-49:20: error: (interpreter) unknown declaration 'termℕ''; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:49:0-49:20: error: invalid syntax node kind `termℕ'`
+metaRestrict.lean:49:0-49:20: error: Cannot evaluate `_aux_elab_fail_metaRestrict___unexpand_Nat_1`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:51:16-51:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   OfNat ℕ' 1
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   ℕ'
 due to the absence of the instance above
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
-metaRestrict.lean:54:0-54:33: error: (interpreter) unknown declaration 'tacticMy_tac'; note that code generation is disabled by `compiler.enable`
-metaRestrict.lean:54:0-54:33: error: invalid syntax node kind `tacticMy_tac`
-metaRestrict.lean:56:22: error: unknown tactic
-metaRestrict.lean:56:18-56:27: error: unsolved goals
+metaRestrict.lean:53:0-53:33: error: (interpreter) unknown declaration 'tacticMy_tac'; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:53:0-53:33: error: invalid syntax node kind `tacticMy_tac`
+metaRestrict.lean:55:22: error: unknown tactic
+metaRestrict.lean:55:18-55:27: error: unsolved goals
 ⊢ True
-metaRestrict.lean:60:0-60:31: error: Invalid `set_option` command: The option `compiler.enable` cannot be changed because `meta.restrict` is set
-metaRestrict.lean:62:0-62:31: error: Invalid `set_option` command: The option `compiler.enable` cannot be changed because `meta.restrict` is set
-metaRestrict.lean:63:0-63:26: error: (interpreter) unknown declaration 'commandMy_cmd''; note that code generation is disabled by `compiler.enable`
-metaRestrict.lean:65:0-65:30: error: Invalid `set_option` command: The option `meta.restrict` cannot be changed because `meta.restrict` is set
-metaRestrict.lean:68:2-69:9: error: Invalid `set_option` command: The option `compiler.enable` cannot be changed because `meta.restrict` is set
-metaRestrict.lean:72:2-73:9: error: Invalid `set_option` command: The option `compiler.enable` cannot be changed because `meta.restrict` is set
-metaRestrict.lean:75:0-75:34: error: Invalid `set_option` command: The option `sat.solver` cannot be changed because `meta.restrict` is set
+metaRestrict.lean:62:37-62:46: error: The option `sat.solver` cannot be used because `meta.restrict` is set
+metaRestrict.lean:68:0-68:26: error: (interpreter) unknown declaration 'commandMy_cmd''; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:71:0-71:27: error: (interpreter) unknown declaration 'commandMy_cmd'''; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:74:37-74:46: error: The option `sat.solver` cannot be used because `meta.restrict` is set

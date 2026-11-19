@@ -4,9 +4,9 @@ set_option experimental.intrinsic true
 
 /-!
 The info view shows the goal before `vcgen` on its first character and the verification conditions
-on the rest of the keyword, also when a `with` clause discharges them. An `invariants` alternative
-shows the goal it fills, reports its errors once, at the part that fails, and names the universe
-parameters of the enclosing declaration.
+on the rest of the keyword, also when a `with` clause discharges them. The right-hand side of an
+`invariants` alternative has the hole it fills as expected type. An alternative reports its errors
+once, at the part that fails, and names the universe parameters of the enclosing declaration.
 -/
 
 open Std.WP Lean.Order
@@ -24,7 +24,7 @@ theorem sumDef_eq (l : List Nat) : sumDef l = l.sum := by
 --^ $/lean/plainGoal
  --^ $/lean/plainGoal
   · fun _pref suff acc => ⌜acc + suff.sum = l.sum⌝
---^ $/lean/plainGoal
+  --^ $/lean/plainTermGoal
   with finish
 
 theorem sumDef_eq' (l : List Nat) : sumDef l = l.sum := by
@@ -32,7 +32,7 @@ theorem sumDef_eq' (l : List Nat) : sumDef l = l.sum := by
   apply Id.of_run_eq_wp h
   vcgen [sumDef] invariants
   | inv1 => fun _pref suff acc => ⌜acc + suff.sum = l.sum⌝
---^ $/lean/plainGoal
+          --^ $/lean/plainTermGoal
   with finish
 
 /-! The keyword of the first contract clause shows the goals of the `vcgen` call that proves it. -/

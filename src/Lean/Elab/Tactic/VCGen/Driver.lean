@@ -26,26 +26,16 @@ and emits VCs (or invariant holes) for those `solve` cannot decompose further.
 /--
 Elaborate the `invariants` alternative of the invariant hole `mv` with number `n`, if there is one,
 and assign `mv`. In `| inv1 a b => e`, the names `a b` rename the inaccessible hypotheses of `mv`.
-The header `·` or `| inv1 a b =>` shows `mv` in the info view. Reports elaboration errors and
-returns whether `mv` is assigned.
+Reports elaboration errors and returns whether `mv` is assigned.
 -/
 public def elabInvariant (ctx : Context) (n : Nat) (mv : MVarId) : SymM Bool := do
   let some alt := ctx.invariantAlts[n]? | return false
-  let (hdr, names, rhs) ← match alt with
-    | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) => pure (alt[0], #[], rhs)
-    | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $names* => $rhs) =>
-      pure (mkNullNode #[alt[0], alt[1], alt[2]], names, rhs)
+  let (names, rhs) ← match alt with
+    | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) => pure (#[], rhs)
+    | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $names* => $rhs) => pure (names, rhs)
     | _ => return false
   let elabRhs : TermElabM Expr := do
     let mv ← withRef alt[1] <| renameInaccessibles mv names
-    let mctx ← getMCtx
-    pushInfoLeaf <| .ofTacticInfo {
-      elaborator := `Lean.Elab.Tactic.VCGen.elabInvariant
-      stx := hdr
-      mctxBefore := mctx
-      goalsBefore := [mv]
-      mctxAfter := mctx
-      goalsAfter := [mv] }
     mv.withContext <| Term.withSynthesize <| Term.elabTermEnsuringType rhs (← mv.getType)
   try
     -- The surrounding grind context forces reducible transparency, under which the type of `mv`

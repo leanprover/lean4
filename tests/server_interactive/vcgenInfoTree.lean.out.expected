@@ -115,15 +115,15 @@
   "case vc2\nl : List Nat\nr : Nat\nh : sumDef l = r\na✝¹ : Nat\na✝ : a✝¹ + [].sum = l.sum\n⊢ a✝¹ = l.sum",
   "case vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum"]}
 {"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
- "position": {"line": 25, "character": 2}}
-{"rendered":
- "```lean\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop\n```",
- "goals": ["l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"]}
+ "position": {"line": 25, "character": 4}}
+{"range":
+ {"start": {"line": 25, "character": 4}, "end": {"line": 25, "character": 50}},
+ "goal": "l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"}
 {"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
- "position": {"line": 33, "character": 2}}
-{"rendered":
- "```lean\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop\n```",
- "goals": ["l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"]}
+ "position": {"line": 33, "character": 12}}
+{"range":
+ {"start": {"line": 33, "character": 12}, "end": {"line": 33, "character": 58}},
+ "goal": "l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"}
 {"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
  "position": {"line": 40, "character": 5}}
 {"rendered":

@@ -354,8 +354,7 @@ jobs:
                 // * docparse times out as well
                 // * async_* are flakey at the moment, re-enable in the future
                 // * `verif` only checks proofs, which takes over 7 minutes under the sanitizers
-                // * `do_scaling` elaborates `do` blocks of hundreds of elements, which stack-overflows
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_|^verif$|elab/do_scaling'"
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_|^verif$'"
               },
               {
                 "name": "Linux tsanitize",

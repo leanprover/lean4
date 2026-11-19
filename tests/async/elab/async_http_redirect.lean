@@ -74,6 +74,13 @@ private def isReplayBody : RedirectBodyAction → Bool
 #guard isDone (decideRedirect origin (mkReq .get) false .notModified (withLocation "/x"))
 #guard isDone (decideRedirect origin (mkReq .get) false .multipleChoices (withLocation "/x"))
 
+-- An unrecognized 3xx is treated as 300 (RFC 9110 §15), so it is terminal too.
+#guard [309, 399].all fun n =>
+  isDone (decideRedirect origin (mkReq .get) true (Status.ofCode none n).get! (withLocation "/x"))
+
+-- `///evil.com/x` has an empty authority, so it names no host (RFC 9110 §4.2.1).
+#guard isDone (decideRedirect origin (mkReq .get) false .found (withLocation "///evil.com/x"))
+
 -- 301/302 keep every method but POST (RFC 9110 §15.4.2), so a PUT whose body cannot be replayed
 -- is terminal.
 #guard isDone (decideRedirect origin (mkReq .put) false .movedPermanently (withLocation "/x"))
@@ -178,6 +185,17 @@ private def connectReq : Request.Head :=
       !p.headers.contains .authorization
         && !p.headers.contains .cookie
         && (p.headers.get? .host).map (·.value) == some "other.com"
+  | none => false
+
+-- Of several `Host` lines (RFC 9112 §3.2 allows one), a cross-origin hop leaves a single one for the
+-- new origin, where the first was.
+#guard
+  let headers := Headers.empty |>.insert! "Accept" "*/*" |>.insert! "Host" "example.com"
+    |>.insert! "X-A" "1" |>.insert! "Host" "evil"
+  match plan? (decideRedirect origin (mkReq .get headers) false .found
+      (withLocation "http://other.com:8080/x")) with
+  | some p => p.headers.toArray.toList.map (fun (n, v) => (n.value, v.value)) ==
+      [("accept", "*/*"), ("host", "other.com:8080"), ("x-a", "1")]
   | none => false
 
 -- Same-origin hop keeps credential headers.

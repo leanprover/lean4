@@ -380,38 +380,47 @@ def deriveInduction (name : Name) (isMutual : Bool) (strong : Bool := false) : M
 
     addDecl <| (←mkThmOrUnsafeDef { name := inductName, levelParams := us, type := eTyp, value := e' })
 
+/-- The kinds of induction principle names reserved for `partial_fixpoint` definitions. -/
+inductive InductSuffixKind where
+  | fixpointInduct | coinduct | induct | mutualInduct | mutualFixpointInduct
+
+def inductSuffixKind? : String → Option InductSuffixKind
+  | "fixpoint_induct" => some .fixpointInduct
+  | "coinduct" | "strong_coinduct" => some .coinduct
+  | "induct" | "strong_induct" => some .induct
+  | "mutual_induct" | "strong_mutual_induct" => some .mutualInduct
+  | "mutual_fixpoint_induct" => some .mutualFixpointInduct
+  | _ => none
+
 def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
-  match s with
-  | "fixpoint_induct" =>
+  let some kind := inductSuffixKind? s | return false
+  match kind with
+  | .fixpointInduct =>
     if let some eqnInfo := eqnInfoExt.find? env p then
       return eqnInfo.fixpointType.all isPartialFixpoint
     return false
-  | "coinduct" | "strong_coinduct" =>
+  | .coinduct =>
     if let some eqnInfo := eqnInfoExt.find? env p then
       let idx := eqnInfo.declNames.idxOf p
       return isCoinductiveFixpoint eqnInfo.fixpointType[idx]!
     return false
-  | "induct" | "strong_induct" =>
+  | .induct =>
     if let some eqnInfo := eqnInfoExt.find? env p then
       let idx := eqnInfo.declNames.idxOf p
       return isInductiveFixpoint eqnInfo.fixpointType[idx]!
     return false
-  | "mutual_induct" | "strong_mutual_induct" =>
+  | .mutualInduct =>
     if let some eqnInfo := eqnInfoExt.find? env p then
       return eqnInfo.declNames[0]! == p && eqnInfo.declNames.size > 1 && eqnInfo.fixpointType.all isLatticeTheoretic
     return false
-  | "mutual_fixpoint_induct" =>
+  | .mutualFixpointInduct =>
     if let some eqnInfo := eqnInfoExt.find? env p then
       return eqnInfo.declNames[0]! == p && eqnInfo.declNames.size > 1 && eqnInfo.fixpointType.all isPartialFixpoint
     return false
-  | _ => return false
 
 builtin_initialize
-  registerReservedNamePredicate
-    (· matches "fixpoint_induct" | "coinduct" | "strong_coinduct" | "induct" | "strong_induct"
-      | "mutual_induct" | "strong_mutual_induct" | "mutual_fixpoint_induct")
-    isInductName
+  registerReservedNamePredicate (inductSuffixKind? · |>.isSome) isInductName
 
   registerReservedNameAction fun name => do
     if isInductName (← getEnv) name then
@@ -442,15 +451,24 @@ def isOptionFixpoint (env : Environment) (name : Name) : Bool := Option.isSome d
       inst := inst.appArg!.bindingBody!
     guard <| inst.isAppOfArity ``instCCPOOption 1
 
+/--
+If `s` is the suffix of a partial correctness theorem name, returns whether it is the suffix of the
+mutual theorem.
+-/
+def partialCorrectnessSuffix? : String → Option Bool
+  | "partial_correctness" => some false
+  | "mutual_partial_correctness" => some true
+  | _ => none
+
 def isPartialCorrectnessName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
-  match s with
-  | "partial_correctness" => return isOptionFixpoint env p
-  | "mutual_partial_correctness" =>
+  match partialCorrectnessSuffix? s with
+  | some false => return isOptionFixpoint env p
+  | some true =>
     if let some eqnInfo := eqnInfoExt.find? env p then
       return eqnInfo.declNames[0]! == p && isOptionFixpoint env p && eqnInfo.declNames.size > 1
     return false
-  | _ => return false
+  | none => return false
 
 /--
 Given `motive : α → β → γ → Prop`, construct a proof of
@@ -532,8 +550,7 @@ def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM U
       { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 builtin_initialize
-  registerReservedNamePredicate (· matches "partial_correctness" | "mutual_partial_correctness")
-    isPartialCorrectnessName
+  registerReservedNamePredicate (partialCorrectnessSuffix? · |>.isSome) isPartialCorrectnessName
 
   registerReservedNameAction fun name => do
     let .str p s := name | return false

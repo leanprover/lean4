@@ -276,7 +276,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 1
 
@@ -285,7 +285,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : ¬b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 2
 -/

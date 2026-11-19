@@ -188,15 +188,21 @@ Returns true if the given declaration name collides with another declaration in 
 i.e. a declaration with the same name modulo different private prefixes. Disregards private names
 from other modules.
 
+`additionalConstants` can be used to specify additional constants to check for collisions with that
+are not yet (but will be) declared in the environment.
+
 This function is used to implement `Macro.hasDecl`.
 -/
-def hasNameCollision (env : Environment) (declName : Name) : Bool :=
+@[inline]
+def hasNameCollision (env : Environment) (declName : Name)
+    (additionalConstants : Name → Bool := fun _ => false) : Bool :=
   -- maybe we should consider reserved names here too but then `mkUnusedBaseName`
   -- might go in an infinite loop
   let env := env.setExporting false
-  env.contains declName
-    || env.contains (mkPrivateName env declName)
-    || (privateToUserName? declName).any env.contains
+  let p (nm) := env.contains nm || additionalConstants nm
+  p declName
+    || p (mkPrivateName env declName)
+    || (privateToUserName? declName).any p
 
 def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv

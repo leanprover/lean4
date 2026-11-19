@@ -714,6 +714,17 @@ def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → Do
   doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
 /--
+`fun xs => e` for `e : type` through a delayed assignment, so the metavariables of `e` keep `xs` in
+their local context. Returns `none` if `e` is not well-scoped in the current local context.
+-/
+private def mkLambdaFVarsDelayed (xs : Array Expr) (e type : Expr) : MetaM (Option Expr) := do
+  let body ← mkFreshExprSyntheticOpaqueMVar type
+  let lam ← mkLambdaFVars xs body
+  unless ← body.mvarId!.checkedAssign e do
+    return none
+  return some lam
+
+/--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
 elaborated once to fill in the RHS of this join point.
@@ -766,12 +777,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
     unless callerInfo.numRegularExits > 1 && e.hasExprMVar && !declaresLetRec do
       return ← mkLambdaFVars xs e
-    -- `mkLambdaFVars` turns the unassigned `body` into a delayed assignment, so the metavariables
-    -- of `e` keep the parameters `xs` in their local context instead of being reverted over them.
-    let body ← mkFreshExprSyntheticOpaqueMVar mγ
-    let joinRhs ← mkLambdaFVars xs body
-    unless ← body.mvarId!.checkedAssign e do
-      throwJoinRhsBug (← mkLambdaFVars xs e)
+    let some joinRhs ← mkLambdaFVarsDelayed xs e mγ
+      | throwJoinRhsBug (← mkLambdaFVars xs e)
     return joinRhs
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     throwJoinRhsBug joinRhs

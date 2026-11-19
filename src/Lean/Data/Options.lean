@@ -95,6 +95,8 @@ structure OptionDecl where
   defValue : DataValue
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
+  /-- Whether `set_option` rejects changes to the option when `meta.restrict` is set. -/
+  restricted : Bool := false
   deriving Inhabited
 
 def OptionDecl.fullDescr (self : OptionDecl) : String := Id.run do
@@ -193,6 +195,8 @@ protected structure Decl (α : Type) where
   defValue : α
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
+  /-- Whether `set_option` rejects changes to the option when `meta.restrict` is set. -/
+  restricted : Bool := false
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name
@@ -225,6 +229,7 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
     defValue := KVMap.Value.toDataValue decl.defValue
     descr := decl.descr
     deprecation? := decl.deprecation?
+    restricted := decl.restricted
   }
   return { name := name, defValue := decl.defValue }
 

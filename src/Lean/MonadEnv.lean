@@ -180,8 +180,8 @@ set_option compiler.ignoreBorrowAnnotation true in
 opaque hasCompileError (env : Environment) (constName : Name) : Bool
 
 private def throwCompileError [Monad m] [MonadError m] [MonadOptions m] (constName : Name) : m α := do
-  if Compiler.compiler.disable.get (← getOptions) then
-    throwError "Cannot evaluate `{.ofConstName constName}`: code generation is disabled by `compiler.disable`"
+  unless Compiler.compiler.enable.get (← getOptions) do
+    throwError "Cannot evaluate `{.ofConstName constName}`: code generation is disabled by `compiler.enable`"
   -- Otherwise compilation already emitted an error, so abort silently
   Elab.throwAbortCommand
 

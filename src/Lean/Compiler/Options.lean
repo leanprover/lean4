@@ -51,23 +51,11 @@ register_builtin_option compiler.inLeanIR : Bool := {
   descr := "Internal. Indicates whether the compiler is currently running in `leanir`."
 }
 
-register_builtin_option compiler.disable : Bool := {
-  defValue := false
-  descr := "Disable code generation for all declarations of the module, so that none of its code \
-    can be run during elaboration or by importing modules. Only has an effect when given on the \
-    command line or in the module setup, in which case it cannot be reset using `set_option`."
+register_builtin_option compiler.enable : Bool := {
+  defValue := true
+  restricted := true
+  descr := "Generate code for declarations. Declarations elaborated while this option is disabled \
+    cannot be run, neither during elaboration nor by importing modules."
 }
-
-private builtin_initialize disabledRef : IO.Ref Bool ← IO.mkRef false
-
-/-- Disables code generation for the remainder of the process if `compiler.disable` is set in `opts`. -/
-def disableIfRequested (opts : Options) : BaseIO Unit := do
-  if compiler.disable.get opts then
-    disabledRef.set true
-
-/-- Returns whether code generation was disabled for this process using `compiler.disable`. -/
-@[export lean_compiler_is_disabled]
-def isDisabled : BaseIO Bool :=
-  disabledRef.get
 
 end Lean.Compiler

@@ -22,7 +22,6 @@ public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 
 import Init.Data.String.OrderInstances
-import Lean.Compiler.Options
 
 public section
 
@@ -429,7 +428,6 @@ def setupImports
 
   -- override cmdline options with file options
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) setup.options.toOptions
-  Compiler.disableIfRequested opts
 
   -- default to async elaboration; see also `Elab.async` docs
   let opts := Elab.async.setIfNotSet opts true

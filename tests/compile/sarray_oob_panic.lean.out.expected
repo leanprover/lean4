@@ -1,0 +1,32 @@
+ByteArray.get! in bounds
+2
+ByteArray.get! small out of bounds
+Error: index out of bounds
+0
+ByteArray.get! big out of bounds
+Error: index out of bounds
+0
+ByteArray.set! in bounds
+#[1, 7, 3]
+ByteArray.set! small out of bounds
+Error: index out of bounds
+#[1, 2, 3]
+ByteArray.set! big out of bounds
+Error: index out of bounds
+#[1, 2, 3]
+FloatArray.get! in bounds
+2.000000
+FloatArray.get! small out of bounds
+Error: index out of bounds
+0.000000
+FloatArray.get! big out of bounds
+Error: index out of bounds
+0.000000
+FloatArray.set! in bounds
+#[1.000000, 7.000000, 3.000000]
+FloatArray.set! small out of bounds
+Error: index out of bounds
+#[1.000000, 2.000000, 3.000000]
+FloatArray.set! big out of bounds
+Error: index out of bounds
+#[1.000000, 2.000000, 3.000000]

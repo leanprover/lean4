@@ -1,0 +1,101 @@
+/-!
+Tests that the formatter formats text that the parser reads in several ways (a `choice` node) like
+the reading that the elaborator picks. Formatters then make the same decisions for such text as for
+text with one reading.
+-/
+
+/-! A reading that only the layout of the formatter adds: -/
+
+def veryLongFunctionNameNumberOne (a b : Nat) : Option Nat := some (a + b)
+
+-- After the value breaks, the parser also reads `if (let some c := f a; b) then`.
+def elseIfLet (b : Bool) (n : Nat) : Nat :=
+  if b then
+    1
+  else if let some c := veryLongFunctionNameNumberOne (n + 1111111111111111111111111111111111) (n + 22222222222222222222222222222222222) then
+    c
+  else
+    2
+
+-- The same with both readings in the input.
+def elseIfLetWithTwoReadings (b : Bool) (n : Nat) : Nat :=
+  if b then
+    1
+  else if let some c :=
+      veryLongFunctionNameNumberOne (n + 1111111111111111111111111111111111)
+        (n + 22222222222222222222222222222222222) then
+    c
+  else
+    2
+
+/-! An operator of core with a second meaning: -/
+
+structure P where
+  n : Nat
+
+def P.and (a b : P) : P := ⟨a.n + b.n⟩
+
+namespace P
+
+scoped infixr:35 " ∧ " => P.and
+
+end P
+
+open P
+
+-- The elaborator picks the operator of core. The chain is formatted as one chain.
+theorem coreOperator (aaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ccccccccccccccccccccccccccc ddddddddddddddddddddddddd : Prop) (ha : aaaaaaaaaaaaaaaaaaaaaaaaa) (hb : bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) (hc : ccccccccccccccccccccccccccc) (hd : ddddddddddddddddddddddddd) : aaaaaaaaaaaaaaaaaaaaaaaaa ∧ bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ∧ ccccccccccccccccccccccccccc ∧ ddddddddddddddddddddddddd := ⟨ha, hb, hc, hd⟩
+
+-- The elaborator picks the operator of `P`.
+def userOperator (aaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ccccccccccccccccccccccccccc : P) : P := aaaaaaaaaaaaaaaaaaaaaaaaa ∧   bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  ∧   ccccccccccccccccccccccccccc
+
+/-!
+A notation without a formatter with the text of a structure instance. The elaborator picks the
+notation, so the text keeps its layout:
+-/
+
+syntax (name := recordList) "{" (ident " := " term),+ "}" : term
+
+macro_rules (kind := recordList)
+  | `({ $[$ids:ident := $vals:term],* }) => `([$vals,*])
+
+-- The parser reads the rendering of the formatter as a structure instance too.
+def severalLines : List Nat := { x := 1,
+  y := 2 }
+
+def oneLine : List Nat := { x := 1,   y := 2 }
+
+def longLine : List Nat := { x := 1111111111111111111111111111111111111111111111, y := 22222222222222222222222222222222222222222222222 }
+
+#guard severalLines.length == 2 && oneLine.length == 2 && longLine.length == 2
+
+/-!
+Syntax with several readings that the elaborator does not see. It keeps its layout, unless all
+readings have a formatter and are formatted in the same way:
+-/
+
+syntax (name := twoReadingsA) "twoReadings " term : term
+syntax (name := twoReadingsB) "twoReadings " term : term
+
+-- The tactics after `trivial` do not run. No reading of `twoReadings` has a formatter.
+example   :   True := by
+  first | trivial | exact twoReadings   1
+
+instance : Singleton α (List α) where
+  singleton a := [a]
+
+instance : Insert α (List α) where
+  insert a as := a :: as
+
+-- The elements of a set and the fields of a structure instance are formatted in different ways.
+-- Only the braces keep their layout.
+example   :   True := by
+  first | trivial | exact   notElaborated   {1,   2}
+
+structure Args where
+  n : Nat := 0
+
+-- The tactic block of the default value is not elaborated here. Both readings of `{}` are
+-- formatted in the same way.
+def bothReadingsAlike (args : Args := by exact   {}) : Nat := args.n

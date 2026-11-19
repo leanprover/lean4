@@ -1,0 +1,10 @@
+/-!
+Tests that a comment is not appended to a line that already ends in a line comment, where it would
+become part of that comment.
+-/
+
+-- a
+def x : Nat := 1 -- b
+
+-- c
+example : True := by trivial -- d

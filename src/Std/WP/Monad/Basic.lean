@@ -75,7 +75,7 @@ variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [PartialOrde
 /-!
 ## Derived Lemmas
 
-The laws at the level of `wp`.
+`IsLaxMonadMorphism` and `IsMonadMorphism` at the level of `wp`.
 -/
 
 section Strict

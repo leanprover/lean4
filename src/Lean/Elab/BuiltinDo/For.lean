@@ -289,7 +289,7 @@ private def mkForInLoopGadget (g : ForInApp)
   let mi := (← read).monadInfo
   let mutVars := (← read).mutVars
 
-  let info ← inferControlInfoSeq body
+  let info ← inferControlInfoSeq body (← read).controlInfoCache
   let oldReturnCont ← getReturnCont
   let returnVarName ← mkFreshUserName `__r
   let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.getId

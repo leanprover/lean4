@@ -146,6 +146,8 @@ structure Context where
   deadCode : CodeLiveness := .alive
   /-- Pluggable builders for `pure` and `bind` applications. -/
   ops : DoOpsRef
+  /-- The `ControlInfo` of the `doSeq` nodes of this `do` block inferred so far. -/
+  controlInfoCache : ControlInfoCache
 
 abbrev DoElabM := ReaderT Context Term.TermElabM
 
@@ -838,7 +840,7 @@ reassignment of the `mut` variables in scope are errors.
 -/
 def withoutControl (doSeq : TSyntax ``doSeq) (k : DoElabM Expr) : DoElabM Expr := do
   let block := if (← getRef).isToken "finally" then m!"A `finally` block" else m!"This `do` block"
-  let info ← inferControlInfoSeq doSeq
+  let info ← inferControlInfoSeq doSeq (← read).controlInfoCache
   let reassigned := (← read).mutVars.filter (info.reassigns.contains ·.getId)
   unless reassigned.isEmpty do
     let noun := if reassigned.size == 1 then "variable" else "variables"
@@ -890,7 +892,7 @@ def mkContext (expectedType? : Option Expr) (ops : DoOps := .default) : TermElab
   let returnCont ← ReturnCont.mkPure resultType
   let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo,
-           ops := ops.toDoOpsRef }
+           ops := ops.toDoOpsRef, controlInfoCache := ← ControlInfoCache.new }
 
 section NestedActions
 

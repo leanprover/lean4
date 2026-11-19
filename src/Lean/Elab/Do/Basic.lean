@@ -760,6 +760,32 @@ def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → Do
   doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
 /--
+Elaborates the right-hand side `e : type` of a join point with parameters `xs` and returns
+`fun xs => e`. The specification is `do mkLambdaFVars xs (← instantiateMVars (← k))`.
+
+`mkLambdaFVars` reverts every pending metavariable of `e` over `xs`, and the enclosing join points
+revert it again, so a metavariable created `d` join points deep ends up applied to `O(d)` arguments.
+If `lazy` holds and `e` contains metavariables, the abstraction instead goes through a delayed
+assignment: the metavariables of `e` keep `xs` in their local context, and `instantiateMVars`
+substitutes `e` once. The closure computation of `let rec` finds the placeholder of a `let rec`
+declared in `k` only through the delayed assignments that `mkLambdaFVars` creates for it, so such a
+`k` is abstracted eagerly.
+-/
+private def mkJoinRhs (xs : Array Expr) (type : Expr) (lazy : Bool) (k : DoElabM Expr) :
+    DoElabM Expr := do
+  let numLetRecs := (← getThe Term.State).letRecsToLift.length
+  let e ← instantiateMVars (← k)
+  let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
+  unless lazy && e.hasExprMVar && !declaresLetRec do
+    return ← mkLambdaFVars xs e
+  let body ← mkFreshExprSyntheticOpaqueMVar type
+  let joinRhs ← mkLambdaFVars xs body
+  -- An ill-scoped `e` falls back to the specification, whose assignment the caller reports.
+  unless ← body.mvarId!.checkedAssign e do
+    return ← mkLambdaFVars xs e
+  return joinRhs
+
+/--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
 elaborated once to fill in the RHS of this join point.
@@ -800,8 +826,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
-    let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
-    mkLambdaFVars (#[r] ++ muts) (← instantiateMVars e)
+    mkJoinRhs (#[r] ++ muts) mγ (lazy := callerInfo.numRegularExits > 1)
+      (withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k)
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     joinRhsMVar.mvarId!.withContext do
       throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\

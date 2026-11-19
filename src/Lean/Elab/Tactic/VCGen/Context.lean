@@ -159,7 +159,7 @@ public structure NoteRef where
   goal : MVarId
   mctx : MetavarContext
 
-/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+/-- A join point that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
   /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
   spec : Expr

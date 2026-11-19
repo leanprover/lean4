@@ -501,4 +501,13 @@ example : IO Nat := do
     return 2
   return 1
 
+-- The `let rec cont` after the join point of the `if` uses `v`, so the lifted `go` must take `v`
+-- as a parameter.
+def letRecAfterJoinPoint (v : Nat) : IO Bool := do
+  let rec go (k : Nat) : IO Bool := do
+    if (← pure true) then pure ()
+    let rec cont : IO Bool := pure (k == v)
+    cont
+  go v
+
 end Repros

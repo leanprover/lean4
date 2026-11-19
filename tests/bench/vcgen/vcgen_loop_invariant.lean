@@ -25,12 +25,12 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``LoopInvariant.Goal [``prog, ``exits]
-  `(tactic| vcgen simplifying_assumptions [M.rdi_mk, M.rdx_mk, M.rcx_mk, M.r8_mk, M.lt_mk])
+  `(tactic| vcgen simp [M.rdi_mk, M.rdx_mk, M.rcx_mk, M.r8_mk, M.lt_mk])
   `(tactic| sorry)
   [3, 8, 16, 24]
 
 #eval runBenchUsingTactic ``LoopInvariantGrind.Goal [``LoopInvariant.Goal, ``prog, ``exits]
-  `(tactic| vcgen simplifying_assumptions [M.rdi_mk, M.rdx_mk, M.rcx_mk, M.r8_mk, M.lt_mk]
+  `(tactic| vcgen simp [M.rdi_mk, M.rdx_mk, M.rcx_mk, M.r8_mk, M.lt_mk]
     with finish -abstractProof)
   `(tactic| fail)
   [3, 8, 16, 24]

@@ -112,7 +112,7 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
   exact Spec.forIn'_list inv step
 
 @[spec default+10]
-theorem Spec.forInPureWithInvariant_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : α → Option γ × β → m (ForInStep (Option γ × β))}
@@ -134,7 +134,7 @@ theorem Spec.forInPureWithInvariant_earlyReturn {ρ : Type w} [ForIn m ρ α] [F
   Spec.forIn_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
 
 @[spec default+10]
-theorem Spec.forInPureWithInvariant'_earlyReturn {ρ : Type w} {d : Membership α ρ}
+theorem Spec.forInPure'_earlyReturn {ρ : Type w} {d : Membership α ρ}
     [ForIn' m ρ α d] [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : (a : α) → a ∈ xs → Option γ × β → m (ForInStep (Option γ × β))}

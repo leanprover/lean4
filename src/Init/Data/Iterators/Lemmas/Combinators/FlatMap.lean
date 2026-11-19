@@ -232,6 +232,7 @@ public theorem Iter.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → T
     (it₁.flatMapM f).toArray = Array.flatten <$> (it₁.mapM fun b => do (← f b).toArray).toArray := by
   simp [flatMapM, toArray_flatMapAfterM]
 
+set_option dsimp.resynthInstances false in
 public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :
@@ -243,6 +244,7 @@ public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α I
   unfold Iter.toList
   cases it₂ <;> simp [map]
 
+set_option dsimp.resynthInstances false in
 public theorem Iter.toArray_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :

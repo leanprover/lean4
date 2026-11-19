@@ -707,6 +707,7 @@ theorem wfImp_updateBucket_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw�
   size_eq := by rw [size_withComputedSize, computeSize_eq, buckets_withComputedSize]
   distinct := DistinctKeys.perm (toListModel_updateBucket_alter h) h.distinct.alterKey
 
+set_option dsimp.resynthInstances false in
 theorem isHashSelf_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (h : Raw.WFImp m.1)
     (a : α) (f : Option (β a) → Option (β a)) : IsHashSelf (m.alterₘ a f).1.buckets := by
   dsimp only [alterₘ, withComputedSize]
@@ -745,6 +746,7 @@ theorem toListModel_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α �
   rw [alter_eq_alterₘ]
   exact toListModel_alterₘ h
 
+set_option dsimp.resynthInstances false in
 theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α}
     {f : Option (β a) → Option (β a)} : Raw.WFImp (m.alterₘ a f).1 where
   buckets_hash_self := isHashSelf_alterₘ m h a f
@@ -804,6 +806,7 @@ theorem wfImp_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHas
   size_eq := by rw [size_withComputedSize, computeSize_eq]; rfl
   distinct := DistinctKeys.perm (toListModel_updateBucket_alter h) h.distinct.constAlterKey
 
+set_option dsimp.resynthInstances false in
 theorem isHashSelf_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
     (m : Raw₀ α (fun _ => β)) (h : Raw.WFImp m.1) (a : α) (f : Option β → Option β) :
   IsHashSelf (Const.alterₘ m a f).1.buckets := by
@@ -843,6 +846,7 @@ theorem toListModel_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable �
   rw [alter_eq_alterₘ]
   exact toListModel_alterₘ h
 
+set_option dsimp.resynthInstances false in
 theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
     (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} : Raw.WFImp (Const.alterₘ m a f).1 where
   buckets_hash_self := isHashSelf_alterₘ m h a f

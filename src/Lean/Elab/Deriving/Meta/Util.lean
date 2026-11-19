@@ -2285,8 +2285,10 @@ meta def toSExprHandler : DerivingHandler :=
       let mut args := #[]
       for field in fields do
         let ty ← inferType field
-        -- Proofs live in `Prop`, not in `Type u`, so we skip them.
-        let some u ← getDecLevel? ty | continue
+        -- Proofs live in `Prop`, not in `Type u`, so we just provide a hole for them.
+        let some u ← getDecLevel? ty
+          | args := args.push (.app (mkConst ``SExpr.atom) (toExpr "_"))
+            continue
         let inst ← synthInstanceDeriving (mkApp (.const ``ToSExpr [u]) ty)
         args := args.push (mkApp3 (.const ``ToSExpr.toSExpr [u]) ty inst field)
       if args.isEmpty then

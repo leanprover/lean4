@@ -784,6 +784,9 @@ static constexpr uint8_t LEAN_TASK_DISCARDED = 2;
 // The references that the outermost `task_manager::discard` on this thread is dropping.
 LEAN_THREAD_PTR(std::vector<object *>, g_discard_drops);
 
+// Set on the threads the task manager starts, which `shutdown` waits for.
+LEAN_THREAD_VALUE(bool, g_task_manager_thread, false);
+
 struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
 };
@@ -799,7 +802,7 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    // Notified when a dedicated worker finishes and when a standard worker leaves.
+    // Notified when a dedicated worker finishes, when a standard worker leaves, and when `shutdown` finishes.
     condition_variable                            m_worker_done_cv;
     // Read without the lock by `lean_io_check_canceled_core`.
     std::atomic<bool>                             m_shutting_down{false};
@@ -821,6 +824,9 @@ class task_manager {
     // Parked workers that `spawn_worker` counts as live again but that have not woken up yet.
     unsigned                                      m_unparking{0};
     condition_variable                            m_parked_cv;
+    // `shutdown` is running; `m_shutdowns` counts the finished ones, for concurrent callers to wait for.
+    bool                                          m_in_shutdown{false};
+    unsigned                                      m_shutdowns{0};
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -955,6 +961,7 @@ class task_manager {
         }
 
         m_std_workers.emplace_back(new lthread([this]() {
+            g_task_manager_thread = true;
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
@@ -1015,6 +1022,7 @@ class task_manager {
     void spawn_dedicated_worker(lean_task_object * t) {
         m_num_dedicated_workers++;
         lthread([this, t]() {
+            g_task_manager_thread = true;
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
@@ -1131,13 +1139,20 @@ public:
     // Runs the exit sequence and leaves the manager dormant until `restart`. A dormant manager runs no task: a task
     // that becomes runnable is discarded, and new tasks run inline, as without a task manager.
     void shutdown() {
-        if (g_current_task_object) {
-            // `shutdown` would wait for the calling task itself.
-            lean_internal_panic("the task manager cannot be finalized from a task");
+        if (g_current_task_object || g_task_manager_thread) {
+            // `shutdown` would wait for the calling thread itself.
+            lean_internal_panic("the task manager cannot be finalized from a task or from a thread it started");
         }
         unique_lock<mutex> lock(m_mutex);
+        if (m_in_shutdown) {
+            // Another thread is stopping the task manager: return once it is done.
+            unsigned n = m_shutdowns;
+            m_worker_done_cv.wait(lock, [&]() { return m_shutdowns != n; });
+            return;
+        }
         if (m_workers_exit)
             return;
+        m_in_shutdown = true;
         m_shutting_down = true;
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
@@ -1162,12 +1177,26 @@ public:
 #endif
         lock.lock();
         m_std_workers.clear();
+        m_in_shutdown = false;
+        m_shutdowns++;
+        m_worker_done_cv.notify_all();
     }
 
     // Makes a dormant manager run tasks again, as a new one would.
     void restart(unsigned max_std_workers) {
         unique_lock<mutex> lock(m_mutex);
-        lean_assert(m_workers_exit && m_queues_size == 0 && m_idle_std_workers == 0 && m_live_std_workers == 0 &&
+        if (m_in_shutdown) {
+            if (g_current_task_object || g_task_manager_thread) {
+                lock.unlock();
+                // `shutdown` waits for the calling thread itself.
+                lean_internal_panic("the task manager cannot be restarted from a task or from a thread it started");
+            }
+            unsigned n = m_shutdowns;
+            m_worker_done_cv.wait(lock, [&]() { return m_shutdowns != n; });
+        }
+        if (!m_workers_exit)
+            return;
+        lean_assert(m_queues_size == 0 && m_idle_std_workers == 0 && m_live_std_workers == 0 &&
             m_parked_std_workers == 0);
         m_max_std_workers = max_std_workers;
         m_workers_exit = false;

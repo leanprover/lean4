@@ -1,0 +1,143 @@
+{"version": 1,
+ "uri": "file:///vcgenInfoTree.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 19, "character": 0}, "end": {"line": 20, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 19, "character": 0},
+    "end": {"line": 27, "character": 13}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 29, "character": 0}, "end": {"line": 30, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 29, "character": 0},
+    "end": {"line": 35, "character": 13}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 39, "character": 0}, "end": {"line": 40, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 39, "character": 0},
+    "end": {"line": 48, "character": 10}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 60, "character": 4},
+    "end": {"line": 60, "character": 40}},
+   "message":
+   "Type mismatch\n  Variant.ofMeasure fun i => i\nhas type\n  Variant Nat ?m\nof sort `Type (max 1 ?u)` but is expected to have type\n  WhileInvariant Nat Prop\nof sort `Type`",
+   "fullRange":
+   {"start": {"line": 60, "character": 4},
+    "end": {"line": 60, "character": 40}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 61, "character": 4},
+    "end": {"line": 61, "character": 75}},
+   "message":
+   "Type mismatch\n  WhileInvariant.ofInvariantAndBreak (fun x => ⌜True⌝) fun i => ⌜i = 0⌝\nhas type\n  WhileInvariant ?m ?m\nbut is expected to have type\n  Variant Nat Prop",
+   "fullRange":
+   {"start": {"line": 61, "character": 4},
+    "end": {"line": 61, "character": 75}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 66, "character": 12},
+    "end": {"line": 66, "character": 21}},
+   "message":
+   "Type mismatch\n  5\nhas type\n  Nat\nbut is expected to have type\n  WhileInvariant Nat Prop",
+   "fullRange":
+   {"start": {"line": 66, "character": 12},
+    "end": {"line": 66, "character": 21}}},
+  {"source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 68, "character": 2},
+    "end": {"line": 68, "character": 18}},
+   "message": "Invariant alternative `inv3` does not match any invariant goal.",
+   "fullRange":
+   {"start": {"line": 68, "character": 2},
+    "end": {"line": 68, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 71, "character": 8},
+    "end": {"line": 71, "character": 17}},
+   "message": "declaration uses `sorry`",
+   "fullRange":
+   {"start": {"line": 71, "character": 8},
+    "end": {"line": 71, "character": 17}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 81, "character": 44},
+    "end": {"line": 81, "character": 48}},
+   "message":
+   "Type mismatch\n  true\nhas type\n  Bool\nbut is expected to have type\n  Nat",
+   "fullRange":
+   {"start": {"line": 81, "character": 44},
+    "end": {"line": 81, "character": 48}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 88, "character": 4},
+    "end": {"line": 88, "character": 30}},
+   "message": "too many variable names provided",
+   "fullRange":
+   {"start": {"line": 88, "character": 4},
+    "end": {"line": 88, "character": 30}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 92, "character": 0}, "end": {"line": 93, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 92, "character": 0},
+    "end": {"line": 100, "character": 13}}}]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 22, "character": 2}}
+{"rendered":
+ "```lean\ncase grind\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ wp\n    (have acc := 0;\n    do\n    let __s ←\n      forIn l acc fun x __s =>\n          have acc := __s;\n          have acc := acc + x;\n          pure (ForInStep.yield acc)\n    have acc : Nat := __s\n    pure acc)\n    (fun r => r = l.sum) PUnit.unit\n```",
+ "goals":
+ ["case grind\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ wp\n    (have acc := 0;\n    do\n    let __s ←\n      forIn l acc fun x __s =>\n          have acc := __s;\n          have acc := acc + x;\n          pure (ForInStep.yield acc)\n    have acc : Nat := __s\n    pure acc)\n    (fun r => r = l.sum) PUnit.unit"]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 22, "character": 3}}
+{"rendered":
+ "```lean\ncase vc1\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ 0 + l.sum = l.sum\n```\n---\n```lean\ncase vc2\nl : List Nat\nr : Nat\nh : sumDef l = r\na✝¹ : Nat\na✝ : a✝¹ + [].sum = l.sum\n⊢ a✝¹ = l.sum\n```\n---\n```lean\ncase vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum\n```",
+ "goals":
+ ["case vc1\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ 0 + l.sum = l.sum",
+  "case vc2\nl : List Nat\nr : Nat\nh : sumDef l = r\na✝¹ : Nat\na✝ : a✝¹ + [].sum = l.sum\n⊢ a✝¹ = l.sum",
+  "case vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum"]}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 25, "character": 4}}
+{"range":
+ {"start": {"line": 25, "character": 4}, "end": {"line": 25, "character": 50}},
+ "goal": "l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 33, "character": 12}}
+{"range":
+ {"start": {"line": 33, "character": 12}, "end": {"line": 33, "character": 58}},
+ "goal": "l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ Invariant Nat Nat Prop"}
+{"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
+ "position": {"line": 40, "character": 5}}
+{"rendered":
+ "```lean\ncase vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0\n```\n---\n```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
+ "goals":
+ ["case vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0",
+  "case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝",
+  "case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}

@@ -138,6 +138,12 @@ public structure Context where
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
+  /-- The term elaboration context of the `vcgen` call, in which the `invariants` alternatives
+  elaborate. -/
+  termCtx : Term.Context := {}
+  /-- The universe parameter names of the enclosing declaration, in scope in the `invariants`
+  alternatives. -/
+  levelNames : List Name := []
   /-- The `until` pattern: when `some pat`, VC generation stops and emits the current goal as a VC
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
@@ -230,12 +236,6 @@ public structure State where
   `solve` short-circuits and emits the current goal as a VC.
   -/
   fuel : Lean.Elab.Tactic.Do.Fuel := .unlimited
-  /--
-  Set of invariant numbers that have been inline-elaborated by `Driver.emitVC` via
-  `tryInlineInvariant`. The post-hoc invariant elaboration in `Frontend` consults
-  this to know which user-provided alts have already been consumed (so it doesn't
-  warn about them). -/
-  inlineHandledInvariants : Std.HashSet Nat := {}
   /-- The join points whose RHS goal `vcgen` has yet to process, keyed by that goal, with their
   jumps so far. -/
   pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}

@@ -33,7 +33,7 @@ register_builtin_option dsimp.resynthInstances : Bool := {
   }
 
 register_builtin_option dsimp.resynthInstances.explicit : Bool := {
-    defValue := false
+    defValue := true
     descr    := "let `dsimp.resynthInstances` also check explicit arguments whose type is a class \
       or a function type with a class codomain"
   }

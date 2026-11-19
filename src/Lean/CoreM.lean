@@ -224,7 +224,7 @@ def ofOptions (opts : Options) : OptionFlags :=
       flag (getB `backward.isDefEq.respectTransparency.instances true) 0x400 |||
       flag (getB `backward.isDefEq.auxMVarKind true) 0x800 |||
       flag (getB `backward.isDefEq.respectTransparency.instances.natural false) 0x1000 |||
-      flag (getB `backward.isDefEq.respectTransparency.instances.allMVars false) 0x2000 }
+      flag (getB `backward.isDefEq.respectTransparency.instances.allMVars true) 0x2000 }
 
 end OptionFlags
 

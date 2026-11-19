@@ -367,7 +367,7 @@ Per-argument `isDefEq` calls are best-effort: a failure at one position does not
 successes at others.
 -/
 register_builtin_option backward.inferInstanceAs.skipInstArgs : Bool := {
-  defValue := true
+  defValue := false
   descr    := "let `inferInstanceAs` unify its type argument with the expected type argument by \
   argument, skipping instance-implicit positions, instead of with a single `isDefEq`"
 }

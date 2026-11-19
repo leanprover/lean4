@@ -87,7 +87,7 @@ register_builtin_option backward.isDefEq.respectTransparency.instances : Bool :=
 }
 
 register_builtin_option backward.isDefEq.respectTransparency.instances.allMVars : Bool := {
-  defValue := false
+  defValue := true
   descr    := "if true, `backward.isDefEq.respectTransparency.instances` applies to metavariables of \
   every kind (natural, synthetic, synthetic opaque) whose type is a class or a function type with a \
   class codomain"

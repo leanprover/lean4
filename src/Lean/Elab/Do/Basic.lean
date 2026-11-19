@@ -32,6 +32,13 @@ the `assert` element, and the `invariant` and `decreasing` clauses of a loop) is
 subject to change; `true` silences the warning that each of these forms reports"
 }
 
+register_builtin_option vcgen.notes : Bool := {
+  defValue := false
+  descr := "record the source range of the `return` elements of `do` blocks in the program, so \
+that `vcgen` shows their verification conditions and reports the unproved ones at them; the \
+definition of a contract sets it"
+}
+
 /-- Report that an intrinsic verification form is experimental, at the keyword `kw` that introduces
 it. `what` names the form, as in ``m!"`assert` element"``. -/
 def warnIntrinsicExperimental [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]

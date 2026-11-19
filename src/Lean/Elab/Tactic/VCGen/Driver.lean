@@ -88,6 +88,15 @@ def notePart (ref : Nat) (goal : MVarId) : VCGenM Nat := do
     if (target.find? (· == term)).isSome then return i
   return 0
 
+/-- Record the range of the annotation `ref` (see `State.vcRefs`) on the target of the verification
+condition `goal`, where `vcgen_report_unproved%` reports `goal` when it stays unproved. -/
+def markVCRange (goal : MVarId) (ref : Nat × Nat) : VCGenM MVarId := do
+  if ref.1 == 0 then return goal
+  let some noteRef := (← get).noteRefs[ref.1 - 1]? | return goal
+  let some (stx, _) := noteRef.parts[ref.2]? | return goal
+  let target ← Lean.Elab.Do.mkVCGenNote #[stx] (← goal.getType)
+  goal.replaceTargetDefEqFast (← shareCommon target)
+
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 `simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
@@ -115,6 +124,7 @@ public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) (ref : N
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return
+  let mvarId ← markVCRange mvarId ref
   mvarId.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs.push { goal with mvarId }, vcRefs := s.vcRefs.push ref }
 

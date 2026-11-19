@@ -91,6 +91,13 @@ namespace Lean.Parser
 
 namespace Tactic
 
+/--
+`vcgen_report_unproved% "msg"` reports each goal as a verification condition that remains unproved,
+with the message `msg`, and closes it. It reports a goal at the source range that `vcgen` records on
+its target, or at the tactic. The specification theorem of a `def` contract ends with it.
+-/
+scoped syntax (name := vcgenReportUnproved) "vcgen_report_unproved% " str : tactic
+
 @[tactic_alt Lean.Parser.Tactic.massumptionMacro]
 syntax (name := massumption) "massumption" : tactic
 

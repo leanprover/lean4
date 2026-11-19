@@ -7,10 +7,13 @@ The annotations of a loop show the goal at which `vcgen` reaches the loop and th
 conditions of the loop body and of the loop entry. `decreasing` shows the verification conditions
 that mention the measure, and `invariant` shows the others. The verification conditions of the code
 after the loop stay at the keyword of the contract. The `invariants` alternatives of a loop split its
-verification conditions in the same way.
+verification conditions in the same way. In a contract `def`, a `return` element shows its
+verification conditions, and an unproved verification condition is reported at the annotation or
+the `return` element that it belongs to.
 -/
 
 open Std.WP Lean.Order
+--^ collectDiagnostics
 
 def countDown (n : Nat) : Id Nat
     ensures r => r = 0 := do
@@ -60,3 +63,11 @@ theorem loop_spec (n : Nat) : ⦃⌜True⌝⦄ loop n ⦃fun r => ⌜r = 0⌝⦄
   · Variant.ofMeasure fun (i : Nat) => i
        --^ $/lean/plainGoal
   with finish
+
+def sumWrong (xs : List Nat) : Id Nat
+    ensures r => r = xs.sum := do
+  let mut acc := 0
+  for x in xs invariant pref _ => acc = pref.length do
+    acc := acc + x
+  return acc
+   --^ $/lean/plainGoal

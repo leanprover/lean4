@@ -760,9 +760,13 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
+    let numLetRecs := (← getThe Term.State).letRecsToLift.length
     let e ← instantiateMVars (← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k)
     let xs := #[r] ++ muts
-    unless callerInfo.numRegularExits > 1 && e.hasExprMVar do
+    -- The closure computation of `let rec` finds the placeholder of a `let rec` declared in `e` only
+    -- if `mkLambdaFVars` reverts it, so such an `e` is abstracted eagerly.
+    let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
+    unless callerInfo.numRegularExits > 1 && e.hasExprMVar && !declaresLetRec do
       return ← mkLambdaFVars xs e
     -- `mkLambdaFVars` turns the unassigned `body` into a delayed assignment, so the metavariables
     -- of `e` keep the parameters `xs` in their local context instead of being reverted over them.

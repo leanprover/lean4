@@ -76,18 +76,24 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
       others := others.push sg
   return others
 
-/-- Simplify the target of a verification condition with `Context.simpMethods`. -/
-def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
-  let some methods := (← read).simpMethods | return .noProgress
-  let target ← goal.getType
-  (← runSimp methods (Sym.Simp.simp target)).toSimpGoalResult goal
+/-- Rewrite the target of a verification condition with the hypotheses of `scope.eqs`, then simplify
+it with `Context.simpMethods`. -/
+def simpVC (scope : Scope) (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
+  let (goal, progress) ← match ← substEqs scope goal with
+    | .closed => return .closed
+    | .goal goal => pure (goal, true)
+    | .noProgress => pure (goal, false)
+  let unchanged := if progress then .goal goal else .noProgress
+  let some methods := (← read).simpMethods | return unchanged
+  goal.withContext do
+  match ← (← runSimp methods (Sym.Simp.simp (← goal.getType))).toSimpGoalResult goal with
+  | .noProgress => return unchanged
+  | r => return r
 
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 `simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
 `until`, a missing spec or the step limit leaves behind keeps its program as written.
-Before `simp`, a hypothesis `h : x = t` of `scope.eqs` is substituted into the target when no other
-local mentions `x`.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
 -/
@@ -95,18 +101,13 @@ public def emitVC (scope : Scope) (goal : Grind.Goal) (reason : SolveResult.Stop
     VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
   if reason matches .noEntailment .. | .noProgress .. then
-    let lctx := (← goal.mvarId.getDecl).lctx
-    let onlyInTarget (x : FVarId) := scope.eqs.get? x |>.all fun (_, h) => lctx.all fun d =>
-      d.fvarId == h || !(d.type.containsFVar x || d.value?.any (·.containsFVar x))
-    if let some mvarId ← substEqs scope goal.mvarId onlyInTarget then
-      goal := { goal with mvarId }
     -- An invariant from an `invariants` alternative is assigned while the target is built, as in
     -- `?inv pref suff (a, b)`. Instantiating it lets `simp` reduce the body of the invariant.
     let target ← goal.mvarId.getType
     let target' ← instantiateMVarsS target
     unless isSameExpr target target' do
       goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
-    match ← simpVC goal.mvarId with
+    match ← simpVC scope goal.mvarId with
     | .closed => return
     | .goal mvarId => goal := { goal with mvarId }
     | .noProgress => pure ()

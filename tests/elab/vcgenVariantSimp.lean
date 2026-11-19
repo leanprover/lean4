@@ -5,7 +5,8 @@ set_option experimental.intrinsic true
 /-!
 `vcgen` rewrites the decrease of a `decreasing` measure to a comparison of measure values. The
 lifted precondition yields the hypothesis `mb = i` on the measure value `mb`, which the verification
-condition substitutes: for `decreasing i`, the decrease is `i - 1 < i`.
+condition substitutes: for `decreasing i`, the decrease is `i - 1 < i`. For `decreasing hi - lo`,
+the value `hi - lo` is not a local, so the decrease keeps `mb`.
 -/
 
 open Std.WP Lean.Order
@@ -68,7 +69,7 @@ mb✝ a✝² b✝ : Nat
 a✝¹ : mb✝ = b✝ - a✝²
 a✝ : a✝² ≤ b✝
 h✝ : a✝² < b✝
-⊢ b✝ - (a✝² + 1) < b✝ - a✝²
+⊢ b✝ - (a✝² + 1) < mb✝
 
 case vc2
 a✝⁴ b✝² : Nat

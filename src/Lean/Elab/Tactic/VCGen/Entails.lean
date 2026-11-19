@@ -46,46 +46,6 @@ public def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
   if t.containsFVar xId then none
   return (xId, t)
 
-/-- Decide whether `substEq?` can substitute the hypothesis `eqn` in the target `G`.
-
-Consider this goal:
-```
-s  : Nat
-hs : 0 < s
-i  : Fin s
-h  : s = 41
-⊢ P s
-```
-Here `eqn` is `s = 41` and `G` is `P s`. The result is `some (s, 41, P #0)`: the variable, its
-value, and `G` with `s` abstracted to `#0`. `substEq?` then uses `fun y => P y` as the motive and
-continues with `P 41`.
-
-The result is `none` in these variations of the goal:
-* `G` is `P 0`. `s` does not occur in `G`, so there is nothing to substitute.
-* `eqn` is `s = s + 1`. `s` occurs in its own value.
-* `G` is `Q s i`. The motive `fun y => Q y i` is ill-typed, because `i : Fin s` mentions `s`. `G`
-  can mention `s`, but not a local whose type mentions `s`. Thus `G := P s` is fine although the type
-  of `hs` mentions `s`.
-* `s` is a `let` variable. -/
-def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr)) := do
-  let some (fvarId, t) := fvarEq? (← instantiateMVarsS eqn) | return none
-  let x := mkFVar fvarId
-  let lctx ← getLCtx
-  let some decl := lctx.find? fvarId | return none
-  if decl.isLet then return none
-  -- The `maxFVar` entries of `G` let `abstractFVarsRange` skip the subterms without `x`.
-  let some maxFVarId ← getMaxFVar? G | return none
-  if (← maxFVarId.getDecl).index < decl.index then return none
-  let deps := lctx.foldl (start := decl.index + 1) (init := #[]) fun acc d =>
-    if d.type.containsFVar fvarId then acc.push d.toExpr else acc
-  -- The first `x` makes `xs[0]` the minimal variable, as `abstractFVarsRange` requires. The last
-  -- `x` maps `x` to `#0`. Each local in `deps` maps to an index of at least `1`, so
-  -- `looseBVarRange == 1` holds iff `G` mentions no local whose type mentions `x`.
-  let xs := (#[x] ++ deps).push x
-  let body ← abstractFVarsRange G 0 xs
-  unless body.looseBVarRange == 1 do return none
-  return some (x, t, body)
-
 /-- Whether the conjunction `φ` has a conjunct `x = t` on a local `x`. -/
 public partial def hasEqConjunct (φ : Expr) : Bool :=
   match_expr φ with
@@ -101,21 +61,6 @@ public def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Exp
   let newTarget ← mkForallS nm .default a (← mkForallS nm .default b G)
   let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
   goal.assign (mkApp4 (mkConst ``Iff.mpr) target newTarget (mkApp3 (mkConst ``and_imp) a b G) k)
-  return some k.mvarId!
-
-/-- Substitute `t` for `x` in the target `G` of `goal`, given the hypothesis `h : x = t`, leaving
-`G[t/x]`. Must run in `goal`'s context. -/
-public def substEq? (goal : MVarId) (h : FVarId) : VCGenM (Option MVarId) := do
-  let eqn ← h.getType
-  let G ← goal.getType
-  let some (x, t, body) ← eqSubstCandidate? eqn G | return none
-  let α ← Sym.inferType x
-  let u ← Sym.getLevel α
-  let motive ← mkLambdaS (← x.fvarId!.getUserName) .default α body
-  let k ← shareCommon (← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← instantiateRevBetaS body #[t]))
-  goal.assign (mkApp6 (mkConst ``Lean.Sym.imp_subst [u]) α x t motive
-    (mkLambda `h .default eqn k) (mkFVar h))
-  trace[Elab.Tactic.Do.vcgen] "subst: {x} := {t}"
   return some k.mvarId!
 
 /-- Apply precondition-intro rule `rule` to `goal`, leaving the goal `φ → ⊤ ⊑ rhs` for

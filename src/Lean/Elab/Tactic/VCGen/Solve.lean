@@ -139,24 +139,22 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
     throwError "Failed to intro forall target {goal}"
   return some (← recordEqs scope goal start, [goal])
 
-/-- Substitute the hypotheses `h : x = t` of `scope.eqs` with `p x` in the target of `goal`, the
-latest hypothesis first. Returns `none` when no hypothesis applies. -/
-public def substEqs (scope : Scope) (goal : MVarId) (p : FVarId → Bool) : VCGenM (Option MVarId) :=
+/-- Rewrite a local `x` to `t` with the hypothesis `h : x = t` of `scope.eqs`, when `t` is closed or
+a local. -/
+def eqsSimproc (scope : Scope) : Sym.Simp.Simproc := fun e => do
+  let .fvar x := e | return .rfl
+  let some (t, h) := scope.eqs.get? x | return .rfl
+  unless t.isFVar || !t.hasFVar do return .rfl
+  return .step t (mkFVar h) (contextDependent := true)
+
+/-- Rewrite the target of `goal` with the hypotheses of `scope.eqs`. The run starts with empty
+caches, because the persistent cache of `Context.simpMethods` holds the locals unrewritten. -/
+public def substEqs (scope : Scope) (goal : MVarId) : VCGenM Sym.SimpGoalResult :=
   goal.withContext do
-    if scope.eqs.isEmpty then return none
-    let lctx ← getLCtx
-    let hyps := scope.eqs.foldl (init := #[]) fun hyps x (_, h) =>
-      match p x, lctx.find? h with
-      | true, some d => hyps.push (d.index, h)
-      | _, _ => hyps
-    if hyps.isEmpty then return none
-    let mut goal := goal
-    let mut progress := false
-    for (_, h) in hyps.qsort (·.1 > ·.1) do
-      if let some g ← goal.withContext (substEq? goal h) then
-        goal := g
-        progress := true
-    return if progress then some goal else none
+    if scope.eqs.isEmpty then return .noProgress
+    let r ← Sym.Simp.SimpM.run' (Sym.Simp.simp (← goal.getType)) { pre := eqsSimproc scope }
+      (← read).simpConfig
+    r.toSimpGoalResult goal
 
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
@@ -738,8 +736,11 @@ def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
     if let some res ← applySpec scope goal info thm fp providedFrame? then
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
-  if let some g ← substEqs scope goal info.prog.containsFVar then
-    return .goals scope [g]
+  if scope.eqs.foldl (init := false) fun b x _ => b || info.prog.containsFVar x then
+    match ← substEqs scope goal with
+    | .closed => return .goals scope []
+    | .goal g => return .goals scope [g]
+    | .noProgress => pure ()
   stopOrErrorOnMissingSpec info.prog info.M candidates
 
 /--

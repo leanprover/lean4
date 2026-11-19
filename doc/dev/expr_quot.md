@@ -78,6 +78,8 @@ unfold override list, and zero or more `±flag` overrides (`inst`, `beta`, `zeta
 - **Binders (`?x`)**: `?x` binds a local variable `x : Expr` on its first occurrence.
 - **Higher-order patterns (`?P x y`)**: applying a pattern variable to distinct bound variables
   captures a lambda abstraction (for example, `?P : Nat → Nat` in `` `(expr| ∀ x : Nat, ?P x) ``).
+  Applying `P.beta #[x, y]` reconstructs the body while preserving inner lambdas under
+  `/structural` (`-eta`).
 - **Pins (`$e` and nonlinear `$x`)**: `$e` (or `$(e)`) pins an in-scope `Expr` value evaluated
   in the enclosing context. Writing `$x` after an earlier `?x` in the same pattern creates a
   nonlinear self-pin requiring both positions to match modulo the pattern's relation.

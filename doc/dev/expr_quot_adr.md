@@ -482,3 +482,58 @@ quotations, or duplicate `InfoTree` entries.
 - On failing syntax matches whose discriminant is an `Expr`, `elabMatchSyntax` briefly restores
   `savedState` to emit the targeted `` `(expr| ...) `` diagnostic and linter warning, then
   restores `postState` if no `Expr` column was found so original errors remain intact.
+
+---
+
+## ADR-009: Bounded Outer Eta-Reduction in Structural Higher-Order Capture
+
+**Status:** Accepted
+
+**Context:**
+When a higher-order pattern hole `?P x₁ … xₙ` matches a body `wrapped` under binders `x₁, …, xₙ`,
+structural matching (`structAssign` in `src/Lean/Meta/ExprPattern.lean`) must abstract `args :=
+#[x₁, …, xₙ]` over `wrapped` to bind `P`. Calling unconditional `lamVal.eta` on the resulting
+lambda collapses not only the freshly abstracted `args` but also any inner user lambdas present
+inside `wrapped` (for example, matching `` `(expr| fun (x : Nat) => ?P x) `` on
+`fun (x y : Nat) => x + y` collapsed `P` all the way to `@HAdd.hAdd Nat Nat Nat inst`, discarding
+the inner `fun y` binder even under `/structural` where `eta := false`). Conversely, disabling
+eta-reduction completely during abstraction (`mkLambdaFVars args wrapped (etaReduce := false)`)
+fabricates a synthetic `fun x => Even x` wrapper when matching `∀ x, ?P x` against `∀ x, Even x`,
+diverging from `Meta.isDefEq` and breaking nonlinear structural patterns such as
+`(∀ x, ?P x) ∧ ($P 0)`.
+
+**Decision:**
+- In `structAssign`, abstract the captured pattern arguments with
+  `mkLambdaFVars args wrapped (etaReduce := true)`, and apply full `lamVal.eta` only when
+  `ctx.flags.eta` is `true` (`pure (if ctx.flags.eta then lamVal.eta else lamVal)`).
+- Keep scrutinee-side eta matching governed strictly by `ctx.flags.eta`: under `/structural`
+  (`eta := false`), `fun x => ?f x` still does not match bare `g`, and inner lambdas inside
+  `wrapped` are left untouched.
+- Recommend two complementary binder-inspection idioms depending on use case:
+  - **Semantic higher-order abstraction**: match with `` `(expr| fun (x : ?α) => ?P x) `` or
+    `` `(expr| let y : ?α := ?v; ?P y) `` and instantiate bodies via `P.beta #[x']` (which
+    reconstructs `body[x'/x]` uniformly whether or not the single abstracted argument was
+    eta-peeled, as in `tests/elab/exprQuotReifyPhoas.lean`).
+  - **Syntactic binder inspection**: mix `.lam` / `.letE` constructor arms directly in the same
+    `match` (ADR-002) when binder `Name`s or `BinderInfo` must be preserved directly in
+    `O(depth)` without `O(depth²)` re-abstraction (as in `tests/elab/exprQuotReifyNamed.lean`).
+
+**Alternatives Considered:**
+1. *Unconditional `lamVal.eta`*: silently peels inner lambdas belonging to the scrutinee even
+   under `/structural` (`-eta`), breaking higher-order binder traversal on curried lambdas such
+   as `fun x y => x + y`.
+2. *No eta-reduction during `mkLambdaFVars` (`etaReduce := false`)*: fabricates synthetic
+   `fun x => f x` wrappers on `∀ x, f x`, diverging from `Meta.isDefEq` and breaking `O(1)`
+   nonlinear `$P` pins like `(∀ x, ?P x) ∧ ($P 0)` under `/structural` (`-beta`).
+
+**Consequences & Trade-offs:**
+- Matches Lean's `Meta.isDefEq` Miller pattern unifier (`ExprDefEq.lean` ->
+  `MetavarContext.mkLambda'` with `etaReduce := true`), keeping `/structural`, `/reducible`,
+  `/instances`, and `/defeq` consistent on `∀ x, ?P x` against `∀ x, Even x` (`P := Even`).
+- Preserves `O(1)` nonlinear `$P` matching (e.g. `(∀ x, ?P x) ∧ ($P 0)`) under `/structural`
+  without violating its `-beta` invariant.
+- Respects `eta := false` on the scrutinee: inner user lambdas stay intact, and
+  `P.beta #[x₁', …, xₙ']` reliably reconstructs `body[x'/x]`.
+- Because `mkLambdaFVars` still peels the abstracted `args` when `wrapped` is `f x₁ … xₙ`,
+  callers that inspect binder `Name`s on `fun x => f x` should read the binder name from the
+  scrutinee `e` or match `.lam`/`.letE` directly (ADR-002), avoiding `O(depth²)` re-abstraction.

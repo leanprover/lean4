@@ -28,7 +28,7 @@ namespace Std.WP
 
 open Assertion
 
-attribute [simp, grind norm, vcgen_simp] NondetFun.evalsTo_pure NondetFun.evalsTo_apply
+attribute [simp, grind norm, vcgen_simp] NondetFun.evalsTo_pure_eq NondetFun.evalsTo_apply
 
 attribute [simp, grind norm, vcgen_simp] Variant.evalsTo_ofMeasure
   Variant.evalsBelow_ofMeasure_apply Variant.evalsBelow_ofMeasure_nat

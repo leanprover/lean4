@@ -1,8 +1,8 @@
 
-structure A :=
+structure A where
 (x y : Nat)
 
-structure B :=
+structure B where
 (z : Nat)
 
 structure C extends A, B

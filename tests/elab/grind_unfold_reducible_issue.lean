@@ -2,16 +2,7 @@ module
 import Std.Do
 
 /--
-error: `grind` failed
-case grind
-σ : Type u
-σs : List (Type u)
-inst : GetTy σ σs
-σ' : Type u
-s : σ'
-h : Std.Do.SVal.getThe σ s = Std.Do.SVal.getThe σ
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 open Std.Do.SVal in

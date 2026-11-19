@@ -137,7 +137,7 @@ theorem PartialMatch.isLongestMatchAt
   exact h.2
 
 /--
-`prefixFunction pat i …` is the maximum `k` such that `pat[0...k] = pat[stackPos - k + 1...=stackPos]`.
+`prefixFunction pat stackPos …` is the maximum `k ≤ stackPos` such that `pat[0...k] = pat[stackPos - k + 1...=stackPos]`.
 
 Using the implementation given here, computing a table of `prefixFunction pat i` for `i` in
 `0...pat.size` would take cubic time, but we will later show that the `buildTable` function, which
@@ -390,7 +390,7 @@ theorem Invariants.offset {pat s : Slice} {pos : s.Pos} (hpat : pat.isEmpty = fa
   partialMatch := partialMatch_zero (by simpa [Pos.Raw.le_iff, Pos.le_iff] using pos.le_endPos)
   isValidForSlice' _ := pos.isValidForSlice
 
-/-- The start of the window, as a valid position in `s.` -/
+/-- The start of the window, as a valid position in `s`. -/
 def Invariants.base {pat s : Slice} {needlePos stackPos : String.Pos.Raw}
     (h : Invariants pat s needlePos stackPos) : s.Pos :=
   s.pos _ h.isValidForSlice

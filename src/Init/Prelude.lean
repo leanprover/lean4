@@ -29,7 +29,7 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
-/-- Internal representation of `Void` in the compiler. -/
+/-- Internal representation of `ST.Internal.Void` in the compiler. -/
 unsafe axiom lcVoid : Type
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
@@ -114,7 +114,7 @@ export Bool (false true)
 
 /-- Compute whether `x` is a tagged pointer or not. -/
 @[extern "lean_is_scalar"]
-unsafe axiom isScalarObj {α : Type u} (x : α) : Bool
+unsafe axiom isScalarObj {α : Type u} (x : @& α) : Bool
 
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
@@ -884,18 +884,12 @@ infer the proof of `Nonempty α`.
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
-instance {α : Sort u} {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
-  Nonempty.intro fun _ => Classical.ofNonempty
-
 instance Pi.instNonempty {α : Sort u} {β : α → Sort v} [(a : α) → Nonempty (β a)] :
     Nonempty ((a : α) → β a) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
 instance : Inhabited (Sort u) where
   default := PUnit
-
-instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
-  default := fun _ => default
 
 instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
     Inhabited ((a : α) → β a) where
@@ -3212,7 +3206,7 @@ Examples:
 -/
 /- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
 Currently, the test `tests/elab/implicit_reducible_list_length.lean` fails if we make this change. -/
-@[instance_reducible] def List.length : List α → Nat
+@[instance_reducible] noncomputable def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
 
@@ -3257,7 +3251,7 @@ Examples:
 * `["water", "coffee", "soda", "juice"].set 1 "tea" = ["water", "tea", "soda", "juice"]`
 * `["water", "coffee", "soda", "juice"].set 4 "tea" = ["water", "coffee", "soda", "juice"]`
 -/
-def List.set : (l : List α) → (n : Nat) → (a : α) → List α
+noncomputable def List.set : (l : List α) → (n : Nat) → (a : α) → List α
   | cons _ as, 0,          b => cons b as
   | cons a as, Nat.succ n, b => cons a (set as n b)
   | nil,       _,          _ => nil
@@ -3302,7 +3296,7 @@ Examples:
   * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
 @[implicit_reducible]
-protected def List.append : (xs ys : List α) → List α
+protected noncomputable def List.append : (xs ys : List α) → List α
   | nil,       bs => bs
   | cons a as, bs => cons a (List.append as bs)
 
@@ -3331,7 +3325,7 @@ Examples:
 * `["one", "two", "three"].map (·.length) = [3, 3, 5]`
 * `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
 -/
-@[specialize, implicit_reducible] def List.map (f : α → β) : (l : List α) → List β
+@[specialize, implicit_reducible] noncomputable def List.map (f : α → β) : (l : List α) → List β
   | nil       => nil
   | cons a as => cons (f a) (map f as)
 
@@ -3646,7 +3640,7 @@ def ByteArray.size : (@& ByteArray) → Nat
 Returns the sequence of bytes in a character's UTF-8 encoding.
 -/
 @[implicit_reducible]
-def String.utf8EncodeChar (c : Char) : List UInt8 :=
+noncomputable def String.utf8EncodeChar (c : Char) : List UInt8 :=
   let v := c.val.toNat
   ite (LE.le v 0x7f)
     (List.cons (UInt8.ofNat v) List.nil)
@@ -3678,7 +3672,7 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
 implementation. Use `List.asString` instead. -/
 @[implicit_reducible]
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
-  l.flatMap String.utf8EncodeChar |>.toByteArray
+  ⟨⟨l.flatMap String.utf8EncodeChar⟩⟩
 
 /-- A byte array is valid UTF-8 if it is of the form `List.utf8Encode m` for some `m`.
 
@@ -4058,9 +4052,6 @@ class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, 
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
   seqRight x y := bind x fun _ => y ()
-
-instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) where
-  default := pure
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
   default := pure default
@@ -4838,9 +4829,23 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-/-- An opaque hash mixing operation, used to implement hashing for products. -/
+/--
+An opaque hash mixing operation, used to implement hashing for products.
+
+It is the block step of `MurmurHash64A` from MurmurHash2 by Austin Appleby (public domain), except
+that the second `k *= m` is replaced with `k ^= m`.
+-/
 @[extern "lean_uint64_mix_hash"]
 opaque mixHash (u₁ u₂ : UInt64) : UInt64
+
+/--
+An opaque 32-bit hash mixing operation. With either argument fixed, it is a bijection in the other.
+
+It is the block step of `MurmurHash3_x86_32` from MurmurHash3 by Austin Appleby (public domain),
+except that `k = ROTL32(k, 15)` is replaced with `k ^= k >> 15`.
+-/
+@[extern "lean_uint32_mix_hash"]
+opaque mixHash32 (u₁ u₂ : UInt32) : UInt32
 
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val
@@ -6064,9 +6069,10 @@ scope is fresh.
 /-- Run `x` with an incremented recursion depth counter. -/
 @[inline] def withIncRecDepth {α} (ref : Syntax) (x : MacroM α) : MacroM α :=
   bind read fun ctx =>
-  match beq ctx.currRecDepth ctx.maxRecDepth with
-  | true  => throw (Exception.error ref maxRecDepthErrorMessage)
-  | false => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
+  -- `maxRecDepth = 0` means no limit
+  match beq ctx.maxRecDepth 0, beq ctx.currRecDepth ctx.maxRecDepth with
+  | false, true => throw (Exception.error ref maxRecDepthErrorMessage)
+  | _,     _    => withReader (fun ctx => { ctx with currRecDepth := hAdd ctx.currRecDepth 1 }) x
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope ctx := pure ctx.currMacroScope

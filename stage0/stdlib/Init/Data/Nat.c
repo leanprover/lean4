@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat
-// Imports: public import Init.Data.Nat.Basic public import Init.Data.Nat.Div public import Init.Data.Nat.Dvd public import Init.Data.Nat.Gcd public import Init.Data.Nat.Coprime public import Init.Data.Nat.MinMax public import Init.Data.Nat.Order public import Init.Data.Nat.Bitwise public import Init.Data.Nat.Control public import Init.Data.Nat.Log2 public import Init.Data.Nat.Power2 public import Init.Data.Nat.Internal public import Init.Data.Nat.Internal public import Init.Data.Nat.PowMod public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Mod public import Init.Data.Nat.Lcm public import Init.Data.Nat.Compare public import Init.Data.Nat.Simproc public import Init.Data.Nat.Fold public import Init.Data.Nat.Order public import Init.Data.Nat.ToString public import Init.Data.Nat.Sqrt public import Init.Data.Nat.Package
+// Imports: public import Init.Data.Nat.Basic public import Init.Data.Nat.Div public import Init.Data.Nat.Dvd public import Init.Data.Nat.Gcd public import Init.Data.Nat.ExtendedGcd public import Init.Data.Nat.Coprime public import Init.Data.Nat.MinMax public import Init.Data.Nat.Order public import Init.Data.Nat.Bitwise public import Init.Data.Nat.Control public import Init.Data.Nat.Log2 public import Init.Data.Nat.Power2 public import Init.Data.Nat.Internal public import Init.Data.Nat.Internal public import Init.Data.Nat.PowMod public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Mod public import Init.Data.Nat.Lcm public import Init.Data.Nat.Compare public import Init.Data.Nat.Simproc public import Init.Data.Nat.Fold public import Init.Data.Nat.Order public import Init.Data.Nat.ToString public import Init.Data.Nat.Sqrt public import Init.Data.Nat.Package
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Div(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Dvd(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Gcd(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_ExtendedGcd(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Coprime(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Order(uint8_t builtin);
@@ -54,6 +55,9 @@ res = runtime_initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Gcd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_ExtendedGcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Coprime(builtin);
@@ -129,6 +133,7 @@ lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_ExtendedGcd(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Coprime(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
@@ -164,6 +169,9 @@ res = initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Gcd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_ExtendedGcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Coprime(builtin);

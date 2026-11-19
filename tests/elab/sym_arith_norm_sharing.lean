@@ -19,10 +19,10 @@ f : Nat → Nat
 a b c : Nat
 i j : Int
 g : Int → Int
-⊢ 0 ≤ 0
+⊢ a ≤ b
 -/
 #guard_msgs in
-example : 0 + 1 ≤ (1 : Nat) := by
+example : a + 1 ≤ b + 1 := by
   sym =>
     simp arithSimp
     show_goals

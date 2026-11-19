@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.CongrInfo
+import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Omega
 namespace Lean.Meta.Sym.Simp
 open Lean.Meta.Sym.Internal
@@ -479,6 +480,9 @@ Dispatches to the appropriate strategy based on the function's `CongrInfo`.
 -/
 public def simpAppArgs (e : Expr) : SimpM Result := do
   let f := e.getAppFn
+  if f.isMVar then
+    if let some e' ← instantiateAssignedMVarHeadS? e then
+      return .step e' (← mkEqRefl e')
   match (← getCongrInfo f) with
   | .none => return .rfl
   | .fixedPrefix prefixSize suffixSize => simpFixedPrefix e prefixSize suffixSize

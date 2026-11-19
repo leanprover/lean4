@@ -11,6 +11,8 @@ public import Init.Data.Nat.Gcd
 import Init.LawfulBEqTactics
 import Init.Data.Nat.Lemmas
 import Init.Omega
+import Init.Data.Nat.MinMax
+import Init.Data.Bool
 
 @[expose] public section
 
@@ -162,12 +164,6 @@ theorem Poly.denote_cancelInvs [CommRing α] (ctx : Context α) (p : Poly) (ainv
 
 /-! Kernel-reduction variants for inverse cancellation. -/
 
-noncomputable def Mon.degreeOf_k (m : Mon) (x : Var) : Nat :=
-  Mon.rec 0 (fun pw _ ih => Bool.rec ih pw.k (Nat.beq pw.x x)) m
-
-noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
-  Mon.rec .unit (fun pw m ih => Bool.rec (.mult pw ih) m (Nat.beq pw.x x)) m
-
 noncomputable def Mon.mulPow_k (pw : Power) (m : Mon) : Mon :=
   Mon.rec (.mult pw .unit)
     (fun pw' m ih => Bool.rec
@@ -195,24 +191,6 @@ noncomputable def Poly.cancelInv_k (x y : Var) (p : Poly) : Poly :=
 noncomputable def Poly.cancelInvs_k (p : Poly) (invs : InvAtoms) : Poly :=
   List.rec (motive := fun _ => Poly → Poly) (fun p => p)
     (fun yx _ ih p => ih (Poly.cancelInv_k yx.2 yx.1 p)) invs p
-
-@[simp] theorem Mon.degreeOf_k_eq_degreeOf (m : Mon) (x : Var) : Mon.degreeOf_k m x = m.degreeOf x := by
-  induction m with
-  | unit => rfl
-  | mult pw m ih =>
-    change Bool.rec (motive := fun _ => Nat) (Mon.degreeOf_k m x) pw.k (Nat.beq pw.x x) = _
-    rw [ih]
-    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite]
-    rfl
-
-@[simp] theorem Mon.cancelVar_k_eq_cancelVar (m : Mon) (x : Var) : Mon.cancelVar_k m x = m.cancelVar x := by
-  induction m with
-  | unit => rfl
-  | mult pw m ih =>
-    change Bool.rec (motive := fun _ => Mon) (.mult pw (Mon.cancelVar_k m x)) m (Nat.beq pw.x x) = _
-    rw [ih]
-    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite]
-    rfl
 
 @[simp] theorem Mon.mulPow_k_eq_mulPow (pw : Power) (m : Mon) : Mon.mulPow_k pw m = m.mulPow pw := by
   induction m with
@@ -286,12 +264,125 @@ the result to lowest terms.
 def Poly.toPolyQ (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
   (invs.foldl (fun (q : PolyQ) xc => q.substInv xc.1 xc.2) ⟨p.cancelInvs ainvs, 1⟩).reduce
 
+/-! Kernel-reduction variants of the functions used by `Poly.toPolyQ`. -/
+
+noncomputable def Poly.maxDegreeOf_k (p : Poly) (x : Var) : Nat :=
+  Poly.rec (motive := fun _ => Nat → Nat) (fun _ acc => acc)
+    (fun _ m _ ih acc => ih (Bool.rec acc (Mon.degreeOf_k m x) (Nat.ble acc (Mon.degreeOf_k m x)))) p 0
+
+theorem Poly.maxDegreeOf_k_eq (p : Poly) (x : Var) : p.maxDegreeOf_k x = p.maxDegreeOf x := by
+  suffices h : ∀ acc, Poly.rec (motive := fun _ => Nat → Nat) (fun _ acc => acc)
+      (fun _ m _ ih acc => ih (Bool.rec acc (Mon.degreeOf_k m x) (Nat.ble acc (Mon.degreeOf_k m x)))) p acc
+      = Poly.maxDegreeOf.go x p acc by exact h 0
+  induction p with
+  | num k => intro acc; rfl
+  | add k m p ih =>
+    intro acc
+    show Poly.rec (motive := fun _ => Nat → Nat) _ _ p _ = _
+    rw [ih, Mon.degreeOf_k_eq_degreeOf]
+    simp only [Poly.maxDegreeOf.go]
+    congr 1
+    cases h : Nat.ble acc (m.degreeOf x)
+    · have : ¬ acc ≤ m.degreeOf x := by rw [← Nat.ble_eq]; simp [h]
+      show acc = Nat.max acc (m.degreeOf x); exact (Nat.max_eq_left (Nat.le_of_lt (Nat.not_le.mp this))).symm
+    · have : acc ≤ m.degreeOf x := by rw [← Nat.ble_eq]; exact h
+      show m.degreeOf x = Nat.max acc (m.degreeOf x); exact (Nat.max_eq_right this).symm
+
+noncomputable def Poly.gcdCoeffs_k.go (p : Poly) : Nat → Nat :=
+  Poly.rec (motive := fun _ => Nat → Nat)
+    (fun k acc => Bool.rec (Nat.gcd acc (Int.natAbs_k k)) acc (Nat.beq acc 1))
+    (fun k _ _ ih acc => Bool.rec (ih (Nat.gcd acc (Int.natAbs_k k))) acc (Nat.beq acc 1)) p
+
+noncomputable def Poly.gcdCoeffs_k (p : Poly) : Nat :=
+  Poly.rec (fun k => Int.natAbs_k k) (fun k _ p _ => Poly.gcdCoeffs_k.go p (Int.natAbs_k k)) p
+
+theorem Poly.gcdCoeffs_k_eq (p : Poly) : p.gcdCoeffs_k = p.gcdCoeffs := by
+  have hgo : ∀ p acc, Poly.gcdCoeffs_k.go p acc = Poly.gcdCoeffs.go p acc := by
+    intro p
+    induction p with
+    | num k =>
+      intro acc
+      show Bool.rec (motive := fun _ => Nat) _ _ (Nat.beq acc 1) = _
+      unfold Poly.gcdCoeffs.go
+      cases h : Nat.beq acc 1
+      · have : (acc == 1) = false := h
+        simp [this]
+      · have : (acc == 1) = true := h
+        simp [this]
+    | add k m p ih =>
+      intro acc
+      show Bool.rec (motive := fun _ => Nat) _ _ (Nat.beq acc 1) = _
+      unfold Poly.gcdCoeffs.go
+      cases h : Nat.beq acc 1
+      · have : (acc == 1) = false := h
+        simp only [this, Bool.false_eq_true, ↓reduceIte]
+        show Poly.gcdCoeffs_k.go p _ = _
+        rw [ih]; simp
+      · have : (acc == 1) = true := h
+        simp [this]
+  cases p with
+  | num k => simp [gcdCoeffs_k, gcdCoeffs]
+  | add k m p => show Poly.gcdCoeffs_k.go p (Int.natAbs_k k) = _; rw [hgo]; simp [gcdCoeffs]
+
+noncomputable def Poly.divConst_k (p : Poly) (a : Int) : Poly :=
+  Poly.rec (fun k => .num (Int.ediv_k k a)) (fun k m _ ih => .add (Int.ediv_k k a) m ih) p
+
+theorem Poly.divConst_k_eq (p : Poly) (a : Int) : p.divConst_k a = p.divConst a := by
+  induction p with
+  | num k => simp [divConst_k, divConst]
+  | add k m p ih => show Poly.add _ m (p.divConst_k a) = _; rw [ih]; simp [divConst]
+
+noncomputable def Poly.substInv_k (p : Poly) (x : Var) (c : Nat) : PolyQ :=
+  Bool.rec
+    ⟨(p.mulConst_k (Int.ofNat (Nat.pow c (p.maxDegreeOf_k x)))).cancelVar_k (Int.ofNat c) x, Nat.pow c (p.maxDegreeOf_k x)⟩
+    ⟨p, 1⟩ (Nat.beq c 0)
+
+theorem Poly.substInv_k_eq (p : Poly) (x : Var) (c : Nat) : p.substInv_k x c = p.substInv x c := by
+  unfold substInv_k substInv
+  cases h : Nat.beq c 0
+  · have : (c == 0) = false := h
+    simp only [this, Bool.cond_false]
+    rw [Poly.maxDegreeOf_k_eq, Poly.mulConst_k_eq_mulConst, Poly.cancelVar_k_eq]; rfl
+  · have : (c == 0) = true := h
+    simp only [this, Bool.cond_true]
+
+noncomputable def PolyQ.substInv_k (q : PolyQ) (x : Var) (c : Nat) : PolyQ :=
+  ⟨(q.num.substInv_k x c).num, Nat.mul q.den (q.num.substInv_k x c).den⟩
+
+theorem PolyQ.substInv_k_eq (q : PolyQ) (x : Var) (c : Nat) : q.substInv_k x c = q.substInv x c := by
+  unfold substInv_k substInv; rw [Poly.substInv_k_eq]; rfl
+
+noncomputable def PolyQ.reduce_k (q : PolyQ) : PolyQ :=
+  Bool.rec
+    (Bool.rec q ⟨q.num.divConst_k (Int.ofNat (Nat.gcd q.num.gcdCoeffs_k q.den)), Nat.div q.den (Nat.gcd q.num.gcdCoeffs_k q.den)⟩
+      (((q.num.divConst_k (Int.ofNat (Nat.gcd q.num.gcdCoeffs_k q.den))).mulConst_k (Int.ofNat (Nat.gcd q.num.gcdCoeffs_k q.den))).beq' q.num
+        && Nat.beq (Nat.mul (Nat.div q.den (Nat.gcd q.num.gcdCoeffs_k q.den)) (Nat.gcd q.num.gcdCoeffs_k q.den)) q.den))
+    q (Nat.ble (Nat.gcd q.num.gcdCoeffs_k q.den) 1)
+
+theorem PolyQ.reduce_k_eq (q : PolyQ) : q.reduce_k = q.reduce := by
+  unfold reduce_k reduce
+  rw [Poly.gcdCoeffs_k_eq, Poly.divConst_k_eq, Poly.mulConst_k_eq_mulConst]
+  generalize Nat.gcd q.num.gcdCoeffs q.den = g
+  dsimp only
+  have e₁ : Nat.ble g 1 = decide (g ≤ 1) := by
+    cases h : Nat.ble g 1
+    · have : ¬ g ≤ 1 := by rw [← Nat.ble_eq, h]; simp
+      simp [this]
+    · have : g ≤ 1 := by rw [← Nat.ble_eq, h]
+      simp [this]
+  have e₂ : ((q.num.divConst (Int.ofNat g)).mulConst (Int.ofNat g)).beq' q.num =
+      ((q.num.divConst (Int.ofNat g)).mulConst (Int.ofNat g) == q.num) := by
+    apply Bool.eq_iff_iff.mpr; rw [Poly.beq'_eq, beq_iff_eq]
+  have e₃ : Nat.beq (Nat.mul (Nat.div q.den g) g) q.den = (q.den / g * g == q.den) := rfl
+  rw [e₁, e₂, e₃]
+  cases decide (g ≤ 1) <;> cases ((q.num.divConst (Int.ofNat g)).mulConst (Int.ofNat g) == q.num && q.den / g * g == q.den) <;> rfl
+
 noncomputable def Poly.toPolyQ_k (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
-  (invs.foldl (fun (q : PolyQ) xc => q.substInv xc.1 xc.2) ⟨p.cancelInvs_k ainvs, 1⟩).reduce
+  (invs.foldl (fun (q : PolyQ) xc => q.substInv_k xc.1 xc.2) ⟨p.cancelInvs_k ainvs, 1⟩).reduce_k
 
 @[simp] theorem Poly.toPolyQ_k_eq_toPolyQ (p : Poly) (invs : InvVars) (ainvs : InvAtoms) :
     p.toPolyQ_k invs ainvs = p.toPolyQ invs ainvs := by
-  simp only [toPolyQ_k, toPolyQ, cancelInvs_k_eq_cancelInvs]
+  simp only [toPolyQ_k, toPolyQ, cancelInvs_k_eq_cancelInvs, PolyQ.reduce_k_eq, PolyQ.substInv_k_eq]
 
 protected noncomputable def PolyQ.beq' (p q : PolyQ) : Bool :=
   Bool.rec false (Nat.beq p.den q.den) (p.num.beq' q.num)
@@ -299,9 +390,6 @@ protected noncomputable def PolyQ.beq' (p q : PolyQ) : Bool :=
 @[simp] theorem PolyQ.beq'_eq (p q : PolyQ) : p.beq' q = (p = q) := by
   change (p.num.beq' q.num && Nat.beq p.den q.den) = (p = q)
   cases p; cases q; simp
-
-def Expr.toPolyQ (e : Expr) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
-  e.toPoly.toPolyQ invs ainvs
 
 theorem Poly.denote_substInv [Field α] [IsCharP α 0] (ctx : Context α) (p : Poly) (x : Var) (c : Nat)
     (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (p.substInv x c).denote ctx = p.denote ctx := by
@@ -365,10 +453,6 @@ theorem Poly.denote_toPolyQ [Field α] [IsCharP α 0] (ctx : Context α) (p : Po
     rw [InvVars.ok_cons] at h
     rw [List.foldl_cons, ih h.2, PolyQ.denote_substInv _ _ _ _ h.1]
 
-theorem Expr.denote_toPolyQ [Field α] [IsCharP α 0] (ctx : Context α) (e : Expr) (invs : InvVars)
-    (ainvs : InvAtoms) (h : invs.ok ctx) (h' : ainvs.ok ctx) : (e.toPolyQ invs ainvs).denote ctx = e.denote ctx := by
-  rw [toPolyQ, Poly.denote_toPolyQ _ _ _ _ h h', Expr.denote_toPoly]
-
 theorem Poly.substInv_den_ne_zero (p : Poly) (x : Var) (c : Nat) : (p.substInv x c).den ≠ 0 := by
   simp only [substInv, cond_eq_ite]
   split
@@ -403,8 +487,129 @@ theorem Poly.toPolyQ_den_ne_zero (p : Poly) (invs : InvVars) (ainvs : InvAtoms) 
     apply ih
     exact Nat.mul_ne_zero h (Poly.substInv_den_ne_zero q.num xc.1 xc.2)
 
-theorem Expr.toPolyQ_den_ne_zero (e : Expr) (invs : InvVars) (ainvs : InvAtoms) : (e.toPolyQ invs ainvs).den ≠ 0 :=
-  Poly.toPolyQ_den_ne_zero e.toPoly invs ainvs
+/-!
+Balanced elimination of numeral inverses. `Poly.cancelVar_k` inserts each monomial into the
+result, and cancelling `x` changes the order of the monomials, so the kernel performs a quadratic
+number of comparisons; `Poly.cancelVarB_k` adds the cancelled monomials pairwise instead.
+-/
+
+/-- The monomials of `p` with `x` cancelled, as `Poly.cancelVar` does, each as a polynomial. -/
+noncomputable def Poly.cancelTerms_k (c : Int) (x : Var) (p : Poly) : List Poly :=
+  Poly.rec (fun k => [.num k])
+    (fun k m _ ih =>
+      Bool.rec (.add k m (.num 0))
+        (.add (Int.ediv_k k (Int.pow_k c (Mon.degreeOf_k m x))) (Mon.cancelVar_k m x) (.num 0))
+        (Nat.blt 0 (Mon.degreeOf_k m x) && Int.beqZero_k (Int.emod_k k (Int.pow_k c (Mon.degreeOf_k m x)))) :: ih)
+    p
+
+noncomputable def Poly.cancelVarB_k (c : Int) (x : Var) (p : Poly) : Poly :=
+  sumB_k combine_k (p.cancelTerms_k c x)
+
+noncomputable def Poly.substInvB_k (p : Poly) (x : Var) (c : Nat) : PolyQ :=
+  Bool.rec
+    ⟨(p.mulConst_k (Int.ofNat (Nat.pow c (p.maxDegreeOf_k x)))).cancelVarB_k (Int.ofNat c) x, Nat.pow c (p.maxDegreeOf_k x)⟩
+    ⟨p, 1⟩ (Nat.beq c 0)
+
+noncomputable def PolyQ.substInvB_k (q : PolyQ) (x : Var) (c : Nat) : PolyQ :=
+  ⟨(q.num.substInvB_k x c).num, Nat.mul q.den (q.num.substInvB_k x c).den⟩
+
+/-- `Poly.toPolyQ_k` with `Poly.cancelVarB_k` if `bal`. -/
+noncomputable def Poly.toPolyQX_k (bal : Bool) (p : Poly) (invs : InvVars) (ainvs : InvAtoms) : PolyQ :=
+  Bool.rec (p.toPolyQ_k invs ainvs)
+    ((invs.foldl (fun (q : PolyQ) xc => q.substInvB_k xc.1 xc.2) ⟨p.cancelInvs_k ainvs, 1⟩).reduce_k) bal
+
+theorem Poly.denoteList_cancelTerms_k {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Int) (x : Var)
+    (h₁ : c ≠ 0) (h₂ : c * x.denote ctx = 1) : denoteList ctx (p.cancelTerms_k c x) = p.denote ctx := by
+  induction p with
+  | num k => show ((k : Int) : α) + 0 = _; rw [Semiring.add_zero]; rfl
+  | add k m p ih =>
+    show Poly.denote ctx (Bool.rec _ _ _) + denoteList ctx (p.cancelTerms_k c x) = _
+    rw [ih, Mon.degreeOf_k_eq_degreeOf, Mon.cancelVar_k_eq_cancelVar, Int.pow_k_eq, Int.emod_k_eq, Int.ediv_k_eq,
+      Int.beqZero_k_eq]
+    cases h : (Nat.blt 0 (m.degreeOf x) && (k % c ^ m.degreeOf x == 0))
+    · show k • m.denote ctx + ((0 : Int) : α) + _ = _
+      rw [Ring.intCast_zero, Semiring.add_zero]; rfl
+    · show (k / c ^ m.degreeOf x) • (m.cancelVar x).denote ctx + ((0 : Int) : α) + _ = _
+      rw [Ring.intCast_zero, Semiring.add_zero]
+      show _ = k • m.denote ctx + p.denote ctx
+      congr 1
+      simp only [Bool.and_eq_true, beq_iff_eq] at h
+      have ⟨d, hd⟩ : c ^ m.degreeOf x ∣ k := Int.dvd_of_emod_eq_zero h.2
+      rw [Ring.zsmul_eq_intCast_mul, Ring.zsmul_eq_intCast_mul, Mon.denote_cancelVar ctx m x, hd,
+        Int.mul_ediv_cancel_left _ (Int.pow_ne_zero h₁), Ring.intCast_mul, Ring.intCast_pow]
+      rw [CommSemiring.mul_comm ((c : α) ^ _), Semiring.mul_assoc, ← Semiring.mul_assoc ((c : α) ^ _),
+        ← CommSemiring.mul_pow, h₂, Semiring.one_pow, Semiring.one_mul]
+
+theorem Poly.denote_cancelVarB_k {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Int) (x : Var)
+    (h₁ : c ≠ 0) (h₂ : c * x.denote ctx = 1) : (p.cancelVarB_k c x).denote ctx = p.denote ctx := by
+  rw [cancelVarB_k, denote_sumB_k ctx _ (denote_combine_k ctx), denoteList_cancelTerms_k ctx p c x h₁ h₂]
+
+theorem Poly.substInvB_k_den (p : Poly) (x : Var) (c : Nat) : (p.substInvB_k x c).den = (p.substInv x c).den := by
+  unfold substInvB_k substInv
+  cases h : Nat.beq c 0
+  · have : (c == 0) = false := h
+    simp only [this, Bool.cond_false]; rw [Poly.maxDegreeOf_k_eq]; rfl
+  · have : (c == 0) = true := h
+    simp only [this, Bool.cond_true]
+
+theorem Poly.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (p : Poly) (x : Var) (c : Nat)
+    (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (p.substInvB_k x c).denote ctx = p.denote ctx := by
+  unfold substInvB_k
+  cases hb : Nat.beq c 0
+  · have hc : c ≠ 0 := Nat.ne_of_beq_eq_false hb
+    have hc' : (c : α) ≠ 0 := Field.natCast_ne_zero hc
+    have h1 : ((c : Int) : α) * x.denote ctx = 1 := by
+      rw [Ring.intCast_natCast, h, ← Semiring.ofNat_eq_natCast, Field.mul_inv_cancel]
+      rw [Semiring.ofNat_eq_natCast]; exact hc'
+    have hpow : (c : α) ^ p.maxDegreeOf x ≠ 0 := fun h => hc' (Field.of_pow_eq_zero _ _ h)
+    show ((p.mulConst_k (Int.ofNat (Nat.pow c (p.maxDegreeOf_k x)))).cancelVarB_k (Int.ofNat c) x).denote ctx
+      * ((Nat.pow c (p.maxDegreeOf_k x) : Nat) : α)⁻¹ = _
+    rw [Int.ofNat_eq_natCast, Poly.denote_cancelVarB_k ctx _ (c : Int) x (by omega) h1, Poly.maxDegreeOf_k_eq, Poly.mulConst_k_eq_mulConst,
+      Poly.denote_mulConst, Int.ofNat_eq_natCast, Ring.intCast_natCast, Nat.pow_eq,
+      Semiring.natCast_pow, CommSemiring.mul_comm _ (p.denote ctx), Semiring.mul_assoc,
+      Field.mul_inv_cancel hpow, Semiring.mul_one]
+  · show p.denote ctx * ((1 : Nat) : α)⁻¹ = _
+    rw [Semiring.natCast_one, Field.inv_one, Semiring.mul_one]
+
+theorem PolyQ.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (q : PolyQ) (x : Var) (c : Nat)
+    (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (q.substInvB_k x c).denote ctx = q.denote ctx := by
+  have := Poly.denote_substInvB_k ctx q.num x c h
+  simp only [PolyQ.substInvB_k, PolyQ.denote] at this ⊢
+  rw [Nat.mul_eq, Semiring.natCast_mul, Field.inv_mul, ← this, Semiring.mul_assoc, CommSemiring.mul_comm ((q.den : α)⁻¹)]
+
+theorem Poly.denote_toPolyQX_k [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (p : Poly) (invs : InvVars)
+    (ainvs : InvAtoms) (h : invs.ok ctx) (h' : ainvs.ok ctx) : (p.toPolyQX_k bal invs ainvs).denote ctx = p.denote ctx := by
+  cases bal
+  · show (p.toPolyQ_k invs ainvs).denote ctx = _; rw [toPolyQ_k_eq_toPolyQ, denote_toPolyQ ctx p invs ainvs h h']
+  · show (PolyQ.reduce_k _).denote ctx = _
+    rw [PolyQ.reduce_k_eq, PolyQ.denote_reduce]
+    suffices ∀ q : PolyQ, (invs.foldl (fun q xc => q.substInvB_k xc.1 xc.2) q).denote ctx = q.denote ctx by
+      rw [this]; simp [PolyQ.denote, Semiring.natCast_one, Field.inv_one, Semiring.mul_one, cancelInvs_k_eq_cancelInvs,
+        Poly.denote_cancelInvs _ _ _ h']
+    induction invs with
+    | nil => intro q; rfl
+    | cons xc invs ih =>
+      intro q
+      rw [InvVars.ok_cons] at h
+      rw [List.foldl_cons, ih h.2, PolyQ.denote_substInvB_k _ _ _ _ h.1]
+
+theorem Poly.toPolyQX_k_den_ne_zero (bal : Bool) (p : Poly) (invs : InvVars) (ainvs : InvAtoms) :
+    (p.toPolyQX_k bal invs ainvs).den ≠ 0 := by
+  cases bal
+  · show (p.toPolyQ_k invs ainvs).den ≠ 0; rw [toPolyQ_k_eq_toPolyQ]; exact toPolyQ_den_ne_zero p invs ainvs
+  · show (PolyQ.reduce_k _).den ≠ 0
+    rw [PolyQ.reduce_k_eq]; apply PolyQ.reduce_den_ne_zero
+    suffices ∀ q : PolyQ, q.den ≠ 0 → (invs.foldl (fun q xc => q.substInvB_k xc.1 xc.2) q).den ≠ 0 from
+      this _ Nat.one_ne_zero
+    induction invs with
+    | nil => intro q h; exact h
+    | cons xc invs ih =>
+      intro q h
+      rw [List.foldl_cons]
+      apply ih
+      show Nat.mul q.den (q.num.substInvB_k xc.1 xc.2).den ≠ 0
+      rw [Poly.substInvB_k_den]
+      exact Nat.mul_ne_zero h (Poly.substInv_den_ne_zero q.num xc.1 xc.2)
 
 private theorem sub_nonpos_iff [Ring α] [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} : a - b ≤ 0 ↔ a ≤ b := by
   rw [← OrderedAdd.neg_nonneg_iff, AddCommGroup.neg_sub, OrderedAdd.sub_nonneg_iff]
@@ -458,41 +663,42 @@ theorem lt_normA_expr [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreord
 
 /-! ## Certificates for rational coefficients -/
 
-noncomputable def Expr.toPolyQ_cert (invs : InvVars) (ainvs : InvAtoms) (a b : Expr) : Bool :=
-  (a.toPoly_k.toPolyQ_k invs ainvs).beq' (b.toPoly_k.toPolyQ_k invs ainvs)
+noncomputable def Expr.toPolyQ_cert (bal : Bool) (invs : InvVars) (ainvs : InvAtoms) (a b : Expr) : Bool :=
+  ((a.toPolyX_k bal).toPolyQX_k bal invs ainvs).beq' ((b.toPolyX_k bal).toPolyQX_k bal invs ainvs)
 
-theorem Expr.eq_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
-    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (a b : Expr) (h : toPolyQ_cert invs ainvs a b) :
+theorem Expr.eq_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx)
+    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (a b : Expr) (h : toPolyQ_cert bal invs ainvs a b) :
     a.denote ctx = b.denote ctx := by
-  simp only [toPolyQ_cert, PolyQ.beq'_eq, Poly.toPolyQ_k_eq_toPolyQ, Expr.toPoly_k_eq_toPoly] at h
-  change a.toPolyQ invs ainvs = b.toPolyQ invs ainvs at h
-  have ha := denote_toPolyQ ctx a invs ainvs hok hoka
-  have hb := denote_toPolyQ ctx b invs ainvs hok hoka
+  simp only [toPolyQ_cert, PolyQ.beq'_eq] at h
+  have ha := Poly.denote_toPolyQX_k ctx bal (a.toPolyX_k bal) invs ainvs hok hoka
+  have hb := Poly.denote_toPolyQX_k ctx bal (b.toPolyX_k bal) invs ainvs hok hoka
+  rw [Expr.denote_toPolyX_k] at ha hb
   rw [← ha, ← hb, h]
 
 /-- `lhs' - rhs'` is the numerator of `lhs - rhs`; the relation between `lhs'` and `rhs'` is denominator-free. -/
-noncomputable def normQ_cert (invs : InvVars) (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
-  ((lhs.sub rhs).toPoly_k.toPolyQ_k invs ainvs).num.beq' (lhs'.sub rhs').toPoly_k
+noncomputable def normQ_cert (bal : Bool) (invs : InvVars) (ainvs : InvAtoms) (lhs rhs lhs' rhs' : Expr) : Bool :=
+  (((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).num.beq' ((lhs'.sub rhs').toPolyX_k bal)
 
-private theorem denote_sub_of_normQ_cert [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
-    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs lhs' rhs' : Expr) (h : normQ_cert invs ainvs lhs rhs lhs' rhs') :
+private theorem denote_sub_of_normQ_cert [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx)
+    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs lhs' rhs' : Expr) (h : normQ_cert bal invs ainvs lhs rhs lhs' rhs') :
     ∃ d : Nat, d ≠ 0 ∧ lhs.denote ctx - rhs.denote ctx = (lhs'.denote ctx - rhs'.denote ctx) * (d : α)⁻¹ := by
-  simp only [normQ_cert, Poly.beq'_eq, Poly.toPolyQ_k_eq_toPolyQ, Expr.toPoly_k_eq_toPoly] at h
-  change ((lhs.sub rhs).toPolyQ invs ainvs).num = (lhs'.sub rhs').toPoly at h
-  refine ⟨((lhs.sub rhs).toPolyQ invs ainvs).den, Expr.toPolyQ_den_ne_zero (lhs.sub rhs) invs ainvs, ?_⟩
-  have h₁ := Expr.denote_toPolyQ ctx (lhs.sub rhs) invs ainvs hok hoka
-  have h₂ := Expr.denote_toPoly ctx (lhs'.sub rhs')
+  simp only [normQ_cert, Poly.beq'_eq] at h
+  refine ⟨(((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).den,
+    Poly.toPolyQX_k_den_ne_zero bal _ invs ainvs, ?_⟩
+  have h₁ := Poly.denote_toPolyQX_k ctx bal ((lhs.sub rhs).toPolyX_k bal) invs ainvs hok hoka
+  have h₂ := Expr.denote_toPolyX_k ctx bal (lhs'.sub rhs')
+  rw [Expr.denote_toPolyX_k] at h₁
   simp only [PolyQ.denote, h] at h₁
-  replace h₁ : (lhs'.sub rhs').toPoly.denote ctx * (((lhs.sub rhs).toPolyQ invs ainvs).den : α)⁻¹
+  replace h₁ : ((lhs'.sub rhs').toPolyX_k bal).denote ctx * ((((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).den : α)⁻¹
       = lhs.denote ctx - rhs.denote ctx := h₁
-  replace h₂ : (lhs'.sub rhs').toPoly.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h₂
+  replace h₂ : ((lhs'.sub rhs').toPolyX_k bal).denote ctx = lhs'.denote ctx - rhs'.denote ctx := h₂
   rw [← h₁, h₂]
 
-theorem eq_normQ_expr [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx)
+theorem eq_normQ_expr [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx)
     (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs lhs' rhs' : Expr) :
-    normQ_cert invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
+    normQ_cert bal invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   intro h
-  obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx invs hok ainvs hoka lhs rhs lhs' rhs' h
+  obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx bal invs hok ainvs hoka lhs rhs lhs' rhs' h
   have hd' : (d : α)⁻¹ ≠ 0 := by rw [Ne, Field.inv_eq_zero_iff]; exact Field.natCast_ne_zero hd
   rw [← AddCommGroup.sub_eq_zero_iff (a := lhs.denote ctx) (b := rhs.denote ctx),
     ← AddCommGroup.sub_eq_zero_iff (a := lhs'.denote ctx) (b := rhs'.denote ctx), h]
@@ -502,6 +708,38 @@ theorem eq_normQ_expr [Field α] [IsCharP α 0] (ctx : Context α) (invs : InvVa
     · exact h0
     · exact absurd h0 hd'
   · intro h0; rw [h0, Semiring.zero_mul]
+
+theorem eq_true_of_polyQ0 [Field α] [IsCharP α 0] (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx)
+    (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr)
+    (h : (((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).num = .num 0) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have h₁ := Poly.denote_toPolyQX_k ctx bal ((lhs.sub rhs).toPolyX_k bal) invs ainvs hok hoka
+  rw [Expr.denote_toPolyX_k] at h₁
+  simp only [PolyQ.denote, h] at h₁
+  replace h₁ : ((0 : Int) : α) * (((((lhs.sub rhs).toPolyX_k bal).toPolyQX_k bal invs ainvs).den : Nat) : α)⁻¹
+      = lhs.denote ctx - rhs.denote ctx := h₁
+  rw [Ring.intCast_zero, Semiring.zero_mul] at h₁
+  exact eq_true (AddCommGroup.sub_eq_zero_iff.mp h₁.symm)
+
+theorem eq_true_of_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal₁ bal₂ : Bool) (invs : InvVars)
+    (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr) (q : PolyQ)
+    (h₁ : q = (lhs.toPolyX_k bal₁).toPolyQX_k bal₁ invs ainvs) (h₂ : q = (rhs.toPolyX_k bal₂).toPolyQX_k bal₂ invs ainvs) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Poly.denote_toPolyQX_k ctx bal₁ (lhs.toPolyX_k bal₁) invs ainvs hok hoka
+  have e₂ := Poly.denote_toPolyQX_k ctx bal₂ (rhs.toPolyX_k bal₂) invs ainvs hok hoka
+  rw [← h₁, Expr.denote_toPolyX_k] at e₁
+  rw [← h₂, Expr.denote_toPolyX_k] at e₂
+  exact eq_true (e₁.symm.trans e₂)
+
+theorem eq_true_of_denote_toPolyQ_eq [Field α] [IsCharP α 0] (ctx : Context α) (bal₁ bal₂ : Bool) (invs : InvVars)
+    (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx) (lhs rhs : Expr) (pl pr : Poly) (q : PolyQ)
+    (h₁ : lhs.denote ctx = pl.denote ctx) (h₂ : rhs.denote ctx = pr.denote ctx)
+    (hq₁ : q = pl.toPolyQX_k bal₁ invs ainvs) (hq₂ : q = pr.toPolyQX_k bal₂ invs ainvs) :
+    (lhs.denote ctx = rhs.denote ctx) = True := by
+  have e₁ := Poly.denote_toPolyQX_k ctx bal₁ pl invs ainvs hok hoka
+  have e₂ := Poly.denote_toPolyQX_k ctx bal₂ pr invs ainvs hok hoka
+  rw [← hq₁] at e₁; rw [← hq₂] at e₂
+  exact eq_true (h₁.trans (e₁.symm.trans (e₂.trans h₂.symm)))
 
 section
 variable {α : Type u} [Field α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
@@ -519,19 +757,19 @@ end
 section
 variable {α : Type u} [Field α] [IsCharP α 0] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α]
 
-theorem le_normQ_expr (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx)
+theorem le_normQ_expr (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx)
     (lhs rhs lhs' rhs' : Expr) :
-    normQ_cert invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
+    normQ_cert bal invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
   intro h
-  obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx invs hok ainvs hoka lhs rhs lhs' rhs' h
+  obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx bal invs hok ainvs hoka lhs rhs lhs' rhs' h
   have hd' : (0 : α) < d := OrderedRing.pos_natCast_of_pos d (Nat.pos_of_ne_zero hd)
   rw [← sub_nonpos_iff, ← sub_nonpos_iff (a := lhs'.denote ctx), h, mul_inv_nonpos_iff hd']
 
-theorem lt_normQ_expr (ctx : Context α) (invs : InvVars) (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx)
+theorem lt_normQ_expr (ctx : Context α) (bal : Bool) (invs : InvVars) (hok : invs.ok ctx) (ainvs : InvAtoms) (hoka : ainvs.ok ctx)
     (lhs rhs lhs' rhs' : Expr) :
-    normQ_cert invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
+    normQ_cert bal invs ainvs lhs rhs lhs' rhs' → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
   intro h
-  obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx invs hok ainvs hoka lhs rhs lhs' rhs' h
+  obtain ⟨d, hd, h⟩ := denote_sub_of_normQ_cert ctx bal invs hok ainvs hoka lhs rhs lhs' rhs' h
   have hd' : (0 : α) < d := OrderedRing.pos_natCast_of_pos d (Nat.pos_of_ne_zero hd)
   rw [← sub_neg_iff, ← sub_neg_iff (a := lhs'.denote ctx), h, mul_inv_neg_iff hd']
 

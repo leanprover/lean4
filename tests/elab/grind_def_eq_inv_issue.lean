@@ -15,17 +15,7 @@ opaque keys : List (Sigma β) → List α
 variable [DecidableEq α] [DecidableEq α']
 
 /--
-error: `grind` failed
-case grind
-α : Type
-β β' : α → Type
-f : (a : α) → β a → β' a
-head : (a : α) × β a
-tail : List ((a : α) × β a)
-tail_ih : (map (Sigma.map id f) tail).keys = tail.keys
-h : ¬(map (Sigma.map id f) (head :: tail)).keys = (head :: tail).keys
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 set_option grind.debug true in

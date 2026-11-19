@@ -107,8 +107,8 @@ trace: [Meta.synthInstance.cache] cached: OP Nat NotBool
 #guard_msgs in
 def q4 : Unit := let _ : OP Nat NotBool := inferInstance; ()
 
--- The hint is irrelevant to both cached queries, but a change of the unification hints drops the
--- persisted cache as a whole, whether or not a search consulted the hints.
+-- The hint is irrelevant to both cached queries, but a change of the unification hints invalidates
+-- every entry whose search consulted the hints (`OP Nat NotBool`), and only those (`R Nat`).
 @[unification_hint] def yetAnotherHint : Prop := YetAnotherNat = Nat
 
 /--
@@ -122,7 +122,7 @@ trace: [Meta.synthInstance.cache] new: OP Nat NotBool
 #guard_msgs in
 def q5 : Unit := let _ : OP Nat NotBool := inferInstance; ()
 
-/-- trace: [Meta.synthInstance.cache] new: R Nat -/
+/-- trace: [Meta.synthInstance.cache] cached: R Nat -/
 #guard_msgs in
 def q6 : Unit := let _ : R Nat := inferInstance; ()
 

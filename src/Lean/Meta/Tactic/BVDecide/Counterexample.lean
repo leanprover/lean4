@@ -7,6 +7,8 @@ module
 prelude
 
 import Lean.Meta.Tactic.BVDecide.Reflect.SatAtBVLogical
+import Std.Tactic.BVDecide.EPR.BitVec
+import Std.Tactic.BVDecide.Normalize.Prop
 public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.Basic
@@ -158,24 +160,36 @@ Diagnose spurious counter examples, currently this checks:
 -/
 def diagnose : DiagnosisM Unit := do
   for funAtom in (← read).functionAtoms do
+    if (isEprPredApp? funAtom).isSome then continue
     addFunctionSymbol funAtom
 
   for (var, value) in ← equations do
-    let (var, value) ← transformEquation var value
+    let (var, value, fvarId?) ← transformEquation var value
     addDerivedEquation var value
-    match var with
-    | .fvar fvarId => checkRelevantHypsUsed fvarId
-    | _ =>
+    match fvarId? with
+    | some fvarId => checkRelevantHypsUsed fvarId
+    | none =>
       if ← isFunctionSymbol var then continue
       addUninterpretedSymbol var
 where
-  transformEquation (var : Expr) (value : BVExpr.PackedBitVec) : DiagnosisM (Expr × Expr) := do
+  transformEquation (var : Expr) (value : BVExpr.PackedBitVec) :
+      DiagnosisM (Expr × Expr × Option FVarId) := do
+    if let some (var, value) ← transformEprEquation? var value then
+      return (var, value, var.getAppFn.fvarId?)
+    else
+      let (var, value) ← transformBitVecEquation var value
+      return (var, value, var.fvarId?)
+
+  transformBitVecEquation (var : Expr) (value : BVExpr.PackedBitVec) : DiagnosisM (Expr × Expr) := do
     if var.isFVar then
       return (var, toExpr value.bv)
     else
       match_expr var with
       | BitVec.ofBool x =>
-        return (x, toExpr <| value.bv == 1)
+        if x.isAppOfArity ``Std.Tactic.BVDecide.Bool.ofProp 1 then
+          return (x.appArg!, mkConst (if value.bv == 1 then ``True else ``False))
+        else
+          return (x, toExpr <| value.bv == 1)
       | UInt8.toBitVec x =>
         if h : value.w = 8 then
           return (x, toExpr <| UInt8.ofBitVec (h ▸ value.bv))
@@ -248,6 +262,40 @@ where
             return (var, toExpr value.bv)
         | _ => return (var, toExpr value.bv)
 
+  transformEprEquation? (var : Expr) (value : BVExpr.PackedBitVec) :
+      DiagnosisM (Option (Expr × Expr)) := do
+    match_expr var with
+    | BitVec.ofBool predAtom =>
+      let some (predApp, predEncoding) := isEprPredApp? predAtom | return none
+      let value :=
+        match predEncoding with
+        | .prop => if value.bv == 1 then ``True else ``False
+        | .bool => if value.bv == 1 then ``Bool.true else ``Bool.false
+      return some (predApp, mkConst value)
+    | _ =>
+      let some (sort, elem) := isEprElement? var | return none
+      let some sortFVarId := sort.fvarId? | throwError m!"EPR sort is not an FVarId"
+      let sortName ← sortFVarId.getUserName
+      return some (elem, mkConst (sortName.appendAfter value.bv.toNat.toSubscriptString))
+
+  isEprElement? (e : Expr) : Option (Expr × Expr) := do
+    let_expr Std.Tactic.BVDecide.EPR.BitVec.toBvAux α  _ _ _ elem := e | none
+    return (α, elem)
+
+  isEprPredApp? (e : Expr) : Option (Expr × EPR.PredEncoding) :=
+    e.withApp fun fn args => do
+      let .const fn _ := fn | none
+      let getPropArity (fn : Name) : Option (Nat × EPR.PredEncoding) := do
+        return (← EPR.BitVec.toBvPredPropArity[fn]?, .prop)
+      let getBoolArity (fn : Name) : Option (Nat × EPR.PredEncoding) := do
+        return (← EPR.BitVec.toBvPredBoolArity[fn]?, .bool)
+
+      let (arity, encoding) ← (Option.or (getPropArity fn) (getBoolArity fn))
+      guard <| args.size == 5 * arity + 1
+      let elems ← args[(4 * arity + 1)...*].toArray.mapM fun arg => do
+        let (_, elem) ← isEprElement? arg
+        return elem
+      return (mkAppN args[4 * arity]! elems, encoding)
 
 end DiagnosisM
 

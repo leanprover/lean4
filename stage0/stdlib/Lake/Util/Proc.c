@@ -493,7 +493,6 @@ _start:
 {
 lean_object* v_res_161_; 
 v_res_161_ = l_Lake_rawProc___lam__0(v_args_156_, v_input_x3f_157_, v_____r_158_, v___y_159_);
-lean_dec(v_input_x3f_157_);
 return v_res_161_;
 }
 }
@@ -586,7 +585,6 @@ _start:
 uint8_t v_quiet_boxed_192_; lean_object* v_res_193_; 
 v_quiet_boxed_192_ = lean_unbox(v_quiet_188_);
 v_res_193_ = l_Lake_rawProc(v_args_187_, v_quiet_boxed_192_, v_input_x3f_189_, v_a_190_);
-lean_dec(v_input_x3f_189_);
 return v_res_193_;
 }
 }
@@ -935,7 +933,6 @@ _start:
 uint8_t v_quiet_boxed_347_; lean_object* v_res_348_; 
 v_quiet_boxed_347_ = lean_unbox(v_quiet_343_);
 v_res_348_ = l_Lake_proc(v_args_342_, v_quiet_boxed_347_, v_input_x3f_344_, v_a_345_);
-lean_dec(v_input_x3f_344_);
 return v_res_348_;
 }
 }

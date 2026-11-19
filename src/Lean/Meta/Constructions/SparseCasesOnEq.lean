@@ -89,7 +89,7 @@ def isName (env : Environment) (n : Name) : Bool :=
   else
     false
 
-builtin_initialize registerReservedNamePredicate isName
+builtin_initialize registerReservedNamePredicate (· == "else_eq") isName
 
 builtin_initialize registerReservedNameAction fun name => do
   if isName (← getEnv) name then

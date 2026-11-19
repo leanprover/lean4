@@ -1,0 +1,1 @@
+../../compile_bench/run_test.sh

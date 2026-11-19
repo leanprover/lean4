@@ -32,13 +32,18 @@ private def isCongruentCheck (e₁ e₂ : Expr) : GoalM Bool := do
     let f := e₁.getAppFn
     let g := e₂.getAppFn
     if isSameExpr f g then return true
-    hasSameType f g
+    -- Misses the congruence if the types are definitionally equal only with `default` transparency.
+    hasSameTypeI f g
 where
   go (e₁ e₂ : Expr) : GoalM Bool := do
     let .app f _ := e₁ | return false
     let .app g _ := e₂ | return false
     if isSameExpr f g then return true
-    if (← hasSameType f g) then return true
+    /-
+    If the types are definitionally equal only with `default` transparency, we try shorter prefixes,
+    and miss the congruence if none works. `mkCongrProofFunCC` must make the same choices.
+    -/
+    if (← hasSameTypeI f g) then return true
     go f g
 
 /-- Adds `e` to congruence table. -/
@@ -402,10 +407,20 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
             proj ← markProof proj
           ctorApp := mkApp ctorApp proj
         ctorApp ← preprocessLight ctorApp
-        internalize ctorApp generation
         let u ← getLevel aType
         let expectedProp := mkApp3 (mkConst ``Eq [u]) aType a ctorApp
-        pushEq a ctorApp <| mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
+        let proof := mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [u]) aType a) expectedProp
+        /-
+        **Note**: We must not internalize `ctorApp` here. Suppose `g : Nat → {x : Int // p x}`, and
+        we are internalizing `(g y).val`. Its `ENode` is created before its arguments are visited, so
+        `(g y).val` is in progress when we internalize its argument `g y` and reach this point with
+        `a := g y`. Then `ctorApp` is `⟨(g y).val, (g y).property⟩`, which contains the in-progress
+        application `(g y).val`. Internalizing it now would treat `(g y).val` as complete and hand it to
+        the solver hooks with missing arguments (e.g., `lia` fails with "term has not been internalized").
+        Thus, we queue `ctorApp` and the equality `a = ctorApp`; they are processed by `processToDo`
+        when no application is in progress. See the section on re-entrant internalization below and #16101.
+        -/
+        pushInternalizeRhsAddEq a ctorApp proof generation
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=
@@ -512,42 +527,6 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
-/-- Literal applications that `internalize` handles specially. -/
-private inductive LitKind where
-  | notLit
-  /-- A `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, or `Int64` literal. -/
-  | nonParametric
-  /-- An `OfNat.ofNat` literal of type `BitVec _` or `Fin _`. -/
-  | ofNatFinBitVec
-
-/--
-Classifies the application `e`. For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
-The types of nonparametric literals are reduced using `whnfD`, but `BitVec` and `Fin` must occur syntactically.
--/
-private def getLitKind (e : Expr) : MetaM LitKind := do
-  match_expr e with
-  | OfNat.ofNat type n _ =>
-    unless n.consumeMData.isRawNatLit do return .notLit
-    match_expr type with
-    | BitVec w => return if (← isNatValue (← whnfD w)) then .ofNatFinBitVec else .notLit
-    | Fin k => return if (← isNonZeroNatValue (← whnfD k)) then .ofNatFinBitVec else .notLit
-    | _ =>
-      let .const declName _ := (← whnfD type).getAppFn | return .notLit
-      if declName == ``Nat || declName == ``Int
-          || declName == ``UInt8 || declName == ``UInt16 || declName == ``UInt32 || declName == ``UInt64
-          || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
-        return .nonParametric
-      return .notLit
-  | Neg.neg _ _ a =>
-    let_expr OfNat.ofNat type n _ ← a | return .notLit
-    unless n.consumeMData.isRawNatLit do return .notLit
-    let .const declName _ := (← whnfD type).getAppFn | return .notLit
-    if declName == ``Int || declName == ``Int8 || declName == ``Int16 || declName == ``Int32 || declName == ``Int64 then
-      return .nonParametric
-    return .notLit
-  | Char.ofNat n => return if (← isNatValue n) then .nonParametric else .notLit
-  | _ => return .notLit
-
 /--
 Internalizer for nonparametric literals (see `getLitKind`).
 For this kind of literal, we do **not** internalize its children nor
@@ -622,7 +601,9 @@ only solver code that runs in this position. The `newEq`/`newDiseq` callbacks tr
 (`ToProcessElement.propagateUp`); both run from `processToDo`, when no application is in progress.
 A hook therefore only has to avoid internalizing a term that contains one of its own strict
 ancestors. A hook that must state a fact about such a term queues it with `pushNewFactCore`; the
-term is internalized when the fact is processed.
+term is internalized when the fact is processed. Structure eta is handled the same way:
+`a = ⟨a.1, ..., a.n⟩` is queued (`ToProcessElement.internalizeRhsAddEq`) because the projections
+`a.i` may be strict ancestors of `a`.
 
 **Checking.** When `isDebugEnabled` holds, `GoalState.internalizing` holds the in-progress
 applications, and the `alreadyInternalized` branch throws an internal error if it reaches one of

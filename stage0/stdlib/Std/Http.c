@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Http
-// Imports: public import Std.Http.Server public import Std.Http.Test.Helpers
+// Imports: public import Std.Http.Server import Std.Http.Test.Helpers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -64,31 +64,7 @@ def DvdNotUnit (a b : α) : Prop :=
   a ≠ 0 ∧ ∃ x, ¬IsUnit x ∧ b = a * x
 
 /--
-error: `grind` failed
-case grind.1
-α : Type
-inst : Mul α
-inst_1 : One α
-inst_2 : Zero α
-x y : α
-h : DvdNotUnit x y
-hx0 : x ≠ 0
-d : α
-hdu : ¬IsUnit d
-hdx : y = x * d
-h_1 : y ∣ x
-e : α
-he : x = y * e
-h_2 : ¬x * 1 = x * (d * e)
-left : IsUnit e
-w : α
-left_1 : e * w = 1
-right_1 : w * e = 1
-w_1 : α
-left_2 : e * w_1 = 1
-right_2 : w_1 * e = 1
-⊢ False
-use `+verbose` to obtain diagnostic information
+error: `grind` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 theorem dvd_and_not_dvd_iff {x y : α} :

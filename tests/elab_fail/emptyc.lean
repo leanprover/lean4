@@ -1,6 +1,6 @@
 
 
-structure A :=
+structure A where
 (x : Nat := 0)
 
 def foo : A :=

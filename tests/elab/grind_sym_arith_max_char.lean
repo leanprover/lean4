@@ -35,6 +35,22 @@ set_option backward.grind.normalizer false in
 example (h : Fin 2 → Fin 2) : h ↑(3 : Nat) = h 1 := by grind
 end
 
+-- Field division is still rewritten to multiplication by the inverse: the ring module does not
+-- interpret `/`.
+section
+variable {α : Type} [Lean.Grind.Field α]
+example [Lean.Grind.IsCharP α 7] (a b c : α) : a / c = b := by
+  grind_norm sym; guard_target = (a * c⁻¹ = b); sorry
+example [Lean.Grind.IsCharP α 7] (a b c : α) : a / c = b := by grind_norm check; sorry
+set_option backward.grind.normalizer false in
+example [Lean.Grind.IsCharP α 7] (a b c : α) : a / c = b → b = a * c⁻¹ := by grind
+set_option backward.grind.normalizer false in
+example [Lean.Grind.IsCharP α 3] (a b : α) : a / 3 = b → b = 0 := by grind
+set_option backward.grind.normalizer false in
+example [Lean.Grind.IsCharP α 7] (a b c : α) : a / 3 = b → c = a / 3 → a / 2 + a / 2 = b + 2 * c + 7 := by
+  grind
+end
+
 -- Characteristic zero is unaffected.
 example (x y : Int) : x - y = 3 := by grind_norm sym; guard_target = (x + -1 * y + -3 = 0); sorry
 

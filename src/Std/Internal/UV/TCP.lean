@@ -127,6 +127,13 @@ Throws if a shutdown was already requested for this socket, whether or not it ha
 opaque shutdown (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
+Closes a TCP socket. A pending read or accept fails, pending writes and shutdowns are cancelled, and
+every later operation on the socket fails. Closing a closed socket does nothing.
+-/
+@[extern "lean_uv_tcp_close"]
+opaque close (socket : @& Socket) : IO Unit
+
+/--
 Gets the remote address of a connected TCP socket.
 -/
 @[extern "lean_uv_tcp_getpeername"]

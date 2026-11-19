@@ -323,6 +323,8 @@ where
             return some (mkApp h (← mkLambdaFVars xs hx))
           return none
     else if root.interpreted then
+      -- `rhs` may be a pattern variable, as in `3 ≍ x` from `(3, false) = (x, true)` (issue #16168).
+      unless (← isLitValue rhs) do return none
       if (← normLitValue root.self) != (← normLitValue rhs) then
         let hne ← mkDecideProof (mkNot (← mkEq root.self rhs))
         return some (mkApp hne h)

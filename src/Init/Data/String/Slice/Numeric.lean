@@ -94,7 +94,7 @@ A slice can be interpreted as a decimal natural number if it is not empty and al
 it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
-alternative that returns {name}`none` instead of panicking when the string is not a natural number.
+alternative that returns {name}`none` instead of panicking when the slice is not a natural number.
 
 Examples:
  * {lean}`"0".toSlice.toNat! = 0`
@@ -112,9 +112,11 @@ def toNat! (s : Slice) : Nat :=
 Checks whether the slice can be interpreted as the decimal representation of an integer.
 
 A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
-and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+and optionally {lit}`-` in front. Underscores ({lit}`_`) are allowed as digit separators for
+readability, but cannot appear at the start, directly after the {lit}`-`, at the end, or
+consecutively. Leading {lit}`+` characters are not allowed.
 
-Use {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt!` to convert such a string to an integer.
+Use {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice.Numeric")}`String.Slice.toInt!` to convert such a slice to an integer.
 
 Examples:
  * {lean}`"".toSlice.isInt = false`
@@ -138,14 +140,16 @@ def isInt (s : Slice) : Bool :=
 
 /--
 Interprets a slice as the decimal representation of an integer, returning it. Returns {lean}`none` if
-the string does not contain a decimal integer.
+the slice does not contain a decimal integer.
 
-A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
-and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Underscores ({lit}`_`) are allowed as digit separators for
+readability, but cannot appear at the start, directly after the {lit}`-`, at the end, or
+consecutively. Leading {lit}`+` characters are not allowed.
 
 Use {name}`Slice.isInt` to check whether {name}`Slice.toInt?` would return {lean}`some`.
 {name (scope := "Init.Data.String.Slice.Numeric")}`Slice.toInt!` is an alternative that panics instead of
-returning {lean}`none` when the string is not an integer.
+returning {lean}`none` when the slice is not an integer.
 
 Examples:
  * {lean}`"".toSlice.toInt? = none`
@@ -167,15 +171,17 @@ def toInt? (s : Slice) : Option Int :=
   | none => s.toNat?.map Int.ofNat
 
 /--
-Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+Interprets a slice as the decimal representation of an integer, returning it. Panics if the slice
 does not contain a decimal integer.
 
-A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
-and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Underscores ({lit}`_`) are allowed as digit separators for
+readability, but cannot appear at the start, directly after the {lit}`-`, at the end, or
+consecutively. Leading {lit}`+` characters are not allowed.
 
 Use {name}`Slice.isInt` to check whether {name}`Slice.toInt!` would return a value.
 {name}`Slice.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
-string is not an integer.
+slice is not an integer.
 
 Examples:
  * {lean}`"0".toSlice.toInt! = 0`

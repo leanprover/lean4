@@ -37,7 +37,7 @@ inline void consume_io_result(object * o) {
     dec(o);
 }
 
-template<typename T> T get_io_scalar_result(object * o) {
+inline uint32 get_io_uint32_result(object * o) {
     if (io_result_is_error(o)) {
         object * err_obj = io_result_get_error(o);
         inc(err_obj);
@@ -45,7 +45,7 @@ template<typename T> T get_io_scalar_result(object * o) {
         string_ref error(lean_io_error_to_string(err_obj));
         throw exception(error.to_std_string());
     } else {
-        T r = unbox(io_result_get_value(o));
+        uint32 r = unbox_uint32(io_result_get_value(o));
         dec(o);
         return r;
     }

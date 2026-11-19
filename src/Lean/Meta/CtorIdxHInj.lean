@@ -55,7 +55,7 @@ where
       mvarId.refl
 
 
-builtin_initialize registerReservedNamePredicate fun env n =>
+builtin_initialize registerReservedNamePredicate (· == "hinj") fun env n =>
   match n with
   | .str p "hinj" => (isCtorIdxCore? env p).isSome
   | _ => false

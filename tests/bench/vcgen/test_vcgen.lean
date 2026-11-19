@@ -61,8 +61,8 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
     `(tactic| vcgen) `(tactic| grind) [10]
-  runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step]
-    `(tactic| vcgen +jp) `(tactic| sorry) [3]
+  runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop]
+    `(tactic| vcgen +jp [IfsJP.step]) `(tactic| sorry) [3]
   runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step]
     `(tactic| vcgen +jp) `(tactic| sorry) [3]
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
@@ -72,7 +72,7 @@ set_option maxHeartbeats 10000000
       LoopInvariant.M.rcx_mk, LoopInvariant.M.r8_mk, LoopInvariant.M.lt_mk]
       with finish -abstractProof) `(tactic| fail) [2]
 
--- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
+-- Verify `simp [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--
 trace: s : Nat
 a✝ : s ≤ 0
@@ -86,13 +86,13 @@ h✝³ : ¬6 < s + 6
 h✝² : ¬7 < s + 7
 h✝¹ : ¬8 < s + 8
 h✝ : ¬9 < s + 9
-⊢ s + 9 + 1 = 10
+⊢ s + 10 = 10
 -/
 #guard_msgs in
 open GetThrowSet in
 example : Goal 10 := by
   simp only [Goal, loop, step]
-  vcgen simplifying_assumptions [Nat.add_assoc]
+  vcgen simp [Nat.add_assoc]
   case vc11 => trace_state; grind
   all_goals grind
 

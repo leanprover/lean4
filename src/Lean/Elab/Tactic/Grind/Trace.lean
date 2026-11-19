@@ -87,7 +87,7 @@ def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
       | .stuck gs =>
         let goal :: _ := gs | throwError "`finish?` failed, but resulting goal is not available"
         let result ← mkResult params (some goal)
-        throwError "`finish?` failed\n{← result.toMessageData}"
+        throwError (← result.toErrorMessageData `finish?)
         return false
     if solved then
       replaceMainGoal []

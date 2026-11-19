@@ -26,11 +26,11 @@ and `notify` wakes all of them.
 namespace Std
 open Std.Async
 
-inductive Notify.Consumer (α : Type) where
+private inductive Notify.Consumer (α : Type) where
   | normal (promise : IO.Promise α)
   | select (finished : Waiter α)
 
-def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
+private def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
   match c with
   | .normal promise =>
     promise.resolve x
@@ -45,7 +45,7 @@ def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
 /--
 The central state structure for a `Notify`.
 -/
-structure Notify.State where
+private structure Notify.State where
 
   /--
   Consumers that are blocked waiting for a notification.
@@ -57,7 +57,7 @@ A notify is a synchronization primitive that allows multiple consumers to wait
 until notify is called.
 -/
 structure Notify where
-  state : Std.Mutex Notify.State
+  private state : Std.Mutex Notify.State
 
 namespace Notify
 

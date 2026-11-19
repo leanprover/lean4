@@ -51,7 +51,7 @@ PERF_UNITS = {
 }
 
 RUSAGE_METRICS = {
-    "maxrss": RusageMetric("ru_maxrss", factor=1000, unit="B"),  # KiB on linux
+    "maxrss": RusageMetric("ru_maxrss", factor=1024, unit="B"),  # KiB on linux
 }
 
 # Measured around the command instead of via perf's `duration_time` event, which `perf stat -j`

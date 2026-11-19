@@ -208,7 +208,7 @@ static lean_object* _init_l_Std_Time_Nanosecond_Offset_toMinutes___closed__0(voi
 _start:
 {
 lean_object* v___x_25_; lean_object* v___x_26_; 
-v___x_25_ = lean_cstr_to_nat("60000000000");
+v___x_25_ = lean_uint64_to_nat(60000000000ULL);
 v___x_26_ = lean_nat_to_int(v___x_25_);
 return v___x_26_;
 }
@@ -253,7 +253,7 @@ static lean_object* _init_l_Std_Time_Nanosecond_Offset_toHours___closed__0(void)
 _start:
 {
 lean_object* v___x_37_; lean_object* v___x_38_; 
-v___x_37_ = lean_cstr_to_nat("3600000000000");
+v___x_37_ = lean_uint64_to_nat(3600000000000ULL);
 v___x_38_ = lean_nat_to_int(v___x_37_);
 return v___x_38_;
 }

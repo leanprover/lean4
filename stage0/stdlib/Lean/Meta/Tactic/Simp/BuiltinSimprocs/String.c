@@ -33,7 +33,7 @@ lean_object* l_Lean_Meta_Simp_registerBuiltinDSimproc(lean_object*, lean_object*
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_addSEvalprocBuiltinAttr(lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_Meta_mkStringLitNeProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkStringLitNeProof___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_evalEqPropStep(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_evalNePropStep(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4015,7 +4015,7 @@ LEAN_EXPORT lean_object* l_String_reduceEq___lam__0(lean_object* v_val_1429_, le
 _start:
 {
 lean_object* v___x_1439_; 
-v___x_1439_ = l_Lean_Meta_mkStringLitNeProof(v_val_1429_, v_val_1430_, v___y_1434_, v___y_1435_, v___y_1436_, v___y_1437_);
+v___x_1439_ = l_Lean_Meta_mkStringLitNeProof___redArg(v_val_1429_, v_val_1430_);
 return v___x_1439_;
 }
 }

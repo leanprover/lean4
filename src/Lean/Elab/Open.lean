@@ -10,6 +10,7 @@ public import Lean.Elab.Util
 public import Lean.Parser.Command
 meta import Lean.Parser.Command
 public import Lean.Linter.AmbiguousOpen
+public import Lean.Linter.Deprecated
 import Init.Omega
 
 public section
@@ -71,7 +72,14 @@ def resolveNameUsingNamespacesCore [MonadOptions m] [MonadResolveName m]
   else
     withRef idStx do throwError "ambiguous identifier `{idStx.getId}`, possible interpretations: {result.map mkConst}"
 
-def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+/--
+Elaborates `stx`, returning the resulting open declarations. `reportDeprecated` is called on each
+identifier that is resolved relative to an opened namespace and on the declaration it refers to,
+see `checkDeprecatedOpenedName`.
+-/
+def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m]
+    (stx : TSyntax ``Parser.Command.openDecl)
+    (reportDeprecated : Syntax → Name → m Unit := fun _ _ => pure ()) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
@@ -94,6 +102,7 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
+        reportDeprecated idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
     | `(Parser.Command.openDecl| $nsStx hiding $ids*) =>
       let ns ← resolveUniqueNamespace nsStx
@@ -113,9 +122,24 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
         if (← getInfoState).enabled then
           addConstInfo «from» declName
           addConstInfo to declName
+        reportDeprecated «from» declName
         addOpenDecl (OpenDecl.explicit to.getId declName)
     | _ => throwUnsupportedSyntax
     return (← get).openDecls
+
+/--
+Reports `declName` if it is deprecated, where `idStx` refers to `declName` relative to an opened
+namespace. If the replacement is in that namespace, offers to replace `idStx` by the replacement
+relative to it.
+-/
+def checkDeprecatedOpenedName (idStx : Syntax) (declName : Name) : MetaM Unit := do
+  let numParts := idStx.getId.eraseMacroScopes.getNumParts
+  let ns := (List.range numParts).foldl (fun n _ => n.getPrefix) declName
+  Linter.checkDeprecatedAt idStx declName <| .custom fun newName => do
+    if ns.isPrefixOf newName && newName != ns then
+      Linter.mkReplacementHint idStx (newName.replacePrefix ns .anonymous).toString
+    else
+      return .nil
 
 def resolveNameUsingNamespaces [MonadOptions m] [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
@@ -123,6 +147,6 @@ def resolveNameUsingNamespaces [MonadOptions m] [MonadResolveName m] (nss : List
 
 end OpenDecl
 
-export OpenDecl (elabOpenDecl resolveNameUsingNamespaces)
+export OpenDecl (elabOpenDecl resolveNameUsingNamespaces checkDeprecatedOpenedName)
 
 end Lean.Elab

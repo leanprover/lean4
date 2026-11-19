@@ -26,7 +26,13 @@ structure Config where
   suggestions : Bool := false
   /-- If `locals` is `true`, `grind` will add all definitions from the current file. -/
   locals : Bool := false
-  /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
+  /--
+  Maximum number of branches created by case-splits in the search tree. A case-split with `n` cases
+  creates `n - 1` branches, or `n` if it splits a recursive type. Cases skipped by non-chronological
+  backtracking are not counted. It does not include splits performed during normalization.
+  -/
+  branches : Nat := 1024
+  /-- Deprecated and ignored, use `branches` instead. `splits := 0` is interpreted as `branches := 0`. -/
   splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
@@ -292,7 +298,7 @@ which can be used a starting point for minimal configurations.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure NoopConfig extends Config where
   -- Disable splitting
-  splits := 0
+  branches := 0
   -- We don't override the various `splitMatch` / `splitIte` settings separately.
 
   -- Disable e-matching
@@ -327,8 +333,8 @@ Lemmas tagged with the `@[lia]` attribute are instantiated via E-matching when r
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
-  -- Allow the default number of splits.
-  splits := ({} : Config).splits
+  -- Allow the default number of branches.
+  branches := ({} : Config).branches
   -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
   -- The active theorem set is restricted to lemmas tagged `@[lia]`, not the full `@[grind]` set.
   ematch := ({} : Config).ematch
@@ -342,8 +348,8 @@ A `grind` configuration that only uses `linarith`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure LinarithConfig extends NoopConfig where
   linarith := true
-  -- Allow the default number of splits.
-  splits := ({} : Config).splits
+  -- Allow the default number of branches.
+  branches := ({} : Config).branches
 
 /--
 A `grind` configuration that only uses `order`.
@@ -351,8 +357,8 @@ A `grind` configuration that only uses `order`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure OrderConfig extends NoopConfig where
   order := true
-  -- Allow the default number of splits.
-  splits := ({} : Config).splits
+  -- Allow the default number of branches.
+  branches := ({} : Config).branches
 
 /--
 A `grind` configuration that only uses `ring`.

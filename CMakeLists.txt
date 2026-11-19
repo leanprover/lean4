@@ -106,7 +106,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   endif()
   find_program(LEANTAR leantar)
   if(NOT LEANTAR)
-    set(LEANTAR_VERSION v0.1.20)
+    set(LEANTAR_VERSION v0.1.22-pre1)
     if(CMAKE_SYSTEM_NAME MATCHES "Windows")
       set(LEANTAR_ARCHIVE_SUFFIX .zip)
       set(LEANTAR_TARGET x86_64-pc-windows-msvc)
@@ -131,7 +131,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     if(NOT EXISTS "${LEANTAR}")
       file(
         DOWNLOAD
-          https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
+          https://github.com/nomeata/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
         ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
         STATUS LEANTAR_DOWNLOAD_STATUS
       )
@@ -239,6 +239,10 @@ add_custom_target(update-stage0 COMMAND $(MAKE) -C stage1 update-stage0 DEPENDS 
 add_custom_target(update-stage0-commit COMMAND $(MAKE) -C stage1 update-stage0-commit DEPENDS stage1)
 
 add_custom_target(test COMMAND $(MAKE) -C stage1 test DEPENDS stage1)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten" AND NOT WIN32)
+  add_custom_target(lean-beam COMMAND $(MAKE) -C stage1 lean-beam DEPENDS stage1)
+endif()
 
 add_custom_target(
   bench

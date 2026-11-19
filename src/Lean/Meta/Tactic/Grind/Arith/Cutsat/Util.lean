@@ -69,8 +69,8 @@ known, but future embedded types may be evaluable without one.
 -/
 def canBeEvaluated (α : Expr) : GoalM Bool :=
   match_expr α with
-  | Fin n => return (← getNatValue? n).isSome
-  | BitVec w => return (← getNatValue? w).isSome
+  | Fin n => isNatValue n
+  | BitVec w => isNatValue w
   | UInt8 => return true
   | UInt16 => return true
   | UInt32 => return true

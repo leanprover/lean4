@@ -42,7 +42,7 @@ private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : Sym
   let commRingInst := mkApp2 (mkConst ``Grind.CommRing.OfCommSemiring.ofCommSemiring [u]) base commSemiringInst
   let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
   let semiringInstQ := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
-  let commSemiringInstQ := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInstQ
+  let commSemiringInstQ := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type commRingInst
   registerInstance (mkApp (mkConst ``Grind.CommRing [u]) type) commRingInst
   registerInstance (mkApp (mkConst ``Grind.Ring [u]) type) ringInst
   registerInstance (mkApp (mkConst ``Grind.Semiring [u]) type) semiringInstQ
@@ -101,7 +101,7 @@ private def tryCommRingCore? (type : Expr) : SymM (Option Nat) := do
   let some commRingInst ← Sym.synthInstance? commRing | return none
   let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
-  let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
+  let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type commRingInst
   trace[grind.ring] "new ring: {type}"
   let charInfo ← getCharInfo u type semiringInst
   let noZeroDivInst? ← getNoZeroDivInst? u type

@@ -66,6 +66,7 @@ def elabSimprocRewriteInline : SymSimprocElab := fun stx => do
   let mut thms : Theorems := {}
   for name in names do
     let declName ← realizeGlobalConstNoOverload name
+    Linter.checkDeprecatedAt name declName
     for thm in (← mkTheoremsFromDecl declName) do
       thms := thms.insert thm
   return thms.rewrite (← elabOptDischarger d?)

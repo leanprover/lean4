@@ -71,6 +71,15 @@ structure Config where
   headerTimeout : Time.Millisecond.Offset := 5000
 
   /--
+  Maximum time (in milliseconds) the connection waits for its output to be written without any write
+  completing. Once it passes, the connection to a peer that stopped reading is closed, freeing its
+  socket and its slot in `maxConnections`. A single body chunk sent to a slow peer must be written
+  within this time.
+  Default: 30 seconds.
+  -/
+  writeTimeout : Time.Millisecond.Offset := 30000
+
+  /--
   Whether to enable keep-alive connections by default.
   -/
   enableKeepAlive : Bool := true
@@ -105,6 +114,20 @@ structure Config where
   Maximum number of bytes consumed while parsing request start-lines (default: 8192 bytes).
   -/
   maxStartLineLength : Nat := 8192
+
+  /--
+  Maximum number of path segments in a request-target, empty segments included. A target with more
+  gets `414 URI Too Long`, like one over `maxUriLength`. `none` leaves the count bounded only by
+  `maxUriLength`.
+  -/
+  maxPathSegments : Option Nat := none
+
+  /--
+  Maximum number of query parameters in a request-target, empty parameters included. A target with
+  more gets `414 URI Too Long`, like one over `maxUriLength`. `none` leaves the count bounded only by
+  `maxUriLength`.
+  -/
+  maxQueryParams : Option Nat := none
 
   /--
   Maximum length of header field name (default: 256 bytes)
@@ -167,6 +190,15 @@ structure Config where
   -/
   maxChunkExtensions : Nat := 16
 
+  /--
+  Transfer codings other than `chunked` that the server accepts on a request because the handler
+  decodes them, such as `"gzip"`; names are compared case-insensitively. The handler receives the
+  body without its chunked framing but still coded, and the request's `Transfer-Encoding` field
+  says which codings to decode. A request with any other coding is answered with 501 Not
+  Implemented. Default: none.
+  -/
+  acceptedTransferCodings : Array String := #[]
+
 namespace Config
 
 /--
@@ -180,6 +212,8 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   agentName := config.serverName
   maxUriLength := config.maxUriLength
   maxStartLineLength := config.maxStartLineLength
+  maxPathSegments := config.maxPathSegments
+  maxQueryParams := config.maxQueryParams
   maxHeaderNameLength := config.maxHeaderNameLength
   maxHeaderValueLength := config.maxHeaderValueLength
   maxSpaceSequence := config.maxSpaceSequence
@@ -192,5 +226,6 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxBodySize := config.maxBodySize
   maxReasonPhraseLength := config.maxReasonPhraseLength
   maxTrailerHeaders := config.maxTrailerHeaders
+  acceptedTransferCodings := config.acceptedTransferCodings
 
 end Std.Http.Config

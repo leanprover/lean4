@@ -703,6 +703,8 @@ where
       | .nat v =>
         if v < UInt32.size then
           emit "lean_unsigned_to_nat("; emit v; emit "u)"
+        else if v < UInt64.size then
+          emit "lean_uint64_to_nat("; emit v; emit "ULL)"
         else
           emit "lean_cstr_to_nat(\""; emit v; emit "\")"
       | .str v =>
@@ -1004,6 +1006,11 @@ def emitDeclInit (decl : Decl .impure) (isBuiltin : Bool) : EmitM Unit := do
       emitCName decl.name; emit " = "; emitCInitName decl.name; emitLn "();"
       emitMarkPersistent decl
 
+/--
+Emits the module initializer for the given phases. Across all phases, the initializers of a module
+reference those of every direct import, so its native code cannot be loaded without theirs;
+`runInitAttrs` relies on this to skip looking up initializers of modules importing interpreted ones.
+-/
 def emitInitFn (phases : IRPhases) : EmitM Unit := do
   let env ← getEnv
   let impInitFns ← env.imports.filterMapM fun imp => do

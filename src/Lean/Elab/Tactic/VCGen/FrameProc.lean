@@ -168,6 +168,9 @@ public structure FrameProc where
   mkResourceTy : WPApp → MetaM Expr
   /-- The frame inference metaprogram. -/
   proc : FrameInferenceProc
+  /-- A theorem `WP.Frames op x F P` for every program `x`, frame `F` and guard `P`. A `WP` built
+  as the `frameClosure` of a base `wp` has one. `vcgen` discharges every frame condition with it. -/
+  framesThm? : Option Name := none
 
 /-- The registered frame inference procedures, indexed by the program monad's head constant. -/
 public structure FrameProcs where

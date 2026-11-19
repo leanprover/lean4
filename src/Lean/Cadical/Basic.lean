@@ -200,6 +200,16 @@ public def solve (s : Solver) : BaseIO Status := do
   return .ofInternal status
 
 /--
+Run the SAT solver on current formula and assumptions.
+`shouldTerminate` is polled from within the search every once in a while.
+Once it returns `true` the solver stops and returns `.unknown`.
+-/
+public def solveWithTerminator (s : Solver) (shouldTerminate : BaseIO Bool) : BaseIO Status := do
+  assert! (← s.state).isReady
+  let status ← s.solver.solveWithTerminator shouldTerminate
+  return .ofInternal status
+
+/--
 Obtain the value of a literal in the current model if it exists.
 -/
 public def val (s : Solver) (lit : Nat) : IO Bool := do

@@ -205,7 +205,7 @@ open Elab
 /-- Content of individual `.ilean` files -/
 structure Ilean where
   /-- Version number of the ilean format. -/
-  version       : Nat := 5
+  version       : Nat := 6
   /-- Name of the module that this ilean data has been collected for. -/
   module        : Name
   /-- Direct imports of the module. -/

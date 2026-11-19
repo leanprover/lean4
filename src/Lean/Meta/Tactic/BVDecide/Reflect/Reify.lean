@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVExpr
 import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
 import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
 import Lean.Meta.Sym.LitValues
+import Lean.Util.SafeExponentiation
 import Lean.Meta.AppBuilder
 import Std.Tactic.BVDecide.Reflect
 import Lean.Meta.Sym.InferType
@@ -29,7 +30,9 @@ open Std.Tactic.BVDecide
 public def isValidBitVecAtom (e : Expr) : ReifyM (Option Nat) := do
   let t ← Sym.instantiateMVarsS (← Sym.inferType e)
   let_expr BitVec widthExpr := t | return none
-  return Sym.getNatValue? widthExpr
+  let some width := Sym.getNatValue? widthExpr | return none
+  unless isSafeBitVecWidth width do return none
+  return some width
 
 public def isValidBoolAtom (e : Expr) : ReifyM Bool := do
   let ty ← Sym.inferType e
@@ -209,7 +212,7 @@ where
     | HShiftLeft.hShiftLeft α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
+      if Sym.isNatValue wExpr && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
@@ -222,7 +225,7 @@ where
     | HShiftRight.hShiftRight α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
+      if Sym.isNatValue wExpr && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection

@@ -1,11 +1,11 @@
 Try these:
-  [apply] grind only [= getElem?_replicate, = getElem?_map, = Option.map_some, = Option.map_none, #648a, #fa04]
+  [apply] grind only [= getElem?_replicate, = getElem?_map, = Option.map_some, = Option.map_none, #67b9, #7fbb]
   [apply] grind only [= getElem?_replicate, = getElem?_map, = Option.map_some, = Option.map_none]
   [apply] grind =>
-    cases #648a
+    cases #67b9
     instantiate only [= getElem?_replicate, = getElem?_map]
     instantiate only [= getElem?_replicate]
-    cases #fa04
+    cases #7fbb
     · instantiate only [= Option.map_some]
     · instantiate only [= Option.map_none]
 private theorem List.map_replicate''.{u_1, u_2} : ∀ {n : Nat} {α : Type u_1} {a : α} {α_1 : Type u_2} {f : α → α_1},

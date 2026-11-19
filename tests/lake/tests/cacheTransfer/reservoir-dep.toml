@@ -1,0 +1,11 @@
+# A package that requires `service-dep` under a scope,
+# so that Lake treats the dependency as a Reservoir package
+name = "test"
+
+[[lean_lib]]
+name = "Test"
+
+[[require]]
+name = "service-dep"
+scope = "leanprover"
+path = "service-dep"

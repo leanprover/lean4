@@ -86,11 +86,7 @@ def pp? (goal : Goal) (rings : Array Sym.Arith.CommRing) : MetaM (Option Message
   else
     return some (.trace { cls := `ring } "Rings" msgs)
 
-def addThresholdMessage (goal : Goal) (c : Grind.Config) (msgs : Array MessageData) : IO (Array MessageData) := do
-  let s ← ringExt.getStateCore goal
-  if s.steps ≥ c.ringSteps then
-    return msgs.push <| .trace { cls := `limit } m!"maximum number of ring steps has been reached, threshold: `(ringSteps := {c.ringSteps})`" #[]
-  else
-    return msgs
+def ringStepsReached (goal : Goal) (c : Grind.Config) : IO Bool :=
+  return (← ringExt.getStateCore goal).steps ≥ c.ringSteps
 
 end Lean.Meta.Grind.Arith.CommRing

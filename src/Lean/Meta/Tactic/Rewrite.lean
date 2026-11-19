@@ -22,6 +22,93 @@ structure RewriteResult where
   mvarIds  : List MVarId -- new goals
 
 /--
+Checks whether `fun _a : α => eAbst` is type correct, assuming the subterms of `eAbst` without loose
+bound variables are. This holds when `eAbst` is the result of abstracting a type correct term with
+`kabstract`. Only the subterms containing `_a` are checked, while `check` traverses the whole term.
+
+Returns `false` if the check fails or is inconclusive. Binders whose type or value contains `_a` are
+not supported. The metavariable context is restored when `false` is returned.
+-/
+private partial def checkMotive? (α : Expr) (eAbst : Expr) : MetaM Bool := do
+  let s ← saveState
+  try
+    withTransparency .all <| withLocalDeclD `_a α fun a => do
+      /-
+      We don't eagerly instantiate `a` because we want to quickly check which parts
+      don't depend on this binder by using `hasLooseBVars`.
+      -/
+      discard <| (visit a eAbst).run {}
+    return true
+  catch _ =>
+    s.restore
+    return false
+where
+  /--
+  Checks `e` and returns `e.instantiate1 a`. Binders are instantiated with free variables during the
+  traversal, so `_a` is the only loose bound variable of `e`.
+  -/
+  visit (a : Expr) (e : Expr) : StateRefT (Std.HashMap ExprStructEq Expr) MetaM Expr := do
+    unless e.hasLooseBVars do return e
+    if let some r := (← get)[(e : ExprStructEq)]? then return r
+    let r ← match e with
+      | .bvar _ => pure a
+      | .app .. => e.withApp fun f args => do
+        let f' ← visit a f
+        let mut args' := Array.mkEmpty args.size
+        -- The arguments only need to be checked after the first change. `fType?` is then the type of
+        -- `mkAppN f' args'[:j]`, with loose bound variables for `args'[j:]`.
+        let mut fType? ← if f.hasLooseBVars then pure (some (← inferType f')) else pure none
+        let mut j := 0
+        for arg in args do
+          let arg' ← visit a arg
+          let i := args'.size
+          if fType?.isNone && arg.hasLooseBVars then
+            fType? := some (← inferType (mkAppN f' args'))
+            j := i
+          if let some fType := fType? then
+            let mut fType := fType
+            unless fType.isForall do
+              fType ← whnf (fType.instantiateRevRange j i args')
+              j := i
+            let .forallE _ d b _ := fType | throwError "function expected"
+            unless (← isDefEq (d.instantiateRevRange j i args') (← inferType arg')) do
+              throwError "application type mismatch"
+            fType? := some b
+          args' := args'.push arg'
+        pure (mkAppN f' args')
+      | .mdata d b => pure (.mdata d (← visit a b))
+      | .proj s i b =>
+        let b' ← visit a b
+        checkProj s i b'
+        pure (.proj s i b')
+      | .lam .. | .forallE .. | .letE .. =>
+        visitBinders a #[] false e
+        pure (e.instantiate1 a)
+      | _ => throwError "unexpected loose bound variable"
+    modify (·.insert e r)
+    return r
+  /--
+  Checks the maximal sequence of binders `e`, where the loose bound variables of `e` are `xs` and `_a`.
+  Binder types and values are instantiated one at a time, and the body only once.
+  -/
+  visitBinders (a : Expr) (xs : Array Expr) (isType : Bool) (e : Expr) :
+      StateRefT (Std.HashMap ExprStructEq Expr) MetaM Unit := do
+    match e with
+    | .lam n d b bi | .forallE n d b bi =>
+      let d := d.instantiateRev xs
+      if d.hasLooseBVars then throwError "unsupported binder"
+      withLocalDecl n bi d fun x => visitBinders a (xs.push x) (isType || e.isForall) b
+    | .letE n t v b nondep =>
+      let t := t.instantiateRev xs
+      let v := v.instantiateRev xs
+      if t.hasLooseBVars || v.hasLooseBVars then throwError "unsupported binder"
+      withLetDecl n t v (nondep := nondep) fun x => visitBinders a (xs.push x) isType b
+    | _ =>
+      let b ← visit a (e.instantiateRev xs)
+      if isType then
+        unless (← whnf (← inferType b)).isSort do throwError "type expected"
+
+/--
 Rewrite `e` using `heq` in the context of `mvarId`.
 Returns the result of the rewrite, the metavariable `mvarId` is not assigned.
 -/
@@ -56,7 +143,10 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eType ← inferType e
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
           try
-            check motive
+            unless (← checkMotive? α eAbst) do
+              -- Handles binders whose type or value contains `_a`, and produces the error message
+              -- when the motive is not type correct.
+              check motive
           catch ex =>
             throwTacticEx `rewrite mvarId m!"\
               motive is not type correct:{indentD motive}\nError: {ex.toMessageData}\

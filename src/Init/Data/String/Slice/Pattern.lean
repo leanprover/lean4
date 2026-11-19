@@ -121,7 +121,7 @@ end SplitIterator
 Splits a slice at each subslice that matches the pattern {name}`pat`.
 
 The subslices that matched the pattern are not included in any of the resulting subslices. If
-multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+multiple subslices in a row match the pattern, the resulting list will contain empty subslices.
 
 This function is generic over all currently supported patterns.
 
@@ -129,7 +129,7 @@ Examples:
  * {lean}`("coffee tea water".toSlice.splitToSubslice Char.isWhitespace).toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.splitToSubslice ' ').toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.splitToSubslice " tea ").toStringList == ["coffee", "water"]`
- * {lean}`("ababababa".toSlice.splitToSubslice "aba").toStringList == ["coffee", "water"]`
+ * {lean}`("ababababa".toSlice.splitToSubslice "aba").toStringList == ["", "b", "ba"]`
  * {lean}`("baaab".toSlice.splitToSubslice "aa").toStringList == ["b", "ab"]`
 -/
 @[specialize pat, cbv_opaque]
@@ -141,7 +141,7 @@ def splitToSubslice (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
 Splits a slice at each subslice that matches the pattern {name}`pat`.
 
 The subslices that matched the pattern are not included in any of the resulting subslices. If
-multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+multiple subslices in a row match the pattern, the resulting list will contain empty slices.
 
 This function is generic over all currently supported patterns.
 
@@ -149,7 +149,7 @@ Examples:
  * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.split ' ').toStringList == ["coffee", "tea", "water"]`
  * {lean}`("coffee tea water".toSlice.split " tea ").toStringList == ["coffee", "water"]`
- * {lean}`("ababababa".toSlice.split "aba").toStringList == ["coffee", "water"]`
+ * {lean}`("ababababa".toSlice.split "aba").toStringList == ["", "b", "ba"]`
  * {lean}`("baaab".toSlice.split "aa").toStringList == ["b", "ab"]`
 -/
 @[inline]
@@ -347,7 +347,7 @@ def skipPrefixWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : s.Pos :=
   s.startPos.skipWhile pat
 
 /--
-Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
+Creates a new slice by removing the longest prefix from {name}`s` for which {name}`pat` matched
 (potentially repeatedly).
 
 Examples:
@@ -619,7 +619,7 @@ If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {na
 otherwise.
 
 Use {name}`String.Slice.dropSuffix?` to return {name}`none` when {name}`pat` does not match a
-prefix.
+suffix.
 
 This function is generic over all currently supported patterns.
 
@@ -686,7 +686,7 @@ def revAll (s : Slice) (pat : ρ) [BackwardPattern pat] : Bool :=
   s.skipSuffixWhile pat == s.startPos
 
 /--
-Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
+Creates a new slice by removing the longest suffix from {name}`s` for which {name}`pat` matched
 (potentially repeatedly).
 
 Examples:
@@ -699,8 +699,8 @@ def dropEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
   s.sliceTo (s.skipSuffixWhile pat)
 
 /--
-Removes trailing whitespace from a slice by moving its end position to the last non-whitespace
-character, or to its start position if there is no non-whitespace character.
+Removes trailing whitespace from a slice by moving its end position to just after the last
+non-whitespace character, or to its start position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which {name}`Char.isWhitespace` returns {name}`true`.
 
@@ -717,7 +717,7 @@ def trimAsciiEnd (s : Slice) : Slice :=
   dropEndWhile s Char.isWhitespace
 
 /--
-Creates a new slice that contains the suffix prefix of {name}`s` for which {name}`pat` matched
+Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
 (potentially repeatedly).
 
 This function is generic over all currently supported patterns.
@@ -732,8 +732,8 @@ def takeEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
   s.sliceFrom (s.skipSuffixWhile pat)
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice, starting
-from the end of the slice and traversing towards the start. If there is no match {name}`none` is
+Finds the start position of the last match of the pattern {name}`pat` in a slice, searching
+from the end of the slice towards the start. If there is no match {name}`none` is
 returned.
 
 This function is generic over all currently supported patterns except

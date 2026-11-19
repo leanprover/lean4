@@ -26,6 +26,8 @@ open Simp
 builtin_initialize registerTraceClass `Meta.Tactic.sat
 builtin_initialize registerTraceClass `Meta.Tactic.bv
 builtin_initialize registerTraceClass `Meta.Tactic.bv.uf
+builtin_initialize registerTraceClass `Meta.Tactic.bv.epr
+builtin_initialize registerTraceClass `Meta.Tactic.bv.epr.instSets
 
 register_builtin_option sat.solver : String := {
   defValue := ""
@@ -40,6 +42,7 @@ register_builtin_option sat.solver : String := {
 }
 
 declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
+declare_config_elab elabEprConfig Lean.Elab.Tactic.BVDecide.EprConfig
 
 open Elab.Tactic.BVDecide in
 def isPotentialTypeAnalysisType (cfg : BVDecideConfig) (declName : Name) : CoreM Bool := do

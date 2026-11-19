@@ -190,6 +190,20 @@ This will perform the update destructively provided that the vector has a refere
   ⟨xs.toArray.set i x (by simp [*]), by simp⟩
 
 /--
+Replaces the element at index `i` with the result of applying `f` to it. If the index is out of
+bounds, returns the vector unchanged.
+
+Uses `Array.modify` to preserve in-place updates when the vector and its element are uniquely owned.
+
+Examples:
+ * `#v[1, 2, 3].modify 0 (· * 10) = #v[10, 2, 3]`
+ * `#v[1, 2, 3].modify 2 (· * 10) = #v[1, 2, 30]`
+ * `#v[1, 2, 3].modify 3 (· * 10) = #v[1, 2, 3]`
+-/
+@[inline, expose] def modify (xs : Vector α n) (i : Nat) (f : α → α) : Vector α n :=
+  ⟨xs.toArray.modify i f, by simp⟩
+
+/--
 Set an element in a vector using a `Nat` index. Returns the vector unchanged if the index is out of
 bounds.
 

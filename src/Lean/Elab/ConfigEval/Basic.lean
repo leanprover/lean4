@@ -144,10 +144,19 @@ def ConfigItem.throwCannotSetOption {α} (item : ConfigItem) (structName? : Opti
   let structMsg := if let some structName := structName? then m!" for `{.ofConstName structName}`" else m!""
   throwErrorAt item.option "Cannot set option{nameMsg}{structMsg} using configuration syntax."
 
+/--
+Records that `item` refers to the projection `projFn`, adding term info and reporting `projFn` if it
+is deprecated.
+-/
 nonrec def ConfigItem.addConstInfo (item : ConfigItem) (projFn : Name) : TermElabM Unit := do
-  if (← getInfoState).enabled then
-    if (← getEnv).contains projFn then -- in case we are in Lean prelude
+  if (← getEnv).contains projFn then -- in case we are in Lean prelude
+    if (← getInfoState).enabled then
       addConstInfo item.root projFn
+    Linter.checkDeprecatedAt item.root projFn <| .custom fun newName => do
+      if newName.getPrefix == projFn.getPrefix then
+        Linter.mkReplacementHint item.root newName.getString!
+      else
+        return .nil
 
 nonrec def ConfigItem.addCompletionInfo (item : ConfigItem) (structName : Name) : TermElabM Unit := do
   if (← getInfoState).enabled then

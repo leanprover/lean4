@@ -2410,7 +2410,7 @@ static lean_object* _init_l_Int32_size(void){
 _start:
 {
 lean_object* v___x_701_; 
-v___x_701_ = lean_cstr_to_nat("4294967296");
+v___x_701_ = lean_uint64_to_nat(4294967296ULL);
 return v___x_701_;
 }
 }
@@ -2713,6 +2713,7 @@ _start:
 lean_object* v___x_807_; uint32_t v___x_808_; 
 v___x_807_ = lean_unsigned_to_nat(2147483648u);
 v___x_808_ = lean_int32_of_nat(v___x_807_);
+lean_dec(v___x_807_);
 return v___x_808_;
 }
 }
@@ -3584,8 +3585,9 @@ static uint64_t _init_l_Int64_maxValue___closed__0(void){
 _start:
 {
 lean_object* v___x_1184_; uint64_t v___x_1185_; 
-v___x_1184_ = lean_cstr_to_nat("9223372036854775807");
+v___x_1184_ = lean_uint64_to_nat(9223372036854775807ULL);
 v___x_1185_ = lean_int64_of_nat(v___x_1184_);
+lean_dec(v___x_1184_);
 return v___x_1185_;
 }
 }
@@ -3601,7 +3603,7 @@ static lean_object* _init_l_Int64_minValue___closed__0(void){
 _start:
 {
 lean_object* v___x_1187_; 
-v___x_1187_ = lean_cstr_to_nat("9223372036854775808");
+v___x_1187_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_1187_;
 }
 }

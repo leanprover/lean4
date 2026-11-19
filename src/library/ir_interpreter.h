@@ -13,6 +13,8 @@ namespace ir {
 /** \brief Run `n` using the "boxed" ABI, i.e. with all-owned parameters. */
 object * run_boxed(elab_environment const & env, options const & opts, name const & fn, unsigned n, object **args);
 LEAN_EXPORT uint32 run_main(elab_environment const & env, options const & opts, list_ref<string_ref> const & args);
+/** \brief Forget which modules were found to have no native code, as a newly loaded library may provide it. */
+void reset_non_native_modules();
 }
 void initialize_ir_interpreter();
 void finalize_ir_interpreter();

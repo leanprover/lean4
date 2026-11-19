@@ -14,7 +14,7 @@ import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.Core
 import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.Array
 import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.String
 import Lean.Meta.Tactic.Cbv.Util
-import Lean.Meta.Tactic.Cbv.TheoremsLookup
+import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Meta.Tactic.Cbv.CbvSimproc
 import Lean.Meta.Sym

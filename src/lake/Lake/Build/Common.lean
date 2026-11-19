@@ -317,6 +317,9 @@ and log are saved to `traceFile`, if the build completes without a fatal error
       writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
+    -- Delete trace before build to prevent association of new outputs with
+    -- the old trace upon build failure and the reversion of the the inputs.
+    removeFileIfExists traceFile
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
@@ -480,9 +483,7 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        -- other functions can race to create the file
-        -- use `writeFileIfNew` to prevent errors on races
-        writeFileIfNew cacheFile normalized
+        writeBinFileAtomicIfNew cacheFile normalized.toByteArray
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -502,8 +503,7 @@ public def Cache.saveArtifact
         if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
           -- other functions can race to create the file
           unless e matches .alreadyExists .. do
-            -- use `writeBinFileIfNew` to prevent errors on races
-            writeBinFileIfNew cacheFile contents
+            writeBinFileAtomicIfNew cacheFile contents
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -759,7 +759,6 @@ where
       removeFileIfExists file
       build
       clearFileHash file
-      removeFileIfExists traceFile
       computeArtifact file ext text
   setMTime art traceFile := do
     match (← getMTime traceFile |>.toBaseIO) with

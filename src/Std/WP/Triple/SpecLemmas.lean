@@ -71,6 +71,28 @@ theorem Spec.bind (x : m α) (f : α → m β) :
   Triple.bind x f (fun a => wp (f a) post eposts)
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
 
+@[spec default+10]
+theorem Spec.bind_ite {c : Prop} [Decidable c] (t e : m α) (g : α → m β) :
+    ⦃ wp (have __do_jp := fun v => g v; ite c (t >>= __do_jp) (e >>= __do_jp)) post eposts ⦄
+    (ite c t e >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor; apply PartialOrder.rel_of_eq; split <;> rfl
+
+@[spec default+10]
+theorem Spec.bind_dite {c : Prop} [Decidable c] (t : c → m α) (e : ¬c → m α) (g : α → m β) :
+    ⦃ wp (have __do_jp := fun v => g v
+          dite c (fun h => t h >>= __do_jp) (fun h => e h >>= __do_jp)) post eposts ⦄
+    (dite c t e >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor; apply PartialOrder.rel_of_eq; split <;> rfl
+
+@[spec default+10]
+theorem Spec.bind_cond (c : Bool) (t e : m α) (g : α → m β) :
+    ⦃ wp (have __do_jp := fun v => g v; cond c (t >>= __do_jp) (e >>= __do_jp)) post eposts ⦄
+    (cond c t e >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor; apply PartialOrder.rel_of_eq; cases c <;> rfl
+
 @[spec]
 theorem Spec.map (f : α → β) (x : m α) :
     Triple (f <$> x) (wp x (fun a => post (f a)) eposts) post eposts :=

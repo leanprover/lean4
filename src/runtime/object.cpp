@@ -530,6 +530,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
     return lean_panic_fn(def_val, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
+extern "C" LEAN_EXPORT b_lean_obj_res lean_array_get_borrowed_panic(b_lean_obj_arg def_val) {
+    lean_panic("Error: index out of bounds");
+    return def_val;
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
     return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));

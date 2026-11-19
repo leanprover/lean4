@@ -9491,8 +9491,8 @@ lean_object* v___x_2853_; uint8_t v_isShared_2854_; uint8_t v_isSharedCheck_2863
 lean_inc_ref(v_recoveredErrors_2844_);
 lean_inc(v_pos_2843_);
 lean_inc(v_lhsPrec_2842_);
-lean_inc(v_errorMsg_2840_);
 lean_inc_ref(v_stxStack_2841_);
+lean_inc(v_errorMsg_2840_);
 v_isSharedCheck_2863_ = !lean_is_exclusive(v_s_2838_);
 if (v_isSharedCheck_2863_ == 0)
 {

@@ -99,6 +99,19 @@ private def ok200 : String :=
     (handler := okHandler)
     (expect := fun r => assertExact r r501)
 
+  -- RFC 9112 §3: a request line that is invalid after an unrecognized method is answered with 400,
+  -- since 501 (RFC 9110 §9.1) is for a valid request line.
+  for (label, line) in [("an extra SP", "G T / HTTP/1.1"), ("no SP before the version", "FOO* HTTP/1.1"),
+      ("an invalid target", "FOO a@b HTTP/1.1"), ("no version", "FOO /x"),
+      ("an invalid version", "FOO / HTTP/1.1x"), ("a non-ASCII target", "FOO /\xe9 HTTP/1.1"),
+      -- a name longer than any method (over 64 bytes)
+      ("a 65-byte name and a control byte in the target",
+        s!"{String.ofList (List.replicate 65 'G')} /\x01 HTTP/1.1")] do
+    check s!"unrecognized method with {label} → 400"
+      (raw := s!"{line}\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
+      (handler := okHandler)
+      (expect := fun r => assertExact r r400)
+
 -- RFC 9112 §3.2: Request target forms
 
 #eval runGroup "RFC 9112 §3.2: request target forms" do

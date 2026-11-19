@@ -34,9 +34,22 @@ def handledHandler : TestHandler := fun req =>
       assertAbsent r "Transfer-Encoding"
       assertAbsent r "tunnel"
 
--- Any other answer to CONNECT is an ordinary response.
+/-- Refuses `CONNECT` with 403 and answers any other request. -/
+def refusingHandler : TestHandler := fun req =>
+  if req.line.method == .connect then Response.forbidden |>.text "no"
+  else Response.ok |>.text s!"handled {req.line.method} {req.line.uri}"
+
+-- Any other answer to CONNECT is an ordinary response, but the bytes after the request may be the
+-- tunnel's: a client can send them before it reads the answer. So the server closes the connection
+-- after it and reads no further request.
 #eval runGroup "non-2xx to CONNECT" do
   checkClose "403" connectRequest (fun _ => Response.forbidden |>.text "no") fun r => do
     assertStatus r "HTTP/1.1 403"
     assertContains r "Content-Length: 2"
+    assertContains r "Connection: close"
     assertContains r "\x0d\n\x0d\nno"
+  check "403, then the client's tunnel bytes" (connectRequest ++ tunnelBytes) refusingHandler fun r => do
+    assertStatus r "HTTP/1.1 403"
+    assertContains r "Connection: close"
+    assertResponseCount r 1
+    assertAbsent r "handled"

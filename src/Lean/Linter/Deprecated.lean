@@ -280,6 +280,22 @@ def mkListRemovalSuggestion (whole : Syntax) (elems : Array Syntax) (i : Nat) :
   return some { suggestion := text, span? := whole }
 
 /--
+Returns the inductive type that `declName` is a constructor, projection or parent projection of, if
+any.
+-/
+private def ownerType? (env : Environment) (declName : Name) : Option Name := do
+  let ctorName := env.getProjectionFnInfo? declName |>.map (·.ctorName) |>.getD declName
+  -- `find?` would wait for the body of a definition that is still being elaborated
+  if let some c := env.findAsync? ctorName then
+    if c.kind == .ctor then
+      if let .ctorInfo info := c.toConstantInfo then
+        return info.induct
+  let structName := declName.getPrefix
+  let info ← getStructureInfo? env structName
+  guard <| info.parentInfo.any (·.projFn == declName)
+  return structName
+
+/--
 Reports that `declName` is deprecated but tagged with `attrName` at `ref`, where `attrName` adds
 declarations to a set used by automation (see `isAutomationAttr`). Automation uses such declarations
 without a deprecation warning, so the hint offers `removal?` to remove the attribute.
@@ -291,7 +307,15 @@ def checkDeprecatedAutomationAttr (ref : Syntax) (declName attrName : Name)
     unless linter.deprecated.automationAttr.get (← getOptions) do return
     -- Not `Core.shouldCheckDeprecated`, which is disabled in the declaration being deprecated
     unless ref.getHeadInfo matches .original .. do return
-    unless isDeprecated (← getEnv) declName do return
+    let env ← getEnv
+    unless isDeprecated env declName do return
+    -- If automation only uses `declName` on terms that mention a deprecated declaration, those uses
+    -- go away when that declaration is removed. This holds even for instances, whose use is not
+    -- reported, and for the constructors and projections of a deprecated type.
+    let p n := isDeprecated env n || (ownerType? env n).any (isDeprecated env)
+    let isGuarded ← try isAutomationAttrGuardedBy attrName p declName ref
+      catch _ => pure false
+    if isGuarded then return
     let hint ← match removal? with
       | some removal => m!"Remove the attribute:".hint #[removal]
       | none => pure .nil

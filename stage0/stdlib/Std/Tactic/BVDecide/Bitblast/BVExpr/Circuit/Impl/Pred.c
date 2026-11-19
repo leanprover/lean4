@@ -1387,9 +1387,9 @@ v___jp_366_:
 {
 lean_object* v___x_370_; lean_object* v___x_371_; 
 v___x_370_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_370_, 0, v___y_367_);
+lean_ctor_set(v___x_370_, 0, v___y_368_);
 lean_ctor_set(v___x_370_, 1, v___y_369_);
-v___x_371_ = l_Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2(v___y_368_, v___x_370_);
+v___x_371_ = l_Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2(v___y_367_, v___x_370_);
 return v___x_371_;
 }
 v_resetjp_374_:
@@ -1479,8 +1479,8 @@ goto v_reusejp_393_;
 v_reusejp_393_:
 {
 lean_ctor_set_uint8(v___x_394_, sizeof(void*)*1, v___x_383_);
-v___y_367_ = v___y_387_;
-v___y_368_ = v___y_386_;
+v___y_367_ = v___y_386_;
+v___y_368_ = v___y_387_;
 v___y_369_ = v___x_394_;
 goto v___jp_366_;
 }
@@ -1524,8 +1524,8 @@ goto v_reusejp_401_;
 v_reusejp_401_:
 {
 lean_ctor_set_uint8(v___x_402_, sizeof(void*)*1, v___x_382_);
-v___y_367_ = v___y_387_;
-v___y_368_ = v___y_386_;
+v___y_367_ = v___y_386_;
+v___y_368_ = v___y_387_;
 v___y_369_ = v___x_402_;
 goto v___jp_366_;
 }
@@ -2725,9 +2725,9 @@ v___jp_738_:
 {
 lean_object* v___x_742_; lean_object* v___x_743_; 
 v___x_742_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_742_, 0, v___y_739_);
+lean_ctor_set(v___x_742_, 0, v___y_740_);
 lean_ctor_set(v___x_742_, 1, v___y_741_);
-v___x_743_ = l_Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2(v___y_740_, v___x_742_);
+v___x_743_ = l_Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2(v___y_739_, v___x_742_);
 return v___x_743_;
 }
 v___jp_744_:
@@ -2773,8 +2773,8 @@ goto v_reusejp_754_;
 v_reusejp_754_:
 {
 lean_ctor_set_uint8(v___x_755_, sizeof(void*)*1, v___x_753_);
-v___y_739_ = v___y_747_;
-v___y_740_ = v___y_746_;
+v___y_739_ = v___y_746_;
+v___y_740_ = v___y_747_;
 v___y_741_ = v___x_755_;
 goto v___jp_738_;
 }
@@ -2819,8 +2819,8 @@ goto v_reusejp_763_;
 v_reusejp_763_:
 {
 lean_ctor_set_uint8(v___x_764_, sizeof(void*)*1, v___x_762_);
-v___y_739_ = v___y_747_;
-v___y_740_ = v___y_746_;
+v___y_739_ = v___y_746_;
+v___y_740_ = v___y_747_;
 v___y_741_ = v___x_764_;
 goto v___jp_738_;
 }

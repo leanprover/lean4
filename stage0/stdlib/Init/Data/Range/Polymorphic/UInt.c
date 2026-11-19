@@ -507,7 +507,7 @@ lean_object* v___x_160_; lean_object* v___x_161_; lean_object* v___x_162_; uint8
 v___x_160_ = lean_uint32_to_nat(v_i_159_);
 v___x_161_ = lean_nat_add(v___x_160_, v_n_158_);
 lean_dec(v___x_160_);
-v___x_162_ = lean_cstr_to_nat("4294967296");
+v___x_162_ = lean_uint64_to_nat(4294967296ULL);
 v___x_163_ = lean_nat_dec_lt(v___x_161_, v___x_162_);
 lean_dec(v___x_162_);
 if (v___x_163_ == 0)
@@ -627,7 +627,7 @@ LEAN_EXPORT lean_object* l_UInt32_instHasSize__2___lam__0(uint32_t v_lo_212_){
 _start:
 {
 lean_object* v___x_213_; lean_object* v___x_214_; lean_object* v___x_215_; 
-v___x_213_ = lean_cstr_to_nat("4294967296");
+v___x_213_ = lean_uint64_to_nat(4294967296ULL);
 v___x_214_ = lean_uint32_to_nat(v_lo_212_);
 v___x_215_ = lean_nat_sub(v___x_213_, v___x_214_);
 lean_dec(v___x_214_);

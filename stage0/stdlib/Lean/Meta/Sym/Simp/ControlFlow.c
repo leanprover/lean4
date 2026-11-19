@@ -4312,7 +4312,7 @@ return v_dummy_1206_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpMatch(lean_object* v_declName_1210_, lean_object* v_e_1211_, lean_object* v_a_1212_, lean_object* v_a_1213_, lean_object* v_a_1214_, lean_object* v_a_1215_, lean_object* v_a_1216_, lean_object* v_a_1217_, lean_object* v_a_1218_, lean_object* v_a_1219_, lean_object* v_a_1220_){
 _start:
 {
-uint8_t v___y_1223_; uint8_t v___y_1224_; uint8_t v___y_1228_; lean_object* v___y_1229_; lean_object* v___y_1230_; uint8_t v___y_1231_; lean_object* v___x_1234_; 
+uint8_t v___y_1223_; uint8_t v___y_1224_; lean_object* v___y_1228_; uint8_t v___y_1229_; lean_object* v___y_1230_; uint8_t v___y_1231_; lean_object* v___x_1234_; 
 v___x_1234_ = l_Lean_Meta_Sym_reduceMatcherApp_x3f(v_e_1211_, v_a_1215_, v_a_1216_, v_a_1217_, v_a_1218_, v_a_1219_, v_a_1220_);
 if (lean_obj_tag(v___x_1234_) == 0)
 {
@@ -4613,9 +4613,9 @@ lean_inc_ref(v_proof_1300_);
 v_done_1301_ = lean_ctor_get_uint8(v_a_1297_, sizeof(void*)*2);
 v_contextDependent_1302_ = lean_ctor_get_uint8(v_a_1297_, sizeof(void*)*2 + 1);
 lean_dec_ref_known(v_a_1297_, 2);
-v___y_1228_ = v_done_1301_;
-v___y_1229_ = v_proof_1300_;
-v___y_1230_ = v_e_x27_1299_;
+v___y_1228_ = v_e_x27_1299_;
+v___y_1229_ = v_done_1301_;
+v___y_1230_ = v_proof_1300_;
 v___y_1231_ = v_contextDependent_1302_;
 goto v___jp_1227_;
 }
@@ -4628,9 +4628,9 @@ v_proof_1304_ = lean_ctor_get(v_a_1297_, 1);
 lean_inc_ref(v_proof_1304_);
 v_done_1305_ = lean_ctor_get_uint8(v_a_1297_, sizeof(void*)*2);
 lean_dec_ref_known(v_a_1297_, 2);
-v___y_1228_ = v_done_1305_;
-v___y_1229_ = v_proof_1304_;
-v___y_1230_ = v_e_x27_1303_;
+v___y_1228_ = v_e_x27_1303_;
+v___y_1229_ = v_done_1305_;
+v___y_1230_ = v_proof_1304_;
 v___y_1231_ = v___x_1287_;
 goto v___jp_1227_;
 }
@@ -4860,9 +4860,9 @@ v___jp_1227_:
 {
 lean_object* v___x_1232_; lean_object* v___x_1233_; 
 v___x_1232_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_1232_, 0, v___y_1230_);
-lean_ctor_set(v___x_1232_, 1, v___y_1229_);
-lean_ctor_set_uint8(v___x_1232_, sizeof(void*)*2, v___y_1228_);
+lean_ctor_set(v___x_1232_, 0, v___y_1228_);
+lean_ctor_set(v___x_1232_, 1, v___y_1230_);
+lean_ctor_set_uint8(v___x_1232_, sizeof(void*)*2, v___y_1229_);
 lean_ctor_set_uint8(v___x_1232_, sizeof(void*)*2 + 1, v___y_1231_);
 v___x_1233_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1233_, 0, v___x_1232_);

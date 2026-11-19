@@ -3890,7 +3890,7 @@ static lean_object* _init_l_UInt32_size(void){
 _start:
 {
 lean_object* v___x_953_; 
-v___x_953_ = lean_cstr_to_nat("4294967296");
+v___x_953_ = lean_uint64_to_nat(4294967296ULL);
 return v___x_953_;
 }
 }

@@ -1320,7 +1320,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_ExtractClosed_shouldExtractLetVal
 _start:
 {
 lean_object* v___x_380_; 
-v___x_380_ = lean_cstr_to_nat("9223372036854775808");
+v___x_380_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_380_;
 }
 }
@@ -3676,8 +3676,8 @@ goto v___jp_866_;
 }
 else
 {
-lean_dec(v_pre_932_);
 lean_dec_ref_known(v_declName_931_, 2);
+lean_dec(v_pre_932_);
 lean_dec_ref_known(v_value_930_, 3);
 lean_dec_ref(v_decl_929_);
 v_decl_867_ = v_decl_852_;
@@ -3688,8 +3688,8 @@ goto v___jp_866_;
 }
 else
 {
-lean_dec_ref_known(v_value_930_, 3);
 lean_dec(v_declName_931_);
+lean_dec_ref_known(v_value_930_, 3);
 lean_dec_ref(v_decl_929_);
 v_decl_867_ = v_decl_852_;
 v_k_868_ = v_k_853_;
@@ -4144,8 +4144,8 @@ goto v___jp_1043_;
 }
 else
 {
-lean_dec(v_declName_1098_);
 lean_dec_ref_known(v_value_1075_, 3);
+lean_dec(v_declName_1098_);
 lean_dec(v_fvarId_1074_);
 lean_dec_ref(v_k_1032_);
 lean_dec_ref(v_decl_1031_);

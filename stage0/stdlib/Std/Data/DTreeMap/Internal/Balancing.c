@@ -2079,9 +2079,9 @@ goto v___jp_774_;
 v___jp_762_:
 {
 lean_object* v___x_766_; lean_object* v___x_768_; 
-v___x_766_ = lean_nat_add(v___y_764_, v___y_765_);
+v___x_766_ = lean_nat_add(v___y_763_, v___y_765_);
 lean_dec(v___y_765_);
-lean_dec(v___y_764_);
+lean_dec(v___y_763_);
 if (v_isShared_758_ == 0)
 {
 lean_ctor_set(v___x_757_, 4, v_r_730_);
@@ -2110,7 +2110,7 @@ lean_object* v___x_770_;
 if (v_isShared_746_ == 0)
 {
 lean_ctor_set(v___x_745_, 4, v___x_768_);
-lean_ctor_set(v___x_745_, 3, v___y_763_);
+lean_ctor_set(v___x_745_, 3, v___y_764_);
 lean_ctor_set(v___x_745_, 2, v_v_750_);
 lean_ctor_set(v___x_745_, 1, v_k_749_);
 lean_ctor_set(v___x_745_, 0, v___x_761_);
@@ -2124,7 +2124,7 @@ v_reuseFailAlloc_771_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_771_, 0, v___x_761_);
 lean_ctor_set(v_reuseFailAlloc_771_, 1, v_k_749_);
 lean_ctor_set(v_reuseFailAlloc_771_, 2, v_v_750_);
-lean_ctor_set(v_reuseFailAlloc_771_, 3, v___y_763_);
+lean_ctor_set(v_reuseFailAlloc_771_, 3, v___y_764_);
 lean_ctor_set(v_reuseFailAlloc_771_, 4, v___x_768_);
 v___x_770_ = v_reuseFailAlloc_771_;
 goto v_reusejp_769_;
@@ -2153,8 +2153,8 @@ if (lean_obj_tag(v_r_752_) == 0)
 lean_object* v_size_779_; 
 v_size_779_ = lean_ctor_get(v_r_752_, 0);
 lean_inc(v_size_779_);
-v___y_763_ = v___x_777_;
-v___y_764_ = v___x_778_;
+v___y_763_ = v___x_778_;
+v___y_764_ = v___x_777_;
 v___y_765_ = v_size_779_;
 goto v___jp_762_;
 }
@@ -2162,8 +2162,8 @@ else
 {
 lean_object* v___x_780_; 
 v___x_780_ = lean_unsigned_to_nat(0u);
-v___y_763_ = v___x_777_;
-v___y_764_ = v___x_778_;
+v___y_763_ = v___x_778_;
+v___y_764_ = v___x_777_;
 v___y_765_ = v___x_780_;
 goto v___jp_762_;
 }
@@ -2778,9 +2778,9 @@ goto v___jp_948_;
 v___jp_936_:
 {
 lean_object* v___x_940_; lean_object* v___x_942_; 
-v___x_940_ = lean_nat_add(v___y_938_, v___y_939_);
+v___x_940_ = lean_nat_add(v___y_937_, v___y_939_);
 lean_dec(v___y_939_);
-lean_dec(v___y_938_);
+lean_dec(v___y_937_);
 if (v_isShared_932_ == 0)
 {
 lean_ctor_set(v___x_931_, 4, v_r_901_);
@@ -2809,7 +2809,7 @@ lean_object* v___x_944_;
 if (v_isShared_920_ == 0)
 {
 lean_ctor_set(v___x_919_, 4, v___x_942_);
-lean_ctor_set(v___x_919_, 3, v___y_937_);
+lean_ctor_set(v___x_919_, 3, v___y_938_);
 lean_ctor_set(v___x_919_, 2, v_v_924_);
 lean_ctor_set(v___x_919_, 1, v_k_923_);
 lean_ctor_set(v___x_919_, 0, v___x_935_);
@@ -2823,7 +2823,7 @@ v_reuseFailAlloc_945_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_945_, 0, v___x_935_);
 lean_ctor_set(v_reuseFailAlloc_945_, 1, v_k_923_);
 lean_ctor_set(v_reuseFailAlloc_945_, 2, v_v_924_);
-lean_ctor_set(v_reuseFailAlloc_945_, 3, v___y_937_);
+lean_ctor_set(v_reuseFailAlloc_945_, 3, v___y_938_);
 lean_ctor_set(v_reuseFailAlloc_945_, 4, v___x_942_);
 v___x_944_ = v_reuseFailAlloc_945_;
 goto v_reusejp_943_;
@@ -2852,8 +2852,8 @@ if (lean_obj_tag(v_r_926_) == 0)
 lean_object* v_size_953_; 
 v_size_953_ = lean_ctor_get(v_r_926_, 0);
 lean_inc(v_size_953_);
-v___y_937_ = v___x_951_;
-v___y_938_ = v___x_952_;
+v___y_937_ = v___x_952_;
+v___y_938_ = v___x_951_;
 v___y_939_ = v_size_953_;
 goto v___jp_936_;
 }
@@ -2861,8 +2861,8 @@ else
 {
 lean_object* v___x_954_; 
 v___x_954_ = lean_unsigned_to_nat(0u);
-v___y_937_ = v___x_951_;
-v___y_938_ = v___x_952_;
+v___y_937_ = v___x_952_;
+v___y_938_ = v___x_951_;
 v___y_939_ = v___x_954_;
 goto v___jp_936_;
 }
@@ -4975,9 +4975,9 @@ goto v___jp_1481_;
 v___jp_1470_:
 {
 lean_object* v___x_1474_; lean_object* v___x_1476_; 
-v___x_1474_ = lean_nat_add(v___y_1471_, v___y_1473_);
+v___x_1474_ = lean_nat_add(v___y_1472_, v___y_1473_);
 lean_dec(v___y_1473_);
-lean_dec(v___y_1471_);
+lean_dec(v___y_1472_);
 if (v_isShared_1466_ == 0)
 {
 lean_ctor_set(v___x_1465_, 4, v_r_1444_);
@@ -5006,7 +5006,7 @@ lean_object* v___x_1478_;
 if (v_isShared_1454_ == 0)
 {
 lean_ctor_set(v___x_1453_, 4, v___x_1476_);
-lean_ctor_set(v___x_1453_, 3, v___y_1472_);
+lean_ctor_set(v___x_1453_, 3, v___y_1471_);
 lean_ctor_set(v___x_1453_, 2, v_v_1457_);
 lean_ctor_set(v___x_1453_, 1, v_k_1456_);
 lean_ctor_set(v___x_1453_, 0, v___x_1469_);
@@ -5020,7 +5020,7 @@ v_reuseFailAlloc_1479_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1479_, 0, v___x_1469_);
 lean_ctor_set(v_reuseFailAlloc_1479_, 1, v_k_1456_);
 lean_ctor_set(v_reuseFailAlloc_1479_, 2, v_v_1457_);
-lean_ctor_set(v_reuseFailAlloc_1479_, 3, v___y_1472_);
+lean_ctor_set(v_reuseFailAlloc_1479_, 3, v___y_1471_);
 lean_ctor_set(v_reuseFailAlloc_1479_, 4, v___x_1476_);
 v___x_1478_ = v_reuseFailAlloc_1479_;
 goto v_reusejp_1477_;
@@ -5049,8 +5049,8 @@ if (lean_obj_tag(v_r_1459_) == 0)
 lean_object* v_size_1486_; 
 v_size_1486_ = lean_ctor_get(v_r_1459_, 0);
 lean_inc(v_size_1486_);
-v___y_1471_ = v___x_1485_;
-v___y_1472_ = v___x_1484_;
+v___y_1471_ = v___x_1484_;
+v___y_1472_ = v___x_1485_;
 v___y_1473_ = v_size_1486_;
 goto v___jp_1470_;
 }
@@ -5058,8 +5058,8 @@ else
 {
 lean_object* v___x_1487_; 
 v___x_1487_ = lean_unsigned_to_nat(0u);
-v___y_1471_ = v___x_1485_;
-v___y_1472_ = v___x_1484_;
+v___y_1471_ = v___x_1484_;
+v___y_1472_ = v___x_1485_;
 v___y_1473_ = v___x_1487_;
 goto v___jp_1470_;
 }
@@ -5543,9 +5543,9 @@ goto v___jp_1624_;
 v___jp_1613_:
 {
 lean_object* v___x_1617_; lean_object* v___x_1619_; 
-v___x_1617_ = lean_nat_add(v___y_1614_, v___y_1616_);
+v___x_1617_ = lean_nat_add(v___y_1615_, v___y_1616_);
 lean_dec(v___y_1616_);
-lean_dec(v___y_1614_);
+lean_dec(v___y_1615_);
 if (v_isShared_1609_ == 0)
 {
 lean_ctor_set(v___x_1608_, 4, v_r_1587_);
@@ -5574,7 +5574,7 @@ lean_object* v___x_1621_;
 if (v_isShared_1597_ == 0)
 {
 lean_ctor_set(v___x_1596_, 4, v___x_1619_);
-lean_ctor_set(v___x_1596_, 3, v___y_1615_);
+lean_ctor_set(v___x_1596_, 3, v___y_1614_);
 lean_ctor_set(v___x_1596_, 2, v_v_1600_);
 lean_ctor_set(v___x_1596_, 1, v_k_1599_);
 lean_ctor_set(v___x_1596_, 0, v___x_1612_);
@@ -5588,7 +5588,7 @@ v_reuseFailAlloc_1622_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1622_, 0, v___x_1612_);
 lean_ctor_set(v_reuseFailAlloc_1622_, 1, v_k_1599_);
 lean_ctor_set(v_reuseFailAlloc_1622_, 2, v_v_1600_);
-lean_ctor_set(v_reuseFailAlloc_1622_, 3, v___y_1615_);
+lean_ctor_set(v_reuseFailAlloc_1622_, 3, v___y_1614_);
 lean_ctor_set(v_reuseFailAlloc_1622_, 4, v___x_1619_);
 v___x_1621_ = v_reuseFailAlloc_1622_;
 goto v_reusejp_1620_;
@@ -5617,8 +5617,8 @@ if (lean_obj_tag(v_r_1602_) == 0)
 lean_object* v_size_1629_; 
 v_size_1629_ = lean_ctor_get(v_r_1602_, 0);
 lean_inc(v_size_1629_);
-v___y_1614_ = v___x_1628_;
-v___y_1615_ = v___x_1627_;
+v___y_1614_ = v___x_1627_;
+v___y_1615_ = v___x_1628_;
 v___y_1616_ = v_size_1629_;
 goto v___jp_1613_;
 }
@@ -5626,8 +5626,8 @@ else
 {
 lean_object* v___x_1630_; 
 v___x_1630_ = lean_unsigned_to_nat(0u);
-v___y_1614_ = v___x_1628_;
-v___y_1615_ = v___x_1627_;
+v___y_1614_ = v___x_1627_;
+v___y_1615_ = v___x_1628_;
 v___y_1616_ = v___x_1630_;
 goto v___jp_1613_;
 }
@@ -7531,9 +7531,9 @@ goto v___jp_2118_;
 v___jp_2107_:
 {
 lean_object* v___x_2111_; lean_object* v___x_2113_; 
-v___x_2111_ = lean_nat_add(v___y_2109_, v___y_2110_);
+v___x_2111_ = lean_nat_add(v___y_2108_, v___y_2110_);
 lean_dec(v___y_2110_);
-lean_dec(v___y_2109_);
+lean_dec(v___y_2108_);
 if (v_isShared_2103_ == 0)
 {
 lean_ctor_set(v___x_2102_, 4, v_r_2080_);
@@ -7562,7 +7562,7 @@ lean_object* v___x_2115_;
 if (v_isShared_2090_ == 0)
 {
 lean_ctor_set(v___x_2089_, 4, v___x_2113_);
-lean_ctor_set(v___x_2089_, 3, v___y_2108_);
+lean_ctor_set(v___x_2089_, 3, v___y_2109_);
 lean_ctor_set(v___x_2089_, 2, v_v_2094_);
 lean_ctor_set(v___x_2089_, 1, v_k_2093_);
 lean_ctor_set(v___x_2089_, 0, v___x_2106_);
@@ -7576,7 +7576,7 @@ v_reuseFailAlloc_2116_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_2116_, 0, v___x_2106_);
 lean_ctor_set(v_reuseFailAlloc_2116_, 1, v_k_2093_);
 lean_ctor_set(v_reuseFailAlloc_2116_, 2, v_v_2094_);
-lean_ctor_set(v_reuseFailAlloc_2116_, 3, v___y_2108_);
+lean_ctor_set(v_reuseFailAlloc_2116_, 3, v___y_2109_);
 lean_ctor_set(v_reuseFailAlloc_2116_, 4, v___x_2113_);
 v___x_2115_ = v_reuseFailAlloc_2116_;
 goto v_reusejp_2114_;
@@ -7605,8 +7605,8 @@ if (lean_obj_tag(v_r_2096_) == 0)
 lean_object* v_size_2123_; 
 v_size_2123_ = lean_ctor_get(v_r_2096_, 0);
 lean_inc(v_size_2123_);
-v___y_2108_ = v___x_2121_;
-v___y_2109_ = v___x_2122_;
+v___y_2108_ = v___x_2122_;
+v___y_2109_ = v___x_2121_;
 v___y_2110_ = v_size_2123_;
 goto v___jp_2107_;
 }
@@ -7614,8 +7614,8 @@ else
 {
 lean_object* v___x_2124_; 
 v___x_2124_ = lean_unsigned_to_nat(0u);
-v___y_2108_ = v___x_2121_;
-v___y_2109_ = v___x_2122_;
+v___y_2108_ = v___x_2122_;
+v___y_2109_ = v___x_2121_;
 v___y_2110_ = v___x_2124_;
 goto v___jp_2107_;
 }
@@ -8212,9 +8212,9 @@ goto v___jp_2281_;
 v___jp_2270_:
 {
 lean_object* v___x_2274_; lean_object* v___x_2276_; 
-v___x_2274_ = lean_nat_add(v___y_2272_, v___y_2273_);
+v___x_2274_ = lean_nat_add(v___y_2271_, v___y_2273_);
 lean_dec(v___y_2273_);
-lean_dec(v___y_2272_);
+lean_dec(v___y_2271_);
 if (v_isShared_2266_ == 0)
 {
 lean_ctor_set(v___x_2265_, 4, v_r_2243_);
@@ -8243,7 +8243,7 @@ lean_object* v___x_2278_;
 if (v_isShared_2253_ == 0)
 {
 lean_ctor_set(v___x_2252_, 4, v___x_2276_);
-lean_ctor_set(v___x_2252_, 3, v___y_2271_);
+lean_ctor_set(v___x_2252_, 3, v___y_2272_);
 lean_ctor_set(v___x_2252_, 2, v_v_2257_);
 lean_ctor_set(v___x_2252_, 1, v_k_2256_);
 lean_ctor_set(v___x_2252_, 0, v___x_2269_);
@@ -8257,7 +8257,7 @@ v_reuseFailAlloc_2279_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_2279_, 0, v___x_2269_);
 lean_ctor_set(v_reuseFailAlloc_2279_, 1, v_k_2256_);
 lean_ctor_set(v_reuseFailAlloc_2279_, 2, v_v_2257_);
-lean_ctor_set(v_reuseFailAlloc_2279_, 3, v___y_2271_);
+lean_ctor_set(v_reuseFailAlloc_2279_, 3, v___y_2272_);
 lean_ctor_set(v_reuseFailAlloc_2279_, 4, v___x_2276_);
 v___x_2278_ = v_reuseFailAlloc_2279_;
 goto v_reusejp_2277_;
@@ -8286,8 +8286,8 @@ if (lean_obj_tag(v_r_2259_) == 0)
 lean_object* v_size_2286_; 
 v_size_2286_ = lean_ctor_get(v_r_2259_, 0);
 lean_inc(v_size_2286_);
-v___y_2271_ = v___x_2284_;
-v___y_2272_ = v___x_2285_;
+v___y_2271_ = v___x_2285_;
+v___y_2272_ = v___x_2284_;
 v___y_2273_ = v_size_2286_;
 goto v___jp_2270_;
 }
@@ -8295,8 +8295,8 @@ else
 {
 lean_object* v___x_2287_; 
 v___x_2287_ = lean_unsigned_to_nat(0u);
-v___y_2271_ = v___x_2284_;
-v___y_2272_ = v___x_2285_;
+v___y_2271_ = v___x_2285_;
+v___y_2272_ = v___x_2284_;
 v___y_2273_ = v___x_2287_;
 goto v___jp_2270_;
 }
@@ -10461,8 +10461,8 @@ lean_del_object(v___x_2766_);
 lean_dec(v_r_2750_);
 lean_dec(v_v_2748_);
 lean_dec(v_k_2747_);
-lean_dec(v_size_2746_);
 lean_dec_ref_known(v_r_2745_, 5);
+lean_dec(v_size_2746_);
 lean_dec(v_v_2743_);
 lean_dec(v_k_2742_);
 v___x_2832_ = lean_obj_once(&l_Std_DTreeMap_Internal_Impl_balance_x21___redArg___closed__3, &l_Std_DTreeMap_Internal_Impl_balance_x21___redArg___closed__3_once, _init_l_Std_DTreeMap_Internal_Impl_balance_x21___redArg___closed__3);
@@ -10579,9 +10579,9 @@ goto v___jp_2869_;
 v___jp_2858_:
 {
 lean_object* v___x_2862_; lean_object* v___x_2864_; 
-v___x_2862_ = lean_nat_add(v___y_2860_, v___y_2861_);
+v___x_2862_ = lean_nat_add(v___y_2859_, v___y_2861_);
 lean_dec(v___y_2861_);
-lean_dec(v___y_2860_);
+lean_dec(v___y_2859_);
 if (v_isShared_2854_ == 0)
 {
 lean_ctor_set(v___x_2853_, 4, v_r_2755_);
@@ -10610,7 +10610,7 @@ lean_object* v___x_2866_;
 if (v_isShared_2842_ == 0)
 {
 lean_ctor_set(v___x_2841_, 4, v___x_2864_);
-lean_ctor_set(v___x_2841_, 3, v___y_2859_);
+lean_ctor_set(v___x_2841_, 3, v___y_2860_);
 lean_ctor_set(v___x_2841_, 2, v_v_2845_);
 lean_ctor_set(v___x_2841_, 1, v_k_2844_);
 lean_ctor_set(v___x_2841_, 0, v___x_2857_);
@@ -10624,7 +10624,7 @@ v_reuseFailAlloc_2867_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_2867_, 0, v___x_2857_);
 lean_ctor_set(v_reuseFailAlloc_2867_, 1, v_k_2844_);
 lean_ctor_set(v_reuseFailAlloc_2867_, 2, v_v_2845_);
-lean_ctor_set(v_reuseFailAlloc_2867_, 3, v___y_2859_);
+lean_ctor_set(v_reuseFailAlloc_2867_, 3, v___y_2860_);
 lean_ctor_set(v_reuseFailAlloc_2867_, 4, v___x_2864_);
 v___x_2866_ = v_reuseFailAlloc_2867_;
 goto v_reusejp_2865_;
@@ -10653,8 +10653,8 @@ if (lean_obj_tag(v_r_2847_) == 0)
 lean_object* v_size_2874_; 
 v_size_2874_ = lean_ctor_get(v_r_2847_, 0);
 lean_inc(v_size_2874_);
-v___y_2859_ = v___x_2872_;
-v___y_2860_ = v___x_2873_;
+v___y_2859_ = v___x_2873_;
+v___y_2860_ = v___x_2872_;
 v___y_2861_ = v_size_2874_;
 goto v___jp_2858_;
 }
@@ -10662,8 +10662,8 @@ else
 {
 lean_object* v___x_2875_; 
 v___x_2875_ = lean_unsigned_to_nat(0u);
-v___y_2859_ = v___x_2872_;
-v___y_2860_ = v___x_2873_;
+v___y_2859_ = v___x_2873_;
+v___y_2860_ = v___x_2872_;
 v___y_2861_ = v___x_2875_;
 goto v___jp_2858_;
 }

@@ -1431,7 +1431,12 @@ communication is possible.
 Configuration for the standard input, output, and error handles of a child process.
 -/
 structure StdioConfig where
-  /-- Configuration for the process' stdin handle. -/
+  /--
+  Configuration for the process' stdin handle.
+
+  A child process that inherits standard input can consume input meant for the parent or wait for
+  input from the terminal. Use `.null` for a child that is not supposed to read from the terminal.
+  -/
   stdin := Stdio.inherit
   /-- Configuration for the process' stdout handle. -/
   stdout := Stdio.inherit
@@ -1470,6 +1475,11 @@ structure SpawnArgs extends StdioConfig where
   according to the conventions of the Microsoft C runtime. Programs that split their command line
   differently, such as `cmd.exe`, may see other arguments, and programs built on the Cygwin or
   MSYS2 runtime expand wildcards and braces in arguments that did not need quotes.
+
+  In particular, a batch file (`.bat` or `.cmd`) is run by `cmd.exe`, which does not understand
+  this quoting: an argument containing `"` can end the quoted section, so that characters such as
+  `&` and `|` in it run further commands, and `%` expands variables even inside quotes. Untrusted
+  arguments must not be passed to a batch file.
   -/
   args : Array String := #[]
   /-- The child process's working directory. Inherited from the parent current process if `none`. -/
@@ -1493,8 +1503,10 @@ structure SpawnArgs extends StdioConfig where
   -/
   inheritEnv : Bool := true
   /--
-  Starts the child process in a new session and process group using `setsid`. Currently a no-op on
-  non-POSIX platforms.
+  Starts the child process in a new session and process group using `setsid`.
+
+  This has no effect on Windows, where the closest equivalent would also detach the child process
+  from the console.
   -/
   setsid : Bool := false
 

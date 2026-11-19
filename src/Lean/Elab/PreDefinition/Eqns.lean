@@ -84,17 +84,136 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     deltaLHS mvarId
 
 /--
-Rewrites the matcher application `e` with the congruence equation of the first alternative that
-applies. Arguments of `e` beyond the arity of the matcher are applied to the result.
+Rewrites the matcher application `e` using the congruence equation of the first alternative that
+applies. Returns `none` if no alternative applies. Arguments of `e` beyond the arity of the
+matcher are applied to the result.
+
+Example: the matcher application
+```
+match "b" with
+| "a" => 1
+| "b" => 2
+| _ => 3
+```
+is rewritten to `2` using the congruence equation of the second alternative
+```
+congr_eq_2 : ∀ motive x h_1 h_2 h_3, x = "b" →
+  (match x with | "a" => h_1 () | "b" => h_2 () | _ => h_3 x) ≍ h_2 ()
+```
+
+The alternatives are tried in order with `rwMatcher`. To try an alternative, `rwMatcher`
+instantiates its congruence equation, and proves each hypothesis `discr = pattern` by reflexivity
+or by assumption. In the example, the first alternative does not apply because `"b" = "a"` cannot
+be proved, and the second one applies because `"b" = "b"` is proved by reflexivity.
+
+An attempt is expensive when the matcher has many alternatives: the congruence equation has one
+argument for each of them. For a `match` with `n` literal alternatives, the equation of the last
+one would need `n` attempts. So, an alternative is skipped, without trying it, when the attempt
+is known to fail:
+1. a discriminant and the corresponding pattern are different literals (see `litValue?`), so the
+   hypothesis `discr = pattern` cannot be proved by reflexivity, and
+2. the local context has no hypotheses (see `hasHyp`), so it cannot be proved by assumption.
+
+In the example, the first alternative is skipped if the local context has no hypotheses.
+If it contains `h : "b" = "a"`, the first alternative is tried, and it applies.
 -/
 def rwMatcherApp? (e : Expr) : MetaM (Option Simp.Result) := do
   let some app ← matchMatcherApp? e | return none
   let f := { app with remaining := #[] }.toExpr
+  let discrLits ← app.discrs.mapM litValue?
+  let altLits ←
+    if !discrLits.any (·.isSome) then pure #[]
+    else if (← hasHyp) then pure #[]
+    else getAltLits app
   for i in *...app.numAlts do
+    if let some patLits := altLits[i]? then
+      if isDifferent discrLits patLits then continue
     let r ← rwMatcher i f
     if r.expr != f then
       return some (← r.addExtraArgs app.remaining)
   return none
+where
+  /-- Returns `true` if `n` is a `Nat` numeral. -/
+  isNumeral (n : Expr) : Bool := n.isRawNatLit || n.nat?.isSome
+
+  /--
+  Returns `true` if `e` has the shape of a literal supported by `litValue?`, and recognizing it
+  does not require evaluating its type: the type is a constant, or `Fin n` or `BitVec n` where
+  `n` is a numeral.
+  -/
+  isLitCandidate (e : Expr) : Bool :=
+    match_expr e with
+    | OfNat.ofNat type _ _ =>
+      match_expr type with
+      | Nat => true | Int => true
+      | UInt8 => true | UInt16 => true | UInt32 => true | UInt64 => true
+      | Fin n => isNumeral n
+      | BitVec n => isNumeral n
+      | _ => false
+    | Neg.neg type _ _ => type.isConstOf ``Int
+    | Char.ofNat _ => true
+    | BitVec.ofNat n _ => isNumeral n
+    | _ => false
+
+  /--
+  Returns `e` if it is a literal in its standard representation: a `String` literal, or a numeral
+  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Fin n`, or
+  `BitVec n`. Two such literals of the same type denote different values if and only if they are
+  structurally different.
+
+  The standard representation is the one `normLitValue` produces. A literal that is not in its
+  standard representation is not accepted. For example, `(5 : UInt8)` elaborated using a local
+  instance of `OfNat UInt8 5`: the functions that recognize literals do not inspect the instance,
+  and this term may denote a number different from `5`.
+
+  `e` is first checked with `isLitCandidate`, because these functions reduce the type of `e`. For
+  example, they evaluate `n` in `BitVec n`.
+  `Float` and `Float32` literals are not supported: `5` and `5.0` denote the same value, and
+  `normLitValue` does not change them.
+  -/
+  litValue? (e : Expr) : MetaM (Option Expr) := do
+    if e.isStringLit then return some e
+    unless isLitCandidate e do return none
+    unless (← isMatchValue e) do return none
+    if (← normLitValue e) == e then return some e else return none
+
+  /--
+  Returns `true` if the local context may contain a hypothesis: a local declaration whose type is
+  a proposition, or is in a universe that may be `Prop`.
+  A hypothesis may prove `discr = pattern` by assumption even if `discr` and `pattern` are
+  different literals, because the local context may be inconsistent. Only the universe of each
+  type is inspected: comparing a type with `discr = pattern` may unfold definitions and use
+  unification hints.
+  -/
+  hasHyp : MetaM Bool := do
+    -- The most recent declarations are visited first, as `assumption` does.
+    let hyp? ← (← getLCtx).findDeclRevM? fun localDecl => do
+      if localDecl.isImplementationDetail then return none
+      let .sort u ← instantiateMVars (← inferType localDecl.type) | return some ()
+      if u.isNeverZero then return none else return some ()
+    return hyp?.isSome
+
+  /-- Returns, for each alternative of the matcher, the literals (see `litValue?`) in its patterns. -/
+  getAltLits (app : MatcherApp) : MetaM (Array (Array (Option Expr))) := do
+    let mut type := (← getConstVal app.matcherName).type
+    for _ in *...(app.numParams + 1 + app.numDiscrs) do
+      let .forallE _ _ b _ := type | return #[]
+      type := b
+    let mut altLits := #[]
+    for _ in *...app.numAlts do
+      let .forallE _ d b _ := type | return #[]
+      -- The type of an alternative is `∀ fields, motive patterns`.
+      altLits := altLits.push (← d.getForallBody.getAppArgs.mapM litValue?)
+      type := b
+    return altLits
+
+  /-- Returns `true` if a discriminant and the corresponding pattern are different literals. -/
+  isDifferent (discrLits patLits : Array (Option Expr)) : Bool := Id.run do
+    for discrLit? in discrLits, patLit? in patLits do
+      let some discrLit := discrLit? | continue
+      let some patLit := patLit? | continue
+      if discrLit != patLit then return true
+    return false
 
 /--
 Rewrites a matcher application on the left-hand side of an equality goal with `rwMatcherApp?`.

@@ -4,7 +4,8 @@ import Std.Net.Addr
 /-!
 Write-path tests over loopback TCP: response order for pipelined requests and streamed bodies, a
 reader that starts late, a write that fails, which must close the connection without running the
-handler of the pipelined `POST` behind it, a stalled streamed body, a client that leaves
+handler of the pipelined `POST` behind it, a streamed body that pauses longer than
+`lingeringTimeout` and still completes, a client that leaves
 mid-stream, and a keep-alive timeout that must not run while the peer still reads the response.
 -/
 
@@ -135,24 +136,25 @@ def sendFromDroppedClient (raw : ByteArray) : Async TCP.Socket.Client := do
   if (← failures.get).isEmpty then
     throw <| IO.userError "the failed write was not reported"
 
-#eval runGroup "stalled streamed body still times out" <| Async.block do
+-- Only waits on the client are timed, so a handler may pause its stream longer than
+-- `lingeringTimeout`, as server-sent events and long polling do.
+#eval runGroup "a streamed body that pauses longer than lingeringTimeout completes" <| Async.block do
   let (client, conn) ← connectPair
   let failures ← IO.mkRef #[]
   let h := recordingHandler failures fun _ =>
     Response.ok |>.stream fun s => do
       s.send (Chunk.ofByteArray "[first]".toUTF8)
-      sleep 5000
+      sleep 900
       s.send (Chunk.ofByteArray "[late]".toUTF8)
   let cfg := { config with lingeringTimeout := 300 }
   let serve ← async (Server.serveConnection conn h cfg |>.run)
-  client.send (mkGet "/stall").toUTF8
-  let start ← IO.monoMsNow
-  withDeadline "stalled stream" 3000 (await serve)
-  let elapsed := (← IO.monoMsNow) - start
-  unless elapsed < 3000 do throw <| IO.userError s!"took {elapsed} ms"
-  let res ← withDeadline "stalled read" 3000 (readAll client)
+  client.send (mkGetClose "/pause").toUTF8
+  let res ← withDeadline "paused read" 3000 (readAll client)
+  withDeadline "paused stream" 3000 (await serve)
   assertContains res "[first]"
-  assertAbsent res "[late]"
+  assertContains res "[late]"
+  unless (← failures.get).isEmpty do
+    throw <| IO.userError s!"unexpected failures: {← failures.get}"
 
 #eval runGroup "client that leaves mid-stream ends the connection" <| Async.block do
   let failures ← IO.mkRef #[]

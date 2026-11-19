@@ -707,11 +707,8 @@ private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (
         Term.reportUnsolvedGoals remainingGoals
       if isNoLongerExporting then
         for mvarId in goals, mvarId' in goals' do
-          let mut e ← instantiateExprMVars (.mvar mvarId')
-          if !e.isFVar then
-            e ← mvarId'.withContext do
-              withExporting (isExporting := wasExporting) do
-                abstractProof e
+          let e ← instantiateExprMVars (.mvar mvarId')
+          let e ← mvarId'.withContext do Term.abstractPrivateProof (← mvarId.getType) e
           mvarId.assign e
 
 namespace MutualClosure

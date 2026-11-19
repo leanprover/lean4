@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Term
 public import Lean.Elab.Do.ForwardSyntax
-public import Lean.Util.PtrSet
+import Lean.Util.PtrSet
 meta import Lean.Parser.Do
 import Lean.Elab.Do.PatternVar
 
@@ -127,12 +127,39 @@ For pure handlers, use `fun stx => return ControlInfo.pure`.
 builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHandler ←
   mkControlInfoElemAttribute decl_name%
 
-/-- The `ControlInfo` of every `doSeq` node visited in one `do` block, keyed by pointer. -/
+private opaque ControlInfoMapPointed : NonemptyType.{0}
+
+/-- A map from `doSeq` nodes, compared by pointer, to their `ControlInfo`. -/
+def ControlInfoMap : Type := ControlInfoMapPointed.type
+
+instance : Nonempty ControlInfoMap :=
+  by exact ControlInfoMapPointed.property
+
+private unsafe def ControlInfoMap.emptyImpl : ControlInfoMap :=
+  unsafeCast (mkPtrMap : PtrMap DoSeq ControlInfo)
+
+@[implemented_by ControlInfoMap.emptyImpl]
+opaque ControlInfoMap.empty : ControlInfoMap
+
+private unsafe def ControlInfoMap.findImpl? (m : ControlInfoMap) (stx : DoSeq) : Option ControlInfo :=
+  (unsafeCast m : PtrMap DoSeq ControlInfo).find? stx
+
+@[implemented_by ControlInfoMap.findImpl?]
+opaque ControlInfoMap.find? (m : ControlInfoMap) (stx : DoSeq) : Option ControlInfo
+
+private unsafe def ControlInfoMap.insertImpl (m : ControlInfoMap) (stx : DoSeq) (info : ControlInfo) :
+    ControlInfoMap :=
+  unsafeCast ((unsafeCast m : PtrMap DoSeq ControlInfo).insert stx info)
+
+@[implemented_by ControlInfoMap.insertImpl]
+opaque ControlInfoMap.insert (m : ControlInfoMap) (stx : DoSeq) (info : ControlInfo) : ControlInfoMap
+
+/-- The `ControlInfo` of every `doSeq` node visited in one `do` block. -/
 structure ControlInfoCache where
-  ref : IO.Ref (Std.HashMap (Ptr DoSeq) ControlInfo)
+  ref : IO.Ref ControlInfoMap
 
 def ControlInfoCache.new : BaseIO ControlInfoCache :=
-  return ⟨← IO.mkRef {}⟩
+  return ⟨← IO.mkRef .empty⟩
 
 namespace InferControlInfo
 
@@ -287,12 +314,12 @@ partial def ofLetOrReassign (reassigned : Array Ident) (rhs? : Option DoElem)
 
 partial def ofSeq (stx : DoSeq) : InferM ControlInfo := do
   let cache := (← read).ref
-  if let some info := (← cache.get)[(⟨stx⟩ : Ptr DoSeq)]? then
+  if let some info := (← cache.get).find? stx then
     return info
   let mut info : ControlInfo := {}
   for elem in getDoElems stx do
     info := info.sequence (← ofElem elem)
-  cache.modify (·.insert ⟨stx⟩ info)
+  cache.modify (·.insert stx info)
   return info
 
 partial def ofOptionSeq (stx? : Option DoSeq) : InferM ControlInfo := do

@@ -88,10 +88,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg
     sockaddr_storage addr_ptr;
     lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
+    // Port 0 asks for a port no other socket holds. With address reuse, Linux may pick the port of
+    // another socket that reuses addresses, which then receives the datagrams sent to this one.
+    uint16_t port = addr_ptr.ss_family == AF_INET6
+        ? ((sockaddr_in6*)&addr_ptr)->sin6_port
+        : ((sockaddr_in*)&addr_ptr)->sin_port;
+
     int result;
     {
         event_loop_guard guard;
-        result = uv_udp_bind(&udp_socket->m_uv_udp, (sockaddr*)&addr_ptr, UV_UDP_REUSEADDR);
+        result = uv_udp_bind(&udp_socket->m_uv_udp, (sockaddr*)&addr_ptr, port == 0 ? 0 : UV_UDP_REUSEADDR);
     }
 
     if (result < 0) {

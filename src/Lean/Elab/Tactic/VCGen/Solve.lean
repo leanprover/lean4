@@ -728,6 +728,7 @@ The function performs the following steps in order:
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
 public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
+  checkSystem "vcgen"
   if ← outOfFuel then return .stop .outOfFuel
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"

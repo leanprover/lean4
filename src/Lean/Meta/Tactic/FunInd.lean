@@ -682,8 +682,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   match_expr goal with
   | And goal₁ goal₂ => match_expr e with
     | PProd.mk _α _β e₁ e₂ =>
-      let e₁' ← buildInductionBody toErase toClear goal₁ oldIH newIH isRecCall e₁
-      let e₂' ← buildInductionBody toErase toClear goal₂ oldIH newIH isRecCall e₂
+      let e₁' ← M2.branch <| buildInductionBody toErase toClear goal₁ oldIH newIH isRecCall e₁
+      let e₂' ← M2.branch <| buildInductionBody toErase toClear goal₂ oldIH newIH isRecCall e₂
       return mkApp4 (.const ``And.intro []) goal₁ goal₂ e₁' e₂'
     | _ =>
       throwError "Goal is PProd, but expression is:{indentExpr e}"
@@ -1256,7 +1256,7 @@ where doRealize inductName := do
           let (minors', mvars) ← M2.run do
             let mut minors' := #[]
             for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTypeFormerTargetss do
-              let minor' ← forallTelescope goal fun xs goal => do
+              let minor' ← forallTelescope goal fun xs goal => M2.branch do
                 unless xs.size ≥ numTargets do
                   throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
                 let targets : Array Expr := xs[*...numTargets]

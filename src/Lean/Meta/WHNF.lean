@@ -255,7 +255,7 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
       /- If the type is impredicative, the major must be a proof.
          TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
       let nonNestedInductName := recVal.all.head!
-      let nonNestedInduct ← getConstInfo nonNestedInductName
+      let nonNestedInduct ← getConstVal nonNestedInductName
       if nonNestedInduct.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!

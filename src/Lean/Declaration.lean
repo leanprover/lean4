@@ -250,7 +250,7 @@ structure InductiveVal extends ConstantVal where
   An example of this is the `n : Nat` argument in the vector constructor `cons : α → Vector α n → Vector α (n+1)`.
   -/
   numIndices : Nat
-  /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one -/
+  /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one. -/
   all : List Name
   /-- List of the names of the constructors for this inductive datatype. -/
   ctors : List Name

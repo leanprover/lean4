@@ -98,7 +98,7 @@ return `('\r', U+000D)`, or a newline `('\n', U+000A)`.
   c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
 /--
-Returns `true` if the character is a uppercase ASCII letter.
+Returns `true` if the character is an uppercase ASCII letter.
 
 The uppercase ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.
 -/

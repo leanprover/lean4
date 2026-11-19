@@ -1630,11 +1630,11 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
 /* Stops the task manager. From then on tasks see `IO.checkCanceled` as true. Busy workers keep running queued tasks
-   and idle ones stop, but while any task other than a `(sync := true)` one waits, workers stay or start and run
-   whatever is queued, so the exit also waits for that work; running dedicated tasks finish. It returns once no worker
-   is left, and discards without running what is still queued then or becomes runnable later. Threads the task
-   manager does not own are not waited for: they should stop using it before this call, and call
-   `lean_finalize_thread` first if their thread-local state can hold tasks or promises. It must not be called from a
+   and idle ones stop, but while any task waits, workers stay or start and run whatever is queued, so the exit also
+   waits for that work. Running dedicated tasks finish, and so do `(sync := true)` tasks running on any thread. It
+   returns once no worker is left and no such task runs, and discards without running what is still queued then or
+   becomes runnable later. Threads the task manager does not own are otherwise not waited for: they should stop using
+   it before this call, and call `lean_finalize_thread` first if their thread-local state can hold tasks or promises. It must not be called from a
    task or a thread the task manager started (including from a thread-local finalizer it runs), nor concurrently with
    itself or `lean_init_task_manager`. Until the next `lean_init_task_manager`, new tasks run inline, and of the
    unfinished tasks only the result of a promise can still finish; waiting for any other one blocks forever. Tasks

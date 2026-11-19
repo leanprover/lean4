@@ -9,6 +9,8 @@ re-initializes it sees it, and of work that becomes runnable once it has stopped
 * A dependent dropped between cycles is not run in a later cycle.
 * A drop that discards work that holds the last reference to another pending promise discards that
   promise's dependents too, and a map over a discarded task is discarded at once.
+* `lean_finalize_task_manager` waits for a `(sync := true)` task that a thread it does not own is
+  running, so the task that one spawns and waits for still runs.
 * `lean_finalize_task_manager` does not wait for a thread it does not own that waits for a pending
   promise, and the promise can still be resolved afterwards.
 * Ten cycles, each stopping with different work in flight (running, queued and dedicated tasks,
@@ -233,6 +235,57 @@ static void test_finalize_ignores_foreign_waiter(void) {
     lean_dec(promise);
 }
 
+static _Atomic int g_sync_started = 0;
+static _Atomic int g_sync_done = 0;
+
+static lean_object * spawned_value(lean_object * unit) {
+    (void)unit;
+    return lean_box(3);
+}
+
+/* Spawns a task once the exit has started, and waits for it. `lean_task_get` is not allowed in a
+   `(sync := true)` task, `IO.waitAny` is. */
+static lean_object * straddling_continuation(lean_object * v) {
+    lean_dec(v);
+    g_sync_started = 1;
+    usleep(200 * 1000);
+    lean_object * t = lean_task_spawn_core(fn1(spawned_value), 0, false);
+    lean_object * list = lean_alloc_ctor(1, 2, 0);
+    lean_ctor_set(list, 0, t);
+    lean_ctor_set(list, 1, lean_box(0));
+    lean_io_wait_any_core(list);
+    lean_dec(list);
+    g_sync_done = 1;
+    return lean_box(0);
+}
+
+static void * resolve_on_foreign_thread(void * promise) {
+    lean_initialize_thread();
+    resolve((lean_object *)promise);
+    lean_finalize_thread();
+    return 0;
+}
+
+/* C-1: a `(sync := true)` task running on a thread the task manager does not own when it is
+   finalized. */
+static void test_finalize_waits_for_foreign_sync_task(void) {
+    lean_init_task_manager_using(4);
+    lean_object * promise = lean_io_promise_new();
+    lean_object * dependent = lean_task_map_core(fn1(straddling_continuation), lean_io_promise_result_opt(promise), 0, true, false);
+    thread_handle thread;
+    CHECK(pthread_create(&thread, 0, resolve_on_foreign_thread, promise) == 0);
+    while (!g_sync_started)
+        usleep(1000);
+    lean_finalize_task_manager();
+    CHECK(g_sync_done == 1);
+    if (g_sync_done != 1)
+        // The thread waits forever for a task the stopped manager discarded.
+        return;
+    pthread_join(thread, 0);
+    lean_dec(dependent);
+    lean_dec(promise);
+}
+
 /* restart_mixed: every closure owns an external object, counted when created and when freed. */
 static lean_external_class * g_counted_class;
 static _Atomic long g_created = 0;
@@ -401,6 +454,7 @@ static struct { char const * name; void (*run)(void); } const g_tests[] = {
     {"gap_map_pending", test_gap_map_pending},
     {"gap_drop_dependent", test_gap_drop_dependent},
     {"discard_after_stop", test_discard_after_stop},
+    {"foreign_sync_task", test_finalize_waits_for_foreign_sync_task},
     {"foreign_waiter", test_finalize_ignores_foreign_waiter},
     {"restart_mixed", test_restart_mixed},
 };

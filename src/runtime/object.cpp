@@ -809,9 +809,12 @@ class task_manager {
     // Standard workers that have not left their loop. Unlike `m_std_workers.size()`, this drops when an idle worker
     // leaves during shutdown.
     unsigned                                      m_live_std_workers{0};
-    // Tasks, other than `(sync := true)` ones, blocked in `wait_for` or `wait_any`. During shutdown, while there are
-    // any, idle standard workers stay and new ones can start, and they run whatever is queued.
+    // Tasks blocked in `wait_for` or `wait_any`. During shutdown, while there are any, idle standard workers stay and
+    // new ones can start, and they run whatever is queued.
     unsigned                                      m_task_waiters{0};
+    // `(sync := true)` tasks running on any thread, including ones the task manager does not own, such as the libuv
+    // loop thread. `shutdown` waits for them, so that what they queue or wait for still runs.
+    unsigned                                      m_running_sync{0};
     // During shutdown, standard workers that left but keep their thread until `m_workers_exit`, so that a later
     // waiter reuses one instead of starting a thread that is only joined when `shutdown` ends.
     unsigned                                      m_parked_std_workers{0};
@@ -1034,6 +1037,9 @@ class task_manager {
             return;
         }
         reset_heartbeat();
+        bool sync = imp->m_prio == LEAN_SYNC_PRIO;
+        if (sync)
+            m_running_sync++;
         object * v = nullptr;
         {
             scoped_current_task_object scope_cur_task(t);
@@ -1068,6 +1074,8 @@ class task_manager {
             add_dep(lean_to_task(closure_arg_cptr(c)[0]), t);
             lock.lock();
         }
+        if (sync && --m_running_sync == 0 && m_shutting_down)
+            m_worker_done_cv.notify_all();
     }
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
@@ -1134,8 +1142,11 @@ public:
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
         // Busy standard workers keep running queued tasks and idle ones leave, unless a task waits; running dedicated
-        // tasks finish. Threads the task manager does not own are not waited for.
-        m_worker_done_cv.wait(lock, [&]() { return m_live_std_workers == 0 && m_num_dedicated_workers == 0; });
+        // tasks finish, and so do `(sync := true)` tasks on any thread. Other threads the task manager does not own
+        // are not waited for.
+        m_worker_done_cv.wait(lock, [&]() {
+            return m_live_std_workers == 0 && m_num_dedicated_workers == 0 && m_running_sync == 0;
+        });
 #endif
         m_workers_exit = true;
         // What is still queued would never run.
@@ -1235,10 +1246,9 @@ public:
     }
 
     // A task about to block counts as a waiter: during shutdown, it lets standard workers stay or start, so that what
-    // it waits for runs. Threads the task manager does not own, and `(sync := true)` tasks, are not counted.
+    // it waits for runs. A thread that is not running a task is not counted.
     bool begin_task_wait(bool may_spawn = true) {
-        lean_task_object * cur = g_current_task_object;
-        if (!cur || cur->m_imp.load(std::memory_order_relaxed)->m_prio == LEAN_SYNC_PRIO)
+        if (!g_current_task_object)
             return false;
         m_task_waiters++;
         if (may_spawn && m_shutting_down && m_queues_size > 0 && m_idle_std_workers == 0)

@@ -556,6 +556,19 @@ def find_merged_toolchain_bump_sha(lrepo: LocalRepo, version: Version) -> str:
     raise SystemExit(f"Failed to find release commit in {n} latest commits")
 
 
+######################
+## downstream-lean4 ##
+######################
+
+
+def set_downstream_bump_branches(repos_toml: str, target: str) -> str:
+    return re.sub(
+        r'(?m)^(target_rev\s*=\s*)"bump/v\d+\.\d+\.\d+"',
+        rf'\1"{target}"',
+        repos_toml,
+    )
+
+
 ###########################
 ## ProofWidgets releases ##
 ###########################

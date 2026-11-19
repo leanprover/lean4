@@ -64,6 +64,10 @@ LEAN4_API_DOCS = ReleaseRepo(github=("leanprover", "lean4-api-docs"))
 
 
 # Some rc1 bump PRs are created with changes from this repo.
+#
+# After all repos have been updated for a `v4.X.0-rc1` release, subrepos in its
+# `repos.toml` whose `target_rev` is `bump/v4.X.0` should be updated to point to
+# `bump/v4.X+1.0` instead.
 DOWNSTREAM_LEAN4 = ReleaseRepo(github=("leanprover", "downstream-lean4"))
 # Don't register this repo!
 

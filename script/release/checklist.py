@@ -791,6 +791,37 @@ class LeanChecker(RepoChecker):
         )
         self.cl.success(f"{what} updated")
 
+    def check_downstream_bump_branches(self) -> None:
+        if self.version.rc != 1:
+            return
+
+        rrepo = repos.DOWNSTREAM_LEAN4
+        grepo = self.github.get_repo(rrepo.gh_full_name)
+        target = util.get_bump_branch(self.version.next_minor)
+        what = f"Bump branches in [b]{e(rrepo.gh_full_name)}[/b] repos.toml"
+
+        text = util.get_file_contents(grepo, grepo.default_branch, "repos.toml")
+        if util.set_downstream_bump_branches(text, target) == text:
+            self.cl.success(f"{what} point to [b]{e(target)}[/b]")
+            return
+
+        if not self.prompt(f"{what} are outdated. Update?"):
+            self.cl.fail(f"{what} are outdated")
+            return
+
+        lrepo = rrepo.local(self.config.repos_dir)
+        lrepo.prepare()
+        lrepo.switch(grepo.default_branch)
+        path = lrepo.path / "repos.toml"
+        path.write_text(util.set_downstream_bump_branches(path.read_text(), target))
+        lrepo.commit("chore: update target bump branches")
+
+        if not self.prompt(f"Push branch [b]{e(grepo.default_branch)}[/b]?"):
+            self.cl.fail(f"{what} are outdated")
+            return
+        lrepo.push(grepo.default_branch)
+        self.cl.success(f"{what} updated to [b]{e(target)}[/b]")
+
     def check_api_docs_workflow(self) -> None:
         grepo = self.github.get_repo(repos.LEAN4_API_DOCS.gh_full_name)
         workflow = grepo.get_workflow("docs.yaml")
@@ -902,6 +933,7 @@ class LeanChecker(RepoChecker):
         self.cl.ensure_success()
 
         self.cl.section("Post release")
+        self.check_downstream_bump_branches()
         self.check_api_docs_workflow()
         self.check_release_notes_updated()
         self.check_zulip_post()

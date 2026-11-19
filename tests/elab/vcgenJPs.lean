@@ -380,3 +380,50 @@ def chain16 (c : Nat → Bool) : StateM Nat Unit := do
 set_option maxHeartbeats 20000 in
 example : ⦃fun s => s = s₀⦄ chain16 c ⦃fun _ s => s₀ ≤ s⦄ := by
   vcgen +jp [chain16] with finish
+
+/-! ## Inlined callees that end in a branch
+
+After `simp only` inlines `pick`, its `if` is followed by the rest of `usePick`. `vcgen +jp` proves
+that rest once for both branches, and without `+jp` once per branch. -/
+
+def pick (c : Bool) : StateM Nat Nat := if c then pure 1 else pure 2
+def pickD (n : Nat) : StateM Nat Nat := if h : n < 3 then pure (Fin.mk n h).val else pure n
+def pickC (c : Bool) : StateM Nat Nat := bif c then pure 1 else pure 2
+
+def usePick (p : StateM Nat Nat) : StateM Nat Nat := do
+  let v ← p
+  set v
+  return v + 1
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ usePick (pick c) ⦃ fun r _ => r > 10 ⦄ := by
+  simp only [usePick, pick]
+  vcgen +jp
+  case vc1 => sorry
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ usePick (pick c) ⦃ fun r _ => r > 10 ⦄ := by
+  simp only [usePick, pick]
+  vcgen
+  case vc1 => sorry
+  case vc2 => sorry
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ usePick (pickD n) ⦃ fun r _ => r > 10 ⦄ := by
+  simp only [usePick, pickD]
+  vcgen +jp
+  case vc1 => sorry
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ usePick (pickC c) ⦃ fun r _ => r > 10 ⦄ := by
+  simp only [usePick, pickC]
+  vcgen +jp
+  case vc1 => sorry
+
+example : ⦃ fun _ => True ⦄ usePick (pick c) ⦃ fun r s => r = s + 1 ⦄ := by
+  simp only [usePick, pick]
+  vcgen +jp with finish

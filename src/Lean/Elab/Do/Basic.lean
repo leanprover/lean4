@@ -41,6 +41,26 @@ def warnIntrinsicExperimental [Monad m] [MonadLog m] [AddMessageContext m] [Mona
       `set_option experimental.intrinsic true` acknowledges its experimental status and silences \
       this warning."
 
+/-- Wrap the program `e` in a note that records the source range of the annotation `ref` and the
+current module. `vcgen` shows the verification conditions of `e` at `ref`. -/
+def mkVCGenNote [Monad m] [MonadEnv m] (ref : Syntax) (e : Expr) : m Expr := do
+  let some range := ref.getRange? (canonicalOnly := true) | return e
+  let note : KVMap := {}
+  let note := note.insert `vcgen.noteStart (.ofNat range.start.byteIdx)
+    |>.insert `vcgen.noteStop (.ofNat range.stop.byteIdx)
+    |>.insert `vcgen.noteModule (.ofName (← getMainModule))
+  return .mdata note e
+
+/-- The annotation range that `mkVCGenNote` records on `e`, as an atom spanning the range, when `e`
+carries a note of the current module. -/
+def vcgenNote? [Monad m] [MonadEnv m] (e : Expr) : m (Option Syntax) := do
+  let .mdata note _ := e | return none
+  let (some (.ofNat start), some (.ofNat stop), some (.ofName mod)) :=
+      (note.find `vcgen.noteStart, note.find `vcgen.noteStop, note.find `vcgen.noteModule)
+    | return none
+  unless mod == (← getMainModule) do return none
+  return some (.atom (.synthetic ⟨start⟩ ⟨stop⟩ (canonical := true)) "")
+
 structure MonadInfo where
   /-- The inferred type of the monad of type `Type u → Type v`. -/
   m : Expr

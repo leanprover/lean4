@@ -187,8 +187,9 @@ private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term :=
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
   `(fun $(g.statePat) => $(← g.wrapErasedProjs e))
 
-/-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
-module, so `gadget` is an unresolved name that resolves in the user's context. -/
+/-- Elaborate the gadget application that replaces the loop, noted with the range of the annotations
+`ref` so that `vcgen` shows the verification conditions of the loop at `ref`. The gadgets live
+downstream of this module, so `gadget` is an unresolved name that resolves in the user's context. -/
 private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
     (annotations : Array Term) : DoElabM Expr := do
   unless (← getEnv).contains gadget do
@@ -199,7 +200,7 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
   let call ← `(open scoped Std.WP Lean.Order in
     $(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
       $(← Term.exprToSyntax g.body) $annotations*)
-  Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
+  mkVCGenNote ref (← Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ))
 
 /-- The binders and body of an `invariant` clause. An ascription covering the binder list would
 cover the loop's binders and the assertion's alike, so it is reported here. -/
@@ -264,8 +265,9 @@ private def mkForInLoopGadget (g : ForInApp)
     checkAssertionBinders decClause "measure" binders.size pred?
     return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body pred?))
   let some (ref, gadget, annotations) := (match invArg?, varArg? with
-    | some (ref, inv), some (_, var) =>
-      some (ref, ``Std.WP.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])
+    | some (invRef, inv), some (decRef, var) =>
+      some (mkNullNode #[invRef, decRef], ``Std.WP.Gadget.forInLoopWithInvariantAndVariant,
+        #[inv, var])
     | some (ref, inv), none => some (ref, ``Std.WP.Gadget.forInLoopWithInvariant, #[inv])
     | none, some (ref, var) => some (ref, ``Std.WP.Gadget.forInLoopWithVariant, #[var])
     | none, none => none) | return none

@@ -456,6 +456,21 @@ example : ⦃ fun _ _ => True ⦄
     ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
   vcgen +jp with finish
 
+-- `Spec.seq_seq_ite` shares the code after an `if` at the end of a left-nested `seq`.
+@[spec default+10] theorem Spec.seq_seq_ite (cond : Expr) (c c₁ c₂ c₃ : Cmd) :
+    Triple (Cmd.seq (Cmd.seq c (Cmd.ite cond c₁ c₂)) c₃)
+      (Std.WP.wp
+        (have __vcgen_jp := fun (_ : Unit) => c₃
+         Cmd.seq c (Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ()))))
+        Q eposts)
+      Q eposts :=
+  triple_of_wp fun _ _ => by simp only [wp_apply, wpCmd]
+
+example : ⦃ fun _ _ => True ⦄
+    ⟦ (x := 1; if b then y := x else y := 2 fi); z := y ⟧
+    ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
+  vcgen +jp with finish
+
 -- A join point without a jump.
 example : ⦃ fun _ _ => True ⦄
     (have __vcgen_jp := fun (_ : Unit) => ⟦ z := y ⟧

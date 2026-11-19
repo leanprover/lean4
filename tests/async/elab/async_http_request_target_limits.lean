@@ -7,8 +7,9 @@ open Std.Http.Internal.Test
 /-!
 Tests the limits on request-targets and URIs. A target is bounded as a whole by `maxUriLength`, and a
 target refused as too long gets `414`, never `400` (RFC 9112 §3), whatever its segments, segment
-count or query parameters. `URI.parse?`, which `decideRedirect` uses on `Location`, has no
-per-component limit tighter than the whole URI's.
+count or query parameters. `maxPathSegments` and `maxQueryParams` (#16523) bound the element counts,
+empty elements included, and a target over either also gets `414`. `URI.parse?`, which
+`decideRedirect` uses on `Location`, has no per-component limit tighter than the whole URI's.
 -/
 
 def expect (cond : Bool) (msg : String) : IO Unit :=
@@ -38,6 +39,39 @@ def repeatStr (s : String) (n : Nat) : String := String.join (List.replicate n s
   check "400-byte target, maxUriLength 300" (mkGetClose ("/" ++ repeatStr "a" 399)) uriHandler
     (fun r => assertStatus r "HTTP/1.1 414")
     (config := { defaultConfig with maxUriLength := 300 })
+
+-- #16523: element counts at the limit pass, one more gets 414. Empty segments and parameters count.
+#eval runGroup "configured maxPathSegments" do
+  let config := { defaultConfig with maxPathSegments := some 8 }
+  for (label, target, status) in [
+      ("8 segments", repeatStr "/a" 8, "200"),
+      ("9 segments", repeatStr "/a" 9, "414"),
+      ("8 empty segments", repeatStr "/" 8, "200"),
+      ("9 empty segments", repeatStr "/" 9, "414"),
+      ("9 segments, absolute-form", "http://example.com" ++ repeatStr "/a" 9, "414"),
+      ("9 segments, query parameters unlimited", repeatStr "/a" 9 ++ "?a=1", "414")] do
+    check label (mkGetClose target) uriHandler (fun r => assertStatus r s!"HTTP/1.1 {status}")
+      (config := config)
+
+#eval runGroup "configured maxQueryParams" do
+  let config := { defaultConfig with maxQueryParams := some 8 }
+  for (label, target, status) in [
+      ("8 parameters", "/?" ++ "&".intercalate (List.replicate 8 "a=1"), "200"),
+      ("9 parameters", "/?" ++ "&".intercalate (List.replicate 9 "a=1"), "414"),
+      ("8 empty parameters", "/?" ++ repeatStr "&" 7, "200"),
+      ("9 empty parameters", "/?" ++ repeatStr "&" 8, "414"),
+      ("9 parameters, absolute-form", "http://example.com/?" ++ repeatStr "&" 8, "414"),
+      ("empty query", "/?", "200"),
+      ("many segments, path segments unlimited", repeatStr "/a" 100 ++ "?a=1", "200")] do
+    check label (mkGetClose target) uriHandler (fun r => assertStatus r s!"HTTP/1.1 {status}")
+      (config := config)
+
+-- With neither set, only `maxUriLength` bounds the counts: one element per byte is accepted.
+#eval runGroup "unset element limits" do
+  check "8000 empty parameters" (mkGetClose ("/?" ++ repeatStr "&" 7999)) uriHandler
+    fun r => assertStatus r "HTTP/1.1 200"
+  check "8000 empty segments" (mkGetClose (repeatStr "/" 8000)) uriHandler
+    fun r => assertStatus r "HTTP/1.1 200"
 
 -- `URI.parse?` accepts what a `Location` field may carry.
 #eval show IO Unit from do

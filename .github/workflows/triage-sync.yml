@@ -1,0 +1,25 @@
+name: Sync issue status to triage
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  sync-triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync issue status to triage
+        env:
+          GH_TOKEN: ${{ secrets.TRIAGE_REPO_TOKEN }}
+          TARGET: ${{ secrets.TRIAGE_REPO }}
+          ISSUE: ${{ github.event.issue.number }}
+          REASON: ${{ github.event.issue.state_reason }}
+        run: |
+          set -euo pipefail
+          [ -n "$TARGET" ] || exit 0
+          for n in $(gh issue list -R "$TARGET" --state open --search "in:title \"[triage] #$ISSUE:\"" \
+                       --json number,title --jq ".[] | select(.title | startswith(\"[triage] #$ISSUE:\")) | .number"); do
+            gh issue close "$n" -R "$TARGET" \
+              --reason "$([ "$REASON" = not_planned ] && echo 'not planned' || echo completed)"
+            echo "closed $TARGET#$n"
+          done

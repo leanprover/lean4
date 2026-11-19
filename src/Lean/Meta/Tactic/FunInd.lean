@@ -695,8 +695,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   match_expr goal with
   | And goal₁ goal₂ => match_expr e with
     | PProd.mk _α _β e₁ e₂ =>
-      let e₁' ← buildInductionBody toErase toClear goal₁ oldIH newIH isRecCall e₁
-      let e₂' ← buildInductionBody toErase toClear goal₂ oldIH newIH isRecCall e₂
+      let e₁' ← M2.branch <| buildInductionBody toErase toClear goal₁ oldIH newIH isRecCall e₁
+      let e₂' ← M2.branch <| buildInductionBody toErase toClear goal₂ oldIH newIH isRecCall e₂
       return mkApp4 (.const ``And.intro []) goal₁ goal₂ e₁' e₂'
     | _ =>
       throwError "Goal is PProd, but expression is:{indentExpr e}"
@@ -1269,7 +1269,7 @@ where doRealize inductName := do
           let (minors', mvars) ← M2.run do
             let mut minors' := #[]
             for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTypeFormerTargetss do
-              let minor' ← forallTelescope goal fun xs goal => do
+              let minor' ← forallTelescope goal fun xs goal => M2.branch do
                 unless xs.size ≥ numTargets do
                   throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
                 let targets : Array Expr := xs[*...numTargets]
@@ -1524,18 +1524,25 @@ def deriveInduction (unfolding : Bool) (name : Name) : MetaM Unit := do
     else
       throwError "constant `{name}` is not structurally or well-founded recursive"
 
+/--
+If `s` is the suffix of a functional induction principle name, returns whether it is the suffix of
+the mutual principle.
+-/
+def funInductSuffix? : String → Option Bool
+  | "induct" | "induct_unfolding" => some false
+  | "mutual_induct" | "mutual_induct_unfolding" => some true
+  | _ => none
+
 public def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
-  match s with
-  | "induct"
-  | "induct_unfolding" =>
+  match funInductSuffix? s with
+  | some false =>
     unless env.isSafeDefinition p do return false
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
       return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
-  | "mutual_induct"
-  | "mutual_induct_unfolding" =>
+  | some true =>
     unless env.isSafeDefinition p do return false
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
       if h : eqnInfo.declNames.size > 1 then
@@ -1544,23 +1551,19 @@ public def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     return false
-  | _ => return false
+  | none => return false
 
+def isFunCasesSuffix (s : String) : Bool :=
+  s matches "fun_cases" | "fun_cases_unfolding"
 
-def isFunCasesName (env : Environment) (name : Name) : Bool := Id.run do
-  let .str p s := name | return false
-  match s with
-  | "fun_cases"
-  | "fun_cases_unfolding" =>
-    unless env.isSafeDefinition p do return false
-    return true
-  | _ => return false
+def isFunCasesName (env : Environment) (name : Name) : Bool :=
+  match name with
+  | .str p s => isFunCasesSuffix s && env.isSafeDefinition p
+  | _ => false
 
 builtin_initialize
-  registerReservedNamePredicate
-    (· matches "induct" | "induct_unfolding" | "mutual_induct" | "mutual_induct_unfolding")
-    isFunInductName
-  registerReservedNamePredicate (· matches "fun_cases" | "fun_cases_unfolding") isFunCasesName
+  registerReservedNamePredicate (funInductSuffix? · |>.isSome) isFunInductName
+  registerReservedNamePredicate isFunCasesSuffix isFunCasesName
 
   registerReservedNameAction fun name => do
     if isFunInductName (← getEnv) name then

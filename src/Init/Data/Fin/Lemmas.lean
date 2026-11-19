@@ -913,7 +913,7 @@ version that starts at the greatest value instead of `0`.
 where
   -- Use a curried function so that this is structurally recursive
   go : ∀ (i : Nat) (hi : i < n + 1), motive ⟨i, hi⟩
-  | 0, hi => by rwa [Fin.mk_zero]
+  | 0, hi => zero
   | i+1, hi => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (go i (Nat.lt_of_succ_lt hi))
 
 @[simp, grind =] theorem induction_zero {motive : Fin (n + 1) → Sort _} (zero : motive 0)

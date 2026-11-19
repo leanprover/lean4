@@ -111,10 +111,9 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
   rw [PureForIn'.forIn'_eq]
   exact Spec.forIn'_list inv step
 
-/-- `Spec.forIn_pure_earlyReturn` for a `forInPureWithInvariant` loop. The loop's invariant ranges
-over the loop state `(r?, b)`, and the specification evaluates it at `r? = none`. -/
 @[spec default+10]
-theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
+theorem Spec.forInPureWithInvariant_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+    [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : α → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
@@ -134,11 +133,9 @@ theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α
     ⦃ post; eposts ⦄ :=
   Spec.forIn_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
 
-/-- `Spec.forIn'_pure_earlyReturn` for a `forInPureWithInvariant'` loop. The loop's invariant
-ranges over the loop state `(r?, b)`, and the specification evaluates it at `r? = none`. -/
 @[spec default+10]
-theorem Spec.forInPure'_earlyReturn {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
-    [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
+theorem Spec.forInPureWithInvariant'_earlyReturn {ρ : Type w} {d : Membership α ρ}
+    [ForIn' m ρ α d] [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : (a : α) → a ∈ xs → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
@@ -275,9 +272,6 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
   unfold forInLoopWithVariant
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
-/-- `Spec.forIn_loop_earlyReturn` for a `forInLoopWithInvariantAndVariant` loop. The loop's
-invariant and measure range over the loop state `(r?, b)`, and the specification evaluates the
-invariant at `r? = none`. -/
 @[spec default+10]
 theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
@@ -304,8 +298,6 @@ theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ
   Spec.forIn_loop_earlyReturn (Variant.ofMeasure measure)
     (WhileInvariant.mk fun exit b => inv exit (none, b)) einv step exit
 
-/-- `Spec.forIn_loop_earlyReturn` for a `forInLoopWithInvariant` loop. The loop's invariant ranges
-over the loop state `(r?, b)`, and the specification evaluates it at `r? = none`. -/
 @[spec default+10]
 theorem Spec.forInLoop_invariant_earlyReturn {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
@@ -329,8 +321,6 @@ theorem Spec.forInLoop_invariant_earlyReturn {ω δ : Type u}
   Spec.forIn_loop_earlyReturn measure (WhileInvariant.mk fun exit b => inv exit (none, b)) einv
     step exit
 
-/-- `Spec.forIn_loop_earlyReturn` for a `forInLoopWithVariant` loop. The loop's measure ranges over
-the loop state `(r?, b)`, and its invariant over the mutable variables `b`. -/
 @[spec default+10]
 theorem Spec.forInLoop_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}

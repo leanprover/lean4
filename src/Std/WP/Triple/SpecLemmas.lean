@@ -824,8 +824,6 @@ theorem Spec.forIn_pure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForI
   exact Spec.forIn_list inv step
 
 
-/-- The continuation of a loop with an early return matches on the return slot `r?` of the loop
-state `(r?, b)`: `kRet` continues after a `return`, and `k` after the loop. -/
 theorem Triple.bind_earlyReturn {γ δ : Type u₂} {x : m (Option γ × β)}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
     {pre : Pred} {mid : Option γ × β → Pred} {post : δ → Pred} {eposts : EPosts}
@@ -840,9 +838,6 @@ theorem Triple.bind_earlyReturn {γ δ : Type u₂} {x : m (Option γ × β)}
   · exact hk b
   · exact ⟨hRet r b⟩
 
-/-- A `for` loop with an early return over a container with a `PureForIn` instance. Its invariant
-ranges over the mutable variables `b` of the loop state `(r?, b)`, and a `return` obligates the
-continuation `kRet` after the loop. -/
 @[spec default+10]
 theorem Spec.forIn_pure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β} {f : α → Option γ × β → m (ForInStep (Option γ × β))}
@@ -873,9 +868,6 @@ theorem Spec.forIn_pure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ �
     rintro (⟨_ | x, b'⟩ | ⟨_ | x, b'⟩) <;> first | exact PartialOrder.rel_refl | exact bot_le _
   · exact ⟨bot_le _⟩
 
-/-- A `for h : x in xs` loop with an early return over a container with a `PureForIn'` instance.
-Its invariant ranges over the mutable variables `b` of the loop state `(r?, b)`, and a `return`
-obligates the continuation `kRet` after the loop. -/
 @[spec default+10]
 theorem Spec.forIn'_pure_earlyReturn {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
@@ -1932,9 +1924,6 @@ theorem Spec.forIn_stringSlice
     simp only [String.toList_empty, List.forIn_nil]
     exact Triple.pure init Lean.Order.PartialOrder.rel_refl
 
-/-- A `for` loop with an early return over a `String`. Its invariant ranges over the mutable
-variables `b` of the loop state `(r?, b)`, and a `return` obligates the continuation `kRet` after
-the loop. -/
 @[spec default+10]
 theorem Spec.forIn_string_earlyReturn {s : String} {γ δ : Type u₂} {init : β}
     {f : Char → Option γ × β → m (ForInStep (Option γ × β))}
@@ -1968,9 +1957,6 @@ theorem Spec.forIn_string_earlyReturn {s : String} {γ δ : Type u₂} {init : �
       | (simp only [inv']; exact PartialOrder.rel_refl)
   · exact ⟨by simp only [inv', h, ↓reduceIte]; exact bot_le _⟩
 
-/-- A `for` loop with an early return over a `String.Slice`. Its invariant ranges over the mutable
-variables `b` of the loop state `(r?, b)`, and a `return` obligates the continuation `kRet` after
-the loop. -/
 @[spec default+10]
 theorem Spec.forIn_stringSlice_earlyReturn {s : String.Slice} {γ δ : Type u₂} {init : β}
     {f : Char → Option γ × β → m (ForInStep (Option γ × β))}
@@ -2418,9 +2404,6 @@ theorem Spec.forIn_loop
     | yield b' => exact Triple.pure (Sum.inl b') Lean.Order.PartialOrder.rel_refl
     | done b' => exact Triple.pure (Sum.inr b') Lean.Order.PartialOrder.rel_refl
 
-/-- A `repeat` or `while` loop with an early return. Its invariant ranges over the mutable
-variables `b` of the loop state `(r?, b)`, and a `return` obligates the continuation `kRet` after
-the loop. -/
 @[spec default+10]
 theorem Spec.forIn_loop_earlyReturn {γ δ : Type u} {l : Lean.Loop} {init : β}
     {f : Unit → Option γ × β → m (ForInStep (Option γ × β))}

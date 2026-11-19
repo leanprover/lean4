@@ -434,12 +434,12 @@ A specification or a program shares code through a join point `__vcgen_jp`, whic
 proves once. `Spec.seq_ite` shares the code after an `if`. -/
 
 @[spec default+10] theorem Spec.seq_ite (cond : Expr) (c₁ c₂ c₃ : Cmd) :
-    Triple (Cmd.seq (Cmd.ite cond c₁ c₂) c₃)
-      (Std.WP.wp
+    ⦃ Std.WP.wp
         (have __vcgen_jp := fun (_ : Unit) => c₃
          Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ())))
-        Q eposts)
-      Q eposts :=
+        Q eposts ⦄
+    Cmd.seq (Cmd.ite cond c₁ c₂) c₃
+    ⦃ Q; eposts ⦄ :=
   triple_of_wp fun _ _ => by simp only [wp_seq_eq, wp_ite_eq]
 
 example : ⦃ fun _ _ => True ⦄ ⟦ if b then y := 1 else y := 2 fi; z := y ⟧
@@ -458,12 +458,12 @@ example : ⦃ fun _ _ => True ⦄
 
 -- `Spec.seq_seq_ite` shares the code after an `if` at the end of a left-nested `seq`.
 @[spec default+10] theorem Spec.seq_seq_ite (cond : Expr) (c c₁ c₂ c₃ : Cmd) :
-    Triple (Cmd.seq (Cmd.seq c (Cmd.ite cond c₁ c₂)) c₃)
-      (Std.WP.wp
+    ⦃ Std.WP.wp
         (have __vcgen_jp := fun (_ : Unit) => c₃
          Cmd.seq c (Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ()))))
-        Q eposts)
-      Q eposts :=
+        Q eposts ⦄
+    Cmd.seq (Cmd.seq c (Cmd.ite cond c₁ c₂)) c₃
+    ⦃ Q; eposts ⦄ :=
   triple_of_wp fun _ _ => by simp only [wp_apply, wpCmd]
 
 example : ⦃ fun _ _ => True ⦄

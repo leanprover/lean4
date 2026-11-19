@@ -154,15 +154,10 @@ public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
   let goal ← instantiateBinderDomains goal
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
-/--
-Simplify the hypotheses of the goal's target `h₁ → … → hₙ → G` with `Context.simpMethods`, leaving
-`G` untouched, and thread the persistent simp cache through `VCGenM`'s state. `.noProgress` is
-forwarded to the caller.
--/
-public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
-  let some methods := (← read).simpMethods | return .noProgress
-  let target ← goal.getType
-  (← runSimp methods (Sym.Simp.simpTelescope target)).toSimpGoalResult goal
+/-- Simplify the target of `goal` with `runSimp scope k`. -/
+public def simpGoalWith (scope : Scope) (k : Expr → Sym.Simp.SimpM Sym.Simp.Result) (goal : MVarId)
+    (cached := true) : VCGenM Sym.SimpGoalResult := goal.withContext do
+  (← runSimp scope k (← goal.getType) cached).toSimpGoalResult goal
 
 /--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a

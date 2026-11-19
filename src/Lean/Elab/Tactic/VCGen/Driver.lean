@@ -76,20 +76,6 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
       others := others.push sg
   return others
 
-/-- Rewrite the target of a verification condition with the hypotheses of `scope.eqs`, then simplify
-it with `Context.simpMethods`. -/
-def simpVC (scope : Scope) (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
-  let (goal, progress) ← match ← substEqs scope goal with
-    | .closed => return .closed
-    | .goal goal => pure (goal, true)
-    | .noProgress => pure (goal, false)
-  let unchanged := if progress then .goal goal else .noProgress
-  let some methods := (← read).simpMethods | return unchanged
-  goal.withContext do
-  match ← (← runSimp methods (Sym.Simp.simp (← goal.getType))).toSimpGoalResult goal with
-  | .noProgress => return unchanged
-  | r => return r
-
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 `simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
@@ -107,7 +93,7 @@ public def emitVC (scope : Scope) (goal : Grind.Goal) (reason : SolveResult.Stop
     let target' ← instantiateMVarsS target
     unless isSameExpr target target' do
       goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
-    match ← simpVC scope goal.mvarId with
+    match ← simpGoalWith scope Sym.Simp.simp goal.mvarId with
     | .closed => return
     | .goal mvarId => goal := { goal with mvarId }
     | .noProgress => pure ()

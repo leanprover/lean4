@@ -447,9 +447,8 @@ partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (steps : List Ste
 /-- The `vcgen` simp normal form `e'` of `e` with a proof of `e = e'`, or `e` with `none` if
 `vcgen` has no simp methods or simp makes no progress. -/
 def simpJoinTerm (e : Expr) : VCGenM (Expr × Option Expr) := do
-  let some methods := (← read).simpMethods | return (e, none)
   let e ← shareCommonInc e
-  match ← runSimp methods (Sym.Simp.simp e) with
+  match ← runSimp default Sym.Simp.simp e with
   | .rfl .. => return (e, none)
   | .step e' proof .. => return (e', some proof)
 

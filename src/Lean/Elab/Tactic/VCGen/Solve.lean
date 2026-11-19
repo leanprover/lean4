@@ -103,33 +103,6 @@ def recordEqs (scope : Scope) (goal : MVarId) (start : Nat) : VCGenM Scope := go
     | none => scope
   return scope'
 
-/-- Rewrite a local `x` to `t` with the hypothesis `h : x = t` of `scope.substs`. -/
-public def eqsSimproc (scope : Scope) : Sym.Simp.Simproc := fun e => do
-  let .fvar x := e | return .rfl
-  let some (t, h) := scope.substs.get? x | return .rfl
-  return .step t (mkFVar h) (contextDependent := true)
-
-/-- Simplify `e` with `methods` after rewriting it with `scope.substs` on empty caches. -/
-def simpWithSubsts (scope : Scope) (methods : Sym.Simp.Methods) (e : Expr) :
-    VCGenM Sym.Simp.Result := do
-  if scope.substs.isEmpty || !e.hasAnyFVar scope.substs.contains then
-    return ← runSimp methods (Sym.Simp.simp e)
-  match ← Sym.Simp.SimpM.run' (Sym.Simp.simp e) { pre := eqsSimproc scope } (← read).simpConfig with
-  | .rfl .. => runSimp methods (Sym.Simp.simp e)
-  | .step e₁ h₁ .. => Sym.Simp.mkEqTransResult e e₁ h₁ (← runSimp methods (Sym.Simp.simp e₁))
-
-/-- Rewrite the target of `goal`, or only the hypotheses of its telescope if `telescope` holds, with
-the hypotheses of `scope.substs`. The run starts with empty caches, because the persistent cache of
-`Context.simpMethods` holds the locals unrewritten. -/
-public def substEqs (scope : Scope) (goal : MVarId) (telescope := false) :
-    VCGenM Sym.SimpGoalResult := goal.withContext do
-  if scope.substs.isEmpty then return .noProgress
-  let target ← goal.getType
-  unless target.hasAnyFVar scope.substs.contains do return .noProgress
-  let k := if telescope then Sym.Simp.simpTelescope target else Sym.Simp.simp target
-  let r ← Sym.Simp.SimpM.run' k { pre := eqsSimproc scope } (← read).simpConfig
-  r.toSimpGoalResult goal
-
 /-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
 `∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
 the binders between two matches are introduced at once. A hypothesis `a ∧ b` with a conjunct
@@ -139,14 +112,10 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   unless target.isForall do return none
   let oldGoal ← instantiateBinderDomains oldGoal
   let start := (← oldGoal.getDecl).lctx.numIndices
-  let goal ← match ← substEqs scope oldGoal (telescope := true) with
+  let mut goal ← match ← simpGoalWith scope Sym.Simp.simpTelescope oldGoal with
     | .closed => return some (scope, [])
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
-  let mut goal ← match ← simpGoalTelescope goal with
-    | .closed => return some (scope, [])
-    | .goal goal' => pure goal'
-    | .noProgress => pure goal
   let rintros := (← read).rintros
   let mut e ← goal.getType
   let mut n := 0
@@ -368,11 +337,7 @@ def applySplitRule (scope : Scope) (goal : MVarId) (rule : BackwardRule) (e : Ex
     | throwError "Failed to apply split rule for {indentExpr e}"
   let mut simpGoals := #[]
   for g in goals do
-    let g ← match ← substEqs scope g (telescope := true) with
-      | .goal g' => pure g'
-      | .noProgress => pure g
-      | .closed => continue
-    match ← simpGoalTelescope g with
+    match ← simpGoalWith scope Sym.Simp.simpTelescope g with
     | .goal g' => simpGoals := simpGoals.push g'
     | .noProgress => simpGoals := simpGoals.push g
     | .closed => continue
@@ -476,13 +441,12 @@ def introLet (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool
   return (decls[0]!, goal')
 
 /-- Simplify the value `val` of `goal`'s target `pre ⊑ have name : type := val; body` with
-`Context.simpMethods`. Returns the new goal and the simplified value. The value of a dependent `let`
+`runSimp`. Returns the new goal and the simplified value. The value of a dependent `let`
 (`nondep = false`) stays as written, since `body` can depend on it definitionally. -/
 def simpHaveValue (scope : Scope) (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
     VCGenM (MVarId × Expr) := do
   unless nondep do return (goal, val)
-  let some methods := (← read).simpMethods | return (goal, val)
-  let .step val' h .. ← simpWithSubsts scope methods val | return (goal, val)
+  let .step val' h .. ← runSimp scope Sym.Simp.simp val | return (goal, val)
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let rel ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
@@ -534,30 +498,22 @@ def rhsLet? (scope : Scope) (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
-to the discharging tactic. Rewrites with `Context.simpMethods`; the program, the postcondition and
-the precondition are left untouched. -/
+to the discharging tactic. Rewrites with `runSimp`; the program, the postcondition and the
+precondition are left untouched. -/
 def wpSimpStateArgs? (scope : Scope) (goal : MVarId) (info : WPApp) :
-    VCGenM (Option (List MVarId)) := goal.withContext do
+    VCGenM (Option (List MVarId)) := do
   if info.excessArgs.isEmpty then return none
-  let some methods := (← read).simpMethods | return none
   let start := info.args.size
-  let target ← goal.getType
-  match h : target with
-  | .app f rhs =>
-    let simpArgs : Sym.Simp.SimpM Sym.Simp.Result := do
+  let stateArgs (target : Expr) : Sym.Simp.SimpM Sym.Simp.Result := do
+    match h : target with
+    | .app f rhs =>
       let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
       Sym.Simp.mkCongr target f rhs .rfl ar h
-    -- A rewrite with `scope.substs` makes progress, and the next step simplifies the result.
-    let result ← if !scope.substs.isEmpty && rhs.hasAnyFVar scope.substs.contains then
-        match ← Sym.Simp.SimpM.run' simpArgs { pre := eqsSimproc scope } (← read).simpConfig with
-        | .rfl .. => runSimp methods simpArgs
-        | r => pure r
-      else runSimp methods simpArgs
-    match ← result.toSimpGoalResult goal with
-    | .closed => return some []
-    | .goal g => return some [g]
-    | .noProgress => return none
-  | _ => return none
+    | _ => return .rfl
+  match ← simpGoalWith scope stateArgs goal with
+  | .closed => return some []
+  | .goal g => return some [g]
+  | .noProgress => return none
 
 /-- Strategy 11b: split an `ite`/`dite`/`cond`/match program, or iota-reduce a matcher with a
 concrete discriminant. -/
@@ -770,7 +726,7 @@ def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   if info.prog.hasAnyFVar scope.substs.contains then
-    match ← substEqs scope goal with
+    match ← simpGoalWith scope Sym.Simp.simp goal (cached := false) with
     | .closed => return .goals scope []
     | .goal g => return .goals scope [g]
     | .noProgress => pure ()

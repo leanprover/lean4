@@ -514,6 +514,20 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
     pure mvar
 
 /--
+The variables among `xs` that are abstracted according to `mask`, but whose type depends on a
+variable among `xs` that is not. These cannot be abstracted either, else the abstraction could not
+be applied to the motive arguments of the matcher, whose types refer to each other.
+-/
+def abstractedDependingOnUnabstracted (xs : Array Expr) (mask : Array Bool) : MetaM (Array FVarId) := do
+  let unabstracted : FVarIdSet := (xs.zip mask).foldl (init := {}) fun s (x, m) =>
+    if !m && x.isFVar then s.insert x.fvarId! else s
+  (xs.zip mask).filterMapM fun (x, m) => do
+    if m then
+      if ← dependsOnPred (← x.fvarId!.getType) unabstracted.contains then
+        return some x.fvarId!
+    return none
+
+/--
 Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
@@ -537,21 +551,13 @@ def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) (checkTypeCorrect := false)
   if ← isTypeCorrect r.2 then return r
   closed (check := true)
 where
-  -- A variable whose type mentions a variable that is not abstracted cannot be abstracted
-  -- either, else the result cannot be applied to arguments of the matcher's motive.
   closed (check : Bool) : MetaM (Array Bool × Expr) := do
     let mut skip : FVarIdSet := {}
     repeat
       let (mask, e') ← go check skip
-      let mut skip' := skip
-      for x in xs, m in mask do
-        if m then
-          let xType ← x.fvarId!.getType
-          for y in xs, m' in mask do
-            if !m' && y.isFVar && xType.containsFVar y.fvarId! then
-              skip' := skip'.insert x.fvarId!
-      if skip'.size == skip.size then return (mask, e')
-      skip := skip'
+      let bad ← abstractedDependingOnUnabstracted xs mask
+      if bad.isEmpty then return (mask, e')
+      skip := bad.foldl (·.insert ·) skip
     unreachable!
   go (check : Bool) (skip : FVarIdSet) : MetaM (Array Bool × Expr) := do
     let mut e := e

@@ -20,6 +20,6 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``LoopInvariant.Goal [``prog, ``exits]
-  `(tactic| vcgen with finish -abstractProof)
+  `(tactic| vcgen with finish)
   `(tactic| fail)
   [4, 8, 12]

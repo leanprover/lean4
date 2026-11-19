@@ -7,12 +7,12 @@ module
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 public section
 namespace Lean.Elab
 open Lean.Parser.Term
 
-open Language
+open Language Internal.ErrorUtils
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
@@ -1179,7 +1179,7 @@ deriving TypeName
 
 register_builtin_option warn.classDefReducibility : Bool := {
   defValue := true
-  descr    := "warn when a `def` of class type is not marked `@[reducible]` or `@[implicit_reducible]`"
+  descr    := "warn when a `def` of class type is not marked `@[reducible]`, `@[instance_reducible]`, or `@[implicit_reducible]`"
 }
 
 register_builtin_option warn.exposeOnPrivate : Bool := {
@@ -1224,15 +1224,17 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    for header in headers do
+      let info : DeclValueInfo := { header with isProof := (← isProp header.type) }
+      pushInfoLeaf <| .ofCustomInfo { stx := header.value, value := .mk info }
 
-    -- Now that we have elaborated types, default data instances to `[implicit_reducible]`. This
+    -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.
     for header in headers do
-      -- TODO: remove `instance_reducible once the alias is deprecated
-      if !header.modifiers.anyAttr (·.name matches `reducible | `implicit_reducible | `instance_reducible | `irreducible) then
+      if !header.modifiers.anyAttr (·.name matches `reducible | `instance_reducible | `implicit_reducible | `irreducible) then
         if header.kind == .instance then
           if !(← isProp header.type) then
-            setReducibilityStatus header.declName .implicitReducible
+            setReducibilityStatus header.declName .instanceReducible
 
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
@@ -1252,8 +1254,11 @@ where
             (← isClass? header.type).isSome /-TODO-/ &&
             !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
           let status ← getReducibilityStatus header.declName
-          unless status matches .reducible | .implicitReducible | .irreducible do
-            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"
+          if status == .semireducible then do
+            logWarning m!"Definition `{header.declName}` of class type is semireducible. \
+Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, \
+this warning can be disabled with `set_option warn.classDefReducibility false`."
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
@@ -1264,6 +1269,10 @@ where
   elabAsync header view declId := do
     assert! view.kind.isTheorem
     let env ← getEnv
+    let env :=
+      if env.header.isModule && !isPrivateName declId.declName then
+        recordOriginalConstKind env declId.declName .thm
+      else env
     let async ← env.addConstAsync declId.declName .thm
       (exportedKind? :=
         guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
@@ -1522,7 +1531,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let mut reusedAllHeaders := true
   for h : i in *...ds.size, headerPromise in headerPromises do
     let d := ds[i]
-    let modifiers ← elabModifiers ⟨d[0]⟩
+    let modifiers ← elabModifiers ⟨d[0]⟩ (isExample := d[1].isOfKind ``Parser.Command.example)
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ←

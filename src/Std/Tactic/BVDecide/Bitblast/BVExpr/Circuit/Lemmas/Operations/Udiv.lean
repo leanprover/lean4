@@ -15,7 +15,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 import all Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 public import Std.Tactic.BVDecide.Normalize.BitVec
 import Init.ByCases
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 @[expose] public section
 
@@ -343,7 +343,7 @@ theorem denote_go_eq_divRec_q (aig : AIG α) (assign : α → Bool) (curr : Nat)
     simp [go, hq]
   | succ curr ih =>
     intro idx hidx
-    rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
+    simp only [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
     next hdiscr =>
       rw [ih]

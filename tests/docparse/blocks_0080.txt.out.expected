@@ -1,0 +1,21 @@
+Input: "[t][a^b]\n"
+Failure: expected a character other than '^', '[', '\', or a tab
+ --> 1:5-1:6
+  |
+1 | [t][a^b]
+  |      ^
+  = consumed input prefix: 5 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.link
+      "["
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "t"))]
+      "]"
+      (Lean.Doc.Parser.LinkTarget.ref
+       "["
+       (Lean.Doc.Parser.versoRef "a")
+       <missing>))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

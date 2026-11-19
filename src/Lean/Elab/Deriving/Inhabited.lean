@@ -103,7 +103,7 @@ where
       if val.hasMVar then
         throwError "default value contains metavariables{inlineExprTrailing val}"
       let fvars := Lean.collectFVars {} val
-      let insts' := insts.filter fvars.visitedExpr.contains
+      let insts' := insts.filter (fvars.fvarSet.contains ·.fvarId!)
       let usedInstIdxs := collectUsedLocalsInsts {} localInst2Index val
       assert! insts'.size == usedInstIdxs.size
       trace[Elab.Deriving.inhabited] "inhabited instance using{inlineExpr val}{if insts'.isEmpty then m!"" else m!"(assuming parameters {insts'} are inhabited)"}"
@@ -131,8 +131,8 @@ where
         (hints       := ReducibilityHints.regular (getMaxHeight (← getEnv) auxVal + 1))
       if isMarkedMeta (← getEnv) inductiveTypeName then
         modifyEnv (markMeta · auxFunName)
-      unless (← read).isNoncomputableSection do
-        compileDecls #[auxFunName]
+      compileDecls #[auxFunName]
+        (logErrors := !(← read).isNoncomputableSection || isMarkedMeta (← getEnv) auxFunName)
       enableRealizationsForConst auxFunName
       trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
       let cmd ← mkInstanceCmdWith (mkIdent ctx.instName) usedInstIdxs (mkCIdent auxFunName)

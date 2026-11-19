@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Lemmas
-// Imports: public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.BinderPredicates public import Init.Data.Bool import Init.Data.List.Nat.Range import Init.Data.List.Pairwise import Init.Data.List.Perm import Init.Data.List.Range import Init.Data.List.Sublist import Init.Data.Nat.Linear import Init.Data.Prod
+// Imports: public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.BinderPredicates public import Init.Data.Bool import Init.Data.List.Nat.Range import Init.Data.List.Pairwise import Init.Data.List.Perm import Init.Data.List.Range import Init.Data.List.Sublist import Init.Data.Nat.Internal.Linear import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,8 +17,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_merge_ma
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_merge_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_mergeSort_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_mergeSort_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_findIdx_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_findIdx_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_merge_match__1_splitter___redArg(lean_object* v_xs_1_, lean_object* v_ys_2_, lean_object* v_h__1_3_, lean_object* v_h__2_4_, lean_object* v_h__3_5_){
 _start:
 {
@@ -191,54 +189,6 @@ return v___x_54_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_findIdx_go_match__1_splitter___redArg(lean_object* v_x_55_, lean_object* v_x_56_, lean_object* v_h__1_57_, lean_object* v_h__2_58_){
-_start:
-{
-if (lean_obj_tag(v_x_55_) == 0)
-{
-lean_object* v___x_59_; 
-lean_dec(v_h__2_58_);
-v___x_59_ = lean_apply_1(v_h__1_57_, v_x_56_);
-return v___x_59_;
-}
-else
-{
-lean_object* v_head_60_; lean_object* v_tail_61_; lean_object* v___x_62_; 
-lean_dec(v_h__1_57_);
-v_head_60_ = lean_ctor_get(v_x_55_, 0);
-lean_inc(v_head_60_);
-v_tail_61_ = lean_ctor_get(v_x_55_, 1);
-lean_inc(v_tail_61_);
-lean_dec_ref_known(v_x_55_, 2);
-v___x_62_ = lean_apply_3(v_h__2_58_, v_head_60_, v_tail_61_, v_x_56_);
-return v___x_62_;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Lemmas_0__List_findIdx_go_match__1_splitter(lean_object* v_00_u03b1_63_, lean_object* v_motive_64_, lean_object* v_x_65_, lean_object* v_x_66_, lean_object* v_h__1_67_, lean_object* v_h__2_68_){
-_start:
-{
-if (lean_obj_tag(v_x_65_) == 0)
-{
-lean_object* v___x_69_; 
-lean_dec(v_h__2_68_);
-v___x_69_ = lean_apply_1(v_h__1_67_, v_x_66_);
-return v___x_69_;
-}
-else
-{
-lean_object* v_head_70_; lean_object* v_tail_71_; lean_object* v___x_72_; 
-lean_dec(v_h__1_67_);
-v_head_70_ = lean_ctor_get(v_x_65_, 0);
-lean_inc(v_head_70_);
-v_tail_71_ = lean_ctor_get(v_x_65_, 1);
-lean_inc(v_tail_71_);
-lean_dec_ref_known(v_x_65_, 2);
-v___x_72_ = lean_apply_3(v_h__2_68_, v_head_70_, v_tail_71_, v_x_66_);
-return v___x_72_;
-}
-}
-}
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_BinderPredicates(uint8_t builtin);
@@ -248,13 +198,15 @@ lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Range(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -282,7 +234,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Prod(builtin);
@@ -306,7 +258,7 @@ lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin) {
@@ -340,7 +292,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Prod(builtin);

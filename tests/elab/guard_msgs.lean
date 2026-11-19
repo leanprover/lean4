@@ -156,7 +156,8 @@ set_option linter.unusedVariables true
 /--
 warning: Variable name `n` is not explicitly referenced.
 
-The binding can be removed (if unused) or named `_` (if used implicitly).
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _n
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/
@@ -167,7 +168,8 @@ example (n : Nat) : True := trivial
 /--
 warning: Variable name `n` is not explicitly referenced.
 
-The binding can be removed (if unused) or named `_` (if used implicitly).
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _n
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/

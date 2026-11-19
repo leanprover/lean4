@@ -23,7 +23,7 @@ open Lean.Parser.Term
 open Lean.Meta
 open Lean.Meta.Match
 
-private def elabDoSeqWithRefinedType (type : Expr) (doSeq : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
+private def elabDoSeqWithRefinedType (type : Expr) (doSeq : DoSeq) (dec : DoElemCont) : DoElabM Expr := do
   let newDoBlockResultType ← withNewMCtxDepth do
     let γ ← mkFreshExprMVar (mkSort (← read).monadInfo.u.succ)
     unless ← isDefEqGuarded type (← mkMonadApp γ) do
@@ -33,10 +33,10 @@ private def elabDoSeqWithRefinedType (type : Expr) (doSeq : TSyntax ``doSeq) (de
   trace[Elab.do.match] "newDoBlockResultType: {newDoBlockResultType}"
   -- The `doBlockResultType` *is* the continuation's return type, since it is duplicable.
   let dec := { dec with resultType := newDoBlockResultType }
-  withDoBlockResultType newDoBlockResultType (elabDoSeq doSeq dec)
+  withRefinedResultType newDoBlockResultType (elabDoSeq doSeq dec)
 
 /--
-Expand a `doMatch` into a term `match` term. We do this for `match_syntax` and
+Expand a `doMatch` into a term-level `match`. We do this for `match_syntax` and
 `match (dependent := true)`. For the latter, the functionality is very restricted to effectively
 ban join points.
 Reason: In case of a dependent match, it is hard to guarantee that generalization of join points and
@@ -49,7 +49,7 @@ private def expandToTermMatch : DoElab := fun stx dec => do
   let doBlockResultType := (← read).doBlockResultType
   let mγ ← mkMonadApp doBlockResultType
   -- trace[Elab.do] "expandToTermMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
-  let info ← inferControlInfoElem stx
+  let info ← inferControlInfoElem stx (← read).controlInfoCache
   let dependent := dep?.getD ⟨.missing⟩ matches `(trueVal| true)
   trace[Elab.do.match] "expandToTermMatch. dependent: {dependent}, doBlockResultType: {doBlockResultType}, dec.resultType: {dec.resultType}"
   let complexDec := withNewMCtxDepth <| not <$> isDefEqGuarded dec.resultType doBlockResultType
@@ -182,7 +182,7 @@ private def elabMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
           return (altLHS, rhs)
 
 private def elabMatchAlts (discrs : Array Term.Discr) (alts : Array DoMatchAltView) (dec : DoElemCont) : DoElabM (Expr × Array AltLHS × Array Expr) := do
-  let alts ← liftMacroM <| Term.expandMacrosInPatterns alts
+  let alts ← Term.expandMacrosInPatterns alts
   let matchType ← mkDepMatchMotive discrs (← mkMonadApp (← read).doBlockResultType)
   let (lhss, rhss) ← Array.unzip <$> alts.mapM (elabMatchAlt discrs matchType · dec)
   return (matchType, lhss, rhss)
@@ -203,7 +203,8 @@ private def compileMatch (discrs : Array Term.Discr) (matchType : Expr) (lhss : 
 
 private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView)
     (nondupDec : DoElemCont) : DoElabM Expr := do
-  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs)
+  let cache := (← read).controlInfoCache
+  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs cache)
     ControlInfo.empty
   nondupDec.withDuplicableCont info fun dec => do
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"

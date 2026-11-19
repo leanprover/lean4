@@ -1,0 +1,45 @@
+/-
+Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Graf
+-/
+module
+
+prelude
+public import Std.WP.Assertion
+public import Std.WP.Triple.SpecLemmas
+
+public section
+
+/-!
+# Automation for measures
+
+This module registers the automation lemmas of `NondetFun.EvalsTo`, `Variant.EvalsTo` and
+`Variant.EvalsBelow` with `simp`, `grind norm` and `vcgen_simp`, by the criterion of
+`Std.Internal.Order.Automation`. For example, at carrier `Nat → Prop` and the measure
+`f := fun (x : Nat × Nat) => (x.1, x.2)`, the decrease `(Variant.ofMeasure f).EvalsBelow (i, j) m s`
+rewrites to `i < m.1 ∨ i = m.1 ∧ j < m.2`.
+
+`EvalsTo` puts the measure value on the left of an equation: at carrier `Prop` and the measure
+`fun i => i`, `(Variant.ofMeasure fun i => i).EvalsTo i m` rewrites to `m = i`.
+-/
+
+namespace Std.WP
+
+open Assertion
+
+attribute [simp, grind norm, vcgen_simp] NondetFun.evalsTo_pure_eq NondetFun.evalsTo_apply
+
+attribute [simp, grind norm, vcgen_simp] Variant.evalsTo_ofMeasure
+  Variant.evalsBelow_ofMeasure_apply Variant.evalsBelow_ofMeasure_nat
+  Variant.evalsBelow_ofMeasure_lex
+
+end Std.WP
+
+/-! ## The built-in `vcgen_rintro` rule -/
+
+theorem Prod.forall_intro {α : Type _} {β : Type _} {G : α × β → Prop} (h : ∀ a b, G (a, b)) :
+    ∀ p, G p :=
+  fun (a, b) => h a b
+
+end

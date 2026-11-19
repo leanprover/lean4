@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.Split.Basic
-// Imports: public import Init.Data.String.Lemmas.Pattern.Basic public import Init.Data.String.Slice public import Init.Data.String.Search import all Init.Data.String.Slice import all Init.Data.String.Search import Init.Data.Option.Lemmas import Init.Data.String.Termination import Init.Data.String.Lemmas.Order import Init.ByCases import Init.Data.Order.Lemmas import Init.Data.String.OrderInstances import Init.Data.Iterators.Lemmas.Basic import Init.Data.Iterators.Lemmas.Consumers.Collect import Init.Data.Iterators.Lemmas.Combinators.FilterMap import Init.Data.String.Lemmas.IsEmpty
+// Imports: public import Init.Data.String.Lemmas.Pattern.Basic public import Init.Data.String.Slice.Pattern public import Init.Data.String.Search import all Init.Data.String.Slice.Pattern import all Init.Data.String.Search import Init.Data.Option.Lemmas import Init.Data.String.Termination import Init.Data.String.Lemmas.Order import Init.ByCases import Init.Data.Order.Lemmas import Init.Data.String.OrderInstances import Init.Data.Iterators.Lemmas.Basic import Init.Data.Iterators.Lemmas.Consumers.Collect import Init.Data.Iterators.Lemmas.Combinators.FilterMap import Init.Data.String.Lemmas.IsEmpty
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -518,9 +518,9 @@ return v___x_163_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Termination(uint8_t builtin);
@@ -532,21 +532,23 @@ lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Basic(uint8_t builtin
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_IsEmpty(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+res = runtime_initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Slice(builtin);
+res = runtime_initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Search(builtin);
@@ -592,9 +594,9 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Slice_Pattern(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
@@ -614,13 +616,13 @@ _G_initialized = true;
 res = initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Slice(builtin);
+res = initialize_Init_Data_String_Slice_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);

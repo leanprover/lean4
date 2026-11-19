@@ -16,11 +16,11 @@ extern "C" {
 uint8_t lean_string_validate_utf8(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
-lean_object* l_String_toUTF8___boxed(lean_object*);
+lean_object* l_String_toUTF8(lean_object*);
 static const lean_closure_object l_Std_Http_Body_instToByteArrayByteArray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_id___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
 static const lean_object* l_Std_Http_Body_instToByteArrayByteArray___closed__0 = (const lean_object*)&l_Std_Http_Body_instToByteArrayByteArray___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Body_instToByteArrayByteArray = (const lean_object*)&l_Std_Http_Body_instToByteArrayByteArray___closed__0_value;
-static const lean_closure_object l_Std_Http_Body_instToByteArrayString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_toUTF8___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Std_Http_Body_instToByteArrayString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_toUTF8, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Http_Body_instToByteArrayString___closed__0 = (const lean_object*)&l_Std_Http_Body_instToByteArrayString___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Body_instToByteArrayString = (const lean_object*)&l_Std_Http_Body_instToByteArrayString___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Http_Body_instFromByteArrayByteArray___lam__0(lean_object*);
@@ -71,11 +71,13 @@ lean_object* runtime_initialize_Std_Async_ContextAsync(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Chunk(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Headers(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Body_Length(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Data_Body_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Async(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

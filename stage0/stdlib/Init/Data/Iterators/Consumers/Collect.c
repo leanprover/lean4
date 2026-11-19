@@ -22,21 +22,15 @@ static const lean_array_object l_Std_Iter_toArray___redArg___closed__0_value = {
 static const lean_object* l_Std_Iter_toArray___redArg___closed__0 = (const lean_object*)&l_Std_Iter_toArray___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Iter_toArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toArray(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toArray___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toArray(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_toArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toListRev___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toListRev___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toListRev(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toListRev___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toListRev(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_toListRev___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toList___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toList(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toList___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toList(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_toList___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_toArray___redArg___lam__0(lean_object* v_inst_1_, lean_object* v_it_2_, lean_object* v_acc_3_, lean_object* v_recur_4_){
@@ -97,7 +91,7 @@ v___x_25_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___red
 return v___x_25_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toArray___redArg(lean_object* v_inst_26_, lean_object* v_it_27_){
+LEAN_EXPORT lean_object* l_Std_Iter_Total_toArray___redArg(lean_object* v_inst_26_, lean_object* v_it_27_){
 _start:
 {
 lean_object* v___f_28_; lean_object* v___x_29_; lean_object* v___x_30_; 
@@ -108,113 +102,113 @@ v___x_30_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___red
 return v___x_30_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toArray(lean_object* v_00_u03b1_31_, lean_object* v_00_u03b2_32_, lean_object* v_inst_33_, lean_object* v_it_34_){
+LEAN_EXPORT lean_object* l_Std_Iter_Total_toArray(lean_object* v_00_u03b1_31_, lean_object* v_00_u03b2_32_, lean_object* v_inst_33_, lean_object* v_inst_34_, lean_object* v_it_35_){
 _start:
 {
-lean_object* v___f_35_; lean_object* v___x_36_; lean_object* v___x_37_; 
-v___f_35_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_35_, 0, v_inst_33_);
-v___x_36_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_37_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_35_, v_it_34_, v___x_36_);
-return v___x_37_;
+lean_object* v___f_36_; lean_object* v___x_37_; lean_object* v___x_38_; 
+v___f_36_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_36_, 0, v_inst_33_);
+v___x_37_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
+v___x_38_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_36_, v_it_35_, v___x_37_);
+return v___x_38_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Total_toArray___redArg(lean_object* v_inst_38_, lean_object* v_it_39_){
+LEAN_EXPORT lean_object* l_Std_Iter_toListRev___redArg___lam__0(lean_object* v_inst_39_, lean_object* v_it_40_, lean_object* v_acc_41_, lean_object* v_recur_42_){
 _start:
 {
-lean_object* v___f_40_; lean_object* v___x_41_; lean_object* v___x_42_; 
-v___f_40_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_40_, 0, v_inst_38_);
-v___x_41_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_42_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_40_, v_it_39_, v___x_41_);
-return v___x_42_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_Total_toArray(lean_object* v_00_u03b1_43_, lean_object* v_00_u03b2_44_, lean_object* v_inst_45_, lean_object* v_inst_46_, lean_object* v_it_47_){
-_start:
-{
-lean_object* v___f_48_; lean_object* v___x_49_; lean_object* v___x_50_; 
-v___f_48_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_48_, 0, v_inst_45_);
-v___x_49_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_50_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_48_, v_it_47_, v___x_49_);
-return v___x_50_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_toListRev___redArg___lam__0(lean_object* v_inst_51_, lean_object* v_it_52_, lean_object* v_acc_53_, lean_object* v_recur_54_){
-_start:
-{
-lean_object* v_val_55_; 
-v_val_55_ = lean_apply_1(v_inst_51_, v_it_52_);
-switch(lean_obj_tag(v_val_55_))
+lean_object* v_val_43_; 
+v_val_43_ = lean_apply_1(v_inst_39_, v_it_40_);
+switch(lean_obj_tag(v_val_43_))
 {
 case 0:
 {
-lean_object* v_it_56_; lean_object* v_out_57_; lean_object* v___x_59_; uint8_t v_isShared_60_; uint8_t v_isSharedCheck_65_; 
-v_it_56_ = lean_ctor_get(v_val_55_, 0);
-v_out_57_ = lean_ctor_get(v_val_55_, 1);
-v_isSharedCheck_65_ = !lean_is_exclusive(v_val_55_);
-if (v_isSharedCheck_65_ == 0)
+lean_object* v_it_44_; lean_object* v_out_45_; lean_object* v___x_47_; uint8_t v_isShared_48_; uint8_t v_isSharedCheck_53_; 
+v_it_44_ = lean_ctor_get(v_val_43_, 0);
+v_out_45_ = lean_ctor_get(v_val_43_, 1);
+v_isSharedCheck_53_ = !lean_is_exclusive(v_val_43_);
+if (v_isSharedCheck_53_ == 0)
 {
-v___x_59_ = v_val_55_;
-v_isShared_60_ = v_isSharedCheck_65_;
-goto v_resetjp_58_;
+v___x_47_ = v_val_43_;
+v_isShared_48_ = v_isSharedCheck_53_;
+goto v_resetjp_46_;
 }
 else
 {
-lean_inc(v_out_57_);
-lean_inc(v_it_56_);
-lean_dec(v_val_55_);
-v___x_59_ = lean_box(0);
-v_isShared_60_ = v_isSharedCheck_65_;
-goto v_resetjp_58_;
+lean_inc(v_out_45_);
+lean_inc(v_it_44_);
+lean_dec(v_val_43_);
+v___x_47_ = lean_box(0);
+v_isShared_48_ = v_isSharedCheck_53_;
+goto v_resetjp_46_;
 }
-v_resetjp_58_:
+v_resetjp_46_:
 {
-lean_object* v___x_62_; 
-if (v_isShared_60_ == 0)
+lean_object* v___x_50_; 
+if (v_isShared_48_ == 0)
 {
-lean_ctor_set_tag(v___x_59_, 1);
-lean_ctor_set(v___x_59_, 1, v_acc_53_);
-lean_ctor_set(v___x_59_, 0, v_out_57_);
-v___x_62_ = v___x_59_;
-goto v_reusejp_61_;
+lean_ctor_set_tag(v___x_47_, 1);
+lean_ctor_set(v___x_47_, 1, v_acc_41_);
+lean_ctor_set(v___x_47_, 0, v_out_45_);
+v___x_50_ = v___x_47_;
+goto v_reusejp_49_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_64_; 
-v_reuseFailAlloc_64_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_64_, 0, v_out_57_);
-lean_ctor_set(v_reuseFailAlloc_64_, 1, v_acc_53_);
-v___x_62_ = v_reuseFailAlloc_64_;
-goto v_reusejp_61_;
+lean_object* v_reuseFailAlloc_52_; 
+v_reuseFailAlloc_52_ = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_52_, 0, v_out_45_);
+lean_ctor_set(v_reuseFailAlloc_52_, 1, v_acc_41_);
+v___x_50_ = v_reuseFailAlloc_52_;
+goto v_reusejp_49_;
 }
-v_reusejp_61_:
+v_reusejp_49_:
 {
-lean_object* v___x_63_; 
-v___x_63_ = lean_apply_3(v_recur_54_, v_it_56_, v___x_62_, lean_box(0));
-return v___x_63_;
+lean_object* v___x_51_; 
+v___x_51_ = lean_apply_3(v_recur_42_, v_it_44_, v___x_50_, lean_box(0));
+return v___x_51_;
 }
 }
 }
 case 1:
 {
-lean_object* v_it_66_; lean_object* v___x_67_; 
-v_it_66_ = lean_ctor_get(v_val_55_, 0);
-lean_inc(v_it_66_);
-lean_dec_ref_known(v_val_55_, 1);
-v___x_67_ = lean_apply_3(v_recur_54_, v_it_66_, v_acc_53_, lean_box(0));
-return v___x_67_;
+lean_object* v_it_54_; lean_object* v___x_55_; 
+v_it_54_ = lean_ctor_get(v_val_43_, 0);
+lean_inc(v_it_54_);
+lean_dec_ref_known(v_val_43_, 1);
+v___x_55_ = lean_apply_3(v_recur_42_, v_it_54_, v_acc_41_, lean_box(0));
+return v___x_55_;
 }
 default: 
 {
-lean_dec_ref(v_recur_54_);
-return v_acc_53_;
+lean_dec_ref(v_recur_42_);
+return v_acc_41_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_toListRev___redArg(lean_object* v_inst_68_, lean_object* v_it_69_){
+LEAN_EXPORT lean_object* l_Std_Iter_toListRev___redArg(lean_object* v_inst_56_, lean_object* v_it_57_){
+_start:
+{
+lean_object* v___f_58_; lean_object* v___x_59_; lean_object* v___x_60_; 
+v___f_58_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_58_, 0, v_inst_56_);
+v___x_59_ = lean_box(0);
+v___x_60_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_58_, v_it_57_, v___x_59_);
+return v___x_60_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_toListRev(lean_object* v_00_u03b1_61_, lean_object* v_00_u03b2_62_, lean_object* v_inst_63_, lean_object* v_it_64_){
+_start:
+{
+lean_object* v___f_65_; lean_object* v___x_66_; lean_object* v___x_67_; 
+v___f_65_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_65_, 0, v_inst_63_);
+v___x_66_ = lean_box(0);
+v___x_67_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_65_, v_it_64_, v___x_66_);
+return v___x_67_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_Total_toListRev___redArg(lean_object* v_inst_68_, lean_object* v_it_69_){
 _start:
 {
 lean_object* v___f_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
@@ -225,141 +219,75 @@ v___x_72_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___red
 return v___x_72_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_toListRev(lean_object* v_00_u03b1_73_, lean_object* v_00_u03b2_74_, lean_object* v_inst_75_, lean_object* v_it_76_){
+LEAN_EXPORT lean_object* l_Std_Iter_Total_toListRev(lean_object* v_00_u03b1_73_, lean_object* v_00_u03b2_74_, lean_object* v_inst_75_, lean_object* v_inst_76_, lean_object* v_it_77_){
 _start:
 {
-lean_object* v___f_77_; lean_object* v___x_78_; lean_object* v___x_79_; 
-v___f_77_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_77_, 0, v_inst_75_);
-v___x_78_ = lean_box(0);
-v___x_79_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_77_, v_it_76_, v___x_78_);
-return v___x_79_;
+lean_object* v___f_78_; lean_object* v___x_79_; lean_object* v___x_80_; 
+v___f_78_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_78_, 0, v_inst_75_);
+v___x_79_ = lean_box(0);
+v___x_80_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_78_, v_it_77_, v___x_79_);
+return v___x_80_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toListRev___redArg(lean_object* v_inst_80_, lean_object* v_it_81_){
+LEAN_EXPORT lean_object* l_Std_Iter_toList___redArg(lean_object* v_inst_81_, lean_object* v_it_82_){
 _start:
 {
-lean_object* v___f_82_; lean_object* v___x_83_; lean_object* v___x_84_; 
-v___f_82_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_82_, 0, v_inst_80_);
-v___x_83_ = lean_box(0);
-v___x_84_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_82_, v_it_81_, v___x_83_);
-return v___x_84_;
+lean_object* v___f_83_; lean_object* v___x_84_; lean_object* v___x_85_; lean_object* v___x_86_; 
+v___f_83_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_83_, 0, v_inst_81_);
+v___x_84_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
+v___x_85_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_83_, v_it_82_, v___x_84_);
+v___x_86_ = lean_array_to_list(v___x_85_);
+return v___x_86_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toListRev(lean_object* v_00_u03b1_85_, lean_object* v_00_u03b2_86_, lean_object* v_inst_87_, lean_object* v_it_88_){
+LEAN_EXPORT lean_object* l_Std_Iter_toList(lean_object* v_00_u03b1_87_, lean_object* v_00_u03b2_88_, lean_object* v_inst_89_, lean_object* v_it_90_){
 _start:
 {
-lean_object* v___f_89_; lean_object* v___x_90_; lean_object* v___x_91_; 
-v___f_89_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_89_, 0, v_inst_87_);
-v___x_90_ = lean_box(0);
-v___x_91_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_89_, v_it_88_, v___x_90_);
-return v___x_91_;
+lean_object* v___f_91_; lean_object* v___x_92_; lean_object* v___x_93_; lean_object* v___x_94_; 
+v___f_91_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_91_, 0, v_inst_89_);
+v___x_92_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
+v___x_93_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_91_, v_it_90_, v___x_92_);
+v___x_94_ = lean_array_to_list(v___x_93_);
+return v___x_94_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Total_toListRev___redArg(lean_object* v_inst_92_, lean_object* v_it_93_){
+LEAN_EXPORT lean_object* l_Std_Iter_Total_toList___redArg(lean_object* v_inst_95_, lean_object* v_it_96_){
 _start:
 {
-lean_object* v___f_94_; lean_object* v___x_95_; lean_object* v___x_96_; 
-v___f_94_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_94_, 0, v_inst_92_);
-v___x_95_ = lean_box(0);
-v___x_96_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_94_, v_it_93_, v___x_95_);
-return v___x_96_;
+lean_object* v___f_97_; lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; 
+v___f_97_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_97_, 0, v_inst_95_);
+v___x_98_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
+v___x_99_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_97_, v_it_96_, v___x_98_);
+v___x_100_ = lean_array_to_list(v___x_99_);
+return v___x_100_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iter_Total_toListRev(lean_object* v_00_u03b1_97_, lean_object* v_00_u03b2_98_, lean_object* v_inst_99_, lean_object* v_inst_100_, lean_object* v_it_101_){
+LEAN_EXPORT lean_object* l_Std_Iter_Total_toList(lean_object* v_00_u03b1_101_, lean_object* v_00_u03b2_102_, lean_object* v_inst_103_, lean_object* v_inst_104_, lean_object* v_it_105_){
 _start:
 {
-lean_object* v___f_102_; lean_object* v___x_103_; lean_object* v___x_104_; 
-v___f_102_ = lean_alloc_closure((void*)(l_Std_Iter_toListRev___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_102_, 0, v_inst_99_);
-v___x_103_ = lean_box(0);
-v___x_104_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_102_, v_it_101_, v___x_103_);
-return v___x_104_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_toList___redArg(lean_object* v_inst_105_, lean_object* v_it_106_){
-_start:
-{
-lean_object* v___f_107_; lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; 
-v___f_107_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_107_, 0, v_inst_105_);
-v___x_108_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_109_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_107_, v_it_106_, v___x_108_);
-v___x_110_ = lean_array_to_list(v___x_109_);
-return v___x_110_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_toList(lean_object* v_00_u03b1_111_, lean_object* v_00_u03b2_112_, lean_object* v_inst_113_, lean_object* v_it_114_){
-_start:
-{
-lean_object* v___f_115_; lean_object* v___x_116_; lean_object* v___x_117_; lean_object* v___x_118_; 
-v___f_115_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_115_, 0, v_inst_113_);
-v___x_116_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_117_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_115_, v_it_114_, v___x_116_);
-v___x_118_ = lean_array_to_list(v___x_117_);
-return v___x_118_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toList___redArg(lean_object* v_inst_119_, lean_object* v_it_120_){
-_start:
-{
-lean_object* v___f_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; 
-v___f_121_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_121_, 0, v_inst_119_);
-v___x_122_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_123_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_121_, v_it_120_, v___x_122_);
-v___x_124_ = lean_array_to_list(v___x_123_);
-return v___x_124_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_Partial_toList(lean_object* v_00_u03b1_125_, lean_object* v_00_u03b2_126_, lean_object* v_inst_127_, lean_object* v_it_128_){
-_start:
-{
-lean_object* v___f_129_; lean_object* v___x_130_; lean_object* v___x_131_; lean_object* v___x_132_; 
-v___f_129_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_129_, 0, v_inst_127_);
-v___x_130_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_131_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_129_, v_it_128_, v___x_130_);
-v___x_132_ = lean_array_to_list(v___x_131_);
-return v___x_132_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_Total_toList___redArg(lean_object* v_inst_133_, lean_object* v_it_134_){
-_start:
-{
-lean_object* v___f_135_; lean_object* v___x_136_; lean_object* v___x_137_; lean_object* v___x_138_; 
-v___f_135_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_135_, 0, v_inst_133_);
-v___x_136_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_137_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_135_, v_it_134_, v___x_136_);
-v___x_138_ = lean_array_to_list(v___x_137_);
-return v___x_138_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iter_Total_toList(lean_object* v_00_u03b1_139_, lean_object* v_00_u03b2_140_, lean_object* v_inst_141_, lean_object* v_inst_142_, lean_object* v_it_143_){
-_start:
-{
-lean_object* v___f_144_; lean_object* v___x_145_; lean_object* v___x_146_; lean_object* v___x_147_; 
-v___f_144_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
-lean_closure_set(v___f_144_, 0, v_inst_141_);
-v___x_145_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
-v___x_146_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_144_, v_it_143_, v___x_145_);
-v___x_147_ = lean_array_to_list(v___x_146_);
-return v___x_147_;
+lean_object* v___f_106_; lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_109_; 
+v___f_106_ = lean_alloc_closure((void*)(l_Std_Iter_toArray___redArg___lam__0), 4, 1);
+lean_closure_set(v___f_106_, 0, v_inst_103_);
+v___x_107_ = ((lean_object*)(l_Std_Iter_toArray___redArg___closed__0));
+v___x_108_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_106_, v_it_105_, v___x_107_);
+v___x_109_ = lean_array_to_list(v___x_108_);
+return v___x_109_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Partial(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Total(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Iterators_Consumers_Partial(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

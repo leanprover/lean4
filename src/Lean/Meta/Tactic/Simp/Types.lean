@@ -11,7 +11,7 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Meta
 namespace Simp
@@ -128,7 +128,7 @@ It disables `arith` if support theorems have not been defined yet.
 -/
 private def updateArith (c : Config) : CoreM Config := do
   if c.arith then
-    if (← getEnv).contains ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq then
+    if (← getEnv).contains ``Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq then
       return c
     else
       return { c with arith := false }

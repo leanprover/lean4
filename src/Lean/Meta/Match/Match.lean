@@ -19,6 +19,7 @@ import Lean.Meta.HasNotBit
 import Lean.Meta.Match.CaseArraySizes
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.Match.Value
 
 /-!
 This module implements the backend of match compilation. The elaborator has already elaborated
@@ -146,7 +147,12 @@ where
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
     (lhss : List AltLHS) (isSplitter : Option Overlaps)
     (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
-  loop lhss [] #[] #[] #[]
+  let overlappingAlts : Std.HashSet Nat :=
+    match isSplitter with
+    | none => {}
+    | some overlaps =>
+      overlaps.map.fold (fun set _ overlapping => set.insertMany overlapping) {}
+  loop lhss [] #[] #[] #[] overlappingAlts
 where
   mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
     withExistingLocalDecls lhs.fvarDecls do
@@ -179,15 +185,17 @@ where
       notAlt ← mkForallFVars (discrs ++ xs) notAlt
       return notAlt
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) : MetaM α := do
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) (overlappingAlts : Std.HashSet Nat) : MetaM α := do
     match lhss with
     | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
-      let idx       := alts.length
+      let idx := notAlts.size
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
       let minorType ← mkMinorType xs lhs notAltHs
-      let notAlt ← mkNotAlt xs lhs
+      -- We only compute a `notAlt` if the index of the current alternative is part of the overlaps,
+      -- that is `idx ∈ isSplitter.get!.overlapping idx'` for some alternative index `idx'`.
+      let notAlt ← if overlappingAlts.contains idx then mkNotAlt xs lhs else pure default
       let hasParams := !xs.isEmpty || !notAltHs.isEmpty || discrInfos.any fun info => info.hName?.isSome
       let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let minorName := (`h).appendIndexAfter (idx+1)
@@ -199,7 +207,7 @@ where
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
         let alts   := alt :: alts
-        loop lhss alts minors altInfos (notAlts.push notAlt)
+        loop lhss alts minors altInfos (notAlts.push notAlt) overlappingAlts
 
 structure State where
   /-- Used alternatives -/
@@ -643,6 +651,29 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
     | _      => unreachable!
   return { p with alts := alts, vars := xs }
 
+/--
+Replaces each value pattern in the first column by the first value pattern of that column that
+denotes the same value (see `normMatchValue`), so that values can be compared syntactically.
+Only needed if the discriminant has type `Float`/`Float32`; skipped otherwise, as normalization is
+costly in matches with many values.
+-/
+private def unifyFloatValues (x : Expr) (p : Problem) : MetaM Problem := withGoalOf p do
+  let type ← whnfD (← inferType x)
+  unless type.isConstOf ``Float || type.isConstOf ``Float32 do return p
+  let mut reps : Array (Expr × Expr) := #[]
+  let mut alts := #[]
+  for alt in p.alts do
+    match alt.patterns with
+    | .val v :: ps =>
+      let key ← normMatchValue v
+      if let some (_, rep) := reps.find? (·.1 == key) then
+        alts := alts.push { alt with patterns := .val rep :: ps }
+      else
+        reps := reps.push (key, v)
+        alts := alts.push alt
+    | _ => alts := alts.push alt
+  return { p with alts := alts.toList }
+
 private def collectValues (p : Problem) : Array Expr :=
   p.alts.foldl (init := #[]) fun values alt =>
     match alt.patterns with
@@ -668,6 +699,7 @@ private def triviallyComplete (p : Problem) : Bool :=
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
+  let p ← unifyFloatValues x p
   let values := collectValues p
   let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
   let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
@@ -1108,9 +1140,12 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
-      -- if `matcher` is not private, we mark it as `implicit_reducible` too
+      -- If `matcher` is not private, mark it `[instance_reducible]` so that TC synthesis
+      -- can unfold it. Matchers aren't strictly type class instances, but TC instances often
+      -- contain `match` expressions in their bodies (e.g. `instance : Decidable (match ...)`),
+      -- and these matchers must unfold at `.instances` transparency to compare instance terms.
       unless isPrivateName name do
-        setReducibilityStatus name .implicitReducible
+        setReducibilityStatus name .instanceReducible
       unless isSplitter do
         modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi
@@ -1153,7 +1188,7 @@ def withCleanLCtxFor (m : MkMatcherInput) (k : MetaM α) : MetaM α := do
   let lctx ← getLCtx
   let lctx := lctx.foldr (init := lctx) fun localDecl lctx =>
     if s.contains localDecl.fvarId then lctx else lctx.erase localDecl.fvarId
-  let localInstances := (← getLocalInstances).filter fun localInst => s.contains localInst.fvar.fvarId!
+  let localInstances := (← getLocalInstances).eraseAll (!s.contains ·)
   withLCtx lctx localInstances k
 
 /--

@@ -22,6 +22,13 @@ to return the simplified expression.
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
   maxSteps : Nat := 100_000
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  This is set to `false` by default as simplifying in instances is usually not meaningful and we
+  want to avoid producing non-standard instances. However, in certain situations simplifying in
+  instances can aid with making more terms syntactically equal.
+  -/
+  instances : Bool := false
   deriving Inhabited
 
 /--
@@ -57,8 +64,16 @@ abbrev Cache := PHashMap ExprPtr Result
 structure State where
   /-- Number of steps performed so far. -/
   numSteps : Nat := 0
-  /-- Cache for simplification results. Survives across binder entry. -/
+  /--
+  Cache for simplification results of terms without metavariables. Survives across binder entry
+  and across `dsimp` invocations.
+  -/
   cache : Cache := {}
+  /--
+  Cache for simplification results of terms with metavariables, which may be assigned before the
+  next `dsimp` invocation. Cleared at each `dsimp` invocation.
+  -/
+  transientCache : Cache := {}
 
 /-- Monad for the definitional simplifier, layered on top of `SymM`. -/
 abbrev DSimpM := ReaderT MethodsRef $ ReaderT Context StateRefT State SymM
@@ -89,11 +104,11 @@ def getMethods : DSimpM Methods :=
   return MethodsRef.toMethods (← read)
 
 /-- Runs a `DSimpM` computation with the given methods, configuration, and state.
-The `cache` and `numSteps` from `s` are preserved (cache entries persist across
-invocations because results are not context-dependent). -/
+The `cache` from `s` is preserved (cache entries persist across invocations because results are
+not context-dependent), and `numSteps` and `transientCache` are reset. -/
 def DSimpM.run (x : DSimpM α) (methods : Methods := {}) (config : Config := {})
     (s : State := {}) : SymM (α × State) := do
-  x methods.toMethodsRef { config } |>.run { s with numSteps := 0 }
+  x methods.toMethodsRef { config } |>.run { s with numSteps := 0, transientCache := {} }
 
 /-- Runs a `DSimpM` computation with the given methods and configuration. -/
 def DSimpM.run' (x : DSimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do

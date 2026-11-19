@@ -27,14 +27,8 @@ structure ProjectionFunctionInfo where
   fromClass : Bool
   deriving Inhabited, Repr
 
-@[export lean_mk_projection_info]
-def mkProjectionInfoEx (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=
-  { ctorName, numParams, i, fromClass }
-@[export lean_projection_info_from_class]
-def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
-  info.fromClass
-
-builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
+builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ←
+  mkMapDeclarationExtension (logWrites := true)
 
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
   projectionFnInfoExt.insert env projName { ctorName, numParams, i, fromClass }
@@ -77,7 +71,8 @@ structure AuxParentProjectionInfo where
   fromClass : Bool
   deriving Inhabited, Repr
 
-builtin_initialize auxParentProjInfoExt : MapDeclarationExtension AuxParentProjectionInfo ← mkMapDeclarationExtension
+builtin_initialize auxParentProjInfoExt : MapDeclarationExtension AuxParentProjectionInfo ←
+  mkMapDeclarationExtension (logWrites := true)
 
 def addAuxParentProjectionInfo (env : Environment) (projName : Name) (numParams : Nat) (fromClass : Bool) : Environment :=
   auxParentProjInfoExt.insert env projName { numParams, fromClass }

@@ -1,12 +1,12 @@
 
 
-structure A0.{u} (α : Type u) :=
+structure A0.{u} (α : Type u) where
 (x : α)
 
-structure A.{u} (α : Type u) extends A0 α :=
+structure A.{u} (α : Type u) extends A0 α where
 (y : α)
 
-structure B.{u} (α : Type u) :=
+structure B.{u} (α : Type u) where
 (z : α)
 
 variable (β : Type _)
@@ -14,7 +14,7 @@ variable (β' : Type _)
 
 universe u
 
-structure C.{v} (α : Type _) (δ : Type u) (η : Type v) extends A β, B α :=
+structure C.{v} (α : Type _) (δ : Type u) (η : Type v) extends A β, B α where
 mk2 :: (w : Nat := 10)
 
 #check C
@@ -31,7 +31,7 @@ c.toA
 def f1 (c : C Nat Nat Nat Nat) :=
 c.x + c.w
 
-class Tst (α : Type u) extends Mul α :=
+class Tst (α : Type u) extends Mul α where
 (comm : ∀ (a b : α), a * b = b * a)
 
 #check @Tst.comm
@@ -42,10 +42,10 @@ a * b
 
 #check { x := 10, y := 20, z := 30 : C Nat Nat Nat Nat }
 
-class Foo (α : Type u) extends Add α :=
+class Foo (α : Type u) extends Add α where
 (x : α)
 
-class Boo (α : Type u) extends Foo α :=
+class Boo (α : Type u) extends Foo α where
 (y : α := x + x)
 
 #check @Boo.y._default

@@ -13,7 +13,7 @@ public import Lean.Linter.Basic
 namespace Lean.Linter
 open Elab.Command
 
-private structure TopDownSkipQuot where
+structure TopDownSkipQuot where
   stx : Syntax
 
 def topDownSkipQuot (stx : Syntax) : TopDownSkipQuot := ⟨stx⟩

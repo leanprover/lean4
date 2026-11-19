@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Iter.Intercalate
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
+public import Init.Data.Iterators.Consumers.Collect
 import all Init.Data.String.Iter.Intercalate
 import all Init.Data.String.Defs
 import Init.Data.String.Lemmas.Intercalate
@@ -43,7 +44,7 @@ public theorem intercalateString_eq {α β : Type} [Std.Iterator α Id β] [Std.
     match m with
     | [] => simp
     | x::xs =>
-      simp only [reduceCtorEq, ↓reduceIte, List.cons_append, Option.some.injEq]
+      simp only [List.cons_append, Option.some.injEq, reduceCtorEq, ↓reduceIte]
       rw [← List.cons_append, String.intercalate_append_of_ne_nil (by simp) (by simp),
         String.intercalate_singleton]
 

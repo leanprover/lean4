@@ -165,7 +165,7 @@ end
 
 @[inherit_doc Lean.Linter.Extra.linter.extra.unnecessarySeqFocus]
 def unnecessarySeqFocusLinter : Linter where run := withSetOptionIn fun stx => do
-  unless getLinterValueExtra linter.extra.unnecessarySeqFocus (← getLinterOptions)
+  unless getLinterValue linter.extra.unnecessarySeqFocus (← getLinterOptions)
       && (← getInfoState).enabled do
     return
   if (← get).messages.hasErrors then
@@ -182,7 +182,7 @@ def unnecessarySeqFocusLinter : Linter where run := withSetOptionIn fun stx => d
   let mut last : Lean.Syntax.Range := ⟨0, 0⟩
   for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unused.qsort (key ·.1 < key ·.1) do
     if last.start ≤ r.start && r.stop ≤ last.stop then continue
-    logLintIfExtra linter.extra.unnecessarySeqFocus stx
+    logLintIf linter.extra.unnecessarySeqFocus stx
       "Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice"
     last := r
 

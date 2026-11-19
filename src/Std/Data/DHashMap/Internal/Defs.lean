@@ -11,6 +11,7 @@ public import Std.Data.DHashMap.RawDef
 public import Std.Data.Internal.List.Defs
 public import Std.Data.DHashMap.Internal.Index
 public import Init.Data.Nat.Power2.Basic
+import Init.Data.Nat.Power2.Lemmas
 import Init.Data.List.Impl
 import Init.Omega
 
@@ -195,7 +196,9 @@ def expand [Hashable α] (data : { d : Array (AssocList α β) // 0 < d.size }) 
     { d : Array (AssocList α β) // 0 < d.size } :=
   let ⟨data, hd⟩ := data
   let nbuckets := data.size * 2
-  go 0 data ⟨Array.replicate nbuckets AssocList.nil, by simpa [nbuckets] using Nat.mul_pos hd Nat.two_pos⟩
+  -- `propagateMark` is necessary so the resized hashmap is also forcibly linear
+  go 0 data ⟨data.propagateMark (Array.replicate nbuckets AssocList.nil),
+    by simpa [nbuckets] using Nat.mul_pos hd Nat.two_pos⟩
 where
   /-- Inner loop of `expand`. Copies elements `source[i...*]` into `target`,
   destroying `source` in the process. -/
@@ -359,6 +362,7 @@ def get? [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Opt
   buckets[i].getCast? a
 
 /-- Internal implementation detail of the hash map -/
+@[implicit_reducible]
 def contains [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   let ⟨⟨_, buckets⟩, h⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size h (hash a)

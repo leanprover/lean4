@@ -402,9 +402,12 @@ builtin_initialize registerTraceClass `congr.thm
 
 builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) ← mkMapDeclarationExtension
 
-builtin_initialize registerReservedNamePredicate fun env n =>
+def isCongrReservedNameSuffix (s : String) : Bool :=
+  isHCongrReservedNameSuffix s || s == congrSimpSuffix
+
+builtin_initialize registerReservedNamePredicate isCongrReservedNameSuffix fun env n =>
   match n with
-  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.contains p
+  | .str p s => isCongrReservedNameSuffix s && env.contains p
   | _ => false
 
 builtin_initialize

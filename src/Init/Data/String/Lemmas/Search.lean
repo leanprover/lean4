@@ -53,8 +53,8 @@ theorem back?_toSlice {s : String} : s.toSlice.back? = s.back? :=
   (rfl)
 
 theorem back?_eq_get? {s : String} : s.back? = s.endPos.prev?.bind Pos.get? := by
-  simp only [← back?_toSlice, Slice.back?_eq_get?, endPos_toSlice, Slice.Pos.prev?_eq_dif,
-    startPos_toSlice, Pos.toSlice_inj, Pos.prev?_eq_dif]
+  simp only [← back?_toSlice, Slice.back?_eq_get?, endPos_toSlice, Slice.Pos.prev?_eq_dite,
+    startPos_toSlice, Pos.toSlice_inj, Pos.prev?_eq_dite]
   split <;> simp [← Pos.get?_toSlice, Pos.toSlice_prev]
 
 theorem back?_eq {s : String} : s.back? = s.toList.getLast? := by

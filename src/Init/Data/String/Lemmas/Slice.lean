@@ -6,13 +6,15 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
-import all Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
+import all Init.Data.String.Slice.Basic
 import Init.Data.String.Lemmas.Pattern.Memcmp
 import Init.Data.String.Lemmas.Basic
 import Init.Data.ByteArray.Lemmas
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Lemmas.FindPos
+import Init.Data.String.Lemmas.Splits
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -25,7 +27,7 @@ theorem beq_eq_true_iff {s t : Slice} : s == t ↔ s.copy = t.copy := by
   simp only [BEq.beq, beq]
   split <;> rename_i h
   · rw [Pattern.Internal.memcmpSlice_eq_true_iff]
-    simp only [offset_startPos, Pos.Raw.byteIdx_zero, Pos.Raw.offsetBy_zero, byteIdx_rawEndPos]
+    simp only [offset_startPos, Pos.Raw.byteIdx_zero, Nat.zero_add]
     rw (occs := [2]) [h]
     rw [utf8ByteSize_eq_size_toByteArray_copy, ByteArray.extract_zero_size,
       utf8ByteSize_eq_size_toByteArray_copy, ByteArray.extract_zero_size, String.toByteArray_inj]
@@ -56,8 +58,11 @@ end BEq
 
 namespace Pos
 
-theorem get?_eq_dif {s : Slice} {p : s.Pos} : p.get? = if h : p = s.endPos then none else some (p.get h) :=
+theorem get?_eq_dite {s : Slice} {p : s.Pos} : p.get? = if h : p = s.endPos then none else some (p.get h) :=
   (rfl)
+
+@[deprecated String.Slice.Pos.get?_eq_dite (since := "2026-07-21")]
+theorem get?_eq_dif {s : String.Slice} {p : s.Pos} : p.get? = if h : p = s.endPos then Option.none else Option.some (p.get h) := String.Slice.Pos.get?_eq_dite
 
 theorem get?_eq_some_get {s : Slice} {p : s.Pos} (h : p ≠ s.endPos) : p.get? = some (p.get h) := by
   simp [Pos.get?, h]
@@ -82,8 +87,11 @@ namespace Pos
 theorem get?_toSlice {s : String} {p : s.Pos} : p.toSlice.get? = p.get? :=
   (rfl)
 
-theorem get?_eq_dif {s : String} {p : s.Pos} : p.get? = if h : p = s.endPos then none else some (p.get h) := by
-  simp [← get?_toSlice, Slice.Pos.get?_eq_dif]
+theorem get?_eq_dite {s : String} {p : s.Pos} : p.get? = if h : p = s.endPos then none else some (p.get h) := by
+  simp [← get?_toSlice, Slice.Pos.get?_eq_dite]
+
+@[deprecated String.Pos.get?_eq_dite (since := "2026-07-21")]
+theorem get?_eq_dif {s : String} {p : s.Pos} : p.get? = if h : p = s.endPos then Option.none else Option.some (p.get h) := String.Pos.get?_eq_dite
 
 theorem get?_eq_some_get {s : String} {p : s.Pos} (h : p ≠ s.endPos) : p.get? = some (p.get h) := by
   simpa [← get?_toSlice] using! Slice.Pos.get?_eq_some_get (by simpa)
@@ -107,7 +115,7 @@ theorem front?_eq_get? {s : Slice} : s.front? = s.startPos.get? :=
   (rfl)
 
 theorem front?_eq {s : Slice} : s.front? = s.copy.toList.head? := by
-  simp only [front?_eq_get?, Pos.get?_eq_dif]
+  simp only [front?_eq_get?, Pos.get?_eq_dite]
   split
   · simp_all [startPos_eq_endPos_iff, eq_comm (a := none)]
   · rename_i h
@@ -122,7 +130,7 @@ theorem back?_eq_get? {s : Slice} : s.back? = s.endPos.prev?.bind Pos.get? :=
   (rfl)
 
 theorem back?_eq {s : Slice} : s.back? = s.copy.toList.getLast? := by
-  simp [back?_eq_get?, Pos.prev?_eq_dif]
+  simp [back?_eq_get?, Pos.prev?_eq_dite]
   split
   · simp_all [startPos_eq_endPos_iff, eq_comm (a := s.endPos), eq_comm (a := none)]
   · rename_i h

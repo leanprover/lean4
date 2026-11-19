@@ -10,7 +10,7 @@ prelude
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
-import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Impl
 public import Lean.Data.Lsp.LanguageFeatures
 import Init.While
 
@@ -19,9 +19,10 @@ public section
 /-! Provides an IpcM monad for interacting with an external LSP process.
 Used for testing the Lean server. -/
 
+open IO Lean
+
 namespace Lean.Lsp.Ipc
 
-open IO
 open JsonRpc
 
 def ipcStdioConfig : Process.StdioConfig where

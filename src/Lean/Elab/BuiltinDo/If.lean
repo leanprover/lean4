@@ -33,7 +33,7 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
       e ← if eIsSeq then pure e else `(doSeq|$(⟨e⟩):doElem)
       e ← match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $(⟨e⟩))
-        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $(⟨e⟩))
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d:term with | $pat:term => $t | _ => $(⟨e⟩))
         | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $(⟨e⟩))
         | _                          => Macro.throwUnsupported
       eIsSeq := false
@@ -42,7 +42,8 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
 
 @[builtin_doElem_elab Lean.Parser.Term.doIf] def elabDoIf : DoElab := fun stx dec => do
   let `(doIf|if $cond:doIfCond then $thenSeq else $elseSeq) := stx | throwUnsupportedSyntax
-  let info := (← inferControlInfoSeq thenSeq).alternative (← inferControlInfoSeq elseSeq)
+  let cache := (← read).controlInfoCache
+  let info := (← inferControlInfoSeq thenSeq cache).alternative (← inferControlInfoSeq elseSeq cache)
   dec.withDuplicableCont info fun dec => do
   match cond with
   | `(doIfCond|$cond) => elabIte cond thenSeq elseSeq dec

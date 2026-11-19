@@ -53,6 +53,15 @@ LAKE_ARTIFACT_CACHE= test_eq "true" -f enableArtifactCache.toml env printenv LAK
 LAKE_ARTIFACT_CACHE= test_eq "false" -f disableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
 test_cmd rm lake-manifest.json
 
+# Test `LAKE_RESTORE_ARTIFACTS` setting and default
+LAKE_RESTORE_ARTIFACTS=true test_eq "true" env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS=false test_eq "false" env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "" env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "" -d hello env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "true" -f restoreAllArtifacts.toml env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "false" -f noRestoreArtifacts.toml env printenv LAKE_RESTORE_ARTIFACTS
+test_cmd rm lake-manifest.json
+
 # Test `LAKE_PKG_URL_MAP` setting and errors
 echo "# TEST: LAKE_PKG_URL_MAP"
 LAKE_PKG_URL_MAP='{"a":"a"}' test_eq '{"a":"a"}' env printenv LAKE_PKG_URL_MAP

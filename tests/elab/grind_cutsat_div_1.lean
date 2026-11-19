@@ -1,7 +1,7 @@
 module
 set_option grind.debug true
 set_option pp.structureInstances false
-open Int.Linear
+open Int.Internal.Linear
 
 theorem ex₁ (a : Int) (h₁ : 2 ∣ a) (h₂ : 2 ∣ 2*a + 1 - a) : False := by
   grind
@@ -33,6 +33,8 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) : False := by
 /--
 trace: [grind.lia.assert] 2 ∣ a + 3
 [grind.lia.assert] 3 ∣ a + 3*b + -4
+[grind.lia.assert] 6 ∣ a + -7
+[grind.lia.assert] 1 ∣ 2
 [grind.debug.lia.search.assign] a := 1
 [grind.debug.lia.search.assign] b := 0
 -/

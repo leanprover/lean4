@@ -9,9 +9,10 @@ public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.ProofInstInfo
+import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Omega
 namespace Lean.Meta.Sym.DSimp
-open Internal
+open Lean.Meta.Sym.Internal
 
 /-!
 # Simplifying Application Arguments
@@ -26,6 +27,7 @@ In some cases, users may want to reduce proofs to eliminate dependencies. Users 
 accomplish this by rewriting their own simproc.
 - **Skip instance arguments.** Instances are not usually meaningful
   to simplify structurally. Moreover, we would be producing non-standard instances.
+  This behavior may be overriden by the dsimp configuration.
 
 Both classes are read from `ProofInstInfo` (per-`declName`, cached in `SymM`). When the
 head is not a `.const` (e.g. an `.fvar`-headed application), we have no signature info
@@ -34,14 +36,16 @@ and rewrite every argument.
 
 /--
 Walks the application spine and `dsimp`s each argument unless `ProofInstInfo` marks it
-as a proof or instance. The function head itself is not recursively simplified — atomic
-heads (`.const`, `.fvar`) are no-ops anyway, and complex heads can be handled by
-user-supplied `pre`/`post` simprocs.
+as a proof or instance. The function head itself is not recursively simplified, so
+`pre`/`post` simprocs that rewrite heads (e.g. `zetaDelta` for let-bound `.fvar` heads,
+or beta for lambda heads) must match on the whole application.
 -/
 public def dsimpAppArgs (e : Expr) : DSimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then return .rfl
   let f := e.getAppFn
+  if f.isMVar then
+    if let some e' ← instantiateAssignedMVarHeadS? e then return .step e'
   let info? ← getProofInstInfoOfExpr? f
   let argsInfo? := info?.map (·.argsInfo)
   go argsInfo? numArgs e
@@ -50,12 +54,13 @@ where
     if i = 0 then return .rfl
     let .app f a := e | unreachable!
     let fr ← go argsInfo? (i - 1) f
+    let simpInInstances := (← getConfig).instances
     let skip : Bool :=
       match argsInfo? with
       | some ai =>
         if h : i - 1 < ai.size then
           let { isProof, isInstance } := ai[i - 1]
-          isProof || isInstance
+          isProof || (isInstance && !simpInInstances)
         else
           false  -- over-applied: no info, rewrite
       | none => false

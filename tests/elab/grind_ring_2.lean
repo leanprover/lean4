@@ -1,6 +1,7 @@
 -- In this file we use the `grobner` frontend for `grind`.
 module
 set_option grind.debug true
+set_option warn.sorry false
 open Lean.Grind
 
 example [CommRing α] [NoNatZeroDivisors α] (x y : α) : 3*x = 1 → 3*y = 2 → x + y = 1 := by
@@ -70,6 +71,9 @@ example [CommRing α] (a b c : α)
 /--
 trace: [grind.ring.assert.basis] a + b + c + -3 = 0
 [grind.ring.assert.basis] 2 * b ^ 2 + 2 * (b * c) + 2 * c ^ 2 + -6 * b + -6 * c + 4 = 0
+[grind.ring.assert.basis] b ^ 2 * c + b * c ^ 2 + -2 * c ^ 3 + -1 * b ^ 2 + -4 * (b * c) + 5 * c ^ 2 + 3 * b + -1 * c +
+        -4 =
+      0
 [grind.ring.assert.basis] 6 * c ^ 3 + -18 * c ^ 2 + 12 * c + 4 = 0
 -/
 #guard_msgs (trace) in
@@ -128,7 +132,7 @@ example (a b c : Int) (f : Int → Nat)
     a^2 + b^2 + c^2 = 5 →
     a^3 + b^3 + c^3 = 7 →
     f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
-  cutsat +ring
+  lia +ring
 
 example [CommRing α] [NoNatZeroDivisors α] (a b c : α) (f : α → Nat)
   : a + b + c = 3 →
@@ -167,12 +171,12 @@ example (x y : Fin 3) (h : x = y) : ((x + y) ^ 3 : Fin 3) = - x^3 := by grobner
 -- Verify that `cutsat` is disabled when calling `grobner` directly.
 example (x : Nat) : x % 2 = 0 ∨ x % 2 = 1 := by
   fail_if_success grobner
-  cutsat
+  lia
 
 -- Verify that `grobner` will not perform case splits unless explicitly asked for.
 example (x : Int) (h : x^2 = 0) : (if x > 0 then x else x)^3 = 0 := by
   fail_if_success grobner
-  grobner (splits := 1)
+  grobner (branches := 1)
 
 -- Verify that `grobner` will not instantiate theorems.
 example {xs ys zs : List α} : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by

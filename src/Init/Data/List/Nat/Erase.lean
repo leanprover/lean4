@@ -74,7 +74,7 @@ theorem getElem_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < (l.era
 
 theorem getElem_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) (h' : i ≤ j) :
     (l.eraseIdx i)[j] = l[j + 1]'(by rw [length_eraseIdx] at h; split at h <;> omega) := by
-  rw [getElem_eraseIdx, dif_neg]
+  rw [getElem_eraseIdx, dite_eq_right]
   omega
 
 theorem eraseIdx_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
@@ -177,7 +177,7 @@ theorem set_eraseIdx {xs : List α} {i : Nat} {j : Nat} {a : α} :
     (l.eraseIdx (i + 1)).set i l[i + 1] = l.eraseIdx i := by
   apply ext_getElem
   · simp only [length_set, length_eraseIdx, h, ↓reduceIte]
-    rw [if_pos]
+    rw [ite_eq_left]
     omega
   · intro n h₁ h₂
     simp [getElem_set, getElem_eraseIdx]

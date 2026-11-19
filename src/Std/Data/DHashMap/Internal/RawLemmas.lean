@@ -12,7 +12,7 @@ public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.RawDef
-public meta import Std.Data.DHashMap.Basic
+meta import Std.Data.DHashMap.Basic
 
 public section
 
@@ -3308,6 +3308,29 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (m₁.inter m₂).1.isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
   simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_iff
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.inter m₂).1.isEmpty = (m₂.inter m₁).1.isEmpty := by
+  simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_comm
+
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : Raw₀ α β}
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) :
+    ((m₁.union m₂).inter m₃).1.isEmpty =
+      ((m₁.inter m₃).1.isEmpty && (m₂.inter m₃).1.isEmpty) := by
+  rw [Bool.eq_iff_iff, Bool.and_eq_true]
+  simp only [isEmpty_inter_iff (wf_union₀ h₁ h₂) h₃,
+    isEmpty_inter_iff h₁ h₃, isEmpty_inter_iff h₂ h₃, contains_union h₁ h₂, Bool.or_eq_true,
+    or_imp, forall_and]
+
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : Raw₀ α β}
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) :
+    (m₁.inter (m₂.union m₃)).1.isEmpty =
+      ((m₁.inter m₂).1.isEmpty && (m₁.inter m₃).1.isEmpty) := by
+  rw [Bool.eq_iff_iff, Bool.and_eq_true]
+  simp only [isEmpty_inter_iff h₁ (wf_union₀ h₂ h₃),
+    isEmpty_inter_iff h₁ h₂, isEmpty_inter_iff h₁ h₃, contains_union h₂ h₃, Bool.or_eq_false_iff,
+    imp_and, forall_and]
+
 end Inter
 namespace Const
 
@@ -3795,10 +3818,10 @@ theorem get_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) →
     (hc : (m.alter k f).contains k') :
     (m.alter k f).get k' hc =
       if heq : k == k' then
-        haveI h' : (f (m.get? k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
+        haveI h' : (f (m.get? k)).isSome := by rwa [contains_alter _ h, ite_eq_left heq] at hc
         cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         m.get k' h' := by
   simp_to_model [alter, contains, get, get?] using List.getValueCast_alterKey
 
@@ -3856,7 +3879,7 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
       if heq : k == k' then
         k
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         m.getKey k' h' := by
   simp_to_model [alter, getKey, contains] using List.getKey_alterKey
 
@@ -3947,10 +3970,10 @@ theorem get_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β}
     (hc : (Const.alter m k f).contains k') :
     Const.get (Const.alter m k f) k' hc =
       if heq : k == k' then
-        haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
+        haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, ite_eq_left heq] at hc
         (f (Const.get? m k)).get <| h'
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         Const.get m k' h' := by
   simp_to_model [Const.alter, Const.get, Const.get?] using List.Const.getValue_alterKey
 
@@ -4002,7 +4025,7 @@ theorem getKey_alter [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option β → 
       if heq : k == k' then
         k
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         m.getKey k' h' := by
   simp_to_model [Const.alter, Const.get?, getKey] using List.Const.getKey_alterKey
 

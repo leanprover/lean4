@@ -141,10 +141,10 @@ This function is only used when the old `split` tactic behavior is enabled.
 -/
 def getSimpContext : MetaM Simp.Context := do
   let mut s : SimpTheorems := {}
-  s ← s.addConst ``if_pos
-  s ← s.addConst ``if_neg
-  s ← s.addConst ``dif_pos
-  s ← s.addConst ``dif_neg
+  s ← s.addConst ``ite_eq_left
+  s ← s.addConst ``ite_eq_right
+  s ← s.addConst ``dite_eq_left
+  s ← s.addConst ``dite_eq_right
   Simp.mkContext
    (simpTheorems  := #[s])
     (congrTheorems := (← getSimpCongrTheorems))
@@ -198,10 +198,10 @@ private def reduceIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc 
   let_expr f@ite α c i tb eb ← e | return .continue
   let us := f.constLevels!
   if let some h ← discharge? numIndices useDecideBool c then
-    let h := mkApp6 (mkConst ``if_pos us) c i h α tb eb
+    let h := mkApp6 (mkConst ``ite_eq_left us) c i h α tb eb
     return .done { expr := tb, proof? := some h }
   else if let some h ← discharge? numIndices useDecideBool (mkNot c) then
-    let h := mkApp6 (mkConst ``if_neg us) c i h α tb eb
+    let h := mkApp6 (mkConst ``ite_eq_right us) c i h α tb eb
     return .done { expr := eb, proof? := some h }
   else
     -- `split` may have selected an `if-then-else` nested in `c`.
@@ -225,11 +225,11 @@ private def reduceDIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc
   let us := f.constLevels!
   if let some h ← discharge? numIndices useDecideBool c then
     let e' := mkApp tb h |>.headBeta
-    let h := mkApp6 (mkConst ``dif_pos us) c i h α tb eb
+    let h := mkApp6 (mkConst ``dite_eq_left us) c i h α tb eb
     return .done { expr := e', proof? := some h }
   else if let some h ← discharge? numIndices useDecideBool (mkNot c) then
     let e' := mkApp eb h |>.headBeta
-    let h := mkApp6 (mkConst ``dif_neg us) c i h α tb eb
+    let h := mkApp6 (mkConst ``dite_eq_right us) c i h α tb eb
     return .done { expr := e', proof? := some h }
   else
     -- `split` may have selected an `if-then-else` nested in `c`.
@@ -255,6 +255,14 @@ private def getSimprocs (numIndices : Nat) (useDecide : Bool) : MetaM (Array Sim
   let s := s.addCore #[.const ``dite 5, .star, .star, .star, .star, .star] ``reduceDIte' (post := false) (.inl <| reduceDIte' numIndices useDecide)
   return #[s]
 
+/--
+Returns the discharger used by the `split` tactic. See `discharge?`.
+
+It is a well-behaved discharger (see `Simp.Methods.wellBehavedDischarge`) if `simp` is invoked with
+the local context where this function is called. It only uses local declarations in this local
+context, and `decide` on propositions without free variables. Thus, its result for a proposition
+does not depend on the binders `simp` has visited, and `simp` can use the same cache under them.
+-/
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
   return discharge? (← getLCtx).numIndices useDecide
 
@@ -290,7 +298,10 @@ def simpIfTarget (mvarId : MVarId) (useDecide := false) (useNewSemantics := fals
     return mvarId'
   else
     let mut ctx ← getSimpContext
-    let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false) | unreachable!
+    -- `simp` takes time exponential in the length of an `else if` chain if the discharger is not
+    -- marked as well-behaved. See comment at `Simp.congr`.
+    let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false)
+      (wellBehavedDischarge := true) | unreachable!
     return mvarId'
 
 /--
@@ -306,7 +317,9 @@ def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) (useNewSemantics := fals
     return mvarId'
   else
     let mut ctx ← getSimpContext
-    let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false) | unreachable!
+    -- See comment at `simpIfTarget`.
+    let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false)
+      (wellBehavedDischarge := true) | unreachable!
     return mvarId'
 
 /--

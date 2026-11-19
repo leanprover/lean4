@@ -1,0 +1,12 @@
+Input: "## second level\n"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.header
+   (Lean.Doc.Parser.headerMarker "##")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "second level"))])
+Remaining:
+"\n"
+Round-trip OK
+Decoded views:
+  header (marker := "##") (level := 1)
+    text (content := "second level")

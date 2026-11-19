@@ -14,7 +14,7 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym.Simp
-open Grind
+open Lean.Meta.Grind
 
 /--
 Creates proof term for a rewriting step.
@@ -37,6 +37,7 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
   Thus, we must ensure that all assigned variables have be instantiate.
   -/
   withNewMCtxDepth do
+  let mvarCounterSaved := (← getMCtx).mvarCounter
   if let some result ← thm.pattern.match? e then
     -- **Note**: Potential optimization: check whether pattern covers all variables.
     let mut args := result.args.toVector
@@ -53,16 +54,26 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
           args := args.set i arg
         else
           let decl ← mvarId.getDecl
-          match (← d decl.type) with
-          | .failed cd =>
-            isCD := isCD || cd
-            -- Failed to discharge hypothesis.
-            return mkRflResultCD isCD
-          | .solved val cd =>
-            isCD := isCD || cd
-            let val ← instantiateMVarsS val
-            mvarId.assign val
-            args := args.set i val
+          -- Metavariables created by `match?` (index ≥ `mvarCounterSaved`) stand for
+          -- hypotheses/instances not covered by the pattern and must be discharged.
+          -- Metavariables occurring in `e` itself are opaque atoms; leave them as-is.
+          if decl.index ≥ mvarCounterSaved then
+            match (← d decl.type) with
+            | .failed cd =>
+              isCD := isCD || cd
+              -- Failed to discharge hypothesis.
+              return mkRflResultCD isCD
+            | .solved val cd =>
+              isCD := isCD || cd
+              -- Dischargers are not required to return maximally shared proofs. Sharing is
+              -- needed only when the hypothesis occurs in `rhs`, and the proof consequently
+              -- becomes part of the resulting term.
+              let val ← if thm.rhsVarMask.testBit i then
+                shareCommon (← instantiateMVars val)
+              else
+                instantiateMVars val
+              mvarId.assign val
+              args := args.set i val
       else if arg.hasMVar then
         let arg ← instantiateMVarsS arg
         args := args.set i arg
@@ -83,19 +94,34 @@ where
     if !perm then return true
     acLt result e
 
-public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
+/--
+Tries to rewrite `e` using the given `candidates`. `anyCD` is the context-dependency flag
+accumulated by previous attempts. Returns the result and the updated flag.
+-/
+def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) (d : Discharger) (anyCD : Bool) : SimpM (Result × Bool) := do
   -- Track `cd` across all attempted theorems. If theorem A fails with cd=true
   -- and theorem B succeeds with cd=false, the result is still cd=true: in another
   -- context A might succeed (with higher priority) and produce a different result.
-  let mut anyCD := false
-  for (thm, numExtra) in thms.getMatchWithExtra e do
+  let mut anyCD := anyCD
+  for (thm, numExtra) in candidates do
     let result ← if numExtra == 0 then
       thm.rewrite e d
     else
       simpOverApplied e numExtra (thm.rewrite · d)
     anyCD := anyCD || result.isContextDependent
     if !result.isRfl then
-      return if anyCD && !result.isContextDependent then result.withContextDependent else result
-  return mkRflResultCD anyCD
+      return (if anyCD && !result.isContextDependent then result.withContextDependent else result, anyCD)
+  return (mkRflResultCD anyCD, anyCD)
+
+/--
+Rewrites `e` using the first applicable theorem in `thms`. The fallback theorems
+(`Theorem.fallback`) are tried only when no other theorem rewrites `e`.
+-/
+public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
+  let mctx ← getMCtx
+  let (result, anyCD) ← rewriteUsing (thms.getMatchWithExtra mctx e) e d false
+  if result.isRfl && !thms.fallback.root.isEmpty then
+    return (← rewriteUsing (thms.getFallbackMatchWithExtra mctx e) e d anyCD).1
+  return result
 
 end Lean.Meta.Sym.Simp

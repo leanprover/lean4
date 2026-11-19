@@ -96,7 +96,7 @@ end
 
 @[inherit_doc linter.extra.unreachableTactic]
 def unreachableTacticLinter : Linter where run := withSetOptionIn fun stx => do
-  unless getLinterValueExtra linter.extra.unreachableTactic (← getLinterOptions)
+  unless getLinterValue linter.extra.unreachableTactic (← getLinterOptions)
     && (← getInfoState).enabled do
     return
   if (← get).messages.hasErrors then
@@ -117,7 +117,7 @@ def unreachableTacticLinter : Linter where run := withSetOptionIn fun stx => do
   let mut last : Lean.Syntax.Range := ⟨0, 0⟩
   for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unreachable.qsort (key ·.1 < key ·.1) do
     if last.start ≤ r.start && r.stop ≤ last.stop then continue
-    logLintIfExtra linter.extra.unreachableTactic stx "this tactic is never executed"
+    logLintIf linter.extra.unreachableTactic stx "this tactic is never executed"
     last := r
 
 builtin_initialize addLinter unreachableTacticLinter

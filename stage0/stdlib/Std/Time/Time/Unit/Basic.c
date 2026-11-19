@@ -208,7 +208,7 @@ static lean_object* _init_l_Std_Time_Nanosecond_Offset_toMinutes___closed__0(voi
 _start:
 {
 lean_object* v___x_25_; lean_object* v___x_26_; 
-v___x_25_ = lean_cstr_to_nat("60000000000");
+v___x_25_ = lean_uint64_to_nat(60000000000ULL);
 v___x_26_ = lean_nat_to_int(v___x_25_);
 return v___x_26_;
 }
@@ -253,7 +253,7 @@ static lean_object* _init_l_Std_Time_Nanosecond_Offset_toHours___closed__0(void)
 _start:
 {
 lean_object* v___x_37_; lean_object* v___x_38_; 
-v___x_37_ = lean_cstr_to_nat("3600000000000");
+v___x_37_ = lean_uint64_to_nat(3600000000000ULL);
 v___x_38_ = lean_nat_to_int(v___x_37_);
 return v___x_38_;
 }
@@ -917,11 +917,13 @@ return v_res_218_;
 }
 lean_object* runtime_initialize_Std_Time_Time_Unit_Hour(uint8_t builtin);
 lean_object* runtime_initialize_Std_Time_Time_Unit_Millisecond(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Time_Unit_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Time_Time_Unit_Hour(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

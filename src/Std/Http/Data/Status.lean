@@ -24,7 +24,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 A proposition stating that `s` is a valid HTTP reason phrase: every character passes
@@ -591,6 +591,19 @@ def isInformational (c : Status) : Bool :=
   100 ≤ c.toCode ∧ c.toCode < 200
 
 /--
+Checks if the status code is an *interim* response: one that precedes a final response, so a client
+that receives it keeps reading the same exchange.
+
+This is every informational status except `101 Switching Protocols`, after which the connection
+speaks another protocol (RFC 9110 §15.2.2), so no final response follows.
+
+Reference: https://httpwg.org/specs/rfc9110.html#status.101
+-/
+@[inline]
+def isInterim (c : Status) : Bool :=
+  c.isInformational ∧ c.toCode != 101
+
+/--
 Checks if the status code is a success status, meaning that the request was successfully received,
 understood, and accepted.
 
@@ -622,13 +635,14 @@ def isClientError (c : Status) : Bool :=
 
 /--
 Checks if the type of the status code is a server error, meaning that the server failed to fulfill
-an apparently valid request.
+an apparently valid request. The invalid codes 600–999 count as server errors, as RFC 9110 §15 asks a
+client to treat them.
 
 Reference: https://httpwg.org/specs/rfc9110.html#status.codes
 -/
 @[inline]
 def isServerError (c : Status) : Bool :=
-  500 ≤ c.toCode ∧ c.toCode < 600
+  500 ≤ c.toCode
 
 /--
 Checks if the status code indicates an error (either client error 4xx or server error 5xx).
@@ -714,9 +728,9 @@ instance : ToString Status where
   toString := reasonPhrase
 
 instance : Encode .v11 Status where
-  encode buffer status := buffer
-    |>.writeString (toString <| toCode status)
-    |>.writeChar ' '
-    |>.writeString status.reasonPhrase
+  encode out
+    -- Most responses are `200 OK`; one constant skips the digits and the reason phrase copy.
+    | .ok => out ++ "200 OK"
+    | status => out ++ status.toCode.toNat ++ ' ' ++ status.reasonPhrase
 
 end Std.Http.Status

@@ -73,7 +73,7 @@ structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Order
   wf : letI : Ord α := ⟨cmp⟩; inner.WF
 
 namespace DTreeMap
-open Internal (Impl)
+open Std.DTreeMap.Internal (Impl)
 
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 

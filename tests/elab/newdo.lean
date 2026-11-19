@@ -4,7 +4,6 @@ import Lake
 open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
-set_option backward.do.legacy false
 
 /-!
 Miscellaneous tests for the new `do` elaborator.
@@ -83,7 +82,7 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
 -- Test: elabToSyntax and postponement
 /--
 error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.13
+  ?m.12
 -/
 #guard_msgs (error) in
 example := Id.run do
@@ -94,7 +93,7 @@ example := Id.run do
     pure 2
 /--
 error: typeclass instance problem is stuck
-  Pure ?m.8
+  Pure ?m.7
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -207,11 +206,10 @@ trace: [Elab.do] let x := 42;
               else
                 let x := x + i;
                 pure (ForInStep.yield (none, x))
-    let __r : Option ?m.170 := __s.fst
-    let x : ?m.170 := __s.snd
-    match __r with
+    match __s.fst with
       | some r => pure r
       | none =>
+        let x := __s.snd;
         let x := x + 13;
         let x := x + 13;
         let x := x + 13;
@@ -502,5 +500,14 @@ example : IO Nat := do
       pure ()
     return 2
   return 1
+
+-- The `let rec cont` after the join point of the `if` uses `v`, so the lifted `go` must take `v`
+-- as a parameter.
+def letRecAfterJoinPoint (v : Nat) : IO Bool := do
+  let rec go (k : Nat) : IO Bool := do
+    if (← pure true) then pure ()
+    let rec cont : IO Bool := pure (k == v)
+    cont
+  go v
 
 end Repros

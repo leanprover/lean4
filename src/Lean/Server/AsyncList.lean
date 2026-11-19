@@ -8,10 +8,11 @@ module
 
 prelude
 public import Lean.Server.ServerTask
+import Init.Data.List.Impl
 
 public section
 
-namespace IO
+namespace Lean
 
 universe u v
 
@@ -137,4 +138,4 @@ where
 
 end AsyncList
 
-end IO
+end Lean

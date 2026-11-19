@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.ToString
+import Std.Data.HashSet.Basic
 public import Std.Net
 public import Std.Http.Internal
 public import Std.Http.Data.URI.Encoding
@@ -22,7 +23,8 @@ This module defines an HTTP-oriented URI structure aligned with RFC 3986 and RFC
 schemes, authorities, paths, queries, fragments, and request targets.
 
 Host handling is intentionally strict: this module accepts IPv4, bracketed IPv6, and DNS-style
-domain names (LDH labels). RFC 3986 `reg-name` forms that are not DNS-compatible are rejected.
+domain names (LDH labels, plus `_`). RFC 3986 `reg-name` forms that are not DNS-compatible are
+rejected.
 
 All text components use the encoding types from `Std.Http.URI.Encoding` to ensure proper
 percent-encoding is maintained throughout.
@@ -36,7 +38,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal Char
+open Std.Http.Internal _root_.Char Std.Http.Internal.Char
 
 namespace URI
 
@@ -109,6 +111,7 @@ password field in new code, and never include it in logs or error messages.
 Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2.1
 -/
 structure UserInfo where
+
   /--
   The encoded username.
   -/
@@ -123,11 +126,12 @@ deriving Inhabited, Repr, BEq
 namespace UserInfo
 
 /--
-Builds a `UserInfo` value from raw strings by applying userinfo percent-encoding.
+Builds a `UserInfo` value from raw strings by applying userinfo percent-encoding. A `:` in the
+username is encoded too, since the first `:` separates it from the password (RFC 3986 §3.2.1).
 -/
 @[inline]
 def ofStrings (username : String) (password : Option String := none) : UserInfo where
-  username := EncodedUserInfo.encode username
+  username := EncodedString.encodeEscaping username (· == ':'.toUInt8)
   password := EncodedUserInfo.encode <$> password
 
 /--
@@ -148,7 +152,11 @@ end UserInfo
 
 /--
 Checks whether a single domain label is valid. A label must be non-empty, contain only ASCII
-alphanumeric characters and `-`, cannot start or end with `-`, and must be at most 63 characters.
+alphanumeric characters, `-` and `_`, cannot start or end with `-`, and must be at most 63
+characters.
+
+`_` is outside the RFC 1123 host-name syntax but is an RFC 3986 reg-name character, and names such as
+container service names use it.
 
 References:
 * https://www.rfc-editor.org/rfc/rfc1034.html#section-3.5
@@ -157,22 +165,39 @@ References:
 def isValidDomainLabel (s : String) : Bool :=
   let chars := s.toList
   decide (chars.length ≤ 63) &&
-    chars.all (fun c => isAsciiAlphaNumChar c ∨ c = '-') &&
-    (chars.head?.map isAsciiAlphaNumChar |>.getD false) &&
-    (chars.getLast?.map isAsciiAlphaNumChar |>.getD false)
+    chars.all (fun c => isAsciiAlphaNumChar c ∨ c = '-' ∨ c = '_') &&
+    (chars.head?.map (· != '-') |>.getD false) &&
+    (chars.getLast?.map (· != '-') |>.getD false)
+
+/--
+Checks whether the last label of a dot-separated name is a number: decimal digits, or `0x` followed
+by hex digits. The system resolver reads such a name as an IPv4 address in shorthand (`127.1`,
+`2130706433`, `0x7f.0.0.1`), so it cannot be a domain name.
+
+Reference: https://url.spec.whatwg.org/#ends-in-a-number-checker
+-/
+def endsInNumber (s : String) : Bool :=
+  let last := (((s.dropSuffix? ".").map (·.copy) |>.getD s).toList.reverse.takeWhile (· != '.')).reverse
+  match last with
+  | '0' :: x :: hex => (x == 'x' || x == 'X') && hex.all Char.isHexDigit || (x :: hex).all Char.isDigit
+  | digits => !digits.isEmpty && digits.all Char.isDigit
 
 /--
 Proposition that asserts `s` is a valid dot-separated domain name.
-Each label must satisfy `IsValidDomainLabel`, and the full name must be at most 255 characters.
+Each label must satisfy `IsValidDomainLabel`, the last label must not be a number (see
+`endsInNumber`), and the full name must be at most 255 characters.
+A single trailing `.` (a fully qualified name such as `example.com.`) adds no label.
 -/
 abbrev IsValidDomainName (s : String) : Prop :=
-  let labels := s.split '.'
-  ¬labels.isEmpty ∧ labels.all (fun s => isValidDomainLabel s.copy) ∧ s.length ≤ 255
+  let labels := ((s.dropSuffix? ".").map (·.copy) |>.getD s).split '.'
+  ¬labels.isEmpty ∧ labels.all (fun s => isValidDomainLabel s.copy) ∧ ¬endsInNumber s ∧
+    s.length ≤ 255
 
 /--
 A domain name represented as a validated, lowercase-normalized string.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
-Each label cannot start or end with `-` and is limited to 63 characters.
+Only ASCII alphanumeric characters, `-`, `_` and dots are allowed.
+Each label cannot start or end with `-` and is limited to 63 characters, and the last label cannot be
+a number.
 Internationalized domain names must be converted to punycode before use.
 
 Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2.2
@@ -183,8 +208,8 @@ namespace DomainName
 
 /--
 Attempts to create a normalized domain name from a string.
-Returns `none` if the name is empty, longer than 255 characters, or any label violates DNS label
-constraints.
+Returns `none` if the name is empty, longer than 255 characters, ends in a numeric label, or any label
+violates DNS label constraints.
 -/
 def ofString? (s : String) : Option DomainName :=
   let lower := s.toLower
@@ -217,6 +242,12 @@ inductive Host
   An IPv6 address.
   -/
   | ipv6 (ipv6 : Net.IPv6Addr)
+
+  /--
+  An empty `reg-name` (RFC 3986 §3.2.2), as in `file:///etc/hosts`. It names no host to connect to,
+  and an `http` or `https` URI with it is rejected (RFC 9110 §4.2.1).
+  -/
+  | empty
 deriving Inhabited, BEq
 
 instance : Repr Host where
@@ -231,12 +262,14 @@ instance : Repr Host where
     | Host.name a => repr "name" (reprArg a)
     | Host.ipv4 a => repr "ipv4" (toString a)
     | Host.ipv6 a => repr "ipv6" (toString a)
+    | Host.empty => "Std.Http.URI.Host.empty"
 
 instance : ToString Host where
   toString
     | .name n => n
     | .ipv4 addr => toString addr
     | .ipv6 addr => s!"[{toString addr}]"
+    | .empty => ""
 
 /--
 Authority port representation, preserving the distinction between:
@@ -328,6 +361,30 @@ Returns true if the path has no segments.
 def isEmpty (p : Path) : Bool := p.segments.isEmpty
 
 /--
+Renders the path of a URI (`hasScheme`) or of a relative reference so that it reads back as the same
+path component (RFC 3986 §3.3, §4.2):
+* after an authority, a non-empty path starts with `/`, or it would extend the host;
+* without one, a path that would start with `//` is put behind a `/.` segment, or it would read as
+  an authority;
+* a relative path that starts with an empty segment, or, in a reference, with a segment containing
+  `:`, is put behind a `./` segment, or it would read as an absolute path or a scheme.
+
+The `/.` and `./` segments disappear when dot segments are removed (RFC 3986 §5.2.4).
+-/
+def render (p : Path) (hasAuthority hasScheme : Bool) : String :=
+  let s := toString p
+  let first? := p.segments[0]?.map (·.toByteArray)
+  let startsEmpty := p.segments.size > 1 && first?.any (·.size == 0)
+  if hasAuthority then
+    if p.absolute || s.isEmpty then s else "/" ++ s
+  else if p.absolute && startsEmpty then
+    "/." ++ s
+  else if !p.absolute && (startsEmpty || !hasScheme && first?.any (·.findIdx? (· == ':'.toUInt8) |>.isSome)) then
+    "./" ++ s
+  else
+    s
+
+/--
 Returns the parent path by removing the last segment. If the path is empty, returns the path unchanged.
 -/
 def parent (p : Path) : Path :=
@@ -359,17 +416,21 @@ Removes dot segments from the path according to RFC 3986 Section 5.2.4. This han
 (current directory) and ".." (parent directory) segments.
 -/
 def normalize (p : Path) : Path :=
+  -- A final "." or ".." leaves an empty segment behind (RFC 3986 §5.2.4, steps 2B and 2C), so the
+  -- path still ends in "/": `/a/b/..` is `/a/`, not `/a`.
   let rec loop (input : List (EncodedSegment)) (output : List (EncodedSegment)) : List (EncodedSegment) :=
     match input with
     | [] =>
       output.reverse
     | segStr :: rest =>
+      let keepTrailingSlash (output : List EncodedSegment) : List EncodedSegment :=
+        if rest.isEmpty then EncodedSegment.encode "" :: output else output
       if toString segStr == "." then
-        loop rest output
+        loop rest (keepTrailingSlash output)
       else if toString segStr == ".." then
         match output with
-        | [] => loop rest []
-        | _ :: tail => loop rest tail
+        | [] => loop rest (keepTrailingSlash [])
+        | _ :: tail => loop rest (keepTrailingSlash tail)
       else
         loop rest (segStr :: output)
 
@@ -399,14 +460,13 @@ deriving Repr, Inhabited, BEq
 namespace Query
 
 /--
-Extracts all unique query parameter names.
+Extracts all unique query parameter names, in order of first occurrence.
 -/
-@[expose]
 def names (query : Query) : Array EncodedQueryParam :=
-  query.map (fun p => p.fst)
-  |> Array.toList
-  |> List.eraseDups
-  |> List.toArray
+  let init : Std.HashSet EncodedQueryParam × Array EncodedQueryParam := ({}, #[])
+  let (_, names) := query.foldl (init := init) fun (seen, names) (name, _) =>
+    if seen.contains name then (seen, names) else (seen.insert name, names.push name)
+  names
 
 /--
 Extracts all query parameter values.
@@ -425,12 +485,16 @@ def toArray (query : Query) : Array (EncodedQueryParam × Option EncodedQueryPar
 
 /--
 Formats a query parameter as a string in the format "key" or "key=value". The key and value are
-already percent-encoded as `EncodedQueryParam`.
+already percent-encoded as `EncodedQueryParam`. A `=` in the key is written as `%3D`, which decodes to
+the same name, so the key does not end early when the query is read back.
 -/
 def formatQueryParam (key : EncodedQueryParam) (value : Option EncodedQueryParam) : String :=
+  let key :=
+    if (key.toByteArray.findIdx? (· == '='.toUInt8)).isSome then (toString key).replace '=' "%3D"
+    else toString key
   match value with
-  | none => toString key
-  | some v => s!"{toString key}={toString v}"
+  | none => key
+  | some v => s!"{key}={toString v}"
 
 /--
 Finds the first value of a query parameter by key name. Returns `none` if the key is not found.
@@ -441,11 +505,18 @@ def findEncoded? (query : Query) (key : EncodedQueryParam) : Option (Option Enco
   matchingKey.map (fun x => x.snd)
 
 /--
-Finds the first value of a query parameter by raw key string. The key is percent-encoded before
-matching. This avoids aliasing between raw and pre-encoded spellings.
+Whether the parameter name `name` decodes to `key`. Percent-encoding is not canonical (`a:b` and
+`a%3Ab` spell the same name), so names are compared after decoding rather than byte for byte.
+Since `+` decodes to a space, `a+b` matches the key `"a b"`.
+-/
+private def nameIs (key : String) (name : EncodedQueryParam) : Bool :=
+  URI.EncodedQueryString.decodesTo name key
+
+/--
+Finds the first value of a query parameter whose name decodes to `key`, however it is spelled.
 -/
 def find? (query : Query) (key : String) : Option (Option EncodedQueryParam) :=
-  query.findEncoded? (EncodedQueryParam.encode key)
+  (Array.find? (fun x => nameIs key x.fst) query).map (fun x => x.snd)
 
 /--
 Finds all values of a query parameter by key name. Returns an empty array if the key is not found.
@@ -459,10 +530,10 @@ def findAllEncoded (query : Query) (key : EncodedQueryParam) : Array (Option Enc
       none)
 
 /--
-Finds all values of a query parameter by raw key string. The key is percent-encoded before matching.
+Finds all values of query parameters whose name decodes to `key`, however it is spelled.
 -/
 def findAll (query : Query) (key : String) : Array (Option EncodedQueryParam) :=
-  query.findAllEncoded (EncodedQueryParam.encode key)
+  query.filterMap (fun x => if nameIs key x.fst then some x.snd else none)
 
 /--
 Adds a query parameter to the query string.
@@ -496,10 +567,10 @@ def containsEncoded (query : Query) (key : EncodedQueryParam) : Bool :=
   query.any (fun x => x.fst.toByteArray = key.toByteArray)
 
 /--
-Checks if a query parameter exists by raw key string. The key is percent-encoded before matching.
+Checks if a query parameter whose name decodes to `key` exists, however it is spelled.
 -/
 def contains (query : Query) (key : String) : Bool :=
-  query.containsEncoded (EncodedQueryParam.encode key)
+  query.any (fun x => nameIs key x.fst)
 
 /--
 Removes all occurrences of a query parameter by key name.
@@ -510,10 +581,10 @@ def eraseEncoded (query : Query) (key : EncodedQueryParam) : Query :=
   )
 
 /--
-Removes all occurrences of a query parameter by raw key string. The key is percent-encoded before matching.
+Removes all query parameters whose name decodes to `key`, however it is spelled.
 -/
 def erase (query : Query) (key : String) : Query :=
-  query.eraseEncoded (EncodedQueryParam.encode key)
+  query.filter (fun x => !nameIs key x.fst)
 
 /--
 Gets the first value of a query parameter by key name, decoded as a string.
@@ -563,6 +634,13 @@ instance : ToString Query where
         Query.formatQueryParam key value
       "?" ++ String.intercalate "&" encodedParams
 
+/--
+Formats an optional query component, preserving `some .empty` as an explicit empty query delimiter.
+-/
+def formatOption : Option Query → String
+  | none => ""
+  | some q => if q.isEmpty then "?" else toString q
+
 end Query
 
 end URI
@@ -590,9 +668,9 @@ structure URI where
   path : URI.Path
 
   /--
-  Optional query string as key-value pairs.
+  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
   -/
-  query : URI.Query
+  query : Option URI.Query := none
 
   /--
   Optional fragment identifier (the part after '#'), percent-encoded.
@@ -606,8 +684,8 @@ instance : ToString URI where
     let authorityPart := match uri.authority with
       | none => ""
       | some auth => s!"//{toString auth}"
-    let pathPart := toString uri.path
-    let queryPart := toString uri.query
+    let pathPart := uri.path.render uri.authority.isSome (hasScheme := true)
+    let queryPart := URI.Query.formatOption uri.query
     let fragmentPart := uri.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{schemePart}:{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
@@ -686,26 +764,28 @@ def setUserInfo (b : Builder) (username : String) (password : Option String := n
   { b with userInfo := some (UserInfo.ofStrings username password) }
 
 /--
-Sets the host as a domain name, returning `none` if the name contains invalid characters.
+Sets the host from a dotted-quad IPv4 address (`127.0.0.1`), which becomes an IPv4 host as in a
+parsed URI, or from a domain name, returning `none` if it is neither.
 The domain name will be automatically lowercased.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
-Each label cannot start or end with `-` and is limited to 63 characters.
+Only ASCII alphanumeric characters, `-`, `_` and dots are allowed.
+Each label cannot start or end with `-` and is limited to 63 characters, and the last label cannot be
+a number (`127.1` is refused).
 Internationalized domain names must be converted to punycode before use.
 -/
 def setHost? (b : Builder) (name : String) : Option Builder :=
-  URI.DomainName.ofString? name |>.map (fun name => { b with host := some (Host.name name) })
+  if let some addr := Net.IPv4Addr.ofString name then
+    some { b with host := some (Host.ipv4 addr) }
+  else
+    URI.DomainName.ofString? name |>.map (fun name => { b with host := some (Host.name name) })
 
 /--
-Sets the host as a domain name, panicking if the name contains invalid characters.
-The domain name will be automatically lowercased.
-Only ASCII alphanumeric characters, hyphens, and dots are allowed.
-Each label cannot start or end with `-` and is limited to 63 characters.
-Internationalized domain names must be converted to punycode before use.
+Sets the host like `setHost?`, panicking if `name` is neither a dotted-quad IPv4 address nor a valid
+domain name.
 -/
 def setHost! (b : Builder) (name : String) : Builder :=
   match b.setHost? name with
   | some b => b
-  | none   => panic! s!"invalid domain name: {name.quote}"
+  | none   => panic! s!"invalid host: {name.quote}"
 
 /--
 Sets the host as an IPv4 address.
@@ -794,7 +874,7 @@ def build (b : Builder) : URI :=
     scheme
     authority := authority
     path
-    query := query
+    query := if query.isEmpty then none else some query
     fragment := b.fragment
   }
 
@@ -822,7 +902,7 @@ def withPath (uri : URI) (path : URI.Path) : URI :=
 Returns a new URI with the query replaced.
 -/
 def withQuery (uri : URI) (query : URI.Query) : URI :=
-  { uri with query }
+  { uri with query := some query }
 
 /--
 Returns a new URI with the fragment replaced.
@@ -842,6 +922,115 @@ def normalize (uri : URI) : URI :=
   { uri with path := uri.path.normalize }
 
 end URI
+
+/--
+The web origin of an HTTP connection: the (scheme, host, port) triple that
+identifies where a connection is established, per RFC 6454.
+
+Two `Origin` values are equal when all three components match, which is the
+standard same-origin check used for redirect and credential decisions.
+-/
+structure URI.Origin where
+
+  /--
+  URI scheme (`"http"` or `"https"`).
+  -/
+  scheme : URI.Scheme
+
+  /--
+  Hostname or IP address.
+  -/
+  host   : URI.Host
+
+  /--
+  Port number.
+  -/
+  port   : UInt16
+deriving Repr, BEq
+
+namespace URI.Origin
+
+/--
+Constructs the canonical `host[:port]` string, omitting the port when it is the default for the scheme.
+-/
+def hostHeader (o : URI.Origin) : String :=
+  let defaultPort := URI.Scheme.defaultPort o.scheme
+  if o.port == defaultPort then toString o.host
+  else s!"{o.host}:{o.port}"
+
+end URI.Origin
+
+/--
+A relative reference as defined in RFC 3986 Section 4.2.
+
+```
+relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+relative-part = "//" authority path-abempty
+              / path-absolute
+              / path-noscheme
+              / path-empty
+```
+
+Unlike a full URI, a relative reference carries no scheme. The authority is present only when the
+path begins with `"//"`.
+-/
+structure URI.RelativeRef where
+  /--
+  Optional authority component, present only when the reference begins with `"//"`.
+  -/
+  authority : Option URI.Authority
+
+  /--
+  The hierarchical path component.
+  -/
+  path : URI.Path
+
+  /--
+  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
+  -/
+  query : Option URI.Query := none
+
+  /--
+  Optional fragment identifier (the part after `'#'`), decoded.
+  -/
+  fragment : Option String
+deriving Repr, Inhabited, BEq
+
+instance : ToString URI.RelativeRef where
+  toString ref :=
+    let authorityPart := ref.authority.map (fun a => s!"//{toString a}") |>.getD ""
+    let pathPart      := ref.path.render ref.authority.isSome (hasScheme := false)
+    let queryPart     := URI.Query.formatOption ref.query
+    let fragmentPart  := ref.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
+    s!"{authorityPart}{pathPart}{queryPart}{fragmentPart}"
+
+/--
+A URI reference as defined in RFC 3986 Section 4.1:
+
+```
+URI-reference = URI / relative-ref
+```
+
+Use `URIReference` when parsing a value that may be either a complete URI (with scheme) or a
+relative reference (without scheme), such as the `Location` response header in HTTP redirects
+(RFC 9110 §10.2.2).
+-/
+inductive URIReference where
+  /--
+  A complete URI with a scheme (e.g., `"http://example.com/path"`).
+  -/
+  | absolute (uri : URI)
+
+  /--
+  A relative reference without a scheme (e.g., `"../other"`, `"//example.com/path"`, `"?q=1"`).
+  -/
+  | relative (ref : URI.RelativeRef)
+deriving Repr, Inhabited
+
+instance : ToString URIReference where
+  toString
+    | .absolute uri => toString uri
+    | .relative ref => toString ref
 
 /--
 HTTP request target forms as defined in RFC 9112 Section 3.3.
@@ -891,7 +1080,7 @@ Returns an empty array for targets without a query.
 -/
 def query : RequestTarget → URI.Query
   | .originForm _ q => q.getD URI.Query.empty
-  | .absoluteForm uri => uri.query
+  | .absoluteForm uri => uri.query.getD URI.Query.empty
   | _ => URI.Query.empty
 
 /--
@@ -905,14 +1094,22 @@ def authority? : RequestTarget → Option URI.Authority
 instance : ToString RequestTarget where
   toString
     | .originForm path query =>
-        let pathStr := toString path
-        let queryStr := query.map toString |>.getD ""
+        -- An origin-form path follows the target's authority. RFC 9112 §3.2.1: a client sends `/`
+        -- when the target URI's path is empty, as in the target of `http://example.com`.
+        let pathStr := path.render (hasAuthority := true) (hasScheme := true)
+        let pathStr := if pathStr.isEmpty then "/" else pathStr
+        let queryStr := URI.Query.formatOption query
         s!"{pathStr}{queryStr}"
-    | .absoluteForm uri => toString uri
-    | .authorityForm auth => toString auth
+    -- A target carries no userinfo (RFC 9110 §4.2.4) and no fragment (RFC 9112 §3.2.2), and
+    -- authority-form is only `host:port` (RFC 9112 §3.2.3).
+    | .absoluteForm uri =>
+      toString { uri with
+        authority := uri.authority.map fun (auth : URI.Authority) => { auth with userInfo := none },
+        fragment := none }
+    | .authorityForm auth => toString { auth with userInfo := none }
     | .asteriskForm => "*"
 
 instance : Encode .v11 RequestTarget where
-  encode buffer target := buffer.writeString (toString target)
+  encode out target := out ++ toString target
 
 end Std.Http.RequestTarget

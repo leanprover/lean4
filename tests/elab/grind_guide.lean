@@ -57,7 +57,7 @@ example : (match x with
 example : (match x with
            | 0 => 1
            | _ + 1 => 2) > 0 := by
-  fail_if_success grind (splits := 0) -- `grind` fails if we don't allow it case-split.
+  fail_if_success grind (branches := 0) -- `grind` fails if we don't allow it case-split.
   sorry
 
 /-
@@ -186,9 +186,9 @@ inductive BigStep : Stmt → State → State → Prop where
   | assign (x : Variable) (a : State → Nat) (s : State) : BigStep (assign x a) s (s[x ↦ a s])
   | seq {S T : Stmt} {s t u : State} (hS : BigStep S s t) (hT : BigStep T t u) :
     BigStep (S;; T) s u
-  | if_true {B : State → Prop} {s t : State} (hcond : B s) (S T : Stmt) (hbody : BigStep S s t) :
+  | ite_true {B : State → Prop} {s t : State} (hcond : B s) (S T : Stmt) (hbody : BigStep S s t) :
     BigStep (ifThenElse B S T) s t
-  | if_false {B : State → Prop} {s t : State} (hcond : ¬ B s) (S T : Stmt) (hbody : BigStep T s t) :
+  | ite_false {B : State → Prop} {s t : State} (hcond : ¬ B s) (S T : Stmt) (hbody : BigStep T s t) :
     BigStep (ifThenElse B S T) s t
   | while_true {B S s t u} (hcond : B s) (hbody : BigStep S s t) (hrest : BigStep (whileDo B S) t u) :
     BigStep (whileDo B S) s u

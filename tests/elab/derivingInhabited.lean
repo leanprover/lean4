@@ -56,7 +56,7 @@ structure A where
 deriving Inhabited
 
 /--
-info: @[implicit_reducible] private def instInhabitedA : Inhabited A :=
+info: @[instance_reducible] private def instInhabitedA : Inhabited A :=
 { default := instInhabitedA.default }
 -/
 #guard_msgs in
@@ -72,6 +72,15 @@ deriving Inhabited
 #guard_msgs in
 #with_exporting
 #reduce (default : PrivField)
+
+/-! Deriving a computable `Inhabited` inside a `noncomputable section` should not fail. -/
+
+namespace NoncompSection
+noncomputable section
+
+structure NCS where
+  a : Nat
+deriving Inhabited
 
 /-! ...which should not be compatible with explicit `@[expose]`. -/
 

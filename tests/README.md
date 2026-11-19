@@ -13,10 +13,20 @@ Here however, each file of a directory-specific extension (usually `.lean`) repr
 The run scripts are executed once for each test file with their working directory set to the pile directory.
 Often, additional supplementary files are placed next to the test files and interpreted by the run scripts.
 
+In a test pile, individual files can be excluded from testing or benchmarking
+by creating a `<file>.no_test` or `<file>.no_bench` file next to the test file.
+If a test must run serially (i.e. not in parallel with any other tests),
+create a `<file>.serial` file next to the test file.
+These auxiliary files should be avoided if possible.
+When used, they should contain a short comment describing why.
+
 ## Directory structure
 
 Benchmarks belonging to the old framework are not included in this description.
 
+- `async`:
+  Tests and benchmarks for `Std.Async`, `Std.Http`, `Std.Net`, `Std.Sync` and the libuv bindings.
+  Its `compile`, `compile_bench` and `elab` subdirectories are piles that work like the top-level piles of the same name.
 - `bench`:
   A bunch of benchmarks and benchmarking related files,
   most of which are not part of the test suite.
@@ -31,6 +41,10 @@ Benchmarks belonging to the old framework are not included in this description.
   Benchmarks that compile lean files and measure the execution of the resulting binary,
   as well as optionally run the same lean file through the interpreter.
   These are also executed as part of the test suite, and `.out.expected` files are ignored when benchmarking.
+- `deprecated`:
+  Tests of deprecated functionality, run without the deprecation linters.
+  Its subdirectories are piles that work like the top-level piles of the same name.
+  See [Deprecated functionality](#deprecated-functionality).
 - `docparse`:
   Docstring parsing tests.
 - `elab`:
@@ -53,6 +67,10 @@ Benchmarks belonging to the old framework are not included in this description.
   A collection of miscellaneous small benchmark scripts.
 - `pkg`:
   Tests that run in lake packages.
+- `verif`:
+  A lake package of proofs about parts of the implementation, laid out like `src/` under the `Verif` prefix
+  (e.g. `Verif/Lean/ConstTrie/Lookup.lean` verifies lookups in `src/Lean/ConstTrie.lean`).
+  Its proofs take a while to check, so it is skipped unless `CI` or `LEAN_TEST_VERIF` is set.
 
 ## How to run the test suite?
 
@@ -85,6 +103,13 @@ make -C build/release/stage1 -j "$(nproc)" test ARGS="-R '<regex>'"
 # Manually, without ctest
 tests/with_stage1_test_env.sh path/to/test/directory/run_test.sh
 tests/with_stage1_test_env.sh path/to/test/pile/run_test.sh testfile
+```
+
+The `verif` package is skipped outside of CI. Run it using
+
+```sh
+LEAN_TEST_VERIF=1 CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS="-R '^verif'"
 ```
 
 ## How to run the bench suite?
@@ -137,6 +162,40 @@ Otherwise, create a new test directory or pile:
 4. Document the new directory in this readme file
    by updating the directory structure section above.
 5. Optionally update [`lint.py`](lint.py) if it makes sense.
+
+### Deprecated functionality
+
+Deprecated functionality is still part of the product and should stay tested until it is removed.
+Its tests live in the piles under `deprecated`, which run without the deprecation linters.
+The contract is that removing a deprecated feature only requires deleting its tests in `deprecated`
+without leaving a hole in the test coverage of the rest of the product:
+
+- A test in `deprecated` may only test deprecated functionality.
+  Split out anything else into a test in the main piles.
+- When deprecating something, move the tests that are about it to `deprecated`,
+  and migrate all other tests that use it to the replacement.
+  The deprecation warnings in the main piles point out these tests.
+  If a test covers both the deprecated feature and its replacement,
+  duplicate it rather than keeping it in `deprecated`:
+  one copy in `deprecated` using the deprecated feature, one in the main piles using the replacement.
+  Otherwise the replacement loses its coverage when the deprecated feature is removed.
+- When removing something deprecated, delete its tests in `deprecated`.
+
+### Keep the source tree clean
+
+A test may not write into the checked-in source tree. CI enforces this by making tracked files
+read-only for the duration of the test run and by comparing `git status` before and after, so a
+test that violates it fails even if it tidies up afterwards.
+
+In practice this means:
+
+* Scratch output must land in an ignored path. Follow the pile's convention where there is one:
+  the `_tmp_` prefix in [`compile`](compile/.gitignore) and [`compile_bench`](compile_bench/.gitignore),
+  `produced.*` under [`lake`](lake/.gitignore) and [`pkg`](pkg/.gitignore). Otherwise add a
+  `.gitignore` entry next to the test.
+* A test that needs to edit its own inputs, or to initialize a Git repository, must work on a
+  copy. Lake tests have `copy_to_work` in [`lake/tests/common.sh`](lake/tests/common.sh) for this;
+  it copies into the ignored `work/` directory and `cd`s there.
 
 ## How to write a benchmark?
 
@@ -192,6 +251,7 @@ The most notable environment variables are:
 - `TEST_DIR`: Absolute path to the `tests` directory.
 - `SCRIPT_DIR`: Absolute path to the `script` directory.
 - `TEST_BENCH`: Set to `1` if we're currently executing a benchmark, unset otherwise.
+- `TEST_CTEST`: Set to `1` if the test is run under ctest, unset otherwise.
 
 The definitions come from `util.sh`,
 which provides a few utility functions and also uses `set` to set sensible bash defaults.
@@ -240,6 +300,24 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
+
+For performance reasons, elab tests can use prebuilt header snapshots.
+Building the snapshots and wiring them into the ctest suite (as the `build_lean_header_snapshots.sh` setup fixture) is gated by the `LEAN_HEADER_SNAPSHOTS` CMake option, which currently defaults to `OFF`.
+Use of the snapshots at runtime is further controlled by the `LEAN_HEADER_SNAPSHOTS` environment variable:
+set it to `0` to force them off, or to `1` to force them on (if enabled at build time).
+By default, they are turned on only when running under ctest.
+To use the pre-built snapshots when manually running tests,
+run `tests/with_stage1_test_env.sh tests/build_lean_header_snapshots.sh`
+before running the test itself with `LEAN_HEADER_SNAPSHOTS=1` set.
 
 ## The `compile*` test pile
 
@@ -292,6 +370,15 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
 
 ## The `interactive` test pile
 

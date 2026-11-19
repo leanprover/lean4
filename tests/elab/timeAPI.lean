@@ -497,7 +497,7 @@ example := Second.Ordinal.ofInt (leap := true) 60 (by decide)
 example := Minute.Ordinal.ofInt 1 (by decide)
 example := Hour.Ordinal.ofInt 1 (by decide)
 example := Day.Ordinal.ofInt 1 (by decide)
-example := Week.Ordinal.ofInt 1 (by decide)
+example := Week.OfYear.Ordinal.ofInt 1 (by decide)
 
 example := Nanosecond.Ordinal.ofFin 1
 example := Millisecond.Ordinal.ofFin 1
@@ -506,7 +506,7 @@ example := Second.Ordinal.ofFin (leap := true) 37
 example := Minute.Ordinal.ofFin 1
 example := Hour.Ordinal.ofFin 1
 example := Day.Ordinal.ofFin 1
-example := Week.Ordinal.ofFin 1
+example := Week.OfYear.Ordinal.ofFin 1
 
 example := Nanosecond.Ordinal.ofNat 1
 example := Millisecond.Ordinal.ofNat 1
@@ -515,7 +515,7 @@ example := Second.Ordinal.ofNat (leap := true) 1
 example := Minute.Ordinal.ofNat 1
 example := Hour.Ordinal.ofNat 1
 example := Day.Ordinal.ofNat 1
-example := Week.Ordinal.ofNat 1
+example := Week.OfYear.Ordinal.ofNat 1
 
 example := Nanosecond.Ordinal.toOffset 1
 example := Millisecond.Ordinal.toOffset 1
@@ -524,7 +524,7 @@ example := Second.Ordinal.toOffset (leap := true) 1
 example := Minute.Ordinal.toOffset 1
 example := Hour.Ordinal.toOffset 1
 example := Day.Ordinal.toOffset 1
-example := Week.Ordinal.toOffset 1
+example := Week.OfYear.Ordinal.toOffset 1
 
 example : (1 : Nanosecond.Ordinal).toInt = (1 : Int) := rfl
 example : (1 : Millisecond.Ordinal).toInt = (1 : Int) := rfl
@@ -533,7 +533,7 @@ example : (1 : Second.Ordinal true).toInt = (1 : Int) := rfl
 example : (1 : Minute.Ordinal).toInt = (1 : Int) := rfl
 example : (1 : Hour.Ordinal).toInt = (1 : Int) := rfl
 example : (1 : Day.Ordinal).toInt = (1 : Int) := rfl
-example : (1 : Week.Ordinal).toInt = (1 : Int) := rfl
+example : (1 : Week.OfYear.Ordinal).toInt = (1 : Int) := rfl
 
 example : ((1 : Nanosecond.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Millisecond.Ordinal).toFin (by decide) |>.val) = 1 := rfl
@@ -542,7 +542,7 @@ example : ((1 : Second.Ordinal true).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Minute.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Hour.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Day.Ordinal).toFin (by decide) |>.val) = 1 := rfl
-example : ((1 : Week.Ordinal).toFin (by decide) |>.val) = 1 := rfl
+example : ((1 : Week.OfYear.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 
 example : (1 : Nanosecond.Ordinal).toNat = 1 := rfl
 example : (1 : Millisecond.Ordinal).toNat = 1 := rfl
@@ -551,7 +551,7 @@ example : (1 : Second.Ordinal true).toNat = 1 := rfl
 example : (1 : Minute.Ordinal).toNat = 1 := rfl
 example : (1 : Hour.Ordinal).toNat = 1 := rfl
 example : (1 : Day.Ordinal).toNat = 1 := rfl
-example : (1 : Week.Ordinal).toNat = 1 := rfl
+example : (1 : Week.OfYear.Ordinal).toNat = 1 := rfl
 
 /--
 info: 9
@@ -662,10 +662,10 @@ false
 77
 CE
 1
-4
+3
 Std.Time.Weekday.tuesday
 12
-3
+4
 9938
 858650584
 1970-01-02T00:00:00.000000000
@@ -712,42 +712,42 @@ Std.Time.Weekday.tuesday
   println! PlainDateTime.ofEpochDay 1 PlainTime.midnight
 
 /--
-info: 2024-09-13T02:01:02.000000000-03:00
-2024-09-19T02:01:02.000000000-03:00
-2024-10-12T02:01:02.000000000-03:00
-2024-10-12T02:01:02.000000000-03:00
-2025-09-12T02:01:02.000000000-03:00
-2025-09-12T02:01:02.000000000-03:00
-2024-09-11T02:01:02.000000000-03:00
-2024-09-05T02:01:02.000000000-03:00
-2024-08-12T02:01:02.000000000-03:00
-2024-08-12T02:01:02.000000000-03:00
-2023-09-12T02:01:02.000000000-03:00
-2023-09-12T02:01:02.000000000-03:00
-2024-09-01T02:01:02.000000000-03:00
-2024-09-01T02:01:02.000000000-03:00
-2024-09-15T02:01:02.000000000-03:00
-2024-01-12T02:01:02.000000000-03:00
-2024-01-12T02:01:02.000000000-03:00
-0001-09-12T02:01:02.000000000-03:00
-0001-09-12T02:01:02.000000000-03:00
+info: 2024-09-13T02:01:02.000000000[America/Sao_Paulo]
+2024-09-19T02:01:02.000000000[America/Sao_Paulo]
+2024-10-12T02:01:02.000000000[America/Sao_Paulo]
+2024-10-12T02:01:02.000000000[America/Sao_Paulo]
+2025-09-12T02:01:02.000000000[America/Sao_Paulo]
+2025-09-12T02:01:02.000000000[America/Sao_Paulo]
+2024-09-11T02:01:02.000000000[America/Sao_Paulo]
+2024-09-05T02:01:02.000000000[America/Sao_Paulo]
+2024-08-12T02:01:02.000000000[America/Sao_Paulo]
+2024-08-12T02:01:02.000000000[America/Sao_Paulo]
+2023-09-12T02:01:02.000000000[America/Sao_Paulo]
+2023-09-12T02:01:02.000000000[America/Sao_Paulo]
+2024-09-01T02:01:02.000000000[America/Sao_Paulo]
+2024-09-01T02:01:02.000000000[America/Sao_Paulo]
+2024-09-15T02:01:02.000000000[America/Sao_Paulo]
+2024-01-12T02:01:02.000000000[America/Sao_Paulo]
+2024-01-12T02:01:02.000000000[America/Sao_Paulo]
+0001-09-12T02:01:02.000000000[America/Sao_Paulo]
+0001-09-12T02:01:02.000000000[America/Sao_Paulo]
 24 2024 2024 2024 24 2024 2024 24 S
 true
 256
 CE
 3
-3
+2
 Std.Time.Weekday.thursday
 37
 2
 19978
 1726117262
-1970-01-02T00:00:00.000000000Z
+1970-01-02T00:00:00.000000000[UTC]
 
 -/
 #guard_msgs in
 #eval do
-  let zoned := DateTime.ofPlainDateTime datetime("2024-09-12T02:01:02") timezone("America/Sao_Paulo -03:00")
+  let zoned := DateTime.ofPlainDateTimeWithZone datetime("2024-09-12T02:01:02") timezone("America/Sao_Paulo -03:00")
 
   println! zoned.addDays 1
   println! zoned.addWeeks 1
@@ -778,12 +778,13 @@ Std.Time.Weekday.thursday
   println! repr zoned.quarter
   println! repr zoned.alignedWeekOfMonth
   println! repr zoned.weekday
-  println! repr zoned.weekOfYear
-  println! repr zoned.weekOfMonth
+  println! repr <| zoned.weekOfYear Weekday.sunday
+  println! repr <| zoned.weekOfMonth Weekday.sunday
 
   println! zoned.toEpochDay
   println! zoned.toTimestamp
   println! DateTime.ofEpochDay 1 PlainTime.midnight .UTC
+
 
 /--
 info: 1997-03-19T02:03:04.000000000[America/Sao_Paulo]
@@ -811,10 +812,10 @@ false
 77
 CE
 1
-4
+3
 Std.Time.Weekday.tuesday
 12
-3
+4
 9938
 858661384
 
@@ -853,36 +854,34 @@ Std.Time.Weekday.tuesday
   println! repr zoned.quarter
   println! repr zoned.alignedWeekOfMonth
   println! repr zoned.weekday
-  println! repr zoned.weekOfYear
-  println! repr zoned.weekOfMonth
+  println! repr <| zoned.weekOfYear Weekday.sunday
+  println! repr <| zoned.weekOfMonth Weekday.sunday
 
   println! zoned.toEpochDay
   println! zoned.toTimestamp
 
 /--
 info: 2023-06-09T00:00:00.000000000
-0001-01-01T12:32:43.000000000
 2033-11-18T12:32:43.000000000
 -/
 #guard_msgs in
 #eval do
   println! PlainDateTime.ofPlainDate date("2023-06-09")
-  println! PlainDateTime.ofPlainTime time("12:32:43")
   println! PlainDateTime.ofEpochDay 23332 time("12:32:43")
 
 /--
-info: 1970-01-02T00:00:00.000000000Z
-1997-03-18T00:00:00.000000000Z
-1997-03-18T00:01:02.000000000Z
-2024-02-16T22:07:14.000000000Z
+info: 1970-01-02T00:00:00.000000000[UTC]
+1997-03-18T00:00:00.000000000[UTC]
+1997-03-18T00:01:02.000000000[UTC]
+2024-02-16T22:07:14.000000000[UTC]
 
 -/
 #guard_msgs in
 #eval do
   println! DateTime.ofEpochDay 1 PlainTime.midnight .UTC
-  println! DateTime.ofLocalDate date("1997-03-18") .UTC
-  println! DateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
-  println! DateTime.ofTimestamp 1708121234 .UTC
+  println! DateTime.ofLocalDateWithZone date("1997-03-18") .UTC
+  println! DateTime.ofPlainDateTimeWithZone datetime("1997-03-18T00:01:02") .UTC
+  println! DateTime.ofTimestampWithZone 1708121234 .UTC
 
 /--
 info: 1970-01-02T00:00:00.000000000[UTC]
@@ -895,10 +894,10 @@ info: 1970-01-02T00:00:00.000000000[UTC]
 -/
 #guard_msgs in
 #eval do
-  println! ZonedDateTime.ofEpochDay 1 PlainTime.midnight .UTC
-  println! ZonedDateTime.ofLocalDate date("1997-03-18") .UTC
-  println! ZonedDateTime.ofLocalDateWithZone date("1997-03-18") .UTC
-  println! ZonedDateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
-  println! ZonedDateTime.ofPlainDateTimeWithZone datetime("1997-03-18T00:01:02") .UTC
-  println! ZonedDateTime.ofTimestamp 1708121234 .UTC
-  println! ZonedDateTime.ofTimestampWithZone 1708121234 .UTC
+  println! DateTime.ofEpochDay 1 PlainTime.midnight .UTC
+  println! DateTime.ofLocalDate date("1997-03-18") .UTC
+  println! DateTime.ofLocalDateWithZone date("1997-03-18") .UTC
+  println! DateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
+  println! DateTime.ofPlainDateTimeWithZone datetime("1997-03-18T00:01:02") .UTC
+  println! DateTime.ofTimestamp 1708121234 .UTC
+  println! DateTime.ofTimestampWithZone 1708121234 .UTC

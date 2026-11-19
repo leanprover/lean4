@@ -6,13 +6,14 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BoolExpr
 public import Std.Tactic.BVDecide.Bitblast.BVExpr
+public import Std.Tactic.BVDecide.Bitblast.EfficientEval
+public import Std.Tactic.BVDecide.Bitblast.Substitute
 
 @[expose] public section
 
 /-!
 This directory contains the implementation of the bitblaster itself. It is split up into two parts:
-1. Bitblasting of generic boolean substructures for SMT-like problems in `BoolExpr`.
+1. Bitblasting of generic boolean substructures for SMT-like problems in `BVLogicalExpr`.
 2. The specific bitblaster for `BitVec` problems with boolean substructure in `BVExpr`.
 -/

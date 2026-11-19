@@ -13,9 +13,13 @@ add_library(
   environment.cpp
   type_checker.cpp
   init_module.cpp
-  expr_cache.cpp
-  equiv_manager.cpp
   quot.cpp
   inductive.cpp
   trace.cpp
 )
+
+# Counts and indices in the kernel are `size_t`: a lossy implicit conversion can alias distinct values.
+# Clang only, as GCC's `-Wconversion` also reports safe arithmetic.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  target_compile_options(kernel PRIVATE -Werror=conversion)
+endif()

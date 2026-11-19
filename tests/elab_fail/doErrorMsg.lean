@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 def f : IO Nat := do
   IO.println "hello"
   IO.getStdin

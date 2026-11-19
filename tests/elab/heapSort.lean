@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 
+/-! Tests heap operations, heap sorting, and their generated equation theorems. -/
+
 /-- A max-heap data structure. -/
 structure BinaryHeap (α) (lt : α → α → Bool) where
   arr : Array α
@@ -81,7 +83,7 @@ instance (lt) : EmptyCollection (BinaryHeap α lt) := ⟨empty _⟩
 def singleton (lt) (x : α) : BinaryHeap α lt := ⟨#[x]⟩
 
 /-- `O(1)`. Get the number of elements in a `BinaryHeap`. -/
-def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
+@[instance_reducible] def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
 
 /-- `O(1)`. Get an element in the heap by index. -/
 def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1[i]'i.2
@@ -181,11 +183,10 @@ info: Array.heapSort.loop.eq_1 fun a b =>
     (a <
       b) : ∀ (a : BinaryHeap Nat fun y x => decide (x < y)) (out : Array Nat),
   Array.heapSort.loop (fun a b => decide (a < b)) a out =
+    let gt := fun y x => decide (x < y);
     match e : a.max with
     | none => out
-    | some x =>
-      have this := ⋯;
-      Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
+    | some x => Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
 -/
 #guard_msgs in
 #check Array.heapSort.loop.eq_1 (fun (a b : Nat) => a < b)

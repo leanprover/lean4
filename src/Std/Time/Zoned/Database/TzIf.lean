@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Range.Polymorphic.Iterators
 public import Std.Internal.Parsec
 import Init.Data.Int.Repr
+import Init.Data.ByteArray.Extra
 
 public section
 
@@ -161,6 +162,7 @@ structure TZifV2 extends TZifV1 where
   footer : Option String
   deriving Repr, Inhabited
 
+set_option linter.extra.dupNamespace false in
 /--
 Represents a TZif file, which can be either version 1 or version 2.
 -/

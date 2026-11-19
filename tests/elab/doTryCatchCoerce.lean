@@ -12,6 +12,8 @@ open Lean
 
 set_option pp.mvars.anonymous false
 
+set_option backward.do.legacy true
+
 example (name : Name) : CoreM (Option Nat) := do
   try
     unsafe evalConstCheck Nat ``Nat name

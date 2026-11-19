@@ -47,11 +47,10 @@ theorem Rcc.length_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Rcc.length_iter (since := "2026-01-28")]
 def Rcc.count_iter := @Rcc.length_iter
 
-@[deprecated Rcc.length_iter (since := "2025-11-13")]
-def Rcc.count_iter_eq_size := @Rcc.length_iter
 
 @[simp]
 theorem Rco.toList_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -85,11 +84,9 @@ theorem Rco.length_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Rco.length_iter (since := "2026-01-28")]
 def Rco.count_iter := @Rco.length_iter
-
-@[deprecated Rco.length_iter (since := "2025-11-13")]
-def Rco.count_iter_eq_size := @Rco.length_iter
 
 @[simp]
 theorem Rci.toList_iter [UpwardEnumerable α]
@@ -123,11 +120,9 @@ theorem Rci.length_iter [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Rci.length_iter (since := "2026-01-28")]
 def Rci.count_iter := @Rci.length_iter
-
-@[deprecated Rci.length_iter (since := "2025-11-13")]
-def Rci.count_iter_eq_size := @Rci.length_iter
 
 @[simp]
 theorem Roc.toList_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -161,11 +156,9 @@ theorem Roc.length_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Roc.length_iter (since := "2026-01-28")]
 def Roc.count_iter := @Roc.length_iter
-
-@[deprecated Roc.length_iter (since := "2025-11-13")]
-def Roc.count_iter_eq_size := @Roc.length_iter
 
 @[simp]
 theorem Roo.toList_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -199,11 +192,9 @@ theorem Roo.length_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Roo.length_iter (since := "2026-01-28")]
 def Roo.count_iter := @Roo.length_iter
-
-@[deprecated Roo.length_iter (since := "2025-11-13")]
-def Roo.count_iter_eq_size := @Roo.length_iter
 
 @[simp]
 theorem Roi.toList_iter [UpwardEnumerable α]
@@ -237,11 +228,9 @@ theorem Roi.length_iter [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Roi.length_iter (since := "2026-01-28")]
 def Roi.count_iter := @Roi.length_iter
-
-@[deprecated Roi.length_iter (since := "2025-11-13")]
-def Roi.count_iter_eq_size := @Roi.length_iter
 
 @[simp]
 theorem Ric.toList_iter [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -275,11 +264,9 @@ theorem Ric.length_iter [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable �
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Ric.length_iter (since := "2026-01-28")]
 def Ric.count_iter := @Ric.length_iter
-
-@[deprecated Ric.length_iter (since := "2025-11-13")]
-def Ric.count_iter_eq_size := @Ric.length_iter
 
 @[simp]
 theorem Rio.toList_iter [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -313,11 +300,9 @@ theorem Rio.length_iter [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable �
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Rio.length_iter (since := "2026-01-28")]
 def Rio.count_iter := @Rio.length_iter
-
-@[deprecated Rio.length_iter (since := "2025-11-13")]
-def Rio.count_iter_eq_size := @Rio.length_iter
 
 @[simp]
 theorem Rii.toList_iter [Least? α] [UpwardEnumerable α]
@@ -351,10 +336,8 @@ theorem Rii.length_iter [Least? α] [UpwardEnumerable α]
     r.iter.length = r.size := by
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
+set_option linter.defProp false in
 @[deprecated Rii.length_iter (since := "2026-01-28")]
 def Rii.count_iter := @Rii.length_iter
-
-@[deprecated Rii.length_iter (since := "2025-11-13")]
-def Rii.count_iter_eq_size := @Rii.length_iter
 
 end Std

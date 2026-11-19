@@ -12,6 +12,7 @@ meta import Lake.Config.LeanLibConfig
 meta import Lake.Config.LeanExeConfig
 meta import Lake.Config.InputFileConfig
 meta import Lake.Config.PackageConfig
+meta import Lake.Config.LakeConfig
 
 /-! # TOML Translation
 
@@ -45,6 +46,8 @@ instance [enc : EncodeField σ name α] [BEq α] [field : ConfigField σ name α
   insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg) (enc := ⟨enc.encodeField⟩)
 
 /-! ## Value Encoders -/
+
+public instance : ToToml CacheServiceKind := ⟨(toToml ·.toString)⟩
 
 public instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
 public instance : ToToml BuildType := ⟨(toToml ·.toString)⟩
@@ -132,20 +135,50 @@ public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : T
   let t := t
     |>.insert `name dep.name
     |>.insertD `scope dep.scope ""
-    |>.smartInsert `version dep.version?
+  let t :=
+    match dep.version with
+    | .none => t
+    | .git rev =>
+      match dep.src? with
+      | some (.git (rev := some gitRev) ..) =>
+        if gitRev == rev then
+          t -- `rev` will be set below
+        else t.insert `version s!"git#{rev}"
+      | _ => t.insert `rev rev
+    | .ver ver => t.insert `version ver.toString
   let t :=
     if let some src := dep.src? then
       match src with
-      | .path dir => t.insert `path (toToml dir)
-      | .git url rev subDir? =>
+      | .path dir copy =>
+        t.insert `path (toToml dir)
+        |>.insertD `copy copy false
+      | .git url rev? subDir? =>
         t.insert `git url
-        |>.smartInsert `rev rev
+        |>.smartInsert `rev rev?
         |>.smartInsert `subDir subDir?
     else
       t
   t.smartInsert `options <| dep.opts.foldl (·.insert · ·) Table.empty
 
 public instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
+
+/-! ## Cache Service Configuration Encoders -/
+
+public protected def CacheService.toToml
+  (name : String) (service : CacheService) (t : Table  := {})
+: Table  :=
+  let t := t.insert `name name
+  match h:service.kind with
+  | .reservoir =>
+    t
+    |>.insert `kind "reservoir"
+    |>.insert `apiEndpoint (service.apiEndpoint (service.kind_eq_iff_isReservoir.mp h))
+  | .s3 =>
+    t
+    |>.insert `kind "s3"
+    |>.insert `artifactEndpoint (service.artifactEndpoint (service.kind_eq_iff_isS3.mp h))
+    |>.insert `revisionEndpoint (service.revisionEndpoint (service.kind_eq_iff_isS3.mp h))
+    |>.insert `hasPackageScopes service.hasPackageScopes
 
 /-! ## Package & Target Configuration Encoders -/
 
@@ -199,9 +232,12 @@ gen_toml_encoders%
 public def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   let cfg : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
+  have : SmartInsert CacheServiceMap :=
+    ⟨fun k v t => t.insertUnless v.isEmpty k <| v.foldl (fun a n s => a.push (s.toToml n.getString!)) #[]⟩
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
+  |>.smartInsert `cache_service pkg.cacheServices
   |>.smartInsert LeanLib.keyword (pkg.mkTomlTargets LeanLib.configKind LeanLibConfig.toToml)
   |>.smartInsert LeanExe.keyword (pkg.mkTomlTargets LeanExe.configKind LeanExeConfig.toToml)
   |>.smartInsert InputFile.keyword (pkg.mkTomlTargets InputFile.configKind InputFileConfig.toToml)

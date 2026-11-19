@@ -137,13 +137,13 @@ added. Because it's not a tactic, its first token is not found.
 /--
 info: Available tags: ⏎
   • `ctrl` — "control flow"
-    Tactics that sequence or arrange other tactics ⏎
+    Tactics that sequence or arrange other tactics
     `<;>`
   • `extensible`
-    Tactics that are intended to be extensible ⏎
+    Tactics that are intended to be extensible
     `my_trivial`
   • `finishing`
-    Finishing tactics that are intended to completely close a goal ⏎
+    Finishing tactics that are intended to completely close a goal
     `omega`, `my_trivial`, `tm`
 -/
 #guard_msgs in
@@ -164,13 +164,13 @@ Here, the first token `foo` is shown:
 /--
 info: Available tags: ⏎
   • `ctrl` — "control flow"
-    Tactics that sequence or arrange other tactics ⏎
+    Tactics that sequence or arrange other tactics
     `<;>`
   • `extensible`
-    Tactics that are intended to be extensible ⏎
+    Tactics that are intended to be extensible
     `my_trivial`
   • `finishing`
-    Finishing tactics that are intended to completely close a goal ⏎
+    Finishing tactics that are intended to completely close a goal
     `omega`, `foo`, `my_trivial`, `tm`
 -/
 #guard_msgs in
@@ -184,13 +184,13 @@ Now we show `foo bar`:
 /--
 info: Available tags: ⏎
   • `ctrl` — "control flow"
-    Tactics that sequence or arrange other tactics ⏎
+    Tactics that sequence or arrange other tactics
     `<;>`
   • `extensible`
-    Tactics that are intended to be extensible ⏎
+    Tactics that are intended to be extensible
     `my_trivial`
   • `finishing`
-    Finishing tactics that are intended to completely close a goal ⏎
+    Finishing tactics that are intended to completely close a goal
     `omega`, `foo bar`, `my_trivial`, `tm`
 -/
 #guard_msgs in

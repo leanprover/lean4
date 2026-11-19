@@ -32,10 +32,7 @@ private def mkImpossibleNegType (mainGoal : MVarId) (goalType : Expr)
     (cfg : Parser.Tactic.ImpossibleConfig) :
     MetaM (Expr × Array Name) := mainGoal.withContext do
   let dummy ← mkFreshExprSyntheticOpaqueMVar goalType
-  let cleaned ← dummy.mvarId!.cleanup
-  let (_, reverted) ← cleaned.revert
-    (clearAuxDeclsInsteadOfRevert := true)
-    (← cleaned.getDecl).lctx.getFVarIds
+  let reverted ← dummy.mvarId!.revertAll
   let revertedType ← reverted.getType
   let r ← Closure.mkValueTypeClosure revertedType (mkConst ``True)
     (zetaDelta := false)
@@ -80,7 +77,9 @@ def evalImpossible : Tactic := fun stx => do
     setGoals [innerMVarId]
     withTacticInfoContext byTk do
       evalTactic tacs
-      done
+    -- Report unsolved goals outside the `by` info node so that the goal view shows the goal of an
+    -- empty block instead of "no goals" after admitting it.
+    done
     -- Hand the proof to the kernel via a private aux decl so kernel errors
     -- surface here rather than being absorbed by the outer `sorry`. Close
     -- over remaining (possibly level) mvars so a parametric counter-example

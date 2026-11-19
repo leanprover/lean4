@@ -2,6 +2,10 @@
 source ../common.sh
 source ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+copy_to_work lakefile.lean
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repository on each test.
 echo "# SETUP"
@@ -29,7 +33,3 @@ v1
 v2
 EOF
 ) version-tags
-
-# Cleanup
-rm -f produced*
-rm -rf .git

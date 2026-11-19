@@ -42,7 +42,7 @@ Obtains the smallest valid position that is strictly greater than the given byte
 def Slice.posGT (s : Slice) (offset : String.Pos.Raw)  (h : offset < s.rawEndPos) : s.Pos :=
   s.posGE offset.inc (by simpa)
 
-@[deprecated Slice.posGT (since := "2026-02-03")]
+@[deprecated Slice.posGT +typeChanged (since := "2026-02-03")]
 def Slice.findNextPos (offset : String.Pos.Raw) (s : Slice) (h : offset < s.rawEndPos) : s.Pos :=
   s.posGT offset h
 
@@ -135,7 +135,7 @@ def Pos.prev! {s : String} (pos : s.Pos) : s.Pos :=
 /--
 Iterates {lean}`p.prev` {name}`n` times.
 
-If this would move {name}`p` past the start of {name}`s`, the result is {lean}`s.endPos`.
+If this would move {name}`p` past the start of {name}`s`, the result is {lean}`s.startPos`.
 -/
 def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with

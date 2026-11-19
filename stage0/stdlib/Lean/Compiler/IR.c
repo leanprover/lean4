@@ -137,7 +137,6 @@ if (lean_obj_tag(v___x_19_) == 0)
 {
 lean_object* v___x_20_; 
 lean_dec_ref_known(v___x_19_, 1);
-lean_inc_ref(v_decls_13_);
 v___x_20_ = l_Lean_IR_checkDecls(v_decls_13_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_20_) == 0)
 {
@@ -491,11 +490,13 @@ lean_object* runtime_initialize_Lean_Compiler_IR_ToIRType(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_Meta(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_LLVMBindings(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_IR(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_IR_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

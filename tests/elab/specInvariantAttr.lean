@@ -1,11 +1,12 @@
 import Std.Tactic.Do
 import Std
-set_option backward.do.legacy false
+
+set_option sym.debug true
 
 open Std Do
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 -- Test that `@[spec_invariant_type]` works end-to-end with a custom invariant type.
 -- We replicate the `StringInvariant` setup locally: define a type, tag it, provide a spec,

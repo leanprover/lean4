@@ -9,10 +9,16 @@ import Lean.Elab.Tactic.Grind.DSimprocDSL
 import Init.Sym.DSimp.DSimprocDSL
 import Lean.Meta.Sym.DSimp.Reduce
 import Lean.Meta.Sym.DSimp.DSimproc
+import Lean.Meta.Sym.DSimp.EvalGround
+import Lean.Meta.Sym.DSimp.Rewrite
 namespace Lean.Elab.Tactic.Grind
 open Meta Sym.DSimp
 
 -- DSimproc elaborators
+
+@[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.ground]
+def elabGround : SymDSimprocElab := fun _ =>
+  return evalGround
 
 @[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.zetaDelta]
 def elabZetaDeltaAll : SymDSimprocElab := fun _ =>
@@ -33,6 +39,15 @@ def elabReduceMatch : SymDSimprocElab := fun _ =>
 @[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.proj]
 def elabProj : SymDSimprocElab := fun _ =>
   return dsimpProj
+
+@[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.rewriteInline]
+def elabRewriteInline : SymDSimprocElab := fun stx => do
+  let `(sym_dsimproc| rewrite [ $[$names:ident],* ]) := stx | throwUnsupportedSyntax
+  let declNames ← names.mapM fun name => do
+    let declName ← realizeGlobalConstNoOverload name
+    Linter.checkDeprecatedAt name declName
+    return declName
+  return (← Decls.ofNames declNames).toDSimproc
 
 @[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.none]
 def elabNone : SymDSimprocElab := fun _ =>

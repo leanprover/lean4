@@ -11,12 +11,14 @@ public import Lean.Language.Lean.Types
 public import Lean.Server.Snapshots
 public import Lean.Server.AsyncList
 public import Std.Sync.Mutex
+import Init.Data.ByteArray.Extra
 
 public section
 
 namespace Lean.Server.FileWorker
+open Lean
 open Snapshots
-open IO
+open Lean.IO
 
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :

@@ -29,7 +29,7 @@ builtin_initialize muteExt : SimplePersistentEnvExtension Name NameSet ←
     addImportedFn := mkStateFromImportedEntries (·.insert) {}
   }
 
-open Command Meta Grind
+open Command Meta Lean.Meta.Grind
 
 def checkEMatchTheorem (declName : Name) : CoreM Unit := do
   unless (← Grind.grindExt.isEMatchTheorem declName) do
@@ -50,6 +50,7 @@ def elabGrindLintSkip : CommandElab := fun stx => do
     -- Skip by exact name
     for id in ids do
       let declName ← realizeGlobalConstNoOverloadWithInfo id
+      Linter.checkDeprecatedAt id declName
       checkEMatchTheorem declName
       if skipExt.getState (← getEnv) |>.contains declName then
         throwError "`{declName}` is already in the `#grind_lint` skip set"
@@ -61,6 +62,7 @@ def elabGrindLintMute : CommandElab := fun stx => do
   liftTermElabM do
   for id in ids do
     let declName ← realizeGlobalConstNoOverloadWithInfo id
+    Linter.checkDeprecatedAt id declName
     checkEMatchTheorem declName
     if muteExt.getState (← getEnv) |>.contains declName then
       throwError "`{declName}` is already in the `#grind_lint` mute set"
@@ -70,7 +72,7 @@ def elabGrindLintMute : CommandElab := fun stx => do
 Default configuration for `#grind_lint`.
 -/
 def defaultConfig : Grind.Config := {
-  splits       := 0
+  branches     := 0
   lookahead    := false
   mbtc         := false
   ematch       := 20

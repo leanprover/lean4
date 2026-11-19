@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Do.Basic
+public import Lean.Elab.BuiltinDo.Forward
 meta import Lean.Parser.Do
 
 public section
@@ -24,6 +25,8 @@ open InternalSyntax in
 
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
+  if let some r ← tryElabForwardApp? e dec then
+    return r
   let mα ← mkMonadApp dec.resultType
   let e ← Term.elabTermEnsuringType e mα
   dec.mkBindUnlessPure e

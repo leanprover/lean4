@@ -1,3 +1,4 @@
+set_option warn.classDefReducibility false in
 def foo : Inhabited Nat :=
   set_option trace.Meta.synthInstance true in by { exact inferInstance }
 

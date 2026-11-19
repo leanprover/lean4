@@ -37,10 +37,14 @@ theorem splitOnP.go_ne_nil (p : α → Bool) (xs acc : List α) : splitOnPPrepen
 @[simp] theorem splitOnPPrepend_nil_right : splitOnPPrepend p xs [] = splitOnP p xs := (rfl)
 theorem splitOnP_eq_splitOnPPrepend : splitOnP p xs = splitOnPPrepend p xs [] := (rfl)
 
-theorem splitOnPPrepend_cons_eq_if {x : α} {xs acc : List α} :
+theorem splitOnPPrepend_cons_eq_ite {x : α} {xs acc : List α} :
     splitOnPPrepend p (x :: xs) acc =
       if p x then acc.reverse :: splitOnP p xs else splitOnPPrepend p xs (x :: acc) := by
   simp [splitOnPPrepend]
+
+@[deprecated List.splitOnPPrepend_cons_eq_ite (since := "2026-07-21")]
+theorem splitOnPPrepend_cons_eq_if {α : Type u_1} {p : α → Bool} {x : α} {xs : List α} {acc : List α} : List.splitOnPPrepend p (x :: xs) acc =
+  if p x = Bool.true then acc.reverse :: List.splitOnP p xs else List.splitOnPPrepend p xs (x :: acc) := List.splitOnPPrepend_cons_eq_ite
 
 theorem splitOnPPrepend_cons_pos {p : α → Bool} {a : α} {l acc : List α} (h : p a) :
     splitOnPPrepend p (a :: l) acc = acc.reverse :: splitOnP p l := by
@@ -50,16 +54,19 @@ theorem splitOnPPrepend_cons_neg {p : α → Bool} {a : α} {l acc : List α} (h
     splitOnPPrepend p (a :: l) acc = splitOnPPrepend p l (a :: acc) := by
   simp [splitOnPPrepend, h]
 
-theorem splitOnP_cons_eq_if_splitOnPPrepend {x : α} {xs : List α} :
+theorem splitOnP_cons_eq_ite_splitOnPPrepend {x : α} {xs : List α} :
     splitOnP p (x :: xs) = if p x then [] :: splitOnP p xs else splitOnPPrepend p xs [x] := by
-  simp [splitOnPPrepend_cons_eq_if, ← splitOnPPrepend_nil_right]
+  simp [splitOnPPrepend_cons_eq_ite, ← splitOnPPrepend_nil_right]
+
+@[deprecated List.splitOnP_cons_eq_ite_splitOnPPrepend (since := "2026-07-21")]
+theorem splitOnP_cons_eq_if_splitOnPPrepend {α : Type u_1} {p : α → Bool} {x : α} {xs : List α} : List.splitOnP p (x :: xs) = if p x = Bool.true then [] :: List.splitOnP p xs else List.splitOnPPrepend p xs [x] := List.splitOnP_cons_eq_ite_splitOnPPrepend
 
 theorem splitOnPPrepend_eq_modifyHead {xs acc : List α} :
     splitOnPPrepend p xs acc = modifyHead (acc.reverse ++ ·) (splitOnP p xs) := by
   induction xs generalizing acc with
   | nil => simp
   | cons hd tl ih =>
-    simp [splitOnPPrepend_cons_eq_if, splitOnP_cons_eq_if_splitOnPPrepend, ih]
+    simp [splitOnPPrepend_cons_eq_ite, splitOnP_cons_eq_ite_splitOnPPrepend, ih]
     split <;> simp <;> congr
 
 @[deprecated splitOnPPrepend_eq_modifyHead (since := "2026-02-26")]
@@ -71,16 +78,20 @@ theorem splitOnP.go_acc {xs acc : List α} :
 theorem splitOnP_ne_nil (p : α → Bool) (xs : List α) : xs.splitOnP p ≠ [] :=
   splitOnPPrepend_ne_nil p xs []
 
-theorem splitOnP_cons_eq_if_modifyHead (x : α) (xs : List α) :
+theorem splitOnP_cons_eq_ite_modifyHead (x : α) (xs : List α) :
     (x :: xs).splitOnP p =
       if p x then [] :: xs.splitOnP p else (xs.splitOnP p).modifyHead (cons x) := by
-  simp [splitOnP_cons_eq_if_splitOnPPrepend, splitOnPPrepend_eq_modifyHead]
+  simp [splitOnP_cons_eq_ite_splitOnPPrepend, splitOnPPrepend_eq_modifyHead]
 
-@[deprecated splitOnP_cons_eq_if_modifyHead (since := "2026-02-26")]
+@[deprecated List.splitOnP_cons_eq_ite_modifyHead (since := "2026-07-21")]
+theorem splitOnP_cons_eq_if_modifyHead {α : Type u_1} {p : α → Bool} (x : α) (xs : List α) : List.splitOnP p (x :: xs) =
+  if p x = Bool.true then [] :: List.splitOnP p xs else List.modifyHead (List.cons x) (List.splitOnP p xs) := List.splitOnP_cons_eq_ite_modifyHead x xs
+
+@[deprecated splitOnP_cons_eq_ite_modifyHead (since := "2026-02-26")]
 theorem splitOnP_cons (x : α) (xs : List α) :
     (x :: xs).splitOnP p =
       if p x then [] :: xs.splitOnP p else (xs.splitOnP p).modifyHead (cons x) :=
-  splitOnP_cons_eq_if_modifyHead x xs
+  splitOnP_cons_eq_ite_modifyHead x xs
 
 /-- The original list `L` can be recovered by flattening the lists produced by `splitOnP p L`,
 interspersed with the elements `L.filter p`. -/
@@ -89,7 +100,7 @@ theorem splitOnP_spec (as : List α) :
   induction as with
   | nil => simp
   | cons a as' ih =>
-    rw [splitOnP_cons_eq_if_modifyHead]
+    rw [splitOnP_cons_eq_ite_modifyHead]
     split <;> simp [*, flatten_zipWith, splitOnP_ne_nil]
 where
   flatten_zipWith {xs ys : List (List α)} {a : α} (hxs : xs ≠ []) (hys : ys ≠ []) :
@@ -103,7 +114,7 @@ theorem splitOnP_eq_singleton (h : ∀ x ∈ xs, p x = false) : xs.splitOnP p = 
   | nil => simp
   | cons hd tl ih =>
     simp only [mem_cons, forall_eq_or_imp] at h
-    simp [splitOnP_cons_eq_if_modifyHead, h.1, ih h.2]
+    simp [splitOnP_cons_eq_ite_modifyHead, h.1, ih h.2]
 
 @[deprecated splitOnP_eq_singleton (since := "2026-02-26")]
 theorem splitOnP_eq_single (h : ∀ x ∈ xs, p x = false) : xs.splitOnP p = [xs] :=
@@ -114,10 +125,10 @@ the result is the concatenation of `splitOnP` called on `xs` and `as` -/
 theorem splitOnP_append_cons (xs as : List α) {sep : α} (hsep : p sep) :
     (xs ++ sep :: as).splitOnP p = List.splitOnP p xs ++ List.splitOnP p as := by
   induction xs with
-  | nil => simp [splitOnP_cons_eq_if_modifyHead, hsep]
+  | nil => simp [splitOnP_cons_eq_ite_modifyHead, hsep]
   | cons hd tl ih =>
     obtain ⟨hd1, tl1, h1'⟩ := List.exists_cons_of_ne_nil (List.splitOnP_ne_nil (p := p) (xs := tl))
-    by_cases hPh : p hd <;> simp [splitOnP_cons_eq_if_modifyHead, *]
+    by_cases hPh : p hd <;> simp [splitOnP_cons_eq_ite_modifyHead, *]
 
 /-- When a list of the form `[...xs, sep, ...as]` is split on `p`, the first element is `xs`,
   assuming no element in `xs` satisfies `p` but `sep` does satisfy `p` -/
@@ -137,10 +148,14 @@ theorem splitOn_eq_splitOnP [BEq α] {x : α} {xs : List α} : xs.splitOn x = xs
 theorem splitOn_ne_nil [BEq α] (a : α) (xs : List α) : xs.splitOn a ≠ [] := by
   simp [splitOn_eq_splitOnP]
 
-theorem splitOn_cons_eq_if_modifyHead [BEq α] {a : α} (x : α) (xs : List α) :
+theorem splitOn_cons_eq_ite_modifyHead [BEq α] {a : α} (x : α) (xs : List α) :
     (x :: xs).splitOn a =
       if x == a then [] :: xs.splitOn a else (xs.splitOn a).modifyHead (cons x) := by
-  simpa [splitOn_eq_splitOnP] using splitOnP_cons_eq_if_modifyHead ..
+  simpa [splitOn_eq_splitOnP] using splitOnP_cons_eq_ite_modifyHead ..
+
+@[deprecated List.splitOn_cons_eq_ite_modifyHead (since := "2026-07-21")]
+theorem splitOn_cons_eq_if_modifyHead {α : Type u_1} [BEq α] {a : α} (x : α) (xs : List α) : List.splitOn a (x :: xs) =
+  if (x == a) = Bool.true then [] :: List.splitOn a xs else List.modifyHead (List.cons x) (List.splitOn a xs) := List.splitOn_cons_eq_ite_modifyHead x xs
 
 /-- If no element satisfies `p` in the list `xs`, then `xs.splitOnP p = [xs]` -/
 theorem splitOn_eq_singleton_of_beq_eq_false [BEq α] {a : α} (h : ∀ x ∈ xs, (x == a) = false) :
@@ -184,7 +199,7 @@ theorem intercalate_splitOn [BEq α] [LawfulBEq α] (x : α) : [x].intercalate (
   induction xs with
   | nil => simp
   | cons hd tl ih =>
-    simp only [splitOn_cons_eq_if_modifyHead, beq_iff_eq]
+    simp only [splitOn_cons_eq_ite_modifyHead, beq_iff_eq]
     split
     · simp_all [intercalate_cons_of_ne_nil, splitOn_ne_nil]
     · have hsp := splitOn_ne_nil x tl

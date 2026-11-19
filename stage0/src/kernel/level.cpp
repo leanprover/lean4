@@ -25,7 +25,6 @@ extern "C" uint8 lean_level_has_param(obj_arg l);
 
 extern "C" object * lean_level_mk_zero(object*);
 extern "C" object * lean_level_mk_succ(obj_arg);
-extern "C" object * lean_level_mk_mvar(obj_arg);
 extern "C" object * lean_level_mk_param(obj_arg);
 extern "C" object * lean_level_mk_max(obj_arg, obj_arg);
 extern "C" object * lean_level_mk_imax(obj_arg, obj_arg);
@@ -34,7 +33,6 @@ level mk_succ(level const & l) { return level(lean_level_mk_succ(l.to_obj_arg())
 level mk_max_core(level const & l1, level const & l2) { return level(lean_level_mk_max(l1.to_obj_arg(), l2.to_obj_arg())); }
 level mk_imax_core(level const & l1, level const & l2) { return level(lean_level_mk_imax(l1.to_obj_arg(), l2.to_obj_arg())); }
 level mk_univ_param(name const & n) { return level(lean_level_mk_param(n.to_obj_arg())); }
-level mk_univ_mvar(name const & n) { return level(lean_level_mk_mvar(n.to_obj_arg())); }
 
 unsigned level::hash() const { return lean_level_hash(to_obj_arg()); }
 unsigned get_depth(level const & l) { return lean_level_depth(l.to_obj_arg()); }
@@ -47,7 +45,7 @@ extern "C" LEAN_EXPORT uint64_t lean_level_mk_data (uint64_t h, object * depth, 
     size_t d = unbox(depth);
     if (d > 16777215)
         lean_internal_panic("universe level depth is too big");
-    uint32_t h1 = h;
+    uint32_t h1 = static_cast<uint32_t>(h);
     return ((uint64_t) h1) + (((uint64_t) hasMVar) << 32) + (((uint64_t) hasParam) << 33) + (((uint64_t)d) << 40);
 }
 
@@ -71,11 +69,6 @@ pair<level, unsigned> to_offset(level l) {
         k++;
     }
     return mk_pair(l, k);
-}
-
-unsigned to_explicit(level const & l) {
-    lean_assert(is_explicit(l));
-    return to_offset(l).second;
 }
 
 level mk_max(level const & l1, level const & l2)  {
@@ -149,10 +142,6 @@ bool operator==(level const & l1, level const & l2) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-extern "C" LEAN_EXPORT uint8 lean_level_eqv(object * l1, object * l2) {
-    return is_equivalent(TO_REF(level, l1), TO_REF(level, l2));
-}
-
 extern "C" LEAN_EXPORT uint8 lean_level_eq(object * l1, object * l2) {
     return TO_REF(level, l1) == TO_REF(level, l2);
 }
@@ -167,6 +156,21 @@ bool is_not_zero(level const & l) {
         return is_not_zero(max_lhs(l)) || is_not_zero(max_rhs(l));
     case level_kind::IMax:
         return is_not_zero(imax_rhs(l));
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+bool normalizes_to_zero(level const & l) {
+    switch (kind(l)) {
+    case level_kind::Zero:
+        return true;
+    case level_kind::Param: case level_kind::MVar: case level_kind::Succ:
+        return false;
+    case level_kind::Max:
+        return normalizes_to_zero(max_lhs(l)) && normalizes_to_zero(max_rhs(l));
+    case level_kind::IMax:
+        // `mk_imax` returns its right argument whenever that argument is `zero`.
+        return normalizes_to_zero(imax_rhs(l));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -210,25 +214,6 @@ bool is_lt(levels const & as, levels const & bs, bool use_hash) {
         return is_lt(car(as), car(bs), use_hash);
 }
 
-bool levels_has_param(b_obj_arg ls) {
-    while (!is_scalar(ls)) {
-        if (lean_level_has_param(cnstr_get(ls, 0))) return true;
-        ls = cnstr_get(ls, 1);
-    }
-    return false;
-}
-
-bool levels_has_mvar(b_obj_arg ls) {
-    while (!is_scalar(ls)) {
-        if (lean_level_has_mvar(cnstr_get(ls, 0))) return true;
-        ls = cnstr_get(ls, 1);
-    }
-    return false;
-}
-
-bool has_param(levels const & ls) { return levels_has_param(ls.raw()); }
-bool has_mvar(levels const & ls) { return levels_has_mvar(ls.raw()); }
-
 void for_each_level_fn::apply(level const & l) {
     if (!m_f(l))
         return;
@@ -259,16 +244,6 @@ level replace_level_fn::apply(level const & l) {
         return l;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-bool occurs(level const & u, level const & l) {
-    bool found = false;
-    for_each(l, [&](level const & l) {
-            if (found) return false;
-            if (l == u) { found = true; return false; }
-            return true;
-        });
-    return found;
 }
 
 optional<name> get_undef_param(level const & l, names const & ps) {
@@ -413,13 +388,13 @@ void push_max_args(level const & l, buffer<level> & r) {
 
 level mk_max(buffer<level> const & args) {
     lean_assert(!args.empty());
-    unsigned nargs = args.size();
+    size_t nargs = args.size();
     if (nargs == 1) {
         return args[0];
     } else {
         lean_assert(nargs >= 2);
         level r = mk_max(args[nargs-2], args[nargs-1]);
-        unsigned i = nargs-2;
+        size_t i = nargs-2;
         while (i > 0) {
             --i;
             r = mk_max(args[i], r);
@@ -459,7 +434,7 @@ level normalize(level const & l) {
         std::sort(args.begin(), args.end(), is_norm_lt);
         buffer<level> & rargs = todo;
         rargs.clear();
-        unsigned i = 0;
+        size_t i = 0;
         if (is_explicit(args[i])) {
             // find max explicit univierse
             while (i+1 < args.size() && is_explicit(args[i+1]))
@@ -467,7 +442,7 @@ level normalize(level const & l) {
             lean_assert(is_explicit(args[i]));
             unsigned k = to_offset(args[i]).second;
             // an explicit universe k is subsumed by succ^k(l)
-            unsigned j = i+1;
+            size_t j = i+1;
             for (; j < args.size(); j++) {
                 if (to_offset(args[j]).second >= k)
                     break;

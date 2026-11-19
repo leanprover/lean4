@@ -9,7 +9,7 @@ prelude
 public import Std.Data.DTreeMap.Internal.Model
 import all Std.Data.Internal.List.Associative
 import Init.Data.List.Impl
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Option.List
 import Init.Data.Subtype.Basic
 
@@ -1028,7 +1028,7 @@ theorem ordered_insertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl
 theorem toListModel_insertIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
     {l : Impl α β} (hlb : l.Balanced) (hlo : l.Ordered) :
     (l.insertIfNew k v hlb).impl.toListModel.Perm (insertEntryIfNew k v l.toListModel) := by
-  simp only [Impl.insertIfNew, insertEntryIfNew, cond_eq_ite, contains_eq_containsKey hlo]
+  simp only [Impl.insertIfNew, insertEntryIfNew, contains_eq_containsKey hlo]
   split
   · rfl
   · refine (toListModel_insert hlb hlo).trans ?_
@@ -1119,7 +1119,7 @@ theorem filter_eq_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a
 theorem toListModel_filter [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Bool} :
     (t.filter f h).impl.toListModel = t.toListModel.filter (fun e => f e.1 e.2) := by
   rw [filter_eq_filterMap, toListModel_filterMap, ← List.filterMap_eq_filter]
-  congr; simp only [Option.map_if, Option.guard_def]
+  congr; simp only [Option.map_ite, Option.guard_def]
 
 theorem ordered_filter [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Bool} (hto : t.Ordered) :
     (t.filter f h).impl.Ordered := by
@@ -1413,7 +1413,7 @@ theorem toListModel_alterₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
     cases f none <;> rfl
   · simp only [Cell.Const.alter, Cell.ofOption, Const.alterKey, Option.toList_some]
     have := OrientedCmp.eq_symm <| hl l rfl
-    simp only [getValue?, compare_eq_iff_beq.mp this, cond_eq_ite, reduceIte]
+    simp only [getValue?, compare_eq_iff_beq.mp this, reduceIte]
     cases f _
     · simp [eraseKey, compare_eq_iff_beq.mp this]
     · simp [insertEntry, containsKey, replaceEntry, compare_eq_iff_beq.mp this]

@@ -107,7 +107,7 @@ theorem toNat_digitChar_sub_48_of_lt_ten {n : Nat} (hn : n < 10) : n.digitChar.t
 private theorem isDigit_of_mem_toDigitsCore
     (hc : c ∈ cs → c.isDigit) (hb₁ : 0 < b) (hb₂ : b ≤ 10) (h : c ∈ toDigitsCore b fuel n cs) :
     c.isDigit := by
-  induction fuel generalizing n cs with rw [toDigitsCore] at h
+  induction fuel generalizing n cs with simp only [toDigitsCore] at h
   | zero => exact hc h
   | succ _ ih =>
     split at h
@@ -162,7 +162,7 @@ private theorem toDigitsCore_toDigitsCore
   cases fuel with
   | zero => contradiction
   | succ fuel =>
-    rw [toDigitsCore]
+    simp only [toDigitsCore]
     split
     case isTrue h =>
       have : b ≤ b * n + d := Nat.le_trans (Nat.le_mul_of_pos_right _ hn) (le_add_right _ _)
@@ -186,16 +186,19 @@ theorem toDigits_of_base_le (hb : 1 < b) (h : b ≤ n) :
     ← toDigits_append_toDigits (by omega) (Nat.div_pos_iff.mpr (by omega)) (Nat.mod_lt n (by omega))]
   rw [toDigits_of_lt_base (n := n % b) (Nat.mod_lt n (by omega))]
 
-theorem toDigits_eq_if (hb : 1 < b) :
+theorem toDigits_eq_ite (hb : 1 < b) :
     toDigits b n = if n < b then [digitChar n] else toDigits b (n / b) ++ [digitChar (n % b)] := by
   split
   · rw [toDigits_of_lt_base ‹_›]
   · rw [toDigits_of_base_le hb (by omega)]
 
+@[deprecated Nat.toDigits_eq_ite (since := "2026-07-21")]
+theorem toDigits_eq_if {b : Nat} {n : Nat} (hb : 1 < b) : b.toDigits n = if n < b then [n.digitChar] else b.toDigits (n / b) ++ [(n % b).digitChar] := Nat.toDigits_eq_ite hb
+
 theorem length_toDigits_pos {b n : Nat} :
     0 < (Nat.toDigits b n).length := by
   simp [toDigits]
-  rw [toDigitsCore]
+  simp only [toDigitsCore]
   split
   · simp
   · rw [toDigitsCore_eq_toDigitsCore_nil_append]
@@ -212,10 +215,10 @@ theorem length_toDigits_le_iff {n k : Nat} (hb : 1 < b) (h : 0 < k) :
   | 0 => contradiction
   | k + 1 =>
     induction k generalizing n
-    · rw [toDigits_eq_if hb]
+    · rw [toDigits_eq_ite hb]
       split <;> simp [*, length_toDigits_pos, ← Nat.pos_iff_ne_zero, - List.length_eq_zero_iff]
     · rename_i ih
-      rw [toDigits_eq_if hb]
+      rw [toDigits_eq_ite hb]
       split
       · rename_i hlt
         simp [Nat.pow_add]

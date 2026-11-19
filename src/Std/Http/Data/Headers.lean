@@ -24,7 +24,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Std Internal
+open Std Std.Internal Http.Internal
 
 /--
 A structure for managing HTTP headers as key-value pairs.
@@ -36,7 +36,7 @@ structure Headers where
   /--
   The underlying multimap that stores headers.
   -/
-  map : IndexMultiMap Header.Name Header.Value
+  map : MultiMap Header.Name Header.Value
 deriving Inhabited, Repr
 
 instance : Membership Header.Name Headers where
@@ -147,7 +147,7 @@ def empty : Headers :=
 Creates headers from a list of key-value pairs.
 -/
 def ofList (pairs : List (Header.Name × Header.Value)) : Headers :=
-  { map := IndexMultiMap.ofList pairs }
+  { map := MultiMap.ofList pairs }
 
 /--
 Checks if a header with the given name exists.
@@ -162,6 +162,15 @@ Removes a header with the given name.
 @[inline]
 def erase (headers : Headers) (name : Header.Name) : Headers :=
   { map := headers.map.erase name }
+
+/--
+Removes all headers whose names appear in `names`.
+Names not present are ignored. Cheaper than chaining `erase` calls because
+the headers are filtered once in total rather than once per `erase` call.
+-/
+@[inline]
+def eraseMany (headers : Headers) (names : Array Header.Name) : Headers :=
+  { map := headers.map.eraseMany names }
 
 /--
 Gets the number of headers.
@@ -208,7 +217,7 @@ Maps a function over all header values, producing new headers.
 -/
 def mapValues (headers : Headers) (f : Header.Name → Header.Value → Header.Value) : Headers :=
   let pairs := headers.map.toArray.map (fun (k, v) => (k, f k v))
-  { map := pairs.foldl (fun acc (k, v) => acc.insert k v) IndexMultiMap.empty }
+  { map := pairs.foldl (fun acc (k, v) => acc.insert k v) MultiMap.empty }
 
 /--
 Filters and maps over header key-value pairs. Returns only the pairs for which the function returns `some`.
@@ -218,7 +227,7 @@ def filterMap (headers : Headers) (f : Header.Name → Header.Value → Option H
     match f k v with
     | some v' => some (k, v')
     | none => none)
-  { map := pairs.foldl (fun acc (k, v) => acc.insert k v) IndexMultiMap.empty }
+  { map := pairs.foldl (fun acc (k, v) => acc.insert k v) MultiMap.empty }
 
 /--
 Filters header key-value pairs, keeping only those that satisfy the predicate.
@@ -246,9 +255,7 @@ instance : ToString Headers where
     String.intercalate "\r\n" pairs.toList
 
 instance : Encode .v11 Headers where
-  encode buffer headers :=
-    headers.fold buffer (fun buf name value =>
-      buf.writeString s!"{name}: {value}\r\n")
+  encode out headers := headers.fold out appendFieldLine
 
 instance : EmptyCollection Headers :=
   ⟨Headers.empty⟩

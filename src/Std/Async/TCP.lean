@@ -27,6 +27,15 @@ structure Server where
     native : Internal.UV.TCP.Socket
 
 /--
+The keep-alive delay in seconds, which has to fit in a `UInt32`.
+-/
+private def keepAliveDelay (delay : Std.Time.Second.Offset) : IO UInt32 := do
+  let seconds := delay.val.toNat
+  if seconds < UInt32.size then
+    return seconds.toUInt32
+  throw <| IO.userError s!"keep-alive delay of {seconds} s is too large"
+
+/--
 Represents a TCP client socket, used to connect to a server.
 -/
 structure Client where
@@ -86,24 +95,29 @@ def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
       s.tryAccept
 
     registerFn waiter := do
-      let task ← s.native.accept
+      let ready ← s.native.waitAcceptable
 
       -- If we get cancelled the promise will be dropped so prepare for that
-      IO.chainTask (t := task.result?) fun res => do
-        match res with
-        | none => return ()
+      IO.chainTask (t := ready.result?) fun
+        | none => pure ()
         | some res =>
-          let lose := return ()
-          let win promise := do
-            try
-              let result ← IO.ofExcept res
-              promise.resolve (.ok (Client.ofNative result))
-            catch e =>
-              promise.resolve (.error e)
-          waiter.race lose win
+          waiter.race (lose := pure ()) fun promise => do
+            -- A connection is pending, so this accept does not wait.
+            match ← (do IO.ofExcept res; s.tryAccept).toBaseIO with
+            | .ok (some client) => promise.resolve (.ok client)
+            | .ok none => promise.resolve (.error (.userError "the pending connection was accepted concurrently"))
+            | .error e => promise.resolve (.error e)
 
     unregisterFn := s.native.cancelAccept
   }
+
+/--
+Closes the server socket: it stops listening, a pending accept fails, and so does every later
+operation. Closing twice does nothing.
+-/
+@[inline]
+def close (s : Server) : IO Unit :=
+  s.native.close
 
 /--
 Gets the local address of the server socket.
@@ -123,8 +137,8 @@ def noDelay (s : Server) : IO Unit :=
 Enables TCP keep-alive for all client sockets accepted by this server socket.
 -/
 @[inline]
-def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit :=
-  s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
+def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit := do
+  s.native.keepAlive enable.toInt8 (← keepAliveDelay delay)
 
 end Server
 
@@ -154,14 +168,16 @@ def connect (s : Client) (addr : SocketAddress) : Async Unit :=
   Async.ofPromise <| s.native.connect addr
 
 /--
-Sends multiple data buffers through the client socket.
+Sends multiple data buffers through the client socket. Throws an `IO.Error.invalidArgument` if a
+buffer is 4 GiB or larger.
 -/
 @[inline]
 def sendAll (s : Client) (data : Array ByteArray) : Async Unit :=
   Async.ofPromise <| s.native.send data
 
 /--
-Sends data through the client socket.
+Sends data through the client socket. Throws an `IO.Error.invalidArgument` if `data` is 4 GiB or
+larger.
 -/
 @[inline]
 def send (s : Client) (data : ByteArray) : Async Unit :=
@@ -172,6 +188,8 @@ Receives data from the client socket. If data is received, it’s wrapped in .so
 the result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
+
+Throws an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB.
 -/
 @[inline]
 def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
@@ -180,7 +198,8 @@ def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
 and provides that data. Calling this function does not starts the data wait, so it must not be called
-in parallel with `recv?`.
+in parallel with `recv?`. Fails with an `IO.Error.invalidArgument` if `size` is 0 or at least 4 GiB,
+like `recv?`.
 -/
 def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option ByteArray) :=
   {
@@ -188,8 +207,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
       let readableWaiter ← s.native.waitReadable
 
       if ← readableWaiter.isResolved then
-        -- We know that this read should not block
-        let res ← (s.recv? size).block
+        let res ← s.recv? size
         return some res
       else
         s.native.cancelRecv
@@ -207,9 +225,8 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
           let win promise := do
             try
               discard <| IO.ofExcept res
-              -- We know that this read should not block
-              let res ← (s.recv? size).block
-              promise.resolve (.ok res)
+              let readPromise ← s.native.recv? size
+              discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win
@@ -223,6 +240,14 @@ Shuts down the write side of the client socket.
 @[inline]
 def shutdown (s : Client) : Async Unit :=
   Async.ofPromise <| s.native.shutdown
+
+/--
+Closes the client socket. Pending operations fail, and so does every later one. Writes still in
+flight are cancelled, so the peer may receive only part of them. Closing twice does nothing.
+-/
+@[inline]
+def close (s : Client) : IO Unit :=
+  s.native.close
 
 /--
 Gets the remote address of the client socket.
@@ -249,8 +274,8 @@ def noDelay (s : Client) : IO Unit :=
 Enables TCP keep-alive with a specified delay for the client socket.
 -/
 @[inline]
-def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 0 := by decide) : IO Unit :=
-  s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
+def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 0 := by decide) : IO Unit := do
+  s.native.keepAlive enable.toInt8 (← keepAliveDelay delay)
 
 end Client
 end Socket

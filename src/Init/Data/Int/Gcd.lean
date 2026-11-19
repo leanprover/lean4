@@ -147,8 +147,12 @@ theorem ediv_gcd_ne_zero_of_ne_zero_left (b : Int) (h : a ≠ 0) : a / gcd a b �
   rw [← natAbs_pos, natAbs_ediv_of_dvd (gcd_dvd_left _ _), natAbs_natCast]
   exact natAbs_div_gcd_pos_of_ne_zero_left _ h
 
-theorem ediv_gcd_ne_zero_if_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 := by
+theorem ediv_gcd_ne_zero_of_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 := by
   simpa [gcd_comm] using ediv_gcd_ne_zero_of_ne_zero_left a h
+
+@[deprecated ediv_gcd_ne_zero_of_ne_zero_right (since := "2026-07-21")]
+theorem ediv_gcd_ne_zero_if_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 :=
+  ediv_gcd_ne_zero_of_ne_zero_right a h
 
 theorem eq_zero_of_gcd_eq_zero_left (h : gcd a b = 0) : a = 0 :=
   natAbs_eq_zero.1 (Nat.eq_zero_of_gcd_eq_zero_left h)

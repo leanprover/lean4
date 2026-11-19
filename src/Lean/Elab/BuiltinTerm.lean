@@ -157,11 +157,12 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
-register_builtin_option tactic.tryOnEmptyBy : Bool := {
-  defValue := false
-  descr    := "when an empty `by` block is encountered interactively, run `try?` to suggest \
-    a proof (currently disabled by default; may become the default in a future release)"
-}
+@[builtin_term_elab «waitForExpectedType»] def elabWaitForExpectedType : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_for_expected_type% $e) =>
+    tryPostponeIfNoneOrMVar expectedType?
+    elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
 
 /-- Returns `true` if `stx` is a `by` expression with an empty tactic body
 (not a parse error producing `.missing`).
@@ -174,20 +175,7 @@ def isEmptyByBlock (stx : Syntax) : Bool :=
   stx[1][0][0].getNumArgs == 0 &&
   !stx[1][0][0].isMissing
 
-/-- Returns `true` if all conditions are met for empty `by` to be elaborated as `try?`:
-the body is empty, the option is enabled, we are in an interactive (non-combinator) context,
-and the `try?` infrastructure (parser `Lean.Parser.Tactic.tryTrace`) is available — the latter
-matters when working on the prelude, before `Init.Try` is imported. -/
-def shouldElabEmptyByAsTry (stx : Syntax) : TermElabM Bool := do
-  return isEmptyByBlock stx
-    && tactic.tryOnEmptyBy.get (← getOptions)
-    && (← read).errToSorry
-    && (← getEnv).contains `Lean.Parser.Tactic.tryTrace
-
-/-- Body of the `byTactic` term elaborator: registers a tactic mvar for the body, or
-errors when there's no expected type. Shared between `elabByTactic` and
-`Lean.Elab.Tactic.Try`'s `elabEmptyByAsTry` so the two paths can't drift. -/
-def elabByTacticCore : TermElab := fun stx expectedType? => do
+@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
     -- `by` switches from an exported to a private context, so we must disallow unassigned
@@ -197,13 +185,6 @@ def elabByTacticCore : TermElab := fun stx expectedType? => do
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
-
-@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
-  -- When the conditions for `try?` on empty `by` are met, skip this elaborator so a later one
-  -- (in Lean.Elab.Tactic.Try) can handle it with try?.
-  if (← shouldElabEmptyByAsTry stx) then
-    throwUnsupportedSyntax
-  elabByTacticCore stx expectedType?
 
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
@@ -219,20 +200,18 @@ def elabByTacticCore : TermElab := fun stx expectedType? => do
   | some val => pure $ mkStrLit val
   | none     => throwIllFormedSyntax
 
-private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr := do
-  let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
+private def mkLitTypeFor (expectedType? : Option Expr) : TermElabM Expr := do
   match expectedType? with
-  | some expectedType => discard <| isDefEq expectedType typeMVar
-  | _                 => pure ()
-  return typeMVar
+  | some expectedType => return expectedType
+  | none => mkFreshTypeMVar MetavarKind.synthetic
 
 @[builtin_term_elab num] def elabNumLit : TermElab := fun stx expectedType? => do
   let val ← match stx.isNatLit? with
     | some val => pure val
     | none     => throwIllFormedSyntax
-  let typeMVar ← mkFreshTypeMVarFor expectedType?
+  let type ← mkLitTypeFor expectedType?
   let u ← try
-    getDecLevel typeMVar
+    getDecLevel type
   catch ex =>
     match expectedType? with
     | some expectedType =>
@@ -241,9 +220,9 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
       else
         throwError m!"numerals are data in Lean, but the expected type is universe polymorphic and may be a proposition{indentExpr expectedType} : {← inferType expectedType}"
     | none => throw ex
-  let extraMsg := m!"numerals are polymorphic in Lean, but the numeral `{val}` cannot be used in a context where the expected type is{indentExpr typeMVar}\ndue to the absence of the instance above"
-  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val)) extraMsg
-  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
+  let extraMsg := m!"numerals are polymorphic in Lean, but the numeral `{val}` cannot be used in a context where the expected type is{indentExpr type}\ndue to the absence of the instance above"
+  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) type (mkRawNatLit val)) extraMsg
+  let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) type (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
@@ -257,10 +236,10 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   match stx.isScientificLit? with
   | none        => throwIllFormedSyntax
   | some (m, sign, e) =>
-    let typeMVar ← mkFreshTypeMVarFor expectedType?
-    let u ← getDecLevel typeMVar
-    let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
-    let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
+    let type ← mkLitTypeFor expectedType?
+    let u ← getDecLevel type
+    let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) type)
+    let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) type mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
     registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
     return r
 
@@ -278,6 +257,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   -- Always allow quoting private names.
   withoutExporting do
     let n ← realizeGlobalConstNoOverloadWithInfo stx[2]
+    withRef stx[2] <| checkDeprecatedCore n
     recordExtraModUseFromDecl (isMeta := false) n
     return toExpr n
 
@@ -393,7 +373,12 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+    -- The auxiliary definitions `wrapInstance` introduces bridge `type` and `expectedType`, so their
+    -- bodies are only well-typed when the definitions whose unfolding the bridge requires are
+    -- exposed (#14147).
+    let exposedDefEq ← withExporting <| isDefEqGuarded type expectedType
     wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+      (exposeAux := exposedDefEq)
   else
     pure inst
   ensureHasType expectedType? inst
@@ -421,8 +406,9 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   try
     pushScope
     let openDecls ← elabOpenDecl decl
+      (reportDeprecated := fun idStx declName => checkDeprecatedOpenedName idStx declName)
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      elabTerm e expectedType?
+      withSaveInfoContext <| elabTerm e expectedType?
   finally
     popScope
 
@@ -431,7 +417,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
-      elabTerm stx[5] expectedType?
+      withSaveInfoContext <| elabTerm stx[5] expectedType?
     finally
       if stx[1].getId == `diagnostics then
         reportDiag

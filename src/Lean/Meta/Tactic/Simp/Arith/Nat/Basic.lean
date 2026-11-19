@@ -10,9 +10,9 @@ public import Lean.Meta.KExprMap
 import Lean.Data.RArray
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Offset
-public import Init.Data.Nat.Linear
+public import Init.Data.Nat.Internal.Linear
 public section
-namespace Nat.Linear
+namespace Nat.Internal.Linear
 
 /-- Applies the given variable permutation to `e` -/
 def Expr.applyPerm (perm : Lean.Perm) (e : Expr) : Expr :=
@@ -29,20 +29,20 @@ where
 def ExprCnstr.applyPerm (perm : Lean.Perm) : ExprCnstr → ExprCnstr
   | { eq, lhs, rhs } => { eq, lhs := lhs.applyPerm perm, rhs := rhs.applyPerm perm }
 
-end Nat.Linear
+end Nat.Internal.Linear
 
 namespace Lean.Meta.Simp.Arith.Nat
 
-deriving instance Repr for Nat.Linear.Expr
-deriving instance Repr for Nat.Linear.ExprCnstr
-deriving instance Repr for Nat.Linear.PolyCnstr
+deriving instance Repr for Nat.Internal.Linear.Expr
+deriving instance Repr for Nat.Internal.Linear.ExprCnstr
+deriving instance Repr for Nat.Internal.Linear.PolyCnstr
 
-abbrev LinearExpr  := Nat.Linear.Expr
-abbrev LinearCnstr := Nat.Linear.ExprCnstr
-abbrev PolyExpr := Nat.Linear.Poly
+abbrev LinearExpr  := Nat.Internal.Linear.Expr
+abbrev LinearCnstr := Nat.Internal.Linear.ExprCnstr
+abbrev PolyExpr := Nat.Internal.Linear.Poly
 
 def LinearExpr.toExpr (e : LinearExpr) : Expr :=
-  open Nat.Linear.Expr in
+  open Nat.Internal.Linear.Expr in
   match e with
   | num v    => mkApp (mkConst ``num) (mkNatLit v)
   | var i    => mkApp (mkConst ``var) (mkNatLit i)
@@ -52,16 +52,16 @@ def LinearExpr.toExpr (e : LinearExpr) : Expr :=
 
 instance : ToExpr LinearExpr where
   toExpr a := a.toExpr
-  toTypeExpr := mkConst ``Nat.Linear.Expr
+  toTypeExpr := mkConst ``Nat.Internal.Linear.Expr
 
 protected def LinearCnstr.toExpr (c : LinearCnstr) : Expr :=
-   mkApp3 (mkConst ``Nat.Linear.ExprCnstr.mk) (toExpr c.eq) (LinearExpr.toExpr c.lhs) (LinearExpr.toExpr c.rhs)
+   mkApp3 (mkConst ``Nat.Internal.Linear.ExprCnstr.mk) (toExpr c.eq) (LinearExpr.toExpr c.lhs) (LinearExpr.toExpr c.rhs)
 
 instance : ToExpr LinearCnstr where
   toExpr a   := a.toExpr
-  toTypeExpr := mkConst ``Nat.Linear.ExprCnstr
+  toTypeExpr := mkConst ``Nat.Internal.Linear.ExprCnstr
 
-open Nat.Linear.Expr in
+open Nat.Internal.Linear.Expr in
 def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
   match e with
   | num v    => return mkNatLit v
@@ -84,7 +84,7 @@ structure State where
 
 abbrev M := StateRefT State MetaM
 
-open Nat.Linear.Expr
+open Nat.Internal.Linear.Expr
 
 def addAsVar (e : Expr) : M LinearExpr := do
   if let some x ← (← get).varMap.find? e then
@@ -144,16 +144,20 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
     return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
   | Nat.lt a b =>
     return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
-  | LE.le _ i a b =>
+  | LE.le α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLENat i)
     return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
-  | LT.lt _ i a b =>
+  | LT.lt α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLTNat i)
     return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
-  | GE.ge _ i a b =>
+  | GE.ge α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLENat i)
     return { eq := false, lhs := (← toLinearExpr b), rhs := (← toLinearExpr a) }
-  | GT.gt _ i a b =>
+  | GT.gt α i a b =>
+    let_expr Nat ← α | failure
     guard (← DefEq.isInstLTNat i)
     return { eq := false, lhs := (← toLinearExpr b).inc, rhs := (← toLinearExpr a) }
   | _ => failure

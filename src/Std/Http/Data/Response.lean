@@ -89,17 +89,9 @@ instance : ToString Head where
     toString r.headers ++
     "\r\n"
 
-open Internal in
+open Std.Http.Internal in
 instance : Encode .v11 Head where
-  encode buffer r :=
-    let buffer := Encode.encode (v := .v11) buffer r.version
-    let buffer := buffer.writeChar ' '
-    let buffer := buffer.writeString (toString r.status.toCode)
-    let buffer := buffer.writeChar ' '
-    let buffer := buffer.writeString r.status.reasonPhrase
-    let buffer := buffer.writeString "\r\n"
-    let buffer := Encode.encode (v := .v11) buffer r.headers
-    buffer.writeString "\r\n"
+  encode out r := out ++ r.version ++ ' ' ++ r.status ++ "\r\n" ++ r.headers ++ "\r\n"
 
 /--
 Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1).

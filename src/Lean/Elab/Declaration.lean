@@ -135,8 +135,8 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
         if isExtern (← getEnv) declName then
           compileDecl decl
-        if let some (doc, isVerso) := docString? then
-          addDocStringOf isVerso declName binders doc
+        if let some doc := docString? then
+          addDocString declName binders doc
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
         withSaveInfoContext do  -- save new env with docstring and decl
           Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
@@ -312,7 +312,7 @@ def elabMutual : CommandElab := fun stx => do
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
-  for ident in idents do withRef ident <| liftTermElabM do
+  for ident in idents, k in [0:idents.size] do withRef ident <| liftTermElabM do
     /-
     HACK to allow `attribute` command to disable builtin simprocs.
     TODO: find a better solution. Example: have some "fake" declaration
@@ -328,11 +328,29 @@ def elabMutual : CommandElab := fun stx => do
         else
           throwUnknownConstantAt ident name
     let declName ← ensureNonAmbiguous ident declNames
+    let automationAttrs ← attrs.filterM (isAutomationAttr ·.name)
+    -- Tagging a deprecated declaration with an automation attribute is reported below instead
+    let isDeprecated := Linter.isDeprecated (← getEnv) declName || attrs.any (·.name == `deprecated)
+    unless attrs.isEmpty || (isDeprecated && !automationAttrs.isEmpty) do
+      Linter.checkDeprecatedAt ident declName
     withExporting (isExporting := !isPrivateName declName && attrs.any (·.kind != .local)) do
       recordExtraModUseFromDecl (isMeta := false) declName
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName
+    for attr in automationAttrs do
+      let insts := stx[2].getSepArgs
+      -- Removing the attribute would also remove it from the other declarations, and removing the
+      -- declaration would also remove the other attributes from it
+      let removal? ← if idents.size == 1 then
+          match insts.findIdx? (·[1].getRange? == attr.stx.getRange?) with
+          | some i => Linter.mkListRemovalSuggestion stx insts i
+          | none => pure none
+        else if insts.size == 1 then
+          Linter.mkListRemovalSuggestion stx idents k
+        else
+          pure none
+      Linter.checkDeprecatedAutomationAttr attr.stx declName attr.name removal?
     if (← getEnv).isImportedConst declName then
       if let some attr := attrs.find? (·.kind != .local) then
         -- If an imported declaration is marked with a non-local attribute, Shake must be informed
@@ -359,8 +377,10 @@ def elabMutual : CommandElab := fun stx => do
         @[no_expose] private $[meta%$meta?]? $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
-      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[meta%$meta?]? $[unsafe%$unsafe?]?) := declModifiers
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[meta%$meta?]? $[unsafe%$unsafe?]?) := declModifiers
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+      if let some vis := vis? then
+        logWarningAt vis "visibility modifiers have no effect on unnamed initialize blocks"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
       elabCommand (← `($[$doc?:docComment]? @[no_expose, $[$attrs],*] private $[meta%$meta?]? $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))

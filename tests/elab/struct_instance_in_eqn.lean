@@ -1,6 +1,6 @@
 
 
-structure S :=
+structure S where
 (x : Nat) (y : Bool) (z : Nat) (w : Nat)
 
 def g : S → S

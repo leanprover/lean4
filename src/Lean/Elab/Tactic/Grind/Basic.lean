@@ -8,6 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Elab.DeprecatedSyntax.Basic
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Simp.SimpM
@@ -41,7 +42,8 @@ structure SimpCacheKey where
 structure DSimpArgs where
   fvarIds : Array FVarId := #[]
   zetaDeltaAll : Bool := false
-  -- TODO: rfl-theorems and declarations to unfold
+  /-- Global declarations: definitions to unfold and `rfl`-theorems to rewrite with. -/
+  declNames : Array Name := #[]
   deriving BEq, Hashable
 
 /-- Cache key for `Sym.dsimp` variant invocations. -/
@@ -135,6 +137,17 @@ def mkInitialTacticInfo (stx : Syntax) : GrindTacticM (GrindTacticM Info) := do
 @[inline] def withTacticInfoContext (stx : Syntax) (x : GrindTacticM α) : GrindTacticM α := do
   withInfoContext x (← mkInitialTacticInfo stx)
 
+/--
+Warns if the kind of `stx` is deprecated and, in that case, runs `x` reporting deprecations only in
+user-written syntax, so that the expansion of a deprecated tactic is not reported as well. Must run
+inside the info tree context of the tactic, as the warning may come with a code action.
+-/
+private def withDeprecatedSyntaxCheck (stx : Syntax) (x : GrindTacticM α) : GrindTacticM α := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x
+  Term.reportDeprecatedSyntax stx
+  Term.withoutCheckDeprecatedSynthetic x
+
 structure EvalTacticFailure where
   exception : Exception
   state     : SavedState
@@ -151,7 +164,7 @@ partial def evalGrindTactic (stx : Syntax) : GrindTacticM Unit := do
         let evalFns := grindTacElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "Grind tactic `{stx.getKind}` has not been implemented"
+          throwNotAccepted m!"Grind tactic `{stx.getKind}` has not been implemented"
         let s ← Grind.saveState
         expandEval s macros evalFns #[]
     | .missing => pure ()
@@ -164,7 +177,18 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception
      else
-       throwErrorAt stx "Unexpected syntax{indentD stx}"
+       throwNotAccepted m!"Unexpected syntax{indentD stx}"
+
+    /--
+    Throws `msg` at `stx`, which no macro or elaborator accepted, after warning if `stx` is
+    deprecated, as `withDeprecatedSyntaxCheck` did not run or its warning was backtracked.
+    -/
+    throwNotAccepted (msg : MessageData) : GrindTacticM Unit := do
+      unless isDeprecatedSyntax (← getEnv) stx.getKind do
+        throwErrorAt stx msg
+      withTacticInfoContext stx do
+        Term.reportDeprecatedSyntax stx
+        throwErrorAt stx msg
 
     @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → GrindTacticM Unit) := do
       match ex with
@@ -191,7 +215,7 @@ where
       | m :: ms =>
         try
           withReader ({ · with elaborator := m.declName }) do
-            withTacticInfoContext stx do
+            withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
               let stx' ← adaptMacro m.value stx
               evalGrindTactic stx'
         catch ex => handleEx s failures ex (expandEval s ms evalFns)
@@ -203,7 +227,7 @@ where
         try
           Term.withoutTacticIncrementality true do
           withReader ({ · with elaborator := evalFn.declName }) do
-          withTacticInfoContext stx do
+          withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
             evalFn.value stx
         catch ex => handleEx s failures ex (eval s evalFns)
 
@@ -324,7 +348,7 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
   catch _ =>
     pure false
 
-open Grind
+open Lean.Meta.Grind
 
 /-
 **Note**: Recall that `grind` uses the reducibility specified at `Config.reducible`
@@ -335,6 +359,16 @@ def liftGrindM (k : GrindM α) : GrindTacticM α := do
   let ((a, grindState), symState) ← liftMetaM <| StateRefT'.run (((Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.grindState) ctx.sctx) s.symState
   modify fun s => { s with grindState, symState }
   return a
+
+/-- Lifts a `SymM` computation into `GrindTacticM`. -/
+def liftSymM (k : Sym.SymM α) : GrindTacticM α := do
+  -- GrindM := ... Sym.SymM, so SymM auto-lifts to GrindM
+  liftGrindM k
+
+/-- Throws an error unless the tactic is being executed in `sym =>` mode. -/
+def ensureSym : GrindTacticM Unit := do
+  unless (← read).sym do
+    throwError "tactic is only available in `sym =>` mode"
 
 def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
   let goals := goals.filter fun goal => !goal.inconsistent
@@ -401,7 +435,16 @@ def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
 def GrindTacticM.run (x : GrindTacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
   x ctx |>.run s
 
-def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+/--
+Creates the evaluator used to replay `grind` scripts from `GrindM` (e.g., `Action.checkSeqAt`).
+The returned function runs a script at the given goal in a fresh `GrindTacticM` context and
+returns the remaining goals.
+
+The context must mirror the one the script will run in when pasted by the user. In particular,
+`sym` must be set in `sym =>` mode, otherwise scripts containing `sym`-only steps such as
+`intros` and `by_contra` are rejected.
+-/
+def mkEvalTactic' (elaborator : Name) (params : Params) (sym : Bool) : TermElabM (Goal → TSyntax `grind → GrindM (List Goal)) := do
   let termState ← getThe Term.State
   let termCtx ← readThe Term.Context
   let eval (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
@@ -413,7 +456,7 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
     -- **Note**: we discard changes to `Term.State`
     let (subgoals, grindState', symState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
       let (_, s) ← GrindTacticM.run
-            (ctx := { recover := false, methods, ctx := grindCtx, sctx := symCtx, params, elaborator })
+            (ctx := { recover := false, methods, ctx := grindCtx, sctx := symCtx, params, elaborator, sym })
             (s := { grindState, symState, goals := [goal] }) do
         evalGrindTactic stx.raw
         pruneSolvedGoals
@@ -423,23 +466,28 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
     return subgoals
   return eval
 
-def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
-  mkEvalTactic' (← read).elaborator params
+def mkEvalTactic (params : Params) (sym : Bool := false) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+  mkEvalTactic' (← read).elaborator params sym
 
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) (sym : Bool := false) : TacticM (α × State) := do
-  let evalTactic ← mkEvalTactic params
+  let evalTactic ← mkEvalTactic params sym
   /-
   **Note**: We don't want to close branches using `sorry` after applying `intros + assertAll`.
   Reconsider the option `useSorry`.
   -/
-  let params' := { params with config.useSorry := false }
+  let params' := { params with config.useSorry := false, interactive := true }
   let (methods, ctx, sctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
       let goals ←
         if sym then
-          /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
-             Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
-          let mvarId ← Sym.preprocessMVar goal.mvarId
-          pure [{ goal with mvarId }]
+          if goal.inconsistent then
+            /- The goal was already closed while preprocessing the hypotheses, and `goal.mvarId`
+               has been assigned. `Sym.preprocessMVar` would clobber that assignment. -/
+            pure []
+          else
+            /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
+               Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
+            let mvarId ← Sym.preprocessMVar goal.mvarId
+            pure [{ goal with mvarId }]
         else
           let a : Action := Action.intros 0 >> Action.assertAll
           match (← a.run goal) with

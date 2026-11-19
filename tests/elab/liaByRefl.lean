@@ -1,6 +1,6 @@
 import Lean
 
-open Int.Linear
+open Int.Internal.Linear
 
 -- Convenient RArray literals
 elab tk:"#R[" ts:term,* "]" : term => do
@@ -73,14 +73,14 @@ example :
   rfl
 
 example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) = x₃ + x₂) = (x₁ + x₂ = 0) :=
-  Int.Linear.norm_eq #R[x₃, x₂, x₁]
+  Int.Internal.Linear.norm_eq #R[x₃, x₂, x₁]
     (Expr.add (Expr.add (Expr.var 2) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 0)))
     (Expr.add (Expr.var 0) (Expr.var 1))
     (.add 1 2 (.add 1 1 (.num 0)))
     rfl
 
 example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) ≤ x₃ + x₂) = (x₁ + x₂ ≤ 0) :=
-  Int.Linear.norm_le #R[x₃, x₂, x₁]
+  Int.Internal.Linear.norm_le #R[x₃, x₂, x₁]
     (Expr.add (Expr.add (Expr.var 2) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 0)))
     (Expr.add (Expr.var 0) (Expr.var 1))
     (.add 1 2 (.add 1 1 (.num 0)))

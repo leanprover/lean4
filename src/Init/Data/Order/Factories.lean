@@ -23,7 +23,7 @@ preferring `a` over `b` when in doubt.
 
 Has a `LawfulOrderLeftLeaningMin α` instance.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 public def _root_.Min.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Min α where
   min a b := if a ≤ b then a else b
 
@@ -33,7 +33,7 @@ preferring `a` over `b` when in doubt.
 
 Has a `LawfulOrderLeftLeaningMax α` instance.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 public def _root_.Max.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Max α where
   max a b := if b ≤ a then a else b
 
@@ -196,9 +196,14 @@ Creates a *total* `LE α` instance from an `LT α` instance.
 
 This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 -/
-@[inline, implicit_reducible, expose]
+@[inline, instance_reducible, expose]
 public def _root_.LE.ofLT (α : Type u) [LT α] : LE α where
   le a b := ¬ b < a
+
+public instance (priority := low) [LT α] [DecidableLT α] :
+    letI : LE α := LE.ofLT _
+    DecidableLE α :=
+  fun _ _ => inferInstanceAs <| Decidable (Not _)
 
 /--
 The `LE α` instance obtained from an asymmetric `LT α` instance is compatible with said
@@ -227,6 +232,12 @@ public theorem IsLinearPreorder.of_lt {α : Type u} [LT α]
     le_refl a := by
       open Classical in simpa [LE.ofLT] using! lt_asymm.asymm a a }
 
+public instance {α : Type u} [LT α] [Std.Asymm (α := α) (· < ·)]
+    [Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·)] :
+    letI : LE α := LE.ofLT α
+    IsLinearPreorder α :=
+  .of_lt
+
 /--
 If an `LT α` instance is asymmetric and its negation is transitive and antisymmetric, then
 `LE.ofLT α` represents a linear order.
@@ -241,6 +252,12 @@ public theorem IsLinearOrder.of_lt {α : Type u} [LT α]
   haveI : IsLinearPreorder α := .of_lt
   { le_antisymm := by
       simpa [LE.ofLT] using! fun a b hab hba => lt_trichotomous.trichotomous a b hba hab }
+
+public instance {α : Type u} [LT α] [Std.Asymm (α := α) (· < ·)]
+    [Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·)] [Trichotomous (α := α) (· < ·)] :
+    letI : LE α := LE.ofLT α
+    IsLinearOrder α :=
+  .of_lt
 
 /--
 This lemma characterizes in terms of `LT α` when a `Min α` instance

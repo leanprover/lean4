@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Http.Data.Body.Basic
+public import Std.Http.Data.Body.Replayable
 
 public section
 
@@ -63,6 +64,13 @@ structure Any where
   Sets the size of the body.
   -/
   setKnownSize : Option Body.Length → Async Unit
+
+  /--
+  Reset action for a body that can be re-read after being consumed.
+  `none` when the underlying body has no way to rewind.
+  -/
+  reset? : Option (Async Unit) := none
+
 namespace Any
 
 /--
@@ -76,6 +84,19 @@ def ofBody [Http.Body α] (body : α) : Any where
   tryRecv := Http.Body.tryRecv body
   getKnownSize := Http.Body.getKnownSize body
   setKnownSize := Http.Body.setKnownSize body
+
+/--
+Erases a replayable body into a `Body.Any`, preserving its reset action.
+-/
+def ofReplayableBody [Http.Body α] [Replayable α] (body : α) : Any where
+  recv := Http.Body.recv body
+  close := Http.Body.close body
+  isClosed := Http.Body.isClosed body
+  recvSelector := Http.Body.recvSelector body
+  tryRecv := Http.Body.tryRecv body
+  getKnownSize := Http.Body.getKnownSize body
+  setKnownSize := Http.Body.setKnownSize body
+  reset? := some (Replayable.resetInPlace body)
 
 end Any
 

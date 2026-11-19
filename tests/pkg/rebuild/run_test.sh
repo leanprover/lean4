@@ -64,3 +64,7 @@ def matchTest : Nat -> Nat
   | n+1 => n
 EOF
 test_unchanged
+
+# Lint warnings (persisted in `lintLogExt`) do not matter.
+perl -p -i -e 's/def privd : Nat := 0/def privd : Nat := let unusedLintVar := 0; 0/' Rebuild/Basic.lean
+test_unchanged

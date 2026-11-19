@@ -296,8 +296,6 @@ private theorem bind_eq_bind_subtypeCasesOn'_optionPelim' [Monad m] [LawfulMonad
 
 end Internal
 
-open Internal
-
 theorem IterM.toList_mapWithPostcondition_eq_toList_filterMapWithPostcondition {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
@@ -1638,6 +1636,7 @@ theorem IterM.length_map {α β β' : Type w} {m : Type w → Type w'} [Iterator
   · simp [ihs ‹_›]
   · simp
 
+set_option linter.defProp false in
 @[deprecated IterM.length_map (since := "2026-01-28")]
 def IterM.count_map := @IterM.length_map
 

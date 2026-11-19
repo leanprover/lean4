@@ -56,7 +56,7 @@ folder to gdb, or use `gdb $(elan which lean)`.
 
 It is also possible to generate releases that others can use,
 simply by pushing a tag to your fork of the Lean 4 github repository
-(and waiting about an hour; check the `Actions` tab for completion).
+(and waiting for some time; check the `Actions` tab for completion).
 If you push `my-tag` to a fork in your github account `my_name`,
 you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a project using `lake`.
 (You must use a tag name that does not start with a numeral, or contain `_`).
@@ -86,21 +86,6 @@ Unlike most Lean projects, all submodules of the `Lean` module begin with the
 `prelude` keyword. This disables the automated import of `Init`, meaning that
 developers need to figure out their own subset of `Init` to import. This is done
 such that changing files in `Init` doesn't force a full rebuild of `Lean`.
-
-### Testing against Mathlib/Batteries
-You can test a Lean PR against Mathlib and Batteries by rebasing your PR
-on to `nightly-with-mathlib` branch. (It is fine to force push after rebasing.)
-CI will generate a branch of Mathlib and Batteries called `lean-pr-testing-NNNN`
-on the `leanprover-community/mathlib4-nightly-testing` fork of Mathlib.
-This branch uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
-See https://leanprover-community.github.io/contribute/tags_and_branches.html for more details.
-
-### Testing against the Lean Language Reference
-You can test a Lean PR against the reference manual by rebasing your PR
-on to `nightly-with-manual` branch. (It is fine to force push after rebasing.)
-CI will generate a branch of the reference manual called `lean-pr-testing-NNNN`
-in `leanprover/reference-manual`. This branch uses the toolchain for your PR,
-and will report back to the Lean PR with results from Mathlib CI.
 
 ### Avoiding rebuilds for downstream projects
 

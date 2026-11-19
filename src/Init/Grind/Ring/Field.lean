@@ -128,6 +128,11 @@ theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ := by
       ← Semiring.mul_assoc, h₂, Semiring.one_mul, Semiring.mul_one, CommRing.mul_comm (b⁻¹)] at h₃
     assumption
 
+theorem inv_pow (a : α) (n : Nat) : (a ^ n)⁻¹ = a⁻¹ ^ n := by
+  induction n with
+  | zero => rw [Semiring.pow_zero, Semiring.pow_zero, inv_one]
+  | succ n ih => rw [Semiring.pow_succ, Semiring.pow_succ, inv_mul, ih]
+
 theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 := by
   induction n
   next => simp [Semiring.pow_zero]; intro h; have := zero_ne_one (α := α); exfalso; exact this h.symm
@@ -152,6 +157,9 @@ theorem zpow_one (a : α) : a ^ (1 : Int) = a := by
 
 theorem zpow_neg_one (a : α) : a ^ (-1) = a⁻¹ := by
   rw [zpow_neg, zpow_one]
+
+theorem zpow_neg_natCast (a : α) (n : Nat) : a ^ (-(n : Int)) = (a ^ n)⁻¹ := by
+  rw [zpow_neg, zpow_natCast]
 
 theorem zpow_add_one {a : α} (h : a ≠ 0) (n : Int) : a ^ (n + 1) = a ^ n * a := by
   match n with
@@ -224,7 +232,8 @@ theorem natCast_div_of_dvd {x y : Nat} (h : y ∣ x) (w : (y : α) ≠ 0) :
       mul_inv_cancel w, Semiring.mul_one]
 
 -- This is expensive as an instance. Let's see what breaks without it.
-@[implicit_reducible]
+set_option linter.defProp false in
+@[instance_reducible]
 def noNatZeroDivisors.ofIsCharPZero [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w
   have := IsCharP.natCast_eq_zero_iff (α := α) 0 a

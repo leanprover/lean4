@@ -75,7 +75,7 @@ Examples:
  * `0 <<< 3 = 0`
  * `0xf1 <<< 4 = 0xf10`
 -/
-@[extern "lean_nat_shiftl", expose]
+@[extern "lean_nat_shiftl", expose, implicit_reducible]
 def shiftLeft : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftLeft (2*n) m
@@ -91,7 +91,7 @@ Examples:
  * `0 >>> 3 = 0`
  * `0xf13a >>> 8 = 0xf1`
 -/
-@[extern "lean_nat_shiftr", expose]
+@[extern "lean_nat_shiftr", expose, implicit_reducible]
 def shiftRight : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftRight n m / 2
@@ -144,7 +144,7 @@ of a number.
 /--
 Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it is `0`.
 -/
-@[expose] def testBit (m n : Nat) : Bool :=
+@[expose, implicit_reducible] def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0
 
@@ -158,5 +158,28 @@ Asserts that the `(n+1)`th least significant bit of `m` is not set.
 
 @[grind =]
 theorem hasNotBit_eq (m n : Nat) : Nat.hasNotBit m n = (1 &&& (m >>> n) ≠ 1) := rfl
+
+/--
+The number of zero bits below the least significant set bit of `n`, or zero if `n = 0`.
+
+See `Nat.trailingZeros_def` for a simple recursive characterization.
+
+The kernel skips zero 64-bit blocks, then counts bits in the first nonzero block.
+At runtime this scans the low machine words without allocating or dividing the input.
+-/
+@[expose, extern "lean_nat_trailing_zeros"]
+def trailingZeros (n : @& Nat) : Nat :=
+  -- Use recursors directly to keep kernel reduction depth low.
+  let bits := fun (n : Nat) =>
+    n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+      ((nat_lit 2).ble n).rec (nat_lit 0)
+        (((n.mod (nat_lit 2)).beq (nat_lit 0)).rec (nat_lit 0)
+          ((ih (n.div (nat_lit 2))).succ))) n
+  n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+    (n.beq (nat_lit 0)).rec
+      ((((nat_lit 0xffffffffffffffff).land n).beq (nat_lit 0)).rec
+        (bits ((nat_lit 0xffffffffffffffff).land n))
+        ((ih (Nat.shiftRight n (nat_lit 64))).add (nat_lit 64)))
+      (nat_lit 0)) n
 
 end Nat

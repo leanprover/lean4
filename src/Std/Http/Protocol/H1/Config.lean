@@ -22,8 +22,7 @@ namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Internal Parsec ByteArray
-open Internal
+open Std Std.Internal Parsec ByteArray
 
 /--
 Connection limits and parser bounds configuration.
@@ -66,6 +65,20 @@ structure Config where
   Maximum number of bytes consumed while parsing request/status start-lines (default: 8192 bytes).
   -/
   maxStartLineLength : Nat := 8192
+
+  /--
+  Maximum number of path segments in a request-target, empty segments included. A target with more
+  is refused as too long, like one over `maxUriLength`. `none` leaves the count bounded only by
+  `maxUriLength`.
+  -/
+  maxPathSegments : Option Nat := none
+
+  /--
+  Maximum number of query parameters in a request-target, empty parameters included. A target with
+  more is refused as too long, like one over `maxUriLength`. `none` leaves the count bounded only by
+  `maxUriLength`.
+  -/
+  maxQueryParams : Option Nat := none
 
   /--
   Maximum length of header field name (default: 256 bytes).
@@ -130,5 +143,14 @@ structure Config where
   Maximum number of trailer headers (default: 20).
   -/
   maxTrailerHeaders : Nat := 20
+
+  /--
+  Transfer codings other than `chunked` that a server accepts on a request because the
+  application decodes them, such as `"gzip"`; names are compared case-insensitively. The machine
+  removes only the chunked framing, so the body reaches the application still coded, and the
+  request's `Transfer-Encoding` field says which codings to decode. A request with any other coding
+  is answered with 501 Not Implemented (RFC 9112 §6.1). Default: none.
+  -/
+  acceptedTransferCodings : Array String := #[]
 
 end Std.Http.Protocol.H1

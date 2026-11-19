@@ -2,7 +2,6 @@ import Lean
 
 open Lean Parser Meta Elab Do
 
-set_option backward.do.legacy false
 
 syntax (name := myReturn) "myreturn" : doElem
 

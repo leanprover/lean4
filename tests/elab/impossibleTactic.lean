@@ -1,4 +1,7 @@
 import Lean
+
+set_option linter.unusedVariables false
+
 /-! # Tests for the `impossible` tactic combinator -/
 
 -- Closed goal: the negation has no binders, so the user proves it directly.
@@ -250,3 +253,16 @@ example : 0 = 1 ∧ True := by
   constructor
   impossible by decide
   trivial
+
+-- Test that we don’t run `cleanup` in `impossible`.
+
+/--
+error: unsolved goals
+⊢ False
+---
+trace: ⊢ ¬∀ {α : Type u_1} (xs : List α), xs.length > 0 → xs = [] → False
+-/
+#guard_msgs in
+example (xs : List α) (h : xs.length > 0) : xs ≠ [] := by
+  intro h_empty
+  impossible by trace_state; simp

@@ -482,7 +482,7 @@ def evalRecCall (callerName: Name) (decrTactic? : Option DecreasingBy) (callerMe
         continue
     return .no_idea
 
-/- A cache for `evalRecCall` -/
+/-- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
   callerName : Name
   decrTactic? : Option DecreasingBy

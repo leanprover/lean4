@@ -4,6 +4,7 @@
 class Foo (α : Type) [Add α] where
    bla : [Mul α] → BEq α
 
+set_option warn.classDefReducibility false in
 attribute [instance] Foo.bla
 
 inductive Boo where

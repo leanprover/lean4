@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.ExposeNames
 public import Lean.Meta.Tactic.Try
 public import Lean.Meta.TryThis
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind.Main
@@ -305,7 +305,7 @@ builtin_initialize registerBuiltinAttribute {
     let prio ← match stx with
       | `(attr| try_suggestion $n:num) => pure n.getNat
       | `(attr| try_suggestion) => pure 1000  -- Default priority
-      | _ => throwError "invalid 'try_suggestion' attribute syntax"
+      | _ => throwError "invalid `try_suggestion` attribute syntax"
     let attrKind := if kind == AttributeKind.local then AttributeKind.local else AttributeKind.global
     trySuggestionExtension.add {
       name := declName,
@@ -404,19 +404,20 @@ def observing (x : TryTacticM α) : TryTacticM (TacticResult α) := do
       return .error ex sNew
 
 /--
-Executes a tactic with heartbeat management:
+Executes a candidate tactic with its own resource limits:
 - Restores the original maxHeartbeats limit (recorded at try? start)
 - Gives the tactic a fresh heartbeat budget via withCurrHeartbeats
-- Catches heartbeat exceptions and converts them to regular errors
+- Converts runtime exceptions (heartbeats, maximum recursion depth) into regular errors, so that
+  `try?` moves on to the next candidate
 -/
-def withOriginalHeartbeats (x : TryTacticM α) : TryTacticM α := do
+def withCandidateLimits (x : TryTacticM α) : TryTacticM α := do
   let originalMaxHeartbeats := (← read).originalMaxHeartbeats
   tryCatchRuntimeEx
     (withTheReader Core.Context (fun c => { c with maxHeartbeats := originalMaxHeartbeats }) do
       withCurrHeartbeats x)
     (fun ex => do
-      if Exception.isMaxHeartbeat ex then
-        throwError "tactic exceeded heartbeat limit"
+      if ex.isRuntime then
+        throwError "tactic exceeded a resource limit:{indentD ex.toMessageData}"
       else
         throw ex)
 
@@ -560,8 +561,10 @@ where
 
 @[builtin_try_tactic Lean.Parser.Tactic.grindTrace]
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
-  withOriginalHeartbeats do
+  withCandidateLimits do
     let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) := tac | throwUnsupportedSyntax
+    let mvarId ← getMainGoal
+    let saved ← saveState
     let tacs ← evalGrindTraceCore tac (trace := (← read).config.only) (verbose := false) (useSorry := false)
     let tac ← grindTraceToGrind tac
     trace[try.debug] "`grind` succeeded"
@@ -569,8 +572,9 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
     for tac1 in tacs do
       trace[try.debug] ">> {tac1}"
     if (← read).config.only then
+      let tacs ← filterClosingTactics saved mvarId tacs (warn := false)
       -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestionsOrLocals configStx then
+      if configHasSuggestionsOrLocals configStx && !tacs.isEmpty then
         mkTrySuggestions tacs
       else
         mkTrySuggestions (#[tac] ++ tacs)
@@ -581,7 +585,7 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
 private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).withContext do
   match tac with
   | `(tactic| simp? $configStx:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
-    withOriginalHeartbeats do
+    withCandidateLimits do
       let tac ← simpTraceToSimp tac
       let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
       let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
@@ -603,7 +607,7 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| simp_all? $[!%$_bang]? $configStx:optConfig $(_discharger)? $[only%$_only]? $[[$_args,*]]?) =>
     (← getMainGoal).withContext do
-      withOriginalHeartbeats do
+      withCandidateLimits do
         let hasSuggestionsOrLocals := configHasSuggestionsOrLocals configStx
 
         -- Get library suggestions if +suggestions is present
@@ -752,7 +756,7 @@ private partial def evalSuggestAttemptAllPar (tacs : Array (TSyntax ``Parser.Tac
 
   -- Create jobs that each try one tactic and return the suggestion
   let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
-    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+    withCandidateLimits (evalSuggestTacticSeq tacSeq) ctx
 
   -- Run all jobs in parallel - par returns (result, SavedState) for each
   let results ← TacticM.par jobs
@@ -782,7 +786,7 @@ private partial def evalSuggestFirstPar (tacs : Array (TSyntax ``Parser.Tactic.t
     throwError "invalid occurrence of `first_par` in non-terminal position for `try?` script{indentD (← read).root}"
   let ctx ← read
   let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
-    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+    withCandidateLimits (evalSuggestTacticSeq tacSeq) ctx
   TacticM.parFirst jobs
 
 /-! `@[builtin_try_tactic]` registrations for the built-in combinators and trace wrappers. -/
@@ -828,7 +832,7 @@ private def evalSuggestSeq1Tac : TryTactic := fun tac =>
 
 @[builtin_try_tactic Lean.Parser.Tactic.exact?]
 private def evalSuggestExactTac : TryTactic := fun _ =>
-  withOriginalHeartbeats evalSuggestExact
+  withCandidateLimits evalSuggestExact
 
 /-! `evalSuggest` dispatcher. -/
 
@@ -843,7 +847,7 @@ where
     | [] =>
       -- No registered handler: run atomically. Atomic execution may leave goals open, so
       -- enforce the terminal-mode invariant here.
-      let r ← withOriginalHeartbeats (evalSuggestAtomic tac)
+      let r ← withCandidateLimits (evalSuggestAtomic tac)
       checkTerminalGoals
       return r
     | evalFns => eval tac (← Tactic.saveState) evalFns #[]
@@ -898,8 +902,9 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
   else
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
-def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config := {}) : TacticM Unit := do
-  -- Suppress "Try this" messages from intermediate tactic executions
+/-- Like `evalAndSuggest`, but returns the suggestion array instead of emitting it. -/
+def evalAndCollectSuggestions (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat)
+    (config : Try.Config := {}) : TacticM (Array Tactic.TryThis.Suggestion) := do
   let tac' ← withSuppressedMessages do
     try
       evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
@@ -908,8 +913,11 @@ def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats 
   let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
-  else
-    addSuggestions tk s
+  return s
+
+def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config := {}) : TacticM Unit := do
+  let s ← evalAndCollectSuggestions tac originalMaxHeartbeats config
+  addSuggestions tk s
 
 /-! Helper functions -/
 
@@ -1083,27 +1091,20 @@ private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Ta
 /-- Version of `evalAndSuggest` that wraps tactic suggestions with `by` for term mode. -/
 private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat)
     (config : Try.Config) (footer : MessageData := MessageData.nil) : TacticM Unit := do
-  -- Suppress "Try this" messages from intermediate tactic executions
-  let tac' ← withSuppressedMessages do
-    try
-      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
-    catch _ =>
-      throwEvalAndSuggestFailed config
-  let suggestions := (getSuggestions tac')[*...config.max].toArray
-  if suggestions.isEmpty then
-    throwEvalAndSuggestFailed config
+  let suggestions ← evalAndCollectSuggestions tac originalMaxHeartbeats config
+  let termSuggestions ← suggestions.mapM wrapSuggestionWithBy
+  if termSuggestions.size == 1 then
+    Tactic.TryThis.addSuggestion tk termSuggestions[0]! (origSpan? := (← getRef)) (footer := footer)
   else
-    -- Wrap each suggestion with `by `
-    let termSuggestions ← suggestions.mapM wrapSuggestionWithBy
-    if termSuggestions.size == 1 then
-      Tactic.TryThis.addSuggestion tk termSuggestions[0]! (origSpan? := (← getRef)) (footer := footer)
-    else
-      Tactic.TryThis.addSuggestions tk termSuggestions (origSpan? := (← getRef)) (footer := footer)
+    Tactic.TryThis.addSuggestions tk termSuggestions (origSpan? := (← getRef)) (footer := footer)
 
 /-- Core implementation of `try?`: focus, collect info, build tactic, evaluate and suggest.
 `tk` is the syntax token where "Try this:" appears. The optional `footer` is appended to the
-suggestions message (only when `wrapWithBy := true`). -/
-private def elabTryCore (tk : Syntax) (config : Try.Config) (footer : MessageData := MessageData.nil) :
+suggestions message (only when `wrapWithBy := true`).
+
+Public so that the `autoTry` linter (`Lean.Elab.Tactic.AutoTry`) can drive `try?` from outside
+the normal `try?` syntax entry point. -/
+def elabTryCore (tk : Syntax) (config : Try.Config) (footer : MessageData := MessageData.nil) :
     TacticM Unit :=
   Tactic.focus do withMainContext do
     let originalMaxHeartbeats ← getMaxHeartbeats
@@ -1115,6 +1116,22 @@ private def elabTryCore (tk : Syntax) (config : Try.Config) (footer : MessageDat
         evalAndSuggestWithBy tk stx originalMaxHeartbeats config (footer := footer)
       else
         evalAndSuggest tk stx originalMaxHeartbeats config
+
+/-- Like `elabTryCore`, but returns the suggestion array (as raw tactic syntaxes) instead of
+emitting "Try this:" messages. Used by the `autoTry` linter, which formats and emits the
+suggestions itself so they can be rendered as append-to-tactic-sequence edits. -/
+def collectTryCoreSuggestions (config : Try.Config := {}) :
+    TacticM (Array (TSyntax `tactic)) :=
+  Tactic.focus do withMainContext do
+    let originalMaxHeartbeats ← getMaxHeartbeats
+    withUnlimitedHeartbeats do
+      let goal ← getMainGoal
+      let info ← Try.collect goal config
+      let stx ← mkTryEvalSuggestStx goal info
+      let suggs ← evalAndCollectSuggestions stx originalMaxHeartbeats config
+      return suggs.filterMap fun s => match s.suggestion with
+        | .tsyntax (kind := `tactic) tac => some ⟨tac⟩
+        | _ => none
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with
@@ -1134,38 +1151,5 @@ private def elabTryCore (tk : Syntax) (config : Try.Config) (footer : MessageDat
       else
         evalAndSuggest tk tac originalMaxHeartbeats config
   | _ => throwUnsupportedSyntax
-
-open Term in
-/-- When the `by` body is empty and `tactic.tryOnEmptyBy` is set, run `try?` for its
-informational side effect (the "Try this" suggestions) and then delegate to the normal
-`by` elaborator so the empty body still produces an unsolved-goals error. The implicit
-mode must not change elaboration behavior beyond emitting messages.
-Disabled when `errToSorry` is false (nested in a combinator like `first`),
-or when `try?` infrastructure is not yet available (e.g. while building the prelude).
-
-We register a *second* `builtin_term_elab` for `byTactic` (rather than folding the
-gate-and-dispatch into `elabByTactic` directly) because `Lean.Elab.Tactic.Try` already
-imports `Lean.Elab.BuiltinTerm`, so the `try?` infrastructure can't be referenced
-from `BuiltinTerm.lean` without breaking the dependency direction. The gate in
-`elabByTactic` skips this elaborator (via `throwUnsupportedSyntax`) when the `try?`
-path doesn't apply. This could be cleaned up later, e.g. via a registered handler ref
-in `BuiltinTerm.lean` populated by `Try.lean`. -/
-@[builtin_term_elab byTactic] def elabEmptyByAsTry : TermElab := fun stx expectedType? => do
-  unless (← shouldElabEmptyByAsTry stx) do
-    throwUnsupportedSyntax
-  let some expectedType := expectedType? | do tryPostpone; throwUnsupportedSyntax
-  -- Run the same body the normal `by` elaborator would.
-  let mvar ← elabByTacticCore stx expectedType?
-  let cancelTk ← IO.CancelToken.new
-  let footer := m!"\n\n(Disable this with `set_option tactic.tryOnEmptyBy false`.)"
-  let act ← Term.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun (_ : Unit) => do
-    let scratch ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
-    try
-      discard <| Tactic.run scratch.mvarId! <|
-        withRef stx do elabTryCore stx[0] { wrapWithBy := true } (footer := footer)
-    catch _ => pure ()
-  let t ← BaseIO.asTask (act ())
-  Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
-  return mvar
 
 end Lean.Elab.Tactic.Try

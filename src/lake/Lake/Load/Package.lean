@@ -40,7 +40,7 @@ public def mkPackage
     configFile, relConfigFile, relManifestFile,
     scope, remoteUrl, ..} := loadCfg
   let {
-    depConfigs, defaultTargets, scripts, defaultScripts, testDriver, lintDriver
+    depConfigs, defaultTargets, cacheServices, scripts, defaultScripts, testDriver, lintDriver
     -- destructing needed for type-correctness
     pkgDecl, targetDecls, targetDeclMap, postUpdateHooks,
     ..} := fileCfg
@@ -49,14 +49,15 @@ public def mkPackage
     wsIdx, baseName, keyName, origName, config
     dir, relDir, configFile, relConfigFile, relManifestFile
     scope, remoteUrl
-    depConfigs
+    depConfigs, cacheServices
     targetDecls, targetDeclMap, defaultTargets
     scripts, defaultScripts
     testDriver, lintDriver
     postUpdateHooks
   }
 
-public theorem wsIdx_mkPackage : (mkPackage l f i).wsIdx = i := by rfl
+@[simp] public theorem wsIdx_mkPackage : (mkPackage l f i).wsIdx = i := by rfl
+@[simp] public theorem depIdxs_mkPackage : (mkPackage l f i).depIdxs = #[] := by rfl
 
 /--
 Return whether a configuration file with the given name

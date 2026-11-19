@@ -247,7 +247,7 @@ protected theorem min_map
     (xs.map f).min (by simpa) = f (xs.minOn f h) := by
   match xs with
   | x :: xs =>
-    simp only [List.minOn, map_cons, List.min, foldl_map]
+    simp only [List.minOn, map, List.min, foldl_map]
     rw [foldl_hom]
     simp [min_apply]
 
@@ -492,7 +492,7 @@ protected theorem minOn?_id [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLe
   · simp
   · simp only [List.minOn?_cons_eq_some_minOn, List.minOn_id, List.min?_eq_some_min (List.cons_ne_nil _ _)]
 
-protected theorem minOn?_eq_if
+protected theorem minOn?_eq_ite
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {xs : List α} :
   xs.minOn? f =
     if h : xs ≠ [] then
@@ -500,6 +500,9 @@ protected theorem minOn?_eq_if
     else
       none := by
   fun_cases xs.minOn? f <;> simp [List.minOn]
+
+@[deprecated List.minOn?_eq_ite (since := "2026-07-21")]
+protected theorem minOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} : List.minOn? f xs = if h : xs ≠ [] then Option.some (List.minOn f xs h) else Option.none := List.minOn?_eq_ite
 
 @[simp]
 protected theorem isSome_minOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
@@ -563,7 +566,7 @@ protected theorem minOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     (xs ys : List α) (f : α → β) :
     (xs ++ ys).minOn? f =
       (xs.minOn? f).merge (_root_.minOn f) (ys.minOn? f) := by
-  by_cases xs = [] <;> by_cases ys = [] <;> simp [*, List.minOn?_eq_if, List.minOn_append]
+  by_cases xs = [] <;> by_cases ys = [] <;> simp [*, List.minOn?_eq_ite, List.minOn_append]
 
 /-! # maxOn? -/
 
@@ -603,7 +606,7 @@ protected theorem maxOn?_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLe
   letI : Min α := (inferInstance : Max α).oppositeMin
   simpa only [List.maxOn?_eq_minOn?, List.max?_eq_min?] using List.minOn?_id (α := α)
 
-protected theorem maxOn?_eq_if
+protected theorem maxOn?_eq_ite
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {xs : List α} :
   xs.maxOn? f =
     if h : xs ≠ [] then
@@ -611,7 +614,10 @@ protected theorem maxOn?_eq_if
     else
       none :=
   letI : LE β := (inferInstance : LE β).opposite
-  List.minOn?_eq_if
+  List.minOn?_eq_ite
+
+@[deprecated List.maxOn?_eq_ite (since := "2026-07-21")]
+protected theorem maxOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} : List.maxOn? f xs = if h : xs ≠ [] then Option.some (List.maxOn f xs h) else Option.none := List.maxOn?_eq_ite
 
 @[simp]
 protected theorem isSome_maxOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs : List α} :

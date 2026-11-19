@@ -20,10 +20,10 @@ info: • [Command] @ ⟨80, 0⟩-⟨80, 40⟩ @ Lean.Elab.Command.elabDeclarati
           • [Term] n : Nat @ ⟨80, 26⟩-⟨80, 27⟩ @ Lean.Elab.Term.elabIdent
             • [Completion-Id] n : none @ ⟨80, 26⟩-⟨80, 27⟩
             • [Term] n : Nat @ ⟨80, 26⟩-⟨80, 27⟩
+  • [CustomInfo(Lean.Elab.Term.DeclValueInfo)]
   • [CustomInfo(Lean.Elab.Term.AsyncBodyInfo)]
     • [Term] n (isBinder := true) : Nat @ ⟨80, 11⟩-⟨80, 12⟩
     • [CustomInfo(Lean.Elab.Term.BodyInfo)]
-      • [PartialTerm] @ ⟨80, 31⟩-⟨80, 40⟩ @ Lean.Elab.Tactic.Try.elabEmptyByAsTry
       • [Tactic] @ ⟨80, 31⟩-⟨80, 40⟩
         (Term.byTactic
          "by"
@@ -63,7 +63,7 @@ info: • [Command] @ ⟨80, 0⟩-⟨80, 40⟩ @ Lean.Elab.Command.elabDeclarati
                   ⊢ 0 ≤ n
                   after no goals
                   • [Term] Nat.zero_le n : 0 ≤ n @ ⟨1, 1⟩†-⟨1, 1⟩† @ Lean.Elab.Term.elabApp
-                    • [Completion-Id] Nat.zero_le : some LE.le.{0} Nat instLENat (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) _uniq.47.3 @ ⟨1, 0⟩†-⟨1, 0⟩†
+                    • [Completion-Id] Nat.zero_le : some LE.le.{0} Nat instLENat (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) _uniq.29.3 @ ⟨1, 0⟩†-⟨1, 0⟩†
                     • [Term] Nat.zero_le : ∀ (n : Nat), 0 ≤ n @ ⟨1, 0⟩†-⟨1, 0⟩†
                     • [Term] n : Nat @ ⟨1, 5⟩†-⟨1, 5⟩† @ Lean.Elab.Term.elabIdent
                       • [Completion-Id] n : some Nat @ ⟨1, 5⟩†-⟨1, 5⟩†

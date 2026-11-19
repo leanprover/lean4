@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Char
 public import Init.Data.String.Basic
-public import Init.Data.Int
+public import Init.Data.Int.Basic
 public import Init.Grind
 
 @[expose]
@@ -103,7 +103,20 @@ def quotedStringChar (c : Char) : Bool :=
 theorem quotedStringChar_lt_0x80 : quotedStringChar c → c < '\x80' := by
   simp [quotedStringChar, qdtext, quotedPairChar]
   split <;> simp only [true_or, Char.reduceLT, imp_self]
-  grind [→ Char.le_def.mp, Char.lt_def.mpr, vchar]
+  intro h
+  have hc : c ≤ '~' := by
+    rcases h with ((h | ⟨_, h⟩) | ⟨_, h⟩) | h | h
+    · nomatch h
+    · exact Char.le_trans h (by decide)
+    · exact h
+    · nomatch h
+    · simp only [vchar, ge_iff_le, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq] at h
+      exact h.2
+  have h80 : ('~' : Char) < '\x80' := by decide
+  rw [Char.lt_def, UInt32.lt_iff_toNat_lt]
+  rw [Char.le_def, UInt32.le_iff_toNat_le] at hc
+  rw [Char.lt_def, UInt32.lt_iff_toNat_lt] at h80
+  omega
 
 private theorem not_quotedStringChar_ofNat_aux :
     ∀ c : Nat, c < 128 → ¬(qdtext (Char.ofNat c)) ∧ ¬((Char.ofNat c = '\"') ∨ (Char.ofNat c = '\\')) →
@@ -119,12 +132,15 @@ theorem not_quotedStringChar_of_not_qdtext_not_dquote_backslash :
       c.toNat hlt (by simpa [Char.ofNat_toNat] using hq))
 
 /--
-field-vchar = VCHAR
-; ASCII-only variant (no obs-text).
+field-vchar = VCHAR / obs-text
+
+obs-text (bytes `%x80-FF`) is accepted, as RFC 9110 §5.5 asks of recipients: servers routinely send
+raw UTF-8 in fields such as `Location` and `Content-Disposition`. In a `String` it appears as the
+characters from U+0080 up. Control characters, including CR, LF, and NUL, are never field content.
 -/
 @[inline]
 def fieldVchar (c : Char) : Bool :=
-  vchar c
+  vchar c || c.val ≥ 0x80
 
 /--
 field-content character class:
@@ -184,14 +200,13 @@ def obsText (c : Char) : Bool :=
 
 /--
 reason-phrase character class:
-HTAB / SP / VCHAR
-; ASCII-only variant (no obs-text).
+HTAB / SP / VCHAR / obs-text
 
 Reference: https://httpwg.org/specs/rfc9110.html#reason.phrase
 -/
 @[inline]
 def reasonPhraseChar (c : Char) : Bool :=
-  (c matches '\t' | ' ') || vchar c
+  (c matches '\t' | ' ') || vchar c || c.val ≥ 0x80
 
 /--
 Checks if a character is a hexadecimal digit (0-9, a-f, or A-F).
@@ -233,14 +248,6 @@ Valid characters are ASCII alphanumeric, `+`, `-`, and `.`.
 @[inline]
 def isValidSchemeChar (c : Char) : Bool :=
   isAsciiAlphaNumChar c || (c matches '+' | '-' | '.')
-
-/--
-Checks if a character is valid for use in a domain name.
-Valid characters are ASCII alphanumeric, hyphens, and dots.
--/
-@[inline]
-def isValidDomainNameChar (c : Char) : Bool :=
-  isAsciiAlphaNumChar c || (c matches '-' | '.')
 
 /--
 Checks if a byte is an unreserved character according to RFC 3986. Unreserved characters are:
@@ -289,6 +296,15 @@ def isFragmentChar (c : UInt8) : Bool :=
   isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
 
 /--
+Checks if a byte may appear in a request-target (RFC 9112 §3.2): a URI character of RFC 3986 other
+than `#`, since no form of request-target has a fragment. `%` starts a `pct-encoded` triplet, and
+`[` and `]` enclose an IP-literal host.
+-/
+@[inline]
+def isRequestTargetChar (c : UInt8) : Bool :=
+  isQueryChar c || c = '%'.toUInt8 || c = '['.toUInt8 || c = ']'.toUInt8
+
+/--
 Checks if a byte is a valid character in a URI userinfo component according to RFC 3986.
 `userinfo = *( unreserved/ sub-delims / ":" )`
 
@@ -300,14 +316,21 @@ def isUserInfoChar (c : UInt8) : Bool :=
   isUnreserved c || isSubDelims c || c = ':'.toUInt8
 
 /--
-Checks if a byte is a valid character in a URI query component,
-excluding the typical key/value separators `&` and `=`.
+Checks if a byte is a valid character in a URI query parameter, excluding the pair separator `&`.
 
-Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986,
-but disallows `&` and `=` so they can be treated as structural separators.
+Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986. `=` is allowed because a value may
+contain it (`?a=b=c`); a parameter name ends at its first `=`, so a parsed name never contains one.
 -/
 @[inline]
 def isQueryDataChar (c : UInt8) : Bool :=
-  isQueryChar c && c ≠ '&'.toUInt8 && c ≠ '='.toUInt8
+  isQueryChar c && c ≠ '&'.toUInt8
+
+/--
+Checks if a byte may appear unescaped in a query parameter name: `isQueryDataChar` without `=`,
+which would end the name.
+-/
+@[inline]
+def isQueryNameChar (c : UInt8) : Bool :=
+  isQueryDataChar c && c ≠ '='.toUInt8
 
 end Std.Http.Internal.Char

@@ -6,7 +6,7 @@ public def foo : Nat → Nat
   | 2 => 5
   | x+3 => foo x
 
-@[expose, implicit_reducible] public def bla : Nat → Nat
+@[expose, instance_reducible] public def bla : Nat → Nat
   | 0 => 1
   | 1 => 3
   | 2 => 5
@@ -29,7 +29,7 @@ fun motive x h_1 h_2 h_3 h_4 =>
 #print foo.match_1
 
 /--
-info: @[implicit_reducible, expose] def bla.match_1.{u_1} : (motive : Nat → Sort u_1) →
+info: @[instance_reducible, expose] def bla.match_1.{u_1} : (motive : Nat → Sort u_1) →
   (x : Nat) →
     (Unit → motive 0) → (Unit → motive 1) → (Unit → motive 2) → ((x : Nat) → motive x.succ.succ.succ) → motive x :=
 fun motive x h_1 h_2 h_3 h_4 =>
@@ -39,7 +39,7 @@ fun motive x h_1 h_2 h_3 h_4 =>
 #print bla.match_1
 
 /--
-info: @[implicit_reducible, expose] def boo.match_1.{u_1} : (motive : Nat → Sort u_1) →
+info: @[instance_reducible, expose] def boo.match_1.{u_1} : (motive : Nat → Sort u_1) →
   (x : Nat) → (Unit → motive 0) → (Unit → motive 1) → (Unit → motive 2) → ((x : Nat) → motive x) → motive x :=
 fun motive x h_1 h_2 h_3 h_4 =>
   dite (x = 0) (Eq.ndrec_symm (h_1 ())) fun h_1 =>

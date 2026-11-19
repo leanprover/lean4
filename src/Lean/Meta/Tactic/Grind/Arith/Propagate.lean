@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta.Grind.Arith
 
@@ -39,7 +40,10 @@ The following propagator ensure that `3 &&& mask` is merged with the equivalence
 `mask = 15`.
 -/
 
-def propagateNatBinOp (declName : Name) (congrThmName : Name) (op : Nat → Nat → Nat) (e : Expr) : GoalM Unit := do
+/--
+`op k₁ k₂` returns `none` when the operation should not be evaluated at the given literals.
+-/
+def propagateNatBinOpM (declName : Name) (congrThmName : Name) (op : Nat → Nat → GoalM (Option Nat)) (e : Expr) : GoalM Unit := do
   let arity := 6
   unless e.isAppOfArity declName arity do return ()
   unless e.getArg! 0 |>.isConstOf ``Nat do return ()
@@ -50,17 +54,22 @@ def propagateNatBinOp (declName : Name) (congrThmName : Name) (op : Nat → Nat 
   let b := e.getArg! (arity - 1) arity
   let bRoot ← getRoot b
   let some k₂ ← getNatValue? bRoot | return ()
-  let k := op k₁ k₂
+  let some k ← op k₁ k₂ | return ()
   let r ← shareCommon (mkNatLit k)
   internalize r 0
   let h := mkApp8 (mkConst congrThmName) a b aRoot bRoot r (← mkEqProof a aRoot) (← mkEqProof b bRoot) eagerReflBoolTrue
   pushEq e r h
 
+def propagateNatBinOp (declName : Name) (congrThmName : Name) (op : Nat → Nat → Nat) (e : Expr) : GoalM Unit :=
+  propagateNatBinOpM declName congrThmName (fun k₁ k₂ => return some (op k₁ k₂)) e
+
 builtin_grind_propagator propagateNatAnd ↑HAnd.hAnd := propagateNatBinOp ``HAnd.hAnd ``Grind.Nat.and_congr (· &&& ·)
 builtin_grind_propagator propagateNatOr ↑HOr.hOr := propagateNatBinOp ``HOr.hOr ``Grind.Nat.or_congr (· ||| ·)
 builtin_grind_propagator propagateNatXOr ↑HXor.hXor := propagateNatBinOp ``HXor.hXor ``Grind.Nat.xor_congr (· ^^^ ·)
 builtin_grind_propagator propagateNatShiftLeft ↑HShiftLeft.hShiftLeft :=
-  propagateNatBinOp ``HShiftLeft.hShiftLeft ``Grind.Nat.shiftLeft_congr (· <<< ·)
+  propagateNatBinOpM ``HShiftLeft.hShiftLeft ``Grind.Nat.shiftLeft_congr fun k₁ k₂ => do
+    unless (← checkShiftLeft k₁ k₂) do return none
+    return some (k₁ <<< k₂)
 builtin_grind_propagator propagateNatShiftRight ↑HShiftRight.hShiftRight :=
   propagateNatBinOp ``HShiftRight.hShiftRight ``Grind.Nat.shiftRight_congr (· >>> ·)
 
@@ -86,12 +95,12 @@ private def isUnsupportedSemiring? (type : Expr) : GoalM (Option Expr) := do
     -- does not propagate `0 * a = 0` back to original terms.
     -- In the future, we want to add support for propagating equalities when the
     -- `CommSemiring` implements `AddRightCancel`.
-    return some (← SemiringM.run id (return (← getSemiring).semiringInst))
+    return some (← SemiringM.run id (return (← Sym.Arith.getSemiring).semiringInst))
   if let some id ← getNonCommRingId? type then
-    let inst ← NonCommRingM.run id do return (← getRing).semiringInst
+    let inst ← NonCommRingM.run id do return (← Sym.Arith.getRing).semiringInst
     return some inst
   if let some id ← getNonCommSemiringId? type then
-    let inst ← NonCommSemiringM.run id do return (← getSemiring).semiringInst
+    let inst ← NonCommSemiringM.run id do return (← Sym.Arith.getSemiring).semiringInst
     return some inst
   return none
 

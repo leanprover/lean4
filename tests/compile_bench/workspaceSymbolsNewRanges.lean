@@ -25,26 +25,32 @@ meta import Lean.Elab.Term.TermElabM
   if string.isEmpty then
     #[]
   else if string.length == 1 then
-    #[f (none, string.get 0, none)]
+    #[f (none, String.Pos.Raw.get string 0, none)]
   else Id.run do
     let mut result := Array.mkEmpty string.length
-    result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
+    result := result.push <| f (none, String.Pos.Raw.get string 0, String.Pos.Raw.get string ⟨1⟩)
     -- TODO: the following code is assuming all characters are ASCII
     for i in 2...string.length do
-      result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
-    result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
+      result := result.push <| f (String.Pos.Raw.get string ⟨i - 2⟩, String.Pos.Raw.get string ⟨i - 1⟩, String.Pos.Raw.get string ⟨i⟩)
+    result.push <| f (String.Pos.Raw.get string ⟨string.length - 2⟩, String.Pos.Raw.get string ⟨string.length - 1⟩, none)
 
-private def containsInOrderLower (a b : String) : Bool := Id.run do
-  if a.isEmpty then
-    return true
-  let mut aIt := a.mkIterator
-    -- TODO: the following code is assuming all characters are ASCII
-  for i in *...b.rawEndPos.byteIdx do
-    if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
-      aIt := aIt.next
-      if !aIt.hasNext then
-        return true
-  return false
+private partial def containsInOrderLower (a b : String) : Bool := Id.run do
+  go ⟨0⟩ ⟨0⟩
+where
+  go (aPos bPos : String.Pos.Raw) : Bool :=
+    if ha : aPos.atEnd a then
+      true
+    else if hb : bPos.atEnd b then
+      false
+    else
+      let ac := aPos.get' a ha
+      let bc := bPos.get' b hb
+      let bPos := bPos.next' b hb
+      if ac.toLower == bc.toLower then
+        let aPos := aPos.next' a ha
+        go aPos bPos
+      else
+        go aPos bPos
 
 /-- Represents the type of a single character. -/
 inductive CharType where
@@ -128,7 +134,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
       let mut matchScore? := none
 
-      if allowMatch (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩) patternRoles[patternIdx]! wordRoles[wordIdx]! then
+      if allowMatch (String.Pos.Raw.get pattern ⟨patternIdx⟩) (String.Pos.Raw.get word ⟨wordIdx⟩) patternRoles[patternIdx]! wordRoles[wordIdx]! then
         if patternIdx >= 1 then
           let runLength := runLengths[getIdx (patternIdx - 1) (wordIdx - 1)]! + 1
           runLengths := runLengths.set! (getIdx patternIdx wordIdx) runLength
@@ -197,7 +203,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     matchResult (patternIdx wordIdx : Nat) (patternRole wordRole : CharRole) (consecutive : Option Int) : Int := Id.run do
       let mut score : Int := 1
       /- Case-sensitive equality or beginning of a segment in pattern and word. -/
-      if (pattern.get ⟨patternIdx⟩) == (word.get ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
+      if (String.Pos.Raw.get pattern ⟨patternIdx⟩) == (String.Pos.Raw.get word ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
         score := score + 1
       /- Matched end of word with end of pattern -/
       if wordIdx == word.length - 1 && patternIdx == pattern.length - 1 then
@@ -402,7 +408,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "instNegUInt8",
  "UInt64.toNat_sub_of_le",
  "Lean.Grind.IntModule.OfNatModule.instOrderedAddQ._proof_1",
- "Nat.SOM.Expr.add.elim",
+ "Nat.Internal.SOM.Expr.add.elim",
  "Lean.Grind.CommRing.Power.x",
  "Lean.BaseMessage.ctorIdx",
  "Lean.Elab.Term.Context.heedElabAsElim",
@@ -453,7 +459,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Std.Slice.Internal.SubarrayData.mk.injEq",
  "Lean.PersistentArray.toArray",
  "Lean.PrettyPrinter.Parenthesizer.strLitNoAntiquot.parenthesizer",
- "Int.Linear.unsatEqDivCoeffCert.eq_1",
+ "Int.Internal.Linear.unsatEqDivCoeffCert.eq_1",
  "_private.Lean.Parser.Command.0.Lean.Parser.Command.where._regBuiltin.Lean.Parser.Command.where_1",
  "Lean.Meta.AbstractMVarsResult.mk._flat_ctor",
  "Lean.ExternEntry.opaque.sizeOf_spec",
@@ -523,7 +529,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Fin.foldrM_succ",
  "instAssociativeInt32HOr",
  "Rat.add_assoc",
- "_private.Init.Data.Int.Linear.0.Int.Linear.Poly.combine'.match_1.eq_4",
+ "_private.Init.Data.Int.Internal.Linear.0.Int.Internal.Linear.Poly.combine'.match_1.eq_4",
  "_private.Init.Data.BitVec.Lemmas.0.BitVec.toFin_shiftLeftZeroExtend._proof_1_2",
  "_private.Init.Data.Order.LemmasExtra.0.Std.instAntisymmLeOfLawfulOrderOrdOfLawfulEqOrd._simp_2",
  "Lean.AttributeApplicationTime.recOn",
@@ -564,7 +570,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Lean.PPFns.ppLevel",
  "Int.lt_of_add_one_le",
  "Vector.finRange_succ_last",
- "_private.Init.Data.Nat.SOM.0.Nat.SOM.Mon.mul_denote.go",
+ "_private.Init.Data.Nat.Internal.SOM.0.Nat.Internal.SOM.Mon.mul_denote.go",
  "Lean.Parser.Tactic.rewrites_forbidden",
  "_private.Init.Data.Rat.Lemmas.0.Rat.le_iff_sub_nonneg._simp_1_2",
  "_private.Lean.Meta.DiscrTree.0.Lean.Meta.DiscrTree.getMatchWithExtra.go",
@@ -663,7 +669,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "_private.Lean.Parser.Term.0.Lean.Parser.Term.leftact._regBuiltin.Lean.Parser.Term.leftact.declRange_5",
  "BitVec.getMsbD_twoPow",
  "WellFounded.recOn",
- "_private.Init.Data.Int.Linear.0.Int.Linear.gcd_dvd_step",
+ "_private.Init.Data.Int.Internal.Linear.0.Int.Internal.Linear.gcd_dvd_step",
  "Std.Iterators.instForInPartialOfIteratorLoopPartialOfMonadLiftTOfMonad",
  "Lean.IR.FnBody.sset",
  "List.getLast._proof_1",
@@ -754,7 +760,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Lean.MacroScopesView.mk._flat_ctor",
  "_private.Lean.Meta.WHNF.0.Lean.Meta.useWHNFCache",
  "_private.Init.Data.Option.Lemmas.0.Option.merge.match_1.eq_4",
- "Int.Linear.Poly.isUnsatEq",
+ "Int.Internal.Linear.Poly.isUnsatEq",
  "Vector.vector₃_induction.match_1",
  "List.countP_nil",
  "_private.Init.Data.List.Control.0.List.getLast?.match_1.splitter",
@@ -777,7 +783,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "_private.Init.Data.BitVec.Bitblast.0.BitVec.msb_sdiv_eq_decide._simp_1_12",
  "Lean.instCoeNatLeanOptionValue",
  "USize.shiftLeft_zero",
- "Int.Linear.Expr.recOn",
+ "Int.Internal.Linear.Expr.recOn",
  "Vector.mapFinIdx_mk._proof_2",
  "String.split",
  "Option.map_pbind",
@@ -833,7 +839,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Lean.Syntax.rec",
  "Lean.EnvExtension.mkInitial",
  "Lean.Parser.ParserModuleContext.currNamespace._default",
- "Int.Linear.le_of_le_diseq",
+ "Int.Internal.Linear.le_of_le_diseq",
  "ISize.sub_right_inj._simp_1",
  "String.iter",
  "Int16.zero_or",
@@ -863,7 +869,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "List.foldlM_cons",
  "_private.Lean.Meta.DiscrTree.0.Lean.Meta.DiscrTree.tmpMVarId",
  "Array.anyM",
- "Lean.Parser.Term.liftMethod.parenthesizer",
+ "Lean.Parser.Term.nestedAction.parenthesizer",
  "_private.Init.Data.UInt.Bitwise.0.UInt16.or_eq_zero_iff._simp_1_1",
  "_private.Init.Data.AC.0.Lean.Data.AC.evalList.match_1.eq_3",
  "Std.DTreeMap.Raw.empty",
@@ -954,7 +960,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Std.DTreeMap.Raw.maxEntry!",
  "_private.Init.Data.Int.Order.0.Int.eq_succ_of_zero_lt.match_1_1",
  "Lean.Meta.SynthInstanceCacheKey.ctorIdx",
- "Int.Linear.cmod_eq_zero_iff_emod_eq_zero",
+ "Int.Internal.Linear.cmod_eq_zero_iff_emod_eq_zero",
  "Nat.mod_two_not_eq_one._simp_1",
  "_private.Lean.Environment.0.Lean.EnvExtension.modifyState.match_14",
  "Lean.Parser.SyntaxNodeKindSet.insert",
@@ -1132,7 +1138,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Lean.Grind.CommRing.hashExpr.«_@».Init.Grind.Ring.Poly.3091913453._hygCtx._hyg.188._sunfold",
  "Bool.or_and_distrib_right",
  "List.get?._unsafe_rec",
- "Int.Linear.Poly.denote_div_eq_of_divAll",
+ "Int.Internal.Linear.Poly.denote_div_eq_of_divAll",
  "Nat.eq_of_mul_eq_mul_left",
  "Lean.Grind.Ring.OfSemiring.Expr.add.sizeOf_spec",
  "BitVec.not_xor_left",

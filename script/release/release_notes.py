@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import repos
-from git import Commit, Repo
+from git import Commit, GitCommandError, Repo
 from github.Repository import Repository
 from rich import print
 from rich.markup import escape as e
@@ -19,6 +19,7 @@ SECTIONS = [
     "Library",
     "Tactics",
     "Compiler",
+    "FFI",
     "Pretty Printing",
     "Documentation",
     "Server",
@@ -65,10 +66,22 @@ def parse_pr_title(title: str) -> tuple[str, str] | None:
 
 
 def parse_backport_pr_body(body: str) -> int | None:
-    match = re.search(r"Backport .* from #(\d+)", body)
+    # Old format: "Backport <sha> from #N."
+    # Current format: "Backport of #N to `branch`."
+    match = re.search(r"(Backport .* from|Backport of) #(\d+)", body)
     if not match:
         return
-    return int(match.group(1))
+    return int(match.group(2))
+
+
+def get_previously_released_prs(refman: Path, version: Version) -> set[int]:
+    path = refman / util.get_release_notes_path_for(version.prev)
+    if not path.exists():
+        return set()
+
+    text = path.read_text()
+    pattern = rf"^- \[#(\d+)\]\({re.escape(repos.LEAN4.gh_url)}/pull/\1\)$"
+    return {int(m) for m in re.findall(pattern, text, re.MULTILINE)}
 
 
 def get_description_from_body(body: str) -> str:
@@ -120,6 +133,8 @@ def get_category(labels: set[str]) -> str | None:
         return "Documentation"
     if cat == "pp":
         return "Pretty Printing"
+    if cat == "ffi":
+        return "FFI"
     return cat.capitalize()
 
 
@@ -131,7 +146,9 @@ class CommitInfo:
     description: str
 
 
-def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[CommitInfo]:
+def load_commits(
+    version: Version, repo: Repo, grepo: Repository, skip_prs: set[int]
+) -> list[CommitInfo]:
     skip_pr_number_prompt = False
 
     commits = []
@@ -139,8 +156,11 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
         title, _ = get_commit_message(commit)
         print_commit(commit, title)
 
-        if title == "chore: update stage0" or title.startswith("chore: CI: bump "):
-            print("[blue]Ignored[/]")
+        if title == "chore: update stage0":
+            print("[blue]Ignored, stage0 update[/]")
+            continue
+        if title.startswith("chore: CI: bump "):
+            print("[blue]Ignored, CI bump[/]")
             continue
 
         pr_number = parse_pr_number(title)
@@ -161,6 +181,10 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
             print(f"[yellow]PR is a backport of #{backported}[/]")
             pr_number = backported
             pr = grepo.get_pull(pr_number)
+
+        if pr_number in skip_prs:
+            print("[blue]Ignored, already listed in previous release notes[/]")
+            continue
 
         parsed = parse_pr_title(pr.title)
         if parsed is None:
@@ -183,9 +207,8 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
             description = title
 
         category = get_category(labels)
-        if not category:
-            if warn:
-                print("[yellow]No changelog-* label found[/]")
+        if category is None and warn:
+            print("[yellow]No changelog-* label found[/]")
         if category is not None and category not in SECTIONS:
             print(f"[yellow]Unknown category {category!r}[/]")
             category = "Uncategorised"
@@ -253,24 +276,51 @@ def pl(n: int, singular: str, plural: str | None = None) -> str:
     return f"{n} {singular if n == 1 else plural}"
 
 
+def fenced(lang: str, body: list[str]) -> list[str]:
+    longest = max(
+        (len(run) for line in body for run in re.findall(r"`+", line)), default=0
+    )
+    fence = "`" * max(3, longest + 1)
+    return [f"{fence}{lang}", *body, fence]
+
+
+def get_author(repo: Repo) -> str:
+    # Ask git rather than reading the config directly, so that conditional
+    # includes and environment overrides are resolved the way git resolves them.
+    try:
+        name = repo.git.config("--get", "user.name").strip()
+    except GitCommandError:
+        name = ""
+
+    if not name:
+        raise SystemExit("Failed to read `user.name` from git config")
+    # The name is interpolated into a Lean block comment.
+    if "\n" in name or "/-" in name or "-/" in name:
+        raise SystemExit(f"Refusing to use {name!r} as an author")
+
+    return name
+
+
 def main(version: Version, refman: Path):
     util.initialize_rich()
     github = util.get_github_instance()
 
     repo = Repo(Path(__file__).parent.parent.parent)
+    author = get_author(Repo(refman))
     grepo = github.get_repo(repos.LEAN4.gh_full_name)
     release = grepo.get_release(version.tag)
-    date = release.created_at.astimezone(datetime.timezone.utc)
+    date = release.published_at.astimezone(datetime.UTC)
     title = util.get_release_notes_title_for(version, release)
 
-    commits = load_commits(version, repo, grepo)
+    skip_prs = get_previously_released_prs(refman, version)
+    commits = load_commits(version, repo, grepo, skip_prs)
     counts = count_by_kind(commits)
 
     lines = []
     lines.append("/-")
     lines.append(f"Copyright (c) {date.year} Lean FRO LLC. All rights reserved.")
     lines.append("Released under Apache 2.0 license as described in the file LICENSE.")
-    lines.append("Author: Joscha Mennicken")
+    lines.append(f"Author: {author}")
     lines.append("-/")
     lines.append("")
     lines.append("import VersoManual")
@@ -297,7 +347,7 @@ def main(version: Version, refman: Path):
         lines.append(":::")
     lines.append("")
     lines.append(f"For this release, {pl(counts.total, 'change')} landed.")
-    lines.append(f"In addition to the {pl(counts.feat, 'feature addition')},")
+    lines.append(f"In addition to the {pl(counts.feat, 'feature addition')}")
     lines.append(f"and {pl(counts.fix, 'fix', 'fixes')} listed below,")
     lines.append(f"there were {pl(counts.refactor, 'refactoring change')},")
     lines.append(f"{pl(counts.doc, 'documentation improvement')},")
@@ -311,17 +361,17 @@ def main(version: Version, refman: Path):
         lines.append("")
         lines.append(f"# {section}")
         lines.append("")
-        lines.append("````markdown")
+        body: list[str] = []
         for commit in for_section:
-            lines.append("")
-            lines.append(f"- [#{commit.pr}]({repos.LEAN4.gh_url}/pull/{commit.pr})")
+            body.append("")
+            body.append(f"- [#{commit.pr}]({repos.LEAN4.gh_url}/pull/{commit.pr})")
             for line in commit.description.splitlines():
-                lines.append(f"  {line}".rstrip())
-        lines.append("")
-        lines.append("````")
+                body.append(f"  {line}".rstrip())
+        body.append("")
+        lines.extend(fenced("markdown", body))
 
     out = refman / util.get_release_notes_path_for(version)
-    out.write_text("\n".join(lines) + "\n")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 class Args(Namespace):

@@ -1,0 +1,8 @@
+name = "lint-record"
+defaultTargets = ["Violations"]
+
+[[lean_lib]]
+name = "Linters"
+
+[[lean_lib]]
+name = "Violations"

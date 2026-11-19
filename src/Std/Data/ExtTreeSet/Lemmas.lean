@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.ExtTreeMap.Lemmas
 public import Std.Data.ExtTreeSet.Basic
+public import Std.Internal.ForIn.Basic
 
 @[expose] public section
 
@@ -715,6 +716,35 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   ExtTreeMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  ExtTreeMap.isEmpty_inter_comm
+
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : ExtTreeSet α cmp} :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  ExtTreeMap.isEmpty_union_inter
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : ExtTreeSet α cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  ExtTreeMap.isEmpty_inter_union
+
+theorem inter_eq_empty_comm [TransCmp cmp] :
+    t₁ ∩ t₂ = ∅ ↔ t₂ ∩ t₁ = ∅ := by
+  rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
+
+@[simp]
+theorem union_inter_eq_empty_iff [TransCmp cmp] {t₃ : ExtTreeSet α cmp} :
+    (t₁ ∪ t₂) ∩ t₃ = ∅ ↔ t₁ ∩ t₃ = ∅ ∧ t₂ ∩ t₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_union_inter, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_eq_empty_iff [TransCmp cmp] {t₃ : ExtTreeSet α cmp} :
+    t₁ ∩ (t₂ ∪ t₃) = ∅ ↔ t₁ ∩ t₂ = ∅ ∧ t₁ ∩ t₃ = ∅ := by
+  simp only [← isEmpty_iff, isEmpty_inter_union, Bool.and_eq_true]
+
 end Inter
 
 section Diff
@@ -878,6 +908,14 @@ theorem forIn_eq_forIn [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α → δ �
 theorem forIn_eq_forIn_toList [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   ExtTreeMap.forIn_eq_forIn_keys
+
+@[simp, grind =]
+theorem forIn_toList [TransCmp cmp] (c : ExtTreeSet α cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (ExtTreeSet α cmp) α where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 end monadic
 

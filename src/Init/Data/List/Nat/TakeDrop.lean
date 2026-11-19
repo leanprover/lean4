@@ -75,26 +75,26 @@ theorem head?_take {l : List α} {i : Nat} :
     (l.take i).head? = if i = 0 then none else l.head? := by
   simp [head?_eq_getElem?, getElem?_take]
   split
-  · rw [if_neg (by omega)]
-  · rw [if_pos (by omega)]
+  · rw [ite_eq_right (by omega)]
+  · rw [ite_eq_left (by omega)]
 
 theorem head_take {l : List α} {i : Nat} (h : l.take i ≠ []) :
     (l.take i).head h = l.head (by simp_all) := by
   apply Option.some_inj.1
-  rw [← head?_eq_some_head, ← head?_eq_some_head, head?_take, if_neg]
+  rw [← head?_eq_some_head, ← head?_eq_some_head, head?_take, ite_eq_right]
   simp_all
 
 theorem getLast?_take {l : List α} : (l.take i).getLast? = if i = 0 then none else l[i - 1]?.or l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_take, length_take]
   split
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     rw [Nat.min_def]
     split
     · rw [getElem?_eq_getElem (by omega)]
       simp
     · rw [← getLast?_eq_getElem?, getElem?_eq_none (by omega)]
       simp
-  · rw [if_pos]
+  · rw [ite_eq_left]
     omega
 
 theorem getLast_take {l : List α} (h : l.take i ≠ []) :
@@ -193,9 +193,9 @@ theorem take_eq_append_getElem_of_pos {i} {l : List α} (h₁ : 0 < i) (h₂ : i
   match i, h₁ with
   | i + 1, _ => take_succ_eq_append_getElem (by omega)
 
-theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
+theorem dropLast_take {i : Nat} {l : List α} (h : i ≤ l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
-  simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
+  simp only [dropLast_eq_take, length_take, h, Nat.min_eq_left, take_take, sub_le]
 
 theorem dropLast_take_eq_take_dropLast {l : List α} {i : Nat} :
     (l.take i).dropLast = l.dropLast.take (i - 1) := by
@@ -400,6 +400,7 @@ theorem dropLast_drop_eq_drop_dropLast {l : List α} {i : Nat} :
     (l.drop i).dropLast = l.dropLast.drop i := by
   simp [dropLast_eq_take, Nat.sub_right_comm, drop_take]
 
+set_option linter.deprecated false in
 set_option doc.verso true in
 /--
 This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated
@@ -525,18 +526,22 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
   | cons x xs ih =>
     cases i
     · simp
-    · simp only [take_succ_cons, findIdx_cons, ih, cond_eq_ite]
+    · simp only [take_succ_cons, findIdx_cons, ih]
       split
       · simp
       · rw [Nat.add_min_add_right]
 
-@[simp, grind =] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
+@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
     min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp [findIdx_cons, cond_eq_ite]
+    simp [findIdx_cons]
     split <;> split <;> simp_all [Nat.add_min_add_right]
+
+grind_pattern min_findIdx_findIdx => min (xs.findIdx p) (xs.findIdx q) where
+  p =/= q
+  gen < 2
 
 /-! ### findIdx? -/
 
@@ -559,7 +564,7 @@ theorem takeWhile_eq_take_findIdx_not {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [takeWhile_cons, ih, findIdx_cons, cond_eq_ite, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp only [takeWhile_cons, ih, findIdx_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
     split <;> simp_all
 
 theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
@@ -567,7 +572,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [dropWhile_cons, ih, findIdx_cons, cond_eq_ite, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp only [dropWhile_cons, ih, findIdx_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
     split <;> simp_all
 
 /-! ### rotateLeft -/

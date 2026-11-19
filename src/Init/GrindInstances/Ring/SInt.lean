@@ -6,25 +6,23 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Grind.ToInt
-public import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
 import all Init.Data.SInt.Basic
 public import Init.Data.SInt.Lemmas
 public import Init.Grind.Ring.Basic
+import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.Pow
 import Init.Data.Nat.Dvd
-import Init.Grind.Ring.ToInt
 
 public section
 
 namespace Lean.Grind
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int8.natCast : NatCast Int8 where
   natCast x := Int8.ofNat x
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int8.intCast : IntCast Int8 where
   intCast x := Int8.ofInt x
 
@@ -68,18 +66,13 @@ instance : IsCharP Int8 (2 ^ 8) := IsCharP.mk' _ _
     simp [Int8.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
--- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int8 (.sint 8) := inferInstance
-example : ToInt.Neg Int8 (.sint 8) := inferInstance
-example : ToInt.Sub Int8 (.sint 8) := inferInstance
 
-instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp)
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int16.natCast : NatCast Int16 where
   natCast x := Int16.ofNat x
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int16.intCast : IntCast Int16 where
   intCast x := Int16.ofInt x
 
@@ -123,18 +116,13 @@ instance : IsCharP Int16 (2 ^ 16) := IsCharP.mk' _ _
     simp [Int16.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
--- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int16 (.sint 16) := inferInstance
-example : ToInt.Neg Int16 (.sint 16) := inferInstance
-example : ToInt.Sub Int16 (.sint 16) := inferInstance
 
-instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp)
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int32.natCast : NatCast Int32 where
   natCast x := Int32.ofNat x
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int32.intCast : IntCast Int32 where
   intCast x := Int32.ofInt x
 
@@ -178,18 +166,13 @@ instance : IsCharP Int32 (2 ^ 32) := IsCharP.mk' _ _
     simp [Int32.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
--- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int32 (.sint 32) := inferInstance
-example : ToInt.Neg Int32 (.sint 32) := inferInstance
-example : ToInt.Sub Int32 (.sint 32) := inferInstance
 
-instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp)
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int64.natCast : NatCast Int64 where
   natCast x := Int64.ofNat x
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Int64.intCast : IntCast Int64 where
   intCast x := Int64.ofInt x
 
@@ -233,18 +216,13 @@ instance : IsCharP Int64 (2 ^ 64) := IsCharP.mk' _ _
     simp [Int64.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
--- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int64 (.sint 64) := inferInstance
-example : ToInt.Neg Int64 (.sint 64) := inferInstance
-example : ToInt.Sub Int64 (.sint 64) := inferInstance
 
-instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp)
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def ISize.natCast : NatCast ISize where
   natCast x := ISize.ofNat x
 
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def ISize.intCast : IntCast ISize where
   intCast x := ISize.ofInt x
 
@@ -290,12 +268,6 @@ instance : IsCharP ISize (2 ^ numBits) := IsCharP.mk' _ _
     simp [ISize.ofInt_eq_iff_bmod_eq_toInt,
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
--- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add ISize (.sint numBits) := inferInstance
-example : ToInt.Neg ISize (.sint numBits) := inferInstance
-example : ToInt.Sub ISize (.sint numBits) := inferInstance
 
-instance : ToInt.Pow ISize (.sint numBits) :=
-  ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

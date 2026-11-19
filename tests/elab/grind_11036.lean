@@ -7,11 +7,11 @@ def Function.update (f : ∀ a, β a) (a' : α) (v : β a') (a : α) : β a :=
 
 @[simp]
 theorem Function.update_self (a : α) (v : β a) (f : ∀ a, β a) : update f a v a = v :=
-  dif_pos rfl
+  dite_eq_left rfl
 
 @[simp]
 theorem Function.update_of_ne {a a' : α} (h : a ≠ a') (v : β a') (f : ∀ a, β a) : update f a' v a = f a :=
-  dif_neg h
+  dite_eq_right h
 
 theorem domDomRestrict_aux {ι : Sort u_1} [DecidableEq ι] (P : ι → Prop) [DecidablePred P] {M₁ : ι → Type u_2}
     [DecidableEq {a // P a}]

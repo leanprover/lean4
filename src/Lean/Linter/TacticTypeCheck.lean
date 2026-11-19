@@ -17,16 +17,16 @@ open Lean Elab Command
 open Lean.Linter (logLint)
 
 /--
-Warn when the goal target is not type-correct at `.instances` transparency.
+Warn when the goal target is not type-correct at `.implicit` transparency.
 This can happen when e.g. `unfold` leaves hypotheses whose types still refer to
 the pre-unfolded definition, preventing `rw`/`simp` from matching patterns.
 -/
 register_builtin_option linter.tacticCheckInstances : Bool := {
   defValue := false
-  descr := "enable the linter that type-checks every tactic goal at `.instances` transparency"
+  descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency"
 }
 
-/-- A linter that runs `Meta.check _ .instances` on every tactic goal. -/
+/-- A linter that runs `Meta.check _ .implicit` on every tactic goal. -/
 def tacticCheckInstances : Linter where
   run _cmdStx := do
     -- Do *not* check `linter.all` here, this linter is purely for debugging
@@ -52,9 +52,9 @@ def tacticCheckInstances : Linter where
         --
         -- For each goal, we run `check` first at `.default` transparency
         -- (bailing out if it fails — that's a more fundamental problem), then
-        -- (after resetting the unfold counter) at `.instances`. If the
-        -- `.instances` check fails, the defs unfolded at `.default` but not at
-        -- `.instances` are the candidates for `@[implicit_reducible]` and get
+        -- (after resetting the unfold counter) at `.implicit`. If the
+        -- `.implicit` check fails, the defs unfolded at `.default` but not at
+        -- `.implicit` are the candidates for `@[implicit_reducible]` and get
         -- reported to the user. The pattern mirrors `mkUnfoldAxiomsNote` in
         -- `Lean.Meta.Check`.
         -- `kind` selects the wording of the warning:
@@ -72,10 +72,10 @@ def tacticCheckInstances : Linter where
             -- this is a different (more fundamental) problem.
             try Meta.check target .default catch _ => return none
             let counterDefault := (← get).diag.unfoldCounter
-            -- Reset and try at `.instances`.
+            -- Reset and try at `.implicit`.
             modify ({ · with diag := origDiag })
             try
-              Meta.check target .instances
+              Meta.check target .implicit
               return none
             catch e =>
               let counterInst := (← get).diag.unfoldCounter
@@ -93,7 +93,7 @@ def tacticCheckInstances : Linter where
                 | "initial" => "consider rephrasing the goal or marking"
                 | _         => "consider using propositional rewriting or marking"
               return some m!"{kind} tactic goal is not type-correct at \
-                `.instances` transparency; {remedy} some of the following as \
+                `.implicit` transparency; {remedy} some of the following as \
                 `@[implicit_reducible]`:\
                 {indentD (.joinSep candidates Format.line)}\n\
                 Full error:\

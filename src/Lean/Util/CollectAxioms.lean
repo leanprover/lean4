@@ -23,7 +23,7 @@ abbrev M := ReaderT Environment $ StateM State
 def runM (env : Environment) (x : M α) : α :=
   x.run env |>.run' {}
 
-private def insertArray (s : NameSet) (axs : Array Name) : NameSet :=
+def insertArray (s : NameSet) (axs : Array Name) : NameSet :=
   axs.foldl (init := s) fun acc ax => acc.insert ax
 
 /--
@@ -34,7 +34,7 @@ When processing a constant not found in `extFind?` or the cache, the function te
 clears the axiom accumulator, recurses into the constant's dependencies, caches the result
 in `seen`, and merges the collected axioms back.
 -/
-private partial def collect
+partial def collect
     (extFind? : Environment → Name → Option (Array Name))
     (c : Name) : M Unit := do
   let env ← read
@@ -74,7 +74,7 @@ private partial def collect
   }
 
 /-- Collect axioms for `c` and return its sorted axiom list from the cache. -/
-private def collectAndGet
+def collectAndGet
     (extFind? : Environment → Name → Option (Array Name))
     (c : Name) : M (Array Name) := do
   collect extFind? c
@@ -93,13 +93,13 @@ because `exportEntriesFnEx` needs to call `collect`, which needs the extension's
 thus cannot reference it. This state replicates `MapDeclarationExtension.find?`'s per-module
 binary search without requiring the extension object.
 -/
-private structure ExportedAxiomsState where
+structure ExportedAxiomsState where
   importedModuleEntries : Array (Array (Name × Array Name)) := #[]
 
 instance : Inhabited ExportedAxiomsState := ⟨{}⟩
 
 /-- Look up pre-computed axioms for an imported declaration. -/
-private def ExportedAxiomsState.find? (s : ExportedAxiomsState) (env : Environment)
+def ExportedAxiomsState.find? (s : ExportedAxiomsState) (env : Environment)
     (c : Name) : Option (Array Name) :=
   match env.getModuleIdxFor? c with
   | some modIdx =>
@@ -117,7 +117,7 @@ elaboration. During elaboration, `collectAxioms` walks bodies directly. Downstre
 look up pre-computed entries for imported declarations, so axiom collection never crosses
 module boundaries.
 -/
-private builtin_initialize exportedAxiomsExt :
+builtin_initialize exportedAxiomsExt :
     PersistentEnvExtension (Name × Array Name) (Name × Array Name) ExportedAxiomsState ←
   registerPersistentEnvExtension {
     mkInitial     := pure {}

@@ -109,6 +109,18 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   preferReleaseBuild : Bool := false
 
   /--
+  A cache service hosting build caches for this package.
+
+  If set, `lake cache get` will use this service by default when fetching build caches for this
+  package. When this package is a dependency, Lake will automatically try to fetch output mappings
+  from this service before building the package's targets. If successful, artifacts will then be
+  downloaded from the service on demand during the build.
+
+  **Note:** The specified service must be configured with `hasPackageScopes = false`.
+  -/
+  downloadCacheService? @ downloadCacheService, downloadCacheService? : Option String := none
+
+  /--
   The name of the script, executable, or library by `lake test` when
   this package is the workspace root. To point to a definition in another
   package, use the syntax `<pkg>/<def>`.
@@ -286,17 +298,19 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   * The workspace root's `enableArtifactCache` configuration (if set and this package is a dependency).
   * **Lake's default**: The package can use artifacts from the cache, but cannot write to it.
   -/
-  enableArtifactCache?, enableArtifactCache : Option Bool := none
+  enableArtifactCache? @ enableArtifactCache, enableArtifactCache? : Option Bool := none
 
   /--
   Whether, when the local artifact cache is enabled, Lake should copy all cached
   artifacts into the build directory. This ensures the build results are available
   to external consumers who expect them in the build directory.
 
-  If `none` (the default), this will follow the workspace's `restoreAllArtifacts` configuration
-  (if set and this package is a dependency). If that is also unset, this will default to `false`.
+  If `none` (the default), this will fallback to (in order):
+  * The `LAKE_RESTORE_ARTIFACTS` environment variable (if set).
+  * The workspace root's `restoreAllArtifacts` configuration (if set and this package is a dependency).
+  * **Lake's default**: `false`.
   -/
-  restoreAllArtifacts?, restoreAllArtifacts : Option Bool := none
+  restoreAllArtifacts? @ restoreAllArtifacts, restoreAllArtifacts? : Option Bool := none
 
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
@@ -332,7 +346,13 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
     will run built-in lints when no lint driver is configured (i.e., act like `true`
     as a fallback).
   -/
-  builtinLint?, builtinLint : Option Bool := none
+  builtinLint? @ builtinLint, builtinLint? : Option Bool := none
+
+  /--
+  Additional modules imported for each environment
+  used in running code quality checks.
+  -/
+  checks : Array Name := #[]
 
   /--
   Whether this package is expected to function only on a single toolchain

@@ -1,9 +1,15 @@
+Input: "dialect:=\"chicken\" 43\nfoo"
 Success! Final stack:
-  [(Lean.Doc.Syntax.named_no_paren
+  [(Lean.Doc.Parser.Arg.named_no_paren
     `dialect
     ":="
-    (Lean.Doc.Syntax.arg_str (str "\"chicken\"")))
-   (Lean.Doc.Syntax.anon
-    (Lean.Doc.Syntax.arg_num (num "43")))]
+    (Lean.Doc.Parser.ArgVal.str
+     (str "\"chicken\"")))
+   (Lean.Doc.Parser.Arg.anon
+    (Lean.Doc.Parser.ArgVal.num (num "43")))]
 Remaining:
 "\nfoo"
+Round-trip OK
+Decoded views:
+  named (parens := none) (name := dialect) (assign := ":=") (val := str (lit := "chicken") (value := "chicken"))
+  anon (val := num (lit := 43) (value := 43))

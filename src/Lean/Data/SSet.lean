@@ -43,10 +43,10 @@ def toList (m : SSet α) : List α :=
 
 end SSet
 
-end Lean
-
-def List.toSSet [BEq α] [Hashable α] (es : List α) : Lean.SSet α :=
+def List.toSSet [BEq α] [Hashable α] (es : List α) : SSet α :=
   es.foldl (init := {}) fun s a => s.insert a
 
-instance {_ : BEq α} {_ : Hashable α} [Repr α] : Repr (Lean.SSet α) where
+instance {_ : BEq α} {_ : Hashable α} [Repr α] : Repr (SSet α) where
   reprPrec v prec := Repr.addAppParen (reprArg v.toList ++ ".toSSet") prec
+
+end Lean

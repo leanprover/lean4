@@ -29,7 +29,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 A method is a verb that describes the action to be performed.
@@ -336,6 +336,34 @@ def ofString! (s : String) : Method :=
   | some m => m
   | none => panic! s!"invalid HTTP method: {s.quote}"
 
+/--
+Returns `true` for HTTP methods that RFC 9110 §9.2.2 designates as idempotent —
+methods that can be safely retried because repeating the request has the same
+effect as issuing it once.
+
+Reference: https://httpwg.org/specs/rfc9110.html#idempotent.methods
+-/
+def isIdempotent (m : Method) : Bool :=
+  m == .get || m == .head || m == .put || m == .delete || m == .options || m == .trace
+
+/--
+Returns `true` for HTTP methods that RFC 9110 §9.2.1 designates as safe —
+read-only methods that do not modify resource state.
+
+Reference: https://httpwg.org/specs/rfc9110.html#safe.methods
+-/
+def isSafe (m : Method) : Bool :=
+  m == .get || m == .head || m == .options || m == .trace
+
+/--
+Returns `false` for the methods whose semantics anticipate no request content: those RFC 9110 §8.6
+tells a user agent not to send `Content-Length` for when the request carries none.
+
+Reference: https://httpwg.org/specs/rfc9110.html#field.content-length
+-/
+def anticipatesContent (m : Method) : Bool :=
+  !(m == .get || m == .head || m == .delete || m == .options || m == .trace || m == .connect)
+
 instance : ToString Method where
   toString
     | .acl => "ACL"
@@ -380,6 +408,22 @@ instance : ToString Method where
     | .versionControl => "VERSION-CONTROL"
 
 instance : Encode .v11 Method where
-  encode buffer := buffer.writeString ∘ toString
+  encode out method := out ++ toString method
+
+/--
+Every method, the most commonly used first.
+-/
+def all : Array Method :=
+  #[.get, .post, .head, .put, .delete, .patch, .options, .connect, .trace, .query, .acl,
+    .baselineControl, .bind, .checkin, .checkout, .copy, .label, .link, .lock, .merge, .mkactivity,
+    .mkcalendar, .mkcol, .mkredirectref, .mkworkspace, .move, .orderpatch, .pri, .propfind,
+    .proppatch, .rebind, .report, .search, .unbind, .uncheckout, .unlink, .unlock, .update,
+    .updateredirectref, .versionControl]
+
+/--
+`all` lists every method, so a constructor added to `Method` fails this proof until it is listed.
+-/
+theorem all_complete (method : Method) : all.toList.contains method := by
+  cases method <;> decide
 
 end Std.Http.Method

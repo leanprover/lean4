@@ -1,21 +1,24 @@
-Failure @21 (⟨3, 0⟩): expected indentation at least 1
+Input: ": an excellent idea\n\nLet's say more!\n\nhello"
+Failure: expected description body with indentation at least 1
+ --> 3:0-3:1
+  |
+3 | Let's say more!
+  | ^
+  = consumed input prefix: 21 bytes
 Final stack:
-  [(Lean.Doc.Syntax.dl
-    "dl{"
-    [(Lean.Doc.Syntax.desc
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text
-        (str "\" an excellent idea\""))]
-      "=>"
-      <missing>)]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str "\"Let's say more!\""))]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"hello\""))]
-    "}")]
-Remaining: "Let's say more!\n\nhello"
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "an excellent idea"))]
+      <missing>)])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Let's say more!"))])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "hello"))])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

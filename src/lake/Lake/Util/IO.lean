@@ -45,6 +45,42 @@ public def writeBinFileIfNew (path : FilePath) (content : ByteArray) : IO Unit :
   h.write content
 
 /--
+Atomically renames {lean}`src` to {lean}`dst`.
+If {lean}`dst` exists, leaves it unchanged and removes {lean}`src`.
+-/
+def publishFileIfNew (src dst : FilePath) : IO Unit :=
+  try IO.FS.renameIfNew src dst catch e =>
+    unless (← dst.pathExists) do
+      throw e
+    try IO.FS.removeFile src catch _ => pure ()
+
+/--
+Produces a file at {lean}`path` with its full {lean}`content` in one atomic operation.
+To do so, it writes the content to {lit}`.part.tmp` file and then renames it to the destination.
+If the file already exists, it will be left as-is.
+-/
+public def writeBinFileAtomicIfNew (path : FilePath) (content : ByteArray) := do
+  let tmpFile := path.addExtension "part.tmp"
+  try discard <| IO.FS.Handle.mk tmpFile .writeNew catch _ => pure ()
+  let h ← IO.FS.Handle.mk tmpFile .readWrite
+  h.lock
+  if (← path.pathExists) then
+    try IO.FS.removeFile tmpFile catch _ => pure ()
+  else
+    h.rewind
+    -- A racing rename may leave us holding a handle to `path`.
+    -- Thus, we must not write if the file already contains the expected contents.
+    unless (← h.readBinToEnd.toBaseIO).toOption.any (· == content) do
+      h.rewind
+      -- Nonatomic write under the lock.
+      h.truncate
+      h.write content
+      h.flush
+    -- Atomic rename. Must not overwrite because the `tmpFile` could be
+    -- an empty temporary file created by a racing rename and then a racing write.
+    publishFileIfNew tmpFile path
+
+/--
 Remove a directory and all its contents.
 Like {lean}`IO.FS.removeDirAll`, but does not fail if {lean}`path` does not exist
 or if a file is first deleted by a racing process.
@@ -70,6 +106,18 @@ public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
 public def copyFile (src dst : FilePath) : IO Unit := do
   let contents ← IO.FS.readBinFile src
   IO.FS.writeBinFile dst contents
+
+/-- Copy a directory and all its contents from {lean}`src` to {lean}`dst`. -/
+public partial def copyDirAll (src dst : FilePath) : IO Unit := do
+  IO.FS.createDirAll dst
+  let ents ← src.readDir
+  for ent in ents do
+    let srcPath := src / ent.fileName
+    let dstPath := dst / ent.fileName
+    if (← srcPath.isDir) then
+      copyDirAll srcPath dstPath
+    else
+      copyFile srcPath dstPath
 
 /-- Returns the normalized real path of a file if it exists. Otherwise, returns {lean}`""`. -/
 public def resolvePath (path : FilePath) : BaseIO FilePath := do

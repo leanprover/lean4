@@ -136,8 +136,8 @@
 {"textDocument": {"uri": "file:///vcgenInfoTree.lean"},
  "position": {"line": 40, "character": 5}}
 {"rendered":
- "```lean\ncase vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0\n```\n---\n```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ i < mb✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
+ "```lean\ncase vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0\n```\n---\n```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝¹ : mb✝ = i✝\na✝ :\n  have exit := false;\n  if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ i < i✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝¹ : mb✝ = i\na✝ :\n  have exit := false;\n  if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
  "goals":
  ["case vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0",
-  "case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ i < mb✝",
-  "case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}
+  "case vc2\nn i✝ mb✝ : Nat\na✝¹ : mb✝ = i✝\na✝ :\n  have exit := false;\n  if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ i < i✝",
+  "case vc3\nn i mb✝ : Nat\na✝¹ : mb✝ = i\na✝ :\n  have exit := false;\n  if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}

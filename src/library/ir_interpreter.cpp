@@ -193,6 +193,9 @@ option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+/* isDisabled : BaseIO Bool */
+extern "C" uint8 lean_compiler_is_disabled();
+
 extern "C" object * lean_ir_find_env_decl_boxed(object * env, object * n);
 option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl_boxed(env.to_obj_arg(), n.to_obj_arg()));
@@ -998,6 +1001,8 @@ private:
     decl get_decl(name const & fn) {
         option_ref<decl> d = find_ir_decl(m_env, fn);
         if (!d) {
+            if (lean_compiler_is_disabled())
+                throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'; note that code generation is disabled by `compiler.disable`");
             throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'");
         }
         return d.get().value();

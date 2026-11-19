@@ -717,6 +717,27 @@ run_cmd
     ``WithImplicit, ``WithExplicit, ``TestPrivate]
 
 /-!
+You can derive private type classes in an `@[expose] public section` (which we are currently in)
+-/
+
+private class Secret (α : Type) where
+  secret : α → Nat
+
+meta def secretHandler : DerivingHandler :=
+  mkInductiveDerivingHandler ``Secret do
+    deriveTransformationInstPerConstructor fun _ cval _ _ => return toExpr cval.cidx
+
+structure Exposed where
+  x : Nat
+
+#guard_msgs in
+run_cmd secretHandler #[``Exposed]
+
+/-- info: @[instance_reducible] private def instSecretExposed : Secret Exposed -/
+#guard_msgs in
+#print sig instSecretExposed
+
+/-!
 Test for dependency analysis in `foldSimilarVarsParallel`
 -/
 

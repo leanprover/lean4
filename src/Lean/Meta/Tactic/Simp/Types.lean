@@ -32,6 +32,12 @@ register_builtin_option dsimp.resynthInstances : Bool := {
       depend on; adopt a resynthesized instance when possible, refuse the rewrite otherwise"
   }
 
+register_builtin_option dsimp.resynthInstances.explicit : Bool := {
+    defValue := false
+    descr    := "let `dsimp.resynthInstances` also check explicit arguments whose type is a class \
+      or a function type with a class codomain"
+  }
+
 register_builtin_option dsimp.resynthInstances.warning : Bool := {
     defValue := true
     descr    := "warn when `dsimp.resynthInstances` refuses a rewrite"
@@ -94,6 +100,8 @@ structure Context where
   congrTheorems     : SimpCongrTheorems := {}
   /-- See `dsimp.resynthInstances`. Set by `mkContext`. -/
   resynthInstances  : Bool := false
+  /-- See `dsimp.resynthInstances.explicit`. Set by `mkContext`. -/
+  resynthInstancesExplicit : Bool := false
   /--
   Stores the "parent" term for the term being simplified.
   If a simplification procedure result depends on this value,
@@ -199,6 +207,7 @@ def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (
     metaConfig := (← mkMetaConfig config)
     indexConfig := (← mkIndexConfig config)
     resynthInstances := dsimp.resynthInstances.get (← getOptions)
+    resynthInstancesExplicit := dsimp.resynthInstances.explicit.get (← getOptions)
   }
 
 def Context.setConfig (context : Context) (config : Config) : MetaM Context := do
@@ -695,7 +704,8 @@ private def instantiatedBinderDomain? (fType : Expr) (args : Array Expr) (j : Na
 Check the instance arguments of `f` after its arguments changed from `origArgs` to `args0`.
 An instance argument whose type depends on a changed argument is checked against its new binder
 domain at `.instances` transparency; classes exempted by `isLaxInstanceDefeqClass` (marked
-`@[lax_instance_defeq]`, or propositional) are skipped. On a mismatch, synthesize an instance of the new domain and
+`@[lax_instance_defeq]`, or propositional) are skipped. Under `dsimp.resynthInstances.explicit`,
+explicit arguments of class type count as instance arguments. On a mismatch, synthesize an instance of the new domain and
 adopt it if it is defeq to the old instance at `.implicit` transparency; otherwise revert the
 changed arguments the instance depends on, i.e. refuse those rewrites.
 
@@ -707,9 +717,14 @@ for messages. See `dsimp.resynthInstances`.
 def resynthInstanceArgs (e f : Expr) (origArgs args0 : Array Expr) : SimpM (Array Expr) := do
   let infos := (← getFunInfoNArgs f args0.size).paramInfo
   let n := min (min infos.size args0.size) origArgs.size
+  let explicitToo := (← readThe Simp.Context).resynthInstancesExplicit
+  -- Explicit parameters are candidates under `dsimp.resynthInstances.explicit`; whether their type
+  -- is a class is decided once the binder domain is instantiated.
+  let isCandidate (info : ParamInfo) : Bool :=
+    info.isInstance || (explicitToo && info.binderInfo.isExplicit)
   let mut relevant := false
   for j in [0:n] do
-    if infos[j]!.isInstance && infos[j]!.backDeps.any (fun i => i < n && args0[i]! != origArgs[i]!) then
+    if isCandidate infos[j]! && infos[j]!.backDeps.any (fun i => i < n && args0[i]! != origArgs[i]!) then
       relevant := true
       break
   unless relevant do return args0
@@ -722,11 +737,12 @@ def resynthInstanceArgs (e f : Expr) (origArgs args0 : Array Expr) : SimpM (Arra
     let mut dirty := false
     for j in [0:n] do
       let info := infos[j]!
-      unless info.isInstance do continue
+      unless isCandidate info do continue
       unless info.backDeps.any (fun i => i < n && args[i]! != origArgs[i]!) do continue
       let some expected ← instantiatedBinderDomain? fType args j | continue
-      if let some className ← isClass? expected then
-        if isLaxInstanceDefeqClass (← getEnv) className then continue
+      match ← isClass? expected with
+      | some className => if isLaxInstanceDefeqClass (← getEnv) className then continue
+      | none => unless info.isInstance do continue
       let instOld := args[j]!
       let actual ← inferType instOld
       if ← withNewMCtxDepth <| withReducibleAndInstances <| isDefEqGuarded actual expected then
@@ -763,8 +779,9 @@ def resynthInstanceArgs (e f : Expr) (origArgs args0 : Array Expr) : SimpM (Arra
               reverted := reverted.push i
         unless reverted.isEmpty do
           for k in [0:n] do
-            if infos[k]!.isInstance && infos[k]!.backDeps.any reverted.contains
-                && args[k]! != origArgs[k]! then
+            if isCandidate infos[k]! && infos[k]!.backDeps.any reverted.contains
+                && args[k]! != origArgs[k]!
+                && (infos[k]!.isInstance || (← isClass? (← inferType origArgs[k]!)).isSome) then
               if ← withNewMCtxDepth <| withDefault <| isDefEqGuarded args[k]! origArgs[k]! then
                 args := args.set! k origArgs[k]!
           dirty := true

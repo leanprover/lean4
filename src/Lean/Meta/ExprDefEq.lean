@@ -86,6 +86,13 @@ register_builtin_option backward.isDefEq.respectTransparency.instances : Bool :=
   of an assignment to an instance-implicit metavariable"
 }
 
+register_builtin_option backward.isDefEq.respectTransparency.instances.allMVars : Bool := {
+  defValue := false
+  descr    := "if true, `backward.isDefEq.respectTransparency.instances` applies to metavariables of \
+  every kind (natural, synthetic, synthetic opaque) whose type is a class or a function type with a \
+  class codomain"
+}
+
 register_builtin_option backward.isDefEq.respectTransparency.instances.natural : Bool := {
   defValue := false
   descr    := "if true, `backward.isDefEq.respectTransparency.instances` also applies to natural \
@@ -610,16 +617,18 @@ parameter, identified by `.synthetic` kind together with a class type.
 Assignments to these are checked at exactly `.instances` transparency, so an ambient
 `.default`/`.all` does not let semireducible definitions be unfolded while checking the type of an
 instance assignment. Natural metavariables of class type, such as those created for `{..}` binders,
-count only under `backward.isDefEq.respectTransparency.instances.natural`. Classes exempted by
+count only under `backward.isDefEq.respectTransparency.instances.natural`, and metavariables of every
+kind under `backward.isDefEq.respectTransparency.instances.allMVars`. Classes exempted by
 `isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional) never count.
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
   unless (← getOptionFlags).respectTransparencyInstances do
     return false
-  match (← mvarId.getKind) with
-  | .synthetic => pure ()
-  | .natural => unless (← getOptionFlags).respectTransparencyInstancesNatural do return false
-  | .syntheticOpaque => return false
+  unless (← getOptionFlags).respectTransparencyInstancesAllMVars do
+    match (← mvarId.getKind) with
+    | .synthetic => pure ()
+    | .natural => unless (← getOptionFlags).respectTransparencyInstancesNatural do return false
+    | .syntheticOpaque => return false
   let some className ← isClass? (← mvarId.getDecl).type | return false
   return !isLaxInstanceDefeqClass (← getEnv) className
 
@@ -713,7 +722,20 @@ fallback, assigning the metavariable would fail, surprising to the user.
 -/
 private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
   checkpointDefEq do
-    unless (← Meta.synthPending mvar.mvarId!) do
+    let mvarId := mvar.mvarId!
+    -- `synthPending` does not synthesize synthetic opaque metavariables, so synthesize into a fresh
+    -- synthetic one with the same context and type.
+    let synthesized ← if (← mvarId.getKind).isSyntheticOpaque then
+        let decl ← mvarId.getDecl
+        let aux ← mkFreshExprMVarAt decl.lctx decl.localInstances decl.type .synthetic
+        if (← Meta.synthPending aux.mvarId!) then
+          mvarId.assign (← instantiateMVars aux)
+          pure true
+        else
+          pure false
+      else
+        Meta.synthPending mvarId
+    unless synthesized do
       if (← isDiagnosticsEnabled) then
         trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceSearchTypes false`"
       return false

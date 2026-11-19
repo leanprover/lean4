@@ -425,6 +425,133 @@ info: @[instance_reducible, expose] def instMyClassWithExplicit : (α : Type) �
 #print sig instMyClassWithExplicit
 
 /-!
+With `deriving.univPoly true` (default), multiple instances will be generated if needed to cover
+all universe possibilities
+-/
+
+run_cmd handler #[``PSigma]
+
+/--
+info: @[instance_reducible, expose] def instMyClassPSigma.{u, v} : {α : Type u} →
+  {β : α → Type v} → [MyClass α] → [(fst : α) → MyClass (β fst)] → MyClass (PSigma β)
+-/
+#guard_msgs in #print sig instMyClassPSigma
+/--
+info: @[instance_reducible, expose] def instMyClassPSigma_1.{u} : {α : Type u} →
+  {β : α → Prop} → [MyClass α] → MyClass (PSigma β)
+-/
+#guard_msgs in #print sig instMyClassPSigma_1
+/--
+info: @[instance_reducible, expose] def instMyClassPSigma_2.{v} : {α : Prop} →
+  {β : α → Type v} → [(fst : α) → MyClass (β fst)] → MyClass (PSigma β)
+-/
+#guard_msgs in #print sig instMyClassPSigma_2
+/--
+info: @[instance_reducible, expose] def instMyClassPSigma_3 : {α : Prop} → {β : α → Prop} → MyClass (PSigma β)
+-/
+#guard_msgs in #print sig instMyClassPSigma_3
+
+/-!
+The deriving handler will complain if there are too many possibilities (default limit is 8)
+-/
+
+structure ReallyPolymorphic (α : Sort u) (β : Sort v) (γ : Sort w) (δ : Sort x) where
+  fst : α
+  snd : β
+  trd : γ
+  fth : δ
+
+/--
+error: Limit set by `deriving.univPoly.limit` exceeded:
+Deriving an instance of `MyClass` for `ReallyPolymorphic` would require more than 8 different
+instantiations of level parameters to be exhaustive, including:
+  ReallyPolymorphic.{u + 1, v + 1, w + 1, x + 1}
+  ReallyPolymorphic.{u + 1, v + 1, w + 1, 0}
+  ReallyPolymorphic.{u + 1, v + 1, 0, x + 1}
+  ReallyPolymorphic.{u + 1, v + 1, 0, 0}
+  ReallyPolymorphic.{u + 1, 0, w + 1, x + 1}
+  ReallyPolymorphic.{u + 1, 0, w + 1, 0}
+  ReallyPolymorphic.{u + 1, 0, 0, x + 1}
+  ReallyPolymorphic.{u + 1, 0, 0, 0}
+  ReallyPolymorphic.{0, v + 1, w + 1, x + 1}
+If you just want to generate one instance for the first option, use
+`set_option deriving.univPoly false`. If you want to generate instances for all instantiations, use
+`set_option deriving.univPoly.limit 0` (note however that this may be quite expensive).
+-/
+#guard_msgs in
+run_cmd handler #[``ReallyPolymorphic]
+
+/-!
+You can disable the limit with `deriving.univPoly.limit 0`
+-/
+
+set_option deriving.univPoly.limit 0 in
+run_cmd handler #[``ReallyPolymorphic]
+
+/--
+info: @[instance_reducible, expose] def instMyClassReallyPolymorphic_15 : {α β γ δ : Prop} →
+  MyClass (ReallyPolymorphic α β γ δ)
+-/
+#guard_msgs in
+#print sig instMyClassReallyPolymorphic_15
+
+/-!
+`deriving.univPoly false` just causes one instance to be generated
+-/
+
+set_option deriving.univPoly false in
+run_cmd handler #[``Subtype]
+
+/--
+info: @[instance_reducible, expose] def instMyClassSubtype.{u} : {α : Type u} →
+  {p : α → Prop} → [MyClass α] → MyClass (Subtype p)
+-/
+#guard_msgs in #print sig instMyClassSubtype
+/-- error: Unknown constant `instMyClassSubtype_1` -/
+#guard_msgs in #print sig instMyClassSubtype_1
+
+/-!
+The deriving handler also handles nested `Sort`-polymorphic types
+-/
+
+inductive NestReallyPolymorphic where
+  | none
+  | branch (self : ReallyPolymorphic NestReallyPolymorphic NestReallyPolymorphic
+      NestReallyPolymorphic NestReallyPolymorphic)
+
+run_cmd handler #[``NestReallyPolymorphic]
+
+/--
+info: @[instance_reducible, expose] def instMyClassNestReallyPolymorphic : MyClass NestReallyPolymorphic
+-/
+#guard_msgs in #print sig instMyClassNestReallyPolymorphic
+
+/-!
+Because errors may only occur for certain instantiations, errors show the particular instantiation
+that caused the failure (if there are multiple). Example: `PropInstMissing` is generated
+non-polymorphically and we try to nest it polymorphically
+-/
+
+structure PropInstMissing (α : Sort u) (β : Sort v) where
+  fst : α
+  snd : β
+
+set_option deriving.univPoly false in
+run_cmd handler #[``PropInstMissing]
+
+structure NestPolymorphically (α : Sort u) where
+  inner : PropInstMissing α (NestPolymorphically α)
+
+/--
+error: For the instantiation `NestPolymorphically.{0}` of level parameters (see option `deriving.univPoly`):
+  Error while processing constructor NestPolymorphically.mk:
+    Got stuck at instance requirement for nested type while deriving an instance for MyClass:
+      MyClass (PropInstMissing α (NestPolymorphically α))
+    Reason: Failed to unify with the conclusion of @instMyClassPropInstMissing
+-/
+#guard_msgs in run_cmd handler #[``NestPolymorphically]
+
+/-!
 The deriving handler also handles types parameterized using structures
 -/
 

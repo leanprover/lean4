@@ -1323,14 +1323,18 @@ static inline uint8_t lean_byte_array_uget(b_lean_obj_arg a, size_t i) {
     assert(i < lean_sarray_size(a));
     return lean_sarray_cptr(a)[i];
 }
+
+LEAN_EXPORT uint8_t lean_byte_array_get_panic(void);
+
 static inline uint8_t lean_byte_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_byte_array_uget(a, idx) : 0;
-    } else {
-        /* The index must be out of bounds. Otherwise we would be out of memory. */
-        return 0;
+        if (idx < lean_sarray_size(a)) {
+            return lean_byte_array_uget(a, idx);
+        }
     }
+    /* See lean_array_get */
+    return lean_byte_array_get_panic();
 }
 static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_byte_array_uget(a, lean_unbox(i));
@@ -1345,17 +1349,16 @@ static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8
     return r;
 }
 
+LEAN_EXPORT lean_obj_res lean_byte_array_set_panic(lean_obj_arg a);
+
 static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
-    if (!lean_is_scalar(i)) {
-        return a;
-    } else {
+    if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        if (idx >= lean_sarray_size(a)) {
-            return a;
-        } else {
+        if (idx < lean_sarray_size(a)) {
             return lean_byte_array_uset(a, idx, b);
         }
     }
+    return lean_byte_array_set_panic(a);
 }
 
 static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
@@ -1392,14 +1395,17 @@ static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_float_array_uget(a, lean_unbox(i));
 }
 
+LEAN_EXPORT double lean_float_array_get_panic(void);
+
 static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_float_array_uget(a, idx) : 0.0;
-    } else {
-        /* The index must be out of bounds. Otherwise we would be out of memory. */
-        return 0.0;
+        if (idx < lean_sarray_size(a)) {
+            return lean_float_array_uget(a, idx);
+        }
     }
+    /* See lean_array_get */
+    return lean_float_array_get_panic();
 }
 
 LEAN_EXPORT lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
@@ -1415,17 +1421,16 @@ static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg 
     return lean_float_array_uset(a, lean_unbox(i), d);
 }
 
+LEAN_EXPORT lean_obj_res lean_float_array_set_panic(lean_obj_arg a);
+
 static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i, double d) {
-    if (!lean_is_scalar(i)) {
-        return a;
-    } else {
+    if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        if (idx >= lean_sarray_size(a)) {
-            return a;
-        } else {
+        if (idx < lean_sarray_size(a)) {
             return lean_float_array_uset(a, idx, d);
         }
     }
+    return lean_float_array_set_panic(a);
 }
 
 /* Strings */

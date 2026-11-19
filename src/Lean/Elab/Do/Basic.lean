@@ -646,17 +646,18 @@ def MutVar.stateValue (mv : MutVar) : MetaM Expr := do
   if mv.erased then mkErasedMkApp v else return v
 
 /--
-Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
-fields of the tuple and call `k` in the resulting local context.
+Given a list of mut vars `vars` and a tuple `tuple` of type `tupleTy`, bind the mut vars to the
+fields of the tuple and call `k` in the resulting local context. The tails of the tuple that the
+bindings go through are named `restName`.
 -/
-def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
+def bindMutVarsFromTupleExpr (vars : List Name) (tuple tupleTy : Expr) (restName : Name)
+    (k : DoElabM Expr) : DoElabM Expr := do
   let erasedVars := (← read).mutVars.filter fun mv => mv.erased && vars.contains mv.getId
   -- Like the erased rebindings themselves, the projections contribute only aliases here.
   let k := withErasedProjs erasedVars k (info := false)
-  go vars tupleVar (← tupleVar.getType) #[] k
+  go vars tuple tupleTy #[] k
 where
-  go vars tupleVar tupleTy letFVars k := do
-    let tuple := mkFVar tupleVar
+  go vars tuple tupleTy letFVars k := do
     match vars with
     | []  => mkLetFVars letFVars (← instantiateMVars (← k))
     | [x] =>
@@ -674,8 +675,15 @@ where
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
       withLetDecl x fstTy fst fun xf => do
         registerMutVarAlias x
-        withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
-          go xs r.fvarId! sndTy (letFVars |>.push xf |>.push r) k
+        withLetDecl restName sndTy snd fun r => do
+          go xs r sndTy (letFVars |>.push xf |>.push r) k
+
+/--
+Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
+fields of the tuple and call `k` in the resulting local context.
+-/
+def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
+  bindMutVarsFromTupleExpr vars (mkFVar tupleVar) (← tupleVar.getType) (← tupleVar.getUserName) k
 
 /--
   Backtrackable state for the `TermElabM` monad.

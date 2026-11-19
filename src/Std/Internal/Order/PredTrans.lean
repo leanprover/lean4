@@ -128,22 +128,21 @@ instance {Pred : Type u} [CCPO Pred] : CCPO (PredTrans Pred EPosts α) where
         subst hp
         exact h pt hpt post eposts
 
-/-- Monotonicity of `pt` as a proposition. Every predicate transformer satisfies it by
-`apply_mono`. -/
+set_option linter.missingDocs false in
 @[deprecated "every `PredTrans` is monotone by its field `PredTrans.apply_mono`"
   (since := "2026-11-16")]
 def Monotone (pt : PredTrans Pred EPosts α) :=
   ∀ post post' eposts eposts', eposts ⊑ eposts' → post ⊑ post' → pt.apply post eposts ⊑ pt.apply post' eposts'
 
-/-- A predicate transformer `pt` is conjunctive: the meet of two preconditions lies below the
-precondition of the componentwise meet of the postconditions. -/
+/-- Finite conjunctivity property for a predicate transformer: the meet of two preconditions lies below
+the precondition of the componentwise meet of the postconditions. By extension, this holds for any non-empty, finite meet. -/
 class IsConjunctive {Pred : Type u} {EPosts : Type v} [CompleteLattice Pred]
     [CompleteLattice EPosts] (pt : PredTrans Pred EPosts α) : Prop where
   /-- The meet of two preconditions lies below the precondition of the meet. -/
   meet_apply_le : ∀ post₁ post₂ eposts₁ eposts₂,
     pt.apply post₁ eposts₁ ⊓ pt.apply post₂ eposts₂ ⊑ pt.apply (post₁ ⊓ post₂) (eposts₁ ⊓ eposts₂)
 
-/-- Conjunctivity of `pt` as a proposition. -/
+set_option linter.missingDocs false in
 @[deprecated IsConjunctive (since := "2026-11-13")]
 def Conjunctive {Pred : Type u} {EPosts : Type v} [CompleteLattice Pred] [CompleteLattice EPosts]
     (pt : PredTrans Pred EPosts α) :=
@@ -643,6 +642,76 @@ instance (x : PredTrans Pred EPosts (Option α)) [x.IsConjunctive] :
     refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
       (x.apply_mono (fun o => ?_) PartialOrder.rel_refl)
     cases o <;> simp only [meet_apply, pushOption, Prod.fst_meet] <;> exact PartialOrder.rel_refl⟩
+
+instance {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) [x.IsConjunctive] (s : σ) :
+    (x.popArg s).IsConjunctive :=
+  ⟨fun post₁ post₂ E₁ E₂ => by
+    have h := IsConjunctive.meet_apply_le (pt := x) (fun a s => post₁ (a, s))
+      (fun a s => post₂ (a, s)) E₁ E₂ s
+    rw [meet_apply] at h
+    simp only [apply_popArg]
+    refine PartialOrder.rel_trans h (x.apply_mono (fun a s => ?_) PartialOrder.rel_refl s)
+    simp only [meet_apply]
+    exact PartialOrder.rel_refl⟩
+
+instance {σ : Type z} (x : PredTrans Pred EPosts α) [x.IsConjunctive] :
+    (liftArg x : PredTrans (σ → Pred) EPosts α).IsConjunctive :=
+  ⟨fun _ _ _ _ s => by
+    simp only [meet_apply, apply_liftArg]
+    refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
+      (x.apply_mono (fun a => ?_) PartialOrder.rel_refl)
+    simp only [meet_apply]
+    exact PartialOrder.rel_refl⟩
+
+instance {ε : Type z} (e : ε) : (throw e : PredTrans Pred ((ε → Pred) × EPosts) α).IsConjunctive :=
+  ⟨fun _ _ _ _ => by
+    simp only [throw, apply_mk, Prod.fst_meet, meet_apply]
+    exact PartialOrder.rel_refl⟩
+
+instance {ε : Type z} (x : PredTrans Pred ((ε → Pred) × EPosts) α)
+    (handle : ε → PredTrans Pred ((ε → Pred) × EPosts) α) [x.IsConjunctive]
+    [∀ e, (handle e).IsConjunctive] : (tryCatch x handle).IsConjunctive :=
+  ⟨fun _ _ _ _ => by
+    simp only [tryCatch, apply_mk]
+    refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
+      (x.apply_mono PartialOrder.rel_refl ⟨fun e => ?_, ?_⟩)
+    · simp only [Prod.fst_meet, meet_apply]
+      exact IsConjunctive.meet_apply_le (pt := handle e) _ _ _ _
+    · simp only [Prod.snd_meet]
+      exact PartialOrder.rel_refl⟩
+
+instance {eh : Type z} [CompleteLattice eh] (x : PredTrans Pred EPosts α) [x.IsConjunctive] :
+    (liftExcept x : PredTrans Pred (eh × EPosts) α).IsConjunctive :=
+  ⟨fun _ _ _ _ => by
+    simp only [apply_liftExcept, Prod.snd_meet]
+    exact IsConjunctive.meet_apply_le (pt := x) _ _ _ _⟩
+
+instance {eh : Type z} [CompleteLattice eh] (x : PredTrans Pred (eh × EPosts) α)
+    [x.IsConjunctive] (h : eh) : (x.popExcept h).IsConjunctive :=
+  ⟨fun _ _ _ _ => by
+    simp only [apply_popExcept]
+    refine PartialOrder.rel_trans (IsConjunctive.meet_apply_le (pt := x) _ _ _ _)
+      (x.apply_mono PartialOrder.rel_refl ⟨?_, ?_⟩)
+    · simp only [Prod.fst_meet]
+      exact meet_le_left h h
+    · simp only [Prod.snd_meet]
+      exact PartialOrder.rel_refl⟩
+
+instance {σ : Type z} : (get : PredTrans (σ → Pred) EPosts σ).IsConjunctive :=
+  ⟨fun _ _ _ _ s => by
+    simp only [get, apply_mk, meet_apply]
+    exact PartialOrder.rel_refl⟩
+
+instance {σ : Type z} (s' : σ) : (set s' : PredTrans (σ → Pred) EPosts PUnit).IsConjunctive :=
+  ⟨fun _ _ _ _ s => by
+    simp only [set, apply_mk, meet_apply]
+    exact PartialOrder.rel_refl⟩
+
+instance {σ α : Type z} (f : σ → α × σ) :
+    (modifyGet f : PredTrans (σ → Pred) EPosts α).IsConjunctive :=
+  ⟨fun _ _ _ _ s => by
+    simp only [modifyGet, apply_mk, meet_apply]
+    exact PartialOrder.rel_refl⟩
 
 end PredTrans
 

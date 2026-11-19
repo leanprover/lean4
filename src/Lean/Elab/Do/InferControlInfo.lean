@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Term
 public import Lean.Elab.Do.ForwardSyntax
+public import Lean.Util.PtrSet
 meta import Lean.Parser.Do
 import Lean.Elab.Do.PatternVar
 
@@ -126,20 +127,12 @@ For pure handlers, use `fun stx => return ControlInfo.pure`.
 builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHandler ←
   mkControlInfoElemAttribute decl_name%
 
-/--
-The `ControlInfo` of every `doSeq` node visited in one `do` block, keyed by the address of the node.
-Every entry keeps its node alive, so an address identifies one node.
--/
+/-- The `ControlInfo` of every `doSeq` node visited in one `do` block, keyed by pointer. -/
 structure ControlInfoCache where
-  ref : IO.Ref (Std.HashMap USize (DoSeq × ControlInfo))
+  ref : IO.Ref (Std.HashMap (Ptr DoSeq) ControlInfo)
 
 def ControlInfoCache.new : BaseIO ControlInfoCache :=
   return ⟨← IO.mkRef {}⟩
-
-private unsafe def doSeqAddrImpl (stx : DoSeq) : USize := ptrAddrUnsafe stx.raw
-
-@[implemented_by doSeqAddrImpl]
-private opaque doSeqAddr (stx : DoSeq) : USize
 
 namespace InferControlInfo
 
@@ -294,13 +287,12 @@ partial def ofLetOrReassign (reassigned : Array Ident) (rhs? : Option DoElem)
 
 partial def ofSeq (stx : DoSeq) : InferM ControlInfo := do
   let cache := (← read).ref
-  let key := doSeqAddr stx
-  if let some (_, info) := (← cache.get)[key]? then
+  if let some info := (← cache.get)[(⟨stx⟩ : Ptr DoSeq)]? then
     return info
   let mut info : ControlInfo := {}
   for elem in getDoElems stx do
     info := info.sequence (← ofElem elem)
-  cache.modify (·.insert key (stx, info))
+  cache.modify (·.insert ⟨stx⟩ info)
   return info
 
 partial def ofOptionSeq (stx? : Option DoSeq) : InferM ControlInfo := do

@@ -16,11 +16,11 @@ namespace Lean
 structure Ptr (α : Type u) where
   value : α
 
-unsafe instance : Hashable (Ptr α) where
-  hash a := hash64 (ptrAddrUnsafe a).toUInt64
+instance : Hashable (Ptr α) where
+  hash a := hash64 (unsafe ptrAddrUnsafe a).toUInt64
 
-unsafe instance : BEq (Ptr α) where
-  beq a b := ptrAddrUnsafe a == ptrAddrUnsafe b
+instance : BEq (Ptr α) where
+  beq a b := unsafe ptrAddrUnsafe a == ptrAddrUnsafe b
 
 /--
 Set of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.

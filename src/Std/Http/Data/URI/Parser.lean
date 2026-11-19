@@ -315,21 +315,21 @@ private def parseFragment (config : URI.Config) : Parser URI.EncodedFragment := 
 
   return fragmentStr
 
+-- The authority after "//". RFC 3986 §3.2.2 allows an empty reg-name, as in `file:///path`; the
+-- authority is still defined, so it is printed again (§5.3).
+private def parseAuthorityAfterSlashes (config : URI.Config) : Parser (Option URI.Authority) := do
+  if let some authority ← tryOpt (parseAuthority config) then
+    return some authority
+  let next ← peek?
+  if next.isNone || next.any (fun c => c = '/'.toUInt8 ∨ c = '?'.toUInt8 ∨ c = '#'.toUInt8) then
+    return some { host := .empty }
+  else
+    return none
+
 private def parseHierPart (config : URI.Config) : Parser (Option URI.Authority × URI.Path) := do
   -- Check for "//" authority path-abempty
   if (← tryOpt (skipString "//")).isSome then
-    -- RFC 3986 §3.2.2 allows an empty reg-name, as in `file:///path`. The authority is still
-    -- defined, so it is printed again (§5.3).
-    let authority ← tryOpt (attempt (parseAuthority config))
-    let authority : Option URI.Authority ←
-      if authority.isNone then
-        let next ← peek?
-        if next.isNone || next.any (fun c => c = '/'.toUInt8 ∨ c = '?'.toUInt8 ∨ c = '#'.toUInt8) then
-          pure (some { host := .empty })
-        else
-          pure none
-      else
-        pure authority
+    let authority ← parseAuthorityAfterSlashes config
     let path ← parsePath config true true  -- path-abempty (must start with "/" or be empty)
     return (authority, path)
   else
@@ -458,7 +458,8 @@ where
 
   -- relative-part "//" authority path-abempty, after the "//"
   withAuthority : Parser Std.Http.URI.RelativeRef := do
-    let authority ← parseAuthority config
+    let some authority ← parseAuthorityAfterSlashes config
+      | fail "invalid authority"
     let path ← parsePath config true true
     let query ← optional (skipByteChar '?' *> parseQuery config)
     let frag ← optional (skipByteChar '#' *> fragment)

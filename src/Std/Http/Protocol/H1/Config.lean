@@ -67,6 +67,20 @@ structure Config where
   maxStartLineLength : Nat := 8192
 
   /--
+  Maximum number of path segments in a request-target, empty segments included. A target with more
+  is refused as too long, like one over `maxUriLength`. `none` leaves the count bounded only by
+  `maxUriLength`.
+  -/
+  maxPathSegments : Option Nat := none
+
+  /--
+  Maximum number of query parameters in a request-target, empty parameters included. A target with
+  more is refused as too long, like one over `maxUriLength`. `none` leaves the count bounded only by
+  `maxUriLength`.
+  -/
+  maxQueryParams : Option Nat := none
+
+  /--
   Maximum length of header field name (default: 256 bytes).
   -/
   maxHeaderNameLength : Nat := 256

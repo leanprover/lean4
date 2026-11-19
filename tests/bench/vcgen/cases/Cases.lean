@@ -12,4 +12,5 @@ import Cases.MatchSplit
 import Cases.PurePrecond
 import Cases.ReaderState
 import Cases.RegFile
+import Cases.ScalarProduct
 import Cases.WideJP

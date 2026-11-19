@@ -80,6 +80,7 @@ def checkUnivsLinter : Linter where run := withSetOptionIn fun _ => do
   let mut seen : NameSet := {}
   for t in ← getInfoTrees do
     let decls := getNewDecls t
+    let declsSet := NameSet.ofList decls
     for declName in decls do
       if seen.contains declName then continue
       seen := seen.insert declName
@@ -87,8 +88,8 @@ def checkUnivsLinter : Linter where run := withSetOptionIn fun _ => do
       -- For an inductive, take constructors into account as well
       let self : NameSet :=
         match info with
-        | .inductInfo iv => (.ofList iv.all : NameSet).union (.ofList decls : NameSet)
-        | _              => (.ofList decls)
+        | .inductInfo iv => (.ofList iv.all : NameSet).union declsSet
+        | _              => declsSet
       let mut grouped := univParamsGrouped info.type self
       if let .inductInfo iv := info then
         for ctor in iv.ctors do

@@ -229,19 +229,23 @@ The whole token is read before it is looked up, so a read that ends inside a met
 more input instead of matching a shorter method (`UPDATE` inside `UPDATEREDIRECTREF`), and a
 method that only starts with a known one (`GETX`) is not read as it.
 
-A token the server does not recognize gives `none` when the space that ends a method follows it, and
-fails with `"unrecognized method"` when more token bytes follow past the 64-byte limit: RFC 9110 §9.1
-and RFC 9112 §3 answer such a method with 501. A token followed by any other byte fails with
+A token the server does not recognize gives `none` when the space that ends a method follows it, so
+the line still has to parse before it gets 501 (RFC 9110 §9.1). A token longer than any method is
+skipped to its end, up to `maxStartLineLength`, for the same reason; only one longer still fails with
+`"unrecognized method"` at once (RFC 9112 §3). A token followed by any other byte fails with
 `"invalid method"`.
 -/
-def parseMethod : Parser (Option Method) := do
+def parseMethod (limits : H1.Config) : Parser (Option Method) := do
   let token ← parseToken 64
   match knownMethods.find? fun (name, _) => name.size == token.size && name == token with
   | some (_, method) => return some method
   | none =>
+    if token.size == 64 then
+      let rest ← takeWhileUpTo (fun c => tchar (Char.ofUInt8 c)) limits.maxStartLineLength
+      if rest.size == limits.maxStartLineLength then
+        if (← peekWhen? (fun c => tchar (Char.ofUInt8 c))).isSome then fail "unrecognized method"
     let next ← peek!
     if next == ' '.toUInt8 then return none
-    else if tchar (Char.ofUInt8 next) then fail "unrecognized method"
     else fail "invalid method"
 
 /--
@@ -263,12 +267,26 @@ def parseURI (limits : H1.Config) : Parser ByteArray := do
 /--
 The URI limits for a request-target. `maxUriLength` bounds the whole target, so no component limit
 lower than it rejects a target the server accepts as a whole, which RFC 9112 §3 would answer with
-`414`, not `400`. The host keeps its own limit, the length of a DNS name.
+`414`, not `400`. The host keeps its own limit, the length of a DNS name. `maxPathSegments` and
+`maxQueryParams` are checked on the parsed target instead (`exceedsElementLimits`).
 -/
 def requestTargetConfig (limits : H1.Config) : URI.Config :=
   let n := limits.maxUriLength
   { maxSchemeLength := n, maxUserInfoLength := n, maxSegmentLength := n, maxQueryLength := n,
     maxFragmentLength := n, maxPathSegments := n, maxTotalPathLength := n, maxQueryParams := n }
+
+/--
+Whether `target` has more path segments or query parameters than `limits.maxPathSegments` and
+`limits.maxQueryParams` allow. Empty segments and parameters count, as `URI.Config` counts them.
+-/
+def exceedsElementLimits (limits : H1.Config) (target : RequestTarget) : Bool :=
+  let over (path : URI.Path) (query : Option URI.Query) :=
+    limits.maxPathSegments.any (path.segments.size > ·) ||
+      limits.maxQueryParams.any (((query.map (·.size)).getD 0) > ·)
+  match target with
+  | .originForm path query => over path query
+  | .absoluteForm uri => over uri.path uri.query
+  | .authorityForm _ | .asteriskForm => false
 
 /--
 Shared core for request-line parsing: parses `request-target SP HTTP-version CRLF`
@@ -282,6 +300,10 @@ def parseRequestLineBody (limits : H1.Config) : Parser (RequestTarget × Nat × 
   let uri ← match (Std.Http.URI.Parser.parseRequestTarget (requestTargetConfig limits) <* eof).run rawUri with
   | .ok res => pure res
   | .error res => fail res
+  -- A configured element count is a limit on how much of the target the server parses, as
+  -- `maxUriLength` is, so it gets the same 414 (RFC 9110 §15.5.15).
+  if exceedsElementLimits limits uri then
+    fail "uri too long"
   let versionPair ← parseHttpVersionNumber <* crlf
   return (uri, versionPair)
 
@@ -292,7 +314,7 @@ Parses `method SP request-target SP HTTP-version CRLF`. An unrecognized method f
 -/
 def parseRequestLineParts (limits : H1.Config) : Parser (Method × RequestTarget × Nat × Nat) := do
   skipLeadingRequestEmptyLines limits
-  let method? ← parseMethod <* sp
+  let method? ← parseMethod limits <* sp
   let (uri, version) ← parseRequestLineBody limits
   let some method := method? | fail "unrecognized method"
   return (method, uri, version)
@@ -439,27 +461,24 @@ recognize (RFC 9112 §7.1.1).
 def parseChunkExt (limits : H1.Config) :
     Parser (Option (Chunk.ExtensionName × Option Chunk.ExtensionValue)) := do
   ows limits *> skipByte ';'.toUInt8 *> ows limits
-  let name ← (liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtNameLength) <* ows limits
+  let name ← liftOption =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtNameLength
 
   let some name := Chunk.ExtensionName.ofString? name
     | fail "invalid extension name"
 
-  if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
-    -- RFC 9112 §7.1.1: BWS is allowed around "=".
-    -- The `<* ows limits` after the name already consumed any trailing whitespace,
-    -- so these ows calls are no-ops in practice, but kept for explicit grammar correspondence.
-    ows limits *> skipByte '='.toUInt8 *> ows limits
-    if (← peekWhen? (· == '"'.toUInt8)).isSome then
-      let bytes ← parseQuotedString limits.maxChunkExtValueLength
-      return (String.fromUTF8? bytes >>= Chunk.ExtensionValue.ofString?).map (name, some ·)
+  -- BWS may follow a name only before "=" (RFC 9112 §7.1.1). After a name without a value,
+  -- whitespace must lead to the next ";", so `5;a \r\n` is malformed, as `5 \r\n` is.
+  let some () ← optionalUnlessEof (ows limits *> skipByte '='.toUInt8) | return some (name, none)
+  ows limits
+  if (← peekWhen? (· == '"'.toUInt8)).isSome then
+    let bytes ← parseQuotedString limits.maxChunkExtValueLength
+    return (String.fromUTF8? bytes >>= Chunk.ExtensionValue.ofString?).map (name, some ·)
 
-    let value ← liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength)
-    let some value := Chunk.ExtensionValue.ofString? value
-      | fail "invalid extension value"
+  let value ← liftOption =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> parseToken limits.maxChunkExtValueLength)
+  let some value := Chunk.ExtensionValue.ofString? value
+    | fail "invalid extension value"
 
-    return some (name, some value)
-
-  return some (name, none)
+  return some (name, some value)
 
 /--
 Parses the size and extensions of a chunk.
@@ -577,8 +596,8 @@ def parseReasonPhrase (limits : H1.Config) : Parser String := do
 Parses a status-code (3 decimal digits), the following reason phrase, and the
 terminating CRLF; returns a typed `Status`.
 
-A code of 000–099 is a well-formed `3DIGIT` that `Status` cannot hold. RFC 9110 §15 asks a client to
-process such a response as a 5xx, so it is read as `500 Internal Server Error`.
+A code outside 100–599 is a well-formed `3DIGIT` but not a valid status code. RFC 9110 §15 asks a
+client to process such a response as a 5xx, so it is read as `500 Internal Server Error`.
 -/
 def parseStatusCode (limits : H1.Config) : Parser Status := do
   let d1 ← digit
@@ -589,7 +608,7 @@ def parseStatusCode (limits : H1.Config) : Parser Status := do
   let phrase := (← optional (sp *> parseReasonPhrase limits)).getD ""
   crlf
 
-  if code < 100 then
+  if code < 100 || code ≥ 600 then
     return .internalServerError
 
   if h : IsValidReasonPhrase phrase then

@@ -534,12 +534,17 @@ partial def readAll
   -- The continuation of each receive captures the bytes read so far and marks them as shared
   -- between threads, so appending to one byte array would copy all of them each time.
   let rec loop (pieces : List ByteArray) (size : Nat) : m ByteArray := do
-    match ← NextChunk.nextChunk stream with
-    | none =>
-      -- Only a cancelled context ends the read while the stream is still open.
-      unless ← (stream.isClosed : Async Bool) do
-        throw (.userError "the read was cancelled before the body ended")
-      return Channel.joinPieces pieces size
+    let next ← match ← NextChunk.nextChunk stream with
+      | some chunk => pure (some chunk)
+      | none =>
+        -- `none` is also a cancelled context, which may win over a stream that already ended, so
+        -- only `recv` tells a clean end from `closeWithError` or from chunks still to deliver. On a
+        -- closed stream it does not wait.
+        unless ← (stream.isClosed : Async Bool) do
+          throw (.userError "the read was cancelled before the body ended")
+        (stream.recv : Async (Option Chunk))
+    match next with
+    | none => return Channel.joinPieces pieces size
     | some chunk =>
       let size := size + chunk.data.size
       if let some max := maximumSize then

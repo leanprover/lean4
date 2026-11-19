@@ -164,39 +164,74 @@ theorem propagateHints_spec (s : State) (assign : Assignment) (hints : Array Nat
   · simp
   · simp
   · simp_all
-  · next pref cur suff hfor b curAssign hintClause hclause hout r st assignNow unit hr1 hr2 ih =>
-    simp only [unit, st, assignNow] at hr2 ⊢
-    simp only [hr1, hr2, reduceCtorEq, false_and, and_false, exists_false, or_false, true_and,
-      CNF.Clause.mem_literals_iff, Option.some.injEq, exists_eq_left', false_or] at ih hout ⊢
-    obtain ⟨hsame, ih⟩ := ih
-    rw [hsame]
-    refine ⟨hout.right, ?_⟩
-    rw [CNF.unsat_iff_not_sat]
-    intro a hsat
-    rw [CNF.sat_append] at hsat
-    have hsatc := CNF.sat_of_mem hsat.left (mem_toCNF_of_eq_some hclause)
-    exact Assignment.not_sat_of_forall_falsified hsat.right ih hsatc
-  · next pref cur suff hfor b curAssign hintClause hclause hout r st assignNow unit hr1 u hsome ih =>
-    simp only [unit, st, assignNow] at hsome ⊢
-    simp only [hr1, hsome, reduceCtorEq, false_and, and_false, exists_false, or_false, true_and,
-      CNF.Clause.mem_literals_iff] at ih hout ⊢
-    rcases ih with ⟨pol, hnone, hins, hall⟩ | hsame
-    · rw [hins]
-      apply CNF.entails_trans hout.right
-      apply CNF.entails_append_of_entails
-      · exact CNF.append_entails_left
-      · apply CNF.entails_trans (h2 := Assignment.toCNF_add_entails_toCNF_insert)
-        rw [CNF.entails_add_iff]
-        constructor
-        · exact CNF.append_entails_right
-        · rw [CNF.entails_clause_def]
-          intro a ha
-          rw [CNF.sat_append] at ha
-          rw [CNF.Clause.sat_unit_iff]
-          have hsatc := CNF.sat_of_mem ha.left (mem_toCNF_of_eq_some hclause)
-          exact Assignment.unit_propagation ha.right hsatc hall
-    · rw [hsame]
-      exact hout.right
+  · first
+    | next pref cur suff hfor b curAssign hintClause hclause hout r st assignNow unit hr1 hr2 ih =>
+      simp only [unit, st, assignNow] at hr2 ⊢
+      simp only [hr1, hr2, reduceCtorEq, false_and, and_false, exists_false, or_false, true_and,
+        CNF.Clause.mem_literals_iff, Option.some.injEq, exists_eq_left', false_or] at ih hout ⊢
+      obtain ⟨hsame, ih⟩ := ih
+      rw [hsame]
+      refine ⟨hout.right, ?_⟩
+      rw [CNF.unsat_iff_not_sat]
+      intro a hsat
+      rw [CNF.sat_append] at hsat
+      have hsatc := CNF.sat_of_mem hsat.left (mem_toCNF_of_eq_some hclause)
+      exact Assignment.not_sat_of_forall_falsified hsat.right ih hsatc
+    | next pref cur suff hfor b curAssign hintClause hclause hout r hr1 assignNow unit hr2 ih =>
+      simp only [unit, assignNow] at hr2 ⊢
+      simp only [hr1, hr2, reduceCtorEq, false_and, and_false, exists_false, or_false, true_and,
+        CNF.Clause.mem_literals_iff, Option.some.injEq, exists_eq_left', false_or] at ih hout ⊢
+      obtain ⟨hsame, ih⟩ := ih
+      rw [hsame]
+      refine ⟨hout.right, ?_⟩
+      rw [CNF.unsat_iff_not_sat]
+      intro a hsat
+      rw [CNF.sat_append] at hsat
+      have hsatc := CNF.sat_of_mem hsat.left (mem_toCNF_of_eq_some hclause)
+      exact Assignment.not_sat_of_forall_falsified hsat.right ih hsatc
+  · first
+    | next pref cur suff hfor b curAssign hintClause hclause hout r st assignNow unit hr1 u hsome ih =>
+      simp only [unit, st, assignNow] at hsome ⊢
+      simp only [hr1, hsome, reduceCtorEq, false_and, and_false, exists_false, or_false, true_and,
+        CNF.Clause.mem_literals_iff] at ih hout ⊢
+      rcases ih with ⟨pol, hnone, hins, hall⟩ | hsame
+      · rw [hins]
+        apply CNF.entails_trans hout.right
+        apply CNF.entails_append_of_entails
+        · exact CNF.append_entails_left
+        · apply CNF.entails_trans (h2 := Assignment.toCNF_add_entails_toCNF_insert)
+          rw [CNF.entails_add_iff]
+          constructor
+          · exact CNF.append_entails_right
+          · rw [CNF.entails_clause_def]
+            intro a ha
+            rw [CNF.sat_append] at ha
+            rw [CNF.Clause.sat_unit_iff]
+            have hsatc := CNF.sat_of_mem ha.left (mem_toCNF_of_eq_some hclause)
+            exact Assignment.unit_propagation ha.right hsatc hall
+      · rw [hsame]
+        exact hout.right
+    | next pref cur suff hfor b curAssign hintClause hclause hout r hr1 assignNow unit u hsome ih =>
+      simp only [unit, assignNow] at hsome ⊢
+      simp only [hr1, hsome, reduceCtorEq, false_and, and_false, exists_false, or_false, true_and,
+        CNF.Clause.mem_literals_iff] at ih hout ⊢
+      rcases ih with ⟨pol, hnone, hins, hall⟩ | hsame
+      · rw [hins]
+        apply CNF.entails_trans hout.right
+        apply CNF.entails_append_of_entails
+        · exact CNF.append_entails_left
+        · apply CNF.entails_trans (h2 := Assignment.toCNF_add_entails_toCNF_insert)
+          rw [CNF.entails_add_iff]
+          constructor
+          · exact CNF.append_entails_right
+          · rw [CNF.entails_clause_def]
+            intro a ha
+            rw [CNF.sat_append] at ha
+            rw [CNF.Clause.sat_unit_iff]
+            have hsatc := CNF.sat_of_mem ha.left (mem_toCNF_of_eq_some hclause)
+            exact Assignment.unit_propagation ha.right hsatc hall
+      · rw [hsame]
+        exact hout.right
   · simp
   · simp [CNF.entails_refl]
   · next state ret hstate ih =>

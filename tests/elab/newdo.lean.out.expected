@@ -18,9 +18,7 @@
         let x := p.snd;
         pure ⟨3, ⋯⟩).run.run : Except String (Fin 17)
 let x := 0;
-have __do_jp := fun __r x => do
-  let r ← pure x
-  pure r;
+have __do_jp := fun __r x_1 => ?m x PUnit.unit __r x_1;
 if true = true then
   let x := x + 1;
   __do_jp PUnit.unit x

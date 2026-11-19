@@ -117,7 +117,8 @@ host to connect to.
   absolute URL without an authority, or with an empty host, resolves to `none`.
 
 * **Protocol-relative reference** (`//host/path`): authority comes from the reference,
-  scheme is inherited from `current` (RFC 3986 §5.2.2, R.authority defined).
+  scheme is inherited from `current` (RFC 3986 §5.2.2, R.authority defined). An empty host
+  (`///path`) resolves to `none`, as for an absolute URI.
 
 * **Path/query/fragment-only reference**: no authority in the reference, so the full
   origin is inherited from `current` — the redirect is same-origin.
@@ -137,7 +138,7 @@ private def resolveOrigin (current : URI.Origin) : URIReference → Option URI.O
       | .value v => v
       | _ => URI.Scheme.defaultPort current.scheme
 
-    some { scheme := current.scheme, host := auth.host, port }
+    if auth.host == .empty then none else some { scheme := current.scheme, host := auth.host, port }
 
   | .relative _ =>
     some current
@@ -263,10 +264,16 @@ private def scrubHeaders (headers : Headers) (isCrossOrigin methodChanged : Bool
 /--
 Rewrites the `Host` header for a cross-origin redirect. The redirected request is dispatched on a
 fresh connection to `(scheme, host, port)`; the original `Host` would route the request to the wrong
-virtual host.
+virtual host. The result has a single `Host`, for `origin`, where the first one was, so no `Host` line
+keeps naming the previous origin.
 -/
 private def rewriteHostHeader (headers : Headers) (origin : URI.Origin) : Headers :=
-  if headers.contains .host then headers.replaceLast .host (.ofString! origin.hostHeader)
+  if headers.contains .host then
+    let value := Header.Value.ofString! origin.hostHeader
+    (headers.fold (Headers.empty, false) fun (acc, seen) name v =>
+      if name != .host then (acc.insert name v, seen)
+      else if seen then (acc, seen)
+      else (acc.insert .host value, true)).1
   else headers
 
 /--
@@ -361,6 +368,8 @@ Notes on specific status codes that always return `.done`:
 * 304 Not Modified — cache revalidation result, not a navigation redirect.
 * 305 Use Proxy — deprecated (RFC 9110 §15.4.6); blocked for security.
 * 306 — reserved/unused.
+* any other 3xx — an unrecognized status code is treated as the x00 code of its class (RFC 9110
+  §15), so as 300.
 -/
 def decideRedirect
     (current : URI.Origin)
@@ -383,8 +392,10 @@ def decideRedirect
   -- silently act on an attacker-controlled Location header.
   -- 304 Not Modified is a cache-revalidation result, not a navigation redirect.
   -- 300 Multiple Choices may name a preferred `Location`, but RFC 9110 §15.4.1 leaves
-  -- the choice to the user agent, so we deliberately decline to auto-select one.
-  if status == .useProxy || status == .unused || status == .notModified || status == .multipleChoices then
+  -- the choice to the user agent, so we deliberately decline to auto-select one. A client treats an
+  -- unrecognized 3xx as 300 (RFC 9110 §15), so only the five redirect codes below are followed.
+  unless status == .movedPermanently || status == .found || status == .seeOther ||
+      status == .temporaryRedirect || status == .permanentRedirect do
     return .done
 
   let some locationValue := responseHeaders.get? .location

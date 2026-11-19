@@ -677,6 +677,7 @@ def Invariant (α : Type u₁) (β : Type u₂) (Pred : Type uₚ) :=
 /-- An invariant combinator for loops with early return, for the new `do` elaborator which
 uses `Prod` for the state tuple: `onContinue` is the invariant while iterating, `onReturn`
 holds once the loop returned early with a value. -/
+@[deprecated "The invariant of a loop with an early return ranges over the loop's mutable variables only. State the invariant over them." (since := "2026-11-18")]
 noncomputable abbrev Invariant.withEarlyReturnNewDo {α : Type u₁} {β : Type u₂}
     {γ : Type u₂} (Pred) [CompleteLattice Pred]
     (onContinue : List α → List α → β → Pred)
@@ -859,6 +860,110 @@ theorem Spec.forIn_pure [Monad m]
       (fun b => inv (ForIn.toList xs) [] b) eposts := by
   rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
+
+
+theorem Triple.bind_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+    {γ δ : Type u₂} {x : m (Option γ × β)}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {pre : Pred} {mid : Option γ × β → Pred} {post : δ → Pred} {eposts : EPosts}
+    (hx : ⦃ pre ⦄ x ⦃ mid; eposts ⦄)
+    (hRet : ∀ r b, mid (some r, b) ⊑ wp (kRet (some r, b) r) post eposts)
+    (hk : ∀ b, ⦃ mid (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ pre ⦄
+    (x >>= fun s => Break.runK.match_1 (fun _ => m δ) s.fst (fun r => kRet s r) (fun _ => k s))
+    ⦃ post; eposts ⦄ := by
+  apply Triple.bind _ _ mid hx
+  rintro ⟨_ | r, b⟩
+  · exact hk b
+  · exact ⟨hRet r b⟩
+
+@[spec default+10]
+theorem Spec.bind_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    {γ δ ε : Type u₂} {x : m (Option γ × β)}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ} {g : δ → m ε}
+    {post : ε → Pred} {eposts : EPosts} :
+    ⦃ wp (have __do_jp := fun v => g v
+          x >>= fun s => Break.runK.match_1 (fun _ => m ε) s.fst
+            (fun r => kRet s r >>= __do_jp) (fun _ => k s >>= __do_jp)) post eposts ⦄
+    ((x >>= fun s => Break.runK.match_1 (fun _ => m δ) s.fst (fun r => kRet s r) (fun _ => k s))
+      >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor
+  apply PartialOrder.rel_of_eq
+  rw [bind_assoc]
+  refine congrArg (wp · post eposts) (congrArg _ (funext fun s => ?_))
+  rcases s with ⟨_ | r, b⟩ <;> rfl
+
+section EarlyReturn
+variable {Pred : Type uₚ} {EPosts : Type uₑ} [CompleteLattice Pred] [PartialOrder EPosts]
+  [MonadicWP m Pred EPosts]
+
+@[spec default+10]
+theorem Spec.forIn_pure_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m] {ρ : Type w}
+    [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
+    {γ δ : Type u₂} {xs : ρ} {init : β} {f : α → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {post : δ → Pred} {eposts : EPosts}
+    (inv : Invariant α β Pred)
+    (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
+      ⦃ inv pref (cur :: suff) b ⦄ f cur (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => inv (pref ++ [cur]) suff b'
+          | .done (none, b') => inv (ForIn.toList xs) [] b'
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
+          | .yield (some _, _) => ⊥; eposts ⦄)
+    (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] b ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ inv [] (ForIn.toList xs) init ⦄
+    (forIn xs (none, init) f >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; eposts ⦄ := by
+  let inv' : Invariant α (Option γ × β) Pred := fun pref suff s =>
+    match s.1, suff with
+    | none, _ => inv pref suff s.2
+    | some x, [] => wp (kRet s x) post eposts
+    | some _, _ :: _ => ⊥
+  refine Triple.bind_earlyReturn (mid := inv' (ForIn.toList xs) [])
+    (Spec.forIn_pure inv' ?_) (fun _ _ => PartialOrder.rel_refl) exit
+  rintro pref cur suff h ⟨_ | x, b⟩
+  · refine ⟨Triple.entails_wp_of_post (step pref cur suff h b) ?_⟩
+    rintro (⟨_ | x, b'⟩ | ⟨_ | x, b'⟩) <;> first | exact PartialOrder.rel_refl | exact bot_le _
+  · exact ⟨bot_le _⟩
+
+@[spec default+10]
+theorem Spec.forIn'_pure_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m] {ρ : Type w}
+    {d : Membership α ρ} [ForIn' m ρ α d]
+    [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
+    {γ δ : Type u₂} {xs : ρ} {init : β}
+    {f : (a : α) → a ∈ xs → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {post : δ → Pred} {eposts : EPosts}
+    (inv : Invariant α β Pred)
+    (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
+      ⦃ inv pref (cur :: suff) b ⦄
+      f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => inv (pref ++ [cur]) suff b'
+          | .done (none, b') => inv (ForIn.toList xs) [] b'
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
+          | .yield (some _, _) => ⊥; eposts ⦄)
+    (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] b ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ inv [] (ForIn.toList xs) init ⦄
+    (forIn' xs (none, init) f >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; eposts ⦄ := by
+  let inv' : Invariant α (Option γ × β) Pred := fun pref suff s =>
+    match s.1, suff with
+    | none, _ => inv pref suff s.2
+    | some x, [] => wp (kRet s x) post eposts
+    | some _, _ :: _ => ⊥
+  refine Triple.bind_earlyReturn (mid := inv' (ForIn.toList xs) [])
+    (Spec.forIn'_pure inv' ?_) (fun _ _ => PartialOrder.rel_refl) exit
+  rintro pref cur suff h ⟨_ | x, b⟩
+  · refine ⟨Triple.entails_wp_of_post (step pref cur suff h b) ?_⟩
+    rintro (⟨_ | x, b'⟩ | ⟨_ | x, b'⟩) <;> first | exact PartialOrder.rel_refl | exact bot_le _
+  · exact ⟨bot_le _⟩
+
+end EarlyReturn
 
 
 section Iterators
@@ -1779,6 +1884,7 @@ def StringInvariant (s : String) (β : Type u) (Pred : Type uₚ) :=
 /-- An invariant combinator for `String` loops with early return, for the new `do` elaborator
 which uses `Prod` for the state tuple: `onContinue` is the invariant while iterating, `onReturn`
 holds once the loop returned early with a value. -/
+@[deprecated "The invariant of a loop with an early return ranges over the loop's mutable variables only. State the invariant over them." (since := "2026-11-18")]
 noncomputable abbrev StringInvariant.withEarlyReturnNewDo {s : String} {β : Type u} {γ : Type u}
     (Pred : Type uₚ) [CompleteLattice Pred]
     (onContinue : s.Pos → β → Pred)
@@ -1836,6 +1942,7 @@ def StringSliceInvariant (s : String.Slice) (β : Type u) (Pred : Type uₚ) :=
 /-- An invariant combinator for `String.Slice` loops with early return, for the new `do`
 elaborator which uses `Prod` for the state tuple: `onContinue` is the invariant while iterating,
 `onReturn` holds once the loop returned early with a value. -/
+@[deprecated "The invariant of a loop with an early return ranges over the loop's mutable variables only. State the invariant over them." (since := "2026-11-18")]
 noncomputable abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice} {β : Type u}
     {γ : Type u} (Pred : Type uₚ) [CompleteLattice Pred]
     (onContinue : s.Pos → β → Pred)
@@ -1881,6 +1988,81 @@ theorem Spec.forIn_stringSlice [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMo
     obtain ⟨-, rfl⟩ := String.Slice.splits_endPos_iff.mp hsp
     simp only [String.toList_empty, List.forIn_nil]
     exact Triple.pure init Lean.Order.PartialOrder.rel_refl
+
+section EarlyReturn
+variable {Pred : Type uₚ} {EPosts : Type uₑ} [CompleteLattice Pred] [PartialOrder EPosts]
+  [MonadicWP m Pred EPosts]
+
+@[spec default+10]
+theorem Spec.forIn_string_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    {s : String} {γ δ : Type u₂} {init : β}
+    {f : Char → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {post : δ → Pred} {eposts : EPosts}
+    (inv : StringInvariant s β Pred)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      ⦃ inv pos b ⦄ f (pos.get h) (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => inv (pos.next h) b'
+          | .done (none, b') => inv s.endPos b'
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
+          | .yield (some _, _) => ⊥; eposts ⦄)
+    (exit : ∀ b, ⦃ inv s.endPos b ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ inv s.startPos init ⦄
+    (forIn s (none, init) f >>= fun t =>
+      Break.runK.match_1 (fun _ => m δ) t.fst (fun x => kRet t x) (fun _ => k t))
+    ⦃ post; eposts ⦄ := by
+  let inv' : StringInvariant s (Option γ × β) Pred := fun pos t =>
+    match t.1 with
+    | none => inv pos t.2
+    | some x => if pos = s.endPos then wp (kRet t x) post eposts else ⊥
+  refine Triple.bind_earlyReturn (mid := inv' s.endPos) (Spec.forIn_string inv' ?_)
+    (fun _ _ => by simp only [inv']; exact PartialOrder.rel_refl) exit
+  rintro pos ⟨_ | x, b⟩ h
+  · refine ⟨Triple.entails_wp_of_post (step pos b h) ?_⟩
+    rintro (⟨_ | x, b'⟩ | ⟨_ | x, b'⟩) <;>
+      first
+      | exact PartialOrder.rel_refl
+      | exact bot_le _
+      | (simp only [inv']; exact PartialOrder.rel_refl)
+  · exact ⟨by simp only [inv', h, ↓reduceIte]; exact bot_le _⟩
+
+@[spec default+10]
+theorem Spec.forIn_stringSlice_earlyReturn [Monad m] [LawfulMonad m]
+    [MonadicWP.IsLaxMonadMorphism m] {s : String.Slice} {γ δ : Type u₂} {init : β}
+    {f : Char → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
+    {post : δ → Pred} {eposts : EPosts}
+    (inv : StringSliceInvariant s β Pred)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      ⦃ inv pos b ⦄ f (pos.get h) (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => inv (pos.next h) b'
+          | .done (none, b') => inv s.endPos b'
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
+          | .yield (some _, _) => ⊥; eposts ⦄)
+    (exit : ∀ b, ⦃ inv s.endPos b ⦄ k (none, b) ⦃ post; eposts ⦄) :
+    ⦃ inv s.startPos init ⦄
+    (forIn s (none, init) f >>= fun t =>
+      Break.runK.match_1 (fun _ => m δ) t.fst (fun x => kRet t x) (fun _ => k t))
+    ⦃ post; eposts ⦄ := by
+  let inv' : StringSliceInvariant s (Option γ × β) Pred := fun pos t =>
+    match t.1 with
+    | none => inv pos t.2
+    | some x => if pos = s.endPos then wp (kRet t x) post eposts else ⊥
+  refine Triple.bind_earlyReturn (mid := inv' s.endPos) (Spec.forIn_stringSlice inv' ?_)
+    (fun _ _ => by simp only [inv']; exact PartialOrder.rel_refl) exit
+  rintro pos ⟨_ | x, b⟩ h
+  · refine ⟨Triple.entails_wp_of_post (step pos b h) ?_⟩
+    rintro (⟨_ | x, b'⟩ | ⟨_ | x, b'⟩) <;>
+      first
+      | exact PartialOrder.rel_refl
+      | exact bot_le _
+      | (simp only [inv']; exact PartialOrder.rel_refl)
+  · exact ⟨by simp only [inv', h, ↓reduceIte]; exact bot_le _⟩
+
+end EarlyReturn
+
 
 section While
 
@@ -2294,6 +2476,39 @@ theorem Spec.forIn_loop [MonadicWP.IsLaxMonadMorphism m]
     cases r with
     | yield b' => exact Triple.pure (Sum.inl b') Lean.Order.PartialOrder.rel_refl
     | done b' => exact Triple.pure (Sum.inr b') Lean.Order.PartialOrder.rel_refl
+
+@[spec default+10]
+theorem Spec.forIn_loop_earlyReturn [MonadicWP.IsLaxMonadMorphism m] {γ δ : Type u} {l : Lean.Loop} {init : β}
+    {f : Unit → Option γ × β → m (ForInStep (Option γ × β))}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ} {post : δ → Pred}
+    [∀ P : Pred, PreservesSup (meet P)]
+    (measure : Variant (Option γ × β) Pred)
+    (inv : WhileInvariant β Pred)
+    (einv : EPosts)
+    (step : ∀ b (mb : measure.γ),
+      ⦃ measure.EvalsTo (none, b) mb ⊓ inv false b ⦄ f () (none, b)
+      ⦃ fun r => match r with
+          | .yield (none, b') => measure.EvalsBelow (none, b') mb ⊓ inv false b'
+          | .done (none, b') => inv true b'
+          | .done (some x, b') => wp (kRet (some x, b') x) post einv
+          | .yield (some _, _) => ⊥; einv ⦄)
+    (exit : ∀ b, ⦃ inv true b ⦄ k (none, b) ⦃ post; einv ⦄) :
+    ⦃ inv false init ⦄
+    (forIn l (none, init) f >>= fun s =>
+      Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
+    ⦃ post; einv ⦄ := by
+  let inv' : WhileInvariant (Option γ × β) Pred := WhileInvariant.mk fun exit s =>
+    match s.1, exit with
+    | none, _ => inv exit s.2
+    | some x, true => wp (kRet s x) post einv
+    | some _, false => ⊥
+  refine Triple.bind_earlyReturn (mid := fun s => inv' true s)
+    (Spec.forIn_loop measure inv' einv ?_) (fun _ _ => PartialOrder.rel_refl) exit
+  rintro ⟨_ | x, b⟩ mb
+  · refine ⟨Triple.entails_wp_of_post (step b mb) ?_⟩
+    rintro (⟨_ | x, b'⟩ | ⟨_ | x, b'⟩) <;> first | exact PartialOrder.rel_refl | exact bot_le _
+  · exact ⟨PartialOrder.rel_trans (meet_le_right _ _) (bot_le _)⟩
+
 
 end While
 

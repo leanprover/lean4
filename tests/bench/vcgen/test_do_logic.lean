@@ -196,7 +196,7 @@ theorem test_loop_break :
 theorem test_loop_early_return :
     ⦃ fun s => s = 4 ⦄ returning_loop ⦃ fun r s => r = 42 ∧ s = 4 ⦄ := by
   vcgen [returning_loop]
-  case inv1 => exact fun pref _ r s => (r.1 = none ∧ r.2 = pref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4
+  case inv1 => exact fun pref _ x s => x = pref.sum ∧ x ≤ 4 ∧ s = 4
   all_goals grind
 
 theorem unfold_to_expose_match_spec :
@@ -247,10 +247,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   generalize h : check_all p n = x
   apply Id.of_run_eq_wp h
   vcgen
-  case inv1 =>
-    exact Invariant.withEarlyReturnNewDo
-      (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
+  case inv1 => exact fun pref _ _ => ∀ i, i ∈ pref → p i
   all_goals simp_all [-Classical.not_forall]; try grind
 
 def nodup (l : List Int) : Bool := Id.run do
@@ -265,10 +262,7 @@ theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_run_eq_wp h
   vcgen invariants
-  · Invariant.withEarlyReturnNewDo
-      (onReturn := fun ret seen => ret = false ∧ ¬l.Nodup)
-      (onContinue := fun pref suff seen =>
-        (∀ x, x ∈ seen ↔ x ∈ pref) ∧ pref.Nodup)
+  · fun pref _ seen => (∀ x, x ∈ seen ↔ x ∈ pref) ∧ pref.Nodup
   with finish
 
 end Automated
@@ -628,9 +622,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   generalize h : check_all p n = x
   apply Id.of_run_eq_wp h
   vcgen invariants
-    · Invariant.withEarlyReturnNewDo
-      (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
+    · fun pref _ _ => ∀ i, i ∈ pref → p i
   all_goals simp_all [-Classical.not_forall]; try grind
 
 -- Labelled form: `| inv1 => …`.
@@ -639,9 +631,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   generalize h : check_all p n = x
   apply Id.of_run_eq_wp h
   vcgen invariants
-    | inv1 => Invariant.withEarlyReturnNewDo
-      (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
+    | inv1 => fun pref _ _ => ∀ i, i ∈ pref → p i
   all_goals simp_all [-Classical.not_forall]; try grind
 
 end InvariantSyntaxTests

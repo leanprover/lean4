@@ -15,7 +15,8 @@ lean_lib Cases where
 
 @[default_target]
 lean_lib VCGenBench where
-  roots := #[`vcgen_add_sub_cancel, `vcgen_add_sub_cancel_deep, `vcgen_add_sub_cancel_simp,
+  roots := #[`vcgen_early_return,
+             `vcgen_add_sub_cancel, `vcgen_add_sub_cancel_deep, `vcgen_add_sub_cancel_simp,
              `vcgen_get_throw_set, `vcgen_get_throw_set_grind, `vcgen_pure_precond,
              `vcgen_reader_state, `vcgen_match_split, `vcgen_adc_chain, `vcgen_jp, `vcgen_reg_file,
              `vcgen_scalar_product]

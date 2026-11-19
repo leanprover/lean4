@@ -27,8 +27,10 @@ namespace Lean.Elab.Tactic.VCGen
 /-!
 # Join points (`vcgen +jp`)
 
-The do-elaborator shares the code after an `if` or a `match` through a join point. This module
-lets `vcgen +jp` prove that code once instead of once per branch. For example,
+A join point is a local function whose every use is a jump in tail position. The do-elaborator
+shares the code after an `if` or a `match` through a join point, and a program or a specification
+can share a continuation through one. This module lets `vcgen +jp` prove the shared code once
+instead of once per jump. For example,
 
 ```
 def f (n : Nat) : Id Nat := do
@@ -83,6 +85,15 @@ fun r x s => ∃ z, s = (a, z) ∧ ((n > 0 ∧ x = 1 ∧ z = b) ∨ (¬n > 0 ∧
 so `s.1 = a` follows without a case split.
 -/
 
+/-- Whether `n` names a join point: `__do_jp`, which the do-elaborator binds, or `__vcgen_jp`, which
+a program or a specification binds to share a continuation. Either name can carry a decimal suffix,
+as in `__vcgen_jp2`, so that one scope can bind several join points by name. -/
+public def isJoinPointName (n : Name) : Bool :=
+  match n.eraseMacroScopes with
+  | .str .anonymous s => ["__do_jp", "__vcgen_jp"].any fun p =>
+      s.startsWith p && (s.drop p.length).all Char.isDigit
+  | _ => false
+
 /-- The lattice instance of the assertions `B` of a goal `pre ⊑ rhs` with the order `instPO`. The
 library orders of `Prop`, `Unit`, functions, pairs and lattices give it directly. Other orders give
 the synthesized lattice whose order is `instPO`. -/
@@ -114,15 +125,12 @@ partial def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
     unless ← Sym.isDefEqI order instPO do return none
     return some instCL
 
-/-- Register the join point `jp := val` that `wpLet?` introduced into the goal
-`goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
-`__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
-`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if
-`jp` is no `__do_jp` with a lambda RHS under `+jp`, or if the order of the goal is no lattice
-order. -/
+/-- Register the join point `jp := val` that the goal `goal : pre ⊑ wp⟦…⟧ post eposts ss` binds, so
+that the jumps below `goal` share one proof of `val`. Returns the new scope and the goals for the
+program of `goal` and for `val`, or `none` if `jp` is no join point under `+jp` or the goal's order has no lattice. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
-  unless (← read).useJP && Lean.Elab.Tactic.Do.isJP (← jp.getUserName) && val.isLambda do
+  unless (← read).useJP && isJoinPointName (← jp.getUserName) && val.isLambda do
     return none
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none

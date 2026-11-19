@@ -200,9 +200,13 @@ Set up a `Signal.Waiter` that waits for the specified `signum`.
 This function only initializes but does not yet start listening for the signal.
 
 While the waiter listens for the signal, the default action of the signal is replaced. A waiter
-that is no longer referenced can keep listening if the last operation that reached it was `wait`: a
-one-shot waiter until the signal arrives, a repeating one for the rest of the process. After a
-select that checked it, it stops listening once it is dropped. `stop` stops it in every case.
+that is no longer referenced keeps listening while a `wait` on it is pending, and stops listening once
+the signal arrives. After a select that checked it, it stops listening once it is dropped. `stop`
+stops it in every case, and every waiter stops once `main` returns.
+
+Once no waiter listens for a signal, its default action applies again. On macOS, a signal whose
+default action is to ignore it, such as `sigchld` or `sigwinch`, can kill the process if it arrives
+at that moment.
 -/
 @[inline]
 def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do

@@ -44,12 +44,21 @@ static void process_close_cb(uv_handle_t * handle) {
 static void process_finalizer(void * ptr) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(ptr);
     event_loop_guard guard;
-    if (p->m_exited) {
+    if (uv_is_closing((uv_handle_t *)&p->m_uv_process)) {
+        // The teardown at exit already closed the handle.
+        delete p;
+    } else if (p->m_exited) {
         uv_close((uv_handle_t *)&p->m_uv_process, process_close_cb);
     } else {
         // The exit callback closes the handle once libuv has reaped the child.
         p->m_dropped = true;
     }
+}
+
+void process_close_for_exit(uv_process_t * handle) {
+    lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
+    // Without a `Child` left to finalize it, the close callback frees the object.
+    uv_close((uv_handle_t *)handle, p->m_dropped ? process_close_cb : nullptr);
 }
 
 void initialize_libuv_process() {
@@ -242,6 +251,11 @@ static lean_uv_process_object * spawn_process(uv_process_options_t const & optio
     }
     p->m_setsid = setsid;
     event_loop_guard guard;
+    if (guard.stopped()) {
+        delete p;
+        err = UV_ECANCELED;
+        return nullptr;
+    }
     err = uv_spawn(global_ev.m_loop, &p->m_uv_process, &options);
     p->m_uv_process.data = p;
     if (err != 0) {
@@ -401,6 +415,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
 /* IO.Process.Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32 */
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
+    {
+        event_loop_guard guard;
+        // A handle that a teardown closed gets no exit callback: libuv no longer reaps the child.
+        if (!p->m_exited && guard.closed(&p->m_uv_process)) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+    }
     unique_lock<mutex> lock(p->m_mutex);
     // Only the loop thread runs the exit callback, so a wait on that thread would never end.
     if (!p->m_exited && global_ev.on_loop_thread()) {
@@ -429,14 +450,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
         // libuv reaps the child under the loop lock, so `uv_process_kill` cannot signal another
         // process that has reused the child's pid.
         event_loop_guard guard;
+        if (guard.closed(&p->m_uv_process)) {
+            err = UV_ECANCELED;
 #if !defined(LEAN_WINDOWS)
-        if (p->m_setsid) {
+        } else if (p->m_setsid) {
             // The group outlives its leader as long as it has members, so it is killed even after
             // the child has exited.
             err = killpg(uv_process_get_pid(&p->m_uv_process), sig) == 0 ? 0 : uv_translate_sys_error(errno);
-        } else
 #endif
-        {
+        } else {
             err = uv_process_kill(&p->m_uv_process, sig);
         }
     }

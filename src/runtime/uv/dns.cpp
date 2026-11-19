@@ -83,13 +83,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     auto on_resolved = [](uv_getaddrinfo_t * uv, int status, addrinfo * res) {
         std::unique_ptr<getaddrinfo_req_t> req(static_cast<getaddrinfo_req_t*>(uv->data));
+        std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
+
+        if (uv_dropped_at_exit(req->promise)) {
+            return;
+        }
 
         if (status != 0) {
             resolve_with_code(status, req->promise.get());
             return;
         }
 
-        std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
         lean_object * arr = lean_alloc_array(0, 1);
 
         for (addrinfo * ai = res; ai != nullptr; ai = ai->ai_next) {
@@ -114,6 +118,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete req;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_getaddrinfo(global_ev.m_loop, &req->uv, on_resolved, name_cstr, service_cstr, &hints);
     }
 
@@ -140,6 +150,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 
     auto on_resolved = [](uv_getnameinfo_t * uv, int status, const char * hostname, const char * service) {
         std::unique_ptr<getnameinfo_req_t> req(static_cast<getnameinfo_req_t*>(uv->data));
+        if (uv_dropped_at_exit(req->promise)) {
+            return;
+        }
 
         if (status != 0) {
             resolve_with_code(status, req->promise.get());
@@ -156,6 +169,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     int result;
     {
         event_loop_guard guard;
+
+        if (guard.stopped()) {
+            delete req;
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
+
         result = uv_getnameinfo(global_ev.m_loop, &req->uv, on_resolved, (const struct sockaddr*)&addr_ptr, 0);
     }
 

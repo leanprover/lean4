@@ -42,7 +42,8 @@ This creates a `Signal` in the initial state and doesn't start listening yet.
 - If `repeating` is `true` this constructs a signal handler that resolves each time the specified
   signal `signum` is received and continues listening. While it listens, a signal that arrives with
   no promise from `next` pending resolves the promise of the following `next`. A repeating signal handler
-  will only be freed after `Signal.stop` is called, or once nothing references it after `cancel`.
+  stops once nothing references it and no promise from `next` is pending. A promise that its holder
+  resolved still counts as pending until the signal next arrives or `cancel` or `stop` is called.
 -/
 @[extern "lean_uv_signal_mk"]
 opaque mk (signum : Int32) (repeating : Bool) : IO Signal
@@ -70,9 +71,10 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-A promise from `next` may also be resolved by the code holding it; the handler then treats it as
-fulfilled when the signal arrives. The resolved `IO.Promise` contains the signal number that was
-received.
+A promise from `next` may also be resolved by the code holding it. The handler treats it as fulfilled
+only when the signal arrives: until then it keeps listening and the event loop keeps the `Signal`
+alive, as for a pending promise, so dropping the `Signal` does not stop it. Call `cancel` to release
+it sooner. The resolved `IO.Promise` contains the signal number that was received.
 -/
 @[extern "lean_uv_signal_next"]
 opaque next (signal : @& Signal) : IO (IO.Promise Int)

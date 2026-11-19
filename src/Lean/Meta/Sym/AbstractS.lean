@@ -21,6 +21,7 @@ so `minFVarId` must precede or equal every free variable that `replace?` replace
 @[inline] def replaceFVarsCore (e : Expr) (lctx : LocalContext)
     (maxFVar : PHashMap ExprPtr (Option FVarId))
     (minFVarId : FVarId) (replace? : FVarId → Nat → AlphaShareBuilderM (Option Expr)) : AlphaShareBuilderM Expr := do
+  if !e.hasFVar then return e
   let minIndex := (lctx.find? minFVarId).get!.index
   replaceS' e fun e offset => do
     match e with
@@ -135,7 +136,6 @@ Makes the same assumptions as `abstractFVarsRange`.
 -/
 public def replaceFVarsS (e : Expr) (minFVarId : FVarId)
     (replace? : FVarId → Nat → AlphaShareBuilderM (Option Expr)) : SymM Expr := do
-  if !e.hasFVar then return e
   liftBuilderM <| replaceFVarsCore e (← getLCtx) (← get).maxFVar minFVarId replace?
 
 /--

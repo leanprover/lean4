@@ -32,26 +32,6 @@ example : ⦃ fun _ => True ⦄ (if "a" = "b" then pure 1 else pure 2 : M Nat) �
   trace_state
   all_goals sorry
 
-/-! A lifted precondition is simplified. The precondition `s < 3 ∧ 1 = 2` simplifies to `False`,
-and `s < 3 ∧ 1 = 1` simplifies to `s < 3`. -/
-
-example : ⦃ fun s => s < 3 ∧ 1 = 2 ⦄ (pure 1 : M Nat) ⦃ fun r _ => r = 2 ⦄ := by
-  vcgen
-
-/--
-trace: case vc1
-s✝ : Nat
-a✝ : s✝ < 3
-⊢ False
----
-warning: declaration uses `sorry`
--/
-#guard_msgs in
-example : ⦃ fun s => s < 3 ∧ 1 = 1 ⦄ (pure 1 : M Nat) ⦃ fun r s => r = 2 ∧ s < 3 ⦄ := by
-  vcgen
-  trace_state
-  all_goals sorry
-
 /-! Ground evaluation turns the verification condition `"x" = "x" ∨ "x" = "y"` into `True ∨ False`,
 which the `@[vcgen_simp]` theorem `true_or` rewrites to `True`. -/
 

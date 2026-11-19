@@ -126,23 +126,13 @@ def substEqHyp? (goal : MVarId) (nm : Name) (eqn G : Expr) : VCGenM (Option (MVa
   trace[Elab.Tactic.Do.vcgen] "subst: {x} := {t}"
   return some (k.mvarId!, !unused)
 
-/-- Apply precondition-intro rule `rule` to `goal`, simplify the freed hypothesis and introduce it,
+/-- Apply precondition-intro rule `rule` to `goal`, then introduce the freed hypothesis,
 leaving `⊤` as the residual precondition. Returns the new goal and the last introduced hypothesis,
-or `none` as the hypothesis when every conjunct is an equation that `substEqHyp?` leaves unused.
-Returns `none` when the hypothesis simplifies to `False`. -/
-public def introPre (rule : BackwardRule) (goal : MVarId) :
-    VCGenM (Option (MVarId × Option FVarId)) := do
+or `none` when every conjunct is an equation that `substEqHyp?` leaves unused. -/
+public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × Option FVarId) := do
   let .goals [goal] ← rule.applyChecked goal
     | throwError "Failed to apply precondition intro rule to {goal}"
-  -- An equation `x = t` gets substituted, and its `t` gets simplified with the target.
-  let isEq := match ← goal.getType with
-    | .forallE _ φ _ _ => (fvarEq? φ).isSome
-    | _ => false
-  let mut goal ← if isEq then pure goal else match ← simpGoalTelescope goal with
-    | .closed => return none
-    | .goal goal => pure goal
-    | .noProgress => pure goal
-  unless (← goal.getType).isForall do return some (goal, none)
+  let mut goal := goal
   let mut pending := 1
   let mut last? : Option FVarId := none
   while pending > 0 do
@@ -162,7 +152,7 @@ public def introPre (rule : BackwardRule) (goal : MVarId) :
     goal ← introsHygienicN goal 1
     last? := (← goal.withContext getLCtx).lastDecl.map (·.fvarId)
     pending := pending - 1
-  return some (goal, last?)
+  return (goal, last?)
 
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through

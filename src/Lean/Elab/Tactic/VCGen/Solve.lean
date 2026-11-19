@@ -329,19 +329,13 @@ def replaceTargetCongr (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM M
   goal.assign (mkApp4 (mkConst ``Eq.mpr [Level.zero]) target target' hEq g')
   return g'.mvarId!
 
-/-- Apply the split rule `rule` for the split application `e` to `goal`, and simplify the
-hypotheses of each alternative. -/
-def applySplitRule (scope : Scope) (goal : MVarId) (rule : BackwardRule) (e : Expr) :
+/-- Apply the split rule `rule` for the split application `e` to `goal`. `forallIntro?` simplifies
+the hypotheses of each alternative. -/
+def applySplitRule (goal : MVarId) (rule : BackwardRule) (e : Expr) :
     VCGenM (Option (List MVarId)) := do
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr e}"
     | throwError "Failed to apply split rule for {indentExpr e}"
-  let mut simpGoals := #[]
-  for g in goals do
-    match ← simpGoalWith scope Sym.Simp.simpTelescope g with
-    | .goal g' => simpGoals := simpGoals.push g'
-    | .noProgress => simpGoals := simpGoals.push g
-    | .closed => continue
-  return some simpGoals.toList
+  return some goals
 
 /-- The binder domains of the first `n` binders of `ty`, when none of them depends on an earlier
 one and the type after them depends on none of them. -/
@@ -374,7 +368,7 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
   if (nonDependentDomains? resTy numStates).isNone then return none
   let rel ← mkAppNS c #[α, inst]
   let rule ← mkBackwardRuleForAssertionSplitCached splitInfo rel numStates inPre
-  applySplitRule scope goal rule e
+  applySplitRule goal rule e
 
 /-- Introduce the hypothesis `φ` of the goal `φ → rhs` that a precondition-intro rule leaves, and
 record the newest local in `Scope.lastLiftedPre?`. -/
@@ -528,7 +522,7 @@ def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
     let C := mkLambda `p .default info.Prog (mkApp4 c α inst pre rhsC)
     return some [← replaceTargetCongr goal info.Prog info.prog prog' C target' prf]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
-  applySplitRule scope goal rule info.prog
+  applySplitRule goal rule info.prog
 
 /-- Strategy 11c: zeta-unfold a local let-bound fvar used as the program head. -/
 def wpFVarZeta? (goal : MVarId) (info : WPApp) :

@@ -11,7 +11,7 @@ Modeled on a loop invariant from an x86 verification of FFmpeg's `ff_scalarprodu
 
 open Lean Meta Order Std.WP
 
-namespace LoopInvariant
+namespace ScalarProduct
 
 structure M where
   rdi : BitVec 64
@@ -99,4 +99,4 @@ def Goal (n : Nat) : Prop :=
           m ≤ s.rcx.toNat ∧ s.rcx.toNat < 2 * m ∧ s.r8.toNat % (2 * m) = 0
       | .done => s.rdi = d.rdi ⦄
 
-end LoopInvariant
+end ScalarProduct

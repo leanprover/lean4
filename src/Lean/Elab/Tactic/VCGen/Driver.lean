@@ -52,16 +52,17 @@ public def elabInvariant (ctx : Context) (n : Nat) (mv : MVarId) : SymM Bool := 
 index) and elaborate its `invariants` alternative. Returns the remaining non-invariant subgoals for
 `work` to enqueue, and the alternatives of the invariant subgoals. Elaborating here ensures
 dependent VCs see `?inv` assigned by the time they reach `emitVC`. -/
-def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId × Array Syntax) := do
+def handleInvariantSubgoals (subgoals : List MVarId) :
+    VCGenM (Array MVarId × Array (Syntax × MVarId)) := do
   let env ← getEnv
   let mut others : Array MVarId := #[]
-  let mut alts : Array Syntax := #[]
+  let mut alts : Array (Syntax × MVarId) := #[]
   for sg in subgoals do
     if isSpecInvariantType env (← sg.getType) then
       let n := (← get).invariants.size + 1
       modify fun s => { s with invariants := s.invariants.push sg }
       if let some alt := (← read).invariantAlts[n]? then
-        alts := alts.push alt
+        alts := alts.push (alt, sg)
       unless ← elabInvariant (← read) n sg do
         sg.setKind .syntheticOpaque
     else
@@ -74,6 +75,19 @@ def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
   let target ← goal.getType
   (← runSimp methods (Sym.Simp.simp target)).toSimpGoalResult goal
 
+/-- The annotation of the note ref `ref` that the verification condition `goal` belongs to: the
+first annotation after the first whose term occurs in the target of `goal`, and otherwise the first
+annotation. -/
+def notePart (ref : Nat) (goal : MVarId) : VCGenM Nat := do
+  if ref == 0 then return 0
+  let some noteRef := (← get).noteRefs[ref - 1]? | return 0
+  if noteRef.parts.size ≤ 1 then return 0
+  let target ← instantiateMVarsS (← goal.getType)
+  for h : i in 1...noteRef.parts.size do
+    let term ← instantiateMVarsS noteRef.parts[i].2
+    if (target.find? (· == term)).isSome then return i
+  return 0
+
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 `simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
@@ -83,6 +97,9 @@ so they never reach this path.
 -/
 public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) (ref : Nat) :
     VCGenM Unit := do
+  -- The annotation is chosen before `simp` rewrites the target, which can remove the term of the
+  -- annotation.
+  let ref := (ref, ← notePart ref goal.mvarId)
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
   if reason matches .noEntailment .. | .noProgress .. then
     -- An invariant from an `invariants` alternative is assigned while the target is built, as in
@@ -110,17 +127,19 @@ structure WorkItem where
   The next spec application gives it to its subgoals of the post side. -/
   contRef? : Option Nat := none
 
-/-- Open a note ref that shows the verification conditions of `goal` at `stxs`, and return it. -/
-def openNoteRef (stxs : Array Syntax) (goal : MVarId) : VCGenM Nat := do
+/-- Open a note ref that shows the verification conditions of `goal` at the annotations `parts`, and
+return it. -/
+def openNoteRef (parts : Array (Syntax × Expr)) (goal : MVarId) : VCGenM Nat := do
   let mctx ← getMCtx
-  modify fun s => { s with noteRefs := s.noteRefs.push { stxs, goal, mctx } }
+  modify fun s => { s with noteRefs := s.noteRefs.push { parts, goal, mctx } }
   return (← get).noteRefs.size
 
-/-- The arguments of the program of `info` that carry a `do` note, each with its note and without
-it. Spec application removes the note from an argument that becomes the program of a subgoal. -/
-def notedArgs (info : WPApp) : MetaM (Array (Syntax × Expr)) :=
+/-- The arguments of the program of `info` that carry a `do` note, each with the annotations of its
+note and without the note. Spec application removes the note from an argument that becomes the
+program of a subgoal. -/
+def notedArgs (info : WPApp) : MetaM (Array (Array (Syntax × Expr) × Expr)) :=
   info.prog.getAppArgs.filterMapM fun arg =>
-    return (← Lean.Elab.Do.vcgenNote? arg).map (·, arg.consumeMData)
+    return (← noteParts? arg).map (·, arg.consumeMData)
 
 /-- The program of the goal `pre ⊑ wp prog post eposts s₁ … sₙ`. -/
 def wpProg? (goal : MVarId) : MetaM (Option Expr) := do
@@ -145,12 +164,12 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       let (subgoals, alts) ← handleInvariantSubgoals subgoals
       let mut ref := s.ref
       let mut contRef? := s.contRef?
-      if let some note := note? then
+      if let some parts := note? then
         contRef? := some ref
-        ref ← openNoteRef #[note] goal.mvarId
+        ref ← openNoteRef parts goal.mvarId
       unless alts.isEmpty do
         contRef? := some ref
-        ref ← openNoteRef alts goal.mvarId
+        ref ← openNoteRef (alts.map fun (alt, hole) => (alt, .mvar hole)) goal.mvarId
       let notes ← if let some info := spec? then notedArgs info else pure #[]
       for mv in subgoals.reverse do
         let mut item : WorkItem := { goal := { goal with mvarId := mv }, scope, ref, contRef? }
@@ -161,8 +180,8 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
           item := { item with contRef? := none }
         unless notes.isEmpty do
           if let some prog ← wpProg? mv then
-            if let some (note, _) := notes.find? (·.2 == prog) then
-              item := { item with ref := ← openNoteRef #[note] mv, contRef? := some item.ref }
+            if let some (parts, _) := notes.find? (·.2 == prog) then
+              item := { item with ref := ← openNoteRef parts mv, contRef? := some item.ref }
         worklist := worklist.push item
 
 public structure Result where
@@ -173,8 +192,9 @@ public structure Result where
   invariants : Array MVarId
   /-- Unassigned VCs. Each shares the parent `Grind.Goal`'s state. -/
   vcs : Array Grind.Goal
-  /-- The note ref of each entry of `vcs`, at the same index: `0`, or `i + 1` for `noteRefs[i]`. -/
-  vcRefs : Array Nat := #[]
+  /-- The note ref and the annotation of each entry of `vcs`, at the same index (see
+  `State.vcRefs`). -/
+  vcRefs : Array (Nat × Nat) := #[]
   /-- The note refs that VC generation opened. -/
   noteRefs : Array NoteRef := #[]
   /-- Frame terms of `frames` alternatives whose program pattern matched no program. -/

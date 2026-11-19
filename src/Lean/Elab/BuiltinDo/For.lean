@@ -187,20 +187,21 @@ private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term :=
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
   `(fun $(g.statePat) => $(← g.wrapErasedProjs e))
 
-/-- Elaborate the gadget application that replaces the loop, noted with the range of the annotations
-`ref` so that `vcgen` shows the verification conditions of the loop at `ref`. The gadgets live
-downstream of this module, so `gadget` is an unresolved name that resolves in the user's context. -/
-private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
+/-- Elaborate the gadget application that replaces the loop, noted with the clause of each annotation
+in `refs`, at the same index as in `annotations`, so that `vcgen` shows the verification conditions
+of each annotation at its clause. The gadgets live downstream of this module, so `gadget` is an
+unresolved name that resolves in the user's context. -/
+private def ForInApp.mkCall (g : ForInApp) (refs : Array Syntax) (gadget : Name)
     (annotations : Array Term) : DoElabM Expr := do
   unless (← getEnv).contains gadget do
-    throwErrorAt ref "a loop annotation elaborates to a `vcgen` gadget; \
+    throwErrorAt (mkNullNode refs) "a loop annotation elaborates to a `vcgen` gadget; \
       add `import Std.WP` to use it."
   -- `open scoped` activates the instances of `Std.WP` and the notation of `Lean.Order` for the
   -- annotations, as the contract's spec theorem does for the `requires` and `ensures` clauses.
   let call ← `(open scoped Std.WP Lean.Order in
     $(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
       $(← Term.exprToSyntax g.body) $annotations*)
-  mkVCGenNote ref (← Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ))
+  mkVCGenNote refs (← Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ))
 
 /-- The binders and body of an `invariant` clause. An ascription covering the binder list would
 cover the loop's binders and the assertion's alike, so it is reported here. -/
@@ -232,7 +233,7 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
   let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invBody))
   let gadget := if h?.isSome then ``Std.WP.Gadget.forInPureWithInvariant'
     else ``Std.WP.Gadget.forInPureWithInvariant
-  g.mkCall invClause gadget #[invLam]
+  g.mkCall #[invClause] gadget #[invLam]
 
 /-- Rebuild the loop of a `repeat` as a call to the gadget carrying the annotations the loop states.
 Both clauses name the loop's mutable variables directly. The `invariant` clause takes the `Bool`
@@ -264,14 +265,13 @@ private def mkForInLoopGadget (g : ForInApp)
       | _ => throwUnsupportedSyntax
     checkAssertionBinders decClause "measure" binders.size pred?
     return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body pred?))
-  let some (ref, gadget, annotations) := (match invArg?, varArg? with
+  let some (refs, gadget, annotations) := (match invArg?, varArg? with
     | some (invRef, inv), some (decRef, var) =>
-      some (mkNullNode #[invRef, decRef], ``Std.WP.Gadget.forInLoopWithInvariantAndVariant,
-        #[inv, var])
-    | some (ref, inv), none => some (ref, ``Std.WP.Gadget.forInLoopWithInvariant, #[inv])
-    | none, some (ref, var) => some (ref, ``Std.WP.Gadget.forInLoopWithVariant, #[var])
+      some (#[invRef, decRef], ``Std.WP.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])
+    | some (ref, inv), none => some (#[ref], ``Std.WP.Gadget.forInLoopWithInvariant, #[inv])
+    | none, some (ref, var) => some (#[ref], ``Std.WP.Gadget.forInLoopWithVariant, #[var])
     | none, none => none) | return none
-  some <$> g.mkCall ref gadget annotations
+  some <$> g.mkCall refs gadget annotations
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs

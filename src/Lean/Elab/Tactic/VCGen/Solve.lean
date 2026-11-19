@@ -48,15 +48,23 @@ public inductive SolveResult.StopReason where
 
 /-- The result of one `solve` step of VC generation. -/
 public inductive SolveResult where
-  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. `note?` is the
-  annotation range of a `do` note that the step removed from the program (see
-  `Lean.Elab.Do.vcgenNote?`), and `spec?` is the `wp` application of the goal when the step applied
-  a spec to it. `postSide` are the subgoals of that spec application that state the postconditions,
-  which continue with the code after the program. -/
-  | goals (scope : Scope) (subgoals : List MVarId) (note? : Option Syntax := none)
+  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. `note?` are the
+  annotations of a `do` note that the step removed from the program (see `noteParts?`), and `spec?`
+  is the `wp` application of the goal when the step applied a spec to it. `postSide` are the
+  subgoals of that spec application that state the postconditions, which continue with the code
+  after the program. -/
+  | goals (scope : Scope) (subgoals : List MVarId) (note? : Option (Array (Syntax × Expr)) := none)
       (spec? : Option WPApp := none) (postSide : Array MVarId := #[])
   /-- No further progress possible; emit the current goal as a VC. -/
   | stop (reason : SolveResult.StopReason)
+
+/-- The annotations of the `do` note on the program `e` (see `Lean.Elab.Do.vcgenNote?`), each with
+its term: the annotations note the last arguments of the program, in order. -/
+public def noteParts? (e : Expr) : MetaM (Option (Array (Syntax × Expr))) := do
+  let some refs ← Lean.Elab.Do.vcgenNote? e | return none
+  let args := e.consumeMData.getAppArgs
+  unless refs.size ≤ args.size do return none
+  return some (refs.zip (args.extract (args.size - refs.size) args.size))
 
 def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
@@ -791,7 +799,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if ← matchesUntilPattern info.prog then
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
-      return .goals scope [g] (← Lean.Elab.Do.vcgenNote? info.prog)
+      return .goals scope [g] (← noteParts? info.prog)
     if let some g ← wpReduceHead? goal info then
       burnOne
       return .goals scope [g]

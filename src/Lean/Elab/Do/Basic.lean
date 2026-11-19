@@ -41,25 +41,33 @@ def warnIntrinsicExperimental [Monad m] [MonadLog m] [AddMessageContext m] [Mona
       `set_option experimental.intrinsic true` acknowledges its experimental status and silences \
       this warning."
 
-/-- Wrap the program `e` in a note that records the source range of the annotation `ref` and the
-current module. `vcgen` shows the verification conditions of `e` at `ref`. -/
-def mkVCGenNote [Monad m] [MonadEnv m] (ref : Syntax) (e : Expr) : m Expr := do
-  let some range := ref.getRange? (canonicalOnly := true) | return e
-  let note : KVMap := {}
-  let note := note.insert `vcgen.noteStart (.ofNat range.start.byteIdx)
-    |>.insert `vcgen.noteStop (.ofNat range.stop.byteIdx)
-    |>.insert `vcgen.noteModule (.ofName (← getMainModule))
+/-- Wrap the program `e` in a note that records the source range of each annotation in `refs` and the
+current module. `vcgen` shows the verification conditions of each annotation of `e` at its range. -/
+def mkVCGenNote [Monad m] [MonadEnv m] (refs : Array Syntax) (e : Expr) : m Expr := do
+  let mut note : KVMap := {}
+  note := note.insert `vcgen.noteModule (.ofName (← getMainModule))
+  note := note.insert `vcgen.noteCount (.ofNat refs.size)
+  for h : i in *...refs.size do
+    let some range := refs[i].getRange? (canonicalOnly := true) | return e
+    note := note.insert (.num `vcgen.noteStart i) (.ofNat range.start.byteIdx)
+    note := note.insert (.num `vcgen.noteStop i) (.ofNat range.stop.byteIdx)
   return .mdata note e
 
-/-- The annotation range that `mkVCGenNote` records on `e`, as an atom spanning the range, when `e`
-carries a note of the current module. -/
-def vcgenNote? [Monad m] [MonadEnv m] (e : Expr) : m (Option Syntax) := do
+/-- The annotation ranges that `mkVCGenNote` records on `e`, each as an atom spanning its range, when
+`e` carries a note of the current module. -/
+def vcgenNote? [Monad m] [MonadEnv m] (e : Expr) : m (Option (Array Syntax)) := do
   let .mdata note _ := e | return none
-  let (some (.ofNat start), some (.ofNat stop), some (.ofName mod)) :=
-      (note.find `vcgen.noteStart, note.find `vcgen.noteStop, note.find `vcgen.noteModule)
+  let (some (.ofName mod), some (.ofNat count)) :=
+      (note.find `vcgen.noteModule, note.find `vcgen.noteCount)
     | return none
   unless mod == (← getMainModule) do return none
-  return some (.atom (.synthetic ⟨start⟩ ⟨stop⟩ (canonical := true)) "")
+  let mut refs := #[]
+  for i in *...count do
+    let (some (.ofNat start), some (.ofNat stop)) :=
+        (note.find (.num `vcgen.noteStart i), note.find (.num `vcgen.noteStop i))
+      | return none
+    refs := refs.push (.atom (.synthetic ⟨start⟩ ⟨stop⟩ (canonical := true)) "")
+  return some refs
 
 structure MonadInfo where
   /-- The inferred type of the monad of type `Type u → Type v`. -/

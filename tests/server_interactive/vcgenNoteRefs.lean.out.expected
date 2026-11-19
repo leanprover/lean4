@@ -1,5 +1,5 @@
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
- "position": {"line": 14, "character": 7}}
+ "position": {"line": 15, "character": 7}}
 {"rendered":
  "```lean\ncase vc1\nn i : Nat\na✝ :\n  have exit := true;\n  if exit = true then i = 0 else True\n⊢ i = 0\n```\n---\n```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
  "goals":
@@ -7,36 +7,46 @@
   "case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝",
   "case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
- "position": {"line": 18, "character": 9}}
+ "position": {"line": 19, "character": 9}}
 {"rendered":
- "```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
+ "```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
  "goals":
- ["case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝",
-  "case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}
+ ["case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
- "position": {"line": 20, "character": 9}}
+ "position": {"line": 21, "character": 9}}
 {"rendered":
- "```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```\n---\n```lean\ncase vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0\n```",
+ "```lean\ncase vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```",
  "goals":
- ["case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝",
-  "case vc3\nn i mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i mb✝ ⊓\n    have exit := false;\n    if exit = true then i = 0 else True\nh✝ : ¬0 < i\n⊢ i = 0"]}
+ ["case vc2\nn i✝ mb✝ : Nat\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo i✝ mb✝ ⊓\n    have exit := false;\n    if exit = true then i✝ = 0 else True\nh✝ : 0 < i✝\ni : Nat := i✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝"]}
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
- "position": {"line": 29, "character": 15}}
+ "position": {"line": 30, "character": 15}}
 {"rendered":
  "```lean\ncase vc1\nxs : List Nat\n⊢ 0 = [].sum\n```\n---\n```lean\ncase vc3\nxs pref : List Nat\nx : Nat\nsuff✝ : List Nat\n_h✝ : ForIn.toList xs = pref ++ x :: suff✝\nacc✝¹ : Nat\nacc✝ : Nat := pref.sum\nacc : Nat := acc✝ + x\n⊢ acc = (pref ++ [x]).sum\n```",
  "goals":
  ["case vc1\nxs : List Nat\n⊢ 0 = [].sum",
   "case vc3\nxs pref : List Nat\nx : Nat\nsuff✝ : List Nat\n_h✝ : ForIn.toList xs = pref ++ x :: suff✝\nacc✝¹ : Nat\nacc✝ : Nat := pref.sum\nacc : Nat := acc✝ + x\n⊢ acc = (pref ++ [x]).sum"]}
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
- "position": {"line": 43, "character": 2}}
+ "position": {"line": 44, "character": 2}}
 {"rendered":
  "```lean\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ ⊤ ⊑\n    wp\n      (forIn l 0 fun x __s =>\n        have acc := __s;\n        have acc := acc + x;\n        pure (ForInStep.yield acc))\n      (fun a =>\n        binderNameHint a\n          (fun __s =>\n            have acc := __s;\n            pure acc)\n          (wp\n            (have acc := a;\n            pure acc)\n            (fun r => r = l.sum) PUnit.unit))\n      PUnit.unit\n```",
  "goals":
  ["l : List Nat\nr : Nat\nh : sumDef l = r\n⊢ ⊤ ⊑\n    wp\n      (forIn l 0 fun x __s =>\n        have acc := __s;\n        have acc := acc + x;\n        pure (ForInStep.yield acc))\n      (fun a =>\n        binderNameHint a\n          (fun __s =>\n            have acc := __s;\n            pure acc)\n          (wp\n            (have acc := a;\n            pure acc)\n            (fun r => r = l.sum) PUnit.unit))\n      PUnit.unit"]}
 {"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
- "position": {"line": 43, "character": 9}}
+ "position": {"line": 44, "character": 9}}
 {"rendered":
  "```lean\ncase vc1\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ 0 + l.sum = l.sum\n```\n---\n```lean\ncase vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum\n```",
  "goals":
  ["case vc1\nl : List Nat\nr : Nat\nh : sumDef l = r\n⊢ 0 + l.sum = l.sum",
   "case vc3\nl : List Nat\nr : Nat\nh : sumDef l = r\npref✝ : List Nat\ncur✝ : Nat\nsuff✝ : List Nat\n_h✝ : l = pref✝ ++ cur✝ :: suff✝\nb✝ : Nat\na✝ : b✝ + (cur✝ :: suff✝).sum = l.sum\nacc : Nat := b✝ + cur✝\n⊢ acc + suff✝.sum = l.sum"]}
+{"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
+ "position": {"line": 57, "character": 9}}
+{"rendered":
+ "```lean\ncase vc3\nn : Nat\na✝¹ : ⌜True⌝\nb✝ : Nat\nmb✝ : (Variant.ofMeasure fun i => i).γ\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo b✝ mb✝ ⊓\n    match false, b✝ with\n    | false, a => (fun x => ⌜True⌝) a\n    | true, a => (fun x => ⌜True⌝) a ⊓ (fun r => ⌜r = 0⌝) a\nh✝ : ¬0 < b✝\n⊢ b✝ = 0\n```",
+ "goals":
+ ["case vc3\nn : Nat\na✝¹ : ⌜True⌝\nb✝ : Nat\nmb✝ : (Variant.ofMeasure fun i => i).γ\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo b✝ mb✝ ⊓\n    match false, b✝ with\n    | false, a => (fun x => ⌜True⌝) a\n    | true, a => (fun x => ⌜True⌝) a ⊓ (fun r => ⌜r = 0⌝) a\nh✝ : ¬0 < b✝\n⊢ b✝ = 0"]}
+{"textDocument": {"uri": "file:///vcgenNoteRefs.lean"},
+ "position": {"line": 59, "character": 9}}
+{"rendered":
+ "```lean\ncase vc2\nn : Nat\na✝¹ : ⌜True⌝\nb✝ : Nat\nmb✝ : (Variant.ofMeasure fun i => i).γ\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo b✝ mb✝ ⊓\n    match false, b✝ with\n    | false, a => (fun x => ⌜True⌝) a\n    | true, a => (fun x => ⌜True⌝) a ⊓ (fun r => ⌜r = 0⌝) a\nh✝ : 0 < b✝\ni : Nat := b✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝\n```",
+ "goals":
+ ["case vc2\nn : Nat\na✝¹ : ⌜True⌝\nb✝ : Nat\nmb✝ : (Variant.ofMeasure fun i => i).γ\na✝ :\n  (Variant.ofMeasure fun i => i).EvalsTo b✝ mb✝ ⊓\n    match false, b✝ with\n    | false, a => (fun x => ⌜True⌝) a\n    | true, a => (fun x => ⌜True⌝) a ⊓ (fun r => ⌜r = 0⌝) a\nh✝ : 0 < b✝\ni : Nat := b✝ - 1\n⊢ (Variant.ofMeasure fun i => i).EvalsBelow i mb✝"]}

@@ -453,13 +453,14 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   -- The `vcgen` keyword shows the goal before and the goals after VC generation, so the goals after
   -- remain visible when a `with` clause discharges them.
   let result ← Lean.Elab.Tactic.Grind.withTacticInfoContext stx[0] (runSymVCGen stx)
-  -- A note ref shows the goal that reached its annotation and the verification conditions of that
-  -- goal. Its info lies outside the info of the `vcgen` keyword, whose goals after it would hide.
+  -- An annotation shows the goal that reached it and its verification conditions. Its info lies
+  -- outside the info of the `vcgen` keyword, whose goals after it would hide.
   for h : i in *...result.noteRefs.size do
     let noteRef := result.noteRefs[i]
-    let vcs := (result.vcs.zip result.vcRefs).filterMap fun (g, ref) =>
-      if ref == i + 1 then some g.mvarId else none
-    for stx in noteRef.stxs do
+    for h : j in *...noteRef.parts.size do
+      let stx := noteRef.parts[j].1
+      let vcs := (result.vcs.zip result.vcRefs).filterMap fun (g, ref) =>
+        if ref == (i + 1, j) then some g.mvarId else none
       pushInfoLeaf <| .ofTacticInfo {
         elaborator := `Lean.Elab.Tactic.VCGen.evalSymVCGen
         stx

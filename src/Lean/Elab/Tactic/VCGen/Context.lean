@@ -148,12 +148,14 @@ public structure Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
-/-- A source annotation that shows the verification conditions of a part of the program: a `do`
-annotation such as a loop `invariant`, or an `invariants` alternative. The goal `goal`, in the
-metavariable context `mctx`, is the goal at which VC generation reached the annotated part. -/
+/-- The source annotations that show the verification conditions of a part of the program: the `do`
+annotations of a loop such as `invariant` and `decreasing`, or the `invariants` alternatives of the
+holes of a spec. The goal `goal`, in the metavariable context `mctx`, is the goal at which VC
+generation reached the annotated part. -/
 public structure NoteRef where
-  /-- The syntax ranges that show the verification conditions. -/
-  stxs : Array Syntax
+  /-- Each annotation with its term. A verification condition belongs to the first annotation after
+  the first whose term occurs in it, and otherwise to the first annotation. -/
+  parts : Array (Syntax × Expr)
   goal : MVarId
   mctx : MetavarContext
 
@@ -233,8 +235,9 @@ public structure State where
   shares the parent `Grind.Goal`'s state.
   -/
   vcs : Array Grind.Goal := #[]
-  /-- The note ref of each entry of `vcs`, at the same index: `0`, or `i + 1` for `noteRefs[i]`. -/
-  vcRefs : Array Nat := #[]
+  /-- The note ref and the annotation of each entry of `vcs`, at the same index. The note ref is `0`,
+  or `i + 1` for `noteRefs[i]`; the annotation indexes `NoteRef.parts`. -/
+  vcRefs : Array (Nat × Nat) := #[]
   /-- The note refs that VC generation opened, in the order it opened them. -/
   noteRefs : Array NoteRef := #[]
   /--

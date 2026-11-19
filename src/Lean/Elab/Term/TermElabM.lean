@@ -1245,19 +1245,26 @@ Returns whether `className` has a `deriving` handler installed.
 def hasDerivingHandler (className : Name) : IO Bool := do
   return (← derivableRef.get).contains className
 
+/-- The outcome of `trySynthesizeInstMVarCore`. -/
+inductive SynthesizeInstResult where
+  /-- The instance was synthesized and agrees with the value of the instance metavariable. -/
+  | synthesized
+  /-- Unassigned metavariables block the type class resolution procedure. -/
+  | stuck
+  /-- The synthesized instance cannot be checked against the value of the instance metavariable yet. -/
+  | deferred
+  deriving Inhabited, BEq
+
 /--
   Try to synthesize metavariable using type class resolution.
   This method assumes the local context and local instances of `instMVar` coincide
   with the current local context and local instances.
-  Return `some true` if the instance was synthesized successfully, `none` if
-  the instance contains unassigned metavariables that are blocking the type class
-  resolution procedure, and `some false` if the synthesized instance cannot be checked against the
-  assigned value of `instMVar` yet. Throw an exception if resolution or assignment irrevocably fails.
+  Throw an exception if resolution or assignment irrevocably fails.
 
   If `extraErrorMsg?` is not none, it contains additional information that should be attached
   to type class synthesis failures.
 -/
-def synthesizeInstMVarCore? (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM (Option Bool) := do
+def trySynthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM SynthesizeInstResult := do
   let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
@@ -1287,7 +1294,7 @@ def synthesizeInstMVarCore? (instMVar : MVarId) (maxResultSize? : Option Nat := 
              The `isDefEq` test above fails for `Decidable (p.x - p.y ≤ p.x)` when the structure instance assigned to
              `p` has not been elaborated yet.
            -/
-          return some false -- we will try again later
+          return .deferred -- we will try again later
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
@@ -1298,11 +1305,11 @@ def synthesizeInstMVarCore? (instMVar : MVarId) (maxResultSize? : Option Nat := 
     else
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"
-    return some true
-  | .undef => return none -- we will try later
+    return .synthesized
+  | .undef => return .stuck -- we will try later
   | .none  =>
     if (← read).ignoreTCFailures then
-      return some false
+      return .deferred
     else
       let msg ← match type with
         | .app (.const cls _) (.const typ _) =>
@@ -1316,11 +1323,11 @@ def synthesizeInstMVarCore? (instMVar : MVarId) (maxResultSize? : Option Nat := 
       throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
 
 /--
-  Try to synthesize metavariable using type class resolution, see `synthesizeInstMVarCore?`.
+  Try to synthesize metavariable using type class resolution, see `trySynthesizeInstMVarCore`.
   Return `true` if the instance was synthesized successfully.
 -/
 def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
-  return (← synthesizeInstMVarCore? instMVar maxResultSize? extraErrorMsg?) == some true
+  return (← trySynthesizeInstMVarCore instMVar maxResultSize? extraErrorMsg?) == .synthesized
 
 structure CoeExpansionTrace where
   expandedCoeDecls : List Name

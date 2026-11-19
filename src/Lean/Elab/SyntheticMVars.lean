@@ -75,14 +75,14 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
          return true
 
 /--
-  Similar to `synthesizeInstMVarCore?`, but makes sure that `instMVar` local context and instances
+  Similar to `trySynthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
-private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM (Option Bool) :=
+private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM SynthesizeInstResult :=
   instMVar.withContext do
     try
-      synthesizeInstMVarCore? instMVar (extraErrorMsg? := extraErrorMsg?)
+      trySynthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?)
     catch
-      | ex@(.error ..) => logException ex; return some true
+      | ex@(.error ..) => logException ex; return .synthesized
       | _              => unreachable!
 
 /-- Returns `true` if `instMVar` got stuck before and none of the metavariables it was blocked on has been assigned since. -/
@@ -565,9 +565,10 @@ mutual
     match mvarSyntheticDecl.kind with
     | .typeClass extraErrorMsg? =>
       if (← isStuckTCUnchanged mvarId) then return false
-      let some synthesized ← synthesizePendingInstMVar mvarId extraErrorMsg?
-        | recordStuckTC mvarId; return false
-      return synthesized
+      match ← synthesizePendingInstMVar mvarId extraErrorMsg? with
+      | .synthesized => return true
+      | .deferred    => return false
+      | .stuck       => recordStuckTC mvarId; return false
     | .coe _header? expectedType e _f? _ => mvarId.withContext do
       if (← withDefault do isDefEq (← inferType e) expectedType) then
         -- Types may be defeq now due to mvar assignments, type class

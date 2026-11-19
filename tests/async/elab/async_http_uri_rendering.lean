@@ -14,7 +14,7 @@ Tests how URIs, request-targets, ports, host names and status codes are read and
 - a port may have leading zeros (`port = *DIGIT`, RFC 3986 §3.2.3), and an authority-form target
   needs at least one port digit, so `file:///x` stays absolute-form;
 - a host name of the maximal 253 characters may end with the root `.`;
-- an empty authority (`file:///x`) is printed again and names no host (RFC 3986 §5.3);
+- an empty authority (`file:///x`, `///x`) is printed again and names no host (RFC 3986 §5.3);
 - a status code of 600–999 counts as a server error (RFC 9110 §15).
 -/
 
@@ -112,3 +112,10 @@ def run (machine : Machine dir) (n : Nat := 4) : Machine dir × String := Id.run
     expect ((URI.parse? s).any (·.host?.isNone)) s!"{s} names a host"
   for s in ["http:///x", "https://", "http:////evil.com/x"] do
     expect (RequestTarget.parse? s).isNone s!"{s} was accepted as a request target"
+
+-- The same holds for a relative reference (RFC 3986 §4.2); userinfo or a port still needs a host.
+#guard ["//", "///a", "//?q", "//#f"].all fun s =>
+  match URIReference.parse? s with
+  | some (.relative r) => r.authority.any (·.host == .empty) && toString r == s
+  | _ => false
+#guard ["//@/x", "//:80/x"].all fun s => (URIReference.parse? s).isNone

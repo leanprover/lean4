@@ -60,11 +60,6 @@ structure Outbox.State where
   idle : Option (IO.Promise Unit) := none
 
   /--
-  When the last write completed, by `IO.monoMsNow`.
-  -/
-  idleSince : Nat := 0
-
-  /--
   When a write last started with none in flight or completed, by `IO.monoMsNow`.
   -/
   progressAt : Nat := 0
@@ -123,7 +118,7 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
           idle := none })
       | .ok () =>
         if s.queued.isEmpty then
-          ((#[], s.idle), { s with writing := false, idle := none, idleSince := now, progressAt := now })
+          ((#[], s.idle), { s with writing := false, idle := none, progressAt := now })
         else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0, progressAt := now })
     if let some idle := idle then
       idle.resolve ()
@@ -213,12 +208,12 @@ partial def awaitIdle (outbox : Outbox α) : Async Unit := do
     outbox.awaitIdle
 
 /--
-How many milliseconds ago the last write completed, or `none` while a write is in flight.
+When, by `IO.monoMsNow`, a wait for the write in flight fails the outbox if no write completes
+before, or `none` if no write is in flight or the outbox failed.
 -/
-def idleFor? (outbox : Outbox α) : BaseIO (Option Nat) := do
+def writeDeadline? (outbox : Outbox α) : BaseIO (Option Nat) := do
   let s ← outbox.state.get
-  if s.writing then return none
-  return some ((← IO.monoMsNow) - s.idleSince)
+  return if s.writing && !s.failed then some (s.progressAt + outbox.writeTimeout) else none
 
 /--
 Returns `true` once a write failed.

@@ -23,8 +23,11 @@ inductive SplitStatus where
   | ready (numCases : Nat) (isRec := false) (tryPostpone := false)
   deriving Inhabited, BEq, Repr
 
-/-- Given `c`, the condition of an `if-then-else`, check whether we need to case-split on the `if-then-else` or not -/
-private def checkIteCondStatus (c : Expr) : GoalM SplitStatus := do
+/--
+Given a proposition `c`, checks whether `grind` must case-split on `c ∨ ¬c` (see `mkGrindEM`).
+The split is resolved once `c` is known to be `True` or `False`.
+-/
+private def checkEMStatus (c : Expr) : GoalM SplitStatus := do
   if (← isEqTrue c <||> isEqFalse c) then
     return .resolved
   else
@@ -98,9 +101,10 @@ private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
       checkIffStatus e a b
     else
       return .ready 2
+  | Not a => checkEMStatus a
   | _ =>
     if isIte e || isDIte e then
-      return (← checkIteCondStatus (e.getArg! 1))
+      return (← checkEMStatus (e.getArg! 1))
     if (← isResolvedCaseSplit e) then
       trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved

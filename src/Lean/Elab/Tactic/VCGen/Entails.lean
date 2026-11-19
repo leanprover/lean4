@@ -134,7 +134,11 @@ public def introPre (rule : BackwardRule) (goal : MVarId) :
     VCGenM (Option (MVarId × Option FVarId)) := do
   let .goals [goal] ← rule.applyChecked goal
     | throwError "Failed to apply precondition intro rule to {goal}"
-  let mut goal ← match ← simpGoalTelescope goal with
+  -- An equation `x = t` gets substituted, and its `t` gets simplified with the target.
+  let isEq := match ← goal.getType with
+    | .forallE _ φ _ _ => (fvarEq? φ).isSome
+    | _ => false
+  let mut goal ← if isEq then pure goal else match ← simpGoalTelescope goal with
     | .closed => return none
     | .goal goal => pure goal
     | .noProgress => pure goal

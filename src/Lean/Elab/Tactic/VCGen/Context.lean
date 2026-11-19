@@ -235,8 +235,8 @@ public structure State where
   shares the parent `Grind.Goal`'s state.
   -/
   vcs : Array Grind.Goal := #[]
-  /-- The note ref and the annotation of each entry of `vcs`, at the same index. The note ref is `0`,
-  or `i + 1` for `noteRefs[i]`; the annotation indexes `NoteRef.parts`. -/
+  /-- The note ref and the annotation of each entry of `vcs`, at the same index. The note ref is
+  `0`, or `i + 1` for `noteRefs[i]`, and the annotation indexes `NoteRef.parts`. -/
   vcRefs : Array (Nat × Nat) := #[]
   /-- The note refs that VC generation opened, in the order it opened them. -/
   noteRefs : Array NoteRef := #[]

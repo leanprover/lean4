@@ -187,10 +187,10 @@ private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term :=
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
   `(fun $(g.statePat) => $(← g.wrapErasedProjs e))
 
-/-- Elaborate the gadget application that replaces the loop, noted with the clause of each annotation
-in `refs`, at the same index as in `annotations`, so that `vcgen` shows the verification conditions
-of each annotation at its clause. The gadgets live downstream of this module, so `gadget` is an
-unresolved name that resolves in the user's context. -/
+/-- Elaborate the gadget application that replaces the loop, noted with the clause of each
+annotation in `refs`, at the same index as in `annotations`, so that `vcgen` shows the verification
+conditions of each annotation at its clause. The gadgets live downstream of this module, so
+`gadget` is an unresolved name that resolves in the user's context. -/
 private def ForInApp.mkCall (g : ForInApp) (refs : Array Syntax) (gadget : Name)
     (annotations : Array Term) : DoElabM Expr := do
   unless (← getEnv).contains gadget do

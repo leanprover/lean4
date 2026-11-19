@@ -41,8 +41,9 @@ def warnIntrinsicExperimental [Monad m] [MonadLog m] [AddMessageContext m] [Mona
       `set_option experimental.intrinsic true` acknowledges its experimental status and silences \
       this warning."
 
-/-- Wrap the program `e` in a note that records the source range of each annotation in `refs` and the
-current module. `vcgen` shows the verification conditions of each annotation of `e` at its range. -/
+/-- Wrap the program `e` in a note that records the source range of each annotation in `refs` and
+the current module. `vcgen` shows the verification conditions of each annotation of `e` at its
+range. -/
 def mkVCGenNote [Monad m] [MonadEnv m] (refs : Array Syntax) (e : Expr) : m Expr := do
   let mut note : KVMap := {}
   note := note.insert `vcgen.noteModule (.ofName (← getMainModule))
@@ -53,8 +54,8 @@ def mkVCGenNote [Monad m] [MonadEnv m] (refs : Array Syntax) (e : Expr) : m Expr
     note := note.insert (.num `vcgen.noteStop i) (.ofNat range.stop.byteIdx)
   return .mdata note e
 
-/-- The annotation ranges that `mkVCGenNote` records on `e`, each as an atom spanning its range, when
-`e` carries a note of the current module. -/
+/-- The annotation ranges that `mkVCGenNote` records on `e`, each as an atom spanning its range,
+when `e` carries a note of the current module. -/
 def vcgenNote? [Monad m] [MonadEnv m] (e : Expr) : m (Option (Array Syntax)) := do
   let .mdata note _ := e | return none
   let (some (.ofName mod), some (.ofNat count)) :=

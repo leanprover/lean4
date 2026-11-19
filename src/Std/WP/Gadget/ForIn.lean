@@ -62,7 +62,7 @@ open Gadget
 /-! ## Specifications -/
 
 @[spec]
-theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+theorem Spec.forInPureWithInvariant {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
@@ -78,16 +78,16 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
           | .done b' => inv (ForIn.toList xs) [] b')
         eposts) :
     Triple
-      (forInPureWithInvariant xs init f inv)
+      (Gadget.forInPureWithInvariant xs init f inv)
       (inv [] (ForIn.toList xs) init)
       (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
       eposts := by
-  unfold forInPureWithInvariant
+  unfold Gadget.forInPureWithInvariant
   rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
+theorem Spec.forInPureWithInvariant' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
@@ -103,16 +103,16 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
           | .done b' => inv (ForIn.toList xs) [] b')
         eposts) :
     Triple
-      (forInPureWithInvariant' xs init f inv)
+      (Gadget.forInPureWithInvariant' xs init f inv)
       (inv [] (ForIn.toList xs) init)
       (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
       eposts := by
-  unfold forInPureWithInvariant'
+  unfold Gadget.forInPureWithInvariant'
   rw [PureForIn'.forIn'_eq]
   exact Spec.forIn'_list inv step
 
 @[spec default+10]
-theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+theorem Spec.forInPureWithInvariant_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : α → Option γ × β → m (ForInStep (Option γ × β))}
@@ -128,13 +128,13 @@ theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv [] (ForIn.toList xs) (none, init) ⦄
-    (forInPureWithInvariant xs (none, init) f inv >>= fun s =>
+    (Gadget.forInPureWithInvariant xs (none, init) f inv >>= fun s =>
       Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
     ⦃ post; eposts ⦄ :=
   Spec.forIn_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
 
 @[spec default+10]
-theorem Spec.forInPure'_earlyReturn {ρ : Type w} {d : Membership α ρ}
+theorem Spec.forInPureWithInvariant'_earlyReturn {ρ : Type w} {d : Membership α ρ}
     [ForIn' m ρ α d] [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : (a : α) → a ∈ xs → Option γ × β → m (ForInStep (Option γ × β))}
@@ -151,7 +151,7 @@ theorem Spec.forInPure'_earlyReturn {ρ : Type w} {d : Membership α ρ}
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv [] (ForIn.toList xs) (none, init) ⦄
-    (forInPureWithInvariant' xs (none, init) f inv >>= fun s =>
+    (Gadget.forInPureWithInvariant' xs (none, init) f inv >>= fun s =>
       Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
     ⦃ post; eposts ⦄ :=
   Spec.forIn'_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
@@ -200,7 +200,7 @@ variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPosts]
   [WPMonad m Pred EPosts]
 
 @[spec]
-theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
+theorem Spec.forInLoopWithInvariantAndVariant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
@@ -217,15 +217,15 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
           | .done b' => inv true b')
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant l init f (WhileInvariant.mk inv) measure)
+      (Gadget.forInLoopWithInvariantAndVariant l init f (WhileInvariant.mk inv) measure)
       (inv false init)
       (fun b => binderNameHint b (inv true) <| inv true b)
       einv := by
-  unfold forInLoopWithInvariantAndVariant
+  unfold Gadget.forInLoopWithInvariantAndVariant
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec]
-theorem Spec.forInLoop_invariant
+theorem Spec.forInLoopWithInvariant
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
@@ -240,15 +240,15 @@ theorem Spec.forInLoop_invariant
           | .done b' => inv true b')
         einv) :
     Triple
-      (forInLoopWithInvariant l init f (WhileInvariant.mk inv))
+      (Gadget.forInLoopWithInvariant l init f (WhileInvariant.mk inv))
       (inv false init)
       (fun b => binderNameHint b (inv true) <| inv true b)
       einv := by
-  unfold forInLoopWithInvariant
+  unfold Gadget.forInLoopWithInvariant
   exact Spec.forIn_loop measure inv einv step
 
 @[spec]
-theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
+theorem Spec.forInLoopWithVariant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
@@ -265,15 +265,15 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
           | .done b' => inv true b')
         einv) :
     Triple
-      (forInLoopWithVariant l init f measure)
+      (Gadget.forInLoopWithVariant l init f measure)
       (inv false init)
       (fun b => binderNameHint b (inv true) <| inv true b)
       einv := by
-  unfold forInLoopWithVariant
+  unfold Gadget.forInLoopWithVariant
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec default+10]
-theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
+theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
@@ -292,14 +292,15 @@ theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true (none, b) ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false (none, init) ⦄
-    (forInLoopWithInvariantAndVariant l (none, init) f (WhileInvariant.mk inv) measure >>= fun s =>
+    (Gadget.forInLoopWithInvariantAndVariant l (none, init) f (WhileInvariant.mk inv) measure
+      >>= fun s =>
       Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
     ⦃ post; einv ⦄ :=
   Spec.forIn_loop_earlyReturn (Variant.ofMeasure measure)
     (WhileInvariant.mk fun exit b => inv exit (none, b)) einv step exit
 
 @[spec default+10]
-theorem Spec.forInLoop_invariant_earlyReturn {ω δ : Type u}
+theorem Spec.forInLoopWithInvariant_earlyReturn {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [∀ P : Pred, PreservesSup (meet P)]
@@ -315,14 +316,14 @@ theorem Spec.forInLoop_invariant_earlyReturn {ω δ : Type u}
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true (none, b) ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false (none, init) ⦄
-    (forInLoopWithInvariant l (none, init) f (WhileInvariant.mk inv) >>= fun s =>
+    (Gadget.forInLoopWithInvariant l (none, init) f (WhileInvariant.mk inv) >>= fun s =>
       Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
     ⦃ post; einv ⦄ :=
   Spec.forIn_loop_earlyReturn measure (WhileInvariant.mk fun exit b => inv exit (none, b)) einv
     step exit
 
 @[spec default+10]
-theorem Spec.forInLoop_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
+theorem Spec.forInLoopWithVariant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
@@ -340,7 +341,7 @@ theorem Spec.forInLoop_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ 
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true b ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false init ⦄
-    (forInLoopWithVariant l (none, init) f measure >>= fun s =>
+    (Gadget.forInLoopWithVariant l (none, init) f measure >>= fun s =>
       Break.runK.match_1 (fun _ => m δ) s.fst (fun x => kRet s x) (fun _ => k s))
     ⦃ post; einv ⦄ :=
   Spec.forIn_loop_earlyReturn (Variant.ofMeasure measure) inv einv step exit

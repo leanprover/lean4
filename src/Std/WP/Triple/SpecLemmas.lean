@@ -850,12 +850,11 @@ theorem Spec.forIn_pure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ �
     {post : δ → Pred} {eposts : EPosts}
     (inv : Invariant α β Pred)
     (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ inv pref (cur :: suff) b ⦄ f cur (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => inv (pref ++ [cur]) suff b'
           | .done (none, b') => inv (ForIn.toList xs) [] b'
-          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] b ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv [] (ForIn.toList xs) init ⦄
@@ -886,13 +885,12 @@ theorem Spec.forIn'_pure_earlyReturn {ρ : Type w} {d : Membership α ρ} [ForIn
     {post : δ → Pred} {eposts : EPosts}
     (inv : Invariant α β Pred)
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ inv pref (cur :: suff) b ⦄
       f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => inv (pref ++ [cur]) suff b'
           | .done (none, b') => inv (ForIn.toList xs) [] b'
-          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] b ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv [] (ForIn.toList xs) init ⦄
@@ -1944,12 +1942,11 @@ theorem Spec.forIn_string_earlyReturn {s : String} {γ δ : Type u₂} {init : �
     {post : δ → Pred} {eposts : EPosts}
     (inv : StringInvariant s β Pred)
     (step : ∀ pos b (h : pos ≠ s.endPos),
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ inv pos b ⦄ f (pos.get h) (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => inv (pos.next h) b'
           | .done (none, b') => inv s.endPos b'
-          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv s.endPos b ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv s.startPos init ⦄
@@ -1981,12 +1978,11 @@ theorem Spec.forIn_stringSlice_earlyReturn {s : String.Slice} {γ δ : Type u₂
     {post : δ → Pred} {eposts : EPosts}
     (inv : StringSliceInvariant s β Pred)
     (step : ∀ pos b (h : pos ≠ s.endPos),
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ inv pos b ⦄ f (pos.get h) (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => inv (pos.next h) b'
           | .done (none, b') => inv s.endPos b'
-          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv s.endPos b ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv s.startPos init ⦄
@@ -2434,12 +2430,11 @@ theorem Spec.forIn_loop_earlyReturn {γ δ : Type u} {l : Lean.Loop} {init : β}
     (inv : WhileInvariant β Pred)
     (einv : EPosts)
     (step : ∀ b (mb : measure.γ),
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ measure.EvalsTo (none, b) mb ⊓ inv false b ⦄ f () (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => measure.EvalsBelow (none, b') mb ⊓ inv false b'
           | .done (none, b') => inv true b'
-          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .done (some x, b') => wp (kRet (some x, b') x) post einv
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true b ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false init ⦄

@@ -121,12 +121,11 @@ theorem Spec.forInPure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α
     {post : δ → Pred} {eposts : EPosts}
     (inv : List α → List α → Option γ × β → Pred)
     (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ inv pref (cur :: suff) (none, b) ⦄ f cur (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => inv (pref ++ [cur]) suff (none, b')
           | .done (none, b') => inv (ForIn.toList xs) [] (none, b')
-          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv [] (ForIn.toList xs) (none, init) ⦄
@@ -146,13 +145,12 @@ theorem Spec.forInPure'_earlyReturn {ρ : Type w} {d : Membership α ρ} [ForIn'
     {post : δ → Pred} {eposts : EPosts}
     (inv : List α → List α → Option γ × β → Pred)
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ inv pref (cur :: suff) (none, b) ⦄
       f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => inv (pref ++ [cur]) suff (none, b')
           | .done (none, b') => inv (ForIn.toList xs) [] (none, b')
-          | .done (some x, b') => wp (__vcgen_jp x b') post eposts
+          | .done (some x, b') => wp (kRet (some x, b') x) post eposts
           | .yield (some _, _) => ⊥; eposts ⦄)
     (exit : ∀ b, ⦃ inv (ForIn.toList xs) [] (none, b) ⦄ k (none, b) ⦃ post; eposts ⦄) :
     ⦃ inv [] (ForIn.toList xs) (none, init) ⦄
@@ -289,7 +287,6 @@ theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ
     (inv : Bool → Option ω × β → Pred)
     (einv : EPosts)
     (step : ∀ b (mb : γ),
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ (Variant.ofMeasure (Pred := Pred) measure).EvalsTo (none, b) mb ⊓ inv false (none, b) ⦄
       f () (none, b)
       ⦃ fun r => match r with
@@ -297,7 +294,7 @@ theorem Spec.forInLoop_invariant_variant_earlyReturn {Fun : Type} {γ : Type uγ
             (Variant.ofMeasure (Pred := Pred) measure).EvalsBelow (none, b') mb ⊓
               inv false (none, b')
           | .done (none, b') => inv true (none, b')
-          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .done (some x, b') => wp (kRet (some x, b') x) post einv
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true (none, b) ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false (none, init) ⦄
@@ -318,12 +315,11 @@ theorem Spec.forInLoop_invariant_earlyReturn {ω δ : Type u}
     (inv : Bool → Option ω × β → Pred)
     (einv : EPosts)
     (step : ∀ b (mb : measure.γ),
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ measure.EvalsTo (none, b) mb ⊓ inv false (none, b) ⦄ f () (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') => measure.EvalsBelow (none, b') mb ⊓ inv false (none, b')
           | .done (none, b') => inv true (none, b')
-          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .done (some x, b') => wp (kRet (some x, b') x) post einv
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true (none, b) ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false (none, init) ⦄
@@ -344,14 +340,13 @@ theorem Spec.forInLoop_variant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ 
     (inv : WhileInvariant β Pred)
     (einv : EPosts)
     (step : ∀ b (mb : γ),
-      have __vcgen_jp := fun x b => kRet (some x, b) x;
       ⦃ (Variant.ofMeasure (Pred := Pred) measure).EvalsTo (none, b) mb ⊓ inv false b ⦄
       f () (none, b)
       ⦃ fun r => match r with
           | .yield (none, b') =>
             (Variant.ofMeasure (Pred := Pred) measure).EvalsBelow (none, b') mb ⊓ inv false b'
           | .done (none, b') => inv true b'
-          | .done (some x, b') => wp (__vcgen_jp x b') post einv
+          | .done (some x, b') => wp (kRet (some x, b') x) post einv
           | .yield (some _, _) => ⊥; einv ⦄)
     (exit : ∀ b, ⦃ inv true b ⦄ k (none, b) ⦃ post; einv ⦄) :
     ⦃ inv false init ⦄

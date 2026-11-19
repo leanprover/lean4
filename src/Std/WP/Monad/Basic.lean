@@ -20,7 +20,7 @@ open Lean.Order Std.WP
 `MonadicWP m Pred EPosts` is a `WP` interpretation of the programs `m α` for every result type `α`.
 A low-priority instance derives `WP (m α) α Pred EPosts` from it.
 
-The laws relate `wp` to `pure` and `bind` of `m`:
+Two classes express how lawful `wp` is for `pure` and `bind` of `m`:
 
 * `MonadicWP.IsLaxMonadMorphism m`: `wp` is sound for `pure` and `bind`. `WP.trans` is then a lax
   monad morphism.
@@ -70,6 +70,9 @@ class MonadicWP.IsMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w
 
 namespace MonadicWP
 
+export IsMonadMorphism (wp_pure_eq wp_bind_eq)
+export IsLaxMonadMorphism (pure_le_wp_pure bind_le_wp_bind)
+
 variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred]
   [PartialOrder EPosts] [MonadicWP m Pred EPosts]
 
@@ -88,9 +91,9 @@ theorem map_le_wp_map [Monad m] [LawfulMonad m]
   intro post eposts
   rw [← bind_pure_comp]
   apply PartialOrder.rel_trans; rotate_left
-  exact IsLaxMonadMorphism.bind_le_wp_bind x (pure <| f ·) post eposts
+  exact bind_le_wp_bind x (pure <| f ·) post eposts
   apply WP.wp_monotone_post
-  intro a; exact IsLaxMonadMorphism.pure_le_wp_pure (f a) post eposts
+  intro a; exact pure_le_wp_pure (f a) post eposts
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
 theorem seq_le_wp_seq [Monad m] [LawfulMonad m]
@@ -100,7 +103,7 @@ theorem seq_le_wp_seq [Monad m] [LawfulMonad m]
       wp (f <*> x) post eposts := by
   intro post eposts
   rw [← bind_map]
-  apply PartialOrder.rel_trans _ (IsLaxMonadMorphism.bind_le_wp_bind f (fun g => g <$> x) post eposts)
+  apply PartialOrder.rel_trans _ (bind_le_wp_bind f (fun g => g <$> x) post eposts)
   apply WP.wp_monotone_post; intro g; exact map_le_wp_map g x post eposts
 
 end Lax
@@ -115,14 +118,14 @@ set_option linter.missingDocs false
 abbrev WPMonad (m : Type u → Type v) (Pred : Type w) (EPosts : Type w') [PartialOrder Pred]
     [PartialOrder EPosts] := MonadicWP m Pred EPosts
 
-@[deprecated MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (since := "2026-11-18")]
-abbrev WPMonad.bind_le_wp_bind := @MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
+@[deprecated MonadicWP.bind_le_wp_bind (since := "2026-11-18")]
+abbrev WPMonad.bind_le_wp_bind := @MonadicWP.bind_le_wp_bind
 
 @[deprecated MonadicWP.map_le_wp_map (since := "2026-11-18")]
 abbrev WPMonad.map_le_wp_map := @MonadicWP.map_le_wp_map
 
-@[deprecated MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (since := "2026-11-18")]
-abbrev WPMonad.pure_le_wp_pure := @MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure
+@[deprecated MonadicWP.pure_le_wp_pure (since := "2026-11-18")]
+abbrev WPMonad.pure_le_wp_pure := @MonadicWP.pure_le_wp_pure
 
 @[deprecated MonadicWP.seq_le_wp_seq (since := "2026-11-18")]
 abbrev WPMonad.seq_le_wp_seq := @MonadicWP.seq_le_wp_seq

@@ -135,9 +135,9 @@ verification conditions for the generalization.
 
 ### General idea
 
-Consider the spec theorem `MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind`:
+Consider the spec theorem `MonadicWP.bind_le_wp_bind`:
 ```
-MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind :
+MonadicWP.bind_le_wp_bind :
   wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
 ```
 This theorem is already in WP-form, so `post` and `eposts` are schematic. However, its precondition
@@ -147,7 +147,7 @@ prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EP
   (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post eposts) eposts),
   pre ⊑ wp (x >>= f) post eposts
 ```
-The proof term is constructed with `PartialOrder.rel_trans hpre MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind`.
+The proof term is constructed with `PartialOrder.rel_trans hpre MonadicWP.bind_le_wp_bind`.
 
 #### Postcondition VCs
 
@@ -209,7 +209,7 @@ it for the particular predicate type, exception postcondition type and `MonadicW
 `tryMkBackwardRuleFromSpec` does that by instantiating the spec theorem and checking that its
 `Pred` and `MonadicWP` arguments match the ones from the use site.
 
-For `StateM Nat` and one excess state arg `s`, the type produced for `MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind` becomes
+For `StateM Nat` and one excess state arg `s`, the type produced for `MonadicWP.bind_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   (f : α → StateT Nat Id β) (post : β → Nat → Prop) (eposts : Unit) (s : Nat),
@@ -371,8 +371,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"
   guard <| ← isDefEqGuarded info.Pred Pred'
-  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instPO' _instEPO' instWP' prog postSpec
-      epostsSpec := rhs
+  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instPO' _instEPO' instWP' prog postSpec epostsSpec := rhs
     | throwError "target not a wp application {rhs}"
   -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
   -- spec spells it as the interpretation of a `MonadicWP` binder at the result type.

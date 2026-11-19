@@ -78,29 +78,29 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     MonadicWP.IsMonadMorphism (ExceptT ε m) where
   wp_pure_eq a post eposts := by
     simp only [ExceptT.wp_apply_eq]
-    exact MonadicWP.IsMonadMorphism.wp_pure_eq (m := m) (Except.ok a) (pushExcept post eposts.fst) eposts.snd
+    exact MonadicWP.wp_pure_eq (m := m) (Except.ok a) (pushExcept post eposts.fst) eposts.snd
   wp_bind_eq x f post eposts := by
     simp only [ExceptT.wp_apply_eq]
-    rw [ExceptT.run_bind, MonadicWP.IsMonadMorphism.wp_bind_eq]
+    rw [ExceptT.run_bind, MonadicWP.wp_bind_eq]
     congr 1; funext r; cases r with
     | ok a => rfl
-    | error e => exact MonadicWP.IsMonadMorphism.wp_pure_eq (m := m) _ _ _
+    | error e => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
 instance (priority := low) {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ExceptT ε m) where
   pure_le_wp_pure x post eposts := by
     simp only [ExceptT.wp_apply_eq]
-    exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (Except.ok x) (pushExcept post eposts.fst) eposts.snd
+    exact MonadicWP.pure_le_wp_pure (m := m) (Except.ok x) (pushExcept post eposts.fst) eposts.snd
   bind_le_wp_bind x f post eposts := by
     simp only [ExceptT.wp_apply_eq]
     apply PartialOrder.rel_trans _
-      (MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (m := m) x.run _ (pushExcept post eposts.fst) eposts.snd)
+      (MonadicWP.bind_le_wp_bind (m := m) x.run _ (pushExcept post eposts.fst) eposts.snd)
     apply WP.wp_monotone_post
     intro r; cases r with
     | ok a => exact PartialOrder.rel_refl
     | error el =>
-      exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (Except.error el) (pushExcept post eposts.fst)
+      exact MonadicWP.pure_le_wp_pure (m := m) (Except.error el) (pushExcept post eposts.fst)
         eposts.snd
 
 /-- `OptionT`'s `WP` interpretation: lift the base interpretation by adding a `Unit` exception
@@ -125,30 +125,30 @@ instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     MonadicWP.IsMonadMorphism (OptionT m) where
   wp_pure_eq a post eposts := by
     simp only [OptionT.wp_apply_eq]
-    exact MonadicWP.IsMonadMorphism.wp_pure_eq (m := m) (some a) (pushOption post eposts.fst) eposts.snd
+    exact MonadicWP.wp_pure_eq (m := m) (some a) (pushOption post eposts.fst) eposts.snd
   wp_bind_eq x f post eposts := by
     simp only [OptionT.wp_apply_eq]
     show wp (x.run >>= fun o => match o with | some a => (f a).run | none => pure none) _ _ = _
-    rw [MonadicWP.IsMonadMorphism.wp_bind_eq]
+    rw [MonadicWP.wp_bind_eq]
     congr 1; funext o; cases o with
     | some a => rfl
-    | none => exact MonadicWP.IsMonadMorphism.wp_pure_eq (m := m) _ _ _
+    | none => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
 instance (priority := low) {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (OptionT m) where
   pure_le_wp_pure x post eposts := by
     simp only [OptionT.wp_apply_eq]
-    exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (some x) (pushOption post eposts.fst) eposts.snd
+    exact MonadicWP.pure_le_wp_pure (m := m) (some x) (pushOption post eposts.fst) eposts.snd
   bind_le_wp_bind x f post eposts := by
     simp only [OptionT.wp_apply_eq]
     apply PartialOrder.rel_trans _
-      (MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (m := m) x.run _ (pushOption post eposts.fst) eposts.snd)
+      (MonadicWP.bind_le_wp_bind (m := m) x.run _ (pushOption post eposts.fst) eposts.snd)
     apply WP.wp_monotone_post
     intro r; cases r with
     | some a => exact PartialOrder.rel_refl
     | none =>
-      exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) none (pushOption post eposts.fst) eposts.snd
+      exact MonadicWP.pure_le_wp_pure (m := m) none (pushOption post eposts.fst) eposts.snd
 
 /-- `StateT`'s `WP` interpretation: lift the base interpretation by adding a state argument. -/
 instance StateT.wpInst {EPosts : Type v} {σ : Type u} {Pred : Type w} [PartialOrder Pred]
@@ -171,10 +171,10 @@ instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [PartialOrder
     MonadicWP.IsMonadMorphism (StateT σ m) where
   wp_pure_eq a post eposts := funext fun s => by
     simp only [StateT.wp_apply_eq]
-    exact MonadicWP.IsMonadMorphism.wp_pure_eq (m := m) (a, s) (fun p => post p.1 p.2) eposts
+    exact MonadicWP.wp_pure_eq (m := m) (a, s) (fun p => post p.1 p.2) eposts
   wp_bind_eq x f post eposts := funext fun s => by
     simp only [StateT.wp_apply_eq]
-    exact MonadicWP.IsMonadMorphism.wp_bind_eq (m := m) (x.run s) (fun p => (f p.1).run p.2)
+    exact MonadicWP.wp_bind_eq (m := m) (x.run s) (fun p => (f p.1).run p.2)
       (fun p => post p.1 p.2) eposts
 
 instance (priority := low) {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m]
@@ -182,10 +182,10 @@ instance (priority := low) {EPosts : Type v} {σ : Type u} {Pred : Type w} [Mona
     [MonadicWP.IsLaxMonadMorphism m] : MonadicWP.IsLaxMonadMorphism (StateT σ m) where
   pure_le_wp_pure x post eposts s := by
     simp only [StateT.wp_apply_eq]
-    exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x, s) (fun p => post p.1 p.2) eposts
+    exact MonadicWP.pure_le_wp_pure (m := m) (x, s) (fun p => post p.1 p.2) eposts
   bind_le_wp_bind x f post eposts s := by
     simp only [StateT.wp_apply_eq]
-    exact MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (m := m) (x.run s) (fun p => (f p.1).run p.2)
+    exact MonadicWP.bind_le_wp_bind (m := m) (x.run s) (fun p => (f p.1).run p.2)
       (fun p => post p.1 p.2) eposts
 
 /-- `ReaderT`'s `WP` interpretation: lift the base interpretation by adding a reader argument. -/
@@ -210,10 +210,10 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     MonadicWP.IsMonadMorphism (ReaderT ρ m) where
   wp_pure_eq a post eposts := funext fun r => by
     simp only [ReaderT.wp_apply_eq]
-    exact MonadicWP.IsMonadMorphism.wp_pure_eq (m := m) a (fun a => post a r) eposts
+    exact MonadicWP.wp_pure_eq (m := m) a (fun a => post a r) eposts
   wp_bind_eq x f post eposts := funext fun r => by
     simp only [ReaderT.wp_apply_eq]
-    exact MonadicWP.IsMonadMorphism.wp_bind_eq (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r)
+    exact MonadicWP.wp_bind_eq (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r)
       eposts
 
 instance (priority := low) {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
@@ -221,10 +221,10 @@ instance (priority := low) {Pred : Type v} [Monad m] [PartialOrder Pred] [Partia
     MonadicWP.IsLaxMonadMorphism (ReaderT ρ m) where
   pure_le_wp_pure x post eposts r := by
     simp only [ReaderT.wp_apply_eq]
-    exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) x (fun a => post a r) eposts
+    exact MonadicWP.pure_le_wp_pure (m := m) x (fun a => post a r) eposts
   bind_le_wp_bind x f post eposts r := by
     simp only [ReaderT.wp_apply_eq]
-    exact MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r)
+    exact MonadicWP.bind_le_wp_bind (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r)
       eposts
 
 /-!

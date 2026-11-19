@@ -33,7 +33,7 @@ variable {m : Type v → Type u} [PartialOrder Pred] [PartialOrder EPosts]
 theorem pure [Monad m] [MonadicWP.IsLaxMonadMorphism m] (a : α)
     (h : pre ⊑ post a) :
     Triple (pure (f := m) a) pre post eposts :=
-  ⟨PartialOrder.rel_trans h (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure a post eposts)⟩
+  ⟨PartialOrder.rel_trans h (MonadicWP.pure_le_wp_pure a post eposts)⟩
 
 theorem bind [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (f : α → m β)
     (mid : α → Pred)
@@ -43,7 +43,7 @@ theorem bind [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (f : α → m
   ⟨PartialOrder.rel_trans hx.le_wp
     (PartialOrder.rel_trans
       (WP.wp_monotone_post (fun a => (hf a).le_wp))
-      (MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind x f post eposts))⟩
+      (MonadicWP.bind_le_wp_bind x f post eposts))⟩
 
 theorem map [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] (f : α → β) (x : m α)
     (h : Triple x pre (fun a => post (f a)) eposts) :

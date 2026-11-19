@@ -83,13 +83,24 @@ so `s.1 = a` follows without a case split.
 -/
 
 /-- The lattice instance of the assertions `B` of a goal `pre ⊑ rhs`, read off the order `instPO` of
-`B` in the goal: the lattice order `CompleteLattice.toPartialOrder instCL` gives `instCL`, and the
-order `instPartialOrderProp` of `Prop` gives `instCompleteLatticeProp`. -/
-def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
+`B` in the goal: `CompleteLattice.toPartialOrder instCL` gives `instCL`, and the orders of `Prop`,
+`Unit`, functions and pairs give the corresponding lattices. -/
+partial def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
   match_expr instPO with
   | CompleteLattice.toPartialOrder _ instCL => return some instCL
   | Std.Internal.Order.instPartialOrderProp =>
     return some (← mkConstS ``Std.Internal.Order.instCompleteLatticeProp)
+  | Lean.Order.instPartialOrderUnit => return some (← mkConstS ``Lean.Order.instCompleteLatticeUnit)
+  | Lean.Order.instOrderPi α β inst =>
+    let .lam x ty body bi := inst | return none
+    let some lattice ← latticeOfOrder? body | return none
+    let pi ← mkConstS ``Lean.Order.instCompleteLatticePi instPO.getAppFn.constLevels!
+    return some (← mkAppNS pi #[α, β, ← mkLambdaS x bi ty lattice])
+  | Lean.Order.instPartialOrderProd α β instα instβ =>
+    let some latticeα ← latticeOfOrder? instα | return none
+    let some latticeβ ← latticeOfOrder? instβ | return none
+    let prod ← mkConstS ``Lean.Order.instCompleteLatticeProd instPO.getAppFn.constLevels!
+    return some (← mkAppNS prod #[α, β, latticeα, latticeβ])
   | _ => return none
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into the goal

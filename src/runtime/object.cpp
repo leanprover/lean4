@@ -786,6 +786,8 @@ LEAN_THREAD_PTR(std::vector<object *>, g_discard_drops);
 
 // Set on the threads the task manager starts, which `shutdown` waits for.
 LEAN_THREAD_VALUE(bool, g_task_manager_thread, false);
+// Set on the thread running `shutdown`, which can run finalizers when it discards what is still queued.
+LEAN_THREAD_VALUE(bool, g_in_shutdown, false);
 
 struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
@@ -802,21 +804,23 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    // Notified when a dedicated worker finishes, when a standard worker leaves, and when `shutdown` finishes.
+    // Notified when a dedicated worker finishes, when a standard worker parks, when the last running `(sync := true)`
+    // task finishes during shutdown, and when `shutdown` finishes.
     condition_variable                            m_worker_done_cv;
     // Read without the lock by `lean_io_check_canceled_core`.
     std::atomic<bool>                             m_shutting_down{false};
-    // Set by `shutdown` once every worker is gone, until `restart`. A task that becomes runnable meanwhile is
-    // discarded. Read without the lock by the entry points that run new tasks inline meanwhile.
+    // Set by `shutdown` once no standard worker is live, no dedicated worker is left and no `(sync := true)` task
+    // runs, until `restart`; parked workers then exit. A task that becomes runnable meanwhile is discarded. Read
+    // without the lock by the entry points that run new tasks inline meanwhile.
     std::atomic<bool>                             m_workers_exit{false};
-    // Standard workers that have not left their loop. Unlike `m_std_workers.size()`, this drops when an idle worker
-    // leaves during shutdown.
+    // Standard workers that are not parked. Unlike `m_std_workers.size()`, this drops when an idle worker parks during
+    // shutdown.
     unsigned                                      m_live_std_workers{0};
     // Tasks blocked in `wait_for` or `wait_any`. During shutdown, while there are any, idle standard workers stay and
     // new ones can start, and they run whatever is queued.
     unsigned                                      m_task_waiters{0};
     // `(sync := true)` tasks running on any thread, including ones the task manager does not own, such as the libuv
-    // loop thread. `shutdown` waits for them, so that what they queue or wait for still runs.
+    // loop thread. `shutdown` waits for them, so that the tasks they wait for still run.
     unsigned                                      m_running_sync{0};
     // During shutdown, standard workers that left but keep their thread until `m_workers_exit`, so that a later
     // waiter reuses one instead of starting a thread that is only joined when `shutdown` ends.
@@ -969,14 +973,17 @@ class task_manager {
                 if (m_queues_size == 0) {
                     if (m_shutting_down) {
                         // Thread-local objects can hold tasks and promises: free them while this worker can still
-                        // run what that queues.
+                        // run what that queues. Meanwhile the worker is not idle, so that a wait in a finalizer
+                        // starts another one.
+                        m_idle_std_workers--;
                         lock.unlock();
                         lean_finalize_thread();
                         lock.lock();
+                        m_idle_std_workers++;
                         if (m_queues_size > 0)
                             continue;
-                        // An idle worker leaves once the task manager shuts down, unless a task waits. Its thread
-                        // parks until `m_workers_exit`, for `spawn_worker` to reuse.
+                        // An idle worker parks once the task manager shuts down, unless a task waits, until
+                        // `m_workers_exit` or until `spawn_worker` reuses it.
                         if (m_task_waiters == 0) {
                             m_idle_std_workers--;
                             m_live_std_workers--;
@@ -1139,7 +1146,7 @@ public:
     // Runs the exit sequence and leaves the manager dormant until `restart`. A dormant manager runs no task: a task
     // that becomes runnable is discarded, and new tasks run inline, as without a task manager.
     void shutdown() {
-        if (g_current_task_object || g_task_manager_thread) {
+        if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
             // `shutdown` would wait for the calling thread itself.
             lean_internal_panic("the task manager cannot be finalized from a task or from a thread it started");
         }
@@ -1153,10 +1160,11 @@ public:
         if (m_workers_exit)
             return;
         m_in_shutdown = true;
+        g_in_shutdown = true;
         m_shutting_down = true;
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
-        // Busy standard workers keep running queued tasks and idle ones leave, unless a task waits; running dedicated
+        // Busy standard workers keep running queued tasks and idle ones park, unless a task waits; running dedicated
         // tasks finish, and so do `(sync := true)` tasks on any thread. Other threads the task manager does not own
         // are not waited for.
         m_worker_done_cv.wait(lock, [&]() {
@@ -1178,6 +1186,7 @@ public:
         lock.lock();
         m_std_workers.clear();
         m_in_shutdown = false;
+        g_in_shutdown = false;
         m_shutdowns++;
         m_worker_done_cv.notify_all();
     }
@@ -1186,7 +1195,7 @@ public:
     void restart(unsigned max_std_workers) {
         unique_lock<mutex> lock(m_mutex);
         if (m_in_shutdown) {
-            if (g_current_task_object || g_task_manager_thread) {
+            if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
                 lock.unlock();
                 // `shutdown` waits for the calling thread itself.
                 lean_internal_panic("the task manager cannot be restarted from a task or from a thread it started");
@@ -1274,10 +1283,10 @@ public:
         end_task_wait(waiter);
     }
 
-    // A task about to block counts as a waiter: during shutdown, it lets standard workers stay or start, so that what
-    // it waits for runs. A thread that is not running a task is not counted.
+    // A task, or a thread the task manager started, about to block counts as a waiter: during shutdown, it lets
+    // standard workers stay or start, so that what it waits for runs. Other threads are not counted.
     bool begin_task_wait(bool may_spawn = true) {
-        if (!g_current_task_object)
+        if (!g_current_task_object && !g_task_manager_thread)
             return false;
         m_task_waiters++;
         if (may_spawn && m_shutting_down && m_queues_size > 0 && m_idle_std_workers == 0)
@@ -1287,7 +1296,7 @@ public:
 
     void end_task_wait(bool waiter) {
         if (waiter && --m_task_waiters == 0 && m_shutting_down)
-            m_queue_cv.notify_all(); // idle workers may leave now
+            m_queue_cv.notify_all(); // idle workers may park now
     }
 
     object * wait_any(object * task_list) {

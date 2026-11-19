@@ -301,6 +301,7 @@ typedef struct {
      * invariant: m_value == nullptr
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: dequeued by worker thread            ==> Running     (`spawn_worker` lock)
+     * transition: `lean_finalize_task_manager` stops the workers ==> Discarded (`task_manager::discard`)
    * Waiting
      * condition: reachable from task via `m_head_dep->m_next_dep->...` && !m_imp->m_deleted
      * invariant: m_imp != nullptr && m_value == nullptr
@@ -308,6 +309,8 @@ typedef struct {
        * It cannot become Deactivated because this task should be holding an owned reference to it
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: task dependency Finished ==> Queued (`handle_finished` under `spawn_worker` lock)
+     * transition: task dependency Finished while the task manager is stopped, or Discarded ==> Discarded
+       (`task_manager::discard`)
    * Promised
      * condition: obtained as result from promise
      * invariant: m_imp != nullptr && m_value == nullptr
@@ -326,6 +329,7 @@ typedef struct {
        * Note that all dependent tasks must have already been Deactivated by the converse of the second Waiting invariant
      * invariant: m_value == nullptr
      * transition: dequeued by worker thread   ==> freed
+     * transition: dequeued by `lean_finalize_task_manager` ==> freed (`task_manager::discard`)
      * transition: finished execution          ==> freed
      * transition: task dependency Finished    ==> freed
      * We must keep the task object alive until one of these transitions because in either case, we have live
@@ -334,8 +338,6 @@ typedef struct {
      * transition: task dependency Discarded   ==> freed (`task_manager::discard`)
    * Discarded
      * condition: m_imp != nullptr && m_imp->m_deleted == 2
-     * entered from Queued when `lean_finalize_task_manager` stops the workers, by a task that becomes runnable from
-       then until the next `lean_init_task_manager`, and from Waiting when the task dependency is Discarded
      * invariant: in no queue or dependency list, so it never finishes (`IO.getTaskState` reports it as running)
      * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr && m_value == nullptr
      * transition: RC becomes 0 ==> freed (`deactivate_task` lock)
@@ -1626,20 +1628,23 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 /* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. With 0 workers it does neither:
    before any start, tasks then run inline and `IO.Promise.new` panics; after a stop, the manager stays stopped. While
-   the task manager runs it does nothing, and while it is being stopped it first waits for that to finish. */
+   the task manager runs it does nothing, and while it is being stopped it first waits for that to finish, so it then
+   panics when called from a thread that the stop waits for (see `lean_finalize_task_manager`). */
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
-/* Stops the task manager. From then on tasks see `IO.checkCanceled` as true. Busy workers keep running queued tasks
+/* Stops the task manager. While it runs, tasks see `IO.checkCanceled` as true. Busy workers keep running queued tasks
    and idle ones stop, but while any task waits, workers stay or start and run whatever is queued, so the exit also
-   waits for that work. Running dedicated tasks finish, and so do `(sync := true)` tasks running on any thread. It
-   returns once no worker is left and no such task runs, and discards without running what is still queued then or
-   becomes runnable later. Threads the task manager does not own are otherwise not waited for: they should stop using
-   it before this call, and call `lean_finalize_thread` first if their thread-local state can hold tasks or promises.
-   It panics when called from a task or from a thread the task manager started (including from a thread-local
-   finalizer it runs), which it would wait for; a concurrent call waits for the one in progress. Until the next
-   `lean_init_task_manager`, new tasks run inline, and of the unfinished tasks only the result of a promise can still
-   finish; waiting for any other one blocks forever. Tasks and promises that outlive this call stay valid in later
-   cycles. */
+   waits for that work. Running dedicated tasks finish, and so do `(sync := true)` tasks running on any thread; a
+   dedicated task started meanwhile also runs, and is waited for. It returns once no worker is left and no such task
+   runs, and discards without running what is still queued then or becomes runnable later. Threads the task manager
+   does not own are otherwise not waited for: they should stop using it before this call, and call
+   `lean_finalize_thread` first if their thread-local state can hold tasks or promises. It panics when called from a
+   task, from a thread the task manager started (including from a thread-local finalizer it runs), or from a finalizer
+   that this call runs on its own thread, all of which it would wait for; a concurrent call from another thread waits
+   for the one in progress. Until the next `lean_init_task_manager`, a new task runs inline once its input has
+   finished, and of the unfinished tasks, including ones created meanwhile, only the result of a promise can still
+   finish; waiting for any other one blocks until a later cycle runs it, or forever if it was discarded. Tasks and
+   promises that outlive this call stay valid in later cycles. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 /* All priorities above `Task.Priority.max` mean the same; `UINT_MAX` is reserved for synchronous tasks. */

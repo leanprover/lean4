@@ -220,8 +220,6 @@ structure DoElemCont where
   The continuation to elaborate the `rest` of the block. It assumes that the result of the `do`
   block is bound to `resultName` with the correct type (that is, `resultType`, potentially refined
   by a dependent `match`).
-  Its result reaches the rest of the block through assigned metavariables, so a caller applies
-  `instantiateMVars` to it before abstracting a variable over it.
   -/
   k : DoElabM Expr
   /--

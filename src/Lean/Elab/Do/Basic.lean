@@ -715,6 +715,22 @@ def doElabToSyntaxWithExpectedType (hint : MessageData) (doElab : Option Expr �
 def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
   doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
+/-- The innermost subterm of `e` that contains the free variable `x`, has no loose bound variables and is not `x`. -/
+private partial def enclosingClosedTerm (x e : Expr) : Expr :=
+  let children := match e with
+    | .app f a | .lam _ f a _ | .forallE _ f a _ => #[f, a]
+    | .letE _ t v b _ => #[t, v, b]
+    | .mdata _ b | .proj _ _ b => #[b]
+    | _ => #[]
+  match children.find? fun c => c != x && !c.hasLooseBVars && c.containsFVar x.fvarId! with
+  | some c => enclosingClosedTerm x c
+  | none => e
+
+/-- Throws if `e` refers to a free variable outside of the local context `lctx`. -/
+private def checkScoped (lctx : LocalContext) (e : Expr) : MetaM Unit := do
+  let some x := e.find? fun e => e.isFVar && !lctx.contains e.fvarId! | return
+  throwError "Bug in a `do` elaborator. The free variable `{x}` is not in scope in{indentExpr (enclosingClosedTerm x e)}"
+
 /--
 Elaborates the right-hand side `e : type` of a join point with parameters `xs` and returns
 `fun xs => e`. The specification is `do mkLambdaFVars xs (← instantiateMVars (← k))`.
@@ -736,9 +752,9 @@ private def mkJoinRhs (xs : Array Expr) (type : Expr) (lazy : Bool) (k : DoElabM
     return ← mkLambdaFVars xs e
   let body ← mkFreshExprSyntheticOpaqueMVar type
   let joinRhs ← mkLambdaFVars xs body
-  -- An ill-scoped `e` falls back to the specification, whose assignment the caller reports.
-  unless ← body.mvarId!.checkedAssign e do
-    return ← mkLambdaFVars xs e
+  -- `e` contains the nested delayed join point bodies only as delayed assignments.
+  checkScoped (← getLCtx) e
+  body.mvarId!.assign e
   return joinRhs
 
 /--
@@ -784,10 +800,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
     mkJoinRhs (#[r] ++ muts) mγ (lazy := callerInfo.numRegularExits > 1)
       (withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k)
-  unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
-    joinRhsMVar.mvarId!.withContext do
-      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
-        to metavariable\n{joinRhsMVar.mvarId!}"
+  -- `joinRhs` is checked as part of the enclosing delayed join point body or of the whole `do` block.
+  joinRhsMVar.mvarId!.assign joinRhs
 
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.
@@ -1135,6 +1149,8 @@ def elabDoWith (ops : DoOps) (doSeq : DoSeq)
   let ctx ← mkContext expectedType? (ops := ops)
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx
+  -- The join points with a delayed body check it in `mkJoinRhs`.
+  checkScoped (← getLCtx) (← instantiateMVars res)
   -- Synthesizing default instances here is harmful for expressions such as
   -- ```
   -- withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do

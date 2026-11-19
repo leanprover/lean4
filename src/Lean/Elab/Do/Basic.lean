@@ -776,12 +776,15 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     -- if `mkLambdaFVars` reverts it, so such an `e` is abstracted eagerly.
     let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
     unless callerInfo.numRegularExits > 1 && e.hasExprMVar && !declaresLetRec do
-      return ← mkLambdaFVars xs e
+      let joinRhs ← mkLambdaFVars xs e
+      unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
+        throwJoinRhsBug joinRhs
+      return joinRhs
+    -- `mkLambdaFVarsDelayed` checks the scope of `e`, and `joinRhs` only applies a delayed assignment.
     let some joinRhs ← mkLambdaFVarsDelayed xs e mγ
       | throwJoinRhsBug (← mkLambdaFVars xs e)
+    joinRhsMVar.mvarId!.assign joinRhs
     return joinRhs
-  unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
-    throwJoinRhsBug joinRhs
 
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.

@@ -20,14 +20,12 @@ open Lean.Order Std.WP
 `MonadicWP m Pred EPosts` is a `WP` interpretation of the programs `m α` for every result type `α`.
 A low-priority instance derives `WP (m α) α Pred EPosts` from it.
 
-The laws relate `WP.trans : m α → PredTrans Pred EPosts α` to the monad structure of
-`PredTrans Pred EPosts`:
+The laws relate `wp` to `pure` and `bind` of `m`:
 
-* `MonadicWP.IsLaxMonadMorphism m`: `pure` and `bind` of the transformers lie below the
-  transformers of `pure` and `bind`, so `wp` is sound for `pure` and `bind`. `WP.trans` is then a
-  lax monad morphism.
-* `MonadicWP.IsMonadMorphism m`: `WP.trans` is a monad morphism. It commutes with `pure` and
-  `bind`, so `wp` computes `pure` and `bind`.
+* `MonadicWP.IsLaxMonadMorphism m`: `wp` is sound for `pure` and `bind`. `WP.trans` is then a lax
+  monad morphism.
+* `MonadicWP.IsMonadMorphism m`: `wp` computes `pure` and `bind`. `WP.trans` is then a monad
+  morphism.
 -/
 
 namespace Std.WP
@@ -43,38 +41,37 @@ instance (priority := low) {m : Type u → Type v} {Pred : Type w} {EPosts : Typ
     WP (m α) α Pred EPosts :=
   inst.toWP α
 
-/-- `WP.trans` is a monad morphism from `m` to `PredTrans Pred EPosts`: it commutes with `pure` and
-`bind`. -/
-class MonadicWP.IsMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w)}
-    {EPosts : outParam (Type w')} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] : Prop where
-  /-- The transformer of `pure a` is `pure a`. -/
-  trans_pure {α : Type u} (a : α) :
-    WP.trans (pure a : m α) = (PredTrans.pure a : PredTrans Pred EPosts α)
-  /-- The transformer of `x >>= f` is the `bind` of the transformers. -/
-  trans_bind {α β : Type u} (x : m α) (f : α → m β) :
-    WP.trans (x >>= f) = WP.trans x >>= fun a => WP.trans (f a)
-
-/-- `pure` and `bind` of the transformers in `PredTrans Pred EPosts` lie below the transformers of
-`pure` and `bind`. `WP.trans` is then a lax monad morphism from `m` to `PredTrans Pred EPosts`. -/
+/-- `wp` is sound for `pure` and `bind`. `WP.trans` is then a lax monad morphism from `m` to
+`PredTrans Pred EPosts`. -/
 class MonadicWP.IsLaxMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w)}
     {EPosts : outParam (Type w')} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     [MonadicWP m Pred EPosts] : Prop where
-  /-- `pure a` lies below the transformer of `pure a`. -/
-  pure_le {α : Type u} (a : α) :
-    (PredTrans.pure a : PredTrans Pred EPosts α) ⊑ WP.trans (pure a : m α)
-  /-- The `bind` of the transformers lies below the transformer of `x >>= f`. -/
-  bind_le {α β : Type u} (x : m α) (f : α → m β) :
-    (WP.trans x >>= fun a => WP.trans (f a)) ⊑ WP.trans (x >>= f)
+  /-- Soundness of `pure`: the postcondition applied to `x` implies the weakest precondition of
+  `pure x`. -/
+  pure_le_wp_pure {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
+    post x ⊑ wp (pure x : m α) post eposts
+  /-- Soundness of `bind`: composing weakest preconditions is at least as strong as the weakest
+  precondition of `>>=`. -/
+  bind_le_wp_bind {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts) :
+    wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
+
+/-- `wp` computes `pure` and `bind`: `WP.trans` is a monad morphism to `PredTrans Pred EPosts`. -/
+class MonadicWP.IsMonadMorphism (m : Type u → Type v) {Pred : outParam (Type w)}
+    {EPosts : outParam (Type w')} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
+    [MonadicWP m Pred EPosts] : Prop extends MonadicWP.IsLaxMonadMorphism m where
+  /-- `wp (pure x) post` is `post x`. -/
+  wp_pure_eq {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
+    wp (pure x : m α) post eposts = post x
+  /-- `wp (x >>= f)` is `wp x` of `wp (f a)`. -/
+  wp_bind_eq {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts) :
+    wp (x >>= f) post eposts = wp x (fun a => wp (f a) post eposts) eposts
+  pure_le_wp_pure x post eposts := PartialOrder.rel_of_eq (wp_pure_eq x post eposts).symm
+  bind_le_wp_bind x f post eposts := PartialOrder.rel_of_eq (wp_bind_eq x f post eposts).symm
 
 namespace MonadicWP
 
 variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred]
   [PartialOrder EPosts] [MonadicWP m Pred EPosts]
-
-instance [Monad m] [IsMonadMorphism m] : IsLaxMonadMorphism m where
-  pure_le a := PartialOrder.rel_of_eq (IsMonadMorphism.trans_pure a).symm
-  bind_le x f := PartialOrder.rel_of_eq (IsMonadMorphism.trans_bind x f).symm
 
 /-!
 ## Derived Lemmas
@@ -87,14 +84,12 @@ section Strict
 variable [Monad m] [IsMonadMorphism m]
 
 theorem wp_pure_eq {α : Type u} (a : α) (post : α → Pred) (eposts : EPosts) :
-    wp (pure a : m α) post eposts = post a := by
-  rw [← WP.trans_apply_eq (pure a : m α), IsMonadMorphism.trans_pure (m := m) a,
-    PredTrans.apply_pure]
+    wp (pure a : m α) post eposts = post a :=
+  IsMonadMorphism.wp_pure_eq a post eposts
 
 theorem wp_bind_eq {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts) :
-    wp (x >>= f) post eposts = wp x (fun a => wp (f a) post eposts) eposts := by
-  rw [← WP.trans_apply_eq (x >>= f), IsMonadMorphism.trans_bind x f, PredTrans.apply_Bind_bind]
-  simp only [WP.trans_apply_eq]
+    wp (x >>= f) post eposts = wp x (fun a => wp (f a) post eposts) eposts :=
+  IsMonadMorphism.wp_bind_eq x f post eposts
 
 end Strict
 
@@ -102,16 +97,14 @@ section Lax
 
 theorem pure_le_wp_pure [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
-    post x ⊑ wp (pure (f := m) x) post eposts := by
-  simpa only [PredTrans.apply_pure, WP.trans_apply_eq] using
-    IsLaxMonadMorphism.pure_le (m := m) x post eposts
+    post x ⊑ wp (pure (f := m) x) post eposts :=
+  IsLaxMonadMorphism.pure_le_wp_pure x post eposts
 
 theorem bind_le_wp_bind [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred)
     (eposts : EPosts) :
-    wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts := by
-  simpa only [PredTrans.apply_Bind_bind, WP.trans_apply_eq] using
-    IsLaxMonadMorphism.bind_le x f post eposts
+    wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts :=
+  IsLaxMonadMorphism.bind_le_wp_bind x f post eposts
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
 theorem map_le_wp_map [Monad m] [LawfulMonad m]

@@ -39,15 +39,12 @@ theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [M
   refine @MonadicWP.IsLaxMonadMorphism.mk m P E _ _ _
     ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩
     (fun x post E' => ?_) (fun x f post E' => ?_)
-  · show (PredTrans.pure x).apply post E' ⊑
-      (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
-    rw [PredTrans.apply_pure]
+  · show post x ⊑ (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     exact MonadicWP.pure_le_wp_pure (m := m) x (fun a => op r (post a)) (opE r E')
-  · show (((base.toWP _).trans x).frameClosure op >>= fun a =>
-          ((base.toWP _).trans (f a)).frameClosure op).apply post E' ⊑
+  · show (((base.toWP _).trans x).frameClosure op).apply
+          (fun a => (((base.toWP _).trans (f a)).frameClosure op).apply post E') E' ⊑
         (((base.toWP _).trans (x >>= f)).frameClosure op).apply post E'
-    rw [PredTrans.apply_Bind_bind]
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_

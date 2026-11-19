@@ -1334,8 +1334,7 @@ Lift a `MkBindingM` monadic action `x` to `MetaM`.
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
   let ctx : MetavarContext.MkBindingM.Context := {
     lctx := (← getLCtx)
-    quotContext := (← readThe Core.Context).quotContext
-    keepInstanceTypedMark := (← getOptionFlags).auxMVarKind }
+    quotContext := (← readThe Core.Context).quotContext }
   match x ctx { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
   | .ok e sNew => do
     setMCtx sNew.mctx

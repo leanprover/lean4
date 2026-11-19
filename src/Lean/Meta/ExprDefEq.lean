@@ -64,13 +64,13 @@ register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
 /--
 Controls whether an auxiliary metavariable that `isDefEq` creates to stand for another metavariable
 (when it restricts the local context or the type of a metavariable, or when it assigns `?m := fun _ => ?aux`)
-gets the kind and the instance-typed mark of the original one. When `false`, the auxiliary metavariable
-is `.natural` and unmarked, as before the strict instance checks.
+gets the kind of the original one. When `false`, the auxiliary metavariable is `.natural`, as before
+the strict instance checks.
 -/
 register_builtin_option backward.isDefEq.auxMVarKind : Bool := {
   defValue := true
-  descr    := "let auxiliary metavariables created by `isDefEq` inherit the kind and the \
-  instance-typed mark of the metavariable they stand for"
+  descr    := "let auxiliary metavariables created by `isDefEq` inherit the kind of the \
+  metavariable they stand for"
 }
 
 /--
@@ -148,8 +148,8 @@ transparency, which is the default).
 This prevents type class search from assigning an instance whose type not as expected.
 See issue #9077.
 
-With `true` (the default), assignments to such instance-typed metavariables are guarded by a type
-check at instance transparency. If that check fails, Lean tries to synthesize the metavariable,
+With `true` (the default), during instance search, assignments to every metavariable of class type
+are guarded by a type check at instance transparency (see `isInstanceMVar`). If that check fails, Lean tries to synthesize the metavariable,
 starting a nested instance search. If the synthesis fails too, the whole assignment, and with it the
 current unification attempt, fails.
 
@@ -611,8 +611,11 @@ abbrev respectTransparencyAtTypes : CoreM Bool := do
   return flags.respectTransparencyTypes && flags.respectTransparency
 
 /--
-Returns `true` if `mvarId` is an instance metavariable — created for an instance-implicit (`[..]`)
-parameter, identified by `.synthetic` kind together with a class type.
+Returns `true` if assignments to `mvarId` are checked at `.instances` transparency. This depends only
+on the type of `mvarId` (a class, or a function type with a class codomain), on its kind, and on
+whether instance search is running. During instance search, every metavariable of class type counts
+under `backward.isDefEq.respectTransparency.instanceSearchTypes`. Outside of it, `.synthetic` ones
+count under `backward.isDefEq.respectTransparency.instances`.
 
 Assignments to these are checked at exactly `.instances` transparency, so an ambient
 `.default`/`.all` does not let semireducible definitions be unfolded while checking the type of an
@@ -622,24 +625,24 @@ kind under `backward.isDefEq.respectTransparency.instances.allMVars`. Classes ex
 `isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional) never count.
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
-  unless (← getOptionFlags).respectTransparencyInstances do
-    return false
-  unless (← getOptionFlags).respectTransparencyInstancesAllMVars do
-    match (← mvarId.getKind) with
-    | .synthetic => pure ()
-    | .natural => unless (← getOptionFlags).respectTransparencyInstancesNatural do return false
-    | .syntheticOpaque => return false
+  let flags ← getOptionFlags
+  if (← read).inTypeClassResolution then
+    unless flags.respectTransparencyInstanceSearchTypes do return false
+  else
+    unless flags.respectTransparencyInstances do return false
+    unless flags.respectTransparencyInstancesAllMVars do
+      match (← mvarId.getKind) with
+      | .synthetic => pure ()
+      | .natural => unless flags.respectTransparencyInstancesNatural do return false
+      | .syntheticOpaque => return false
   let some className ← isClass? (← mvarId.getDecl).type | return false
   return !isLaxInstanceDefeqClass (← getEnv) className
 
 /--
-Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to an
-instance-typed metavariable unter `backward.isDefEq.respectTransparency.instanceSearchTypes`, are
-admissible. Admissible are:
+Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to a
+metavariable for which `isInstanceMVar` holds, are admissible. Admissible are:
 
-* metavariables whose own assignments are subject to the same restriction: instance-typed ones
-  (spawned by instance search, see `backward.isDefEq.respectTransparency.instanceSearchTypes`) and
-  instance metavariables (see `isInstanceMVar`);
+* metavariables whose own assignments are subject to the same restriction (see `isInstanceMVar`);
 * metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
   opaque): the current instance search cannot commit them to a wrong-typed value, and their
   eventual assignment is governed by whoever created them.
@@ -671,8 +674,6 @@ where
         go (mkMVar d.mvarIdPending)
       else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return true
-      else if (← mvarId.isInstanceTyped) then
-        return (← getOptionFlags).respectTransparencyInstanceSearchTypes
       else
         isInstanceMVar mvarId
     | .app f _ => go f
@@ -752,27 +753,16 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
-    if (← mvar.mvarId!.isInstanceTyped) && (← getOptionFlags).respectTransparencyInstanceSearchTypes then
-      -- The value assigned to an instance-typed metavariable must have the expected type up to
-      -- instance transparency: either the candidate value `v` already is such a value, or we
-      -- synthesize the instance now and require the candidate to be definitionally equal to the
-      -- result.
-      -- We also fall back to synthesis if `v`'s type could change after the assignment
-      -- of metavariables contained in it.
-      -- See `tests/elab/9077.lean` for examples that show the necessity of this behavior.
-      let v ← instantiateMVars v
-      if (← spineMVarsAdmissible v) then
-        let mvarType ← inferType mvar
-        let vType ← inferType v
-        if (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) then
-          mvar.mvarId!.assign v
-          return true
-      synthInstanceTypedMVarAndUnify mvar v
-    else
-      -- must check whether types are definitionally equal or not, before assigning and returning true
+    do
       let mvarType ← inferType mvar
       let vType ← inferType v
       if (← isInstanceMVar mvar.mvarId!) then
+        -- The value must have the expected type up to instance transparency: either the candidate
+        -- value `v` already is such a value, or we synthesize the instance now and require the
+        -- candidate to be definitionally equal to the result. We also fall back to synthesis if
+        -- `v`'s type could change after the assignment of metavariables contained in it.
+        -- See `tests/elab/9077.lean` for examples that show the necessity of this behavior.
+        let v ← instantiateMVars v
         if (← spineMVarsAdmissible v) then
           if (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) then
             mvar.mvarId!.assign v
@@ -1095,10 +1085,6 @@ where
 def auxMVarKindFor (mvarId : MVarId) : MetaM MetavarKind := do
   if (← getOptionFlags).auxMVarKind then return (← mvarId.getDecl).kind else return .natural
 
-/-- Marks `newMVarId` instance-typed if `mvarId` is; see `backward.isDefEq.auxMVarKind`. -/
-def copyInstanceTypedMark (mvarId newMVarId : MVarId) : MetaM Unit := do
-  if (← getOptionFlags).auxMVarKind && (← mvarId.isInstanceTyped) then
-    newMVarId.markInstanceTyped
 
 def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0)
     (kind : MetavarKind := .natural) : MetaM Expr := do
@@ -1239,7 +1225,6 @@ mutual
     let mvarType ← check mvarDecl.type
     -- `newMVar` stands for `mvarId`, so restrictions on its assignments must carry over
     let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs (kind := (← auxMVarKindFor mvarId))
-    copyInstanceTypedMark mvarId newMVar.mvarId!
     mvarId.assign newMVar
     return newMVar
 
@@ -1282,7 +1267,6 @@ mutual
             let ctx ← read
             let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
               (kind := (← auxMVarKindFor f.mvarId!))
-            copyInstanceTypedMark f.mvarId! newMVar.mvarId!
             if (← assignToConstFun f args.size newMVar) then
               pure newMVar
             else
@@ -2109,7 +2093,6 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
       let type ← inferType (mkAppN mvar args₁)
       -- `auxMVar` stands for `mvarId`, so restrictions on its assignments must carry over
       let auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type (kind := (← auxMVarKindFor mvarId))
-      copyInstanceTypedMark mvarId auxMVar.mvarId!
       assignConst mvar args₁.size auxMVar
     else
       pure false

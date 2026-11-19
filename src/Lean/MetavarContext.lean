@@ -383,17 +383,6 @@ structure MetavarContext where
   /-- Assignment table for delayed abstraction metavariables.
   For more information about delayed abstraction, see the docstring for `DelayedMetavarAssignment`. -/
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
-  /--
-  Metavariables whose assignments must preserve the type up to `TransparencyMode.instances`.
-
-  Metavariables created for the instance-implicit arguments of an instance during typeclass
-  resolution are added to this set, and membership is propagated to the metavariables in
-  type-determining (spine) positions of values assigned to members. This maintains the
-  invariant that the final instantiation of such a metavariable has a type that agrees with
-  the metavariable's type at `.instances` transparency, so unification cannot commit to an
-  instance for a type that is different at instance-resolution time. See issue #9077.
-  -/
-  instanceTypedMVars : PersistentHashMap MVarId Unit := {}
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 
@@ -472,19 +461,6 @@ def _root_.Lean.MVarId.isAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m 
 def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).dAssignment.contains mvarId
 
-/--
-Mark `mvarId` so that assignments to it must preserve its type up to instance transparency.
-See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
--/
-def _root_.Lean.MVarId.markInstanceTyped [MonadMCtx m] (mvarId : MVarId) : m Unit :=
-  modifyMCtx fun mctx => { mctx with instanceTypedMVars := mctx.instanceTypedMVars.insert mvarId () }
-
-/--
-Return `true` if assignments to `mvarId` must preserve its type up to instance transparency.
-See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
--/
-def _root_.Lean.MVarId.isInstanceTyped [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
-  return (← getMCtx).instanceTypedMVars.contains mvarId
 
 /--
 Check whether a metavariable is assigned or delayed-assigned. A
@@ -1004,9 +980,6 @@ structure Context where
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
   /-- Set of unassigned metavariables being abstracted. -/
   mvarIdsToAbstract  : MVarIdSet := {}
-  /-- Whether a metavariable created by `elimMVar` inherits the instance-typed mark; see
-  `backward.isDefEq.auxMVarKind`. -/
-  keepInstanceTypedMark : Bool := true
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Context MCore
@@ -1251,8 +1224,6 @@ mutual
           mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
           ngen := s.ngen.next
         }
-      if (← read).keepInstanceTypedMark && (← mvarId.isInstanceTyped) then
-        newMVarId.markInstanceTyped
       if !mvarDecl.kind.isSyntheticOpaque then
         mvarId.assign result
       else
@@ -1394,19 +1365,18 @@ end MkBinding
 structure MkBindingM.Context where
   quotContext : Name
   lctx        : LocalContext
-  keepInstanceTypedMark : Bool := true
 
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
@@ -1415,10 +1385,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext, keepInstanceTypedMark := ctx.keepInstanceTypedMark }
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
 
 /--
   `isWellFormed lctx e` returns true iff

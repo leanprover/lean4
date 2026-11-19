@@ -26,7 +26,7 @@ def findZero (xs : Array Nat) : Except String Nat := do
   throw "no zero"
 
 theorem findZero_spec (xs : Array Nat) :
-    Triple (findZero xs) True (fun r => r < xs.size ∧ xs[r]! = 0) (fun e => e = "no zero") := by
+    ⦃ True ⦄ findZero xs ⦃ fun r => r < xs.size ∧ xs[r]! = 0; fun e => e = "no zero" ⦄ := by
   vcgen [findZero] with finish
 
 /-- Code after the loop runs only when the loop does not return. -/
@@ -43,8 +43,8 @@ def findZeroOr (xs : Array Nat) : Except String Nat := do
   return j + 1
 
 theorem findZeroOr_spec (xs : Array Nat) :
-    Triple (findZeroOr xs) True
-      (fun r => (r < xs.size ∧ xs[r]! = 0) ∨ r = 2 * xs.size + 1) (fun _ => True) := by
+    ⦃ True ⦄ findZeroOr xs
+    ⦃ fun r => (r < xs.size ∧ xs[r]! = 0) ∨ r = 2 * xs.size + 1; fun _ => True ⦄ := by
   vcgen [findZeroOr] with finish
 
 /-- A `return` inside an annotated `for` loop. -/

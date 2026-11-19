@@ -234,8 +234,9 @@ def checkDeprecated (declName : Name) (hint : DeprecationHint) : MetaM Unit := d
             msg := msg ++ .note m!"The updated constant is in a different namespace. \
               Dot notation may need to be changed{changeEx}."
           else if !(isProtected env declName) && isProtected env newName then
-            let pfxComps := newPfx.componentsRev
-            let pfxCompStr := if _ : pfxComps.length > 1 then m!"at least the last component `{pfxComps[0]}` of " else ""
+            let pfxCompStr := match newPfx.revIter.take 2 |>.toList with
+              | [last, _] => m!"at least the last component `{last}` of "
+              | _ => ""
             msg := msg ++ .note m!"`{.ofConstName newName true}` is protected. References to this \
               constant must include {pfxCompStr}its prefix `{newPfx}` even when inside its namespace."
         if typesReduciblyDefEq then

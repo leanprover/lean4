@@ -179,7 +179,7 @@ def getTheorems (prefixes? : Option (Array Name)) (inModule : Bool) : CoreM (Lis
     else
       let keep := prefixes.any fun pre =>
         if pre == `_root_ then
-          declName.components.length == 1
+          declName.hasSingleComponent
         else
           pre.isPrefixOf declName
       unless keep do return none

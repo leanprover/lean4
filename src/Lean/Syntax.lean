@@ -359,10 +359,7 @@ def identComponents? (stx : Syntax) (nFields? : Option Nat := none) : Option (Li
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=
       if let some nFields := nFields? then
-        let nameComps := n.components
-        let nPrefix := nameComps.length - nFields
-        let namePrefix := nameComps.take nPrefix |>.foldl (init := Name.anonymous) fun acc n => acc ++ n
-        namePrefix :: nameComps.drop nPrefix
+        n.dropLastComponents nFields :: (n.revIter.take nFields).toListRev
       else
         n.components
 
@@ -394,10 +391,7 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=
       if let some nFields := nFields? then
-        let nameComps := n.components
-        let nPrefix := nameComps.length - nFields
-        let namePrefix := nameComps.take nPrefix |>.foldl (init := Name.anonymous) fun acc n => acc ++ n
-        namePrefix :: nameComps.drop nPrefix
+        n.dropLastComponents nFields :: (n.revIter.take nFields).toListRev
       else
         n.components
 

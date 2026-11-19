@@ -302,8 +302,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
         -- recursive calls have a motive type and are recognized by `isRecCall`. We visit each
         -- alternative once, folding its calls and collecting its IHs, which we keep (abstracted
         -- over the alternative's parameters) to build the type-level match of IHs below.
-        let altIHsRef ← IO.mkRef (#[] : Array Expr)
-        let matcherApp' ← liftM <| matcherApp.transform
+        let (matcherApp', altIHs) ← liftM <| StateT.run (s := (#[] : Array Expr)) <|
+          matcherApp.transform (n := StateT (Array Expr) MetaM)
           (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
           (onMotive := fun xs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
@@ -314,10 +314,9 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
                 let #[newIH'] := newIH' | unreachable!
                 let (alt', altIHs) ← M.run <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
                 let altIH ← mkLambdaFVars (altFVars.all.push newIH') (← PProdN.mk 0 altIHs)
-                altIHsRef.modify (·.push altIH)
+                modify (·.push altIH)
                 mkLambdaFVars #[newIH'] alt')
           (onRemaining := fun _ => pure #[mkFVar newIH])
-        let altIHs ← altIHsRef.get
 
         let ihMatcherApp' ← liftM <| matcherApp'.transform (n := MetaM)
           (onMotive := fun _motiveArgs motiveBody => do

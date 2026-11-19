@@ -19,7 +19,7 @@ open Lean Order Std.WP Lean.Order
 namespace Std.WP
 
 universe u v
-variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts]
+variable {m : Type u → Type v} {Pred : Type u} {EPosts : Type u} [CompleteLattice Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
 
 namespace Gadget
 

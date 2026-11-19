@@ -16,12 +16,8 @@ set_option linter.missingDocs true
 /-!
 # Framing for a monadic `wp`
 
-The interpretation `⟨fun α => WP.withFrameClosure op (base.toWP α)⟩` of a monad `m` reinterprets
-the base interpretation `base : MonadicWP m P E` through the `Lean.Order.PredTrans.frameClosure` of
-its weakest preconditions, so that every program frames every resource
-(`WP.frames_of_frameClosure`).
-`MonadicWP.isLaxMonadMorphism_withFrameClosure` carries the lax monad morphism laws of the base
-interpretation over to it, for resource operators `op r` that act by `comp` with unit `e`.
+`MonadicWP.isLaxMonadMorphism_withFrameClosure` carries the lax laws of a `MonadicWP` to its
+`Lean.Order.PredTrans.frameClosure`, under which every program frames every resource.
 -/
 
 open Lean.Order Std.WP

@@ -377,8 +377,8 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
   -- spec spells it as the interpretation of a `MonadicWP` binder at the result type.
   guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
-  -- Unification in `MetaM` leaves the spec's remaining instance arguments open, its orders and
-  -- laws, so synthesize them as `apply` does.
+  -- Synthesize the spec's remaining instance arguments, its orders and laws, once for the rule;
+  -- left open, `BackwardRule.apply` synthesizes them at every application.
   let specGoal := (← mkFreshExprMVar specType).mvarId!
   synthAppInstances `vcgen specGoal _xs _bs (synthAssignedInstances := false) (allowSynthFailures := true)
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.

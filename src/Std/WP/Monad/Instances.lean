@@ -28,16 +28,14 @@ a lax monad morphism over a base that is one.
 
 ## Pre-defined instances
 
-* `WP (Id α) α Prop EStack⟨⟩` — pure computations.
-* `WP (StateT σ m α) α (σ → Pred) EPosts` — stateful computations.
-* `WP (ExceptT ε m α) α Pred ((ε → Pred) × EPosts)` — computations with exceptions.
-* `WP (OptionT m α) α Pred ((Unit → Pred) × EPosts)` — computations with early termination.
-* `WP (ReaderT ρ m α) α (ρ → Pred) EPosts` — reader computations.
-* `WP (Option α) α Prop (Unit → Prop)` — concrete early termination.
-* `WP (Except ε α) α Prop (ε → Prop)` — concrete exception type.
-* `WP (EStateM ε σ α) α (σ → Prop) (ε → σ → Prop)` — concrete error-state monad.
-
-Each family of instances is a `MonadicWP` interpretation of its monad.
+* `MonadicWP Id Prop EStack⟨⟩` — pure computations.
+* `MonadicWP (StateT σ m) (σ → Pred) EPosts` — stateful computations.
+* `MonadicWP (ExceptT ε m) Pred ((ε → Pred) × EPosts)` — computations with exceptions.
+* `MonadicWP (OptionT m) Pred ((Unit → Pred) × EPosts)` — computations with early termination.
+* `MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts` — reader computations.
+* `MonadicWP Option Prop (Unit → Prop)` — concrete early termination.
+* `MonadicWP (Except ε) Prop (ε → Prop)` — concrete exception type.
+* `MonadicWP (EStateM ε σ) (σ → Prop) (ε → σ → Prop)` — concrete error-state monad.
 -/
 
 namespace Std.WP

@@ -173,7 +173,8 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
-  /-- The hypotheses `h : x = t` on a local `x`, stored as `x ↦ (t, h)`. `forallIntro?` adds them. Used as a delayed substitution by various vcgen steps. -/
+  /-- The hypotheses `h : x = t` on a local `x`, stored as `x ↦ (t, h)`. `forallIntro?` adds them.
+  Used as a delayed substitution by various vcgen steps. -/
   eqs : FVarIdMap (Expr × FVarId) := {}
   /-- The hypotheses of `eqs` that rewrite `x` to `t`: those that no other local mentioned when
   `forallIntro?` introduced them. -/

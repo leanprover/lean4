@@ -17,4 +17,4 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``EarlyReturn.Goal [``EarlyReturn.search, ``EarlyReturn.chain]
-  `(tactic| vcgen) `(tactic| sorry) [40, 80, 160]
+  `(tactic| vcgen) `(tactic| sorry) [250, 500, 1000]

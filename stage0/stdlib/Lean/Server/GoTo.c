@@ -5478,12 +5478,12 @@ goto v_resetjp_1777_;
 v___jp_1764_:
 {
 lean_object* v___x_1768_; lean_object* v___x_1769_; uint8_t v___x_1770_; lean_object* v___x_1771_; lean_object* v___x_1772_; lean_object* v___x_1773_; lean_object* v___x_1774_; lean_object* v___x_1775_; 
-lean_inc_ref_n(v___y_1766_, 2);
+lean_inc_ref_n(v___y_1765_, 2);
 v___x_1768_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_1768_, 0, v___y_1767_);
-lean_ctor_set(v___x_1768_, 1, v___y_1765_);
-lean_ctor_set(v___x_1768_, 2, v___y_1766_);
-lean_ctor_set(v___x_1768_, 3, v___y_1766_);
+lean_ctor_set(v___x_1768_, 1, v___y_1766_);
+lean_ctor_set(v___x_1768_, 2, v___y_1765_);
+lean_ctor_set(v___x_1768_, 3, v___y_1765_);
 v___x_1769_ = lean_box(0);
 v___x_1770_ = 0;
 v___x_1771_ = lean_alloc_ctor(0, 2, 1);
@@ -5627,8 +5627,8 @@ if (lean_obj_tag(v___x_1803_) == 0)
 {
 lean_object* v___x_1804_; 
 v___x_1804_ = lean_box(0);
-v___y_1765_ = v_val_1801_;
-v___y_1766_ = v___x_1802_;
+v___y_1765_ = v___x_1802_;
+v___y_1766_ = v_val_1801_;
 v___y_1767_ = v___x_1804_;
 goto v___jp_1764_;
 }
@@ -5674,8 +5674,8 @@ goto v_reusejp_1812_;
 }
 v_reusejp_1812_:
 {
-v___y_1765_ = v_val_1801_;
-v___y_1766_ = v___x_1802_;
+v___y_1765_ = v___x_1802_;
+v___y_1766_ = v_val_1801_;
 v___y_1767_ = v___x_1813_;
 goto v___jp_1764_;
 }

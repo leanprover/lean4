@@ -5829,16 +5829,16 @@ v___x_1837_ = l_Lean_Expr_isConstOf(v_a_1835_, v___x_1836_);
 lean_dec(v_a_1835_);
 if (v___x_1837_ == 0)
 {
-lean_dec_ref(v___y_1833_);
 lean_dec_ref(v___y_1830_);
+lean_dec_ref(v___y_1827_);
 lean_del_object(v___x_1812_);
-v___y_1815_ = v___y_1828_;
-v___y_1816_ = v___y_1826_;
-v___y_1817_ = v___y_1829_;
+v___y_1815_ = v___y_1831_;
+v___y_1816_ = v___y_1829_;
+v___y_1817_ = v___y_1826_;
 v___y_1818_ = v___y_1825_;
-v___y_1819_ = v___y_1827_;
-v___y_1820_ = v___y_1831_;
-v___y_1821_ = v___y_1832_;
+v___y_1819_ = v___y_1832_;
+v___y_1820_ = v___y_1828_;
+v___y_1821_ = v___y_1833_;
 goto v___jp_1814_;
 }
 else
@@ -5846,7 +5846,7 @@ else
 lean_object* v___x_1838_; lean_object* v___x_1839_; 
 lean_dec(v_a_1810_);
 v___x_1838_ = lean_obj_once(&l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___closed__3, &l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___closed__3_once, _init_l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___closed__3);
-v___x_1839_ = l_Lean_Meta_mkEqRefl(v___x_1838_, v___y_1825_, v___y_1827_, v___y_1831_, v___y_1832_);
+v___x_1839_ = l_Lean_Meta_mkEqRefl(v___x_1838_, v___y_1825_, v___y_1832_, v___y_1828_, v___y_1833_);
 if (lean_obj_tag(v___x_1839_) == 0)
 {
 lean_object* v_a_1840_; lean_object* v___x_1842_; uint8_t v_isShared_1843_; uint8_t v_isSharedCheck_1853_; 
@@ -5870,9 +5870,9 @@ v_resetjp_1841_:
 {
 lean_object* v___x_1844_; lean_object* v___x_1845_; lean_object* v___x_1846_; lean_object* v___x_1848_; 
 v___x_1844_ = lean_obj_once(&l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___closed__6, &l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___closed__6_once, _init_l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f___closed__6);
-v___x_1845_ = l_Lean_Expr_appArg_x21(v___y_1833_);
-lean_dec_ref(v___y_1833_);
-v___x_1846_ = l_Lean_mkApp3(v___x_1844_, v___y_1830_, v___x_1845_, v_a_1840_);
+v___x_1845_ = l_Lean_Expr_appArg_x21(v___y_1830_);
+lean_dec_ref(v___y_1830_);
+v___x_1846_ = l_Lean_mkApp3(v___x_1844_, v___y_1827_, v___x_1845_, v_a_1840_);
 if (v_isShared_1813_ == 0)
 {
 lean_ctor_set_tag(v___x_1812_, 1);
@@ -5915,8 +5915,8 @@ return v___x_1850_;
 else
 {
 lean_object* v_a_1854_; lean_object* v___x_1856_; uint8_t v_isShared_1857_; uint8_t v_isSharedCheck_1861_; 
-lean_dec_ref(v___y_1833_);
 lean_dec_ref(v___y_1830_);
+lean_dec_ref(v___y_1827_);
 lean_del_object(v___x_1812_);
 v_a_1854_ = lean_ctor_get(v___x_1839_, 0);
 v_isSharedCheck_1861_ = !lean_is_exclusive(v___x_1839_);
@@ -5961,8 +5961,8 @@ return v___x_1859_;
 else
 {
 lean_object* v_a_1862_; lean_object* v___x_1864_; uint8_t v_isShared_1865_; uint8_t v_isSharedCheck_1869_; 
-lean_dec_ref(v___y_1833_);
 lean_dec_ref(v___y_1830_);
+lean_dec_ref(v___y_1827_);
 lean_del_object(v___x_1812_);
 lean_dec(v_a_1810_);
 v_a_1862_ = lean_ctor_get(v___y_1834_, 0);
@@ -6087,14 +6087,14 @@ lean_inc(v___y_1875_);
 lean_inc(v_a_1883_);
 v___x_1901_ = lean_whnf(v_a_1883_, v___x_1900_, v___y_1875_, v___y_1876_, v___y_1877_);
 v___y_1825_ = v___y_1874_;
-v___y_1826_ = v___y_1872_;
-v___y_1827_ = v___y_1875_;
-v___y_1828_ = v___y_1871_;
-v___y_1829_ = v___y_1873_;
-v___y_1830_ = v_a_1879_;
-v___y_1831_ = v___y_1876_;
-v___y_1832_ = v___y_1877_;
-v___y_1833_ = v_a_1883_;
+v___y_1826_ = v___y_1873_;
+v___y_1827_ = v_a_1879_;
+v___y_1828_ = v___y_1876_;
+v___y_1829_ = v___y_1872_;
+v___y_1830_ = v_a_1883_;
+v___y_1831_ = v___y_1871_;
+v___y_1832_ = v___y_1875_;
+v___y_1833_ = v___y_1877_;
 v___y_1834_ = v___x_1901_;
 goto v___jp_1824_;
 }
@@ -6108,14 +6108,14 @@ lean_inc_ref(v___y_1874_);
 lean_inc(v_a_1883_);
 v___x_1902_ = lean_whnf(v_a_1883_, v___y_1874_, v___y_1875_, v___y_1876_, v___y_1877_);
 v___y_1825_ = v___y_1874_;
-v___y_1826_ = v___y_1872_;
-v___y_1827_ = v___y_1875_;
-v___y_1828_ = v___y_1871_;
-v___y_1829_ = v___y_1873_;
-v___y_1830_ = v_a_1879_;
-v___y_1831_ = v___y_1876_;
-v___y_1832_ = v___y_1877_;
-v___y_1833_ = v_a_1883_;
+v___y_1826_ = v___y_1873_;
+v___y_1827_ = v_a_1879_;
+v___y_1828_ = v___y_1876_;
+v___y_1829_ = v___y_1872_;
+v___y_1830_ = v_a_1883_;
+v___y_1831_ = v___y_1871_;
+v___y_1832_ = v___y_1875_;
+v___y_1833_ = v___y_1877_;
 v___y_1834_ = v___x_1902_;
 goto v___jp_1824_;
 }

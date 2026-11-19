@@ -69,7 +69,7 @@ namespace lean {
 
 extern "C" LEAN_EXPORT void lean_io_result_show_error(b_obj_arg r) {
     object * err = io_result_get_error(r);
-    inc_ref(err);
+    inc(err);
     object * str = lean_io_error_to_string(err);
     std::cerr << "uncaught exception: " << string_cstr(str) << std::endl;
     dec_ref(str);
@@ -385,6 +385,10 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg f
     return decode_uv_error_impl(errnum, -errnum, fname);
 }
 
+bool string_has_nul(b_obj_arg str) {
+    return strlen(string_cstr(str)) != lean_string_size(str) - 1;
+}
+
 // Used for when you try to convert a string with NUL bytes into a C string
 obj_res mk_embedded_nul_error(b_obj_arg str) {
     lean_inc(str);
@@ -441,7 +445,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     }
     FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+        int errnum = errno;
+        close(fd);
+        return io_result_mk_error(decode_io_error(errnum, filename));
     } else {
         return io_result_mk_ok(io_wrap_handle(fp));
     }
@@ -881,16 +887,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
 
     if (nbytes == 0) return io_result_mk_ok(lean_alloc_sarray(1, 0, 0));
 
-#if !defined(LEAN_WINDOWS)
-    int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
-    if (fd_urandom < 0) {
-        return io_result_mk_error(decode_io_error(errno, lean_mk_ascii_string_unchecked("/dev/urandom")));
-    }
-#endif
-
     if (lean_alloc_sarray_would_overflow(1, nbytes)) {
         return io_result_mk_error(decode_io_error(ENOMEM, NULL));
     }
+
+#if !defined(LEAN_WINDOWS)
+    int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+    if (fd_urandom < 0) {
+        int errnum = errno;
+        object * fname = lean_mk_ascii_string_unchecked("/dev/urandom");
+        obj_res ret = io_result_mk_error(decode_io_error(errnum, fname));
+        dec_ref(fname);
+        return ret;
+    }
+#endif
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     size_t remain = nbytes;
     uint8_t *dst = lean_sarray_cptr(res);
@@ -921,9 +931,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
         ssize_t nread = read(fd_urandom, dst, read_sz);
         if (nread < 0) {
             if (errno != EINTR) {
+                int errnum = errno;
                 close(fd_urandom);
                 dec_ref(res);
-                return io_result_mk_error(decode_io_error(errno, nullptr));
+                return io_result_mk_error(decode_io_error(errnum, nullptr));
             }
         } else {
             remain -= nread;
@@ -1348,6 +1359,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile() {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
         FILE* handle = fdopen(req.result, "r+");
+        if (!handle) {
+            int errnum = errno;
+            close(req.result);
+            uv_fs_t unlink_req;
+            uv_fs_unlink(NULL, &unlink_req, req.path, NULL);
+            uv_fs_req_cleanup(&unlink_req);
+            uv_fs_req_cleanup(&req);
+            return io_result_mk_error(decode_io_error(errnum, nullptr));
+        }
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
         uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
@@ -1849,7 +1869,27 @@ extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
     }
 }
 
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+// Connects each closed standard stream to the null device. Otherwise the next descriptor to be opened,
+// such as one of the event loop's, would take its number and be read, written and passed on to child
+// processes as that stream.
+static void open_closed_standard_streams() {
+    for (int fd = STDIN_FILENO; fd <= STDERR_FILENO; fd++) {
+        if (fcntl(fd, F_GETFD) == -1 && errno == EBADF) {
+            // The lowest free descriptor is `fd`, unless another thread opens or closes one meanwhile.
+            int null_fd = open("/dev/null", O_RDWR);
+            if (null_fd > STDERR_FILENO) {
+                close(null_fd);
+            }
+        }
+    }
+}
+#endif
+
 void initialize_io() {
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+    open_closed_standard_streams();
+#endif
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

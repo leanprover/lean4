@@ -530,6 +530,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
     return lean_panic_fn(def_val, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
+extern "C" LEAN_EXPORT b_lean_obj_res lean_array_get_borrowed_panic(b_lean_obj_arg def_val) {
+    lean_panic("Error: index out of bounds");
+    return def_val;
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
     return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
@@ -1598,11 +1603,8 @@ extern "C" LEAN_EXPORT object * lean_nat_big_xor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    // Special case for shifted value is 0.
-    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
-        return lean_box(0);
-    }
+// `lean_nat_shiftl` handles `a1 == 0`, which the exponent check below would otherwise reject.
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     auto a = lean_is_scalar(a1)
            ? mpz::of_size_t(lean_unbox(a1))
            : mpz_value(a1);

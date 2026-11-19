@@ -3557,7 +3557,7 @@ lean_dec(v___x_1252_);
 if (v___x_1253_ == 0)
 {
 lean_object* v___x_1254_; lean_object* v___x_1255_; lean_object* v___x_1256_; 
-v___x_1254_ = lean_cstr_to_nat("4294967296");
+v___x_1254_ = lean_uint64_to_nat(4294967296ULL);
 v___x_1255_ = lean_nat_sub(v___x_1254_, v_n_1251_);
 lean_dec(v_n_1251_);
 lean_dec(v___x_1254_);
@@ -3586,7 +3586,7 @@ static lean_object* _init_l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_T
 _start:
 {
 lean_object* v___x_1260_; 
-v___x_1260_ = lean_cstr_to_nat("9223372036854775808");
+v___x_1260_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_1260_;
 }
 }

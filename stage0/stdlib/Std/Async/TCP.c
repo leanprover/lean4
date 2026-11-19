@@ -286,7 +286,7 @@ _start:
 {
 lean_object* v_seconds_5_; lean_object* v___x_6_; uint8_t v___x_7_; 
 v_seconds_5_ = l_Int_toNat(v_delay_3_);
-v___x_6_ = lean_cstr_to_nat("4294967296");
+v___x_6_ = lean_uint64_to_nat(4294967296ULL);
 v___x_7_ = lean_nat_dec_lt(v_seconds_5_, v___x_6_);
 lean_dec(v___x_6_);
 if (v___x_7_ == 0)

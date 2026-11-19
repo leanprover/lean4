@@ -506,7 +506,7 @@ static lean_object* _init_l_Std_Time_Nanosecond_Offset_toDays___closed__0(void){
 _start:
 {
 lean_object* v___x_1_; lean_object* v___x_2_; 
-v___x_1_ = lean_cstr_to_nat("86400000000000");
+v___x_1_ = lean_uint64_to_nat(86400000000000ULL);
 v___x_2_ = lean_nat_to_int(v___x_1_);
 return v___x_2_;
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l_Std_Time_Nanosecond_Offset_toWeeks___closed__0(void)
 _start:
 {
 lean_object* v___x_13_; lean_object* v___x_14_; 
-v___x_13_ = lean_cstr_to_nat("604800000000000");
+v___x_13_ = lean_uint64_to_nat(604800000000000ULL);
 v___x_14_ = lean_nat_to_int(v___x_13_);
 return v___x_14_;
 }
@@ -1016,7 +1016,7 @@ static lean_object* _init_l_Std_Time_instHAddOffsetOffset__2___lam__0___closed__
 _start:
 {
 lean_object* v___x_145_; lean_object* v___x_146_; 
-v___x_145_ = lean_cstr_to_nat("60000000000");
+v___x_145_ = lean_uint64_to_nat(60000000000ULL);
 v___x_146_ = lean_nat_to_int(v___x_145_);
 return v___x_146_;
 }
@@ -1046,7 +1046,7 @@ static lean_object* _init_l_Std_Time_instHAddOffsetOffset__3___lam__0___closed__
 _start:
 {
 lean_object* v___x_157_; lean_object* v___x_158_; 
-v___x_157_ = lean_cstr_to_nat("3600000000000");
+v___x_157_ = lean_uint64_to_nat(3600000000000ULL);
 v___x_158_ = lean_nat_to_int(v___x_157_);
 return v___x_158_;
 }

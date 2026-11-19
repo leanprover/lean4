@@ -54,6 +54,24 @@ def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
   | matcher matcherApp => matcherApp.altNumParams.mapIdx fun idx numParams =>
       (numParams, matcherApp.alts[idx]!)
 
+/-- The name of the constant at the head of the split application. -/
+def splitterName : SplitInfo → Name
+  | .ite .. => ``_root_.ite
+  | .dite .. => ``_root_.dite
+  | .cond .. => ``_root_.cond
+  | .matcher matcherApp => matcherApp.matcherName
+
+/-- The arguments that the split application is applied to beyond its own arity. -/
+def extraArgs : SplitInfo → Array Expr
+  | .ite e | .dite e => e.getAppArgs.extract 5 e.getAppNumArgs
+  | .cond e => e.getAppArgs.extract 4 e.getAppNumArgs
+  | .matcher matcherApp => matcherApp.remaining
+
+/-- The discriminants of a matcher, or the condition of an `ite`/`dite`/`cond`. -/
+def discriminants : SplitInfo → Array Expr
+  | .ite e | .dite e | .cond e => #[e.getArg! 1]
+  | .matcher matcherApp => matcherApp.discrs
+
 /-- The expression represented by a `SplitInfo`. -/
 def expr : SplitInfo → Expr
   | .ite e => e
@@ -124,7 +142,7 @@ def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n]
     let matcherLevels ← match matcherApp.uElimPos? with
       | none => pure matcherApp.matcherLevels
       | some pos => do
-        let uElim ← liftMetaM <| getLevel resTy
+        let uElim := (← liftMetaM <| getLevel resTy).normalize
         pure <| matcherApp.matcherLevels.set! pos uElim
     -- Build partial application to infer alt types
     let matcherPartial := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params

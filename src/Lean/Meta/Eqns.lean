@@ -96,7 +96,7 @@ def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
 /--
 Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNamePredicate fun env n => Id.run do
+builtin_initialize registerReservedNamePredicate isEqnLikeSuffix fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,

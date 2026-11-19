@@ -154,6 +154,20 @@ def isChunked (te : TransferEncoding) : Bool :=
   te.codings.back? == some "chunked"
 
 /--
+Splits `s` at each `sep` outside a quoted-string (RFC 9110 §5.6.4), so a quoted parameter value may
+contain `sep`. An unterminated quoted-string runs to the end of `s`, and its part then fails to parse.
+-/
+private def splitOutsideQuotes (s : String) (sep : Char) : List String :=
+  let (parts, part, _, _) := s.foldl (init := (#[], "", false, false))
+    fun (parts, part, quoted, escaped) c =>
+      if escaped then (parts, part.push c, quoted, false)
+      else if quoted && c == '\\' then (parts, part.push c, quoted, true)
+      else if c == '"' then (parts, part.push c, !quoted, false)
+      else if c == sep && !quoted then (parts.push part, "", quoted, false)
+      else (parts, part.push c, quoted, false)
+  (parts.push part).toList
+
+/--
 Checks a transfer parameter: `token BWS "=" BWS ( token / quoted-string )` (RFC 9112 §7).
 -/
 private def isTransferParameter (param : String) : Bool :=
@@ -168,14 +182,14 @@ Parses a comma-separated list of transfer codings into their lowercased names, w
 placement rules of `parse`.
 
 Empty list elements (`gzip, , chunked`) are skipped (RFC 9110 §5.6.1.2). Transfer parameters
-(`gzip;level=1`) are checked and dropped. `chunked` defines none, so a list in which `chunked` has
-one is rejected. A quoted parameter value that contains `,` or `;` is not supported.
+(`gzip;level=1`) are checked and dropped; a quoted value may contain `,` and `;`. `chunked` defines
+none, so a list in which `chunked` has one is rejected.
 -/
 def parseCodings? (v : Value) : Option (Array String) :=
-  (v.value.split ',' |>.toStringList).toArray.filterMapM fun element => do
+  (splitOutsideQuotes v.value ',').toArray.filterMapM fun element => do
     if element.trimAscii.isEmpty then
       return none
-    let name :: params := element.split ';' |>.toStringList | none
+    let name :: params := splitOutsideQuotes element ';' | none
     let name := name.trimAscii.toString.toLower
     guard (isToken name && params.all isTransferParameter)
     guard (params.isEmpty || name != "chunked")

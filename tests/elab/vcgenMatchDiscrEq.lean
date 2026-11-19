@@ -1,4 +1,3 @@
-import Std.Tactic.Do
 import Std.WP
 
 set_option sym.debug true
@@ -11,7 +10,6 @@ Includes the example from issue #12275, where the alternative's body is only wel
 the let-bound discriminant unfolds to its value.
 -/
 
-set_option linter.deprecated.syntax false
 set_option experimental.vcgen true
 
 def dep (n : Option Nat) : Id Nat :=
@@ -62,19 +60,5 @@ open Lean.Order Std.WP
 
 example : ⦃ True ⦄ minPathProg ⦃ fun r => r ≤ 1 ⦄ := by
   vcgen [minPathProg] with finish [foo]
-
-end
-
-section
-open Std.Do
-
-def minPath : Nat := Id.run minPathProg
-
-example : minPath = 1 := by
-  generalize hwp : minPath = wp
-  apply Id.of_wp_run_eq hwp
-  unfold minPathProg
-  mvcgen +jp
-  all_goals simp_all [foo, f]
 
 end

@@ -11,7 +11,7 @@ set_option experimental.vcgen true
 /-!
 # Do-logic tests for `vcgen`
 
-Ported from `tests/elab/doLogicTests.lean`, keeping only `mvcgen`-specific test cases
+Ported from `tests/deprecated/elab/doLogicTests.lean`, keeping only `mvcgen`-specific test cases
 and replacing `mvcgen` with `vcgen` where possible.
 
 Tests that are not yet working with `vcgen` keep the original `mvcgen`-based proof.

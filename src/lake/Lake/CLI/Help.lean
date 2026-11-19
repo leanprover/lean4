@@ -685,10 +685,10 @@ OPTIONS:
   --rev=<commit-hash>             lookup artifacts only for set revision
   --package=<name>                fetch outputs for set package
   --service=<name>                fetch outputs from set cache service
-  --repo=<github-repo>            GitHub repository of the package or its fork
-  --platform=<target-triple>      with Reservoir or --repo, set the platform
-  --toolchain=<name>              with Reservoir or --repo, set the toolchain
   --scope=<remote-scope>          verbatim scope for a custom endpoint
+  --repo=<github-repo>            GitHub repository of the package or its fork
+  --platform=<target-triple>      without --scope, set the platform
+  --toolchain=<name>              without --scope, set the toolchain
   --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
@@ -697,18 +697,20 @@ service. The cache service used can be specified via the `--service` option.
 Otherwise, Lake will use the configured default or, if none, Reservoir. See
 `lake cache services` for more information on how to configure services.
 
-By default, Lake will use Reservoir to download outputs for each
-dependency in the workspace (in order). Non-Reservoir dependencies will be
-skipped. If instead an input-to-outputs mappings file, `--scope`, or `--repo`
-is provided, Lake will default to downloading build outputs for the root
-package. In either case, if `--package` is specified, Lake will switch to
-only downloading outputs for it.
+If an input-to-outputs mappings file, `--scope`, `--repo`, or `--package`
+is provided, Lake will download outputs for a single package (by default,
+without `--package`, the workspace root). Otherwise (e.g., on a bare
+`lake cache get`), Lake will download outputs for each package in the
+workspace (in order). For a multi-package `get`, if a package has configured
+a `downloadCacheService`, that service will be used. Otherwise, by default,
+Lake uses Reservoir. Packages without a `downloadCacheService` that are not
+Reservoir dependencies will be skipped.
 
 To determine what to download, Lake searches for input-to-output mappings for
 a given build of a package via the cache service. This mapping is identified
 by a Git revision and prefixed with a scope derived from the package's name,
-GitHub repository, Lean toolchain, and current platform. The exact configuration
-can be customized using options.
+GitHub repository, Lean toolchain, and current platform. The specifics can be
+customized using options.
 
 For Reservoir, setting `--repo` will cause Lake to lookup outputs for the
 package by a repository name, rather than the package's. This can be used to
@@ -741,8 +743,8 @@ OPTIONS:
   --service=<name>                upload to set cache service
   --scope=<remote-scope>          upload under set scope verbatim
   --repo=<github-repo>            scope w/ repository + toolchain & platform
-  --toolchain=<name>              with --repo, sets the toolchain
-  --platform=<target-triple>      with --repo, sets the platform
+  --toolchain=<name>              without --scope, sets the toolchain
+  --platform=<target-triple>      without --scope, sets the platform
 
 Uploads the input-to-output mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
@@ -755,18 +757,18 @@ via `curl`. Thus, the service should generally be an S3-compatible bucket.
 The authentication key is set via the `LAKE_CACHE_KEY` environment variable.
 
 Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, uploads to the cache are prefixed with a scope to
-avoid clashes. This is controlled by `--scope` or `--repo`. With `--repo`,
-Lake will produce a scope by augmenting the repository with toolchain and
-platform information as it deems necessary. With `--scope`, Lake will use
-the specified scope verbatim.
+artifacts and outputs, uploads to a multi-package cache are prefixed with a
+scope to avoid clashes. This is controlled by `--scope` or `--repo`.
+With `--repo`, Lake will produce a scope by augmenting the repository with
+toolchain and platform information as it deems necessary. With `--scope`,
+Lake will use the specified scope verbatim.
 
 Artifacts are uploaded to the artifact endpoint with a file name derived
-from their Lake content hash (and prefixed by the repository or scope).
-The mappings file is uploaded to the revision endpoint with a file name
-derived from the package's current Git revision (and prefixed by the
-full scope). As such, the command will warn if the work tree currently
-has changes."
+from their Lake content hash and, in a multi-package cache, prefixed by
+the repository or scope. The mappings file is uploaded to the revision
+endpoint with a file name derived from the package's current Git revision
+(and prefixed by the full scope). As such, the command will warn if the work
+tree currently has changes."
 
 def helpCacheAdd :=
 "Add input-to-output mappings to the Lake cache
@@ -792,10 +794,10 @@ or be configured through the Lake system configuration (see the help page of
 `lake cache services` for details).
 
 Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, artifacts in a cache service are prefixed with a scope
-to avoid clashes. For Reservoir, this scope can either be a package (set via
-`--scope`) or a repository (set via `--repo`). For S3 services, both options
-are synonymous."
+artifacts and outputs, artifacts in a multi-package cache service are prefixed
+with a scope to avoid clashes. For Reservoir, this scope can either be a
+package (set via `--scope`) or a repository (set via `--repo`). For S3
+services, both options are synonymous."
 
 def helpCacheStage :=
 "Copy build outputs from the cache to a staging directory
@@ -835,8 +837,8 @@ OPTIONS:
   --service=<name>                upload to set cache service
   --scope=<remote-scope>          upload under set scope verbatim
   --repo=<github-repo>            scope w/ repository + toolchain & platform
-  --toolchain=<name>              with --repo, set the toolchain
-  --platform=<target-triple>      with --repo, set the platform
+  --toolchain=<name>              without --scope, set the toolchain
+  --platform=<target-triple>      without --scope, set the platform
 
 Works like `lake cache put` but uploads outputs from the staging directory
 instead of the Lake cache.
@@ -864,11 +866,12 @@ USAGE:
   lake cache services
 
 Prints the name of each configured remote cache services (one per line).
-Additional services can be added by modifying the system Lake configuration.
-The exact location of the this configuration file is system dependent and can
+Additional services can be added by modifying the system Lake configuration
+or by declaring them in a package configuration file with `cache_service`.
+The exact location of the system configuration file is system dependent and can
 be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.
 
-The configuration of the system cache could look something like the following:
+A system configuration of the cache could look something like the following:
 
   cache.defaultService = \"my-s3\"
   cache.defaultUploadService = \"my-s3\"
@@ -878,8 +881,12 @@ The configuration of the system cache could look something like the following:
   kind = \"s3\"
   artifactEndpoint = \"https://my-s3.com/a0\"
   revisionEndpoint = \"https://my-s3.com/r0\"
+  hasPackageScopes = true
 
-If no `cache.defaultService` is configured, Lake will use Reservoir by default."
+If no `cache.defaultService` is configured, Lake will use Reservoir by default.
+If `hasPackageScopes = true` (the default), the service is a multi-package
+cache and requires `--scope` or `--repo` for uploads and downloads. Otherwise,
+it is assumed to hold a single package and does not accept the options."
 
 def helpScriptCli :=
 "Manage Lake scripts

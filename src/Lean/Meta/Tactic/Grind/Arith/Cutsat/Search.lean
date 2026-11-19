@@ -512,6 +512,33 @@ def processVar (x : Var) : SearchM Unit := do
 def hasAssignment : GoalM Bool := do
   return (← get').vars.size == (← get').assignment.size
 
+/--
+Restores the cutsat state `saved` of a case split, but keeps the variables created after it was saved,
+e.g., by `EqCnstr.elimNonUnit` or nonlinear term propagation, as inactive variables (see `State.active`).
+The proofs of refuted cases may use them, and their terms remain internalized in the core.
+The mappings `natToIntMap` and `natDef` are also kept: the constraints they justify are asserted
+again when their variables are reactivated.
+-/
+private def restoreState (saved : State) : SearchM Unit :=
+  modify' fun s =>
+    let r := { saved with natToIntMap := s.natToIntMap, natDef := s.natDef }
+    let n := s.vars.size
+    if saved.vars.size == n then
+      -- No variable was created after `saved`.
+      r
+    else
+      { r with
+        vars        := s.vars
+        varMap      := s.varMap
+        dvds        := saved.dvds.rightpad n none
+        lowers      := saved.lowers.rightpad n {}
+        uppers      := saved.uppers.rightpad n {}
+        diseqs      := saved.diseqs.rightpad n {}
+        occurs      := saved.occurs.rightpad n {}
+        elimEqs     := saved.elimEqs.rightpad n none
+        active      := saved.active.rightpad n false
+      }
+
 private def findCase (decVars : FVarIdSet) : SearchM Case := do
   repeat
     let numCases := (← get).cases.size
@@ -533,7 +560,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     closeGoal (← h.toExprProof)
     return ()
   let c ← findCase decVars
-  modify' fun _  => c.saved
+  restoreState c.saved
   trace[grind.debug.lia.search.backtrack] "backtracking {c.fvarId.name}"
   let decVars := decVars.erase c.fvarId
   match c.kind with
@@ -594,10 +621,10 @@ private def resetDecisionStack : SearchM Unit := do
   if (← get).cases.isEmpty then
     -- Nothing to reset
     return ()
-  -- Backtrack changes but keep the assignment. Variables created during the search
-  -- (e.g., by nonlinear term propagation) are rolled back, so their values are dropped.
-  let first := (← get).cases[0]!
-  modify' fun s => { first.saved with assignment := shrink s.assignment first.saved.vars.size }
+  -- Backtrack changes but keep the assignment.
+  let assignment := (← get').assignment
+  restoreState (← get).cases[0]!.saved
+  modify' fun s => { s with assignment }
 
 private def searchQLiaAssignment : GoalM Bool := do
   let go : SearchM Bool := do

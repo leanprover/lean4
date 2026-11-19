@@ -11,6 +11,7 @@ public import Lake.Config.Dependency
 public import Lake.Config.PackageConfig
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
+public import Lake.Config.LakeConfig
 
 set_option doc.verso true
 
@@ -33,6 +34,8 @@ public structure LakefileConfig where
     targetDecls.foldl (fun m d => m.insert d.name (.mk d rfl)) {}
   /-- The names of targets declared via {lit}`@[default_target]`. -/
   defaultTargets : Array Name := #[]
+  /-- Cache services declared in the configuration file. -/
+  cacheServices : CacheServiceMap := {}
   /-- Scripts declared in the configuration file. -/
   scripts : NameMap Script := {}
   /-- The names of the scripts declared via {lit}`@[default_script]`. -/

@@ -2,6 +2,8 @@ import Lean
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-! Tests for `vcgen +jp`. A shared tail after an `if` or a `match` makes the do-elaborator emit a
 join point `__do_jp`. `+jp` proves the tail once and closes each jump against that proof, instead of
 unfolding the tail at each jump. Ported from `mvcgenJPs.lean`. -/
@@ -274,7 +276,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 1
 
@@ -283,7 +285,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : ¬b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 2
 -/
@@ -326,3 +328,55 @@ def match_in_match (o p : Option Nat) : StateM Nat Nat := do
 theorem match_in_match_triple :
     ⦃ fun _ => True ⦄ match_in_match o p ⦃ fun r => ⌜r > 0⌝ ⦄ := by
   vcgen +jp [match_in_match] with finish
+
+-- The join point above a split `match` is kept by `root_match.eq_2` and shared by `vcgen +jp`.
+def root_match (x : Nat) (b : Bool) : StateM Nat Nat := do
+  let mut y := 0
+  match x with
+  | 0 => y := 1
+  | _ + 1 => if b then y := 2 else y := 3
+  let s ← get
+  return y + s
+
+/--
+trace: case vc1
+k : Nat
+b : Bool
+s✝ : Nat
+x✝¹ : PUnit
+x✝ s : Nat
+h✝ : s = s✝ ∧ (b = true ∧ x✝ = 2 ∨ ¬b = true ∧ x✝ = 3)
+⊢ 0 < x✝ + s
+-/
+#guard_msgs in
+example : ⦃fun _ => True⦄ root_match (k + 1) b ⦃fun r => ⌜r > 0⌝⦄ := by
+  vcgen +jp [root_match]
+  trace_state
+  all_goals grind
+
+-- `vcgen +jp [chain16]` unfolds `chain16` through a spec made from its unfold equation, whose right
+-- side is the whole program. Making the spec keeps its join points, so the cost stays within a
+-- tenth of the default heartbeats for 16 `if`s.
+def chain16 (c : Nat → Bool) : StateM Nat Unit := do
+  let mut x ← get
+  if c 0 then x := x + 0 else x := x + (0 + 1)
+  if c 1 then x := x + 0 else x := x + (0 + 1)
+  if c 2 then x := x + 0 else x := x + (0 + 1)
+  if c 3 then x := x + 0 else x := x + (0 + 1)
+  if c 4 then x := x + 0 else x := x + (0 + 1)
+  if c 5 then x := x + 0 else x := x + (0 + 1)
+  if c 6 then x := x + 0 else x := x + (0 + 1)
+  if c 7 then x := x + 0 else x := x + (0 + 1)
+  if c 8 then x := x + 0 else x := x + (0 + 1)
+  if c 9 then x := x + 0 else x := x + (0 + 1)
+  if c 10 then x := x + 0 else x := x + (0 + 1)
+  if c 11 then x := x + 0 else x := x + (0 + 1)
+  if c 12 then x := x + 0 else x := x + (0 + 1)
+  if c 13 then x := x + 0 else x := x + (0 + 1)
+  if c 14 then x := x + 0 else x := x + (0 + 1)
+  if c 15 then x := x + 0 else x := x + (0 + 1)
+  set x
+
+set_option maxHeartbeats 20000 in
+example : ⦃fun s => s = s₀⦄ chain16 c ⦃fun _ s => s₀ ≤ s⦄ := by
+  vcgen +jp [chain16] with finish

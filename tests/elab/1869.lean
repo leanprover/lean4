@@ -1,11 +1,11 @@
 universe v u u'
 
-class CategoryStruct (C : Type u) :=
+class CategoryStruct (C : Type u) where
   (Hom : C → C → Type v)
   (id : ∀ X, Hom X X)
   (comp : ∀ {X Y Z : C}, Hom X Y → Hom Y Z → Hom X Z)
 
-class Category (C : Type u) extends CategoryStruct.{v} C :=
+class Category (C : Type u) extends CategoryStruct.{v} C where
   (comp_id : ∀ {X Y : C} (f : Hom X Y), comp f (id Y) = f)
 
 open CategoryStruct

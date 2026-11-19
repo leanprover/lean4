@@ -595,7 +595,8 @@ partial def isTypeFormerType (type : Expr) : MetaM Bool := do
 Returns `true` iff `type` is `Prop` or `As → Prop`.
 -/
 partial def isPropFormerType (type : Expr) : MetaM Bool := do
-  return (← typeFormerTypeLevel type) == .some .zero
+  let some l ← typeFormerTypeLevel type | return false
+  return l.isAlwaysZero
 
 /--
 Returns `true` iff `e : Sort _` or `e : (forall As, Sort _)`.

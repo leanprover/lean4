@@ -405,6 +405,28 @@ def channelReadAllMaxSize : Async Unit := do
 
 #eval channelReadAllMaxSize.block
 
+-- Test Stream.readAll closes the stream when it gives up on `maximumSize`, so the producer's next
+-- send fails instead of waiting for a reader that is gone
+
+def channelReadAllMaxSizeCloses : Async Unit := do
+  let stream ← Body.mkStream
+
+  let sendTask ← async (t := AsyncTask) <| do
+    stream.send (Chunk.ofByteArray "abcdefgh".toUTF8)
+    stream.send (Chunk.ofByteArray "ijkl".toUTF8)
+
+  let failed ←
+    try
+      let _ : ByteArray ← stream.readAll (maximumSize := some 4)
+      pure false
+    catch _ =>
+      pure true
+  assert! failed
+  assert! (← stream.isClosed)
+  assertThrows (await sendTask)
+
+#eval channelReadAllMaxSizeCloses.block
+
 -- Test Stream.getKnownSize reflects the value set via setKnownSize
 
 def channelKnownSizeRoundtrip : Async Unit := do
@@ -688,6 +710,17 @@ def requestBuilderHtml : Async Unit := do
 
 #eval requestBuilderHtml.block
 
+-- Test the Request.Builder body helpers keep a Content-Type the caller already set
+
+def requestBuilderKeepsContentType : Async Unit := do
+  let req ← Request.post (.originForm! "/api")
+    |>.header! "Content-Type" "application/vnd.example+json"
+    |>.json "{}"
+  let types := (req.line.headers.getAll? Header.Name.contentType).getD #[]
+  assert! types == #[Header.Value.ofString! "application/vnd.example+json"]
+
+#eval requestBuilderKeepsContentType.block
+
 -- Test Request.Builder.stream creates a streaming body
 
 def requestBuilderStream : Async Unit := do
@@ -743,6 +776,17 @@ def responseBuilderJson : Async Unit := do
   assert! body.get!.data == "{\"status\": \"ok\"}".toUTF8
 
 #eval responseBuilderJson.block
+
+-- Test the Response.Builder body helpers keep a Content-Type the caller already set
+
+def responseBuilderKeepsContentType : Async Unit := do
+  let res ← Response.ok
+    |>.header! "Content-Type" "text/markdown; charset=utf-8"
+    |>.text "# hi"
+  let types := (res.line.headers.getAll? Header.Name.contentType).getD #[]
+  assert! types == #[Header.Value.ofString! "text/markdown; charset=utf-8"]
+
+#eval responseBuilderKeepsContentType.block
 
 -- Test Response.Builder.fromBytes sets body
 
@@ -851,6 +895,30 @@ def blockedRecvSurfacesCloseError : Async Unit := do
   assertThrows (await recvTask)
 
 #eval blockedRecvSurfacesCloseError.block
+
+-- Test closeWithError: a stream that already closed cleanly keeps its clean end.
+
+def closeWithErrorAfterCloseKeepsEnd : Async Unit := do
+  let stream ← Body.mkStream
+  stream.close
+  stream.closeWithError (IO.userError "boom")
+  let result ← stream.recv
+  assert! result.isNone
+
+#eval closeWithErrorAfterCloseKeepsEnd.block
+
+-- Test closeWithError: a final chunk offered with `closeAfter` is delivered, then the clean end.
+
+def closeWithErrorAfterFinalOfferKeepsEnd : Async Unit := do
+  let stream ← Body.mkStream
+  stream.offer { data := "last".toUTF8 } (closeAfter := true)
+  stream.closeWithError (IO.userError "boom")
+  let some chunk ← stream.recv | throw (IO.userError "expected the offered chunk")
+  assert! chunk.data == "last".toUTF8
+  let result ← stream.recv
+  assert! result.isNone
+
+#eval closeWithErrorAfterFinalOfferKeepsEnd.block
 
 -- Test closeWithError: non-blocking Stream.tryRecv surfaces terminal errors at EOF.
 

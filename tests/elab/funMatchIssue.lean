@@ -1,4 +1,4 @@
-inductive T : Type 1 :=
+inductive T : Type 1 where
 | mkT : (forall {a : Type}, a -> a) -> T
 
 open T

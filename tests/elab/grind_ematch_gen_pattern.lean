@@ -40,7 +40,7 @@ example (a : Nat) (h : b = some a) : (b.pbind fun a h => some <| 2*a) = some (a 
 
 /--
 trace: [grind.ematch.instance] pbind_some': (b.pbind fun a h => some (a + f b ⋯)) = some (a + f b ⋯)
-[grind.ematch.instance] f.eq_2: f (some a) ⋯ = a
+[grind.ematch.instance] f.eq_1: f (some a) ⋯ = a
 -/
 #guard_msgs (trace) in
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
@@ -54,7 +54,7 @@ trace: [grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a
       (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + f b ⋯ + f b ⋯)
-[grind.ematch.instance] f.eq_2: f (some a) ⋯ = a
+[grind.ematch.instance] f.eq_1: f (some a) ⋯ = a
 [grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + 2 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 2 * f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_2 : b = some (a + 3 * f b ⋯)),
@@ -112,7 +112,7 @@ reset_grind_attrs%
 
 /--
 trace: [grind.ematch.instance] pbind_some'': (b.pbind fun a h => some (a + f b ⋯)) = some (a + f b ⋯)
-[grind.ematch.instance] f.eq_2: f (some a) ⋯ = a
+[grind.ematch.instance] f.eq_1: f (some a) ⋯ = a
 -/
 #guard_msgs (trace) in
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
@@ -127,7 +127,7 @@ reset_grind_attrs%
 
 /--
 trace: [grind.ematch.instance] pbind_some''': some (a + f b ⋯) = b.pbind fun a h => some (a + f b ⋯)
-[grind.ematch.instance] f.eq_2: f (some a) ⋯ = a
+[grind.ematch.instance] f.eq_1: f (some a) ⋯ = a
 -/
 #guard_msgs (trace) in
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by

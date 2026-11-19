@@ -5076,7 +5076,7 @@ _start:
 lean_object* v___x_1486_; lean_object* v___x_1487_; lean_object* v___x_1488_; lean_object* v___x_1489_; lean_object* v___x_1490_; lean_object* v___x_1491_; 
 v___x_1486_ = ((lean_object*)(l_Lean_Compiler_LCNF_LetValue_toMono___closed__12));
 v___x_1487_ = lean_unsigned_to_nat(9u);
-v___x_1488_ = lean_unsigned_to_nat(650u);
+v___x_1488_ = lean_unsigned_to_nat(658u);
 v___x_1489_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toMono___closed__3));
 v___x_1490_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toMono___closed__2));
 v___x_1491_ = l_mkPanicMessageWithDecl(v___x_1490_, v___x_1489_, v___x_1488_, v___x_1487_, v___x_1486_);
@@ -11501,8 +11501,8 @@ goto v___jp_3417_;
 }
 else
 {
-lean_dec(v_declName_3473_);
 lean_dec_ref_known(v_value_3472_, 3);
+lean_dec(v_declName_3473_);
 v___y_3418_ = v_a_3292_;
 v___y_3419_ = v_a_3293_;
 v___y_3420_ = v_a_3294_;
@@ -12684,8 +12684,8 @@ return v___x_3733_;
 else
 {
 lean_object* v_a_3741_; lean_object* v___x_3743_; uint8_t v_isShared_3744_; uint8_t v_isSharedCheck_3748_; 
-lean_dec_ref(v_cases_3599_);
 lean_dec_ref_known(v_code_3291_, 1);
+lean_dec_ref(v_cases_3599_);
 v_a_3741_ = lean_ctor_get(v___x_3634_, 0);
 v_isSharedCheck_3748_ = !lean_is_exclusive(v___x_3634_);
 if (v_isSharedCheck_3748_ == 0)

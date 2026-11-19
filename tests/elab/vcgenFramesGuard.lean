@@ -1,6 +1,8 @@
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `poke v` writes `v` at `mem ptr`, so it frames `fun s => s.mem 5 = 7` exactly in the states with
 `ptr ≠ 5`. The guard of the `WP.Frames` side goal fixes the state at `poke 1` to
@@ -29,12 +31,10 @@ def run : List Instr → St → St
   | i :: p, s => run p (i.step s)
 
 instance : WP Instr Unit (St → Prop) Unit where
-  trans i := ⟨fun Q _ s => Q () (i.step s)⟩
-  trans_monotone _ := fun _ _ _ _ _ hQ _ h => hQ () _ h
+  trans i := PredTrans.mk (fun Q _ s => Q () (i.step s)) fun hQ _ _ h => hQ () _ h
 
 instance : WP (List Instr) Unit (St → Prop) Unit where
-  trans p := ⟨fun Q _ s => Q () (run p s)⟩
-  trans_monotone _ := fun _ _ _ _ _ hQ _ h => hQ () _ h
+  trans p := PredTrans.mk (fun Q _ s => Q () (run p s)) fun hQ _ _ h => hQ () _ h
 
 section
 variable {Q : Unit → St → Prop} {E : Unit}

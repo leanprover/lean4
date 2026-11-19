@@ -328,6 +328,7 @@ add_test_pile(
     ${ELAB_FIXTURES}
 )
 add_test_pile(compile *.lean BENCH PART2)
+add_test_pile(deprecated/elab *.lean)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(docparse *.txt)
 add_test_pile(elab *.lean ${ELAB_FIXTURES})
@@ -344,6 +345,8 @@ add_test_dir(bench/build BENCH PART1)
 add_test_dir(bench/vcgen BENCH PART2)
 add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)
+add_test_dir(verif)
+set_tests_properties(verif PROPERTIES SKIP_RETURN_CODE 77)
 
 add_dir_of_test_dirs(misc_dir)
 add_dir_of_test_dirs(

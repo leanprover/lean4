@@ -432,6 +432,98 @@
                     "scope"
                 ]
             }
+        },
+        "cacheServiceConfig": {
+            "type": "object",
+            "required": [
+                "name",
+                "kind"
+            ],
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/cacheServiceReservoirConfig"
+                },
+                {
+                    "$ref": "#/definitions/cacheServiceS3Config"
+                }
+            ],
+            "x-taplo": {
+                "initKeys": [
+                    "name",
+                    "kind"
+                ]
+            }
+        },
+        "cacheServiceReservoirConfig": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the cache service."
+                },
+                "kind": {
+                    "const": "reservoir",
+                    "description": "The kind of the cache service: a Reservoir-style service."
+                },
+                "apiEndpoint": {
+                    "type": "string",
+                    "description": "Base URL for a Reservoir-style service's API."
+                }
+            },
+            "required": [
+                "name",
+                "kind",
+                "apiEndpoint"
+            ],
+            "x-taplo": {
+                "initKeys": [
+                    "name",
+                    "kind",
+                    "apiEndpoint"
+                ]
+            }
+        },
+        "cacheServiceS3Config": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the cache service."
+                },
+                "kind": {
+                    "const": "s3",
+                    "description": "The kind of the cache service: an S3-style service."
+                },
+                "artifactEndpoint": {
+                    "type": "string",
+                    "description": "Base URL for an S3-style service's artifacts."
+                },
+                "revisionEndpoint": {
+                    "type": "string",
+                    "description": "Base URL for an S3-style service's revisions."
+                },
+                "hasPackageScopes": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the service locates artifacts and revisions under different per-package scopes."
+                }
+            },
+            "required": [
+                "name",
+                "kind",
+                "artifactEndpoint",
+                "revisionEndpoint"
+            ],
+            "x-taplo": {
+                "initKeys": [
+                    "name",
+                    "kind",
+                    "artifactEndpoint",
+                    "revisionEndpoint"
+                ]
+            }
         }
     },
     "allOf": [
@@ -645,6 +737,10 @@
                     "default": false,
                     "description": "Whether to prefer downloading a prebuilt release (from GitHub) rather than building this package from the source when this package is used as a dependency."
                 },
+                "downloadCacheService": {
+                    "type": "string",
+                    "description": "A cache service hosting build caches for this package.\n\nIf set, `lake cache get` will use this service by default when fetching build caches for this package. When this package is a dependency, Lake will automatically try to fetch output mappings from this service before building the package's targets. If successful, artifacts will then be downloaded from the service on demand during the build.\n\n**Note:** The specified service must be configured with `hasPackageScopes = false`."
+                },
                 "require": {
                     "type": "array",
                     "items": {
@@ -679,6 +775,13 @@
                         "$ref": "#/definitions/inputDirConfig"
                     },
                     "description": "Input directories of a package."
+                },
+                "cache_service": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cacheServiceConfig"
+                    },
+                    "description": "Cache services of a package."
                 }
             },
             "required": [

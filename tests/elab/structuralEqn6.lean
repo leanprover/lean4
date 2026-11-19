@@ -1,3 +1,5 @@
+/-! Tests structural and well-founded equation theorems with proof discriminants. -/
+
 def trailingZeros (i : Int) : Nat :=
   if h : i = 0 then 0 else aux i.natAbs i h (Nat.le_refl _) 0
 where
@@ -10,9 +12,8 @@ where
 
 /--
 info: equations:
-@[backward_defeq] theorem trailingZeros.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_2 : Nat) (x_1 : k_2 + 1 ≠ 0)
-  (hk_2 : i.natAbs ≤ k_2 + 1),
-  trailingZeros.aux k_2.succ i hi hk_2 acc = if h : i % 2 = 0 then trailingZeros.aux k_2 (i / 2) ⋯ ⋯ (acc + 1) else acc
+@[backward_defeq] theorem trailingZeros.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_3 : Nat) (hk_3 : i.natAbs ≤ k_3 + 1),
+  trailingZeros.aux k_3.succ i hi hk_3 acc = if h : i % 2 = 0 then trailingZeros.aux k_3 (i / 2) ⋯ ⋯ (acc + 1) else acc
 -/
 #guard_msgs(pass trace, all) in
 #print equations trailingZeros.aux
@@ -34,10 +35,9 @@ where
 
 /--
 info: equations:
-theorem trailingZeros'.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_2 : Nat) (x_1 : k_2 + 1 ≠ 0)
-  (hk_2 : i.natAbs ≤ k_2 + 1),
-  trailingZeros'.aux k_2.succ i hi hk_2 acc =
-    if h : i % 2 = 0 then trailingZeros'.aux k_2 (i / 2) ⋯ ⋯ (acc + 1) else acc
+theorem trailingZeros'.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_3 : Nat) (hk_3 : i.natAbs ≤ k_3 + 1),
+  trailingZeros'.aux k_3.succ i hi hk_3 acc =
+    if h : i % 2 = 0 then trailingZeros'.aux k_3 (i / 2) ⋯ ⋯ (acc + 1) else acc
 -/
 #guard_msgs(pass trace, all) in
 #print equations trailingZeros'.aux

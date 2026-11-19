@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "runtime/thread.h"
+#include "runtime/alloc.h"
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
 #include "runtime/memory.h"
@@ -38,7 +39,11 @@ extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
 
-LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
+LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max) :
+    m_max(g_max_heartbeat, max), m_curr(g_heartbeat, 0) {}
+
+LEAN_EXPORT scope_restore_num_heartbeats::scope_restore_num_heartbeats() : m_old(get_num_heartbeats()) {}
+LEAN_EXPORT scope_restore_num_heartbeats::~scope_restore_num_heartbeats() { set_heartbeats(m_old); }
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {
@@ -62,12 +67,19 @@ LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
    within `maxRecDepth` during elaboration is not rejected by the kernel. */
 static constexpr size_t g_kernel_rec_depth_factor = 16;
 
+/* Scales `max` by `g_kernel_rec_depth_factor`; a limit too large to scale is as good as unlimited. */
+static size_t kernel_rec_depth_limit(size_t max) {
+    if (max > std::numeric_limits<size_t>::max() / g_kernel_rec_depth_factor)
+        return 0;
+    return max * g_kernel_rec_depth_factor;
+}
+
 LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
-    m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
+    m_max(g_max_rec_depth, kernel_rec_depth_limit(max)), m_curr(g_rec_depth, 0) {}
 
 LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
     g_rec_depth++;
-    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth * g_kernel_rec_depth_factor) {
+    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth) {
         g_rec_depth--;
         throw stack_space_exception("type checker");
     }

@@ -536,11 +536,17 @@ theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly
   simp [Expr.toNormPoly, Poly.norm] at h
   assumption
 
-/-! Kernel-reduction variants for the certificates of `simp +arith` over `Nat`. -/
+/-!
+Kernel-reduction variants for the certificates of `simp +arith` over `Nat`.
+The denotations are `abbrev`s so that the kernel's lazy delta reduction unfolds them before the
+user's terms.
+-/
 
-noncomputable def Expr.denote_k (ctx : Context) (e : Expr) : Nat :=
+noncomputable abbrev Expr.denote_k (ctx : Context) (e : Expr) : Nat :=
   Expr.rec (fun k => k) (fun v => v.denote ctx) (fun _ _ a b => Nat.add a b) (fun k _ a => Nat.mul k a)
     (fun _ k a => Nat.mul a k) e
+
+attribute [semireducible] Expr.denote_k
 
 theorem Expr.denote_k_eq_denote (ctx : Context) (e : Expr) : e.denote_k ctx = e.denote ctx := by
   induction e with
@@ -550,8 +556,10 @@ theorem Expr.denote_k_eq_denote (ctx : Context) (e : Expr) : e.denote_k ctx = e.
   | mulL k a ih => show Nat.mul k (a.denote_k ctx) = _; rw [ih]
   | mulR a k ih => show Nat.mul (a.denote_k ctx) k = _; rw [ih]
 
-noncomputable def ExprCnstr.denote_k (ctx : Context) (c : ExprCnstr) : Prop :=
+noncomputable abbrev ExprCnstr.denote_k (ctx : Context) (c : ExprCnstr) : Prop :=
   Bool.rec (c.lhs.denote_k ctx ≤ c.rhs.denote_k ctx) (c.lhs.denote_k ctx = c.rhs.denote_k ctx) c.eq
+
+attribute [semireducible] ExprCnstr.denote_k
 
 theorem ExprCnstr.denote_k_eq_denote (ctx : Context) (c : ExprCnstr) : c.denote_k ctx = c.denote ctx := by
   cases c with

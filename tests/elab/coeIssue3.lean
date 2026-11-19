@@ -1,8 +1,8 @@
-structure Var : Type := (name : String)
+structure Var : Type where (name : String)
 instance Var.nameCoe : Coe String Var := ⟨Var.mk⟩
 
-structure A : Type := (u : Unit)
-structure B : Type := (u : Unit)
+structure A : Type where (u : Unit)
+structure B : Type where (u : Unit)
 
 def a : A := A.mk ()
 def b : B := B.mk ()

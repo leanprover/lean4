@@ -320,10 +320,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
     lean_enable_initializer_execution();
 
-    // Default the configured thread stack size from the environment as in `lean_run_main`;
-    // `--tstack` below overrides it.
-    set_thread_stack_size_from_env();
-
     int rc;
     object_ref shell_opts;
     try {

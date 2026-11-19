@@ -84,17 +84,31 @@ Remark: if `checkCoeffDvd` is enabled and the current ring does not satisfy the 
 ```
 ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
 ```
-then the leading coefficient of the equation must also divide `k`. This ensures the rewrite
-is monic (i.e., `k₁ = 1` at `PolyDerivation.step`).
+then the absolute value of the leading coefficient of the equation must not exceed `|k|`.
+This ensures the rewrite is monic (i.e., `k₁ = 1` at `PolyDerivation.step`): it eliminates
+the monomial if the leading coefficient divides `k`, and it is a Euclidean remainder step
+otherwise. See `Poly.simpM?`.
+
+Among the candidates, it prefers equations whose leading coefficient divides `k`, and then
+equations with fewer terms. Such an equation eliminates the monomial with `k₁ = 1`. Otherwise,
+the rewrite is a remainder step, or, if `checkCoeffDvd` is disabled, it has `k₁ ≠ 1` and proves
+only `k₁ * lhs = rhs`, which is weaker in rings without `NoNatZeroDivisors`. Fewer terms keep
+intermediate polynomials small.
 -/
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
+  let mut best? : Option (EqCnstr × Bool) := none
   for c in (← getCommRingState).basis do
-    if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
+    let dvd := c.p.lc ∣ k
+    if !checkCoeff || noZeroDiv || c.p.lc.natAbs ≤ k.natAbs then
     if c.p.divides m then
-      return some c
-  return none
+      let better := match best? with
+        | none => true
+        | some (b, bDvd) => (dvd && !bDvd) || (dvd == bDvd && c.p.numTerms < b.p.numTerms)
+      if better then
+        best? := some (c, dvd)
+  return best?.map (·.1)
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides some
@@ -161,21 +175,20 @@ def EqCnstr.simplifyUsingNumEq0 (c : EqCnstr) : RingM EqCnstr := do
 /--
 Simplify the given equation constraint using the current basis.
 
-**Note**: This function (and `simplifyBasis`) runs with `checkCoeffDvd := true`. It rewrites a
-monomial `k'*m'` using an equation with leading term `k*m` only if `k ∣ k'` (or the ring
-implements `NoNatZeroDivisors`). Rewriting without this restriction requires multiplying the
-equation by `k/gcd k k' ≠ ±1` first, and *replacing* an equation with the result loses
-information: `p = 0` cannot be recovered from `(k/gcd k k') * p = 0` in an arbitrary
-commutative ring. The consequences of the skipped rewrites are not lost: a skipped rewrite at
-the leading monomial coincides with the S-polynomial computed by `superposeWith`, so it is
-derived non-destructively. The price is that the basis is not
-fully interreduced (e.g., `2*x = 0` and `3*x = 0` may coexist), and reduction is an incomplete
-ideal-membership test in rings without `NoNatZeroDivisors` (e.g., `x = 0` is not derived from
-`2*x = 0` and `3*x = 0`). The complete alternative is a strong Gröbner basis over `Int`
-(Kandri-Rody & Kapur): replace multiply-through rewriting with Euclidean remainder reduction
-on coefficients (`k' = q*k + r`, so the equation is never multiplied by a constant), and
-additionally superpose gcd-polynomials (Bézout combinations producing `gcd k k'` times the lcm
-of the leading monomials). We should consider this option in the future.
+**Note**: This function (and `simplifyBasis`) runs with `checkCoeffDvd := true`. Unless the
+ring implements `NoNatZeroDivisors`, rewriting a monomial `k'*m'` using an equation with
+leading term `k*m` must not multiply the equation by `k/gcd k k' ≠ ±1`: *replacing* an
+equation with the result loses information, since `p = 0` cannot be recovered from
+`(k/gcd k k') * p = 0` in an arbitrary commutative ring. Thus, the rewrite eliminates `k'*m'`
+if `k ∣ k'`, performs a Euclidean remainder step (`k' = q*k + r`, the equation is never
+multiplied by a constant) if `|k| < |k'|`, and is skipped otherwise. For example, `3*x = 0` is
+rewritten into `x = 0` using `2*x = 0`. The consequences of the skipped rewrites are not lost:
+a skipped rewrite at the leading monomial coincides with the S-polynomial computed by
+`superposeWith`, so it is derived non-destructively. Reduction is still an incomplete
+ideal-membership test in rings without `NoNatZeroDivisors`. The complete alternative is a
+strong Gröbner basis over `Int` (Kandri-Rody & Kapur), which additionally superposes
+gcd-polynomials (Bézout combinations producing `gcd k k'` times the lcm of the leading
+monomials).
 
 **Note**: If using `withCheckCoeffDvd` becomes too expensive when one does not have
 `NoNatZeroDivisors`, we will add a flag to perform the simplification anyway even if

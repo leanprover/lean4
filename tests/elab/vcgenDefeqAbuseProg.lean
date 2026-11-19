@@ -1,6 +1,8 @@
 import Std.WP
 import Std.WP.Triple.SpecLemmas
 
+set_option sym.debug true
+
 /-!
 # `vcgen` on a program that is not of the type of its `WP` instance
 
@@ -31,10 +33,7 @@ def Exp.eval : Exp → Nat
 def Tagged (_n : Nat) (α : Type) := α
 
 instance : WP (Tagged n Exp) Nat (Fin (n + 1) → Prop) EStack⟨⟩ where
-  trans e := ⟨fun Q _ i => Q (Exp.eval e) i⟩
-  trans_monotone _ := by
-    intro Q Q' _ _ _ hQ i h
-    exact hQ _ i h
+  trans e := PredTrans.mk (fun Q _ i => Q (Exp.eval e) i) fun hQ _ i h => hQ _ i h
 
 variable {n : Nat} {Q : Nat → Fin (n + 1) → Prop} {eposts : EStack⟨⟩}
 

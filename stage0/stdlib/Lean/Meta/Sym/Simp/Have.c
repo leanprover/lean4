@@ -855,13 +855,13 @@ goto v___jp_174_;
 v___jp_165_:
 {
 uint8_t v___x_170_; 
-v___x_170_ = lean_nat_dec_le(v___y_169_, v___y_167_);
+v___x_170_ = lean_nat_dec_le(v___y_169_, v___y_166_);
 if (v___x_170_ == 0)
 {
 lean_object* v___x_171_; 
-lean_dec(v___y_167_);
+lean_dec(v___y_166_);
 lean_inc(v___y_169_);
-v___x_171_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_164_, v___y_168_, v___y_166_, v___y_169_, v___y_169_);
+v___x_171_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_164_, v___y_168_, v___y_167_, v___y_169_, v___y_169_);
 lean_dec(v___y_169_);
 lean_dec(v___y_168_);
 return v___x_171_;
@@ -869,8 +869,8 @@ return v___x_171_;
 else
 {
 lean_object* v___x_172_; 
-v___x_172_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_164_, v___y_168_, v___y_166_, v___y_169_, v___y_167_);
-lean_dec(v___y_167_);
+v___x_172_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_164_, v___y_168_, v___y_167_, v___y_169_, v___y_166_);
+lean_dec(v___y_166_);
 lean_dec(v___y_168_);
 return v___x_172_;
 }
@@ -889,16 +889,16 @@ v___x_180_ = lean_nat_dec_le(v___x_173_, v___x_179_);
 if (v___x_180_ == 0)
 {
 lean_inc(v___x_179_);
-v___y_166_ = v___y_175_;
-v___y_167_ = v___x_179_;
+v___y_166_ = v___x_179_;
+v___y_167_ = v___y_175_;
 v___y_168_ = v___x_176_;
 v___y_169_ = v___x_179_;
 goto v___jp_165_;
 }
 else
 {
-v___y_166_ = v___y_175_;
-v___y_167_ = v___x_179_;
+v___y_166_ = v___x_179_;
+v___y_167_ = v___y_175_;
 v___y_168_ = v___x_176_;
 v___y_169_ = v___x_173_;
 goto v___jp_165_;

@@ -67,6 +67,11 @@ theorem Bool.iff_to_beq :
   decide
 
 @[bv_normalize]
+theorem Bool.cond_to_bool :
+    ∀ (c t e : Bool), (bif c then t = true else e = true) = ((bif c then t else e) = true) := by
+  decide
+
+@[bv_normalize]
 theorem Bool.eq_false (a : Bool) : ((a = true) = False) = ((!a) = true) := by
   simp
 

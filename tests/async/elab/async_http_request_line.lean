@@ -64,32 +64,53 @@ private def ok200 : String :=
 -- RFC 9110 §9: Methods
 
 #eval runGroup "RFC 9110 §9: method validation" do
-  check "unknown method FOOBAR → 400"
+  -- RFC 9110 §9.1: a method the server does not recognize is answered with 501; methods are
+  -- case-sensitive, so `get` is one of them
+  check "unknown method FOOBAR → 501"
     (raw := "FOOBAR / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
 
-  check "lowercase method → 400"
+  check "lowercase method → 501"
     (raw := "get / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
 
   check "non-ASCII method → 400"
     (raw := "GÉT / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
     (expect := fun r => assertExact r r400)
 
-  check "very long unrecognized method → 400"
+  -- RFC 9112 §3: so is a method longer than any the server implements
+  check "very long unrecognized method → 501"
     (raw :=
-      let m := String.ofList (List.replicate 20 'G')
+      let m := String.ofList (List.replicate 100 'G')
       s!"{m} / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
 
-  check "token method with hyphen (X-CUSTOM) → 400"
+  check "token method with hyphen (X-CUSTOM) → 501"
     (raw := "X-CUSTOM / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r r400)
+    (expect := fun r => assertExact r r501)
+
+  check "method that starts with a known one (GETX) → 501"
+    (raw := "GETX / HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
+    (handler := okHandler)
+    (expect := fun r => assertExact r r501)
+
+  -- RFC 9112 §3: a request line that is invalid after an unrecognized method is answered with 400,
+  -- since 501 (RFC 9110 §9.1) is for a valid request line.
+  for (label, line) in [("an extra SP", "G T / HTTP/1.1"), ("no SP before the version", "FOO* HTTP/1.1"),
+      ("an invalid target", "FOO a@b HTTP/1.1"), ("no version", "FOO /x"),
+      ("an invalid version", "FOO / HTTP/1.1x"), ("a non-ASCII target", "FOO /\xe9 HTTP/1.1"),
+      -- a name longer than any method (over 64 bytes)
+      ("a 65-byte name and a control byte in the target",
+        s!"{String.ofList (List.replicate 65 'G')} /\x01 HTTP/1.1")] do
+    check s!"unrecognized method with {label} → 400"
+      (raw := s!"{line}\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
+      (handler := okHandler)
+      (expect := fun r => assertExact r r400)
 
 -- RFC 9112 §3.2: Request target forms
 
@@ -99,10 +120,12 @@ private def ok200 : String :=
     (handler := okHandler)
     (expect := fun r => assertExact r r400)
 
+  -- A 2xx to CONNECT starts a tunnel, so it has no framing fields or content (RFC 9110 §9.3.6).
   check "CONNECT authority-form accepted"
     (raw := "CONNECT example.com:443 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")
     (handler := okHandler)
-    (expect := fun r => assertExact r ok200)
+    (expect := fun r => assertExact r
+      "HTTP/1.1 200 OK\x0d\nContent-Type: text/plain; charset=utf-8\x0d\nServer: LeanHTTP/1.1\x0d\nConnection: close\x0d\n\x0d\n")
 
   check "CONNECT authority-form port mismatch → 400"
     (raw := "CONNECT example.com:444 HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n")

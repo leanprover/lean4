@@ -14,6 +14,7 @@ import Lean.Meta.CasesInfo
 import Lean.Meta.WHNF
 import Lean.Compiler.NoncomputableAttr
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.LCNF.WithPtrEq
 import Init.Data.Format.Macro
 import Init.Omega
 import Lean.OriginalConstKind
@@ -439,7 +440,8 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
 def checkComputable (ref : Name) : M Unit := do
   if (← read).ignoreNoncomputable then
     return
-  if ref matches ``Quot.mk | ``Quot.lift || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
+  -- `withPtrEq` is `noncomputable` but compiled specially, see `visitWithPtrEq`.
+  if ref matches ``Quot.mk | ``Quot.lift | ``withPtrEq || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
     return
   -- The executable code of a recursive definition comes from its `_unsafe_rec` implementation (see
   -- `getDeclInfo?`), so `ref` is noncomputable whenever that implementation is. This case arises in a
@@ -909,6 +911,15 @@ where
       else
         expandNoConfusionMajor (← etaExpandN major (n+1)) (n+1)
 
+  /-- Checks the type at which `withPtrEq` is used and replaces it with `withPtrEqUnsafe`. -/
+  visitWithPtrEq (e : Expr) : M (Arg .pure) :=
+    -- Expanding only the implicit type argument would be undone by `etaReduceImplicit`.
+    etaIfUnderApplied e 5 do
+      let .const _ us := e.getAppFn | unreachable!
+      let args := e.getAppArgs
+      liftMetaM <| checkWithPtrEqType args[0]!
+      visitCore (mkAppN (.const ``withPtrEqUnsafe us) args)
+
   visitProjFn (projInfo : ProjectionFunctionInfo) (e : Expr) : M (Arg .pure) := do
     let typeName := projInfo.ctorName.getPrefix
     if isRuntimeBuiltinType typeName then
@@ -947,6 +958,8 @@ where
         visitFalseRec e
       else if declName == ``lcUnreachable then
         visitLcUnreachable e
+      else if declName == ``withPtrEq then
+        visitWithPtrEq e
       else if let some casesInfo ← getCasesInfo? declName then
         visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then

@@ -96,7 +96,7 @@ def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
 /--
 Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNamePredicate fun env n => Id.run do
+builtin_initialize registerReservedNamePredicate isEqnLikeSuffix fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,
@@ -231,9 +231,10 @@ private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit
   }
 
 /--
-Equation theorems are generated on demand, check whether they were generated in an imported file.
+Returns the equation theorems of `declName` if they are already in the environment, which includes
+those generated on demand in an imported file.
 -/
-private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
+partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv
   let eq1 := mkEqLikeNameFor env declName eqn1ThmSuffix
   if env.contains eq1 then

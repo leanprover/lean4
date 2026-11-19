@@ -1,6 +1,8 @@
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Tests for framing the exception channel.
 
@@ -86,9 +88,7 @@ inductive Prog | skip | exit
 /-- The base wp: `skip` hands the heap to the postcondition, `exit` to the exception
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
-  trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
-  trans_monotone x := by
-    intro Q Q' E E' hE hQ
+  trans x := PredTrans.mk (fun Q E => (match x with | .skip => Q () | .exit => E)) fun hQ hE => by
     cases x
     · exact hQ ()
     · exact hE

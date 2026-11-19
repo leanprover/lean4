@@ -169,7 +169,7 @@ theorem String.toByteArray_push {s : String} {c : Char} : (s.push c).toByteArray
 
 namespace String
 
-/-- The start position of the string, as a `String.Pos.Raw.` -/
+/-- The start position of the string, as a `String.Pos.Raw`. -/
 def rawStartPos (_s : String) : String.Pos.Raw :=
   0
 
@@ -305,29 +305,29 @@ Predicate for validity of positions inside a `String`.
 There are multiple equivalent definitions for validity.
 
 We say that a position is valid if the string obtained by taking all of the bytes up to, but
-excluding, the given position, is valid UTF-8; see `Pos.isValid_iff_isValidUTF8_extract_zero`.
+excluding, the given position, is valid UTF-8; see `Pos.Raw.isValid_iff_isValidUTF8_extract_zero`.
 
 Similarly, a position is valid if the string obtained by taking all of the bytes starting at the
-given position is valid UTF-8; see `Pos.isValid_iff_isValidUTF8_extract_utf8ByteSize`.
+given position is valid UTF-8; see `Pos.Raw.isValid_iff_isValidUTF8_extract_utf8ByteSize`.
 
 An equivalent condition is that the position is the length of the UTF-8 encoding of
-some prefix of the characters of the string; see `Pos.isValid_iff_exists_append` and
-`Pos.isValid_iff_exists_take_data`.
+some prefix of the characters of the string; see `Pos.Raw.isValid_iff_exists_append` and
+`Pos.Raw.isValid_iff_exists_take_toList`.
 
 Another equivalent condition that can be checked efficiently is that the position is either the
 end position or strictly smaller than the end position and the byte at the position satisfies
-`UInt8.IsUTF8FirstByte`; see `Pos.isValid_iff_isUTF8FirstByte`.
+`UInt8.IsUTF8FirstByte`; see `Pos.Raw.isValid_iff_isUTF8FirstByte`.
 
 Examples:
- * `String.Pos.IsValid "abc" ⟨0⟩`
- * `String.Pos.IsValid "abc" ⟨1⟩`
- * `String.Pos.IsValid "abc" ⟨3⟩`
- * `¬ String.Pos.IsValid "abc" ⟨4⟩`
- * `String.Pos.IsValid "𝒫(A)" ⟨0⟩`
- * `¬ String.Pos.IsValid "𝒫(A)" ⟨1⟩`
- * `¬ String.Pos.IsValid "𝒫(A)" ⟨2⟩`
- * `¬ String.Pos.IsValid "𝒫(A)" ⟨3⟩`
- * `String.Pos.IsValid "𝒫(A)" ⟨4⟩`
+ * `String.Pos.Raw.IsValid "abc" ⟨0⟩`
+ * `String.Pos.Raw.IsValid "abc" ⟨1⟩`
+ * `String.Pos.Raw.IsValid "abc" ⟨3⟩`
+ * `¬ String.Pos.Raw.IsValid "abc" ⟨4⟩`
+ * `String.Pos.Raw.IsValid "𝒫(A)" ⟨0⟩`
+ * `¬ String.Pos.Raw.IsValid "𝒫(A)" ⟨1⟩`
+ * `¬ String.Pos.Raw.IsValid "𝒫(A)" ⟨2⟩`
+ * `¬ String.Pos.Raw.IsValid "𝒫(A)" ⟨3⟩`
+ * `String.Pos.Raw.IsValid "𝒫(A)" ⟨4⟩`
 -/
 structure Pos.Raw.IsValid (s : String) (off : String.Pos.Raw) : Prop where private mk ::
   le_rawEndPos : off ≤ s.rawEndPos
@@ -434,7 +434,7 @@ achieved by tracking the bounds by hand, the slice API is much more convenient.
 string. For this reason, it should be preferred over `Substring.Raw`.
 -/
 structure Slice where
-  /-- The underlying strings. -/
+  /-- The underlying string. -/
   str : String
   /-- The byte position of the start of the string slice. -/
   startInclusive : str.Pos

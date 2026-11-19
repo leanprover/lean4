@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+import Init.Data.String.Lemmas.Pattern.TakeDrop.Pred
 import Init.Grind
 public import Init.Data.String.TakeDrop
 public import Std.Http.Internal.Char
@@ -118,8 +119,23 @@ def unquoteHttpString? (s : String) : Option String :=
 Checks whether a string is a valid non-empty HTTP token.
 -/
 @[expose]
-def isToken (s : String) : Bool :=
+noncomputable def isToken (s : String) : Bool :=
   let s := s.toList
   ¬s.isEmpty ∧ s.all Char.tchar
+
+/--
+Runtime implementation of `isToken` that avoids materializing `toList`.
+-/
+def isTokenImpl (s : String) : Bool :=
+  !s.isEmpty && s.all Char.tchar
+
+/--
+Use `isTokenImpl` at run time while leaving the list-based version for proofs.
+-/
+@[csimp]
+theorem isToken_eq_isTokenImpl : isToken = isTokenImpl := by
+  funext s
+  rw [Bool.eq_iff_iff]
+  simp [isToken, isTokenImpl, String.all_bool_eq, List.isEmpty_iff]
 
 end Std.Http.Internal

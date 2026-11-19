@@ -317,6 +317,7 @@ private partial def elabChoiceAux (choiceStx : Syntax) (i : Nat) : CommandElabM 
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
     let openDecls ← elabOpenDecl decl
+      (reportDeprecated := fun idStx declName => liftTermElabM <| checkDeprecatedOpenedName idStx declName)
     modifyScope fun scope => { scope with openDecls := openDecls }
   | _ => throwUnsupportedSyntax
 
@@ -533,11 +534,35 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   -- update cached value as well
   modify ({ · with maxRecDepth := 0 })
 
+@[builtin_command_elab InternalSyntax.without_check_deprecated]
+def elabWithoutCheckDeprecated : CommandElab := fun stx =>
+  withoutCheckDeprecated <| elabCommand stx[1]
+
+/--
+Whether `cmd` is a declaration with a `@[deprecated]` attribute, possibly preceded by further
+`in` commands.
+-/
+private partial def isDeprecatedDeclSyntax (cmd : Syntax) : Bool :=
+  if cmd.isOfKind ``Parser.Command.in then
+    isDeprecatedDeclSyntax cmd[2]
+  else if cmd.isOfKind ``Parser.Command.declaration then
+    cmd[0][1].getOptional?.any fun attrs =>
+      attrs[1].getSepArgs.any (·[1].isOfKind ``Lean.deprecated)
+  else
+    false
+
 open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $(endLocalScopeSyntax 1):command $cmd₂ end)
+    withRef tk do
+      -- Like the body of a deprecated declaration, the commands in front of it may use deprecated
+      -- constants without a warning
+      let cmd₁ ← if isDeprecatedDeclSyntax cmd₂ then
+        `(without_check_deprecated $cmd₁:command)
+      else
+        pure cmd₁
+      `(section $cmd₁:command $(endLocalScopeSyntax 1):command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

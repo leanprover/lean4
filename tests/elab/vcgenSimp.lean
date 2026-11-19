@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 `vcgen` rewrites hypotheses, state arguments and verification conditions with its simp set: the
 `@[vcgen_simp]` theorems, the theorems of the `simp [...]` clause, and the evaluation of ground
@@ -164,6 +166,16 @@ example (n : Nat) : ⦃ fun _ => True ⦄ (pure (0 + n) : M Nat) ⦃ fun r _ => 
   vcgen
   simp
 
+/-! `vcgen` decides a `match` on a literal discriminant in a verification condition. -/
+
+example : ⦃ fun _ => True ⦄ (pure "done" : M String)
+    ⦃ fun r _ => match r with | "start" => False | "done" => True | _ => False ⦄ := by
+  vcgen
+
+example : ⦃ fun _ => True ⦄ (pure 2 : M Nat)
+    ⦃ fun r _ => (match r with | 1 => "a" | 2 => "b" | _ => "c") = "b" ⦄ := by
+  vcgen
+
 /-! Errors. -/
 
 /-- error: `vcgen simp [...]` conflicts with the config option `simp := false` -/
@@ -175,3 +187,14 @@ example : ⦃ fun _ => True ⦄ (pure 1 : M Nat) ⦃ fun r _ => r = 1 ⦄ := by
 #guard_msgs in
 example : ⦃ fun _ => True ⦄ (pure 1 : M Nat) ⦃ fun r _ => r = 1 ⦄ := by
   vcgen simp [-Nat.add_zero]
+
+/-! `simpMaxSteps` bounds each `Sym.simp` run of `vcgen`, as `maxSteps` of a `register_sym_simp`
+variant. Ground evaluation of `"x" = "x" ∨ "x" = "y"` takes more than two steps. -/
+
+/-- error: `simp` failed: maximum number of steps exceeded -/
+#guard_msgs in
+example : ⦃ fun _ => True ⦄ (pure "x" : M String) ⦃ fun r _ => r = "x" ∨ r = "y" ⦄ := by
+  vcgen (simpMaxSteps := 2)
+
+example : ⦃ fun _ => True ⦄ (pure "x" : M String) ⦃ fun r _ => r = "x" ∨ r = "y" ⦄ := by
+  vcgen (simpMaxSteps := 1000)

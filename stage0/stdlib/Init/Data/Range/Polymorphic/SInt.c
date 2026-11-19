@@ -1102,6 +1102,7 @@ _start:
 lean_object* v___x_328_; uint32_t v___x_329_; 
 v___x_328_ = lean_unsigned_to_nat(2147483648u);
 v___x_329_ = lean_int32_of_nat(v___x_328_);
+lean_dec(v___x_328_);
 return v___x_329_;
 }
 }
@@ -1376,7 +1377,7 @@ static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_
 _start:
 {
 lean_object* v___x_427_; 
-v___x_427_ = lean_cstr_to_nat("9223372036854775808");
+v___x_427_ = lean_uint64_to_nat(9223372036854775808ULL);
 return v___x_427_;
 }
 }
@@ -1410,8 +1411,9 @@ static uint64_t _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_maxV
 _start:
 {
 lean_object* v___x_433_; uint64_t v___x_434_; 
-v___x_433_ = lean_cstr_to_nat("9223372036854775807");
+v___x_433_ = lean_uint64_to_nat(9223372036854775807ULL);
 v___x_434_ = lean_int64_of_nat(v___x_433_);
+lean_dec(v___x_433_);
 return v___x_434_;
 }
 }

@@ -1619,8 +1619,8 @@ return v_uri_419_;
 }
 else
 {
-lean_dec(v_tail_426_);
 lean_dec_ref_known(v___x_425_, 2);
+lean_dec(v_tail_426_);
 return v_uri_419_;
 }
 }

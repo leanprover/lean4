@@ -1,6 +1,8 @@
 import Std.WP
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 Benchmark for `vcgen`/`grind` over the Verina verification corpus. Each program states its own
 contract: the `requires`/`ensures` clauses of the definition give the Hoare triple `f.spec`, and
@@ -134,7 +136,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return (mx - mn)
 where finally
-  | spec => case vc2 => sorry
+  | spec => case vc6 => sorry
 
 end E_differenceMinMax
 

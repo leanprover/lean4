@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Expr
 public import Init.Data.Rat
+import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta.Sym
 /-!
@@ -40,19 +41,23 @@ structure BitVecValue where
   n : Nat
   val : BitVec n
 
+/-- Returns `none` if the width is not safe to evaluate (see `isSafeBitVecWidth`). -/
 def getBitVecValue? (e : Expr) : OptionT Id BitVecValue :=
   match_expr e with
   | BitVec.ofNat nExpr vExpr => do
     let n ← getNatValue? nExpr
+    guard (isSafeBitVecWidth n)
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
   | BitVec.ofNatLT nExpr vExpr _ => do
     let n ← getNatValue? nExpr
+    guard (isSafeBitVecWidth n)
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
   | OfNat.ofNat α v _ => do
     let_expr BitVec n := α | failure
     let n ← getNatValue? n
+    guard (isSafeBitVecWidth n)
     let .lit (.natVal v) := v | failure
     return ⟨n, BitVec.ofNat n v⟩
   | _ => failure

@@ -24,8 +24,15 @@ inductive Literal where
   | strVal (val : String)
   deriving Inhabited, BEq, Repr
 
+/--
+Hash of `n` that depends on all of its bits. It is `n.toUInt64` if `n < 2^64`.
+In contrast, `hash n` is `n % 2^64`, so for example all multiples of `2^64` have the same `hash`.
+-/
+@[extern "lean_nat_hash"]
+opaque Literal.natHash (n : @& Nat) : UInt64
+
 protected def Literal.hash : Literal → UInt64
-  | .natVal v => hash v
+  | .natVal v => Literal.natHash v
   | .strVal v => hash v
 
 instance : Hashable Literal := ⟨Literal.hash⟩

@@ -107,9 +107,9 @@ public def simpCond : Simproc := fun e => do
     match (← simp c) with
     | .rfl _ cd =>
       if isSameExpr c (← getBoolTrueExpr) then
-        return .step a (mkApp3 (mkConst ``cond_true f.constLevels!) α a b) (contextDependent := cd)
+        return .step a (mkApp3 (mkConst ``Bool.cond_true f.constLevels!) α a b) (contextDependent := cd)
       else if isSameExpr c (← getBoolFalseExpr) then
-        return .step b (mkApp3 (mkConst ``cond_false f.constLevels!) α a b) (contextDependent := cd)
+        return .step b (mkApp3 (mkConst ``Bool.cond_false f.constLevels!) α a b) (contextDependent := cd)
       else
         return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>

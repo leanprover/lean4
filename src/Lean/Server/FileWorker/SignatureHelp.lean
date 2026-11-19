@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.InfoTree.Util
 public import Lean.Data.Lsp
 public import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Impl
 import Lean.PrettyPrinter.Delaborator
 
 public section

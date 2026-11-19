@@ -18,13 +18,13 @@ public:
     explicit nat(int v):object_ref(usize_to_nat(v < 0 ? static_cast<usize>(0) : static_cast<usize>(v))) {}
     explicit nat(unsigned v):object_ref(mk_nat_obj(v)) {}
     explicit nat(unsigned long v):object_ref(usize_to_nat(v)) {}
+    explicit nat(unsigned long long v):object_ref(lean_uint64_to_nat(v)) {}
     explicit nat(mpz const & v):object_ref(mk_nat_obj(v)) {}
     explicit nat(char const * v):object_ref(box(0)) {
         mpz m(v);
         if (m > 0)
             *this = nat(mk_nat_obj(m));
     }
-    static nat of_size_t(size_t v) { return nat(lean_usize_to_nat(v)); }
 
     nat(nat const & other):object_ref(other) {}
     nat(nat && other) noexcept:object_ref(std::move(other)) {}
@@ -37,7 +37,7 @@ public:
     mpz const & get_big_value() const { lean_assert(!is_small()); return mpz_value(raw()); }
     mpz to_mpz() const { return is_small() ? mpz(mpz::of_size_t(unbox(raw()))) : mpz_value(raw()); }
     std::string to_std_string() const { return to_mpz().to_string(); }
-    static unsigned hash(object * o) { return is_scalar(o) ? unbox(o) : mpz_value(o).hash(); }
+    static unsigned hash(object * o) { return is_scalar(o) ? static_cast<unsigned>(unbox(o)) : mpz_value(o).hash(); }
     unsigned hash() const { return hash(raw()); }
     friend bool operator==(nat const & a, nat const & b) { return nat_eq(a.raw(), b.raw()); }
     friend bool operator!=(nat const & a, nat const & b) { return !(a == b); }
@@ -57,6 +57,12 @@ public:
     friend bool operator<(nat const & a,  unsigned long b)    { return a < nat(b); }
     friend bool operator>=(nat const & a, unsigned long b)    { return a >= nat(b); }
     friend bool operator>(nat const & a,  unsigned long b)    { return a > nat(b); }
+    friend bool operator==(nat const & a, unsigned long long b) { return a == nat(b); }
+    friend bool operator!=(nat const & a, unsigned long long b) { return !(a == b); }
+    friend bool operator<=(nat const & a, unsigned long long b) { return a <= nat(b); }
+    friend bool operator<(nat const & a,  unsigned long long b) { return a < nat(b); }
+    friend bool operator>=(nat const & a, unsigned long long b) { return a >= nat(b); }
+    friend bool operator>(nat const & a,  unsigned long long b) { return a > nat(b); }
     friend nat operator+(nat const & a, nat const & b)   { return nat(nat_add(a.raw(), b.raw())); }
     friend nat operator-(nat const & a, nat const & b)   { return nat(nat_sub(a.raw(), b.raw())); }
     friend nat operator*(nat const & a, nat const & b)   { return nat(nat_mul(a.raw(), b.raw())); }

@@ -50,40 +50,11 @@ def empty : ChunkedBuffer :=
   { data := #[], size := 0 }
 
 /--
-Append a single `ByteArray` to the `ChunkedBuffer`.
+Append a single `ByteArray` to the `ChunkedBuffer`. An empty `ByteArray` is not kept as a piece.
 -/
 @[inline]
 def push (c : ChunkedBuffer) (b : ByteArray) : ChunkedBuffer :=
-  { data := c.data.push b, size := c.size + b.size }
-
-/--
-Writes a `ByteArray` to the `ChunkedBuffer`.
--/
-@[inline]
-def write (buffer : ChunkedBuffer) (data : ByteArray) : ChunkedBuffer :=
-  buffer.push data
-
-/--
-Writes a `ChunkedBuffer` to the `ChunkedBuffer`.
--/
-@[inline]
-def append (buffer : ChunkedBuffer) (data : ChunkedBuffer) : ChunkedBuffer :=
-  { data := buffer.data ++ data.data, size := buffer.size + data.size }
-
-/--
-Writes a `Char` to the `ChunkedBuffer`. Only the low byte is written (`Char.toUInt8`),
-so this is only correct for ASCII characters.
--/
-@[inline]
-def writeChar (buffer : ChunkedBuffer) (data : Char) : ChunkedBuffer :=
-  buffer.push (ByteArray.mk #[data.toUInt8])
-
-/--
-Writes a `String` to the `ChunkedBuffer`.
--/
-@[inline]
-def writeString (buffer : ChunkedBuffer) (data : String) : ChunkedBuffer :=
-  buffer.push data.toUTF8
+  if b.isEmpty then c else { data := c.data.push b, size := c.size + b.size }
 
 /--
 Turn the combined structure into a single contiguous ByteArray.
@@ -96,20 +67,6 @@ def toByteArray (cb : ChunkedBuffer) : ByteArray :=
     cb.data.foldl (· ++ ·) (.emptyWithCapacity cb.size)
 
 /--
-Build from a ByteArray directly.
--/
-@[inline]
-def ofByteArray (bs : ByteArray) : ChunkedBuffer :=
-  { data := #[bs], size := bs.size }
-
-/--
-Build from an array of ByteArrays directly.
--/
-@[inline]
-def ofArray (bs : Array ByteArray) : ChunkedBuffer :=
-  { data := bs, size := bs.foldl (· + ·.size) 0 }
-
-/--
 Checks whether the buffer is empty.
 -/
 @[inline]
@@ -120,11 +77,5 @@ instance : Inhabited ChunkedBuffer := ⟨empty⟩
 
 instance : EmptyCollection ChunkedBuffer where
   emptyCollection := empty
-
-instance : Coe ByteArray ChunkedBuffer where
-  coe := ofByteArray
-
-instance : Coe (Array ByteArray) ChunkedBuffer where
-  coe := ofArray
 
 end Std.Http.Internal.ChunkedBuffer

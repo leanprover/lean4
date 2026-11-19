@@ -80,9 +80,7 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
 def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
   let some methods := (← read).simpMethods | return .noProgress
   let target ← goal.getType
-  let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} (← get).simpState
-  modify fun s => { s with simpState := simpState' }
-  result.toSimpGoalResult goal
+  (← runSimp methods (Sym.Simp.simp target)).toSimpGoalResult goal
 
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
@@ -120,10 +118,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   while let some s := worklist.back? do
     worklist := worklist.pop
     if ← s.goal.mvarId.isAssigned then continue
-    if let some (jp, jumps) := (← get).pendingJoinPoints[s.goal.mvarId]? then
-      modify fun st => { st with pendingJoinPoints := st.pendingJoinPoints.erase s.goal.mvarId }
-      finalizeJoinPoint jp jumps
-    let goal ← processHypotheses s.goal
+    let goal ← processHypotheses { s.goal with mvarId := ← finalizeJoinPoint s.goal.mvarId }
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
     | .stop reason =>

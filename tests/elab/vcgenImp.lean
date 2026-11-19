@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Std.WP
 import Std.WP.Triple.SpecLemmas
 
+set_option sym.debug true
+
 /-!
 # `vcgen` on a non-monadic program type
 
@@ -148,10 +150,8 @@ theorem wpCmd_mono {Φ : Env} {c : Cmd} {Q Q' : State → Prop} (hQ : ∀ s, Q s
 abbrev Assn := Env → State → Prop
 
 instance : WP Cmd Unit Assn EStack⟨⟩ where
-  trans c := ⟨fun Q _epost Φ s => wpCmd Φ c (Q () Φ) s⟩
-  trans_monotone c := by
-    intro Q Q' e e' _he hQ Φ s h
-    exact wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
+  trans c := PredTrans.mk (fun Q _epost Φ s => wpCmd Φ c (Q () Φ) s)
+    fun hQ _ Φ s h => wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
 
 variable {Q : Unit → Assn} {eposts : EStack⟨⟩}
 
@@ -313,11 +313,10 @@ example : ⦃ fun _ _ => True ⦄ ⟦ x := 5; y := x + x ⟧ ⦃ fun _ _ s => s 
   vcgen
   simp [State.update]
 
-/-- A conditional: `vcgen` applies `Spec.ite`, leaving the guarded weakest precondition as a VC. -/
+/-- A conditional: `vcgen` applies `Spec.ite`, splits and leaves one VC per branch. -/
 example : ⦃ fun _ _ => True ⦄ ⟦ if x then y := 1 else y := 0 fi ⟧
     ⦃ fun _ _ s => s "y" = if s "x" ≠ 0 then 1 else 0 ⦄ := by
-  vcgen
-  simp only [wp_assign_eq, State.update, Expr.eval]; grind
+  vcgen with finish [State.update, Expr.eval]
 
 /-- A loop preserved vacuously: the guard fails immediately. -/
 example : ⦃ fun _ s => s "x" = 0 ⦄ ⟦ while x do x := x + 1 od ⟧ ⦃ fun _ _ s => s "x" = 0 ⦄ := by

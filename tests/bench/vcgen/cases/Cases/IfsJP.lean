@@ -18,6 +18,15 @@ def step (v : Nat) : StateM Nat Unit := do
   if x > 0 then x := x + v else x := x + (v + 1)
   if x > 1 then x := x + v else x := x + (v + 1)
   if x > 2 then x := x + v else x := x + (v + 1)
+  if x > 3 then x := x + v else x := x + (v + 1)
+  if x > 4 then x := x + v else x := x + (v + 1)
+  if x > 5 then x := x + v else x := x + (v + 1)
+  if x > 6 then x := x + v else x := x + (v + 1)
+  if x > 7 then x := x + v else x := x + (v + 1)
+  if x > 8 then x := x + v else x := x + (v + 1)
+  if x > 9 then x := x + v else x := x + (v + 1)
+  if x > 10 then x := x + v else x := x + (v + 1)
+  if x > 11 then x := x + v else x := x + (v + 1)
   set x
 
 def loop (n : Nat) : StateM Nat Unit := do

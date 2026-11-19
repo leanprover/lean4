@@ -1,6 +1,6 @@
 namespace Ex1
 
-inductive T :=
+inductive T where
   | int : Int -> T
   | tuple : List T -> T
 
@@ -44,7 +44,7 @@ end Ex1
 
 namespace Ex2
 
-inductive T :=
+inductive T where
   | int : Int -> T
   | tuple : List T -> T
 

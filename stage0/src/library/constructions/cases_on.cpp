@@ -51,10 +51,10 @@ declaration mk_cases_on(environment const & env, name const & n) {
     constant_info rec_info = env.get(rec_name);
     lean_assert(rec_info.is_recursor());
     recursor_val rec_val   = rec_info.to_recursor_val();
-    unsigned num_indices   = rec_val.get_nindices();
-    unsigned num_minors    = rec_val.get_nminors();
-    unsigned num_motives   = rec_val.get_nmotives();
-    unsigned num_params    = rec_val.get_nparams();
+    size_t num_indices   = rec_val.get_nindices();
+    size_t num_minors    = rec_val.get_nminors();
+    size_t num_motives   = rec_val.get_nmotives();
+    size_t num_params    = rec_val.get_nparams();
     buffer<name> ind_names;
     to_buffer(rec_val.get_all(), ind_names);
     /* Populate `rec_fvars` with a free variable for each recursor argument */
@@ -93,16 +93,16 @@ declaration mk_cases_on(environment const & env, name const & n) {
     buffer<expr> rec_args; // arguments for rec used to define cases_on
 
     /* Add type parameters `As` */
-    for (unsigned i = 0; i < num_params; i++) {
+    for (size_t i = 0; i < num_params; i++) {
         cases_on_params.push_back(rec_fvars[i]);
         rec_args.push_back(rec_fvars[i]);
     }
 
     /* Add C[i] */
     buffer<name> C_ids; // unique ids of all motives (aka type formers)
-    unsigned i = num_params;
+    size_t i = num_params;
     name C_main_id; // unique id of the main type former
-    for (unsigned j = 0; j < num_motives; j++) {
+    for (size_t j = 0; j < num_motives; j++) {
         C_ids.push_back(fvar_name(rec_fvars[i]));
         if (j < ind_names.size() && ind_names[j] == n) {
             cases_on_params.push_back(rec_fvars[i]);
@@ -115,7 +115,7 @@ declaration mk_cases_on(environment const & env, name const & n) {
     }
 
     /* Add indices and major-premise */
-    for (unsigned i = 0; i < num_indices + 1; i++)
+    for (size_t i = 0; i < num_indices + 1; i++)
         cases_on_params.push_back(rec_fvars[num_params + num_motives + num_minors + i]);
 
     /* Add minor premises */
@@ -155,13 +155,13 @@ declaration mk_cases_on(environment const & env, name const & n) {
             rec_args.push_back(lctx.mk_lambda(minor_params, star));
         }
     };
-    unsigned minor_idx = 0;
+    size_t minor_idx = 0;
     for (name const & J_name : ind_names) {
         constant_info J_info = env.get(J_name);
         lean_assert(J_info.is_inductive());
         inductive_val J_val  = J_info.to_inductive_val();
-        unsigned num_cnstrs = length(J_val.get_cnstrs());
-        for (unsigned i = 0; i < num_cnstrs; i++) {
+        size_t num_cnstrs = length(J_val.get_cnstrs());
+        for (size_t i = 0; i < num_cnstrs; i++) {
             expr minor = rec_fvars[num_params + num_motives + minor_idx];
             process_minor(minor, J_name == n);
             minor_idx++;
@@ -173,7 +173,7 @@ declaration mk_cases_on(environment const & env, name const & n) {
     }
 
     /* Add indices and major-premise to rec_args */
-    for (unsigned i = 0; i < num_indices+1; i++)
+    for (size_t i = 0; i < num_indices+1; i++)
         rec_args.push_back(rec_fvars[num_params + num_motives + num_minors + i]);
 
     expr cases_on_type  = lctx.mk_pi(cases_on_params, rec_type);

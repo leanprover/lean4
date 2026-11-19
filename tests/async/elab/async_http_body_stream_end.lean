@@ -11,7 +11,8 @@ Tests how a `Body.Stream` ends:
   returning the bytes read so far as if they were the whole body;
 - once the stream has ended, a cancelled context does not change what `readAll` returns: the error of
   `closeWithError`, or every byte of a stream that ended cleanly. The flaky row of
-  `async_http_request_body_end.lean` hit the first case.
+  `async_http_request_body_end.lean` hit the first case;
+- `drain` in `ContextAsync` throws when the context is cancelled before the body ends, like `readAll`.
 -/
 
 def expect (cond : Bool) (msg : String) : IO Unit :=
@@ -110,3 +111,17 @@ def readCancelled (s : Body.Stream) : Async (Except String String) := do
     | .ok "abc" => pure ()
     | .ok body => throw (IO.userError s!"run {i}: readAll of a stream that ended cleanly returned {body.quote}")
     | .error e => throw (IO.userError s!"run {i}: readAll of a stream that ended cleanly threw {e}")
+
+-- `drain` reports a cancelled read the same way, instead of returning as if the body ended.
+#eval show IO Unit from Async.block do
+  let ctx ← CancellationContext.new
+  ctx.cancel .deadline
+  let s ← Body.mkStream
+  let read : ContextAsync Bool := do
+    try
+      (s.drain : ContextAsync Unit)
+      return true
+    catch _ =>
+      return false
+  if ← read ctx then
+    throw (IO.userError "drain of an open stream under a cancelled context returned normally")

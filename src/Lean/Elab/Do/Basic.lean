@@ -552,7 +552,7 @@ private def checkScoped (lctx : LocalContext) (e : Expr) : MetaM Unit := do
   throwError "Bug in a `do` elaborator. The free variable `{x}` is not in scope in{indentExpr (enclosingClosedTerm x e)}"
 
 /-- Runs `k` and reports whether it declared a `let rec`. -/
-private def withLetRecDecls (k : DoElabM α) : DoElabM (α × Bool) := do
+@[inline] private def withLetRecDecls (k : DoElabM α) : DoElabM (α × Bool) := do
   let numLetRecs := (← getThe Term.State).letRecsToLift.length
   let a ← k
   return (a, (← getThe Term.State).letRecsToLift.length != numLetRecs)

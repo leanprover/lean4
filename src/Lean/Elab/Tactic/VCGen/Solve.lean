@@ -458,21 +458,14 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
 
 /-- Strategy 6: substitute or introduce a `let` or `have` at the head of the right-hand side of
 `pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. The
-value of a `have` is simplified first. A join point with a `wp` application as its body is
-registered. -/
-def rhsLet? (scope : Scope) (goal : MVarId) (rhs : Expr) :
-    VCGenM (Option (Scope × List MVarId)) := do
+value of a `have` is simplified first. -/
+def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := rhs | return none
   let (goal, val) ← simpHaveValue goal name type (← reduceHead val) body nondep
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    return some (scope, [← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val])])
-  let (jp, goal) ← introLet goal name type val body nondep
-  let_expr PartialOrder.rel _ _ _ rhs := (← goal.getType) | return some (scope, [goal])
-  if let some info := isWPApp? rhs then
-    if let some r ← registerJoinPoint scope goal jp val info then
-      return some r
-  return some (scope, [goal])
+    return some (← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val]))
+  return some (← introLet goal name type val body nondep).2
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -763,7 +756,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 3: shape the `rhs` (decompose a lattice connective, an `ite`/`dite`/`cond`/match or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some (scope, gs) ← rhsLet? scope goal rhs then return .goals scope gs
+  if let some g ← rhsLet? goal rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← assertionMatch? scope goal target (inPre := false) then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs

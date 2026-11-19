@@ -435,9 +435,10 @@ proves once. `Spec.seq_ite` shares the code after an `if`. -/
 
 @[spec default+10] theorem Spec.seq_ite (cond : Expr) (c₁ c₂ c₃ : Cmd) :
     Triple (Cmd.seq (Cmd.ite cond c₁ c₂) c₃)
-      (fun Φ s => have __vcgen_jp := fun (_ : Unit) => c₃
-        Std.WP.wp (Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ()))) Q eposts
-          Φ s)
+      (Std.WP.wp
+        (have __vcgen_jp := fun (_ : Unit) => c₃
+         Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ())))
+        Q eposts)
       Q eposts :=
   triple_of_wp fun _ _ => by simp only [wp_seq_eq, wp_ite_eq]
 

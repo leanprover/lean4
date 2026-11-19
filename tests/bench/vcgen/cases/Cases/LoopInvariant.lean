@@ -20,12 +20,6 @@ structure M where
   r8 : BitVec 64
   lt : Bool
 
-theorem M.rdi_mk {a b c d : BitVec 64} {e : Bool} : (M.mk a b c d e).rdi = a := rfl
-theorem M.rdx_mk {a b c d : BitVec 64} {e : Bool} : (M.mk a b c d e).rdx = b := rfl
-theorem M.rcx_mk {a b c d : BitVec 64} {e : Bool} : (M.mk a b c d e).rcx = c := rfl
-theorem M.r8_mk {a b c d : BitVec 64} {e : Bool} : (M.mk a b c d e).r8 = d := rfl
-theorem M.lt_mk {a b c d : BitVec 64} {e : Bool} : (M.mk a b c d e).lt = e := rfl
-
 inductive Lbl where
   | loop
   | lvl (m : Nat)

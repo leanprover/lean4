@@ -68,9 +68,7 @@ set_option maxHeartbeats 10000000
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
     `(tactic| vcgen +jp) `(tactic| sorry) [4]
   runBenchUsingTactic ``LoopInvariant.Goal [``LoopInvariant.prog, ``LoopInvariant.exits]
-    `(tactic| vcgen simp [LoopInvariant.M.rdi_mk, LoopInvariant.M.rdx_mk,
-      LoopInvariant.M.rcx_mk, LoopInvariant.M.r8_mk, LoopInvariant.M.lt_mk]
-      with finish -abstractProof) `(tactic| fail) [2]
+    `(tactic| vcgen with finish -abstractProof) `(tactic| fail) [2]
 
 -- Verify `simp [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--

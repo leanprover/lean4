@@ -82,6 +82,10 @@ instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
 theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [Assertion Pred]
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜f = a⌝ := rfl
 
+theorem NondetFun.evalsTo_pure' {Pred : Type u} {α : Type v} [Assertion Pred]
+    (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜a = f⌝ :=
+  congrArg (⌜·⌝) (propext eq_comm)
+
 /-- Pointwise characterization of `EvalsTo` on a function lattice. -/
 theorem NondetFun.evalsTo_apply {σ : Type s} {Pred : Type u} {Fun : Type v}
     {α : Type w} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :

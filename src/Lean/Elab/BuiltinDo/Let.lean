@@ -165,7 +165,7 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
       Term.addLocalVarInfo id x
       match config.eq? with
       | none =>
-        let body ← elabWithReassignments letOrReassign vars dec.continueWithUnit
+        let body ← instantiateMVars (← elabWithReassignments letOrReassign vars dec.continueWithUnit)
         if config.zeta then
           pure <| (← body.abstractM #[x]).instantiate1 val
         else
@@ -174,7 +174,7 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
         let hTy ← mkEq x val
         withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
           Term.addLocalVarInfo h h'
-          let body ← elabWithReassignments letOrReassign vars dec.continueWithUnit
+          let body ← instantiateMVars (← elabWithReassignments letOrReassign vars dec.continueWithUnit)
           if config.zeta then
             pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
           else if nondep then

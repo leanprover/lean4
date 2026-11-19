@@ -507,7 +507,7 @@ def DoElemCont.ensureHasTypeAt (dec : DoElemCont) (ref : Syntax) (elementType : 
     resultType := elementType
     k := do
       mapLetDecl dec.resultName dec.resultType (← mkSorry dec.resultType true)
-          (nondep := true) (kind := .implDetail) fun _ => dec.k
+          (nondep := true) (kind := .implDetail) fun _ => do instantiateMVars (← dec.k)
     kind := dec.kind
   }
 
@@ -565,11 +565,9 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
-          return ← body.replaceFVarsM #[xFVar] #[eRes]
+          return ← (← instantiateMVars body).replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
-    -- `body` reaches the rest of the block through assigned metavariables. `instantiateMVars` stores
-    -- their instantiated values, so `mkLambdaFVars` traverses the rest of the block only once.
     let body ← instantiateMVars body
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
@@ -580,8 +578,8 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 -/
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let dec ← dec.ensureUnit
-  mapLetDeclZeta dec.resultName (← mkPUnit) (← mkPUnitUnit) (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
-    dec.k
+  mapLetDeclZeta dec.resultName (← mkPUnit) (← mkPUnitUnit) (nondep := true) (kind := .ofBinderName dec.resultName) fun _ => do
+    instantiateMVars (← dec.k)
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
 def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
@@ -660,18 +658,18 @@ where
   go vars tupleVar tupleTy letFVars k := do
     let tuple := mkFVar tupleVar
     match vars with
-    | []  => mkLetFVars letFVars (← k)
+    | []  => mkLetFVars letFVars (← instantiateMVars (← k))
     | [x] =>
       withLetDecl x tupleTy tuple fun xf => do
         registerMutVarAlias x
-        mkLetFVars (letFVars.push xf) (← k)
+        mkLetFVars (letFVars.push xf) (← instantiateMVars (← k))
     | [x, y] =>
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
       withLetDecl x fstTy fst fun xf =>
       withLetDecl y sndTy snd fun yf => do
         registerMutVarAlias x
         registerMutVarAlias y
-        mkLetFVars (letFVars.push xf |>.push yf) (← k)
+        mkLetFVars (letFVars.push xf |>.push yf) (← instantiateMVars (← k))
     | x :: xs => do
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
       withLetDecl x fstTy fst fun xf => do
@@ -759,7 +757,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
     let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
-    mkLambdaFVars (#[r] ++ muts) e
+    mkLambdaFVars (#[r] ++ muts) (← instantiateMVars e)
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     joinRhsMVar.mvarId!.withContext do
       throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
@@ -768,6 +766,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.
     doElabToSyntax "join point RHS" elabBody (Term.postponeElabTerm · mγ)
+  let body ← instantiateMVars body
 
   if callerInfo.numRegularExits > 1 then
     mkLetFVars (generalizeNondepLet := false) #[jp] body

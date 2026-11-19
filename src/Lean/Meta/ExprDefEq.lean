@@ -615,27 +615,30 @@ Returns `true` if assignments to `mvarId` are checked at `.instances` transparen
 on the type of `mvarId` (a class, or a function type with a class codomain), on its kind, and on
 whether instance search is running. During instance search, every metavariable of class type counts
 under `backward.isDefEq.respectTransparency.instanceSearchTypes`. Outside of it, `.synthetic` ones
-count under `backward.isDefEq.respectTransparency.instances`.
+count under `backward.isDefEq.respectTransparency.instances`. Classes exempted by
+`isLaxInstanceDefeqClass` count only during instance search.
 
 Assignments to these are checked at exactly `.instances` transparency, so an ambient
 `.default`/`.all` does not let semireducible definitions be unfolded while checking the type of an
 instance assignment. Natural metavariables of class type, such as those created for `{..}` binders,
 count only under `backward.isDefEq.respectTransparency.instances.natural`, and metavariables of every
-kind under `backward.isDefEq.respectTransparency.instances.allMVars`. Classes exempted by
-`isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional) never count.
+kind under `backward.isDefEq.respectTransparency.instances.allMVars`. Outside of instance search,
+classes exempted by `isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional) never
+count.
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
   let flags ← getOptionFlags
-  if (← read).inTypeClassResolution then
-    unless flags.respectTransparencyInstanceSearchTypes do return false
-  else
-    unless flags.respectTransparencyInstances do return false
-    unless flags.respectTransparencyInstancesAllMVars do
-      match (← mvarId.getKind) with
-      | .synthetic => pure ()
-      | .natural => unless flags.respectTransparencyInstancesNatural do return false
-      | .syntheticOpaque => return false
   let some className ← isClass? (← mvarId.getDecl).type | return false
+  if (← read).inTypeClassResolution then
+    -- No exemption for lax classes here: an exempt metavariable would get the `.implicit` check of
+    -- `checkTypesAndAssign` without the synthesis fallback, which is stricter, not laxer.
+    return flags.respectTransparencyInstanceSearchTypes
+  unless flags.respectTransparencyInstances do return false
+  unless flags.respectTransparencyInstancesAllMVars do
+    match (← mvarId.getKind) with
+    | .synthetic => pure ()
+    | .natural => unless flags.respectTransparencyInstancesNatural do return false
+    | .syntheticOpaque => return false
   return !isLaxInstanceDefeqClass (← getEnv) className
 
 /--

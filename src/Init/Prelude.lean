@@ -114,7 +114,7 @@ export Bool (false true)
 
 /-- Compute whether `x` is a tagged pointer or not. -/
 @[extern "lean_is_scalar"]
-unsafe axiom isScalarObj {α : Type u} (x : α) : Bool
+unsafe axiom isScalarObj {α : Type u} (x : @& α) : Bool
 
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`

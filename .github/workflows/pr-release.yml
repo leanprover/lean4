@@ -183,6 +183,22 @@ jobs:
         with:
           name: ${{ steps.app-token.outputs.app-slug }}[bot]
 
+      - name: Checkout upstream repo
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/checkout@v6
+        with:
+          path: upstream
+          filter: tree:0
+          fetch-depth: 0
+          sparse-checkout: .github
+
+      # These are required so that adaptation PRs may be based on them and not
+      # just the `downstream-green` branch.
+      - name: Fetch nightly tags
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        working-directory: upstream
+        run: git fetch --no-tags https://github.com/leanprover/lean4-nightly.git '+refs/tags/nightly-*:refs/tags/nightly-*'
+
       - name: Checkout downstream repo
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: actions/checkout@v6
@@ -194,6 +210,8 @@ jobs:
           filter: tree:0
           fetch-depth: 0
 
+      # If you update this, you'll probably also want to update
+      # `adaptation-pr.yml`.
       - name: Create adaptation PR
         id: create-adaptation-pr
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -201,10 +219,17 @@ jobs:
         with:
           app-token: ${{ steps.app-token.outputs.token }}
           app-slug: ${{ steps.app-token.outputs.app-slug }}
+          upstream-clone: upstream
           upstream-pr: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           upstream-ci-green: true # We just created the toolchain release
           upstream-label: downstream
           upstream-label-force: downstream-force
+          ref-mapping: |
+            refs/remotes/origin/downstream-green -> refs/remotes/origin/green
+            refs/tags/(nightly-\d{4}-\d{2}-\d{2}) -> refs/remotes/origin/green-$1
+          ref-mapping-desc: >
+            branch `downstream-green` or a `nightly-YYYY-MM-DD` tag with green
+            downstream CI
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
           override-toolchain: leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}

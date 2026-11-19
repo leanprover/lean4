@@ -284,7 +284,8 @@ improve the errors, for example by passing down a flag whether we expect the sam
 occurrences of `newIH`), or whether we are in “supple mode”, and catch it earlier if the rewriting
 fails.
 -/
-partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := withoutExporting do
+partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr)
+    (inAppFn := false) : M Expr := withoutExporting do
   unless e.containsFVar oldIH do
     return e
   withTraceNode `Meta.FunInd (fun _ => pure m!"foldAndCollect ({mkFVar oldIH} → {mkFVar newIH})::{indentExpr e}") do
@@ -357,7 +358,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
 
     match e with
     | .app e1 e2 =>
-      pure <|.app (← foldAndCollect oldIH newIH isRecCall e1) (← foldAndCollect oldIH newIH isRecCall e2)
+      pure <|.app (← foldAndCollect oldIH newIH isRecCall e1 (inAppFn := true))
+        (← foldAndCollect oldIH newIH isRecCall e2)
 
     | .lam n t body bi =>
       let t' ← foldAndCollect oldIH newIH isRecCall t
@@ -382,7 +384,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           mkLetFVars (generalizeNondepLet := false) #[x] b'
 
     | .mdata m b =>
-      pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
+      pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b inAppFn)
 
     -- These projections can be type changing (to And), so re-infer their type arguments
     | .proj ``PProd 0 e => mkPProdFstM (← foldAndCollect oldIH newIH isRecCall e)
@@ -409,6 +411,17 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
   if let .some call := isRecCall eType then
     M.tell (← mkExpectedTypeHint e' eType)
     return call
+
+  -- A partially applied recursive call, e.g. `have g := f n; …` for a binary `f` defined by
+  -- structural recursion. (With well-founded recursion, an under-applied `newIH` still awaits
+  -- the termination proof, and is not a recursive call yet.)
+  if !inAppFn && eType.isForall && e'.containsFVar newIH && !e'.getAppFn.isFVarOf newIH then
+    let call? ← forallTelescopeReducing eType fun xs body => do
+      let some call := isRecCall (← whnf body) | return none
+      return some (← mkLambdaFVars xs call).eta
+    if let some call := call? then
+      M.tell (← mkExpectedTypeHint e' eType)
+      return call
 
   return e'
 

@@ -135,9 +135,9 @@ verification conditions for the generalization.
 
 ### General idea
 
-Consider the spec theorem `MonadicWP.bind_le_wp_bind`:
+Consider the spec theorem `MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind`:
 ```
-MonadicWP.bind_le_wp_bind :
+MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind :
   wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
 ```
 This theorem is already in WP-form, so `post` and `eposts` are schematic. However, its precondition
@@ -147,7 +147,7 @@ prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EP
   (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post eposts) eposts),
   pre ⊑ wp (x >>= f) post eposts
 ```
-The proof term is constructed with `PartialOrder.rel_trans hpre MonadicWP.bind_le_wp_bind`.
+The proof term is constructed with `PartialOrder.rel_trans hpre MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind`.
 
 #### Postcondition VCs
 
@@ -209,7 +209,7 @@ it for the particular predicate type, exception postcondition type and `MonadicW
 `tryMkBackwardRuleFromSpec` does that by instantiating the spec theorem and checking that its
 `Pred` and `MonadicWP` arguments match the ones from the use site.
 
-For `StateM Nat` and one excess state arg `s`, the type produced for `MonadicWP.bind_le_wp_bind` becomes
+For `StateM Nat` and one excess state arg `s`, the type produced for `MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   (f : α → StateT Nat Id β) (post : β → Nat → Prop) (eposts : Unit) (s : Nat),
@@ -322,8 +322,8 @@ The schematic `Q`/`E` make the postcondition and exception-postcondition VCs col
 `mkSpecBackwardProof`, so the resulting rule rewrites a `wp lhs` goal to a `wp rhs` premise, matching
 the equational behaviour of a simp spec. Only the monad, the value type and the `WP` instance are
 pinned from the goal, mirroring how `tryMkBackwardRuleFromSpec` treats `⊑ wp` specs; the equation's
-remaining variables, including instance binders, stay schematic and become rule parameters that
-applying the rule binds against the concrete goal program. Dictionary projections this substitution
+remaining variables stay schematic and become rule parameters that applying the rule binds against
+the concrete goal program. Dictionary projections this substitution
 exposes in the premise program (e.g. for class projection unfold equations like
 `MonadState.modifyGet.eq_1`) are reduced by `wpHeadReduce?` before the next spec lookup.
 -/

@@ -896,7 +896,7 @@ example : ⦃ fun s => s = 3 ⦄ bump ⦃ fun _ s => s = 4 ⦄ := by
 @[spec]
 theorem bump2_spec (Q : Unit → Nat → Prop) (E : EStack⟨⟩) :
     ⦃ fun s => wp bump (fun _ => wp bump Q E) E s ⦄ bump2 ⦃ Q; E ⦄ := by
-  unfold bump2; exact ⟨MonadicWP.bind_le_wp_bind bump (fun _ => bump) Q E⟩
+  unfold bump2; exact ⟨MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind bump (fun _ => bump) Q E⟩
 
 example : ⦃ fun s => s = 3 ⦄ bump2 ⦃ fun _ s => s = 5 ⦄ := by
   vcgen frames | bump2 => fun s => s = 3 with finish

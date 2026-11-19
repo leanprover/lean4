@@ -41,7 +41,7 @@ theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [M
     (fun x post E' => ?_) (fun x f post E' => ?_)
   · show post x ⊑ (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
-    exact MonadicWP.pure_le_wp_pure (m := m) x (fun a => op r (post a)) (opE r E')
+    exact MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) x (fun a => op r (post a)) (opE r E')
   · show (((base.toWP _).trans x).frameClosure op).apply
           (fun a => (((base.toWP _).trans (f a)).frameClosure op).apply post E') E' ⊑
         (((base.toWP _).trans (x >>= f)).frameClosure op).apply post E'
@@ -49,7 +49,7 @@ theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [M
     refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_
     refine PartialOrder.rel_trans ?_
-      (MonadicWP.bind_le_wp_bind (m := m) x f (fun a => op r (post a)) (opE r E'))
+      (MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (m := m) x f (fun a => op r (post a)) (opE r E'))
     refine WP.wp_monotone_post fun a => ?_
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)

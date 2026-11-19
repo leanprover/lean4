@@ -76,35 +76,10 @@ variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [PartialOrde
 /-!
 ## Derived Lemmas
 
-The laws at the level of `wp`.
+The laws for `map` and `seq`.
 -/
 
-section Strict
-
-variable [Monad m] [IsMonadMorphism m]
-
-theorem wp_pure_eq {α : Type u} (a : α) (post : α → Pred) (eposts : EPosts) :
-    wp (pure a : m α) post eposts = post a :=
-  IsMonadMorphism.wp_pure_eq a post eposts
-
-theorem wp_bind_eq {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts) :
-    wp (x >>= f) post eposts = wp x (fun a => wp (f a) post eposts) eposts :=
-  IsMonadMorphism.wp_bind_eq x f post eposts
-
-end Strict
-
 section Lax
-
-theorem pure_le_wp_pure [Monad m] [MonadicWP.IsLaxMonadMorphism m]
-    {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
-    post x ⊑ wp (pure (f := m) x) post eposts :=
-  IsLaxMonadMorphism.pure_le_wp_pure x post eposts
-
-theorem bind_le_wp_bind [Monad m] [MonadicWP.IsLaxMonadMorphism m]
-    {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred)
-    (eposts : EPosts) :
-    wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts :=
-  IsLaxMonadMorphism.bind_le_wp_bind x f post eposts
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
 theorem map_le_wp_map [Monad m] [LawfulMonad m]
@@ -113,9 +88,9 @@ theorem map_le_wp_map [Monad m] [LawfulMonad m]
   intro post eposts
   rw [← bind_pure_comp]
   apply PartialOrder.rel_trans; rotate_left
-  exact bind_le_wp_bind x (pure <| f ·) post eposts
+  exact IsLaxMonadMorphism.bind_le_wp_bind x (pure <| f ·) post eposts
   apply WP.wp_monotone_post
-  intro a; exact pure_le_wp_pure (f a) post eposts
+  intro a; exact IsLaxMonadMorphism.pure_le_wp_pure (f a) post eposts
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
 theorem seq_le_wp_seq [Monad m] [LawfulMonad m]
@@ -125,7 +100,7 @@ theorem seq_le_wp_seq [Monad m] [LawfulMonad m]
       wp (f <*> x) post eposts := by
   intro post eposts
   rw [← bind_map]
-  apply PartialOrder.rel_trans _ (bind_le_wp_bind f (fun g => g <$> x) post eposts)
+  apply PartialOrder.rel_trans _ (IsLaxMonadMorphism.bind_le_wp_bind f (fun g => g <$> x) post eposts)
   apply WP.wp_monotone_post; intro g; exact map_le_wp_map g x post eposts
 
 end Lax
@@ -140,14 +115,14 @@ set_option linter.missingDocs false
 abbrev WPMonad (m : Type u → Type v) (Pred : Type w) (EPosts : Type w') [PartialOrder Pred]
     [PartialOrder EPosts] := MonadicWP m Pred EPosts
 
-@[deprecated MonadicWP.bind_le_wp_bind (since := "2026-11-18")]
-abbrev WPMonad.bind_le_wp_bind := @MonadicWP.bind_le_wp_bind
+@[deprecated MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind (since := "2026-11-18")]
+abbrev WPMonad.bind_le_wp_bind := @MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
 
 @[deprecated MonadicWP.map_le_wp_map (since := "2026-11-18")]
 abbrev WPMonad.map_le_wp_map := @MonadicWP.map_le_wp_map
 
-@[deprecated MonadicWP.pure_le_wp_pure (since := "2026-11-18")]
-abbrev WPMonad.pure_le_wp_pure := @MonadicWP.pure_le_wp_pure
+@[deprecated MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (since := "2026-11-18")]
+abbrev WPMonad.pure_le_wp_pure := @MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure
 
 @[deprecated MonadicWP.seq_le_wp_seq (since := "2026-11-18")]
 abbrev WPMonad.seq_le_wp_seq := @MonadicWP.seq_le_wp_seq

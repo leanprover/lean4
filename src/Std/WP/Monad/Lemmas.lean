@@ -37,7 +37,7 @@ theorem le_wp_read_ReaderT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     (fun r => post r r) ⊑ wp (MonadReaderOf.read : ReaderT ρ m ρ) post eposts := by
   intro r
   simpa [MonadReaderOf.read] using
-    (MonadicWP.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts))
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts))
 
 @[simp]
 theorem wp_adapt_ReaderT_apply_eq (f : ρ → ρ') (x : ReaderT ρ' m α) :
@@ -53,7 +53,7 @@ theorem le_wp_get_StateT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m]
     (fun s => post s s) ⊑ wp (MonadStateOf.get : StateT σ m σ) post eposts := by
   intro s
   simpa [MonadStateOf.get] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := (s, s))
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
 theorem le_wp_set_StateT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x : σ)
@@ -61,7 +61,7 @@ theorem le_wp_set_StateT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x : �
     (fun _ => post ⟨⟩ x) ⊑ wp (MonadStateOf.set x : StateT σ m PUnit) post eposts := by
   intro s
   simpa [MonadStateOf.set] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := (PUnit.unit, x))
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := (PUnit.unit, x))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
 theorem le_wp_modifyGet_StateT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (f : σ → α × σ)
@@ -69,7 +69,7 @@ theorem le_wp_modifyGet_StateT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] 
     (fun s => post (f s).1 (f s).2) ⊑ wp (MonadStateOf.modifyGet f : StateT σ m α) post eposts := by
   intro s
   simpa [MonadStateOf.modifyGet] using!
-    (MonadicWP.pure_le_wp_pure (m := m) (x := f s)
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
 theorem wp_get_EStateM_apply_eq :
@@ -128,7 +128,7 @@ theorem wp_throw_Except_apply_eq (e : ε) :
 theorem le_wp_throw_ExceptT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (err : ε) :
     eposts.fst err ⊑ wp (MonadExceptOf.throw err : ExceptT ε m α) post eposts := by
   simpa [MonadExceptOf.throw, pushExcept] using
-    (MonadicWP.pure_le_wp_pure (m := m) (x := Except.error err)
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := Except.error err)
       (post := pushExcept post eposts.fst) (eposts := eposts.snd))
 
 @[simp]
@@ -149,7 +149,7 @@ theorem le_wp_throw_OptionT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (er
   rw [OptionT.wp_apply_eq]
   show eposts.fst () ⊑ wp (pure none : m (Option α)) (pushOption post eposts.fst) eposts.snd
   simpa [MonadExceptOf.throw, pushOption] using
-    (MonadicWP.pure_le_wp_pure (m := m) (x := none)
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := none)
       (post := pushOption post eposts.fst) (eposts := eposts.snd))
 
 @[simp]
@@ -178,11 +178,11 @@ theorem le_wp_tryCatch_ExceptT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] 
       wp (MonadExceptOf.tryCatch x h : ExceptT ε m α) post eposts := by
   change _ ⊑ wp (tryCatch x h : ExceptT ε m α) _ _
   simp only [ExceptT.wp_apply_eq]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
   apply WP.wp_monotone_post; intro r; cases r with
   | ok a =>
     simp; apply PartialOrder.rel_trans; rotate_left;
-    apply MonadicWP.pure_le_wp_pure; simp; rfl
+    apply MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure; simp; rfl
   | error _ => exact PartialOrder.rel_refl
 
 @[simp]
@@ -206,10 +206,10 @@ theorem le_wp_tryCatch_OptionT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] 
   wp x post ⟨fun _ => wp (h ⟨⟩) post eposts, eposts.snd⟩ ⊑
     wp (MonadExceptOf.tryCatch x h : OptionT m α) post eposts := by
   simp only [OptionT.wp_apply_eq, MonadExceptOf.tryCatch, OptionT.tryCatch, OptionT.mk]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
   apply WP.wp_monotone_post (x := x.run); intro o; cases o with
   | some a =>
-    apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.pure_le_wp_pure
+    apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure
     simp [pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 
@@ -271,10 +271,10 @@ theorem le_wp_monadLift_StateT_apply [Monad m]
       wp (MonadLift.monadLift x : StateT σ m α) post eposts := by
   intro s
   simp only [StateT.wp_apply_eq, MonadLift.monadLift]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
   apply WP.wp_monotone_post; intro a
   simpa using
-    (MonadicWP.pure_le_wp_pure (m := m) (x := (a, s))
+    (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := (a, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
 @[simp]
@@ -312,9 +312,9 @@ theorem le_wp_monadLift_OptionT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m]
   wp x post eposts.snd ⊑
     wp (MonadLift.monadLift x : OptionT m α) post eposts := by
   simp only [OptionT.wp_apply_eq, MonadLift.monadLift, OptionT.mk, OptionT.lift]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
   apply WP.wp_monotone_post; intro a
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.pure_le_wp_pure
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure
   simp [pushOption]; exact PartialOrder.rel_refl
 
 @[simp]
@@ -430,18 +430,18 @@ theorem le_wp_restoreM_StateT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (
     (fun _ => wp x (fun (a, s) => post a s) eposts) ⊑
       wp (MonadControl.restoreM (m:=m) x : StateT σ m α) post eposts := by
   simp only [MonadControl.restoreM]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind; simp only [liftM, monadLift]
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind; simp only [liftM, monadLift]
   apply PartialOrder.rel_trans; rotate_left; apply le_wp_monadLift_StateT_apply
   intro s; apply WP.wp_monotone_post (x := x); intro s'; simp only
   rw [StateT.wp_apply_eq]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
   simp [set, StateT.set, pure, StateT.pure]
   apply PartialOrder.rel_trans
   · simpa using
-      (MonadicWP.pure_le_wp_pure (m := m) (x := (s'.fst, s'.snd))
+      (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := (s'.fst, s'.snd))
         (post := fun x => post x.fst x.snd) (eposts := eposts))
   · simpa using
-      (MonadicWP.pure_le_wp_pure (m := m) (x := (PUnit.unit, s'.snd))
+      (MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure (m := m) (x := (PUnit.unit, s'.snd))
         (post := fun (x : PUnit × σ) => wp (pure (s'.fst, x.snd)) (fun (x : α × σ) => post x.fst x.snd) eposts)
         (eposts := eposts))
 
@@ -666,10 +666,10 @@ theorem le_wp_orElse_OptionT_apply [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x
   wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩ ⊑
     wp (OrElse.orElse x h : OptionT m α) post eposts := by
   simp only [OptionT.wp_apply_eq, OrElse.orElse]
-  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.bind_le_wp_bind
   apply WP.wp_monotone_post (x := x.run); intro o; cases o with
   | some a =>
-    apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.pure_le_wp_pure
+    apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.IsLaxMonadMorphism.pure_le_wp_pure
     simp [pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 

@@ -148,3 +148,27 @@ example (xs : List Nat) : ⦃ fun _ => True ⦄ callerSmall xs ⦃ fun r _ => r 
   simp only [callerSmall, firstSmall]
   vcgen +jp
   case vc1 => sorry
+
+/-- `chain xs 12` inlines twelve early-return blocks, each followed by the rest of the chain. `vcgen
++jp` proves each rest once, so the chain fits a small heartbeat limit. -/
+def chainStep (xs : List Nat) : StateM Nat Nat := do
+  let mut acc := 0
+  for x in xs invariant _ _ _ => True do
+    if x = 0 then return acc
+    if x = 1 then return acc + 1
+    acc := acc + x
+  let s ← get
+  set (s + acc)
+  return acc + s
+
+def chain (xs : List Nat) : Nat → StateM Nat Nat
+  | 0 => pure 0
+  | n + 1 => do
+    let r ← chainStep xs
+    let q ← chain xs n
+    return r + q
+
+set_option maxHeartbeats 100000 in
+example (xs : List Nat) : ⦃ fun _ => True ⦄ chain xs 12 ⦃ fun _ _ => True ⦄ := by
+  simp only [chain, chainStep]
+  vcgen +jp

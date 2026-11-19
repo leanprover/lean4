@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.VCGen.Context
+import Lean.Elab.Tactic.VCGen.Simp
 public import Lean.Elab.Tactic.VCGen.WPApp
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS

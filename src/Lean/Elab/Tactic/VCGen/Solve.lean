@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.Simp
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Entails
 public import Lean.Elab.Tactic.VCGen.JoinPoint
@@ -16,7 +17,6 @@ public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InstantiateMVarsS
-import Lean.Meta.Sym.Simp.Result
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -720,7 +720,7 @@ def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   if info.prog.hasAnyFVar scope.substs.contains then
-    match ← simpGoalWith scope Sym.Simp.simp goal (cached := false) with
+    match ← simpGoalWith scope Sym.Simp.simp goal with
     | .closed => return .goals scope []
     | .goal g => return .goals scope [g]
     | .noProgress => pure ()

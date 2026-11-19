@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Elab.Tactic.VCGen.RuleConstruction
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Util
+public import Lean.Elab.Tactic.VCGen.Simp
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Entails
 public import Lean.Elab.Tactic.VCGen.Solve
@@ -26,7 +27,8 @@ The `vcgen` tactic, split across the modules above.
 - `VCGen.SpecDB` — `SpecTheorem` instantiation, simp-side migration, and `findSpecs` lookup.
 - `VCGen.RuleConstruction` — SymM rule constructors from spec/simp/split info.
 - `VCGen.Context` — `VCGenM`, its `Context`/`State`, the bundle of pre-built rules.
-- `VCGen.Util` — generic VCGenM helpers (`introsHygienic`, `simpGoalTelescope`, `cleanupVC`).
+- `VCGen.Util` — generic VCGenM helpers (`introsHygienic`, `cleanupVC`).
+- `VCGen.Simp` — the simplification entry point `runSimp` and the rewrite with `Scope.substs`.
 - `VCGen.RuleCache` — VCGenM cache wrappers around the SymM rule constructors.
 - `VCGen.Entails` — entailment-shaped goal decomposition (Triple unfolding, state/precondition intro, component and lattice steps).
 - `VCGen.Solve` — the main `solve` step / `SolveResult`.

@@ -154,11 +154,6 @@ public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
   let goal ← instantiateBinderDomains goal
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
-/-- Simplify the target of `goal` with `runSimp scope k`. -/
-public def simpGoalWith (scope : Scope) (k : Expr → Sym.Simp.SimpM Sym.Simp.Result) (goal : MVarId)
-    (cached := true) : VCGenM Sym.SimpGoalResult := goal.withContext do
-  (← runSimp scope k (← goal.getType) cached).toSimpGoalResult goal
-
 /--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a
 function type `σ₁ → … → σₙ → α`: repeatedly apply `stateArgIntro` (a backward rule for

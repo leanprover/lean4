@@ -13,7 +13,6 @@ public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Simp.DiscrTree
 public import Lean.Elab.Tactic.VCGen.RIntroAttr
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.Sym.Simp.Result
 public import Lean.Meta.Tactic.Grind.Types
 
 open Lean Meta Elab Tactic Sym
@@ -275,34 +274,5 @@ public def burnOne : VCGenM Unit :=
   modify fun s => { s with fuel := match s.fuel with
     | .limited (n+1) => .limited n
     | other => other }
-
-/-- Run `k` with `methods` and `Context.simpConfig` on the persistent simp state `State.simpState`.
-The state is taken out of `VCGenM`'s state for the run, so `k` updates it in place. -/
-def runCachedSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
-  let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
-  let (a, st) ← Sym.Simp.SimpM.run k methods (← read).simpConfig st
-  modify fun s => { s with simpState := st }
-  return a
-
-/-- Rewrite a local `x` to `t` with the hypothesis `h : x = t` of `scope.substs`. -/
-def eqsSimproc (scope : Scope) : Sym.Simp.Simproc := fun e => do
-  let .fvar x := e | return .rfl
-  let some (t, h) := scope.substs.get? x | return .rfl
-  return .step t (mkFVar h) (contextDependent := true)
-
-/--
-Simplify `e` with `k`, which selects the parts of `e` to visit: first rewrite with `scope.substs` on
-empty caches, then, if `cached` holds, simplify with `Context.simpMethods` on the persistent cache.
-The rewrite cannot use the persistent cache, because it holds the terms with a local `x` unrewritten.
--/
-public def runSimp (scope : Scope) (k : Expr → Sym.Simp.SimpM Sym.Simp.Result) (e : Expr)
-    (cached := true) : VCGenM Sym.Simp.Result := do
-  let r ← if scope.substs.isEmpty || !e.hasAnyFVar scope.substs.contains then pure .rfl
-    else Sym.Simp.SimpM.run' (k e) { pre := eqsSimproc scope } (← read).simpConfig
-  let some methods := (← read).simpMethods | return r
-  unless cached do return r
-  match r with
-  | .rfl .. => runCachedSimp methods (k e)
-  | .step e' h .. => Sym.Simp.mkEqTransResult e e' h (← runCachedSimp methods (k e'))
 
 end Lean.Elab.Tactic.VCGen

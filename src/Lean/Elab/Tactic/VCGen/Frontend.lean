@@ -507,10 +507,8 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
     | none   => do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
-  let core ← `(grind| vcgen $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
+  let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
         $[simp [$simpArgs,*]]?)
-  -- The `vcgen` keyword keeps its source position, so the info view shows its goals.
-  let core : TSyntax `grind := ⟨core.raw.setArg 0 tk⟩
   let step ← match g? with
     | some g => `(grind| $core <;> $g)
     | none   => pure core

@@ -1,13 +1,14 @@
 /-!
-The exit waits for every worker thread to free its thread-local state, and runs the tasks that this
-queues.
+The exit waits for every worker thread to free its thread-local state. A standard worker frees it before
+it stops, so it still runs a pool task that this queues; on a dedicated thread, a `(sync := true)` dependent
+runs while the thread frees it.
 
 A task replaces its thread's stdout with a stream that holds a promise, which has a dependent task. The
 thread frees that stream after the task has finished. Freeing the promise resolves it, which queues the
 dependent. The task manager must still be running tasks at that point, rather than leaking the dependent or
 being already gone. Each mode installs the stream on a different kind of thread:
 
-* `dedicated`: a dedicated task, once the task manager is shutting down.
+* `dedicated`: a dedicated task, once the task manager is shutting down, with a `(sync := true)` dependent.
 * `pool`: a pool task, once the task manager is shutting down.
 * `poolIdle`: a pool task that finishes before `main` returns, so its worker is idle when the exit starts.
 * `poolSync`: as `pool`, with a `(sync := true)` dependent. It runs while the thread frees the stream and
@@ -61,7 +62,7 @@ def main (args : List String) : IO Unit := do
   | ["dedicated"] =>
     discard <| IO.asTask (prio := .dedicated) do
       waitForShutdown
-      installStream "dedicated"
+      installStream "dedicated" (sync := true)
     IO.println "dedicated: child returns from main"
   | ["pool"] =>
     discard <| IO.asTask do

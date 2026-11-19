@@ -1,11 +1,11 @@
 /-!
-Tasks queued during the exit still run, so they do not leak.
+Tasks queued during the exit do not leak.
 
 Each child returns from `main` while a dedicated task is still running. Once the task manager is
-shutting down, that task queues pool tasks that nobody waits for, in a different way per mode. They must
-still run and print, and they and what their closures capture (here a 1 MB array) must be freed. A leak
-is only reported by LeakSanitizer, i.e. in the sanitize build, where a leaking child prints the report and
-exits with a nonzero code.
+shutting down, that task queues pool tasks that nobody waits for, in a different way per mode. Whether
+they run depends on whether a worker is still busy, so they print nothing; either way they and what their
+closures capture (here a 1 MB array) must be freed. A leak is only reported by LeakSanitizer, i.e. in the
+sanitize build, where a leaking child prints the report and exits with a nonzero code.
 
 In `dedicatedDependent`, the dedicated task has a pool dependent from the start, and finishing during the
 exit queues it. `task_queued_during_shutdown_leak` covers a plain `IO.asTask`. The children are the
@@ -23,10 +23,9 @@ def mkPayload : IO ByteArray :=
   return ByteArray.mk (Array.replicate (1024 * 1024 + (← IO.monoMsNow) % 2) 7)
 
 /-- Indexes the payload at runtime, so that a closure calling this captures the array. -/
-def use (tag : String) (p : ByteArray) : IO Unit := do
+def use (p : ByteArray) : IO Unit := do
   if p.get! ((← IO.monoMsNow) % p.size) != 7 then
     throw <| .userError "unexpected payload"
-  IO.println s!"{tag} ran"
 
 def atShutdown (mode : String) : IO Unit := do
   waitForShutdown
@@ -37,33 +36,33 @@ def atShutdown (mode : String) : IO Unit := do
     let t := Task.spawn fun _ => p.foldl (fun acc b => acc + b.toNat) 0
     discard <| IO.hasFinished t
   | "map" =>
-    let t ← IO.asTask (use "map: source" p)
-    discard <| IO.mapTask (fun _ => use "map: dependent" p) t
+    let t ← IO.asTask (use p)
+    discard <| IO.mapTask (fun _ => use p) t
   | "syncMap" =>
-    let t ← IO.asTask (use "syncMap: source" p)
-    discard <| IO.mapTask (sync := true) (fun _ => use "syncMap: dependent" p) t
+    let t ← IO.asTask (use p)
+    discard <| IO.mapTask (sync := true) (fun _ => use p) t
   | "bind" =>
-    let t ← IO.asTask (use "bind: source" p)
-    discard <| IO.bindTask t fun _ => IO.asTask (use "bind: continuation" p)
+    let t ← IO.asTask (use p)
+    discard <| IO.bindTask t fun _ => IO.asTask (use p)
   | "bindNested" =>
     -- The bind finishes on the dedicated thread of its nested task, which queues the dependent.
     let src ← IO.asTask (prio := .dedicated) (IO.sleep 10)
     let b ← IO.bindTask (sync := true) src fun _ =>
-      IO.asTask (prio := .dedicated) (use "bindNested: nested" p)
-    discard <| IO.mapTask (fun _ => use "bindNested: dependent" p) b
+      IO.asTask (prio := .dedicated) (use p)
+    discard <| IO.mapTask (fun _ => use p) b
   | "prio" =>
-    discard <| IO.asTask (prio := .max) (use "prio: task" p)
+    discard <| IO.asTask (prio := .max) (use p)
   | "promiseResolved" =>
     let promise ← IO.Promise.new (α := Nat)
-    discard <| IO.mapTask (fun _ => use "promiseResolved: dependent" p) promise.result?
+    discard <| IO.mapTask (fun _ => use p) promise.result?
     promise.resolve 1
   | "promiseDropped" =>
     -- Dropping the promise resolves it, which queues the dependent task.
     let promise ← IO.Promise.new (α := Nat)
-    discard <| IO.mapTask (fun _ => use "promiseDropped: dependent" p) promise.result?
+    discard <| IO.mapTask (fun _ => use p) promise.result?
   | "waitedQueuesMore" =>
     let t ← IO.asTask do
-      discard <| IO.asTask (use "waitedQueuesMore: inner" p)
+      discard <| IO.asTask (use p)
     discard <| IO.wait t
   | _ => throw <| .userError s!"unknown mode {mode}"
 
@@ -91,8 +90,8 @@ def main (args : List String) : IO Unit := do
     let p ← mkPayload
     let t ← IO.asTask (prio := .dedicated) do
       waitForShutdown
-      use "dedicatedDependent: source" p
-    discard <| IO.mapTask (fun _ => use "dedicatedDependent: dependent" p) t
+      use p
+    discard <| IO.mapTask (fun _ => use p) t
     IO.println "dedicatedDependent: child returns from main"
   | [mode] =>
     discard <| IO.asTask (prio := .dedicated) (atShutdown mode)

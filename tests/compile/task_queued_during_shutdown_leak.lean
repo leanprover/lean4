@@ -1,11 +1,11 @@
 /-!
-A task queued during the exit still runs, so it does not leak.
+A task queued during the exit that nobody waits for does not leak.
 
 `main` returns while a dedicated task is still running. The task waits until the task manager is
-shutting down, then queues a pool task that nobody waits for. That task must still run, and it and
-everything its closure captures (here a 1 MB array) must be freed. A leak is only reported by
-LeakSanitizer, i.e. in the sanitize build. The program is compiled, as the interpreter exits differently,
-hence `.no_interpret`.
+shutting down, then queues a pool task that nobody waits for. Whether that task runs depends on whether
+a worker is still busy; either way it and everything its closure captures (here a 1 MB array) must be
+freed. A leak is only reported by LeakSanitizer, i.e. in the sanitize build. The program is compiled, as
+the interpreter exits differently, hence `.no_interpret`.
 -/
 
 def main : IO Unit := do
@@ -17,5 +17,6 @@ def main : IO Unit := do
     let payload := ByteArray.mk (Array.replicate (1024 * 1024 + (← IO.monoMsNow) % 2) 7)
     discard <| IO.asTask do
       -- Indexed at runtime, so that the closure captures the array rather than a value computed from it.
-      IO.println s!"the queued task ran: {payload.get! ((← IO.monoMsNow) % payload.size)}"
+      if payload.get! ((← IO.monoMsNow) % payload.size) != 7 then
+        throw <| .userError "unexpected payload"
   IO.println "main returns"

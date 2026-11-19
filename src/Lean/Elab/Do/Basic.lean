@@ -28,7 +28,9 @@ builtin_initialize registerTraceClass `Elab.do.step
 register_builtin_option debug.do.eagerAbstraction : Bool := {
   defValue := false
   descr := "(do elaborator) abstract every continuation of a `do` block eagerly with \
-`mkLambdaFVars`, also when it contains metavariables"
+`mkLambdaFVars`, also when it contains metavariables. This is for debugging only: terms printed \
+during elaboration then show continuation bodies instead of delayed-assigned metavariables, but \
+elaboration time grows quadratically or cubically with the length of the block"
 }
 
 register_builtin_option experimental.intrinsic : Bool := {

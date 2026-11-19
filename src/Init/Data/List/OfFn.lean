@@ -69,7 +69,7 @@ protected theorem getElem?_ofFn {f : Fin n → α} :
     rw [getElem?_eq_getElem h, List.getElem_ofFn]
     · simp only [length_ofFn] at h; simp [h]
   else by
-    rw [dif_neg] <;>
+    rw [dite_eq_right] <;>
     simpa using h
 
 /-- `ofFn` on an empty domain is the empty list. -/

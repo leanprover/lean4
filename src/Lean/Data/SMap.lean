@@ -115,7 +115,7 @@ def toList (m : SMap α β) : List (α × β) :=
 
 end SMap
 
-def _root_.List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=
+def List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=
   es.foldl (init := {}) fun s (a, b) => s.insert a b
 
 instance {_ : BEq α} {_ : Hashable α} [Repr α] [Repr β] : Repr (SMap α β) where

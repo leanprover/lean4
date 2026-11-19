@@ -7,7 +7,6 @@ prelude
 import Lean.Elab.Tactic.Omega.Core
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Cases
-import Lean.Elab.Tactic.Config
 
 open Lean Meta Omega
 

@@ -8,7 +8,7 @@ trace: [Compiler.saveBase] size: 3
     def f a : Bool :=
       let _x.1 := 1;
       let _x.2 := instDecidableEqNat a _x.1;
-      let _x.3 := decide ◾ _x.2;
+      let _x.3 := _x.2 # 0;
       return _x.3
 [Compiler.saveMono] size: 2
     def f a : Bool :=

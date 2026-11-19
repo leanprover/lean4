@@ -60,7 +60,7 @@ public abbrev FetchFnT (α : Type u) (β : Type v) (m : Type v → Type w) :=
 We can then use the such a monad as the basis for a fetch function itself.
 -/
 
-/-
+/--
 A `DFetchFn` that utilizes another `DFetchFn` equipped to the monad to
 fetch values. It is thus usually implemented recursively via some variation
 of the `recFetch` function below, hence the "rec" in both names.
@@ -114,10 +114,12 @@ future fetches. This is what `recFetchMemoize` below does.
 /--
 `recFetchAcyclic` augmented with a `MonadDStore` to
 memoize fetch results and thus avoid computing the same result twice.
+
+**Note:** This implementation does not update the store atomically.
 -/
 @[specialize] public def recFetchMemoize
   [BEq κ] [Monad m] [MonadCycle κ m] [MonadDStore κ β m]
   (keyOf : α → κ) (compute : DRecFetchFn α (fun a => β (keyOf a)) m)
 : DFetchFn α (fun a => β (keyOf a)) m :=
   inline <| recFetchAcyclic keyOf fun a =>
-    fetchOrCreate (keyOf a) (compute a)
+    fetchOrCreateNonatomic (keyOf a) (compute a)

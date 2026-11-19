@@ -18,8 +18,31 @@ opaque closureMaxArgsFn : Unit → Nat
 @[extern "lean_max_small_nat"]
 opaque maxSmallNatFn : Unit → Nat
 
+@[extern "lean_get_max_ctor_num_objs"]
+opaque getMaxCtorNumObjs : Unit → Nat
+def maxCtorNumObjs := getMaxCtorNumObjs ()
+
+@[extern "lean_get_max_ctor_scalars_size"]
+opaque getMaxCtorScalarsSize : Unit → Nat
+def maxCtorScalarsSize := getMaxCtorScalarsSize ()
+
+@[extern "lean_get_max_ctor_tag"]
+opaque getMaxCtorTag : Unit → Nat
+def maxCtorTag := getMaxCtorTag ()
+
+@[extern "lean_get_usize_size"]
+opaque getUSizeSize : Unit → Nat
+def usizeSize := getUSizeSize ()
+
+
 @[extern "lean_libuv_version"]
 opaque libUVVersionFn : Unit → Nat
+
+@[extern "lean_openssl_version"]
+opaque openSSLVersionFn : Unit → Nat
+
+@[extern "lean_openssl_linked_version"]
+opaque openSSLLinkedVersionFn : Unit → Nat
 
 def closureMaxArgs : Nat :=
   closureMaxArgsFn ()
@@ -29,5 +52,13 @@ def maxSmallNat : Nat :=
 
 def libUVVersion : Nat :=
   libUVVersionFn ()
+
+/-- `OPENSSL_VERSION_NUMBER` of the OpenSSL headers the runtime was compiled against (0 on Emscripten). -/
+def openSSLVersion : Nat :=
+  openSSLVersionFn ()
+
+/-- `OpenSSL_version_num()` of the OpenSSL library the runtime is linked against (0 on Emscripten). -/
+def openSSLLinkedVersion : Nat :=
+  openSSLLinkedVersionFn ()
 
 end Lean

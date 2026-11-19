@@ -17,16 +17,21 @@ namespace Lean.Elab.Do
 
 open Lean Meta Parser.Term
 
--- support both regular and syntax match
+-- support both regular and syntax match; try syntax-quotation first so simple
+-- patterns (identifiers, holes, antiquotations) are handled without macro
+-- expansion and fall back to the regular pattern-var collector for
+-- everything else. When both fail, the regular collector's error wins and
+-- usually points at the offending pattern with a meaningful message instead
+-- of the catch-all "unsupported pattern in syntax match".
 def getPatternVarsEx (pattern : Term) : TermElabM (Array Ident) :=
   open TSyntax.Compat in -- until PatternVar := Ident
-  Term.getPatternVars pattern <|>
-  Term.Quotation.getPatternVars pattern
+  Term.Quotation.getPatternVars pattern <|>
+  Term.getPatternVars pattern
 
 def getPatternsVarsEx (patterns : Array Term) : TermElabM (Array Ident) :=
   open TSyntax.Compat in -- until PatternVar := Ident
-  Term.getPatternsVars patterns <|>
-  Term.Quotation.getPatternsVars patterns
+  Term.Quotation.getPatternsVars patterns <|>
+  Term.getPatternsVars patterns
 
 private def getLetIdVars (letId : TSyntax ``letId) : TermElabM (Array Ident) := do
   match letId with

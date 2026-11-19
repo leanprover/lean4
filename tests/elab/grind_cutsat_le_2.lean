@@ -1,6 +1,6 @@
 module
 set_option grind.debug true
-open Int.Linear
+open Int.Internal.Linear
 
 example (a b c d e : Int) :
     2*a + b ≥ 1 → b ≥ 0 → c ≥ 0 → d ≥ 0 → e ≥ 0
@@ -23,7 +23,7 @@ example (a b c d e : Int) :
     a = 2*c + 1 →
     c*2 = 3*d →
     c + d ≤ 0 := by
-  (fail_if_success grind); sorry
+  (fail_if_success grind +verbose); sorry
 
 /--
 trace: [grind.lia.model] a := 17
@@ -36,4 +36,4 @@ example (a b c : Int) :
     4*a + 7*c = 5 →
     a ≥ 10 →
     False := by
-  (fail_if_success grind); sorry
+  (fail_if_success grind +verbose); sorry

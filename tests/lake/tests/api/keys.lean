@@ -104,3 +104,9 @@ def stx  := (`@pkg : PartialBuildKey)
 
 -- Test coercion to a target
 def coe : Array (Target Dynlib) := #[`@pkg/tgt:facet]
+
+/-! ## Test Package URL Helpers -/
+
+#guard (default : Package).remoteUrl? == none
+#guard ({(default : Package) with remoteUrl := "https://example.com/test"}).remoteUrl? ==
+  some "https://example.com/test"

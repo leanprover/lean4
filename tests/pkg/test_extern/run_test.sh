@@ -6,7 +6,7 @@
 # Ideally there would be a more principled testing framework
 # that took care of all this!
 
-rm -rf .lake/build
+rm -rf .lake
 
 # TODO Use and/or emulate the helper functions from util.sh?
 

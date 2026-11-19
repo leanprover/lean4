@@ -32,7 +32,7 @@ run_meta
     Lean.logInfo m!"{name}"
 
 
-/- Check that the compiler is producin good code -/
+/- Check that the compiler is producing good code -/
 
 set_option trace.Compiler.saveBase true
 
@@ -47,7 +47,7 @@ trace: [Compiler.saveBase] size: 7
         let _x.3 := sort u;
         return _x.3
       | _ =>
-        let _x.4 := else.1 _;
+        let _x.4 := else.1 ◾;
         return _x.4
 -/
 #guard_msgs in

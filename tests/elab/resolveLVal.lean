@@ -2,13 +2,13 @@
 
 namespace Foo
 
-structure A :=
+structure A where
 (x : Nat)
 
 def A.doubleX (a : A) :=
 2 * a.x
 
-structure B extends A :=
+structure B extends A where
 (y : Nat)
 
 def f (b : B) : Nat :=

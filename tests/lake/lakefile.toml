@@ -1,10 +1,17 @@
 name = "lake"
 srcDir = "../../src/lake"
 defaultTargets = ["Lake", "lake"]
-leanOptions.backward.do.legacy = false
 
 [[lean_lib]]
 name = "Lake"
+defaultFacets = ["shared"]
+# `Lake.Check` links the export parser, which lives beside `src/lake`
+needs = ["LeanExport"]
+
+[[lean_lib]]
+name = "LeanExport"
+srcDir = ".."
+globs = ["LeanExport.*"]
 defaultFacets = ["shared"]
 
 [[lean_exe]]

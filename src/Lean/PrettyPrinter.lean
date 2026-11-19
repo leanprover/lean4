@@ -65,10 +65,8 @@ def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
     let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
     formatCategory `term stx
 
-def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
-    { fileName := "<PrettyPrinter>", fileMap := default }
-    { env := env }
+def ppLevel (l : Level) : MetaM Format := do
+  ppCategory `level (← delabLevel l (prec := 0))
 
 def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx
 
@@ -110,7 +108,7 @@ builtin_initialize
     ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e
     ppConstNameWithInfos := fun ctx n => ctx.runMetaM <| withoutContext <| ppConstNameWithInfos n
     ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx
-    ppLevel := fun ctx l => return l.format (mvars := getPPMVarsLevels ctx.opts)
+    ppLevel := fun ctx l => ctx.runMetaM <| withoutContext <| ppLevel l
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 

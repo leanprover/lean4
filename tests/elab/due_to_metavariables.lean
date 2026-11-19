@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 /--
 error: typeclass instance problem is stuck
   HMul ?m.9 ?m.9 String
@@ -101,7 +100,7 @@ would also work here.
 error: Application type mismatch: The argument
   isDigitEven? n
 has type
-  ?m.2 Bool
+  ?m.3 Bool
 but is expected to have type
   Prop
 in the application

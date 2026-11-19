@@ -1,6 +1,6 @@
 module
 set_option grind.debug true
-open Int.Linear
+open Int.Internal.Linear
 
 theorem ex₁ (a b c : Int) : a + 2*b = 0 → c + b = -b → a = c := by
   grind

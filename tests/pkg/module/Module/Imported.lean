@@ -70,10 +70,9 @@ error: failed to synthesize instance of type class
   X
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
----
-warning: Definition `_private.Module.Imported.0.fX` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
 -/
 #guard_msgs in
+set_option warn.classDefReducibility false in
 def fX : X := inferInstance
 
 /-- error: `dsimp` made no progress -/
@@ -183,7 +182,7 @@ theorem f_struct_eq : f_struct 0 = 0 := by
 
 /-! `[inherit_doc]` should work independently of visibility. -/
 
-/-- info: some "A private definition. " -/
+/-- info: some "A private definition." -/
 #guard_msgs in
 open Lean in
 #eval show CoreM _ from do findDocString? (← getEnv) ``pubInheritDoc

@@ -1,0 +1,5 @@
+{"textDocument": {"uri": "file:///goToMutVarAfterFor.lean"},
+ "position": {"line": 8, "character": 9}}
+[{"uri": "file:///goToMutVarAfterFor.lean",
+  "range":
+  {"start": {"line": 5, "character": 10}, "end": {"line": 5, "character": 15}}}]

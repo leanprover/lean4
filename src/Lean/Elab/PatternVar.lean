@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
 public import Init.Syntax
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
 public section
@@ -49,6 +49,11 @@ structure State where
   found     : NameSet := {}
   /-- Pattern variables found so far as an array. It contains the order they were found. -/
   vars      : Array PatternVar := #[]
+  /--
+  `choice` nodes that the collector resolved on its own. Only `collectPatternVars` pushes these
+  into the `InfoTree`; the entry points that merely extract pattern variables discard them.
+  -/
+  choiceResolutions : Array ChoiceResolutionInfo := #[]
   deriving Inhabited
 
 abbrev M := StateRefT State TermElabM
@@ -69,6 +74,8 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
 
   if candidates.size = 0 then
     throwError message
+  -- Sort for deterministic output (iteration order of `env.constants` is not stable)
+  candidates := candidates.qsort Name.lt
   let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
   let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
     suggestion := mkIdent candidate
@@ -280,16 +287,15 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
   else if k == ``Lean.Parser.Term.quotedName || k == ``Lean.Parser.Term.doubleQuotedName then
     return stx
   else if k == choiceKind then
-    /- Remark: If there are `Term.structInst` alternatives, we keep only them. This is a hack to get rid of
+    let args := stx.getArgs
+    /- Remark: If there is a `Term.structInst` alternative, we resolve the `choice` node to it. This is a hack to get rid of
        Set-like notation in patterns. Recall that in Mathlib `{a, b}` can be a set with two elements or the
        structure instance `{ a := a, b := b }`. Possible alternative solution: add a `pattern` category, or at least register
-       the `Syntax` node kinds that are allowed in patterns. -/
-    let args :=
-      let args := stx.getArgs
-      if args.any (·.isOfKind ``Parser.Term.structInst) then
-        args.filter (·.isOfKind ``Parser.Term.structInst)
-      else
-        args
+       the `Syntax` node kinds that are allowed in patterns.
+       Only one parser produces `Term.structInst`, so a `choice` node has at most one such alternative. -/
+    if let some idx := args.findIdx? (·.isOfKind ``Parser.Term.structInst) then
+      modify fun s => { s with choiceResolutions := s.choiceResolutions.push { stx, chosenAltIdx := idx } }
+      return ← collect args[idx]!
     let stateSaved ← get
     let arg0 ← collect args[0]!
     let stateNew ← get
@@ -300,6 +306,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       unless samePatternsVariables stateSaved.vars.size stateNew (← get) do
         throwError "Invalid pattern: Overloaded notation is only allowed when all alternatives have the same set of pattern variables"
     set stateNew
+    -- The alternatives are rewritten one-to-one, so `chosenAltIdx` of a `ChoiceResolutionInfo`
+    -- for this node is also a valid index into the alternatives of the original node.
     return mkNode choiceKind argsNew
   else match stx with
   | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
@@ -320,7 +328,7 @@ where
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
         -- We must ensure that `ref[1]` remains original to allow named-argument hints
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
+        | { ref, name, val := Arg.stx arg, .. } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
@@ -334,7 +342,8 @@ where
 
   /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[match_pattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
-    match (← resolveId? stx "pattern") with
+    -- Deprecated constructors are reported when elaborating the pattern; variables are not uses.
+    match (← withoutCheckDeprecated <| resolveId? stx "pattern") with
     | none   => processVar stx
     | some f => match f with
       | Expr.const fName _ =>
@@ -399,7 +408,8 @@ where
       | `(@$fId:ident) => pure (fId, true)
       | _              =>
         throwError "Invalid pattern: Expected an identifier in function position, but found{indentD f}"
-    let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected (some fId)
+    let some (Expr.const fName _) ← withoutCheckDeprecated <| resolveId? fId "pattern" (withInfo := true)
+      | throwCtorExpected (some fId)
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
       let d ← getFVarLocalDecl x
@@ -429,6 +439,8 @@ It also returns the updated views.
 -/
 def collectPatternVars (alt : MatchAltView k) : TermElabM (Array PatternVar × MatchAltView k) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
+  for info in s.choiceResolutions do
+    pushInfoLeaf <| .ofChoiceResolutionInfo info
   return (s.vars, alt)
 
 /--

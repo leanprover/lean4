@@ -24,7 +24,7 @@ trace: [grind.lia.model] x := 241/154
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (x y : Int) : problem₁ x y → False := by
-  fail_if_success grind +qlia -- Rational counterexamples allowed
+  fail_if_success grind +verbose +qlia -- Rational counterexamples allowed
   sorry
 
 /-- info: true -/
@@ -53,7 +53,7 @@ theorem ex₄ (x y : Int) :
 theorem ex₅ (x y : Int) : 1 ≤ x + y → 100 ∣ x + y → 100 ≤ x + y := by
   grind
 
-open Int.Linear
+open Int.Internal.Linear
 #print ex₁
 #print ex₂
 #print ex₃

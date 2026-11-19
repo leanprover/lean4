@@ -9,6 +9,8 @@ prelude
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
+import Lean.Elab.DeprecatedSyntax.Basic
+import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -43,13 +45,14 @@ instance : Nonempty FixedTermElabRef :=
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
-  declName?      : Option Name
-  options        : Options
-  openDecls      : List OpenDecl
-  macroStack     : MacroStack
-  errToSorry     : Bool
-  levelNames     : List Name
-  fixedTermElabs : Array FixedTermElabRef
+  declName?       : Option Name
+  options         : Options
+  openDecls       : List OpenDecl
+  macroStack      : MacroStack
+  errToSorry      : Bool
+  levelNames      : List Name
+  fixedTermElabs  : Array FixedTermElabRef
+  checkDeprecated : Core.DeprecationCheck
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -168,9 +171,9 @@ structure LetRecToLift where
   termination    : TerminationHints
   /-- The binders syntax for the declaration, used for docstring elaboration. -/
   binders        : Syntax := .missing
-  /-- The docstring, if present, and whether it's Verso. Docstring processing is deferred until the
-  declaration is added to the environment (needed for Verso docstrings to work). -/
-  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment × Bool) := none
+  /-- The docstring, if present. Docstring processing is deferred until the declaration is added to
+  the environment (needed for Verso docstrings to work). -/
+  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment) := none
   deriving Inhabited
 
 /--
@@ -197,6 +200,12 @@ structure State where
   -/
   mvarArgNames      : MVarIdMap Name := {}
   letRecsToLift     : List LetRecToLift := []
+  /--
+  Maps a pending type class problem that got stuck to the metavariables of its goal at that point.
+  `synthesizeSyntheticMVars` does not retry it until one of them, or the instance metavariable itself,
+  is assigned, since type class resolution would get stuck on the same goal again.
+  -/
+  stuckTCMVars      : MVarIdMap (Array MVarId × Array LMVarId) := {}
   deriving Inhabited
 
 /--
@@ -231,27 +240,60 @@ structure TacticFinishedSnapshot extends Language.Snapshot where
   state? : Option SavedState
   /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
   moreSnaps : Array (SnapshotTask SnapshotTree)
-deriving Inhabited
+
+instance : Inhabited TacticFinishedSnapshot where
+  default := { toSnapshot := default, state? := default, moreSnaps := default }
+
 instance : ToSnapshotTree TacticFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot, ← s.moreSnaps.mapM (·.transform)⟩
+
+/-- Applies the given transformation to the `TacticFinishedSnapshot`. -/
+def TacticFinishedSnapshot.transform (s : TacticFinishedSnapshot) (trans : SnapshotTreeTransform) : TacticFinishedSnapshot :=
+  { s with moreSnaps := s.moreSnaps.map (·.map (sync := true) (·.transform trans)) }
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshot extends Language.Snapshot where
+structure TacticParsedSnapshotInner (α : Type) extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
   /-- Task for nested incrementality, if enabled for tactic. -/
-  inner?   : Option (SnapshotTask TacticParsedSnapshot) := none
+  inner?   : Option (SnapshotTask α) := none
   /-- Task for state after tactic execution. -/
   finished : SnapshotTask TacticFinishedSnapshot
+
+instance : Inhabited (TacticParsedSnapshotInner α) where
+  default := { toSnapshot := default, stx := default, finished := default }
+
+partial instance [ToSnapshotTree α] : ToSnapshotTree (TacticParsedSnapshotInner α) where
+  toSnapshotTreeM s :=
+    return ⟨← Snapshot.transform s.toSnapshot,
+      (← s.inner?.toArray.mapM (·.transform)) ++
+      #[← s.finished.transform]⟩
+
+structure TacticParsedSnapshot where
+  transformed : TransformedSnap (TacticParsedSnapshotInner TacticParsedSnapshot)
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 deriving Inhabited
+
+/--
+Pushes the transformation inwards by one level, allowing transformation-correct access to fields.
+-/
+def TacticParsedSnapshot.applyTransform (s : TacticParsedSnapshot) :
+    TacticParsedSnapshotInner TacticParsedSnapshot where
+  toSnapshot := s.transformed.raw.toSnapshot.transform s.transformed.transform
+  stx := s.transformed.transform.transformSyntax s.transformed.raw.stx
+  inner? := s.transformed.raw.inner?.map (·.map (sync := true) ({ transformed := ·.transformed.compose s.transformed.transform }))
+  finished := s.transformed.raw.finished.map (sync := true) (·.transform s.transformed.transform)
+
 partial instance : ToSnapshotTree TacticParsedSnapshot where
-  toSnapshotTree := go where
-    go := fun s => ⟨s.toSnapshot,
-      s.inner?.toArray.map (·.map (sync := true) go) ++
-      #[s.finished.map (sync := true) toSnapshotTree] ++
-      s.next.map (·.map (sync := true) go)⟩
+  toSnapshotTreeM := go
+where
+  go s := do
+    let _ : ToSnapshotTree TacticParsedSnapshot := ⟨go⟩
+    let inner ← withReader (·.compose s.transformed.transform) do
+      toSnapshotTreeM s.transformed.raw
+    let next ← s.next.mapM (·.transform)
+    return { inner with children := inner.children ++ next }
 
 end Snapshot
 end Tactic
@@ -335,10 +377,6 @@ structure Context where
   `refine' (fun x => _)
   -/
   holesAsSyntheticOpaque : Bool := false
-  /--
-  If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
-  -/
-  checkDeprecated : Bool := true
   /--
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
@@ -626,13 +664,13 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   `[LVal.fieldName "foo", LVal.fieldIdx 1]`.
 -/
 inductive LVal where
-  | fieldIdx  (ref : Syntax) (i : Nat)
+  | fieldIdx  (ref : Syntax) (i : Nat) (levels : List Level)
   /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
   `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
+  | fieldName (ref : Syntax) (name : String) (levels : List Level) (suffix? : Option Name) (fullRef : Syntax)
 
 def LVal.getRef : LVal → Syntax
-  | .fieldIdx ref _    => ref
+  | .fieldIdx ref ..   => ref
   | .fieldName ref ..  => ref
 
 def LVal.isFieldName : LVal → Bool
@@ -641,8 +679,11 @@ def LVal.isFieldName : LVal → Bool
 
 instance : ToString LVal where
   toString
-    | .fieldIdx _ i     => toString i
-    | .fieldName _ n .. => n
+    | .fieldIdx _ i levels ..  => toString i ++ levelsToString levels
+    | .fieldName _ n levels .. => n ++ levelsToString levels
+where
+  levelsToString levels :=
+    if levels.isEmpty then "" else ".{" ++ String.intercalate "," (levels.map toString) ++ "}"
 
 /-- Return the name of the declaration being elaborated if available. -/
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
@@ -769,7 +810,7 @@ def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-open Level (LevelElabM)
+open Lean.Elab.Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
@@ -788,8 +829,10 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
 /-- Elaborate `x` with `stx` on the macro stack -/
-def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+def withPushMacroExpansionStack [MonadWithReaderOf Context m] (beforeStx afterStx : Syntax)
+    (x : m α) : m α :=
+  withTheReader Context (fun ctx =>
+    { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
 @[specialize]
@@ -1043,6 +1086,17 @@ def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
 def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Ident :=
   return mkIdentFrom ref (← mkFreshBinderName) canonical
 
+@[inline] def withoutCheckDeprecated [MonadWithReaderOf Core.Context m] : m α → m α :=
+  withTheReader Core.Context (fun ctx => { ctx with checkDeprecated := .none })
+
+/--
+Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
+See `Core.DeprecationCheck.userWritten`.
+-/
+@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Core.Context m] : m α → m α :=
+  withTheReader Core.Context fun ctx =>
+    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
+
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
@@ -1052,7 +1106,9 @@ private def applyAttributesCore
   -/
   if declName == .anonymous then
     return
-  withDeclName declName do
+  -- Like the declaration's body, its attributes may refer to deprecated constants if it is deprecated
+  let isDeprecated := Linter.isDeprecated (← getEnv) declName || attrs.any (·.name == `deprecated)
+  (if isDeprecated then withoutCheckDeprecated else id) <| withDeclName declName do
     for attr in attrs do
       -- Use same visibility as for other signature elements, independent of call site
       withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do
@@ -1062,7 +1118,15 @@ private def applyAttributesCore
       match getAttributeImpl env attr.name with
       | .error errMsg => throwError errMsg
       | .ok attrImpl  =>
-        let runAttr := attrImpl.add declName attr.stx attr.kind
+        let runAttr := do
+          attrImpl.add declName attr.stx attr.kind
+          if let some attrsStx := attr.declAttrsStx? then
+            if (← isAutomationAttr attr.name) then
+              let insts := attrsStx[1].getSepArgs
+              let removal? ← match insts.findIdx? (·[1].getRange? == attr.stx.getRange?) with
+                | some i => Linter.mkListRemovalSuggestion attrsStx insts i
+                | none => pure none
+              Linter.checkDeprecatedAutomationAttr attr.stx declName attr.name removal?
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition
           let elaborator := attrImpl.ref
@@ -1116,7 +1180,7 @@ def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) 
   | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
-  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
+  withTheReader Core.Context (fun (ctx : Core.Context) => ctx.setOptions (pp.macroStack.set ctx.options false)) x
 
 namespace ContainsPendingMVar
 
@@ -1382,13 +1446,14 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
 -/
 def saveContext : TermElabM SavedContext :=
   return {
-    macroStack     := (← read).macroStack
-    declName?      := (← read).declName?
-    options        := (← getOptions)
-    openDecls      := (← getOpenDecls)
-    errToSorry     := (← read).errToSorry
-    levelNames     := (← get).levelNames
-    fixedTermElabs := (← read).fixedTermElabs
+    macroStack      := (← read).macroStack
+    declName?       := (← read).declName?
+    options         := (← getOptions)
+    openDecls       := (← getOpenDecls)
+    errToSorry      := (← read).errToSorry
+    levelNames      := (← get).levelNames
+    fixedTermElabs  := (← read).fixedTermElabs
+    checkDeprecated := (← readThe Core.Context).checkDeprecated
   }
 
 /--
@@ -1401,7 +1466,8 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         errToSorry := savedCtx.errToSorry,
         fixedTermElabs := savedCtx.fixedTermElabs,
       }) <|
-    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
+    withTheReader Core.Context (fun ctx => { ctx.setOptions savedCtx.options with
+        openDecls := savedCtx.openDecls, checkDeprecated := savedCtx.checkDeprecated }) <|
       withLevelNames savedCtx.levelNames x
 
 /--
@@ -1472,7 +1538,8 @@ partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
 /--
   Return `some mvarId` if `e` corresponds to a hole that is going to be filled "later" by executing a tactic or resuming elaboration.
 
-  We do not save `ofTermInfo` for this kind of node in the `InfoTree`.
+  We do not save `ofTermInfo` for this kind of node in the `InfoTree`, unless the would-be children
+  of the node already contain the `InfoTree.hole` for it.
 -/
 def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   match e with
@@ -1483,14 +1550,41 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
+/--
+Returns `true` if the `InfoTree`s produced by the elaboration that is currently being wrapped in an
+`Info` node already contain an `InfoTree.hole` for `mvarId`, i.e. if the hole was emitted by a
+nested elaboration rather than by the current one.
+-/
+private partial def hasInfoHoleFor (mvarId : MVarId) : TermElabM Bool := do
+  return (← getInfoState).trees.any go
+where
+  go : InfoTree → Bool
+    | .hole mvarId' => mvarId' == mvarId
+    | .context _ t  => go t
+    | .node _ c     => c.any go
+
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) (isBinder := false) (isDisplayableTerm := false) :
     TermElabM (Sum Info MVarId) := do
-  match (← isTacticOrPostponedHole? e) with
-  | some mvarId => return Sum.inr mvarId
-  | none =>
-    let e := removeSaveInfoAnnotation e
-    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
+  if let some mvarId ← isTacticOrPostponedHole? e then
+    /-
+    Recall that `withInfoContext'` discards the `InfoTree`s of the elaboration when we return a
+    hole, and that the `Info` for the hole is supplied later via `assignInfoHoleId`.
+
+    If a nested elaboration already emitted the hole for `mvarId`, then the current elaboration
+    merely passes the hole through as returning another hole would discard all `Info` it produced,
+    e.g. the `Info` for `type` in `(e : type)` when `e` is a tactic block. In this case, we emit an
+    ordinary term node that contains the nested hole.
+
+    Otherwise, the current elaboration created the hole (e.g. by postponing) and we must return it
+    so that the `Info` supplied later has somewhere to go. Note that the elaboration may already
+    have produced `InfoTree`s before creating the hole, but those are reproduced when its
+    elaboration is resumed.
+    -/
+    unless (← hasInfoHoleFor mvarId) do
+      return Sum.inr mvarId
+  let e := removeSaveInfoAnnotation e
+  return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
 
 def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) :
@@ -1553,6 +1647,21 @@ def mkBodyInfo (stx : Syntax) (value? : Option Expr) : Info :=
 def getBodyInfo? : Info → Option BodyInfo
   | .ofCustomInfo { value, .. } => value.get? BodyInfo
   | _ => none
+
+/--
+Info node for the value of a definition-like declaration, for example the proof of a theorem. The
+`stx` of the node is the value. `elabMutualDef` adds this node directly after it elaborates the
+header. Thus, in contrast to `BodyInfo`, the node is available before the (possibly asynchronous)
+elaboration of the value finishes.
+-/
+structure DeclValueInfo where
+  /-- The full name of the declaration. -/
+  declName  : Name
+  /-- The header of the declaration, i.e. everything up to the value. -/
+  headerRef : Syntax
+  /-- Whether the type of the declaration is a proposition, i.e. whether the value is a proof. -/
+  isProof   : Bool
+deriving TypeName
 
 def withTermInfoContext' (elaborator : Name) (stx : Syntax) (x : TermElabM Expr)
     (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none)
@@ -1630,9 +1739,57 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabUsingElabFnsAux s stx expectedType? catchExPostpone elabFns
 
-instance : MonadMacroAdapter TermElabM where
-  getNextMacroScope := return (← getThe Core.State).nextMacroScope
-  setNextMacroScope next := modifyThe Core.State fun s => { s with nextMacroScope := next }
+-- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
+instance : MonadMacroAdapter TermElabM := inferInstance
+
+/--
+Runs `x`, which elaborates `stx` or its macro expansion. If the kind of `stx` is deprecated, `x`
+reports deprecations only in syntax written by the user: `stx` is reported as a whole, so the
+deprecated constants and syntax its expansion refers to are not reported as well.
+-/
+def withDeprecationContextForSyntax (stx : Syntax) (x : TermElabM α) : TermElabM α := do
+  if isDeprecatedSyntax (← getEnv) stx.getKind then
+    withoutCheckDeprecatedSynthetic x
+  else
+    x
+
+/--
+Reports `stx` if its syntax kind is deprecated, unless deprecation checks are disabled by
+`withoutCheckDeprecated`, or by `withoutCheckDeprecatedSynthetic` for syntax not written by the
+user.
+
+The elaborator of a syntax category calls this before running the elaborators of `stx` with
+`withDeprecationContextForSyntax stx`, as `elabTerm` does for terms. Macros are instead reported
+when expanding them with `expandMacroReportingDeprecated?`.
+-/
+def reportDeprecatedSyntax (stx : Syntax) : TermElabM Unit := do
+  checkDeprecatedSyntax stx (← read).macroStack
+
+/--
+Expands the macro `stx`, if any, returning the name of the macro declaration and the expansion.
+Unlike `expandMacroImpl?`, this reports `stx` if its syntax kind is deprecated. Elaborators that
+expand macros themselves instead of elaborating them with `elabTerm` should use this function and
+elaborate the expansion with `withDeprecationContextForSyntax stx`, while analyses that do not
+elaborate the expansion should use `expandMacroImpl?`, so that deprecated syntax is reported once.
+-/
+def expandMacroReportingDeprecated? (stx : Syntax) : TermElabM (Option (Name × Syntax)) := do
+  let some (declName, stxNew?) ← liftMacroM <| expandMacroImpl? (← getEnv) stx | return none
+  reportDeprecatedSyntax stx
+  return some (declName, ← liftMacroM <| liftExcept stxNew?)
+
+/--
+Expands all macros in `stx` like `expandMacros`, except in nodes whose kind does not satisfy `p`,
+and reports deprecated syntax like `expandMacroReportingDeprecated?`.
+-/
+partial def expandMacrosReportingDeprecated (stx : Syntax)
+    (p : SyntaxNodeKind → Bool := (· != ``Parser.Term.byTactic)) : TermElabM Syntax :=
+  withRef stx <| withIncRecDepth do
+    let .node info k args := stx | return stx
+    unless p k do return stx
+    if let some (_, stxNew) ← expandMacroReportingDeprecated? stx then
+      withPushMacroExpansionStack stx stxNew <| expandMacrosReportingDeprecated stxNew p
+    else
+      return .node info k (← args.mapM (expandMacrosReportingDeprecated · p))
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
@@ -1649,11 +1806,6 @@ private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   match stx with
   | `(fun $binders* => $_) => binders.raw.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                      => false
-
-private partial def dropTermParens : Syntax → Syntax := fun stx =>
-  match stx with
-  | `(($stx)) => dropTermParens stx
-  | _         => stx
 
 private def isHole (stx : Syntax) : Bool :=
   stx.isOfKind ``Lean.Parser.Term.hole || stx.isOfKind ``Lean.Parser.Term.syntheticHole
@@ -1682,7 +1834,7 @@ def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
 
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=
-  let stx := dropTermParens stx
+  let stx := Parser.Term.dropParens stx
   -- TODO: make it extensible
   isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx ||
   isNoImplicitLambda stx || isTypeAscription stx
@@ -1794,15 +1946,15 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
-    let env ← getEnv
-    let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, stxNew?) =>
-      let stxNew ← liftMacroM <| liftExcept stxNew?
+    let result ← match (← expandMacroReportingDeprecated? stx) with
+    | some (decl, stxNew) =>
       withTermInfoContext' decl stx (expectedType? := expectedType?) <|
         withMacroExpansion stx stxNew <|
-          withRef stxNew <|
+          withRef stxNew <| withDeprecationContextForSyntax stx <|
             elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
+      reportDeprecatedSyntax stx
+      withDeprecationContextForSyntax stx do
       let useImplicitResult ← if implicitLambda && (← read).implicitLambda then useImplicitLambda stx expectedType? else pure .no
       match useImplicitResult with
       | .yes expectedType => elabImplicitLambda stx catchExPostpone expectedType
@@ -2081,19 +2233,36 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
-  if (← read).checkDeprecated then
-    Linter.checkDeprecated constName
+/--
+In a pattern, offers the replacement of a deprecated constant only if it can be used in patterns,
+and explains why not otherwise.
+-/
+private def mkPatternDeprecationHint (declName newName : Name) : MetaM MessageData := do
+  let env ← getEnv
+  if env.isConstructor newName || hasMatchPatternAttribute env newName then
+    Linter.mkIdentHint declName newName
+  else
+    return .note m!"`{.ofConstName newName true}` is neither a constructor nor a `@[match_pattern]` \
+      definition, so it cannot be used in this pattern. Written as `{newName.getString!}`, it would \
+      instead be a new pattern variable that matches every value."
+
+def checkDeprecatedCore (constName : Name) (hint : Linter.DeprecationHint := .ident) :
+    TermElabM Unit := do
+  let hint := if (← read).inPattern && hint matches .ident then
+    .custom (mkPatternDeprecationHint constName)
+  else
+    hint
+  Linter.checkDeprecatedAt (← getRef) constName hint
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
   Remark: fresh universe metavariables are created if the constant has more universe
   parameters than `explicitLevels`.
 
-  If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
+  Reports `constName` if it is deprecated, subject to `Core.Context.checkDeprecated`.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  checkDeprecatedCore constName
+  checkDeprecatedCore constName (hint := .none)
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for `{constName}`"
@@ -2106,11 +2275,10 @@ def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
   if let .const declName _ := e.getAppFn then
     withRef ref do checkDeprecatedCore declName
 
-@[inline] def withoutCheckDeprecated [MonadWithReaderOf Context m] : m α → m α :=
-  withTheReader Context (fun ctx => { ctx with checkDeprecated := false })
-
-private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
+private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String × List Level)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
+    -- levels apply to the last projection, not the constant
+    let (constLevels, projLevels) := if projs.isEmpty then (explicitLevels, []) else ([], explicitLevels)
     -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
     /-
     We disable `checkDeprecated` here because there may be many overloaded symbols.
@@ -2119,22 +2287,38 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     At `elabAppFnId`, we perform the check when converting the list returned by `resolveName'` into a list of
     `TermElabResult`s.
     -/
-    let const ← withoutCheckDeprecated <| mkConst declName explicitLevels
-    return (const, projs) :: result
+    let const ← withoutCheckDeprecated <| mkConst declName constLevels
+    return (const, projs, projLevels) :: result
 
-def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
+def throwInvalidExplicitUniversesForLocal {α} (e : Expr) : TermElabM α :=
+  throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
+
+/--
+  Gives all resolutions of the name `n`.
+
+- `explicitLevels` provides a prefix of level parameters to the constant. For resolutions with a projection
+  component, the levels are not used, since they must apply to the last projection, not the constant.
+  In that case, the third component of the tuple is `explicitLevels`.
+-/
+def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String × List Level)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
+  let processLocal (e : Expr) (projs : List String) := do
+    if projs.isEmpty then
+      if explicitLevels.isEmpty then
+        return [(e, [], [])]
+      else
+        throwInvalidExplicitUniversesForLocal e
+    else
+      return [(e, projs, explicitLevels)]
   if let some (e, projs) ← resolveLocalName n then
-    unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
-    return [(e, projs)]
+    return ← processLocal e projs
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)
     | _             => none
   -- check for section variable capture by a quotation
   let ctx ← read
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
-    return [(e, projs)]  -- section variables should shadow global decls
+    return ← processLocal e projs  -- section variables should shadow global decls
   if preresolved.isEmpty then
     mkConsts (← realizeGlobalName n) explicitLevels
   else
@@ -2143,14 +2327,17 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
   Example: Assume resolveName `v.head.bla.boo` produces `(v.head, ["bla", "boo"])`, then this method produces
-  `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
-def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (Name × List (Expr × Syntax × List Syntax)) := do
+  `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`.
+
+  See the comment there about `explicitLevels` and the meaning of the `List Level` component of the returned tuple.
+-/
+def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (Name × List (Expr × Syntax × List Syntax × List Level)) := do
   let .ident _ _ n preresolved := ident
     | throwError "identifier expected"
   let r ← resolveName ident n preresolved explicitLevels expectedType?
-  let rc ← r.mapM fun (c, fields) => do
+  let rc ← r.mapM fun (c, fields, levels) => do
     let ids := ident.identComponents (nFields? := fields.length)
-    return (c, ids.head!, ids.tail!)
+    return (c, ids.head!, ids.tail!, levels)
   return (n, rc)
 
 
@@ -2158,7 +2345,7 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
   match stx with
   | .ident _ _ val preresolved =>
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
-    let rs := rs.filter fun ⟨_, projs⟩ => projs.isEmpty
+    let rs := rs.filter fun ⟨_, projs, _⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
     match fs with
     | []  => return none

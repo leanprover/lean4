@@ -12,7 +12,7 @@ public section
 
 namespace Lean
 
-/- Similar to trie, but for arbitrary keys -/
+/-- Similar to trie, but for arbitrary keys -/
 inductive PrefixTreeNode (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
   | Node : Option β → Std.TreeMap.Raw α (PrefixTreeNode α β cmp) cmp → PrefixTreeNode α β cmp
 

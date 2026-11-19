@@ -8,8 +8,8 @@ module
 prelude
 public import Init.Data.String.Defs
 import all Init.Data.String.Defs
-public import Init.Data.String.Slice
-import all Init.Data.String.Slice
+public import Init.Data.String.Slice.Basic
+import all Init.Data.String.Slice.Basic
 import Init.ByCases
 
 public section
@@ -76,6 +76,10 @@ theorem join_cons : join (s :: l) = s ++ join l := by
 @[simp]
 theorem toList_join {l : List String} : (String.join l).toList = l.flatMap String.toList := by
   induction l <;> simp_all
+
+@[simp]
+theorem join_append {l m : List String} : String.join (l ++ m) = String.join l ++ String.join m := by
+  simp [← toList_inj]
 
 namespace Slice
 

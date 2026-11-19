@@ -20,7 +20,7 @@ open System
 
 namespace Lake
 
-private def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
+def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:static" do
   lib.config.getPath <$> fetch (lib.pkg.target lib.staticTargetName)
 
@@ -53,7 +53,7 @@ public def buildLeanSharedLibOfStatic
       compileSharedLib dynlib args lean.cc
     return dynlib
 
-private def ExternLib.recBuildShared (lib : ExternLib) : FetchM (Job FilePath) :=
+def ExternLib.recBuildShared (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:shared" do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
@@ -74,7 +74,7 @@ def computeDynlibOfShared (sharedLibTarget : Job FilePath) : SpawnM (Job Dynlib)
     else
       error s!"shared library `{sharedLib}` has no file name"
 
-private def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
+def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{lib.staticTargetName.toString}:dynlib" do
   computeDynlibOfShared (← lib.shared.fetch)
 
@@ -82,7 +82,7 @@ private def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) :
 public def ExternLib.dynlibFacetConfig : ExternLibFacetConfig dynlibFacet :=
   mkFacetJobConfig recComputeDynlib
 
-private def ExternLib.recBuildDefault (lib : ExternLib) : FetchM (Job FilePath) :=
+def ExternLib.recBuildDefault (lib : ExternLib) : FetchM (Job FilePath) :=
   lib.static.fetch
 
 /-- The facet configuration for the builtin `ExternLib.dynlibFacet`. -/

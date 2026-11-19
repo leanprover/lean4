@@ -100,7 +100,6 @@ x y : Nat
 h : x = y
 ⊢ y = x
 -----
-case h
 x y : Nat
 h : x = y
 ⊢ x = y

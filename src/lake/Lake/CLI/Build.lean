@@ -71,7 +71,7 @@ def resolveModuleTarget
   (ws : Workspace) (mod : Module) (facet : Name)
 : Except CliError BuildSpec :=
   if facet.isAnonymous then
-    return mkBuildSpec mod.leanArts
+    return mkBuildSpec mod.irArts
   else
     if let some config := ws.findModuleFacetConfig? (Module.facetKind ++ facet) then do
       return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl
@@ -140,7 +140,7 @@ def resolveTargetInWorkspace
   else
     throw <| CliError.unknownTarget target
 
-private def resolveTargetLikeSpec
+def resolveTargetLikeSpec
   (ws : Workspace) (spec : String) (facet : Name) (isMaybePath explicit := false)
 : Except CliError (Array BuildSpec) := do
   match spec.split '/' |>.toList with
@@ -169,7 +169,7 @@ private def resolveTargetLikeSpec
     else
       throw <| CliError.invalidTargetSpec spec '/'
 
-private def resolveTargetBaseSpec
+def resolveTargetBaseSpec
   (ws : Workspace) (spec : String) (facet : Name)
 : EIO CliError (Array BuildSpec) := do
   if spec.startsWith "@" then

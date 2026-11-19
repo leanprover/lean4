@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Queue
 public import Std.Sync.Mutex
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
@@ -19,18 +19,18 @@ and asynchronous waiting, and is useful for cases where you want to notify one o
 that an event has occurred.
 
 Unlike a channel, `Std.Notify` does not buffer messages or carry data. It's simply a trigger.
-If no one is waiting, notifications are lost. If one or more waiters are present, exactly one
-will be woken up per notification.
+If no one is waiting, notifications are lost. `notifyOne` wakes exactly one of the waiters present,
+and `notify` wakes all of them.
 -/
 
 namespace Std
-open Std.Internal.IO.Async
+open Std.Async
 
-inductive Notify.Consumer (α : Type) where
+private inductive Notify.Consumer (α : Type) where
   | normal (promise : IO.Promise α)
   | select (finished : Waiter α)
 
-def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
+private def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
   match c with
   | .normal promise =>
     promise.resolve x
@@ -45,7 +45,7 @@ def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
 /--
 The central state structure for a `Notify`.
 -/
-structure Notify.State where
+private structure Notify.State where
 
   /--
   Consumers that are blocked waiting for a notification.
@@ -57,7 +57,7 @@ A notify is a synchronization primitive that allows multiple consumers to wait
 until notify is called.
 -/
 structure Notify where
-  state : Std.Mutex Notify.State
+  private state : Std.Mutex Notify.State
 
 namespace Notify
 
@@ -92,14 +92,15 @@ was notified, false if no consumers were waiting.
 -/
 def notifyOne (x : Notify) : BaseIO Bool := do
   x.state.atomically do
-    let mut st ← get
-
-    if let some (consumer, rest) := st.consumers.dequeue? then
-      st := { st with consumers := rest }
-      set st
-      consumer.resolve ()
-    else
-      return false
+    -- A `select` consumer whose `Selectable.one` was already won by another selector declines the
+    -- notification, which then goes to the next consumer.
+    while true do
+      let st ← get
+      let some (consumer, rest) := st.consumers.dequeue? | return false
+      set { st with consumers := rest }
+      if ← consumer.resolve () then
+        return true
+    return false
 
 /--
 Wait to be notified. Returns a task that completes when notify is called.

@@ -54,6 +54,8 @@ def pure {σs : List (Type u)} (P : Prop) : SPred σs := match σs with
   | _ :: _ => fun _ => pure P
 theorem pure_nil : pure (σs:=[]) P = ULift.up P := rfl
 theorem pure_cons : pure (σs:=σ::σs) P = fun _ => pure P := rfl
+@[simp, grind =] theorem down_pure_nil : (pure (σs:=[]) P).down = P := rfl
+@[simp, grind =] theorem apply_pure_cons : pure (σs:=σ::σs) P s = pure P := rfl
 
 /--
 Entailment in `SPred`.
@@ -66,6 +68,8 @@ def entails {σs : List (Type u)} (P Q : SPred σs) : Prop := match σs with
   | [] => P.down → Q.down
   | σ :: _ => ∀ (s : σ), entails (P s) (Q s)
 @[simp, grind =] theorem entails_nil {P Q : SPred []} : entails P Q = (P.down → Q.down) := rfl
+theorem entails_nil_intro {P Q : SPred []} : (P.down → Q.down) → entails P Q := by simp only [entails_nil, imp_self]
+theorem entails_nil_pure_intro {φ : Prop} {Q : SPred []} : (φ → Q.down) → entails (SPred.pure φ) Q := by simp only [entails_nil, pure_nil, imp_self]
 -- We would like to make `entails_cons` @[simp], but that has no effect until we merge #9015.
 -- Until then, we have `entails_<n>` for n ∈ [1:5] in DerivedLaws.lean.
 theorem entails_cons {P Q : SPred (σ::σs)} : entails P Q = (∀ s, entails (P s) (Q s)) := rfl
@@ -150,4 +154,4 @@ def conjunction {σs : List (Type u)} (env : List (SPred σs)) : SPred σs := ma
 @[simp, grind =] theorem conjunction_nil : conjunction ([] : List (SPred σs)) = pure True := rfl
 @[simp, grind =] theorem conjunction_cons {P : SPred σs} {env : List (SPred σs)} : conjunction (P::env) = P.and (conjunction env) := rfl
 @[simp, grind =] theorem conjunction_apply {env : List (SPred (σ::σs))} : conjunction env s = conjunction (env.map (· s)) := by
-  induction env <;> simp [conjunction, pure_cons, *]
+  induction env <;> simp [conjunction, *]

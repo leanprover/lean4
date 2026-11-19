@@ -8,4 +8,6 @@ module
 prelude
 public import Init.Internal.Order.Basic
 public import Init.Internal.Order.Lemmas
+public import Init.Internal.Order.MonadTail
+public import Init.Internal.Order.While
 public import Init.Internal.Order.Tactic

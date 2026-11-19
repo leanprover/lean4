@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 def f (x : Nat) : IO Unit := do
   x -- Error
   IO.println x

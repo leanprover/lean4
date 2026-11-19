@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
+import Lean.Meta.Match.Value
 public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Simp
@@ -107,7 +108,7 @@ where
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if thm.rfl then
+  if thm.rfl || (thm.backwardRfl && backward.defeqAttrib.useBackward.get (← getOptions)) then
     return (← getConfig).implicitDefEqProofs
   else
     return false
@@ -218,10 +219,12 @@ where
       return none
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
+      let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for (thm, numExtraArgs) in candidates do
+        checkSystem "simp"
         if inErasedSet thm then continue
         if rflOnly then
-          unless thm.rfl do
+          unless thm.rfl || (useBackward && thm.backwardRfl) do
             if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
                backward.dsimp.useDefEqAttr.get (← getOptions) then
               let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
@@ -231,6 +234,9 @@ where
             continue
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
           trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          if rflOnly && !thm.rfl && thm.backwardRfl then
+            trace[Meta.Tactic.simp.backwardDefEq]
+              "used `[backward_defeq]` theorem {← ppOrigin thm.origin} to rewrite{indentExpr e}"
           return some result
       return none
 
@@ -245,8 +251,10 @@ where
       return none
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
+      let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for thm in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
+        checkSystem "simp"
+        unless inErasedSet thm || (rflOnly && !(thm.rfl || (useBackward && thm.backwardRfl))) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
             let type ← inferType val
@@ -257,6 +265,9 @@ where
             tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
           if let some result := result? then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+            if rflOnly && !thm.rfl && thm.backwardRfl then
+              trace[Meta.Tactic.simp.backwardDefEq]
+                "used `[backward_defeq]` theorem {← ppOrigin thm.origin} to rewrite{indentExpr e}"
             diagnoseWhenNoIndex thm
             return some result
     return none
@@ -355,10 +366,58 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
     r ← mkCongrFun r arg
   return some r
 
+/--
+Returns a normal form of `e` if it is a `match` value (e.g., a `String` or `Nat` literal).
+Two `match` values of the same type are different iff their normal forms are structurally different.
+-/
+private def matchValueKey? (e : Expr) : MetaM (Option Expr) := do
+  if (← isMatchValue e) then
+    return some (← normMatchValue (← normLitValue e))
+  else
+    return none
+
+/--
+Returns `true` if the match equation `matchEq` cannot rewrite a matcher application whose
+discriminants are described by `discrValues`: one of the discriminants is a value, and the
+corresponding pattern of `matchEq` is a different value.
+`discrValues[j]` is `some v` if the `j`-th discriminant is a value, where `v` is its normal form
+(see `matchValueKey?`), and `none` otherwise.
+
+Example: given `match "b" with | "a" => 1 | "b" => 2 | _ => 3`, the equation for the alternative
+`"a"` is skipped. The equation for `_` is not, because its pattern is a variable.
+-/
+private def skipMatchEqn (info : MatcherInfo) (discrValues : Array (Option Expr)) (matchEq : Name) : MetaM Bool := do
+  let some (_, lhs, _) := (← getConstVal matchEq).type.getForallBody.eq? | return false
+  let args := lhs.getAppArgs
+  for i in info.getDiscrRange, discrValue? in discrValues do
+    let some discrValue := discrValue? | continue
+    let some pat := args[i]? | continue
+    -- A pattern with loose bound variables is not a value.
+    if pat.hasLooseBVars then continue
+    let some patValue ← matchValueKey? pat | continue
+    if patValue != discrValue then return true
+  return false
+
+/--
+Rewrites the matcher application `e` using the first match equation of `matcherName` that applies.
+
+A `match` with many value alternatives has one equation per alternative, and each failed attempt
+instantiates the telescope of an equation, whose size is proportional to the number of
+alternatives. So, equations whose patterns are values different from the discriminants of `e`
+are skipped without trying them (see `skipMatchEqn`).
+-/
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
+  let some info ← getMatcherInfo? matcherName | return .continue
+  let args := e.getAppArgs
+  let discrValues ← info.getDiscrRange.toArray.mapM fun i => do
+    let some discr := args[i]? | return none
+    matchValueKey? discr
+  let hasValue := discrValues.any (·.isSome)
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
+    if hasValue then
+      if (← skipMatchEqn info discrValues matchEq) then continue
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq), backwardRfl := (← isBackwardRflTheorem matchEq) }) with
     | none   => pure ()
     | some r => return .visit r
   return .continue
@@ -439,7 +498,7 @@ def sevalGround : Simproc := fun e => do
     -- `declName` has equation theorems associated with it.
     for eqn in eqns do
       -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
-      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } then
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn), backwardRfl := (← isBackwardRflTheorem eqn) } then
         trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
         return .visit result
     return .continue
@@ -585,7 +644,7 @@ private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
 partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
   assert! isEqnThmHypothesis e
   let mvar ← mkFreshExprSyntheticOpaqueMVar e
-  withCanUnfoldPred canUnfoldAtMatcher do
+  withCanUnfoldAtMatcherPred do
     if let .none ← go? mvar.mvarId! then
       instantiateMVars mvar
     else

@@ -154,6 +154,7 @@ public class FamilyOut {α : Type u} {β : Type v} (f : α → β) (a : α) (b :
 -- Simplifies proofs involving open type families.
 -- Scoped to avoid slowing down `simp` in downstream projects (the discrimination
 -- tree key is `_`, so it would be attempted on every goal).
+set_option warning.simp.varHead false in
 attribute [scoped simp] FamilyOut.fam_eq
 
 public instance [FamilyDef f a b] : FamilyOut f a b where

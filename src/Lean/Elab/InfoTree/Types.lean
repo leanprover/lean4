@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Data.DeclarationRange
 public import Lean.Data.OpenDecl
+public import Lean.Data.PPContext
 public import Lean.MetavarContext
 public import Lean.Environment
 public import Lean.Widget.Types
@@ -208,8 +209,10 @@ regular delaboration settings. Additionally, omissions come with a reason for om
 structure DelabTermInfo extends TermInfo where
   /-- A source position to use for "go to definition", to override the default. -/
   location? : Option DeclarationLocation := none
-  /-- Text to use to override the docstring. -/
-  docString? : Option String := none
+  /-- Text to use to override the docstring. The string may be dynamic text. It is an `IO` action
+  so that it can be computed only when it is used. The action receives a `PPContext` so that the
+  action does not need to create a closure with the meta state. -/
+  mkDocString? : Option (PPContext → IO String) := none
   /-- Whether to use explicit mode when pretty printing the term on hover. -/
   explicit : Bool := true
 
@@ -219,6 +222,29 @@ partial `InfoTree`s of those failed elaborators. Retaining these partial `InfoTr
 the language server provide interactivity even when all overloaded elaborators failed.
 -/
 structure ChoiceInfo extends ElabInfo where
+
+/--
+Indicates which of the alternatives of the `choice` node `stx` was picked by the elaborator.
+
+The parser produces `choice` nodes when multiple syntax alternatives match the same piece of
+syntax, and only elaboration determines which of the alternatives succeeds. This info node is
+created when an elaborator commits to one of the alternatives, so that consumers of the
+`InfoTree` can determine the picked alternative without having to re-derive it from the
+elaboration results of the alternatives.
+
+Note that elaborators may rewrite the alternatives of `choice` nodes before resolving them
+(e.g. when elaborating patterns), so `stx` is the `choice` node as seen by the elaborator that
+resolved it. Such rewrites map the alternatives one-to-one, so `chosenAltIdx` is also a valid
+index into the alternatives of the original `choice` node produced by the parser. A rewritten
+node is a different `Syntax` object with synthetic positions, so a consumer that correlates this
+info with the parsed syntax must compare source ranges with `canonicalOnly := false`.
+-/
+structure ChoiceResolutionInfo where
+  /-- The `choice` node whose resolution this info describes. -/
+  stx : Syntax
+  /-- The index of the alternative in `stx.getArgs` that was picked by the elaborator. -/
+  chosenAltIdx : Nat
+  deriving Inhabited
 
 inductive DocElabKind where
   | role | codeBlock | directive | command
@@ -263,6 +289,7 @@ inductive Info where
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
   | ofDelabTermInfo (i : DelabTermInfo)
   | ofChoiceInfo (i : ChoiceInfo)
+  | ofChoiceResolutionInfo (i : ChoiceResolutionInfo)
   | ofDocInfo (i : DocInfo)
   | ofDocElabInfo (i : DocElabInfo)
   deriving Inhabited

@@ -94,7 +94,7 @@ example : True :=
 
 example : True :=
   let foo := by
-      -- All tactic completions expected
+      -- No completions expected
 --^ completion
 
 example : True :=
@@ -131,4 +131,5 @@ syntax  "let " letDecl : tactic
 syntax (name := letrec) "let " &"rec" letRecDecls : tactic
 
 example : True := by
-                   --^ completion
+    -- All tactic completions expected
+--^ completion

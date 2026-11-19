@@ -1,5 +1,6 @@
 {"version": 1,
  "uri": "file:///interactiveTraces.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 3,
@@ -19,9 +20,7 @@
    [{"trace":
      {"msg":
       {"append":
-       [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-        {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
-        {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
+       [{"text": "✅️ "}, {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
       "indent": 0,
       "collapsed": false,
       "cls": "Meta.debug",
@@ -31,8 +30,7 @@
          [{"trace":
            {"msg":
             {"append":
-             [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-              {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+             [{"text": "✅️ "},
               {"tag": [{"expr": {"text": "child1"}}, {"text": ""}]}]},
             "indent": 2,
             "collapsed": false,
@@ -68,8 +66,7 @@
          [{"trace":
            {"msg":
             {"append":
-             [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-              {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+             [{"text": "✅️ "},
               {"tag": [{"expr": {"text": "child2"}}, {"text": ""}]}]},
             "indent": 2,
             "collapsed": false,
@@ -97,8 +94,7 @@
          [{"trace":
            {"msg":
             {"append":
-             [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-              {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+             [{"text": "✅️ "},
               {"tag": [{"expr": {"text": "child3"}}, {"text": ""}]}]},
             "indent": 2,
             "collapsed": false,

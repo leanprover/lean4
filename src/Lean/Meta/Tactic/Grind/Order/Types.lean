@@ -67,35 +67,12 @@ inductive ToPropagate where
   deriving Inhabited
 
 /--
-State for each order structure processed by this module.
-Each type must at least implement the instance `Std.IsPreorder`.
+Per-goal solver state of an order structure. The instances and the canonical `≤`/`<`
+functions live in `Sym.Arith.Order` (see `Sym.Arith.classifyOrder?`); `id` is the index
+of that record, and `structs` in `State` is indexed by the same ids.
 -/
 structure Struct where
   id                 : Nat
-  type               : Expr
-  /-- Cached `getDecLevel type` -/
-  u                  : Level
-  isPreorderInst     : Expr
-  /-- `LE` instance  -/
-  leInst             : Expr
-  /-- `LT` instance if available -/
-  ltInst?            : Option Expr
-  /-- `IsPartialOrder` instance if available -/
-  isPartialInst?     : Option Expr
-  /-- `IsLinearPreorder` instance if available -/
-  isLinearPreInst?   : Option Expr
-  /-- `LawfulOrderLT` instance if available -/
-  lawfulOrderLTInst? : Option Expr
-  /-- `id` of the `CommRing` (or `Ring`) structure in the `grind ring` module if available. -/
-  ringId?            : Option Nat
-  /-- `true` if `ringId?` is the Id of a commutative ring -/
-  isCommRing         : Bool
-  /-- `Ring` instance if available -/
-  ringInst?          : Option Expr
-  /-- `OrderedRing` instance if available -/
-  orderedRingInst?   : Option Expr
-  leFn               : Expr
-  ltFn?              : Option Expr
   /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
   nodes              : PArray Expr := {}
   /-- Mapping from `Expr` to a node representing it. -/
@@ -128,6 +105,13 @@ structure Struct where
   propagate          : List ToPropagate := []
   deriving Inhabited
 
+/-- Entry/Value for the map `termMap` in `State` -/
+structure TermMapEntry where
+  e : Expr
+  h : Expr
+  α : Expr
+deriving Inhabited
+
 /-- State for all order types detected by `grind`. -/
 structure State where
   /-- Order structures detected. -/
@@ -143,7 +127,7 @@ structure State where
   Example: given `x y : Nat`, `x ≤ y + 1` is mapped to `Int.ofNat x ≤ Int.ofNat y + 1`, and proof
   of equivalence.
   -/
-  termMap    : PHashMap ExprPtr (Expr × Expr) := {}
+  termMap    : PHashMap ExprPtr TermMapEntry := {}
   /-- `termMap` inverse -/
   termMapInv : PHashMap ExprPtr (Expr × Expr) := {}
   deriving Inhabited

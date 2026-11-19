@@ -73,16 +73,18 @@ def loadDynlib (path : System.FilePath) : IO Unit := do
 /--
 Loads a Lean plugin and runs its initializers.
 
-A Lean plugin is a shared library built from a Lean module.
-This means it has an `initialize_<module-name>` symbol that runs the
-module's initializers (including its imports' initializers). Initializers
+A Lean plugin is a shared library with an initialization function. If
+no `initFn?` is explicitly provided, the initalization function will be
+derived from the library's name (as `initialize_<lib-name>`).
+
+Plugins built from a Lean module will have an initialization function that
+runs the module's initializers (including its imports' initializers). Initializers
 are declared with the `initialize` or `builtin_initialize` commands.
 
-This is similar to passing `--plugin=path` to `lean`.
-Lean environment initializers, such as definitions calling
-`registerEnvExtension`, also require `Lean.initializing` to be `true`.
-To enable them, use `loadPlugin` within a `withImporting` block. This will
-set  `Lean.initializing` (but not `IO.initializing`).
+This is similar to passing `--plugin=path` (or `--plugin=path:initFn`) to `lean`.
+Lean environment initializers, such as definitions calling `registerEnvExtension`,
+also require `Lean.initializing` to be `true`. To enable them, use `loadPlugin` within
+a `withImporting` block. This will set `Lean.initializing` (but not `IO.initializing`).
 
 **Lean never unloads plugins.** Attempting to load a plugin that defines
 symbols shared with a previously loaded plugin (including itself) will error.
@@ -90,16 +92,17 @@ If multiple plugins share common symbols (e.g., imports), those symbols
 should be linked and loaded separately.
 -/
 @[export lean_load_plugin]
-def loadPlugin (path : System.FilePath) : IO Unit := do
+def loadPlugin (path : System.FilePath) (initFn? : Option String := none) : IO Unit := do
   -- We never want to look up plugins using the system library search
   let path ← IO.FS.realPath path
-  let some name := path.fileStem
+  let name ← initFn?.getDM do
+    let some name := path.fileStem
     | throw <| IO.userError s!"error, plugin has invalid file name '{path}'"
+    -- Lean libraries can be prefixed with `lib` or suffixed with `_shared`
+    -- under some configurations. We strip these from the default initializer symbol.
+    let name := name.dropPrefix "lib" |>.dropSuffix "_shared"
+    return s!"initialize_{name}"
   let dynlib ← Dynlib.load path
-  -- Lean libraries can be prefixed with `lib` or suffixed with `_shared`
-  -- under some configurations. We strip these from the initializer symbol.
-  let name := name.dropPrefix "lib" |>.dropSuffix "_shared"
-  let name := s!"initialize_{name}"
   let some sym := dynlib.get? name
     | throw <| IO.userError s!"error loading plugin, initializer not found '{name}'"
   -- Lean never unloads plugins (once initialized).
@@ -109,7 +112,7 @@ def loadPlugin (path : System.FilePath) : IO Unit := do
   Safety:
   * As `dynlib` is marked persistent, there is no danger of garbage collection.
   * There is still no guarantee that `sym` has the proper signature, but this
-    is about as safe as it can be. The initializer naming convention helps
+    is about as safe as it can be. The default initializer naming convention helps
     avoid accidentally mistaking non-plugins as plugins.
   -/
   unsafe sym.runAsInit

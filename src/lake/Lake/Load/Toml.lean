@@ -7,10 +7,12 @@ module
 
 prelude
 public import Lake.Config.Package
+public import Lake.Config.LakefileConfig
 public import Lake.Load.Config
 public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
+import Lake.Build.Infos
 import Init.Omega
 meta import Lake.Config.LakeConfig
 meta import Lake.Config.InputFileConfig
@@ -90,7 +92,7 @@ partial def takeName (ss : Substring.Raw) : (Substring.Raw × Name) :=
   let (ss, n) := takeNamePart ss .anonymous
   if n.isAnonymous then (ss, .anonymous) else takeRest ss n
 
-def Glob.ofString? (v : String) : Option Glob := do
+public def Glob.ofString? (v : String) : Option Glob := do
   let (ss, n) := takeName v.toRawSubstring
   if n.isAnonymous then failure
   if h : ss.startPos.atEnd ss.str then
@@ -287,8 +289,8 @@ public instance : DecodeField (LeanLibConfig n) `roots := ⟨decodeRoots⟩
 public protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM DependencySrc := do
   let typeVal ← t.decodeValue `type
   match (← typeVal.decodeString) with
-  | "path" =>
-    return .path (← t.decode `dir)
+  | "path" => ensureDecode do
+    return .path (← t.tryDecode `dir) (← t.tryDecodeD `copy false)
   | "git" => ensureDecode do
     return .git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
   | _ =>
@@ -296,37 +298,42 @@ public protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing
 
 public instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
+public protected def InputVer.decodeToml (v : Value) : EDecodeM InputVer := do
+  match InputVer.parse (← v.decodeString) with
+  | .ok ver => return ver
+  | .error e =>  throwDecodeErrorAt v.ref s!"invalid dependency version constraint: {e}"
+
+public instance : DecodeToml InputVer := ⟨InputVer.decodeToml⟩
+
 public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
   let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
-  let src? : Option DependencySrc ← id do
-    if let some dir ← t.tryDecode? `path then
-      return some <| .path dir
+  let src? : Option DependencySrc ← tryDecode do
+    if let some dir ← t.decode? `path then
+      return some <| .path dir (← t.decodeD `copy false)
     else if let some g := t.find? `git then
       match g with
-      | .string _ url =>
+      | .string _ url => ensureDecode do
         return some <| .git url rev? (← t.tryDecode? `subDir)
-      | .table ref t =>
+      | .table ref t => ensureDecode do
         return some <| .git (← t.tryDecode `url ref) rev? (← t.tryDecode? `subDir)
-      | _ =>
-        modify (·.push <| .mk g.ref "expected string or table")
-        return default
+      | _ => throwDecodeErrorAt g.ref "expected string or table"
     else
-      t.tryDecode? `source
+      t.decode? `source
   let scope ← t.tryDecodeD `scope ""
-  let version? ← id do
-    if let some ver ← t.tryDecode? `version then
-      return some ver
+  let version : InputVer ← tryDecode do
+    if let some val := t.find? `version then
+      decodeToml val
     else if let some rev := rev? then
-      return if src?.isSome then none else some s!"git#{rev}"
+      return .git rev
     else
-      return none
+      return .none
   let opts ← t.tryDecodeD `options {}
-  return {name, scope, version?, src?, opts}
+  return {name, scope, version, src?, opts}
 
 public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 
-/-! ## System Configuration Decoders -/
+/-! ## Cache Service Field Decoders -/
 
 public protected def CacheServiceKind.decodeToml (v : Value) : EDecodeM CacheServiceKind := do
   match CacheServiceKind.ofString? (← v.decodeString) with
@@ -340,20 +347,20 @@ public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml�
 public structure TomlFieldInfo (σ : Type) where
   decodeAndSet : Table → Value → σ → DecodeM σ
 
-private abbrev TomlFieldInfos (σ : Type) :=
+abbrev TomlFieldInfos (σ : Type) :=
   NameMap (TomlFieldInfo σ)
 
-private def TomlFieldInfos.empty : TomlFieldInfos σ := {}
+def TomlFieldInfos.empty : TomlFieldInfos σ := {}
 
-@[inline] private def TomlFieldInfos.insert
+@[inline] def TomlFieldInfos.insert
   (name : Name) [DecodeField σ name] (infos : TomlFieldInfos σ)
 : TomlFieldInfos σ :=
   NameMap.insert infos name ⟨decodeField name⟩
 
-private class ConfigTomlInfo (α : Type) where
+class ConfigTomlInfo (α : Type) where
   fieldInfos : TomlFieldInfos α
 
-private def decodeTomlConfig
+def decodeTomlConfig
   [EmptyCollection α] [ConfigTomlInfo α] (t : Table)
 : Toml.DecodeM α :=
   t.foldM (init := ∅) fun cfg key val => do
@@ -371,7 +378,7 @@ section
 -- we can't use `in` as it is parsed as a single command and so the option would not influence the
 -- parser.
 set_option internal.parseQuotWithCurrentStage false
-private meta def genDecodeToml
+meta def genDecodeToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := {})
@@ -394,10 +401,53 @@ private meta def genDecodeToml
   return cmds
 end
 
+local macro "gen_service_toml_decoders%" : command => do
+  let cmds := #[]
+  let cmds ← genDecodeToml cmds ``CacheServiceS3Config
+  let cmds ← genDecodeToml cmds ``CacheServiceReservoirConfig
+  return ⟨mkNullNode cmds⟩
+
+gen_service_toml_decoders%
+
+public def CacheService.decodeTomlCore
+  (name : String) (t : Table) (ref := Syntax.missing)
+: EDecodeM CacheService := do
+  let validateUrl name key url : DecodeM String := do
+    if url.isEmpty then
+      logDecodeErrorAt ref s!"cache service `{name}` is missing required key `{key}`"
+      return url
+    else
+      return if url.back == '/' then url.dropEnd 1 |>.copy else url
+  let kind : CacheServiceKind ← (← t.decode? `type).getDM do t.decode `kind ref
+  match kind with
+  | .reservoir => ensureDecode do
+    let cfg ← @CacheServiceReservoirConfig.decodeToml name t
+    let apiEndpoint ← validateUrl name "apiEndpoint" cfg.apiEndpoint
+    return .reservoirService apiEndpoint (some (.ofString name))
+  | .s3 => ensureDecode do
+    let cfg ← @CacheServiceS3Config.decodeToml name t
+    let artifactEndpoint ← validateUrl name "artifactEndpoint" cfg.artifactEndpoint
+    let revisionEndpoint ← validateUrl name "revisionEndpoint" cfg.revisionEndpoint
+    return .downloadService artifactEndpoint revisionEndpoint (some (.ofString name)) cfg.hasPackageScopes
+
+@[inline] public protected def CacheService.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM CacheService  := do
+  let name : String ← t.decode `name ref
+  decodeTomlCore name t ref
+
+public instance : DecodeToml CacheService := ⟨fun v => do CacheService.decodeToml (← v.decodeTable) v.ref⟩
+
+public protected def CacheServiceMap.decodeToml (v : Value) : EDecodeM CacheServiceMap := do
+  let vs ← v.decodeValueArray
+  ensureDecode <| vs.foldlM (init := ∅) fun map v => tryDecodeD map do
+    let t : Table ← v.decodeTable
+    let name : String ← t.decode `name v.ref
+    return map.insert (.mkSimple name) (← CacheService.decodeTomlCore name t v.ref)
+
+public instance : DecodeToml CacheServiceMap := ⟨CacheServiceMap.decodeToml⟩
+
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Lake
-  let cmds ← genDecodeToml cmds ``CacheServiceConfig
   let cmds ← genDecodeToml cmds ``CacheConfig
   let cmds ← genDecodeToml cmds ``LakeConfig
   -- Targets
@@ -415,23 +465,24 @@ local macro "gen_toml_decoders%" : command => do
 
 gen_toml_decoders%
 
-private structure DecodeTargetState (pkg : Name) where
+structure DecodeTargetState (pkg : Name) where
   decls : Array (PConfigDecl pkg) := #[]
   map : DNameMap (NConfigDecl pkg) := {}
   exeRoots : Lean.NameMap Name := {}
 
-private def decodeTargetDecls
+def decodeTargetDecls
   (pkg : Name) (prettyName : String) (t : Table)
 : DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
   let r : DecodeTargetState pkg := {}
-  let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
-  let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
-  let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml
-  let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
+  let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml (by simp)
+  let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml (by simp)
+  let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml (by simp)
+  let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml (by simp)
   return (r.decls, r.map)
 where
   go (r : DecodeTargetState pkg) kw kind
-      (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
+      (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n))
+      (h : DataType kind = OpaqueConfigTarget kind) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
@@ -446,8 +497,10 @@ where
       else
         let config ← @decode name t
         let decl : NConfigDecl pkg name :=
-          -- Safety: By definition, config kind = facet kind for declarative configurations.
-          unsafe {pkg, name, kind, config, wf_data := lcProof}
+          -- Safety: By definition, for declarative configurations, the type of a package target
+          -- is its configuration's data kind (i.e., `CustomData pkg name = DataType kind`).
+          -- In the equivalent Lean configuration, this would hold by type family axiom.
+          unsafe {pkg, name, kind, config, wf_data := fun _ => ⟨lcProof, h⟩}
         -- Check that executables have distinct root module names
         let exeRoots ← id do
           if h : kind = LeanExe.configKind then
@@ -469,8 +522,8 @@ where
 
 /-! ## Root Loader -/
 
-/-- Load a `Package` from a Lake configuration file written in TOML. -/
-public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
+/-- Load a Lake configuration from a file written in TOML. -/
+public def loadTomlConfig (cfg : LoadConfig) : LogIO LakefileConfig := do
   let input ← IO.FS.readFile cfg.configFile
   let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
@@ -482,21 +535,13 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let keyName := baseName.num wsIdx
       let prettyName := baseName.toString (escape := false)
       let config ← @PackageConfig.decodeToml keyName origName table
+      let pkgDecl := {baseName, keyName, origName, config : PackageDecl}
       let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName prettyName table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
+      let cacheServices ← table.tryDecodeD `cache_service {}
       let depConfigs ← table.tryDecodeD `require #[]
-      return {
-        wsIdx, baseName, keyName, origName
-        dir := cfg.pkgDir
-        relDir := cfg.relPkgDir
-        configFile := cfg.configFile
-        relConfigFile := cfg.relConfigFile
-        scope := cfg.scope
-        remoteUrl := cfg.remoteUrl
-        config, depConfigs, targetDecls, targetDeclMap
-        defaultTargets
-      }
+      return {pkgDecl, depConfigs, cacheServices, targetDecls, targetDeclMap, defaultTargets}
     if errs.isEmpty then
       return pkg
     else
@@ -508,8 +553,11 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
 
 /-! ## System Configuration Loader -/
 
+@[inline] def Env.reservoirService (lakeEnv : Lake.Env) : CacheService :=
+  .reservoirService lakeEnv.reservoirApiUrl (some .reservoir)
+
 /-- Load the system Lake configuration from a TOML file. -/
-private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
+def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
   let input ← IO.FS.readFile path
   let ictx := mkInputContext input path.toString
   match (← loadToml ictx |>.toBaseIO) with
@@ -517,29 +565,12 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
     let .ok config errs := EStateM.run (s := #[]) do
       LakeConfig.decodeToml table
     if errs.isEmpty then
-      let defaultService := .reservoirService lakeEnv.reservoirApiUrl
-      let cacheServices : CacheServiceMap ← config.cache.services.foldlM (init := ∅) fun map cfg => do
-        let validateUrl name key url := do
-          if url.isEmpty then
-            error s!"cache service `{name}` is missing field `{key}`"
-          else
-            return if url.back == '/' then url.dropEnd 1 |>.copy else url
-        match cfg.kind with
-        | .reservoir => do
-          let apiEndpoint ← validateUrl cfg.name "apiEndpoint" cfg.apiEndpoint
-          let service := .reservoirService apiEndpoint (some (.ofString cfg.name))
-          return map.insert (.mkSimple cfg.name) service
-        | .s3 => do
-          let artifactEndpoint ← validateUrl cfg.name "artifactEndpoint" cfg.artifactEndpoint
-          let revisionEndpoint ← validateUrl cfg.name "revisionEndpoint" cfg.revisionEndpoint
-          let service :=  .downloadService artifactEndpoint revisionEndpoint (some (.ofString cfg.name))
-          return map.insert (.mkSimple cfg.name) service
-        | _ =>
-          error s!"cache service `{cfg.name}` is missing field `kind`"
+      let cacheServices := config.cache.services
+      let defaultReservoirService := lakeEnv.reservoirService
       let defaultCacheService ← id do
         let name := config.cache.defaultService
         if name.isEmpty then
-          return cacheServices.get? `reservoir |>.getD defaultService
+          return cacheServices.get? `reservoir |>.getD defaultReservoirService
         else
           let some service := cacheServices.get? (.mkSimple name)
             | error s!"the configured default cache service `{name}` is not defined; \
@@ -557,9 +588,7 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
       if cacheServices.contains `reservoir then
         return {config, defaultCacheService, defaultCacheUploadService?, cacheServices}
       else
-         let cacheServices := cacheServices.insert `reservoir defaultService
-         let defaultServiceConfig := {name := "reservoir", kind := .reservoir, apiEndpoint := lakeEnv.reservoirApiUrl}
-         let config := {config with cache.services := config.cache.services.push defaultServiceConfig}
+         let cacheServices := cacheServices.insert `reservoir defaultReservoirService
          return {config, defaultCacheService, defaultCacheUploadService?, cacheServices}
     else
       errorWithLog <| errs.forM fun {ref, msg} =>
@@ -568,15 +597,10 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
   | .error log =>
     errorWithLog <| log.forM fun msg => do logError (← msg.toString)
 
-private def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig :=
-  let defaultService := .reservoirService lakeEnv.reservoirApiUrl
-  let defaultServiceConfig := {name := "reservoir", kind := .reservoir, apiEndpoint := lakeEnv.reservoirApiUrl}
-  {
-    config.cache.services := #[defaultServiceConfig]
-    defaultCacheService := defaultService
-    defaultCacheUploadService? := none
-    cacheServices := NameMap.empty.insert `reservoir defaultService
-  }
+def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig :=
+  let defaultCacheService := lakeEnv.reservoirService
+  let cacheServices := NameMap.empty.insert `reservoir defaultCacheService
+  {cacheServices, defaultCacheService}
 
 /--
 **For internal use only.**

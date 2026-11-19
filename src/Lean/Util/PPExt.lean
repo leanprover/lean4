@@ -29,14 +29,6 @@ register_builtin_option pp.rawOnError : Bool := {
   descr    := "(pretty printer) fallback to 'raw' printer when pretty printer fails"
 }
 
-structure PPContext where
-  env           : Environment
-  mctx          : MetavarContext := {}
-  lctx          : LocalContext := {}
-  opts          : Options := {}
-  currNamespace : Name := Name.anonymous
-  openDecls     : List OpenDecl := []
-
 abbrev PrettyPrinter.InfoPerPos := Std.TreeMap Nat Elab.Info
 /-- A format tree with `Elab.Info` annotations.
 Each `.tag n _` node is annotated with `infos[n]`.
@@ -52,7 +44,7 @@ structure PPFns where
   ppExprWithInfos : PPContext → Expr → IO FormatWithInfos
   ppConstNameWithInfos : PPContext → Name → IO FormatWithInfos
   ppTerm : PPContext → Term → IO Format
-  ppLevel : PPContext → Level → BaseIO Format
+  ppLevel : PPContext → Level → IO Format
   ppGoal : PPContext → MVarId → IO Format
   deriving Inhabited
 
@@ -67,14 +59,24 @@ builtin_initialize ppFnsRef : IO.Ref PPFns ←
     ppExprWithInfos := fun _ e => return format (toString e)
     ppConstNameWithInfos := fun _ n => return format n
     ppTerm := fun ctx stx => return formatRawTerm ctx stx
-    ppLevel := fun _ l => return format l
+    ppLevel := fun ctx l => return l.format true ctx.mctx.findLevelIndex?
     ppGoal := fun _ mvarId => return formatRawGoal mvarId
   }
 
 builtin_initialize ppExt : EnvExtension PPFns ←
   registerEnvExtension ppFnsRef.get
 
+/--
+Pretty printing is a legitimate consumer of arbitrary extension state even when its context was
+captured inside a region with restricted extension access (e.g. a trace message constructed
+during type class resolution): rendering happens outside the restricted computation and cannot
+contaminate its caches. Lift the restriction from the captured environment.
+-/
+private def PPContext.unrestricted (ctx : PPContext) : PPContext :=
+  { ctx with env := ctx.env.setRecordingDeps false }
+
 def ppExprWithInfos (ctx : PPContext) (e : Expr) : BaseIO FormatWithInfos := do
+  let ctx := ctx.unrestricted
   if pp.raw.get ctx.opts then
     let e := instantiateMVarsCore ctx.mctx e |>.1
     return format (toString e)
@@ -88,6 +90,7 @@ def ppExprWithInfos (ctx : PPContext) (e : Expr) : BaseIO FormatWithInfos := do
         pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppConstNameWithInfos (ctx : PPContext) (n : Name) : BaseIO FormatWithInfos := do
+  let ctx := ctx.unrestricted
   match (← ppExt.getState ctx.env |>.ppConstNameWithInfos ctx n |>.toBaseIO) with
   | .ok fmt => return fmt
   | .error ex =>
@@ -97,6 +100,7 @@ def ppConstNameWithInfos (ctx : PPContext) (n : Name) : BaseIO FormatWithInfos :
       pure f!"failed to pretty print constant (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppTerm (ctx : PPContext) (stx : Term) : BaseIO Format := do
+  let ctx := ctx.unrestricted
   if pp.raw.get ctx.opts then
     return formatRawTerm ctx stx
   else
@@ -108,10 +112,18 @@ def ppTerm (ctx : PPContext) (stx : Term) : BaseIO Format := do
       else
         pure f!"failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)"
 
-def ppLevel (ctx : PPContext) (l : Level) : BaseIO Format :=
-  ppExt.getState ctx.env |>.ppLevel ctx l
+def ppLevel (ctx : PPContext) (l : Level) : BaseIO Format := do
+  let ctx := ctx.unrestricted
+  match (← ppExt.getState ctx.env |>.ppLevel ctx l |>.toBaseIO) with
+  | .ok fmt => return fmt
+  | .error ex =>
+    if pp.rawOnError.get ctx.opts then
+      pure f!"[Error pretty printing level: {ex}. Falling back to raw printer.]{Format.line}{l.format true ctx.mctx.findLevelIndex?}"
+    else
+      pure f!"failed to pretty print level (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppGoal (ctx : PPContext) (mvarId : MVarId) : BaseIO Format := do
+  let ctx := ctx.unrestricted
   match (← ppExt.getState ctx.env |>.ppGoal ctx mvarId |>.toBaseIO) with
   | .ok fmt => return fmt
   | .error ex =>

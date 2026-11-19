@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <bit>
 #include <memory>
 #include <string>
 #include <cstring>
@@ -15,6 +16,23 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 
 namespace lean {
+/* Splits the number with little-endian digits `ds` into 64-bit words `w₀, …, wₖ` with `wₖ ≠ 0`,
+   and returns `w₀` if `k = 0`, and `mix(… mix(mix(w₀, w₁), w₂) …, wₖ)` otherwise.
+   The result does not depend on the digit size. */
+template<typename D> static uint64 hash_digits(D const * ds, size_t sz) {
+    static_assert(sizeof(D) == 4 || sizeof(D) == 8, "unexpected digit size");
+    constexpr size_t digits_per_word = sizeof(uint64) / sizeof(D);
+    while (sz > 0 && ds[sz - 1] == 0) sz--;
+    uint64 h = 0;
+    for (size_t i = 0; i < sz; i += digits_per_word) {
+        uint64 w = 0;
+        for (size_t j = 0; j < digits_per_word && i + j < sz; j++)
+            w |= static_cast<uint64>(ds[i + j]) << (8 * sizeof(D) * j);
+        h = i == 0 ? w : lean_uint64_mix_hash(h, w);
+    }
+    return h;
+}
+
 /***** GMP VERSION ******/
 #ifdef LEAN_USE_GMP
 mpz::mpz() {
@@ -61,7 +79,7 @@ mpz::mpz(mpz const & s) {
     mpz_init_set(m_val, s.m_val);
 }
 
-mpz::mpz(mpz && s):mpz() {
+mpz::mpz(mpz && s) noexcept : mpz() {
     mpz_swap(m_val, s.m_val);
 }
 
@@ -73,7 +91,7 @@ void mpz::set(mpz_t r) const {
     mpz_set(r, m_val);
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     mpz_swap(a.m_val, b.m_val);
 }
 
@@ -214,12 +232,33 @@ mpz mpz::pow(unsigned int exp) const {
     return r;
 }
 
+mpz mpz::powm(mpz const & exp, mpz const & m) const {
+    lean_assert(m != 0);
+    mpz r;
+    mpz_powm(r.m_val, m_val, exp.m_val, m.m_val);
+    return r;
+}
+
 size_t mpz::log2() const {
     if (is_nonpos())
         return 0;
     size_t r = mpz_sizeinbase(m_val, 2);
     lean_assert(r > 0);
     return r - 1;
+}
+
+size_t mpz::size_in_bytes() const {
+    return mpz_size(m_val) * sizeof(mp_limb_t);
+}
+
+uint64 mpz::hash64() const {
+    static_assert(GMP_NAIL_BITS == 0, "GMP nails are not supported");
+    return hash_digits(mpz_limbs_read(m_val), mpz_size(m_val));
+}
+
+size_t mpz::trailing_zeros() const {
+    // Two's-complement and absolute-value representations have the same trailing zeros.
+    return is_zero() ? 0 : mpz_scan1(m_val, 0);
 }
 
 mpz & mpz::operator&=(mpz const & o) {
@@ -319,19 +358,19 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 /***** NON GMP VERSION ******/
 
 static void *mpz_alloc(size_t size) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    return alloc(size);
-#elif defined(LEAN_MIMALLOC)
-    return mi_malloc(size);
+#ifdef LEAN_MIMALLOC
+    void * r = mi_malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #else
-    return malloc(size);
+    void * r = malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #endif
 }
 
 static void mpz_dealloc(void *ptr, size_t size) {
-#ifdef LEAN_SMALL_ALLOCATOR
-        dealloc(ptr, size);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
         mi_free_size(ptr, size);
 #else
         free_sized(ptr, size);
@@ -340,7 +379,7 @@ static void mpz_dealloc(void *ptr, size_t size) {
 
 void mpz::allocate(size_t s) {
     m_size   = s;
-    m_digits = static_cast<mpn_digit*>(mpz_alloc(s * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(lean_usize_mul_checked(s, sizeof(mpn_digit))));
 }
 
 void mpz::init() {
@@ -409,8 +448,8 @@ void mpz::init_int64(int64 v) {
 void mpz::init_mpz(mpz const & v) {
     m_sign   = v.m_sign;
     m_size   = v.m_size;
-    m_digits = static_cast<mpn_digit*>(mpz_alloc(m_size * sizeof(mpn_digit)));
-    memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(lean_usize_mul_checked(m_size, sizeof(mpn_digit))));
+    memcpy(m_digits, v.m_digits, lean_usize_mul_checked(m_size, sizeof(mpn_digit)));
 }
 
 mpz::mpz() {
@@ -441,7 +480,7 @@ mpz::mpz(mpz const & s) {
     init_mpz(s);
 }
 
-mpz::mpz(mpz && s):
+mpz::mpz(mpz && s) noexcept :
     m_sign(s.m_sign),
     m_size(s.m_size),
     m_digits(s.m_digits) {
@@ -454,7 +493,7 @@ mpz::~mpz() {
     }
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     std::swap(a.m_sign, b.m_sign);
     std::swap(a.m_size, b.m_size);
     std::swap(a.m_digits, b.m_digits);
@@ -490,7 +529,8 @@ bool mpz::is_size_t() const {
 int mpz::get_int() const {
     lean_assert(is_int());
     if (m_sign) {
-        return -static_cast<int>(m_digits[0]);
+        // Negate as `unsigned`: the magnitude of `INT_MIN` does not fit in an `int`.
+        return static_cast<int>(-m_digits[0]);
     } else {
         return m_digits[0];
     }
@@ -502,7 +542,6 @@ unsigned int mpz::get_unsigned_int() const {
 }
 
 size_t mpz::get_size_t() const {
-    lean_assert(is_size_t());
     if (sizeof(size_t) == 8) {
         if (m_size == 1)
             return m_digits[0];
@@ -515,7 +554,9 @@ size_t mpz::get_size_t() const {
 
 mpz & mpz::operator=(mpz const & v) {
     if (v.m_digits != m_digits) {
-        if (v.m_size == m_size) {
+        // A moved-from object has `m_digits == nullptr` but keeps its old `m_size`.
+        if (m_digits && v.m_size == m_size) {
+            m_sign = v.m_sign;
             memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
         } else {
             mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
@@ -815,14 +856,32 @@ mpz mpz::emod(mpz const & n, mpz const & d) {
 }
 
 mpz mpz::pow(unsigned int p) const {
-    unsigned mask = 1;
     mpz power(*this);
     mpz result(1);
-    while (mask <= p) {
-        if (mask & p)
+    for (; p != 0; p >>= 1) {
+        if (p & 1)
             result *= power;
-        power *= power;
-        mask = mask << 1;
+        if (p > 1)
+            power *= power;
+    }
+    return result;
+}
+
+mpz mpz::powm(mpz const & exp, mpz const & m) const {
+    lean_assert(!m.is_zero());
+    if (m == 1) return mpz(0);
+    mpz result(1);
+    mpz base(*this);
+    base %= m;
+    mpz e(exp);
+    while (!e.is_zero()) {
+        if (e.mod8() & 1) {
+            result *= base;
+            result %= m;
+        }
+        base *= base;
+        base %= m;
+        div2k(e, e, 1);
     }
     return result;
 }
@@ -854,6 +913,21 @@ static unsigned log2_uint(unsigned v) {
 
 size_t mpz::log2() const {
     return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
+}
+
+size_t mpz::trailing_zeros() const {
+    if (is_zero()) return 0;
+    size_t i = 0;
+    while (m_digits[i] == 0) i++;
+    return i * sizeof(mpn_digit) * 8 + std::countr_zero(m_digits[i]);
+}
+
+size_t mpz::size_in_bytes() const {
+    return m_size * sizeof(mpn_digit);
+}
+
+uint64 mpz::hash64() const {
+    return hash_digits(m_digits, m_size);
 }
 
 mpz & mpz::operator&=(mpz const & o) {
@@ -1030,8 +1104,7 @@ int64 mpz::smod64() const {
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {
-    a = b;
-    a.pow(k);
+    a = b.pow(k);
 }
 
 void gcd(mpz & g, mpz const & a, mpz const & b) {

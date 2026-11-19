@@ -3,6 +3,9 @@ source ../common.sh
 
 ./clean.sh
 
+# Work on a copy, as the test modifies `Foo.lean`
+copy_to_work lakefile.toml Foo.lean
+
 # ---
 # Tests aspects of Lake tracing
 # ---
@@ -36,5 +39,8 @@ test_run build --old --no-build
 test_out "Built Foo" build
 test_run build --no-build
 
-# Cleanup
-rm -f produced.out
+# Tests that a failed build does not leave behind the previous trace
+test_exp -f .lake/build/lib/lean/Foo.trace
+echo 'error' > Foo.lean
+test_fails build
+test_exp ! -f .lake/build/lib/lean/Foo.trace

@@ -144,48 +144,52 @@ notation for {lean}`Rii.mk`.
 structure Rii (α : Type u)
 deriving DecidableEq
 
+-- The range notations bind looser than arithmetic operators such as `+` and `*`, so that
+-- `a + 1...2 * b` is `(a + 1)...(2 * b)`, but tighter than relations such as `=` and `∈`, so that
+-- `x ∈ a...b` is `x ∈ (a...b)`. They are non-associative. The forms without a lower bound have
+-- precedence `max` so that they can be used as function arguments without parentheses, like `¬p`.
 /-- `a...*` is the range of elements greater than or equal to {lit}`a`. See also {name}`Std.Rci`. -/
-syntax:max (term "...*") : term
+syntax:51 (term:52 "...*") : term
 /-- `*...*` is the range that is unbounded in both directions. See also {lean}`Std.Rii`. -/
 syntax:max ("*...*") : term
 /-- `a<...*` is the range of elements greater than {lit}`a`. See also {lean}`Std.Roi`. -/
-syntax:max (term "<...*") : term
+syntax:51 (term:52 "<...*") : term
 /--
 `a...<b` is the range of elements greater than or equal to {lit}`a` and less than {lit}`b`.
 See also {lean}`Std.Rco`.
 -/
-syntax:max (term "...<" term) : term
+syntax:51 (term:52 "...<" term:52) : term
 /--
 `a...b` is the range of elements greater than or equal to {lit}`a` and less than {lit}`b`.
 See also {lean}`Std.Rco`.
 -/
-syntax:max (term "..." term) : term
+syntax:51 (term:52 "..." term:52) : term
 /-- `*...<b` is the range of elements less than {lit}`b`. See also {lean}`Std.Rio`. -/
-syntax:max ("*...<" term) : term
+syntax:max ("*...<" term:52) : term
 /-- `*...b` is the range of elements less than {lit}`b`. See also {lean}`Std.Rio`. -/
-syntax:max ("*..." term) : term
+syntax:max ("*..." term:52) : term
 /--
 `a<...<b` is the range of elements greater than {lit}`a` and less than {lit}`b`.
 See also {lean}`Std.Roo`.
 -/
-syntax:max (term "<...<" term) : term
+syntax:51 (term:52 "<...<" term:52) : term
 /--
 `a<...b` is the range of elements greater than {lit}`a` and less than {lit}`b`.
 See also {lean}`Std.Roo`.
 -/
-syntax:max (term "<..." term) : term
+syntax:51 (term:52 "<..." term:52) : term
 /--
 `a...=b` is the range of elements greater than or equal to {lit}`a` and less than or equal to
 {lit}`b`. See also {lean}`Std.Rcc`.
 -/
-syntax:max (term "...=" term) : term
+syntax:51 (term:52 "...=" term:52) : term
 /-- `*...=b` is the range of elements less than or equal to {lit}`b`. See also {lean}`Std.Ric`. -/
-syntax:max ("*...=" term) : term
+syntax:max ("*...=" term:52) : term
 /--
 `a<...=b` is the range of elements greater than {lit}`a` and less than or equal to {lit}`b`.
 See also {lean}`Std.Roc`.
 -/
-syntax:max (term "<...=" term) : term
+syntax:51 (term:52 "<...=" term:52) : term
 
 macro_rules
   | `($a...=$b) => ``(Rcc.mk $a $b)
@@ -202,7 +206,7 @@ macro_rules
   | `($a<...$b) => ``(Roo.mk $a $b)
 
 /--
-This type class ensures that right-closed ranges (i.e., for bounds {given}`a` and {given}`b`,
+This type class ensures that right-closed ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
 {lean}`a...=b`, {lean}`a<...=b` and {lean}`*...=b`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rcc.toList` or {name}`ForIn'`.
@@ -216,7 +220,7 @@ class Rxc.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LE α] : Prop wher
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · ≤ hi)
 
 /--
-This type class ensures that right-open ranges (i.e., for bounds {given}`a` and {given}`b`,
+This type class ensures that right-open ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
 {lean}`a...b`, {lean}`a<...b` and {lean}`*...b`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rco.toList` or {name}`ForIn'`.
@@ -230,7 +234,7 @@ class Rxo.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LT α] : Prop wher
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · < hi)
 
 /--
-This type class ensures that right-unbounded ranges (i.e., for a bound {given}`a`,
+This type class ensures that right-unbounded ranges (i.e., for a bound {given (type := "α")}`a`,
 {lean}`a...*`, {lean}`a<...*` and {lean}`*...*`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rci.toList` or {name}`ForIn'`.

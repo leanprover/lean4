@@ -28,8 +28,10 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
 
 private def throwApplyError {α} (mvarId : MVarId)
     (eType : Expr) (conclusionType? : Option Expr) (targetType : Expr)
-    (term? : Option MessageData) : MetaM α := do
-  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) do
+    (term? : Option MessageData) (approx : Bool) : MetaM α := do
+  let config ← if approx then approxDefEq getConfig else getConfig
+  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) <|
+      withConfig (fun _ => config) do
     let conclusionType := conclusionType?.getD eType
     let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
     let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
@@ -128,7 +130,6 @@ def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array 
     (synthAssignedInstances := true) (allowSynthFailures := false) : MetaM Unit := do
   synthAppInstances tacticName mvarId newMVars binderInfos synthAssignedInstances allowSynthFailures
   -- TODO: default and auto params
-  appendParentTag mvarId newMVars binderInfos
 
 private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool :=
   otherMVars.anyM fun otherMVar => do
@@ -192,10 +193,10 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     ```
     -/
     let rangeNumArgs ← if hasMVarHead then
-      pure numArgs...(numArgs+1)
+      pure (numArgs...(numArgs+1))
     else
       let targetTypeNumArgs ← getExpectedNumArgs targetType
-      pure (numArgs - targetTypeNumArgs)...(numArgs+1)
+      pure ((numArgs - targetTypeNumArgs)...(numArgs+1))
     /-
     Auxiliary function for trying to add `n` underscores where `n ∈ [i: rangeNumArgs.stop)`
     See comment above
@@ -216,13 +217,14 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
         else
           let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.lower)
           pure (some r)
-        throwApplyError mvarId eType conclusionType? targetType term?
+        throwApplyError mvarId eType conclusionType? targetType term? cfg.approx
       termination_by rangeNumArgs.upper - i
     let (newMVars, binderInfos) ← go rangeNumArgs.lower
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
     let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
+    appendParentTag mvarId newMVars binderInfos
     let otherMVarIds ← getMVarsNoDelayed e
     let newMVarIds ← reorderGoals newMVars cfg.newGoals
     let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId

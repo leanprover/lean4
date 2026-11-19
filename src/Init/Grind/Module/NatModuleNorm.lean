@@ -34,9 +34,9 @@ def Poly.denoteN {α} [NatModule α] (ctx : Context α) (p : Poly) : α :=
     else
       k.natAbs • v.denote ctx + denoteN ctx p
 
-def Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .nil = 0 := rfl
+theorem Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .nil = 0 := rfl
 
-def Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
+theorem Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
     : k ≥ 0 → Poly.denoteN ctx (.add k x p) = k.toNat • x.denote ctx + p.denoteN ctx := by
   intro h; simp [denoteN, cond_eq_ite]; split
   next => omega
@@ -145,10 +145,6 @@ theorem Poly.mul_Nonneg (p : Poly) (k : Nat) : p.NonnegCoeffs → (p.mul k).Nonn
   split
   next => constructor
   next => simp [Poly.mul'_Nonneg, *]
-
-theorem Poly.append_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.append p₂).NonnegCoeffs := by
-  fun_induction append <;> intro h₁ h₂; simp [*]
-  next ih => cases h₁; constructor; assumption; apply ih <;> assumption
 
 theorem Poly.combine_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs := by
   fun_induction Poly.combine

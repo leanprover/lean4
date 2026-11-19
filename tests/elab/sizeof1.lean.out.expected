@@ -1,5 +1,5 @@
-@[defeq] theorem TreePos.leaf.sizeOf_spec.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
-  (a : α), sizeOf (TreePos.leaf a) = 1 + sizeOf a :=
+theorem TreePos.leaf.sizeOf_spec.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β] (a : α),
+  sizeOf (TreePos.leaf a) = 1 + sizeOf a :=
 fun {α} {β} [SizeOf α] [SizeOf β] a => Eq.refl (1 + sizeOf a)
 theorem TreePos.node.sizeOf_spec.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
   (children : List (List (TreeNeg α β))), sizeOf (TreePos.node children) = 1 + sizeOf children :=

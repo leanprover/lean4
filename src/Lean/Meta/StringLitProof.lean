@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.AppBuilder
+import Init.Data.String.Csimp
 
 public section
 
@@ -15,97 +16,41 @@ namespace Lean.Meta
 /--
 Builds a proof of `String.ofList l₁ ≠ String.ofList l₂` for two distinct string literals.
 
-The proof avoids both `String.decEq` (expensive UTF-8 byte array comparison) and full
-`List Char` comparison. It reduces to `List Char` via `String.ofList_injective`, then
-proves the lists differ using one of two strategies depending on whether the strings
-share a common prefix of the shorter string's full length:
+The proof is `String.Internal.ofList_ne_ofList l₁ l₂ i (Eq.refl false)` where `i` is the first
+position where the two strings differ. If one of them is a prefix of the other, `i` is the length
+of the shorter one.
 
-- **Different characters at position `i`**: Uses
-  `congrArg (fun l => (List.get!Internal l i).toNat)` to project down to `Nat`, then
-  `Nat.ne_of_beq_eq_false rfl` for a single `Nat.beq` comparison. This avoids `Decidable`
-  instances entirely — the kernel only evaluates `Nat.beq` on two concrete natural numbers.
-
-- **One string is a prefix of the other**: Uses `congrArg (List.drop n ·)` where `n` is the
-  shorter string's length, then `List.cons_ne_nil` to prove the non-empty tail differs from `[]`.
-  This avoids `decide` entirely since `cons_ne_nil` is a definitional proof.
+To check it, the kernel evaluates `String.Internal.sameCharAt i l₁ l₂`, which traverses the first
+`i` elements of the two lists simultaneously without comparing them, and then compares the
+characters at position `i`. It does not unfold `String.decEq`.
 -/
 def mkStringLitNeProof (s₁ s₂ : String) : MetaM Expr := do
   let l₁ := s₁.toList
   let l₂ := s₂.toList
-  let l₁Expr := toExpr l₁
-  let l₂Expr := toExpr l₂
-  let charConst := mkConst ``Char
-  let listCharTy := mkApp (mkConst ``List [.zero]) charConst
-  -- Find the first differing character index
-  let minLen := min l₁.length l₂.length
-  let diffIdx := Id.run do
-    for i in [:minLen] do
-      if l₁[i]! ≠ l₂[i]! then return i
-    return minLen
-  -- Build the list inequality proof, dispatching on whether it's a character
-  -- difference or a prefix/length difference
-  let listEq := mkApp3 (mkConst ``Eq [.succ .zero]) listCharTy l₁Expr l₂Expr
-  let listNeProof ←
-    if diffIdx < minLen then
-      -- Both lists have a character at diffIdx: project to Nat via get!Internal + toNat,
-      -- then use Nat.ne_of_beq_eq_false rfl (avoids Decidable instances entirely)
-      let inhabCharExpr := mkConst ``Char.instInhabited
-      let natConst := mkConst ``Nat
-      let iExpr := toExpr diffIdx
-      -- f = fun l => (List.get!Internal l i).toNat
-      let projFn := mkLambda `l .default listCharTy
-        (mkApp (mkConst ``Char.toNat)
-          (mkApp4 (mkConst ``List.get!Internal [.zero]) charConst inhabCharExpr (mkBVar 0) iExpr))
-      let mkGetToNat (lExpr : Expr) : Expr :=
-        mkApp (mkConst ``Char.toNat)
-          (mkApp4 (mkConst ``List.get!Internal [.zero]) charConst inhabCharExpr lExpr iExpr)
-      let projL1 := mkGetToNat l₁Expr
-      let projL2 := mkGetToNat l₂Expr
-      let projEq := mkApp3 (mkConst ``Eq [.succ .zero]) natConst projL1 projL2
-      let congrArgFn := mkApp5 (mkConst ``congrArg [.succ .zero, .succ .zero])
-        listCharTy natConst l₁Expr l₂Expr projFn
-      -- Nat.ne_of_beq_eq_false rfl : n₁ ≠ n₂  (kernel evaluates Nat.beq on two literals)
-      let projNeProof := mkApp3 (mkConst ``Nat.ne_of_beq_eq_false)
-        projL1 projL2 (← mkEqRefl (mkConst ``false))
-      pure <| mkApp4 (mkConst ``mt) listEq projEq congrArgFn projNeProof
-    else
-      -- One list is a prefix of the other: use drop + cons_ne_nil
-      let nExpr := toExpr minLen
-      let dropFn := mkLambda `l .default listCharTy
-        (mkApp3 (mkConst ``List.drop [.zero]) charConst nExpr (mkBVar 0))
-      let dropL1 := mkApp3 (mkConst ``List.drop [.zero]) charConst nExpr l₁Expr
-      let dropL2 := mkApp3 (mkConst ``List.drop [.zero]) charConst nExpr l₂Expr
-      let dropEq := mkApp3 (mkConst ``Eq [.succ .zero]) listCharTy dropL1 dropL2
-      let congrArgFn := mkApp5 (mkConst ``congrArg [.succ .zero, .succ .zero])
-        listCharTy listCharTy l₁Expr l₂Expr dropFn
-      -- The longer list's drop has a head element; the shorter list's drop is []
-      let (hdChar, tlList) :=
-        if l₁.length ≤ l₂.length then
-          let dropped := l₂.drop minLen
-          (dropped.head!, dropped.tail!)
-        else
-          let dropped := l₁.drop minLen
-          (dropped.head!, dropped.tail!)
-      let hdExpr := toExpr hdChar
-      let tlExpr := toExpr tlList
-      -- cons_ne_nil hd tl : hd :: tl ≠ []
-      let consNeNil := mkApp3 (mkConst ``List.cons_ne_nil [.zero]) charConst hdExpr tlExpr
-      let dropNeProof :=
-        if l₁.length ≤ l₂.length then
-          -- l₁ is shorter: drop l₁ = [], drop l₂ = hd :: tl, need [] ≠ hd :: tl
-          mkApp4 (mkConst ``Ne.symm [.succ .zero]) listCharTy
-            (mkApp3 (mkConst ``List.cons [.zero]) charConst hdExpr tlExpr)
-            (mkApp (mkConst ``List.nil [.zero]) charConst)
-            consNeNil
-        else
-          -- l₂ is shorter: drop l₁ = hd :: tl, drop l₂ = [], need hd :: tl ≠ []
-          consNeNil
-      pure <| mkApp4 (mkConst ``mt) listEq dropEq congrArgFn dropNeProof
-  -- strNeProof : String.ofList l₁ ≠ String.ofList l₂   via   mt ofList_injective listNeProof
-  let strType := mkConst ``String
-  let strEq := mkApp3 (mkConst ``Eq [.succ .zero]) strType
-    (mkApp (mkConst ``String.ofList) l₁Expr) (mkApp (mkConst ``String.ofList) l₂Expr)
-  return mkApp4 (mkConst ``mt) strEq listEq
-    (mkApp2 (mkConst ``String.ofList_injective) l₁Expr l₂Expr) listNeProof
+  let i := firstDiff l₁ l₂ 0
+  let h := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false)
+  return mkApp4 (mkConst ``String.Internal.ofList_ne_ofList) (toExpr l₁) (toExpr l₂) (mkRawNatLit i) h
+where
+  firstDiff : List Char → List Char → Nat → Nat
+    | c₁ :: l₁, c₂ :: l₂, i => if c₁ == c₂ then firstDiff l₁ l₂ (i + 1) else i
+    | _, _, i => i
+
+/--
+Returns the code of the string `s`: the value of `String.Internal.code s`.
+See `String.Internal.codeOfList`.
+-/
+def stringLitCode (s : String) : Nat :=
+  s.toList.foldr (fun c n => c.toNat + 1 + 2097152 * n) 0
+
+/--
+Builds a proof of `String.Internal.code s = n` for the string literal `s`, where `n` is the
+numeral `stringLitCode s`. Returns `n` and the proof.
+
+To check it, the kernel evaluates `String.Internal.codeOfList` on the list of characters of `s`.
+-/
+def mkStringLitCodeProof (s : String) : Expr × Expr :=
+  let n := mkRawNatLit (stringLitCode s)
+  let h := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) n
+  (n, mkApp3 (mkConst ``String.Internal.code_ofList) (toExpr s.toList) n h)
 
 end Lean.Meta

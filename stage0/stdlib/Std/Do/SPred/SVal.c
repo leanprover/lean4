@@ -111,7 +111,7 @@ else
 lean_object* v_tail_24_; lean_object* v___f_25_; 
 v_tail_24_ = lean_ctor_get(v_00_u03c3s_20_, 1);
 lean_inc(v_tail_24_);
-lean_dec_ref(v_00_u03c3s_20_);
+lean_dec_ref_known(v_00_u03c3s_20_, 2);
 v___f_25_ = lean_alloc_closure((void*)(l_Std_Do_SVal_curry___redArg___lam__1), 3, 2);
 lean_closure_set(v___f_25_, 0, v_f_21_);
 lean_closure_set(v___f_25_, 1, v_tail_24_);
@@ -205,7 +205,7 @@ lean_object* v_tail_62_; lean_object* v___x_63_;
 lean_dec(v_h__1_59_);
 v_tail_62_ = lean_ctor_get(v_00_u03c3s_57_, 1);
 lean_inc(v_tail_62_);
-lean_dec_ref(v_00_u03c3s_57_);
+lean_dec_ref_known(v_00_u03c3s_57_, 2);
 v___x_63_ = lean_apply_3(v_h__2_60_, lean_box(0), v_tail_62_, v_f_58_);
 return v___x_63_;
 }
@@ -227,7 +227,7 @@ lean_object* v_tail_71_; lean_object* v___x_72_;
 lean_dec(v_h__1_68_);
 v_tail_71_ = lean_ctor_get(v_00_u03c3s_66_, 1);
 lean_inc(v_tail_71_);
-lean_dec_ref(v_00_u03c3s_66_);
+lean_dec_ref_known(v_00_u03c3s_66_, 2);
 v___x_72_ = lean_apply_3(v_h__2_69_, lean_box(0), v_tail_71_, v_f_67_);
 return v___x_72_;
 }
@@ -284,7 +284,7 @@ lean_object* v_tail_97_; lean_object* v___x_98_;
 lean_dec(v_h__1_94_);
 v_tail_97_ = lean_ctor_get(v_00_u03c3s_92_, 1);
 lean_inc(v_tail_97_);
-lean_dec_ref(v_00_u03c3s_92_);
+lean_dec_ref_known(v_00_u03c3s_92_, 2);
 v___x_98_ = lean_apply_3(v_h__2_95_, lean_box(0), v_tail_97_, v_f_93_);
 return v___x_98_;
 }
@@ -306,7 +306,7 @@ lean_object* v_tail_106_; lean_object* v___x_107_;
 lean_dec(v_h__1_103_);
 v_tail_106_ = lean_ctor_get(v_00_u03c3s_101_, 1);
 lean_inc(v_tail_106_);
-lean_dec_ref(v_00_u03c3s_101_);
+lean_dec_ref_known(v_00_u03c3s_101_, 2);
 v___x_107_ = lean_apply_3(v_h__2_104_, lean_box(0), v_tail_106_, v_f_102_);
 return v___x_107_;
 }
@@ -456,11 +456,13 @@ lean_object* runtime_initialize_Init_Data_List_Notation(uint8_t builtin);
 lean_object* runtime_initialize_Init_SimpLemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Core(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Attr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Do_SPred_SVal(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

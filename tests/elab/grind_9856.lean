@@ -1,7 +1,7 @@
 module
 inductive T (a:Type) where
-  | constuctor1: T a
-  | constuctor2: T a
+  | constructor1: T a
+  | constructor2: T a
 
 instance : LE (T a) where
   le := sorry

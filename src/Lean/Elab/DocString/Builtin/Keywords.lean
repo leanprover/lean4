@@ -6,10 +6,12 @@ Author: David Thrane Christiansen
 
 module
 prelude
+public import Lean.Elab.DocString.Builtin.Parsing
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
 public meta import Lean.Elab.DocString.Builtin.Postponed
 public import Lean.DocString.Syntax
+public import Lean.DocString.View
 public import Lean.Elab.InfoTree
 public import Lean.Parser
 import Init.Omega
@@ -18,12 +20,11 @@ import Init.Omega
 namespace Lean.Doc
 open Lean Elab Term
 open Lean.Parser
-open scoped Lean.Doc.Syntax
 
 set_option linter.missingDocs true
 
 /-- The code represents an atom drawn from some syntax. -/
-structure Data.Atom where
+public structure Data.Atom where
   /-- The syntax kind's name. -/
   name : Name
   /-- The syntax category -/
@@ -31,19 +32,10 @@ structure Data.Atom where
 deriving TypeName
 
 
-private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
-  if h : xs.size = 1 then
-    match xs[0] with
-    | `(inline|code($s)) => return s
-    | other => throwErrorAt other "Expected code"
-  else
-    throwError "Expected precisely 1 code argument"
-
-
 /--
 Checks whether a syntax descriptor's value contains the given atom.
 -/
-private partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
+partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
   let rec attempt (p : Expr) (tryWhnf : Bool) : MetaM Bool := do
     match p.getAppFnArgs with
     | (``ParserDescr.node, #[_, _, p]) => containsAtom p atom
@@ -67,7 +59,7 @@ private partial def containsAtom (e : Expr) (atom : String) : MetaM Bool := do
 Checks whether a syntax descriptor's value contains the given atom. If so, the residual value after
 the atom is returned.
 -/
-private partial def containsAtom' (e : Expr) (atom : String) : MetaM (Option Expr) := do
+partial def containsAtom' (e : Expr) (atom : String) : MetaM (Option Expr) := do
   let rec attempt (p : Expr) (tryWhnf : Bool) : MetaM (Option Expr) := do
     match p.getAppFnArgs with
     | (``ParserDescr.node, #[_, _, p]) => containsAtom' p atom
@@ -92,7 +84,7 @@ private partial def containsAtom' (e : Expr) (atom : String) : MetaM (Option Exp
     | _ => if tryWhnf then attempt (← Meta.whnf p) false else pure none
   attempt e true
 
-private partial def canEpsilon (e : Expr) : MetaM Bool := do
+partial def canEpsilon (e : Expr) : MetaM Bool := do
   let rec attempt (p : Expr) (tryWhnf : Bool) : MetaM Bool := do
     match p.getAppFnArgs with
     | (``ParserDescr.node, #[_, _, p]) => canEpsilon p
@@ -118,7 +110,7 @@ private partial def canEpsilon (e : Expr) : MetaM Bool := do
 Checks whether a syntax descriptor's value begins with the given atom. If so, the residual value
 after the atom is returned.
 -/
-private partial def startsWithAtom? (e : Expr) (atom : String) : MetaM (Option Expr) := do
+partial def startsWithAtom? (e : Expr) (atom : String) : MetaM (Option Expr) := do
   let rec attempt (p : Expr) (tryWhnf : Bool) : MetaM (Option Expr) := do
     match p.getAppFnArgs with
     | (``ParserDescr.node, #[_, _, p]) => startsWithAtom? p atom
@@ -149,7 +141,7 @@ private partial def startsWithAtom? (e : Expr) (atom : String) : MetaM (Option E
 Checks whether a syntax descriptor's value begins with the given atoms. If so, the residual value
 after the atoms is returned.
 -/
-private partial def startsWithAtoms? (e : Expr) (atoms : List String) : MetaM (Option Expr) := do
+partial def startsWithAtoms? (e : Expr) (atoms : List String) : MetaM (Option Expr) := do
   match atoms with
   | [] => pure e
   | a :: as =>
@@ -157,7 +149,7 @@ private partial def startsWithAtoms? (e : Expr) (atoms : List String) : MetaM (O
       startsWithAtoms? e' as
     else pure none
 
-private partial def exprContainsAtoms (e : Expr) (atoms : List String) : MetaM Bool := do
+partial def exprContainsAtoms (e : Expr) (atoms : List String) : MetaM Bool := do
   match atoms with
   | [] => pure true
   | a :: as =>
@@ -165,7 +157,7 @@ private partial def exprContainsAtoms (e : Expr) (atoms : List String) : MetaM B
       (startsWithAtoms? e' as <&> Option.isSome) <||> exprContainsAtoms e' (a :: as)
     else pure false
 
-private def withAtom (cat : Name) (atom : String) : DocM (Array Name) := do
+def withAtom (cat : Name) (atom : String) : DocM (Array Name) := do
   let env ← getEnv
   let some catContents := (Lean.Parser.parserExtension.getState env).categories.find? cat
     | return #[]
@@ -177,7 +169,7 @@ private def withAtom (cat : Name) (atom : String) : DocM (Array Name) := do
         found := found.push k
   return found
 
-private partial def isAtoms (atoms : List String) (stx : Syntax) : Bool :=
+partial def isAtoms (atoms : List String) (stx : Syntax) : Bool :=
   StateT.run (go [stx]) atoms |>.fst
 where
   go (stxs : List Syntax) : StateM (List String) Bool := do
@@ -196,7 +188,7 @@ where
       | .node _ _ args :: ss =>
         go (args.toList ++ ss)
 
-private def parserHasAtomPrefix (atoms : List String) (p : Parser) : TermElabM Bool := do
+def parserHasAtomPrefix (atoms : List String) (p : Parser) : TermElabM Bool := do
   let str := " ".intercalate atoms
   let env ← getEnv
   let options ← getOptions
@@ -206,16 +198,16 @@ private def parserHasAtomPrefix (atoms : List String) (p : Parser) : TermElabM B
   let s := p.fn.run {inputString := str, fileName := "", fileMap := FileMap.ofString str} {env, options} (getTokenTable env) s
   return isAtoms atoms (mkNullNode (s.stxStack.extract 1 s.stxStack.size))
 
-private unsafe def namedParserHasAtomPrefixUnsafe (atoms : List String) (parserName : Name) : TermElabM Bool := do
+unsafe def namedParserHasAtomPrefixUnsafe (atoms : List String) (parserName : Name) : TermElabM Bool := do
   try
     let p ← evalConstCheck Parser ``Parser parserName
     parserHasAtomPrefix atoms p
   catch | _ => pure false
 
 @[implemented_by namedParserHasAtomPrefixUnsafe]
-private opaque namedParserHasAtomPrefix (atoms : List String) (parserName : Name) : TermElabM Bool
+opaque namedParserHasAtomPrefix (atoms : List String) (parserName : Name) : TermElabM Bool
 
-private def parserDescrCanEps : ParserDescr → Bool
+def parserDescrCanEps : ParserDescr → Bool
   | .node _ _ p | .trailingNode _ _ _ p => parserDescrCanEps p
   | .binary ``Parser.andthen p1 p2 => parserDescrCanEps p1 && parserDescrCanEps p2
   | .binary ``Parser.orelse p1 p2 => parserDescrCanEps p1 || parserDescrCanEps p2
@@ -227,7 +219,7 @@ private def parserDescrCanEps : ParserDescr → Bool
   | .const ``Parser.ppHardSpace => true
   | _ => false
 
-private def parserDescrHasAtom (atom : String) (p : ParserDescr) : TermElabM (Option ParserDescr) := do
+def parserDescrHasAtom (atom : String) (p : ParserDescr) : TermElabM (Option ParserDescr) := do
   match p with
   | .node _ _ p | .trailingNode _ _ _ p | .unary _ p =>
     parserDescrHasAtom atom p
@@ -249,7 +241,7 @@ private def parserDescrHasAtom (atom : String) (p : ParserDescr) : TermElabM (Op
     | none, none => pure none
   | _ => pure none
 
-private def parserDescrStartsWithAtom (atom : String) (p : ParserDescr) : TermElabM (Option ParserDescr) := do
+def parserDescrStartsWithAtom (atom : String) (p : ParserDescr) : TermElabM (Option ParserDescr) := do
   match p with
   | .node _ _ p | .trailingNode _ _ _ p | .unary _ p =>
     parserDescrStartsWithAtom atom p
@@ -272,7 +264,7 @@ private def parserDescrStartsWithAtom (atom : String) (p : ParserDescr) : TermEl
     | none, none => pure none
   | _ => pure none
 
-private def parserDescrStartsWithAtoms (atoms : List String) (p : ParserDescr) : TermElabM Bool := do
+def parserDescrStartsWithAtoms (atoms : List String) (p : ParserDescr) : TermElabM Bool := do
   match atoms with
   | [] => pure true
   | a :: as =>
@@ -280,7 +272,7 @@ private def parserDescrStartsWithAtoms (atoms : List String) (p : ParserDescr) :
       parserDescrStartsWithAtoms as p'
     else pure false
 
-private partial def parserDescrHasAtoms (atoms : List String) (p : ParserDescr) : TermElabM Bool := do
+partial def parserDescrHasAtoms (atoms : List String) (p : ParserDescr) : TermElabM Bool := do
   match atoms with
   | [] => pure true
   | a :: as =>
@@ -289,16 +281,16 @@ private partial def parserDescrHasAtoms (atoms : List String) (p : ParserDescr) 
       else parserDescrHasAtoms (a :: as) p'
     else pure false
 
-private unsafe def parserDescrNameHasAtomsUnsafe (atoms : List String) (p : Name) : TermElabM Bool := do
+unsafe def parserDescrNameHasAtomsUnsafe (atoms : List String) (p : Name) : TermElabM Bool := do
   try
     let p ← evalConstCheck ParserDescr ``ParserDescr p
     parserDescrHasAtoms atoms p
   catch | _ => pure false
 
 @[implemented_by parserDescrNameHasAtomsUnsafe]
-private opaque parserDescrNameHasAtoms (atoms : List String) (p : Name) : TermElabM Bool
+opaque parserDescrNameHasAtoms (atoms : List String) (p : Name) : TermElabM Bool
 
-private def kindHasAtoms (k : Name) (atoms : List String) : TermElabM Bool := do
+def kindHasAtoms (k : Name) (atoms : List String) : TermElabM Bool := do
   let env ← getEnv
   if let some ci := env.find? k then
     if let some d := ci.value? then
@@ -312,7 +304,7 @@ private def kindHasAtoms (k : Name) (atoms : List String) : TermElabM Bool := do
         return true
   return false
 
-private def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name) := do
+def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name) := do
   let env ← getEnv
   let some catContents := (Lean.Parser.parserExtension.getState env).categories.find? cat
     | return #[]
@@ -323,10 +315,10 @@ private def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name
       found := found.push k
   return found
 
-private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
+def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (suggest : Bool)
-    (s : StrLit) : TermElabM (Inline ElabInline) := do
-  let atoms := s.getString |>.split Char.isWhitespace |>.toStringList
+    (s : VersoCode) : TermElabM (Inline ElabInline) := do
+  let atoms := s.getVersoCode |>.split Char.isWhitespace |>.toStringList
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cat' := cat.getId
@@ -367,15 +359,15 @@ private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .a
         else m!"Specify the category or syntax kind:"
 
     let range? :=
-      match ← getRef with
-      | `(inline|role{$name $args*}[$_]) =>
+      match InlineView.of ⟨← getRef⟩ with
+      | some (.role { name, args, content := #[_], .. }) =>
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
 
     let hint ← makeHint hintText (ofSuggs ++ catSuggs)
 
     logErrorAt s m!"Multiple syntax entries found with atoms `{" ".intercalate atoms}`: {choices}{hint.getD m!""}"
-    return .code s.getString
+    return .code s.getVersoCode
   else
     let (catName, k) := candidates[0]
     addConstInfo s k
@@ -384,7 +376,7 @@ private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .a
       if let some h ← makeHint m!"Specify the syntax kind:" #[s!" (of := {k'})"] then
         logInfo h
 
-    return .other {name := ``Data.Atom, val := .mk (Data.Atom.mk k catName)} #[.code s.getString]
+    return .custom (Data.Atom.mk k catName) #[.code s.getVersoCode]
 where
   categorySuggestions (c candidates) := Id.run do
     if c.isAnonymous then
@@ -404,8 +396,8 @@ where
     else return #[]
   makeHint (hintText) (suggestions : Array String) : TermElabM (Option MessageData) := do
     let range? :=
-      match ← getRef with
-      | `(inline|role{$name $args*}[$_]) =>
+      match InlineView.of ⟨← getRef⟩ with
+      | some (.role { name, args, content := #[_], .. }) =>
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
@@ -430,49 +422,54 @@ Use `kw?` to receive a suggestion of a specific kind, and `kw!` to disable the c
 -/
 @[builtin_doc_role]
 public def kw (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+    (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) false s
 
 @[inherit_doc kw, builtin_doc_role]
 public def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+    (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) true s
 
 /--
 Checks that a syntax kind name exists.
 -/
-public meta def checkKindExists : PostponedCheckHandler := fun _ info => do
-  let some k := info.get? PostponedKind
-    | throwError "Expected a `{.ofConstName ``PostponedKind}` but got a `{.ofConstName info.typeName}`"
-  let k ← realizeGlobalConstNoOverload (mkIdent k.name)
+-- The builtin attribute will be available after the next stage0 update. Get rid of the
+-- builtin_initialize line and uncomment the attribute line once that's happened.
+-- @[builtin_deferred_doc_check PostponedKind]
+public def checkKindExists : DeferredCheckHandler := fun d => do
+  let some ⟨kindName⟩ := d.get? PostponedKind
+    | throwError "internal error: expected a `{.ofConstName ``PostponedKind}`"
+  let k ← realizeGlobalConstNoOverload (mkIdent kindName)
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   unless parsers.kinds.contains k do
     throwError m!"Not a syntax kind: `{.ofConstName k}`"
 
+builtin_initialize DeferredCheck.addBuiltinHandler ``PostponedKind checkKindExists
+
 
 @[inherit_doc kw, builtin_doc_role]
 public def kw! (of : Option Ident := none) (scope : DocScope := .local)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+    (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let some of' := of
     | let h ←
-        if let `(inline|role{$n $_*}[$_*]) ← getRef then
+        if let some (.role { name, .. }) := InlineView.of ⟨← getRef⟩ then
           let kwName ← unresolveNameGlobalAvoidingLocals ``kw
-          let kw?Name ← unresolveNameGlobalAvoidingLocals ``kw?
+          let kwSuggestionsName ← unresolveNameGlobalAvoidingLocals ``kw?
           let ss := #[
             { suggestion := s!"{kwName}",
               postInfo? := some "for automatic resolution" },
-            { suggestion := s!"{kw?Name}",
+            { suggestion := s!"{kwSuggestionsName}",
               postInfo? := some "for automatic resolution with suggestions" }
           ]
-          m!"Use one of the other keyword roles.".hint ss (ref? := n)
+          m!"Use one of the other keyword roles.".hint ss (ref? := name)
         else pure m!""
       logErrorAt s m!"No syntax kind specified. The named argument `of` is required for \
         `{.ofConstName `Lean.Doc.kw!}`.{h}"
-      return .code s.getString
+      return .code s.getVersoCode
   match scope with
   | .local =>
     let k ← realizeGlobalConstNoOverloadWithInfo of'
@@ -481,17 +478,16 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
     unless parsers.kinds.contains k do
       logErrorAt s m!"Not a syntax kind: `{.ofConstName k}`"
   | .import xs =>
-    let postponed : PostponedCheck := {handler := ``checkKindExists, imports := xs.map (⟨·⟩), info := .mk (PostponedKind.mk of'.getId)}
-    return .other {name := ``PostponedCheck, val := .mk postponed } #[.code s.getString]
+    return .deferred (← addDeferredCheck (.mk (PostponedKind.mk of'.getId)) xs (← getRef)) #[.code s.getVersoCode]
 
-  pure <| .code s.getString
+  pure <| .code s.getVersoCode
 
 /--
 Suggests the `kw` role, if applicable.
 -/
 @[builtin_doc_code_suggestions]
-public def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let atoms := code.getString |>.split Char.isWhitespace |>.toStringList
+public def suggestKw (code : VersoCode) : DocM (Array CodeSuggestion) := do
+  let atoms := code.getVersoCode |>.split Char.isWhitespace |>.toStringList
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cats := parsers.categories.toArray

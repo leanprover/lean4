@@ -37,7 +37,7 @@ public def getStateByIdx? [Inhabited σ] (ext : ModuleEnvExtension σ) (env : En
 
 end ModuleEnvExtension
 
-private initialize modPkgExt : ModuleEnvExtension (Option PkgId) ←
+initialize modPkgExt : ModuleEnvExtension (Option PkgId) ←
   registerModuleEnvExtension (pure none)
 
 /-- Returns the package (if any) of an imported module (by its index). -/

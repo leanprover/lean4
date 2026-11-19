@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
+import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Omega
 
 public section
@@ -146,6 +147,15 @@ directly.
 unsafe builtin_initialize tacticElabAttribute : KeyedDeclsAttribute Tactic ←
   mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
+/--
+Disables automatic fallback of this tactic macro/elaborator to other macros/elaborators of the same
+syntax on failure. An elaborator that does not handle the given syntax should still signal this by
+throwing `unsupportedSyntax`, which is not affected by this attribute.
+-/
+@[builtin_doc]
+builtin_initialize noFallbackAttr : TagAttribute ←
+  registerTagAttribute `no_fallback "disables automatic fallback on tactic macro/elab failure"
+
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
     elaborator    := (← read).elaborator
@@ -172,6 +182,17 @@ We marked these places with a `(*)` in these methods.
 -/
 
 /--
+Warns if the kind of `stx` is deprecated and, in that case, runs `x` reporting deprecations only in
+user-written syntax, so that the expansion of a deprecated tactic is not reported as well. Must run
+inside the info tree context of the tactic, as the warning may come with a code action.
+-/
+private def withDeprecatedSyntaxCheck (stx : Syntax) (x : TacticM α) : TacticM α := do
+  unless isDeprecatedSyntax (← getEnv) stx.getKind do
+    return ← x
+  Term.reportDeprecatedSyntax stx
+  Term.withoutCheckDeprecatedSynthetic x
+
+/--
   Auxiliary datastructure for capturing exceptions at `evalTactic`.
 -/
 structure EvalTacticFailure where
@@ -195,7 +216,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
+          throwNotAccepted m!"Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
         expandEval s macros evalFns #[]
     | .missing => pure ()
@@ -208,19 +229,35 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
-       throwErrorAt stx "Unexpected syntax{indentD stx}"
+       throwNotAccepted m!"Unexpected syntax{indentD stx}"
 
-    @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+    /--
+    Throws `msg` at `stx`, which no macro or elaborator accepted, after warning if `stx` is
+    deprecated, as `withDeprecatedSyntaxCheck` did not run or its warning was backtracked.
+    -/
+    throwNotAccepted (msg : MessageData) : TacticM Unit := do
+      unless isDeprecatedSyntax (← getEnv) stx.getKind do
+        throwErrorAt stx msg
+      withTacticInfoContext stx do
+        Term.reportDeprecatedSyntax stx
+        throwErrorAt stx msg
+
+    @[inline] handleEx (declName : Name) (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+      let noFallback := noFallbackAttr.hasTag (← getEnv) declName
       match ex with
       | .error .. =>
+        if noFallback then throw ex
         trace[Elab.tactic.backtrack] ex.toMessageData
         let failures := failures.push ⟨ex, ← Tactic.saveState⟩
         s.restore (restoreInfo := true); k failures
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
+          -- `unsupportedSyntax` is the elaborator declining the syntax before any commit, so
+          -- `[no_fallback]` does not apply here.
           s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
+          if noFallback then throw ex
           for msg in (← Core.getMessageLog).toList do
             trace[Elab.tactic.backtrack] msg.data
           let failures := failures.push ⟨ex, ← Tactic.saveState⟩
@@ -234,7 +271,7 @@ where
       | m :: ms =>
         try
           withReader ({ · with elaborator := m.declName }) do
-            withTacticInfoContext stx do
+            withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
               let stx' ← adaptMacro m.value stx
               recordExtraModUseFromDecl (isMeta := true) m.declName
               -- Support incrementality; see also Note [Incremental Macros]
@@ -246,7 +283,9 @@ where
                     let old ← snap.old?
                     -- If the kind is equal, we can assume the old version was a macro as well
                     guard <| old.stx.isOfKind stx.getKind
-                    let state ← old.val.get.finished.get.state?
+                    -- (access to `raw` is fine here as there should be no transformation in this
+                    -- case anyway, see `resolve` below)
+                    let state ← old.val.get.transformed.raw.finished.get.state?
                     guard <| state.term.meta.core.nextMacroScope == nextMacroScope
                     -- check absence of traces; see Note [Incremental Macros]
                     guard <| state.term.meta.core.traceState.traces.size == 0
@@ -258,13 +297,15 @@ where
                   -- Store new unfolding in the snapshot tree
                   let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
-                    stx := stx'
-                    diagnostics := .empty
-                    inner? := none
-                    finished := .finished stx' {
+                    transformed.raw := {
+                      stx := stx'
                       diagnostics := .empty
-                      state? := (← Tactic.saveState)
-                      moreSnaps := #[]
+                      inner? := none
+                      finished := .finished stx' {
+                        diagnostics := .empty
+                        state? := (← Tactic.saveState)
+                        moreSnaps := #[]
+                      }
                     }
                     next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
@@ -273,12 +314,13 @@ where
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next[0]?)⟩
+                      -- (access to `raw`: as above)
+                      return ⟨old.transformed.raw.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return
               evalTactic stx'
-        catch ex => handleEx s failures ex (expandEval s ms evalFns)
+        catch ex => handleEx m.declName s failures ex (expandEval s ms evalFns)
 
     eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := do
       match evalFns with
@@ -288,11 +330,11 @@ where
           -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
           Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
           withReader ({ · with elaborator := evalFn.declName }) do
-          withTacticInfoContext stx do
+          withTacticInfoContext stx <| withDeprecatedSyntaxCheck stx do
             evalFn.value stx
             if !evalFn.isBuiltin then
               recordExtraModUseFromDecl (isMeta := true) evalFn.declName
-        catch ex => handleEx s failures ex (eval s evalFns)
+        catch ex => handleEx evalFn.declName s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
   throwError "No goals to be solved"
@@ -543,7 +585,7 @@ def closeMainGoal (tacName : Name) (val : Expr) (checkUnassigned := true): Tacti
   if (← mvarId.checkedAssign val) then
     replaceMainGoal []
   else
-    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure"
+    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure"
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do
   withMainContext do x (← getMainGoal)

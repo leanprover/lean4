@@ -1,5 +1,6 @@
 {"version": 2,
  "uri": "file:///editAfterError.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,

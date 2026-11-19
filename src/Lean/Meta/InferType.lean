@@ -14,10 +14,15 @@ public section
 
 namespace Lean
 
+open Lean
+
 /--
 Auxiliary function for instantiating the loose bound variables in `e` with `args[start...stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when
 we instantiate a bound variable with a lambda expression.
+
+If `args` contains no lambda expressions, it is equivalent to `instantiateRevRange`, and in fact
+it will call `instantiateRevRange` for efficiency.
 
 Example: Given the term `#0 a`, and `start := 0, stop := 1, args := #[fun x => x]` the result is
 `a` instead of `(fun x => x) a`.
@@ -32,10 +37,38 @@ We use this to implement `inferAppType`.
 partial def Expr.instantiateBetaRevRange (e : Expr) (start : Nat) (stop : Nat) (args : Array Expr) : Expr :=
   if e.hasLooseBVars && stop > start then
     assert! stop ≤ args.size
-    visit e 0 |>.run
+    if args.any (·.consumeMData.isLambda) start stop then
+      visit e 0 |>.run
+    else
+      -- If there are no lambdas, then `instantiateRevRange` suffices.
+      instantiateRevRange e start stop args
   else
     e
 where
+  /--
+  Visit a bvar `e := .bvar vidx`, assuming `offset < e.looseBVarRange`.
+  -/
+  visitBVar (vidx : Nat) (offset : Nat) : Expr :=
+    -- Recall that `looseBVarRange` for `Expr.bvar` is `vidx+1`.
+    -- So, we must have `offset ≤ vidx`, since `offset < e.looseBVarRange`
+    let n := stop - start
+    if vidx < offset + n then
+      args[stop - (vidx - offset) - 1]!.liftLooseBVars 0 offset
+    else
+      Expr.bvar (vidx - n)
+  visitWithoutBeta (e : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr := do
+    if offset >= e.looseBVarRange then
+      -- `e` doesn't have free variables
+      return e
+    else
+      match e with
+      | .app f a =>
+        -- Check the cache only here, since in the other alternative `visit` will check the cache.
+        checkCache ({ val := e : ExprStructEq }, offset) fun _ => visitApp e f a offset
+      | e => visit e offset
+  /-- Visit an application without beta reducing the head -/
+  visitApp (e f a : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr :=
+    return e.updateApp! (← visitWithoutBeta f offset) (← visit a offset)
   visit (e : Expr) (offset : Nat) : MonadStateCacheT (ExprStructEq × Nat) Expr Id Expr :=
     if offset >= e.looseBVarRange then
       -- `e` doesn't have free variables
@@ -47,23 +80,17 @@ where
       | .letE _ t v b _  => return e.updateLetE! (← visit t offset) (← visit v offset) (← visit b (offset+1))
       | .mdata _ b       => return e.updateMData! (← visit b offset)
       | .proj _ _ b      => return e.updateProj! (← visit b offset)
-      | .app .. =>
-        e.withAppRev fun f revArgs => do
-        let fNew    ← visit f offset
-        let revArgs ← revArgs.mapM (visit · offset)
-        if f.isBVar then
-          -- try to beta reduce if `f` was a bound variable
-          return fNew.betaRev revArgs
+      | .bvar vidx       => return visitBVar vidx offset
+      | .app f a =>
+        let head := e.getAppFn
+        -- try to beta reduce if the head is a bound variable
+        if head.isBVar then
+          -- using `visit` instead of `visitBVar` for the `offset >= vidx` check and for caching `liftLooseBVars`
+          let head ← visit head offset
+          let revArgs ← e.getAppRevArgs.mapM (visit · offset)
+          return head.betaRev revArgs
         else
-          return mkAppRev fNew revArgs
-      | Expr.bvar vidx         =>
-        -- Recall that looseBVarRange for `Expr.bvar` is `vidx+1`.
-        -- So, we must have offset ≤ vidx, since we are in the "else" branch of  `if offset >= e.looseBVarRange`
-        let n := stop - start
-        if vidx < offset + n then
-          return args[stop - (vidx - offset) - 1]!.liftLooseBVars 0 offset
-        else
-          return mkBVar (vidx - n)
+          visitApp e f a offset
       -- The following cases are unreachable because they never contain loose bound variables
       | .const .. => unreachable!
       | .fvar ..  => unreachable!
@@ -79,8 +106,6 @@ def throwFunctionExpected {α} (f : Expr) : MetaM α :=
 private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   let mut fType ← inferType f
   let mut j := 0
-  /- TODO: check whether `instantiateBetaRevRange` is too expensive, and
-     use it only when `args` contains a lambda expression. -/
   for i in *...args.size do
     match fType with
     | Expr.forallE _ _ b _ => fType := b
@@ -97,6 +122,31 @@ private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
   let cinfo ← getConstVal c
   if cinfo.levelParams.length == us.length then
     instantiateTypeLevelParams cinfo us
+  else
+    throwIncorrectNumberOfLevels c us
+
+/--
+A universe level substitution `paramNames := lvls` still to be applied to the type of a constant.
+The quick predicates below (`isPropQuick`, `isProofQuick`, `isTypeQuick`) walk the uninstantiated
+type and substitute only the levels they inspect: level instantiation does not change the structure
+of an expression, and `apply` substitutes a level as `Expr.instantiateLevelParams` does, so they
+return the same results as on the instantiated type, without allocating it.
+-/
+private structure LevelSubst where
+  paramNames : List Name := []
+  lvls       : List Level := []
+
+@[inline] private def LevelSubst.apply (σ : LevelSubst) (u : Level) : Level :=
+  if σ.paramNames.isEmpty then u else u.instantiateParams σ.paramNames σ.lvls
+
+@[inline] private def LevelSubst.applyList (σ : LevelSubst) (us : List Level) : List Level :=
+  if σ.paramNames.isEmpty then us else us.map σ.apply
+
+/-- `inferConstType c us`, as the uninstantiated type and the substitution to apply to it. -/
+private def inferConstTypeLazy (c : Name) (us : List Level) : MetaM (Expr × LevelSubst) := do
+  let cinfo ← getConstVal c
+  if cinfo.levelParams.length == us.length then
+    return (cinfo.type, { paramNames := cinfo.levelParams, lvls := us })
   else
     throwIncorrectNumberOfLevels c us
 
@@ -180,12 +230,14 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
   if !(← read).cacheInferType || e.hasMVar then
+    Core.checkInterrupted
     inferType
   else
     let key ← mkExprConfigCacheKey e
-    match (← get).cache.inferType.find? key with
+    match ← (← get).cache.inferType.find? key (fun c => modifyInferTypeCache fun _ => c) with
     | some type => return type
     | none =>
+      Core.checkInterrupted
       let type ← inferType
       unless type.hasMVar do
         modifyInferTypeCache fun c => c.insert key type
@@ -245,46 +297,53 @@ if `type` is of the form `A_1 → ... → A_n → Prop`.
 
 Remark: `type` can be a dependent arrow.
 -/
-private partial def isArrowProp : Expr → Nat → MetaM LBool
-  | .sort u,          0   => return isAlwaysZero (← instantiateLevelMVars u) |>.toLBool
+private partial def isArrowProp (σ : LevelSubst) : Expr → Nat → MetaM LBool
+  | .sort u,          0   => return isAlwaysZero (← instantiateLevelMVars (σ.apply u)) |>.toLBool
   | .forallE ..,      0   => return LBool.false
-  | .forallE _ _ b _, n+1 => isArrowProp b n
-  | .letE _ _ _ b _,  n   => isArrowProp b n
-  | .mdata _ e,       n   => isArrowProp e n
+  | .forallE _ _ b _, n+1 => isArrowProp σ b n
+  | .letE _ _ _ b _,  n   => isArrowProp σ b n
+  | .mdata _ e,       n   => isArrowProp σ e n
   | _,                _   => return LBool.undef
 
 /--
-`isPropQuickApp f n` is an "approximate" predicate which returns `LBool.true`
-if `f` applied to `n` arguments is a proposition.
+`isPropQuickApp σ f n` is an "approximate" predicate which returns `LBool.true`
+if `f` applied to `n` arguments is a proposition, where `f` is a subterm of a constant's type still
+to be instantiated with `σ` (see `LevelSubst`).
 -/
-private partial def isPropQuickApp : Expr → Nat → MetaM LBool
-  | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowProp constType arity
-  | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProp fvarType arity
-  | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  isArrowProp mvarType arity
-  | .app f ..,       arity   => isPropQuickApp f (arity+1)
-  | .mdata _ e,      arity   => isPropQuickApp e arity
-  | .letE _ _ _ b _, arity   => isPropQuickApp b arity
+private partial def isPropQuickApp (σ : LevelSubst) : Expr → Nat → MetaM LBool
+  | .const c lvls,   arity   => do
+    let (constType, σ') ← inferConstTypeLazy c (σ.applyList lvls); isArrowProp σ' constType arity
+  | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProp {} fvarType arity
+  | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  isArrowProp {} mvarType arity
+  | .app f ..,       arity   => isPropQuickApp σ f (arity+1)
+  | .mdata _ e,      arity   => isPropQuickApp σ e arity
+  | .letE _ _ _ b _, arity   => isPropQuickApp σ b arity
   | .lam ..,         0       => return LBool.false
-  | .lam _ _ b _,    arity+1 => isPropQuickApp b arity
+  | .lam _ _ b _,    arity+1 => isPropQuickApp σ b arity
   | _,               _       => return LBool.undef
+
+/-- `isPropQuick` for a subterm of a constant's type still to be instantiated with `σ`. -/
+private partial def isPropQuickCore (σ : LevelSubst) : Expr → MetaM LBool
+  | .bvar ..          => return LBool.undef
+  | .lit ..           => return LBool.false
+  | .sort ..          => return LBool.false
+  | .lam ..           => return LBool.false
+  | .letE _ _ _ b _   => isPropQuickCore σ b
+  | .proj ..          => return LBool.undef
+  | .forallE _ _ b _  => isPropQuickCore σ b
+  | .mdata _ e        => isPropQuickCore σ e
+  | .const c lvls     => do
+    let (constType, σ') ← inferConstTypeLazy c (σ.applyList lvls); isArrowProp σ' constType 0
+  | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  isArrowProp {} fvarType 0
+  | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowProp {} mvarType 0
+  | .app f ..         => isPropQuickApp σ f 1
 
 /--
 `isPropQuick e` is an "approximate" predicate which returns `LBool.true`
 if `e` is a proposition.
 -/
-partial def isPropQuick : Expr → MetaM LBool
-  | .bvar ..          => return LBool.undef
-  | .lit ..           => return LBool.false
-  | .sort ..          => return LBool.false
-  | .lam ..           => return LBool.false
-  | .letE _ _ _ b _   => isPropQuick b
-  | .proj ..          => return LBool.undef
-  | .forallE _ _ b _  => isPropQuick b
-  | .mdata _ e        => isPropQuick e
-  | .const c lvls     => do let constType ← inferConstType c lvls; isArrowProp constType 0
-  | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  isArrowProp fvarType 0
-  | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
-  | .app f ..         => isPropQuickApp f 1
+def isPropQuick (e : Expr) : MetaM LBool :=
+  isPropQuickCore {} e
 
 /--
 `isProp e` returns `true` if `e` is a proposition.
@@ -321,10 +380,10 @@ private inductive ArrowPropResult where
     and `inferType` must be used.
     -/ undef
   | /--
-    The resulting type is a de-Bruijn variable with index `idx`.
-    The index is used to check the type of the corresponding binder.
+    The resulting type is of the form `x a_1 ... a_numArgs` where `x` is the de-Bruijn variable with
+    index `idx`. The index is used to check the type of the corresponding binder.
     -/
-    bvar (idx : Nat)
+    bvar (idx : Nat) (numArgs : Nat)
 
 /-- Converts a `LBool` into an `ArrowPropResult`. -/
 private def toArrowPropResult : LBool → ArrowPropResult
@@ -350,28 +409,44 @@ term `1 + 1` is a proof. The function `isArrowProposition type 6` is invoked whe
 ```
 It is the type of `HAdd.hAdd`.
 Note that the resulting type is a de Bruijn variable.
+The de Bruijn variable may also be applied to arguments. For example, the type of a `match`
+auxiliary function, `casesOn`, or `brecOn` is of the form
+```
+{motive : Nat → Sort u} → (t : Nat) → ... → motive t
+```
+In this case, the sort of the resulting type is the codomain of the binder type of `motive`.
 -/
-private def isArrowProposition' : Expr → Nat → MetaM ArrowPropResult
-  | .forallE _ t b _, n+1 => return processResult (← isArrowProposition' b n) t
-  | .letE _ t _ b _,  n   => return processResult (← isArrowProposition' b n) t
-  | .mdata _ e,       n   => isArrowProposition' e n
-  | .bvar idx,        0   => return .bvar idx
-  | type,             0   => return toArrowPropResult (← isPropQuick type)
+private def isArrowProposition' (σ : LevelSubst) : Expr → Nat → MetaM ArrowPropResult
+  | .forallE _ t b _, n+1 => return processResult σ (← isArrowProposition' σ b n) t
+  | .letE _ t _ b _,  n   => return processResult σ (← isArrowProposition' σ b n) t
+  | .mdata _ e,       n   => isArrowProposition' σ e n
+  | .bvar idx,        0   => return .bvar idx 0
+  | type,             0   =>
+    match type.getAppFn with
+    | .bvar idx => return .bvar idx type.getAppNumArgs
+    | _         => return toArrowPropResult (← isPropQuickCore σ type)
   | _,                _   => return .undef
 where
   /-- Auxiliary function for processing the result for the binders `forallE` and `letE`. -/
-  processResult (r : ArrowPropResult) (binderType : Expr) : ArrowPropResult :=
+  processResult (σ : LevelSubst) (r : ArrowPropResult) (binderType : Expr) : ArrowPropResult :=
     match r with
-    | .bvar 0       => checkProp binderType
-    | .bvar (idx+1) => .bvar idx
-    | r             => r
+    | .bvar 0       numArgs => checkProp σ binderType numArgs
+    | .bvar (idx+1) numArgs => .bvar idx numArgs
+    | r                     => r
 
-  /-- Returns `.true` if `e` is `Prop`, `.false` if it is `Type _`, and `.undef` otherwise. -/
-  checkProp : (e : Expr) → ArrowPropResult
-    | .sort u => if u.isNeverZero then .false else if u.isZero then .true else .undef
+  /--
+  Returns `.true` if `e` is of the form `A_1 → ... → A_numArgs → Prop`, `.false` if it is of the form
+  `A_1 → ... → A_numArgs → Type _`, and `.undef` otherwise.
+  -/
+  checkProp (σ : LevelSubst) : (e : Expr) → (numArgs : Nat) → ArrowPropResult
+    | .sort u,          0   =>
+      let u := σ.apply u
+      if u.isNeverZero then .false else if u.isZero then .true else .undef
+    | .forallE _ _ b _, n+1 => checkProp σ b n
+    | .mdata _ e,       n   => checkProp σ e n
     /- `outParam` is used in many polymorphic functions in Lean. -/
-    | .app (.const ``outParam _) a => checkProp a
-    | _ => .undef
+    | .app (.const ``outParam _) a, n => checkProp σ a n
+    | _,                _   => .undef
 
 /--
 `isArrowProposition type n` is an "approximate" predicate which returns `LBool.true`
@@ -379,8 +454,8 @@ if `type` is of the form `A_1 → ... → A_n → B`, where `B` is a proposition
 
 Remark: `type` can be a dependent arrow.
 -/
-private def isArrowProposition (e : Expr) (n : Nat) : MetaM LBool :=
-  return (← isArrowProposition' e n).toLBool
+private def isArrowProposition (σ : LevelSubst) (e : Expr) (n : Nat) : MetaM LBool :=
+  return (← isArrowProposition' σ e n).toLBool
 
 mutual
 /--
@@ -388,9 +463,10 @@ mutual
 `n` arguments is a proof.
 -/
 private partial def isProofQuickApp : Expr → Nat → MetaM LBool
-  | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowProposition constType arity
-  | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType arity
-  | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType arity
+  | .const c lvls,   arity   => do
+    let (constType, σ) ← inferConstTypeLazy c lvls; isArrowProposition σ constType arity
+  | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowProposition {} fvarType arity
+  | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  isArrowProposition {} mvarType arity
   | .app f _,        arity   => isProofQuickApp f (arity+1)
   | .mdata _ e,      arity   => isProofQuickApp e arity
   | .letE _ _ _ b _, arity   => isProofQuickApp b arity
@@ -410,9 +486,10 @@ partial def isProofQuick : Expr → MetaM LBool
   | .proj ..          => return LBool.undef
   | .forallE ..       => return LBool.false
   | .mdata _ e        => isProofQuick e
-  | .const c lvls     => do let constType ← inferConstType c lvls; isArrowProposition constType 0
-  | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType 0
-  | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowProposition mvarType 0
+  | .const c lvls     => do
+    let (constType, σ) ← inferConstTypeLazy c lvls; isArrowProposition σ constType 0
+  | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  isArrowProposition {} fvarType 0
+  | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowProposition {} mvarType 0
   | .app f ..         => isProofQuickApp f 1
 
 end
@@ -442,7 +519,8 @@ private partial def isArrowType : Expr → Nat → MetaM LBool
 `n` arguments is a type.
 -/
 private partial def isTypeQuickApp : Expr → Nat → MetaM LBool
-  | .const c lvls,   arity   => do let constType ← inferConstType c lvls; isArrowType constType arity
+  -- `isArrowType` inspects no levels
+  | .const c lvls,   arity   => do let (constType, _) ← inferConstTypeLazy c lvls; isArrowType constType arity
   | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  isArrowType fvarType arity
   | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  isArrowType mvarType arity
   | .app f _,        arity   => isTypeQuickApp f (arity+1)
@@ -464,7 +542,7 @@ partial def isTypeQuick : Expr → MetaM LBool
   | .proj ..          => return LBool.undef
   | .forallE ..       => return LBool.true
   | .mdata _ e        => isTypeQuick e
-  | .const c lvls     => do let constType ← inferConstType c lvls; isArrowType constType 0
+  | .const c lvls     => do let (constType, _) ← inferConstTypeLazy c lvls; isArrowType constType 0
   | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  isArrowType fvarType 0
   | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowType mvarType 0
   | .app f ..         => isTypeQuickApp f 1
@@ -517,7 +595,8 @@ partial def isTypeFormerType (type : Expr) : MetaM Bool := do
 Returns `true` iff `type` is `Prop` or `As → Prop`.
 -/
 partial def isPropFormerType (type : Expr) : MetaM Bool := do
-  return (← typeFormerTypeLevel type) == .some .zero
+  let some l ← typeFormerTypeLevel type | return false
+  return l.isAlwaysZero
 
 /--
 Returns `true` iff `e : Sort _` or `e : (forall As, Sort _)`.

@@ -78,7 +78,7 @@ as the facet kind for modules.
 Returns the facet kind for an Lake target namespace.
 Used by the `builtin_facet` macro.
 -/
-private def facetKindForNamespace (ns : Name) : Name :=
+def facetKindForNamespace (ns : Name) : Name :=
   match ns with
   | `Lake.Package => Package.facetKind
   | `Lake.Module => Module.facetKind

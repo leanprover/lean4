@@ -3,28 +3,28 @@ import Init
 open Std.Time
 
 /--
-info: Timestamp.ofNanosecondsSinceUnixEpoch -999999999
+info: WallTime.ofNanoseconds -999999999
 -/
 #guard_msgs in
-#eval datetime("1969-12-31T23:59:59.000000001").toTimestampAssumingUTC
+#eval datetime("1969-12-31T23:59:59.000000001").toWallTime
 
 /--
-info: Timestamp.ofNanosecondsSinceUnixEpoch -1000000000
+info: WallTime.ofNanoseconds -1000000000
 -/
 #guard_msgs in
-#eval datetime("1969-12-31T23:59:59.000000000").toTimestampAssumingUTC
+#eval datetime("1969-12-31T23:59:59.000000000").toWallTime
 
 /--
 info: datetime("1969-12-31T23:59:59.000000001")
 -/
 #guard_msgs in
-#eval datetime("1969-12-31T23:59:59.000000001").toTimestampAssumingUTC.toPlainDateTimeAssumingUTC
+#eval datetime("1969-12-31T23:59:59.000000001").toWallTime |> PlainDateTime.ofWallTime
 
 /--
 info: datetime("1969-12-31T23:59:59.000000000")
 -/
 #guard_msgs in
-#eval datetime("1969-12-31T23:59:59.000000000").toTimestampAssumingUTC.toPlainDateTimeAssumingUTC
+#eval datetime("1969-12-31T23:59:59.000000000").toWallTime |> PlainDateTime.ofWallTime
 
 /--
 info: datetime("1969-12-31T23:59:59.000000001")
@@ -45,23 +45,23 @@ info: datetime("1970-01-01T00:00:01.000000000")
 #eval datetime("1970-01-01T00:00:00.999999999") + (1 : Nanosecond.Offset)
 
 /--
-info: Timestamp.ofNanosecondsSinceUnixEpoch -1
+info: WallTime.ofNanoseconds -1
 -/
 #guard_msgs in
-#eval datetime("1969-12-31T23:59:59.999999999").toTimestampAssumingUTC
+#eval datetime("1969-12-31T23:59:59.999999999").toWallTime
 
 /--
-info: Timestamp.ofNanosecondsSinceUnixEpoch 0
+info: WallTime.ofNanoseconds 0
 -/
 #guard_msgs in
-#eval datetime("1969-12-31T23:59:59.999999999").toTimestampAssumingUTC + (1 : Nanosecond.Offset)
+#eval datetime("1969-12-31T23:59:59.999999999").toWallTime + (1 : Nanosecond.Offset)
 
 
 /--
 info: datetime("1970-01-01T00:00:00.000000000")
 -/
 #guard_msgs in
-#eval PlainDateTime.ofTimestampAssumingUTC 0
+#eval PlainDateTime.ofWallTime 0
 
 /--
 info: 121
@@ -79,4 +79,4 @@ info: 35
 info: datetime("1906-08-27T23:59:59.999999999")
 -/
 #guard_msgs in
-#eval datetime("1906-08-27T23:59:59.999999999").toTimestampAssumingUTC.toPlainDateTimeAssumingUTC
+#eval datetime("1906-08-27T23:59:59.999999999").toWallTime |> PlainDateTime.ofWallTime

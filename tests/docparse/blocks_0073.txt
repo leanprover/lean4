@@ -1,0 +1,7 @@
+*500*%$foo and a %$bare one
+
+> quoted %$x
+
+# head %$y
+
+`code %$z`

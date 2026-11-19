@@ -32,7 +32,7 @@ example (h : f (f 1) = 0) : f (g 1) = 0 := by
 example (h : f (f 1) = 0) : f (g 1) = 0 := by
   rw (config := {transparency := .default}) [h] -- This is just `erw`.
 
-attribute [reducible] f in
+attribute [reducible] f
 example : f 1 = f 2 := by
   rw [] -- Empty rewrite closes the goal via `rfl`
 example : f 1 = f 2 := by

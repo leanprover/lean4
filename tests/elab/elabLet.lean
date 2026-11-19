@@ -1,5 +1,4 @@
 import Lean
-set_option backward.do.legacy false
 /-!
 # Tests of the various `let` options
 -/

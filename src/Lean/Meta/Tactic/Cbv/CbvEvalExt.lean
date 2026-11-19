@@ -104,10 +104,12 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
     name     := `cbvEvalExt
     initial  := {}
     addEntry := CbvEvalState.addEntry
-    exportEntry? := fun level entry => do
-      let theoremName ← entry.thm.declName
-      guard (level == .private || !isPrivateName theoremName)
-      return entry
+    exportEntry? := fun _ entry =>
+      match entry.thm.declName with
+      | none => ⟨none, none, none⟩
+      | some n =>
+        if isPrivateName n then ⟨none, none, some entry⟩
+        else .uniform (some entry)
   }
 
 def getCbvEvalLemmas (target : Name) : CoreM (Option Theorems) := do

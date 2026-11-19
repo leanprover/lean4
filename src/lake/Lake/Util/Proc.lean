@@ -26,16 +26,20 @@ public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   unless out.stderr.isEmpty do
     log s!"stderr:\n{out.stderr.trimAscii}"
 
-@[inline] public def rawProc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO IO.Process.Output := do
+@[inline] public def rawProc
+  (args : IO.Process.SpawnArgs) (quiet := false) (input? : Option String := none)
+: LogIO IO.Process.Output := do
   withLogErrorPos do
   unless quiet do logVerbose (mkCmdLog args)
-  match (← IO.Process.output args |>.toBaseIO) with
+  match (← IO.Process.output args input? |>.toBaseIO) with
   | .ok out => return out
   | .error err => error s!"failed to execute '{args.cmd}': {err}"
 
-public def proc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO Unit := do
+public def proc
+  (args : IO.Process.SpawnArgs) (quiet := false) (input? : Option String := none)
+: LogIO Unit := do
   withLogErrorPos do
-  let out ← rawProc args
+  let out ← rawProc args (input? := input?)
   if out.exitCode = 0 then
     logOutput out (if quiet then logVerbose else logInfo)
   else

@@ -150,8 +150,8 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
     return Code.updateSetTag! c (← f fvarId) cidx (← mapFVarM f k)
   | .inc fvarId n check persistent k _ =>
     return Code.updateInc! c (← f fvarId) n check persistent (← mapFVarM f k)
-  | .dec fvarId n check persistent k _ =>
-    return Code.updateDec! c (← f fvarId) n check persistent (← mapFVarM f k)
+  | .dec fvarId n check persistent objs? k _ =>
+    return Code.updateDec! c (← f fvarId) n check persistent objs? (← mapFVarM f k)
   | .del fvarId k _ =>
     return Code.updateDel! c (← f fvarId) (← mapFVarM f k)
 
@@ -226,7 +226,7 @@ instance : TraverseFVar (CodeDecl pu) where
     | .sset fvarId i offset y ty _ => return .sset (← f fvarId) i offset (← f y) (← mapFVarM f ty)
     | .setTag fvarId cidx _ => return .setTag (← f fvarId) cidx
     | .inc fvarId n check persistent _ => return .inc (← f fvarId) n check persistent
-    | .dec fvarId n check persistent _ => return .dec (← f fvarId) n check persistent
+    | .dec fvarId n check persistent objs? _ => return .dec (← f fvarId) n check persistent objs?
     | .del fvarId _ => return .del (← f fvarId)
   forFVarM f decl :=
     match decl with

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.FunInfo
+public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean
@@ -50,6 +51,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
+      Core.checkSystem "transform"
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
         | .done e      => pure e
@@ -64,7 +66,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         | .forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
         | .lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
         | .letE _ t v b _  => visitPost (e.updateLetE! (← visit t) (← visit v) (← visit b))
-        | .app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
+        | .app ..          => visitPost (← e.mapAppN fun f args => do return (← visit f, ← args.mapM visit))
         | .mdata _ b       => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b      => visitPost (e.updateProj! (← visit b))
         | _                => visitPost e
@@ -107,6 +109,7 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
+      (Core.checkSystem "transform" : MetaM Unit)
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
         | .done e      => pure e

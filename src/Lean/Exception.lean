@@ -113,7 +113,7 @@ def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : 
   if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
     let c := .withContext {
       env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
-    msg := match env.getModuleIdxFor? declHint with
+    msg := match (env.setExporting false).getModuleIdxFor? declHint with
       | none     =>
         msg ++ .note m!"A private declaration `{c}` (from the current module) exists but would need to be public to access here."
       | some idx =>
@@ -219,6 +219,11 @@ instance [Monad m] [MonadRecDepth m] : MonadRecDepth (StateRefT' ω σ m) :=
 instance [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : MonadRecDepth (MonadCacheT α β m) :=
   inferInstanceAs (MonadRecDepth (StateRefT' _ _ _))
 
+instance [Monad m] [MonadRecDepth m] : MonadRecDepth (OptionT m) where
+  withRecDepth d x := OptionT.mk (MonadRecDepth.withRecDepth d x.run)
+  getRecDepth      := OptionT.lift MonadRecDepth.getRecDepth
+  getMaxRecDepth   := OptionT.lift MonadRecDepth.getMaxRecDepth
+
 /--
 Throw a "maximum recursion depth has been reached" exception using the given reference syntax.
 -/
@@ -245,7 +250,7 @@ We use this combinator to prevent stack overflows.
 @[inline] def withIncRecDepth [Monad m] [MonadError m] [MonadRecDepth m] (x : m α) : m α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
-  if curr == max then
+  if max != 0 && curr == max then
     throwMaxRecDepthAt (← getRef)
   else
     MonadRecDepth.withRecDepth (curr+1) x

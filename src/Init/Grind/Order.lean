@@ -75,6 +75,9 @@ theorem nat_eq (a b : Nat) (x y : Int) : NatCast.natCast a = x → NatCast.natCa
 theorem of_nat_eq (a b : Nat) (x y : Int) : NatCast.natCast a = x → NatCast.natCast b = y → a = b → x = y := by
   intro _ _; subst x y; intro; simp [*]
 
+theorem of_natCast_eq {α : Type u} [NatCast α] (a b : Nat) (x y : α) : NatCast.natCast a = x → NatCast.natCast b = y → a = b → x = y := by
+  intro h₁ h₂ h; subst h; exact h₁.symm.trans h₂
+
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]
     {a b : α} : ¬ a ≤ b → b ≤ a := by
   intro h
@@ -214,10 +217,6 @@ Helper theorems
 private theorem add_lt_add_of_le_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     {a b c d : α} (hab : a ≤ b) (hcd : c < d) : a + c < b + d :=
   lt_le_trans (OrderedAdd.add_lt_right a hcd) (OrderedAdd.add_le_left hab d)
-
-private theorem add_lt_add_of_lt_of_le {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    {a b c d : α} (hab : a < b) (hcd : c ≤ d) : a + c < b + d :=
-  le_lt_trans (OrderedAdd.add_le_right a hcd) (OrderedAdd.add_lt_left hab d)
 
 /-! Theorems for propagating constraints to `True` -/
 

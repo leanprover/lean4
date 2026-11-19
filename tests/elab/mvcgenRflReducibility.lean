@@ -1,5 +1,7 @@
 import Std.Tactic.Do
 
+set_option sym.debug true
+
 /-!
 This test case from Hax asserts that `mspec` doesn't use default reducibility when trying
 `SPred.entails.rfl`. If it did, then the `MyShl.shl a 32` would be unfolded deeply and we'd run
@@ -8,7 +10,7 @@ into timeouts.
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 abbrev RustM := Except String
 
@@ -33,13 +35,7 @@ instance : MyShl UInt64 Int32 := {
 error: unsolved goals
 case vc1
 a : UInt64
-⊢ (wp⟦MyShl.shl a 32⟧
-      (fun a =>
-        wp⟦do
-            let a ← MyAdd.add 0 a
-            pure a⟧
-          (PostCond.noThrow fun r => ⌜True⌝),
-        ExceptConds.false)).down
+⊢ (wp⟦MyShl.shl a 32⟧ (fun a => wp⟦MyAdd.add 0 a⟧ (PostCond.noThrow fun r => ⌜True⌝), ExceptConds.false)).down
 -/
 #guard_msgs in
 example (a : UInt64) :

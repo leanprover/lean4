@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Control.Do
+public import Lake.Util.Git
 public import Lake.Util.Log
 public import Lake.Util.Version
 public import Lake.Config.Artifact
@@ -17,6 +18,8 @@ import Lake.Util.Proc
 import Lake.Util.Reservoir
 import Lake.Util.JsonObject
 import Lake.Util.IO
+import Std.Data.HashSet.Basic
+import Init.Data.Range.Polymorphic.Iterators
 import Init.System.Platform
 import Init.Data.String.Lemmas
 
@@ -97,7 +100,7 @@ public partial def parse
   else
     loop 2 {} (lfPos.next h)
 
-@[inline] private partial def loadCore
+@[inline] partial def loadCore
   (h : IO.FS.Handle) (fileName : String) (platformIndependent : Bool)
 : LogIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) := do
@@ -183,9 +186,12 @@ public def writeFile
   (file : FilePath) (cache : CacheMap) (platformIndependent := false)
 : LogIO Unit := do
   createParentDirs file
-  match (← IO.FS.Handle.mk file .write |>.toBaseIO) with
+  -- Open the handle as `append` to avoid truncating outside the lock.
+  match (← IO.FS.Handle.mk file .append |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := true)
+    h.rewind
+    h.truncate
     h.putStrLn (toJson schemaVersion).compress
     writeCacheEntries h cache platformIndependent
   | .error e =>
@@ -292,6 +298,7 @@ end CacheServiceName
 /-! ## Cache Service Scope -/
 
 inductive CacheServiceScopeImpl
+| none
 | str (s : String)
 | repo (s : String)
 
@@ -302,11 +309,20 @@ public structure CacheServiceScope where
 
 namespace CacheServiceScope
 
+/-- An indicator that the cache service does not scope artifacts. -/
+@[inline] public def none : CacheServiceScope := ⟨.none⟩
+
 /-- Constructs a generic service scope from a user-provided string. -/
-public def ofString (s : String) : CacheServiceScope := ⟨.str s⟩
+@[inline] public def ofString (s : String) : CacheServiceScope := ⟨.str s⟩
 
 /-- Constructs a service scope from a GitHub repository name. -/
-public def ofRepo (fullName : String) : CacheServiceScope := ⟨.repo fullName⟩
+@[inline] public def ofRepo (fullName : String) : CacheServiceScope := ⟨.repo fullName⟩
+
+/-- Returns whether this is the `none` indicator. -/
+public protected def isNone (self : CacheServiceScope) : Bool :=
+  match self.impl with
+  | .none .. => true
+  | _ => false
 
 /-- Returns whether this is a repository scope. -/
 public protected def isRepo (self : CacheServiceScope) : Bool :=
@@ -317,6 +333,7 @@ public protected def isRepo (self : CacheServiceScope) : Bool :=
 /-- Returns a string representation of the scope. -/
 public protected def toString (self : CacheServiceScope) : String :=
   match self.impl with
+  | .none => ""
   | .str s => s
   | .repo s => s
 
@@ -325,6 +342,7 @@ public instance : ToString CacheServiceScope := ⟨CacheServiceScope.toString⟩
 /-- Returns a JSON representation of the scope. -/
 protected def toJson (self : CacheServiceScope) : Json :=
   match self.impl with
+  | .none => false
   | .str s => s
   | .repo s => s
 
@@ -372,8 +390,11 @@ public protected def fromJson? (json : Json) : Except String CacheOutput := do
       let scope? ← id do
         if let some repo := repo? then
           return some (.ofRepo repo)
-        else if let some scope ← obj.get? "scope" then
-          return some (.ofString scope)
+        else if let some scope := obj.getJson? "scope" then
+          match scope with
+          | false => return some .none
+          | .str s => return some (.ofString s)
+          | _ => .error "scope: expected string or false"
         else
           return none
       return {data, service?, scope?}
@@ -402,7 +423,7 @@ namespace Cache
   cache.artifactDir / artifactPath contentHash ext
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. -/
-@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+@[deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
   let path := cache.artifactDir / descr.relPath
   let .ok mtime ← getMTime path |>.toBaseIO
@@ -410,7 +431,7 @@ public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option
   return some {descr, path, mtime}
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. Errors if missing. -/
-@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+@[deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Artifact := do
   let path := cache.artifactDir / descr.relPath
   match (← getMTime path |>.toBaseIO) with
@@ -433,22 +454,30 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
 def writeOutputsCore
   (cache : Cache) (scope : String) (inputHash : Hash) (out : Json)
   (service? : Option CacheServiceName) (remoteScope? : Option CacheServiceScope)
+  (overwrite : Bool)
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
   let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
-  IO.FS.writeFile file (toJson out).pretty
+  let contents := (toJson out).pretty
+  if overwrite then
+    IO.FS.writeFile file contents
+  else
+    writeFileIfNew file contents
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
   [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α)
-: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) none none
+  (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
+  (overwrite := true)
+: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) service? remoteScope? overwrite
 
 /-- Cache the input-to-outputs mappings from a `CacheMap`.  -/
 public def writeMap
   (cache : Cache) (scope : String) (map : CacheMap)
   (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
-: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope?
+  (overwrite := true)
+: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope? overwrite
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
 public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do
@@ -457,10 +486,9 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
     | .ok out =>
-      return out
+      return some out
     | .error e =>
-      logWarning s!"{path}: invalid JSON: {e}"
-      return none
+      error s!"{path}: invalid JSON: {e}"
   | .error (.noFileOrDirectory ..) => return none
   | .error e => error s!"{path}: read failed: {e}"
 
@@ -469,7 +497,7 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   cache.dir / "revisions"
 
 /-- Returns path to the input-to-output mappings of a downloaded package revision. -/
-@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : String)   : FilePath :=
+@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : GitRev) : FilePath :=
   cache.revisionDir / scope / s!"{rev}.jsonl"
 
 end Cache
@@ -496,7 +524,7 @@ public def system : CachePlatform := ⟨System.Platform.target⟩
 @[inline] public def ofString (s : String) : CachePlatform := ⟨s⟩
 
 /-- Returns the length of the platform identifier in Unicode code points. -/
-public def length (self : CachePlatform) : Nat := self.raw.length
+public def length (self : CachePlatform) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the platform identifier. -/
 public protected def toString (self : CachePlatform) : String :=
@@ -528,7 +556,7 @@ public def ofString (s : String) : CacheToolchain := ⟨normalizeToolchain s⟩
 @[inline] public def ofElanToolchain (s : String) : CacheToolchain := ⟨s⟩
 
 /-- Returns the length of the toolchain identifier in Unicode code points. -/
-public def length (self : CacheToolchain) : Nat := self.raw.length
+public def length (self : CacheToolchain) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the toolchain identifier. -/
 public protected def toString (self : CacheToolchain) : String :=
@@ -538,24 +566,74 @@ instance : ToString CacheToolchain := ⟨CacheToolchain.toString⟩
 
 end CacheToolchain
 
+/-! ## Cache Service Kind -/
+
+public inductive CacheServiceKind
+| reservoir
+| s3
+deriving Inhabited, DecidableEq
+
+namespace CacheServiceKind
+
+@[inline_if_reduce]
+public def ofString? (s : String) : Option CacheServiceKind :=
+  match s with
+  | "reservoir" => some .reservoir
+  | "s3" => some .s3
+  | _ => none
+
+@[inline_if_reduce]
+public protected def toString (self : CacheServiceKind) : String :=
+  match self with
+  | .reservoir => "reservoir"
+  | .s3 => "s3"
+
+public instance : ToString CacheServiceKind := ⟨CacheServiceKind.toString⟩
+
+end CacheServiceKind
+
 /-! ## Remote Cache Service -/
+
+@[inline] def downloadTmpPath (path : FilePath) : FilePath :=
+  path.addExtension "tmp"
+
+def artifactHashMismatch (badPath : FilePath) (actualHash : Hash) : String :=
+  s!"{badPath}: downloaded artifact hash mismatch, got {actualHash}"
+
+def artifactWriteFailed (artPath : FilePath) (err : IO.Error) : String :=
+  s!"{artPath}: failed to write artifact: {err}"
+
+def artifactReadFailed (path : FilePath) (err : IO.Error) : String :=
+  s!"{path}: failed to read downloaded artifact: {err}"
 
 /-- **For internal use only.** -/
 public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) : LogIO Unit := do
-  download url path
-  let actualHash ← computeFileHash path
-  if actualHash != hash then
-    let errPos ← getLogPos
-    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-    IO.FS.removeFile path
-    throw errPos
+  let tmpPath := downloadTmpPath path
+  download url tmpPath
+  match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
+  | .ok contents =>
+    let actualHash := Hash.ofByteArray contents
+    if actualHash == hash then
+      if let .error e ← writeBinFileAtomicIfNew path contents |>.toBaseIO then
+        error (artifactWriteFailed path e)
+      else
+        try IO.FS.removeFile tmpPath catch _ => pure ()
+    else
+      let errPos ← getLogPos
+      logError (artifactHashMismatch tmpPath actualHash)
+      -- Do not remove file to avoid deleting a racing download
+      throw errPos
+  | .error e =>
+    -- A racing download may have created it already.
+    unless e matches .noFileOrDirectory .. && (← path.pathExists) do
+      error (artifactReadFailed tmpPath e)
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
 : LoggerIO Unit := do
   let out ← captureProc' {
-    cmd := "curl"
+    cmd := ← Internal.getCurl
     args := #[
       "-s", "-w", "%{stderr}%{json}\n",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
@@ -575,17 +653,17 @@ def uploadS3
   | .error e =>
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
-private structure CacheServiceImpl where
-  mk ::
-    name? : Option CacheServiceName := none
-    /- S3 Bucket -/
-    key : String := ""
-    artifactEndpoint : String := ""
-    revisionEndpoint : String := ""
-    /- Reservoir -/
-    isReservoir : Bool := false
-    apiEndpoint : String := ""
-    deriving Nonempty
+structure CacheServiceImpl where
+  name? : Option CacheServiceName := none
+  /- S3 Bucket -/
+  key : String := ""
+  artifactEndpoint : String := ""
+  revisionEndpoint : String := ""
+  hasPackageScopes : Bool := true
+  /- Reservoir -/
+  isReservoir : Bool := false
+  apiEndpoint : String := ""
+  deriving Nonempty
 
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
@@ -598,7 +676,7 @@ the desired functions by using `CacheService`'s smart constructors
 public structure CacheService where
   private mk ::
     private impl : CacheServiceImpl
-    deriving Nonempty
+    deriving Nonempty, TypeName
 
 namespace CacheService
 
@@ -606,61 +684,127 @@ namespace CacheService
 @[inline] public def name? (service : CacheService) : Option CacheServiceName :=
   service.impl.name?
 
+/-- Returns what kind of cache service this is. -/
+@[inline] public def kind (service : CacheService) : CacheServiceKind :=
+  if service.impl.isReservoir then .reservoir else .s3
+
 /-- Returns whether this is a Reservoir cache service configuration. -/
 @[inline] public def isReservoir (service : CacheService) : Bool :=
   service.impl.isReservoir
+
+public theorem kind_eq_iff_isReservoir : kind s = .reservoir ↔ isReservoir s := by
+  simp only [isReservoir, kind]
+  split <;> simp_all
+
+/-- Returns whether this is a Amazon S3-style cache service configuration. -/
+@[inline] public def isS3 (service : CacheService) : Bool :=
+  ¬ service.impl.isReservoir
+
+public theorem kind_eq_iff_isS3 : kind s = .s3 ↔ isS3 s :=  by
+  simp only [isS3, kind]
+  split <;> simp_all
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the API endpoint of a Reservoir cache service. -/
+@[inline] public def apiEndpoint (service : CacheService) (h : service.isReservoir) : String :=
+  service.impl.apiEndpoint
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the artifact endpoint of a S3-style cache service. -/
+@[inline] public def artifactEndpoint (service : CacheService) (h : service.isS3) : String :=
+  service.impl.artifactEndpoint
+
+set_option linter.unusedVariables.funArgs false in
+/-- Returns the revision endpoint of a S3-style  cache service. -/
+@[inline] public def revisionEndpoint (service : CacheService) (h : service.isS3) : String :=
+  service.impl.revisionEndpoint
+
+/-- Returns whether the service scopes artifacts and revisions under different per-package scopes. -/
+@[inline] public def hasPackageScopes (service : CacheService) : Bool :=
+  service.impl.hasPackageScopes
 
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
 @[inline] public def reservoirService
-  (apiEndpoint : String) (name? := some CacheServiceName.reservoir)
+  (apiEndpoint : String) (name? : Option CacheServiceName := none)
 : CacheService := .mk {name?, isReservoir := true, apiEndpoint}
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
 @[inline] public def uploadService
-  (key artifactEndpoint revisionEndpoint : String)
-: CacheService := .mk {key, artifactEndpoint, revisionEndpoint}
+  (key artifactEndpoint revisionEndpoint : String) (hasPackageScopes : Bool := true)
+: CacheService := .mk {key, artifactEndpoint, revisionEndpoint, hasPackageScopes}
 
 /-- Constructs a `CacheService` to download artifacts and/or outputs from an S3 endpoint. -/
 @[inline] public def downloadService
-  (artifactEndpoint revisionEndpoint : String) (name? : Option CacheServiceName := none)
-: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint}
+  (artifactEndpoint revisionEndpoint : String)
+  (name? : Option CacheServiceName := none) (hasPackageScopes : Bool := true)
+: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint, hasPackageScopes}
 
 /-- Constructs a `CacheService` to download just artifacts from an S3 endpoint. -/
 @[inline] public def downloadArtsService
-  (artifactEndpoint : String) (name? : Option CacheServiceName := none)
-: CacheService := .mk {name?, artifactEndpoint}
+  (artifactEndpoint : String) (name? : Option CacheServiceName := none) (hasPackageScopes : Bool := true)
+: CacheService := .mk {name?, artifactEndpoint, hasPackageScopes}
 
 /-- Reconfigures the cache service to use the provided key (for uploads).-/
 @[inline] public def withKey (service : CacheService) (key : String) : CacheService :=
   .mk {service.impl with key}
+
+/-- Returns the cache service under a new name. -/
+@[inline] public def withName (service : CacheService) (name : CacheServiceName) : CacheService :=
+  .mk {service.impl with name? := some name}
+
+/-- Names the cache service if it does not already have one.-/
+@[inline] public def withNameD (service : CacheService) (name : CacheServiceName) : CacheService :=
+  .mk {service.impl with name? := service.impl.name?.getD name}
 
 /-! ### Artifact Transfer -/
 
 /-- The MIME type of a Lake/Reservoir artifact. -/
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
-private def appendScope (endpoint : String) (scope : String) : String :=
+def appendScope (endpoint : String) (scope : String) : String :=
   scope.split '/' |>.fold (init := endpoint) fun s component =>
     uriEncode component.copy (s.push '/')
 
-private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+def s3ArtifactUrl
+  (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope)
+: String :=
+  let endpoint := service.impl.artifactEndpoint
   let endpoint :=
     match scope.impl with
-    | .repo scope => appendScope service.impl.artifactEndpoint scope
-    | .str scope => appendScope service.impl.artifactEndpoint scope
+    | .none => endpoint
+    | .repo scope => appendScope endpoint scope
+    | .str scope => appendScope endpoint scope
   s!"{endpoint}/{contentHash.hex}.art"
 
-public def artifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+public def artifactUrl
+  (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope)
+: String :=
   if service.isReservoir then
+    let endpoint := service.impl.apiEndpoint
     let endpoint :=
       match scope.impl with
-      | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope
-      | .str scope => appendScope s!"{service.impl.apiEndpoint}/packages" scope
+      | .none => endpoint
+      | .repo scope => appendScope s!"{endpoint}/repositories" scope
+      | .str scope => appendScope s!"{endpoint}/packages" scope
     s!"{endpoint}/artifacts/{contentHash.hex}.art"
   else
     service.s3ArtifactUrl contentHash scope
+
+/-! ## Single-Artifact Transfer -/
+
+/-- **For internal use only.** -/
+def _root_.Lake.Internal.remoteCaption
+  (service : CacheService) (scope : CacheServiceScope)
+: String :=
+  if scope.isNone then
+    if let some name := service.name? then
+      s!"{name.toString}: "
+    else
+      ""
+  else
+    s!"{scope.toString}: "
 
 public def downloadArtifact
   (descr : ArtifactDescr) (cache : Cache)
@@ -668,9 +812,12 @@ public def downloadArtifact
 : LoggerIO Unit := do
   let url := service.artifactUrl descr.hash scope
   let path := cache.artifactDir / descr.relPath
-  if (← path.pathExists) && !force then
+  if force then
+    removeFileIfExists path
+  else if (← path.pathExists) then
     return
-  logInfo s!"{scope}: downloading artifact {descr.hash}\
+  let caption := Internal.remoteCaption service scope
+  logInfo s!"{caption}downloading artifact {descr.hash}\
     \n  local path: {path}\
     \n  remote URL: {url}"
   downloadArtifactCore descr.hash url path
@@ -679,35 +826,92 @@ public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (service : CacheService) (scope : CacheServiceScope)
 : LoggerIO Unit := do
   let url := service.s3ArtifactUrl contentHash scope
-  logInfo s!"\
-    {scope}: uploading artifact {contentHash}\
+  let caption := Internal.remoteCaption service scope
+  logInfo s!"{caption}uploading artifact {contentHash}\
     \n  local path: {art}\
     \n  remote URL: {url}"
   uploadS3 art artifactContentType url service.impl.key
 
 /-! ## Multi-Artifact Transfer -/
 
-private inductive TransferKind
+inductive TransferKind
   | get
   | put
   deriving DecidableEq
 
-private structure TransferInfo where
+structure TransferInfo where
   url : String
+  hash : Hash
   path : FilePath
-  descr : ArtifactDescr
+  /-- Additional paths for a downloaded artifact. -/
+  extraPaths : Array FilePath := #[]
 
-private structure TransferConfig where
+@[inline] def TransferInfo.addPath (self : TransferInfo) (path : FilePath) (extra := true) : TransferInfo :=
+  if extra then
+    {self with extraPaths := self.extraPaths.push path}
+  else
+    {self with path, extraPaths := self.extraPaths.push self.path}
+
+structure TransferDict where
+  infos : Array TransferInfo
+  indices : Std.HashMap Hash Nat
+
+@[inline] def TransferDict.empty : TransferDict :=
+  ⟨#[], ∅⟩
+
+@[inline] def TransferDict.push
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath)
+: TransferDict := ⟨self.infos.push {url, hash, path}, self.indices.insert hash self.infos.size⟩
+
+@[inline] def TransferDict.addIfNew
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath)
+: TransferDict := if self.indices.contains hash then self else self.push url hash path
+
+@[inline] def TransferDict.add
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath) (extra := true)
+: TransferDict :=
+  if let some j := self.indices.get? hash then
+    {self with infos := self.infos.modify j (·.addPath path extra)}
+  else
+    self.push url hash path
+
+structure TransferConfig where
   kind : TransferKind
-  scope : CacheServiceScope
+  remoteCaption : String
   infos : Array TransferInfo
   key : String := ""
+  /-- Whether this is the batch's last attempt, after which failures are not retried. -/
+  finalAttempt : Bool := true
 
-private structure TransferState where
+structure TransferState where
   didError : Bool := false
   numSuccesses : Nat := 0
+  /--
+  Transfers with a settled outcome: a success or a failure that a retry cannot
+  fix. A batch retries its unsettled transfers on its next attempt.
+  -/
+  settled : Std.HashSet Nat := {}
 
-private partial def monitorTransfer
+/--
+The number of times a batch transfer is attempted: one initial attempt plus
+retries of the transfers that failed in ways a retry may fix (e.g., a dropped
+connection or a corrupted download).
+-/
+def transferAttempts : Nat := 3
+
+/--
+Whether a transfer that failed with this HTTP status may succeed if retried.
+Covers the response codes `curl --retry` deems transient (408, 429, 500, 502,
+503, 504) plus status 0, which `curl` reports when no response arrived (e.g.,
+a dropped connection) rather than a server rejection. An unreadable status is
+also retried.
+-/
+def retryableStatus : Except String Nat → Bool
+  | .ok 0 | .ok 408 | .ok 429 | .ok 500 | .ok 502 | .ok 503 | .ok 504 => true
+  | .ok _ => false
+  | .error _ => true
+
+partial def monitorTransfer
   (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
 : LoggerIO TransferState := do
   let line ← h.getLine
@@ -717,45 +921,100 @@ private partial def monitorTransfer
     let s ← (·.2) <$> StateT.run (s := s) do
       match Json.parse line >>= fromJson? with
       | .ok (out : JsonObject) =>
-        let some info@{url, path, descr} := getInfo? out
-          | logError s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
-            modify ({· with didError := true})
+        let some (i, info) := getInfo? out
+          | logStray s!"{cfg.remoteCaption}\
+              unidentifiable transfer completed: {line.trimAscii}"
             return
-        match out.get "http_code" with
-        | .ok 200
-        | .ok 201 =>
-          match cfg.kind with
-          | .get =>
-            logInfo s!"{cfg.scope}: downloaded artifact {descr.hash}\
-              \n  local path: {path}\
-              \n  remote URL: {url}"
-            let actualHash ← computeFileHash path
-            if actualHash != descr.hash then
-              logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
-              IO.FS.removeFile path
-              modify ({· with didError := true})
-            else
-              modify fun s => {s with numSuccesses := s.numSuccesses + 1}
-          | .put =>
-            logInfo s!"{cfg.scope}: uploaded artifact {descr.hash}\
-              \n  local path: {path}\
-              \n  remote URL: {url}"
-            modify fun s => {s with numSuccesses := s.numSuccesses + 1}
-        | code? =>
-          handleFailure info code? out line
-          modify ({· with didError := true})
+        if (← get).settled.contains i then
+          logWarning s!"{cfg.remoteCaption}\
+            duplicate report for a transfer: {line.trimAscii}"
+          return
+        match out.get? "exitcode" with
+        | .ok none
+        | .ok (some 0) =>
+          match out.get "http_code" with
+          | .ok code@200
+          | .ok code@201 =>
+            handleTransfer i info code out line
+          | code? =>
+            handleFailure i info (retryableStatus code?) code? out line
+        | _ =>
+          -- curl failed the transfer itself (e.g., a dropped connection),
+          -- whatever the HTTP status; such failures are usually transient
+          handleFailure i info true (out.get "http_code") out line
       | .error e =>
-        logError s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
-        modify ({· with didError := true})
+        logStray s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
     monitorTransfer cfg h hOut s
 where
   getInfo? out :=
     match out.getAs Nat "urlnum" with
-    | .ok i => cfg.infos[i]?
+    | .ok i => cfg.infos[i]?.map ((i, ·))
     | _ => none
-  handleFailure info code? out line : LoggerIO Unit := do
+  /--
+  Logs a report tied to no transfer. The transfer it stands for stays
+  unsettled, so the batch's next attempt retries it; on the final attempt,
+  the report is an error.
+  -/
+  logStray (msg : String) : StateT TransferState LoggerIO Unit := do
+    if cfg.finalAttempt then
+      logError msg
+      modify ({· with didError := true})
+    else
+      logWarning msg
+  /-- Marks a transfer's outcome as settled and successful. -/
+  recordSuccess (i : Nat) : StateT TransferState LoggerIO Unit :=
+    modify fun s => {s with
+      settled := s.settled.insert i, numSuccesses := s.numSuccesses + 1}
+  /--
+  Records a failed transfer. A retryable failure on a non-final attempt is a
+  warning and leaves the transfer unsettled, so the next attempt retries it.
+  Any other failure is an error and settles the transfer.
+  -/
+  recordFailure (i : Nat) (retryable : Bool) (msg : String) : StateT TransferState LoggerIO Unit := do
+    if retryable && !cfg.finalAttempt then
+      logWarning msg
+    else
+      logError msg
+      modify fun s => {s with settled := s.settled.insert i, didError := true}
+  handleTransfer i info code out line : StateT TransferState LoggerIO Unit := do
+    let {url, hash, path, extraPaths} := info
+    match cfg.kind with
+    | .get =>
+      let logDownload :=
+        logInfo s!"{cfg.remoteCaption}downloaded artifact {hash}\
+          \n  local path: {path}\
+          \n  remote URL: {url}"
+      let tmpPath := downloadTmpPath path
+      match (← IO.FS.readBinFile tmpPath |>.toBaseIO) with
+      | .ok contents =>
+        logDownload
+        let actualHash := Hash.ofByteArray contents
+        if actualHash != hash then
+          recordFailure i true (artifactHashMismatch tmpPath actualHash)
+        else if let .error e ← writeBinFileAtomicIfNew path contents |>.toBaseIO then
+          recordFailure i false (artifactWriteFailed path e)
+        else
+          try IO.FS.removeFile tmpPath catch _ => pure ()
+          unless extraPaths.isEmpty do
+            -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
+            for extraPath in extraPaths do
+              if let .error e ← writeBinFileAtomicIfNew extraPath contents |>.toBaseIO then
+                logError (artifactWriteFailed extraPath e)
+                modify ({· with didError := true})
+          recordSuccess i
+      | .error (.noFileOrDirectory ..) =>
+        handleFailure i info true (.ok code) out line
+      | .error e =>
+        logDownload
+        recordFailure i false (artifactReadFailed tmpPath e)
+    | .put =>
+      logInfo s!"{cfg.remoteCaption}uploaded artifact {hash}\
+        \n  local path: {path}\
+        \n  remote URL: {url}"
+      recordSuccess i
+  handleFailure i info retryable code? out line : StateT TransferState LoggerIO Unit := do
     let action := match cfg.kind with | .get => "download" | .put => "upload"
-    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.descr.hash}"
+    let mut msg := s!"{cfg.remoteCaption}failed to {action} artifact {info.hash}"
     if let .ok code := code? then
       msg := s!"{msg} (status code: {code})"
     if let .ok errMsg := out.getAs String "errormsg" then
@@ -765,35 +1024,37 @@ where
       \n  remote URL: {info.url}"
     match cfg.kind with
     | .get =>
+      let tmpPath := downloadTmpPath info.path
       unless code? matches .ok 404 do -- ignore response bodies on 404s
         if let .ok size := out.getAs Nat "size_download" then
           if size > 0 then
             if let .ok contentType := out.getAs String "content_type" then
               if contentType != artifactContentType then
-                if let .ok resp ← IO.FS.readFile info.path |>.toBaseIO then
+                if let .ok resp ← IO.FS.readFile tmpPath |>.toBaseIO then
                   msg := s!"{msg}\nunexpected response:\n{resp}"
-      removeFileIfExists info.path
     | .put =>
       if let .ok size := out.getAs Nat "size_download" then
         if size > 0 then
           if let some resp := String.fromUTF8? (← hOut.read size.toUSize) then
             msg := s!"{msg}\nunexpected response:\n{resp}"
-    logError msg
+    recordFailure i retryable msg
     logVerbose s!"curl JSON: {line.trimAsciiEnd}"
 
-private def transferArtifacts
+/-- Performs one attempt of a batch transfer: spawns `curl` and monitors its transfers. -/
+def runTransferAttempt
   (cfg : TransferConfig)
-: LoggerIO Unit := IO.FS.withTempFile fun h path => do
+: LoggerIO TransferState := IO.FS.withTempFile fun h path => do
   let args ← id do
     match cfg.kind with
     | .get =>
       cfg.infos.forM fun info => do
+        let tmpPath := downloadTmpPath info.path
+        removeFileIfExists tmpPath
         h.putStrLn s!"url = {info.url.quote}"
-        h.putStrLn s!"-o {info.path.toString.quote}"
+        h.putStrLn s!"-o {tmpPath.toString.quote}"
       h.flush
       return #[
         "-Z", "-X", "GET", "-L",
-        "--retry", "3", -- intermittent network errors can occur
         "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
       ]
     | .put =>
@@ -804,35 +1065,61 @@ private def transferArtifacts
       return #[
         "-Z", "-X", "PUT", "-L",
         "-H", s!"Content-Type: {artifactContentType}",
-        "--retry", "3", -- intermittent network errors can occur
         "--aws-sigv4", "aws:amz:auto:s3", "--user", cfg.key,
         "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
       ]
   let child ← IO.Process.spawn {
-    cmd := "curl", args
+    cmd := ← Internal.getCurl, args
     stdout := .piped, stderr := .piped
   }
   let s ← monitorTransfer cfg child.stderr child.stdout {}
   let rc ← child.wait
   let stdout ← child.stdout.readToEnd
-  let mut didError := s.didError
-  if s.numSuccesses < cfg.infos.size then
-    let action := match cfg.kind with | .get => "download" | .put => "upload"
-    logError s!"{cfg.scope}: failed to {action} some artifacts"
-    didError := true
   unless stdout.isEmpty do
-    logWarning s!"{cfg.scope}: curl produced unexpected output:\n{stdout.trimAsciiEnd}"
+    logWarning s!"{cfg.remoteCaption}curl produced unexpected output:\n{stdout.trimAsciiEnd}"
   if rc != 0 then
-    logError s!"{cfg.scope}: curl exited with code {rc}"
+    -- Per-transfer failures are reported above; curl's own exit code matters
+    -- only when no attempt remains (e.g., curl failed before reporting any)
+    let msg := s!"{cfg.remoteCaption}curl exited with code {rc}"
+    if cfg.finalAttempt then
+      logError msg
+      return {s with didError := true}
+    logVerbose msg
+  return s
+
+def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
+  let action := match cfg.kind with | .get => "download" | .put => "upload"
+  let mut didError := false
+  let mut numSuccesses := 0
+  let mut infos := cfg.infos
+  for attempt in [1:transferAttempts+1] do
+    let finalAttempt := attempt == transferAttempts
+    let s ← runTransferAttempt {cfg with infos, finalAttempt}
+    didError := didError || s.didError
+    numSuccesses := numSuccesses + s.numSuccesses
+    let retry := infos.zipIdx.filterMap fun (info, i) =>
+      if s.settled.contains i then none else some info
+    if retry.isEmpty then
+      break
+    infos := retry
+    unless finalAttempt do
+      logWarning s!"{cfg.remoteCaption}\
+        retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {transferAttempts})"
+      -- Back off before retrying, as `curl --retry` did
+      IO.sleep (1000 * attempt).toUInt32
+  if numSuccesses < cfg.infos.size then
+    logError s!"{cfg.remoteCaption}failed to {action} some artifacts"
     didError := true
-  if s.didError then
+  if didError then
     failure
 
-private def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
+def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
+  let endpoint := service.impl.apiEndpoint
   let endpoint :=
     match scope.impl with
-    | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope
-    | .str scope => appendScope s!"{service.impl.apiEndpoint}/packages" scope
+    | .none => endpoint
+    | .repo scope => appendScope s!"{endpoint}/repositories" scope
+    | .str scope => appendScope s!"{endpoint}/packages" scope
   s!"{endpoint}/artifacts"
 
 public def downloadArtifacts
@@ -842,14 +1129,25 @@ public def downloadArtifacts
   if descrs.isEmpty then
     logWarning "no artifacts to download"
     return
-  let infos ← descrs.foldlM (init := #[]) fun s descr => do
+  let {infos, ..} ← descrs.foldlM (init := TransferDict.empty) fun s {descr} => do
+    let hash := descr.hash
+    let url := service.artifactUrl hash scope
     let path := cache.artifactDir / descr.relPath
     if force then
       removeFileIfExists path
+      return s.add url hash path
     else if (← path.pathExists) then
-      return s
-    let url := service.artifactUrl descr.hash scope
-    return s.push {url, path, descr}
+      return s.add url hash path (extra := false)
+    else
+      return s.add url hash path
+  let infos ← infos.filterM fun info => do
+    if info.extraPaths.isEmpty then
+      not <$> info.path.pathExists
+    else
+      match (← createExtraPaths info.path info.extraPaths |>.toBaseIO) with
+      | .ok _ => return false
+      | .error (.noFileOrDirectory ..) => return true
+      | .error e => error s!"failed to copy artifact: {e}"
   if infos.isEmpty then
     return
   let infos ← id do
@@ -859,10 +1157,16 @@ public def downloadArtifacts
       fetchUrls (service.reservoirArtifactsUrl scope) infos
     else return infos
   IO.FS.createDirAll cache.artifactDir
-  transferArtifacts {scope, infos, kind := .get}
+  let remoteCaption := Internal.remoteCaption service scope
+  transferArtifacts {remoteCaption, infos, kind := .get}
 where
+  createExtraPaths path extraPaths := do
+    -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
+    let contents ← IO.FS.readBinFile path
+    for extraPath in extraPaths do
+      IO.FS.writeBinFile extraPath contents
   fetchUrls url infos := IO.FS.withTempFile fun h path => do
-    let body := Json.arr <| infos.map (toJson ·.descr.hash)
+    let body := Json.arr <| infos.map (toJson ·.hash)
     h.putStr body.compress
     h.flush
     let args := #[
@@ -873,7 +1177,7 @@ where
       ]
     let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
     let spawnArgs := {
-      cmd := "curl", args := args.push url
+      cmd := ← Internal.getCurl, args := args.push url
       stdout := .piped, stderr := .piped
     }
     logVerbose (mkCmdLog spawnArgs)
@@ -931,40 +1235,50 @@ public def uploadArtifacts
   if n = 0 then
     logWarning "no artifacts to upload"
     return
-  let infos ← n.foldM (init := #[]) fun i _ s => do
-    let url := service.artifactUrl descrs[i].hash scope
-    return s.push {url, path := paths[i], descr := descrs[i]}
-  transferArtifacts {scope, infos, kind := .put, key := service.impl.key}
+  let {infos, ..} ← n.foldM (init := TransferDict.empty) fun i _ s => do
+    let hash := descrs[i].hash
+    let url := service.artifactUrl hash scope
+    return s.addIfNew url hash paths[i]
+  let remoteCaption := Internal.remoteCaption service scope
+  transferArtifacts {remoteCaption, infos, kind := .put, key := service.impl.key}
 
 /-! ### Output Transfer -/
 
 /-- The MIME type of a Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"
 
-private def s3RevisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+def s3RevisionUrl
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
-  match scope.impl with
-  | .str s => appendScope service.impl.revisionEndpoint s ++ s!"/{rev}.jsonl"
-  | .repo s => Id.run do
-    let mut url := appendScope service.impl.revisionEndpoint s
+  let endpoint := service.impl.revisionEndpoint
+  let endpoint :=
+    match scope.impl with
+    | .none => appendBuildScopes endpoint platform toolchain
+    | .str s => appendScope endpoint s
+    | .repo s => appendBuildScopes (appendScope endpoint s) platform toolchain
+  s!"{endpoint}/{rev}.jsonl"
+where
+  appendBuildScopes url platform toolchain := Id.run do
+    let mut url := url
     unless platform.isNone do
       url := uriEncode platform.raw s!"{url}/pt/"
     unless toolchain.isNone do
       url := uriEncode (toolchain2Dir toolchain.raw).toString s!"{url}/tc/"
-    return s!"{url}/{rev}.jsonl"
+    return url
 
 public def revisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   if service.isReservoir then Id.run do
-    let mut url :=
+    let endpoint := service.impl.apiEndpoint
+    let endpoint :=
       match scope.impl with
-      | .str s => appendScope s!"{service.impl.apiEndpoint}/packages" s
-      | .repo s => appendScope s!"{service.impl.apiEndpoint}/repositories" s
-    url := s!"{url}/build-outputs?rev={rev}"
+      | .none => endpoint
+      | .str s => appendScope s!"{endpoint}/packages" s
+      | .repo s => appendScope s!"{endpoint}/repositories" s
+    let mut url := s!"{endpoint}/build-outputs?rev={rev}"
     unless platform.isNone do
       url := uriEncode platform.raw s!"{url}&platform="
     unless toolchain.isNone do
@@ -974,7 +1288,7 @@ public def revisionUrl
     service.s3RevisionUrl rev scope platform toolchain
 
 public def downloadRevisionOutputs?
-  (rev : String) (cache : Cache) (service : CacheService)
+  (rev : GitRev) (cache : Cache) (service : CacheService)
   (localScope : String) (remoteScope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none) (force := false)
 : LoggerIO (Option CacheMap) := do
@@ -989,7 +1303,8 @@ public def downloadRevisionOutputs?
     \n  remote URL: {url}"
   let headers := if service.isReservoir then Reservoir.lakeHeaders else {}
   let contents? ← try getUrl? url headers catch e =>
-    logError s!"{remoteScope}: output lookup failed"
+    let caption := Internal.remoteCaption service remoteScope
+    logError s!"{caption}output lookup failed"
     throw e
   let some contents := contents?
     | return none
@@ -998,14 +1313,51 @@ public def downloadRevisionOutputs?
   CacheMap.load path platform.isNone
 
 public def uploadRevisionOutputs
-  (rev : String) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : LoggerIO Unit := do
   let url := service.s3RevisionUrl rev scope platform toolchain
-  logInfo s!"\
-    {scope}: uploading build outputs for revision {rev}\
+  let caption := Internal.remoteCaption service scope
+  logInfo s!"{caption}uploading build outputs for revision {rev}\
     \n  local path: {outputs}\
     \n  remote URL: {url}"
   uploadS3 outputs mapContentType url service.impl.key
 
 end CacheService
+
+/-! ## Cache Diagnostics -/
+
+/-- **For internal use only.** -/
+public def Internal.packageHasChanges (pkg : String) : String :=
+  s!"{pkg}: package has changes; \
+    only artifacts for committed code will be downloaded"
+
+/-- **For internal use only.** -/
+public def Internal.packageServiceRequiresScope (pkg : String) (service : CacheServiceName) : String :=
+  s!"{pkg}: package's configured download service `{service}` requires a scope; \
+  only unscoped services are supported for `downloadCacheService`; \
+  ensure the service is configured with `hasPackageScopes = false`"
+
+/-- **For internal use only.** -/
+public def Internal.packageNotReservoir (pkg : String) : String :=
+  s!"{pkg}: a Reservoir service is configured, \
+    but the package is not a Reservoir dependency"
+
+/-- **For internal use only.** -/
+public def Internal.noOutputsForRev
+  (service : CacheService) (remoteScope : CacheServiceScope) (rev : GitRev)
+: String :=
+  let remoteCaption := Internal.remoteCaption service remoteScope
+  s!"{remoteCaption}outputs not found for revision {rev}"
+
+/-- **For internal use only.** -/
+public def Internal.noOutputs
+  (service : CacheService) (remoteScope : CacheServiceScope)
+  (maxRevs : Nat) (revs : Array GitRev)
+: String :=
+  let revisions :=
+    if maxRevs = 0 || revs.size < maxRevs then
+      "for any revision"
+    else s!"in {maxRevs} revisions from HEAD"
+  let remoteCaption := Internal.remoteCaption service remoteScope
+  s!"{remoteCaption}no outputs found {revisions}"

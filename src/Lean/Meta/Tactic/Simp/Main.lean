@@ -301,6 +301,10 @@ def simpProj (e : Expr) : SimpM Result := do
   | some e => return { expr := e }
   | none =>
     let s := e.projExpr!
+    let r ← simp s
+    let eNew := e.updateProj! r.expr
+    let some h := r.proof? | return { expr := eNew }
+    -- The motive is only needed here. Type checking it visits `e`, and `simpProj` is nested along projection chains.
     let motive? ← withLocalDeclD `s (← inferType s) fun s => do
       let p := e.updateProj! s
       if (← dependsOn (← inferType p) s.fvarId!) then
@@ -312,13 +316,8 @@ def simpProj (e : Expr) : SimpM Result := do
         else
           return some motive
     if let some motive := motive? then
-      let r ← simp s
-      let eNew := e.updateProj! r.expr
-      match r.proof? with
-      | none => return { expr := eNew }
-      | some h =>
-        let hNew ← mkEqNDRec motive (← mkEqRefl e) h
-        return { expr := eNew, proof? := some hNew }
+      let hNew ← mkEqNDRec motive (← mkEqRefl e) h
+      return { expr := eNew, proof? := some hNew }
     else
       return { expr := (← dsimp e) }
 
@@ -375,6 +374,10 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
       IF we can simplify the domain.
       -/
       let rd ← simp domain
+      -- A proof of `p₁ = p₁` is dropped. The cast `h₁.substr a` below would otherwise survive inside
+      -- proof arguments that `simp` does not visit, so the result would never be equal to the
+      -- input and `visitPostContinue` would loop.
+      let rd := if rd.expr == domain then { expr := domain } else rd
       if let some h₁ := rd.proof? then
         /- Using
         ```
@@ -643,6 +646,15 @@ def congr (e : Expr) : SimpM Result := do
       match (← trySimpCongrTheorem? c e) with
       | none   => pure ()
       | some r => return r
+    /-
+    `trySimpCongrTheorem?` also returns `none` when `c` is applicable to `e`, but its hypotheses
+    did not change anything. `congrDefault` is still needed in this case because `c` may not have
+    a hypothesis for every argument of `e`. However, the arguments covered by `c` are visited
+    twice. The second visit is a cache hit only if the first one did not use a fresh cache
+    (see `withNewLemmas`). The cache is fresh when `contextual := true` or the discharger is not
+    well-behaved (see `Methods.wellBehavedDischarge`). Then, `simp` takes time exponential in the
+    nesting depth of terms such as `if c₁ then a₁ else if c₂ then a₂ else ...`.
+    -/
     congrDefault e
   else
     congrDefault e
@@ -714,7 +726,6 @@ where
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_simp]
 def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
-  checkSystem "simp"
   if (← isProof e) then
     return { expr := e }
   trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
@@ -763,15 +774,23 @@ def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Method
 end Simp
 open Simp (SimprocsArray Stats)
 
+/--
+Simplifies `e`.
+
+`wellBehavedDischarge` is ignored if `discharge?` is `none`: the default discharger is used, and it
+is well-behaved. If `discharge?` is provided, `wellBehavedDischarge` must be `true` only if it is a
+well-behaved discharger. See `Simp.Methods.wellBehavedDischarge`.
+-/
 def simpCore (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
-    (s : Simp.State := {}) : MetaM (Simp.Result × Simp.State) := do profileitM Exception "simp" (← getOptions) do
+    (s : Simp.State := {}) (wellBehavedDischarge := false) : MetaM (Simp.Result × Simp.State) := do profileitM Exception "simp" (← getOptions) do
   match discharge? with
   | none   => Simp.mainCore e ctx s (methods := Simp.mkDefaultMethodsCore simprocs)
-  | some d => Simp.mainCore e ctx s (methods := Simp.mkMethods simprocs d (wellBehavedDischarge := false))
+  | some d => Simp.mainCore e ctx s (methods := Simp.mkMethods simprocs d wellBehavedDischarge)
 
+/-- Simplifies `e`. `wellBehavedDischarge` is ignored if `discharge?` is `none`. See `simpCore`. -/
 def simp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
-    (stats : Stats := {}) : MetaM (Simp.Result × Stats) := do profileitM Exception "simp" (← getOptions) do
-  let (r, s) ← simpCore e ctx simprocs discharge? { stats with }
+    (stats : Stats := {}) (wellBehavedDischarge := false) : MetaM (Simp.Result × Stats) := do profileitM Exception "simp" (← getOptions) do
+  let (r, s) ← simpCore e ctx simprocs discharge? { stats with } wellBehavedDischarge
   return (r, { s with })
 
 def dsimp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[])
@@ -780,9 +799,9 @@ def dsimp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[])
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
-    (mayCloseGoal := true) (stats : Stats := {}) : MetaM (Option MVarId × Stats) := do
+    (mayCloseGoal := true) (stats : Stats := {}) (wellBehavedDischarge := false) : MetaM (Option MVarId × Stats) := do
   let target ← instantiateMVars (← mvarId.getType)
-  let (r, stats) ← simp target ctx simprocs discharge? stats
+  let (r, stats) ← simp target ctx simprocs discharge? stats wellBehavedDischarge
   if mayCloseGoal && r.expr.isTrue then
     match r.proof? with
     | some proof => mvarId.assign (← mkOfEqTrue proof)
@@ -793,12 +812,14 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsAr
 
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
-  where `mvarId'` is the simplified new goal. -/
+  where `mvarId'` is the simplified new goal.
+
+  `wellBehavedDischarge` is ignored if `discharge?` is `none`. See `simpCore`. -/
 def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
-    (mayCloseGoal := true) (stats : Stats := {}) : MetaM (Option MVarId × Stats) :=
+    (mayCloseGoal := true) (stats : Stats := {}) (wellBehavedDischarge := false) : MetaM (Option MVarId × Stats) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
-    simpTargetCore mvarId ctx simprocs discharge? mayCloseGoal stats
+    simpTargetCore mvarId ctx simprocs discharge? mayCloseGoal stats wellBehavedDischarge
 
 /--
 Applies the result `r` for `type` (which is inhabited by `val`). Returns `none` if the goal was closed. Returns `some (val', type')`
@@ -830,10 +851,12 @@ def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
-  This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
+  This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context.
+
+  `wellBehavedDischarge` is ignored if `discharge?` is `none`. See `simpCore`. -/
 def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
-    (mayCloseGoal := true) (stats : Stats := {}) : MetaM (Option (Expr × Expr) × Stats) := do
-  let (r, stats) ← simp prop ctx simprocs discharge? stats
+    (mayCloseGoal := true) (stats : Stats := {}) (wellBehavedDischarge := false) : MetaM (Option (Expr × Expr) × Stats) := do
+  let (r, stats) ← simp prop ctx simprocs discharge? stats wellBehavedDischarge
   return (← applySimpResult mvarId proof prop r (mayCloseGoal := mayCloseGoal), stats)
 
 def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Option (Expr × Expr)) : MetaM (Option (FVarId × MVarId)) := do
@@ -864,12 +887,17 @@ def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Res
   else
     applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r mayCloseGoal)
 
+/--
+Simplifies the type of the local declaration `fvarId`. Returns `none` if the goal was closed.
+
+`wellBehavedDischarge` is ignored if `discharge?` is `none`. See `simpCore`.
+-/
 def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
-    (mayCloseGoal := true) (stats : Stats := {}) : MetaM (Option (FVarId × MVarId) × Stats) := do
+    (mayCloseGoal := true) (stats : Stats := {}) (wellBehavedDischarge := false) : MetaM (Option (FVarId × MVarId) × Stats) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
     let type ← instantiateMVars (← fvarId.getType)
-    let (r, stats) ← simpStep mvarId (mkFVar fvarId) type ctx simprocs discharge? mayCloseGoal stats
+    let (r, stats) ← simpStep mvarId (mkFVar fvarId) type ctx simprocs discharge? mayCloseGoal stats wellBehavedDischarge
     return (← applySimpResultToLocalDeclCore mvarId fvarId r, stats)
 
 def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)

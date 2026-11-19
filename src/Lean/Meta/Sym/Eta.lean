@@ -9,19 +9,37 @@ public import Lean.Meta.Sym.ExprPtr
 public import Lean.Meta.Basic
 import Lean.Meta.Transform
 namespace Lean.Meta.Sym
+
+/--
+Returns `true` if `e` contains a loose bound variable with index in `[0, n)`
+This function assumes `n` is small. If this becomes a bottleneck, we should
+implement a version of `lean_expr_has_loose_bvar` that checks the range in one traversal.
+-/
+def hasLooseBVarsInRange (e : Expr) (n : Nat) : Bool :=
+  e.hasLooseBVars && go n
+where
+  go : Nat → Bool
+  | 0 => false
+  | i+1 => e.hasLooseBVar i || go i
+
 /--
 Checks if `body` is eta-expanded with `n` applications: `f (.bvar (n-1)) ... (.bvar 0)`.
-Returns `f` if so and `f` has no loose bvars; otherwise returns `default`.
+Returns `f` if so and `f` has no loose bvars with indices in the range `[0, n)`; otherwise returns `default`.
 - `n`: number of remaining applications to check
 - `i`: expected bvar index (starts at 0, increments with each application)
 - `default`: returned when not eta-reducible (enables pointer equality check)
 -/
-def etaReduceAux (body : Expr) (n : Nat) (i : Nat) (default : Expr) : Expr := Id.run do
-  match n with
-  | 0 => if body.hasLooseBVars then default else body
-  | n+1 =>
-    let .app f (.bvar j) := body | default
-    if j == i then etaReduceAux f n (i+1) default else default
+def etaReduceAux (body : Expr) (n : Nat) (i : Nat) (default : Expr) : Expr :=
+  go body n i
+where
+  go (body : Expr) (m : Nat) (i : Nat) : Expr := Id.run do
+    match m with
+    | 0 =>
+      if hasLooseBVarsInRange body n then default
+      else body.lowerLooseBVars n n
+    | m+1 =>
+      let .app f (.bvar j) := body | default
+      if j == i then go f m (i+1) else default
 
 /--
 If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,

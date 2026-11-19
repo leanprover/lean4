@@ -27,7 +27,7 @@ theorem dvd_of_mul_dvd {a b c : Int} (w : a * b ∣ a * c) (h : 0 < a) : b ∣ c
   obtain ⟨z, w⟩ := w
   refine ⟨z, ?_⟩
   replace w := congrArg (· / a) w
-  dsimp at w
+  try dsimp at w -- TODO(kmill): remove after stage0 update
   rwa [Int.mul_ediv_cancel_left _ (Int.ne_of_gt h), Int.mul_assoc,
     Int.mul_ediv_cancel_left _ (Int.ne_of_gt h)] at w
 

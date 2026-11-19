@@ -38,7 +38,7 @@ def Internal.iter [UpwardEnumerable α] (r : Rcc α) : Iter (α := Rxc.Iterator 
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Rcc α) : List α :=
   Internal.iter r |>.toList
@@ -46,7 +46,7 @@ def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Rcc α) : Array α :=
   Internal.iter r |>.toArray
@@ -92,7 +92,11 @@ theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   simp only [isPlausibleIndirectOutput_iff, ha, Option.bind_some, exists_and_right] at hout
   exact hout.1
 
-@[no_expose]
+-- The `ForIn'` instances of all range types are default instances so that a loop whose element type
+-- is known can determine the range's type from it, as in `for (i : Int) in 1...3` or
+-- `for (i : Fin 3) in *...*`. Otherwise the literal bounds default to `Nat` first, and `*...*` has
+-- no type at all.
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Monad m] [Finite (Rxc.Iterator α) Id] :
@@ -124,7 +128,7 @@ def Internal.iter [UpwardEnumerable α] (r : Rco α) : Iter (α := Rxo.Iterator 
 /--
 Returns the elements of the given left-closed right-open range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rco α) : List α :=
   Internal.iter r |>.toList
@@ -132,7 +136,7 @@ def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given left-closed right-open range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rco α) : Array α :=
   Internal.iter r |>.toArray
@@ -178,7 +182,7 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
   simp only [isPlausibleIndirectOutput_iff, ha, Option.bind_some, exists_and_right] at hout
   exact hout.1
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxo.Iterator α) Id] :
@@ -210,7 +214,7 @@ def Internal.iter [UpwardEnumerable α] (r : Rci α) : Iter (α := Rxi.Iterator 
 /--
 Returns the elements of the given left-closed right-unbounded range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
     List α :=
   Internal.iter r |>.toList
@@ -218,7 +222,7 @@ def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite
 /--
 Returns the elements of the given left-closed right-unbounded range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
     Array α :=
   Internal.iter r |>.toArray
@@ -260,9 +264,9 @@ theorem _root_.Std.Rxi.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
     ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
   have ⟨a, ha⟩ := Option.isSome_iff_exists.mp (isSome_next_of_isPlausibleIndirectOutput hout)
   refine ⟨a, ha, ?_⟩
-  simpa only [isPlausibleIndirectOutput_iff, ha, Option.bind_some] using hout
+  simpa only [isPlausibleIndirectOutput_iff, ha, Option.bind_some] using! hout
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -295,7 +299,7 @@ def Internal.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator 
 /--
 Returns the elements of the given left-open right-closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Roc α) : List α :=
   Internal.iter r |>.toList
@@ -303,7 +307,7 @@ def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given left-open right-closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Roc α) : Array α :=
   Internal.iter r |>.toArray
@@ -343,7 +347,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LT α] [LawfulUpwardEnumerableLT α]
@@ -376,7 +380,7 @@ def Internal.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator 
 /--
 Returns the elements of the given open range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Roo α) : List α :=
   Internal.iter r |>.toList
@@ -384,7 +388,7 @@ def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given open range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Roo α) : Array α :=
   Internal.iter r |>.toArray
@@ -423,7 +427,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -456,7 +460,7 @@ def Internal.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator 
 /--
 Returns the elements of the given left-open right-unbounded range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     (r : Roi α) : List α :=
   Internal.iter r |>.toList
@@ -464,7 +468,7 @@ def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite 
 /--
 Returns the elements of the given left-open right-unbounded range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     (r : Roi α) : Array α :=
   Internal.iter r |>.toArray
@@ -500,7 +504,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     exact ⟨n,
       by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?]⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :
@@ -532,7 +536,7 @@ def Internal.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Ric α) : List α :=
   Internal.iter r |>.toList
@@ -540,7 +544,7 @@ def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpw
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Ric α) : Array α :=
   Internal.iter r |>.toArray
@@ -568,12 +572,12 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff]
     cases hr : (Internal.iter r).internalState.next
     · simp [hr] at hn
-    · simpa [LawfulUpwardEnumerableLE.le_iff] using hu
+    · simpa [LawfulUpwardEnumerableLE.le_iff] using! hu
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -607,7 +611,7 @@ def Internal.iter [UpwardEnumerable α] [Least? α] (r : Rio α) : Iter (α := R
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rio α) : List α :=
   Internal.iter r |>.toList
@@ -615,7 +619,7 @@ def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpw
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rio α) : Array α :=
   Internal.iter r |>.toArray
@@ -642,12 +646,12 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLT.lt_iff]
     cases hr : (Internal.iter r).internalState.next
     · simp [hr] at hn
-    · simpa [LawfulUpwardEnumerableLT.lt_iff] using hu
+    · simpa [LawfulUpwardEnumerableLT.lt_iff] using! hu
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -681,7 +685,7 @@ def Internal.iter [UpwardEnumerable α] [Least? α] (_ : Rii α) : Iter (α := R
 /--
 Returns the elements of the given full range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
     [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : List α :=
   Internal.iter r |>.toList
@@ -689,7 +693,7 @@ def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
 /--
 Returns the elements of the given full range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
     [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : Array α :=
   Internal.iter r |>.toArray
@@ -712,9 +716,9 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
   constructor
   · simp [Membership.mem]
   · obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
-    simpa [Membership.mem, iter, hi] using hia
+    simpa [Membership.mem, iter, hi] using! hia
 
-@[no_expose]
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :

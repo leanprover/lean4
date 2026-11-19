@@ -9,7 +9,9 @@ prelude
 public import Init.Prelude
 import Init.Tactics
 
-private opaque POpaque.nonemptyType.{u} : NonemptyType.{u}
+namespace Lake
+
+opaque POpaque.nonemptyType.{u} : NonemptyType.{u}
 
 /-- An value of unknown type in a specific universe. -/
 public def POpaque : Type u := POpaque.nonemptyType.type
@@ -27,7 +29,7 @@ public opaque mk.{v,u} {α : Type u} (a : α) : POpaque.{v} :=
   unsafe unsafeCast a
 
 /-- Cast away a value's type and universe. -/
-public abbrev _root_.Opaque.mk {α : Type u} (a : α) : Opaque := POpaque.mk a
+public abbrev _root_.Lake.Opaque.mk {α : Type u} (a : α) : Opaque := POpaque.mk a
 
 /--
 Cast an opaque value to a specific type.

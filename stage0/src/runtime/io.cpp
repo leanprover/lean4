@@ -39,9 +39,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <string>
 #include <cstdlib>
 #include <cctype>
+#include <cmath>
 #include <sys/stat.h>
 #include <uv.h>
 #include "util/io.h"
+#include "util/alloc.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
 #include "runtime/utf8.h"
@@ -56,11 +58,18 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <dirent.h>
 #endif
 
+#ifndef LEAN_WINDOWS
+#ifndef __APPLE__
+#include <sys/syscall.h>
+#include <linux/fs.h> // RENAME_NOREPLACE
+#endif
+#endif
+
 namespace lean {
 
 extern "C" LEAN_EXPORT void lean_io_result_show_error(b_obj_arg r) {
     object * err = io_result_get_error(r);
-    inc_ref(err);
+    inc(err);
     object * str = lean_io_error_to_string(err);
     std::cerr << "uncaught exception: " << string_cstr(str) << std::endl;
     dec_ref(str);
@@ -158,208 +167,226 @@ static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
-    object * details = mk_string(strerror(errnum));
-    // Keep in sync with lean_decode_uv_error below
-    switch (errnum) {
-    case EINTR:
-        lean_assert(fname != nullptr);
-        inc_ref(fname);
-        return lean_mk_io_error_interrupted(fname, errnum, details);
-    case ELOOP: case ENAMETOOLONG: case EDESTADDRREQ:
-    case EBADF: case EDOM: case EINVAL: case EILSEQ:
-    case ENOEXEC: case ENOSTR: case ENOTCONN:
-    case ENOTSOCK:
-        if (fname == nullptr) {
-            return lean_mk_io_error_invalid_argument(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
-        }
-    case ENOENT:
-        lean_assert(fname != nullptr);
-        inc_ref(fname);
-        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
-    case EACCES: case EROFS: case ECONNABORTED: case EFBIG:
-    case EPERM:
-        if (fname == nullptr) {
-            return lean_mk_io_error_permission_denied(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
-        }
-    case EMFILE: case ENFILE: case ENOSPC:
-    case E2BIG:  case EAGAIN: case EMLINK:
-    case EMSGSIZE: case ENOBUFS: case ENOLCK:
-    case ENOMEM: case ENOSR:
-        if (fname == nullptr) {
-            return lean_mk_io_error_resource_exhausted(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
-        }
-    case EISDIR: case EBADMSG: case ENOTDIR:
-        if (fname == nullptr) {
-            return lean_mk_io_error_inappropriate_type(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
-        }
-    case ENXIO: case EHOSTUNREACH: case ENETUNREACH:
-    case ECHILD: case ECONNREFUSED: case ENODATA:
-    case ENOMSG: case ESRCH:
-        if (fname == nullptr) {
-            return lean_mk_io_error_no_such_thing(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
-        }
-    case EEXIST: case EINPROGRESS: case EISCONN:
-        if (fname == nullptr) {
-            return lean_mk_io_error_already_exists(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_already_exists_file(fname, errnum, details);
-        }
-    case EIO:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_hardware_fault(errnum, details);
-    case ENOTEMPTY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
-    case ENOTTY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_illegal_operation(errnum, details);
-    case ECONNRESET: case EIDRM: case ENETDOWN: case ENETRESET:
-    case ENOLINK: case EPIPE:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_vanished(errnum, details);
-    case EPROTO: case EPROTONOSUPPORT: case EPROTOTYPE:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_protocol_error(errnum, details);
-    case ETIME: case ETIMEDOUT:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_time_expired(errnum, details);
-    case EADDRINUSE: case EBUSY: case EDEADLK: case ETXTBSY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_busy(errnum, details);
-    case EADDRNOTAVAIL: case EAFNOSUPPORT: case ENODEV:
-    case ENOPROTOOPT: case ENOSYS: case EOPNOTSUPP:
-    case ERANGE: case ESPIPE: case EXDEV:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsupported_operation(errnum, details);
-    case EFAULT:
-    default:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_other_error(errnum, details);
+/* Translates a CRT `errno` value into the corresponding libuv error code.
+   (`uv_translate_sys_error` is unsuitable for this: on Windows it expects Win32 system error
+   codes, not CRT `errno` values.) `errno` values libuv cannot represent are translated to the
+   closest libuv error code; unrecognized values are negated, which `decode_uv_error_impl`
+   treats as an unknown error. */
+static int lean_crt_to_uv_err(int err) {
+    switch (err) {
+    case E2BIG:           return UV_E2BIG;
+    case EACCES:          return UV_EACCES;
+    case EADDRINUSE:      return UV_EADDRINUSE;
+    case EADDRNOTAVAIL:   return UV_EADDRNOTAVAIL;
+    case EAFNOSUPPORT:    return UV_EAFNOSUPPORT;
+    case EAGAIN:          return UV_EAGAIN;
+    case EBADF:           return UV_EBADF;
+    case EBUSY:           return UV_EBUSY;
+    case ECONNABORTED:    return UV_ECONNABORTED;
+    case ECONNREFUSED:    return UV_ECONNREFUSED;
+    case ECONNRESET:      return UV_ECONNRESET;
+    case EDESTADDRREQ:    return UV_EDESTADDRREQ;
+    case EEXIST:          return UV_EEXIST;
+    case EFAULT:          return UV_EFAULT;
+    case EFBIG:           return UV_EFBIG;
+    case EHOSTUNREACH:    return UV_EHOSTUNREACH;
+    case EILSEQ:          return UV_EILSEQ;
+    case EINTR:           return UV_EINTR;
+    case EINVAL:          return UV_EINVAL;
+    case EIO:             return UV_EIO;
+    case EISCONN:         return UV_EISCONN;
+    case EISDIR:          return UV_EISDIR;
+    case ELOOP:           return UV_ELOOP;
+    case EMFILE:          return UV_EMFILE;
+    case EMLINK:          return UV_EMLINK;
+    case EMSGSIZE:        return UV_EMSGSIZE;
+    case ENAMETOOLONG:    return UV_ENAMETOOLONG;
+    case ENETDOWN:        return UV_ENETDOWN;
+    case ENETUNREACH:     return UV_ENETUNREACH;
+    case ENFILE:          return UV_ENFILE;
+    case ENOBUFS:         return UV_ENOBUFS;
+    case ENODEV:          return UV_ENODEV;
+    case ENOENT:          return UV_ENOENT;
+    case ENOMEM:          return UV_ENOMEM;
+    case ENOPROTOOPT:     return UV_ENOPROTOOPT;
+    case ENOSPC:          return UV_ENOSPC;
+    case ENOSYS:          return UV_ENOSYS;
+    case ENOTCONN:        return UV_ENOTCONN;
+    case ENOTDIR:         return UV_ENOTDIR;
+    case ENOTEMPTY:       return UV_ENOTEMPTY;
+    case ENOTSOCK:        return UV_ENOTSOCK;
+    case ENOTTY:          return UV_ENOTTY;
+    case ENXIO:           return UV_ENXIO;
+    case EOPNOTSUPP:      return UV_ENOTSUP;
+    case EPERM:           return UV_EPERM;
+    case EPIPE:           return UV_EPIPE;
+    case EPROTO:          return UV_EPROTO;
+    case EPROTONOSUPPORT: return UV_EPROTONOSUPPORT;
+    case EPROTOTYPE:      return UV_EPROTOTYPE;
+    case ERANGE:          return UV_ERANGE;
+    case EROFS:           return UV_EROFS;
+    case ESPIPE:          return UV_ESPIPE;
+    case ESRCH:           return UV_ESRCH;
+    case ETIMEDOUT:       return UV_ETIMEDOUT;
+    case ETXTBSY:         return UV_ETXTBSY;
+    case EXDEV:           return UV_EXDEV;
+#if UV_VERSION_HEX >= 0x012D00 /* libuv maps ENODATA since 1.45.0 */
+    case ENODATA:         return UV_ENODATA;
+    case ENOMSG:          return UV_ENODATA;
+#else
+    case ENODATA:         return UV_ENXIO;
+    case ENOMSG:          return UV_ENXIO;
+#endif
+#if UV_VERSION_HEX >= 0x013200 /* libuv maps ENOEXEC since 1.50.0 */
+    case ENOEXEC:         return UV_ENOEXEC;
+#else
+    case ENOEXEC:         return UV_EINVAL;
+#endif
+    /* approximations for `errno` values libuv cannot represent */
+    case EBADMSG:         return UV_EPROTO;
+    case ECHILD:          return UV_ESRCH;
+    case EDEADLK:         return UV_EBUSY;
+    case EDOM:            return UV_EINVAL;
+    case EIDRM:           return UV_EPIPE;
+    case EINPROGRESS:     return UV_EISCONN;
+    case ENETRESET:       return UV_ECONNRESET;
+    case ENOLCK:          return UV_EAGAIN;
+    case ENOLINK:         return UV_ECONNRESET;
+    case ENOSR:           return UV_ENOBUFS;
+    case ENOSTR:          return UV_EINVAL;
+    case ETIME:           return UV_ETIMEDOUT;
+    default:              return -err;
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
+/* `errnum` is the libuv error code used for classification and the error message; `posix_errnum`
+   is the `errno`-style value stored in the resulting `IO.Error`. */
+static obj_res decode_uv_error_impl(int errnum, int posix_errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
-    // Keep in sync with lean_decode_io_error above
     switch (errnum) {
+    /* `interrupted` and `noFileOrDirectory` require a file name; callers without one get "". */
     case UV_EINTR:
-        lean_assert(fname != nullptr);
+        if (fname == nullptr) {
+            return lean_mk_io_error_interrupted(mk_string(""), posix_errnum, details);
+        }
         inc_ref(fname);
-        return lean_mk_io_error_interrupted(fname, errnum, details);
-    /* LibUV does not map EDOM, ENOEXEC and ENOSTR as of version 1.48.0 */
+        return lean_mk_io_error_interrupted(fname, posix_errnum, details);
+    /* LibUV does not map EDOM and ENOSTR as of version 1.52.1 */
     case UV_ELOOP: case UV_ENAMETOOLONG: case UV_EDESTADDRREQ:
     case UV_EBADF: case UV_EINVAL: case UV_EILSEQ:
     case UV_ENOTCONN: case UV_ENOTSOCK:
+#if UV_VERSION_HEX >= 0x013200 /* libuv maps ENOEXEC since 1.50.0 */
+    case UV_ENOEXEC:
+#endif
         if (fname == nullptr) {
-            return lean_mk_io_error_invalid_argument(errnum, details);
+            return lean_mk_io_error_invalid_argument(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
+            return lean_mk_io_error_invalid_argument_file(fname, posix_errnum, details);
         }
     case UV_ENOENT:
-        lean_assert(fname != nullptr);
+        if (fname == nullptr) {
+            return lean_mk_io_error_no_file_or_directory(mk_string(""), posix_errnum, details);
+        }
         inc_ref(fname);
-        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
+        return lean_mk_io_error_no_file_or_directory(fname, posix_errnum, details);
     case UV_EACCES: case UV_EROFS: case UV_ECONNABORTED: case UV_EFBIG:
     case UV_EPERM:
         if (fname == nullptr) {
-            return lean_mk_io_error_permission_denied(errnum, details);
+            return lean_mk_io_error_permission_denied(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
+            return lean_mk_io_error_permission_denied_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map ENOLCK and ENOSR as of version 1.48.0 */
+    /* LibUV does not map ENOLCK and ENOSR as of version 1.52.1 */
     case UV_EMFILE: case UV_ENFILE: case UV_ENOSPC:
     case UV_E2BIG:  case UV_EAGAIN: case UV_EMLINK:
     case UV_EMSGSIZE: case UV_ENOBUFS:
     case UV_ENOMEM:
         if (fname == nullptr) {
-            return lean_mk_io_error_resource_exhausted(errnum, details);
+            return lean_mk_io_error_resource_exhausted(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
+            return lean_mk_io_error_resource_exhausted_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map EBADMSG as of version 1.48.0 */
+    /* LibUV does not map EBADMSG as of version 1.52.1 */
     case UV_EISDIR: case UV_ENOTDIR:
         if (fname == nullptr) {
-            return lean_mk_io_error_inappropriate_type(errnum, details);
+            return lean_mk_io_error_inappropriate_type(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
+            return lean_mk_io_error_inappropriate_type_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map ECHILD as of version 1.48.0 */
+    /* LibUV does not map ECHILD as of version 1.52.1 */
     case UV_ENXIO: case UV_EHOSTUNREACH: case UV_ENETUNREACH:
     case UV_ECONNREFUSED:
-#if UV_VERSION_HEX >= 0x012D00
+#if UV_VERSION_HEX >= 0x012D00 /* libuv maps ENODATA since 1.45.0 */
     case UV_ENODATA:
 #endif
     case UV_ESRCH:
         if (fname == nullptr) {
-            return lean_mk_io_error_no_such_thing(errnum, details);
+            return lean_mk_io_error_no_such_thing(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
+            return lean_mk_io_error_no_such_thing_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map EINPROGRESS as of version 1.48.0 */
+    /* LibUV does not map EINPROGRESS as of version 1.52.1 */
     case UV_EEXIST: case UV_EISCONN:
         if (fname == nullptr) {
-            return lean_mk_io_error_already_exists(errnum, details);
+            return lean_mk_io_error_already_exists(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_already_exists_file(fname, errnum, details);
+            return lean_mk_io_error_already_exists_file(fname, posix_errnum, details);
         }
     case UV_EIO:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_hardware_fault(errnum, details);
+        return lean_mk_io_error_hardware_fault(posix_errnum, details);
     case UV_ENOTEMPTY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
+        return lean_mk_io_error_unsatisfied_constraints(posix_errnum, details);
     case UV_ENOTTY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_illegal_operation(errnum, details);
-    /* LibUV does not map EIDRM, ENETRESET and ENOLINK as of version 1.48.0 */
+        return lean_mk_io_error_illegal_operation(posix_errnum, details);
+    /* LibUV does not map EIDRM, ENETRESET and ENOLINK as of version 1.52.1 */
     case UV_ECONNRESET: case UV_ENETDOWN:
     case UV_EPIPE:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_vanished(errnum, details);
+        return lean_mk_io_error_resource_vanished(posix_errnum, details);
     case UV_EPROTO: case UV_EPROTONOSUPPORT: case UV_EPROTOTYPE:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_protocol_error(errnum, details);
-    /* LibUV does not map ETIME as of version 1.48.0 */
+        return lean_mk_io_error_protocol_error(posix_errnum, details);
+    /* LibUV does not map ETIME as of version 1.52.1 */
     case UV_ETIMEDOUT:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_time_expired(errnum, details);
-    /* LibUV does not map EDEADLK as of version 1.48.0 */
+        return lean_mk_io_error_time_expired(posix_errnum, details);
+    /* LibUV does not map EDEADLK as of version 1.52.1 */
     case UV_EADDRINUSE: case UV_EBUSY: case UV_ETXTBSY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_busy(errnum, details);
+        return lean_mk_io_error_resource_busy(posix_errnum, details);
     case UV_EADDRNOTAVAIL: case UV_EAFNOSUPPORT: case UV_ENODEV:
     case UV_ENOPROTOOPT: case UV_ENOSYS: case UV_ENOTSUP:
     case UV_ERANGE: case UV_ESPIPE: case UV_EXDEV:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsupported_operation(errnum, details);
+        return lean_mk_io_error_unsupported_operation(posix_errnum, details);
     case UV_EFAULT:
     default:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_other_error(errnum, details);
+        return lean_mk_io_error_other_error(posix_errnum, details);
     }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
+    return decode_uv_error_impl(lean_crt_to_uv_err(errnum), errnum, fname);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
+    /* On Unix libuv error codes are negated `errno` values, so this approximately reconstructs
+       the value C library calls would report. */
+    return decode_uv_error_impl(errnum, -errnum, fname);
+}
+
+bool string_has_nul(b_obj_arg str) {
+    return strlen(string_cstr(str)) != lean_string_size(str) - 1;
 }
 
 // Used for when you try to convert a string with NUL bytes into a C string
@@ -418,7 +445,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     }
     FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+        int errnum = errno;
+        close(fd);
+        return io_result_mk_error(decode_io_error(errnum, filename));
     } else {
         return io_result_mk_ok(io_wrap_handle(fp));
     }
@@ -540,12 +569,6 @@ extern "C" LEAN_EXPORT uint8_t lean_io_prim_handle_is_tty(b_obj_arg h) {
 #endif
 }
 
-/* Handle.isEof : (@& Handle) → BaseIO Bool */
-extern "C" LEAN_EXPORT uint8_t lean_io_prim_handle_is_eof(b_obj_arg h) {
-    FILE * fp = io_get_handle(h);
-    return std::feof(fp) != 0;
-}
-
 /* Handle.flush : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
@@ -583,6 +606,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h) {
 /* Handle.read : (@& Handle) → USize → IO ByteArray */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes) {
     FILE * fp = io_get_handle(h);
+    if (lean_alloc_sarray_would_overflow(1, nbytes)) {
+        return io_result_mk_error(decode_io_error(ENOMEM, NULL));
+    }
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     if (nbytes == 0) {
         // std::fread doesn't handle 0 reads well, see https://github.com/leanprover/lean4/issues/12138
@@ -725,7 +751,9 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
             return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get next transition")));
         }
 
-        tm = (int64_t)(nextTransition / 1000.0);
+        // Round up to whole seconds: Windows models midnight transitions as 23:59:59.999 on the
+        // preceding day, and truncation would move such transitions a full second early.
+        tm = (int64_t)std::ceil(nextTransition / 1000.0);
     }
 
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
@@ -749,6 +777,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     u_strToUTF8(dst_name, sizeof(dst_name), &dst_name_len, tzID, tzIDLength, &status);
 
     if (U_FAILURE(status)) {
+        ucal_close(cal);
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to convert DST name to UTF-8")));
     }
 
@@ -858,13 +887,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
 
     if (nbytes == 0) return io_result_mk_ok(lean_alloc_sarray(1, 0, 0));
 
+    if (lean_alloc_sarray_would_overflow(1, nbytes)) {
+        return io_result_mk_error(decode_io_error(ENOMEM, NULL));
+    }
+
 #if !defined(LEAN_WINDOWS)
     int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
     if (fd_urandom < 0) {
-        return io_result_mk_error(decode_io_error(errno, lean_mk_ascii_string_unchecked("/dev/urandom")));
+        int errnum = errno;
+        object * fname = lean_mk_ascii_string_unchecked("/dev/urandom");
+        obj_res ret = io_result_mk_error(decode_io_error(errnum, fname));
+        dec_ref(fname);
+        return ret;
     }
 #endif
-
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     size_t remain = nbytes;
     uint8_t *dst = lean_sarray_cptr(res);
@@ -895,9 +931,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
         ssize_t nread = read(fd_urandom, dst, read_sz);
         if (nread < 0) {
             if (errno != EINTR) {
+                int errnum = errno;
                 close(fd_urandom);
                 dec_ref(res);
-                return io_result_mk_error(decode_io_error(errno, nullptr));
+                return io_result_mk_error(decode_io_error(errnum, nullptr));
             }
         } else {
             remain -= nread;
@@ -954,9 +991,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count) {
     return box(0);
 }
 
+bool is_env_var_name(char const * name) {
+    if (name[0] == '\0') {
+        return false;
+    }
+#if defined(LEAN_WINDOWS)
+    // Windows keeps hidden variables whose names start with `=`, such as `=C:`.
+    name++;
+#endif
+    return strchr(name, '=') == nullptr;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var) {
     const char* env_var_str = string_cstr(env_var);
-    if (strlen(env_var_str) != lean_string_size(env_var) - 1) {
+    if (strlen(env_var_str) != lean_string_size(env_var) - 1 || !is_env_var_name(env_var_str)) {
         return mk_option_none();
     }
 #if defined(LEAN_EMSCRIPTEN)
@@ -1218,6 +1266,39 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
     return io_result_mk_ok(box(0));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_rename_if_new(b_obj_arg from, b_obj_arg to) {
+    const char* from_str = string_cstr(from);
+    if (strlen(from_str) != lean_string_size(from) - 1) {
+        return mk_embedded_nul_error(from);
+    }
+    const char* to_str = string_cstr(to);
+    if (strlen(to_str) != lean_string_size(to) - 1) {
+        return mk_embedded_nul_error(to);
+    }
+#ifdef LEAN_WINDOWS
+    bool ok = MoveFileEx(from_str, to_str, 0) != 0;
+    if (!ok) {
+        // TODO: actually produce the right type of IO error
+        return io_result_mk_error((sstream()
+            << "failed to rename '" << from_str << "' to '" << to_str << "': " << GetLastError()).str());
+    }
+#else
+#if defined(__APPLE__)
+    bool ok = renameatx_np(AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_EXCL) == 0;
+#else
+    // glibc 2.26 does not yet have `renameat2` (2.28+)
+    bool ok = syscall(SYS_renameat2, AT_FDCWD, from_str, AT_FDCWD, to_str, RENAME_NOREPLACE) == 0;
+#endif
+    if (!ok) {
+        std::ostringstream s;
+        s << from_str << " and/or " << to_str;
+        object_ref out{mk_string(s.str())};
+        return io_result_mk_error(decode_io_error(errno, out.raw()));
+    }
+#endif
+    return io_result_mk_ok(box(0));
+}
+
 /* hardLink (orig link : @& FilePath) : IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link) {
     const char* orig_str = string_cstr(orig);
@@ -1239,14 +1320,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link)
 }
 
 /* createTempFile : IO (Handle × FilePath) */
-extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile() {
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
     if (ret < 0) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else if (base_len == 0) {
-        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
+        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, nullptr));
     }
 
 #if defined(LEAN_WINDOWS)
@@ -1278,6 +1359,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
         FILE* handle = fdopen(req.result, "r+");
+        if (!handle) {
+            int errnum = errno;
+            close(req.result);
+            uv_fs_t unlink_req;
+            uv_fs_unlink(NULL, &unlink_req, req.path, NULL);
+            uv_fs_req_cleanup(&unlink_req);
+            uv_fs_req_cleanup(&req);
+            return io_result_mk_error(decode_io_error(errnum, nullptr));
+        }
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
         uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
@@ -1285,14 +1375,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
 }
 
 /* createTempDir : IO FilePath */
-extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir() {
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
     if (ret < 0) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else if (base_len == 0) {
-        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
+        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, nullptr));
     }
 
 #if defined(LEAN_WINDOWS)
@@ -1386,12 +1476,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
     return io_result_mk_ok(appPathLean);
 #else
     // Linux version
-    char path[PATH_MAX];
     char dest[PATH_MAX];
     memset(dest, 0, PATH_MAX);
-    pid_t pid = getpid();
-    snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
-    if (readlink(path, dest, PATH_MAX) == -1) {
+    if (readlink("/proc/self/exe", dest, PATH_MAX - 1) == -1) {
         return io_result_mk_error("failed to locate application");
     } else {
         return io_result_mk_ok(mk_string(dest));
@@ -1449,10 +1536,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
             if (val != nullptr) {
                 inc(val);
                 object * tmp = val_addr->exchange(val);
-                if (tmp != nullptr) {
-                    /* this may happen if another thread wrote `ref` */
-                    dec(tmp);
-                }
+                lean_assert(tmp == nullptr);
+                (void)tmp;
                 return val;
             }
         }
@@ -1482,7 +1567,7 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_take(b_obj_arg ref) {
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_put(b_obj_arg ref, obj_arg a) {
     if (ref_maybe_mt(ref)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -1490,8 +1575,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a) {
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(a);
-        if (old_a != nullptr)
-            dec(old_a);
+        lean_assert(old_a == nullptr);
+        (void)old_a;
         return box(0);
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)
@@ -1507,8 +1592,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
-            object * old_a = val_addr->exchange(a);
-            if (old_a != nullptr)
+            object * old_a = val_addr->load();
+            if (old_a != nullptr && val_addr->compare_exchange_strong(old_a, a))
                 return old_a;
         }
     } else {
@@ -1534,7 +1619,7 @@ static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
 extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
-    object * t = lean_task_spawn_core(c, lean_unbox(prio), /* keep_alive */ true);
+    object * t = lean_task_spawn_core(c, lean_task_prio_of_nat(prio), /* keep_alive */ true);
     return t;
 }
 
@@ -1548,7 +1633,7 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
 extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), sync, /* keep_alive */ true);
+    object * t2 = lean_task_map_core(c, t, lean_task_prio_of_nat(prio), sync, /* keep_alive */ true);
     return t2;
 }
 
@@ -1556,7 +1641,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg pr
 extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), sync, /* keep_alive */ true);
+    object * t2 = lean_task_bind_core(t, c, lean_task_prio_of_nat(prio), sync, /* keep_alive */ true);
     return t2;
 }
 
@@ -1602,6 +1687,159 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a) {
     return a;
 }
 
+/* def Runtime.deepCopy : {α : Type} → α → IO α := fun {α} a => pure a */
+extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
+    // We point at atomic and non-atomic slots from `todo`.
+    // The object we create is only used from this thread,
+    // but we also need atomic and ordinary pointer sizes to match.
+    static_assert(sizeof(std::atomic<object *>) == sizeof(object *));
+
+    object * root = lean_box(0);
+    // maps source objects to their copies so that sharing in the input graph is preserved
+    lean::unordered_map<object *, object *> copies;
+    // pairs of source object and destination slot to store its copy in
+    buffer<std::pair<object *, object **>> todo;
+    todo.push_back({o, &root});
+    // Returns a partial copy of `src` if `src` has finished, scheduling the value in `todo`.
+    // Returns `nullptr` if `src` has not finished.
+    auto copy_finished_task = [&](lean_task_object * src) -> object * {
+        object * v = src->m_value.load(std::memory_order_acquire);
+        if (!v) return nullptr;
+        object * new_t = lean_task_pure(lean_box(0));
+        todo.push_back({v, reinterpret_cast<object **>(&lean_to_task(new_t)->m_value)});
+        return new_t;
+    };
+    while (!todo.empty()) {
+        auto [src, slot] = todo.back();
+        todo.pop_back();
+        if (lean_is_scalar(src)) {
+            *slot = src;
+            continue;
+        }
+        auto it = copies.find(src);
+        if (it != copies.end()) {
+            lean_inc(it->second);
+            *slot = it->second;
+            continue;
+        }
+        object * new_o;
+        uint8_t tag = lean_ptr_tag(src);
+        if (tag <= LeanMaxCtorTag) {
+            size_t sz = lean_object_byte_size(src);
+            unsigned num_objs = lean_ctor_num_objs(src);
+            new_o = lean_alloc_ctor_memory(sz);
+            lean_set_st_header(new_o, tag, num_objs);
+            size_t scalars_off = sizeof(lean_ctor_object) + num_objs * sizeof(object *);
+            memcpy(reinterpret_cast<char *>(new_o) + scalars_off,
+                   reinterpret_cast<char *>(src) + scalars_off, sz - scalars_off);
+            object ** src_objs = lean_ctor_obj_cptr(src);
+            object ** new_objs = lean_ctor_obj_cptr(new_o);
+            for (unsigned i = 0; i < num_objs; i++) {
+                // keep the partial copy a valid object graph so it can be freed on error
+                new_objs[i] = lean_box(0);
+                todo.push_back({src_objs[i], &new_objs[i]});
+            }
+        } else {
+            switch (tag) {
+            case LeanArray: {
+                size_t sz = lean_array_size(src);
+                // shrinking the capacity does not violate the spec,
+                // as capacities are not observable by Lean code
+                new_o = lean_alloc_array(sz, sz);
+                object ** src_elems = lean_array_cptr(src);
+                object ** new_elems = lean_array_cptr(new_o);
+                for (size_t i = 0; i < sz; i++) {
+                    new_elems[i] = lean_box(0);
+                    todo.push_back({src_elems[i], &new_elems[i]});
+                }
+                break;
+            }
+            case LeanScalarArray: {
+                size_t sz = lean_sarray_size(src);
+                unsigned elem_sz = lean_sarray_elem_size(src);
+                new_o = lean_alloc_sarray(elem_sz, sz, sz);
+                memcpy(lean_sarray_cptr(new_o), lean_sarray_cptr(src), elem_sz * sz);
+                break;
+            }
+            case LeanString: {
+                size_t sz = lean_string_size(src);
+                new_o = lean_alloc_string(sz, sz, lean_string_len(src));
+                memcpy(lean_to_string(new_o)->m_data, lean_to_string(src)->m_data, sz);
+                break;
+            }
+            case LeanMPZ:
+                new_o = alloc_mpz(mpz_value(src));
+                break;
+            case LeanClosure: {
+                unsigned num_fixed = lean_closure_num_fixed(src);
+                // the code pointer `m_fun` is shared with the input; only captured values are copied
+                new_o = lean_alloc_closure(lean_closure_fun(src), lean_closure_arity(src), num_fixed);
+                object ** src_args = lean_closure_arg_cptr(src);
+                object ** new_args = lean_closure_arg_cptr(new_o);
+                for (unsigned i = 0; i < num_fixed; i++) {
+                    new_args[i] = lean_box(0);
+                    todo.push_back({src_args[i], &new_args[i]});
+                }
+                break;
+            }
+            case LeanExternal:
+                lean_dec(root);
+                return io_result_mk_error("external objects cannot be copied");
+            case LeanThunk: {
+                object * v = lean_to_thunk(src)->m_value.load(std::memory_order_acquire);
+                if (!v) {
+                    lean_dec(root);
+                    return io_result_mk_error("only evaluated Thunks can be copied");
+                }
+                new_o = lean_thunk_pure(lean_box(0));
+                todo.push_back({v, reinterpret_cast<object **>(&lean_to_thunk(new_o)->m_value)});
+                break;
+            }
+            case LeanTask:
+                new_o = copy_finished_task(lean_to_task(src));
+                if (!new_o) {
+                    lean_dec(root);
+                    return io_result_mk_error("only finished Tasks can be copied");
+                }
+                break;
+            case LeanPromise: {
+                // We must copy the nested task eagerly rather than leaving it to the next iteration,
+                // since a Promise object cannot have a lean_box(0) "hole" in the task slot
+                // (deallocation would crash if it did).
+                object * src_t = reinterpret_cast<object *>(lean_to_promise(src)->m_result);
+                object * new_t;
+                // The nested task may be shared in the object graph.
+                auto it_t = copies.find(src_t);
+                if (it_t != copies.end()) {
+                    new_t = it_t->second;
+                    lean_inc(new_t);
+                } else {
+                    new_t = copy_finished_task(lean_to_task(src_t));
+                    if (!new_t) {
+                        lean_dec(root);
+                        return io_result_mk_error("only resolved Promises can be copied");
+                    }
+                    copies.insert({src_t, new_t});
+                }
+
+                new_o = lean_alloc_small_object(sizeof(lean_promise_object));
+                lean_set_st_header(new_o, LeanPromise, 0);
+                lean_to_promise(new_o)->m_result = lean_to_task(new_t);
+                break;
+            }
+            case LeanRef:
+                lean_dec(root);
+                return io_result_mk_error("Refs cannot be copied");
+            default:
+                lean_internal_panic_unreachable();
+            }
+        }
+        copies.insert({src, new_o});
+        *slot = new_o;
+    }
+    return lean_io_result_mk_ok(root);
+}
+
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
 #include <sanitizer/lsan_interface.h>
@@ -1631,7 +1869,27 @@ extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
     }
 }
 
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+// Connects each closed standard stream to the null device. Otherwise the next descriptor to be opened,
+// such as one of the event loop's, would take its number and be read, written and passed on to child
+// processes as that stream.
+static void open_closed_standard_streams() {
+    for (int fd = STDIN_FILENO; fd <= STDERR_FILENO; fd++) {
+        if (fcntl(fd, F_GETFD) == -1 && errno == EBADF) {
+            // The lowest free descriptor is `fd`, unless another thread opens or closes one meanwhile.
+            int null_fd = open("/dev/null", O_RDWR);
+            if (null_fd > STDERR_FILENO) {
+                close(null_fd);
+            }
+        }
+    }
+}
+#endif
+
 void initialize_io() {
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+    open_closed_standard_streams();
+#endif
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

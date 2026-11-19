@@ -57,7 +57,7 @@ error: unsolved goals
 #guard_msgs in example : True := by my_tactic +x
 
 /--
-error: Structure `MyTacticConfig` does not have a field named `w`
+error: Invalid configuration option `w` for `MyTacticConfig`
 ---
 info: config is { x := 0, y := false }
 ---
@@ -67,7 +67,7 @@ error: unsolved goals
 #guard_msgs in example : True := by my_tactic +w
 
 /--
-error: Field `x` of structure `MyTacticConfig` is not a structure
+error: Invalid configuration option `x.a` for `MyTacticConfig`
 ---
 info: config is { x := 0, y := false }
 ---
@@ -99,6 +99,8 @@ info: config is { toMyTacticConfig := { x := 1, y := true } }
 ---
 info: config is { toMyTacticConfig := { x := 2, y := false } }
 ---
+info: config is { toMyTacticConfig := { x := 2, y := false } }
+---
 info: config is { toMyTacticConfig := { x := 1, y := true } }
 ---
 info: config is { toMyTacticConfig := { x := 22, y := false } }
@@ -109,12 +111,30 @@ example : True := by
   my_tactic' +y
   my_tactic' (x := 1)
   my_tactic' -y (x := 2)
+  my_tactic' (x := 2) -y
   my_tactic' (config := {x := 1, y := true})
   my_tactic' +y (config := {y := false})
   trivial
 
 /-!
-Tactic configurations with hierarchical fields
+Evaluation failure
+-/
+opaque fooNat : Nat := 22
+/--
+error: Could not evaluate the expression:
+  fooNat
+of type `Nat`.
+---
+info: config is { x := 0, y := true }
+-/
+#guard_msgs in
+example : True := by
+  my_tactic (x := fooNat) +y
+  trivial
+
+/-!
+Tactic configurations with hierarchical fields.
+The `toA` parent projections are not made available for use.
 -/
 
 structure A where
@@ -131,14 +151,19 @@ elab "ctac" cfg:Parser.Tactic.optConfig : tactic => do
   let config ← elabC cfg
   logInfo m!"config is {repr config}"
 
-/--
-info: config is { b := { toA := { x := false } } }
----
-info: config is { b := { toA := { x := false } } }
--/
+/-- info: config is { b := { toA := { x := false } } } -/
 #guard_msgs in
 example : True := by
   ctac -b.x
+  trivial
+
+/--
+error: Invalid configuration option `b.toA.x` for `C`
+---
+info: config is { b := { toA := { x := true } } }
+-/
+#guard_msgs in
+example : True := by
   ctac -b.toA.x
   trivial
 
@@ -147,7 +172,7 @@ Responds to recovery mode. In these, `ctac` continues even though configuration 
 -/
 
 /--
-error: Structure `C` does not have a field named `x`
+error: Invalid configuration option `x` for `C`
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -159,7 +184,7 @@ example : True := by
   trace_state
   trivial
 
--- Check that when recovery mode is false, no error is reported.
+-- Check that when recovery mode is false, no error is reported, since there was an exception.
 /-- trace: ⊢ True -/
 #guard_msgs in
 example : True := by
@@ -168,7 +193,7 @@ example : True := by
   trivial
 
 /--
-error: Structure `C` does not have a field named `x`
+error: Invalid configuration option `x` for `C`
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -195,11 +220,11 @@ Elaboration errors cause the tactic to use the default configuration.
 
 /--
 error: Type mismatch
-  false
+  "oops"
 has type
-  Bool
+  String
 but is expected to have type
-  B
+  Bool
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -208,7 +233,7 @@ error: unsolved goals
 -/
 #guard_msgs in
 example : True := by
-  ctac (b := false)
+  ctac (b.x := "oops")
   done
 
 
@@ -247,6 +272,31 @@ info: config is { x := 0, y := false }
 -/
 #guard_msgs in my_command (x := true)
 
+/-!
+Testing `Occurrences.pos`
+-/
+/--
+trace: a : Nat
+this : a = 0 + a
+⊢ 0 + a = 0 + a
+-/
+#guard_msgs in
+example (a : Nat) : a = 0 + a := by
+  have : a = 0 + a := by rw [Nat.zero_add]
+  rewrite (occs := .pos [1]) [this]
+  trace_state
+  rfl
+/--
+trace: a : Nat
+this : a = 0 + a
+⊢ 0 + a = 0 + a
+-/
+#guard_msgs in
+example (a : Nat) : a = 0 + a := by
+  have : a = 0 + a := by rw [Nat.zero_add]
+  rewrite (occs := [1]) [this]
+  trace_state
+  rfl
 
 /-!
 Pretty printing of configuration, checking whitespace is present.
@@ -262,3 +312,129 @@ elab "#pp_tac " t:tactic : command => Elab.Command.liftTermElabM do
 #guard_msgs in #pp_tac simp   (contextual := true)   +zeta
 /-- info: simp (contextual := true) +zeta -/
 #guard_msgs in #pp_tac simp(contextual := true)+zeta
+
+
+/-!
+Simp user configuration.
+-/
+
+open Meta.Simp Elab.Tactic in
+simproc testUserConfig (_) := fun _ => do
+  let v1 ← getUserConfigOption tactic.simp.user.exampleBool
+  let v2 ← getUserConfigOption tactic.simp.user.exampleNat
+  let v3 ← getUserConfigOption tactic.simp.user.exampleInt
+  let v4 ← getUserConfigOption tactic.simp.user.exampleString
+  logInfo m!"exampleBool: {v1} exampleNat: {v2} exampleInt: {v3} exampleString: {repr v4}"
+  return .continue
+
+/--
+info: exampleBool: false exampleNat: 0 exampleInt: 0 exampleString: ""
+---
+info: exampleBool: true exampleNat: 0 exampleInt: 0 exampleString: ""
+---
+info: exampleBool: false exampleNat: 22 exampleInt: 0 exampleString: ""
+---
+info: exampleBool: false exampleNat: 0 exampleInt: -22 exampleString: ""
+---
+info: exampleBool: false exampleNat: 0 exampleInt: 0 exampleString: "hi"
+---
+info: exampleBool: true exampleNat: 22 exampleInt: -22 exampleString: "hi"
+---
+error: User options are of the form `user.optionName`
+---
+info: exampleBool: false exampleNat: 0 exampleInt: 0 exampleString: ""
+-/
+#guard_msgs in
+example (h : False) : False := by
+  simp -failIfUnchanged
+  simp -failIfUnchanged +user.exampleBool
+  simp -failIfUnchanged (user.exampleNat := 22)
+  simp -failIfUnchanged (user.exampleInt := -22)
+  simp -failIfUnchanged (user.exampleString := "hi")
+  simp -failIfUnchanged +user.exampleBool  (user.exampleNat := 22) (user.exampleInt := -22) (user.exampleString := "hi")
+  simp -failIfUnchanged +user
+  exact h
+
+/-!
+Testing the `derive_eval_expr_instance_using_meta_eval` instance.
+-/
+section
+open Lean.Elab.ConfigEval
+
+structure MetaEvalTest where
+  x : Nat
+  b : Bool
+  f : Nat → Nat
+
+derive_eval_expr_instance_using_meta_eval MetaEvalTest
+
+/-- info: x: 3, b: true, f 10: 12, f 100: 102 -/
+#guard_msgs in
+#eval do
+  let stx ← `({ x := 3, b := true, f := (·+2) })
+  let c ← evalExprWithElab (α := MetaEvalTest) stx
+  logInfo m!"x: {c.x}, b: {c.b}, f 10: {c.f 10}, f 100: {c.f 100}"
+
+/-!
+Testing bare atoms for positive options
+-/
+structure TestBareConfig where
+  only : Bool := false
+  x : Nat := 0
+  deriving Repr
+syntax testBareConfigOnly := &"only"
+syntax testBareConfigCfg := many(testBareConfigOnly <|> Parser.Term.configItem)
+
+declare_command_config_elab elabTestBareConfig TestBareConfig
+
+elab "#test_bare_config" cfg:testBareConfigCfg : command => do
+  let config ← elabTestBareConfig cfg
+  logInfo m!"config is {repr config}"
+
+/-- info: config is { only := false, x := 0 } -/
+#guard_msgs in #test_bare_config
+/-- info: config is { only := true, x := 0 } -/
+#guard_msgs in #test_bare_config only
+/-- info: config is { only := true, x := 0 } -/
+#guard_msgs in #test_bare_config +only
+/-- info: config is { only := true, x := 0 } -/
+#guard_msgs in #test_bare_config (only := true)
+/-- info: config is { only := true, x := 2 } -/
+#guard_msgs in #test_bare_config (x := 2) only
+/-- info: config is { only := true, x := 2 } -/
+#guard_msgs in #test_bare_config only (x := 2)
+
+/-!
+Testing auto-derivations
+-/
+namespace AutoDeriveTest
+
+structure A where
+  n : Nat
+
+inductive B where
+  | ctor1
+  | ctor2 (a : Option A)
+
+structure C where
+  opt1 : List A
+  opt2 : Option (Array B)
+
+open scoped Lean.Elab.ConfigEval
+
+ensure_eval_term_expr_instances C
+
+/-- info: instEvalTermA -/
+#guard_msgs in #synth EvalTerm A
+/-- info: instEvalTermB -/
+#guard_msgs in #synth EvalTerm B
+/-- info: instEvalTermC -/
+#guard_msgs in #synth EvalTerm C
+/-- info: instEvalExprA -/
+#guard_msgs in #synth EvalExpr A
+/-- info: instEvalExprB -/
+#guard_msgs in #synth EvalExpr B
+/-- info: instEvalExprC -/
+#guard_msgs in #synth EvalExpr C
+
+end AutoDeriveTest

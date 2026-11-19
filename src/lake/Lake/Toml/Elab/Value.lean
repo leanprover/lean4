@@ -58,7 +58,7 @@ def elabDecInt (x : TSyntax ``decInt) : CoreM Int := do
   return decodeDecInt <| ← elabLit x "decimal integer"
 
 def decodeMantissa (s : String) : Nat × Nat :=
-  let (m,e) := s.foldl (init := (0,s.length)) fun (m,e) c =>
+  let (m,e) := s.foldl (init := (0,s.lengthAssumingAscii)) fun (m,e) c =>
     match c with
     | '_' => (m,e)
     | '.' => (m,0)

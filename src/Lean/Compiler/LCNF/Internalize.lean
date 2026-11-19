@@ -198,9 +198,9 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
   | .inc fvarId n check persistent k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .inc fvarId n check persistent (← internalizeCode k)
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent objs? k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
-      return .dec fvarId n check persistent (← internalizeCode k)
+      return .dec fvarId n check persistent objs? (← internalizeCode k)
   | .del fvarId k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .del fvarId (← internalizeCode k)
@@ -232,9 +232,9 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
   | .inc fvarId n check offset _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     return .inc fvarId n check offset
-  | .dec fvarId n check offset _ =>
+  | .dec fvarId n check offset objs? _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
-    return .dec fvarId n check offset
+    return .dec fvarId n check offset objs?
   | .del fvarId _ =>
     let .fvar fvarId ← normFVar fvarId | unreachable!
     return .del fvarId

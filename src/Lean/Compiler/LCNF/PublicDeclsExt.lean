@@ -19,8 +19,8 @@ public def mkOrderedDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
     (mkInitial := pure ([], {}))
     (asyncMode := .sync)
     (replay? := some <| fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      newEntries.reverse.foldl (init := s) fun s n =>
+      let newEntries := takeNewEntriesRev newState.1 oldState.1
+      newEntries.foldl (init := s) fun s n =>
         if s.2.contains n then
           s
         else
@@ -29,7 +29,7 @@ public def mkOrderedDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
 /--
 Set of declarations to be exported to other modules; visibility shared by base/mono/IR phases.
 -/
-private builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
+builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 public def isDeclPublic (env : Environment) (declName : Name) : Bool := Id.run do
   if !env.header.isModule then

@@ -21,7 +21,7 @@ We will eventually have to write more efficient proof automation for this module
 The new proof automation should exploit the structure of the generated goals and avoid general purpose tactics
 such as `contradiction`.
 -/
-private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
+def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
     let mut posMap : Std.HashMap Expr FVarId := {}
     let mut negMap : Std.HashMap Expr FVarId := {}
@@ -66,6 +66,8 @@ def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Injecti
       unless forbidden.contains localDecl.fvarId do
         if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
           unless (← isDefEq lhs rhs) do
+            if (← mvarId.closeIfDistinctFloatLits localDecl.toExpr lhs rhs) then
+              return .solved
             let lhs ← whnf lhs
             let rhs ← whnf rhs
             unless lhs.isRawNatLit && rhs.isRawNatLit do

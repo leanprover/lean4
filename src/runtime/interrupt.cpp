@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "runtime/thread.h"
+#include "runtime/alloc.h"
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
 #include "runtime/memory.h"
+#include "runtime/object.h"
 #include "lean/lean.h"
 #include "util/io.h"
 
@@ -16,7 +18,7 @@ namespace lean {
 LEAN_THREAD_VALUE(size_t, g_max_heartbeat, 0);
 LEAN_THREAD_VALUE(size_t, g_heartbeat, 0);
 
-extern "C" LEAN_EXPORT obj_res lean_internal_get_default_max_heartbeat() {
+extern "C" LEAN_EXPORT obj_res lean_internal_get_default_max_heartbeat(obj_arg) {
 #ifdef LEAN_DEFAULT_MAX_HEARTBEAT
     return lean_box(LEAN_DEFAULT_MAX_HEARTBEAT);
 #else
@@ -37,10 +39,11 @@ extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
 
-void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<size_t>(max) * 1000; }
+LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max) :
+    m_max(g_max_heartbeat, max), m_curr(g_heartbeat, 0) {}
 
-scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
-LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
+LEAN_EXPORT scope_restore_num_heartbeats::scope_restore_num_heartbeats() : m_old(get_num_heartbeats()) {}
+LEAN_EXPORT scope_restore_num_heartbeats::~scope_restore_num_heartbeats() { set_heartbeats(m_old); }
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {
@@ -53,17 +56,55 @@ void check_heartbeat() {
         throw_heartbeat_exception();
 }
 
+LEAN_THREAD_VALUE(size_t, g_max_rec_depth, 0);
+LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
+
+/* The kernel re-checks a fully elaborated term from scratch, without the caching, metavariable
+   assignments, and reducibility shortcuts the elaborator uses while building it incrementally. As a
+   result the kernel recurses substantially deeper than the elaborator did for the same term (stdlib
+   `grind`/`simp` proofs check several thousand levels deep). We therefore let the kernel reach a
+   generous multiple of the configured `maxRecDepth` before bailing out, so that code which fits
+   within `maxRecDepth` during elaboration is not rejected by the kernel. */
+static constexpr size_t g_kernel_rec_depth_factor = 16;
+
+/* Scales `max` by `g_kernel_rec_depth_factor`; a limit too large to scale is as good as unlimited. */
+static size_t kernel_rec_depth_limit(size_t max) {
+    if (max > std::numeric_limits<size_t>::max() / g_kernel_rec_depth_factor)
+        return 0;
+    return max * g_kernel_rec_depth_factor;
+}
+
+LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
+    m_max(g_max_rec_depth, kernel_rec_depth_limit(max)), m_curr(g_rec_depth, 0) {}
+
+LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
+    g_rec_depth++;
+    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth) {
+        g_rec_depth--;
+        throw stack_space_exception("type checker");
+    }
+}
+
+LEAN_EXPORT scope_rec_depth::~scope_rec_depth() { g_rec_depth--; }
+
 LEAN_THREAD_VALUE(lean_object *, g_cancel_tk, nullptr);
 
 LEAN_EXPORT scope_cancel_tk::scope_cancel_tk(lean_object * o):flet<lean_object *>(g_cancel_tk, o) {}
 
-/* CancelToken.isSet : @& IO.CancelToken → BaseIO Bool */
-extern "C" lean_obj_res lean_io_cancel_token_is_set(b_lean_obj_arg cancel_tk);
+// `IO.CancelToken` is `structure { promise : IO.Promise Unit; setRef : IO.Ref Bool }`. We read
+// the `Bool` flag (field 1) directly: cheaper than walking the promise's task state, and this
+// is on the hot `Core.checkInterrupted` path. Must stay in sync with the field order in
+// `Init/System/CancelToken.lean`.
+static bool cancel_tk_is_set(lean_object * tk) {
+    lean_object * setRef = lean_ctor_get(tk, 1);
+    return lean_unbox(lean_to_ref(setRef)->m_value) != 0;
+}
 
 void check_interrupted() {
     if (g_cancel_tk) {
-        inc_ref(g_cancel_tk);
-        if (lean_io_cancel_token_is_set(g_cancel_tk) &&
+        // `g_cancel_tk` is owned by the enclosing `scope_cancel_tk`, so it stays alive for the
+        // duration of this call without an explicit `inc_ref`.
+        if (cancel_tk_is_set(g_cancel_tk) &&
             !std::uncaught_exceptions()) {
             throw interrupted();
         }
@@ -77,19 +118,5 @@ void check_system(char const * component_name, bool do_check_interrupted) {
         check_interrupted();
         check_heartbeat();
     }
-}
-
-void sleep_for(unsigned ms, unsigned step_ms) {
-    if (step_ms == 0)
-        step_ms = 1;
-    unsigned rounds = ms / step_ms;
-    chrono::milliseconds c(step_ms);
-    chrono::milliseconds r(ms % step_ms);
-    for (unsigned i = 0; i < rounds; i++) {
-        this_thread::sleep_for(c);
-        check_interrupted();
-    }
-    this_thread::sleep_for(r);
-    check_interrupted();
 }
 }

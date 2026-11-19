@@ -10,10 +10,11 @@ open Lean Doc Elab Term
 
 
 @[doc_code_block]
-def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
+def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.ofList))
 
 @[doc_directive]
-def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
  /--
@@ -114,6 +115,73 @@ def splitSuchThat (p : α → Prop) [DecidablePred p] : List α → (List α × 
       (x :: pre, post)
     else
       ([], x :: xs)
+
+/-!
+Docstrings on definitions by well-founded recursion and `partial_fixpoint` can refer to the
+definition and its parameters, even when the recursion goes through an auxiliary packed definition.
+The auxiliary definition doesn't receive the docstring. This is a regression test for issue #15828.
+-/
+namespace WFRec
+
+#guard_msgs in
+/-- {lean}`g 1 2` -/
+def g : Nat → Nat → Prop
+  | 0, _ => True
+  | n+1, m => g (n/2) m
+termination_by n _ => n
+decreasing_by omega
+
+#guard_msgs in
+/-- {lean}`n` and {lean}`p1` -/
+def p1 (n m : Nat) : Nat := if n < 10 then p1 (n + 1) (m + 1) else m
+
+#guard_msgs in
+/-- {lean}`m` -/
+def p3 (n k m : Nat) : Nat := if n < 10 then p3 (n + 1) (k + 1) m else m
+
+#guard_msgs in
+/-- {lean}`n` -/
+def q (n : Nat) (h : n ≤ 10) : Nat := if h' : n < 10 then q (n + 1) h' else n
+
+#guard_msgs in
+/-- {lean}`t1` -/
+def t1 (n m : Nat) : Nat := if n < 10 then t1 (n + 1) m else m
+
+#guard_msgs in
+/-- {lean}`t2` -/
+def t2 (m n : Nat) : Nat := if n < 10 then t2 m (n + 1) else m
+
+#guard_msgs in
+mutual
+/-- {lean}`isEven n` -/
+def isEven (n : Nat) : Bool := if n = 0 then true else isOdd (n - 1)
+termination_by n
+/-- {lean}`isOdd n` and {lean}`isEven` -/
+def isOdd (n : Nat) : Bool := if n = 0 then false else isEven (n - 1)
+termination_by n
+end
+
+#guard_msgs in
+/-- {lean}`loop n m` -/
+def loop (n m : Nat) : Option Nat := if n = 0 then some m else loop (n + 1) m
+partial_fixpoint
+
+/--
+info: g: true, g._unary: false
+p1: true, p1._unary: false
+isEven: true, isOdd: true, isEven._mutual: false
+loop: true, loop.mutual: false
+-/
+#guard_msgs in
+#eval show Command.CommandElabM Unit from do
+  let env ← getEnv
+  let has (n : Name) : IO Bool := return (← findDocString? env n).isSome
+  IO.println s!"g: {← has ``g}, g._unary: {← has ``g._unary}"
+  IO.println s!"p1: {← has ``p1}, p1._unary: {← has ``p1._unary}"
+  IO.println s!"isEven: {← has ``isEven}, isOdd: {← has ``isOdd}, isEven._mutual: {← has ``isEven._mutual}"
+  IO.println s!"loop: {← has ``loop}, loop.mutual: {← has ``loop.mutual}"
+
+end WFRec
 
 /--
 An induction principle for {name}`Nat.gcd`'s reference implementation via Euclid's algorithm.
@@ -241,6 +309,7 @@ error: Unknown constant `b`
 
 Hint: Insert a fully-qualified name:
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲S̲t̲d̲.̲T̲i̲m̲e̲.̲M̲o̲d̲i̲f̲i̲e̲r̲.̲b̲)̲}`b`
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
 -/
 #guard_msgs in
@@ -309,13 +378,15 @@ error: Unknown attribute `int`
 Hint: Use a known attribute:
   • ini̲t
   • i̵n̵e̲x̲t
+  • i̵n̵t̵l̲i̲a̲
 ---
 error: Unknown attribute `samp`
 
 Hint: Use a known attribute:
   • s̵a̵m̵p̵s̲i̲m̲p̲
-  • s̵a̵m̵p̵s̲y̲m̲m̲
   • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵l̲i̲a̲
 ---
 error: Unknown attribute `inlone`
 
@@ -351,7 +422,6 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -370,14 +440,12 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
--/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
-/- Commented out for bootstrapping
 /--
 info:
 
@@ -389,12 +457,16 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
--/
 
 /--
 {syntaxCat}`term`
 -/
 def stxDoc := ()
+
+/--
+The source still locates content whose boundary spaces were stripped: {syntaxCat}` term `
+-/
+def stxDocPadded := ()
 
 /--
 {syntaxCat}`thing`
@@ -565,7 +637,7 @@ def testQualifiedLit := 1
 
 -- {lit} fails when shadowed
 /--
-error: `lit : Type` is not registered as a a role
+error: `lit : Type` is not registered as a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
@@ -584,7 +656,7 @@ end ShadowedBuiltin
 
 open Lean in
 @[doc_role]
-def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 /-! {r}`foo` -/
@@ -593,7 +665,7 @@ namespace ShadowedNonBuiltin
 def r := 15
 
 /--
-error: `r : Nat` is not registered as a a role
+error: `r : Nat` is not registered as a role
 
 Hint: `r` shadows a role. Use the full name of the shadowed role:
   _̲ro̲o̲t̲_̲.̲r̲
@@ -606,7 +678,7 @@ end ShadowedNonBuiltin
 namespace DoubleShadowed
 
 @[doc_role]
-def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def lit (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 namespace Inner
@@ -614,7 +686,7 @@ namespace Inner
 def lit := 5
 
 /--
-error: `lit : Nat` is not registered as a a role
+error: `lit : Nat` is not registered as a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   • l̵i̵t̵D̲o̲u̲b̲l̲e̲S̲h̲a̲d̲o̲w̲e̲d̲.̲l̲i̲t̲
@@ -668,24 +740,30 @@ private def docCodeStr (dc : DocCode) : String :=
 
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.name == name then
-      if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap (findInInline name)
   | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
 
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.name == name then
-      if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
-        #[lb.commands]
-      else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lb : Data.LeanBlock) := val.get? Data.LeanBlock then
+          #[lb.commands]
+        else if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .para inlines => inlines.flatMap (findInInline name)
   | .concat blocks | .blockquote blocks => blocks.flatMap (findInBlock name)
   | .dl items => items.flatMap fun ⟨x, y⟩ => x.flatMap (findInInline name) ++ y.flatMap (findInBlock name)
@@ -754,3 +832,194 @@ info:  <kw>(</kw> <lit kind="num" type="Nat">2</lit>  <kw>*</kw>  <kw>(</kw>
   doc.text.flatMap (findInBlock ``Data.LeanTerm) |>.map docCodeStr |>.forM (IO.println ·)
 
 end HygieneInfoTests
+
+/-!
+Test that the {lit}`{option}` role, when given full {lit}`set_option` syntax, stores the actual
+option name and value in its {lit}`Data.SetOption` display code.
+-/
+
+section SetOptionRoleTests
+open Doc Elab
+
+private partial def findSetOptionInInline : Inline ElabInline → Array DocCode
+  | .other container _ =>
+    if let .custom val := container then
+      if let some (so : Data.SetOption) := val.get? Data.SetOption then
+        #[so.term]
+      else #[]
+    else #[]
+  | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
+    xs.flatMap findSetOptionInInline
+  | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
+
+private partial def findSetOptionInBlock : Block ElabInline ElabBlock → Array DocCode
+  | .para inlines => inlines.flatMap findSetOptionInInline
+  | .concat blocks | .blockquote blocks => blocks.flatMap findSetOptionInBlock
+  | .dl items => items.flatMap fun ⟨x, y⟩ =>
+    x.flatMap findSetOptionInInline ++ y.flatMap findSetOptionInBlock
+  | .ol _ xs | .ul xs => xs.flatMap fun ⟨x⟩ => x.flatMap findSetOptionInBlock
+  | .other .. | .code .. => #[]
+
+/--
+Setting options:
+ * {option}`set_option pp.all true`
+ * {option}`set_option maxHeartbeats 1000`
+ * {option}`set_option trace.profiler.output "out.json"`
+-/
+def setOptionDisplay := ()
+
+/--
+info:  <kw>set_option</kw> ⏎
+<option name="pp.all" decl="Lean.pp.all">pp.all</option> ⏎
+<const name="Bool.true" sig="Bool.true : Bool">true</const>
+ <kw>set_option</kw> ⏎
+<option name="maxHeartbeats" decl="Lean.maxHeartbeats">maxHeartbeats</option> ⏎
+<lit kind="num" type=none>1000</lit>
+ <kw>set_option</kw> ⏎
+<option name="trace.profiler.output" decl="Lean.trace.profiler.output">trace.profiler.output</option> ⏎
+<lit kind="str" type=none>"out.json"</lit>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``setOptionDisplay
+    | throwError "expected verso doc"
+  doc.text.flatMap findSetOptionInBlock |>.map docCodeStr |>.forM (IO.println ·)
+
+end SetOptionRoleTests
+
+/-!
+Test that the {lit}`assert` and {lit}`assert'` roles save elaboration info and store highlighted
+{lit}`Data.LeanTerm` payloads (previously they returned bare code with no hover information), and
+that {lit}`assert'` takes the two sides of the equality (and optionally the type at which they are
+compared) as separate code elements, so that it can be used without the {lit}`=` notation.
+-/
+
+section AssertRoleTests
+open Doc Elab
+
+/--
+{assert}`Nat.zero = Nat.zero`
+
+{assert'}[`Nat.zero` `Nat.zero`]
+
+{assert'}[`Nat.zero` `Nat.zero` `Nat`]
+-/
+def assertDisplay := ()
+
+/--
+info:  <const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> ⏎
+<kw>=</kw> ⏎
+<const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const>
+ <const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> = ⏎
+<const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const>
+ <const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> = ⏎
+<const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> : ⏎
+<const name="Nat" sig="Nat : Type">Nat</const>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``assertDisplay
+    | throwError "expected verso doc"
+  doc.text.flatMap (findInBlock ``Data.LeanTerm) |>.map docCodeStr |>.forM (IO.println ·)
+
+/--
+error: Expected Nat.zero = Nat.zero.succ, which is Nat.zero = 1, reducing to Nat.zero = 1 but they are not equal.
+-/
+#guard_msgs in
+/-! {assert'}[`Nat.zero` `Nat.succ Nat.zero`] -/
+
+/--
+error: Expected two or three code arguments: the two sides of the equality, optionally followed by their type, but got 1 arguments.
+-/
+#guard_msgs in
+/-! {assert'}[`Nat.zero`] -/
+
+end AssertRoleTests
+
+/-!
+Test that the {name}`kw` and {name}`kw?` roles store their payloads as {name}`Lean.Doc.Data.Atom`.
+-/
+
+section KwAtomPublicTests
+open Doc Elab
+
+private partial def findAtomInInline : Inline ElabInline → Array (Name × Data.Atom)
+  | .other container _ =>
+    if let .custom val := container then
+      if let some (a : Data.Atom) := val.get? Data.Atom then
+        #[(val.typeName, a)]
+      else #[]
+    else #[]
+  | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
+    xs.flatMap findAtomInInline
+  | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
+
+private partial def findAtomInBlock : Block ElabInline ElabBlock → Array (Name × Data.Atom)
+  | .para inlines => inlines.flatMap findAtomInInline
+  | .concat blocks | .blockquote blocks => blocks.flatMap findAtomInBlock
+  | .dl items => items.flatMap fun ⟨x, y⟩ =>
+    x.flatMap findAtomInInline ++ y.flatMap findAtomInBlock
+  | .ol _ xs | .ul xs => xs.flatMap fun ⟨x⟩ => x.flatMap findAtomInBlock
+  | .other .. | .code .. => #[]
+
+/--
+{kw (cat := term)}`Type`
+-/
+def kwAtomDisplay := ()
+
+/--
+info: container: Lean.Doc.Data.Atom
+category: term
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``kwAtomDisplay
+    | throwError "expected verso doc"
+  for (containerName, atom) in doc.text.flatMap findAtomInBlock do
+    IO.println s!"container: {containerName}"
+    IO.println s!"category: {atom.category}"
+
+end KwAtomPublicTests
+
+/-!
+A role that takes a single code element reports content that is not code at that content, and a
+wrong number of code elements at the arguments, brackets included.
+-/
+
+/--
+@ +2:7...12
+error: Expected code
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[text `Nat.add`]
+-/
+def notCode := 0
+
+/--
+@ +2:6...27
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[`Nat.add` `Nat.mul`]
+-/
+def twoCodes := 0
+
+/--
+@ +2:6...8
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[]
+-/
+def noCode := 0
+
+/-! Whitespace around the code element is not content. -/
+
+#guard_msgs in
+/--
+{name}[ `Nat.add` ]
+-/
+def spaceAroundCode := 0

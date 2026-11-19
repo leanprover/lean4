@@ -268,7 +268,7 @@ public instance [Monad n] [MonadLiftT m n] : MonadLog (MonadLogT m n) where
 
 end MonadLogT
 
-/- A Lake log. An `Array` of log entries. -/
+/-- A Lake log. An `Array` of log entries. -/
 public structure Log where
   entries : Array LogEntry
   deriving Inhabited
@@ -678,5 +678,17 @@ public def captureLog (self : LoggerIO α) : BaseIO (Option α × Log) := do
   (self : LoggerIO α) (logger : LogEntry → BaseIO PUnit := fun _ => pure ())
 : BaseIO (Option α) := do
   (·.toOption) <$> (self.run ⟨logger⟩).toBaseIO
+
+/-- Runs a `LoggerIO` action in `LogIO`, appending entries to its log. -/
+@[inline] public def toLogIO
+  (self : LoggerIO α)
+: LogIO α := fun log => do
+  let startPos := log.endPos
+  let ref ← IO.mkRef log
+  let e ← self.run ⟨fun e => ref.modify (·.push e)⟩ |>.toBaseIO
+  let log ← ref.get
+  match e with
+  | .ok a => return .ok a log
+  | .error .. => return .error startPos log
 
 end LoggerIO

@@ -34,16 +34,12 @@ The kernel sees through irreducible definitions
 @[irreducible] def irred {α : Type} (x : α) : α := x
 
 /--
-error: Tactic `decide` failed for proposition
-  irred 3 = 3
-because its `Decidable` instance
-  instDecidableEqNat (irred 3) 3
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (irred 3 = 3) (instDecidableEqNat (irred 3) 3)
+to `true` or `false`.
 
-After unfolding the instances `instDecidableEqNat` and `Nat.decEq`, reduction got stuck at the `Decidable` instance
-  match h : (irred 3).beq 3 with
-  | true => isTrue ⋯
-  | false => isFalse ⋯
+After unfolding the instances `instDecidableEqNat` and `Nat.decEq`, reduction got stuck at
+  (irred 3).beq 3
 -/
 #guard_msgs in theorem gcd_eq1 : irred 3 = 3 := by decide
 

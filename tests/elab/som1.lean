@@ -1,6 +1,6 @@
 import Lean
 
-open Nat.SOM
+open Nat.Internal.SOM
 
 -- Convenient RArray literals
 elab tk:"#R[" ts:term,* "]" : term => do

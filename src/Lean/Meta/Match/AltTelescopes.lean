@@ -40,7 +40,7 @@ namespace Lean.Meta.Match
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-public partial def forallAltVarsTelescope (altType : Expr) (altInfo : AltParamInfo)
+partial def forallAltVarsTelescope (altType : Expr) (altInfo : AltParamInfo)
   (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) : MetaM α := do
   assert! altInfo.numOverlaps = 0
   if altInfo.hasUnitThunk then
@@ -104,7 +104,7 @@ where
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-public partial def forallAltTelescope (altType : Expr) (altInfo : AltParamInfo) (numDiscrEqs : Nat)
+partial def forallAltTelescope (altType : Expr) (altInfo : AltParamInfo) (numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
   forallAltVarsTelescope altType altInfo fun ys args mask altType => do

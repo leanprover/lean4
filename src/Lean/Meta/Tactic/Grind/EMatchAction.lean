@@ -79,7 +79,8 @@ where
 Creates an `instantiate` tactic that takes the `usedThms` as parameters.
 -/
 def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx : Bool) : GrindM TGrind := goal.withContext do
-  let numDigits ← getNumDigitsForLocalTheoremAnchors goal
+  let entries ← getLocalTheoremAnchors goal
+  let numDigits := getNumDigitsForAnchors entries
   let mut params : Array (TSyntax ``Parser.Tactic.Grind.thm) := #[]
   let mut foundFns : NameSet := {}
   let mut foundLocals : Std.HashSet Grind.Origin := {}
@@ -97,7 +98,15 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx :
           params := params.push param
       | _ => unless foundLocals.contains thm.origin do
         foundLocals := foundLocals.insert thm.origin
-        let anchor ← getAnchor (← inferType thm.proof)
+        let type ← inferType thm.proof
+        let anchor ← getAnchor type
+        /-
+        **Note**: Distinct local theorems may have the same anchor (e.g., they differ only in
+        inaccessible variables). This is not an error: when replaying the generated tactic,
+        all matching theorems are instantiated. We just report an issue flagging the collision.
+        -/
+        if entries.any fun entry => entry.anchor == anchor && entry.e != type then
+          reportIssue! "anchor `#{anchorToString numDigits anchor}` is ambiguous, distinct local theorems have the same anchor{indentExpr type}\nall of them are instantiated by the generated `instantiate` tactic"
         let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
         params := params.push param
   match params.isEmpty, approx with

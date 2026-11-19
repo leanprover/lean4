@@ -6,7 +6,7 @@ open Lean
 def buildSyntheticEnv : Lean.CoreM Unit := do
   for i in [0:100000] do
     let name := s!"Long.And.Hopefully.Unique.Name.foo{i}".toName
-    let env' ← ofExceptKernelException <| (← getEnv).addDeclCore (cancelTk? := none) 0 <| .opaqueDecl {
+    let env' ← ofExceptKernelException <| (← getEnv).addDeclCore (cancelTk? := none) 0 0 <| .opaqueDecl {
       name := name
       levelParams := []
       type := .const `Nat []

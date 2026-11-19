@@ -25,14 +25,19 @@ open System (FilePath)
 
 namespace Lake
 
+@[inline] def fetchOrCreate'
+  (key : BuildKey) (create : FetchM ((Job (BuildData key))))
+: FetchM (Job (BuildData key)) := do
+  (← readThe BuildStoreRef).fetchOrCreate key create
+
 /-- Recursive build function for anything in the Lake build index. -/
-private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
+def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
   match info with
   | .target pkg target => do
     if let some decl := pkg.findTargetDecl? target then
       if h : decl.kind.isAnonymous then
         let key := BuildKey.packageTarget pkg.keyName target
-        fetchOrCreate key do (decl.targetConfig h).fetchFn pkg
+        fetchOrCreate' key do (decl.targetConfig h).fetchFn pkg
       else
         let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩
         let job := Job.pure (kind := kind) <| decl.mkConfigTarget pkg
@@ -45,7 +50,7 @@ private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.k
         let recFetch := config.fetchFn <| cast (by simp [h]) data
         if config.memoize then
           let key := BuildKey.facet target facet
-          fetchOrCreate key recFetch
+          fetchOrCreate' key recFetch
         else
           recFetch
       else
@@ -55,7 +60,7 @@ private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.k
       error s!"invalid target '{info}': unknown facet '{facet}'"
 
 /-- Recursive build function with memoization. -/
-private def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
+def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
  inline <| recFetchAcyclic (β := (Job <| BuildData ·.key)) BuildInfo.key recBuildWithIndex
 
 /--

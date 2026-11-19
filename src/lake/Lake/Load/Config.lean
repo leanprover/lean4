@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.Env
+public import Lake.Config.Lang
 public import Lake.Config.LakeConfig
 public import Lake.Load.Manifest
 
@@ -41,8 +42,16 @@ public structure LoadConfig where
   pkgDir : FilePath := wsDir / relPkgDir
   /-- The package's Lake configuration file (relative to its directory). -/
   relConfigFile : FilePath := defaultConfigFile
-    /-- The full path to the loaded package's Lake configuration file. -/
+  /-- The full path to the loaded package's Lake configuration file. -/
   configFile : FilePath := pkgDir / relConfigFile
+  /-
+  The format of the package's configuration file.
+
+  If {lean}`none`, the format will be determined by the file's extension.
+  -/
+  configLang? : Option ConfigLang := none
+  /-- The package's Lake manifest file (relative to its directory). -/
+  relManifestFile : FilePath := defaultManifestFile
   /-- Additional package overrides for this workspace load. -/
   packageOverrides : Array PackageEntry := #[]
   /-- A set of key-value Lake configuration options (i.e., {lit}`-K` settings). -/
@@ -55,6 +64,7 @@ public structure LoadConfig where
   updateDeps : Bool := false
   /--
   Whether to update the workspace's {lit}`lean-toolchain` when dependencies are updated.
+
   If {lean}`true` and a toolchain update occurs, Lake will need to be restarted.
   -/
   updateToolchain : Bool := true
@@ -68,3 +78,7 @@ namespace LoadConfig
 /-- The package's Lake directory (for Lake temporary files). -/
 @[inline] public def lakeDir (cfg : LoadConfig) : FilePath :=
   cfg.pkgDir / defaultLakeDir
+
+/-- The absolute path where compiled configurations are stored. -/
+@[inline] public def configDir (cfg : LoadConfig) : FilePath :=
+  cfg.wsDir / defaultLakeDir / "config" / toString cfg.pkgIdx

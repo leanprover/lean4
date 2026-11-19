@@ -14,7 +14,7 @@ This module contains utilities for dealing with equalities between constructor a
 in particular about which fields must be the same a-priori for the equality to type check.
 
 Users include (or will include) the injectivity theorems, the per-constructor no-confusion
-construction and deriving type classes lik `BEq`, `DecidableEq` or `Ord`.
+construction and deriving type classes like `BEq`, `DecidableEq` or `Ord`.
 -/
 
 namespace Lean.Meta

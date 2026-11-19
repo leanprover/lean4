@@ -64,7 +64,7 @@ def CompletionItem.resolve
     let docString? ← do
       let .const declName := id
         | pure none
-      findDocString? env declName
+      findMarkdownDocString? declName
     let doc? := do
       let docValue ←
         match docStringPrefix?, docString? with

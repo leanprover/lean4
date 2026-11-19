@@ -8,10 +8,16 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
+public import Lean.DeclKeyedMap
+public import Lean.ScopedEnvExtension
+import Lean.Meta.PPBinder
+import Lean.Util.UnusedBinders
+import Lean.Meta.CollectFVars
 import Init.While
 import Lean.OriginalConstKind
 import Lean.ProjFns
 public section
+
 namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
@@ -71,16 +77,45 @@ abbrev InstanceTree := DiscrTree InstanceEntry
 
 structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
-  instanceNames : PHashMap Name InstanceEntry := {}
+  instanceNames : DeclKeyedMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  For each class, the changes of its instances since the import, newest first. Type class resolution
+  depends on the global instances only through the classes it consults, and records their changes
+  instead of the generation of the whole table (`RecordedDeps.instClassChanges`). Recorded changes are
+  only compared within the module that recorded them, i.e. against states with the same imported
+  instances, so equal changes mean equal instances of the class. Restoring an earlier state (e.g. at
+  the end of a section) restores the changes with it.
+  -/
+  classChanges : PHashMap Name (List InstanceChange) := {}
   deriving Inhabited
 
-def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+/-- The class an instance's key is rooted at; see `Instances.classChanges`. -/
+def InstanceEntry.keyClass (e : InstanceEntry) : Name :=
+  match e.keys[0]? with
+  | some (DiscrTree.Key.const c _) => c
+  | _ => panic! "instance key not rooted at a constant, which `addInstance` rejects"
+
+/-- The changes of the instances of `className` since the import; see `Instances.classChanges`. -/
+def Instances.getClassChanges (d : Instances) (className : Name) : List InstanceChange :=
+  d.classChanges.findD className []
+
+private def Instances.logChange (d : Instances) (className : Name) (c : InstanceChange) : Instances :=
+  { d with classChanges := d.classChanges.insert className (c :: d.getClassChanges className) }
+
+/-- Adds an imported instance, which is not a change; see `Instances.classChanges`. -/
+def addImportedInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
+def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  addImportedInstanceEntry (d.logChange e.keyClass (.add e.val e.priority e.synthOrder)) e
+
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
+  let d := match d.instanceNames.find? declName with
+    | some e => d.logChange e.keyClass (.erase declName)
+    | none => d
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
@@ -88,12 +123,62 @@ def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) :
     throwError "`{.ofConstName declName}` does not have [instance] attribute"
   return d.eraseCore declName
 
+/--
+The global instance entries of a module, preprocessed and stored in its olean so that importing them
+does not require adding each entry (see `registerSimpleScopedEnvExtensionWithSummaries`).
+-/
+structure InstanceModuleSummary where
+  roots   : Array (DiscrTree.Key × DiscrTree.Trie InstanceEntry)
+  /--
+  The names and entries of the named entries owned by the module (see
+  `ImportedDeclKeyedMap.sortOwned`).
+  -/
+  owned   : Array Name × Array InstanceEntry
+  /-- The names and entries of the remaining named entries, in order. -/
+  foreign : Array Name × Array InstanceEntry
+  deriving Inhabited
+
+/-- Preprocesses the global instance entries the current module exports. -/
+def InstanceModuleSummary.ofEntries (env : Environment) (es : Array InstanceEntry) :
+    InstanceModuleSummary := Id.run do
+  let mut owned := #[]
+  let mut foreignNames := #[]
+  let mut foreignEntries := #[]
+  for e in es do
+    if let some n := e.globalName? then
+      if ImportedDeclKeyedMap.isOwned env n then
+        owned := owned.push (n, e)
+      else
+        foreignNames := foreignNames.push n
+        foreignEntries := foreignEntries.push e
+  return {
+    roots := DiscrTree.moduleRootsOf (es.map fun e => (e.keys, e))
+    owned := ImportedDeclKeyedMap.sortOwned owned
+    foreign := (foreignNames, foreignEntries) }
+
+/--
+Adds the global entries of all imported modules to the empty instance set `d`, as
+`addImportedInstanceEntry` would.
+-/
+def InstanceModuleSummary.addImported (d : Instances)
+    (mods : Array (Option InstanceModuleSummary × Array (ScopedEnvExtension.Entry InstanceEntry))) :
+    ImportM Instances := do
+  let idxs := mods.filterMap (·.1)
+  return { d with
+    discrTree := DiscrTree.ofModuleRoots (idxs.map (·.roots))
+    instanceNames.imported := ImportedDeclKeyedMap.ofModules (← read).env.toKernelEnv.constants.map₁
+      (mods.map (·.1.map (·.owned) |>.getD (#[], #[]))) (idxs.map (·.foreign)) }
+
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
-  registerSimpleScopedEnvExtension {
+  registerSimpleScopedEnvExtensionWithSummaries (build := InstanceModuleSummary.ofEntries)
+      (addImported := InstanceModuleSummary.addImported) {
     initial  := {}
     addEntry := addInstanceEntry
-    exportEntry? := fun level e =>
-      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
+    addImportedEntry := addImportedInstanceEntry
+    exportEntry? := fun _ e =>
+      if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
+      else ⟨none, none, some e⟩
+    trackGen := true
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
@@ -229,22 +314,81 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 
   return synthed
 
+def checkImpossibleInstance (cinfo : ConstantInfo): MetaM Unit := do
+  -- Performantly check if any non-instance binder is unused.
+  if cinfo.type.hasUnusedForallBindersWhere fun bi _ => !bi.isInstImplicit then do
+    forallTelescope cinfo.type fun args ty => do
+      -- Find the fvars used in the type and any instance implicit argument, transitively.
+      let getInitialPossibleFVars := do
+        ty.collectFVars
+        for arg in args do
+          if (← arg.fvarId!.getBinderInfo).isInstImplicit then
+            /- The fvarIds in the `CollectFVars.State` should be our possible args. As such, we
+            start by adding the instance arguments to the state, rather than computing the
+            dependencies of their types. -/
+            modifyThe CollectFVars.State (·.add arg.fvarId!)
+      let possibleFVars ← (·.2) <$> getInitialPossibleFVars.run {}
+      -- Transitively include dependencies.
+      let possibleFVars ← possibleFVars.addDependencies
+      let mut impossibleArgMsgs := #[]
+      for arg in args, i in 1...* do
+        unless possibleFVars.fvarSet.contains arg.fvarId! do
+          let some binder ← arg.fvarId!.ppAsBinder | continue
+          impossibleArgMsgs := impossibleArgMsgs.push <|
+            indentD m!"argument {i}: `{binder}`"
+      if impossibleArgMsgs.isEmpty then return -- Should not be reachable.
+      let msg := m!"\
+        This instance has {impossibleArgMsgs.size} \
+        argument{if impossibleArgMsgs.size = 1 then "" else "s"} that cannot be \
+        inferred using typeclass synthesis. Specifically\n\
+        {.joinSep impossibleArgMsgs.toList .nil}\n\n\
+        These arguments are not instance-implicit and appear neither in another \
+        instance-implicit argument nor the return type, so they cannot be inferred using \
+        typeclass synthesis."
+      if cinfo.type.hasSorry then logWarning msg else throwError msg
+
+def checkNonClassInstance (c : Expr) : MetaM Unit := do
+  let type ← inferType c
+  forallTelescopeReducing type fun _ target => do
+    unless (← isClass? target).isSome do
+      throwError m!"The declaration `{c}` should not be an instance as its return type `{target}` \
+      is not a type class."
+
+-- This option is registered in Lean.Elab.MutualDef.
+private def warnClassDefReducibility : Lean.Option Bool := {
+  defValue := true,
+  name := `warn.classDefReducibility
+}
+
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
+  let cinfo ← getConstInfo declName
+  -- If there is a sorry, we skip the `NonClassInstance` and `ImpossibleInstance` checks completely
+  unless cinfo.type.hasSorry do
+    checkNonClassInstance c
+    checkImpossibleInstance cinfo
   let keys ← mkInstanceKey c
   let status ← getReducibilityStatus declName
-  unless status matches .reducible | .implicitReducible do
+  if status == .semireducible then do
     let info ← getConstInfo declName
     if info.isDefinition then
-      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[implicit_reducible]`"
+      if warnClassDefReducibility.get (← getOptions) then
+        logWarning m!"Definition `{declName}` of class type is semireducible. \
+Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, \
+this warning can be disabled with `set_option warn.classDefReducibility false`."
     else if wasOriginallyDefn (← getEnv) declName then
       logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
+  -- Instance changes are tracked per class (`Instances.classChanges`), by the key's root constant.
+  unless keys[0]? matches some (DiscrTree.Key.const ..) do
+    throwError "invalid instance `{declName}`, its type does not reduce to an application of a \
+      constant at reducible transparency{indentExpr cinfo.type}"
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 /-
-Adds instance **and** marks it with reducibility status `@[implicit_reducible]`. We use this function
+Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
 to elaborate `instance` command.
 
 **Note**: We used to check whether `declName` had `instance` reducibility by using `isInstance declName`.
@@ -266,7 +410,7 @@ not its transparency status.
 Thus, we added a new transparency setting and set it here.
 -/
 def registerInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  setReducibilityStatus declName .implicitReducible
+  setReducibilityStatus declName .instanceReducible
   addInstance declName attrKind prio
 
 /--
@@ -293,24 +437,34 @@ builtin_initialize
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
   }
 
+/-
+`genRecorded := true` below: resolution records the changes of the classes whose instances it
+reads (`Lean.recordInstClassChanges` in `SynthInstance.getInstances`); the other readers below are
+not called during resolution.
+-/
+
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
-  return Meta.instanceExtension.getState (← getEnv) |>.discrTree
+  return Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.discrTree
+
+/-- The changes of the global instances of `className`; see `Instances.classChanges`. -/
+def getInstanceClassChanges (env : Environment) (className : Name) : List InstanceChange :=
+  Meta.instanceExtension.getState (genRecorded := true) env |>.getClassChanges className
 
 def getErasedInstances : CoreM (PHashSet Name) :=
-  return Meta.instanceExtension.getState (← getEnv) |>.erased
+  return Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.erased
 
 def isInstanceCore (env : Environment) (declName : Name) : Bool :=
-  Meta.instanceExtension.getState env |>.instanceNames.contains declName
+  Meta.instanceExtension.getState (genRecorded := true) env |>.instanceNames.contains declName
 
 def isInstance (declName : Name) : CoreM Bool :=
   return isInstanceCore (← getEnv) declName
 
 def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
-  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  let some entry := Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.instanceNames.find? declName | return none
   return entry.priority
 
 def getInstanceAttrKind? (declName : Name) : CoreM (Option AttributeKind) := do
-  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  let some entry := Meta.instanceExtension.getState (genRecorded := true) (← getEnv) |>.instanceNames.find? declName | return none
   return entry.attrKind
 
 /-! # Default instance support -/
@@ -337,6 +491,10 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
   registerSimplePersistentEnvExtension {
     addEntryFn    := addDefaultInstanceEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
+    exportEntriesFnEx? := some fun env _ entries =>
+      let all := entries.toArray
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.instanceName)
+      { exported, server := exported, «private» := all }
   }
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
@@ -365,7 +523,13 @@ builtin_initialize
 def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
   return defaultInstanceExtension.getState (← getEnv) |>.priorities
 
-def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
-  return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
+def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) := do
+  let env ← getEnv
+  let insts := defaultInstanceExtension.getState env |>.defaultInstances.find? className |>.getD []
+  if env.isExporting then
+    -- private instances must not leak into public scope
+    return insts.filter fun (n, _) => env.contains n
+  else
+    return insts
 
 end Lean.Meta

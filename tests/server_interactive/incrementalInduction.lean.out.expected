@@ -39,6 +39,7 @@ c 2
 c 2.5
 {"version": 1,
  "uri": "file:///incrementalInduction.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,

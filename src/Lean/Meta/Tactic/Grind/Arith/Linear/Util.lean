@@ -11,6 +11,8 @@ import Init.Data.Int.Gcd
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
+open Lean
+
 def getZero : LinearM Expr :=
   return (← getStruct).zero
 
@@ -27,6 +29,10 @@ def isOrderedCommRing : LinearM Bool := do
 
 def isLinearOrder : LinearM Bool :=
   return (← getStruct).isLinearInst?.isSome
+
+/-- Returns `true` if the structure has a `LawfulOrderLT` instance. See `Struct.lawfulOrderLTInst?`. -/
+def hasLawfulLT : LinearM Bool :=
+  return (← getStruct).lawfulOrderLTInst?.isSome
 
 def hasNoNatZeroDivisors : LinearM Bool :=
   return (← getStruct).noNatDivInst?.isSome

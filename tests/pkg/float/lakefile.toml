@@ -1,0 +1,10 @@
+name = "TestFloatCheck"
+version = "0.1.0"
+defaultTargets = ["testfloat-check"]
+
+[[lean_lib]]
+name = "TestFloatCheck"
+
+[[lean_exe]]
+name = "testfloat-check"
+root = "Main"

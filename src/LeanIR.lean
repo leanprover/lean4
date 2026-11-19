@@ -11,16 +11,32 @@ import all Lean.Util.Path
 import all Lean.Environment
 import Lean.Compiler.Options
 import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.ModPkgExt
 
 import all Lean.Compiler.CSimpAttr
 import Lean.Compiler.LCNF.EmitC
 import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.Main
+-- `leanir` uses `lean_initialize_minimal`, which leaves initializing the `Lean`
+-- modules to this module's import closure. These are the modules defining an `@[export]` whose
+-- `@[extern]` counterpart is in that closure but which the closure does not otherwise reach.
+import Lean.Meta.ExprDefEq
+import Lean.Meta.LevelDefEq
+import Lean.Meta.Match.MatchEqs
+import Lean.Elab.PreDefinition.Structural.Eqns
+import Lean.Parser
 
 /-! Lean codegen as a separate process. -/
 
 open Lean Compiler LCNF
+
+/-- Leaner alternative to `.ir` for non-`import all` compilation. -/
+def mkIRSigData (env : Environment) : IO ModuleData := do
+  let data ← mkModuleData env .exported
+  return { data with
+    extraConstNames := getIRExtraConstNames env .exported
+  }
 
 def mkIRData (env : Environment) : IO ModuleData := do
   -- TODO: should we use a more specific/efficient data format for IR?
@@ -41,9 +57,8 @@ def mkIRData (env : Environment) : IO ModuleData := do
   }
 
 def setConfigOption (opts : Options) (arg : String) : IO Options := do
-  if !arg.startsWith "-D" then
+  let some arg := arg.dropPrefix? "-D" |
     throw <| .userError s!"invalid trailing argument `{arg}`, expected argument of the form `-Dopt=val`"
-  let arg := arg.drop "-D".length
   let pos := arg.find '='
   if h : pos.IsAtEnd then
     throw <| .userError "invalid -D parameter, argument must contain '='"
@@ -57,35 +72,40 @@ def setConfigOption (opts : Options) (arg : String) : IO Options := do
 
 public def main (args : List String) : IO UInt32 := do
   let setupFile::irFile::c::optArgs := args | do
-    IO.println s!"usage: leanir <setup.json> <module> <output.ir> <output.c> <-Dopt=val>..."
+    IO.println s!"usage: leanir <setup.json> <output.ir> <output.c> [--stat] <-Dopt=val>..."
     return 1
 
   let setup ← ModuleSetup.load setupFile
   let modName := setup.name
 
+  let mut printStats := false
   let mut opts := setup.options.toOptions
   for optArg in optArgs do
-    opts ← setConfigOption opts optArg
+    if optArg == "--stat" then
+      printStats := true
+    else
+      opts ← setConfigOption opts optArg
   opts := Compiler.compiler.inLeanIR.set opts true
   opts := maxHeartbeats.set opts 0
 
-  --initSearchPathInternal  -- TODO
-  initSearchPath (← getBuildDir)
+  initSearchPathInternal
   -- Provide access to private scope of target module but no others; provide all IR
   let env ← profileitIO "import" opts <| withImporting do
-    let imports := #[{ module := modName, importAll := true, isMeta := true }]
-    -- `private` because inlining may make ext data from private imports transitively required
-    -- no `arts` yet because they are for `exported`
-    let (_, s) ← importModulesCore (globalLevel := .private) /-(arts := setup.importArts)-/ imports |>.run
-    let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => if m.module == modName then { m with irPhases := .runtime } else { m with irPhases := .all } }
+    -- `importAll` so we have access to all private data
+    let imports := #[{ module := modName, importAll := true : Import }]
+    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true)
+      (arts := setup.importArts) imports |>.run
+    let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => { m with irPhases := .runtime } }
     -- level exported because otherwise we would try to load the current module's `.ir`
-    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
+    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts
   let env := env.setMainModule modName
+  let env := env.setModulePackage setup.package?
 
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do
     let s := ext.toEnvExtension.getState env
     let newState ← ext.addImportedFn s.importedEntries { env := env, opts := {} }
-    return ext.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+    -- unlogged: nothing has been recorded against this environment yet
+    return ext.toEnvExtension.setState (asyncMode := .sync) (log := .unlogged) env { s with state := newState }
 
   let env ← initExt Lean.Compiler.CSimp.ext.ext env
   let env ← initExt Meta.instanceExtension.ext env
@@ -127,15 +147,18 @@ public def main (args : List String) : IO UInt32 := do
     modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => e.declNames.foldl (·.insert · e) s) {}))
     for decl in decls do
       for decl in decl.declNames do
-        resumeCompilation decl
+        try
+          resumeCompilation decl (← getOptions)
+        finally
+          addTraceAsMessages
+      for msg in (← Core.getAndEmptyMessageLog).unreported do
+        IO.eprintln (← msg.toString)
   catch e =>
     unless e.isInterrupt do
       logError e.toMessageData
-  finally
-    addTraceAsMessages
 
   let .ok (_, s) := res? | unreachable!
-  let env := s.env
+  let mut env := s.env
 
   for msg in s.messages.unreported do
     IO.eprintln (← msg.toString)
@@ -143,8 +166,11 @@ public def main (args : List String) : IO UInt32 := do
   if s.messages.hasErrors then
    return 1
 
-  -- Make sure to change the module name so we derive a different base address
-  saveModuleData irFile (env.mainModule ++ `ir) (← mkIRData env)
+  -- Save, basing `.ir` on top of `.ir.sig`
+  let irSigFile := (irFile : System.FilePath).addExtension "sig"
+  saveModuleDataParts (env.mainModule ++ `ir) #[
+    (irSigFile, ← mkIRSigData env),
+    (irFile, ← mkIRData env)]
 
   let .ok out ← IO.FS.Handle.mk c .write |>.toBaseIO
     | IO.eprintln s!"failed to create '{c}'"
@@ -155,4 +181,6 @@ public def main (args : List String) : IO UInt32 := do
     out.write data.toUTF8
 
   displayCumulativeProfilingTimes
+  if printStats then
+    env.displayStats
   return 0

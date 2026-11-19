@@ -1,0 +1,104 @@
+{"version": 1,
+ "uri": "file:///hoverMutVarInDiagnostic.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 10, "character": 6}, "end": {"line": 10, "character": 7}},
+   "message": "mutable variable `x` cannot be shadowed",
+   "fullRange":
+   {"start": {"line": 10, "character": 6},
+    "end": {"line": 10, "character": 7}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 15, "character": 2}, "end": {"line": 15, "character": 3}},
+   "message":
+   "Variable `y` cannot be mutated. Only variables declared using `let mut` can be mutated.\n      If you did not intend to mutate but define `y`, consider using `let y` instead",
+   "fullRange":
+   {"start": {"line": 15, "character": 2},
+    "end": {"line": 15, "character": 3}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 3}},
+   "message":
+   "Variable `q` cannot be mutated. Only variables declared using `let mut` can be mutated.\n      If you did not intend to mutate but define `q`, consider using `let q` instead",
+   "fullRange":
+   {"start": {"line": 19, "character": 2},
+    "end": {"line": 19, "character": 3}}}]}
+{"lineRange": {"start": 0, "end": 21}}
+[{"source": "Lean 4",
+  "severity": 1,
+  "range":
+  {"start": {"line": 10, "character": 6}, "end": {"line": 10, "character": 7}},
+  "message":
+  {"append":
+   [{"tag": [{"expr": {"text": "mutable variable `"}}, {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"tag":
+        [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "x"}]}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "` cannot be shadowed"}}, {"text": ""}]}]},
+  "fullRange":
+  {"start": {"line": 10, "character": 6}, "end": {"line": 10, "character": 7}}},
+ {"source": "Lean 4",
+  "severity": 1,
+  "range":
+  {"start": {"line": 15, "character": 2}, "end": {"line": 15, "character": 3}},
+  "message":
+  {"append":
+   [{"tag": [{"expr": {"text": "Variable `"}}, {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"tag":
+        [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "y"}]}},
+      {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"text":
+        "` cannot be mutated. Only variables declared using `let mut` can be mutated."}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "\n"}}, {"text": ""}]},
+    {"tag":
+     [{"expr": {"text": "      If you did not intend to mutate but define `"}},
+      {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"tag":
+        [{"subexprPos": "/", "info": {"__rpcref": "1"}}, {"text": "y"}]}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "`, consider using `let "}}, {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"tag":
+        [{"subexprPos": "/", "info": {"__rpcref": "2"}}, {"text": "y"}]}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "` instead"}}, {"text": ""}]}]},
+  "fullRange":
+  {"start": {"line": 15, "character": 2}, "end": {"line": 15, "character": 3}}},
+ {"source": "Lean 4",
+  "severity": 1,
+  "range":
+  {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 3}},
+  "message":
+  {"append":
+   [{"tag": [{"expr": {"text": "Variable `"}}, {"text": ""}]},
+    {"tag": [{"expr": {"text": "q"}}, {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"text":
+        "` cannot be mutated. Only variables declared using `let mut` can be mutated."}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "\n"}}, {"text": ""}]},
+    {"tag":
+     [{"expr": {"text": "      If you did not intend to mutate but define `"}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "q"}}, {"text": ""}]},
+    {"tag": [{"expr": {"text": "`, consider using `let "}}, {"text": ""}]},
+    {"tag": [{"expr": {"text": "q"}}, {"text": ""}]},
+    {"tag": [{"expr": {"text": "` instead"}}, {"text": ""}]}]},
+  "fullRange":
+  {"start": {"line": 19, "character": 2}, "end": {"line": 19, "character": 3}}}]

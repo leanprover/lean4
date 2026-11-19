@@ -37,7 +37,7 @@ open Nat
 @[simp, grind =] theorem min?_nil [Min α] : ([] : List α).min? = none := rfl
 
 @[simp, grind =]
-public theorem min?_singleton [Min α] {x : α} : [x].min? = some x :=
+theorem min?_singleton [Min α] {x : α} : [x].min? = some x :=
   (rfl)
 
 -- We don't put `@[simp]` on `min?_cons'`,
@@ -52,7 +52,7 @@ theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = some (foldl min x 
   cases xs <;> simp [min?]
 
 @[simp, grind =]
-public theorem isSome_min?_iff [Min α] {xs : List α} : xs.min?.isSome ↔ xs ≠ [] := by
+theorem isSome_min?_iff [Min α] {xs : List α} : xs.min?.isSome ↔ xs ≠ [] := by
   cases xs <;> simp [min?]
 
 @[grind .]
@@ -247,7 +247,7 @@ theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (min : α → α → α)] [S
 @[simp, grind =] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
 
 @[simp, grind =]
-public theorem max?_singleton [Max α] {x : α} : [x].max? = some x :=
+theorem max?_singleton [Max α] {x : α} : [x].max? = some x :=
   (rfl)
 
 -- We don't put `@[simp]` on `max?_cons'`,
@@ -262,7 +262,7 @@ theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = some (foldl max x 
   cases xs <;> simp [max?]
 
 @[simp, grind =]
-public theorem isSome_max?_iff [Max α] {xs : List α} : xs.max?.isSome ↔ xs ≠ [] := by
+theorem isSome_max?_iff [Max α] {xs : List α} : xs.max?.isSome ↔ xs ≠ [] := by
   cases xs <;> simp [max?]
 
 @[grind .]
@@ -362,7 +362,7 @@ theorem max?_eq_some_iff_subtype [Max α] [LE α] {xs : List α}
   · rintro ⟨ha, h⟩
     exact ⟨ha, h⟩
 
-@[deprecated max?_eq_some_iff (since := "2025-08-01")]
+@[deprecated max?_eq_some_iff +typeChanged (since := "2025-08-01")]
 theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ · : α → α → Prop)]
     (le_refl : ∀ a : α, a ≤ a)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b)

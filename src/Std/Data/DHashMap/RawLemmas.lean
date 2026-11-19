@@ -2818,6 +2818,25 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
   simp only [Inter.inter, Membership.mem]
   simp_to_raw using @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty := by
+  simp only [Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_comm _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
+
+@[simp]
+theorem isEmpty_union_inter [EquivBEq α] [LawfulHashable α] {m₃ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    ((m₁ ∪ m₂) ∩ m₃).isEmpty = ((m₁ ∩ m₃).isEmpty && (m₂ ∩ m₃).isEmpty) := by
+  simp only [Union.union, Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_union_inter _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _ ⟨m₃, _⟩
+
+@[simp]
+theorem isEmpty_inter_union [EquivBEq α] [LawfulHashable α] {m₃ : Raw α β}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    (m₁ ∩ (m₂ ∪ m₃)).isEmpty = ((m₁ ∩ m₂).isEmpty && (m₁ ∩ m₃).isEmpty) := by
+  simp only [Union.union, Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_union _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _ ⟨m₃, _⟩
+
 end Inter
 
 namespace Const
@@ -4287,7 +4306,7 @@ theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF)
     (he : k == k') : k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -4510,7 +4529,7 @@ theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β �
 
 theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
     (h : m.WF) (he : k == k') : k' ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
@@ -5226,6 +5245,27 @@ theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c
 theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m ~m ∅ ↔ m.isEmpty :=
   equiv_emptyWithCapacity_iff_isEmpty h
+
+theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂) ~m ∅ ↔ (m₂ ∩ m₁) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter h₂), equiv_empty_iff_isEmpty (h₂.inter h₁),
+    ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
+
+@[simp]
+theorem union_inter_equiv_empty_iff [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ m₃ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    ((m₁ ∪ m₂) ∩ m₃) ~m ∅ ↔ (m₁ ∩ m₃) ~m ∅ ∧ (m₂ ∩ m₃) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty ((h₁.union h₂).inter h₃), equiv_empty_iff_isEmpty (h₁.inter h₃),
+    equiv_empty_iff_isEmpty (h₂.inter h₃), isEmpty_union_inter h₁ h₂ h₃, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_equiv_empty_iff [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ m₃ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    (m₁ ∩ (m₂ ∪ m₃)) ~m ∅ ↔ (m₁ ∩ m₂) ~m ∅ ∧ (m₁ ∩ m₃) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter (h₂.union h₃)), equiv_empty_iff_isEmpty (h₁.inter h₂),
+    equiv_empty_iff_isEmpty (h₁.inter h₃), isEmpty_inter_union h₁ h₂ h₃, Bool.and_eq_true]
 
 theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     emptyWithCapacity c ~m m ↔ m.isEmpty :=

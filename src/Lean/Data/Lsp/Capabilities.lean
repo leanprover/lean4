@@ -65,6 +65,12 @@ structure WorkspaceClientCapabilities where
 
 structure LeanClientCapabilities where
   /--
+  Whether the client supports incremental `textDocument/publishDiagnostics` updates.
+  If `none` or `false`, the server will never set `PublishDiagnosticsParams.isIncremental?`
+  and always report full diagnostic updates that replace the previous one.
+  -/
+  incrementalDiagnosticSupport? : Option Bool := none
+  /--
   Whether the client supports `DiagnosticWith.isSilent = true`.
   If `none` or `false`, silent diagnostics will not be served to the client.
   -/
@@ -83,6 +89,13 @@ structure ClientCapabilities where
   /-- Capabilities for Lean language server extensions. -/
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
+
+def ClientCapabilities.incrementalDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some incrementalDiagnosticSupport := lean.incrementalDiagnosticSupport?
+    | return false
+  return incrementalDiagnosticSupport
 
 def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
   let some lean := c.lean?

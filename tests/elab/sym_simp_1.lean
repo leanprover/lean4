@@ -33,7 +33,7 @@ example : ∀ x, 0 + x + 0 = x := by
   sym_simp [Nat.add_zero, Nat.zero_add, eq_self, forall_true]
 
 example (p q : Prop) (hp : p) : if x + 0 = x then p else q := by
-  sym_simp [Nat.add_zero, eq_self, if_true]
+  sym_simp [Nat.add_zero, eq_self, ite_true]
   exact hp
 
 example (as : Array Int) (i : Nat) (h : 0 + i < as.size) : as[0 + i] = as[i] := by
@@ -137,3 +137,9 @@ def foo (x : Nat) :=
 
 example : foo 0 = true := by
   sym_simp [foo.eq_def, foo.match_1.eq_1, eq_self]
+
+theorem exists_eq_True (a : α) : (∃ x, a = x) = True := by
+  simp
+
+example (b : Nat) : ∃ x, b = x := by
+  sym_simp [exists_eq_True]

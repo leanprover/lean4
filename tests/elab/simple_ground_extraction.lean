@@ -1,4 +1,4 @@
-/-! This test asserts that the compiler is able to succesfully extract certain terms as statically
+/-! This test asserts that the compiler is able to successfully extract certain terms as statically
   initializable values. -/
 
 

@@ -5,7 +5,7 @@ elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
   let rewrite ← Sym.mkSimprocFor (← declNames.getElems.mapM fun s => realizeGlobalConstNoOverload s.raw) Sym.Simp.dischargeSimpSelf
   let methods : Sym.Simp.Methods := {
     pre  := Sym.Simp.simpControl
-    post := Sym.Simp.evalGround.andThen rewrite
+    post := Sym.Simp.evalGround >> rewrite
   }
   liftMetaTactic1 fun mvarId => Sym.SymM.run do
     let mvarId ← Sym.preprocessMVar mvarId

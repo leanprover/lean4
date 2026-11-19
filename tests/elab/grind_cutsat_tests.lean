@@ -8,7 +8,7 @@ example (w x y z : Int) :
   3*w - 2*x + y + z = 7 →
   4*w + x - y - z = 3 →
   w = 2 := by
-cutsat
+  cutsat
 
 abbrev test1 (a b c d e : Int) :=
   1337*a + 424242*b - 23*c + 17*d - 101*e ≤ 12345 →
@@ -26,7 +26,7 @@ trace: [grind.lia.model] a := 101
 #guard_msgs (trace) in
 set_option trace.grind.lia.model true in
 example (a b c d e : Int) : test1 a b c d e  := by
-  (fail_if_success cutsat); sorry
+  (fail_if_success cutsat +verbose); sorry
 
 /-- info: false -/
 #guard_msgs (info) in

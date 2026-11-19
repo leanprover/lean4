@@ -57,11 +57,16 @@ def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (ac
       |>.partition fun (_, _, s) => p ≤ s
     if newAccepted.isEmpty then return accepted
     trace[mepo] m!"Accepted {newAccepted.map fun (n, _, s) => (n, s)}."
+    -- Scores from different iterations are not comparable: each iteration accepts
+    -- against a strictly larger `relevant` set and a higher threshold. We order the
+    -- output by `(iteration, score)`: earlier iterations always rank first, and
+    -- within an iteration we sort by descending score.
+    let newAccepted := newAccepted.qsort (fun (_, _, s₁) (_, _, s₂) => s₁ > s₂)
     accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push { name := n, score := s }) accepted
     candidates := candidates'.map fun (n, c, _) => (n, c)
     relevant := newAccepted.foldl (fun acc (_, ns, _) => acc ++ ns) relevant
     p := p + (1 - p) / c
-  return accepted.qsort (fun a b => a.score > b.score)
+  return accepted
 
 end MePo
 
@@ -76,8 +81,8 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
     pure <| frequencyScore (fun n => frequency.getD n 0)
   else
     pure <| unweightedScore
-  let accept := fun ci => return !isDeniedPremise env ci.name
+  let accept := fun ci =>
+    return !isDeniedPremise env ci.name && wasOriginallyTheorem env ci.name
   let suggestions ← mepo constants score accept config.maxSuggestions p c
-  let suggestions := suggestions
-    |>.reverse  -- we favor constants that appear at the end of `env.constants`
+  -- `mepo` already returns suggestions ordered by `(iteration, score)`.
   return suggestions.take config.maxSuggestions

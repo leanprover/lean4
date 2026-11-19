@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 abbrev M := StateRefT Nat IO
 
 def testM {α} [ToString α] [BEq α] (init : Nat) (expected : α) (x : M α): IO Unit := do

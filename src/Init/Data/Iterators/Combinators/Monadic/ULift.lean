@@ -18,7 +18,7 @@ section ULiftT
 namespace Iterators
 
 /-- `ULiftT.{v, u}` shrinks a monad on `Type max u v` to a monad on `Type u`. -/
-@[expose]  -- for codegen
+@[expose, implicit_reducible]  -- for codegen
 def ULiftT (n : Type max u v → Type v') (α : Type u) := n (ULift.{v} α)
 
 /-- Returns the underlying `n`-monadic representation of a `ULiftT n α` value. -/
@@ -31,7 +31,6 @@ instance {n : Type max u v → Type v'} [Monad n] : Monad.{u} (ULiftT n) where
   pure a := pure (f := n) (ULift.up a)
   bind x f := bind (m := n) (x : n _) fun a => f a.down
 
-@[no_expose]
 instance {n : Type max u v → Type v'} [Monad n] [LawfulMonad n] : LawfulMonad.{u} (ULiftT n) where
   map_const := by simp [Functor.mapConst, Functor.map]
   id_map := by simp [Functor.map]

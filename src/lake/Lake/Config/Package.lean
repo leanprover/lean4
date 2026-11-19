@@ -11,6 +11,7 @@ public import Lake.Config.Script
 public import Lake.Config.ConfigDecl
 public import Lake.Config.Dependency
 public import Lake.Config.PackageConfig
+public import Lake.Config.LakeConfig
 public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
@@ -45,13 +46,17 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := defaultManifestFile
+  relManifestFile : FilePath
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- **For internal use only.** Workspace indices of the resolved direct dependencies of the package. -/
+  depIdxs : Array Nat := #[]
+  /-- **For internal use only.** Resolved direct dependences of the package. -/
+  depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
   targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/
@@ -62,6 +67,8 @@ public structure Package where
   (i.e., on a bare `lake build` of the package).
   -/
   defaultTargets : Array Name := #[]
+  /-- Cache services for the package. -/
+  cacheServices : CacheServiceMap := {}
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
   /--
@@ -157,7 +164,7 @@ public def id? (self : Package) : Option PkgId :=
   if self.bootstrap then none else some <| self.origName.toString (escape := false)
 
 /-- The package version. -/
-@[inline] public def version (self : Package) : LeanVer  :=
+@[inline] public def version (self : Package) : StdVer  :=
   self.config.version
 
 /-- The package's `versionTags` configuration. -/
@@ -254,7 +261,7 @@ public def id? (self : Package) : Option PkgId :=
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] public def remoteUrl? (self : Package) : Option String :=
-  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+  if self.remoteUrl.isEmpty then none else some self.remoteUrl
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] public def buildArchiveFile (self : Package) : FilePath :=
@@ -268,9 +275,17 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def preferReleaseBuild (self : Package) : Bool :=
   self.config.preferReleaseBuild
 
+/-- The package's `downloadCacheService`/`downloadCacheService?` configuration. -/
+@[inline] public def downloadCacheService? (self : Package) : Option CacheServiceName :=
+  self.config.downloadCacheService?.map .ofString
+
 /-- The package's `precompileModules` configuration. -/
 @[inline] public def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
+
+/-- The package's `precompileImports` configuration. -/
+@[inline] public def precompileImports (self : Package) : Bool :=
+  self.config.precompileImports
 
 /-- The package's `moreGlobalServerArgs` configuration. -/
 @[inline] public def moreGlobalServerArgs (self : Package) : Array String :=
@@ -291,6 +306,14 @@ public def id? (self : Package) : Option PkgId :=
 /-- The package's `allowImportAll` configuration. -/
 @[inline] public def allowImportAll (self : Package) : Bool :=
   self.config.allowImportAll
+
+/-- The package's `requiresModuleSystem` configuration. -/
+@[inline] public def requiresModuleSystem (self : Package) : Bool :=
+  self.config.requiresModuleSystem
+
+/-- The package's `allowNonModules` configuration. -/
+@[inline] public def allowNonModules (self : Package) : Bool :=
+  self.config.allowNonModules
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=
@@ -348,6 +371,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir.normalize
 
+/-- **For internal use only.** The directory containing Lean header files in a bootstrap package. -/
+@[inline] public def bootstrapIncludeDir (self : Package) : FilePath :=
+  self.buildDir / "include"
+
 /--
 Where static libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
@@ -386,11 +413,21 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 public def cacheScope (self : Package) : String :=
   self.baseName.toString (escape := false)
 
+/-- **For internal use only.** -/
+@[inline] public def _root_.Lake.Internal.cacheToolchain
+  (pkg : Package) (toolchain : CacheToolchain)
+: CacheToolchain := if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
+
+/-- **For internal use only.** -/
+@[inline] public def _root_.Lake.Internal.cachePlatform
+  (pkg : Package) (platform : CachePlatform)
+: CachePlatform := if pkg.isPlatformIndependent then .none else platform
+
 /-- The cache scope used to identify the package on Reservoir. -/
 def reservoirScope (self : Package) : CacheServiceScope :=
   .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"
 
-/-- The cache scope used to identify the package on Reservoir (if the package is availa ble there). -/
+/-- The cache scope used to identify the package on Reservoir (if the package is available there). -/
 @[inline] public def reservoirScope? (self : Package) : Option CacheServiceScope :=
   if self.scope.isEmpty then none else some self.reservoirScope
 

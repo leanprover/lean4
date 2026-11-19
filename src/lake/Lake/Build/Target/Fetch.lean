@@ -16,7 +16,7 @@ open Lean
 namespace Lake
 
 variable (defaultPkg : Package) (root : PartialBuildKey) in
-private def PartialBuildKey.fetchInCoreAux
+def PartialBuildKey.fetchInCoreAux
   (self : PartialBuildKey) (facetless : Bool := false)
 : FetchM ((key : BuildKey) × Job (BuildData key)) := do
   match self with
@@ -52,7 +52,8 @@ private def PartialBuildKey.fetchInCoreAux
       let job ← (pkg.target target).fetch
       return ⟨key, cast (by simp) job⟩
   | .facet target shortFacet =>
-      let ⟨key, job⟩ ← PartialBuildKey.fetchInCoreAux target false
+      -- Use the resolved target for the facet's build-store key.
+      let ⟨target, job⟩ ← PartialBuildKey.fetchInCoreAux target false
       let kind := job.kind
       if h : kind.isAnonymous then
         error s!"invalid target '{root}': targets of opaque data kinds do not support facets"
@@ -98,7 +99,7 @@ Fetches the target specified by this key, resolving gaps as needed.
   (·.2.toOpaque) <$> fetchInCore defaultPkg self
 
 variable (root : BuildKey) in
-private def BuildKey.fetchCore
+def BuildKey.fetchCore
   (self : BuildKey)
 : FetchM (Job (BuildData self)) :=
   match self with

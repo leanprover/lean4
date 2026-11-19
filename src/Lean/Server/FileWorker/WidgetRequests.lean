@@ -72,12 +72,14 @@ where
   maybeWithoutTopLevelHighlight : Bool → CodeWithInfos → CodeWithInfos
     | true, .tag _ tt => tt
     | _,    tt        => tt
-  ppExprForPopup (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
-    let mut e := e
+  ppExprForPopup (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
     -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
-    if explicit && e.isMVar then
-      if let some e' ← getExprMVarAssignment? e.mvarId! then
-        e := e'
+    if explicit then
+      if let .mvar mvarId := e then
+        if let some e' ← getExprMVarAssignment? mvarId then
+          return ← ppExprForPopupAux e' false
+    ppExprForPopupAux e explicit
+  ppExprForPopupAux (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
     -- When `explicit` is false, keep the top-level tag so that users can also see the explicit version of the term on an additional hover.
     maybeWithoutTopLevelHighlight explicit <$> ppExprTagged e do
       if explicit then
@@ -192,7 +194,7 @@ private def matchEndPos (query : String) (startPos : String.Pos.Raw) : String.Po
   startPos + query
 
 @[specialize]
-private def hightlightStringMatches? (query text : String) (matchPositions : Array String.Pos.Raw)
+private def highlightStringMatches? (query text : String) (matchPositions : Array String.Pos.Raw)
     (highlight : α) (offset : String.Pos.Raw := ⟨0⟩) (mapIdx : Nat → Nat := id) :
     Option (TaggedText α) := Id.run do
   if query.isEmpty || text.isEmpty || matchPositions.isEmpty then
@@ -245,7 +247,7 @@ private def advanceTaggedTextHighlightState (text : String) (highlighted : α) :
   let query := (← get).query
   let p := (← get).p
   let ms := (← get).ms
-  let highlighted? := hightlightStringMatches? query text ms highlighted (offset := p)
+  let highlighted? := highlightStringMatches? query text ms highlighted (offset := p)
     (mapIdx := fun i => ms.size - i - 1)
   updateState text highlighted?.isSome
   return highlighted?.getD (.text text)

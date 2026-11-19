@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Basic
-// Imports: public import Init.Data.List.MinMax import Init.Data.Bool import Init.Data.List.Count import Init.Data.Nat.Lemmas import Init.Data.Nat.Linear import Init.Data.Nat.MinMax import Init.Data.Option.Lemmas import Init.Omega
+// Imports: public import Init.Data.List.MinMax import Init.Data.Bool import Init.Data.List.Count import Init.Data.Nat.Lemmas import Init.Data.Nat.Internal.Linear import Init.Data.Nat.MinMax import Init.Data.Option.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,7 +38,7 @@ lean_object* v_val_6_; lean_object* v___x_7_;
 lean_dec(v_h__1_2_);
 v_val_6_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_val_6_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 1);
 v___x_7_ = lean_apply_1(v_h__2_3_, v_val_6_);
 return v___x_7_;
 }
@@ -61,7 +61,7 @@ lean_object* v_val_15_; lean_object* v___x_16_;
 lean_dec(v_h__1_11_);
 v_val_15_ = lean_ctor_get(v_x_10_, 0);
 lean_inc(v_val_15_);
-lean_dec_ref(v_x_10_);
+lean_dec_ref_known(v_x_10_, 1);
 v___x_16_ = lean_apply_1(v_h__2_12_, v_val_15_);
 return v___x_16_;
 }
@@ -90,7 +90,7 @@ lean_object* v_head_24_; lean_object* v___x_25_;
 lean_dec(v_h__3_20_);
 v_head_24_ = lean_ctor_get(v_x_17_, 0);
 lean_inc(v_head_24_);
-lean_dec_ref(v_x_17_);
+lean_dec_ref_known(v_x_17_, 2);
 v___x_25_ = lean_apply_1(v_h__2_19_, v_head_24_);
 return v___x_25_;
 }
@@ -101,7 +101,7 @@ lean_inc(v_tail_23_);
 lean_dec(v_h__2_19_);
 v_head_26_ = lean_ctor_get(v_x_17_, 0);
 lean_inc(v_head_26_);
-lean_dec_ref(v_x_17_);
+lean_dec_ref_known(v_x_17_, 2);
 v___x_27_ = lean_apply_3(v_h__3_20_, v_head_26_, v_tail_23_, lean_box(0));
 return v___x_27_;
 }
@@ -131,7 +131,7 @@ lean_object* v_head_37_; lean_object* v___x_38_;
 lean_dec(v_h__3_33_);
 v_head_37_ = lean_ctor_get(v_x_30_, 0);
 lean_inc(v_head_37_);
-lean_dec_ref(v_x_30_);
+lean_dec_ref_known(v_x_30_, 2);
 v___x_38_ = lean_apply_1(v_h__2_32_, v_head_37_);
 return v___x_38_;
 }
@@ -142,7 +142,7 @@ lean_inc(v_tail_36_);
 lean_dec(v_h__2_32_);
 v_head_39_ = lean_ctor_get(v_x_30_, 0);
 lean_inc(v_head_39_);
-lean_dec_ref(v_x_30_);
+lean_dec_ref_known(v_x_30_, 2);
 v___x_40_ = lean_apply_3(v_h__3_33_, v_head_39_, v_tail_36_, lean_box(0));
 return v___x_40_;
 }
@@ -168,7 +168,7 @@ v_head_47_ = lean_ctor_get(v_x_41_, 0);
 lean_inc(v_head_47_);
 v_tail_48_ = lean_ctor_get(v_x_41_, 1);
 lean_inc(v_tail_48_);
-lean_dec_ref(v_x_41_);
+lean_dec_ref_known(v_x_41_, 2);
 v_zero_49_ = lean_unsigned_to_nat(0u);
 v_isZero_50_ = lean_nat_dec_eq(v_x_42_, v_zero_49_);
 if (v_isZero_50_ == 1)
@@ -211,7 +211,7 @@ v_head_63_ = lean_ctor_get(v_x_57_, 0);
 lean_inc(v_head_63_);
 v_tail_64_ = lean_ctor_get(v_x_57_, 1);
 lean_inc(v_tail_64_);
-lean_dec_ref(v_x_57_);
+lean_dec_ref_known(v_x_57_, 2);
 v_zero_65_ = lean_unsigned_to_nat(0u);
 v_isZero_66_ = lean_nat_dec_eq(v_x_58_, v_zero_65_);
 if (v_isZero_66_ == 1)
@@ -239,15 +239,17 @@ lean_object* runtime_initialize_Init_Data_List_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Count(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Nat_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -260,7 +262,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_MinMax(builtin);
@@ -285,7 +287,7 @@ lean_object* initialize_Init_Data_List_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Count(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
@@ -306,7 +308,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_MinMax(builtin);

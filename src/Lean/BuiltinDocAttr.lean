@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.InitAttr
+import Lean.DocString.Markdown
 
 public section
 
@@ -14,6 +15,7 @@ namespace Lean
 
 def declareBuiltinDocStringAndRanges (declName : Name) : AttrM Unit := do
   if let some doc ← findSimpleDocString? (← getEnv) declName (includeBuiltin := false) then
+    let doc := doc.removeLeadingSpaces
     declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
   if let some declRanges ← findDeclarationRanges? declName then
     declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])

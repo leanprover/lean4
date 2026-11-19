@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Omega.Core
 public import Lean.Elab.Tactic.FalseOrByContra
-public import Lean.Elab.Tactic.Config
+import Lean.Elab.ConfigEval
 public import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.BuiltinTactic
 import Init.Data.Int.Pow
@@ -251,7 +251,7 @@ where
       let (lc, prf, facts) ← asLinearCombo rhs
       let prf' : OmegaM Expr := do mkEqTrans rw (← prf)
       pure (lc, prf', facts)
-    | none => panic! "Invalid rewrite rule in 'asLinearCombo'"
+    | none => panic! "Invalid rewrite rule in `asLinearCombo`"
   handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
     match n with
     | .fvar h =>

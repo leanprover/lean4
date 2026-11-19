@@ -60,11 +60,7 @@ private def sortedEntries (s : AbstractDeclExtState pu β) (lt : β pu → β pu
 
 private def replayFn (phase : Phase) : ReplayFn (AbstractDeclExtState phase.toPurity β) :=
   fun oldState newState _ otherState =>
-    newState.foldl (init := otherState) fun otherState k v =>
-      if oldState.contains k then
-        otherState
-      else
-        otherState.insert k v
+    PersistentHashMap.foldlNewEntries (·.insert · ·) newState oldState otherState
 
 private def statsFn (state : AbstractDeclExtState pu β) : Format :=
   let numEntries := state.foldl (init := 0) (fun count _ _ => count + 1)
@@ -203,7 +199,7 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option (Decl phase.toP
   match phase with
   | .base => getBaseDecl? declName
   | .mono => getMonoDecl? declName
-  | .impure => throwError "Internal compiler error: getDecl? on impure is unuspported for now"
+  | .impure => throwError "Internal compiler error: getDecl? on impure is unsupported for now"
 
 @[inline]
 def getDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do

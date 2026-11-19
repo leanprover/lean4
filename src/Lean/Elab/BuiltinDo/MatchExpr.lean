@@ -60,6 +60,6 @@ where elabDoMatchExprNoMeta (info : ControlInfo) (discr : Term) (alts : TSyntax 
         doElabToSyntax m!"match_expr else alternative" (ref := elseSeq) (elabDoSeq ⟨elseSeq⟩ dec) fun rhs => do
           let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
           let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 1 (·.setArg 3 rhs)⟩
-          let mγ ← mkMonadicType (← read).doBlockResultType
+          let mγ ← mkMonadApp (← read).doBlockResultType
           Term.elabTerm (← `(match_expr $discr with $alts)) mγ
     elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))

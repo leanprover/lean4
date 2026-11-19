@@ -1,0 +1,4 @@
+length   = 4
+utf8Size = 4
+toUTF8.size = 4
+bytes: 1 97 98 99

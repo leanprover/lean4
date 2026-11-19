@@ -43,7 +43,7 @@ Examples:
 * `(-0b1000 : Int) >>> 1 = -0b0100`
 * `(-0b0111 : Int) >>> 1 = -0b0100`
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def shiftRight : Int → Nat → Int
   | Int.ofNat n, s => Int.ofNat (n >>> s)
   | Int.negSucc n, s => Int.negSucc (n >>> s)
@@ -66,5 +66,13 @@ protected def shiftLeft : Int → Nat → Int
   | Int.negSucc n, s => Int.negSucc (((n + 1) <<< s) - 1)
 
 instance : HShiftLeft Int Nat Int := ⟨.shiftLeft⟩
+
+/--
+The number of trailing zero bits of `i.natAbs`, or zero if `i = 0`.
+
+See `Int.trailingZeros_def` for a simple recursive characterization.
+-/
+@[expose, extern "lean_int_trailing_zeros"]
+def trailingZeros (i : @& Int) : Nat := i.natAbs.trailingZeros
 
 end Int

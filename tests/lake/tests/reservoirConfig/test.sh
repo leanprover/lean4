@@ -3,6 +3,10 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+copy_to_work lakefile.lean expected.json
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repository on each test.
 echo "# SETUP"
@@ -23,7 +27,3 @@ set +x
 # Test that Lake produces the expected Reservoir configuration.
 echo "# TEST"
 test_out_diff expected.json reservoir-config
-
-# Cleanup
-rm -rf .git
-rm -f produced*

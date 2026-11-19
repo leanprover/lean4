@@ -4,7 +4,7 @@ when re-synthesizing instances.
 
 When `cbv` encounters `decide P`, it simplifies the proposition `P`. If `P`
 unfolds (e.g. `IsEven 2` → `∃ k, 2 * k = 2`), `simpDecideCbv` tries to
-synthetize `Decidable` instance for the *unfolded* form. With `open Classical`,
+synthesize `Decidable` instance for the *unfolded* form. With `open Classical`,
 this was picking up `Classical.propDecidable` (which uses `choice`), replacing
 the original computable instance with one that cannot be evaluated.
 

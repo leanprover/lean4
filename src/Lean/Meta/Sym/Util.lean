@@ -7,55 +7,34 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Transform
-import Init.Grind.Util
-import Lean.Meta.WHNF
 import Lean.Util.ForEachExpr
+public import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
+open Lean.Meta.Sym.Internal
 
 /--
-Returns `true` if `declName` is the name of a grind helper declaration that
-should not be unfolded by `unfoldReducible`.
+Similar to `withLocalDecl`, but the free variable passed to `k` is registered in the
+`SymM` share set. Use it when the free variable is substituted into maximally shared
+terms, e.g. via `instantiateRevS`.
 -/
-def isGrindGadget (declName : Name) : Bool :=
-  declName == ``Grind.EqMatch
+public def withLocalDeclS [Monad n] [MonadControlT MetaM n] [MonadLiftT SymM n]
+    (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
+  withLocalDecl name bi type fun x => do k (← (mkFVarS x.fvarId! : SymM Expr))
+
+/-- `withLetDecl` variant that registers the free variable in the share set. See `withLocalDeclS`. -/
+public def withLetDeclS [Monad n] [MonadControlT MetaM n] [MonadLiftT SymM n]
+    (name : Name) (type val : Expr) (k : Expr → n α) (nondep := false) : n α :=
+  withLetDecl name type val (nondep := nondep) fun x => do k (← (mkFVarS x.fvarId! : SymM Expr))
 
 /--
-Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
-Performs a single step.
+Instantiates metavariables and applies `shareCommon`, which maintains the `SymM`
+invariants enabled in the current configuration (see `Sym.Config`).
 -/
-public def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
-  let .const declName _ := e.getAppFn | return .continue
-  unless (← isReducible declName) do return .continue
-  if isGrindGadget declName then return .continue
-  -- See comment at isUnfoldReducibleTarget.
-  if (← getEnv).isProjectionFn declName then return .continue
-  let some v ← unfoldDefinition? e | return .continue
-  return .visit v
-
-def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
-  let env ← getEnv
-  return Option.isSome <| e.find? fun e => Id.run do
-    let .const declName _ := e | return false
-    if getReducibilityStatusCore env declName matches .reducible then
-      -- Remark: it is wasteful to unfold projection functions since
-      -- kernel projections are folded again in the `foldProjs` preprocessing step.
-      return !isGrindGadget declName && !env.isProjectionFn declName
-    else
-      return false
-
-/--
-Unfolds all `reducible` declarations occurring in `e`.
-This is meant as a preprocessing step. It does **not** guarantee maximally shared terms
--/
-public def unfoldReducible (e : Expr) : MetaM Expr := do
-  if !(← isUnfoldReducibleTarget e) then return e
-  Meta.transform e (pre := unfoldReducibleStep)
-
-/--
-Instantiates metavariables, unfold reducible, and applies `shareCommon`.
--/
-def preprocessExpr (e : Expr) : SymM Expr := do
-  shareCommon (← unfoldReducible (← instantiateMVars e))
+public def preprocessExpr (e : Expr) : SymM Expr := do
+  -- This function relies on `shareCommon` to unfold reducible constants, so the
+  -- corresponding check must not have been disabled (e.g., via `withoutShareCommonChecks`).
+  assert! (← getConfig).enforceUnfoldReducible
+  shareCommon (← instantiateMVars e)
 
 /--
 Helper function that removes gaps, instantiate metavariables, and applies `shareCommon`.
@@ -127,5 +106,17 @@ public def normalizeLevels (e : Expr) : CoreM Expr := do
     | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
     | _ => return .continue
   Core.transform e (pre := pre)
+
+public def mkNotS (p : Expr) : SymM Expr := do
+  mkAppS (← mkConstS ``Not) p
+
+public def mkAndS (p q : Expr) : SymM Expr := do
+  mkAppS₂ (← mkConstS ``And) p q
+
+public def mkOrS (p q : Expr) : SymM Expr := do
+  mkAppS₂ (← mkConstS ``Or) p q
+
+public def mkExistsS (u : Level) (α p : Expr) : SymM Expr := do
+  mkAppS₂ (← mkConstS ``Exists [u]) α p
 
 end Lean.Meta.Sym

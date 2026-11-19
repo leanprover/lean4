@@ -16,13 +16,13 @@ import Lake.Load.Lean.Elab
 namespace Lake
 open Toml Lean System PrettyPrinter
 
-private partial def descopeSyntax : Syntax → Syntax
+partial def descopeSyntax : Syntax → Syntax
 | .ident info rawVal val preresolved =>
   .ident info rawVal val.eraseMacroScopes preresolved
 | .node info k args => .node info k <| args.map descopeSyntax
 | stx => stx
 
-private def descopeTSyntax (stx : TSyntax k) : TSyntax k :=
+def descopeTSyntax (stx : TSyntax k) : TSyntax k :=
   ⟨descopeSyntax stx.raw⟩
 
 public def Package.mkConfigString (pkg : Package) (lang : ConfigLang) : LogIO String := do

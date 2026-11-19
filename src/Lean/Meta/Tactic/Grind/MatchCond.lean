@@ -198,8 +198,14 @@ def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Ex
 /--
 Helper function for `isSatisfied`.
 See `isSatisfied`.
+If `matchCond?` is `some c`, then `c` is registered as a parent of each subterm that blocks the
+decision: a subterm whose root is neither a constructor application nor a literal value, at a
+position where the pattern is not a pattern variable. `internalizeMatchCond` registers `c` as a parent
+of the left-hand sides only, but the result also depends on these nested subterms. For example,
+given `∀ n, v = .lit (.nat n) → False` and `v = .lit l`, `c` must be revisited when `l` is merged
+with a constructor application (issue #15697).
 -/
-private partial def isMatchCondFalseHyp (e : Expr) : GoalM Bool := do
+private partial def isMatchCondFalseHyp (e : Expr) (matchCond? : Option Expr := none) : GoalM Bool := do
   let some (_, lhs, rhs) := isEqHEq? e | return false
   isFalse lhs rhs
 where
@@ -221,6 +227,10 @@ where
       unless (← isLitValue rhs) do return false
       return (← normLitValue root.self) != (← normLitValue rhs)
     else
+      -- Pattern variables are loose bound variables in the condition.
+      if let some matchCond := matchCond? then
+        unless rhs.getAppFn.isBVar do
+          registerParent matchCond lhs
       return false
 
 /--
@@ -250,13 +260,16 @@ the following auxiliary `Grind.MatchCond` terms for an application `f a b`:
 
 `isSatisfied` uses the fact that constructor applications and literal values
 are always the root of their equivalence classes.
+It also registers `e` as a parent of the nested subterms blocking the decision
+(see `isMatchCondFalseHyp`).
 -/
 private partial def isSatisfied (e : Expr) : GoalM Bool := do
+  let matchCond := e
   let_expr Grind.MatchCond e ← e | return false
   let mut e := e
   repeat
     let .forallE _ d b _ := e | break
-    if (← isMatchCondFalseHyp d) then
+    if (← isMatchCondFalseHyp d matchCond) then
       trace_goal[grind.debug.matchCond] "satifised{indentExpr e}\nthe following equality is false{indentExpr d}"
       return true
     e := b
@@ -280,7 +293,6 @@ where
     trace_goal[grind.debug.matchCond] "go?: {← inferType h}"
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
-    let target ← (← get).mvarId.getType
     -- We use `shareCommon` here because we may accessing a new expression
     -- created when we infer the type of the `noConfusion` term below
     let lhs ← shareCommon lhs
@@ -298,7 +310,8 @@ where
       let some ctorLhs ← isConstructorApp? root.self | return none
       let some ctorRhs ← isConstructorApp? rhs | return none
       -- See comment on `shareCommon` above.
-      let h ← mkNoConfusion target h
+      -- Recall that `match`-expression conditions always have `False` as their conclusion.
+      let h ← mkNoConfusion (← getFalseExpr) h
       if ctorLhs.name ≠ ctorRhs.name then
         return some h
       else
@@ -310,6 +323,8 @@ where
             return some (mkApp h (← mkLambdaFVars xs hx))
           return none
     else if root.interpreted then
+      -- `rhs` may be a pattern variable, as in `3 ≍ x` from `(3, false) = (x, true)` (issue #16168).
+      unless (← isLitValue rhs) do return none
       if (← normLitValue root.self) != (← normLitValue rhs) then
         let hne ← mkDecideProof (mkNot (← mkEq root.self rhs))
         return some (mkApp hne h)
@@ -317,6 +332,15 @@ where
         return none
     else
       return none
+
+/--
+Returns `true` if `e` looks like a `match`-pattern instance: a metavariable (pattern
+variable), a constructor application, or a literal value.
+-/
+private def isPatternLike (e : Expr) : GoalM Bool := do
+  if e.getAppFn.isMVar then return true
+  if (← isConstructorApp? e).isSome then return true
+  isLitValue e
 
 /--
 Given a `match`-expression condition `e` that is known to be equal to `True`,
@@ -357,11 +381,25 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
       if target then
         let some (α?, lhs, rhs) := isEqHEq? (← inferType arg)
           | return none
-        let lhs' ← go lhs
-        trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
-        unless (← isDefEqD lhs' rhs) do
-          return none
         let isHEq := α?.isSome
+        let rhs ← instantiateMVars rhs
+        let lhs' ← if (← pure !rhs.hasExprMVar <&&> isEqv lhs rhs) then
+          -- The congruence closure already knows that `lhs = rhs`.
+          pure rhs
+        else
+          let lhs' ← go lhs rhs
+          trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
+          /-
+          `rhs` is pattern-like for actual `match`-expression conditions. For hypotheses that
+          merely have the shape of a condition (e.g., `h : a = b → False` where `b` is not a
+          constructor application), `isDefEqD` may trigger arbitrarily expensive reductions
+          trying to decide `a =?= b`. See issue #14441.
+          -/
+          unless (← isPatternLike rhs) do
+            return none
+          unless (← isDefEqD lhs' rhs) do
+            return none
+          pure lhs'
         let some lhsEqLhs' ← if isHEq then proveHEq? lhs lhs' else proveEq? lhs lhs'
           | return none
         unless (← isDefEq arg lhsEqLhs') do
@@ -378,23 +416,25 @@ where
   /--
   Returns a term that is equal to `e`, but containing constructor applications
   and literal values. `e` is the left-hand side of the equations in a `match`-expression
-  condition.
-  Remark: we could use the right-hand side to interrupt the recursion. For example,
-  suppose the equation is `x = ?head :: ?tail`. We only need to show that `x` is equal to
-  some term of the form `a :: as` to satisfy it. This function may return `a₁ :: b :: bs`,
-  which still allows us to satisfy the equation, but may have a bigger proof (e.g.,
-  a proof that `as` is equal to `b::bs`)
+  condition, and `pat` the corresponding pattern. The recursion follows `pat`: it stops at
+  pattern variables, and must not follow the e-graph alone because equivalence classes may be
+  cyclic (e.g., `as = a :: as`, issue #15640).
   -/
-  go (e : Expr) : GoalM Expr := do
+  go (e pat : Expr) : GoalM Expr := do
+    if pat.getAppFn.isMVar then return e
     let root ← getRootENode e
     if root.ctor then
       let ctor := root.self
       let some ctorInfo ← isConstructorApp? ctor | return ctor
+      let some patInfo ← isConstructorApp? pat | return ctor
+      let numArgs := ctorInfo.numParams + ctorInfo.numFields
+      unless ctorInfo.name == patInfo.name && pat.getAppNumArgs == numArgs do return ctor
+      let patArgs := pat.getAppArgs
       let mut ctorArgs := ctor.getAppArgs
       let mut modified := false
-      for i in ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields) do
+      for i in ctorInfo.numParams...numArgs do
         let arg  := ctorArgs[i]!
-        let arg' ← go arg
+        let arg' ← go arg patArgs[i]!
         unless isSameExpr arg arg' do
           ctorArgs := ctorArgs.set! i arg'
           modified := true

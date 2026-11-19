@@ -9,5 +9,7 @@ message(STATUS "LIBUV_LDFLAGS: " ${LIBUV_LDFLAGS})
 message(STATUS "LIBUV_INCLUDE_DIRS: " ${LIBUV_INCLUDE_DIRS})
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(LibUV DEFAULT_MSG LIBUV_FOUND)
+find_package_handle_standard_args(LibUV
+  REQUIRED_VARS LIBUV_FOUND
+  VERSION_VAR LIBUV_VERSION)
 mark_as_advanced(LIBUV_INCLUDE_DIRS LIBUV_LDFLAGS)

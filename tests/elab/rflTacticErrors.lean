@@ -238,9 +238,9 @@ example : true'' = true   := by with_reducible apply_rfl -- Error
 
 /--
 error: Tactic `apply` failed: could not unify the conclusion of 'HEq.refl'
-  @HEq ?α ?a ?α ?a
+  ?a ≍ ?a
 with the goal
-  @HEq Bool true'' Bool true
+  true'' ≍ true
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a
@@ -505,28 +505,24 @@ is not definitionally equal to the right-hand side
 example : S true false  := by with_reducible apply_rfl -- Error
 /--
 error: unsolved goals
-case a
 ⊢ true = true
 -/
 #guard_msgs in
 example : S true true   := by apply_rfl -- Error (left-over goal)
 /--
 error: unsolved goals
-case a
 ⊢ true = true
 -/
 #guard_msgs in
 example : S true true   := by with_reducible apply_rfl -- Error (left-over goal)
 /--
 error: unsolved goals
-case a
 ⊢ false = true
 -/
 #guard_msgs in
 example : S false false := by apply_rfl -- Error (left-over goal)
 /--
 error: unsolved goals
-case a
 ⊢ false = true
 -/
 #guard_msgs in

@@ -16,7 +16,7 @@ def hinjSuffix := "hinj"
 public def mkCtorIdxHInjTheoremNameFor (indName : Name) : Name :=
   (mkCtorIdxName indName).str hinjSuffix
 
-private partial def mkHInjectiveTheorem? (thmName : Name) (indVal : InductiveVal) : MetaM TheoremVal := do
+partial def mkHInjectiveTheorem? (thmName : Name) (indVal : InductiveVal) : MetaM TheoremVal := do
   let us := indVal.levelParams.map mkLevelParam
   let thmType ←
     forallBoundedTelescope indVal.type (indVal.numParams + indVal.numIndices) fun xs1 _ => do
@@ -55,7 +55,7 @@ where
       mvarId.refl
 
 
-builtin_initialize registerReservedNamePredicate fun env n =>
+builtin_initialize registerReservedNamePredicate (· == "hinj") fun env n =>
   match n with
   | .str p "hinj" => (isCtorIdxCore? env p).isSome
   | _ => false

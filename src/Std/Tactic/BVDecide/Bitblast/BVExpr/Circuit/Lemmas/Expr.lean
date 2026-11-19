@@ -21,7 +21,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Cpop
 
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Init.ByCases
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
 @[expose] public section
@@ -87,7 +87,7 @@ theorem Inv_insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig 
       · exact hk
       · simp [heq]
     have : ((cache.insert expr refs).map.get k hk) = cache.map.get k hmem := by
-      unfold Cache.insert
+      simp only [Cache.insert]
       rw [Std.DHashMap.get_insert]
       simp [heq]
     specialize hinv k hmem i hi
@@ -430,7 +430,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       rw [goCache_denote_eq]
       exact hinv
     · rw [← hres]
-      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
+      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz_eq_clzAuxRec]
       rw [denote_blastClz]
       intro idx hidx
       rw [goCache_denote_eq]

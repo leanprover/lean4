@@ -180,13 +180,13 @@ theorem Rxc.IsAlwaysFinite.ofMap [LE α] [LE β] [Rxc.IsAlwaysFinite β] (f : Ma
     [f.PreservesLE] : Rxc.IsAlwaysFinite α where
   finite init hi := by
     obtain ⟨n, hn⟩ := Rxc.IsAlwaysFinite.finite (f.toFun init) (f.toFun hi)
-    exact ⟨n, by simpa [f.succMany?_toFun, Map.PreservesLE.le_iff (f := f)] using hn⟩
+    exact ⟨n, by simpa [f.succMany?_toFun, Map.PreservesLE.le_iff (f := f)] using! hn⟩
 
 theorem Rxo.IsAlwaysFinite.ofMap [LT α] [LT β] [Rxo.IsAlwaysFinite β] (f : Map α β)
     [f.PreservesLT] : Rxo.IsAlwaysFinite α where
   finite init hi := by
     obtain ⟨n, hn⟩ := Rxo.IsAlwaysFinite.finite (f.toFun init) (f.toFun hi)
-    exact ⟨n, by simpa [f.succMany?_toFun, Map.PreservesLT.lt_iff (f := f)] using hn⟩
+    exact ⟨n, by simpa [f.succMany?_toFun, Map.PreservesLT.lt_iff (f := f)] using! hn⟩
 
 theorem Rxi.IsAlwaysFinite.ofMap [Rxi.IsAlwaysFinite β] (f : Map α β) : Rxi.IsAlwaysFinite α where
   finite init := by

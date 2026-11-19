@@ -2,7 +2,7 @@ set_option pp.mvars false
 
 /--
 error: failed to solve universe constraint
-  u =?= max 1 _
+  u =?= 1
 while trying to unify
   Sort u : Type u
 with

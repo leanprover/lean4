@@ -11,9 +11,11 @@ public import Init.Classical
 public import Init.Data.Order.Classes
 public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.Ord
+public import Init.Data.Function
 import Init.Data.Bool
 import Init.Data.Order.FactoriesExtra
 import Init.Data.Order.Lemmas
+import Init.RCases
 
 namespace Std
 
@@ -69,6 +71,17 @@ public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b
     compare a b = .eq ↔ a = b :=
   LawfulEqOrd.compare_eq_iff_eq
 
+public theorem compare_eq_of_lt_iff {α : Type u} [LE α] [LT α] [LawfulOrderLT α] [Ord α]
+    [LawfulOrderOrd α] {a b : α} {o : Ordering} (h₁ : a < b ↔ o = .lt) (h₂ : b < a ↔ o = .gt) :
+    compare a b = o := by
+  cases o with
+  | lt => simp_all [compare_eq_lt]
+  | eq =>
+    rw [Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare, isGE_compare]
+    simp only [reduceCtorEq, iff_false] at h₁ h₂
+    cases (Std.le_total (a := a) (b := b)) <;> simp_all [lt_iff_le_and_not_ge]
+  | gt => simp_all [compare_eq_gt]
+
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where
   le_refl a := by simp
@@ -87,7 +100,7 @@ public theorem IsLinearOrder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderO
 /--
 This lemma derives a `LawfulOrderLT α` instance from a property involving an `Ord α` instance.
 -/
-public instance LawfulOrderLT.of_ord (α : Type u) [Ord α] [LT α] [LE α] [LawfulOrderOrd α]
+public theorem LawfulOrderLT.of_ord (α : Type u) [Ord α] [LT α] [LE α] [LawfulOrderOrd α]
     (lt_iff_compare_eq_lt : ∀ a b : α, a < b ↔ compare a b = .lt) :
     LawfulOrderLT α where
   lt_iff a b := by
@@ -96,7 +109,7 @@ public instance LawfulOrderLT.of_ord (α : Type u) [Ord α] [LT α] [LE α] [Law
 /--
 This lemma derives a `LawfulOrderBEq α` instance from a property involving an `Ord α` instance.
 -/
-public instance LawfulOrderBEq.of_ord (α : Type u) [Ord α] [BEq α] [LE α] [LawfulOrderOrd α]
+public theorem LawfulOrderBEq.of_ord (α : Type u) [Ord α] [BEq α] [LE α] [LawfulOrderOrd α]
     (beq_iff_compare_eq_eq : ∀ a b : α, a == b ↔ compare a b = .eq) :
     LawfulOrderBEq α where
   beq_iff_le_and_ge := by
@@ -105,7 +118,7 @@ public instance LawfulOrderBEq.of_ord (α : Type u) [Ord α] [BEq α] [LE α] [L
 /--
 This lemma derives a `LawfulOrderInf α` instance from a property involving an `Ord α` instance.
 -/
-public instance LawfulOrderInf.of_ord (α : Type u) [Ord α] [Min α] [LE α] [LawfulOrderOrd α]
+public theorem LawfulOrderInf.of_ord (α : Type u) [Ord α] [Min α] [LE α] [LawfulOrderOrd α]
     (compare_min_isLE_iff : ∀ a b c : α,
         (compare a (min b c)).isLE ↔ (compare a b).isLE ∧ (compare a c).isLE) :
     LawfulOrderInf α where
@@ -114,7 +127,7 @@ public instance LawfulOrderInf.of_ord (α : Type u) [Ord α] [Min α] [LE α] [L
 /--
 This lemma derives a `LawfulOrderMin α` instance from a property involving an `Ord α` instance.
 -/
-public instance LawfulOrderMin.of_ord (α : Type u) [Ord α] [Min α] [LE α] [LawfulOrderOrd α]
+public theorem LawfulOrderMin.of_ord (α : Type u) [Ord α] [Min α] [LE α] [LawfulOrderOrd α]
     (compare_min_isLE_iff : ∀ a b c : α,
         (compare a (min b c)).isLE ↔ (compare a b).isLE ∧ (compare a c).isLE)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
@@ -125,7 +138,7 @@ public instance LawfulOrderMin.of_ord (α : Type u) [Ord α] [Min α] [LE α] [L
 /--
 This lemma derives a `LawfulOrderSup α` instance from a property involving an `Ord α` instance.
 -/
-public instance LawfulOrderSup.of_ord (α : Type u) [Ord α] [Max α] [LE α] [LawfulOrderOrd α]
+public theorem LawfulOrderSup.of_ord (α : Type u) [Ord α] [Max α] [LE α] [LawfulOrderOrd α]
     (compare_max_isLE_iff : ∀ a b c : α,
         (compare (max a b) c).isLE ↔ (compare a c).isLE ∧ (compare b c).isLE) :
     LawfulOrderSup α where
@@ -134,7 +147,7 @@ public instance LawfulOrderSup.of_ord (α : Type u) [Ord α] [Max α] [LE α] [L
 /--
 This lemma derives a `LawfulOrderMax α` instance from a property involving an `Ord α` instance.
 -/
-public instance LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [LawfulOrderOrd α]
+public theorem LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [LawfulOrderOrd α]
     (compare_max_isLE_iff : ∀ a b c : α,
         (compare (max a b) c).isLE ↔ (compare a c).isLE ∧ (compare b c).isLE)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
@@ -142,17 +155,23 @@ public instance LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [L
   toLawfulOrderSup := .of_ord α compare_max_isLE_iff
   max_eq_or := max_eq_or
 
-public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
+public theorem min_eq_ite_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
     [LawfulOrderOrd α] [LawfulOrderLeftLeaningMin α] {a b : α} :
     min a b = if (compare a b).isLE then a else b := by
-  open Classical in simp [min_eq_if, isLE_compare]
+  open Classical in simp [min_eq_ite, isLE_compare]
 
-public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
+@[deprecated Std.min_eq_ite_isLE_compare (since := "2026-07-21")]
+public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α} [Std.LawfulOrderOrd α] [Std.LawfulOrderLeftLeaningMin α] {a : α} {b : α} : Min.min a b = if (Ord.compare a b).isLE = Bool.true then a else b := Std.min_eq_ite_isLE_compare
+
+public theorem max_eq_ite_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
     [LawfulOrderOrd α] [LawfulOrderLeftLeaningMax α]
     {a b : α} : max a b = if (compare a b).isGE then a else b := by
-  open Classical in simp [max_eq_if, isGE_compare]
+  open Classical in simp [max_eq_ite, isGE_compare]
 
-private theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] (a b : α) : min a b ≤ min b a := by
+@[deprecated Std.max_eq_ite_isGE_compare (since := "2026-07-21")]
+public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α} [Std.LawfulOrderOrd α] [Std.LawfulOrderLeftLeaningMax α] {a : α} {b : α} : Max.max a b = if (Ord.compare a b).isGE = Bool.true then a else b := Std.max_eq_ite_isGE_compare
+
+theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] (a b : α) : min a b ≤ min b a := by
   apply (LawfulOrderInf.le_min_iff (min a b) b a).2
   rw [And.comm]
   by_cases h : a ≤ b
@@ -163,6 +182,52 @@ private theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [
 
 public instance [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] : Commutative (min : α → α → α) where
   comm a b := by apply le_antisymm <;> simp [min_le_min]
+
+public instance [BEq α] [Ord α] [LE α] [Std.LawfulBEqOrd α] [Std.LawfulOrderOrd α] :
+    Std.LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by
+    rw [← Std.LawfulBEqOrd.compare_eq_iff_beq, ← Ordering.isEq_iff_eq_eq,
+      ← Ordering.isLE_and_isGE_eq, Bool.and_eq_true, Std.LawfulOrderOrd.isGE_compare,
+      Std.LawfulOrderOrd.isLE_compare]
+
+section compareOfLessAndEq
+
+public instance lawfulOrderOrd_compareOfLessAndEq {α : Type u} [LE α] [LT α]
+    [Std.Total (α := α) (· ≤ ·)]
+    [Std.Antisymm (α := α) (· ≤ ·)] [DecidableLT α] [LawfulOrderLT α] [DecidableEq α] :
+    letI : Ord α := ⟨(compareOfLessAndEq · ·)⟩
+    Std.LawfulOrderOrd α := by
+  let : Ord α := ⟨(compareOfLessAndEq · ·)⟩
+  refine ⟨fun a b => ?_, fun a b => ?_⟩
+  · exact isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  · exact isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+
+end compareOfLessAndEq
+
+section Mono
+
+public theorem lt_iff_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Asymm (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
+    {x y : α} : f x < f y ↔ x < y := by
+  refine ⟨fun hab => ?_, hf x y⟩
+  obtain (h | rfl | h) := lt_trichotomy x y
+  · exact h
+  · simp [Std.lt_irrefl] at hab
+  · exact False.elim (absurd hab (Std.not_gt_of_lt (hf _ _ h)))
+
+public theorem injective_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y) :
+    f.Injective := by
+  intro a b hab
+  apply Std.Trichotomous.trichotomous (r := (· < ·)) <;>
+    intro hab' <;> have := hf _ _ hab' <;> simp [hab, Std.lt_irrefl] at this
+
+public theorem inj_of_strictMono [LT α] [Std.Trichotomous (· < · : α → α → Prop)]
+    [LT β] [Std.Irrefl (· < · : β → β → Prop)] {f : α → β} (hf : ∀ x y : α, x < y → f x < f y)
+    {x y : α} : f x = f y ↔ x = y :=
+  ⟨fun h => Std.injective_of_strictMono hf h, (· ▸ rfl)⟩
+
+end Mono
 
 end Std
 

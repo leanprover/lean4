@@ -9,6 +9,7 @@ prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.AdditionalOperations
 public import Init.Data.Array.Perm
+public import Std.Internal.ForIn.Basic
 import Init.Data.List.Pairwise
 import Init.Data.Prod
 
@@ -1393,6 +1394,14 @@ theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   Impl.forIn_eq_forIn_toList (f := f)
+
+@[simp, grind =]
+theorem forIn_toList (c : DTreeMap α β cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (DTreeMap α β cmp) ((a : α) × β a) where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
@@ -2995,6 +3004,20 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     rhs
     rw [← contains_eq_false_iff_not_mem]
   exact Impl.isEmpty_inter_iff t₁.wf t₂.wf
+
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  Impl.isEmpty_inter_comm t₁.wf t₂.wf
+
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  Impl.isEmpty_union_inter t₁.wf t₂.wf t₃.wf
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  Impl.isEmpty_inter_union t₁.wf t₂.wf t₃.wf
 
 end Inter
 
@@ -6106,7 +6129,7 @@ end Equiv
 section Equiv
 
 /-- Implementation detail of the tree map -/
-@[implicit_reducible]
+@[instance_reducible]
 def isSetoid (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) :
     Setoid (Std.DTreeMap α β cmp) where
   r := Equiv
@@ -6123,6 +6146,24 @@ private theorem equiv_iff_equiv : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
 
 theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
   equiv_iff_equiv.trans Impl.equiv_empty_iff_isEmpty
+
+theorem inter_equiv_empty_comm [TransCmp cmp] :
+    (t₁ ∩ t₂) ~m ∅ ↔ (t₂ ∩ t₁) ~m ∅ := by
+  change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
+
+@[simp]
+theorem union_inter_equiv_empty_iff [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    ((t₁ ∪ t₂) ∩ t₃) ~m ∅ ↔ (t₁ ∩ t₃) ~m ∅ ∧ (t₂ ∩ t₃) ~m ∅ := by
+  change ((t₁ ∪ t₂) ∩ t₃) ~m empty ↔ (t₁ ∩ t₃) ~m empty ∧ (t₂ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_union_inter, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_equiv_empty_iff [TransCmp cmp] {t₃ : DTreeMap α β cmp} :
+    (t₁ ∩ (t₂ ∪ t₃)) ~m ∅ ↔ (t₁ ∩ t₂) ~m ∅ ∧ (t₁ ∩ t₃) ~m ∅ := by
+  change (t₁ ∩ (t₂ ∪ t₃)) ~m empty ↔ (t₁ ∩ t₂) ~m empty ∧ (t₁ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_inter_union, Bool.and_eq_true]
 
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   Equiv.comm.trans equiv_empty_iff_isEmpty

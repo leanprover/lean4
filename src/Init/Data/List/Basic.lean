@@ -123,15 +123,6 @@ theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.c
 
 /-! ## Equality -/
 
-/--
-Checks whether two lists have the same length and their elements are pairwise `BEq`. Normally used
-via the `==` operator.
--/
-protected def beq [BEq α] : List α → List α → Bool
-  | [],    []    => true
-  | a::as, b::bs => a == b && List.beq as bs
-  | _,     _     => false
-
 @[simp] theorem beq_nil_nil [BEq α] : List.beq ([] : List α) ([] : List α) = true := rfl
 @[simp] theorem beq_cons_nil [BEq α] {a : α} {as : List α} : List.beq (a::as) [] = false := rfl
 @[simp] theorem beq_nil_cons [BEq α] {a : α} {as : List α} : List.beq [] (a::as) = false := rfl
@@ -279,9 +270,10 @@ Compares lists lexicographically with respect to a comparison on their elements.
 
 The lexicographic order with respect to `lt` is:
 * `[].lex (b :: bs)` is `true`
-* `as.lex [] = false` is `false`
+* `as.lex []` is `false`
 * `(a :: as).lex (b :: bs)` is true if `lt a b` or `a == b` and `lex lt as bs` is true.
 -/
+@[specialize]
 def lex [BEq α] (l₁ l₂ : List α) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
   match l₁, l₂ with
   | [],      _ :: _  => true
@@ -473,8 +465,8 @@ We define the basic functional programming operations on `List`:
 
 /-! ### map -/
 
-@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := rfl
-@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
+@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := id rfl
+@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := id rfl
 
 /-! ### filter -/
 
@@ -488,7 +480,7 @@ Examples:
 * `[1, 2, 5, 2, 7, 7].filter (fun _ => false) = []`
 * `[1, 2, 5, 2, 7, 7].filter (fun _ => true) = [1, 2, 5, 2, 7, 7]`
 -/
-def filter (p : α → Bool) : (l : List α) → List α
+noncomputable def filter (p : α → Bool) : (l : List α) → List α
   | [] => []
   | a::as => match p a with
     | true => a :: filter p as
@@ -531,7 +523,7 @@ noncomputable def filterMap (f : α → Option β) : List α → List β
 
 /--
 Folds a function over a list from the right, accumulating a value starting with `init`. The
-accumulated value is combined with the each element of the list in reverse order, using `f`.
+accumulated value is combined with each element of the list in reverse order, using `f`.
 
 `O(|l|)`. Replaced at runtime with `List.foldrTR`.
 
@@ -540,7 +532,7 @@ Examples:
  * `[1, 2, 3].foldr (toString · ++ ·) "" = "123"`
  * `[1, 2, 3].foldr (s!"({·} {·})") "!" = "(1 (2 (3 !)))"`
 -/
-@[specialize] def foldr (f : α → β → β) (init : β) : (l : List α) → β
+@[specialize] noncomputable def foldr (f : α → β → β) (init : β) : (l : List α) → β
   | []     => init
   | a :: l => f a (foldr f init l)
 
@@ -571,7 +563,7 @@ Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 * `[].reverse = []`
 -/
-@[expose] def reverse (as : List α) : List α :=
+def reverse (as : List α) : List α :=
   reverseAux as []
 
 @[simp, grind =] theorem reverse_nil : reverse ([] : List α) = [] := rfl
@@ -680,7 +672,7 @@ Examples:
  * `List.singleton "green" = ["green"]`.
  * `List.singleton [1, 2, 3] = [[1, 2, 3]]`
 -/
-@[inline, expose] protected def singleton {α : Type u} (a : α) : List α := [a]
+@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
 
 /-! ### flatMap -/
 
@@ -701,7 +693,8 @@ Creates a list that contains `n` copies of `a`.
 * `List.replicate 0 "zero" = []`
 * `List.replicate 2 ' ' = [' ', ' ']`
 -/
-def replicate : (n : Nat) → (a : α) → List α
+@[implicit_reducible]
+noncomputable def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
@@ -712,6 +705,118 @@ def replicate : (n : Nat) → (a : α) → List α
   induction n with
   | zero => simp
   | succ n ih => simp only [ih, replicate_succ, length_cons]
+
+/-! ## Runtime re-implementations of basic `List` operations using `@[csimp]` -/
+
+/-! ### length -/
+
+theorem length_add_eq_lengthTRAux {as : List α} {n : Nat} : as.length + n = as.lengthTRAux n := by
+  induction as generalizing n with
+  | nil  => simp [length, lengthTRAux]
+  | cons a as ih =>
+    simp [length, lengthTRAux, ← ih, Nat.succ_add]
+    rfl
+
+@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
+  apply funext; intro α; apply funext; intro as
+  simp [lengthTR, ← length_add_eq_lengthTRAux]
+
+/-! ### map -/
+
+/--
+Applies a function to each element of the list, returning the resulting list of values.
+
+`O(|l|)`. This is the tail-recursive variant of `List.map`, used in runtime code.
+
+Examples:
+* `[a, b, c].mapTR f = [f a, f b, f c]`
+* `[].mapTR Nat.succ = []`
+* `["one", "two", "three"].mapTR (·.length) = [3, 3, 5]`
+* `["one", "two", "three"].mapTR (·.reverse) = ["eno", "owt", "eerht"]`
+-/
+@[inline] def mapTR (f : α → β) (as : List α) : List β :=
+  loop as []
+where
+  @[specialize] loop : List α → List β → List β
+  | [],    bs => bs.reverse
+  | a::as, bs => loop as (f a :: bs)
+
+theorem mapTR_loop_eq {f : α → β} {as : List α} {bs : List β} :
+    mapTR.loop f as bs = bs.reverse ++ map f as := by
+  induction as generalizing bs with
+  | nil => simp [mapTR.loop, map]
+  | cons a as ih =>
+    simp only [mapTR.loop, map]
+    rw [ih (bs := f a :: bs), reverse_cons, append_assoc]
+    rfl
+
+@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
+  funext fun α => funext fun β => funext fun f => funext fun as => by
+    simp [mapTR, mapTR_loop_eq]
+
+/-! ### filter -/
+
+/--
+Returns the list of elements in `l` for which `p` returns `true`.
+
+`O(|l|)`. This is a tail-recursive version of `List.filter`, used at runtime.
+
+Examples:
+* `[1, 2, 5, 2, 7, 7].filterTR (· > 2)  = [5, 7, 7]`
+* `[1, 2, 5, 2, 7, 7].filterTR (fun _ => false) = []`
+* `[1, 2, 5, 2, 7, 7].filterTR (fun _ => true) = * [1, 2, 5, 2, 7, 7]`
+-/
+@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
+  loop as []
+where
+  @[specialize] loop : List α → List α → List α
+  | [],    acc => acc.reverse
+  | a::as, acc => match p a with
+     | true  => loop as (a::acc)
+     | false => loop as acc
+
+theorem filterTR_loop_eq {p : α → Bool} {as : List α} {bs : List α} :
+    filterTR.loop p as bs = bs.reverse ++ filter p as := by
+  induction as generalizing bs with
+  | nil => simp [filterTR.loop, filter]
+  | cons a as ih =>
+    simp only [filterTR.loop, filter]
+    split <;> simp_all
+
+@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
+  apply funext; intro α; apply funext; intro p; apply funext; intro as
+  simp [filterTR, filterTR_loop_eq]
+
+/-! ### replicate -/
+
+/--
+Creates a list that contains `n` copies of `a`.
+
+This is a tail-recursive version of `List.replicate`.
+
+* `List.replicateTR 5 "five" = ["five", "five", "five", "five", "five"]`
+* `List.replicateTR 0 "zero" = []`
+* `List.replicateTR 2 ' ' = [' ', ' ']`
+-/
+def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
+  let rec loop : Nat → List α → List α
+    | 0, as => as
+    | n+1, as => loop n (a::as)
+  loop n []
+
+theorem replicateTR_loop_replicate_eq {a : α} {m n : Nat} :
+  replicateTR.loop a n (replicate m a) = replicate (n + m) a := by
+  induction n generalizing m with simp [replicateTR.loop]
+  | succ n ih => simp [Nat.succ_add]; exact ih (m := m+1)
+
+theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
+  | 0 => rfl
+  | n+1 => by rw [← replicateTR_loop_replicate_eq, replicate, replicate,
+    replicateTR.loop, replicateTR_loop_eq n, replicateTR_loop_eq n, append_assoc]; rfl
+
+@[csimp] theorem replicate_eq_replicateTR : @List.replicate = @List.replicateTR := by
+  apply funext; intro α; apply funext; intro n; apply funext; intro a
+  exact (replicateTR_loop_replicate_eq (m := 0)).symm
 
 /-! ## Additional functions -/
 
@@ -728,7 +833,29 @@ Examples:
  * `["red", "green", "blue"].leftpad 1 "blank" = ["red", "green", "blue"]`
 -/
 @[simp, grind =]
-def leftpad (n : Nat) (a : α) (l : List α) : List α := replicate (n - length l) a ++ l
+noncomputable def leftpad (n : Nat) (a : α) (l : List α) : List α := replicate (n - length l) a ++ l
+
+
+/--
+Pads `l : List α` on the left with repeated occurrences of `a : α` until it is of length `n`. If `l`
+already has at least `n` elements, it is returned unmodified.
+
+This is a tail-recursive version of `List.leftpad`, used at runtime.
+
+Examples:
+ * `[1, 2, 3].leftPadTR 5 0 = [0, 0, 1, 2, 3]`
+ * `["red", "green", "blue"].leftPadTR 4 "blank" = ["blank", "red", "green", "blue"]`
+ * `["red", "green", "blue"].leftPadTR 3 "blank" = ["red", "green", "blue"]`
+ * `["red", "green", "blue"].leftPadTR 1 "blank" = ["red", "green", "blue"]`
+-/
+@[inline] def leftpadTR (n : Nat) (a : α) (l : List α) : List α :=
+  replicateTR.loop a (n - length l) l
+
+@[csimp] theorem leftpad_eq_leftpadTR : @leftpad = @leftpadTR := by
+  repeat (apply funext; intro)
+  simp [leftpad, leftpadTR, replicateTR_loop_eq]
+
+
 
 
 /--
@@ -768,6 +895,7 @@ Examples:
 * `["grape"].isEmpty = false`
 * `["apple", "banana"].isEmpty = false`
 -/
+@[implicit_reducible]
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
@@ -906,7 +1034,7 @@ Examples:
 * `[a, b, c, d, e].take 3 = [a, b, c]`
 * `[a, b, c, d, e].take 6 = [a, b, c, d, e]`
 -/
-def take : (n : Nat) → (xs : List α) → List α
+noncomputable def take : (n : Nat) → (xs : List α) → List α
   | 0,   _     => []
   | _+1, []    => []
   | n+1, a::as => a :: take n as
@@ -936,8 +1064,8 @@ def drop : (n : Nat) → (xs : List α) → List α
 
 @[simp, grind =] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
-@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
+@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := id rfl
+@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := id rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -959,15 +1087,17 @@ Examples:
 -/
 -- This is only an abbreviation for the operation in terms of `drop` and `take`.
 -- We do not prove properties of extract itself.
-abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
+noncomputable abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
   (l.drop start).take (stop - start)
 
 @[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
 
-set_option linter.missingDocs false in
 @[deprecated extract_eq_take_drop (since := "2026-02-06")]
-def extract_eq_drop_take := @extract_eq_take_drop
+theorem extract_eq_drop_take {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.drop start).take (stop - start) :=
+  extract_eq_take_drop
+
 
 /-! ### takeWhile -/
 
@@ -981,7 +1111,7 @@ Examples:
 * `[7, 6, 6, 5].takeWhile (· > 5) = [7, 6, 6]`
 * `[7, 6, 6, 8].takeWhile (· > 5) = [7, 6, 6, 8]`
 -/
-def takeWhile (p : α → Bool) : (xs : List α) → List α
+noncomputable def takeWhile (p : α → Bool) : (xs : List α) → List α
   | []       => []
   | hd :: tl => match p hd with
    | true  => hd :: takeWhile p tl
@@ -1004,6 +1134,7 @@ Examples:
  * `[8, 3, 2, 4, 2, 7, 4].dropWhile (· < 4) = [8, 3, 2, 4, 2, 7, 4]`
  * `[8, 3, 2, 4, 2, 7, 4].dropWhile (· < 100) = []`
 -/
+@[specialize]
 def dropWhile (p : α → Bool) : List α → List α
   | []   => []
   | a::l => match p a with
@@ -1047,16 +1178,16 @@ Examples:
 * `["tea"].dropLast = []`
 * `["tea", "coffee", "juice"].dropLast = ["tea", "coffee"]`
 -/
-def dropLast {α} : List α → List α
+noncomputable def dropLast {α} : List α → List α
   | []    => []
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := rfl
+@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := (rfl)
+@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := (rfl)
 
 @[simp, grind =] theorem dropLast_cons_cons :
-    (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
+    (x::y::zs).dropLast = x :: (y::zs).dropLast := (rfl)
 
 @[deprecated dropLast_cons_cons (since := "2026-02-26")]
 theorem dropLast_cons₂ : (x::y::zs).dropLast = x :: (y::zs).dropLast := dropLast_cons_cons
@@ -1097,6 +1228,7 @@ inductive Sublist {α} : List α → List α → Prop
   /-- If `l₁` is a subsequence of `l₂`, then `a :: l₁` is a subsequence of `a :: l₂`. -/
   | cons_cons a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
 
+set_option linter.defProp false in
 set_option linter.missingDocs false in
 @[deprecated Sublist.cons_cons (since := "2026-02-26"), match_pattern]
 abbrev Sublist.cons₂ := @Sublist.cons_cons
@@ -1304,7 +1436,7 @@ Examples:
 * `[1, 2, 3, 4, 5].rotateLeft 5 = [1, 2, 3, 4, 5]`
 * `[1, 2, 3, 4, 5].rotateLeft 1 = [2, 3, 4, 5, 1]`
 -/
-def rotateLeft (xs : List α) (i : Nat := 1) : List α :=
+noncomputable def rotateLeft (xs : List α) (i : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
     xs
@@ -1328,7 +1460,7 @@ Examples:
 * `[1, 2, 3, 4, 5].rotateRight 5 = [1, 2, 3, 4, 5]`
 * `[1, 2, 3, 4, 5].rotateRight 1 = [5, 1, 2, 3, 4]`
 -/
-def rotateRight (xs : List α) (i : Nat := 1) : List α :=
+noncomputable def rotateRight (xs : List α) (i : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
     xs
@@ -1417,7 +1549,7 @@ Examples:
 * `[1, 4, 2, 3, 3, 7].replace 3 6 = [1, 4, 2, 6, 3, 7]`
 * `[1, 4, 2, 3, 3, 7].replace 5 6 = [1, 4, 2, 3, 3, 7]`
 -/
-def replace [BEq α] : (l : List α) → (a : α) → (b : α) → List α
+noncomputable def replace [BEq α] : (l : List α) → (a : α) → (b : α) → List α
   | [],    _, _ => []
   | a::as, b, c => match b == a with
     | true  => c::as
@@ -1460,9 +1592,11 @@ Examples:
 ["circle", "square", "triangle"]
 ```
 -/
+@[inline]
 def modifyTailIdx (l : List α) (i : Nat) (f : List α → List α) : List α :=
   go i l
 where
+  @[specialize]
   go : Nat → List α → List α
   | 0, l => f l
   | _+1, [] => []
@@ -1498,7 +1632,8 @@ Examples:
  * `[1, 2, 3].modify 2 (· * 10) = [1, 2, 30]`
  * `[1, 2, 3].modify 3 (· * 10) = [1, 2, 3]`
 -/
-def modify (l : List α) (i : Nat) (f : α → α) : List α :=
+@[inline]
+noncomputable def modify (l : List α) (i : Nat) (f : α → α) : List α :=
   l.modifyTailIdx i (modifyHead f)
 
 /-! ### insert -/
@@ -1529,7 +1664,7 @@ Examples:
  * `["tues", "thur", "sat"].insertIdx 3 "wed" = ["tues", "thur", "sat", "wed"]`
  * `["tues", "thur", "sat"].insertIdx 4 "wed" = ["tues", "thur", "sat"]`
 -/
-def insertIdx (xs : List α) (i : Nat) (a : α) : List α :=
+noncomputable def insertIdx (xs : List α) (i : Nat) (a : α) : List α :=
   xs.modifyTailIdx i (cons a)
 
 /-! ### erase -/
@@ -1544,7 +1679,7 @@ Examples:
 * `[1, 5, 3, 2, 5].erase 5 = [1, 3, 2, 5]`
 * `[1, 5, 3, 2, 5].erase 6 = [1, 5, 3, 2, 5]`
 -/
-protected def erase {α} [BEq α] : List α → α → List α
+protected noncomputable def erase {α} [BEq α] : List α → α → List α
   | [],    _ => []
   | a::as, b => match a == b with
     | true  => as
@@ -1564,9 +1699,9 @@ Examples:
   * `[2, 1, 2, 1, 3, 4].eraseP (· > 2) = [2, 1, 2, 1, 4]`
   * `[2, 1, 2, 1, 3, 4].eraseP (· > 8) = [2, 1, 2, 1, 3, 4]`
 -/
-def eraseP (p : α → Bool) : List α → List α
+noncomputable def eraseP (p : α → Bool) : List α → List α
   | [] => []
-  | a :: l => bif p a then l else a :: eraseP p l
+  | a :: l => if p a then l else a :: eraseP p l
 
 /-! ### eraseIdx -/
 
@@ -1581,14 +1716,14 @@ Examples:
 * `[0, 1, 2, 3, 4].eraseIdx 1 = [0, 2, 3, 4]`
 * `[0, 1, 2, 3, 4].eraseIdx 5 = [0, 1, 2, 3, 4]`
 -/
-def eraseIdx : (l : List α) → (i : Nat) → List α
+noncomputable def eraseIdx : (l : List α) → (i : Nat) → List α
   | [],    _   => []
   | _::as, 0   => as
   | a::as, n+1 => a :: eraseIdx as n
 
-@[simp] theorem eraseIdx_nil : ([] : List α).eraseIdx i = [] := rfl
-@[simp] theorem eraseIdx_cons_zero : (a::as).eraseIdx 0 = as := rfl
-@[simp] theorem eraseIdx_cons_succ : (a::as).eraseIdx (i+1) = a :: as.eraseIdx i := rfl
+@[simp, grind =] theorem eraseIdx_nil : ([] : List α).eraseIdx i = [] := rfl
+@[simp, grind =] theorem eraseIdx_cons_zero : (a::as).eraseIdx 0 = as := rfl
+@[simp, grind =] theorem eraseIdx_cons_succ : (a::as).eraseIdx (i+1) = a :: as.eraseIdx i := rfl
 
 /-! Finding elements -/
 
@@ -1604,6 +1739,7 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 1`
 * `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
 -/
+@[specialize]
 def find? (p : α → Bool) : List α → Option α
   | []    => none
   | a::as => match p a with
@@ -1626,6 +1762,7 @@ Examples:
  * `[7, 6, 5, 8, 1, 2, 6].findSome? (fun x => if x < 5 then some (10 * x) else none) = some 10`
  * `[7, 6, 5, 8, 1, 2, 6].findSome? (fun x => if x < 1 then some (10 * x) else none) = none`
 -/
+@[specialize]
 def findSome? (f : α → Option β) : List α → Option β
   | []    => none
   | a::as => match f a with
@@ -1649,7 +1786,8 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 5) = some 2`
 * `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 1) = none`
 -/
-def findRev? (p : α → Bool) : List α → Option α
+@[specialize]
+noncomputable def findRev? (p : α → Bool) : List α → Option α
   | []    => none
   | a::as => match findRev? p as with
     | some b => some b
@@ -1667,7 +1805,8 @@ Examples:
  * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 5 then some (10 * x) else none) = some 20`
  * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 1 then some (10 * x) else none) = none`
 -/
-def findSomeRev? (f : α → Option β) : List α → Option β
+@[specialize]
+noncomputable def findSomeRev? (f : α → Option β) : List α → Option β
   | []    => none
   | a::as => match findSomeRev? f as with
     | some b => some b
@@ -1687,9 +1826,9 @@ Examples:
   /-- Auxiliary for `findIdx`: `findIdx.go p l n = findIdx p l + n` -/
   @[specialize] go : List α → Nat → Nat
   | [], n => n
-  | a :: l, n => bif p a then n else go l (n + 1)
+  | a :: l, n => if p a then n else go l (n + 1)
 
-@[simp] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
+@[simp, grind =] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
 
 /-! ### idxOf -/
 
@@ -1717,9 +1856,11 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].findIdx (· < 5) = some 4`
 * `[7, 6, 5, 8, 1, 2, 6].findIdx (· < 1) = none`
 -/
+@[inline]
 def findIdx? (p : α → Bool) (l : List α) : Option Nat :=
   go l 0
 where
+  @[specialize]
   go : List α → Nat → Option Nat
   | [], _ => none
   | a :: l, i => if p a then some i else go l (i + 1)
@@ -1750,6 +1891,7 @@ Examples:
 @[inline] def findFinIdx? (p : α → Bool) (l : List α) : Option (Fin l.length) :=
   go l 0 (by simp)
 where
+  @[specialize]
   go : (l' : List α) → (i : Nat) → (h : l'.length + i = l.length) → Option (Fin l.length)
   | [], _, _ => none
   | a :: l, i, h =>
@@ -1789,7 +1931,7 @@ Examples:
   /-- Auxiliary for `countP`: `countP.go p l acc = countP p l + acc`. -/
   @[specialize] go : List α → Nat → Nat
   | [], acc => acc
-  | x :: xs, acc => bif p x then go xs (acc + 1) else go xs acc
+  | x :: xs, acc => if p x then go xs (acc + 1) else go xs acc
 
 /-! ### count -/
 
@@ -1867,7 +2009,7 @@ Returns `true` if `l₁` and `l₂` are permutations of each other. `O(|l₁| * 
 The relation `List.Perm` is a logical characterization of permutations. When the `BEq α` instance
 corresponds to `DecidableEq α`, `isPerm l₁ l₂ ↔ l₁ ~ l₂` (use the theorem `isPerm_iff`).
 -/
-def isPerm [BEq α] : List α → List α → Bool
+noncomputable def isPerm [BEq α] : List α → List α → Bool
   | [], l₂ => l₂.isEmpty
   | a :: l₁, l₂ => l₂.contains a && l₁.isPerm (l₂.erase a)
 
@@ -1886,7 +2028,7 @@ Examples:
 * `[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
-@[suggest_for List.some]
+@[suggest_for List.some, specialize]
 def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
@@ -1906,7 +2048,7 @@ Examples:
 * `[2, 4, 6].all (· % 2 = 0) = true`
 * `[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
-@[suggest_for List.every]
+@[suggest_for List.every, specialize]
 def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p
@@ -1965,7 +2107,7 @@ Examples:
 * `[].zipWith (· + ·) [5, 6] = []`
 * `[x₁, x₂, x₃].zipWith f [y₁, y₂, y₃, y₄] = [f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
-@[specialize] def zipWith (f : α → β → γ) : (xs : List α) → (ys : List β) → List γ
+@[specialize] noncomputable def zipWith (f : α → β → γ) : (xs : List α) → (ys : List β) → List γ
   | x::xs, y::ys => f x y :: zipWith f xs ys
   | _,     _     => []
 
@@ -1988,7 +2130,7 @@ Examples:
 * `["Mon", "Tue", "Wed"].zip [1, 2] = [("Mon", 1), ("Tue", 2)]`
 * `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`
 -/
-def zip : List α → List β → List (Prod α β) :=
+noncomputable def zip : List α → List β → List (Prod α β) :=
   zipWith Prod.mk
 
 @[simp] theorem zip_nil_left : zip ([] : List α) (l : List β)  = [] := rfl
@@ -2007,6 +2149,7 @@ Examples:
 * `[1, 2, 3].zipWithAll Prod.mk [5, 6] = [(some 1, some 5), (some 2, some 6), (some 3, none)]`
 * `[x₁, x₂].zipWithAll f [y] = [f (some x₁) (some y), f (some x₂) none]`
 -/
+@[specialize]
 def zipWithAll (f : Option α → Option β → γ) : List α → List β → List γ
   | [], bs => bs.map fun b => f none (some b)
   | a :: as, [] => (a :: as).map fun a => f (some a) none
@@ -2032,7 +2175,7 @@ Examples:
 * `[(x₁, y₁), (x₂, y₂), (x₃, y₃)].unzip = ([x₁, x₂, x₃], [y₁, y₂, y₃])`
 * `([] : List (Nat × String)).unzip = (([], []) : List Nat × List String)`
 -/
-def unzip : (l : List (α × β)) → List α × List β
+noncomputable def unzip : (l : List (α × β)) → List α × List β
   | []          => ([], [])
   | (a, b) :: t => match unzip t with | (as, bs) => (a::as, b::bs)
 
@@ -2049,12 +2192,26 @@ Examples:
  * `[a, b, c].sum = a + (b + (c + 0))`
  * `[1, 2, 5].sum = 8`
 -/
-def sum {α} [Add α] [Zero α] : List α → α :=
+noncomputable def sum {α} [Add α] [Zero α] : List α → α :=
   foldr (· + ·) 0
 
 @[simp, grind =] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
 @[simp, grind =] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 theorem sum_eq_foldr [Add α] [Zero α] {l : List α} : l.sum = l.foldr (· + ·) 0 := rfl
+
+/--
+Computes the product of the elements of a list.
+
+Examples:
+ * `[a, b, c].prod = a * (b * (c * 1))`
+ * `[1, 2, 5].prod = 10`
+-/
+noncomputable def prod {α} [Mul α] [One α] : List α → α :=
+  foldr (· * ·) 1
+
+@[simp, grind =] theorem prod_nil [Mul α] [One α] : ([] : List α).prod = 1 := rfl
+@[simp, grind =] theorem prod_cons [Mul α] [One α] {a : α} {l : List α} : (a::l).prod = a * l.prod := rfl
+theorem prod_eq_foldr [Mul α] [One α] {l : List α} : l.prod = l.foldr (· * ·) 1 := rfl
 
 /-! ### range -/
 
@@ -2091,14 +2248,14 @@ Examples:
  * `List.range' 0 4 (step := 2) = [0, 2, 4, 6]`
  * `List.range' 3 4 (step := 2) = [3, 5, 7, 9]`
 -/
-def range' : (start len : Nat) → (step : Nat := 1) → List Nat
+noncomputable def range' : (start len : Nat) → (step : Nat := 1) → List Nat
   | _, 0, _ => []
   | s, n+1, step => s :: range' (s+step) n step
 
-@[simp, grind =] theorem range'_zero : range' s 0 step = [] := rfl
-@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+@[simp, grind =] theorem range'_zero : range' s 0 step = [] := (rfl)
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := (rfl)
 -- The following theorem is intentionally not a simp lemma.
-theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := rfl
+theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := (rfl)
 
 /-! ### zipIdx -/
 
@@ -2111,7 +2268,7 @@ Examples:
 * `[a, b, c].zipIdx = [(a, 0), (b, 1), (c, 2)]`
 * `[a, b, c].zipIdx 5 = [(a, 5), (b, 6), (c, 7)]`
 -/
-def zipIdx : (l : List α) → (n : Nat := 0) → List (α × Nat)
+noncomputable def zipIdx : (l : List α) → (n : Nat := 0) → List (α × Nat)
   | [], _ => nil
   | x :: xs, n => (x, n) :: zipIdx xs (n + 1)
 
@@ -2194,7 +2351,7 @@ Examples:
 * `List.intersperse "then" ["walk", "run"] = ["walk", "then", "run"]`
 * `List.intersperse "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
 -/
-def intersperse (sep : α) : (l : List α) → List α
+noncomputable def intersperse (sep : α) : (l : List α) → List α
   | []    => []
   | [x]   => [x]
   | x::xs => x :: sep :: intersperse sep xs
@@ -2373,164 +2530,9 @@ def removeAll [BEq α] (xs ys : List α) : List α :=
 More of these re-implementations are provided in `Init/Data/List/Impl.lean`.
 They can not be here, because the remaining ones required `Array` for their implementation.
 
-This leaves a dangerous situation: if you import this file, but not `Init/Data/List/Impl.lean`,
-then at runtime you will get non tail-recursive versions.
+The replaced definitions are `noncomputable`, so compiled code using one whose replacement lives in
+`Init/Data/List/Impl.lean` must import that file.
 -/
-
-/-! ### length -/
-
-theorem length_add_eq_lengthTRAux {as : List α} {n : Nat} : as.length + n = as.lengthTRAux n := by
-  induction as generalizing n with
-  | nil  => simp [length, lengthTRAux]
-  | cons a as ih =>
-    simp [length, lengthTRAux, ← ih, Nat.succ_add]
-    rfl
-
-@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
-  apply funext; intro α; apply funext; intro as
-  simp [lengthTR, ← length_add_eq_lengthTRAux]
-
-/-! ### map -/
-
-/--
-Applies a function to each element of the list, returning the resulting list of values.
-
-`O(|l|)`. This is the tail-recursive variant of `List.map`, used in runtime code.
-
-Examples:
-* `[a, b, c].mapTR f = [f a, f b, f c]`
-* `[].mapTR Nat.succ = []`
-* `["one", "two", "three"].mapTR (·.length) = [3, 3, 5]`
-* `["one", "two", "three"].mapTR (·.reverse) = ["eno", "owt", "eerht"]`
--/
-@[inline] def mapTR (f : α → β) (as : List α) : List β :=
-  loop as []
-where
-  @[specialize] loop : List α → List β → List β
-  | [],    bs => bs.reverse
-  | a::as, bs => loop as (f a :: bs)
-
-theorem mapTR_loop_eq {f : α → β} {as : List α} {bs : List β} :
-    mapTR.loop f as bs = bs.reverse ++ map f as := by
-  induction as generalizing bs with
-  | nil => simp [mapTR.loop, map]
-  | cons a as ih =>
-    simp only [mapTR.loop, map]
-    rw [ih (bs := f a :: bs), reverse_cons, append_assoc]
-    rfl
-
-@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
-  funext fun α => funext fun β => funext fun f => funext fun as => by
-    simp [mapTR, mapTR_loop_eq]
-
-/-! ### filter -/
-
-/--
-Returns the list of elements in `l` for which `p` returns `true`.
-
-`O(|l|)`. This is a tail-recursive version of `List.filter`, used at runtime.
-
-Examples:
-* `[1, 2, 5, 2, 7, 7].filterTR (· > 2)  = [5, 7, 7]`
-* `[1, 2, 5, 2, 7, 7].filterTR (fun _ => false) = []`
-* `[1, 2, 5, 2, 7, 7].filterTR (fun _ => true) = * [1, 2, 5, 2, 7, 7]`
--/
-@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
-  loop as []
-where
-  @[specialize] loop : List α → List α → List α
-  | [],    acc => acc.reverse
-  | a::as, acc => match p a with
-     | true  => loop as (a::acc)
-     | false => loop as acc
-
-theorem filterTR_loop_eq {p : α → Bool} {as : List α} {bs : List α} :
-    filterTR.loop p as bs = bs.reverse ++ filter p as := by
-  induction as generalizing bs with
-  | nil => simp [filterTR.loop, filter]
-  | cons a as ih =>
-    simp only [filterTR.loop, filter]
-    split <;> simp_all
-
-@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
-  apply funext; intro α; apply funext; intro p; apply funext; intro as
-  simp [filterTR, filterTR_loop_eq]
-
-/-! ### replicate -/
-
-/--
-Creates a list that contains `n` copies of `a`.
-
-This is a tail-recursive version of `List.replicate`.
-
-* `List.replicateTR 5 "five" = ["five", "five", "five", "five", "five"]`
-* `List.replicateTR 0 "zero" = []`
-* `List.replicateTR 2 ' ' = [' ', ' ']`
--/
-def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
-  let rec loop : Nat → List α → List α
-    | 0, as => as
-    | n+1, as => loop n (a::as)
-  loop n []
-
-theorem replicateTR_loop_replicate_eq {a : α} {m n : Nat} :
-  replicateTR.loop a n (replicate m a) = replicate (n + m) a := by
-  induction n generalizing m with simp [replicateTR.loop]
-  | succ n ih => simp [Nat.succ_add]; exact ih (m := m+1)
-
-theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
-  | 0 => rfl
-  | n+1 => by rw [← replicateTR_loop_replicate_eq, replicate, replicate,
-    replicateTR.loop, replicateTR_loop_eq n, replicateTR_loop_eq n, append_assoc]; rfl
-
-@[csimp] theorem replicate_eq_replicateTR : @List.replicate = @List.replicateTR := by
-  apply funext; intro α; apply funext; intro n; apply funext; intro a
-  exact (replicateTR_loop_replicate_eq (m := 0)).symm
-
-/-! ## Additional functions -/
-
-/-! ### leftpad -/
-
-/--
-Pads `l : List α` on the left with repeated occurrences of `a : α` until it is of length `n`. If `l`
-already has at least `n` elements, it is returned unmodified.
-
-This is a tail-recursive version of `List.leftpad`, used at runtime.
-
-Examples:
- * `[1, 2, 3].leftPadTR 5 0 = [0, 0, 1, 2, 3]`
- * `["red", "green", "blue"].leftPadTR 4 "blank" = ["blank", "red", "green", "blue"]`
- * `["red", "green", "blue"].leftPadTR 3 "blank" = ["red", "green", "blue"]`
- * `["red", "green", "blue"].leftPadTR 1 "blank" = ["red", "green", "blue"]`
--/
-@[inline] def leftpadTR (n : Nat) (a : α) (l : List α) : List α :=
-  replicateTR.loop a (n - length l) l
-
-@[csimp] theorem leftpad_eq_leftpadTR : @leftpad = @leftpadTR := by
-  repeat (apply funext; intro)
-  simp [leftpad, leftpadTR, replicateTR_loop_eq]
-
-
-/-! ## Zippers -/
-
-/-! ### unzip -/
-
-/--
-Separates a list of pairs into two lists that contain the respective first and second components.
-
-`O(|l|)`. This is a tail-recursive version of `List.unzip` that's used at runtime.
-
-Examples:
-* `[("Monday", 1), ("Tuesday", 2)].unzipTR = (["Monday", "Tuesday"], [1, 2])`
-* `[(x₁, y₁), (x₂, y₂), (x₃, y₃)].unzipTR = ([x₁, x₂, x₃], [y₁, y₂, y₃])`
-* `([] : List (Nat × String)).unzipTR = (([], []) : List Nat × List String)`
--/
-def unzipTR (l : List (α × β)) : List α × List β :=
-  l.foldr (fun (a, b) (as, bs) => (a::as, b::bs)) ([], [])
-
-@[csimp] theorem unzip_eq_unzipTR : @unzip = @unzipTR := by
-  apply funext; intro α; apply funext; intro β; apply funext; intro l
-  simp [unzipTR]; induction l <;> simp [*]
 
 /-! ## Ranges and enumeration -/
 
@@ -2566,34 +2568,5 @@ Examples:
     rw [Nat.mul_succ, ← Nat.add_assoc, Nat.add_sub_cancel, Nat.add_right_comm n]
     exact go s n (m + 1)
   exact (go s n 0).symm
-
-/-! ## Other list operations -/
-
-/-! ### intersperse -/
-
-/--
-Alternates the elements of `l` with `sep`.
-
-`O(|l|)`.
-
-This is a tail-recursive version of `List.intersperse`, used at runtime.
-
-Examples:
-* `List.intersperseTR "then" [] = []`
-* `List.intersperseTR "then" ["walk"] = ["walk"]`
-* `List.intersperseTR "then" ["walk", "run"] = ["walk", "then", "run"]`
-* `List.intersperseTR "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
--/
-def intersperseTR (sep : α) : (l : List α) → List α
-  | [] => []
-  | [x] => [x]
-  | x::y::xs => x :: sep :: y :: xs.foldr (fun a r => sep :: a :: r) []
-
-@[csimp] theorem intersperse_eq_intersperseTR : @intersperse = @intersperseTR := by
-  apply funext; intro α; apply funext; intro sep; apply funext; intro l
-  simp [intersperseTR]
-  match l with
-  | [] | [_] => rfl
-  | x::y::xs => simp [intersperse]; induction xs generalizing y <;> simp [*]
 
 end List

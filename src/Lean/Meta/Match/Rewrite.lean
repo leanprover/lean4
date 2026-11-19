@@ -17,7 +17,7 @@ namespace Lean.Meta
 
 /--
 Tries to rewrite the `ite`, `dite` or `cond` expression `e` with the hypothesis `hc`.
-If it fails, it returns a rewrite with `proof? := none` and unchaged expression.
+If it fails, it returns a rewrite with `proof? := none` and unchanged expression.
 -/
 def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
   match_expr e with
@@ -26,24 +26,24 @@ def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
     if (← isDefEq c (← inferType hc)) then
       return {
         expr := t
-        proof? := (mkAppN (mkConst ``if_pos us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``ite_eq_left us) #[c, h, hc, α, t, f])
       }
     if (← isDefEq (mkNot c) (← inferType hc)) then
       return {
         expr := f
-        proof? := (mkAppN (mkConst ``if_neg us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``ite_eq_right us) #[c, h, hc, α, t, f])
       }
   | dite@dite α c h t f =>
     let us := dite.constLevels!
     if (← isDefEq c (← inferType hc)) then
       return {
         expr := t.beta #[hc]
-        proof? := (mkAppN (mkConst ``dif_pos us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``dite_eq_left us) #[c, h, hc, α, t, f])
       }
     if (← isDefEq (mkNot c) (← inferType hc)) then
       return {
         expr := f.beta #[hc]
-        proof? := (mkAppN (mkConst ``dif_neg us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``dite_eq_right us) #[c, h, hc, α, t, f])
       }
   | cond@cond α c t f =>
     let us := cond.constLevels!
@@ -128,7 +128,9 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
           else if hType.isEq then
             h.assumption <|> h.refl <|> throwError m!"Failed to resolve `{h}`"
           else if hType.isHEq then
-            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve `{h}`"
+            -- Splitting may provide an `Eq` hypothesis where the matcher equation requires `HEq`.
+            h.assumption <|> h.hrefl <|> (do (← h.heqOfEq).assumption) <|>
+              throwError m!"Failed to resolve `{h}`"
       let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
       unless unassignedHyps.isEmpty do
         throwError m!"Not all hypotheses of `{.ofConstName eqnThm}` could be discharged: {unassignedHyps}"

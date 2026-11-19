@@ -1,5 +1,7 @@
 import Lean.Meta.Basic
 
+set_option warn.sorry false
+
 inductive StructLike α where
   | mk : α → StructLike α
 
@@ -8,7 +10,7 @@ inductive Nested where
   | other
 
 /--
-info: @[defeq] theorem Nested.nest.sizeOf_spec : ∀ (a : StructLike Nested), sizeOf (Nested.nest a) = 1 + sizeOf a :=
+info: theorem Nested.nest.sizeOf_spec : ∀ (a : StructLike Nested), sizeOf (Nested.nest a) = 1 + sizeOf a :=
 fun a => Eq.refl (1 + sizeOf a)
 -/
 #guard_msgs in

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Match
-import Lean.Linter.Basic
+import Lean.Linter.Init
 
 public section
 

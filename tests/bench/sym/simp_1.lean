@@ -10,7 +10,9 @@ namespace SimpBench
 def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
   match r with
   | .rfl _ _ => return 0
-  | .step _ p _ _ => p.numObjs
+  | .step _ p _ _ =>
+    let p := ShareCommon.shareCommon' p
+    p.numObjs
 
 def checkWithKernel (r : Sym.Simp.Result) : MetaM Float := do
   match r with

@@ -83,6 +83,7 @@ theorem IterM.length_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (�
   · simp [ihs ‹_›]
   · simp
 
+set_option linter.defProp false in
 @[deprecated IterM.length_uLift (since := "2026-01-28")]
 def IterM.count_uLift := @IterM.length_uLift
 

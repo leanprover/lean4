@@ -1,0 +1,75 @@
+/-
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Henrik Böving
+-/
+module
+prelude
+
+public import Lean.Meta.Tactic.BVDecide.Reflect
+public import Lean.Meta.Tactic.BVDecide.Counterexample
+public import Lean.Meta.Tactic.BVDecide.LRAT.Cert
+import Lean.Meta.Sym.SymM
+import Lean.Meta.Sym.Util
+
+
+/-!
+This module provides the implementation of the `bv_decide` frontend itself.
+-/
+namespace Lean.Meta.Tactic.BVDecide
+
+open Std.Sat
+open Std.Tactic.BVDecide
+open Std.Tactic.BVDecide.Reflect
+
+public structure ReflectionResult where
+  /--
+  The reflected expression together with ways to prove things about it.
+  -/
+  satExpr : SatAtBVLogical
+  /--
+  Set of unused hypotheses for diagnostic purposes.
+  -/
+  unusedHypotheses : Std.HashSet Normalize.Hyp
+
+public abbrev UnsatProver (α : Type) := MVarId → ReflectionResult → LemmaM (Except CounterExample α)
+
+public def UnsatProver.map (f : α → β) (x : UnsatProver α) : UnsatProver β := fun g r => do
+  let res ← x g r
+  return res.map f
+
+public def reflectBV (g : MVarId) : ReifyM ReflectionResult := g.withContext do
+  let mut sats := #[]
+  let mut unusedHypotheses := {}
+  for hyp in ← ReifyM.getHyps do
+    checkSystem "bv_decide"
+    if let (some reflected, lemmas) ← (SatAtBVLogical.of hyp).run then
+      sats := (sats ++ lemmas).push reflected
+    else
+      unusedHypotheses := unusedHypotheses.insert hyp
+  if h : sats.size = 0 then
+    let mut error := "None of the hypotheses are in the supported BitVec fragment after applying preprocessing.\n"
+    error := error ++ "There are three potential reasons for this:\n"
+    error := error ++ "1. If you are using custom BitVec constructs simplify them to built-in ones.\n"
+    error := error ++ "2. If your problem is using only built-in ones it might currently be out of reach.\n"
+    error := error ++ "   Consider expressing it in terms of different operations that are better supported.\n"
+    error := error ++ "3. The original goal was reduced to False and is thus invalid."
+    throwError error
+  else
+    let sat ← sats[1...*].foldlM (init := sats[0]) SatAtBVLogical.and
+    let sat := { sat with bvExpr := ShareCommon.shareCommon sat.bvExpr }
+    return {
+      satExpr := sat
+      unusedHypotheses := unusedHypotheses,
+    }
+
+public def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver α) :
+    ReifyM (Except CounterExample α) := Prod.fst <$> LemmaM.run do
+  g.withContext do
+    let reflectionResult ←
+      withTraceNode `Meta.Tactic.bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
+        reflectBV g
+    trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.satExpr.bvExpr}"
+    unsatProver g reflectionResult
+
+end Lean.Meta.Tactic.BVDecide

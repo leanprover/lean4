@@ -50,12 +50,6 @@ def setProof (u v : NodeId) (p : ProofInfo) : OrderM Unit := do
     proofs := s.proofs.modify u fun es => es.insert v p
   }
 
-@[inline] def forEachSourceOf (u : NodeId) (f : NodeId → Weight → OrderM Unit) : OrderM Unit := do
-  (← getStruct).sources[u]!.forM f
-
-@[inline] def forEachTargetOf (u : NodeId) (f : NodeId → Weight → OrderM Unit) : OrderM Unit := do
-  (← getStruct).targets[u]!.forM f
-
 /-- Returns `true` if `k` is smaller than the shortest distance between `u` and `v` -/
 def isShorter (u v : NodeId) (k : Weight) : OrderM Bool := do
   if let some k' ← getDist? u v then
@@ -148,11 +142,14 @@ def propagatePending : OrderM Unit := do
         - `h₁ : ↑ue' = ue`
         - `h₂ : ↑ve' = ve`
         - `h : ue = ve`
-        **Note**: We currently only support `Nat`. Thus `↑a` is actually
-        `NatCast.natCast a`. If we decide to support arbitrary semirings
-        in this module, we must adjust this code.
+        **Note**: We currently only support `Nat` originals. Thus `↑a` is actually
+        `NatCast.natCast a`. The lemma `nat_eq` is specialized to `Int`, so we
+        only invoke it when the cast destination is `Int`. For other types (e.g.
+        `Rat`), `pushEq ue ve h` above is sufficient and `grind` core can derive
+        the `Nat` equality via `norm_cast`/cast injectivity if needed.
         -/
-        pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
+        if (← inferType ue) == Int.mkType then
+          pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
 where
   /--
   If `e` is an auxiliary term used to represent some term `a`, returns
@@ -165,7 +162,7 @@ where
 Returns `true` if `e` is already `True` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
-private def isAlreadyTrue (e : Expr) : OrderM Bool := do
+def isAlreadyTrue (e : Expr) : OrderM Bool := do
   if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqTrue e'
   else
@@ -187,7 +184,7 @@ def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : Orde
 Returns `true` if `e` is already `False` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
-private def isAlreadyFalse (e : Expr) : OrderM Bool := do
+def isAlreadyFalse (e : Expr) : OrderM Bool := do
   if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqFalse e'
   else
@@ -279,14 +276,26 @@ public def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Un
     update
     propagatePending
 where
+  /-
+  **Note**: If the new edge shortens the path from `i` to `j`, then it also shortens the path from `i`
+  to `v` and the path from `u` to `j`. Thus, we only combine the sources of `u` and the targets of `v`
+  whose distance improves, instead of all of them. For example, if the nodes `0, ..., n` are the
+  numerals of an ordered ring, adding each numeral is linear instead of quadratic.
+  -/
   update : OrderM Unit := do
-    forEachTargetOf v fun j k₂ => do
+    let mut ts := #[]
+    for (j, k₂) in (← getStruct).targets[v]! do
+      if (← isShorter u j (k+k₂)) then ts := ts.push (j, k₂)
+    let mut ss := #[]
+    for (i, k₁) in (← getStruct).sources[u]! do
+      if (← isShorter i v (k₁+k)) then ss := ss.push (i, k₁)
+    for (j, k₂) in ts do
       /- Check whether new path: `u -(k)-> v -(k₂)-> j` is shorter -/
       updateIfShorter u j (k+k₂) v
-    forEachSourceOf u fun i k₁ => do
+    for (i, k₁) in ss do
       /- Check whether new path: `i -(k₁)-> u -(k)-> v` is shorter -/
       updateIfShorter i v (k₁+k) u
-      forEachTargetOf v fun j k₂ => do
+      for (j, k₂) in ts do
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 
@@ -343,7 +352,7 @@ def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 
 def propagateIneq (e : Expr) : GoalM Unit := do
-  if let some (e', he) := (← get').termMap.find? { expr := e } then
+  if let some { e := e', h := he, .. } := (← get').termMap.find? { expr := e } then
     go e' (some he)
   else
     go e none
@@ -369,20 +378,27 @@ builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
 public def processNewEq (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     let h ← mkEqProof a b
-    if let some (a', h₁) ← getAuxTerm? a then
-      let some (b', h₂) ← getAuxTerm? b | return ()
+    if let some { e := a', h := h₁, α } ← getAuxTerm? a then
+      let some { e := b', h := h₂, .. } ← getAuxTerm? b | return ()
       /-
       We have
       - `h  : a = b`
       - `h₁ : ↑a = a'`
       - `h₂ : ↑b = b'`
+      where `a'` and `b'` are `NatCast.natCast α inst _` for some type `α`.
       -/
-      let h := mkApp7 (mkConst ``Grind.Order.of_nat_eq) a b a' b' h₁ h₂ h
-      go a' b' h
+      if α == Int.mkType then
+        let h := mkApp7 (mkConst ``Grind.Order.of_nat_eq) a b a' b' h₁ h₂ h
+        go a' b' h
+      else
+        let u ← getDecLevel α
+        let inst ← synthInstance (mkApp (mkConst ``NatCast [u]) α)
+        let h := mkApp9 (mkConst ``Grind.Order.of_natCast_eq [u]) α inst a b a' b' h₁ h₂ h
+        go a' b' h
     else
       go a b h
 where
-  getAuxTerm? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+  getAuxTerm? (e : Expr) : GoalM (Option TermMapEntry) := do
     return (← get').termMap.find? { expr := e }
 
   go (a b h : Expr) : GoalM Unit := do

@@ -3,6 +3,15 @@ External Contribution Guidelines
 
 In the past, we accepted most pull requests. This practice produced hard to maintain code, performance problems, and bugs. In order to improve the quality and maintainability of our codebase, we've established the following guidelines for external contributions.
 
+Who Can Open Pull Requests
+-------
+
+The lean4 repository currently accepts pull requests only from the Lean FRO team and a small set of regular contributors. Pull requests from anyone else are closed automatically. Maintainers may reopen PRs where appropriate.
+
+If you have found a bug or want to propose a change, please [open an issue](https://github.com/leanprover/lean4/issues/new/choose) instead: a bug report, or an `RFC:` issue for a new feature as described below. Issues are triaged as described under [Reviews and Feedback](#reviews-and-feedback).
+
+The rest of these guidelines apply to everyone who opens pull requests.
+
 Helpful links
 -------
 
@@ -52,11 +61,15 @@ PR Submission:
 
 **Descriptive Title and Summary**: The PR title should briefly explain the purpose of the PR. The summary should give more detailed information on what changes are made and why. Links to Zulip threads are not acceptable as a summary. You are responsible for summarizing the discussion, and getting support for it.
 
-**Follow the commit convention**: Pull requests are squash merged, and the
+**Follow the Commit Convention**: Pull requests are squash merged, and the
 commit message is taken from the pull request title and body, so make sure they adhere to the [commit convention](https://github.com/leanprover/lean4/blob/master/doc/dev/commit_convention.md). Put questions and extra information, which should not be part of the final commit message, into a first comment rather than the Pull Request description.
 Because the change will be squashed, there is no need to polish the commit messages and history on the branch.
 
 **Link to Relevant Issues**: Reference any issues that your PR addresses to provide context.
+
+**AI Contributions**: Any assistance by Generative AI contributing to the final PR must be noted in the PR description.
+Authors are responsible for manually checking these contributions before opening a PR.
+PRs authored solely by AI are not welcome and may be closed without further comment.
 
 **Stay Responsive**: Once the PR is submitted, stay responsive to feedback and be prepared to make necessary revisions. We will close any PR that has been inactive (no response or updates from the submitter) for more than a month.
 

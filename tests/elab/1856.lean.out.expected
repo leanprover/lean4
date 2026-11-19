@@ -1,4 +1,3 @@
-case h
 α : Type ?u
 inst✝ : DecidableEq α
 i : α

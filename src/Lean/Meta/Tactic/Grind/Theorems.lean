@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.HeadIndex
 public import Lean.Meta.Basic
+public import Init.Data.Range.Polymorphic.RangeIterator
 import Lean.Meta.Eqns
 import Init.Data.Range.Polymorphic.Iterators
 public section
@@ -56,7 +57,7 @@ structure Theorems (α : Type) where
   private origins : PHashSet Origin := {}
   /-- Theorems that have been marked as erased -/
   private erased  : PHashSet Origin := {}
-  /-- Mapping from origin to E-matching theorems associated with this origin. -/
+  /-- Mapping from origin to E-matching theorems associated with this origin, with all symbols. -/
   private omap : PHashMap Origin (List α) := {}
   deriving Inhabited
 
@@ -80,19 +81,19 @@ Otherwise, we reinsert into `map`.
 def Theorems.insert [TheoremLike α] (s : Theorems α) (thm : α) : Theorems α := Id.run do
   let .const declName :: syms := getSymbols thm
     | unreachable!
-  let thm := setSymbols thm syms
   let { smap, origins, erased, omap } := s
   let origin := getOrigin thm
   let origins := origins.insert origin
   let erased := erased.erase origin
-  let smap := if let some thms := smap.find? declName then
-    smap.insert declName (thm::thms)
-  else
-    smap.insert declName [thm]
   let omap := if let some thms := omap.find? origin then
     omap.insert origin (thm::thms)
   else
     omap.insert origin [thm]
+  let thm := setSymbols thm syms
+  let smap := if let some thms := smap.find? declName then
+    smap.insert declName (thm::thms)
+  else
+    smap.insert declName [thm]
   return { smap, origins, erased, omap }
 
 /-- Returns `true` if `s` contains a theorem with the given origin. -/
@@ -184,10 +185,19 @@ abbrev TheoremsArray (α : Type) := Array (Theorems α)
 
 @[specialize]
 def TheoremsArray.retrieve? (s : TheoremsArray α) (sym : Name) : Option (List α × TheoremsArray α) := Id.run do
-  for h : i in *...s.size do
-    if let some (thms, a) ← s[i].retrieve? sym then
-      return some (thms, s.set i a)
-  return none
+  /-
+  We must scan all elements. Multiple elements may contain theorems associated with `sym`.
+  Moreover, `TheoremsArray.insert` always reinserts partially activated theorems into the
+  first element, and they may shadow entries with the same key in later elements. See issue #13725.
+  -/
+  let mut result := []
+  let mut s := s
+  for i in *...s.size do
+    if let some (thms, a) := s[i]!.retrieve? sym then
+      result := result ++ thms
+      s := s.set! i a
+  if result.isEmpty then return none
+  return some (result, s)
 
 def TheoremsArray.insert [TheoremLike α] (s : TheoremsArray α) (thm : α) : TheoremsArray α := Id.run do
   if s.isEmpty then

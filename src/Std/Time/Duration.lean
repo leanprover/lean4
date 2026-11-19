@@ -8,12 +8,13 @@ module
 prelude
 public import Std.Time.Date
 public import Init.Data.String.Basic
+public import Init.Data.String.Length
 
 public section
 
 namespace Std
 namespace Time
-open Internal
+open Time.Internal
 
 set_option linter.all true
 
@@ -58,7 +59,7 @@ instance : Inhabited Duration where
 instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
-    simp <;> exact Int.le_total n 0 |>.symm
+    simp ; exact Int.le_total n 0 |>.symm
 
 instance : Ord Duration where
   compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
@@ -93,7 +94,7 @@ Creates a new `Duration` out of `Second.Offset`.
 @[inline]
 def ofSeconds (s : Second.Offset) : Duration := by
   refine ⟨s, ⟨0, by decide⟩, ?_⟩
-  simp <;> exact Int.le_total s.val 0 |>.symm
+  simp ; exact Int.le_total s.val 0 |>.symm
 
 /--
 Creates a new `Duration` out of `Nanosecond.Offset`.
@@ -379,6 +380,20 @@ instance : HMul Int Duration Duration where
 
 instance : HMul Duration Int Duration where
   hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+instance : HMul Nat Duration Duration where
+  hMul i d := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+instance : HMul Duration Nat Duration where
+  hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
+
+/-- Divides by an integer, rounding toward zero to whole nanoseconds. -/
+instance : HDiv Duration Int Duration where
+  hDiv d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val.tdiv i)
+
+/-- Divides by a natural number, rounding toward zero to whole nanoseconds. -/
+instance : HDiv Duration Nat Duration where
+  hDiv d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val.tdiv i)
 
 instance : HAdd PlainTime Duration PlainTime where
    hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)

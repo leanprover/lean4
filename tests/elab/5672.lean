@@ -20,7 +20,8 @@ Uses `def` variable inclusion rules
 -/
 section
 variable (x : Nat)
-instance b : A := by
+@[reducible]
+def b : A := by
   cases x <;> exact {}
 /-- info: b (x : Nat) : A -/
 #guard_msgs in #check b

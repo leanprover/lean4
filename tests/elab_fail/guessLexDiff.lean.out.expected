@@ -27,12 +27,12 @@ The basic measures relate at each recursive call as follows:
             i #1 #2 i + 1 0 - i #3 i + i
 1) 85:26-38 =  =  =     =     =  =     =
 2) 85:58-76 ?  <  _     _     _  _     _
-3) 85:26-38 =  =  =     =     =  =     =
+3) 86:30-42 =  =  =     =     =  =     =
 4) 88:26-42 _  <  _     _     _  _     _
-5) 88:26-42 ?  ≤  ≤     ?     ≤  ≤     ?
-6) 88:26-42 _  <  _     _     _  _     _
-7) 88:26-42 _  <  _     _     _  _     _
-8) 88:26-42 _  <  _     _     _  _     _
+5) 89:20-36 ?  ≤  ≤     ?     ≤  ≤     ?
+6) 90:21-37 _  <  _     _     _  _     _
+7) 91:26-42 _  <  _     _     _  _     _
+8) 92:25-41 _  <  _     _     _  _     _
 9) 97:8-20  _  <  _     _     _  _     _
 
 #1: xs.size - i
@@ -65,7 +65,7 @@ Call from mutual_failure to mutual_failure2 at 104:52-78:
    i #1 #2 i + 1
 i  ?  _  _     =
 #3 _  <  _     _
-Call from mutual_failure to mutual_failure2 at 104:4-24:
+Call from mutual_failure to mutual_failure2 at 107:4-24:
    i #1 #2 i + 1
 i  _  _  _     <
 #3 _  =  _     _

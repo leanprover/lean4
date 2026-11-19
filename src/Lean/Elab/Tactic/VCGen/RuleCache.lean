@@ -1,0 +1,123 @@
+/-
+Copyright (c) 2026 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Graf, Vladimir Gladshtein
+-/
+module
+
+prelude
+public import Lean.Elab.Tactic.Do.VCGen.Split
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.VCGen.LatticeOp
+public import Lean.Elab.Tactic.VCGen.Util
+import Lean.Meta.Sym.InferType
+
+open Lean Meta Elab Tactic Sym
+open Lean.Elab.Tactic.VCGen.SpecAttr
+open Lean.Elab.Tactic.VCGen
+
+/-!
+`VCGenM`-level cache wrappers around the `SymM` rule constructors in
+`VCGen.RuleConstruction`.
+-/
+
+namespace Lean.Elab.Tactic.VCGen
+
+
+/--
+Cached version of spec rule construction.
+
+Both `Triple`/`⊑ wp` and equality entries go through `tryMkBackwardRuleFromSpec`, which normalizes
+an equality spec to `⊑ wp` form using the supplied `wp` metadata before building the rule.
+
+Cache key: `(proof key, instWP, excessArgs.size)`.
+-/
+public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPApp) :
+    OptionT VCGenM BackwardRule := do
+  let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
+  let s := (← get).specBackwardRuleCache
+  if let some rule := s[key]? then return rule
+  let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
+    | failure
+  let rule ← rule.shareCommon
+  modify fun st => { st with specBackwardRuleCache := st.specBackwardRuleCache.insert key rule }
+  return rule
+
+open Lean.Elab.Tactic.Do in
+/--
+Cached version of `mkBackwardRuleForSplit`.
+
+Cache key: `(splitter name, instWP, excessArgs.size)`.
+-/
+public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
+    VCGenM BackwardRule := do
+  let key := (splitInfo.splitterName, ExprPtr.mk info.instWP, info.excessArgs.size)
+  let s := (← get).wpSplitBackwardRuleCache
+  if let some rule := s[key]? then return rule
+  let rule ← mkBackwardRuleForSplit splitInfo info
+  let rule ← rule.shareCommon
+  modify fun st =>
+    { st with wpSplitBackwardRuleCache := st.wpSplitBackwardRuleCache.insert key rule }
+  return rule
+
+open Lean.Elab.Tactic.Do in
+/--
+Cached version of `mkBackwardRuleForAssertionSplit`.
+
+Cache key: `(splitter name, inPre, inst, numStates)`.
+-/
+public def mkBackwardRuleForAssertionSplitCached (splitInfo : SplitInfo) (rel : Expr)
+    (numStates : Nat) (inPre : Bool) : VCGenM BackwardRule := do
+  let key := (splitInfo.splitterName, inPre, ExprPtr.mk (rel.getArg! 1), numStates)
+  if let some rule := (← get).assertionSplitBackwardRuleCache[key]? then return rule
+  let rule ← mkBackwardRuleForAssertionSplit splitInfo rel numStates inPre
+  let rule ← rule.shareCommon
+  modify fun st => { st with
+    assertionSplitBackwardRuleCache := st.assertionSplitBackwardRuleCache.insert key rule }
+  return rule
+
+/--
+Cached construction of a lattice-split backward rule for the operator heading `rhs`. On a cache miss
+the rewrite and terminal sets are assembled from the built-in seeds and the operator's `@[frameproc]`
+contributions (`fp?`); a cache hit skips that work.
+
+Cache key: the `head … cₙ` prefix built from the constant arguments (which the rule bakes in verbatim)
+and the argument count (which fixes the schematic operand and state count).
+-/
+public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
+    VCGenM BackwardRule := do
+  let key := (ExprPtr.mk (rhs.getAppPrefix op.numConst), rhs.getAppNumArgs)
+  if let some rule := (← get).latticeBackwardRuleCache[key]? then return rule
+  let rule ← (← mkLatticeOpRule rhs op).shareCommon
+  modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
+  return rule
+
+/--
+Cached version of `mkFrameBackwardRule`.
+
+Cache key: `(instWP, excessArgs.size)` (the operator is determined by the monad).
+-/
+public def mkFrameBackwardRuleCached (fp : FrameProc) (info : WPApp) :
+    VCGenM FrameBackwardRule := do
+  let key := (ExprPtr.mk info.instWP, info.excessArgs.size)
+  if let some rule := (← get).frameBackwardRuleCache[key]? then return rule
+  let frule ← mkFrameBackwardRule fp info
+  let frule := { frule with rule := ← frule.rule.shareCommon }
+  modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key frule }
+  return frule
+
+/--
+Cached construction of the backward rule of the `@[vcgen_rintro]` rule `e`. The rule abstracts
+the `e.numPremises` premises and matches the conclusion of `e`.
+
+Cache key: the declaration name of `e`.
+-/
+public def mkBackwardRuleForRIntroCached (e : RIntroEntry) : VCGenM BackwardRule := do
+  if let some rule := (← get).rintroBackwardRuleCache[e.declName]? then return rule
+  let rule ← (← liftMetaM <| mkBackwardRuleFromDecl e.declName (some e.numPremises)).shareCommon
+  modify fun st => { st with rintroBackwardRuleCache := st.rintroBackwardRuleCache.insert e.declName rule }
+  return rule
+
+
+end Lean.Elab.Tactic.VCGen

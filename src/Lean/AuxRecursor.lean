@@ -23,7 +23,8 @@ def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuf
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async .mainEnv)
+builtin_initialize auxRecExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (logWrites := true)
 
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
@@ -50,17 +51,18 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
 
-private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async .mainEnv)
+private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (logWrites := true)
 
 def markSparseCasesOn (env : Environment) (declName : Name) : Environment :=
   sparseCasesOnExt.tag env declName
 
 /-- Is this a constructor elimination or a sparse casesOn? -/
-public def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
+def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
   sparseCasesOnExt.isTagged env declName
 
 /-- Is this a `.casesOn`, a constructor elimination or a sparse casesOn? -/
-public def isCasesOnLike (env : Environment) (declName : Name) : Bool :=
+def isCasesOnLike (env : Environment) (declName : Name) : Bool :=
   isCasesOnRecursor env declName || isSparseCasesOn env declName
 
 /--
@@ -79,7 +81,8 @@ def NoConfusionInfo.arity : NoConfusionInfo → Nat
   | .regular arity _ _ => arity
   | .perCtor arity _   => arity
 
-builtin_initialize noConfusionExt : MapDeclarationExtension NoConfusionInfo ← mkMapDeclarationExtension (asyncMode := .mainOnly)
+builtin_initialize noConfusionExt : MapDeclarationExtension NoConfusionInfo ←
+  mkMapDeclarationExtension (asyncMode := .mainOnly) (logWrites := true)
 
 def markNoConfusion (env : Environment) (n : Name) (info : NoConfusionInfo) : Environment :=
   noConfusionExt.insert env n info

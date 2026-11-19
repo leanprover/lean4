@@ -52,7 +52,7 @@ it.drop 3   ------⊥
 Currently, this combinator incurs an additional O(1) cost with each output of `it`, even when the iterator
 does not drop any elements anymore.
 -/
-@[always_inline, inline]
+@[always_inline, inline, implicit_reducible]
 def IterM.drop (n : Nat) (it : IterM (α := α) m β) :=
   (⟨Iterators.Types.Drop.mk n it⟩ : IterM m β)
 

@@ -1,1 +1,4 @@
-{"version": 2, "uri": "file:///unterminatedDocComment.lean", "diagnostics": []}
+{"version": 2,
+ "uri": "file:///unterminatedDocComment.lean",
+ "isIncremental": false,
+ "diagnostics": []}

@@ -7,3 +7,4 @@ module
 
 prelude
 public import Init.Data.List.Int.Sum
+public import Init.Data.List.Int.Prod

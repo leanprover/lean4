@@ -22,7 +22,8 @@ namespace ToIR
 structure BuilderState where
   vars : Std.HashMap FVarId Arg := {}
   joinPoints : Std.HashMap FVarId JoinPointId := {}
-  nextId : Nat := 1
+  nextVarId : Nat := 1
+  nextJpId : Nat := 1
 
 abbrev M := StateRefT BuilderState CoreM
 
@@ -37,15 +38,15 @@ def getJoinPointValue (fvarId : FVarId) : M JoinPointId := do
 
 def bindVar (fvarId : FVarId) : M VarId := do
   modifyGet fun s =>
-    let varId := { idx := s.nextId }
+    let varId := { idx := s.nextVarId }
     ⟨varId, { s with vars := s.vars.insertIfNew fvarId (.var varId),
-                     nextId := s.nextId + 1 }⟩
+                     nextVarId := s.nextVarId + 1 }⟩
 
 def bindJoinPoint (fvarId : FVarId) : M JoinPointId := do
   modifyGet fun s =>
-    let joinPointId := { idx := s.nextId }
+    let joinPointId := { idx := s.nextJpId }
     ⟨joinPointId, { s with joinPoints := s.joinPoints.insertIfNew fvarId joinPointId,
-                           nextId := s.nextId + 1 }⟩
+                           nextJpId := s.nextJpId + 1 }⟩
 
 def bindErased (fvarId : FVarId) : M Unit := do
   modify fun s => { s with vars := s.vars.insertIfNew fvarId .erased }
@@ -73,7 +74,7 @@ def lowerArg (a : LCNF.Arg .impure) : M Arg := do
 def lowerParam (p : LCNF.Param .impure) : M Param := do
   let x ← bindVar p.fvarId
   let ty := toIRType p.type
-  return { x, borrow := p.borrow, ty }
+  return { x, borrow := p.borrow && !ty.isScalar, ty }
 
 @[inline]
 def lowerCtorInfo (i : LCNF.CtorInfo) : CtorInfo :=
@@ -119,7 +120,7 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
   | .inc fvarId n check persistent k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .inc var n check persistent (← lowerCode k)
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent _ k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .dec var n check persistent (← lowerCode k)
   | .del fvarId k _ =>
@@ -191,7 +192,9 @@ def lowerDecl (d : LCNF.Decl .impure) : M (Option Decl) := do
   match d.value with
   | .code code =>
     let body ← lowerCode code
-    pure <| some <| .fdecl d.name params resultType body {}
+    let maxJp := (← get).nextJpId - 1
+    let maxVar := (← get).nextVarId - 1
+    pure <| some <| .fdecl d.name params resultType body { maxJp , maxVar }
   | .extern externAttrData =>
     if externAttrData.entries.isEmpty then
       -- TODO: This matches the behavior of the old compiler, but we should

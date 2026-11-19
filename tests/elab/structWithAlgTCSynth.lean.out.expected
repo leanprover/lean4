@@ -40,7 +40,6 @@ structWithAlgTCSynth.lean:1037:29-1037:70: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1039:29-1039:70: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1047:33-1047:75: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1051:0-1051:8: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1071:4-1071:60: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1117:12-1117:15: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1120:12-1120:15: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1123:12-1123:15: warning: declaration uses `sorry`

@@ -10,7 +10,7 @@ The benchmark is run in three settings.
 * The time taken to interpret the script, including running `main`, is measured in
   `iterators (interpreted)`.
 * The time taken to interpret the script, without running `main`, is measured in
-  `interators (elab)`.
+  `iterators (elab)`.
 -/
 
 /- definitions -/
@@ -52,7 +52,7 @@ section Primes
 
 def numDivisors (n : Nat) := (1...=n).iter
   |>.filter (n % · = 0)
-  |>.count
+  |>.length
 
 def isPrime (n : Nat) := numDivisors n == 2
 

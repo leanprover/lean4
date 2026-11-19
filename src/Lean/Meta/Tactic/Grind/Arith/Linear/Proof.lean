@@ -11,8 +11,8 @@ import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Sym.Arith.VarRename
+import Lean.Meta.Sym.Arith.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
@@ -123,8 +123,7 @@ private def mkContext (h : Expr) : ProofM Expr := do
 
 private def mkRingContext (h : Expr) : ProofM Expr := do
   unless (← isCommRing) do return h
-  let ring ← withRingM do CommRing.getRing
-  let vars := ring.vars
+  let vars := (← withRingM do CommRing.getRingState).vars
   let ringVarDecls := (← get).ringVarDecls
   let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) >> collectMapVars ringVarDecls collectVar <| {}
   let vars'        := usedVars.toArray

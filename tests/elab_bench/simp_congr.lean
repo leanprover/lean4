@@ -48,14 +48,14 @@ simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
 theorem deep_singular_simple (g : L → Unit → L) :
     deep1(1024, g, iter steps (f b) (iter steps (f a) nil), ()) =
     deep1(1024, g, iter steps (f a) (iter steps (f b) nil), ()) := by
-simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
+  simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
 
 axiom g1 : L → Unit → L
 
 theorem deep_singular_simple_const :
     deep1(1024, g1, iter steps (f b) (iter steps (f a) nil), ()) =
     deep1(1024, g1, iter steps (f a) (iter steps (f b) nil), ()) := by
-simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
+  simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
 
 -- Provoke regenerating simple congruence theorems unless they are cached or handled otherwise,
 -- adding `True` with the dependency on `x` here avoids a fast path in simp congruence theorem
@@ -64,11 +64,11 @@ simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
 theorem deep_singular_prop_dep (g2 : (x : L) → (h : (fun _ => True) x) → L) :
     deep1(1024, g2, iter steps (f b) (iter steps (f a) nil), True.intro) =
     deep1(1024, g2, iter steps (f a) (iter steps (f b) nil), True.intro) := by
-simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
+  simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
 
 axiom g2 : (x : L) → (h : (fun _ => True) x) → L
 
 theorem deep_singular_prop_const_dep :
     deep1(1024, g2, iter steps (f b) (iter steps (f a) nil), True.intro) =
     deep1(1024, g2, iter steps (f a) (iter steps (f b) nil), True.intro) := by
-simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]
+  simp (maxSteps := 1000000) only [swap, iter_zero, iter_succ, steps]

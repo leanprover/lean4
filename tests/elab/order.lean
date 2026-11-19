@@ -61,7 +61,7 @@ end X
 
 section
 
-@[implicit_reducible] def packageWithoutSynthesizableInstances : Std.LinearOrderPackage X := .ofLE X {
+@[instance_reducible] def packageWithoutSynthesizableInstances : Std.LinearOrderPackage X := .ofLE X {
   le := X.instLE
   decidableLE := X.instDecidableLE }
 
@@ -71,7 +71,7 @@ section
 
 attribute [local instance] X.LinearOrderPackage.packageOfLE
 
-@[implicit_reducible] def packageWithoutSynthesizableInstances' : Std.LinearOrderPackage X := .ofLE X {
+@[instance_reducible] def packageWithoutSynthesizableInstances' : Std.LinearOrderPackage X := .ofLE X {
   le := X.instLE
   decidableLE := X.instDecidableLE
 }
@@ -91,11 +91,11 @@ this✝ : LT α := inferInstance
 ⊢ ∀ (a b : α), a < b ↔ a ≤ b ∧ ¬b ≤ a
 -/
 #guard_msgs in
-@[implicit_reducible] def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : Std.PreorderPackage α := .ofLE α {
+@[instance_reducible] def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : Std.PreorderPackage α := .ofLE α {
   le_refl := sorry
   le_trans := sorry }
 
-@[implicit_reducible] def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
+@[instance_reducible] def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
     Std.PreorderPackage α := .ofLE α {
   lt_iff := h
   le_refl := sorry
@@ -114,7 +114,7 @@ opaque _root_.X.instTransOrd : haveI := X.instOrd; Std.TransOrd X := sorry
 #guard_msgs(error, drop warning) in
 opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; Std.LawfulEqOrd X := sorry
 
-@[implicit_reducible] def packageWithoutSynthesizableInstances : Std.LinearOrderPackage X := .ofOrd X {
+@[instance_reducible] def packageWithoutSynthesizableInstances : Std.LinearOrderPackage X := .ofOrd X {
   ord := X.instOrd
   transOrd := X.instTransOrd
   eq_of_compare := by
@@ -129,7 +129,7 @@ section WithSynthesizableInstances
 
 attribute [scoped instance] X.instOrd X.instTransOrd X.instLawfulEqOrd
 
-@[implicit_reducible] def packageWithSynthesizableInstances : Std.LinearOrderPackage X := .ofOrd X
+@[instance_reducible] def packageWithSynthesizableInstances : Std.LinearOrderPackage X := .ofOrd X
 
 end WithSynthesizableInstances
 

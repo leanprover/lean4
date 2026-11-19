@@ -46,6 +46,8 @@ static const lean_object* l_Nat_instShiftRight___closed__0 = (const lean_object*
 LEAN_EXPORT const lean_object* l_Nat_instShiftRight = (const lean_object*)&l_Nat_instShiftRight___closed__0_value;
 LEAN_EXPORT uint8_t l_Nat_testBit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_testBit___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_trailing_zeros(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_trailingZeros___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_bitwise(lean_object* v_f_1_, lean_object* v_n_2_, lean_object* v_m_3_){
 _start:
 {
@@ -228,14 +230,25 @@ v_r_83_ = lean_box(v_res_82_);
 return v_r_83_;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_trailingZeros___boxed(lean_object* v_n_85_){
+_start:
+{
+lean_object* v_res_86_; 
+v_res_86_ = lean_nat_trailing_zeros(v_n_85_);
+lean_dec(v_n_85_);
+return v_res_86_;
+}
+}
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Grind_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -180,7 +180,7 @@ theorem drop_set {l : List α} {i j : Nat} {a : α} :
 
 theorem set_drop {l : List α} {i j : Nat} {a : α} :
     (l.drop i).set j a = (l.set (i + j) a).drop i := by
-  rw [drop_set, if_neg, add_sub_self_left]
+  rw [drop_set, ite_eq_right, add_sub_self_left]
   exact (Nat.not_lt).2 (le_add_right ..)
 
 theorem take_concat_get {l : List α} {i : Nat} (h : i < l.length) :
@@ -209,7 +209,7 @@ theorem take_succ_eq_append_getElem {i} {l : List α} (h : i < l.length) : l.tak
   match l with
   | [] => simp
   | x :: xs =>
-    simpa using take_append_getLast (x :: xs) (by simp)
+    simpa using! take_append_getLast (x :: xs) (by simp)
 
 theorem drop_left : ∀ {l₁ l₂ : List α}, drop (length l₁) (l₁ ++ l₂) = l₂
   | [], _ => rfl
@@ -230,10 +230,10 @@ theorem take_left' {l₁ l₂ : List α} {i} (h : length l₁ = i) : take i (l�
 theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
   induction l generalizing i with
   | nil =>
-    simp only [take_nil, Option.toList, getElem?_nil, append_nil]
+    simp only [take_nil, Option.toList, append_nil, getElem?_nil]
   | cons hd tl hl =>
     cases i
-    · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
+    · simp only [take, Option.toList, nil_append, getElem?_cons, ↓reduceIte]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
 @[deprecated take_add_one (since := "2025-10-26")]
@@ -256,7 +256,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | [], i => by simp
   | l, 0 => by simp
   | _ :: tl, n + 1 => by
-    dsimp
+    simp
     rw [map_drop]
 
 theorem drop_eq_extract {l : List α} {k : Nat} :

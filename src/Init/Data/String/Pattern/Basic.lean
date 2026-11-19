@@ -96,6 +96,44 @@ theorem endPos_ofSliceFrom {s : Slice} {p : s.Pos} {st : SearchStep (s.sliceFrom
     st.ofSliceFrom.endPos = Slice.Pos.ofSliceFrom st.endPos := by
   cases st <;> simp [ofSliceFrom]
 
+/--
+Converts a {lean}`SearchStep s` into a {lean}`SearchStep t` by applying {name}`Slice.Pos.cast` to the
+start and end position.
+-/
+@[inline]
+def cast {s t : Slice} (hst : s.copy = t.copy) : SearchStep s → SearchStep t
+  | .rejected startPos endPos => .rejected (startPos.cast hst) (endPos.cast hst)
+  | .matched startPos endPos => .matched (startPos.cast hst) (endPos.cast hst)
+
+@[simp]
+theorem cast_rejected {s t : Slice} {hst : s.copy = t.copy} {startPos endPos : s.Pos} :
+    (SearchStep.rejected startPos endPos).cast hst = .rejected (startPos.cast hst) (endPos.cast hst) :=
+  (rfl)
+
+@[simp]
+theorem cast_matched {s t : Slice} {hst : s.copy = t.copy} {startPos endPos : s.Pos} :
+    (SearchStep.matched startPos endPos).cast hst = .matched (startPos.cast hst) (endPos.cast hst) :=
+  (rfl)
+
+@[simp]
+theorem startPos_cast {s t : Slice} (hst : s.copy = t.copy) {st : SearchStep s} :
+    (st.cast hst).startPos = st.startPos.cast hst := by
+  cases st <;> simp
+
+@[simp]
+theorem endPos_cast {s t : Slice} (hst : s.copy = t.copy) {st : SearchStep s} :
+    (st.cast hst).endPos = st.endPos.cast hst := by
+  cases st <;> simp
+
+@[simp]
+theorem cast_rfl {s : Slice} {st : SearchStep s} : st.cast rfl = st := by
+  cases st <;> simp
+
+@[simp]
+theorem cast_cast {s t u : Slice} {hst : s.copy = t.copy} {htu : t.copy = u.copy} {st : SearchStep s} :
+    (st.cast hst).cast htu = st.cast (hst.trans htu) := by
+  cases st <;> simp
+
 end SearchStep
 
 /--
@@ -103,13 +141,13 @@ Provides simple pattern matching capabilities from the start of a {name}`Slice`.
 -/
 class ForwardPattern {ρ : Type} (pat : ρ) where
   /--
-  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
-  prefix removed; otherwise the result is {name}`none`.
+  Checks whether the slice starts with the pattern. If it does, the position just after the prefix
+  is returned; otherwise the result is {name}`none`.
   -/
   skipPrefix? : (s : Slice) →  Option s.Pos
   /--
-  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
-  prefix removed; otherwise the result is {name}`none`.
+  Checks whether the slice starts with the pattern. If it does, the position just after the prefix
+  is returned; otherwise the result is {name}`none`.
   -/
   skipPrefixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => skipPrefix? s
   /--
@@ -249,77 +287,25 @@ the given {name}`ForwardPattern` instance.
 It is sometimes possible to give a more efficient implementation; see {name}`ToForwardSearcher`
 for more details.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def defaultImplementation [ForwardPattern pat] :
     ToForwardSearcher pat (DefaultForwardSearcher pat) where
   toSearcher := DefaultForwardSearcher.iter pat
 
 end ToForwardSearcher
 
-namespace Internal
-
-@[extern "lean_string_memcmp"]
-def memcmpStr (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
-  go 0
-where
-  go (curr : String.Pos.Raw) : Bool :=
-    if h : curr < len then
-      have hl := by
-        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h1 ⊢
-        omega
-      have hr := by
-        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h2 ⊢
-        omega
-      if lhs.getUTF8Byte (curr.offsetBy lstart) hl == rhs.getUTF8Byte (curr.offsetBy rstart) hr then
-        go curr.inc
-      else
-        false
-    else
-      true
-  termination_by len.byteIdx - curr.byteIdx
-  decreasing_by
-    simp [Pos.Raw.lt_iff] at h ⊢
-    omega
-
-@[inline]
-def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)
-    (len : String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
-    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
-  memcmpStr
-    lhs.str
-    rhs.str
-    (lstart.offsetBy lhs.startInclusive.offset)
-    (rstart.offsetBy rhs.startInclusive.offset)
-    len
-    (by
-      have := lhs.startInclusive_le_endExclusive
-      have := lhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
-        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
-      omega)
-    (by
-      have := rhs.startInclusive_le_endExclusive
-      have := rhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
-        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
-      omega)
-
-end Internal
-
 /--
 Provides simple pattern matching capabilities from the end of a {name}`Slice`.
 -/
 class BackwardPattern {ρ : Type} (pat : ρ) where
   /--
-  Checks whether the slice ends with the pattern. If it does, the slice is returned with the
-  suffix removed; otherwise the result is {name}`none`.
+  Checks whether the slice ends with the pattern. If it does, the start position of the suffix is
+  returned; otherwise the result is {name}`none`.
   -/
   skipSuffix? : (s : Slice) → Option s.Pos
   /--
-  Checks whether the slice ends with the pattern. If it does, the slice is returned with the
-  suffix removed; otherwise the result is {name}`none`.
+  Checks whether the slice ends with the pattern. If it does, the start position of the suffix is
+  returned; otherwise the result is {name}`none`.
   -/
   skipSuffixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => skipSuffix? s
   /--
@@ -337,7 +323,7 @@ can still return completely different results on different slices, even if they 
 string.
 
 There is a stronger lawfulness typeclass {lit}`LawfulBackwardPatternModel` that asserts that the
-{name}`BackwardPattern.skipSuffix?` function behaves like a function that skips the longest prefix
+{name}`BackwardPattern.skipSuffix?` function behaves like a function that skips the longest suffix
 according to some notion of matching.
 -/
 class LawfulBackwardPattern {ρ : Type} (pat : ρ) [BackwardPattern pat] : Prop where
@@ -363,9 +349,7 @@ the pattern from the end towards the start of a {name}`Slice`.
 While these operations can be implemented on top of {name}`BackwardPattern`, some patterns allow
 for more efficient implementations. For example, a searcher for {name}`String` patterns derived
 from the {name}`BackwardPattern` instance on strings would try to match the pattern at every
-position in the string, but more efficient string matching routines are known. Indeed, the Lean
-standard library uses the Knuth-Morris-Pratt algorithm. See the module
-{module -checked}`Init.Data.String.Pattern.String` for the implementation.
+position in the string, but more efficient string matching routines are known.
 
 This class can be used to provide such an efficient implementation. If there is no
 need to specialize in this fashion, then
@@ -454,7 +438,7 @@ the given {name}`BackwardPattern` instance.
 It is sometimes possible to give a more efficient implementation; see {name}`ToBackwardSearcher`
 for more details.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def defaultImplementation [BackwardPattern pat] :
     ToBackwardSearcher pat (DefaultBackwardSearcher pat) where
   toSearcher := DefaultBackwardSearcher.iter pat

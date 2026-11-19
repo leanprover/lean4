@@ -128,7 +128,7 @@ Tactic configuration structures are recorded.
 public def test4 : True := by simp +contextual
 
 /--
-info: Entries: [import Init.Tactics, meta import Init.MetaTypes]
+info: Entries: [import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -237,6 +237,27 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
+A Verso doc comment creates no dependency, because the syntax kinds of its markup are builtin.
+-/
+
+#eval resetExtraModUses
+
+set_option doc.verso true in
+/--
+A *Verso* doc comment with a list:
+
+* one
+* two
+-/
+def versoDocumented := 1
+
+/--
+info: Entries: []
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
 The syntax node kind in `syntax` declarations get recorded as a `meta` dependency.
 -/
 
@@ -323,6 +344,19 @@ attribute [parenthesizer Lean.Parser.Tactic.done] myParenthesizer
 
 /--
 info: Entries: [public import Init.Tactics]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-! `inferInstanceAs` inputs not included in output. -/
+
+#eval resetExtraModUses
+
+def MyNat := Nat
+instance : Max MyNat := inferInstanceAs (Max Nat)
+
+/--
+info: Entries: [import Init.Data.Nat.Basic]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

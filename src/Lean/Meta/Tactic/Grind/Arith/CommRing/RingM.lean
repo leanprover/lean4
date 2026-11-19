@@ -6,12 +6,25 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Sym.Arith.Functions
+public import Lean.Meta.Sym.Arith.MonadVar
+import Lean.Meta.Sym.Arith.Poly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).ringSteps
+
+def checkMaxDegree (p : Poly) : GoalM Bool := do
+  if p.degree >= (← getConfig).ringMaxDegree then
+    unless (← get').reportedMaxDegreeIssue do
+      modify' fun s => { s with reportedMaxDegreeIssue := true }
+      reportIssue! "ring polynomial degree {p.degree} exceeds threshold `(ringMaxDegree := {p.degree})`"
+    return true
+  else
+    return false
 
 def incSteps (n : Nat := 1) : GoalM Unit := do
   modify' fun s => { s with steps := s.steps + n }
@@ -22,12 +35,19 @@ structure RingM.Context where
   If `checkCoeffDvd` is `true`, then when using a polynomial `k*m - p`
   to simplify `.. + k'*m*m_2 + ...`, the substitution is performed IF
   - `k` divides `k'`, OR
+  - `|k| < |k'|`, and the substitution is a Euclidean remainder step that leaves
+    `(k' % k)*m*m_2` (see `Poly.simpM?`), OR
   - Ring implements `NoNatZeroDivisors`.
 
   We need this check when simplifying disequalities. In this case, if we perform
   the simplification anyway, we may end up with a proof that `k * q = 0`, but
   we cannot deduce `q = 0` since the ring does not implement `NoNatZeroDivisors`
   See comment at `PolyDerivation`.
+
+  We also need it when destructively simplifying equations, i.e., when *replacing* an
+  equation with its simplified form (`EqCnstr.simplify` and `EqCnstr.simplifyBasis`):
+  the rewrite multiplies the equation by `k₁ = k/gcd k k'`, and the result is weaker than
+  the original equation when `k₁ ≠ ±1`. See **Note** at `EqCnstr.simplify`.
   -/
   checkCoeffDvd : Bool := false
 
@@ -44,21 +64,37 @@ instance : MonadCanon RingM where
   canonExpr e := do shareCommon (← canon e)
   synthInstance? e := Grind.synthInstance? e
 
-protected def RingM.getCommRing : RingM CommRing := do
-  let s ← get'
+/-- The `Sym.Arith` classification record of the current ring. -/
+protected def RingM.getCommRing : RingM Sym.Arith.CommRing := do
+  let s ← getArithState
   let ringId ← getRingId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
   else
     throwError "`grind` internal error, invalid ringId"
 
-protected def RingM.modifyCommRing (f : CommRing → CommRing) : RingM Unit := do
+protected def RingM.modifyCommRing (f : Sym.Arith.CommRing → Sym.Arith.CommRing) : RingM Unit := do
   let ringId ← getRingId
-  modify' fun s => { s with rings := s.rings.modify ringId f }
+  modifyArithState fun s => { s with rings := s.rings.modify ringId f }
 
 instance : MonadCommRing RingM where
   getCommRing := RingM.getCommRing
   modifyCommRing := RingM.modifyCommRing
+
+/-- The per-goal solver state of the current ring. -/
+protected def RingM.getCommRingState : RingM CommRingState := do
+  return (← get').getRing (← getRingId)
+
+protected def RingM.modifyCommRingState (f : CommRingState → CommRingState) : RingM Unit := do
+  let ringId ← getRingId
+  modify' fun s => s.modifyRing ringId f
+
+instance : MonadCommRingState RingM where
+  getCommRingState := RingM.getCommRingState
+  modifyCommRingState := RingM.modifyCommRingState
+
+instance : MonadGetVar RingM where
+  getVar x := return (← getRingState).vars[x]!
 
 abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
   withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
@@ -81,6 +117,16 @@ def nonzeroCharInst? [Monad m] [MonadRing m] : m (Option (Expr × Nat)) := do
   if let some (inst, c) := (← getRing).charInst? then
     if c != 0 then
       return some (inst, c)
+  return none
+
+/--
+Returns the `IsCharP` instance if the current ring has characteristic `1`.
+Such a ring is trivial, and its polynomials violate the invariant that coefficients are nonzero
+modulo the characteristic, so the solver must not process them. See `IsCharP.eq_of_charOne`.
+-/
+def charOneInst? [Monad m] [MonadRing m] : m (Option Expr) := do
+  if let some (inst, 1) := (← getRing).charInst? then
+    return some inst
   return none
 
 def noZeroDivisorsInst? : RingM (Option Expr) := do
@@ -111,11 +157,11 @@ def isField : RingM Bool :=
   return (← getCommRing).fieldInst?.isSome
 
 def isQueueEmpty : RingM Bool :=
-  return (← getCommRing).queue.isEmpty
+  return (← getCommRingState).queue.isEmpty
 
 def getNext? : RingM (Option EqCnstr) := do
-  let some c := (← getCommRing).queue.min? | return none
-  modifyCommRing fun s => { s with queue := s.queue.erase c }
+  let some c := (← getCommRingState).queue.min? | return none
+  modifyCommRingState fun s => { s with queue := s.queue.erase c }
   incSteps
   return some c
 
@@ -130,12 +176,12 @@ def setTermRingId (e : Expr) : RingM Unit := do
     return ()
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
-def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRing m] [MonadSetTermId m] (e : Expr) : m Var := do
-  let s ← getRing
+def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRingState m] [MonadSetTermId m] (e : Expr) : m Var := do
+  let s ← getRingState
   if let some var := s.varMap.find? { expr := e } then
     return var
   let var : Var := s.vars.size
-  modifyRing fun s => { s with
+  modifyRingState fun s => { s with
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
   }
@@ -146,7 +192,38 @@ def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRing m] [MonadSetTermId m] (e
 instance : MonadSetTermId RingM where
   setTermId e := setTermRingId e
 
-def mkVar (e : Expr) : RingM Var :=
-  mkVarCore e
+/--
+Every term reified by the ring solver has been internalized, together with its subterms, before
+reification: the `internalize` hook runs after the core has created the `ENode`s of a term and
+its arguments, and solver-built terms are internalized where they are built.
+-/
+instance : MonadMkVar RingM where
+  mkVar e := do
+    unless (← alreadyInternalized e) do
+      throwError "`grind` internal error, ring term has not been internalized{indentExpr e}"
+    mkVarCore e
+
+private def mkOne (u : Level) (type : Expr) (semiringInst : Expr) : RingM Expr := do
+  let n := mkRawNatLit 1
+  let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [u]) type semiringInst n
+  canonExpr <| mkApp3 (mkConst ``OfNat.ofNat [u]) type n ofNatInst
+
+/--
+The numeral `1` of the current ring, internalized as a ring term of the current goal.
+The term is cached in the `Sym.Arith` record and thus shared by all goals, but internalization
+is per goal. The term may already be known to the core (e.g., as a subterm of a product) without
+having been registered by the ring solver, so the check is against the ring's own `denote` map.
+-/
+def getOne : RingM Expr := do
+  let ring ← getRing
+  let one ← if let some one := ring.one? then
+    pure one
+  else
+    let one ← mkOne ring.u ring.type ring.semiringInst
+    modifyRing fun s => { s with one? := some one }
+    pure one
+  unless (← getCommRingState).denote.contains { expr := one } do
+    internalize one 0
+  return one
 
 end Lean.Meta.Grind.Arith.CommRing

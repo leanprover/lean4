@@ -11,6 +11,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
 import Init.Data.String.Search
+import Init.Data.String.Length
 
 public section
 namespace Lean
@@ -113,12 +114,6 @@ def quickCmp (n₁ n₂ : Name) : Ordering :=
 def quickLt (n₁ n₂ : Name) : Bool :=
   quickCmp n₁ n₂ == Ordering.lt
 
-/-- Returns true if the name has any numeric components. -/
-def hasNum : Name → Bool
-  | .anonymous => false
-  | .str p _ => p.hasNum
-  | .num _ _ => true
-
 /-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
@@ -156,7 +151,7 @@ def isInternalDetail : Name → Bool
 where
   /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
   matchPrefix (s : String) (pre : String) :=
-    s.startsWith pre && (s |>.drop pre.length |>.all fun c => c.isDigit || c == '_')
+    (s.dropPrefix? pre).any (·.all fun c => c.isDigit || c == '_')
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.

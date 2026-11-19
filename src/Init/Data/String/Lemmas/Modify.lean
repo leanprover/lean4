@@ -58,10 +58,6 @@ theorem map_eq_internal {f : Char → Char} {s : String} : s.map f = .ofList (s.
   simp only [toList_map, toList_ofList]
 
 @[simp]
-theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.length := by
-  simp [← length_toList]
-
-@[simp]
 theorem map_eq_empty {f : Char → Char} {s : String} : s.map f = "" ↔ s = "" := by
   simp [← toList_eq_nil_iff]
 

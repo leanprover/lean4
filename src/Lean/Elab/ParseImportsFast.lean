@@ -11,6 +11,9 @@ public import Lean.Parser.Module
 public section
 
 namespace Lean
+
+open Lean
+
 namespace ParseImports
 
 structure State where
@@ -64,7 +67,7 @@ partial def finishCommentBlock (nesting : Nat) : Parser := fun input s =>
           if nesting == 1 then s.next input i
           else finishCommentBlock (nesting-1) input (s.next' input i h)
         else
-          finishCommentBlock nesting input (s.next' input i h)
+          finishCommentBlock nesting input (s.setPos i)
     else if curr == '/' then
       if h : i.atEnd input then eoi s
       else
@@ -233,7 +236,7 @@ def setImportAll : Parser := fun _ s =>
 
 def main : Parser :=
   keywordCore "module" (setIsModule false) (setIsModule true) >>
-  keywordCore "prelude" (fun _ s => s.pushImport `Init) skip >>
+  keywordCore "prelude" (fun _ s => (s.pushImport `Init).pushImport { module := `Init, isMeta := true }) skip >>
   manyImports (atomic (keywordCore "public" skip setExported >>
     keywordCore "meta" skip setMeta >>
     keyword "import") >>

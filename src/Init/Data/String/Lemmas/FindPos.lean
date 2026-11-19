@@ -246,8 +246,11 @@ theorem Pos.prev_next {s : Slice} {p : s.Pos} {h} : (p.next h).prev (by simp) = 
 theorem Pos.next_prev {s : Slice} {p : s.Pos} {h} : (p.prev h).next (by simp) = p :=
   next_eq_iff.2 (by simp)
 
-theorem Pos.prev?_eq_dif {s : Slice} {p : s.Pos} : p.prev? = if h : p = s.startPos then none else some (p.prev h) :=
+theorem Pos.prev?_eq_dite {s : Slice} {p : s.Pos} : p.prev? = if h : p = s.startPos then none else some (p.prev h) :=
   (rfl)
+
+@[deprecated String.Slice.Pos.prev?_eq_dite (since := "2026-07-21")]
+theorem Pos.prev?_eq_dif {s : String.Slice} {p : s.Pos} : p.prev? = if h : p = s.startPos then Option.none else Option.some (p.prev h) := String.Slice.Pos.prev?_eq_dite
 
 theorem Pos.prev?_eq_some_prev {s : Slice} {p : s.Pos} (h : p ≠ s.startPos) : p.prev? = some (p.prev h) := by
   simp [Pos.prev?, h]
@@ -492,7 +495,7 @@ theorem Pos.prev_ofToSlice {s : String} {p : s.toSlice.Pos} {h} :
 
 theorem Pos.prevn_le {s : String} {p : s.Pos} {n : Nat} :
     p.prevn n ≤ p := by
-  simpa [Pos.le_iff, ← offset_toSlice] using Slice.Pos.prevn_le
+  simpa [Pos.le_iff, ← offset_toSlice] using! Slice.Pos.prevn_le
 
 theorem Pos.ofSliceTo_prev {s : String} {p₀ : s.Pos} {p : (s.sliceTo p₀).Pos} {h} :
     Pos.ofSliceTo (p.prev h) = (Pos.ofSliceTo p).prev (by simpa [← Pos.ofSliceTo_inj] using h) := by
@@ -531,9 +534,12 @@ theorem Pos.prev?_eq_prev?_toSlice {s : String} {p : s.Pos} : p.prev? = p.toSlic
 theorem Pos.prev?_toSlice {s : String} {p : s.Pos} : p.toSlice.prev? = p.prev?.map Pos.toSlice := by
   simp [prev?_eq_prev?_toSlice]
 
-theorem Pos.prev?_eq_dif {s : String} {p : s.Pos} : p.prev? = if h : p = s.startPos then none else some (p.prev h) := by
-  simp [prev?_eq_prev?_toSlice, Slice.Pos.prev?_eq_dif, apply_dite (Option.map Pos.ofToSlice),
+theorem Pos.prev?_eq_dite {s : String} {p : s.Pos} : p.prev? = if h : p = s.startPos then none else some (p.prev h) := by
+  simp [prev?_eq_prev?_toSlice, Slice.Pos.prev?_eq_dite, apply_dite (Option.map Pos.ofToSlice),
     ofToSlice_prev]
+
+@[deprecated String.Pos.prev?_eq_dite (since := "2026-07-21")]
+theorem Pos.prev?_eq_dif {s : String} {p : s.Pos} : p.prev? = if h : p = s.startPos then Option.none else Option.some (p.prev h) := String.Pos.prev?_eq_dite
 
 theorem Pos.prev?_eq_some_prev {s : String} {p : s.Pos} (h : p ≠ s.startPos) : p.prev? = some (p.prev h) := by
   simp [prev?_eq_prev?_toSlice, Slice.Pos.prev?_eq_some_prev (by simpa : p.toSlice ≠ s.toSlice.startPos),

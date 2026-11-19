@@ -3,6 +3,7 @@ import Lean
 set_option linter.missingDocs false
 set_option linter.all true
 set_option linter.unusedSimpArgs false
+set_option linter.redundantVisibility false
 
 def explicitlyUsedVariable (x : Nat) : Nat :=
   x
@@ -153,7 +154,7 @@ class Baz (α : Type) where
     let y := 5
     3
 
-instance instBaz (α β : Type) : Baz α where
+@[reducible] def instBaz (α β : Type) : Baz α where
   baz (x : Nat) := 5
 
 
@@ -258,7 +259,7 @@ def Nat.discriminate (n : Nat) (H1 : n = 0 → α) (H2 : ∀ m, n = succ m → �
 /-! These are *not* linted against anymore as they are parameters used in the eventual body term. -/
 example [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
 example {α β} [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
-example {h : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
+example {h : Decidable True} (t e : α) : ite True t e = t := ite_eq_left trivial
 
 inductive A where
   | intro : Nat → A

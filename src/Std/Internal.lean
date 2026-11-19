@@ -6,8 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Internal.Async
-public import Std.Internal.Http
+public import Std.Async
+public import Std.Http
+public import Std.Internal.ForIn
+public import Std.Internal.Order
 public import Std.Internal.Parsec
 public import Std.Internal.UV
 

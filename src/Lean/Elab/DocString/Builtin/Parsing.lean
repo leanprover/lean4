@@ -6,6 +6,8 @@ Author: David Thrane Christiansen
 module
 prelude
 public import Lean.Parser.Extension
+public import Lean.DocString.Syntax
+public import Lean.DocString.View
 public import Init.While
 import Init.Data.Array.Attach
 import Init.Data.Array.Mem
@@ -15,6 +17,50 @@ open Lean.Parser
 
 public section
 
+/--
+Requires that all non-whitespace arguments to a role are code elements, returning their content if
+so. Throws an error otherwise.
+-/
+def onlyCodes [Monad m] [MonadError m] (xs : TSyntaxArray ``Parser.inline) :
+    m (Array VersoCode) := do
+  let mut codes := #[]
+  for stx in xs do
+    match InlineView.of stx with
+    | some (.code v) => codes := codes.push v.content
+    | some (.text v) =>
+      unless v.content.view.all Char.isWhitespace do
+        throwErrorAt stx "Expected code"
+    | _ => throwErrorAt stx "Expected code"
+  return codes
+
+/--
+The syntax that spans a role's inline arguments, together with the square brackets around them (if
+present). Arguments that cover no source text of their own are named by the role instead.
+
+The arguments are the content of the role that is being elaborated, which is the current reference.
+-/
+private def argumentRange [Monad m] [MonadRef m] (xs : TSyntaxArray ``Parser.inline) : m Syntax := do
+  let ref ← getRef
+  if let some { brackets := some (opener, closer), .. } := RoleView.of ⟨ref⟩ then
+    return mkNullNode (#[opener] ++ xs.map (·.raw) ++ #[closer])
+  if xs.all isBlank then return ref
+  return mkNullNode (xs.map (·.raw))
+where
+  isBlank (x : TSyntax ``Parser.inline) : Bool :=
+    match InlineView.of x with
+    | some (.text v) => v.content.view.all Char.isWhitespace
+    | _ => false
+
+/--
+Requires that the non-whitespace arguments to a role are a single code element, returning its
+content if so. Throws an error otherwise.
+-/
+def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray ``Parser.inline) :
+    m VersoCode := do
+  let codes ← onlyCodes xs
+  if h : codes.size = 1 then return codes[0]
+  else throwErrorAt (← argumentRange xs) "Expected precisely 1 code argument"
+
 private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!
@@ -23,10 +69,27 @@ private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.
 variable [Monad m] [MonadFileMap m] [MonadEnv m]
 variable [MonadError m] [AddMessageContext m] [MonadLog m] [MonadOptions m]
 
-def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
+/--
+Parses a string literal's contents directly from its decoded value rather than from the source file.
+This is used when the literal has no source position, as in a docstring that came from a macro.
+-/
+private def parseFromContents (p : ParserFn) (contents : String) : m Syntax := do
+  let env ← getEnv
+  let ictx := mkInputContext contents (← getFileName)
+  let s := p.run ictx { env, options := ← getOptions } (getTokenTable env) (mkParserState contents)
+  if !s.allErrors.isEmpty then
+    throwError (s.toErrorMsg ictx)
+  else if ictx.atEnd s.pos then
+    pure s.stxStack.back
+  else
+    throwError ((s.mkError "end of input").toErrorMsg ictx)
+
+def parseContent (p : ParserFn) (tok : Syntax) (contents : String) : m Syntax := do
+  if (tok.getPos? (canonicalOnly := true)).isNone then
+    return ← parseFromContents p contents
   let text ← getFileMap
   let env ← getEnv
-  let ⟨pos, endPos⟩ ← strLitRange s
+  let ⟨pos, endPos⟩ ← strLitRange ⟨tok⟩
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
@@ -43,6 +106,8 @@ def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
     throwError ((s.mkError "end of input").toErrorMsg ictx)
 
 def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
+  if (strLit.raw.getPos? (canonicalOnly := true)).isNone then
+    return ← parseFromContents p strLit.getString
   let text ← getFileMap
   let env ← getEnv
   let ⟨pos, _⟩ ← strLitRange strLit
@@ -99,7 +164,19 @@ where
       n := n + 1
     return n
 
-def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
+def parseContent' (p : ParserFn) (tok : Syntax) (contents : String) : m (Syntax × Bool) := do
+  let s : StrLit := ⟨tok⟩
+  if (tok.getPos? (canonicalOnly := true)).isNone then
+    let env ← getEnv
+    let ictx := mkInputContext contents (← getFileName)
+    let st := p.run ictx { env, options := ← getOptions } (getTokenTable env) (mkParserState contents)
+    let err ←
+      if !st.allErrors.isEmpty then
+        logError (st.toErrorMsg ictx); pure true
+      else if !ictx.atEnd st.pos then
+        logError ((st.mkError "end of input").toErrorMsg ictx); pure true
+      else pure false
+    return (st.stxStack.back, err)
   let text ← getFileMap
   let env ← getEnv
   let endPos := s.raw.getTailPos? true |>.get!
@@ -120,3 +197,23 @@ def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
       pure true
     else pure false
   pure (s.stxStack.back, err)
+
+/-- Parses the contents of an inline code element. -/
+def parseVersoCode (p : ParserFn) (c : VersoCode) : m Syntax :=
+  parseContent p c c.getVersoCode
+
+/-- Parses the contents of a code block. -/
+def parseVersoCodeBlock (p : ParserFn) (c : VersoCodeBlock) : m Syntax :=
+  parseContent p c c.getVersoCodeBlock
+
+/-- Parses the contents of an inline code element, reporting errors rather than throwing. -/
+def parseVersoCode' (p : ParserFn) (c : VersoCode) : m (Syntax × Bool) :=
+  parseContent' p c c.getVersoCode
+
+/-- Parses the contents of a string literal argument. -/
+def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax :=
+  parseContent p s s.getString
+
+/-- Parses the contents of a string literal argument, reporting errors rather than throwing. -/
+def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) :=
+  parseContent' p s s.getString

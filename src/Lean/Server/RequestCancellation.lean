@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Server.ServerTask
 public import Init.System.Promise
+public import Init.System.CancelToken
 
 public section
 

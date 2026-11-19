@@ -1,4 +1,3 @@
-361.lean:1:62-3:7: error: unexpected token 'theorem'; expected '{' or tactic
 361.lean:1:60-1:62: error: unsolved goals
 p q r : Prop
 h1 : p ∨ q

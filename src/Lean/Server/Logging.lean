@@ -19,7 +19,7 @@ public structure LogConfig where
   disallowedMethods? : Option (Std.HashSet String)
 
 public def LogConfig.ofLspLogConfig (lspCfg? : Option Lsp.LogConfig) : IO LogConfig := do
-  let time ← Std.Time.ZonedDateTime.now
+  let time ← Std.Time.DateTime.now
   let time := time.format "yyyy-MM-dd-HH-mm-ss-SSSSXX"
   let logFileName := s!"LSP_{time}.log"
   let defaultLogFile : System.FilePath := System.FilePath.join "." logFileName
@@ -89,16 +89,16 @@ where
   method? : Option MessageMethod :=
     messageMethod? msg <|> (do pending.get? (← messageId? msg))
 
-local instance : ToJson Std.Time.ZonedDateTime where
+local instance : ToJson Std.Time.DateTime where
   toJson dt := dt.toISO8601String
 
-local instance : FromJson Std.Time.ZonedDateTime where
+local instance : FromJson Std.Time.DateTime where
   fromJson?
-    | .str s => Std.Time.ZonedDateTime.fromISO8601String s
-    | _ => throw "Expected string when converting JSON to Std.Time.ZonedDateTime"
+    | .str s => Std.Time.DateTime.fromISO8601String s
+    | _ => throw "Expected string when converting JSON to Std.Time.DateTime"
 
 structure LogEntry where
-  time : Std.Time.ZonedDateTime
+  time : Std.Time.DateTime
   direction : JsonRpc.MessageDirection
   kind : JsonRpc.MessageKind
   msg : JsonRpc.Message
@@ -109,7 +109,7 @@ public def writeLogEntry (cfg : LogConfig) (pending : Std.HashMap JsonRpc.Reques
   if ! isMsgAllowed cfg pending msg then
     return
   let entry : LogEntry := {
-    time := ← Std.Time.ZonedDateTime.now
+    time := ← Std.Time.DateTime.now
     direction
     kind := .ofMessage msg
     msg

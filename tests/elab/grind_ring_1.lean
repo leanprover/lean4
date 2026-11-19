@@ -18,6 +18,7 @@ example (x : UInt8) : (x + 16)*(x - 16) = x^2 := by
 /--
 trace: [grind.ring] new ring: Int
 [grind.ring] NoNatZeroDivisors available: true
+[grind.ring] PowIdentity available: false
 -/
 #guard_msgs (trace) in
 set_option trace.grind.ring true in
@@ -30,10 +31,13 @@ example (x : BitVec 8) : (x + 16)*(x - 16) = x^2 := by
 /--
 trace: [grind.ring] new ring: Ring.OfSemiring.Q Nat
 [grind.ring] NoNatZeroDivisors available: true
+[grind.ring] PowIdentity available: false
 [grind.ring] new ring: Int
 [grind.ring] NoNatZeroDivisors available: true
+[grind.ring] PowIdentity available: false
 [grind.ring] new ring: BitVec 8
 [grind.ring] NoNatZeroDivisors available: false
+[grind.ring] PowIdentity available: false
 -/
 #guard_msgs (trace) in
 set_option trace.grind.ring true in

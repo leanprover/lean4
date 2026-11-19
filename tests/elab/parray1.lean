@@ -1,4 +1,5 @@
 import Lean.Data.PersistentArray
+open Lean
 
 def check [BEq α] (as : List α) : Bool :=
   as.toPArray'.foldr (.::.) [] == as

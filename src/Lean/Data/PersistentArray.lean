@@ -148,6 +148,17 @@ def push (t : PersistentArray α) (a : α) : PersistentArray α :=
   else
     mkNewTail r
 
+/--
+Pads `t` on the right with copies of `a` until it has at least `n` elements.
+If `t.size ≥ n`, returns `t` unchanged.
+-/
+def rightpad (n : Nat) (a : α) (t : PersistentArray α) : PersistentArray α :=
+  go (n - t.size) t
+where
+  go : Nat → PersistentArray α → PersistentArray α
+    | 0,     t => t
+    | k + 1, t => go k (t.push a)
+
 private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
   Array.mkEmpty PersistentArray.branching.toNat
 
@@ -227,7 +238,7 @@ variable {β : Type v}
 set_option linter.unusedVariables.funArgs false in
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
-    (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
+    (f : α → β → m (ForInStep β)) (n : @&PersistentArrayNode α) (b : β) : m (ForInStep β) := do
   let mut b := b
   match n with
   | leaf vs =>
@@ -243,7 +254,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield bNew => b := bNew
     return ForInStep.yield b
 
-@[specialize] protected def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
+@[specialize] protected def forIn (t : @&PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
   match (← forInAux (inh := ⟨init⟩) f t.root init) with
   | ForInStep.done b  => pure b
   | ForInStep.yield b =>
@@ -397,10 +408,6 @@ def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v
 
-end Lean
-
-open Lean (PersistentArray)
-
 /--
 Converts a list to a persistent array.
 -/
@@ -412,3 +419,5 @@ def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
 
 def Array.toPArray' {α : Type u} (xs : Array α) : PersistentArray α :=
   xs.foldl (init := .empty) fun p x => p.push x
+
+end Lean

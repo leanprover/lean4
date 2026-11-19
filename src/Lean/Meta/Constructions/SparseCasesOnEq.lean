@@ -83,13 +83,13 @@ where
           value := val
         })
 
-private def isName (env : Environment) (n : Name) : Bool :=
+def isName (env : Environment) (n : Name) : Bool :=
   if let .str p "else_eq" := n then
     (getSparseCasesOnInfoCore env p).isSome
   else
     false
 
-builtin_initialize registerReservedNamePredicate isName
+builtin_initialize registerReservedNamePredicate (· == "else_eq") isName
 
 builtin_initialize registerReservedNameAction fun name => do
   if isName (← getEnv) name then

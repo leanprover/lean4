@@ -346,3 +346,12 @@ coinductive InfSeq (r : α → α → Prop) : α → Prop where
 
 #check InfSeq.step
      --^ textDocument/hover
+
+def map' (f : α → β) : List α → List β
+  | []    => []
+  | a::as => f a :: map' f as
+
+example (xs : List α) : map' id xs = xs := by
+  fun_induction map'
+              --^ textDocument/hover
+  <;> simp_all only [id]

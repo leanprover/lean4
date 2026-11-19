@@ -52,3 +52,5 @@ bar.x.snd.snd : Nat
 Hint: Using one of these would be valid:
   [apply] `Nat.succ`
   [apply] `Nope.succ`
+10488.lean:63:7: error: unexpected identifier after decimal point; consider parenthesizing the number
+10488.lean:64:7: error: unexpected identifier after decimal point; consider parenthesizing the number

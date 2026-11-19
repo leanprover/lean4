@@ -12,6 +12,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.Data.Range
 import Init.While
+import Init.Data.String.Length
 
 set_option linter.missingDocs true
 

@@ -99,6 +99,11 @@ theorem Pos.splits {s : String} (p : s.Pos) :
   eq_append := by simp [← toByteArray_inj, Slice.toByteArray_copy, ← size_toByteArray]
   offset_eq_rawEndPos := by simp
 
+@[simp]
+theorem sliceTo_append_sliceFrom {s : String} {pos : s.Pos} :
+    (s.sliceTo pos).copy ++ (s.sliceFrom pos).copy = s :=
+  pos.splits.eq_append.symm
+
 theorem Slice.Pos.splits {s : Slice} (p : s.Pos) :
     p.Splits (s.sliceTo p).copy (s.sliceFrom p).copy where
   eq_append := copy_eq_copy_sliceTo
@@ -341,27 +346,27 @@ theorem Slice.Pos.Splits.of_next {s : Slice} {p : s.Pos} {hp}
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_next p hp)
   exact splits_next_right p hp
 
-/-- You might want to invoke `Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
 theorem Pos.Splits.prev {s : String} {p : s.Pos}
     (h : p.Splits (t₁ ++ singleton c) t₂) : (p.prev h.ne_startPos_of_singleton).Splits t₁ (singleton c ++ t₂) := by
   generalize h.ne_startPos_of_singleton = hp
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_prev_right p hp)
   exact splits_prev p hp
 
-/-- You might want to invoke `Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
 theorem Pos.Splits.of_prev {s : String} {p : s.Pos} {hp}
     (h : (p.prev hp).Splits t₁ (singleton c ++ t₂)) : p.Splits (t₁ ++ singleton c) t₂ := by
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_prev p hp)
   exact splits_prev_right p hp
 
-/-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
 theorem Slice.Pos.Splits.prev {s : Slice} {p : s.Pos}
     (h : p.Splits (t₁ ++ singleton c) t₂) : (p.prev h.ne_startPos_of_singleton).Splits t₁ (singleton c ++ t₂) := by
   generalize h.ne_startPos_of_singleton = hp
   obtain ⟨⟨rfl, rfl⟩, rfl⟩ := by simpa using h.eq (splits_prev_right p hp)
   exact splits_prev p hp
 
-/-- You might want to invoke `Slice.Pos.Splits.exists_eq_append_singleton_of_ne_startPos` to be able to apply this. -/
+/-- You might want to invoke `Slice.Pos.Splits.exists_eq_singleton_append_of_ne_startPos` to be able to apply this. -/
 theorem Slice.Pos.Splits.of_prev {s : Slice} {p : s.Pos} {hp}
     (h : (p.prev hp).Splits t₁ (singleton c ++ t₂)) : p.Splits (t₁ ++ singleton c) t₂ := by
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (splits_prev p hp)
@@ -375,6 +380,10 @@ theorem Slice.copy_sliceTo_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₁ : 
   · rintro ⟨t₂, h⟩
     exact p.splits.eq_left h
 
+theorem Slice.copy_sliceTo_eq_iff_splits {s : Slice} {p : s.Pos} {t₁ : String} :
+    (s.sliceTo p).copy = t₁ ↔ p.Splits t₁ (s.sliceFrom p).copy :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_left⟩
+
 theorem Slice.copy_sliceFrom_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₂ : String} :
     (s.sliceFrom p).copy = t₂ ↔ ∃ t₁, p.Splits t₁ t₂ := by
   refine ⟨?_, ?_⟩
@@ -383,13 +392,25 @@ theorem Slice.copy_sliceFrom_eq_iff_exists_splits {s : Slice} {p : s.Pos} {t₂ 
   · rintro ⟨t₂, h⟩
     exact p.splits.eq_right h
 
+theorem Slice.copy_sliceFrom_eq_iff_splits {s : Slice} {p : s.Pos} {t₂ : String} :
+    (s.sliceFrom p).copy = t₂ ↔ p.Splits (s.sliceTo p).copy t₂ :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_right⟩
+
 theorem copy_sliceTo_eq_iff_exists_splits {s : String} {p : s.Pos} {t₁ : String} :
     (s.sliceTo p).copy = t₁ ↔ ∃ t₂, p.Splits t₁ t₂ := by
   simp [← Pos.splits_toSlice_iff, ← Slice.copy_sliceTo_eq_iff_exists_splits]
 
+theorem copy_sliceTo_eq_iff_splits {s : String} {p : s.Pos} {t₁ : String} :
+    (s.sliceTo p).copy = t₁ ↔ p.Splits t₁ (s.sliceFrom p).copy :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_left⟩
+
 theorem copy_sliceFrom_eq_iff_exists_splits {s : String} {p : s.Pos} {t₂ : String} :
     (s.sliceFrom p).copy = t₂ ↔ ∃ t₁, p.Splits t₁ t₂ := by
   simp [← Pos.splits_toSlice_iff, ← Slice.copy_sliceFrom_eq_iff_exists_splits]
+
+theorem copy_sliceFrom_eq_iff_splits {s : String} {p : s.Pos} {t₂ : String} :
+    (s.sliceFrom p).copy = t₂ ↔ p.Splits (s.sliceTo p).copy t₂ :=
+  ⟨fun h => h ▸ p.splits, p.splits.eq_right⟩
 
 theorem Pos.Splits.offset_eq_decreaseBy {s : String} {p : s.Pos} (h : p.Splits t₁ t₂) :
     p.offset = s.rawEndPos.decreaseBy t₂.utf8ByteSize := by
@@ -587,7 +608,7 @@ theorem Slice.Pos.Splits.splits_rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t
 /--
 Given a position that splits `s` into `t₁ ++ t₂` and `t₃` with witness `h`, construct a position
 `h.rotateLeft` that splits `s` into `t₁` and `t₂ ++ t₃`. Use `h.splits_rotateLeft` for the witness
-that `h.rotateLEft` splits `s` as required.
+that `h.rotateLeft` splits `s` as required.
 -/
 @[inline]
 def Slice.Pos.Splits.rotateLeft {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
@@ -640,6 +661,28 @@ theorem Pos.splits_append_rawEndPos {s t : String} :
     ((s ++ t).pos s.rawEndPos ((Pos.Raw.isValid_rawEndPos).append_right t)).Splits s t where
   eq_append := rfl
   offset_eq_rawEndPos := rfl
+
+/--
+Given a slice `s` such that `s.copy = t₁ ++ t₂`, obtain the position sitting between `t₁` and `t₂`.
+-/
+def Slice.Pos.ofEqAppend {s : Slice} {t₁ t₂ : String} (h : s.copy = t₁ ++ t₂) : s.Pos :=
+  s.pos t₁.rawEndPos
+    (by simpa [← Pos.Raw.isValid_copy_iff, h] using ((Pos.Raw.isValid_rawEndPos).append_right t₂))
+
+theorem Slice.Pos.splits_ofEqAppend {s : Slice} {t₁ t₂ : String} (h : s.copy = t₁ ++ t₂) :
+    (ofEqAppend h).Splits t₁ t₂ where
+  eq_append := h
+  offset_eq_rawEndPos := by simp [ofEqAppend]
+
+/--
+Given a string `s` such that `s = t₁ ++ t₂`, obtain the position sitting between `t₁` and `t₂`.
+-/
+def Pos.ofEqAppend {s t₁ t₂ : String} (h : s = t₁ ++ t₂) : s.Pos :=
+  ((t₁ ++ t₂).pos t₁.rawEndPos ((Pos.Raw.isValid_rawEndPos).append_right t₂)).cast h.symm
+
+theorem Pos.splits_ofEqAppend {s t₁ t₂ : String} (h : s = t₁ ++ t₂) : (ofEqAppend h).Splits t₁ t₂ where
+  eq_append := h
+  offset_eq_rawEndPos := by simp [ofEqAppend]
 
 theorem Pos.Splits.copy_sliceTo_eq {s : String} {p : s.Pos} (h : p.Splits t₁ t₂) :
     (s.sliceTo p).copy = t₁ :=
@@ -717,9 +760,9 @@ theorem splits_nextn_startPos (s : String) (n : Nat) :
   simpa using s.splits_startPos.nextn n
 
 theorem Slice.Pos.Splits.prevn {s : Slice} {t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
-    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.length - n))) (String.ofList (t₁.toList.drop (t₁.length - n)) ++ t₂) := by
+    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.toList.length - n))) (String.ofList (t₁.toList.drop (t₁.toList.length - n)) ++ t₂) := by
   induction n generalizing p t₁ t₂ with
-  | zero => simpa [← String.length_toList]
+  | zero => simpa
   | succ n ih =>
     rw [Pos.prevn_add_one]
     split
@@ -728,16 +771,56 @@ theorem Slice.Pos.Splits.prevn {s : Slice} {t₁ t₂ : String} {p : s.Pos} (h :
       simpa [Nat.add_sub_add_right, List.take_append, List.drop_append, ← append_assoc] using ih h.prev
 
 theorem Slice.splits_prevn_endPos (s : Slice) (n : Nat) :
-    (s.endPos.prevn n).Splits (String.ofList (s.copy.toList.take (s.copy.length - n)))
-      (String.ofList (s.copy.toList.drop (s.copy.length - n))) := by
+    (s.endPos.prevn n).Splits (String.ofList (s.copy.toList.take (s.copy.toList.length - n)))
+      (String.ofList (s.copy.toList.drop (s.copy.toList.length - n))) := by
   simpa using s.splits_endPos.prevn n
 
 theorem Pos.Splits.prevn {s t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
-    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.length - n))) (String.ofList (t₁.toList.drop (t₁.length - n)) ++ t₂) := by
+    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.toList.length - n))) (String.ofList (t₁.toList.drop (t₁.toList.length - n)) ++ t₂) := by
   simpa [← splits_toSlice_iff, toSlice_prevn] using h.toSlice.prevn n
 
 theorem splits_prevn_endPos (s : String) (n : Nat) :
-    (s.endPos.prevn n).Splits (String.ofList (s.toList.take (s.length - n))) (String.ofList (s.toList.drop (s.length - n))) := by
+    (s.endPos.prevn n).Splits (String.ofList (s.toList.take (s.toList.length - n))) (String.ofList (s.toList.drop (s.toList.length - n))) := by
   simpa using s.splits_endPos.prevn n
+
+@[simp]
+theorem Slice.copy_sliceFrom_cast {s t : Slice} (hst : s.copy = t.copy) {pos : s.Pos} :
+    (t.sliceFrom (pos.cast hst)).copy = (s.sliceFrom pos).copy := by
+  simpa [copy_sliceFrom_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+@[simp]
+theorem Slice.copy_sliceTo_cast {s t : Slice} (hst : s.copy = t.copy) {pos : s.Pos} :
+    (t.sliceTo (pos.cast hst)).copy = (s.sliceTo pos).copy := by
+  simpa [copy_sliceTo_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+@[simp]
+theorem copy_sliceFrom_cast {s t : String} (hst : s = t) {pos : s.Pos} :
+    (t.sliceFrom (pos.cast hst)).copy = (s.sliceFrom pos).copy := by
+  simpa [copy_sliceFrom_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+@[simp]
+theorem copy_sliceTo_cast {s t : String} (hst : s = t) {pos : s.Pos} :
+    (t.sliceTo (pos.cast hst)).copy = (s.sliceTo pos).copy := by
+  simpa [copy_sliceTo_eq_iff_exists_splits] using ⟨_, pos.splits⟩
+
+theorem Slice.Pos.sliceFrom_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
+    Slice.Pos.sliceFrom (p.cast hst) (q.cast hst) h =
+      (Slice.Pos.sliceFrom p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Slice.Pos.sliceTo_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
+    Slice.Pos.sliceTo (p.cast hst) (q.cast hst) h =
+      (Slice.Pos.sliceTo p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Pos.sliceFrom_cast {s t : String} {hst : s = t} (p q : s.Pos) {h} :
+    Pos.sliceFrom (p.cast hst) (q.cast hst) h =
+      (Pos.sliceFrom p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Pos.sliceTo_cast {s t : String} {hst : s = t} (p q : s.Pos) {h} :
+    Pos.sliceTo (p.cast hst) (q.cast hst) h =
+      (Pos.sliceTo p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
 
 end String

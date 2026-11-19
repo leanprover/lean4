@@ -255,6 +255,14 @@ private def getSimprocs (numIndices : Nat) (useDecide : Bool) : MetaM (Array Sim
   let s := s.addCore #[.const ``dite 5, .star, .star, .star, .star, .star] ``reduceDIte' (post := false) (.inl <| reduceDIte' numIndices useDecide)
   return #[s]
 
+/--
+Returns the discharger used by the `split` tactic. See `discharge?`.
+
+It is a well-behaved discharger (see `Simp.Methods.wellBehavedDischarge`) if `simp` is invoked with
+the local context where this function is called. It only uses local declarations in this local
+context, and `decide` on propositions without free variables. Thus, its result for a proposition
+does not depend on the binders `simp` has visited, and `simp` can use the same cache under them.
+-/
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
   return discharge? (← getLCtx).numIndices useDecide
 
@@ -290,7 +298,10 @@ def simpIfTarget (mvarId : MVarId) (useDecide := false) (useNewSemantics := fals
     return mvarId'
   else
     let mut ctx ← getSimpContext
-    let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false) | unreachable!
+    -- `simp` takes time exponential in the length of an `else if` chain if the discharger is not
+    -- marked as well-behaved. See comment at `Simp.congr`.
+    let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false)
+      (wellBehavedDischarge := true) | unreachable!
     return mvarId'
 
 /--
@@ -306,7 +317,9 @@ def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) (useNewSemantics := fals
     return mvarId'
   else
     let mut ctx ← getSimpContext
-    let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false) | unreachable!
+    -- See comment at `simpIfTarget`.
+    let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false)
+      (wellBehavedDischarge := true) | unreachable!
     return mvarId'
 
 /--

@@ -149,10 +149,11 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
     let optModifier := stx[3]
     ids.mapM fun id => do pure { ref := id, id := (← expandBinderIdent id), type := (← expandBinderModifier (expandBinderType id type) optModifier), bi := .default }
   else if k == ``Lean.Parser.Term.implicitBinder then
-    -- `{` binderIdent+ binderType `}`
+    -- `{` binderIdent+ binderType (binderDefault <|> binderTactic)? `}`
     let ids ← getBinderIds stx[1]
-    let type := stx[2]
-    ids.mapM fun id => do pure { ref := id, id := (← expandBinderIdent id), type := expandBinderType id type, bi := .implicit }
+    let type        := stx[2]
+    let optModifier := stx[3]
+    ids.mapM fun id => do pure { ref := id, id := (← expandBinderIdent id), type := (← expandBinderModifier (expandBinderType id type) optModifier), bi := .implicit }
   else if k == ``Lean.Parser.Term.strictImplicitBinder then
     -- `⦃` binderIdent+ binderType `⦄`
     let ids ← getBinderIds stx[1]

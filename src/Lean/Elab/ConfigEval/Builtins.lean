@@ -91,7 +91,7 @@ open Lean.Parser.Term in
 private def getBracketedBinderArgs (stx : Syntax) : MacroM (Array Term) :=
   match stx with
   | `(bracketedBinderF|($ids:ident* $[: $ty?]? $(_annot?)?)) => return ids
-  | `(bracketedBinderF|{$ids:ident* $[: $_]?})               => return ids
+  | `(bracketedBinderF|{$ids:ident* $[: $_]? $(_annot?)?})   => return ids
   | `(bracketedBinderF|⦃$ids:ident* : $_⦄)                    => return ids
   | `(bracketedBinderF|[$id:ident : $_])                     => return #[id]
   | `(bracketedBinderF|[$_])                                 => return #[mkHole stx]

@@ -334,8 +334,9 @@ typedef struct {
      * transition: task dependency Discarded   ==> freed (`task_manager::discard`)
    * Discarded
      * condition: m_imp != nullptr && m_imp->m_deleted == 2
-     * Entered instead of Queued or Running once `lean_finalize_task_manager` has stopped running tasks, until the
-       next `lean_init_task_manager`, and from Waiting when the task dependency is Discarded (`task_manager::discard`)
+     * Entered from Queued when `lean_finalize_task_manager` stops the workers with the task still queued, instead
+       of Queued or Running from then until the next `lean_init_task_manager`, and from Waiting when the task
+       dependency is Discarded (`task_manager::discard`)
      * invariant: in no queue and no dependency list, so it never runs or finishes: `IO.getTaskState` reports it as
        running and `IO.hasFinished` as unfinished forever
      * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr && m_value == nullptr
@@ -1625,15 +1626,16 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 /* Tasks */
 
-/* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. Without one, which is the case
-   for 0 workers, tasks run inline and `IO.Promise.new` panics. */
+/* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. With 0 workers it does neither:
+   before any start, tasks then run inline and `IO.Promise.new` panics; after a stop, the manager stays stopped. */
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
-/* Stops the task manager. It returns once no task is queued or running, including `(sync := true)` tasks running on
-   threads the task manager does not own, and no worker is left. Until then, tasks see `IO.checkCanceled` as true.
-   Work that becomes runnable after that point is discarded without running: tasks queued by threads the task manager
-   does not own, and dependents of promises they resolve. Such threads should therefore stop using the task manager
-   before calling this, and call `lean_finalize_thread` first if their thread-local state can hold tasks or promises.
+/* Stops the task manager. From then on tasks see `IO.checkCanceled` as true. Busy workers keep running queued tasks,
+   idle ones stop, and running dedicated tasks finish; it returns once no worker is left. A task queued once no
+   worker is left runs only if a task waits for it, and is otherwise discarded without running, as is any task that
+   becomes runnable after this returns. Threads the task manager does not own are not waited for, so they should stop
+   using it before calling this, and call `lean_finalize_thread` first if their thread-local state can hold tasks or
+   promises.
    It must not be called from a task.
    Until the next `lean_init_task_manager`, new tasks run inline and a task that becomes runnable is discarded, so
    of the unfinished tasks only the result of a promise can still finish, and waiting for any other one blocks

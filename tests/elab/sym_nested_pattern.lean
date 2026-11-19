@@ -4,8 +4,8 @@ set_option sym.debug true
 
 /-!
 `isDefEqS` solves `?f a₁ … aₙ =?= s` when the arguments form a nested pattern: each argument is a
-variable bound by the binders that `isDefEqS` opens, a closed term of a subsingleton type, or a
-structure instance whose fields satisfy this condition.
+variable bound by the binders that `isDefEqS` opens, a structure instance whose fields satisfy this
+condition, or a term of a subsingleton type.
 -/
 
 /--
@@ -56,19 +56,34 @@ elab "#unify_s " f:ident " : " type:term ", " lhs:term " =?= " rhs:term : comman
 #guard_msgs in
 #unify_s f : (n : Nat) × Fin n → Nat, fun (n : Nat) (i : Fin n) => f ⟨n, i⟩ =?= fun n i => i.val + n
 
+/-! A leaf of a subsingleton type can contain variables, including variables of the spine. -/
+
+/-- info: true: fun x => x.val + 1 -/
+#guard_msgs in
+#unify_s f : {n : Nat // n ≤ n} → Nat, fun (a : Nat) => f ⟨a, Nat.le_refl a⟩ =?= fun a => a + 1
+
+/-- info: true: fun x => x.fst -/
+#guard_msgs in
+#unify_s f : Nat × Unit → Nat, fun (g : Nat → Unit) (a : Nat) => f (a, g a) =?= fun g a => a
+
+/-- info: true: fun x => x.fst -/
+#guard_msgs in
+#unify_s f : Nat × Unit × Unit → Nat, fun (a : Nat) (u : Unit) => f (a, u, u) =?= fun a u => a
+
 /-! A field that is a closed term of a type with two elements is not a nested pattern. -/
 
 /-- info: false: ?f -/
 #guard_msgs in
 #unify_s f : Nat × Nat → Nat, fun (a : Nat) => f (a, 0) =?= fun a => a
 
-/-! A variable that occurs twice in the spine is not a nested pattern. -/
+/-! A variable of a type with two elements that occurs twice in the spine is not a nested pattern. -/
 
 /-- info: false: ?f -/
 #guard_msgs in
 #unify_s f : Nat × Nat → Nat, fun (a : Nat) => f (a, a) =?= fun a => a
 
-/-! A field that is an application of a variable is not a nested pattern. -/
+/-! A field of a type with two elements that is an application of a variable is not a nested
+pattern. -/
 
 /-- info: false: ?f -/
 #guard_msgs in

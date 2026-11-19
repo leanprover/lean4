@@ -952,62 +952,61 @@ structure NestedPatternVar where
   projs  : Array Expr
 
 /--
-Adds the variables of the argument `a` of a nested pattern to `vars`, and the closed subterms of `a`
-to `closed`, for the subsingleton test in `mkNestedPatternSolution?`. The argument `a` is the term
-that `projs` selects from the argument `aᵢ` (`i = argIdx`). Fails if `a` is none of the following:
-a variable that the current `isDefEqS` invocation introduced and that `vars` does not contain, a
-closed term, or a structure instance `S.mk ps fs` such that every free variable of `ps` precedes the
-new variables and every field in `fs` satisfies this condition.
+Decomposes the argument `a` of a nested pattern into variables and leaves. For example, if `x` and
+`y` are new variables, then `a = ((x, y), ())` adds `x` and `y` to `vars` and nothing to `leaves`,
+and `a = ⟨x, Nat.le_refl x⟩ : {n // n ≤ n}` adds `x` to `vars` and `Nat.le_refl x` to `leaves`.
+The argument `a` is the term that `projs` selects from the argument `aᵢ` (`i = argIdx`). In general:
+- A variable that the current `isDefEqS` invocation introduced and that `vars` does not contain is a
+  variable of the nested pattern.
+- A structure instance `S.mk ps fs` such that every free variable of `ps` precedes the new variables
+  decomposes into its fields `fs`.
+- Every other term is a leaf.
 -/
 partial def collectNestedPatternVars (a : Expr) (argIdx : Nat) (projs : Array Expr)
-    (vars : Array NestedPatternVar) (closed : Array Expr) :
-    OptionT DefEqM (Array NestedPatternVar × Array Expr) := do
+    (vars : Array NestedPatternVar) (leaves : Array Expr) :
+    DefEqM (Array NestedPatternVar × Array Expr) := do
+  let leafResult := (vars, leaves.push a)
   match a with
   | .fvar fvarId =>
-    let some decl := (← getLCtx).find? fvarId | failure
-    unless decl.index ≥ (← read).lctxInitialNextIndex do failure
-    if vars.any (·.fvarId == fvarId) then failure
-    return (vars.push { fvarId, argIdx, projs }, closed)
+    let some decl := (← getLCtx).find? fvarId | return leafResult
+    if decl.index < (← read).lctxInitialNextIndex || vars.any (·.fvarId == fvarId) then
+      return leafResult
+    return (vars.push { fvarId, argIdx, projs }, leaves)
   | _ =>
-    if !a.hasFVar then return (vars, closed.push a)
-    let .const ctorName us := a.getAppFn | failure
+    let .const ctorName us := a.getAppFn | return leafResult
     let env ← getEnv
-    let some (.ctorInfo ctorVal) := env.find? ctorName | failure
-    unless a.getAppNumArgs == ctorVal.numParams + ctorVal.numFields do failure
-    let some info := getStructureInfo? env ctorVal.induct | failure
+    let some (.ctorInfo ctorVal) := env.find? ctorName | return leafResult
+    unless a.getAppNumArgs == ctorVal.numParams + ctorVal.numFields do return leafResult
+    let some info := getStructureInfo? env ctorVal.induct | return leafResult
     let args := a.getAppArgs
     let ps := args.extract 0 ctorVal.numParams
     for p in ps do
-      unless (← precedesNewFVars p) do failure
-    let mut acc := (vars, closed)
+      unless (← precedesNewFVars p) do return leafResult
+    let mut acc := (vars, leaves)
     for j in 0...ctorVal.numFields do
-      let some projFn := info.getProjFn? j | failure
+      let some projFn := info.getProjFn? j | return leafResult
       let proj ← mkAppNS (← mkConstS projFn us) ps
       acc ← collectNestedPatternVars args[ctorVal.numParams + j]! argIdx (projs.push proj) acc.1 acc.2
     return acc
 
 /--
 Solves `?m a₁ … aₙ =?= s` for a nested pattern (Kovács and Bocquet, "Nested Pattern Unification",
-WITS 2023). Each argument `aᵢ` is a variable that the current `isDefEqS` invocation introduced, a
-closed term of a subsingleton type (see `isSubsingletonType`), or a structure instance whose fields
-satisfy this condition, and no variable occurs twice. The solution composes `s` with the partial
-inverse of the spine: `?m := fun x₁ … xₙ => s[y ↦ πₖ (… (π₁ xᵢ))]` for each variable `y` that the
-projections `π₁, …, πₖ` select from `aᵢ` (see `NestedPatternVar`). For example,
-`?m (a, b) () =?= a + b` yields `?m := fun p u => p.1 + p.2`.
-Returns `none` if the arguments of `t` do not form a nested pattern, or if the type of an argument
-contains a variable that the current `isDefEqS` invocation introduced.
+WITS 2023). For example, `?m (a, b) () =?= a + b` yields `?m := fun p u => p.1 + p.2`. In general,
+`collectNestedPatternVars` decomposes each argument `aᵢ` into variables and leaves, and the type of
+each leaf must be a subsingleton (see `isSubsingletonType`). The solution composes `s` with the
+partial inverse of the spine: `?m := fun x₁ … xₙ => s[y ↦ πₖ (… (π₁ xᵢ))]` for each variable `y`
+that the projections `π₁, …, πₖ` select from `aᵢ` (see `NestedPatternVar`).
+Returns `none` if the type of a leaf is not a subsingleton, or if the type of an argument contains
+a variable that the current `isDefEqS` invocation introduced.
 -/
 def mkNestedPatternSolution? (t s : Expr) : DefEqM (Option Expr) := do
   let args := t.getAppArgs
   let mut vars := #[]
-  let mut closed := #[]
+  let mut leaves := #[]
   for h : i in 0...args.size do
-    let some (vars', closed') ← (collectNestedPatternVars args[i] i #[] vars closed).run
-      | return none
-    vars := vars'
-    closed := closed'
-  for c in closed do
-    unless (← isSubsingletonType (← Sym.inferType c)) do return none
+    (vars, leaves) ← collectNestedPatternVars args[i] i #[] vars leaves
+  for leaf in leaves do
+    unless (← isSubsingletonType (← Sym.inferType leaf)) do return none
   let mut types := #[]
   for a in args do
     let type ← Sym.inferType a

@@ -257,6 +257,7 @@ jobs:
         timeout-minutes: 20 # prevent excessive hanging from network issues
         continue-on-error: true
       - name: Build Target Stage
+        id: build
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build $TARGET_STAGE -j$NPROC
@@ -281,7 +282,13 @@ jobs:
         run: |
           curl --version
           cd src
-          time ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
+          if [[ "${{ steps.build.outcome }}" == success ]]; then
+            time ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
+          else
+            # Upload what did build: `-o` writes the mappings of the up-to-date targets even though
+            # `--no-build` fails on the rest, without retrying (and re-reporting) the failed ones.
+            time ../build/stage0/bin/lake build --no-build -o ../build/lake-mappings.jsonl || true
+          fi
           time ../build/stage0/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}

@@ -105,8 +105,8 @@ def recordEqs (scope : Scope) (goal : MVarId) (start : Nat) : VCGenM Scope := go
 
 /-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
 `∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
-the binders between two matches are introduced at once. A hypothesis `a ∧ b` with a conjunct
-`x = t` on a local `x` is split. The introduced equations `x = t` are recorded in `Scope.eqs`. -/
+the binders between two matches are introduced at once. The introduced equations `x = t` are
+recorded in `Scope.eqs`. -/
 def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
     VCGenM (Option (Scope × List MVarId)) := do
   unless target.isForall do return none
@@ -121,22 +121,13 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   let mut n := 0
   repeat
     match e with
-    | .forallE _ φ b _ =>
+    | .forallE _ _ b _ =>
       let entries := Sym.getMatch (← getMCtx) rintros e
       unless entries.isEmpty do
         goal ← introsHygienicN goal n
         n := 0
         if let some gs ← applyRIntroRules goal entries then
           return some (← recordEqs scope goal start, gs)
-      if !b.hasLooseBVar 0 && φ.isAppOfArity ``And 2 && hasEqConjunct φ then
-        goal ← introsHygienicN goal n
-        n := 0
-        let target ← goal.getType
-        let .forallE nm φ G _ := target | unreachable!
-        let some g ← goal.withContext (splitConjHyp? goal target nm φ G) | unreachable!
-        goal := g
-        e ← goal.getType
-        continue
       n := n + 1
       e := b
     | .letE _ _ _ b _ =>
@@ -368,12 +359,18 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
 record the newest local in `Scope.lastLiftedPre?`. -/
 def liftPre (scope : Scope) (goal : MVarId) : VCGenM (Scope × List MVarId) := do
   let n := (← goal.getDecl).lctx.numIndices
-  let some (scope, gs) ← forallIntro? scope goal (← goal.getType)
-    | throwError "Failed to intro the lifted precondition of {goal}"
-  let [g] := gs | return (scope, gs)
+  let mut scope := scope
+  let mut g := goal
+  -- A `@[vcgen_rintro]` rule such as `And.forall_intro` leaves a `∀` to introduce.
+  while (← g.getType).isForall do
+    let some (scope', gs) ← forallIntro? scope g (← g.getType)
+      | throwError "Failed to intro the lifted precondition of {goal}"
+    scope := scope'
+    let [g'] := gs | return (scope, gs)
+    g := g'
   let lctx := (← g.getDecl).lctx
-  if lctx.numIndices == n then return (scope, gs)
-  return ({ scope with lastLiftedPre? := lctx.lastDecl.map (·.fvarId) }, gs)
+  if lctx.numIndices == n then return (scope, [g])
+  return ({ scope with lastLiftedPre? := lctx.lastDecl.map (·.fvarId) }, [g])
 
 /-- Phase 2: drive the precondition of `pre ⊑ rhs` toward `⊤`, lifting any pure content into the
 local context so a later spec application sees a `⊤` precondition. In order: cancel a redundant

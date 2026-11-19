@@ -36,10 +36,14 @@ attribute [simp, grind norm, vcgen_simp] Variant.evalsTo_ofMeasure
 
 end Std.WP
 
-/-! ## The built-in `vcgen_rintro` rule -/
+/-! ## The built-in `vcgen_rintro` rules -/
 
 theorem Prod.forall_intro {α : Type _} {β : Type _} {G : α × β → Prop} (h : ∀ a b, G (a, b)) :
     ∀ p, G p :=
   fun (a, b) => h a b
+
+theorem And.forall_intro {a b : Prop} {G : a ∧ b → Prop} (h : ∀ left right, G ⟨left, right⟩) :
+    ∀ p, G p :=
+  fun ⟨left, right⟩ => h left right
 
 end

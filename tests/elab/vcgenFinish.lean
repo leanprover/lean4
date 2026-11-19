@@ -99,10 +99,10 @@ def threeEq : StateM Nat Nat := pure 3
 
 /--
 trace: case vc1
-s✝¹ a✝² s✝ : Nat
-a✝¹ : a✝² < 5
-a✝ : a✝² = 3
-⊢ a✝² = 4
+s✝¹ a✝ s✝ : Nat
+left✝ : a✝ < 5
+right✝ : a✝ = 3
+⊢ a✝ = 4
 ---
 warning: declaration uses `sorry`
 -/

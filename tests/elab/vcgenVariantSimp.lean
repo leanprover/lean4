@@ -29,8 +29,8 @@ a✝ :
 
 case vc2
 n i✝ mb✝ : Nat
-a✝¹ : mb✝ = i✝
-a✝ :
+left✝ : mb✝ = i✝
+right✝ :
   have exit := false;
   if exit = true then i✝ = 0 else True
 h✝ : 0 < i✝
@@ -39,8 +39,8 @@ i : Nat := i✝ - 1
 
 case vc3
 n i mb✝ : Nat
-a✝¹ : mb✝ = i
-a✝ :
+left✝ : mb✝ = i
+right✝ :
   have exit := false;
   if exit = true then i = 0 else True
 h✝ : ¬0 < i
@@ -61,24 +61,24 @@ def countInto : StateM (Nat × Nat) Unit := do
 
 /--
 trace: case vc1
-a✝⁴ b✝² : Nat
-a✝³ : a✝⁴ ≤ b✝²
+a✝² b✝² : Nat
+a✝¹ : a✝² ≤ b✝²
 b✝¹ : PUnit
-mb✝ a✝² b✝ : Nat
-a✝¹ : mb✝ = b✝ - a✝²
-a✝ : a✝² ≤ b✝
-h✝ : a✝² < b✝
-⊢ b✝ - (a✝² + 1) < b✝ - a✝²
+mb✝ a✝ b✝ : Nat
+left✝ : mb✝ = b✝ - a✝
+right✝ : a✝ ≤ b✝
+h✝ : a✝ < b✝
+⊢ b✝ - (a✝ + 1) < b✝ - a✝
 
 case vc2
-a✝⁴ b✝² : Nat
-a✝³ : a✝⁴ ≤ b✝²
+a✝² b✝² : Nat
+a✝¹ : a✝² ≤ b✝²
 b✝¹ : PUnit
-mb✝ a✝² b✝ : Nat
-a✝¹ : mb✝ = b✝ - a✝²
-a✝ : a✝² ≤ b✝
-h✝ : a✝² < b✝
-⊢ a✝² + 1 ≤ b✝
+mb✝ a✝ b✝ : Nat
+left✝ : mb✝ = b✝ - a✝
+right✝ : a✝ ≤ b✝
+h✝ : a✝ < b✝
+⊢ a✝ + 1 ≤ b✝
 -/
 #guard_msgs in
 theorem countInto_spec :

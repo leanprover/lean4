@@ -46,23 +46,6 @@ public def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
   if t.containsFVar xId then none
   return (xId, t)
 
-/-- Whether the conjunction `φ` has a conjunct `x = t` on a local `x`. -/
-public partial def hasEqConjunct (φ : Expr) : Bool :=
-  match_expr φ with
-  | And a b => hasEqConjunct a || hasEqConjunct b
-  | _ => (fvarEq? φ).isSome
-
-/-- Curry the hypothesis `a ∧ b` of the goal `a ∧ b → G` into `a → b → G` when a conjunct is an
-equation `x = t` on a local `x`. -/
-public def splitConjHyp? (goal : MVarId) (target : Expr) (nm : Name) (φ G : Expr) :
-    VCGenM (Option MVarId) := do
-  let_expr And a b := φ | return none
-  unless hasEqConjunct φ do return none
-  let newTarget ← mkForallS nm .default a (← mkForallS nm .default b G)
-  let k ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar newTarget
-  goal.assign (mkApp4 (mkConst ``Iff.mpr) target newTarget (mkApp3 (mkConst ``and_imp) a b G) k)
-  return some k.mvarId!
-
 /-- Apply precondition-intro rule `rule` to `goal`, leaving the goal `φ → ⊤ ⊑ rhs` for
 `forallIntro?`. -/
 public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM MVarId := do

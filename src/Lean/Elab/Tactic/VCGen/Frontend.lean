@@ -284,28 +284,6 @@ def parseInvariantMap (stx : Syntax) :
     return some map
   | _ => return none
 
-/--
-Run after VC generation: iterate the (unfiltered) `invariants` array returned by
-`run`, look up each entry in the pre-parsed `ctx.invariantAlts` map by its 1-based
-position (which equals the `inv<n>` tag the entry carries — `run` assigns
-tags consecutively), and elaborate the matching alt, reporting its errors. Invariants
-that were already elaborated inline by `Driver.emitVC` (tracked in `inlineHandled`) are skipped, so
-we don't warn about alts that were already consumed there. -/
-def elabRemainingInvariants (ctx : Context) (invariants : Array MVarId)
-    (inlineHandled : Std.HashSet Nat) : SymM Unit := do
-  let alts := ctx.invariantAlts
-  let mut handled := inlineHandled
-  for h : i in 0...invariants.size do
-    let n := i + 1
-    if handled.contains n then continue
-    let some alt := alts[n]? | continue
-    handled := handled.insert n
-    discard <| elabInvariant ctx n invariants[i] (report := true)
-  -- Warn on user-provided alts that matched no invariant goal (neither inline nor post-hoc).
-  for (n, alt) in alts.toArray do
-    unless handled.contains n do
-      logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
-
 /-- Parsed `vcgen` arguments shared by the two entry points. -/
 structure ParsedArgs where
   config : Do.VCGen.Config
@@ -444,8 +422,7 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
     debug := config.debug,
     internalize := config.internalize,
     invariantAlts := invariantAlts?.getD {},
-    -- An alternative elaborates as a nested tactic block, which takes no part in incremental
-    -- elaboration.
+    -- The `invariants` alternatives take no part in incremental elaboration.
     termCtx := { ← readThe Term.Context with tacSnap? := none },
     levelNames := ← Term.getLevelNames,
     untilPat? }
@@ -459,11 +436,11 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   -- remain visible when a `with` clause discharges them.
   let mkInfo ← Lean.Elab.Tactic.Grind.mkInitialTacticInfo stx[0]
   let args ← parseArgs stx goal.mvarId
-  let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
-    if args.invariantAlts?.isSome then
-      elabRemainingInvariants args.ctx result.invariants result.inlineHandledInvariants
-    return result
+  let result ← Lean.Elab.Tactic.Grind.liftGrindM <|
+    run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
+  for (n, alt) in args.ctx.invariantAlts do
+    if n > result.invariants.size then
+      logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
   if let some frameStx := result.unmatchedFrames[0]? then
     throwErrorAt frameStx "`frames` alternative matched no program in the goal"
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)

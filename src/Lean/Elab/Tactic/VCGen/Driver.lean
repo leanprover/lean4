@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Meta
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
+import Lean.Elab.Tactic.RenameInaccessibles
 
 open Lean Meta Elab Tactic Sym Sym.Internal Lean.Order
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -22,60 +23,44 @@ and emits VCs (or invariant holes) for those `solve` cannot decompose further.
 -/
 
 
-open Lean.Parser.Tactic in
 /--
-Elaborate the user's invariant alt for invariant number `n` in the term elaboration context of
-`ctx`, discharging `mv` if successful. Looks up `ctx.invariantAlts[n]?` (pre-parsed in `Frontend`)
-and dispatches to `exact $rhs` for bullet form or `rename_i $args*; exact $rhs` for labelled form.
-The header of the alt (`·`, or `| inv1 a b =>`) shows the goal `mv` in the info view. Returns
-whether elaboration succeeded. Numbering is 1-based; out-of-order labelled forms (e.g.
-`| inv2 => …` before `| inv1 => …`) are supported because the map is keyed by parsed number, not
-position.
-
-When `report` is `false`, a failed elaboration restores the state, including its messages and info
-trees, so that a later attempt with `report := true` reports the failure once.
+Elaborate the `invariants` alternative of the invariant hole `mv` with number `n`, if there is one,
+and assign `mv`. In `| inv1 a b => e`, the names `a b` rename the inaccessible hypotheses of `mv`.
+The header `·` or `| inv1 a b =>` shows `mv` in the info view. Reports elaboration errors and
+returns whether `mv` is assigned.
 -/
-public def elabInvariant (ctx : Context) (n : Nat) (mv : MVarId) (report : Bool) : SymM Bool := do
+public def elabInvariant (ctx : Context) (n : Nat) (mv : MVarId) : SymM Bool := do
   let some alt := ctx.invariantAlts[n]? | return false
-  -- Each tactic takes the source range that its errors are reported at: `exact` the range of the
-  -- right-hand side, `rename_i` the range of the label and its binders.
-  let tac ← match alt with
-    | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) =>
-        let dot := alt[0]
-        let exactTac ← withRef rhs `(tactic| exact $rhs)
-        withRef alt `(tactic| (with_annotate_state $dot skip; $exactTac))
-    | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $args* => $rhs) =>
-        let hdr := mkNullNode #[alt[0], alt[1], alt[2]]
-        let renameTac ← withRef alt[1] `(tactic| rename_i $args*)
-        let exactTac ← withRef rhs `(tactic| exact $rhs)
-        withRef alt `(tactic| ($renameTac; with_annotate_state $hdr skip; $exactTac))
+  let (hdr, names, rhs) ← match alt with
+    | `(Lean.Parser.Tactic.invariantDotAlt| · $rhs) => pure (alt[0], #[], rhs)
+    | `(Lean.Parser.Tactic.invariantCaseAlt| | $_tag $names* => $rhs) =>
+      pure (mkNullNode #[alt[0], alt[1], alt[2]], names, rhs)
     | _ => return false
-  let s ← Meta.saveState
+  let elabRhs : TermElabM Expr := do
+    let mv ← withRef alt[1] <| renameInaccessibles mv names
+    let mctx ← getMCtx
+    pushInfoLeaf <| .ofTacticInfo {
+      elaborator := `Lean.Elab.Tactic.VCGen.elabInvariant
+      stx := hdr
+      mctxBefore := mctx
+      goalsBefore := [mv]
+      mctxAfter := mctx
+      goalsAfter := [mv] }
+    mv.withContext <| Term.withSynthesize <| Term.elabTermEnsuringType rhs (← mv.getType)
   try
-    -- `withDefault`: the surrounding grind context forces reducible transparency,
-    -- under which the invariant's type isn't resolved enough for term elaboration
-    -- of the alternative's right-hand side to succeed.
-    withRef alt <| discard <| Meta.withDefault <|
-      Lean.Elab.runTactic mv tac ctx.termCtx { levelNames := ctx.levelNames }
+    -- The surrounding grind context forces reducible transparency, under which the type of `mv`
+    -- is not unfolded enough to elaborate `rhs`.
+    let val ← Meta.withDefault <| elabRhs.run' ctx.termCtx { levelNames := ctx.levelNames }
+    mv.assign (← shareCommon (← unfoldReducible (← instantiateMVars val)))
+    return true
   catch ex =>
-    if report then logException ex else s.restore
+    logException ex
     return false
-  -- The tactic runs without throwing even when it fails to close the goal;
-  -- check explicitly that the MVar got assigned.
-  let some val ← getExprMVarAssignment? mv
-    | unless report do s.restore
-      return false
-  -- Preprocess the assignment to `mv` because it will interact with the `SymM` world
-  let val ← unfoldReducible val
-  let val ← shareCommon val
-  mv.assign val
-  return true
 
-/-- Pull invariant subgoals out of `subgoals` and handle them eagerly: register
-each in `State.invariants` (1-based stable index) and try to inline-elaborate
-its matching user alt. Returns the remaining non-invariant subgoals for `work`
-to enqueue. Eager handling here ensures dependent VCs see `?inv` assigned by
-the time they reach `emitVC`. -/
+/-- Pull invariant subgoals out of `subgoals`: register each in `State.invariants` (1-based stable
+index) and elaborate its `invariants` alternative. Returns the remaining non-invariant subgoals for
+`work` to enqueue. Elaborating here ensures dependent VCs see `?inv` assigned by the time they reach
+`emitVC`. -/
 def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
   let env ← getEnv
   let mut others : Array MVarId := #[]
@@ -83,9 +68,7 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
     if isSpecInvariantType env (← sg.getType) then
       let n := (← get).invariants.size + 1
       modify fun s => { s with invariants := s.invariants.push sg }
-      if ← elabInvariant (← read) n sg (report := false) then
-        modify fun s => { s with inlineHandledInvariants := s.inlineHandledInvariants.insert n }
-      else
+      unless ← elabInvariant (← read) n sg do
         sg.setKind .syntheticOpaque
     else
       others := others.push sg
@@ -152,15 +135,11 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
 public structure Result where
   /-- All invariant goals emitted during VC generation, in emit order. The MVarId at
   index `i` carries tag `inv{i+1}`, so callers can treat the array index as the
-  invariant number. Some entries may already be assigned (inline-elaborated by
-  `Driver.emitVC`); the caller is responsible for filtering before discharging. -/
+  invariant number. The entries with an `invariants` alternative are assigned; the caller is
+  responsible for filtering before discharging. -/
   invariants : Array MVarId
   /-- Unassigned VCs. Each shares the parent `Grind.Goal`'s state. -/
   vcs : Array Grind.Goal
-  /-- Invariant numbers handled inline by `Driver.emitVC`. Used by `Frontend` to
-  avoid spurious "alt does not match any invariant" warnings for inline-consumed
-  alts. -/
-  inlineHandledInvariants : Std.HashSet Nat := {}
   /-- Frame terms of `frames` alternatives whose program pattern matched no program. -/
   unmatchedFrames : Array Syntax := #[]
 
@@ -190,7 +169,6 @@ public partial def run (goal : Grind.Goal) (ctx : Context) (scope : Scope)
   return {
     invariants := state.invariants,
     vcs,
-    inlineHandledInvariants := state.inlineHandledInvariants,
     unmatchedFrames }
 
 

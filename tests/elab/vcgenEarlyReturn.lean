@@ -119,3 +119,32 @@ theorem firstSpace_spec (s : String) :
   vcgen [firstSpace] invariants
   | inv1 => fun _ _ => True
   with finish
+
+/-! ## Inlined callees
+
+After `simp only` inlines `firstSmall` into `callerSmall`, the code after the call is a join point
+that every exit of `firstSmall` jumps to. -/
+
+def firstSmall (xs : List Nat) : StateM Nat Nat := do
+  for x in xs invariant _ _ _ => True do
+    if x = 0 then return 0
+    if x = 1 then return 1
+    if x = 2 then return 2
+  return 3
+
+def callerSmall (xs : List Nat) : StateM Nat Nat := do
+  let v ← firstSmall xs
+  set v
+  return v + 1
+
+theorem callerSmall_spec (xs : List Nat) :
+    ⦃ fun _ => True ⦄ callerSmall xs ⦃ fun r s => r = s + 1 ∧ s ≤ 3 ⦄ := by
+  simp only [callerSmall, firstSmall]
+  vcgen +jp with finish
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+example (xs : List Nat) : ⦃ fun _ => True ⦄ callerSmall xs ⦃ fun r _ => r > 10 ⦄ := by
+  simp only [callerSmall, firstSmall]
+  vcgen +jp
+  case vc1 => sorry

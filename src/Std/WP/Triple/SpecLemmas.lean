@@ -839,6 +839,22 @@ theorem Triple.bind_earlyReturn {γ δ : Type u₂} {x : m (Option γ × β)}
   · exact ⟨hRet r b⟩
 
 @[spec default+10]
+theorem Spec.bind_earlyReturn {γ δ ε : Type u₂} {x : m (Option γ × β)}
+    {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ} {g : δ → m ε}
+    {post : ε → Pred} {eposts : EPosts} :
+    ⦃ wp (have __do_jp := fun v => g v
+          x >>= fun s => Break.runK.match_1 (fun _ => m ε) s.fst
+            (fun r => kRet s r >>= __do_jp) (fun _ => k s >>= __do_jp)) post eposts ⦄
+    ((x >>= fun s => Break.runK.match_1 (fun _ => m δ) s.fst (fun r => kRet s r) (fun _ => k s))
+      >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor
+  apply PartialOrder.rel_of_eq
+  rw [bind_assoc]
+  refine congrArg (wp · post eposts) (congrArg _ (funext fun s => ?_))
+  rcases s with ⟨_ | r, b⟩ <;> rfl
+
+@[spec default+10]
 theorem Spec.forIn_pure_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β} {f : α → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}

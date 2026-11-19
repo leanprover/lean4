@@ -2394,7 +2394,7 @@ def mkInductiveDerivingHandler (className : Name) (perMutualBlock : DerivingM Bo
   for names in blocks do
     let fstInfo ← getConstInfoInduct names[0]!
     let nparams := fstInfo.numParams
-    let mut hasPrivate := false
+    let mut hasPrivate := isPrivateName className
     for name in fstInfo.all do
       if isPrivateName name then
         hasPrivate := true

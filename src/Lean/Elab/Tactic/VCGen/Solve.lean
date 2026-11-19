@@ -16,6 +16,7 @@ public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Meta.Sym.Simp.Result
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -87,12 +88,47 @@ def applyRIntroRules (goal : MVarId) (entries : Array RIntroEntry) :
   return none
 
 /-- Record in `scope.eqs` the hypotheses `h : x = t` for a local `x` among the local
-declarations of `goal` from index `start` on. -/
-def recordEqs (scope : Scope) (goal : MVarId) (start : Nat) : MetaM Scope := goal.withContext do
-  return (← getLCtx).foldl (start := start) (init := scope) fun scope d =>
+declarations of `goal` from index `start` on, and in `scope.substs` those that no other local
+mentions `x` in. -/
+def recordEqs (scope : Scope) (goal : MVarId) (start : Nat) : VCGenM Scope := goal.withContext do
+  let lctx ← getLCtx
+  let scope' := lctx.foldl (start := start) (init := scope) fun scope d =>
     match fvarEq? d.type with
-    | some (xId, t) => { scope with eqs := scope.eqs.insert xId (t, d.fvarId) }
+    | some (xId, t) =>
+      let scope := { scope with eqs := scope.eqs.insert xId (t, d.fvarId) }
+      let start := (lctx.find? xId).elim 0 (·.index + 1)
+      let mentioned := lctx.foldl (start := start) (init := false) fun b d' => b ||
+        d'.fvarId != d.fvarId && (d'.type.containsFVar xId || d'.value?.any (·.containsFVar xId))
+      if mentioned then scope else { scope with substs := scope.substs.insert xId (t, d.fvarId) }
     | none => scope
+  return scope'
+
+/-- Rewrite a local `x` to `t` with the hypothesis `h : x = t` of `scope.substs`. -/
+public def eqsSimproc (scope : Scope) : Sym.Simp.Simproc := fun e => do
+  let .fvar x := e | return .rfl
+  let some (t, h) := scope.substs.get? x | return .rfl
+  return .step t (mkFVar h) (contextDependent := true)
+
+/-- Simplify `e` with `methods` after rewriting it with `scope.substs` on empty caches. -/
+def simpWithSubsts (scope : Scope) (methods : Sym.Simp.Methods) (e : Expr) :
+    VCGenM Sym.Simp.Result := do
+  if scope.substs.isEmpty || !e.hasAnyFVar scope.substs.contains then
+    return ← runSimp methods (Sym.Simp.simp e)
+  match ← Sym.Simp.SimpM.run' (Sym.Simp.simp e) { pre := eqsSimproc scope } (← read).simpConfig with
+  | .rfl .. => runSimp methods (Sym.Simp.simp e)
+  | .step e₁ h₁ .. => Sym.Simp.mkEqTransResult e e₁ h₁ (← runSimp methods (Sym.Simp.simp e₁))
+
+/-- Rewrite the target of `goal`, or only the hypotheses of its telescope if `telescope` holds, with
+the hypotheses of `scope.substs`. The run starts with empty caches, because the persistent cache of
+`Context.simpMethods` holds the locals unrewritten. -/
+public def substEqs (scope : Scope) (goal : MVarId) (telescope := false) :
+    VCGenM Sym.SimpGoalResult := goal.withContext do
+  if scope.substs.isEmpty then return .noProgress
+  let target ← goal.getType
+  unless target.hasAnyFVar scope.substs.contains do return .noProgress
+  let k := if telescope then Sym.Simp.simpTelescope target else Sym.Simp.simp target
+  let r ← Sym.Simp.SimpM.run' k { pre := eqsSimproc scope } (← read).simpConfig
+  r.toSimpGoalResult goal
 
 /-- Strategy 1: simp the target, then introduce its binders. One pass over the binders matches each
 `∀` binder against the `@[vcgen_rintro]` rules once. A matching rule destructures the binder, and
@@ -103,10 +139,14 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   unless target.isForall do return none
   let oldGoal ← instantiateBinderDomains oldGoal
   let start := (← oldGoal.getDecl).lctx.numIndices
-  let mut goal ← match ← simpGoalTelescope oldGoal with
+  let goal ← match ← substEqs scope oldGoal (telescope := true) with
     | .closed => return some (scope, [])
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
+  let mut goal ← match ← simpGoalTelescope goal with
+    | .closed => return some (scope, [])
+    | .goal goal' => pure goal'
+    | .noProgress => pure goal
   let rintros := (← read).rintros
   let mut e ← goal.getType
   let mut n := 0
@@ -138,23 +178,6 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
   return some (← recordEqs scope goal start, [goal])
-
-/-- Rewrite a local `x` to `t` with the hypothesis `h : x = t` of `scope.eqs`, when `t` is closed or
-a local. -/
-def eqsSimproc (scope : Scope) : Sym.Simp.Simproc := fun e => do
-  let .fvar x := e | return .rfl
-  let some (t, h) := scope.eqs.get? x | return .rfl
-  unless t.isFVar || !t.hasFVar do return .rfl
-  return .step t (mkFVar h) (contextDependent := true)
-
-/-- Rewrite the target of `goal` with the hypotheses of `scope.eqs`. The run starts with empty
-caches, because the persistent cache of `Context.simpMethods` holds the locals unrewritten. -/
-public def substEqs (scope : Scope) (goal : MVarId) : VCGenM Sym.SimpGoalResult :=
-  goal.withContext do
-    if scope.eqs.isEmpty then return .noProgress
-    let r ← Sym.Simp.SimpM.run' (Sym.Simp.simp (← goal.getType)) { pre := eqsSimproc scope }
-      (← read).simpConfig
-    r.toSimpGoalResult goal
 
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
@@ -339,12 +362,16 @@ def replaceTargetCongr (goal : MVarId) (α a a' C target' prf : Expr) : VCGenM M
 
 /-- Apply the split rule `rule` for the split application `e` to `goal`, and simplify the
 hypotheses of each alternative. -/
-def applySplitRule (goal : MVarId) (rule : BackwardRule) (e : Expr) :
+def applySplitRule (scope : Scope) (goal : MVarId) (rule : BackwardRule) (e : Expr) :
     VCGenM (Option (List MVarId)) := do
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr e}"
     | throwError "Failed to apply split rule for {indentExpr e}"
   let mut simpGoals := #[]
   for g in goals do
+    let g ← match ← substEqs scope g (telescope := true) with
+      | .goal g' => pure g'
+      | .noProgress => pure g
+      | .closed => continue
     match ← simpGoalTelescope g with
     | .goal g' => simpGoals := simpGoals.push g'
     | .noProgress => simpGoals := simpGoals.push g
@@ -382,7 +409,7 @@ def assertionMatch? (scope : Scope) (goal : MVarId) (target : Expr) (inPre : Boo
   if (nonDependentDomains? resTy numStates).isNone then return none
   let rel ← mkAppNS c #[α, inst]
   let rule ← mkBackwardRuleForAssertionSplitCached splitInfo rel numStates inPre
-  applySplitRule goal rule e
+  applySplitRule scope goal rule e
 
 /-- Introduce the hypothesis `φ` of the goal `φ → rhs` that a precondition-intro rule leaves, and
 record the newest local in `Scope.lastLiftedPre?`. -/
@@ -451,11 +478,11 @@ def introLet (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool
 /-- Simplify the value `val` of `goal`'s target `pre ⊑ have name : type := val; body` with
 `Context.simpMethods`. Returns the new goal and the simplified value. The value of a dependent `let`
 (`nondep = false`) stays as written, since `body` can depend on it definitionally. -/
-def simpHaveValue (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
+def simpHaveValue (scope : Scope) (goal : MVarId) (name : Name) (type val body : Expr) (nondep : Bool) :
     VCGenM (MVarId × Expr) := do
   unless nondep do return (goal, val)
   let some methods := (← read).simpMethods | return (goal, val)
-  let .step val' h .. ← runSimp methods (Sym.Simp.simp val) | return (goal, val)
+  let .step val' h .. ← simpWithSubsts scope methods val | return (goal, val)
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let rel ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) body)
@@ -497,9 +524,9 @@ def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
 /-- Strategy 6: substitute or introduce a `let` or `have` at the head of the right-hand side of
 `pre ⊑ rhs`. A spec precondition `fun s => have v := e s; P v s` gives such a right-hand side. The
 value of a `have` is simplified first. -/
-def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
+def rhsLet? (scope : Scope) (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := rhs | return none
-  let (goal, val) ← simpHaveValue goal name type (← reduceHead val) body nondep
+  let (goal, val) ← simpHaveValue scope goal name type (← reduceHead val) body nondep
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     return some (← replaceRhsDefEq goal (← Sym.instantiateRevBetaS body #[val]))
@@ -509,7 +536,7 @@ def rhsLet? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
 state a spec application threads through the goal is normalized as it is produced rather than left
 to the discharging tactic. Rewrites with `Context.simpMethods`; the program, the postcondition and
 the precondition are left untouched. -/
-def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
+def wpSimpStateArgs? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := goal.withContext do
   if info.excessArgs.isEmpty then return none
   let some methods := (← read).simpMethods | return none
@@ -517,9 +544,15 @@ def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
   let target ← goal.getType
   match h : target with
   | .app f rhs =>
-    let result ← runSimp methods do
+    let simpArgs : Sym.Simp.SimpM Sym.Simp.Result := do
       let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
       Sym.Simp.mkCongr target f rhs .rfl ar h
+    -- A rewrite with `scope.substs` makes progress, and the next step simplifies the result.
+    let result ← if !scope.substs.isEmpty && rhs.hasAnyFVar scope.substs.contains then
+        match ← Sym.Simp.SimpM.run' simpArgs { pre := eqsSimproc scope } (← read).simpConfig with
+        | .rfl .. => runSimp methods simpArgs
+        | r => pure r
+      else runSimp methods simpArgs
     match ← result.toSimpGoalResult goal with
     | .closed => return some []
     | .goal g => return some [g]
@@ -539,7 +572,7 @@ def wpMatch? (scope : Scope) (goal : MVarId) (info : WPApp) :
     let C := mkLambda `p .default info.Prog (mkApp4 c α inst pre rhsC)
     return some [← replaceTargetCongr goal info.Prog info.prog prog' C target' prf]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
-  applySplitRule goal rule info.prog
+  applySplitRule scope goal rule info.prog
 
 /-- Strategy 11c: zeta-unfold a local let-bound fvar used as the program head. -/
 def wpFVarZeta? (goal : MVarId) (info : WPApp) :
@@ -736,7 +769,7 @@ def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
     if let some res ← applySpec scope goal info thm fp providedFrame? then
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
-  if scope.eqs.foldl (init := false) fun b x _ => b || info.prog.containsFVar x then
+  if info.prog.hasAnyFVar scope.substs.contains then
     match ← substEqs scope goal with
     | .closed => return .goals scope []
     | .goal g => return .goals scope [g]
@@ -799,7 +832,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 3: shape the `rhs` (decompose a lattice connective, an `ite`/`dite`/`cond`/match or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← rhsLet? goal rhs then return .goals scope [g]
+  if let some g ← rhsLet? scope goal rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← assertionMatch? scope goal target (inPre := false) then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
@@ -820,7 +853,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if let some (scope, gs) ← wpLet? scope goal info then
       burnOne
       return .goals scope gs
-    if let some gs ← wpSimpStateArgs? goal info then
+    if let some gs ← wpSimpStateArgs? scope goal info then
       return .goals scope gs
     if let some gs ← wpMatch? scope goal info then
       burnOne

@@ -83,8 +83,9 @@ def bump (n : Nat) : StateM Nat Nat := pure (n + 1)
 example : ⦃ fun s => s = 41 ⦄ (do let r ← peek; bump r) ⦃ fun r s => r = 42 ∧ s = 41 ⦄ := by
   vcgen with finish
 
-/-! An emitted verification condition rewrites with the hypothesis `r = 3`: the target `r = 4`
-becomes `3 = 4`, which simplifies to `False`. The hypothesis `r = 3` stays. -/
+/-! `vcgen` rewrites with the hypothesis `r = 3` when no other hypothesis mentions `r`. In the first
+VC, `r < 5` mentions `r`, so the target stays `r = 4`. In the second VC, the target `r = 4` becomes
+`3 = 4`, which simplifies to `False`. The hypothesis `r = 3` stays. -/
 
 def three : StateM Nat Nat := pure 3
 
@@ -101,7 +102,7 @@ trace: case vc1
 s✝¹ a✝² s✝ : Nat
 a✝¹ : a✝² < 5
 a✝ : a✝² = 3
-⊢ False
+⊢ a✝² = 4
 ---
 warning: declaration uses `sorry`
 -/

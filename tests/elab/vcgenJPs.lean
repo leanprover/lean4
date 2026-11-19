@@ -277,7 +277,7 @@ s₀ s✝¹ : Nat
 a✝ : s✝¹ = s₀
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : ∃ z, s✝ = s✝¹ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 1
 
@@ -287,7 +287,7 @@ s₀ s✝¹ : Nat
 a✝ : s✝¹ = s₀
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : ∃ z, s✝ = s✝¹ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : ¬b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 2
 -/

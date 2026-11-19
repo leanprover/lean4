@@ -314,7 +314,7 @@ axiom modify_spec' (f : Nat → Nat) (Q : Unit → Nat → Prop) :
 trace: case vc1
 s₀ s✝ : Nat
 a✝ : s✝ = s₀
-s' : Nat := g s✝
+s' : Nat := g s₀
 ⊢ R s' ∨ R s'
 -/
 #guard_msgs (trace, drop warning) in
@@ -339,16 +339,14 @@ axiom keep_spec {Q : Unit → Nat → Prop} :
 example : ⦃fun _ => True⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => s = s⦄ := by
   vcgen [bump_spec]
 
--- The hypothesis `s = 1` stays, so the first value `s * 2` and the second value
--- `(if b then v else v) * 2` are introduced. The value of `v✝` mentions `s`, so the verification
--- condition keeps `s`.
+-- The hypothesis `s = 1` rewrites the first value `s * 2` to the literal `2`, which `vcgen`
+-- substitutes. The second value `(if b then 2 else 2) * 2` is introduced.
 /--
 trace: case vc1
 s✝ : Nat
 a✝ : s✝ = 1
-v✝ : Nat := s✝ * 2
 x✝¹ : Bool
-v : Nat := (if x✝¹ = true then v✝ else v✝) * 2
+v : Nat := (if x✝¹ = true then 2 else 2) * 2
 x✝ : Bool
 ⊢ 0 < if x✝ = true then v else v
 -/
@@ -358,8 +356,8 @@ example : ⦃fun s => s = 1⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => 0
   trace_state
   all_goals sorry
 
--- The value `s` is a variable, which `vcgen` substitutes. The verification condition substitutes the
--- hypothesis `s = 1`.
+-- The value `s` is a variable, which `vcgen` substitutes, and the hypothesis `s = 1` rewrites it to
+-- the literal `1`.
 /--
 trace: case vc1
 s✝ : Nat

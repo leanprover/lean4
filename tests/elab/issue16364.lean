@@ -82,7 +82,7 @@ s₀ s✝² : S
 a✝ : s✝² = s₀
 x✝¹ : PUnit
 s✝¹ : S
-h✝¹ : ∃ z, s✝¹ = { pc := s✝².pc + 4, r := s✝².r + z } ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
+h✝¹ : ∃ z, s✝¹ = { pc := s₀.pc + 4, r := s₀.r + z } ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 x✝ : PUnit
 s✝ : S
 h✝ : ∃ z, s✝ = { pc := s✝¹.pc + 4, r := s✝¹.r + z } ∧ (b 1 = true ∧ z = 1 ∨ ¬b 1 = true ∧ z = 2)
@@ -142,8 +142,8 @@ x✝¹ : PUnit
 s✝¹ : W
 h✝¹ :
   ∃ z,
-    s✝¹ = { pc := z, r := s✝².r + 1 } ∧
-      (o 0 = 0 ∧ z = 0 ∨ o 0 = 1 ∧ z = s✝².pc + 4 ∨ ∃ x, (x = 0 → False) ∧ (x = 1 → False) ∧ o 0 = x ∧ z = s✝².pc + 4)
+    s✝¹ = { pc := z, r := s₀.r + 1 } ∧
+      (o 0 = 0 ∧ z = 0 ∨ o 0 = 1 ∧ z = s₀.pc + 4 ∨ ∃ x, (x = 0 → False) ∧ (x = 1 → False) ∧ o 0 = x ∧ z = s₀.pc + 4)
 x✝ : PUnit
 s✝ : W
 h✝ :
@@ -176,20 +176,20 @@ def addOrDouble (o : Nat) : StateM S Unit := do
 /--
 trace: case vc1
 o : Nat
-s₀ s : S
-a✝ : s = s₀
+s₀ s✝¹ : S
+a✝ : s✝¹ = s₀
 x✝¹ : PUnit
 x✝ s✝ : S
 h✝ :
   ∃ z,
-    (x✝ = { pc := s.pc + 4, r := z } ∧ s✝ = s) ∧
+    (x✝ = { pc := s₀.pc + 4, r := z } ∧ s✝ = s₀) ∧
       ((o = 0 ∧
-          let r := s.r + 1;
+          let r := s₀.r + 1;
           z = r) ∨
         ∃ x,
           (x = 0 → False) ∧
             o = x ∧
-              let r := s.r * 2;
+              let r := s₀.r * 2;
               z = r)
 ⊢ x✝.pc = s₀.pc + 4
 -/
@@ -210,11 +210,11 @@ def addZeroOrOne (c : Bool) : StateM Nat Unit := do
 /--
 trace: case vc1
 c : Bool
-s₀ x : Nat
-a✝ : x = s₀
+s₀ s✝¹ : Nat
+a✝ : s✝¹ = s₀
 x✝¹ : PUnit
 x✝ s✝ : Nat
-h✝ : ∃ z, (x✝ = x + z ∧ s✝ = x) ∧ (c = true ∧ z = 0 ∨ ¬c = true ∧ z = 1)
+h✝ : ∃ z, (x✝ = s₀ + z ∧ s✝ = s₀) ∧ (c = true ∧ z = 0 ∨ ¬c = true ∧ z = 1)
 ⊢ s₀ ≤ x✝
 -/
 #guard_msgs in
@@ -244,7 +244,7 @@ x✝¹ : PUnit
 x✝ : Nat
 s✝ : S
 h✝ :
-  s✝ = { pc := s✝¹.pc, r := x✝ } ∧
+  s✝ = { pc := s₀.pc, r := x✝ } ∧
     ((c = true ∧
         let x := y + 1;
         x✝ = x) ∨

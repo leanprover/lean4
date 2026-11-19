@@ -20,18 +20,15 @@ This module registers the automation lemmas of `NondetFun.EvalsTo`, `Variant.Eva
 `f := fun (x : Nat × Nat) => (x.1, x.2)`, the decrease `(Variant.ofMeasure f).EvalsBelow (i, j) m s`
 rewrites to `i < m.1 ∨ i = m.1 ∧ j < m.2`.
 
-The `vcgen_simp` set puts the measure value on the left: at carrier `Prop` and the measure
-`fun i => i`, `(Variant.ofMeasure fun i => i).EvalsTo i m` rewrites to `m = i`, which `vcgen`
-substitutes.
+`EvalsTo` puts the measure value on the left of an equation: at carrier `Prop` and the measure
+`fun i => i`, `(Variant.ofMeasure fun i => i).EvalsTo i m` rewrites to `m = i`.
 -/
 
 namespace Std.WP
 
 open Assertion
 
-attribute [simp, grind norm] NondetFun.evalsTo_pure
-attribute [vcgen_simp] NondetFun.evalsTo_pure'
-attribute [simp, grind norm, vcgen_simp] NondetFun.evalsTo_apply
+attribute [simp, grind norm, vcgen_simp] NondetFun.evalsTo_pure NondetFun.evalsTo_apply
 
 attribute [simp, grind norm, vcgen_simp] Variant.evalsTo_ofMeasure
   Variant.evalsBelow_ofMeasure_apply Variant.evalsBelow_ofMeasure_nat

@@ -3,7 +3,8 @@ set_option experimental.vcgen true
 set_option experimental.intrinsic true
 
 /-!
-`vcgen` rewrites the decrease of a `decreasing` measure to a comparison of measure values.
+`vcgen` rewrites the decrease of a `decreasing` measure to a comparison of measure values. The
+lifted precondition `(Variant.ofMeasure f).EvalsTo i mb ⊓ inv` stays unsimplified.
 -/
 
 open Std.WP Lean.Order

@@ -144,14 +144,14 @@ partial def reify (ctx : Ctx) (e : Expr) : MetaM (SmtSort × Expr) := do
     return (.bool, ← `(expr| @Term.eq $rep $((← reify ctx a).2) $((← reify ctx b).2)))
   | `(expr| (?a : Int) + ?b) =>
     return (.int, ← `(expr| @Term.add $rep $((← reify ctx a).2) $((← reify ctx b).2)))
-  -- Binders use `Expr` constructor patterns: a higher-order capture `?P x` is η-reduced,
-  -- which would collapse nested binders such as `fun x y => x + y`.
-  | .lam n α body _ =>
-    let (a, b, f) ← reifyBinder ctx n α body
+  | `(expr| fun (x : (?α : Type)) => ?P x) =>
+    let n := match e.consumeMData with | .lam n .. => n | _ => `x
+    let (a, b, f) ← reifyBinder ctx n α fun x => P.beta #[x]
     return (.arr a b, ← `(expr| @Term.lam $rep $(toExpr a) $(toExpr b) $f))
-  | .letE n α v body _ =>
+  | `(expr| let y : (?α : Type) := ?v; ?P y) =>
     let v := (← reify ctx v).2
-    let (a, b, f) ← reifyBinder ctx n α body
+    let n := match e.consumeMData with | .letE n .. => n | _ => `y
+    let (a, b, f) ← reifyBinder ctx n α fun y => P.beta #[y]
     return (b, ← `(expr| @Term.let_ $rep $(toExpr a) $(toExpr b) $v $f))
   | _ =>
     if let .const c _ := e.getAppFn then if ctx.unfold.contains c then
@@ -165,11 +165,12 @@ partial def reify (ctx : Ctx) (e : Expr) : MetaM (SmtSort × Expr) := do
     let s ← reifySort (← inferType e)
     return (s, ← `(expr| @Term.atom $rep $(toExpr s) $e))
 where
-  /-- Reifies `body` under a Lean binder `n : α` into a PHOAS function `fun rx => t`. -/
-  reifyBinder (ctx : Ctx) (n : Name) (α body : Expr) : MetaM (SmtSort × SmtSort × Expr) := do
+  /-- Reifies `mkBody x` under a Lean binder `n : α` into a PHOAS function `fun rx => t`. -/
+  reifyBinder (ctx : Ctx) (n : Name) (α : Expr) (mkBody : Expr → Expr) :
+      MetaM (SmtSort × SmtSort × Expr) := do
     let a ← reifySort α
     withLocalDeclD n α fun x => withLocalDeclD n (mkApp ctx.rep (toExpr a)) fun rx => do
-      let (b, t) ← reify { ctx with vars := ctx.vars.insert x.fvarId! rx } (body.instantiate1 x)
+      let (b, t) ← reify { ctx with vars := ctx.vars.insert x.fvarId! rx } (mkBody x)
       return (a, b, ← mkLambdaFVars #[rx] t)
 
 /-- Reifies `e` to a closed term `fun rep => …`. -/

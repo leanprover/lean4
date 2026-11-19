@@ -1821,4 +1821,44 @@ def testSelfPinLinterClean (e : Expr) : MetaM Bool :=
 
 end SelfPinLinterClean
 
+section BoundedHOEta
+
+def testBoundedHOLamStructural (e : Expr) : MetaM (Option Expr) :=
+  match e with
+  | `(expr| fun (x : Nat) => ?P x) => return some P
+  | _ => return none
+
+def testBoundedHOLamEta (e : Expr) : MetaM (Option Expr) :=
+  match e with
+  | `(expr/structural +eta| fun (x : Nat) => ?P x) => return some P
+  | _ => return none
+
+def testBoundedHOLetStructural (e : Expr) : MetaM (Option (Expr × Expr)) :=
+  match e with
+  | `(expr| let y : Nat := ?v; ?P y) => return some (v, P)
+  | _ => return none
+
+#guard_msgs in
+#eval show MetaM Unit from do
+  let eLam ← `(expr| fun (x y : Nat) => x + y)
+  let some pStruct ← testBoundedHOLamStructural eLam
+    | throwError "testBoundedHOLamStructural did not match"
+  check (pStruct == eLam) "testBoundedHOLamStructural collapsed inner lambda"
+  withLocalDeclD `x (mkConst ``Nat) fun x => do
+    let expectedBody ← `(expr| fun (y : Nat) => $x + y)
+    check (pStruct.beta #[x] == expectedBody) "testBoundedHOLamStructural beta mismatch"
+  let some pEta ← testBoundedHOLamEta eLam
+    | throwError "testBoundedHOLamEta did not match"
+  let expectedHAdd ← `(expr| (HAdd.hAdd : Nat → Nat → Nat))
+  check (pEta == expectedHAdd) "testBoundedHOLamEta did not eta-reduce to HAdd.hAdd"
+  let eLet ← `(expr| let y : Nat := 1; fun z : Nat => y + z)
+  let some (v, pLet) ← testBoundedHOLetStructural eLet
+    | throwError "testBoundedHOLetStructural did not match"
+  check (v == (← `(expr| (1 : Nat)))) "testBoundedHOLetStructural value mismatch"
+  withLocalDeclD `y (mkConst ``Nat) fun y => do
+    let expectedLetBody ← `(expr| fun (z : Nat) => $y + z)
+    check (pLet.beta #[y] == expectedLetBody) "testBoundedHOLetStructural beta mismatch"
+
+end BoundedHOEta
+
 end ExprQuotMatchTest

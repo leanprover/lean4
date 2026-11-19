@@ -227,8 +227,9 @@ partial def reify (e : Expr) : ReifyM NExpr := do
     return .ite (← reify c) (← reify x) (← reify y)
   | `(expr| (?a : Int) == ?b) => return .eq (← reify a) (← reify b)
   | `(expr| (?a : Int) + ?b) => return .add (← reify a) (← reify b)
-  -- Binders use `Expr` constructor patterns: a higher-order capture `?P x` is η-reduced,
-  -- which would collapse nested binders and lose their user names.
+  -- Named-AST reification mixes `.lam`/`.letE` constructor arms directly in the same `match`
+  -- (ADR-002, ADR-009) to inspect syntactic binder `Name`s in `O(depth)` without `O(depth²)`
+  -- re-abstraction; semantic HO reification uses `?P x` + `P.beta #[x]` (`exprQuotReifyPhoas`).
   | .lam n α body _ =>
     let s ← reifySort α
     withLocalDeclD n α fun x => do

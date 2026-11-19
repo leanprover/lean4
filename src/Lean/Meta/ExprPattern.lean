@@ -996,10 +996,10 @@ mutual
                 changed := true
         let lamVal ←
           if changed then
-            withLCtx' lctx <| mkLambdaFVars args wrapped
+            withLCtx' lctx <| mkLambdaFVars args wrapped (etaReduce := true)
           else
-            mkLambdaFVars args wrapped
-        pure lamVal.eta
+            mkLambdaFVars args wrapped (etaReduce := true)
+        pure (if ctx.flags.eta then lamVal.eta else lamVal)
     if !bound.isEmpty && args.size < bound.size && val.hasFVar then
       if val.hasAnyFVar (bound.contains <| .fvar ·) then
         recordMismatch ctx pe val isPat "bound variable escapes pattern capture"

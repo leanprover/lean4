@@ -134,7 +134,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
       pure ({}, {})
     else
       let thms ← getNormSymTheorems
-      pure (mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
+      pure (← mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?

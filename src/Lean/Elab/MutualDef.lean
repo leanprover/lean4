@@ -1309,13 +1309,19 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
     let oldAttrs := header.modifiers.attrs
     let header := { header with modifiers.attrs := #[] }
 
-    -- insert a hole for the proof info trees in the main info tree
+    -- insert a hole for the proof info trees in the main info tree; without `Elab.async`, the
+    -- proof adds them to the main info tree directly
+    -- NOTE: generated names must not depend on `Elab.async`, so we always create the hole's name.
     let infoHole ← mkFreshMVarId
-    let infoPromise ← IO.Promise.new
-    modifyInfoState fun s => { s with
-      trees := s.trees.push <| .hole infoHole
-      lazyAssignment := s.lazyAssignment.insert infoHole <| infoPromise.resultD default
-    }
+    let infoPromise? ← if Elab.async.get (← getOptions) then
+      let infoPromise ← IO.Promise.new
+      modifyInfoState fun s => { s with
+        trees := s.trees.push <| .hole infoHole
+        lazyAssignment := s.lazyAssignment.insert infoHole <| infoPromise.resultD default
+      }
+      pure (some infoPromise)
+    else
+      pure none
 
     -- now elaborate the body on a fork (in a new thread under `Elab.async`), then kernel check it
     -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
@@ -1329,10 +1335,11 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
           finishElab #[header]
         finally
           reportDiag
-          -- must introduce node to fill `infoHole` with multiple info trees
-          let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
-          let ctx ← CommandContextInfo.save
-          infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
+          if let some infoPromise := infoPromise? then
+            -- must introduce node to fill `infoHole` with multiple info trees
+            let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
+            let ctx ← CommandContextInfo.save
+            infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
         async.commitConst (← getEnv)
         processDeriving #[header]
         async.commitCheckEnv (← getEnv)

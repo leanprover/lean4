@@ -292,57 +292,55 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
   let e' ← id do
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-        -- We do different things to the matcher when folding recursive calls and when
-        -- collecting inductive hypotheses. Therefore we do it separately,
-        -- dropping to `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
-        -- We could try to do it in one pass by breaking up the `matcherApp.transform`
-        -- abstraction.
+        -- The type of `newIH`, refined by the match like `Fix.lean` refined the type of `oldIH`
+        let newIHTypeAbst (xs : Array Expr) : MetaM Expr := do
+          matcherApp.discrs.size.foldRevM (init := ← newIH.getType) fun i _ eTypeAbst => do
+            let eTypeAbst ← kabstract eTypeAbst matcherApp.discrs[i]
+            return eTypeAbst.instantiate1 xs[i]!
 
-        -- To collect the IHs, we collect them in each branch, and combine
-        -- them to a type-level match
-        let ihMatcherApp' ← liftM <| matcherApp.transform
+        -- We pass `newIH` through the match in place of `oldIH`, so that in each alternative the
+        -- recursive calls have a motive type and are recognized by `isRecCall`. We visit each
+        -- alternative once, folding its calls and collecting its IHs, which we keep (abstracted
+        -- over the alternative's parameters) to build the type-level match of IHs below.
+        let (matcherApp', altIHs) ← liftM <| StateT.run (s := (#[] : Array Expr)) <|
+          matcherApp.transform (n := StateT (Array Expr) MetaM)
           (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
-          (onMotive := fun xs _body => do
-            -- Remove the old IH that was added in mkFix
-            let eType ← newIH.getType
-            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
-              let motiveArg := xs[i]!
-              let discr     := matcherApp.discrs[i]
-              let eTypeAbst ← kabstract eTypeAbst discr
-              return eTypeAbst.instantiate1 motiveArg
-
-            -- Will later be overridden with a type that’s itself a match
-            -- statement and the inferred alt types
-            let dummyGoal := mkConst ``True []
-            mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun _altIdx altType _altFVars alt => do
+          (onMotive := fun xs motiveBody => do
+            let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
+            mkArrow (← newIHTypeAbst xs) (← M.eval (foldAndCollect oldIH newIH isRecCall body)))
+          (onAlt := fun _altIdx altType altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
-                let altIHs ← M.exec <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
-                let altIH ← PProdN.mk 0 altIHs
-                mkLambdaFVars #[newIH'] altIH)
+                let (alt', altIHs) ← M.run <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
+                let altIH ← mkLambdaFVars (altFVars.all.push newIH') (← PProdN.mk 0 altIHs)
+                modify (·.push altIH)
+                mkLambdaFVars #[newIH'] alt')
           (onRemaining := fun _ => pure #[mkFVar newIH])
+
+        let ihMatcherApp' ← liftM <| matcherApp'.transform (n := MetaM)
+          (onMotive := fun _motiveArgs motiveBody => do
+            let some (ihType, _body) := motiveBody.arrow? | throwError "motive not an arrow"
+            -- Will later be overridden with a type that’s itself a match
+            -- statement and the inferred alt types
+            mkArrow ihType (mkConst ``True []))
+          (onAlt := fun altIdx _altType altFVars _alt =>
+            instantiateLambda altIHs[altIdx]! altFVars.all)
         let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
         M.tell ihMatcherApp''.toExpr
 
-        -- When folding the calls we don't want to remove the extra arg to the matcher
-        -- that was introduced in the translation
-        let matcherApp' ← liftM <| matcherApp.transform
-          (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
+        -- Finally we drop the now unused `newIH` argument again.
+        let matcherApp'' ← liftM <| matcherApp'.transform (n := MetaM)
           (onMotive := fun _motiveArgs motiveBody => do
-            let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
-            M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altIdx altType _altFVars alt => do
-            lambdaTelescope1 alt fun oldIH' alt => do
-            -- We don't have suitable newIH around here, but we don't care since
-            -- we just want to fold calls. So lets create a fake one.
-            -- (We cannot use oldIH as that would run into the sanity checks that we could
-            -- replace all of them)
-            withLocalDeclD `fakeNewIH (← inferType (mkFVar oldIH')) fun fakeNewIH =>
-              M.eval (foldAndCollect oldIH' fakeNewIH.fvarId! isRecCall alt))
+            let some (_ihType, body) := motiveBody.arrow? | throwError "motive not an arrow"
+            pure body)
+          (onAlt := fun _altIdx _altType _altFVars alt => do
+            lambdaTelescope1 alt fun newIH' alt => do
+              if alt.containsFVar newIH' then
+                throwError "Failed to eliminate {mkFVar newIH'} from:{indentExpr alt}"
+              pure alt)
           (onRemaining := fun _ => pure #[])
-        return matcherApp'.toExpr
+        return matcherApp''.toExpr
 
 
     if e.getAppArgs.any (·.isFVarOf oldIH) then

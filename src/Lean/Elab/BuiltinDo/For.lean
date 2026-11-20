@@ -99,14 +99,14 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
     (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
       iterating the container produces its elements without effects.")
 
-/-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
-parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
+/-- The assertion language of the `do` block's monad, which `MonadicWP` computes as an output
+parameter: synthesizing `MonadicWP StateM Nat _ _` assigns `Nat → Prop` for the assertions of
 `StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
 whose instance is not available reports nothing. The class's arguments are fresh natural
 metavariables that the found instance assigns, so the query registers no pending instance goals. -/
 private def assertionLanguage? : DoElabM (Option Expr) := do
-  unless (← getEnv).contains ``Std.WP.WPMonad do return none
-  let wpMonad ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
+  unless (← getEnv).contains ``Std.WP.MonadicWP do return none
+  let wpMonad ← mkConstWithFreshMVarLevels ``Std.WP.MonadicWP
   let (args, _, _) ← forallMetaTelescope (← inferType wpMonad)
   let some m := args[0]? | return none
   unless ← isDefEq m (← read).monadInfo.m do return none

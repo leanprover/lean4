@@ -32,7 +32,7 @@ open Assertion
 
 universe u u₁ u₂ v w wₚ wₑ
 variable {α : Type u₁} {β : Type u₂} {m : Type u₂ → Type v} {Pred : Type wₚ} {EPosts : Type wₑ}
-variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts]
 
 /-! ## Gadgets -/
 
@@ -62,7 +62,8 @@ open Gadget
 /-! ## Specifications -/
 
 @[spec]
-theorem Spec.forInPureWithInvariant {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+theorem Spec.forInPureWithInvariant [Monad m] [MonadicWP.IsLaxDistrib m]
+    {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
@@ -87,7 +88,8 @@ theorem Spec.forInPureWithInvariant {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ �
   exact Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.forInPureWithInvariant' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
+theorem Spec.forInPureWithInvariant' [Monad m] [MonadicWP.IsLaxDistrib m]
+    {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
@@ -112,8 +114,8 @@ theorem Spec.forInPureWithInvariant' {ρ : Type w} {d : Membership α ρ} [ForIn
   exact Spec.forIn'_list inv step
 
 @[spec default+10]
-theorem Spec.forInPureWithInvariant_earlyReturn {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
-    [PureForIn m ρ α]
+theorem Spec.forInPureWithInvariant_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m]
+    {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : α → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
@@ -134,7 +136,8 @@ theorem Spec.forInPureWithInvariant_earlyReturn {ρ : Type w} [ForIn m ρ α] [F
   Spec.forIn_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
 
 @[spec default+10]
-theorem Spec.forInPureWithInvariant'_earlyReturn {ρ : Type w} {d : Membership α ρ}
+theorem Spec.forInPureWithInvariant'_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m]
+    {ρ : Type w} {d : Membership α ρ}
     [ForIn' m ρ α d] [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : (a : α) → a ∈ xs → Option γ × β → m (ForInStep (Option γ × β))}
@@ -196,11 +199,12 @@ assertion language it evaluates in is the one the specification is applied at. -
 end Gadget
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
-variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPosts]
-  [WPMonad m Pred EPosts]
+variable [Monad m] [Lean.Order.MonadTail m] [CompleteLattice Pred] [CompleteLattice EPosts]
+  [MonadicWP m Pred EPosts]
 
 @[spec]
-theorem Spec.forInLoopWithInvariantAndVariant {Fun : Type} {γ : Type uγ'}
+theorem Spec.forInLoopWithInvariantAndVariant [MonadicWP.IsLaxDistrib m]
+    {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
@@ -225,7 +229,7 @@ theorem Spec.forInLoopWithInvariantAndVariant {Fun : Type} {γ : Type uγ'}
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec]
-theorem Spec.forInLoopWithInvariant
+theorem Spec.forInLoopWithInvariant [MonadicWP.IsLaxDistrib m]
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
@@ -248,7 +252,8 @@ theorem Spec.forInLoopWithInvariant
   exact Spec.forIn_loop measure inv einv step
 
 @[spec]
-theorem Spec.forInLoopWithVariant {Fun : Type} {γ : Type uγ'}
+theorem Spec.forInLoopWithVariant [MonadicWP.IsLaxDistrib m]
+    {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
@@ -273,7 +278,8 @@ theorem Spec.forInLoopWithVariant {Fun : Type} {γ : Type uγ'}
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec default+10]
-theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
+theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn [MonadicWP.IsLaxDistrib m]
+    {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
@@ -300,7 +306,7 @@ theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn {Fun : Type} {γ : Typ
     (WhileInvariant.mk fun exit b => inv exit (none, b)) einv step exit
 
 @[spec default+10]
-theorem Spec.forInLoopWithInvariant_earlyReturn {ω δ : Type u}
+theorem Spec.forInLoopWithInvariant_earlyReturn [MonadicWP.IsLaxDistrib m] {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [∀ P : Pred, PreservesSup (meet P)]
@@ -323,7 +329,8 @@ theorem Spec.forInLoopWithInvariant_earlyReturn {ω δ : Type u}
     step exit
 
 @[spec default+10]
-theorem Spec.forInLoopWithVariant_earlyReturn {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
+theorem Spec.forInLoopWithVariant_earlyReturn [MonadicWP.IsLaxDistrib m]
+    {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]

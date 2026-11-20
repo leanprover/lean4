@@ -23,7 +23,7 @@ open Lean.Order
 /-!
 # Assertion
 
-The `Assertion` class and lattice capabilities such as total nondeterministic functions.
+Lattice capabilities of assertions, such as total nondeterministic functions.
 -/
 
 -- `Prop` is an assertion lattice, ordered by implication. Re-scope its order instances here, so
@@ -31,9 +31,9 @@ The `Assertion` class and lattice capabilities such as total nondeterministic fu
 attribute [scoped instance] Std.Internal.Order.instPartialOrderProp
   Std.Internal.Order.instCompleteLatticeProp
 
-/-- An assertion type is equipped with a `CompleteLattice` structure,
-used as the carrier for pre- and postconditions. -/
-class abbrev Assertion (α : Type w) := CompleteLattice α
+/-- An assertion type is a `CompleteLattice`, used as the type of pre- and postconditions. -/
+@[deprecated CompleteLattice +typeChanged (since := "2026-11-13")]
+abbrev Assertion (α : Type w) := CompleteLattice α
 
 namespace Assertion
 
@@ -55,7 +55,7 @@ computes `α`, whose values first occur in the assertions the instance builds.
 `Pred` interprets values of `Fun` as total nondeterministic functions into `α`. The value type
 `α` is an `outParam` computed from `Pred` and `Fun`.
 -/
-class NondetFun (Pred : Type u) (Fun : Type v) (α : outParam (Type w)) [Assertion Pred] where
+class NondetFun (Pred : Type u) (Fun : Type v) (α : outParam (Type w)) [CompleteLattice Pred] where
   /-- Relates a nondeterministic function to a value inside the assertion lattice. -/
   EvalsTo : Fun → α → Pred
   /-- Every function hits some value. -/
@@ -64,7 +64,7 @@ class NondetFun (Pred : Type u) (Fun : Type v) (α : outParam (Type w)) [Asserti
 /-- Pure (state-independent) nondeterministic functions into `α` are just values of `α`.
 Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
-    [Assertion Pred] : NondetFun Pred α α where
+    [CompleteLattice Pred] : NondetFun Pred α α where
   EvalsTo f a := ⌜a = f⌝
   total f :=
     PartialOrder.rel_antisymm (le_top _) (le_iSup_of_le f (CompleteLattice.le_ofProp _ _ rfl))
@@ -72,24 +72,24 @@ noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/
 instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
-    [Assertion Pred] [inst : NondetFun Pred Fun α] :
+    [CompleteLattice Pred] [inst : NondetFun Pred Fun α] :
     NondetFun (σ → Pred) (σ → Fun) α where
   EvalsTo f a := fun s => inst.EvalsTo (f s) a
   total f := by
     funext s
     simpa [iSup_apply, top_apply] using inst.total (f s)
 
-theorem NondetFun.evalsTo_pure_eq {Pred : Type u} {α : Type v} [Assertion Pred]
+theorem NondetFun.evalsTo_pure_eq {Pred : Type u} {α : Type v} [CompleteLattice Pred]
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜a = f⌝ := rfl
 
 @[deprecated NondetFun.evalsTo_pure_eq +typeChanged (since := "2026-11-19")]
-theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [Assertion Pred]
+theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [CompleteLattice Pred]
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜f = a⌝ :=
   congrArg (⌜·⌝) (propext eq_comm)
 
 /-- Pointwise characterization of `EvalsTo` on a function lattice. -/
 theorem NondetFun.evalsTo_apply {σ : Type s} {Pred : Type u} {Fun : Type v}
-    {α : Type w} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
+    {α : Type w} [CompleteLattice Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
     NondetFun.EvalsTo (Pred := σ → Pred) f a s = NondetFun.EvalsTo (f s) a := rfl
 
 @[deprecated NondetFun.evalsTo_apply +typeChanged (since := "2026-10-15")]
@@ -127,7 +127,7 @@ theorem NondetFun.evalsTo_apply_5 {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {α : T
 
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
 theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type v} {α : Type w}
-    [Assertion Pred] [inst : NondetFun Pred Fun α] (f : Fun) {P Q : Pred}
+    [CompleteLattice Pred] [inst : NondetFun Pred Fun α] (f : Fun) {P Q : Pred}
     [PreservesSup (meet P)]
     (h : (⨆ a, inst.EvalsTo f a ⊓ P) ⊑ Q) : P ⊑ Q := by
   have h1 : P ⊑ (⨆ a, inst.EvalsTo f a) ⊓ P := by

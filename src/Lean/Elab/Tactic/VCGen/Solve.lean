@@ -594,6 +594,8 @@ def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
     (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
     Grind.GrindM (Option (FrameGoal × List MVarId)) := do
+  let le ← share le
+  let W ← share W
   let fp ← share (← mkFreshExprMVar le.appFn!.appArg!)
   let rhs ← mkAppNS W excessStates
   let target ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs]))

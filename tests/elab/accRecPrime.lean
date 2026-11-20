@@ -40,3 +40,28 @@ theorem fold_eq {α : Type} {r : α → α → Prop} (F : ∀ a, ((b : α) → r
 /-- info: 'Acc.rec'' depends on axioms: [Classical.choice] -/
 #guard_msgs in
 #print axioms Acc.rec'
+
+/-! `Acc.ndrec` and `Acc.ndrecOn` remain available at `Prop` motives, like `Acc.rec`. -/
+
+example {α : Type} {r q : α → α → Prop} (hsub : ∀ {x y}, r x y → q x y) {a : α} (h : Acc q a) :
+    Acc r a :=
+  h.ndrec fun x _ ih => Acc.intro x fun y hy => ih y (hsub hy)
+
+example {α : Type} {r q : α → α → Prop} (hsub : ∀ {x y}, r x y → q x y) {a : α} (h : Acc q a) :
+    Acc r a :=
+  h.ndrecOn fun x _ ih => Acc.intro x fun y hy => ih y (hsub hy)
+
+/-! At data motives they fail; `Acc.ndrec'` is needed there. -/
+
+/--
+error: Type mismatch
+  Nat
+has type
+  Type
+of sort `Type 1` but is expected to have type
+  Prop
+of sort `Type`
+-/
+#guard_msgs in
+example {a : Nat} (h : Acc (fun _ _ : Nat => False) a) : Nat :=
+  Acc.ndrec (C := fun _ => Nat) (fun _ _ _ => 0) h

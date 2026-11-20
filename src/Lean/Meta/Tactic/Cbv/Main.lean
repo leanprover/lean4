@@ -155,7 +155,29 @@ def tryCbvTheorems : Simproc := fun e => do
 def handleConstApp : Simproc := fun e => do
   tryEquations <|> tryUnfold <| e
 
+/--
+Decides `isPartialApp` for `c a₁ ... aₙ` from the declared type of `c` alone, if possible. After
+stripping `n` binders, a remaining `∀` means the application is partial; a sort or an inductive
+type cannot reduce to a function type, so the application is not partial.
+-/
+def isPartialAppQuick (e : Expr) : MetaM LBool := do
+  let .const declName _ := e.getAppFn | return .undef
+  let some info := (← getEnv).find? declName | return .undef
+  let mut type := info.type
+  for _ in 0...e.getAppNumArgs do
+    let .forallE _ _ b _ := type | return .undef
+    type := b
+  if type.isForall then return .true
+  match type.getAppFn with
+  | .sort .. => return .false
+  | .const n _ => return if (← isInductive n) then .false else .undef
+  | _ => return .undef
+
 def isPartialApp (e : Expr) : Sym.SymM Bool := do
+  match (← isPartialAppQuick e) with
+  | .true => return true
+  | .false => return false
+  | .undef =>
   let eType ← Sym.inferType e
   -- Fast path: a syntactically functional type cannot whnf to a non-function.
   if eType matches .forallE .. then return true

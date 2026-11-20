@@ -984,7 +984,7 @@ private structure MakeInstancesState where
   newNames : NameSet := {}
 
 private def MakeInstancesState.avoid : MakeInstancesState → Environment → Name → Bool
-  | { newNames }, env, nm => wasAlreadyDeclared env nm || newNames.contains nm
+  | { newNames }, env, nm => hasNameCollision env nm newNames.contains
 
 private def MakeInstancesState.add : MakeInstancesState → Name → MakeInstancesState
   | { newNames }, nm => { newNames := newNames.insert nm }

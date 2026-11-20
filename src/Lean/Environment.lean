@@ -3009,12 +3009,16 @@ private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : Exce
 
 /--
 Replays the difference between `newEnv` and `oldEnv` onto `dest`: the set of constants in `newEnv`
-but not `oldEnv` and the environment extension state for extensions defining `replay?`. If
-`skipExisting` is true, constants that are already in `dest` are not added. If `newEnv` and `dest`
-are not derived from `oldEnv`, the result is undefined.
+but not `oldEnv` and the environment extension state for extensions defining `replay?`. Constants
+that are already in `dest` are not added. If `newEnv` and `dest` are not derived from `oldEnv`, the
+result is undefined.
+
+The kernel does not type check the replayed constants again as it has done so in `newEnv`, unless
+`dest` already contains a different constant of the same name as one of them. In that case, the
+constants following it are type checked in `dest`, and none of them is added to the kernel
+environment if one is rejected.
 -/
-def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExisting := false) :
-    BaseIO Environment := do
+def replayConsts (dest : Environment) (oldEnv newEnv : Environment) : BaseIO Environment := do
   let numNewPrivateConsts := newEnv.asyncConstsMap.private.size - oldEnv.asyncConstsMap.private.size
   let newPrivateConsts := newEnv.asyncConstsMap.private.revList.take numNewPrivateConsts |>.reverse
   let numNewPublicConsts := newEnv.asyncConstsMap.public.size - oldEnv.asyncConstsMap.public.size
@@ -3023,12 +3027,12 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
   return { dest with
     asyncConstsMap := {
       «private» := newPrivateConsts.foldl (init := dest.asyncConstsMap.private) fun consts c =>
-        if skipExisting && (consts.find? c.constInfo.name).isSome then
+        if (consts.find? c.constInfo.name).isSome then
           consts
         else
           consts.add c
       «public» := newPublicConsts.foldl (init := dest.asyncConstsMap.public) fun consts c =>
-        if skipExisting && (consts.find? c.constInfo.name).isSome then
+        if (consts.find? c.constInfo.name).isSome then
           consts
         else
           consts.add c
@@ -3036,28 +3040,20 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
     checked := dest.checked.bind (sync := true) fun kenv =>
       oldEnv.checked.bind (sync := true) fun oldKEnv =>
         newEnv.checked.map fun newKEnv =>
-          replayKernel oldKEnv newKEnv exts newPrivateConsts kenv |>.toOption.getD kenv
+          replayKernel oldKEnv newKEnv exts newPrivateConsts kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
   /--
-  Returns `kenv` extended with the constants `consts`.
-
-  - `doCheck = true`: the kernel type checks each constant before adding it to `kenv`.
-  - `doCheck = false`: each constant is added to `kenv` as is. The kernel does not look at it.
-
-  `oldEnv` and `newEnv` are not modified, and no constant is read from them. They are the kernel
-  environments from before and after the code that created `consts` ran, and are only used to copy
-  the changes that this code made to the environment extensions.
+  Returns `kenv` extended with the constants `consts` from `newEnv` and with the environment
+  extension changes between `oldEnv` and `newEnv`; see `replayConsts`.
   -/
   replayKernel (oldEnv newEnv : Kernel.Environment)
       (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
-      (kenv : Kernel.Environment) (doCheck := true) :
-      Except Kernel.Exception Kernel.Environment := do
+      (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
     let mut kenv := kenv
-    -- replay extensions first in case kernel checking needs them (`IR.declMapExt`)
     for ext in exts do
       if let some replay := ext.replay? then
         kenv := { kenv with
@@ -3067,35 +3063,35 @@ where
               (ext.getStateImpl oldEnv.extensions)
               (ext.getStateImpl newEnv.extensions)
               (consts.map (·.constInfo.name))) }
+    let kenvWithExts := kenv
+    -- Whether `kenv` has a constant that differs from the one of the same name in `newEnv`. The
+    -- constants after it may depend on it, so the type check in `newEnv` does not cover them.
+    let mut mustCheck := false
     for c in consts do
-      if skipExisting && (kenv.find? c.constInfo.name).isSome then
-        continue
-      let info := c.constInfo.toConstantInfo
-      if info.isUnsafe then
-        -- Checking unsafe declarations is not necessary for consistency, and it is necessary to
-        -- avoid checking them in the case of the old code generator, which adds ill-typed constants
-        -- to the kernel environment. We can delete this branch after removing the old code
-        -- generator.
+      -- A constant is missing from `newEnv` if the kernel rejected it and no fallback axiom could be
+      -- added, and it may differ from `c` if one was.
+      let some info := newEnv.find? c.constInfo.name | continue
+      if let some existing := kenv.find? info.name then
+        unless isSameConst existing info do
+          mustCheck := true
+      else if !mustCheck || info.isUnsafe then
         kenv := kenv.add info
-        continue
-      -- for panics
-      let _ : Inhabited Kernel.Environment := ⟨kenv⟩
-      let decl ← match info with
-        | .thmInfo thm   => pure <| .thmDecl thm
-        | .defnInfo defn => pure <| .defnDecl defn
-        | .axiomInfo ax  => pure <| .axiomDecl ax
-        | _              =>
-          return panic! s!"{c.constInfo.name} must be definition/theorem"
-      -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
-      -- reused between snapshots
-      kenv ← ofExcept <|
-        if doCheck then
-          -- Type check `decl`, and then add it.
-          kenv.addDeclCore 0 0 decl none
-        else
-          -- Add `decl` without type checking it.
-          kenv.addDeclWithoutChecking decl
+      else
+        let decl ← match info with
+          | .thmInfo thm   => pure <| .thmDecl thm
+          | .defnInfo defn => pure <| .defnDecl defn
+          | .axiomInfo ax  => pure <| .axiomDecl ax
+          | .opaqueInfo op => pure <| .opaqueDecl op
+          | _              => return kenvWithExts
+        match kenv.addDeclCore 0 0 decl none with
+        | .ok kenv' => kenv := kenv'
+        | .error _  => return kenvWithExts
     return kenv
+  /-- Whether a constant depending on `c₁` is still type correct when `c₁` is replaced by `c₂`. -/
+  isSameConst (c₁ c₂ : ConstantInfo) : Bool :=
+    match c₁, c₂ with
+    | .thmInfo thm₁, .thmInfo thm₂ => thm₁.toConstantVal == thm₂.toConstantVal
+    | _, _ => c₁ == c₂
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
     Note that this function cannot guarantee that `typeName` is in fact the name of the type `α`. -/
@@ -3189,24 +3185,14 @@ deriving BEq, Hashable, TypeName
 /-- Realization results, to be replayed onto other branches. -/
 private structure RealizeConstResult where
   newConsts : VisibilityMap (List AsyncConst)
-  /--
-  `replayKernel doCheck kenv` returns `kenv` extended with the constants `newConsts`.
-
-  - `doCheck = true`: the kernel type checks each constant before adding it to `kenv`.
-  - `doCheck = false`: each constant is added to `kenv` as is. The kernel does not look at it.
-
-  It also applies to `kenv` the changes that the realization made to the environment extensions.
-  The result is a `Task` because it waits for the kernel environments of the realization.
-  -/
-  replayKernel : (doCheck : Bool) → Kernel.Environment →
-    Task (Except Kernel.Exception Kernel.Environment)
+  replayKernel : Kernel.Environment → Task Kernel.Environment
   dyn : Dynamic
 deriving Nonempty, TypeName
 
 /-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
-    IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
+    IO (Environment × Dynamic) := do
   -- `realizeValue` checks this as well but can only name the key type in its error message
   unless env.areRealizationsEnabledForConst forConst do
     throw <| .userError s!"trying to realize `{constName}` but `enableRealizationsForConst` must \
@@ -3214,8 +3200,6 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
   let res ← env.realizeValue forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
     -- ensure that environment extension modifications know they are in an async context
     let realizeEnv := realizeEnv.enterAsyncRealizing constName
-    -- skip kernel in `realize`, we'll re-typecheck anyway
-    let realizeOpts := debug.skipKernelTC.set realizeOpts true
     let (realizeEnv', dyn) ← realize realizeEnv realizeOpts
     -- We could check that `c` was indeed added here but in practice `realize` has already
     -- reported an error so we don't.
@@ -3245,11 +3229,10 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     -- CI build.
     let oldChecked := realizeEnv.checked
     let newChecked := realizeEnv'.checked
-    let replayKernel := fun doCheck kenv =>
+    let replayKernel := fun kenv =>
       oldChecked.bind (sync := true) fun oldKEnv =>
         newChecked.map fun newKEnv =>
-          replayConsts.replayKernel (skipExisting := true) oldKEnv newKEnv exts newPrivateConsts kenv
-            doCheck
+          replayConsts.replayKernel oldKEnv newKEnv exts newPrivateConsts kenv
     let res : RealizeConstResult := {
       newConsts.private := newPrivateConsts
       newConsts.public := newPublicConsts
@@ -3258,7 +3241,6 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!
-  let exPromise ← IO.Promise.new
   -- The realized constants become observable on this branch with this merge. Constants already
   -- observable here keep their generation, including 0 for those added without registering one.
   let env := res.newConsts.private.foldl (init := env) fun env c =>
@@ -3279,32 +3261,12 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         else
           consts.add c
     }
-    /-
-    Add the constants of the realization to `kenv`, the kernel environment of `env`
-    (`env.checked` is a task that produces it).
-    `env` is the environment that requested the realization. There are two cases.
-
-    1. `env.isRealizing` is `false`: the request did not come from inside another realization.
-       The kernel type checks the constants here.
-
-    2. `env.isRealizing` is `true`: the request came from inside another realization `R`, and `env`
-       is the environment `R` is running in. The constants are added to `kenv` without type
-       checking.
-       The kernel type checks them later: when `R` finishes, its result contains every constant
-       added to `env` while `R` ran (see `newPrivateConsts` above), including the ones added here,
-       and this code runs again for the environment that requested `R`.
-    -/
-    checked := (← BaseIO.bindTask (t := env.checked) (sync := true) fun kenv =>
-      BaseIO.mapTask (t := res.replayKernel (doCheck := !env.isRealizing) kenv) fun
-        | .ok kenv' => return kenv'
-        | .error e => do
-          exPromise.resolve e
-          return kenv)
+    checked := env.checked.bind (sync := true) res.replayKernel
     allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
       res.newConsts.private.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
-  return (env, exPromise.result?, res.dyn)
+  return (env, res.dyn)
 
 end Environment
 

@@ -2970,18 +2970,7 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       -- heartbeat limits inside `realizeAndReport` should be measured from this point on
       initHeartbeats := (← IO.getNumHeartbeats)
     }
-    let (env, exTask, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
-    -- Realizations cannot be cancelled as their result is shared across elaboration runs
-    let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
-      | none => return
-      | some ex => do
-        -- unrestricted: message rendering only
-        logError <| ex.toMessageData (← getOptionsUnrestricted)
-    Core.logSnapshotTask {
-      stx? := none
-      task := (← BaseIO.mapTask (t := exTask) exAct)
-      cancelTk? := none
-    }
+    let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
     if let some res := dyn.get? RealizeConstantResult then
       if let some snap := res.snap? then
         let mut snap := snap

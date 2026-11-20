@@ -158,7 +158,7 @@ termination_by structural n => n
 end
 
 /--
-info: trace_add attribute added to TraceAdd.mutual_wf_1._mutual
+info: trace_add attribute added to _private.UserAttr.Tst.0.TraceAdd.mutual_wf_1._mutual
 ---
 info: trace_add attribute added to TraceAdd.mutual_wf_1
 ---

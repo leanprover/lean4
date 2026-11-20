@@ -514,6 +514,20 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
     pure mvar
 
 /--
+The variables among `xs` that are abstracted according to `mask`, but whose type depends on a
+variable among `xs` that is not. These cannot be abstracted either, else the abstraction could not
+be applied to the motive arguments of the matcher, whose types refer to each other.
+-/
+def abstractedDependingOnUnabstracted (xs : Array Expr) (mask : Array Bool) : MetaM (Array FVarId) := do
+  let unabstracted : FVarIdSet := (xs.zip mask).foldl (init := {}) fun s (x, m) =>
+    if !m && x.isFVar then s.insert x.fvarId! else s
+  (xs.zip mask).filterMapM fun (x, m) => do
+    if m then
+      if ← dependsOnPred (← x.fvarId!.getType) unabstracted.contains then
+        return some x.fvarId!
+    return none
+
+/--
 Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
@@ -532,19 +546,27 @@ get a helpful equality into the context).
 -/
 def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) (checkTypeCorrect := false) :
     MetaM (Array Bool × Expr) := do
-  let r ← go (check := false)
+  let r ← closed (check := false)
   unless checkTypeCorrect do return r
   if ← isTypeCorrect r.2 then return r
-  go (check := true)
+  closed (check := true)
 where
-  go (check : Bool) : MetaM (Array Bool × Expr) := do
+  closed (check : Bool) : MetaM (Array Bool × Expr) := do
+    let mut skip : FVarIdSet := {}
+    repeat
+      let (mask, e') ← go check skip
+      let bad ← abstractedDependingOnUnabstracted xs mask
+      if bad.isEmpty then return (mask, e')
+      skip := bad.foldl (·.insert ·) skip
+    unreachable!
+  go (check : Bool) (skip : FVarIdSet) : MetaM (Array Bool × Expr) := do
     let mut e := e
     let mut xs := xs
     let mut mask := #[]
     while ! xs.isEmpty do
       let discr := xs.back!
       xs := xs.pop
-      if discr.isFVar && e.containsFVar discr.fvarId! then
+      if discr.isFVar && e.containsFVar discr.fvarId! && !skip.contains discr.fvarId! then
         unless (← discr.fvarId!.isLetVar) do
           let e' ← mkLambdaFVars #[discr] e
           let ok ← if check then isTypeCorrect e' else pure true
@@ -696,16 +718,19 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     -- A match that refines the parameter has been modified by `Fix.lean` to refine the IH,
     -- so we need to replace that IH
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-      -- Calculate motive
-      let eType ← newIH.getType
-      let motiveBody ← mkArrow eType goal
-      let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs motiveBody
-        (checkTypeCorrect := true)
+      -- Calculate motive. We refine the type of `newIH` like `Fix.lean` refined that of `oldIH`,
+      -- even if the goal cannot be refined (e.g. with `match (generalizing := false)`).
+      let (mask, absGoal) ← mkLambdaFVarsMasked matcherApp.discrs goal (checkTypeCorrect := true)
+      let newIHTypeAbst (xs : Array Expr) : MetaM Expr := do
+        matcherApp.discrs.size.foldRevM (init := ← newIH.getType) fun i _ eTypeAbst => do
+          let eTypeAbst ← kabstract eTypeAbst matcherApp.discrs[i]
+          return eTypeAbst.instantiate1 xs[i]!
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
-        (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
+        (onMotive := fun xs _body => do
+          mkArrow (← newIHTypeAbst xs) (absGoal.beta (Array.mask mask xs)))
         (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do

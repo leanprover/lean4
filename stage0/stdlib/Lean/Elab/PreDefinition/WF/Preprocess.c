@@ -137,7 +137,7 @@ lean_object* l_Lean_Meta_letToHave(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_Lean_Expr_beta(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_empty___redArg();
 lean_object* l_Lean_Meta_Simp_Simprocs_add(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_simp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_simp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isLet(lean_object*);
 lean_object* l_Lean_Meta_mkLetFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11654,7 +11654,7 @@ v___x_4332_ = lean_array_push(v___x_4331_, v_a_4327_);
 v___x_4333_ = lean_box(0);
 v___x_4334_ = lean_obj_once(&l_Lean_Elab_WF_preprocess___lam__2___closed__7, &l_Lean_Elab_WF_preprocess___lam__2___closed__7_once, _init_l_Lean_Elab_WF_preprocess___lam__2___closed__7);
 lean_inc_ref(v___x_4316_);
-v___x_4335_ = l_Lean_Meta_simp(v___x_4316_, v_a_4329_, v___x_4332_, v___x_4333_, v___x_4334_, v___y_4307_, v___y_4308_, v___y_4309_, v___y_4310_);
+v___x_4335_ = l_Lean_Meta_simp(v___x_4316_, v_a_4329_, v___x_4332_, v___x_4333_, v___x_4334_, v___x_4322_, v___y_4307_, v___y_4308_, v___y_4309_, v___y_4310_);
 if (lean_obj_tag(v___x_4335_) == 0)
 {
 lean_object* v_a_4336_; lean_object* v_fst_4337_; lean_object* v___x_4339_; uint8_t v_isShared_4340_; uint8_t v_isSharedCheck_4406_; 

@@ -757,6 +757,7 @@ def conversionFolders : List (Name × Folder) := [
   (``Bool.toUInt64, Folder.mkUnary Bool.toUInt64),
   (``Bool.toUSize, Folder.mkUnaryToUSize Bool.toUInt64 Bool.toUInt32),
   (``getObjTagNat, Folder.getObjTagNat),
+  (``getObjCtorIdxNat, Folder.getObjTagNat),
   (``Nat.ctorIdx, Folder.natCtorIdx)
 ]
 

@@ -1,0 +1,172 @@
+T243
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+T244
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+U244
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+T245
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+T300
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+U300
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+S246
+small make: true
+small ctorIdx: true
+small shared: true
+small unique: true
+small rot: true
+small alts: true
+small task: true
+small after task: true
+small shareCommon: true
+small compact: true
+heap make: true
+heap ctorIdx: true
+heap shared: true
+heap unique: true
+heap rot: true
+heap alts: true
+heap task: true
+heap after task: true
+heap shareCommon: true
+heap compact: true
+literal: true
+bump literal: true
+ctorIdx literal: true
+T300 decEq: true
+enum ctorIdx: true
+enum boxed ctorIdx: true
+enum match: true

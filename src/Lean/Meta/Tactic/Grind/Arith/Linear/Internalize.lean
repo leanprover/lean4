@@ -82,7 +82,7 @@ where
   isNumeral (e : Expr) : Bool :=
     match_expr e with
     | Neg.neg _ _ a => isNumeral a
-    | OfNat.ofNat _ n _ => isNatNum n
+    | OfNat.ofNat _ n _ => n.isRawNatLit
     | _ => false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do

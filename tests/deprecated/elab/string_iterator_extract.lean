@@ -1,5 +1,7 @@
-
-#eval "abc"
+/-!
+Tests `String.Iterator.extract`, including iterators on different strings and iterators modified
+with `setCurr`.
+-/
 
 /- some "a" -/
 #eval

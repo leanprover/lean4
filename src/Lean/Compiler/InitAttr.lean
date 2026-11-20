@@ -174,7 +174,8 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
 /--
 Returns whether some direct import of module {name}`modIdx` is marked in {name}`noNative`. The
 native initializer of a module calls those of all its direct imports, so in that case the module
-cannot have native code either.
+cannot have native code either, provided that the native code was compiled from the sources of the
+imported `.olean` files.
 -/
 private def hasNonNativeImport (env : Environment) (noNative : Array Bool) (modIdx : Nat) :
     Bool := Id.run do
@@ -197,7 +198,9 @@ private unsafe def runInitAttrForMod
   -- any native Lean code reachable by the interpreter (i.e. from shared
   -- libraries with their corresponding module in the Environment) must
   -- first be initialized
-  if !hasNonNativeImport env noNative modIdx then
+  -- The stage 0 compiler imports `.olean` files of newer sources than its own native code, which may
+  -- contain modules it lacks below ones it has.
+  if Internal.isStage0 () || !hasNonNativeImport env noNative modIdx then
     let pkg? := env.getModulePackageByIdx? modIdx
     if env.header.isModule then
       let initializedRuntime ← pure initRuntime <&&> runModInit (phases := .runtime) mod.module pkg?

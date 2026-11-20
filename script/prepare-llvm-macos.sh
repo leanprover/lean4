@@ -33,6 +33,7 @@ $CP llvm/lib/lib{clang-cpp,LLVM}*.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits,float,__float*}.h stage1/include/clang
+cp "$(dirname "$0")/leanc-assert.h" stage1/include/clang/assert.h
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/libclang_rt.osx.a ../stage1)
 # libSystem stub, includes libc

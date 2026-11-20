@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Data.Nat.Control
 public import Lean.Data.PersistentArray
+public import Lean.Data.Iterators.Producers.PersistentArray
+public import Init.Data.Iterators.Combinators.FilterMap
+import Init.Data.Iterators.Consumers.Loop
 public import Lean.Expr
 import Init.Data.ToString.Macro
 import Init.Omega
@@ -528,6 +531,20 @@ instance [Monad m] : ForIn m LocalContext LocalDecl where
 @[inline] def foldl (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
   Id.run <| lctx.foldlM (pure <| f · ·) init start
 
+/-- Returns an iterator over the local declarations, oldest first. -/
+@[inline] def iter (lctx : LocalContext) :=
+  lctx.decls.iter.filterMap id
+
+/--
+Returns an iterator over the local declarations with index at least `start`, oldest first.
+-/
+@[inline] def iterFromIdx (lctx : LocalContext) (start : Nat) :=
+  lctx.decls.iterFromIdx start |>.filterMap id
+
+/-- Returns an iterator over the local declarations, newest first. -/
+@[inline] def revIter (lctx : LocalContext) :=
+  lctx.decls.revIter.filterMap id
+
 @[inline] def foldr (lctx : LocalContext) (f : LocalDecl → β → β) (init : β) : β :=
   Id.run <| lctx.foldrM (pure <| f · ·) init
 
@@ -655,16 +672,16 @@ Batched version of `Lean.LocalContext.findFromUserName?`.
 Finds the visible local declarations for each of the given `userNames` up to a certain `start`
 index exclusively, if any.
 -/
-def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (start := 0) : Array LocalDecl :=
-  Array.reverse <| Id.run <| ExceptT.runCatch do
-    let (_, acc) ← lctx.foldrM (init := (userNames, #[])) fun decl (userNames, acc) => do
-      if userNames.isEmpty then throw acc -- stop when we found all user names
-      if decl.index < start then throw acc       -- stop when we passed over the start index
-      if userNames.contains decl.userName then
-        pure (userNames.erase decl.userName, acc.push decl)
-      else
-        pure (userNames, acc)
-    return acc.reverse
+def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (start := 0) : Array LocalDecl := Id.run do
+  let mut userNames := userNames
+  let mut acc := #[]
+  for decl in lctx.revIter do
+    if userNames.isEmpty || decl.index < start then
+      break
+    if userNames.contains decl.userName then
+      userNames := userNames.erase decl.userName
+      acc := acc.push decl
+  return acc.reverse
 
 end LocalContext
 

@@ -32,7 +32,7 @@ def tacticCheckInstances : Linter where
     -- Do *not* check `linter.all` here, this linter is purely for debugging
     unless (← linter.tacticCheckInstances.getM) do
       return
-    let infoTrees := (← get).infoState.trees.toArray
+    let infoTrees := (← get).infoState.trees
     -- Once any tactic step in this command has produced a warning, suppress
     -- all further checks: a bad lctx typically persists across many tactic
     -- steps

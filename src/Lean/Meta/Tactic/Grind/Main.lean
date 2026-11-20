@@ -243,7 +243,7 @@ private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitD
   let mut msgs := #[]
   if let some msg ← mkEMatchDiagMessages ematchDiags cs then
     msgs := msgs.push <| msg
-  let ss := ss.toArray.filter fun { numCases, .. } => numCases > 1
+  let ss := ss.iter.filter (fun { numCases, .. } => numCases > 1) |>.toArray
   unless ss.isEmpty do
     msgs := msgs.push <| (← splitDiagInfoToMessageData ss)
   unless cases.isEmpty do

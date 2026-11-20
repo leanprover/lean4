@@ -976,7 +976,7 @@ private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceMap := 
     let (_, s) ← go (← get).ematch.thms (← get).ematch.newThms |>.run
     modify fun s => { s with
       -- **Note**: Ground theorems should be instantiated once. So, we filter them.
-      ematch.thms      := s.ematch.thms ++ (s.ematch.newThms.filter fun thm => thm.numParams > 0)
+      ematch.thms      := s.ematch.newThms.iter.filter (·.numParams > 0) |>.fold (·.push ·) s.ematch.thms
       ematch.newThms   := {}
       ematch.gmt       := s.ematch.gmt + 1
       ematch.num       := s.ematch.num + 1

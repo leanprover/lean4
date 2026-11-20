@@ -117,7 +117,7 @@ uint8_t l_Lean_Meta_instBEqTransparencyMode_beq(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_ConfigWithKey_setTransparency(uint8_t, lean_object*);
 lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_SimprocsArray_add(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_simpTarget(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_simpTarget(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 lean_object* l_Lean_MVarId_refl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mapErrorImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10943,7 +10943,7 @@ lean_ctor_set(v___x_4051_, 3, v___x_4050_);
 v___x_4052_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_4052_, 0, v___x_4045_);
 lean_ctor_set(v___x_4052_, 1, v___x_4051_);
-v___x_4053_ = l_Lean_Meta_simpTarget(v_mvarId_4020_, v_a_4029_, v_a_4042_, v___x_4043_, v___x_4021_, v___x_4052_, v___y_4023_, v___y_4024_, v___y_4025_, v___y_4026_);
+v___x_4053_ = l_Lean_Meta_simpTarget(v_mvarId_4020_, v_a_4029_, v_a_4042_, v___x_4043_, v___x_4021_, v___x_4052_, v___x_4019_, v___y_4023_, v___y_4024_, v___y_4025_, v___y_4026_);
 if (lean_obj_tag(v___x_4053_) == 0)
 {
 lean_object* v_a_4054_; lean_object* v___x_4056_; uint8_t v_isShared_4057_; uint8_t v_isSharedCheck_4096_; 

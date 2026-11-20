@@ -165,15 +165,10 @@ def reorderVars (force := false) : GoalM Unit := do
   trace[grind.lia.reorder] "reordering variables, epoch: {s.varsHistory.size + 1}"
   checkInvariants
   -- We save the constraints to reinsert them later.
-  let dvds := s.dvds.foldl (init := #[]) fun
-    | dvds, none => dvds
-    | dvds, some c => dvds.push c
-  let dvds := dvds.map (·.reorder old2new)
-  let ineqs := s.lowers.foldl (init := #[]) (·.append ·.toArray)
-  let ineqs := s.uppers.foldl (init := ineqs) (·.append ·.toArray)
-  let ineqs := ineqs.map (·.reorder old2new)
-  let diseqs := s.diseqs.foldl (init := #[]) (·.append ·.toArray)
-  let diseqs := diseqs.map (·.reorder old2new)
+  let dvds := s.dvds.iter.filterMap (·.map (·.reorder old2new)) |>.toArray
+  let ineqs := s.lowers.iter.append s.uppers.iter |>.flatMap (·.iter)
+    |>.map (·.reorder old2new) |>.toArray
+  let diseqs := s.diseqs.iter.flatMap (·.iter) |>.map (·.reorder old2new) |>.toArray
   /-
   The reordered constraints use the new variable order, which does not exist in the goals of the
   enclosing case splits. Thus, they must not inherit the split depth of the original constraints (see

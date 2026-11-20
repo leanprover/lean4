@@ -1492,9 +1492,10 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
   let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
     -- NOTE: `waitAll` below ensures `getAll` will not block here
     let logs := tree.getAll.map (·.diagnostics.msgLog) |>.push currentLog
+    let isErrorOrSorry (msg : Message) :=
+      msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
     let hasErrorOrSorry := logs.any fun log =>
-      log.reportedPlusUnreported.any fun msg =>
-        msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
+      log.reported.any isErrorOrSorry || log.unreported.any isErrorOrSorry
     if hasErrorOrSorry then
       return
     for d in defsParsedSnap.defs, (ref, kind) in views do

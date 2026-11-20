@@ -301,11 +301,11 @@ This option can only be set on the command line, not in the lakefile or via `set
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
             pure memorized.diags
           else
-            let mut msgs := node.element.diagnostics.msgLog.toArray
-            if ! ctx.initParams.capabilities.silentDiagnosticSupport then
-              msgs := msgs.filter (! ·.isSilent)
-            let diags ← msgs.mapM
-              (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
+            let silentDiagnosticSupport := ctx.initParams.capabilities.silentDiagnosticSupport
+            let diags ← node.element.diagnostics.msgLog.iter
+              |>.filter (silentDiagnosticSupport || ! ·.isSilent)
+              |>.mapM (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
+              |>.toArray
             if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }
             pure diags
@@ -751,7 +751,7 @@ section MessageHandling
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    return PersistentArray.toArray <| allDiags.filter fun diag =>
+    return allDiags.iter.filter (fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=
@@ -762,7 +762,7 @@ section MessageHandling
       params.lineRange?.all fun ⟨s, e⟩ =>
         -- does [s,e) intersect [diagStartLine,diagEndLine)?
         s ≤ diagStartLine ∧ diagStartLine < e ∨
-        diagStartLine ≤ s ∧ s < diagEndLine
+        diagStartLine ≤ s ∧ s < diagEndLine) |>.toArray
 
   def handlePreRequestSpecialCases? (st : WorkerState)
       (id : RequestID) (method : String) (params : Json)

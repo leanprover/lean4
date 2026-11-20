@@ -27,7 +27,7 @@ where go range? s := do
   | .some range => desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
   | .inherit => desc := desc ++ "<range inherited> "
   | .skip => desc := desc ++ "<no range> "
-  let msgs ← s.element.diagnostics.msgLog.toList.mapM (·.toString)
+  let msgs ← s.element.diagnostics.msgLog.iter.mapM (·.toString) |>.toList
   desc := desc ++ .prefixJoin "\n• " msgs
   withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
     s.children.toList.forM fun c => go c.reportingRange c.get

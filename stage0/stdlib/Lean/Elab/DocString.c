@@ -55150,7 +55150,7 @@ _start:
 lean_object* v___x_18803_; lean_object* v___x_18804_; lean_object* v___x_18805_; lean_object* v___x_18806_; lean_object* v___x_18807_; lean_object* v___x_18808_; 
 v___x_18803_ = ((lean_object*)(l_Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Elab_DocString_0__Lean_Doc_suggestionName_spec__0_spec__1___closed__2));
 v___x_18804_ = lean_unsigned_to_nat(11u);
-v___x_18805_ = lean_unsigned_to_nat(446u);
+v___x_18805_ = lean_unsigned_to_nat(456u);
 v___x_18806_ = ((lean_object*)(l_Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Elab_DocString_0__Lean_Doc_suggestionName_spec__0_spec__1___closed__1));
 v___x_18807_ = ((lean_object*)(l_Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Elab_DocString_0__Lean_Doc_suggestionName_spec__0_spec__1___closed__0));
 v___x_18808_ = l_mkPanicMessageWithDecl(v___x_18807_, v___x_18806_, v___x_18805_, v___x_18804_, v___x_18803_);

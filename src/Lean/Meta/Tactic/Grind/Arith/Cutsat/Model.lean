@@ -91,7 +91,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   (`↑(a.toBitVec.toNat)` to `a.toBitVec.toNat` to `a.toBitVec` to `a`), and `goal.exprs` is in internalization order
   (subterms first), so the reverse traversal resolves the chains in one pass.
   -/
-  for e in goal.exprs.toArray.reverse do
+  for e in goal.exprs.revIter do
     let node ← goal.getENode e
     let i := node.self
     let some n := natCastToInt? i | pure ()

@@ -168,7 +168,7 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
 private def addTraceNode (oldTraces : PersistentArray TraceElem)
     (data : TraceData) (ref : Syntax) (msg : MessageData) : m Unit :=
   withRef ref do
-  let msg := .trace data msg ((← getTraces).toArray.map (·.msg))
+  let msg := .trace data msg ((← getTraces).iter.map (·.msg) |>.toArray)
   let msg ← addMessageContext msg
   modifyTraces fun _ =>
     oldTraces.push { ref, msg }

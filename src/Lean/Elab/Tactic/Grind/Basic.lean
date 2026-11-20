@@ -201,7 +201,7 @@ where
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
           s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
-          for msg in (← Core.getMessageLog).toList do
+          for msg in (← Core.getMessageLog).iter do
             trace[Elab.tactic.backtrack] msg.data
           let failures := failures.push ⟨ex, ← Grind.saveState⟩
           s.restore (restoreInfo := true); k failures

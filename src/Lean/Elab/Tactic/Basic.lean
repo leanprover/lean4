@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
 import Lean.Elab.DeprecatedSyntax.Basic
 import Init.Omega
+import Std.Data.Iterators.Combinators.Drop
 
 public section
 
@@ -258,7 +259,7 @@ where
           s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
           if noFallback then throw ex
-          for msg in (← Core.getMessageLog).toList do
+          for msg in (← Core.getMessageLog).iter do
             trace[Elab.tactic.backtrack] msg.data
           let failures := failures.push ⟨ex, ← Tactic.saveState⟩
           s.restore (restoreInfo := true); k failures
@@ -428,9 +429,9 @@ def withSuppressedMessages (action : TacticM α) : TacticM α := do
     Useful for inspecting messages produced by a tactic without committing them. -/
 def withCapturedMessages (action : TacticM α) : TacticM (α × List Message) := do
   let initialLog ← Core.getMessageLog
-  let initialMsgCount := initialLog.toList.length
+  let initialMsgCount := initialLog.iter.length
   let result ← action
-  let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
+  let newMsgs := (← Core.getMessageLog).iter.drop initialMsgCount |>.toList
   Core.setMessageLog initialLog
   return (result, newMsgs)
 

@@ -162,13 +162,6 @@ public structure JoinPoint where
   numStates : Nat
   deriving Inhabited
 
-/-- A jump to a join point with the arguments `args`, which include the states, and the proof
-`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump. -/
-public structure Jump where
-  proof : MVarId
-  args : Array Expr
-  deriving Inhabited
-
 public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
@@ -185,6 +178,15 @@ public structure Scope where
   /-- The hypotheses of `eqs` that rewrite `x` to `t`: those that no other local mentioned when
   `forallIntro?` introduced them. -/
   substs : FVarIdMap (Expr × FVarId) := {}
+  deriving Inhabited
+
+/-- A jump to a join point with the arguments `args`, which include the states, and the proof
+`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump, which `scope`
+describes. -/
+public structure Jump where
+  proof : MVarId
+  args : Array Expr
+  scope : Scope
   deriving Inhabited
 
 public structure State where

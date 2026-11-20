@@ -36,18 +36,23 @@ for each `let` body, which would involve rechecking subexpressions multiple time
 and furthermore we do not need to fully typecheck the body when evaluating dependence.
 Instead, we re-implement a type checking algorithm here to be able to interleave checking and transformation.
 
-The traversal keeps terms in bound-variable form. Entering a binder adds a scratch declaration to
-the local context, and a term is put into free-variable form only to infer its type or to compare it
-with `isDefEq`. Checking happens only while a dependent `let` is in scope, and only for subterms that
-can reach one: a subterm whose loose bound variables all refer to binders that cannot reach a
-dependent `let` is skipped. This makes the traversal near-linear in the depth of nested binders.
+This type checker adds the declaration `x := v` when it enters `let x := v; b`, but it keeps `b` in
+bound-variable form. Every other binder gets a declaration in the same way. A subterm of `b` is put
+into free-variable form only when the checker infers its type or compares it with `isDefEq`. Thus
+entering a binder does not traverse its body, and the time is near-linear in the depth of nested
+binders.
 
-The trace class `trace.Meta.letToHave` reports statistics.
+The checker checks a subterm only if the check can unfold a dependent `let`. In
+`let x := 1; fun y : Nat => f y`, the type `Nat` of `y` cannot reach `x`, so the check of `f y` is
+skipped. In `let x := 1; fun y : Fin x => f y`, the type of `y` can reach `x`, so the checker
+checks `f y`.
 
 A metavariable `?m` is created outside the `let`s that we visit, so its local context contains none
 of their variables. Only a delayed assignment `?m #[x₁, …, xₙ] := ?p` can depend on such a `let`
 variable `y`, when `y` reaches the argument for some `let` variable `xᵢ` of `?p`. Such a `y` remains
 a `let`.
+
+The trace class `trace.Meta.letToHave` reports statistics.
 -/
 
 namespace Lean.Meta

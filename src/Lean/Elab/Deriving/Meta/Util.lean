@@ -1346,7 +1346,7 @@ def FieldHelperProvider.doubleCasesSlow
     let .forallE _ ty (.forallE _ ty' tgt _) _ := input.expectedType | fail
     unless ty == input.typeApp do return ← fail
     unless ty' == input.typeApp do return ← fail
-    if tgt.hasFVar then
+    if tgt.hasFVar || tgt.hasLooseBVars then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \
         `{.ofConstName input.fieldName}` depends on the type parameter or the field arguments"
     withLocalDeclD `lhs input.typeApp fun lhs => do
@@ -1404,7 +1404,7 @@ def FieldHelperProvider.doubleCases
     let .forallE _ ty (.forallE _ ty' tgt _) _ := input.expectedType | fail
     unless ty == input.typeApp do return ← fail
     unless ty' == input.typeApp do return ← fail
-    if tgt.hasFVar then
+    if tgt.hasFVar || tgt.hasLooseBVars then
       throwError "Invalid use of `{.ofConstName decl_name%}`, the target type for \
         `{.ofConstName input.fieldName}` depends on the type parameter or the field arguments"
     let inductInfo ← getConstInfoInduct input.induct

@@ -71,8 +71,11 @@ private def hasDepLet (e : Expr) : Bool :=
   Option.isSome <| e.find? (· matches .letE (nondep := false) ..)
 
 private structure Context where
-  /-- The number of dependent `let`s in scope. -/
-  numCandidates : Nat := 0
+  /--
+  Whether a dependent `let` in scope can still become a `have`, as of the entry into the innermost
+  binder. Checking obligations are discharged iff it is true.
+  -/
+  checking : Bool := false
   /--
   The number of innermost binders that are not dependent `let`s and whose types cannot reach one.
   Checking a subterm whose loose bound variables all refer to these binders cannot unfold a
@@ -103,6 +106,10 @@ private structure State where
   hasDepLetCache : Std.HashMap Sym.ExprPtr Bool := {}
   /-- Results of `looseBVars`. -/
   looseBVarsCache : Std.HashMap Sym.ExprPtr Nat := {}
+  /-- The scratch free variables of the dependent `let`s in scope, innermost last. -/
+  candidates : Array FVarId := #[]
+  /-- The candidates below this index are all unfolded. -/
+  allDeadUpTo : Nat := 0
   /-- The number of transformed `let` expressions. -/
   count : Nat := 0
 
@@ -166,6 +173,21 @@ private def substEnv (e : Expr) : M Expr := do
   modify fun s => { s with subst := s.subst.insert k r }
   return r
 
+/--
+Returns `true` if a dependent `let` in scope is not unfolded yet. An unfolded `let` remains unfolded,
+so the search starts at the innermost candidate and records which candidates are all unfolded.
+-/
+private def anyLiveCandidate : M Bool := do
+  let s ← get
+  let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+  let mut i := s.candidates.size
+  while i > s.allDeadUpTo do
+    if !zetaDeltaFVarIds.contains s.candidates[i - 1]! then
+      return true
+    i := i - 1
+  modify fun s => { s with allDeadUpTo := s.candidates.size }
+  return false
+
 /-- Checks `t =?= s`, where both terms are in free-variable form. -/
 private def checkDefEq (t s : Expr) : M Unit := do
   unless (← isDefEq t s) do
@@ -225,11 +247,11 @@ private partial def visit (e : Expr) : M Expr := do
   match e with
   | .bvar .. | .fvar .. | .sort .. | .const .. | .lit .. => return e
   | .mvar mvarId =>
-    if (← read).numCandidates > 0 then checkMVar mvarId #[]
+    if (← read).checking then checkMVar mvarId #[]
     return e
   | _ =>
     let ctx ← read
-    if ctx.numCandidates == 0 || isClean e ctx then
+    if !ctx.checking || isClean e ctx then
       unless (← hasDepLetM e) do
         return e
     else if let .mvar mvarId := e.getAppFn then
@@ -259,7 +281,7 @@ private partial def visitCore (e : Expr) : M Expr := do
   | .proj _ _ b =>
     let r := e.updateProj! (← visit b)
     let ctx ← read
-    if ctx.numCandidates > 0 && !isClean b ctx then
+    if ctx.checking && !isClean b ctx then
       discard <| inferTypeFallback e
     return r
   | .lam n t b _ =>
@@ -274,7 +296,7 @@ private partial def visitCore (e : Expr) : M Expr := do
     let v' ← visit v
     let tf ← substEnv t'
     let ctx ← read
-    if ctx.numCandidates > 0 then
+    if ctx.checking then
       checkDomain t tf
       if !isClean t ctx || !isClean v ctx then
         if v.isLambda then
@@ -301,7 +323,7 @@ private partial def visitApp (e : Expr) : M Expr := do
   let .app f a := e | unreachable!
   let f' ← if f.isMVar then pure f else if f.getAppFn.isMVar then visitApp f else visit f
   let r := e.updateApp! f' (← visit a)
-  if (← read).numCandidates > 0 then
+  if (← read).checking then
     checkApp f a
   return r
 
@@ -317,20 +339,19 @@ private partial def visitForall (e : Expr) : M Expr := do
   | _ =>
     let r ← visit e
     let ctx ← read
-    if ctx.numCandidates > 0 && !isClean e ctx then
+    if ctx.checking && !isClean e ctx then
       discard <| getLevel (← substEnv r)
     return r
 
 /-- Checks that the binder domain `t` is a type. `tf` is the free-variable form of `t`. -/
 private partial def checkDomain (t tf : Expr) : M Unit := do
   let ctx ← read
-  if ctx.numCandidates > 0 && !isClean t ctx then
+  if ctx.checking && !isClean t ctx then
     discard <| getLevel tf
 
 /--
 Adds a scratch declaration of type `type` (in free-variable form) to the local context, and runs `k`
-on its free variable with empty caches for the binder scope. `value?` is the value and the `nondep`
-flag of a `let`.
+on its free variable. `value?` is the value and the `nondep` flag of a `let`.
 -/
 private partial def withBinder (n : Name) (type : Expr) (value? : Option (Expr × Bool))
     (tainted : Bool) (isCandidate : Bool) (k : Expr → M α) : M α := do
@@ -340,13 +361,21 @@ private partial def withBinder (n : Name) (type : Expr) (value? : Option (Expr �
   let lctx := match value? with
     | some (v, nondep) => lctx.mkLetDecl fvarId n type v nondep
     | none => lctx.mkLocalDecl fvarId n type
-  withLCtx lctx {} do
-    withReader (fun ctx => { ctx with
-        numCandidates := ctx.numCandidates + (if isCandidate then 1 else 0)
-        cleanSuffix := if tainted then 0 else ctx.cleanSuffix + 1 }) do
-      modify fun s => { s with xs := s.xs.push x }
-      try k x
-      finally modify fun s => { s with xs := s.xs.pop }
+  modify fun s => { s with xs := s.xs.push x }
+  if isCandidate then
+    modify fun s => { s with candidates := s.candidates.push fvarId }
+  try
+    let checking ← if isCandidate then pure true else anyLiveCandidate
+    withLCtx lctx {} do
+      withReader (fun ctx => { ctx with
+          checking
+          cleanSuffix := if tainted then 0 else ctx.cleanSuffix + 1 }) do
+        k x
+  finally
+    modify fun s => { s with xs := s.xs.pop }
+    if isCandidate then
+      modify fun s => { s with candidates := s.candidates.pop }
+      modify fun s => { s with allDeadUpTo := min s.allDeadUpTo s.candidates.size }
 
 /-- Checks that the type of `a` is the domain of the type of `f`. -/
 private partial def checkApp (f a : Expr) : M Unit := do

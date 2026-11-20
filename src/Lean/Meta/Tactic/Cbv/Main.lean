@@ -136,13 +136,6 @@ def tryUnfold : Simproc := fun e => do
     trace[Meta.Tactic.cbv.unfold] "unfold `{appFn}`:{indentExpr e}\n==>{indentExpr e'}"
   return result
 
-def betaReduce : Simproc := fun e => do
-  -- TODO: Improve term sharing
-  let new := e.headBeta
-  let new ← Sym.share new
-  trace[Debug.Meta.Tactic.cbv.reduce] "beta:{indentExpr e}\n==>{indentExpr new}"
-  return .step new (← Sym.mkEqRefl new)
-
 def tryCbvTheorems : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
@@ -179,7 +172,7 @@ def handleApp : Simproc := fun e => do
       return markAsDoneIfFailed <| ← tryCbvTheorems e
     let info ← getConstInfo constName
     tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
-  | .lam .. => betaReduce e
+  | .lam .. => Sym.Simp.beta e
   | _ => return .rfl
 
 def handleOpaqueConst : Simproc := fun e => do
@@ -194,14 +187,6 @@ def foldLit : Simproc := fun e => do
   let new ← Sym.share <| mkNatLit n
   trace[Debug.Meta.Tactic.cbv.reduce] "foldLit: {e} ==> {new}"
   return .step new (← Sym.mkEqRefl e)
-
-def zetaReduce : Simproc := fun e => do
-  let .letE _ _ value body _ := e | return .rfl
-  let new := expandLet body #[value]
-  -- TODO: Improve sharing
-  let new ← Sym.share new
-  trace[Debug.Meta.Tactic.cbv.reduce] "zeta:{indentExpr e}\n==>{indentExpr new}"
-  return .step new (← Sym.mkEqRefl new)
 
 /-- Peels nested projections: for `e = base.proj₁.....projₙ` returns the projection nodes
 outermost-first together with the innermost non-projection `base`. -/
@@ -350,7 +335,7 @@ def cbvPreStep : Simproc := fun e => do
       let betaAppResult ← toBetaApp e
       return .step (betaAppResult.e) (betaAppResult.h)
     else
-      zetaReduce e
+      Sym.Simp.zeta e
   | .forallE .. | .lam .. | .fvar .. | .mvar .. | .bvar .. | .sort .. => return .rfl (done := true)
   | _ => return .rfl
 

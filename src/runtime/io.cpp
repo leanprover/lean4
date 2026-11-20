@@ -163,6 +163,16 @@ extern "C" LEAN_EXPORT obj_res lean_get_set_stderr(obj_arg h) {
     return r;
 }
 
+/* Sets the stdin and stdout streams that threads start with. Threads read these when they first use
+   their own stdin or stdout stream, so this must be called before other threads can do so. */
+extern "C" LEAN_EXPORT obj_res lean_set_default_stdin_stdout(obj_arg in, obj_arg out) {
+    mark_persistent(in);
+    mark_persistent(out);
+    g_stream_stdin  = in;
+    g_stream_stdout = out;
+    return box(0);
+}
+
 static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }

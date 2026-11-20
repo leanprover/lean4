@@ -1065,6 +1065,9 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   match h₁ with
   | intro a h => h₂ a h
 
+theorem Exists.fst {α : Prop} {p : α → Prop} (h : Exists p): α := h.elim fun h _ => h
+theorem Exists.snd {α : Prop} {p : α → Prop} (h : Exists p): p h.fst := h.elim fun _ h => h
+
 /-! # Decidable -/
 
 @[simp] theorem decide_true (h : Decidable True) : @decide True h = true :=

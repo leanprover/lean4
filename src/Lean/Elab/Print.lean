@@ -182,7 +182,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
   let kind := if isClass env id then "class" else "structure"
   let header ← mkHeader kind id levelParams type (if isUnsafe then .unsafe else .safe) (sig := false)
   let levels := levelParams.map Level.param
-  liftTermElabM <| forallTelescope (← getConstInfo id).type fun params _ =>
+  liftTermElabM <| forallTelescope (← getConstInfoInduct id).type fun params _ =>
     let s := Expr.const id levels
     withLocalDeclD `self (mkAppN s params) fun self => do
       let mut m : MessageData := header

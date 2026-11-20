@@ -45,14 +45,6 @@ public instance wfRel {r : α → α → Prop} : WellFoundedRelation { val // Ac
   intro a (fun _ h => t.inv h) (fun _ hr => recC intro (t.inv hr))
 termination_by Subtype.mk a t
 
-@[csimp] public theorem rec_eq_recC : @Acc.rec = @Acc.recC := by
-  funext α r motive intro a t
-  induction t with
-  | intro x h ih =>
-    rw [recC]
-    dsimp only
-    congr; funext y hr; exact ih _ hr
-
 @[csimp] public theorem rec'_eq_recC : @Acc.rec' = @Acc.recC := by
   funext α r motive intro a t
   induction t with
@@ -78,11 +70,7 @@ termination_by Subtype.mk a t
 
 @[csimp] public theorem ndrec_eq_ndrecC : @Acc.ndrec = @Acc.ndrecC := by
   funext α r motive intro a t
-  rw [Acc.ndrec, rec_eq_recC, Acc.ndrecC]
-
-@[csimp] public theorem ndrec'_eq_ndrecC : @Acc.ndrec' = @Acc.ndrecC := by
-  funext α r motive intro a t
-  rw [Acc.ndrec', rec'_eq_recC, Acc.ndrecC]
+  rw [Acc.ndrec, rec'_eq_recC, Acc.ndrecC]
 
 /-- A compilable version of `Acc.ndrecOn` and `Acc.ndrecOn'`. -/
 @[inline] public abbrev ndrecOnC {C : α → Sort v} {a : α} (n : Acc r a)
@@ -91,11 +79,7 @@ termination_by Subtype.mk a t
 
 @[csimp] public theorem ndrecOn_eq_ndrecOnC : @Acc.ndrecOn = @Acc.ndrecOnC := by
   funext α r motive intro a t
-  rw [Acc.ndrecOn, rec_eq_recC, Acc.ndrecOnC]
-
-@[csimp] public theorem ndrecOn'_eq_ndrecOnC : @Acc.ndrecOn' = @Acc.ndrecOnC := by
-  funext α r motive intro a t
-  rw [Acc.ndrecOn', rec'_eq_recC, Acc.ndrecOnC]
+  rw [Acc.ndrecOn, rec'_eq_recC, Acc.ndrecOnC]
 
 end Acc
 

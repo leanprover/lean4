@@ -24,6 +24,13 @@ from type
 #guard_msgs in
 run_meta check (Expr.proj ``Exists 0 (mkConst ``ex)) -- should fail
 
+/--
+error: invalid projection
+  ex.2
+from type
+  ∃ x, x = 1
+-/
+#guard_msgs in
 run_meta check (Expr.proj ``Exists 1 (mkConst ``ex))
 
 def p := (1, 2)

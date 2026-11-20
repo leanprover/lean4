@@ -204,8 +204,7 @@ Constructions that turn a value of the type into data (`T.ctorIdx`, `T._sizeOf_1
 -/
 def isLargeEliminating [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
   let .inductInfo indVal ← getConstInfo declName | return false
-  let recInfo ← getConstInfo (mkRecName declName)
-  return recInfo.levelParams.length > indVal.levelParams.length
+  return indVal.hasLargeElim
 
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
   if let ConstantInfo.inductInfo info ← getConstInfo declName then

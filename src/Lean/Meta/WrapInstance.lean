@@ -124,8 +124,7 @@ def etaStructExpand? (e : Expr) : MetaM (Option Expr) := OptionT.run do
   let .const inductName us := eType.getAppFn | failure
   let env ← getEnv
   guard <| isStructure env inductName
-  guard <| isNonRecStructure env inductName
-  guard <| !(← isProp eType)
+  guard <| hasEta env inductName
   let iv ← getConstInfoInduct inductName
   let some ctorName := iv.ctors.head? | failure
   let ctorInfo ← getConstInfoCtor ctorName

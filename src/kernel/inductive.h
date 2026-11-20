@@ -17,8 +17,8 @@ bool is_constructor(environment const & env, name const & n);
     Otherwise, return none. */
 optional<name> is_constructor_app(environment const & env, expr const & e);
 
-/** \brief Return true if the given declaration is a non-recursive structure (an inductive type with one constructor and no indices). */
-bool is_non_rec_structure(environment const & env, name const & decl_name);
+/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
+bool has_eta(environment const & env, name const & decl_name);
 
 /* Auxiliary function for to_cnstr_when_K */
 optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, size_t num_params);
@@ -61,7 +61,7 @@ template<typename WHNF, typename INFER>
 inline expr to_cnstr_when_structure(environment const & env, recursor_val const & rec_val, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {
     name const & induct_name = rec_val.get_major_induct();
-    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
+    if (!has_eta(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
     if (!is_constant(get_app_fn(e_type), induct_name))

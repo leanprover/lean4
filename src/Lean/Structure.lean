@@ -361,11 +361,24 @@ where
       <|> info.parentInfo.firstM fun parent => do
         go parent.structName (parent.projFn :: path)
 
+
+/--
+Returns true iff `constName` is a non-recursive inductive datatype that whose `hasEta` tag is set to true.
+That tag can only be set for non-recursive types with one constructor and no indices.
+
+Such types have special kernel support (e.g. the eta rule). This must be in sync with `has_eta()`.
+-/
+def hasEta (env : Environment) (constName : Name) : Bool :=
+  match env.find? constName with
+  | some (.inductInfo { hasEta,.. }) => hasEta
+  | _ => false
+
 /--
 Returns true iff `constName` is a non-recursive inductive datatype that has only one constructor and no indices.
 
 Such types have special kernel support (e.g. the eta rule). This must be in sync with `is_non_rec_structure()`.
 -/
+@[deprecated hasEta (since := "2026-11-16")]
 def isNonRecStructure (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true

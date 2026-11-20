@@ -38,7 +38,12 @@ open Lean
 /-! The number of parameters of an inductive declaration is user input. -/
 
 private def addInductive (name : Name) (numParams : Nat) (type : Expr) (ctors : List Constructor) : CoreM Unit := do
-  let decl := Declaration.inductDecl [] numParams [{ name, type, ctors }] false
+  let decl := Declaration.inductDecl [] numParams [{ name, type, ctors
+                                                     isImpredicative := false
+                                                     isK := false
+                                                     hasProjections := false
+                                                     hasEta := false
+                                                     hasLargeElim := false }] false
   let env ← ofExceptKernelException ((← getEnv).addDeclCore 0 0 decl none)
   IO.println s!"accepted with numParams = {(env.find? name).get!.inductiveVal!.numParams}"
 

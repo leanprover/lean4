@@ -169,10 +169,15 @@ structure InductiveType where
   name : Name
   type : Expr
   ctors : List Constructor
+  isImpredicative : Bool
+  isK : Bool
+  hasProjections : Bool
+  hasEta : Bool
+  hasLargeElim : Bool
 */
 class inductive_type : public object_ref {
 public:
-    inductive_type(name const & id, expr const & type, constructors const & cnstrs);
+    inductive_type(name const &id, expr const &type, constructors const &cnstrs, bool const &is_impredicative, bool const &is_k, bool const &has_projections, bool const &has_eta, bool const &has_large_elim);
     inductive_type(inductive_type const & other):object_ref(other) {}
     inductive_type(inductive_type && other) noexcept:object_ref(std::move(other)) {}
     inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
@@ -180,6 +185,12 @@ public:
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
     constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_get_ref(*this, 2)); }
+    bool is_impredicative() const;
+    bool is_k() const;
+    bool has_projections() const;
+    bool has_eta() const;
+    bool has_large_elim() const;
+
 };
 typedef list_ref<inductive_type> inductive_types;
 
@@ -237,7 +248,7 @@ inline optional<declaration> some_declaration(declaration && o) { return optiona
 bool use_unsafe(environment const & env, expr const & e);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
-declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
+declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe );
 
 /** \brief Similar to mk_definition but infer the value of unsafe flag.
     That is, set it to true if \c t or \c v contains a unsafe declaration. */
@@ -270,11 +281,16 @@ structure InductiveVal extends ConstantVal where
   isRec : Bool
   isUnsafe : Bool
   isReflexive : Bool
+  isImpredicative : Bool
+  isK : Bool
+  hasProjections : Bool
+  hasEta : Bool
+  hasLargeElim : Bool
 */
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, size_t nparams,
-                  size_t nindices, names const & all, names const & cnstrs, size_t nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
+                  size_t nindices, names const & all, names const & cnstrs, size_t nnested, bool is_rec, bool is_unsafe, bool is_reflexive, bool is_impredicative, bool is_k, bool has_projections, bool has_eta, bool has_large_elim);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other) noexcept:object_ref(std::move(other)) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
@@ -289,6 +305,11 @@ public:
     bool is_rec() const;
     bool is_unsafe() const;
     bool is_reflexive() const;
+    bool is_impredicative() const;
+    bool is_k() const;
+    bool has_projections() const;
+    bool has_eta() const;
+    bool has_large_elim() const;
 };
 
 /*

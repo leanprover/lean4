@@ -16,17 +16,32 @@ private def imaxProp : Expr := .sort (.imax (.succ .zero) .zero)
     { name := `KIPData
       type := imaxProp
       ctors := [{ name := `KIPData.mk
-                  type := .forallE `b (.const ``Bool []) (.const `KIPData []) .default }] }
+                  type := .forallE `b (.const ``Bool []) (.const `KIPData []) .default }]
+      isImpredicative := true
+      isK := false
+      hasProjections := false
+      hasEta := false
+      hasLargeElim := false }
   ] false
 
 -- Nullary single constructor, once as `Sort (imax 1 0)` and once as `Sort 0`.
 #eval show CoreM Unit from do
   addDecl <| .inductDecl [] 0 [
     { name := `KIPUnit, type := imaxProp
-      ctors := [{ name := `KIPUnit.mk, type := .const `KIPUnit [] }] }] false
+      ctors := [{ name := `KIPUnit.mk, type := .const `KIPUnit [] }]
+      isImpredicative := true
+      isK := false
+      hasProjections := false
+      hasEta := false
+      hasLargeElim := false }] false
   addDecl <| .inductDecl [] 0 [
     { name := `KIPUnit0, type := .sort .zero
-      ctors := [{ name := `KIPUnit0.mk, type := .const `KIPUnit0 [] }] }] false
+      ctors := [{ name := `KIPUnit0.mk, type := .const `KIPUnit0 [] }]
+      isImpredicative := true
+      isK := false
+      hasProjections := false
+      hasEta := false
+      hasLargeElim := false }] false
 
 -- The data field keeps the recursor in `Prop`; it is not an index.
 #eval show CoreM Unit from do

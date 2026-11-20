@@ -54,7 +54,7 @@ theorem mapFinIdx_spec {xs : Array α} {f : (i : Nat) → α → (h : i < xs.siz
 
 @[simp, grind =] theorem size_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     (xs.mapFinIdx f).size = xs.size :=
-  (mapFinIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).1
+  (mapFinIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).fst
 
 @[simp, grind =] theorem size_zipIdx {xs : Array α} {k : Nat} : (xs.zipIdx k).size = xs.size :=
   Array.size_mapFinIdx
@@ -64,11 +64,11 @@ theorem mapFinIdx_spec {xs : Array α} {f : (i : Nat) → α → (h : i < xs.siz
 @[simp, grind =] theorem getElem_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat}
     (h : i < (xs.mapFinIdx f).size) :
     (xs.mapFinIdx f)[i] = f i (xs[i]'(by simp_all)) (by simp_all) :=
-  (mapFinIdx_spec (p := fun i b h => b = f i xs[i] h) fun _ _ => rfl).2 i _
+  (mapFinIdx_spec (p := fun i b h => b = f i xs[i] h) fun _ _ => rfl).snd i _
 
 @[simp, grind =] theorem getElem?_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
-      xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
+      xs[i]?.pbind fun b h => some <| f i b ((getElem?_eq_some_iff.1 h).fst) := by
   simp only [getElem?_def, size_mapFinIdx, getElem_mapFinIdx]
   split <;> simp_all
 
@@ -93,12 +93,12 @@ theorem mapIdx_spec {f : Nat → α → β} {xs : Array α}
   (mapIdx_induction (motive := fun _ => True) trivial fun _ _ _ => ⟨hs .., trivial⟩).2
 
 @[simp, grind =] theorem size_mapIdx {f : Nat → α → β} {xs : Array α} : (xs.mapIdx f).size = xs.size :=
-  (mapIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).1
+  (mapIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).fst
 
 @[simp, grind =] theorem getElem_mapIdx {f : Nat → α → β} {xs : Array α} {i : Nat}
     (h : i < (xs.mapIdx f).size) :
     (xs.mapIdx f)[i] = f i (xs[i]'(by simp_all)) :=
-  (mapIdx_spec (p := fun i b h => b = f i xs[i]) fun _ _ => rfl).2 i (by simp_all)
+  (mapIdx_spec (p := fun i b h => b = f i xs[i]) fun _ _ => rfl).snd i (by simp_all)
 
 @[simp, grind =] theorem getElem?_mapIdx {f : Nat → α → β} {xs : Array α} {i : Nat} :
     (xs.mapIdx f)[i]? =
@@ -211,7 +211,7 @@ theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → �
 theorem mapFinIdx_eq_zipIdx_map {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     xs.mapFinIdx f = xs.zipIdx.attach.map
       fun ⟨⟨x, i⟩, m⟩ =>
-        f i x (by simp [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
+        f i x (by simp [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.fst) := by
   ext <;> simp
 
 

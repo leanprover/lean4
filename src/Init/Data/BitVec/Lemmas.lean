@@ -99,7 +99,7 @@ theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
 
 theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by
   simp only [getElem?_eq_some_iff]
-  exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
+  exact ⟨fun w => ⟨h, w⟩, fun h => h.snd⟩
 
 theorem getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
     l[i] = l[i]?.get (by simp [h]) := by

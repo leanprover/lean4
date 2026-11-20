@@ -1297,7 +1297,7 @@ public theorem ByteArray.utf8DecodeChar?_utf8EncodeChar_append {b : ByteArray} {
   | 1, _, _ =>
     have hc' : (String.utf8EncodeChar c).length = 1 := String.length_utf8EncodeChar _ ▸ hc
     rw [utf8DecodeChar?_append_eq_assemble₁ hc' (parseFirstByte_utf8EncodeChar_eq_done hc)]
-    exact (assemble₁_eq_some_iff_utf8EncodeChar_eq.2 (List.eq_getElem_of_length_eq_one _ hc')).2
+    exact (assemble₁_eq_some_iff_utf8EncodeChar_eq.2 (List.eq_getElem_of_length_eq_one _ hc')).snd
   | 2, _, _ =>
     have hc' : (String.utf8EncodeChar c).length = 2 := String.length_utf8EncodeChar _ ▸ hc
     rw [utf8DecodeChar?_append_eq_assemble₂ hc' (parseFirstByte_utf8EncodeChar_eq_oneMore hc)]

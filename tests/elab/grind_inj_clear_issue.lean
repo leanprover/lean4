@@ -3,5 +3,5 @@
 -/
 
 example (n m : Nat) (a : Fin n) (b : Fin m) (h : ∃ h : [n] = [m], (List.cons.inj h).1 ▸ a = b) :
-    (List.cons.inj h.1).1 ▸ a = b := by
+    (List.cons.inj h.fst).1 ▸ a = b := by
   grind

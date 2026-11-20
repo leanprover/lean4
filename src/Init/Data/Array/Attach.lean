@@ -292,13 +292,13 @@ theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :
 @[simp] theorem pmap_attach {xs : Array α} {p : {x // x ∈ xs} → Prop} {f : ∀ a, p a → β} (H) :
     pmap f xs.attach H =
       xs.pmap (P := fun a => ∃ h : a ∈ xs, p ⟨a, h⟩)
-        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
+        (fun a h => f ⟨a, h.fst⟩ h.snd) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
   ext <;> simp
 
 @[simp] theorem pmap_attachWith {xs : Array α} {p : {x // q x} → Prop} {f : ∀ a, p a → β} (H₁ H₂) :
     pmap f (xs.attachWith q H₁) H₂ =
       xs.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
-        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
+        (fun a h => f ⟨a, h.fst⟩ h.snd) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
   ext <;> simp
 
 theorem foldl_pmap {xs : Array α} {P : α → Prop} {f : (a : α) → P a → β}

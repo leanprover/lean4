@@ -180,12 +180,12 @@ theorem not_revMatchesAt_of_get {p : Char → Bool} {s : Slice} {pos : s.Pos} {h
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Bool} :
     matchAt? p pos =
-      if h₀ : ∃ (h : pos ≠ s.endPos), p (pos.get h) then some (pos.next h₀.1) else none := by
+      if h₀ : ∃ (h : pos ≠ s.endPos), p (pos.get h) then some (pos.next h₀.fst) else none := by
   split <;> simp_all [isLongestMatchAt_iff, matchesAt_iff]
 
 theorem revMatchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Bool} :
     revMatchAt? p pos =
-      if h₀ : ∃ (h : pos ≠ s.startPos), p ((pos.prev h).get (by simp)) then some (pos.prev h₀.1) else none := by
+      if h₀ : ∃ (h : pos ≠ s.startPos), p ((pos.prev h).get (by simp)) then some (pos.prev h₀.fst) else none := by
   split <;> simp_all [isLongestRevMatchAt_iff, revMatchesAt_iff]
 
 namespace Decidable
@@ -387,12 +387,12 @@ theorem not_revMatchesAt_of_get {p : Char → Prop} [DecidablePred p] {s : Slice
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred p] :
     matchAt? p pos =
-      if h₀ : ∃ (h : pos ≠ s.endPos), p (pos.get h) then some (pos.next h₀.1) else none := by
+      if h₀ : ∃ (h : pos ≠ s.endPos), p (pos.get h) then some (pos.next (h₀.fst)) else none := by
   split <;> simp_all [isLongestMatchAt_iff, matchesAt_iff]
 
 theorem revMatchAt?_eq {s : Slice} {pos : s.Pos} {p : Char → Prop} [DecidablePred p] :
     revMatchAt? p pos =
-      if h₀ : ∃ (h : pos ≠ s.startPos), p ((pos.prev h).get (by simp)) then some (pos.prev h₀.1) else none := by
+      if h₀ : ∃ (h : pos ≠ s.startPos), p ((pos.prev h).get (by simp)) then some (pos.prev (h₀.fst)) else none := by
   split <;> simp_all [isLongestRevMatchAt_iff, revMatchesAt_iff]
 
 end Decidable

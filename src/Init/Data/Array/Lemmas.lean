@@ -167,7 +167,7 @@ theorem getElem?_eq_some_getElem_iff (xs : Array α) (i : Nat) (h : i < xs.size)
 
 theorem getElem_eq_iff {xs : Array α} {i : Nat} {h : i < xs.size} : xs[i] = x ↔ xs[i]? = some x := by
   simp only [getElem?_eq_some_iff]
-  exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
+  exact ⟨fun w => ⟨h, w⟩, fun h => h.snd⟩
 
 theorem getElem_eq_getElem?_get {xs : Array α} {i : Nat} (h : i < xs.size) :
     xs[i] = xs[i]?.get (by simp [h]) := by

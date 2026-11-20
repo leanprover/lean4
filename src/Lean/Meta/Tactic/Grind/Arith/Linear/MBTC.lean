@@ -29,11 +29,11 @@ private partial def toRatValue? (a : Expr) : Option Rat :=
   else
     none
 
-private def getAssignmentExt? (s : Struct) (a : Expr) : Option Rat := do
-  if let some v := getAssignment? s a then
-    some v
-  else
-    toRatValue? a
+private def getAssignmentExt? (s : Struct) (a : Expr) : MetaM (Option Rat) := do
+  if let some v := toRatValue? a then
+    return some v
+  -- `a` may be a linear term such as `2 * x`, which is not a variable.
+  evalTerm? s a
 
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
   return (← linearExt.hasTermAtRoot e) || (toRatValue? e).isSome
@@ -50,8 +50,8 @@ private def eqAssignment (a b : Expr) : GoalM Bool := do
   let s := (← get').structs[structId]!
   -- It is pointless to generate case-splits unless we have support for disequality.
   unless s.isLinearInst?.isSome do return false
-  let some v₁ := getAssignmentExt? s a | return false
-  let some v₂ := getAssignmentExt? s b | return false
+  let some v₁ ← getAssignmentExt? s a | return false
+  let some v₂ ← getAssignmentExt? s b | return false
   return v₁ == v₂
 
 def mbtc : GoalM Bool := do

@@ -25,6 +25,14 @@ builtin_initialize registerTraceClass `Elab.do
 builtin_initialize registerTraceClass `Elab.do.match
 builtin_initialize registerTraceClass `Elab.do.step
 
+register_builtin_option debug.do.eagerAbstraction : Bool := {
+  defValue := false
+  descr := "(do elaborator) abstract every continuation of a `do` block eagerly with \
+`mkLambdaFVars`, also when it contains metavariables. This is for debugging only: terms printed \
+during elaboration then show continuation bodies instead of delayed-assigned metavariables, but \
+elaboration time grows quadratically or cubically with the length of the block"
+}
+
 register_builtin_option experimental.intrinsic : Bool := {
   defValue := false
   descr := "acknowledge that the intrinsic verification syntax (the contract clauses of a `def`, \
@@ -527,6 +535,50 @@ new continuation is returned that calls `dec` with `sorry` as a result.
 def DoElemCont.ensureUnit (dec : DoElemCont) : DoElabM DoElemCont := do
   dec.ensureUnitAt (← getRef)
 
+/-- The innermost subterm of `e` that contains the free variable `x`, has no loose bound variables and is not `x`. -/
+private partial def enclosingClosedTerm (x e : Expr) : Expr :=
+  let children := match e with
+    | .app f a | .lam _ f a _ | .forallE _ f a _ => #[f, a]
+    | .letE _ t v b _ => #[t, v, b]
+    | .mdata _ b | .proj _ _ b => #[b]
+    | _ => #[]
+  match children.find? fun c => c != x && !c.hasLooseBVars && c.containsFVar x.fvarId! with
+  | some c => enclosingClosedTerm x c
+  | none => e
+
+/-- Throws if `e` refers to a free variable outside of the local context `lctx`. -/
+private def checkScoped (lctx : LocalContext) (e : Expr) : MetaM Unit := do
+  let some x := e.find? fun e => e.isFVar && !lctx.contains e.fvarId! | return
+  throwError "Bug in a `do` elaborator. The free variable `{x}` is not in scope in{indentExpr (enclosingClosedTerm x e)}"
+
+/-- Runs `k` and reports whether it declared a `let rec`. -/
+@[inline] private def withLetRecDecls (k : DoElabM α) : DoElabM (α × Bool) := do
+  let numLetRecs := (← getThe Term.State).letRecsToLift.length
+  let a ← k
+  return (a, (← getThe Term.State).letRecsToLift.length != numLetRecs)
+
+/--
+Returns `fun xs => e` for `e : type`. The specification is `mkLambdaFVars xs e`.
+
+`mkLambdaFVars` reverts every pending metavariable of `e` over `xs`, and every enclosing binder of
+the `do` block reverts it again, so a metavariable created `d` binders deep ends up applied to `O(d)`
+arguments. If `e` contains metavariables, the abstraction instead goes through a delayed assignment:
+the metavariables of `e` keep `xs` in their local context, and `instantiateMVars` substitutes `e`
+once. The closure computation of `let rec` finds the placeholder of a `let rec` declared in `e` only
+through the delayed assignments that `mkLambdaFVars` creates for it, so `declaresLetRec` keeps the
+abstraction eager.
+-/
+private def mkLambdaFVarsLazily (xs : Array Expr) (e type : Expr) (declaresLetRec : Bool) :
+    DoElabM Expr := do
+  unless e.hasExprMVar && !declaresLetRec && !debug.do.eagerAbstraction.get (← getOptions) do
+    return ← mkLambdaFVars xs e
+  let body ← mkFreshExprSyntheticOpaqueMVar type
+  let lam ← mkLambdaFVars xs body
+  -- `e` contains the nested delayed bodies only as delayed assignments.
+  checkScoped (← getLCtx) e
+  body.mvarId!.assign e
+  return lam
+
 /--
 Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancelling
 the bind if `$(← dec.k)` is `pure $dec.resultName` or `e` is some `pure` computation.
@@ -542,7 +594,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
   let declKind := .ofBinderName x
   let kResultTy ← mkFreshResultType `kResultTy
   withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
-    let body ← k
+    let (body, declaresLetRec) ← withLetRecDecls k
     let body' := body.consumeMData
     let ops := (← read).ops.toDoOps
     -- First try to contract `e >>= pure` into `e`.
@@ -567,9 +619,9 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         if isDuplicable then
           return ← (← instantiateMVars body).replaceFVarsM #[xFVar] #[eRes]
 
-    let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
-    let body ← instantiateMVars body
-    let k ← mkLambdaFVars #[xFVar] body
+    let bodyType ← mkMonadApp kResultTy
+    let body ← instantiateMVars (← Term.ensureHasType bodyType body)
+    let k ← mkLambdaFVarsLazily #[xFVar] body bodyType declaresLetRec
     mkBindApp eResultTy kResultTy e k
 
 /--
@@ -723,47 +775,16 @@ def doElabToSyntaxWithExpectedType (hint : MessageData) (doElab : Option Expr �
 def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
   doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
-/-- The innermost subterm of `e` that contains the free variable `x`, has no loose bound variables and is not `x`. -/
-private partial def enclosingClosedTerm (x e : Expr) : Expr :=
-  let children := match e with
-    | .app f a | .lam _ f a _ | .forallE _ f a _ => #[f, a]
-    | .letE _ t v b _ => #[t, v, b]
-    | .mdata _ b | .proj _ _ b => #[b]
-    | _ => #[]
-  match children.find? fun c => c != x && !c.hasLooseBVars && c.containsFVar x.fvarId! with
-  | some c => enclosingClosedTerm x c
-  | none => e
-
-/-- Throws if `e` refers to a free variable outside of the local context `lctx`. -/
-private def checkScoped (lctx : LocalContext) (e : Expr) : MetaM Unit := do
-  let some x := e.find? fun e => e.isFVar && !lctx.contains e.fvarId! | return
-  throwError "Bug in a `do` elaborator. The free variable `{x}` is not in scope in{indentExpr (enclosingClosedTerm x e)}"
-
 /--
 Elaborates the right-hand side `e : type` of a join point with parameters `xs` and returns
-`fun xs => e`. The specification is `do mkLambdaFVars xs (← instantiateMVars (← k))`.
-
-`mkLambdaFVars` reverts every pending metavariable of `e` over `xs`, and the enclosing join points
-revert it again, so a metavariable created `d` join points deep ends up applied to `O(d)` arguments.
-If `lazy` holds and `e` contains metavariables, the abstraction instead goes through a delayed
-assignment: the metavariables of `e` keep `xs` in their local context, and `instantiateMVars`
-substitutes `e` once. The closure computation of `let rec` finds the placeholder of a `let rec`
-declared in `k` only through the delayed assignments that `mkLambdaFVars` creates for it, so such a
-`k` is abstracted eagerly.
+`fun xs => e`, abstracted with `mkLambdaFVarsLazily` if `lazy` holds. The specification is
+`do mkLambdaFVars xs (← instantiateMVars (← k))`.
 -/
 private def mkJoinRhs (xs : Array Expr) (type : Expr) (lazy : Bool) (k : DoElabM Expr) :
     DoElabM Expr := do
-  let numLetRecs := (← getThe Term.State).letRecsToLift.length
-  let e ← instantiateMVars (← k)
-  let declaresLetRec := (← getThe Term.State).letRecsToLift.length != numLetRecs
-  unless lazy && e.hasExprMVar && !declaresLetRec do
-    return ← mkLambdaFVars xs e
-  let body ← mkFreshExprSyntheticOpaqueMVar type
-  let joinRhs ← mkLambdaFVars xs body
-  -- `e` contains the nested delayed join point bodies only as delayed assignments.
-  checkScoped (← getLCtx) e
-  body.mvarId!.assign e
-  return joinRhs
+  let (e, declaresLetRec) ← withLetRecDecls k
+  let e ← instantiateMVars e
+  if lazy then mkLambdaFVarsLazily xs e type declaresLetRec else mkLambdaFVars xs e
 
 /--
 Call `caller` with a duplicable proxy of `dec`.

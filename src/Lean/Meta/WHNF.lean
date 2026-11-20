@@ -252,13 +252,14 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
     | .true => pure true
     | .false => pure false
     | .undef =>
-      let indInfo ← getConstVal recVal.getMajorInduct
-      /- If the type doesn't have large elimination, it must be a proof.
+      /- If the type is impredicative, the major must be a proof.
          TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
-      if indInfo.levelParams.length = recLvls.length then
+      let nonNestedInductName := recVal.all.head!
+      let nonNestedInduct ← getConstVal nonNestedInductName
+      if nonNestedInduct.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
-      isPropFormerType (← instantiateTypeLevelParams indInfo lvls)
+      isPropFormerType (← instantiateTypeLevelParams nonNestedInduct lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=

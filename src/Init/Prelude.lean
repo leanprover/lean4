@@ -4650,7 +4650,7 @@ A combined state and exception monad in which exceptions do not automatically ro
 
 Instances of `EStateM.Backtrackable` provide a way to roll back some part of the state if needed.
 
-`EStateM ε σ` is equivalent to `StateT σ (Except ε)`, but it is more efficient.
+`EStateM ε σ` is equivalent to `ExceptT ε (StateM σ)`, but it is more efficient.
 -/
 def EStateM (ε σ α : Type u) := σ → Result ε σ α
 

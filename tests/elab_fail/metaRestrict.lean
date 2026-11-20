@@ -20,8 +20,6 @@ structure Point where
 
 instance : Inhabited Point := ⟨⟨0, 0⟩⟩
 
-initialize myRef : IO.Ref Nat ← IO.mkRef 0
-
 /-! Code of imported modules still runs. -/
 
 example : 2 + 2 = 4 := by simp
@@ -54,9 +52,21 @@ elab "my_tac" : tactic => pure ()
 
 example : True := by my_tac; trivial
 
-/-! A custom SAT solver cannot be used. -/
+initialize myRef : IO.Ref Nat ← IO.mkRef 0
+
+/-! Initializers cannot be registered, including ones that run imported code in importing modules. -/
+
+@[init IO.monoMsNow] opaque now : Nat
+
+/-! `bv_decide` cannot run a SAT solver or write files. -/
 
 example (x : BitVec 8) : x = x := by bv_decide
+
+example (x y : BitVec 8) : x &&& y = y &&& x := by bv_decide
+
+example (x y : BitVec 8) : x &&& y = y &&& x := by bv_decide?
+
+example (x y : BitVec 8) : x &&& y = y &&& x := by bv_decide (config := { graphviz := true })
 
 set_option sat.solver "/bin/false" in
 example (x : BitVec 8) : x = x := by bv_decide

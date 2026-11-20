@@ -411,7 +411,7 @@ def runFrontend
     let traceStates := snaps.getAll.map (·.traces)
     let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
-  else if trace.profiler.serve.get finalOpts then
+  else if trace.profiler.serve.get opts then
     let traceStates := snaps.getAll.map (·.traces)
     let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     Firefox.Profile.serve <| Json.compress <| toJson profile

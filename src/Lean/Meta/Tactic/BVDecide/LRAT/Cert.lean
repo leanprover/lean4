@@ -98,6 +98,8 @@ This will obtain an `LratCert` if the formula is UNSAT and throw errors otherwis
 public def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.FilePath)
     (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) (solverMode : Elab.Tactic.BVDecide.SolverMode) :
     CoreM (Except (Array (Bool × Nat)) LratCert) := do
+  if (← isMetaRestricted) then
+    throwError "Cannot run the SAT solver because `meta.restrict` is set"
   IO.FS.withTempFile fun cnfHandle cnfPath => do
     withTraceNode `Meta.Tactic.sat (fun _ => return "Serializing SAT problem to DIMACS file") do
       -- lazyPure to prevent compiler lifting

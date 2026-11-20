@@ -646,6 +646,11 @@ structure Environment where
   data per constant.
   -/
   private asyncConstsMap : VisibilityMap AsyncConsts := default
+  /--
+  Kernel environment last produced by `localKernelEnvFor` on this branch, if any, so that the next
+  call does not have to collect the same constants again.
+  -/
+  private localKernelEnv? : Option Kernel.Environment := none
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
   /-- Realized values belonging to imported declarations. Initialized by `finalizeImport`. -/
@@ -859,45 +864,6 @@ private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (maxRecD
 private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) :
   Except Kernel.Exception Environment
 
-/--
-Adds given declaration to the environment, type checking it unless `doCheck` is false.
-
-This is a plumbing function for the implementation of `Lean.addDecl`, most users should use it
-instead.
--/
-def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
-    (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) (doCheck := true) :
-    Except Kernel.Exception Environment := do
-  if let some ctx := env.asyncCtx? then
-    if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
-      throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
-        prefix {ctx.declPrefix}"
-  let mut env ← if doCheck then
-    addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
-  else
-    addDeclWithoutChecking env decl
-
-  -- Let the elaborator know about the new constants. This uses the same constant for both
-  -- visibility scopes but the caller can still customize the public one on the main elaboration
-  -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
-  for n in decl.getNames do
-    env := env.registerConstAdded n
-    let some info := env.checked.get.find? n | unreachable!
-    env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
-      constInfo := .ofConstantInfo info
-      exts? := none
-      aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-    } }
-    -- TODO
-    if true /- !isPrivateName n-/ then
-      env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
-        constInfo := .ofConstantInfo info
-        exts? := none
-        aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-      } }
-
-  return env
-
 @[inherit_doc Kernel.Environment.constants]
 def constants (env : Environment) : ConstMap :=
   env.toKernelEnv.constants
@@ -1007,6 +973,145 @@ def find? (env : Environment) (n : Name) (skipRealize := false) : Option Constan
   if let some c := env.base.get env |>.constants.map₁.findConstCached? n then
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
+
+/--
+Adds the constants `declNames` of the current environment branch and the constants they
+transitively refer to to `kenv`. A theorem is added as an axiom with its signature so that a proof
+still being elaborated is not waited for. Names that cannot be resolved are skipped.
+-/
+private partial def addLocalDeps (env : Environment) (kenv : Kernel.Environment)
+    (declNames : Array Name) : Kernel.Environment := Id.run do
+  let env := { env with isExporting := false }
+  let mut kenv := kenv
+  let mut todo := declNames
+  while h : todo.size > 0 do
+    let n := todo.back
+    todo := todo.pop
+    if kenv.constants.contains n then
+      continue
+    let some c := env.findAsync? n | continue
+    let info := if c.kind matches .thm then
+      .axiomInfo { c.toConstantVal with isUnsafe := false }
+    else
+      c.toConstantInfo
+    kenv := kenv.add info
+    todo := info.type.foldConsts todo fun c todo => todo.push c
+    match info with
+    | .defnInfo v => todo := v.value.foldConsts todo fun c todo => todo.push c
+    | .opaqueInfo v => todo := v.value.foldConsts todo fun c todo => todo.push c
+    | .inductInfo v => todo := todo ++ v.all ++ v.ctors
+    | .ctorInfo v => todo := todo.push v.induct
+    | .recInfo v =>
+      todo := todo ++ v.all
+      for rule in v.rules do
+        todo := rule.rhs.foldConsts todo fun c todo => todo.push c
+    | _ => pure ()
+  return kenv
+
+/--
+Returns a kernel environment that contains, apart from all imported constants, the constants
+`declNames` of the current environment branch and the constants they transitively refer to. Unlike
+`toKernelEnv`, this does not wait for unrelated declarations that are still being elaborated or
+checked.
+
+The local constants in the result have not necessarily been checked by the kernel yet and theorems
+are represented as axioms, so the result must be used only for constructing or checking
+declarations that depend on nothing but the given constants.
+-/
+def localKernelEnvFor (env : Environment) (declNames : Array Name) : Kernel.Environment :=
+  env.addLocalDeps (env.localKernelEnv?.getD env.base.private) declNames
+
+/--
+Names of the auxiliary recursors the kernel has generated for the nested inductive types `decl` in
+`kenv`, which are not part of `Declaration.getNames`.
+-/
+private def getAuxRecNames (kenv : Kernel.Environment) (decl : Declaration) : Array Name := Id.run do
+  let .inductDecl _ _ types _ := decl | return #[]
+  let mut names := #[]
+  for type in types do
+    let mut i := 1
+    repeat
+      let auxRecName := type.name ++ `rec |>.appendIndexAfter i
+      unless kenv.constants.contains auxRecName do break
+      names := names.push auxRecName
+      i := i + 1
+  return names
+
+/-- Constants referred to by the inductive types `decl` other than the ones it declares. -/
+private def getInductDeclDeps (decl : Declaration) : Array Name := Id.run do
+  let .inductDecl _ _ types _ := decl | return #[]
+  let declared : NameSet := decl.getNames.foldl (·.insert ·) {}
+  let mut deps := #[]
+  for type in types do
+    deps := type.type.foldConsts deps fun c deps => deps.push c
+    for ctor in type.ctors do
+      deps := ctor.type.foldConsts deps fun c deps => deps.push c
+  return deps.filter (!declared.contains ·)
+
+/--
+Adds given declaration to the environment, type checking it unless `doCheck` is false.
+
+If `nonblocking` is true, an inductive type declaration is checked in `localKernelEnvFor` its
+dependencies instead of in `toKernelEnv`, and thus without waiting for unrelated declarations. If
+that fails, it is checked again in `toKernelEnv`.
+
+This is a plumbing function for the implementation of `Lean.addDecl`, most users should use it
+instead.
+-/
+def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) (doCheck := true)
+    (nonblocking := false) :
+    Except Kernel.Exception Environment := do
+  if let some ctx := env.asyncCtx? then
+    if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
+      throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
+        prefix {ctx.declPrefix}"
+  let mut local? := none
+  -- Kernel diagnostics are collected in `checked` only.
+  if nonblocking && decl matches .inductDecl .. && !env.base.private.isDiagnosticsEnabled then
+    let localEnv := env.localKernelEnvFor (getInductDeclDeps decl)
+    let res := if doCheck then
+      localEnv.addDeclCore maxHeartbeats maxRecDepth decl cancelTk?
+    else
+      localEnv.addDeclWithoutChecking decl
+    if let .ok localEnv := res then
+      local? := some localEnv
+  let (env, kenv) ← match local? with
+    | some localEnv =>
+      let infos := (decl.getNames.toArray ++ getAuxRecNames localEnv decl).filterMap localEnv.find?
+      pure ({ env with
+        localKernelEnv? := some localEnv
+        checked := env.checked.map (sync := true) fun kenv => infos.foldl (·.add ·) kenv
+      }, localEnv)
+    | none =>
+      let env ← if doCheck then
+        addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
+      else
+        addDeclWithoutChecking env decl
+      pure (env, env.checked.get)
+  let names := decl.getNames.toArray ++ getAuxRecNames kenv decl
+  let mut env := env
+
+  -- Let the elaborator know about the new constants. This uses the same constant for both
+  -- visibility scopes but the caller can still customize the public one on the main elaboration
+  -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
+  for n in names do
+    env := env.registerConstAdded n
+    let some info := kenv.find? n | unreachable!
+    env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
+      constInfo := .ofConstantInfo info
+      exts? := none
+      aconstsImpl := .pure <| .mk (α := AsyncConsts) default
+    } }
+    -- TODO
+    if true /- !isPrivateName n-/ then
+      env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
+        constInfo := .ofConstantInfo info
+        exts? := none
+        aconstsImpl := .pure <| .mk (α := AsyncConsts) default
+      } }
+
+  return env
 
 /-- Checks if, in the public scope (`Environment.isExporting`), the given name refers to a
 definition with a visible body, i.e. `ConstantInfo.hasValue`. Recall that outside the module

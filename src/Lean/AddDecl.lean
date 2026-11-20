@@ -35,7 +35,7 @@ def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Decl
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
-    (!debug.skipKernelTC.get opts)
+    (!debug.skipKernelTC.get opts) (nonblocking := Elab.async.get opts)
 
 open Linter in
 /--

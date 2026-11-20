@@ -18,7 +18,7 @@ def moduleTk   := leading_parser "module"
 def «prelude»  := leading_parser "prelude"
 def «public»   := leading_parser (withAnonymousAntiquot := false) "public"
 def «meta»     := leading_parser (withAnonymousAntiquot := false) "meta"
-def «all»      := leading_parser (withAnonymousAntiquot := false) "all"
+def «all»      := leading_parser (withAnonymousAntiquot := false) (nonReservedSymbol "all")
 def «import»   := leading_parser
   atomic (optional «public» >> optional «meta» >> "import ") >>
   optional all >>

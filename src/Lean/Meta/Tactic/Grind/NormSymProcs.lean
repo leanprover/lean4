@@ -48,8 +48,12 @@ def eraseMData : Simproc := fun e => do
 /--
 Eta-reduces the lambda arguments of an application before they are visited. Rewriting a body
 first would hide the redex: `fun x => Nat.succ x` would become `fun x => x + 1` and no longer be
-the `Nat.succ` found elsewhere in the goal. `grind` eta-reduces the terms it internalizes anyway
-(`Sym.Canon`). The body of a binder notation (`∃ y, q y`, `{x // p x}`) keeps its binder.
+the `Nat.succ` found elsewhere in the goal. The body of a binder notation (`∃ y, q y`,
+`{x // p x}`) keeps its binder.
+
+Only a lambda that eta-reduces to a constant or a free variable is reduced. `grind` propagates
+`f a = b[x := a]` for `f = fun x => b` only when the class of `f` contains a lambda (`Grind.Beta`),
+so `fun x y => x + y` must not become the partial application `HAdd.hAdd`.
 -/
 def etaReduce : Simproc := fun e => do
   unless e.isApp do return .rfl
@@ -59,11 +63,14 @@ def etaReduce : Simproc := fun e => do
   let e' ← go e
   return .step e' (← Sym.mkEqRefl e')
 where
+  reduceArg (a : Expr) : Expr :=
+    let a' := Sym.etaReduce a
+    if a'.isConst || a'.isFVar then a' else a
   hasEtaReducibleArg : Expr → Bool
-    | .app f a => Sym.isEtaReducible a || hasEtaReducibleArg f
+    | .app f a => !isSameExpr a (reduceArg a) || hasEtaReducibleArg f
     | _ => false
   go : Expr → SimpM Expr
-    | .app f a => do mkAppS (← go f) (Sym.etaReduce a)
+    | .app f a => do mkAppS (← go f) (reduceArg a)
     | f => pure f
 
 /--

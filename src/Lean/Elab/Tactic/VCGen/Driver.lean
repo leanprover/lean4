@@ -81,7 +81,7 @@ public def emitVC (scope : Scope) (goal : Grind.Goal) (reason : SolveResult.Stop
     let target' ← instantiateMVarsS target
     unless isSameExpr target target' do
       goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
-    match ← simpGoalWith scope Sym.Simp.simp goal.mvarId with
+    match ← scope.simpGoal Sym.Simp.simp goal.mvarId with
     | .closed => return
     | .goal mvarId => goal := { goal with mvarId }
     | .noProgress => pure ()

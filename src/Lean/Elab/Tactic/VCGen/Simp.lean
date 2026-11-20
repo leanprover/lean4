@@ -11,9 +11,9 @@ public import Lean.Meta.Sym.Simp.Goal
 import Lean.Meta.Sym.Simp.Result
 
 /-!
-`vcgen` simplifies terms and goals only through `runSimp`. For example, with the hypothesis
-`h : s = 3` in `Scope.substs`, `runSimp scope Sym.Simp.simp (s < 5)` first rewrites `s < 5` to
-`3 < 5` and then simplifies `3 < 5` to `True` with the `vcgen` simp set.
+`vcgen` simplifies terms and goals with `runSimp`, which rewrites with the equations of
+`Scope.substs` and then applies the `vcgen` simp set. For example, with `h : s = 3` in
+`Scope.substs`, `runSimp scope Sym.Simp.simp (s < 5)` yields `3 < 5`, then `True`.
 -/
 
 open Lean Meta Sym
@@ -48,7 +48,7 @@ public def runSimp (scope : Scope) (k : Expr → Sym.Simp.SimpM Sym.Simp.Result)
   | .step e' h .. => Sym.Simp.mkEqTransResult e e' h (← runCachedSimp methods (k e'))
 
 /-- Simplify the target of `goal` with `runSimp scope k`. -/
-public def simpGoalWith (scope : Scope) (k : Expr → Sym.Simp.SimpM Sym.Simp.Result)
+public def Scope.simpGoal (scope : Scope) (k : Expr → Sym.Simp.SimpM Sym.Simp.Result)
     (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
   (← runSimp scope k (← goal.getType)).toSimpGoalResult goal
 

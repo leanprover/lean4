@@ -112,7 +112,7 @@ def forallIntro? (scope : Scope) (oldGoal : MVarId) (target : Expr) :
   unless target.isForall do return none
   let oldGoal ← instantiateBinderDomains oldGoal
   let start := (← oldGoal.getDecl).lctx.numIndices
-  let mut goal ← match ← simpGoalWith scope Sym.Simp.simpTelescope oldGoal with
+  let mut goal ← match ← scope.simpGoal Sym.Simp.simpTelescope oldGoal with
     | .closed => return some (scope, [])
     | .goal goal => pure goal
     | .noProgress => pure oldGoal
@@ -495,7 +495,7 @@ def wpSimpStateArgs? (scope : Scope) (goal : MVarId) (info : WPApp) :
       let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
       Sym.Simp.mkCongr target f rhs .rfl ar h
     | _ => return .rfl
-  match ← simpGoalWith scope stateArgs goal with
+  match ← scope.simpGoal stateArgs goal with
   | .closed => return some []
   | .goal g => return some [g]
   | .noProgress => return none
@@ -713,7 +713,7 @@ def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   if info.prog.hasAnyFVar scope.substs.contains then
-    match ← simpGoalWith scope Sym.Simp.simp goal with
+    match ← scope.simpGoal Sym.Simp.simp goal with
     | .closed => return .goals scope []
     | .goal g => return .goals scope [g]
     | .noProgress => pure ()

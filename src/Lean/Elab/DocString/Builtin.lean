@@ -1362,7 +1362,7 @@ def suggestName (code : VersoCode) : DocM (Array CodeSuggestion) := do
     | _ =>
     if let some (_, []) := (← resolveLocalName stx.getId) then
       suggestions := suggestions.push <| .mk ``name none none
-    else if stx.getId.components.length == 1 then
+    else if stx.getId.hasSingleComponent then
       suggestions := suggestions.push <| .mk ``given none none
   return suggestions
 

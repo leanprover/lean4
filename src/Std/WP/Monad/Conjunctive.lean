@@ -74,7 +74,7 @@ instance {ρ α : Type u} [WP (m α) α Pred EPosts]
     refine PartialOrder.rel_trans
       (PredTrans.IsConjunctive.meet_apply_le (pt := WP.trans (x.run r))
         (fun a => Q₁ a r) (fun a => Q₂ a r) E₁ E₂)
-      (WP.wp_monotone_post ?_)
+      (WP.wp_mono_post ?_)
     intro a
     simp only [meet_apply]
     exact PartialOrder.rel_refl

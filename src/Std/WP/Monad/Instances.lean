@@ -97,7 +97,7 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     simp only [PredTrans.apply_Bind_bind, WP.trans_apply_eq, ExceptT.wp_apply_eq]
     apply PartialOrder.rel_trans _
       (MonadicWP.wp_wp_le_wp_bind (m := m) x.run _ (pushExcept post eposts.fst) eposts.snd)
-    apply WP.wp_monotone_post
+    apply WP.wp_mono_post
     intro r; cases r with
     | ok a => exact PartialOrder.rel_refl
     | error el =>
@@ -145,7 +145,7 @@ instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     simp only [PredTrans.apply_Bind_bind, WP.trans_apply_eq, OptionT.wp_apply_eq]
     apply PartialOrder.rel_trans _
       (MonadicWP.wp_wp_le_wp_bind (m := m) x.run _ (pushOption post eposts.fst) eposts.snd)
-    apply WP.wp_monotone_post
+    apply WP.wp_mono_post
     intro r; cases r with
     | some a => exact PartialOrder.rel_refl
     | none =>
@@ -194,7 +194,7 @@ instance ReaderT.wpInst {Pred : Type v} [PartialOrder Pred] [PartialOrder EPosts
     [WP (m α) α Pred EPosts] :
     WP (ReaderT ρ m α) α (ρ → Pred) EPosts where
   trans x := PredTrans.mk (fun post eposts r => wp (x.run r) (fun a => post a r) eposts)
-    fun hpost heposts r => WP.wp_monotone (fun a => hpost a r) heposts
+    fun hpost heposts r => WP.wp_mono (fun a => hpost a r) heposts
 
 instance {Pred : Type v} [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
     MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts := ⟨fun _ => ReaderT.wpInst⟩

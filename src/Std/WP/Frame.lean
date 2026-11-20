@@ -57,7 +57,7 @@ theorem meet_op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
   haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
   haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
   refine PartialOrder.rel_trans (hframes.op_wp_le_wp_op _ _) ?_
-  exact WP.wp_monotone (fun a => PreservesSup.upperAdjoint_le (op F) (Q a))
+  exact WP.wp_mono (fun a => PreservesSup.upperAdjoint_le (op F) (Q a))
     (PreservesSup.upperAdjoint_le (opE F) E)
 
 theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
@@ -89,7 +89,7 @@ theorem WP.frames_of_conjunctive {x : Prog} [WP.IsConjunctive x]
     exact le_meet _ _ _ (meet_le_left _ _)
       (PartialOrder.rel_trans (meet_le_right _ _) (meet_le_left _ _))
   · refine PartialOrder.rel_trans (PredTrans.IsConjunctive.meet_apply_le (pt := WP.trans x) (fun _ => F) Q (opE F ⊤) E) ?_
-    refine WP.wp_monotone ?_ (hE E)
+    refine WP.wp_mono ?_ (hE E)
     intro a
     simp only [meet_apply]
     exact PartialOrder.rel_refl

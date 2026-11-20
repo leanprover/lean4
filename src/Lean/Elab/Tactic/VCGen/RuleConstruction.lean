@@ -163,7 +163,7 @@ prf : ∀ (n : Nat) (pre : Prop) (hpre : pre ⊑ True)
   pre ⊑ wp (myPure n) post eposts
 ```
 The postcondition VC is pointwise over the return value and over any excess state arguments. The
-proof is generalized with `WP.wp_monotone_post_le`.
+proof is generalized with `WP.wp_mono_post_le`.
 
 #### Exception postcondition VCs
 
@@ -175,8 +175,8 @@ value, the relation `epostsSpec ⊑ eposts` is decomposed component by component
 and recursively for the tail. `decomposeProdRel` assembles these component VCs using
 `Prod.mk_le` and `Unit.unit_le`. A bare function value such as the one of `Except ε` yields the
 same pointwise VC. A value of a type with a `ToEStack` instance is first converted to a stack.
-The proof is then generalized with `WP.wp_monotone_epost_le`. When the spec exception
-postcondition is `⊥`, no VC is needed and `WP.wp_monotone_bot_le` is used instead.
+The proof is then generalized with `WP.wp_mono_epost_le`. When the spec exception
+postcondition is `⊥`, no VC is needed and `WP.wp_mono_bot_le` is used instead.
 
 #### Excess state arguments
 
@@ -243,7 +243,7 @@ def mkSpecBackwardProof (info : WPApp)
     let hpostTy ← mkPostPointwisePremise postSpec postAbstract postTy ssTypes stateArgNames
     /- mvar `?postImpl` for the proof of the premise -/
     let hpost ← mkFreshExprMVar (userName := `postImpl) hpostTy
-    /- `wp_monotone_post_le` expects its premise at the *function-lattice* order `postSpec ⊑ postAbstract`,
+    /- `wp_mono_post_le` expects its premise at the *function-lattice* order `postSpec ⊑ postAbstract`,
        whereas `hpost` is stated pointwise (`∀ a s…, postSpec a s… ⊑ postAbstract a s…`). The two are
        defeq, but unfolding the function-lattice `⊑` instance is blocked when the post's domain is a
        metavariable (e.g. the accumulator `β` of a `forIn` loop spec). Cast `hpost` to the function
@@ -251,8 +251,8 @@ def mkSpecBackwardProof (info : WPApp)
     let relTy ← mkAppM ``PartialOrder.rel #[postSpec, postAbstract]
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostsSpec`, where `post` is abstracted.
-       Uses wp_monotone_post_le: post ⊑ post' → pre ⊑ wp x post eposts → pre ⊑ wp x post' eposts -/
-    specApplied := mkAppN (wpLemma ``WP.wp_monotone_post_le)
+       Uses wp_mono_post_le: post ⊑ post' → pre ⊑ wp x post eposts → pre ⊑ wp x post' eposts -/
+    specApplied := mkAppN (wpLemma ``WP.wp_mono_post_le)
       #[prog, postSpec, postAbstract, epostsSpec, hpostRel, pre, specApplied]
 
   /- abstract concrete `eposts` if it is not already abstract -/
@@ -262,7 +262,7 @@ def mkSpecBackwardProof (info : WPApp)
     /- mvar `epostsAbstract` for new abstract `eposts` -/
     epostsAbstract ← mkFreshExprMVar (userName := `EPosts) epostsTy
     /- if `eposts` is `⊥`, then `eposts ⊑ epostsAbstract` holds trivially and
-      abstracting `eposts` can be simply done by `WP.wp_monotone_bot_le` without
+      abstracting `eposts` can be simply done by `WP.wp_mono_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
       it specially.
       The test runs at a fresh metavariable depth, where a schematic component of
@@ -276,10 +276,10 @@ def mkSpecBackwardProof (info : WPApp)
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostsImpl` premise -/
-      /- `wp_monotone_bot_le` takes a lattice of `EPosts` in place of its order. -/
+      /- `wp_mono_bot_le` takes a lattice of `EPosts` in place of its order. -/
       let latticeEPosts ← synthInstance
         (mkApp (mkConst ``CompleteLattice [← getLevel info.EPosts]) info.EPosts)
-      let botLemma := mkAppN (mkConst ``WP.wp_monotone_bot_le info.head.constLevels!)
+      let botLemma := mkAppN (mkConst ``WP.wp_mono_bot_le info.head.constLevels!)
         (info.args.take 5 ++ #[latticeEPosts, info.instWP])
       specApplied := mkAppN botLemma
         #[prog, postAbstract, epostsAbstract, pre, specApplied]
@@ -287,7 +287,7 @@ def mkSpecBackwardProof (info : WPApp)
       /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
       let heposts ← decomposeProdRel info.EPosts epostsSpec epostsAbstract stateArgNames
-      specApplied := mkAppN (wpLemma ``WP.wp_monotone_epost_le)
+      specApplied := mkAppN (wpLemma ``WP.wp_mono_epost_le)
         #[prog, postAbstract, epostsSpec, epostsAbstract, heposts, pre, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications

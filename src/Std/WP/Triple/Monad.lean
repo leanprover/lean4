@@ -42,7 +42,7 @@ theorem bind [Monad m] [MonadicWP.IsLaxDistrib m] (x : m α) (f : α → m β)
     Triple (x >>= f) pre post eposts :=
   ⟨PartialOrder.rel_trans hx.le_wp
     (PartialOrder.rel_trans
-      (WP.wp_monotone_post (fun a => (hf a).le_wp))
+      (WP.wp_mono_post (fun a => (hf a).le_wp))
       (MonadicWP.wp_wp_le_wp_bind x f post eposts))⟩
 
 theorem map [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] (f : α → β) (x : m α)

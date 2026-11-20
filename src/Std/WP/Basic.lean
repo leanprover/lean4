@@ -110,64 +110,84 @@ namespace WP
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
   [PartialOrder Pred] [PartialOrder EPosts] [WP Prog Value Pred EPosts]
 
-theorem wp_monotone_post {x : Prog}
+theorem wp_mono_post {x : Prog}
   {post post' : Value → Pred} {eposts : EPosts} (h : post ⊑ post') :
     wp x post eposts ⊑ wp x post' eposts :=
   (WP.trans x).apply_mono h PartialOrder.rel_refl
 
-theorem wp_monotone {x : Prog}
+theorem wp_mono {x : Prog}
   {post post' : Value → Pred} {eposts eposts' : EPosts} (h : post ⊑ post') (h' : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post' eposts' :=
   (WP.trans x).apply_mono h h'
 
-theorem wp_monotone_epost {x : Prog}
+theorem wp_mono_epost {x : Prog}
   {post : Value → Pred} {eposts eposts' : EPosts} (h : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post eposts' :=
   (WP.trans x).apply_mono PartialOrder.rel_refl h
 
-theorem wp_monotone_post_le (x : Prog)
+theorem wp_mono_post_le (x : Prog)
   (post post' : Value → Pred) (eposts : EPosts) (h : post ⊑ post') {pre : Pred}
     (h' : pre ⊑ wp x post eposts) :
     pre ⊑ wp x post' eposts :=
-  PartialOrder.rel_trans h' (wp_monotone_post h)
+  PartialOrder.rel_trans h' (wp_mono_post h)
 
-theorem wp_monotone_epost_le (x : Prog)
+theorem wp_mono_epost_le (x : Prog)
   (post : Value → Pred) (eposts eposts' : EPosts) (h : eposts ⊑ eposts') {pre : Pred}
     (h' : pre ⊑ wp x post eposts) :
     pre ⊑ wp x post eposts' :=
-  PartialOrder.rel_trans h' (wp_monotone_epost h)
+  PartialOrder.rel_trans h' (wp_mono_epost h)
 
-@[deprecated wp_monotone_post (since := "2026-09-17")]
+@[deprecated wp_mono_post (since := "2026-09-17")]
 theorem wp_consequence (x : Prog)
   (post post' : Value → Pred) (eposts : EPosts) (h : post ⊑ post') :
     wp x post eposts ⊑ wp x post' eposts :=
-  wp_monotone_post h
+  wp_mono_post h
 
-@[deprecated wp_monotone (since := "2026-09-17")]
+@[deprecated wp_mono (since := "2026-09-17")]
 theorem wp_consequence_econs (x : Prog)
   (post post' : Value → Pred) (eposts eposts' : EPosts) (h : post ⊑ post') (h' : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post' eposts' :=
-  wp_monotone h h'
+  wp_mono h h'
 
-@[deprecated wp_monotone_epost (since := "2026-09-17")]
+@[deprecated wp_mono_epost (since := "2026-09-17")]
 theorem wp_econs (x : Prog)
   (post : Value → Pred) (eposts eposts' : EPosts) (h' : eposts ⊑ eposts') :
     wp x post eposts ⊑ wp x post eposts' :=
-  wp_monotone_epost h'
+  wp_mono_epost h'
 
-@[deprecated wp_monotone_post_le (since := "2026-09-17")]
+@[deprecated wp_mono_post_le (since := "2026-09-17")]
 theorem wp_consequence_le (x : Prog)
   (post post' : Value → Pred) (eposts : EPosts) (h : post ⊑ post') {pre : Pred}
     (h' : pre ⊑ wp x post eposts) :
     pre ⊑ wp x post' eposts :=
-  wp_monotone_post_le x post post' eposts h h'
+  wp_mono_post_le x post post' eposts h h'
 
-@[deprecated wp_monotone_epost_le (since := "2026-09-17")]
+@[deprecated wp_mono_epost_le (since := "2026-09-17")]
 theorem wp_econs_le (x : Prog)
   (post : Value → Pred) (eposts eposts' : EPosts) (h : eposts ⊑ eposts') {pre : Pred}
     (h' : pre ⊑ wp x post eposts) :
     pre ⊑ wp x post eposts' :=
-  wp_monotone_epost_le x post eposts eposts' h h'
+  wp_mono_epost_le x post eposts eposts' h h'
+
+section Deprecated
+set_option linter.missingDocs false
+
+@[deprecated wp_mono_post (since := "2026-11-20")]
+abbrev wp_monotone_post := @wp_mono_post
+
+@[deprecated wp_mono (since := "2026-11-20")]
+abbrev wp_monotone := @wp_mono
+
+@[deprecated wp_mono_epost (since := "2026-11-20")]
+abbrev wp_monotone_epost := @wp_mono_epost
+
+@[deprecated wp_mono_post_le (since := "2026-11-20")]
+abbrev wp_monotone_post_le := @wp_mono_post_le
+
+@[deprecated wp_mono_epost_le (since := "2026-11-20")]
+abbrev wp_monotone_epost_le := @wp_mono_epost_le
+
+end Deprecated
 
 end WP
 
@@ -181,27 +201,38 @@ namespace WP
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
   [PartialOrder Pred] [CompleteLattice EPosts] [WP Prog Value Pred EPosts]
 
-theorem wp_monotone_bot {x : Prog}
+theorem wp_mono_bot {x : Prog}
   {post : Value → Pred} {eposts : EPosts} :
     wp x post ⊥ ⊑ wp x post eposts := by
-  solve_by_elim [wp_monotone_epost, bot_le]
+  solve_by_elim [wp_mono_epost, bot_le]
 
-theorem wp_monotone_bot_le (x : Prog)
+theorem wp_mono_bot_le (x : Prog)
   (post : Value → Pred) (eposts : EPosts) {pre : Pred} (h : pre ⊑ wp x post ⊥) :
     pre ⊑ wp x post eposts :=
-  PartialOrder.rel_trans h wp_monotone_bot
+  PartialOrder.rel_trans h wp_mono_bot
 
-@[deprecated wp_monotone_bot (since := "2026-09-17")]
+@[deprecated wp_mono_bot (since := "2026-09-17")]
 theorem wp_econs_bot (x : Prog)
   (post : Value → Pred) (eposts : EPosts) :
     wp x post ⊥ ⊑ wp x post eposts :=
-  wp_monotone_bot
+  wp_mono_bot
 
-@[deprecated wp_monotone_bot_le (since := "2026-09-17")]
+@[deprecated wp_mono_bot_le (since := "2026-09-17")]
 theorem wp_econs_bot_le (x : Prog)
   (post : Value → Pred) (eposts : EPosts) {pre : Pred} (h : pre ⊑ wp x post ⊥) :
     pre ⊑ wp x post eposts :=
-  wp_monotone_bot_le x post eposts h
+  wp_mono_bot_le x post eposts h
+
+section Deprecated
+set_option linter.missingDocs false
+
+@[deprecated wp_mono_bot (since := "2026-11-20")]
+abbrev wp_monotone_bot := @wp_mono_bot
+
+@[deprecated wp_mono_bot_le (since := "2026-11-20")]
+abbrev wp_monotone_bot_le := @wp_mono_bot_le
+
+end Deprecated
 
 end WP
 

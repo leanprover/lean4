@@ -798,7 +798,7 @@ where
         | #[.atom info' str] =>
           emitLeading info'
           let ty? ← typeFromInfo <| deepestNodes trees fun ci i _ =>
-            if i.stx == stx then some (ci, i) else none
+            if isInfoFor stx i then some (ci, i) else none
           emit str (some <| .literal kind ty?)
           emitTrailing info'
           emitTrailing info
@@ -810,7 +810,7 @@ where
       -- TODO: find projections in the info tree as well as syntactically (see comment on
       -- `identProjKind`)
       let docInfo? ← toDocInfo <| deepestNodes trees fun ci i _ =>
-        if i.stx == stx then some (ci, i) else none
+        if isInfoFor stx i then some (ci, i) else none
       emitLeading info
       emit str.toString docInfo?
       emitTrailing info
@@ -819,6 +819,15 @@ where
       emit str (some .keyword)
       emitTrailing info
     | .missing => return
+
+  /--
+  Checks whether `i` describes the occurrence `stx` in the highlighted code.
+
+  The default `BEq` instance for syntax ignores source positions, so the source ranges distinguish
+  occurrences that have the same text.
+  -/
+  isInfoFor (stx : Syntax) (i : Info) : Bool :=
+    i.stx.getRange? == stx.getRange? && i.stx == stx
 
   emit (code : String) (info? : Option DocHighlight := none) : StateT DocCode m Unit :=
     modify (fun st => st.push code info?)

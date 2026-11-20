@@ -156,8 +156,6 @@ structure Context where
   ops : DoOpsRef
   /-- The `ControlInfo` of the `doSeq` nodes of this `do` block inferred so far. -/
   controlInfoCache : ControlInfoCache
-  /-- Whether this `do` block has a join point whose right-hand side `elabDoWith` checks. -/
-  hasEagerJoinPoint : IO.Ref Bool
 
 abbrev DoElabM := ReaderT Context Term.TermElabM
 
@@ -559,10 +557,6 @@ private def checkScoped (lctx : LocalContext) (e : Expr) : MetaM Unit := do
   let a ← k
   return (a, (← getThe Term.State).letRecsToLift.length != numLetRecs)
 
-/-- Whether `mkLambdaFVarsLazily` abstracts `e` through a delayed assignment. -/
-private def abstractsLazily (e : Expr) (declaresLetRec : Bool) : DoElabM Bool :=
-  return e.hasExprMVar && !declaresLetRec && !debug.do.eagerAbstraction.get (← getOptions)
-
 /--
 Returns `fun xs => e` for `e : type`. The specification is `mkLambdaFVars xs e`.
 
@@ -576,7 +570,7 @@ abstraction eager.
 -/
 private def mkLambdaFVarsLazily (xs : Array Expr) (e type : Expr) (declaresLetRec : Bool) :
     DoElabM Expr := do
-  unless ← abstractsLazily e declaresLetRec do
+  unless e.hasExprMVar && !declaresLetRec && !debug.do.eagerAbstraction.get (← getOptions) do
     return ← mkLambdaFVars xs e
   let body ← mkFreshExprSyntheticOpaqueMVar type
   let lam ← mkLambdaFVars xs body
@@ -790,10 +784,7 @@ private def mkJoinRhs (xs : Array Expr) (type : Expr) (lazy : Bool) (k : DoElabM
     DoElabM Expr := do
   let (e, declaresLetRec) ← withLetRecDecls k
   let e ← instantiateMVars e
-  if lazy && (← abstractsLazily e declaresLetRec) then
-    return ← mkLambdaFVarsLazily xs e type declaresLetRec
-  (← read).hasEagerJoinPoint.set true
-  mkLambdaFVars xs e
+  if lazy then mkLambdaFVarsLazily xs e type declaresLetRec else mkLambdaFVars xs e
 
 /--
 Call `caller` with a duplicable proxy of `dec`.
@@ -944,8 +935,7 @@ def mkContext (expectedType? : Option Expr) (ops : DoOps := .default) : TermElab
   let returnCont ← ReturnCont.mkPure resultType
   let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo,
-           ops := ops.toDoOpsRef, controlInfoCache := ← ControlInfoCache.new,
-           hasEagerJoinPoint := ← IO.mkRef false }
+           ops := ops.toDoOpsRef, controlInfoCache := ← ControlInfoCache.new }
 
 section NestedActions
 
@@ -1188,9 +1178,8 @@ def elabDoWith (ops : DoOps) (doSeq : DoSeq)
   let ctx ← mkContext expectedType? (ops := ops)
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx
-  -- The join points with a delayed body check it in `mkLambdaFVarsLazily`.
-  if ← ctx.hasEagerJoinPoint.get then
-    checkScoped (← getLCtx) (← instantiateMVars res)
+  -- The join points with a delayed body check it in `mkJoinRhs`.
+  checkScoped (← getLCtx) (← instantiateMVars res)
   -- Synthesizing default instances here is harmful for expressions such as
   -- ```
   -- withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do

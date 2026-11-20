@@ -390,6 +390,7 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
     -- the two instantiations.
     let mut substOld := #[]
     let args := e.getAppArgs
+    let hasCast := argKinds.any (· matches .cast)
     for arg in args, kind in argKinds do
       proof := mkApp proof arg
       type := type.bindingBody!
@@ -423,6 +424,8 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
           subst := subst.push arg |>.push h
           if hasInst then substOld := substOld.push arg |>.push h
         | .step arg' h _ _ =>
+          -- With a `.cast` argument, `rhs` embeds `h`. `share` would walk an unshared `h` as a tree.
+          let h ← if hasCast then shareCommon h else pure h
           proof := mkApp2 proof arg' h
           subst := subst.push arg' |>.push h
           if hasInst then substOld := substOld.push arg |>.push h
@@ -431,7 +434,6 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
       | _ => unreachable!
     let_expr Eq _ _ rhs := type | unreachable!
     let rhs := rhs.instantiateRev subst
-    let hasCast := argKinds.any (· matches .cast)
     let rhs ← if hasCast then Simp.removeUnnecessaryCasts rhs else pure rhs
     let rhs ← share rhs
     -- The result is context-dependent if any simplified argument was.

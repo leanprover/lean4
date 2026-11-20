@@ -34,29 +34,7 @@ example : ∀ (x1 x2 x3 x4 x5 x6 x7 : Int),
   lia +mbtc
 
 /--
-error: `grind` failed
-case grind.1.1.1.1
-x1 x2 x3 x4 x5 x6 x7 : Int
-h : -1 * x2 ≤ 0
-h_1 : -1 * x7 ≤ 0 → -1 * x2 + 1 ≤ 0
-h_3 : -1 * x5 ≤ 0
-h_4 : -1 * x5 + x6 + -1 ≤ 0
-h_5 : x2 + -1 * (x1 * (x5 + 1)) + 1 ≤ 0
-h_6 : x5 + -1 * x6 + 1 = 0
-h_7 : x1 = 0 → x4 = x2
-h_8 : x1 = 0 → x3 = 0
-h_9 : -1 * x1 + 1 ≤ 0 → -1 * x4 ≤ 0 ∧ -1 * x1 + x4 + 1 ≤ 0
-h_10 : ¬x1 = 0 → x2 + -1 * x4 + -1 * (x1 * x3) = 0
-h_11 : x1 + -1 * x2 + 1 ≤ 0
-h_12 : -1 * x1 ≤ 0
-h_13 : x1 + -1 * x2 + 1 ≤ 0
-h_14 : -1 * x1 ≤ 0
-h_16 : ¬x1 = 0
-h_17 : -1 * x1 + 1 ≤ 0
-left : -1 * x3 + 1 ≤ 0
-right : x6 = x3
-h_19 : -1 * x7 ≤ 0
-⊢ False
+error: `lia` has failed, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example : ∀ (x1 x2 x3 x4 x5 x6 x7 : Int),

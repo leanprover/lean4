@@ -21,7 +21,7 @@ and uses C++ hashmap.
 class LEAN_EXPORT sharecommon_quick_fn {
 protected:
     struct set_hash {
-        std::size_t operator()(lean_object * o) const { return lean_sharecommon_hash(o); }
+        std::size_t operator()(lean_object * o) const { return static_cast<std::size_t>(lean_sharecommon_hash(o)); }
     };
     struct set_eq {
         std::size_t operator()(lean_object * o1, lean_object * o2) const { return lean_sharecommon_eq(o1, o2); }

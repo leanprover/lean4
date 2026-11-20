@@ -34,8 +34,17 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
   else
     let pHeadIdx := p.toHeadIndex
     let pNumArgs := p.headNumArgs
-    let rec visit (e : Expr) (offset : Nat) : StateRefT Nat MetaM Expr := do
-      let visitChildren : Unit → StateRefT Nat MetaM Expr := fun _ => do
+    -- The state contains the number of matches so far, and the subterms whose traversal found no
+    -- match since the last change to the metavariable context. The latter avoids revisiting shared
+    -- subterms. It does not depend on `offset`, which is only used to abstract a match, and candidate
+    -- subterms have no loose bound variables.
+    let rec visit (e : Expr) (offset : Nat) : StateRefT (Nat × Std.HashSet Expr) MetaM Expr := do
+      let cacheable := match e with
+        | .app .. | .mdata .. | .proj .. | .letE .. | .lam .. | .forallE .. => true
+        | _ => false
+      if cacheable && (← get).2.contains e then return e
+      let i := (← get).1
+      let visitChildren : Unit → StateRefT (Nat × Std.HashSet Expr) MetaM Expr := fun _ => do
         match e with
         | .app f a         => return e.updateApp! (← visit f offset) (← visit a offset)
         | .mdata _ b       => return e.updateMData! (← visit b offset)
@@ -44,7 +53,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         | .lam _ d b _     => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))
         | .forallE _ d b _ => return e.updateForallE! (← visit d offset) (← visit b (offset+1))
         | e                => return e
-      if e.hasLooseBVars then
+      let r ← if e.hasLooseBVars then
         visitChildren ()
       else if e.toHeadIndex != pHeadIdx || e.headNumArgs != pNumArgs then
         visitChildren ()
@@ -53,17 +62,20 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         -- so that it can be rolled back unless `occs.contains i`.
         let mctx ← getMCtx
         if (← isDefEq e p) then
-          let i ← get
-          set (i+1)
           if occs.contains i then
+            set (i+1, ({} : Std.HashSet Expr))
             return mkBVar offset
           else
+            modify fun (_, s) => (i+1, s)
             -- Revert the metavariable context,
             -- so that other matches are still possible.
             setMCtx mctx
             visitChildren ()
         else
           visitChildren ()
-    visit e 0 |>.run' 1
+      if cacheable && (← get).1 == i then
+        modify fun (i, s) => (i, s.insert e)
+      return r
+    visit e 0 |>.run' (1, {})
 
 end Lean.Meta

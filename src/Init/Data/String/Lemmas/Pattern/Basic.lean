@@ -73,7 +73,7 @@ theorem not_matches_empty {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatte
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
 {name}`endPos` matches the pattern {name}`pat`. Note that there might be a longer match, see
-{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.IsLongestMatch`.
+{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.IsLongestMatch`.
 -/
 structure IsMatch (pat : ρ) [PatternModel pat] {s : Slice} (endPos : s.Pos) : Prop where
   matches_copy : PatternModel.Matches pat (s.sliceTo endPos).copy
@@ -221,12 +221,12 @@ theorem isLongestMatch_of_ofSliceTo {pat : ρ} [PatternModel pat] {s : Slice} {p
   simpa using h.sliceTo p
 
 /--
-Predicate stating that the region between the start of the slice {name}`s` and the position
-{name}`pos` matches the pattern {name}`pat`, and that there is no longer match starting at the
-beginning of the slice. This is what a correct matcher should match.
+Predicate stating that the region between the position {name}`pos` and the end of the slice
+{name}`s` matches the pattern {name}`pat`, and that there is no longer match ending at the
+end of the slice. This is what a correct backward matcher should match.
 
-In some cases, being a match and being a longest match will coincide, see
-{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.NoPrefixPatternModel`.
+In some cases, being a reverse match and being a longest reverse match will coincide, see
+{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.NoSuffixPatternModel`.
 -/
 structure IsLongestRevMatch (pat : ρ) [PatternModel pat] {s : Slice} (pos : s.Pos) where
   isRevMatch : IsRevMatch pat pos
@@ -471,7 +471,7 @@ theorem isLongestMatchAtChain_of_ofSliceTo {pat : ρ} [PatternModel pat] {s : Sl
   simpa using h.sliceTo p Pos.ofSliceTo_le
 
 /--
-Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains is a match
+Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains a match
 of {name}`pat` in {name}`s` and it is longest among matches ending at {name}`endPos`.
 -/
 structure IsLongestRevMatchAt (pat : ρ) [PatternModel pat] {s : Slice} (startPos endPos : s.Pos) : Prop where
@@ -820,7 +820,7 @@ theorem LawfulForwardPatternModel.skipPrefix?_eq_none_iff {ρ : Type} {pat : ρ}
 Predicate stating compatibility between {name}`PatternModel` and {name}`BackwardPattern`.
 
 This extends {name}`LawfulBackwardPattern`, but it is much stronger because it forces the
-{name}`BackwardPattern` to match the longest prefix of the given slice that matches the property
+{name}`BackwardPattern` to match the longest suffix of the given slice that matches the property
 supplied by the {name}`PatternModel` instance.
 -/
 class LawfulBackwardPatternModel {ρ : Type} (pat : ρ) [BackwardPattern pat]
@@ -958,8 +958,8 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
 Inductive predicate stating that a list of search steps represents a valid backwards search from a
 given position in a slice.
 
-"Searching" here means always taking the longest match at the first position where the pattern
-matches.
+"Searching" here means always taking the longest reverse match at the last position where the
+pattern matches, i.e., the first such position reached when going backwards.
 
 Hence, this predicate determines the list of search steps up to grouping of rejections.
 -/
@@ -1016,8 +1016,9 @@ theorem isValidRevSearchFrom_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice
 /--
 Predicate stating compatibility between {name}`PatternModel` and {name}`ToBackwardSearcher`.
 
-We require the searcher to always match the longest match at the first position where the pattern
-matches; see {name}`IsValidRevSearchFrom`.
+We require the searcher to always match the longest reverse match at the last position where the
+pattern matches, i.e., the first such position reached when going backwards; see
+{name}`IsValidRevSearchFrom`.
 -/
 class LawfulToBackwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {σ : Slice → Type}
     [ToBackwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]

@@ -20,4 +20,9 @@ export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 test_status_out 1 "Axiom 'sorryAx' is not permitted" check
 match_text "it is used by 'bad'" produced.out
 
+# The axiom report comes before any checker runs, so it is not masked by a checker rejecting the
+# axiom less clearly (or, here, by the bundled checkers being absent from a development toolchain).
+test_status_out 1 "Axiom 'sorryAx' is not permitted" check --paranoid
+no_match_text 'kernel' produced.out
+
 rm -f produced.out

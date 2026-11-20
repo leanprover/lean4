@@ -21,7 +21,7 @@ def testNeverEscape :=
   true
 
 def testShouldEscape :=
-  let controls := String.mk ((List.range 31).map (fun c => Char.ofNat c))
+  let controls := String.ofList ((List.range 31).map (fun c => Char.ofNat c))
   let should_quote := String.join [controls,
                       "#%[]",
                       (Char.ofNat 127).toString] -- for 0x7F
@@ -80,7 +80,7 @@ def testUnescapeMixedCase :=
   true
 
 def testShouldUnescape :=
-  let controls := String.mk ((List.range 31).map (fun c => Char.ofNat c))
+  let controls := String.ofList ((List.range 31).map (fun c => Char.ofNat c))
   let should_quote := String.join [controls,
                       "#%[]",
                       (Char.ofNat 127).toString] -- for 0x7F

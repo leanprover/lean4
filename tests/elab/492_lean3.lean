@@ -1,4 +1,4 @@
-class foo (α : Type) : Type := (f : α)
+class foo (α : Type) : Type where (f : α)
 def foo.f' {α : Type} [c : foo α] : α := foo.f
 
 #print foo.f  -- def foo.f : {α : Type} → [self : foo α] → α
@@ -8,7 +8,7 @@ variable {α : Type} [c : foo α]
 #check c.f  -- ok
 #check c.f' -- ok
 
-structure bar : Prop := (f : ∀ {m : Nat}, m = 0)
+structure bar : Prop where (f : ∀ {m : Nat}, m = 0)
 def bar.f' : bar → ∀ {m : Nat}, m = 0 := bar.f
 
 #print bar.f  -- def bar.f  : bar → ∀ {m : ℕ}, m = 0

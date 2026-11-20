@@ -21,7 +21,7 @@ theorem F_force_some_len_minus_one {L L' : LazyList α}
 
 end LazyList
 
-structure LazyBatchQueue (τ) :=
+structure LazyBatchQueue (τ) where
   F : LazyList τ
   F_len : Nat
   h_lens : F.length = F_len

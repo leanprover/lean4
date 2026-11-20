@@ -7,12 +7,12 @@ module
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-import all Lean.Elab.ErrorUtils
+import Lean.Elab.ErrorUtils
 public section
 namespace Lean.Elab
 open Lean.Parser.Term
 
-open Language
+open Language Internal.ErrorUtils
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
@@ -1224,6 +1224,9 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    for header in headers do
+      let info : DeclValueInfo := { header with isProof := (← isProp header.type) }
+      pushInfoLeaf <| .ofCustomInfo { stx := header.value, value := .mk info }
 
     -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.

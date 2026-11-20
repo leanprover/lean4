@@ -61,6 +61,9 @@ public opaque assume (s : @& Solver) (lit : Int32) : BaseIO Unit
 @[extern "lean_cadical_solver_solve"]
 public opaque solve (s : @& Solver) : BaseIO Status
 
+@[extern "lean_cadical_solver_solve_with_terminator"]
+public opaque solveWithTerminator (s : @& Solver) (shouldTerminate : @& BaseIO Bool) : BaseIO Status
+
 @[extern "lean_cadical_solver_val"]
 public opaque val (s : @& Solver) (lit : Int32) : BaseIO Int32
 

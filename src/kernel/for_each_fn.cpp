@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/flet.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/ptr_pair_set.h"
 
 namespace lean {
 
@@ -19,14 +20,12 @@ If `partial_apps = true`, then given a term `g a b`, we also apply the function 
 and not only to `g`, `a`, and `b`.
 */
 template<bool partial_apps> class for_each_fn {
-    lean::unordered_set<lean_object *> m_cache;
+    ptr_pair_set m_cache;
     std::function<bool(expr const &)> m_f; // NOLINT
 
     bool visited(expr const & e) {
         if (is_likely_unshared(e)) return false;
-        if (m_cache.find(e.raw()) != m_cache.end()) return true;
-        m_cache.insert(e.raw());
-        return false;
+        return !m_cache.insert(e.raw(), 0);
     }
 
     void apply_fn(expr const & e) {
@@ -90,19 +89,12 @@ public:
 };
 
 class for_each_offset_fn {
-    struct key_hasher {
-        std::size_t operator()(std::pair<lean_object *, unsigned> const & p) const {
-            return hash((size_t)p.first, p.second);
-        }
-    };
-    lean::unordered_set<std::pair<lean_object *, unsigned>, key_hasher> m_cache;
+    ptr_pair_set m_cache;
     std::function<bool(expr const &, unsigned)> m_f; // NOLINT
 
     bool visited(expr const & e, unsigned offset) {
         if (is_likely_unshared(e)) return false;
-        if (m_cache.find(std::make_pair(e.raw(), offset)) != m_cache.end()) return true;
-        m_cache.insert(std::make_pair(e.raw(), offset));
-        return false;
+        return !m_cache.insert(e.raw(), offset);
     }
 
     void apply(expr const & e, unsigned offset) {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Html.Spec
-// Imports: public import Init.Prelude import Init.Data.String.Modify import Init.Data.Array.BinSearch
+// Imports: public import Init.Prelude import Init.Data.String.Modify import Init.Data.Array.BinSearch import Init.Data.String.Compare
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -609,6 +609,7 @@ return v_r_299_;
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_BinSearch(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Compare(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Html_Spec(uint8_t builtin) {
@@ -625,6 +626,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_BinSearch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Compare(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -637,6 +641,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Prelude(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_BinSearch(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Compare(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Html_Spec(uint8_t builtin) {
 lean_object * res;
@@ -649,6 +654,9 @@ res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_BinSearch(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Compare(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Html_Spec(builtin);

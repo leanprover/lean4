@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Init.Omega
+import Lean.Util.SafeExponentiation
 
 public section
 
@@ -94,7 +95,16 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceXor ((_ ^^^ _ : Fin _)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
-builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Fin _))  := reduceBin ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Fin _))  := fun e => do
+  unless e.isAppOfArity ``HShiftLeft.hShiftLeft 6 do return .continue
+  let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
+  let some v₂ ← fromExpr? e.appArg! | return .continue
+  if h : v₁.n = v₂.n then
+    let warning := (← Simp.getConfig).warnExponents
+    unless (← checkShiftLeft v₁.value.val v₂.value.val (warning := warning)) do return .continue
+    return .done <| toExpr (v₁.value <<< (h ▸ v₂.value))
+  else
+    return .continue
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceShiftRight ((_ >>> _ : Fin _)) := reduceBin ``HShiftRight.hShiftRight 6 (· >>> ·)
 

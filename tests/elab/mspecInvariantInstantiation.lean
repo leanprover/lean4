@@ -1,6 +1,8 @@
 import Std.Tactic.Do
 import Std.Do.WP.Basic
 
+set_option sym.debug true
+
 def tst (n : Nat) : Vector Bool n := Id.run do
   let mut res : Vector Bool n := .ofFn fun _ ↦ false
   for i in [:n] do

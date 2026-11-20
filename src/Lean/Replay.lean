@@ -109,8 +109,9 @@ partial def replayConstant (name : Name) : M Unit := do
           let ctorInfo ← all.mapM fun ci => do
             pure (ci, ← ci.inductiveVal!.ctors.mapM fun n => do
               pure ((← read).newConstants[n]!))
-          -- Make sure we are really finished with the constructors.
-          for (_, ctors) in ctorInfo do
+          -- Make sure we are really finished with the other types and the constructors.
+          for (ci, ctors) in ctorInfo do
+            replayConstants ci.getUsedConstantsAsSet
             for ctor in ctors do
               replayConstants ctor.getUsedConstantsAsSet
           let types : List InductiveType := ctorInfo.map fun ⟨ci, ctors⟩ =>
@@ -183,6 +184,12 @@ public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.E
       remaining := remaining.insert n
   let (_, s) ← StateRefT'.run (s := { env, remaining }) do
     ReaderT.run (r := { newConstants }) do
+      -- The kernel unfolds string literals to `String.ofList [Char.ofNat n, ...]`
+      -- (see `string_lit_to_constructor`), so these constants are needed to check any declaration
+      -- that reduces a string literal, but `getUsedConstants` does not report them.
+      -- Replay them (if present) before anything else.
+      replayConstant ``String.ofList
+      replayConstant ``Char.ofNat
       for n in remaining do
         replayConstant n
       checkPostponedConstructors

@@ -196,6 +196,7 @@ lean_inc_ref(v_proof_47_);
 v_contextDependent_48_ = lean_ctor_get_uint8(v_result_43_, sizeof(void*)*2 + 1);
 lean_dec_ref_known(v_result_43_, 2);
 v___x_49_ = l_Lean_Expr_isTrue(v_e_x27_46_);
+lean_dec_ref(v_e_x27_46_);
 if (v___x_49_ == 0)
 {
 lean_object* v___x_50_; 

@@ -150,11 +150,11 @@ warning: `[deprecated]` attribute should specify the date or library version at 
 Hint: Add the current date:
   [apply] (since := "<today>")
 ---
-info: @[deprecated newDecl (since := "<today>"), inline, simp]
+info: @[deprecated newDecl (since := "<today>"), inline, reducible]
 def otherAttrs : Nat := 0
 -/
 #guard_msgs in
-#since_hint @[deprecated newDecl, inline, simp]
+#since_hint @[deprecated newDecl, inline, reducible]
 def otherAttrs : Nat := 0
 
 def laterAttribute : Nat := 0
@@ -252,6 +252,20 @@ info: deprecated_syntax Lean.Parser.Term.suffices "use `have` instead" (since :=
 -/
 #guard_msgs in
 #since_hint deprecated_syntax Lean.Parser.Term.suffices "use `have` instead"
+
+-- The date is inserted before the replacement alternatives.
+/--
+warning: `deprecated_syntax` should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+
+Hint: Add the current date:
+  [apply] (since := "<today>")
+---
+info: deprecated_syntax Lean.Parser.Term.show "use `have` instead" (since := "<today>")
+  | `(show $t from $e) => `(($e : $t))
+-/
+#guard_msgs in
+#since_hint deprecated_syntax Lean.Parser.Term.show "use `have` instead"
+  | `(show $t from $e) => `(($e : $t))
 
 /-! ## `deprecated_module` -/
 

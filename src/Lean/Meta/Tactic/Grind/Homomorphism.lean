@@ -94,12 +94,6 @@ private def maskOnesZeros? (c : Nat) : Option (Nat × Nat) := do
   guard (c + 1 == 1 <<< n)
   return (n, k)
 
-private def mkNatDiv (a b : Expr) : Expr :=
-  mkApp6 (mkConst ``HDiv.hDiv [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHDiv a b
-
-private def mkNatMod (a b : Expr) : Expr :=
-  mkApp6 (mkConst ``HMod.hMod [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMod a b
-
 private def mkNatEqRefl (a : Expr) : Expr :=
   mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType a
 
@@ -219,9 +213,23 @@ private def applyHomo? (e : Expr) : GoalM (Option (Expr × Expr)) := do
   let .step e' h _ _ := r | return none
   return some (e', h)
 
+/--
+Returns `true` if `e` must not be internalized by the homomorphism extension.
+- Equalities are translated by `processNewEq` when classes are merged. Recall that an asserted
+  `a = b` or `a ≍ b` has no E-node (see `addFactStep`). See #15859.
+- Raw `Nat` literals reach the E-graph only as arguments of numerals and their instances
+  (e.g., `BitVec.instOfNat w n`). The rewriter folds them into `OfNat.ofNat Nat n`, and the
+  core would then see two distinct values in the same equivalence class. See #15857.
+-/
+private def isForbidden (e : Expr) : Bool :=
+  match e.getAppFn with
+  | .const declName _ => declName == ``Eq || declName == ``HEq
+  | .lit (.natVal _) => true
+  | _ => false
+
 def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).hom do return ()
-  if e.isAppOf ``Eq then return () -- We do not internalize equalities
+  if isForbidden e then return ()
   -- Check whether term has already been internalized by this solver extension.
   if (← homExt.getState).internalized.contains { expr := e } then return ()
   homExt.modifyState fun s => { s with internalized := s.internalized.insert { expr := e } }
@@ -232,7 +240,9 @@ def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
     let h ← mkEqTrans h₁ (← r.getProof)
     Grind.internalize r.expr generation
     trace_goal[grind.hom] "{e}\n===>\n{r.expr}"
-    pushEq e r.expr h
+    -- Ground evaluation steps are proved by `Eq.refl` (e.g., `Eq.refl 6 : 3 * 2 = 6` for `Rat`),
+    -- which may only type check at default transparency. See #15867.
+    pushEq e r.expr (mkExpectedPropHint h (← mkEq e r.expr))
   else
     firePreds e generation
 
@@ -246,9 +256,6 @@ because no union takes place.
 -/
 def processNewEq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).hom do return ()
-  -- `a` and `b` may have different types when their classes were merged via `HEq`
-  -- (e.g., `BitVec.cast` terms). The `=`-injection applies only to homogeneous equalities.
-  unless (← hasSameType a b) do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   -- The stored type of a fact may differ from the inferred type of its proof by
@@ -268,8 +275,6 @@ homomorphism.
 -/
 def processNewDiseq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).hom do return ()
-  -- See the same-type check at `processNewEq`.
-  unless (← hasSameType a b) do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let hne ← mkDiseqProof a b
@@ -280,6 +285,7 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
 
 builtin_initialize
   homExt.setMethods
+    (enabled     := (·.hom))
     (internalize := Homo.internalize)
     (newEq       := Homo.processNewEq)
     (newDiseq    := Homo.processNewDiseq)

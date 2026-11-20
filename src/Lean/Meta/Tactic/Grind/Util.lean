@@ -122,6 +122,10 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
     | _ => return .continue e
   Core.transform e (pre := pre)
 
+/-- Erases the irrelevant `Expr.mdata` of the goal's target, see `eraseIrrelevantMData`. -/
+def _root_.Lean.MVarId.eraseIrrelevantMData (mvarId : MVarId) : MetaM MVarId :=
+  mvarId.transformTarget fun e => liftM (Grind.eraseIrrelevantMData e)
+
 /--
 Converts nested `Expr.proj`s into projection applications if possible.
 -/

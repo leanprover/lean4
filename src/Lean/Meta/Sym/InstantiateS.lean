@@ -16,6 +16,7 @@ It assumes the input is maximally shared, and ensures the output is too.
 It assumes `beginIdx ≤ endIdx` and `endIdx ≤ subst.size`
 -/
 public def instantiateRevRangeS (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) : SymM Expr :=
+  if !e.hasLooseBVars then pure e else
   if _ : beginIdx > endIdx then unreachable! else
   if _ : endIdx > subst.size then unreachable! else
   let s := beginIdx

@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 set_option experimental.vcgen true
 set_option grind.warning false
 
@@ -978,6 +980,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   mkResourceTy := fun _ => pure (mkConst ``HProp)
   opHead := ``sepConj
   proc := sepConjFrameProc
+  framesThm? := ``frames_sepConj
 
 /-! # Specifications -/
 
@@ -1497,7 +1500,7 @@ loop is at, so that index is in bounds. -/
 /-- Extending the prefix by one element adds that element to the sum. -/
 @[grind =] theorem sum_take_succ (xs : List Nat) (i : Nat) (h : i < xs.length) :
     (xs.take (i + 1)).sum = xs[i]! + (xs.take i).sum := by
-  rw [List.take_succ, List.sum_append, List.getElem?_eq_getElem h]
+  rw [List.take_add_one, List.sum_append, List.getElem?_eq_getElem h]
   simp [getElem!_pos, h]
   grind
 
@@ -1550,9 +1553,9 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) :
   vcgen frames | pop p => l ↦ z
   -- The pinned frame is cancelled, so what is left is to fold the representation into the abstract
   -- predicate. That fixes the spec's parameters, and `grind` closes the rest.
-  case vc5 => exact v
-  case vc6 => exact xs
-  case vc2 => exact le_Stack (v :: xs) p top
+  case vc4 => exact v
+  case vc5 => exact xs
+  case vc1 => exact le_Stack (v :: xs) p top
   all_goals grind
 
 /-- The payload list is a cons only through `hxs`; after `subst` the footprint pairs exactly. -/
@@ -1574,9 +1577,9 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) (k : Addr) :
   vcgen
   -- Fill the schematic frame, then fold the representation in the residual, which fixes the spec's
   -- unpinned parameter.
-  case vc2 => exact l ↦ z
-  case vc4 => exact xs
-  case vc5 =>
+  case vc1 => exact l ↦ z
+  case vc3 => exact xs
+  case vc4 =>
     exact PartialOrder.rel_trans
       (PartialOrder.rel_of_eq (by grind :
         p ↦ top ∗ IsList xs null top ∗ l ↦ z = l ↦ z ∗ p ↦ top ∗ IsList xs null top))

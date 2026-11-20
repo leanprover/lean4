@@ -20,3 +20,12 @@ example (z : Rat) : z * (-3)⁻¹ * 3 = -z := by grind
 example {α : Type} [Field α] [IsCharP α 5] (z : α) : z * (↑(5 : Nat))⁻¹ = 0 := by grind
 example {α : Type} [Field α] [IsCharP α 5] (z : α) : z * (-5)⁻¹ = 0 := by grind
 example {α : Type} [Field α] [IsCharP α 5] (z : α) : z * (-3)⁻¹ * 3 = -z := by grind
+
+-- The `Sym.simp` normalizer must reify `-0` as the negation of `0`: `.num 0` denotes to `0`,
+-- which is not `-0` in a general ring, so the certificate would not have the ascribed type.
+section sym
+set_option backward.grind.normalizer false
+example {α : Type} [Field α] {z : α} : z / (-0) = 0 := by grind
+example {α : Type} [Field α] {z : α} : z / (- -0) = 0 := by grind
+example {α : Type} [Field α] {z : α} : z * (-0)⁻¹ = 0 := by grind
+end sym

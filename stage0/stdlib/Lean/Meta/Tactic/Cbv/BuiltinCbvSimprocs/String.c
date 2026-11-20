@@ -572,6 +572,7 @@ v_resetjp_190_:
 lean_object* v___x_193_; lean_object* v___x_194_; 
 v___x_193_ = l_Lean_Expr_appArg_x21(v_e_178_);
 v___x_194_ = l_Lean_Meta_Sym_getCharValue_x3f(v___x_193_);
+lean_dec_ref(v___x_193_);
 if (lean_obj_tag(v___x_194_) == 1)
 {
 lean_object* v_val_195_; uint32_t v___x_196_; lean_object* v___x_197_; lean_object* v___x_198_; lean_object* v___x_199_; 
@@ -848,6 +849,7 @@ _start:
 lean_object* v___x_309_; lean_object* v___x_310_; 
 v___x_309_ = l_Lean_Expr_appArg_x21(v_e_301_);
 v___x_310_ = l_Lean_Meta_Sym_getCharValue_x3f(v___x_309_);
+lean_dec_ref(v___x_309_);
 if (lean_obj_tag(v___x_310_) == 1)
 {
 lean_object* v_val_311_; lean_object* v___x_312_; uint32_t v___x_313_; lean_object* v___x_314_; lean_object* v___x_315_; lean_object* v___x_316_; 
@@ -1128,7 +1130,6 @@ v_resetjp_421_:
 {
 lean_object* v_a_424_; lean_object* v___x_425_; 
 v_a_424_ = lean_array_uget_borrowed(v_as_413_, v_i_415_);
-lean_inc(v_a_424_);
 v___x_425_ = l_Lean_Meta_Sym_getCharValue_x3f(v_a_424_);
 if (lean_obj_tag(v___x_425_) == 1)
 {

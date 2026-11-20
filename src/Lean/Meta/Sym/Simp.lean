@@ -28,3 +28,5 @@ public import Lean.Meta.Sym.Simp.Variant
 public import Lean.Meta.Sym.Simp.RegisterCommand
 public import Lean.Meta.Sym.Simp.Arith
 public import Lean.Meta.Sym.Simp.Reduce
+public import Lean.Meta.Sym.Simp.NNF
+public import Lean.Meta.Sym.Simp.Prenex

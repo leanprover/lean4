@@ -28,7 +28,7 @@ def normalizeImp (e : Expr) (config : Grind.Config) : MetaM Expr := do
     return r.expr
   else Sym.SymM.run do
     let e ← Sym.preprocessExpr e
-    let methods := mkNormSymMethods config (← mkNormSymTheorems)
+    let methods := mkNormSymMethods config (← getNormSymTheorems)
     let (r, _) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) methods
     match r with
     | .rfl .. => return e

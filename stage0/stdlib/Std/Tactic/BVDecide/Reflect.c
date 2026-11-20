@@ -204,7 +204,6 @@ _start:
 {
 uint8_t v_res_10_; lean_object* v_r_11_; 
 v_res_10_ = l_Std_Tactic_BVDecide_Reflect_verifyCert(v_cnf_8_, v_cert_9_);
-lean_dec_ref(v_cert_9_);
 v_r_11_ = lean_box(v_res_10_);
 return v_r_11_;
 }
@@ -2070,7 +2069,6 @@ _start:
 {
 uint8_t v_res_620_; lean_object* v_r_621_; 
 v_res_620_ = l_Std_Tactic_BVDecide_Reflect_verifyBVExpr(v_bv_618_, v_cert_619_);
-lean_dec_ref(v_cert_619_);
 v_r_621_ = lean_box(v_res_620_);
 return v_r_621_;
 }

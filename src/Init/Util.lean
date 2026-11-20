@@ -86,7 +86,7 @@ Returns the address at which an object is allocated.
 
 This function is unsafe because it can distinguish between definitionally equal values.
 -/
-@[extern "lean_ptr_addr"]
+@[extern "lean_ptr_addr", never_extract]
 unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
 
 /--
@@ -95,7 +95,7 @@ Returns `true` if `a` is an exclusive object.
 An object is exclusive if it is single-threaded and its reference counter is 1. This function is
 unsafe because it can distinguish between definitionally equal values.
 -/
-@[extern "lean_is_exclusive_obj"]
+@[extern "lean_is_exclusive_obj", never_extract]
 unsafe opaque isExclusiveUnsafe {α : Type u} (a : @& α) : Bool
 
 set_option linter.unusedVariables.funArgs false in
@@ -128,42 +128,46 @@ Returns `true` if `a` and `b` are represented by the same pointer at runtime, or
 If `k` is a function that performs an equality check on `a` and `b`, then this operation can be
 used to short-circuit the equality check for pointer-equal input.
 
-This cannot be wrapped into a safe operation with logical value `k ()` because that would be
-unsound if `α` includes computationally irrelevant data like types. Consider the example
-`α := Prop`, `a := True`, `b := False`, `k := fun _ => false`. In this case, `a = b → k () = true`
-is true, but `a` and `b` have the same runtime representation of an erased type, so `ptrEq a b` is
-true and this function returns `true`, even though `k ()` is `false`.
+This function is unsafe because its result is not equal to `k ()` if `α` includes computationally
+irrelevant data like types. Consider the example `α := Prop`, `a := True`, `b := False`,
+`k := fun _ => false`. In this case, `a = b → k () = true` is true, but `a` and `b` have the same
+runtime representation of an erased type, so `ptrEq a b` is true and this function returns `true`,
+even though `k ()` is `false`.
 
-Users who require a safe version of this function whose logical model is equal to `k ()` must
-manually check that for their type pointer-equality implies logical equality and then create a
-specialized version of this function using `implemented_by`:
-
-```lean
-namespace MyType
-
-@[inline]
-unsafe def withPtrEqUnsafe (a b : MyType) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  _root_.withPtrEqUnsafe a b k h
-
--- Safety: `MyType` contains no non-subsingleton erased data
-@[implemented_by withPtrEqUnsafe]
-def withPtrEq (a b : MyType) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
-  k ()
-
-end MyType
-```
+`withPtrEq` is a safe version of this function, for which the compiler checks that `α` does not
+include such data.
 -/
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
-@[deprecated "See the docstring of `withPtrEqUnsafe`" (since := "2026-09-21")]
-unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  withPtrEqUnsafe a b k h
+/--
+Returns `k ()`, but skips evaluating `k ()` and returns `true` if `a` and `b` are represented by the
+same pointer at runtime.
+
+If `k` is a function that performs an equality check on `a` and `b`, then this operation can be
+used to short-circuit the equality check for pointer-equal input.
+
+This is only correct if pointer-equal values of `α` are equal. This is not the case if values of `α`
+can contain types or type formers, because these are erased at runtime. For example, `True` and
+`False` have the same runtime representation, but `withPtrEq True False (fun _ => false) _` must
+return `false`. Therefore, the compiler refuses to compile a definition that uses `withPtrEq` unless
+it can check that values of `α` cannot contain types or type formers. In particular, `withPtrEq`
+cannot be used polymorphically: it can be used at types such as `List Nat` or `Fin n`, but not at
+`List β` if `β` is a type variable.
+
+Use `withPtrEqUnsafe` to bypass this check.
+-/
+-- `noncomputable` so that every use goes through the compiler's type check instead of falling
+-- back to this definition.
+@[expose] noncomputable def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+  k ()
 
 /--
-Build a `DecidableEq` instance that short-circuits using `withPtrEq` where possible.
-Since the general-purpose `withPtrEqUnsafe` is unsafe, users need to provide their own `withPtrEq`
-function; see the comment on `withPtrEqUnsafe`.
+Build a `DecidableEq` instance that short-circuits using a pointer equality check where possible.
+
+Usually, `withPtrEq` is passed as the first argument, as in
+`withPtrEqDecEq withPtrEq (fun _ _ _ _ => rfl) a b k`. Since `withPtrEqDecEq` is polymorphic, it
+cannot use `withPtrEq` directly; see the docstring of `withPtrEq`.
 -/
 @[inline] def withPtrEqDecEq {α : Type u}
     (withPtrEq : (a b : α) → (k : Unit → Bool) → (h : a = b → k () = true) → Bool)
@@ -174,3 +178,23 @@ function; see the comment on `withPtrEqUnsafe`.
 
 @[implemented_by withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0
+
+set_option linter.unusedVariables.funArgs false in
+@[inline] unsafe def withIsExclusiveUnsafe {α : Type u} {β : Type v} (a : @& α) (k : Bool → β)
+    (h : k true = k false) : β :=
+  k (isExclusiveUnsafe a)
+
+/--
+Checks whether `a` is exclusive at runtime, applying `k` to the verdict. This can be used, for
+example, to skip caching values that are not referenced from anywhere else. This function is
+safe because of the proof obligation `h`, which ensures that the result does not depend on the
+answer.
+ 
+This function is a safe wrapper around `isExclusive`. Logically, it is `k false`. 
+
+Being exclusive does not imply that `a` can be updated in place: that also requires the caller
+to own `a` rather than borrow it.
+-/
+@[implemented_by withIsExclusiveUnsafe]
+def withIsExclusive {α : Type u} {β : Type v} (a : @& α) (k : Bool → β) (h : k true = k false) : β :=
+  k false

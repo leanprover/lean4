@@ -88,7 +88,7 @@ def sliceProducingComplete : Assertion where
 def orderInstances : Table .declaration .declaration .synthesis [()] where
   id := "string-order-instances"
   title := "Order instances on string-related types"
-  rowsFrom := .constUnit (pure #[``String, ``String.Slice, ``String.Pos, ``String.Pos.Raw, ``String.Slice.Pos])
+  rowsFrom := .constUnit (pure #[``Char, ``String, ``String.Slice, ``String.Pos, ``String.Pos.Raw, ``String.Slice.Pos])
   columnsFrom := .constUnit (pure OrderClasses.orderClasses)
   cellData := .synthesis #[]
 

@@ -35,6 +35,8 @@ structure RingM.Context where
   If `checkCoeffDvd` is `true`, then when using a polynomial `k*m - p`
   to simplify `.. + k'*m*m_2 + ...`, the substitution is performed IF
   - `k` divides `k'`, OR
+  - `|k| < |k'|`, and the substitution is a Euclidean remainder step that leaves
+    `(k' % k)*m*m_2` (see `Poly.simpM?`), OR
   - Ring implements `NoNatZeroDivisors`.
 
   We need this check when simplifying disequalities. In this case, if we perform
@@ -115,6 +117,16 @@ def nonzeroCharInst? [Monad m] [MonadRing m] : m (Option (Expr × Nat)) := do
   if let some (inst, c) := (← getRing).charInst? then
     if c != 0 then
       return some (inst, c)
+  return none
+
+/--
+Returns the `IsCharP` instance if the current ring has characteristic `1`.
+Such a ring is trivial, and its polynomials violate the invariant that coefficients are nonzero
+modulo the characteristic, so the solver must not process them. See `IsCharP.eq_of_charOne`.
+-/
+def charOneInst? [Monad m] [MonadRing m] : m (Option Expr) := do
+  if let some (inst, 1) := (← getRing).charInst? then
+    return some inst
   return none
 
 def noZeroDivisorsInst? : RingM (Option Expr) := do

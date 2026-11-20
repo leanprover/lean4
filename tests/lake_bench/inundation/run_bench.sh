@@ -20,6 +20,12 @@ bench_build() {
 }
 
 bench_build build
+
+# Requires a complete prebuilt module graph
+echo "Running $PREFIX/setups"
+"$TEST_DIR/measure.py" -t "$PREFIX/setups" -d -a -- \
+  lake build setups
+
 bench_build precompileModules -K precompileModules=true
 bench_build precompileLibrary -K precompileLibrary=true
 

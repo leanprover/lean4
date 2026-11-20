@@ -2,6 +2,8 @@ import Std.Tactic.Do
 import Std.Tactic.BVDecide
 import Std.Data.HashSet
 
+set_option sym.debug true
+
 set_option grind.warning false
 set_option linter.deprecated.syntax false
 

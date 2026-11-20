@@ -33,9 +33,9 @@ Every program then frames every resource (`WP.frames_of_frameClosure`).
 A separation logic depends on this property: every frame `op r` passes through the `wp` of every
 program in every state. A caller of a spec picks a frame and applies the frame rule for that
 frame. -/
-@[instance_reducible] noncomputable def WPMonad.withFrameClosure {m : Type → Type} [Monad m]
+@[instance_reducible] noncomputable def WPMonad.withFrameClosure {m : Type v → Type w} [Monad m]
     {P : Type u} {E : Type z} [Assertion P] [Assertion E]
-    {R : Type} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
+    {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E', opE (comp r r') E' = opE r (opE r' E'))
     (hunit : ∀ a, op e a = a) (hunitE : ∀ E', opE e E' = E')

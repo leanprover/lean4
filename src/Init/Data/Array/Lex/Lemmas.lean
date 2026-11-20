@@ -11,6 +11,7 @@ public import Init.Data.Array.Lex.Basic
 public import Init.Data.BEq
 public import Init.Data.Function
 public import Init.Data.Order.Classes
+public import Init.Data.Ord.Array
 public import Init.PropLemmas
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.DecidableEq
@@ -378,5 +379,13 @@ theorem flatMap_le_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α �
     {xs ys : Array α} :
     xs.flatMap f ≤ ys.flatMap f ↔ xs ≤ ys :=
   not_congr (flatMap_lt_flatMap_iff f hf hp hx)
+
+protected theorem compare_eq_compare_extract_min_then [Ord α] {xs ys : Array α} :
+    compare xs ys =
+      (compare (xs.extract 0 (min xs.size ys.size)) (ys.extract 0 (min xs.size ys.size))).then
+        (compare xs.size ys.size) := by
+  simp only [Array.compare_eq_compare_toList, toList_extract, List.extract_eq_take_drop,
+    List.drop_zero, Nat.sub_zero]
+  exact List.compare_eq_compare_take_min_then
 
 end Array

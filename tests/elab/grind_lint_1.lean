@@ -66,7 +66,7 @@ info: Try this to display the actual theorem instances:
 -- Note: The suffix skip should apply during check, but inspect bypasses it
 -- Array.range'_succ should NOT appear in the output
 /--
-info: instantiating `Array.back?_empty` triggers 17 additional `grind` theorem instantiations
+info: instantiating `Array.back?_empty` triggers 19 additional `grind` theorem instantiations
 ---
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array

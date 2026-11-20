@@ -11,3 +11,16 @@ name = "Test"
 [[require]]
 name = "dep"
 path = "dep"
+
+# Cache services that shadow and are shadowed by others
+# (see the `lake cache services` test)
+[[cache_service]]
+name = "cdn"
+kind = "s3"
+artifactEndpoint = "https://example.com/a0"
+revisionEndpoint = "https://example.com/r0"
+
+[[cache_service]]
+name = "shared"
+kind = "reservoir"
+apiEndpoint = "https://example.com/api/v1"

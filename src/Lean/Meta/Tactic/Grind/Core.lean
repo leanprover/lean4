@@ -135,8 +135,7 @@ private def getFunWithGivenDomain? (lams : Array Expr) (d : Expr) : Option Expr 
     | _ => false
 
 private def propagateUnitConstFuns (lams₁ lams₂ : Array Expr) : GoalM Unit := do
-  if h : lams₁.size = 0 then return () else
-  if h : lams₂.size = 0 then return () else
+  if lams₁.isEmpty || lams₂.isEmpty then return ()
   for lam₁ in lams₁ do
     -- Remark: we have heterogeneous equivalence classes. So, we may have functions
     -- with different domains in the same equivalence class.
@@ -150,11 +149,12 @@ private def propagateUnitConstFuns (lams₁ lams₂ : Array Expr) : GoalM Unit :
       let sub := mkApp (mkConst ``Subsingleton [u]) d₁
       pure (← synthInstance? sub).isSome
     if isTarget then
-      let some (.lam _ d₁ b₂ _) := getFunWithGivenDomain? lams₂ d₁ | pure ()
+      let some lam₂ := getFunWithGivenDomain? lams₂ d₁ | pure ()
+      let .lam _ _ b₂ _ := lam₂ | pure ()
       let val ← preprocessLight <| mkApp2 (mkConst ``default [u]) d₁ inhInst
       let lhs := b₁.instantiate1 val
       let rhs := b₂.instantiate1 val
-      let h ← mkEqProof lams₁[0] lams₂[0]
+      let h ← mkEqProof lam₁ lam₂
       pushNewFact <| mkExpectedPropHint (← mkCongrFun h val) (← mkEq lhs rhs)
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
@@ -229,15 +229,19 @@ where
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
+    let heqProofs := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
+    -- We must also retrieve `rhsRoot`: it may be a parent of `lhsRoot.self`, and
+    -- `reinsertParents` may have updated its `congr` field. See #15871.
+    let rhsRoot ← getENode rhsRoot.self
     setENode rhsNode.root { rhsRoot with
       next       := lhsRoot.next
       size       := rhsRoot.size + lhsRoot.size
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
-      heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
+      heqProofs
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot
+    let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot heqProofs
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -376,6 +380,9 @@ private def processToDoImpl : GoalM Unit := do
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen
     | .propagateUp e => propagateUp e
+    | .internalizeRhsAddEq lhs rhs proof gen =>
+      internalize rhs gen
+      addEqStep lhs rhs proof false
     | .solverEq id lhs rhs => Solvers.newEq id lhs rhs
     | .solverDiseq id lhs rhs => Solvers.newDiseq id lhs rhs
 

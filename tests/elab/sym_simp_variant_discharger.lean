@@ -70,5 +70,5 @@ n : Nat
 -/
 #guard_msgs in
 example (n : Nat) : f (f n) + 0 = f n + 0 := by
-  sym =>
+  sym +verbose =>
     simp withGrind [f_idem, Nat.add_zero]

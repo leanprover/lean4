@@ -141,7 +141,7 @@ object_compactor::object_compactor(void * base_addr, std::vector<region_view> de
     m_libs(get_loaded_libs()),
     m_allow_closures(allow_closures),
     m_base_addr(base_addr),
-    m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
+    m_begin(lean_alloc_memory(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
     // Sort dep regions by `begin` address for binary search in `to_offset`.
@@ -150,7 +150,7 @@ object_compactor::object_compactor(void * base_addr, std::vector<region_view> de
 }
 
 object_compactor::~object_compactor() {
-    free(m_begin);
+    lean_dealloc(m_begin, capacity());
 }
 
 /*
@@ -165,12 +165,14 @@ void * object_compactor::alloc(size_t sz) {
     if (rem != 0)
         sz = sz + sizeof(void*) - rem;
     while (static_cast<char*>(m_end) + sz > m_capacity) {
-        size_t new_capacity = capacity()*2;
-        void * new_begin = malloc(new_capacity);
-        memcpy(new_begin, m_begin, size());
-        m_end      = static_cast<char*>(new_begin) + size();
+        size_t old_capacity = capacity();
+        size_t new_capacity = old_capacity * 2;
+        size_t used         = size();
+        void * new_begin    = lean_alloc_memory(new_capacity);
+        memcpy(new_begin, m_begin, used);
+        m_end      = static_cast<char*>(new_begin) + used;
         m_capacity = static_cast<char*>(new_begin) + new_capacity;
-        free(m_begin);
+        lean_dealloc(m_begin, old_capacity);
         m_begin    = new_begin;
     }
     void * r = m_end;

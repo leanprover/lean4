@@ -8,9 +8,9 @@ marking types for case-splitting must be preserved in the suggestions.
 
 /--
 info: Try these:
-  [apply] grind only [#bd83, cases Bool]
+  [apply] grind only [#b20c, cases Bool]
   [apply] grind only [cases Bool]
-  [apply] grind [cases Bool] => cases #bd83
+  [apply] grind [cases Bool] => cases #b20c
 -/
 #guard_msgs (info) in
 example (f : Bool → Bool) (x : Bool) (h₁ : f true = true) (h₂ : f false = true) :
@@ -19,9 +19,9 @@ example (f : Bool → Bool) (x : Bool) (h₁ : f true = true) (h₂ : f false = 
 
 /--
 info: Try these:
-  [apply] grind only [#bd83, #0173, cases Option]
+  [apply] grind only [#b20c, #80cc, cases Option]
   [apply] grind only [cases Option]
-  [apply] grind [cases Option] => cases #bd83 <;> instantiate only [#0173]
+  [apply] grind [cases Option] => cases #b20c <;> instantiate only [#80cc]
 -/
 #guard_msgs (info) in
 example (x : Option Nat) : x = none ∨ ∃ n, x = some n := by
@@ -30,19 +30,19 @@ example (x : Option Nat) : x = none ∨ ∃ n, x = some n := by
 /-! Check that the suggestions above actually work. -/
 
 example (f : Bool → Bool) (x : Bool) : f (f (f x)) = f x := by
-  cases h₁ : f true <;> cases h₂ : f false <;> grind only [#bd83, cases Bool]
+  cases h₁ : f true <;> cases h₂ : f false <;> grind only [#b20c, cases Bool]
 
 example (f : Bool → Bool) (x : Bool) : f (f (f x)) = f x := by
   cases h₁ : f true <;> cases h₂ : f false <;> grind only [cases Bool]
 
 example (f : Bool → Bool) (x : Bool) : f (f (f x)) = f x := by
-  cases h₁ : f true <;> cases h₂ : f false <;> grind [cases Bool] => cases #bd83
+  cases h₁ : f true <;> cases h₂ : f false <;> grind [cases Bool] => cases #b20c
 
 example (x : Option Nat) : x = none ∨ ∃ n, x = some n := by
-  grind only [#bd83, #0173, cases Option]
+  grind only [#b20c, #80cc, cases Option]
 
 example (x : Option Nat) : x = none ∨ ∃ n, x = some n := by
   grind only [cases Option]
 
 example (x : Option Nat) : x = none ∨ ∃ n, x = some n := by
-  grind [cases Option] => cases #bd83 <;> instantiate only [#0173]
+  grind [cases Option] => cases #b20c <;> instantiate only [#80cc]

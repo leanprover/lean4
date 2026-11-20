@@ -11,6 +11,7 @@ public import Lake.Config.Script
 public import Lake.Config.ConfigDecl
 public import Lake.Config.Dependency
 public import Lake.Config.PackageConfig
+public import Lake.Config.LakeConfig
 public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
@@ -66,6 +67,8 @@ public structure Package where
   (i.e., on a bare `lake build` of the package).
   -/
   defaultTargets : Array Name := #[]
+  /-- Cache services for the package. -/
+  cacheServices : CacheServiceMap := {}
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
   /--
@@ -272,6 +275,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def preferReleaseBuild (self : Package) : Bool :=
   self.config.preferReleaseBuild
 
+/-- The package's `downloadCacheService`/`downloadCacheService?` configuration. -/
+@[inline] public def downloadCacheService? (self : Package) : Option CacheServiceName :=
+  self.config.downloadCacheService?.map .ofString
+
 /-- The package's `precompileModules` configuration. -/
 @[inline] public def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
@@ -406,11 +413,21 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 public def cacheScope (self : Package) : String :=
   self.baseName.toString (escape := false)
 
+/-- **For internal use only.** -/
+@[inline] public def _root_.Lake.Internal.cacheToolchain
+  (pkg : Package) (toolchain : CacheToolchain)
+: CacheToolchain := if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
+
+/-- **For internal use only.** -/
+@[inline] public def _root_.Lake.Internal.cachePlatform
+  (pkg : Package) (platform : CachePlatform)
+: CachePlatform := if pkg.isPlatformIndependent then .none else platform
+
 /-- The cache scope used to identify the package on Reservoir. -/
 def reservoirScope (self : Package) : CacheServiceScope :=
   .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"
 
-/-- The cache scope used to identify the package on Reservoir (if the package is availa ble there). -/
+/-- The cache scope used to identify the package on Reservoir (if the package is available there). -/
 @[inline] public def reservoirScope? (self : Package) : Option CacheServiceScope :=
   if self.scope.isEmpty then none else some self.reservoirScope
 

@@ -12,10 +12,16 @@ namespace Lean.Meta.Grind.Action
 
 public abbrev maxIterationsDefault := 10000 -- **TODO**: Add option
 
+/-- Resets the number of branches, so that each search has its own `branches` threshold. -/
+def resetBranches : Action := fun goal _ kp => do
+  modifyThe State fun s => { s with numBranches := 0 }
+  kp goal
+
 /--
 The `finish` action: introduces hypotheses, asserts all pending facts, and then repeats
 the solvers, E-matching, case-splitting, and model-based theory combination until the goal is
-closed, no step applies, or `maxIterations` is reached.
+closed, no step applies, or `maxIterations` is reached. Each run starts with no branches, see
+`Grind.Config.branches`.
 
 The action does not validate the script it generates when tracing. Callers that report the
 script (e.g., `grind?` and `finish?`) replay it at the goal they consider appropriate.
@@ -23,6 +29,6 @@ script (e.g., `grind?` and `finish?`) replay it at the goal they consider approp
 public def mkFinish (maxIterations : Nat := maxIterationsDefault) : IO Action := do
   let solvers ← Solvers.mkAction
   let step : Action := solvers <|> instantiate <|> splitNext <|> mbtc
-  return intros 0 >> assertAll >> step.loop maxIterations
+  return resetBranches >> intros 0 >> assertAll >> step.loop maxIterations
 
 end Lean.Meta.Grind.Action

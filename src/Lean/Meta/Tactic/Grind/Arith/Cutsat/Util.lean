@@ -69,8 +69,8 @@ known, but future embedded types may be evaluable without one.
 -/
 def canBeEvaluated (α : Expr) : GoalM Bool :=
   match_expr α with
-  | Fin n => return (← getNatValue? n).isSome
-  | BitVec w => return (← getNatValue? w).isSome
+  | Fin n => isNatValue n
+  | BitVec w => isNatValue w
   | UInt8 => return true
   | UInt16 => return true
   | UInt32 => return true
@@ -132,6 +132,27 @@ where
 def _root_.Int.Internal.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
   let vars ← getVars
   return (← p.denoteExpr (vars[·]!))
+
+/-!
+`markStored` records the split depth of the current goal in a constraint that is stored in the
+cutsat state. A constraint that was already stored keeps its depth.
+-/
+
+def EqCnstr.markStored (c : EqCnstr) : GoalM EqCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
+
+def DvdCnstr.markStored (c : DvdCnstr) : GoalM DvdCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
+
+def LeCnstr.markStored (c : LeCnstr) : GoalM LeCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
+
+def DiseqCnstr.markStored (c : DiseqCnstr) : GoalM DiseqCnstr := do
+  if c.depth?.isSome then return c
+  return { c with depth? := some (← getGoalStackDepth) }
 
 def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   match c.p with

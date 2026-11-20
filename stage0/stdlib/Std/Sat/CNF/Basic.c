@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.CNF.Basic
-// Imports: public import Std.Sat.CNF.Literal public import Init.Data.Prod public import Init.Data.Array.Lemmas import Init.Data.Array.Bootstrap import Init.Data.List.Range import Init.Data.List.Nat.Range import Init.Data.ByteArray.Lemmas import Init.Data.List.Sublist import Init.Data.List.TakeDrop import Init.Omega import Init.ByCases
+// Imports: public import Std.Sat.CNF.Literal public import Init.Data.Prod public import Init.Data.Array.Lemmas import Init.Data.Array.Bootstrap import Init.Data.List.Range import Init.Data.List.Nat.Range import Init.Data.ByteArray.Lemmas import Init.Data.List.Sublist import Init.Data.List.TakeDrop import Init.Data.List.Impl import Init.Omega import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,7 +44,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_array_to_list(lean_object*);
-lean_object* l_List_zipIdx___redArg(lean_object*, lean_object*);
+lean_object* l_List_zipIdxTR___redArg(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l___private_Init_Data_Nat_Lemmas_0__Nat_anyLTTR_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
@@ -683,7 +683,7 @@ v_atoms_155_ = lean_ctor_get(v_c_154_, 0);
 lean_inc_ref(v_atoms_155_);
 v___x_156_ = lean_array_to_list(v_atoms_155_);
 v___x_157_ = lean_unsigned_to_nat(0u);
-v___x_158_ = l_List_zipIdx___redArg(v___x_156_, v___x_157_);
+v___x_158_ = l_List_zipIdxTR___redArg(v___x_156_, v___x_157_);
 v___x_159_ = lean_box(0);
 v___x_160_ = l_List_mapTR_loop___at___00Std_Sat_CNF_Clause_literals_spec__0___redArg(v_c_154_, v___x_158_, v___x_159_);
 lean_dec_ref(v_c_154_);
@@ -1533,16 +1533,16 @@ if (v_pol_522_ == 0)
 uint8_t v___x_528_; 
 v___x_528_ = 0;
 v___y_502_ = v_polarities_525_;
-v___y_503_ = v___x_527_;
-v___y_504_ = v___x_526_;
+v___y_503_ = v___x_526_;
+v___y_504_ = v___x_527_;
 v___y_505_ = v___x_528_;
 goto v___jp_501_;
 }
 else
 {
 v___y_502_ = v_polarities_525_;
-v___y_503_ = v___x_527_;
-v___y_504_ = v___x_526_;
+v___y_503_ = v___x_526_;
+v___y_504_ = v___x_527_;
 v___y_505_ = v___x_521_;
 goto v___jp_501_;
 }
@@ -1553,9 +1553,9 @@ v___jp_501_:
 lean_object* v___x_506_; lean_object* v___x_507_; 
 v___x_506_ = lean_byte_array_push(v___y_502_, v___y_505_);
 v___x_507_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_507_, 0, v___y_503_);
+lean_ctor_set(v___x_507_, 0, v___y_504_);
 lean_ctor_set(v___x_507_, 1, v___x_506_);
-v_i_499_ = v___y_504_;
+v_i_499_ = v___y_503_;
 v_acc_500_ = v___x_507_;
 goto _start;
 }
@@ -2138,6 +2138,7 @@ lean_object* runtime_initialize_Init_Data_List_Nat_Range(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Impl(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -2174,6 +2175,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Impl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2198,6 +2202,7 @@ lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 static bool _G_initialized = false;
@@ -2230,6 +2235,9 @@ res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

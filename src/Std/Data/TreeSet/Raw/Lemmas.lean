@@ -850,6 +850,18 @@ theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
   TreeMap.Raw.isEmpty_inter_comm h₁ h₂
 
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  TreeMap.Raw.isEmpty_union_inter h₁ h₂ h₃
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  TreeMap.Raw.isEmpty_inter_union h₁ h₂ h₃
+
 end Inter
 
 section
@@ -2226,6 +2238,20 @@ theorem inter_equiv_empty_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) 
   change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
   rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
   exact isEmpty_inter_comm h₁ h₂
+
+@[simp]
+theorem union_inter_equiv_empty_iff [TransCmp cmp] {t₃ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    ((t₁ ∪ t₂) ∩ t₃) ~m ∅ ↔ (t₁ ∩ t₃) ~m ∅ ∧ (t₂ ∩ t₃) ~m ∅ := by
+  change ((t₁ ∪ t₂) ∩ t₃) ~m empty ↔ (t₁ ∩ t₃) ~m empty ∧ (t₂ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_union_inter h₁ h₂ h₃, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_equiv_empty_iff [TransCmp cmp] {t₃ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    (t₁ ∩ (t₂ ∪ t₃)) ~m ∅ ↔ (t₁ ∩ t₂) ~m ∅ ∧ (t₁ ∩ t₃) ~m ∅ := by
+  change (t₁ ∩ (t₂ ∪ t₃)) ~m empty ↔ (t₁ ∩ t₂) ~m empty ∧ (t₁ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_inter_union h₁ h₂ h₃, Bool.and_eq_true]
 
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   equiv_iff.trans TreeMap.Raw.empty_equiv_iff_isEmpty

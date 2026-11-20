@@ -15,7 +15,7 @@ def length : List α → Nat
 
 example (a b c : α) (as : List α) : length (a :: b :: as) > length as := by
   simp [length]
-  apply Nat.lt.step
+  apply Nat.lt_succ_of_lt
   apply Nat.lt_succ_self
 
 def fact : Nat → Nat

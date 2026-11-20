@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Lex
-// Imports: public import Init.Data.Order.PackageFactories public import Init.Data.Order.Factories public import Init.Data.ByteArray.Lemmas public import Init.Data.Array.Lex.Lemmas public import Init.Data.Ord.Array public import Init.Data.Ord.UInt public import Init.Data.UInt.Package public import Init.Data.Array.Package public import Init.Data.Order.LemmasExtra
+// Imports: public import Init.Data.Order.PackageFactories public import Init.Data.Order.Factories public import Init.Data.ByteArray.Lemmas public import Init.Data.Array.Lex.Lemmas public import Init.Data.Ord.Array public import Init.Data.Ord.UInt public import Init.Data.UInt.Package public import Init.Data.Array.Package public import Init.Data.Order.LemmasExtra import Init.Omega import Init.Data.Nat.Compare import Init.Data.Nat.MinMax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -255,6 +255,9 @@ lean_object* runtime_initialize_Init_Data_Ord_UInt(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Package(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Package(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Compare(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_ByteArray_Lex(uint8_t builtin) {
@@ -289,6 +292,15 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Order_LemmasExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Compare(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_MinMax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_ByteArray_instLT = _init_l_ByteArray_instLT();
 lean_mark_persistent(l_ByteArray_instLT);
 l_ByteArray_instLE = _init_l_ByteArray_instLE();
@@ -314,6 +326,9 @@ lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Package(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Package(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Lex(uint8_t builtin) {
 lean_object * res;
@@ -344,6 +359,15 @@ res = initialize_Init_Data_Array_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_LemmasExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Compare(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_ByteArray_Lex(builtin);

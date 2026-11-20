@@ -3381,7 +3381,7 @@ return v_res_1011_;
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLogIO___redArg(lean_object* v_x_1012_){
 _start:
 {
-uint8_t v___y_1018_; lean_object* v___y_1019_; uint8_t v___x_1028_; uint8_t v___x_1029_; uint8_t v___x_1030_; lean_object* v___x_1031_; lean_object* v___y_1033_; uint8_t v___y_1034_; lean_object* v___y_1035_; uint8_t v___y_1036_; lean_object* v___y_1047_; lean_object* v___y_1048_; uint8_t v___y_1049_; lean_object* v___x_1051_; lean_object* v___x_1052_; 
+lean_object* v___y_1018_; uint8_t v___y_1019_; uint8_t v___x_1028_; uint8_t v___x_1029_; uint8_t v___x_1030_; lean_object* v___x_1031_; lean_object* v___y_1033_; lean_object* v___y_1034_; uint8_t v___y_1035_; uint8_t v___y_1036_; lean_object* v___y_1047_; lean_object* v___y_1048_; uint8_t v___y_1049_; lean_object* v___x_1051_; lean_object* v___x_1052_; 
 v___x_1028_ = 3;
 v___x_1029_ = 1;
 v___x_1030_ = 0;
@@ -3405,8 +3405,8 @@ if (v___x_1057_ == 2)
 uint8_t v___x_1058_; 
 v___x_1058_ = 0;
 v___y_1033_ = v_a_1054_;
-v___y_1034_ = v___x_1058_;
-v___y_1035_ = v___x_1055_;
+v___y_1034_ = v___x_1055_;
+v___y_1035_ = v___x_1058_;
 v___y_1036_ = v___x_1029_;
 goto v___jp_1032_;
 }
@@ -3443,27 +3443,27 @@ return v___x_1016_;
 }
 v___jp_1017_:
 {
-if (v___y_1018_ == 0)
+if (v___y_1019_ == 0)
 {
-if (lean_obj_tag(v___y_1019_) == 0)
+if (lean_obj_tag(v___y_1018_) == 0)
 {
 goto v___jp_1014_;
 }
 else
 {
 lean_object* v_val_1020_; lean_object* v___x_1022_; uint8_t v_isShared_1023_; uint8_t v_isSharedCheck_1027_; 
-v_val_1020_ = lean_ctor_get(v___y_1019_, 0);
-v_isSharedCheck_1027_ = !lean_is_exclusive(v___y_1019_);
+v_val_1020_ = lean_ctor_get(v___y_1018_, 0);
+v_isSharedCheck_1027_ = !lean_is_exclusive(v___y_1018_);
 if (v_isSharedCheck_1027_ == 0)
 {
-v___x_1022_ = v___y_1019_;
+v___x_1022_ = v___y_1018_;
 v_isShared_1023_ = v_isSharedCheck_1027_;
 goto v_resetjp_1021_;
 }
 else
 {
 lean_inc(v_val_1020_);
-lean_dec(v___y_1019_);
+lean_dec(v___y_1018_);
 v___x_1022_ = lean_box(0);
 v_isShared_1023_ = v_isSharedCheck_1027_;
 goto v_resetjp_1021_;
@@ -3494,7 +3494,7 @@ return v___x_1025_;
 }
 else
 {
-lean_dec(v___y_1019_);
+lean_dec(v___y_1018_);
 goto v___jp_1014_;
 }
 }
@@ -3533,8 +3533,8 @@ v___jp_1046_:
 uint8_t v___x_1050_; 
 v___x_1050_ = 0;
 v___y_1033_ = v___y_1047_;
-v___y_1034_ = v___y_1049_;
-v___y_1035_ = v___y_1048_;
+v___y_1034_ = v___y_1048_;
+v___y_1035_ = v___y_1049_;
 v___y_1036_ = v___x_1050_;
 goto v___jp_1032_;
 }

@@ -253,7 +253,9 @@ def processParam (params : Grind.Params)
       return (← processTermParam params p mod? id minIndexable)
     else
       throw err
-  Term.checkDeprecatedCore declName
+  -- Definitions are unfolded, acting on occurrences that are already in the goal.
+  unless (← isDefn? declName).isSome do
+    withRef id <| Term.checkDeprecatedCore declName
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with
   | .ematch .user =>
@@ -326,7 +328,6 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         if incremental then
           throwErrorAt p "invalid `-` occurrence, it can only be used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
-        Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           Grind.ensureNotBuiltinCases declName
           params ← params.eraseCasesTypes declName
@@ -427,6 +428,25 @@ public def getPreservedParams (params : Array (TSyntax ``Parser.Tactic.grindPara
     | `(Parser.Tactic.grindParam| - $_:ident) => return false
     | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
     | _ => return true
+
+/--
+Returns `inj` parameters for the `[grind inj]` theorems without hypotheses used in `proof`.
+These theorems are asserted directly instead of instantiated, so generated scripts do not
+mention them.
+-/
+public def getUsedInjParams (params : Grind.Params) (proof : Expr) :
+    MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+  let used := proof.getUsedConstantsAsSet
+  let mut result := #[]
+  for ext in params.extensions do
+    for origin in ext.inj.getOrigins do
+      let .decl declName := origin | continue
+      if used.contains declName && !(← getConstInfo declName).type.isForall then
+        let decl := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+        let param ← `(Parser.Tactic.grindParam| inj $decl:ident)
+        unless result.contains param do
+          result := result.push param
+  return result
 
 /--
 Helper method for processing parameters in tactics such as `finish` and `finish?`

@@ -14,7 +14,7 @@ trace: [grind.debug.proof] Classical.byContradiction fun h =>
         let e_1 := Expr.zero;
         let e_2 := Expr.intMul 0 (Expr.var 0);
         let rctx := RArray.branch 1 (RArray.leaf a) (RArray.leaf b);
-        let rp_1 := CommRing.Poly.num 0;
+        let rp_1 := CommRing.Poly.num (Int.ofNat 0);
         let re_1 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);
         let re_2 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
         diseq_unsat ctx
@@ -80,7 +80,7 @@ trace: [grind.linarith.model] a := 7/2
 set_option trace.grind.linarith.model true in
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (a b c d : α)
     : b ≥ 0 → c > b → d > b → a ≠ b + c → a > b + c → a < b + d →  False := by
-  grind
+  grind +verbose
 
 /--
 trace: [grind.linarith.model] a := 0
@@ -92,7 +92,7 @@ trace: [grind.linarith.model] a := 0
 set_option trace.grind.linarith.model true in
 example [IntModule α] [LE α] [LT α] [IsLinearOrder α] [OrderedAdd α] (a b c d : α)
     : a ≤ b → a - c ≥ 0 + d → d ≤ 0 → b = c → a ≠ b → False := by
-  grind
+  grind +verbose
 
 /-- trace: [grind.split] x = 0, generation: 0 -/
 #guard_msgs (trace) in

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.FilePath
-// Imports: import Init.Data.String.Modify import Init.Data.String.Search public import Init.Data.ToString.Basic import Init.Data.Iterators.Consumers.Collect import Init.System.Platform import Init.Data.String.Length import Init.Data.Iterators.Combinators.Take import Init.Data.Iterators.Consumers.Access
+// Imports: import Init.Data.String.Modify import Init.Data.String.Search import Init.Data.String.Iterate public import Init.Data.ToString.Basic import Init.Data.Iterators.Consumers.Collect import Init.System.Platform import Init.Data.String.Length import Init.Data.Iterators.Combinators.Take import Init.Data.Iterators.Consumers.Access
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1400,13 +1400,13 @@ goto v___jp_400_;
 v___jp_389_:
 {
 lean_object* v___x_394_; uint8_t v___x_395_; 
-lean_inc(v___y_391_);
+lean_inc(v___y_392_);
 v___x_394_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_394_, 0, v___y_391_);
-v___x_395_ = l_Option_instDecidableEq___redArg(v___y_392_, v___y_393_, v___x_394_);
+lean_ctor_set(v___x_394_, 0, v___y_392_);
+v___x_395_ = l_Option_instDecidableEq___redArg(v___y_391_, v___y_393_, v___x_394_);
 if (v___x_395_ == 0)
 {
-lean_dec(v___y_391_);
+lean_dec(v___y_392_);
 lean_dec_ref(v_p_388_);
 return v___y_390_;
 }
@@ -1415,8 +1415,8 @@ else
 lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v___x_398_; 
 lean_dec(v___y_390_);
 v___x_396_ = lean_unsigned_to_nat(0u);
-v___x_397_ = lean_string_utf8_extract_fast(v_p_388_, v___x_396_, v___y_391_);
-lean_dec(v___y_391_);
+v___x_397_ = lean_string_utf8_extract_fast(v_p_388_, v___x_396_, v___y_392_);
+lean_dec(v___y_392_);
 lean_dec_ref(v_p_388_);
 v___x_398_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_398_, 0, v___x_397_);
@@ -1450,8 +1450,8 @@ lean_closure_set(v___x_406_, 0, v_p_388_);
 if (lean_obj_tag(v___x_399_) == 0)
 {
 v___y_390_ = v___y_401_;
-v___y_391_ = v_afterRootDirectory_403_;
-v___y_392_ = v___x_406_;
+v___y_391_ = v___x_406_;
+v___y_392_ = v_afterRootDirectory_403_;
 v___y_393_ = v___x_399_;
 goto v___jp_389_;
 }
@@ -1475,8 +1475,8 @@ if (lean_obj_tag(v___x_410_) == 0)
 lean_object* v___x_411_; 
 v___x_411_ = lean_box(0);
 v___y_390_ = v___y_401_;
-v___y_391_ = v_afterRootDirectory_403_;
-v___y_392_ = v___x_406_;
+v___y_391_ = v___x_406_;
+v___y_392_ = v_afterRootDirectory_403_;
 v___y_393_ = v___x_411_;
 goto v___jp_389_;
 }
@@ -1518,8 +1518,8 @@ goto v_reusejp_416_;
 v_reusejp_416_:
 {
 v___y_390_ = v___y_401_;
-v___y_391_ = v_afterRootDirectory_403_;
-v___y_392_ = v___x_406_;
+v___y_391_ = v___x_406_;
+v___y_392_ = v_afterRootDirectory_403_;
 v___y_393_ = v___x_417_;
 goto v___jp_389_;
 }
@@ -3056,6 +3056,7 @@ return v___x_867_;
 }
 lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_Platform(uint8_t builtin);
@@ -3073,6 +3074,9 @@ res = runtime_initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Search(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Iterate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_ToString_Basic(builtin);
@@ -3117,6 +3121,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
 lean_object* initialize_Init_System_Platform(uint8_t builtin);
@@ -3132,6 +3137,9 @@ res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Iterate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(builtin);

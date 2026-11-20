@@ -1088,7 +1088,13 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize
         addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
       else
         addDeclWithoutChecking env decl
-      pure (env, env.checked.get)
+      let kenv := env.checked.get
+      -- Keeps `localKernelEnvFor` from collecting the dependencies again.
+      let env := if decl matches .inductDecl .. then
+        { env with localKernelEnv? := some kenv }
+      else
+        env
+      pure (env, kenv)
   let names := decl.getNames.toArray ++ getAuxRecNames kenv decl
   let mut env := env
 

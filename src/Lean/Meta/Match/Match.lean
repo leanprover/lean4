@@ -858,6 +858,36 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
     p
 
 /--
+Returns `true` if splitting a variable of type `type` produces no subproblems: `type` reduces (with
+`whnfD`, as `getInductiveVal?` does) to an inductive type without constructors, such as `False`,
+or to an equation between applications of two different constructors, such as `none = some v`.
+-/
+private def isRefutingType (type : Expr) : MetaM Bool := do
+  let type ← whnfD (← instantiateMVars type)
+  if let some (_, lhs, rhs) := type.eq? then
+    let some lhsCtor ← isConstructorApp? lhs | return false
+    let some rhsCtor ← isConstructorApp? rhs | return false
+    return lhsCtor.name != rhsCtor.name
+  let .const declName _ := type.getAppFn | return false
+  let some (.inductInfo val) := (← getEnv).find? declName | return false
+  return val.numCtors == 0
+
+/--
+Returns the index of a variable of a problem without alternatives that refutes the problem when
+split (`isRefutingType`), such as `h : none = some v` or `h : P x` where `P x` reduces to `False`.
+Splitting the variables before it first would multiply the subproblems by the numbers of their
+constructors. Only the problem's variables are inspected, not the local context.
+-/
+private def findRefutingVar? (p : Problem) : MetaM (Option Nat) := withGoalOf p do
+  let mut i := 0
+  for x in p.vars do
+    if let .fvar fvarId := x then
+      if (← isRefutingType (← fvarId.getType)) then
+        return some i
+    i := i + 1
+  return none
+
+/--
 Returns the index of the first pattern in the first alternative that is refutable
 (i.e. not a variable or inaccessible pattern). We want to handle these first
 so that the generated code branches in the order suggested by the user's code.
@@ -1001,6 +1031,13 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     let p ← processExFalso p
     process p
     return
+
+  if p.alts.isEmpty then
+    if let some i ← findRefutingVar? p then
+      if i > 0 then
+        traceStep ("move refuting variable to front")
+        process (moveToFront p i)
+        return
 
   if hasIndependentPatterns p then
     traceStep ("processing independent prefixes of patterns")

@@ -5,9 +5,8 @@ Benchmark: `Meta.letToHave` in check mode on deeply *nested* (non-telescope) lam
 whose bodies all reference the outer `let` variable:
 `P (let x := c; f (q (fun y₁ => f (q (fun y₂ => …)) x)) x)`.
 
-Every lambda body is open, so `visitLambdaLet` pays one `instantiateRev` on entry and
-one `abstract` in `finalize` per binder level: O(n²). The `sym =>` mode implementation
-must be near-linear on this family (see `sym_let_to_have_perf.md`).
+Every lambda body is open. The traversal keeps the bodies in bound-variable form and is
+near-linear on this family.
 -/
 
 set_option maxHeartbeats 400000000

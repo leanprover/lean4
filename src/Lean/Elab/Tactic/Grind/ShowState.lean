@@ -14,7 +14,8 @@ open Meta
 open Meta.Grind
 
 def ppAsserted? (filter : Filter) (collapsed := false) : GrindTacticM (Option MessageData) := do
-    let facts ← liftGoalM do (← get).facts.toArray.filterM fun e => filter.eval e
+    let facts ← liftGoalM do
+      (← get).facts.iter.filterMapM (fun e => do return if (← filter.eval e) then some e else none) |>.toArray
     if facts.isEmpty then
       return none
     return some <| Grind.ppExprArray `facts "Asserted facts" facts (collapsed := collapsed)

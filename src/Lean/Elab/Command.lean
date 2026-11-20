@@ -384,7 +384,7 @@ def runLinters (stx : Syntax) (infoTreePromise? : Option (IO.Promise InfoTree) :
               let newState := Linter.codeQualityLogExt.getState (← get).env
               if newInfoState.enabled then
                 producedInfoTrees.modify fun old =>
-                  old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
+                  newInfoState.trees.iterFromIdx originalSize |>.fold (·.push ·) old
               modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
               let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
               producedCodeQualityEntries.modify (· ++ newState.extract oldStateSize)
@@ -452,7 +452,7 @@ def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
             let newInfoState ← getInfoState
             if newInfoState.enabled then
               producedInfoTrees.modify fun old =>
-                old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
+                newInfoState.trees.iterFromIdx originalSize |>.fold (·.push ·) old
             let newState := Linter.codeQualityLogExt.getState (← get).env
             modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
             let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
@@ -1164,7 +1164,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
   }
   if throwOnError then
-    if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
+    if let some err := commandState.messages.iter.find? (·.severity matches .error) then
       throwError err.data
   modify fun coreState => { coreState with
     infoState.trees := coreState.infoState.trees.append commandState.infoState.trees

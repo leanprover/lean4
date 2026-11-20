@@ -45,7 +45,7 @@ def unusedSimpArgs : Linter where
     if !getLinterValue Tactic.linter.unusedSimpArgs (← getLinterOptions) then return
     let some cmdStxRange := cmdStx.getRange?  | return
 
-    let infoTrees := (← get).infoState.trees.toArray
+    let infoTrees := (← get).infoState.trees
     let masksMap : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Array Bool)) ← IO.mkRef {}
 
     for tree in infoTrees do

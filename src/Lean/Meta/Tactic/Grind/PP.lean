@@ -192,8 +192,7 @@ private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
 
 private def ppActiveTheoremPatterns : M Unit := do
   let goal ← read
-  let m ← goal.ematch.thms.toArray.mapM fun thm => ppEMatchTheorem thm
-  let m := m ++ (← goal.ematch.newThms.toArray.mapM fun thm => ppEMatchTheorem thm)
+  let m ← goal.ematch.thms.iter.append goal.ematch.newThms.iter |>.mapM ppEMatchTheorem |>.toArray
   unless m.isEmpty do
     pushMsg <| .trace { cls := `ematch } "E-matching patterns" m
 

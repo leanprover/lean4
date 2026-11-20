@@ -11,6 +11,7 @@ prelude
 public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
+public import Lean.Data.Iterators.Producers.PersistentArray
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
@@ -728,6 +729,11 @@ def toList (log : MessageLog) : List Message :=
 /-- Converts the unreported messages to an array, oldest message first. -/
 def toArray (log : MessageLog) : Array Message :=
   log.unreported.toArray
+
+/-- Returns an iterator over the unreported messages, oldest message first. -/
+@[inline]
+def iter (log : MessageLog) :=
+  log.unreported.iter
 
 end MessageLog
 

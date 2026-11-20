@@ -39,7 +39,7 @@ def constructorNameAsVariable : Linter where
     let some cmdStxRange := cmdStx.getRange?
       | return
 
-    let infoTrees := (← get).infoState.trees.toArray
+    let infoTrees := (← get).infoState.trees
     let warnings : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Name × Name)) ← IO.mkRef {}
     let constRanges : IO.Ref (Std.HashSet Lean.Syntax.Range) ← IO.mkRef {}
 

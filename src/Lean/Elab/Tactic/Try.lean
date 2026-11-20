@@ -367,10 +367,9 @@ private def expandUserTactic (tac : TSyntax `tactic) (goal : MVarId) : MetaM (Ar
 
         -- Walk only the info trees added by this tactic and pull out the
         -- structured suggestions stored in `TryThisInfo` nodes.
-        let trees := (← getInfoState).trees.toArray
-        let newTrees := trees.extract initialTreeSize trees.size
         let env ← getEnv
-        let suggestions := newTrees.foldl (init := #[]) fun acc tree =>
+        let newTrees := (← getInfoState).trees.iterFromIdx initialTreeSize
+        let suggestions := newTrees.fold (init := #[]) fun acc tree =>
           tree.foldInfo (init := acc) fun _ info acc => Id.run do
             let .ofCustomInfo { value, .. } := info | acc
             let some tti := value.get? Meta.Tactic.TryThis.TryThisInfo | acc

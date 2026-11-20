@@ -1308,11 +1308,7 @@ Returns `true` if another local declaration in the local context depends on `fva
 -/
 def _root_.Lean.FVarId.hasForwardDeps (fvarId : FVarId) : MetaM Bool := do
   let decl ← fvarId.getDecl
-  (← getLCtx).foldlM (init := false) (start := decl.index + 1) fun found other =>
-    if found then
-      return true
-    else
-      localDeclDependsOn other fvarId
+  (← getLCtx).iterFromIdx (decl.index + 1) |>.anyM (localDeclDependsOn · fvarId)
 
 /--
 Given a user-facing name for a free variable, return its declaration in the current local context.

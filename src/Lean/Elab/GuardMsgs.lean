@@ -213,7 +213,7 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
     let msgs ← runAndCollectMessages cmd
     let mut toCheck : MessageLog := MessageLog.empty
     let mut toPassthrough : MessageLog := MessageLog.empty
-    for msg in msgs.toList do
+    for msg in msgs.iter do
       if msg.isSilent then
         continue
       match filterFn msg with
@@ -289,7 +289,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
     let msgs ← runAndCollectMessages cmd
     -- Check if any message contains "PANIC"
     let mut foundPanic := false
-    for msg in msgs.toList do
+    for msg in msgs.iter do
       if msg.isSilent then continue
       let msgStr ← msg.data.toString
       if msgStr.contains "PANIC" then

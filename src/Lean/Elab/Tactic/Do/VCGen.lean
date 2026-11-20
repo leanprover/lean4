@@ -297,9 +297,9 @@ where
     -- Note that we discard `goal.hyps` anyway, so users won't observe anything.
     return ← mRevertForallN goal (args.size - 4) (← mkFreshUserName `_) fun goal => do
     let joinArgs := e.getAppArgs
-    let newLocalDecls := (← getLCtx).decls.foldl (init := #[]) (start := info.altLCtxIdx) Array.push
-      |>.filterMap id
+    let newLocalDecls := (← getLCtx).iterFromIdx info.altLCtxIdx
       |>.filter (not ·.isImplementationDetail)
+      |>.toArray
     let newLocals := newLocalDecls.map LocalDecl.toExpr
     let altParams := info.altParams
     trace[Elab.Tactic.Do.vcgen] "altParams: {altParams}, newLocals: {newLocals}"

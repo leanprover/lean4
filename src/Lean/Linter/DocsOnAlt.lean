@@ -41,7 +41,7 @@ private partial def docsOnAlt : Linter where
         let attrs := cmd[2]
         let names := cmd[4].getArgs
         if (attrs.find? isAltAttr).isSome then
-          let infoTrees := (← get).infoState.trees.toArray
+          let infoTrees := (← get).infoState.trees
           for tree in infoTrees do
             tree.visitM' (postNode := fun ci info _ => do
               match info with

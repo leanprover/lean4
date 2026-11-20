@@ -959,7 +959,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
     pure (cmds, cmdState)
 
   let mut output := #[]
-  for msg in cmdState.messages.toArray do
+  for msg in cmdState.messages.iter do
     let b := text.ofPosition msg.pos
     let e := msg.endPos |>.map text.ofPosition |>.getD (b.next text.source)
     let msgStr := b.extract text.source e

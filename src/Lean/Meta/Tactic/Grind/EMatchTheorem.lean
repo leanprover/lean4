@@ -928,9 +928,9 @@ def Extension.getEMatchTheoremsForNamespace (ext : Extension) (namespaceName : N
   let stateStack := ext.ext.getState (← getEnv)
   match stateStack.scopedEntries.map.find? namespaceName with
   | none => return #[]
-  | some entries => return entries.toArray.filterMap fun
+  | some entries => return entries.iter.filterMap (fun
     | .ematch thm => some thm
-    | _ => none
+    | _ => none) |>.toArray
 
 /--
 Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,

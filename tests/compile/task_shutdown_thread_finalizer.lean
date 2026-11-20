@@ -15,6 +15,9 @@ being already gone. Each mode installs the stream on a different kind of thread:
 * `poolIdle`: a pool task that finishes before `main` returns, so its worker is idle when the exit starts.
 * `poolSync`: as `pool`, with a `(sync := true)` dependent. It runs while the thread frees the stream and
   prints through the thread's stdout, which must already be reset rather than refer to the freed stream.
+* `poolLateWait`: as `poolSync`, with `LEAN_NUM_THREADS=1`, and the dependent first waits for a pool task
+  whose input a dedicated task provides only after the wait started. The only worker is the one freeing the
+  stream, so the exit must start another worker for that task.
 
 The children are the compiled binary, hence `.no_interpret`.
 -/
@@ -35,10 +38,21 @@ def mkStream (promise : IO.Promise Unit) : IO.FS.Stream where
   -- `promise.result?` would capture that task instead, and the promise would be dropped at once.
   isTty := do promise.resolve (); return false
 
+/-- Waits for a pool task whose input a dedicated task provides only after the wait has started. -/
+def waitForLateTask : IO Unit := do
+  let input ← IO.Promise.new (α := Unit)
+  let task ← IO.mapTask (fun _ => pure ()) input.result?
+  discard <| IO.asTask (prio := .dedicated) do
+    IO.sleep 50
+    input.resolve ()
+  discard <| IO.waitAny [task]
+
 /-- Installs the stream on the current thread, as stdout or as stderr. -/
-def installStream (mode : String) (sync := false) (stderr := false) : IO Unit := do
+def installStream (mode : String) (sync := false) (stderr := false) (wait := false) : IO Unit := do
   let promise ← IO.Promise.new (α := Unit)
-  discard <| IO.mapTask (sync := sync) (fun _ => IO.println s!"{mode}: the dependent ran") promise.result?
+  discard <| IO.mapTask (sync := sync) (fun _ => do
+    if wait then waitForLateTask
+    IO.println s!"{mode}: the dependent ran") promise.result?
   if stderr then
     discard <| IO.setStderr (mkStream promise)
   else
@@ -54,10 +68,11 @@ def mkPayloadStream (payload : Array (Array Nat)) : IO.FS.Stream where
   -- Never called. Indexes the payload at runtime, so that the closure captures the array itself.
   isTty := return payload[(← IO.monoMsNow) % payload.size]?.isSome
 
-def runChild (mode : String) : IO Unit := do
+def runChild (mode : String) (env : Array (String × Option String) := #[]) : IO Unit := do
   let proc ← IO.Process.spawn {
     cmd := (← IO.appPath).toString
     args := #[mode]
+    env
     stdout := .piped }
   let start ← IO.monoMsNow
   let mut code := none
@@ -95,6 +110,12 @@ def main (args : List String) : IO Unit := do
   | ["poolIdle"] =>
     discard <| IO.wait (← IO.asTask (installStream "poolIdle"))
     IO.println "poolIdle: child returns from main"
+  | ["poolLateWait"] =>
+    discard <| IO.asTask do
+      waitForShutdown
+      installStream "poolLateWait" (sync := true) (wait := true)
+    IO.println "poolLateWait: child returns from main"
   | _ =>
     for mode in ["dedicated", "pool", "poolIdle", "poolSync"] do
       runChild mode
+    runChild "poolLateWait" #[("LEAN_NUM_THREADS", some "1")]

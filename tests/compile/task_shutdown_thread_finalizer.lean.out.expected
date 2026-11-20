@@ -10,3 +10,6 @@ poolIdle: the dependent ran
 poolSync: child exited with code 0
 poolSync: child returns from main
 poolSync: the dependent ran
+poolLateWait: child exited with code 0
+poolLateWait: child returns from main
+poolLateWait: the dependent ran

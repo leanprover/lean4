@@ -973,12 +973,14 @@ class task_manager {
                 if (m_queues_size == 0) {
                     if (m_shutting_down) {
                         // Thread-local objects can hold tasks and promises: free them while this worker can still
-                        // run what that queues. Meanwhile the worker is not idle, so that a wait in a finalizer
-                        // starts another one.
+                        // run what that queues. Meanwhile the worker is not idle and the pool has one more slot, as
+                        // for a pool task in `wait_for`, so that a wait in a finalizer starts another worker.
                         m_idle_std_workers--;
+                        m_max_std_workers++;
                         lock.unlock();
                         lean_finalize_thread();
                         lock.lock();
+                        m_max_std_workers--;
                         m_idle_std_workers++;
                         if (m_queues_size > 0)
                             continue;

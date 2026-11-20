@@ -289,7 +289,7 @@ public
 instance : MonadicWP Traceful TraceProp EStack⟨⟩ := ⟨fun _ => inferInstance⟩
 
 public
-instance: MonadicWP.IsLaxMonadMorphism Traceful where
+instance: MonadicWP.IsLaxDistrib Traceful where
   pure_le x := by
     intro post eposts
     simp only [PredTrans.apply_Pure_pure, WP.trans_apply_eq]

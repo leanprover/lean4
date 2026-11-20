@@ -62,7 +62,7 @@ open Gadget
 /-! ## Specifications -/
 
 @[spec]
-theorem Spec.forInPureWithInvariant [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInPureWithInvariant [Monad m] [MonadicWP.IsLaxDistrib m]
     {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
@@ -88,7 +88,7 @@ theorem Spec.forInPureWithInvariant [Monad m] [MonadicWP.IsLaxMonadMorphism m]
   exact Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.forInPureWithInvariant' [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInPureWithInvariant' [Monad m] [MonadicWP.IsLaxDistrib m]
     {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -114,7 +114,7 @@ theorem Spec.forInPureWithInvariant' [Monad m] [MonadicWP.IsLaxMonadMorphism m]
   exact Spec.forIn'_list inv step
 
 @[spec default+10]
-theorem Spec.forInPureWithInvariant_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInPureWithInvariant_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m]
     {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
     {f : α → Option γ × β → m (ForInStep (Option γ × β))}
@@ -136,7 +136,7 @@ theorem Spec.forInPureWithInvariant_earlyReturn [Monad m] [MonadicWP.IsLaxMonadM
   Spec.forIn_pure_earlyReturn (fun pref suff b => inv pref suff (none, b)) step exit
 
 @[spec default+10]
-theorem Spec.forInPureWithInvariant'_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInPureWithInvariant'_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m]
     {ρ : Type w} {d : Membership α ρ}
     [ForIn' m ρ α d] [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
@@ -203,7 +203,7 @@ variable [Monad m] [Lean.Order.MonadTail m] [CompleteLattice Pred] [CompleteLatt
   [MonadicWP m Pred EPosts]
 
 @[spec]
-theorem Spec.forInLoopWithInvariantAndVariant [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoopWithInvariantAndVariant [MonadicWP.IsLaxDistrib m]
     {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
@@ -229,7 +229,7 @@ theorem Spec.forInLoopWithInvariantAndVariant [MonadicWP.IsLaxMonadMorphism m]
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec]
-theorem Spec.forInLoopWithInvariant [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoopWithInvariant [MonadicWP.IsLaxDistrib m]
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
@@ -252,7 +252,7 @@ theorem Spec.forInLoopWithInvariant [MonadicWP.IsLaxMonadMorphism m]
   exact Spec.forIn_loop measure inv einv step
 
 @[spec]
-theorem Spec.forInLoopWithVariant [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoopWithVariant [MonadicWP.IsLaxDistrib m]
     {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
@@ -278,7 +278,7 @@ theorem Spec.forInLoopWithVariant [MonadicWP.IsLaxMonadMorphism m]
   exact Spec.forIn_loop (Variant.ofMeasure measure) inv einv step
 
 @[spec default+10]
-theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn [MonadicWP.IsLaxDistrib m]
     {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
@@ -306,7 +306,7 @@ theorem Spec.forInLoopWithInvariantAndVariant_earlyReturn [MonadicWP.IsLaxMonadM
     (WhileInvariant.mk fun exit b => inv exit (none, b)) einv step exit
 
 @[spec default+10]
-theorem Spec.forInLoopWithInvariant_earlyReturn [MonadicWP.IsLaxMonadMorphism m] {ω δ : Type u}
+theorem Spec.forInLoopWithInvariant_earlyReturn [MonadicWP.IsLaxDistrib m] {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}
     [∀ P : Pred, PreservesSup (meet P)]
@@ -329,7 +329,7 @@ theorem Spec.forInLoopWithInvariant_earlyReturn [MonadicWP.IsLaxMonadMorphism m]
     step exit
 
 @[spec default+10]
-theorem Spec.forInLoopWithVariant_earlyReturn [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forInLoopWithVariant_earlyReturn [MonadicWP.IsLaxDistrib m]
     {Fun : Type} {γ : Type uγ'} {ω δ : Type u}
     {l : Lean.Loop} {init : β} {f : Unit → Option ω × β → m (ForInStep (Option ω × β))}
     {kRet : Option ω × β → ω → m δ} {k : Option ω × β → m δ} {post : δ → Pred}

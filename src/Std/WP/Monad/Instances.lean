@@ -23,7 +23,7 @@ The weakest precondition interpretation of the base monads and of the monad tran
 A monad that throws carries the exception postcondition itself. A transformer stacks a product
 layer on the exception postcondition of the monad below it, and `EStack⟨⟩` closes the stack.
 
-Every interpretation here is a monad morphism (`MonadicWP.IsMonadMorphism`). A transformer is also
+Every interpretation here is a monad morphism (`MonadicWP.IsDistrib`). A transformer is also
 a lax monad morphism over a base that is one.
 
 ## Pre-defined instances
@@ -52,7 +52,7 @@ theorem Id.wp_apply_eq {α : Type u} (x : Id α) (post : α → Prop) (eposts : 
     wp x post eposts = post x.run := by
   simp only [WP.wp, WP.trans, PredTrans.apply_mk] <;> rfl
 
-instance : MonadicWP.IsMonadMorphism Id.{u} where
+instance : MonadicWP.IsDistrib Id.{u} where
   trans_pure _ := rfl
   trans_bind _ _ := PredTrans.ext fun _ _ => by
     simp only [WP.trans_apply_eq, PredTrans.apply_Bind_bind, Id.wp_apply_eq]; rfl
@@ -75,8 +75,8 @@ theorem ExceptT.wp_apply_eq {α ε Pred EPosts} [PartialOrder Pred] [PartialOrde
   simp only [WP.wp, WP.trans, PredTrans.apply_pushExceptT]
 
 instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] [MonadicWP.IsMonadMorphism m] :
-    MonadicWP.IsMonadMorphism (ExceptT ε m) where
+    [MonadicWP m Pred EPosts] [MonadicWP.IsDistrib m] :
+    MonadicWP.IsDistrib (ExceptT ε m) where
   trans_pure a := PredTrans.ext fun post eposts => by
     simp only [WP.trans_apply_eq, ExceptT.wp_apply_eq, PredTrans.apply_Pure_pure]
     exact MonadicWP.wp_pure_eq (m := m) (Except.ok a) (pushExcept post eposts.fst) eposts.snd
@@ -88,8 +88,8 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     | error e => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
 instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
-    MonadicWP.IsLaxMonadMorphism (ExceptT ε m) where
+    [MonadicWP m Pred EPosts] [MonadicWP.IsLaxDistrib m] :
+    MonadicWP.IsLaxDistrib (ExceptT ε m) where
   pure_le x := fun post eposts => by
     simp only [PredTrans.apply_Pure_pure, WP.trans_apply_eq, ExceptT.wp_apply_eq]
     exact MonadicWP.le_wp_pure (m := m) (Except.ok x) (pushExcept post eposts.fst) eposts.snd
@@ -122,8 +122,8 @@ theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPosts} [PartialOrder
   simp only [WP.wp, WP.trans, PredTrans.apply_pushOptionT]
 
 instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] [MonadicWP.IsMonadMorphism m] :
-    MonadicWP.IsMonadMorphism (OptionT m) where
+    [MonadicWP m Pred EPosts] [MonadicWP.IsDistrib m] :
+    MonadicWP.IsDistrib (OptionT m) where
   trans_pure a := PredTrans.ext fun post eposts => by
     simp only [WP.trans_apply_eq, OptionT.wp_apply_eq, PredTrans.apply_Pure_pure]
     exact MonadicWP.wp_pure_eq (m := m) (some a) (pushOption post eposts.fst) eposts.snd
@@ -136,8 +136,8 @@ instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     | none => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
 instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
-    MonadicWP.IsLaxMonadMorphism (OptionT m) where
+    [MonadicWP m Pred EPosts] [MonadicWP.IsLaxDistrib m] :
+    MonadicWP.IsLaxDistrib (OptionT m) where
   pure_le x := fun post eposts => by
     simp only [PredTrans.apply_Pure_pure, WP.trans_apply_eq, OptionT.wp_apply_eq]
     exact MonadicWP.le_wp_pure (m := m) (some x) (pushOption post eposts.fst) eposts.snd
@@ -168,8 +168,8 @@ theorem StateT.wp_apply_eq {σ : Type u} [PartialOrder Pred] [PartialOrder EPost
   simp only [WP.wp, WP.trans, PredTrans.apply_pushArg]
 
 instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [PartialOrder Pred]
-    [PartialOrder EPosts] [MonadicWP m Pred EPosts] [MonadicWP.IsMonadMorphism m] :
-    MonadicWP.IsMonadMorphism (StateT σ m) where
+    [PartialOrder EPosts] [MonadicWP m Pred EPosts] [MonadicWP.IsDistrib m] :
+    MonadicWP.IsDistrib (StateT σ m) where
   trans_pure a := PredTrans.ext fun post eposts => funext fun s => by
     simp only [WP.trans_apply_eq, StateT.wp_apply_eq, PredTrans.apply_Pure_pure]
     exact MonadicWP.wp_pure_eq (m := m) (a, s) (fun p => post p.1 p.2) eposts
@@ -180,7 +180,7 @@ instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [PartialOrder
 
 instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m]
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
-    [MonadicWP.IsLaxMonadMorphism m] : MonadicWP.IsLaxMonadMorphism (StateT σ m) where
+    [MonadicWP.IsLaxDistrib m] : MonadicWP.IsLaxDistrib (StateT σ m) where
   pure_le x := fun post eposts s => by
     simp only [PredTrans.apply_Pure_pure, WP.trans_apply_eq, StateT.wp_apply_eq]
     exact MonadicWP.le_wp_pure (m := m) (x, s) (fun p => post p.1 p.2) eposts
@@ -207,8 +207,8 @@ theorem ReaderT.wp_apply_eq {ρ : Type u} [PartialOrder Pred] [PartialOrder EPos
   simp only [WP.trans, PredTrans.apply_mk]
 
 instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] [MonadicWP.IsMonadMorphism m] :
-    MonadicWP.IsMonadMorphism (ReaderT ρ m) where
+    [MonadicWP m Pred EPosts] [MonadicWP.IsDistrib m] :
+    MonadicWP.IsDistrib (ReaderT ρ m) where
   trans_pure a := PredTrans.ext fun post eposts => funext fun r => by
     simp only [WP.trans_apply_eq, ReaderT.wp_apply_eq, PredTrans.apply_Pure_pure]
     exact MonadicWP.wp_pure_eq (m := m) a (fun a => post a r) eposts
@@ -218,8 +218,8 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
       eposts
 
 instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
-    [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
-    MonadicWP.IsLaxMonadMorphism (ReaderT ρ m) where
+    [MonadicWP m Pred EPosts] [MonadicWP.IsLaxDistrib m] :
+    MonadicWP.IsLaxDistrib (ReaderT ρ m) where
   pure_le x := fun post eposts r => by
     simp only [PredTrans.apply_Pure_pure, WP.trans_apply_eq, ReaderT.wp_apply_eq]
     exact MonadicWP.le_wp_pure (m := m) x (fun a => post a r) eposts
@@ -248,7 +248,7 @@ theorem Option.wp_apply_eq {α : Type u} (x : Option α) (post : α → Prop)
     (eposts : Unit → Prop) : wp x post eposts = pushOption post eposts x := by
   simp only [WP.wp, WP.trans, PredTrans.apply_mk]
 
-instance : MonadicWP.IsMonadMorphism Option.{u} where
+instance : MonadicWP.IsDistrib Option.{u} where
   trans_pure _ := rfl
   trans_bind x _ := PredTrans.ext fun _ _ => by
     simp only [WP.trans_apply_eq, PredTrans.apply_Bind_bind, Option.wp_apply_eq]
@@ -268,7 +268,7 @@ theorem Except.wp_apply_eq {α : Type u} (x : Except ε α) (post : α → Prop)
     (eposts : ε → Prop) : wp x post eposts = pushExcept post eposts x := by
   simp only [WP.wp, WP.trans, PredTrans.apply_mk]
 
-instance : MonadicWP.IsMonadMorphism (Except ε) where
+instance : MonadicWP.IsDistrib (Except ε) where
   trans_pure _ := rfl
   trans_bind x _ := PredTrans.ext fun _ _ => by
     simp only [WP.trans_apply_eq, PredTrans.apply_Bind_bind, Except.wp_apply_eq]
@@ -294,7 +294,7 @@ theorem EStateM.wp_apply_eq {α : Type} (x : EStateM ε σ α) (post : α → σ
       | .error el s' => eposts el s' := by
   simp only [WP.wp, WP.trans, PredTrans.apply_mk]
 
-instance : MonadicWP.IsMonadMorphism (EStateM ε σ) where
+instance : MonadicWP.IsDistrib (EStateM ε σ) where
   trans_pure _ := rfl
   trans_bind x f := PredTrans.ext fun post eposts => funext fun s => by
     simp only [WP.trans_apply_eq, PredTrans.apply_Bind_bind, EStateM.wp_apply_eq]
@@ -306,36 +306,36 @@ section Deprecated
 
 set_option linter.missingDocs false
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev Id.instWPMonad : MonadicWP Id.{u} Prop EStack⟨⟩ := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev ExceptT.instWPMonad {m : Type u → Type z} {ε : Type u} {Pred : Type v} {EPosts : Type w}
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
     MonadicWP (ExceptT ε m) Pred ((ε → Pred) × EPosts) := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev OptionT.instWPMonad {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
     MonadicWP (OptionT m) Pred ((Unit → Pred) × EPosts) := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev StateT.instWPMonad {m : Type u → Type z} {σ : Type u} {Pred : Type w} {EPosts : Type v}
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
     MonadicWP (StateT σ m) (σ → Pred) EPosts := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev ReaderT.instWPMonad {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPosts : Type w}
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] :
     MonadicWP (ReaderT ρ m) (ρ → Pred) EPosts := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev Option.instWPMonad : MonadicWP Option.{u} Prop (Unit → Prop) := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev Except.instWPMonad {ε : Type u} : MonadicWP (Except ε) Prop (ε → Prop) := inferInstance
 
-@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxMonadMorphism` for the laws" (since := "2026-11-18")]
+@[deprecated "use the `MonadicWP` instance, with `MonadicWP.IsLaxDistrib` for the laws" (since := "2026-11-18")]
 abbrev EStateM.instWPMonad {ε σ : Type} :
     MonadicWP (EStateM ε σ) (σ → Prop) (ε → σ → Prop) := inferInstance
 

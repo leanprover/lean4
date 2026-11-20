@@ -39,7 +39,7 @@ open Gadget
 the Heyting implication `as ⇨ post ⟨⟩`, ensuring the assertion holds and the postcondition
 follows from it. -/
 @[spec]
-theorem Spec.assertGadget [Monad m] [MonadicWP.IsLaxMonadMorphism m] (as : Pred) [Heyting Pred] :
+theorem Spec.assertGadget [Monad m] [MonadicWP.IsLaxDistrib m] (as : Pred) [Heyting Pred] :
   Triple (Gadget.assertGadget (m := m) as) (as ⊓ (as ⇨ post ⟨⟩)) post eposts := by
   simpa [Gadget.assertGadget] using
     (Triple.pure (m := m) (pre := as ⊓ (as ⇨ post ⟨⟩)) (post := post) (eposts := eposts)

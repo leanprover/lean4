@@ -20,7 +20,7 @@ theorem M.wp_apply_eq {α : Type} (x : M α) (post : α → Prop ×' Prop) (epos
     wp x post eposts = post x := by
   simp only [WP.wp, WP.trans, PredTrans.apply_mk]
 
-instance : MonadicWP.IsMonadMorphism M where
+instance : MonadicWP.IsDistrib M where
   trans_pure x := PredTrans.ext fun _ _ => by
     simp only [WP.trans_apply_eq, PredTrans.apply_Pure_pure, M.wp_apply_eq]; rfl
   trans_bind _ _ := PredTrans.ext fun _ _ => by

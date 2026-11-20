@@ -508,8 +508,8 @@ over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : MonadicWP HeapM HProp EStack⟨⟩ :=
   ⟨fun α => WP.withFrameClosure (Prog := StateM Heap α) sepConj inferInstance⟩
 
-instance : MonadicWP.IsLaxMonadMorphism HeapM :=
-  MonadicWP.isLaxMonadMorphism_withFrameClosure (m := StateM Heap) sepConj
+instance : MonadicWP.IsLaxDistrib HeapM :=
+  MonadicWP.isLaxDistrib_withFrameClosure (m := StateM Heap) sepConj
     sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl)
 
 /-- Every `HeapM` program frames every heap assertion `F`, under every guard `P`. -/

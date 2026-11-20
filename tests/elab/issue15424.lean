@@ -10,6 +10,6 @@ abbrev op : ULift.{1} Nat → (ULift.{1} Nat → Prop) → (ULift.{1} Nat → Pr
 @[instance_reducible] noncomputable def framed : MonadicWP M (ULift.{1} Nat → Prop) EStack⟨⟩ :=
   ⟨fun α => WP.withFrameClosure (Prog := M α) op inferInstance⟩
 
-example : @MonadicWP.IsLaxMonadMorphism M _ _ _ _ _ framed :=
-  MonadicWP.isLaxMonadMorphism_withFrameClosure (m := M) op (comp := fun r _ => r) (e := ⟨0⟩)
+example : @MonadicWP.IsLaxDistrib M _ _ _ _ _ framed :=
+  MonadicWP.isLaxDistrib_withFrameClosure (m := M) op (comp := fun r _ => r) (e := ⟨0⟩)
     (fun _ _ _ => rfl) (fun _ _ _ => rfl) (fun _ => rfl) (fun _ => rfl)

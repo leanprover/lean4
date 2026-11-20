@@ -62,13 +62,13 @@ variable {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred]
 
 
 @[spec]
-theorem Spec.pure [Monad m] [MonadicWP.IsLaxMonadMorphism m] (a : α) :
+theorem Spec.pure [Monad m] [MonadicWP.IsLaxDistrib m] (a : α) :
     Triple (Pure.pure (f := m) a) (post a) post eposts :=
   Triple.pure a PartialOrder.rel_refl
 
 
 @[spec]
-theorem Spec.bind [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (f : α → m β) :
+theorem Spec.bind [Monad m] [MonadicWP.IsLaxDistrib m] (x : m α) (f : α → m β) :
     Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post eposts)) eposts) post eposts :=
   Triple.bind x f (fun a => wp (f a) post eposts)
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
@@ -97,14 +97,14 @@ theorem Spec.bind_cond [Monad m] (c : Bool) (t e : m α) (g : α → m β) :
   constructor; apply PartialOrder.rel_of_eq; cases c <;> rfl
 
 @[spec]
-theorem Spec.map [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] (f : α → β) (x : m α) :
+theorem Spec.map [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] (f : α → β) (x : m α) :
     Triple (f <$> x) (wp x (fun a => post (f a)) eposts) post eposts :=
   Triple.map f x (Triple.intro PartialOrder.rel_refl)
 
 
 @[spec]
 theorem Spec.seq [Monad m] [LawfulMonad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : m (α → β)) (y : m α) :
+    [MonadicWP.IsLaxDistrib m] (x : m (α → β)) (y : m α) :
     Triple (x <*> y) (wp x (fun f => wp y (fun a => post (f a)) eposts) eposts) post eposts :=
   Triple.seq x y (Triple.intro PartialOrder.rel_refl)
 
@@ -115,7 +115,7 @@ end MonadSpec
 
 @[spec]
 theorem Spec.monadLift_StateT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → σ → Pred) :
+    [MonadicWP.IsLaxDistrib m] (x : m α) (post : α → σ → Pred) :
     Triple (MonadLift.monadLift x : StateT σ m α) (fun s => wp x (fun a => post a s) eposts) post eposts :=
   Triple.intro (MonadicWP.le_wp_monadLift_StateT_apply x post)
 
@@ -128,7 +128,7 @@ theorem Spec.monadLift_ReaderT (x : m α) (post : α → ρ → Pred) :
 
 @[spec]
 theorem Spec.monadLift_ExceptT [Monad m] [LawfulMonad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → Pred)
+    [MonadicWP.IsLaxDistrib m] (x : m α) (post : α → Pred)
     (eposts : (ε → Pred) × EPosts) :
     Triple (MonadLift.monadLift x : ExceptT ε m α) (wp x post eposts.snd) post eposts :=
   Triple.intro (MonadicWP.le_wp_monadLift_ExceptT_apply x post eposts)
@@ -136,12 +136,12 @@ theorem Spec.monadLift_ExceptT [Monad m] [LawfulMonad m]
 
 @[spec]
 theorem Spec.monadLift_OptionT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : m α) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
+    [MonadicWP.IsLaxDistrib m] (x : m α) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     Triple (MonadLift.monadLift x : OptionT m α) (wp x post eposts.snd) post eposts :=
   Triple.intro (MonadicWP.le_wp_monadLift_OptionT_apply x)
 
 @[spec]
-theorem Spec.monadLift_Id [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.monadLift_Id [Monad m] [MonadicWP.IsLaxDistrib m]
     (x : Id α) :
     Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (post x.run) post eposts :=
   Triple.pure x.run PartialOrder.rel_refl
@@ -202,7 +202,7 @@ theorem Spec.monadMap_refl [Monad m] (x : m α) :
 
 
 @[spec]
-theorem Spec.liftWith_StateT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.liftWith_StateT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) (post : α → σ → Pred) :
     Triple (MonadControl.liftWith (m:=m) f : StateT σ m α)
       (fun s => wp (f (fun x => x.run s)) (fun a => post a s) eposts) post eposts :=
@@ -222,7 +222,7 @@ theorem Spec.liftWith_ReaderT
 
 
 @[spec]
-theorem Spec.liftWith_ExceptT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.liftWith_ExceptT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (MonadControl.liftWith (m:=m) f : ExceptT ε m α)
       (wp (f (fun x => x.run)) post eposts.snd) post eposts :=
@@ -233,7 +233,7 @@ theorem Spec.liftWith_ExceptT [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMor
 
 
 @[spec]
-theorem Spec.liftWith_OptionT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.liftWith_OptionT [Monad m] [MonadicWP.IsLaxDistrib m]
     (f : (∀{β}, OptionT m β → m (Option β)) → m α) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     Triple (MonadControl.liftWith (m:=m) f : OptionT m α)
       (wp (f (fun x => x.run)) post eposts.snd) post eposts :=
@@ -242,7 +242,7 @@ theorem Spec.liftWith_OptionT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
 
 @[spec]
 theorem Spec.restoreM_StateT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : m (α × σ)) (post : α → σ → Pred) :
+    [MonadicWP.IsLaxDistrib m] (x : m (α × σ)) (post : α → σ → Pred) :
     Triple (MonadControl.restoreM (m:=m) x : StateT σ m α)
       (fun _ => wp x (fun (a, s) => post a s) eposts) post eposts :=
   Triple.intro (MonadicWP.le_wp_restoreM_StateT_apply x)
@@ -291,7 +291,7 @@ theorem Spec.restoreM_refl [Monad m] (x : stM m m α) :
 
 
 @[spec]
-theorem Spec.read_ReaderT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.read_ReaderT [Monad m] [MonadicWP.IsLaxDistrib m]
     (post : ρ → ρ → Pred) :
     Triple (MonadReaderOf.read : ReaderT ρ m ρ)
       (fun r => post r r) post eposts :=
@@ -317,7 +317,7 @@ variable {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred]
 
 
 @[spec]
-theorem Spec.get_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.get_StateT [Monad m] [MonadicWP.IsLaxDistrib m]
     (post : σ → σ → Pred) :
     Triple (MonadStateOf.get : StateT σ m σ)
       (fun s => post s s) post eposts :=
@@ -328,7 +328,7 @@ theorem Spec.get_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
 
 
 @[spec]
-theorem Spec.set_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m] (s : σ)
+theorem Spec.set_StateT [Monad m] [MonadicWP.IsLaxDistrib m] (s : σ)
     (post : PUnit → σ → Pred) :
     Triple (set s : StateT σ m PUnit)
       (fun _ => post ⟨⟩ s) post eposts :=
@@ -339,7 +339,7 @@ theorem Spec.set_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m] (s : σ)
 
 
 @[spec]
-theorem Spec.modifyGet_StateT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.modifyGet_StateT [Monad m] [MonadicWP.IsLaxDistrib m]
     (f : σ → α × σ) (post : α → σ → Pred) :
     Triple (MonadStateOf.modifyGet f : StateT σ m α)
       (fun s => post (f s).1 (f s).2) post eposts :=
@@ -386,7 +386,7 @@ theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (eposts : (�
 
 
 @[spec]
-theorem Spec.throw_ExceptT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.throw_ExceptT [Monad m] [MonadicWP.IsLaxDistrib m]
     (err : ε) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (MonadExceptOf.throw err : ExceptT ε m α) (eposts.fst err) post eposts :=
   Triple.intro (by simpa [pushExcept] using!
@@ -397,7 +397,7 @@ theorem Spec.throw_ExceptT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
 
 @[spec]
 theorem Spec.tryCatch_ExceptT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred)
+    [MonadicWP.IsLaxDistrib m] (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred)
     (eposts : (ε → Pred) × EPosts) :
     Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α)
       (wp x post ⟨fun e => wp (h e) post eposts, eposts.snd⟩) post eposts :=
@@ -406,7 +406,7 @@ theorem Spec.tryCatch_ExceptT [Monad m]
 
 @[spec]
 theorem Spec.orElse_ExceptT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : ExceptT ε m α) (h : Unit → ExceptT ε m α)
+    [MonadicWP.IsLaxDistrib m] (x : ExceptT ε m α) (h : Unit → ExceptT ε m α)
     (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     Triple (OrElse.orElse x h : ExceptT ε m α)
       (wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩) post eposts :=
@@ -415,7 +415,7 @@ theorem Spec.orElse_ExceptT [Monad m]
 
 @[spec]
 theorem Spec.adapt_ExceptT [Monad m] [LawfulMonad m]
-    [MonadicWP.IsLaxMonadMorphism m] (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred)
+    [MonadicWP.IsLaxDistrib m] (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred)
     (eposts : (ε' → Pred) × EPosts) :
     Triple (ExceptT.adapt f x : ExceptT ε' m α)
       (wp x post ⟨fun e => eposts.fst (f e), eposts.snd⟩) post eposts :=
@@ -457,7 +457,7 @@ theorem Spec.run_OptionT [Monad m] (x : OptionT m α) (post : α → Pred)
 
 
 @[spec]
-theorem Spec.throw_OptionT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.throw_OptionT [Monad m] [MonadicWP.IsLaxDistrib m]
     (err : PUnit) (post : α → Pred) (eposts : (Unit → Pred) × EPosts) :
     Triple (MonadExceptOf.throw err : OptionT m α) (eposts.fst ()) post eposts :=
   Triple.intro (MonadicWP.le_wp_throw_OptionT_apply err)
@@ -465,7 +465,7 @@ theorem Spec.throw_OptionT [Monad m] [MonadicWP.IsLaxMonadMorphism m]
 
 @[spec]
 theorem Spec.tryCatch_OptionT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : OptionT m α) (h : PUnit → OptionT m α) (post : α → Pred)
+    [MonadicWP.IsLaxDistrib m] (x : OptionT m α) (h : PUnit → OptionT m α) (post : α → Pred)
     (eposts : (Unit → Pred) × EPosts) :
     Triple (MonadExceptOf.tryCatch x h : OptionT m α)
       (wp x post ⟨fun _ => wp (h ⟨⟩) post eposts, eposts.snd⟩) post eposts :=
@@ -474,7 +474,7 @@ theorem Spec.tryCatch_OptionT [Monad m]
 
 @[spec]
 theorem Spec.orElse_OptionT [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] (x : OptionT m α) (h : Unit → OptionT m α) (post : α → Pred)
+    [MonadicWP.IsLaxDistrib m] (x : OptionT m α) (h : Unit → OptionT m α) (post : α → Pred)
     (eposts : (Unit → Pred) × EPosts) :
     Triple (OrElse.orElse x h : OptionT m α)
       (wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩) post eposts :=
@@ -710,7 +710,7 @@ noncomputable abbrev Invariant.withEarlyReturnNewDo {α : Type u₁} {β : Type 
       ⊔ (iSup fun r => ⌜x = some r ∧ suff = []⌝ ⊓ onReturn r b)
 
 @[spec]
-theorem Spec.forIn'_list [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn'_list [Monad m] [MonadicWP.IsLaxDistrib m]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {eposts : EPosts}
@@ -751,7 +751,7 @@ theorem Spec.forIn'_list [Monad m] [MonadicWP.IsLaxMonadMorphism m]
         exact @ih b (pref ++ [x]) (by simp [hxs])
 
 
-theorem Spec.forIn'_list_const_inv [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn'_list_const_inv [Monad m] [MonadicWP.IsLaxDistrib m]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     {inv : (β → Pred)}
     {eposts : EPosts}
@@ -768,7 +768,7 @@ theorem Spec.forIn'_list_const_inv [Monad m] [MonadicWP.IsLaxMonadMorphism m]
 
 
 @[spec]
-theorem Spec.forIn_list [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn_list [Monad m] [MonadicWP.IsLaxDistrib m]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {eposts : EPosts}
@@ -788,7 +788,7 @@ theorem Spec.forIn_list [Monad m] [MonadicWP.IsLaxMonadMorphism m]
   simp only [← forIn'_eq_forIn]
   exact Spec.forIn'_list inv step
 
-theorem Spec.forIn_list_const_inv [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn_list_const_inv [Monad m] [MonadicWP.IsLaxDistrib m]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     {inv : (β → Pred)}
     {eposts : EPosts}
@@ -803,7 +803,7 @@ theorem Spec.forIn_list_const_inv [Monad m] [MonadicWP.IsLaxMonadMorphism m]
 
 
 @[spec]
-theorem Spec.foldlM_list [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.foldlM_list [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {xs : List α} {init : β} {f : β → α → m β}
     (inv : Invariant α β Pred)
     {eposts : EPosts}
@@ -827,7 +827,7 @@ theorem Spec.foldlM_list [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism
   apply step <;> assumption
 
 
-theorem Spec.foldlM_list_const_inv [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.foldlM_list_const_inv [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {xs : List α} {init : β} {f : β → α → m β}
     {inv : (β → Pred)}
     {eposts : EPosts}
@@ -845,7 +845,7 @@ theorem Spec.foldlM_list_const_inv [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMon
 covers them all. -/
 @[spec low+10]
 theorem Spec.forIn'_pure [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
+    [MonadicWP.IsLaxDistrib m] {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α]
     [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -867,7 +867,7 @@ theorem Spec.forIn'_pure [Monad m]
 covers them all. -/
 @[spec low+10]
 theorem Spec.forIn_pure [Monad m]
-    [MonadicWP.IsLaxMonadMorphism m] {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
+    [MonadicWP.IsLaxDistrib m] {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {eposts : EPosts}
@@ -884,7 +884,7 @@ theorem Spec.forIn_pure [Monad m]
   exact Spec.forIn_list inv step
 
 
-theorem Triple.bind_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Triple.bind_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m]
     {γ δ : Type u₂} {x : m (Option γ × β)}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
     {pre : Pred} {mid : Option γ × β → Pred} {post : δ → Pred} {eposts : EPosts}
@@ -900,7 +900,7 @@ theorem Triple.bind_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m]
   · exact ⟨hRet r b⟩
 
 @[spec default+10]
-theorem Spec.bind_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.bind_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {γ δ ε : Type u₂} {x : m (Option γ × β)}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ} {g : δ → m ε}
     {post : ε → Pred} {eposts : EPosts} :
@@ -921,7 +921,7 @@ variable {Pred : Type uₚ} {EPosts : Type uₑ} [CompleteLattice Pred] [Partial
   [MonadicWP m Pred EPosts]
 
 @[spec default+10]
-theorem Spec.forIn_pure_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m] {ρ : Type w}
+theorem Spec.forIn_pure_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m] {ρ : Type w}
     [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β} {f : α → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
@@ -952,7 +952,7 @@ theorem Spec.forIn_pure_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m] {
   · exact ⟨bot_le _⟩
 
 @[spec default+10]
-theorem Spec.forIn'_pure_earlyReturn [Monad m] [MonadicWP.IsLaxMonadMorphism m] {ρ : Type w}
+theorem Spec.forIn'_pure_earlyReturn [Monad m] [MonadicWP.IsLaxDistrib m] {ρ : Type w}
     {d : Membership α ρ} [ForIn' m ρ α d]
     [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {γ δ : Type u₂} {xs : ρ} {init : β}
@@ -994,7 +994,7 @@ open Std Std.Iterators
 
 @[spec low]
 theorem Spec.foldM_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {it : Iter (α := α) β}
     {init : γ} {f : γ → β → m γ}
@@ -1015,7 +1015,7 @@ theorem Spec.foldM_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type
 @[spec low]
 theorem Spec.foldM_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : Type uₚ}
     {EPosts : Type uₑ}
-    [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {it : IterM (α := α) Id β}
     {init : γ} {f : γ → β → m γ}
@@ -1037,7 +1037,7 @@ theorem Spec.foldM_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : 
 theorem Spec.IterM.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1057,7 +1057,7 @@ theorem Spec.IterM.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_filterMapM {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
@@ -1078,7 +1078,7 @@ theorem Spec.IterM.forIn_filterMapM {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_filterMap {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad m] [LawfulMonad m] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
@@ -1096,7 +1096,7 @@ theorem Spec.IterM.forIn_filterMap {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_mapWithPostcondition {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1113,7 +1113,7 @@ theorem Spec.IterM.forIn_mapWithPostcondition {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_mapM {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
@@ -1131,7 +1131,7 @@ theorem Spec.IterM.forIn_mapM {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_map {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad m] [LawfulMonad m] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
@@ -1145,7 +1145,7 @@ theorem Spec.IterM.forIn_map {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_filterWithPostcondition {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1162,7 +1162,7 @@ theorem Spec.IterM.forIn_filterWithPostcondition {α β γ : Type w}
 theorem Spec.IterM.forIn_filterM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
@@ -1180,7 +1180,7 @@ theorem Spec.IterM.forIn_filterM {α β γ : Type w}
 theorem Spec.IterM.forIn_filter {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Monad m] [LawfulMonad m] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad m] [LawfulMonad m] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)}
@@ -1195,7 +1195,7 @@ theorem Spec.IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1217,7 +1217,7 @@ theorem Spec.IterM.foldM_filterMapM {α β γ δ : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1237,7 +1237,7 @@ theorem Spec.IterM.foldM_mapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1257,7 +1257,7 @@ theorem Spec.IterM.foldM_mapM {α β γ δ : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1275,7 +1275,7 @@ theorem Spec.IterM.foldM_filterWithPostcondition {α β δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1295,7 +1295,7 @@ theorem Spec.IterM.foldM_filterM {α β δ : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1312,7 +1312,7 @@ theorem Spec.IterM.foldM_filterM {α β δ : Type w}
 theorem Spec.IterM.foldM_filterMap {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n]
     [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
@@ -1329,7 +1329,7 @@ theorem Spec.IterM.foldM_filterMap {α β γ δ : Type w}
 theorem Spec.IterM.foldM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β}
@@ -1343,7 +1343,7 @@ theorem Spec.IterM.foldM_map {α β γ δ : Type w}
 theorem Spec.IterM.foldM_filter {α β δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n]
     [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
@@ -1360,7 +1360,7 @@ theorem Spec.IterM.fold_filterMapWithPostcondition {α β γ δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1378,7 +1378,7 @@ theorem Spec.IterM.fold_filterMapM {α β γ δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1396,7 +1396,7 @@ theorem Spec.IterM.fold_mapWithPostcondition {α β γ δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1412,7 +1412,7 @@ theorem Spec.IterM.fold_mapM {α β γ δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1428,7 +1428,7 @@ theorem Spec.IterM.fold_filterWithPostcondition {α β δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1444,7 +1444,7 @@ theorem Spec.IterM.fold_filterM {α β δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1458,7 +1458,7 @@ theorem Spec.IterM.fold_filterM {α β δ : Type w}
 theorem Spec.IterM.fold_filterMap {α β γ δ : Type w}
     {m : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α m β] [Finite α m] [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    [Iterator α m β] [Finite α m] [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → Option γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1474,7 +1474,7 @@ theorem Spec.IterM.fold_filterMap {α β γ δ : Type w}
 theorem Spec.IterM.fold_map {α β γ δ : Type w}
     {m : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α m β] [Finite α m] [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    [Iterator α m β] [Finite α m] [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1487,7 +1487,7 @@ theorem Spec.IterM.fold_map {α β γ δ : Type w}
 theorem Spec.IterM.fold_filter {α β δ : Type w}
     {m : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α m β] [Finite α m] [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+    [Iterator α m β] [Finite α m] [Monad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → Bool} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1501,7 +1501,7 @@ theorem Spec.Iter.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n (Option β₂)} {init : γ}
@@ -1519,7 +1519,7 @@ theorem Spec.Iter.forIn_filterMapM {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
@@ -1538,7 +1538,7 @@ theorem Spec.Iter.forIn_filterMap {α β β₂ γ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n] [Finite α Id]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n] [Finite α Id]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPosts}
@@ -1555,7 +1555,7 @@ theorem Spec.Iter.forIn_mapWithPostcondition {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n β₂} {init : γ}
@@ -1570,7 +1570,7 @@ theorem Spec.Iter.forIn_mapM {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Finite α Id]
@@ -1587,7 +1587,7 @@ theorem Spec.Iter.forIn_map {α β β₂ γ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPosts}
@@ -1601,7 +1601,7 @@ theorem Spec.Iter.forIn_filterWithPostcondition {α β γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n (ULift Bool)} {init : γ}
@@ -1616,7 +1616,7 @@ theorem Spec.Iter.forIn_filterM {α β γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [LawfulMonad n] [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
@@ -1632,7 +1632,7 @@ theorem Spec.Iter.forIn_filter {α β γ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPosts}
@@ -1646,7 +1646,7 @@ theorem Spec.Iter.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [Monad o] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [Monad o] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1665,7 +1665,7 @@ theorem Spec.Iter.foldM_filterMapM {α β γ δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1683,7 +1683,7 @@ theorem Spec.Iter.foldM_mapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'''} {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1700,7 +1700,7 @@ theorem Spec.Iter.foldM_mapM {α β γ δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1716,7 +1716,7 @@ theorem Spec.Iter.foldM_filterWithPostcondition {α β δ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [Monad o] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad n] [Monad o] [LawfulMonad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1733,7 +1733,7 @@ theorem Spec.Iter.foldM_filterM {α β δ : Type w}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxMonadMorphism o]
+    [Monad o] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP o Pred EPosts] [LawfulMonad o] [MonadicWP.IsLaxDistrib o]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1748,7 +1748,7 @@ theorem Spec.Iter.foldM_filterM {α β δ : Type w}
 theorem Spec.Iter.foldM_filterMap {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α Id β] [Finite α Id] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Iterator α Id β] [Finite α Id] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n]
     [LawfulIteratorLoop α Id n]
     {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β}
@@ -1764,7 +1764,7 @@ theorem Spec.Iter.foldM_filterMap {α β γ δ : Type w}
 theorem Spec.Iter.foldM_map {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α Id β] [Finite α Id] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Iterator α Id β] [Finite α Id] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1777,7 +1777,7 @@ theorem Spec.Iter.foldM_map {α β γ δ : Type w}
 theorem Spec.Iter.foldM_filter {α β δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
-    [Iterator α Id β] [Finite α Id] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Iterator α Id β] [Finite α Id] [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1791,7 +1791,7 @@ theorem Spec.Iter.fold_filterMapWithPostcondition {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1807,7 +1807,7 @@ theorem Spec.Iter.fold_filterMapM {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1823,7 +1823,7 @@ theorem Spec.Iter.fold_mapWithPostcondition {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1837,7 +1837,7 @@ theorem Spec.Iter.fold_mapM {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1851,7 +1851,7 @@ theorem Spec.Iter.fold_filterWithPostcondition {α β δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1865,7 +1865,7 @@ theorem Spec.Iter.fold_filterM {α β δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type uₚ} {EPosts : Type uₑ}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxMonadMorphism n]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP n Pred EPosts] [LawfulMonad n] [MonadicWP.IsLaxDistrib n]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPosts}
@@ -1878,7 +1878,7 @@ end Iterators
 
 
 @[spec]
-theorem Spec.foldlM_array [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.foldlM_array [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {xs : Array α} {init : β} {f : β → α → m β}
     (inv : Invariant α β Pred)
     {eposts : EPosts}
@@ -1917,7 +1917,7 @@ noncomputable abbrev StringInvariant.withEarlyReturnNewDo {s : String} {β : Typ
       ⊔ (iSup fun r => ⌜x = some r ∧ pos = s.endPos⌝ ⊓ onReturn r b)
 
 @[spec]
-theorem Spec.forIn_string [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn_string [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {s : String} {init : β} {f : Char → β → m (ForInStep β)}
     (inv : StringInvariant s β Pred)
     {eposts : EPosts}
@@ -1975,7 +1975,7 @@ noncomputable abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice
       ⊔ (iSup fun r => ⌜x = some r ∧ pos = s.endPos⌝ ⊓ onReturn r b)
 
 @[spec]
-theorem Spec.forIn_stringSlice [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn_stringSlice [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}
     (inv : StringSliceInvariant s β Pred)
     {eposts : EPosts}
@@ -2016,7 +2016,7 @@ variable {Pred : Type uₚ} {EPosts : Type uₑ} [CompleteLattice Pred] [Partial
   [MonadicWP m Pred EPosts]
 
 @[spec default+10]
-theorem Spec.forIn_string_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn_string_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLaxDistrib m]
     {s : String} {γ δ : Type u₂} {init : β}
     {f : Char → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
@@ -2051,7 +2051,7 @@ theorem Spec.forIn_string_earlyReturn [Monad m] [LawfulMonad m] [MonadicWP.IsLax
 
 @[spec default+10]
 theorem Spec.forIn_stringSlice_earlyReturn [Monad m] [LawfulMonad m]
-    [MonadicWP.IsLaxMonadMorphism m] {s : String.Slice} {γ δ : Type u₂} {init : β}
+    [MonadicWP.IsLaxDistrib m] {s : String.Slice} {γ δ : Type u₂} {init : β}
     {f : Char → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ}
     {post : δ → Pred} {eposts : EPosts}
@@ -2402,7 +2402,7 @@ whose post either continues with a measure value below `ma` (the invariant still
 finishes with the `.inr` invariant.
 -/
 @[spec]
-theorem Spec.repeatM [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.repeatM [MonadicWP.IsLaxDistrib m]
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β] [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant α Pred)
     (inv : RepeatInvariant α β Pred)
@@ -2467,7 +2467,7 @@ Specification for `forIn` over a `Lean.Loop`. The invariant takes the loop's `ex
 `inv false b` means "still iterating with `b`", `inv true b` means "finished with result `b`".
 -/
 @[spec]
-theorem Spec.forIn_loop [MonadicWP.IsLaxMonadMorphism m]
+theorem Spec.forIn_loop [MonadicWP.IsLaxDistrib m]
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : Variant β Pred)
@@ -2500,7 +2500,7 @@ theorem Spec.forIn_loop [MonadicWP.IsLaxMonadMorphism m]
     | done b' => exact Triple.pure (Sum.inr b') Lean.Order.PartialOrder.rel_refl
 
 @[spec default+10]
-theorem Spec.forIn_loop_earlyReturn [MonadicWP.IsLaxMonadMorphism m] {γ δ : Type u} {l : Lean.Loop} {init : β}
+theorem Spec.forIn_loop_earlyReturn [MonadicWP.IsLaxDistrib m] {γ δ : Type u} {l : Lean.Loop} {init : β}
     {f : Unit → Option γ × β → m (ForInStep (Option γ × β))}
     {kRet : Option γ × β → γ → m δ} {k : Option γ × β → m δ} {post : δ → Pred}
     [∀ P : Pred, PreservesSup (meet P)]

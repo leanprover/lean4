@@ -16,7 +16,7 @@ set_option linter.missingDocs true
 /-!
 # Framing for a monadic `wp`
 
-`MonadicWP.isLaxMonadMorphism_withFrameClosure` carries the lax laws of a `MonadicWP` to its
+`MonadicWP.isLaxDistrib_withFrameClosure` carries the lax laws of a `MonadicWP` to its
 `Lean.Order.PredTrans.frameClosure`, under which every program frames every resource.
 -/
 
@@ -24,19 +24,19 @@ open Lean.Order Std.WP
 
 namespace Std.WP
 
-theorem MonadicWP.isLaxMonadMorphism_withFrameClosure {m : Type v → Type w} [Monad m]
+theorem MonadicWP.isLaxDistrib_withFrameClosure {m : Type v → Type w} [Monad m]
     {P : Type u} {E : Type z} [PartialOrder P] [PartialOrder E] [CompleteLattice P]
     [CompleteLattice E] [CompleteLattice.OrderEq P] [CompleteLattice.OrderEq E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E', opE (comp r r') E' = opE r (opE r' E'))
     (hunit : ∀ a, op e a = a) (hunitE : ∀ E', opE e E' = E')
-    [base : MonadicWP m P E] [hlax : MonadicWP.IsLaxMonadMorphism m] :
-    @MonadicWP.IsLaxMonadMorphism m P E _ _ _ ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩ := by
+    [base : MonadicWP m P E] [hlax : MonadicWP.IsLaxDistrib m] :
+    @MonadicWP.IsLaxDistrib m P E _ _ _ ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩ := by
   obtain ⟨hP⟩ := ‹CompleteLattice.OrderEq P›
   obtain ⟨hE⟩ := ‹CompleteLattice.OrderEq E›
   subst hP hE
-  refine @MonadicWP.IsLaxMonadMorphism.mk m P E _ _ _
+  refine @MonadicWP.IsLaxDistrib.mk m P E _ _ _
     ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩
     (fun x post E' => ?_) (fun x f post E' => ?_)
   · show (pure x : PredTrans _ _ _).apply post E' ⊑
@@ -63,7 +63,7 @@ section Deprecated
 set_option linter.missingDocs false
 
 @[deprecated "use `⟨fun α => WP.withFrameClosure op (base.toWP α)⟩`, and \
-  `MonadicWP.isLaxMonadMorphism_withFrameClosure` for its laws" (since := "2026-11-18")]
+  `MonadicWP.isLaxDistrib_withFrameClosure` for its laws" (since := "2026-11-18")]
 noncomputable abbrev WPMonad.withFrameClosure {m : Type v → Type w} {P : Type u} {E : Type z}
     [PartialOrder P] [PartialOrder E] [CompleteLattice P] [CompleteLattice E]
     [CompleteLattice.OrderEq P] [CompleteLattice.OrderEq E] {R : Type t} (op : R → P → P)

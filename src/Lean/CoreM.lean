@@ -904,19 +904,19 @@ def forkAsSnapshot (act : CoreM Unit) (after : Task α)
     let t ← BaseIO.mapTask act after
     logSnapshotTask { stx? := none, reportingRange, task := t, cancelTk? := cancelTk }
   else
+    -- `act`'s final state is discarded below, and with it its `State.recordedDeps`.
+    assert! !(← read).isRecordingDeps
     let childSt ← forkState
     let parentSt ← get
     set childSt
     try
       act
     finally
-      -- unlike in a separate task, recording may be active here and must observe `act`'s accesses
       modify fun st => { parentSt with
         messages := st.messages
         traceState := st.traceState
         infoState := st.infoState
         snapshotTasks := st.snapshotTasks
-        recordedDeps := st.recordedDeps
       }
 
 end Core

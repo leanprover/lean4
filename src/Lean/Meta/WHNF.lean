@@ -187,7 +187,7 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Ex
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
-  if !isNonRecStructure env inductName then
+  if !hasEta env inductName then
     return major
   else if let some _ ← isConstructorApp? major then
     return major

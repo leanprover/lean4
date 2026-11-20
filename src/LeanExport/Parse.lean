@@ -365,6 +365,11 @@ def parseInductInfo (json : Json) : M Unit := do
   let some (.bool isRec) := data["isRec"]? | fail s!"inductInfo invalid"
   let some (.bool isUnsafe) := data["isUnsafe"]? | fail s!"inductInfo invalid"
   let some (.bool isReflexive) := data["isReflexive"]? | fail s!"inductInfo invalid"
+  let some (.bool isImpredicative) := data["isImpredicative"]? | fail s!"inductInfo invalid"
+  let some (.bool isK) := data["isK"]? | fail s!"inductInfo invalid"
+  let some (.bool hasProjections) := data["hasProjections"]? | fail s!"inductInfo invalid"
+  let some (.bool hasEta) := data["hasEta"]? | fail s!"inductInfo invalid"
+  let some (.bool hasLargeElim) := data["hasLargeElim"]? | fail s!"inductInfo invalid"
 
   let name ← getName nameIdx
   let levelParams ← getNameList levelParamsIdxs
@@ -383,7 +388,12 @@ def parseInductInfo (json : Json) : M Unit := do
     numNested,
     isRec,
     isUnsafe,
-    isReflexive,
+    isReflexive
+    isImpredicative
+    isK
+    hasProjections
+    hasEta
+    hasLargeElim
   }
 
 def parseCtorInfo (json : Json) : M Unit := do

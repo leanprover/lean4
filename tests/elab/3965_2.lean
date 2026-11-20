@@ -50,7 +50,7 @@ end Mathlib.Init.Data.Nat.Lemmas
 
 section Mathlib.Logic.Basic
 
-theorem Exists.fst {b : Prop} {p : b → Prop} : Exists p → b
+theorem Exists.fst' {b : Prop} {p : b → Prop} : Exists p → b
   | ⟨h, _⟩ => h
 
 end Mathlib.Logic.Basic
@@ -90,7 +90,7 @@ def find : ∀ {n : Nat} (p : Fin n → Prop) [DecidablePred p], Option (Fin n)
 
 theorem nat_find_mem_find {p : Fin n → Prop} [DecidablePred p]
     (h : ∃ i, ∃ hin : i < n, p ⟨i, hin⟩) :
-    (⟨Nat.find h, (Nat.find_spec h).fst⟩ : Fin n) ∈ find p := by
+    (⟨Nat.find h, (Nat.find_spec h).fst'⟩ : Fin n) ∈ find p := by
   rcases hf : find p with f | f
   · sorry
   · exact Option.some_inj.2 (le_antisymm sorry (Nat.find_min' _ ⟨f.2, sorry⟩))

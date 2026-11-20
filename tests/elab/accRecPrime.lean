@@ -22,8 +22,8 @@ theorem acc0 : Acc (fun _ _ : Nat => False) 0 := Acc.intro 0 fun _ h => h.elim
 #guard_msgs in
 #eval (Acc.rec' (motive := fun _ _ => Nat) (fun _ _ _ => 0) acc0,
        Acc.recOn' (motive := fun _ _ => Nat) acc0 fun _ _ _ => 0,
-       Acc.ndrec' (C := fun _ => Nat) (fun _ _ _ => 0) acc0,
-       Acc.ndrecOn' (C := fun _ => Nat) acc0 fun _ _ _ => 0)
+       Acc.ndrec (C := fun _ => Nat) (fun _ _ _ => 0) acc0,
+       Acc.ndrecOn (C := fun _ => Nat) acc0 fun _ _ _ => 0)
 
 /-! `Acc.rec'` has no iota rule, so unfolding equations need `Acc.rec'_eq` rather than `rfl`. -/
 

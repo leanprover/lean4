@@ -157,7 +157,32 @@ structure InductiveType where
   name : Name
   type : Expr
   ctors : List Constructor
+  isImpredicative : Bool
+  isK : Bool
+  hasProjections : Bool
+  hasEta : Bool
+  hasLargeElim : Bool
   deriving Inhabited, BEq
+
+@[export lean_mk_inductive_type]
+def mkInductiveTypeEx (name : Name) (type : Expr) (ctors : List Constructor)
+    (isImpredicative isK hasProjections hasEta hasLargeElim : Bool) : InductiveType :=
+  { name, type, ctors, isImpredicative, isK, hasProjections, hasEta, hasLargeElim }
+
+@[export lean_inductive_type_is_impredicative]
+def InductiveType.isImpredicativeEx (v : InductiveType) : Bool := v.isImpredicative
+
+@[export lean_inductive_type_is_k]
+def InductiveType.isKEx (v : InductiveType) : Bool := v.isK
+
+@[export lean_inductive_type_has_projections]
+def InductiveType.hasProjectionsEx (v : InductiveType) : Bool := v.hasProjections
+
+@[export lean_inductive_type_has_eta]
+def InductiveType.hasEtaEx (v : InductiveType) : Bool := v.hasEta
+
+@[export lean_inductive_type_has_large_elim]
+def InductiveType.hasLargeElimEx (v : InductiveType) : Bool := v.hasLargeElim
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration where
@@ -276,28 +301,43 @@ structure InductiveVal extends ConstantVal where
   Section 2.2, Definition 3
   -/
   isReflexive : Bool
+  isImpredicative : Bool
+  isK : Bool
+  hasProjections : Bool
+  hasEta : Bool
+  hasLargeElim : Bool
 
   deriving Inhabited, BEq
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numParams numIndices : Nat)
-    (all ctors : List Name) (numNested : Nat) (isRec isUnsafe isReflexive : Bool) : InductiveVal := {
-  name := name
-  levelParams := levelParams
-  type := type
-  numParams := numParams
-  numIndices := numIndices
-  all := all
-  ctors := ctors
-  numNested := numNested
-  isRec := isRec
-  isUnsafe := isUnsafe
-  isReflexive := isReflexive
+    (all ctors : List Name) (numNested : Nat) (isRec isUnsafe isReflexive isImpredicative isK hasProjections hasEta hasLargeElim : Bool) : InductiveVal := {
+  name
+  levelParams
+  type
+  numParams
+  numIndices
+  all
+  ctors
+  numNested
+  isRec
+  isUnsafe
+  isReflexive
+  isImpredicative
+  isK
+  hasProjections
+  hasEta
+  hasLargeElim
 }
 
 @[export lean_inductive_val_is_rec] def InductiveVal.isRecEx (v : InductiveVal) : Bool := v.isRec
 @[export lean_inductive_val_is_unsafe] def InductiveVal.isUnsafeEx (v : InductiveVal) : Bool := v.isUnsafe
 @[export lean_inductive_val_is_reflexive] def InductiveVal.isReflexiveEx (v : InductiveVal) : Bool := v.isReflexive
+@[export lean_inductive_val_is_impredicative] def InductiveVal.isImpredicativeEx (v : InductiveVal) : Bool := v.isImpredicative
+@[export lean_inductive_val_is_k] def InductiveVal.isKEx (v : InductiveVal) : Bool := v.isK
+@[export lean_inductive_val_has_projections] def InductiveVal.hasProjectionsEx (v : InductiveVal) : Bool := v.hasProjections
+@[export lean_inductive_val_has_eta] def InductiveVal.hasEtaEx (v : InductiveVal) : Bool := v.hasEta
+@[export lean_inductive_val_has_large_elim] def InductiveVal.hasLargeElimEx (v : InductiveVal) : Bool := v.hasLargeElim
 
 def InductiveVal.numCtors (v : InductiveVal) : Nat := v.ctors.length
 def InductiveVal.isNested (v : InductiveVal) : Bool := v.numNested > 0

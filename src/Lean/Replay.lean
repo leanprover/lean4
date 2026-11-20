@@ -115,9 +115,16 @@ partial def replayConstant (name : Name) : M Unit := do
             for ctor in ctors do
               replayConstants ctor.getUsedConstantsAsSet
           let types : List InductiveType := ctorInfo.map fun ⟨ci, ctors⟩ =>
+            let ci := ci.inductiveVal!
             { name := ci.name
               type := ci.type
-              ctors := ctors.map fun ci => { name := ci.name, type := ci.type } }
+              ctors := ctors.map fun ci => { name := ci.name, type := ci.type }
+              isImpredicative := ci.isImpredicative
+              isK := ci.isK
+              hasProjections := ci.hasProjections
+              hasEta := ci.hasEta
+              hasLargeElim := ci.hasLargeElim
+              }
           addDecl (Declaration.inductDecl lparams nparams types false)
         -- We postpone checking constructors,
         -- and at the end make sure they are identical

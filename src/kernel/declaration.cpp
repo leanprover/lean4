@@ -72,22 +72,33 @@ recursor_rule::recursor_rule(name const & cnstr, size_t nfields, expr const & rh
 }
 
 extern "C" object * lean_mk_inductive_val(object * n, object * lparams, object * type, object * nparams, object * nindices,
-                                          object * all, object * cnstrs, object * nnested, uint8 rec, uint8 unsafe, uint8 is_refl);
-extern "C" uint8 lean_inductive_val_is_rec(object * v);
-extern "C" uint8 lean_inductive_val_is_unsafe(object * v);
-extern "C" uint8 lean_inductive_val_is_reflexive(object * v);
+                                          object * all, object * cnstrs, object * nnested, uint8 rec, uint8 unsafe, uint8 is_refl, uint8 is_impred, uint8 is_k, uint8 has_projections, uint8 has_eta, uint8 has_large_elim);
 
 inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, size_t nparams,
                              size_t nindices, names const & all, names const & cnstrs, size_t nnested,
-                             bool rec, bool unsafe, bool is_refl):
+                             bool rec, bool unsafe, bool is_refl, bool is_impred, bool is_k, bool has_projections, bool has_eta, bool has_large_elim):
     object_ref(lean_mk_inductive_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), nat(nparams).to_obj_arg(),
                                      nat(nindices).to_obj_arg(), all.to_obj_arg(), cnstrs.to_obj_arg(),
-                                     nat(nnested).to_obj_arg(), rec, unsafe, is_refl)) {
+                                     nat(nnested).to_obj_arg(), rec, unsafe, is_refl, is_impred, is_k, has_projections, has_eta, has_large_elim)) {
 }
+
+extern "C" uint8 lean_inductive_val_is_rec(object * v);
+extern "C" uint8 lean_inductive_val_is_unsafe(object * v);
+extern "C" uint8 lean_inductive_val_is_reflexive(object * v);
+extern "C" uint8 lean_inductive_val_is_impredicative(object * v);
+extern "C" uint8 lean_inductive_val_is_k(object * v);
+extern "C" uint8 lean_inductive_val_has_projections(object * v);
+extern "C" uint8 lean_inductive_val_has_eta(object * v);
+extern "C" uint8 lean_inductive_val_has_large_elim(object * v);
 
 bool inductive_val::is_rec() const { return lean_inductive_val_is_rec(to_obj_arg()); }
 bool inductive_val::is_unsafe() const { return lean_inductive_val_is_unsafe(to_obj_arg()); }
 bool inductive_val::is_reflexive() const { return lean_inductive_val_is_reflexive(to_obj_arg()); }
+bool inductive_val::is_impredicative() const { return lean_inductive_val_is_impredicative(to_obj_arg()); }
+bool inductive_val::is_k() const { return lean_inductive_val_is_k(to_obj_arg()); }
+bool inductive_val::has_projections() const { return lean_inductive_val_has_projections(to_obj_arg()); }
+bool inductive_val::has_eta() const { return lean_inductive_val_has_eta(to_obj_arg()); }
+bool inductive_val::has_large_elim() const { return lean_inductive_val_has_large_elim(to_obj_arg()); }
 
 extern "C" object * lean_mk_constructor_val(object * n, object * lparams, object * type, object * induct,
                                             object * cidx, object * nparams, object * nfields, uint8 unsafe);
@@ -174,9 +185,24 @@ declaration mk_definition_inferring_unsafe(environment const & env, name const &
     return mk_definition(n, params, t, v, hints, to_safety(unsafe));
 }
 
-inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs):
-    object_ref(mk_cnstr(0, id, type, cnstrs)) {
+extern "C" object * lean_mk_inductive_type(object * name, object * type, object * ctors, uint8 is_impredicative, uint8 is_k, uint8 has_projections, uint8 has_eta, uint8 has_large_elim);
+
+inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs, bool const & is_impredicative, bool const & is_k, bool const & has_projections, bool const & has_eta, bool const & has_large_elim):
+    object_ref(lean_mk_inductive_type(id.to_obj_arg(), type.to_obj_arg(), cnstrs.to_obj_arg(),
+                                      is_impredicative, is_k, has_projections, has_eta, has_large_elim)) {
 }
+
+extern "C" uint8 lean_inductive_type_is_impredicative(object * v);
+extern "C" uint8 lean_inductive_type_is_k(object * v);
+extern "C" uint8 lean_inductive_type_has_projections(object * v);
+extern "C" uint8 lean_inductive_type_has_eta(object * v);
+extern "C" uint8 lean_inductive_type_has_large_elim(object * v);
+
+bool inductive_type::is_impredicative() const { return lean_inductive_type_is_impredicative(to_obj_arg()); }
+bool inductive_type::is_k() const { return lean_inductive_type_is_k(to_obj_arg()); }
+bool inductive_type::has_projections() const { return lean_inductive_type_has_projections(to_obj_arg()); }
+bool inductive_type::has_eta() const { return lean_inductive_type_has_eta(to_obj_arg()); }
+bool inductive_type::has_large_elim() const { return lean_inductive_type_has_large_elim(to_obj_arg()); }
 
 extern "C" object * lean_mk_inductive_decl(object * lparams, object * nparams, object * types, uint8 unsafe);
 extern "C" uint8 lean_is_unsafe_inductive_decl(object * d);

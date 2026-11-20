@@ -24,12 +24,12 @@ name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
-/** \brief Return true if the given declaration is a non-recursive structure (an inductive type with one constructor and no indices). */
-bool is_non_rec_structure(environment const & env, name const & decl_name) {
+/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
+bool has_eta(environment const & env, name const & decl_name) {
     constant_info I = env.get(decl_name);
     if (!I.is_inductive()) return false;
     inductive_val I_val = I.to_inductive_val();
-    return I_val.get_ncnstrs() == 1 && I_val.get_nindices() == 0 && !I_val.is_rec();
+    return I_val.has_eta();
 }
 
 bool is_constructor(environment const & env, name const & n) {
@@ -157,7 +157,7 @@ class add_inductive_fn {
     name_generator         m_ngen;
     diagnostics *          m_diag;
     local_ctx              m_lctx;
-    names      m_lparams;
+    names                  m_lparams;
     size_t                 m_nparams;
     bool                   m_is_unsafe;
     buffer<inductive_type> m_ind_types;
@@ -168,11 +168,14 @@ class add_inductive_fn {
     /* We track whether the resultant universe cannot be zero for any
        universe level instantiation */
     bool                   m_is_not_zero;
+    bool                   m_is_impredicative;
+    bool                   m_has_large_elim;
     /* A free variable for each parameter */
     buffer<expr>           m_params;
     /* A constant for each inductive type */
     buffer<expr>           m_ind_cnsts;
-
+    buffer<bool>           m_has_projs;
+    buffer<bool>           m_has_eta;
     level                  m_elim_level;
     bool                   m_K_target;
 
@@ -237,6 +240,8 @@ public:
        - m_nindices
        - m_ind_cnsts
        - m_params
+       - m_is_impredicative
+       - m_has_large_elim
 
        \remark The local context m_lctx contains the free variables in m_params. */
     void check_inductive_types() {
@@ -278,10 +283,22 @@ public:
             if (first) {
                 m_result_level = sort_level(type);
                 m_is_not_zero  = is_not_zero(m_result_level);
-            } else if (!is_equivalent(sort_level(type), m_result_level)) {
-                throw kernel_exception(m_env, "mutually inductive types must live in the same universe");
+                m_has_large_elim = ind_type.has_large_elim();
+                m_is_impredicative = ind_type.is_impredicative();
+                if (m_is_impredicative && !normalizes_to_zero(m_result_level)) {
+                    throw kernel_exception(m_env, "inductive datatype marked as impredicative must always live in Prop");
+                }
+            } else {
+                if (!is_equivalent(sort_level(type), m_result_level)) {
+                    throw kernel_exception(m_env, "mutually defined inductive types must live in the same universe");
+                }
+                if (ind_type.is_impredicative() != m_is_impredicative) {
+                    throw kernel_exception(m_env, "mutually defined inductive types must all have the same impredicativity tag");
+                }
+                if (ind_type.has_large_elim() != m_has_large_elim) {
+                    throw kernel_exception(m_env, "mutually defined inductive types must all have the same large elimination tag");
+                }
             }
-
             m_ind_cnsts.push_back(mk_constant(ind_type.get_name(), m_levels));
             first = false;
         }
@@ -358,7 +375,7 @@ public:
             }
             m_env.check_name(n);
             m_env.add_core(constant_info(inductive_val(n, m_lparams, ind_type.get_type(), m_nparams, m_nindices[idx],
-                                                       all, names(cnstr_names), m_nnested, rec, m_is_unsafe, reflexive)));
+                                                       all, names(cnstr_names), m_nnested, rec, m_is_unsafe, reflexive, m_is_impredicative, m_K_target, m_has_projs[idx], m_has_eta[idx], m_has_large_elim)));
         }
     }
 
@@ -465,9 +482,9 @@ public:
                     } else {
                         expr s = tc().ensure_type(binding_domain(t));
                         // the sort is ok IF
-                        //   1- its level is <= inductive datatype level, OR
-                        //   2- is an inductive predicate
-                        if (!(is_geq(m_result_level, sort_level(s)) || normalizes_to_zero(m_result_level))) {
+                        //   1- the type is impredicative, OR
+                        //   2- its level is <= inductive datatype level
+                        if (!(m_is_impredicative || is_geq(m_result_level, sort_level(s)))) {
                             throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }
@@ -506,67 +523,34 @@ public:
         }
     }
 
-    /** \brief Return true if recursor can only map into Prop */
-    bool elim_only_at_universe_zero() {
-        if (m_is_not_zero) {
+    /** \brief Throws an error if \c m_has_large_elim is set but the recursor can only map into Prop. A type can largely eliminate if it either never lives in \c Prop, or is not mutual, not impredicative and either:
+        * Has no constructor (e.g. \c False)
+        * Has eta (i.e. is a non-recursive structure, e.g. \c And , \c PSigma)
+        * has rule K (i.e. has one constructor with no fields, e.g. \c Eq) */
+    void check_large_elim() {
+        if (!m_has_large_elim)
+            return;
+        if (m_is_impredicative)
+            throw kernel_exception(m_env, sstream() << "Type is incorrectly marked as having large elimination");
+        if (m_is_not_zero)
             /* For every universe parameter assignment, the resultant universe is not 0.
                So, it is not an inductive predicate */
-            return false;
-        }
-
-        if (m_ind_types.size() > 1) {
+            return;
+        if (m_ind_types.size() > 1)
             /* Mutually recursive inductive predicates only eliminate into Prop. */
-            return true;
-        }
-
+            throw kernel_exception(m_env, sstream() << "Type is incorrectly marked as having large elimination");
         size_t num_intros = length(m_ind_types[0].get_cnstrs());
-        if (num_intros > 1) {
-            /* We have more than one constructor, then recursor for inductive predicate
-               can only eliminate intro Prop. */
-            return true;
-        }
-
-        if (num_intros == 0) {
+        if (num_intros == 0)
             /* empty inductive predicate (e.g., `false`) can eliminate into any universe */
-            return false;
-        }
-
-        /* We have only one constructor, the final check is, the type of each argument
-           that is not a parameter:
-            1- It must live in Prop, *OR*
-            2- It must occur in the return type. (this is essentially what is called a non-uniform parameter in Coq).
-               We can justify 2 by observing that this information is not a *secret* it is part of the type.
-               By eliminating to a non-proposition, we would not be revealing anything that is not already known. */
-        constructor const & cnstr = head(m_ind_types[0].get_cnstrs());
-        expr type  = constructor_type(cnstr);
-        size_t i = 0;
-        buffer<expr> to_check; /* Arguments that we must check if occur in the result type */
-        while (is_pi(type)) {
-            expr fvar = mk_local_decl_for(type);
-            if (i >= m_nparams) {
-                expr s = tc().ensure_type(binding_domain(type));
-                if (!normalizes_to_zero(sort_level(s))) {
-                    /* Current argument is not in Prop (i.e., condition 1 failed).
-                       We save it in to_check to be able to try condition 2 above. */
-                    to_check.push_back(fvar);
-                }
-            }
-            type = instantiate(binding_body(type), fvar);
-            i++;
-        }
-        buffer<expr> result_args;
-        get_app_args(type, result_args);
-        /* Check condition 2: every argument in to_check must occur in result_args */
-        for (expr const & arg : to_check) {
-            if (std::find(result_args.begin(), result_args.end(), arg) == result_args.end())
-                return true; /* Condition 2 failed */
-        }
-        return false;
+            return;
+        if (num_intros == 1 && (m_has_eta[0] || m_K_target))
+            return;
+        throw kernel_exception(m_env, sstream() << "Type is incorrectly marked as having large elimination");
     }
 
     /** \brief Initialize m_elim_level. */
     void init_elim_level() {
-        if (elim_only_at_universe_zero()) {
+        if (!m_has_large_elim) {
             m_elim_level = mk_level_zero();
         } else {
             name u("u");
@@ -580,15 +564,15 @@ public:
     }
 
     void init_K_target() {
-        /* A declaration is target for K-like reduction when
-           it has one intro, the intro has 0 arguments, and it is an inductive predicate.
-           In the following for-loop we check if the intro rule has 0 fields. */
-        m_K_target =
-            m_ind_types.size() == 1 &&              /* It is not a mutual declaration (for simplicity, we don't gain anything by supporting K in mutual declarations. */
-            normalizes_to_zero(m_result_level) &&   /* It is an inductive predicate. */
-            length(m_ind_types[0].get_cnstrs()) == 1; /* Inductive datatype has only one constructor. */
+        m_K_target = m_ind_types[0].is_k();
         if (!m_K_target)
             return;
+        if (!(m_ind_types.size() == 1 && /* It is not a mutual declaration (for simplicity, we don't gain anything by supporting K in mutual declarations. */
+            normalizes_to_zero(m_result_level) &&   /* It is an inductive predicate. */
+            length(m_ind_types[0].get_cnstrs()) == 1 /* Inductive datatype has only one constructor.*/
+            )) {
+            throw kernel_exception(m_env, sstream() << "Type is incorrectly marked as K-like");
+            }
         expr it = constructor_type(head(m_ind_types[0].get_cnstrs()));
         size_t i = 0;
         while (is_pi(it)) {
@@ -596,11 +580,39 @@ public:
                 it = binding_body(it);
             } else {
                 /* See comment above */
-                m_K_target = false;
-                break;
+                throw kernel_exception(m_env, sstream() << "Type is incorrectly marked as K-like");
             }
             i++;
         }
+    }
+
+    void init_projs_eta() {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
+            inductive_type const & ind_type = m_ind_types[idx];
+            if (!ind_type.has_projections()) {
+                if (ind_type.has_eta())
+                    throw kernel_exception(m_env, sstream() << "Type cannot have eta with no projections");
+                m_has_projs.push_back(false);
+                m_has_eta.push_back(false);
+                continue;
+            }
+            constructors cnstrs = ind_type.get_cnstrs();
+            if (length(cnstrs) != 1)
+                throw kernel_exception(m_env, sstream() << "Type cannot have projections: it doesn't have exactly one constructor");
+            if (m_nindices[idx] != 0)
+                throw kernel_exception(m_env, sstream() << "Types cannot have projections: it has indices");
+            if (m_is_impredicative)
+                throw kernel_exception(m_env, sstream() << "Impredicative types cannot have projections");
+            m_has_projs.push_back(true);
+            if (ind_type.has_eta()) {
+                if (is_rec())
+                    throw kernel_exception(m_env, sstream() << "Recursive types cannot be eta-expandable");
+                m_has_eta.push_back(true);
+            } else {
+                m_has_eta.push_back(false);
+            }
+        }
+
     }
 
     /** \brief Given `t` of the form `I As is` where `I` is one of the inductive datatypes being defined,
@@ -856,11 +868,13 @@ public:
     environment operator()() {
         m_env.check_duplicated_univ_params(m_lparams);
         check_inductive_types();
+        init_projs_eta();
+        init_K_target();
+        check_large_elim();
+        init_elim_level();
         declare_inductive_types();
         check_constructors();
         declare_constructors();
-        init_elim_level();
-        init_K_target();
         mk_rec_infos();
         declare_recursors();
         check_recursors();
@@ -1086,8 +1100,8 @@ struct elim_nested_inductive_fn {
             /* We should copy all inductive datatypes `J` in the mutual declaration containing `I` to
                the `m_new_types` mutual declaration as new auxiliary types. */
             for (name const & J_name : I_val->get_all()) {
-                constant_info J_info = m_env.get(J_name);
-                lean_assert(J_info.is_inductive());
+                constant_info J_info = m_env.get(J_name).to_inductive_val();
+                inductive_val J_ind_val = J_info.to_inductive_val();
                 expr J               = mk_constant(J_name, I_lvls);
                 expr JAs             = mk_app(J, I_nparams, args.data());
                 name auxJ_name       = mk_unique_name(*g_nested + J_name);
@@ -1102,7 +1116,7 @@ struct elim_nested_inductive_fn {
                     result    = mk_app(auxI, args.size() - I_nparams, args.data() + I_nparams);
                 }
                 buffer<constructor> auxJ_constructors;
-                for (name const & J_cnstr_name : J_info.to_inductive_val().get_cnstrs()) {
+                for (name const & J_cnstr_name : J_ind_val.get_cnstrs()) {
                     constant_info J_cnstr_info = m_env.get(J_cnstr_name);
                     name auxJ_cnstr_name = J_cnstr_name.replace_prefix(J_name, auxJ_name);
                     /* auxJ_cnstr_type still has references to `J`, this will be fixed later when we process it. */
@@ -1111,7 +1125,8 @@ struct elim_nested_inductive_fn {
                     auxJ_cnstr_type         = lctx.mk_pi(As, auxJ_cnstr_type);
                     auxJ_constructors.push_back(constructor(auxJ_cnstr_name, auxJ_cnstr_type));
                 }
-                m_new_types.push_back(inductive_type(auxJ_name, auxJ_type, constructors(auxJ_constructors)));
+                // Nesting under structures is okay, but marking nested structures with `hasEta` would lead to an error when checking the validity of the flag. We thus disable the flag in the aux translation of the nested occurence.
+                m_new_types.push_back(inductive_type(auxJ_name, auxJ_type, constructors(auxJ_constructors), m_new_types[0].is_impredicative(), J_ind_val.is_k(), J_ind_val.has_projections(), false, m_new_types[0].has_large_elim()));
             }
             lean_assert(result);
             return result;
@@ -1159,7 +1174,10 @@ struct elim_nested_inductive_fn {
                 new_cnstr_type = lctx.mk_pi(As, new_cnstr_type);
                 new_cnstrs.push_back(constructor(constructor_name(cnstr), new_cnstr_type));
             }
-            m_new_types[qhead] = inductive_type(ind_type.get_name(), ind_type.get_type(), constructors(new_cnstrs));
+            m_new_types[qhead] = inductive_type(ind_type.get_name(), ind_type.get_type(), constructors(new_cnstrs),
+                                                ind_type.is_impredicative(), ind_type.is_k(),
+                                                ind_type.has_projections(), ind_type.has_eta(), ind_type.has_large_elim());
+
             qhead++;
         }
         declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_unsafe());
@@ -1287,7 +1305,7 @@ environment environment::add_inductive(declaration const & d) const {
             new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
                                                          all_ind_names, ind_val.get_cnstrs(), ind_val.get_nnested(),
-                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive())));
+                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive(), ind_val.is_impredicative(), ind_val.is_k(), ind_val.has_projections(), ind_val.has_eta(), ind_val.has_large_elim())));
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();

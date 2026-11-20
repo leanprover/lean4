@@ -17,11 +17,21 @@ open Lean
   addDecl <| .inductDecl [] 0 [
     { name := `KMDummy
       type := .sort .zero
-      ctors := [{ name := `KMDummy.intro, type := .const `KMDummy [] }] },
+      ctors := [{ name := `KMDummy.intro, type := .const `KMDummy [] }]
+      isImpredicative := true
+      isK := false
+      hasProjections := false
+      hasEta := false
+      hasLargeElim := false },
     { name := `KMWeird
       type := .sort (.imax (.succ .zero) .zero)
       ctors := [{ name := `KMWeird.mk
-                  type := .forallE `value (.const ``Bool []) (.const `KMWeird []) .default }] }
+                  type := .forallE `value (.const ``Bool []) (.const `KMWeird []) .default }]
+      isImpredicative := true
+      isK := false
+      hasProjections := false
+      hasEta := false
+      hasLargeElim := false }
   ] false
 
 def KMAsProp : Prop := KMWeird

@@ -158,24 +158,23 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
   matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal => do
     unless structVal.name == structName do
       failed ()
-    let structTypeArgs := structType.getAppArgs
-    if structVal.numParams + structVal.numIndices != structTypeArgs.size then
+    unless structVal.hasProjections do
       failed ()
-    else do
-      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[*...<structVal.numParams]
-      for i in *...idx do
-        ctorType ← whnf ctorType
-        match ctorType with
-        | .forallE _ _ body _ =>
-          if body.hasLooseBVars then
-            ctorType := body.instantiate1 <| mkProj structName i e
-          else
-            ctorType := body
-        | _ => failed ()
+    let structTypeArgs := structType.getAppArgs
+    let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[*...<structVal.numParams]
+    for i in *...idx do
       ctorType ← whnf ctorType
       match ctorType with
-      | .forallE _ d _ _ => return d.consumeTypeAnnotations
-      | _                => failed ()
+      | .forallE _ _ body _ =>
+        if body.hasLooseBVars then
+          ctorType := body.instantiate1 <| mkProj structName i e
+        else
+          ctorType := body
+      | _ => failed ()
+    ctorType ← whnf ctorType
+    match ctorType with
+    | .forallE _ d _ _ => return d.consumeTypeAnnotations
+    | _                => failed ()
 
 def throwTypeExpected {α} (type : Expr) : MetaM α :=
   throwError "type expected{indentExpr type}"

@@ -181,7 +181,7 @@ def Name.demangleAux (s : String) (p₀ : s.Pos) (res : Name)
   else if ch.isDigit then
     let res := res.str (acc.pushn '_' (ucount / 2))
     if h : ch = '0' ∧ ∃ h : p ≠ s.endPos, p.get h = '0' then
-      demangleAux s (p.next h.2.1) res "" 0
+      demangleAux s (p.next h.2.fst) res "" 0
     else
       decodeNum s p res (ch.val - 48).toNat
   else
@@ -222,7 +222,7 @@ where
     let p := p.next h
     if ch.isDigit then
       if h : ch = '0' ∧ ∃ h : p ≠ s.endPos, p.get h = '0' then
-        demangleAux s (p.next h.2.1) res "" 0
+        demangleAux s (p.next h.2.fst) res "" 0
       else
         decodeNum s p res (ch.val - 48).toNat
     else if ch = '_' then

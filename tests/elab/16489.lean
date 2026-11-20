@@ -7,7 +7,8 @@ def decl : Declaration :=
     [{ name := `T, type := .forallE `a (.sort 1) (.sort 1) .default,
        ctors := [{ name := `T.mk,
                    type := .forallE `a (.sort 1)
-                             (.forallE `y (.bvar 1) (.app (.const `T []) (.bvar 1)) .default) .default }] }]
+                             (.forallE `y (.bvar 1) (.app (.const `T []) (.bvar 1)) .default) .default }],
+       isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := false }]
     false
 
 /--

@@ -1443,6 +1443,85 @@ private def addTermInfoViews (views : Array InductiveView) : TermElabM Unit := -
           Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
           enableRealizationsForConst ctor.declName
 
+def getNestedOccurences (indFVars : Array Expr) (indTypes : List InductiveType) : MetaM NameSet := do
+  let indTypeNames := Std.HashSet.ofList (indTypes.map (·.name))
+  trace[Elab.inductive] "indTypeNames : {indTypeNames.toArray}"
+  let mut nestedOccs ← IO.mkRef {}
+  for indType in indTypes do
+    for ctor in indType.ctors do
+      -- This can be further optimised if need be
+      ctor.type.forEach fun e => e.withApp fun fn args => do
+        if fn.isConst && args.any (·.hasAnyFVar (indFVars.contains <| .fvar ·)) then
+          nestedOccs.modify fun nestedOccs => nestedOccs.insert fn.constName!
+  return ← nestedOccs.get
+
+def inferInductiveFlags (numParams : Nat) (indFVars : Array Expr) (indTypes : List InductiveType) : MetaM (List InductiveType) := withoutExporting do
+  let mut indTypes := indTypes
+  if ← inferImpredicative indTypes then
+    indTypes := indTypes.map fun indType => {indType with isImpredicative := true}
+  if ← inferIsK indTypes then
+    indTypes := indTypes.map fun indType => {indType with isK := true}
+  indTypes ← indTypes.mapM fun indType => return {indType with hasProjections := ← inferHasProjs indType}
+  indTypes ← indTypes.mapM fun indType => return {indType with hasEta := ← inferHasEta indType}
+  if ← inferLargeElim indTypes then
+    indTypes := indTypes.map fun indType => {indType with hasLargeElim := true}
+  return indTypes
+where
+  inferImpredicative (indTypes : List InductiveType): MetaM Bool := do
+    let some indSort ← typeFormerTypeLevel indTypes[0]!.type | throwError "Internal error: {indTypes[0]!.type} is not a type family"
+    unless indSort.isAlwaysZero do
+      return false
+    /- If the type is nested under impredicative types, its mutual translation needs all types to have the same impredicativity markers. Translating a non-impredicative nested type into an impredicative one in the mutual translation is okay and allowed on the contrary. -/
+    let nestedOccs := (← getNestedOccurences indFVars indTypes).toArray
+    for nestedOcc in nestedOccs do
+      let nestedInd ← getConstInfo nestedOcc
+      if let .inductInfo {isImpredicative := true, ..} := nestedInd then
+        return true
+    for indType in indTypes do
+      for ctor in indType.ctors do
+        forallTelescopeReducing ctor.type fun xs _ => do←
+          for fvar in xs[numParams:] do
+            let fvarSort ← inferType (← inferType fvar)
+            unless indSort.geq fvarSort.sortLevel! do
+              return true
+    return false
+
+  inferIsK (indTypes : List InductiveType): MetaM Bool := do
+    let [{type, ctors := [ctor], isImpredicative := false, ..}] := indTypes | return false
+    let some indSort ← typeFormerTypeLevel type | throwError "Internal error: {indTypes[0]!.type} is not a type family"
+    unless indSort.isAlwaysZero do
+      return false
+    forallTelescopeReducing ctor.type fun xs _ =>
+      return xs.size = numParams
+
+  inferHasProjs (indType : InductiveType): MetaM Bool := do
+    let {ctors := [_], isImpredicative := false, ..} := indType | return false
+    forallTelescopeReducing indType.type fun xs _ => do
+      return xs.size = numParams
+
+  inferHasEta (indType : InductiveType): MetaM Bool := do
+    unless indType.hasProjections do
+      return false
+    for {type,..} in indType.ctors do
+      let noRecFields ← forallTelescopeReducing type fun xs _ => do
+        for fvar in xs[numParams:] do
+          let fieldTy ← inferType fvar
+          if fieldTy.hasAnyFVar (indFVars.contains <| .fvar ·) then
+            return false
+        return true
+      unless noRecFields do
+        return false
+    return true
+
+  inferLargeElim (indTypes : List InductiveType): MetaM Bool := do
+    let some indSort ← typeFormerTypeLevel indTypes[0]!.type | throwError "Internal error: {indTypes[0]!.type} is not a type family"
+    if indSort.isNeverZero then
+      return true
+    let [indType] := indTypes | return false
+    if indType.isImpredicative then
+      return false
+    return indType.ctors.isEmpty || indType.hasEta || indType.isK
+
 private def mkInductiveDeclCore
   (callback : AddAndFinalizeContext → TermElabM α) (vars : Array Expr)
   (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name) : TermElabM α := do
@@ -1466,7 +1545,9 @@ private def mkInductiveDeclCore
       let elab' ← Term.withDeprecationContextFromAttrs views[i].modifiers.attrs <|
         elabs[i]!.elabCtors rs r params
       elabs'    := elabs'.push elab'
-      indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors }
+      /-Since some flags can change depending on mvar instantiation, universe inference and indices promotions, we instantiate them correctly later than here -/
+      indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors,
+                                            isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := false }
     Term.synthesizeSyntheticMVarsNoPostponing
     let indTypes ← indTypesArray.toList.mapM instantiateMVarsAtInductive
     /- Constructor elaboration complete. -/
@@ -1505,6 +1586,7 @@ private def mkInductiveDeclCore
         ensureNoUnassignedLevelMVarsAtInductives views indTypes
         checkResultingUniverses views elabs' numParams indTypes
       let usedLevelNames := collectLevelParamsInInductive indTypes
+      let indTypes ← inferInductiveFlags numParams indFVars indTypes
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
       | .error msg      => throwErrorAt view0.declId msg
       | .ok levelParams =>

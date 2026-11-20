@@ -191,7 +191,7 @@ def pop (t : PersistentArray α) : PersistentArray α :=
       let newSize    := t.size - 1
       let newTailOff := newSize - last.size
       if h : ∃ _ : newRoots.size = 1, newRoots[0].isNode then
-        { root    := newRoots[0]'(have := h.1; by omega),
+        { root    := newRoots[0]'(have := h.fst; by omega),
           shift   := t.shift - initShift,
           size    := newSize,
           tail    := last,

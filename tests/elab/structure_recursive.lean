@@ -144,7 +144,21 @@ inductive I1 where
 
 inductive I2 : Nat → Type where
   | mk (x : Nat) (xs : I2 (x + 1)) : I2 x
-/-- info: fun v => v.1 : I2 2 → Nat -/
+/--
+error: invalid projection
+  v.1
+from type
+  I2 2
+---
+info: fun v => sorry : (v : I2 2) → ?m.3 v
+-/
 #guard_msgs in #check fun (v : I2 2) => v.1
-/-- info: fun v => v.2 : (v : I2 2) → I2 (v.1 + 1) -/
+/--
+error: invalid projection
+  v.2
+from type
+  I2 2
+---
+info: fun v => sorry : (v : I2 2) → ?m.3 v
+-/
 #guard_msgs in #check fun (v : I2 2) => v.2

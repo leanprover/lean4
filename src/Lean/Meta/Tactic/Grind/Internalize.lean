@@ -396,7 +396,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
   unless (← getConfig).etaStruct do return ()
   let aType ← whnf (← inferType a)
   matchConstNonRecStructure aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
-    unless a.isAppOf ctorVal.name do
+    unless inductVal.hasEta && a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
         let params := aType.getAppArgs[*...inductVal.numParams]

@@ -289,13 +289,13 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
 @[simp] theorem pmap_attach {l : List α} {p : {x // x ∈ l} → Prop} {f : ∀ a, p a → β} (H) :
     pmap f l.attach H =
       l.pmap (P := fun a => ∃ h : a ∈ l, p ⟨a, h⟩)
-        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
+        (fun a h => f ⟨a, h.fst⟩ h.snd) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
   apply ext_getElem <;> simp
 
 @[simp] theorem pmap_attachWith {l : List α} {p : {x // q x} → Prop} {f : ∀ a, p a → β} (H₁ H₂) :
     pmap f (l.attachWith q H₁) H₂ =
       l.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
-        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
+        (fun a h => f ⟨a, h.fst⟩ h.snd) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
   apply ext_getElem <;> simp
 
 @[simp, grind =] theorem head?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : List α}

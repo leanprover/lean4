@@ -377,6 +377,11 @@ public partial def dumpConstant (c : Name) : M Unit := do
           ("isRec", indVal.isRec),
           ("isReflexive", indVal.isReflexive),
           ("isUnsafe", indVal.isUnsafe),
+          ("isImpredicative", indVal.isImpredicative),
+          ("isK", indVal.isK),
+          ("hasProjections", indVal.hasProjections),
+          ("hasEta", indVal.hasEta),
+          ("hasLargeElim", indVal.hasLargeElim),
       ]
     let ctorValsJson ← ctorVals.mapM <| fun ctorVal => do
       pure <| Json.mkObj [

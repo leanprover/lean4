@@ -1694,7 +1694,7 @@ theorem insertMany_ind {motive : DHashMap α β → Prop} (m : DHashMap α β) (
     motive (m.insertMany l) :=
   (Raw₀.insertMany_ind ⟨m.1, _⟩ l ⟨m.2, init⟩
     (fun m a b ⟨h, h'⟩ => ⟨h.insert₀, insert ⟨m, h⟩ a b h'⟩) :
-    ∃ h, motive ⟨(Raw₀.insertMany _ l).1, h⟩).2
+    ∃ h, motive ⟨(Raw₀.insertMany _ l).1, h⟩).snd
 
 @[simp, grind =]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α]
@@ -2916,7 +2916,7 @@ theorem insertMany_ind {motive : DHashMap α (fun _ => β) → Prop} (m : DHashM
     motive (insertMany m l) :=
   (Raw₀.Const.insertMany_ind ⟨m.1, _⟩ l ⟨m.2, init⟩
     (fun m a b ⟨h, h'⟩ => ⟨h.insert₀, insert ⟨m, h⟩ a b h'⟩) :
-    ∃ h, motive ⟨(Raw₀.Const.insertMany _ l).1, h⟩).2
+    ∃ h, motive ⟨(Raw₀.Const.insertMany _ l).1, h⟩).snd
 
 @[simp, grind =]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α]
@@ -3123,7 +3123,7 @@ theorem insertManyIfNewUnit_ind {motive : DHashMap α (fun _ => Unit) → Prop}
     motive (insertManyIfNewUnit m l) :=
   (Raw₀.Const.insertManyIfNewUnit_ind ⟨m.1, _⟩ l ⟨m.2, init⟩
     (fun m a ⟨h, h'⟩ => ⟨h.insertIfNew₀, insert ⟨m, h⟩ a h'⟩) :
-    ∃ h, motive ⟨(Raw₀.Const.insertManyIfNewUnit _ l).1, h⟩).2
+    ∃ h, motive ⟨(Raw₀.Const.insertManyIfNewUnit _ l).1, h⟩).snd
 
 @[simp]
 theorem contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]

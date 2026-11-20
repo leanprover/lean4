@@ -189,8 +189,8 @@ where
         k a' b'
 
   go ctorVal us := do
-    if !isNonRecStructure (← getEnv) ctorVal.induct then
-      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+    if !hasEta (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure with eta{indentExpr b}"
       return false
     if !(← isDefEq (← inferType a) (← inferType b)) then
       return false

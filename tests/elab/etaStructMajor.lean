@@ -26,7 +26,7 @@ def Omega : True' := delta omega
 
 def loopAcc : Acc (fun _ _ : Nat => False) 0 := Omega _ (Acc.intro 0 fun _ h => h.elim)
 noncomputable def loopPair : Nat × Nat :=
-  Acc.rec (motive := fun _ _ => Nat × Nat) (fun _ _ _ => (0, 0)) loopAcc
+  Acc.rec' (motive := fun _ _ => Nat × Nat) (fun _ _ _ => (0, 0)) loopAcc
 noncomputable def prodConst (p : Nat × Nat) : Nat := Prod.rec (motive := fun _ => Nat) (fun _ _ => 1) p
 
 theorem prodMajorNoWhnf : prodConst loopPair = 1 := by unchecked_rfl

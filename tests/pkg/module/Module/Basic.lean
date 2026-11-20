@@ -375,6 +375,69 @@ constructor:
 #with_exporting
 #check StructWithPrivateCtor.mk
 
+/-! Tactics that select a constructor should respect private constructors as well. -/
+
+public inductive IndWithPrivateCtors where
+  | private a (x : Nat)
+  | private b (x : Nat)
+
+public inductive IndWithPrivateFirstCtor where
+  | private a (x : Nat)
+  | b (x : Nat)
+
+public inductive IndWithPrivateSecondCtor where
+  | a (x : Nat)
+  | private b (x : Nat)
+
+public inductive PropWithPrivateCtor : Prop where
+  | private intro
+
+#check (by constructor; exact 1 : StructWithPrivateCtor)
+
+/--
+error: Tactic `constructor` failed: constructor `StructWithPrivateCtor.mk✝` is marked as private
+
+⊢ StructWithPrivateCtor
+-/
+#guard_msgs in
+#with_exporting
+#check (by constructor; exact 1 : StructWithPrivateCtor)
+
+#check (by left; exact 1 : IndWithPrivateCtors)
+
+/--
+error: Tactic `left` failed: constructor `IndWithPrivateCtors.a✝` is marked as private
+
+⊢ IndWithPrivateCtors
+-/
+#guard_msgs in
+#with_exporting
+#check (by left; exact 1 : IndWithPrivateCtors)
+
+/-- info: IndWithPrivateFirstCtor.b 1 : IndWithPrivateFirstCtor -/
+#guard_msgs in
+#with_exporting
+#check (by constructor; exact 1 : IndWithPrivateFirstCtor)
+
+/-! `backward.privateInPublic` should not warn about a private constructor that is not selected. -/
+
+/--
+warning: Tactic `constructor` applied constructor `IndWithPrivateSecondCtor.a`, but `IndWithPrivateSecondCtor.b` also matches the goal.
+
+Hint: Use `constructor!` to apply the first matching constructor without this warning:
+  [apply] constructor!
+---
+info: IndWithPrivateSecondCtor.a 1 : IndWithPrivateSecondCtor
+-/
+#guard_msgs in
+set_option backward.privateInPublic true in
+#with_exporting
+#check (by constructor; exact 1 : IndWithPrivateSecondCtor)
+
+/-! Proofs are elaborated in the private scope. -/
+
+public theorem propWithPrivateCtor : PropWithPrivateCtor := by constructor
+
 /-! Private duplicate in public section should not panic. -/
 
 public section

@@ -19,6 +19,8 @@ When the goal `mvarId` type is an inductive datatype,
 Along with the resulting goals, it returns the constructors that `apply` succeeds with, in
 declaration order. When `findAll` is `false`, the search stops at the first match, so at most one
 constructor is reported.
+
+Private constructors that are not accessible in the current context are skipped.
 -/
 def _root_.Lean.MVarId.constructorCore (mvarId : MVarId) (cfg : ApplyConfig := {})
     (findAll : Bool := true) : MetaM (List MVarId × Array Name) := do
@@ -29,14 +31,23 @@ def _root_.Lean.MVarId.constructorCore (mvarId : MVarId) (cfg : ApplyConfig := {
       (fun _ => throwTacticEx `constructor mvarId "target is not an inductive datatype")
       fun ival us => do
         let mut matching := #[]
+        let mut skipped? : Option Name := none
         for ctor in ival.ctors do
-          let applies ← withoutModifyingState do
-            return (← observing? (mvarId.apply (Lean.mkConst ctor us) cfg)).isSome
+          -- The accessibility check may log a warning, which is discarded here with the trial state.
+          let (applies, inaccessible) ← withoutModifyingState do
+            let applies := (← observing? (mvarId.apply (Lean.mkConst ctor us) cfg)).isSome
+            return (applies, ← isInaccessiblePrivateName ctor)
           if applies then
-            matching := matching.push ctor
-            if !findAll then break
+            if inaccessible then
+              skipped? := skipped? <|> some ctor
+            else
+              matching := matching.push ctor
+              if !findAll then break
         let some ctor := matching[0]?
-          | throwTacticEx `constructor mvarId "no applicable constructor found"
+          | if let some ctor := skipped? then
+              throwTacticEx `constructor mvarId m!"constructor `{.ofConstName ctor}` is marked as private"
+            throwTacticEx `constructor mvarId "no applicable constructor found"
+        checkPrivateInPublic ctor
         return (← mvarId.apply (Lean.mkConst ctor us) cfg, matching)
 
 /--

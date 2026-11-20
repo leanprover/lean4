@@ -292,9 +292,10 @@ code.
 -/
 @[specialize]
 def mkInstanceNameOfType (type : Expr)
-    (avoid : Environment → Name → Bool := wasAlreadyDeclared) :
-    TermElabM Name := do
+    (avoid : Environment → Name → Bool := hasNameCollision) :
+    MetaM Name := do
   let mut name ← NameGen.mkBaseNameWithSuffix "inst" type
+  name := (← getCurrNamespace) ++ name
   if (type.find? (·.constName?.any isPrivateName)).isSome then
     name := mkPrivateName (← getEnv) name
-  findUnusedName ((← getCurrNamespace) ++ name) avoid
+  findUnusedName name avoid

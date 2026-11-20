@@ -276,7 +276,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 1
 
@@ -285,7 +285,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
 h✝ : ¬b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 2
 -/
@@ -345,7 +345,7 @@ b : Bool
 s✝ : Nat
 x✝¹ : PUnit
 x✝ s : Nat
-h✝ : b = true ∧ x✝ = 2 ∧ s = s✝ ∨ ¬b = true ∧ x✝ = 3 ∧ s = s✝
+h✝ : s = s✝ ∧ (b = true ∧ x✝ = 2 ∨ ¬b = true ∧ x✝ = 3)
 ⊢ 0 < x✝ + s
 -/
 #guard_msgs in
@@ -353,3 +353,70 @@ example : ⦃fun _ => True⦄ root_match (k + 1) b ⦃fun r => ⌜r > 0⌝⦄ :=
   vcgen +jp [root_match]
   trace_state
   all_goals grind
+
+-- `vcgen +jp [chain16]` unfolds `chain16` through a spec made from its unfold equation, whose right
+-- side is the whole program. Making the spec keeps its join points, so the cost stays within a
+-- tenth of the default heartbeats for 16 `if`s.
+def chain16 (c : Nat → Bool) : StateM Nat Unit := do
+  let mut x ← get
+  if c 0 then x := x + 0 else x := x + (0 + 1)
+  if c 1 then x := x + 0 else x := x + (0 + 1)
+  if c 2 then x := x + 0 else x := x + (0 + 1)
+  if c 3 then x := x + 0 else x := x + (0 + 1)
+  if c 4 then x := x + 0 else x := x + (0 + 1)
+  if c 5 then x := x + 0 else x := x + (0 + 1)
+  if c 6 then x := x + 0 else x := x + (0 + 1)
+  if c 7 then x := x + 0 else x := x + (0 + 1)
+  if c 8 then x := x + 0 else x := x + (0 + 1)
+  if c 9 then x := x + 0 else x := x + (0 + 1)
+  if c 10 then x := x + 0 else x := x + (0 + 1)
+  if c 11 then x := x + 0 else x := x + (0 + 1)
+  if c 12 then x := x + 0 else x := x + (0 + 1)
+  if c 13 then x := x + 0 else x := x + (0 + 1)
+  if c 14 then x := x + 0 else x := x + (0 + 1)
+  if c 15 then x := x + 0 else x := x + (0 + 1)
+  set x
+
+set_option maxHeartbeats 20000 in
+example : ⦃fun s => s = s₀⦄ chain16 c ⦃fun _ s => s₀ ≤ s⦄ := by
+  vcgen +jp [chain16] with finish
+
+/-! ## Inlined callees that end in a branch
+
+After `simp only` inlines `pick`, its `if` is followed by the rest of `usePick`, and `vcgen +jp`
+proves that rest once for both branches. In `pickChain c 16`, sixteen such rests are nested, so
+proving each rest once per branch would exceed the heartbeat limit. -/
+
+def pick (c : Bool) : StateM Nat Nat := if c then pure 1 else pure 2
+def pickD (n : Nat) : StateM Nat Nat := if h : n < 3 then pure (Fin.mk n h).val else pure n
+def pickC (c : Bool) : StateM Nat Nat := bif c then pure 1 else pure 2
+
+def usePick (p : StateM Nat Nat) : StateM Nat Nat := do
+  let v ← p
+  set v
+  return v + 1
+
+example : ⦃ fun _ => True ⦄ usePick (pick c) ⦃ fun r s => r = s + 1 ∧ s ≤ 2 ⦄ := by
+  simp only [usePick, pick]
+  vcgen +jp with finish
+
+example : ⦃ fun _ => True ⦄ usePick (pickD n) ⦃ fun r s => r = s + 1 ∧ s = n ⦄ := by
+  simp only [usePick, pickD]
+  vcgen +jp with finish
+
+example : ⦃ fun _ => True ⦄ usePick (pickC c) ⦃ fun r s => r = s + 1 ∧ s ≤ 2 ⦄ := by
+  simp only [usePick, pickC]
+  vcgen +jp with finish
+
+def pickChain (c : Nat → Bool) : Nat → StateM Nat Nat
+  | 0 => pure 0
+  | n + 1 => do
+    let v ← pick (c n)
+    set v
+    let w ← pickChain c n
+    return v + w
+
+set_option maxHeartbeats 20000 in
+example : ⦃ fun _ => True ⦄ pickChain c 16 ⦃ fun r _ => r ≤ 32 ⦄ := by
+  simp only [pickChain, pick]
+  vcgen +jp with finish

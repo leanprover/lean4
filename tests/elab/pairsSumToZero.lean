@@ -4,11 +4,17 @@ https://markushimmel.de/blog/my-first-verified-imperative-program/
 -/
 
 import Std.Data.HashSet.Lemmas
-import Std.Tactic.Do
+import Std.WP
 
-set_option sym.debug true
+/-!
+Verifies an imperative implementation of `pairsSumToZero` (a `for` loop with an early `return`)
+with `vcgen`, and a functional implementation with `fun_induction`. The verification with the
+deprecated `mvcgen` is in `tests/deprecated/elab/pairsSumToZero.lean`.
+-/
 
-open Std Do
+set_option experimental.vcgen true
+
+open Std Std.WP
 
 /-!
 # Missing standard library material that will be part of a future Lean release
@@ -42,9 +48,6 @@ theorem existsPair_append {P : α → α → Prop} {xs ys : List α} :
 
 end List
 
--- Tell Lean that it doesn't need to warn us that `mvcgen` is still a pre-release.
-set_option linter.deprecated.syntax false
-
 /-!
 # Imperative implementation
 -/
@@ -65,16 +68,9 @@ def pairsSumToZero (l : List Int) : Bool := Id.run do
 
 theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPair (fun a b => a + b = 0) := by
   generalize h : pairsSumToZero l = r
-  apply Id.of_wp_run_eq h
-
-  mvcgen
-
-  case inv1 =>
-    exact Invariant.withEarlyReturnNewDo
-      (onReturn := fun r b => ⌜r = true ∧ l.ExistsPair (fun a b => a + b = 0)⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ ¬traversalState.prefix.ExistsPair (fun a b => a + b = 0)⌝)
-
+  apply Id.of_run_eq_wp h
+  vcgen invariants
+  · fun pref _ seen => (∀ x, x ∈ seen ↔ x ∈ pref) ∧ ¬pref.ExistsPair (fun a b => a + b = 0)
   all_goals simp_all <;> grind
 
 /--

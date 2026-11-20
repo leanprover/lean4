@@ -1130,6 +1130,8 @@ static inline lean_object * lean_array_get(b_lean_obj_arg def_val, b_lean_obj_ar
     return lean_array_get_panic(def_val);
 }
 
+LEAN_EXPORT lean_obj_res lean_array_get_borrowed_panic(b_lean_obj_arg def_val);
+
 static inline lean_object * lean_array_get_borrowed(b_lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
@@ -1141,8 +1143,7 @@ static inline lean_object * lean_array_get_borrowed(b_lean_obj_arg def_val, b_le
        i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
        but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
        In both cases, we would be out-of-memory. */
-    lean_inc(def_val);
-    return lean_array_get_panic(def_val);
+    return lean_array_get_borrowed_panic(def_val);
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
@@ -1322,14 +1323,18 @@ static inline uint8_t lean_byte_array_uget(b_lean_obj_arg a, size_t i) {
     assert(i < lean_sarray_size(a));
     return lean_sarray_cptr(a)[i];
 }
+
+LEAN_EXPORT uint8_t lean_byte_array_get_panic(void);
+
 static inline uint8_t lean_byte_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_byte_array_uget(a, idx) : 0;
-    } else {
-        /* The index must be out of bounds. Otherwise we would be out of memory. */
-        return 0;
+        if (idx < lean_sarray_size(a)) {
+            return lean_byte_array_uget(a, idx);
+        }
     }
+    /* See lean_array_get */
+    return lean_byte_array_get_panic();
 }
 static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_byte_array_uget(a, lean_unbox(i));
@@ -1344,17 +1349,16 @@ static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8
     return r;
 }
 
+LEAN_EXPORT lean_obj_res lean_byte_array_set_panic(lean_obj_arg a);
+
 static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
-    if (!lean_is_scalar(i)) {
-        return a;
-    } else {
+    if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        if (idx >= lean_sarray_size(a)) {
-            return a;
-        } else {
+        if (idx < lean_sarray_size(a)) {
             return lean_byte_array_uset(a, idx, b);
         }
     }
+    return lean_byte_array_set_panic(a);
 }
 
 static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
@@ -1391,14 +1395,17 @@ static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_float_array_uget(a, lean_unbox(i));
 }
 
+LEAN_EXPORT double lean_float_array_get_panic(void);
+
 static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_float_array_uget(a, idx) : 0.0;
-    } else {
-        /* The index must be out of bounds. Otherwise we would be out of memory. */
-        return 0.0;
+        if (idx < lean_sarray_size(a)) {
+            return lean_float_array_uget(a, idx);
+        }
     }
+    /* See lean_array_get */
+    return lean_float_array_get_panic();
 }
 
 LEAN_EXPORT lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
@@ -1414,17 +1421,16 @@ static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg 
     return lean_float_array_uset(a, lean_unbox(i), d);
 }
 
+LEAN_EXPORT lean_obj_res lean_float_array_set_panic(lean_obj_arg a);
+
 static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i, double d) {
-    if (!lean_is_scalar(i)) {
-        return a;
-    } else {
+    if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        if (idx >= lean_sarray_size(a)) {
-            return a;
-        } else {
+        if (idx < lean_sarray_size(a)) {
             return lean_float_array_uset(a, idx, d);
         }
     }
+    return lean_float_array_set_panic(a);
 }
 
 /* Strings */
@@ -1874,7 +1880,7 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_big_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
@@ -1887,6 +1893,25 @@ LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a);
 /* Hash that depends on all bits of `a`. It is `a` itself if `a < 2^64`. */
 static inline uint64_t lean_nat_hash(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint64_t)lean_unbox(a) : lean_nat_big_hash(a); }
+
+static inline lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1))) {
+        size_t s1 = lean_unbox(a1);
+        /* `0 <<< s2 = 0` holds even for shift amounts that do not fit in a machine word. */
+        if (s1 == 0)
+            return a1;
+        if (LEAN_LIKELY(lean_is_scalar(a2))) {
+            size_t s2 = lean_unbox(a2);
+            if (LEAN_LIKELY(s2 < sizeof(size_t)*8)) {
+                size_t r = s1 << s2;
+                /* `(r >> s2) == s1` rules out bits shifted out of the machine word. */
+                if (r <= LEAN_MAX_SMALL_NAT && (r >> s2) == s1)
+                    return lean_box(r);
+            }
+        }
+    }
+    return lean_nat_big_shiftl(a1, a2);
+}
 
 static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {

@@ -9,6 +9,7 @@ import Module.ImportedAllImportedAll
 import Module.NonModule
 import Module.MetaImported
 import Module.SynthCache
+import Module.UnfoldNonRec
 
 /-! # Module system basic tests -/
 

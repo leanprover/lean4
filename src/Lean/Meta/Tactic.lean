@@ -47,3 +47,4 @@ public import Lean.Meta.Tactic.Ext
 public import Lean.Meta.Tactic.Try
 public import Lean.Meta.Tactic.Cbv
 public import Lean.Meta.Tactic.BVDecide
+public import Lean.Meta.Tactic.Epr

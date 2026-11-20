@@ -526,6 +526,22 @@ def foldNatPow (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) :=
     return .some (.lit (.nat (value₁ ^ value₂)))
   else
     return none
+-- TODO: add option for controlling the limit
+def natShiftLeftThreshold := 65536
+
+/--
+Folds `Nat.shiftLeft` on literals when the shift amount is below `natShiftLeftThreshold`.
+The threshold must fit in 32 bits: the runtime implementation of `Nat.shiftLeft` aborts the process
+on larger shift amounts.
+-/
+def foldNatShiftLeft (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
+  let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
+  let some value₁ ← getNatLit fvarId₁ | return none
+  let some value₂ ← getNatLit fvarId₂ | return none
+  if value₂ < natShiftLeftThreshold then
+    return .some (.lit (.nat (value₁ <<< value₂)))
+  else
+    return none
 
 /--
 Folder for ofNat operations on fixed-sized integer types.
@@ -616,7 +632,7 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt64.mod,  Folder.first #[Folder.mkBinary UInt64.mod, Folder.rightNeutral (0 : UInt64) (· % ·) @UInt64.mod_zero, Folder.leftAnnihilator (0 : UInt64) 0 (· % ·) @UInt64.zero_mod, Folder.rightAnnihilator (1 : UInt64) 0 (· % ·) @UInt64.mod_one, Folder.sameArg (0 : UInt64) (· % ·) @UInt64.mod_self]),
   (``USize.mod,  Folder.first #[Folder.mkBinaryUSize UInt64.mod UInt32.mod, Folder.rightNeutralUSize 0 0, Folder.leftAnnihilatorUSize 0 0 0 0, Folder.rightAnnihilatorUSize 1 1 0 0, Folder.sameArgUSize 0 0]),
 
-  (``Nat.shiftLeft, Folder.first #[Folder.mkBinary Nat.shiftLeft, Folder.rightNeutral 0 Nat.shiftLeft (by intros; rfl), Folder.leftAnnihilator 0 0 Nat.shiftLeft Nat.zero_shiftLeft]),
+  (``Nat.shiftLeft, Folder.first #[foldNatShiftLeft, Folder.rightNeutral 0 Nat.shiftLeft (by intros; rfl), Folder.leftAnnihilator 0 0 Nat.shiftLeft Nat.zero_shiftLeft]),
   (``UInt8.shiftLeft, Folder.first #[Folder.mkBinary UInt8.shiftLeft, Folder.rightNeutral 0 UInt8.shiftLeft @UInt8.shiftLeft_zero, Folder.leftAnnihilator (0 : UInt8) 0 UInt8.shiftLeft @UInt8.zero_shiftLeft]),
   (``UInt16.shiftLeft, Folder.first #[Folder.mkBinary UInt16.shiftLeft, Folder.rightNeutral 0 UInt16.shiftLeft @UInt16.shiftLeft_zero, Folder.leftAnnihilator (0 : UInt16) 0 UInt16.shiftLeft @UInt16.zero_shiftLeft]),
   (``UInt32.shiftLeft, Folder.first #[Folder.mkBinary UInt32.shiftLeft, Folder.rightNeutral 0 UInt32.shiftLeft @UInt32.shiftLeft_zero, Folder.leftAnnihilator (0 : UInt32) 0 UInt32.shiftLeft @UInt32.zero_shiftLeft]),

@@ -77,15 +77,33 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
 Names of the attributes, such as `simp` and `grind`, that add a declaration to a set of lemmas used
 by automation. Deprecated declarations should not be added to such sets.
 -/
-builtin_initialize automationAttrsRef : IO.Ref NameSet ← IO.mkRef {}
+builtin_initialize automationAttrsRef :
+    IO.Ref (NameMap ((Name → Bool) → Name → Syntax → CoreM Bool)) ← IO.mkRef {}
 
-/-- Registers `attrName` as an attribute that adds declarations to a set used by automation. -/
-def registerAutomationAttr (attrName : Name) : IO Unit :=
-  automationAttrsRef.modify (·.insert attrName)
+/--
+Registers `attrName` as an attribute that adds declarations to a set used by automation.
+
+`isGuardedBy p declName stx` should return whether automation only uses `declName`, as added by the
+attribute syntax `stx`, on terms that contain a constant satisfying `p`, for example because such
+a constant occurs in every discrimination tree key of `declName`.
+-/
+def registerAutomationAttr (attrName : Name)
+    (isGuardedBy : (Name → Bool) → Name → Syntax → CoreM Bool := fun _ _ _ => pure false) :
+    IO Unit :=
+  automationAttrsRef.modify (·.insert attrName isGuardedBy)
 
 /-- Returns whether `attrName` adds declarations to a set used by automation. -/
 def isAutomationAttr (attrName : Name) : IO Bool :=
   return (← automationAttrsRef.get).contains attrName
+
+/--
+Returns whether automation only uses `declName`, as added by the automation attribute `attrName`
+with syntax `stx`, on terms that contain a constant satisfying `p` (see `registerAutomationAttr`).
+-/
+def isAutomationAttrGuardedBy (attrName : Name) (p : Name → Bool) (declName : Name)
+    (stx : Syntax) : CoreM Bool := do
+  let some isGuardedBy := (← automationAttrsRef.get).find? attrName | return false
+  isGuardedBy p declName stx
 
 /-!
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
@@ -205,7 +223,7 @@ def registerTagAttribute (name : Name) (descr : String)
     exportEntriesFnEx := fun env es =>
       let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
+      let exported := all.filter ((env.setExporting true).contains)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -274,11 +292,11 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   only params on public declarations are exported.
   -/
   filterExport : Environment → Name → α → Bool := fun env n _ =>
-    env.contains (skipRealize := false) n
+    env.contains n
 
 def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
     (filterExport : Environment → Name → α → Bool := fun env n _ =>
-      env.contains (skipRealize := false) n)
+      env.contains n)
     (logWrites : Bool := false) :
     IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
   registerPersistentEnvExtension {
@@ -373,7 +391,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     exportEntriesFnEx := fun env m =>
       let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
+      let exported := all.filter ((env.setExporting true).contains ·.1)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set

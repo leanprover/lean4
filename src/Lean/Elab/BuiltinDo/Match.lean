@@ -49,7 +49,7 @@ private def expandToTermMatch : DoElab := fun stx dec => do
   let doBlockResultType := (← read).doBlockResultType
   let mγ ← mkMonadApp doBlockResultType
   -- trace[Elab.do] "expandToTermMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
-  let info ← inferControlInfoElem stx
+  let info ← inferControlInfoElem stx (← read).controlInfoCache
   let dependent := dep?.getD ⟨.missing⟩ matches `(trueVal| true)
   trace[Elab.do.match] "expandToTermMatch. dependent: {dependent}, doBlockResultType: {doBlockResultType}, dec.resultType: {dec.resultType}"
   let complexDec := withNewMCtxDepth <| not <$> isDefEqGuarded dec.resultType doBlockResultType
@@ -203,7 +203,8 @@ private def compileMatch (discrs : Array Term.Discr) (matchType : Expr) (lhss : 
 
 private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView)
     (nondupDec : DoElemCont) : DoElabM Expr := do
-  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs)
+  let cache := (← read).controlInfoCache
+  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs cache)
     ControlInfo.empty
   nondupDec.withDuplicableCont info fun dec => do
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"

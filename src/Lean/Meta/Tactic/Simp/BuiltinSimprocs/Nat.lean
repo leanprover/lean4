@@ -99,8 +99,13 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceOr ((_ ||| _ : Nat)) := reduceBin ``HOr.hOr 6 (· ||| ·)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
-builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Nat)) :=
-  reduceBin ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Nat)) := fun e => do
+  let_expr HShiftLeft.hShiftLeft _ _ _ _ n m := e | return .continue
+  let some n ← fromExpr? n | return .continue
+  let some m ← fromExpr? m | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkShiftLeft n m (warning := warning)) do return .continue
+  return .done <| toExpr (n <<< m)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceShiftRight ((_ >>> _ : Nat)) :=

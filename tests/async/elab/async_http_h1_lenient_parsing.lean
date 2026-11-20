@@ -33,4 +33,4 @@ line, also right before EOF (RFC 9112 §2.2); obs-text in a quoted chunk-extensi
         assertContains r "\x0d\n\x0d\nhello"
   -- Control: 17 significant digits are still too large.
   checkClose "chunk size 10000000000000000" (mkChunked "/" "10000000000000000\x0d\nhello\x0d\n") echoHandler
-    fun r => assertStatus r "HTTP/1.1 400"
+    fun r => assertStatus r "HTTP/1.1 413"

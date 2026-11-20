@@ -171,7 +171,13 @@ structure FunState where
   /--
   The function atoms with their congruence-relevant arguments abstracted as lambda binders.
   -/
-  patterns : Array Expr := #[]
+  patterns : Array Expr := {}
+
+/--
+The state associated with the EPR theory.
+-/
+structure EprState where
+  problem : EPR.EprBvProblem := {}
 
 /--
 Theory solver state.
@@ -181,6 +187,10 @@ structure TheoryState where
   State associated with the theory of uninterpreted functions (UF).
   -/
   funState : FunState := {}
+  /--
+  State associated with the EPR solver.
+  -/
+  eprState : EprState := {}
 
 /--
 The state of the reflection monad
@@ -330,10 +340,9 @@ namespace ReifyM
 /--
 Run a reflection computation as a `SymM` one.
 -/
-def run (m : ReifyM α) (hypotheses : Array Normalize.Hyp) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) :
-    Grind.GrindM α := do
+def run (m : ReifyM α) (hypotheses : Array Normalize.Hyp) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) (epr : EPR.EprBvProblem) : Grind.GrindM α := do
   let hypotheses ← hypotheses.mapM fun hyp => return { hyp with type := ← Sym.shareCommon hyp.type }
-  ReaderT.run m { hypotheses, config := cfg } |>.run' {}
+  ReaderT.run m { hypotheses, config := cfg } |>.run' { theoryState := { eprState := { problem := epr } }}
 
 /--
 Retrieve the atoms as pairs of their width and expression.

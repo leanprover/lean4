@@ -39,8 +39,8 @@ namespace Std.WP
 /-- Soundness of the weakest precondition interpretation of `m`: a postcondition that `wp` proves
 holds of every value the program returns. -/
 class LawfulWPMonadAttach (m : Type u → Type v) (Pred : outParam (Type w)) (EPosts : outParam (Type z))
-    [Monad m] [MonadAttach m] [LawfulMonadAttach m] [Assertion Pred] [Assertion EPosts]
-    [WPMonad m Pred EPosts] where
+    [Monad m] [MonadAttach m] [LawfulMonadAttach m] [CompleteLattice Pred] [CompleteLattice EPosts]
+    [MonadicWP m Pred EPosts] where
   /-- From a `wp`-provable postcondition and a `MonadAttach.CanReturn` witness, conclude `P` at
   that value. -/
   of_canReturn_wp {α : Type u} {x : m α} {P : α → Prop} {a : α} :
@@ -52,21 +52,21 @@ instance Id.instLawfulWPMonadAttach : LawfulWPMonadAttach Id.{u} Prop EStack⟨�
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [CompleteLattice.ofProp_prop_eq] at h
+    simp only [WP.wp, WP.trans, PredTrans.apply_mk, CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance Option.instLawfulWPMonadAttach : LawfulWPMonadAttach Option.{u} Prop (Unit → Prop) where
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [CompleteLattice.ofProp_prop_eq] at h
+    simp only [WP.wp, WP.trans, PredTrans.apply_mk, CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance Except.instLawfulWPMonadAttach {ε : Type u} : LawfulWPMonadAttach (Except ε) Prop (ε → Prop) where
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [CompleteLattice.ofProp_prop_eq] at h
+    simp only [WP.wp, WP.trans, PredTrans.apply_mk, CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (EStateM ε σ) (σ → Prop) (ε → σ → Prop) where
@@ -74,12 +74,13 @@ instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (E
     obtain ⟨s, s', heq⟩ := hcan
     have hxs : x s = EStateM.Result.ok a s' := heq
     have h := hwp s (by simp)
-    simp only [wp, WP.trans, hxs] at h
+    simp only [wp, WP.trans, PredTrans.apply_mk] at h
+    simp only [hxs] at h
     simpa using h
 
 instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPosts}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts] :
     LawfulWPMonadAttach (ExceptT ε m) Pred ((ε → Pred) × EPosts) where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     refine LawfulWPMonadAttach.of_canReturn_wp (m := m)
@@ -94,7 +95,7 @@ instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPosts}
 
 instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts] :
     LawfulWPMonadAttach (OptionT m) Pred ((Unit → Pred) × EPosts) where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     refine LawfulWPMonadAttach.of_canReturn_wp (m := m)
@@ -109,7 +110,7 @@ instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u}
 
 instance StateT.instLawfulWPMonadAttach {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts] :
     LawfulWPMonadAttach (StateT σ m) (σ → Pred) EPosts where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     obtain ⟨s, s', hcan⟩ := hcan
@@ -120,7 +121,7 @@ instance StateT.instLawfulWPMonadAttach {m : Type u → Type z} {σ : Type u} {P
 
 instance ReaderT.instLawfulWPMonadAttach {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts] :
     LawfulWPMonadAttach (ReaderT ρ m) (ρ → Pred) EPosts where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     obtain ⟨r, hcan⟩ := hcan
@@ -139,7 +140,7 @@ base-monad computation that `prog` becomes once its arguments are supplied.
 `prog.run r : m α` returns. -/
 theorem ReaderT.of_canReturn_run_wp {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : ReaderT ρ m α} {r : ρ} {a : α} (P : α → Prop)
     (hcan : MonadAttach.CanReturn (prog.run r) a)
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P a⌝) ⊤ r) : P a := by
@@ -151,7 +152,7 @@ theorem ReaderT.of_canReturn_run_wp {m : Type u → Type z} {ρ : Type u} {Pred 
 `prog.run s : m (α × σ)` returns. -/
 theorem StateT.of_canReturn_run_wp {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : StateT σ m α} {s : σ} {p : α × σ} (P : α × σ → Prop)
     (hcan : MonadAttach.CanReturn (prog.run s) p)
     (hwp : ⊤ ⊑ wp prog (fun a s' => ⌜P (a, s')⌝) ⊤ s) : P p := by
@@ -163,7 +164,7 @@ theorem StateT.of_canReturn_run_wp {m : Type u → Type z} {σ : Type u} {Pred :
 post-run computation `prog.run : m (Except ε α)` returns. -/
 theorem ExceptT.of_canReturn_run_wp {m : Type u → Type z} {ε : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : ExceptT ε m α} {x : Except ε α} (P : Except ε α → Prop)
     (hcan : MonadAttach.CanReturn prog.run x)
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P (.ok a)⌝) ((fun e => ⌜P (.error e)⌝), ⊤)) :
@@ -178,7 +179,7 @@ theorem ExceptT.of_canReturn_run_wp {m : Type u → Type z} {ε : Type u} {Pred 
 post-run computation `prog.run : m (Option α)` returns. -/
 theorem OptionT.of_canReturn_run_wp {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
+    [CompleteLattice Pred] [CompleteLattice EPosts] [MonadicWP m Pred EPosts] [LawfulMonad m] [MonadicWP.IsLaxDistrib m] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : OptionT m α} {x : Option α} (P : Option α → Prop)
     (hcan : MonadAttach.CanReturn prog.run x)
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P (some a)⌝) ((fun _ => ⌜P none⌝), ⊤)) : P x := by
@@ -198,7 +199,7 @@ theorem Id.of_run_eq_wp {α : Type u} {x : α} {prog : Id α}
   (h : Id.run prog = x) (P : α → Prop)
   (hwp : wp prog P ()) : P x := by
   rw [← h]
-  exact hwp
+  simpa only [Id.wp_apply_eq] using hwp
 
 /-- Soundness for `Option`: the postcondition takes a `some` case and a `none` case, and `wp prog`
 holds of `prog` itself. -/
@@ -207,8 +208,8 @@ theorem Option.of_eq_wp {α : Type u} {x prog : Option α}
   (hwp : wp prog (fun a => P (some a)) (fun _ => P none)) : P x := by
   subst h
   cases prog with
-  | none => exact hwp
-  | some a => exact hwp
+  | none => simpa only [Option.wp_apply_eq, pushOption_none] using hwp
+  | some a => simpa only [Option.wp_apply_eq, pushOption_some] using hwp
 
 /-- Soundness for `StateM`: if `wp prog P s` holds, then `P` holds of the value and final state of
 `StateT.run prog s`. -/
@@ -216,6 +217,7 @@ theorem StateM.of_run_eq_wp {x : α × σ} {prog : StateM σ α} {s : σ}
   (h : StateT.run prog s = x) (P : α × σ → Prop)
   (hwp : wp prog (fun a s' => P (a, s')) () s) : P x := by
   rw [← h]
+  simp only [StateT.wp_apply_eq, Id.wp_apply_eq] at hwp
   exact hwp
 
 /-- Soundness for `StateM`, at the value alone: if `wp prog P s` holds, then `P` holds of
@@ -224,6 +226,7 @@ theorem StateM.of_run'_eq_wp {α σ : Type} {x : α} {prog : StateM σ α} {s : 
   (h : StateT.run' prog s = x) (P : α → Prop)
   (hwp : wp prog (fun a _ => P a) () s) : P x := by
   rw [← h]
+  simp only [StateT.wp_apply_eq, Id.wp_apply_eq] at hwp
   exact hwp
 
 /-- Soundness for `ReaderM`: if `wp prog P r` holds, then `P` holds of `ReaderT.run prog r`. -/
@@ -231,6 +234,7 @@ theorem ReaderM.of_run_eq_wp {α ρ : Type} {x : α} {prog : ReaderM ρ α} {r :
   (h : ReaderT.run prog r = x) (P : α → Prop)
   (hwp : wp prog (fun a _ => P a) () r) : P x := by
   rw [← h]
+  simp only [ReaderT.wp_apply_eq, Id.wp_apply_eq] at hwp
   exact hwp
 
 /-- Soundness for `Except`: the postcondition takes an `ok` case and an `error` case, and
@@ -240,8 +244,8 @@ theorem Except.of_eq_wp {ε α : Type} {x prog : Except ε α}
   (hwp : wp prog (fun a => P (.ok a)) (fun e => P (.error e))) : P x := by
   subst h
   cases prog with
-  | ok a => simpa only [wp] using! hwp
-  | error e => simpa only [wp] using! hwp
+  | ok a => simpa only [Except.wp_apply_eq, pushExcept_ok] using hwp
+  | error e => simpa only [Except.wp_apply_eq, pushExcept_error] using hwp
 
 /-- Soundness for `EStateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
 theorem EStateM.of_run_eq_wp {ε σ α : Type} {x : EStateM.Result ε σ α}

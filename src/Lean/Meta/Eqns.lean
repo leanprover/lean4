@@ -11,6 +11,8 @@ public import Lean.DefEqAttrib
 public import Lean.Meta.RecExt
 public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
+public import Lean.Meta.ExprDefEq
+public import Lean.Meta.WHNF
 
 public section
 
@@ -41,7 +43,9 @@ This is implemented by storing their values at definition time (when non-default
 extension, and restoring them when the equations are lazily realized.
 -/
 def eqnAffectingOptions : Array (Lean.Option Bool) :=
-  #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit, backward.defeqAttrib.useBackward]
+  #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit, backward.defeqAttrib.useBackward,
+    backward.isDefEq.respectTransparency, backward.isDefEq.respectTransparency.types,
+    backward.whnf.reducibleClassField, smartUnfolding]
 
 /-- Environment extension that stores the values of `eqnAffectingOptions` at definition time,
 keyed by declaration name. Only populated when at least one option has a non-default value.
@@ -96,7 +100,7 @@ def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
 /--
 Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNamePredicate fun env n => Id.run do
+builtin_initialize registerReservedNamePredicate isEqnLikeSuffix fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,
@@ -318,25 +322,25 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
 
 /--
 Returns an "unfold" theorem (`f.eq_def`) for the given declaration.
-By default, we do not create unfold theorems for nonrecursive definitions.
-You can use `nonRec := true` to override this behavior.
+By default, the result is `none` for nonrecursive definitions, even if their unfold theorem already
+exists. You can use `nonRec := true` to override this behavior.
 -/
 def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := withLCtx {} {} do
   let unfoldName := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   let r? ← withoutExporting do
-    let env := (← getEnv)
-
-    if env.contains unfoldName then
-      return some unfoldName
     if (← shouldGenerateEqnThms declName) then
       if (← isRecursiveDefinition declName) then
+        if (← getEnv).contains unfoldName then
+          return some unfoldName
         for f in (← getUnfoldEqnFnsRef.get) do
           if let some r ← f declName then
             return some r
-      else
-        if nonRec then
-          let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
-          return (← mkSimpleEqThm declName name)
+      else if nonRec then
+        -- An existing theorem must not be returned for `nonRec := false`: whether another caller
+        -- has realized it yet, and whether that realization is visible here, is arbitrary.
+        if (← getEnv).contains unfoldName then
+          return some unfoldName
+        return (← mkSimpleEqThm declName unfoldName)
     return none
   if let some r := r? then
     unless r == unfoldName do

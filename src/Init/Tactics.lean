@@ -1982,6 +1982,14 @@ Note: include `import Std.Tactic.BVDecide`
 syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : tactic
 
 /--
+Extract the EPR (effectively propositional first order logic) components out of the goal and try
+to solve with a decision procedure for EPR.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+syntax (name := epr) "epr" optConfig : tactic
+
+/--
 `massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.
 ```lean
 example (P Q : SPred σs) : Q ⊢ₛ P → Q := by
@@ -2530,6 +2538,12 @@ the keyword is slated for removal. Alternatives after `invariants?` elaborate li
 -/
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
   Macro.throwError "to use `vcgen`, please include `import Std.WP`"
+
+/-- The triple notation `⦃ P ⦄ x ⦃ Q ⦄` outside `open Std.WP`. -/
+macro:60 (name := tripleNotationMacro) (priority := low)
+    "⦃ " term " ⦄ " term " ⦃ " term (("; " term))? " ⦄" : term =>
+  Macro.throwError
+    "to use the triple notation `⦃ P ⦄ x ⦃ Q ⦄`, please include `import Std.WP` and `open Std.WP`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.

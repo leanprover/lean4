@@ -98,7 +98,10 @@ or `timeout` seconds have passed.
 -/
 public partial def runInterruptible (timeout : Nat) (args : IO.Process.SpawnArgs) :
     CoreM (TimedOut IO.Process.Output) := do
-  let child ← IO.Process.spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+  let child ← match ← (IO.Process.spawn { args with stdout := .piped, stderr := .piped, stdin := .null }).toBaseIO with
+    | .ok child => pure child
+    | .error e =>
+      throwError "Failed to execute external prover `{args.cmd}`:\n{e}\n\nThe prover can be configured with the option `sat.solver`."
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
   go (timeout * 1000) 1 64 child stdout stderr
@@ -108,7 +111,7 @@ where
     let cleanup := killAndWait child
     withTimeoutCheck budgetMs cleanup do
     withInterruptCheck cleanup do
-      -- TODO: replace me with a select once we get libuv process support
+      -- TODO: replace me with a select once the exit of a child process can be awaited
       match ← child.tryWait with
       | some exitCode =>
         let stdout ← IO.ofExcept stdout.get
@@ -223,20 +226,17 @@ public def satQuery (solverPath : System.FilePath) (problemPath : System.FilePat
   let out? ← runInterruptible timeout { cmd, args, stdin := .piped, stdout := .piped, stderr := .null }
   match out? with
   | .timeout => throwSatTimeout
-  | .success { exitCode := exitCode, stdout := stdout, stderr := stderr} =>
-    if exitCode == 255 then
-      throwError s!"Failed to execute external prover:\n{stderr}"
+  | .success { stdout := stdout, stderr := stderr, .. } =>
+    if stdout.startsWith "s UNSATISFIABLE" then
+      return .unsat
+    else if stdout.startsWith "s SATISFIABLE" then
+      match ModelParser.parse.run stdout.toUTF8 with
+      | .ok assignment =>
+        return .sat assignment
+      | .error err =>
+        throwError s!"Error {err} while parsing:\n{stdout}"
     else
-      if stdout.startsWith "s UNSATISFIABLE" then
-        return .unsat
-      else if stdout.startsWith "s SATISFIABLE" then
-        match ModelParser.parse.run stdout.toUTF8 with
-        | .ok assignment =>
-          return .sat assignment
-        | .error err =>
-          throwError s!"Error {err} while parsing:\n{stdout}"
-      else
-        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}\nstderr:\n{stderr}"
+      throwError s!"The external prover produced unexpected output, stdout:\n{stdout}\nstderr:\n{stderr}"
 
 end External
 

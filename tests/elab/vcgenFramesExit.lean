@@ -43,7 +43,7 @@ def HProp : Type := Heap → Prop
 instance : Lean.Order.CompleteLattice HProp :=
   inferInstanceAs (Lean.Order.CompleteLattice (Heap → Prop))
 
-instance : Std.WP.Assertion HProp := inferInstanceAs (Std.WP.Assertion (Heap → Prop))
+instance : Lean.Order.CompleteLattice HProp := inferInstanceAs (Lean.Order.CompleteLattice (Heap → Prop))
 
 /-- The cell `l` holds `v`, and nothing else is owned. -/
 def pointsTo (l : Addr) (v : Nat) : HProp := fun h => h = Heap.single l v
@@ -88,9 +88,7 @@ inductive Prog | skip | exit
 /-- The base wp: `skip` hands the heap to the postcondition, `exit` to the exception
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
-  trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
-  trans_monotone x := by
-    intro Q Q' E E' hE hQ
+  trans x := PredTrans.mk (fun Q E => (match x with | .skip => Q () | .exit => E)) fun hQ hE => by
     cases x
     · exact hQ ()
     · exact hE

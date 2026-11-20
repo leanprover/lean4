@@ -287,7 +287,7 @@ private def mkHInjectiveTheorem? (thmName : Name) (ctorVal : ConstructorVal) : M
   let some value ← mkHInjectiveTheoremValue? ctorVal typeInfo | return none
   return some { name := thmName, value, levelParams := ctorVal.levelParams, type := typeInfo.thmType }
 
-builtin_initialize registerReservedNamePredicate fun env n =>
+builtin_initialize registerReservedNamePredicate (· == hinjSuffix) fun env n =>
   match n with
   | .str p "hinj" => (env.find? p matches some (.ctorInfo _))
   | _ => false

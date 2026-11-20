@@ -106,3 +106,34 @@ Hint: Replace the deprecated name:
 -/
 #guard_msgs in
 notation "notationDeprecated" => deprecatedDef
+
+/-! Attributes of deprecated declarations may refer to deprecated declarations. -/
+
+#guard_msgs in
+@[deprecated replacementDef (since := "2025-01-01"), implemented_by deprecatedDef]
+def deprecatedImplementedDef (n : Nat) : Nat := n + 1
+
+#guard_msgs in
+@[implemented_by deprecatedDef, deprecated replacementDef (since := "2025-01-01")]
+def deprecatedImplementedDef' (n : Nat) : Nat := n + 1
+
+#guard_msgs in
+@[deprecated "Do not use." (since := "2025-01-01"), init deprecatedInitDef]
+opaque deprecatedInitializedDef : Unit
+
+#guard_msgs in
+@[deprecated "Do not use." (since := "2025-01-01"), inherit_doc deprecatedDef]
+def deprecatedInheritingDef : Nat := 1
+
+@[deprecated replacementDef (since := "2025-01-01")]
+def deprecatedLaterImplementedDef (n : Nat) : Nat := n + 1
+
+-- Only the deprecated target of the `attribute` command is reported.
+/--
+warning: `deprecatedLaterImplementedDef` has been deprecated: Use `replacementDef` instead
+
+Hint: Replace the deprecated name:
+  d̵e̵p̵r̵e̵c̵a̵t̵e̵d̵L̵a̵t̵e̵r̵I̵m̵p̵l̵e̵m̵e̵n̵t̵e̵d̵D̵e̵f̵r̲e̲p̲l̲a̲c̲e̲m̲e̲n̲t̲D̲e̲f̲
+-/
+#guard_msgs in
+attribute [implemented_by deprecatedDef] deprecatedLaterImplementedDef

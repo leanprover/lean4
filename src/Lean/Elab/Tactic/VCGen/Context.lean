@@ -138,11 +138,17 @@ public structure Context where
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
+  /-- The term elaboration context of the `vcgen` call, in which the `invariants` alternatives
+  elaborate. -/
+  termCtx : Term.Context := {}
+  /-- The universe parameter names of the enclosing declaration, in scope in the `invariants`
+  alternatives. -/
+  levelNames : List Name := []
   /-- The `until` pattern: when `some pat`, VC generation stops and emits the current goal as a VC
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
-/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+/-- A join point that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
   /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
   spec : Expr
@@ -173,27 +179,26 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
+  /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
+  on `x` reduces with them. -/
+  splitEqs : FVarIdMap (Expr × FVarId) := {}
   deriving Inhabited
 
 public structure State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
-  The particular rule depends on the theorem name, the `WPMonad` instance and the number of
+  The particular rule depends on the theorem name, the `MonadicWP` instance and the number of
   excess state arguments that the weakest precondition target is applied to.
 
   The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
   This is sound because the instance is a subterm of the hash-consed goal target.
   -/
   specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
-  /--
-  A cache mapping matchers to their splitting backward rule to apply.
-  The particular rule depends on the matcher name, the monad and the number of excess state
-  arguments that the weakest precondition target is applied to.
-
-  The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
-  This is sound because the instance is a subterm of the hash-consed goal target.
-  -/
-  splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForSplit`, keyed by `(splitter name, instWP, excessArgs.size)`. -/
+  wpSplitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForAssertionSplit`, keyed by
+  `(splitter name, inPre, lattice instance, numStates)`. -/
+  assertionSplitBackwardRuleCache : Std.HashMap (Name × Bool × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping lattice connectives to their backward rule to apply, keyed by the `head … cₙ`
   prefix of constant arguments the rule bakes in verbatim and the total argument count that fixes the
@@ -203,7 +208,7 @@ public structure State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
+  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `MonadicWP` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
   /-- Caches the backward rules of the `@[vcgen_rintro]` rules, keyed by declaration name. -/
@@ -231,12 +236,6 @@ public structure State where
   `solve` short-circuits and emits the current goal as a VC.
   -/
   fuel : Lean.Elab.Tactic.Do.Fuel := .unlimited
-  /--
-  Set of invariant numbers that have been inline-elaborated by `Driver.emitVC` via
-  `tryInlineInvariant`. The post-hoc invariant elaboration in `Frontend` consults
-  this to know which user-provided alts have already been consumed (so it doesn't
-  warn about them). -/
-  inlineHandledInvariants : Std.HashSet Nat := {}
   /-- The join points whose RHS goal `vcgen` has yet to process, keyed by that goal, with their
   jumps so far. -/
   pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}

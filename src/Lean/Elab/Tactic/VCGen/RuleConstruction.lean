@@ -135,9 +135,9 @@ verification conditions for the generalization.
 
 ### General idea
 
-Consider the spec theorem `WPMonad.bind_le_wp_bind`:
+Consider the spec theorem `MonadicWP.wp_wp_le_wp_bind`:
 ```
-WPMonad.bind_le_wp_bind :
+MonadicWP.wp_wp_le_wp_bind :
   wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
 ```
 This theorem is already in WP-form, so `post` and `eposts` are schematic. However, its precondition
@@ -147,7 +147,7 @@ prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EP
   (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post eposts) eposts),
   pre ⊑ wp (x >>= f) post eposts
 ```
-The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.bind_le_wp_bind`.
+The proof term is constructed with `PartialOrder.rel_trans hpre MonadicWP.wp_wp_le_wp_bind`.
 
 #### Postcondition VCs
 
@@ -194,7 +194,7 @@ arguments.
 
 It turns out we can cache backward rules for the cache key
 `(specThm.proof.key, instWP, excessArgs.size)`. This is important for performance and helps avoid
-rebuilding the same rule for every goal that uses the same spec theorem, `WPMonad` instance and
+rebuilding the same rule for every goal that uses the same spec theorem, `MonadicWP` instance and
 number of excess state arguments. We do that in the `VCGenM` wrapper
 `mkBackwardRuleFromSpecCached`.
 
@@ -205,11 +205,12 @@ context, such as generic monad or WP instance parameters.
 ### Specialization
 
 It is unnecessary to use the `bind` rule in full generality. It is much more efficient to specialize
-it for the particular predicate type, exception postcondition type and `WPMonad` instance.
+it for the particular predicate type, exception postcondition type and `MonadicWP` instance.
 `tryMkBackwardRuleFromSpec` does that by instantiating the spec theorem and checking that its
-`Pred` and `WPMonad` arguments match the ones from the use site.
+`Pred` and `MonadicWP` arguments match the ones from the use site.
 
-For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.bind_le_wp_bind` becomes
+For `StateM Nat` and one excess state arg `s`, the type produced for
+`MonadicWP.wp_wp_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   (f : α → StateT Nat Id β) (post : β → Nat → Prop) (eposts : Unit) (s : Nat),
@@ -275,7 +276,12 @@ def mkSpecBackwardProof (info : WPApp)
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostsImpl` premise -/
-      specApplied := mkAppN (wpLemma ``WP.wp_monotone_bot_le)
+      /- `wp_monotone_bot_le` takes a lattice of `EPosts` in place of its order. -/
+      let latticeEPosts ← synthInstance
+        (mkApp (mkConst ``CompleteLattice [← getLevel info.EPosts]) info.EPosts)
+      let botLemma := mkAppN (mkConst ``WP.wp_monotone_bot_le info.head.constLevels!)
+        (info.args.take 5 ++ #[latticeEPosts, info.instWP])
+      specApplied := mkAppN botLemma
         #[prog, postAbstract, epostsAbstract, pre, specApplied]
     else
       /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
@@ -317,8 +323,8 @@ The schematic `Q`/`E` make the postcondition and exception-postcondition VCs col
 `mkSpecBackwardProof`, so the resulting rule rewrites a `wp lhs` goal to a `wp rhs` premise, matching
 the equational behaviour of a simp spec. Only the monad, the value type and the `WP` instance are
 pinned from the goal, mirroring how `tryMkBackwardRuleFromSpec` treats `⊑ wp` specs; the equation's
-remaining variables, including instance binders, stay schematic and become rule parameters that
-applying the rule binds against the concrete goal program. Dictionary projections this substitution
+remaining variables stay schematic and become rule parameters that applying the rule binds against
+the concrete goal program. Dictionary projections this substitution
 exposes in the premise program (e.g. for class projection unfold equations like
 `MonadState.modifyGet.eq_1`) are reduced by `wpHeadReduce?` before the next spec lookup.
 -/
@@ -335,7 +341,7 @@ def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
   -- `post`/`eposts` are schematic metavariables (their VCs collapse downstream).
   let post ← mkFreshExprMVar (userName := `Q) (← mkArrow info.Value info.Pred)
   let eposts ← mkFreshExprMVar (userName := `E) info.EPosts
-  -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPosts, instAL, instEAL, instWP]` are
+  -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPosts, instPO, instEPO, instWP]` are
   -- exactly the leading arguments of `wp_le_wp_of_eq`.
   let specProof ← mkAppOptM ``Std.WP.wp_le_wp_of_eq <|
     (info.args.take 7).map some ++ #[none, none, some eqPrf, some post, some eposts]
@@ -366,11 +372,15 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"
   guard <| ← isDefEqGuarded info.Pred Pred'
-  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostsSpec := rhs
+  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instPO' _instEPO' instWP' prog postSpec epostsSpec := rhs
     | throwError "target not a wp application {rhs}"
   -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
-  -- spec spells `WPMonad.toWP ?inst`; default transparency unfolds both after `?inst` synthesis.
+  -- spec spells it as the interpretation of a `MonadicWP` binder at the result type.
   guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
+  -- Synthesize the spec's remaining instance arguments, its orders and laws, once for the rule;
+  -- left open, `BackwardRule.apply` synthesizes them at every application.
+  let specGoal := (← mkFreshExprMVar specType).mvarId!
+  synthAppInstances `vcgen specGoal _xs _bs (synthAssignedInstances := false) (allowSynthFailures := true)
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
   let mut ss := #[]
@@ -384,40 +394,33 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
 
 /-! ## Split rules -/
 
-open Lean.Elab.Tactic.Do in
-/-- Creates a reusable backward rule for splitting `ite`, `dite`, `cond`, or matchers.
+/-- The goal of a split rule as a function of the split term `t`. A `wp` split uses the goal
+`pre ⊑ wp t post eposts s₁ … sₙ` with the parameters `s₁ … sₙ, post, eposts, pre`. A precondition
+split uses the goal `t s₁ … sₙ ⊑ rhs` with the parameters `s₁ … sₙ, rhs`, and a right-hand side
+split uses `pre ⊑ t s₁ … sₙ` with the parameters `s₁ … sₙ, pre`. -/
+structure SplitContext where
+  /-- The parameters of the goal other than the split term. -/
+  params : Array Expr
+  /-- The goal whose split term is the argument. -/
+  mkGoal : Expr → Expr
+  /-- The split term of a goal that `mkGoal` built. -/
+  hole : Expr → Expr
 
-Uses `SplitInfo.withAbstract` to introduce abstract fvars for the split components,
-then `SplitInfo.splitWith` to build the splitting proof. Hypothesis types are
-discovered via `rwIfOrMatcher` inside the splitter telescope. -/
-public def mkBackwardRuleForSplit
-    (splitInfo : SplitInfo) (info : WPApp) : MetaM BackwardRule := do
-  -- The split value type is the goal's, so reuse the goal's program type and `WP` instance directly.
-  let a := info.Value
-  let ma := info.Prog
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher
+application `splitInfo` of type `resTy` in the goal that `withSplitContext` describes. -/
+@[inline] def mkBackwardRuleForSplitAt (splitInfo : SplitInfo) (resTy : Expr)
+    (withSplitContext : Expr → (SplitContext → MetaM Expr) → MetaM Expr) : MetaM BackwardRule := do
   let prf ←
-    splitInfo.withAbstract ma fun abstractInfo splitFVars => do
+    splitInfo.withAbstract resTy fun abstractInfo splitFVars => do
     -- Eta-reduce matcher alts for the backward rule pattern to avoid expensive
     -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
     -- `splitWith`/`matcherApp.transform` can `instantiateLambda` them directly.
-    let abstractProg := match abstractInfo with
+    let abstractTerm := match abstractInfo with
       | .ite e | .dite e | .cond e => e
       | .matcher matcherApp =>
         { matcherApp with alts := matcherApp.alts.map Expr.eta }.toExpr
-    let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>
-      return (`s, ← Meta.inferType arg)
-    withLocalDeclsDND excessArgNamesTypes fun ss => do
-    withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
-    withLocalDeclD `EPosts info.EPosts fun eposts => do
-    let mkWP (prog : Expr) : Expr :=
-      let args := info.args.take 7 ++ #[prog, post, eposts]
-      mkAppN (mkAppN info.head args) ss
-    let Pred' ← Meta.inferType (mkWP abstractProg)
-    withLocalDeclD `Pre Pred' fun pre => do
-    let sampleGoal ← mkAppM ``PartialOrder.rel #[pre, mkWP abstractProg]
-    let relArgs := sampleGoal.getAppArgs
-    let relHead := mkAppN sampleGoal.getAppFn (relArgs.extract 0 3)
-    let mkGoal (prog : Expr) : Expr := mkApp relHead (mkWP prog)
+    withSplitContext abstractTerm fun splitCtx => do
     -- Use synthetic opaque mvars so that `rwIfOrMatcher`'s `assumption` cannot
     -- accidentally assign our subgoal metavariables.
     let subgoals ← splitInfo.altInfos.mapM fun _ =>
@@ -427,28 +430,72 @@ public def mkBackwardRuleForSplit
     let prf ←
       abstractInfo.splitWith
         (useSplitter := true)
-        (mkGoal abstractProg)
+        (splitCtx.mkGoal abstractTerm)
         (fun _name bodyType idx altFVars => do
-          -- Extract the program from `bodyType` (the substituted alt goal type).
+          -- Extract the split term from `bodyType` (the substituted alt goal type).
           -- For matchers, `bodyType` has the discriminant replaced by the constructor
           -- pattern (e.g., `Nat.zero` instead of `discr`), which is required for
           -- `rwMatcher` to discharge the equality hypotheses of congr equation theorems.
-          -- For ite/dite, `bodyType` equals `mkGoal abstractProg` so this is equivalent.
-          let prog := bodyType.getArg! 3 |>.getArg! 7
-          let res ← rwIfOrMatcher idx prog
+          -- For ite/dite/cond, `bodyType` equals `splitCtx.mkGoal abstractTerm` so this is equivalent.
+          let term := splitCtx.hole bodyType
+          let res ← rwIfOrMatcher idx term
           if res.proof?.isNone then
             throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}"
           let altParams := altFVars.all
-          subgoals[idx]!.mvarId!.assign (← mkForallFVars altParams (mkGoal res.expr))
-          let context ← withLocalDecl `x .default ma fun x =>
-            mkLambdaFVars #[x] (mkGoal x)
+          subgoals[idx]!.mvarId!.assign (← mkForallFVars altParams (splitCtx.mkGoal res.expr))
+          let context ← withLocalDecl `x .default resTy fun x =>
+            mkLambdaFVars #[x] (splitCtx.mkGoal x)
           let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
           mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
     let prf ← instantiateMVars prf
-    mkLambdaFVars (splitFVars ++ ss ++ #[post, eposts, pre] ++ subgoalHyps) prf
+    mkLambdaFVars (splitFVars ++ splitCtx.params ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
+
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher program
+`splitInfo` in a goal `pre ⊑ wp prog post eposts s₁ … sₙ`. -/
+public def mkBackwardRuleForSplit
+    (splitInfo : SplitInfo) (info : WPApp) : MetaM BackwardRule := do
+  -- The split value type is the goal's, so reuse the goal's program type and `WP` instance directly.
+  mkBackwardRuleForSplitAt splitInfo info.Prog fun abstractProg k => do
+    let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>
+      return (`s, ← Meta.inferType arg)
+    withLocalDeclsDND excessArgNamesTypes fun ss => do
+    withLocalDeclD `post (← mkArrow info.Value info.Pred) fun post => do
+    withLocalDeclD `eposts info.EPosts fun eposts => do
+    let mkWP (prog : Expr) : Expr :=
+      let args := info.args.take 7 ++ #[prog, post, eposts]
+      mkAppN (mkAppN info.head args) ss
+    let Pred' ← Meta.inferType (mkWP abstractProg)
+    withLocalDeclD `pre Pred' fun pre => do
+    let sampleGoal ← mkAppM ``PartialOrder.rel #[pre, mkWP abstractProg]
+    let relHead := mkAppN sampleGoal.getAppFn (sampleGoal.getAppArgs.extract 0 3)
+    k { params := ss ++ #[post, eposts, pre]
+        mkGoal := fun prog => mkApp relHead (mkWP prog)
+        hole := fun goal => goal.getArg! 3 |>.getArg! 7 }
+
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting the `ite`, `dite`, `cond`, or matcher
+application `splitInfo` in a goal `e s₁ … sₙ ⊑ rhs` (when `inPre`) or `pre ⊑ e s₁ … sₙ`, where
+`numStates` is `n` and `rel` is the partial application `PartialOrder.rel α inst` of the goal. -/
+public def mkBackwardRuleForAssertionSplit (splitInfo : SplitInfo) (rel : Expr) (numStates : Nat)
+    (inPre : Bool) : MetaM BackwardRule := do
+  -- The types `σᵢ : Type ?uᵢ` of `s₁ … sₙ` are schematic, so the rule serves every state chain of
+  -- length `n`. In `Type ?uᵢ`, the level of the split application normalizes to a successor that
+  -- the goal's level unifies with.
+  let stateTypes ← (Array.range numStates).mapM fun _ => do
+    mkFreshExprMVar (mkSort (← mkFreshLevelMVar).succ)
+  let resTy ← stateTypes.foldrM (init := rel.getArg! 0) fun σ acc => mkArrow σ acc
+  mkBackwardRuleForSplitAt splitInfo resTy fun _ k => do
+    withLocalDeclsDND (stateTypes.map (`s, ·)) fun ss => do
+    withLocalDeclD (if inPre then `rhs else `pre) (rel.getArg! 0) fun other => do
+    let argIdx := if inPre then 2 else 3
+    k { params := ss.push other
+        mkGoal := fun e =>
+          if inPre then mkApp2 rel (mkAppN e ss) other else mkApp2 rel other (mkAppN e ss)
+        hole := fun goal => (goal.getArg! argIdx).stripArgsN ss.size }
 
 /-! ## Frame rules -/
 
@@ -491,8 +538,12 @@ positions of the schematic slots.
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
   let op ← fp.mkOpAppM info
+  -- The frame rule takes lattices of assertions in place of their orders.
+  let lattice (α : Expr) : MetaM Expr := do
+    synthInstance (mkApp (mkConst ``CompleteLattice [← getLevel α]) α)
   let thm ← mkAppOptM ``Std.WP.meet_op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none, none])
+    ((info.args.take 4).map some ++ #[some (← lattice info.Pred), some (← lattice info.EPosts),
+      some info.instWP, none, some op, none, none])
   let (xs, _, concl) ← forallMetaTelescope (← instantiateMVars (← Meta.inferType thm))
   let_expr PartialOrder.rel _ _ lhs wp := concl
     | throwError "frame: unexpected frame rule conclusion{indentExpr concl}"

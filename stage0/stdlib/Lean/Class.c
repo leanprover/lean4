@@ -5758,9 +5758,9 @@ goto v___jp_1892_;
 v___jp_1934_:
 {
 size_t v_sz_1939_; size_t v___x_1940_; lean_object* v___x_1941_; lean_object* v___x_1942_; lean_object* v___x_1943_; lean_object* v___x_1944_; lean_object* v_a_1945_; lean_object* v_fst_1946_; lean_object* v___x_1947_; 
-v_sz_1939_ = lean_array_size(v___y_1936_);
+v_sz_1939_ = lean_array_size(v___y_1935_);
 v___x_1940_ = ((size_t)0ULL);
-v___x_1941_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Class_0__Lean_initFn_00___x40_Lean_Class_4052238930____hygCtx___hyg_2__spec__3(v_sz_1939_, v___x_1940_, v___y_1936_);
+v___x_1941_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Class_0__Lean_initFn_00___x40_Lean_Class_4052238930____hygCtx___hyg_2__spec__3(v_sz_1939_, v___x_1940_, v___y_1935_);
 v___x_1942_ = lean_mk_empty_array_with_capacity(v_i_1884_);
 lean_inc_ref(v___x_1942_);
 v___x_1943_ = lean_alloc_ctor(0, 2, 0);
@@ -5778,7 +5778,7 @@ lean_dec(v_a_1945_);
 v___x_1947_ = l_Lean_getOutParamPositions_x3f(v___y_1938_, v_decl_1886_);
 if (lean_obj_tag(v___x_1947_) == 0)
 {
-v___y_1909_ = v___y_1935_;
+v___y_1909_ = v___y_1936_;
 v___y_1910_ = v_fst_1946_;
 v___y_1911_ = v___x_1942_;
 goto v___jp_1908_;
@@ -5790,7 +5790,7 @@ lean_dec_ref(v___x_1942_);
 v_val_1948_ = lean_ctor_get(v___x_1947_, 0);
 lean_inc(v_val_1948_);
 lean_dec_ref_known(v___x_1947_, 1);
-v___y_1909_ = v___y_1935_;
+v___y_1909_ = v___y_1936_;
 v___y_1910_ = v_fst_1946_;
 v___y_1911_ = v_val_1948_;
 goto v___jp_1908_;
@@ -5817,8 +5817,8 @@ v___x_1959_ = lean_array_get_size(v___x_1958_);
 v___x_1960_ = lean_nat_dec_lt(v_i_1884_, v___x_1959_);
 if (v___x_1960_ == 0)
 {
-v___y_1935_ = v___y_1952_;
-v___y_1936_ = v___x_1958_;
+v___y_1935_ = v___x_1958_;
+v___y_1936_ = v___y_1952_;
 v___y_1937_ = v___x_1955_;
 v___y_1938_ = v___y_1950_;
 goto v___jp_1934_;
@@ -5834,8 +5834,8 @@ v___x_1964_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_
 if (lean_obj_tag(v___x_1964_) == 0)
 {
 lean_dec_ref_known(v___x_1964_, 1);
-v___y_1935_ = v___y_1952_;
-v___y_1936_ = v___x_1958_;
+v___y_1935_ = v___x_1958_;
+v___y_1936_ = v___y_1952_;
 v___y_1937_ = v___x_1955_;
 v___y_1938_ = v___y_1950_;
 goto v___jp_1934_;

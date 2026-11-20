@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Consumers.Collect
 import Init.Data.String.TakeDrop
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
@@ -47,6 +49,117 @@ def componentsRev : Name → List Name
 
 def components (n : Name) : List Name :=
   n.componentsRev.reverse
+
+/-- Removes the last `k` components of `n`. -/
+def dropLastComponents : Name → Nat → Name
+  | n,         0     => n
+  | anonymous, _     => anonymous
+  | str p _,   k + 1 => dropLastComponents p k
+  | num p _,   k + 1 => dropLastComponents p k
+
+/-- The internal state of `Name.revIter`. -/
+structure RevComponentIterator where
+  /-- The prefix whose components have not been yielded yet. -/
+  rest : Name
+deriving Inhabited
+
+/--
+Returns an iterator over the components of `n` as atomic names, starting with the last one. This is
+a streaming version of `Name.componentsRev`.
+
+Examples:
+* ``(`a.b.c).revIter.toList = [`c, `b, `a]``
+* ``(`a.b.c).revIter.first? = some `c``
+-/
+def revIter (n : Name) : Std.Iter (α := RevComponentIterator) Name :=
+  ⟨⟨n⟩⟩
+
+namespace RevComponentIterator
+
+/-- The step function of `Name.revIter`, which also serves as its plausibility specification. -/
+@[inline]
+def step : Std.IterM (α := RevComponentIterator) m Name →
+    Std.IterStep (Std.IterM (α := RevComponentIterator) m Name) Name
+  | ⟨⟨anonymous⟩⟩ => .done
+  | ⟨⟨str p s⟩⟩ => .yield ⟨⟨p⟩⟩ (Name.mkStr anonymous s)
+  | ⟨⟨num p v⟩⟩ => .yield ⟨⟨p⟩⟩ (Name.mkNum anonymous v)
+
+instance [Pure m] : Std.Iterator RevComponentIterator m Name where
+  IsPlausibleStep it step := step = RevComponentIterator.step it
+  step it := pure (.deflate ⟨RevComponentIterator.step it, rfl⟩)
+
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation RevComponentIterator m where
+  Rel := InvImage WellFoundedRelation.rel (·.internalState.rest.getNumParts)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    obtain ⟨_, h, rfl⟩ := h
+    obtain ⟨⟨n⟩⟩ := it
+    cases n <;> cases h <;> simp_wf <;> simp [getNumParts]
+
+instance [Pure m] : Std.Iterators.Finite RevComponentIterator m :=
+  .of_finitenessRelation finitenessRelation
+
+instance [Monad m] [Monad n] : Std.IteratorLoop RevComponentIterator m n :=
+  .defaultImplementation
+
+end RevComponentIterator
+
+/-- The internal state of `Name.iter`. -/
+structure ComponentIterator where
+  /-- The components of the name, in reverse order. -/
+  revComponents : Array Name
+  /-- The components at indices `pos - 1` down to `0` have not been yielded yet. -/
+  pos : Nat
+  pos_le : pos ≤ revComponents.size
+
+instance : Inhabited ComponentIterator := ⟨⟨#[], 0, Nat.le_refl _⟩⟩
+
+/--
+Returns an iterator over the components of `n` as atomic names, starting with the root. This is a
+streaming version of `Name.components`.
+
+Since names are stored back to front, creating the iterator collects all components of `n` into an
+array. Prefer `Name.revIter` if the order of the components does not matter.
+
+Examples:
+* ``(`a.b.c).iter.toList = [`a, `b, `c]``
+* ``(`a.b.c).iter.first? = some `a``
+-/
+def iter (n : Name) : Std.Iter (α := ComponentIterator) Name :=
+  let revComponents := n.revIter.toArray
+  ⟨⟨revComponents, revComponents.size, Nat.le_refl _⟩⟩
+
+namespace ComponentIterator
+
+/-- The step function of `Name.iter`, which also serves as its plausibility specification. -/
+@[inline]
+def step : Std.IterM (α := ComponentIterator) m Name →
+    Std.IterStep (Std.IterM (α := ComponentIterator) m Name) Name
+  | ⟨⟨_, 0, _⟩⟩ => .done
+  | ⟨⟨revComponents, k + 1, h⟩⟩ =>
+    .yield ⟨⟨revComponents, k, Nat.le_of_succ_le h⟩⟩ revComponents[k]
+
+instance [Pure m] : Std.Iterator ComponentIterator m Name where
+  IsPlausibleStep it step := step = ComponentIterator.step it
+  step it := pure (.deflate ⟨ComponentIterator.step it, rfl⟩)
+
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation ComponentIterator m where
+  Rel := InvImage WellFoundedRelation.rel (·.internalState.pos)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    obtain ⟨_, h, rfl⟩ := h
+    obtain ⟨⟨_, _ | k, _⟩⟩ := it <;> cases h
+    simp_wf
+
+instance [Pure m] : Std.Iterators.Finite ComponentIterator m :=
+  .of_finitenessRelation finitenessRelation
+
+instance [Monad m] [Monad n] : Std.IteratorLoop ComponentIterator m n :=
+  .defaultImplementation
+
+end ComponentIterator
 
 def eqStr : Name → String → Bool
   | str anonymous s, s' => s == s'
@@ -170,6 +283,15 @@ def isAtomic : Name → Bool
   | num anonymous _ => true
   | _               => false
 
+/--
+Checks whether `n` has exactly one component. Unlike `Name.isAtomic`, this is `false` for
+`Name.anonymous`.
+-/
+def hasSingleComponent : Name → Bool
+  | str anonymous _ => true
+  | num anonymous _ => true
+  | _               => false
+
 def isAnonymous : Name → Bool
   | anonymous         => true
   | _                 => false
@@ -199,8 +321,7 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
 
 /-- Return true if the name is in a namespace associated to metaprogramming. -/
 def isMetaprogramming (n : Name) : Bool :=
-  let components := n.components
-  components.head?.any (· == `Lean) || (components.any (· matches `Tactic | `Linter | `Simproc | `Meta))
+  n.getRoot == `Lean || n.revIter.any (· matches `Tactic | `Linter | `Simproc | `Meta)
 
 end Name
 end Lean

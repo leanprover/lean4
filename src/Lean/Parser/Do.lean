@@ -63,7 +63,7 @@ def notFollowedByRedefinedTermToken :=
   -- an "open" command follows the `do`-block.
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
-      "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
+      "do" <|> "dbg_trace" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
 namespace InternalSyntax
@@ -281,36 +281,6 @@ It should only be used for debugging.
 -/
 @[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec
   "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
-/--
-*experimental*
-
-`idbg e` enables live inspection of program state from the editor. When placed in a `do` block,
-it captures all local variables in scope and the expression `e`, then:
-
-- **In the language server**: starts a TCP server on localhost waiting for the running program to
-  connect; the editor will mark this part of the program as "in progress" during this wait but that
-  will not block `lake build` of the project.
-- **In the compiled program**: on first execution of the `idbg` call site, connects to the server,
-  receives the expression, compiles and evaluates it using the program's actual runtime values, and
-  sends the `repr` result back.
-
-The result is displayed as an info diagnostic on the `idbg` keyword. The expression `e` can be
-edited while the program is running - each edit triggers re-elaboration of `e`, a new TCP exchange,
-and an updated result. This makes `idbg` a live REPL for inspecting and experimenting with
-program state at a specific point in execution. Only when `idbg` is inserted, moved, or removed does
-the program need to be recompiled and restarted.
-
-# Known Limitations
-
-* The program will poll the server for up to 10 minutes and needs to be killed manually
-  otherwise.
-* Use of multiple `idbg` at once untested, likely too much overhead from overlapping imports without
-  further changes.
-* `LEAN_PATH` must be properly set up so the compiled program can import its origin module.
-* Untested on Windows and macOS.
--/
-@[builtin_doElem_parser] def doIdbg      := leading_parser:leadPrec
-  withPosition ("idbg " >> termParser)
 /--
 `assert! cond` panics if `cond` evaluates to `false`.
 -/

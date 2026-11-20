@@ -1974,7 +1974,7 @@ static lean_object* _init_l_Std_Time_Week_Offset_toNanoseconds___closed__0(void)
 _start:
 {
 lean_object* v___x_572_; lean_object* v___x_573_; 
-v___x_572_ = lean_cstr_to_nat("604800000000000");
+v___x_572_ = lean_uint64_to_nat(604800000000000ULL);
 v___x_573_ = lean_nat_to_int(v___x_572_);
 return v___x_573_;
 }

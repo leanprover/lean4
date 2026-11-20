@@ -1058,7 +1058,7 @@ info: some (some "a%3Db")
 -- This ensures the non-http(s) scheme guard in redirect logic fires correctly.
 #guard
   match URIReference.parse? "file:///etc/passwd" with
-  | some (.absolute af) => af.scheme.val == "file" && af.authority.isNone
+  | some (.absolute af) => af.scheme.val == "file" && af.host?.isNone && toString af == "file:///etc/passwd"
   | _ => false
 
 -- `none` means no query delimiter, while `some .empty` means an explicit empty query.
@@ -1146,12 +1146,11 @@ private def hostOf (s : String) : Option URI.Host :=
     |>.setScheme! "http" |>.setHost! "example.com" |>.addQueryParam "k=1" "v=2" |>.build
   ((URI.parse? (toString uri)).bind (·.query)).bind (·.get "k=1") == some "v=2"
 
--- `http:////evil.com/x` has an empty authority and so names no host. Without an authority a path
--- cannot begin with `//` (RFC 3986 §3.3), so the path is printed behind a `/.` segment instead of as
--- `http://evil.com/x`, which names another host.
+-- `http:////evil.com/x` has an empty authority and so names no host. The empty authority is printed
+-- again (RFC 3986 §5.3), so the path is not read as `//evil.com`, which names another host.
 #guard
   match URI.parse? "http:////evil.com/x" with
-  | some u => u.host?.isNone && toString u == "http:/.//evil.com/x" &&
+  | some u => u.host?.isNone && toString u == "http:////evil.com/x" &&
       (URI.parse? (toString u)).any (·.host?.isNone)
   | none => false
 
@@ -1267,7 +1266,7 @@ private def mkPath (segments : List String) (absolute : Bool) : URI.Path :=
 -- An empty authority before such a path (`file:////host/share`, RFC 8089 Appendix E.3.2) parses.
 #guard
   match URI.parse? "file:////host/share" with
-  | some u => u.host?.isNone && toString u == "file:/.//host/share" &&
+  | some u => u.host?.isNone && toString u == "file:////host/share" &&
       (URI.parse? (toString u)).map (·.path.normalize) == some u.path
   | none => false
 

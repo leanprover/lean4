@@ -103,9 +103,11 @@ This function attempts to rewrite `p₁` by eliminating the first occurrence of
 the leading monomial of `p₂`.
 
 If `checkCoeffDvd` is `true` (and the ring does not implement `NoNatZeroDivisors`),
-a monomial is rewritten only if its coefficient is divisible by the leading
-coefficient of `p₂`, i.e., only if the rewrite does not multiply `p₁` by a
-constant `k₁ ≠ ±1`. See `RingM.Context.checkCoeffDvd`.
+the rewrite must not multiply `p₁` by a constant `k₁ ≠ ±1`. See `RingM.Context.checkCoeffDvd`.
+Then a monomial `k₁'*m₁` is rewritten only if `|k₂'| ≤ |k₁'|`, where `k₂'` is the leading
+coefficient of `p₂`. If `k₂' ∣ k₁'`, the monomial is eliminated. Otherwise, the rewrite is
+a Euclidean remainder step: it subtracts `k₁' / k₂'` (truncated) copies of `p₂` and leaves
+`(k₁' % k₂')*m₁` (truncated), whose coefficient has a smaller absolute value than `k₂'`.
 -/
 def _root_.Lean.Grind.CommRing.Poly.simpM? (p₁ p₂ : Poly) : RingM (Option SimpResult) := do
   match p₂ with
@@ -121,6 +123,13 @@ def _root_.Lean.Grind.CommRing.Poly.simpM? (p₁ p₂ : Poly) : RingM (Option Si
           let k₂ := -k₁'/g
           let p  ← (← p₂.mulMonM k₂ m₂).combineM (← p₁.mulConstM k₁)
           return some { p, k₁, k₂, m₂ }
+        else if m₂.divides m₁ && k₂'.natAbs < k₁'.natAbs then
+          -- `checkCoeff` holds and `k₂' ∤ k₁'`, so `r ≠ 0`.
+          let m₂ := m₁.div m₂
+          let k₂ := -(k₁'.tdiv k₂')
+          let r  := k₁'.tmod k₂'
+          let p  ← (← p₂.mulMonM k₂ m₂).combineM p₁
+          return some { p := .add r m₁ p, k₁ := 1, k₂, m₂ }
         else if let some r ← go? p₁ then
           if let some char ← nonzeroChar? then
             let k := (k₁'*r.k₁) % char

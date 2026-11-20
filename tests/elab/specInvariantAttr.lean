@@ -1,40 +1,42 @@
-import Std.Tactic.Do
-import Std
+import Std.WP
 
 set_option sym.debug true
 
-open Std Do
+/-!
+Tests that `@[spec_invariant_type]` works end-to-end with `vcgen` and a custom invariant type: we
+define a type, tag it, provide a spec using it, and check that `vcgen` classifies the invariant goal
+as an invariant (so that the `invariants` syntax applies) rather than as a verification condition.
+-/
 
-set_option grind.warning false
-set_option linter.deprecated.syntax false
+open Std.WP Lean.Order
 
--- Test that `@[spec_invariant_type]` works end-to-end with a custom invariant type.
--- We replicate the `StringInvariant` setup locally: define a type, tag it, provide a spec,
--- and verify that `mvcgen` classifies the invariant goal as `inv1` rather than `vc1`.
+set_option experimental.vcgen true
 
 @[spec_invariant_type]
-abbrev MyStringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
-  PostCond (s.Pos × β) ps
+def MyStringInvariant (s : String) (β : Type u) (Pred : Type uₚ) :=
+  s.Pos → β → Pred
 
 section
-universe u₁ u₂ v
-variable {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {ps : PostShape.{max u₁ u₂}}
-variable [Monad m] [WPMonad m ps]
+universe u₂ v uₚ uₑ
+variable {β : Type u₂} {m : Type u₂ → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
+variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
 
--- This is the same as `Spec.forIn_string` from `Std.Do.Triple.SpecLemmas`, but with
--- `MyStringInvariant` instead of `PostCond` so that `mvcgen` classifies the goal as an invariant.
+-- The same as `Std.WP.Spec.forIn_string`, but with `MyStringInvariant` instead of
+-- `StringInvariant`.
 @[spec high]
 axiom mySpec_forIn_string
     {s : String} {init : β} {f : Char → β → m (ForInStep β)}
-    (inv : MyStringInvariant s β ps)
+    (inv : MyStringInvariant s β Pred)
+    {eposts : EPosts}
     (step : ∀ pos b (h : pos ≠ s.endPos),
       Triple
         (f (pos.get h) b)
-        (inv.1 (pos, b))
+        (inv pos b)
         (fun r => match r with
-          | .yield b' => inv.1 (pos.next h, b')
-          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
-    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2)
+          | .yield b' => inv (pos.next h) b'
+          | .done b' => inv s.endPos b')
+        eposts) :
+    Triple (forIn s init f) (inv s.startPos init) (fun b => inv s.endPos b) eposts
 
 end
 
@@ -43,9 +45,7 @@ def stringLoop (s : String) : Id Unit := do
     pure ()
 
 theorem stringLoop_correct (s : String) :
-    ⦃⌜True⌝⦄ stringLoop s ⦃⇓ _ => ⌜True⌝⦄ := by
-  -- With `@[spec_invariant_type]` on `MyStringInvariant`, mvcgen classifies the
-  -- loop invariant goal as `inv1` rather than `vc1`, enabling the `invariants` syntax.
-  mvcgen [stringLoop] invariants
-  · ⇓ _ => ⌜True⌝
-  with grind
+    ⦃ True ⦄ stringLoop s ⦃ fun _ => True ⦄ := by
+  vcgen [stringLoop] invariants
+  · fun _ _ => True
+  with finish

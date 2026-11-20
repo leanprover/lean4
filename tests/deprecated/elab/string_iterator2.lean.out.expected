@@ -1,0 +1,23 @@
+"αβγ"
+"αβγ"
+"αβγ"
+{ byteIdx := 2 }
+'A'
+"aβγ"
+"abγ"
+"abc"
+"cbγ"
+"0bc"
+"01c"
+"012"
+"21c"
+"λbc"
+"abc-bc"
+"abc"
+false
+true
+false
+false
+true
+true
+false

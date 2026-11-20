@@ -31,7 +31,7 @@ remove the following code without breaking the do block's type.
     | throwUnsupportedSyntax
   let mut expanded ←
     `(doElem| for%$tk _ in Loop.mk $[$inv?:doLoopInvariant]? $[$var?:doLoopDecreasing]? do $seq)
-  let info ← inferControlInfoSeq seq
+  let info ← inferControlInfoSeq seq (← read).controlInfoCache
   if !info.breaks then
     if !(← Meta.isDefEqGuarded dec.resultType (← mkPUnit)) then
       expanded ← `(doElem| do $expanded:doElem; unreachable!)

@@ -87,7 +87,7 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     | ok a => rfl
     | error e => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
-instance (priority := low) {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
+instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ExceptT ε m) where
   pure_le x := fun post eposts => by
@@ -135,7 +135,7 @@ instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     | some a => rfl
     | none => exact MonadicWP.wp_pure_eq (m := m) _ _ _
 
-instance (priority := low) {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
+instance {Pred : Type u} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (OptionT m) where
   pure_le x := fun post eposts => by
@@ -178,7 +178,7 @@ instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m] [PartialOrder
     exact MonadicWP.wp_bind_eq (m := m) (x.run s) (fun p => (f p.1).run p.2)
       (fun p => post p.1 p.2) eposts
 
-instance (priority := low) {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m]
+instance {EPosts : Type v} {σ : Type u} {Pred : Type w} [Monad m]
     [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
     [MonadicWP.IsLaxMonadMorphism m] : MonadicWP.IsLaxMonadMorphism (StateT σ m) where
   pure_le x := fun post eposts s => by
@@ -217,7 +217,7 @@ instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     exact MonadicWP.wp_bind_eq (m := m) (x.run r) (fun a => (f a).run r) (fun b => post b r)
       eposts
 
-instance (priority := low) {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
+instance {Pred : Type v} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
     [MonadicWP m Pred EPosts] [MonadicWP.IsLaxMonadMorphism m] :
     MonadicWP.IsLaxMonadMorphism (ReaderT ρ m) where
   pure_le x := fun post eposts r => by

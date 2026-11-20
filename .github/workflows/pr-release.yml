@@ -197,7 +197,13 @@ jobs:
       - name: Fetch nightly tags
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         working-directory: upstream
-        run: git fetch --no-tags https://github.com/leanprover/lean4-nightly.git '+refs/tags/nightly-*:refs/tags/nightly-*'
+        # The checkout is a partial clone, so the nightly repo must be a promisor remote with the
+        # same filter; a plain fetch from its URL fails with "did not send all necessary objects".
+        run: |
+          git remote add nightly https://github.com/leanprover/lean4-nightly.git
+          git config remote.nightly.promisor true
+          git config remote.nightly.partialclonefilter tree:0
+          git fetch --no-tags nightly '+refs/tags/nightly-*:refs/tags/nightly-*'
 
       - name: Checkout downstream repo
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}

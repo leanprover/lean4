@@ -15,6 +15,8 @@ public section
 
 open Lean Meta Elab Command Term
 
+set_option linter.missingDocs true
+
 /--
 Force all delayed assigned variables to be assigned if possible even if the assignment would
 contain metavariables. The reason we need this function is that abstracting metavariables using
@@ -334,21 +336,33 @@ private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) 
     | .const nm _ => isIgnoredConstant nm env
     | _ => false
 
+/-- The error type for the internal function `tryApplyCanonicalInstance` -/
 inductive CanonicalInstanceFailure where
+  /-- The are no suitable instances or at least two successful matches -/
   | nonUnique (matching filtered : Array InstanceEntry)
+  /-- Unification of the goal with the instance type failed -/
   | unifyFailed (instEntry : InstanceEntry)
+  /--
+  After unification, some part of the result has metavariables:
+  * an argument if `isArg = true`
+  * the resulting instance if `isArg = false`
+  -/
   | hasMVars (mctx : MetavarContext) (instEntry : InstanceEntry) (e : Expr) (isArg : Bool)
+  /-- Multiple instances were tried and all failed -/
   | multi (xs : Array CanonicalInstanceFailure)
 deriving Inhabited
 
-def CanonicalInstanceFailure.isNoMatch : CanonicalInstanceFailure → Bool
+/-- Whether we failed because of no suitable matching instances -/
+partial def CanonicalInstanceFailure.isNoMatch : CanonicalInstanceFailure → Bool
   | .nonUnique _ filtered => filtered.isEmpty
   | _ => false
 
-def CanonicalInstanceFailure.isMultiMatch : CanonicalInstanceFailure → Bool
+/-- Whether we failed because of multiple successes -/
+partial def CanonicalInstanceFailure.isMultiMatch : CanonicalInstanceFailure → Bool
   | .nonUnique _ filtered => filtered.size > 1
   | _ => false
 
+/-- Turn the failure into a nice error message -/
 partial def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MetaM MessageData
   | .nonUnique matching filtered =>
     if matching.isEmpty then
@@ -382,9 +396,9 @@ private def filterActiveInstances (possible : Array InstanceEntry) :
     !erasedInstances.contains constName && (!env.isExporting || env.contains constName)
 
 /--
-Without `deriving.chooseArbitraryInstance`, returns `some possible[0]` if `possible` has exactly
-one element and `none` if it has no elements or more than one. Otherwise, returns the last instance
-with the highest priority or `none` if `possible` is empty.
+Without `deriving.chooseArbitraryInstance`, returns `some 0` if `possible` has exactly one element
+and `none` if it has no elements or more than one. Otherwise, returns the index of the last
+instance with the highest priority or `none` if `possible` is empty.
 -/
 private def chooseInstance (possible : Array InstanceEntry)
     : CoreM (Option (Fin possible.size)) := do
@@ -496,15 +510,24 @@ where
       res := res.app arg
     return .ok (res, outVars)
 
+/-- The state of the `DerivingM` monad -/
 structure State where
+  /-- Metavariables for potential instance binders created by `synthInstanceDeriving` -/
   instanceMVars : Array MVarId := #[]
+  /-- Local instances associated to `instanceMVars` -/
   newLInsts : LocalInstances := #[]
-  -- for documentation purposes
+  /-- There are exactly as many local instances as instance metavariables -/
   invariant1 : instanceMVars.size = newLInsts.size := by rfl
+  /-- Each local instance has the corresponding metavariable as the value -/
   invariant2 (i : Nat) (hi : i < newLInsts.size) :
     newLInsts[i].fvar = .mvar instanceMVars[i] := by nofun
+  /--
+  Failures of the internal `tryApplyCanonicalInstance` function associated to instance
+  metavariables.
+  -/
   splitFailures : Array (MVarId × CanonicalInstanceFailure) := #[]
 
+/-- The context for the `DerivingM` monad -/
 structure Context where
   /-- The name of the type class being derived -/
   className : Name
@@ -543,11 +566,22 @@ structure Context where
   -/
   isMeta : Bool
 
+/--
+The `DerivingM` monad builds on top of `TermElabM` with context about what is being derived and
+potential instance binders as state.
+
+The key operations provided by `DerivingM` are:
+* `synthInstanceDeriving`, which tries to synthesize an instance and adds missing instances as
+  potential instance binders
+* `produceInstanceHyps`, which filters the potential instance binders into a suitable list of
+  metavariable instance binders
+-/
 abbrev DerivingM := ReaderT Deriving.Context <| StateRefT Deriving.State TermElabM
 
 instance : Inhabited (DerivingM α) where
   default := liftM (default : TermElabM α)
 
+/-- Run a `DerivingM` computation with the given context -/
 nonrec def DerivingM.run (x : DerivingM α) (ctx : Deriving.Context) : TermElabM α :=
   (x.run ctx).run' {}
 
@@ -881,6 +915,10 @@ without indices).
 def inductAppWithParams (induct : Name) : DerivingM Expr := do
   return mkAppN (.const induct (← read).indLParams) (← read).indParams
 
+/--
+Information for a helper of an instance, parameterized by the type of the result of the
+`preHelpers` computation provided to `makeInstancesUsingMutualBlock`
+-/
 structure HelperInfo (α : Type) where
   /-- Name suffix to add to the name of the instance -/
   suffix : Name
@@ -904,6 +942,10 @@ structure HelperInfo (α : Type) where
     fun _ p => pure p
 deriving Inhabited
 
+/--
+Information for an instance, parameterized by the type of the result of the
+`preHelpers` computation provided to `makeInstancesUsingMutualBlock`
+-/
 structure InstanceInfo (α : Type) where
   /-- The inductive for which this instance is generated (used for filtering by `(← read).names`) -/
   induct : Name
@@ -1069,17 +1111,31 @@ inductive FieldHelperInfo (α : Type) where
   -/
   | usingHelper (mkValue : (instances : Array Expr) → α → DerivingM Expr)
 
+/--
+The input to a `FieldHelperProvider` which contains information about a specific field of the type
+class being derived.
+-/
 structure FieldProviderInput where
+  /-- The level parameter of the type class -/
   classLParams : List Level
+  /-- The parameter of the type class -/
   classParams : Array Expr
+  /--
+  The application of the inductive type in the mutual block that we are currently deriving an
+  instance for; typically a parameter of the type class.
+  -/
   typeApp : Expr
+  /-- The `ConstantVal` for the field for which a value should be provided -/
   fieldInfo : ConstantVal
+  /-- The expected type of the field -/
   expectedType : Expr
 
+/-- The name of the inductive type that we are currently deriving an instance for  -/
 @[inline]
 def FieldProviderInput.induct (x : FieldProviderInput) : Name :=
   x.typeApp.getAppFn.constName!
 
+/-- The name of the field for which a value should be provided -/
 @[inline]
 def FieldProviderInput.fieldName (x : FieldProviderInput) : Name :=
   x.fieldInfo.name
@@ -1129,8 +1185,9 @@ def FieldHelperProvider.cases
           perCtor ival cval fields ctorApp val
 
 /--
-A pair of expression provided by `foldParallel`, annotated with information about dependencies.
-Note that the types of both expressions may not be equal if `hasBackwardDeps` is true.
+A pair of expression provided by `foldSimilarVarsParallel`, annotated with information about
+dependencies. Note that the types of both expressions may not be equal if `hasBackwardDeps` is
+true.
 -/
 structure ExprPair where
   /-- The universe both sides live in -/
@@ -1283,11 +1340,17 @@ The input of alternatives for `FieldHelperProvider.doubleCases` and
 `FieldHelperProvider.doubleCasesSlow` where both sides use the same constructor.
 -/
 structure SameCtorAlt (α : Type) where
+  /-- The `InductiveVal` for the inductive we're matching on -/
   inductInfo : InductiveVal
+  /-- The `ConstructorVal` for the constructor of `inductInfo` this alternative is about -/
   ctorInfo : ConstructorVal
+  /-- The fields for the constructor on the left-hand side -/
   leftFields : Array Expr
+  /-- The fields for the constructor on the right-hand side -/
   rightFields : Array Expr
+  /-- The application of `ctorInfo` with parameters and `leftFields` -/
   leftCtorApp : Expr
+  /-- The application of `ctorInfo` with parameters and `rightFields` -/
   rightCtorApp : Expr
   /-- The value returned by the `preHelpers` computation or `()` if none was provided -/
   val : α
@@ -1297,12 +1360,19 @@ The input of alternatives for `FieldHelperProvider.doubleCasesSlow` where both s
 constructors.
 -/
 structure DifferentCtorAlt (α : Type) where
+  /-- The `InductiveVal` for the inductive we're matching on -/
   inductInfo : InductiveVal
+  /-- The `ConstructorVal` for the constructor of `inductInfo` on the left-hand side -/
   leftCtor : ConstructorVal
+  /-- The `ConstructorVal` for the constructor of `inductInfo` on the right-hand side -/
   rightCtor : ConstructorVal
+  /-- The fields for the constructor on the left-hand side -/
   leftFields : Array Expr
+  /-- The fields for the constructor on the right-hand side -/
   rightFields : Array Expr
+  /-- The application of `leftCtor` with parameters and `leftFields` -/
   leftCtorApp : Expr
+  /-- The application of `rightCtor` with parameters and `leftFields` -/
   rightCtorApp : Expr
   /-- The value returned by the `preHelpers` computation or `()` if none was provided -/
   val : α
@@ -1312,8 +1382,11 @@ A fallback alternative for `FieldHelperProvider.doubleCases` where both sides ha
 different constructor indices.
 -/
 structure DifferentCtorFallbackAlt (α : Type) where
+  /-- The `InductiveVal` for the inductive we're matching on -/
   inductInfo : InductiveVal
+  /-- The left-hand side value (a variable) -/
   lhs : Expr
+  /-- The right-hand side value (a variable) -/
   rhs : Expr
   /-- A proof that `lhs.ctorIdx ≠ rhs.ctorIdx` -/
   cidxNeProof : Expr
@@ -2127,7 +2200,7 @@ private def buildLawDerivingEntriesFor (names : List Name) :
 
 /--
 Constructs instances of the law type class in the context using its constructor, running `perField`
-on every field given a `LawDerivingContext` the name of the projection function of the field.
+on every field given a `LawDerivingContext` and the name of the projection function of the field.
 
 The `LawDerivingContext` contains equations for each field of the instance parameters of the law
 type class. The most typical use is to just `ctx.withUnfoldOnce` with it, unfolding the relevant
@@ -2321,6 +2394,11 @@ private def decLevels : Level → NameSet → NameSet
   | .param u, set => set.insert u
   | .mvar _, _ => unreachable!
 
+/--
+A shape of a level: Provides instantiations of level parameters such that the level matches a
+certain shape. Typical shapes are `.sortU` for arbitrary levels, `.typeU` for `u + 1`,
+`.prop` for the level `0` and `.type` for `1`.
+-/
 structure LevelShape where
   /--
   Given a normalized universe level `lvl`, try to provide assignments of the level parameters

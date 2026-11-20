@@ -12,6 +12,7 @@ public import Lean.AddDecl
 public import Lean.Meta.Transform
 public import Lean.Util.CollectFVars
 public import Lean.Util.CollectMVars
+import Lean.Meta.Sym.ExprPtr
 import Init.Data.Range.Polymorphic.Iterators
 import Init.While
 
@@ -79,33 +80,66 @@ private structure Context where
   -/
   cleanSuffix : Nat := 0
 
+/--
+The scratch free variable of the innermost binder that a term `e` with loose bound variables
+references, together with `e`. The free variable determines all binders that `e` can reference, so
+the key determines the free-variable form of `e`. In `fun a => (fun b => T) (fun c => T)`, where
+`T` references only `a`, both occurrences of `T` have the key `(a, T)`.
+-/
+private abbrev Key := FVarId × ExprStructEq
+
 private structure State where
   /-- The scratch free variables of the enclosing binders: bvar `i` is `xs[xs.size - i - 1]`. -/
   xs : Array Expr := #[]
-  /-- Results of `visit` for terms with loose bound variables, in the current binder scope. -/
-  visited : Std.HashMap ExprStructEq Expr := {}
-  /-- Types, in free-variable form, of terms with loose bound variables, in the current binder scope. -/
-  types : Std.HashMap ExprStructEq Expr := {}
-  /-- Results of `substEnv` in the current binder scope. -/
-  subst : Std.HashMap ExprStructEq Expr := {}
+  /-- Results of `visit` for terms with loose bound variables. -/
+  visited : Std.HashMap Key Expr := {}
+  /-- Types, in free-variable form, of terms with loose bound variables. -/
+  types : Std.HashMap Key Expr := {}
+  /-- Results of `substEnv`. -/
+  subst : Std.HashMap Key Expr := {}
   /-- Results of `visit` for closed terms. -/
   visitedClosed : Std.HashMap ExprStructEq Expr := {}
   /-- Results of `hasDepLetM`. -/
-  hasDepLetCache : Std.HashMap ExprStructEq Bool := {}
+  hasDepLetCache : Std.HashMap Sym.ExprPtr Bool := {}
+  /-- Results of `looseBVars`. -/
+  looseBVarsCache : Std.HashMap Sym.ExprPtr Nat := {}
   /-- The number of transformed `let` expressions. -/
   count : Nat := 0
 
 private abbrev M := ReaderT Context (StateRefT State MetaM)
 
-/-- Runs `x` with empty caches for the binder scope, and restores the current ones afterwards. -/
-@[inline] private def withNewScope (x : M α) : M α := do
-  let (visited, types, subst) ← modifyGet fun s =>
-    ((s.visited, s.types, s.subst), { s with visited := {}, types := {}, subst := {} })
-  try x finally
-    modify fun s => { s with visited, types, subst }
+/-- The set of loose bound variable indices of `e`, as a bit mask. -/
+private partial def looseBVars (e : Expr) : M Nat := do
+  if !e.hasLooseBVars then
+    return 0
+  match e with
+  | .bvar i => return 1 <<< i
+  | .app f a => cached do return (← looseBVars f) ||| (← looseBVars a)
+  | .lam _ t b _ | .forallE _ t b _ => cached do return (← looseBVars t) ||| ((← looseBVars b) >>> 1)
+  | .letE _ t v b _ =>
+    cached do return (← looseBVars t) ||| (← looseBVars v) ||| ((← looseBVars b) >>> 1)
+  | .mdata _ b | .proj _ _ b => looseBVars b
+  | _ => return 0
+where
+  cached (x : M Nat) : M Nat := do
+    if let some r := (← get).looseBVarsCache[({ expr := e } : Sym.ExprPtr)]? then
+      return r
+    let r ← x
+    modify fun s => { s with looseBVarsCache := s.looseBVarsCache.insert { expr := e } r }
+    return r
+
+/-- The cache key of `e`, which has loose bound variables. -/
+private def key (e : Expr) : M Key := do
+  let i ← if e.looseBVarRange == 1 then pure 0 else do
+    let mask ← looseBVars e
+    pure (Nat.log2 (mask &&& (mask ^^^ (mask - 1))))
+  let xs := (← get).xs
+  return (xs[xs.size - i - 1]!.fvarId!, e)
 
 /-- `hasDepLet` with a cache for every subterm. -/
 private partial def hasDepLetM (e : Expr) : M Bool := do
+  if e.approxDepth ≤ 5 then
+    return hasDepLet e
   match e with
   | .letE (nondep := false) .. => return true
   | .letE _ t v b true => cached do hasDepLetM t <||> hasDepLetM v <||> hasDepLetM b
@@ -115,20 +149,21 @@ private partial def hasDepLetM (e : Expr) : M Bool := do
   | _ => return false
 where
   cached (k : M Bool) : M Bool := do
-    if let some r := (← get).hasDepLetCache[(e : ExprStructEq)]? then
+    if let some r := (← get).hasDepLetCache[({ expr := e } : Sym.ExprPtr)]? then
       return r
     let r ← k
-    modify fun s => { s with hasDepLetCache := s.hasDepLetCache.insert e r }
+    modify fun s => { s with hasDepLetCache := s.hasDepLetCache.insert { expr := e } r }
     return r
 
 /-- Puts `e` into free-variable form. -/
 private def substEnv (e : Expr) : M Expr := do
   if !e.hasLooseBVars then
     return e
-  if let some r := (← get).subst[(e : ExprStructEq)]? then
+  let k ← key e
+  if let some r := (← get).subst[k]? then
     return r
   let r := e.instantiateRev (← get).xs
-  modify fun s => { s with subst := s.subst.insert e r }
+  modify fun s => { s with subst := s.subst.insert k r }
   return r
 
 /-- Checks `t =?= s`, where both terms are in free-variable form. -/
@@ -202,17 +237,18 @@ private partial def visit (e : Expr) : M Expr := do
     if !e.hasLooseBVars then
       visitClosed e
     else
-      if let some r := (← get).visited[(e : ExprStructEq)]? then
+      let k ← key e
+      if let some r := (← get).visited[k]? then
         return r
       let r ← visitCore e
-      modify fun s => { s with visited := s.visited.insert e r }
+      modify fun s => { s with visited := s.visited.insert k r }
       return r
 
 /-- Visits a closed term, whose result does not depend on the enclosing binders. -/
 private partial def visitClosed (e : Expr) : M Expr := do
   if let some r := (← get).visitedClosed[(e : ExprStructEq)]? then
     return r
-  let r ← withReader (fun _ => {}) do withNewScope do visitCore e
+  let r ← withReader (fun _ => {}) do visitCore e
   modify fun s => { s with visitedClosed := s.visitedClosed.insert e r }
   return r
 
@@ -263,7 +299,7 @@ so this function does not visit that head on its own.
 -/
 private partial def visitApp (e : Expr) : M Expr := do
   let .app f a := e | unreachable!
-  let f' ← if f.isApp then visitApp f else if f.isMVar then pure f else visit f
+  let f' ← if f.isMVar then pure f else if f.getAppFn.isMVar then visitApp f else visit f
   let r := e.updateApp! f' (← visit a)
   if (← read).numCandidates > 0 then
     checkApp f a
@@ -309,7 +345,7 @@ private partial def withBinder (n : Name) (type : Expr) (value? : Option (Expr �
         numCandidates := ctx.numCandidates + (if isCandidate then 1 else 0)
         cleanSuffix := if tainted then 0 else ctx.cleanSuffix + 1 }) do
       modify fun s => { s with xs := s.xs.push x }
-      try withNewScope do k x
+      try k x
       finally modify fun s => { s with xs := s.xs.pop }
 
 /-- Checks that the type of `a` is the domain of the type of `f`. -/
@@ -343,7 +379,8 @@ private partial def inferTypeO (e : Expr) : M Expr := do
   if !e.hasLooseBVars then
     inferType e
   else
-    if let some type := (← get).types[(e : ExprStructEq)]? then
+    let k ← key e
+    if let some type := (← get).types[k]? then
       return type
     let type ← match e with
       | .bvar idx =>
@@ -357,16 +394,18 @@ private partial def inferTypeO (e : Expr) : M Expr := do
           pure (body.instantiate1 (← substEnv a))
         else
           pure body
+      | .letE n t v b nondep =>
+        let vf ← substEnv v
+        withBinder n (← substEnv t) (some (vf, nondep)) (tainted := true) (isCandidate := false) fun x => do
+          let type ← inferTypeO b
+          return if type.containsFVar x.fvarId! then type.replaceFVar x vf else type
       | _ => inferTypeFallback e
-    modify fun s => { s with types := s.types.insert e type }
+    modify fun s => { s with types := s.types.insert k type }
     return type
 
-/-- Infers the type of a term with a binder or projection head. -/
+/-- Infers the type of a term with a `fun`, `∀` or projection head. -/
 private partial def inferTypeFallback (e : Expr) : M Expr := do
-  let ef ← substEnv e
-  -- A cache hit would not record the `let` variables that the inference unfolds.
-  withTheReader Meta.Context (fun ctx => { ctx with cacheInferType := false }) do
-    inferType ef
+  inferType (← substEnv e)
 
 end
 

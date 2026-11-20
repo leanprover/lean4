@@ -355,7 +355,8 @@ jobs:
                 // * async_* are flakey at the moment, re-enable in the future
                 // * `verif` only checks proofs, which takes over 7 minutes under the sanitizers
                 // * vcgenSepLogic is too big
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_|^verif$|vcgenSepLogic'"
+                // * do_scaling is too big
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_|^verif$|vcgenSepLogic|do_scaling'"
               },
               {
                 "name": "Linux tsanitize",

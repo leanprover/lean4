@@ -374,7 +374,7 @@ See type `CongrArgKind`.
    - When `xs` or `i` are simplified, the proof is adjusted in the `rhs` of the auto-generated
      theorem.
 -/
-def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
+def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) (rhsVarMask : Nat) : SimpM Result := do
   let argKinds := thm.argKinds
   /-
   Constructs the non-`rfl` result. `argResults` contains the result for arguments with kind `.eq`.
@@ -390,7 +390,6 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
     -- the two instantiations.
     let mut substOld := #[]
     let args := e.getAppArgs
-    let hasCast := argKinds.any (· matches .cast)
     for arg in args, kind in argKinds do
       proof := mkApp proof arg
       type := type.bindingBody!
@@ -424,16 +423,18 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
           subst := subst.push arg |>.push h
           if hasInst then substOld := substOld.push arg |>.push h
         | .step arg' h _ _ =>
-          -- With a `.cast` argument, `rhs` embeds `h`. `share` would walk an unshared `h` as a tree.
-          let h ← if hasCast then shareCommon h else pure h
+          subst := subst.push arg'
+          -- A proof substituted into the RHS must be shared before we rebuild the application.
+          let h ← if rhsVarMask.testBit subst.size then shareCommon h else pure h
           proof := mkApp2 proof arg' h
-          subst := subst.push arg' |>.push h
+          subst := subst.push h
           if hasInst then substOld := substOld.push arg |>.push h
         type := type.bindingBody!.bindingBody!
         j := j + 1
       | _ => unreachable!
     let_expr Eq _ _ rhs := type | unreachable!
     let rhs := rhs.instantiateRev subst
+    let hasCast := argKinds.any (· matches .cast)
     let rhs ← if hasCast then Simp.removeUnnecessaryCasts rhs else pure rhs
     let rhs ← share rhs
     -- The result is context-dependent if any simplified argument was.
@@ -489,7 +490,7 @@ public def simpAppArgs (e : Expr) : SimpM Result := do
   | .none => return .rfl
   | .fixedPrefix prefixSize suffixSize => simpFixedPrefix e prefixSize suffixSize
   | .interlaced rewritable => simpInterlaced e rewritable
-  | .congrTheorem thm => simpUsingCongrThm e thm
+  | .congrTheorem thm rhsVarMask => simpUsingCongrThm e thm rhsVarMask
 
 /--
 Simplifies arguments in a specified range `[start, stop)` of a function application.

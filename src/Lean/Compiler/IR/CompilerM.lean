@@ -117,6 +117,40 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name) (fun s d => s.insert d.name d)
   }
 
+/--
+`DeclInfo.sorryDep?` of the public declarations of a module, whose IR is not exported with their
+body and info (see `declMapExt`). This lets importing modules propagate `sorry` dependencies of
+compiled code without loading the full IR.
+-/
+builtin_initialize sorryDepExt : SimplePersistentEnvExtension (Name × Name) (NameMap Name) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {}
+    addEntryFn    := fun s (f, g) => s.insert f g
+    exportEntriesFnEx? := some fun env _ entries =>
+      -- Non-module files export the full IR.
+      .uniform <| if env.header.isModule then
+        entries.toArray.filter (Compiler.LCNF.isDeclPublic env ·.1)
+          |>.qsort (fun a b => Name.quickLt a.1 b.1)
+      else #[]
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s (f, g) => s.insert f g)
+  }
+
+/-- Looks up the `sorryDep?` recorded for a declaration whose IR info may not be loaded. -/
+def findRecordedSorryDep? (env : Environment) (declName : Name) : Option Name :=
+  let findAtSorted? (entries : Array (Name × Name)) :=
+    entries.binSearch (declName, declName) (fun a b => Name.quickLt a.1 b.1) |>.map (·.2)
+  match env.getModuleIdxFor? declName with
+  | some modIdx =>
+    findAtSorted? (sorryDepExt.getModuleIREntries env modIdx) <|>
+    findAtSorted? (sorryDepExt.getModuleEntries env modIdx) <|>
+    -- Accessing the state blocks on all prior environment branches, so do so for imported
+    -- declarations only in `leanir`, where the current module has a module index.
+    if env.getModuleIdx? env.mainModule == some modIdx then
+      (sorryDepExt.getState env).find? declName
+    else none
+  | none => (sorryDepExt.getState env).find? declName
+
 @[export lean_ir_export_entries]
 private def exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
   let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
@@ -196,6 +230,8 @@ def getDecls (env : Environment) : List Decl :=
 
 def addDecl (decl : Decl) : CompilerM Unit := do
   modifyEnv (declMapExt.addEntry · decl)
+  if let .fdecl (f := f) (info := { sorryDep? := some g, .. }) .. := decl then
+    modifyEnv (sorryDepExt.addEntry · (f, g))
 
 def addDecls (decls : Array Decl) : CompilerM Unit :=
   decls.forM addDecl
@@ -221,8 +257,8 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
   match findEnvDecl env declName with
-  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
-  | _ => none
+  | some (.fdecl (info := { sorryDep? := some dep, .. }) ..) => some dep
+  | _ => findRecordedSorryDep? env declName
 
 /-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
 @[export lean_get_ir_extra_const_names]

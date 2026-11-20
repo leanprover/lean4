@@ -116,6 +116,11 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
   else if (← getEnv).isExporting then
     -- in an @[expose] public section, non-prop instances should always be exposed
     shouldExport := true
+    prependError m!"Instance `{name}` failed to type check" do
+      check value
+      let inferred ← inferType value
+      unless ← isDefEq inferred type do
+        throwTypeMismatchError m!"Declaration type mismatch{indentExpr value}\n" type inferred value
   else if isPrivateName name then
     -- if we already have a private name, we can't expose
     shouldExport := false

@@ -36,6 +36,7 @@ A partial order is a reflexive, transitive and antisymmetric relation.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
+@[lax_instance_defeq]
 class PartialOrder (α : Sort u) where
   /--
   A “less-or-equal-to” or “approximates” relation.
@@ -101,6 +102,7 @@ A chain-complete partial order (CCPO) is a partial order where every chain has a
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used
 otherwise.
 -/
+@[lax_instance_defeq]
 class CCPO (α : Sort u) extends PartialOrder α where
   /--
   The least upper bound of chains exists.

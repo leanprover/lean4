@@ -214,13 +214,17 @@ def reduceCtorEq : Simproc := fun e => do
     withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))
   return .step (← getFalseExpr) h (done := true)
 
-private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
+private def isForallOrNot (e : Expr) : Bool :=
+  e.isForall || e.isAppOfArity ``Not 1
+
+/-- `∀ n : d, b` for `e := ∀ n : d, b` and `∀ a : p, False` for `e := ¬p`, with maximally shared components. -/
+private def forallOrNot? (e : Expr) : Sym.SymM (Option (Name × Expr × Expr)) := do
   if let .forallE n d b _ := e then
-    some (n, d, b)
+    return some (n, d, b)
   else if e.isAppOfArity ``Not 1 then
-    some (`a, e.appArg!, mkConst ``False)
+    return some (`a, e.appArg!, ← getFalseExpr)
   else
-    none
+    return none
 
 /--
 `Grind.forall_or_forall` and `Grind.forall_forall_or` at `e := ∀ x, p ∨ ∀ b, q` or
@@ -231,7 +235,7 @@ private def forallOrCore? (e : Expr) : SimpM (Option (Expr × Expr)) := do
   let .forallE varName d b info := e | return none
   let_expr Or left right := b | return none
   let α := d
-  if let some (bName, βRaw, qRaw) := isForallOrNot? left then
+  if let some (bName, βRaw, qRaw) ← forallOrNot? left then
     let pRaw := right
     let p := mkLambda varName info α pRaw
     let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
@@ -241,7 +245,7 @@ private def forallOrCore? (e : Expr) : SimpM (Option (Expr × Expr)) := do
     let body ← mkOrS qRaw (← share (pRaw.liftLooseBVars 0 1))
     let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
     return some (e', mkApp4 (mkConst ``Grind.forall_forall_or [u, v]) α β p q)
-  else if let some (bName, βRaw, qRaw) := isForallOrNot? right then
+  else if let some (bName, βRaw, qRaw) ← forallOrNot? right then
     let pRaw := left
     let p := mkLambda varName info α pRaw
     let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
@@ -261,7 +265,7 @@ applies, and the outer ones with a single congruence step.
 -/
 private partial def forallOr? (e : Expr) : SimpM (Option (Expr × Expr)) := do
   let_expr Or left right := e.getForallBody | return none
-  unless (isForallOrNot? left).isSome || (isForallOrNot? right).isSome do return none
+  unless isForallOrNot left || isForallOrNot right do return none
   go #[] e
 where
   go (xs : Array Expr) (e : Expr) : SimpM (Option (Expr × Expr)) := do

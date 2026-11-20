@@ -226,10 +226,6 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Ex
     | _ => return major
 
 
--- Helper predicate that returns `true` for inductive predicates used to define functions by well-founded recursion.
-private def isWFRec (declName : Name) : Bool :=
-  declName == ``Acc.rec || declName == ``WellFounded.rec
-
 /--
 Helper method for `reduceRec`.
 We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
@@ -266,13 +262,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
-      -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
-      -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
-      -- We use this trick because we abstract nested proofs occurring in definitions.
-      -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
-      withTransparency .all <| whnf major
-    else if !(← isMajorProof recVal recLvls major) then
+    let mut major ← if !(← isMajorProof recVal recLvls major) then
       whnf major
     else
       pure major

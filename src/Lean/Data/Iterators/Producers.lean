@@ -7,3 +7,4 @@ module
 
 prelude
 public import Lean.Data.Iterators.Producers.PersistentHashMap
+public import Lean.Data.Iterators.Producers.PersistentArray

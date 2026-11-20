@@ -1514,7 +1514,7 @@ def postprocessUsingCtor (usePartial : Bool) (predef : PreDefinition) : MetaM Pr
 /--
 Computes a type class application based on a type application.
 
-First checks that the type former has one type parameter and then tries to synthesize all type
+First checks that the type former has one type parameter and then tries to synthesize all instance
 parameters, instantiating them with the type application and setting level parameters appropriately.
 -/
 private def computeClassApp (typeApp : Expr) : DerivingM Expr := do
@@ -1715,7 +1715,7 @@ not work with `partial`. Instead of providing an obscure error message about a m
 instance, `supportsPartial := false` causes it to fail early with a more helpful error message.
 
 If `nonRec := true`, then an instance is derived for each inductive individually. That means that
-you can't refer to instance of other inductives in the mutual block. Use this for instances that
+you can't refer to instances of other inductives in the mutual block. Use this for instances that
 don't need recursive instance applications for the fields.
 
 You can also specify a one time computation at `preHelpers` which will be run before any of the
@@ -2263,7 +2263,7 @@ is not nested or reflexive. If the helpers are possibly recursive but don't have
 termination, you should consider using `supportsRec := false`.
 
 If `nonRec := true`, then an instance is derived for each inductive individually. That means that
-you can't refer to instance of other inductives in the mutual block. Use this for instances that
+you can't refer to instances of other inductives in the mutual block. Use this for instances that
 don't need recursive instance applications for the fields.
 
 Example:

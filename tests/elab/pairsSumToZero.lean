@@ -70,10 +70,7 @@ theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPai
   generalize h : pairsSumToZero l = r
   apply Id.of_run_eq_wp h
   vcgen invariants
-  · Invariant.withEarlyReturnNewDo
-      (onReturn := fun r _ => r = true ∧ l.ExistsPair (fun a b => a + b = 0))
-      (onContinue := fun pref _ seen =>
-        (∀ x, x ∈ seen ↔ x ∈ pref) ∧ ¬pref.ExistsPair (fun a b => a + b = 0))
+  · fun pref _ seen => (∀ x, x ∈ seen ↔ x ∈ pref) ∧ ¬pref.ExistsPair (fun a b => a + b = 0)
   all_goals simp_all <;> grind
 
 /--

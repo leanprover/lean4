@@ -840,10 +840,9 @@ def mkSnapshot? (output : String) (ctx : Context) (st : State)
     traces := st.traceState
   } st.snapshotTasks
 
-/-- Runs `act` with reset reporting state, returning its output and, if `rethrow`, its exception. -/
-private def runIsolatedForSnapshot (act : CoreM Unit) (desc : String) (rethrow : Bool) :
-    CoreM (String × Option Exception) := do
-  IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
+/-- Runs `act` with reset reporting state, returning its output. -/
+private def runIsolatedForSnapshot (act : CoreM Unit) (desc : String) : CoreM String := do
+  let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
     let tid ← IO.getTID
     -- reset trace/info state and message log so as not to report them twice
     modify fun st => { st with
@@ -855,15 +854,12 @@ private def runIsolatedForSnapshot (act : CoreM Unit) (desc : String) (rethrow :
     try
       withTraceNode `Elab.async (fun _ => return desc) do
         act
-      return none
     catch e =>
-      if rethrow then
-        return some e
       unless e.isInterrupt do
         logError e.toMessageData
-      return none
     finally
       addTraceAsMessages
+  return output
 
 open Language in
 /--
@@ -875,7 +871,7 @@ no longer needed.
 def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) : CoreM (α → BaseIO SnapshotTree) := do
   let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
-    let (output, _) ← runIsolatedForSnapshot (act a) desc (rethrow := false)
+    let output ← runIsolatedForSnapshot (act a) desc
     return (output, ← get)
   let ctx ← readThe Core.Context
   return fun a => do
@@ -888,10 +884,13 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Optio
 
 open Language in
 /--
-Runs `act` on a fork of the current state as by `wrapAsyncAsSnapshot`, discarding its final state
-except for its messages, traces, and snapshot tasks, which are reported as a new snapshot task. If
-`Elab.async` is set, `act` runs in a separate task once `after` has finished. Otherwise, it runs
-immediately and any exception it throws is rethrown after reporting.
+Runs `act` on a fork of the current state as by `wrapAsync`, so that it elaborates the same way
+whether or not `Elab.async` is set; only the way its results are reported differs.
+
+If `Elab.async` is set, `act` runs in a separate task once `after` has finished, and its messages,
+traces, and snapshot tasks are reported as a new snapshot task as by `wrapAsyncAsSnapshot`.
+Otherwise, it runs immediately and reports into the current state: its messages, traces, info
+trees, and snapshot tasks are kept, and any exception it throws is propagated.
 
 The reporting range is skipped by default as most uses are for registering auxiliary declarations
 users should not worry about.
@@ -905,15 +904,20 @@ def forkAsSnapshot (act : CoreM Unit) (after : Task α)
     let t ← BaseIO.mapTask act after
     logSnapshotTask { stx? := none, reportingRange, task := t, cancelTk? := cancelTk }
   else
-    let ctx ← read
-    let ((output, ex?), st) ← liftM (m := EIO Exception) <|
-      (runIsolatedForSnapshot act desc (rethrow := true)).run ctx (← forkState)
-    -- unlike in a separate task, recording may be active here and must observe `act`'s accesses
-    modify fun s => { s with recordedDeps := st.recordedDeps }
-    let tree := (← mkSnapshot? output ctx st desc).getD (toSnapshotTree (default : SnapshotLeaf))
-    logSnapshotTask { stx? := none, reportingRange, task := .pure tree, cancelTk? := none }
-    if let some ex := ex? then
-      throw ex
+    let childSt ← forkState
+    let parentSt ← get
+    set childSt
+    try
+      act
+    finally
+      -- unlike in a separate task, recording may be active here and must observe `act`'s accesses
+      modify fun st => { parentSt with
+        messages := st.messages
+        traceState := st.traceState
+        infoState := st.infoState
+        snapshotTasks := st.snapshotTasks
+        recordedDeps := st.recordedDeps
+      }
 
 end Core
 

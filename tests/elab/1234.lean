@@ -11,6 +11,8 @@ set_option linter.unusedSimpArgs false
 set_option Elab.async false -- for stable message ordering in #guard_msgs
 
 /--
+warning: declaration uses `sorry`
+---
 trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
@@ -33,8 +35,6 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩ = ⟨v, ⋯⟩
     ==>
       True
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -51,6 +51,8 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 -- it works
 
 /--
+warning: declaration uses `sorry`
+---
 trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
@@ -73,8 +75,6 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩ = ⟨v, ⋯⟩
     ==>
       True
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -89,6 +89,8 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
     ]
 
 /--
+warning: declaration uses `sorry`
+---
 trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
     ==>
@@ -111,8 +113,6 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       ⟨v, ⋯⟩ = ⟨v, ⋯⟩
     ==>
       True
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):

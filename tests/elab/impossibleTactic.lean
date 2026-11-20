@@ -62,10 +62,10 @@ example : ∃ x, x * x = 2 := by
 -- mvar gets replaced with a fresh anonymous one — hence the fallback name
 -- `x`, rather than `v`).
 /--
+warning: declaration uses `sorry`
+---
 trace: x : (n : Nat) → Vector Nat n
 ⊢ ¬∀ (n : Nat), (x n)[0]? = some 0
----
-warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
 -/
@@ -145,10 +145,10 @@ elab "_with_lower_depth_mvar_goal" : tactic => do
   let g ← mkFreshExprSyntheticOpaqueMVar goalType
   setGoals [g.mvarId!]
 /--
+warning: declaration uses `sorry`
+---
 trace: x : Nat
 ⊢ ¬x = 0
----
-warning: declaration uses `sorry`
 ---
 error: (kernel) declaration has metavariables '_example'
 -/

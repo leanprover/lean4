@@ -186,7 +186,7 @@ null
  "goals": ["case zero\n⊢ True", "case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 145, "character": 34}}
-{"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 153, "character": 2}}
 {"rendered":

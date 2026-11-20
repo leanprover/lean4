@@ -41,5 +41,6 @@ b : Expr ExprType.nat
 h : a✝¹.add a✝ = b
 ⊢ eval (constProp (a✝¹.add a✝)) = eval b
 inductionGen.lean:64:8-64:11: warning: declaration uses `sorry`
-inductionGen.lean:78:2-78:27: error: Invalid target: Target (or one of its indices) occurs more than once
+inductionGen.lean:78:2-78:27: error: Invalid target: The variable `n` occurs in more than one target (or index), consider using the `cases` tactic instead
+  n
   n

@@ -8,6 +8,9 @@ module
 prelude
 public import Lean.Meta.Tactic.Injection
 import Init.Data.Nat.Internal.Linear
+import Lean.Structure
+import Lean.ProjFns
+import Lean.Meta.Tactic.OneFieldStructure
 
 public section
 
@@ -32,6 +35,28 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
   | none => isOffset? e
 
 /--
+Replaces the equation `eqDecl : b x = t` or `t = b x`, where `b` is a chain of one-field-structure
+constructors and projections and `x` is a free variable not occurring in `t`, by replacing the
+equation by `x = b⁻¹ t`.
+`x` will be subsituted by `b⁻¹ t` by the next `unifyEq?` call.
+-/
+private def unifyEqInvertingBijections? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
+    (α a b : Expr) : MetaM (Option UnifyEqResult) := do
+  let go (bx t : Expr) (symm : Bool) : MetaM (Option UnifyEqResult) := do
+    let some ⟨x, bs⟩ ← OneFieldStructure.bijectionWrappedFVar? bx
+      | return none
+    if t.containsFVar x || (← x.getDecl).isLet then return none
+    let inv (e : Expr) := bs.foldrM (·.inv.mkAppAndSimplify ·) e
+    let prf := eqDecl.toExpr
+    let prf ← if symm then mkEqSymm prf else pure prf
+    let prf ← mkCongrArg (← withLocalDeclD `z α fun z => do mkLambdaFVars #[z] (← inv z)) prf
+    let mvarId ← mvarId.assert eqDecl.userName (← mkEq (mkFVar x) (← inv t)) prf
+    let mvarId ← mvarId.clear eqDecl.fvarId
+    return some { mvarId, subst, numNewEqs := 1 }
+  if let some r ← go a b (symm := false) then return some r
+  go b a (symm := true)
+
+/--
   Helper method for methods such as `Cases.unifyEqs?`.
   Given the given goal `mvarId` containing the local hypothesis `eqFVarId`, it performs the following operations:
 
@@ -42,6 +67,9 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
      - If `a` (`b`) is a free variable not occurring in `b` (`a`), replace it everywhere.
      - If `a` and `b` are distinct constructors, return `none` to indicate that the goal has been closed.
      - If `a` and `b` are the same constructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
+     - If `a` (`b`) is a chain of constructors and projections of one-field structures applied to a free variable
+       not occurring in `b` (`a`), replace the equation by one that substitutes the variable, see
+       `unifyEqInvertingBijections?`.
      - It also tries to apply the given `acyclic` method to try to close the goal.
        Remark: It is a parameter because `simp` uses `unifyEq?`, and `acyclic` depends on `simp`.
 -/
@@ -56,7 +84,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
       return some { mvarId, subst, numNewEqs := 1 }
     else match eqDecl.type.eq? with
       | none => throwError "Expected an equality, but found{indentExpr eqDecl.type}"
-      | some (_, a, b) =>
+      | some (α, a, b) =>
         /-
           Remark: we do not check `isDefeq` here because we would fail to substitute equalities
           such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelevance).
@@ -118,6 +146,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               let mvarId ← mvarId.assert eqDecl.userName aEqb' prf
               let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
+            else if let some r ← unifyEqInvertingBijections? mvarId eqDecl subst α a b then
+              return some r
             else
               match caseName? with
               | none => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"

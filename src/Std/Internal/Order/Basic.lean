@@ -112,7 +112,8 @@ end Std.Internal.Order
 ## Lattices of a given order
 
 `CompleteLattice.OrderEq α` relates a partial order and a complete lattice on `α` that are given as
-separate instances. The instances cover a lattice with its own order, functions and pairs.
+separate instances. The instances cover a lattice with its own order, `Prop`, `Unit`, functions
+and pairs.
 -/
 
 namespace Lean.Order
@@ -138,7 +139,24 @@ instance {α : Type u} {β : Type v} [oα : PartialOrder α] [oβ : PartialOrder
     subst h₁ h₂
     rfl
 
+instance {α : Sort u} {β : Sort v} [oα : PartialOrder α] [oβ : PartialOrder β]
+    [CompleteLattice α] [CompleteLattice β] [hα : CompleteLattice.OrderEq α]
+    [hβ : CompleteLattice.OrderEq β] : CompleteLattice.OrderEq (α ×' β) where
+  toPartialOrder_eq := by
+    obtain ⟨h₁⟩ := hα
+    obtain ⟨h₂⟩ := hβ
+    subst h₁ h₂
+    rfl
+
+instance : CompleteLattice.OrderEq Unit := ⟨rfl⟩
+
 end Lean.Order
+
+namespace Std.Internal.Order
+
+scoped instance : Lean.Order.CompleteLattice.OrderEq Prop := ⟨rfl⟩
+
+end Std.Internal.Order
 
 /-!
 ## Embedding of propositions

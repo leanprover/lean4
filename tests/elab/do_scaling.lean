@@ -218,7 +218,7 @@ run_cmd do
   checkScaling "ifSeqTyped" (ifSeq true) 50 2.9
   checkScaling "ifSeqUntyped" (ifSeq false) 10 3.9
   checkScaling "nestedIf" nestedIf 20 2.5
-  checkScaling "postpone" postpone 10 6.0
+  checkScaling "postpone" postpone 10 2.5
   checkScaling "nestedTry" nestedTry 4 3.6
   checkScaling "nestedFor" nestedFor 6 2.5
   checkScaling "arms" arms 50 3.2

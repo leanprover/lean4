@@ -71,7 +71,6 @@ trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
@@ -91,7 +90,6 @@ trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3

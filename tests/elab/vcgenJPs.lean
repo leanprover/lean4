@@ -380,3 +380,43 @@ def chain16 (c : Nat → Bool) : StateM Nat Unit := do
 set_option maxHeartbeats 20000 in
 example : ⦃fun s => s = s₀⦄ chain16 c ⦃fun _ s => s₀ ≤ s⦄ := by
   vcgen +jp [chain16] with finish
+
+/-! ## Inlined callees that end in a branch
+
+After `simp only` inlines `pick`, its `if` is followed by the rest of `usePick`, and `vcgen +jp`
+proves that rest once for both branches. In `pickChain c 16`, sixteen such rests are nested, so
+proving each rest once per branch would exceed the heartbeat limit. -/
+
+def pick (c : Bool) : StateM Nat Nat := if c then pure 1 else pure 2
+def pickD (n : Nat) : StateM Nat Nat := if h : n < 3 then pure (Fin.mk n h).val else pure n
+def pickC (c : Bool) : StateM Nat Nat := bif c then pure 1 else pure 2
+
+def usePick (p : StateM Nat Nat) : StateM Nat Nat := do
+  let v ← p
+  set v
+  return v + 1
+
+example : ⦃ fun _ => True ⦄ usePick (pick c) ⦃ fun r s => r = s + 1 ∧ s ≤ 2 ⦄ := by
+  simp only [usePick, pick]
+  vcgen +jp with finish
+
+example : ⦃ fun _ => True ⦄ usePick (pickD n) ⦃ fun r s => r = s + 1 ∧ s = n ⦄ := by
+  simp only [usePick, pickD]
+  vcgen +jp with finish
+
+example : ⦃ fun _ => True ⦄ usePick (pickC c) ⦃ fun r s => r = s + 1 ∧ s ≤ 2 ⦄ := by
+  simp only [usePick, pickC]
+  vcgen +jp with finish
+
+def pickChain (c : Nat → Bool) : Nat → StateM Nat Nat
+  | 0 => pure 0
+  | n + 1 => do
+    let v ← pick (c n)
+    set v
+    let w ← pickChain c n
+    return v + w
+
+set_option maxHeartbeats 20000 in
+example : ⦃ fun _ => True ⦄ pickChain c 16 ⦃ fun r _ => r ≤ 32 ⦄ := by
+  simp only [pickChain, pick]
+  vcgen +jp with finish

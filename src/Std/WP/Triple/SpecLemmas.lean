@@ -74,6 +74,28 @@ theorem Spec.bind [Monad m] [MonadicWP.IsLaxMonadMorphism m] (x : m α) (f : α 
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
 
 
+@[spec default+10]
+theorem Spec.bind_ite [Monad m] {c : Prop} [Decidable c] (t e : m α) (g : α → m β) :
+    ⦃ wp (have __do_jp := fun v => g v; ite c (t >>= __do_jp) (e >>= __do_jp)) post eposts ⦄
+    (ite c t e >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor; apply PartialOrder.rel_of_eq; split <;> rfl
+
+@[spec default+10]
+theorem Spec.bind_dite [Monad m] {c : Prop} [Decidable c] (t : c → m α) (e : ¬c → m α) (g : α → m β) :
+    ⦃ wp (have __do_jp := fun v => g v
+          dite c (fun h => t h >>= __do_jp) (fun h => e h >>= __do_jp)) post eposts ⦄
+    (dite c t e >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor; apply PartialOrder.rel_of_eq; split <;> rfl
+
+@[spec default+10]
+theorem Spec.bind_cond [Monad m] (c : Bool) (t e : m α) (g : α → m β) :
+    ⦃ wp (have __do_jp := fun v => g v; cond c (t >>= __do_jp) (e >>= __do_jp)) post eposts ⦄
+    (cond c t e >>= g)
+    ⦃ post; eposts ⦄ := by
+  constructor; apply PartialOrder.rel_of_eq; cases c <;> rfl
+
 @[spec]
 theorem Spec.map [Monad m] [LawfulMonad m] [MonadicWP.IsLaxMonadMorphism m] (f : α → β) (x : m α) :
     Triple (f <$> x) (wp x (fun a => post (f a)) eposts) post eposts :=
@@ -2191,61 +2213,61 @@ theorem evalsTo_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ
 theorem evalsTo_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → γ) (a : α) (n : γ) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsTo a n s₁ = (f a s₁ = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsTo a n s₁ s₂ = (f a s₁ s₂ = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsTo a n s₁ s₂ s₃ = (f a s₁ s₂ s₃ = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → σ₄ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ = (f a s₁ s₂ s₃ s₄ = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ s₅ = (f a s₁ s₂ s₃ s₄ s₅ = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_apply, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsTo a n s₁ = (f a = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsTo a n s₁ s₂ = (f a = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsTo a n s₁ s₂ s₃ = (f a = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ = (f a = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure_eq, eq_comm]
 
 @[deprecated evalsTo_ofMeasure +typeChanged (since := "2026-10-15")]
 theorem evalsTo_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → γ) (a : α) (n : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsTo a n s₁ s₂ s₃ s₄ s₅ = (f a = n) := by
-  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
+  simp [evalsTo_ofMeasure, NondetFun.evalsTo_pure_eq, eq_comm]
 
 /-- Decrease along `ofMeasure` is decrease of measure values along the well-founded relation of
 `γ`. Rewriting with this lemma brings a decrease proof obligation into the shape produced by
@@ -2274,7 +2296,7 @@ theorem evalsBelow_ofMeasure {γ : Type uγ} [WellFoundedRelation γ]
     subst h
     exact PartialOrder.rel_refl
   · refine le_meet _ _ _ ?_ PartialOrder.rel_refl
-    simp only [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
+    simp only [evalsTo_ofMeasure, NondetFun.evalsTo_pure_eq]
     rw [CompleteLattice.ofProp_eq_top trivial]
     exact le_top _
 

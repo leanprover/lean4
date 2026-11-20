@@ -110,8 +110,18 @@ A class marked `@[lax_instance_defeq]` is exempt: the rewrite goes through unche
 old behavior, producing the stale term `@gZ 0 instZNatZeroZ`. Since the class is also exempt
 from the strict assignment check in `isDefEq`, `gZ_eq` still applies (the instance assignment
 is checked at `.implicit`, where `natZeroZ` unfolds), and the goal closes silently.
+
+The attribute is a backward compatibility feature, and each use logs a warning. The test runner
+sets `linter.all false`, so the test turns the warning on.
 -/
 
+/--
+warning: `lax_instance_defeq` is a backward compatibility feature and will be removed in the future
+
+Note: This linter can be disabled with `set_option linter.deprecated.laxInstanceDefeq false`
+-/
+#guard_msgs in
+set_option linter.deprecated.laxInstanceDefeq true in
 @[lax_instance_defeq]
 class Z (n : Nat)
 
@@ -133,10 +143,13 @@ example : gZ natZeroZ = 1 := by
 
 /-!
 The attribute can be applied retroactively and locally; outside the section, `X` is strict
-again.
+again. `linter.deprecated.laxInstanceDefeq` disables the warning.
 -/
 
 section
+#guard_msgs in
+set_option linter.deprecated.laxInstanceDefeq true in
+set_option linter.deprecated.laxInstanceDefeq false in
 attribute [local lax_instance_defeq] X
 
 #guard_msgs in

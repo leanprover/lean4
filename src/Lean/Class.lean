@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Attributes
 public import Lean.ScopedEnvExtension
+public import Lean.Linter.Init
 import Lean.Util.CollectLevelParams
 public section
 namespace Lean
@@ -184,6 +185,9 @@ Classes marked `@[lax_instance_defeq]` are exempt from the strict instance-argum
 such a class is not required to have a type that matches the metavariable's type at `.instances`
 transparency. The instance-argument check of `simp`/`dsimp` (`dsimp.resynthInstances`) and the
 `linter.tacticCheckInstances` linter skip these classes as well.
+
+The attribute is a backward compatibility feature and will be removed. Each use logs a warning
+unless `linter.deprecated.laxInstanceDefeq` is false.
 -/
 builtin_initialize laxInstanceDefeqExt : SimpleScopedEnvExtension Name NameSet ←
   registerSimpleScopedEnvExtension {
@@ -194,6 +198,12 @@ builtin_initialize laxInstanceDefeqExt : SimpleScopedEnvExtension Name NameSet �
     entryDecl? := some id
   }
 
+register_builtin_option linter.deprecated.laxInstanceDefeq : Bool := {
+  defValue := true
+  descr    := "if true, warn on uses of the `lax_instance_defeq` attribute, a backward \
+    compatibility feature that will be removed"
+}
+
 builtin_initialize
   registerBuiltinAttribute {
     name  := `lax_instance_defeq
@@ -203,6 +213,9 @@ builtin_initialize
       Attribute.Builtin.ensureNoArgs stx
       unless isClass (← getEnv) declName do
         throwError "invalid `lax_instance_defeq`, `{.ofConstName declName}` is not a class"
+      Linter.logLintIf linter.deprecated.laxInstanceDefeq stx
+        m!"`lax_instance_defeq` is a backward compatibility feature and will be removed in the \
+          future"
       laxInstanceDefeqExt.add declName kind
   }
 

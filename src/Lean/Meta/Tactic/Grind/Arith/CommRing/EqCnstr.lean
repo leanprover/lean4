@@ -600,7 +600,11 @@ where
     let d ← d.simplify
     let k := d.getMultiplier
     trace_goal[grind.debug.ring.impEq] "{a}, {k}, {← d.p.denoteExpr}"
-    if let some (b, rb) :=  (← get).2[(k, d.p)]? then
+    -- The key is only used to find candidates: `k*a = d.p` and `3*k*a = 3*d.p` must collide.
+    -- Soundness is ensured by checking that `a - b` simplifies to `0` below.
+    let g : Int := Nat.gcd k.natAbs d.p.gcdCoeffs
+    let key := if g > 1 then (k / g, d.p.divConst g) else (k, d.p)
+    if let some (b, rb) :=  (← get).2[key]? then
       -- TODO: use `isEqv` more effectively
       unless (← isEqv a b) do
         let some p ← (ra.sub rb).toPolyM? | return ()
@@ -618,7 +622,7 @@ where
             -- Given the multiplier `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
             -- but we cannot eliminate the `k` because we don't have `noZeroDivisors`.
             trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
-            modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
+            modify fun (propagated, map) => (propagated, map.insert key (a, ra))
             return ()
         trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← d.p.denoteExpr}"
         /-
@@ -629,7 +633,7 @@ where
         propagateEq a b ra rb d
         modify fun s => (true, s.2)
     else
-      modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
+      modify fun (propagated, map) => (propagated, map.insert key (a, ra))
 
 def checkRing : RingM CheckResult := do
   unless (← needCheck) do return .none

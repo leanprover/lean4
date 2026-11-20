@@ -2776,7 +2776,7 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, uint8 exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);

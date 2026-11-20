@@ -52,6 +52,12 @@ of their variables. Only a delayed assignment `?m #[x₁, …, xₙ] := ?p` can 
 variable `y`, when `y` reaches the argument for some `let` variable `xᵢ` of `?p`. Such a `y` remains
 a `let`.
 
+The traversal is very close to the one of `Sym.letToHave`, which differs as follows:
+- It requires a maximally shared input and keeps the result maximally shared.
+- It keys its caches by pointer, and compares terms by pointer before it calls `isDefEq`.
+- It keeps every dependent `let` that has a metavariable in its body. This module keeps such a
+  `let` only if its variable reaches a delayed assignment, as described above.
+
 The trace class `trace.Meta.letToHave` reports statistics.
 -/
 

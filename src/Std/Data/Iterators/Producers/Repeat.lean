@@ -33,7 +33,7 @@ structure RepeatIterator (α : Type u) (f : α → α) where
   /-- Internal implementation detail of the iterator library. -/
   next : α
 
-@[always_inline, inline]
+@[always_inline]
 instance RepeatIterator.instIterator : Iterator (RepeatIterator α f) Id α where
   IsPlausibleStep it
     | .yield it' out => out = it.internalState.next ∧ it' = ⟨⟨f it.internalState.next⟩⟩
@@ -71,6 +71,6 @@ order.
 * `Finite` instance: not available and never possible
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iter.repeat {α : Type w} (f : α → α) (init : α) :=
   (⟨Std.Iterators.Types.RepeatIterator.mk (f := f) init⟩ : Std.Iter α)

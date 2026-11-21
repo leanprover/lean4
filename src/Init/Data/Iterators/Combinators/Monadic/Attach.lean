@@ -21,7 +21,7 @@ structure Attach (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator 
   inner : IterM (α := α) m β
   invariant : ∀ out, inner.IsPlausibleIndirectOutput out → P out
 
-@[always_inline, inline]
+@[always_inline]
 def Attach.Monadic.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     {P : β → Prop}
     (it : IterM (α := Attach α m P) m { out : β // P out })
@@ -101,7 +101,7 @@ iterator with values in the corresponding subtype `{ x // P x }`.
 * `Finite` instance: only if the base iterator is finite
 * `Productive` instance: only if the base iterator is productive
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def IterM.attachWith {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] (it : IterM (α := α) m β) (P : β → Prop)
     (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :

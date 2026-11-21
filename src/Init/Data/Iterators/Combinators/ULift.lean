@@ -20,7 +20,7 @@ variable {α : Type u} {β : Type u}
 /--
 Transforms a step of the base iterator into a step of the `uLift` iterator.
 -/
-@[always_inline, inline]
+@[always_inline]
 def Iterators.Types.ULiftIterator.modifyStep (step : IterStep (Iter (α := α) β) β) :
     IterStep (Iter (α := ULiftIterator.{v} α Id Id β (fun _ => monadLift)) (ULift.{v} β))
       (ULift.{v} β) :=
@@ -44,7 +44,7 @@ it.uLift n    ---.up a----.up b---.up c--.up d---⊥
 * `Finite`: only if the original iterator is finite
 * `Productive`: only if the original iterator is productive
 -/
-@[cbv_opaque, always_inline, inline, expose]
+@[cbv_opaque, always_inline, expose]
 def Iter.uLift (it : Iter (α := α) β) :
     Iter (α := Types.ULiftIterator.{v} α Id Id β (fun _ => monadLift)) (ULift β) :=
   (it.toIterM.uLift Id).toIter

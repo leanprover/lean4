@@ -49,7 +49,7 @@ such as `PRange.iter` range iterators.
 * `Finite` instance: only if the base iterator `it` is finite
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.stepSize [Iterator α m β] [IteratorAccess α m] [Monad m]
     (it : IterM (α := α) m β) (n : Nat) :
     IterM (α := Types.StepSizeIterator α m β) m β :=

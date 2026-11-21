@@ -11,6 +11,7 @@ public import Std.WP
 public import Lean.Elab.Util
 public import Lean.Elab.Command
 public import Lean.Elab.Do.Basic
+public import Lean.Elab.Tactic.Basic
 import Lean.DocString.Extension
 import Lean.Meta.Tactic.Simp.Main
 meta import Lean.Parser.Command
@@ -164,7 +165,8 @@ the `where finally | spec => ...` section does not discharge them"
       s!"unproved verification conditions for the contract of `{fId.getId}`; \
 discharge them in a `where finally | spec => ...` section of the definition"⟩
   -- The section's tactics run on the verification conditions `finish` leaves open; the trailing
-  -- `first` reports those that survive them.
+  -- `vcgen_report_unproved%` reports those that survive them. The node is built directly: the
+  -- parser compiling this file predates it.
   let specTac : TSyntax `tactic ← match specStep? with
     | some tacs => `(tactic| ($(⟨tacs⟩):tacticSeq))
     | none => `(tactic| skip)
@@ -172,6 +174,9 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
   let clauseKw :=
     if !requiresStx.isNone then requiresStx[0][0] else if !ensuresStx.isNone then ensuresStx[0][0]
     else if throwsStx.getNumArgs > 0 then throwsStx[0][0] else givenStx[0][0]
+  let report : TSyntax `tactic :=
+    ⟨mkNode ``Lean.Parser.Tactic.vcgenReportUnproved
+      #[mkAtomFrom (← getRef) "vcgen_report_unproved%", msg]⟩
   -- `open scoped` activates the instances of `Std.WP` and the `⊤` notation of
   -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|
@@ -179,10 +184,31 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
     @[spec] theorem $specId $binders* : $triple := by
       vcgen%$clauseKw [$fId:ident] with (try finish)
       $specTac:tactic
-      first
-      | done
-      | fail $msg)
+      $report:tactic)
+  -- `vcgen.notes` records the `return` elements of the definition, so that `vcgen` shows and
+  -- reports their verification conditions at them.
+  let cleanDeclaration ← `(command| set_option vcgen.notes true in $(⟨cleanDeclaration⟩):command)
   return mkNullNode #[mkContractNotice val, cleanDeclaration, thm]
+
+open Lean.Elab.Tactic in
+/-- Report each goal as an unproved verification condition with the message of the tactic, at the
+annotation range that `vcgen` records on the target of the goal, and close the goal. The goals
+without a range are reported together at the tactic. -/
+@[builtin_tactic Lean.Parser.Tactic.vcgenReportUnproved]
+def evalVCGenReportUnproved : Tactic := fun stx => do
+  let msg := stx[1].isStrLit?.getD ""
+  let mut unlocated := #[]
+  for goal in ← getUnsolvedGoals do
+    if let some ranges ← Lean.Elab.Do.vcgenNote? (← instantiateMVars (← goal.getType)) then
+      if let some range := ranges[0]? then
+        logErrorAt range m!"{msg}\n{goalsToMessageData [goal]}"
+        continue
+    unlocated := unlocated.push goal
+  unless unlocated.isEmpty do
+    logError m!"{msg}\n{goalsToMessageData unlocated.toList}"
+  for goal in ← getUnsolvedGoals do
+    admitGoal goal
+  setGoals []
 
 /-- Runs `Meta.simp` on `e` with exactly the lemmas in `names`. -/
 private def simpOnlyWith (names : Array Name) (e : Expr) : Elab.TermElabM Expr := do
@@ -247,6 +273,6 @@ def elabDoAssertion : DoElab := fun stx dec => do
   let e ← Term.elabTermEnsuringType
     (← `(open scoped Std.WP Lean.Order in $(mkCIdent ``Gadget.assertGadget) $as))
     (← mkMonadApp (← mkPUnit))
-  dec.mkBindUnlessPure e
+  dec.mkBindUnlessPure (← mkVCGenNote #[stx.raw] e)
 
 end Lean.Elab.Tactic.Do

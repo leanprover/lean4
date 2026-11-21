@@ -428,12 +428,9 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
     untilPat? }
   return { config, ctx, scope, invariantAlts?, frameDB }
 
-/-- `vcgen` step inside `sym => …` blocks. -/
-@[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
-def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx =>
-  -- The `vcgen` keyword shows the goal before and the goals after VC generation, so the goals after
-  -- remain visible when a `with` clause discharges them.
-  Lean.Elab.Tactic.Grind.withTacticInfoContext stx[0] do
+/-- Run `vcgen` on the main goal, replace the main goal with the open invariants and the
+verification conditions, and return the result of VC generation. -/
+def runSymVCGen (stx : Syntax) : Lean.Elab.Tactic.Grind.GrindTacticM Result := do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM <|
@@ -448,6 +445,29 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx =>
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore
     return invGoals ++ result.vcs.toList
   Lean.Elab.Tactic.Grind.replaceMainGoal newGoals
+  return result
+
+/-- `vcgen` step inside `sym => …` blocks. -/
+@[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
+def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
+  -- The `vcgen` keyword shows the goal before and the goals after VC generation, so the goals after
+  -- remain visible when a `with` clause discharges them.
+  let result ← Lean.Elab.Tactic.Grind.withTacticInfoContext stx[0] (runSymVCGen stx)
+  -- An annotation shows the goal that reached it and its verification conditions. Its info lies
+  -- outside the info of the `vcgen` keyword, whose goals after it would hide.
+  for h : i in *...result.noteRefs.size do
+    let noteRef := result.noteRefs[i]
+    for h : j in *...noteRef.parts.size do
+      let stx := noteRef.parts[j].1
+      let vcs := (result.vcs.zip result.vcRefs).filterMap fun (g, ref) =>
+        if ref == (i + 1, j) then some g.mvarId else none
+      pushInfoLeaf <| .ofTacticInfo {
+        elaborator := `Lean.Elab.Tactic.VCGen.evalSymVCGen
+        stx
+        mctxBefore := noteRef.mctx
+        goalsBefore := [noteRef.goal]
+        mctxAfter := ← getMCtx
+        goalsAfter := vcs.toList }
 
 /-- Validate the optional `with` clause of `vcgen`. It must be a `grind`-mode step so it can share
 `vcgen`'s internalised E-graph; the `vcgenDischarge` category's `tactic` alternative is a catch-all

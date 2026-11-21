@@ -16,6 +16,7 @@ public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Elab.Do.Basic
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -47,10 +48,23 @@ public inductive SolveResult.StopReason where
 
 /-- The result of one `solve` step of VC generation. -/
 public inductive SolveResult where
-  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. -/
-  | goals (scope : Scope) (subgoals : List MVarId)
+  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. `note?` are the
+  annotations of a `do` note that the step removed from the program (see `noteParts?`), and `spec?`
+  is the `wp` application of the goal when the step applied a spec to it. `postSide` are the
+  subgoals of that spec application that state the postconditions, which continue with the code
+  after the program. -/
+  | goals (scope : Scope) (subgoals : List MVarId) (note? : Option (Array (Syntax × Expr)) := none)
+      (spec? : Option WPApp := none) (postSide : Array MVarId := #[])
   /-- No further progress possible; emit the current goal as a VC. -/
   | stop (reason : SolveResult.StopReason)
+
+/-- The annotations of the `do` note on the program `e` (see `Lean.Elab.Do.vcgenNote?`), each with
+its term: the annotations note the last arguments of the program, in order. -/
+public def noteParts? (e : Expr) : MetaM (Option (Array (Syntax × Expr))) := do
+  let some refs ← Lean.Elab.Do.vcgenNote? e | return none
+  let args := e.consumeMData.getAppArgs
+  unless refs.size ≤ args.size do return none
+  return some (refs.zip (args.extract (args.size - refs.size) args.size))
 
 def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
@@ -631,6 +645,22 @@ def splitLatticeOpCallback : VCGenM (MVarId → Grind.GrindM (Option (List MVarI
     let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
     splitLatticeOp? m rhs
 
+/-- The subgoals of applying the spec rule `rule` that continue with the code after the program: the
+premises `?postImpl` and `?epostsImpl` that `mkSpecBackwardProof` introduces for the postconditions,
+and a premise `exit` of the spec, such as the code after a loop that the spec covers together with
+the loop. `goals` are the subgoals in the order of `rule.resultPos`. -/
+def postSideGoals (rule : Sym.BackwardRule) (goals : List MVarId) : Array MVarId := Id.run do
+  let mut names := #[]
+  let mut e := rule.expr
+  while let .lam n _ b _ := e do
+    names := names.push n
+    e := b
+  let mut postSide := #[]
+  for (pos, goal) in rule.resultPos.zip goals do
+    if names[pos]? matches some `postImpl | some `epostsImpl | some `exit then
+      postSide := postSide.push goal
+  return postSide
+
 /--
 Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`. `none` when no
 backward rule fits the goal's monad, or when the rule does not apply.
@@ -679,7 +709,7 @@ def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | return none
-  return some (.goals scope goals)
+  return some (.goals scope goals (spec? := info) (postSide := postSideGoals specRule goals))
 
 /--
 Handle a spec-ready program `info.prog`: apply the highest-priority `@[spec]` theorem whose backward
@@ -773,7 +803,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if ← matchesUntilPattern info.prog then
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
-      return .goals scope [g]
+      return .goals scope [g] (← noteParts? info.prog)
     if let some g ← wpReduceHead? goal info then
       burnOne
       return .goals scope [g]

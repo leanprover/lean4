@@ -26,7 +26,8 @@ open Lean.Meta
     | none   => Term.ensureHasType returnCont.resultType (← mkPUnitUnit)
     | some e => Term.elabTermEnsuringType e returnCont.resultType
   dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
-  returnCont.k e
+  let ret ← returnCont.k e
+  if vcgen.notes.get (← getOptions) then mkVCGenNote #[stx.raw] ret else return ret
 
 @[builtin_doElem_elab Lean.Parser.Term.doBreak] def elabDoBreak : DoElab := fun _stx dec => do
   let some breakCont := (← getBreakCont)

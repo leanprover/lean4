@@ -148,6 +148,17 @@ public structure Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
+/-- The source annotations that show the verification conditions of a part of the program: the `do`
+annotations of a loop such as `invariant` and `decreasing`, or the `invariants` alternatives of the
+holes of a spec. The goal `goal`, in the metavariable context `mctx`, is the goal at which VC
+generation reached the annotated part. -/
+public structure NoteRef where
+  /-- Each annotation with its term. A verification condition belongs to the first annotation after
+  the first whose term occurs in it, and otherwise to the first annotation. -/
+  parts : Array (Syntax × Expr)
+  goal : MVarId
+  mctx : MetavarContext
+
 /-- A join point that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
   /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
@@ -224,6 +235,11 @@ public structure State where
   shares the parent `Grind.Goal`'s state.
   -/
   vcs : Array Grind.Goal := #[]
+  /-- The note ref and the annotation of each entry of `vcs`, at the same index. The note ref is
+  `0`, or `i + 1` for `noteRefs[i]`, and the annotation indexes `NoteRef.parts`. -/
+  vcRefs : Array (Nat × Nat) := #[]
+  /-- The note refs that VC generation opened, in the order it opened them. -/
+  noteRefs : Array NoteRef := #[]
   /--
   Persistent cache of `Context.simpMethods`. Threading this cache across VCGen iterations avoids
   re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).

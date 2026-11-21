@@ -192,23 +192,6 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Ex
   else if let some _ ← isConstructorApp? major then
     return major
   else
-    let nonNestedInductName := recVal.all.head!
-    let nonNestedInduct ← getConstInfo nonNestedInductName
-    if recVal.levelParams.length == nonNestedInduct.levelParams.length then
-      /- We do not perform eta for non-singleton propositions, see implementation in the kernel.
-      To know whether a recursor is large-eliminating, it is not enough to look at its major's type's number of universes and and see if it differs from the recursor's. Consider the following types:
-      ```
-      inductive StructLike (α : Type u) where
-        | mk : α → StructLike α
-
-      inductive Nested : Type where
-        | nest : StructLike Nested → Nested
-        | other
-      ```
-      Here, the aux recursive Nested.rec_1 has one universe, but its major being of inductive type StructLike also has one. They have the same number of universes, but the type indeed has large-elimination.
-      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's number of universes to the recursor's.
-      TODO once the "large elimination" flag is added to recursors, use that instead.-/
-      return major
     let majorType ← inferType major
     let majorType ← instantiateMVars (← whnf majorType)
     let majorTypeI := majorType.getAppFn
@@ -252,29 +235,26 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
     | .true => pure true
     | .false => pure false
     | .undef =>
-      let indInfo ← getConstVal recVal.getMajorInduct
-      /- If the type doesn't have large elimination, it must be a proof.
-         TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
+      let indInfo ← getConstInfoInduct recVal.getMajorInduct
+      if indInfo.isImpredicative then return true
       if indInfo.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
-      isPropFormerType (← instantiateTypeLevelParams indInfo lvls)
+      isPropFormerType (← instantiateTypeLevelParams indInfo.toConstantVal lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+  if recVal.rules.isEmpty then failK () else
+  let inductName := recVal.getMajorInduct
+  if !(hasLargeElim (← getEnv) inductName) then failK () else
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
-      -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
-      -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
-      -- We use this trick because we abstract nested proofs occurring in definitions.
-      -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
-      withTransparency .all <| whnf major
-    else if !(← isMajorProof recVal recLvls major) then
-      whnf major
-    else
-      pure major
+    let mut major ←
+      if !(← isMajorProof recVal recLvls major) then
+        whnf major
+      else
+        pure major
     if recVal.k then
       major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit

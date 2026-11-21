@@ -32,6 +32,14 @@ bool has_eta(environment const & env, name const & decl_name) {
     return I_val.has_eta();
 }
 
+/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
+bool has_large_elim(environment const & env, name const & decl_name) {
+    constant_info I = env.get(decl_name);
+    if (!I.is_inductive()) return false;
+    inductive_val I_val = I.to_inductive_val();
+    return I_val.has_large_elim();
+}
+
 bool is_constructor(environment const & env, name const & n) {
     if (optional<constant_info> info = env.find(n))
         return info->is_constructor();
@@ -749,6 +757,7 @@ public:
         inductive_type const & d = m_ind_types[d_idx];
         levels lvls = get_rec_levels();
         buffer<recursor_rule> rules;
+        if (!m_has_large_elim) return rules;
         for (constructor const & cnstr : d.get_cnstrs()) {
             buffer<expr> b_u;
             buffer<expr> u;

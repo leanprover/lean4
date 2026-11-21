@@ -384,6 +384,11 @@ def isNonRecStructure (env : Environment) (constName : Name) : Bool :=
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
 
+def hasLargeElim (env : Environment) (constName : Name) : Bool :=
+  match env.find? constName with
+  | some (.inductInfo { hasLargeElim,.. }) => hasLargeElim
+  | _ => false
+
 /--
 Returns the constructor of the structure named `constName` if it is a non-recursive single-constructor inductive type with no indices.
 -/

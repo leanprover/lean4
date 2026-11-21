@@ -344,19 +344,6 @@ public:
         return ::lean::get_all_inductive_names(m_ind_types);
     }
 
-    /** \brief Add datatypes as axioms in a new environment.
-     * This environment is used to check the constructors, which at the time of getting checked shouldn't have the information that these types are inductive. */
-    environment env_inductive_types_as_axioms(environment env) {
-        environment new_env = environment(env);
-        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
-            inductive_type const & ind_type = m_ind_types[idx];
-            name const & n = ind_type.get_name();
-            new_env.check_name(n);
-            new_env.add_core(constant_info(axiom_val(n, m_lparams, ind_type.get_type(), m_is_unsafe)));
-        }
-        return new_env;
-    }
-
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_types() {
         bool rec       = is_rec();
@@ -452,9 +439,23 @@ public:
         }
     }
 
+    /** \brief Add datatypes as axioms in a new environment.
+     * This environment is used to check the constructors, which at the time of getting checked shouldn't have the information that these types are inductive. */
+    void declare_inductive_types_as_axioms() {
+        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
+            inductive_type const & ind_type = m_ind_types[idx];
+            name const & n = ind_type.get_name();
+            m_env.check_name(n);
+            m_env.add_core(constant_info(axiom_val(n, m_lparams, ind_type.get_type(), m_is_unsafe)));
+        }
+    }
+
     /** \brief Check whether the constructor declarations are type correct, parameters are in the expected positions,
         constructor fields are in acceptable universe levels, positivity constraints, and returns the expected result. */
-    void check_constructors_core() {
+    void check_constructors() {
+        // Constructors need to be checked in an environment containing the inductive types but in which said types are not known to be inductive. See issue #16649
+        flet<environment> save_env(m_env, m_env);
+        declare_inductive_types_as_axioms();
         for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             name_set found_cnstrs;
@@ -495,14 +496,6 @@ public:
                     throw kernel_exception(m_env, sstream() << "invalid return type for '" << n << "'");
             }
         }
-    }
-
-    void check_constructors() {
-        // Constructors need to be checked in an environment containing the inductive types but in which said types are not known to be inductive. See issue #16649
-        environment real_m_env = m_env;
-        m_env = env_inductive_types_as_axioms(real_m_env);
-        check_constructors_core();
-        m_env = real_m_env;
     }
 
     void declare_constructors() {

@@ -13,6 +13,7 @@ public import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
 import Init.Data.Option.Coe
+public import Lean.Runtime
 
 /-! # Lake Traces
 
@@ -95,58 +96,69 @@ end
 /-! ## Hash Trace -/
 --------------------------------------------------------------------------------
 
-/-- A content hash. -/
--- TODO: Use a secure hash rather than the builtin Lean hash function.
+deriving instance DecidableEq, Repr for Internal.Sha256Digest
+
+/-- A SHA-256 content hash. -/
 public structure Hash where
-  val : UInt64
+  digest : Internal.Sha256Digest
   deriving Repr, DecidableEq
 
 namespace Hash
 
-public instance : Hashable Hash := ⟨Hash.val⟩
+/-- Constructs a hash from the big-endian 64-bit words of its digest. -/
+@[inline] def ofWords (w0 w1 w2 w3 : UInt64) : Hash :=
+  ⟨⟨w0, w1, w2, w3⟩⟩
+
+/-- The first word of a uniformly distributed digest is a fine 64-bit hash. -/
+public instance : Hashable Hash := ⟨(·.digest.w0)⟩
 
 public def nil : Hash :=
-  mk <| 1723 -- same as Name.anonymous
+  ofWords 0 0 0 0
 
 public instance : NilTrace Hash := ⟨nil⟩
 
 /-- Constructs a hash with with the value `n`. This is not equivalent to the hash of `n`. -/
-@[inline] public def ofNat (n : Nat) : Hash :=
-  mk n.toUInt64
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
+public def ofNat (n : Nat) : Hash :=
+  ofWords 0 0 0 n.toUInt64
 
-/-- Parse a hash from a JSON number. -/
+/-- Parse a legacy 64-bit hash from a JSON number. -/
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofJsonNumber? (n : JsonNumber) : Except String Hash :=
   if n.exponent = 0 && 0 ≤ n.mantissa then
-    if h : n.mantissa.toNat < UInt64.size then
-      return ⟨.ofNatLT n.mantissa.toNat h⟩
+    if n.mantissa.toNat < UInt64.size then
+      return ofWords 0 0 0 n.mantissa.toNat.toUInt64
     else
       throw "number too big"
   else
     throw "number is not a natural"
 
-/-- Parse a hash from a string of hexadecimal digits. Does no validation. -/
-public def ofHex (s : String) : Hash :=
-  mk <| s.utf8ByteSize.fold (init := 0) fun i h n =>
-    let c := s.getUTF8Byte ⟨i⟩ h
+/-- Parses the 16 hexadecimal digits starting at byte offset `i`. Does no validation. -/
+def hexWordAt (s : ByteArray) (i : Nat) : UInt64 :=
+  (16 : Nat).fold (init := 0) fun j _ n =>
+    let c := s[i + j]!
     if c ≤ 57 then n*16 + (c - 48).toUInt64
     else if 97 ≤ c then n*16 + (c - 87).toUInt64 -- c - 'a' + 10 = (c - 87)
     else n*16 + (c - 55).toUInt64 -- c - 'A' + 10 = (c - 55)
 
--- sanity check
-example : ofHex "0123456789" = ⟨0x0123456789⟩ ∧
-  ofHex "abcdeF" = ⟨0xabcdef⟩ ∧ ofHex "ABCDEF" = ⟨0xABCDEF⟩ := by native_decide
+/-- Parse a hash from a string of 64 hexadecimal digits. Does no validation. -/
+public def ofHex (s : String) : Hash :=
+  let s := s.toUTF8
+  ofWords (hexWordAt s 0) (hexWordAt s 16) (hexWordAt s 32) (hexWordAt s 48)
 
-/-- Parse a hash from a 16-digit string of hexadecimal digits. -/
+/-- Parse a hash from a 64-digit string of hexadecimal digits. -/
 public def ofHex? (s : String) : Option Hash :=
-  if s.utf8ByteSize = 16 && isHex s then ofHex s else none
+  if s.utf8ByteSize = 64 && isHex s then ofHex s else none
 
-/-- Returns the hash as 16-digit lowercase hex string. -/
-@[inline] public def hex (self : Hash) : String :=
-  lowerHexUInt64 self.val
+/-- Returns the hash as 64-digit lowercase hex string. -/
+public def hex (self : Hash) : String :=
+  let ⟨w0, w1, w2, w3⟩ := self.digest
+  lowerHexUInt64 w0 ++ lowerHexUInt64 w1 ++ lowerHexUInt64 w2 ++ lowerHexUInt64 w3
 
-/-- Parse a hash from a string of decimal digits. -/
+/-- Parse a legacy 64-bit hash from a string of decimal digits. -/
+@[deprecated "Deprecated without replacement." (since := "2026-11-02")]
 public def ofDecimal? (s : String) : Option Hash :=
-  s.toNat?.map ofNat
+  s.toNat?.map (ofWords 0 0 0 ·.toUInt64)
 
 @[inline] public def ofString? (s : String) : Option Hash :=
   ofHex? s
@@ -155,8 +167,9 @@ public def ofDecimal? (s : String) : Option Hash :=
 public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
   ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
+/-- Combines two hashes by hashing their concatenated digests. -/
 @[inline] public def mix (h1 h2 : Hash) : Hash :=
-  mk <| mixHash h1.val h2.val
+  ⟨Internal.sha256Mix h1.digest h2.digest⟩
 
 public instance : MixTrace Hash := ⟨mix⟩
 
@@ -165,21 +178,24 @@ public instance : MixTrace Hash := ⟨mix⟩
 
 public instance : ToString Hash := ⟨Hash.toString⟩
 
-/-- Hash of a value using its `Hashable` instance. -/
+/--
+Hash of a value using its `Hashable` instance.
+This is only as collision-resistant as the 64-bit `Hashable` instance.
+-/
 @[inline] public def ofHashable [Hashable α] (a : α) : Hash :=
-  mix nil <| mk <| hash a -- same as Name.mkSimple
+  mix nil <| ofWords 0 0 0 (hash a)
 
 /-- Hash of a string (without line-ending normalization). -/
 @[inline] public def ofString (str : String) : Hash :=
-  ofHashable str
+  ⟨Internal.sha256String str⟩
 
 /-- Hash of a line-ending normalized string. -/
 @[inline] public def ofText (str : String) : Hash :=
-  ofString str.crlfToLf
+  ⟨Internal.sha256Text str⟩
 
 /-- Hash of a sequence of bytes. -/
 @[inline] public def ofByteArray (bytes : ByteArray) : Hash :=
-  ofHashable bytes
+  ⟨Internal.sha256 bytes⟩
 
 @[inline, deprecated ofHashable +typeChanged (since := "2026-02-06")]
 public def ofBool (b : Bool) : Hash  :=
@@ -195,11 +211,10 @@ public protected def fromJson? (json : Json) : Except String Hash := do
   | .str s =>
     unless isHex s do
       throw "invalid hash: expected hexadecimal string"
-    unless s.utf8ByteSize = 16 do
-      throw "invalid hash: expected hexadecimal string of length 16"
+    unless s.utf8ByteSize = 64 do
+      throw "invalid hash: expected hexadecimal string of length 64"
     return ofHex s
-  | .num n => ofJsonNumber? n |>.mapError (s!"invalid hash: {·}")
-  | _ => throw "invalid hash: expected string or number"
+  | _ => throw "invalid hash: expected string"
 
 public instance : FromJson Hash := ⟨Hash.fromJson?⟩
 
@@ -220,6 +235,8 @@ public instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.co
   liftM <| ComputeHash.computeHash a
 
 public instance [Hashable α] : ComputeHash α Id := ⟨Hash.ofHashable⟩
+
+public instance : ComputeHash String Id := ⟨Hash.ofString⟩
 
 /--
 Compute the hash of a binary file.

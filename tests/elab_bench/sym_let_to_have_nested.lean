@@ -4,8 +4,7 @@ import Lean
 Benchmark: `Sym.letToHave` on the nested-open-lambda family of
 `let_to_have_nested.lean` (every lambda body references the outer `let` variable).
 
-`Meta.letToHave` is O(n²) on this family (per-binder instantiate/abstract); the `SymM`
-implementation keeps bodies in bound-variable form and is near-linear.
+The `SymM` implementation keeps bodies in bound-variable form and is near-linear.
 -/
 
 set_option maxHeartbeats 400000000

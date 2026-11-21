@@ -2,7 +2,8 @@ import Lean
 
 /-!
 Tests that type class resolution reports a goal as stuck without searching where an explicit
-argument that is a type is a metavariable, and that it still fails where there is no instance to try.
+argument that is a type has a metavariable as its head, and that it still fails where there is no
+instance to try.
 -/
 
 open Lean Meta
@@ -63,6 +64,13 @@ def synth (mk : Expr → Expr) : MetaM String := do
 /-- info: "none" -/
 #guard_msgs in
 #eval synth fun α => mkApp (mkConst ``C) (mkApp (mkConst ``List [0]) α)
+
+-- An applied metavariable: stuck on `?f`, also where an instance applies to any type.
+/-- info: "stuck" -/
+#guard_msgs in
+#eval show MetaM String from do
+  let f ← mkFreshExprMVar (← mkArrow (mkSort 1) (mkSort 1))
+  return toStr (← trySynthInstance (mkApp (mkConst ``D) (mkApp f (mkConst ``Nat))))
 
 -- A local instance is an instance to try.
 /-- info: "stuck" -/

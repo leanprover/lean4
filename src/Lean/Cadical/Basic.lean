@@ -140,7 +140,7 @@ end Status
 An incremental SAT solver.
 -/
 public structure Solver where
-   private ofNative ::
+  private ofNative ::
     private solver : Internal.Solver
   deriving Nonempty
 

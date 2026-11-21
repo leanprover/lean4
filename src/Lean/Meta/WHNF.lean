@@ -143,11 +143,12 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
   | .const fn _ => recVal.rules.find? fun r => r.ctor == fn
   | _           => none
 
-private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
+@[inline]
+private def toCtorWhenK (indVal : InductiveVal) (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
-  unless majorTypeI.isConstOf recVal.getMajorInduct do
+  unless majorTypeI.isConstOf indVal.name do
     return major
   if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams...*].any Expr.hasExprMVar then
     return major
@@ -182,20 +183,19 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
   \pre `inductName` is `C`.
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
-private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
-  let inductName := recVal.getMajorInduct
-  unless (← useEtaStruct inductName) do
+@[inline]
+private def toCtorWhenStructure (indVal : InductiveVal) (major : Expr) : MetaM Expr := do
+  if !indVal.hasEta then
     return major
-  let env ← getEnv
-  if !hasEta env inductName then
+  unless (← useEtaStruct indVal.name) do
     return major
-  else if let some _ ← isConstructorApp? major then
+  if let some _ ← isConstructorApp? major then
     return major
   else
     let majorType ← inferType major
     let majorType ← instantiateMVars (← whnf majorType)
     let majorTypeI := majorType.getAppFn
-    if !majorTypeI.isConstOf inductName then
+    if !majorTypeI.isConstOf indVal.name then
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
@@ -230,36 +230,35 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
 /-- Checks whether a recursor major is a proof. If `isProofQuick` fails, rather than run `isProp (← inferType major)`, we infer the sort of the major using the recursor's info. -/
-private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
+private def isMajorProof (indVal : InductiveVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
   match ← isProofQuick major with
     | .true => pure true
     | .false => pure false
     | .undef =>
-      let indInfo ← getConstInfoInduct recVal.getMajorInduct
-      if indInfo.isImpredicative then return true
-      if indInfo.levelParams.length = recLvls.length then
+      if indVal.isImpredicative then return true
+      if indVal.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
-      isPropFormerType (← instantiateTypeLevelParams indInfo.toConstantVal lvls)
+      isPropFormerType (← instantiateTypeLevelParams indVal.toConstantVal lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   if recVal.rules.isEmpty then failK () else
-  let inductName := recVal.getMajorInduct
-  if !(hasLargeElim (← getEnv) inductName) then failK () else
+  let indVal ← getConstInfoInduct recVal.getMajorInduct
+  if !indVal.hasLargeElim then failK () else
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
     let mut major ←
-      if !(← isMajorProof recVal recLvls major) then
+      if !(← isMajorProof indVal recLvls major) then
         whnf major
       else
         pure major
     if recVal.k then
-      major ← toCtorWhenK recVal major
+      major ← toCtorWhenK indVal recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal major
+    major ← toCtorWhenStructure indVal major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

@@ -1142,6 +1142,33 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
 
+    // `let x : A := v; b =?= let y : B := w; c`: if `A =?= B` and `v =?= w`, substitute the same
+    // term for `x` and `y`. A function `v`, such as a join point, becomes a let-bound local `z`,
+    // so that its jumps `z a` stay folded.
+    if (is_let(t) && is_let(s)) {
+        if (!failed_before(t, s)) {
+            if (is_def_eq(let_type(t), let_type(s)) && is_def_eq(let_value(t), let_value(s))) {
+                if (is_pi(let_type(t))) {
+                    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                    expr z = m_lctx.mk_local_decl(m_st->m_ngen, let_name(t), let_type(t), let_value(t));
+                    return is_def_eq(instantiate(let_body(t), z), instantiate(let_body(s), z));
+                }
+                return is_def_eq(instantiate(let_body(t), let_value(t)), instantiate(let_body(s), let_value(t)));
+            }
+            cache_failure(t, s);
+        }
+        // One zeta step on each side, so that `whnf_core` does not reduce a jump in `b` and `c`.
+        return is_def_eq(instantiate(let_body(t), let_value(t)), instantiate(let_body(s), let_value(s)));
+    }
+
+    // `z a⃗ =?= z b⃗` for a local `z`: compare `a⃗ =?= b⃗` before unfolding `z`.
+    if (is_app(t) && is_app(s) && is_fvar(get_app_fn(t)) && get_app_fn(t) == get_app_fn(s) &&
+        get_app_num_args(t) == get_app_num_args(s) && !failed_before(t, s)) {
+        if (is_def_eq_args(t, s))
+            return true;
+        cache_failure(t, s);
+    }
+
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // This code path is taken in particular when using the `decide` tactic, which produces

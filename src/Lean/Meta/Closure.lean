@@ -63,8 +63,10 @@ abstract a let-variable.
    if a let-variable needs to zetaDelta expanded, we store it in the set `zetaDeltaFVarIds`.
    We say a let-variable is zetaDelta expanded when we replace it with its value.
 2) We use the `MetaM` type checker `check` to type check the expression we want to close,
-   and the type of the binders.
+   and the type of the binders. We also check that the value has the given type.
 3) If a let-variable is not in `zetaDeltaFVarIds`, we lambda abstract it.
+   If we could not establish that the value has the given type, we do not lambda abstract any
+   let-variable.
 
 Remark: We still use let-expressions for let-variables in `zetaDeltaFVarIds`, but we move the
 `let` inside the lambdas. The idea is to make sure the auxiliary definition does not have
@@ -121,6 +123,13 @@ structure State where
   newLocalDecls         : Array LocalDecl := #[]
   newLocalDeclsForMVars : Array LocalDecl := #[]
   newLetDecls           : Array LocalDecl := #[]
+  /--
+  Set when `check` fails in `preprocess`, or when we could not establish that the value has the
+  given type using `isDefEq` (see `mkValueTypeClosureAux`). Then `zetaDeltaFVarIds` may be
+  incomplete, and we conservatively treat every let-declaration as dependent, i.e., we keep it as
+  a `let` instead of lambda abstracting it.
+  -/
+  allLetDeclsDependent  : Bool := false
   nextExprIdx           : Nat := 1
   exprMVarArgs          : Array Expr := #[]
   exprFVarArgs          : Array Expr := #[]
@@ -177,7 +186,15 @@ def preprocess (e : Expr) : ClosureM Expr := do
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
   -- There is nothing to find when the local context has no let-decls.
   if !ctx.zetaDelta && ctx.hasLetDecls then
-    check e
+    /-
+    As in `mkValueTypeClosureAux`, we use `withNewMCtxDepth` so that metavariables occurring in `e`
+    are not assigned as a side effect. If the check fails, `zetaDeltaFVarIds` may be incomplete,
+    and we conservatively keep every let-declaration as a `let`.
+    -/
+    try
+      withNewMCtxDepth <| check e
+    catch _ =>
+      modify fun s => { s with allLetDeclsDependent := true }
   pure e
 
 /--
@@ -295,7 +312,7 @@ partial def process : ClosureM Unit := do
     | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
       -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
-      if nondep || !zetaDeltaFVarIds.contains fvarId then
+      if nondep || (!(← get).allLetDeclsDependent && !zetaDeltaFVarIds.contains fvarId) then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
@@ -351,6 +368,30 @@ structure MkValueTypeClosureResult where
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
   withTrackingZetaDelta do
+    let ctx ← read
+    if !ctx.zetaDelta && ctx.hasLetDecls then
+      /-
+      `preprocess` type checks `type` and `value` separately to find the let-declarations that must
+      be unfolded for each of them to be type correct. The auxiliary declaration `name : type := value`
+      is only type correct if moreover `value` has type `type`, so we also record the
+      let-declarations that must be unfolded to establish this. Otherwise, a let-variable whose value
+      is needed for `value : type` to hold would be lambda abstracted, and the kernel would reject
+      the resulting declaration (see issue #13408).
+
+      We use `withNewMCtxDepth` so that metavariables occurring in `type` or `value` are not assigned
+      as a side effect, and `.all` transparency as in `check`. If the check fails (e.g., because
+      `type` or `value` contain metavariables that would have to be assigned, or because the caller
+      provided a value that does not have the given type), we do not know which let-declarations
+      must be unfolded, and we conservatively keep every let-declaration as a `let`.
+      Note that `isDefEq` restores `zetaDeltaFVarIds` when it fails.
+
+      Setting `allLetDeclsDependent` is also a workaround for a limitation of `isDefEq`: it can fail
+      on goals that hold without assigning any metavariable. For example, given a let-variable
+      `E := ?α`, `?α =?= E` fails at a new metavariable context depth instead of unfolding `E`
+      (see the `testAux` test in `tests/elab/13408.lean`).
+      -/
+      unless ← withNewMCtxDepth <| withTransparency .all <| isDefEq (← inferType value) type do
+        modify fun s => { s with allLetDeclsDependent := true }
     let type  ← collectExpr type
     let value ← collectExpr value
     process

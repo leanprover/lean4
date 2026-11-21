@@ -558,6 +558,39 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
+/--
+If the type of the subgoal `mvar` has an instance argument in an output position whose value is
+neither a metavariable nor metavariable-free, return the type with that argument replaced by a
+fresh metavariable. Example: the subgoal `@C (StateT Nat Id) ?P (B.toA ?l)` of an instance
+`[B P] [C m P] : C (T m) P` becomes `@C (StateT Nat Id) ?P ?o`. Answers for the new type are
+unified with `B.toA ?l` only when the waiting consumer receives them, after the output parameter
+`?P` is known.
+-/
+private def eraseOutParamInstArgs? (mctx : MetavarContext) (mvar : Expr) :
+    MetaM (Option (MetavarContext × Expr)) :=
+  withMCtx mctx do
+    let mvarType ← instantiateMVars (← inferType mvar)
+    forallTelescope mvarType fun xs body => do
+      let .const declName _ := body.getAppFn | return none
+      let some outParamsPos := getOutParamPositions? (← getEnv) declName | return none
+      if outParamsPos.isEmpty then return none
+      let args := body.getAppArgs
+      let mut cType ← inferType body.getAppFn
+      let mut args' := args
+      let mut changed := false
+      for h : i in [:args.size] do
+        cType ← whnf cType
+        let .forallE _ d b bi := cType | return none
+        let mut arg := args[i]
+        if outParamsPos.contains i && bi.isInstImplicit && arg.hasMVar && !arg.getAppFn.isMVar then
+          arg ← mkFreshExprMVar d
+          changed := true
+        args' := args'.set! i arg
+        cType := b.instantiate1 arg
+      unless changed do return none
+      let mvarType' ← mkForallFVars xs (mkAppN body.getAppFn args')
+      return some (← getMCtx, mvarType')
+
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
   /- Filter out subgoals that have already been assigned when solving typing constraints.
@@ -583,26 +616,39 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
      let entry? ← findEntry? key
      match entry? with
      | none       =>
-       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
-       match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar waiter
-       | some (mvarType', transformer) =>
-         let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
+       if let some (mctxE, mvarType') ← eraseOutParamInstArgs? cNode.mctx mvar then
+         let key' ← withMCtx mctxE <| mkTableKey mvarType'
          match (← findEntry? key') with
          | none =>
-           let (mctx', mvar') ← withMCtx cNode.mctx do
+           let (mctx', mvar') ← withMCtx mctxE do
              let mvar' ← mkFreshExprMVar mvarType'
              return (← getMCtx, mvar')
-           newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
-         | some entry' =>
-           let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
-             let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
-             let trAnswrType ← inferType trAnswr
-             pure { a with result.expr := trAnswr, resultType := trAnswrType }
-           modify fun s =>
-             { s with
-               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
+           newSubgoal mctx' key' mvar' waiter
+         | some entry' => modify fun s =>
+           { s with
+             resumeStack  := entry'.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+             tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
+       else
+         -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
+         match (← removeUnusedArguments? cNode.mctx mvar) with
+         | none => newSubgoal cNode.mctx key mvar waiter
+         | some (mvarType', transformer) =>
+           let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
+           match (← findEntry? key') with
+           | none =>
+             let (mctx', mvar') ← withMCtx cNode.mctx do
+               let mvar' ← mkFreshExprMVar mvarType'
+               return (← getMCtx, mvar')
+             newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+           | some entry' =>
+             let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
+               let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
+               let trAnswrType ← inferType trAnswr
+               pure { a with result.expr := trAnswr, resultType := trAnswrType }
+             modify fun s =>
+               { s with
+                 resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+                 tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
      | some entry => modify fun s =>
        { s with
          resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,

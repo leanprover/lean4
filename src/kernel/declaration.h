@@ -75,6 +75,7 @@ structure AxiomVal extends ConstantVal where
 */
 class axiom_val : public object_ref {
 public:
+    axiom_val(name const & n, names const & lparams, expr const & type, bool const & is_unsafe);
     axiom_val(axiom_val const & other):object_ref(other) {}
     axiom_val(axiom_val && other) noexcept:object_ref(std::move(other)) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
@@ -412,6 +413,7 @@ class constant_info : public object_ref {
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(to_val(), 0)); }
 public:
     constant_info(declaration const & d);
+    constant_info(axiom_val const & d);
     constant_info(definition_val const & v);
     constant_info(quot_val const & v);
     constant_info(inductive_val const & v);

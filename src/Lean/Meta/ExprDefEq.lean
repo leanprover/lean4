@@ -994,6 +994,23 @@ where
 def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0) : MetaM Expr := do
   mkFreshExprMVarAt lctx localInsts type MetavarKind.natural Name.anonymous numScopeArgs
 
+/--
+Like `mkAuxMVar`, but for a metavariable that is meant to stand in for or replace `mvarId`.
+For example, sometimes we want to replace a metavariable with one that has a smaller context
+or fewer arguments. We therefore create the new, more restricted, metavariable with `mkAuxMVarFor`
+and assign it to the old one.
+
+Other than with `mkAuxMVar`, the new metavariable inherits the instance-typed mark of `mvarId`,
+so that the type check for instance-typed metavariables cannot be bypassed by assigning the
+replacement metavariable instead. See `MetavarContext.instanceTypedMVars`.
+-/
+def mkAuxMVarFor (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
+    (numScopeArgs : Nat := 0) : MetaM Expr := do
+  let newMVar ← mkAuxMVar lctx localInsts type numScopeArgs
+  if (← mvarId.isInstanceTyped) then
+    newMVar.mvarId!.markInstanceTyped
+  return newMVar
+
 namespace CheckAssignment
 
 builtin_initialize checkAssignmentExceptionId : InternalExceptionId ← registerInternalExceptionId `checkAssignment
@@ -1127,7 +1144,7 @@ mutual
     /- Compute new set of local instances. -/
     let localInsts := mvarDecl.localInstances.eraseAll toErase.contains
     let mvarType ← check mvarDecl.type
-    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
+    let newMVar ← mkAuxMVarFor mvarId lctx localInsts mvarType mvarDecl.numScopeArgs
     mvarId.assign newMVar
     return newMVar
 
@@ -1168,7 +1185,7 @@ mutual
             /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
                Note that `mvarType` may be different from `eType`. -/
             let ctx ← read
-            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+            let newMVar ← mkAuxMVarFor f.mvarId! ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
             if (← assignToConstFun f args.size newMVar) then
               pure newMVar
             else
@@ -1993,7 +2010,7 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
     let mvarDecl ← mvarId.getDecl
     if mvarDecl.numScopeArgs == args₁.size || cfg.constApprox then
       let type ← inferType (mkAppN mvar args₁)
-      let auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type
+      let auxMVar ← mkAuxMVarFor mvarId mvarDecl.lctx mvarDecl.localInstances type
       assignConst mvar args₁.size auxMVar
     else
       pure false

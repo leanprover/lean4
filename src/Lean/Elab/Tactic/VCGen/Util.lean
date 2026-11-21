@@ -155,16 +155,6 @@ public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
-Simplify the hypotheses of the goal's target `h₁ → … → hₙ → G` with `Context.simpMethods`, leaving
-`G` untouched, and thread the persistent simp cache through `VCGenM`'s state. `.noProgress` is
-forwarded to the caller.
--/
-public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
-  let some methods := (← read).simpMethods | return .noProgress
-  let target ← goal.getType
-  (← runSimp methods (Sym.Simp.simpTelescope target)).toSimpGoalResult goal
-
-/--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a
 function type `σ₁ → … → σₙ → α`: repeatedly apply `stateArgIntro` (a backward rule for
 `Lean.Order.le_of_forall_le`) and introduce the new state binder, until the lattice type is

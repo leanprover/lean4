@@ -79,6 +79,7 @@ example (b : Nat → Bool) (s₀ : S) :
 trace: case vc1
 b : Nat → Bool
 s₀ s✝² : S
+a✝ : s✝² = s₀
 x✝¹ : PUnit
 s✝¹ : S
 h✝¹ : ∃ z, s✝¹ = { pc := s₀.pc + 4, r := s₀.r + z } ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
@@ -136,6 +137,7 @@ example (o : Nat → Nat) (s₀ : W) :
 trace: case vc1
 o : Nat → Nat
 s₀ s✝² : W
+a✝ : s✝² = s₀
 x✝¹ : PUnit
 s✝¹ : W
 h✝¹ :
@@ -175,6 +177,7 @@ def addOrDouble (o : Nat) : StateM S Unit := do
 trace: case vc1
 o : Nat
 s₀ s✝¹ : S
+a✝ : s✝¹ = s₀
 x✝¹ : PUnit
 x✝ s✝ : S
 h✝ :
@@ -208,6 +211,7 @@ def addZeroOrOne (c : Bool) : StateM Nat Unit := do
 trace: case vc1
 c : Bool
 s₀ s✝¹ : Nat
+a✝ : s✝¹ = s₀
 x✝¹ : PUnit
 x✝ s✝ : Nat
 h✝ : ∃ z, (x✝ = s₀ + z ∧ s✝ = s₀) ∧ (c = true ∧ z = 0 ∨ ¬c = true ∧ z = 1)
@@ -235,6 +239,7 @@ trace: case vc1
 c : Bool
 y : Nat
 s₀ s✝¹ : S
+a✝ : s✝¹ = s₀
 x✝¹ : PUnit
 x✝ : Nat
 s✝ : S

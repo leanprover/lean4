@@ -74,6 +74,7 @@ example : ⦃ fun s => s = 3 ⦄ (pure () : M Unit) ⦃ fun _ => ⨆ n : Nat, (f
 /--
 trace: case vc1
 s✝ : Nat
+a✝ : s✝ = 3
 ⊢ ∃ n, n < 5
 ---
 warning: declaration uses `sorry`

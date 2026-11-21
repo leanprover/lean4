@@ -8,7 +8,7 @@ module
 prelude
 public import Lake.Util.Log
 import Lake.Util.JsonObject
-import Lake.Util.Proc
+import Lake.Util.Subprocess
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 import Init.TacticsExtra  -- shake: keep (out-of-line macro_rules def, fix)
@@ -121,7 +121,8 @@ public def getUrl?
       "--retry", "3" -- intermittent network errors can occur
   ]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  let out ← captureProc' {cmd := ← Internal.getCurl, args := args.push url}
+  let out ← Subprocess.ofCommand (← Internal.getCurl)
+    |>.withArgs (args.push url) |>.strOutputwithSuccess
   match Json.parse out.stderr >>= JsonObject.fromJson? with
   | .ok data =>
     let code ← id do
@@ -145,4 +146,4 @@ public def getUrl (url : String) (headers : Array String := #[]) : LogIO String 
       "--retry", "3" -- intermittent network errors can occur
   ]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  captureProc {cmd := ← Internal.getCurl, args := args.push url}
+  Subprocess.ofCommand (← Internal.getCurl) |>.withArgs (args.push url) |>.capture

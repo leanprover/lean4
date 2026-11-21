@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.ToString
-public import Lake.Util.Proc
+public import Lake.Util.Subprocess
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 import Lake.Util.String
@@ -88,25 +88,26 @@ public def cwd : GitRepo := ⟨"."⟩
 @[inline] public def gitExists (repo : GitRepo) : BaseIO Bool :=
   (repo.dir / ".git").pathExists
 
+@[inline] def subprocess (args : Array String) (repo : GitRepo) : Subprocess :=
+  Subprocess.ofCommand "git" |>.withCwd repo.dir |>.withArgs args
+
 @[inline] public def captureGit (args : Array String) (repo : GitRepo) : LogIO String :=
-  captureProc {cmd := "git", args, cwd := repo.dir}
+  repo.subprocess args |>.capture
 
 @[inline] public def captureGit? (args : Array String) (repo : GitRepo) : BaseIO (Option String) :=
-  captureProc? {cmd := "git", args, cwd := repo.dir}
+  repo.subprocess args |>.tryCapture?
 
 @[inline] public def execGit (args : Array String) (repo : GitRepo) : LogIO PUnit :=
-  proc {cmd := "git", args, cwd := repo.dir} (quiet := true)
+  repo.subprocess args |>.run
 
 @[inline] public def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
-  testProc {cmd := "git", args, cwd := repo.dir}
+  repo.subprocess args |>.tryRun
 
 @[inline] def testExecGit (args : Array String) (repo : GitRepo) : LogIO Bool := do
-  let out ← rawProc {cmd := "git", args, cwd := repo.dir}
-  logOutput out (if out.exitCode = 0 then logVerbose else logInfo)
-  return out.exitCode = 0
+  return (← repo.subprocess args |>.status) = 0
 
 public def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
-  proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)
+  Subprocess.ofCommand "git" |>.withArgs #["clone", url, repo.dir.toString] |>.run
 
 public def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]

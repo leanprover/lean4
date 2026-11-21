@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lake.Util.Log
-import Lake.Util.Proc
+import Lake.Util.Subprocess
 import Lake.Util.FilePath
 import Lake.Util.IO
 import Lake.Util.Url
@@ -33,11 +33,10 @@ public def compileLeanIR
 : LogIO Unit := do
   createParentDirs irFile
   createParentDirs cFile
-  proc {
-    cmd := leanir.toString
-    args := #[setupFile.toString, irFile.toString, cFile.toString]
-    env := #[("LEAN_PATH", leanPath.toString)]
-  }
+  Subprocess.ofFilePath leanir
+    |>.withArgs #[setupFile.toString, irFile.toString, cFile.toString]
+    |>.addEnvVar "LEAN_PATH" leanPath.toString
+    |>.run
 
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)
@@ -68,13 +67,10 @@ public def compileLeanModule
   args := args ++ #["--setup", setupFile.toString]
   args := args.push "--json"
   withLogErrorPos do
-  let out ← rawProc {
-    args
-    cmd := lean.toString
-    env := #[
-      ("LEAN_PATH", leanPath.toString)
-    ]
-  }
+  let out ← Subprocess.ofFilePath lean
+    |>.withArgs args
+    |>.addEnvVar "LEAN_PATH" leanPath.toString
+    |>.strOutput
   let outLogPos ← getLogPos
   unless out.stdout.isEmpty do
     let txt ← out.stdout.split '\n' |>.foldM (init := "") fun (txt : String) ln => do
@@ -109,10 +105,10 @@ public def compileO
   (moreArgs : Array String := #[]) (compiler : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs oFile
-  proc {
-    cmd := compiler.toString
-    args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
-  }
+  Subprocess.ofFilePath compiler
+    |>.withArgs #["-c", "-o", oFile.toString, srcFile.toString]
+    |>.addArgs moreArgs
+    |>.run
 
 public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
   -- Use response file to avoid potentially exceeding CLI length limits.
@@ -137,34 +133,36 @@ public def compileStaticLib
   createParentDirs libFile
   -- `ar rcs` does not remove old files from the archive, so it must be deleted first
   removeFileIfExists libFile
-  let args := #["rcs"]
-  let args := if thin then args.push "--thin" else args
-  let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
-  proc {cmd := ar.toString, args}
+  Subprocess.ofFilePath ar
+    |>.withArgs #["rcs"]
+    |>.addArgIf thin "--thin"
+    |>.addArg libFile.toString
+    |>.addArgs (← mkArgs libFile <| oFiles.map toString)
+    |>.run
 
 public def compileSharedLib
   (libFile : FilePath) (linkArgs : Array String)
   (linker : FilePath := "cc") (macosxDeploymentTarget? : Option String := none)
 : LogIO Unit := do
   createParentDirs libFile
-  proc {
-    cmd := linker.toString
-    args := #["-shared", "-o", libFile.toString] ++ (← mkArgs libFile linkArgs)
+  Subprocess.ofFilePath linker.toString
+    |>.withArgs #["-shared", "-o", libFile.toString]
+    |>.addArgs (← mkArgs libFile linkArgs)
     -- See `BuildConfig.macosxDeploymentTarget?` for details
-    env := macosxDeploymentTarget?.elim #[] fun ver => #[("MACOSX_DEPLOYMENT_TARGET", some ver)]
-  }
+    |>.addEnvVarIfSome "MACOSX_DEPLOYMENT_TARGET"  macosxDeploymentTarget?
+    |>.run
 
 public def compileExe
   (binFile : FilePath) (linkArgs : Array String)
   (linker : FilePath := "cc") (macosxDeploymentTarget? : Option String := none)
 : LogIO Unit := do
   createParentDirs binFile
-  proc {
-    cmd := linker.toString
-    args := #["-o", binFile.toString] ++ (← mkArgs binFile linkArgs)
+  Subprocess.ofFilePath linker.toString
+    |>.withArgs #["-o", binFile.toString]
+    |>.addArgs (← mkArgs binFile linkArgs)
     -- See `BuildConfig.macosxDeploymentTarget?` for details
-    env :=  macosxDeploymentTarget?.elim #[] fun ver => #[("MACOSX_DEPLOYMENT_TARGET", some ver)]
-  }
+    |>.addEnvVarIfSome "MACOSX_DEPLOYMENT_TARGET" macosxDeploymentTarget?
+    |>.run
 
 /-- Download a file using `curl`, clobbering any existing file. -/
 public def download
@@ -173,20 +171,19 @@ public def download
   createParentDirs file
   -- No `--clobber` to be compatible with older versions of `curl`.
   removeFileIfExists file
-  let args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
-  let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  proc (quiet := true) {cmd := ← Internal.getCurl, args}
+  Subprocess.ofCommand (← Internal.getCurl)
+    |>.withArgs #["-s", "-S", "-f", "-o", file.toString, "-L", url]
+    |>.modifyArgs (headers.foldl (· ++ #["-H", ·]))
+    |>.run
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 public def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   IO.FS.createDirAll dir
-  let mut opts := "-xvv"
-  if gzip then
-    opts := opts.push 'z'
-  proc (quiet := true) {
-    cmd := "tar",
-    args := #[opts, "-f", file.toString, "-C", dir.toString]
-  }
+  Subprocess.ofCommand "tar"
+    |>.withArgs #["-xvv"]
+    |>.addArgIf gzip "-z"
+    |>.addArgs #["-f", file.toString, "-C", dir.toString]
+    |>.run
 
 /-- Pack a directory `dir` using `tar` into the archive `file`. -/
 public def tar
@@ -194,14 +191,11 @@ public def tar
   (gzip := true) (excludePaths : Array FilePath := #[])
 : LogIO PUnit := do
   createParentDirs file
-  let mut args := #["-cvv"]
-  if gzip then
-    args := args.push "-z"
-  for path in excludePaths do
-    args := args.push s!"--exclude={path}"
-  proc (quiet := true) {
-    cmd := "tar"
-    args := args ++ #["-f", file.toString, "-C", dir.toString, "."]
+  Subprocess.ofCommand "tar"
+    |>.withArgs #["-cvv"]
+    |>.addArgIf gzip "-z"
+    |>.modifyArgs (excludePaths.foldl (·.push s!"--exclude={·}"))
+    |>.addArgs #["-f", file.toString, "-C", dir.toString, "."]
     -- don't pack `._` files on MacOS
-    env := if Platform.isOSX then #[("COPYFILE_DISABLE", "true")] else #[]
-  }
+    |>.addEnvVarIf Platform.isOSX "COPYFILE_DISABLE" "true"
+    |>.run

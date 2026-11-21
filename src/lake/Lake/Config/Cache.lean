@@ -632,15 +632,14 @@ public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) :
 def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
 : LoggerIO Unit := do
-  let out ← captureProc' {
-    cmd := ← Internal.getCurl
-    args := #[
+  let out ← Subprocess.ofCommand (← Internal.getCurl)
+    |>.withArgs #[
       "-s", "-w", "%{stderr}%{json}\n",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
       "-X", "PUT", "-T", file.toString, url,
       "-H",  s!"Content-Type: {contentType}"
     ]
-  }
+    |>.strOutputwithSuccess
   match Json.parse out.stderr >>= JsonObject.fromJson? with
   | .ok data =>
     let code ← id do
@@ -1176,12 +1175,9 @@ where
         "-H", "Content-Type: application/json",
       ]
     let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
-    let spawnArgs := {
-      cmd := ← Internal.getCurl, args := args.push url
-      stdout := .piped, stderr := .piped
-    }
-    logVerbose (mkCmdLog spawnArgs)
-    let {stdout, stderr, exitCode} ← IO.Process.output spawnArgs
+    let {exitCode, stdout, stderr} ← Subprocess.ofCommand (← Internal.getCurl)
+      |>.withArgs (args.push url)
+      |>.strOutput
     match Json.parse stdout >>= fromJson? with
     | .ok (resp :  ReservoirResp (Array String)) =>
       match resp with

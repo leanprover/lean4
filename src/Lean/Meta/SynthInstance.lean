@@ -701,15 +701,16 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   else
     return none
 
-/-- Returns whether `e` is an unassigned metavariable that resolution cannot assign. -/
-private def isReadOnlyMVar (e : Expr) : MetaM Bool := do
-  let .mvar mvarId := e | return false
+/-- Returns whether the head of `e` is an unassigned metavariable that resolution cannot assign. -/
+private def hasReadOnlyMVarHead (e : Expr) : MetaM Bool := do
+  let .mvar mvarId := e.getAppFn | return false
   return !(← mvarId.isAssignable) && !(← mvarId.isAssigned) && !(← mvarId.isDelayedAssigned)
 
 /--
 Returns whether the root goal `type` is to be reported as stuck without a search: an explicit
-argument is a type or type constructor that is a metavariable resolution cannot assign, as in
-`LE ?α` or `Monad ?m`, and there is an instance that may unify with `type`.
+argument is a type or type constructor whose head is a metavariable resolution cannot assign, as
+in `LE ?α`, `Monad ?m` or `LE (?f a)`, and there is an instance that may unify with `type`. This
+is the condition under which `isDefEq` gets stuck on the argument.
 
 Implicit arguments are not considered: classes such as `Trans` are resolved while the types of their
 explicit arguments are unknown.
@@ -722,12 +723,12 @@ private def isStuckOnMVarArg (type : Expr) : MetaM Bool := do
   let fn := type.getAppFn
   let .const className _ := fn | return false
   let args := type.getAppArgs
-  unless (← args.anyM isReadOnlyMVar) do return false
+  unless (← args.anyM hasReadOnlyMVarHead) do return false
   unless isClass (← getEnv) className do return false
   let infos := (← getFunInfoNArgs fn args.size).paramInfo
   let typeMVar ← (Array.range args.size).anyM fun i => do
     let a := args[i]!
-    unless (← isReadOnlyMVar a) do return false
+    unless (← hasReadOnlyMVarHead a) do return false
     if h : i < infos.size then
       unless infos[i].isExplicit do return false
     isTypeFormer a

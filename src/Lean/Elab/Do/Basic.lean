@@ -548,7 +548,9 @@ private partial def enclosingClosedTerm (x e : Expr) : Expr :=
 
 /-- Throws if `e` refers to a free variable outside of the local context `lctx`. -/
 private def checkScoped (lctx : LocalContext) (e : Expr) : MetaM Unit := do
-  let some x := e.find? fun e => e.isFVar && !lctx.contains e.fvarId! | return
+  let some x := e.findExt? (fun e =>
+      if !e.hasFVar then .done else if e.isFVar && !lctx.contains e.fvarId! then .found else .visit)
+    | return
   throwError "Bug in a `do` elaborator. The free variable `{x}` is not in scope in{indentExpr (enclosingClosedTerm x e)}"
 
 /-- Runs `k` and reports whether it declared a `let rec`. -/

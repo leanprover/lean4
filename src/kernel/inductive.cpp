@@ -348,7 +348,6 @@ public:
      * This environment is used to check the constructors, which at the time of getting checked shouldn't have the information that these types are inductive. */
     environment env_inductive_types_as_axioms(environment env) {
         environment new_env = environment(env);
-        names all = get_all_inductive_names();
         for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             name const & n = ind_type.get_name();

@@ -592,7 +592,7 @@ theorem Spec.throw_ExceptT_lift [MonadExceptOf ε m]
     Triple (MonadExceptOf.throw (ε:=ε) err : ExceptT ε' m α)
       (wp (MonadExceptOf.throw (ε:=ε) err : m (@Except.{u, u} ε' α))
         (fun r => match r with | .ok a => post a | .error e => eposts.fst e) eposts.snd) post eposts :=
-  Triple.intro (by rw [MonadicWP.wp_throw_lift_ExceptT_apply_eq]; apply WP.wp_monotone_post; intro r; cases r <;> rfl)
+  Triple.intro (by rw [MonadicWP.wp_throw_lift_ExceptT_apply_eq]; apply WP.wp_mono_post; intro r; cases r <;> rfl)
 
 
 @[spec]
@@ -629,7 +629,7 @@ theorem Spec.tryCatch_ExceptT_lift
     Triple (MonadExceptOf.tryCatch (ε:=ε) x h : ExceptT ε' m α)
       (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (@Except.{u, u} ε' α))
         (fun | .ok a => post a | .error e => eposts.fst e) eposts.snd) post eposts :=
-  Triple.intro (by rw [MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq]; apply WP.wp_monotone_post; intro r; cases r <;> rfl)
+  Triple.intro (by rw [MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq]; apply WP.wp_mono_post; intro r; cases r <;> rfl)
 
 
 @[spec]

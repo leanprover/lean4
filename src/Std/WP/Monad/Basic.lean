@@ -118,7 +118,7 @@ theorem wp_le_wp_map [Monad m] [LawfulMonad m]
   rw [← bind_pure_comp]
   apply PartialOrder.rel_trans; rotate_left
   exact wp_wp_le_wp_bind x (pure <| f ·) post eposts
-  apply WP.wp_monotone_post
+  apply WP.wp_mono_post
   intro a; exact le_wp_pure (f a) post eposts
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
@@ -130,7 +130,7 @@ theorem wp_wp_le_wp_seq [Monad m] [LawfulMonad m]
   intro post eposts
   rw [← bind_map]
   apply PartialOrder.rel_trans _ (wp_wp_le_wp_bind f (fun g => g <$> x) post eposts)
-  apply WP.wp_monotone_post; intro g; exact wp_le_wp_map g x post eposts
+  apply WP.wp_mono_post; intro g; exact wp_le_wp_map g x post eposts
 
 end Lax
 

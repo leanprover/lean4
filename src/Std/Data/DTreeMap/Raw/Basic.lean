@@ -661,6 +661,11 @@ def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) 
     Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
 
+@[inline, inherit_doc DTreeMap.mergeWith?]
+def mergeWith? [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → Option (β a)) (t₁ t₂ : Raw α β cmp) :
+    Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith?! mergeFn t₂.inner⟩
+
 namespace Const
 open Std.DTreeMap.Internal (Impl)
 
@@ -701,6 +706,10 @@ def alter (t : Raw α β cmp) (a : α) (f : Option β → Option β) : Raw α β
 @[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith! mergeFn t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc DTreeMap.Const.mergeWith?]
+def mergeWith? (mergeFn : α → β → β → Option β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith?! mergeFn t₁.inner t₂.inner⟩
 
 end Const
 

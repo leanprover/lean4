@@ -442,8 +442,7 @@ public:
     /** \brief Add datatypes as axioms in a new environment.
      * This environment is used to check the constructors, which at the time of getting checked shouldn't have the information that these types are inductive. */
     void declare_inductive_types_as_axioms() {
-        for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
-            inductive_type const & ind_type = m_ind_types[idx];
+        for (inductive_type const & ind_type : m_ind_types) {
             name const & n = ind_type.get_name();
             m_env.check_name(n);
             m_env.add_core(constant_info(axiom_val(n, m_lparams, ind_type.get_type(), m_is_unsafe)));

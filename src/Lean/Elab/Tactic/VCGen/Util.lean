@@ -94,7 +94,8 @@ public def Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal :
       | .failed => return false
     if succeeded then
       let ruleDesc := ruleDesc?.getD <|
-        match rule.expr.getAppFn with
+        let e := match_expr rule.expr with | id _ e => e | _ => rule.expr
+        match e.getAppFn with
         | .const declName _ => m!"`{.ofConstName declName}`"
         | _ => m!"<rule constructed from expression>"
       throwError m!"[vcgen +debug] BackwardRule {ruleDesc} failed to \

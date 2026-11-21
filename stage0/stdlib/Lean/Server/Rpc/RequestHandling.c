@@ -621,7 +621,7 @@ v___x_51_ = 1;
 lean_inc_ref(v_env_38_);
 v___x_52_ = l_Lean_Environment_setExporting(v_env_38_, v___x_51_);
 lean_inc(v_fst_50_);
-v___x_53_ = l_Lean_Environment_contains(v___x_52_, v_fst_50_, v___x_48_);
+v___x_53_ = l_Lean_Environment_contains(v___x_52_, v_fst_50_, v___x_51_);
 if (v___x_53_ == 0)
 {
 v___y_44_ = v_b_42_;

@@ -35,7 +35,7 @@ LEAN_EXPORT lean_object* l_Std_WP_Gadget_assertGadget(lean_object* v_m_6_, lean_
 _start:
 {
 lean_object* v___x_14_; 
-v___x_14_ = l_Std_WP_Gadget_assertGadget___redArg(v_inst_9_);
+v___x_14_ = l_Std_WP_Gadget_assertGadget___redArg(v_inst_11_);
 return v___x_14_;
 }
 }

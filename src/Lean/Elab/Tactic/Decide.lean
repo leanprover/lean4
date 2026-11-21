@@ -130,6 +130,10 @@ where
         mkAuxLemma lemmaLevels expectedType pf
       return mkConst lemmaName (lemmaLevels.map .param)
     catch ex =>
+      -- A stuck elaborator reduction cannot explain a kernel resource-limit failure.
+      match ex.toMessageData.stripNestedTags.kind with
+      | `kernel.deterministicTimeout | `kernel.excessiveMemory | `kernel.deepRecursion => throw ex
+      | _ => pure ()
       -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
       throwError MessageData.ofLazyM (es := #[expectedType]) do
         -- Report original kernel exception if elab fails as well

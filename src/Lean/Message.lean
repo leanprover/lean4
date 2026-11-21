@@ -890,9 +890,10 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
   | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
-  | deterministicTimeout                => "(kernel) deterministic timeout"
-  | excessiveMemory                     => "(kernel) excessive memory consumption detected"
-  | deepRecursion                       => "(kernel) deep recursion detected, use `set_option maxRecDepth <num>` to increase the limit"
+  | deterministicTimeout                => .tagged `kernel.deterministicTimeout "(kernel) deterministic timeout"
+  | excessiveMemory                     => .tagged `kernel.excessiveMemory "(kernel) excessive memory consumption detected"
+  | deepRecursion                       => .tagged `kernel.deepRecursion
+      "(kernel) deep recursion detected, use `set_option maxRecDepth <num>` to increase the limit"
   | interrupted                         => "(kernel) interrupted"
 
 end Kernel.Exception

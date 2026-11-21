@@ -960,6 +960,11 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
       cmdState := { cmdState with messages := messages }
       cmdState ← runCommand (Command.elabCommand cmd) cmd cctx cmdState
       if Parser.isTerminalCommand cmd then break
+    -- messages of e.g. `addDecl` are reported via snapshot tasks
+    cmdState := { cmdState with
+      messages := cmdState.snapshotTasks.foldl (init := cmdState.messages)
+        (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty)
+      snapshotTasks := #[] }
     setEnv cmdState.env
     modify fun st => { st with scopes := cmdState.scopes }
 

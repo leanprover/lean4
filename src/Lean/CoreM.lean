@@ -785,17 +785,23 @@ elaboration.
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
-/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
-    CoreM (α → EIO Exception β) := do
+/--
+Advances the name generators of the current state and returns a state for a forked computation
+whose generators cannot produce names clashing with the current branch.
+-/
+private def forkState : CoreM State := do
   let (childNGen, parentNGen) := (← getNGen).mkChild
   setNGen parentNGen
   let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
   setDeclNGen parentDeclNGen
-  let st ← get
+  return { (← get) with auxDeclNGen := childDeclNGen, ngen := childNGen }
+
+/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
+    CoreM (α → EIO Exception β) := do
   -- The forked action's final state is discarded below, and with it its `State.recordedDeps`.
   assert! !(← read).isRecordingDeps
-  let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
+  let st ← forkState
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
@@ -834,6 +840,27 @@ def mkSnapshot? (output : String) (ctx : Context) (st : State)
     traces := st.traceState
   } st.snapshotTasks
 
+/-- Runs `act` with reset reporting state, returning its output. -/
+private def runIsolatedForSnapshot (act : CoreM Unit) (desc : String) : CoreM String := do
+  let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
+    let tid ← IO.getTID
+    -- reset trace/info state and message log so as not to report them twice
+    modify fun st => { st with
+      messages := st.messages.markAllReported
+      traceState := { tid }
+      snapshotTasks := #[]
+      infoState := {}
+    }
+    try
+      withTraceNode `Elab.async (fun _ => return desc) do
+        act
+    catch e =>
+      unless e.isInterrupt do
+        logError e.toMessageData
+    finally
+      addTraceAsMessages
+  return output
+
 open Language in
 /--
 Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
@@ -844,31 +871,53 @@ no longer needed.
 def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) : CoreM (α → BaseIO SnapshotTree) := do
   let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
-    IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
-      let tid ← IO.getTID
-      -- reset trace/info state and message log so as not to report them twice
-      modify fun st => { st with
-        messages := st.messages.markAllReported
-        traceState := { tid }
-        snapshotTasks := #[]
-        infoState := {}
-      }
-      try
-        withTraceNode `Elab.async (fun _ => return desc) do
-          act a
-      catch e =>
-        unless e.isInterrupt do
-          logError e.toMessageData
-      finally
-        addTraceAsMessages
-      get
+    let output ← runIsolatedForSnapshot (act a) desc
+    return (output, ← get)
   let ctx ← readThe Core.Context
   return fun a => do
     match (← (f a).toBaseIO) with
     | .ok (output, st) =>
       return (← mkSnapshot? output ctx st desc).getD (toSnapshotTree (default : SnapshotLeaf))
-    -- interrupt or abort exception as `try catch` above should have caught any others
+    -- interrupt or abort exception as `try catch` in `runIsolatedForSnapshot` should have caught
+    -- any others
     | .error _ => default
+
+open Language in
+/--
+Runs `act` on a fork of the current state as by `wrapAsync`, so that it elaborates the same way
+whether or not `Elab.async` is set; only the way its results are reported differs.
+
+If `Elab.async` is set, `act` runs in a separate task once `after` has finished, and its messages,
+traces, and snapshot tasks are reported as a new snapshot task as by `wrapAsyncAsSnapshot`.
+Otherwise, it runs immediately and reports into the current state: its messages, traces, info
+trees, and snapshot tasks are kept, and any exception it throws is propagated.
+
+The reporting range is skipped by default as most uses are for registering auxiliary declarations
+users should not worry about.
+-/
+def forkAsSnapshot (act : CoreM Unit) (after : Task α)
+    (reportingRange : SnapshotTask.ReportingRange := .skip)
+    (desc : String := by exact decl_name%.toString) : CoreM Unit := do
+  if Elab.async.get (← getOptions) then
+    let cancelTk ← IO.CancelToken.new
+    let act ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) (desc := desc) fun _ => act
+    let t ← BaseIO.mapTask act after
+    logSnapshotTask { stx? := none, reportingRange, task := t, cancelTk? := cancelTk }
+  else
+    let childSt ← forkState
+    let parentSt ← get
+    set childSt
+    try
+      act
+    finally
+      -- unlike in a separate task, recording may be active here and must observe `act`'s accesses
+      modify fun st => { parentSt with
+        messages := st.messages
+        traceState := st.traceState
+        infoState := st.infoState
+        snapshotTasks := st.snapshotTasks
+        recordedDeps := st.recordedDeps
+      }
 
 end Core
 
@@ -975,24 +1024,15 @@ private def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
 def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
   let env ← getEnv
   if !Elab.async.get (← getOptions) then
-    let _ ← traceBlock "compiler env" (← getEnv).checked
-    doCompile
-    return
-  let env ← getEnv
+    let _ ← traceBlock "compiler env" env.checked
   let res ← env.promiseChecked
   setEnv res.mainEnv
-  let cancelTk ← IO.CancelToken.new
-  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+  Core.forkAsSnapshot (after := env.checked) do
     setEnv res.asyncEnv
     try
       doCompile
     finally
       res.commitChecked (← getEnv)
-  let t ← BaseIO.mapTask checkAct env.checked
-  -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
-  -- users should not worry about and other callers can add a separate task with ranges
-  -- themselves, see `MutualDef`.
-  Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well

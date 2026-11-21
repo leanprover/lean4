@@ -1237,7 +1237,7 @@ where
             setReducibilityStatus header.declName .instanceReducible
 
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
-      if Elab.async.get (← getOptions) && view.kind.isTheorem &&
+      if view.kind.isTheorem &&
           !deprecated.oldSectionVars.get (← getOptions) &&
           -- holes in theorem types is not a fatal error, but it does make parallelism impossible
           !headers[0]!.type.hasMVar then
@@ -1309,36 +1309,40 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
     let oldAttrs := header.modifiers.attrs
     let header := { header with modifiers.attrs := #[] }
 
-    -- insert a hole for the proof info trees in the main info tree
+    -- insert a hole for the proof info trees in the main info tree; without `Elab.async`, the
+    -- proof adds them to the main info tree directly
+    -- NOTE: generated names must not depend on `Elab.async`, so we always create the hole's name.
     let infoHole ← mkFreshMVarId
-    let infoPromise ← IO.Promise.new
-    modifyInfoState fun s => { s with
-      trees := s.trees.push <| .hole infoHole
-      lazyAssignment := s.lazyAssignment.insert infoHole <| infoPromise.resultD default
-    }
+    let infoPromise? ← if Elab.async.get (← getOptions) then
+      let infoPromise ← IO.Promise.new
+      modifyInfoState fun s => { s with
+        trees := s.trees.push <| .hole infoHole
+        lazyAssignment := s.lazyAssignment.insert infoHole <| infoPromise.resultD default
+      }
+      pure (some infoPromise)
+    else
+      pure none
 
-    -- now start new thread for body elaboration, then nested thread for kernel checking
-    let cancelTk ← IO.CancelToken.new
-    let act ←
-      -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
-      -- forked correctly.
-      withDeprecationContextFromAttrs oldAttrs do
-      withDeclName header.declName do
-      wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
-        (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
-      setEnv async.asyncEnv
-      try
-        finishElab #[header]
-      finally
-        reportDiag
-        -- must introduce node to fill `infoHole` with multiple info trees
-        let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
-        let ctx ← CommandContextInfo.save
-        infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
-      async.commitConst (← getEnv)
-      processDeriving #[header]
-      async.commitCheckEnv (← getEnv)
-    Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
+    -- now elaborate the body on a fork (in a new thread under `Elab.async`), then kernel check it
+    -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
+    -- forked correctly.
+    withDeprecationContextFromAttrs oldAttrs <| withDeclName header.declName <|
+      forkAsSnapshot (after := .pure ()) (reportingRange := .inherit)
+          (desc := s!"elaborating proof of {declId.declName}") do
+        profileitM Exception "elaboration" (← getOptions) do
+        setEnv async.asyncEnv
+        try
+          finishElab #[header]
+        finally
+          reportDiag
+          if let some infoPromise := infoPromise? then
+            -- must introduce node to fill `infoHole` with multiple info trees
+            let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
+            let ctx ← CommandContextInfo.save
+            infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
+        async.commitConst (← getEnv)
+        processDeriving #[header]
+        async.commitCheckEnv (← getEnv)
     -- Also add explicit snapshot task for showing progress of kernel checking; `addDecl` does not
     -- do this by default
     Core.logSnapshotTask { stx? := none, cancelTk? := none, task := (← getEnv).checked.map fun _ =>

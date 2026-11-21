@@ -43,6 +43,12 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
     }
 }
 
+extern "C" object * lean_mk_axiom_val(object * n, object * lparams, object * type, uint8 unsafe);
+
+axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, bool const & is_unsafe):
+    object_ref(lean_mk_axiom_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), is_unsafe)) {
+}
+
 extern "C" uint8 lean_axiom_val_is_unsafe(object * v);
 
 bool axiom_val::is_unsafe() const { return lean_axiom_val_is_unsafe(to_obj_arg()); }
@@ -192,6 +198,10 @@ bool inductive_decl::is_unsafe() const { return lean_is_unsafe_inductive_decl(to
 constant_info::constant_info(declaration const & d):object_ref(d.raw()) {
     lean_assert(d.is_definition() || d.is_theorem() || d.is_axiom() || d.is_opaque());
     inc_ref(d.raw());
+}
+
+constant_info::constant_info(axiom_val const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Axiom), v)) {
 }
 
 constant_info::constant_info(definition_val const & v):

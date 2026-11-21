@@ -67,6 +67,14 @@ test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportA
 # Tests that the transitive module import of a private import does not include its artifacts
 test_run build Test.Module.ImportImport
 test_cmd_fails grep -F "Module.olean" .lake/build/ir/Test/Module/ImportImport.setup.json
+# but the server setup should include them, as the server loads the IR of every transitive import
+# https://github.com/leanprover/lean4/issues/14435
+test_out '"Test.Generated.Module"' setup-file Test/Module/ImportImport.lean
+# including through a chain of private imports
+test_out '"Test.Generated.Module"' setup-file Test/Module/ImportImportImport.lean
+# and for a file that is outside every library
+HEADER_JSON='{"isModule":true,"imports":[{"module":"Test.Module.ImportImport","isMeta":false,"isExported":false,"importAll":false}]}'
+test_out '"Test.Generated.Module"' setup-file External.lean "$HEADER_JSON"
 
 # Tests that `meta import` properly includes transitive import artifacts
 # IR should be included for a transitive `public meta import`

@@ -2074,6 +2074,41 @@ theorem WF.constMergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Imp
   rw [← Const.mergeWith_eq_mergeWith! h.balanced]
   exact h.constMergeWith
 
+/-- Internal implementation detail of the tree map. -/
+theorem Const.toListModel_mergeWith! {β : Type v} {_ : Ord α} [TransOrd α]
+    [BEq α] [LawfulBEqOrd α]
+    (f : α → β → β → β) (t₁ t₂ : Impl α β) (h₁ : t₁.WF) :
+    (Const.mergeWith! f t₁ t₂).toListModel.Perm
+      (Std.Internal.List.Const.mergeWith f t₁.toListModel t₂.toListModel) := by
+  unfold Const.mergeWith!
+  rw [foldl_eq_foldl]
+  induction t₂.toListModel generalizing t₁ with
+  | nil => rfl
+  | cons hd tl ih =>
+    simp only [List.foldl_cons, Std.Internal.List.Const.mergeWith]
+    refine (ih _ (h₁.constAlter!)).trans ?_
+    exact Std.Internal.List.Const.mergeWith_of_perm_first f tl
+      h₁.constAlter!.ordered.distinctKeys (Const.toListModel_alter! h₁.balanced h₁.ordered)
+
+/-- Internal implementation detail of the tree map. -/
+theorem Const.toListModel_mergeWith {β : Type v} {_ : Ord α} [TransOrd α]
+    [BEq α] [LawfulBEqOrd α]
+    (f : α → β → β → β) (t₁ t₂ : Impl α β) (h₁ : t₁.WF) :
+    (Const.mergeWith f t₁ t₂ h₁.balanced).impl.toListModel.Perm
+      (Std.Internal.List.Const.mergeWith f t₁.toListModel t₂.toListModel) := by
+  simpa only [Const.mergeWith_eq_mergeWith!] using Const.toListModel_mergeWith! f t₁ t₂ h₁
+
+/-- Internal implementation detail of the tree map. -/
+theorem Const.getValue?_toListModel_mergeWith {β : Type v} {_ : Ord α} [TransOrd α]
+    [BEq α] [LawfulBEqOrd α] (f : α → β → β → β) (t₁ t₂ : Impl α β)
+    (h₁ : t₁.WF) (k : α) :
+    Std.Internal.List.getValue? k
+        (Const.mergeWith f t₁ t₂ h₁.balanced).impl.toListModel =
+      Std.Internal.List.getValue? k
+        (Std.Internal.List.Const.mergeWith f t₁.toListModel t₂.toListModel) := by
+  exact Std.Internal.List.getValue?_of_perm
+    h₁.constMergeWith.ordered.distinctKeys (Const.toListModel_mergeWith f t₁ t₂ h₁)
+
 /-!
 ### filterMap
 -/

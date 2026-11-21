@@ -46,6 +46,10 @@ macro_rules
 | `(tactic| wf_trivial) => `(tactic|
     (first
     | assumption | apply Ordered.distinctKeys
+    | apply List.Const.distinctKeys_mergeWith
+    | apply ordered_mergeWith | apply Const.ordered_mergeWith
+    | exact WF.mergeWith (by assumption)
+    | exact WF.constMergeWith (by assumption)
     | apply WF.ordered | apply WF.balanced | apply WF.empty
     | apply WF.insert | apply WF.insertIfNew
     | apply WF.erase | apply WF.insertMany
@@ -65,7 +69,7 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
 
 private meta def helperLemmaNames : Array Name :=
   #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
-    ``Bool.not_eq_true, ``mem_iff_contains]
+    ``Bool.not_eq_true, ``mem_iff_contains, ``Const.getValue?_toListModel_mergeWith]
 
 private meta def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -81,7 +85,10 @@ private meta def modifyMap : Std.HashMap Name Name :=
      (`alter, ``toListModel_alter),
      (`Const.alter, ``Const.toListModel_alter),
      (`modify, ``toListModel_modify),
-     (`Const.modify, ``Const.toListModel_modify)]
+     (`Const.modify, ``Const.toListModel_modify),
+     (`Const.mergeWith, ``Const.toListModel_mergeWith),
+     (`Std.DTreeMap.Internal.Impl.Const.mergeWith, ``Const.toListModel_mergeWith),
+     (`Const.mergeWith!, ``Const.toListModel_mergeWith!)]
 
 private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList

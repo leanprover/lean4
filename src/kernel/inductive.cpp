@@ -1080,7 +1080,7 @@ struct elim_nested_inductive_fn {
                It is probably not needed, but if one day we decide to do it, we have to populate
                an auxiliary environment with the inductive datatypes we are defining since `p.first` and `Iparams`
                contain references to them. */
-            if (p.first == Iparams) {
+            if (is_equal(p.first, Iparams, true)) {
                 auxI_name = p.second;
                 break;
             }

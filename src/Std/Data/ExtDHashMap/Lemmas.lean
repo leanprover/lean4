@@ -4488,4 +4488,194 @@ end Const
 
 end map
 
+
+/-! ### Merging with a collision function -/
+
+theorem get?_mergeWith? [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : ExtDHashMap α β} {k : α} :
+    (t₁.mergeWith? f t₂).get? k =
+      match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂ :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.get?_mergeWith?)
+
+theorem contains_mergeWith? [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : ExtDHashMap α β} {k : α} :
+    (t₁.mergeWith? f t₂).contains k =
+      (match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => f k b₁ b₂).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+theorem get?_mergeWith [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t₁ t₂ : ExtDHashMap α β} {k : α} :
+    (t₁.mergeWith f t₂).get? k =
+      match t₂.get? k with
+      | none => t₁.get? k
+      | some b₂ => match t₁.get? k with
+        | none => some b₂
+        | some b₁ => some (f k b₁ b₂) :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.get?_mergeWith)
+
+theorem size_mergeWith?_le [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t₁ t₂ : ExtDHashMap α β} :
+    (t₁.mergeWith? f t₂).size ≤ t₁.size + t₂.size :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.size_mergeWith?_le)
+
+theorem size_mergeWith_le [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t₁ t₂ : ExtDHashMap α β} :
+    (t₁.mergeWith f t₂).size ≤ t₁.size + t₂.size :=
+  size_mergeWith?_le (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_empty_right [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t : ExtDHashMap α β} :
+    t.mergeWith? f ∅ = t :=
+  t.inductionOn (fun _ => congrArg mk DHashMap.mergeWith?_empty_right)
+
+@[simp]
+theorem mergeWith_empty_right [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t : ExtDHashMap α β} :
+    t.mergeWith f ∅ = t :=
+  mergeWith?_empty_right (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_empty_left [LawfulBEq α]
+    {f : (a : α) → β a → β a → Option (β a)} {t : ExtDHashMap α β} :
+    (∅ : ExtDHashMap α β).mergeWith? f t = t :=
+  t.inductionOn (fun _ => sound DHashMap.mergeWith?_empty_left)
+
+@[simp]
+theorem mergeWith_empty_left [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t : ExtDHashMap α β} :
+    (∅ : ExtDHashMap α β).mergeWith f t = t :=
+  mergeWith?_empty_left (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_some [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {t₁ t₂ : ExtDHashMap α β} :
+    t₁.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₂ = t₁.mergeWith f t₂ := by
+  rfl
+
+namespace Const
+
+variable {β : Type v}
+
+theorem get?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} {k : α} :
+    get? (mergeWith? f t₁ t₂) k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.Const.get?_mergeWith?)
+
+theorem contains_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} {k : α} :
+    (mergeWith? f t₁ t₂).contains k =
+      (match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => f a b₁ b₂
+      | _, _ => get? t₁ k).isSome := by
+  rw [contains_eq_isSome_get?, get?_mergeWith?]
+
+theorem get?_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} {k : α} :
+    get? (mergeWith f t₁ t₂) k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ => match get? t₁ k with
+        | none => some b₂
+        | some b₁ => some (f a b₁ b₂)
+      | _, _ => get? t₁ k :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.Const.get?_mergeWith)
+
+theorem getKey?_mergeWith? [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} {k : α} :
+    (mergeWith? f t₁ t₂).getKey? k =
+      match t₂.getKey? k, get? t₂ k with
+      | some a, some b₂ =>
+        if (match get? t₁ k with | none => some b₂ | some b₁ => f a b₁ b₂).isSome then
+          some a
+        else none
+      | _, _ => t₁.getKey? k :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.Const.getKey?_mergeWith?)
+
+theorem size_mergeWith?_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} :
+    (mergeWith? f t₁ t₂).size ≤ t₁.size + t₂.size :=
+  t₁.inductionOn₂ t₂ (fun _ _ => DHashMap.Const.size_mergeWith?_le)
+
+theorem size_mergeWith_le [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} :
+    (mergeWith f t₁ t₂).size ≤ t₁.size + t₂.size :=
+  size_mergeWith?_le (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_empty_right [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t : ExtDHashMap α (fun _ => β)} :
+    mergeWith? f t ∅ = t :=
+  t.inductionOn (fun _ => congrArg mk DHashMap.Const.mergeWith?_empty_right)
+
+@[simp]
+theorem mergeWith_empty_right [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t : ExtDHashMap α (fun _ => β)} :
+    mergeWith f t ∅ = t :=
+  mergeWith?_empty_right (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → Option β} {t : ExtDHashMap α (fun _ => β)} :
+    mergeWith? f ∅ t = t :=
+  t.inductionOn (fun _ => sound DHashMap.Const.mergeWith?_empty_left)
+
+@[simp]
+theorem mergeWith_empty_left [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t : ExtDHashMap α (fun _ => β)} :
+    mergeWith f ∅ t = t :=
+  mergeWith?_empty_left (f := fun a b₁ b₂ => some (f a b₁ b₂))
+
+@[simp]
+theorem mergeWith?_some [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {t₁ t₂ : ExtDHashMap α (fun _ => β)} :
+    mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) t₁ t₂ = mergeWith f t₁ t₂ := by
+  rfl
+
+end Const
+
+
+theorem contains_mergeWith [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {m₁ m₂ : ExtDHashMap α β} {k : α} :
+    (m₁.mergeWith f m₂).contains k = (m₁.contains k || m₂.contains k) :=
+  m₁.inductionOn₂ m₂ (fun _ _ => DHashMap.contains_mergeWith)
+
+@[simp]
+theorem mem_mergeWith [LawfulBEq α]
+    {f : (a : α) → β a → β a → β a} {m₁ m₂ : ExtDHashMap α β} {k : α} :
+    k ∈ m₁.mergeWith f m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [mem_iff_contains, contains_mergeWith, Bool.or_eq_true]
+
+namespace Const
+
+variable {β : Type v}
+
+theorem contains_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : ExtDHashMap α (fun _ => β)} {k : α} :
+    (mergeWith f m₁ m₂).contains k = (m₁.contains k || m₂.contains k) :=
+  m₁.inductionOn₂ m₂ (fun _ _ => DHashMap.Const.contains_mergeWith)
+
+@[simp]
+theorem mem_mergeWith [EquivBEq α] [LawfulHashable α]
+    {f : α → β → β → β} {m₁ m₂ : ExtDHashMap α (fun _ => β)} {k : α} :
+    k ∈ mergeWith f m₁ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [mem_iff_contains, contains_mergeWith, Bool.or_eq_true]
+
+end Const
+
+
 end Std.ExtDHashMap

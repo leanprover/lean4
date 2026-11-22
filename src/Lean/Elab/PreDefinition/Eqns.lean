@@ -148,18 +148,22 @@ where
       match_expr type with
       | Nat => true | Int => true
       | UInt8 => true | UInt16 => true | UInt32 => true | UInt64 => true
+      | Int8 => true | Int16 => true | Int32 => true | Int64 => true
       | Fin n => isNumeral n
       | BitVec n => isNumeral n
       | _ => false
-    | Neg.neg type _ _ => type.isConstOf ``Int
+    | Neg.neg type _ _ =>
+      match_expr type with
+      | Int => true | Int8 => true | Int16 => true | Int32 => true | Int64 => true
+      | _ => false
     | Char.ofNat _ => true
     | BitVec.ofNat n _ => isNumeral n
     | _ => false
 
   /--
   Returns `e` if it is a literal in its standard representation: a `String` literal, or a numeral
-  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Fin n`, or
-  `BitVec n`. Two such literals of the same type denote different values if and only if they are
+  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`,
+  `Int32`, `Int64`, `Fin n`, or `BitVec n`. Two such literals of the same type denote different values if and only if they are
   structurally different.
 
   The standard representation is the one `normLitValue` produces. A literal that is not in its
@@ -232,6 +236,37 @@ def rwMatcherLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContex
   return some mvarNew.mvarId!
 
 /--
+Unifies the hypotheses `discr = pattern` and `discr ≍ pattern` that splitting a matcher leaves in
+a branch when a discriminant is not a variable. The hypotheses considered are `a = b` where
+neither `a` nor `b` is a variable, and `a ≍ b` where the types of `a` and `b` are definitionally
+equal. Each one is unified as `cases` does: it is removed if the two sides are definitionally
+equal, a variable is substituted, and applications of the same constructor are replaced by the
+equalities between the fields. A hypothesis that cannot be unified is kept.
+Returns `none` if a hypothesis equates different constructors or literals: the branch is closed.
+-/
+partial def unifyDiscrEqs (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  for decl in (← getLCtx) do
+    if decl.isImplementationDetail then continue
+    if let some (_, a, b) := decl.type.eq? then
+      if a.isFVar || b.isFVar then continue
+    else if let some (α, _, β, _) := decl.type.heq? then
+      unless (← isDefEq α β) do continue
+    else
+      continue
+    let saved ← saveState
+    let r? ← try
+        let some r ← unifyEq? mvarId decl.fvarId | return none -- Goal closed, done.
+        pure (some (← Cases.unifyEqs? r.numNewEqs r.mvarId r.subst))
+      catch _ =>
+        saved.restore
+        pure none
+    match r? with
+    | none => continue -- Caught exception, keep traversing lctx
+    | some none => return none -- Goal closed, done.
+    | some (some (mvarId, _)) => return (← unifyDiscrEqs mvarId) -- Subgoal generated, continue from there
+  return some mvarId
+
+/--
 Proves a generated equation type for `declName`. After introducing its parameters and hypotheses,
 tries reflexivity, then unfolds the definition and reduces or splits the remaining cases.
 -/
@@ -278,7 +313,7 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
           if let some mvarIds ← casesOnStuckLHS? mvarId then
             mvarIds.forM go
           else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
-            mvarIds.forM go
+            (← mvarIds.filterMapM unifyDiscrEqs).forM go
           else if let some mvarId ← rwMatcherLHS? mvarId then
             go mvarId
           else
@@ -698,39 +733,6 @@ def normalizeEqn (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
     mvarId.replaceTargetDefEq target'
 
 /--
-Resolves the hypotheses `discr = pattern` and `discr ≍ pattern` that `Split.refineMatch` leaves in
-a branch when a discriminant is not a variable. The hypotheses considered are `a = b` where
-neither `a` nor `b` is a variable, and `a ≍ b` where the types of `a` and `b` are definitionally
-equal. Each one is unified as `cases` does: it is removed if the two sides are definitionally
-equal, a variable is substituted, and applications of the same constructor are replaced by the
-equalities between the fields. A hypothesis that cannot be unified is kept.
-Returns `none` if a hypothesis is contradictory: the branch is closed.
--/
-partial def resolveDiscrEqs (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
-  for decl in (← getLCtx) do
-    if decl.isImplementationDetail then continue
-    if let some (_, a, b) := decl.type.eq? then
-      if a.isFVar || b.isFVar then continue
-    else if let some (α, _, β, _) := decl.type.heq? then
-      unless (← isDefEq α β) do continue
-    else
-      continue
-    let saved ← saveState
-    let r? ← try
-        let some r ← unifyEq? mvarId decl.fvarId | return none -- Goal closed, done.
-        pure (some (← Cases.unifyEqs? r.numNewEqs r.mvarId r.subst))
-      catch _ =>
-        saved.restore
-        pure none
-    match r? with
-    | none => continue -- Caught exception, keep traversing lctx
-    | some none => return none -- Goal closed, done.
-    | some (some (mvarId, _)) => return (← resolveDiscrEqs mvarId) -- Subgoal generated, continue from there
-  if (← mvarId.contradictionCore { emptyType := false, genDiseq := true }) then
-    return none
-  return some mvarId
-
-/--
 Tries eligible RHS matchers until a splitter produces branches whose RHSs all change under
 normalization. Each attempt saves the metavariable state; failure restores it and excludes that
 splitter invocation from further attempts. Returned branches are already normalized.
@@ -746,7 +748,10 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) :
       let branches ← Split.refineMatch mvarId candidate.declName candidate.levels candidate.params candidate.discrs
       let branches ←
         if candidate.discrs.all (·.isFVar) then pure branches
-        else branches.filterMapM resolveDiscrEqs
+        else branches.filterMapM fun branch => do
+          let some branch ← unifyDiscrEqs branch | return none
+          if (← branch.contradictionCore { useDecide := false, emptyType := false, genDiseq := true }) then return none
+          return some branch
       let branches ← branches.mapM fun branch => do
         let normalized ← normalizeEqn branch
         if normalized == branch then

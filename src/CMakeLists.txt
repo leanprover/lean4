@@ -1094,7 +1094,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-leche
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-leche
-    GIT_TAG 6810492c1ccc325b4a2bbf9dfe70bd07fd933da2
+    GIT_TAG d8c8c2278357053c52bb568fc97c2838431c35fc
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build con-leche
     BUILD_IN_SOURCE ON

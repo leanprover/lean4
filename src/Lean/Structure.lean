@@ -378,16 +378,12 @@ Returns true iff `constName` is a non-recursive inductive datatype that has only
 
 Such types have special kernel support (e.g. the eta rule). This must be in sync with `is_non_rec_structure()`.
 -/
-@[deprecated hasEta (since := "2026-11-16")]
+@[deprecated hasEta (since := "2026-11-22")]
 def isNonRecStructure (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
 
-def hasLargeElim (env : Environment) (constName : Name) : Bool :=
-  match env.find? constName with
-  | some (.inductInfo { hasLargeElim,.. }) => hasLargeElim
-  | _ => false
 
 /--
 Returns the constructor of the structure named `constName` if it is a non-recursive single-constructor inductive type with no indices.

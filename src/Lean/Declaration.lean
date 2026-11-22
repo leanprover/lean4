@@ -169,20 +169,11 @@ def mkInductiveTypeEx (name : Name) (type : Expr) (ctors : List Constructor)
     (isImpredicative isK hasProjections hasEta hasLargeElim : Bool) : InductiveType :=
   { name, type, ctors, isImpredicative, isK, hasProjections, hasEta, hasLargeElim }
 
-@[export lean_inductive_type_is_impredicative]
-def InductiveType.isImpredicativeEx (v : InductiveType) : Bool := v.isImpredicative
-
-@[export lean_inductive_type_is_k]
-def InductiveType.isKEx (v : InductiveType) : Bool := v.isK
-
-@[export lean_inductive_type_has_projections]
-def InductiveType.hasProjectionsEx (v : InductiveType) : Bool := v.hasProjections
-
-@[export lean_inductive_type_has_eta]
-def InductiveType.hasEtaEx (v : InductiveType) : Bool := v.hasEta
-
-@[export lean_inductive_type_has_large_elim]
-def InductiveType.hasLargeElimEx (v : InductiveType) : Bool := v.hasLargeElim
+@[export lean_inductive_type_is_impredicative] def InductiveType.isImpredicativeEx (v : InductiveType) : Bool := v.isImpredicative
+@[export lean_inductive_type_is_k] def InductiveType.isKEx (v : InductiveType) : Bool := v.isK
+@[export lean_inductive_type_has_projections] def InductiveType.hasProjectionsEx (v : InductiveType) : Bool := v.hasProjections
+@[export lean_inductive_type_has_eta] def InductiveType.hasEtaEx (v : InductiveType) : Bool := v.hasEta
+@[export lean_inductive_type_has_large_elim] def InductiveType.hasLargeElimEx (v : InductiveType) : Bool := v.hasLargeElim
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration where

@@ -141,7 +141,6 @@ inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const
     return object_ref(r);
 }
 
-
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */
 inline object_ref const & cnstr_get_ref(object * o, unsigned i) {
     static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size"); // NOLINT

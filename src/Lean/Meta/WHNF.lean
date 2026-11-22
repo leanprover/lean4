@@ -144,15 +144,15 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
   | _           => none
 
 @[inline]
-private def toCtorWhenK (indVal : InductiveVal) (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
+private def toCtorWhenK (indVal : InductiveVal) (numParams : Nat) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
   unless majorTypeI.isConstOf indVal.name do
     return major
-  if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams...*].any Expr.hasExprMVar then
+  if majorType.hasExprMVar && majorType.getAppArgs[numParams...*].any Expr.hasExprMVar then
     return major
-  let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
+  let (some newCtorApp) ← mkNullaryCtor majorType numParams | pure major
   let newType ← inferType newCtorApp
   /- TODO: check whether changing reducibility to default hurts performance here.
      We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
@@ -255,7 +255,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       else
         pure major
     if recVal.k then
-      major ← toCtorWhenK indVal recVal major
+      major ← toCtorWhenK indVal recVal.numParams major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure indVal major

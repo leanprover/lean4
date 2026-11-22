@@ -190,7 +190,6 @@ public:
     bool has_projections() const;
     bool has_eta() const;
     bool has_large_elim() const;
-
 };
 typedef list_ref<inductive_type> inductive_types;
 
@@ -296,6 +295,10 @@ public:
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
     inductive_val & operator=(inductive_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    size_t get_num_lparams() const { return length(get_lparams()); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
     size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     size_t get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }

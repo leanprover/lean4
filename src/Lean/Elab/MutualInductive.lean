@@ -1545,7 +1545,7 @@ private def mkInductiveDeclCore
       let elab' ← Term.withDeprecationContextFromAttrs views[i].modifiers.attrs <|
         elabs[i]!.elabCtors rs r params
       elabs'    := elabs'.push elab'
-      /-Since some flags can change depending on mvar instantiation, universe inference and indices promotions, we instantiate them correctly later than here -/
+      /- We instantiate the boolean flags later (i.e. once mvar instantiation, universe inference and parameters promotion are figured out) using `inferInductiveFlags`, -/
       indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors,
                                             isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := false }
     Term.synthesizeSyntheticMVarsNoPostponing

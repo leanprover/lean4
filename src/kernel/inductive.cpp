@@ -75,7 +75,6 @@ optional<expr> mk_nullary_cnstr(inductive_val induct_val, expr const & type, siz
     buffer<expr> args;
     expr const & d = get_app_args(type, args);
     if (!is_constant(d)) return none_expr();
-    name const & d_name = const_name(d);
     auto cnstr_name = get_first_cnstr(induct_val);
     if (!cnstr_name) return none_expr();
     args.shrink(num_params);
@@ -283,19 +282,15 @@ public:
                 m_is_not_zero  = is_not_zero(m_result_level);
                 m_has_large_elim = ind_type.has_large_elim();
                 m_is_impredicative = ind_type.is_impredicative();
-                if (m_is_impredicative && !normalizes_to_zero(m_result_level)) {
+                if (m_is_impredicative && !normalizes_to_zero(m_result_level))
                     throw kernel_exception(m_env, "inductive datatype marked as impredicative must always live in Prop");
-                }
             } else {
-                if (!is_equivalent(sort_level(type), m_result_level)) {
+                if (!is_equivalent(sort_level(type), m_result_level))
                     throw kernel_exception(m_env, "mutually defined inductive types must live in the same universe");
-                }
-                if (ind_type.is_impredicative() != m_is_impredicative) {
+                if (ind_type.is_impredicative() != m_is_impredicative)
                     throw kernel_exception(m_env, "mutually defined inductive types must all have the same impredicativity tag");
-                }
-                if (ind_type.has_large_elim() != m_has_large_elim) {
+                if (ind_type.has_large_elim() != m_has_large_elim)
                     throw kernel_exception(m_env, "mutually defined inductive types must all have the same large elimination tag");
-                }
             }
             m_ind_cnsts.push_back(mk_constant(ind_type.get_name(), m_levels));
             first = false;
@@ -1104,8 +1099,7 @@ struct elim_nested_inductive_fn {
             /* We should copy all inductive datatypes `J` in the mutual declaration containing `I` to
                the `m_new_types` mutual declaration as new auxiliary types. */
             for (name const & J_name : I_val->get_all()) {
-                constant_info J_info = m_env.get(J_name).to_inductive_val();
-                inductive_val J_ind_val = J_info.to_inductive_val();
+                inductive_val J_info = m_env.get(J_name).to_inductive_val();
                 expr J               = mk_constant(J_name, I_lvls);
                 expr JAs             = mk_app(J, I_nparams, args.data());
                 name auxJ_name       = mk_unique_name(*g_nested + J_name);
@@ -1120,7 +1114,7 @@ struct elim_nested_inductive_fn {
                     result    = mk_app(auxI, args.size() - I_nparams, args.data() + I_nparams);
                 }
                 buffer<constructor> auxJ_constructors;
-                for (name const & J_cnstr_name : J_ind_val.get_cnstrs()) {
+                for (name const & J_cnstr_name : J_info.get_cnstrs()) {
                     constant_info J_cnstr_info = m_env.get(J_cnstr_name);
                     name auxJ_cnstr_name = J_cnstr_name.replace_prefix(J_name, auxJ_name);
                     /* auxJ_cnstr_type still has references to `J`, this will be fixed later when we process it. */
@@ -1129,8 +1123,11 @@ struct elim_nested_inductive_fn {
                     auxJ_cnstr_type         = lctx.mk_pi(As, auxJ_cnstr_type);
                     auxJ_constructors.push_back(constructor(auxJ_cnstr_name, auxJ_cnstr_type));
                 }
-                // Nesting under structures is okay, but marking nested structures with `hasEta` would lead to an error when checking the validity of the flag. We thus disable the flag in the aux translation of the nested occurence.
-                m_new_types.push_back(inductive_type(auxJ_name, auxJ_type, constructors(auxJ_constructors), m_new_types[0].is_impredicative(), J_ind_val.is_k(), J_ind_val.has_projections(), false, m_new_types[0].has_large_elim()));
+                // Nesting under structures is okay, but marking a translated nested structure with `hasEta` would lead to an error when checking the validity of the flag.
+                // We thus disable the flag in the aux translation of the nested occurrence.
+                // Similarly, nesting under a non-impredicative type when constructing an impredicative one (resp. under a large-eliminating type when constructing a small-eliminating one),
+                // is okay, but requires the aux translation of the nested occurrence to also be marked as impredicative (resp. small-eliminating).
+                m_new_types.push_back(inductive_type(auxJ_name, auxJ_type, constructors(auxJ_constructors), m_new_types[0].is_impredicative(), J_info.is_k(), J_info.has_projections(), false, m_new_types[0].has_large_elim()));
             }
             lean_assert(result);
             return result;

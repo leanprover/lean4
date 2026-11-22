@@ -1626,25 +1626,14 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 /* Tasks */
 
-/* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. With 0 workers it does neither:
-   before any start, tasks then run inline and `IO.Promise.new` panics; after a stop, the manager stays stopped. While
-   the task manager runs it does nothing, and while it is being stopped it first waits for that to finish, so it then
-   panics when called from a thread that the stop waits for (see `lean_finalize_task_manager`). */
+/* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. */
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
-/* Stops the task manager. While it runs, tasks see `IO.checkCanceled` as true. Busy workers keep running queued tasks
-   and idle ones stop, but while any task waits, workers stay or start and run whatever is queued, so the exit also
-   waits for that work. Running dedicated tasks finish, and so do `(sync := true)` tasks running on any thread; a
-   dedicated task started meanwhile also runs, and is waited for. It returns once no worker is left and no such task
-   runs, and discards without running what is still queued then or becomes runnable later. Threads the task manager
-   does not own are otherwise not waited for: they should stop using it before this call, and call
-   `lean_finalize_thread` first if their thread-local state can hold tasks or promises. It panics when called from a
-   task, from a thread the task manager started (including from a thread-local finalizer it runs), or from a finalizer
-   that this call runs on its own thread, all of which it would wait for; a concurrent call from another thread waits
-   for the one in progress. Until the next `lean_init_task_manager`, a new task runs inline once its input has
-   finished, and of the unfinished tasks, including ones created meanwhile, only the result of a promise can still
-   finish; waiting for any other one blocks until a later cycle runs it, or forever if it was discarded. Tasks and
-   promises that outlive this call stay valid in later cycles. */
+/* Stops the task manager. It waits for busy workers, which drain the queue, for dedicated tasks and for
+   `(sync := true)` tasks running on any thread. While one of these waits for a task, queued work keeps running. The
+   rest is discarded and never finishes, as is what becomes runnable before the next start; until then, a new task
+   runs inline once its input has finished. Tasks and promises stay valid in later cycles. Calling this, or starting
+   the task manager meanwhile, from a thread that this waits for is an internal panic. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 /* All priorities above `Task.Priority.max` mean the same; `UINT_MAX` is reserved for synchronous tasks. */

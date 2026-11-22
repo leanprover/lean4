@@ -185,6 +185,7 @@ public:
     ~unique_lock() {}
     void lock() {}
     void unlock() {}
+    bool owns_lock() const { return true; }
     T * release() { return nullptr; }
 };
 inline unsigned hardware_concurrency() { return 1; }

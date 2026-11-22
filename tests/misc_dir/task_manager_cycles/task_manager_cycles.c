@@ -17,6 +17,11 @@ re-initializes it sees it, and of work that becomes runnable once it has stopped
   late work waited for or not, promises resolved, dropped or carried into the next cycle, a chain,
   `(sync := true)` dependents, a foreign thread), free every closure and run what is running or
   waited for.
+* Back-to-back `(sync := true)` tasks on another thread do not hold the stop up, waits during the
+  stop do not add a worker each, and discarding a long chain of tasks does not overflow the stack.
+* A bind task dropped while it suspends neither leaks nor uses freed memory.
+* With the argument `result_dropped_on_loop`, a dropped promise's `result!` on the event loop thread
+  fails with an internal panic.
 * With the argument `finalize_from_task`, finalizing from a task fails with an internal panic
   instead of waiting for that task forever.
 
@@ -29,6 +34,8 @@ created with POSIX threads, so the test does not run on Windows.
 int printf(char const * fmt, ...);
 int strcmp(char const * a, char const * b);
 int usleep(unsigned int usec);
+unsigned int alarm(unsigned int seconds);
+int sched_yield(void);
 void * malloc(size_t size);
 void free(void * p);
 // `pthread_t` is a pointer-sized integer or pointer on the platforms this test runs on.
@@ -42,6 +49,9 @@ void lean_finalize_thread(void);
 lean_object * lean_io_promise_new(void);
 lean_object * lean_io_promise_resolve(lean_object * value, lean_object * promise);
 lean_object * lean_io_promise_result_opt(lean_object * promise);
+lean_object * lean_option_get_or_block(lean_object * option);
+lean_object * lean_uv_timer_mk(uint64_t timeout, uint8_t repeating);
+lean_object * lean_uv_timer_next(lean_object * timer);
 
 /* `Task.Priority.dedicated` */
 #define LEAN_DEDICATED_PRIO 9
@@ -440,6 +450,165 @@ static void test_restart_mixed(void) {
     CHECK(g_carry_ran == 1);
 }
 
+static lean_object * identity(lean_object * v) { return v; }
+static lean_object * drop_first(lean_object * owned, lean_object * v) { lean_dec(owned); return v; }
+static lean_object * owning(lean_object * o) {
+    lean_object * c = lean_alloc_closure((void *)drop_first, 2, 1);
+    lean_closure_set(c, 0, o);
+    return c;
+}
+
+static _Atomic int g_stop_resolving;
+static _Atomic int g_sync_during_exit;
+
+static lean_object * short_sync(lean_object * v) {
+    if (lean_io_check_canceled_core() && ++g_sync_during_exit > 10)
+        g_stop_resolving = 1;
+    usleep(1000);
+    return v;
+}
+
+static void * keep_resolving(void * unused) {
+    (void)unused;
+    lean_initialize_thread();
+    while (!g_stop_resolving) {
+        lean_object * p = lean_io_promise_new();
+        lean_dec(lean_task_map_core(fn1(short_sync), lean_io_promise_result_opt(p), 0, true, true));
+        resolve(p);
+        lean_dec(p);
+    }
+    lean_finalize_thread();
+    return 0;
+}
+
+static void test_back_to_back_sync(void) {
+    for (int i = 0; i < 20; i++) {
+        g_stop_resolving = g_sync_during_exit = 0;
+        lean_init_task_manager_using(2);
+        thread_handle thread;
+        CHECK(pthread_create(&thread, 0, keep_resolving, 0) == 0);
+        usleep(5000);
+        lean_finalize_task_manager();
+        g_stop_resolving = 1;
+        pthread_join(thread, 0);
+        CHECK(g_sync_during_exit <= 1);
+    }
+}
+
+static _Atomic int g_active;
+static _Atomic int g_too_many;
+
+static lean_object * pool_job(lean_object * unit) {
+    if (++g_active > 5)
+        g_too_many = 1;
+    usleep(20000);
+    g_active--;
+    return unit;
+}
+
+static lean_object * short_sleep(lean_object * unit) { usleep(1000); return unit; }
+
+static lean_object * wait_repeatedly(lean_object * unit) {
+    while (!lean_io_check_canceled_core())
+        usleep(100);
+    for (int i = 0; i < 100; i++) {
+        lean_object * t = lean_task_spawn_core(fn1(short_sleep), LEAN_DEDICATED_PRIO, false);
+        lean_task_get(t);
+        lean_dec(t);
+    }
+    return unit;
+}
+
+/* Four workers, and one task that waits. */
+static void test_bounded_workers(void) {
+    lean_init_task_manager_using(4);
+    for (int i = 0; i < 200; i++)
+        lean_dec(lean_task_spawn_core(fn1(pool_job), 0, true));
+    lean_dec(lean_task_spawn_core(fn1(wait_repeatedly), LEAN_DEDICATED_PRIO, true));
+    lean_finalize_task_manager();
+    CHECK(!g_too_many);
+}
+
+/* Dropping `p` discards a task that owns the end of a chain waiting for `q`. */
+static void test_discard_long_chain(void) {
+    lean_init_task_manager_using(2);
+    lean_object * p = lean_io_promise_new();
+    lean_object * q = lean_io_promise_new();
+    lean_object * end = lean_io_promise_result_opt(q);
+    for (int i = 0; i < 200000; i++)
+        end = lean_task_map_core(fn1(identity), end, 0, false, false);
+    lean_dec(lean_task_map_core(owning(end), lean_io_promise_result_opt(p), 0, false, true));
+    lean_finalize_task_manager();
+    lean_dec(p);
+    lean_dec(q);
+}
+
+static lean_object * g_nested;
+static _Atomic int g_bind_entered;
+static _Atomic int g_stop_contending;
+
+static lean_object * return_nested(lean_object * v) {
+    lean_dec(v);
+    lean_object * nested = g_nested;
+    g_bind_entered = 1;
+    return nested;
+}
+
+static void * contend_for_lock(void * task) {
+    lean_initialize_thread();
+    while (!g_stop_contending)
+        lean_io_cancel_core((lean_object *)task);
+    lean_finalize_thread();
+    return 0;
+}
+
+static void test_bind_dropped(void) {
+    if (!g_counted_class)
+        g_counted_class = lean_register_external_class(counted_finalize, counted_foreach);
+    g_created = g_freed = g_stop_contending = 0;
+    lean_init_task_manager_using(2);
+    lean_object * p = lean_io_promise_new();
+    lean_object * pending = lean_io_promise_result_opt(p);
+    /* These widen the window between the unlock of the bind task and its suspension. */
+    thread_handle threads[4];
+    for (int i = 0; i < 4; i++)
+        CHECK(pthread_create(&threads[i], 0, contend_for_lock, pending) == 0);
+    for (int i = 0; i < 10000; i++) {
+        g_nested = map_owning(lean_io_promise_result_opt(p), false, false);
+        g_bind_entered = 0;
+        lean_object * t = lean_task_bind_core(lean_task_pure(lean_box(0)), fn1(return_nested), 0, false, false);
+        while (!g_bind_entered)
+            sched_yield();
+        for (volatile int j = 0; j < i % 3000; j++) {}
+        lean_dec(t);
+    }
+    g_stop_contending = 1;
+    for (int i = 0; i < 4; i++)
+        pthread_join(threads[i], 0);
+    lean_finalize_task_manager();
+    CHECK(g_freed == g_created);
+    lean_dec(pending);
+    lean_dec(p);
+}
+
+static void run_result_dropped_on_loop(void) {
+    lean_init_task_manager_using(2);
+    lean_object * q = lean_io_promise_new();
+    /* What `Promise.result!` creates. */
+    lean_dec(lean_task_map_core(fn1(lean_option_get_or_block), lean_io_promise_result_opt(q), 0, true, true));
+    lean_object * r = lean_uv_timer_mk(10, 0);
+    lean_object * timer = lean_io_result_get_value(r);
+    lean_inc(timer);
+    lean_dec(r);
+    r = lean_uv_timer_next(timer);
+    lean_object * fired = lean_io_result_get_value(r);
+    lean_inc(fired);
+    lean_dec(r);
+    lean_dec(lean_task_map_core(owning(q), lean_io_promise_result_opt(fired), 0, true, true));
+    usleep(200000);
+    lean_finalize_task_manager();
+}
+
 static lean_object * finalize_from_task(lean_object * unit) {
     (void)unit;
     lean_finalize_task_manager();
@@ -457,11 +626,20 @@ static struct { char const * name; void (*run)(void); } const g_tests[] = {
     {"foreign_sync_task", test_finalize_waits_for_foreign_sync_task},
     {"foreign_waiter", test_finalize_ignores_foreign_waiter},
     {"restart_mixed", test_restart_mixed},
+    {"back_to_back_sync", test_back_to_back_sync},
+    {"bounded_workers", test_bounded_workers},
+    {"discard_long_chain", test_discard_long_chain},
+    {"bind_dropped", test_bind_dropped},
 };
 
 /* Runs the test named by the argument, or all of them in order. */
 int main(int argc, char ** argv) {
     lean_initialize_runtime_module();
+    alarm(300); // turns a hang into a failure
+    if (argc > 1 && strcmp(argv[1], "result_dropped_on_loop") == 0) {
+        run_result_dropped_on_loop();
+        return 0;
+    }
     if (argc > 1 && strcmp(argv[1], "finalize_from_task") == 0) {
         lean_init_task_manager_using(4);
         lean_object * t = lean_task_spawn_core(fn1(finalize_from_task), 0, false);

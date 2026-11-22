@@ -51,6 +51,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
 #include "runtime/option_ref.h"
+#include "runtime/uv/event_loop.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -1863,6 +1864,10 @@ extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
         lean_panic("PANIC: Promise.result!: promise has been dropped without ever being resolved",
           /* force_stderr */ true);
         // this is only reachable when using non-fatal panics
+#ifndef LEAN_EMSCRIPTEN
+        if (global_ev.on_loop_thread())
+            lean_internal_panic("`Promise.result!` of a dropped promise would block the event loop thread");
+#endif
         while (true) {
             this_thread::sleep_for(std::chrono::seconds::max());
         }

@@ -8,8 +8,7 @@ closures capture (here a 1 MB array) must be freed. A leak is only reported by L
 sanitize build, where a leaking child prints the report and exits with a nonzero code.
 
 In `dedicatedDependent`, the dedicated task has a pool dependent from the start, and finishing during the
-exit queues it. `task_queued_during_shutdown_leak` covers a plain `IO.asTask`. The children are the
-compiled binary, hence `.no_interpret`.
+exit queues it. The children are the compiled binary, hence `.no_interpret`.
 -/
 
 /-- Returns once the task manager is shutting down. -/

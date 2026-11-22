@@ -248,7 +248,7 @@ inline optional<declaration> some_declaration(declaration && o) { return optiona
 bool use_unsafe(environment const & env, expr const & e);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
-declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe );
+declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
 
 /** \brief Similar to mk_definition but infer the value of unsafe flag.
     That is, set it to true if \c t or \c v contains a unsafe declaration. */

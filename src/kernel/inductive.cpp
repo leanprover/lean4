@@ -24,20 +24,12 @@ name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
-/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
+/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and the \c has_eta flag is set to true. */
 bool has_eta(environment const & env, name const & decl_name) {
     constant_info I = env.get(decl_name);
     if (!I.is_inductive()) return false;
     inductive_val I_val = I.to_inductive_val();
     return I_val.has_eta();
-}
-
-/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
-bool has_large_elim(environment const & env, name const & decl_name) {
-    constant_info I = env.get(decl_name);
-    if (!I.is_inductive()) return false;
-    inductive_val I_val = I.to_inductive_val();
-    return I_val.has_large_elim();
 }
 
 bool is_constructor(environment const & env, name const & n) {
@@ -73,30 +65,28 @@ static names get_all_inductive_names(inductive_decl const & d) {
 
 /** \brief If \c d_name is the name of a non-empty inductive datatype, then return the
     name of the first constructor. Return none otherwise. */
-static optional<name> get_first_cnstr(environment const & env, name const & d_name) {
-    constant_info info = env.get(d_name);
-    if (!info.is_inductive()) return optional<name>();
-    names const & cnstrs = info.to_inductive_val().get_cnstrs();
+static optional<name> get_first_cnstr(inductive_val induct_val) {
+    names const & cnstrs = induct_val.get_cnstrs();
     if (empty(cnstrs)) return optional<name>();
     return optional<name>(head(cnstrs));
 }
 
-optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, size_t num_params) {
+optional<expr> mk_nullary_cnstr(inductive_val induct_val, expr const & type, size_t num_params) {
     buffer<expr> args;
     expr const & d = get_app_args(type, args);
     if (!is_constant(d)) return none_expr();
     name const & d_name = const_name(d);
-    auto cnstr_name = get_first_cnstr(env, d_name);
+    auto cnstr_name = get_first_cnstr(induct_val);
     if (!cnstr_name) return none_expr();
     args.shrink(num_params);
     return some(mk_app(mk_constant(*cnstr_name, const_levels(d)), args));
 }
 
-expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e) {
+expr expand_eta_struct(environment const & env, inductive_val induct_val, expr const & e_type, expr const & e) {
     buffer<expr> args;
     expr const & I = get_app_args(e_type, args);
     if (!is_constant(I)) return e;
-    auto ctor_name = get_first_cnstr(env, const_name(I));
+    auto ctor_name = get_first_cnstr(induct_val);
     if (!ctor_name) return e;
     constructor_val ctor_val = env.get(*ctor_name).to_constructor_val();
     args.shrink(ctor_val.get_nparams());
@@ -573,8 +563,13 @@ public:
 
     void init_K_target() {
         m_K_target = m_ind_types[0].is_k();
-        if (!m_K_target)
+        if (!m_K_target){
+            for (size_t i = 1; i < m_ind_types.size(); i++) {
+                if (m_ind_types[i].is_k())
+                    throw kernel_exception(m_env, sstream() << "Type is incorrectly marked as K-like");
+            }
             return;
+        }
         if (!(m_ind_types.size() == 1 && /* It is not a mutual declaration (for simplicity, we don't gain anything by supporting K in mutual declarations. */
             normalizes_to_zero(m_result_level) &&   /* It is an inductive predicate. */
             length(m_ind_types[0].get_cnstrs()) == 1 /* Inductive datatype has only one constructor.*/

@@ -278,3 +278,111 @@ theorem proofUInt64.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x
 -/
 #guard_msgs in
 #print equations proofUInt64
+
+def stmtInt8 (s : String) : Nat :=
+  match (1, (10 : Int8)), s with
+  | (_, (20 : Int8)), "x" => 1
+  | _, _ => 2
+
+/--
+info: equations:
+@[backward_defeq] theorem stmtInt8.eq_1 : ∀ (s_1 : String), stmtInt8 s_1 = 2
+-/
+#guard_msgs in
+#print equations stmtInt8
+
+def proofInt8 (s : String) : Nat :=
+  match ((10 : Int8), (-20 : Int8)), s with
+  | (10, 30), _ => 1
+  | (10, -20), "x" => 2
+  | (-3, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem proofInt8.eq_1 : proofInt8 "x" = 2
+theorem proofInt8.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt8 s_1 = 4
+-/
+#guard_msgs in
+#print equations proofInt8
+
+def stmtInt16 (s : String) : Nat :=
+  match (1, (10 : Int16)), s with
+  | (_, (20 : Int16)), "x" => 1
+  | _, _ => 2
+
+/--
+info: equations:
+@[backward_defeq] theorem stmtInt16.eq_1 : ∀ (s_1 : String), stmtInt16 s_1 = 2
+-/
+#guard_msgs in
+#print equations stmtInt16
+
+def proofInt16 (s : String) : Nat :=
+  match ((10 : Int16), (-20 : Int16)), s with
+  | (10, 30), _ => 1
+  | (10, -20), "x" => 2
+  | (-3, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem proofInt16.eq_1 : proofInt16 "x" = 2
+theorem proofInt16.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt16 s_1 = 4
+-/
+#guard_msgs in
+#print equations proofInt16
+
+def stmtInt32 (s : String) : Nat :=
+  match (1, (10 : Int32)), s with
+  | (_, (20 : Int32)), "x" => 1
+  | _, _ => 2
+
+/--
+info: equations:
+@[backward_defeq] theorem stmtInt32.eq_1 : ∀ (s_1 : String), stmtInt32 s_1 = 2
+-/
+#guard_msgs in
+#print equations stmtInt32
+
+def proofInt32 (s : String) : Nat :=
+  match ((10 : Int32), (-20 : Int32)), s with
+  | (10, 30), _ => 1
+  | (10, -20), "x" => 2
+  | (-3, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem proofInt32.eq_1 : proofInt32 "x" = 2
+theorem proofInt32.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt32 s_1 = 4
+-/
+#guard_msgs in
+#print equations proofInt32
+
+def stmtInt64 (s : String) : Nat :=
+  match (1, (10 : Int64)), s with
+  | (_, (20 : Int64)), "x" => 1
+  | _, _ => 2
+
+/--
+info: equations:
+@[backward_defeq] theorem stmtInt64.eq_1 : ∀ (s_1 : String), stmtInt64 s_1 = 2
+-/
+#guard_msgs in
+#print equations stmtInt64
+
+def proofInt64 (s : String) : Nat :=
+  match ((10 : Int64), (-20 : Int64)), s with
+  | (10, 30), _ => 1
+  | (10, -20), "x" => 2
+  | (-3, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem proofInt64.eq_1 : proofInt64 "x" = 2
+theorem proofInt64.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt64 s_1 = 4
+-/
+#guard_msgs in
+#print equations proofInt64

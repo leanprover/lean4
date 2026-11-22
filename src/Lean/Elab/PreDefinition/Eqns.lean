@@ -148,18 +148,22 @@ where
       match_expr type with
       | Nat => true | Int => true
       | UInt8 => true | UInt16 => true | UInt32 => true | UInt64 => true
+      | Int8 => true | Int16 => true | Int32 => true | Int64 => true
       | Fin n => isNumeral n
       | BitVec n => isNumeral n
       | _ => false
-    | Neg.neg type _ _ => type.isConstOf ``Int
+    | Neg.neg type _ _ =>
+      match_expr type with
+      | Int => true | Int8 => true | Int16 => true | Int32 => true | Int64 => true
+      | _ => false
     | Char.ofNat _ => true
     | BitVec.ofNat n _ => isNumeral n
     | _ => false
 
   /--
   Returns `e` if it is a literal in its standard representation: a `String` literal, or a numeral
-  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Fin n`, or
-  `BitVec n`. Two such literals of the same type denote different values if and only if they are
+  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`,
+  `Int32`, `Int64`, `Fin n`, or `BitVec n`. Two such literals of the same type denote different values if and only if they are
   structurally different.
 
   The standard representation is the one `normLitValue` produces. A literal that is not in its

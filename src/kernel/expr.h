@@ -257,7 +257,13 @@ inline expr const &    app_arg(expr const & e)               { lean_assert(is_ap
 inline name const &    binding_name(expr const & e)          { lean_assert(is_binding(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline expr const &    binding_domain(expr const & e)        { lean_assert(is_binding(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    binding_body(expr const & e)          { lean_assert(is_binding(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
-binder_info binding_info(expr const & e);
+binder_info            binding_info_core(expr const & e);
+inline binder_info     binding_info(expr const & e) {
+    lean_assert(is_binding(e));
+    binder_info r = static_cast<binder_info>(lean_ctor_get_uint8(e.raw(), 3*sizeof(object*) + sizeof(uint64_t)));
+    lean_assert(r == binding_info_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 inline name const &    let_name(expr const & e)              { lean_assert(is_let(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }

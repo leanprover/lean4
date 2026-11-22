@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkAccessible
 import Lean.Meta.Tactic.Grind.Anchor
+import Lean.Meta.Tactic.Grind.Relevance
 import Init.Data.List.MapIdx
 import Init.Grind.Util
 public section
@@ -176,6 +177,10 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
       if !(← isProp p) then
         let fvarId ← intro1
         return .newLocal fvarId (← get)
+      else if let some atoms ← checkIrrelevant? p generation then
+        let fvarId ← intro1
+        skipFact (mkFVar fvarId) p atoms generation
+        return .newDepHyp (← get)
       else
         let mvarId := (← get).mvarId
         let tag ← mvarId.getTag
@@ -333,7 +338,10 @@ def intro (generation : Nat) : Action := fun goal kna kp => do
   else match (← introNext goal generation) with
     | .done goal =>
       let goal ← exfalsoIfNotProp goal
-      let goal ← simpTarget goal
+      -- An irrelevant target is not normalized, and its negation is skipped by `introNext`.
+      let target ← goal.mvarId.getType
+      let (irrelevant?, goal) ← GoalM.run goal <| checkIrrelevant? target
+      let goal ← if irrelevant?.isNone then simpTarget goal else pure goal
       let target ← goal.mvarId.getType
       if target.isForall || target.isLet then
         kp goal
@@ -370,6 +378,7 @@ private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action :=
     intros generation goal kna kp
   else goal.withContext do
     let goal ← GoalM.run' goal do
+      registerRelevantFact prop generation
       let r ← preprocess prop
       let prop' := r.expr
       let proof' := mkApp4 (mkConst ``Eq.mp [Level.zero]) prop r.expr (← r.getProof) proof

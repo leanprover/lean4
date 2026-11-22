@@ -12,6 +12,7 @@ import Init.Grind.Homo.Extra
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Relevance
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.Sym.Simp.EvalGround
 public section
@@ -283,9 +284,18 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
   trace_goal[grind.hom] "{mkNot eq}\n===>\n{mkNot t}"
   addNewRawFact fact (mkNot t) generation .input .other
 
+/-- Returns `true` if `e` is a relation over a homomorphism source type or a `[grind hom_pred]` predicate. -/
+private def isRelevantAtom (e : Expr) : GoalM Bool := do
+  if let .const declName _ := e.getAppFn then
+    if (← getPreds).contains declName then return true
+  isRelationOver e fun α => do
+    let .const F _ := α.getAppFn | return false
+    return (← getSourceTypes).contains F
+
 builtin_initialize
   homExt.setMethods
     (enabled     := (·.hom))
+    (isRelevantAtom? := some isRelevantAtom)
     (internalize := Homo.internalize)
     (newEq       := Homo.processNewEq)
     (newDiseq    := Homo.processNewDiseq)

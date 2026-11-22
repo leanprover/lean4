@@ -162,6 +162,14 @@ def Theorems.eraseDecl (s : Theorems α) (declName : Name) : MetaM (Theorems α)
 def Theorems.getOrigins (s : Theorems α) : List Origin :=
   s.origins.toList
 
+/-- Inserts into `acc` the constant symbols of the theorems in `s` that have not been erased. -/
+def Theorems.collectSymbols [TheoremLike α] (s : Theorems α) (acc : NameSet) : NameSet :=
+  s.omap.foldl (init := acc) fun acc origin thms =>
+    if s.erased.contains origin then acc
+    else thms.foldl (init := acc) fun acc thm =>
+      (getSymbols thm).foldl (init := acc) fun acc sym =>
+        if let .const declName := sym then acc.insert declName else acc
+
 def Theorems.mkEmpty (α : Type) : Theorems α := {}
 
 instance : EmptyCollection (Theorems α) where

@@ -72,20 +72,12 @@ inductive OrHullKind where
   | le | eq | eqNeg
   deriving Inhabited
 
-/--
-How the disjunct of an `.orHull` constraint implies it. The disjunct is a conjunction, and its
-conjunct at `path` (`false` for `And.left`, `true` for `And.right`) is `a = b` (`eq` and `eqNeg`)
-or `a ≤ b` (`le`), where `lhs` and `rhs` represent `a` and `b` (after the cast to `Int` given by
-`toIntThm?` if they are natural numbers). The polynomial `p := (lhs.sub rhs).norm` satisfies
-`p ≤ 0` (`le`), `p = 0` (`eq`), or `-p = 0` (`eqNeg`), and is the constraint plus `k ≥ 0`.
--/
-structure OrHullAlt where
-  path      : List Bool
+/-- Reification of an arithmetic atom supplying one direction of a hull bound. -/
+structure OrHullAtom where
   toIntThm? : Option Expr
   lhs       : Int.Internal.Linear.Expr
   rhs       : Int.Internal.Linear.Expr
   kind      : OrHullKind
-  k         : Int
   deriving Inhabited
 
 mutual
@@ -260,11 +252,8 @@ inductive LeCnstrProof where
     by `g`, a divisor of `d`, so the value of `c₂.p` is known modulo `g`. See `dvd_le_tight_mod`.
     -/
     dvdTightMod (c₁ : DvdCnstr) (c₂ : LeCnstr) (t g : Int)
-  | /--
-    A constraint implied by every disjunct of the disjunction `e = d₁ ∨ … ∨ dₙ`, which is `True`
-    in the core. `alts[i]` explains how `dᵢ` implies it.
-    -/
-    orHull (e : Expr) (alts : Array OrHullAlt)
+  | /-- A common bound from the true formula `e`, with evidence for the selected arithmetic atoms. -/
+    orHull (e : Expr) (support : Expr → Option OrHullAtom)
   | reorder (c : LeCnstr)
   | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 

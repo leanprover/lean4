@@ -12,6 +12,9 @@ import Lean.Meta.NatInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+private def natCastRefl (e : Expr) : Expr × Expr :=
+  (e, mkApp2 (mkConst ``Eq.refl [1]) Int.mkType e)
+
 /--
 Given `e`, returns `(NatCast.natCast e, rfl)`.
 The new term `↑e` is internalized before `e` is marked as a solver term: marking replays pending
@@ -21,8 +24,7 @@ def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   if let some p := (← get').natToIntMap.find? { expr := e } then
     return p
   let e' ← shareCommon (mkIntNatCast e)
-  let he := mkApp (mkApp (mkConst ``Eq.refl [1]) Int.mkType) e'
-  let r := (e', he)
+  let r := natCastRefl e'
   modify' fun s => { s with
     natToIntMap := s.natToIntMap.insert { expr := e } r
   }
@@ -42,76 +44,76 @@ private def natImage (e e' : Expr) : GoalM Expr := do
 **Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
 -/
 open Structural in
-/--
-Converts `e : Nat` into an `Int` expression `e'` with a proof of `↑e = e'`.
-The atoms of `e'` are new terms and are internalized where they are built: `↑a` for an opaque
-`a` in `mkNatVar`, and the images of `/`, `%`, and `^` here. The images of `+` and `*` are
-reified structurally by the consumers.
--/
-private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
+@[specialize] private partial def natToIntAux {m : Type → Type} [Monad m] [MonadLiftT MetaM m]
+    (toVar : Expr → m (Expr × Expr)) (image : Expr → Expr → m Expr) (e : Expr) : m (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ inst a b =>
     if (← isInstHAddNat inst) then
-      let (a', h₁) ← natToInt' a
-      let (b', h₂) ← natToInt' b
+      let (a', h₁) ← natToIntAux toVar image a
+      let (b', h₂) ← natToIntAux toVar image b
       let h := mkApp6 (mkConst ``Nat.ToInt.add_congr) a b a' b' h₁ h₂
       return (mkIntAdd a' b', h)
     else
-      mkNatVar e
+      toVar e
   | HMul.hMul _ _ _ inst a b =>
     if (← isInstHMulNat inst) then
-      let (a', h₁) ← natToInt' a
-      let (b', h₂) ← natToInt' b
+      let (a', h₁) ← natToIntAux toVar image a
+      let (b', h₂) ← natToIntAux toVar image b
       let h := mkApp6 (mkConst ``Nat.ToInt.mul_congr) a b a' b' h₁ h₂
       return (mkIntMul a' b', h)
     else
-      mkNatVar e
+      toVar e
   | HDiv.hDiv _ _ _ inst a b =>
     if (← isInstHDivNat inst) then
-      let (a', h₁) ← natToInt' a
-      let (b', h₂) ← natToInt' b
+      let (a', h₁) ← natToIntAux toVar image a
+      let (b', h₂) ← natToIntAux toVar image b
       let h := mkApp6 (mkConst ``Nat.ToInt.div_congr) a b a' b' h₁ h₂
-      return (← natImage e (mkIntDiv a' b'), h)
+      return (← image e (mkIntDiv a' b'), h)
     else
-      mkNatVar e
+      toVar e
   | HMod.hMod _ _ _ inst a b =>
     if (← isInstHModNat inst) then
-      let (a', h₁) ← natToInt' a
-      let (b', h₂) ← natToInt' b
+      let (a', h₁) ← natToIntAux toVar image a
+      let (b', h₂) ← natToIntAux toVar image b
       let h := mkApp6 (mkConst ``Nat.ToInt.mod_congr) a b a' b' h₁ h₂
-      return (← natImage e (mkIntMod a' b'), h)
+      return (← image e (mkIntMod a' b'), h)
     else
-      mkNatVar e
+      toVar e
   | OfNat.ofNat _ _ _ =>
     if let some n ← getNatValue? e then
       let h := mkApp (mkConst ``Nat.ToInt.natCast_ofNat) e
       return (mkIntLit n, h)
     else
-      mkNatVar e
+      toVar e
   | HPow.hPow _ _ _ inst a k =>
     if (← isInstHPowNat inst) then
-      let (a', h₁) ← natToInt' a
+      let (a', h₁) ← natToIntAux toVar image a
       let h := mkApp4 (mkConst ``Nat.ToInt.pow_congr) a k a' h₁
-      return (← natImage e (mkIntPowNat a' k), h)
+      return (← image e (mkIntPowNat a' k), h)
     else
-      mkNatVar e
-  | Fin.val n a =>
-    -- `Fin.val` is treated as an opaque `Nat` variable; the range fact `Fin.isLt` is
-    -- the one piece of `Fin`-specific information asserted here. Value-level reasoning
-    -- for `Fin` is provided by the `[grind hom]` rules.
-    let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
-    let r ← mkNatVar e
-    unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
-    return r
-  | _ => mkNatVar e
+      toVar e
+  | _ => toVar e
 
 /--
 Given `a : Nat`, returns `(a', h)` such that `a' : Int`, and `h : NatCast.natCast a = a'`
 -/
 def natToInt (a : Expr) : GoalM (Expr × Expr) := do
-  let (b, h) ← natToInt' a
+  let toVar (e : Expr) := do
+    let t ← if e.hasExprMVar then instantiateMVarsIfMVarApp e else pure e
+    let_expr Fin.val n a := t | mkNatVar e
+    let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
+    let r ← mkNatVar e
+    unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
+    return r
+  let (b, h) ← natToIntAux toVar natImage a
   let b ← shareCommon b
   return (b, h)
+
+/-- Computes the integer image of a natural-number expression without registering solver terms. -/
+def natToIntExpr (e : Expr) : MetaM Expr := do
+  let atom (e : Expr) : MetaM (Expr × Expr) := pure (natCastRefl (mkIntNatCast e))
+  let (r, _) ← natToIntAux atom (fun _ b => pure b) e
+  return r
 
 /--
 Given `x` whose denotation is `e`, if `e` is of the form `NatCast.natCast a`,

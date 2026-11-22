@@ -696,16 +696,19 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     -- A match that refines the parameter has been modified by `Fix.lean` to refine the IH,
     -- so we need to replace that IH
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-      -- Calculate motive
-      let eType ← newIH.getType
-      let motiveBody ← mkArrow eType goal
-      let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs motiveBody
-        (checkTypeCorrect := true)
+      -- Calculate motive. We refine the type of `newIH` like `Fix.lean` refined that of `oldIH`,
+      -- even if the goal cannot be refined (e.g. with `match (generalizing := false)`).
+      let (mask, absGoal) ← mkLambdaFVarsMasked matcherApp.discrs goal (checkTypeCorrect := true)
+      let newIHTypeAbst (xs : Array Expr) : MetaM Expr := do
+        matcherApp.discrs.size.foldRevM (init := ← newIH.getType) fun i _ eTypeAbst => do
+          let eTypeAbst ← kabstract eTypeAbst matcherApp.discrs[i]
+          return eTypeAbst.instantiate1 xs[i]!
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
-        (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
+        (onMotive := fun xs _body => do
+          mkArrow (← newIHTypeAbst xs) (absGoal.beta (Array.mask mask xs)))
         (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do

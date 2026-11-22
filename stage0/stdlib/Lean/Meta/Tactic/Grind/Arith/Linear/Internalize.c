@@ -18,7 +18,7 @@ lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-uint8_t l_Lean_Meta_Grind_Arith_isNatNum(lean_object*);
+uint8_t l_Lean_Expr_isRawNatLit(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Environment_setRecordingDeps(lean_object*, uint8_t);
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_linearExt;
@@ -817,7 +817,7 @@ lean_dec_ref(v___x_217_);
 v_arg_230_ = lean_ctor_get(v___x_219_, 1);
 lean_inc_ref(v_arg_230_);
 lean_dec_ref(v___x_219_);
-v___x_231_ = l_Lean_Meta_Grind_Arith_isNatNum(v_arg_230_);
+v___x_231_ = l_Lean_Expr_isRawNatLit(v_arg_230_);
 lean_dec_ref(v_arg_230_);
 return v___x_231_;
 }

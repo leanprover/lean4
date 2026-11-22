@@ -99,14 +99,14 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
     (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
       iterating the container produces its elements without effects.")
 
-/-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
-parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
+/-- The assertion language of the `do` block's monad, which `MonadicWP` computes as an output
+parameter: synthesizing `MonadicWP StateM Nat _ _` assigns `Nat → Prop` for the assertions of
 `StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
 whose instance is not available reports nothing. The class's arguments are fresh natural
 metavariables that the found instance assigns, so the query registers no pending instance goals. -/
 private def assertionLanguage? : DoElabM (Option Expr) := do
-  unless (← getEnv).contains ``Std.WP.WPMonad do return none
-  let wpMonad ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
+  unless (← getEnv).contains ``Std.WP.MonadicWP do return none
+  let wpMonad ← mkConstWithFreshMVarLevels ``Std.WP.MonadicWP
   let (args, _, _) ← forallMetaTelescope (← inferType wpMonad)
   let some m := args[0]? | return none
   unless ← isDefEq m (← read).monadInfo.m do return none
@@ -289,7 +289,7 @@ private def mkForInLoopGadget (g : ForInApp)
   let mi := (← read).monadInfo
   let mutVars := (← read).mutVars
 
-  let info ← inferControlInfoSeq body
+  let info ← inferControlInfoSeq body (← read).controlInfoCache
   let oldReturnCont ← getReturnCont
   let returnVarName ← mkFreshUserName `__r
   let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.getId
@@ -391,19 +391,21 @@ private def mkForInLoopGadget (g : ForInApp)
       forIn ← mkForInPureWithInvariant g invClause h? α
 
   let γ := (← read).doBlockResultType
+  -- The state is `(r?, muts)`. The match on `r?` comes first and each alternative binds `muts`,
+  -- which is the program shape that the early-return specifications of `Std.WP` match on.
+  let returnRest (postS : Expr) : DoElabM Expr := do
+    let (ret, retTy, muts, mutsTy) ← getProdFields postS σ
+    let withMuts (k : DoElabM Expr) : DoElabM Expr := do
+      bindMutVarsFromTupleExpr (loopMutVars.map (·.getId)).toList muts mutsTy (← postS.fvarId!.getUserName) k
+    let motive := mkLambda `_ .default retTy (← mkMonadApp γ)
+    let app := mkApp3 (mkConst ``Break.runK.match_1 [mi.u, mi.v.succ]) oldReturnCont.resultType motive ret
+    let none := mkSimpleThunk (← withMuts dec.continueWithUnit)
+    let some ← withLocalDeclD (← mkFreshUserName `r) oldReturnCont.resultType fun r => do
+      mkLambdaFVars #[r] (← withMuts (oldReturnCont.k r))
+    return mkApp2 app some none
   let rest ←
     withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
-      bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
-        if info.returnsEarly then
-          let ret ← getFVarFromUserName returnVarName
-          let ret ← if loopMutVars.isEmpty then mkAppM ``Prod.fst #[ret] else pure ret
-          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadApp γ)
-          let app := mkApp3 (mkConst ``Break.runK.match_1 [mi.u, mi.v.succ]) oldReturnCont.resultType motive ret
-          let none := mkSimpleThunk (← dec.continueWithUnit)
-          let some ← withLocalDeclD (← mkFreshUserName `r) oldReturnCont.resultType fun r => do
-            mkLambdaFVars #[r] (← oldReturnCont.k r)
-          return mkApp2 app some none
-        else
-          dec.continueWithUnit
+      if info.returnsEarly then returnRest postS
+      else bindMutVarsFromTuple loopMutVarNames postS.fvarId! dec.continueWithUnit
 
   mkBindApp σ γ forIn rest

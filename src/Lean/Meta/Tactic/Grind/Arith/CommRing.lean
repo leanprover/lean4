@@ -20,6 +20,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Action
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Power
+import Lean.Meta.Tactic.Grind.Relevance
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 builtin_initialize registerTraceClass `grind.ring
@@ -45,6 +46,9 @@ builtin_initialize registerTraceClass `grind.debug.ring.rabinowitsch
 builtin_initialize
   ringExt.setMethods
     (enabled     := (·.ring))
+    (isRelevantAtom? := some fun e => isRelationOver e fun α =>
+      return (← getCommRingId? α).isSome || (← getCommSemiringId? α).isSome ||
+        (← getNonCommRingId? α).isSome || (← getNonCommSemiringId? α).isSome)
     (internalize := CommRing.internalize)
     (newEq       := CommRing.processNewEq)
     (newDiseq    := CommRing.processNewDiseq)

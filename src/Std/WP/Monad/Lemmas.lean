@@ -17,27 +17,27 @@ set_option linter.missingDocs true
 This module provides simp lemmas for simplifying weakest precondition expressions.
 Unlike `Std.Do`, we use direct function application `wp x post eposts` without notation.
 
-Some lemmas prove only one direction (`⊑`) instead of equality because our `bind_le_wp_bind` axiom
+Some lemmas prove only one direction (`⊑`) instead of equality because our `wp_wp_le_wp_bind` axiom
 only provides one direction.
 -/
 
-namespace Std.WP.WPMonad
+namespace Std.WP.MonadicWP
 
-open Lean.Order WPMonad
+open Lean.Order MonadicWP
 
 universe u v
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
 
 /-! ## MonadReaderOf simp lemmas -/
 
-theorem le_wp_read_ReaderT_apply
+theorem le_wp_read_ReaderT_apply [Monad m] [MonadicWP.IsLaxDistrib m]
     (post : ρ → ρ → Pred) (eposts : EPosts) :
     (fun r => post r r) ⊑ wp (MonadReaderOf.read : ReaderT ρ m ρ) post eposts := by
   intro r
   simpa [MonadReaderOf.read] using
-    (WPMonad.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts))
+    (MonadicWP.le_wp_pure (m := m) (x := r) (post := fun a => post a r) (eposts := eposts))
 
 @[simp]
 theorem wp_adapt_ReaderT_apply_eq (f : ρ → ρ') (x : ReaderT ρ' m α) :
@@ -48,28 +48,28 @@ theorem wp_adapt_ReaderT_apply_eq (f : ρ → ρ') (x : ReaderT ρ' m α) :
 
 /-! ## MonadStateOf simp lemmas -/
 
-theorem le_wp_get_StateT_apply
+theorem le_wp_get_StateT_apply [Monad m] [MonadicWP.IsLaxDistrib m]
     (post : σ → σ → Pred) (eposts : EPosts) :
     (fun s => post s s) ⊑ wp (MonadStateOf.get : StateT σ m σ) post eposts := by
   intro s
   simpa [MonadStateOf.get] using!
-    (WPMonad.pure_le_wp_pure (m := m) (x := (s, s))
+    (MonadicWP.le_wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
-theorem le_wp_set_StateT_apply (x : σ)
+theorem le_wp_set_StateT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : σ)
     (post : PUnit → σ → Pred) (eposts : EPosts) :
     (fun _ => post ⟨⟩ x) ⊑ wp (MonadStateOf.set x : StateT σ m PUnit) post eposts := by
   intro s
   simpa [MonadStateOf.set] using!
-    (WPMonad.pure_le_wp_pure (m := m) (x := (PUnit.unit, x))
+    (MonadicWP.le_wp_pure (m := m) (x := (PUnit.unit, x))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
-theorem le_wp_modifyGet_StateT_apply (f : σ → α × σ)
+theorem le_wp_modifyGet_StateT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (f : σ → α × σ)
     (post : α → σ → Pred) (eposts : EPosts) :
     (fun s => post (f s).1 (f s).2) ⊑ wp (MonadStateOf.modifyGet f : StateT σ m α) post eposts := by
   intro s
   simpa [MonadStateOf.modifyGet] using!
-    (WPMonad.pure_le_wp_pure (m := m) (x := f s)
+    (MonadicWP.le_wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
 theorem wp_get_EStateM_apply_eq :
@@ -91,13 +91,13 @@ theorem wp_modifyGet_EStateM_apply_eq (f : σ → α × σ) :
   simp only [MonadStateOf.modifyGet, EStateM.modifyGet]
 
 @[simp]
-theorem wp_modify_StateT_apply_eq (f : σ → σ) :
+theorem wp_modify_StateT_apply_eq [Monad m] (f : σ → σ) :
     wp (modify f : StateT σ m PUnit) post eposts =
       wp (MonadStateOf.modifyGet fun s => (⟨⟩, f s) : StateT σ m PUnit) post eposts := by
   rfl
 
 @[simp]
-theorem wp_getModify_StateT_apply_eq (f : σ → σ) :
+theorem wp_getModify_StateT_apply_eq [Monad m] (f : σ → σ) :
     wp (getModify f : StateT σ m σ) post eposts =
       wp (MonadStateOf.modifyGet fun s => (s, f s) : StateT σ m σ) post eposts := by
   rfl
@@ -125,10 +125,10 @@ theorem wp_throw_Except_apply_eq (e : ε) :
     wp (MonadExceptOf.throw e : Except ε α) post eposts = eposts e := by
   simp [Except.wp_apply_eq, MonadExceptOf.throw]
 
-theorem le_wp_throw_ExceptT_apply (err : ε) :
+theorem le_wp_throw_ExceptT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (err : ε) :
     eposts.fst err ⊑ wp (MonadExceptOf.throw err : ExceptT ε m α) post eposts := by
   simpa [MonadExceptOf.throw, pushExcept] using
-    (WPMonad.pure_le_wp_pure (m := m) (x := Except.error err)
+    (MonadicWP.le_wp_pure (m := m) (x := Except.error err)
       (post := pushExcept post eposts.fst) (eposts := eposts.snd))
 
 @[simp]
@@ -144,12 +144,12 @@ theorem wp_throw_Option_apply_eq (e : PUnit) :
   rw [Option.wp_apply_eq]
   rfl
 
-theorem le_wp_throw_OptionT_apply (err : PUnit) :
+theorem le_wp_throw_OptionT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (err : PUnit) :
   eposts.fst () ⊑ wp (MonadExceptOf.throw err : OptionT m α) post eposts := by
   rw [OptionT.wp_apply_eq]
   show eposts.fst () ⊑ wp (pure none : m (Option α)) (pushOption post eposts.fst) eposts.snd
   simpa [MonadExceptOf.throw, pushOption] using
-    (WPMonad.pure_le_wp_pure (m := m) (x := none)
+    (MonadicWP.le_wp_pure (m := m) (x := none)
       (post := pushOption post eposts.fst) (eposts := eposts.snd))
 
 @[simp]
@@ -172,17 +172,17 @@ theorem wp_tryCatch_Except_apply_eq (x : Except ε α) (h : ε → Except ε α)
   simp only [wp, WP.trans, MonadExceptOf.tryCatch, Except.tryCatch]
   cases x <;> simp
 
-theorem le_wp_tryCatch_ExceptT_apply (x : ExceptT ε m α)
+theorem le_wp_tryCatch_ExceptT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : ExceptT ε m α)
     (h : ε → ExceptT ε m α) :
     wp x post ⟨fun e => wp (h e) post eposts, eposts.snd⟩ ⊑
       wp (MonadExceptOf.tryCatch x h : ExceptT ε m α) post eposts := by
   change _ ⊑ wp (tryCatch x h : ExceptT ε m α) _ _
-  simp only [ExceptT.wp_apply_eq, ExceptT.run_tryCatch]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
+  simp only [ExceptT.wp_apply_eq]
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
   apply WP.wp_monotone_post; intro r; cases r with
   | ok a =>
     simp; apply PartialOrder.rel_trans; rotate_left;
-    apply WPMonad.pure_le_wp_pure; simp; rfl
+    apply MonadicWP.le_wp_pure; simp; rfl
   | error _ => exact PartialOrder.rel_refl
 
 @[simp]
@@ -201,34 +201,34 @@ theorem wp_tryCatch_EStateM_apply_eq (x : EStateM ε σ α) (h : ε → EStateM 
   cases (x s) <;> simp <;> rfl
 
 @[simp]
-theorem le_wp_tryCatch_OptionT_apply (x : OptionT m α)
+theorem le_wp_tryCatch_OptionT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : OptionT m α)
     (h : PUnit → OptionT m α) :
   wp x post ⟨fun _ => wp (h ⟨⟩) post eposts, eposts.snd⟩ ⊑
     wp (MonadExceptOf.tryCatch x h : OptionT m α) post eposts := by
   simp only [OptionT.wp_apply_eq, MonadExceptOf.tryCatch, OptionT.tryCatch, OptionT.mk]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
   apply WP.wp_monotone_post (x := x.run); intro o; cases o with
   | some a =>
-    apply PartialOrder.rel_trans; rotate_left; apply WPMonad.pure_le_wp_pure
+    apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.le_wp_pure
     simp [pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 
 /-! ## Additional state operation lemmas -/
 
 @[simp]
-theorem wp_getThe_StateT_apply_eq :
+theorem wp_getThe_StateT_apply_eq [Monad m] :
     wp (getThe σ : StateT σ m σ) post eposts =
       wp (MonadStateOf.get : StateT σ m σ) post eposts := by
   rfl
 
 @[simp]
-theorem wp_modifyThe_StateT_apply_eq (f : σ → σ) :
+theorem wp_modifyThe_StateT_apply_eq [Monad m] (f : σ → σ) :
     wp (modifyThe σ f : StateT σ m PUnit) post eposts =
       wp (MonadStateOf.modifyGet fun s => (⟨⟩, f s) : StateT σ m PUnit) post eposts := by
   rfl
 
 @[simp]
-theorem wp_modifyGetThe_StateT_apply_eq (f : σ → α × σ) :
+theorem wp_modifyGetThe_StateT_apply_eq [Monad m] (f : σ → α × σ) :
     wp (modifyGetThe σ f : StateT σ m α) post eposts =
       wp (MonadStateOf.modifyGet f : StateT σ m α) post eposts := by
   rfl
@@ -258,22 +258,23 @@ theorem wp_read_MonadReader_apply_eq [MonadReaderOf ρ m] :
   rfl
 
 @[simp]
-theorem wp_readThe_ReaderT_apply_eq :
+theorem wp_readThe_ReaderT_apply_eq [Monad m] :
     wp (readThe ρ : ReaderT ρ m ρ) post eposts =
       wp (MonadReaderOf.read : ReaderT ρ m ρ) post eposts := by
   rfl
 
 /-! ## MonadLift simp lemmas -/
 
-theorem le_wp_monadLift_StateT_apply (x : m α) (post : α → σ → Pred) :
+theorem le_wp_monadLift_StateT_apply [Monad m]
+    [MonadicWP.IsLaxDistrib m] (x : m α) (post : α → σ → Pred) :
     (fun s => wp x (fun a => post a s) eposts) ⊑
       wp (MonadLift.monadLift x : StateT σ m α) post eposts := by
   intro s
   simp only [StateT.wp_apply_eq, MonadLift.monadLift]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
   apply WP.wp_monotone_post; intro a
   simpa using
-    (WPMonad.pure_le_wp_pure (m := m) (x := (a, s))
+    (MonadicWP.le_wp_pure (m := m) (x := (a, s))
       (post := fun x => post x.fst x.snd) (eposts := eposts))
 
 @[simp]
@@ -283,39 +284,41 @@ theorem wp_monadLift_ReaderT_apply_eq (x : m α) :
   funext r
   simp only [ReaderT.wp_apply_eq] <;> rfl
 
-theorem le_wp_monadLift_ExceptT_apply (x : m α) (post : α → Pred)
+theorem le_wp_monadLift_ExceptT_apply [Monad m] [LawfulMonad m]
+    [MonadicWP.IsLaxDistrib m] (x : m α)
+    (post : α → Pred)
     (eposts : (ε → Pred) × EPosts) :
     wp x post eposts.snd ⊑
       wp (MonadLift.monadLift x : ExceptT ε m α) post eposts := by
   simp only [ExceptT.wp_apply_eq, MonadLift.monadLift, ExceptT.lift, ExceptT.mk]
   apply PartialOrder.rel_trans; rotate_left
-  · exact WPMonad.map_le_wp_map (m := m) Except.ok x _ _
+  · exact MonadicWP.wp_le_wp_map (m := m) Except.ok x _ _
   · exact PartialOrder.rel_refl
 
 @[simp]
-theorem wp_lift_StateT_apply_eq (x : m α) :
+theorem wp_lift_StateT_apply_eq [Monad m] (x : m α) :
     wp (StateT.lift x : StateT σ m α) post eposts =
       wp (MonadLift.monadLift x : StateT σ m α) post eposts := by
   rfl
 
 @[simp]
-theorem wp_lift_ExceptT_apply_eq (x : m α) :
+theorem wp_lift_ExceptT_apply_eq [Monad m] (x : m α) :
     wp (ExceptT.lift x : ExceptT ε m α) post eposts =
       wp (MonadLift.monadLift x : ExceptT ε m α) post eposts := by
   rfl
 
 @[simp]
-theorem le_wp_monadLift_OptionT_apply (x : m α) :
+theorem le_wp_monadLift_OptionT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : m α) :
   wp x post eposts.snd ⊑
     wp (MonadLift.monadLift x : OptionT m α) post eposts := by
   simp only [OptionT.wp_apply_eq, MonadLift.monadLift, OptionT.mk, OptionT.lift]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
   apply WP.wp_monotone_post; intro a
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.pure_le_wp_pure
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.le_wp_pure
   simp [pushOption]; exact PartialOrder.rel_refl
 
 @[simp]
-theorem wp_lift_OptionT_apply_eq (x : m α) :
+theorem wp_lift_OptionT_apply_eq [Monad m] (x : m α) :
     wp (OptionT.lift x : OptionT m α) post eposts =
       wp (MonadLift.monadLift x : OptionT m α) post eposts := rfl
 
@@ -372,12 +375,14 @@ theorem wp_withTheReader_ReaderT_apply_eq (f : ρ → ρ) (x : ReaderT ρ m α) 
 
 /-! ## Transformer adapt lemmas -/
 
-theorem le_wp_adapt_ExceptT_apply (f : ε → ε') (x : ExceptT ε m α) :
+theorem le_wp_adapt_ExceptT_apply [Monad m] [LawfulMonad m]
+    [MonadicWP.IsLaxDistrib m] (f : ε → ε')
+    (x : ExceptT ε m α) :
     wp x post ⟨fun e => eposts.fst (f e), eposts.snd⟩ ⊑
       wp (ExceptT.adapt f x : ExceptT ε' m α) post eposts := by
   simp only [ExceptT.wp_apply_eq, ExceptT.adapt, ExceptT.mk]
   apply PartialOrder.rel_trans; rotate_left
-  · exact WPMonad.map_le_wp_map (m := m) (Except.mapError f) x _ _
+  · exact MonadicWP.wp_le_wp_map (m := m) (Except.mapError f) x _ _
   · apply WP.wp_monotone_post (x := x.run); intro r; cases r <;> exact PartialOrder.rel_refl
 
 @[simp]
@@ -391,7 +396,7 @@ theorem wp_adaptExcept_EStateM_apply_eq (f : ε → ε') (x : EStateM ε σ α) 
 /-! ## MonadControl simp lemmas -/
 
 @[simp]
-theorem wp_liftWith_StateT_apply_eq
+theorem wp_liftWith_StateT_apply_eq [Monad m] [LawfulMonad m]
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) :
     wp (MonadControl.liftWith (m:=m) f : StateT σ m α) post eposts s =
       wp ((fun a => (a, s)) <$> f (fun x => x.run s)) (fun ⟨a, s⟩ => post a s) eposts := by
@@ -405,7 +410,7 @@ theorem wp_liftWith_ReaderT_apply_eq
   simp [MonadControl.liftWith, ReaderT.run]
 
 @[simp]
-theorem wp_liftWith_ExceptT_apply_eq
+theorem wp_liftWith_ExceptT_apply_eq [Monad m]
     (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) :
     wp (MonadControl.liftWith (m:=m) f : ExceptT ε m α) post eposts =
       wp (Except.ok <$> f (fun x => x.run)) (pushExcept post eposts.fst) eposts.snd := by
@@ -414,29 +419,30 @@ theorem wp_liftWith_ExceptT_apply_eq
   simp
 
 @[simp]
-theorem le_wp_liftWith_OptionT_apply
+theorem le_wp_liftWith_OptionT_apply [Monad m] [MonadicWP.IsLaxDistrib m]
   (f : (∀{β}, OptionT m β → m (Option β)) → m α) :
   wp (f (fun x => x.run)) post eposts.snd ⊑
     wp (MonadControl.liftWith (m:=m) f : OptionT m α) post eposts := by
   simp only [MonadControl.liftWith, liftM, monadLift]
   exact le_wp_monadLift_OptionT_apply (f (fun x => x.run))
 
-theorem le_wp_restoreM_StateT_apply (x : m (α × σ)) :
+theorem le_wp_restoreM_StateT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : m (α × σ)) :
     (fun _ => wp x (fun (a, s) => post a s) eposts) ⊑
       wp (MonadControl.restoreM (m:=m) x : StateT σ m α) post eposts := by
   simp only [MonadControl.restoreM]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind; simp only [liftM, monadLift]
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
+  simp only [liftM, monadLift]
   apply PartialOrder.rel_trans; rotate_left; apply le_wp_monadLift_StateT_apply
   intro s; apply WP.wp_monotone_post (x := x); intro s'; simp only
   rw [StateT.wp_apply_eq]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
   simp [set, StateT.set, pure, StateT.pure]
   apply PartialOrder.rel_trans
   · simpa using
-      (WPMonad.pure_le_wp_pure (m := m) (x := (s'.fst, s'.snd))
+      (MonadicWP.le_wp_pure (m := m) (x := (s'.fst, s'.snd))
         (post := fun x => post x.fst x.snd) (eposts := eposts))
   · simpa using
-      (WPMonad.pure_le_wp_pure (m := m) (x := (PUnit.unit, s'.snd))
+      (MonadicWP.le_wp_pure (m := m) (x := (PUnit.unit, s'.snd))
         (post := fun (x : PUnit × σ) => wp (pure (s'.fst, x.snd)) (fun (x : α × σ) => post x.fst x.snd) eposts)
         (eposts := eposts))
 
@@ -448,13 +454,13 @@ theorem wp_restoreM_ReaderT_apply_eq (x : m α) :
   simp [MonadControl.restoreM, ReaderT.run]
 
 @[simp]
-theorem wp_restoreM_ExceptT_apply_eq (x : m (Except ε α)) :
+theorem wp_restoreM_ExceptT_apply_eq [Monad m] (x : m (Except ε α)) :
     wp (MonadControl.restoreM (m:=m) x : ExceptT ε m α) post eposts =
       wp x (pushExcept post eposts.fst) eposts.snd := by
   simp [MonadControl.restoreM, ExceptT.run]
 
 @[simp]
-theorem wp_restoreM_OptionT_apply_eq (x : m (Option α)) :
+theorem wp_restoreM_OptionT_apply_eq [Monad m] (x : m (Option α)) :
   wp (MonadControl.restoreM (m:=m) x : OptionT m α) post eposts =
     wp x (pushOption post eposts.fst) eposts.snd := by
   simp only [OptionT.wp_apply_eq, MonadControl.restoreM] <;> rfl
@@ -462,21 +468,23 @@ theorem wp_restoreM_OptionT_apply_eq (x : m (Option α)) :
 end
 
 @[simp]
-theorem wp_controlAt_apply_eq [Bind n] [Monad m] [Monad n] [Assertion Pred] [Assertion EPosts] [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
+theorem wp_controlAt_apply_eq [Bind n] [Monad n] [PartialOrder Pred] [PartialOrder EPosts]
+    [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
     (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
     wp (controlAt m f : n α) post eposts =
       wp (liftWith f >>= restoreM : n α) post eposts := by
   rfl
 
 @[simp]
-theorem wp_control_apply_eq [Bind n] [Monad m] [Monad n] [Assertion Pred] [Assertion EPosts] [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
+theorem wp_control_apply_eq [Bind n] [Monad n] [PartialOrder Pred] [PartialOrder EPosts]
+    [∀ α, WP (n α) α Pred EPosts] [MonadControlT m n]
     (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
     wp (control f : n α) post eposts =
       wp (liftWith f >>= restoreM : n α) post eposts := by
   rfl
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
 
 @[simp]
 theorem wp_monadLift_refl_apply_eq [Pure m] (x : m α) :
@@ -506,7 +514,8 @@ end
 /-! ## Transitive lift/map/control simp lemmas -/
 
 section
-variable {m n : Type u → Type v} {o : Type u → Type v} [Assertion Pred] [Assertion EPosts] [∀ α, WP (o α) α Pred EPosts]
+variable {m n : Type u → Type v} {o : Type u → Type v} [PartialOrder Pred] [PartialOrder EPosts]
+  [∀ α, WP (o α) α Pred EPosts]
 
 @[simp]
 theorem wp_monadLift_trans_apply_eq [MonadLift n o] [MonadLiftT m n] (x : m α) :
@@ -541,7 +550,8 @@ end
 /-! ## Lifted state/reader operations -/
 
 section
-variable {m n : Type u → Type v} [MonadLift m n] [Assertion Pred] [Assertion EPosts] [∀ α, WP (n α) α Pred EPosts]
+variable {m n : Type u → Type v} [MonadLift m n] [PartialOrder Pred] [PartialOrder EPosts]
+  [∀ α, WP (n α) α Pred EPosts]
 
 @[simp]
 theorem wp_get_MonadStateOf_lift_apply_eq [MonadStateOf σ m] :
@@ -572,7 +582,8 @@ end
 /-! ## Lifted except operations -/
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [MonadExceptOf ε m]
+variable {m : Type u → Type v} [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
+  [MonadExceptOf ε m]
 
 @[simp]
 theorem wp_throw_lift_ExceptT_apply_eq (err : ε) :
@@ -608,7 +619,7 @@ theorem wp_throw_ReaderT_lift_apply_eq (err : ε) :
   rfl
 
 @[simp]
-theorem wp_throw_StateT_lift_apply_eq (err : ε) :
+theorem wp_throw_StateT_lift_apply_eq [Monad m] (err : ε) :
     wp (MonadExceptOf.throw (ε:=ε) err : StateT σ m α) post eposts =
       wp (MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) err : m α) :
         StateT σ m α) post eposts := by
@@ -623,7 +634,7 @@ theorem wp_tryCatch_ReaderT_lift_apply_eq (x : ReaderT ρ m α) (h : ε → Read
   rw [ReaderT.wp_apply_eq]; rfl
 
 @[simp]
-theorem wp_tryCatch_StateT_lift_apply_eq (x : StateT σ m α) (h : ε → StateT σ m α) :
+theorem wp_tryCatch_StateT_lift_apply_eq [Monad m] (x : StateT σ m α) (h : ε → StateT σ m α) :
     wp (MonadExceptOf.tryCatch (ε:=ε) x h : StateT σ m α) post eposts =
       fun s => wp (MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ))
         (fun (a, s') => post a s') eposts := by
@@ -642,24 +653,24 @@ theorem wp_orElse_Except_apply_eq (x : Except ε α) (h : Unit → Except ε α)
   cases x <;> rfl
 
 section
-variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable {m : Type u → Type v} [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
 
-theorem le_wp_orElse_ExceptT_apply (x : ExceptT ε m α)
+theorem le_wp_orElse_ExceptT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : ExceptT ε m α)
     (h : Unit → ExceptT ε m α) :
     wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩ ⊑
       wp (OrElse.orElse x h : ExceptT ε m α) post eposts := by
   apply le_wp_tryCatch_ExceptT_apply
 
 @[simp]
-theorem le_wp_orElse_OptionT_apply (x : OptionT m α)
+theorem le_wp_orElse_OptionT_apply [Monad m] [MonadicWP.IsLaxDistrib m] (x : OptionT m α)
     (h : Unit → OptionT m α) :
   wp x post ⟨fun _ => wp (h ()) post eposts, eposts.snd⟩ ⊑
     wp (OrElse.orElse x h : OptionT m α) post eposts := by
   simp only [OptionT.wp_apply_eq, OrElse.orElse]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.wp_wp_le_wp_bind
   apply WP.wp_monotone_post (x := x.run); intro o; cases o with
   | some a =>
-    apply PartialOrder.rel_trans; rotate_left; apply WPMonad.pure_le_wp_pure
+    apply PartialOrder.rel_trans; rotate_left; apply MonadicWP.le_wp_pure
     simp [pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 
@@ -681,4 +692,266 @@ theorem wp_orElse_EStateM_apply_eq (x : EStateM ε σ α) (h : Unit → EStateM 
   simp only [EStateM.wp_apply_eq, OrElse.orElse, EStateM.orElse]
   cases x s <;> simp <;> rfl
 
-end Std.WP.WPMonad
+end Std.WP.MonadicWP
+
+namespace Std.WP
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated MonadicWP.le_wp_adapt_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_adapt_ExceptT_apply := @MonadicWP.le_wp_adapt_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_get_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_get_StateT_apply := @MonadicWP.le_wp_get_StateT_apply
+
+@[deprecated MonadicWP.le_wp_liftWith_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_liftWith_OptionT_apply := @MonadicWP.le_wp_liftWith_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_modifyGet_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_modifyGet_StateT_apply := @MonadicWP.le_wp_modifyGet_StateT_apply
+
+@[deprecated MonadicWP.le_wp_monadLift_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_monadLift_ExceptT_apply := @MonadicWP.le_wp_monadLift_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_monadLift_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_monadLift_OptionT_apply := @MonadicWP.le_wp_monadLift_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_monadLift_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_monadLift_StateT_apply := @MonadicWP.le_wp_monadLift_StateT_apply
+
+@[deprecated MonadicWP.le_wp_orElse_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_orElse_ExceptT_apply := @MonadicWP.le_wp_orElse_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_orElse_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_orElse_OptionT_apply := @MonadicWP.le_wp_orElse_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_read_ReaderT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_read_ReaderT_apply := @MonadicWP.le_wp_read_ReaderT_apply
+
+@[deprecated MonadicWP.le_wp_restoreM_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_restoreM_StateT_apply := @MonadicWP.le_wp_restoreM_StateT_apply
+
+@[deprecated MonadicWP.le_wp_set_StateT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_set_StateT_apply := @MonadicWP.le_wp_set_StateT_apply
+
+@[deprecated MonadicWP.le_wp_throw_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_throw_ExceptT_apply := @MonadicWP.le_wp_throw_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_throw_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_throw_OptionT_apply := @MonadicWP.le_wp_throw_OptionT_apply
+
+@[deprecated MonadicWP.le_wp_tryCatch_ExceptT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_tryCatch_ExceptT_apply := @MonadicWP.le_wp_tryCatch_ExceptT_apply
+
+@[deprecated MonadicWP.le_wp_tryCatch_OptionT_apply +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.le_wp_tryCatch_OptionT_apply := @MonadicWP.le_wp_tryCatch_OptionT_apply
+
+@[deprecated MonadicWP.wp_adaptExcept_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_adaptExcept_EStateM_apply_eq := @MonadicWP.wp_adaptExcept_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_adapt_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_adapt_ReaderT_apply_eq := @MonadicWP.wp_adapt_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_controlAt_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_controlAt_apply_eq := @MonadicWP.wp_controlAt_apply_eq
+
+@[deprecated MonadicWP.wp_control_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_control_apply_eq := @MonadicWP.wp_control_apply_eq
+
+@[deprecated MonadicWP.wp_getModify_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_getModify_EStateM_apply_eq := @MonadicWP.wp_getModify_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_getModify_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_getModify_StateT_apply_eq := @MonadicWP.wp_getModify_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_getThe_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_getThe_StateT_apply_eq := @MonadicWP.wp_getThe_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_get_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_get_EStateM_apply_eq := @MonadicWP.wp_get_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_get_MonadStateOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_get_MonadStateOf_lift_apply_eq := @MonadicWP.wp_get_MonadStateOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_get_MonadState_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_get_MonadState_apply_eq := @MonadicWP.wp_get_MonadState_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_ExceptT_apply_eq := @MonadicWP.wp_liftWith_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_ReaderT_apply_eq := @MonadicWP.wp_liftWith_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_StateT_apply_eq := @MonadicWP.wp_liftWith_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_refl_apply_eq := @MonadicWP.wp_liftWith_refl_apply_eq
+
+@[deprecated MonadicWP.wp_liftWith_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_liftWith_trans_apply_eq := @MonadicWP.wp_liftWith_trans_apply_eq
+
+@[deprecated MonadicWP.wp_lift_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_lift_ExceptT_apply_eq := @MonadicWP.wp_lift_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_lift_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_lift_OptionT_apply_eq := @MonadicWP.wp_lift_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_lift_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_lift_StateT_apply_eq := @MonadicWP.wp_lift_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGetThe_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGetThe_StateT_apply_eq := @MonadicWP.wp_modifyGetThe_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGet_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGet_EStateM_apply_eq := @MonadicWP.wp_modifyGet_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGet_MonadStateOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGet_MonadStateOf_lift_apply_eq := @MonadicWP.wp_modifyGet_MonadStateOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_modifyGet_MonadState_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyGet_MonadState_apply_eq := @MonadicWP.wp_modifyGet_MonadState_apply_eq
+
+@[deprecated MonadicWP.wp_modifyThe_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modifyThe_StateT_apply_eq := @MonadicWP.wp_modifyThe_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_modify_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_modify_EStateM_apply_eq := @MonadicWP.wp_modify_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_modify_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_modify_StateT_apply_eq := @MonadicWP.wp_modify_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_monadLift_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadLift_ReaderT_apply_eq := @MonadicWP.wp_monadLift_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_monadLift_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadLift_refl_apply_eq := @MonadicWP.wp_monadLift_refl_apply_eq
+
+@[deprecated MonadicWP.wp_monadLift_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadLift_trans_apply_eq := @MonadicWP.wp_monadLift_trans_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_ExceptT_apply_eq := @MonadicWP.wp_monadMap_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_OptionT_apply_eq := @MonadicWP.wp_monadMap_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_ReaderT_apply_eq := @MonadicWP.wp_monadMap_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_StateT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_StateT_apply_eq := @MonadicWP.wp_monadMap_StateT_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_refl_apply_eq := @MonadicWP.wp_monadMap_refl_apply_eq
+
+@[deprecated MonadicWP.wp_monadMap_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_monadMap_trans_apply_eq := @MonadicWP.wp_monadMap_trans_apply_eq
+
+@[deprecated MonadicWP.wp_orElse_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_orElse_EStateM_apply_eq := @MonadicWP.wp_orElse_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_orElse_Except_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_orElse_Except_apply_eq := @MonadicWP.wp_orElse_Except_apply_eq
+
+@[deprecated MonadicWP.wp_orElse_Option_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_orElse_Option_apply_eq := @MonadicWP.wp_orElse_Option_apply_eq
+
+@[deprecated MonadicWP.wp_readThe_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_readThe_ReaderT_apply_eq := @MonadicWP.wp_readThe_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_read_MonadReaderOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_read_MonadReaderOf_lift_apply_eq := @MonadicWP.wp_read_MonadReaderOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_read_MonadReader_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_read_MonadReader_apply_eq := @MonadicWP.wp_read_MonadReader_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_ExceptT_apply_eq := @MonadicWP.wp_restoreM_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_OptionT_apply_eq := @MonadicWP.wp_restoreM_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_ReaderT_apply_eq := @MonadicWP.wp_restoreM_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_refl_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_refl_apply_eq := @MonadicWP.wp_restoreM_refl_apply_eq
+
+@[deprecated MonadicWP.wp_restoreM_trans_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_restoreM_trans_apply_eq := @MonadicWP.wp_restoreM_trans_apply_eq
+
+@[deprecated MonadicWP.wp_set_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_set_EStateM_apply_eq := @MonadicWP.wp_set_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_set_MonadStateOf_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_set_MonadStateOf_lift_apply_eq := @MonadicWP.wp_set_MonadStateOf_lift_apply_eq
+
+@[deprecated MonadicWP.wp_set_MonadState_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_set_MonadState_apply_eq := @MonadicWP.wp_set_MonadState_apply_eq
+
+@[deprecated MonadicWP.wp_throwThe_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throwThe_apply_eq := @MonadicWP.wp_throwThe_apply_eq
+
+@[deprecated MonadicWP.wp_throw_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_EStateM_apply_eq := @MonadicWP.wp_throw_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_throw_Except_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_Except_apply_eq := @MonadicWP.wp_throw_Except_apply_eq
+
+@[deprecated MonadicWP.wp_throw_Option_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_Option_apply_eq := @MonadicWP.wp_throw_Option_apply_eq
+
+@[deprecated MonadicWP.wp_throw_ReaderT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_ReaderT_lift_apply_eq := @MonadicWP.wp_throw_ReaderT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_throw_StateT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_StateT_lift_apply_eq := @MonadicWP.wp_throw_StateT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_throw_lift_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_lift_ExceptT_apply_eq := @MonadicWP.wp_throw_lift_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_throw_lift_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_throw_lift_OptionT_apply_eq := @MonadicWP.wp_throw_lift_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatchThe_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatchThe_apply_eq := @MonadicWP.wp_tryCatchThe_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_EStateM_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_EStateM_apply_eq := @MonadicWP.wp_tryCatch_EStateM_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_Except_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_Except_apply_eq := @MonadicWP.wp_tryCatch_Except_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_MonadExcept_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_MonadExcept_apply_eq := @MonadicWP.wp_tryCatch_MonadExcept_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_Option_apply_eq (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_Option_apply_eq := @MonadicWP.wp_tryCatch_Option_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_ReaderT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_ReaderT_lift_apply_eq := @MonadicWP.wp_tryCatch_ReaderT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_StateT_lift_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_StateT_lift_apply_eq := @MonadicWP.wp_tryCatch_StateT_lift_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_lift_ExceptT_apply_eq := @MonadicWP.wp_tryCatch_lift_ExceptT_apply_eq
+
+@[deprecated MonadicWP.wp_tryCatch_lift_OptionT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_tryCatch_lift_OptionT_apply_eq := @MonadicWP.wp_tryCatch_lift_OptionT_apply_eq
+
+@[deprecated MonadicWP.wp_withReader_MonadWithReader_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_withReader_MonadWithReader_apply_eq := @MonadicWP.wp_withReader_MonadWithReader_apply_eq
+
+@[deprecated MonadicWP.wp_withReader_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_withReader_ReaderT_apply_eq := @MonadicWP.wp_withReader_ReaderT_apply_eq
+
+@[deprecated MonadicWP.wp_withTheReader_ReaderT_apply_eq +typeChanged (since := "2026-11-18")]
+abbrev WPMonad.wp_withTheReader_ReaderT_apply_eq := @MonadicWP.wp_withTheReader_ReaderT_apply_eq
+
+end Deprecated
+
+end Std.WP

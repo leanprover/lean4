@@ -1,6 +1,7 @@
 /-!
-Tests `Acc.rec'`, the replacement for `Acc.rec` at motives that are not propositions. It is
-`@[irreducible]` and backed by `Classical.choice`, so unlike `Acc.rec` it has no iota rule.
+Tests `Acc.rec'`, the replacement for `Acc.rec` at motives that are not propositions.
+`Acc.rec` itself only eliminates into `Prop`, so definitions that recurse on an accessibility
+proof to produce data have to go through `Acc.rec'`, which has no iota rule.
 -/
 
 /-! `Acc.rec'` accepts a motive in any `Sort`, including one mentioning the `Acc` proof. -/
@@ -22,8 +23,8 @@ theorem acc0 : Acc (fun _ _ : Nat => False) 0 := Acc.intro 0 fun _ h => h.elim
 #guard_msgs in
 #eval (Acc.rec' (motive := fun _ _ => Nat) (fun _ _ _ => 0) acc0,
        Acc.recOn' (motive := fun _ _ => Nat) acc0 fun _ _ _ => 0,
-       Acc.ndrec (C := fun _ => Nat) (fun _ _ _ => 0) acc0,
-       Acc.ndrecOn (C := fun _ => Nat) acc0 fun _ _ _ => 0)
+       Acc.ndrec' (C := fun _ => Nat) (fun _ _ _ => 0) acc0,
+       Acc.ndrecOn' (C := fun _ => Nat) acc0 fun _ _ _ => 0)
 
 /-! `Acc.rec'` has no iota rule, so unfolding equations need `Acc.rec'_eq` rather than `rfl`. -/
 
@@ -39,3 +40,28 @@ theorem fold_eq {α : Type} {r : α → α → Prop} (F : ∀ a, ((b : α) → r
 /-- info: 'Acc.rec'' depends on axioms: [Classical.choice] -/
 #guard_msgs in
 #print axioms Acc.rec'
+
+/-! `Acc.ndrec` and `Acc.ndrecOn` remain available at `Prop` motives, like `Acc.rec`. -/
+
+example {α : Type} {r q : α → α → Prop} (hsub : ∀ {x y}, r x y → q x y) {a : α} (h : Acc q a) :
+    Acc r a :=
+  h.ndrec fun x _ ih => Acc.intro x fun y hy => ih y (hsub hy)
+
+example {α : Type} {r q : α → α → Prop} (hsub : ∀ {x y}, r x y → q x y) {a : α} (h : Acc q a) :
+    Acc r a :=
+  h.ndrecOn fun x _ ih => Acc.intro x fun y hy => ih y (hsub hy)
+
+/-! At data motives they fail; `Acc.ndrec'` is needed there. -/
+
+/--
+error: Type mismatch
+  Nat
+has type
+  Type
+of sort `Type 1` but is expected to have type
+  Prop
+of sort `Type`
+-/
+#guard_msgs in
+example {a : Nat} (h : Acc (fun _ _ : Nat => False) a) : Nat :=
+  Acc.ndrec (C := fun _ => Nat) (fun _ _ _ => 0) h

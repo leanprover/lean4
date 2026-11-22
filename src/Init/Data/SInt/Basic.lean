@@ -2019,3 +2019,31 @@ attribute [instance] ISize.decLt ISize.decLe
 
 instance : Max ISize := maxOfLe
 instance : Min ISize := minOfLe
+
+/--
+Auxiliary theorem for proving that two `Int8` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem Int8.ne_of_toNat_beq_eq_false {a b : Int8} (h : Nat.beq a.toBitVec.toNat b.toBitVec.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg (fun x : Int8 => x.toBitVec.toNat) h')
+
+/--
+Auxiliary theorem for proving that two `Int16` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem Int16.ne_of_toNat_beq_eq_false {a b : Int16} (h : Nat.beq a.toBitVec.toNat b.toBitVec.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg (fun x : Int16 => x.toBitVec.toNat) h')
+
+/--
+Auxiliary theorem for proving that two `Int32` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem Int32.ne_of_toNat_beq_eq_false {a b : Int32} (h : Nat.beq a.toBitVec.toNat b.toBitVec.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg (fun x : Int32 => x.toBitVec.toNat) h')
+
+/--
+Auxiliary theorem for proving that two `Int64` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem Int64.ne_of_toNat_beq_eq_false {a b : Int64} (h : Nat.beq a.toBitVec.toNat b.toBitVec.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg (fun x : Int64 => x.toBitVec.toNat) h')

@@ -261,7 +261,9 @@ def computeModuleDeps
 
 structure TransImportEntry where
   mod : Module
-  /-- Whether to include all module artifacts and traverse the module's direct imports. -/
+  /--
+  Whether to include all module artifacts and treat every direct import of the module as reachable.
+  -/
   importAll : Bool
   /-- Whether this module has been transitively imported by a `meta import`. -/
   needsMeta : Bool
@@ -281,14 +283,32 @@ Otherwise, fetches it through the main build store.
     return cast (by simp) job
   else info.fetch
 
+/--
+Returns the level at which Lean loads the imports of a file, as chosen by
+`Lean.Elab.processHeaderCore`.
+-/
+def importLevel (isModule inServer : Bool) : OLeanLevel :=
+  if isModule then
+    if inServer then .server else .exported
+  else
+    .private
+
+/--
+Computes the artifacts of the transitive imports that Lean loads at `level` when elaborating a
+module with the given direct imports.
+
+Lean loads the IR of every transitive import at every level above `.exported`. The result then also
+covers modules that are reachable only through private imports. The language server needs this
+because it loads IR from private imports.
+-/
 partial def fetchTransImportArts
-  (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
+  (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (level : OLeanLevel)
 : FetchM (NameMap ImportArtifacts) := do
   let snap ← getBuildStore
   let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
     let input ← (← snap.fetch mod.input).await
-    let importAll := strictOr nonModule imp.importAll
+    let importAll := strictOr (level == .private) imp.importAll
     return enqueue importAll imp.isMeta input q
   walk snap directArts {} {} q
 where
@@ -329,9 +349,9 @@ where
     input.imports.foldr (init := q) fun imp q =>
       if let some mod := imp.module? then
         let reachable := importAll || imp.isExported
-        let importAll := nonModule || (importAll && imp.importAll)
+        let importAll := level == .private || (importAll && imp.importAll)
         let needsMeta := needsMeta || (reachable && imp.isMeta)
-        if reachable || needsMeta then
+        if reachable || needsMeta || level > .exported then
           q.push {mod, importAll, needsMeta}
         else q
       else q
@@ -751,8 +771,8 @@ public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfig fun mod => (·.toOpaque) <$> mod.presetup.fetch
 
 def mkModuleSetup (mod : Module) (presetup : ModulePreSetup) : FetchM ModuleSetup := do
-  let importArts ← fetchTransImportArts
-    presetup.directImports presetup.directImportArts !presetup.isModule
+  let importArts ← fetchTransImportArts presetup.directImports presetup.directImportArts
+    (importLevel presetup.isModule (inServer := false))
   return {
     name := mod.name
     isModule := presetup.isModule
@@ -1669,6 +1689,8 @@ Definitions to support `lake setup-file` and `lake lean` builds.
 Computes the module setup of a workspace module being edited by the Lean language server,
 building its imports and other dependencies. Used by `lake setup-file`.
 
+The import artifacts also cover modules that are reachable only through private imports.
+
 Due to its exclusive use as a top-level build, it does not construct a proper trace state.
 -/
 def setupEditedModule
@@ -1699,7 +1721,9 @@ def setupEditedModule
   dynlibsJob.bindM (sync := true) fun dynlibs => do
   pluginsJob.mapM fun plugins => do
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
-    let transImpArts ← fetchTransImportArts directImports info.directArts !header.isModule
+    let transImpArts ←
+      fetchTransImportArts directImports info.directArts
+        (importLevel header.isModule (inServer := true))
     return {
       name := mod.name
       package? := mod.pkg.id?
@@ -1718,10 +1742,13 @@ building its imports and other dependencies.
 This is used by `lake setup-file` to configure modules for the Lean server and by `lake lean`
 to build the dependencies of the file and generate the data for `lean --setup`.
 
+When `inServer` is true, the import artifacts also cover modules that are reachable only through
+private imports. This is because the language server needs their IR.
+
 Due to its exclusive use as a top-level build, it does not construct a proper trace state.
 -/
 def setupExternalModule
-  (fileName : String) (header : ModuleHeader) (leanOpts : LeanOptions)
+  (fileName : String) (header : ModuleHeader) (leanOpts : LeanOptions) (inServer : Bool)
 : FetchM (Job ModuleSetup) := do
   let root ← getRootPackage
   let extraDepJob ← root.extraDep.fetch
@@ -1742,7 +1769,8 @@ def setupExternalModule
   pluginsJob.bindM (sync := true) fun plugins =>
   externLibsJob.mapM fun externLibs => do
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
-    let transImpArts ← fetchTransImportArts imports info.directArts !header.isModule
+    let transImpArts ←
+      fetchTransImportArts imports info.directArts (importLevel header.isModule inServer)
     return {
       name := `_unknown
       isModule := header.isModule
@@ -1769,7 +1797,7 @@ public def setupServerModule
     logVerbose s!"file identified as module: {mod.name}"
     setupEditedModule mod header
   else
-    setupExternalModule fileName header (← getServerOptions)
+    setupExternalModule fileName header (← getServerOptions) (inServer := true)
 
 /--
 Computes the arguments required to evaluate the Lean file with `lean`,
@@ -1790,7 +1818,8 @@ public def prepareLeanCommand
       mkSpawnArgs path setup mod.leanArgs
   else
     let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-    let setupJob ← setupExternalModule leanFile.toString header (← getLeanOptions)
+    let setupJob ←
+      setupExternalModule leanFile.toString header (← getLeanOptions) (inServer := false)
     setupJob.mapM (sync := true) fun setup => do
       mkSpawnArgs path setup (← getLeanArgs)
 where

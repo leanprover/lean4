@@ -2539,6 +2539,12 @@ the keyword is slated for removal. Alternatives after `invariants?` elaborate li
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
   Macro.throwError "to use `vcgen`, please include `import Std.WP`"
 
+/-- The triple notation `⦃ P ⦄ x ⦃ Q ⦄` outside `open Std.WP`. -/
+macro:60 (name := tripleNotationMacro) (priority := low)
+    "⦃ " term " ⦄ " term " ⦃ " term (("; " term))? " ⦄" : term =>
+  Macro.throwError
+    "to use the triple notation `⦃ P ⦄ x ⦃ Q ⦄`, please include `import Std.WP` and `open Std.WP`"
+
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.
 It reduces terms by unfolding definitions using their defining equations and

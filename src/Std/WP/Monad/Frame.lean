@@ -16,47 +16,60 @@ set_option linter.missingDocs true
 /-!
 # Framing for a monadic `wp`
 
-`WPMonad.withFrameClosure` reinterprets a `WPMonad` through the
-`Lean.Order.PredTrans.frameClosure` of its base weakest precondition, so that every program frames
-every resource.
+`MonadicWP.isLaxDistrib_withFrameClosure` carries the lax laws of a `MonadicWP` to its
+`Lean.Order.PredTrans.frameClosure`, under which every program frames every resource.
 -/
 
 open Lean.Order Std.WP
 
 namespace Std.WP
 
-/-- Reinterpret a `WPMonad m` so its weakest precondition is the `frameClosure` of the
-base wp over a family of supremum-preserving resource operators `op r` that act by `comp` with
-unit `e`.
-Every program then frames every resource (`WP.frames_of_frameClosure`).
-
-A separation logic depends on this property: every frame `op r` passes through the `wp` of every
-program in every state. A caller of a spec picks a frame and applies the frame rule for that
-frame. -/
-@[instance_reducible] noncomputable def WPMonad.withFrameClosure {m : Type v → Type w} [Monad m]
-    {P : Type u} {E : Type z} [Assertion P] [Assertion E]
+theorem MonadicWP.isLaxDistrib_withFrameClosure {m : Type v → Type w} [Monad m]
+    {P : Type u} {E : Type z} [PartialOrder P] [PartialOrder E] [CompleteLattice P]
+    [CompleteLattice E] [CompleteLattice.OrderEq P] [CompleteLattice.OrderEq E]
     {R : Type t} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E', opE (comp r r') E' = opE r (opE r' E'))
     (hunit : ∀ a, op e a = a) (hunitE : ∀ E', opE e E' = E')
-    (base : WPMonad m P E) : WPMonad m P E where
-  toLawfulMonad := base.toLawfulMonad
-  toWP α := WP.withFrameClosure op (base.toWP α)
-  pure_le_wp_pure x post E' := by
-    show post x ⊑ (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
+    [base : MonadicWP m P E] [hlax : MonadicWP.IsLaxDistrib m] :
+    @MonadicWP.IsLaxDistrib m P E _ _ _ ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩ := by
+  obtain ⟨hP⟩ := ‹CompleteLattice.OrderEq P›
+  obtain ⟨hE⟩ := ‹CompleteLattice.OrderEq E›
+  subst hP hE
+  refine @MonadicWP.IsLaxDistrib.mk m P E _ _ _
+    ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩
+    (fun x post E' => ?_) (fun x f post E' => ?_)
+  · show (pure x : PredTrans _ _ _).apply post E' ⊑
+      (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
+    rw [PredTrans.apply_Pure_pure]
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
-    exact base.pure_le_wp_pure x (fun a => op r (post a)) (opE r E')
-  bind_le_wp_bind x f post E' := by
-    show (((base.toWP _).trans x).frameClosure op).apply
-          (fun a => (((base.toWP _).trans (f a)).frameClosure op).apply post E') E'
-        ⊑ (((base.toWP _).trans (x >>= f)).frameClosure op).apply post E'
+    exact MonadicWP.le_wp_pure (m := m) x (fun a => op r (post a)) (opE r E')
+  · show (((base.toWP _).trans x).frameClosure op >>= fun a =>
+          ((base.toWP _).trans (f a)).frameClosure op).apply post E' ⊑
+        (((base.toWP _).trans (x >>= f)).frameClosure op).apply post E'
+    rw [PredTrans.apply_Bind_bind]
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_
     refine PartialOrder.rel_trans ?_
-      (base.bind_le_wp_bind x f (fun a => op r (post a)) (opE r E'))
+      (MonadicWP.wp_wp_le_wp_bind (m := m) x f (fun a => op r (post a)) (opE r E'))
     refine WP.wp_monotone_post fun a => ?_
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)
+
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated "use `⟨fun α => WP.withFrameClosure op (base.toWP α)⟩`, and \
+  `MonadicWP.isLaxDistrib_withFrameClosure` for its laws" (since := "2026-11-18")]
+noncomputable abbrev WPMonad.withFrameClosure {m : Type v → Type w} {P : Type u} {E : Type z}
+    [PartialOrder P] [PartialOrder E] [CompleteLattice P] [CompleteLattice E]
+    [CompleteLattice.OrderEq P] [CompleteLattice.OrderEq E] {R : Type t} (op : R → P → P)
+    {opE : R → E → E} [FrameOp op E opE] (base : MonadicWP m P E) : MonadicWP m P E :=
+  ⟨fun α => WP.withFrameClosure op (base.toWP α)⟩
+
+end Deprecated
 
 end Std.WP

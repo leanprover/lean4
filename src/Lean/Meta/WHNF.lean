@@ -209,10 +209,6 @@ private def toCtorWhenStructure (indVal : InductiveVal) (major : Expr) : MetaM E
     | _ => return major
 
 
--- Helper predicate that returns `true` for inductive predicates used to define functions by well-founded recursion.
-private def isWFRec (declName : Name) : Bool :=
-  declName == ``Acc.rec || declName == ``WellFounded.rec
-
 /--
 Helper method for `reduceRec`.
 We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
@@ -230,16 +226,17 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
 /-- Checks whether a recursor major is a proof. If `isProofQuick` fails, rather than run `isProp (← inferType major)`, we infer the sort of the major using the recursor's info. -/
-private def isMajorProof (indVal : InductiveVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
+private def isMajorProof (recVal : RecursorVal) (indVal : InductiveVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
   match ← isProofQuick major with
     | .true => pure true
     | .false => pure false
     | .undef =>
       if indVal.isImpredicative then return true
-      if indVal.levelParams.length = recLvls.length then
+      let nonNestedInduct ← getConstVal recVal.all.head!
+      if nonNestedInduct.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
-      isPropFormerType (← instantiateTypeLevelParams indVal.toConstantVal lvls)
+      isPropFormerType (← instantiateTypeLevelParams nonNestedInduct lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
@@ -250,7 +247,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
     let mut major ←
-      if !(← isMajorProof indVal recLvls major) then
+      if !(← isMajorProof recVal indVal recLvls major) then
         whnf major
       else
         pure major

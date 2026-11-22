@@ -98,6 +98,11 @@ structure AxiomVal extends ConstantVal where
   isUnsafe : Bool
   deriving Inhabited, BEq
 
+@[export lean_mk_axiom_val]
+def mkAxiomValEx (name : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : AxiomVal := {
+  name, levelParams, type, isUnsafe
+}
+
 @[export lean_axiom_val_is_unsafe] def AxiomVal.isUnsafeEx (v : AxiomVal) : Bool :=
   v.isUnsafe
 

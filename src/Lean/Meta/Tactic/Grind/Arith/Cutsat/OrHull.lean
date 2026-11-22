@@ -7,6 +7,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
+import Std.Data.TreeMap.Basic
+import Std.Data.TreeSet.Basic
+import Lean.Meta.Tactic.Grind.Formula
+import Lean.Util.MonadCache
 import Lean.Meta.NatInstTesters
 import Lean.Meta.IntInstTesters
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
@@ -17,26 +21,29 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 /-!
 Hulls of disjunctions.
 
-Given a disjunction `d₁ ∨ … ∨ dₙ` that is `True`, where each `dᵢ` is a conjunction containing linear
-constraints, we assert the constraints `lin + k ≤ 0` such that every `dᵢ` contains a conjunct
-implying `lin + kᵢ ≤ 0` with `k ≤ kᵢ`. For example, `(b = true ∧ y = x + 1) ∨ (b = false ∧ y = x + 2)`
-implies `x + 1 ≤ y` and `y ≤ x + 2`.
-
-The hull avoids case splits that only matter for these bounds. For example, after `n` sequential
-`if-then-else` statements that add `1` or `2` to `s`, the bound `s₀ + n ≤ sₙ` follows from the hulls
-of the `n` disjunctions, while splitting on them produces `2ⁿ` cases.
+For each direction `lin`, a formula can imply a bound `lin + k ≤ 0`. Conjunction retains the
+strongest bound in that direction. Disjunction takes the weakest bound supported by both sides.
+For example, `(b = true ∧ y = x + 1) ∨ (b = false ∧ y = x + 2)` implies `x + 1 ≤ y` and
+`y ≤ x + 2`. These bounds compose across successive disjunctions without case splitting.
 -/
 
-/-- A constraint `lin + k ≤ 0` implied by a disjunct. The field `alt.k` is set when the hull is known. -/
 private structure HullEntry where
   lin : Poly
-  k   : Int
-  alt : OrHullAlt
+  k : Int
+  atom : OrHullAtom
 
-private partial def getDisjuncts (e : Expr) (acc : Array Expr := #[]) : Array Expr :=
-  match_expr e with
-  | Or a b => getDisjuncts b (acc.push a)
-  | _ => acc.push e
+/-- Positions preserve source order when a conjunction extends either child's table. -/
+private structure Bounds where
+  ordered : Std.TreeMap Int HullEntry := {}
+  index : PHashMap Poly Int := {}
+  deriving Inhabited
+
+private def Bounds.insertAt (s : Bounds) (i : Int) (b : HullEntry) : Bounds :=
+  { ordered := s.ordered.insert i b, index := s.index.insert b.lin i }
+
+private def Bounds.find? (s : Bounds) (lin : Poly) : Option (Int × HullEntry) := do
+  let i ← s.index.find? lin
+  return (i, ← s.ordered[i]?)
 
 private def isNatOrInt (α : Expr) : Bool :=
   α.isConstOf ``Nat || α.isConstOf ``Int
@@ -47,29 +54,31 @@ private def isArithAtom (e : Expr) : Bool :=
   | LE.le α _ _ _ => isNatOrInt α
   | _ => false
 
-/-- Returns the conjuncts of `d` that are linear constraints, and their paths. -/
-private partial def getArithConjuncts (d : Expr) (revPath : List Bool := []) (acc : Array (List Bool × Expr) := #[])
-    : Array (List Bool × Expr) :=
-  match_expr d with
-  | And a b => getArithConjuncts b (true :: revPath) (getArithConjuncts a (false :: revPath) acc)
-  | _ => if isArithAtom d then acc.push (revPath.reverse, d) else acc
+private structure Atom where
+  a : Expr
+  b : Expr
+  isEq : Bool
+  isNat : Bool
 
-private def mkEntry (p : Poly) (alt : OrHullAlt) (entries : Array HullEntry) : Array HullEntry :=
+private def getAtom? (e : Expr) : MetaM (Option Atom) := do
+  match_expr e with
+  | Eq α a b =>
+    unless isNatOrInt α do return none
+    return some ⟨a, b, true, α.isConstOf ``Nat⟩
+  | LE.le α inst a b =>
+    unless isNatOrInt α do return none
+    let isNat := α.isConstOf ``Nat
+    unless (← if isNat then Structural.isInstLENat inst else Structural.isInstLEInt inst) do return none
+    return some ⟨a, b, false, isNat⟩
+  | _ => return none
+
+private def mkEntry (p : Poly) (atom : OrHullAtom) (entries : Bounds) : Bounds :=
   let k := p.getConst
   let lin := p.addConst (-k)
-  if lin matches .num _ then entries else entries.push { lin, k, alt }
+  if lin matches .num _ then entries else entries.insertAt entries.ordered.size { lin, k, atom }
 
-/-- Converts the conjunct `c` at `path` into hull entries. -/
-private def pushEntries (gen : Nat) (path : List Bool) (c : Expr) (entries : Array HullEntry) : GoalM (Array HullEntry) := do
-  let (a, b, isEq, isNat) ← match_expr c with
-    | Eq α a b => pure (a, b, true, α.isConstOf ``Nat)
-    | LE.le α inst a b =>
-      if α.isConstOf ``Nat then
-        unless (← Structural.isInstLENat inst) do return entries
-      else
-        unless (← Structural.isInstLEInt inst) do return entries
-      pure (a, b, false, α.isConstOf ``Nat)
-    | _ => return entries
+private def atomEntries (gen : Nat) (c : Expr) : GoalM Bounds := do
+  let some ⟨a, b, isEq, isNat⟩ ← getAtom? c | return {}
   let (a', b', toIntThm?) ← if isNat then
     let (a', h₁) ← natToInt a
     let (b', h₂) ← natToInt b
@@ -80,44 +89,94 @@ private def pushEntries (gen : Nat) (path : List Bool) (c : Expr) (entries : Arr
   let lhs ← toLinearExpr a' gen
   let rhs ← toLinearExpr b' gen
   let p := lhs.sub rhs |>.norm
-  let mkAlt (kind : OrHullKind) : OrHullAlt := { path, toIntThm?, lhs, rhs, kind, k := 0 }
+  let atom (kind : OrHullKind) : OrHullAtom := { toIntThm?, lhs, rhs, kind }
   if isEq then
-    return mkEntry (p.mul (-1)) (mkAlt .eqNeg) (mkEntry p (mkAlt .eq) entries)
+    return mkEntry (p.mul (-1)) (atom .eqNeg) (mkEntry p (atom .eq) {})
   else
-    return mkEntry p (mkAlt .le) entries
+    return mkEntry p (atom .le) {}
 
-/-- Returns the entry for `lin` with the largest constant, i.e., the strongest one. -/
-private def findStrongest? (entries : Array HullEntry) (lin : Poly) : Option HullEntry :=
-  entries.foldl (init := none) fun r entry =>
-    if entry.lin != lin then r
-    else match r with
-      | some best => if best.k < entry.k then some entry else r
-      | none => some entry
+private def andBounds (as bs : Bounds) : Bounds := Id.run do
+  if as.ordered.isEmpty then return bs
+  if bs.ordered.isEmpty then return as
+  if bs.ordered.size ≤ as.ordered.size then
+    return bs.ordered.foldl (init := as) fun s _ b =>
+      if let some i := s.index.find? b.lin then
+        { s with ordered := s.ordered.modify i fun a => if a.k < b.k then b else a }
+      else
+        s.insertAt (s.ordered.maxKeyD 0 + 1) b
+  -- Prepend the left directions in reverse order, retaining their positions on ties.
+  return as.ordered.foldr (init := bs) fun _ a s => Id.run do
+    let i := s.ordered.minKeyD 0 - 1
+    let some (j, b) := s.find? a.lin | return s.insertAt i a
+    return { s with ordered := s.ordered.erase j }.insertAt i (if a.k < b.k then b else a)
 
-/-- Asserts the hull constraints of the disjunction `e`, which is `True`. -/
+private def orBounds (as bs : Bounds) : Bounds := Id.run do
+  let leftSmaller := as.ordered.size ≤ bs.ordered.size
+  let (xs, ys) := if leftSmaller then (as, bs) else (bs, as)
+  let mut result : Bounds := {}
+  for (i, x) in xs.ordered do
+    let some (j, y) := ys.find? x.lin | continue
+    result := result.insertAt (if leftSmaller then i else j) (if x.k ≤ y.k then x else y)
+  return result
+
+private structure PreviewState where
+  vars : Std.HashMap ExprPtr Var := {}
+  directions : Std.HashMap Poly Nat := {}
+
+private abbrev PreviewM := StateRefT PreviewState GoalM
+
+private def previewVar (e : Expr) : PreviewM Var := do
+  let e ← shareCommon e
+  modifyGet fun s =>
+    let next := s.vars.size
+    let (prev?, vars) := s.vars.getThenInsertIfNew? { expr := e } next
+    (prev?.getD next, { s with vars })
+
+private def previewDirection (lin : Poly) : PreviewM Nat :=
+  modifyGet fun s =>
+    let next := s.directions.size
+    let (prev?, directions) := s.directions.getThenInsertIfNew? lin next
+    (prev?.getD next, { s with directions })
+
+private abbrev Directions := Std.TreeSet Nat
+
+private def previewAtom (e : Expr) : PreviewM Directions := do
+  let some ⟨a, b, isEq, isNat⟩ ← getAtom? e | return {}
+  let (a, b) ← if isNat then
+    pure (← shareCommon (← natToIntExpr a), ← shareCommon (← natToIntExpr b))
+  else pure (a, b)
+  let lhs ← toLinearExprWith previewVar a
+  let rhs ← toLinearExprWith previewVar b
+  let p := (lhs.sub rhs).norm
+  let lin := p.addConst (-p.getConst)
+  if lin matches .num _ then return {}
+  let dirs := ({} : Directions).insert (← previewDirection lin)
+  if isEq then return dirs.insert (← previewDirection (lin.mul (-1)))
+  return dirs
+
+/-- A disjunction inside a conjunction contributes only if its alternatives share a direction.
+Inspect it before registering any solver terms. All such queries share one direction cache. -/
+private def admitConjunct (e : Expr) (supported : Expr → Bool) : MonadCacheT ExprStructEq Directions PreviewM Bool := do
+  let_expr Or _ _ := e | return true
+  let dirs ← Formula.foldCachedM previewAtom (·.union ·) (·.inter ·) e
+    (known? := fun sub => if supported sub then none else some {})
+  return !dirs.isEmpty
+
+/-- Asserts the common linear bounds of a disjunction known to be true. -/
 def assertOrHull (e : Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
   if (← inconsistent) then return ()
-  let ds := getDisjuncts e
-  let conjss := ds.map (getArithConjuncts ·)
-  if conjss.any (·.isEmpty) then return ()
   let gen ← getGeneration e
-  let mut entriess : Array (Array HullEntry) := #[]
-  for conjs in conjss do
-    let mut entries := #[]
-    for (path, c) in conjs do
-      entries ← pushEntries gen path c entries
-    if entries.isEmpty then return ()
-    entriess := entriess.push entries
-  let some entries₀ := entriess[0]? | return ()
-  let mut done : Array Poly := #[]
-  for entry in entries₀ do
-    if done.contains entry.lin then continue
-    done := done.push entry.lin
-    let some bests := entriess.mapM (m := Option) (findStrongest? · entry.lin) | continue
-    let k := bests.foldl (init := (bests[0]?.map (·.k)).getD entry.k) fun k best => min k best.k
-    let alts := bests.map fun best => { best.alt with k := best.k - k }
-    let c : LeCnstr := { p := entry.lin.addConst k, h := .orHull e alts }
+  let fold := Formula.foldRelevantM isArithAtom ({} : Bounds) (·.ordered.isEmpty)
+    (fun e => liftM (atomEntries gen e)) andBounds orBounds e (admitConjunct := admitConjunct)
+  let summary ← fold.run.run' {}
+  if (← inconsistent) then return ()
+  for (_, b) in summary.root.ordered do
+    let support := fun sub => do
+      let (_, a) ← (← summary.find? sub).find? b.lin
+      guard (b.k ≤ a.k)
+      return a.atom
+    let c : LeCnstr := { p := b.lin.addConst b.k, h := .orHull e support }
     c.assert
     if (← inconsistent) then return ()
 

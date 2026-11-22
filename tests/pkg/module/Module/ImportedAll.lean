@@ -166,3 +166,20 @@ error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is
 attribute [local grind] func in
 theorem stmt1 : func ctx op = ctx := by
   grind
+
+
+/-!
+A realization triggered only from a proof in the imported module is part of its private scope only,
+so it is accessible in private scopes through `import all` but not in public ones.
+-/
+
+example : f_proof_realized 0 = 0 := by rw [f_proof_realized.eq_1]
+
+/--
+error: Unknown identifier `f_proof_realized.eq_1`
+
+Note: A declaration `f_proof_realized.eq_1` exists in the private scope of `Module.Basic`, which is accessible here through `import all`, but `Module.Basic` does not export it, so it cannot be accessed in a public scope.
+-/
+#guard_msgs in
+public theorem f_proof_realized_pub (h : f_proof_realized 0 = 0 := f_proof_realized.eq_1) : True :=
+  trivial

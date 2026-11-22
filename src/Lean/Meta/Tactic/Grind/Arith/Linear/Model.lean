@@ -30,14 +30,14 @@ private def toQ? (e : Expr) : Option Expr :=
   | _ => none
 
 /--
-Helper function for evaluating terms that have been processed by `internalize`, but
-we did not added them to constraints. See comment at `assignTerms`.
+Evaluates a linear term built from `+`, `-`, numeral products, and scalar multiplications, using
+`val?` for its atoms.
 -/
-private partial def evalTermAt? (e : Expr) (s : Struct) (model : Std.HashMap Expr Rat) : MetaM (Option Rat) := do
+private partial def evalTermWith? (e : Expr) (s : Struct) (val? : Expr → Option Rat) : MetaM (Option Rat) := do
   go e
 where
   go (e : Expr) : OptionT MetaM Rat := do
-    if let some val := model.get? e then
+    if let some val := val? e then
       return val
     match_expr e with
     | Neg.neg _ i a => if isNegInst s i then return - (← go a) else failure
@@ -56,6 +56,17 @@ where
     | Zero.zero _ i => if isZeroInst s i then return 0 else failure
     | OfNat.ofNat _ n _ => let k ← getNatValue? n; return k
     | _ => failure
+
+/--
+Helper function for evaluating terms that have been processed by `internalize`, but
+we did not added them to constraints. See comment at `assignTerms`.
+-/
+private def evalTermAt? (e : Expr) (s : Struct) (model : Std.HashMap Expr Rat) : MetaM (Option Rat) :=
+  evalTermWith? e s model.get?
+
+/-- Evaluates `e` using the current assignment of the linarith variables. -/
+def evalTerm? (s : Struct) (e : Expr) : MetaM (Option Rat) :=
+  evalTermWith? e s (getAssignment? s)
 
 /--
 Assigns terms that do not have an assignment associated with them because they were used only as markers

@@ -188,4 +188,11 @@ where finally
   exact .inl <| lt_of_eq_of_lt (add_eq.trans (Nat.mod_eq_sub_mod h₁) |>.trans
     (Nat.mod_eq_of_lt (Nat.lt_trans h₂ (by decide)))) h₂
 
+/--
+Auxiliary theorem for proving that two `Char` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem ne_of_toNat_beq_eq_false {a b : Char} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg Char.toNat h')
+
 end Char

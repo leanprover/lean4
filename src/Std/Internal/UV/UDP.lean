@@ -36,8 +36,8 @@ Creates a new UDP socket.
 opaque new : IO Socket
 
 /--
-Binds an UDP socket to a specific address. Address reuse is enabled to allow rebinding the
-same address.
+Binds an UDP socket to a specific address. Address reuse is enabled for an explicit port, so
+several sockets can bind the same address. Port 0 binds a port that no other socket holds.
 -/
 @[extern "lean_uv_udp_bind"]
 opaque bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit

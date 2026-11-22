@@ -1382,6 +1382,7 @@ _start:
 {
 uint8_t v_res_21_; lean_object* v_r_22_; 
 v_res_21_ = lean_is_scalar(v_x_20_);
+lean_dec(v_x_20_);
 v_r_22_ = lean_box(v_res_21_);
 return v_r_22_;
 }

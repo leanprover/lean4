@@ -422,6 +422,7 @@ h_7 : idx + 8 ≤ len
 -/
 #guard_msgs in
 set_option grind.ematch.diagnostics true in
+set_option maxTraceChildren 0 in
 example (h1 : idx < len) :
     -- Actually false, but this is a slow failure
     lookup heap (slot s idx) < lookup heap (next (slot s idx)) := by

@@ -291,6 +291,13 @@ structure Context where
   /-- Ids of the solver extensions that `config` enables, see `SolverExtension.enabled`. -/
   activeSolvers : Array Nat
   /--
+  `true` if `config.filterFacts` is set and all active solvers implement a relevance check.
+  See `SolverExtension.isRelevantAtom?`.
+  -/
+  filterFacts : Bool := false
+  /-- Symbols of the active E-matching theorems. Facts containing them are relevant. -/
+  relevantSymbols : NameSet := {}
+  /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
   are considered.
   -/
@@ -1222,6 +1229,30 @@ structure Injective.State where
   fns  : PHashMap ExprPtr InjectiveInfo := {}
   deriving Inhabited
 
+namespace Relevance
+
+/--
+A fact skipped by the relevance filter (see `Grind.Config.filterFacts`). It is asserted as soon as
+one of its `keys` becomes a key of a relevant fact.
+-/
+structure SkippedFact where
+  proof      : Expr
+  prop       : Expr
+  generation : Nat
+  /-- Atoms of the propositional skeleton of `prop`. -/
+  atoms      : Array Expr
+  /-- The atoms without loose bound variables, and the free variables that are sides of equalities. -/
+  keys       : Array Expr
+  deriving Inhabited
+
+structure State where
+  /-- Atoms of the relevant facts and the free variables occurring in them. -/
+  keys    : PHashSet Expr := {}
+  skipped : List SkippedFact := []
+  deriving Inhabited
+
+end Relevance
+
 /--
 The `grind` state for a goal, excluding the metavariable.
 
@@ -1291,6 +1322,8 @@ structure GoalState where
   -/
   introBase    : UInt64 := 0
   numIntros    : Nat := 0
+  /-- State of the relevance filter, see `Grind.Config.filterFacts`. -/
+  relevance    : Relevance.State := {}
   deriving Inhabited
 
 /--
@@ -2445,6 +2478,12 @@ structure SolverExtension (σ : Type) where private mk ::
   action      : Action
   check       : GoalM Bool -- **TODO**: Consider deleting `check` in the future.
   checkInv    : GoalM Unit
+  /--
+  Returns `true` if the solver processes the given atomic proposition (e.g., `a ≤ b`), which has
+  not been normalized yet. `none` if the solver does not implement the check; then `filterFacts`
+  is disabled whenever the solver is enabled. See `Grind.Config.filterFacts`.
+  -/
+  isRelevantAtom? : Option (Expr → GoalM Bool)
   deriving Inhabited
 
 private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
@@ -2469,6 +2508,7 @@ def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtensio
     check := fun _ _ => return false
     checkInv := fun _ _ => return ()
     mbtc := fun _ _ => return false
+    isRelevantAtom? := none
   }
   solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   return ext
@@ -2487,19 +2527,25 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
     (action      : Action := Action.notApplicable)
     (check       : GoalM Bool := return false)
     (checkInv    : GoalM Unit := return ())
+    (isRelevantAtom? : Option (Expr → GoalM Bool) := none)
     : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    enabled, internalize, newEq, newDiseq, mbtc, action, check, checkInv
+    enabled, internalize, newEq, newDiseq, mbtc, action, check, checkInv, isRelevantAtom?
   }
 
 /-- Returns initial state for registered solvers. -/
 def Solvers.mkInitialStates : IO (Array SolverExtensionState) := do
   let exts ← solverExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
+
+/-- Returns `true` if all solver extensions in `ids` implement `isRelevantAtom?`. -/
+def Solvers.haveRelevanceChecks (ids : Array Nat) : IO Bool := do
+  let exts ← solverExtensionsRef.get
+  return ids.all fun id => exts[id]!.isRelevantAtom?.isSome
 
 /-- Returns the ids of the solver extensions that `config` enables. -/
 def Solvers.activeIds (config : Grind.Config) : IO (Array Nat) := do
@@ -2530,6 +2576,17 @@ def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let exts ← solverExtensionsRef.get
   for id in (← readThe Context).activeSolvers do
     exts[id]!.internalize e parent?
+
+/--
+Returns `true` if an active solver processes the atomic proposition `e`.
+See `SolverExtension.isRelevantAtom?`.
+-/
+def Solvers.isRelevantAtom (e : Expr) : GoalM Bool := do
+  let exts ← solverExtensionsRef.get
+  for id in (← readThe Context).activeSolvers do
+    if let some check := exts[id]!.isRelevantAtom? then
+      if (← check e) then return true
+  return false
 
 /-- Checks invariants of all active solvers. -/
 def Solvers.checkInvariants : GoalM Unit := do

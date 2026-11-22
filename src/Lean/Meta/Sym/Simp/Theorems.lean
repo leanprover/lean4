@@ -13,8 +13,8 @@ import Lean.Meta.Tactic.Simp.SimpTheorems -- for `ignoreEquations`
 import Lean.Meta.Eqns -- for `getEqnsFor?`
 import Lean.Meta.RecExt -- for `isRecursiveDefinition`
 import Lean.ExtraModUses
+import Lean.Util.CollectLooseBVars
 import Init.Omega
-import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -179,22 +179,6 @@ where
       mkLambdaFVars xs (← wrap h)
 
 /--
-Computes the bitmask of the pattern variables occurring in `rhs`.
-Pattern variable `i` corresponds to the loose bound variable `numVars - 1 - i` in `rhs`.
-See `Theorem.rewrite`.
--/
-private def mkRhsVarMask (numVars : Nat) (rhs : Expr) : Nat := Id.run do
-  let mut mask := 0
-  for i in *...numVars do
-    /-
-    **Note**: We are potentially scanning the `rhs` multiple times. We assume this is ok here
-    because the `rhs` is usually small, and we cache the loose bvar range in `Expr`.
-    -/
-    if rhs.hasLooseBVar (numVars - 1 - i) then
-      mask := mask ||| (1 <<< i)
-  return mask
-
-/--
 Throws an error if `type` is not a proposition. `declName?` is the name of the candidate
 theorem, if it is a global declaration.
 -/
@@ -212,7 +196,7 @@ def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern (mkConst declName) adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
+  let rhsVarMask := rhs.looseBVarMask pattern.varTypes.size
   return { expr, pattern, rhs, perm, rhsVarMask }
 
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
@@ -221,7 +205,7 @@ def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
   let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern e adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
+  let rhsVarMask := rhs.looseBVarMask pattern.varTypes.size
   return { expr, pattern, rhs, perm, rhsVarMask }
 
 /-- The names of the theorems contributed by a declaration used as a `Sym.simp` theorem. -/

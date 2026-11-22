@@ -63,6 +63,14 @@ structure Config where
   if the implication is true. Otherwise, it will split only if `p` is an arithmetic predicate.
   -/
   splitImp : Bool := false
+  /--
+  If `filterFacts` is `true`, `grind` skips facts (hypotheses and the target) that are irrelevant to
+  all enabled solvers, without normalizing or internalizing them. A fact is relevant if it contains
+  a relation over a type supported by an enabled solver, a `Bool` equality, a symbol occurring in an
+  active E-matching theorem, or a propositional atom shared with another relevant fact.
+  Filtering is disabled if an enabled solver does not implement a relevance check.
+  -/
+  filterFacts : Bool := false
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems that have been marked with `[grind ext]`. -/
@@ -333,6 +341,8 @@ Lemmas tagged with the `@[lia]` attribute are instantiated via E-matching when r
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
+  filterFacts := true
+  splitMatch := false
   -- Allow the default number of branches.
   branches := ({} : Config).branches
   -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
@@ -348,6 +358,7 @@ A `grind` configuration that only uses `linarith`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure LinarithConfig extends NoopConfig where
   linarith := true
+  filterFacts := true
   -- Allow the default number of branches.
   branches := ({} : Config).branches
 
@@ -357,6 +368,7 @@ A `grind` configuration that only uses `order`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure OrderConfig extends NoopConfig where
   order := true
+  filterFacts := true
   -- Allow the default number of branches.
   branches := ({} : Config).branches
 
@@ -366,5 +378,6 @@ A `grind` configuration that only uses `ring`.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure GrobnerConfig extends NoopConfig where
   ring := true
+  filterFacts := true
 
 end Lean.Grind

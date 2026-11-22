@@ -78,7 +78,7 @@ public def tryElabForwardApp? (e : Term) (dec : DoElemCont) : DoElabM (Option Ex
     let probeExpr ← Term.elabTerm (← `($headApp $forwardedStx)) none
     pure (forwarded, probeExpr)
   validateForwarder headApp forwarded probeExpr
-  let bodyInfo ← InferControlInfo.ofSeq arg.body
+  let bodyInfo ← inferControlInfoSeq arg.body (← read).controlInfoCache
   let forwarder ← EffectForwarder.ofCont bodyInfo dec
   let liftedBody ← controlAtTermElabM fun runInBase => do
     -- The binders take their types from the wrapper's body slot.

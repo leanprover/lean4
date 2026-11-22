@@ -30,6 +30,19 @@ inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
   -/
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
+/-- Non-dependent `Acc.rec`. For motives that are not propositions, use `Acc.ndrec'`. -/
+theorem Acc.ndrec {α : Sort u} {r : α → α → Prop} {C : α → Prop}
+    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
+    {a : α} (n : Acc r a) : C a :=
+  n.rec m
+
+/-- Non-dependent `Acc.recOn`. For motives that are not propositions, use `Acc.ndrecOn'`. -/
+theorem Acc.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → Prop}
+    {a : α} (n : Acc r a)
+    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
+    : C a :=
+  n.rec m
+
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
@@ -182,14 +195,11 @@ variable {α : Sort u} {r : α → α → Prop}
 /--
 A replacement for `Acc.rec` at motives that are not propositions.
 
-`Acc.rec'` has the same signature as `Acc.rec` — any motive in `Sort v`, including one that
-mentions the accessibility proof — but obtains its result from `Classical.choice` rather than by
-recursion, and is `@[irreducible]`. Compiled code is unaffected: the `@[csimp]` lemma
-`Acc.rec'_eq_recC` rewrites it to a directly recursive implementation.
-
-It is intended for use ahead of a planned change that restricts `Acc.rec` to `Prop` motives, so
-that the kernel never has to reduce a proof. Code that eliminates an accessibility proof into data
-can move to `Acc.rec'` today and keep working across that change.
+`Acc.rec` only eliminates into `Prop`, so that the kernel never has to reduce a proof.
+`Acc.rec'` has the signature `Acc.rec` would have with large elimination — any motive in
+`Sort v`, including one that mentions the accessibility proof — but obtains its result from
+`Classical.choice` rather than by recursion, and is `@[irreducible]`. Compiled code is unaffected:
+the `@[csimp]` lemma `Acc.rec'_eq_recC` rewrites it to a directly recursive implementation.
 
 What such a move costs is the iota rule: `Acc.rec' intro (Acc.intro x h)` is only propositionally
 equal to `intro x h …`, via `Acc.rec'_intro`. To port code that uses `Acc.rec` at a non-`Prop`
@@ -254,13 +264,13 @@ theorem rec'_eq {motive : (a : α) → Acc r a → Sort v}
   rec' intro t
 
 /-- `Acc.ndrec` at motives that are not propositions. See `Acc.rec'`. -/
-@[reducible] noncomputable def ndrec.{v', u'} {α : Sort u'} {r : α → α → Prop} {C : α → Sort v'}
+@[reducible] noncomputable def ndrec'.{v', u'} {α : Sort u'} {r : α → α → Prop} {C : α → Sort v'}
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x)
     {a : α} (n : Acc r a) : C a :=
   rec' m n
 
 /-- `Acc.ndrecOn` at motives that are not propositions. See `Acc.rec'`. -/
-@[reducible] noncomputable def ndrecOn.{v', u'} {α : Sort u'} {r : α → α → Prop}
+@[reducible] noncomputable def ndrecOn'.{v', u'} {α : Sort u'} {r : α → α → Prop}
     {C : α → Sort v'} {a : α} (n : Acc r a)
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x) : C a :=
   rec' m n

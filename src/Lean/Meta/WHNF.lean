@@ -226,10 +226,6 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Ex
     | _ => return major
 
 
--- Helper predicate that returns `true` for inductive predicates used to define functions by well-founded recursion.
-private def isWFRec (declName : Name) : Bool :=
-  declName == ``Acc.rec || declName == ``WellFounded.rec
-
 /--
 Helper method for `reduceRec`.
 We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
@@ -252,26 +248,21 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
     | .true => pure true
     | .false => pure false
     | .undef =>
-      let indInfo ← getConstVal recVal.getMajorInduct
-      /- If the type doesn't have large elimination, it must be a proof.
+      /- If the type is impredicative, the major must be a proof.
          TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
-      if indInfo.levelParams.length = recLvls.length then
+      let nonNestedInductName := recVal.all.head!
+      let nonNestedInduct ← getConstVal nonNestedInductName
+      if nonNestedInduct.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
-      isPropFormerType (← instantiateTypeLevelParams indInfo lvls)
+      isPropFormerType (← instantiateTypeLevelParams nonNestedInduct lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
-      -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
-      -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
-      -- We use this trick because we abstract nested proofs occurring in definitions.
-      -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
-      withTransparency .all <| whnf major
-    else if !(← isMajorProof recVal recLvls major) then
+    let mut major ← if !(← isMajorProof recVal recLvls major) then
       whnf major
     else
       pure major

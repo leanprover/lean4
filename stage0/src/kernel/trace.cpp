@@ -20,7 +20,7 @@ void register_trace_class(name const & n, name const & decl_name) {
                     "(trace) enable/disable tracing for the given module and submodules");
 }
 
-extern "C" bool lean_is_trace_class_enabled(obj_arg opts, obj_arg cls);
+extern "C" uint8_t lean_is_trace_class_enabled(obj_arg opts, obj_arg cls);
 bool is_trace_class_enabled(name const & n) {
     return lean_is_trace_class_enabled(g_opts->to_obj_arg(), n.to_obj_arg());
 }

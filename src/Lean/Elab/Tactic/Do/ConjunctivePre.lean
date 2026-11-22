@@ -44,7 +44,8 @@ conjunctive, because `(f ⊓ g) a = f a ⊓ g a`. For example:
     bind      ↦  wp x (fun a => wp (f a) Q E) E
     tryCatch  ↦  wp x Q (fun e => wp (h e) Q E, E.snd)
 
-The `wp` arm assumes that the `wp` of the sub-program is conjunctive (`WPConjunctive`).
+The `wp` arm assumes that the sub-program `x` has a conjunctive transformer
+(`(WP.trans x).IsConjunctive`).
 
 `conjunctiveArgs?` is a fixed table. An attribute on lemmas such as
 `ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` could extend it to user-defined heads,

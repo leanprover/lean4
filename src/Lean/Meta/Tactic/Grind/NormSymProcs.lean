@@ -48,8 +48,12 @@ def eraseMData : Simproc := fun e => do
 /--
 Eta-reduces the lambda arguments of an application before they are visited. Rewriting a body
 first would hide the redex: `fun x => Nat.succ x` would become `fun x => x + 1` and no longer be
-the `Nat.succ` found elsewhere in the goal. `grind` eta-reduces the terms it internalizes anyway
-(`Sym.Canon`). The body of a binder notation (`∃ y, q y`, `{x // p x}`) keeps its binder.
+the `Nat.succ` found elsewhere in the goal. The body of a binder notation (`∃ y, q y`,
+`{x // p x}`) keeps its binder.
+
+Only a lambda that eta-reduces to a constant or a free variable is reduced. `grind` propagates
+`f a = b[x := a]` for `f = fun x => b` only when the class of `f` contains a lambda (`Grind.Beta`),
+so `fun x y => x + y` must not become the partial application `HAdd.hAdd`.
 -/
 def etaReduce : Simproc := fun e => do
   unless e.isApp do return .rfl
@@ -59,11 +63,14 @@ def etaReduce : Simproc := fun e => do
   let e' ← go e
   return .step e' (← Sym.mkEqRefl e')
 where
+  reduceArg (a : Expr) : Expr :=
+    let a' := Sym.etaReduce a
+    if a'.isConst || a'.isFVar then a' else a
   hasEtaReducibleArg : Expr → Bool
-    | .app f a => Sym.isEtaReducible a || hasEtaReducibleArg f
+    | .app f a => !isSameExpr a (reduceArg a) || hasEtaReducibleArg f
     | _ => false
   go : Expr → SimpM Expr
-    | .app f a => do mkAppS (← go f) (Sym.etaReduce a)
+    | .app f a => do mkAppS (← go f) (reduceArg a)
     | f => pure f
 
 /--
@@ -207,13 +214,17 @@ def reduceCtorEq : Simproc := fun e => do
     withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))
   return .step (← getFalseExpr) h (done := true)
 
-private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
+private def isForallOrNot (e : Expr) : Bool :=
+  e.isForall || e.isAppOfArity ``Not 1
+
+/-- `∀ n : d, b` for `e := ∀ n : d, b` and `∀ a : p, False` for `e := ¬p`, with maximally shared components. -/
+private def forallOrNot? (e : Expr) : Sym.SymM (Option (Name × Expr × Expr)) := do
   if let .forallE n d b _ := e then
-    some (n, d, b)
+    return some (n, d, b)
   else if e.isAppOfArity ``Not 1 then
-    some (`a, e.appArg!, mkConst ``False)
+    return some (`a, e.appArg!, ← getFalseExpr)
   else
-    none
+    return none
 
 /--
 `Grind.forall_or_forall` and `Grind.forall_forall_or` at `e := ∀ x, p ∨ ∀ b, q` or
@@ -224,7 +235,7 @@ private def forallOrCore? (e : Expr) : SimpM (Option (Expr × Expr)) := do
   let .forallE varName d b info := e | return none
   let_expr Or left right := b | return none
   let α := d
-  if let some (bName, βRaw, qRaw) := isForallOrNot? left then
+  if let some (bName, βRaw, qRaw) ← forallOrNot? left then
     let pRaw := right
     let p := mkLambda varName info α pRaw
     let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
@@ -234,7 +245,7 @@ private def forallOrCore? (e : Expr) : SimpM (Option (Expr × Expr)) := do
     let body ← mkOrS qRaw (← share (pRaw.liftLooseBVars 0 1))
     let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
     return some (e', mkApp4 (mkConst ``Grind.forall_forall_or [u, v]) α β p q)
-  else if let some (bName, βRaw, qRaw) := isForallOrNot? right then
+  else if let some (bName, βRaw, qRaw) ← forallOrNot? right then
     let pRaw := left
     let p := mkLambda varName info α pRaw
     let q := mkLambda varName info α (mkLambda bName .default βRaw qRaw)
@@ -254,7 +265,7 @@ applies, and the outer ones with a single congruence step.
 -/
 private partial def forallOr? (e : Expr) : SimpM (Option (Expr × Expr)) := do
   let_expr Or left right := e.getForallBody | return none
-  unless (isForallOrNot? left).isSome || (isForallOrNot? right).isSome do return none
+  unless isForallOrNot left || isForallOrNot right do return none
   go #[] e
 where
   go (xs : Array Expr) (e : Expr) : SimpM (Option (Expr × Expr)) := do

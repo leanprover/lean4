@@ -594,6 +594,8 @@ def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
     (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
     Grind.GrindM (Option (FrameGoal × List MVarId)) := do
+  let le ← share le
+  let W ← share W
   let fp ← share (← mkFreshExprMVar le.appFn!.appArg!)
   let rhs ← mkAppNS W excessStates
   let target ← share (← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs]))
@@ -728,6 +730,7 @@ The function performs the following steps in order:
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
 public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
+  checkSystem "vcgen"
   if ← outOfFuel then return .stop .outOfFuel
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"

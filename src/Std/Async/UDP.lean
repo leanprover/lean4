@@ -43,8 +43,8 @@ def mk : IO Socket := do
   return Socket.ofNative native
 
 /--
-Binds the UDP socket to the given address. Address reuse is enabled to allow rebinding the
-same address.
+Binds the UDP socket to the given address. Address reuse is enabled for an explicit port, so
+several sockets can bind the same address. Port 0 binds a port that no other socket holds.
 -/
 @[inline]
 def bind (s : Socket) (addr : SocketAddress) : IO Unit :=

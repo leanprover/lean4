@@ -14,14 +14,12 @@ def controlInfoTestElem : ControlInfoHandler := fun _stx => do
 set_option backward.do.legacy false
 
 /--
-error: Bug in a `do` elaborator. Failed to assign join point RHS
+error: Bug in a `do` elaborator. The free variable `bad_fvar` is not in scope in
   fun __r => bad_fvar
-to metavariable
-⊢ Unit → IO Unit
 -/
 #guard_msgs in
 def testFn : IO Unit := do
   if true then pure () else pure () -- uses `withDuplicableCont`
-  test -- produces a term that `checkedAssign` will reject
+  test -- produces a term with a free variable that is not in scope
 
 set_option pp.mvars false

@@ -77,7 +77,7 @@ public def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
 public def tryContradiction (mvarId : MVarId) : MetaM Bool := do
-  mvarId.contradictionCore { genDiseq := true }
+  mvarId.contradictionCore { useDecide := false, genDiseq := true }
 
 partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfR e

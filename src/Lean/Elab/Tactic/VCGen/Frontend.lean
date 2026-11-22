@@ -158,18 +158,18 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let ctx : Context := { backwardRules, rintros := ← getRIntros }
   return (ctx, { specs := allSpecThms })
 
-/-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad
+/-- True iff `m` carries a `MonadicWP m _ _` instance, i.e. it is a genuine weakest-precondition monad
 rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPosts` `outParam`s are left
 as metavariables for instance search to fill; instance search runs at default transparency, while the
 caller reduces types at reducible transparency. -/
-def isWPMonad (m : Expr) : MetaM Bool := withDefault do
-  try return (← synthInstanceOpt? ``Std.WP.WPMonad #[some m]).isSome
+def isMonadicWP (m : Expr) : MetaM Bool := withDefault do
+  try return (← synthInstanceOpt? ``Std.WP.MonadicWP #[some m]).isSome
   catch _ => return false
 
 /-- Infer the program type of a `vcgen` goal, the key for frame-procedure selection and the expected
 type for elaborating `frames`/`until` patterns. Peels leading binders, then reads the program type
 from a bare `wp …` target, a `pre ⊑ wp …` entailment, or a `Triple`. When the program type is `m α`
-with `m` a `WPMonad`, the monad `m` is returned (frameprocs are keyed by monad); otherwise the whole
+with `m` a `MonadicWP` monad, the monad `m` is returned (frameprocs are keyed by monad); otherwise the whole
 program type is returned, so deep embeddings key on their own head. Returns `none` when the goal
 exposes no program. -/
 public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducible do
@@ -186,7 +186,7 @@ public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducib
     let some progTy := progTy? | return none
     let progTy ← whnf progTy
     if progTy.isApp then
-      if ← isWPMonad progTy.appFn! then
+      if ← isMonadicWP progTy.appFn! then
         return some progTy.appFn!
     return some progTy
 
@@ -283,27 +283,6 @@ def parseInvariantMap (stx : Syntax) :
       | _ => throwErrorAt alt "Expected `invariantDotAlt` or `invariantCaseAlt`."
     return some map
   | _ => return none
-
-/--
-Run after VC generation: iterate the (unfiltered) `invariants` array returned by
-`run`, look up each entry in the pre-parsed `alts` map by its 1-based
-position (which equals the `inv<n>` tag the entry carries — `run` assigns
-tags consecutively), and elaborate the matching alt. Invariants that were already
-elaborated inline by `Driver.emitVC` (tracked in `inlineHandled`) are skipped, so
-we don't warn about alts that were already consumed there. -/
-def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
-    (invariants : Array MVarId) (inlineHandled : Std.HashSet Nat) : SymM Unit := do
-  let mut handled := inlineHandled
-  for h : i in 0...invariants.size do
-    let n := i + 1
-    if handled.contains n then continue
-    let some alt := alts[n]? | continue
-    handled := handled.insert n
-    discard <| elabInvariant alts n invariants[i]
-  -- Warn on user-provided alts that matched no invariant goal (neither inline nor post-hoc).
-  for (n, alt) in alts.toArray do
-    unless handled.contains n do
-      logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
 
 /-- Parsed `vcgen` arguments shared by the two entry points. -/
 structure ParsedArgs where
@@ -443,19 +422,25 @@ def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.with
     debug := config.debug,
     internalize := config.internalize,
     invariantAlts := invariantAlts?.getD {},
+    -- The `invariants` alternatives take no part in incremental elaboration.
+    termCtx := { ← readThe Term.Context with tacSnap? := none },
+    levelNames := ← Term.getLevelNames,
     untilPat? }
   return { config, ctx, scope, invariantAlts?, frameDB }
 
 /-- `vcgen` step inside `sym => …` blocks. -/
 @[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
-def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
+def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx =>
+  -- The `vcgen` keyword shows the goal before and the goals after VC generation, so the goals after
+  -- remain visible when a `with` clause discharges them.
+  Lean.Elab.Tactic.Grind.withTacticInfoContext stx[0] do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
-  let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
-    if let some alts := args.invariantAlts? then
-      elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
-    return result
+  let result ← Lean.Elab.Tactic.Grind.liftGrindM <|
+    run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
+  for (n, alt) in args.ctx.invariantAlts do
+    if n > result.invariants.size then
+      logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
   if let some frameStx := result.unmatchedFrames[0]? then
     throwErrorAt frameStx "`frames` alternative matched no program in the goal"
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)

@@ -787,7 +787,7 @@ LEAN_THREAD_PTR(std::vector<object *>, g_discard_drops);
 
 // Set on the threads the task manager starts, which `shutdown` waits for.
 LEAN_THREAD_VALUE(bool, g_task_manager_thread, false);
-// Set on the thread running `shutdown`, which can run finalizers when it discards what is still queued.
+// Set on the thread running `shutdown` or `restart`, which can run finalizers when it discards or releases.
 LEAN_THREAD_VALUE(bool, g_in_shutdown, false);
 
 struct scoped_current_task_object : flet<lean_task_object *> {
@@ -1191,22 +1191,32 @@ public:
         g_in_shutdown = false;
     }
 
-    // Makes a dormant manager run tasks again, as a new one would.
+    // Makes a dormant manager run tasks again, as a new one would, with a new event loop.
     void restart(unsigned max_std_workers) {
-        if (!m_shutting_down)
-            return;
         if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
-            // It would wait for a `shutdown` that waits for the calling thread.
-            lean_internal_panic("the task manager cannot be restarted from a task or from a thread it started");
+            // It would wait for a `shutdown` that waits for the calling thread, or for itself.
+            if (m_shutting_down || g_in_shutdown)
+                lean_internal_panic("the task manager cannot be restarted from a task or from a thread it started");
+            return;
         }
         unique_lock<mutex> lifecycle(m_lifecycle_mutex);
         unique_lock<mutex> lock(m_mutex);
         if (!m_workers_exit)
             return;
         lean_assert(m_queues_size == 0 && m_idle_std_workers == 0);
+        g_in_shutdown = true;
+        lock.unlock();
+        // While still dormant, so that the continuations of the libuv promises `shutdown` kept are discarded.
+        release_libuv_promises();
+        lock.lock();
         m_max_std_workers = max_std_workers;
         m_workers_exit = false;
         m_shutting_down = false;
+        lock.unlock();
+        // `shutdown` tore the event loop down. Until here, libuv calls fail instead of starting work whose
+        // continuations a dormant manager would discard.
+        restart_libuv();
+        g_in_shutdown = false;
     }
 
     bool dormant() const {
@@ -1383,12 +1393,7 @@ extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     if (num_workers == 0)
         return;
     if (g_task_manager) {
-        // Before `restart`, so that the manager discards the continuations of the libuv promises `shutdown` kept.
-        release_libuv_promises();
         g_task_manager->restart(num_workers);
-        // `shutdown` tore the event loop down. Until here, libuv calls fail instead of starting work whose
-        // continuations a dormant manager would discard.
-        restart_libuv();
     } else {
         g_task_manager = new task_manager(num_workers);
     }

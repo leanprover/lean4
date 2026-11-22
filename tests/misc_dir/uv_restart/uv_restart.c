@@ -12,7 +12,8 @@ re-initializes the task manager sees it.
 * A pending promise that only the event loop references stays pending through the teardown and is
   released when the task manager restarts, which resolves its result with `none` and discards its
   continuations. So a task of the new cycle that waits on it does not keep the next finalization
-  waiting.
+  waiting. This also holds when the restart waits for a finalization in progress on another thread.
+* Concurrent restarts start one event loop.
 * Finalizing does not wait for threads the task manager does not own to stop calling into libuv: the
   loop thread gives way to such threads, so while several of them keep taking the loop lock it would
   never see that the loop stopped.
@@ -167,6 +168,94 @@ static void check_task_waiting_on_kept_promise(void) {
     lean_init_task_manager_using(2);
 }
 
+static _Atomic int g_finalizing = 0;
+
+static lean_object * hold_finalization(lean_object * unit) {
+    (void)unit;
+    while (!lean_io_check_canceled_core())
+        usleep(1000);
+    g_finalizing = 1;
+    usleep(200000);
+    return lean_box(0);
+}
+
+static void * finalize_on_thread(void * arg) {
+    (void)arg;
+    lean_initialize_thread();
+    lean_finalize_task_manager();
+    lean_finalize_thread();
+    return 0;
+}
+
+/* Expects the task manager to be running, and leaves it running. */
+static void check_restart_during_finalization(void) {
+    lean_object * result = pending_timer_result();
+    if (result == NULL)
+        return;
+    int runs = g_continuation_runs;
+    lean_inc(result);
+    lean_object * continuation = lean_task_map_core(lean_alloc_closure((void *)count_run, 1, 0), result, 0, 1, 0);
+    /* Priority 9 is a dedicated thread, which the finalization waits for. */
+    lean_object * holder = lean_task_spawn_core(lean_alloc_closure((void *)hold_finalization, 1, 0), 9, 0);
+
+    thread_handle finalizer;
+    if (pthread_create(&finalizer, 0, finalize_on_thread, 0) != 0) {
+        printf("pthread_create failed\n");
+        g_failures++;
+        lean_finalize_task_manager();
+    } else {
+        while (!g_finalizing)
+            usleep(1000);
+        lean_init_task_manager_using(2);
+        pthread_join(finalizer, 0);
+    }
+    lean_init_task_manager_using(2);
+
+    CHECK(lean_io_get_task_state_core(result) == LEAN_TASK_STATE_FINISHED);
+    CHECK(g_continuation_runs == runs);
+    CHECK(timer_fires());
+    lean_dec(holder);
+    lean_dec(continuation);
+    lean_dec(result);
+}
+
+static _Atomic int g_start_restarting = 0;
+
+static void * restart_on_thread(void * arg) {
+    (void)arg;
+    lean_initialize_thread();
+    while (!g_start_restarting) {}
+    lean_init_task_manager_using(2);
+    lean_finalize_thread();
+    return 0;
+}
+
+/* Expects the task manager to be running, and leaves it running. */
+static void check_concurrent_restarts(void) {
+    enum { num_threads = 4, num_cycles = 100 };
+    fflush(0);
+    alarm(120);
+    for (int cycle = 0; cycle < num_cycles; cycle++) {
+        lean_finalize_task_manager();
+        g_start_restarting = 0;
+        thread_handle threads[num_threads];
+        int started = 0;
+        for (; started < num_threads; started++) {
+            if (pthread_create(&threads[started], 0, restart_on_thread, 0) != 0) {
+                printf("pthread_create failed\n");
+                g_failures++;
+                break;
+            }
+        }
+        g_start_restarting = 1;
+        for (int i = 0; i < started; i++)
+            pthread_join(threads[i], 0);
+        lean_init_task_manager_using(2);
+    }
+    alarm(0);
+    CHECK(timer_fires());
+}
+
 static volatile int g_stop_calling = 0;
 
 static void * call_into_libuv(void * arg) {
@@ -250,6 +339,8 @@ int main(void) {
     CHECK(timer_fires());
     check_pending_promise_released_at_restart();
     check_task_waiting_on_kept_promise();
+    check_restart_during_finalization();
+    check_concurrent_restarts();
     check_finalize_while_threads_call_into_libuv();
     CHECK(timer_fires());
     lean_finalize_task_manager();

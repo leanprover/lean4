@@ -256,7 +256,7 @@ static void check_concurrent_restarts(void) {
     CHECK(timer_fires());
 }
 
-static volatile int g_stop_calling = 0;
+static _Atomic int g_stop_calling = 0;
 
 static void * call_into_libuv(void * arg) {
     (void)arg;

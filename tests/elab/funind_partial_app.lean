@@ -70,3 +70,26 @@ info: baz.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 
 -/
 #guard_msgs in
 #check baz.induct
+
+-- The recursive call can be a prefix of an application, if the function returns a function
+def ret : Nat → Nat → Nat
+  | 0 => id
+  | n+1 => fun m => ret n (m+1)
+termination_by structural n => n
+
+/--
+info: ret.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ) (a✝ : Nat) :
+  motive a✝
+-/
+#guard_msgs in
+#check ret.induct
+
+-- An over-applied `match` that refines the induction hypothesis
+def overApplied (n : Nat) (acc : Nat) : Nat :=
+  (match n with
+   | 0 => fun m => m
+   | k+1 => fun m => overApplied k m + 1) acc
+termination_by structural n
+
+#guard_msgs (drop info) in
+#check overApplied.induct

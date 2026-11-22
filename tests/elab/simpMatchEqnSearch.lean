@@ -91,8 +91,7 @@ example (x : String) (h₁ : x = "a" → False) (h₂ : x = "b" → False) :
   simp only
 
 example : (match "zzz" with | "a" => 1 | "b" => 2 | _ => 3) = 3 := by
-  fail_if_success simp only
-  rfl
+  simp only
 
 /-! Values of other types, and values that are not in normal form. -/
 

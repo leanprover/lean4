@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Injection
+import Lean.Meta.StringLitProof
 import Init.Data.Nat.Internal.Linear
 
 public section
@@ -41,6 +42,7 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
      - Normalize `a` and `b` using the current reducibility setting.
      - If `a` (`b`) is a free variable not occurring in `b` (`a`), replace it everywhere.
      - If `a` and `b` are distinct constructors, return `none` to indicate that the goal has been closed.
+     - If `a` and `b` are distinct `String` literals, return `none` to indicate that the goal has been closed.
      - If `a` and `b` are the same constructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
      - It also tries to apply the given `acyclic` method to try to close the goal.
        Remark: It is a parameter because `simp` uses `unifyEq?`, and `acyclic` depends on `simp`.
@@ -103,6 +105,12 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
         let rec injection (a b : Expr) := do
           if let some mvarId ← injectionOffset? a b then
             return some { mvarId, numNewEqs := 1, subst }
+          if let .lit (.strVal s₁) := a then
+            if let .lit (.strVal s₂) := b then
+              /- `"s₁" = "s₂"`. The literals are different, since `a` and `b` are not definitionally equal. -/
+              let hne ← mkStringLitNeProof s₁ s₂
+              mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar eqFVarId) hne)
+              return none -- this alternative has been solved
           if (← isConstructorApp a <&&> isConstructorApp b) then
             /- ctor_i ... = ctor_j ... -/
             match (← injectionCore mvarId eqFVarId) with

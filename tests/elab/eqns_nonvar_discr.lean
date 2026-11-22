@@ -203,3 +203,99 @@ theorem recSome.eq_3 : ∀ (n : Nat) (s : String), (∀ (k : Nat), some n = some
 -/
 #guard_msgs in
 #print equations recSome
+
+/-!
+A `String` literal nested in a constructor application. The hypothesis `discr = pattern` is
+decomposed into equalities between the fields, and the case is closed if two different literals
+are equated.
+-/
+
+def nestedLit (s : String) : Nat :=
+  match (1, "c"), s with
+  | (_, "b"), "x" => 1
+  | _, _ => 2
+
+/--
+info: equations:
+theorem nestedLit.eq_1 : ∀ (s_1 : String),
+  (∀ (fst : Nat), (1, "c") = (fst, "b") → s_1 = "x" → False) → nestedLit s_1 = 2
+-/
+#guard_msgs in
+#print equations nestedLit
+
+def nestedPairVar (n : Nat) (s : String) : Nat :=
+  match (n, "c"), s with
+  | (0, "c"), "x" => 1
+  | (k + 1, "c"), "x" => k
+  | (_, "b"), _ => 7
+  | _, _ => 2
+
+/--
+info: equations:
+theorem nestedPairVar.eq_1 : nestedPairVar 0 "x" = 1
+theorem nestedPairVar.eq_2 : ∀ (k : Nat), nestedPairVar k.succ "x" = k
+theorem nestedPairVar.eq_3 : ∀ (n : Nat) (s_1 : String),
+  (∀ (fst : Nat), (n, "c") = (fst, "b") → False) →
+    ((n, "c") = (0, "c") → s_1 = "x" → False) →
+      (∀ (k : Nat), (n, "c") = (k.succ, "c") → s_1 = "x" → False) → nestedPairVar n s_1 = 2
+-/
+#guard_msgs in
+#print equations nestedPairVar
+
+def nestedHave (n : Nat) (s : String) : Nat :=
+  have p := (n, "c")
+  match p, s with
+  | (a, "c"), "x" => a
+  | (_, "b"), _ => 7
+  | _, _ => 2
+
+/--
+info: equations:
+theorem nestedHave.eq_1 : ∀ (n : Nat), nestedHave n "x" = n
+theorem nestedHave.eq_2 : ∀ (n : Nat) (s_1 : String),
+  (∀ (fst : Nat), (n, "c") = (fst, "b") → False) →
+    (∀ (a : Nat), (n, "c") = (a, "c") → s_1 = "x" → False) → nestedHave n s_1 = 2
+-/
+#guard_msgs in
+#print equations nestedHave
+
+/-!
+The proof of the equation for the last alternative splits the `match` again, and the hypothesis
+`("a", "b") = ("z", snd)` of the third case is refuted in the same way.
+-/
+
+def nestedProof (s : String) : Nat :=
+  match ("a", "b"), s with
+  | ("a", "c"), _ => 1
+  | ("a", "b"), "x" => 2
+  | ("z", _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem nestedProof.eq_1 : nestedProof "x" = 2
+theorem nestedProof.eq_2 : ∀ (s_1 : String), (("a", "b") = ("a", "b") → s_1 = "x" → False) → nestedProof s_1 = 4
+-/
+#guard_msgs in
+#print equations nestedProof
+
+/-! A successor next to a literal. -/
+
+def nestedSucc (n : Nat) (s : String) : Nat :=
+  match (n + 1, "k"), s with
+  | (0, _), _ => 1
+  | (a + 1, "j"), _ => a
+  | (a + 1, "k"), "x" => a + 10
+  | _, _ => 4
+
+/--
+info: equations:
+theorem nestedSucc.eq_1 : ∀ (n : Nat) (s_1 snd : String), (n + 1, "k") = (0, snd) → nestedSucc n s_1 = 1
+theorem nestedSucc.eq_2 : ∀ (n : Nat), nestedSucc n "x" = n + 10
+theorem nestedSucc.eq_3 : ∀ (n : Nat) (s_1 : String),
+  (∀ (snd : String), (n + 1, "k") = (0, snd) → False) →
+    (∀ (a : Nat), (n + 1, "k") = (a.succ, "j") → False) →
+      (∀ (a : Nat), (n + 1, "k") = (a.succ, "k") → s_1 = "x" → False) → nestedSucc n s_1 = 4
+-/
+#guard_msgs in
+#print equations nestedSucc

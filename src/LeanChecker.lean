@@ -33,7 +33,12 @@ unsafe def replayFromImports (module : Name) : IO Unit := do
   let env ← finalizeImport s mod.imports {} 0 false false (isModule := true)
   let mut newConstants := {}
   -- Collect constants from last ("most private") part, which subsumes all prior ones
-  for name in parts[parts.size-1].1.constNames, ci in parts[parts.size-1].1.constants do
+  let lastPart := parts[parts.size-1].1
+  unless lastPart.constNames.size == lastPart.constants.size do
+    throw <| IO.userError s!"module {module} has {lastPart.constNames.size} constant names but {lastPart.constants.size} constants"
+  for name in lastPart.constNames, ci in lastPart.constants do
+    if newConstants.contains name then
+      throw <| IO.userError s!"module {module} declares '{name}' more than once"
     newConstants := newConstants.insert name ci
   discard <| env.toKernelEnv.replay newConstants
   env.freeRegions

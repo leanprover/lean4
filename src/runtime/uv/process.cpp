@@ -29,6 +29,7 @@ Author: Sebastian Ullrich, Julia M. Himmel
 #include <limits.h>
 #include <paths.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <unistd.h>
 extern "C" char ** environ;
 #endif
@@ -55,10 +56,57 @@ static void process_finalizer(void * ptr) {
     }
 }
 
+#if !defined(LEAN_WINDOWS)
+// The pids of children that teardowns left running, which libuv no longer reaps. Never freed, like the loop.
+static std::vector<int> * g_orphans = nullptr;
+
+// Whether the child has exited and is now reaped, with its exit code in `exit_code`.
+static bool reap(int pid, uint32_t & exit_code) {
+    int status;
+    if (waitpid(pid, &status, WNOHANG) != pid) {
+        return false;
+    }
+    // As `process_exit_cb` reports it
+    exit_code = WIFSIGNALED(status) ? 128 + WTERMSIG(status) : static_cast<uint32_t>(WEXITSTATUS(status));
+    return true;
+}
+#endif
+
 void process_close_for_exit(uv_process_t * handle) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
+    {
+        lock_guard<mutex> lock(p->m_mutex);
+#if !defined(LEAN_WINDOWS)
+        uint32_t exit_code;
+        if (!p->m_exited) {
+            int pid = uv_process_get_pid(handle);
+            if (reap(pid, exit_code)) {
+                p->m_exit_code = exit_code;
+                p->m_exited = true;
+            } else {
+                if (g_orphans == nullptr) {
+                    g_orphans = new std::vector<int>();
+                }
+                g_orphans->push_back(pid);
+            }
+        }
+#endif
+        p->m_torn_down = true;
+        p->m_exited_cond.notify_all();
+    }
     // Without a `Child` left to finalize it, the close callback frees the object.
     uv_close((uv_handle_t *)handle, p->m_dropped ? process_close_cb : nullptr);
+}
+
+void process_reap_orphans() {
+#if !defined(LEAN_WINDOWS)
+    if (g_orphans == nullptr) {
+        return;
+    }
+    uint32_t exit_code;
+    auto reaped = [&](int pid) { return reap(pid, exit_code); };
+    g_orphans->erase(std::remove_if(g_orphans->begin(), g_orphans->end(), reaped), g_orphans->end());
+#endif
 }
 
 void initialize_libuv_process() {
@@ -415,19 +463,17 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_) {
 /* IO.Process.Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32 */
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
-    {
-        event_loop_guard guard;
-        // A handle that a teardown closed gets no exit callback: libuv no longer reaps the child.
-        if (!p->m_exited && guard.closed(&p->m_uv_process)) {
-            return io_result_mk_uv_error(UV_ECANCELED);
-        }
-    }
+    // Not the loop lock: a continuation on the loop thread may be waiting for the task that calls this.
     unique_lock<mutex> lock(p->m_mutex);
     // Only the loop thread runs the exit callback, so a wait on that thread would never end.
-    if (!p->m_exited && global_ev.on_loop_thread()) {
+    if (!p->m_exited && !p->m_torn_down && global_ev.on_loop_thread()) {
         return io_result_mk_error("cannot wait for a child process on the event loop thread");
     }
-    p->m_exited_cond.wait(lock, [&] { return p->m_exited; });
+    p->m_exited_cond.wait(lock, [&] { return p->m_exited || p->m_torn_down; });
+    if (!p->m_exited) {
+        // A teardown closed the handle while the child was still running.
+        return io_result_mk_uv_error(UV_ECANCELED);
+    }
     return lean_io_result_mk_ok(box_uint32(p->m_exit_code));
 }
 
@@ -435,6 +481,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
     lock_guard<mutex> lock(p->m_mutex);
+    if (!p->m_exited && p->m_torn_down) {
+        return io_result_mk_uv_error(UV_ECANCELED);
+    }
     if (!p->m_exited) {
         return lean_io_result_mk_ok(mk_option_none());
     }
@@ -477,6 +526,7 @@ extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg c
 #else
 
 void initialize_libuv_process() {}
+void process_reap_orphans() {}
 
 /* IO.Process.spawn (args : SpawnArgs) : IO (Child args.toStdioConfig) */
 extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args) {

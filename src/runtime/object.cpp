@@ -1156,7 +1156,7 @@ public:
     // Runs the exit sequence and leaves the manager dormant until `restart`. A dormant manager runs no task: a task
     // that becomes runnable is discarded, and new tasks run inline, as without a task manager.
     void shutdown() {
-        if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
+        if (g_current_task_object || g_task_manager_thread || g_in_shutdown || on_libuv_loop_thread()) {
             // `shutdown` would wait for the calling thread itself.
             lean_internal_panic("the task manager cannot be finalized from a task or from a thread it started");
         }
@@ -1193,7 +1193,7 @@ public:
 
     // Makes a dormant manager run tasks again, as a new one would, with a new event loop.
     void restart(unsigned max_std_workers) {
-        if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
+        if (g_current_task_object || g_task_manager_thread || g_in_shutdown || on_libuv_loop_thread()) {
             // It would wait for a `shutdown` that waits for the calling thread, or for itself.
             if (m_shutting_down || g_in_shutdown)
                 lean_internal_panic("the task manager cannot be restarted from a task or from a thread it started");
@@ -1201,8 +1201,12 @@ public:
         }
         unique_lock<mutex> lifecycle(m_lifecycle_mutex);
         unique_lock<mutex> lock(m_mutex);
-        if (!m_workers_exit)
+        if (!m_workers_exit) {
+            lock.unlock();
+            // Retries a loop that the last restart failed to start, such as when no file descriptor was free.
+            restart_libuv();
             return;
+        }
         lean_assert(m_queues_size == 0 && m_idle_std_workers == 0);
         g_in_shutdown = true;
         lock.unlock();

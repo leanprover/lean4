@@ -50,6 +50,10 @@ static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
 }
 
 static void handle_signal_event(uv_signal_t* handle, int) {
+    // During the teardown the handle only keeps the signal's default action away; no Lean code runs.
+    if (!global_ev.running()) {
+        return;
+    }
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
     int const signum = signal->m_lean_signum;

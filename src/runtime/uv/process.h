@@ -37,6 +37,8 @@ struct lean_uv_process_object {
     mutex              m_mutex;
     condition_variable m_exited_cond;
     bool               m_exited = false;
+    // Set by the teardown, which closes the handle: libuv no longer reaps the child, and no exit callback runs.
+    bool               m_torn_down = false;
     uint32_t           m_exit_code = 0;
 };
 
@@ -45,6 +47,8 @@ static inline lean_uv_process_object * lean_to_uv_process(lean_object * o) { ret
 
 // Closes a child's handle in the teardown. Call with the loop lock held.
 void process_close_for_exit(uv_process_t * handle);
+// Reaps the children that teardowns left running and that have exited since. Call with the loop lock held.
+void process_reap_orphans();
 
 #endif
 

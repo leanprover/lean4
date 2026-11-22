@@ -49,6 +49,7 @@ void event_loop::start() {
     // On a restart, other threads may be calling into libuv. Until the lock is released, none of them uses the
     // new loop, so a failure can still undo it.
     lock();
+    process_reap_orphans();
     int result = uv_loop_init(m_loop);
     if (result == 0) {
         result = uv_async_init(m_loop, &m_async, nullptr);
@@ -182,8 +183,11 @@ static void close_for_exit(uv_handle_t * handle, void *) {
             drop_handle_refs<lean_uv_timer_object>(handle);
             break;
         case UV_SIGNAL:
+            // Closed last by `close_signals_for_exit`: libuv then restores the default action, which would kill a
+            // program that handles the signal while the rest of the teardown still runs.
             drop_handle_refs<lean_uv_signal_object>(handle);
-            break;
+            uv_unref(handle);
+            return;
         case UV_TCP:
 #ifdef LEAN_WINDOWS
             tcp_cancel_pending_writes(reinterpret_cast<lean_uv_tcp_socket_object *>(handle));
@@ -205,6 +209,12 @@ static void close_for_exit(uv_handle_t * handle, void *) {
 
     // The object is freed by its finalizer, which finds the handle closed.
     uv_close(handle, nullptr);
+}
+
+static void close_signals_for_exit(uv_handle_t * handle, void *) {
+    if (handle->type == UV_SIGNAL && !uv_is_closing(handle)) {
+        uv_close(handle, nullptr);
+    }
 }
 
 void event_loop::stop() {
@@ -232,8 +242,11 @@ void event_loop::stop() {
         // Closing a handle cancels its requests, and threadpool requests run to completion. Their callbacks
         // hand their references to `exit_drop`.
         uv_run(m_loop, UV_RUN_DEFAULT);
+        uv_walk(m_loop, close_signals_for_exit, nullptr);
+        uv_run(m_loop, UV_RUN_DEFAULT);
+        process_reap_orphans();
 
-        // The walk closed every handle and `uv_run` finished every request.
+        // The walks closed every handle and `uv_run` finished every request.
         if (uv_loop_close(m_loop) != 0) {
             lean_internal_panic("libuv event loop still busy after the teardown");
         }

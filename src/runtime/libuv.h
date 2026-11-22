@@ -27,6 +27,8 @@ extern "C" void initialize_libuv();
 extern "C" void finalize_libuv();
 extern "C" void release_libuv_promises();
 extern "C" void restart_libuv();
+// Whether the calling thread is the event loop's, which the teardown joins.
+extern "C" bool on_libuv_loop_thread();
 extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv);
 
 // =======================================

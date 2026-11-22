@@ -514,68 +514,72 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
     pure mvar
 
 /--
-The variables among `xs` that are abstracted according to `mask`, but whose type depends on a
-variable among `xs` that is not. These cannot be abstracted either, else the abstraction could not
-be applied to the motive arguments of the matcher, whose types refer to each other.
--/
-def abstractedDependingOnUnabstracted (xs : Array Expr) (mask : Array Bool) : MetaM (Array FVarId) := do
-  let unabstracted : FVarIdSet := (xs.zip mask).foldl (init := {}) fun s (x, m) =>
-    if !m && x.isFVar then s.insert x.fvarId! else s
-  (xs.zip mask).filterMapM fun (x, m) => do
-    if m then
-      if ← dependsOnPred (← x.fvarId!.getType) unabstracted.contains then
-        return some x.fvarId!
-    return none
-
-/--
 Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
- * also skips let-bound variables
+ * also skips let-bound variables, and the variables in `skip`
  * with `checkTypeCorrect := true`, also skips variables whose abstraction yields a
    type-incorrect term, e.g. `w` when `e` mentions a variable `x : Fin w`
  * returns a mask (same size as `xs`) indicating which variables have been abstracted
    (`true` means was abstracted).
 
 The result `r` can be applied with `r.beta (maskArray mask args)`.
+-/
+def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) (checkTypeCorrect := false)
+    (skip : FVarIdSet := {}) : MetaM (Array Bool × Expr) := do
+  let mut e := e
+  let mut xs := xs
+  let mut mask := #[]
+  while ! xs.isEmpty do
+    let discr := xs.back!
+    xs := xs.pop
+    if discr.isFVar && e.containsFVar discr.fvarId! && !skip.contains discr.fvarId! then
+      unless (← discr.fvarId!.isLetVar) do
+        let e' ← mkLambdaFVars #[discr] e
+        let ok ← if checkTypeCorrect then isTypeCorrect e' else pure true
+        if ok then
+          e := e'
+          mask := mask.push true
+          continue
+    mask := mask.push false
+  return (mask.reverse, e)
 
-We use this when generating the functional induction principle to refine the goal through a `match`,
-here `xs` are the discriminants of the `match`.
+/--
+Abstracts the discriminants `discrs` of a `match` in `goal`, to refine the goal through the
+`match`. We abstract as many discriminants as possible, but
+
+ * the result has to be type-correct, so we cannot abstract `w` if `goal` mentions `x : Fin w`, and
+ * a discriminant whose type depends on a discriminant that is not abstracted cannot be abstracted
+   either, else the result could not be applied to the motive arguments of the matcher, whose
+   types refer to each other.
+
+Returns a mask and the abstraction as `mkLambdaFVarsMasked` does.
+
 We do not expect non-trivial discriminants to appear in the goal (and if they do, the user will
 get a helpful equality into the context).
 -/
-def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) (checkTypeCorrect := false) :
-    MetaM (Array Bool × Expr) := do
-  let r ← closed (check := false)
-  unless checkTypeCorrect do return r
+def abstractDiscrs (discrs : Array Expr) (goal : Expr) : MetaM (Array Bool × Expr) := do
+  let r ← closed (checkTypeCorrect := false)
   if ← isTypeCorrect r.2 then return r
-  closed (check := true)
+  closed (checkTypeCorrect := true)
 where
-  closed (check : Bool) : MetaM (Array Bool × Expr) := do
+  closed (checkTypeCorrect : Bool) : MetaM (Array Bool × Expr) := do
     let mut skip : FVarIdSet := {}
     repeat
-      let (mask, e') ← go check skip
-      let bad ← abstractedDependingOnUnabstracted xs mask
-      if bad.isEmpty then return (mask, e')
+      let (mask, e) ← mkLambdaFVarsMasked discrs goal checkTypeCorrect skip
+      let bad ← dependingOnUnabstracted mask
+      if bad.isEmpty then return (mask, e)
       skip := bad.foldl (·.insert ·) skip
     unreachable!
-  go (check : Bool) (skip : FVarIdSet) : MetaM (Array Bool × Expr) := do
-    let mut e := e
-    let mut xs := xs
-    let mut mask := #[]
-    while ! xs.isEmpty do
-      let discr := xs.back!
-      xs := xs.pop
-      if discr.isFVar && e.containsFVar discr.fvarId! && !skip.contains discr.fvarId! then
-        unless (← discr.fvarId!.isLetVar) do
-          let e' ← mkLambdaFVars #[discr] e
-          let ok ← if check then isTypeCorrect e' else pure true
-          if ok then
-            e := e'
-            mask := mask.push true
-            continue
-      mask := mask.push false
-    return (mask.reverse, e)
+  /-- The abstracted discriminants whose type depends on a discriminant that is not abstracted. -/
+  dependingOnUnabstracted (mask : Array Bool) : MetaM (Array FVarId) := do
+    let unabstracted : FVarIdSet := (discrs.zip mask).foldl (init := {}) fun s (x, m) =>
+      if !m && x.isFVar then s.insert x.fvarId! else s
+    (discrs.zip mask).filterMapM fun (x, m) => do
+      if m then
+        if ← dependsOnPred (← x.fvarId!.getType) unabstracted.contains then
+          return some x.fvarId!
+      return none
 
 /--
 Applies `rw` to `goal`, passes the rewritten `goal'` to `k` (which should return an expression of
@@ -720,7 +724,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       -- Calculate motive. We refine the type of `newIH` like `Fix.lean` refined that of `oldIH`,
       -- even if the goal cannot be refined (e.g. with `match (generalizing := false)`).
-      let (mask, absGoal) ← mkLambdaFVarsMasked matcherApp.discrs goal (checkTypeCorrect := true)
+      let (mask, absGoal) ← abstractDiscrs matcherApp.discrs goal
       let newIHTypeAbst (xs : Array Expr) : MetaM Expr := do
         matcherApp.discrs.size.foldRevM (init := ← newIH.getType) fun i _ eTypeAbst => do
           let eTypeAbst ← kabstract eTypeAbst matcherApp.discrs[i]
@@ -748,8 +752,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     -- cases
     if matcherApp.remaining.isEmpty then
       -- Calculate motive
-      let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs goal
-        (checkTypeCorrect := true)
+      let (mask, absMotiveBody) ← abstractDiscrs matcherApp.discrs goal
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := true)

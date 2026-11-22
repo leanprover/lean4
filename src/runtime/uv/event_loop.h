@@ -138,8 +138,8 @@ public:
     bool closed(H * handle) const { return stopped() || uv_is_closing((uv_handle_t*)handle); }
 };
 
-// The first thing a request callback does: during the teardown at exit it hands the request's
-// references to the loop and returns `true`, so the callback must not resolve anything.
+// Every request callback calls this before it resolves anything: during the teardown at exit it hands
+// the request's references to the loop and returns `true`, so the callback must not resolve anything.
 template<class... Refs>
 bool uv_dropped_at_exit(Refs &... refs) {
     if (global_ev.running()) {

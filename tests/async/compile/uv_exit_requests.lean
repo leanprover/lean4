@@ -26,6 +26,10 @@ def main : IO Unit := do
   | some (.error e) => IO.println s!"lookup failed: {e}"
   | none => IO.println "lookup dropped"
 
+  -- Occupies libuv's threadpool, so that the requests below are still queued at exit.
+  for _ in [0:4] do
+    discard <| System.random (8 * 1024 * 1024)
+
   for _ in [0:32] do
     discard <| System.random 4096
     discard <| DNS.getAddrInfo "localhost" "80" 0

@@ -1634,8 +1634,9 @@ LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
    rest is discarded and never finishes, as is what becomes runnable before the next start; until then, a new task
    runs inline once its input has finished. Tasks and promises stay valid in later cycles. Calling this, or starting
    the task manager meanwhile, from a thread that this waits for is an internal panic.
-   It then tears the libuv event loop down, closing every handle and waiting for requests that libuv runs on its
-   thread pool, such as DNS lookups. A promise of a libuv operation that is still pending is not resolved: it stays
+   It then tears the libuv event loop down, closing every handle, cancelling the requests queued on libuv's thread
+   pool and waiting for those already running, such as DNS lookups. A promise of an unfinished or cancelled
+   operation is not resolved: it stays
    referenced until the next `lean_init_task_manager`, which releases it before tasks run again, so if nothing else
    references it, it resolves to `none` and its continuations are discarded. Until a later `lean_init_task_manager`
    starts a fresh loop, libuv operations fail with `UV_ECANCELED`. A handle that outlives this call stays closed, so

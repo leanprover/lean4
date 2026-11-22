@@ -70,6 +70,16 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
     if !(← isProp rType) then
       throwNamedError lean.projNonPropFromProp "Invalid projection: Cannot project a value of non-propositional \
         type{indentExpr rType}\nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
+    let fn := eType.getAppFn
+    if let .const fnName fnLvls := fn then
+      if let .inductInfo {all := [_], numParams, numIndices := 0, ctors := [ctor], ..} ← getConstInfo fnName then
+        let recName := mkRecName fnName
+        let motive  := mkLambda `e .default eType (← kabstract rType e)
+        let params := eType.getAppArgs
+        let minor ← forallTelescope (← instantiateTypeLevelParams (← getConstVal ctor) fnLvls) fun xs _ =>
+          return (← mkLambdaFVars xs[numParams:] xs[numParams + idx]!).replaceFVars xs[:numParams] params
+        let res := mkAppN (.const recName fnLvls) (params ++ #[motive, minor, e])
+        return res
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=

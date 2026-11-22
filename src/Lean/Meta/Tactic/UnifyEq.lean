@@ -7,8 +7,12 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Injection
+import Lean.Meta.LitValues
 import Lean.Meta.StringLitProof
 import Init.Data.Nat.Internal.Linear
+import Init.Data.Char.Basic
+import Init.Data.Int.Basic
+import Init.Data.SInt.Basic
 
 public section
 
@@ -33,6 +37,77 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
   | none => isOffset? e
 
 /--
+If `a` and `b` are different literals of the same type, returns a proof of `¬ a = b`.
+The literals supported are the ones of type `String`, `Nat`, `Int`, `Char`, `Fin n`, `BitVec n`,
+`UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, and `Int64`.
+
+For `String`, the proof is built with `mkStringLitNeProof`. For the other types, it is an
+application of a theorem such as `Nat.ne_of_beq_eq_false` and `UInt8.ne_of_toNat_beq_eq_false` to
+`Eq.refl false`: the kernel evaluates `Nat.beq` on two numerals, and does not unfold the
+`DecidableEq` instance of the type. Only literals in their standard representation (see
+`normLitValue`) are supported.
+-/
+private def mkLitNeProof? (a b : Expr) : MetaM (Option Expr) := do
+  if let .lit (.strVal s₁) := a then
+    let .lit (.strVal s₂) := b | return none
+    if s₁ == s₂ then return none
+    return some (← mkStringLitNeProof s₁ s₂)
+  -- A literal elaborated with a nonstandard instance, such as `(5 : UInt8)` with a local
+  -- `OfNat UInt8 5`, may denote a different value: `neThm?` does not inspect the instance.
+  unless (← normLitValue a) == a && (← normLitValue b) == b do return none
+  let some thm ← neThm? | return none
+  let h := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false)
+  -- The theorems for `Fin n` and `BitVec n` have `n` as their first argument.
+  let type ← whnfR (← inferType a)
+  let thm := if type.isApp then mkApp (mkConst thm) type.appArg! else mkConst thm
+  return some (mkApp3 thm a b h)
+where
+  /-- The theorem that proves `a ≠ b`, if `a` and `b` are different literals of a supported type. -/
+  neThm? : MetaM (Option Name) := do
+    if let some x ← getNatValue? a then
+      let some y ← getNatValue? b | return none
+      return if x == y then none else some ``Nat.ne_of_beq_eq_false
+    if let some x ← getIntValue? a then
+      let some y ← getIntValue? b | return none
+      if x == y then return none
+      return if x.toNat != y.toNat then some ``Int.ne_of_toNat_beq_eq_false
+        else some ``Int.ne_of_neg_toNat_beq_eq_false
+    if let some x ← getCharValue? a then
+      let some y ← getCharValue? b | return none
+      return if x == y then none else some ``Char.ne_of_toNat_beq_eq_false
+    if let some ⟨n, x⟩ ← getFinValue? a then
+      let some ⟨m, y⟩ ← getFinValue? b | return none
+      return if n != m || x.val == y.val then none else some ``Fin.ne_of_val_beq_eq_false
+    if let some ⟨n, x⟩ ← getBitVecValue? a then
+      let some ⟨m, y⟩ ← getBitVecValue? b | return none
+      return if n != m || x.toNat == y.toNat then none else some ``BitVec.ne_of_toNat_beq_eq_false
+    if let some x ← getUInt8Value? a then
+      let some y ← getUInt8Value? b | return none
+      return if x == y then none else some ``UInt8.ne_of_toNat_beq_eq_false
+    if let some x ← getUInt16Value? a then
+      let some y ← getUInt16Value? b | return none
+      return if x == y then none else some ``UInt16.ne_of_toNat_beq_eq_false
+    if let some x ← getUInt32Value? a then
+      let some y ← getUInt32Value? b | return none
+      return if x == y then none else some ``UInt32.ne_of_toNat_beq_eq_false
+    if let some x ← getUInt64Value? a then
+      let some y ← getUInt64Value? b | return none
+      return if x == y then none else some ``UInt64.ne_of_toNat_beq_eq_false
+    if let some x ← getInt8Value? a then
+      let some y ← getInt8Value? b | return none
+      return if x == y then none else some ``Int8.ne_of_toNat_beq_eq_false
+    if let some x ← getInt16Value? a then
+      let some y ← getInt16Value? b | return none
+      return if x == y then none else some ``Int16.ne_of_toNat_beq_eq_false
+    if let some x ← getInt32Value? a then
+      let some y ← getInt32Value? b | return none
+      return if x == y then none else some ``Int32.ne_of_toNat_beq_eq_false
+    if let some x ← getInt64Value? a then
+      let some y ← getInt64Value? b | return none
+      return if x == y then none else some ``Int64.ne_of_toNat_beq_eq_false
+    return none
+
+/--
   Helper method for methods such as `Cases.unifyEqs?`.
   Given the given goal `mvarId` containing the local hypothesis `eqFVarId`, it performs the following operations:
 
@@ -42,7 +117,10 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
      - Normalize `a` and `b` using the current reducibility setting.
      - If `a` (`b`) is a free variable not occurring in `b` (`a`), replace it everywhere.
      - If `a` and `b` are distinct constructors, return `none` to indicate that the goal has been closed.
-     - If `a` and `b` are distinct `String` literals, return `none` to indicate that the goal has been closed.
+     - If `a` and `b` are distinct literals, return `none` to indicate that the goal has been closed.
+       See `mkLitNeProof?`.
+     - If `a` is `x + k`, where `k` is a positive numeral, and `b` is `0`, or vice versa, return `none`
+       to indicate that the goal has been closed.
      - If `a` and `b` are the same constructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
      - It also tries to apply the given `acyclic` method to try to close the goal.
        Remark: It is a parameter because `simp` uses `unifyEq?`, and `acyclic` depends on `simp`.
@@ -82,11 +160,24 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           else
             throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
         /- Special support for offset equalities -/
-        let injectionOffset? (a b : Expr) := do
+        /- Returns `none` if `a = b` is not an offset equality, and `some r` otherwise, where `r` is
+           the result of `unifyEq?`. -/
+        let injectionOffset? (a b : Expr) : MetaM (Option (Option UnifyEqResult)) := do
           unless (← getEnv).contains ``Nat.Internal.elimOffset do return none
           let some (xa, ka) ← toOffset? a | return none
           let some (xb, kb) ← toOffset? b | return none
-          if ka == 0 || kb == 0 then return none -- use default noConfusion
+          if ka == 0 || kb == 0 then
+            /- `x + k = 0` or `0 = x + k`, where `k` is positive: the goal is closed.
+               `x + k` is definitionally equal to `Nat.succ (x + (k - 1))`. -/
+            let hne ←
+              if ka > 0 && (← evalNat b) == some 0 then
+                pure (mkApp (mkConst ``Nat.succ_ne_zero) (← mkAdd xa (mkNatLit (ka - 1))))
+              else if kb > 0 && (← evalNat a) == some 0 then
+                mkAppM ``Ne.symm #[mkApp (mkConst ``Nat.succ_ne_zero) (← mkAdd xb (mkNatLit (kb - 1)))]
+              else
+                return none -- use default noConfusion
+            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar eqFVarId) hne)
+            return some none
           let (x, y, k) ← if ka < kb then
             pure (xa, (← mkAdd xb (mkNatLit (kb - ka))), ka)
           else if ka = kb then
@@ -101,16 +192,13 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           let val := mkAppN (mkConst ``Nat.Internal.elimOffset [u]) #[target, x, y, mkNatLit k, eqDecl.toExpr, newMVar]
           mvarId.assign val
           let mvarId ← newMVar.mvarId!.tryClear eqDecl.fvarId
-          return some mvarId
+          return some (some { mvarId, numNewEqs := 1, subst })
         let rec injection (a b : Expr) := do
-          if let some mvarId ← injectionOffset? a b then
-            return some { mvarId, numNewEqs := 1, subst }
-          if let .lit (.strVal s₁) := a then
-            if let .lit (.strVal s₂) := b then
-              /- `"s₁" = "s₂"`. The literals are different, since `a` and `b` are not definitionally equal. -/
-              let hne ← mkStringLitNeProof s₁ s₂
-              mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar eqFVarId) hne)
-              return none -- this alternative has been solved
+          if let some hne ← mkLitNeProof? a b then
+            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar eqFVarId) hne)
+            return none -- this alternative has been solved
+          if let some r ← injectionOffset? a b then
+            return r
           if (← isConstructorApp a <&&> isConstructorApp b) then
             /- ctor_i ... = ctor_j ... -/
             match (← injectionCore mvarId eqFVarId) with

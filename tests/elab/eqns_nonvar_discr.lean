@@ -59,9 +59,8 @@ def succDiscr (s : String) (n : Nat) : Nat :=
 
 /--
 info: equations:
-theorem succDiscr.eq_1 : ∀ (n : Nat) (s_1 : String), n + 1 = 0 → succDiscr s_1 n = 1
-theorem succDiscr.eq_2 : ∀ (n : Nat), succDiscr "c" n = n
-theorem succDiscr.eq_3 : ∀ (n : Nat) (s_1 : String),
+theorem succDiscr.eq_1 : ∀ (n : Nat), succDiscr "c" n = n
+theorem succDiscr.eq_2 : ∀ (n : Nat) (s_1 : String),
   (n + 1 = 0 → False) → (∀ (k : Nat), n + 1 = k.succ → s_1 = "c" → False) → succDiscr s_1 n = 3
 -/
 #guard_msgs in
@@ -122,9 +121,8 @@ def letSucc (s : String) (n : Nat) : Nat :=
 
 /--
 info: equations:
-theorem letSucc.eq_1 : ∀ (n : Nat) (s_1 : String), n + 1 = 0 → letSucc s_1 n = 1
-theorem letSucc.eq_2 : ∀ (n : Nat), letSucc "c" n = n
-theorem letSucc.eq_3 : ∀ (n : Nat) (s_1 : String),
+theorem letSucc.eq_1 : ∀ (n : Nat), letSucc "c" n = n
+theorem letSucc.eq_2 : ∀ (n : Nat) (s_1 : String),
   (n + 1 = 0 → False) → (∀ (k : Nat), n + 1 = k.succ → s_1 = "c" → False) → letSucc s_1 n = 3
 -/
 #guard_msgs in
@@ -176,9 +174,8 @@ def depSucc (n : Nat) (w : Vec n) (s : String) : Nat :=
 
 /--
 info: equations:
-theorem depSucc.eq_1 : ∀ (n : Nat) (w : Vec n) (s_1 : String), n + 1 = 0 → depSucc n w s_1 = 1
-theorem depSucc.eq_2 : ∀ (n : Nat) (w : Vec n), depSucc n w "c" = 5 + n
-theorem depSucc.eq_3 : ∀ (n : Nat) (w : Vec n) (s_1 : String),
+theorem depSucc.eq_1 : ∀ (n : Nat) (w : Vec n), depSucc n w "c" = 5 + n
+theorem depSucc.eq_2 : ∀ (n : Nat) (w : Vec n) (s_1 : String),
   (∀ (x : Vec 0), n + 1 = 0 → Vec.cons 5 w ≍ x → False) →
     (∀ (k a : Nat) (a_1 : Vec k), n + 1 = k.succ → Vec.cons 5 w ≍ Vec.cons a a_1 → s_1 = "c" → False) →
       depSucc n w s_1 = 0
@@ -290,12 +287,39 @@ def nestedSucc (n : Nat) (s : String) : Nat :=
 
 /--
 info: equations:
-theorem nestedSucc.eq_1 : ∀ (n : Nat) (s_1 snd : String), (n + 1, "k") = (0, snd) → nestedSucc n s_1 = 1
-theorem nestedSucc.eq_2 : ∀ (n : Nat), nestedSucc n "x" = n + 10
-theorem nestedSucc.eq_3 : ∀ (n : Nat) (s_1 : String),
+theorem nestedSucc.eq_1 : ∀ (n : Nat), nestedSucc n "x" = n + 10
+theorem nestedSucc.eq_2 : ∀ (n : Nat) (s_1 : String),
   (∀ (snd : String), (n + 1, "k") = (0, snd) → False) →
     (∀ (a : Nat), (n + 1, "k") = (a.succ, "j") → False) →
       (∀ (a : Nat), (n + 1, "k") = (a.succ, "k") → s_1 = "x" → False) → nestedSucc n s_1 = 4
 -/
 #guard_msgs in
 #print equations nestedSucc
+
+def nestedLitUInt16 (a : UInt16) : Nat :=
+  match (1, (3:UInt16)), a with
+  | (1, (4:UInt16)), 2 => 1
+  | _, _ => 2
+
+/--
+info: equations:
+@[backward_defeq] theorem nestedLitUInt16.eq_1 : ∀ (a_1 : UInt16), nestedLitUInt16 a_1 = 2
+-/
+#guard_msgs in
+#print equations nestedLitUInt16
+
+
+def t (s : String) : Nat :=
+  match ((10:UInt16), (20:UInt16)), s with
+  | (10, 30), _ => 1
+  | (10, 20), "x" => 2
+  | (30, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem t.eq_1 : t "x" = 2
+theorem t.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → t s_1 = 4
+-/
+#guard_msgs in
+#print equations t

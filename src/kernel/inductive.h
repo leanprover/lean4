@@ -31,7 +31,7 @@ optional<expr> mk_nullary_cnstr(inductive_val induct_val, expr const & type, siz
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
 inline expr to_cnstr_when_K(environment const & env, inductive_val induct_val, size_t num_params, expr const & e,
                             WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
-    lean_assert(rval.is_k());
+    lean_assert(induct_val.is_k());
     expr app_type    = whnf(infer_type(e));
     expr const & app_type_I = get_app_fn(app_type);
     if (!is_constant(app_type_I) || const_name(app_type_I) != induct_val.to_constant_val().get_name()) return e; // type incorrect

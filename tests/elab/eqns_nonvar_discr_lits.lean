@@ -248,3 +248,33 @@ info: equations:
 -/
 #guard_msgs in
 #print equations stmtUInt64
+
+def proofUInt32 (s : String) : Nat :=
+  match ((10 : UInt32), (20 : UInt32)), s with
+  | (10, 30), _ => 1
+  | (10, 20), "x" => 2
+  | (30, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem proofUInt32.eq_1 : proofUInt32 "x" = 2
+theorem proofUInt32.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofUInt32 s_1 = 4
+-/
+#guard_msgs in
+#print equations proofUInt32
+
+def proofUInt64 (s : String) : Nat :=
+  match ((10 : UInt64), (20 : UInt64)), s with
+  | (10, 30), _ => 1
+  | (10, 20), "x" => 2
+  | (30, _), _ => 3
+  | _, _ => 4
+
+/--
+info: equations:
+theorem proofUInt64.eq_1 : proofUInt64 "x" = 2
+theorem proofUInt64.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofUInt64 s_1 = 4
+-/
+#guard_msgs in
+#print equations proofUInt64

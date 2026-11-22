@@ -746,7 +746,7 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) :
         if candidate.discrs.all (·.isFVar) then pure branches
         else branches.filterMapM fun branch => do
           let some branch ← unifyDiscrEqs branch | return none
-          if (← branch.contradictionCore { emptyType := false, genDiseq := true }) then return none
+          if (← branch.contradictionCore { useDecide := false, emptyType := false, genDiseq := true }) then return none
           return some branch
       let branches ← branches.mapM fun branch => do
         let normalized ← normalizeEqn branch

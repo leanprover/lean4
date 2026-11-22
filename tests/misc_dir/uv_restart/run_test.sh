@@ -4,3 +4,4 @@ if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
 fi
 leanc ${LEANC_OPTS-} -o uv_restart.produced uv_restart.c
 run ./uv_restart.produced
+run ./uv_restart.produced exit_during_teardown

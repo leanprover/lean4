@@ -43,6 +43,7 @@ void event_loop::start() {
         // A loop of our own: the teardown treats every handle on it as one of ours.
         m_loop = &m_loop_storage;
         m_kept = new std::vector<owned_ref>();
+        m_released = new std::vector<owned_ref>();
     }
 
     // On a restart, other threads may be calling into libuv. Until the lock is released, none of them uses the
@@ -145,7 +146,7 @@ void event_loop::exit_drop(owned_ref ref) {
     if (o != nullptr && lean_is_promise(o) && !promise_is_resolved(o)) {
         m_kept->push_back(std::move(ref));
     } else {
-        m_released.push_back(std::move(ref));
+        m_released->push_back(std::move(ref));
     }
 }
 
@@ -237,7 +238,7 @@ void event_loop::stop() {
             lean_internal_panic("libuv event loop still busy after the teardown");
         }
 
-        released.swap(m_released);
+        released.swap(*m_released);
     }
     // Released only once the loop is closed: the finalizers this runs free objects whose handles the walk
     // closed, which libuv uses until then.

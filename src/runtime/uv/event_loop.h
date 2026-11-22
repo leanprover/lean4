@@ -87,8 +87,8 @@ private:
     uv_mutex_t       m_async_mutex;
     bool             m_running = false;
     lthread *        m_thread = nullptr;
-    // What the teardown releases once the loop is closed.
-    std::vector<owned_ref> m_released;
+    // What the teardown releases once the loop is closed. Never freed, since `exit` can run during a teardown.
+    std::vector<owned_ref> * m_released = nullptr;
     // The pending promises the teardowns kept. Never freed, so that they are reachable at exit.
     std::vector<owned_ref> * m_kept = nullptr;
 

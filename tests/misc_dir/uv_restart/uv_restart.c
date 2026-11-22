@@ -17,6 +17,8 @@ re-initializes the task manager sees it.
 * Finalizing does not wait for threads the task manager does not own to stop calling into libuv: the
   loop thread gives way to such threads, so while several of them keep taking the loop lock it would
   never see that the loop stopped.
+* With the argument `exit_during_teardown`, `exit` while another thread tears the event loop down does
+  not free what the teardown still uses. The sanitize build reports a use of freed memory.
 
 Leaks are reported in the sanitize build. The signal is SIGWINCH and the threads are POSIX threads, so
 the test does not run on Windows.
@@ -26,6 +28,8 @@ the test does not run on Windows.
 // `leanc` ships no C library headers, but links the C library.
 int printf(char const * fmt, ...);
 int usleep(unsigned int usec);
+int strcmp(char const * a, char const * b);
+void exit(int status);
 unsigned int alarm(unsigned int seconds);
 // `FILE *` is a pointer.
 int fflush(void * stream);
@@ -33,6 +37,7 @@ int fflush(void * stream);
 typedef unsigned long long thread_handle;
 int pthread_create(thread_handle * thread, void const * attr, void * (*start)(void *), void * arg);
 int pthread_join(thread_handle thread, void ** result);
+int pthread_detach(thread_handle thread);
 
 void lean_initialize_runtime_module(void);
 void lean_initialize_thread(void);
@@ -48,6 +53,7 @@ lean_object * lean_uv_tcp_send(lean_object * socket, lean_object * data);
 lean_object * lean_uv_udp_new(void);
 lean_object * lean_uv_udp_send(lean_object * socket, lean_object * data, lean_object * addr);
 uint8_t lean_uv_event_loop_alive(void);
+lean_object * lean_uv_random(uint64_t size);
 
 static int g_failures = 0;
 
@@ -299,8 +305,34 @@ static void check_finalize_while_threads_call_into_libuv(void) {
         pthread_join(threads[i], 0);
 }
 
-int main(void) {
+static void exit_during_teardown(void) {
+    lean_init_task_manager_using(2);
+    /* Each timer hands its object to the teardown, which collects them while the exit handlers run. */
+    for (int i = 0; i < 4096; i++) {
+        lean_object * timer = take_ok(lean_uv_timer_mk(3600000, 0), "Timer.mk");
+        if (timer == NULL)
+            return;
+        lean_dec(lean_uv_timer_next(timer));
+        lean_dec(timer);
+    }
+    /* Keeps the teardown in `uv_run` until after the exit has started. */
+    lean_dec(lean_uv_random(256 * 1024 * 1024));
+    usleep(50000);
+    thread_handle thread;
+    if (pthread_create(&thread, 0, finalize_on_thread, 0) != 0) {
+        printf("pthread_create failed\n");
+        exit(1);
+    }
+    /* Still tearing the loop down when the process exits. */
+    pthread_detach(thread);
+    usleep(100000);
+    exit(0);
+}
+
+int main(int argc, char ** argv) {
     lean_initialize_runtime_module();
+    if (argc > 1 && strcmp(argv[1], "exit_during_teardown") == 0)
+        exit_during_teardown();
 
     lean_init_task_manager_using(2);
     CHECK(timer_fires());

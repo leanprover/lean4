@@ -243,10 +243,11 @@ equal. Each one is unified as `cases` does: it is removed if the two sides are d
 equal, a variable is substituted, and applications of the same constructor are replaced by the
 equalities between the fields. A hypothesis that cannot be unified is kept.
 Returns `none` if a hypothesis equates different constructors or literals: the branch is closed.
+The hypotheses in `skip` are not considered.
 -/
-partial def unifyDiscrEqs (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+partial def unifyDiscrEqs (mvarId : MVarId) (skip : LocalContext := {}) : MetaM (Option MVarId) := mvarId.withContext do
   for decl in (← getLCtx) do
-    if decl.isImplementationDetail then continue
+    if decl.isImplementationDetail || skip.contains decl.fvarId then continue
     if let some (_, a, b) := decl.type.eq? then
       if a.isFVar || b.isFVar then continue
     else if let some (α, _, β, _) := decl.type.heq? then
@@ -263,7 +264,7 @@ partial def unifyDiscrEqs (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.wi
     match r? with
     | none => continue -- Caught exception, keep traversing lctx
     | some none => return none -- Goal closed, done.
-    | some (some (mvarId, _)) => return (← unifyDiscrEqs mvarId) -- Subgoal generated, continue from there
+    | some (some (mvarId, _)) => return (← unifyDiscrEqs mvarId skip) -- Subgoal generated, continue from there
   return some mvarId
 
 /--
@@ -330,6 +331,41 @@ def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
     else
       dependsOn type fvarId
 
+/--
+Simplifies the type of an overlap hypothesis: `∀ zs, e₁ → … → eₙ → False`, where each `eᵢ` equates a
+discriminant and a pattern with variables `zs`. When a discriminant is not a variable, `eᵢ` can be
+resolved: it is unified with `unifyDiscrEqs`, as the hypotheses `discr = pattern` of a case are.
+
+Returns `none` if some `eᵢ` is contradictory: the hypothesis holds trivially. Otherwise, returns
+the hypothesis without the equalities that were resolved, and without the variables they
+determine. Returns `type` if it does not have this form, or if resolving an equality would
+replace a variable that is not in `zs`.
+-/
+def simpOverlapHyp? (type : Expr) : MetaM (Option Expr) := do
+  unless type.getForallBody.isConstOf ``False && hasCandidate type do return some type
+  let outer ← getLCtx
+  let saved ← saveState
+  try
+    let mvar ← mkFreshExprSyntheticOpaqueMVar type
+    let (_, mvarId) ← mvar.mvarId!.intros
+    let some mvarId ← unifyDiscrEqs mvarId (skip := outer) | return none
+    mvarId.withContext do
+      let lctx ← getLCtx
+      unless outer.getFVarIds.all lctx.contains do return some type
+      let fvars := lctx.getFVarIds.filter (!outer.contains ·) |>.map mkFVar
+      return some (← instantiateMVars (← mkForallFVars fvars (mkConst ``False)))
+  finally
+    saved.restore
+where
+  /-- Returns `true` if some `eᵢ` is an equality that `unifyDiscrEqs` considers. -/
+  hasCandidate : Expr → Bool
+    | .forallE _ d b _ =>
+      let isVar (e : Expr) := e.isFVar || e.isBVar
+      (match d.eq? with
+        | some (_, lhs, rhs) => !isVar lhs && !isVar rhs
+        | none => d.isHEq) || hasCandidate b
+    | _ => false
+
 /-- Eliminates named-pattern annotations and redundant equality hypotheses from an equation type. -/
 def simpEqnType (eqnType : Expr) : MetaM Expr := do
   forallTelescopeReducing (← instantiateMVars eqnType) fun ys type => do
@@ -354,6 +390,14 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
             else if !(← lhsDependsOn type y.fvarId!) then
               -- Since the `lhs` of the `type` does not depend on `y`, we replace it with `Eq.refl` in the `rhs`
               type := type.replaceFVar y (← mkEqRefl lhs)
+              continue
+        if !(← dependsOn type y.fvarId!) then
+          let yType ← inferType y
+          match (← simpOverlapHyp? yType) with
+          | none => continue
+          | some yType' =>
+            if yType' != yType then
+              type ← mkArrow yType' type
               continue
         type ← mkForallFVars #[y] type
     return type

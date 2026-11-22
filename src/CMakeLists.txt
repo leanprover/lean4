@@ -1050,7 +1050,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX lean4lean
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/nomeata/lean4lean
-    GIT_TAG 70e8ae8c111bf3f5ac26f1075ef447fe16369578
+    GIT_TAG 3a4a404b52bff0f1d4902bc6b3cbd4f093a41936
     PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build lean4lean
@@ -1076,7 +1076,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX nanoda
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/nomeata/nanoda_lib
-    GIT_TAG 831ba4e661ab5af55a6b1dcf69fa86c0f81f1332
+    GIT_TAG 88aa20df4cb647ee87fd1dabe6d667caba9b8d39
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON

@@ -16,7 +16,7 @@ def strLit (s : String) : Nat :=
 /--
 info: equations:
 theorem strLit.eq_1 : strLit "c" = 2
-theorem strLit.eq_2 : ∀ (s_1 : String), ("b" = "b" → s_1 = "c" → False) → strLit s_1 = 3
+theorem strLit.eq_2 : ∀ (s_1 : String), (s_1 = "c" → False) → strLit s_1 = 3
 -/
 #guard_msgs in
 #print equations strLit
@@ -30,7 +30,7 @@ def charLit (s : String) : Nat :=
 /--
 info: equations:
 theorem charLit.eq_1 : charLit "c" = 2
-theorem charLit.eq_2 : ∀ (s_1 : String), ('b' = 'b' → s_1 = "c" → False) → charLit s_1 = 3
+theorem charLit.eq_2 : ∀ (s_1 : String), (s_1 = "c" → False) → charLit s_1 = 3
 -/
 #guard_msgs in
 #print equations charLit
@@ -44,7 +44,7 @@ def natLit (s : String) : Nat :=
 /--
 info: equations:
 theorem natLit.eq_1 : natLit "c" = 2
-theorem natLit.eq_2 : ∀ (s_1 : String), (1 = 1 → s_1 = "c" → False) → natLit s_1 = 3
+theorem natLit.eq_2 : ∀ (s_1 : String), (s_1 = "c" → False) → natLit s_1 = 3
 -/
 #guard_msgs in
 #print equations natLit
@@ -60,8 +60,7 @@ def succDiscr (s : String) (n : Nat) : Nat :=
 /--
 info: equations:
 theorem succDiscr.eq_1 : ∀ (n : Nat), succDiscr "c" n = n
-theorem succDiscr.eq_2 : ∀ (n : Nat) (s_1 : String),
-  (n + 1 = 0 → False) → (∀ (k : Nat), n + 1 = k.succ → s_1 = "c" → False) → succDiscr s_1 n = 3
+theorem succDiscr.eq_2 : ∀ (n : Nat) (s_1 : String), (s_1 = "c" → False) → succDiscr s_1 n = 3
 -/
 #guard_msgs in
 #print equations succDiscr
@@ -75,8 +74,7 @@ def someDiscr (s : String) (n : Nat) : Nat :=
 /--
 info: equations:
 theorem someDiscr.eq_1 : ∀ (n : Nat), someDiscr "c" n = n
-theorem someDiscr.eq_2 : ∀ (n : Nat) (s_1 : String),
-  (some n = none → False) → (∀ (k : Nat), some n = some k → s_1 = "c" → False) → someDiscr s_1 n = 3
+theorem someDiscr.eq_2 : ∀ (n : Nat) (s_1 : String), (s_1 = "c" → False) → someDiscr s_1 n = 3
 -/
 #guard_msgs in
 #print equations someDiscr
@@ -89,8 +87,7 @@ def pairDiscr (s : String) (n m : Nat) : Nat :=
 /--
 info: equations:
 theorem pairDiscr.eq_1 : ∀ (n m : Nat), pairDiscr "c" n m = n + m
-theorem pairDiscr.eq_2 : ∀ (n m : Nat) (s_1 : String),
-  (∀ (b : Nat), s_1 = "c" → m + 1 = b.succ → False) → pairDiscr s_1 n m = n
+theorem pairDiscr.eq_2 : ∀ (n m : Nat) (s_1 : String), (s_1 = "c" → False) → pairDiscr s_1 n m = n
 -/
 #guard_msgs in
 #print equations pairDiscr
@@ -107,7 +104,7 @@ def haveLit (s : String) : Nat :=
 /--
 info: equations:
 theorem haveLit.eq_1 : haveLit "c" = 2
-theorem haveLit.eq_2 : ∀ (s_1 : String), ("b" = "b" → s_1 = "c" → False) → haveLit s_1 = 3
+theorem haveLit.eq_2 : ∀ (s_1 : String), (s_1 = "c" → False) → haveLit s_1 = 3
 -/
 #guard_msgs in
 #print equations haveLit
@@ -122,8 +119,7 @@ def letSucc (s : String) (n : Nat) : Nat :=
 /--
 info: equations:
 theorem letSucc.eq_1 : ∀ (n : Nat), letSucc "c" n = n
-theorem letSucc.eq_2 : ∀ (n : Nat) (s_1 : String),
-  (n + 1 = 0 → False) → (∀ (k : Nat), n + 1 = k.succ → s_1 = "c" → False) → letSucc s_1 n = 3
+theorem letSucc.eq_2 : ∀ (n : Nat) (s_1 : String), (s_1 = "c" → False) → letSucc s_1 n = 3
 -/
 #guard_msgs in
 #print equations letSucc
@@ -159,9 +155,7 @@ def depCtor (n : Nat) (w : Vec n) (s : String) : Nat :=
 /--
 info: equations:
 theorem depCtor.eq_1 : ∀ (n : Nat) (w : Vec n), depCtor n w "c" = 5
-theorem depCtor.eq_2 : ∀ (n : Nat) (w : Vec n) (s_1 : String),
-  (∀ (n_1 a : Nat) (a_1 : Vec n_1), n + 1 = n_1 + 1 → Vec.cons 5 w ≍ Vec.cons a a_1 → s_1 = "c" → False) →
-    depCtor n w s_1 = 0
+theorem depCtor.eq_2 : ∀ (n : Nat) (w : Vec n) (s_1 : String), (s_1 = "c" → False) → depCtor n w s_1 = 0
 -/
 #guard_msgs in
 #print equations depCtor
@@ -175,10 +169,7 @@ def depSucc (n : Nat) (w : Vec n) (s : String) : Nat :=
 /--
 info: equations:
 theorem depSucc.eq_1 : ∀ (n : Nat) (w : Vec n), depSucc n w "c" = 5 + n
-theorem depSucc.eq_2 : ∀ (n : Nat) (w : Vec n) (s_1 : String),
-  (∀ (x : Vec 0), n + 1 = 0 → Vec.cons 5 w ≍ x → False) →
-    (∀ (k a : Nat) (a_1 : Vec k), n + 1 = k.succ → Vec.cons 5 w ≍ Vec.cons a a_1 → s_1 = "c" → False) →
-      depSucc n w s_1 = 0
+theorem depSucc.eq_2 : ∀ (n : Nat) (w : Vec n) (s_1 : String), (s_1 = "c" → False) → depSucc n w s_1 = 0
 -/
 #guard_msgs in
 #print equations depSucc
@@ -196,7 +187,7 @@ def recSome : Nat → String → Nat
 info: equations:
 @[backward_defeq] theorem recSome.eq_1 : ∀ (x : String), recSome 0 x = 0
 theorem recSome.eq_2 : ∀ (n : Nat), recSome n.succ "c" = recSome n "c" + n
-theorem recSome.eq_3 : ∀ (n : Nat) (s : String), (∀ (k : Nat), some n = some k → s = "c" → False) → recSome n.succ s = 0
+theorem recSome.eq_3 : ∀ (n : Nat) (s : String), (s = "c" → False) → recSome n.succ s = 0
 -/
 #guard_msgs in
 #print equations recSome
@@ -214,8 +205,7 @@ def nestedLit (s : String) : Nat :=
 
 /--
 info: equations:
-theorem nestedLit.eq_1 : ∀ (s_1 : String),
-  (∀ (fst : Nat), (1, "c") = (fst, "b") → s_1 = "x" → False) → nestedLit s_1 = 2
+theorem nestedLit.eq_1 : ∀ (s_1 : String), nestedLit s_1 = 2
 -/
 #guard_msgs in
 #print equations nestedLit
@@ -232,9 +222,8 @@ info: equations:
 theorem nestedPairVar.eq_1 : nestedPairVar 0 "x" = 1
 theorem nestedPairVar.eq_2 : ∀ (k : Nat), nestedPairVar k.succ "x" = k
 theorem nestedPairVar.eq_3 : ∀ (n : Nat) (s_1 : String),
-  (∀ (fst : Nat), (n, "c") = (fst, "b") → False) →
-    ((n, "c") = (0, "c") → s_1 = "x" → False) →
-      (∀ (k : Nat), (n, "c") = (k.succ, "c") → s_1 = "x" → False) → nestedPairVar n s_1 = 2
+  ((n, "c") = (0, "c") → s_1 = "x" → False) →
+    (∀ (k : Nat), (n, "c") = (k.succ, "c") → s_1 = "x" → False) → nestedPairVar n s_1 = 2
 -/
 #guard_msgs in
 #print equations nestedPairVar
@@ -249,9 +238,7 @@ def nestedHave (n : Nat) (s : String) : Nat :=
 /--
 info: equations:
 theorem nestedHave.eq_1 : ∀ (n : Nat), nestedHave n "x" = n
-theorem nestedHave.eq_2 : ∀ (n : Nat) (s_1 : String),
-  (∀ (fst : Nat), (n, "c") = (fst, "b") → False) →
-    (∀ (a : Nat), (n, "c") = (a, "c") → s_1 = "x" → False) → nestedHave n s_1 = 2
+theorem nestedHave.eq_2 : ∀ (n : Nat) (s_1 : String), (s_1 = "x" → False) → nestedHave n s_1 = 2
 -/
 #guard_msgs in
 #print equations nestedHave
@@ -271,7 +258,7 @@ def nestedProof (s : String) : Nat :=
 /--
 info: equations:
 theorem nestedProof.eq_1 : nestedProof "x" = 2
-theorem nestedProof.eq_2 : ∀ (s_1 : String), (("a", "b") = ("a", "b") → s_1 = "x" → False) → nestedProof s_1 = 4
+theorem nestedProof.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → nestedProof s_1 = 4
 -/
 #guard_msgs in
 #print equations nestedProof
@@ -288,10 +275,7 @@ def nestedSucc (n : Nat) (s : String) : Nat :=
 /--
 info: equations:
 theorem nestedSucc.eq_1 : ∀ (n : Nat), nestedSucc n "x" = n + 10
-theorem nestedSucc.eq_2 : ∀ (n : Nat) (s_1 : String),
-  (∀ (snd : String), (n + 1, "k") = (0, snd) → False) →
-    (∀ (a : Nat), (n + 1, "k") = (a.succ, "j") → False) →
-      (∀ (a : Nat), (n + 1, "k") = (a.succ, "k") → s_1 = "x" → False) → nestedSucc n s_1 = 4
+theorem nestedSucc.eq_2 : ∀ (n : Nat) (s_1 : String), (s_1 = "x" → False) → nestedSucc n s_1 = 4
 -/
 #guard_msgs in
 #print equations nestedSucc
@@ -319,7 +303,41 @@ def t (s : String) : Nat :=
 /--
 info: equations:
 theorem t.eq_1 : t "x" = 2
-theorem t.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → t s_1 = 4
+theorem t.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → t s_1 = 4
 -/
 #guard_msgs in
 #print equations t
+
+/-!
+The hypothesis that excludes an earlier alternative binds the pattern variables of that
+alternative. The equalities with the discriminant determine them, and they are removed: `a` in
+`overlapVar`; `a`, `b`, and `c` in `overlapVars`. The hypothesis for the second alternative of
+`overlapVars` is contradictory and is dropped, with its five variables.
+-/
+
+def overlapVar (n : Nat) (s : String) : Nat :=
+  match some (n, 5), s with
+  | some (a, 5), "x" => a
+  | _, _ => 0
+
+/--
+info: equations:
+theorem overlapVar.eq_1 : ∀ (n : Nat), overlapVar n "x" = n
+theorem overlapVar.eq_2 : ∀ (n : Nat) (s_1 : String), (s_1 = "x" → False) → overlapVar n s_1 = 0
+-/
+#guard_msgs in
+#print equations overlapVar
+
+def overlapVars (n m : Nat) (s : String) : Nat :=
+  match (n, m + 1, [n]), s with
+  | (a, b + 1, [c]), "x" => a + b + c
+  | (_, _, _ :: _ :: _), "y" => 1
+  | _, _ => 0
+
+/--
+info: equations:
+theorem overlapVars.eq_1 : ∀ (n m : Nat), overlapVars n m "x" = n + m + n
+theorem overlapVars.eq_2 : ∀ (n m : Nat) (s_1 : String), (s_1 = "x" → False) → overlapVars n m s_1 = 0
+-/
+#guard_msgs in
+#print equations overlapVars

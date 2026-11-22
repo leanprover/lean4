@@ -30,7 +30,7 @@ def proofNat (s : String) : Nat :=
 /--
 info: equations:
 theorem proofNat.eq_1 : proofNat "x" = 2
-theorem proofNat.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofNat s_1 = 4
+theorem proofNat.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofNat s_1 = 4
 -/
 #guard_msgs in
 #print equations proofNat
@@ -57,7 +57,7 @@ def proofInt (s : String) : Nat :=
 /--
 info: equations:
 theorem proofInt.eq_1 : proofInt "x" = 2
-theorem proofInt.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofInt s_1 = 4
+theorem proofInt.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofInt s_1 = 4
 -/
 #guard_msgs in
 #print equations proofInt
@@ -84,7 +84,7 @@ def proofFin (s : String) : Nat :=
 /--
 info: equations:
 theorem proofFin.eq_1 : proofFin "x" = 2
-theorem proofFin.eq_2 : ∀ (s_1 : String), ((1, 2) = (1, 2) → s_1 = "x" → False) → proofFin s_1 = 4
+theorem proofFin.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofFin s_1 = 4
 -/
 #guard_msgs in
 #print equations proofFin
@@ -111,7 +111,7 @@ def proofBitVec (s : String) : Nat :=
 /--
 info: equations:
 theorem proofBitVec.eq_1 : proofBitVec "x" = 2
-theorem proofBitVec.eq_2 : ∀ (s_1 : String), ((1#8, 2#8) = (1#8, 2#8) → s_1 = "x" → False) → proofBitVec s_1 = 4
+theorem proofBitVec.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofBitVec s_1 = 4
 -/
 #guard_msgs in
 #print equations proofBitVec
@@ -123,8 +123,7 @@ def stmtString (s : String) : Nat :=
 
 /--
 info: equations:
-theorem stmtString.eq_1 : ∀ (s_1 : String),
-  (∀ (fst : Nat), (1, "a") = (fst, "b") → s_1 = "x" → False) → stmtString s_1 = 2
+theorem stmtString.eq_1 : ∀ (s_1 : String), stmtString s_1 = 2
 -/
 #guard_msgs in
 #print equations stmtString
@@ -139,7 +138,7 @@ def proofString (s : String) : Nat :=
 /--
 info: equations:
 theorem proofString.eq_1 : proofString "x" = 2
-theorem proofString.eq_2 : ∀ (s_1 : String), (("a", "b") = ("a", "b") → s_1 = "x" → False) → proofString s_1 = 4
+theorem proofString.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofString s_1 = 4
 -/
 #guard_msgs in
 #print equations proofString
@@ -166,7 +165,7 @@ def proofChar (s : String) : Nat :=
 /--
 info: equations:
 theorem proofChar.eq_1 : proofChar "x" = 2
-theorem proofChar.eq_2 : ∀ (s_1 : String), (('a', 'b') = ('a', 'b') → s_1 = "x" → False) → proofChar s_1 = 4
+theorem proofChar.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofChar s_1 = 4
 -/
 #guard_msgs in
 #print equations proofChar
@@ -193,7 +192,7 @@ def proofUInt8 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofUInt8.eq_1 : proofUInt8 "x" = 2
-theorem proofUInt8.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofUInt8 s_1 = 4
+theorem proofUInt8.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofUInt8 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofUInt8
@@ -220,7 +219,7 @@ def proofUInt16 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofUInt16.eq_1 : proofUInt16 "x" = 2
-theorem proofUInt16.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofUInt16 s_1 = 4
+theorem proofUInt16.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofUInt16 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofUInt16
@@ -259,7 +258,7 @@ def proofUInt32 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofUInt32.eq_1 : proofUInt32 "x" = 2
-theorem proofUInt32.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofUInt32 s_1 = 4
+theorem proofUInt32.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofUInt32 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofUInt32
@@ -274,7 +273,7 @@ def proofUInt64 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofUInt64.eq_1 : proofUInt64 "x" = 2
-theorem proofUInt64.eq_2 : ∀ (s_1 : String), ((10, 20) = (10, 20) → s_1 = "x" → False) → proofUInt64 s_1 = 4
+theorem proofUInt64.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofUInt64 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofUInt64
@@ -301,7 +300,7 @@ def proofInt8 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofInt8.eq_1 : proofInt8 "x" = 2
-theorem proofInt8.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt8 s_1 = 4
+theorem proofInt8.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofInt8 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofInt8
@@ -328,7 +327,7 @@ def proofInt16 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofInt16.eq_1 : proofInt16 "x" = 2
-theorem proofInt16.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt16 s_1 = 4
+theorem proofInt16.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofInt16 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofInt16
@@ -355,7 +354,7 @@ def proofInt32 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofInt32.eq_1 : proofInt32 "x" = 2
-theorem proofInt32.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt32 s_1 = 4
+theorem proofInt32.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofInt32 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofInt32
@@ -382,7 +381,7 @@ def proofInt64 (s : String) : Nat :=
 /--
 info: equations:
 theorem proofInt64.eq_1 : proofInt64 "x" = 2
-theorem proofInt64.eq_2 : ∀ (s_1 : String), ((10, -20) = (10, -20) → s_1 = "x" → False) → proofInt64 s_1 = 4
+theorem proofInt64.eq_2 : ∀ (s_1 : String), (s_1 = "x" → False) → proofInt64 s_1 = 4
 -/
 #guard_msgs in
 #print equations proofInt64

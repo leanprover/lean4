@@ -22,11 +22,11 @@ def delta : True' → True' := fun z => z (True' → True') id z
 def omega : True' := fun _ a => cast (tautext id a) delta
 def Omega : True' := delta omega
 
-/-! `Prod` major that does not reduce to a constructor (`Acc.rec'` has no iota rule) -/
+/-! `Prod` major whose weak head normal form does not exist -/
 
 def loopAcc : Acc (fun _ _ : Nat => False) 0 := Omega _ (Acc.intro 0 fun _ h => h.elim)
 noncomputable def loopPair : Nat × Nat :=
-  Acc.rec' (motive := fun _ _ => Nat × Nat) (fun _ _ _ => (0, 0)) loopAcc
+  Acc.rec (motive := fun _ _ => Nat × Nat) (fun _ _ _ => (0, 0)) loopAcc
 noncomputable def prodConst (p : Nat × Nat) : Nat := Prod.rec (motive := fun _ => Nat) (fun _ _ => 1) p
 
 theorem prodMajorNoWhnf : prodConst loopPair = 1 := by unchecked_rfl

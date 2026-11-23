@@ -18,6 +18,14 @@ open Meta
 private def containsSmartUnfoldingMatch (e : Expr) : Bool :=
   (e.find? fun e => (smartUnfoldingMatch? e).isSome).isSome
 
+/-- Set bit `start + i` when `args[i]` contains a match that smart unfolding must reduce. -/
+private def smartUnfoldingInputMask (start : Nat) (args : Array Expr) : Nat := Id.run do
+  let mut mask := 0
+  for h : i in *...args.size do
+    if containsSmartUnfoldingMatch args[i] then
+      mask := mask ||| (1 <<< (start + i))
+  return mask
+
 /--
 Build `f._sunfold` by annotating the original body of `f`. Each entry in `recFns` gives the
 name of a function in the mutual group and the position of its structural argument.
@@ -35,9 +43,9 @@ where
   whose structural argument contains a loose bound variable. This is the `recArgHasLooseBVarsAt`
   test that `mkBRecOn` uses to decide whether to refine `below` at `e`.
 
-  Visit the discriminants and alternative bodies of a marked matcher. If an alternative body
-  contains no marked matcher, mark it with `markSmartUnfoldingMatchAlt`. Once the reducer has
-  checked the discriminants and selected that alternative, it can return the body immediately.
+  Visit the discriminants, alternative bodies, and extra arguments of a marked matcher. If an
+  alternative body contains no marked matcher, mark it with `markSmartUnfoldingMatchAlt`. Once
+  the reducer has checked the inputs and selected that alternative, it can return the body immediately.
   -/
   visit (e : Expr) : MetaM Expr := do
     match e with
@@ -65,17 +73,14 @@ where
               mkLambdaFVars xs altBody
             altsNew := altsNew.push altNew
           let discrs ← matcherApp.discrs.mapM visit
+          let remaining ← matcherApp.remaining.mapM visit
           -- In `match some (match n with ...) with | some x => x | none => ...`, the outer
           -- match can return `x` even when the marked match on `n` is stuck. The reducer must
-          -- check that discriminant first. We compute the mask here so each unfold visits only
-          -- the discriminants containing marked matches. A zero mask skips this check entirely.
-          -- Bit `j` indexes argument `j` of the full matcher application, where the parameters
-          -- and motive come before the discriminants.
-          let mut inputs := 0
-          for h : i in *...discrs.size do
-            if containsSmartUnfoldingMatch discrs[i] then
-              inputs := inputs ||| (1 <<< (matcherApp.getFirstDiscrPos + i))
-          return markSmartUnfoldingMatch { matcherApp with alts := altsNew, discrs }.toExpr inputs
+          -- check that discriminant first. Likewise, a function-valued alternative can return
+          -- an extra argument containing a stuck match. A zero mask skips both checks.
+          let inputs := smartUnfoldingInputMask matcherApp.getFirstDiscrPos discrs |||
+            smartUnfoldingInputMask matcherApp.arity remaining
+          return markSmartUnfoldingMatch { matcherApp with alts := altsNew, discrs, remaining }.toExpr inputs
       | _ => processApp e
     | _ => return e
 

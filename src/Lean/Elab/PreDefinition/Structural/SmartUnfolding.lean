@@ -14,6 +14,14 @@ public section
 namespace Lean.Elab.Structural
 open Meta
 
+/-- Does `e` contain a matcher marked for reduction by smart unfolding? -/
+private def containsSmartUnfoldingMatch (e : Expr) : Bool :=
+  (e.find? fun e => (smartUnfoldingMatch? e).isSome).isSome
+
+/--
+Build `f._sunfold` by annotating the original body of `f`. Each entry in `recFns` gives the
+name of a function in the mutual group and the position of its structural argument.
+-/
 partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recFns : Array (Name × Nat)) :
     MetaM PreDefinition := do
   return { preDef with
@@ -23,15 +31,13 @@ partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recFns : Array (Na
   }
 where
   /--
-     Auxiliary method for annotating `match`-alternatives with `markSmartUnfoldingMatch` and `markSmartUnfoldingMatchAlt`.
+  Mark a matcher application `e` with `markSmartUnfoldingMatch` if it contains a recursive call
+  whose structural argument contains a loose bound variable. This is the `recArgHasLooseBVarsAt`
+  test that `mkBRecOn` uses to decide whether to refine `below` at `e`.
 
-     It uses the following approach:
-     - Whenever it finds a `match` application `e` s.t. `recArgHasLooseBVarsAt fnName recArgPos e`
-       for some function `fnName` of the mutual group with recursive argument at `recArgPos`,
-       it marks the `match` with `markSmartUnfoldingMatch`, and each alternative that does not contain a nested marked `match`
-       is marked with `markSmartUnfoldingMatchAlt`.
-
-     Recall that this is the condition used at `mkBRecOn`.
+  Visit the discriminants and alternative bodies of a marked matcher. If an alternative body
+  contains no marked matcher, mark it with `markSmartUnfoldingMatchAlt`. Once the reducer has
+  checked the discriminants and selected that alternative, it can return the body immediately.
   -/
   visit (e : Expr) : MetaM Expr := do
     match e with
@@ -57,14 +63,25 @@ where
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let altBody ← visit altBody
-              let containsSUnfoldMatch := Option.isSome <| altBody.find? fun e => smartUnfoldingMatch? e |>.isSome
-              let altBody := if !containsSUnfoldMatch then markSmartUnfoldingMatchAlt altBody else altBody
+              let altBody := if containsSmartUnfoldingMatch altBody then altBody else markSmartUnfoldingMatchAlt altBody
               mkLambdaFVars xs altBody
             altsNew := altsNew.push altNew
-          return markSmartUnfoldingMatch { matcherApp with alts := altsNew }.toExpr
+          let discrs ← matcherApp.discrs.mapM visit
+          -- In `match some (match n with ...) with | some x => x | none => ...`, the outer
+          -- match can return `x` even when the marked match on `n` is stuck. The reducer must
+          -- check that discriminant first. We compute the mask here so each unfold visits only
+          -- the discriminants containing marked matches. A zero mask skips this check entirely.
+          -- Bit `j` indexes argument `j` of the full matcher application, where the parameters
+          -- and motive come before the discriminants.
+          let mut inputs := 0
+          for h : i in *...discrs.size do
+            if containsSmartUnfoldingMatch discrs[i] then
+              inputs := inputs ||| (1 <<< (matcherApp.getFirstDiscrPos + i))
+          return markSmartUnfoldingMatch { matcherApp with alts := altsNew, discrs }.toExpr inputs
       | _ => processApp e
     | _ => return e
 
+/-- Add `f._sunfold` to the environment for a structurally recursive definition `f`. Proofs are skipped. -/
 partial def addSmartUnfoldingDef
     (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (recFns : Array (Name × Nat)) :
     TermElabM Unit := do

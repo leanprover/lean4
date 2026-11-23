@@ -202,8 +202,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : IO Bool */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
     event_loop_guard guard;
+    // A stopped loop runs nothing any more.
     if (guard.stopped()) {
-        return io_result_mk_uv_error(UV_ECANCELED);
+        return lean_io_result_mk_ok(lean_box(false));
     }
     return lean_io_result_mk_ok(lean_box(global_ev.alive(guard)));
 }

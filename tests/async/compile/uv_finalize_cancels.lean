@@ -9,7 +9,7 @@ task manager, since a libuv callback that ran afterwards would resolve a promise
 manager that is gone. Every libuv operation still pending then fails with `UV_ECANCELED`, so that the
 tasks waiting on it finish: a timer, an accept that never comes, a `Child.wait` on a child that keeps
 running, and a send to a peer that does not read, which gets the 2 s flush first. An operation
-started after `main` returned fails with `UV_ECANCELED` at once.
+started after `main` returned fails with `UV_ECANCELED` at once, and `Loop.alive` reports `false`.
 -/
 
 def report (what : String) (r : Except IO.Error α) : IO Unit := do
@@ -49,5 +49,6 @@ def main : IO Unit := do
     report "accept" ((← await accept).map fun _ => ())
     report "send" (← await send)
     report "timer started after main returned" (← (do (← Timer.mk 10 false).next).toBaseIO)
+    IO.println s!"Loop.alive after main returned: {← Loop.alive}"
     peer.close
   IO.println "main returns"

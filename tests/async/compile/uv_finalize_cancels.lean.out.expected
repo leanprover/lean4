@@ -4,3 +4,4 @@ timer started before main returned: canceled
 accept: canceled
 send: canceled
 timer started after main returned: canceled
+Loop.alive after main returned: false

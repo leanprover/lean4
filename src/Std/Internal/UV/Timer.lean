@@ -64,11 +64,12 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-A promise from `next` may also be resolved by the code holding it; the timer then treats it as
-fulfilled when it fires.
+The promise resolves to `.ok ()` when the timer fires, or to an error when the timer fails and can
+no longer fire. A promise from `next` may also be resolved by the code holding it; the timer then
+treats it as fulfilled when it fires.
 -/
 @[extern "lean_uv_timer_next"]
-opaque next (timer : @& Timer) : IO (IO.Promise Unit)
+opaque next (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 This function has different behavior depending on the state and configuration of the `Timer`:

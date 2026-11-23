@@ -23,7 +23,7 @@ def signalStop : IO Unit := do
     discard <| signal.next
 
 def timerNext : IO Unit := do
-  let promises ← IO.mkRef (#[] : Array (IO.Promise Unit))
+  let promises ← IO.mkRef (#[] : Array (IO.Promise (Except IO.Error Unit)))
   for _ in [0:200] do
     let timer ← Timer.mk 3600000 false
     arm timer.next do

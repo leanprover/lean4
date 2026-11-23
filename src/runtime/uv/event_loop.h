@@ -80,6 +80,6 @@ public:
 // =======================================
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options);
-extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive();
 
 }

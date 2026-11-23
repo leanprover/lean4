@@ -75,7 +75,7 @@ static void handle_timer_event(uv_timer_t* handle) {
 
     // Code holding the promise may have resolved it already.
     if (promise.get() != nullptr && !promise_is_resolved(promise.get())) {
-        lean_dec(lean_io_promise_resolve(lean_box(0), promise.get()));
+        lean_dec(lean_io_promise_resolve(mk_except_ok(lean_box(0)), promise.get()));
     }
 
     // Released only after resolving: when the loop holds the last reference, as for a dropped
@@ -113,7 +113,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     return lean_io_result_mk_ok(obj);
 }
 
-/* Std.Internal.UV.Timer.next (timer : @& Timer) : IO (IO.Promise Unit) */
+/* Std.Internal.UV.Timer.next (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 

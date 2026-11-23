@@ -114,10 +114,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.UV.Loop.alive : BaseIO Bool */
-extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
+/* Std.Internal.UV.Loop.alive : IO Bool */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
     event_loop_guard guard;
-    return global_ev.alive(guard);
+    return lean_io_result_mk_ok(lean_box(global_ev.alive(guard)));
 }
 
 #else
@@ -127,9 +127,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     return io_result_mk_error("lean_uv_event_loop_configure is not supported");
 }
 
-/* Std.Internal.UV.Loop.alive : BaseIO Bool */
-extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
-    return 0;
+/* Std.Internal.UV.Loop.alive : IO Bool */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 #endif

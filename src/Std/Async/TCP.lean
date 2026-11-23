@@ -207,6 +207,9 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
       let readableWaiter ← s.native.waitReadable
 
       if ← readableWaiter.isResolved then
+        -- A failed wait is ready too: its error is the result of the select.
+        if let some (.error e) := readableWaiter.result?.get then
+          throw e
         let res ← s.recv? size
         return some res
       else

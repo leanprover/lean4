@@ -70,12 +70,12 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-A promise from `next` may also be resolved by the code holding it; the handler then treats it as
-fulfilled when the signal arrives. The resolved `IO.Promise` contains the signal number that was
-received.
+The promise resolves to `.ok` with the number of the received signal, or to an error when the
+handler fails and can no longer report the signal. A promise from `next` may also be resolved by the
+code holding it; the handler then treats it as fulfilled when the signal arrives.
 -/
 @[extern "lean_uv_signal_next"]
-opaque next (signal : @& Signal) : IO (IO.Promise Int)
+opaque next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
 
 /--
 This function has different behavior depending on the state of the `Signal`:

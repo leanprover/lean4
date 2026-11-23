@@ -50,10 +50,12 @@ If:
   `Async` computation as the last call to `wait`. A select that checks `s` before it completes
   restarts it, and the computations from earlier calls then fail.
 - `s` was stopped with `stop` before completing, return an `Async` computation that fails.
+
+If the timer fails, the computation fails with its error.
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
-  Async.ofPurePromise s.native.next
+  Async.ofPromise s.native.next
 
 /--
 If:
@@ -77,15 +79,19 @@ def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a
-Selectable. Every select or `Selectable.tryOne` that checks `s` before it has finished starts it again
-from `duration`, so a `Sleep` that is checked more often than `duration` never finishes.
+Create a `Selector` that resolves once `s` has finished, or fails with the timer's error if the
+timer fails. `s` only starts when it runs inside of a Selectable. Every select or
+`Selectable.tryOne` that checks `s` before it has finished starts it again from `duration`, so a
+`Sleep` that is checked more often than `duration` never finishes.
 -/
 def selector (s : Sleep) : Selector Unit :=
   {
     tryFn := do
       let sleepWaiter ← s.native.next
       if ← sleepWaiter.isResolved then
+        -- A failed timer is ready too: its error is the result of the select.
+        if let some (.error e) := sleepWaiter.result?.get then
+          throw e
         return some ()
       else
         s.native.cancel
@@ -96,9 +102,9 @@ def selector (s : Sleep) : Selector Unit :=
       BaseIO.chainTask sleepWaiter.result? fun
         | none => do
           return ()
-        | some _ =>
+        | some res =>
           let lose := return ()
-          let win promise := promise.resolve (.ok ())
+          let win promise := promise.resolve res
           waiter.race lose win
 
     unregisterFn := s.native.cancel
@@ -153,7 +159,7 @@ If:
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do
-  Async.ofPurePromise i.native.next
+  Async.ofPromise i.native.next
 
 /--
 If:

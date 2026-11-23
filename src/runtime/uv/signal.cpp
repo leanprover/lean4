@@ -81,7 +81,7 @@ static void handle_signal_event(uv_signal_t* handle, int) {
     // Continuations run by the resolve may `stop` a repeating signal and free it, so nothing below may
     // touch it. Code holding the promise may have resolved it already.
     if (!promise_is_resolved(promise.get())) {
-        lean_dec(lean_io_promise_resolve(lean_box(signum), promise.get()));
+        lean_dec(lean_io_promise_resolve(mk_except_ok(lean_box(signum)), promise.get()));
     }
 
     // Released only after resolving: when the loop holds the last reference this runs the finalizer,
@@ -152,7 +152,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     return lean_io_result_mk_ok(obj);
 }
 
-/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise Int) */
+/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
@@ -193,7 +193,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
             if (signal->m_received) {
                 signal->m_received = false;
-                lean_dec(lean_io_promise_resolve(lean_box(signal->m_lean_signum), signal->m_promise.get()));
+                lean_dec(lean_io_promise_resolve(mk_except_ok(lean_box(signal->m_lean_signum)), signal->m_promise.get()));
             }
         }
 
@@ -280,7 +280,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     );
 }
 
-/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise Int) */
+/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

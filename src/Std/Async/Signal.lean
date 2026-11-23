@@ -221,12 +221,13 @@ If:
   `AsyncTask` that fails.
 
 The resolved `AsyncTask` contains the number that `Signal` assigns to the received signal, which is
-the same on every platform (the x86 Linux numbering).
+the same on every platform (the x86 Linux numbering). If the handler fails, the task fails with its
+error.
 -/
 @[inline]
 def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
   let promise ← s.native.next
-  return .ofPurePromise promise
+  return .ofPromise promise
 
 /--
 If:
@@ -240,9 +241,9 @@ def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has received the signal. Calling this function does not
-start the signal waiter: a select starts it when it checks it, and it may not check it at all if
-another selector is already ready.
+Create a `Selector` that resolves once `s` has received the signal, or fails with the handler's
+error if the handler fails. Calling this function does not start the signal waiter: a select starts
+it when it checks it, and it may not check it at all if another selector is already ready.
 
 A select that checks `s` without picking it leaves it listening until `stop` is called or `s` is
 dropped, and a signal that arrives afterwards is kept and reported by the next select that checks
@@ -258,15 +259,20 @@ def selector (s : Signal.Waiter) : Selector Unit :=
       s.native.cancel
       -- A signal that arrived before `cancel` resolved `signalWaiter` instead of being kept.
       if ← signalWaiter.isResolved then
+        -- A failed handler is ready too: its error is the result of the select.
+        if let some (.error e) := signalWaiter.result?.get then
+          throw e
         return some ()
       return none
 
     registerFn waiter := do
-      let signalWaiter ← s.wait
-      discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
-        let lose := return ()
-        let win promise := promise.resolve (.ok ())
-        waiter.race lose win
+      let signalWaiter ← s.native.next
+      BaseIO.chainTask signalWaiter.result? fun
+        | none => return ()
+        | some res =>
+          let lose := return ()
+          let win promise := promise.resolve (res.map fun _ => ())
+          waiter.race lose win
 
     unregisterFn := s.native.cancel
 

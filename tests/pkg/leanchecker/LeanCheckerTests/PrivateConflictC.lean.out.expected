@@ -1,1 +1,0 @@
-uncaught exception: import LeanCheckerTests.PrivateConflictB failed, environment already contains 'foo' from LeanCheckerTests.PrivateConflictA

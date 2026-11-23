@@ -11498,7 +11498,7 @@ _start:
 lean_object* v___x_4065_; lean_object* v___x_4066_; lean_object* v___x_4067_; 
 v___x_4065_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getAsyncConstInfo___at___00__private_Lean_Elab_Tactic_Grind_BuiltinTactic_0__Lean_Elab_Tactic_Grind_evalInstantiate_elabEMatchTheorem_spec__0_spec__0_spec__1_spec__4_spec__5_spec__6___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getAsyncConstInfo___at___00__private_Lean_Elab_Tactic_Grind_BuiltinTactic_0__Lean_Elab_Tactic_Grind_evalInstantiate_elabEMatchTheorem_spec__0_spec__0_spec__1_spec__4_spec__5_spec__6___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getAsyncConstInfo___at___00__private_Lean_Elab_Tactic_Grind_BuiltinTactic_0__Lean_Elab_Tactic_Grind_evalInstantiate_elabEMatchTheorem_spec__0_spec__0_spec__1_spec__4_spec__5_spec__6___redArg___closed__1);
 v___x_4066_ = lean_unsigned_to_nat(0u);
-v___x_4067_ = lean_alloc_ctor(0, 11, 0);
+v___x_4067_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_4067_, 0, v___x_4066_);
 lean_ctor_set(v___x_4067_, 1, v___x_4066_);
 lean_ctor_set(v___x_4067_, 2, v___x_4066_);
@@ -11509,7 +11509,6 @@ lean_ctor_set(v___x_4067_, 6, v___x_4065_);
 lean_ctor_set(v___x_4067_, 7, v___x_4065_);
 lean_ctor_set(v___x_4067_, 8, v___x_4065_);
 lean_ctor_set(v___x_4067_, 9, v___x_4065_);
-lean_ctor_set(v___x_4067_, 10, v___x_4065_);
 return v___x_4067_;
 }
 }
@@ -21140,8 +21139,8 @@ goto v___jp_7549_;
 }
 else
 {
-lean_dec(v_id_7555_);
 lean_dec_ref_known(v_ex_7539_, 2);
+lean_dec(v_id_7555_);
 goto v___jp_7549_;
 }
 }

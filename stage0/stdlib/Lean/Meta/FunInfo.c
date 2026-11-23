@@ -4921,7 +4921,7 @@ _start:
 lean_object* v___x_1532_; lean_object* v___x_1533_; lean_object* v___x_1534_; lean_object* v___x_1535_; lean_object* v___x_1536_; lean_object* v___x_1537_; 
 v___x_1532_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__4___redArg___closed__4));
 v___x_1533_ = lean_unsigned_to_nat(36u);
-v___x_1534_ = lean_unsigned_to_nat(2889u);
+v___x_1534_ = lean_unsigned_to_nat(2892u);
 v___x_1535_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__9___redArg___closed__5));
 v___x_1536_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__9___redArg___closed__4));
 v___x_1537_ = l_mkPanicMessageWithDecl(v___x_1536_, v___x_1535_, v___x_1534_, v___x_1533_, v___x_1532_);
@@ -4934,7 +4934,7 @@ _start:
 lean_object* v___x_1538_; lean_object* v___x_1539_; lean_object* v___x_1540_; lean_object* v___x_1541_; lean_object* v___x_1542_; lean_object* v___x_1543_; 
 v___x_1538_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__4___redArg___closed__4));
 v___x_1539_ = lean_unsigned_to_nat(48u);
-v___x_1540_ = lean_unsigned_to_nat(2880u);
+v___x_1540_ = lean_unsigned_to_nat(2883u);
 v___x_1541_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__9___redArg___closed__5));
 v___x_1542_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__9___redArg___closed__4));
 v___x_1543_ = l_mkPanicMessageWithDecl(v___x_1542_, v___x_1541_, v___x_1540_, v___x_1539_, v___x_1538_);

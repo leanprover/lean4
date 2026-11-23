@@ -1561,9 +1561,9 @@ return v___x_544_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec_spec__3___lam__0___boxed(lean_object* v___x_545_, lean_object* v___x_546_, lean_object* v_targs_547_, lean_object* v_x_548_, lean_object* v___y_549_, lean_object* v___y_550_, lean_object* v___y_551_, lean_object* v___y_552_, lean_object* v___y_553_){
 _start:
 {
-uint8_t v___x_9476__boxed_554_; lean_object* v_res_555_; 
-v___x_9476__boxed_554_ = lean_unbox(v___x_546_);
-v_res_555_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec_spec__3___lam__0(v___x_545_, v___x_9476__boxed_554_, v_targs_547_, v_x_548_, v___y_549_, v___y_550_, v___y_551_, v___y_552_);
+uint8_t v___x_9463__boxed_554_; lean_object* v_res_555_; 
+v___x_9463__boxed_554_ = lean_unbox(v___x_546_);
+v_res_555_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec_spec__3___lam__0(v___x_545_, v___x_9463__boxed_554_, v_targs_547_, v_x_548_, v___y_549_, v___y_550_, v___y_551_, v___y_552_);
 lean_dec(v___y_552_);
 lean_dec_ref(v___y_551_);
 lean_dec(v___y_550_);
@@ -2726,7 +2726,7 @@ _start:
 lean_object* v___x_940_; lean_object* v___x_941_; lean_object* v___x_942_; 
 v___x_940_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec_spec__0_spec__0_spec__3_spec__12_spec__14_spec__15___redArg___closed__0, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec_spec__0_spec__0_spec__3_spec__12_spec__14_spec__15___redArg___closed__0_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec_spec__0_spec__0_spec__3_spec__12_spec__14_spec__15___redArg___closed__0);
 v___x_941_ = lean_unsigned_to_nat(0u);
-v___x_942_ = lean_alloc_ctor(0, 11, 0);
+v___x_942_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_942_, 0, v___x_941_);
 lean_ctor_set(v___x_942_, 1, v___x_941_);
 lean_ctor_set(v___x_942_, 2, v___x_941_);
@@ -2737,7 +2737,6 @@ lean_ctor_set(v___x_942_, 6, v___x_940_);
 lean_ctor_set(v___x_942_, 7, v___x_940_);
 lean_ctor_set(v___x_942_, 8, v___x_940_);
 lean_ctor_set(v___x_942_, 9, v___x_940_);
-lean_ctor_set(v___x_942_, 10, v___x_940_);
 return v___x_942_;
 }
 }

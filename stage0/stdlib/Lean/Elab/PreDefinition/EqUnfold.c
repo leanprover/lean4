@@ -737,7 +737,7 @@ _start:
 lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; 
 v___x_193_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__3_spec__6_spec__11_spec__14_spec__15_spec__16___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__3_spec__6_spec__11_spec__14_spec__15_spec__16___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__3_spec__6_spec__11_spec__14_spec__15_spec__16___redArg___closed__1);
 v___x_194_ = lean_unsigned_to_nat(0u);
-v___x_195_ = lean_alloc_ctor(0, 11, 0);
+v___x_195_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_195_, 0, v___x_194_);
 lean_ctor_set(v___x_195_, 1, v___x_194_);
 lean_ctor_set(v___x_195_, 2, v___x_194_);
@@ -748,7 +748,6 @@ lean_ctor_set(v___x_195_, 6, v___x_193_);
 lean_ctor_set(v___x_195_, 7, v___x_193_);
 lean_ctor_set(v___x_195_, 8, v___x_193_);
 lean_ctor_set(v___x_195_, 9, v___x_193_);
-lean_ctor_set(v___x_195_, 10, v___x_193_);
 return v___x_195_;
 }
 }
@@ -2019,10 +2018,10 @@ goto v___jp_645_;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__1___boxed(lean_object* v___x_701_, lean_object* v___x_702_, lean_object* v___x_703_, lean_object* v_declName_704_, lean_object* v_xs_705_, lean_object* v_eq_706_, lean_object* v___y_707_, lean_object* v___y_708_, lean_object* v___y_709_, lean_object* v___y_710_, lean_object* v___y_711_){
 _start:
 {
-uint8_t v___x_12024__boxed_712_; uint8_t v___x_12025__boxed_713_; lean_object* v_res_714_; 
-v___x_12024__boxed_712_ = lean_unbox(v___x_702_);
-v___x_12025__boxed_713_ = lean_unbox(v___x_703_);
-v_res_714_ = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__1(v___x_701_, v___x_12024__boxed_712_, v___x_12025__boxed_713_, v_declName_704_, v_xs_705_, v_eq_706_, v___y_707_, v___y_708_, v___y_709_, v___y_710_);
+uint8_t v___x_12009__boxed_712_; uint8_t v___x_12010__boxed_713_; lean_object* v_res_714_; 
+v___x_12009__boxed_712_ = lean_unbox(v___x_702_);
+v___x_12010__boxed_713_ = lean_unbox(v___x_703_);
+v_res_714_ = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__1(v___x_701_, v___x_12009__boxed_712_, v___x_12010__boxed_713_, v_declName_704_, v_xs_705_, v_eq_706_, v___y_707_, v___y_708_, v___y_709_, v___y_710_);
 lean_dec(v___y_710_);
 lean_dec_ref(v___y_709_);
 lean_dec(v___y_708_);
@@ -2127,9 +2126,9 @@ return v___x_727_;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__2___boxed(lean_object* v_a_744_, lean_object* v___x_745_, lean_object* v___x_746_, lean_object* v___f_747_, lean_object* v___x_748_, lean_object* v___y_749_, lean_object* v___y_750_, lean_object* v___y_751_, lean_object* v___y_752_, lean_object* v___y_753_){
 _start:
 {
-uint8_t v___x_12193__boxed_754_; lean_object* v_res_755_; 
-v___x_12193__boxed_754_ = lean_unbox(v___x_748_);
-v_res_755_ = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__2(v_a_744_, v___x_745_, v___x_746_, v___f_747_, v___x_12193__boxed_754_, v___y_749_, v___y_750_, v___y_751_, v___y_752_);
+uint8_t v___x_12178__boxed_754_; lean_object* v_res_755_; 
+v___x_12178__boxed_754_ = lean_unbox(v___x_748_);
+v_res_755_ = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__2(v_a_744_, v___x_745_, v___x_746_, v___f_747_, v___x_12178__boxed_754_, v___y_749_, v___y_750_, v___y_751_, v___y_752_);
 lean_dec(v___y_752_);
 lean_dec_ref(v___y_751_);
 lean_dec(v___y_750_);
@@ -2546,10 +2545,10 @@ return v___x_862_;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__3___boxed(lean_object* v_declName_865_, lean_object* v___x_866_, lean_object* v___x_867_, lean_object* v___x_868_, lean_object* v___y_869_, lean_object* v___y_870_, lean_object* v___y_871_, lean_object* v___y_872_, lean_object* v___y_873_){
 _start:
 {
-uint8_t v___x_12313__boxed_874_; uint8_t v___x_12314__boxed_875_; lean_object* v_res_876_; 
-v___x_12313__boxed_874_ = lean_unbox(v___x_866_);
-v___x_12314__boxed_875_ = lean_unbox(v___x_867_);
-v_res_876_ = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__3(v_declName_865_, v___x_12313__boxed_874_, v___x_12314__boxed_875_, v___x_868_, v___y_869_, v___y_870_, v___y_871_, v___y_872_);
+uint8_t v___x_12298__boxed_874_; uint8_t v___x_12299__boxed_875_; lean_object* v_res_876_; 
+v___x_12298__boxed_874_ = lean_unbox(v___x_866_);
+v___x_12299__boxed_875_ = lean_unbox(v___x_867_);
+v_res_876_ = l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__3(v_declName_865_, v___x_12298__boxed_874_, v___x_12299__boxed_875_, v___x_868_, v___y_869_, v___y_870_, v___y_871_, v___y_872_);
 lean_dec(v___y_872_);
 lean_dec_ref(v___y_871_);
 lean_dec(v___y_870_);
@@ -3286,7 +3285,7 @@ _start:
 lean_object* v___x_1173_; lean_object* v___x_1174_; lean_object* v___x_1175_; 
 v___x_1173_ = lean_obj_once(&l_List_forIn_x27_loop___at___00__private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn_00___x40_Lean_Elab_PreDefinition_EqUnfold_1356299382____hygCtx___hyg_2__spec__1___redArg___closed__1, &l_List_forIn_x27_loop___at___00__private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn_00___x40_Lean_Elab_PreDefinition_EqUnfold_1356299382____hygCtx___hyg_2__spec__1___redArg___closed__1_once, _init_l_List_forIn_x27_loop___at___00__private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn_00___x40_Lean_Elab_PreDefinition_EqUnfold_1356299382____hygCtx___hyg_2__spec__1___redArg___closed__1);
 v___x_1174_ = lean_unsigned_to_nat(0u);
-v___x_1175_ = lean_alloc_ctor(0, 11, 0);
+v___x_1175_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1175_, 0, v___x_1174_);
 lean_ctor_set(v___x_1175_, 1, v___x_1174_);
 lean_ctor_set(v___x_1175_, 2, v___x_1174_);
@@ -3297,7 +3296,6 @@ lean_ctor_set(v___x_1175_, 6, v___x_1173_);
 lean_ctor_set(v___x_1175_, 7, v___x_1173_);
 lean_ctor_set(v___x_1175_, 8, v___x_1173_);
 lean_ctor_set(v___x_1175_, 9, v___x_1173_);
-lean_ctor_set(v___x_1175_, 10, v___x_1173_);
 return v___x_1175_;
 }
 }

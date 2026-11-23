@@ -4110,7 +4110,7 @@ _start:
 lean_object* v___x_1149_; lean_object* v___x_1150_; lean_object* v___x_1151_; 
 v___x_1149_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00__private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose_spec__0_spec__0_spec__4_spec__10_spec__15_spec__17_spec__20___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00__private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose_spec__0_spec__0_spec__4_spec__10_spec__15_spec__17_spec__20___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00__private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose_spec__0_spec__0_spec__4_spec__10_spec__15_spec__17_spec__20___redArg___closed__1);
 v___x_1150_ = lean_unsigned_to_nat(0u);
-v___x_1151_ = lean_alloc_ctor(0, 11, 0);
+v___x_1151_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1151_, 0, v___x_1150_);
 lean_ctor_set(v___x_1151_, 1, v___x_1150_);
 lean_ctor_set(v___x_1151_, 2, v___x_1150_);
@@ -4121,7 +4121,6 @@ lean_ctor_set(v___x_1151_, 6, v___x_1149_);
 lean_ctor_set(v___x_1151_, 7, v___x_1149_);
 lean_ctor_set(v___x_1151_, 8, v___x_1149_);
 lean_ctor_set(v___x_1151_, 9, v___x_1149_);
-lean_ctor_set(v___x_1151_, 10, v___x_1149_);
 return v___x_1151_;
 }
 }
@@ -5898,10 +5897,10 @@ goto v___jp_1693_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose___lam__1___boxed(lean_object* v___f_1731_, lean_object* v_s_1732_, lean_object* v___x_1733_, lean_object* v___x_1734_, lean_object* v___y_1735_, lean_object* v___y_1736_, lean_object* v___y_1737_, lean_object* v___y_1738_, lean_object* v___y_1739_){
 _start:
 {
-uint8_t v___x_11355__boxed_1740_; uint8_t v___x_11356__boxed_1741_; lean_object* v_res_1742_; 
-v___x_11355__boxed_1740_ = lean_unbox(v___x_1733_);
-v___x_11356__boxed_1741_ = lean_unbox(v___x_1734_);
-v_res_1742_ = l___private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose___lam__1(v___f_1731_, v_s_1732_, v___x_11355__boxed_1740_, v___x_11356__boxed_1741_, v___y_1735_, v___y_1736_, v___y_1737_, v___y_1738_);
+uint8_t v___x_11340__boxed_1740_; uint8_t v___x_11341__boxed_1741_; lean_object* v_res_1742_; 
+v___x_11340__boxed_1740_ = lean_unbox(v___x_1733_);
+v___x_11341__boxed_1741_ = lean_unbox(v___x_1734_);
+v_res_1742_ = l___private_Lean_Elab_Tactic_Decide_0__Lean_Elab_Tactic_evalDecideCore_diagnose___lam__1(v___f_1731_, v_s_1732_, v___x_11340__boxed_1740_, v___x_11341__boxed_1741_, v___y_1735_, v___y_1736_, v___y_1737_, v___y_1738_);
 lean_dec(v___y_1738_);
 lean_dec_ref(v___y_1737_);
 lean_dec(v___y_1736_);

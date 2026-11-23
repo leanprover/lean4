@@ -4055,7 +4055,7 @@ _start:
 lean_object* v___x_1257_; lean_object* v___x_1258_; lean_object* v___x_1259_; 
 v___x_1257_ = lean_obj_once(&l_Lean_throwError___at___00Lean_Compiler_LCNF_InferType_Pure_inferProjType_spec__0___redArg___closed__0, &l_Lean_throwError___at___00Lean_Compiler_LCNF_InferType_Pure_inferProjType_spec__0___redArg___closed__0_once, _init_l_Lean_throwError___at___00Lean_Compiler_LCNF_InferType_Pure_inferProjType_spec__0___redArg___closed__0);
 v___x_1258_ = lean_unsigned_to_nat(0u);
-v___x_1259_ = lean_alloc_ctor(0, 11, 0);
+v___x_1259_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1259_, 0, v___x_1258_);
 lean_ctor_set(v___x_1259_, 1, v___x_1258_);
 lean_ctor_set(v___x_1259_, 2, v___x_1258_);
@@ -4066,7 +4066,6 @@ lean_ctor_set(v___x_1259_, 6, v___x_1257_);
 lean_ctor_set(v___x_1259_, 7, v___x_1257_);
 lean_ctor_set(v___x_1259_, 8, v___x_1257_);
 lean_ctor_set(v___x_1259_, 9, v___x_1257_);
-lean_ctor_set(v___x_1259_, 10, v___x_1257_);
 return v___x_1259_;
 }
 }

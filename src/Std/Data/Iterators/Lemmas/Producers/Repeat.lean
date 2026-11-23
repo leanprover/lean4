@@ -41,11 +41,11 @@ theorem Iter.atIdxSlow?_succ_repeat_eq_map {k : Nat} :
 
 @[simp]
 theorem Iter.atIdxSlow?_repeat {n : Nat} :
-    (Iter.repeat f init).atIdxSlow? n = some (Nat.repeat f n init) := by
+    (Iter.repeat f init).atIdxSlow? n = some (Nat.iterate f n init) := by
   induction n generalizing init
   · apply atIdxSlow?_zero_repeat
   · rename_i _ ih
-    simp [atIdxSlow?_succ_repeat_eq_map, ih, Nat.repeat]
+    simp [atIdxSlow?_succ_repeat_eq_map, ih, Nat.iterate]
 
 theorem Iter.isSome_atIdxSlow?_repeat {k : Nat} :
     ((Iter.repeat f init).atIdxSlow? k).isSome := by

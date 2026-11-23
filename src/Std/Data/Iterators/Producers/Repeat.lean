@@ -61,7 +61,7 @@ end Iterators.Types
 Creates an infinite iterator from an initial value `init` and a function `f : α → α`.
 First it yields `init`, and in each successive step, the iterator applies `f` to the previous value.
 So if the iterator just emitted `a`, in the next step it will yield `f a`. In other words, the
-`n`-th value is `Nat.repeat f n init`.
+`n`-th value is `Nat.iterate f n init`.
 
 For example, if `f := (· + 1)` and `init := 0`, then the iterator emits all natural numbers in
 order.

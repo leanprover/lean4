@@ -68,9 +68,9 @@ register_builtin_option smartUnfolding : Bool := {
 
 /--
 Mark a matcher that smart unfolding must reduce. The `inputs` mask is an optimization.
-In principle, the reducer could visit every discriminant before reducing the matcher.
-Bit `i` is set when argument `i` of the matcher application is a discriminant containing a
-marked match, so the reducer can skip visiting the other discriminants.
+In principle, the reducer could visit every discriminant and extra argument before reducing the matcher.
+Bit `i` is set when argument `i` of the matcher application is a discriminant or extra argument
+containing a marked match, so the reducer can skip visiting the other inputs.
 -/
 def markSmartUnfoldingMatch (e : Expr) (inputs : Nat := 0) : Expr :=
   if inputs == 0 then mkAnnotation `sunfoldMatch e
@@ -572,8 +572,15 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     for h in hs do
       if auxAppFn == h then
         let result := mkAppN args[i]! auxApp.getAppArgs
-        let result := mkAppN result args[(prefixSz + info.numAlts)...args.size]
-        return ReduceMatcherResult.reduced result.headBeta
+        if args.size == info.arity then return .reduced result.headBeta
+        let result := mkAppRange result info.arity args.size args
+        -- In `(fun x => ([sunfoldMatch] m)) a b`, substitute `a` for `x` and leave `b` applied to
+        -- the marked body. Passing both arguments to `beta` would erase the marker on `m`.
+        let f := result.getAppFn
+        let args := result.getAppArgs
+        let numConsumed := min f.getNumHeadLambdas args.size
+        let body := f.beta args[*...numConsumed]
+        return .reduced (mkAppRange body numConsumed args.size args)
       i := i + 1
     return ReduceMatcherResult.stuck auxApp
 

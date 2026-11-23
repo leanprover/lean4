@@ -34,8 +34,6 @@ info: infSeq.coinduct (α : Type) (r : α → α → Prop) (pred : α → Prop) 
 warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 coinductive infSeq' (r : α → α → Prop) : α → Prop where
@@ -58,8 +56,6 @@ r : α → α → Prop
 warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 coinductive infSeq'' (r : α → α → Prop) : α → Prop where
@@ -78,8 +74,6 @@ has type
 of sort `Type` but is expected to have type
   monotone fun f => ¬f
 of sort `Prop`
----
-warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
 -/

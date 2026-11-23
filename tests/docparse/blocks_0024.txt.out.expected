@@ -1,15 +1,22 @@
+Input: ": an excellent idea\n\n    Let's say more!"
 Success! Final stack:
-  [(Lean.Doc.Syntax.dl
-    "dl{"
-    [(Lean.Doc.Syntax.desc
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text
-        (str "\" an excellent idea\""))]
-      "=>"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text
-          (str "\"Let's say more!\""))]
-        "}")])]
-    "}")]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "an excellent idea"))]
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "Let's say more!"))])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  dl
+    item (marker := ":")
+      term
+        text (content := "an excellent idea")
+      desc
+        para
+          text (content := "Let's say more!")

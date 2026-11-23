@@ -16,11 +16,26 @@ open Lean Meta
 
 namespace Lean
 
+/--
+Defines `recOn` for `declName` to be its `casesOn`, or returns `none` if `casesOn` is not built from
+projections or has not been built yet.
+
+A type eligible for `mkCasesOnViaProjs?` is neither recursive nor indexed, so its `recOn` and
+`casesOn` have the same type, and rebuilding the projections would just repeat the work.
+-/
+def mkRecOnViaCasesOn? (declName : Name) : MetaM (Option DefinitionVal) := do
+  let casesOnName := mkCasesOnName declName
+  unless (← getEnv).contains casesOnName do return none
+  unless (← isCasesOnViaProjs declName) do return none
+  let casesOnInfo ← getConstInfo casesOnName
+  let value := .const casesOnName (casesOnInfo.levelParams.map (.param ·))
+  return some (← mkDefinitionValInferringUnsafe (mkRecOnName declName) casesOnInfo.levelParams
+    casesOnInfo.type value .abbrev)
+
 def mkRecOn (n : Name) : MetaM Unit := do
   let .recInfo recInfo ← getConstInfo (mkRecName n)
     | throwError "{mkRecName n} not a recinfo"
-  -- When the type is not recursive, `recOn` and `casesOn` have the same shape.
-  let decl ← match ← mkCasesOnViaProjs? n (mkRecOnName n) with
+  let decl ← match ← mkRecOnViaCasesOn? n with
    | some decl => pure decl
    | none => forallTelescope recInfo.type fun xs t => do
       let e := .const recInfo.name (recInfo.levelParams.map (.param ·))

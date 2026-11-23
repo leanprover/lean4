@@ -11,6 +11,7 @@ public import Lean.Meta.LitValues
 public import Lean.Meta.Offset
 import Lean.Util.SafeExponentiation
 import Init.Data.Nat.Dvd
+import Init.Data.Nat.PowMod
 import Init.Data.Nat.Simproc
 public section
 namespace Lean.Nat
@@ -79,6 +80,18 @@ builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
   return .done <| toExpr (n ^ m)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+builtin_dsimproc [simp, seval] reducePowMod (Nat.powMod _ _ _) := fun e => do
+  let_expr Nat.powMod b k m := e | return .continue
+  let some b ← fromExpr? b | return .continue
+  let some k ← fromExpr? k | return .continue
+  let some m ← fromExpr? m | return .continue
+  if m == 0 then
+    -- `powMod b k 0 = b ^ k`, so guard the exponent as `reducePow` does.
+    let warning := (← Simp.getConfig).warnExponents
+    unless (← checkExponent k (warning := warning)) do return .continue
+  return .done <| toExpr (Nat.powMod b k m)
+
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceXor ((_ ^^^ _ : Nat)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
@@ -86,8 +99,13 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceOr ((_ ||| _ : Nat)) := reduceBin ``HOr.hOr 6 (· ||| ·)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
-builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Nat)) :=
-  reduceBin ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Nat)) := fun e => do
+  let_expr HShiftLeft.hShiftLeft _ _ _ _ n m := e | return .continue
+  let some n ← fromExpr? n | return .continue
+  let some m ← fromExpr? m | return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkShiftLeft n m (warning := warning)) do return .continue
+  return .done <| toExpr (n <<< m)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceShiftRight ((_ >>> _ : Nat)) :=
@@ -242,8 +260,12 @@ private def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
       let gtProof ← mkOfDecideEqTrue (mkGTNat yo x)
       applyEqLemma .false ``Nat.Simproc.eq_add_gt #[x, yb, yo, gtProof]
   | .offset xb xo xn, .offset yb yo yn => do
-    if xn ≤ yn then
-      let zb := (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
+    if xn = yn then
+      -- `xo` and `yo` are the same literal. We do not use `add_eq_add_le`: the kernel would have to
+      -- check `yb + (yo - xo) =?= yb`, and it may unfold `yb` instead of `+`.
+      applyEqLemma (.eq xb yb) ``Nat.Simproc.add_eq_add_cancel #[xb, yb, xo]
+    else if xn < yn then
+      let zb := mkAddNat yb (toExpr (yn - xn))
       let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
       applyEqLemma (.eq xb zb) ``Nat.Simproc.add_eq_add_le #[xb, yb, xo, yo, leProof]
     else
@@ -336,8 +358,11 @@ private def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : Simp
       let geProof ← mkOfDecideEqTrue (mkGENat x yo)
       applySimprocConst finExpr ``Nat.Simproc.le_add_ge #[x, yb, yo, geProof]
   | .offset xb xo xn, .offset yb yo yn => do
-    if xn ≤ yn then
-      let finExpr := mkLENat xb (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
+    if xn = yn then
+      -- See `reduceNatEqExpr`.
+      applySimprocConst (mkLENat xb yb) ``Nat.Simproc.add_le_add_cancel #[xb, yb, xo]
+    else if xn < yn then
+      let finExpr := mkLENat xb (mkAddNat yb (toExpr (yn - xn)))
       let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
       applySimprocConst finExpr ``Nat.Simproc.add_le_add_le  #[xb, yb, xo, yo, leProof]
     else
@@ -363,8 +388,11 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
     let finProof ← Meta.mkEqRefl finExpr
     return .done  { expr := finExpr, proof? := finProof, cache := true }
   | .offset pb po pn, .const n => do
-    if pn ≤ n then
-      let finExpr := if pn = n then pb else mkSubNat pb (toExpr (n - pn))
+    if pn = n then
+      -- See `reduceNatEqExpr`.
+      applySimprocConst pb ``Nat.Simproc.add_sub_cancel #[pb, po]
+    else if pn < n then
+      let finExpr := mkSubNat pb (toExpr (n - pn))
       let leProof ← mkOfDecideEqTrue (mkLENat po q)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_le  #[pb, po, q, leProof]
     else
@@ -375,8 +403,11 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
       let finExpr := mkSubNat (toExpr (po - nn)) nb
       applySimprocConst finExpr ``Nat.Simproc.sub_add_eq_comm #[p, nb, no]
   | .offset pb po pn, .offset nb no nn => do
-    if pn ≤ nn then
-      let finExpr := mkSubNat pb (if pn = nn then nb else mkAddNat nb (toExpr (nn - pn)))
+    if pn = nn then
+      -- See `reduceNatEqExpr`.
+      applySimprocConst (mkSubNat pb nb) ``Nat.Simproc.add_sub_add_cancel #[pb, nb, po]
+    else if pn < nn then
+      let finExpr := mkSubNat pb (mkAddNat nb (toExpr (nn - pn)))
       let leProof ← mkOfDecideEqTrue (mkLENat po no)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_add_le #[pb, nb, po, no, leProof]
     else

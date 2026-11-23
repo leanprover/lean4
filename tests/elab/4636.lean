@@ -1,6 +1,6 @@
 theorem foo : True := trivial
 
-@[deprecated] def Foo.foo : Nat := 3
+@[deprecated (since := "2024-07-05")] def Foo.foo : Nat := 3
 
 set_option warningAsError true
 set_option linter.all true

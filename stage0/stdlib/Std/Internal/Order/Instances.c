@@ -13,13 +13,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std___redArg();
+LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std(lean_object* v_l_1_, lean_object* v_inst_2_){
+LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std___redArg(){
 _start:
 {
-lean_object* v___x_3_; 
-v___x_3_ = lean_box(0);
-return v___x_3_;
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std___redArg___boxed(lean_object* v___dummy_3_){
+_start:
+{
+lean_object* v_res_4_; 
+v_res_4_ = l_Lean_Order_instTransRel__std___redArg();
+return v_res_4_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Order_instTransRel__std(lean_object* v_l_5_, lean_object* v_inst_6_){
+_start:
+{
+lean_object* v___x_7_; 
+v___x_7_ = lean_box(0);
+return v___x_7_;
 }
 }
 lean_object* runtime_initialize_Std_Internal_Order_Lemmas(uint8_t builtin);

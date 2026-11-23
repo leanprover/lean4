@@ -22,8 +22,8 @@ namespace Lean
 
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
-  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
-    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
+  descr    := "enable using custom eliminators in the `induction` and `cases` tactics \
+    defined using the `@[induction_eliminator]` and `@[cases_eliminator]` attributes"
 }
 
 end Lean
@@ -877,7 +877,7 @@ public def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
   | _ => return { hIdent? := none, term := .missing }
 
 /-- Elaborated `ElimTargetView`. -/
-private structure ElimTargetInfo where
+structure ElimTargetInfo where
   view : ElimTargetView
   expr : Expr
   arg? : Option GeneralizeArg
@@ -1018,11 +1018,11 @@ def evalInduction : Tactic := fun stx =>
 
 register_builtin_option tactic.fun_induction.unfolding : Bool := {
   defValue := true
-  descr    := "if set to 'true', then 'fun_induction' and 'fun_cases' will use the “unfolding \
-    functional induction (resp. cases) principle” ('….induct_unfolding'/'….fun_cases_unfolding'), \
+  descr    := "if set to `true`, then `fun_induction` and `fun_cases` will use the \"unfolding \
+    functional induction (resp. cases) principle\" (`….induct_unfolding`/`….fun_cases_unfolding`), \
     which will attempt to replace the function goal of interest in the goal with the appropriate \
-    right-hand-side in each case. If 'false', the regular “functional induction principle” \
-    ('….induct'/'….fun_cases') is used."
+    right-hand-side in each case. If `false`, the regular \"functional induction principle\" \
+    (`….induct`/`….fun_cases`) is used."
 }
 
 /--
@@ -1044,7 +1044,8 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
         Please include the desired arguments."
     pure candidates[0]!
   | _ =>
-    elabTerm stx none
+    -- The call is one that is already in the goal, so deprecated constants are not reported.
+    Term.withoutCheckDeprecated <| elabTerm stx none
 
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, returning the `ElabInfo` and targets.

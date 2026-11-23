@@ -1,5 +1,6 @@
-import Std.Tactic.Do
 import Std.WP
+
+set_option sym.debug true
 
 /-!
 `vcgen` tries the `@[spec]` theorems matching a program in descending priority order and applies the

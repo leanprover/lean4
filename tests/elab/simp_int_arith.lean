@@ -142,7 +142,7 @@ info: theorem ex₁ : ∀ (x y z : Int), x + y + 2 + y + z + z ≤ y + 3 * z + 1
 fun x y z =>
   of_eq_true
     (id
-      (le_eq_true
+      (le_eq_true_k
         (Lean.RArray.branch 1 (Lean.RArray.leaf z) (Lean.RArray.branch 2 (Lean.RArray.leaf y) (Lean.RArray.leaf x)))
         ((((((Expr.var 2).add (Expr.var 1)).add (Expr.num 2)).add (Expr.var 1)).add (Expr.var 0)).add (Expr.var 0))
         (((((((Expr.var 1).add (Expr.mulL 3 (Expr.var 0))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
@@ -162,7 +162,7 @@ info: theorem ex₂ : ∀ (x y z : Int) (f : Int → Int), x + f y + 2 + f y + z
 fun x y z f =>
   of_eq_true
     (id
-      (le_eq_true
+      (le_eq_true_k
         (Lean.RArray.branch 1 (Lean.RArray.leaf (f y)) (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
         ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
         (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
@@ -289,7 +289,7 @@ fun a b =>
       (congrFun'
         (congrArg Iff
           (id
-            (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+            (norm_dvd_gcd_k (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
               ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
                     (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
                 (Expr.num 12))
@@ -313,7 +313,7 @@ fun a b =>
         (congrArg Iff
           (Eq.trans
             (id
-              (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+              (norm_dvd_gcd_k (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
                 ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
                       (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
                   (Expr.num 11))

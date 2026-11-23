@@ -191,8 +191,10 @@ comparisons skip the element walk. -/
 instance : BEq CacheableParserContext where
   beq a b := a.prec == b.prec && a.quotDepth == b.quotDepth &&
     a.suppressInsideQuot == b.suppressInsideQuot && a.savedPos? == b.savedPos? &&
-    withPtrEq a.forbiddenTks b.forbiddenTks (fun _ => a.forbiddenTks == b.forbiddenTks)
-      (fun h => by rw [h]; exact beq_self_eq_true _)
+    -- safety: `Array Token` has no non-subsingleton erased data
+    (unsafe withPtrEqUnsafe a.forbiddenTks b.forbiddenTks
+      (fun _ => a.forbiddenTks == b.forbiddenTks)
+      (fun h => by rw [h]; exact beq_self_eq_true _))
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/
 structure ParserContextCore extends InputContext, ParserModuleContext, CacheableParserContext where

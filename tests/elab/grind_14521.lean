@@ -52,3 +52,14 @@ theorem getValue_select {w : Nat} (x y : MyInt w) (c : MyInt 1) (h : (select c x
   grind
 
 end MyInt
+
+/-!
+The `Sym.simp` normalizer keeps `i = 0` with the canonical literal: a numeral rendered from the
+polynomial would use the type as written, `BitVec (id 32)`, and reach the E-graph as a second
+literal node next to `0#32`.
+-/
+section sym
+set_option backward.grind.normalizer false
+example (i : BitVec (id 32)) (hne : i ≠ 0#32) : i ≠ 0 := by
+  grind
+end sym

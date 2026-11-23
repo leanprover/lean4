@@ -23,7 +23,7 @@ mutual
 end
 
 
-structure Bar :=
+structure Bar where
   (x : Na)
   (y : Nat := foobar)  -- Error at `foobar`
 

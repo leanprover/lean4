@@ -18,7 +18,7 @@ namespace Lake.DSL
 This module contains the expansion of the `require` DSL syntax used to specify package dependencies.
 -/
 
-@[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
+@[inline] def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
   if let some term := term? then withRef term ``(some $term) else ``(none)
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
@@ -30,8 +30,8 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
       let rev ← quoteOptTerm rev?
       let subDir ← quoteOptTerm subDir?
       ``(DependencySrc.git $url $rev $subDir)
-    | `(fromSource|$path:term) => withRef src do
-      ``(DependencySrc.path $path)
+    | `(fromSource|$[copy%$copyTk?]? $path:term) => withRef src do
+      ``(DependencySrc.path $path $(quote copyTk?.isSome))
     | _ => Macro.throwErrorAt src "ill-formed from syntax"
   let `(depName|$[$scope? /]? $nameStx) := fullNameStx
     | Macro.throwErrorAt fullNameStx "ill-formed name syntax"

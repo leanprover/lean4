@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server
-// Imports: public import Lean.Server.Watchdog public import Lean.Server.FileWorker public import Lean.Server.Rpc public import Lean.Server.CodeActions public import Lean.Server.Test public import Lean.Server.ProtocolOverview
+// Imports: public import Lean.Server.Watchdog public import Lean.Server.FileWorker public import Lean.Server.Rpc public import Lean.Server.CodeActions public import Lean.Server.Test public import Lean.Server.ProtocolOverview public import Lean.Server.InfoUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* runtime_initialize_Lean_Server_Rpc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_CodeActions(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_Test(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_ProtocolOverview(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server(uint8_t builtin) {
@@ -44,6 +45,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_ProtocolOverview(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_InfoUtils(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -59,6 +63,7 @@ lean_object* initialize_Lean_Server_Rpc(uint8_t builtin);
 lean_object* initialize_Lean_Server_CodeActions(uint8_t builtin);
 lean_object* initialize_Lean_Server_Test(uint8_t builtin);
 lean_object* initialize_Lean_Server_ProtocolOverview(uint8_t builtin);
+lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server(uint8_t builtin) {
 lean_object * res;
@@ -80,6 +85,9 @@ res = initialize_Lean_Server_Test(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_ProtocolOverview(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Server(builtin);

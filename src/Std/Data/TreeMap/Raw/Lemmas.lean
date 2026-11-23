@@ -2151,6 +2151,22 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   DTreeMap.Raw.isEmpty_inter_iff h₁ h₂
 
+theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  DTreeMap.Raw.isEmpty_inter_comm h₁ h₂
+
+@[simp]
+theorem isEmpty_union_inter [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    ((t₁ ∪ t₂) ∩ t₃).isEmpty = ((t₁ ∩ t₃).isEmpty && (t₂ ∩ t₃).isEmpty) :=
+  DTreeMap.Raw.isEmpty_union_inter h₁ h₂ h₃
+
+@[simp]
+theorem isEmpty_inter_union [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    (t₁ ∩ (t₂ ∪ t₃)).isEmpty = ((t₁ ∩ t₂).isEmpty && (t₁ ∩ t₃).isEmpty) :=
+  DTreeMap.Raw.isEmpty_inter_union h₁ h₂ h₃
+
 end Inter
 
 section
@@ -4066,6 +4082,26 @@ private theorem equiv_iff : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
 
 theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
   equiv_iff.trans DTreeMap.Raw.equiv_empty_iff_isEmpty
+
+theorem inter_equiv_empty_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂) ~m ∅ ↔ (t₂ ∩ t₁) ~m ∅ := by
+  change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
+
+@[simp]
+theorem union_inter_equiv_empty_iff [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    ((t₁ ∪ t₂) ∩ t₃) ~m ∅ ↔ (t₁ ∩ t₃) ~m ∅ ∧ (t₂ ∩ t₃) ~m ∅ := by
+  change ((t₁ ∪ t₂) ∩ t₃) ~m empty ↔ (t₁ ∩ t₃) ~m empty ∧ (t₂ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_union_inter h₁ h₂ h₃, Bool.and_eq_true]
+
+@[simp]
+theorem inter_union_equiv_empty_iff [TransCmp cmp] {t₃ : Raw α β cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    (t₁ ∩ (t₂ ∪ t₃)) ~m ∅ ↔ (t₁ ∩ t₂) ~m ∅ ∧ (t₁ ∩ t₃) ~m ∅ := by
+  change (t₁ ∩ (t₂ ∪ t₃)) ~m empty ↔ (t₁ ∩ t₂) ~m empty ∧ (t₁ ∩ t₃) ~m empty
+  simp only [equiv_empty_iff_isEmpty, isEmpty_inter_union h₁ h₂ h₃, Bool.and_eq_true]
 
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   equiv_iff.trans DTreeMap.Raw.empty_equiv_iff_isEmpty

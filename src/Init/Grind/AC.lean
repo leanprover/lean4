@@ -460,13 +460,6 @@ noncomputable def simp_ac_cert (c lhs rhs s s' : Seq) : Bool :=
   s.beq' (c.union_k lhs) |>.and
   (s'.beq' (c.union_k rhs))
 
-/--
-Given `lhs = rhs`, and a term `s := union a lhs`, rewrite it to `s' := union a rhs`
--/
-theorem simp_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs rhs s s' : Seq)
-    : simp_ac_cert c lhs rhs s s' → lhs.denote ctx = rhs.denote ctx → s.denote ctx = s'.denote ctx := by
-  simp [simp_ac_cert]; intro _ _; subst s s'; simp; intro h; rw [h]
-
 theorem eq_simp_lhs_ac {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.Commutative ctx.op} (c lhs₁ rhs₁ lhs₂ rhs₂ lhs₂' : Seq)
     : simp_ac_cert c lhs₁ rhs₁ lhs₂ lhs₂' → lhs₁.denote ctx = rhs₁.denote ctx → lhs₂.denote ctx = rhs₂.denote ctx → lhs₂'.denote ctx = rhs₂.denote ctx := by
   simp [simp_ac_cert]; intros; subst lhs₂ lhs₂'; simp_all

@@ -16,13 +16,28 @@ This module implements the reduction pass which applies various kinds of type th
 - zetaDelta
 - beta
 - ground term evaluation
+- match of known ctor
+- proj of ctor
 -/
 
 namespace Lean.Meta.Tactic.BVDecide
 namespace Normalize
 
 /--
-Apply zeta, zetaDelta, beta, and ground term evaluation.
+Variant of dsimpProj that only operates on constructors.
+-/
+def dsimpProj' : Sym.DSimp.DSimproc := fun e => do
+  let f := e.getAppFn
+  let .const declName _ := f | return .rfl
+  let some projInfo ← getProjectionFnInfo? declName | return .rfl
+  let args := e.getAppArgs
+  unless projInfo.numParams < args.size do return .rfl
+  let discr := args[projInfo.numParams]!
+  unless ← isConstructorApp discr do return .rfl
+  Sym.DSimp.dsimpProj e
+
+/--
+Apply zeta, zetaDelta, beta, ground term evaluation, match of known ctor and proj of ctor.
 -/
 public def reductionPass : Pass where
   name := `reductionPass
@@ -37,6 +52,8 @@ public def reductionPass : Pass where
         >> Sym.DSimp.zeta
         >> Sym.DSimp.zetaDeltaAll
         >> Sym.DSimp.beta
+        >> Sym.DSimp.dsimpMatch
+        >> dsimpProj'
     }
 
     let goal ← PreProcessM.getTargetMVarId

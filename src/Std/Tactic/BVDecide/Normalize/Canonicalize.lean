@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Package
 public import Std.Tactic.BVDecide.Syntax
 public import Init.Data.BitVec.Bootstrap
 import Init.PropLemmas
@@ -63,6 +64,11 @@ theorem Bool.and_to_and (a b : Bool) : ((a = true) ∧ (b = true)) = ((a && b) =
 @[bv_normalize]
 theorem Bool.iff_to_beq :
     ∀ (a b : Bool), ((a = true) ↔ (b = true)) = ((a == b) = true) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.cond_to_bool :
+    ∀ (c t e : Bool), (bif c then t = true else e = true) = ((bif c then t else e) = true) := by
   decide
 
 @[bv_normalize]

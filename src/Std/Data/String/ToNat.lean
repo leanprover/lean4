@@ -6,10 +6,13 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
+public import Init.Data.String.Slice.Numeric
+public import Init.Data.String.Iterate
 public import Init.Data.String.Search
 public import Init.Data.Nat.ToString
-import all Init.Data.String.Slice
+import all Init.Data.String.Slice.Numeric
+import Init.Data.Option.Lemmas
+import Init.Omega
 import all Init.Data.String.Search
 import Init.Data.String.Lemmas.Iterate
 import Std.Tactic.Do
@@ -96,7 +99,6 @@ end NoRepetition
 namespace String.Slice
 
 open Std.Do in
-set_option mvcgen.warning false in
 set_option linter.deprecated.syntax false in
 theorem isNat_iff' {s : String.Slice} :
     s.isNat = true ↔

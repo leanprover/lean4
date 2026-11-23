@@ -172,16 +172,11 @@ def addSEvalprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc 
   addSimprocBuiltinAttrCore builtinSEvalprocsRef declName post proc
 
 def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
-  let proc ←
-    try
-      getSimprocFromDecl declName
-    catch e =>
-      if (← isBuiltinSimproc declName) then
-        let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
-          | throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
-        pure proc
-      else
-        throw e
+  -- A builtin simproc is missing from environments that do not import its module, and its keys
+  -- come from the builtin table, so the table takes precedence.
+  let proc ← match (← builtinSimprocDeclsRef.get).procs[declName]? with
+    | some proc => pure proc
+    | none => getSimprocFromDecl declName
   let some keys ← getSimprocDeclKeys? declName |
     throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   return s.addCore keys declName post proc

@@ -29,6 +29,12 @@ def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : 
   if declName.isAnonymous then
     -- This can happen on elaboration of partial syntax and would panic in `modifyState` otherwise
     return
+  -- A second write is ignored: `initialize` reports the ranges twice (early, then for the generated
+  -- `opaque`), and a failed declaration must not replace those of an existing one of the same name.
+  -- A failed declaration can still leave ranges behind for a name that does not exist.
+  -- only the state visible on this branch, as in `MapDeclarationExtension.insert`
+  if declRangeExt.contains (asyncMode := .local) (← getEnv) declName then
+    return
   modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=

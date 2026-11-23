@@ -1551,8 +1551,9 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let hasProd := env.contains ``Prod
   let hasNat  := env.contains ``Nat
   for n in declNames do
-    mkRecOn n
+    -- `mkRecOn` reuses `casesOn` where it can, so build that first
     if hasUnit then mkCasesOn n
+    mkRecOn n
     if hasNat then mkCtorIdx n
     if hasNat then mkCtorElim n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n

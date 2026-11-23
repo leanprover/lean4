@@ -27,7 +27,7 @@ class RandomGen (g : Type u) where
      and a new generator. -/
   next  : g → Nat × g
   /--
-    The 'split' operation allows one to obtain two distinct random number
+    The `split` operation allows one to obtain two distinct random number
     generators. This is very useful in functional programs (for example, when
     passing a random number generator down to recursive calls). -/
   split : g → g × g

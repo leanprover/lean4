@@ -16,15 +16,15 @@ set_option doc.verso true
 open Lean Doc Elab Term
 
 @[doc_role]
-meta def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 @[doc_code_block]
-meta def c (s : StrLit) : DocM (Block ElabInline ElabBlock) :=
-  pure (Block.code (s.getString.toList.reverse |> String.ofList))
+meta def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.ofList))
 
 @[doc_directive]
-meta def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+meta def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
 @[doc_command]
@@ -99,21 +99,21 @@ open Lean Elab Command in
 -- Each attribute should refuse to apply to a definition that is not `meta`, since the generated
 -- `.getArgs` wrapper is invoked at elaboration time.
 
-def notMetaRole (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def notMetaRole (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 /-- error: `notMetaRole` must be marked `meta` to be used as a docstring role -/
 #guard_msgs in
 attribute [doc_role] notMetaRole
 
-def notMetaCodeBlock (s : StrLit) : DocM (Block ElabInline ElabBlock) :=
-  pure (Block.code s.getString)
+def notMetaCodeBlock (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code s.getVersoCodeBlock)
 
 /-- error: `notMetaCodeBlock` must be marked `meta` to be used as a docstring code block -/
 #guard_msgs in
 attribute [doc_code_block] notMetaCodeBlock
 
-def notMetaDirective (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def notMetaDirective (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.mapM elabBlock
 
 /-- error: `notMetaDirective` must be marked `meta` to be used as a docstring directive -/
@@ -132,19 +132,19 @@ attribute [doc_command] notMetaCommand
 -- used from importing modules.
 
 @[doc_role]
-public meta def publicRole (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+public meta def publicRole (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 @[doc_role]
-meta def internalRole (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def internalRole (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 -- Same again, but applying the attribute as a separate command rather than inline:
-public meta def publicRole' (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+public meta def publicRole' (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 attribute [doc_role] publicRole'
 
-meta def internalRole' (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def internalRole' (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 attribute [doc_role] internalRole'
 

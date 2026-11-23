@@ -17,6 +17,7 @@ Converts reified `RingExpr`, `Poly`, `Mon`, `Power` back into Lean `Expr`s using
 the ring's cached operator functions and variable array.
 -/
 
+section Ring
 variable [Monad m] [MonadError m] [MonadLiftT MetaM m] [MonadCanon m] [MonadRing m]
 
 /-- Convert an integer to a numeral expression in the ring. Negative values use `getNegFn`. -/
@@ -70,24 +71,66 @@ where
     | .num k => return mkApp2 (← getAddFn) acc (← denoteNum k)
     | .add k mn p => go p (mkApp2 (← getAddFn) acc (← denoteTerm k mn))
 
-/-- Denote a `RingExpr` using a variable lookup function. -/
 @[specialize]
-private def denoteRingExprCore (getVarExpr : Nat → Expr) (e : RingExpr) : m Expr := do
+private def denoteRingExprCore (getVarExpr : Nat → m Expr) (e : RingExpr) : m Expr := do
   go e
 where
   go : RingExpr → m Expr
   | .num k => denoteNum k
   | .natCast k => return mkApp (← getNatCastFn) (mkNatLit k)
   | .intCast k => return mkApp (← getIntCastFn) (mkIntLit k)
-  | .var x => return getVarExpr x
+  | .var x => getVarExpr x
   | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
   | .sub a b => return mkApp2 (← getSubFn) (← go a) (← go b)
   | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
   | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
   | .neg a => return mkApp (← getNegFn) (← go a)
 
-/-- Denote a `RingExpr` using an explicit variable array. -/
-def denoteRingExpr (vars : Array Expr) (e : RingExpr) : m Expr := do
-  denoteRingExprCore (fun x => vars[x]!) e
+/-- Denote a `RingExpr` whose variables are the current ring's, looked up with `getVar`. -/
+def denoteRingExpr [MonadGetVar m] (e : RingExpr) : m Expr :=
+  denoteRingExprCore getVar e
+
+/--
+Denote a `RingExpr` whose variables index `vars` instead of the current ring's variables.
+Proof terms rename the variables of an expression to the compact range `0 .. n-1` of the
+variables it actually uses (see `renameVars`), and build an `RArray` context out of those
+`n` terms; the denotation of the renamed expression must use that same array.
+-/
+def denoteRingExpr' (vars : Array Expr) (e : RingExpr) : m Expr :=
+  denoteRingExprCore (fun x => pure vars[x]!) e
+
+end Ring
+
+section Semiring
+variable [Monad m] [MonadError m] [MonadLiftT MetaM m] [MonadCanon m] [MonadSemiring m]
+
+/-- Convert a natural number to a numeral expression in the semiring. -/
+def denoteNatNum (k : Nat) : m Expr := do
+  let sr ← getSemiring
+  let n := mkRawNatLit k
+  let ofNatInst ← if let some inst ← MonadCanon.synthInstance? (mkApp2 (mkConst ``OfNat [sr.u]) sr.type n) then
+    pure inst
+  else
+    pure <| mkApp3 (mkConst ``Grind.Semiring.ofNat [sr.u]) sr.type sr.semiringInst n
+  return mkApp3 (mkConst ``OfNat.ofNat [sr.u]) sr.type n ofNatInst
+
+/--
+Denote a `SemiringExpr` whose variables index `vars`, using the semiring's operators.
+Fails on the constructors that have no semiring denotation (`sub`, `neg`, `intCast`, negative numerals).
+-/
+def denoteSemiringExpr' (vars : Array Expr) (e : SemiringExpr) : m Expr :=
+  go e
+where
+  go : SemiringExpr → m Expr
+  | .num k =>
+    if k < 0 then throwError "internal error: negative numeral in semiring expression" else denoteNatNum k.natAbs
+  | .natCast k => return mkApp (← getNatCastFn') (mkNatLit k)
+  | .var x => pure vars[x]!
+  | .add a b => return mkApp2 (← getAddFn') (← go a) (← go b)
+  | .mul a b => return mkApp2 (← getMulFn') (← go a) (← go b)
+  | .pow a k => return mkApp2 (← getPowFn') (← go a) (toExpr k)
+  | .sub .. | .neg .. | .intCast .. => throwError "internal error: ring operation in semiring expression"
+
+end Semiring
 
 end Lean.Meta.Sym.Arith

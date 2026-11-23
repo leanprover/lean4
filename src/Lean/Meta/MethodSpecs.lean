@@ -112,12 +112,16 @@ overloaded `Cls.op` operation, and similarly `instClsT.op_spec_<n>` based on the
 `opImpl.eq_<n>`.
 -/
 @[builtin_doc]
-builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
-  registerParametricAttribute {
+builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ← do
+  let impl : ParametricAttributeImpl MethodSpecsAttrData := {
     name := `method_specs
     descr := "generate method specification theorems"
     getParam
   }
+  let ext ← registerParametricAttributeExt (α := MethodSpecsAttrData) impl.ref impl.preserveOrder
+    (logWrites := true)
+    impl.filterExport
+  registerParametricAttributeForExt impl ext
 
 builtin_initialize methodSpecsSimpExtension : SimpExtension ←
   registerSimpAttr `method_specs_simp
@@ -133,6 +137,10 @@ def startsWithFollowedByNumber (s p : String) : Bool :=
 def isSpecThmLikeSuffix (fieldName : Name) (s : String) : Bool :=
   s == s!"{fieldName}_spec" || startsWithFollowedByNumber s s!"{fieldName}_spec_"
 
+/-- Returns `true` if `isSpecThmLikeSuffix fieldName s` may hold for some `fieldName`. -/
+def isSpecThmLikeSuffixCandidate (s : String) : Bool :=
+  s.endsWith "_spec" || s.contains "_spec_"
+
 /--
 The spec theorem theorem for an instance can be private even if the instance itself is not.
 So un-private the name here when looking for a declaration, and finally check if it matches.
@@ -142,7 +150,9 @@ def isSpecThmNameFor (env : Environment) (name : Name) : Option Name := do
   let .str p s := name | none
   [p, privateToUserName p].firstM fun p => do
       let attrData ← methodSpecsAttr.getParam? env p
-      for fieldName in getStructureFields env attrData.clsName do
+      -- the class may not be visible, e.g. when checking a private name in the exported environment
+      let clsInfo ← getStructureInfo? env attrData.clsName
+      for fieldName in clsInfo.fieldNames do
         if isSpecThmLikeSuffix fieldName s then
           if name == mkSpecTheoremName env p attrData.privateSpecs s then
             return p
@@ -218,7 +228,7 @@ public partial def getMethodSpecTheorems (instName : Name) (op : String) : MetaM
   return some thms
 
 builtin_initialize
-  registerReservedNamePredicate fun env name => isSpecThmNameFor env name |>.isSome
+  registerReservedNamePredicate isSpecThmLikeSuffixCandidate fun env name => isSpecThmNameFor env name |>.isSome
 
   registerReservedNameAction fun name => do
     if let some instName := isSpecThmNameFor (← getEnv) name then

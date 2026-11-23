@@ -1,5 +1,6 @@
 import Std.WP
-import Std.Tactic.Do
+
+set_option sym.debug true
 
 /-!
 `vcgen` splits a program headed by `cond` (`bif c then t else e`) into one verification

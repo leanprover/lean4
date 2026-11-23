@@ -157,7 +157,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     e = instantiate_rev(e, fvars.size(), fvars.data());
     expr s  = ensure_sort_core(infer_type_core(e, infer_only), e);
     level r = sort_level(s);
-    unsigned i = fvars.size();
+    size_t i = fvars.size();
     while (i > 0) {
         --i;
         r = mk_imax(us[i], r);
@@ -189,9 +189,9 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
         buffer<expr> args;
         expr const & f = get_app_args(e, args);
         expr f_type    = infer_type_core(f, true);
-        unsigned j        = 0;
-        unsigned nargs    = args.size();
-        for (unsigned i = 0; i < nargs; i++) {
+        size_t j        = 0;
+        size_t nargs    = args.size();
+        for (size_t i = 0; i < nargs; i++) {
             if (is_pi(f_type)) {
                 f_type = binding_body(f_type);
             } else {
@@ -229,24 +229,17 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r, true);
 }
 
-/*
-Store the projection index in `result`, and return `false` if it does not fit.
-`nat::is_small` admits up to 63 bits, but projection indices are consumed as `unsigned`, so
-without the upper bound `.proj S 2^32 c` would be silently truncated into `.proj S 0 c`.
-*/
-static bool to_proj_idx(nat const & idx, unsigned & result) {
+/* Store the projection index in `result`, and return `false` if it does not fit. */
+static bool to_proj_idx(nat const & idx, size_t & result) {
     if (!idx.is_small())
         return false;
-    size_t v = idx.get_small_value();
-    if (v > std::numeric_limits<unsigned>::max())
-        return false;
-    result = static_cast<unsigned>(v);
+    result = idx.get_small_value();
     return true;
 }
 
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr type = whnf(infer_type_core(proj_expr(e), infer_only));
-    unsigned idx;
+    size_t idx;
     if (!to_proj_idx(proj_idx(e), idx))
         throw invalid_proj_exception(env(), m_lctx, e);
     buffer<expr> args;
@@ -265,14 +258,14 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
 
     constant_info c_info = env().get(head(I_val.get_cnstrs()));
     expr r = instantiate_type_lparams(c_info, const_levels(I));
-    for (unsigned i = 0; i < I_val.get_nparams(); i++) {
+    for (size_t i = 0; i < I_val.get_nparams(); i++) {
         lean_assert(i < args.size());
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         r = instantiate(binding_body(r), args[i]);
     }
     bool is_prop_type = is_prop(type);
-    for (unsigned i = 0; i < idx; i++) {
+    for (size_t i = 0; i < idx; i++) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         if (has_loose_bvars(binding_body(r))) {
@@ -323,8 +316,7 @@ expr type_checker::infer_lit(expr const & e) {
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
-    if (has_loose_bvars(e))
-        throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
+    check_no_loose_bvars(env(),e);
 
     scope_rec_depth guard;
     check_system("type checker", /* do_check_interrupted */ true);
@@ -375,10 +367,6 @@ expr type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }
 
-expr type_checker::ensure_pi(expr const & e, expr const & s) {
-    return ensure_pi_core(e, s);
-}
-
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
     expr s = ensure_sort(infer_type(e));
@@ -417,7 +405,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Auxiliary method for `reduce_proj` */
-optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsigned idx) {
+optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, size_t idx) {
     if (is_string_lit(c))
         c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
@@ -433,7 +421,7 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
        `infer_proj` rejects a `sname` that disagrees with the projected expression's type. */
     if (mk_val.get_induct() != sname)
         return none_expr();
-    unsigned nparams = mk_val.get_nparams();
+    size_t nparams = mk_val.get_nparams();
     if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
@@ -442,7 +430,7 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
-    unsigned idx;
+    size_t idx;
     if (!to_proj_idx(proj_idx(e), idx))
         return none_expr();
     expr c;
@@ -513,8 +501,8 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
         expr f0 = get_app_rev_args(e, args);
         expr f = whnf_core(f0, cheap_rec, cheap_proj);
         if (is_lambda(f)) {
-            unsigned m = 1;
-            unsigned num_args = args.size();
+            size_t m = 1;
+            size_t num_args = args.size();
             while (is_lambda(binding_body(f)) && m < num_args) {
                 f = binding_body(f);
                 m++;
@@ -566,7 +554,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
             levels const & us = const_levels(e);
-            unsigned len = length(us);
+            size_t len = length(us);
             if (m_diag) {
                 m_diag->record_unfold(d->get_name());
             }
@@ -601,38 +589,8 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
     }
 }
 
-static expr * g_lean_reduce_bool = nullptr;
-static expr * g_lean_reduce_nat  = nullptr;
-
-namespace ir {
-object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
-}
-
 expr mk_bool_true();
 expr mk_bool_false();
-
-optional<expr> reduce_native(environment const & env, expr const & e) {
-    if (!is_app(e)) return none_expr();
-    expr const & arg = app_arg(e);
-    if (!is_constant(arg)) return none_expr();
-    if (app_fn(e) == *g_lean_reduce_bool) {
-        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
-        if (!lean_is_scalar(r)) {
-            lean_dec_ref(r);
-            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
-        }
-        return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
-    }
-    if (app_fn(e) == *g_lean_reduce_nat) {
-        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
-        if (lean_is_scalar(r) || lean_is_mpz(r)) {
-            return some_expr(mk_lit(literal(nat(r))));
-        } else {
-            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceNat'");
-        }
-    }
-    return none_expr();
-}
 
 static inline bool is_nat_lit_ext(expr const & e) { return e == *g_nat_zero || is_nat_lit(e); }
 static inline nat get_nat_val(expr const & e) {
@@ -700,7 +658,7 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    unsigned nargs = get_app_num_args(e);
+    size_t nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);
         if (f == *g_nat_succ) {
@@ -759,10 +717,7 @@ expr type_checker::whnf(expr const & e) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
-        if (auto v = reduce_native(env(), t1)) {
-            m_st->m_whnf.insert(mk_pair(e, *v));
-            return *v;
-        } else if (auto v = reduce_nat(t1)) {
+        if (auto v = reduce_nat(t1)) {
             m_st->m_whnf.insert(mk_pair(e, *v));
             return *v;
         } else if (auto next_t = unfold_definition(t1)) {
@@ -886,19 +841,38 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */
-bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
-    expr f = get_app_fn(s);
-    if (!is_constant(f)) return false;
-    constant_info f_info = env().get(const_name(f));
-    if (!f_info.is_constructor()) return false;
-    constructor_val f_val = f_info.to_constructor_val();
-    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
-    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
-    if (!is_def_eq(infer_type(t), infer_type(s))) return false;
+bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
+    expr t = t_;
+    expr s = s_;
+    expr sf = get_app_fn(s);
+    if (!is_constant(sf)) return false;
+    constant_info sf_info = env().get(const_name(sf));
+    if (!sf_info.is_constructor()) return false;
+    constructor_val sf_val = sf_info.to_constructor_val();
+    if (!is_non_rec_structure(env(), sf_val.get_induct())) return false;
+    expr t_type = infer_type(t);
+    expr s_type = infer_type(s);
+    if (!is_def_eq(t_type,s_type)) return false;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    size_t num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
+    lean_assert(get_app_num_args(s) <= num_ctor_args);
+    if (get_app_num_args(s) < num_ctor_args) {
+        buffer<expr> fvars;
+        /* note: `s` is a ctor application, its head's type must be of the form `As -> fields -> I As` where `As` are the structure's params, ad `fields` the constructor's fields. As such, no need to whnf its type here. If we were running the loop on `t_type` instead, whnfs would be necessary. */
+        while (is_pi(s_type)) {
+            expr hd = binding_domain(s_type);
+            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), hd, binding_info(s_type));
+            fvars.push_back(x);
+            s_type = instantiate(binding_body(s_type), x);
+        };
+        t = mk_app(t, fvars);
+        s = mk_app(s, fvars);
+    };
+    lean_assert(get_app_num_args(s) == num_ctor_args);
     buffer<expr> s_args;
     get_app_args(s, s_args);
-    for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
-        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t);
+    for (size_t i = sf_val.get_nparams(); i < s_args.size(); i++) {
+        expr proj = mk_proj(sf_val.get_induct(), i - sf_val.get_nparams(), t);
         if (!is_def_eq(proj, s_args[i])) return false;
     }
     return true;
@@ -915,7 +889,7 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
         expr t_fn = get_app_args(t, t_args);
         expr s_fn = get_app_args(s, s_args);
         if (is_def_eq(t_fn, s_fn) && t_args.size() == s_args.size()) {
-            unsigned i = 0;
+            size_t i = 0;
             for (; i < t_args.size(); i++) {
                 if (!is_def_eq(t_args[i], s_args[i]))
                     break;
@@ -1098,12 +1072,6 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
             }
         }
 
-        if (auto t_v = reduce_native(env(), t_n)) {
-            return to_lbool(is_def_eq_core(*t_v, s_n));
-        } else if (auto s_v = reduce_native(env(), s_n)) {
-            return to_lbool(is_def_eq_core(t_n, *s_v));
-        }
-
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
         case reduction_status::DefUnknown: return l_undef;
@@ -1127,7 +1095,7 @@ bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const 
         case reduction_status::DefEqual:   return true;
         case reduction_status::DefUnknown:
         case reduction_status::DefDiff:
-            unsigned i;
+            size_t i;
             if (to_proj_idx(idx, i)) {
                 if (auto t = reduce_proj_core(t_n, sname, i)) {
                 if (auto s = reduce_proj_core(s_n, sname, i)) {
@@ -1184,6 +1152,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         }
     }
 
+    r = is_def_eq_proof_irrel(t, s);
+    if (r != l_undef) return r == l_true;
+
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
       without using `whnf` when reducing projections.
@@ -1198,9 +1169,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         r = quick_is_def_eq(t_n, s_n);
         if (r != l_undef) return r == l_true;
     }
-
-    r = is_def_eq_proof_irrel(t_n, s_n);
-    if (r != l_undef) return r == l_true;
 
     /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */
     r = lazy_delta_reduction(t_n, s_n);
@@ -1252,43 +1220,9 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
-expr type_checker::eta_expand(expr const & e) {
-    buffer<expr> fvars;
-    flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    expr it = e;
-    while (is_lambda(it)) {
-        expr d = instantiate_rev(binding_domain(it), fvars.size(), fvars.data());
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it), d, binding_info(it)));
-        it     = binding_body(it);
-    }
-    it = instantiate_rev(it, fvars.size(), fvars.data());
-    expr it_type = whnf(infer(it));
-    if (!is_pi(it_type)) return e;
-    buffer<expr> args;
-    while (is_pi(it_type)) {
-        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it_type), binding_domain(it_type), binding_info(it_type));
-        args.push_back(arg);
-        fvars.push_back(arg);
-        it_type  = whnf(instantiate(binding_body(it_type), arg));
-    }
-    expr r = mk_app(it, args);
-    return m_lctx.mk_lambda(fvars, r);
-}
-
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
     m_st_owner(true), m_st(new state(env)), m_diag(diag),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
-    m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(type_checker && src) noexcept:
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
-    m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
-    src.m_st_owner = false;
 }
 
 type_checker::~type_checker() {
@@ -1340,8 +1274,6 @@ void initialize_type_checker() {
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
     g_string_mk    = new_persistent_expr_const({"String", "ofList"});
-    g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
-    g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
@@ -1367,7 +1299,5 @@ void finalize_type_checker() {
     delete g_nat_shiftLeft;
     delete g_nat_shiftRight;
     delete g_string_mk;
-    delete g_lean_reduce_bool;
-    delete g_lean_reduce_nat;
 }
 }

@@ -20,7 +20,7 @@ uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -634,7 +634,7 @@ static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__14(vo
 _start:
 {
 lean_object* v___x_232_; 
-v___x_232_ = l_Array_mkArray0(lean_box(0));
+v___x_232_ = l_Array_mkArray0___redArg();
 return v___x_232_;
 }
 }

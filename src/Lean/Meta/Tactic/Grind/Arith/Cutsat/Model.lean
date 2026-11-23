@@ -22,10 +22,11 @@ private def getCutsatAssignment? (goal : Goal) (node : ENode) : IO (Option Rat) 
   let some e := cutsatExt.getTerm node | return none
   let s ← cutsatExt.getStateCore goal
   let some x := s.varMap.find? { expr := e } | return none
-  if h : x < s.assignment.size then
-    return s.assignment[x]
-  else
-    return none
+  -- The constraints of an inactive variable are not asserted, so its assignment is meaningless.
+  if s.active[x]! then
+    if h : x < s.assignment.size then
+      return s.assignment[x]
+  return none
 
 /--
 If `e` is a single embedding step — an accessor application (`Fin.val a`, `BitVec.toNat a`,

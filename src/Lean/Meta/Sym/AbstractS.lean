@@ -78,6 +78,32 @@ public def abstractFVarsRange (e : Expr) (start : Nat) (xs : Array Expr) : SymM 
     return e
 
 /--
+Abstracts free variables `xs[0...n)` in expression `e`, converting them to de Bruijn indices:
+`xs[n-1]` becomes `#0`, ..., `xs[0]` becomes `#(n-1)`. This is the `Sym` counterpart of
+`Expr.abstractRange`, and it is the operation needed for the type of the binder `xs[n]` when
+rebuilding a telescope.
+
+Makes the same assumptions as `abstractFVarsRange`; the minimal variable must be `xs[0]`.
+-/
+public def abstractFVarsPrefix (e : Expr) (n : Nat) (xs : Array Expr) : SymM Expr := do
+  if !e.hasFVar then return e
+  let n := min n xs.size
+  if h : 0 < n then
+    have : n ≤ xs.size := Nat.min_le_right ..
+    let toDeBruijn? (fvarId : FVarId) : Option Nat :=
+      let rec go (bidx : Nat) (i : Nat) (h : i < n) : Option Nat :=
+        if xs[i].fvarId! == fvarId then
+          some bidx
+        else if i > 0 then
+          go (bidx + 1) (i - 1) (by omega)
+        else
+          none
+      go 0 (n - 1) (by omega)
+    liftBuilderM <| abstractFVarsCore e (← getLCtx) (← get).maxFVar xs[0].fvarId! toDeBruijn?
+  else
+    return e
+
+/--
 Abstracts free variables `xs` in expression `e`, converting them to de Bruijn indices.
 
 It is an abbreviation for `abstractFVarsRange e 0 xs`.
@@ -86,7 +112,7 @@ public abbrev abstractFVars (e : Expr) (xs : Array Expr) : SymM Expr := do
   abstractFVarsRange e 0 xs
 
 /--
-Similar to `mkLambdaFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsRange`,
+Similar to `mkLambdaFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsPrefix`,
 and makes the same assumption made by these functions.
 -/
 public def mkLambdaFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
@@ -94,11 +120,11 @@ public def mkLambdaFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
   xs.size.foldRevM (init := b) fun i _ b => do
     let x := xs[i]
     let decl ← x.fvarId!.getDecl
-    let type ← abstractFVarsRange decl.type i xs
+    let type ← abstractFVarsPrefix decl.type i xs
     mkLambdaS decl.userName decl.binderInfo type b
 
 /--
-Similar to `mkForallFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsRange`,
+Similar to `mkForallFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsPrefix`,
 and makes the same assumption made by these functions.
 -/
 public def mkForallFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
@@ -106,7 +132,7 @@ public def mkForallFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
   xs.size.foldRevM (init := b) fun i _ b => do
     let x := xs[i]
     let decl ← x.fvarId!.getDecl
-    let type ← abstractFVarsRange decl.type i xs
+    let type ← abstractFVarsPrefix decl.type i xs
     mkForallS decl.userName decl.binderInfo type b
 
 end Lean.Meta.Sym

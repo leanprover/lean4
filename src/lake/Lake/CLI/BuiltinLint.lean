@@ -68,7 +68,7 @@ public def leanOptOverrides (args : Args) : LeanOptions :=
 
 Recording it inserts `set_option option false in` immediately before the declaration beginning
 at `pos` in `file`, silencing the `option` linter for that declaration. -/
-private structure ExceptionRecord where
+structure ExceptionRecord where
   /-- Source file containing the flagged declaration. -/
   file : System.FilePath
   /-- Start position of the flagged declaration (1-based line, 0-based column). -/
@@ -78,7 +78,7 @@ private structure ExceptionRecord where
   deriving Inhabited
 
 /-- The result of linting according to its mode. -/
-private inductive LintingOutcome where
+inductive LintingOutcome where
   /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
   | reported (failed : Bool)
   /--
@@ -90,7 +90,7 @@ private inductive LintingOutcome where
   | codeQualityChecks (entries : Array CodeQuality.Entry)
 
 /-- The result of the deferred docstring check for one lint target, according to its mode. -/
-private inductive DeferredCheckOutcome where
+inductive DeferredCheckOutcome where
   /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
   | reported (failed : Bool)
   /--
@@ -99,31 +99,60 @@ private inductive DeferredCheckOutcome where
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
 
-private structure PackageCodeQualityCheckOutcome where
+structure PackageCodeQualityCheckOutcome where
   entries : Array CodeQuality.Entry
   failed : Bool
 
-private def collectTextLints
+def collectTextLints
     (env : Environment) (pkgRoot : Name) :
     Array (Name × Array Linter.LintEntry) :=
   Linter.getAllLints env |>.foldl (init := #[]) fun acc (mod, entries) =>
     if pkgRoot.isPrefixOf mod && !entries.isEmpty then acc.push (mod, entries) else acc
 
-@[noinline] private def getIsModule (modData : Lean.ModuleData) : BaseIO Bool :=
+/--
+Collects the code quality entries recorded during elaboration (via
+`Lean.Linter.logCodeQualityEntry` and `Lean.Linter.logCodeQualityEntryIf`) for the modules of
+the package rooted at `mod.getRoot` that are imported by `env`. Like text-linter warnings, these
+were persisted into `codeQualityLogExt` when each module was built (with the linter overrides
+applied via `leanOptOverrides`) and are recovered here from the `.olean`s, which requires an
+environment imported at the `server` olean level. With `--lint-only`, entries attributed to a
+linter option are additionally filtered to the explicitly enabled linters; unattributed entries
+(logged via `logCodeQualityEntry`) are always kept.
+
+Modules in `collectedModules` were already covered by an earlier lint target and are skipped, so
+that a module imported by several targets contributes its entries only once; the returned set
+extends it with the modules collected here.
+-/
+def collectRecordedCodeQuality (args : Args) (linterOpts : Linter.LinterOptions)
+    (env : Environment) (mod : Name) (collectedModules : NameSet) :
+    Array CodeQuality.Entry × NameSet := Id.run do
+  let mut collected := collectedModules
+  let mut acc : Array CodeQuality.Entry := #[]
+  for (m, entries) in Linter.getAllCodeQualityEntries env do
+    unless mod.getRoot.isPrefixOf m && !collected.contains m do continue
+    collected := collected.insert m
+    let entries :=
+      if args.lintOnly then
+        entries.filter fun e => e.linter?.all (Lean.Linter.isLinterEnabledByOptions · linterOpts)
+      else entries
+    acc := acc ++ entries.map (·.entry)
+  return (acc, collected)
+
+@[noinline] def getIsModule (modData : Lean.ModuleData) : BaseIO Bool :=
   return modData.isModule
 
-private def recordedMarker : String := "-- recorded by `lake lint --record-exceptions`"
+def recordedMarker : String := "-- recorded by `lake lint --record-exceptions`"
 
-private def isIndentChar (c : Char) : Bool := c == ' ' || c == '\t'
+def isIndentChar (c : Char) : Bool := c == ' ' || c == '\t'
 
-private def leadingWhitespace (line : String) : String :=
+def leadingWhitespace (line : String) : String :=
   (line.toRawSubstring.takeWhile isIndentChar).toString
 
 /--
 Applies the collected exceptions to the source files: for each file, inserts a
 `set_option <linter> false in <marker>` line before every flagged declaration.
 -/
-private def recordExceptionsToFiles (records : Array ExceptionRecord) : IO Unit := do
+def recordExceptionsToFiles (records : Array ExceptionRecord) : IO Unit := do
   let mut byFile : Std.HashMap String (System.FilePath × Array (Nat × Name)) := {}
   for r in records do
     let key := r.file.toString
@@ -161,7 +190,7 @@ is the module that recorded the deferred check.
 Requires an environment imported at the `server` olean level, which carries the declaration ranges
 and Verso module-doc snippets consulted here.
 -/
-private def deferredSitePos? (failMod : Name) (site : Doc.DeferredCheckSite) :
+def deferredSitePos? (failMod : Name) (site : Doc.DeferredCheckSite) :
     CoreM (Option Position) := do
   match site with
   | .decl n =>
@@ -171,12 +200,12 @@ private def deferredSitePos? (failMod : Name) (site : Doc.DeferredCheckSite) :
     return snippets[i]?.map (·.declarationRange.pos)
 
 /-- A deferred check site, described for error messages. -/
-private def describeSite : Doc.DeferredCheckSite → String
+def describeSite : Doc.DeferredCheckSite → String
   | .decl n => s!"the docstring of `{n}`"
   | .moduleDoc i => s!"module docstring #{i + 1}"
 
 /-- The result of the deferred docstring check pass for one lint target. -/
-private structure DeferredCheckResults where
+structure DeferredCheckResults where
   /-- The mode-specific outcome of the pass. -/
   outcome : DeferredCheckOutcome
   /-- Modules whose deferred checks have now been run. -/
@@ -199,7 +228,7 @@ target.
 Failures are reported on stderr, unless `args.recordExceptions` is set, in which case they are
 turned into exception records at the flagged docstring's positions for the caller to write.
 -/
-private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
+def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
     (env : Environment) (pkgRoot : Name) (docCheckedModules : NameSet) :
     IO DeferredCheckResults := do
   let selected :=
@@ -267,7 +296,7 @@ without one are reported on stderr and flagged as unlocated. In `codeQuality` mo
 are aggregated per module/linter pair into code quality entries whose scalar value is the number
 of warnings, for the caller to emit as JSON.
 -/
-private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
+def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
     (env : Environment) (mod : Name) : IO LintingOutcome := do
   let textGroups := collectTextLints env mod.getRoot
   let textGroups :=
@@ -325,7 +354,7 @@ file cannot be resolved are reported on stderr and flagged as unlocated. In `cod
 the findings are aggregated per module/declaration/linter triple into code quality entries whose
 scalar value is the number of warnings, for the caller to emit as JSON.
 -/
-private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
+def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
     (env : Environment) (mod : Name) : IO LintingOutcome := do
   let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
     let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
@@ -387,7 +416,7 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
       return .codeQualityChecks codeQualityEntries
   return outcome
 
-private def runPackageCodeQualityChecks (sp : SearchPath) (env : Environment)
+def runPackageCodeQualityChecks (sp : SearchPath) (env : Environment)
     (mod : Name) : IO PackageCodeQualityCheckOutcome := do
   let ⟨(outcome, anyFailed), _⟩ ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
     let mut anyFailed : Bool := false
@@ -421,6 +450,9 @@ public def run (args : Args) : IO UInt32 := do
   -- Modules whose deferred docstring checks have already been run. A module can appear in
   -- several targets' import closures, so this runs each such module's checks only once.
   let mut docCheckedModules : NameSet := {}
+  -- Modules whose recorded code quality entries have already been collected, so a module shared
+  -- between several targets' import closures does not contribute its entries more than once.
+  let mut metricsCollectedModules : NameSet := {}
   for mod in mods do
     unsafe Lean.enableInitializersExecution
     -- Peek at the .olean header to learn whether `mod` participates in the module system.
@@ -462,6 +494,10 @@ public def run (args : Args) : IO UInt32 := do
       codeQualityEntries := codeQualityEntries ++ entries
 
     if args.mode == .codeQuality then
+      let (recorded, collected) :=
+        collectRecordedCodeQuality args linterOpts env mod metricsCollectedModules
+      metricsCollectedModules := collected
+      codeQualityEntries := codeQualityEntries ++ recorded
       let ⟨entries, failed⟩ ← runPackageCodeQualityChecks sp env mod
       codeQualityEntries := codeQualityEntries ++ entries
       if failed then anyFailed := true

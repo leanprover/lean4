@@ -16,8 +16,8 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 86, num: 1):
-    [kernel] OfNat.ofNat ↦ 86
+  [kernel] unfolded declarations (max: 88, num: 1):
+    [kernel] OfNat.ofNat ↦ 88
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
@@ -85,8 +85,6 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [diag] Diagnostics
-  [def_eq] heuristic for solving `f a =?= f b` (max: 60, num: 1):
-    [def_eq] ack ↦ 60
   [kernel] unfolded declarations (max: 84, num: 1):
     [kernel] OfNat.ofNat ↦ 84
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters

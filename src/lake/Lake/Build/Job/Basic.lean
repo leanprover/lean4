@@ -74,6 +74,8 @@ public structure JobState where
   action : JobAction := .unknown
   /-- Whether this job failed due to a request to rebuild for `--no-build`. -/
   wantsRebuild : Bool := false
+  /-- Whether this job was cut short by the build's cancellation token (see `BuildConfig.failFast`). -/
+  canceled : Bool := false
   /-- Current trace of a build job. -/
   trace : BuildTrace := .nil
   /-- How long the job spent building (in milliseconds). -/
@@ -84,6 +86,7 @@ public def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
   action := a.action.merge b.action
   wantsRebuild := a.wantsRebuild || b.wantsRebuild
+  canceled := a.canceled || b.canceled
   trace := mixTrace a.trace b.trace
   buildTime := a.buildTime + b.buildTime
 
@@ -105,25 +108,13 @@ public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α
   | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
 
 /--
-**For internal use only.**
-Log message marking a job continuation canceled by the build's cancellation
-token. Do not match this directly; use `JobResult.isCanceled`.
+Whether this result was cut short by cancellation rather than by a failure
+of its own. A result that carries a genuine failure in its log is a failure,
+even if it was also canceled; use `JobResult.isCanceled` only after checking
+for failure (as the monitor does).
 -/
-public def cancelMessage : String := "canceled after earlier build failure"
-
-/--
-Whether this result is a cancellation.
-
-Also correct on merged results (e.g., from `zipResultWith`, `mix`,
-`collectArray`): a result that contains both a genuine failure and
-cancellations is classified as failed.
--/
-public def JobResult.isCanceled : JobResult α → Bool
-  | .error _ s =>
-    -- Scan the log, not the entry at the error position: merges concatenate
-    -- logs but reset the position. Assumes failures log at error level.
-    s.log.maxLv < .error &&
-    s.log.any fun e => e.level == .trace && e.message == cancelMessage
+@[inline] public def JobResult.isCanceled : JobResult α → Bool
+  | .error _ s => s.canceled
   | .ok .. => false
 
 /-- The `Task` of a Lake job. -/

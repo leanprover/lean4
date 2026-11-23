@@ -100,16 +100,16 @@ where
     mkApp3 (mkConst ``BVPred.getLsbD) (toExpr w) (toExpr expr) (toExpr idx)
 
 
-instance [ToExpr α] : ToExpr (BoolExpr α) where
+instance : ToExpr BVLogicalExpr where
   toExpr x := go x
-  toTypeExpr := mkApp (mkConst ``BoolExpr) (toTypeExpr α)
+  toTypeExpr := mkConst ``BVLogicalExpr
 where
-  go : (BoolExpr α) → Expr
-    | .literal lit => mkApp2 (mkConst ``BoolExpr.literal) (toTypeExpr α) (toExpr lit)
-    | .const b => mkApp2 (mkConst ``BoolExpr.const) (toTypeExpr α) (toExpr b)
-    | .not x => mkApp2 (mkConst ``BoolExpr.not) (toTypeExpr α) (go x)
-    | .gate g x y => mkApp4 (mkConst ``BoolExpr.gate) (toTypeExpr α) (toExpr g) (go x) (go y)
-    | .ite d l r => mkApp4 (mkConst ``BoolExpr.ite) (toTypeExpr α) (go d) (go l) (go r)
+  go : BVLogicalExpr → Expr
+    | .literal lit => mkApp (mkConst ``BVLogicalExpr.literal) (toExpr lit)
+    | .const b => mkApp (mkConst ``BVLogicalExpr.const) (toExpr b)
+    | .not x => mkApp (mkConst ``BVLogicalExpr.not) (go x)
+    | .gate g x y => mkApp3 (mkConst ``BVLogicalExpr.gate) (toExpr g) (go x) (go y)
+    | .ite d l r => mkApp3 (mkConst ``BVLogicalExpr.ite) (go d) (go l) (go r)
 
 
 open Lean.Meta
@@ -135,6 +135,62 @@ structure Atom where
 
 structure Context where
   hypotheses : Array Normalize.Hyp
+  config : Elab.Tactic.BVDecide.BVDecideConfig
+
+def mkBoolAtomWrapper (e : Expr) : Sym.SymM Expr :=
+  Sym.share <| mkApp (mkConst ``BitVec.ofBool) e
+
+/--
+An atom interpreted by the UF theory.
+-/
+structure FunAtom where
+  /--
+  The function expression associated with the atom.
+  -/
+  funExpr : Expr
+  /--
+  If true then the actual atom is `BitVec.ofBool funExpr`.
+  -/
+  isBoolAtom : Bool
+
+def FunAtom.atomExpr (funAtom : FunAtom) : Sym.SymM Expr :=
+  if funAtom.isBoolAtom then mkBoolAtomWrapper funAtom.funExpr else pure funAtom.funExpr
+
+/--
+The state associated with the theory of uninterpreted functions (UF).
+-/
+structure FunState where
+  /--
+  The list of function atoms collected so far.
+  -/
+  atoms : Array FunAtom := #[]
+  /--
+  The list of congruence masks per function atom.
+  -/
+  masks : Array (Array Bool) := #[]
+  /--
+  The function atoms with their congruence-relevant arguments abstracted as lambda binders.
+  -/
+  patterns : Array Expr := {}
+
+/--
+The state associated with the EPR theory.
+-/
+structure EprState where
+  problem : EPR.EprBvProblem := {}
+
+/--
+Theory solver state.
+-/
+structure TheoryState where
+  /--
+  State associated with the theory of uninterpreted functions (UF).
+  -/
+  funState : FunState := {}
+  /--
+  State associated with the EPR solver.
+  -/
+  eprState : EprState := {}
 
 /--
 The state of the reflection monad
@@ -146,21 +202,29 @@ structure State where
   -/
   atoms : Std.HashMap Sym.ExprPtr Atom := {}
   /--
-  A cache for `atomsAssignment`. If it is `none` the cache is currently invalidated as new atoms
+  A cache for `atomsAssignmentExpr`. If it is `none` the cache is currently invalidated as new atoms
   have been added since it was last updated, if it is `some` it must be consistent with the atoms
   contained in `atoms`.
   -/
-  atomsAssignmentCache : Option Expr := none
+  atomsAssignmentExprCache : Option Expr := none
+  /--
+  The equivalent of `atomsAssignmentExprCache` but computed as a efficiently computable hashmap.
+  -/
+  atomsAssignmentMapCache : Option (Std.HashMap Nat (Nat × Expr × Bool)) := none
   /--
   Cached calls to `evalsAtAtoms` of various reflection structures. Whenever `atoms` is modified
   this cache is invalidated as `evalsAtAtoms` relies on `atoms`.
   -/
   evalsAtCache : Std.HashMap Sym.ExprPtr (Option Expr) := {}
+  /--
+  State for theory solvers.
+  -/
+  theoryState : TheoryState := {}
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
 -/
-abbrev M := ReaderT Context StateRefT State Sym.SymM
+abbrev ReifyM := ReaderT Context StateRefT State Grind.GrindM
 
 /--
 A reified version of an `Expr` representing a `BVExpr`.
@@ -178,13 +242,13 @@ structure ReifiedBVExpr where
   /--
   A proof that `bvExpr.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms' : M (Option Expr)
+  evalsAtAtoms' : ReifyM (Option Expr)
   /--
   A cache for `toExpr bvExpr`.
   -/
   expr : Expr
 
-def ReifiedBVExpr.evalsAtAtoms (reified : ReifiedBVExpr) : M (Option Expr) := do
+def ReifiedBVExpr.evalsAtAtoms (reified : ReifiedBVExpr) : ReifyM (Option Expr) := do
   let key := { expr := reified.originalExpr }
   match (← get).evalsAtCache[key]? with
   | some hit => return hit
@@ -208,13 +272,13 @@ structure ReifiedBVPred where
   /--
   A proof that `bvPred.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms' : M (Option Expr)
+  evalsAtAtoms' : ReifyM (Option Expr)
   /--
   A cache for `toExpr bvPred`
   -/
   expr : Expr
 
-def ReifiedBVPred.evalsAtAtoms (reified : ReifiedBVPred) : M (Option Expr) := do
+def ReifiedBVPred.evalsAtAtoms (reified : ReifiedBVPred) : ReifyM (Option Expr) := do
   let key := { expr := reified.originalExpr }
   match (← get).evalsAtCache[key]? with
   | some hit => return hit
@@ -238,13 +302,13 @@ structure ReifiedBVLogical where
   /--
   A proof that `bvExpr.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms' : M (Option Expr)
+  evalsAtAtoms' : ReifyM (Option Expr)
   /--
   A cache for `toExpr bvExpr`
   -/
   expr : Expr
 
-def ReifiedBVLogical.evalsAtAtoms (reified : ReifiedBVLogical) : M (Option Expr) := do
+def ReifiedBVLogical.evalsAtAtoms (reified : ReifiedBVLogical) : ReifyM (Option Expr) := do
   let key := { expr := reified.originalExpr }
   match (← get).evalsAtCache[key]? with
   | some hit => return hit
@@ -264,53 +328,72 @@ structure SatAtBVLogical where
   /--
   A proof that `bvExpr.eval atomsAssignment = true`.
   -/
-  satAtAtoms : M Expr
+  satAtAtoms : ReifyM Expr
   /--
   A cache for `toExpr bvExpr`
   -/
   expr : Expr
 
 
-namespace M
+namespace ReifyM
 
 /--
 Run a reflection computation as a `SymM` one.
 -/
-def run (m : M α) (hypotheses : Array Normalize.Hyp) : Sym.SymM α := do
+def run (m : ReifyM α) (hypotheses : Array Normalize.Hyp) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) (epr : EPR.EprBvProblem) : Grind.GrindM α := do
   let hypotheses ← hypotheses.mapM fun hyp => return { hyp with type := ← Sym.shareCommon hyp.type }
-  ReaderT.run m { hypotheses } |>.run' {}
+  ReaderT.run m { hypotheses, config := cfg } |>.run' { theoryState := { eprState := { problem := epr } }}
 
 /--
 Retrieve the atoms as pairs of their width and expression.
 -/
-def atoms : M (Array (Nat × Expr)) := do
+def atoms : ReifyM (Array (Nat × Expr)) := do
   let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.atomNumber < ·.2.atomNumber)
   return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr.expr))
+
+def atomsAssignmentMap : ReifyM (Std.HashMap Nat (Nat × Expr × Bool)) := do
+  match (← getThe State).atomsAssignmentMapCache with
+  | some cache => return cache
+  | none => updateAtomsAssignment
+where
+  updateAtomsAssignment : ReifyM (Std.HashMap Nat (Nat × Expr × Bool)) := do
+    let atomsPairs := (← getThe State).atoms.toList.map fun (expr, {width, atomNumber, synthetic}) =>
+      (atomNumber, (width, expr.expr, synthetic))
+    let atomsAssignment := Std.HashMap.ofList atomsPairs
+    modify fun s => { s with atomsAssignmentMapCache := some atomsAssignment }
+    return atomsAssignment
 
 /--
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
 -/
-def atomsAssignment : M Expr := do
-  match (← getThe State).atomsAssignmentCache with
+def atomsAssignmentExpr : ReifyM Expr := do
+  match (← getThe State).atomsAssignmentExprCache with
   | some cache => return cache
   | none => updateAtomsAssignment
 where
-  updateAtomsAssignment : M Expr := do
+  updateAtomsAssignment : ReifyM Expr := do
     let as ← atoms
     if h : 0 < as.size then
       let ras := Lean.RArray.ofArray as h
       let packedType := mkConst ``BVExpr.PackedBitVec
       let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
       let newAtomsAssignment ← Sym.shareCommon <| ← ras.toExpr packedType pack
-      modify fun s => { s with atomsAssignmentCache := some newAtomsAssignment }
+      modify fun s => { s with atomsAssignmentExprCache := some newAtomsAssignment }
       return newAtomsAssignment
     else
       throwError "updateAtomsAssignment should only be called when there is an atom"
 
+def isAtom (e : Expr) : ReifyM Bool := do
+  return (← getThe State).atoms.contains { expr := e }
+
+def getAtomNumber (e : Expr) : ReifyM (Option Nat) := do
+  let key : Sym.ExprPtr := { expr := e }
+  return (← getThe State).atoms[key]?.map (·.atomNumber)
+
 /--
 Look up an expression in the atoms, recording it if it has not previously appeared.
 -/
-def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
+def lookup (e : Expr) (width : Nat) (synthetic : Bool) : ReifyM Nat := do
   let key := { expr := e }
   match (← getThe State).atoms[key]? with
   | some atom =>
@@ -326,11 +409,16 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
         s with
           atoms := s.atoms.insert key newAtom,
           -- must clear the caches as they depend on `atoms`.
-          atomsAssignmentCache := none
+          atomsAssignmentExprCache := none
+          atomsAssignmentMapCache := none
           evalsAtCache := {}
       }
       (newAtomNumber, s)
     return ident
+
+@[inline]
+def modifyTheoryState (f : TheoryState → TheoryState) : ReifyM Unit := do
+  modify fun s => { s with theoryState := f s.theoryState }
 
 @[specialize]
 def simplifyBinaryProof' (mkFRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr)
@@ -356,9 +444,9 @@ def simplifyTernaryProof (mkRefl : Expr → Expr) (fst : Expr) (fproof : Option 
   | none, none => none
 
 @[inline]
-def getHyps : M (Array Normalize.Hyp) := return (← read).hypotheses
+def getHyps : ReifyM (Array Normalize.Hyp) := return (← read).hypotheses
 
-end M
+end ReifyM
 
 /--
 The state of the lemma reflection monad.
@@ -382,14 +470,14 @@ structure LemmaState where
   bvLogicalCache : Std.HashMap Sym.ExprPtr (Option ReifiedBVLogical) := {}
 
 /--
-The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
+The lemma reflection monad. It extends the usual reflection monad `ReifyM` by adding the ability to
 add additional top level lemmas on the fly.
 -/
-abbrev LemmaM := StateRefT LemmaState M
+abbrev LemmaM := StateRefT LemmaState ReifyM
 
 namespace LemmaM
 
-def run (m : LemmaM α) (state : LemmaState := {}) : M (α × Array SatAtBVLogical) := do
+def run (m : LemmaM α) (state : LemmaState := {}) : ReifyM (α × Array SatAtBVLogical) := do
   let (res, state) ← StateRefT'.run m state
   return (res, state.lemmas)
 
@@ -398,6 +486,15 @@ Add another top level lemma.
 -/
 def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
   modify fun s => { s with lemmas := s.lemmas.push lemma }
+
+/--
+Drop all of the lemmas recorded so far.
+-/
+def resetLemmas : LemmaM Unit := do
+  modify fun s => { s with lemmas := #[] }
+
+def getLemmas : LemmaM (Array SatAtBVLogical) :=
+  return (← get).lemmas
 
 @[specialize]
 def withBVExprCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVExpr)) :

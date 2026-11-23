@@ -214,6 +214,14 @@ outside the E-graph, and only the final result is internalized.
 -/
 syntax grindHom    := &"hom"
 /--
+The `hom fallback` modifier marks a homomorphism rule that is tried only when no other
+`[grind hom]` rule applies to the term. It is meant for rules whose left-hand side matches
+every application of an injection, such as the bridge `x.toInt = x.toBitVec.toInt` between
+the two images of `Int64`: as an ordinary rule it would take precedence over the direct
+rules like `Int64.toInt_add`, since the rewriter applies the first matching rule.
+-/
+syntax grindHomFallback := &"hom" ppSpace &"fallback"
+/--
 The `hom_pred` modifier marks a theorem as a homomorphism predicate for `grind`.
 
 Homomorphism predicates are facts that `grind` instantiates eagerly for the terms it
@@ -304,12 +312,17 @@ the multi-pattern `q x x, r x y`. The term `p x y` is ignored due to `p`’s low
 priority. Symbols with priority `0` are never used in patterns.
 -/
 syntax grindSym    := &"symbol" ppSpace prio
-syntax grindMod :=
-    grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
-    <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
-    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindHomPred <|> grindHom
-    <|> grindNorm <|> grindUnfold <|> grindDef
+/-- Modifiers for `grind` attributes and tactic parameters. -/
+declare_syntax_cat grind_mod (behavior := both)
+
+attribute [grind_mod_parser]
+  grindEqBoth grindEqRhs grindEq grindEqBwd grindBwd
+  grindFwd grindRL grindLR grindUsr grindCasesEager
+  grindCases grindIntro grindExt grindGen grindSym grindInj
+  grindFunCC grindHomPred grindHomFallback grindHom grindNorm grindUnfold grindDef
+
+-- Retain the wrapper's syntax kind and antiquotations while sharing the modifier parsers.
+syntax grindMod := grind_mod
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.

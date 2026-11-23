@@ -15,9 +15,8 @@ public section
 
 namespace Std
 
-/--
-A wrapper around an iterator that provides total consumers. See `IterM.ensureTermination`.
--/
+-- documented below by `add_decl_doc`, which can refer to `IterM.ensureTermination`
+set_option linter.missingDocs false in
 structure IterM.Total {α : Type w} (m : Type w → Type w') (β : Type w) where
   /--
   The wrapped iterator, which was wrapped by `IterM.ensureTermination`.

@@ -5,7 +5,8 @@ Authors: Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
+
+set_option sym.debug true
 
 set_option experimental.vcgen true
 set_option grind.warning false
@@ -52,7 +53,7 @@ theorem ofProp_meet_sup (p : Prop) (X : L → Prop) :
       apply sup_le
       intro x hx
       refine PartialOrder.rel_trans ?_ (le_sup _ (y := ⌜p⌝ ⊓ x) ⟨x, hx, rfl⟩)
-      exact le_meet _ _ _ (le_ofProp x p hp) PartialOrder.rel_refl
+      exact le_meet _ _ _ (CompleteLattice.le_ofProp x p hp) PartialOrder.rel_refl
     · refine PartialOrder.rel_trans (meet_le_left _ _) ?_
       simp only [CompleteLattice.ofProp, hp, ↓reduceIte]
       exact bot_le _
@@ -91,12 +92,13 @@ theorem costConj_imp (shift : Nat) (b : Nat → L) :
     intro x hx ticks
     have := hx (ticks + shift)
     simp only [costConj, show ticks + shift - shift = ticks by omega] at this
-    exact PartialOrder.rel_trans (le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl) this
+    exact PartialOrder.rel_trans
+      (le_meet _ _ _ (CompleteLattice.le_ofProp _ _ (by omega)) PartialOrder.rel_refl) this
   · refine PreservesSup.le_upperAdjoint (costConj shift) (b := b)
       (x := fun ticks => b (ticks + shift)) ?_
     intro ticks
     show (⌜shift ≤ ticks⌝ ⊓ b (ticks - shift + shift)) ⊑ b ticks
-    rw [CompleteLattice.ofProp_intro_r]
+    rw [CompleteLattice.ofProp_meet_le_eq_imp]
     intro hle
     rw [show ticks - shift + shift = ticks by omega]
 
@@ -107,7 +109,7 @@ theorem costConj_add (shift shift' : Nat) (a : Nat → L) :
   funext ticks
   show ⌜shift + shift' ≤ ticks⌝ ⊓ a (ticks - (shift + shift'))
     = ⌜shift ≤ ticks⌝ ⊓ (⌜shift' ≤ ticks - shift⌝ ⊓ a (ticks - shift - shift'))
-  rw [Nat.sub_sub, ← meet_assoc, ofProp_and,
+  rw [Nat.sub_sub, ← meet_assoc, CompleteLattice.ofProp_meet_ofProp,
     show (shift ≤ ticks ∧ shift' ≤ ticks - shift) = (shift + shift' ≤ ticks) from
       propext ⟨fun ⟨_, _⟩ => by omega, fun h => ⟨by omega, by omega⟩⟩]
 
@@ -116,7 +118,7 @@ theorem costConj_zero (a : Nat → L) : costConj 0 a = a := by
   funext ticks
   rw [costConj_apply, Nat.sub_zero,
     show (⌜0 ≤ ticks⌝ : L) = ⊤ from
-      PartialOrder.rel_antisymm (le_top _) (top_le_ofProp _ (Nat.zero_le ticks)),
+      PartialOrder.rel_antisymm (le_top _) (CompleteLattice.top_le_ofProp _ (Nat.zero_le ticks)),
     top_meet]
 
 /-! ## The cost transformer `TickT` and its weakest precondition -/
@@ -142,21 +144,21 @@ def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 
 /-- The frame-internalizing cost weakest precondition: the `frameClosure` of the base
 `StateT` wp over `costConj`. -/
-noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) : Nat → Pred :=
-  ((WP.wpTrans x.run).frameClosure costConj).apply Q E
+noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPosts) : Nat → Pred :=
+  ((WP.trans x.run).frameClosure costConj).apply Q E
 
 /-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
 shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
 @[simp, grind =]
-theorem TickT.wp_apply_eq [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) (n : Nat) :
+theorem TickT.wp_apply_eq [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPosts) (n : Nat) :
     TickT.wp x Q E n = ⨅ r, WP.wp x.run (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r)) E (n + r) := by
   simp only [TickT.wp, PredTrans.apply_frameClosure, iInf_apply, costConj_imp]
   rfl
 
-theorem TickT.le_wp_tick [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    (Q : Unit → Nat → Pred) (E : EPred) (n : Nat) :
+theorem TickT.le_wp_tick [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    (Q : Unit → Nat → Pred) (E : EPosts) (n : Nat) :
     Q () (n + 1) ⊑ WP.wp (tick (m := m)).run Q E n := by
   apply WPMonad.pure_le_wp_pure (post := Function.uncurry Q) (x := (PUnit.unit, n + 1))
 
@@ -172,7 +174,7 @@ example (Q : Unit → Nat → Prop) (E : EStack⟨⟩) (n : Nat) : TickT.wp drop
   refine propext ⟨fun h => ?_, False.elim⟩
   -- `h 1` is the `r = 1` conjunct, which reduces to `⌜1 ≤ 0⌝ ⊓ Q () 0`.
   have h1 : (⌜(1 : Nat) ≤ 0⌝ ⊓ Q () 0 : Prop) := h 1
-  rw [meet_prop_eq_and, ofProp_prop_eq] at h1
+  rw [meet_prop_eq_and, CompleteLattice.ofProp_prop_eq] at h1
   exact absurd h1.1 (by omega)
 
 /-! ## The internalized frame rule -/
@@ -181,34 +183,38 @@ variable {m : Type → Type} [Monad m]
 
 /-- The `WPMonad` of `TickT m` is the `costConj`-frame closure of the base `StateT` wp, so the
 `costConj`-frame rule holds by construction. -/
-noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    WPMonad (TickT m) (Nat → Pred) EPred :=
-  WPMonad.of_frameClosure (m := StateT Nat m) costConj costConj_add costConj_zero StateT.instWPMonad
+noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
+    WPMonad (TickT m) (Nat → Pred) EPosts :=
+  WPMonad.withFrameClosure (m := StateT Nat m) costConj
+    costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
 
-/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/
+/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`,
+under every guard `P`. -/
 @[grind .]
-theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {α : Type} (x : TickT m α) (F : Nat) : WP.Frames costConj x F :=
-  WP.Frames.of_frameClosure costConj (· + ·) costConj_add
-    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
+theorem frames_costConj [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type} (x : TickT m α) (F : Nat) (P : Nat → Pred) :
+    WP.Frames costConj x F P :=
+  WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
+    ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
-theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPred) :
+theorem tickFrames [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPosts) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
-  (frames_costConj (Pred := Pred) (EPred := EPred) x F).op_wp_le_wp_op Q E
+  PartialOrder.rel_trans (le_meet _ _ _ (le_top _) PartialOrder.rel_refl)
+    ((frames_costConj (Pred := Pred) (EPosts := EPosts) x F ⊤).op_wp_le_wp_op Q E)
 
 /-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/
-theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    (Q : Unit → Nat → Pred) (E : EPred) (n : Nat) :
+theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    (Q : Unit → Nat → Pred) (E : EPosts) (n : Nat) :
     Q () (n + 1) ⊑ TickT.wp (tick (m := m)) Q E n := by
   rw [TickT.wp_apply_eq]
   apply le_iInf
   intro r
   refine PartialOrder.rel_trans ?_ (TickT.le_wp_tick (fun a k => ⌜r ≤ k⌝ ⊓ Q a (k - r)) E (n + r))
   show Q () (n + 1) ⊑ ⌜r ≤ n + r + 1⌝ ⊓ Q () (n + r + 1 - r)
-  exact le_meet _ _ _ (le_ofProp _ _ (by omega))
+  exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ (by omega))
     (PartialOrder.rel_of_eq (by rw [show n + r + 1 - r = n + 1 by omega]))
 
 /-! ## End-to-end `vcgen` via a registered `@[frameproc]`
@@ -219,7 +225,7 @@ meet form, so the built-in meet split yields the tick guard and the shifted resi
 open Lean.Elab.Tactic.VCGen
 
 /-- Exact spec for `tick`, registered so `vcgen` can decompose `tick` calls. -/
-@[spec] theorem tick_spec [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+@[spec] theorem tick_spec [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ fun n => Q () (n + 1) ⦄ (tick : TickT m Unit) ⦃ Q; E ⦄ := by
   constructor
   intro n
@@ -227,7 +233,7 @@ open Lean.Elab.Tactic.VCGen
 
 /-- Assert a pure fact alongside a resource that is kept. -/
 theorem le_ofProp_meet_self {φ : Prop} (x : L) (h : φ) : x ⊑ ⌜φ⌝ ⊓ x :=
-  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+  le_meet _ _ _ (CompleteLattice.le_ofProp _ _ h) PartialOrder.rel_refl
 
 /-- The frame inference procedure: shift by the pinned frame's amount, or by the whole current tick
 count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It
@@ -256,7 +262,7 @@ def tickFrameProc : FrameInferenceProc := fun i => do
     let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
     -- A nested `Grind.main` run on a probe metavariable can discharge the guard here. The demo
     -- keeps it as a subgoal.
-    let hle ← mkFreshExprSyntheticOpaqueMVar φ
+    let hle ← share (← mkFreshExprSyntheticOpaqueMVar φ)
     let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
       #[costL, costInst, φ, ← mkAppNS goal.framedApp.wp #[shifted], hle]
     -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
@@ -276,6 +282,7 @@ frames the cost over any base monad. `costConj_apply` unfolds `costConj r b n` t
   mkResourceTy := fun _ => pure (mkConst ``Nat)
   opHead := ``costConj
   proc := tickFrameProc
+  framesThm? := ``frames_costConj
 
 /-- End-to-end: plain `vcgen` infers the shift, applies the `costConj` gadget, fires the registered
 `costSplit`, and the meet machinery closes the residual. -/
@@ -346,8 +353,8 @@ untouched. -/
 
 /-- Lifting a base-monad program into `TickT` leaves the cost untouched: its wp is the base wp with the
 cost `n` held fixed. -/
-@[spec] theorem Spec.monadLift_TickT [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] {α : Type} (x : m α) (Q : α → Nat → Pred) (E : EPred) :
+@[spec] theorem Spec.monadLift_TickT [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] {α : Type} (x : m α) (Q : α → Nat → Pred) (E : EPosts) :
     ⦃fun n => WP.wp x (fun a => Q a n) E⦄ (MonadLift.monadLift x : TickT m α) ⦃Q; E⦄ := by
   constructor
   intro n
@@ -357,9 +364,9 @@ cost `n` held fixed. -/
   intro r
   refine PartialOrder.rel_trans ?_
     ((WPMonad.le_wp_monadLift_StateT_apply x (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r))) (n + r))
-  refine WP.wp_consequence x (fun a => Q a n) _ E (fun a => ?_)
+  refine WP.wp_monotone_post (fun a => ?_)
   rw [show n + r - r = n by omega]
-  exact le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl
+  exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ (by omega)) PartialOrder.rel_refl
 
 /-- A base-state effect lifted into `TickT`: it bumps the `StateM Nat` state and never ticks. -/
 def bumpBase : TickT (StateM Nat) Unit := modify (fun x => x + 1)

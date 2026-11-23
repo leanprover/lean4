@@ -176,18 +176,11 @@ return v___x_43_;
 }
 else
 {
-if (v___x_43_ == 0)
-{
-return v___x_43_;
-}
-else
-{
 size_t v___x_44_; size_t v___x_45_; uint8_t v___x_46_; 
 v___x_44_ = ((size_t)0ULL);
 v___x_45_ = lean_usize_of_nat(v___x_42_);
 v___x_46_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(v_a_40_, v_as_39_, v___x_44_, v___x_45_);
 return v___x_46_;
-}
 }
 }
 }
@@ -212,13 +205,13 @@ v___x_57_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v
 if (v___x_57_ == 0)
 {
 lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___x_62_; 
-v___x_58_ = lean_st_ref_take(v___x_55_);
-v___x_59_ = lean_array_push(v___x_58_, v_name_53_);
-v___x_60_ = lean_st_ref_put(v___x_55_, v___x_59_);
-v___x_61_ = lean_array_get_size(v___x_56_);
+v___x_58_ = lean_array_get_size(v___x_56_);
 lean_dec(v___x_56_);
+v___x_59_ = lean_st_ref_take(v___x_55_);
+v___x_60_ = lean_array_push(v___x_59_, v_name_53_);
+v___x_61_ = lean_st_ref_put(v___x_55_, v___x_60_);
 v___x_62_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_62_, 0, v___x_61_);
+lean_ctor_set(v___x_62_, 0, v___x_58_);
 return v___x_62_;
 }
 else

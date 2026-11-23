@@ -1,5 +1,6 @@
 import Std.WP
-import Std.Tactic.Do
+
+set_option sym.debug true
 
 /-! Tests that `vcgen` is usable as a step inside `sym => …` blocks. -/
 

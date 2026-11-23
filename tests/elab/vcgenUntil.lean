@@ -1,7 +1,8 @@
 import Std.WP
 import Lean
 import Std
-import Std.Tactic.Do
+
+set_option sym.debug true
 
 set_option experimental.vcgen true
 set_option warn.sorry false

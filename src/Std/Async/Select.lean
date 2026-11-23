@@ -15,7 +15,9 @@ import Init.Omega
 public section
 
 /-!
-This module contains the implementation of a fair and data-loss free IO multiplexing primitive.
+This module contains the implementation of a fair IO multiplexing primitive. It loses no data from
+selectors that keep the contract of `Selector.registerFn`; a repeating `Signal.Waiter.selector`
+does not, and may lose a signal that arrives while another selector wins.
 The main entrypoint for users is `Selectable.one` and the various functions to produce
 `Selector`s from other modules.
 -/
@@ -112,7 +114,8 @@ where
       (xs, gen)
 
 /--
-Creates a `Selector` that performs fair and data-loss free multiplexing on multiple `Selectable`s.
+Creates a `Selector` that performs fair multiplexing on multiple `Selectable`s, which loses no data
+from selectors that keep the contract of `Selector.registerFn`.
 This allows the multiplexing operation to be composed with other selectors.
 
 The returned `Selector` polls and registers the `selectables` in random order for fairness. If
@@ -169,7 +172,8 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
   }
 
 /--
-Performs fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
+Performs fair multiplexing on the `Selectable`s in `selectables`, which loses no data from
+selectors that keep the contract of `Selector.registerFn`.
 
 `selectables` is combined into a single `Selector` via `Selectable.combine`:
 1. If `Selector.tryFn` immediately yields a value, the corresponding `Selectable.cont` is

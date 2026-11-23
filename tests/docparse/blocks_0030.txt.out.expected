@@ -1,14 +1,16 @@
+Input: "1. Hello"
 Success! Final stack:
-  [(Lean.Doc.Syntax.ol
-    "ol("
-    (num "1")
-    ")"
-    "{"
-    [(Lean.Doc.Syntax.li
-      "1."
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"Hello\""))]
-        "}")])]
-    "}")]
+  [(Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "1.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "Hello"))])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  ol (start := 1)
+    item (marker := "1.")
+      para
+        text (content := "Hello")

@@ -1,5 +1,6 @@
-import Std.Tactic.Do
 import Std.WP
+
+set_option sym.debug true
 
 /-!
 Tests that `vcgen` keeps the exception postcondition of a spec that states it as `estack⟨E⟩` with `E`

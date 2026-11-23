@@ -11,14 +11,12 @@ prelude
 public import Init.SizeOf
 public import Init.Tactics
 
-public section
+@[expose] public section
 set_option linter.missingDocs true -- keep it documented
 
 -- BEq instance for Option defined here so it's available early in the import chain
 -- (before Init.Grind.Config and Init.MetaTypes which need BEq (Option Nat))
 deriving instance BEq for Option
-
-@[expose] section
 
 universe u v w
 
@@ -805,10 +803,6 @@ class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
 
 export LawfulBEq (eq_of_beq)
 
-instance : LawfulBEq Bool where
-  eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
-  rfl {a} := by cases a <;> decide
-
 instance [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
@@ -823,10 +817,6 @@ def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x
     (match h : x == y with
     | false => not_eq_of_beq_eq_false h
     | true => eq_of_beq h)
-
-instance : LawfulBEq Char := inferInstance
-
-instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
@@ -1100,6 +1090,9 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
 
+theorem reflects_toBoolUsing {p : Prop} {d : Decidable p} : (toBoolUsing d).Reflects p :=
+  d.reflects_decide
+
 instance : Decidable True :=
   isTrue trivial
 
@@ -1215,6 +1208,57 @@ theorem dite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t 
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
 
+/--
+Auxiliary theorem for proving the equations of `match` expressions with value patterns. The match
+compiler generates `dite (b = a) (Eq.ndrec_symm m) e` for testing whether the variable `b` is the
+value `a`.
+-/
+theorem dite_ndrec_symm_eq {α : Sort u} {a b : α} {inst : Decidable (b = a)} {motive : α → Sort v}
+    {m : motive a} {e : ¬ b = a → motive b} (r : (x : α) → motive x)
+    (h₁ : b = a → m = r a) (h₂ : (h : ¬ b = a) → e h = r b) :
+    dite (b = a) (Eq.ndrec_symm m) e = r b :=
+  match inst with
+  | isTrue h  => by subst h; exact h₁ rfl
+  | isFalse h => h₂ h
+
+/--
+Auxiliary theorem for proving the equations of `match` expressions with value patterns.
+It is used to skip a test `dite c t e` when `c` is false.
+
+The proof `h` of the remaining equation is under a binder, like `e` is. This is important for
+proof size when `e` is `fun _ => e'` and `e'` is itself a long chain of tests: the proof of
+`e' = b` is then in the same binder context as `e'`, so its subterms are shared with `e'`.
+With `dite_eq_right`, the proof for `e'` is outside of the binder, and every skipped test adds a
+copy of the remaining chain to the proof.
+-/
+theorem dite_eq_of_not {c : Prop} {inst : Decidable c} {α : Sort u} {t : c → α} {e : ¬ c → α} {b : α}
+    (hnc : ¬ c) (h : (hnc : ¬ c) → e hnc = b) : dite c t e = b :=
+  match inst with
+  | isTrue hc   => absurd hc hnc
+  | isFalse hnc => h hnc
+
+/--
+Auxiliary theorem for proving the equations of `match` expressions with value patterns.
+
+The match compiler generates a chain of tests
+```
+dite (b = a₁) (Eq.ndrec_symm m₁) fun _ => dite (b = a₂) (Eq.ndrec_symm m₂) fun _ => ... e
+```
+for the alternatives with value patterns `a₁`, `a₂`, ... This theorem is used to prove, with a
+single traversal of the chain, a theorem that states what the chain `r` is equal to in each case:
+```
+(b = a₁ → r ≍ m₁) ∧ (¬ b = a₁ → (b = a₂ → r ≍ m₂) ∧ (¬ b = a₂ → ... r ≍ e))
+```
+`q` is the statement for the remaining tests, and `h` its proof.
+-/
+theorem dite_ndrec_symm_cases {α : Sort u} {a b : α} {inst : Decidable (b = a)} {motive : α → Sort v}
+    {m : motive a} {e : ¬ b = a → motive b} {r : motive b} {q : Prop}
+    (h : (hn : ¬ b = a) → r = e hn → q) :
+    r = dite (b = a) (Eq.ndrec_symm m) e → (b = a → r ≍ m) ∧ (¬ b = a → q) :=
+  fun hr => match inst, hr with
+  | isTrue hc, hr   => ⟨fun _ => by subst hc; subst hr; exact HEq.rfl, fun hn => absurd hc hn⟩
+  | isFalse hn, hr  => ⟨fun hc => absurd hc hn, fun hn' => h hn' hr⟩
+
 @[deprecated dite_eq_right (since := "2026-07-21")]
 theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 
@@ -1229,6 +1273,12 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   match dC with
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
+
+@[macro_inline]
+instance {c : Bool} {t e : Prop} [dT : Decidable t] [dE : Decidable e] : Decidable (bif c then t else e) :=
+  match c with
+  | true  => dT
+  | false => dE
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
 abbrev noConfusionTypeEnum {α : Sort u} (f : α → Nat) (P : Sort w) (x y : α) : Sort w :=
@@ -2327,86 +2377,6 @@ instance : Subsingleton (Squash α) where
     trivial
 
 namespace Lean
-/-! # Kernel reduction hints -/
-
-/--
-Depends on the correctness of the Lean compiler, interpreter, and all `[implemented_by ...]` and `[extern ...]` annotations.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-axiom trustCompiler : True
-
-set_option linter.deprecated false in
-/--
-When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
-The kernel will not use the interpreter if `c` is not a constant.
-This feature is useful for performing proofs by reflection.
-
-Remark: the Lean frontend allows terms of the from `Lean.reduceBool t` where `t` is a term not containing
-free variables. The frontend automatically declares a fresh auxiliary constant `c` and replaces the term with
-`Lean.reduceBool c`. The main motivation is that the code for `t` will be pre-compiled.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
-
-Recall that the compiler trusts the correctness of all `[implemented_by ...]` and `[extern ...]` annotations.
-If an extern function is executed, then the trusted code base will also include the implementation of the associated
-foreign function.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-opaque reduceBool (b : Bool) : Bool :=
-  -- This ensures that `#print axioms` will track use of `reduceBool`.
-  have := trustCompiler
-  b
-
-set_option linter.deprecated false in
-/--
-Similar to `Lean.reduceBool` for closed `Nat` terms.
-
-Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
-The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
-We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection).
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-opaque reduceNat (n : Nat) : Nat :=
-  -- This ensures that `#print axioms` will track use of `reduceNat`.
-  have := trustCompiler
-  n
-
-
-set_option linter.deprecated false in
-/--
-The axiom `ofReduceBool` is used to perform proofs by reflection. See `reduceBool`.
-
-This axiom is usually not used directly, because it has some syntactic restrictions.
-Instead, the `native_decide` tactic can be used to prove any proposition whose
-decidability instance can be evaluated to `true` using the lean compiler / interpreter.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
-
-set_option linter.deprecated false in
-/--
-The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool`.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
-
-
 /--
 The term `opaqueId x` will not be reduced by the kernel.
 -/

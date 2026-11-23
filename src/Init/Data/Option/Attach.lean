@@ -439,6 +439,110 @@ theorem all_unattach {p : α → Prop} {o : Option { x // p x }} {q : α → Boo
     o.unattach.all q = o.all (q ∘ Subtype.val) := by
   cases o <;> simp
 
+/-! ### Well-founded recursion preprocessing setup -/
+
+@[wf_preprocess] theorem map_wfParam {o : Option α} {f : α → β} :
+    (wfParam o).map f = o.attach.unattach.map f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem map_unattach {P : α → Prop} {o : Option (Subtype P)} {f : α → β} :
+    o.unattach.map f = o.map fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem bind_wfParam {o : Option α} {f : α → Option β} :
+    (wfParam o).bind f = o.attach.unattach.bind f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem bind_unattach {P : α → Prop} {o : Option (Subtype P)} {f : α → Option β} :
+    o.unattach.bind f = o.bind fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem filter_wfParam {o : Option α} {p : α → Bool} :
+    (wfParam o).filter p = o.attach.unattach.filter p := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filter_unattach {P : α → Prop} {o : Option (Subtype P)} {p : α → Bool} :
+    o.unattach.filter p = (o.filter fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x)).unattach := by
+  cases o with
+  | none => rfl
+  | some a => simp only [filter_some, unattach_some, binderNameHint, wfParam]; split <;> rfl
+
+@[wf_preprocess] theorem any_wfParam {o : Option α} {p : α → Bool} :
+    (wfParam o).any p = o.attach.unattach.any p := by
+  simp [wfParam]
+
+/-- Variant of `any_unattach` in the form needed by well-founded recursion preprocessing. -/
+@[wf_preprocess] theorem any_unattach' {P : α → Prop} {o : Option (Subtype P)} {p : α → Bool} :
+    o.unattach.any p = o.any fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem all_wfParam {o : Option α} {p : α → Bool} :
+    (wfParam o).all p = o.attach.unattach.all p := by
+  simp [wfParam]
+
+/-- Variant of `all_unattach` in the form needed by well-founded recursion preprocessing. -/
+@[wf_preprocess] theorem all_unattach' {P : α → Prop} {o : Option (Subtype P)} {p : α → Bool} :
+    o.unattach.all p = o.all fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem elim_wfParam {o : Option α} {b : β} {f : α → β} :
+    (wfParam o).elim b f = o.attach.unattach.elim b f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem elim_unattach {P : α → Prop} {o : Option (Subtype P)} {b : β} {f : α → β} :
+    o.unattach.elim b f = o.elim b fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem mapM_wfParam [Applicative m] {o : Option α} {f : α → m β} :
+    (wfParam o).mapM f = o.attach.unattach.mapM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem mapM_unattach [Applicative m] {P : α → Prop} {o : Option (Subtype P)}
+    {f : α → m β} :
+    o.unattach.mapM f = o.mapM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem bindM_wfParam [Pure m] {o : Option α} {f : α → m (Option β)} :
+    (wfParam o).bindM f = o.attach.unattach.bindM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem bindM_unattach [Pure m] {P : α → Prop} {o : Option (Subtype P)}
+    {f : α → m (Option β)} :
+    o.unattach.bindM f = o.bindM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
+@[wf_preprocess] theorem filterM_wfParam [Applicative m] {o : Option α} {p : α → m Bool} :
+    (wfParam o).filterM p = o.attach.unattach.filterM p := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filterM_unattach [Applicative m] [LawfulApplicative m] {P : α → Prop}
+    {o : Option (Subtype P)} {p : α → m Bool} :
+    o.unattach.filterM p = unattach <$> o.filterM fun ⟨x, h⟩ =>
+      binderNameHint x p <| binderNameHint h () <| p (wfParam x) := by
+  cases o with
+  | none => simp [Option.filterM]
+  | some a =>
+    simp only [Option.filterM, unattach_some, binderNameHint, wfParam, Functor.map_map]
+    congr 1; funext b; cases b <;> rfl
+
+@[wf_preprocess] theorem forM_wfParam [Pure m] {o : Option α} {f : α → m PUnit} :
+    (wfParam o).forM f = o.attach.unattach.forM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem forM_unattach [Pure m] {P : α → Prop} {o : Option (Subtype P)}
+    {f : α → m PUnit} :
+    o.unattach.forM f = o.forM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  cases o <;> rfl
+
 @[always_inline]
 instance : MonadAttach Option where
   CanReturn x a := x = some a

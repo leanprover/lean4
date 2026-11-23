@@ -429,6 +429,17 @@ where
     else
       .paren (ppPattern arg)
 
+/--
+Returns `true` if `grind` internalizes applications of `declName` in a special way, without
+internalizing (all) their arguments. Symbols occurring in such applications are not used for
+indexing E-matching theorems (see `saveSymbolsAt`), and consequently the internalizer does not
+mark them as found either (see `activateTheoremsForConstsIn`).
+-/
+def isOpaqueForIndexing (declName : Name) : Bool :=
+  declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
+    || declName == ``Grind.eqBwdPattern
+    || declName == ``Grind.nestedDecidable || declName == ``ite
+
 namespace NormalizePattern
 
 structure State where
@@ -465,11 +476,8 @@ private def saveSymbol (h : HeadIndex) : M Unit := do
 private def saveSymbolsAt (e : Expr) : M Unit := do
   e.forEach' fun e => do
     if e.isApp || e.isConst then
-      /- **Note**: We ignore function symbols that have special handling in the internalizer. -/
       if let .const declName _ := e.getAppFn then
-        if declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
-           || declName == ``Grind.eqBwdPattern
-           || declName == ``Grind.nestedDecidable || declName == ``ite then
+        if isOpaqueForIndexing declName then
           return false
     match e with
     | .const .. =>
@@ -1200,7 +1208,10 @@ private partial def collectGroundPattern? (proof : Expr) (xs : Array Expr) (sear
   let go? : CollectorM (Option Expr) := do
     for place in searchPlaces do
       let place ← preprocessPattern place
-      if let some r ← visit? place then
+      -- `xs` may occur in `place` inside proofs (e.g., a hint `h _ _ ⋯` whose hole is a proof
+      -- parameter). They must be abstracted like in `collectPatterns?`, otherwise the
+      -- normalizer wraps terms containing these free variables as ground patterns.
+      if let some r ← visit? (place.abstract xs) then
         return r
     return none
   let (some p, s) ← go? { proof, xs } |>.run' {} { symPrios, minPrio } |>.run {}

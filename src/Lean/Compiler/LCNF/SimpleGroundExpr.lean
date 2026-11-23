@@ -89,7 +89,7 @@ public structure SimpleGroundExtState where
 builtin_initialize simpleGroundDeclExt : EnvExtension SimpleGroundExtState ←
   registerEnvExtension (pure {}) (asyncMode := .sync)
     (replay? := some fun oldState newState _ s =>
-      let newNames := newState.revNames.take (newState.revNames.length - oldState.revNames.length)
+      let newNames := takeNewEntries newState.revNames oldState.revNames
       newNames.foldl (init := s) fun s n =>
         let g := newState.constNames.find! n
         { s with constNames := s.constNames.insert n g, revNames := n :: s.revNames }
@@ -200,7 +200,7 @@ where
       | .nat v =>
         match decl.type with
         | ImpureType.tagged =>
-          guard <| v < 2^31
+          guard <| !Nat.isPossibleRef v
           record decl.fvarId (.arg (.tagged v))
         | _ => failure
       | .uint8 v => record decl.fvarId (.uint8 v)

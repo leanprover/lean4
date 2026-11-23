@@ -317,6 +317,9 @@ and log are saved to `traceFile`, if the build completes without a fatal error
       writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
+    -- Delete trace before build to prevent association of new outputs with
+    -- the old trace upon build failure and the reversion of the the inputs.
+    removeFileIfExists traceFile
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
@@ -386,6 +389,19 @@ If `text := true`, `file` is hashed as a text file rather than a binary file.
 public def cacheFileHash (file : FilePath) (text := false) : IO Unit := do
   let hash ← computeFileHash file text
   writeFileHash file hash
+
+/--
+If `file` exists, computes its hash and saves it to a `.hash` file.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
+-/
+public def cacheFileHashIfExists (file : FilePath) (text := false) : IO Unit := do
+  try
+    let hash ← computeFileHash file text
+    writeFileHash file hash
+  catch
+    | .noFileOrDirectory .. => pure ()
+    | e => throw e
 
 /-- Remove the cached hash of a file (its `.hash` file) if it exists. -/
 public def clearFileHash (file : FilePath) : IO Unit := do
@@ -467,9 +483,7 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        -- other functions can race to create the file
-        -- use `writeFileIfNew` to prevent errors on races
-        writeFileIfNew cacheFile normalized
+        writeBinFileAtomicIfNew cacheFile normalized.toByteArray
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -489,8 +503,7 @@ public def Cache.saveArtifact
         if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
           -- other functions can race to create the file
           unless e matches .alreadyExists .. do
-            -- use `writeBinFileIfNew` to prevent errors on races
-            writeBinFileIfNew cacheFile contents
+            writeBinFileAtomicIfNew cacheFile contents
       IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
       let mtime ← getMTime cacheFile
@@ -665,6 +678,10 @@ public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : L
     writeFileHash file art.hash
   return art.useLocalFile file
 
+/-- **For internal use only.** -/
+@[inline] public def Internal.getOutputsRef? [Functor m] [MonadBuild m] (pkg : Package) : m (Option CacheRef) :=
+  readThe BuildContext <&> fun ctx => if pkg.wsIdx = ctx.outputsIdx then ctx.outputsRef? else none
+
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
 with a matching extension (`ext`) and content hash. If one is found, use it.
@@ -724,9 +741,8 @@ public def buildArtifactUnlessUpToDate
           if let some art ← fetchArt? (restore := true) then
             return art
         doBuild depTrace traceFile
-    if pkg.isRoot then
-      if let some outputsRef := (← getBuildContext).outputsRef? then
-        outputsRef.insert inputHash art.descr platformIndependent
+    if let some ref ← Internal.getOutputsRef? pkg then
+      ref.insert inputHash art.descr platformIndependent
     setTrace art.trace
     setMTime art traceFile
   else
@@ -743,7 +759,6 @@ where
       removeFileIfExists file
       build
       clearFileHash file
-      removeFileIfExists traceFile
       computeArtifact file ext text
   setMTime art traceFile := do
     match (← getMTime traceFile |>.toBaseIO) with

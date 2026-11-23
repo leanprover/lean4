@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL
-// Imports: public import Lake.DSL.Attributes public import Lake.DSL.Config public import Lake.DSL.DeclUtil public import Lake.DSL.Extensions public import Lake.DSL.Key public import Lake.DSL.Meta public import Lake.DSL.Package public import Lake.DSL.Script public import Lake.DSL.Require public import Lake.DSL.Targets public import Lake.DSL.VerLit
+// Imports: public import Lake.DSL.Attributes public import Lake.DSL.CacheService public import Lake.DSL.Config public import Lake.DSL.DeclUtil public import Lake.DSL.Extensions public import Lake.DSL.Key public import Lake.DSL.Meta public import Lake.DSL.Package public import Lake.DSL.Script public import Lake.DSL.Require public import Lake.DSL.Targets public import Lake.DSL.VerLit
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Lake_DSL_Attributes(uint8_t builtin);
+lean_object* runtime_initialize_Lake_DSL_CacheService(uint8_t builtin);
 lean_object* runtime_initialize_Lake_DSL_Config(uint8_t builtin);
 lean_object* runtime_initialize_Lake_DSL_DeclUtil(uint8_t builtin);
 lean_object* runtime_initialize_Lake_DSL_Extensions(uint8_t builtin);
@@ -32,6 +33,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize();
 res = runtime_initialize_Lake_DSL_Attributes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_DSL_CacheService(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_DSL_Config(builtin);
@@ -74,6 +78,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lake_DSL_Attributes(uint8_t builtin);
+lean_object* initialize_Lake_DSL_CacheService(uint8_t builtin);
 lean_object* initialize_Lake_DSL_Config(uint8_t builtin);
 lean_object* initialize_Lake_DSL_DeclUtil(uint8_t builtin);
 lean_object* initialize_Lake_DSL_Extensions(uint8_t builtin);
@@ -90,6 +95,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lake_DSL_Attributes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_DSL_CacheService(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_DSL_Config(builtin);

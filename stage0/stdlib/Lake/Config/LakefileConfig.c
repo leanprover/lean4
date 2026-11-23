@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LakefileConfig
-// Imports: public import Lake.Config.Script public import Lake.Config.Dependency public import Lake.Config.PackageConfig public import Lake.Config.FacetConfig public import Lake.Config.TargetConfig
+// Imports: public import Lake.Config.Script public import Lake.Config.Dependency public import Lake.Config.PackageConfig public import Lake.Config.FacetConfig public import Lake.Config.TargetConfig public import Lake.Config.LakeConfig
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* runtime_initialize_Lake_Config_Dependency(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Config_PackageConfig(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Config_FacetConfig(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Config_TargetConfig(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_LakeConfig(uint8_t builtin);
 void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Config_LakefileConfig(uint8_t builtin) {
@@ -40,6 +41,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lake_Config_TargetConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_LakeConfig(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -54,6 +58,7 @@ lean_object* initialize_Lake_Config_Dependency(uint8_t builtin);
 lean_object* initialize_Lake_Config_PackageConfig(uint8_t builtin);
 lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin);
 lean_object* initialize_Lake_Config_TargetConfig(uint8_t builtin);
+lean_object* initialize_Lake_Config_LakeConfig(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_LakefileConfig(uint8_t builtin) {
 lean_object * res;
@@ -72,6 +77,9 @@ res = initialize_Lake_Config_FacetConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_TargetConfig(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_LakeConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_Config_LakefileConfig(builtin);

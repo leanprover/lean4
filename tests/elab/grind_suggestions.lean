@@ -29,7 +29,7 @@ h : ¬P 37
 -/
 #guard_msgs in
 example : P 37 := by
-  grind
+  grind +verbose
 
 example : P 7 := by
   grind [p]

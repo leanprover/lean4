@@ -85,7 +85,7 @@ trace: [sym.issues] type has `LE`, but is not a partial order, failed to synthes
 set_option trace.sym.issues true in
 example [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedAdd α] (a b c : α)
     : a < b → b + b < c → c < a → False := by
-  grind
+  grind +verbose
 
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (a b : α)
     : a < 2 → b < a → b > 5 → False := by

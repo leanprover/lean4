@@ -21,25 +21,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     (attrs? : Option (TSepArray ``attrInstance ",")) (attrKind : TSyntax ``attrKind)
     (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) :
     CommandElabM Syntax := do
-  let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
-    | `(matchAltExpr| | $pats,* => $rhs) => do
-      let pat := pats.elemsAndSeps[0]!
-      if !pat.isQuot then
-        throwUnsupportedSyntax
-      let quoted := getQuotContent pat
-      let k' := quoted.getKind
-      if checkRuleKind k' k then
-        pure alt
-      else if k' == choiceKind then
-         match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind `{k}`"
-         | some quoted =>
-           let pat := pat.setArg 1 quoted
-           let pats := ⟨pats.elemsAndSeps.set! 0 pat⟩
-           `(matchAltExpr| | $pats,* => $rhs)
-      else
-        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind `{k'}`"
-    | _ => throwUnsupportedSyntax
+  let alts ← alts.mapM (checkRuleAltKind "elab_rules" k)
   let catName ← match cat?, expty? with
     | some cat, _ => pure cat.getId
     | _, some _   => pure `term
@@ -88,12 +70,13 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     throwError "unsupported syntax category `{catName}`"
 
 @[builtin_command_elab «elab_rules»] def elabElabRules : CommandElab :=
-  adaptExpander fun stx => match stx with
+  adaptRulesExpander fun stx => match stx with
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
-    expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*)
-  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
-    do elabElabRulesAux doc? attrs? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
+    return (none, ← expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*))
+  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) => do
+    let k ← resolveSyntaxKind kind.getId
+    return (k, ← elabElabRulesAux doc? attrs? attrKind k cat? expty? alts)
   | _  => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.elab]

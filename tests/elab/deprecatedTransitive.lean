@@ -18,6 +18,9 @@ def b1 : Nat := 0
 warning: `b1` is itself deprecated in favor of `c1`; consider deprecating `a1` in favor of `c1` instead
 
 Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+
+Hint: Deprecate in favor of `c1` instead:
+  b̵c̲1
 -/
 #guard_msgs in
 @[deprecated b1 (since := "2020-01-01")]
@@ -39,6 +42,9 @@ def b2 : Nat := 0
 warning: `b2` is itself deprecated in favor of `c2`; consider deprecating `a2` in favor of `c2` instead
 
 Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+
+Hint: Deprecate in favor of `c2` instead:
+  b̵c̲2
 -/
 #guard_msgs in
 @[deprecated b2 (since := "2020-01-01")]
@@ -71,6 +77,9 @@ def b4 : Nat := 0
 warning: `b4` is itself deprecated in favor of `c4`; consider deprecating `a4` in favor of `c4` instead
 
 Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+
+Hint: Deprecate in favor of `c4` instead:
+  b̵c̲4
 -/
 #guard_msgs in
 @[deprecated b4 (since := "2020-01-01")]
@@ -87,6 +96,9 @@ def b5 : Bool := true
 warning: `b5` is itself deprecated in favor of `c5`; consider deprecating `a5` in favor of `c5` instead
 
 Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+
+Hint: Deprecate in favor of `c5` instead:
+  b̵c̲5
 ---
 warning: The updated constant has a different type:
   Bool

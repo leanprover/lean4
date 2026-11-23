@@ -7,7 +7,10 @@ if(USE_MIMALLOC)
   # `MI_MAX_ALIGN_SIZE=8` means that an object with two fields will take 24 bytes instead of 32 bytes.
   # The default value 16 is only necessary for mimalloc to be compatible with the system allocator, which
   # we do not care about.
-  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_MAX_ALIGN_SIZE=8 -Wno-unused-function)
+  # MI_BLOCK_SCRUB=0 (see `script/mimalloc-lean.patch`): every allocation site writes the object
+  # header before the object can be read, so the free-list pointer the scrub would clear is
+  # overwritten anyway. Secure builds scrub regardless.
+  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_MAX_ALIGN_SIZE=8 -DMI_BLOCK_SCRUB=0 -Wno-unused-function)
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
     list(APPEND MIMALLOC_OPTS -Wno-deprecated)
   endif()

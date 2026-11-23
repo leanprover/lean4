@@ -2383,7 +2383,7 @@ if (v___x_654_ == 0)
 {
 lean_dec(v___x_652_);
 lean_dec(v_moduleTk_650_);
-lean_dec(v___y_649_);
+lean_dec(v___y_647_);
 lean_dec(v___y_645_);
 v_opts_596_ = v_opts_589_;
 v_ignoreDeprecatedImports_597_ = v_ignoreDeprecatedImports_607_;
@@ -2393,19 +2393,19 @@ goto v___jp_595_;
 else
 {
 lean_object* v___x_655_; lean_object* v___x_656_; lean_object* v___x_657_; uint8_t v___x_658_; 
-v___x_655_ = l_Lean_Syntax_getArg(v___x_652_, v___y_649_);
+v___x_655_ = l_Lean_Syntax_getArg(v___x_652_, v___y_647_);
 lean_dec(v___x_652_);
 v___x_656_ = ((lean_object*)(l_Lean_Elab_HeaderSyntax_imports___closed__6));
 lean_inc_ref(v___y_646_);
+lean_inc_ref(v___y_649_);
 lean_inc_ref(v___y_648_);
-lean_inc_ref(v___y_647_);
-v___x_657_ = l_Lean_Name_mkStr4(v___y_647_, v___y_648_, v___y_646_, v___x_656_);
+v___x_657_ = l_Lean_Name_mkStr4(v___y_648_, v___y_649_, v___y_646_, v___x_656_);
 v___x_658_ = l_Lean_Syntax_isOfKind(v___x_655_, v___x_657_);
 lean_dec(v___x_657_);
 if (v___x_658_ == 0)
 {
 lean_dec(v_moduleTk_650_);
-lean_dec(v___y_649_);
+lean_dec(v___y_647_);
 lean_dec(v___y_645_);
 v_opts_596_ = v_opts_589_;
 v_ignoreDeprecatedImports_597_ = v_ignoreDeprecatedImports_607_;
@@ -2416,7 +2416,7 @@ else
 {
 v___y_619_ = v___y_645_;
 v___y_620_ = v_moduleTk_650_;
-v___y_621_ = v___y_649_;
+v___y_621_ = v___y_647_;
 goto v___jp_618_;
 }
 }
@@ -2426,7 +2426,7 @@ else
 lean_dec(v___x_652_);
 v___y_619_ = v___y_645_;
 v___y_620_ = v_moduleTk_650_;
-v___y_621_ = v___y_649_;
+v___y_621_ = v___y_647_;
 goto v___jp_618_;
 }
 }
@@ -2494,9 +2494,9 @@ v___x_675_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_675_, 0, v_moduleTk_674_);
 v___y_645_ = v_val_660_;
 v___y_646_ = v___x_663_;
-v___y_647_ = v___x_661_;
-v___y_648_ = v___x_662_;
-v___y_649_ = v___x_666_;
+v___y_647_ = v___x_666_;
+v___y_648_ = v___x_661_;
+v___y_649_ = v___x_662_;
 v_moduleTk_650_ = v___x_675_;
 goto v___jp_644_;
 }
@@ -2509,9 +2509,9 @@ lean_dec(v___x_667_);
 v___x_676_ = lean_box(0);
 v___y_645_ = v_val_660_;
 v___y_646_ = v___x_663_;
-v___y_647_ = v___x_661_;
-v___y_648_ = v___x_662_;
-v___y_649_ = v___x_666_;
+v___y_647_ = v___x_666_;
+v___y_648_ = v___x_661_;
+v___y_649_ = v___x_662_;
 v_moduleTk_650_ = v___x_676_;
 goto v___jp_644_;
 }

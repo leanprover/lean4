@@ -2213,7 +2213,7 @@ goto v_resetjp_645_;
 v_resetjp_645_:
 {
 uint8_t v_linarith_648_; 
-v_linarith_648_ = lean_ctor_get_uint8(v_a_644_, sizeof(void*)*18 + 23);
+v_linarith_648_ = lean_ctor_get_uint8(v_a_644_, sizeof(void*)*18 + 24);
 lean_dec(v_a_644_);
 if (v_linarith_648_ == 0)
 {

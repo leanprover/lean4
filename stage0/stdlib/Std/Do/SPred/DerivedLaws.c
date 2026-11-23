@@ -13,6 +13,52 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_DerivedLaws_0__Std_Do_SPred_entails_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_DerivedLaws_0__Std_Do_SPred_entails_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_DerivedLaws_0__Std_Do_SPred_entails_match__1_splitter___redArg(lean_object* v_00_u03c3s_1_, lean_object* v_P_2_, lean_object* v_Q_3_, lean_object* v_h__1_4_, lean_object* v_h__2_5_){
+_start:
+{
+if (lean_obj_tag(v_00_u03c3s_1_) == 0)
+{
+lean_object* v___x_6_; 
+lean_dec(v_h__2_5_);
+v___x_6_ = lean_apply_2(v_h__1_4_, v_P_2_, v_Q_3_);
+return v___x_6_;
+}
+else
+{
+lean_object* v_tail_7_; lean_object* v___x_8_; 
+lean_dec(v_h__1_4_);
+v_tail_7_ = lean_ctor_get(v_00_u03c3s_1_, 1);
+lean_inc(v_tail_7_);
+lean_dec_ref_known(v_00_u03c3s_1_, 2);
+v___x_8_ = lean_apply_4(v_h__2_5_, lean_box(0), v_tail_7_, v_P_2_, v_Q_3_);
+return v___x_8_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_DerivedLaws_0__Std_Do_SPred_entails_match__1_splitter(lean_object* v_motive_9_, lean_object* v_00_u03c3s_10_, lean_object* v_P_11_, lean_object* v_Q_12_, lean_object* v_h__1_13_, lean_object* v_h__2_14_){
+_start:
+{
+if (lean_obj_tag(v_00_u03c3s_10_) == 0)
+{
+lean_object* v___x_15_; 
+lean_dec(v_h__2_14_);
+v___x_15_ = lean_apply_2(v_h__1_13_, v_P_11_, v_Q_12_);
+return v___x_15_;
+}
+else
+{
+lean_object* v_tail_16_; lean_object* v___x_17_; 
+lean_dec(v_h__1_13_);
+v_tail_16_ = lean_ctor_get(v_00_u03c3s_10_, 1);
+lean_inc(v_tail_16_);
+lean_dec_ref_known(v_00_u03c3s_10_, 2);
+v___x_17_ = lean_apply_4(v_h__2_14_, lean_box(0), v_tail_16_, v_P_11_, v_Q_12_);
+return v___x_17_;
+}
+}
+}
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do_SPred_Laws(uint8_t builtin);
 lean_object* runtime_initialize_Init_Classical(uint8_t builtin);

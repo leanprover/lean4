@@ -6313,8 +6313,8 @@ else
 {
 lean_object* v___x_1892_; lean_object* v___x_1894_; 
 lean_dec_ref(v_children_1851_);
-lean_dec_ref(v_i_1850_);
 lean_dec_ref_known(v_ctx_x3f_1842_, 1);
+lean_dec_ref(v_i_1850_);
 v___x_1892_ = ((lean_object*)(l_Lean_Elab_InfoTree_format___closed__3));
 if (v_isShared_1854_ == 0)
 {
@@ -6363,8 +6363,8 @@ else
 {
 lean_del_object(v___x_1853_);
 lean_dec_ref(v_children_1851_);
-lean_dec_ref(v_i_1850_);
 lean_dec_ref_known(v_ctx_x3f_1842_, 1);
+lean_dec_ref(v_i_1850_);
 return v___x_1856_;
 }
 }

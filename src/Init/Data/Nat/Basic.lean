@@ -80,6 +80,7 @@ Examples:
     | succ n, a => loop n (f a)
   loop n a
 
+set_option linter.missingDocs false in
 @[deprecated Nat.iterateTR (since := "2026-11-23")]
 abbrev repeatTR := @Nat.iterateTR
 
@@ -1231,6 +1232,7 @@ theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   (go n 0).symm
 
 -- we need the csimp to make this computable
+set_option linter.missingDocs false in
 @[deprecated Nat.iterate (since := "2026-11-23")]
 abbrev «repeat» := @Nat.iterate
 

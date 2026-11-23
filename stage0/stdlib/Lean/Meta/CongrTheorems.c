@@ -4230,13 +4230,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst_spec__0___boxed(lean_object* v_kinds_1557_, lean_object* v___x_1558_, lean_object* v_as_1559_, lean_object* v_sz_1560_, lean_object* v_i_1561_, lean_object* v_b_1562_){
 _start:
 {
-uint8_t v___x_569__boxed_1563_; size_t v_sz_boxed_1564_; size_t v_i_boxed_1565_; lean_object* v_res_1566_; 
-v___x_569__boxed_1563_ = lean_unbox(v___x_1558_);
+uint8_t v___x_568__boxed_1563_; size_t v_sz_boxed_1564_; size_t v_i_boxed_1565_; lean_object* v_res_1566_; 
+v___x_568__boxed_1563_ = lean_unbox(v___x_1558_);
 v_sz_boxed_1564_ = lean_unbox_usize(v_sz_1560_);
 lean_dec(v_sz_1560_);
 v_i_boxed_1565_ = lean_unbox_usize(v_i_1561_);
 lean_dec(v_i_1561_);
-v_res_1566_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst_spec__0(v_kinds_1557_, v___x_569__boxed_1563_, v_as_1559_, v_sz_boxed_1564_, v_i_boxed_1565_, v_b_1562_);
+v_res_1566_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst_spec__0(v_kinds_1557_, v___x_568__boxed_1563_, v_as_1559_, v_sz_boxed_1564_, v_i_boxed_1565_, v_b_1562_);
 lean_dec_ref(v_b_1562_);
 lean_dec_ref(v_as_1559_);
 lean_dec_ref(v_kinds_1557_);
@@ -11818,8 +11818,8 @@ v___x_4685_ = l_Lean_Environment_contains(v_env_4683_, v_pre_4680_, v___x_4684_)
 if (v___x_4685_ == 0)
 {
 lean_object* v___x_4686_; lean_object* v___x_4687_; 
-lean_dec(v_pre_4680_);
 lean_dec_ref_known(v_name_4676_, 2);
+lean_dec(v_pre_4680_);
 lean_dec(v___x_4675_);
 v___x_4686_ = lean_box(v___x_4685_);
 v___x_4687_ = lean_alloc_ctor(0, 1, 0);
@@ -11839,8 +11839,8 @@ v___x_4698_ = lean_string_dec_eq(v_str_4681_, v___x_4697_);
 if (v___x_4698_ == 0)
 {
 lean_object* v___x_4699_; lean_object* v___x_4700_; 
-lean_dec(v_pre_4680_);
 lean_dec_ref_known(v_name_4676_, 2);
+lean_dec(v_pre_4680_);
 lean_dec(v___x_4675_);
 v___x_4699_ = lean_box(v___x_4698_);
 v___x_4700_ = lean_alloc_ctor(0, 1, 0);
@@ -12037,8 +12037,8 @@ else
 lean_dec(v_a_4734_);
 lean_dec(v___x_4725_);
 lean_dec_ref_known(v___x_4712_, 7);
-lean_dec_ref_known(v_name_4676_, 2);
 lean_dec(v_pre_4680_);
+lean_dec_ref_known(v_name_4676_, 2);
 v_a_4719_ = v___x_4688_;
 goto v___jp_4718_;
 }
@@ -12066,8 +12066,8 @@ lean_dec_ref(v___x_4728_);
 lean_dec(v___x_4725_);
 lean_dec(v___x_4717_);
 lean_dec_ref_known(v___x_4712_, 7);
-lean_dec(v_pre_4680_);
 lean_dec_ref_known(v_name_4676_, 2);
+lean_dec(v_pre_4680_);
 v_a_4753_ = lean_ctor_get(v___x_4731_, 0);
 lean_inc(v_a_4753_);
 lean_dec_ref_known(v___x_4731_, 1);
@@ -12343,8 +12343,8 @@ lean_object* v_a_4822_;
 lean_dec(v___x_4790_);
 lean_dec(v___x_4787_);
 lean_dec_ref_known(v___x_4782_, 7);
-lean_dec_ref_known(v_name_4676_, 2);
 lean_dec(v_pre_4680_);
+lean_dec_ref_known(v_name_4676_, 2);
 v_a_4822_ = lean_ctor_get(v___x_4794_, 0);
 lean_inc(v_a_4822_);
 lean_dec_ref_known(v___x_4794_, 1);

@@ -5923,16 +5923,16 @@ return v___x_1890_;
 else
 {
 lean_dec(v_a_1853_);
-lean_dec_ref_known(v_code_1565_, 2);
 lean_dec_ref(v_decl_1687_);
+lean_dec_ref_known(v_code_1565_, 2);
 return v___x_1854_;
 }
 }
 else
 {
 lean_object* v_a_1893_; lean_object* v___x_1895_; uint8_t v_isShared_1896_; uint8_t v_isSharedCheck_1900_; 
-lean_dec_ref_known(v_code_1565_, 2);
 lean_dec_ref(v_decl_1687_);
+lean_dec_ref_known(v_code_1565_, 2);
 v_a_1893_ = lean_ctor_get(v___x_1852_, 0);
 v_isSharedCheck_1900_ = !lean_is_exclusive(v___x_1852_);
 if (v_isSharedCheck_1900_ == 0)
@@ -5975,8 +5975,8 @@ return v___x_1898_;
 else
 {
 lean_object* v_a_1901_; lean_object* v___x_1903_; uint8_t v_isShared_1904_; uint8_t v_isSharedCheck_1908_; 
-lean_dec_ref_known(v_code_1565_, 2);
 lean_dec_ref(v_decl_1687_);
+lean_dec_ref_known(v_code_1565_, 2);
 v_a_1901_ = lean_ctor_get(v___x_1849_, 0);
 v_isSharedCheck_1908_ = !lean_is_exclusive(v___x_1849_);
 if (v_isSharedCheck_1908_ == 0)

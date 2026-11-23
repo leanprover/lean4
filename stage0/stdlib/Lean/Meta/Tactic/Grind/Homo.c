@@ -4716,8 +4716,8 @@ return v___x_1671_;
 v___jp_1624_:
 {
 lean_object* v___x_1627_; 
-v___x_1627_ = lean_find_expr(v___y_1625_, v_type_1618_);
-lean_dec_ref(v___y_1625_);
+v___x_1627_ = lean_find_expr(v___y_1626_, v_type_1618_);
+lean_dec_ref(v___y_1626_);
 if (lean_obj_tag(v___x_1627_) == 1)
 {
 lean_object* v_val_1628_; lean_object* v___x_1629_; 
@@ -4733,8 +4733,8 @@ v_declName_1630_ = lean_ctor_get(v___x_1629_, 0);
 lean_inc(v_declName_1630_);
 lean_dec_ref_known(v___x_1629_, 2);
 v___x_1631_ = l_Lean_Meta_Grind_homoPredExt;
-v___x_1632_ = lean_array_get_size(v___y_1626_);
-lean_dec_ref(v___y_1626_);
+v___x_1632_ = lean_array_get_size(v___y_1625_);
+lean_dec_ref(v___y_1625_);
 v___x_1633_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1633_, 0, v_declName_1615_);
 lean_ctor_set(v___x_1633_, 1, v___x_1632_);
@@ -4748,7 +4748,7 @@ else
 {
 lean_object* v___x_1636_; lean_object* v___x_1637_; 
 lean_dec_ref(v___x_1629_);
-lean_dec_ref(v___y_1626_);
+lean_dec_ref(v___y_1625_);
 lean_dec(v_declName_1615_);
 v___x_1636_ = lean_obj_once(&l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__3, &l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__3_once, _init_l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__3);
 v___x_1637_ = l_panic___at___00Lean_Meta_Grind_addHomoPredAttr_spec__1(v___x_1636_, v___y_1619_, v___y_1620_, v___y_1621_, v___y_1622_);
@@ -4759,7 +4759,7 @@ else
 {
 lean_object* v___x_1638_; uint8_t v___x_1639_; lean_object* v___x_1640_; lean_object* v___x_1641_; lean_object* v___x_1642_; lean_object* v___x_1643_; lean_object* v___x_1644_; 
 lean_dec(v___x_1627_);
-lean_dec_ref(v___y_1626_);
+lean_dec_ref(v___y_1625_);
 v___x_1638_ = lean_obj_once(&l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__5, &l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__5_once, _init_l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__5);
 v___x_1639_ = 0;
 v___x_1640_ = l_Lean_MessageData_ofConstName(v_declName_1615_, v___x_1639_);
@@ -4785,8 +4785,8 @@ v___x_1649_ = lean_unsigned_to_nat(0u);
 v___x_1650_ = lean_nat_dec_eq(v___x_1648_, v___x_1649_);
 if (v___x_1650_ == 0)
 {
-v___y_1625_ = v___f_1647_;
-v___y_1626_ = v_a_1646_;
+v___y_1625_ = v_a_1646_;
+v___y_1626_ = v___f_1647_;
 goto v___jp_1624_;
 }
 else

@@ -5263,8 +5263,8 @@ return v___x_1859_;
 else
 {
 lean_object* v___x_1862_; lean_object* v___x_1864_; 
-lean_dec_ref_known(v_stx_1760_, 4);
 lean_dec(v_val_1772_);
+lean_dec_ref_known(v_stx_1760_, 4);
 v___x_1862_ = lean_box(0);
 if (v_isShared_1819_ == 0)
 {

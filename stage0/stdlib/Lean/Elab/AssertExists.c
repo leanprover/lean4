@@ -5919,7 +5919,7 @@ goto v_resetjp_1952_;
 }
 v_resetjp_1952_:
 {
-lean_object* v_a_1955_; uint8_t v_isDecl_1956_; lean_object* v_givenName_1957_; lean_object* v_modName_1958_; uint8_t v___y_1960_; lean_object* v___y_1961_; lean_object* v___y_1962_; lean_object* v___y_1986_; uint8_t v___y_1987_; lean_object* v___y_1988_; uint8_t v___y_1989_; uint8_t v___y_1995_; lean_object* v___y_1996_; lean_object* v___y_1997_; lean_object* v___y_2001_; uint8_t v___y_2002_; lean_object* v___y_2006_; 
+lean_object* v_a_1955_; uint8_t v_isDecl_1956_; lean_object* v_givenName_1957_; lean_object* v_modName_1958_; lean_object* v___y_1960_; lean_object* v___y_1961_; uint8_t v___y_1962_; lean_object* v___y_1986_; uint8_t v___y_1987_; lean_object* v___y_1988_; uint8_t v___y_1989_; lean_object* v___y_1995_; uint8_t v___y_1996_; lean_object* v___y_1997_; lean_object* v___y_2001_; uint8_t v___y_2002_; lean_object* v___y_2006_; 
 v_a_1955_ = lean_array_uget_borrowed(v_as_1934_, v_i_1936_);
 v_isDecl_1956_ = lean_ctor_get_uint8(v_a_1955_, sizeof(void*)*2);
 v_givenName_1957_ = lean_ctor_get(v_a_1955_, 0);
@@ -5942,9 +5942,9 @@ v___jp_1959_:
 {
 lean_object* v___x_1963_; lean_object* v___x_1964_; lean_object* v___x_1965_; lean_object* v___x_1966_; lean_object* v___x_1967_; lean_object* v___x_1968_; lean_object* v___x_1969_; lean_object* v___x_1970_; lean_object* v___x_1971_; lean_object* v___x_1972_; lean_object* v___x_1973_; lean_object* v___x_1974_; lean_object* v___x_1975_; lean_object* v___x_1976_; lean_object* v___x_1977_; lean_object* v___x_1978_; lean_object* v___x_1980_; 
 v___x_1963_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__1, &l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__1_once, _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__1);
-lean_inc_ref_n(v___y_1961_, 2);
+lean_inc_ref_n(v___y_1960_, 2);
 v___x_1964_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_1964_, 0, v___y_1961_);
+lean_ctor_set(v___x_1964_, 0, v___y_1960_);
 lean_ctor_set(v___x_1964_, 1, v___x_1963_);
 lean_inc(v_givenName_1957_);
 v___x_1965_ = l_Lean_MessageData_ofName(v_givenName_1957_);
@@ -5955,8 +5955,8 @@ v___x_1967_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x2
 v___x_1968_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1968_, 0, v___x_1966_);
 lean_ctor_set(v___x_1968_, 1, v___x_1967_);
-lean_inc_ref(v___y_1962_);
-v___x_1969_ = l_Lean_stringToMessageData(v___y_1962_);
+lean_inc_ref(v___y_1961_);
+v___x_1969_ = l_Lean_stringToMessageData(v___y_1961_);
 v___x_1970_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1970_, 0, v___x_1968_);
 lean_ctor_set(v___x_1970_, 1, v___x_1969_);
@@ -5974,11 +5974,11 @@ v___x_1976_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1976_, 0, v___x_1974_);
 lean_ctor_set(v___x_1976_, 1, v___x_1975_);
 v___x_1977_ = lean_array_push(v_fst_1947_, v___x_1976_);
-v___x_1978_ = lean_box(v___y_1960_);
+v___x_1978_ = lean_box(v___y_1962_);
 if (v_isShared_1954_ == 0)
 {
 lean_ctor_set(v___x_1953_, 1, v___x_1978_);
-lean_ctor_set(v___x_1953_, 0, v___y_1961_);
+lean_ctor_set(v___x_1953_, 0, v___y_1960_);
 v___x_1980_ = v___x_1953_;
 goto v_reusejp_1979_;
 }
@@ -5986,7 +5986,7 @@ else
 {
 lean_object* v_reuseFailAlloc_1984_; 
 v_reuseFailAlloc_1984_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_1984_, 0, v___y_1961_);
+lean_ctor_set(v_reuseFailAlloc_1984_, 0, v___y_1960_);
 lean_ctor_set(v_reuseFailAlloc_1984_, 1, v___x_1978_);
 v___x_1980_ = v_reuseFailAlloc_1984_;
 goto v_reusejp_1979_;
@@ -6025,9 +6025,9 @@ if (v___x_1990_ == 0)
 {
 if (v___y_1987_ == 0)
 {
-v___y_1960_ = v___y_1989_;
-v___y_1961_ = v___y_1986_;
-v___y_1962_ = v___y_1988_;
+v___y_1960_ = v___y_1986_;
+v___y_1961_ = v___y_1988_;
+v___y_1962_ = v___y_1989_;
 goto v___jp_1959_;
 }
 else
@@ -6049,9 +6049,9 @@ goto v___jp_1939_;
 }
 else
 {
-v___y_1960_ = v___y_1989_;
-v___y_1961_ = v___y_1986_;
-v___y_1962_ = v___y_1988_;
+v___y_1960_ = v___y_1986_;
+v___y_1961_ = v___y_1988_;
+v___y_1962_ = v___y_1989_;
 goto v___jp_1959_;
 }
 }
@@ -6065,8 +6065,8 @@ uint8_t v___x_1999_;
 v___x_1999_ = lean_unbox(v_snd_1951_);
 lean_dec(v_snd_1951_);
 v___y_1986_ = v___y_1997_;
-v___y_1987_ = v___y_1995_;
-v___y_1988_ = v___y_1996_;
+v___y_1987_ = v___y_1996_;
+v___y_1988_ = v___y_1995_;
 v___y_1989_ = v___x_1999_;
 goto v___jp_1985_;
 }
@@ -6074,9 +6074,9 @@ else
 {
 lean_dec(v_snd_1951_);
 v___y_1986_ = v___y_1997_;
-v___y_1987_ = v___y_1995_;
-v___y_1988_ = v___y_1996_;
-v___y_1989_ = v___y_1995_;
+v___y_1987_ = v___y_1996_;
+v___y_1988_ = v___y_1995_;
+v___y_1989_ = v___y_1996_;
 goto v___jp_1985_;
 }
 }
@@ -6086,8 +6086,8 @@ if (v___y_2002_ == 0)
 {
 lean_object* v___x_2003_; 
 v___x_2003_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__8, &l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__8_once, _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__8);
-v___y_1995_ = v___y_2002_;
-v___y_1996_ = v___y_2001_;
+v___y_1995_ = v___y_2001_;
+v___y_1996_ = v___y_2002_;
 v___y_1997_ = v___x_2003_;
 goto v___jp_1994_;
 }
@@ -6095,8 +6095,8 @@ else
 {
 lean_object* v___x_2004_; 
 v___x_2004_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__9, &l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__9_once, _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__9);
-v___y_1995_ = v___y_2002_;
-v___y_1996_ = v___y_2001_;
+v___y_1995_ = v___y_2001_;
+v___y_1996_ = v___y_2002_;
 v___y_1997_ = v___x_2004_;
 goto v___jp_1994_;
 }

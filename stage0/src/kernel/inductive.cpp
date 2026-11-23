@@ -439,9 +439,22 @@ public:
         }
     }
 
+    /** \brief Add datatypes as axioms in a new environment.
+     * This environment is used to check the constructors, which at the time of getting checked shouldn't have the information that these types are inductive. */
+    void declare_inductive_types_as_axioms() {
+        for (inductive_type const & ind_type : m_ind_types) {
+            name const & n = ind_type.get_name();
+            m_env.check_name(n);
+            m_env.add_core(constant_info(axiom_val(n, m_lparams, ind_type.get_type(), m_is_unsafe)));
+        }
+    }
+
     /** \brief Check whether the constructor declarations are type correct, parameters are in the expected positions,
         constructor fields are in acceptable universe levels, positivity constraints, and returns the expected result. */
     void check_constructors() {
+        // Constructors need to be checked in an environment containing the inductive types but in which said types are not known to be inductive. See issue #16649
+        flet<environment> save_env(m_env, m_env);
+        declare_inductive_types_as_axioms();
         for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             name_set found_cnstrs;
@@ -864,8 +877,8 @@ public:
     environment operator()() {
         m_env.check_duplicated_univ_params(m_lparams);
         check_inductive_types();
-        declare_inductive_types();
         check_constructors();
+        declare_inductive_types();
         declare_constructors();
         init_elim_level();
         init_K_target();

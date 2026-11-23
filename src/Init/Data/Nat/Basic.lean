@@ -63,9 +63,6 @@ Examples:
   | 0,      a => a
   | succ n, a => f (iterate f n a)
 
-@[deprecated Nat.iterate (since := "2026-11-23")]
-abbrev «repeat» := @Nat.iterate
-
 /--
 Applies a function to a starting value the specified number of times.
 
@@ -1232,5 +1229,9 @@ theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
     | 0,      n => by simp [iterateTR.loop]
     | succ m, n => by rw [iterateTR.loop, succ_add]; exact go m (succ n)
   (go n 0).symm
+
+-- we need the csimp to make this computable
+@[deprecated Nat.iterate (since := "2026-11-23")]
+abbrev «repeat» := @Nat.iterate
 
 end Nat

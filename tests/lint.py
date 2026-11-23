@@ -159,10 +159,6 @@ for pattern, drop in (
             basefile = basefile.with_suffix("")
         if basefile in TRACKED_SET:
             continue
-        if basefile == Path(
-            "tests/pkg/leanchecker/LeanCheckerTests/PrivateConflictC.lean.fresh"
-        ):
-            continue
         nag("missing base", file)
 
 

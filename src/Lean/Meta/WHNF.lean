@@ -66,12 +66,26 @@ register_builtin_option smartUnfolding : Bool := {
   descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion"
 }
 
-/-- Add auxiliary annotation to indicate the `match`-expression `e` must be reduced when performing smart unfolding. -/
-def markSmartUnfoldingMatch (e : Expr) : Expr :=
-  mkAnnotation `sunfoldMatch e
+/--
+Mark a matcher that smart unfolding must reduce. The `inputs` mask is an optimization.
+In principle, the reducer could visit every discriminant before reducing the matcher.
+Bit `i` is set when argument `i` of the matcher application is a discriminant containing a
+marked match, so the reducer can skip visiting the other discriminants.
+-/
+def markSmartUnfoldingMatch (e : Expr) (inputs : Nat := 0) : Expr :=
+  if inputs == 0 then mkAnnotation `sunfoldMatch e
+  else mkMData (({} : MData).setNat `sunfoldMatchInputs inputs) e
 
-def smartUnfoldingMatch? (e : Expr) : Option Expr :=
-  annotation? `sunfoldMatch e
+private def smartUnfoldingMatchInputs? (d : MData) : Option Nat :=
+  match d.entries with
+  | [(`sunfoldMatch, .ofBool true)] => some 0
+  | [(`sunfoldMatchInputs, .ofNat inputs)] => some inputs
+  | _ => none
+
+def smartUnfoldingMatch? (e : Expr) : Option Expr := do
+  let .mdata d b := e | none
+  let _ ← smartUnfoldingMatchInputs? d
+  return b
 
 /-- Add auxiliary annotation to indicate expression `e` (a `match` alternative rhs) was successfully reduced by smart unfolding. -/
 def markSmartUnfoldingMatchAlt (e : Expr) : Expr :=
@@ -755,11 +769,13 @@ where
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)
-    | .mdata _ b  =>
-      if let some m := smartUnfoldingMatch? e then
-        goMatch m
-      else
+    | .mdata d b =>
+      let some inputs := smartUnfoldingMatchInputs? d |
         return e.updateMData! (← go b)
+      if inputs == 0 then return ← goMatch b
+      let args ← b.getAppArgs.mapIdxM fun i arg =>
+        if inputs.testBit i then go arg else pure arg
+      goMatch (mkAppN b.getAppFn args)
     | _ => return e
 
   goMatch (e : Expr) : OptionT MetaM Expr := do

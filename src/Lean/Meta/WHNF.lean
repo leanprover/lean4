@@ -765,8 +765,9 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
+    | .letE .. => goLet #[] e
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
+    | .forallE .. => goForall #[] e
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)
     | .mdata d b =>
@@ -777,6 +778,23 @@ where
         if inputs.testBit i then go arg else pure arg
       goMatch (mkAppN b.getAppFn args)
     | _ => return e
+
+  /-- Accumulate the binders so each domain and the final body are instantiated only once. -/
+  goForall (xs : Array Expr) (e : Expr) : OptionT MetaM Expr := do
+    match e with
+    | .forallE n d b bi =>
+      withLocalDecl n bi (← go (d.instantiateRev xs)) fun x =>
+        goForall (xs.push x) b
+    | _ => mkForallFVars xs (← go (e.instantiateRev xs))
+
+  /-- Visit consecutive `let` values in order and instantiate the body once for the whole block. -/
+  goLet (xs : Array Expr) (e : Expr) : OptionT MetaM Expr := do
+    match e with
+    | .letE n t v b nondep =>
+      let v ← go (v.instantiateRev xs)
+      withLetDecl n (t.instantiateRev xs) v (nondep := nondep) fun x =>
+        goLet (xs.push x) b
+    | _ => mkLetFVars xs (← go (e.instantiateRev xs)) (generalizeNondepLet := false)
 
   goMatch (e : Expr) : OptionT MetaM Expr := do
     match (← reduceMatcher? e) with

@@ -8,6 +8,7 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/io.h"
 #include "runtime/object.h"
+#include "runtime/thread.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
@@ -37,7 +38,7 @@ class event_loop_guard;
 //
 class event_loop {
 public:
-    uv_loop_t * m_loop;
+    uv_loop_t * m_loop = nullptr;
 
     // Initializes the loop and starts the loop thread.
     void start();
@@ -50,17 +51,26 @@ public:
     bool on_loop_thread() const;
 
     // Whether the program is finishing: operations fail with `UV_ECANCELED` instead of starting new
-    // libuv work. The loop keeps running, so pending operations still complete, and cancellations,
-    // closes and finalizers still clean up.
+    // libuv work. Cancellations, closes and finalizers still clean up under the lock.
     bool stopped() const { return m_stopped.load(std::memory_order_acquire); }
 
     // Whether `IO.Process.exit` holds the lock for good. Then no thread may touch libuv at all.
     bool exiting() const { return m_exiting.load(std::memory_order_acquire); }
 
-    // Set by `lean_finalize_task_manager` before it waits for running tasks, and cleared by
-    // `lean_init_task_manager`.
-    void stop();
+    // Sets `stopped` and joins the loop thread, so that no callback runs afterwards. Returns false
+    // when called on the loop thread, which cannot join itself. `lean_init_task_manager` restarts it.
+    bool stop();
     void restart();
+
+    // Whether `stop` joined the loop thread, so that no other thread runs the loop.
+    bool joined() const { return stopped() && m_loop != nullptr && m_thread == nullptr; }
+
+    // After `stop`, runs the loop on the calling thread as the loop thread would, until `pending`
+    // returns false or `timeout_ms` passes. Callbacks run, but new operations still fail.
+    void flush(uint64_t timeout_ms, bool (*pending)());
+
+    // The deadline of `flush`. It is not a Lean object, so finalization's walk skips it.
+    uv_timer_t       m_flush_timer;
 
     // Stops libuv for `IO.Process.exit`, which then runs `exit()` while other threads keep running.
     // Takes the lock and never releases it: a thread already past the `exiting` check waits on it
@@ -75,6 +85,11 @@ private:
     std::atomic<int> m_waiters; // Threads waiting for `m_mutex`.
     std::atomic<bool> m_stopped{false};
     std::atomic<bool> m_exiting{false};
+    lthread *        m_thread = nullptr;
+    bool             m_thread_stop = false; // Asks the loop thread to return. Guarded by `m_mutex`.
+    bool             m_flush_expired = false; // Guarded by `m_mutex`.
+
+    void start_thread();
 
     void lock();
     void unlock();
@@ -114,6 +129,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive();
 extern "C" LEAN_EXPORT void lean_uv_stop_for_exit();
 extern "C" LEAN_EXPORT void lean_uv_stop();
+// After the task manager is finalized: frees the handles that finalizers closed after the stop.
+extern "C" LEAN_EXPORT void lean_uv_free_closed();
 extern "C" LEAN_EXPORT void lean_uv_restart();
 
 }

@@ -271,6 +271,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+void timer_take_pending(uv_handle_t * handle, uv_finalize_batch & batch) {
+    lean_object * obj = (lean_object*)handle->data;
+    lean_uv_timer_object * timer = lean_to_uv_timer(obj);
+    if (timer->m_state != timer_state::Running) {
+        return;
+    }
+    uv_timer_stop(&timer->m_uv_timer);
+    timer->m_state = timer_state::Finished;
+    if (timer->m_promise.get() != nullptr) {
+        batch.m_promises.push_back(std::move(timer->m_promise));
+        // The loop's reference, held while a promise is pending.
+        batch.m_refs.push_back(owned_ref(obj));
+    }
+}
+
 #else
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating) {

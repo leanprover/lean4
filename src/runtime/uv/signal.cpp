@@ -280,6 +280,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+void signal_take_pending(uv_handle_t * handle, uv_finalize_batch & batch) {
+    lean_object * obj = (lean_object*)handle->data;
+    lean_uv_signal_object * signal = lean_to_uv_signal(obj);
+    if (signal->m_state != signal_state::Running) {
+        return;
+    }
+    uv_signal_stop(&signal->m_uv_signal);
+    signal->m_state = signal_state::Finished;
+    if (signal->m_promise.get() != nullptr) {
+        batch.m_promises.push_back(std::move(signal->m_promise));
+        // The loop's reference, held while a promise is pending.
+        batch.m_refs.push_back(owned_ref(obj));
+    }
+}
+
 #else
 
 /* Std.Internal.UV.Signal.mk (signum : Int32) (repeating : Bool) : IO Signal */

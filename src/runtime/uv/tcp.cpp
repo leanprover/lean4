@@ -18,19 +18,17 @@ namespace lean {
 namespace {
 
 // A connect request. The callback deletes it, and so does a failed submit.
-struct tcp_connect_req_t {
+struct tcp_connect_req_t : uv_tracked_req {
     uv_connect_t uv;
-    owned_ref    promise;
     owned_ref    socket;
 };
 
 // A write request. The callback deletes it, and so does a failed submit. It keeps `data` alive
 // because libuv writes from its bytes.
-struct tcp_send_req_t {
+struct tcp_send_req_t : uv_tracked_req {
     uv_write_t uv;
     owned_ref  socket;
     owned_ref  data;
-    owned_ref  promise;
 };
 
 }
@@ -68,6 +66,13 @@ static void tcp_socket_finalizer(void* ptr) {
 
 void initialize_libuv_tcp_socket() {
     g_uv_tcp_socket_external_class = lean_register_external_class(tcp_socket_finalizer, uv_foreach_refs<lean_uv_tcp_socket_object>);
+}
+
+// libuv completes a closed socket's pending writes, connects and shutdowns with `UV_ECANCELED`. A
+// user's `close` reports `EBADF` instead, since `UV_ECANCELED` means the program is finishing, whose
+// operations finalization settles itself.
+static int closed_status(lean_uv_tcp_socket_object * tcp_socket, int status) {
+    return status == UV_ECANCELED && tcp_socket->m_closed ? UV_EBADF : status;
 }
 
 // =======================================
@@ -119,13 +124,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     auto on_connect = [](uv_connect_t * uv, int status) {
         std::unique_ptr<tcp_connect_req_t> req(static_cast<tcp_connect_req_t*>(uv->data));
-        resolve_with_code(status, req->promise.get());
+        req->unlink();
+        resolve_with_code(closed_status(lean_to_uv_tcp_socket(req->socket.get()), status), req->promise.get());
     };
 
     int result;
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : tcp_socket->m_closed ? UV_EBADF : uv_tcp_connect(&req->uv, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, on_connect);
+        if (result == 0) {
+            req->link((uv_req_t*)&req->uv);
+        }
     }
 
     if (result < 0) {
@@ -166,13 +175,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     auto on_write = [](uv_write_t * uv, int status) {
         std::unique_ptr<tcp_send_req_t> req(static_cast<tcp_send_req_t*>(uv->data));
-        resolve_with_code(status, req->promise.get());
+        req->unlink();
+        resolve_with_code(closed_status(lean_to_uv_tcp_socket(req->socket.get()), status), req->promise.get());
     };
 
     int result;
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : tcp_socket->m_closed ? UV_EBADF : uv_write(&req->uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs.data(), bufs.count(), on_write);
+        if (result == 0) {
+            req->link((uv_req_t*)&req->uv);
+        }
     }
 
     if (result < 0) {
@@ -628,11 +641,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         owned_ref keep_alive((lean_object*)req->data);
         owned_ref promise = std::move(tcp_socket->m_promise_shutdown);
 
-        if (status < 0) {
-            resolve_with_code(status, promise.get());
-        } else {
-            lean_promise_resolve(mk_except_ok(lean_box(0)), promise.get());
-        }
+        resolve_with_code(closed_status(tcp_socket, status), promise.get());
 
         free(req);
     };
@@ -728,19 +737,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
 #endif
 
         // libuv reads `data` as the Lean object until the close callback, which then releases it.
-        // Pending writes, connects and shutdowns complete with `UV_ECANCELED` before that.
+        // Pending writes, connects and shutdowns complete with `UV_ECANCELED` before that, which
+        // their callbacks report as `EBADF`.
         lean_inc(socket);
         uv_close((uv_handle_t*)&tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
             lean_dec((lean_object*)handle->data);
         });
     }
 
+    // `EBADF`, as for any later operation on the closed socket: `UV_ECANCELED` means the program is
+    // finishing.
     if (read.pending()) {
-        resolve_with_code(UV_ECANCELED, read.m_promise.get());
+        resolve_with_code(UV_EBADF, read.m_promise.get());
     }
 
     if (accept.pending()) {
-        resolve_with_code(UV_ECANCELED, accept.m_promise.get());
+        resolve_with_code(UV_EBADF, accept.m_promise.get());
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -823,6 +835,38 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint
 
     return lean_io_result_mk_ok(lean_box(0));
 }
+void tcp_take_pending(uv_handle_t * handle, uv_finalize_batch & batch) {
+    lean_object * obj = (lean_object*)handle->data;
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(obj);
+    // Each pending read or accept holds one loop reference. Payloads are released with the
+    // references, after the walk: an accept's payload is a socket whose finalizer closes a handle.
+    if (tcp_socket->m_read.pending()) {
+        uv_read_stop((uv_stream_t*)&tcp_socket->m_uv_tcp);
+        uv_pending_op op = std::move(tcp_socket->m_read);
+        batch.m_promises.push_back(std::move(op.m_promise));
+        batch.m_refs.push_back(std::move(op.m_payload));
+        batch.m_refs.push_back(owned_ref(obj));
+    }
+    if (tcp_socket->m_accept.pending()) {
+        uv_pending_op op = std::move(tcp_socket->m_accept);
+        batch.m_promises.push_back(std::move(op.m_promise));
+        batch.m_refs.push_back(std::move(op.m_payload));
+        batch.m_refs.push_back(owned_ref(obj));
+    }
+    if (!batch.m_keep_flushable && tcp_socket->m_promise_shutdown.get() != nullptr) {
+        batch.m_promises.push_back(std::move(tcp_socket->m_promise_shutdown));
+        batch.m_close.push_back(handle);
+    }
+}
+
+void tcp_close_for_finalization(uv_handle_t * handle) {
+    lean_dec(lean_uv_tcp_close((lean_object*)handle->data));
+}
+
+bool tcp_shutdown_pending(uv_handle_t * handle) {
+    return lean_to_uv_tcp_socket((lean_object*)handle->data)->m_promise_shutdown.get() != nullptr;
+}
+
 #else
 
 // =======================================

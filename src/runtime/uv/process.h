@@ -36,11 +36,16 @@ struct lean_uv_process_object {
     mutex              m_mutex;
     condition_variable m_exited_cond;
     bool               m_exited = false;
+    bool               m_cancelled = false; // Set by finalization, after which no exit callback runs.
     uint32_t           m_exit_code = 0;
 };
 
 static inline lean_object * lean_uv_process_new(lean_uv_process_object * p) { return lean_alloc_external(g_uv_process_external_class, p); }
 static inline lean_uv_process_object * lean_to_uv_process(lean_object * o) { return (lean_uv_process_object *)(lean_get_external_data(o)); }
+
+// Finalization: no exit callback runs once the loop thread is gone, so `wait` fails with `UV_ECANCELED`
+// unless the child had exited, and threads waiting are woken.
+void process_cancel_waits(uv_handle_t * handle);
 
 #endif
 

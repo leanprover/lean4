@@ -19,11 +19,10 @@ namespace {
 
 // A send request. The callback deletes it, and so does a failed submit. It keeps `data` alive
 // because libuv sends from its bytes.
-struct udp_send_req_t {
+struct udp_send_req_t : uv_tracked_req {
     uv_udp_send_t uv;
     owned_ref     data;
     owned_ref     socket;
-    owned_ref     promise;
 };
 
 }
@@ -174,6 +173,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     auto on_send = [](uv_udp_send_t * uv, int status) {
         std::unique_ptr<udp_send_req_t> req(static_cast<udp_send_req_t*>(uv->data));
+        req->unlink();
         resolve_with_code(status, req->promise.get());
     };
 
@@ -181,6 +181,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : uv_udp_send(&req->uv, &udp_socket->m_uv_udp, bufs.data(), bufs.count(), addr_ptr, on_send);
+        if (result == 0) {
+            req->link((uv_req_t*)&req->uv);
+        }
     }
 
     if (result < 0) {
@@ -529,6 +532,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_ttl(b_obj_arg socket, uint32
     }
 
     return lean_io_result_mk_ok(lean_box(0));
+}
+
+void udp_take_pending(uv_handle_t * handle, uv_finalize_batch & batch) {
+    lean_object * obj = (lean_object*)handle->data;
+    lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(obj);
+    if (udp_socket->m_read.pending()) {
+        uv_udp_recv_stop(&udp_socket->m_uv_udp);
+        uv_pending_op op = std::move(udp_socket->m_read);
+        batch.m_promises.push_back(std::move(op.m_promise));
+        batch.m_refs.push_back(std::move(op.m_payload));
+        // The loop's reference, held while a receive is pending.
+        batch.m_refs.push_back(owned_ref(obj));
+    }
 }
 
 #else

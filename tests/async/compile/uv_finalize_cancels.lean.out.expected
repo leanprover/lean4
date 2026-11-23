@@ -1,0 +1,6 @@
+main returns
+Child.wait: canceled
+timer started before main returned: canceled
+accept: canceled
+send: canceled
+timer started after main returned: canceled

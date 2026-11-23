@@ -46,6 +46,14 @@ struct lean_uv_tcp_socket_object {
 // Tcp socket object manipulation functions.
 static inline lean_object* lean_uv_tcp_socket_new(lean_uv_tcp_socket_object* s) { return lean_alloc_external(g_uv_tcp_socket_external_class, s); }
 static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object* o) { return (lean_uv_tcp_socket_object*)(lean_get_external_data(o)); }
+// Finalization: stops a pending read and accept, as `cancelRecv` and `cancelAccept` do, and takes
+// their promises and the loop's references. Takes the promise of a pending shutdown, whose request keeps
+// its own reference.
+void tcp_take_pending(uv_handle_t * handle, uv_finalize_batch & batch);
+bool tcp_shutdown_pending(uv_handle_t * handle);
+// Closes the socket as `close` does: its later operations fail with `EBADF`.
+void tcp_close_for_finalization(uv_handle_t * handle);
+
 #endif
 
 // =======================================

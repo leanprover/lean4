@@ -23,13 +23,24 @@ static void check_uv(int result, const char * msg) {
 }
 
 void event_loop::start() {
-    m_loop = uv_default_loop();
+    // A loop of its own: finalization walks every handle on it and takes each to be a Lean object, so
+    // handles that native code puts on `uv_default_loop()` must not be on it.
+    m_loop = new uv_loop_t;
+    check_uv(uv_loop_init(m_loop), "Failed to initialize the event loop");
     check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
     check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
     check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
+    check_uv(uv_timer_init(m_loop, &m_flush_timer), "Failed to initialize the flush timer");
+    // Never keeps the loop alive, so `alive` and the loop thread ignore it.
+    uv_unref((uv_handle_t*)&m_flush_timer);
     m_waiters = 0;
 
-    lthread([this]() { run(); });
+    start_thread();
+}
+
+void event_loop::start_thread() {
+    m_thread_stop = false;
+    m_thread = new lthread([this]() { run(); });
 }
 
 void event_loop::lock() {
@@ -62,14 +73,69 @@ bool event_loop::on_loop_thread() const {
     return g_on_loop_thread;
 }
 
-void event_loop::stop() {
+bool event_loop::stop() {
     m_stopped.store(true, std::memory_order_release);
+    // Without a loop, libuv was never initialized; on the loop thread, it cannot join itself.
+    if (m_loop == nullptr || on_loop_thread()) {
+        return false;
+    }
+    if (m_thread != nullptr) {
+        lock();
+        m_thread_stop = true;
+        // Wakes the loop thread if it waits on `m_cond` between iterations; `lock` already made a
+        // running `uv_run` return.
+        unlock();
+        m_thread->join();
+        delete m_thread;
+        m_thread = nullptr;
+    }
+    return true;
 }
 
 void event_loop::restart() {
-    if (!exiting()) {
-        m_stopped.store(false, std::memory_order_release);
+    if (exiting()) {
+        return;
     }
+    m_stopped.store(false, std::memory_order_release);
+    if (m_thread == nullptr && m_loop != nullptr) {
+        start_thread();
+    }
+}
+
+void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
+    // `IO.Process.exit` holds the lock for good.
+    if (exiting()) {
+        return;
+    }
+
+    // Callbacks that check for the loop thread, such as a finalization run by a continuation, must
+    // treat this thread as it.
+    bool was_on_loop_thread = g_on_loop_thread;
+    g_on_loop_thread = true;
+
+    lock();
+    m_flush_expired = false;
+    uv_timer_start(&m_flush_timer, [](uv_timer_t *) { global_ev.m_flush_expired = true; }, timeout_ms, 0);
+    unlock();
+
+    // As in `run`: waiting threads take the lock between iterations, find the loop stopped, and fail
+    // or clean up instead of waiting for the whole flush.
+    while (true) {
+        uv_mutex_lock(&m_mutex);
+        while (m_waiters != 0) {
+            uv_cond_wait(&m_cond, &m_mutex);
+        }
+        if (m_flush_expired || !pending()) {
+            uv_timer_stop(&m_flush_timer);
+            uv_mutex_unlock(&m_mutex);
+            break;
+        }
+        // The deadline timer bounds how long this blocks.
+        uv_run(m_loop, UV_RUN_ONCE);
+        uv_mutex_unlock(&m_mutex);
+    }
+
+    g_on_loop_thread = was_on_loop_thread;
 }
 
 void event_loop::stop_for_exit() {
@@ -90,7 +156,7 @@ void event_loop::run() {
         }
 
         // Checked with the lock held, since `alive` unreferences `m_async` under it.
-        if (!uv_loop_alive(m_loop)) {
+        if (m_thread_stop || !uv_loop_alive(m_loop)) {
             uv_mutex_unlock(&m_mutex);
             break;
         }
@@ -146,13 +212,6 @@ extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {
     global_ev.stop_for_exit();
 }
 
-extern "C" LEAN_EXPORT void lean_uv_stop() {
-    global_ev.stop();
-}
-
-extern "C" LEAN_EXPORT void lean_uv_restart() {
-    global_ev.restart();
-}
 
 #else
 
@@ -167,8 +226,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
 }
 
 extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {}
-extern "C" LEAN_EXPORT void lean_uv_stop() {}
-extern "C" LEAN_EXPORT void lean_uv_restart() {}
 
 #endif
 

@@ -42,7 +42,14 @@ Checks if the event loop has pending work, i.e. an active handle or an in-flight
 @[extern "lean_uv_event_loop_alive"]
 opaque alive : IO Bool
 
+/--
+The OS error code of a canceled libuv operation, as `IO.Error.otherError` reports it.
+-/
+@[extern "lean_uv_canceled_code"]
+opaque canceledCode : Unit → UInt32
+
 end Loop
 end UV
 end Internal
 end Std
+

@@ -1169,13 +1169,15 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
-    // From here on, libuv operations that tasks still running start fail with `UV_ECANCELED`. The loop
-    // keeps running, so operations already pending still complete.
+    // Stops the event loop thread first, since its callbacks resolve promises through the task
+    // manager. Pending libuv operations fail with `UV_ECANCELED`, and so do later ones, so that tasks
+    // waiting on them finish.
     lean_uv_stop();
     if (g_task_manager) {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
+    lean_uv_free_closed();
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
@@ -1194,6 +1196,7 @@ scoped_task_manager::~scoped_task_manager() {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
+    lean_uv_free_closed();
 }
 
 void deactivate_task(lean_task_object * t) {

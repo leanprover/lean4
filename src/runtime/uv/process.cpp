@@ -419,7 +419,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     if (!p->m_exited && global_ev.on_loop_thread()) {
         return io_result_mk_error("cannot wait for a child process on the event loop thread");
     }
-    p->m_exited_cond.wait(lock, [&] { return p->m_exited; });
+    p->m_exited_cond.wait(lock, [&] { return p->m_exited || p->m_cancelled; });
+    if (!p->m_exited) {
+        return io_result_mk_uv_error(UV_ECANCELED);
+    }
     return lean_io_result_mk_ok(box_uint32(p->m_exit_code));
 }
 
@@ -428,6 +431,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
     lock_guard<mutex> lock(p->m_mutex);
     if (!p->m_exited) {
+        // Once cancelled, it never exits as far as this object knows.
+        if (p->m_cancelled) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
         return lean_io_result_mk_ok(mk_option_none());
     }
     return lean_io_result_mk_ok(mk_option_some(box_uint32(p->m_exit_code)));
@@ -466,6 +473,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
 /* IO.Process.Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32 */
 extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
     return uv_process_get_pid(&lean_to_uv_process(cnstr_get(child, 3))->m_uv_process);
+}
+
+void process_cancel_waits(uv_handle_t * handle) {
+    lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
+    lock_guard<mutex> lock(p->m_mutex);
+    p->m_cancelled = true;
+    p->m_exited_cond.notify_all();
 }
 
 #else

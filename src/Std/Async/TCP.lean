@@ -245,8 +245,8 @@ def shutdown (s : Client) : Async Unit :=
   Async.ofPromise <| s.native.shutdown
 
 /--
-Closes the client socket. Pending operations fail, and so does every later one. Writes still in
-flight are cancelled, so the peer may receive only part of them. Closing twice does nothing.
+Closes the client socket. Pending operations fail with `EBADF`, and so does every later one. Writes
+still in flight are cut short, so the peer may receive only part of them. Closing twice does nothing.
 -/
 @[inline]
 def close (s : Client) : IO Unit :=

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.Promise
 public import Init.While
+public import Std.Internal.UV.Loop
 
 public section
 
@@ -61,7 +62,30 @@ These functions should not be used directly. Instead, prefer higher-level combin
 how to write your async code, it to avoid using the concurrent units of work, and only use it when integrating
 with non async code that uses them.
 
+## Exit
+
+When the program finishes (`main` returns, or `IO.Process.exit` is called), pending writes and
+shutdowns get up to 2 seconds to complete. Every other pending I/O operation, and every one started
+afterwards, then fails with an error for which `IO.Error.isCanceled` holds. A loop that retries
+failed operations should stop on such an error: the retry fails again at once, and the program
+cannot exit until the loop ends.
+
 -/
+
+end Async
+end Std
+
+/--
+Whether `e` reports a libuv operation canceled because the program is finishing: every one that is
+still pending then, or started afterwards (after `main` returns, or in `IO.Process.exit`), fails
+this way. Retrying it fails again at once, so a loop that retries on errors should stop on this one.
+-/
+def IO.Error.isCanceled : IO.Error → Bool
+  | .otherError code _ => code == Std.Internal.UV.Loop.canceledCode ()
+  | _ => false
+
+namespace Std
+namespace Async
 
 /--
 Typeclass for monads that can "await" a computation of type `t α` in a monad `m` until the result is

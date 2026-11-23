@@ -141,12 +141,12 @@ theorem not_revMatchesAt_of_get_ne {c : Char} {s : Slice} {pos : s.Pos} {h : pos
 
 theorem matchAt?_eq {s : Slice} {pos : s.Pos} {c : Char} :
     matchAt? c pos =
-      if h₀ : ∃ (h : pos ≠ s.endPos), pos.get h = c then some (pos.next h₀.fst) else none := by
+      if h₀ : ∃ (h : pos ≠ s.endPos), pos.get h = c then some (pos.next h₀.1) else none := by
   split <;> simp_all [isLongestMatchAt_iff, matchesAt_iff]
 
 theorem revMatchAt?_eq {s : Slice} {pos : s.Pos} {c : Char} :
     revMatchAt? c pos =
-      if h₀ : ∃ (h : pos ≠ s.startPos), (pos.prev h).get (by simp) = c then some (pos.prev h₀.fst) else none := by
+      if h₀ : ∃ (h : pos ≠ s.startPos), (pos.prev h).get (by simp) = c then some (pos.prev h₀.1) else none := by
   split <;> simp_all [isLongestRevMatchAt_iff, revMatchesAt_iff]
 
 theorem isMatch_iff_isMatch_beq {c : Char} {s : Slice} {pos : s.Pos} :

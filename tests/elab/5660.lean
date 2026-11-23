@@ -31,7 +31,7 @@ from type
   ∃ x, x = 1
 -/
 #guard_msgs in
-run_meta check (Expr.proj ``Exists 1 (mkConst ``ex))
+run_meta check (Expr.proj ``Exists 1 (mkConst ``ex)) --should fail
 
 def p := (1, 2)
 

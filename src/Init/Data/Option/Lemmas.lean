@@ -516,7 +516,7 @@ theorem isSome_of_any {x : Option α} {p : α → Bool} (h : x.any p) : x.isSome
 
 theorem get_of_any_eq_true (p : α → Bool) (x : Option α) (h : x.any p = true) :
     p (x.get (isSome_of_any h)) :=
-  any_eq_true_iff_get p x |>.1 h |>.snd
+  any_eq_true_iff_get p x |>.1 h |>.2
 
 @[grind =]
 theorem any_map {α β : Type _} {x : Option α} {f : α → β} {p : β → Bool} :
@@ -1335,7 +1335,7 @@ theorem isSome_pfilter_iff_get {α : Type _} {o : Option α} {p : (a : α) → o
 
 theorem isSome_of_isSome_pfilter {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool}
     (h : (o.pfilter p).isSome) : o.isSome :=
-  (isSome_pfilter_iff_get.mp h).fst
+  (isSome_pfilter_iff_get.mp h).1
 
 theorem isNone_pfilter_iff {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).isNone ↔ ∀ (a : α) (ha : o = some a), p a ha = false := by
@@ -1366,7 +1366,7 @@ theorem pfilter_eq_some_iff {α : Type _} {o : Option α} {p : (a : α) → o = 
 
 theorem eq_some_of_pfilter_eq_some {o : Option α} {p : (a : α) → o = some a → Bool}
     {a : α} (h : o.pfilter p = some a) : o = some a :=
-  pfilter_eq_some_iff.1 h |>.fst
+  pfilter_eq_some_iff.1 h |>.1
 
 @[grind =] theorem filter_pbind {f : (a : α) → o = some a → Option β} :
     (Option.pbind o f).filter p =

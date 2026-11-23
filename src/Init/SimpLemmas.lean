@@ -402,9 +402,9 @@ theorem Bool.right_eq_true_of_and_eq_true {x y : Bool} (h : (x && y) = true) :
 theorem Bool.dand_eq_true_of_eq_true {x : Bool} {y : x = true → Bool}
     (hx : x = true) (hy : y hx = true) : x.dand y = true := dand_eq_true_iff.mpr ⟨hx, hy⟩
 theorem Bool.left_eq_true_of_dand_eq_true {x : Bool} {y : x = true → Bool} (h : x.dand y = true) :
-    x = true := (dand_eq_true_iff.mp h).fst
+    x = true := (dand_eq_true_iff.mp h).1
 theorem Bool.right_eq_true_of_dand_eq_true {x : Bool} {y : x = true → Bool} (h : x.dand y = true) :
-    y (left_eq_true_of_dand_eq_true h) = true := (dand_eq_true_iff.mp h).snd
+    y (left_eq_true_of_dand_eq_true h) = true := (dand_eq_true_iff.mp h).2
 
 theorem Bool.and_assoc (a b c : Bool) : (a && b && c) = (a && (b && c)) := by
   cases a <;> cases b <;> cases c <;> decide

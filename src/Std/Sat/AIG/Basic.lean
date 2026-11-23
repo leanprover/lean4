@@ -222,7 +222,7 @@ For a `c : Cache α decls`, any index `idx` that is a cache hit for some `decl` 
 theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α decls) (decl : Decl α)
     (hfound : c.val[decl]? = some idx) :
     idx < decls.size :=
-  (c.property.sound decl idx hfound).fst
+  (c.property.sound decl idx hfound).1
 
 /--
 If `Cache.get? decl` returns `some i` then `decls[i] = decl` holds.
@@ -230,7 +230,7 @@ If `Cache.get? decl` returns `some i` then `decls[i] = decl` holds.
 theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α decls) (decl : Decl α)
     (hfound : c.val[decl]? = some idx) :
     decls[idx]'(Cache.get?_bounds c decl hfound) = decl :=
-  (c.property.sound decl idx hfound).snd
+  (c.property.sound decl idx hfound).2
 
 /--
 Lookup a `Decl` in a `Cache`.

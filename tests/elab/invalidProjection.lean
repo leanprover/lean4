@@ -10,11 +10,6 @@ inductive P : Nat → n > 0 → Prop
   | mk (n) (q : n > 0) : P n q
 
 /--
-error: invalid projection
-  h1.1
-from type
-  P n h
----
 error: Invalid projection: Index `2` is invalid for this structure; the only valid index is 1
 
 Note: The expression
@@ -75,33 +70,26 @@ example (h : Nat × Nat) := bad_projection
 
 -- Projection to the witness should be rejected.
 /--
-error: invalid projection
-  ⋯.1
-from type
+error: Invalid projection: Cannot project a value of non-propositional type
+  Nat
+from the expression
+  Exists.intro 1 (Nat.le_refl 1)
+which has propositional type
   ∃ x, x ≥ 1
 -/
 #guard_msgs in
 def witness : Nat := (⟨1, Nat.le_refl _⟩ : ∃ x, x ≥ 1).1
 
 -- Projection to the property as well (it could contain the witness projection).
-/--
-error: invalid projection
-  h.2
-from type
-  ∃ x, True
----
-error: invalid projection
-  h.2
-from type
-  ∃ x, True
--/
 #guard_msgs in
-theorem witness_eq (h : ∃ x : Nat, True) : h.2 = h.2 := rfl
+theorem witness_eq (h : ∃ _ : Nat, True) : h.2 = h.2 := rfl
 
 /--
-error: invalid projection
-  h.1
-from type
+error: Invalid projection: Cannot project a value of non-propositional type
+  Nat
+from the expression
+  h
+which has propositional type
   ∃ x, True
 -/
 #guard_msgs in

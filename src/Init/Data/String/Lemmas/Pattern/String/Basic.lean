@@ -274,7 +274,7 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
 
 theorem le_of_matchesAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false)
     (h' : MatchesAt pat pos) : pos.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
-  simpa [Pos.Raw.le_iff] using ((matchesAt_iff_getElem h).1 h').fst
+  simpa [Pos.Raw.le_iff] using ((matchesAt_iff_getElem h).1 h').1
 
 end ForwardSliceSearcher
 

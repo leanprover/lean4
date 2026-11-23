@@ -28,7 +28,7 @@ namespace Vector
 
 @[simp, grind =] theorem getElem?_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
-      xs[i]?.pbind fun b h => some <| f i b ((getElem?_eq_some_iff.1 h).fst) := by
+      xs[i]?.pbind fun b h => some <| f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, getElem_mapFinIdx]
   split <;> simp_all
 
@@ -137,7 +137,7 @@ theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → �
 theorem mapFinIdx_eq_zipIdx_map {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.mapFinIdx f = xs.zipIdx.attach.map
       fun ⟨⟨x, i⟩, m⟩ =>
-        f i x (by rw [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.fst) := by
+        f i x (by rw [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
   ext <;> simp
 
 theorem exists_of_mem_mapFinIdx {b : β} {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β}

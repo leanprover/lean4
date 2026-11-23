@@ -134,7 +134,7 @@ theorem PartialMatch.isLongestMatchAt
   rw [this, utf8ByteSize_eq_size_toByteArray_copy, ← matchesAt_iff_partialMatch hpat,
     matchesAt_iff_isLongestMatchAt hpat] at h
   conv in s.pos pos _ => simp +singlePass [h₀]
-  exact h.snd
+  exact h.2
 
 /--
 `prefixFunction pat stackPos …` is the maximum `k ≤ stackPos` such that `pat[0...k] = pat[stackPos - k + 1...=stackPos]`.

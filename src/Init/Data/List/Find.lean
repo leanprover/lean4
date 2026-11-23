@@ -1294,7 +1294,7 @@ theorem isNone_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
 theorem finIdxOf?_eq_pmap_idxOf? {l : List α} {a : α} [BEq α] [LawfulBEq α] :
     l.finIdxOf? a =
       (l.idxOf? a).pmap
-        (fun i h => ⟨i, (idxOf?_eq_some_iff.mp h).fst⟩)
+        (fun i h => ⟨i, (idxOf?_eq_some_iff.mp h).1⟩)
         (fun _ h => h) := by
   ext ⟨i, h⟩
   simp only [finIdxOf?_eq_some_iff, Fin.getElem_fin, Fin.forall_iff, Fin.mk_lt_mk,

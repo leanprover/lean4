@@ -132,7 +132,7 @@ theorem Small.pbind {α : Type v} {β : Type w} (P : α → Prop) (Q : (a : α) 
     Small.{u} { b // ∃ a h, Q a h b } := .of_surjective
         ((a : { a // P a }) × { b // Q a.1 a.2 b })
         (fun x => ⟨x.2.1, x.1, x.1.2, x.2.2⟩)
-        (fun y => ⟨⟨⟨y.2.choose, y.2.choose_spec.fst⟩, y.1, y.2.choose_spec.snd⟩, rfl⟩)
+        (fun y => ⟨⟨⟨y.2.choose, y.2.choose_spec.1⟩, y.1, y.2.choose_spec.2⟩, rfl⟩)
 
 theorem Small.bind {α : Type v} {β : Type w} (P : α → Prop) (Q : α → β → Prop)
     (i₁ : Small.{u} { a // P a }) (i₂ : ∀ a, Small.{u} { b // Q a b }) :
@@ -330,7 +330,7 @@ theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     intro β f
     rfl
   · intro h
-    exact HetT.ext h.fst h.snd
+    exact HetT.ext h.1 h.2
 
 @[simp]
 protected theorem HetT.map_eq_pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]

@@ -146,7 +146,7 @@ theorem mapFinIdx_eq_ofFn {as : List α} {f : (i : Nat) → α → (h : i < as.l
   apply ext_getElem <;> simp
 
 @[simp, grind =] theorem getElem?_mapFinIdx {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} {i : Nat} :
-    (l.mapFinIdx f)[i]? = l[i]?.pbind fun x m => some <| f i x (by simp [getElem?_eq_some_iff] at m; exact m.fst) := by
+    (l.mapFinIdx f)[i]? = l[i]?.pbind fun x m => some <| f i x (by simp [getElem?_eq_some_iff] at m; exact m.1) := by
   simp only [getElem?_def, length_mapFinIdx, getElem_mapFinIdx]
   split <;> simp
 
@@ -185,7 +185,7 @@ theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → �
 theorem mapFinIdx_eq_zipIdx_map {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
     l.mapFinIdx f = l.zipIdx.attach.map
       fun ⟨⟨x, i⟩, m⟩ =>
-        f i x (by rw [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.fst) := by
+        f i x (by rw [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
   apply ext_getElem <;> simp
 
 

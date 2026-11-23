@@ -8465,7 +8465,7 @@ private theorem Option.eq_get_iff_some_eq {o : Option α} {h k} :
 theorem getKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {km hc} :
     (hkm : (minKey? l |>.get <| isSome_minKey?_of_containsKey hc) = km) → getKey km l hc = km := by
-  have := (Option.eq_some_iff_get_eq.mp <| getKey?_eq_some_getKey hc).snd
+  have := (Option.eq_some_iff_get_eq.mp <| getKey?_eq_some_getKey hc).2
   simp only [← this, Option.get_eq_iff_eq_some]
   exact getKey?_minKey? hd
 
@@ -8765,7 +8765,7 @@ theorem minKey?_modifyKey_beq [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
     kmm == km := by
   simp only [minKey?_modifyKey hd, Option.get_map] at hkmm
   simp only [Option.eq_some_iff_get_eq] at hkm
-  simp only [← hkmm, ← hkm.snd]
+  simp only [← hkmm, ← hkm.2]
   split
   · exact BEq.symm ‹_›
   · exact BEq.rfl

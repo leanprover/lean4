@@ -89,7 +89,7 @@ theorem getElem?_range' {s step} :
 
 @[simp, grind =] theorem getElem_range' {n m step} {i} (H : i < (range' n m step).length) :
     (range' n m step)[i] = n + step * i :=
-  (getElem?_eq_some_iff.1 <| getElem?_range' (by simpa using H)).snd
+  (getElem?_eq_some_iff.1 <| getElem?_range' (by simpa using H)).2
 
 theorem head?_range' : (range' s n).head? = if n = 0 then none else some s := by
   induction n <;> simp_all [range'_succ]

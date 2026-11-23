@@ -62,24 +62,63 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
         throw ex
     | ex => throw ex
 
+def mkProjUsingRec (eType : Expr) (idx : Nat) (e : Expr) : MetaM (Option Expr) := do
+  let eType ← whnf (← instantiateMVars eType)
+  let fn := eType.getAppFn'
+  matchConstStructure fn (fun _ => pure none) fun structVal structLvls ctorVal => do
+    let recName := mkRecName structVal.name
+    let recVal ← getConstInfoRec recName
+    if recVal.levelParams.length != structLvls.length then
+      return none
+    let numParams := structVal.numParams
+    let ctorName := ctorVal.name
+    go eType #[] structLvls numParams ctorName recName 0
+where
+  go (eType : Expr) (prevs : Array Expr) (structLvls : List Level) (numParams : Nat) (ctorName recName : Name) (i : Nat) : MetaM (Option Expr) := do
+    let some ty ← mkType eType prevs structLvls numParams ctorName i | return none
+    if i < idx then
+      let some prev ← mkProj eType structLvls numParams ctorName recName i ty | return none
+      let ty ← inferType prev
+      withLetDecl `p ty prev fun p => do
+        go eType (prevs.push p) structLvls numParams ctorName recName (i+1)
+    else
+      let some res ← mkProj eType structLvls numParams ctorName recName i ty | return none
+      mkLetFVars prevs res
+
+  mkProj (eType : Expr) (structLvls : List Level) (numParams : Nat) (ctorName recName : Name) (idx : Nat) (ty : Expr): MetaM (Option Expr) := do
+    let motive := mkLambda `e .default eType ty
+    let params := eType.getAppArgs
+    let minor ← forallTelescope (← instantiateTypeLevelParams (← getConstVal ctorName) structLvls) fun xs _ => do
+      return (← mkLambdaFVars xs[numParams:] xs[numParams + idx]!).replaceFVars xs[:numParams] params
+    return mkAppN (.const recName structLvls) (params ++ #[motive, minor, e])
+
+  mkType (eType : Expr) (prevs : Array Expr) (structLvls : List Level) (numParams : Nat) (ctorName : Name) (idx : Nat): MetaM (Option Expr) := do
+    let structTypeArgs := eType.getAppArgs
+    let mut ctorType ← inferAppType (.const ctorName structLvls) structTypeArgs[*...<numParams]
+    for i in *...idx do
+      ctorType ← whnf ctorType
+      match ctorType with
+      | .forallE _ _ body _ =>
+        if body.hasLooseBVars then
+          ctorType := body.instantiate1 <| prevs[i]!
+        else
+          ctorType := body
+      | _ => return none
+    ctorType ← whnf ctorType
+    match ctorType with
+    | .forallE _ d _ _ => kabstract d.consumeTypeAnnotations e
+    | _                => return none
+
 private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
-  let r := mkProj structName idx e
   let eType ← inferType e
   if (← isProp eType) then
-    let rType ← inferType r
+    let rType ← inferProjType structName idx e
     if !(← isProp rType) then
       throwNamedError lean.projNonPropFromProp "Invalid projection: Cannot project a value of non-propositional \
         type{indentExpr rType}\nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
-    let fn := eType.getAppFn
-    if let .const fnName fnLvls := fn then
-      if let .inductInfo {all := [_], numParams, numIndices := 0, ctors := [ctor], ..} ← getConstInfo fnName then
-        let recName := mkRecName fnName
-        let motive  := mkLambda `e .default eType (← kabstract rType e)
-        let params := eType.getAppArgs
-        let minor ← forallTelescope (← instantiateTypeLevelParams (← getConstVal ctor) fnLvls) fun xs _ =>
-          return (← mkLambdaFVars xs[numParams:] xs[numParams + idx]!).replaceFVars xs[:numParams] params
-        let res := mkAppN (.const recName fnLvls) (params ++ #[motive, minor, e])
-        return res
+    if let some res ← mkProjUsingRec eType idx e then
+      return res
+  let r := mkProj structName idx e
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=

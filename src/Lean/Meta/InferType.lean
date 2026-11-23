@@ -103,7 +103,7 @@ namespace Meta
 def throwFunctionExpected {α} (f : Expr) : MetaM α :=
   throwError "function expected{indentExpr f}"
 
-private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
+def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   let mut fType ← inferType f
   let mut j := 0
   for i in *...args.size do
@@ -150,7 +150,7 @@ private def inferConstTypeLazy (c : Name) (us : List Level) : MetaM (Expr × Lev
   else
     throwIncorrectNumberOfLevels c us
 
-private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
+def inferProjType (structName : Name) (idx : Nat) (e : Expr): MetaM Expr := do
   let structType ← inferType e
   let structType ← whnf structType
   let failed {α} : Unit → MetaM α := fun _ => do

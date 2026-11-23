@@ -31,6 +31,10 @@ Author: Sebastian Ullrich, Julia M. Himmel
 #include <signal.h>
 #include <unistd.h>
 extern "C" char ** environ;
+#if UV_VERSION_HEX < 0x013200
+// Older libuv lacks the name but still reports `ENOEXEC` like any other `errno` value.
+#define UV_ENOEXEC (-ENOEXEC)
+#endif
 #endif
 
 namespace lean {

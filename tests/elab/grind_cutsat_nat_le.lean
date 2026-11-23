@@ -1,5 +1,7 @@
 module
 
+set_option backward.grind.normalizer false
+
 open Int.Internal.Linear
 
 set_option trace.grind.debug.proof true in

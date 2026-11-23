@@ -1,2 +1,2 @@
-grind_ring_1.lean:59:0-59:7: warning: declaration uses `sorry`
-grind_ring_1.lean:72:0-72:7: warning: declaration uses `sorry`
+grind_ring_1.lean:62:0-62:7: warning: declaration uses `sorry`
+grind_ring_1.lean:75:0-75:7: warning: declaration uses `sorry`

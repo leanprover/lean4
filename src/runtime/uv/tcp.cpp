@@ -339,8 +339,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.UV.TCP.Socket.bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr) {
+static lean_obj_res lean_uv_tcp_bind_flags(b_obj_arg socket, b_obj_arg addr, unsigned int flags) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     sockaddr_storage addr_ptr;
@@ -350,7 +349,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
     {
         event_loop_guard guard;
         // On a closed handle, libuv would open a new socket.
-        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_bind(&tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, 0);
+        result = tcp_socket->m_closed ? UV_EBADF : uv_tcp_bind(&tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, flags);
     }
 
     if (result < 0) {
@@ -358,6 +357,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
     }
 
     return lean_io_result_mk_ok(lean_box(0));
+}
+
+/* Std.Internal.UV.TCP.Socket.bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr) {
+    return lean_uv_tcp_bind_flags(socket, addr, 0);
+}
+
+/* Std.Internal.UV.TCP.Socket.bindReusePort (socket : @& Socket) (addr : @& SocketAddress) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind_reuseport(b_obj_arg socket, b_obj_arg addr) {
+#if UV_VERSION_HEX >= 0x013100 // UV_TCP_REUSEPORT is an enum member, added in libuv 1.49.0
+    return lean_uv_tcp_bind_flags(socket, addr, UV_TCP_REUSEPORT);
+#else
+    return io_result_mk_uv_error(UV_ENOTSUP);
+#endif
 }
 
 /* Std.Internal.UV.TCP.Socket.listen (socket : @& Socket) (backlog : Int32) : IO Unit */
@@ -819,6 +832,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind_reuseport(b_obj_arg socket, b_obj_arg addr) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

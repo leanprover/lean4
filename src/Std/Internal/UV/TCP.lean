@@ -87,6 +87,15 @@ Binds a TCP socket to a specific address.
 opaque bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit
 
 /--
+Binds a TCP socket to a specific address with `SO_REUSEPORT` enabled, so that several sockets (for
+example in several processes) can listen on the same address and the kernel balances incoming
+connections between them. Fails with an unsupported-operation error on platforms where libuv does
+not support `UV_TCP_REUSEPORT` (for example macOS).
+-/
+@[extern "lean_uv_tcp_bind_reuseport"]
+opaque bindReusePort (socket : @& Socket) (addr : @& SocketAddress) : IO Unit
+
+/--
 Starts listening for incoming connections on a TCP socket.
 -/
 @[extern "lean_uv_tcp_listen"]

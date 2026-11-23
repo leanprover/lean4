@@ -61,6 +61,15 @@ def bind (s : Server) (addr : SocketAddress) : IO Unit :=
   s.native.bind addr
 
 /--
+Binds the server socket to the specified address with `SO_REUSEPORT`, so that several servers (for
+example one per process) can listen on the same address and the kernel balances incoming
+connections between them. Not supported on every platform (for example macOS).
+-/
+@[inline]
+def bindReusePort (s : Server) (addr : SocketAddress) : IO Unit :=
+  s.native.bindReusePort addr
+
+/--
 Listens for incoming connections with the given backlog.
 -/
 @[inline]

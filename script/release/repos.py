@@ -74,9 +74,7 @@ DOWNSTREAM_LEAN4 = ReleaseRepo(github=("leanprover", "downstream-lean4"))
 
 # To create a new release, open a PR into `main`. In it, bump the toolchain.
 #
-# For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch. To get the
-# latest nightly fixes, you may need to merge the latest
-# `bump/nightly-YYYY-MM-DD` PRs, or merge `nightly-testing` directly. After
+# For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch. After
 # merging the PR, create a new `bump/v4.X+1.0` branch off of `main`.
 #
 # For other releases, create a new branch off of `main` and use it for the PR.

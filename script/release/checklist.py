@@ -133,25 +133,18 @@ class DownstreamChecker(RepoChecker):
 
         if self.version.rc == 1:
             lakefile = self.lrepo.path / "lakefile.lean"
-            util.edit(
-                lakefile,
-                '"batteries" @ git "nightly-testing"',
-                '"batteries" @ git "main"',
-            )
-            util.edit(lakefile, '"Qq" @ git "nightly-testing"', '"Qq" @ git "master"')
-            util.edit(
-                lakefile, '"aesop" @ git "nightly-testing"', '"aesop" @ git "master"'
-            )
-            util.edit(
-                lakefile,
-                '"proofwidgets" @ git "nightly-testing"',
-                '"proofwidgets" @ git "main"',
-            )
-            util.edit(
-                lakefile,
-                '"plausible" @ git "nightly-testing"',
-                '"plausible" @ git "main"',
-            )
+            for dep, branch in [
+                ("batteries", "main"),
+                ("Qq", "master"),
+                ("aesop", "master"),
+                ("proofwidgets", "main"),
+                ("plausible", "main"),
+            ]:
+                util.edit(
+                    lakefile,
+                    rf'"{dep}" @ git "[^"]*"',
+                    f'"{dep}" @ git "{branch}"',
+                )
 
         self._bump_toolchain_deps(self.lrepo.path)
 

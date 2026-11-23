@@ -879,45 +879,6 @@ private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (maxRecD
 private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) :
   Except Kernel.Exception Environment
 
-/--
-Adds given declaration to the environment, type checking it unless `doCheck` is false.
-
-This is a plumbing function for the implementation of `Lean.addDecl`, most users should use it
-instead.
--/
-def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
-    (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) (doCheck := true) :
-    Except Kernel.Exception Environment := do
-  if let some ctx := env.asyncCtx? then
-    if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
-      throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
-        prefix {ctx.declPrefix}"
-  let mut env ← if doCheck then
-    addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
-  else
-    addDeclWithoutChecking env decl
-
-  -- Let the elaborator know about the new constants. This uses the same constant for both
-  -- visibility scopes but the caller can still customize the public one on the main elaboration
-  -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
-  for n in decl.getNames do
-    env := env.registerConstAdded n
-    let some info := env.checked.get.find? n | unreachable!
-    env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
-      constInfo := .ofConstantInfo info
-      exts? := none
-      aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-    } }
-    -- TODO
-    if true /- !isPrivateName n-/ then
-      env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
-        constInfo := .ofConstantInfo info
-        exts? := none
-        aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-      } }
-
-  return env
-
 @[inherit_doc Kernel.Environment.constants]
 def constants (env : Environment) : ConstMap :=
   env.toKernelEnv.constants
@@ -1027,6 +988,82 @@ def find? (env : Environment) (n : Name) (skipRealize := false) : Option Constan
   if let some c := env.base.get env |>.constants.map₁.findConstCached? n then
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
+
+/--
+Names of the auxiliary recursors the kernel has generated for the nested inductive types `decl` in
+`kenv`, which are not part of `Declaration.getNames`.
+-/
+private def getAuxRecNames (kenv : Kernel.Environment) (decl : Declaration) : Array Name := Id.run do
+  let .inductDecl _ _ types _ := decl | return #[]
+  let mut names := #[]
+  for type in types do
+    let mut i := 1
+    repeat
+      let auxRecName := type.name ++ `rec |>.appendIndexAfter i
+      unless kenv.constants.contains auxRecName do break
+      names := names.push auxRecName
+      i := i + 1
+  return names
+
+/--
+Adds given declaration to the environment, type checking it unless `doCheck` is false.
+
+If `nonblocking` is true, an inductive type declaration is checked in `uncheckedKernelEnv` instead of
+in `toKernelEnv`, and thus without waiting for declarations that are still being elaborated or
+checked.
+
+This is a plumbing function for the implementation of `Lean.addDecl`, most users should use it
+instead.
+-/
+def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) (doCheck := true)
+    (nonblocking := false) :
+    Except Kernel.Exception Environment := do
+  if let some ctx := env.asyncCtx? then
+    if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
+      throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
+        prefix {ctx.declPrefix}"
+  -- Kernel diagnostics are collected in `checked` only.
+  let (env, kenv) ←
+    if nonblocking && decl matches .inductDecl .. && !env.base.private.isDiagnosticsEnabled then
+      let unchecked := env.uncheckedKernelEnv.get
+      let unchecked ← if doCheck then
+        unchecked.addDeclCore maxHeartbeats maxRecDepth decl cancelTk?
+      else
+        unchecked.addDeclWithoutChecking decl
+      let infos := (decl.getNames.toArray ++ getAuxRecNames unchecked decl).filterMap unchecked.find?
+      pure ({ env with
+        uncheckedKernelEnv? := some (.pure unchecked)
+        checked := env.checked.map (sync := true) fun kenv => infos.foldl (·.add ·) kenv
+      }, unchecked)
+    else
+      let env ← if doCheck then
+        addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
+      else
+        addDeclWithoutChecking env decl
+      pure (env, env.checked.get)
+  let mut env := env
+
+  -- Let the elaborator know about the new constants. This uses the same constant for both
+  -- visibility scopes but the caller can still customize the public one on the main elaboration
+  -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
+  for n in decl.getNames.toArray ++ getAuxRecNames kenv decl do
+    env := env.registerConstAdded n
+    let some info := kenv.find? n | unreachable!
+    env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
+      constInfo := .ofConstantInfo info
+      exts? := none
+      aconstsImpl := .pure <| .mk (α := AsyncConsts) default
+    } }
+    -- TODO
+    if true /- !isPrivateName n-/ then
+      env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
+        constInfo := .ofConstantInfo info
+        exts? := none
+        aconstsImpl := .pure <| .mk (α := AsyncConsts) default
+      } }
+
+  return env
 
 /-- Checks if, in the public scope (`Environment.isExporting`), the given name refers to a
 definition with a visible body, i.e. `ConstantInfo.hasValue`. Recall that outside the module

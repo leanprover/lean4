@@ -72,6 +72,7 @@ public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option
 
   unless isTrue do return .notTrue
 
+  -- `isNativeComputationAxiomName` relies on this naming scheme
   let auxAxiomName ← mkAuxDeclName <| `_native ++ tacticName ++ `ax
   let axDecl := Declaration.axiomDecl {
     name := auxAxiomName

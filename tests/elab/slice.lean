@@ -1,5 +1,7 @@
 import Std.Data.Iterators
 
+set_option trustCompiler true
+
 example : #[1, 2, 3][*...*].toList = [1, 2, 3] := by simp
 example : #[1, 2, 3][*...2].toList = [1, 2] := by simp
 example : #[1, 2, 3][*...<2].toList = [1, 2] := by simp

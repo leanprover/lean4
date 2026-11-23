@@ -5,6 +5,8 @@ Tests for the sort inference of `bv_decide +epr`, which splits a type into sever
 elements never interact and keeps them together if a quantifier restricts their cardinality.
 -/
 
+set_option trustCompiler true
+
 section Traces
 
 set_option trace.Meta.Tactic.bv.epr true

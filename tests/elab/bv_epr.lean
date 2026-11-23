@@ -5,6 +5,8 @@ Tests for `bv_decide +epr`: detection of many-sorted EPR problems, proofs that n
 reasoning and MBQI, and counterexamples reported in terms of the original problem.
 -/
 
+set_option trustCompiler true
+
 -- Detection of sorts, predicates, ground and quantified facts, ignoring facts outside the fragment.
 set_option trace.Meta.Tactic.bv.epr true in
 /--

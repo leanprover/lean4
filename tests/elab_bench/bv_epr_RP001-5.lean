@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 /- x * (y * z) = (x * y) * z -/
 
 example

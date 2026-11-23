@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 example
   (a k n : BitVec 32) :
   n < -1 - k →

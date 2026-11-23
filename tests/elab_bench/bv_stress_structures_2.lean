@@ -2,6 +2,8 @@ import Std.Tactic.BVDecide
 
 /-! This benchmark is a stress test for the structure support of `bv_decide`. -/
 
+set_option trustCompiler true
+
 namespace BvDecideReflectionMWNE
 
 set_option genInjectivity false in

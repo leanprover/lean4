@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 open BitVec
 
 theorem ineq_unit_1 (x y : BitVec 64) (h : x ≠ y) : y ≠ x := by

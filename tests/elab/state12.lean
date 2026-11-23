@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 /- Enumerable and the Decidable instance may already be in Mathlib -/
 
 class Enumerable (α : Type u) where

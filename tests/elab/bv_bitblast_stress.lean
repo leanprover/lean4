@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 open BitVec
 
 set_option exponentiation.threshold 4096

@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 set_option linter.unusedVariables false
 
 /-

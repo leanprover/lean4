@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 open BitVec
 
 theorem cast_unit_1 (x : BitVec 64) : Nat.cast 0 &&& x = 0 := by

@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 open BitVec
 
 theorem bv_extract_1 (h : x = 1#64) : extractLsb' 32 32 x = 0#32 := by

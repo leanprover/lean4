@@ -1,4 +1,6 @@
 import Lean.Data.Json
+
+set_option trustCompiler true
 open Lean
 
 instance [BEq α] [BEq β] : BEq (Except α β) where

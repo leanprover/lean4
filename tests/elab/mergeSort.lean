@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 open List MergeSort Internal
 
 -- If we omit the comparator, it is filled by the autoparam `fun a b => a ≤ b`

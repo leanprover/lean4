@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 theorem x_eq_y (x y : Bool) (hx : x = True) (hy : y = True) : x = y := by
   bv_decide
 

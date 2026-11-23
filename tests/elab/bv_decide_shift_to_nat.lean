@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 theorem test2 (b s : BitVec 5) (hb : b = 0) (hs : s ≠ 0) :
     b <<< s.toNat = 0 := by
   bv_decide

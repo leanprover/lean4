@@ -1466,6 +1466,8 @@ Options:
   This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   of the trusted code base.
   Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
+  Declarations using it are rejected unless the option `trustCompiler` is set,
+  and proofs using it are rejected by `lake comparator` and `lake check`.
   Like with `+kernel`, the `Decidable` instance is evaluated only once.
 
 Limitation: In the default mode or `+kernel` mode, since `decide` uses reduction to evaluate the term,
@@ -1527,7 +1529,10 @@ part, and a new axiom will show up in `#print axioms` for theorems using
 this method or anything that transitively depends on them. Nevertheless, because it is
 compiled, this can be significantly more efficient than using `decide`, and for very
 large computations this is one way to run external programs and trust the result.
+Declarations using it are rejected unless the option `trustCompiler` is set, and proofs using
+it are rejected by `lake comparator` and `lake check`.
 ```lean
+set_option trustCompiler true in
 example : (List.range 1000).length = 1000 := by native_decide
 ```
 -/
@@ -1960,7 +1965,9 @@ the `bv.ac_nf` option.
 `bv_decide types [T₁, ..., Tₙ]` restricts the analysis of structures and enum inductives to
 `T₁, ..., Tₙ`, treating all other ones as opaque variables.
 
-Note: `bv_decide` trusts the correctness of the code generator and adds a axioms asserting its result.
+Note: `bv_decide` trusts the correctness of the code generator and adds axioms asserting its
+result. Declarations using it are rejected unless the option `trustCompiler` is set, and
+proofs using it are rejected by `lake comparator` and `lake check`.
 
 Note: include `import Std.Tactic.BVDecide`
 -/

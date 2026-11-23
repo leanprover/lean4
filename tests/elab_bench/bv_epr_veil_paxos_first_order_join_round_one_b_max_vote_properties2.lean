@@ -1,4 +1,6 @@
 import Std.Tactic.BVDecide
+
+set_option trustCompiler true
 /-
 source: Examples/Ivy/PaxosFirstOrder.lean
 vc: join_round_one_b_max_vote_properties2

@@ -1261,6 +1261,7 @@ def f : States → States → States
 | s34, s33 => s0
 | s34, s34 => s0
 set_option maxHeartbeats 0
+set_option trustCompiler true
 
 example : ∀ x y z, f (f (f s0 x) y) z = f (f x z) (f y z) := by
  native_decide

@@ -6,6 +6,8 @@ simproc, edge cases, and the 1024-bit ZMod case from Mathlib that motivated the
 feature.
 -/
 
+set_option trustCompiler true
+
 /-! Basic values and edge cases. `powMod b e m = b ^ e % m`, and `n % 0 = n`. -/
 example : Nat.powMod 0 0 1   = 0    := rfl
 example : Nat.powMod 0 5 7    = 0    := rfl  -- `b = 0`, positive exponent

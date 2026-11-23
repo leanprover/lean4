@@ -100,6 +100,48 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
 
+register_builtin_option trustCompiler : Bool := {
+  defValue := false
+  descr    := "allow declarations to use native computation (e.g. via `native_decide` or `bv_decide`), \
+    which requires trusting the Lean compiler in addition to the kernel"
+}
+
+/--
+Returns `true` if `n` is the name of an axiom added by `Lean.Meta.nativeEqTrue` to assert the result
+of a native computation. Such names have the form `<prefix>._native.<tactic>.ax<suffix>`.
+-/
+def isNativeComputationAxiomName (n : Name) : Bool :=
+  match n.eraseMacroScopes with
+  | .str (.str (.str _ "_native") _) s => s.startsWith "ax"
+  | _ => false
+
+/-- Returns a native computation axiom (see `isNativeComputationAxiomName`) used in `e`, if any. -/
+def Expr.findNativeComputationAxiom? (e : Expr) : Option Name :=
+  e.find? (fun | .const n _ => isNativeComputationAxiomName n | _ => false) |>.map (·.constName!)
+
+def Expr.hasNativeComputationAxiom (e : Expr) : Bool :=
+  e.findNativeComputationAxiom?.isSome
+
+def Declaration.findNativeComputationAxiom? (d : Declaration) : Option Name := Id.run do
+  d.foldExprM (fun r e => r <|> e.findNativeComputationAxiom?) none
+
+/--
+Unless the `trustCompiler` option is set, logs an error if the declaration directly uses an
+axiom asserting the result of a native computation.
+-/
+def checkTrustCompiler (decl : Declaration) : CoreM Unit := do
+  unless trustCompiler.get (← getOptions) do
+    if let some ax := decl.findNativeComputationAxiom? then
+      logError m!"declaration uses native computation, which requires trusting the Lean compiler\n\n\
+        The axiom `{.ofConstName ax}` asserts the result of compiling and running code instead of \
+        a proof checked by the kernel. Relying on it means trusting the Lean compiler and \
+        interpreter, as well as all `@[implemented_by]` and `@[extern]` implementations involved, \
+        in addition to the kernel. For the same reason, proofs using native computation are \
+        rejected by `lake comparator` and `lake check`.\n\n\
+        If this is acceptable, native computation can be allowed for a single declaration using \
+        `set_option trustCompiler true in`, or for an entire project by setting \
+        `trustCompiler` to `true` in the `leanOptions` of the Lake package configuration."
+
 builtin_initialize
   registerTraceClass `addDecl
 
@@ -201,6 +243,7 @@ where
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
+        checkTrustCompiler decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

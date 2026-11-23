@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 @[noinline] def f (x : Bool)   := x
 @[noinline] def g (x y : Bool) := x
 

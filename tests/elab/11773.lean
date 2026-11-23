@@ -1,5 +1,7 @@
 /-! This is a regression test for an issue with the implemented_by of Array.foldlM -/
 
+set_option trustCompiler true
+
 /--
 error: Tactic `native_decide` evaluated that the proposition
   foldl (fun x1 x2 => x1 + x2) 0 #[1, 2, 3] 0 5 = 0

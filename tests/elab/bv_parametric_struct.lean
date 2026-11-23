@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 /--
 The `Byte` type can have any bitwidth `w`. It carries a two's complement integer
 value of width `w` and a per-bit poison mask modeling bitwise delayed undefined

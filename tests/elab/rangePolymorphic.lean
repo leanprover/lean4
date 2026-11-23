@@ -1,5 +1,7 @@
 import Std.Data.Iterators
 
+set_option trustCompiler true
+
 open Std.Iterators
 
 /-- info: true -/

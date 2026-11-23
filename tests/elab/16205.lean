@@ -2,6 +2,8 @@ module
 
 /-! Regression test for cases on USize -/
 
+set_option trustCompiler true
+
 def five : USize := USize.ofNatLT 5 (Nat.lt_of_lt_of_le (by decide) USize.le_size)
 
 def viaMatch (o : Option USize) : Nat :=

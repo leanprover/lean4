@@ -1,4 +1,6 @@
 import Std.Tactic.BVDecide
+
+set_option trustCompiler true
 /-
 source: Examples/Demo/Ring/RingDec.lean
 vc: recv_single_leader

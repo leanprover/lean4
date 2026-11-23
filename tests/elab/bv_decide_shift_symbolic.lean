@@ -9,6 +9,8 @@ at a symbolic start offset. These are handled by clamping the amount into a `Bit
 structure stays visible to the bitblaster.
 -/
 
+set_option trustCompiler true
+
 section UShiftRight
 
 example (x y : BitVec 64) (n : Nat) : (x &&& y) >>> n = (x >>> n) &&& (y >>> n) := by

@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 
 /-- info: PUnit.enumToBitVec.{u} : PUnit → BitVec 0 -/
 #guard_msgs in

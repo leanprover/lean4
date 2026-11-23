@@ -1,4 +1,6 @@
 import Std.Tactic.BVDecide
+
+set_option trustCompiler true
 /-
 source: Examples/Ivy/SuzukiKasami.lean
 vc: rcv_privilege_unique_tokens

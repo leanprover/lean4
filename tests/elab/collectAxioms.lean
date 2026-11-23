@@ -1,5 +1,7 @@
 import Lean
 
+set_option trustCompiler true
+
 axiom A0 : Type
 axiom A1 : Type
 

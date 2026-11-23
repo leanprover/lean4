@@ -1,4 +1,6 @@
 import Std.Tactic.BVDecide
+
+set_option trustCompiler true
 /-
 source: Examples/StellarConsensus/SCP.lean
 vc: change_ballot_intertwined_safe

@@ -1,4 +1,6 @@
 import Lean
+
+set_option trustCompiler true
 open Lean.SubExpr
 
 def ps := [#[], #[0], #[1], #[0,1], #[1,0] , #[0,0], #[1,2,3]]

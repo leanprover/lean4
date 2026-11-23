@@ -5,6 +5,8 @@ Tests for the `types [...]` clause of the `bv_decide` family of tactics, which r
 structure and enum inductive analysis to the listed types.
 -/
 
+set_option trustCompiler true
+
 inductive Color where
   | red
   | green

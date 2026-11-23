@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 /-
 This file is based on: https://grack.com/blog/2022/12/20/deriving-a-bit-twiddling-hack/
 -/

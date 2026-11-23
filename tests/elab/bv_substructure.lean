@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 open BitVec
 
 theorem substructure_unit_1 (x y z : BitVec 8) : ((x = y) ∧ (y = z)) ↔ ¬(¬(x =y) ∨ (¬(y = z))) := by

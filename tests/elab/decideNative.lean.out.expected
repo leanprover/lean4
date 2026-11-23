@@ -1,1 +1,1 @@
-decideNative.lean:112:0-112:8: warning: declaration uses `sorry`
+decideNative.lean:114:0-114:8: warning: declaration uses `sorry`

@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 example : (-2147483649 : Int8).toInt16 = -1 := by native_decide
 example : (-2147483649 : Int8).toInt16 = -1 := by rfl
 example : (-2147483649 : Int8).toInt32 = -1 := by native_decide

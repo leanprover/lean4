@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 def numChars (s : String) : Nat :=
   go s.iter
 where

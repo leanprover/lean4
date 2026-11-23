@@ -1,4 +1,6 @@
 import Std.Tactic.BVDecide
+
+set_option trustCompiler true
 /-
 source: TPTP v9.3.1 MSC015-1.010 (CNF_UNS), epr_experiment/tptp_epr/CNF_UNS/MSC015-1.010.p
 translated by the tptp_epr driver of bv_epr 0.13.0 (-Dtrace.tptp_epr=true)

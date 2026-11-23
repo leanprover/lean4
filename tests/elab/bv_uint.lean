@@ -1,6 +1,8 @@
 import Std.Tactic.BVDecide
 
 /-! UInt8 -/
+
+set_option trustCompiler true
 example (a b c : UInt8) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
 

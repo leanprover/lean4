@@ -2,6 +2,8 @@
 Panic during evaluation
 -/
 
+set_option trustCompiler true
+
 inductive ItsTrue2 : Prop
   | mk
 

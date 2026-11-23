@@ -6,6 +6,8 @@ the quantifier bodies shape the classes, their instantiation sets, exceptions an
 ground terms of new instances enrich the instantiation sets.
 -/
 
+set_option trustCompiler true
+
 section Traces
 
 set_option trace.Meta.Tactic.bv.epr.instSets true

@@ -1,5 +1,7 @@
 import Std.Tactic.BVDecide
 
+set_option trustCompiler true
+
 open BitVec
 
 theorem bv_axiomCheck (x y z : BitVec 1) : x < y → y < z → x < z := by bv_decide

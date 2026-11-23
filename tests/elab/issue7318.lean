@@ -1,3 +1,5 @@
+set_option trustCompiler true
+
 
 inductive P : Prop where
   | mk : P

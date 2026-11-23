@@ -3,6 +3,8 @@ import Lean
 # `native_decide`
 -/
 
+set_option trustCompiler true
+
 /-!
 Simplest example.
 -/

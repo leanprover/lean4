@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/uv/event_loop.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -1141,6 +1142,7 @@ static task_manager * g_task_manager = nullptr;
 
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
+    lean_uv_restart();
 #if defined(LEAN_MULTI_THREAD)
     if (num_workers > 0) {
         g_task_manager = new task_manager(num_workers);
@@ -1167,6 +1169,9 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
+    // From here on, libuv operations that tasks still running start fail with `UV_ECANCELED`. The loop
+    // keeps running, so operations already pending still complete.
+    lean_uv_stop();
     if (g_task_manager) {
         delete g_task_manager;
         g_task_manager = nullptr;
@@ -1175,6 +1180,7 @@ extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
+    lean_uv_restart();
 #if defined(LEAN_MULTI_THREAD)
     if (num_workers > 0) {
         g_task_manager = new task_manager(num_workers);
@@ -1183,6 +1189,7 @@ scoped_task_manager::scoped_task_manager(unsigned num_workers) {
 }
 
 scoped_task_manager::~scoped_task_manager() {
+    lean_uv_stop();
     if (g_task_manager) {
         delete g_task_manager;
         g_task_manager = nullptr;

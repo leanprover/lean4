@@ -62,6 +62,23 @@ bool event_loop::on_loop_thread() const {
     return g_on_loop_thread;
 }
 
+void event_loop::stop() {
+    m_stopped.store(true, std::memory_order_release);
+}
+
+void event_loop::restart() {
+    if (!exiting()) {
+        m_stopped.store(false, std::memory_order_release);
+    }
+}
+
+void event_loop::stop_for_exit() {
+    m_stopped.store(true, std::memory_order_release);
+    m_exiting.store(true, std::memory_order_release);
+    // Never released. The lock is recursive, so this also works from a callback on the loop thread.
+    lock();
+}
+
 // The loop thread's body.
 void event_loop::run() {
     g_on_loop_thread = true;
@@ -96,7 +113,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     {
         event_loop_guard guard;
 
-        if (accum) {
+        if (guard.stopped()) {
+            result = UV_ECANCELED;
+        } else if (accum) {
             result = uv_loop_configure(global_ev.m_loop, UV_METRICS_IDLE_TIME);
         }
 
@@ -117,7 +136,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : IO Bool */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
     event_loop_guard guard;
+    if (guard.stopped()) {
+        return io_result_mk_uv_error(UV_ECANCELED);
+    }
     return lean_io_result_mk_ok(lean_box(global_ev.alive(guard)));
+}
+
+extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {
+    global_ev.stop_for_exit();
+}
+
+extern "C" LEAN_EXPORT void lean_uv_stop() {
+    global_ev.stop();
+}
+
+extern "C" LEAN_EXPORT void lean_uv_restart() {
+    global_ev.restart();
 }
 
 #else
@@ -131,6 +165,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
     return lean_io_result_mk_ok(lean_box(0));
 }
+
+extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {}
+extern "C" LEAN_EXPORT void lean_uv_stop() {}
+extern "C" LEAN_EXPORT void lean_uv_restart() {}
 
 #endif
 

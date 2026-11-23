@@ -19,6 +19,10 @@ static void signal_finalizer(void* ptr) {
 
     {
         event_loop_guard guard;
+        // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
+        if (guard.exiting()) {
+            return;
+        }
 
         // The close callback may free `signal` as soon as the lock is released.
         promise = std::move(signal->m_promise);
@@ -137,7 +141,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 
     {
         event_loop_guard guard;
-        result = uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
+        result = guard.stopped() ? UV_ECANCELED : uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
     }
 
     if (result != 0) {
@@ -163,6 +167,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (signal->m_state == signal_state::Initial) {
             signal->m_promise = owned_ref(mk_mt_promise());
@@ -219,14 +226,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     // so this must happen after the unlock: otherwise a waiter on a stopped signal would freeze the
     // whole event loop instead of just itself.
     owned_ref promise;
-    int result = 0;
 
     {
         // Locked so that a firing one-shot signal cannot finish it concurrently.
         event_loop_guard guard;
+        if (guard.exiting()) {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
 
         if (signal->m_state == signal_state::Running) {
-            result = uv_signal_stop(&signal->m_uv_signal);
+            // Cannot fail: libuv's `uv_signal_stop` always returns 0.
+            uv_signal_stop(&signal->m_uv_signal);
             promise = std::move(signal->m_promise);
             signal->m_state = signal_state::Finished;
         }
@@ -235,10 +245,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     // The loop holds a reference only while a promise is pending.
     if (promise.get() != nullptr) {
         lean_dec(obj);
-    }
-
-    if (result != 0) {
-        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -255,6 +261,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     {
         // It's locking here to avoid changing the state during other operations.
         event_loop_guard guard;
+        if (guard.exiting()) {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
 
         // The signal keeps listening, so one that arrives before the next `next` is not lost. The loop
         // stops keeping it alive, so a signal that is dropped instead is closed by its finalizer.

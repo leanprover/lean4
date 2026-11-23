@@ -51,6 +51,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
 #include "runtime/option_ref.h"
+#include "runtime/uv/event_loop.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -1670,6 +1671,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {
+    // Other threads keep running while `exit` runs destructors, libuv's among them.
+    lean_uv_stop_for_exit();
     exit(code);
 }
 

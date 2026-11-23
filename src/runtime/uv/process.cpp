@@ -48,6 +48,10 @@ static void process_close_cb(uv_handle_t * handle) {
 static void process_finalizer(void * ptr) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(ptr);
     event_loop_guard guard;
+    // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
+    if (guard.exiting()) {
+        return;
+    }
     if (p->m_exited) {
         uv_close((uv_handle_t *)&p->m_uv_process, process_close_cb);
     } else {
@@ -246,6 +250,11 @@ static lean_uv_process_object * spawn_process(uv_process_options_t const & optio
     }
     p->m_setsid = setsid;
     event_loop_guard guard;
+    if (guard.stopped()) {
+        delete p;
+        err = UV_ECANCELED;
+        return nullptr;
+    }
     err = uv_spawn(global_ev.m_loop, &p->m_uv_process, &options);
     p->m_uv_process.data = p;
     if (err != 0) {
@@ -433,6 +442,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
         // libuv reaps the child under the loop lock, so `uv_process_kill` cannot signal another
         // process that has reused the child's pid.
         event_loop_guard guard;
+        if (guard.stopped()) {
+            err = UV_ECANCELED;
+        } else
 #if !defined(LEAN_WINDOWS)
         if (p->m_setsid) {
             // The group outlives its leader as long as it has members, so it is killed even after

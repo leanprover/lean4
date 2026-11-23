@@ -22,6 +22,10 @@ static void timer_finalizer(void* ptr) {
         // A repeating timer without a pending promise may still be running, so the handle is closed
         // under the loop lock that its callback runs under.
         event_loop_guard guard;
+        // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
+        if (guard.exiting()) {
+            return;
+        }
 
         // The close callback may free `timer` as soon as the lock is released.
         promise = std::move(timer->m_promise);
@@ -98,7 +102,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
 
     {
         event_loop_guard guard;
-        result = uv_timer_init(global_ev.m_loop, &timer->m_uv_timer);
+        result = guard.stopped() ? UV_ECANCELED : uv_timer_init(global_ev.m_loop, &timer->m_uv_timer);
     }
 
     if (result != 0) {
@@ -124,6 +128,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (timer->m_state == timer_state::Initial) {
             timer->m_promise = owned_ref(mk_mt_promise());
@@ -177,6 +184,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj) {
     {
         // Locking to access the state in order to avoid data-race
         event_loop_guard guard;
+        if (guard.stopped()) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
 
         if (timer->m_state == timer_state::Running) {
             uv_timer_stop(&timer->m_uv_timer);
@@ -207,6 +217,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
+        if (guard.exiting()) {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
 
         if (timer->m_state == timer_state::Running) {
             uv_timer_stop(&timer->m_uv_timer);
@@ -234,6 +247,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
     {
         // It's locking here to avoid changing the state during other operations.
         event_loop_guard guard;
+        if (guard.exiting()) {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
 
         if (timer->m_state == timer_state::Running && timer->m_promise.get() != nullptr) {
             promise = std::move(timer->m_promise);

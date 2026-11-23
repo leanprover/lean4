@@ -63,15 +63,15 @@ jobs:
         run: |
           SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
           SHORT_SHA="${SHORT_SHA:0:7}"
-          # Export the short SHA for use in subsequent steps
-          echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
+          TAG=pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
+          # Export the tag for use in subsequent steps
+          echo "TAG=${TAG}" >> "$GITHUB_ENV"
 
           # The release already exists when CI is rerun for the same commit, notably after a `release-ci`
           # comment (`restart-on-label.yml`), whose rerun adds Windows and Intel macOS binaries. It must
           # be replaced for those to be published.
           # The lookup uses GraphQL: `gh release delete <tag>` (REST `releases/tags/<tag>`) at times
           # reported an existing release as not found, so creating the new one clashed with it.
-          TAG=pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
           # shellcheck disable=SC2016 # `$owner` etc. are GraphQL variables
           find_release() {
             gh api graphql -f owner=${{ github.repository_owner }} -f name=lean4-pr-releases -f tag="$TAG" \
@@ -100,7 +100,7 @@ jobs:
           git -C lean4.git fetch -n origin master
           git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
 
-          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git tag -f "$TAG" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
 
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
           # `lean4-pr-releases` is not a fork of `lean4`, so without negotiation `git push` cannot
@@ -108,7 +108,7 @@ jobs:
           # and sends the entire history, exceeding GitHub's 2 GiB pack limit. `push.negotiate`
           # discovers a recent common commit from the remote's tags, shrinking the pack to the PR delta.
           # TODO: Should we even push sources here at all?
-          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
+          git -C lean4.git -c push.negotiate=true push -f pr-releases "$TAG"
       # We use `gh release create` instead of `softprops/action-gh-release` because
       # the latter enumerates all releases to check for existing ones, which fails
       # when the repository has more than 10000 releases (GitHub API pagination limit).
@@ -121,7 +121,7 @@ jobs:
             --repo ${{ github.repository_owner }}/lean4-pr-releases \
             --title "Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }} (${{ steps.workflow-info.outputs.sourceHeadSha }})" \
             --notes "" \
-            pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }} \
+            "$TAG" \
             artifacts/*/*
         env:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
@@ -137,7 +137,7 @@ jobs:
               sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
               state: "success",
               context: "PR toolchain (SHA-suffixed)",
-              description: "${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}",
+              description: "${{ github.repository_owner }}/lean4-pr-releases:${{ env.TAG }}",
             });
 
       - name: Add toolchain-available label
@@ -196,7 +196,7 @@ jobs:
           upstream-label-force: downstream-force
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
-          override-toolchain: leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}
+          override-toolchain: leanprover/lean4-pr-releases:${{ env.TAG }}
 
       - name: Add toolchain-available label to adaptation PR
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.create-adaptation-pr.outputs.number != '' }}

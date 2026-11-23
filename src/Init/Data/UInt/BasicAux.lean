@@ -425,3 +425,31 @@ def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
 attribute [instance] USize.decLt USize.decLe
+
+/--
+Auxiliary theorem for proving that two `UInt8` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem UInt8.ne_of_toNat_beq_eq_false {a b : UInt8} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg UInt8.toNat h')
+
+/--
+Auxiliary theorem for proving that two `UInt16` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem UInt16.ne_of_toNat_beq_eq_false {a b : UInt16} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg UInt16.toNat h')
+
+/--
+Auxiliary theorem for proving that two `UInt32` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem UInt32.ne_of_toNat_beq_eq_false {a b : UInt32} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg UInt32.toNat h')
+
+/--
+Auxiliary theorem for proving that two `UInt64` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem UInt64.ne_of_toNat_beq_eq_false {a b : UInt64} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg UInt64.toNat h')

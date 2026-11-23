@@ -90,7 +90,7 @@ Replaces the byte at the given index.
 
 The array is modified in-place if there are no other references to it.
 
-If the index is out of bounds, the array is returned unmodified.
+If the index is out of bounds, function panics.
 -/
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray

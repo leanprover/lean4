@@ -3,6 +3,8 @@
 moves on to the next candidate instead of aborting.
 -/
 
+attribute [local instance] UInt16.instDecidableForall UInt64.instDecidableForall
+
 section UInt16
 
 variable (lo hi : UInt16) (h : lo ≤ hi)

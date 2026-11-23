@@ -1,4 +1,7 @@
 module
+
+set_option backward.grind.normalizer false
+
 example {n} (x y : BitVec n) : x * y = y * x := by
   grind
 
@@ -31,6 +34,7 @@ example (x y z : BitVec 100000) : x * y - z*z = 0 → z*z = y * x := by
 
 /--
 trace: [sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
+[sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
 [sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
 -/
 #guard_msgs in

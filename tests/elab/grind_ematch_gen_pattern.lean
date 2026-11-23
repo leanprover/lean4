@@ -1,4 +1,7 @@
 module
+
+set_option backward.grind.normalizer false
+
 def f (x : Option Nat) (h : x ≠ none) : Nat :=
   match x with
   | none => by contradiction

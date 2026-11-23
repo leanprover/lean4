@@ -420,4 +420,11 @@ theorem val_add_one_le_of_gt {n : Nat} {a b : Fin n} (h : a > b) : (b : Nat) + 1
 theorem exists_iff {p : Fin n → Prop} : (Exists fun i => p i) ↔ Exists fun i => Exists fun h => p ⟨i, h⟩ :=
   ⟨fun ⟨⟨i, hi⟩, hpi⟩ => ⟨i, hi, hpi⟩, fun ⟨i, hi, hpi⟩ => ⟨⟨i, hi⟩, hpi⟩⟩
 
+/--
+Auxiliary theorem for proving that two `Fin` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem ne_of_val_beq_eq_false {a b : Fin n} (h : Nat.beq a.val b.val = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg Fin.val h')
+
 end Fin

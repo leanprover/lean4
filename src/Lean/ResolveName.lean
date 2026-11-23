@@ -682,9 +682,8 @@ where
   unresolveNameCore (view? : Option MacroScopesView) (n : Name) : OptionT m Name := do
     guard <| !n.hasMacroScopes
     let n := privateToUserName n
-    let mut revComponents := n.componentsRev
     let mut candidate := Name.anonymous
-    for cmpt in revComponents do
+    for cmpt in n.revIter do
       candidate := Name.appendCore cmpt candidate
       try
         return ← tryResolve view? candidate

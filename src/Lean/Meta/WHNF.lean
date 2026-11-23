@@ -66,12 +66,26 @@ register_builtin_option smartUnfolding : Bool := {
   descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion"
 }
 
-/-- Add auxiliary annotation to indicate the `match`-expression `e` must be reduced when performing smart unfolding. -/
-def markSmartUnfoldingMatch (e : Expr) : Expr :=
-  mkAnnotation `sunfoldMatch e
+/--
+Mark a matcher that smart unfolding must reduce. The `inputs` mask is an optimization.
+In principle, the reducer could visit every discriminant and extra argument before reducing the matcher.
+Bit `i` is set when argument `i` of the matcher application is a discriminant or extra argument
+containing a marked match, so the reducer can skip visiting the other inputs.
+-/
+def markSmartUnfoldingMatch (e : Expr) (inputs : Nat := 0) : Expr :=
+  if inputs == 0 then mkAnnotation `sunfoldMatch e
+  else mkMData (({} : MData).setNat `sunfoldMatchInputs inputs) e
 
-def smartUnfoldingMatch? (e : Expr) : Option Expr :=
-  annotation? `sunfoldMatch e
+private def smartUnfoldingMatchInputs? (d : MData) : Option Nat :=
+  match d.entries with
+  | [(`sunfoldMatch, .ofBool true)] => some 0
+  | [(`sunfoldMatchInputs, .ofNat inputs)] => some inputs
+  | _ => none
+
+def smartUnfoldingMatch? (e : Expr) : Option Expr := do
+  let .mdata d b := e | none
+  let _ ← smartUnfoldingMatchInputs? d
+  return b
 
 /-- Add auxiliary annotation to indicate expression `e` (a `match` alternative rhs) was successfully reduced by smart unfolding. -/
 def markSmartUnfoldingMatchAlt (e : Expr) : Expr :=
@@ -226,10 +240,6 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Ex
     | _ => return major
 
 
--- Helper predicate that returns `true` for inductive predicates used to define functions by well-founded recursion.
-private def isWFRec (declName : Name) : Bool :=
-  declName == ``Acc.rec || declName == ``WellFounded.rec
-
 /--
 Helper method for `reduceRec`.
 We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
@@ -252,26 +262,21 @@ private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : 
     | .true => pure true
     | .false => pure false
     | .undef =>
-      let indInfo ← getConstVal recVal.getMajorInduct
-      /- If the type doesn't have large elimination, it must be a proof.
+      /- If the type is impredicative, the major must be a proof.
          TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
-      if indInfo.levelParams.length = recLvls.length then
+      let nonNestedInductName := recVal.all.head!
+      let nonNestedInduct ← getConstVal nonNestedInductName
+      if nonNestedInduct.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
-      isPropFormerType (← instantiateTypeLevelParams indInfo lvls)
+      isPropFormerType (← instantiateTypeLevelParams nonNestedInduct lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
-      -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
-      -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
-      -- We use this trick because we abstract nested proofs occurring in definitions.
-      -- Alternative design: do not abstract nested proofs used to justify well-founded recursion.
-      withTransparency .all <| whnf major
-    else if !(← isMajorProof recVal recLvls major) then
+    let mut major ← if !(← isMajorProof recVal recLvls major) then
       whnf major
     else
       pure major
@@ -567,8 +572,15 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     for h in hs do
       if auxAppFn == h then
         let result := mkAppN args[i]! auxApp.getAppArgs
-        let result := mkAppN result args[(prefixSz + info.numAlts)...args.size]
-        return ReduceMatcherResult.reduced result.headBeta
+        if args.size == info.arity then return .reduced result.headBeta
+        let result := mkAppRange result info.arity args.size args
+        -- In `(fun x => ([sunfoldMatch] m)) a b`, substitute `a` for `x` and leave `b` applied to
+        -- the marked body. Passing both arguments to `beta` would erase the marker on `m`.
+        let f := result.getAppFn
+        let args := result.getAppArgs
+        let numConsumed := min f.getNumHeadLambdas args.size
+        let body := f.beta args[*...numConsumed]
+        return .reduced (mkAppRange body numConsumed args.size args)
       i := i + 1
     return ReduceMatcherResult.stuck auxApp
 
@@ -760,16 +772,36 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
+    | .letE .. => goLet #[] e
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
+    | .forallE .. => goForall #[] e
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)
-    | .mdata _ b  =>
-      if let some m := smartUnfoldingMatch? e then
-        goMatch m
-      else
+    | .mdata d b =>
+      let some inputs := smartUnfoldingMatchInputs? d |
         return e.updateMData! (← go b)
+      if inputs == 0 then return ← goMatch b
+      let args ← b.getAppArgs.mapIdxM fun i arg =>
+        if inputs.testBit i then go arg else pure arg
+      goMatch (mkAppN b.getAppFn args)
     | _ => return e
+
+  /-- Accumulate the binders so each domain and the final body are instantiated only once. -/
+  goForall (xs : Array Expr) (e : Expr) : OptionT MetaM Expr := do
+    match e with
+    | .forallE n d b bi =>
+      withLocalDecl n bi (← go (d.instantiateRev xs)) fun x =>
+        goForall (xs.push x) b
+    | _ => mkForallFVars xs (← go (e.instantiateRev xs))
+
+  /-- Visit consecutive `let` values in order and instantiate the body once for the whole block. -/
+  goLet (xs : Array Expr) (e : Expr) : OptionT MetaM Expr := do
+    match e with
+    | .letE n t v b nondep =>
+      let v ← go (v.instantiateRev xs)
+      withLetDecl n (t.instantiateRev xs) v (nondep := nondep) fun x =>
+        goLet (xs.push x) b
+    | _ => mkLetFVars xs (← go (e.instantiateRev xs)) (generalizeNondepLet := false)
 
   goMatch (e : Expr) : OptionT MetaM Expr := do
     match (← reduceMatcher? e) with

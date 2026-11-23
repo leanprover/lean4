@@ -17425,7 +17425,7 @@ goto v_resetjp_5698_;
 v_resetjp_5698_:
 {
 uint8_t v_ring_5701_; 
-v_ring_5701_ = lean_ctor_get_uint8(v_a_5697_, sizeof(void*)*18 + 22);
+v_ring_5701_ = lean_ctor_get_uint8(v_a_5697_, sizeof(void*)*18 + 23);
 lean_dec(v_a_5697_);
 if (v_ring_5701_ == 0)
 {

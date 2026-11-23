@@ -20,7 +20,13 @@ theorem forall_iff_forall_ofBitVec {P : $typeName → Prop} :
     (∀ x, P x) ↔ ∀ (x : BitVec $bits), P (ofBitVec x) :=
   ⟨fun h x => h (ofBitVec x), fun h x => h x.toBitVec⟩
 
-instance instDecidableForall (P : $typeName → Prop) [DecidablePred P] :
+/--
+Decides `∀ x, P x` by enumerating all values. This is not a global instance, since the enumeration
+is infeasible for the wider types, but may be activated locally, for example with
+`attribute [local instance] UInt8.instDecidableForall`.
+-/
+@[instance_reducible]
+def instDecidableForall (P : $typeName → Prop) [DecidablePred P] :
     Decidable (∀ x, P x) :=
   decidable_of_iff' _ forall_iff_forall_ofBitVec
 
@@ -28,7 +34,13 @@ theorem exists_iff_exists_ofBitVec {P : $typeName → Prop} :
     (∃ x, P x) ↔ ∃ (x : BitVec $bits), P (ofBitVec x) :=
   ⟨fun ⟨x, hx⟩ => ⟨x.toBitVec, hx⟩, fun ⟨x, hx⟩ => ⟨ofBitVec x, hx⟩⟩
 
-instance instDecidableExists (P : $typeName → Prop) [DecidablePred P] :
+/--
+Decides `∃ x, P x` by enumerating all values. This is not a global instance, since the enumeration
+is infeasible for the wider types, but may be activated locally, for example with
+`attribute [local instance] UInt8.instDecidableExists`.
+-/
+@[instance_reducible]
+def instDecidableExists (P : $typeName → Prop) [DecidablePred P] :
     Decidable (∃ x, P x) :=
   decidable_of_iff' _ exists_iff_exists_ofBitVec
 

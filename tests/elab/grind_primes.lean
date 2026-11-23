@@ -2,6 +2,8 @@
 -- There's no mechanism keeping it in sync with the website,
 -- but nevertheless it's better than nothing.
 
+set_option backward.grind.normalizer false
+
 /-- A prime is a number larger than 1 with no trivial divisors -/
 def IsPrime (n : Nat) := 1 < n ∧ ∀ k, 1 < k → k < n → ¬ k ∣ n
 
@@ -48,4 +50,4 @@ theorem InfinitudeOfPrimes : ∀ n, ∃ p > n, IsPrime p := by
   have : 1 < p := hp.1
   have : p ∣ n ! := dvd_factorial n p ‹p ≤ n› (by grind)
   have := Nat.dvd_sub ‹p ∣ n ! + 1› ‹p ∣ n !›
-  grind [Nat.add_sub_cancel_left, Nat.dvd_one]
+  grind [Nat.dvd_one]

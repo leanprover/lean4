@@ -19,7 +19,7 @@ def isSMulIntInst (struct : Struct) (inst : Expr) : Bool :=
 def isSMulNatInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.nsmulFn.appArg! inst
 def isHomoMulInst (struct : Struct) (inst : Expr) : Bool :=
-  if let some homomulFn := struct.homomulFn? then isSameExpr homomulFn inst else false
+  if let some homomulFn := struct.homomulFn? then isSameExpr homomulFn.appArg! inst else false
 def isHSMulIntInst (struct : Struct) (inst : Expr) : Bool :=
   if let some smulFn := struct.zsmulFn? then isSameExpr smulFn.appArg! inst else false
 def isHSMulNatInst (struct : Struct) (inst : Expr) : Bool :=

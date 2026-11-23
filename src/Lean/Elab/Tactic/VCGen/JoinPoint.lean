@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.WPApp
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
@@ -26,8 +27,10 @@ namespace Lean.Elab.Tactic.VCGen
 /-!
 # Join points (`vcgen +jp`)
 
-The do-elaborator shares the code after an `if` or a `match` through a join point. This module
-lets `vcgen +jp` prove that code once instead of once per branch. For example,
+A join point is a local function whose every use is a jump in tail position. The do-elaborator
+shares the code after an `if` or a `match` through a join point, and a program or a specification
+can share a continuation through one. This module lets `vcgen +jp` prove the shared code once
+instead of once per jump. For example,
 
 ```
 def f (n : Nat) : Id Nat := do
@@ -82,40 +85,58 @@ fun r x s => ∃ z, s = (a, z) ∧ ((n > 0 ∧ x = 1 ∧ z = b) ∨ (¬n > 0 ∧
 so `s.1 = a` follows without a case split.
 -/
 
-/-- The lattice instance of `B`, for `Pred = ∀ s₁ … sₙ, B` and the states `ss = #[s₁, …, sₙ]`,
-read off the instance `instCL` of `Pred`, which nests one `instCompleteLatticePi` per state. -/
-def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr) := do
-  let mut inst := instCL
-  for s in ss do
-    let_expr instCompleteLatticePi _ _ f := inst | return none
-    inst ← betaS f #[s]
-  -- The goals of `vcgen` state `⌜·⌝` with `c`, not with `Assertion.toCompleteLattice (.mk c)`.
-  let_expr Std.WP.Assertion.toCompleteLattice _ a := inst | return some inst
-  let_expr Std.WP.Assertion.mk _ c := a | return some inst
-  return some c
+/-- Whether `n` names a join point: `__do_jp`, which the do-elaborator binds, or `__vcgen_jp`, which
+a program or a specification binds to share a continuation. Either name can carry a decimal suffix,
+as in `__vcgen_jp2`, so that one scope can bind several join points by name. -/
+public def isJoinPointName (n : Name) : Bool :=
+  match n.eraseMacroScopes with
+  | .str .anonymous s => ["__do_jp", "__vcgen_jp"].any fun p =>
+      s.startsWith p && (s.drop p.length).all Char.isDigit
+  | _ => false
 
-/-- Register the join point `jp := val` that `wpLet?` introduced into the goal
-`goal : pre ⊑ wp⟦…⟧ post eposts ss` over the states `ss`. Returns `scope` with `jp`, `goal` with
-`__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦jp xs⟧ post eposts ss`, and the goal
-`∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦val xs⟧ post eposts ss` for the join RHS `val`. Returns `none` if
-`jp` is no `__do_jp` with a lambda RHS under `+jp`, or if the states have no base lattice
-instance. -/
+/-- The lattice instance of the assertions `B` of a goal `pre ⊑ rhs` with the order `instPO`. The
+library orders of `Prop`, `Unit`, functions, pairs and lattices give it directly. Other orders give
+the synthesized lattice whose order is `instPO`. -/
+partial def latticeOfOrder? (instPO : Expr) : SymM (Option Expr) := do
+  match_expr instPO with
+  | CompleteLattice.toPartialOrder _ instCL => return some instCL
+  | Std.Internal.Order.instPartialOrderProp =>
+    return some (← mkConstS ``Std.Internal.Order.instCompleteLatticeProp)
+  | Lean.Order.instPartialOrderUnit => return some (← mkConstS ``Lean.Order.instCompleteLatticeUnit)
+  | Lean.Order.instOrderPi α β inst =>
+    let .lam x ty body bi := inst | return none
+    let some lattice ← latticeOfOrder? body | return none
+    let pi ← mkConstS ``Lean.Order.instCompleteLatticePi instPO.getAppFn.constLevels!
+    return some (← mkAppNS pi #[α, β, ← mkLambdaS x bi ty lattice])
+  | Lean.Order.instPartialOrderProd α β instα instβ =>
+    let some latticeα ← latticeOfOrder? instα | return none
+    let some latticeβ ← latticeOfOrder? instβ | return none
+    let prod ← mkConstS ``Lean.Order.instCompleteLatticeProd instPO.getAppFn.constLevels!
+    return some (← mkAppNS prod #[α, β, latticeα, latticeβ])
+  | _ =>
+    if instPO.hasLooseBVars then return none
+    let orderTy ← Sym.inferType instPO
+    let_expr PartialOrder B := orderTy | return none
+    let us := orderTy.getAppFn.constLevels!
+    let some instCL ← Sym.synthInstance? (← mkAppS (← mkConstS ``CompleteLattice us) B)
+      | return none
+    let instCL ← shareCommon instCL
+    let order ← mkAppNS (← mkConstS ``CompleteLattice.toPartialOrder us) #[B, instCL]
+    unless ← Sym.isDefEqI order instPO do return none
+    return some instCL
+
+/-- Register the join point `jp := val` that the goal `goal : pre ⊑ wp⟦…⟧ post eposts ss` binds, so
+that the jumps below `goal` share one proof of `val`. Returns the new scope and the goals for the
+program of `goal` and for `val`, or `none` if `jp` is no join point under `+jp` or the goal's order has no lattice. -/
 public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
     (info : WPApp) : VCGenM (Option (Scope × List MVarId)) := goal.withContext do
-  unless (← read).useJP && Lean.Elab.Tactic.Do.isJP (← jp.getUserName) && val.isLambda do
+  unless (← read).useJP && isJoinPointName (← jp.getUserName) && val.isLambda do
     return none
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst _ _ := goalTy | return none
   let jpFVar ← mkFVarS jp
   let jpTy ← Sym.inferType jpFVar
   let numParams ← Lean.Elab.Tactic.Do.getNumJoinParams jpTy info.Prog
-  -- `Assertion` is a class abbreviation: `instAL` is `Assertion.mk instCL`, where `instCL` is the
-  -- lattice instance of every elaborated `⌜·⌝`, or it is a local instance.
-  let instCL ← match_expr info.instAL with
-    | Std.WP.Assertion.mk _ instCL => pure instCL
-    | _ =>
-      let lvls := (← Sym.inferType info.instAL).getAppFn.constLevels!
-      mkAppNS (← mkConstS ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let some (hyp, top, specTy, rhsTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
@@ -123,7 +144,7 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
     let xs ← xs.mapM (share ·)
     let ss ← ss.mapM (share ·)
     let B ← share B
-    let some instB ← baseInstance? instCL ss | return none
+    let some instB ← latticeOfOrder? inst | return none
     let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
     let top ← mkAppNS (← mkConstS ``Lean.Order.top [u]) #[B, instB]
     let hyp ← share (← mkFreshExprMVarAt lctx localInsts

@@ -952,16 +952,21 @@ class task_manager {
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
+        /* Extract everything from `t` before setting m_value.  Once m_value
+           is set, lock-free readers (lean_task_get) can observe the result,
+           drop their last ref, and free `t` — so `t` must not be accessed
+           after the store.  This is safe because handle_finished only uses
+           `imp`, never `t`. */
+        lean_task_imp * imp = t->m_imp;
+        t->m_imp   = nullptr;
         t->m_value = v;
-        lean_task_imp * imp = t->m_imp.exchange(nullptr, std::memory_order_relaxed);
-        handle_finished(lock, t, imp);
-        /* After the task has been finished and we propagated
-           dependencies, we can release `imp` and keep just the value */
+        /* `t` may be freed at any point after this line. */
+        handle_finished(lock, imp);
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -1084,6 +1089,15 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        /* Fast path for finished tasks (incl. Task.pure): m_value is set
+           atomically and m_imp is cleared before m_value is stored in
+           resolve_core, so no lock is needed. */
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp.load(std::memory_order_relaxed) == nullptr);
@@ -2662,6 +2676,24 @@ extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
 // =======================================
 // ByteArray & FloatArray
 
+extern "C" LEAN_EXPORT uint8_t lean_byte_array_get_panic() {
+    lean_panic("Error: index out of bounds");
+    return 0;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_byte_array_set_panic(lean_obj_arg a) {
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
+}
+
+extern "C" LEAN_EXPORT double lean_float_array_get_panic() {
+    lean_panic("Error: index out of bounds");
+    return 0.0;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_float_array_set_panic(lean_obj_arg a) {
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
+}
+
 size_t lean_nat_to_size_t(obj_arg n) {
     if (lean_is_scalar(n)) {
         return lean_unbox(n);
@@ -2744,7 +2776,7 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, uint8 exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);

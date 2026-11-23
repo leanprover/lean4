@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Grind.Order.StructId
 public import Lean.Meta.Tactic.Grind.Order.OrderM
 public import Lean.Meta.Tactic.Grind.Order.Assert
 public import Lean.Meta.Tactic.Grind.Order.Util
+import Lean.Meta.Tactic.Grind.Relevance
 public section
 namespace Lean.Meta.Grind.Order
 builtin_initialize registerTraceClass `grind.order
@@ -27,6 +28,7 @@ builtin_initialize registerTraceClass `grind.debug.order.check_eq_false (inherit
 builtin_initialize
   orderExt.setMethods
     (enabled     := (·.order))
+    (isRelevantAtom? := some fun e => isRelationOver e fun α => return (← getStructId? α).isSome)
     (internalize := Order.internalize)
     (newEq       := Order.processNewEq)
 

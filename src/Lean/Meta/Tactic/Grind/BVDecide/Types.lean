@@ -33,6 +33,9 @@ public structure Caches where
 
 public builtin_initialize bvExt : SolverExtension Caches ← registerSolverExtension (return {})
 
+-- `bvExt` only stores caches, it has no solver methods.
+builtin_initialize bvExt.setMethods (enabled := fun _ => false)
+
 public def getCaches : GoalM Caches := do
   bvExt.getState
 

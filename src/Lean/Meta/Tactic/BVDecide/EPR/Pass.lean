@@ -68,6 +68,10 @@ structure DetectState where
   Information about current predicate candidates.
   -/
   preds : Std.HashMap Sym.ExprPtr PredInfo := {}
+  /--
+  Sort elements mentioned by the facts that are part of the problem.
+  -/
+  usedElements : Std.HashSet Sym.ExprPtr := {}
   groundFacts : Array Hyp := #[]
   quantifiedFacts : Array QuantifiedFact := #[]
   /--
@@ -157,6 +161,10 @@ structure ScanState where
   -/
   mentionsSort : Bool := false
   /--
+  The sort elements mentioned by the analyzed fact.
+  -/
+  usedElements : Std.HashSet Sym.ExprPtr := {}
+  /--
   Cache for `checkProp`.
   -/
   cache : Std.HashSet (Sym.ExprPtr × Nat) := {}
@@ -180,6 +188,7 @@ def checkTerm (e : Expr) (depth : Nat) : ScanM (Option SortId) := do
     let ptr : Sym.ExprPtr := ⟨e⟩
     let some sort := (← getThe DetectState).elements[ptr]? | return none
     markMentionsSort
+    modify fun s => { s with usedElements := s.usedElements.insert ptr }
     return some sort
 
 def checkEq (α lhs rhs : Expr) (depth : Nat) : ScanM Bool := do
@@ -291,10 +300,11 @@ def checkFact? (hyp : Hyp) : DetectM (Option (Array SortId)) := do
   if boundSorts.any (sorts[·]!.elements.isEmpty) then
     trace[Meta.Tactic.bv.epr] m!"Discarding fact as it mentions empty sorts: {hyp.type}"
     return none
-  let (ok, { mentionsSort, .. }) ← ScanM.checkProp body 0 |>.run { boundSorts } |>.run {}
+  let (ok, { mentionsSort, usedElements, .. }) ← ScanM.checkProp body 0 |>.run { boundSorts } |>.run {}
   if !ok || (boundSorts.isEmpty && !mentionsSort) then
     return none
   else
+    modify fun s => { s with usedElements := s.usedElements.union usedElements }
     return some boundSorts
 where
   stripQuantifiers (type : Expr) (acc : Array SortId) : DetectM (Array SortId × Expr) := do
@@ -321,6 +331,13 @@ def ensureHasElement : DetectM Unit := do
       let elem ← Sym.share <| mkApp2 (mkConst ``Classical.ofNonempty [u]) info.type inst
       registerElement elem sort
 
+def pruneUnusedElements : DetectM Unit := do
+  let { sorts, usedElements, .. } ← get
+  for (sort, info) in sorts do
+    let used := info.elements.filter (usedElements.contains ⟨·⟩)
+    let elements := if used.isEmpty then info.elements.extract 0 1 else used
+    modify fun s => { s with sorts := s.sorts.insert sort { info with elements } }
+
 def assemble : DetectM DetectResult := do
   let s ← get
   let mut problem : EprProblem := { groundFacts := s.groundFacts, quantifiedFacts := s.quantifiedFacts }
@@ -345,6 +362,7 @@ public def detectEprProblem (hyps : Array Hyp) : Sym.SymM DetectResult := do
     (← getLCtx).forM DetectM.processLocalDecl
     DetectM.ensureHasElement
     hyps.forM DetectM.processHyp
+    DetectM.pruneUnusedElements
     DetectM.assemble
 
 def traceProblem (problem : EprProblem) : MetaM Unit := do

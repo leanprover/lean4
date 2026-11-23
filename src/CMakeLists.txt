@@ -1132,7 +1132,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-ron
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-ron
-    GIT_TAG 42a086407cab3c400b359f75b5d24942825626b5
+    GIT_TAG c67a2157e73e1192ad9a4434969d187286fc005f
     GIT_SUBMODULES ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked

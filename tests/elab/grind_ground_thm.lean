@@ -1,3 +1,5 @@
+set_option backward.grind.normalizer false
+
 opaque π : Rat
 axiom pi_pos : 0 < π
 
@@ -45,7 +47,9 @@ example : 1 < x → 2 < f x := by
   grind [f]
 
 -- Should instantiate/activate pi_pos
-/-- trace: [grind.ematch] activated `pi_pos`, [@LT.lt `[Rat] `[Rat.instLT] `[0] `[π]] -/
+/--
+trace: [grind.ematch] activated `pi_pos`, [@LT.lt `[Rat] `[Rat.instLT] `[-1 * π] `[0]]
+-/
 #guard_msgs in
 example : π < x → 0 < x := by
   set_option trace.grind.ematch true in

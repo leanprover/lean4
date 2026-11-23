@@ -5,6 +5,8 @@ created are rolled back. When such a variable is needed again, `mkVar` reactivat
 these constraints again.
 -/
 
+set_option backward.grind.normalizer false
+
 /-
 `EqCnstr.elimNonUnit` creates the variable for `(1 * (3 * x / 6) + 0) / 3` in a Cooper case,
 and creates it again in later cases.
@@ -28,8 +30,8 @@ Reactivation asserts `0 ≤ ↑y.toNat % 1` and `1 = 1` again.
 /--
 error: `grind` has failed, use `+verbose` to obtain diagnostic information
 ---
-trace: [grind.debug.lia.reactivate] 「↑y.toNat % 1」 ↦ #36
-[grind.debug.lia.reactivate] 「1」 ↦ #35
+trace: [grind.debug.lia.reactivate] 「↑y.toNat % 1」 ↦ #35
+[grind.debug.lia.reactivate] 「1」 ↦ #34
 -/
 #guard_msgs in
 set_option trace.grind.debug.lia.reactivate true in

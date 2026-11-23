@@ -1,4 +1,7 @@
 module
+
+set_option backward.grind.normalizer false
+
 open Std Lean Grind
 set_option grind.debug true
 
@@ -81,13 +84,17 @@ example [Field α] (a : α) : a^2 = 0 → a = 0 := by
 example [Field α] (a : α) : a^3 = 0 → a = 0 := by
   grind
 
-/-- trace: [grind.debug.ring.rabinowitsch] (b + a - (c - b + b)) * (b + a - (c - b + b))⁻¹ -/
+/--
+trace: [grind.debug.ring.rabinowitsch] (a + b + -1 * c) * (a + b + -1 * c)⁻¹
+-/
 #guard_msgs (trace) in
 set_option trace.grind.debug.ring.rabinowitsch true in
 example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a = c - b + b := by
   grind
 
-/-- trace: [grind.debug.ring.rabinowitsch] (b + a - c) * (b + a - c)⁻¹ -/
+/--
+trace: [grind.debug.ring.rabinowitsch] (a + b + -1 * c) * (a + b + -1 * c)⁻¹
+-/
 #guard_msgs (trace) in
 set_option trace.grind.debug.ring.rabinowitsch true in
 example [Field α] (a b c : α) : a^2 = 0 → c = b → b + a - c = 0 := by

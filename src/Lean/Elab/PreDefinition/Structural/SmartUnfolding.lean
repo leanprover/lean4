@@ -42,10 +42,8 @@ where
   visit (e : Expr) : MetaM Expr := do
     match e with
     | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
-    | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-    | Expr.letE n type val body nondep =>
-      mapLetDecl n type (← visit val) (nondep := nondep) fun x => do
-        visit (body.instantiate1 x)
+    | Expr.forallE .. => goForall #[] e
+    | Expr.letE ..    => goLet #[] e
     | Expr.mdata d b     => return mkMData d (← visit b)
     | Expr.proj n i s    => return mkProj n i (← visit s)
     | Expr.app .. =>
@@ -80,6 +78,23 @@ where
           return markSmartUnfoldingMatch { matcherApp with alts := altsNew, discrs }.toExpr inputs
       | _ => processApp e
     | _ => return e
+
+  /-- Accumulate the binders so each domain and the final body are instantiated only once. -/
+  goForall (xs : Array Expr) (e : Expr) : MetaM Expr := do
+    match e with
+    | .forallE n d b bi =>
+      withLocalDecl n bi (← visit (d.instantiateRev xs)) fun x =>
+        goForall (xs.push x) b
+    | _ => mkForallFVars xs (← visit (e.instantiateRev xs))
+
+  /-- Visit consecutive `let` values in order and instantiate the body once for the whole block. -/
+  goLet (xs : Array Expr) (e : Expr) : MetaM Expr := do
+    match e with
+    | .letE n t v b nondep =>
+      let v ← visit (v.instantiateRev xs)
+      withLetDecl n (t.instantiateRev xs) v (nondep := nondep) fun x =>
+        goLet (xs.push x) b
+    | _ => mkLetFVars xs (← visit (e.instantiateRev xs)) (generalizeNondepLet := false)
 
 /-- Add `f._sunfold` to the environment for a structurally recursive definition `f`. Proofs are skipped. -/
 partial def addSmartUnfoldingDef

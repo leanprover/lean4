@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 open BitVec
 
 theorem shift_unit_1 {x y : BitVec 64} : x <<< 65 = y <<< 66 := by

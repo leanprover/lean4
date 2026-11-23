@@ -1966,8 +1966,7 @@ the `bv.ac_nf` option.
 `T₁, ..., Tₙ`, treating all other ones as opaque variables.
 
 Note: `bv_decide` trusts the correctness of the code generator and adds axioms asserting its
-result. Declarations using it are rejected unless the option `trustCompiler` is set, and
-proofs using it are rejected by `lake comparator` and `lake check`.
+result. Proofs using it are rejected by `lake comparator` and `lake check`.
 
 Note: include `import Std.Tactic.BVDecide`
 -/

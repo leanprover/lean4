@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 /-
 This is based on: https://saw.galois.com/intro/IntroToSAW.html#the-code
 -/

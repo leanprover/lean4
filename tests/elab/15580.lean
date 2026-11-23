@@ -2,8 +2,6 @@ module
 import Std.Tactic.BVDecide
 meta import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 
 example (x y : BitVec 64) : BitVec.carry 64 x y false = (x.zeroExtend 65 + y.zeroExtend 65).msb := by
   bv_decide

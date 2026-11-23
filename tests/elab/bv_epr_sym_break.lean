@@ -6,8 +6,6 @@ Tests for the `eprSymBreak` option of `bv_decide +epr`: the facts each mode adds
 all modes prove the same theorems, and that `simple` and `full` restrict which encodings models use.
 -/
 
-set_option trustCompiler true
-
 open Std.Tactic.BVDecide.EPR.BitVec
 
 -- Every mode bounds the encoding to the elements, `simple` and `full` add ordering constraints.

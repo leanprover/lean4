@@ -1,8 +1,9 @@
 import Std.Tactic.BVDecide
+import Lean
 
 /-!
-Declarations using native computation (`native_decide`, `decide +native`, `bv_decide`) are rejected
-unless `trustCompiler` is set. The error is reported at the tactic invocation.
+Declarations using native computation (`native_decide`, `decide +native`) are rejected unless
+`trustCompiler` is set. The error is reported at the tactic invocation. `bv_decide` is exempt.
 -/
 
 /--
@@ -25,16 +26,33 @@ If this is acceptable, native computation can be allowed for a single declaratio
 #guard_msgs in
 example : 2 + 2 = 4 := by decide +native
 
-/--
-error: `bv_decide (config := { acNf := true })` uses native computation, which requires trusting the Lean compiler
+/-! `bv_decide` is exempt, also when its proof ends up in an auxiliary lemma. -/
 
-It proves the goal by compiling and running code and asserting the result as an axiom, instead of constructing a proof that the kernel can check. Relying on such a proof means trusting the Lean compiler and interpreter, as well as all `@[implemented_by]` and `@[extern]` implementations involved, in addition to the kernel. For the same reason, proofs using native computation are rejected by `lake comparator` and `lake check`. `#print axioms` lists the axiom `byBVDecide._native.bv_decide.ax_1_5` for this declaration and every declaration depending on it.
+#guard_msgs in
+theorem byBVDecide (x y : BitVec 8) : (x &&& y) + (x ^^^ y) = x ||| y := by
+  bv_decide (config := { acNf := true })
+
+#guard_msgs in
+def nestedBV : { x : BitVec 8 // ∀ y, (x &&& y) + (x ^^^ y) = x ||| y } :=
+  ⟨3, by intro y; bv_decide⟩
+
+/-! Other tactics using `nativeEqTrue` are rejected by default, at the current ref. -/
+
+open Lean Elab Tactic Meta in
+elab "my_native" : tactic => liftMetaFinishingTactic fun g => do
+  let b ← mkDecide (← g.getType)
+  let .success prf ← nativeEqTrue `my_native b | throwError "not true"
+  g.assign (mkApp3 (mkConst ``of_decide_eq_true) (← g.getType) b.appArg! prf)
+
+/--
+error: `my_native` uses native computation, which requires trusting the Lean compiler
+
+It proves the goal by compiling and running code and asserting the result as an axiom, instead of constructing a proof that the kernel can check. Relying on such a proof means trusting the Lean compiler and interpreter, as well as all `@[implemented_by]` and `@[extern]` implementations involved, in addition to the kernel. For the same reason, proofs using native computation are rejected by `lake comparator` and `lake check`. `#print axioms` lists the axiom `byMyNative._native.my_native.ax_1_1` for this declaration and every declaration depending on it.
 
 If this is acceptable, native computation can be allowed for a single declaration using `set_option trustCompiler true in`, or for an entire project by setting `trustCompiler` to `true` in the `leanOptions` of the Lake package configuration.
 -/
 #guard_msgs in
-theorem byBVDecide (x y : BitVec 8) : (x &&& y) + (x ^^^ y) = x ||| y := by
-  bv_decide (config := { acNf := true })
+theorem byMyNative : 2 + 2 = 4 := by my_native
 
 /-! Each invocation is reported. -/
 
@@ -134,19 +152,12 @@ theorem trusted : 2 + 2 = 4 := by native_decide
 #guard_msgs in
 theorem usesTrusted : 2 + 2 = 4 := trusted
 
-/-! Referring to the axiom of another declaration explicitly is reported at the declaration. -/
+/-! Referring to the axiom of another declaration explicitly is like referring to that declaration. -/
 
 set_option Elab.async false in
 set_option trustCompiler true in
 theorem trustedSync : 2 + 2 = 4 := by native_decide
 
-/--
-error: declaration uses native computation, which requires trusting the Lean compiler
-
-The axiom `trustedSync._native.native_decide.ax_1` asserts the result of compiling and running code, instead of a proof that the kernel can check. Relying on such a proof means trusting the Lean compiler and interpreter, as well as all `@[implemented_by]` and `@[extern]` implementations involved, in addition to the kernel. For the same reason, proofs using native computation are rejected by `lake comparator` and `lake check`.
-
-If this is acceptable, native computation can be allowed for a single declaration using `set_option trustCompiler true in`, or for an entire project by setting `trustCompiler` to `true` in the `leanOptions` of the Lake package configuration.
--/
 #guard_msgs in
 theorem usesTrustedAxiom : 2 + 2 = 4 := of_decide_eq_true trustedSync._native.native_decide.ax_1
 

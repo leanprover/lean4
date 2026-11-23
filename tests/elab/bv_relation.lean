@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 structure State where
   x : BitVec 8
   y : BitVec 8

@@ -1,6 +1,4 @@
 import Std.Tactic.BVDecide
-
-set_option trustCompiler true
 /-
 source: Examples/Distributed/ReliableBroadcast.lean
 vc: net_byz_send_echo_vote_sent

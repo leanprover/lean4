@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 /-
 The benchmarks are binary and trees with 2^n variables where n increases each line
 -/

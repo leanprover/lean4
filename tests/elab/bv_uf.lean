@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 example (f : BitVec 8 → BitVec 8) (x y : BitVec 8) (h : x = y) :
     f x = f y := by
   bv_decide +uf

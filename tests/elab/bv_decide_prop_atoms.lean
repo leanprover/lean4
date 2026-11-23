@@ -5,8 +5,6 @@ import Std.Tactic.BVDecide
 Tests for propositional atoms in bv_decide
 -/
 
-set_option trustCompiler true
-
 example (q : Prop) (h1 : q) (h2 : ¬q) : False := by
   bv_decide
 

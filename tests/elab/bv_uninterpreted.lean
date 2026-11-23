@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 -- Demonstrate some arbitrary width reasoning
 example {x y z : BitVec w} :
     (x &&& y) ||| (x &&& z) ||| (y &&& z) ||| x ||| y ||| z

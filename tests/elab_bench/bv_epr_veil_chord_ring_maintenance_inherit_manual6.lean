@@ -1,6 +1,4 @@
 import Std.Tactic.BVDecide
-
-set_option trustCompiler true
 /-
 source: Examples/Ivy/ChordRingMaintenance.lean
 vc: inherit_manual_6

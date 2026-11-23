@@ -4,8 +4,6 @@ import Std.Tactic.BVDecide
 Tests for mixing `Prop` and `Bool` substructure in EPR problems.
 -/
 
-set_option trustCompiler true
-
 example {α : Type} [DecidableEq α] (a b c : α) (h1 : ∀ x, x = a || x = b) (h2 : c ≠ a) (h3 : c ≠ b) : False := by
   bv_decide +epr +uf
 

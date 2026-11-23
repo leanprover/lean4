@@ -3,8 +3,6 @@ import Std.Tactic.BVDecide
 
 /-! `replayConst` should be able to replay constants using additional axioms. -/
 
-set_option trustCompiler true
-
 open Lean Lean.Meta Lean.Elab.Tactic in
 elab "replay" ts:tacticSeq : tactic => do
   let initEnv ← getEnv

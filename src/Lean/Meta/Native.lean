@@ -33,8 +33,13 @@ that value, check that it evaluates to `true`, and if so, will add an axiom asse
 return that axiom.
 
 It is the basis for `native_decide` and `bv_decide` tactics.
+
+If `requireTrustCompiler` is set, declarations using the axiom are rejected unless the option
+`trustCompiler` is set, and the error is reported at `axiomDeclRange?` or the current ref. Only
+tactics whose code is very carefully vetted should unset it.
 -/
-public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqTrueResult  := do
+public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none)
+    (requireTrustCompiler := true) : MetaM NativeEqTrueResult := do
   let e ← instantiateMVars e
   if e.hasFVar then
     throwError m!"Tactic `{tacticName}` failed: Cannot native decide proposition with free variables:{indentExpr e}"
@@ -83,6 +88,8 @@ public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option
   addDecl axDecl
   if let some ref := axiomDeclRange? then
     Elab.addDeclarationRangesFromSyntax auxAxiomName ref
+  if requireTrustCompiler then
+    let ref := axiomDeclRange?.getD (← getRef)
     modifyEnv (addNativeComputationRef · auxAxiomName ref)
 
   let levelParams := levels.map mkLevelParam

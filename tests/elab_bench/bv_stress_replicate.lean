@@ -5,8 +5,6 @@ Stress bv_decide with large replicate terms. Key to solve this benchmark quickly
 the replicates.
 -/
 
-set_option trustCompiler true
-
 namespace WideFoldSelect
 
 set_option maxRecDepth 100000

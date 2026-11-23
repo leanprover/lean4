@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 open BitVec
 
 theorem bitwise_unit_1 {x y : BitVec 64} : ~~~(x &&& y) = (~~~x ||| ~~~y) := by

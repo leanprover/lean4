@@ -2,8 +2,6 @@ import Std.Tactic.BVDecide
 import Lean.Elab.Tactic.BVDecide
 import Lean.Meta.Tactic.BVDecide
 
-set_option trustCompiler true
-
 namespace Ex1
 
 inductive State where

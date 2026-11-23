@@ -1,7 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option trustCompiler true
-
 -- two hard problems from: https://github.com/leanprover/LNSym/pull/85
 notation:50 x " >>>ᵤ " y => BitVec.ushiftRight x y
 

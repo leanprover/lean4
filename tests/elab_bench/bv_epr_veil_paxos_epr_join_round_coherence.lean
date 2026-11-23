@@ -1,6 +1,4 @@
 import Std.Tactic.BVDecide
-
-set_option trustCompiler true
 /-
 source: Examples/Ivy/PaxosEPR.lean
 vc: join_round_coherence

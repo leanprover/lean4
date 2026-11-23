@@ -4,8 +4,6 @@ meta import Std.Tactic.BVDecide
 
 /-! Test the min/max integration of bv_decide -/
 
-set_option trustCompiler true
-
 example (a b : BitVec 64) : min a b = min b a := by
   bv_decide
 

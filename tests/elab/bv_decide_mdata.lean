@@ -5,8 +5,6 @@ import Std.Tactic.BVDecide
 Regression test for mdata in bv_decide's `cond` preprocessor.
 -/
 
-set_option trustCompiler true
-
 open Lean Elab Term
 
 syntax "mdata% " term : term

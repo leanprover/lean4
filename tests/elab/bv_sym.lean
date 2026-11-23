@@ -4,8 +4,6 @@ import Std.Tactic.BVDecide
 Test for `bv_decide` in `sym =>` and `grind =>` mode.
 -/
 
-set_option trustCompiler true
-
 def optimized (x : BitVec 32) : BitVec 32 :=
   let x := x - ((x >>> 1) &&& 0x55555555);
   let x := (x &&& 0x33333333) + ((x >>> 2) &&& 0x33333333);

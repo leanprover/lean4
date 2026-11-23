@@ -7,8 +7,6 @@ the same goal, so a goal preceded by a `bv_decide_push` has to be solved exactly
 without one.
 -/
 
-set_option trustCompiler true
-
 opaque st : BitVec 64
 
 structure Pair where

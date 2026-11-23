@@ -92,7 +92,8 @@ def checkAnchorRefsEMatchTheoremProof (proof : Expr) : GrindM Bool := do
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
   let origin ← getOrigin proof
-  let proof := mkOfEqTrueCore e proof
+  -- `mkOfEqTrueCore` may return the original hypothesis, whose type is not preprocessed.
+  let proof := mkExpectedPropHint (mkOfEqTrueCore e proof) e
   -- **Note**: Do we really need to restrict the instantiation of local theorems?
   -- **Note**: Should we distinguish anchors restricting case-splits and local theorems?
   unless (← checkAnchorRefsEMatchTheoremProof proof) do return ()

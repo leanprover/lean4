@@ -13,6 +13,7 @@ public import Lean.AutoDecl
 import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
 import Lean.Util.RecDepth
+import Lean.Util.FoldConsts
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
@@ -107,40 +108,101 @@ register_builtin_option trustCompiler : Bool := {
 }
 
 /--
-Returns `true` if `n` is the name of an axiom added by `Lean.Meta.nativeEqTrue` to assert the result
-of a native computation. Such names have the form `<prefix>._native.<tactic>.ax<suffix>`.
+If `n` is the name of an axiom added by `Lean.Meta.nativeEqTrue` to assert the result of a native
+computation, returns the `<prefix>` of its name `<prefix>._native.<tactic>.ax<suffix>`, which is the
+name of the declaration whose elaboration created it.
 -/
-def isNativeComputationAxiomName (n : Name) : Bool :=
+def nativeComputationAxiomPrefix? (n : Name) : Option Name :=
   match n.eraseMacroScopes with
-  | .str (.str (.str _ "_native") _) s => s.startsWith "ax"
-  | _ => false
-
-/-- Returns a native computation axiom (see `isNativeComputationAxiomName`) used in `e`, if any. -/
-def Expr.findNativeComputationAxiom? (e : Expr) : Option Name :=
-  e.find? (fun | .const n _ => isNativeComputationAxiomName n | _ => false) |>.map (·.constName!)
-
-def Expr.hasNativeComputationAxiom (e : Expr) : Bool :=
-  e.findNativeComputationAxiom?.isSome
-
-def Declaration.findNativeComputationAxiom? (d : Declaration) : Option Name := Id.run do
-  d.foldExprM (fun r e => r <|> e.findNativeComputationAxiom?) none
+  | .str (.str (.str p "_native") _) s => if s.startsWith "ax" then some p else none
+  | _ => none
 
 /--
-Unless the `trustCompiler` option is set, logs an error if the declaration directly uses an
-axiom asserting the result of a native computation.
+Returns `true` if `n` is the name of an axiom added by `Lean.Meta.nativeEqTrue` to assert the result
+of a native computation.
+-/
+def isNativeComputationAxiomName (n : Name) : Bool :=
+  (nativeComputationAxiomPrefix? n).isSome
+
+/--
+Maps native computation axioms to the syntax of the tactic invocation that created them, for
+reporting in `checkTrustCompiler`. Not persisted: the declaration using such an axiom is added in
+the same elaboration as the axiom itself.
+-/
+builtin_initialize nativeComputationRefExt : EnvExtension (NameMap Syntax) ←
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
+
+/-- Records `ref` as the tactic invocation that created the native computation axiom `axName`. -/
+def addNativeComputationRef (env : Environment) (axName : Name) (ref : Syntax) : Environment :=
+  nativeComputationRefExt.modifyState (log := .decl axName) env (·.insert axName ref)
+
+/-- Returns `true` if `e` uses an axiom asserting the result of a native computation. -/
+def Expr.hasNativeComputationAxiom (e : Expr) : Bool :=
+  e.find? (fun | .const n _ => isNativeComputationAxiomName n | _ => false) |>.isSome
+
+/-- Returns the native computation axioms (see `isNativeComputationAxiomName`) used in `d`. -/
+def Declaration.getNativeComputationAxioms (d : Declaration) : Array Name := Id.run do
+  -- fast path, as this runs on every declaration
+  unless Id.run (d.foldExprM (fun r e => r || e.hasNativeComputationAxiom) false) do
+    return #[]
+  d.foldExprM (a := (#[] : Array Name)) fun axs e =>
+    e.foldConsts axs fun c axs =>
+      if isNativeComputationAxiomName c && !axs.contains c then axs.push c else axs
+
+/--
+Unless the `trustCompiler` option is set, logs an error for each axiom asserting the result of a
+native computation that the declaration uses directly, at the tactic invocation that created it.
 -/
 def checkTrustCompiler (decl : Declaration) : CoreM Unit := do
-  unless trustCompiler.get (← getOptions) do
-    if let some ax := decl.findNativeComputationAxiom? then
-      logError m!"declaration uses native computation, which requires trusting the Lean compiler\n\n\
-        The axiom `{.ofConstName ax}` asserts the result of compiling and running code instead of \
-        a proof checked by the kernel. Relying on it means trusting the Lean compiler and \
-        interpreter, as well as all `@[implemented_by]` and `@[extern]` implementations involved, \
-        in addition to the kernel. For the same reason, proofs using native computation are \
-        rejected by `lake comparator` and `lake check`.\n\n\
-        If this is acceptable, native computation can be allowed for a single declaration using \
-        `set_option trustCompiler true in`, or for an entire project by setting \
-        `trustCompiler` to `true` in the `leanOptions` of the Lake package configuration."
+  if trustCompiler.get (← getOptions) then
+    return
+  let axs := decl.getNativeComputationAxioms
+  if axs.isEmpty then
+    return
+  let refs := nativeComputationRefExt.getState (← getEnv)
+  -- An axiom's name is prefixed by the declaration whose elaboration created it. Only report at
+  -- the tactic invocation if that is the declaration being added (or its auxiliary declaration),
+  -- and not an earlier one whose axiom is referenced explicitly.
+  let names := decl.getNames.map (privateToUserName ·.eraseMacroScopes)
+  let isLocal (ax : Name) : Bool := Id.run do
+    let some p := nativeComputationAxiomPrefix? ax | return false
+    return names.any (privateToUserName p).isPrefixOf
+  -- Combinators such as `<;>` run the same tactic invocation several times; report it once.
+  let mut byRef : Array (Syntax × Array Name) := #[]
+  let mut fallback? : Option Name := none
+  for ax in axs do
+    if let some ref := if isLocal ax then refs.find? ax else none then
+      let key := (ref.getPos?, ref.getTailPos?)
+      if let some i := byRef.findIdx? (fun (r, _) => key.1.isSome && (r.getPos?, r.getTailPos?) == key) then
+        byRef := byRef.modify i fun (r, axs) => (r, axs.push ax)
+      else
+        byRef := byRef.push (ref, #[ax])
+    else if fallback?.isNone then
+      fallback? := some ax
+  for (ref, axs) in byRef do
+    let axsMsg := MessageData.joinSep (axs.toList.map (m!"`{.ofConstName ·}`")) ", "
+    let axsMsg := if axs.size == 1 then m!"the axiom {axsMsg}" else m!"the axioms {axsMsg}"
+    logErrorAt ref m!"`{ref}` uses native computation, which requires trusting the Lean \
+      compiler\n\n\
+      It proves the goal by compiling and running code and asserting the result as an axiom, \
+      instead of constructing a proof that the kernel can check. {explanation} \
+      `#print axioms` lists {axsMsg} for this declaration and every declaration depending on \
+      it.\n\n{allow}"
+  if let some ax := fallback? then
+    logError m!"declaration uses native computation, which requires trusting the Lean \
+      compiler\n\n\
+      The axiom `{.ofConstName ax}` asserts the result of compiling and running code, instead \
+      of a proof that the kernel can check. {explanation}\n\n{allow}"
+where
+  explanation : MessageData :=
+    m!"Relying on such a proof means trusting the Lean compiler and interpreter, as well as all \
+      `@[implemented_by]` and `@[extern]` implementations involved, in addition to the kernel. \
+      For the same reason, proofs using native computation are rejected by `lake comparator` and \
+      `lake check`."
+  allow : MessageData :=
+    m!"If this is acceptable, native computation can be allowed for a single declaration using \
+      `set_option trustCompiler true in`, or for an entire project by setting `trustCompiler` to \
+      `true` in the `leanOptions` of the Lake package configuration."
 
 builtin_initialize
   registerTraceClass `addDecl

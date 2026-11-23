@@ -83,6 +83,7 @@ public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option
   addDecl axDecl
   if let some ref := axiomDeclRange? then
     Elab.addDeclarationRangesFromSyntax auxAxiomName ref
+    modifyEnv (addNativeComputationRef · auxAxiomName ref)
 
   let levelParams := levels.map mkLevelParam
   return .success <| mkConst auxAxiomName levelParams

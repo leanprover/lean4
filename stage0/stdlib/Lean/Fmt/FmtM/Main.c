@@ -61,7 +61,6 @@ uint64_t l_Lean_Syntax_instHashableRange_hash(lean_object*);
 uint8_t l_Lean_Syntax_instBEqRange_beq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -98,6 +97,7 @@ lean_object* l_Lean_Fmt_format_x3f(lean_object*, lean_object*, lean_object*, uin
 lean_object* l_Lean_Fmt_Error_ofFormattingError(lean_object*, uint8_t);
 lean_object* l_Lean_Fmt_fmtTrailingWithRetainedNewlinesAndComments___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* l_Lean_Fmt_parseComments(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
@@ -280,7 +280,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Fmt_insertRemainingComments_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Fmt_insertRemainingComments_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_render(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__0_spec__0___redArg(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_contains___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__0(lean_object*);
@@ -3702,7 +3702,7 @@ return v___x_1128_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__1(lean_object* v_x_1131_, lean_object* v_x_1132_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__1(lean_object* v_x_1131_, lean_object* v_x_1132_){
 _start:
 {
 lean_object* v_zero_1133_; uint8_t v_isZero_1134_; 
@@ -3829,7 +3829,7 @@ v_column_1178_ = lean_ctor_get(v___x_1177_, 1);
 lean_inc(v_column_1178_);
 lean_dec_ref(v___x_1177_);
 v___x_1179_ = ((lean_object*)(l___private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_normalize___closed__2));
-v___x_1180_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__1(v_column_1178_, v___x_1179_);
+v___x_1180_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Lean_Fmt_FmtM_Main_0__Lean_Fmt_commandRaw_indentation_spec__1(v_column_1178_, v___x_1179_);
 return v___x_1180_;
 }
 }

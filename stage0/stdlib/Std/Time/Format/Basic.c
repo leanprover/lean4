@@ -234,8 +234,8 @@ static const lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_specPars
 static const lean_ctor_object l___private_Std_Time_Format_Basic_0__Std_Time_specParser___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l___private_Std_Time_Format_Basic_0__Std_Time_specParser___closed__1_value)}};
 static const lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_specParser___closed__2 = (const lean_object*)&l___private_Std_Time_Format_Basic_0__Std_Time_specParser___closed__2_value;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_specParser(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(uint32_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(uint32_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii(lean_object*, uint32_t, lean_object*);
@@ -244,7 +244,7 @@ LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Std_Ti
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_rightPadAscii(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_rightPadAscii___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_pad_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_pad_spec__0(lean_object*, lean_object*);
 static lean_once_cell_t l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
 static const lean_string_object l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "-"};
@@ -3249,7 +3249,7 @@ return v___x_709_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(uint32_t v_a_712_, lean_object* v_x_713_, lean_object* v_x_714_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(uint32_t v_a_712_, lean_object* v_x_713_, lean_object* v_x_714_){
 _start:
 {
 lean_object* v_zero_715_; uint8_t v_isZero_716_; 
@@ -3273,13 +3273,13 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1___boxed(lean_object* v_a_721_, lean_object* v_x_722_, lean_object* v_x_723_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1___boxed(lean_object* v_a_721_, lean_object* v_x_722_, lean_object* v_x_723_){
 _start:
 {
 uint32_t v_a_boxed_724_; lean_object* v_res_725_; 
 v_a_boxed_724_ = lean_unbox_uint32(v_a_721_);
 lean_dec(v_a_721_);
-v_res_725_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(v_a_boxed_724_, v_x_722_, v_x_723_);
+v_res_725_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(v_a_boxed_724_, v_x_722_, v_x_723_);
 return v_res_725_;
 }
 }
@@ -3327,7 +3327,7 @@ v___x_745_ = lean_string_utf8_byte_size(v_s_742_);
 v___x_746_ = l_WellFounded_opaqueFix_u2083___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__0___redArg(v___x_745_, v_s_742_, v___x_744_, v___x_744_);
 v___x_747_ = lean_nat_sub(v_n_740_, v___x_746_);
 lean_dec(v___x_746_);
-v___x_748_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(v_a_741_, v___x_747_, v___x_743_);
+v___x_748_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(v_a_741_, v___x_747_, v___x_743_);
 v___x_749_ = lean_string_append(v___x_748_, v_s_742_);
 return v___x_749_;
 }
@@ -3373,7 +3373,7 @@ v___x_778_ = lean_string_utf8_byte_size(v_s_775_);
 v___x_779_ = l_WellFounded_opaqueFix_u2083___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__0___redArg(v___x_778_, v_s_775_, v___x_777_, v___x_777_);
 v___x_780_ = lean_nat_sub(v_n_773_, v___x_779_);
 lean_dec(v___x_779_);
-v___x_781_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(v_a_774_, v___x_780_, v___x_776_);
+v___x_781_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_leftPadAscii_spec__1(v_a_774_, v___x_780_, v___x_776_);
 v___x_782_ = lean_string_append(v_s_775_, v___x_781_);
 lean_dec_ref(v___x_781_);
 return v___x_782_;
@@ -3390,7 +3390,7 @@ lean_dec(v_n_783_);
 return v_res_787_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_pad_spec__0(lean_object* v_x_788_, lean_object* v_x_789_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_pad_spec__0(lean_object* v_x_788_, lean_object* v_x_789_){
 _start:
 {
 lean_object* v_zero_790_; uint8_t v_isZero_791_; 
@@ -3433,7 +3433,7 @@ v_digits_803_ = l_Nat_reprFast(v___x_802_);
 v___x_804_ = ((lean_object*)(l___private_Std_Time_Format_Basic_0__Std_Time_parseFormatPart___lam__1___closed__2));
 v___x_805_ = lean_string_length(v_digits_803_);
 v___x_806_ = lean_nat_sub(v_size_800_, v___x_805_);
-v___x_807_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_pad_spec__0(v___x_806_, v___x_804_);
+v___x_807_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Std_Time_Format_Basic_0__Std_Time_pad_spec__0(v___x_806_, v___x_804_);
 v_padded_808_ = lean_string_append(v___x_807_, v_digits_803_);
 lean_dec_ref(v_digits_803_);
 v___x_809_ = lean_obj_once(&l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0, &l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0_once, _init_l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0);

@@ -164,7 +164,7 @@ LEAN_EXPORT lean_object* l_String_Slice_splitToSubslice___at___00__private_Lean_
 LEAN_EXPORT lean_object* l_String_Slice_splitToSubslice___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__0(lean_object*, lean_object*);
 static const lean_string_object l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__3___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__3___redArg___closed__0 = (const lean_object*)&l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__3___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__3___redArg(lean_object*, uint8_t, size_t, size_t, lean_object*);
@@ -1698,7 +1698,7 @@ lean_dec_ref(v___x_145_);
 return v_res_149_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__0(lean_object* v_x_150_, lean_object* v_x_151_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__0(lean_object* v_x_150_, lean_object* v_x_151_){
 _start:
 {
 lean_object* v_zero_152_; uint8_t v_isZero_153_; 
@@ -1777,7 +1777,7 @@ v___jp_175_:
 lean_object* v___x_176_; lean_object* v___x_177_; lean_object* v___x_178_; lean_object* v___x_179_; 
 v___x_176_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__3___redArg___closed__0));
 lean_inc(v_numSpaces_160_);
-v___x_177_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__0(v_numSpaces_160_, v___x_176_);
+v___x_177_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00__private_Lean_Fmt_FmtM_Comments_0__String_indent_spec__0(v_numSpaces_160_, v___x_176_);
 v___x_178_ = l_String_Slice_toString(v_v_166_);
 lean_dec(v_v_166_);
 v___x_179_ = lean_string_append(v___x_177_, v___x_178_);

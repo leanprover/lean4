@@ -13,10 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Lean_Markdown_subsliceClamped___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Markdown_Inline_extentOf_x3f___redArg(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -35,14 +37,12 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 uint64_t lean_uint64_of_nat(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Nat_sub___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -293,7 +293,7 @@ LEAN_EXPORT lean_object* l_Lean_Markdown_instInhabitedVerbatimLine_default(lean_
 LEAN_EXPORT lean_object* l_Lean_Markdown_instInhabitedVerbatimLine_default___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Markdown_instInhabitedVerbatimLine(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Markdown_instInhabitedVerbatimLine___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lean_Markdown_VerbatimLine_text_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00Lean_Markdown_VerbatimLine_text_spec__0(lean_object*, lean_object*);
 static const lean_string_object l_Lean_Markdown_VerbatimLine_text___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Lean_Markdown_VerbatimLine_text___closed__0 = (const lean_object*)&l_Lean_Markdown_VerbatimLine_text___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Markdown_VerbatimLine_text(lean_object*, lean_object*);
@@ -2094,7 +2094,7 @@ lean_dec_ref(v_a_659_);
 return v_res_660_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lean_Markdown_VerbatimLine_text_spec__0(lean_object* v_x_661_, lean_object* v_x_662_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00Lean_Markdown_VerbatimLine_text_spec__0(lean_object* v_x_661_, lean_object* v_x_662_){
 _start:
 {
 lean_object* v_zero_663_; uint8_t v_isZero_664_; 
@@ -2136,7 +2136,7 @@ lean_dec_ref(v_source_673_);
 v_str_677_ = lean_ctor_get(v_s_671_, 0);
 v_startInclusive_678_ = lean_ctor_get(v_s_671_, 1);
 v___x_679_ = ((lean_object*)(l_Lean_Markdown_VerbatimLine_text___closed__0));
-v___x_680_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lean_Markdown_VerbatimLine_text_spec__0(v_leadingSpaces_674_, v___x_679_);
+v___x_680_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00Lean_Markdown_VerbatimLine_text_spec__0(v_leadingSpaces_674_, v___x_679_);
 v___x_681_ = lean_nat_add(v_startInclusive_678_, v_startInclusive_675_);
 lean_dec(v_startInclusive_675_);
 v___x_682_ = lean_nat_add(v_startInclusive_678_, v_endExclusive_676_);

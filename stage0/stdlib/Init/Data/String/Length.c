@@ -17,10 +17,10 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_String_length___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_length___boxed(lean_object* v_b_2_){
 _start:
 {
@@ -30,7 +30,7 @@ lean_dec_ref(v_b_2_);
 return v_res_3_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___redArg(lean_object* v_x_4_, lean_object* v_x_5_, lean_object* v_h__1_6_, lean_object* v_h__2_7_){
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___redArg(lean_object* v_x_4_, lean_object* v_x_5_, lean_object* v_h__1_6_, lean_object* v_h__2_7_){
 _start:
 {
 lean_object* v_zero_8_; uint8_t v_isZero_9_; 
@@ -54,16 +54,16 @@ return v___x_13_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___redArg___boxed(lean_object* v_x_14_, lean_object* v_x_15_, lean_object* v_h__1_16_, lean_object* v_h__2_17_){
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___redArg___boxed(lean_object* v_x_14_, lean_object* v_x_15_, lean_object* v_h__1_16_, lean_object* v_h__2_17_){
 _start:
 {
 lean_object* v_res_18_; 
-v_res_18_ = l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___redArg(v_x_14_, v_x_15_, v_h__1_16_, v_h__2_17_);
+v_res_18_ = l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___redArg(v_x_14_, v_x_15_, v_h__1_16_, v_h__2_17_);
 lean_dec(v_x_14_);
 return v_res_18_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter(lean_object* v_00_u03b1_19_, lean_object* v_motive_20_, lean_object* v_x_21_, lean_object* v_x_22_, lean_object* v_h__1_23_, lean_object* v_h__2_24_){
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter(lean_object* v_00_u03b1_19_, lean_object* v_motive_20_, lean_object* v_x_21_, lean_object* v_x_22_, lean_object* v_h__1_23_, lean_object* v_h__2_24_){
 _start:
 {
 lean_object* v_zero_25_; uint8_t v_isZero_26_; 
@@ -87,11 +87,11 @@ return v___x_30_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter___boxed(lean_object* v_00_u03b1_31_, lean_object* v_motive_32_, lean_object* v_x_33_, lean_object* v_x_34_, lean_object* v_h__1_35_, lean_object* v_h__2_36_){
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter___boxed(lean_object* v_00_u03b1_31_, lean_object* v_motive_32_, lean_object* v_x_33_, lean_object* v_x_34_, lean_object* v_h__1_35_, lean_object* v_h__2_36_){
 _start:
 {
 lean_object* v_res_37_; 
-v_res_37_ = l___private_Init_Data_String_Length_0__Nat_repeat_match__1_splitter(v_00_u03b1_31_, v_motive_32_, v_x_33_, v_x_34_, v_h__1_35_, v_h__2_36_);
+v_res_37_ = l___private_Init_Data_String_Length_0__Nat_iterate_match__1_splitter(v_00_u03b1_31_, v_motive_32_, v_x_33_, v_x_34_, v_h__1_35_, v_h__2_36_);
 lean_dec(v_x_33_);
 return v_res_37_;
 }

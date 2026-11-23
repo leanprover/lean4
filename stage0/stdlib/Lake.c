@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake
-// Imports: public import Lake.Build public import Lake.CLI.Actions public import Lake.Config public import Lake.DSL public import Lake.Toml public import Lake.Util public import Lake.Version
+// Imports: public import Lake.Build public import Lake.CLI.Actions public import Lake.Config public import Lake.DSL public import Lake.Formatters public import Lake.Toml public import Lake.Util public import Lake.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* runtime_initialize_Lake_Build(uint8_t builtin);
 lean_object* runtime_initialize_Lake_CLI_Actions(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Config(uint8_t builtin);
 lean_object* runtime_initialize_Lake_DSL(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Formatters(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Version(uint8_t builtin);
@@ -37,6 +38,9 @@ res = runtime_initialize_Lake_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_DSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Formatters(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_Toml(builtin);
@@ -61,6 +65,7 @@ lean_object* initialize_Lake_Build(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Actions(uint8_t builtin);
 lean_object* initialize_Lake_Config(uint8_t builtin);
 lean_object* initialize_Lake_DSL(uint8_t builtin);
+lean_object* initialize_Lake_Formatters(uint8_t builtin);
 lean_object* initialize_Lake_Toml(uint8_t builtin);
 lean_object* initialize_Lake_Util(uint8_t builtin);
 lean_object* initialize_Lake_Version(uint8_t builtin);
@@ -79,6 +84,9 @@ res = initialize_Lake_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_DSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Formatters(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Toml(builtin);

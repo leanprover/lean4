@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Fmt
-// Imports: public import Lean.Fmt.Core public import Lean.Fmt.FmtM public import Lean.Fmt.Util
+// Imports: public import Lean.Fmt.Core public import Lean.Fmt.FmtM public import Lean.Fmt.Formatters public import Lean.Fmt.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Lean_Fmt_Core(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_FmtM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Fmt_Formatters(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_Util(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -27,6 +28,9 @@ res = runtime_initialize_Lean_Fmt_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Fmt_FmtM(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Fmt_Formatters(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Fmt_Util(builtin);
@@ -43,6 +47,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Fmt_Core(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_FmtM(uint8_t builtin);
+lean_object* initialize_Lean_Fmt_Formatters(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_Util(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Fmt(uint8_t builtin) {
@@ -53,6 +58,9 @@ res = initialize_Lean_Fmt_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Fmt_FmtM(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Fmt_Formatters(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Fmt_Util(builtin);

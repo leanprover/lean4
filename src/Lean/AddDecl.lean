@@ -228,7 +228,7 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
       let opts ← getOptions
       let okPromise ← IO.Promise.new
       let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
-        setEnv async.asyncEnv.useUncheckedKernelEnv
+        setEnv <| async.asyncEnv.useUncheckedKernelEnv (env.uncheckedKernelEnvFor usedConsts)
         try
           doCheck
           okPromise.resolve true
@@ -236,8 +236,10 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
           okPromise.resolve false
           throw ex
       let t ← BaseIO.mapTask checkAct env.uncheckedKernelEnv
-      let unchecked := env.uncheckedKernelEnv.map (sync := true) fun kenv =>
-        kenv.addDeclWithoutChecking decl |>.toOption.getD kenv
+      -- A theorem is represented by its signature in `uncheckedKernelEnv`; see `addConstAsync`.
+      let unchecked := if decl matches .thmDecl .. then env.uncheckedKernelEnv else
+        (env.uncheckedKernelEnvFor usedConsts).map (sync := true) fun kenv =>
+          kenv.addDeclWithoutChecking decl |>.toOption.getD kenv
       let checked := okPromise.result?.bind (sync := true) fun ok? =>
         env.checked.bind (sync := true) fun kenv =>
           if ok? == some true then
@@ -278,6 +280,16 @@ where
         setEnv env
         return
       catch _ => pure ()
+  /-- Constants `decl` refers to, for the declaration kinds that are checked asynchronously. -/
+  usedConsts : Array Name :=
+    match decl with
+    | .thmDecl d => collect (collect #[] d.type) d.value
+    | .defnDecl d | .mutualDefnDecl [d] => collect (collect #[] d.type) d.value
+    | .opaqueDecl d => collect (collect #[] d.type) d.value
+    | .axiomDecl d => collect #[] d.type
+    | _ => #[]
+  collect (cs : Array Name) (e : Expr) : Array Name :=
+    e.foldConsts cs fun c cs => cs.push c
   /-- Like `addAsAxiom` for the kernel environment only. -/
   addAsAxiomKernel (opts : Options) (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
     for fallbackDecl in fallbackDecls do

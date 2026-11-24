@@ -10,7 +10,7 @@ open Std.Internal.UV
 
 def startFails (signal : @& Signal) : IO Bool := do
   try
-    discard signal.next
+    discard signal.nextResult
     return false
   catch _ =>
     return true

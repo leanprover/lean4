@@ -11,7 +11,7 @@ instead of deadlocking on the lock that serializes stopping libuv.
 -/
 
 def child : IO Unit := do
-  let timer ← (← Timer.mk 60000 false).next
+  let timer ← (← Timer.mk 60000 false).nextResult
   let onSettled : Option (Except IO.Error Unit) → IO Unit := fun
     | some (.error e) => if e.isCanceled then IO.Process.exit 7 else IO.Process.exit 1
     | _ => IO.Process.exit 2

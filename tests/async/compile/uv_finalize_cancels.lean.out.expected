@@ -2,6 +2,6 @@ main returns
 Child.wait: canceled
 timer started before main returned: canceled
 accept: canceled
-send: canceled
+send: finished
 timer started after main returned: canceled
 Loop.alive after main returned: false

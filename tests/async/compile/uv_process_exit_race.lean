@@ -18,7 +18,7 @@ def child : IO Unit := do
     discard <| IO.asTask (prio := .dedicated) do
       let timer ← Timer.mk 0 true
       for _ in [0:100000] do
-        discard <| IO.wait (← timer.next).result?
+        discard <| IO.wait (← timer.nextResult).result?
   for _ in [0:16] do
     discard <| IO.asTask (prio := .dedicated) do
       for _ in [0:100000] do

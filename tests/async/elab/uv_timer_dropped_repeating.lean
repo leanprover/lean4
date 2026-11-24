@@ -20,8 +20,8 @@ def waitForIdleLoop : Nat → IO Bool
 
 def tickRawTimer (period : UInt64) : IO Unit := do
   let timer ← Timer.mk period true
-  discard <| IO.wait (← timer.next).result?
-  discard <| IO.wait (← timer.next).result?
+  discard <| IO.wait (← timer.nextResult).result?
+  discard <| IO.wait (← timer.nextResult).result?
 
 def tickInterval : IO Unit := do
   let interval ← Interval.mk 5

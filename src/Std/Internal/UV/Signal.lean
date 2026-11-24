@@ -71,11 +71,26 @@ This function has different behavior depending on the state and configuration of
     one.
 
 The promise resolves to `.ok` with the number of the received signal, or to an error when the
-handler fails and can no longer report the signal. A promise from `next` may also be resolved by the
-code holding it; the handler then treats it as fulfilled when the signal arrives.
+handler fails and can no longer report the signal, as every handler does once the program is
+finishing. A promise from `nextResult` may also be resolved by the code holding it; the handler then
+treats it as fulfilled when the signal arrives.
 -/
 @[extern "lean_uv_signal_next"]
-opaque next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
+opaque nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
+
+/--
+Like `nextResult`, but the promise carries no error: it resolves with the number of the received
+signal, and is dropped, so that it never resolves, when the handler is stopped or fails, as every
+handler does once the program is finishing. Each call returns a new promise that follows the one
+from `nextResult`.
+-/
+def next (signal : Signal) : IO (IO.Promise Int) := do
+  let result ← signal.nextResult
+  let promise ← IO.Promise.new
+  BaseIO.chainTask (sync := true) result.result? fun
+    | some (.ok signum) => promise.resolve signum
+    | _ => pure ()
+  return promise
 
 /--
 This function has different behavior depending on the state of the `Signal`:

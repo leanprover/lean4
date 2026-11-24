@@ -39,7 +39,7 @@ Signal.Waiter.wait: boom
 #guard_msgs in
 #eval show IO Unit from do
   let sleep ← (Sleep.mk 60000).block
-  (← sleep.native.next).resolve (.error boom)
+  (← sleep.native.nextResult).resolve (.error boom)
   expectBoom "Sleep.wait" sleep.wait.block
   sleep.stop
 
@@ -48,12 +48,12 @@ Signal.Waiter.wait: boom
   interval.tick.block
   let tick ← IO.asTask interval.tick.block
   letSelectRegister
-  (← interval.native.next).resolve (.error boom)
+  (← interval.native.nextResult).resolve (.error boom)
   expectBoom "Interval.tick" (IO.ofExcept =<< IO.wait tick)
   interval.stop
 
   let waiter ← Signal.Waiter.mk .sigwinch false
-  (← waiter.native.next).resolve (.error boom)
+  (← waiter.native.nextResult).resolve (.error boom)
   expectBoom "Signal.Waiter.wait" do IO.ofExcept (← IO.wait (← waiter.wait))
   waiter.stop
 
@@ -68,7 +68,7 @@ signal fails during the select: boom
   let other ← (Sleep.mk 60000).block
 
   let sleep ← (Sleep.mk 60000).block
-  (← sleep.native.next).resolve (.error boom)
+  (← sleep.native.nextResult).resolve (.error boom)
   expectBoom "timer failed before the select"
     (Selectable.one #[.case sleep.selector pure, .case other.selector pure]).block
   sleep.stop
@@ -76,12 +76,12 @@ signal fails during the select: boom
   let sleep ← (Sleep.mk 60000).block
   let select ← IO.asTask (Selectable.one #[.case sleep.selector pure, .case other.selector pure]).block
   letSelectRegister
-  (← sleep.native.next).resolve (.error boom)
+  (← sleep.native.nextResult).resolve (.error boom)
   expectBoom "timer fails during the select" (IO.ofExcept =<< IO.wait select)
   sleep.stop
 
   let waiter ← Signal.Waiter.mk .sigwinch false
-  (← waiter.native.next).resolve (.error boom)
+  (← waiter.native.nextResult).resolve (.error boom)
   expectBoom "signal failed before the select"
     (Selectable.one #[.case waiter.selector pure, .case other.selector pure]).block
   waiter.stop
@@ -89,7 +89,7 @@ signal fails during the select: boom
   let waiter ← Signal.Waiter.mk .sigwinch false
   let select ← IO.asTask (Selectable.one #[.case waiter.selector pure, .case other.selector pure]).block
   letSelectRegister
-  (← waiter.native.next).resolve (.error boom)
+  (← waiter.native.nextResult).resolve (.error boom)
   expectBoom "signal fails during the select" (IO.ofExcept =<< IO.wait select)
   waiter.stop
 

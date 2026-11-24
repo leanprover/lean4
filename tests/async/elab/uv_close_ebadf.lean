@@ -6,7 +6,9 @@ open Std Async Internal.UV Net
 Closing a TCP socket fails its pending operations with `EBADF`, like every later operation on it,
 and not with the canceled error, which is reserved for operations cut short because the program is
 finishing. The read and the accept are failed by `close` itself; the write and the shutdown, which
-wait on a peer that does not read, by libuv's callbacks.
+wait on a peer that does not read, by libuv's callbacks. On Windows the OS may take the whole write
+and complete it, and the shutdown with it, before the `close`; they must then succeed, and never
+fail with the canceled error.
 -/
 
 def await (p : IO.Promise (Except IO.Error α)) : IO (Except IO.Error α) := do
@@ -19,6 +21,12 @@ def report (what : String) (r : Except IO.Error α) : IO Unit := do
     | .error e => if e.isCanceled then "canceled" else toString e
   IO.println s!"{what}: {outcome}"
 
+/-- For an operation that may complete before the `close`: success or `EBADF`, never canceled. -/
+def reportRacingClose (what : String) (r : Except IO.Error α) : IO Unit :=
+  match r with
+  | .ok _ | .error (.invalidArgument ..) => IO.println s!"{what}: succeeded or invalid argument"
+  | _ => report what r
+
 def listener : IO TCP.Socket := do
   let server ← TCP.Socket.new
   server.bind <| SocketAddressV4.mk (.ofParts 127 0 0 1) 0
@@ -27,8 +35,8 @@ def listener : IO TCP.Socket := do
 
 /--
 info: recv: invalid argument
-send: invalid argument
-shutdown: invalid argument
+send: succeeded or invalid argument
+shutdown: succeeded or invalid argument
 accept: invalid argument
 -/
 #guard_msgs in
@@ -44,8 +52,8 @@ accept: invalid argument
   let shutdown ← client.shutdown
   client.close
   report "recv" (← await recv)
-  report "send" (← await send)
-  report "shutdown" (← await shutdown)
+  reportRacingClose "send" (← await send)
+  reportRacingClose "shutdown" (← await shutdown)
   peer.close
 
   let idle ← listener

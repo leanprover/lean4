@@ -226,7 +226,7 @@ error.
 -/
 @[inline]
 def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
-  let promise ← s.native.next
+  let promise ← s.native.nextResult
   return .ofPromise promise
 
 /--
@@ -253,7 +253,7 @@ lost.
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter ← s.native.next
+      let signalWaiter ← s.native.nextResult
       -- Also when `signalWaiter` is already resolved: a repeating signal otherwise keeps the loop's
       -- reference to it, so it would keep listening after it is dropped.
       s.native.cancel
@@ -266,7 +266,7 @@ def selector (s : Signal.Waiter) : Selector Unit :=
       return none
 
     registerFn waiter := do
-      let signalWaiter ← s.native.next
+      let signalWaiter ← s.native.nextResult
       BaseIO.chainTask signalWaiter.result? fun
         | none => return ()
         | some res =>

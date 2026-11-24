@@ -55,7 +55,7 @@ If the timer fails, the computation fails with its error.
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
-  Async.ofPromise s.native.next
+  Async.ofPromise s.native.nextResult
 
 /--
 If:
@@ -87,7 +87,7 @@ timer fails. `s` only starts when it runs inside of a Selectable. Every select o
 def selector (s : Sleep) : Selector Unit :=
   {
     tryFn := do
-      let sleepWaiter ← s.native.next
+      let sleepWaiter ← s.native.nextResult
       if ← sleepWaiter.isResolved then
         -- A failed timer is ready too: its error is the result of the select.
         if let some (.error e) := sleepWaiter.result?.get then
@@ -98,7 +98,7 @@ def selector (s : Sleep) : Selector Unit :=
         return none
 
     registerFn waiter := do
-      let sleepWaiter ← s.native.next
+      let sleepWaiter ← s.native.nextResult
       BaseIO.chainTask sleepWaiter.result? fun
         | none => do
           return ()
@@ -159,7 +159,7 @@ If:
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do
-  Async.ofPromise i.native.next
+  Async.ofPromise i.native.nextResult
 
 /--
 If:

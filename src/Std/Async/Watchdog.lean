@@ -124,7 +124,7 @@ private partial def round (wd : Watchdog) : BaseIO Unit := do
   | .sleep ms =>
     let started ← EIO.toBaseIO do
       let timer ← Internal.UV.Timer.mk (.ofNatClamp ms) false
-      let elapsed ← timer.next
+      let elapsed ← timer.nextResult
       wd.timer.set (some timer)
       BaseIO.chainTask (sync := true) elapsed.result? fun _ => wake.resolve ()
     match started with

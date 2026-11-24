@@ -843,11 +843,11 @@ optional<expr> type_checker::eta_expand_iota_reduce_recursor(expr const & s) {
     if (s_args.size() > rec_val.get_major_idx()) return none_expr();
     if (!rec_val.is_k() && !is_non_rec_structure(env(), rec_val.get_major_induct()))
         return none_expr();
-    unsigned n_exps = rec_val.get_major_idx() + 1 - s_args.size();
+    size_t n_exps = rec_val.get_major_idx() + 1 - s_args.size();
     expr s_type = whnf(infer_type(s));
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
     buffer<expr> fvars;
-    for(unsigned i = 0; i < n_exps; i++) {
+    for(size_t i = 0; i < n_exps; i++) {
         if (!is_pi(s_type))
             return none_expr();
         expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));

@@ -261,6 +261,9 @@ public def parse (data : String) : Except String Manifest := do
 /-- Parse a manifest file. -/
 public def load (file : FilePath) : IO Manifest := do
   let contents ← IO.FS.readFile file
+  -- The sandbox puts an empty file where it has to bind a manifest that does not exist yet.
+  if contents.isEmpty then
+    throw <| .noFileOrDirectory file.toString 0 ""
   match inline <| Manifest.parse contents with
   | .ok a => return a
   | .error e => error s!"{file}: {e}"

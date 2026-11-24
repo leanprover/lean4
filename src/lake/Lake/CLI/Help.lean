@@ -66,6 +66,9 @@ BASIC OPTIONS:
   --json, -J            output JSON-formatted results (in `lake query`,
                         `lake check` and `lake comparator`)
   --text                output results as plain text (in `lake query`)
+  --inadvisably-no-sandbox
+                        run the code of the package and its dependencies
+                        without a sandbox (see SANDBOX)
 
 OUTPUT OPTIONS:
   --quiet, -q           hide informational logs and the progress indicator
@@ -79,6 +82,29 @@ OUTPUT OPTIONS:
   --wfail               fail build if warnings are logged
                         (same as --fail-level=warning)
 
+SANDBOX:
+  Package configurations, builds, scripts and executables are code of the
+  package and its dependencies. On Linux with `bwrap` (bubblewrap) on PATH,
+  every command that loads the package configuration therefore runs in a
+  sandbox: `/` is read-only, the home directories and `/tmp` are hidden, only
+  `.lake` and the Lake cache are writable, and only Lean's, Lake's and a few
+  common environment variables are kept.
+
+  Such a command first resolves dependencies. Only that step and
+  `lake update` have a network and a writable manifest. `lake shake --fix`,
+  `lake lint --record-exceptions` and `lake translate-config` can write to the
+  whole package directory except for `.git`.
+
+  A sandboxed package cannot keep build outputs outside of `.lake`, depend on
+  a path outside of its directory, change `lean-toolchain` on update, or
+  download build caches outside of dependency resolution. Use
+  `--inadvisably-no-sandbox` or set `LAKE_NO_SANDBOX` to a non-empty value to
+  run without the sandbox. Commands also run without it, after a warning,
+  where `bwrap` cannot create namespaces, and silently where there is none.
+
+  `lake new`, `lake init`, `lake cache`, `lake upload` and `lake samply` are
+  not sandboxed. `lake check` and `lake comparator` have a sandbox of their
+  own, which the environment cannot turn off.
 
 See `lake help <command>` for more information on a specific command."
 

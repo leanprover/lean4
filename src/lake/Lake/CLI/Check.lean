@@ -185,7 +185,7 @@ structure Context where
 
 abbrev M := ReaderT Context <| StateRefT State IO
 
-structure SandboxArgs where
+public structure SandboxArgs where
   cmd : String
   args : Array String
   envPass : Array String
@@ -193,6 +193,8 @@ structure SandboxArgs where
   /-- Bound back read-only over the covered home directories, so the run can still read these. -/
   readablePaths : Array System.FilePath
   writablePaths : Array System.FilePath
+  /-- Bound back read-only on top of `writablePaths`. -/
+  protectedPaths : Array System.FilePath := #[]
   /--
   Paths that get masked with a tmpfs so they exist but do not have the same content as the host
   system.
@@ -267,7 +269,7 @@ def step (s : Step) (x : M α) : M α := do
     throw e
 
 /-- Resolves `exe` to an absolute path via `PATH`, or `none` if it is not there. -/
-def whichExe (exe : String) : IO (Option System.FilePath) := do
+public def whichExe (exe : String) : IO (Option System.FilePath) := do
   let out ←
     try IO.Process.output { cmd := "which", args := #[exe] }
     catch _ => return none
@@ -284,9 +286,15 @@ s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not foun
   namespaces or a `bwrap` installed setuid root, which is how distributions
   that disable them ship it."
 
+/--
+Keeps a `lake` child from sandboxing itself again: the commands here decide how their children are
+contained, and a sandbox cannot be nested inside another.
+-/
+public def noSandboxEnvVar : String := "LAKE_NO_SANDBOX"
+
 /-- The environment the sandboxed child runs with; `envOverride` wins over `envPass`. -/
 def sandboxEnv (spawnArgs : SandboxArgs) : IO (Array (String × String)) := do
-  let mut env := #[]
+  let mut env := #[(noSandboxEnvVar, "1")]
   for name in spawnArgs.envPass do
     if let some value ← IO.getEnv name then
       env := env.push (name, value)
@@ -305,7 +313,7 @@ Mounts apply in order, so `readablePaths` binds back what the run does need on t
 Only the paths in `writablePaths` are writable, and the network is a namespace rather than a filter:
 a run either has one or has none at all.
 -/
-def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
+public def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
     (projectDir : System.FilePath) : Array String :=
   let args := #[
     "--ro-bind", "/", "/",
@@ -324,6 +332,8 @@ def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
     (fun acc path => acc ++ #["--ro-bind", path.toString, path.toString])
   let args := spawnArgs.writablePaths.foldl (init := args)
     (fun acc path => acc ++ #["--bind", path.toString, path.toString])
+  let args := spawnArgs.protectedPaths.foldl (init := args)
+    (fun acc path => acc ++ #["--ro-bind", path.toString, path.toString])
   let args := env.foldl (init := args) (fun acc (name, value) => acc ++ #["--setenv", name, value])
   -- Set last, so it wins over an inherited one: the invoking user's `HOME` is no longer there to
   -- point at, and `git` and Lake's caches want somewhere writable. This one goes with the run.
@@ -349,7 +359,7 @@ def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
       cmd := spawnArgs.cmd,
       args := spawnArgs.args,
       cwd := if let some cwd := spawnArgs.cwd then cwd else ← getProjectDir
-      env := spawnArgs.envOverride
+      env := spawnArgs.envOverride.push (noSandboxEnvVar, some "1")
     }
   | .path whichSandbox =>
     return {
@@ -476,7 +486,7 @@ def safeResolveDeps : M Unit := step .resolveDependencies do
     network := true
   }
 
-def forbiddenPaths : Array System.FilePath := #["/run", "/var"]
+public def forbiddenPaths : Array System.FilePath := #["/run", "/var"]
 
 /--
 Builds and exports the project in one sandboxed `lake` process, and returns the export.

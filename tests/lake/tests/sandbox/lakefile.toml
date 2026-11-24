@@ -1,0 +1,5 @@
+name = "sandbox"
+defaultTargets = ["Lib"]
+
+[[lean_lib]]
+name = "Lib"

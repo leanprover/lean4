@@ -33,6 +33,10 @@ foreach(var ${vars})
     list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
   elseif((var MATCHES "CMAKE_.*") AND NOT (var MATCHES "CMAKE_BUILD_TYPE") AND NOT (var MATCHES "CMAKE_HOME_DIRECTORY"))
     list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
+    if(var MATCHES "^CMAKE_(C|CXX)_COMPILER(_ARG1)?$")
+      # like an untyped compiler, pass a typed one (and the arguments split off `CC`/`CXX`) to later stages
+      list(APPEND CL_ARGS "-D${var}=${${var}}")
+    endif()
   endif()
 endforeach()
 

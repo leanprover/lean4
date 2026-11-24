@@ -25,6 +25,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Action
+import Lean.Meta.Tactic.Grind.Relevance
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 builtin_initialize registerTraceClass `grind.linarith
@@ -46,6 +47,7 @@ builtin_initialize registerTraceClass `grind.debug.linarith.subst
 builtin_initialize
   linearExt.setMethods
     (enabled     := (·.linarith))
+    (isRelevantAtom? := some fun e => isRelationOver e fun α => return (← getStructId? α).isSome)
     (internalize := Linear.internalize)
     (newEq       := Linear.processNewEq)
     (newDiseq    := Linear.processNewDiseq)

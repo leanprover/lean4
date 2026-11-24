@@ -25,6 +25,10 @@ def isMatchValue (e : Expr) : MetaM Bool := do
   if (← getUInt16Value? e).isSome then return true
   if (← getUInt32Value? e).isSome then return true
   if (← getUInt64Value? e).isSome then return true
+  if (← getInt8Value? e).isSome then return true
+  if (← getInt16Value? e).isSome then return true
+  if (← getInt32Value? e).isSome then return true
+  if (← getInt64Value? e).isSome then return true
   if (← getFloatValue? e).isSome then return true
   if (← getFloat32Value? e).isSome then return true
   return false

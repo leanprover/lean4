@@ -118,7 +118,7 @@ inductive CongrInfo where
     interlaced (rewritable : Array Bool)
   | /--
     For functions that have proofs and `Decidable` arguments. For this kind of function we generate
-    a custom theorem.
+    a custom theorem. Bit `i` of `rhsVarMask` is set when the theorem's `i`-th binder occurs in its RHS.
     Example: `Array.eraseIdx {α : Type u} (xs : Array α) (i : Nat) (h : i < xs.size) : Array α`.
     The proof argument `h` depends on `xs` and `i`. To be able to rewrite `xs` and `i`, we use the
     auto-generated theorem.
@@ -127,7 +127,7 @@ inductive CongrInfo where
         (i i' : Nat) (e_i : i = i') (h : i < xs.size) : xs.eraseIdx i h = xs'.eraseIdx i' ⋯
     ```
     -/
-    congrTheorem (thm : CongrTheorem)
+    congrTheorem (thm : CongrTheorem) (rhsVarMask : Nat)
 
 /-- Pre-shared expressions for commonly used terms. -/
 structure SharedExprs where

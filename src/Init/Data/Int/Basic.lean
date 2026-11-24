@@ -432,6 +432,20 @@ protected noncomputable def blt' (a b : Int) : Bool :=
     (fun a => Int.rec (fun _ => true) (fun b => Nat.blt b a) b)
     a
 
+/--
+Auxiliary theorem for proving that two `Int` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem ne_of_toNat_beq_eq_false {a b : Int} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg Int.toNat h')
+
+/--
+Same as `Int.ne_of_toNat_beq_eq_false` for two literals that are not positive: they have the same
+`toNat`, and their negations do not.
+-/
+theorem ne_of_neg_toNat_beq_eq_false {a b : Int} (h : Nat.beq (-a).toNat (-b).toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg (fun x : Int => (-x).toNat) h')
+
 end Int
 
 /--

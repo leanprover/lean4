@@ -3,7 +3,36 @@ Tests the `Decidable` instances for `∀ x, P x` and `∃ x, P x` over `UIntX` a
 `Init.Data.UInt.Decidable` and `Init.Data.SInt.Decidable`.
 -/
 
-/-! The instances are found by type class inference. -/
+/-! The instances are not global, so they are not found unless activated. -/
+
+/--
+error: failed to synthesize
+  Decidable (∀ (x : UInt8), x = x)
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+#synth Decidable (∀ x : UInt8, x = x)
+
+/--
+error: failed to synthesize
+  Decidable (∃ x, x = 0)
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+#synth Decidable (∃ x : Int64, x = 0)
+
+attribute [local instance] UInt8.instDecidableForall UInt8.instDecidableExists
+attribute [local instance] UInt16.instDecidableForall UInt16.instDecidableExists
+attribute [local instance] UInt32.instDecidableForall UInt32.instDecidableExists
+attribute [local instance] UInt64.instDecidableForall UInt64.instDecidableExists
+attribute [local instance] Int8.instDecidableForall Int8.instDecidableExists
+attribute [local instance] Int16.instDecidableForall Int16.instDecidableExists
+attribute [local instance] Int32.instDecidableForall Int32.instDecidableExists
+attribute [local instance] Int64.instDecidableForall Int64.instDecidableExists
+
+/-! Once activated, the instances are found by type class inference. -/
 
 /-- info: UInt8.instDecidableForall fun x => x = x -/
 #guard_msgs in

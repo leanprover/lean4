@@ -10,6 +10,7 @@ import Lean.Meta.HaveTelescope
 import Lean.Meta.LetToHave
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Rewrite
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
@@ -147,18 +148,22 @@ where
       match_expr type with
       | Nat => true | Int => true
       | UInt8 => true | UInt16 => true | UInt32 => true | UInt64 => true
+      | Int8 => true | Int16 => true | Int32 => true | Int64 => true
       | Fin n => isNumeral n
       | BitVec n => isNumeral n
       | _ => false
-    | Neg.neg type _ _ => type.isConstOf ``Int
+    | Neg.neg type _ _ =>
+      match_expr type with
+      | Int => true | Int8 => true | Int16 => true | Int32 => true | Int64 => true
+      | _ => false
     | Char.ofNat _ => true
     | BitVec.ofNat n _ => isNumeral n
     | _ => false
 
   /--
   Returns `e` if it is a literal in its standard representation: a `String` literal, or a numeral
-  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Fin n`, or
-  `BitVec n`. Two such literals of the same type denote different values if and only if they are
+  or character of type `Nat`, `Int`, `Char`, `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`,
+  `Int32`, `Int64`, `Fin n`, or `BitVec n`. Two such literals of the same type denote different values if and only if they are
   structurally different.
 
   The standard representation is the one `normLitValue` produces. A literal that is not in its
@@ -231,6 +236,38 @@ def rwMatcherLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContex
   return some mvarNew.mvarId!
 
 /--
+Unifies the hypotheses `discr = pattern` and `discr ≍ pattern` that splitting a matcher leaves in
+a branch when a discriminant is not a variable. The hypotheses considered are `a = b` where
+neither `a` nor `b` is a variable, and `a ≍ b` where the types of `a` and `b` are definitionally
+equal. Each one is unified as `cases` does: it is removed if the two sides are definitionally
+equal, a variable is substituted, and applications of the same constructor are replaced by the
+equalities between the fields. A hypothesis that cannot be unified is kept.
+Returns `none` if a hypothesis equates different constructors or literals: the branch is closed.
+The hypotheses in `skip` are not considered.
+-/
+partial def unifyDiscrEqs (mvarId : MVarId) (skip : LocalContext := {}) : MetaM (Option MVarId) := mvarId.withContext do
+  for decl in (← getLCtx) do
+    if decl.isImplementationDetail || skip.contains decl.fvarId then continue
+    if let some (_, a, b) := decl.type.eq? then
+      if a.isFVar || b.isFVar then continue
+    else if let some (α, _, β, _) := decl.type.heq? then
+      unless (← isDefEq α β) do continue
+    else
+      continue
+    let saved ← saveState
+    let r? ← try
+        let some r ← unifyEq? mvarId decl.fvarId | return none -- Goal closed, done.
+        pure (some (← Cases.unifyEqs? r.numNewEqs r.mvarId r.subst))
+      catch _ =>
+        saved.restore
+        pure none
+    match r? with
+    | none => continue -- Caught exception, keep traversing lctx
+    | some none => return none -- Goal closed, done.
+    | some (some (mvarId, _)) => return (← unifyDiscrEqs mvarId skip) -- Subgoal generated, continue from there
+  return some mvarId
+
+/--
 Proves a generated equation type for `declName`. After introducing its parameters and hypotheses,
 tries reflexivity, then unfolds the definition and reduces or splits the remaining cases.
 -/
@@ -277,7 +314,7 @@ partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
           if let some mvarIds ← casesOnStuckLHS? mvarId then
             mvarIds.forM go
           else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
-            mvarIds.forM go
+            (← mvarIds.filterMapM unifyDiscrEqs).forM go
           else if let some mvarId ← rwMatcherLHS? mvarId then
             go mvarId
           else
@@ -293,6 +330,41 @@ def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
       dependsOn lhs fvarId
     else
       dependsOn type fvarId
+
+/--
+Simplifies the type of an overlap hypothesis: `∀ zs, e₁ → … → eₙ → False`, where each `eᵢ` equates a
+discriminant and a pattern with variables `zs`. When a discriminant is not a variable, `eᵢ` can be
+resolved: it is unified with `unifyDiscrEqs`, as the hypotheses `discr = pattern` of a case are.
+
+Returns `none` if some `eᵢ` is contradictory: the hypothesis holds trivially. Otherwise, returns
+the hypothesis without the equalities that were resolved, and without the variables they
+determine. Returns `type` if it does not have this form, or if resolving an equality would
+replace a variable that is not in `zs`.
+-/
+def simpOverlapHyp? (type : Expr) : MetaM (Option Expr) := do
+  unless type.getForallBody.isConstOf ``False && hasCandidate type do return some type
+  let outer ← getLCtx
+  let saved ← saveState
+  try
+    let mvar ← mkFreshExprSyntheticOpaqueMVar type
+    let (_, mvarId) ← mvar.mvarId!.intros
+    let some mvarId ← unifyDiscrEqs mvarId (skip := outer) | return none
+    mvarId.withContext do
+      let lctx ← getLCtx
+      unless outer.getFVarIds.all lctx.contains do return some type
+      let fvars := lctx.getFVarIds.filter (!outer.contains ·) |>.map mkFVar
+      return some (← instantiateMVars (← mkForallFVars fvars (mkConst ``False)))
+  finally
+    saved.restore
+where
+  /-- Returns `true` if some `eᵢ` is an equality that `unifyDiscrEqs` considers. -/
+  hasCandidate : Expr → Bool
+    | .forallE _ d b _ =>
+      let isVar (e : Expr) := e.isFVar || e.isBVar
+      (match d.eq? with
+        | some (_, lhs, rhs) => !isVar lhs && !isVar rhs
+        | none => d.isHEq) || hasCandidate b
+    | _ => false
 
 /-- Eliminates named-pattern annotations and redundant equality hypotheses from an equation type. -/
 def simpEqnType (eqnType : Expr) : MetaM Expr := do
@@ -318,6 +390,14 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
             else if !(← lhsDependsOn type y.fvarId!) then
               -- Since the `lhs` of the `type` does not depend on `y`, we replace it with `Eq.refl` in the `rhs`
               type := type.replaceFVar y (← mkEqRefl lhs)
+              continue
+        if !(← dependsOn type y.fvarId!) then
+          let yType ← inferType y
+          match (← simpOverlapHyp? yType) with
+          | none => continue
+          | some yType' =>
+            if yType' != yType then
+              type ← mkArrow yType' type
               continue
         type ← mkForallFVars #[y] type
     return type
@@ -710,6 +790,12 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) :
     let saved ← saveState
     try
       let branches ← Split.refineMatch mvarId candidate.declName candidate.levels candidate.params candidate.discrs
+      let branches ←
+        if candidate.discrs.all (·.isFVar) then pure branches
+        else branches.filterMapM fun branch => do
+          let some branch ← unifyDiscrEqs branch | return none
+          if (← branch.contradictionCore { useDecide := false, emptyType := false, genDiseq := true }) then return none
+          return some branch
       let branches ← branches.mapM fun branch => do
         let normalized ← normalizeEqn branch
         if normalized == branch then

@@ -4634,8 +4634,8 @@ return v___x_1423_;
 else
 {
 lean_object* v___x_1426_; lean_object* v___x_1427_; 
-lean_dec_ref_known(v_e_1219_, 2);
 lean_dec_ref(v_ty_1412_);
+lean_dec_ref_known(v_e_1219_, 2);
 v___x_1426_ = lean_box(1);
 v___x_1427_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1427_, 0, v___x_1426_);

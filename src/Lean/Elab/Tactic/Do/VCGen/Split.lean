@@ -36,7 +36,7 @@ def resTy (info : SplitInfo) : Option Expr := match info with
   -- We want to return `Type` component and fail if it depends on any of the discriminant values.
   | matcher matcherApp => do
     let motive := matcherApp.motive
-    let e : Expr ← Nat.repeat (n := matcherApp.discrInfos.size) (a := some motive) fun e =>
+    let e : Expr ← Nat.iterate (n := matcherApp.discrInfos.size) (a := some motive) fun e =>
       match e with
         | some (.lam _ _ e _) => e
         | _ => none

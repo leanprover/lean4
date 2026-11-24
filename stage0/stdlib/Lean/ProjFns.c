@@ -382,7 +382,7 @@ v___x_124_ = 1;
 lean_inc_ref(v_env_111_);
 v___x_125_ = l_Lean_Environment_setExporting(v_env_111_, v___x_124_);
 lean_inc(v_fst_123_);
-v___x_126_ = l_Lean_Environment_contains(v___x_125_, v_fst_123_, v___x_121_);
+v___x_126_ = l_Lean_Environment_contains(v___x_125_, v_fst_123_, v___x_124_);
 if (v___x_126_ == 0)
 {
 v___y_117_ = v_b_115_;
@@ -1039,7 +1039,7 @@ v___x_407_ = 1;
 lean_inc_ref(v_env_394_);
 v___x_408_ = l_Lean_Environment_setExporting(v_env_394_, v___x_407_);
 lean_inc(v_fst_406_);
-v___x_409_ = l_Lean_Environment_contains(v___x_408_, v_fst_406_, v___x_404_);
+v___x_409_ = l_Lean_Environment_contains(v___x_408_, v_fst_406_, v___x_407_);
 if (v___x_409_ == 0)
 {
 v___y_400_ = v_b_398_;

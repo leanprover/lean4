@@ -86,10 +86,10 @@ def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
 As with `getUnfoldableConst?` but return `none` instead of failing if the constant is not found.
 -/
 def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
-  match (← getEnv).find? constName with
-  | some (.thmInfo _)          => return none
-  | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some (.axiomInfo _)       => recordUnfoldAxiom constName; return none
-  | _                         => return none
+  let some ainfo := (← getEnv).findAsync? constName | return none
+  match ainfo.kind with
+  | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none
+  | .axiom => recordUnfoldAxiom constName; return none
+  | _ => return none
 
 end Meta

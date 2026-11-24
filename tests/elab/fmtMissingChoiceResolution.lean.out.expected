@@ -1,0 +1,9 @@
+fmtMissingChoiceResolution.lean:27:40-27:46: warning: The parser reads the syntax at the location in several ways, with the syntax kinds «term{_}» and Lean.Parser.Term.structInst, and the elaborator did not record which of them it picked (`Lean.Elab.ChoiceResolutionInfo`). The auto-formatter keeps the layout of such syntax, unless all of its readings have an auto-formatter and are formatted in the same way.
+
+Note: This linter can be disabled with `set_option linter.fmt.missing false`
+fmtMissingChoiceResolution.lean:31:26-31:39: warning: no auto-formatter registered for syntax kind twoReadingsA
+
+Note: This linter can be disabled with `set_option linter.fmt.missing false`
+fmtMissingChoiceResolution.lean:31:26-31:39: warning: The parser reads the syntax at the location in several ways, with the syntax kinds twoReadingsB and twoReadingsA, and the elaborator did not record which of them it picked (`Lean.Elab.ChoiceResolutionInfo`). The auto-formatter keeps the layout of such syntax, unless all of its readings have an auto-formatter and are formatted in the same way.
+
+Note: This linter can be disabled with `set_option linter.fmt.missing false`

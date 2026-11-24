@@ -1,0 +1,27 @@
+/-!
+Tests that an identifier that spans several lines keeps its text. The line break and the
+whitespace after it are part of the name, so the formatter must not indent the second line.
+-/
+
+def «foo
+bar» : Nat := 1
+
+def useInBody : Nat := «foo
+bar» + 1
+
+def useInArgument : Nat :=
+  Nat.succ (Nat.succ («foo
+bar»))
+
+theorem useInProof : «foo
+bar» = 1 := by
+  show «foo
+bar» = 1
+  rfl
+
+def «with
+    indentation» : Nat := 2
+
+example : Nat := «with
+    indentation» + «foo
+bar»

@@ -75,6 +75,7 @@ structure AxiomVal extends ConstantVal where
 */
 class axiom_val : public object_ref {
 public:
+    axiom_val(name const & n, names const & lparams, expr const & type, bool const & is_unsafe);
     axiom_val(axiom_val const & other):object_ref(other) {}
     axiom_val(axiom_val && other) noexcept:object_ref(std::move(other)) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
@@ -412,6 +413,7 @@ class constant_info : public object_ref {
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(to_val(), 0)); }
 public:
     constant_info(declaration const & d);
+    constant_info(axiom_val const & d);
     constant_info(definition_val const & v);
     constant_info(quot_val const & v);
     constant_info(inductive_val const & v);
@@ -444,8 +446,11 @@ public:
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     size_t get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
+    /** \brief Only definitions have values for the purpose of reduction and
+        type checking. Theorems used to be like that; now they are treated like
+        opaque declarations. */
     bool has_value(bool allow_opaque = false) const {
-        return is_theorem() || is_definition() || (allow_opaque && is_opaque());
+        return is_definition() || (allow_opaque && (is_theorem() || is_opaque()));
     }
     reducibility_hints const & get_hints() const;
 

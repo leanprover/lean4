@@ -39,6 +39,9 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_ite_match__1_splitter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_ite_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_ite_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkIfCached___redArg(lean_object* v_inst_1_, lean_object* v_inst_2_, lean_object* v_aig_3_, lean_object* v_input_4_){
 _start:
 {
@@ -580,6 +583,34 @@ lean_dec(v_w_214_);
 lean_dec_ref(v_inst_213_);
 lean_dec_ref(v_inst_212_);
 return v_res_219_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter___redArg(lean_object* v_s_220_, lean_object* v_h__1_221_){
+_start:
+{
+lean_object* v___x_222_; 
+v___x_222_ = lean_apply_2(v_h__1_221_, v_s_220_, lean_box(0));
+return v___x_222_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter(lean_object* v_00_u03b1_223_, lean_object* v_inst_224_, lean_object* v_inst_225_, lean_object* v_aig_226_, lean_object* v_len_227_, lean_object* v_motive_228_, lean_object* v_s_229_, lean_object* v_h__1_230_){
+_start:
+{
+lean_object* v___x_231_; 
+v___x_231_ = lean_apply_2(v_h__1_230_, v_s_229_, lean_box(0));
+return v___x_231_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter___boxed(lean_object* v_00_u03b1_232_, lean_object* v_inst_233_, lean_object* v_inst_234_, lean_object* v_aig_235_, lean_object* v_len_236_, lean_object* v_motive_237_, lean_object* v_s_238_, lean_object* v_h__1_239_){
+_start:
+{
+lean_object* v_res_240_; 
+v_res_240_ = l___private_Std_Sat_AIG_If_0__Std_Sat_AIG_RefVec_get_match__1_splitter(v_00_u03b1_232_, v_inst_233_, v_inst_234_, v_aig_235_, v_len_236_, v_motive_237_, v_s_238_, v_h__1_239_);
+lean_dec(v_len_236_);
+lean_dec_ref(v_aig_235_);
+lean_dec_ref(v_inst_234_);
+lean_dec_ref(v_inst_233_);
+return v_res_240_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin);

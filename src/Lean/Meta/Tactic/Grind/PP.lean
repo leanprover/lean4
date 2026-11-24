@@ -293,6 +293,9 @@ def goalDiagToMessageData (goal : Goal) (config : Grind.Config) (rings : Array S
 where
   go : M Unit := do
     pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop (collapsed := collapsedMain)
+    unless goal.relevance.skipped.isEmpty do
+      let skipped := goal.relevance.skipped.reverse.toArray.map (·.prop)
+      pushMsg <| ppExprArray `skipped "Irrelevant facts skipped, use `-filterFacts` to process them" skipped `prop
     ppEqcs (collapsedProps := collapsedMain)
     ppCasesTrace
     ppActiveTheoremPatterns

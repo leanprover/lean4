@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.CollectLooseBVars
-// Imports: public import Lean.Expr
+// Imports: public import Lean.Expr import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic.Nat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,8 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
+lean_object* lean_nat_shiftl(lean_object*, lean_object*);
+lean_object* lean_nat_lor(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -26,7 +31,6 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_land(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -38,7 +42,6 @@ uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Expr_looseBVarRange(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Expr_CollectLooseBVars_main_spec__0_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Expr_CollectLooseBVars_main_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Expr_CollectLooseBVars_main_spec__0___redArg(lean_object*, lean_object*);
@@ -79,6 +82,12 @@ static lean_object* l_Lean_Expr_collectLooseBVars___closed__3;
 static lean_once_cell_t l_Lean_Expr_collectLooseBVars___closed__4_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Expr_collectLooseBVars___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Expr_collectLooseBVars(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_looseBVarMask(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_looseBVarMask___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_contains___at___00Lean_Expr_CollectLooseBVars_main_spec__0_spec__0___redArg(lean_object* v_a_1_, lean_object* v_x_2_){
 _start:
 {
@@ -1154,7 +1163,105 @@ return v_bvars_391_;
 }
 }
 }
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg(lean_object* v_upperBound_392_, lean_object* v_numVars_393_, lean_object* v_e_394_, lean_object* v_a_395_, lean_object* v_b_396_){
+_start:
+{
+lean_object* v_a_398_; uint8_t v___x_402_; 
+v___x_402_ = lean_nat_dec_lt(v_a_395_, v_upperBound_392_);
+if (v___x_402_ == 0)
+{
+lean_dec(v_a_395_);
+return v_b_396_;
+}
+else
+{
+lean_object* v___x_403_; lean_object* v___x_404_; lean_object* v___x_405_; uint8_t v___x_406_; 
+v___x_403_ = lean_unsigned_to_nat(1u);
+v___x_404_ = lean_nat_sub(v_numVars_393_, v___x_403_);
+v___x_405_ = lean_nat_sub(v___x_404_, v_a_395_);
+lean_dec(v___x_404_);
+v___x_406_ = lean_expr_has_loose_bvar(v_e_394_, v___x_405_);
+lean_dec(v___x_405_);
+if (v___x_406_ == 0)
+{
+v_a_398_ = v_b_396_;
+goto v___jp_397_;
+}
+else
+{
+lean_object* v___x_407_; lean_object* v___x_408_; 
+v___x_407_ = lean_nat_shiftl(v___x_403_, v_a_395_);
+v___x_408_ = lean_nat_lor(v_b_396_, v___x_407_);
+lean_dec(v___x_407_);
+lean_dec(v_b_396_);
+v_a_398_ = v___x_408_;
+goto v___jp_397_;
+}
+}
+v___jp_397_:
+{
+lean_object* v___x_399_; lean_object* v___x_400_; 
+v___x_399_ = lean_unsigned_to_nat(1u);
+v___x_400_ = lean_nat_add(v_a_395_, v___x_399_);
+lean_dec(v_a_395_);
+v_a_395_ = v___x_400_;
+v_b_396_ = v_a_398_;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg___boxed(lean_object* v_upperBound_409_, lean_object* v_numVars_410_, lean_object* v_e_411_, lean_object* v_a_412_, lean_object* v_b_413_){
+_start:
+{
+lean_object* v_res_414_; 
+v_res_414_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg(v_upperBound_409_, v_numVars_410_, v_e_411_, v_a_412_, v_b_413_);
+lean_dec_ref(v_e_411_);
+lean_dec(v_numVars_410_);
+lean_dec(v_upperBound_409_);
+return v_res_414_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_looseBVarMask(lean_object* v_e_415_, lean_object* v_numVars_416_){
+_start:
+{
+lean_object* v___x_417_; lean_object* v___x_418_; 
+v___x_417_ = lean_unsigned_to_nat(0u);
+v___x_418_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg(v_numVars_416_, v_numVars_416_, v_e_415_, v___x_417_, v___x_417_);
+return v___x_418_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_looseBVarMask___boxed(lean_object* v_e_419_, lean_object* v_numVars_420_){
+_start:
+{
+lean_object* v_res_421_; 
+v_res_421_ = l_Lean_Expr_looseBVarMask(v_e_419_, v_numVars_420_);
+lean_dec(v_numVars_420_);
+lean_dec_ref(v_e_419_);
+return v_res_421_;
+}
+}
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0(lean_object* v_upperBound_422_, lean_object* v_numVars_423_, lean_object* v_e_424_, lean_object* v_inst_425_, lean_object* v_R_426_, lean_object* v_a_427_, lean_object* v_b_428_, lean_object* v_c_429_){
+_start:
+{
+lean_object* v___x_430_; 
+v___x_430_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___redArg(v_upperBound_422_, v_numVars_423_, v_e_424_, v_a_427_, v_b_428_);
+return v___x_430_;
+}
+}
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0___boxed(lean_object* v_upperBound_431_, lean_object* v_numVars_432_, lean_object* v_e_433_, lean_object* v_inst_434_, lean_object* v_R_435_, lean_object* v_a_436_, lean_object* v_b_437_, lean_object* v_c_438_){
+_start:
+{
+lean_object* v_res_439_; 
+v_res_439_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Expr_looseBVarMask_spec__0(v_upperBound_431_, v_numVars_432_, v_e_433_, v_inst_434_, v_R_435_, v_a_436_, v_b_437_, v_c_438_);
+lean_dec_ref(v_e_433_);
+lean_dec(v_numVars_432_);
+lean_dec(v_upperBound_431_);
+return v_res_439_;
+}
+}
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_CollectLooseBVars(uint8_t builtin) {
@@ -1163,6 +1270,12 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Expr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1175,12 +1288,20 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Expr(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_CollectLooseBVars(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Expr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Util_CollectLooseBVars(builtin);

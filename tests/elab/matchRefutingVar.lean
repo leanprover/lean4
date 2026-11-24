@@ -35,3 +35,33 @@ def OnlyEmpty : List FloatValue → Prop
 
 -- `h : OnlyEmpty (v :: vs)` reduces to `False`.
 theorem reducesToFalse : ∀ (v : FloatValue) (vs : List FloatValue), ¬ OnlyEmpty (v :: vs) := nofun
+
+structure Position where
+  target : Nat
+  datum : FloatDatum
+  kind : Kind
+
+-- `h : w ∈ []` is `List.Mem w []`, whose constructors' indices are all `_ :: _`.
+theorem memNil (t : Nat) : ∀ w ∈ ([] : List (Position × FloatValue)), w.1.target ≠ t := nofun
+
+-- Equations whose sides differ below the head constructor.
+theorem nestedMismatch :
+    ∀ v : FloatValue, (some none : Option (Option FloatValue)) ≠ some (some v) := nofun
+theorem pairMismatch : ∀ v : FloatValue, ((1 : Nat), (none : Option FloatValue)) ≠ (1, some v) :=
+  nofun
+theorem natLiterals : ∀ v : FloatValue, ((2 : Nat), v) ≠ (3, v) := nofun
+theorem ctorIdxMismatch :
+    ∀ (_ : FloatValue) (d : FloatDatum),
+      (FloatingValue.real d).ctorIdx ≠ (FloatingValue.complex d d).ctorIdx := nofun
+theorem heqMismatch : ∀ v : FloatValue, ¬ HEq (none : Option FloatValue) (some v) := nofun
+
+-- Families whose constructors' indices are literals or offsets.
+inductive Two : Nat → Bool → Prop where
+  | a : Two 0 true
+  | b : Two 1 false
+theorem literalIndex : ∀ _ : FloatValue, ¬ Two 0 false := nofun
+
+inductive Even : Nat → Prop where
+  | zero : Even 0
+  | ss : Even n → Even (n + 2)
+theorem offsetIndex : ∀ _ : FloatValue, ¬ Even 1 := nofun

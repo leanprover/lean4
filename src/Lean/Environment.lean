@@ -772,8 +772,8 @@ def uncheckedKernelEnv (env : Environment) : Task Kernel.Environment :=
 Makes `uncheckedKernelEnv` the kernel environment of `env`, i.e. kernel additions on the resulting
 environment do not wait for pending kernel checks.
 -/
-def useUncheckedKernelEnv (env : Environment) (kenv := env.uncheckedKernelEnv) : Environment :=
-  { env with checked := kenv, uncheckedKernelEnv? := none }
+def useUncheckedKernelEnv (env : Environment) : Environment :=
+  { env with checked := env.uncheckedKernelEnv, uncheckedKernelEnv? := none }
 
 /-- Updates `env.isExporting`. Ignored if `env.header.isModule` is false. -/
 def setExporting (env : Environment) (isExporting : Bool) : Environment :=
@@ -1028,49 +1028,6 @@ def find? (env : Environment) (n : Name) (skipRealize := false) : Option Constan
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
 
-/--
-Adds to `kenv` the constants `declNames` of the current environment branch that are missing from it,
-together with the constants they transitively refer to. A theorem is added as an axiom with its
-signature. Names that cannot be resolved are skipped.
--/
-private partial def addMissingConsts (env : Environment) (kenv : Kernel.Environment)
-    (declNames : Array Name) : Kernel.Environment := Id.run do
-  let env := { env with isExporting := false }
-  let mut kenv := kenv
-  let mut todo := declNames
-  while h : todo.size > 0 do
-    let n := todo.back
-    todo := todo.pop
-    if kenv.constants.contains n then
-      continue
-    let some c := env.findAsync? n | continue
-    let info := if c.kind matches .thm then
-      .axiomInfo { c.toConstantVal with isUnsafe := false }
-    else
-      c.toConstantInfo
-    kenv := kenv.add info
-    todo := info.type.foldConsts todo fun c todo => todo.push c
-    match info with
-    | .defnInfo v => todo := v.value.foldConsts todo fun c todo => todo.push c
-    | .opaqueInfo v => todo := v.value.foldConsts todo fun c todo => todo.push c
-    | .inductInfo v => todo := todo ++ v.all ++ v.ctors
-    | .ctorInfo v => todo := todo.push v.induct
-    | .recInfo v =>
-      todo := todo ++ v.all
-      for rule in v.rules do
-        todo := rule.rhs.foldConsts todo fun c todo => todo.push c
-    | _ => pure ()
-  return kenv
-
-/--
-`uncheckedKernelEnv` extended by those of the constants `declNames` and the constants they
-transitively refer to that are missing from it. `uncheckedKernelEnv` contains the declarations added
-on the current environment branch only, so this is needed before checking a declaration that may
-refer to constants of other branches, such as auxiliary declarations of a proof or realizations.
--/
-def uncheckedKernelEnvFor (env : Environment) (declNames : Array Name) : Task Kernel.Environment :=
-  env.uncheckedKernelEnv.map (sync := true) (env.addMissingConsts · declNames)
-
 /-- Checks if, in the public scope (`Environment.isExporting`), the given name refers to a
 definition with a visible body, i.e. `ConstantInfo.hasValue`. Recall that outside the module
 system, this is any definition. -/
@@ -1320,9 +1277,8 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
           -- The kernel does not unfold theorems, so their signature is sufficient for checking
           -- further declarations.
           sigPromise.result?.bind (sync := true) fun
-            | some sig => env.uncheckedKernelEnv.map (sync := true) fun kenv =>
-              env.addMissingConsts kenv sig.type.getUsedConstants
-                |>.add (.axiomInfo { sig with isUnsafe := false })
+            | some sig => env.uncheckedKernelEnv.map (sync := true)
+              (·.add (.axiomInfo { sig with isUnsafe := false }))
             | none     => checked
         else
           uncheckedEnvPromise.result?.bind (sync := true) fun
@@ -3392,7 +3348,14 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         | .error e => do
           exPromise.resolve e
           return kenv)
-    uncheckedKernelEnv? := some env.uncheckedKernelEnv
+    uncheckedKernelEnv? := some <| env.uncheckedKernelEnv.map (sync := true) fun kenv =>
+      res.newConsts.private.foldl (init := kenv) fun kenv c =>
+        if kenv.constants.contains c.constInfo.name then
+          kenv
+        else if c.constInfo.kind matches .thm then
+          kenv.add (.axiomInfo { c.constInfo.toConstantVal with isUnsafe := false })
+        else
+          kenv.add c.constInfo.toConstantInfo
     allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
       res.newConsts.private.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c

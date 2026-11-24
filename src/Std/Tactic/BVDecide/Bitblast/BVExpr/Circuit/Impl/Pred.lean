@@ -19,7 +19,7 @@ This module contains the implementation of a bitblaster for predicates over `Bit
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 structure Return (aig : AIG BVBit) where
   result : AIG.ExtendingEntrypoint aig

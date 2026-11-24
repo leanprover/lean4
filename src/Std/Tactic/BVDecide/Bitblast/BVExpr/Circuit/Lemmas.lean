@@ -21,8 +21,8 @@ framework.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
-open Std.Sat.AIG
+open Std.Internal.Sat
+open Std.Internal.Sat.AIG
 
 namespace BVLogicalExpr
 

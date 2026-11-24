@@ -18,7 +18,7 @@ makes use of the reduction provided by `BitVec.ult_eq_not_carry`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVPred
 

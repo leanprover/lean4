@@ -8,3 +8,4 @@ module
 
 prelude
 public import Lean.Fmt.Formatters.Std.Internal.Order
+public import Lean.Fmt.Formatters.Std.Internal.Sat

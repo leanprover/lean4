@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-public import Std.Sat.AIG.If
+public import Std.Internal.Sat.AIG.If
 import Init.Omega
 
 @[expose] public section
@@ -18,7 +18,7 @@ This module contains the implementation of a bitblaster for `BitVec.clz`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 variable [Hashable α] [DecidableEq α]
 

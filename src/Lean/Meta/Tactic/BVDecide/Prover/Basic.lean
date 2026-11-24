@@ -18,7 +18,7 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 open Std.Tactic.BVDecide
 open Std.Tactic.BVDecide.Reflect
 

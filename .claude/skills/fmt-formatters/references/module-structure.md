@@ -24,7 +24,7 @@ Formatter modules are registered in aggregation files that mirror the hierarchy:
 - `src/Lean/Fmt/Formatters/Init.lean` publicly imports each
   `Lean.Fmt.Formatters.Init.*` module (e.g. `...Init.Notation`, `...Init.Tactics`)
 - `src/Lean/Fmt/Formatters/Std.lean` publicly imports `...Std.Data`, `...Std.Do`,
-  `...Std.Internal`, `...Std.Sat`, `...Std.Tactic`, `...Std.Time` and `...Std.WP`
+  `...Std.Internal`, `...Std.Tactic`, `...Std.Time` and `...Std.WP`
 - `src/Lean/Fmt/Formatters/Lean.lean` publicly imports each `Lean.Fmt.Formatters.Lean.*`
   module (`...Lean.Data`, `...Lean.Elab`, `...Lean.Meta`, `...Lean.Parser`, `...Lean.Server`, …)
 - `src/Lean/Fmt/Formatters/Lean/Parser.lean` publicly imports each

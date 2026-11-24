@@ -16,7 +16,7 @@ This module contains the implementation of a bitblaster for `BitVec.sub`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

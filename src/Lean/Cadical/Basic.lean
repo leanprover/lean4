@@ -7,7 +7,7 @@ module
 
 prelude
 import Lean.Cadical.Internal
-public import Std.Sat.CNF.Basic
+public import Std.Internal.Sat.CNF.Basic
 public import Init.Data.SInt.Basic
 public import Init.System.IO
 
@@ -15,7 +15,7 @@ namespace Lean.Cadical
 
 /-!
 This module provides a thin wrapper around CaDiCaL's C++ FFI, allowing it to interact with the CNF
-API from `Std.Sat.CNF`.
+API from `Std.Internal.Sat.CNF`.
 -/
 
 /--
@@ -146,7 +146,7 @@ public structure Solver where
 
 namespace Solver
 
-open Std.Sat
+open Std.Internal.Sat
 
 @[inline]
 def toApiLit (lit : Nat) (pol : Bool) : IO Int32 := do

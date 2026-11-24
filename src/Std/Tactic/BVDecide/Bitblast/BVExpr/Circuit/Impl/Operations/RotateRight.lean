@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Std.Sat.AIG.LawfulVecOperator
+public import Std.Internal.Sat.AIG.LawfulVecOperator
 import Init.Omega
 
 @[expose] public section
@@ -19,7 +19,7 @@ rotating with a known rotation distance is supported because `rotateRight` takes
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

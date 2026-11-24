@@ -31,7 +31,7 @@ general `BitVec` problems with boolean substructure.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 

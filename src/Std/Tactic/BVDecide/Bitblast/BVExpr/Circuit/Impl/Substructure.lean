@@ -19,7 +19,7 @@ is used to prevent rerunning bitblasting on common bitvector subexpressions.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat Std.Sat.AIG
+open Std.Internal.Sat Std.Internal.Sat.AIG
 
 namespace BVLogicalExpr
 

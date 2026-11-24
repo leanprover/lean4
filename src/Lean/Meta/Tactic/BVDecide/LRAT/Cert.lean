@@ -19,7 +19,7 @@ This module contains the logic for loading LRAT proofs into Lean.
 
 namespace Lean.Meta.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 open Std.Tactic.BVDecide
 
 instance : ToExpr LRAT.IntAction where

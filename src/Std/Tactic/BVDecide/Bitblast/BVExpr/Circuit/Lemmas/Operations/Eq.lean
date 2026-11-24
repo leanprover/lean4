@@ -18,8 +18,8 @@ This module contains the verification of the `BitVec` equality bitblaster from `
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
-open Std.Sat.AIG
+open Std.Internal.Sat
+open Std.Internal.Sat.AIG
 
 namespace BVPred
 

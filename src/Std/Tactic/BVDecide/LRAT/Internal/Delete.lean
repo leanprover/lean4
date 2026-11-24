@@ -11,7 +11,7 @@ import Init.ByCases
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace State
 

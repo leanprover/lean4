@@ -25,8 +25,8 @@ This module contains the verification of the `BitVec.udiv` bitblaster from `Impl
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
-open Std.Sat.AIG
+open Std.Internal.Sat
+open Std.Internal.Sat.AIG
 
 namespace BVExpr
 namespace bitblast

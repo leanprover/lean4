@@ -13,4 +13,5 @@ for ((i = 0; i < ${#args[@]}; i++)); do
   fi
 done
 echo "${line[*]}" >> "$dir/bwrap.log"
-exec "$BASH" "$dir/../fake-bwrap.sh" "$@"
+# Sourced, since without `PATH` neither `bash` nor `$BASH` leads back to this interpreter.
+source "$dir/../fake-bwrap.sh"

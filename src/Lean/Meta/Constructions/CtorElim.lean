@@ -350,7 +350,7 @@ Given a free variable `discr` whose type is an inductive application with free v
 and a proof `ctorIdxEq : discr.ctorIdx = <constructor index of targetCtor>`, creates a dependent
 constructor eliminator application of type `resultType`.
 
-The alternatives are computed by calling `alt` with the inductive info, constructor info, the
+The alternative is computed by calling `alt` with the inductive info, constructor info, the
 fields, the constructor application and the new result type.
 -/
 public def Meta.mkDepCtorElim [Monad m] [MonadEnv m] [MonadError m]

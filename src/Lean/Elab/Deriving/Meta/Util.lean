@@ -555,7 +555,7 @@ structure Context where
   indParams : Array Expr
   /--
   The resulting level for the mutual inductive type, i.e.
-  `mkAppN (mkAppN (.const indInfo.name lparams) indParams) indIndices : Sort indLevel`
+  `mkAppN (mkAppN (.const indInfo.name indLParams) indParams) indIndices : Sort indLevel`
   for any valid `indIndices`. In the case of `mkInductiveDerivingHandler`, this is guaranteed to
   match the level shape provided to the function (or inferred by `inferLevelShape`).
   -/

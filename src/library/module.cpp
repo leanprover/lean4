@@ -229,24 +229,29 @@ static size_t lib_table_size(std::vector<lib_info> const & libs) {
 }
 
 
+// Copies `n` bytes at `p` to `dst` and advances `p`, checking that they lie before `end`.
+static void read_bytes(char const * & p, char const * end, void * dst, size_t n) {
+    if (static_cast<size_t>(end - p) < n)
+        throw exception("unexpected end of file");
+    memcpy(dst, p, n);
+    p += n;
+}
+
 // Parse the closure fn-pointer relocation table from `p` (pointing at `num_libs` in the loaded
-// file) into sorted `(saved_base, delta)` pairs. `memcpy` keeps the loads alignment-safe.
-static std::vector<std::pair<size_t, ptrdiff_t>> read_lib_table_from_buffer(char const * p) {
+// file, which ends at `end`) into sorted `(saved_base, delta)` pairs.
+static std::vector<std::pair<size_t, ptrdiff_t>> read_lib_table_from_buffer(char const * p, char const * end) {
     std::vector<std::pair<size_t, ptrdiff_t>> relocs;
     uint32_t n;
-    memcpy(&n, p, sizeof(n));
-    p += sizeof(n);
+    read_bytes(p, end, &n, sizeof(n));
     if (n == 0) return relocs;
     std::vector<lib_info> current_libs = get_loaded_libs();
     for (uint32_t i = 0; i < n; i++) {
         size_t old_base;
-        memcpy(&old_base, p, sizeof(old_base));
-        p += sizeof(old_base);
+        read_bytes(p, end, &old_base, sizeof(old_base));
         uint32_t len;
-        memcpy(&len, p, sizeof(len));
-        p += sizeof(len);
-        std::string id(p, len);
-        p += len;
+        read_bytes(p, end, &len, sizeof(len));
+        std::string id(len, '\0');
+        read_bytes(p, end, &id[0], len);
         size_t new_base = 0;
         bool found = false;
         for (lib_info const & lib : current_libs) {
@@ -575,23 +580,31 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs;
         std::vector<size_t> closure_offsets;
+        // The checks below only validate the section framing against the file size, which detects
+        // truncated files. The compacted data itself is trusted.
+        char const * p = buffer + sizeof(olean_header);
+        char const * end = buffer + size;
         size_t data_size;
-        memcpy(&data_size, buffer + sizeof(olean_header), sizeof(data_size));
+        read_bytes(p, end, &data_size, sizeof(data_size));
+        if (data_size > static_cast<size_t>(end - p))
+            throw exception("unexpected end of file");
         size_t data_section_off = sizeof(olean_header) + sizeof(size_t);
         size_t data_section_sz = data_size;
-        char const * p = buffer + data_section_off + data_size;
+        p += data_size;
         uint32_t num_closure_offsets;
-        memcpy(&num_closure_offsets, p, sizeof(num_closure_offsets));
-        p += sizeof(num_closure_offsets);
+        read_bytes(p, end, &num_closure_offsets, sizeof(num_closure_offsets));
         if (num_closure_offsets > 0) {
+            if (num_closure_offsets > static_cast<size_t>(end - p) / sizeof(uint64_t))
+                throw exception("unexpected end of file");
             closure_offsets.reserve(num_closure_offsets);
             for (uint32_t i = 0; i < num_closure_offsets; i++) {
                 uint64_t off;
-                memcpy(&off, p, sizeof(off));
-                p += sizeof(off);
+                read_bytes(p, end, &off, sizeof(off));
+                if (data_size < sizeof(void*) || off > data_size - sizeof(void*))
+                    throw exception("closure offset out of bounds");
                 closure_offsets.push_back(static_cast<size_t>(off));
             }
-            lib_relocs = read_lib_table_from_buffer(p);
+            lib_relocs = read_lib_table_from_buffer(p, end);
         }
 
         region_reader reader(

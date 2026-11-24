@@ -1,0 +1,6 @@
+truncated lengths accepted: #[]
+closure offset last word: none
+closure offset straddles end: (some (failed to read './_tmp_olean_truncated.olean': closure offset out of bounds))
+closure offset at end: (some (failed to read './_tmp_olean_truncated.olean': closure offset out of bounds))
+closure offset max: (some (failed to read './_tmp_olean_truncated.olean': closure offset out of bounds))
+intact: none

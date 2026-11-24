@@ -51,13 +51,13 @@ where
     have ⟨xs⟩ := xs
     simp [Array.push, List.concat_eq_append]
 
+private theorem Array.ext_of_toList_eq : {x y : Array UInt8} → x.toList = y.toList → x = y
+  | ⟨_⟩, ⟨_⟩, rfl => rfl
+
 theorem List.toByteArray_append' {l l' : List UInt8} :
     (l ++ l').toByteArray = l.toByteArray.append l'.toByteArray :=
-  ByteArray.ext (ext (by simp))
-where
-  ext : {x y : Array UInt8} → x.toList = y.toList → x = y
-  | ⟨_⟩, ⟨_⟩, rfl => rfl
+  ByteArray.ext (Array.ext_of_toList_eq (by simp))
 
 theorem List.utf8Encode_eq_toByteArray {l : List Char} :
     l.utf8Encode = (l.flatMap String.utf8EncodeChar).toByteArray :=
-  ByteArray.ext (List.toByteArray_append'.ext (by simp [List.utf8Encode]))
+  ByteArray.ext (Array.ext_of_toList_eq (by simp [List.utf8Encode]))

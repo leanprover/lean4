@@ -364,6 +364,26 @@ theorem mergeSort_of_pairwise : ∀ {l : List α} (_ : Pairwise le l), mergeSort
     rw [splitInTwo_fst_append_splitInTwo_snd]
 termination_by l => l.length
 
+private theorem mergeSort_zipIdx_from : ∀ (i : Nat) (l : List α),
+    (mergeSort (l.zipIdx i) (zipIdxLE le)).map (·.1) = mergeSort l le
+  | _, []
+  | _, [a] => by simp
+  | _, a :: b :: xs => by
+    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
+    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
+    simp only [mergeSort, zipIdx]
+    rw [splitInTwo_cons_cons_zipIdx_fst]
+    rw [splitInTwo_cons_cons_zipIdx_snd]
+    rw [merge_stable]
+    · rw [mergeSort_zipIdx_from, mergeSort_zipIdx_from]
+    · simp only [mem_mergeSort, Prod.forall]
+      intro j x k y mx my
+      have := mem_zipIdx mx
+      have := mem_zipIdx my
+      simp_all
+      omega
+termination_by _ l => l.length
+
 /--
 This merge sort algorithm is stable,
 in the sense that breaking ties in the ordering function using the position in the list
@@ -378,26 +398,7 @@ See also:
 -/
 theorem mergeSort_zipIdx {l : List α} :
     (mergeSort (l.zipIdx) (zipIdxLE le)).map (·.1) = mergeSort l le :=
-  go 0 l
-where go : ∀ (i : Nat) (l : List α),
-    (mergeSort (l.zipIdx i) (zipIdxLE le)).map (·.1) = mergeSort l le
-  | _, []
-  | _, [a] => by simp
-  | _, a :: b :: xs => by
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
-    simp only [mergeSort, zipIdx]
-    rw [splitInTwo_cons_cons_zipIdx_fst]
-    rw [splitInTwo_cons_cons_zipIdx_snd]
-    rw [merge_stable]
-    · rw [go, go]
-    · simp only [mem_mergeSort, Prod.forall]
-      intro j x k y mx my
-      have := mem_zipIdx mx
-      have := mem_zipIdx my
-      simp_all
-      omega
-termination_by _ l => l.length
+  mergeSort_zipIdx_from 0 l
 
 theorem mergeSort_cons {le : α → α → Bool}
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
@@ -417,7 +418,7 @@ theorem mergeSort_cons {le : α → α → Bool}
   rw [h] at p
   refine ⟨l₁.map (·.1), l₂.map (·.1), ?_, ?_, ?_⟩
   · simpa using congrArg (·.map (·.1)) h
-  · rw [← mergeSort_zipIdx.go 1, ← map_append]
+  · rw [← mergeSort_zipIdx_from 1, ← map_append]
     congr 1
     have q : mergeSort (l.zipIdx 1) (zipIdxLE le) ~ l₁ ++ l₂ :=
       (mergeSort_perm (l.zipIdx 1) (zipIdxLE le)).trans

@@ -11,9 +11,9 @@ set_option sym.debug true
 /-!
 # `vcgen` on a non-monadic program type
 
-This test exercises the `WP`/`WPMonad` split: it defines a small IMP language with (non-reentrant)
+This test exercises the `WP`/`MonadicWP` split: it defines a small IMP language with (non-reentrant)
 function calls whose weakest precondition is an *operational* semantics, gives it a `WP` instance
-(without any `WPMonad` instance, since `Cmd` is not a monad), and uses `vcgen` to generate
+(without any `MonadicWP` instance, since `Cmd` is not a monad), and uses `vcgen` to generate
 verification conditions. The environment lives in the assertion (`Env → State → Prop`) so the
 program stays a bare `Cmd` and `vcgen` discriminates on its constructors.
 
@@ -165,63 +165,62 @@ opaque for the `Spec.while`/`inv1` mechanism. -/
 /-- `wp` of a `Cmd` is `wpCmd` at the assertion's environment. Not a `simp` lemma; it is the rfl
 bridge behind the per-constructor equations below. -/
 private theorem wp_apply (c : Cmd) :
-    Std.WP.wp c Q eposts = fun Φ s => wpCmd Φ c (Q () Φ) s := rfl
+    wp c Q eposts = fun Φ s => wpCmd Φ c (Q () Φ) s := rfl
 
 @[simp] theorem wp_skip_eq (Φ : Env) (s : State) :
-    Std.WP.wp Cmd.skip Q eposts Φ s = Q () Φ s := by
+    wp Cmd.skip Q eposts Φ s = Q () Φ s := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_assign_eq (x : Var) (e : Expr) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.assign x e) Q eposts Φ s = Q () Φ (s.update x (e.eval s)) := by
+    wp (Cmd.assign x e) Q eposts Φ s = Q () Φ (s.update x (e.eval s)) := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_seq_eq (c₁ c₂ : Cmd) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.seq c₁ c₂) Q eposts Φ s =
-      Std.WP.wp c₁ (fun _ => Std.WP.wp c₂ Q eposts) eposts Φ s := by
+    wp (Cmd.seq c₁ c₂) Q eposts Φ s =
+      wp c₁ (fun _ => wp c₂ Q eposts) eposts Φ s := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_ite_eq (cond : Expr) (c₁ c₂ : Cmd) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.ite cond c₁ c₂) Q eposts Φ s =
-      if cond.eval s ≠ 0 then Std.WP.wp c₁ Q eposts Φ s
-      else Std.WP.wp c₂ Q eposts Φ s := by
+    wp (Cmd.ite cond c₁ c₂) Q eposts Φ s =
+      if cond.eval s ≠ 0 then wp c₁ Q eposts Φ s
+      else wp c₂ Q eposts Φ s := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_call_eq (f : FName) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.call f) Q eposts Φ s =
-      (Φ.lookup f).elim False (fun p => Std.WP.wp p.2 (fun u _ => Q u Φ) eposts p.1 s) := by
+    wp (Cmd.call f) Q eposts Φ s =
+      (Φ.lookup f).elim False (fun p => wp p.2 (fun u _ => Q u Φ) eposts p.1 s) := by
   show wpCmd Φ (Cmd.call f) (Q () Φ) s = _
   rw [wpCmd]; cases Φ.lookup f <;> rfl
 
 theorem wp_while_eq (cond : Expr) (body : Cmd) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.while cond body) Q eposts Φ s =
+    wp (Cmd.while cond body) Q eposts Φ s =
       ∃ I : State → Prop, I s ∧
-        (∀ s', I s' → cond.eval s' ≠ 0 → Std.WP.wp body (fun _ _ => I) eposts Φ s') ∧
+        (∀ s', I s' → cond.eval s' ≠ 0 → wp body (fun _ _ => I) eposts Φ s') ∧
         (∀ s', I s' → cond.eval s' = 0 → Q () Φ s') := by
   simp only [wp_apply, wpCmd]
 
 /-- Build a triple from the pointwise `wp` equation of the program. -/
 private theorem triple_of_wp {c : Cmd} {pre : Assn}
-    (h : ∀ Φ s, Std.WP.wp c Q eposts Φ s = pre Φ s) : Triple c pre Q eposts :=
-  Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s]; exact PartialOrder.rel_refl)
+    (h : ∀ Φ s, wp c Q eposts Φ s = pre Φ s) : ⦃ pre ⦄ c ⦃ Q; eposts ⦄ :=
+  Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s])
 
 /-! ## Specification lemmas, one per constructor -/
 
 @[spec] theorem Spec.skip :
-    Triple Cmd.skip (Q ()) Q eposts := triple_of_wp wp_skip_eq
+    ⦃ Q () ⦄ Cmd.skip ⦃ Q; eposts ⦄ := triple_of_wp wp_skip_eq
 
 @[spec] theorem Spec.assign (x : Var) (e : Expr) :
-    Triple (Cmd.assign x e) (fun Φ s => Q () Φ (s.update x (e.eval s))) Q eposts :=
+    ⦃ fun Φ s => Q () Φ (s.update x (e.eval s)) ⦄ Cmd.assign x e ⦃ Q; eposts ⦄ :=
   triple_of_wp (wp_assign_eq x e)
 
 @[spec] theorem Spec.seq (c₁ c₂ : Cmd) :
-    Triple (Cmd.seq c₁ c₂)
-      (Std.WP.wp c₁ (fun _ => Std.WP.wp c₂ Q eposts) eposts) Q eposts :=
+    ⦃ wp c₁ (fun _ => wp c₂ Q eposts) eposts ⦄ Cmd.seq c₁ c₂ ⦃ Q; eposts ⦄ :=
   triple_of_wp (wp_seq_eq c₁ c₂)
 
 @[spec] theorem Spec.ite (cond : Expr) (c₁ c₂ : Cmd) :
-    Triple (Cmd.ite cond c₁ c₂)
-      (fun Φ s => if cond.eval s ≠ 0
-        then Std.WP.wp c₁ Q eposts Φ s else Std.WP.wp c₂ Q eposts Φ s) Q eposts :=
+    ⦃ fun Φ s => if cond.eval s ≠ 0 then wp c₁ Q eposts Φ s else wp c₂ Q eposts Φ s ⦄
+    Cmd.ite cond c₁ c₂
+    ⦃ Q; eposts ⦄ :=
   triple_of_wp (wp_ite_eq cond c₁ c₂)
 
 /-- Lift a body's contract through a call: if `f` resolves to `body` in prefix environment `Φ'`, a
@@ -229,8 +228,8 @@ triple for `body` (proven with `Φ` pinned to `Φ'`, so its own inner calls reso
 for `call f`. The call analogue of `Spec.while`: each concrete function's contract is one application
 of this lemma over its body. -/
 theorem Spec.call_of_body (f : FName) (Φ' : Env) (body : Cmd) {P' Q' : State → Prop}
-    (hbody : Triple body (fun Φ s => Φ = Φ' ∧ P' s) (fun _ _ s => Q' s) eposts) :
-    Triple (Cmd.call f) (fun Φ s => Φ.lookup f = some (Φ', body) ∧ P' s) (fun _ _ s => Q' s) eposts :=
+    (hbody : ⦃ fun Φ s => Φ = Φ' ∧ P' s ⦄ body ⦃ fun _ _ s => Q' s; eposts ⦄) :
+    ⦃ fun Φ s => Φ.lookup f = some (Φ', body) ∧ P' s ⦄ Cmd.call f ⦃ fun _ _ s => Q' s; eposts ⦄ :=
   Triple.iff.mpr (by
     rintro Φ s ⟨hlk, hp⟩
     simp only [wp_call_eq, hlk, Option.elim]
@@ -247,9 +246,9 @@ instantiates `I` from the `inv1` case, recurses into `body` for the preservation
 the exit condition as a VC. `I` is applied pointwise so the triple's assertion type stays `Assn`
 rather than `WhileInvariant`. -/
 @[spec] theorem Spec.while (cond : Expr) (body : Cmd) (I : WhileInvariant)
-    (step : Triple body (fun Φ s => I Φ s ∧ cond.eval s ≠ 0) (fun _ Φ s => I Φ s) eposts)
+    (step : ⦃ fun Φ s => I Φ s ∧ cond.eval s ≠ 0 ⦄ body ⦃ fun _ Φ s => I Φ s; eposts ⦄)
     (hexit : ∀ Φ s, I Φ s → cond.eval s = 0 → Q () Φ s) :
-    Triple (Cmd.while cond body) (fun Φ s => I Φ s) Q eposts :=
+    ⦃ fun Φ s => I Φ s ⦄ Cmd.while cond body ⦃ Q; eposts ⦄ :=
   Triple.iff.mpr (by
     intro Φ s hs
     simp only [wp_while_eq]
@@ -427,3 +426,53 @@ def countdown : Nat → Cmd
 `seq`/`assign`/`skip` specs. -/
 example : ⦃ fun _ _ => True ⦄ countdown 2 ⦃ fun _ _ s => s "x" = 0 ⦄ := by
   vcgen [countdown] with finish
+
+/-! ## Join points
+
+A specification or a program shares code through a join point `__vcgen_jp`, which `vcgen +jp`
+proves once. `Spec.seq_ite` shares the code after an `if`. -/
+
+@[spec default+10] theorem Spec.seq_ite (cond : Expr) (c₁ c₂ c₃ : Cmd) :
+    ⦃ wp
+        (have __vcgen_jp := fun (_ : Unit) => c₃
+         Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ())))
+        Q eposts ⦄
+    Cmd.seq (Cmd.ite cond c₁ c₂) c₃
+    ⦃ Q; eposts ⦄ :=
+  triple_of_wp fun _ _ => by simp only [wp_seq_eq, wp_ite_eq]
+
+example : ⦃ fun _ _ => True ⦄ ⟦ if b then y := 1 else y := 2 fi; z := y ⟧
+    ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
+  vcgen +jp with finish
+
+-- Two join points of a program, told apart by their suffixes, prove `z := y` once for all four
+-- paths.
+example : ⦃ fun _ _ => True ⦄
+    (have __vcgen_jp1 := fun (_ : Unit) => ⟦ z := y ⟧
+     have __vcgen_jp2 := fun (_ : Unit) =>
+       Cmd.ite ⟪c⟫ (.seq ⟦ y := 1 ⟧ (__vcgen_jp1 ())) (.seq ⟦ y := 2 ⟧ (__vcgen_jp1 ()))
+     Cmd.ite ⟪b⟫ (.seq ⟦ x := 1 ⟧ (__vcgen_jp2 ())) (.seq ⟦ x := 2 ⟧ (__vcgen_jp2 ())))
+    ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
+  vcgen +jp with finish
+
+-- `Spec.seq_seq_ite` shares the code after an `if` at the end of a left-nested `seq`.
+@[spec default+10] theorem Spec.seq_seq_ite (cond : Expr) (c c₁ c₂ c₃ : Cmd) :
+    ⦃ wp
+        (have __vcgen_jp := fun (_ : Unit) => c₃
+         Cmd.seq c (Cmd.ite cond (Cmd.seq c₁ (__vcgen_jp ())) (Cmd.seq c₂ (__vcgen_jp ()))))
+        Q eposts ⦄
+    Cmd.seq (Cmd.seq c (Cmd.ite cond c₁ c₂)) c₃
+    ⦃ Q; eposts ⦄ :=
+  triple_of_wp fun _ _ => by simp only [wp_apply, wpCmd]
+
+example : ⦃ fun _ _ => True ⦄
+    ⟦ (x := 1; if b then y := x else y := 2 fi); z := y ⟧
+    ⦃ fun _ _ s => s "z" = s "y" ⦄ := by
+  vcgen +jp with finish
+
+-- A join point without a jump.
+example : ⦃ fun _ _ => True ⦄
+    (have __vcgen_jp := fun (_ : Unit) => ⟦ z := y ⟧
+     ⟦ y := 1 ⟧)
+    ⦃ fun _ _ s => s "y" = 1 ⦄ := by
+  vcgen +jp with finish

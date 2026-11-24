@@ -38,7 +38,7 @@ class UpwardEnumerable (α : Type u) where
   If no other implementation is provided in `UpwardEnumerable` instance, `succMany?` repeatedly
   applies `succ?`.
   -/
-  succMany? (n : Nat) (a : α) : Option α := Nat.repeat (· >>= succ?) n (some a)
+  succMany? (n : Nat) (a : α) : Option α := Nat.iterate (· >>= succ?) n (some a)
 
 export UpwardEnumerable (succ? succMany?)
 

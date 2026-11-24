@@ -11,6 +11,7 @@ public import Lake.Build
 public import Lake.CLI
 public import Lake.Config
 public import Lake.DSL
+public import Lake.Formatters
 public import Lake.Load
 public import Lake.Reservoir
 public import Lake.Toml

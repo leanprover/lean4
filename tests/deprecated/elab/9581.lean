@@ -1,0 +1,42 @@
+import Std.Tactic.Do
+
+/-!
+Regression test for #9581: `mleave` on the goals `mvcgen` generates for a `for` loop in `EStateM`.
+-/
+
+set_option sym.debug true
+
+open Std.Do
+
+structure MyException where
+def F : EStateM MyException Unit Unit := do
+  for _ in [0:5] do
+    pure ()
+
+theorem F_spec :
+   ⦃⌜True⌝⦄
+   F
+   ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
+  mvcgen [F]
+
+  case inv1 => exact ⇓ _ => ⌜1 < 2⌝
+  -- it would be nice if we had a tactic wrapper around `case inv => exact ...` that does `mleave`
+  -- on all subgoals afterwards.
+
+  · mleave
+    omega
+  · mleave
+    omega
+  -- Goal that could be discharged completely automatically:
+  -- case post.except
+  -- ⊢ (⇓x => ⌜1 < 2⌝).snd ⊢ₑ (⇓x => ⌜1 < 2⌝).snd
+  · assumption
+  · mleave
+
+theorem F_spec_using_with :
+   ⦃⌜True⌝⦄
+   F
+   ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
+  mvcgen [F]
+  invariants · ⇓ _ => ⌜1 < 2⌝
+  with omega

@@ -22,6 +22,9 @@ def intro_with_eq' (p p' : Prop) (q : p → Sort u) (he : p = p') (h : (h : p') 
 
 /-! And -/
 
+theorem and_imp_of_left {a b c : Prop} (f : a → c) (h : a ∧ b) : c := f h.1
+theorem and_imp_of_right {a b c : Prop} (f : b → c) (h : a ∧ b) : c := f h.2
+
 theorem and_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a ∧ b) = b := by simp [h]
 theorem and_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a ∧ b) = a := by simp [h]
 theorem and_eq_of_eq_false_left {a b : Prop} (h : a = False) : (a ∧ b) = False := by simp [h]
@@ -34,6 +37,8 @@ theorem or_of_and_eq_false {a b : Prop} (h : (a ∧ b) = False) : (¬a ∨ ¬b) 
   by_cases a <;> by_cases b <;> simp_all
 
 /-! Or -/
+
+theorem or_imp_of_imp {a b c : Prop} (f : a → c) (g : b → c) (h : a ∨ b) : c := h.elim f g
 
 theorem or_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a ∨ b) = True := by simp [h]
 theorem or_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a ∨ b) = True := by simp [h]

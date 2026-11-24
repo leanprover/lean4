@@ -803,7 +803,13 @@ class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
 
 export LawfulBEq (eq_of_beq)
 
-instance [DecidableEq α] : LawfulBEq α where
+/--
+`LawfulBEq α` for the `BEq α` of a `DecidableEq α`. Its priority is high so that instance search
+finds it before the routes through `Ord` and the order classes (such as
+`Std.LawfulBEqOrd.lawfulBEq`), whose instance terms are several times larger and can exceed
+`synthInstance.maxSize` in a goal with many `∈` tests.
+-/
+instance (priority := high) instLawfulBEq [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
 

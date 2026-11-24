@@ -10,7 +10,7 @@
   changelog entry unless the PR is labeled with `no-changelog`. If the PR does not have this label,
   it must instead be categorized with one of the `changelog-*` labels (which will be done by a
   reviewer for external PRs).
-* A toolchain of the form `leanprover/lean4-pr-releases:pr-release-NNNN` for Linux and M-series Macs will be generated upon build. To generate binaries for Windows and Intel-based Macs as well, write a comment containing `release-ci` on its own line.
+* A toolchain of the form `leanprover/lean4-pr-releases:pr-release-NNNN-<SHA trimmed to 7 characters>` for Linux and M-series Macs will be generated upon build. To generate binaries for Windows and Intel-based Macs as well, write a comment containing `release-ci` on its own line.
 * You can manage the `awaiting-review`, `awaiting-author`, and `WIP` labels yourself, by writing a comment containing one of these labels on its own line.
 * Remove this section, up to and including the `---` before submitting.
 

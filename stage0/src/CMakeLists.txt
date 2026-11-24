@@ -8,7 +8,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 37)
+set(LEAN_VERSION_MINOR 38)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -1049,8 +1049,8 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     lean4lean
     PREFIX lean4lean
     EXCLUDE_FROM_ALL ON
-    GIT_REPOSITORY https://github.com/Kha/lean4lean
-    GIT_TAG lean4-bundle-4.35
+    GIT_REPOSITORY https://github.com/nomeata/lean4lean
+    GIT_TAG 70e8ae8c111bf3f5ac26f1075ef447fe16369578
     PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build lean4lean
@@ -1075,8 +1075,8 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     nanoda
     PREFIX nanoda
     EXCLUDE_FROM_ALL ON
-    GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
-    GIT_TAG 8de7e0c4ed3052745a7f8725164efd9e76d84c56
+    GIT_REPOSITORY https://github.com/nomeata/nanoda_lib
+    GIT_TAG 831ba4e661ab5af55a6b1dcf69fa86c0f81f1332
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON

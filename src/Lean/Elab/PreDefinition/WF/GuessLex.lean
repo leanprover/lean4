@@ -26,7 +26,9 @@ public section
 /-!
 This module finds lexicographic termination measures for well-founded recursion.
 
-Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
+Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`, and, in non-mutual
+definitions, `xᵢ` compared by its type's own `WellFoundedRelation` instance if that does not go
+via `sizeOf`, as for `String.Pos`), and complex measures
 (e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
 until it finds one where all proof obligations go through with the given tactic (`decreasing_by`),
 if given, or the default `decreasing_tactic`.
@@ -124,13 +126,17 @@ def naryVarNames (xs : Array Name) : MetaM (Array Name) := do
       else
         freshen ns (n.appendAfter "'")
 
+/-- How `evalRecCall` compares the values of a `BasicMeasure` -/
+inductive MeasureCmp where
+  /-- Compare `natFn`, which is like `.fn`, but unconditionally with `sizeOf` at the right type -/
+  | nat (natFn : Expr)
+  /-- Compare `.fn` using the `WellFoundedRelation` instance of its type -/
+  | wfRel
+deriving Inhabited
+
 /-- A termination measure with extra fields for use within GuessLex -/
 structure BasicMeasure extends TerminationMeasure where
-  /--
-  Like `.fn`, but unconditionally with `sizeOf` at the right type.
-  We use this one when in `evalRecCall`
-  -/
-  natFn : Expr
+  cmp : MeasureCmp
 deriving Inhabited
 
 /-- String description of this measure -/
@@ -139,32 +145,34 @@ def BasicMeasure.toString (measure : BasicMeasure) : MetaM String := do
     -- This is a bit slopping if `measure.fn` takes more parameters than the `PreDefinition`
     return (← ppExpr e).pretty
 
-/--
-Determine if the measure for parameter `x` should be `sizeOf x` or just `x`.
+/-- What the `WellFoundedRelation` instance of a parameter's type means for the measure `x` -/
+inductive ParamWFRel where
+  /-- The instance goes via `SizeOf`, so `x` is the same measure as `sizeOf x` -/
+  | sizeOf
+  /-- The type has its own instance (e.g. `String.Pos`), so `x` is a measure of its own -/
+  | custom
+  /--
+  `x` cannot be a measure: there is no instance, or the type depends on other varying parameters
+  (so `x` cannot be a component of a lexicographic measure)
+  -/
+  | unusable
+deriving BEq
 
-For non-mutual definitions, we omit `sizeOf` when the measure does not depend on
-the other varying parameters, and its `WellFoundedRelation` instance goes via `SizeOf`.
-
-For mutual definitions, we omit `sizeOf` only when the measure is (at reducible transparency!) of
-type `Nat` (else we'd have to worry about differently-typed measures from different functions to
-line up).
--/
-def mayOmitSizeOf (is_mutual : Bool) (args : Array Expr) (x : Expr) : MetaM Bool := do
+/-- Classifies the `WellFoundedRelation` instance of parameter `x`, given the varying `args`. -/
+def paramWFRel (args : Array Expr) (x : Expr) : MetaM ParamWFRel := do
   let t ← inferType x
-  if is_mutual
-  then
-    withReducible (isDefEq t (.const `Nat []))
-  else
-    try
-      if t.hasAnyFVar (fun fvar => args.contains (.fvar fvar)) then
-        pure false
-      else
-        let u ← getLevel t
-        let wfi ← synthInstance (.app (.const ``WellFoundedRelation [u]) t)
-        let soi ← synthInstance (.app (.const ``SizeOf [u]) t)
-        isDefEq wfi (mkApp2 (.const ``sizeOfWFRel [u]) t soi)
-    catch _ =>
-      pure false
+  if t.hasAnyFVar (fun fvar => args.contains (.fvar fvar)) then
+    return .unusable
+  try
+    let u ← getLevel t
+    let wfi ← synthInstance (.app (.const ``WellFoundedRelation [u]) t)
+    let soi ← synthInstance (.app (.const ``SizeOf [u]) t)
+    if ← isDefEq wfi (mkApp2 (.const ``sizeOfWFRel [u]) t soi) then
+      return .sizeOf
+    else
+      return .custom
+  catch _ =>
+    return .unusable
 
 /-- Sets the user names for the given free variables in `xs`. -/
 def withUserNames {α} (xs : Array Expr) (ns : Array Name) (k : MetaM α) : MetaM α := do
@@ -188,12 +196,21 @@ def simpleMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParam
           if sizeOf.isLit then continue
 
           let natFn ← mkLambdaFVars params (← mkAppM ``sizeOf #[x])
-          -- Determine if we need to exclude `sizeOf` in the measure we show/pass on.
-          let fn ←
-            if  ← mayOmitSizeOf is_mutual xs x
-            then mkLambdaFVars params x
-            else pure natFn
-          ret := ret.push { ref := .missing, structural := false, fn, natFn }
+          let xFn ← mkLambdaFVars params x
+          let mk (fn : Expr) (cmp : MeasureCmp) : BasicMeasure :=
+            { ref := .missing, structural := false, fn, cmp }
+          if is_mutual then
+            -- Measures of different functions have to line up, so we only omit `sizeOf` for `Nat`
+            -- (at reducible transparency) and do not use other relations.
+            if ← withReducible (isDefEq (← inferType x) (.const ``Nat [])) then
+              ret := ret.push (mk xFn (.nat natFn))
+            else
+              ret := ret.push (mk natFn (.nat natFn))
+          else
+            match ← paramWFRel xs x with
+            | .sizeOf   => ret := ret.push (mk xFn (.nat natFn))
+            | .custom   => ret := ret.push (mk natFn (.nat natFn)) |>.push (mk xFn .wfRel)
+            | .unusable => ret := ret.push (mk natFn (.nat natFn))
         return ret
 
 /-- Internal monad used by `withRecApps` -/
@@ -414,7 +431,7 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedPara
               let fn ← mkLambdaFVars rc.params body
               -- Avoid duplicates
               unless ← measures.anyM (isDefEq ·.fn fn) do
-                measures := measures.push { ref := .missing, structural := false,  fn, natFn := fn }
+                measures := measures.push { ref := .missing, structural := false,  fn, cmp := .nat fn }
         return measures
     return measures
 
@@ -440,6 +457,15 @@ def GuessLexRel.toNatRel : GuessLexRel → Expr
   | no_idea => unreachable!
 
 /--
+Given a `GuessLexRel`, produce a binary `Expr` that relates two values of type `α` accordingly,
+using the `WellFoundedRelation` instance of `α` for `<`. There is no `≤` for arbitrary relations.
+-/
+def GuessLexRel.toWFRel (α : Expr) : GuessLexRel → MetaM Expr
+  | lt => mkAppOptM ``WellFoundedRelation.rel #[α, none]
+  | eq => mkAppOptM ``Eq #[α]
+  | le | no_idea => unreachable!
+
+/--
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
@@ -448,11 +474,18 @@ def evalRecCall (callerName: Name) (decrTactic? : Option DecreasingBy) (callerMe
   rcc.ctxt.run do
     let callerMeasure := callerMeasures[callerMeasureIdx]!
     let calleeMeasure := calleeMeasures[calleeMeasureIdx]!
-    let param := callerMeasure.natFn.beta rcc.params
-    let arg := calleeMeasure.natFn.beta rcc.args
+    let (param, arg, rels, toRel) ← match callerMeasure.cmp, calleeMeasure.cmp with
+      | .nat callerFn, .nat calleeFn =>
+        pure (callerFn.beta rcc.params, calleeFn.beta rcc.args,
+          [GuessLexRel.eq, .lt, .le], fun (rel : GuessLexRel) => pure rel.toNatRel)
+      | .wfRel, .wfRel =>
+        let arg := calleeMeasure.fn.beta rcc.args
+        let α ← inferType arg
+        pure (callerMeasure.fn.beta rcc.params, arg, [GuessLexRel.eq, .lt], (·.toWFRel α))
+      | _, _ => throwError "evalRecCall: measures of caller and callee are compared differently"
     trace[Elab.definition.wf] "inspectRecCall: {rcc.caller} ({param}) → {rcc.callee} ({arg})"
-    for rel in [GuessLexRel.eq, .lt, .le] do
-      let goalExpr := mkAppN rel.toNatRel #[arg, param]
+    for rel in rels do
+      let goalExpr := mkAppN (← toRel rel) #[arg, param]
       trace[Elab.definition.wf] "Goal for {rel}: {goalExpr}"
       check goalExpr
 

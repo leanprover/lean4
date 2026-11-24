@@ -4,9 +4,6 @@ universe u v
 
 variable {α : Type u}
 
-/-- Iterate a function. -/
-def Nat.iterate {α : Sort u} (op : α → α) : Nat → α → α := sorry
-
 notation:max f "^["n"]" => Nat.iterate f n
 
 theorem Function.iterate_succ' (f : α → α) (n : Nat) : f^[n.succ] = f ∘ f^[n] := sorry

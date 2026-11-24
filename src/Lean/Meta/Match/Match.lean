@@ -20,7 +20,7 @@ import Lean.Meta.Match.CaseArraySizes
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Value
-
+import Lean.Meta.Constructions.CtorIdx
 /-!
 This module implements the backend of match compilation. The elaborator has already elaborated
 the patterns and the the expected type of the matcher is known.
@@ -858,6 +858,108 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
     p
 
 /--
+Returns the value of the `Nat` term `e` when it is known without unfolding definitions:
+- `T.ctorIdx c`, where `T` is any inductive type and `c` an application of a constructor of `T`,
+  has the index of that constructor as value (e.g., `List.ctorIdx (a :: as)` is `1`);
+- otherwise, the value `evalNat` computes, for numerals and arithmetic on them.
+
+`T.ctorIdx` is supported because deciders that compare constructors by their index match on
+`l, r, h` with `h : l.ctorIdx = r.ctorIdx` and write only the cases where `l` and `r` have the
+same constructor. In each missing case, `h` becomes `(c₁ ..).ctorIdx = (c₂ ..).ctorIdx` for two
+different constructors, and reading both sides as numerals refutes it without splitting the
+constructors' fields.
+-/
+private def natValue? (e : Expr) : MetaM (Option Nat) := do
+  if let .const declName _ := e.getAppFn then
+    if let some indVal ← isCtorIdx? declName then
+      if e.getAppNumArgs == indVal.numParams + indVal.numIndices + 1 then
+        if let some ctorVal ← isConstructorApp? e.appArg! then
+          return some ctorVal.cidx
+  (evalNat e).run
+
+/--
+Returns `true` if the equation `t = s` is inconsistent. There are three cases:
+- constructor applications: the constructors have different indices (`ConstructorVal.cidx`), or
+  they are the same constructor and the equation between some pair of fields is inconsistent;
+- `Nat` values (`natValue?`): the values differ;
+- a `Nat` value `n` and an offset `x + k` (`isOffset?`): `n < k`.
+
+`t` and `s` may contain loose bound variables, as the indices of a constructor's result type do.
+-/
+private partial def isInconsistentEq (t s : Expr) : MetaM Bool := do
+  if let some n ← natValue? t then
+    return (← isNatValueInconsistent n s)
+  if let some n ← natValue? s then
+    return (← isNatValueInconsistent n t)
+  let some tCtor ← isConstructorApp? t | return false
+  let some sCtor ← isConstructorApp? s | return false
+  if tCtor.cidx != sCtor.cidx then return true
+  -- The same constructor: some pair of fields must be inconsistent. The parameters are skipped.
+  let t ← litToCtor t
+  let s ← litToCtor s
+  let mut i := tCtor.numParams
+  while i < t.getAppNumArgs do
+    if (← isInconsistentEq (t.getArg! i) (s.getArg! i)) then return true
+    i := i + 1
+  return false
+where
+  /-- Returns `true` if a `Nat` term with value `n` cannot be equal to `e`. -/
+  isNatValueInconsistent (n : Nat) (e : Expr) : MetaM Bool := do
+    if let some m ← natValue? e then
+      return n != m
+    if let some (_, k) ← (isOffset? e).run then
+      return n < k
+    return false
+
+/--
+Returns `true` if splitting a variable of type `type` produces no subproblems. `type` is reduced
+with `whnfD`, as `getInductiveVal?` does, and then is one of
+- an inductive type without constructors, such as `False`;
+- an inconsistent equation `t = s`, or `HEq t s` at syntactically equal types
+  (`isInconsistentEq`), such as `none = some v`, `some none = some (some v)` or `2 = 3`;
+- an inductive family where, for every constructor, the equation between some index of its result
+  type and the actual index is inconsistent, such as `List.Mem w []`, whose constructors' indices
+  are `_ :: _`, or `Even 1` for `Even.zero : Even 0` and `Even.ss : Even n → Even (n + 2)`.
+-/
+private def isRefutingType (type : Expr) : MetaM Bool := do
+  let type ← whnfD (← instantiateMVars type)
+  if let some (_, lhs, rhs) := type.eq? then
+    return (← isInconsistentEq lhs rhs)
+  if let some (α, lhs, β, rhs) := type.heq? then
+    return α == β && (← isInconsistentEq lhs rhs)
+  let .const declName _ := type.getAppFn | return false
+  let some (.inductInfo val) := (← getEnv).find? declName | return false
+  if val.numCtors == 0 then return true
+  if val.numIndices == 0 then return false
+  -- An inductive family `I ps is`. No constructor can build a value of this type if, for every
+  -- constructor, the equation between some index of its result type and the corresponding index
+  -- in `is` is inconsistent. Then splitting the variable leaves no subproblem.
+  let indices := type.getAppArgs.extract val.numParams type.getAppNumArgs
+  val.ctors.allM fun ctorName => do
+    let some (.ctorInfo ctorVal) := (← getEnv).find? ctorName | return false
+    -- The indices of the constructor's result type. They are read without instantiating the
+    -- constructor's type, so they contain loose bound variables for its parameters and fields;
+    -- `isInconsistentEq` never decides on a bound variable.
+    let ctorIndices := ctorVal.type.getForallBody.getAppArgs.extract val.numParams
+      (val.numParams + val.numIndices)
+    (indices.zip ctorIndices).anyM fun (i, j) => isInconsistentEq i j
+
+/--
+Returns the index of a variable of a problem without alternatives that refutes the problem when
+split (`isRefutingType`), such as `h : none = some v` or `h : P x` where `P x` reduces to `False`.
+Splitting the variables before it first would multiply the subproblems by the numbers of their
+constructors. Only the problem's variables are inspected, not the local context.
+-/
+private def findRefutingVar? (p : Problem) : MetaM (Option Nat) := withGoalOf p do
+  let mut i := 0
+  for x in p.vars do
+    if let .fvar fvarId := x then
+      if (← isRefutingType (← fvarId.getType)) then
+        return some i
+    i := i + 1
+  return none
+
+/--
 Returns the index of the first pattern in the first alternative that is refutable
 (i.e. not a variable or inaccessible pattern). We want to handle these first
 so that the generated code branches in the order suggested by the user's code.
@@ -1001,6 +1103,13 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     let p ← processExFalso p
     process p
     return
+
+  if p.alts.isEmpty then
+    if let some i ← findRefutingVar? p then
+      if i > 0 then
+        traceStep ("move refuting variable to front")
+        process (moveToFront p i)
+        return
 
   if hasIndependentPatterns p then
     traceStep ("processing independent prefixes of patterns")

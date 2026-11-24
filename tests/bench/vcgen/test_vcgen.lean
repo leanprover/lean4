@@ -26,6 +26,7 @@ Each case exercises a different aspect of the VC generation:
 - `IfsJP`: several `if`s with a shared continuation, exercising `vcgen +jp`
 - `MatchesJP`: several `match`es with a shared continuation, exercising `vcgen +jp` on matchers
 - `WideJP`: one join point reached by many jumps, exercising `vcgen +jp` on wide disjunctions
+- `ScalarProduct`: `vcgen … with finish` re-establishing the loop invariant of an FMA3 scalar product over `BitVec 64` registers
 -/
 
 open Lean Order Parser Meta Elab Tactic Sym Std WP
@@ -66,6 +67,8 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen +jp) `(tactic| sorry) [3]
   runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
     `(tactic| vcgen +jp) `(tactic| sorry) [4]
+  runBenchUsingTactic ``ScalarProduct.Goal [``ScalarProduct.prog, ``ScalarProduct.exits]
+    `(tactic| vcgen with finish) `(tactic| fail) [2]
 
 -- Verify `simp [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--

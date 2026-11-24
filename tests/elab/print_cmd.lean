@@ -91,8 +91,8 @@ rules:
 
 /-! Recursive inductive predicate, with indices and parameters -/
 /--
-info: recursor Acc.rec.{u_1, u} {α : Sort u} {r : α → α → Prop} {motive : (a : α) → Acc r a → Sort u_1}
-  (intro : (x : α) → (h : ∀ (y : α), r y x → Acc r y) → ((y : α) → (a : r y x) → motive y ⋯) → motive x ⋯) {a✝ : α}
+info: recursor Acc.rec.{u} {α : Sort u} {r : α → α → Prop} {motive : (a : α) → Acc r a → Prop}
+  (intro : ∀ (x : α) (h : ∀ (y : α), r y x → Acc r y), (∀ (y : α) (a : r y x), motive y ⋯) → motive x ⋯) {a✝ : α}
   (t : Acc r a✝) : motive a✝ t
 number of parameters: 2 (positions 1–2)
 number of motives: 1 (position 3)

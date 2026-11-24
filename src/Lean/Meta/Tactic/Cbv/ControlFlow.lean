@@ -434,6 +434,7 @@ builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _ _) := simpCond
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then
+    let e' ← Sym.share e'
     trace[Meta.Tactic.cbv.rewrite] "recMatcher:{indentExpr e}\n==>{indentExpr e'}"
     return .step e' (← Sym.mkEqRefl e')
   else

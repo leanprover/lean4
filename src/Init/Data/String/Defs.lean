@@ -241,8 +241,12 @@ Examples:
  * `"".pushn ' ' 4 = "    "`
 -/
 @[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
-  n.repeat (fun s => s.push c) s
+  n.iterate (fun s => s.push c) s
 
+theorem pushn_eq_iterate_push {s : String} {c : Char} {n : Nat} :
+    s.pushn c n = n.iterate (fun s => s.push c) s := (rfl)
+
+@[deprecated pushn_eq_iterate_push (since := "2026-11-23")]
 theorem pushn_eq_repeat_push {s : String} {c : Char} {n : Nat} :
     s.pushn c n = n.repeat (fun s => s.push c) s := (rfl)
 

@@ -30,14 +30,14 @@ fun α motive n xs ys h_1 h_2 =>
         (fun xs ys h =>
           ⋯ ▸
             Vec.casesOn (motive := fun a x => 0 = a → ys ≍ x → motive 0 Vec.nil ys) ys (fun h h_3 => ⋯ ▸ h_1 ())
-              (fun {n} a a_1 h => False.elim ⋯) ⋯ ⋯)
+              (fun {n} a a_1 h => absurd h ⋯) ⋯ ⋯)
         ⋯ xs ys)
     (fun {n_1} a a_1 h =>
       Eq.ndrec (motive := fun n => (xs ys : Vec α n) → xs ≍ Vec.cons a a_1 → motive n xs ys)
         (fun xs ys h =>
           ⋯ ▸
             Vec.casesOn (motive := fun a_2 x => n_1 + 1 = a_2 → ys ≍ x → motive (n_1 + 1) (Vec.cons a a_1) ys) ys
-              (fun h => False.elim ⋯)
+              (fun h => absurd h ⋯)
               (fun {n} a_2 a_3 h =>
                 Nat.Internal.elimOffset n_1 n 1 h fun x =>
                   Eq.ndrec (motive := fun {n} =>

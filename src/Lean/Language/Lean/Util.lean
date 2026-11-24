@@ -211,3 +211,84 @@ public partial def findInfoTreeAtPos
     (includeStop : Bool)
     : Task (Option Elab.InfoTree) :=
   findCmdDataAtPos initSnap text hoverPos includeStop |>.map (sync := true) (·.map (·.2))
+
+public structure HeaderData where
+  stx : Syntax
+  parserState? : Option Parser.ModuleParserState
+  cmdState? : Option Elab.Command.State
+
+public structure CommandData where
+  stx : Syntax
+  parserState : Parser.ModuleParserState
+  cmdState : Elab.Command.State
+
+public structure ModuleData where
+  headerData : HeaderData
+  cmdData : Array CommandData
+  /--
+  `true` iff the module header or any command produced parse errors. Note that error recovery
+  in the parser may produce a structurally well-formed `Syntax` tree even when there were parse
+  errors, so checking `Syntax.hasMissing` is not sufficient to detect them.
+  -/
+  hasParseErrors : Bool := false
+
+/--
+Collects the syntax, parser states and, if `collectCmdStates` is set, the elaboration states of the
+header and all commands of the module described by `initSnap`.
+
+Since collecting the elaboration state of a command means waiting for its elaboration to finish,
+`collectCmdStates` should only be set when these states are actually needed. The elaboration state
+of the header is always collected as it is available without waiting for any command elaboration.
+-/
+public partial def moduleData (initSnap : Language.Lean.InitialSnapshot)
+    : Task ModuleData := Id.run do
+  let headerStx := initSnap.stx
+  let acc : ModuleData := {
+    headerData := {
+      stx := headerStx
+      parserState? := none
+      cmdState? := none
+    }
+    cmdData := #[]
+  }
+  let some headerParsedState := initSnap.result?
+    | return .pure { acc with hasParseErrors := true }
+  let acc := {
+    acc with
+    headerData := {
+      acc.headerData with
+      parserState? := some headerParsedState.parserState
+    }
+  }
+  headerParsedState.processedSnap.task.bind (sync := true) fun headerProcessedSnap => Id.run do
+    let some headerProcessedState := headerProcessedSnap.result?
+      | return .pure acc
+    let acc := {
+      acc with
+      headerData := {
+        acc.headerData with
+        cmdState? := some headerProcessedState.cmdState
+      }
+    }
+    go headerProcessedState.firstCmdSnap acc
+where
+  go
+      (cmdParsedSnapTask : Language.SnapshotTask Language.Lean.CommandParsedSnapshot)
+      (acc : ModuleData) :
+      Task ModuleData :=
+    cmdParsedSnapTask.task.bind (sync := true) fun cmdParsedSnap =>
+      cmdParsedSnap.elabSnap.resultSnap.task.bind (sync := true) fun cmdResultSnap => Id.run do
+
+        let acc := {
+          acc with
+          cmdData := acc.cmdData.push {
+            stx := cmdParsedSnap.stx
+            parserState := cmdParsedSnap.parserState
+            cmdState := cmdResultSnap.cmdState
+          }
+          hasParseErrors :=
+            acc.hasParseErrors || cmdParsedSnap.diagnostics.msgLog.hasErrors
+        }
+        let some nextCmdParsedSnapTask := cmdParsedSnap.nextCmdSnap?
+          | return .pure acc
+        go nextCmdParsedSnapTask acc

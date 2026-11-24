@@ -29,7 +29,7 @@ bases spanning one or more 32-bit digits. -/
 #guard Id.run do
   let bases := [0, 1, 2, 3, 10, 2 ^ 31, 2 ^ 32 - 1, 2 ^ 32, 2 ^ 32 + 1, 2 ^ 64 - 1, 2 ^ 64 + 1, 3 ^ 50]
   let exps := List.range 70 ++ (List.range 12).flatMap fun k => [2 ^ (k + 1) - 1, 2 ^ (k + 1), 2 ^ (k + 1) + 1]
-  bases.all fun b => exps.all fun e => natPow b e == Nat.repeat (· * b) e 1
+  bases.all fun b => exps.all fun e => natPow b e == Nat.iterate (· * b) e 1
 
 /-! Operations on big `Int`s whose result is `-2 ^ 31`, the smallest unboxed `Int` on 64-bit
 platforms, and neighbouring results. -/

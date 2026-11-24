@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.FunInfo
+import Lean.Util.CollectLooseBVars
 import Init.Omega
 namespace Lean.Meta.Sym
 
@@ -31,6 +32,10 @@ where
     else
       none
 
+def mkCongrTheoremInfo (thm : CongrTheorem) : CongrInfo :=
+  let rhs := thm.type.getForallBody.appArg!
+  .congrTheorem thm (rhs.looseBVarMask thm.type.getForallArity)
+
 def mkCongrInfo (f : Expr) : SymM CongrInfo := do
   if (← isProof f) then
     return .none
@@ -46,9 +51,9 @@ def mkCongrInfo (f : Expr) : SymM CongrInfo := do
   else if let .const declName us := f then
     if let some thm ← mkCongrSimpForConst? declName us then
       if thm.argKinds == argKinds then
-        return .congrTheorem thm
+        return mkCongrTheoremInfo thm
   let some thm ← mkCongrSimpCore? f info argKinds | return .none
-  return .congrTheorem thm
+  return mkCongrTheoremInfo thm
 
 public def getCongrInfo (f : Expr) : SymM CongrInfo := do
   if let some info := (← get).congrInfo.find? { expr := f } then
@@ -61,7 +66,7 @@ protected def CongrInfo.toMessageData : CongrInfo → MessageData
   | .none => "none"
   | .fixedPrefix pre suf => m!"fixedPrefix {pre} {suf}"
   | .interlaced mask => m!"interlaced {mask}"
-  | .congrTheorem thm => m!"congrTheorem {thm.proof}"
+  | .congrTheorem thm _ => m!"congrTheorem {thm.proof}"
 
 instance : ToMessageData CongrInfo where
   toMessageData := CongrInfo.toMessageData

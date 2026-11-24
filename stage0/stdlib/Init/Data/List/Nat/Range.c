@@ -95,6 +95,8 @@ static lean_object* l_List_pairwise__lt__range_x27___auto__1___closed__30;
 LEAN_EXPORT lean_object* l_List_pairwise__lt__range_x27___auto__1;
 LEAN_EXPORT lean_object* l_List_nodup__range_x27___auto__1;
 LEAN_EXPORT lean_object* l_List_count__range_x27___auto__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Range_0__instDecidableEqList_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Range_0__instDecidableEqList_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_List_pairwise__lt__range_x27___auto__1___closed__12(void){
 _start:
 {
@@ -296,6 +298,56 @@ _start:
 lean_object* v___x_91_; 
 v___x_91_ = lean_obj_once(&l_List_pairwise__lt__range_x27___auto__1___closed__30, &l_List_pairwise__lt__range_x27___auto__1___closed__30_once, _init_l_List_pairwise__lt__range_x27___auto__1___closed__30);
 return v___x_91_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Range_0__instDecidableEqList_match__1_splitter___redArg(lean_object* v_ys_92_, lean_object* v_h__1_93_, lean_object* v_h__2_94_){
+_start:
+{
+if (lean_obj_tag(v_ys_92_) == 0)
+{
+lean_object* v___x_95_; lean_object* v___x_96_; 
+lean_dec(v_h__2_94_);
+v___x_95_ = lean_box(0);
+v___x_96_ = lean_apply_1(v_h__1_93_, v___x_95_);
+return v___x_96_;
+}
+else
+{
+lean_object* v_head_97_; lean_object* v_tail_98_; lean_object* v___x_99_; 
+lean_dec(v_h__1_93_);
+v_head_97_ = lean_ctor_get(v_ys_92_, 0);
+lean_inc(v_head_97_);
+v_tail_98_ = lean_ctor_get(v_ys_92_, 1);
+lean_inc(v_tail_98_);
+lean_dec_ref_known(v_ys_92_, 2);
+v___x_99_ = lean_apply_2(v_h__2_94_, v_head_97_, v_tail_98_);
+return v___x_99_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Range_0__instDecidableEqList_match__1_splitter(lean_object* v_00_u03b1_100_, lean_object* v_motive_101_, lean_object* v_ys_102_, lean_object* v_h__1_103_, lean_object* v_h__2_104_){
+_start:
+{
+if (lean_obj_tag(v_ys_102_) == 0)
+{
+lean_object* v___x_105_; lean_object* v___x_106_; 
+lean_dec(v_h__2_104_);
+v___x_105_ = lean_box(0);
+v___x_106_ = lean_apply_1(v_h__1_103_, v___x_105_);
+return v___x_106_;
+}
+else
+{
+lean_object* v_head_107_; lean_object* v_tail_108_; lean_object* v___x_109_; 
+lean_dec(v_h__1_103_);
+v_head_107_ = lean_ctor_get(v_ys_102_, 0);
+lean_inc(v_head_107_);
+v_tail_108_ = lean_ctor_get(v_ys_102_, 1);
+lean_inc(v_tail_108_);
+lean_dec_ref_known(v_ys_102_, 2);
+v___x_109_ = lean_apply_2(v_h__2_104_, v_head_107_, v_tail_108_);
+return v___x_109_;
+}
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);

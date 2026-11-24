@@ -1,4 +1,3 @@
--- Enable the deprecated syntax linter (test framework disables all linters)
 set_option linter.deprecated.syntax true
 
 -- A test-local copy of `let_fun`, which is itself deprecated in core

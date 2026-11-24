@@ -467,8 +467,9 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
     (onMotive := fun motiveArgs body => do
       let extraParams ← arrowDomainsN nExtra body
       let propMotive ← mkLambdaFVars motiveArgs (.sort Level.zero)
-      let propAlts ← matcherApp.alts.mapM fun termAlt =>
-        lambdaTelescope termAlt fun xs termAltBody => do
+      let propAlts ← matcherApp.alts.mapIdxM fun i termAlt =>
+        -- Bounded, as the alternative's body may itself be a lambda
+        lambdaBoundedTelescope termAlt (matcherApp.altNumParams[i]! + nExtra) fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
           let xs1 := xs[*...(xs.size - nExtra)]
           let xs2 := xs[(xs.size - nExtra)...xs.size]

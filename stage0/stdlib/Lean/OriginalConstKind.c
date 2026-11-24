@@ -83,7 +83,7 @@ v___x_14_ = 1;
 lean_inc_ref(v_env_1_);
 v___x_15_ = l_Lean_Environment_setExporting(v_env_1_, v___x_14_);
 lean_inc(v_fst_13_);
-v___x_16_ = l_Lean_Environment_contains(v___x_15_, v_fst_13_, v___x_11_);
+v___x_16_ = l_Lean_Environment_contains(v___x_15_, v_fst_13_, v___x_14_);
 if (v___x_16_ == 0)
 {
 v___y_7_ = v_b_5_;

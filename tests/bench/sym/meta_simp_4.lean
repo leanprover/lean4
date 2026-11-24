@@ -11,7 +11,7 @@ def getProofSize (r : Simp.Result) : MetaM Nat := do
   (← r.getProof).numObjs
 
 def checkWithKernel (r : Simp.Result) : MetaM Float := do
-  let p := ShareCommon.shareCommon' (← r.getProof)
+  let p := ShareCommon.shareCommon (← r.getProof)
   let startTime ← IO.monoNanosNow
   Meta.checkWithKernel p
   let endTime ← IO.monoNanosNow

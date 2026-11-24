@@ -53,6 +53,8 @@ where
     let rhsExpr ← instantiateMVars rhsExpr
     if rhsExpr.hasSyntheticSorry then
       throwErrorAt rhs "invalid constraint, rhs contains a synthetic `sorry`"
+    -- Normalized like the patterns, since it is compared with the terms the patterns match.
+    let rhsExpr ← Grind.normalize rhsExpr {}
     let rhsExpr := rhsExpr.eta
     let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
     let numMVars := mvars.size

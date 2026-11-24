@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.WP.Basic
-universe u v w z
+universe u v w w' z
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -17,72 +17,145 @@ open Lean.Order Std.WP
 /-!
 # The Weakest Precondition Interpretation of a Monad
 
-`WPMonad m Pred EPosts` carries a `WP (m α) α Pred EPosts` interpretation for every result type `α`,
-together with soundness of that interpretation for `pure` and `bind`. An instance supplies the
-`WP` interpretation of `m α` at low priority, so a program type with a bespoke interpretation keeps
-its own.
+`MonadicWP m Pred EPosts` is a `WP` interpretation of the programs `m α` for every result type `α`.
+A low-priority instance derives `WP (m α) α Pred EPosts` from it.
+
+Two classes express how lawful `wp` is for `pure` and `bind` of `m`:
+
+* `MonadicWP.IsLaxDistrib m`: `WP.trans` is a lax monad morphism, so `wp` is sound for
+  `pure` and `bind`.
+* `MonadicWP.IsDistrib m`: `WP.trans` is a monad morphism, so `wp` distributes exactly over
+  `pure` and `bind`.
 -/
 
 namespace Std.WP
 
-variable {m : Type u → Type z}
-
-/-- Weakest precondition monad: a monad `m` whose weakest precondition interpretation is sound for
-`pure` and `bind`. The interpretation for every result type is carried as the `toWP` field; an
-instance exposes it as a `WP (m α) …` interpretation. -/
-class WPMonad (m : Type u → Type v) (Pred : outParam (Type w)) (EPosts : outParam (Type w'))
-    [Monad m] [Assertion Pred] [Assertion EPosts] extends LawfulMonad m where
-  /-- The weakest precondition interpretation of `m` at every result type. -/
+/-- The `WP` interpretation of all programs `m α` of a monad `m`. -/
+class MonadicWP (m : Type u → Type v) (Pred : outParam (Type w)) (EPosts : outParam (Type w'))
+    [PartialOrder Pred] [PartialOrder EPosts] where
+  /-- The interpretation of the programs `m α`. -/
   toWP : ∀ α, WP (m α) α Pred EPosts
-  /-- Soundness of `pure`: the postcondition applied to `x` implies the weakest precondition of
-  `pure x`. -/
-  pure_le_wp_pure (x : α) (post : α → Pred) (eposts : EPosts) :
-    post x ⊑ (toWP α).wp (pure (f := m) x) post eposts
-  /-- Soundness of `bind`: composing weakest preconditions is at least as strong as the weakest
-  precondition of `>>=`. -/
-  bind_le_wp_bind (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts) :
-    (toWP α).wp x (fun a => (toWP β).wp (f a) post eposts) eposts ⊑ (toWP β).wp (x >>= f) post eposts
 
-attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] WPMonad
-
-/-- A monadic `WP` interpretation is sourced from the monad's `WPMonad` instance. Low priority so a
-program type with a bespoke `WP` instance (e.g. a non-monadic one) is preferred. -/
-instance (priority := low)
-    {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} {α : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPosts] [inst : WPMonad m Pred EPosts] :
+instance (priority := low) {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'}
+    [PartialOrder Pred] [PartialOrder EPosts] [inst : MonadicWP m Pred EPosts] {α : Type u} :
     WP (m α) α Pred EPosts :=
   inst.toWP α
 
-/-!
-## Derived WPMonad Lemmas
+/-- `wp` is sound for `pure` and `bind`: `post a` implies `wp (pure a) post eposts`, and
+`wp x (fun a => wp (f a) post eposts) eposts` implies `wp (x >>= f) post eposts`. So a proof of a
+program can proceed through its parts. -/
+class MonadicWP.IsLaxDistrib (m : Type u → Type v) {Pred : outParam (Type w)}
+    {EPosts : outParam (Type w')} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
+    [MonadicWP m Pred EPosts] : Prop where
+  /-- `pure a` implies the transformer of `pure a`. -/
+  pure_le {α : Type u} (a : α) :
+    (pure a : PredTrans Pred EPosts α) ⊑ WP.trans (pure a : m α)
+  /-- The `bind` of the transformers implies the transformer of `x >>= f`. -/
+  bind_le {α β : Type u} (x : m α) (f : α → m β) :
+    (WP.trans x >>= fun a => WP.trans (f a)) ⊑ WP.trans (x >>= f)
 
-One-directional consequences of the `WPMonad` axioms for `pure`, `bind`, `map`, and `seq`.
+/-- `wp` distributes exactly over `pure` and `bind`: the preconditions of `IsLaxDistrib` are also
+necessary, so rewriting `wp (x >>= f)` into the composed precondition loses nothing. -/
+class MonadicWP.IsDistrib (m : Type u → Type v) {Pred : outParam (Type w)}
+    {EPosts : outParam (Type w')} [Monad m] [PartialOrder Pred] [PartialOrder EPosts]
+    [MonadicWP m Pred EPosts] : Prop extends MonadicWP.IsLaxDistrib m where
+  /-- The transformer of `pure a` is `pure a`. -/
+  trans_pure {α : Type u} (a : α) :
+    WP.trans (pure a : m α) = (pure a : PredTrans Pred EPosts α)
+  /-- The transformer of a `bind` is the `bind` of the transformers. -/
+  trans_bind {α β : Type u} (x : m α) (f : α → m β) :
+    WP.trans (x >>= f) = WP.trans x >>= fun a => WP.trans (f a)
+  pure_le a := PartialOrder.rel_of_eq (trans_pure a).symm
+  bind_le x f := PartialOrder.rel_of_eq (trans_bind x f).symm
+
+namespace MonadicWP
+
+variable {m : Type u → Type v} {Pred : Type w} {EPosts : Type w'} [PartialOrder Pred]
+  [PartialOrder EPosts] [MonadicWP m Pred EPosts]
+
+/-!
+## Derived Lemmas
+
+`IsLaxDistrib` and `IsDistrib` at the level of `wp`.
 -/
 
-namespace WPMonad
+section Strict
 
-variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable [Monad m] [IsDistrib m]
+
+theorem wp_pure_eq {α : Type u} (a : α) (post : α → Pred) (eposts : EPosts) :
+    wp (pure a : m α) post eposts = post a := by
+  rw [← WP.trans_apply_eq (pure a : m α), IsDistrib.trans_pure (m := m) a,
+    PredTrans.apply_Pure_pure]
+
+theorem wp_bind_eq {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts) :
+    wp (x >>= f) post eposts = wp x (fun a => wp (f a) post eposts) eposts := by
+  rw [← WP.trans_apply_eq (x >>= f), IsDistrib.trans_bind x f, PredTrans.apply_Bind_bind]
+  simp only [WP.trans_apply_eq]
+
+end Strict
+
+section Lax
+
+theorem le_wp_pure [Monad m] [MonadicWP.IsLaxDistrib m]
+    {α : Type u} (x : α) (post : α → Pred) (eposts : EPosts) :
+    post x ⊑ wp (pure (f := m) x) post eposts := by
+  simpa only [PredTrans.apply_Pure_pure, WP.trans_apply_eq] using
+    IsLaxDistrib.pure_le (m := m) x post eposts
+
+theorem wp_wp_le_wp_bind [Monad m] [MonadicWP.IsLaxDistrib m]
+    {α β : Type u} (x : m α) (f : α → m β) (post : β → Pred)
+    (eposts : EPosts) :
+    wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts := by
+  simpa only [PredTrans.apply_Bind_bind, WP.trans_apply_eq] using
+    IsLaxDistrib.bind_le x f post eposts
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
-theorem map_le_wp_map (f : α → β) (x : m α) :
+theorem wp_le_wp_map [Monad m] [LawfulMonad m]
+    [MonadicWP.IsLaxDistrib m] {α β : Type u} (f : α → β) (x : m α) :
   ∀ post eposts, wp x (fun a => post (f a)) eposts ⊑ wp (f <$> x) post eposts := by
   intro post eposts
   rw [← bind_pure_comp]
   apply PartialOrder.rel_trans; rotate_left
-  exact bind_le_wp_bind x (pure <| f ·) post eposts
+  exact wp_wp_le_wp_bind x (pure <| f ·) post eposts
   apply WP.wp_monotone_post
-  intro a; exact pure_le_wp_pure (f a) post eposts
+  intro a; exact le_wp_pure (f a) post eposts
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
-theorem seq_le_wp_seq (f : m (α → β)) (x : m α) :
+theorem wp_wp_le_wp_seq [Monad m] [LawfulMonad m]
+    [MonadicWP.IsLaxDistrib m] {α β : Type u} (f : m (α → β)) (x : m α) :
   ∀ post eposts,
     wp f (fun g => wp x (fun a => post (g a)) eposts) eposts ⊑
       wp (f <*> x) post eposts := by
   intro post eposts
   rw [← bind_map]
-  apply PartialOrder.rel_trans _ (bind_le_wp_bind f (fun g => g <$> x) post eposts)
-  apply WP.wp_monotone_post; intro g; exact map_le_wp_map g x post eposts
+  apply PartialOrder.rel_trans _ (wp_wp_le_wp_bind f (fun g => g <$> x) post eposts)
+  apply WP.wp_monotone_post; intro g; exact wp_le_wp_map g x post eposts
 
-end WPMonad
+end Lax
+
+end MonadicWP
+
+section Deprecated
+
+set_option linter.missingDocs false
+
+@[deprecated "use `[MonadicWP m Pred EPosts] [MonadicWP.IsLaxDistrib m]`" (since := "2026-11-18")]
+abbrev WPMonad (m : Type u → Type v) (Pred : Type w) (EPosts : Type w') [PartialOrder Pred]
+    [PartialOrder EPosts] := MonadicWP m Pred EPosts
+
+@[deprecated MonadicWP.wp_wp_le_wp_bind (since := "2026-11-18")]
+abbrev WPMonad.bind_le_wp_bind := @MonadicWP.wp_wp_le_wp_bind
+
+@[deprecated MonadicWP.wp_le_wp_map (since := "2026-11-18")]
+abbrev WPMonad.map_le_wp_map := @MonadicWP.wp_le_wp_map
+
+@[deprecated MonadicWP.le_wp_pure (since := "2026-11-18")]
+abbrev WPMonad.pure_le_wp_pure := @MonadicWP.le_wp_pure
+
+@[deprecated MonadicWP.wp_wp_le_wp_seq (since := "2026-11-18")]
+abbrev WPMonad.seq_le_wp_seq := @MonadicWP.wp_wp_le_wp_seq
+
+end Deprecated
 
 end Std.WP

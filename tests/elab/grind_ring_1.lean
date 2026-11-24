@@ -1,4 +1,7 @@
 module
+
+set_option backward.grind.normalizer false
+
 set_option grind.debug true
 
 open Std Lean.Grind
@@ -29,14 +32,14 @@ example (x : BitVec 8) : (x + 16)*(x - 16) = x^2 := by
   grind
 
 /--
-trace: [grind.ring] new ring: Ring.OfSemiring.Q Nat
+trace: [grind.ring] new ring: BitVec 8
+[grind.ring] NoNatZeroDivisors available: false
+[grind.ring] PowIdentity available: false
+[grind.ring] new ring: Ring.OfSemiring.Q Nat
 [grind.ring] NoNatZeroDivisors available: true
 [grind.ring] PowIdentity available: false
 [grind.ring] new ring: Int
 [grind.ring] NoNatZeroDivisors available: true
-[grind.ring] PowIdentity available: false
-[grind.ring] new ring: BitVec 8
-[grind.ring] NoNatZeroDivisors available: false
 [grind.ring] PowIdentity available: false
 -/
 #guard_msgs (trace) in

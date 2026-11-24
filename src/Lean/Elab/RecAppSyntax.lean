@@ -25,7 +25,7 @@ Copy of `stx` that does not reference the input string: every `SourceInfo.origin
 `SourceInfo.synthetic` with the same range, and identifiers get a fresh copy of their raw value.
 
 The syntax stored at a recursive application lives inside an `Expr`, so `Expr` traversals that
-follow every pointer (e.g. `ShareCommon.shareCommon'`) visit it too. The `leading` and `trailing`
+follow every pointer (e.g. `ShareCommon.shareCommon`) visit it too. The `leading` and `trailing`
 substrings of `SourceInfo.original` and the `rawVal` of identifiers all share the whole input
 string, so storing `stx` itself would make such traversals visit, and hash, the input string once
 per substring. With thousands of recursive definitions in a file, this dominates elaboration time.

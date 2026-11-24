@@ -3,7 +3,7 @@ def compute (v : Nat) : Thunk Nat :=
 
 @[noinline]
 def test (t : Thunk Nat) (n : Nat) : Nat :=
-n.repeat (fun r => t.get + r) 0
+n.iterate (fun r => t.get + r) 0
 
 def main (xs : List String) : IO UInt32 :=
 IO.println (toString (test (compute 1) 100000)) *>

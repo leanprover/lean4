@@ -332,7 +332,7 @@ def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinit
       let mut es := #[]
       for preDef in preDefs do
         es := es.push preDef.type |>.push preDef.value
-      es := ShareCommon.shareCommon' es
+      es := ShareCommon.shareCommon es
       let mut result := #[]
       for h : i in *...preDefs.size do
         let preDef := preDefs[i]

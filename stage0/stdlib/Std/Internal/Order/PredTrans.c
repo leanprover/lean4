@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Order.PredTrans
-// Imports: public import Std.Internal.Order.Basic
+// Imports: public import Std.Internal.Order.Basic public import Std.Internal.Order.Product
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -139,6 +139,10 @@ LEAN_EXPORT lean_object* l_Lean_Order_PredTrans_instMonadExceptOfForall___redArg
 LEAN_EXPORT lean_object* l_Lean_Order_PredTrans_instMonadExceptOfForall___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_PredTrans_instMonadExceptOfForall___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_PredTrans_instMonadExceptOfForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushExcept_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushExcept_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushOption_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushOption_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_PredTrans_apply___redArg(lean_object* v_t_1_, lean_object* v_post_2_, lean_object* v_eposts_3_){
 _start:
 {
@@ -1310,7 +1314,104 @@ v___x_622_ = l_Lean_Order_PredTrans_instMonadExceptOfForall___redArg(v_inst_621_
 return v___x_622_;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushExcept_match__1_splitter___redArg(lean_object* v_x_623_, lean_object* v_h__1_624_, lean_object* v_h__2_625_){
+_start:
+{
+if (lean_obj_tag(v_x_623_) == 0)
+{
+lean_object* v_a_626_; lean_object* v___x_627_; 
+lean_dec(v_h__1_624_);
+v_a_626_ = lean_ctor_get(v_x_623_, 0);
+lean_inc(v_a_626_);
+lean_dec_ref_known(v_x_623_, 1);
+v___x_627_ = lean_apply_1(v_h__2_625_, v_a_626_);
+return v___x_627_;
+}
+else
+{
+lean_object* v_a_628_; lean_object* v___x_629_; 
+lean_dec(v_h__2_625_);
+v_a_628_ = lean_ctor_get(v_x_623_, 0);
+lean_inc(v_a_628_);
+lean_dec_ref_known(v_x_623_, 1);
+v___x_629_ = lean_apply_1(v_h__1_624_, v_a_628_);
+return v___x_629_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushExcept_match__1_splitter(lean_object* v_00_u03b1_630_, lean_object* v_00_u03b5_631_, lean_object* v_motive_632_, lean_object* v_x_633_, lean_object* v_h__1_634_, lean_object* v_h__2_635_){
+_start:
+{
+if (lean_obj_tag(v_x_633_) == 0)
+{
+lean_object* v_a_636_; lean_object* v___x_637_; 
+lean_dec(v_h__1_634_);
+v_a_636_ = lean_ctor_get(v_x_633_, 0);
+lean_inc(v_a_636_);
+lean_dec_ref_known(v_x_633_, 1);
+v___x_637_ = lean_apply_1(v_h__2_635_, v_a_636_);
+return v___x_637_;
+}
+else
+{
+lean_object* v_a_638_; lean_object* v___x_639_; 
+lean_dec(v_h__2_635_);
+v_a_638_ = lean_ctor_get(v_x_633_, 0);
+lean_inc(v_a_638_);
+lean_dec_ref_known(v_x_633_, 1);
+v___x_639_ = lean_apply_1(v_h__1_634_, v_a_638_);
+return v___x_639_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushOption_match__1_splitter___redArg(lean_object* v_x_640_, lean_object* v_h__1_641_, lean_object* v_h__2_642_){
+_start:
+{
+if (lean_obj_tag(v_x_640_) == 0)
+{
+lean_object* v___x_643_; lean_object* v___x_644_; 
+lean_dec(v_h__1_641_);
+v___x_643_ = lean_box(0);
+v___x_644_ = lean_apply_1(v_h__2_642_, v___x_643_);
+return v___x_644_;
+}
+else
+{
+lean_object* v_val_645_; lean_object* v___x_646_; 
+lean_dec(v_h__2_642_);
+v_val_645_ = lean_ctor_get(v_x_640_, 0);
+lean_inc(v_val_645_);
+lean_dec_ref_known(v_x_640_, 1);
+v___x_646_ = lean_apply_1(v_h__1_641_, v_val_645_);
+return v___x_646_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Internal_Order_PredTrans_0__Lean_Order_pushOption_match__1_splitter(lean_object* v_00_u03b1_647_, lean_object* v_motive_648_, lean_object* v_x_649_, lean_object* v_h__1_650_, lean_object* v_h__2_651_){
+_start:
+{
+if (lean_obj_tag(v_x_649_) == 0)
+{
+lean_object* v___x_652_; lean_object* v___x_653_; 
+lean_dec(v_h__1_650_);
+v___x_652_ = lean_box(0);
+v___x_653_ = lean_apply_1(v_h__2_651_, v___x_652_);
+return v___x_653_;
+}
+else
+{
+lean_object* v_val_654_; lean_object* v___x_655_; 
+lean_dec(v_h__2_651_);
+v_val_654_ = lean_ctor_get(v_x_649_, 0);
+lean_inc(v_val_654_);
+lean_dec_ref_known(v_x_649_, 1);
+v___x_655_ = lean_apply_1(v_h__1_650_, v_val_654_);
+return v___x_655_;
+}
+}
+}
 lean_object* runtime_initialize_Std_Internal_Order_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Order_Product(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Order_PredTrans(uint8_t builtin) {
@@ -1319,6 +1420,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Std_Internal_Order_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Order_Product(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1331,12 +1435,16 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Internal_Order_Basic(uint8_t builtin);
+lean_object* initialize_Std_Internal_Order_Product(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Order_PredTrans(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Internal_Order_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_Order_Product(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Order_PredTrans(builtin);

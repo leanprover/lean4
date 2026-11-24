@@ -59,7 +59,7 @@ def proofSizes (matcherName : Name) : MetaM (Array Nat) := do
     let some (.thmInfo info) := (← getEnv).find? eqn | throwError "theorem expected: {eqn}"
     if (info.value.find? (·.isConstOf ``dite_eq_right)).isSome then
       throwError "unexpected `dite_eq_right` in the proof of {eqn}"
-    (ShareCommon.shareCommon' info.value).numObjs
+    (ShareCommon.shareCommon info.value).numObjs
 
 run_meta do
   let shortSizes ← proofSizes ``short.match_1

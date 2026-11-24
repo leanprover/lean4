@@ -1,5 +1,4 @@
-/-! Tests that options affecting equational theorems work as expected. -/
-set_option linter.deprecated.options false
+/-! Tests that the deprecated options affecting equational theorems work as expected. -/
 
 namespace Test1
 def nonrecfun : Bool → Nat

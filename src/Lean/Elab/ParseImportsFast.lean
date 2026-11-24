@@ -118,24 +118,6 @@ partial def whitespace : Parser := fun input s =>
       else s
     else s
 
-@[inline] partial def keywordCore (k : String) (failure : Parser) (success : Parser) : Parser := fun input s =>
-  let rec @[specialize] go (i j : String.Pos.Raw) : State :=
-    if h₁ : i.atEnd k then
-      success input <| whitespace input (s.setPos j)
-    else if h₂ : j.atEnd input then
-      failure input s
-    else
-      let curr₁ := i.get' k h₁
-      let curr₂ := j.get' input h₂
-      if curr₁ != curr₂ then
-        failure input s
-      else
-        go (i.next' k h₁) (j.next' input h₂)
-  go 0 s.pos
-
-@[inline] def keyword (k : String) : Parser :=
-  keywordCore k (fun _ s => s.mkError s!"`{k}` expected") skip
-
 @[inline] def isIdCont : String → State → Bool := fun input s =>
   let i := s.pos
   let curr := i.get input
@@ -157,6 +139,28 @@ def State.pushImport (i : Import) (s : State) : State :=
 
 @[inline] def isIdRestFast (c : Char) : Bool :=
   c.isAlphanum || (c != '.' && c != '\n' && c != ' ' && isIdRestCold c)
+
+@[inline] partial def keywordCore (k : String) (failure : Parser) (success : Parser) : Parser := fun input s =>
+  let rec @[specialize] go (i j : String.Pos.Raw) : State :=
+    if h₁ : i.atEnd k then
+      let stop := s.setPos j
+      if isIdRestFast (j.get input) || isIdCont input stop then
+        failure input s
+      else
+        success input <| whitespace input stop
+    else if h₂ : j.atEnd input then
+      failure input s
+    else
+      let curr₁ := i.get' k h₁
+      let curr₂ := j.get' input h₂
+      if curr₁ != curr₂ then
+        failure input s
+      else
+        go (i.next' k h₁) (j.next' input h₂)
+  go 0 s.pos
+
+@[inline] def keyword (k : String) : Parser :=
+  keywordCore k (fun _ s => s.mkError s!"`{k}` expected") skip
 
 partial def moduleIdent : Parser := fun input s =>
   let finalize (module : Name) : Parser := fun input s =>

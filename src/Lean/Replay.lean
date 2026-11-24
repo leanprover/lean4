@@ -102,23 +102,36 @@ partial def replayConstant (name : Name) : M Unit := do
         | .inductInfo info =>
           let lparams := info.levelParams
           let nparams := info.numParams
-          let all ← info.all.mapM fun n => do pure <| ((← read).newConstants[n]!)
+          -- Only the members of `info.all` are sent to the kernel, so `name` must be among them.
+          unless info.all.contains name do
+            throw <| .userError s!"inductive type '{name}' is not listed in its own `all` field"
+          let all ← info.all.mapM fun n => do
+            let some (ConstantInfo.inductInfo val) := (← read).newConstants[n]?
+              | throw <| .userError s!"'{n}', listed in the `all` field of '{name}', is not a stored inductive type"
+            pure val
           for o in all do
             modify fun s =>
               { s with remaining := s.remaining.erase o.name, pending := s.pending.erase o.name }
-          let ctorInfo ← all.mapM fun ci => do
-            pure (ci, ← ci.inductiveVal!.ctors.mapM fun n => do
-              pure ((← read).newConstants[n]!))
+          let ctorInfo ← all.mapM fun val => do
+            pure (val, ← val.ctors.mapM fun n => do
+              let some ci@(ConstantInfo.ctorInfo _) := (← read).newConstants[n]?
+                | throw <| .userError s!"'{n}', listed as a constructor of '{val.name}', is not a stored constructor"
+              pure ci)
           -- Make sure we are really finished with the other types and the constructors.
-          for (ci, ctors) in ctorInfo do
-            replayConstants ci.getUsedConstantsAsSet
+          for (val, ctors) in ctorInfo do
+            replayConstants (ConstantInfo.inductInfo val).getUsedConstantsAsSet
             for ctor in ctors do
               replayConstants ctor.getUsedConstantsAsSet
-          let types : List InductiveType := ctorInfo.map fun ⟨ci, ctors⟩ =>
-            { name := ci.name
-              type := ci.type
+          let types : List InductiveType := ctorInfo.map fun ⟨val, ctors⟩ =>
+            { name := val.name
+              type := val.type
               ctors := ctors.map fun ci => { name := ci.name, type := ci.type } }
           addDecl (Declaration.inductDecl lparams nparams types false)
+          -- The kernel computes the remaining fields (`numIndices`, `isRec`, ...) itself;
+          -- the stored values must agree with them.
+          for val in all do
+            unless (← get).env.find? val.name == some (.inductInfo val) do
+              throw <| .userError s!"Invalid inductive type {val.name}"
         -- We postpone checking constructors,
         -- and at the end make sure they are identical
         -- to the constructors generated when we replay the inductives.
@@ -172,7 +185,7 @@ open Replay
 "Replay" some constants into a `Kernel.Environment`, sending them to the kernel for checking.
 
 Throws a `IO.userError` if the kernel rejects a constant,
-or if there are malformed recursors or constructors for inductive types,
+or if there are malformed inductive types, recursors or constructors,
 or if a key of `newConstants` differs from the name of the constant stored under it.
 -/
 public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.Environment) :

@@ -49,7 +49,7 @@ theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
   simp [← length_toList]
 
 @[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  rw [pushn_eq_iterate_push]; induction n <;> simp [Nat.iterate_succ_eq_apply, Nat.add_assoc, *]
+  rw [pushn_eq_iterate_push]; induction n <;> simp [Nat.iterate, Nat.add_assoc, *]
 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
   simp [← length_toList]

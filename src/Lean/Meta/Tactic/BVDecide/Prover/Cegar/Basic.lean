@@ -157,7 +157,7 @@ public structure BitVecState where
   /--
   The AIG built so far, incrementally extended every CEGAR step.
   -/
-  aig : Std.Sat.AIG BVBit := .empty
+  aig : Std.Internal.Sat.AIG BVBit := .empty
   /--
   The bitblasting cached used so far, incrementally extended every CEGAR step.
   -/
@@ -165,7 +165,7 @@ public structure BitVecState where
   /--
   Both the CNF cache and CNF formula built up so far, incrementally extended every CEGAR step.
   -/
-  cnfCache : Std.Sat.AIG.toCNF.State aig := .empty aig
+  cnfCache : Std.Internal.Sat.AIG.toCNF.State aig := .empty aig
 
 /--
 State of the EPR theory solver.

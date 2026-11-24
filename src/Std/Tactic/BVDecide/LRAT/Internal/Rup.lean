@@ -10,12 +10,12 @@ public import Std.Tactic.BVDecide.LRAT.Internal.Basic
 public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Init.Omega
 import Init.ByCases
-import Std.Sat.CNF.SpecLemmas
+import Std.Internal.Sat.CNF.SpecLemmas
 import Std.Tactic.Do
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat Std.Do
+open Std.Internal.Sat Std.Do
 
 public inductive PropagateResult where
   | conflict

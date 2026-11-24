@@ -26,7 +26,7 @@ this reason.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 variable [Hashable α] [DecidableEq α]
 

@@ -6,7 +6,7 @@ Authors: Josh Clune
 module
 
 prelude
-public import Std.Sat.CNF
+public import Std.Internal.Sat.CNF
 
 @[expose] public section
 
@@ -20,7 +20,7 @@ be considered the parsing target for LRAT proofs.
 namespace Std.Tactic.BVDecide
 namespace LRAT
 
-open Std.Sat
+open Std.Internal.Sat
 
 /-- `β` is for the type of a clause, `α` is for the type of variables -/
 inductive Action (β : Type u) (α : Type v)

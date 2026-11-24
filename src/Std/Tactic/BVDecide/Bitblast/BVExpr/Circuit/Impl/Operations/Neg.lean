@@ -18,7 +18,7 @@ This module contains the implementation of a bitblaster for `BitVec.neg`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

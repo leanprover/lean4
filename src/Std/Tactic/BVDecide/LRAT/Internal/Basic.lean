@@ -6,15 +6,15 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.CNF.Basic
-public import Std.Sat.CNF.Entails
+public import Std.Internal.Sat.CNF.Basic
+public import Std.Internal.Sat.CNF.Entails
 import Init.Omega
 
 public section
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat
+open Std.Internal.Sat
 
 structure State where
   formula : Array (Option (CNF.Clause Nat))

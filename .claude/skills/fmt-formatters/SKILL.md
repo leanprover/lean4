@@ -513,7 +513,7 @@ From `Primitives.lean` (semantics documented in depth on `Doc` in `Core/Basic.le
 - `oneOf ds` — choose among alternatives; the optimizer picks the best non-failing one (empty array = failure). Share common subdocuments referentially between alternatives instead of duplicating their construction. `either a b` is the two-argument version.
 - `guarded assertion d` — admit `d` only when `assertion columnPos indentation nonCumulativeIndentation` holds, letting an alternative depend on the layout context it lands in (`Layouts.infixOperator` uses it to keep the first operator on the line of a short first operand only when breaking before that operator would not move it to the left).
 - `withFailureFallbackPenalty d (amount := 1)` / `withOverflowFallbackPenalty` / `withHeightFallbackPenalty` — add a penalty at one tier of the cost function (see the optimization criterion below), so `d` is chosen only if the alternatives are worse at that tier. `amount` orders several fallbacks at the same tier. `fallbackOnFailure d fallback`, `fallbackOnOverflow`, `fallbackOnHeight` are the `oneOf` shorthands.
-- `final d` — forbid any text after `d` on the same line. `initial d` — the mirror image: forbid any text before `d` on the same line (the start of the document counts as the start of a line). `free d` — resolve `d` on its own and hide its width, height, and cost from the surrounding document (used for comments, which must not influence how the code around them breaks).
+- `final d` — forbid any text after `d` on the same line. `initial d` — the mirror image: forbid any text before `d` on the same line (the start of the document counts as the start of a line). `free d` — resolve `d` on its own and hide its width, height, and cost from the surrounding document (used for comments and doc comments, which must not influence how the code around them breaks).
 - `fillUsingSpaceWithSoftBoundaries dss` — fill all documents of all groups, and additionally allow a newline between adjacent groups when it costs no extra line (binder groups in signatures).
 - `isAlwaysEmpty d` (also `isAlwaysNonEmpty`, `isAtomic`, `isCompoundAtomic`) — conservative checks on what `d` can render as: empty, non-empty, a single text node, or a run of text with no newlines and no choices. Rarely needed in a formatter: layouts already drop empty components, so prefer passing the `empty` document through a layout (see step 3) over branching on this.
 - `pseudoAligned d (mustBeRespected := false)` — mark `d` as behaving like an `aligned` block without actually aligning it: layouts that would glue a dense/flattened-lhs fallback around their last operand (`infixOperator .dense`, `application`) skip it for pseudo-aligned documents (they check `Layouts.permitDenseLayout`). A plain mark only binds layouts with `respectPseudoAlignment := true`; `mustBeRespected := true` binds all of them. Read it back with `getPseudoAligned?`. Used by `Layouts.quantified` and `Layouts.subtype`; `application`, `bracketed … .dense` and `fmtProjLike` pass the mark (or the alignment) of their head/body on to their result.
@@ -583,15 +583,20 @@ variants) for command-level syntax where the user's blank lines and comments mus
 the imports in `fmtHeader`, which keep at most one empty line between two imports).
 
 `fmtRawAsInSource` reproduces a node verbatim from the source instead of from its tokens.
-It is a workaround for syntax whose tree does not faithfully represent the input (currently
-Verso docstrings) and assumes the node contains no comments — do not reach for it as a
-general escape hatch; `fmtAtomic`/`fmtRaw` are the normal ones.
+It is a workaround for syntax whose tree does not faithfully represent the input and assumes the
+node contains no comments — do not reach for it as a general escape hatch; `fmtAtomic`/`fmtRaw`
+are the normal ones.
 
-Doc comments go through `fmtDocCommentWith (verbatim : Bool)` (in `Formatters/Lean/Parser/Term.lean`);
-the registered `fmtDocComment` normalizes the indentation of the text. Use
+Doc comments go through `fmtDocCommentWith (verbatim : Bool) (opener := "/--") (closer := "-/")` (in
+`Formatters/Lean/Parser/Term.lean`), which reads their text from the source, not from their
+tokens, so that it also works for Verso docstrings. The registered `fmtDocComment` normalizes the
+indentation of the text, and `fmtModuleDoc` does the same for module doc comments
+(`opener := "/-!"`). Use
 ``fmtWith? (fmtDocCommentWith (verbatim := true)) `fmtDocComment doc?`` (again with a
 double-backquote name literal in actual code) when the exact text matters, as in `#guard_msgs`,
-which compares its doc comment with the messages. A formatter that
+which compares its doc comment with the messages. The result is `free`, so the syntax after a doc
+comment must start on a new line: put the doc comment in `Layouts.lines`, as
+`fmtDeclWithModifiers` does. A formatter that
 renders one piece of syntax as several lines of text, as `fmtDocCommentWith` does, tags the result
 with `taggedText` instead of `tag`, so that the comment insertion never puts a comment between
 these lines.

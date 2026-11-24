@@ -13,7 +13,7 @@ import Std.Data.HashSet
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat Std.Do
+open Std.Internal.Sat Std.Do
 
 namespace State
 

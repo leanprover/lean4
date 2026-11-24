@@ -37,6 +37,7 @@ structure Subslice (s : Slice) where
   endExclusive : s.Pos
   /-- The subslice is not degenerate (but it may be empty). -/
   startInclusive_le_endExclusive : startInclusive ≤ endExclusive
+deriving DecidableEq
 
 instance {s : Slice} : Inhabited s.Subslice where
   default := ⟨s.endPos, s.endPos, by exact Slice.Pos.le_refl _⟩

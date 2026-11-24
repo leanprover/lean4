@@ -13,7 +13,8 @@ meta import Lean.Parser.Term
 meta import Lean.Parser.Command
 import Init.Data
 import Init.While
-import Lean.Fmt.Util.Basic
+
+def Option.split (o : Option (α × β)) : Option α × Option β := (o.map (·.1), o.map (·.2))
 
 namespace Lean.Fmt
 

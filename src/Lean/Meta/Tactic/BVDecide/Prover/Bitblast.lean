@@ -17,7 +17,7 @@ This module provides the implementation of an LRAT proof producing `UnsatProver`
 
 namespace Lean.Meta.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 open Std.Tactic.BVDecide
 open Std.Tactic.BVDecide.Reflect
 

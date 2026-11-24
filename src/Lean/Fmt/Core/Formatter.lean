@@ -8,7 +8,8 @@ module
 
 prelude
 public import Lean.Fmt.Core.Basic
-public import Lean.Fmt.Util.Basic
+public import Lean.Syntax
+public import Init.Data.String.Hashable
 public import Std.Data.HashSet.Basic
 public import Init.ShareCommon
 import Std.Data.HashSet.Iterator

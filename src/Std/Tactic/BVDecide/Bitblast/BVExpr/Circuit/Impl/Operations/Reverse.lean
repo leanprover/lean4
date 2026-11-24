@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Std.Sat.AIG.LawfulVecOperator
+public import Std.Internal.Sat.AIG.LawfulVecOperator
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 
@@ -19,7 +19,7 @@ This module contains the implementation of a bitblaster for `BitVec.reverse`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.ShareCommon
+import all Init.ShareCommon
 public import Std.Data.HashSet.Basic
 public import Lean.Data.PersistentHashSet
 
@@ -49,4 +50,3 @@ instance PShareCommonT.monadShareCommon [Monad m] : MonadShareCommon (PShareComm
 @[inline] def ShareCommonM.run : ShareCommonM α → α := ShareCommonT.run
 @[inline] def PShareCommonM.run : PShareCommonM α → α := PShareCommonT.run
 
-def shareCommon (a : α) : α := (withShareCommon a : ShareCommonM α).run

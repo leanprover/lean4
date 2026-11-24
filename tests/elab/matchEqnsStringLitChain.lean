@@ -186,7 +186,7 @@ run_meta do
   let longEqns ← Match.genMatchCongrEqns ``long.match_1
   let size (declName : Name) : MetaM Nat := do
     let some (.thmInfo info) := (← getEnv).find? declName | throwError "theorem expected: {declName}"
-    (ShareCommon.shareCommon' info.value).numObjs
+    (ShareCommon.shareCommon info.value).numObjs
   for i in [0:30] do
     let d₁ := (← size shortEqns[i+1]!) - (← size shortEqns[i]!)
     let d₂ := (← size longEqns[i+1]!) - (← size longEqns[i]!)

@@ -105,9 +105,8 @@ macro "big_structure " name:ident n:num : command => do
       let dropped ← $(id "dropped"):ident
       check "free" (← IO.wait dropped).isNone
       check "literal" ($(id "sum") $(id "lit") == $(id "expected") 0 && $(id "str") $(id "lit") == "lit" && $(id "float") $(id "lit") == 6.5)
-      check "shareCommon'" ($(id "sum") (ShareCommon.shareCommon' t) == $(id "expected") 100 + 135)
-      check "shareCommon" ($(id "sum") (Lean.ShareCommon.shareCommon t) == $(id "expected") 100 + 135)
-      check "shareCommon literal" ($(id "sum") (Lean.ShareCommon.shareCommon $(id "lit")) == $(id "expected") 0)
+      check "shareCommon" ($(id "sum") (ShareCommon.shareCommon t) == $(id "expected") 100 + 135)
+      check "shareCommon literal" ($(id "sum") (ShareCommon.shareCommon $(id "lit")) == $(id "expected") 0)
       let roundtrip := $(id "roundtrip")
       check "compact" ((← roundtrip t) == $(id "expected") 100 + 135 + 11)
       check "compact heap fields" ((← roundtrip u) == $(id "expected") (2 ^ 70) + 1)
@@ -158,7 +157,7 @@ macro "big_inductive " name:ident n:num : command => do
       check "original" ($(id "sum") t == 1 + $(id "expected") (2 ^ 70))
       check "flip unique" ($(id "sum") ($(id "flip") ($(id "flip") ($(id "flip") t))) == 2 + $(id "expected") (2 ^ 70))
       check "literal" ($(id "sum") $(id "lit") == 2 + $(id "expected") 0)
-      check "shareCommon literal" ($(id "sum") (Lean.ShareCommon.shareCommon $(id "lit")) == 2 + $(id "expected") 0)
+      check "shareCommon literal" ($(id "sum") (ShareCommon.shareCommon $(id "lit")) == 2 + $(id "expected") 0)
       check "flip literal" ($(id "sum") ($(id "flip") $(id "lit")) == 1 + $(id "expected") 0))
 
 -- 255 object fields, the most that fit into one constructor object

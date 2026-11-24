@@ -816,10 +816,17 @@ public def fmtMatch : Fmt := fun
   | _ => throw .partialFormatter
 
 /--
-Formats a doc comment. If `verbatim`, keeps its text from the first to the last non-whitespace
-character as it is, including the indentation of its lines, instead of normalizing it.
+Formats a doc comment that starts with `opener` and ends with `closer`, e.g. `/-- … -/` for a doc
+comment or `/-! … -/` for a module doc comment. If `verbatim`, keeps its text from the first to the
+last non-whitespace character as it is, including the indentation of its lines, instead of
+normalizing it.
+
+The doc comment is `free`, so that its width and height do not affect the layout of the syntax
+around it, e.g. when one of its lines exceeds the optimality cutoff width. Hence, the syntax after
+it must start on a new line.
 -/
-public def fmtDocCommentWith (verbatim : Bool) : Fmt := fun stx => do
+public def fmtDocCommentWith (verbatim : Bool) (opener : String := "/--") (closer : String := "-/")
+    : Fmt := fun stx => do
   let ctx ← read
   let some range := stx.getRange?
     | throw <| .elaboration <| .malformedInputSyntax stx "missing range on comment syntax"
@@ -829,10 +836,10 @@ public def fmtDocCommentWith (verbatim : Bool) : Fmt := fun stx => do
   let some tailPos := ctx.text.source.pos? range.stop
     | throw <| .elaboration <| .malformedInputSyntax stx "malformed stop position on comment syntax"
   let body := ctx.text.source.extract pos tailPos
-  let s := untagged <| .text "/--"
+  let s := untagged <| .text opener
   let c ←
     if verbatim then
-      let lines := body.toSlice.dropPrefix "/--" |>.dropSuffix "-/" |>.trimAscii |>.split "\n"
+      let lines := body.toSlice.dropPrefix opener |>.dropSuffix closer |>.trimAscii |>.split "\n"
       -- Without indentation, so that each line keeps exactly its own.
       pure <| untagged <| .unindented (onlyNonCumulative := false) <|
         .joinUsing .hardNl (lines.toArray.map (.text ·.toString))
@@ -841,10 +848,10 @@ public def fmtDocCommentWith (verbatim : Bool) : Fmt := fun stx => do
       let posInLine := range.start.unoffsetBy lineInfo.startPos
       let startColumnOffset := posInLine.offsetOfPos lineInfo.line
       let content :=
-        normalizeCommentContent body "/--" "-/" startColumnOffset (isLineComment := false)
+        normalizeCommentContent body opener closer startColumnOffset (isLineComment := false)
       pure <| joinUsing hardNl (content.map (untagged <| .text ·))
-  let e := untagged <| .text "-/"
-  let r := Layouts.horizontalOrVertical #[s, c, e]
+  let e := untagged <| .text closer
+  let r := free <| Layouts.horizontalOrVertical #[s, c, e]
   -- Tagged as text, so that no comment is inserted into the lines of the doc comment.
   return { ← taggedText r.doc stx with metaData := r.metaData }
 

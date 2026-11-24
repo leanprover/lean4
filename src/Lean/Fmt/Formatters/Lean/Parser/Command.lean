@@ -22,7 +22,7 @@ public def fmtEoi : Fmt := fun _ => return empty
 public def fmtTermQuot : Fmt := fmtAtomic
 
 @[builtin_fmt Lean.Parser.Command.moduleDoc]
-public def fmtModuleDoc : Fmt := fmtRawAsInSource -- TODO once verso docstrings are fixed
+public def fmtModuleDoc : Fmt := fmtDocCommentWith (verbatim := false) (opener := "/-!")
 
 @[builtin_fmt Lean.Parser.Command.private]
 public def fmtPrivate : Fmt := fmtAtomic

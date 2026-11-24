@@ -504,7 +504,10 @@ match d with
 It matches `d` against the pattern `pat` and the bindings are available in `t`.
 If the pattern does not match, it returns `e` instead.
 -/
-syntax (name := termIfLet)
+-- `1001` (`default+1`; `Init.Meta` defines `+` on priorities) wins ties against `termIfThenElse`
+-- with a `let` condition, which also accepts the text when a line of `d` starts left of `let` (the
+-- `let` body then starts at that line).
+syntax (name := termIfLet) (priority := 1001)
   ppRealGroup(ppRealFill(ppIndent("if " "let " term " := " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 

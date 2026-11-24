@@ -121,8 +121,9 @@ static void stop_libuv(bool settle) {
         return;
     }
 
-    // Everything is settled at the end: continuations run on the pool, and one that closes a socket
-    // during the flush would cancel the writes being flushed.
+    // What the passes take is settled only after the flush, since a continuation that closes a socket
+    // during it would cut short the writes being flushed. Writes and shutdowns that finish during the
+    // flush settle their own promises then.
     uv_finalize_batch batch;
 
     // Waits (timers, signals, reads, accepts, child waits) and work that sends nothing (connects,
@@ -136,6 +137,8 @@ static void stop_libuv(bool settle) {
     // Then everything still in flight is cancelled, and the TCP sockets it uses are closed, so that a
     // restarted loop does not send what the program was told was cancelled. libuv completes their
     // requests with `UV_ECANCELED` when the loop next runs, at the latest in `lean_uv_free_closed`.
+    // A UDP send still queued is only settled: libuv cannot cancel it without closing the socket,
+    // so its datagram may still go out.
     batch.m_keep_flushable = false;
     if (!take_all(batch)) return;
 
@@ -176,6 +179,11 @@ static constexpr uint64_t g_uv_free_timeout_ms = 500;
 extern "C" LEAN_EXPORT void lean_uv_free_closed() {
     // No callback resolves a promise any more, since the stop took them all, so this is safe without
     // a task manager.
+    if (global_ev.on_loop_thread()) {
+        return;
+    }
+    // A flush by `IO.Process.exit` on another thread would share the deadline timer.
+    std::lock_guard<std::mutex> stopping(g_uv_stop_mutex);
     global_ev.flush(g_uv_free_timeout_ms, handles_closing);
 }
 

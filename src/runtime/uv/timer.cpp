@@ -262,7 +262,8 @@ void timer_take_pending(lean_object * obj, uv_finalize_batch & batch) {
         return;
     }
     uv_timer_stop(&timer->m_uv_timer);
-    timer->m_state = timer_state::Finished;
+    // As after `cancel`, so that `next` starts it again after a restart.
+    timer->m_state = timer_state::Initial;
     batch.take(timer->m_promise, obj);
 }
 

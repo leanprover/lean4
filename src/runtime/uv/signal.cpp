@@ -188,6 +188,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
             if (result == 0) {
                 signal->m_state = signal_state::Running;
+                // A stop before a restart left the handle listening but unreferenced; libuv only
+                // replaced its callback.
+                uv_ref((uv_handle_t*)&signal->m_uv_signal);
                 // The event loop keeps the signal alive while a promise is pending.
                 lean_inc(obj);
             } else {
@@ -299,7 +302,9 @@ void signal_take_pending(lean_object * obj, uv_finalize_batch & batch) {
         return;
     }
     keep_listening(signal);
-    signal->m_state = signal_state::Finished;
+    // So that `next` starts it again after a restart. Signals during the stop are not delivered.
+    signal->m_state = signal_state::Initial;
+    signal->m_received = false;
     batch.take(signal->m_promise, obj);
 }
 

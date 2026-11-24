@@ -24,6 +24,9 @@ void initialize_alloc() {
 #ifdef LEAN_MIMALLOC
     // the main thread does not go through `lean_initialize_thread`; see `runtime/alloc_tls.h`
     lean_mi_theap_cache_init();
+    // collect theaps as rarely as mimalloc allows (it clamps the option to at most 1000000);
+    // `set_default` keeps a `MIMALLOC_GENERIC_COLLECT` environment override in effect
+    mi_option_set_default(mi_option_generic_collect, 1000000);
 #endif
 }
 

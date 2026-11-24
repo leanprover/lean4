@@ -19,7 +19,8 @@ def MyStringInvariant (s : String) (β : Type u) (Pred : Type uₚ) :=
 section
 universe u₂ v uₚ uₑ
 variable {β : Type u₂} {m : Type u₂ → Type v} {Pred : Type uₚ} {EPosts : Type uₑ}
-variable [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+variable [Monad m] [LawfulMonad m] [PartialOrder Pred] [PartialOrder EPosts] [MonadicWP m Pred EPosts]
+variable [MonadicWP.IsLaxDistrib m]
 
 -- The same as `Std.WP.Spec.forIn_string`, but with `MyStringInvariant` instead of
 -- `StringInvariant`.

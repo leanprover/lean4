@@ -1094,7 +1094,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-leche
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-leche
-    GIT_TAG 216031bf5da9c4d8d3508220253750d98bb9518f
+    GIT_TAG 3d91c5a5b3f7ebdbe26e1c3eb42817ad6e1b022d
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build con-leche
     BUILD_IN_SOURCE ON
@@ -1132,7 +1132,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-ron
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-ron
-    GIT_TAG dd7ccd324cadfbd171ae07ad2efca6123bd0a3ad
+    GIT_TAG 672ea6f1ef08d7f9021727646311831db35b3e5c
     GIT_SUBMODULES ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked

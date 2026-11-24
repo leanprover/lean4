@@ -44,7 +44,7 @@ unsafe opaque Internal.Object.eq (a b : @& Internal.Object) : Bool
 @[extern "lean_sharecommon_hash"]
 unsafe opaque Internal.Object.hash (a : @& Internal.Object) : UInt64
 
-structure StateFactoryBuilder where
+public structure StateFactoryBuilder where
   Map (α _β : Type) [BEq α] [Hashable α] : Type
   mkMap {α β : Type} [BEq α] [Hashable α] (capacity : Nat) : Map α β
   mapFind? {α β : Type} [BEq α] [Hashable α] : Map α β → α → Option β
@@ -69,7 +69,7 @@ unsafe def Internal.StateFactory.mkImpl : StateFactoryBuilder → StateFactory
     : Internal.StateFactoryImpl }
 
 @[implemented_by Internal.StateFactory.mkImpl]
-opaque StateFactory.mk : StateFactoryBuilder → StateFactory
+public opaque StateFactory.mk : StateFactoryBuilder → StateFactory
 
 unsafe def StateFactory.Internal.get : StateFactory → Internal.StateFactoryImpl := unsafeCast
 

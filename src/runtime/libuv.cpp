@@ -6,6 +6,7 @@ Author: Markus Himmel, Sofia Rodrigues
  */
 #include "runtime/libuv.h"
 #include <mutex>
+#include <vector>
 #include "runtime/object.h"
 
 #ifndef LEAN_EMSCRIPTEN
@@ -30,10 +31,11 @@ extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
 }
 
 // Takes what a handle's pending operations hold, stopping them as their `stop` or `cancel` would.
+// Handle constructors set `data` under the loop lock, since this reads it as the owning object.
 static void take_pending(uv_handle_t * handle, void * arg) {
-    // A closing handle was closed by `close` or a finalizer, which released what it held.
-
-    if (uv_is_closing(handle) || handle == (uv_handle_t*)&global_ev.m_flush_timer) {
+    // A closing handle was closed by `close` or a finalizer, which released what it held. A signal
+    // handle without `data` lost its object after the stop and only keeps listening.
+    if (uv_is_closing(handle) || handle->data == nullptr || handle == (uv_handle_t*)&global_ev.m_flush_timer) {
         return;
     }
 
@@ -68,8 +70,8 @@ static void take_requests(uv_finalize_batch & batch) {
                 continue;
             }
             // Keeps a queued thread-pool request (DNS, random) from starting: libuv's exit
-            // destructor runs every queued one before joining its workers. A cancelled one completes
-            // in the flush. Fails harmlessly for the others.
+            // destructor runs every queued one before joining its workers. Its callback, which
+            // frees it, runs whenever the loop next runs. Fails harmlessly for the others.
             uv_cancel(req->m_uv);
         } else if (uv_handle_t * socket = request_socket(req->m_uv)) {
             batch.m_close.push_back(socket);
@@ -100,16 +102,6 @@ static bool flush_pending() {
     return shutdown;
 }
 
-// Whether a closed socket's write or connect still waits for libuv to cancel it.
-static bool socket_requests_pending() {
-    for (uv_tracked_req * req = g_uv_requests; req != nullptr; req = req->m_next) {
-        if (request_socket(req->m_uv) != nullptr) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void settle_cancelled(uv_finalize_batch & batch) {
     for (owned_ref & promise : batch.m_promises) {
         lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_ECANCELED, nullptr)), promise.get());
@@ -118,23 +110,30 @@ static void settle_cancelled(uv_finalize_batch & batch) {
 
 // How long finalization waits for pending writes before cancelling them.
 static constexpr uint64_t g_uv_flush_timeout_ms = 2000;
-// How long it then waits for libuv to cancel the requests of the sockets it closed. On Unix that
-// takes one loop iteration.
-static constexpr uint64_t g_uv_close_timeout_ms = 500;
 
-// `IO.Process.exit` and the task manager's finalization may stop libuv at the same time. Recursive,
-// since a `(sync := true)` continuation run by the settle may call `IO.Process.exit`, which stops
-// libuv again on the same thread.
-static std::recursive_mutex g_uv_stop_mutex;
+// `IO.Process.exit` and the task manager's finalization may stop libuv at the same time. Never
+// destroyed, since `exit()` runs static destructors while another thread may hold it.
+static std::mutex & g_uv_stop_mutex = *new std::mutex;
 
-extern "C" LEAN_EXPORT void lean_uv_stop() {
+// For `IO.Process.exit`, which runs `exit()` right after: nothing could observe the settled
+// promises, and dropping one would run its `(sync := true)` continuations, such as `result!`, inline.
+static void leak(uv_finalize_batch & batch) {
+    for (owned_ref & promise : batch.m_promises) {
+        (void)promise.release();
+    }
+    for (owned_ref & ref : batch.m_refs) {
+        (void)ref.release();
+    }
+}
+
+static void stop_libuv(bool settle) {
     // The loop thread cannot join itself, so the loop keeps running. Checked before taking the
     // mutex, since a thread holding it may be joining the loop thread.
     if (global_ev.on_loop_thread()) {
         global_ev.stop();
         return;
     }
-    std::lock_guard<std::recursive_mutex> stopping(g_uv_stop_mutex);
+    std::unique_lock<std::mutex> stopping(g_uv_stop_mutex);
     if (!global_ev.stop()) {
         return;
     }
@@ -150,6 +149,7 @@ extern "C" LEAN_EXPORT void lean_uv_stop() {
     {
         event_loop_guard guard;
         if (guard.exiting()) {
+            leak(batch);
             return;
         }
         uv_walk(global_ev.m_loop, take_pending, &batch);
@@ -159,13 +159,15 @@ extern "C" LEAN_EXPORT void lean_uv_stop() {
     // Writes and shutdowns get to finish, but a peer that does not read must not hold up the exit.
     global_ev.flush(g_uv_flush_timeout_ms, flush_pending);
 
-    // Then everything still in flight is cancelled, and the sockets it uses are closed, so that a
-    // restarted loop does not send what the program was told was cancelled.
+    // Then everything still in flight is cancelled, and the TCP sockets it uses are closed, so that a
+    // restarted loop does not send what the program was told was cancelled. libuv completes their
+    // requests with `UV_ECANCELED` when the loop next runs, at the latest in `lean_uv_free_closed`.
     batch.m_keep_flushable = false;
 
     {
         event_loop_guard guard;
         if (guard.exiting()) {
+            leak(batch);
             return;
         }
         uv_walk(global_ev.m_loop, take_pending, &batch);
@@ -177,9 +179,23 @@ extern "C" LEAN_EXPORT void lean_uv_stop() {
         }
     }
 
-    global_ev.flush(g_uv_close_timeout_ms, socket_requests_pending);
-
+    if (!settle) {
+        leak(batch);
+        return;
+    }
+    // Continuations run by the settle may call `IO.Process.exit`, which stops libuv again.
+    stopping.unlock();
     settle_cancelled(batch);
+}
+
+extern "C" LEAN_EXPORT void lean_uv_stop() {
+    stop_libuv(true);
+}
+
+extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {
+    // Pending writes get the same bounded flush as when `main` returns.
+    stop_libuv(false);
+    global_ev.stop_for_exit();
 }
 
 // Whether a closed handle still waits for its close callback.
@@ -193,7 +209,8 @@ static bool handles_closing() {
     return closing;
 }
 
-// How long the last pass waits for close callbacks. On Unix that takes one loop iteration.
+// How long the last pass waits for close callbacks, and the cancelled requests' callbacks that run
+// before them. On Unix that takes one loop iteration.
 static constexpr uint64_t g_uv_free_timeout_ms = 500;
 
 extern "C" LEAN_EXPORT void lean_uv_free_closed() {
@@ -207,13 +224,40 @@ extern "C" LEAN_EXPORT void lean_uv_free_closed() {
     global_ev.flush(g_uv_free_timeout_ms, handles_closing);
 }
 
-/* Std.Internal.UV.Loop.canceledCode : Unit → UInt32 */
+/* IO.Error.canceledCode : Unit → UInt32 */
 extern "C" LEAN_EXPORT uint32_t lean_uv_canceled_code(lean_obj_arg) {
     return static_cast<uint32_t>(-UV_ECANCELED);
 }
 
+// Before a restart: handles left from the last finalization that would otherwise outlive it.
+static void restart_handle(uv_handle_t * handle, void *) {
+    if (uv_is_closing(handle)) {
+        return;
+    }
+    if (handle->type == UV_SIGNAL && handle->data == nullptr) {
+        signal_close_orphan(handle);
+    } else if (handle->type == UV_PROCESS) {
+        process_restart(handle);
+    }
+}
+
 extern "C" LEAN_EXPORT void lean_uv_restart() {
+    if (global_ev.m_loop != nullptr && !global_ev.exiting()) {
+        event_loop_guard guard;
+        uv_walk(global_ev.m_loop, restart_handle, nullptr);
+    }
     global_ev.restart();
+}
+
+// Promises that stay pending until the program ends: dropping one would make `result!` on it block.
+/* Std.Internal.UV.Signal.keepPending (promise : @& IO.Promise Int) : BaseIO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_keep_pending(b_obj_arg promise) {
+    static std::mutex & mutex = *new std::mutex;
+    static std::vector<lean_object *> & kept = *new std::vector<lean_object *>;
+    lean_inc(promise);
+    std::lock_guard<std::mutex> lock(mutex);
+    kept.push_back(promise);
+    return lean_box(0);
 }
 
 /* Lean.libUVVersionFn : Unit → Nat */
@@ -237,10 +281,17 @@ extern "C" LEAN_EXPORT void lean_uv_stop() {}
 
 extern "C" LEAN_EXPORT void lean_uv_free_closed() {}
 
+// Without libuv nothing is canceled, so this matches no error code.
 extern "C" LEAN_EXPORT uint32_t lean_uv_canceled_code(lean_obj_arg) {
-    return 0;
+    return UINT32_MAX;
 }
 extern "C" LEAN_EXPORT void lean_uv_restart() {}
+
+extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_keep_pending(b_obj_arg) {
+    return lean_box(0);
+}
 
 
 #endif

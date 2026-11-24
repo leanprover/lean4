@@ -52,7 +52,7 @@ This function has different behavior depending on the state and configuration of
   - it is initial, run it and return a new `IO.Promise` that is set to resolve once `timeout`
     milliseconds have elapsed. After this `IO.Promise` is resolved the `Timer` is finished.
   - it is running, or finished after firing, return the same `IO.Promise`
-    that the last call to `next` returned.
+    that the last call to `nextResult` returned.
   - it was stopped with `stop` before firing, return a new `IO.Promise` that is never resolved.
 - if `repeating` is `true` and:
   - it is initial, run it and return a new `IO.Promise` that resolves right away
@@ -64,24 +64,26 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-The promise resolves to `.ok ()` when the timer fires, or to an error when the timer fails and can
-no longer fire, as every timer does once the program is finishing. A promise from `nextResult` may
-also be resolved by the code holding it; the timer then treats it as fulfilled when it fires.
+Once the program is finishing this throws instead. The promise resolves to `.ok ()` when the timer
+fires, or to an error when the timer fails and can no longer fire, as every timer does once the
+program is finishing. A promise from `nextResult` may also be resolved by the code holding it; the
+timer then treats it as fulfilled when it fires.
 -/
 @[extern "lean_uv_timer_next"]
 opaque nextResult (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
-Like `nextResult`, but the promise carries no error: it resolves when the timer fires, and is
-dropped, so that it never resolves, when the timer is stopped or fails, as every timer does once
-the program is finishing. Each call returns a new promise that follows the one from `nextResult`.
+Like `nextResult`, but the promise carries no error: it resolves when the timer fires, and also when
+the timer fails, as every timer does once the program is finishing, so that a wait on it ends. It is
+dropped, so that it never resolves, when the timer is stopped. Each call returns a new promise that
+follows the one from `nextResult`.
 -/
 def next (timer : Timer) : IO (IO.Promise Unit) := do
   let result ← timer.nextResult
   let promise ← IO.Promise.new
   BaseIO.chainTask (sync := true) result.result? fun
-    | some (.ok ()) => promise.resolve ()
-    | _ => pure ()
+    | some _ => promise.resolve ()
+    | none => pure ()
   return promise
 
 /--

@@ -4,10 +4,9 @@ open Std Async Internal.UV
 
 /-!
 `IO.Process.exit` runs `exit()` while other threads keep running, and `exit()` runs libuv's destructor,
-which destroys the thread pool's mutex. A task that started a DNS lookup afterwards locked the
-destroyed mutex, and libuv aborted (about half the runs). `IO.Process.exit` now stops libuv first:
-later libuv calls fail with `UV_ECANCELED`, and a thread already inside libuv keeps the exiting thread
-waiting until it leaves, then waits forever.
+which destroys the thread pool's mutex, so no thread may enter libuv afterwards. `IO.Process.exit`
+stops libuv first: later libuv calls fail with `UV_ECANCELED`, and a thread already inside libuv keeps
+the exiting thread waiting until it leaves, then waits forever.
 
 The child keeps timers and the thread pool busy and calls `IO.Process.exit 0` from a pool task; the
 parent runs it 20 times and expects every run to exit with 0.

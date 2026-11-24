@@ -50,7 +50,6 @@ static void tcp_socket_finalizer(void* ptr) {
     }
 
     event_loop_guard guard;
-    // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
     if (guard.exiting()) {
         return;
     }
@@ -68,7 +67,7 @@ void initialize_libuv_tcp_socket() {
     g_uv_tcp_socket_external_class = lean_register_external_class(tcp_socket_finalizer, uv_foreach_refs<lean_uv_tcp_socket_object>);
 }
 
-// libuv completes a closed socket's pending writes, connects and shutdowns with `UV_ECANCELED`. A
+// libuv completes a closed socket's pending writes and connects with `UV_ECANCELED`. A
 // user's `close` reports `EBADF` instead, since `UV_ECANCELED` means the program is finishing, whose
 // operations finalization settles itself.
 static int closed_status(lean_uv_tcp_socket_object * tcp_socket, int status) {
@@ -85,11 +84,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
         return io_result_mk_enomem();
     }
 
+    lean_object * obj = nullptr;
     int result;
 
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : uv_tcp_init(global_ev.m_loop, &tcp_socket->m_uv_tcp);
+        if (result == 0) {
+            obj = lean_uv_tcp_socket_new(tcp_socket);
+            lean_mark_mt(obj);
+            tcp_socket->m_uv_tcp.data = obj;
+        }
     }
 
     if (result != 0) {
@@ -97,11 +102,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
 
         return io_result_mk_uv_error(result);
     }
-
-    lean_object* obj = lean_uv_tcp_socket_new(tcp_socket);
-    lean_mark_mt(obj);
-
-    tcp_socket->m_uv_tcp.data = obj;
 
     return lean_io_result_mk_ok(obj);
 }
@@ -641,7 +641,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         owned_ref keep_alive((lean_object*)req->data);
         owned_ref promise = std::move(tcp_socket->m_promise_shutdown);
 
-        resolve_with_code(closed_status(tcp_socket, status), promise.get());
+        resolve_with_code(status, promise.get());
 
         free(req);
     };
@@ -654,12 +654,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         // Locking early prevents potential parallelism issues setting the m_promise_shutdown.
         event_loop_guard guard;
 
-        // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
-        // no matter whether the first one is still pending; reject it here to report a meaningful error.
         if (guard.stopped()) {
             return io_result_mk_uv_error(UV_ECANCELED);
         }
 
+        // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
+        // no matter whether the first one is still pending; reject it here to report a meaningful error.
         if (tcp_socket->m_closed) {
             return io_result_mk_uv_error(UV_EBADF);
         }
@@ -708,6 +708,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
     owned_ref accept_keep_alive;
     uv_pending_op read;
     uv_pending_op accept;
+    // Taken here, since finalization skips closing handles, and libuv may complete the shutdown only
+    // once the task manager is gone.
+    owned_ref shutdown;
     {
         event_loop_guard guard;
 
@@ -715,6 +718,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
             return lean_io_result_mk_ok(lean_box(0));
         }
         tcp_socket->m_closed = true;
+        shutdown = std::move(tcp_socket->m_promise_shutdown);
 
         if (tcp_socket->m_read.pending()) {
             read = std::move(tcp_socket->m_read);
@@ -737,16 +741,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
 #endif
 
         // libuv reads `data` as the Lean object until the close callback, which then releases it.
-        // Pending writes, connects and shutdowns complete with `UV_ECANCELED` before that, which
-        // their callbacks report as `EBADF`.
+        // Pending writes and connects complete before that, as `closed_status` describes.
         lean_inc(socket);
         uv_close((uv_handle_t*)&tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
             lean_dec((lean_object*)handle->data);
         });
     }
 
-    // `EBADF`, as for any later operation on the closed socket: `UV_ECANCELED` means the program is
-    // finishing.
     if (read.pending()) {
         resolve_with_code(UV_EBADF, read.m_promise.get());
     }
@@ -754,6 +755,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_close(b_obj_arg socket) {
     if (accept.pending()) {
         resolve_with_code(UV_EBADF, accept.m_promise.get());
     }
+
+    resolve_with_code(UV_EBADF, shutdown.get());
 
     return lean_io_result_mk_ok(lean_box(0));
 }

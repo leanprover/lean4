@@ -106,7 +106,8 @@ extern event_loop global_ev;
 //
 // An operation checks `stopped()` and then fails with `UV_ECANCELED`; it is checked after locking,
 // since libuv may stop while this thread waits for the lock. While `IO.Process.exit` runs the guard
-// does not lock at all, so a cancellation, close or finalizer checks `exiting()` and then does nothing.
+// does not lock at all, so a cancellation, close or finalizer checks `exiting()` and then does nothing,
+// since `exit()` may be destroying libuv.
 class event_loop_guard {
     bool m_locked;
 public:
@@ -126,7 +127,7 @@ public:
 // =======================================
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive();
+extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
 extern "C" LEAN_EXPORT void lean_uv_stop_for_exit();
 extern "C" LEAN_EXPORT void lean_uv_stop();
 // After the task manager is finalized: frees the handles that finalizers closed after the stop.

@@ -10,6 +10,16 @@ Author: Sofia Rodrigues
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
+// Once libuv has stopped, a listening handle is never stopped or closed: that would restore the
+// signal's default action, which for most signals kills the program. It keeps its handler installed,
+// with a callback that touches nothing, and without keeping the loop alive, until the program ends;
+// a restart closes it if its `Signal` is gone. A one-shot handler that has fired is no longer
+// listening, as on the OS level.
+static void keep_listening(lean_uv_signal_object * signal) {
+    uv_signal_start(&signal->m_uv_signal, [](uv_signal_t *, int) {}, signal->m_signum);
+    uv_unref((uv_handle_t*)&signal->m_uv_signal);
+}
+
 // The finalizer of the `Signal`.
 static void signal_finalizer(void* ptr) {
     lean_uv_signal_object * signal = (lean_uv_signal_object*) ptr;
@@ -19,7 +29,6 @@ static void signal_finalizer(void* ptr) {
 
     {
         event_loop_guard guard;
-        // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
         if (guard.exiting()) {
             return;
         }
@@ -28,6 +37,14 @@ static void signal_finalizer(void* ptr) {
         promise = std::move(signal->m_promise);
         // While a promise is pending the loop holds a reference, so the signal cannot be finalized.
         lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
+
+        if (guard.stopped() && uv_is_active((uv_handle_t*)&signal->m_uv_signal)) {
+            // Not closed, as `keep_listening` explains; the loop's handle queue keeps the struct
+            // reachable. Finalization skips a handle without `data`, and a restart closes it.
+            keep_listening(signal);
+            signal->m_uv_signal.data = nullptr;
+            return;
+        }
 
         // The Lean object is being freed, so the close callback gets the struct instead. No callback
         // reads `data` as the Lean object after `uv_close`.
@@ -137,11 +154,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     signal->m_lean_signum = (int)(int32_t)signum_obj;
     signal->m_repeating = repeating;
 
+    lean_object * obj = nullptr;
     int result;
 
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
+        if (result == 0) {
+            obj = lean_uv_signal_new(signal);
+            lean_mark_mt(obj);
+            signal->m_uv_signal.data = obj;
+        }
     }
 
     if (result != 0) {
@@ -149,14 +172,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
         return io_result_mk_uv_error(result);
     }
 
-    lean_object * obj = lean_uv_signal_new(signal);
-    lean_mark_mt(obj);
-    signal->m_uv_signal.data = obj;
-
     return lean_io_result_mk_ok(obj);
 }
 
-/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
+/* Std.Internal.UV.Signal.nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
@@ -226,6 +245,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     // so this must happen after the unlock: otherwise a waiter on a stopped signal would freeze the
     // whole event loop instead of just itself.
     owned_ref promise;
+    int result = 0;
 
     {
         // Locked so that a firing one-shot signal cannot finish it concurrently.
@@ -235,8 +255,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
         }
 
         if (signal->m_state == signal_state::Running) {
-            // Cannot fail: libuv's `uv_signal_stop` always returns 0.
-            uv_signal_stop(&signal->m_uv_signal);
+            result = uv_signal_stop(&signal->m_uv_signal);
             promise = std::move(signal->m_promise);
             signal->m_state = signal_state::Finished;
         }
@@ -245,6 +264,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     // The loop holds a reference only while a promise is pending.
     if (promise.get() != nullptr) {
         lean_dec(obj);
+    }
+
+    if (result != 0) {
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -280,13 +303,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+void signal_close_orphan(uv_handle_t * handle) {
+    // The handle is the struct's first member.
+    handle->data = reinterpret_cast<lean_uv_signal_object *>(handle);
+    uv_close(handle, [](uv_handle_t * handle) {
+        delete static_cast<lean_uv_signal_object *>(handle->data);
+    });
+}
+
 void signal_take_pending(uv_handle_t * handle, uv_finalize_batch & batch) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
     if (signal->m_state != signal_state::Running) {
         return;
     }
-    uv_signal_stop(&signal->m_uv_signal);
+    keep_listening(signal);
     signal->m_state = signal_state::Finished;
     if (signal->m_promise.get() != nullptr) {
         batch.m_promises.push_back(std::move(signal->m_promise));
@@ -304,7 +335,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     );
 }
 
-/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
+/* Std.Internal.UV.Signal.nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

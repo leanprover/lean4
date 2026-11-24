@@ -8,7 +8,6 @@ module
 prelude
 public import Init.System.Promise
 public import Init.While
-public import Std.Internal.UV.Loop
 
 public section
 
@@ -71,21 +70,6 @@ failed operations should stop on such an error: the retry fails again at once, a
 cannot exit until the loop ends.
 
 -/
-
-end Async
-end Std
-
-/--
-Whether `e` reports a libuv operation canceled because the program is finishing: every one that is
-still pending then, or started afterwards (after `main` returns, or in `IO.Process.exit`), fails
-this way. Retrying it fails again at once, so a loop that retries on errors should stop on this one.
--/
-def IO.Error.isCanceled : IO.Error → Bool
-  | .otherError code _ => code == Std.Internal.UV.Loop.canceledCode ()
-  | _ => false
-
-namespace Std
-namespace Async
 
 /--
 Typeclass for monads that can "await" a computation of type `t α` in a monad `m` until the result is

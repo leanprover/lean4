@@ -35,7 +35,7 @@ def check (name : String) (arm : (started gate : IO.Promise Unit) → IO Unit) (
   waitFor name "the continuation to start" started.result?
   let probe ← IO.asTask (prio := .dedicated) do
     let timer ← Timer.mk 1 false
-    let fired ← timer.nextResult
+    let fired ← timer.next
     let _ ← IO.wait fired.result?
   waitFor name "a timer while the continuation blocks" probe
   gate.resolve ()

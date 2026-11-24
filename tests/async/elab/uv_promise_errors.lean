@@ -10,7 +10,7 @@ already there when the select starts (`tryFn`) and when it happens while the sel
 (`registerFn`). It must not hang, and it must not count as the timer firing or the signal arriving.
 
 The tests make the promise fail by resolving it themselves, which the holder of a promise from
-`next` may do.
+`nextResult` may do.
 -/
 
 def boom : IO.Error := .userError "boom"

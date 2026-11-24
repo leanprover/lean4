@@ -4,8 +4,10 @@ open Std Internal.UV
 
 /-!
 `Timer.next` and `Signal.next` keep promise types without an error, for code written against them.
-The promise resolves when the timer fires, and is dropped, so that `result?` is `none`, when the
-timer or signal handler is stopped or when the promise from `nextResult` that it follows fails.
+A timer's promise resolves when the timer fires or fails, so that a wait on it ends at exit, and is
+dropped, so that `result?` is `none`, when the timer is stopped. A signal handler's promise is
+dropped when it is stopped, and stays pending when the promise from `nextResult` that it follows
+fails, so that `result!` on it never blocks the thread that settles the failure.
 -/
 
 def describe (r : Option α) : String :=
@@ -21,9 +23,9 @@ def sigwinch : Int32 := 28
 /--
 info: timer fires: resolved
 timer stopped: dropped
-timer fails: dropped
+timer fails: resolved
 signal stopped: dropped
-signal fails: dropped
+signal fails: pending
 -/
 #guard_msgs in
 #eval show IO Unit from do
@@ -49,5 +51,6 @@ signal fails: dropped
   let signal ← Signal.mk sigwinch false
   let received ← signal.next
   (← signal.nextResult).resolve (.error boom)
-  IO.println s!"signal fails: {describe (← IO.wait received.result?)}"
+  IO.sleep 50
+  IO.println s!"signal fails: {if ← received.isResolved then "resolved" else "pending"}"
   signal.stop

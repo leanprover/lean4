@@ -22,7 +22,6 @@ static void timer_finalizer(void* ptr) {
         // A repeating timer without a pending promise may still be running, so the handle is closed
         // under the loop lock that its callback runs under.
         event_loop_guard guard;
-        // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
         if (guard.exiting()) {
             return;
         }
@@ -98,11 +97,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     timer->m_timeout = repeating && timeout == 0 ? 1 : timeout;
     timer->m_repeating = repeating;
 
+    lean_object * obj = nullptr;
     int result;
 
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : uv_timer_init(global_ev.m_loop, &timer->m_uv_timer);
+        if (result == 0) {
+            obj = lean_uv_timer_new(timer);
+            lean_mark_mt(obj);
+            timer->m_uv_timer.data = obj;
+        }
     }
 
     if (result != 0) {
@@ -110,14 +115,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
         return io_result_mk_uv_error(result);
     }
 
-    lean_object * obj = lean_uv_timer_new(timer);
-    lean_mark_mt(obj);
-    timer->m_uv_timer.data = obj;
-
     return lean_io_result_mk_ok(obj);
 }
 
-/* Std.Internal.UV.Timer.next (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit)) */
+/* Std.Internal.UV.Timer.nextResult (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 

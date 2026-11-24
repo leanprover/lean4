@@ -1,4 +1,4 @@
-import Std.Async.Basic
+import Std.Async
 import Std.Internal.UV
 
 open Std Async Internal.UV Net
@@ -8,8 +8,12 @@ When `main` returns, `lean_finalize_task_manager` stops the event loop thread be
 task manager, since a libuv callback that ran afterwards would resolve a promise through a task
 manager that is gone. Every libuv operation still pending then fails with `UV_ECANCELED`, so that the
 tasks waiting on it finish: a timer, an accept that never comes, a `Child.wait` on a child that keeps
-running, and a send to a peer that does not read, which gets the 2 s flush first. An operation
-started after `main` returned fails with `UV_ECANCELED` at once, and `Loop.alive` reports `false`.
+running, and a send to a peer that does not read, which gets the 2 s flush first. The promise of
+`Timer.next`, which carries no error, resolves instead, so that `result!` on it does not block. A
+select fails with the error itself, so that `IO.Error.isCanceled` still holds for it. The promise of
+`Signal.next` stays pending, so that a `result!` waiting on it does not block finalization. An operation
+started after `main` returned fails with `UV_ECANCELED` at once, spawning a child among them, while
+killing a child still works; `Loop.alive` reports `false`.
 
 The send stays in flight on Linux and macOS, so it is canceled there; Windows may take all of it
 into its buffers and complete it before `main` returns. Either way it must finish.
@@ -32,6 +36,12 @@ def listener : IO TCP.Socket := do
 
 def main : IO Unit := do
   let timer ← (← Timer.mk 60000 false).nextResult
+  let compatTimer ← (← Timer.mk 60000 false).next
+  -- `result!` blocks the thread that drops the promise, so the promise must not be dropped.
+  unless System.Platform.isWindows do
+    let compatSignal ← (← Signal.mk 28 false).next
+    discard <| IO.mapTask (sync := true) (fun _ => pure ()) compatSignal.result!
+  let selected ← (do Selectable.one #[.case (← Sleep.mk 60000).selector pure] : Async Unit).asTask
 
   let idle ← listener
   let accept ← idle.accept
@@ -49,13 +59,20 @@ def main : IO Unit := do
   discard <| IO.asTask (prio := .dedicated) do
     report "Child.wait" (← child.wait.toBaseIO)
     report "timer started before main returned" (← await timer)
+    -- `result!` would block forever on a dropped promise.
+    IO.wait compatTimer.result!
+    IO.println "Timer.next started before main returned: resolved"
     report "accept" ((← await accept).map fun _ => ())
+    report "select on a sleep" (← IO.wait selected)
     -- Canceled when it stayed in flight, succeeded when the OS took all of it; never stuck.
     let sent ← await send
     match sent with
     | .ok _ => IO.println "send: finished"
     | .error e => if e.isCanceled then IO.println "send: finished" else report "send" sent
     report "timer started after main returned" (← (do (← Timer.mk 10 false).nextResult).toBaseIO)
+    report "spawn after main returned" ((← (IO.Process.spawn { cmd := "sleep", args := #["1"] }).toBaseIO).map fun _ => ())
+    -- No thread reaps the child any more, so killing it stays safe.
+    report "kill after main returned" (← (child.kill).toBaseIO)
     IO.println s!"Loop.alive after main returned: {← Loop.alive}"
     peer.close
   IO.println "main returns"

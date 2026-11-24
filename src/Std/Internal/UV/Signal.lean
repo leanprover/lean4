@@ -53,7 +53,7 @@ This function has different behavior depending on the state and configuration of
   - it is initial, start listening and return a new `IO.Promise` that is set to resolve once
     the signal `signum` is received. After this `IO.Promise` is resolved the `Signal` is finished.
   - it is running, or finished after receiving the signal, return the same `IO.Promise` that the
-    last call to `next` returned, or a new one if `cancel` dropped it. A signal received after
+    last call to `nextResult` returned, or a new one if `cancel` dropped it. A signal received after
     `cancel` resolves that promise.
   - it was stopped with `stop` before receiving the signal, return a new `IO.Promise` that is never
     resolved.
@@ -70,26 +70,31 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-The promise resolves to `.ok` with the number of the received signal, or to an error when the
-handler fails and can no longer report the signal, as every handler does once the program is
-finishing. A promise from `nextResult` may also be resolved by the code holding it; the handler then
-treats it as fulfilled when the signal arrives.
+Once the program is finishing this throws instead. The promise resolves to `.ok` with the number of
+the received signal, or to an error when the handler fails and can no longer report the signal, as
+every handler does once the program is finishing. A promise from `nextResult` may also be resolved
+by the code holding it; the handler then treats it as fulfilled when the signal arrives.
 -/
 @[extern "lean_uv_signal_next"]
 opaque nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
 
+@[extern "lean_uv_keep_pending"]
+private opaque keepPending (promise : @& IO.Promise Int) : BaseIO Unit
+
 /--
 Like `nextResult`, but the promise carries no error: it resolves with the number of the received
-signal, and is dropped, so that it never resolves, when the handler is stopped or fails, as every
-handler does once the program is finishing. Each call returns a new promise that follows the one
-from `nextResult`.
+signal. It is dropped, so that it never resolves, when the handler is stopped, and it stays pending
+for good when the handler fails, as every handler does once the program is finishing. Each call
+returns a new promise that follows the one from `nextResult`.
 -/
 def next (signal : Signal) : IO (IO.Promise Int) := do
   let result ← signal.nextResult
   let promise ← IO.Promise.new
   BaseIO.chainTask (sync := true) result.result? fun
     | some (.ok signum) => promise.resolve signum
-    | _ => pure ()
+    -- Dropping it would make `result!` on it block the thread that settles the failure.
+    | some (.error _) => keepPending promise
+    | none => pure ()
   return promise
 
 /--

@@ -20,7 +20,7 @@ def settle (ms : UInt64) : IO Unit := do
   let fired ← timer.nextResult
   fired.resolve (.ok ())
   settle 50
-  -- The timer finished on its own; `next` still hands out the promise the caller resolved.
+  -- The timer finished on its own; `nextResult` still hands out the promise the caller resolved.
   unless ← (← timer.nextResult).isResolved do
     throw <| IO.userError "timer promise not resolved"
   timer.stop

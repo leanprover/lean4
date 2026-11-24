@@ -48,7 +48,6 @@ static void process_close_cb(uv_handle_t * handle) {
 static void process_finalizer(void * ptr) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(ptr);
     event_loop_guard guard;
-    // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
     if (guard.exiting()) {
         return;
     }
@@ -194,6 +193,10 @@ static int build_env(array_ref<pair_ref<string_ref, option_ref<string_ref>>> con
 
 // libuv fails with the same error for a missing working directory as for a missing executable.
 static obj_res mk_spawn_error(int err, string_ref const & cmd, option_ref<string_ref> const & cwd) {
+    // Not about the command: the program is finishing.
+    if (err == UV_ECANCELED) {
+        return io_result_mk_uv_error(err);
+    }
     if (cwd) {
         uv_fs_t req;
         int stat_err = uv_fs_stat(nullptr, &req, cwd.get()->data(), nullptr);
@@ -431,7 +434,6 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
     lock_guard<mutex> lock(p->m_mutex);
     if (!p->m_exited) {
-        // Once cancelled, it never exits as far as this object knows.
         if (p->m_cancelled) {
             return io_result_mk_uv_error(UV_ECANCELED);
         }
@@ -447,9 +449,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
     int err;
     {
         // libuv reaps the child under the loop lock, so `uv_process_kill` cannot signal another
-        // process that has reused the child's pid.
+        // process that has reused the child's pid; after the stop too, when the stopping thread runs
+        // the loop. Only `IO.Process.exit`, which holds the lock for good, rules it out.
         event_loop_guard guard;
-        if (guard.stopped()) {
+        if (guard.exiting()) {
             err = UV_ECANCELED;
         } else
 #if !defined(LEAN_WINDOWS)
@@ -473,6 +476,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
 /* IO.Process.Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32 */
 extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
     return uv_process_get_pid(&lean_to_uv_process(cnstr_get(child, 3))->m_uv_process);
+}
+
+void process_restart(uv_handle_t * handle) {
+    lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
+    lock_guard<mutex> lock(p->m_mutex);
+    p->m_cancelled = false;
 }
 
 void process_cancel_waits(uv_handle_t * handle) {

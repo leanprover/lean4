@@ -1671,8 +1671,6 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {
-    // Pending writes get the same bounded flush as when `main` returns.
-    lean_uv_stop();
     // Other threads keep running while `exit` runs destructors, libuv's among them.
     lean_uv_stop_for_exit();
     exit(code);

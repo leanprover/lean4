@@ -1,7 +1,11 @@
 main returns
 Child.wait: canceled
 timer started before main returned: canceled
+Timer.next started before main returned: resolved
 accept: canceled
+select on a sleep: canceled
 send: finished
 timer started after main returned: canceled
+spawn after main returned: canceled
+kill after main returned: succeeded
 Loop.alive after main returned: false

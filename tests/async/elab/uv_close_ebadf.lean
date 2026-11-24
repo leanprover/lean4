@@ -5,10 +5,9 @@ open Std Async Internal.UV Net
 /-!
 Closing a TCP socket fails its pending operations with `EBADF`, like every later operation on it,
 and not with the canceled error, which is reserved for operations cut short because the program is
-finishing. The read and the accept are failed by `close` itself; the write and the shutdown, which
-wait on a peer that does not read, by libuv's callbacks. On Windows the OS may take the whole write
-and complete it, and the shutdown with it, before the `close`; they must then succeed, and never
-fail with the canceled error.
+finishing. The read, the accept and the shutdown are failed by `close` itself; the write, which
+waits on a peer that does not read, by libuv's callback. On Windows the OS may take the whole write
+and complete it, and the shutdown with it, before the `close`; they may then succeed there.
 -/
 
 def await (p : IO.Promise (Except IO.Error α)) : IO (Except IO.Error α) := do
@@ -17,14 +16,16 @@ def await (p : IO.Promise (Except IO.Error α)) : IO (Except IO.Error α) := do
 def report (what : String) (r : Except IO.Error α) : IO Unit := do
   let outcome := match r with
     | .ok _ => "succeeded"
-    | .error e@(.invalidArgument ..) => if e.isCanceled then "canceled" else "invalid argument"
+    | .error (.invalidArgument ..) => "invalid argument"
     | .error e => if e.isCanceled then "canceled" else toString e
   IO.println s!"{what}: {outcome}"
 
-/-- For an operation that may complete before the `close`: success or `EBADF`, never canceled. -/
+/-- For an operation that may complete before the `close` on Windows: `EBADF`, or success there. -/
 def reportRacingClose (what : String) (r : Except IO.Error α) : IO Unit :=
   match r with
-  | .ok _ | .error (.invalidArgument ..) => IO.println s!"{what}: succeeded or invalid argument"
+  | .error (.invalidArgument ..) => IO.println s!"{what}: succeeded or invalid argument"
+  | .ok _ => if System.Platform.isWindows then IO.println s!"{what}: succeeded or invalid argument"
+    else report what r
   | _ => report what r
 
 def listener : IO TCP.Socket := do

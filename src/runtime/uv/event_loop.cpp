@@ -140,9 +140,11 @@ void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
 
 void event_loop::stop_for_exit() {
     m_stopped.store(true, std::memory_order_release);
-    m_exiting.store(true, std::memory_order_release);
     // Never released. The lock is recursive, so this also works from a callback on the loop thread.
+    // Taken before `exiting` is set: a finalizer that then skips `uv_close` leaves `data` dangling, so
+    // no other thread may be walking the handles or running the loop by then.
     lock();
+    m_exiting.store(true, std::memory_order_release);
 }
 
 // The loop thread's body.
@@ -199,20 +201,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.UV.Loop.alive : IO Bool */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
+/* Std.Internal.UV.Loop.alive : BaseIO Bool */
+extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     event_loop_guard guard;
     // A stopped loop runs nothing any more.
     if (guard.stopped()) {
-        return lean_io_result_mk_ok(lean_box(false));
+        return false;
     }
-    return lean_io_result_mk_ok(lean_box(global_ev.alive(guard)));
+    return global_ev.alive(guard);
 }
-
-extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {
-    global_ev.stop_for_exit();
-}
-
 
 #else
 
@@ -221,12 +218,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     return io_result_mk_error("lean_uv_event_loop_configure is not supported");
 }
 
-/* Std.Internal.UV.Loop.alive : IO Bool */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
-    return lean_io_result_mk_ok(lean_box(0));
+/* Std.Internal.UV.Loop.alive : BaseIO Bool */
+extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
+    return 0;
 }
-
-extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {}
 
 #endif
 

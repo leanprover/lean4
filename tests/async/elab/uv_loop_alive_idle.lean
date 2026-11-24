@@ -11,7 +11,7 @@ open Std.Internal.UV
   if ← Loop.alive then
     throw <| IO.userError "alive with nothing pending"
   let timer ← Timer.mk 100000 false
-  discard <| timer.nextResult
+  discard <| timer.next
   unless ← Loop.alive do
     throw <| IO.userError "not alive while a timer runs"
   timer.stop
@@ -19,4 +19,4 @@ open Std.Internal.UV
     throw <| IO.userError "alive after the timer was stopped"
   -- Keeps `timer` referenced until here, so its finalizer does not close the handle before the
   -- check above and leave it in the loop's closing list.
-  discard <| timer.nextResult
+  discard <| timer.next

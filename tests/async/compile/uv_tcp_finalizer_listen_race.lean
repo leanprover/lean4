@@ -73,7 +73,7 @@ def main (args : List String) : IO Unit := do
     IO.sleep 500
   -- Keeps the loop from polling while the client connects to the listeners and writes to `a`.
   let timer ← Timer.mk 1 false
-  let fired ← timer.nextResult
+  let fired ← timer.next
   BaseIO.chainTask (sync := true) fired.result? fun _ => IO.sleep 500
   for d in droppers do
     discard <| IO.wait d

@@ -35,7 +35,6 @@ static void udp_socket_finalizer(void* ptr) {
     }
 
     event_loop_guard guard;
-    // `IO.Process.exit` is running, and libuv may be mid-destruction: leave the handle alone.
     if (guard.exiting()) {
         return;
     }
@@ -63,11 +62,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
         return io_result_mk_enomem();
     }
 
+    lean_object * obj = nullptr;
     int result;
 
     {
         event_loop_guard guard;
         result = guard.stopped() ? UV_ECANCELED : uv_udp_init(global_ev.m_loop, &udp_socket->m_uv_udp);
+        if (result == 0) {
+            obj = lean_uv_udp_socket_new(udp_socket);
+            lean_mark_mt(obj);
+            udp_socket->m_uv_udp.data = obj;
+        }
     }
 
     if (result != 0) {
@@ -75,11 +80,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
 
         return io_result_mk_uv_error(result);
     }
-
-    lean_object* obj = lean_uv_udp_socket_new(udp_socket);
-    lean_mark_mt(obj);
-
-    udp_socket->m_uv_udp.data = obj;
 
     return lean_io_result_mk_ok(obj);
 }

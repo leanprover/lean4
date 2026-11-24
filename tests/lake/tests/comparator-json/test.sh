@@ -3,17 +3,12 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake comparator needs Linux namespaces"
-  exit 0
-fi
+init_check_sandbox
 
 if ! command -v jq > /dev/null; then
   echo "Skipping test: jq not found"
   exit 0
 fi
-
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 
 "$LAKE" resolve-deps
 
@@ -30,12 +25,16 @@ match_json '.report.kernel_reports["Lean default"].judgement == "success"'
 match_json '.report.config.solution_module == "Solution"'
 # What a child writes to standard error is kept, here the warning of `fake-bwrap.sh`, but not the
 # exporter's standard out, which is the export itself.
-match_json '.report.build_solution.output.proc.stderr | contains("NOT REAL BWRAP")'
+if [ "$UNAME" = Linux ]; then
+  match_json '.report.build_solution.output.proc.stderr | contains("NOT REAL BWRAP")'
+fi
 match_json '.report.export_solution.output.proc.stdout == ""'
 
 # Without `--json`, the output is as before.
 test_status_out 0 'Your solution is okay!' comparator --config config.json
-match_text 'NOT REAL BWRAP' produced.out
+if [ "$UNAME" = Linux ]; then
+  match_text 'NOT REAL BWRAP' produced.out
+fi
 
 # Each step that can fail does so on its own, and skips every step after it.
 

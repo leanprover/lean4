@@ -69,6 +69,24 @@ init_git() {
   set +x
 }
 
+# Sets up the sandbox that `lake check` and `lake comparator` build in, or skips the test where
+# there is none to use.
+init_check_sandbox() {
+  if [ "$UNAME" = Linux ]; then
+    # User namespaces cannot be assumed available in CI containers; see `fake-bwrap.sh`.
+    export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
+  elif [ "$UNAME" = Darwin ]; then
+    # Seatbelt sandboxes do not nest, so none can be started if the tests run in one themselves.
+    if ! /usr/bin/sandbox-exec -p '(version 1) (allow default)' /usr/bin/true 2>/dev/null; then
+      echo "Skipping test: cannot start a Seatbelt sandbox"
+      exit 0
+    fi
+  else
+    echo "Skipping test: lake check and lake comparator have no sandbox on this platform"
+    exit 0
+  fi
+}
+
 # Test functions
 
 test_cmd() {

@@ -3,17 +3,12 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake check needs Linux namespaces"
-  exit 0
-fi
+init_check_sandbox
 
 if ! command -v jq > /dev/null; then
   echo "Skipping test: jq not found"
   exit 0
 fi
-
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 
 "$LAKE" resolve-deps
 
@@ -26,7 +21,9 @@ match_json '.report.build_report.judgement == "success"'
 # The sandboxed half writes the export to standard out, which is not kept, and its log to standard
 # error.
 match_json '.report.build_report.output.proc.stdout == ""'
-match_json '.report.build_report.output.proc.stderr | contains("NOT REAL BWRAP")'
+if [ "$UNAME" = Linux ]; then
+  match_json '.report.build_report.output.proc.stderr | contains("NOT REAL BWRAP")'
+fi
 match_json '.report.check_axioms.judgement == "success"'
 match_json '.report.check_axioms.output.str.string ==
   "Uses axioms: propext, Classical.choice, Quot.sound"'

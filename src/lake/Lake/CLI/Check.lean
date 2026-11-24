@@ -28,16 +28,19 @@ Builds and exports Lean code, then establishes that it is accepted by the kernel
 is a challenge to compare against, that it proves the challenge's statements using no axiom outside
 a whitelist. This backs `lake comparator` and `lake check`.
 
-The code being judged is adversarial input: it is built and exported inside a `bwrap` sandbox,
-and no `.olean` produced from it is ever mapped into the process that reports the verdict. Only the
-resulting NDJSON export crosses the boundary.
+The code being judged is adversarial input: it is built and exported inside a sandbox, `bwrap` on
+Linux and Seatbelt on macOS, and no `.olean` produced from it is ever mapped into the process that
+reports the verdict. Only the resulting NDJSON export crosses the boundary.
 -/
 
 namespace Lake.Check
 
 inductive SandboxLocation where
   | noSandbox
-  | path (path : String)
+  /-- The `bwrap` executable at `path`. -/
+  | bwrap (path : String)
+  /-- The `sandbox-exec` executable at `path`, which applies a Seatbelt profile. -/
+  | seatbelt (path : String)
 
 inductive ModuleKind where
   | check
@@ -195,10 +198,10 @@ structure SandboxArgs where
   writablePaths : Array System.FilePath
   /--
   Paths that get masked with a tmpfs so they exist but do not have the same content as the host
-  system.
+  system. Seatbelt has no tmpfs and denies reading them instead.
   -/
   tmpfsPaths : Array System.FilePath
-  /-- Whether the child gets a network at all. `bwrap` cannot narrow one to particular ports. -/
+  /-- Whether the child gets a network at all. Neither sandbox narrows one to particular ports. -/
   network : Bool := false
   /--
   Different working directory for the sandboxed process to operate in.
@@ -341,28 +344,148 @@ def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
       args ++ #["--chdir", projectDir.toString]
   args ++ #["--", spawnArgs.cmd] ++ spawnArgs.args
 
-/-- The `bwrap` invocation that puts `spawnArgs` under the sandbox. -/
-def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
+/-- `sandbox-exec`, which runs a command under a Seatbelt profile. It is part of macOS. -/
+def seatbeltExe : System.FilePath := "/usr/bin/sandbox-exec"
+
+/--
+What Seatbelt keeps the code being judged from reading at all, in place of the `tmpfs` covers of
+`buildSandboxArgs`: the home directories, other volumes and the temporary directories.
+-/
+def seatbeltHiddenPaths : Array System.FilePath :=
+  #["/Users", "/Volumes", "/private/var/root", "/private/tmp", "/private/var/folders"]
+
+/-- The proper ancestors of `path`, except for the root directory. -/
+partial def properAncestors (path : System.FilePath) : Array System.FilePath :=
+  match path.parent with
+  | some parent => if parent.parent.isSome then (properAncestors parent).push parent else #[]
+  | none => #[]
+
+/--
+Builds the `sandbox-exec` command line.
+
+The profile denies everything by default and then mirrors `buildSandboxArgs`: all files are readable
+except for `seatbeltHiddenPaths` and `tmpfsPaths`, on top of which `readablePaths` are allowed
+again, only `writablePaths` are writable, and the network is all or nothing. As there is no fresh
+`/tmp`, `scratchDir` is writable in its place. Seatbelt has no namespaces, so signals and process
+information are confined to the sandbox by rule, and of the system services only the lookup of user
+information is reachable, as well as what name resolution and certificate checks need if there is a
+network. Device nodes other than the data sinks and sources are hidden, which includes the terminal.
+
+Seatbelt matches paths after resolving symbolic links, so all paths have to be canonical. They are
+passed as parameters because profiles are code, which the paths must not be able to extend.
+-/
+def buildSeatbeltArgs (spawnArgs : SandboxArgs) (scratchDir : System.FilePath) : Array String :=
+  let (profile, params) := mkProfile.run #[]
+  #["-p", profile] ++ params ++ #["--", spawnArgs.cmd] ++ spawnArgs.args
+where
+  param (path : System.FilePath) : StateM (Array String) String :=
+    modifyGet fun params =>
+      (s!"(param \"P{params.size}\")", params.push s!"-DP{params.size}={path}")
+  /-- A rule for `paths`; none if there are no paths, because a rule without a filter is total. -/
+  rule (action filter : String) (paths : Array System.FilePath) : StateM (Array String) String := do
+    if paths.isEmpty then
+      return ""
+    let filters ← paths.mapM fun path => return s!"({filter} {← param path})"
+    return s!"({action} {" ".intercalate filters.toList})\n"
+  mkProfile : StateM (Array String) String := do
+    let writable := spawnArgs.writablePaths.push scratchDir
+    let readable := spawnArgs.readablePaths ++ writable
+    let hidden := seatbeltHiddenPaths ++ spawnArgs.tmpfsPaths
+    -- The data volume also shows the hidden directories under its own mount point.
+    let hidden := hidden ++ hidden.map fun path => ⟨"/System/Volumes/Data" ++ path.toString⟩
+    -- Looking up a path needs the metadata of the directories on the way, hidden or not.
+    let traversed := (readable ++ spawnArgs.cwd.toArray).flatMap properAncestors
+      ++ spawnArgs.cwd.toArray
+    let mut profile := "(version 1)
+(deny default)
+(allow process-fork)
+(allow signal (target same-sandbox))
+(allow process-info* (target same-sandbox))
+(allow sysctl-read)
+(allow ipc-posix-sem)
+(allow mach-lookup (global-name \"com.apple.system.opendirectoryd.libinfo\"))
+(allow process-exec* file-read* file-map-executable)
+(deny process-exec* file-read* file-map-executable (subpath \"/dev\"))
+(allow file-read* (literal \"/dev/null\") (literal \"/dev/zero\") (literal \"/dev/random\")
+  (literal \"/dev/urandom\"))
+(allow file-read-metadata (literal \"/dev\"))
+(allow file-write-data (literal \"/dev/null\"))
+"
+    profile := profile ++ (← rule "deny process-exec* file-read* file-map-executable" "subpath" hidden)
+    profile := profile ++ (← rule "allow file-read-metadata" "literal" traversed)
+    profile := profile ++ (← rule "allow process-exec* file-read* file-map-executable" "subpath" readable)
+    profile := profile ++ (← rule "allow file-write*" "subpath" writable)
+    if spawnArgs.network then
+      profile := profile ++ "(allow network*)
+(allow system-socket)
+(allow mach-lookup
+  (global-name \"com.apple.SystemConfiguration.DNSConfiguration\")
+  (global-name \"com.apple.SystemConfiguration.configd\")
+  (global-name \"com.apple.trustd.agent\")
+  (global-name \"com.apple.ocspd\"))
+"
+    return profile
+
+/--
+Runs `k` on the invocation that puts `spawnArgs` under the sandbox. The invocation is only good for
+the duration of `k`.
+-/
+def withSandboxSpawnArgs (spawnArgs : SandboxArgs) (k : IO.Process.SpawnArgs → M α) : M α := do
+  let projectDir ← getProjectDir
+  let envBin := (← read).whichEnvBin.toString
   match (← read).whichSandbox with
   | .noSandbox =>
-    return {
+    k {
       cmd := spawnArgs.cmd,
       args := spawnArgs.args,
-      cwd := if let some cwd := spawnArgs.cwd then cwd else ← getProjectDir
+      cwd := spawnArgs.cwd.getD projectDir
       env := spawnArgs.envOverride
     }
-  | .path whichSandbox =>
-    return {
-      cmd := (← read).whichEnvBin.toString
-      args :=
-        #["-i", whichSandbox]
-          ++ buildSandboxArgs spawnArgs (← sandboxEnv spawnArgs) (← getProjectDir)
-      cwd := ← getProjectDir
+  | .bwrap whichSandbox =>
+    k {
+      cmd := envBin
+      args := #["-i", whichSandbox] ++ buildSandboxArgs spawnArgs (← sandboxEnv spawnArgs) projectDir
+      cwd := projectDir
     }
+  | .seatbelt whichSandbox =>
+    let scratchDir ← IO.FS.realPath (← IO.FS.createTempDir)
+    let invocation (spawnArgs : SandboxArgs) : IO IO.Process.SpawnArgs := do
+      let env := (← sandboxEnv spawnArgs).map fun (name, value) => s!"{name}={value}"
+      return {
+        cmd := envBin
+        args := #["-i"] ++ env ++ #[whichSandbox] ++ buildSeatbeltArgs spawnArgs scratchDir
+        cwd := spawnArgs.cwd
+      }
+    try
+      -- The invoking user's `HOME` and temporary directory are hidden, and `git` and Lake's caches
+      -- want somewhere writable. These go with the run.
+      let home := scratchDir / "home"
+      let tmp := scratchDir / "tmp"
+      IO.FS.createDir home
+      IO.FS.createDir tmp
+      let canonical (path : System.FilePath) : M System.FilePath := do
+        if path.isAbsolute && (← path.pathExists) then IO.FS.realPath path else pure path
+      k <| ← invocation { spawnArgs with
+        cmd := (← canonical spawnArgs.cmd).toString
+        envOverride := spawnArgs.envOverride ++
+          #[("HOME", some home.toString), ("TMPDIR", some tmp.toString)]
+        readablePaths := ← spawnArgs.readablePaths.mapM canonical
+        writablePaths := ← spawnArgs.writablePaths.mapM canonical
+        tmpfsPaths := ← spawnArgs.tmpfsPaths.mapM canonical
+        cwd := some (← canonical (spawnArgs.cwd.getD projectDir))
+      }
+    finally
+      -- Processes of the run can outlive it and race the removal, so it is done under the same
+      -- sandbox: whatever they get it to follow, it cannot remove more than they can.
+      let remove ← invocation {
+        cmd := "/bin/rm", args := #["-rf", scratchDir.toString], envPass := #[]
+        readablePaths := #[], writablePaths := #[], tmpfsPaths := #[]
+      }
+      discard <| (IO.Process.output remove).toBaseIO
 
 open IO.Process in
 partial def runSandBoxedWithStdoutTo (handle : IO.FS.Handle) (spawnArgs : SandboxArgs) : M Unit := do
-  let (stderr, exitCode) ← pipedOutput (← sandboxSpawnArgs spawnArgs)
+  let (stderr, exitCode) ← withSandboxSpawnArgs spawnArgs (pipedOutput ·)
   passStderr stderr
   if exitCode != 0 then
     throw <| .userError s!"Child exited with {exitCode}"
@@ -385,7 +508,7 @@ where
     return (stderr, exitCode)
 
 def runSandBoxedWithStdout (spawnArgs : SandboxArgs) : M String := do
-  let { stdout, stderr, exitCode } ← IO.Process.output (← sandboxSpawnArgs spawnArgs)
+  let { stdout, stderr, exitCode } ← withSandboxSpawnArgs spawnArgs (IO.Process.output ·)
   passStderr stderr
   if exitCode != 0 then
     throw <| .userError s!"Child exited with {exitCode}"
@@ -395,8 +518,8 @@ def runSandBoxedWithStdout (spawnArgs : SandboxArgs) : M String := do
 Runs `spawnArgs` sandboxed, recording the output either to stdout or into JSON, returning the exit
 code.
 -/
-def runSandBoxedExitCode (spawnArgs : SandboxArgs) : M UInt32 := do
-  let args ← sandboxSpawnArgs spawnArgs
+def runSandBoxedExitCode (spawnArgs : SandboxArgs) : M UInt32 :=
+  withSandboxSpawnArgs spawnArgs fun args => do
   if (← read).json then
     let { stdout, stderr, exitCode } ← IO.Process.output args
     appendOutput (.proc stdout stderr)
@@ -476,7 +599,10 @@ def safeResolveDeps : M Unit := step .resolveDependencies do
     network := true
   }
 
-def forbiddenPaths : Array System.FilePath := #["/run", "/var"]
+/-- State of the host system that builds have no use for. -/
+def forbiddenPaths : Array System.FilePath :=
+  -- On macOS, `/var` also holds what `sh` and the time zone are resolved through.
+  if System.Platform.isOSX then #["/private/var/run", "/private/var/log"] else #["/run", "/var"]
 
 /--
 Builds and exports the project in one sandboxed `lake` process, and returns the export.
@@ -841,7 +967,7 @@ def runReporting [Lean.ToJson α] (ctx : Context) (mkReport : State → α) (x :
     let report : Report α := {
       judgement := if accepted then .accepted else .failure
       report := mkReport state
-      sandboxed := ctx.whichSandbox matches .path _
+      sandboxed := !(ctx.whichSandbox matches .noSandbox)
     }
     IO.println (Lean.toJson report).pretty
   return if accepted then 0 else 1
@@ -904,15 +1030,21 @@ def mkContext (cmd : String) (paranoid : Bool) (inadvisablyNoSandbox : Bool) (js
       unless json do
         IO.eprintln s!"WARNING: Sandbox disabled, this run is not trustworthy."
       pure .noSandbox
+    else if System.Platform.isOSX then
+      -- Not looked up on `PATH`: it is a part of the system, and anything else would not be it.
+      unless ← seatbeltExe.pathExists do
+        return .error (← cannotRun
+          s!"`lake {cmd}` needs `{seatbeltExe}` to sandbox the code it checks, and it was not found.")
+      pure <| .seatbelt seatbeltExe.toString
     else
       if !System.Platform.isLinux then
-        return .error (← cannotRun
-          s!"`lake {cmd}` sandboxes the code it checks with `bwrap`, which needs Linux namespaces.")
+        return .error (← cannotRun s!"`lake {cmd}` sandboxes the code it checks with `bwrap` on \
+          Linux and with Seatbelt on macOS, and has no sandbox for this platform.")
 
       let whichSandbox := (← IO.getEnv "COMPARATOR_BWRAP").getD "bwrap"
       let some sandboxPath ← whichExe whichSandbox
         | return .error (← cannotRun (missingSandboxError cmd whichSandbox))
-      pure <| .path sandboxPath.toString
+      pure <| .bwrap sandboxPath.toString
   -- Always the bundled exporter: the export format has to match the compiler that produced the
   -- oleans, so letting this be pointed elsewhere would reintroduce the toolchain-pinning problem.
   let whichLean4Export := lean.binDir / "leanexport" |>.addExtension System.FilePath.exeExtension

@@ -3,13 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake check needs Linux namespaces"
-  exit 0
-fi
-
-# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
+init_check_sandbox
 
 # Both commands resolve dependencies inside the sandbox, which cannot write to the project
 # directory, so the manifest has to be in place first.

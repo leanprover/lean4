@@ -3,13 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake comparator needs Linux namespaces"
-  exit 0
-fi
-
-# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
+init_check_sandbox
 
 # Without a manifest the command refuses up front, rather than failing inside the sandbox with a
 # bare `permission denied` on the manifest it cannot write.

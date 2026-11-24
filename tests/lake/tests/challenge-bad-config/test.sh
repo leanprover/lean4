@@ -3,13 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake comparator needs Linux namespaces"
-  exit 0
-fi
-
-# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
+init_check_sandbox
 
 # A configuration that is not JSON at all.
 test_status_out 2 'malformed configuration' comparator --config malformed.json

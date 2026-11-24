@@ -261,7 +261,7 @@ generate two instances: One for `MyClass (MyType.{0} α)` with `α : Prop` and o
 `MyClass (MyType.{u + 1} α)` with `α : Type u`. With the option disabled, only the `α : Type u`
 variant will be generated, leaving no instance for `MyClass (MyType True)`.
 
-Because the amount of needed instances can be exponential in the amount of universe parameters,
+Because the number of needed instances can be exponential in the number of universe parameters,
 deriving handlers will usually fail if there are more than 8 possible instantiations of universe
 parameters. This limit is controlled by the `deriving.univPoly.limit` option.
 
@@ -274,8 +274,8 @@ register_builtin_option deriving.univPoly : Bool := {
 }
 
 /--
-The maximum amount of instantiations of universe parameters that deriving handlers are allowed to
-process. If the limit is positive, any greater amount of universe parameters will cause the
+The maximum number of instantiations of universe parameters that deriving handlers are allowed to
+process. If the limit is positive, any greater number of universe instantiations will cause the
 deriving handler to fail. `0` means "no limit".
 
 See the `deriving.univPoly` option for more information.
@@ -343,7 +343,7 @@ private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) 
 
 /-- The error type for the internal function `tryApplyCanonicalInstance` -/
 inductive CanonicalInstanceFailure where
-  /-- The are no suitable instances or at least two successful matches -/
+  /-- There are no suitable instances or at least two successful matches -/
   | nonUnique (matching filtered : Array InstanceEntry)
   /-- Unification of the goal with the instance type failed -/
   | unifyFailed (instEntry : InstanceEntry)
@@ -358,12 +358,12 @@ inductive CanonicalInstanceFailure where
 deriving Inhabited
 
 /-- Whether we failed because of no suitable matching instances -/
-partial def CanonicalInstanceFailure.isNoMatch : CanonicalInstanceFailure → Bool
+def CanonicalInstanceFailure.isNoMatch : CanonicalInstanceFailure → Bool
   | .nonUnique _ filtered => filtered.isEmpty
   | _ => false
 
 /-- Whether we failed because of multiple successes -/
-partial def CanonicalInstanceFailure.isMultiMatch : CanonicalInstanceFailure → Bool
+def CanonicalInstanceFailure.isMultiMatch : CanonicalInstanceFailure → Bool
   | .nonUnique _ filtered => filtered.size > 1
   | _ => false
 
@@ -755,7 +755,7 @@ Given a list of metavariables corresponding to instance obligations, eliminate r
 returning a suitable list of instance assumptions to be used in
 `mkLambdaFVars (binderInfoForMVars := .instImplicit)`.
 
-Precondition: The current local context must also be the local contexts of all metavariables.
+Precondition: The current local context must also be the local context of all metavariables.
 -/
 private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MVarId) := do
   if deriving.bindersVerbatim.get (← getOptions) then
@@ -894,7 +894,7 @@ def isRecursive : DerivingM Bool := do
 /--
 Returns whether the mutual inductive block being operated on is nested.
 In many cases, you may also want to consider reflexive inductives
-(i.e. types with a `α → Induct ...` recurrence). In those cases, use `isNestedOrReflexive`.
+(i.e. types with an `α → Induct ...` recurrence). In those cases, use `isNestedOrReflexive`.
 -/
 def isNested : DerivingM Bool := do
   return (← read).indInfo.isNested
@@ -1121,9 +1121,9 @@ The input to a `FieldHelperProvider` which contains information about a specific
 class being derived.
 -/
 structure FieldProviderInput where
-  /-- The level parameter of the type class -/
+  /-- The level parameters of the type class -/
   classLParams : List Level
-  /-- The parameter of the type class -/
+  /-- The parameters of the type class -/
   classParams : Array Expr
   /--
   The application of the inductive type in the mutual block that we are currently deriving an
@@ -1190,7 +1190,7 @@ def FieldHelperProvider.cases
           perCtor ival cval fields ctorApp val
 
 /--
-A pair of expression provided by `foldSimilarVarsParallel`, annotated with information about
+A pair of expressions provided by `foldSimilarVarsParallel`, annotated with information about
 dependencies. Note that the types of both expressions may not be equal if `hasBackwardDeps` is
 true.
 -/
@@ -1204,12 +1204,12 @@ structure ExprPair where
   type : Expr
   /--
   The left-hand side. This is guaranteed to be a variable from `leftVars` but may have a different
-  type as `rhs`.
+  type than `rhs`.
   -/
   lhs : Expr
   /--
   The right-hand side. This is not guaranteed to be a variable from `rightVars` because of
-  substitution and may also be new variable. It may have a different type as `lhs` if
+  substitution and may also be a new variable. It may have a different type than `lhs` if
   `hasBackwardDeps` is true.
   -/
   rhs : Expr
@@ -1286,7 +1286,7 @@ index in the `leftVars` array. `ignoreDep` affects which pairs have `hasRelevant
 A pair has relevant forward dependencies if it has forward dependencies where `ignoreDep` evaluates
 to false. If you then always pass along a proof of equality if `hasRelevantForwardDeps` is true,
 you guarantee that both sides have the same type unless `ignoreDep` evaluated to true for them.
-If you however don't always provide such a proof of equality, you need to prepared to handle the
+If you however don't always provide such a proof of equality, you need to be prepared to handle the
 case where `hasBackwardDeps` is true (i.e. both sides have potentially different types).
 
 At the end of iteration, `finish` should provide a final value of type `resultType`. The result
@@ -1377,7 +1377,7 @@ structure DifferentCtorAlt (α : Type) where
   rightFields : Array Expr
   /-- The application of `leftCtor` with parameters and `leftFields` -/
   leftCtorApp : Expr
-  /-- The application of `rightCtor` with parameters and `leftFields` -/
+  /-- The application of `rightCtor` with parameters and `rightFields` -/
   rightCtorApp : Expr
   /-- The value returned by the `preHelpers` computation or `()` if none was provided -/
   val : α
@@ -1796,7 +1796,7 @@ If `nonRec := true`, then an instance is derived for each inductive individually
 you can't refer to instances of other inductives in the mutual block. Use this for instances that
 don't need recursive instance applications for the fields.
 
-You can also specify a one time computation at `preHelpers` which will be run before any of the
+You can also specify a one-time computation at `preHelpers` which will be run before any of the
 helpers with all helpers in scope. The result of this computation is provided as an additional `α`
 argument to all `FieldHelperProvider` APIs.
 
@@ -1889,7 +1889,7 @@ structure LawDerivingContext where
 deriving Inhabited
 
 /--
-Given an application, returns the corresponding equation if `app` is an application of instance
+Given an application, returns the corresponding equation if `app` is an application of an instance
 projection that is registered in the given context and the number of additional arguments
 (`0` if `app` is not an over-application of the projection).
 -/
@@ -2219,7 +2219,7 @@ If `nonRec := true`, then an instance is derived for each inductive individually
 you can't refer to instances of other inductives in the mutual block. Use this for instances that
 don't need recursive instance applications for the fields.
 
-You can also specify a one time computation at `preHelpers` which will be run before any of the
+You can also specify a one-time computation at `preHelpers` which will be run before any of the
 helpers with all helpers in scope. The result of this computation is provided as an additional `α`
 argument to all `FieldHelperProvider` APIs.
 
@@ -2411,7 +2411,7 @@ structure LevelShape where
   plausibly matches the level shape modulo level equivalence along with modified lists of level
   parameters that were not fixed to a certain value.
 
-  The amount of outputs should be limited by `limit`; `0` means "no limit".
+  The number of outputs should be limited by `limit`; `0` means "no limit".
   -/
   createLParams : (lvl : Level) → (levelParams : List Name) → (limit : Nat) → Array (List Level × List Name)
   /-- Returns true if the given level matches the shape (syntactically) -/
@@ -2541,7 +2541,7 @@ handler by mutual block and runs `perMutualBlock` on each of them with appropria
 context.
 
 `levelShape` is used to determine the level parameters for the inductive. If this argument is
-unspecified, it is inferred automatically, using `.sortU`, `.typeU`, `.prop`, `.type` depending on
+unspecified, it is inferred automatically, using `.sortU`, `.typeU`, `.prop`, or `.type` depending on
 whether the first argument of `className` requires `Sort u`, `Type u`, `Prop` or `Type`,
 respectively.
 -/

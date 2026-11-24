@@ -571,8 +571,12 @@ private structure RealizationContext where
   Saved `Environment`, untyped to avoid cyclic reference. Import environment for imported constants.
   -/
   env       : NonScalar
-  /-- Saved options. Empty for imported constants. -/
-  opts      : Options
+  /--
+  Saved options. They are kept in a reference so that `finalizeImport` can mark the import context
+  persistent without marking the options, which belong to its caller. The reference is set once,
+  before the context is used, so copies of the context may share it.
+  -/
+  optsRef   : IO.Ref Options
   /--
   `realizeValue _ key ..` adds a mapping from `(typeName key, key)` to a task of the realization
   result (`RealizeValueResult` when called from `Lean.realizeValue`, `RealizeConstResult` from
@@ -1049,7 +1053,7 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
   return { env with localRealizationCtxMap := env.localRealizationCtxMap.insert c {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
-    opts
+    optsRef := (← IO.mkRef opts)
     realizeMapRef := (← IO.mkRef {}) } }
 
 def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
@@ -2884,19 +2888,24 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     env ← unsafe Runtime.markPersistent env
   if loadExts then
     env ← finalizePersistentExtensions env moduleData opts
-    if leakEnv then
-      /- Ensure the final environment including environment extension states is
-        marked persistent as documented.
-
-        Safety: There are no concurrent accesses to `env` at this point, assuming
-        extensions' `addImportFn`s did not spawn any unbound tasks. -/
-      env ← unsafe Runtime.markPersistent env
-  return { env with importRealizationCtx? := some {
+  let optsRef ← IO.mkRef {}
+  env := { env with importRealizationCtx? := some {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
-    opts
+    optsRef
     realizeMapRef := (← IO.mkRef {})
   } }
+  if leakEnv then
+    /- Ensure the final environment, including environment extension states and the outer object
+      returned here, is marked persistent as documented. Otherwise every thread that shares the
+      returned object would update its reference count atomically.
+
+      Safety: There are no concurrent accesses to `env` at this point, assuming
+      extensions' `addImportFn`s did not spawn any unbound tasks. `opts` belongs to the caller,
+      which may share it with other threads, so it is only stored in `optsRef` afterwards. -/
+    env ← unsafe Runtime.markPersistent env
+  optsRef.set opts
+  return env
 
 /--
 Creates environment object from given imports.
@@ -3178,7 +3187,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
         localRealizationCtxMap := realizeEnv.localRealizationCtxMap.insert forConst ctx
         importRealizationCtx? := env.importRealizationCtx?
       }
-      let res ← realize realizeEnv ctx.opts
+      let res ← realize realizeEnv (← ctx.optsRef.get)
       prom.resolve res
       pure res)
   IO.setNumHeartbeats heartbeats

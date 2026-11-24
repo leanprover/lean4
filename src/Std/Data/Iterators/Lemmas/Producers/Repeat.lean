@@ -11,6 +11,7 @@ public import Init.Data.Iterators.Lemmas.Combinators.Take
 import Init.Data.Iterators.Lemmas.Consumers.Access
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.Option.Lemmas
+import Init.Data.Nat.Lemmas
 
 @[expose] public section
 
@@ -45,7 +46,7 @@ theorem Iter.atIdxSlow?_repeat {n : Nat} :
   induction n generalizing init
   · apply atIdxSlow?_zero_repeat
   · rename_i _ ih
-    simp [atIdxSlow?_succ_repeat_eq_map, ih, Nat.iterate]
+    simp [atIdxSlow?_succ_repeat_eq_map, ih, Nat.iterate_succ_eq_apply]
 
 theorem Iter.isSome_atIdxSlow?_repeat {k : Nat} :
     ((Iter.repeat f init).atIdxSlow? k).isSome := by

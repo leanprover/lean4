@@ -12,10 +12,13 @@ themselves. `uv_finalize_cancels` covers a timer selector failing during the sel
 
 def boom : IO.Error := .userError "boom"
 
-/-- Runs `x` in a task and waits for it for at most 5 s. -/
+/--
+Runs `x` in a task and waits for it for at most 5 s. The timeout sleeps on a thread of its own: on
+a pool worker it could hold up `x`, which then finishes only as the timeout does.
+-/
 def bounded (x : IO α) : IO α := do
   let task ← IO.asTask x
-  let timeout ← IO.asTask (IO.sleep 5000)
+  let timeout ← IO.asTask (prio := .dedicated) (IO.sleep 5000)
   match ← IO.waitAny [task.map some, timeout.map fun _ => none] with
   | some res => IO.ofExcept res
   | none => throw <| .userError "timed out"

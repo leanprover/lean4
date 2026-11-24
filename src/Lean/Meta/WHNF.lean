@@ -66,12 +66,26 @@ register_builtin_option smartUnfolding : Bool := {
   descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion"
 }
 
-/-- Add auxiliary annotation to indicate the `match`-expression `e` must be reduced when performing smart unfolding. -/
-def markSmartUnfoldingMatch (e : Expr) : Expr :=
-  mkAnnotation `sunfoldMatch e
+/--
+Mark a matcher that smart unfolding must reduce. The `inputs` mask is an optimization.
+In principle, the reducer could visit every discriminant and extra argument before reducing the matcher.
+Bit `i` is set when argument `i` of the matcher application is a discriminant or extra argument
+containing a marked match, so the reducer can skip visiting the other inputs.
+-/
+def markSmartUnfoldingMatch (e : Expr) (inputs : Nat := 0) : Expr :=
+  if inputs == 0 then mkAnnotation `sunfoldMatch e
+  else mkMData (({} : MData).setNat `sunfoldMatchInputs inputs) e
 
-def smartUnfoldingMatch? (e : Expr) : Option Expr :=
-  annotation? `sunfoldMatch e
+private def smartUnfoldingMatchInputs? (d : MData) : Option Nat :=
+  match d.entries with
+  | [(`sunfoldMatch, .ofBool true)] => some 0
+  | [(`sunfoldMatchInputs, .ofNat inputs)] => some inputs
+  | _ => none
+
+def smartUnfoldingMatch? (e : Expr) : Option Expr := do
+  let .mdata d b := e | none
+  let _ ← smartUnfoldingMatchInputs? d
+  return b
 
 /-- Add auxiliary annotation to indicate expression `e` (a `match` alternative rhs) was successfully reduced by smart unfolding. -/
 def markSmartUnfoldingMatchAlt (e : Expr) : Expr :=
@@ -132,7 +146,7 @@ private def getFirstCtor (d : Name) : MetaM (Option Name) := do
     return none
   return some ctor
 
-private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
+def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
   let .const d lvls := type.getAppFn
     | return none
   let (some ctor) ← getFirstCtor d | pure none
@@ -239,7 +253,7 @@ private def isMajorProof (recVal : RecursorVal) (indVal : InductiveVal) (recLvls
       isPropFormerType (← instantiateTypeLevelParams nonNestedInduct lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   if recVal.rules.isEmpty then failK () else
   let indVal ← getConstInfoInduct recVal.getMajorInduct
   if !indVal.hasLargeElim then failK () else
@@ -543,8 +557,15 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     for h in hs do
       if auxAppFn == h then
         let result := mkAppN args[i]! auxApp.getAppArgs
-        let result := mkAppN result args[(prefixSz + info.numAlts)...args.size]
-        return ReduceMatcherResult.reduced result.headBeta
+        if args.size == info.arity then return .reduced result.headBeta
+        let result := mkAppRange result info.arity args.size args
+        -- In `(fun x => ([sunfoldMatch] m)) a b`, substitute `a` for `x` and leave `b` applied to
+        -- the marked body. Passing both arguments to `beta` would erase the marker on `m`.
+        let f := result.getAppFn
+        let args := result.getAppArgs
+        let numConsumed := min f.getNumHeadLambdas args.size
+        let body := f.beta args[*...numConsumed]
+        return .reduced (mkAppRange body numConsumed args.size args)
       i := i + 1
     return ReduceMatcherResult.stuck auxApp
 
@@ -701,8 +722,10 @@ where
         | .yesWithDeltaI => k (← whnfAtMostI c)
       | _ => unreachable!
 
+private abbrev SmartUnfoldingM := StateRefT (ExprStructMap Expr) (OptionT MetaM)
+
 /--
-  Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).
+  Recall that `_sunfold` auxiliary definitions contain the markers `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).
   For example, consider the following definition
   ```
   def r (i j : Nat) : Nat :=
@@ -727,27 +750,58 @@ where
   ```
 
   `match` expressions marked with `markSmartUnfoldingMatch` (*) must be reduced, otherwise the resulting term is not definitionally
-   equal to the given expression. The recursion may be interrupted as soon as the annotation `markSmartUnfoldingAlt` (**) is reached.
+   equal to the given expression. The recursion may be interrupted as soon as the annotation `markSmartUnfoldingMatchAlt` (**) is reached.
 
-  For example, the term `r i j.succ.succ` reduces to the definitionally equal term `i + i * r i j`
+  For example, the term `r i j.succ.succ` reduces to the definitionally equal term `i + (i + r i j)`.
+
+  The cache initially maps each caller argument in `args` to itself, since the markers to reduce
+  come from the `_sunfold` body.
 -/
-partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
-  go e |>.run
+partial def smartUnfoldingReduce? (e : Expr) (args : Array Expr := #[]) : MetaM (Option Expr) :=
+  let cache := args.foldl (init := {}) fun cache arg => cache.insert ⟨arg⟩ arg
+  ((go e).run' cache).run
 where
-  go (e : Expr) : OptionT MetaM Expr := do
+  go (e : Expr) : SmartUnfoldingM Expr := do
+    if e.isAtomic then return e
+    if let some r := (← get).get? ⟨e⟩ then return r
+    let r ← visit e
+    modify fun cache => cache.insert ⟨e⟩ r
+    return r
+
+  visit (e : Expr) : SmartUnfoldingM Expr := do
     match e with
-    | .letE n t v b nondep => mapLetDecl n t (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
+    | .letE .. => goLet #[] e
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
-    | .app f a .. => return mkApp (← go f) (← go a)
+    | .forallE .. => goForall #[] e
+    | .app f a => return e.updateApp! (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)
-    | .mdata _ b  =>
-      if let some m := smartUnfoldingMatch? e then
-        goMatch m
-      else
+    | .mdata d b =>
+      let some inputs := smartUnfoldingMatchInputs? d |
         return e.updateMData! (← go b)
+      if inputs == 0 then return ← goMatch b
+      let args ← b.getAppArgs.mapIdxM fun i arg =>
+        if inputs.testBit i then go arg else pure arg
+      goMatch (mkAppN b.getAppFn args)
     | _ => return e
 
-  goMatch (e : Expr) : OptionT MetaM Expr := do
+  /-- Accumulate the binders so each domain and the final body are instantiated only once. -/
+  goForall (xs : Array Expr) (e : Expr) : SmartUnfoldingM Expr := do
+    match e with
+    | .forallE n d b bi =>
+      withLocalDecl n bi (← go (d.instantiateRev xs)) fun x =>
+        goForall (xs.push x) b
+    | _ => mkForallFVars xs (← go (e.instantiateRev xs))
+
+  /-- Visit consecutive `let` values in order and instantiate the body once for the whole block. -/
+  goLet (xs : Array Expr) (e : Expr) : SmartUnfoldingM Expr := do
+    match e with
+    | .letE n t v b nondep =>
+      let v ← go (v.instantiateRev xs)
+      withLetDecl n (t.instantiateRev xs) v (nondep := nondep) fun x =>
+        goLet (xs.push x) b
+    | _ => mkLetFVars xs (← go (e.instantiateRev xs)) (generalizeNondepLet := false)
+
+  goMatch (e : Expr) : SmartUnfoldingM Expr := do
     match (← reduceMatcher? e) with
     | ReduceMatcherResult.reduced e =>
       if let some alt := smartUnfoldingMatchAlt? e then
@@ -755,7 +809,7 @@ where
       else
         go e
     | ReduceMatcherResult.stuck e' =>
-      let mvarId ← getStuckMVar? e'
+      let some mvarId ← getStuckMVar? e' | failure
       /- Try to "unstuck" by resolving pending TC problems -/
       if (← Meta.synthPending mvarId) then
         goMatch e
@@ -884,9 +938,10 @@ mutual
           if (← getOptionFlags).smartUnfolding then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
-              -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
-              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do
-                let some r ← smartUnfoldingReduce? e₁ | return none
+              let revArgs := e.getAppRevArgs
+              -- Preserve the smart unfolding annotations when the definition is overapplied.
+              deltaBetaDefinition fAuxInfo fLvls revArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do
+                let some r ← smartUnfoldingReduce? e₁ revArgs | return none
                 /-
                   If `smartUnfoldingReduce?` succeeds, we should still check whether the argument the
                   structural recursion is recursing on reduces to a constructor.

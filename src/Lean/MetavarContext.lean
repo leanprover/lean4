@@ -685,7 +685,7 @@ def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit 
   let mvarDecl     := (← getMCtx).getDecl mvarId
   let lctx ← instantiateLCtxMVars mvarDecl.lctx
   let type ← instantiateMVars mvarDecl.type
-  let (lctx, type) := ShareCommon.shareCommon' (lctx, type)
+  let (lctx, type) := ShareCommon.shareCommon (lctx, type)
   modifyMCtx fun mctx => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx, type } }
 
 def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : m LocalDecl := do

@@ -179,12 +179,17 @@ open Replay
 "Replay" some constants into a `Kernel.Environment`, sending them to the kernel for checking.
 
 Throws a `IO.userError` if the kernel rejects a constant,
-or if there are malformed recursors or constructors for inductive types.
+or if there are malformed recursors or constructors for inductive types,
+or if a key of `newConstants` differs from the name of the constant stored under it.
 -/
 public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.Environment) :
     IO Kernel.Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
+    -- Constructors and recursors are checked by their own name after replay, so an entry
+    -- under a different key would otherwise never be checked.
+    unless n == ci.name do
+      throw <| .userError s!"declaration '{ci.name}' is stored under the name '{n}'"
     -- We skip unsafe constants, and also partial constants.
     -- Later we may want to handle partial constants.
     if !ci.isUnsafe && !ci.isPartial then

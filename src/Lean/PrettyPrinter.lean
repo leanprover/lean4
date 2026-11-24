@@ -37,7 +37,7 @@ register_builtin_option pp.exprSizes : Bool := {
 
 private def maybePrependExprSizes (e : Expr) (f : Format) : MetaM Format := do
   if pp.exprSizes.get (← getOptions) then
-    return f!"[size {e.sizeWithoutSharing}/{← e.numObjs}/{← (ShareCommon.shareCommon' e).numObjs}] {f}"
+    return f!"[size {e.sizeWithoutSharing}/{← e.numObjs}/{← (ShareCommon.shareCommon e).numObjs}] {f}"
   else
     return f
 

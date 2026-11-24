@@ -118,25 +118,26 @@ structure LeanServerCapabilities where
 
 -- TODO largely unimplemented
 structure ServerCapabilities where
-  textDocumentSync?         : Option TextDocumentSyncOptions := none
-  completionProvider?       : Option CompletionOptions       := none
-  hoverProvider             : Bool                           := false
-  documentHighlightProvider : Bool                           := false
-  documentSymbolProvider    : Bool                           := false
-  definitionProvider        : Bool                           := false
-  declarationProvider       : Bool                           := false
-  typeDefinitionProvider    : Bool                           := false
-  referencesProvider        : Bool                           := false
-  callHierarchyProvider     : Bool                           := false
-  renameProvider?           : Option RenameOptions           := none
-  workspaceSymbolProvider   : Bool                           := false
-  foldingRangeProvider      : Bool                           := false
-  semanticTokensProvider?   : Option SemanticTokensOptions   := none
-  codeActionProvider?       : Option CodeActionOptions       := none
-  inlayHintProvider?        : Option InlayHintOptions        := none
-  signatureHelpProvider?    : Option SignatureHelpOptions    := none
-  colorProvider?            : Option DocumentColorOptions    := none
-  experimental?             : Option LeanServerCapabilities  := none
+  textDocumentSync?           : Option TextDocumentSyncOptions := none
+  completionProvider?         : Option CompletionOptions         := none
+  hoverProvider               : Bool                             := false
+  documentHighlightProvider   : Bool                             := false
+  documentSymbolProvider      : Bool                             := false
+  definitionProvider          : Bool                             := false
+  declarationProvider         : Bool                             := false
+  typeDefinitionProvider      : Bool                             := false
+  referencesProvider          : Bool                             := false
+  callHierarchyProvider       : Bool                             := false
+  renameProvider?             : Option RenameOptions             := none
+  workspaceSymbolProvider     : Bool                             := false
+  foldingRangeProvider        : Bool                             := false
+  semanticTokensProvider?     : Option SemanticTokensOptions     := none
+  codeActionProvider?         : Option CodeActionOptions         := none
+  inlayHintProvider?          : Option InlayHintOptions          := none
+  signatureHelpProvider?      : Option SignatureHelpOptions      := none
+  colorProvider?              : Option DocumentColorOptions      := none
+  documentFormattingProvider? : Option DocumentFormattingOptions := none
+  experimental?               : Option LeanServerCapabilities    := none
   deriving ToJson, FromJson
 
 end Lsp

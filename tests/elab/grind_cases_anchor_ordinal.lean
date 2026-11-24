@@ -24,13 +24,13 @@ example : (∃ z, f z = @g Nat) → (∃ z, f z = @g Int) → (∀ z, f z ≠ @g
   grind =>
     cases?
     cases #d151
-    instantiate only [#09e6]
+    instantiate only [#f9b9]
 
 /--
 info: Try these:
-  [apply] grind only [#d151, #09e6]
+  [apply] grind only [#d151, #f9b9]
   [apply] grind only
-  [apply] grind => cases #d151 <;> instantiate only [#09e6]
+  [apply] grind => cases #d151 <;> instantiate only [#f9b9]
 -/
 #guard_msgs (info) in
 example : (∃ z, f z = @g Nat) → (∃ z, f z = @g Int) → (∀ z, f z ≠ @g Int) → False := by
@@ -44,7 +44,7 @@ example : (∃ z, f z = @g Nat) → (∃ z, f z = @g Int) → (∀ z, f z ≠ @g
   grind =>
     cases #d151/2
     cases #d151
-    instantiate only [#09e6]
+    instantiate only [#f9b9]
 
 -- Out-of-range ordinal.
 /--
@@ -70,7 +70,7 @@ example : ∀ x y, (∃ z, f z = x) → (∃ z, f z = y) → (∀ z, f z ≠ y) 
   grind =>
     cases?
     cases #fb4b
-    instantiate only [#9900]
+    instantiate only [#1e21]
 
 -- Hidden variables `x✝` and `y✝` have distinct anchors.
 /--
@@ -86,4 +86,4 @@ example : ∀ x y, (∃ z, f z = x) → (∃ z, f z = y) → (∀ z, f z ≠ y) 
   grind =>
     cases?
     cases #b82e
-    instantiate only [#6b62]
+    instantiate only [#cb0d]

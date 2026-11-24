@@ -19,6 +19,10 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdx
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter___redArg(lean_object* v_i_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
@@ -85,6 +89,74 @@ lean_dec(v_i_30_);
 lean_dec(v_j_28_);
 lean_dec(v_n_27_);
 return v_res_34_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___redArg(lean_object* v_i_35_, lean_object* v_h__1_36_, lean_object* v_h__2_37_){
+_start:
+{
+lean_object* v_zero_38_; uint8_t v_isZero_39_; 
+v_zero_38_ = lean_unsigned_to_nat(0u);
+v_isZero_39_ = lean_nat_dec_eq(v_i_35_, v_zero_38_);
+if (v_isZero_39_ == 1)
+{
+lean_object* v___x_40_; 
+lean_dec(v_h__2_37_);
+v___x_40_ = lean_apply_1(v_h__1_36_, lean_box(0));
+return v___x_40_;
+}
+else
+{
+lean_object* v_one_41_; lean_object* v_n_42_; lean_object* v___x_43_; 
+lean_dec(v_h__1_36_);
+v_one_41_ = lean_unsigned_to_nat(1u);
+v_n_42_ = lean_nat_sub(v_i_35_, v_one_41_);
+v___x_43_ = lean_apply_2(v_h__2_37_, v_n_42_, lean_box(0));
+return v___x_43_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___redArg___boxed(lean_object* v_i_44_, lean_object* v_h__1_45_, lean_object* v_h__2_46_){
+_start:
+{
+lean_object* v_res_47_; 
+v_res_47_ = l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___redArg(v_i_44_, v_h__1_45_, v_h__2_46_);
+lean_dec(v_i_44_);
+return v_res_47_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter(lean_object* v_00_u03b1_48_, lean_object* v_as_49_, lean_object* v_j_50_, lean_object* v_motive_51_, lean_object* v_i_52_, lean_object* v_inv_53_, lean_object* v_h__1_54_, lean_object* v_h__2_55_){
+_start:
+{
+lean_object* v_zero_56_; uint8_t v_isZero_57_; 
+v_zero_56_ = lean_unsigned_to_nat(0u);
+v_isZero_57_ = lean_nat_dec_eq(v_i_52_, v_zero_56_);
+if (v_isZero_57_ == 1)
+{
+lean_object* v___x_58_; 
+lean_dec(v_h__2_55_);
+v___x_58_ = lean_apply_1(v_h__1_54_, lean_box(0));
+return v___x_58_;
+}
+else
+{
+lean_object* v_one_59_; lean_object* v_n_60_; lean_object* v___x_61_; 
+lean_dec(v_h__1_54_);
+v_one_59_ = lean_unsigned_to_nat(1u);
+v_n_60_ = lean_nat_sub(v_i_52_, v_one_59_);
+v___x_61_ = lean_apply_2(v_h__2_55_, v_n_60_, lean_box(0));
+return v___x_61_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter___boxed(lean_object* v_00_u03b1_62_, lean_object* v_as_63_, lean_object* v_j_64_, lean_object* v_motive_65_, lean_object* v_i_66_, lean_object* v_inv_67_, lean_object* v_h__1_68_, lean_object* v_h__2_69_){
+_start:
+{
+lean_object* v_res_70_; 
+v_res_70_ = l___private_Init_Data_Vector_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter(v_00_u03b1_62_, v_as_63_, v_j_64_, v_motive_65_, v_i_66_, v_inv_67_, v_h__1_68_, v_h__2_69_);
+lean_dec(v_i_66_);
+lean_dec(v_j_64_);
+lean_dec_ref(v_as_63_);
+return v_res_70_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);

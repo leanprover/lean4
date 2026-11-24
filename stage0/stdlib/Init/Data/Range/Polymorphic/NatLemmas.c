@@ -13,6 +13,54 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_NatLemmas_0__Option_isSome_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_NatLemmas_0__Option_isSome_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_NatLemmas_0__Option_isSome_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
+_start:
+{
+if (lean_obj_tag(v_x_1_) == 0)
+{
+lean_object* v___x_4_; lean_object* v___x_5_; 
+lean_dec(v_h__1_2_);
+v___x_4_ = lean_box(0);
+v___x_5_ = lean_apply_1(v_h__2_3_, v___x_4_);
+return v___x_5_;
+}
+else
+{
+lean_object* v_val_6_; lean_object* v___x_7_; 
+lean_dec(v_h__2_3_);
+v_val_6_ = lean_ctor_get(v_x_1_, 0);
+lean_inc(v_val_6_);
+lean_dec_ref_known(v_x_1_, 1);
+v___x_7_ = lean_apply_1(v_h__1_2_, v_val_6_);
+return v___x_7_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_NatLemmas_0__Option_isSome_match__1_splitter(lean_object* v_00_u03b1_8_, lean_object* v_motive_9_, lean_object* v_x_10_, lean_object* v_h__1_11_, lean_object* v_h__2_12_){
+_start:
+{
+if (lean_obj_tag(v_x_10_) == 0)
+{
+lean_object* v___x_13_; lean_object* v___x_14_; 
+lean_dec(v_h__1_11_);
+v___x_13_ = lean_box(0);
+v___x_14_ = lean_apply_1(v_h__2_12_, v___x_13_);
+return v___x_14_;
+}
+else
+{
+lean_object* v_val_15_; lean_object* v___x_16_; 
+lean_dec(v_h__2_12_);
+v_val_15_ = lean_ctor_get(v_x_10_, 0);
+lean_inc(v_val_15_);
+lean_dec_ref_known(v_x_10_, 1);
+v___x_16_ = lean_apply_1(v_h__1_11_, v_val_15_);
+return v___x_16_;
+}
+}
+}
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_BasicAux(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);

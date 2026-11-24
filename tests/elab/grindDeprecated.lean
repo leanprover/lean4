@@ -3,7 +3,7 @@ Test that `grind` flags deprecated theorems.
 See https://github.com/leanprover/lean4/issues/11582
 -/
 set_option backward.grind.inferPattern true  -- Use old pattern inference (no suggestions)
-set_option linter.deprecated true  -- Enable the deprecated linter (test framework disables all linters)
+set_option linter.deprecated true
 
 def foo : Nat := 0
 

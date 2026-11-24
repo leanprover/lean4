@@ -44,14 +44,12 @@ example (α : Type) (a b : α) (p : α → Prop) (h1 : ∀ x, x = a ∨ p x) (h2
   bv_decide +epr +uf
 
 -- `x = y` in positive position puts `x` and `y` into each other's avoid set. The problem is
--- satisfiable and the instance with `y := b` adds `b` to the instantiation set of the next round.
+-- satisfiable. The unused element `b` is dropped from the sort.
 /--
 error: The prover found a counterexample, consider the following assignment:
 r a = False
 a = α₀
 s a = False
-b = α₀
-s b = False
 ---
 trace: [Meta.Tactic.bv.epr.instSets] ✅️ Instantiation set analysis
   [Meta.Tactic.bv.epr.instSets] quantifier 0 variable 0: class 0
@@ -63,9 +61,6 @@ trace: [Meta.Tactic.bv.epr.instSets] ✅️ Instantiation set analysis
 [Meta.Tactic.bv.epr.instSets] ✅️ Instantiation sets
   [Meta.Tactic.bv.epr.instSets] class 0: [a]
   [Meta.Tactic.bv.epr.instSets] class 1: [a]
-[Meta.Tactic.bv.epr.instSets] ✅️ Instantiation sets
-  [Meta.Tactic.bv.epr.instSets] class 0: [a]
-  [Meta.Tactic.bv.epr.instSets] class 1: [a, b]
 -/
 #guard_msgs in
 example (α : Type) (a b : α) (r s : α → Prop) (h1 : ∀ x y, x = y ∨ r x ∨ s y) (h2 : ¬r a)

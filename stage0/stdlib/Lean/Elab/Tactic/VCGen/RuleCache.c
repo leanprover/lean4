@@ -1907,7 +1907,7 @@ return v_res_689_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Elab_Tactic_VCGen_mkBackwardRuleForAssertionSplitCached_spec__0___redArg(lean_object* v_m_690_, lean_object* v_a_691_){
 _start:
 {
-lean_object* v_buckets_692_; lean_object* v_fst_693_; lean_object* v_snd_694_; lean_object* v___x_695_; uint64_t v___y_697_; lean_object* v___y_698_; uint64_t v___y_699_; uint64_t v___y_724_; 
+lean_object* v_buckets_692_; lean_object* v_fst_693_; lean_object* v_snd_694_; lean_object* v___x_695_; lean_object* v___y_697_; uint64_t v___y_698_; uint64_t v___y_699_; uint64_t v___y_724_; 
 v_buckets_692_ = lean_ctor_get(v_m_690_, 1);
 v_fst_693_ = lean_ctor_get(v_a_691_, 0);
 v_snd_694_ = lean_ctor_get(v_a_691_, 1);
@@ -1929,8 +1929,8 @@ goto v___jp_723_;
 v___jp_696_:
 {
 lean_object* v_fst_700_; lean_object* v_snd_701_; size_t v___x_702_; size_t v___x_703_; size_t v___x_704_; uint64_t v___x_705_; uint64_t v___x_706_; uint64_t v___x_707_; uint64_t v___x_708_; uint64_t v___x_709_; uint64_t v___x_710_; uint64_t v___x_711_; uint64_t v_fold_712_; uint64_t v___x_713_; uint64_t v___x_714_; uint64_t v___x_715_; size_t v___x_716_; size_t v___x_717_; size_t v___x_718_; size_t v___x_719_; size_t v___x_720_; lean_object* v___x_721_; lean_object* v___x_722_; 
-v_fst_700_ = lean_ctor_get(v___y_698_, 0);
-v_snd_701_ = lean_ctor_get(v___y_698_, 1);
+v_fst_700_ = lean_ctor_get(v___y_697_, 0);
+v_snd_701_ = lean_ctor_get(v___y_697_, 1);
 v___x_702_ = lean_ptr_addr(v_fst_700_);
 v___x_703_ = ((size_t)3ULL);
 v___x_704_ = lean_usize_shift_right(v___x_702_, v___x_703_);
@@ -1938,7 +1938,7 @@ v___x_705_ = lean_usize_to_uint64(v___x_704_);
 v___x_706_ = lean_uint64_of_nat(v_snd_701_);
 v___x_707_ = lean_uint64_mix_hash(v___x_705_, v___x_706_);
 v___x_708_ = lean_uint64_mix_hash(v___y_699_, v___x_707_);
-v___x_709_ = lean_uint64_mix_hash(v___y_697_, v___x_708_);
+v___x_709_ = lean_uint64_mix_hash(v___y_698_, v___x_708_);
 v___x_710_ = 32ULL;
 v___x_711_ = lean_uint64_shift_right(v___x_709_, v___x_710_);
 v_fold_712_ = lean_uint64_xor(v___x_709_, v___x_711_);
@@ -1964,8 +1964,8 @@ if (v___x_726_ == 0)
 lean_object* v_snd_727_; uint64_t v___x_728_; 
 v_snd_727_ = lean_ctor_get(v_snd_694_, 1);
 v___x_728_ = 13ULL;
-v___y_697_ = v___y_724_;
-v___y_698_ = v_snd_727_;
+v___y_697_ = v_snd_727_;
+v___y_698_ = v___y_724_;
 v___y_699_ = v___x_728_;
 goto v___jp_696_;
 }
@@ -1974,8 +1974,8 @@ else
 lean_object* v_snd_729_; uint64_t v___x_730_; 
 v_snd_729_ = lean_ctor_get(v_snd_694_, 1);
 v___x_730_ = 11ULL;
-v___y_697_ = v___y_724_;
-v___y_698_ = v_snd_729_;
+v___y_697_ = v_snd_729_;
+v___y_698_ = v___y_724_;
 v___y_699_ = v___x_730_;
 goto v___jp_696_;
 }

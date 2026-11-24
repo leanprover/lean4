@@ -1,0 +1,48 @@
+/-!
+Tests for comments before and after a token whose trailing whitespace belongs to another token
+without text, such as the `(` of a parenthesized term: the comments on a line of their own before
+the token and the comments directly after it have different tokens in the syntax tree, but are
+placed at the same token. Both must be kept in place, at each position in the file.
+-/
+
+def g (s : String) : Option Nat := some s.length
+
+#guard -- c1
+  -- c2
+  ( /- c3 -/g "badname").isSome
+
+-- The same command again, at another position in the file.
+#guard -- c1
+  -- c2
+  ( /- c3 -/g "badname").isSome
+
+def withTrailingComment : Nat :=
+  -- c2
+  ( /- c3 -/1 + 1) -- c4
+
+def lineCommentAfterParen : Bool :=
+  -- c2
+  ( -- c3
+    g "badname").isSome
+
+def typeAscription : Nat :=
+  -- c2
+  ( /- c3 -/1 : Nat)
+
+def tuple : Nat × Nat :=
+  -- c2
+  ( /- c3 -/1, 2)
+
+def nestedParens : Nat :=
+  -- c2
+  ( /- c3 -/( /- c4 -/1 + 1) + 1)
+
+def argument : Option Nat :=
+  some
+    -- c2
+    ( /- c3 -/1 + 1)
+
+#guard
+  (
+    -- c2
+    · /- c3 -/ + 1) 2 == 3

@@ -429,13 +429,8 @@ lean_object * sharecommon_quick_fn::visit_ctor(lean_object * a) {
 }
 
 /*
-**TODO:** We did not implement stack overflow detection.
-We claim it is not needed in the current uses of `shareCommon'`.
-If this becomes an issue, we can use the following approach to address the issue without
-affecting the performance.
-- Add an extra `depth` parameter.
-- In `operator()`, estimate the maximum depth based on the remaining stack space. See `check_stack`.
-- If the limit is reached, simply return `a`.
+Recursion depth is the depth of the object graph. There is no stack overflow check: this relies
+on the large default thread stack size (see `LEAN_DEFAULT_THREAD_STACK_SIZE`).
 */
 lean_object * sharecommon_quick_fn::visit(lean_object * a) {
     if (lean_is_scalar(a)) {
@@ -461,7 +456,7 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
     }
 }
 
-// def ShareCommon.shareCommon' (a : A) : A := a
+// def ShareCommon.shareCommon (a : @& α) : α := a
 extern "C" LEAN_EXPORT obj_res lean_sharecommon_quick(obj_arg a) {
     return sharecommon_quick_fn()(a);
 }

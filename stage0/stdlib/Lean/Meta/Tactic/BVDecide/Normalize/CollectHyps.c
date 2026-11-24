@@ -8776,7 +8776,7 @@ v___jp_2827_:
 {
 lean_object* v_toGoalState_2841_; uint8_t v_inconsistent_2842_; 
 v_toGoalState_2841_ = lean_ctor_get(v_snd_2829_, 0);
-v_inconsistent_2842_ = lean_ctor_get_uint8(v_toGoalState_2841_, sizeof(void*)*20 + 8);
+v_inconsistent_2842_ = lean_ctor_get_uint8(v_toGoalState_2841_, sizeof(void*)*21 + 8);
 if (v_inconsistent_2842_ == 0)
 {
 lean_object* v_mvarId_2843_; lean_object* v_config_2844_; lean_object* v___f_2845_; lean_object* v___x_2846_; 
@@ -9767,8 +9767,8 @@ goto v___jp_3333_;
 v___jp_3275_:
 {
 lean_object* v___x_3279_; 
-lean_inc(v___y_3277_);
-v___x_3279_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_BVDecide_Normalize_PreProcessM_collectTargetHyps_spec__4_spec__5___redArg(v_oldTraces_3258_, v_data_3278_, v___y_3277_, v___y_3276_, v___y_3268_, v___y_3269_, v___y_3270_, v___y_3271_);
+lean_inc(v___y_3276_);
+v___x_3279_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_BVDecide_Normalize_PreProcessM_collectTargetHyps_spec__4_spec__5___redArg(v_oldTraces_3258_, v_data_3278_, v___y_3276_, v___y_3277_, v___y_3268_, v___y_3269_, v___y_3270_, v___y_3271_);
 if (lean_obj_tag(v___x_3279_) == 0)
 {
 lean_object* v___x_3280_; 
@@ -9807,8 +9807,8 @@ lean_dec(v_snd_3282_);
 lean_dec(v_fst_3281_);
 lean_dec_ref(v_tag_3255_);
 lean_dec(v_cls_3253_);
-v___y_3276_ = v_a_3287_;
-v___y_3277_ = v___y_3286_;
+v___y_3276_ = v___y_3286_;
+v___y_3277_ = v_a_3287_;
 v_data_3278_ = v_data_3292_;
 goto v___jp_3275_;
 }
@@ -9827,8 +9827,8 @@ v___x_3295_ = lean_unbox_float(v_snd_3282_);
 lean_dec(v_snd_3282_);
 lean_ctor_set_float(v_data_3293_, sizeof(void*)*3 + 8, v___x_3295_);
 lean_ctor_set_uint8(v_data_3293_, sizeof(void*)*3 + 16, v_collapsed_3254_);
-v___y_3276_ = v_a_3287_;
-v___y_3277_ = v___y_3286_;
+v___y_3276_ = v___y_3286_;
+v___y_3277_ = v_a_3287_;
 v_data_3278_ = v_data_3293_;
 goto v___jp_3275_;
 }

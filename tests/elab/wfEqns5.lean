@@ -1,4 +1,7 @@
-set_option linter.deprecated.options false
+/-!
+Tests the equational theorems generated for functions defined by well-founded and structural
+recursion with a nested `match`.
+-/
 
 def foo : Nat → Nat → Nat
   | 0, m => match m with | 0 => 0 | m => m
@@ -45,38 +48,6 @@ info: foo._unary.eq_def (_x : (_ : Nat) ×' Nat) :
 #guard_msgs in
 #check foo._unary.eq_def
 
-
-set_option backward.eqns.deepRecursiveSplit false in
-def bar : Nat → Nat → Nat
-  | 0, m => match m with | 0 => 0 | m => m
-  | n+1, m => bar n m
-termination_by n => n
-
-/--
-info: equations:
-theorem bar.eq_1 : ∀ (x : Nat),
-  bar 0 x =
-    match x with
-    | 0 => 0
-    | m => m
-theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
--/
-#guard_msgs in
-#print equations bar
-
-/--
-info: bar.eq_def (x✝ x✝¹ : Nat) :
-  bar x✝ x✝¹ =
-    match x✝, x✝¹ with
-    | 0, m =>
-      match m with
-      | 0 => 0
-      | m => m
-    | n.succ, m => bar n m
--/
-#guard_msgs in
-#check bar.eq_def
-
 -- Now the same for structural recursion
 
 namespace Structural
@@ -111,37 +82,5 @@ info: Structural.foo.eq_def (x✝ x✝¹ : Nat) :
 /-- error: Unknown identifier `Structural.foo.eq_4` -/
 #guard_msgs in
 #check Structural.foo.eq_4
-
-
-set_option backward.eqns.deepRecursiveSplit false in
-def bar : Nat → Nat → Nat
-  | 0, m => match m with | 0 => 0 | m => m
-  | n+1, m => bar n m
-termination_by n => n
-
-/--
-info: equations:
-theorem Structural.bar.eq_1 : ∀ (x : Nat),
-  bar 0 x =
-    match x with
-    | 0 => 0
-    | m => m
-theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
--/
-#guard_msgs in
-#print equations bar
-
-/--
-info: Structural.bar.eq_def (x✝ x✝¹ : Nat) :
-  bar x✝ x✝¹ =
-    match x✝, x✝¹ with
-    | 0, m =>
-      match m with
-      | 0 => 0
-      | m => m
-    | n.succ, m => bar n m
--/
-#guard_msgs in
-#check bar.eq_def
 
 end Structural

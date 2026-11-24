@@ -1309,6 +1309,20 @@ environment environment::add_inductive(declaration const & d) const {
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
                                                          all_ind_names, ind_val.get_cnstrs(), ind_val.get_nnested(),
                                                          ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive())));
+        }
+        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
+           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
+           otherwise escape type checking. We check them at the end, using `new_env`, to avoid
+           type checking terms in an environment containing auxiliary declarations. */
+        {
+            type_checker tc(new_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
+                    tc.check(nested, inductive_decl(d).get_lparams());
+                });
+        }
+        for (inductive_type const & ind_type : ind_d.get_types()) {
+            constant_info ind_info = aux_env.get(ind_type.get_name());
+            inductive_val ind_val  = ind_info.to_inductive_val();
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();
@@ -1322,16 +1336,6 @@ environment environment::add_inductive(declaration const & d) const {
         }
         for (name const & aux_rec : aux_rec_names) {
             process_rec(aux_rec);
-        }
-        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
-           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
-           otherwise escape type checking. We check them at the end, using `new_env`, to avoid
-           type checking terms in an environment containing auxiliary declarations. */
-        {
-            type_checker tc(new_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
-            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
-                    tc.check(nested, inductive_decl(d).get_lparams());
-                });
         }
         /* Re-check everything `restore_nested` rewrote: the constructor types, and the recursor
            types and computation rules. The rewritten terms are not otherwise checked in `new_env`.

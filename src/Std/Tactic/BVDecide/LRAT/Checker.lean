@@ -15,7 +15,7 @@ This module contains the implementation of the LRAT checker as well as a proof t
 CNF is unsat if the checker succeeds.
 -/
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace Std.Tactic.BVDecide
 namespace LRAT

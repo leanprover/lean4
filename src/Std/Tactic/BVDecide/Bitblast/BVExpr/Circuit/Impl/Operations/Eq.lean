@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.RefVecOperator
+public import Std.Internal.Sat.AIG.RefVecOperator
 
 @[expose] public section
 
@@ -16,7 +16,7 @@ This module contains the implementation of a bitblaster for `BitVec` equality.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVPred
 

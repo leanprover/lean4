@@ -11,7 +11,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
-public import Std.Sat.AIG.If
+public import Std.Internal.Sat.AIG.If
 
 import Init.Omega
 
@@ -23,7 +23,7 @@ This module contains the implementation of a bitblaster for `BitVec.cpop`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 variable [Hashable α] [DecidableEq α]
 

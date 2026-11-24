@@ -23,8 +23,8 @@ bits `0` until `n`.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
-open Std.Sat.AIG
+open Std.Internal.Sat
+open Std.Internal.Sat.AIG
 
 variable [Hashable α] [DecidableEq α]
 

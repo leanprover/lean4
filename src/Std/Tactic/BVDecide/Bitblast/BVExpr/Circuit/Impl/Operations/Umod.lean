@@ -17,7 +17,7 @@ circuit is a shift subtractor.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

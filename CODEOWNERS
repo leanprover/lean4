@@ -45,7 +45,7 @@
 /src/Std/ @TwoFX
 /src/Std/Tactic/BVDecide/ @hargoniX
 /src/Lean/Elab/Tactic/BVDecide/ @hargoniX
-/src/Std/Sat/ @hargoniX
+/src/Std/Internal/Sat/ @hargoniX
 /src/Std/Do @sgraf812
 /src/Std/Tactic/Do @sgraf812
 /src/Lean/Elab/Tactic/Do @sgraf812

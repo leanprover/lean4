@@ -22,8 +22,8 @@ This module contains the verification of the bitblaster for `BitVec.mul` from `I
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
-open Std.Sat.AIG
+open Std.Internal.Sat
+open Std.Internal.Sat.AIG
 
 variable [Hashable α] [DecidableEq α]
 

@@ -9,8 +9,8 @@ prelude
 public import Std.Tactic.BVDecide.LRAT.Checker
 public import Std.Tactic.BVDecide.LRAT.Parser
 public import Std.Tactic.BVDecide.Bitblast
-public import Std.Sat.AIG.CNF
-public import Std.Sat.AIG.RelabelNat
+public import Std.Internal.Sat.AIG.CNF
+public import Std.Internal.Sat.AIG.RelabelNat
 
 @[expose] public section
 
@@ -166,7 +166,7 @@ theorem lemma_congr (x x' : Bool) (h1 : x' = x) (h2 : x = true) : x' = true := b
 
 end Bool
 
-open Std.Sat
+open Std.Internal.Sat
 
 /--
 Verify that a proof certificate is valid for a given formula.

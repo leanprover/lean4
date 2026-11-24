@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Std.Sat.AIG.LawfulVecOperator
+public import Std.Internal.Sat.AIG.LawfulVecOperator
 import Init.Omega
 
 @[expose] public section
@@ -18,7 +18,7 @@ This module contains the implementation of a bitblaster for `BitVec` constants.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

@@ -10,7 +10,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
-public import Std.Sat.AIG.If
+public import Std.Internal.Sat.AIG.If
 import Init.Omega
 
 public section
@@ -22,7 +22,7 @@ circuit is a shift subtractor.
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

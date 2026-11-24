@@ -11,7 +11,7 @@ import Std.Tactic.BVDecide.EPR.BitVec
 import Std.Tactic.BVDecide.Normalize.Prop
 public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Std.Sat.AIG.Basic
+public import Std.Internal.Sat.AIG.Basic
 
 /-!
 This module contains the implementation of counterexample recovery and explanation.
@@ -30,7 +30,7 @@ Given:
 Reconstruct bit by bit which value expression must have had which `BitVec` value and return all
 expression - pair values.
 -/
-public def reconstructCounterExample (aig : Std.Sat.AIG BVBit) (assignment : Array (Bool × Nat))
+public def reconstructCounterExample (aig : Std.Internal.Sat.AIG BVBit) (assignment : Array (Bool × Nat))
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × Bool × BVExpr.PackedBitVec) := Id.run do
   let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}

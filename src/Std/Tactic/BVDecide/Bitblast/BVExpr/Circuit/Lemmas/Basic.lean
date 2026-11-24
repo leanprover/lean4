@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.Basic
+public import Std.Internal.Sat.AIG.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 
 @[expose] public section

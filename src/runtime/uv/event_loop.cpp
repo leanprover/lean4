@@ -106,6 +106,8 @@ void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
     g_on_loop_thread = true;
 
     lock();
+    // The loop's cached time may be long stale after a task manager's finalization.
+    uv_update_time(m_loop);
     // Inactive once it has fired.
     uv_timer_start(&m_flush_timer, [](uv_timer_t *) {}, timeout_ms, 0);
     unlock();

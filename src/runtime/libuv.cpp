@@ -53,21 +53,19 @@ static void take_pending(uv_handle_t * handle, void * arg) {
 
 // For `IO.Process.exit`, which runs `exit()` right after: nothing could observe the settled
 // promises, and dropping one would run its `(sync := true)` continuations, such as `result!`, inline.
-static void leak(uv_finalize_batch & batch) {
-    for (owned_ref & promise : batch.m_promises) {
-        (void)promise.release();
-    }
-    for (owned_ref & ref : batch.m_refs) {
-        (void)ref.release();
-    }
+// Kept reachable until the program ends, so that leak checkers do not report what it holds. Called
+// with `g_uv_stop_mutex` held.
+static void keep_until_exit(uv_finalize_batch & batch) {
+    static std::vector<uv_finalize_batch> & kept = *new std::vector<uv_finalize_batch>;
+    kept.push_back(std::move(batch));
 }
 
-// Takes from handles and linked requests, and closes the sockets in `m_close`. Returns false, leaking
+// Takes from handles and linked requests, and closes the sockets in `m_close`. Returns false, keeping
 // the batch, if `IO.Process.exit` has stopped libuv meanwhile.
 static bool take_all(uv_finalize_batch & batch) {
     event_loop_guard guard;
     if (guard.exiting()) {
-        leak(batch);
+        keep_until_exit(batch);
         return false;
     }
     uv_walk(global_ev.m_loop, take_pending, &batch);
@@ -142,7 +140,7 @@ static void stop_libuv(bool settle) {
     if (!take_all(batch)) return;
 
     if (!settle) {
-        leak(batch);
+        keep_until_exit(batch);
         return;
     }
     // Continuations run by the settle may call `IO.Process.exit`, which stops libuv again.

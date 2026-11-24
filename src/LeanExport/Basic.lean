@@ -441,10 +441,10 @@ def exportMetadata : Json :=
   ]
   let exporterMeta := Json.mkObj [
     ("name", "lean4export"),
-    ("version", "3.1.0")
+    ("version", "3.2.0")
   ]
   let formatMeta := Json.mkObj [
-    ("version", "3.1.0")
+    ("version", "3.2.0")
   ]
 
   Json.mkObj [

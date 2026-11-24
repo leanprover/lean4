@@ -9,10 +9,12 @@ module
 prelude
 public import Lean.Fmt.FmtM.Layouts
 import Lean.Fmt.Util.RangeTree
-import Lean.Fmt.Util.Basic
 import Lean.Fmt.FmtM.Comments
 meta import Lean.Parser.Term.Basic
 import Init.Data
+
+def Lean.Syntax.Range.ofSubstring (s : Substring.Raw) : Syntax.Range :=
+  ⟨s.startPos, s.stopPos⟩
 
 partial def Lean.Syntax.getTailToken? (stx : Syntax) : Option Syntax :=
   match stx with

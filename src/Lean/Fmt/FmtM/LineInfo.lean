@@ -10,8 +10,11 @@ prelude
 public import Lean.Fmt.FmtM.Error
 import Init.While
 import Init.Data.Slice
-import Lean.Fmt.Util.Basic
 public import Lean.Syntax
+
+def Lean.Syntax.getStartPos? (stx : Syntax) : Option String.Pos.Raw :=
+  let info := stx.getHeadInfo
+  info.getLeading?.map (·.startPos) <|> info.getPos?
 
 namespace Lean.Fmt
 

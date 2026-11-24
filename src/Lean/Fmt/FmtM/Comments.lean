@@ -9,7 +9,8 @@ module
 prelude
 public import Lean.Syntax
 public import Lean.Fmt.FmtM.Error
-public import Lean.Fmt.Util.Basic
+public import Init.Data.String.Hashable
+import Init.Data.String.OrderInstances
 import Lean.Fmt.Util.RangeTree
 import Init.Data.String.Search
 import Init.Control.Basic

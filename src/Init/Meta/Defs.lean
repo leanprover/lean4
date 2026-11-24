@@ -556,6 +556,14 @@ def getTrailingSize (stx : Syntax) : Nat :=
   | _ => 0
 
 /--
+Finds the leading whitespace substring of the first `SourceInfo` from the front of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the front of `stx` contains
+no leading whitespace, the result is `none`.
+-/
+def getLeading? (stx : Syntax) : Option Substring.Raw :=
+  stx.getHeadInfo.getLeading?
+
+/--
 Finds the trailing whitespace substring of the first `SourceInfo` from the back of `stx`.
 If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
 no trailing whitespace, the result is `none`.

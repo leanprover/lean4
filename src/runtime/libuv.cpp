@@ -60,6 +60,17 @@ static void keep_until_exit(uv_finalize_batch & batch) {
     kept.push_back(std::move(batch));
 }
 
+// Keeps queued thread-pool requests (DNS, random) from starting: libuv's exit destructor runs every
+// queued one before joining its workers. Called under the loop lock.
+static void cancel_queued_work() {
+    for (uv_tracked_req * req = g_uv_requests; req != nullptr; req = req->m_next) {
+        uv_req_type type = req->m_uv->type;
+        if (type == UV_GETADDRINFO || type == UV_GETNAMEINFO || type == UV_RANDOM) {
+            uv_cancel(req->m_uv);
+        }
+    }
+}
+
 // Takes from handles and linked requests, and closes the sockets in `m_close`. Returns false, keeping
 // the batch, if `IO.Process.exit` has stopped libuv meanwhile.
 static bool take_all(uv_finalize_batch & batch) {
@@ -69,13 +80,13 @@ static bool take_all(uv_finalize_batch & batch) {
         return false;
     }
     uv_walk(global_ev.m_loop, take_pending, &batch);
+    if (batch.m_keep_flushable) {
+        cancel_queued_work();
+    }
     for (uv_tracked_req * req = g_uv_requests; req != nullptr; req = req->m_next) {
         uv_req_type type = req->m_uv->type;
         if (batch.m_keep_flushable) {
-            if (req->promise.get() == nullptr || type == UV_WRITE || type == UV_UDP_SEND) continue;
-            // Keeps a queued thread-pool request (DNS, random) from starting: libuv's exit destructor
-            // runs every queued one before joining its workers. Fails harmlessly for the others.
-            uv_cancel(req->m_uv);
+            if (type == UV_WRITE || type == UV_UDP_SEND) continue;
         } else if (type == UV_WRITE) {
             batch.m_close.push_back((uv_handle_t*)((uv_write_t*)req->m_uv)->handle);
         } else if (type == UV_CONNECT) {
@@ -114,6 +125,11 @@ static void stop_libuv(bool settle) {
     // mutex, since a thread holding it may be joining the loop thread.
     if (global_ev.on_loop_thread()) {
         global_ev.stop();
+        if (!settle) {
+            // `exit()` follows without the passes.
+            event_loop_guard guard;
+            if (!guard.exiting()) cancel_queued_work();
+        }
         return;
     }
     std::unique_lock<std::mutex> stopping(g_uv_stop_mutex);

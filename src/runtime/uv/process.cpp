@@ -48,9 +48,7 @@ static void process_close_cb(uv_handle_t * handle) {
 static void process_finalizer(void * ptr) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(ptr);
     event_loop_guard guard;
-    if (guard.exiting()) {
-        return;
-    }
+    if (guard.exiting()) return;
     if (p->m_exited) {
         uv_close((uv_handle_t *)&p->m_uv_process, process_close_cb);
     } else {
@@ -194,9 +192,7 @@ static int build_env(array_ref<pair_ref<string_ref, option_ref<string_ref>>> con
 // libuv fails with the same error for a missing working directory as for a missing executable.
 static obj_res mk_spawn_error(int err, string_ref const & cmd, option_ref<string_ref> const & cwd) {
     // Not about the command: the program is finishing.
-    if (err == UV_ECANCELED) {
-        return io_result_mk_uv_error(err);
-    }
+    if (err == UV_ECANCELED) return io_result_mk_uv_error(err);
     if (cwd) {
         uv_fs_t req;
         int stat_err = uv_fs_stat(nullptr, &req, cwd.get()->data(), nullptr);
@@ -449,8 +445,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
     int err;
     {
         // libuv reaps the child under the loop lock, so `uv_process_kill` cannot signal another
-        // process that has reused the child's pid; after the stop too, when the stopping thread runs
-        // the loop. Only `IO.Process.exit`, which holds the lock for good, rules it out.
+        // process that has reused the child's pid, also while a flush runs the loop after the stop.
         event_loop_guard guard;
         if (guard.exiting()) {
             err = UV_ECANCELED;
@@ -478,16 +473,10 @@ extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg c
     return uv_process_get_pid(&lean_to_uv_process(cnstr_get(child, 3))->m_uv_process);
 }
 
-void process_restart(uv_handle_t * handle) {
+void process_set_cancelled(uv_handle_t * handle, bool cancelled) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
     lock_guard<mutex> lock(p->m_mutex);
-    p->m_cancelled = false;
-}
-
-void process_cancel_waits(uv_handle_t * handle) {
-    lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
-    lock_guard<mutex> lock(p->m_mutex);
-    p->m_cancelled = true;
+    p->m_cancelled = cancelled;
     p->m_exited_cond.notify_all();
 }
 

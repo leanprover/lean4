@@ -50,32 +50,24 @@ public:
     // these run inline. No callback runs while that thread is blocked.
     bool on_loop_thread() const;
 
-    // Whether the program is finishing: operations fail with `UV_ECANCELED` instead of starting new
-    // libuv work. Cancellations, closes and finalizers still clean up under the lock.
-    bool stopped() const { return m_stopped.load(std::memory_order_acquire); }
-
-    // Whether `IO.Process.exit` holds the lock for good. Then no thread may touch libuv at all.
     bool exiting() const { return m_exiting.load(std::memory_order_acquire); }
 
-    // Sets `stopped` and joins the loop thread, so that no callback runs afterwards. Returns false
-    // when called on the loop thread, which cannot join itself. `lean_init_task_manager` restarts it.
+    // Marks libuv stopped and joins the loop thread, so that no callback runs afterwards. Returns
+    // false without a loop, or on the loop thread, which cannot join itself. `lean_init_task_manager`
+    // restarts it.
     bool stop();
     void restart();
 
-    // Whether `stop` joined the loop thread, so that no other thread runs the loop.
-    bool joined() const { return stopped() && m_loop != nullptr && m_thread == nullptr; }
-
-    // After `stop`, runs the loop on the calling thread as the loop thread would, until `pending`
-    // returns false or `timeout_ms` passes. Callbacks run, but new operations still fail.
+    // If `stop` joined the loop thread, runs the loop on this thread as the loop thread would, until
+    // `pending` returns false or `timeout_ms` passes. Callbacks run, but new operations still fail.
     void flush(uint64_t timeout_ms, bool (*pending)());
 
     // The deadline of `flush`. It is not a Lean object, so finalization's walk skips it.
     uv_timer_t       m_flush_timer;
 
-    // Stops libuv for `IO.Process.exit`, which then runs `exit()` while other threads keep running.
-    // Takes the lock and never releases it: a thread already past the `exiting` check waits on it
-    // forever, so no thread is inside libuv when `exit()` runs libuv's destructor, and the loop thread
-    // runs no more callbacks.
+    // Stops libuv for `IO.Process.exit`, whose `exit()` runs libuv's destructor while other threads
+    // keep running. Takes the lock and never releases it, so that no thread is inside libuv by then,
+    // and the loop thread runs no more callbacks.
     void stop_for_exit();
 
 private:
@@ -87,9 +79,6 @@ private:
     std::atomic<bool> m_exiting{false};
     lthread *        m_thread = nullptr;
     bool             m_thread_stop = false; // Asks the loop thread to return. Guarded by `m_mutex`.
-    bool             m_flush_expired = false; // Guarded by `m_mutex`.
-
-    void start_thread();
 
     void lock();
     void unlock();
@@ -103,11 +92,6 @@ extern event_loop global_ev;
 // Holds the `global_ev` lock for its scope. Must be a named local: a temporary would unlock
 // immediately. libuv callbacks already run under the lock and do not take it, but a finalizer or an FFI
 // call from a continuation they run inline does; the lock is recursive, so this nests.
-//
-// An operation checks `stopped()` and then fails with `UV_ECANCELED`; it is checked after locking,
-// since libuv may stop while this thread waits for the lock. While `IO.Process.exit` runs the guard
-// does not lock at all, so a cancellation, close or finalizer checks `exiting()` and then does nothing,
-// since `exit()` may be destroying libuv.
 class event_loop_guard {
     bool m_locked;
 public:
@@ -118,7 +102,10 @@ public:
     event_loop_guard(event_loop_guard const &) = delete;
     event_loop_guard & operator=(event_loop_guard const &) = delete;
 
-    bool stopped() const { return !m_locked || global_ev.stopped(); }
+    // Whether libuv has stopped: new operations fail with `UV_ECANCELED`, but cancellations, closes and
+    // finalizers still clean up. Checked under the lock, since libuv may stop while waiting for it.
+    bool stopped() const { return !m_locked || global_ev.m_stopped.load(std::memory_order_acquire); }
+    // Whether `stop_for_exit` ran, so that the guard holds no lock: callers then do nothing.
     bool exiting() const { return !m_locked; }
 };
 

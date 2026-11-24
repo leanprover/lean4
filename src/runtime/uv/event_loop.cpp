@@ -23,23 +23,16 @@ static void check_uv(int result, const char * msg) {
 }
 
 void event_loop::start() {
-    // A loop of its own: finalization walks every handle on it and takes each to be a Lean object, so
-    // handles that native code puts on `uv_default_loop()` must not be on it.
+    // Not `uv_default_loop()`: finalization takes every handle on the loop to be a Lean object.
     m_loop = new uv_loop_t;
     check_uv(uv_loop_init(m_loop), "Failed to initialize the event loop");
     check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
     check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
     check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
     check_uv(uv_timer_init(m_loop, &m_flush_timer), "Failed to initialize the flush timer");
-    // Never keeps the loop alive, so `alive` and the loop thread ignore it.
     uv_unref((uv_handle_t*)&m_flush_timer);
     m_waiters = 0;
 
-    start_thread();
-}
-
-void event_loop::start_thread() {
-    m_thread_stop = false;
     m_thread = new lthread([this]() { run(); });
 }
 
@@ -75,15 +68,13 @@ bool event_loop::on_loop_thread() const {
 
 bool event_loop::stop() {
     m_stopped.store(true, std::memory_order_release);
-    // Without a loop, libuv was never initialized; on the loop thread, it cannot join itself.
     if (m_loop == nullptr || on_loop_thread()) {
         return false;
     }
     if (m_thread != nullptr) {
         lock();
         m_thread_stop = true;
-        // Wakes the loop thread if it waits on `m_cond` between iterations; `lock` already made a
-        // running `uv_run` return.
+        // Wakes a loop thread waiting on `m_cond`; `lock` already made a running `uv_run` return.
         unlock();
         m_thread->join();
         delete m_thread;
@@ -98,24 +89,25 @@ void event_loop::restart() {
     }
     m_stopped.store(false, std::memory_order_release);
     if (m_thread == nullptr && m_loop != nullptr) {
-        start_thread();
+        m_thread_stop = false;
+        m_thread = new lthread([this]() { run(); });
     }
 }
 
 void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
-    // `IO.Process.exit` holds the lock for good.
-    if (exiting()) {
+    // The loop thread still runs when the stop happened on it.
+    if (exiting() || m_loop == nullptr || m_thread != nullptr) {
         return;
     }
 
-    // Callbacks that check for the loop thread, such as a finalization run by a continuation, must
-    // treat this thread as it.
+    // Callbacks that check for the loop thread, such as a finalizer run by a continuation, must take
+    // this thread for it.
     bool was_on_loop_thread = g_on_loop_thread;
     g_on_loop_thread = true;
 
     lock();
-    m_flush_expired = false;
-    uv_timer_start(&m_flush_timer, [](uv_timer_t *) { global_ev.m_flush_expired = true; }, timeout_ms, 0);
+    // Inactive once it has fired.
+    uv_timer_start(&m_flush_timer, [](uv_timer_t *) {}, timeout_ms, 0);
     unlock();
 
     // As in `run`: waiting threads take the lock between iterations, find the loop stopped, and fail
@@ -125,7 +117,7 @@ void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
         while (m_waiters != 0) {
             uv_cond_wait(&m_cond, &m_mutex);
         }
-        if (m_flush_expired || !pending()) {
+        if (!uv_is_active((uv_handle_t*)&m_flush_timer) || !pending()) {
             uv_timer_stop(&m_flush_timer);
             uv_mutex_unlock(&m_mutex);
             break;
@@ -140,9 +132,9 @@ void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
 
 void event_loop::stop_for_exit() {
     m_stopped.store(true, std::memory_order_release);
-    // Never released. The lock is recursive, so this also works from a callback on the loop thread.
-    // Taken before `exiting` is set: a finalizer that then skips `uv_close` leaves `data` dangling, so
-    // no other thread may be walking the handles or running the loop by then.
+    // Recursive, so this also works on the loop thread. Taken before `exiting` is set: a finalizer that
+    // then skips `uv_close` leaves `data` dangling, so no other thread may walk the handles or run the
+    // loop by then.
     lock();
     m_exiting.store(true, std::memory_order_release);
 }
@@ -204,11 +196,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     event_loop_guard guard;
-    // A stopped loop runs nothing any more.
-    if (guard.stopped()) {
-        return false;
-    }
-    return global_ev.alive(guard);
+    return !guard.stopped() && global_ev.alive(guard);
 }
 
 #else

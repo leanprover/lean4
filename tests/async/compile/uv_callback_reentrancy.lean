@@ -12,7 +12,7 @@ open Std.Internal.UV
 def timerFromCallback (useStop : Bool) : IO Unit := do
   for _ in [0:200] do
     let timer ← Timer.mk 1 false
-    let fired ← timer.nextResult
+    let fired ← timer.next
     BaseIO.chainTask (sync := true) fired.result? fun _ => do
       let _ ← (if useStop then timer.stop else timer.cancel : IO _).toBaseIO
     let _ ← IO.wait fired.result?

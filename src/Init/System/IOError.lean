@@ -298,15 +298,12 @@ def toString : IO.Error → String
 
 instance : ToString IO.Error := ⟨ IO.Error.toString ⟩
 
-/-- The OS error code of a canceled libuv operation, as `otherError` reports it. -/
 @[extern "lean_uv_canceled_code"]
 private opaque canceledCode : Unit → UInt32
 
 /--
-Whether `e` reports an I/O operation of the event loop canceled because the program is finishing:
-every one that is still pending then, or started afterwards (after `main` returns, or in
-`IO.Process.exit`), fails this way. Retrying it fails again at once, so a loop that retries on errors
-should stop on this one.
+Whether `e` reports an I/O operation of the event loop canceled because the program is finishing
+(`main` returned or `IO.Process.exit` was called). Retrying it fails again at once.
 -/
 def isCanceled : IO.Error → Bool
   | .otherError code _ => code == canceledCode ()

@@ -57,9 +57,7 @@ struct lean_uv_signal_object {
 static inline lean_object* lean_uv_signal_new(lean_uv_signal_object * s) { return lean_alloc_external(g_uv_signal_external_class, s); }
 static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return (lean_uv_signal_object*)(lean_get_external_data(o)); }
 
-// Finalization: finishes a running signal handler, which keeps listening without reporting, and
-// takes its promise and the loop's reference.
-void signal_take_pending(uv_handle_t * handle, uv_finalize_batch & batch);
+void signal_take_pending(lean_object * signal, uv_finalize_batch & batch);
 // Before a restart: closes a handle kept listening after its `Signal` was freed, which restores the
 // signal's default action.
 void signal_close_orphan(uv_handle_t * handle);

@@ -90,9 +90,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         }
 
         std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
-        if (req->promise.get() == nullptr) {
-            return;
-        }
+        if (req->promise.get() == nullptr) return;
         lean_object * arr = lean_alloc_array(0, 1);
 
         for (addrinfo * ai = res; ai != nullptr; ai = ai->ai_next) {

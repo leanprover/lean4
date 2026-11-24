@@ -1169,9 +1169,8 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
-    // Stops the event loop thread first, since its callbacks resolve promises through the task
-    // manager. Pending libuv operations fail with `UV_ECANCELED`, and so do later ones, so that tasks
-    // waiting on them finish.
+    // First, since libuv callbacks resolve promises through the task manager. Pending and later libuv
+    // operations fail with `UV_ECANCELED`, so that tasks waiting on them finish.
     lean_uv_stop();
     if (g_task_manager) {
         delete g_task_manager;

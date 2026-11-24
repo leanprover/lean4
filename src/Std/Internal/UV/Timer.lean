@@ -65,25 +65,20 @@ This function has different behavior depending on the state and configuration of
     one.
 
 Once the program is finishing this throws instead. The promise resolves to `.ok ()` when the timer
-fires, or to an error when the timer fails and can no longer fire, as every timer does once the
-program is finishing. A promise from `nextResult` may also be resolved by the code holding it; the
-timer then treats it as fulfilled when it fires.
+fires, or to an error when it fails, as every timer does then. A promise from `nextResult` may also
+be resolved by the code holding it; the timer then treats it as fulfilled when it fires.
 -/
 @[extern "lean_uv_timer_next"]
 opaque nextResult (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
-Like `nextResult`, but the promise carries no error: it resolves when the timer fires, and also when
-the timer fails, as every timer does once the program is finishing, so that a wait on it ends. It is
-dropped, so that it never resolves, when the timer is stopped. Each call returns a new promise that
-follows the one from `nextResult`.
+Like `nextResult`, but each call returns a new promise without the error, which resolves once the
+one from `nextResult` does, also to an error, so that a wait on it ends.
 -/
 def next (timer : Timer) : IO (IO.Promise Unit) := do
   let result ← timer.nextResult
   let promise ← IO.Promise.new
-  BaseIO.chainTask (sync := true) result.result? fun
-    | some _ => promise.resolve ()
-    | none => pure ()
+  BaseIO.chainTask (sync := true) result.result? fun r => do if r.isSome then promise.resolve ()
   return promise
 
 /--

@@ -70,10 +70,9 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-Once the program is finishing this throws instead. The promise resolves to `.ok` with the number of
-the received signal, or to an error when the handler fails and can no longer report the signal, as
-every handler does once the program is finishing. A promise from `nextResult` may also be resolved
-by the code holding it; the handler then treats it as fulfilled when the signal arrives.
+Once the program is finishing this throws instead. The promise resolves to `.ok signum`, or to an
+error when the handler fails, as every handler does then. A promise from `nextResult` may also be
+resolved by the code holding it; the handler then treats it as fulfilled when the signal arrives.
 -/
 @[extern "lean_uv_signal_next"]
 opaque nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
@@ -82,17 +81,14 @@ opaque nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
 private opaque keepPending (promise : @& IO.Promise Int) : BaseIO Unit
 
 /--
-Like `nextResult`, but the promise carries no error: it resolves with the number of the received
-signal. It is dropped, so that it never resolves, when the handler is stopped, and it stays pending
-for good when the handler fails, as every handler does once the program is finishing. Each call
-returns a new promise that follows the one from `nextResult`.
+Like `nextResult`, but each call returns a new promise of the signal number, which resolves once the
+one from `nextResult` resolves to `.ok` and stays pending for good if it fails.
 -/
 def next (signal : Signal) : IO (IO.Promise Int) := do
   let result ← signal.nextResult
   let promise ← IO.Promise.new
   BaseIO.chainTask (sync := true) result.result? fun
     | some (.ok signum) => promise.resolve signum
-    -- Dropping it would make `result!` on it block the thread that settles the failure.
     | some (.error _) => keepPending promise
     | none => pure ()
   return promise

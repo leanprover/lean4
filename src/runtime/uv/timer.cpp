@@ -22,9 +22,7 @@ static void timer_finalizer(void* ptr) {
         // A repeating timer without a pending promise may still be running, so the handle is closed
         // under the loop lock that its callback runs under.
         event_loop_guard guard;
-        if (guard.exiting()) {
-            return;
-        }
+        if (guard.exiting()) return;
 
         // The close callback may free `timer` as soon as the lock is released.
         promise = std::move(timer->m_promise);
@@ -97,23 +95,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     timer->m_timeout = repeating && timeout == 0 ? 1 : timeout;
     timer->m_repeating = repeating;
 
-    lean_object * obj = nullptr;
-    int result;
-
-    {
-        event_loop_guard guard;
-        result = guard.stopped() ? UV_ECANCELED : uv_timer_init(global_ev.m_loop, &timer->m_uv_timer);
-        if (result == 0) {
-            obj = lean_uv_timer_new(timer);
-            lean_mark_mt(obj);
-            timer->m_uv_timer.data = obj;
-        }
-    }
+    event_loop_guard guard;
+    int result = guard.stopped() ? UV_ECANCELED : uv_timer_init(global_ev.m_loop, &timer->m_uv_timer);
 
     if (result != 0) {
         delete timer;
         return io_result_mk_uv_error(result);
     }
+
+    lean_object * obj = lean_uv_timer_new(timer);
+    lean_mark_mt(obj);
+    timer->m_uv_timer.data = obj;
 
     return lean_io_result_mk_ok(obj);
 }
@@ -129,9 +121,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
-        if (guard.stopped()) {
-            return io_result_mk_uv_error(UV_ECANCELED);
-        }
+        if (guard.stopped()) return io_result_mk_uv_error(UV_ECANCELED);
 
         if (timer->m_state == timer_state::Initial) {
             timer->m_promise = owned_ref(mk_mt_promise());
@@ -185,9 +175,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj) {
     {
         // Locking to access the state in order to avoid data-race
         event_loop_guard guard;
-        if (guard.stopped()) {
-            return io_result_mk_uv_error(UV_ECANCELED);
-        }
+        if (guard.stopped()) return io_result_mk_uv_error(UV_ECANCELED);
 
         if (timer->m_state == timer_state::Running) {
             uv_timer_stop(&timer->m_uv_timer);
@@ -218,9 +206,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
-        if (guard.exiting()) {
-            return lean_io_result_mk_ok(lean_box(0));
-        }
+        if (guard.exiting()) return lean_io_result_mk_ok(lean_box(0));
 
         if (timer->m_state == timer_state::Running) {
             uv_timer_stop(&timer->m_uv_timer);
@@ -248,9 +234,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
     {
         // It's locking here to avoid changing the state during other operations.
         event_loop_guard guard;
-        if (guard.exiting()) {
-            return lean_io_result_mk_ok(lean_box(0));
-        }
+        if (guard.exiting()) return lean_io_result_mk_ok(lean_box(0));
 
         if (timer->m_state == timer_state::Running && timer->m_promise.get() != nullptr) {
             promise = std::move(timer->m_promise);
@@ -272,19 +256,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-void timer_take_pending(uv_handle_t * handle, uv_finalize_batch & batch) {
-    lean_object * obj = (lean_object*)handle->data;
+void timer_take_pending(lean_object * obj, uv_finalize_batch & batch) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
     if (timer->m_state != timer_state::Running) {
         return;
     }
     uv_timer_stop(&timer->m_uv_timer);
     timer->m_state = timer_state::Finished;
-    if (timer->m_promise.get() != nullptr) {
-        batch.m_promises.push_back(std::move(timer->m_promise));
-        // The loop's reference, held while a promise is pending.
-        batch.m_refs.push_back(owned_ref(obj));
-    }
+    batch.take(timer->m_promise, obj);
 }
 
 #else

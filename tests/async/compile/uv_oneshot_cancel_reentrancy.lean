@@ -19,14 +19,14 @@ def arm (next : IO (IO.Promise α)) (cancel : IO Unit) : IO Unit := do
 def timerCancel : IO Unit := do
   for _ in [0:200] do
     let timer ← Timer.mk 3600000 false
-    arm timer.nextResult timer.cancel
+    arm timer.next timer.cancel
     timer.cancel
 
 /-- SIGWINCH is never sent here; the handler is only armed and cancelled. -/
 def signalCancel : IO Unit := do
   for _ in [0:200] do
     let signal ← Signal.mk 28 false
-    arm signal.nextResult signal.cancel
+    arm signal.next signal.cancel
     signal.cancel
 
 def main : IO Unit := do

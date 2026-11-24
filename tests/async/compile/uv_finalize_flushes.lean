@@ -4,13 +4,10 @@ import Std.Internal.UV
 open Std Async Internal.UV Net
 
 /-!
-When the program exits, libuv lets writes and shutdowns that are already pending finish, for at most
-2 s, before it cancels them. The waits it cancels are settled only after that: the sender also has a
-recv pending, whose failure makes it close the socket, which would cancel the send if it came first.
-The sender starts a large send and a shutdown and then either returns from `main` or calls
-`IO.Process.exit 0`; the receiver, which reads everything, must get every byte and then the end of
-the stream. The receiver reads slowly, so that the flush takes about half a second.
-`uv_finalize_cancels` covers the peer that never reads.
+When `main` returns or `IO.Process.exit` is called, pending writes and shutdowns get up to 2 s to
+finish before libuv cancels them, and the waits it cancels are settled only after that flush, or
+the sender's failing recv would close the socket under the send. A slow receiver must get every byte
+of a large send and then the end of the stream.
 -/
 
 def size : Nat := 16 * 1024 * 1024

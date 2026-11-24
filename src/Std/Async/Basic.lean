@@ -64,10 +64,9 @@ with non async code that uses them.
 ## Exit
 
 When the program finishes (`main` returns, or `IO.Process.exit` is called), pending writes and
-shutdowns get up to 2 seconds to complete. Every other pending I/O operation, and every one started
-afterwards, then fails with an error for which `IO.Error.isCanceled` holds. A loop that retries
-failed operations should stop on such an error: the retry fails again at once, and the program
-cannot exit until the loop ends.
+shutdowns get up to 2 seconds to complete. Every other I/O operation pending then or started
+afterwards fails with an error for which `IO.Error.isCanceled` holds; a loop that retries failed
+operations should stop on it, or the program cannot exit.
 
 -/
 

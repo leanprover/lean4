@@ -53,8 +53,7 @@ struct lean_uv_timer_object {
 static inline lean_object* lean_uv_timer_new(lean_uv_timer_object * s) { return lean_alloc_external(g_uv_timer_external_class, s); }
 static inline lean_uv_timer_object* lean_to_uv_timer(lean_object * o) { return (lean_uv_timer_object*)(lean_get_external_data(o)); }
 
-// Finalization: stops a running timer, as `stop` does, and takes its promise and the loop's reference.
-void timer_take_pending(uv_handle_t * handle, uv_finalize_batch & batch);
+void timer_take_pending(lean_object * timer, uv_finalize_batch & batch);
 
 #endif
 

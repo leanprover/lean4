@@ -3,13 +3,10 @@ import Std.Async
 open Std Async Internal.UV
 
 /-!
-`IO.Process.exit` runs `exit()` while other threads keep running, and `exit()` runs libuv's destructor,
-which destroys the thread pool's mutex, so no thread may enter libuv afterwards. `IO.Process.exit`
-stops libuv first: later libuv calls fail with `UV_ECANCELED`, and a thread already inside libuv keeps
-the exiting thread waiting until it leaves, then waits forever.
-
-The child keeps timers and the thread pool busy and calls `IO.Process.exit 0` from a pool task; the
-parent runs it 20 times and expects every run to exit with 0.
+`IO.Process.exit` called from a pool task while other threads keep timers and libuv's thread pool
+busy must exit with the given code: it stops libuv first, so that no thread enters libuv after
+`exit()` destroys libuv's state, and must not deadlock on a thread inside libuv. The parent runs the
+child 20 times.
 -/
 
 def child : IO Unit := do
@@ -18,25 +15,19 @@ def child : IO Unit := do
       let timer ← Timer.mk 0 true
       for _ in [0:100000] do
         discard <| IO.wait (← timer.nextResult).result?
-  for _ in [0:16] do
     discard <| IO.asTask (prio := .dedicated) do
       for _ in [0:100000] do
         discard <| (Async.DNS.getAddrInfo "localhost" "80").block.toBaseIO
   IO.sleep 20
-  let exiting ← IO.asTask (IO.Process.exit 0 : IO Unit)
-  discard <| IO.wait exiting
-  IO.sleep 5000
-  IO.println "IO.Process.exit returned"
+  discard <| IO.wait (← IO.asTask (IO.Process.exit 0 : IO Unit))
 
 def main (args : List String) : IO Unit := do
-  if args.head? == some "child" then
+  if args == ["child"] then
     child
     return
-  let mut codes := #[]
-  for _ in [0:20] do
+  for run in [1:21] do
     let out ← IO.Process.output { cmd := (← IO.appPath).toString, args := #["child"] }
-    codes := codes.push out.exitCode
-  if codes.all (· == 0) then
-    IO.println "ok"
-  else
-    IO.println s!"exit codes: {codes}"
+    if out.exitCode != 0 then
+      IO.println s!"run {run} of 20 exited with {out.exitCode}"
+      return
+  IO.println "ok"

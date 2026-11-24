@@ -3,9 +3,8 @@ import Std.Internal.UV
 /-!
 A one-shot libuv timer whose promise the caller resolved before it fired.
 
-`IO.Promise.resolve` is available to whoever holds the promise returned by `next`, so the loop must
-treat an already-resolved promise as settled when the timer fires. Builds with assertions enabled
-used to abort in the callback instead.
+`IO.Promise.resolve` is available to whoever holds the promise returned by `nextResult`, so the loop
+must treat an already-resolved promise as settled when the timer fires.
 -/
 
 open Std.Internal.UV

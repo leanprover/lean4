@@ -41,9 +41,7 @@ struct lean_uv_udp_socket_object {
 static inline lean_object* lean_uv_udp_socket_new(lean_uv_udp_socket_object * s) { return lean_alloc_external(g_uv_udp_socket_external_class, s); }
 static inline lean_uv_udp_socket_object* lean_to_uv_udp_socket(lean_object * o) { return (lean_uv_udp_socket_object*)(lean_get_external_data(o)); }
 
-// Finalization: stops a pending receive, as `cancelRecv` does, and takes its promise and the loop's
-// reference.
-void udp_take_pending(uv_handle_t * handle, uv_finalize_batch & batch);
+void udp_take_pending(lean_object * socket, uv_finalize_batch & batch);
 
 #endif
 

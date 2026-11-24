@@ -17,17 +17,18 @@ open Std.Internal.UV
 def repeatingTimerFromCallback : IO Unit := do
   for _ in [0:200] do
     let timer ← Timer.mk 1 true
-    let fired ← timer.nextResult
+    let fired ← timer.next
     BaseIO.chainTask (sync := true) fired.result? fun _ => do
       let _ ← (timer.cancel : IO _).toBaseIO
-      let _ ← (timer.nextResult : IO _).toBaseIO
+      let _ ← (timer.next : IO _).toBaseIO
       let _ ← (timer.stop : IO _).toBaseIO
       pure ()
     let _ ← IO.wait fired.result?
 
 /--
-Races `next` against `cancel` on a shared repeating timer. The promises are deliberately dropped
-rather than awaited: `cancel` orphans the outstanding one, so waiting on it would block forever.
+Races `nextResult` against `cancel` on a shared repeating timer. The promises are deliberately
+dropped rather than awaited: `cancel` orphans the outstanding one, so waiting on it would block
+forever.
 -/
 def timerNextRacesCancel : IO Unit := do
   for _ in [0:100] do

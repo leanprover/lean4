@@ -1568,9 +1568,8 @@ event loop, for example by a timer or a socket.
 On POSIX platforms, if other code in the same process reaps the child, for example a C library
 calling `waitpid(-1, …)`, this function never returns.
 
-Once the program is finishing (`main` has returned, or `IO.Process.exit` was called), the exit is no
-longer detected: a child that has not exited by then makes this function, and `tryWait`, throw the
-error for which `IO.Error.isCanceled` holds, and so does spawning a new child.
+Once the program is finishing, this function and `tryWait` throw an error for which
+`IO.Error.isCanceled` holds if the child had not exited by then, and so does spawning a child.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
@@ -1737,9 +1736,8 @@ def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
 Terminates the current process with the provided exit code. `0` indicates success, all other values
 indicate failure.
 
-Pending socket writes and shutdowns first get up to 2 seconds to complete; every other pending I/O operation of
-the event loop fails, as it does when `main` returns. Called from a `(sync := true)` continuation that
-the event loop runs, such as one of a timer or a socket operation, it cannot wait for the writes.
+Pending socket writes and shutdowns get up to 2 seconds to complete, except from a `(sync := true)`
+continuation run by the event loop; other pending event-loop I/O fails, as when `main` returns.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 

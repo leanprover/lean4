@@ -3,8 +3,8 @@ import Std.Internal.UV
 /-!
 `Timer.stop` and `Signal.stop` release the pending promise, and when the handle holds the only
 reference this runs a `(sync := true)` continuation inline. A nested `Signal.stop` there must not
-release the event loop's reference to the signal a second time, and a nested one-shot `Timer.nextResult`
-must not return the promise being freed.
+release the event loop's reference to the signal a second time, and a nested one-shot
+`Timer.nextResult` must not return the promise being freed.
 -/
 
 open Std.Internal.UV
@@ -18,9 +18,9 @@ def arm (next : IO (IO.Promise α)) (onDrop : BaseIO Unit) : IO Unit := do
 def signalStop : IO Unit := do
   for _ in [0:200] do
     let signal ← Signal.mk 28 false
-    arm signal.nextResult (discard signal.stop.toBaseIO)
+    arm signal.next (discard signal.stop.toBaseIO)
     signal.stop
-    discard <| signal.nextResult
+    discard <| signal.next
 
 def timerNext : IO Unit := do
   let promises ← IO.mkRef (#[] : Array (IO.Promise (Except IO.Error Unit)))

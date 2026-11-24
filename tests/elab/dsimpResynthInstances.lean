@@ -216,3 +216,21 @@ error: unsolved goals
 set_option dsimp.resynthInstances false in
 example : g natZero = 1 := by
   simp only [natZero_def, g_eq]
+
+/-!
+Instance families: only the codomain of the type of an instance family is held to `.instances`
+transparency, its binder types to `.implicit`. The rewrite `natZero ↦ 0` changes only the binder
+type `Fin natZero` of the family `h`, so `dsimp` keeps it, although no instance of
+`∀ _ : Fin 0, W` exists. (The family is an explicit argument, checked under
+`dsimp.resynthInstances.explicit`, because a local instance needs forward dependencies.)
+-/
+
+class W where
+
+def hW (n : Nat) (_ : ∀ _ : Fin n, W) : Nat := n
+
+set_option dsimp.resynthInstances.explicit true in
+example (h : ∀ _ : Fin natZero, W) : hW natZero h = natZero := by
+  dsimp only [natZero_def]
+  guard_target =ₛ hW 0 h = 0
+  rfl

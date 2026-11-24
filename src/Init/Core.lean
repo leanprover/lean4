@@ -415,6 +415,8 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
 
 export ForIn' (forIn')
 
+namespace Legacy
+
 /--
 Auxiliary type used to compile `do` notation. It is used when compiling a do block
 nested inside a combinator like `tryCatch`. It encodes the possible ways the
@@ -482,6 +484,8 @@ inductive DoResultSBC (α σ : Type u) where
   /-- `continue s` means that `continue` was called, meaning that we should continue
   to the next iteration of the containing loop -/
   | continue   : σ → DoResultSBC α σ
+
+end Legacy
 
 /-- `HasEquiv α` is the typeclass which supports the notation `x ≈ y` where `x y : α`.-/
 class HasEquiv (α : Sort u) where
@@ -1676,16 +1680,16 @@ gen_injective_theorems% Array
 gen_injective_theorems% BitVec
 gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
-gen_injective_theorems% DoResultBC
-gen_injective_theorems% DoResultPR
-gen_injective_theorems% DoResultPRBC
-gen_injective_theorems% DoResultSBC
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Except
 gen_injective_theorems% Fin
 gen_injective_theorems% ForInStep
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+gen_injective_theorems% Legacy.DoResultBC
+gen_injective_theorems% Legacy.DoResultPR
+gen_injective_theorems% Legacy.DoResultPRBC
+gen_injective_theorems% Legacy.DoResultSBC
 gen_injective_theorems% List
 gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar

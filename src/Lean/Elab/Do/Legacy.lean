@@ -913,18 +913,18 @@ We use this method to convert
            Note that the code that pattern matches on the result will behave differently in this case.
            It produces `return a` for this case, and `pure a` for the previous one.
 
-   - `b/c`: `Kind.nestedBC`, type `m (DoResultBC σ)`
+   - `b/c`: `Kind.nestedBC`, type `m (Legacy.DoResultBC σ)`
 
-   - `a` and `r`:   `Kind.nestedPR`, type `m (DoResultPR α β σ)`
+   - `a` and `r`:   `Kind.nestedPR`, type `m (Legacy.DoResultPR α β σ)`
 
-   - `a` and `bc`:  `Kind.nestedSBC`, type `m (DoResultSBC α σ)`
+   - `a` and `bc`:  `Kind.nestedSBC`, type `m (Legacy.DoResultSBC α σ)`
 
-   - `r` and `bc`:  `Kind.nestedSBC`, type `m (DoResultSBC α σ)`
+   - `r` and `bc`:  `Kind.nestedSBC`, type `m (Legacy.DoResultSBC α σ)`
          Again the code that pattern matches on the result will behave differently in this case and
-         the previous one. It produces `return a` for the constructor `DoResultSPR.pureReturn a u` for
+         the previous one. It produces `return a` for the constructor `Legacy.DoResultSBC.pureReturn a u` for
          this case, and `pure a` for the previous case.
 
-   - `a`, `r`, `b/c`: `Kind.nestedPRBC`, type type `m (DoResultPRBC α β σ)`
+   - `a`, `r`, `b/c`: `Kind.nestedPRBC`, type type `m (Legacy.DoResultPRBC α β σ)`
 
 Here is the recipe for adding new combinators with nested `do`s.
 Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m α → m α`
@@ -1004,9 +1004,9 @@ def returnToTerm (val : Syntax) : M Syntax := do
   | .forIn           => ``(Pure.pure (ForInStep.done $u))
   | .forInWithReturn => ``(Pure.pure (ForInStep.done (MProd.mk (some $val) $u)))
   | .nestedBC        => unreachable!
-  | .nestedPR        => ``(Pure.pure (DoResultPR.«return» $val $u))
-  | .nestedSBC       => ``(Pure.pure (DoResultSBC.«pureReturn» $val $u))
-  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.«return» $val $u))
+  | .nestedPR        => ``(Pure.pure (Legacy.DoResultPR.«return» $val $u))
+  | .nestedSBC       => ``(Pure.pure (Legacy.DoResultSBC.«pureReturn» $val $u))
+  | .nestedPRBC      => ``(Pure.pure (Legacy.DoResultPRBC.«return» $val $u))
 
 def continueToTerm : M Syntax := do
   let ctx ← read
@@ -1015,10 +1015,10 @@ def continueToTerm : M Syntax := do
   | .regular         => unreachable!
   | .forIn           => ``(Pure.pure (ForInStep.yield $u))
   | .forInWithReturn => ``(Pure.pure (ForInStep.yield (MProd.mk none $u)))
-  | .nestedBC        => ``(Pure.pure (DoResultBC.«continue» $u))
+  | .nestedBC        => ``(Pure.pure (Legacy.DoResultBC.«continue» $u))
   | .nestedPR        => unreachable!
-  | .nestedSBC       => ``(Pure.pure (DoResultSBC.«continue» $u))
-  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.«continue» $u))
+  | .nestedSBC       => ``(Pure.pure (Legacy.DoResultSBC.«continue» $u))
+  | .nestedPRBC      => ``(Pure.pure (Legacy.DoResultPRBC.«continue» $u))
 
 def breakToTerm : M Syntax := do
   let ctx ← read
@@ -1027,10 +1027,10 @@ def breakToTerm : M Syntax := do
   | .regular         => unreachable!
   | .forIn           => ``(Pure.pure (ForInStep.done $u))
   | .forInWithReturn => ``(Pure.pure (ForInStep.done (MProd.mk none $u)))
-  | .nestedBC        => ``(Pure.pure (DoResultBC.«break» $u))
+  | .nestedBC        => ``(Pure.pure (Legacy.DoResultBC.«break» $u))
   | .nestedPR        => unreachable!
-  | .nestedSBC       => ``(Pure.pure (DoResultSBC.«break» $u))
-  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.«break» $u))
+  | .nestedSBC       => ``(Pure.pure (Legacy.DoResultSBC.«break» $u))
+  | .nestedPRBC      => ``(Pure.pure (Legacy.DoResultPRBC.«break» $u))
 
 def actionTerminalToTerm (action : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   let ctx ← read
@@ -1040,9 +1040,9 @@ def actionTerminalToTerm (action : Syntax) : M Syntax := withRef action <| withF
   | .forIn           => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
   | .forInWithReturn => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk none $u)))
   | .nestedBC        => unreachable!
-  | .nestedPR        => ``(Bind.bind $action fun y => (Pure.pure (DoResultPR.«pure» y $u)))
-  | .nestedSBC       => ``(Bind.bind $action fun y => (Pure.pure (DoResultSBC.«pureReturn» y $u)))
-  | .nestedPRBC      => ``(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.«pure» y $u)))
+  | .nestedPR        => ``(Bind.bind $action fun y => (Pure.pure (Legacy.DoResultPR.«pure» y $u)))
+  | .nestedSBC       => ``(Bind.bind $action fun y => (Pure.pure (Legacy.DoResultSBC.«pureReturn» y $u)))
+  | .nestedPRBC      => ``(Bind.bind $action fun y => (Pure.pure (Legacy.DoResultPRBC.«pure» y $u)))
 
 def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   if action.getKind == ``Parser.Term.doDbgTrace then

@@ -1784,6 +1784,20 @@ theorem mul_sub_mod {x n p : Nat} (h : x < n * p) : (n * p - (x + 1)) % n = n - 
   · rwa [Nat.mul_comm]
   · refine Nat.pos_of_mul_pos_right (by omega : 0 < n * p)
 
+/-! ### `iterate` -/
+
+@[simp]
+theorem iterate_zero {f : α → α} {a : α} : iterate f 0 a = a := rfl
+
+@[simp]
+theorem iterate_one {f : α → α} {a : α} : iterate f 1 a = f a := rfl
+
+theorem iterate_succ {f : α → α} {n : Nat} {a : α} : iterate f (n + 1) a = iterate f n (f a) := rfl
+
+theorem iterate_succ_eq_apply {f : α → α} {n : Nat} {a : α} :
+    iterate f (n + 1) a = f (iterate f n a) := by
+  fun_induction iterate <;> simp_all [iterate_succ]
+
 /-! ### Decidability of predicates -/
 
 -- `noncomputable` so the non-tail-recursive code is never compiled; the tail-recursive

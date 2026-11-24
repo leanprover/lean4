@@ -14,7 +14,16 @@ meta import Init.Notation
 import Lean.Fmt.FmtM.CommonFormatters
 import Init.Data
 import Init.While
-import Lean.Fmt.Util.Basic
+
+def Lean.Syntax.TSepArray.ofElemsAndSeps
+    (elems : TSyntaxArray kinds) (seps : Array (Option Syntax)) (sep : String)
+    : TSepArray kinds sep :=
+  let elemsAndSeps : Array Syntax :=
+    elems.zip seps
+      |>.flatMap fun (elem, sep?) =>
+        let sep := sep?.getD mkNullNode
+        #[elem, sep]
+  ⟨elemsAndSeps⟩
 
 namespace Lean.Fmt
 

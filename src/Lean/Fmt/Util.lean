@@ -7,6 +7,5 @@ Author: Marc Huisinga
 module
 
 prelude
-public import Lean.Fmt.Util.Basic
 public import Lean.Fmt.Util.Module
 public import Lean.Fmt.Util.RangeTree

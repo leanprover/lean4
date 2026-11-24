@@ -5092,6 +5092,14 @@ def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos
   | _,                               _     => none
 
 /--
+Gets the substring representing the leading whitespace of a `SourceInfo`, if available.
+-/
+def getLeading? (info : SourceInfo) : Option Substring.Raw :=
+  match info with
+  | original (leading := leading) .. => some leading
+  | _                                => none
+
+/--
 Gets the substring representing the trailing whitespace of a `SourceInfo`, if available.
 -/
 def getTrailing? (info : SourceInfo) : Option Substring.Raw :=

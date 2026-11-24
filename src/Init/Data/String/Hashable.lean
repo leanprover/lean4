@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Hashable
 public import Init.Data.String.Defs
+public import Init.Data.String.Subslice
 
 public section
 
@@ -16,5 +17,6 @@ namespace String
 deriving instance Hashable for String.Pos.Raw
 deriving instance Hashable for String.Pos
 deriving instance Hashable for String.Slice.Pos
+deriving instance Hashable for String.Slice.Subslice
 
 end String

@@ -1050,7 +1050,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX lean4lean
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/nomeata/lean4lean
-    GIT_TAG 3a4a404b52bff0f1d4902bc6b3cbd4f093a41936
+    GIT_TAG 106c0fd1e2fa0f916a532804f79d9629ace9dacc
     PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build lean4lean
@@ -1076,7 +1076,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX nanoda
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/nomeata/nanoda_lib
-    GIT_TAG 88aa20df4cb647ee87fd1dabe6d667caba9b8d39
+    GIT_TAG c7025997614a8327a19bf056705c527224ad9369
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON
@@ -1094,7 +1094,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-leche
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-leche
-    GIT_TAG d8c8c2278357053c52bb568fc97c2838431c35fc
+    GIT_TAG 216031bf5da9c4d8d3508220253750d98bb9518f
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build con-leche
     BUILD_IN_SOURCE ON
@@ -1132,7 +1132,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-ron
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-ron
-    GIT_TAG ca665a8bf3bbe150f47f1bf23e5972a1d657858b
+    GIT_TAG dd7ccd324cadfbd171ae07ad2efca6123bd0a3ad
     GIT_SUBMODULES ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked

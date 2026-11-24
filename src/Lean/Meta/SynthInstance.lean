@@ -970,8 +970,26 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
       universe assignments the search itself never derived) that these few Mathlib places
       rely on, possibly by accident. We should diagnose whether they work by accident and,
       if so, fix Mathlib and remove (or further weaken) this `check`.
+
+      **Note**: `check` fails, rather than postponing a universe constraint, when the constraint
+      contains no level metavariable that is assignable here. This happens when the query itself
+      contains a subterm that is type-correct only modulo a constraint that an enclosing context
+      postponed, and the caller runs synthesis at a greater metavariable depth (e.g. `simp`). Then
+      the result is no less type-correct than the query, and we keep it. Otherwise a failing `check`
+      means that the result is not type-correct here, and synthesis fails.
   -/
-  check result
+  let s ← saveState
+  try
+    check result
+  catch ex =>
+    if ex.isInterrupt || ex.isRuntime || !(ex matches .error ..) then throw ex
+    s.restore
+    let queryOk ← withoutModifyingState <| isTypeCorrect type
+    s.restore
+    if queryOk then
+      trace[Meta.synthInstance] "{crossEmoji} result{indentExpr result}\nis not type-correct here:{indentD ex.toMessageData}"
+      return none
+    trace[Meta.synthInstance] "result{indentExpr result}\nis not type-correct here, but neither is the query{indentExpr type}"
   return some result
 
 /-- Returns whether every recorded lookup in `log` gives the same answer in `opts`. -/

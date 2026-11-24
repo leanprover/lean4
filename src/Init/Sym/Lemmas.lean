@@ -211,6 +211,12 @@ theorem cond_eq_and (c : Bool) (t e : Prop) :
   by_cases c <;> simp[*]
 theorem imp_eq (p q : Prop) : (p → q) = (¬p ∨ q) := by
   by_cases p <;> simp[*]
+theorem cond_bool_eq (c a b t : Bool) :
+    ((bif c then a else b) = t) = ((c = false ∨ a = t) ∧ (c = true ∨ b = t)) := by
+  cases c <;> simp
+theorem ite_bool_eq (c : Prop) [Decidable c] (a b t : Bool) :
+    ((if c then a else b) = t) = ((¬c ∨ a = t) ∧ (c ∨ b = t)) := by
+  by_cases c <;> simp [*]
 
 theorem exists_and_eq (p : α → Prop) (q : Prop) : ((∃ x, p x) ∧ q) = (∃ x, p x ∧ q) := by
   simp

@@ -1142,12 +1142,13 @@ static task_manager * g_task_manager = nullptr;
 
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
-    lean_uv_restart();
 #if defined(LEAN_MULTI_THREAD)
     if (num_workers > 0) {
         g_task_manager = new task_manager(num_workers);
     }
 #endif
+    // Last, since the restarted loop runs callbacks, which resolve promises through the task manager.
+    lean_uv_restart();
 }
 
 static unsigned get_lean_num_threads() {
@@ -1181,12 +1182,13 @@ extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
-    lean_uv_restart();
 #if defined(LEAN_MULTI_THREAD)
     if (num_workers > 0) {
         g_task_manager = new task_manager(num_workers);
     }
 #endif
+    // Last, since the restarted loop runs callbacks, which resolve promises through the task manager.
+    lean_uv_restart();
 }
 
 scoped_task_manager::~scoped_task_manager() {

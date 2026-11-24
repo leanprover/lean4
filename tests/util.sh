@@ -4,8 +4,10 @@ ulimit -S -s ${TEST_STACK_SIZE:-8192}
 
 DIFF="diff -au --strip-trailing-cr --color=always"
 
-# Linter options for running test files. The piles under `deprecated` override them.
-LEAN_LINTER_ARGS=(-Dlinter.all=false)
+# Linter options for running test files: all linters are disabled except for the deprecation
+# linters, so that tests do not silently rely on deprecated API that may be removed later.
+# The piles under `deprecated` override them.
+LEAN_LINTER_ARGS=(-Dlinter.all=false -Dlinter.deprecated=true -Dlinter.deprecated.syntax=true -Dlinter.deprecatedCoercions=true)
 
 # Temporary directory to store unnamed output files
 TMP_DIR="$(mktemp --tmpdir --directory lean4-test-suite.XXXXXXXXXX)"

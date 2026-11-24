@@ -1,6 +1,4 @@
-/-!
-Tests that several comments after the same token keep their order.
--/
+/-! Tests that several comments after the same token keep their order. -/
 
 def a := 1
 def f (x : Nat) : Nat := x

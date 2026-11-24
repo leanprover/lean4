@@ -1,0 +1,20 @@
+/-!
+Tests that a doc comment with a line that is wider than the optimality cutoff width does not stop
+the formatter from formatting the syntax around it.
+-/
+
+/--
+See https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx for details.
+-/
+def f (aaaaaaaaaa : Nat) (bbbbbbbbbb : Nat) (cccccccccc : Nat) (dddddddddd : Nat) : Nat := aaaaaaaaaa + bbbbbbbbbb + cccccccccc + dddddddddd
+
+-- The doc comment of `x` also does not stop the formatter from formatting `y`.
+structure S where
+  /-- See https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx for details. -/
+  x : Nat := (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13 + 14 + 15 + 16 + 17 + 18 + 19 + 20 + 21 + 22 + 23 + 24 + 25)
+  y : Nat := (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13 + 14 + 15 + 16 + 17 + 18 + 19 + 20 + 21 + 22 + 23 + 24 + 25)
+
+inductive T where
+  /-- See https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx for details. -/
+  | a (aaaaaaaaaa : Nat) (bbbbbbbbbb : Nat) (cccccccccc : Nat) (dddddddddd : Nat) (eeeeeeeeee : Nat) : T
+  | b (aaaaaaaaaa : Nat) (bbbbbbbbbb : Nat) (cccccccccc : Nat) (dddddddddd : Nat) (eeeeeeeeee : Nat) : T

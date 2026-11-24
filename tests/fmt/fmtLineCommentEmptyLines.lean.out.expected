@@ -1,6 +1,4 @@
-/-!
-Tests that empty line comments at the end of a group of line comments are kept.
--/
+/-! Tests that empty line comments at the end of a group of line comments are kept. -/
 
 theorem t : True := by
   -- a

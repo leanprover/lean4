@@ -187,8 +187,9 @@ extern "C" LEAN_EXPORT uint32_t lean_uv_canceled_code(lean_obj_arg) {
 }
 
 extern "C" LEAN_EXPORT void lean_uv_restart() {
-    if (global_ev.m_loop != nullptr && !global_ev.exiting()) {
+    if (global_ev.m_loop != nullptr) {
         event_loop_guard guard;
+        if (guard.exiting()) return;
         // Handles left from the last finalization that would otherwise outlive it.
         uv_walk(global_ev.m_loop, [](uv_handle_t * handle, void *) {
             if (uv_is_closing(handle)) return;

@@ -175,7 +175,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj) {
     {
         // Locking to access the state in order to avoid data-race
         event_loop_guard guard;
-        if (guard.stopped()) return io_result_mk_uv_error(UV_ECANCELED);
+        if (guard.exiting()) return lean_io_result_mk_ok(lean_box(0));
 
         if (timer->m_state == timer_state::Running) {
             uv_timer_stop(&timer->m_uv_timer);

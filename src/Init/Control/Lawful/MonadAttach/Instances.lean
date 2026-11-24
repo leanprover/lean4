@@ -91,7 +91,7 @@ public instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] 
     LawfulMonadAttach (StateRefT' ω σ m) :=
   inferInstanceAs (LawfulMonadAttach (ReaderT (ST.Ref ω σ) m))
 
-public instance {ε σ : Type u} : WeaklyLawfulMonadAttach (EStateM ε σ) where
+public instance : WeaklyLawfulMonadAttach (EStateM ε σ) where
   map_attach {α} {x} := by
     funext s
     show EStateM.map Subtype.val (MonadAttach.attach x) s = x s

@@ -5,7 +5,7 @@ Benchmark: hash-consing of pre-definitions (`share common exprs`) on a file with
 recursive definitions.
 
 Recursive calls are annotated with their `Syntax`. The annotated expressions are traversed by
-`ShareCommon.shareCommon'`, which visits every object reachable from them. If the stored syntax
+`ShareCommon.shareCommon`, which visits every object reachable from them. If the stored syntax
 kept `SourceInfo.original` infos, every one of them would point at the whole input string, and
 each recursive call would cost a hash of the whole file. The total would then be quadratic in
 the file size.

@@ -86,7 +86,7 @@ We instead implement this as a separate preprocessing step to circumvent the glo
 preprocessing cache.
 -/
 partial def Doc.preprocess [BEq τ] [Hashable τ] (d : Doc τ) (maxTextLength : Nat) : Doc τ :=
-  ShareCommon.shareCommon' (goMemoized d false |>.run' {})
+  ShareCommon.shareCommon (goMemoized d false |>.run' {})
 where
   goMemoized (d : Doc τ) (isFlattened : Bool) : StateM (PreprocessingState τ) (Doc τ) := do
     -- Flattening does not affect a document without newlines, so its flattened form is shared

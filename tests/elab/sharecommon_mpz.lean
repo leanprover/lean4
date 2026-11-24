@@ -39,7 +39,7 @@ run_meta do
 def tst2 (a b : Nat) : IO Unit := do
   IO.println a
   IO.println b
-  let (a, b) := ShareCommon.shareCommon' (mkNatLit a, mkNatLit b)
+  let (a, b) := ShareCommon.shareCommon (mkNatLit a, mkNatLit b)
   IO.println (isSameExpr a b)
 
 /--

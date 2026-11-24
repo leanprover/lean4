@@ -255,7 +255,7 @@ register_builtin_option deriving.implicitBinders : Bool := {
 /--
 If true, derive multiple instances for the same type if needed to cover all universe possibilities.
 
-For example, with this option enabled, deriving an instance of type class of the shape
+For example, with this option enabled, deriving an instance of a type class of the shape
 `MyClass (α : Type u)` for a type of the shape `MyType (α : Sort u) : Sort (max 1 u)` will
 generate two instances: One for `MyClass (MyType.{0} α)` with `α : Prop` and one for
 `MyClass (MyType.{u + 1} α)` with `α : Type u`. With the option disabled, only the `α : Type u`
@@ -434,8 +434,8 @@ loop.
 
 Canonical instances are currently defined as instances with exactly two special fragments in the
 discrimination tree keys (forall and constants except `Eq` and instance projections because of
-`DecidableEq` and e.g. `TransOrd`). Furthermore, we only try an instance if it is the only one with
-"good keys" (unless `deriving.chooseArbitraryInstance` is true).
+`DecidableEq` and e.g. `TransOrd`). Furthermore, we only accept an instance if it is the only one
+with "good keys" that matches the `instType` (unless `deriving.chooseArbitraryInstance` is true).
 -/
 private def tryApplyCanonicalInstance (instType : Expr) :
     MetaM (Except CanonicalInstanceFailure (Expr × Array (MVarId × Bool))) := do
@@ -907,7 +907,8 @@ def isNestedOrReflexive : DerivingM Bool := do
   return (← read).indInfo.isNested || (← read).indInfo.isReflexive
 
 /--
-Returns whether the recursors of the mutual inductive block being operated on only eliminate into proposition
+Returns whether the recursors of the mutual inductive block being operated on can only eliminate
+into propositions.
 -/
 def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)

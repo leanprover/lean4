@@ -20,6 +20,7 @@ def Set.inter (s₁ s₂ : Set α) : Set α :=
 
 infix:70 " ∩ " => Set.inter
 
+set_option backward.elab.instanceTypes false in
 instance (s : Set α) [h : Decidable (s a)] : Decidable (a ∈ Set.pred s) :=
   h
 

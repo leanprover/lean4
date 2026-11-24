@@ -497,6 +497,7 @@ of elements that are related.
 def fromRel (sym : Symmetric r) : Set (Sym2 α) :=
   setOf (lift ⟨r, fun _ _ => propext ⟨(sym ·), (sym ·)⟩⟩)
 
+set_option backward.elab.instanceTypes false in
 instance fromRel.decidablePred (sym : Symmetric r) [h : DecidableRel r] :
     DecidablePred (· ∈ Sym2.fromRel sym) := fun z => z.recOnSubsingleton fun _ => h _ _
 
@@ -605,6 +606,7 @@ abbrev edgeSet (G : SimpleGraph V) : Set (Sym2 V) := edgeSetEmbedding V G
 
 variable (G₁ G₂)
 
+set_option backward.elab.instanceTypes false in
 instance decidableMemEdgeSet [DecidableRel G.Adj] : DecidablePred (· ∈ G.edgeSet) :=
   Sym2.fromRel.decidablePred sorry
 

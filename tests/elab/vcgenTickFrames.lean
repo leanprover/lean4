@@ -181,6 +181,7 @@ example (Q : Unit → Nat → Prop) (E : EStack⟨⟩) (n : Nat) : TickT.wp drop
 
 variable {m : Type → Type} [Monad m]
 
+set_option backward.elab.instanceTypes false in
 /-- The `WPMonad` of `TickT m` is the `costConj`-frame closure of the base `StateT` wp, so the
 `costConj`-frame rule holds by construction. -/
 noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :

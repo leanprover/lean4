@@ -1353,6 +1353,55 @@ def mkCoeWithErrorMsgs (expectedType : Expr) (e : Expr)
     (mkErrorMsg : MVarId → (expectedType e : Expr) → MetaM MessageData) : TermElabM Expr := do
   mkCoe expectedType e (mkImmedErrorMsg? := mkImmedErrorMsg) (mkErrorMsg? := mkErrorMsg)
 
+register_builtin_option backward.elab.instanceTypes : Bool := {
+  defValue := true
+  descr    := "check that a value whose expected type is a class, or a function type with a class \
+    codomain, has that type at `.instances` transparency, with the comparison that `isDefEq` uses \
+    for instance metavariables (`isInstanceTypeDefEq`). If it does not, the elaborator synthesizes \
+    an instance of the expected type and accepts the value only if it is defeq to that instance."
+}
+
+register_builtin_option debug.elab.instanceTypes.asWarning : Bool := {
+  defValue := false
+  descr    := "report a failure of `backward.elab.instanceTypes` as a warning and accept the value, \
+    so that a library build can count all sites in one run"
+}
+
+/--
+Under `backward.elab.instanceTypes`, makes sure that `e`, which already has the type `expectedType`
+up to the ambient transparency, has it up to `isInstanceTypeDefEq` if `expectedType` is a class
+(or a function type with a class codomain) that is not exempt by `isLaxInstanceDefeqClass`. This
+applies to every argument and every ascription, whatever its binder kind. If the comparison fails,
+the elaborator synthesizes an instance of `expectedType` and accepts `e` if it is defeq to that
+instance, as `checkTypesAndAssign` does for instance metavariables. Otherwise it throws an error.
+
+If metavariables remain in either type after a failed comparison, the check gives up silently:
+their later assignment can still decide the comparison.
+-/
+def ensureInstanceType (expectedType e : Expr) : TermElabM Unit := do
+  unless backward.elab.instanceTypes.get (← getOptions) do return
+  let expectedType ← instantiateMVars expectedType
+  let some className ← isClass? expectedType | return
+  if isLaxInstanceDefeqClass (← getEnv) className then return
+  let e ← instantiateMVars e
+  if e.getAppFn.isMVar then return
+  let eType ← instantiateMVars (← inferType e)
+  if (← isInstanceTypeDefEq expectedType eType e) then return
+  if expectedType.hasExprMVar || eType.hasExprMVar then return
+  let inst? ← try synthInstance? expectedType catch _ => pure none
+  if let some inst := inst? then
+    if (← isDefEq e inst) then return
+  let msg := m!"Type mismatch at `.instances` transparency: the value{indentExpr e}\n\
+    has type{indentExpr eType}\nbut is expected to have type{indentExpr expectedType}\n\
+    The two types agree only when Lean unfolds definitions that are not reducible at `.instances` \
+    transparency, and instance synthesis found no instance of the expected type that is defeq to \
+    the value." ++
+    .note m!"Disable this check with `set_option backward.elab.instanceTypes false`."
+  if debug.elab.instanceTypes.asWarning.get (← getOptions) then
+    logWarning msg
+  else
+    throwError msg
+
 /--
 If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.
 
@@ -1362,6 +1411,7 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr)
     (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
   if (← isDefEq (← inferType e) expectedType) then
+    ensureInstanceType expectedType e
     return e
   else
     mkCoe expectedType e f? errorMsgHeader?
@@ -1371,6 +1421,7 @@ def ensureHasTypeWithErrorMsgs (expectedType? : Option Expr) (e : Expr)
     (mkErrorMsg : MVarId → (expectedType e : Expr) → MetaM MessageData) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
   if (← isDefEq (← inferType e) expectedType) then
+    ensureInstanceType expectedType e
     return e
   else
     mkCoeWithErrorMsgs expectedType e mkImmedErrorMsg mkErrorMsg

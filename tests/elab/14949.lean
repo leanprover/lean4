@@ -52,6 +52,7 @@ theorem inner_bundle {B : Type} [Topo B] {E : B → Type}
 
 def Tan (E : Type) (B : Type) (_b : B) : Type := E
 
+set_option backward.elab.instanceTypes false in
 instance tanTopo (E : Type) [nE : Nrm E] (B : Type) (b : B) : Topo (Tan E B b) := nE.toTopo
 instance tanFib (E : Type) [Nrm E] (B : Type) : Fib (Tan E B) := ⟨id⟩
 

@@ -79,6 +79,7 @@ structure FullSubcategory (P : ObjectProperty C) where
   obj : C
   property : P obj
 
+set_option backward.elab.instanceTypes false in
 instance FullSubcategory.category (P : ObjectProperty C) : Category (FullSubcategory P) :=
   InducedCategory.category C FullSubcategory.obj
 

@@ -17,7 +17,7 @@ LOG="$PWD/bwrap.log"
 export COMPARATOR_BWRAP="$PWD/log-bwrap.sh"
 unset LAKE_NO_SANDBOX
 
-copy_to_work lakefile.toml Lib.lean
+copy_to_work lakefile.toml Lib.lean Main.lean
 mkdir .git
 PROJ="$(pwd -P)"
 
@@ -59,6 +59,14 @@ unset LEAN_SANDBOX_TEST SANDBOX_TEST_SECRET LAKE_CACHE_KEY
 # The command's exit code is the sandbox's.
 test_status 3 env sh -c 'exit 3'
 test_status 1 build +Missing
+
+# `lake exe` only builds in the sandbox. The program runs outside of it, as the caller.
+rm -f "$LOG"
+SANDBOX_TEST_SECRET=shown test_out "secret=shown" exe hello
+SANDBOX_TEST_SECRET=shown test_status 4 exe hello arg
+runs_of "exe hello"
+no_match_text "--share-net" runs.log
+match_text "--setenv LAKE_EXE_INFO" runs.log
 
 # `lake update` is the resolution, so it runs once, with a network and the manifest.
 rm -f "$LOG"

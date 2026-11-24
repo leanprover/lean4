@@ -44,6 +44,10 @@ public structure Request where
   relManifestFile : FilePath
   lakeEnv : Lake.Env
   policy : Policy
+  /-- Further variables for the command, on top of the inherited ones. -/
+  env : Array (String × String) := #[]
+  /-- Whether to return what the command writes to standard out instead of passing it on. -/
+  captureStdout : Bool := false
 
 /-- Variables the sandboxed command inherits. Anything else may hold a credential. -/
 def inheritedVars : Array String := #[
@@ -168,13 +172,13 @@ def withManifest (manifest : FilePath) (x : IO α) : IO α := do
         IO.FS.removeFile manifest
 
 /--
-Re-runs the command of `req` under the sandbox and returns its exit code, or `none` if there is no
-usable sandbox and the command is to run in this process.
+Re-runs the command of `req` under the sandbox and returns its exit code and, if asked for, its
+standard out, or `none` if there is no usable sandbox and the command is to run in this process.
 
 A command that is not the dependency resolution is preceded by one, a sandboxed `lake resolve-deps`,
 because fetching dependencies needs a network and the command itself gets none.
 -/
-public def run (req : Request) : IO (Option ExitCode) := do
+public def run (req : Request) : IO (Option (ExitCode × String)) := do
   let some tools ← findTools? | return none
   let projectDir ← IO.FS.realPath req.wsDir
   let cwd ← IO.currentDir
@@ -182,14 +186,14 @@ public def run (req : Request) : IO (Option ExitCode) := do
   let manifest := projectDir / req.relManifestFile
   let gitDir := projectDir / ".git"
   IO.FS.createDirAll lakeDir
-  let env ← sandboxEnv req.lakeEnv
+  let env := (← sandboxEnv req.lakeEnv) ++ req.env
   let caches ← cacheDirs req.lakeEnv
   let protectedPaths := if ← gitDir.pathExists then #[gitDir] else #[]
   -- `bwrap` cannot change to a directory the covers hide, so it gets an empty one in its place.
   let cwdCover :=
     if !isUnder projectDir cwd && coveredPaths.any (isUnder · cwd) then #[cwd] else #[]
   let spawn (args : Array String) (resolves writesProject : Bool) (stdout : IO.Process.Stdio) :
-      IO ExitCode := do
+      IO (ExitCode × String) := do
     let spec : Check.SandboxArgs := {
       cmd := req.lakeEnv.lake.lake.toString
       args
@@ -204,17 +208,20 @@ public def run (req : Request) : IO (Option ExitCode) := do
       network := resolves
       cwd := some cwd
     }
-    let child ← IO.Process.spawn {
-      cmd := tools.env.toString
-      args := #["-i", tools.bwrap.toString] ++ Check.buildSandboxArgs spec env projectDir
-      stdout
-    }
-    child.wait
+    let cmd := tools.env.toString
+    let args := #["-i", tools.bwrap.toString] ++ Check.buildSandboxArgs spec env projectDir
+    if req.captureStdout && stdout matches .inherit then
+      let child ← IO.Process.spawn { cmd, args, stdout := .piped }
+      let out ← child.stdout.readToEnd
+      return (← child.wait, out)
+    else
+      let child ← IO.Process.spawn { cmd, args, stdout }
+      return (← child.wait, "")
   let writesProject := req.policy.writesProject
   if req.policy.resolves then
     return some (← withManifest manifest <| spawn req.args true writesProject .inherit)
   -- Standard out belongs to the command itself.
-  let rc ← withManifest manifest <| spawn (req.loadArgs ++ #["resolve-deps"]) true false .null
+  let (rc, _) ← withManifest manifest <| spawn (req.loadArgs ++ #["resolve-deps"]) true false .null
   if rc != 0 && !req.policy.toleratesUnresolved then
-    return some rc
+    return some (rc, "")
   return some (← spawn req.args false writesProject .inherit)

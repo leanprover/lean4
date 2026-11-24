@@ -526,26 +526,36 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
   | _ => return default
 
 /--
-Re-runs this command inside the sandbox and exits with its result, unless it is to run in this
-process: it already is inside, the sandbox is disabled or unavailable, or there is no workspace
-configuration, and so no code of the project, to load.
+Re-runs this command inside the sandbox with `env` added to its environment, and returns its exit
+code and, with `captureStdout`, its standard out. Returns `none` if the command is to run in this process: it already is
+inside, the sandbox is disabled or unavailable, or there is no workspace configuration, and so no
+code of the project, to load.
 -/
-def sandboxed (policy : Sandbox.Policy := {}) : CliM PUnit := do
+def sandboxedOutput? (policy : Sandbox.Policy := {}) (env : Array (String × String) := #[])
+    (captureStdout := false) : CliM (Option (ExitCode × String)) := do
   let opts ← getThe LakeOptions
   if opts.inadvisablyNoSandbox || !(← Sandbox.isWanted) then
-    return
+    return none
   let cfg ← mkLoadConfig opts
   unless (← configFileExists cfg.configFile) do
-    return
-  let rc? ← Sandbox.run {
+    return none
+  Sandbox.run {
     args := opts.args.toArray
     loadArgs := opts.loadArgs
     wsDir := cfg.wsDir
     relManifestFile := cfg.relManifestFile
     lakeEnv := cfg.lakeEnv
     policy := {policy with resolves := policy.resolves || opts.updateDeps}
+    env
+    captureStdout
   }
-  if let some rc := rc? then
+
+/--
+Re-runs this command inside the sandbox and exits with its result, unless it is to run in this
+process (see `sandboxedOutput?`).
+-/
+def sandboxed (policy : Sandbox.Policy := {}) : CliM PUnit := do
+  if let some (rc, _) ← sandboxedOutput? policy then
     exit rc
 
 /-! ## Commands -/
@@ -1438,15 +1448,38 @@ protected def env : CliM PUnit := do
       IO.println s!"{var}={val?.getD ""}"
     exit 0
 
+/--
+Puts `lake exe` into its half that runs inside the sandbox: it builds the executable and, rather
+than running it, reports its path and environment on standard out as an `ExeInfo`.
+-/
+def exeInfoEnvVar : String := "LAKE_EXE_INFO"
+
+structure ExeInfo where
+  exe : String
+  env : Array (String × Option String)
+  deriving Lean.ToJson, Lean.FromJson
+
 protected def exe : CliM PUnit := do
-  sandboxed
   let exeSpec ← takeArg "executable target"
   let args ← takeArgs
   let opts ← getThe LakeOptions
+  -- Only the build is contained. Running the program is the user's decision, and it is theirs to
+  -- run with the access they have.
+  if let some (rc, out) ← sandboxedOutput? {} #[(exeInfoEnvVar, "1")] true then
+    exitIfErrorCode rc
+    let info ← match Json.parse out >>= fromJson? (α := ExeInfo) with
+      | .ok info => pure info
+      | .error e => error s!"sandboxed build did not report the executable: {e}"
+    let child ← IO.Process.spawn { cmd := info.exe, args := args.toArray, env := info.env }
+    exit <| ← child.wait
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
+  if (← IO.getEnv exeInfoEnvVar).isSome then
+    let info : ExeInfo := { exe := exeFile.toString, env := ws.augmentedEnvVars }
+    IO.println (toJson info).compress
+    exit 0
   exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def samply : CliM PUnit := do

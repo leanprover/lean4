@@ -102,6 +102,7 @@ SANDBOX:
   run without the sandbox. Commands also run without it, after a warning,
   where `bwrap` cannot create namespaces, and silently where there is none.
 
+  `lake exe` builds the executable in the sandbox and then runs it outside.
   `lake new`, `lake init`, `lake cache`, `lake upload` and `lake samply` are
   not sandboxed. `lake check` and `lake comparator` have a sandbox of their
   own, which the environment cannot turn off.

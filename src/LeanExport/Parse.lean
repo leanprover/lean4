@@ -364,7 +364,6 @@ def parseInductInfo (json : Json) : M Unit := do
   let some (.num (numNested : Nat)) := data["numNested"]? | fail s!"inductInfo invalid"
   let some (.bool isRec) := data["isRec"]? | fail s!"inductInfo invalid"
   let some (.bool isUnsafe) := data["isUnsafe"]? | fail s!"inductInfo invalid"
-  let some (.bool isReflexive) := data["isReflexive"]? | fail s!"inductInfo invalid"
   let some (.bool isImpredicative) := data["isImpredicative"]? | fail s!"inductInfo invalid"
   let some (.bool isK) := data["isK"]? | fail s!"inductInfo invalid"
   let some (.bool hasProjections) := data["hasProjections"]? | fail s!"inductInfo invalid"
@@ -388,7 +387,6 @@ def parseInductInfo (json : Json) : M Unit := do
     numNested,
     isRec,
     isUnsafe,
-    isReflexive
     isImpredicative
     isK
     hasProjections

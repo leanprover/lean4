@@ -375,7 +375,6 @@ public partial def dumpConstant (c : Name) : M Unit := do
           ("ctors", ← dumpNames indVal.ctors),
           ("numNested", indVal.numNested),
           ("isRec", indVal.isRec),
-          ("isReflexive", indVal.isReflexive),
           ("isUnsafe", indVal.isUnsafe),
           ("isImpredicative", indVal.isImpredicative),
           ("isK", indVal.isK),

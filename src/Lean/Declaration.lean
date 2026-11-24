@@ -283,20 +283,6 @@ structure InductiveVal extends ConstantVal where
   isRec : Bool
   /-- Whether the definition is flagged as unsafe. -/
   isUnsafe : Bool
-  /-- An inductive type is called reflexive if it has at least one constructor that takes as an argument a function returning the
-  same type we are defining.
-  Consider the type:
-  ```
-  inductive WideTree where
-  | branch: (Nat -> WideTree) -> WideTree
-  | leaf: WideTree
-  ```
-  this is reflexive due to the presence of the `branch : (Nat -> WideTree) -> WideTree` constructor.
-
-  See also: 'Inductive Definitions in the system Coq Rules and Properties' by Christine Paulin-Mohring
-  Section 2.2, Definition 3
-  -/
-  isReflexive : Bool
   isImpredicative : Bool
   isK : Bool
   hasProjections : Bool
@@ -307,7 +293,7 @@ structure InductiveVal extends ConstantVal where
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numParams numIndices : Nat)
-    (all ctors : List Name) (numNested : Nat) (isRec isUnsafe isReflexive isImpredicative isK hasProjections hasEta hasLargeElim : Bool) : InductiveVal := {
+    (all ctors : List Name) (numNested : Nat) (isRec isUnsafe isImpredicative isK hasProjections hasEta hasLargeElim : Bool) : InductiveVal := {
   name
   levelParams
   type
@@ -318,7 +304,6 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
   numNested
   isRec
   isUnsafe
-  isReflexive
   isImpredicative
   isK
   hasProjections
@@ -328,7 +313,6 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
 
 @[export lean_inductive_val_is_rec] def InductiveVal.isRecEx (v : InductiveVal) : Bool := v.isRec
 @[export lean_inductive_val_is_unsafe] def InductiveVal.isUnsafeEx (v : InductiveVal) : Bool := v.isUnsafe
-@[export lean_inductive_val_is_reflexive] def InductiveVal.isReflexiveEx (v : InductiveVal) : Bool := v.isReflexive
 @[export lean_inductive_val_is_impredicative] def InductiveVal.isImpredicativeEx (v : InductiveVal) : Bool := v.isImpredicative
 @[export lean_inductive_val_is_k] def InductiveVal.isKEx (v : InductiveVal) : Bool := v.isK
 @[export lean_inductive_val_has_projections] def InductiveVal.hasProjectionsEx (v : InductiveVal) : Bool := v.hasProjections

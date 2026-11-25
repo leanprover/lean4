@@ -244,39 +244,38 @@ private def performAll
   return (live, written)
 
 /--
-Arms the watchdog for a wait. Returns when the write in flight runs late, for an `afterWrites` wait
-whose writes are still in flight, so the loop can wake for it.
+Arms the watchdog for a wait. Returns whether the wait must also wake when the write in flight runs
+late: for an `afterWrites` wait whose writes are still in flight, which nothing else times.
 -/
-private def arm (wd : Watchdog) (outbox : Outbox α) : Driver.Arm → BaseIO (Option Nat)
+private def arm (wd : Watchdog) (outbox : Outbox α) : Driver.Arm → BaseIO Bool
   | .until deadline => do
     wd.armUntil deadline
-    return none
+    return false
   | .within timeout => do
     wd.arm timeout
-    return none
+    return false
   | .afterWrites timeout => do
     if let some idle ← outbox.idle? then
       wd.armAfter idle timeout
-      outbox.writeDeadline?
+      return true
     else
       wd.arm timeout
-      return none
+      return false
 
 /--
-Waits on `sources` under their timer, with the write in flight's deadline `writeDue`.
+Waits on `sources` under their timer, and for the write in flight to run late if `watchWrites`.
 -/
 private def poll
     {σ β : Type} [Transport α] [Handler σ] [Body β]
-    (env : Env σ α) (live : Live β) (sources : Driver.Sources) (writeDue : Option Nat) :
+    (env : Env σ α) (live : Live β) (sources : Driver.Sources) (watchWrites : Bool) :
     Async (Woke β) := do
   let mut selectables : Array (Selectable (Woke β)) :=
     #[.case env.connectionContext.doneSelector fun _ => pure .cancelled]
   if let some size := sources.recv then
     selectables := selectables.push
       (.case (Transport.recvSelector env.socket size.toUInt64) (pure ∘ .input ∘ .received))
-  if let some due := writeDue then
-    let wait := Millisecond.Offset.ofNat (due - (← IO.monoMsNow))
-    selectables := selectables.push (.case (← Selector.sleep wait) fun _ => pure .writeDue)
+  if watchWrites then
+    selectables := selectables.push (.case env.outbox.lateSelector fun _ => pure .writeDue)
   if sources.responseBody then
     if let some body := live.responseBody then
       selectables := selectables.push (.case (Body.recvSelector body) (pure ∘ .input ∘ .pulled))
@@ -358,11 +357,11 @@ private def wait
       pure (bodyOpen, ← if bodyOpen then live.requestStream.hasInterest else pure false)
     else pure (false, false)
   let sources := Driver.sources env.config s bodyOpen bodyInterested
-  let writeDue ←
+  let watchWrites ←
     match sources.timer with
     | some timer => arm env.wd env.outbox timer
-    | none => pure none
-  let woke ← poll env live sources writeDue
+    | none => pure false
+  let woke ← poll env live sources watchWrites
   if ← env.wd.disarm then
     if let .response (.ok res) := woke then
       if ¬(← Body.isClosed res.body) then Body.close res.body
@@ -412,6 +411,7 @@ private def run
           input := .resume
   finally
     Transport.close connection.socket
+    env.outbox.stop
 
 /--
 Serves a single connection under a child of `serverContext`, whose watchdog enforces the

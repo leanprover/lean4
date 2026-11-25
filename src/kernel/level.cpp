@@ -350,35 +350,6 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
     return out;
 }
 
-// A total order on level expressions that has the following properties
-//  - succ(l) is an immediate successor of l.
-//  - zero is the minimal element.
-// This total order is used in the normalization procedure.
-static bool is_norm_lt(level const & a, level const & b) {
-    if (is_eqp(a, b)) return false;
-    auto p1 = to_offset(a);
-    auto p2 = to_offset(b);
-    level const & l1 = p1.first;
-    level const & l2 = p2.first;
-    if (l1 != l2) {
-        if (kind(l1) != kind(l2)) return kind(l1) < kind(l2);
-        switch (kind(l1)) {
-        case level_kind::Zero: case level_kind::Succ:
-            lean_unreachable(); // LCOV_EXCL_LINE
-        case level_kind::Param: case level_kind::MVar:
-            return level_id(l1) < level_id(l2);
-        case level_kind::Max: case level_kind::IMax:
-            if (level_lhs(l1) != level_lhs(l2))
-                return is_norm_lt(level_lhs(l1), level_lhs(l2));
-            else
-                return is_norm_lt(level_rhs(l1), level_rhs(l2));
-        }
-        lean_unreachable(); // LCOV_EXCL_LINE
-    } else {
-        return p1.second < p2.second;
-    }
-}
-
 void push_max_args(level const & l, buffer<level> & r) {
     if (is_max(l)) {
         push_max_args(max_lhs(l), r);
@@ -413,97 +384,12 @@ level mk_succ(level l, unsigned k) {
     return l;
 }
 
-level normalize(level const & l) {
-    auto p = to_offset(l);
-    level const & r = p.first;
-    switch (kind(r)) {
-    case level_kind::Succ:
-        lean_unreachable(); // LCOV_EXCL_LINE
-    case level_kind::Zero:   case level_kind::Param:
-    case level_kind::MVar:
-        return l;
-    case level_kind::IMax: {
-        auto l1 = normalize(imax_lhs(r));
-        auto l2 = normalize(imax_rhs(r));
-        return mk_succ(mk_imax(l1, l2), p.second);
-    }
-    case level_kind::Max: {
-        buffer<level> todo;
-        buffer<level> args;
-        push_max_args(r, todo);
-        for (level const & a : todo)
-            push_max_args(normalize(a), args);
-        std::sort(args.begin(), args.end(), is_norm_lt);
-        buffer<level> & rargs = todo;
-        rargs.clear();
-        size_t i = 0;
-        if (is_explicit(args[i])) {
-            // find max explicit univierse
-            while (i+1 < args.size() && is_explicit(args[i+1]))
-                i++;
-            lean_assert(is_explicit(args[i]));
-            unsigned k = to_offset(args[i]).second;
-            // an explicit universe k is subsumed by succ^k(l)
-            size_t j = i+1;
-            for (; j < args.size(); j++) {
-                if (to_offset(args[j]).second >= k)
-                    break;
-            }
-            if (j < args.size()) {
-                // explicit universe was subsumed by succ^k'(l) where k' >= k
-                i++;
-            }
-        }
-        rargs.push_back(args[i]);
-        auto p_prev = to_offset(args[i]);
-        i++;
-        for (; i < args.size(); i++) {
-            auto p_curr = to_offset(args[i]);
-            if (p_prev.first == p_curr.first) {
-                if (p_prev.second < p_curr.second) {
-                    p_prev = p_curr;
-                    rargs.pop_back();
-                    rargs.push_back(args[i]);
-                }
-            } else {
-                p_prev = p_curr;
-                rargs.push_back(args[i]);
-            }
-        }
-        for (level & a : rargs)
-            a = mk_succ(a, p.second);
-        return mk_max(rargs);
-    }}
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
 bool is_equivalent(level const & lhs, level const & rhs) {
     check_system("level constraints");
-    //return lhs == rhs || normalize(lhs) == normalize(rhs);
     return lean_level_is_equiv(lhs.to_obj_arg(), rhs.to_obj_arg());
 }
 
-bool is_geq_core(level l1, level l2) {
-    if (l1 == l2 || is_zero(l2))
-        return true;
-    if (is_max(l2))
-        return is_geq(l1, max_lhs(l2)) && is_geq(l1, max_rhs(l2));
-    if (is_max(l1) && (is_geq(max_lhs(l1), l2) || is_geq(max_rhs(l1), l2)))
-        return true;
-    if (is_imax(l2))
-        return is_geq(l1, imax_lhs(l2)) && is_geq(l1, imax_rhs(l2));
-    if (is_imax(l1))
-        return is_geq(imax_rhs(l1), l2);
-    auto p1 = to_offset(l1);
-    auto p2 = to_offset(l2);
-    if (p1.first == p2.first || is_zero(p2.first))
-        return p1.second >= p2.second;
-    if (p1.second == p2.second && p1.second > 0)
-        return is_geq(p1.first, p2.first);
-    return false;
-}
 bool is_geq(level const & l1, level const & l2) {
-    //return is_geq_core(normalize(l1), normalize(l2));
     return lean_level_geq(l1.to_obj_arg(), l2.to_obj_arg());
 }
 levels lparams_to_levels(names const & ps) {

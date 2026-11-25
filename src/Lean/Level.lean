@@ -571,6 +571,8 @@ Assumes that `u` and `v` don't contain meta-variables.
 -/
 @[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
+  -- the first two (redundant) cases are the most common
+  -- only use the complete procedure if both others failed
   u == v || u.normalize == v.normalize || Normalize.normalize u == Normalize.normalize v
 
 
@@ -790,7 +792,27 @@ private def instantiateParamsEx (u : Level) (paramNames : List Name) (vs : List 
 
 @[export lean_level_geq]
 def geq (u v : Level) : Bool :=
-  u == v ||  (Normalize.normalize v).le (Normalize.normalize u)
+  u == v || go u.normalize v.normalize || (Normalize.normalize v).le (Normalize.normalize u)
+where
+  go (u v : Level) : Bool :=
+    u == v ||
+    let k := fun () =>
+      match v with
+      | imax v₁ v₂ => go u v₁ && go u v₂
+      | _          =>
+        let v' := v.getLevelOffset
+        (u.getLevelOffset == v' || v'.isZero)
+        && u.getOffset ≥ v.getOffset
+    match u, v with
+    | _,          zero      => true
+    | u,          max v₁ v₂ => go u v₁ && go u v₂
+    | max u₁ u₂,  v         => go u₁ v || go u₂ v || k ()
+    | imax _  u₂, v         => go u₂ v
+    | succ u,     succ v    => go u v
+    | _,          _         => k ()
+  termination_by (u, v)
+
+
 
 end Level
 

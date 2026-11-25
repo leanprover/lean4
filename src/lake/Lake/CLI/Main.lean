@@ -93,7 +93,12 @@ public structure LakeOptions where
   solutionFromExport? : Option FilePath := none
   /-- Whether `lake check` and `lake comparator` run every bundled checker (via `--paranoid`). -/
   paranoid : Bool := false
-  /-- Whether commands should run the project's code without a sandbox (very insecure). -/
+  /-- Whether commands should run the project's code in a sandbox (via `--sandbox`). -/
+  sandbox : Bool := false
+  /--
+  Whether commands should run the project's code without a sandbox (very insecure). Wins over
+  `sandbox`.
+  -/
   inadvisablyNoSandbox : Bool := false
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
@@ -465,6 +470,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let file ← takeOptArg "--solution-from-export" "path"
   modifyThe LakeOptions ({· with solutionFromExport? := some file})
 | "--paranoid" => modifyThe LakeOptions ({· with paranoid := true})
+| "--sandbox" => modifyThe LakeOptions ({· with sandbox := true})
 | "--inadvisably-no-sandbox" => modifyThe LakeOptions ({· with inadvisablyNoSandbox := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
@@ -527,19 +533,19 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
 
 /--
 Re-runs this command inside the sandbox with `env` added to its environment, and returns its exit
-code and, with `captureStdout`, its standard out. Returns `none` if the command is to run in this process: it already is
-inside, the sandbox is disabled or unavailable, or there is no workspace configuration, and so no
-code of the project, to load.
+code and, with `captureStdout`, its standard out. Returns `none` if the command is to run in this
+process: the sandbox was not asked for or is turned off, the command already is inside, or there is
+no workspace configuration, and so no code of the project, to load.
 -/
 def sandboxedOutput? (policy : Sandbox.Policy := {}) (env : Array (String × String) := #[])
     (captureStdout := false) : CliM (Option (ExitCode × String)) := do
   let opts ← getThe LakeOptions
-  if opts.inadvisablyNoSandbox || !(← Sandbox.isWanted) then
+  if opts.inadvisablyNoSandbox || !(← Sandbox.isWanted opts.sandbox) then
     return none
   let cfg ← mkLoadConfig opts
   unless (← configFileExists cfg.configFile) do
     return none
-  Sandbox.run {
+  some <$> Sandbox.run {
     args := opts.args.toArray
     loadArgs := opts.loadArgs
     wsDir := cfg.wsDir

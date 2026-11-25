@@ -15,11 +15,19 @@ fi
 # isolates nothing, so this checks the `bwrap` command lines that `log-bwrap.sh` records.
 LOG="$PWD/bwrap.log"
 export COMPARATOR_BWRAP="$PWD/log-bwrap.sh"
-unset LAKE_INADVISABLY_NO_SANDBOX
+unset LAKE_INADVISABLY_NO_SANDBOX LAKE_SANDBOX
 
 copy_to_work lakefile.toml Lib.lean Main.lean
 mkdir .git
 PROJ="$(pwd -P)"
+
+# The sandbox has to be asked for.
+test_run check-build
+test_exp ! -e "$LOG"
+test_run --sandbox check-build
+test_exp -s "$LOG"
+rm -f "$LOG"
+export LAKE_SANDBOX=1
 
 # Collects the sandboxed runs of `lake <args>` in `runs.log`.
 runs_of() {
@@ -92,7 +100,7 @@ match_text "--share-net" runs.log
 runs_of "-d work -Kfoo=bar build"
 match_text "--chdir ${PROJ%/work}" runs.log
 
-# Both opt-outs leave `bwrap` alone.
+# Both opt-outs win over the request and leave `bwrap` alone.
 rm -f "$LOG"
 test_run --inadvisably-no-sandbox build
 LAKE_INADVISABLY_NO_SANDBOX=1 test_run build
@@ -103,10 +111,10 @@ mkdir empty
 test_run -d empty env true
 test_exp ! -e "$LOG"
 
-# A `bwrap` that cannot create namespaces is an error, unlike a missing one.
+# A `bwrap` that is missing or cannot create namespaces is an error.
 COMPARATOR_BWRAP=false test_status_out 1 "cannot create a sandbox here" build
+COMPARATOR_BWRAP=lake-missing-sandbox test_status_out 1 "was not found" build
 COMPARATOR_BWRAP=false test_run --inadvisably-no-sandbox build
-COMPARATOR_BWRAP=lake-missing-sandbox test_not_out "sandbox" build
 test_exp ! -e "$LOG"
 
 # A command that edits the sources gets the project writable, except for its `.git`.

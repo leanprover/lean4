@@ -18,9 +18,9 @@ import Init.System.Platform
 # Running Lake commands in a sandbox
 
 Loading a workspace elaborates its configuration files and building it runs its elaborators, so
-every command that does either executes code from the project and its dependencies. Such a command
-re-runs itself under the `bwrap` sandbox of `lake check` where one is available: the invoking user's
-files are not readable, only `.lake` is writable, and only dependency resolution has a network.
+every command that does either executes code from the project and its dependencies. On request,
+such a command re-runs itself under the `bwrap` sandbox of `lake check`: the invoking user's files
+are not readable, only `.lake` is writable, and only dependency resolution has a network.
 -/
 
 namespace Lake.Sandbox
@@ -133,15 +133,19 @@ structure Tools where
   bwrap : FilePath
   env : FilePath
 
-/--
-Finds the `bwrap` to sandbox a command with, if there is one. One that cannot create namespaces, as
-in most containers, is an error: the command would otherwise run unsandboxed without the user
-having asked for that.
--/
-def findTools? : IO (Option Tools) := do
+def unavailable (reason : String) : IO α :=
+  throw <| .userError s!"{reason}\n\
+    Use `--inadvisably-no-sandbox` or set `{Check.noSandboxEnvVar}=1` to run without the sandbox."
+
+/-- Finds the `bwrap` to sandbox a command with, and checks that it can create namespaces. -/
+def findTools : IO Tools := do
+  unless System.Platform.isLinux do
+    unavailable "the sandbox uses `bwrap`, which needs Linux namespaces"
   let exe := (← IO.getEnv "COMPARATOR_BWRAP").getD "bwrap"
-  let some bwrap ← Check.whichExe exe | return none
-  let some env ← Check.whichExe "env" | return none
+  let some bwrap ← Check.whichExe exe
+    | unavailable s!"the sandbox needs `{exe}` (bubblewrap), and it was not found"
+  let some env ← Check.whichExe "env"
+    | unavailable "the sandbox needs `env` on PATH"
   let probe ← IO.Process.output {
     cmd := env.toString
     args := #["-i", bwrap.toString, "--ro-bind", "/", "/", "--unshare-all", "--die-with-parent",
@@ -149,13 +153,20 @@ def findTools? : IO (Option Tools) := do
     stdin := .null
   }
   if probe.exitCode != 0 then
-    throw <| .userError s!"`{exe}` cannot create a sandbox here:\n{probe.stderr.trimAscii}\n\
-      Use `--inadvisably-no-sandbox` or set `{Check.noSandboxEnvVar}=1` to run without one."
-  return some { bwrap, env }
+    unavailable s!"`{exe}` cannot create a sandbox here:\n{probe.stderr.trimAscii}"
+  return { bwrap, env }
 
-/-- Whether commands are to sandbox themselves at all. -/
-public def isWanted : BaseIO Bool := do
-  return System.Platform.isLinux && (← IO.getEnv Check.noSandboxEnvVar) != some "1"
+/-- Asks commands to sandbox themselves, like `--sandbox`. -/
+def sandboxEnvVar : String := "LAKE_SANDBOX"
+
+/--
+Whether commands are to sandbox themselves: on request, by `requested` or the environment, and
+unless the environment turns the sandbox off, which is also how a sandboxed command knows not to
+sandbox itself again.
+-/
+public def isWanted (requested : Bool) : BaseIO Bool := do
+  return (requested || (← IO.getEnv sandboxEnvVar) == some "1") &&
+    (← IO.getEnv Check.noSandboxEnvVar) != some "1"
 
 /--
 Runs `x` with the manifest in place for the sandbox to bind, since `bwrap` cannot bind a file that
@@ -174,13 +185,13 @@ def withManifest (manifest : FilePath) (x : IO α) : IO α := do
 
 /--
 Re-runs the command of `req` under the sandbox and returns its exit code and, if asked for, its
-standard out, or `none` if there is no usable sandbox and the command is to run in this process.
+standard out. Fails if there is no usable sandbox.
 
 A command that is not the dependency resolution is preceded by one, a sandboxed `lake resolve-deps`,
 because fetching dependencies needs a network and the command itself gets none.
 -/
-public def run (req : Request) : IO (Option (ExitCode × String)) := do
-  let some tools ← findTools? | return none
+public def run (req : Request) : IO (ExitCode × String) := do
+  let tools ← findTools
   let projectDir ← IO.FS.realPath req.wsDir
   let cwd ← IO.currentDir
   let lakeDir := projectDir / ".lake"
@@ -220,9 +231,9 @@ public def run (req : Request) : IO (Option (ExitCode × String)) := do
       return (← child.wait, "")
   let writesProject := req.policy.writesProject
   if req.policy.resolves then
-    return some (← withManifest manifest <| spawn req.args true writesProject .inherit)
+    return ← withManifest manifest <| spawn req.args true writesProject .inherit
   -- Standard out belongs to the command itself.
   let (rc, _) ← withManifest manifest <| spawn (req.loadArgs ++ #["resolve-deps"]) true false .null
   if rc != 0 && !req.policy.toleratesUnresolved then
-    return some (rc, "")
-  return some (← spawn req.args false writesProject .inherit)
+    return (rc, "")
+  spawn req.args false writesProject .inherit

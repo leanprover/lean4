@@ -66,9 +66,11 @@ BASIC OPTIONS:
   --json, -J            output JSON-formatted results (in `lake query`,
                         `lake check` and `lake comparator`)
   --text                output results as plain text (in `lake query`)
+  --sandbox             run the code of the package and its dependencies
+                        in a sandbox (see SANDBOX)
   --inadvisably-no-sandbox
-                        run the code of the package and its dependencies
-                        without a sandbox (see SANDBOX)
+                        run that code without a sandbox even where one was
+                        asked for
 
 OUTPUT OPTIONS:
   --quiet, -q           hide informational logs and the progress indicator
@@ -84,9 +86,9 @@ OUTPUT OPTIONS:
 
 SANDBOX:
   Package configurations, builds, scripts and executables are code of the
-  package and its dependencies. On Linux with `bwrap` (bubblewrap) on PATH,
-  every command that loads the package configuration therefore runs in a
-  sandbox: `/` is read-only, the home directories and `/tmp` are hidden, only
+  package and its dependencies. With `--sandbox` or `LAKE_SANDBOX=1`, every
+  command that loads the package configuration runs in a sandbox, which needs
+  Linux and `bwrap` (bubblewrap) on PATH: `/` is read-only, the home directories and `/tmp` are hidden, only
   `.lake` and the Lake cache are writable, and only Lean's, Lake's and a few
   common environment variables are kept.
 
@@ -97,10 +99,11 @@ SANDBOX:
 
   A sandboxed package cannot keep build outputs outside of `.lake`, depend on
   a path outside of its directory, change `lean-toolchain` on update, or
-  download build caches outside of dependency resolution. Use
-  `--inadvisably-no-sandbox` or set `LAKE_INADVISABLY_NO_SANDBOX=1` to run
-  without the sandbox. Commands also run without it where there is no `bwrap`.
-  A `bwrap` that cannot create namespaces is an error.
+  download build caches outside of dependency resolution.
+  `--inadvisably-no-sandbox` and `LAKE_INADVISABLY_NO_SANDBOX=1` turn the
+  sandbox off again, and win over the options that ask for it. Where it was
+  asked for and `bwrap` is missing or cannot create namespaces, the command
+  fails.
 
   `lake exe` builds the executable in the sandbox and then runs it outside.
   `lake new`, `lake init`, `lake cache`, `lake upload` and `lake samply` are

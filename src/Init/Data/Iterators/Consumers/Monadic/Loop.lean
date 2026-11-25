@@ -85,7 +85,7 @@ class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterato
 end Typeclasses
 
 /-- Internal implementation detail of the iterator library. -/
-structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
+structure Internal.IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
     (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) where
   /-- Internal implementation detail of the iterator library. -/
@@ -93,7 +93,7 @@ structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type 
   /-- Internal implementation detail of the iterator library. -/
   acc : γ
 
-instance IteratorLoop.WithWF.instWellFoundedRelation
+instance Internal.IteratorLoop.WithWF.instWellFoundedRelation
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
     (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) :

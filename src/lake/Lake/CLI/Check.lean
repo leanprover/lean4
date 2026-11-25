@@ -348,8 +348,8 @@ def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
 def seatbeltExe : System.FilePath := "/usr/bin/sandbox-exec"
 
 /--
-What Seatbelt keeps the code being judged from reading at all, in place of the `tmpfs` covers of
-`buildSandboxArgs`: the home directories, other volumes and the temporary directories.
+The directories that the Seatbelt profile makes unreadable: the home directories, other volumes and
+the temporary directories. They correspond to the `tmpfs` covers of `buildSandboxArgs`.
 -/
 def seatbeltHiddenPaths : Array System.FilePath :=
   #["/Users", "/Volumes", "/private/var/root", "/private/tmp", "/private/var/folders"]
@@ -475,8 +475,8 @@ def withSandboxSpawnArgs (spawnArgs : SandboxArgs) (k : IO.Process.SpawnArgs →
         cwd := some (← canonical (spawnArgs.cwd.getD projectDir))
       }
     finally
-      -- Processes of the run can outlive it and race the removal, so it is done under the same
-      -- sandbox: whatever they get it to follow, it cannot remove more than they can.
+      -- Processes of the run can outlive it and swap in links during the removal, so the removal
+      -- runs under the same sandbox and cannot delete anything that they could not delete.
       let remove ← invocation {
         cmd := "/bin/rm", args := #["-rf", scratchDir.toString], envPass := #[]
         readablePaths := #[], writablePaths := #[], tmpfsPaths := #[]

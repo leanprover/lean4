@@ -17,7 +17,7 @@ run_elab show IO Unit from do
     mustFail "listed the home directories" <| discard <| System.FilePath.readDir "/Users"
     mustFail "listed the temporary directory" <| discard <| System.FilePath.readDir "/private/tmp"
     mustFail "wrote to the terminal" <| IO.FS.writeFile "/dev/tty" ""
-  -- What the build itself needs still works.
+  -- The sandbox still allows the accesses that a build needs.
   discard <| IO.FS.readFile "lakefile.toml"
   IO.FS.withTempFile fun _ _ => pure ()
 

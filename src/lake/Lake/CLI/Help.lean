@@ -568,7 +568,7 @@ HARDENING:
   because it has to fetch git dependencies; the build, the export and any external kernels run in an
   empty network namespace.
 
-  On macOS, `comparator` uses `sandbox-exec` to apply a Seatbelt profile with the same bounds: the
+  On macOS, `comparator` uses `sandbox-exec` to apply a Seatbelt profile to the same effect: the
   home directories, other volumes and the temporary directories are unreadable, only `.lake` and a
   temporary directory of the run are writable, and only dependency resolution has a network. A
   profile restricts processes but does not isolate them in namespaces, so unlike on Linux, processes

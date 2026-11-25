@@ -361,18 +361,105 @@ partial def properAncestors (path : System.FilePath) : Array System.FilePath :=
   | none => #[]
 
 /--
+The fixed part of the Seatbelt profile.
+
+Seatbelt has no namespaces, so the profile restricts signals and process information to processes
+in the sandbox and, of the system services, allows only the lookup of user information. All files
+are readable at this point except for device nodes other than the data sinks and sources; in
+particular, the terminal is not accessible. The list of readable kernel parameters follows the
+profile of Chromium and the profiles derived from it.
+-/
+def seatbeltBaseProfile : String := r#"(version 1)
+(deny default)
+(allow process-fork)
+(allow signal (target same-sandbox))
+(allow process-info* (target same-sandbox))
+(allow ipc-posix-sem)
+(allow mach-lookup (global-name "com.apple.system.opendirectoryd.libinfo"))
+(allow sysctl-read
+  (sysctl-name "hw.activecpu")
+  (sysctl-name "hw.busfrequency_compat")
+  (sysctl-name "hw.byteorder")
+  (sysctl-name "hw.cacheconfig")
+  (sysctl-name "hw.cachelinesize_compat")
+  (sysctl-name "hw.cpufamily")
+  (sysctl-name "hw.cpufrequency")
+  (sysctl-name "hw.cpufrequency_compat")
+  (sysctl-name "hw.cputype")
+  (sysctl-name "hw.l1dcachesize_compat")
+  (sysctl-name "hw.l1icachesize_compat")
+  (sysctl-name "hw.l2cachesize_compat")
+  (sysctl-name "hw.l3cachesize_compat")
+  (sysctl-name "hw.logicalcpu")
+  (sysctl-name "hw.logicalcpu_max")
+  (sysctl-name "hw.machine")
+  (sysctl-name "hw.memsize")
+  (sysctl-name "hw.model")
+  (sysctl-name "hw.ncpu")
+  (sysctl-name "hw.nperflevels")
+  (sysctl-name "hw.packages")
+  (sysctl-name "hw.pagesize")
+  (sysctl-name "hw.pagesize_compat")
+  (sysctl-name "hw.physicalcpu")
+  (sysctl-name "hw.physicalcpu_max")
+  (sysctl-name "hw.tbfrequency_compat")
+  (sysctl-name "hw.vectorunit")
+  (sysctl-name "kern.argmax")
+  (sysctl-name "kern.hostname")
+  (sysctl-name "kern.maxfiles")
+  (sysctl-name "kern.maxfilesperproc")
+  (sysctl-name "kern.maxproc")
+  (sysctl-name "kern.ngroups")
+  (sysctl-name "kern.osproductversion")
+  (sysctl-name "kern.osrelease")
+  (sysctl-name "kern.ostype")
+  (sysctl-name "kern.osvariant_status")
+  (sysctl-name "kern.osversion")
+  (sysctl-name "kern.secure_kernel")
+  (sysctl-name "kern.usrstack64")
+  (sysctl-name "kern.version")
+  (sysctl-name "sysctl.proc_cputype")
+  (sysctl-name "vm.loadavg")
+  (sysctl-name-prefix "hw.optional.")
+  (sysctl-name-prefix "hw.perflevel")
+  (sysctl-name-prefix "kern.proc.pgrp.")
+  (sysctl-name-prefix "kern.proc.pid.")
+  (sysctl-name-prefix "machdep.cpu."))
+(allow process-exec* file-read* file-map-executable)
+(deny process-exec* file-read* file-map-executable (subpath "/dev"))
+(allow file-read*
+  (literal "/dev/null")
+  (literal "/dev/zero")
+  (literal "/dev/random")
+  (literal "/dev/urandom"))
+(allow file-read-metadata (literal "/dev"))
+(allow file-write-data (literal "/dev/null"))
+"#
+
+/--
+The part of the Seatbelt profile that gives access to the network, including the system services
+that resolve names and check certificates.
+-/
+def seatbeltNetworkProfile : String := r#"(allow network*)
+(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))
+(allow sysctl-read (sysctl-name-prefix "net.routetable."))
+(allow mach-lookup
+  (global-name "com.apple.SystemConfiguration.DNSConfiguration")
+  (global-name "com.apple.SystemConfiguration.configd")
+  (global-name "com.apple.trustd.agent")
+  (global-name "com.apple.ocspd"))
+"#
+
+/--
 Builds the `sandbox-exec` command line.
 
-The profile denies everything by default and then mirrors `buildSandboxArgs`: all files are readable
-except for `seatbeltHiddenPaths` and `tmpfsPaths`, on top of which `readablePaths` are allowed
-again, only `writablePaths` are writable, and the network is all or nothing. As there is no fresh
-`/tmp`, `scratchDir` is writable in its place. Seatbelt has no namespaces, so signals and process
-information are confined to the sandbox by rule, and of the system services only the lookup of user
-information is reachable, as well as what name resolution and certificate checks need if there is a
-network. Device nodes other than the data sinks and sources are hidden, which includes the terminal.
+The profile denies everything by default and then allows the same accesses as `buildSandboxArgs`:
+all files are readable except for `seatbeltHiddenPaths` and `tmpfsPaths`, on top of which
+`readablePaths` are readable again, only `writablePaths` are writable, and the network is all or
+nothing. As there is no fresh `/tmp`, `scratchDir` is writable in its place.
 
 Seatbelt matches paths after resolving symbolic links, so all paths have to be canonical. They are
-passed as parameters because profiles are code, which the paths must not be able to extend.
+passed as parameters so that they cannot inject rules into the profile.
 -/
 def buildSeatbeltArgs (spawnArgs : SandboxArgs) (scratchDir : System.FilePath) : Array String :=
   let (profile, params) := mkProfile.run #[]
@@ -396,34 +483,14 @@ where
     -- Looking up a path needs the metadata of the directories on the way, hidden or not.
     let traversed := (readable ++ spawnArgs.cwd.toArray).flatMap properAncestors
       ++ spawnArgs.cwd.toArray
-    let mut profile := "(version 1)
-(deny default)
-(allow process-fork)
-(allow signal (target same-sandbox))
-(allow process-info* (target same-sandbox))
-(allow sysctl-read)
-(allow ipc-posix-sem)
-(allow mach-lookup (global-name \"com.apple.system.opendirectoryd.libinfo\"))
-(allow process-exec* file-read* file-map-executable)
-(deny process-exec* file-read* file-map-executable (subpath \"/dev\"))
-(allow file-read* (literal \"/dev/null\") (literal \"/dev/zero\") (literal \"/dev/random\")
-  (literal \"/dev/urandom\"))
-(allow file-read-metadata (literal \"/dev\"))
-(allow file-write-data (literal \"/dev/null\"))
-"
+    -- Later rules take precedence over earlier ones.
+    let mut profile := seatbeltBaseProfile
     profile := profile ++ (← rule "deny process-exec* file-read* file-map-executable" "subpath" hidden)
     profile := profile ++ (← rule "allow file-read-metadata" "literal" traversed)
     profile := profile ++ (← rule "allow process-exec* file-read* file-map-executable" "subpath" readable)
     profile := profile ++ (← rule "allow file-write*" "subpath" writable)
     if spawnArgs.network then
-      profile := profile ++ "(allow network*)
-(allow system-socket)
-(allow mach-lookup
-  (global-name \"com.apple.SystemConfiguration.DNSConfiguration\")
-  (global-name \"com.apple.SystemConfiguration.configd\")
-  (global-name \"com.apple.trustd.agent\")
-  (global-name \"com.apple.ocspd\"))
-"
+      profile := profile ++ seatbeltNetworkProfile
     return profile
 
 /--
@@ -599,9 +666,9 @@ def safeResolveDeps : M Unit := step .resolveDependencies do
     network := true
   }
 
-/-- State of the host system that builds have no use for. -/
+/-- Directories with state of the host system that a build does not need. -/
 def forbiddenPaths : Array System.FilePath :=
-  -- On macOS, `/var` also holds what `sh` and the time zone are resolved through.
+  -- On macOS, `/var` also contains files that `sh` and time zone lookups need.
   if System.Platform.isOSX then #["/private/var/run", "/private/var/log"] else #["/run", "/var"]
 
 /--

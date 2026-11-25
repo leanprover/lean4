@@ -23,7 +23,13 @@ fi
 init_check_sandbox
 "$LAKE" resolve-deps
 
+# `Solution.lean` tries to get at this file.
+SECRET=/private/tmp/_tmp_lake_check_sandbox_secret
+echo secret > "$SECRET"
+trap 'rm -f "$SECRET"' EXIT
+
 test_status_out 0 'Lean default kernel accepts the solution' check
 test_exp ! -e _tmp_escape
+test_exp -f "$SECRET"
 
 rm -f produced.out

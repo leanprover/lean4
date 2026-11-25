@@ -1737,7 +1737,9 @@ Terminates the current process with the provided exit code. `0` indicates succes
 indicate failure.
 
 Pending socket writes and shutdowns get up to 2 seconds to complete, except from a `(sync := true)`
-continuation run by the event loop; other pending event-loop I/O fails, as when `main` returns.
+continuation run by the event loop; other pending event-loop I/O fails, as when `main` returns. If a
+blocked `(sync := true)` continuation keeps the event loop busy for 3 seconds, the process ends as
+with `IO.Process.forceExit` instead.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 

@@ -6,6 +6,7 @@ Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
 #include "runtime/thread.h"
+#include <thread>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
@@ -47,6 +48,32 @@ void event_loop::lock() {
     }
 }
 
+bool event_loop::lock_until(deadline until) {
+    if (until == no_deadline) {
+        lock();
+        return true;
+    }
+    if (uv_mutex_trylock(&m_mutex) == 0) {
+        return true;
+    }
+    m_waiters++;
+    int result = uv_async_send(&m_async);
+    (void)result;
+    lean_assert(result == 0);
+    // libuv has no timed lock. The loop thread releases the mutex while it waits for the waiters.
+    while (uv_mutex_trylock(&m_mutex) != 0) {
+        if (std::chrono::steady_clock::now() >= until) {
+            if (--m_waiters == 0) {
+                uv_cond_signal(&m_cond);
+            }
+            return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    m_waiters--;
+    return true;
+}
+
 void event_loop::unlock() {
     if (m_waiters == 0) {
         uv_cond_signal(&m_cond);
@@ -66,13 +93,17 @@ bool event_loop::on_loop_thread() const {
     return g_on_loop_thread;
 }
 
-bool event_loop::stop() {
+event_loop::stop_result event_loop::stop(deadline until) {
     m_stopped.store(true, std::memory_order_release);
+
     if (m_loop == nullptr || on_loop_thread()) {
-        return false;
+        return stop_result::not_joined;
     }
+
     if (m_thread != nullptr) {
-        lock();
+        if (!lock_until(until)) {
+            return stop_result::timed_out;
+        }
         m_thread_stop = true;
         // Wakes a loop thread waiting on `m_cond`; `lock` already made a running `uv_run` return.
         unlock();
@@ -80,7 +111,7 @@ bool event_loop::stop() {
         delete m_thread;
         m_thread = nullptr;
     }
-    return true;
+    return stop_result::joined;
 }
 
 void event_loop::restart() {
@@ -132,13 +163,17 @@ void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
     g_on_loop_thread = was_on_loop_thread;
 }
 
-void event_loop::stop_for_exit() {
+bool event_loop::stop_for_exit(deadline until) {
     m_stopped.store(true, std::memory_order_release);
     // Recursive, so this also works on the loop thread. Taken before `exiting` is set: a finalizer that
     // then skips `uv_close` leaves `data` dangling, so no other thread may walk the handles or run the
     // loop by then.
-    lock();
+    if (!lock_until(until)) {
+        return false;
+    }
+
     m_exiting.store(true, std::memory_order_release);
+    return true;
 }
 
 // The loop thread's body.

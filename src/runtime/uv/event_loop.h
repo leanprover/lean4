@@ -13,6 +13,7 @@ Author: Sofia Rodrigues
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
 #include <atomic>
+#include <chrono>
 #endif
 
 namespace lean {
@@ -38,6 +39,10 @@ class event_loop_guard;
 //
 class event_loop {
 public:
+    using deadline = std::chrono::steady_clock::time_point;
+    // Waits for the lock without bound.
+    static constexpr deadline no_deadline = deadline::max();
+
     uv_loop_t * m_loop = nullptr;
 
     // Initializes the loop and starts the loop thread.
@@ -52,10 +57,13 @@ public:
 
     bool exiting() const { return m_exiting.load(std::memory_order_acquire); }
 
-    // Marks libuv stopped and joins the loop thread, so that no callback runs afterwards. Returns
-    // false without a loop, or on the loop thread, which cannot join itself. `lean_init_task_manager`
-    // restarts it.
-    bool stop();
+    enum class stop_result { joined, not_joined, timed_out };
+
+    // Marks libuv stopped and joins the loop thread, so that no callback runs afterwards. Does not join
+    // without a loop, or on the loop thread, which cannot join itself. Times out if the loop thread
+    // keeps the lock past `until`, as a callback blocked in a `(sync := true)` continuation does.
+    // `lean_init_task_manager` restarts it.
+    stop_result stop(deadline until = no_deadline);
     void restart();
 
     // If `stop` joined the loop thread, runs the loop on this thread as the loop thread would, until
@@ -67,8 +75,8 @@ public:
 
     // Stops libuv for `IO.Process.exit`, whose `exit()` runs libuv's destructor while other threads
     // keep running. Takes the lock and never releases it, so that no thread is inside libuv by then,
-    // and the loop thread runs no more callbacks.
-    void stop_for_exit();
+    // and the loop thread runs no more callbacks. Returns false if the lock is not free by `until`.
+    bool stop_for_exit(deadline until);
 
 private:
     uv_mutex_t       m_mutex;
@@ -81,6 +89,7 @@ private:
     bool             m_thread_stop = false; // Asks the loop thread to return. Guarded by `m_mutex`.
 
     void lock();
+    bool lock_until(deadline until);
     void unlock();
     void run();
 
@@ -115,7 +124,9 @@ public:
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options);
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
-extern "C" LEAN_EXPORT void lean_uv_stop_for_exit();
+// Returns false if a thread kept libuv busy past a deadline, so that `exit()` must not run its
+// destructor.
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit();
 extern "C" LEAN_EXPORT void lean_uv_stop();
 // After the task manager is finalized: frees the handles that finalizers closed after the stop.
 extern "C" LEAN_EXPORT void lean_uv_free_closed();

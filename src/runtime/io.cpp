@@ -1671,7 +1671,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {
-    lean_uv_stop_for_exit();
+    if (!lean_uv_stop_for_exit()) {
+        // A thread blocked inside libuv's lock would run alongside libuv's destructor, so the program
+        // ends without running destructors or `atexit` handlers.
+        fflush(nullptr);
+        std::_Exit((int)code);
+    }
+
     exit(code);
 }
 

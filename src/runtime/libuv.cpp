@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Markus Himmel, Sofia Rodrigues
  */
 #include "runtime/libuv.h"
+#include <chrono>
 #include <mutex>
 #include <vector>
 #include "runtime/object.h"
@@ -118,9 +119,20 @@ static constexpr uint64_t g_uv_flush_timeout_ms = 2000;
 
 // `IO.Process.exit` and the task manager's finalization may stop libuv at the same time. Never
 // destroyed, since `exit()` runs static destructors while another thread may hold it.
-static std::mutex & g_uv_stop_mutex = *new std::mutex;
+static std::timed_mutex & g_uv_stop_mutex = *new std::timed_mutex;
 
-static void stop_libuv(bool settle) {
+// How long `IO.Process.exit` waits for each lock before it gives up on stopping libuv: a `(sync := true)`
+// continuation that blocks, for example on a mutex the exiting thread holds, keeps the loop's lock, and
+// one run by a flush keeps `g_uv_stop_mutex`. Longer than a flush, which holds `g_uv_stop_mutex`
+// throughout.
+static constexpr auto g_uv_exit_lock_timeout = std::chrono::milliseconds(g_uv_flush_timeout_ms + 1000);
+
+// Returns false if `IO.Process.exit` (`!settle`) timed out waiting for a lock. Waits without bound when
+// `main` returns, since the task manager's finalization waits for blocked tasks anyway.
+static bool stop_libuv(bool settle) {
+    auto deadline = [&] {
+        return settle ? event_loop::no_deadline : std::chrono::steady_clock::now() + g_uv_exit_lock_timeout;
+    };
     // The loop thread cannot join itself, so the loop keeps running. Checked before taking the
     // mutex, since a thread holding it may be joining the loop thread.
     if (global_ev.on_loop_thread()) {
@@ -130,11 +142,20 @@ static void stop_libuv(bool settle) {
             event_loop_guard guard;
             if (!guard.exiting()) cancel_queued_work();
         }
-        return;
+        return true;
     }
-    std::unique_lock<std::mutex> stopping(g_uv_stop_mutex);
-    if (!global_ev.stop()) {
-        return;
+    std::unique_lock<std::timed_mutex> stopping(g_uv_stop_mutex, std::defer_lock);
+
+    if (settle) {
+        stopping.lock();
+    } else if (!stopping.try_lock_until(deadline())) {
+        return false;
+    }
+
+    switch (global_ev.stop(deadline())) {
+    case event_loop::stop_result::timed_out: return false;
+    case event_loop::stop_result::not_joined: return true;
+    case event_loop::stop_result::joined: break;
     }
 
     // What the passes take is settled only after the flush, since a continuation that closes a socket
@@ -145,7 +166,7 @@ static void stop_libuv(bool settle) {
     // Waits (timers, signals, reads, accepts, child waits) and work that sends nothing (connects,
     // DNS, random) are cancelled first.
     batch.m_keep_flushable = true;
-    if (!take_all(batch)) return;
+    if (!take_all(batch)) return true;
 
     // Writes and shutdowns get to finish, but a peer that does not read must not hold up the exit.
     global_ev.flush(g_uv_flush_timeout_ms, flush_pending);
@@ -156,27 +177,29 @@ static void stop_libuv(bool settle) {
     // A UDP send still queued is only settled: libuv cannot cancel it without closing the socket,
     // so its datagram may still go out.
     batch.m_keep_flushable = false;
-    if (!take_all(batch)) return;
+    if (!take_all(batch)) return true;
 
     if (!settle) {
         keep_until_exit(batch);
-        return;
+        return true;
     }
     // Continuations run by the settle may call `IO.Process.exit`, which stops libuv again.
     stopping.unlock();
     for (owned_ref & promise : batch.m_promises) {
         lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_ECANCELED, nullptr)), promise.get());
     }
+
+    return true;
 }
 
 extern "C" LEAN_EXPORT void lean_uv_stop() {
     stop_libuv(true);
 }
 
-extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit() {
     // Pending writes get the same bounded flush as when `main` returns.
-    stop_libuv(false);
-    global_ev.stop_for_exit();
+    return stop_libuv(false)
+        && global_ev.stop_for_exit(std::chrono::steady_clock::now() + g_uv_exit_lock_timeout);
 }
 
 // Whether a closed handle still waits for its close callback.
@@ -199,7 +222,7 @@ extern "C" LEAN_EXPORT void lean_uv_free_closed() {
         return;
     }
     // A flush by `IO.Process.exit` on another thread would share the deadline timer.
-    std::lock_guard<std::mutex> stopping(g_uv_stop_mutex);
+    std::lock_guard<std::timed_mutex> stopping(g_uv_stop_mutex);
     global_ev.flush(g_uv_free_timeout_ms, handles_closing);
 }
 
@@ -254,7 +277,7 @@ extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
 }
 
 extern "C" LEAN_EXPORT void lean_uv_stop() {}
-extern "C" LEAN_EXPORT void lean_uv_stop_for_exit() {}
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit() { return true; }
 extern "C" LEAN_EXPORT void lean_uv_free_closed() {}
 extern "C" LEAN_EXPORT void lean_uv_restart() {}
 

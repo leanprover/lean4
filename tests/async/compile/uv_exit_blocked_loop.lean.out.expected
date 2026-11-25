@@ -1,0 +1,3 @@
+loop: exit code 3
+finalize: exit code 4
+flush: exit code 5

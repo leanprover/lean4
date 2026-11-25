@@ -103,7 +103,7 @@ public theorem getElem!_replicate (k : Nat) (x : Nat) : (ByteArray.replicate k 0
   · rw [getElem!_neg (ByteArray.replicate k 0) x hx]; rfl
 
 public theorem digit_zeros (k : USize) (h) (j : Nat) : (zeros k h).digit j = 0 := by
-  simp [zeros, digit, ByteArray.readU32, getElem!_replicate]
+  simp [digit, bytes_zeros, ByteArray.readU32, getElem!_replicate]
 
 public theorem valUpTo_congr {a b : BigNat} {k : Nat} (h : ∀ j, j < k → a.digit j = b.digit j) :
     a.valUpTo k = b.valUpTo k := by

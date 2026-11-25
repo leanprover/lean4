@@ -188,10 +188,10 @@ public theorem val_shiftDigits (a : BigNat) (k : USize) (h : (a.n + k.toNat) * 4
       rw [toNat_add_of_lt_size (by rw [a.usize_toNat]; omega), a.usize_toNat]
     constructor
     · refine (BigNat.val_of_shifted a _ k.toNat h ?_).2
-      simp only [BigNat.zeros, hk, BigNat.shiftLeft_toNat k (by omega),
+      simp only [BigNat.bytes_zeros, hk, BigNat.shiftLeft_toNat k (by omega),
         BigNat.shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), a.usize_toNat]
     · refine Nat.le_of_eq (BigNat.val_of_shifted a _ k.toNat h ?_).1
-      simp only [BigNat.zeros, hk, BigNat.shiftLeft_toNat k (by omega),
+      simp only [BigNat.bytes_zeros, hk, BigNat.shiftLeft_toNat k (by omega),
         BigNat.shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), a.usize_toNat]
 
 public theorem mul_lt_pow32 (x y m n : Nat) (hx : x < 2 ^ (32 * m)) (hy : y < 2 ^ (32 * n)) :

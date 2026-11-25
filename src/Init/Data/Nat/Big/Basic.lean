@@ -15,6 +15,7 @@ public import Init.Data.UInt.Basic
 public import Init.Data.Repr
 public import Init.Data.Array.Basic
 import all Init.Data.ByteArray.Extra
+import Init.Data.Array.Extract
 public import Init.Omega
 public import Init.ByCases
 public import Init.Data.UInt.Lemmas
@@ -137,14 +138,23 @@ public theorem size_usetUInt32LE (b : ByteArray) (i : USize) (v : UInt32) (h) :
 public theorem size_replicate (k : Nat) (v : UInt8) : (ByteArray.replicate k v).size = k := by
   simp [ByteArray.replicate, ByteArray.size]
 
-/-- `k` zero digits. -/
+/--
+`k` zero digits. The buffer has room for one more byte, so that a big `Int` can append its sign
+byte in place.
+-/
 @[inline, expose] public def zeros (k : USize) (h : k.toNat * 4 ≤ maxBytes) : BigNat where
-  bytes := ByteArray.replicate (k.toNat * 4) 0
-  size_mod := by rw [size_replicate]; omega
-  size_le := by rw [size_replicate]; exact h
+  bytes := (ByteArray.replicate (k.toNat * 4 + 1) 0).shrink (k.toNat * 4)
+  size_mod := by rw [ByteArray.shrink, ByteArray.size_extract, size_replicate]; omega
+  size_le := by rw [ByteArray.shrink, ByteArray.size_extract, size_replicate]; omega
 
 @[simp] public theorem n_zeros (k : USize) (h) : (zeros k h).n = k.toNat := by
-  simp [zeros, n, size_replicate]
+  simp [zeros, n, ByteArray.shrink, ByteArray.size_extract, size_replicate]
+
+public theorem bytes_zeros (k : USize) (h) : (zeros k h).bytes = ByteArray.replicate (k.toNat * 4) 0 := by
+  apply ByteArray.ext
+  simp only [zeros, ByteArray.shrink, ByteArray.data_extract, ByteArray.replicate, Array.extract_replicate]
+  congr 1
+  omega
 
 /-- The `BigNat` `0`, allocated on use rather than as a module-level constant. -/
 @[inline, expose] public def empty : BigNat := ⟨ByteArray.replicate 0 0, by rw [size_replicate], by rw [size_replicate]; exact Nat.zero_le _⟩

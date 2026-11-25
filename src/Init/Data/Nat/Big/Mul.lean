@@ -173,14 +173,16 @@ public theorem n_slice_le (a : BigNat) (lo hi : USize) :
       size_mod := by
         have := maxBytes_lt
         rw [ByteArray.copySlice_eq_append]
-        simp only [ByteArray.size_append, ByteArray.size_extract, c, zeros, size_replicate,
+        simp only [ByteArray.size_append, ByteArray.size_extract, c, zeros, ByteArray.shrink,
+          size_replicate,
           shiftLeft_toNat k (by omega), shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), hk,
           a.usize_toNat, ← a.n_mul_four, ByteArray.size_data]
         omega
       size_le := by
         have := maxBytes_lt
         rw [ByteArray.copySlice_eq_append]
-        simp only [ByteArray.size_append, ByteArray.size_extract, c, zeros, size_replicate,
+        simp only [ByteArray.size_append, ByteArray.size_extract, c, zeros, ByteArray.shrink,
+          size_replicate,
           shiftLeft_toNat k (by omega), shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), hk,
           a.usize_toNat, ← a.n_mul_four, ByteArray.size_data]
         omega }

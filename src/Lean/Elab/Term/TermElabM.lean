@@ -11,6 +11,7 @@ public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 import Lean.Elab.DeprecatedSyntax.Basic
 import Lean.Meta.Match.MatchPatternAttr
+import Lean.Linter.Init
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -1354,6 +1355,42 @@ def mkCoeWithErrorMsgs (expectedType : Expr) (e : Expr)
   mkCoe expectedType e (mkImmedErrorMsg? := mkImmedErrorMsg) (mkErrorMsg? := mkErrorMsg)
 
 /--
+The linter `linter.checkRespectTransparency.instances`: `e` already has the type `expectedType` up
+to the ambient transparency. If `expectedType` is a class (or a function type with a class codomain)
+that `isLaxInstanceDefeqClass` does not exempt, compare the type of `e` with it by
+`isInstanceTypeDefEq`, the comparison that `isDefEq` uses for instance metavariables, and warn if
+they differ. The linter reports the term as it is: it does not synthesize a replacement instance,
+and it runs in `withoutModifyingState`, so it does not change the elaboration. If `e` is still a
+metavariable (e.g. a postponed tactic block), its type is compared all the same.
+-/
+def lintInstanceType (expectedType e : Expr) : TermElabM Unit := do
+  unless (← getOptionFlags).checkRespectTransparencyInstances do return
+  let msg? ← withoutModifyingState do
+    let expectedType ← instantiateMVars expectedType
+    let some className ← isClass? expectedType | return none
+    if isLaxInstanceDefeqClass (← getEnv) className then return none
+    let e ← instantiateMVars e
+    let eType ← instantiateMVars (← inferType e)
+    if (← isInstanceTypeDefEq expectedType eType e) then return none
+    -- A later assignment of these metavariables can still decide the comparison.
+    if expectedType.hasExprMVar || eType.hasExprMVar then return none
+    let value := if e.getAppFn.isMVar then
+        m!"The value that Lean elaborates later (for example a tactic block)\n"
+      else m!"The value{indentExpr e}\n"
+    return some m!"{value}has type{indentExpr eType}\n\
+      but is expected to have type{indentExpr expectedType}\n\
+      The two types agree only when Lean unfolds definitions that are not reducible at \
+      `.instances` transparency."
+  if let some msg := msg? then
+    let ref ← getRef
+    -- A type ascription and the enclosing expected type check the same value at the same position.
+    let pos? := ref.getPos?.map (← getFileMap).toPosition
+    let dup := (← Core.getMessageLog).unreported.any fun m =>
+      some m.pos == pos? && m.data.hasTag (· == Linter.linter.checkRespectTransparency.instances.name)
+    unless dup do
+      Linter.logLint Linter.linter.checkRespectTransparency.instances ref msg
+
+/--
 If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.
 
 Argument `f?` is used only for generating error messages when inserting coercions fails.
@@ -1362,6 +1399,7 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr)
     (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
   if (← isDefEq (← inferType e) expectedType) then
+    lintInstanceType expectedType e
     return e
   else
     mkCoe expectedType e f? errorMsgHeader?
@@ -1371,6 +1409,7 @@ def ensureHasTypeWithErrorMsgs (expectedType? : Option Expr) (e : Expr)
     (mkErrorMsg : MVarId → (expectedType e : Expr) → MetaM MessageData) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
   if (← isDefEq (← inferType e) expectedType) then
+    lintInstanceType expectedType e
     return e
   else
     mkCoeWithErrorMsgs expectedType e mkImmedErrorMsg mkErrorMsg

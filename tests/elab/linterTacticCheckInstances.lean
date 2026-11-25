@@ -47,7 +47,7 @@ Full error:
     (have res := myF s { x := a };
           myF res.s { x := b }).s.decls[idx]
 
-Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+Note: This linter can be disabled with `set_option linter.checkRespectTransparency.wellTyped false`
 -/
 #guard_msgs (positions := true) in
 example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
@@ -71,7 +71,7 @@ Full error:
   in the application
     (composed s a b).s.decls[idx]
 
-Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+Note: This linter can be disabled with `set_option linter.checkRespectTransparency.wellTyped false`
 -/
 #guard_msgs (positions := true) in
 example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size) :
@@ -112,7 +112,7 @@ warning: `simp` rewrote a term with natZero_def. The new term has an instance ar
     @g 0 instXNatZero
 For the rest of this `simp` call, lemmas that mention this instance do not apply.
 
-Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+Note: This linter can be disabled with `set_option linter.checkRespectTransparency.wellTyped false`
 ---
 @ +1:27...+2:31
 error: unsolved goals
@@ -159,7 +159,7 @@ warning: `simp` rewrote a term with natZero_def. The new term has an instance ar
     @g 0 instXNatZero
 For the rest of this `simp` call, lemmas that mention this instance do not apply.
 
-Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+Note: This linter can be disabled with `set_option linter.checkRespectTransparency.wellTyped false`
 -/
 #guard_msgs (positions := true) in
 example : g natZero = 1 := by
@@ -183,7 +183,7 @@ warning: `simp` rewrote a term with natZero_def. The new term has an instance ar
     @g 0 instXNatZero
 For the rest of this `simp` call, lemmas that mention this instance do not apply.
 
-Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+Note: This linter can be disabled with `set_option linter.checkRespectTransparency.wellTyped false`
 -/
 #guard_msgs (positions := true) in
 example : g natZero = 1 := by
@@ -207,7 +207,7 @@ warning: The initial tactic goal has an instance argument whose type does not ma
   in the application
     @g 0 instXNatZero
 
-Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+Note: This linter can be disabled with `set_option linter.checkRespectTransparency.wellTyped false`
 -/
 #guard_msgs (positions := true) in
 example : @g 0 instXNatZero = 1 := by

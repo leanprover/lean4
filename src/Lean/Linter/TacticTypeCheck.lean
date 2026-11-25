@@ -17,14 +17,14 @@ open Lean Elab Command
 open Lean.Linter (logLint)
 
 /--
-Whether a `linter.tacticCheckInstances` warning has already been logged for this command, e.g. by
+Whether a `linter.checkRespectTransparency.wellTyped` warning has already been logged for this command, e.g. by
 `simp` checking its own intermediate results while the command was elaborated.
 -/
 def alreadyReported : CommandElabM Bool := do
   -- `Command.State.messages` is reset per command, but by the time linters run its messages have
   -- been marked reported, which `MessageLog.toList` does not return.
   return (← get).messages.reportedPlusUnreported.any
-    (·.data.hasTag (· == linter.tacticCheckInstances.name))
+    (·.data.hasTag (· == linter.checkRespectTransparency.wellTyped.name))
 
 /--
 A linter that runs `Meta.check _ .implicit` and `Meta.findInstanceArgMismatch?` on every tactic
@@ -33,7 +33,7 @@ goal.
 def tacticCheckInstances : Linter where
   run _cmdStx := do
     -- Do *not* check `linter.all` here, this linter is purely for debugging
-    unless (← linter.tacticCheckInstances.getM) do
+    unless checkRespectTransparencyWellTyped (← getOptions) do
       return
     let infoTrees := (← get).infoState.trees.toArray
     -- Once any tactic step in this command has produced a warning, suppress
@@ -127,6 +127,6 @@ def tacticCheckInstances : Linter where
           ctxAfter.runMetaM {} (check "produced" ti.goalsAfter)
         if let some msg := failure then
           warned.set true
-          logLint linter.tacticCheckInstances ti.stx msg)
+          logLint linter.checkRespectTransparency.wellTyped ti.stx msg)
 
 builtin_initialize addLinter tacticCheckInstances

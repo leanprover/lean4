@@ -677,12 +677,12 @@ private def reportInstanceArgMismatch (eNew : Expr) : SimpM Unit := do
   -- traversal of every intermediate result.
   modify fun s => { s with checkInstanceArgs := false }
   let alreadyReported := (← Core.getMessageLog).reportedPlusUnreported.any
-    (·.data.hasTag (· == Linter.linter.tacticCheckInstances.name))
+    (·.data.hasTag (· == Linter.linter.checkRespectTransparency.wellTyped.name))
   if alreadyReported then return
   let rewrote ← match (← get).lastThm? with
     | some thm => do pure m!"`simp` rewrote a term with {← ppOrigin thm}."
     | none     => pure m!"`simp` rewrote a term."
-  Linter.logLint Linter.linter.tacticCheckInstances (← getRef)
+  Linter.logLint Linter.linter.checkRespectTransparency.wellTyped (← getRef)
     m!"{rewrote} The new term has an instance argument whose type does not match at \
       `.instances` transparency:{indentD msg}\n\
       For the rest of this `simp` call, lemmas that mention this instance do not apply."

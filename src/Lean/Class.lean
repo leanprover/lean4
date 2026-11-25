@@ -184,7 +184,8 @@ Classes marked `@[lax_instance_defeq]` are exempt from the strict instance-argum
 `backward.isDefEq.respectTransparency.instances`: a value assigned to an instance metavariable of
 such a class is not required to have a type that matches the metavariable's type at `.instances`
 transparency. The instance-argument check of `simp`/`dsimp` (`dsimp.resynthInstances`) and the
-`linter.tacticCheckInstances` linter skip these classes as well.
+`linter.checkRespectTransparency.wellTyped` and `linter.checkRespectTransparency.instances` linters
+skip these classes as well.
 
 The attribute is a backward compatibility feature and will be removed. Each use logs a warning
 unless `linter.deprecated.laxInstanceDefeq` is false.

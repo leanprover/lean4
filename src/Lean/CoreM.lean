@@ -200,6 +200,8 @@ namespace OptionFlags
 @[inline] def auxMVarKind (f : OptionFlags) : Bool := f.bits &&& 0x800 != 0
 @[inline] def respectTransparencyInstancesNatural (f : OptionFlags) : Bool := f.bits &&& 0x1000 != 0
 @[inline] def respectTransparencyInstancesAllMVars (f : OptionFlags) : Bool := f.bits &&& 0x2000 != 0
+/-- `linter.checkRespectTransparency.instances`, with `linter.checkRespectTransparency` as default. -/
+@[inline] def checkRespectTransparencyInstances (f : OptionFlags) : Bool := f.bits &&& 0x4000 != 0
 
 /--
 Resolves the flags from `opts`.
@@ -224,7 +226,9 @@ def ofOptions (opts : Options) : OptionFlags :=
       flag (getB `backward.isDefEq.respectTransparency.instances true) 0x400 |||
       flag (getB `backward.isDefEq.auxMVarKind true) 0x800 |||
       flag (getB `backward.isDefEq.respectTransparency.instances.natural false) 0x1000 |||
-      flag (getB `backward.isDefEq.respectTransparency.instances.allMVars true) 0x2000 }
+      flag (getB `backward.isDefEq.respectTransparency.instances.allMVars true) 0x2000 |||
+      flag (getB `linter.checkRespectTransparency.instances
+        (getB `linter.checkRespectTransparency false)) 0x4000 }
 
 end OptionFlags
 

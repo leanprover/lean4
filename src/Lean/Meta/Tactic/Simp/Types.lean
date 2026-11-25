@@ -282,7 +282,7 @@ structure State where
   diag         : Diagnostics := {}
   /--
   Whether to check intermediate results for instance arguments that stopped matching at
-  `.instances` transparency. Set from `linter.tacticCheckInstances` by `SimpM.run`, and cleared
+  `.instances` transparency. Set from `linter.checkRespectTransparency.wellTyped` by `SimpM.run`, and cleared
   again once a mismatch has been reported: the linter reports at most one per command.
   -/
   checkInstanceArgs : Bool := false
@@ -1179,7 +1179,7 @@ private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM
 
 def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : SimpM α) : MetaM (α × State) := do
   let ctx ← ctx.setLctxInitIndices
-  let s := { s with checkInstanceArgs := Linter.linter.tacticCheckInstances.get (← getOptions) }
+  let s := { s with checkInstanceArgs := Linter.checkRespectTransparencyWellTyped (← getOptions) }
   withSimpContext ctx do
     let (r, s) ← k methods.toMethodsRef ctx |>.run s
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"

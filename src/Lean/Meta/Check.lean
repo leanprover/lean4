@@ -31,11 +31,38 @@ unifying the instance argument.
 The option lives here rather than next to the linter in `Lean.Linter.TacticTypeCheck` because
 `simp` reads it too, to run `findInstanceArgMismatch?` on its intermediate results.
 -/
-register_builtin_option linter.tacticCheckInstances : Bool := {
+register_builtin_option linter.checkRespectTransparency.wellTyped : Bool := {
   defValue := false
   descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency and \
     checks its instance arguments at `.instances` transparency"
 }
+
+register_builtin_option linter.tacticCheckInstances : Bool := {
+  defValue := false
+  descr := "synonym of `linter.checkRespectTransparency.wellTyped`"
+}
+
+register_builtin_option linter.checkRespectTransparency.instances : Bool := {
+  defValue := false
+  descr := "warn when the elaborator accepts a value whose expected type is a class, or a function \
+    type with a class codomain, although its type agrees with the expected type only above \
+    `.instances` transparency"
+}
+
+register_builtin_option linter.checkRespectTransparency : Bool := {
+  defValue := false
+  descr := "enable `linter.checkRespectTransparency.wellTyped` and \
+    `linter.checkRespectTransparency.instances`, unless they are set individually"
+}
+
+private def findBool? (opts : Options) (n : Name) : Option Bool :=
+  (opts.find? n).bind KVMap.Value.ofDataValue?
+
+/-- Whether `linter.checkRespectTransparency.wellTyped` (or its synonym) is enabled in `opts`. -/
+def checkRespectTransparencyWellTyped (opts : Options) : Bool :=
+  (findBool? opts linter.checkRespectTransparency.wellTyped.name <|>
+    findBool? opts linter.tacticCheckInstances.name <|>
+    findBool? opts linter.checkRespectTransparency.name).getD false
 
 end Lean.Linter
 
@@ -440,7 +467,7 @@ def withInstancesTypeCheckNote [MonadControlT MetaM m] [Monad m] (e : Expr) (x :
       return MessageData.note m!"The target expression is not type-correct \
         under the `implicit` transparency level, which may have triggered the failure. \
         This is usually caused by unfolding of semireducible definitions in prior tactic steps. \
-        Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.\n\
+        Use `set_option linter.checkRespectTransparency.wellTyped true` to investigate the source of the issue.\n\
         Full error:\
         {indentD e.toMessageData}"
   Meta.mapError x (· ++ typeCheckNote)

@@ -15,7 +15,7 @@ fi
 # isolates nothing, so this checks the `bwrap` command lines that `log-bwrap.sh` records.
 LOG="$PWD/bwrap.log"
 export COMPARATOR_BWRAP="$PWD/log-bwrap.sh"
-unset LAKE_NO_SANDBOX
+unset LAKE_INADVISABLY_NO_SANDBOX
 
 copy_to_work lakefile.toml Lib.lean Main.lean
 mkdir .git
@@ -51,7 +51,7 @@ no_match_text "--bind $PROJ $PROJ" runs.log
 export LEAN_SANDBOX_TEST=kept SANDBOX_TEST_SECRET=secret LAKE_CACHE_KEY=secret
 test_out "kept" env printenv LEAN_SANDBOX_TEST
 test_out "/tmp/home" env printenv HOME
-test_out "1" env printenv LAKE_NO_SANDBOX
+test_out "1" env printenv LAKE_INADVISABLY_NO_SANDBOX
 test_fails env printenv SANDBOX_TEST_SECRET
 test_fails env printenv LAKE_CACHE_KEY
 unset LEAN_SANDBOX_TEST SANDBOX_TEST_SECRET LAKE_CACHE_KEY
@@ -95,7 +95,7 @@ match_text "--chdir ${PROJ%/work}" runs.log
 # Both opt-outs leave `bwrap` alone.
 rm -f "$LOG"
 test_run --inadvisably-no-sandbox build
-LAKE_NO_SANDBOX=1 test_run build
+LAKE_INADVISABLY_NO_SANDBOX=1 test_run build
 test_exp ! -e "$LOG"
 
 # Nothing of the workspace is loaded without a configuration file, so there is nothing to contain.
@@ -103,10 +103,10 @@ mkdir empty
 test_run -d empty env true
 test_exp ! -e "$LOG"
 
-# A `bwrap` that cannot create namespaces is reported and the command runs unsandboxed; a missing
-# one is not an error either.
-COMPARATOR_BWRAP=false test_out "running unsandboxed" build
-COMPARATOR_BWRAP=lake-missing-sandbox test_not_out "unsandboxed" build
+# A `bwrap` that cannot create namespaces is an error, unlike a missing one.
+COMPARATOR_BWRAP=false test_status_out 1 "cannot create a sandbox here" build
+COMPARATOR_BWRAP=false test_run --inadvisably-no-sandbox build
+COMPARATOR_BWRAP=lake-missing-sandbox test_not_out "sandbox" build
 test_exp ! -e "$LOG"
 
 # A command that edits the sources gets the project writable, except for its `.git`.

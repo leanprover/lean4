@@ -5,7 +5,7 @@ set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
 # The tests read and write more than Lake's sandbox lets a project's code reach
-export LAKE_NO_SANDBOX=1
+export LAKE_INADVISABLY_NO_SANDBOX=1
 
 # Build `LAKE` from this directory or use the provided one
 LAKE=${LAKE:-$(lake query lake)}

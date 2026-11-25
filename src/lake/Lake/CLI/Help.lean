@@ -98,9 +98,9 @@ SANDBOX:
   A sandboxed package cannot keep build outputs outside of `.lake`, depend on
   a path outside of its directory, change `lean-toolchain` on update, or
   download build caches outside of dependency resolution. Use
-  `--inadvisably-no-sandbox` or set `LAKE_NO_SANDBOX` to a non-empty value to
-  run without the sandbox. Commands also run without it, after a warning,
-  where `bwrap` cannot create namespaces, and silently where there is none.
+  `--inadvisably-no-sandbox` or set `LAKE_INADVISABLY_NO_SANDBOX=1` to run
+  without the sandbox. Commands also run without it where there is no `bwrap`.
+  A `bwrap` that cannot create namespaces is an error.
 
   `lake exe` builds the executable in the sandbox and then runs it outside.
   `lake new`, `lake init`, `lake cache`, `lake upload` and `lake samply` are

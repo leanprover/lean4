@@ -134,8 +134,9 @@ structure Tools where
   env : FilePath
 
 /--
-Finds a `bwrap` that can sandbox a command. One that cannot create namespaces, as in most
-containers, is reported and then treated as missing.
+Finds the `bwrap` to sandbox a command with, if there is one. One that cannot create namespaces, as
+in most containers, is an error: the command would otherwise run unsandboxed without the user
+having asked for that.
 -/
 def findTools? : IO (Option Tools) := do
   let exe := (← IO.getEnv "COMPARATOR_BWRAP").getD "bwrap"
@@ -148,13 +149,13 @@ def findTools? : IO (Option Tools) := do
     stdin := .null
   }
   if probe.exitCode != 0 then
-    IO.eprintln s!"warning: `{exe}` cannot create a sandbox here; running unsandboxed"
-    return none
+    throw <| .userError s!"`{exe}` cannot create a sandbox here:\n{probe.stderr.trimAscii}\n\
+      Use `--inadvisably-no-sandbox` or set `{Check.noSandboxEnvVar}=1` to run without one."
   return some { bwrap, env }
 
 /-- Whether commands are to sandbox themselves at all. -/
 public def isWanted : BaseIO Bool := do
-  return System.Platform.isLinux && (← IO.getEnv Check.noSandboxEnvVar).all (·.isEmpty)
+  return System.Platform.isLinux && (← IO.getEnv Check.noSandboxEnvVar) != some "1"
 
 /--
 Runs `x` with the manifest in place for the sandbox to bind, since `bwrap` cannot bind a file that

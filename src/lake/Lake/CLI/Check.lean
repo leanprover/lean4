@@ -290,7 +290,7 @@ s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not foun
 Keeps a `lake` child from sandboxing itself again: the commands here decide how their children are
 contained, and a sandbox cannot be nested inside another.
 -/
-public def noSandboxEnvVar : String := "LAKE_NO_SANDBOX"
+public def noSandboxEnvVar : String := "LAKE_INADVISABLY_NO_SANDBOX"
 
 /-- The environment the sandboxed child runs with; `envOverride` wins over `envPass`. -/
 def sandboxEnv (spawnArgs : SandboxArgs) : IO (Array (String × String)) := do

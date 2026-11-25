@@ -5,7 +5,7 @@ meta import Std.Data.HashSet.Basic
 Tests for `String.Slice` functions
 -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 #guard "".toSlice.isEmpty = true
 #guard " ".toSlice.isEmpty = false

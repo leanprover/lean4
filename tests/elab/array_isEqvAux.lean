@@ -15,7 +15,7 @@ After unfolding the instances 'instDecidableEqNat', 'Array.instDecidableEq' and 
 ```
 -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 example : #[0, 1] = #[0, 1] := by decide
 

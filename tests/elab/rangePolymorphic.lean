@@ -1,6 +1,6 @@
 import Std.Data.Iterators
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 open Std.Iterators
 

@@ -2,7 +2,7 @@ module
 
 /-! Regression test for cases on USize -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 def five : USize := USize.ofNatLT 5 (Nat.lt_of_lt_of_le (by decide) USize.le_size)
 

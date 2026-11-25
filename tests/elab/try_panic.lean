@@ -10,7 +10,7 @@ This was fixed by making `shouldGenerateEqnThms` return `false` for matchers, si
 matcher equations are handled separately by `Lean.Meta.Match.MatchEqs`.
 -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 -- A theorem with a match expression in its type creates a matcher `bar.match_1`
 theorem bar : (match (0 : Nat) with | 0 => 0 | _ => 1) = 0 := by native_decide

@@ -3,7 +3,7 @@ import Lean
 # `native_decide`
 -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 /-!
 Simplest example.

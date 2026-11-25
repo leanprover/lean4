@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 
 inductive P : Prop where

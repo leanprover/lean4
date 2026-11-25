@@ -38,7 +38,7 @@ def LratCert.toReflectionProof (cert : LratCert) (ctx : TacticContext)
 
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling and evaluating reflection proof term") do
     match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))
-        (requireTrustCompiler := false)) with
+        (requireTrustEvalAsAxioms := false)) with
     | .notTrue =>
       throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
         evaluating the following term returned `false`:{indentExpr reflectionTerm}"

@@ -2,7 +2,7 @@ module
 public import Init.Grind.Ring.CommSolver
 public import Lean.Meta.Sym.Arith.Poly
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 open Lean.Grind.CommRing
 
 def w : Var := 0

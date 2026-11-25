@@ -2,7 +2,7 @@
 Panic during evaluation
 -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 inductive ItsTrue2 : Prop
   | mk

@@ -101,10 +101,11 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
 
-register_builtin_option trustCompiler : Bool := {
+register_builtin_option trustEvalAsAxioms : Bool := {
   defValue := false
-  descr    := "allow declarations to use native computation (e.g. via `native_decide`), which \
-    requires trusting the Lean compiler in addition to the kernel"
+  descr    := "allow proofs (e.g. by `native_decide`) that evaluate code like `#eval` does, \
+    following `@[implemented_by]` and `@[extern]` implementations, and assert the result as a new \
+    axiom; this axiom shows up in `#print axioms`, and makes `lake comparator` and `lake check` fail"
 }
 
 /--
@@ -125,7 +126,7 @@ def isNativeComputationAxiomName (n : Name) : Bool :=
   (nativeComputationAxiomPrefix? n).isSome
 
 /--
-Maps the native computation axioms that `checkTrustCompiler` should reject to the syntax of the
+Maps the native computation axioms that `checkTrustEvalAsAxioms` should reject to the syntax of the
 tactic invocation that created them. Not persisted: the declaration using such an axiom is added in
 the same elaboration as the axiom itself.
 -/
@@ -150,12 +151,12 @@ def Declaration.getNativeComputationAxioms (d : Declaration) : Array Name := Id.
       if isNativeComputationAxiomName c && !axs.contains c then axs.push c else axs
 
 /--
-Unless the `trustCompiler` option is set, logs an error for each native computation axiom recorded
-by `addNativeComputationRef` during the elaboration of the declaration and used by it directly, at
-the tactic invocation that created it.
+Unless the `trustEvalAsAxioms` option is set, logs an error for each native computation axiom
+recorded by `addNativeComputationRef` during the elaboration of the declaration and used by it
+directly, at the tactic invocation that created it.
 -/
-def checkTrustCompiler (decl : Declaration) : CoreM Unit := do
-  if trustCompiler.get (← getOptions) then
+def checkTrustEvalAsAxioms (decl : Declaration) : CoreM Unit := do
+  if trustEvalAsAxioms.get (← getOptions) then
     return
   let axs := decl.getNativeComputationAxioms
   if axs.isEmpty then
@@ -181,16 +182,15 @@ def checkTrustCompiler (decl : Declaration) : CoreM Unit := do
     let axsMsg := if axs.size == 1 then m!"the axiom {axsMsg}" else m!"the axioms {axsMsg}"
     logErrorAt ref m!"`{ref}` uses native computation, which requires trusting the Lean \
       compiler\n\n\
-      It proves the goal by compiling and running code and asserting the result as an axiom, \
-      instead of constructing a proof that the kernel can check. Relying on such a proof means \
-      trusting the Lean compiler and interpreter, as well as all `@[implemented_by]` and \
-      `@[extern]` implementations involved, in addition to the kernel. For the same reason, \
-      proofs using native computation are rejected by `lake comparator` and `lake check`. \
-      `#print axioms` lists {axsMsg} for this declaration and every declaration depending on \
-      it.\n\n\
+      It proves the goal by evaluating code like `#eval` does, following `@[implemented_by]` and \
+      `@[extern]` implementations, and asserting the result as a new axiom, instead of \
+      constructing a proof that the kernel can check. Relying on such a proof means trusting the \
+      Lean compiler and all `@[implemented_by]` and `@[extern]` implementations involved, in \
+      addition to the kernel. `#print axioms` lists {axsMsg} for this declaration and every \
+      declaration depending on it, and `lake comparator` and `lake check` fail on them.\n\n\
       If this is acceptable, native computation can be allowed for a single declaration using \
-      `set_option trustCompiler true in`, or for an entire project by setting `trustCompiler` to \
-      `true` in the `leanOptions` of the Lake package configuration."
+      `set_option trustEvalAsAxioms true in`, or for an entire project by setting \
+      `trustEvalAsAxioms` to `true` in the `leanOptions` of the Lake package configuration."
 
 builtin_initialize
   registerTraceClass `addDecl
@@ -293,7 +293,7 @@ where
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
-        checkTrustCompiler decl
+        checkTrustEvalAsAxioms decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

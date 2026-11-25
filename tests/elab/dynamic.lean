@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 deriving instance TypeName for Nat
 deriving instance TypeName for String

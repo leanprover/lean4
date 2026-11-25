@@ -4,7 +4,7 @@ import Std.Tactic.Do
 set_option sym.debug true
 -- `vcgen` does not replace `mvcgen` on these `Std.Do` goals
 set_option linter.deprecated.syntax false
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 open Std Do
 

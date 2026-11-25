@@ -1431,10 +1431,13 @@ structure DecideConfig where
   This is more efficient, since the default mode reduces twice (once in the elaborator and again in the kernel),
   however kernel reduction ignores transparency settings. -/
   kernel : Bool := false
-  /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
-  admitting the result via an axiom. This can be significantly more efficient,
-  but it is at the cost of increasing the trusted code base, namely the Lean compiler
-  and all definitions with an `@[implemented_by]` attribute.
+  /-- If true (default: false), then evaluates the `Decidable` instance like `#eval` does,
+  using compiled code that follows `@[implemented_by]` and `@[extern]` implementations,
+  and asserts the result as a new axiom. This axiom shows up in `#print axioms` for the proof
+  and everything depending on it, and makes `lake comparator` and `lake check` fail on them.
+  Declarations using it are rejected unless the option `trustEvalAsAxioms` is set.
+  This can be significantly more efficient than reduction, at the cost of trusting the Lean compiler
+  and all `@[implemented_by]` and `@[extern]` implementations involved.
   The instance is only evaluated once. The `native_decide` tactic is a synonym for `decide +native`. -/
   native : Bool := false
   /-- If true (default: true), then when preprocessing the goal, do zeta reduction to attempt to eliminate free variables. -/
@@ -1446,8 +1449,8 @@ structure DecideConfig where
 
 /--
 `decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`
-and then reducing that instance to evaluate the truth value of `p`.
-If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
+and then reducing `decide p`, the `Bool` stored in that instance, to evaluate the truth value of `p`.
+If it reduces to `true`, then `of_decide_eq_true` turns this into a proof of `p` that closes the goal.
 
 The target is not allowed to contain local variables or metavariables.
 If there are local variables, you can first try using the `revert` tactic with these local variables to move them into the target,
@@ -1461,17 +1464,19 @@ Options:
 - `decide +kernel` uses kernel for reduction instead of the elaborator.
   It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
   and (2) it reduces the `Decidable` instance only once instead of twice.
-- `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
-  admitting the result via an axiom.
-  This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
-  of the trusted code base.
-  Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
-  Declarations using it are rejected unless the option `trustCompiler` is set,
-  and proofs using it are rejected by `lake comparator` and `lake check`.
+- `decide +native` evaluates the `Decidable` instance like `#eval` does,
+  using compiled code that follows `@[implemented_by]` and `@[extern]` implementations,
+  and asserts the result as a new axiom.
+  This axiom shows up in `#print axioms` for the proof and everything depending on it,
+  and makes `lake comparator` and `lake check` fail on them.
+  Declarations using it are rejected unless the option `trustEvalAsAxioms` is set.
+  This can be significantly more efficient than using reduction, at the cost of trusting
+  the Lean compiler and all `@[implemented_by]` and `@[extern]` implementations involved.
   Like with `+kernel`, the `Decidable` instance is evaluated only once.
 
 Limitation: In the default mode or `+kernel` mode, since `decide` uses reduction to evaluate the term,
-`Decidable` instances defined by well-founded recursion might not work because evaluating them requires reducing proofs.
+`Decidable` instances that rely on well-founded recursion might not work: such definitions are irreducible
+by default, and evaluating them requires reducing proofs of well-foundedness.
 Reduction can also get stuck on `Decidable` instances with `Eq.rec` terms.
 These can appear in instances defined using tactics (such as `rw` and `simp`).
 To avoid this, create such instances using definitions such as `decidable_of_iff` instead.
@@ -1487,7 +1492,7 @@ Trying to prove a false proposition:
 ```lean
 example : 1 ≠ 1 := by decide
 /-
-tactic 'decide' proved that the proposition
+Tactic `decide` proved that the proposition
   1 ≠ 1
 is false
 -/
@@ -1500,11 +1505,12 @@ opaque unknownProp : Prop
 open scoped Classical in
 example : unknownProp := by decide
 /-
-tactic 'decide' failed for proposition
-  unknownProp
-since its 'Decidable' instance reduced to
+Tactic `decide` failed to reduce
+  @decide unknownProp (Classical.propDecidable unknownProp)
+to `true` or `false`.
+
+After unfolding the instance `Classical.propDecidable`, reduction got stuck at
   Classical.choice ⋯
-rather than to the 'isTrue' constructor.
 -/
 ```
 
@@ -1521,18 +1527,20 @@ syntax (name := decide) "decide" optConfig : tactic
 /--
 `native_decide` is a synonym for `decide +native`.
 It will attempt to prove a goal of type `p` by synthesizing an instance
-of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
-uses `#eval` to evaluate the decidability instance.
+of `Decidable p` and then evaluating `decide p` to `true`. Unlike `decide`, this
+evaluates the instance like `#eval` does, using compiled code that follows
+`@[implemented_by]` and `@[extern]` implementations, and asserts the result as a new axiom.
+This axiom shows up in `#print axioms` for the proof and everything depending on it,
+and makes `lake comparator` and `lake check` fail on them.
+Declarations using it are rejected unless the option `trustEvalAsAxioms` is set.
 
-This should be used with care because it adds the entire lean compiler to the trusted
-part, and a new axiom will show up in `#print axioms` for theorems using
-this method or anything that transitively depends on them. Nevertheless, because it is
-compiled, this can be significantly more efficient than using `decide`, and for very
-large computations this is one way to run external programs and trust the result.
-Declarations using it are rejected unless the option `trustCompiler` is set, and proofs using
-it are rejected by `lake comparator` and `lake check`.
+This should be used with care because it trusts the Lean compiler and all
+`@[implemented_by]` and `@[extern]` implementations involved, in addition to the kernel.
+Nevertheless, because it is compiled, this can be significantly more efficient than using
+`decide`, and for very large computations this is one way to run external programs and trust
+the result.
 ```lean
-set_option trustCompiler true in
+set_option trustEvalAsAxioms true in
 example : (List.range 1000).length = 1000 := by native_decide
 ```
 -/

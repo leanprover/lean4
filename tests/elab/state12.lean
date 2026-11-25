@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 /- Enumerable and the Decidable instance may already be in Mathlib -/
 

@@ -45,8 +45,8 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let key := { type, isPrivate := !env.isExporting, defeq }
-  -- Bypass the cache for native computation so that each use is checked by `checkTrustCompiler`
-  -- and none is reused where `trustCompiler` is not set.
+  -- Bypass the cache for native computation so that each use is checked by `checkTrustEvalAsAxioms`
+  -- and none is reused where `trustEvalAsAxioms` is not set.
   let usesNative := value.hasNativeComputationAxiom && Id.run do
     let refs := nativeComputationRefExt.getState env
     return value.find? (fun | .const n _ => refs.contains n | _ => false) |>.isSome

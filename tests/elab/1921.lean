@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 @[simp] theorem USize.not_size_le_one : ¬ USize.size ≤ 1 := by cases USize.size_eq <;> simp (config := { decide := true }) [*]
 

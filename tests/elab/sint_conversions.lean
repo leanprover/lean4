@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 example : (-2147483649 : Int8).toInt16 = -1 := by native_decide
 example : (-2147483649 : Int8).toInt16 = -1 := by rfl

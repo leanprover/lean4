@@ -6,7 +6,7 @@ Tests UTF-8 encoding and decoding: `String.toByteArray`, `String.toUTF8`, `Strin
 `String.Internal.ugetUTF8Byte`.
 -/
 
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 deriving instance DecidableEq for ByteArray
 

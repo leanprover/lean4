@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 @[noinline] def f (x : Bool)   := x
 @[noinline] def g (x y : Bool) := x

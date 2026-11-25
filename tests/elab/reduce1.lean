@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 partial def fact : Nat → Nat
 | 0     => 1

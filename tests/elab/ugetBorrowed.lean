@@ -1,4 +1,4 @@
-set_option trustCompiler true
+set_option trustEvalAsAxioms true
 
 set_option trace.Compiler.explicitRc true in
 /--

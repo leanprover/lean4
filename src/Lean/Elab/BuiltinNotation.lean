@@ -225,14 +225,17 @@ register_builtin_option debugAssertions : Bool := {
     \nDefaults to `false` unless the Lake `buildType` is `debug`."
 }
 
-@[builtin_term_elab Lean.Parser.Term.debugAssert]  def elabDebugAssert : TermElab :=
-  adaptExpander fun
-    | `(Parser.Term.debugAssert| debug_assert! $cond; $body) => do
-      if debugAssertions.get (← getOptions) then
-        `(assert! $cond; $body)
-      else
-        return body
-    | _ => throwUnsupportedSyntax
+@[builtin_term_elab Lean.Parser.Term.debugAssert]
+def elabDebugAssert : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(Parser.Term.debugAssert| debug_assert! $cond; $body) =>
+    if debugAssertions.get (← getOptions) then
+      let expanded ← `(assert! $cond; $body)
+      withMacroExpansion stx expanded <| elabTerm expanded expectedType?
+    else
+      discard <| elabTerm (← `(if $cond then () else ())) none
+      withMacroExpansion stx body <| elabTerm body expectedType?
+  | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro
   | `(dbg_trace $arg:interpolatedStr; $body) => `(dbgTrace (s! $arg) fun _ => $body)

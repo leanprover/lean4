@@ -38,17 +38,15 @@ open Nat.Big
 @[extern "lean_int64_to_int_sint"] public opaque ofSmallInt64 (n : Int64) : Int
 @[extern "lean_internal_panic_string"] public opaque internalPanic (msg : @& String) : Nat
 
-@[inline] public def is64 : Bool := ((0 : USize) - 1).toUInt64 == 0xFFFFFFFFFFFFFFFF
-
 /-- The value of a scalar `Int`, as `lean_scalar_to_int64`: the low 32 (64-bit platforms) or
 31 (32-bit platforms) bits of the unboxed value, sign-extended. -/
 @[inline] public def scalarToInt64 (n : @& Int) : Int64 :=
   let v := (unboxInt n).toUInt32
-  let v := if is64 || v &&& 0x40000000 == 0 then v else v ||| 0x80000000
+  let v := if System.Platform.numBits == 64 || v &&& 0x40000000 == 0 then v else v ||| 0x80000000
   v.toInt32.toInt64
 @[inline] public def maxSmallNat : USize := ((0 : USize) - 1) >>> 1
 /-- `LEAN_MAX_SMALL_INT + 1`; the small `Int`s are `[-smallIntBound, smallIntBound)`. -/
-@[inline] public def smallIntBound : UInt64 := if is64 then 0x80000000 else 0x40000000
+@[inline] public def smallIntBound : UInt64 := if System.Platform.numBits = 64 then 0x80000000 else 0x40000000
 @[inline] public def uintMax : USize := 0xFFFFFFFF
 
 /-- The `BigNat` `1`, as a function so that it is not a module-level constant. -/
@@ -222,7 +220,7 @@ public unsafe def natLog2 (a : Nat) : Nat :=
 /-- The size of `a`'s representation in bytes; used for the kernel's size limits. -/
 @[export lean_bignum_nat_size_in_bytes]
 public unsafe def natSizeInBytes (a : Nat) : USize :=
-  if isScalar a then (if is64 then 8 else 4) else (toBigNat a).bytes.usize
+  if isScalar a then (if System.Platform.numBits = 64 then 8 else 4) else (toBigNat a).bytes.usize
 
 @[inline] public unsafe def trailingZerosUSize (n : USize) : USize :=
   if n == 0 then 0 else trailingZeros (ofUInt64 n.toUInt64)

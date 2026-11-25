@@ -503,7 +503,6 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 
 /-! ## The frame-internalizing weakest precondition -/
 
-set_option backward.elab.instanceTypes false in
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=

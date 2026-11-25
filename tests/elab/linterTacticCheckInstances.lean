@@ -144,7 +144,6 @@ rewrite in the same `simp` call repairs it and no tactic goal ever exhibits it. 
 about the stale application, so `simp only [natZero_def, g_stale]` closes the goal.
 -/
 
-set_option backward.elab.instanceTypes false in
 theorem g_stale : @g 0 instXNatZero = 1 := rfl
 
 /--
@@ -197,7 +196,7 @@ statement below carries the stale instance argument from the start.
 -/
 
 /--
-@ +3:2...5
+@ +2:2...5
 warning: The initial tactic goal has an instance argument whose type does not match at `.instances` transparency. `simp` and `rw` unify instance-implicit arguments at that transparency. Lemmas that mention this instance do not apply:
   The instance argument
     instXNatZero
@@ -211,6 +210,5 @@ warning: The initial tactic goal has an instance argument whose type does not ma
 Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
 -/
 #guard_msgs (positions := true) in
-set_option backward.elab.instanceTypes false in
 example : @g 0 instXNatZero = 1 := by
   rfl

@@ -335,7 +335,6 @@ def objects : Cat.{v, u} ⥤ Type u where
   obj C := C
   map F := F.obj
 
-set_option backward.elab.instanceTypes false in
 instance (X : Cat.{v, u}) : Category (objects.obj X) := (inferInstance : Category X)
 
 end Cat

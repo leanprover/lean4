@@ -718,7 +718,6 @@ variable [Semiring k]
 def AddMonoidAlgebra :=
   G →₀ k
 
-set_option backward.elab.instanceTypes false in
 instance AddMonoidAlgebra.addCommMonoid : AddCommMonoid (AddMonoidAlgebra k G) :=
   (inferInstance : AddCommMonoid (G →₀ k))
 
@@ -783,7 +782,6 @@ instance nonAssocSemiring [Semiring k] [AddZeroClass G] : NonAssocSemiring (AddM
     one_mul := sorry
     mul_one := sorry }
 
-set_option backward.elab.instanceTypes false in
 instance smulZeroClass [Semiring k] [SMulZeroClass R k] : SMulZeroClass R (AddMonoidAlgebra k G) :=
   Finsupp.smulZeroClass
 
@@ -803,7 +801,6 @@ instance nonUnitalCommSemiring [CommSemiring k] [AddCommSemigroup G] :
 instance commSemiring [CommSemiring k] [AddCommMonoid G] : CommSemiring (AddMonoidAlgebra k G) :=
   { AddMonoidAlgebra.semiring, AddMonoidAlgebra.nonUnitalCommSemiring with }
 
-set_option backward.elab.instanceTypes false in
 instance addCommGroup [Ring k] : AddCommGroup (AddMonoidAlgebra k G) :=
   Finsupp.addCommGroup
 
@@ -1248,11 +1245,9 @@ def MvPolynomial (σ : Type _) (R : Type _) [CommSemiring R] :=
 
 namespace MvPolynomial
 
-set_option backward.elab.instanceTypes false in
 instance commSemiring [CommSemiring R] : CommSemiring (MvPolynomial σ R) :=
   AddMonoidAlgebra.commSemiring
 
-set_option backward.elab.instanceTypes false in
 instance algebra [CommSemiring R] [CommSemiring S₁] [Algebra R S₁] :
     Algebra R (MvPolynomial σ S₁) :=
   AddMonoidAlgebra.algebra
@@ -1263,7 +1258,6 @@ end Mathlib.Data.MvPolynomial.Basic
 
 section Mathlib.Data.MvPolynomial.CommRing
 
-set_option backward.elab.instanceTypes false in
 instance instCommRingMvPolynomial [CommRing R] : CommRing (MvPolynomial σ R) :=
   AddMonoidAlgebra.commRing
 

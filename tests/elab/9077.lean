@@ -18,7 +18,6 @@ instance inst (α : Type) [q : Q α] : N (H α (p := q.toP) rfl) where
 @[implicit_reducible]
 def Copy (α : Type) := α
 
-set_option backward.elab.instanceTypes false in
 instance pCopy [P E] : P (Copy E) := (inferInstance : P E)
 
 /-!
@@ -61,7 +60,6 @@ instance instG (α : Type) [q : Q α] : M (G α q) where
 #guard_msgs in
 set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
 variable (E : Type) [iQ : Q E] in
-set_option backward.elab.instanceTypes false in
 #synth M (G (Copy E) iQ)
 
 /--
@@ -73,7 +71,6 @@ Hint: Additional diagnostic information may be available using the `set_option d
 #guard_msgs in
 set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
 variable (E : Type) [iQ : Q E] in
-set_option backward.elab.instanceTypes false in
 #synth M (G (Copy E) iQ)
 
 /-!

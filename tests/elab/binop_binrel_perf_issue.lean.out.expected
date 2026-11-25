@@ -27,8 +27,8 @@ binop_binrel_perf_issue.lean:613:9-613:37: warning: declaration uses `sorry`
 binop_binrel_perf_issue.lean:617:9-617:17: warning: declaration uses `sorry`
 binop_binrel_perf_issue.lean:617:9-617:17: warning: declaration uses `sorry`
 binop_binrel_perf_issue.lean:668:4-668:12: warning: declaration uses `sorry`
-binop_binrel_perf_issue.lean:840:9-840:17: warning: declaration uses `sorry`
-binop_binrel_perf_issue.lean:854:0-854:8: warning: declaration uses `sorry`
-binop_binrel_perf_issue.lean:856:23-856:32: warning: declaration uses `sorry`
-binop_binrel_perf_issue.lean:875:18-875:37: warning: declaration uses `sorry`
-binop_binrel_perf_issue.lean:916:9-916:16: warning: declaration uses `sorry`
+binop_binrel_perf_issue.lean:839:9-839:17: warning: declaration uses `sorry`
+binop_binrel_perf_issue.lean:853:0-853:8: warning: declaration uses `sorry`
+binop_binrel_perf_issue.lean:855:23-855:32: warning: declaration uses `sorry`
+binop_binrel_perf_issue.lean:874:18-874:37: warning: declaration uses `sorry`
+binop_binrel_perf_issue.lean:914:9-914:16: warning: declaration uses `sorry`

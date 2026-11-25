@@ -26,7 +26,6 @@ def Meta.collectPrivateIn [Monad m] [MonadEnv m] [MonadError m]
 def Environment.moduleIdxForModule? (env : Environment) (mod : Name) : Option ModuleIdx :=
   env.allImportedModuleNames.idxOf? mod
 
-set_option backward.elab.instanceTypes false in
 instance : DecidableEq ModuleIdx := instDecidableEqNat
 
 /-- Get the list of declarations in a module (referenced by index). -/

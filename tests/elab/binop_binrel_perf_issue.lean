@@ -802,7 +802,6 @@ variable {G : Type u} [AddGroup G] (N : AddSubgroup G) {M : Type x} [AddMonoid M
 protected def con : AddCon G where
   toSetoid := leftRel N
 
-set_option backward.elab.instanceTypes false in
 instance Quotient.addGroup : AddGroup (G ⧸ N) :=
   (QuotientAddGroup.con N).addGroup
 
@@ -905,7 +904,6 @@ namespace Quotient
 def mk {p : Submodule R M} : M → M ⧸ p :=
   Quotient.mk''
 
-set_option backward.elab.instanceTypes false in
 instance addCommGroup : AddCommGroup (M ⧸ p) :=
   QuotientAddGroup.Quotient.addCommGroup p.toAddSubgroup
 

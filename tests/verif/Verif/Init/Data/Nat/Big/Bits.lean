@@ -10,7 +10,7 @@ public import Verif.Init.Data.Nat.Big.Newton
 
 namespace Nat.Big
 
-public theorem Mag.n_mul_32_lt (a : Mag) : a.n * 32 < USize.size := by
+public theorem BigNat.n_mul_32_lt (a : BigNat) : a.n * 32 < USize.size := by
   have := maxBytes_lt; have := a.n_le; omega
 
 public theorem shl5_toNat (i : USize) (h : i.toNat * 32 < USize.size) : (i <<< 5).toNat = i.toNat * 32 := by
@@ -18,21 +18,21 @@ public theorem shl5_toNat (i : USize) (h : i.toNat * 32 < USize.size) : (i <<< 5
     rcases System.Platform.numBits_eq with e | e <;> simp [e]
   rw [USize.toNat_shiftLeft, e, Nat.shiftLeft_eq, ← USize.size_eq_two_pow, Nat.mod_eq_of_lt (by omega)]
 
-public theorem Mag.val_top (a : Mag) (h : 0 < a.n) :
+public theorem BigNat.val_top (a : BigNat) (h : 0 < a.n) :
     a.val = a.valUpTo (a.n - 1) + a.digit (a.n - 1) * 2 ^ (32 * (a.n - 1)) := by
   have e : a.valUpTo (a.n - 1 + 1) =
-      a.valUpTo (a.n - 1) + a.digit (a.n - 1) * 2 ^ (32 * (a.n - 1)) := by rw [Mag.valUpTo]
+      a.valUpTo (a.n - 1) + a.digit (a.n - 1) * 2 ^ (32 * (a.n - 1)) := by rw [BigNat.valUpTo]
   rw [show a.n - 1 + 1 = a.n by omega] at e
   exact e
 
 /-- `log2` computes `Nat.log2`. -/
-public theorem log2_spec (a : Mag) (ha : a.IsNorm) : (log2 a).toNat = Nat.log2 a.val := by
+public theorem log2_spec (a : BigNat) (ha : a.IsNorm) : (log2 a).toNat = Nat.log2 a.val := by
   unfold log2
   dsimp only
   split
   · next h =>
     have : a.n = 0 := by have := a.usize_toNat; rw [h] at this; simpa using this.symm
-    rw [Mag.val, this]; rfl
+    rw [BigNat.val, this]; rfl
   · next h =>
     have hn : 0 < a.n := by
       have : a.usize.toNat ≠ 0 := fun h' => h (USize.toNat_inj.mp (by simpa using h'))
@@ -43,7 +43,7 @@ public theorem log2_spec (a : Mag) (ha : a.IsNorm) : (log2 a).toNat = Nat.log2 a
       rcases ha with h' | h'
       · omega
       · exact h'
-    have hg : (a.get (a.usize - 1) (by omega)).toNat = a.digit (a.n - 1) := by rw [Mag.get_toNat, hp]
+    have hg : (a.get (a.usize - 1) (by omega)).toNat = a.digit (a.n - 1) := by rw [BigNat.get_toNat, hp]
     have hL := Nat.lt_log2_self (n := a.digit (a.n - 1))
     have hL1 := Nat.log2_self_le htop
     have hL3 : Nat.log2 (a.digit (a.n - 1)) < 32 := (Nat.log2_lt htop).mpr (a.digit_lt _)
@@ -121,7 +121,7 @@ public theorem ctz32_spec (x : UInt32) (i : USize) (hi) (hx : x ≠ 0) (hlt : x.
     simp [Nat.testBit_zero, hb]
 
 
-public theorem trailingZerosLoop_spec (a : Mag) (hv : a.val ≠ 0) (i : USize) (hi)
+public theorem trailingZerosLoop_spec (a : BigNat) (hv : a.val ≠ 0) (i : USize) (hi)
     (hz : ∀ p, p < i.toNat → a.digit p = 0) :
     a.val.testBit (trailingZerosLoop a i hi).toNat = true ∧
       ∀ j, j < (trailingZerosLoop a i hi).toNat → a.val.testBit j = false := by
@@ -135,13 +135,13 @@ public theorem trailingZerosLoop_spec (a : Mag) (hv : a.val ≠ 0) (i : USize) (
     · exact hz p h'
     · have : p = i.toNat := by omega
       subst this
-      rw [← Mag.get_toNat a i hi']
+      rw [← BigNat.get_toNat a i hi']
       have : x = 0 := by simpa using hx
       simp [x] at this
       rw [this]; rfl
   | case2 i hi h hi' x hx =>
     have hx0 : x ≠ 0 := by simpa using hx
-    have hxd : x.toNat = a.digit i.toNat := Mag.get_toNat a i hi'
+    have hxd : x.toNat = a.digit i.toNat := BigNat.get_toNat a i hi'
     obtain ⟨-, r2, r3, r4⟩ := ctz32_spec x 0 (by simp) hx0 (by simpa using x.toNat_lt)
     simp only [USize.toNat_zero, Nat.sub_zero] at r3 r4
     have hr : ((i <<< 5) + ctz32 x 0 (by simp)).toNat = i.toNat * 32 + (ctz32 x 0 (by simp)).toNat := by
@@ -149,10 +149,10 @@ public theorem trailingZerosLoop_spec (a : Mag) (hv : a.val ≠ 0) (i : USize) (
     rw [hr]
     generalize (ctz32 x 0 _).toNat = r at r2 r3 r4 ⊢
     refine ⟨?_, fun j hj => ?_⟩
-    · rw [Mag.testBit_val, show (i.toNat * 32 + r) / 32 = i.toNat by omega,
+    · rw [BigNat.testBit_val, show (i.toNat * 32 + r) / 32 = i.toNat by omega,
         show (i.toNat * 32 + r) % 32 = r by omega, ← hxd]
       exact r3
-    · rw [Mag.testBit_val]
+    · rw [BigNat.testBit_val]
       rcases Nat.lt_or_ge (j / 32) i.toNat with h' | h'
       · rw [hz _ h']; exact Nat.zero_testBit _
       · rw [show j / 32 = i.toNat by omega, ← hxd]
@@ -162,12 +162,12 @@ public theorem trailingZerosLoop_spec (a : Mag) (hv : a.val ≠ 0) (i : USize) (
     have hle := not_lt_toNat h
     rw [a.usize_toNat] at hle
     apply hv
-    rw [Mag.val, Mag.valUpTo_eq_of_zero a 0 a.n (Nat.zero_le _) (fun p _ hp => hz p (by omega))]
+    rw [BigNat.val, BigNat.valUpTo_eq_of_zero a 0 a.n (Nat.zero_le _) (fun p _ hp => hz p (by omega))]
     rfl
 
 
 /-- `trailingZeros` is the index of the lowest set bit. -/
-public theorem trailingZeros_spec (a : Mag) (hv : a.val ≠ 0) :
+public theorem trailingZeros_spec (a : BigNat) (hv : a.val ≠ 0) :
     a.val.testBit (trailingZeros a).toNat = true ∧
       ∀ j, j < (trailingZeros a).toNat → a.val.testBit j = false :=
   trailingZerosLoop_spec a hv 0 _ (fun p hp => by simp at hp)
@@ -177,7 +177,7 @@ public theorem low64_word (x y : UInt32) :
   UInt64.or_comm _ _
 
 /-- `low64` is the value modulo `2^64`. -/
-public theorem low64_spec (a : Mag) : (low64 a).toNat = a.val % 2 ^ 64 := by
+public theorem low64_spec (a : BigNat) : (low64 a).toNat = a.val % 2 ^ 64 := by
   unfold low64
   rw [low64_word, toNat_window, getOr0_toNat, getOr0_toNat, USize.toNat_zero, USize.toNat_one,
     ← a.val_div_mod 0, ← a.val_div_mod 1, show (2 : Nat) ^ 64 = 2 ^ 32 * 2 ^ 32 by rw [← Nat.pow_add],

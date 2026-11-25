@@ -32,7 +32,7 @@ public theorem and1_iff (e : USize) : (e &&& 1 == 1) = true ↔ e.toNat % 2 = 1 
     apply USize.toNat_inj.mp
     rw [h2, e1, h]
 
-public theorem powAcc_spec (base acc : Mag) (e : USize) (hb : base.IsNorm) (hacc : acc.IsNorm)
+public theorem powAcc_spec (base acc : BigNat) (e : USize) (hb : base.IsNorm) (hacc : acc.IsNorm)
     (_he0 : e.toNat ≠ 0) (hfit : (acc.n + base.n * e.toNat + 1) * 4 ≤ maxBytes) :
     (if (e &&& 1 == 1) = true then mul acc base else acc).val = acc.val * base.val ^ (e.toNat % 2) ∧
       (if (e &&& 1 == 1) = true then mul acc base else acc).IsNorm ∧
@@ -50,7 +50,7 @@ public theorem powAcc_spec (base acc : Mag) (e : USize) (hb : base.IsNorm) (hacc
       have := mt (and1_iff e).mpr ho; omega
     rw [ho']; simp [hacc]
 
-public theorem powLoop_spec (base : Mag) (e : USize) (acc : Mag) (hb : base.IsNorm) (hacc : acc.IsNorm)
+public theorem powLoop_spec (base : BigNat) (e : USize) (acc : BigNat) (hb : base.IsNorm) (hacc : acc.IsNorm)
     (hfit : (acc.n + base.n * e.toNat + 1) * 4 ≤ maxBytes) :
     (powLoop base e acc).val = acc.val * base.val ^ e.toNat ∧ (powLoop base e acc).IsNorm := by
   fun_induction powLoop base e acc with
@@ -82,7 +82,7 @@ public theorem powLoop_spec (base : Mag) (e : USize) (acc : Mag) (hb : base.IsNo
       Nat.mod_add_div]
 
 /-- `pow` computes `a ^ e` unless the result could exceed `maxBytes`. -/
-public theorem pow_spec (a : Mag) (e : USize) (ha : a.IsNorm) (hfit : (a.n * e.toNat + 2) * 4 ≤ maxBytes) :
+public theorem pow_spec (a : BigNat) (e : USize) (ha : a.IsNorm) (hfit : (a.n * e.toNat + 2) * 4 ≤ maxBytes) :
     (pow a e).val = a.val ^ e.toNat ∧ (pow a e).IsNorm := by
   obtain ⟨v1, n1⟩ := val_one
   have s1 : (ofUInt64 1).n ≤ 1 := (ofUInt64 1).n_le_of_val_lt n1 1 (by rw [v1]; decide)
@@ -101,7 +101,7 @@ public theorem two_mul_mod_lt (x y : Nat) (hy : 0 < y) (hyx : y ≤ x) : 2 * (x 
     omega
   · omega
 
-public theorem gcdLoop_spec (k : Nat) : ∀ (fuel : Nat) (a b : Mag), a.IsNorm → b.IsNorm →
+public theorem gcdLoop_spec (k : Nat) : ∀ (fuel : Nat) (a b : BigNat), a.IsNorm → b.IsNorm →
     (max a.n b.n + 3) * 4 ≤ maxBytes → b.val ≤ a.val → b.val < 2 ^ k → 2 * k + 1 ≤ fuel →
     (gcdLoop fuel a b).val = Nat.gcd a.val b.val ∧ (gcdLoop fuel a b).IsNorm := by
   induction k with
@@ -122,7 +122,7 @@ public theorem gcdLoop_spec (k : Nat) : ∀ (fuel : Nat) (a b : Mag), a.IsNorm �
     · next h =>
       have : b.n = 0 := by
         have := b.usize_toNat; rw [beq_iff_eq.mp h] at this; simpa using this.symm
-      have hv : b.val = 0 := by rw [Mag.val, this]; rfl
+      have hv : b.val = 0 := by rw [BigNat.val, this]; rfl
       exact ⟨by rw [hv, Nat.gcd_zero_right], ha⟩
     · next h =>
       have hbn : 0 < b.n := by
@@ -144,7 +144,7 @@ public theorem gcdLoop_spec (k : Nat) : ∀ (fuel : Nat) (a b : Mag), a.IsNorm �
       · next h' =>
         have : (divMod a b).2.n = 0 := by
           have := (divMod a b).2.usize_toNat; rw [beq_iff_eq.mp h'] at this; simpa using this.symm
-        have hv : (divMod a b).2.val = 0 := by rw [Mag.val, this]; rfl
+        have hv : (divMod a b).2.val = 0 := by rw [BigNat.val, this]; rfl
         exact ⟨by rw [hv, Nat.gcd_zero_right], hb⟩
       · next h' =>
         generalize (divMod a b).2 = r at *
@@ -166,7 +166,7 @@ public theorem gcdLoop_spec (k : Nat) : ∀ (fuel : Nat) (a b : Mag), a.IsNorm �
           (by rw [Nat.pow_succ] at hlt; omega) (by omega)
 
 /-- `gcd` computes `Nat.gcd`. -/
-public theorem gcd_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
+public theorem gcd_spec (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm)
     (hfit : (max a.n b.n + 3) * 4 ≤ maxBytes) :
     (gcd a b).val = Nat.gcd a.val b.val ∧ (gcd a b).IsNorm := by
   unfold gcd
@@ -178,7 +178,7 @@ public theorem gcd_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
     · next h =>
       have : b.n = 0 := by
         have := b.usize_toNat; rw [beq_iff_eq.mp h] at this; simpa using this.symm
-      have hv : b.val = 0 := by rw [Mag.val, this]; rfl
+      have hv : b.val = 0 := by rw [BigNat.val, this]; rfl
       exact ⟨by rw [hv, Nat.gcd_zero_right], ha⟩
     · next h =>
       have hbn : 0 < b.n := by
@@ -200,14 +200,14 @@ public theorem gcd_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
 /-! ## Modular powers -/
 
 
-public theorem bit_iff (e : Mag) (i : USize) :
+public theorem bit_iff (e : BigNat) (i : USize) :
     (((getOr0 e (i >>> 5) >>> (i &&& 31).toUInt32) &&& 1) == 1) = true ↔ e.val.testBit i.toNat := by
   have h1 : ((getOr0 e (i >>> 5) >>> (i &&& 31).toUInt32) &&& 1).toNat =
       e.digit (i.toNat / 32) / 2 ^ (i.toNat % 32) % 2 := by
     rw [UInt32.toNat_and, UInt32.toNat_shiftRight, getOr0_toNat, shiftRight5_toNat, and31_toNat,
       show (i.toNat % 32) % 32 = i.toNat % 32 by omega, Nat.shiftRight_eq_div_pow]
     rw [UInt32.toNat_one, Nat.and_one_is_mod]
-  rw [Mag.testBit_val, Nat.testBit_eq_decide_div_mod_eq]
+  rw [BigNat.testBit_val, Nat.testBit_eq_decide_div_mod_eq]
   constructor
   · intro h
     have := congrArg UInt32.toNat (beq_iff_eq.mp h)
@@ -217,7 +217,7 @@ public theorem bit_iff (e : Mag) (i : USize) :
     rw [h1]; simpa using h
 
 
-public theorem mulMod_spec (x y m : Mag) (hx : x.IsNorm) (hy : y.IsNorm) (hm : m.IsNorm)
+public theorem mulMod_spec (x y m : BigNat) (hx : x.IsNorm) (hy : y.IsNorm) (hm : m.IsNorm)
     (hxl : x.val < m.val) (hyl : y.val < m.val) (hfit : (2 * m.n + 3) * 4 ≤ maxBytes) :
     (divMod (mul x y) m).2.val = x.val * y.val % m.val ∧ (divMod (mul x y) m).2.IsNorm ∧
       (divMod (mul x y) m).2.val < m.val := by
@@ -229,9 +229,9 @@ public theorem mulMod_spec (x y m : Mag) (hx : x.IsNorm) (hy : y.IsNorm) (hm : m
   obtain ⟨-, vr, -, nr⟩ := divMod_spec (mul x y) m np hm (by omega)
   exact ⟨by rw [vr, vp], nr, by rw [vr]; exact Nat.mod_lt _ hmpos⟩
 
-public theorem powModLoop_spec (e m : Mag) (hm : m.IsNorm) (hm1 : 1 < m.val) (A : Nat)
+public theorem powModLoop_spec (e m : BigNat) (hm : m.IsNorm) (hm1 : 1 < m.val) (A : Nat)
     (hfit : (2 * m.n + 3) * 4 ≤ maxBytes) (nbits : USize) (hnb : e.val < 2 ^ nbits.toNat)
-    (i : USize) (base acc : Mag) (hb : base.IsNorm) (hacc : acc.IsNorm) (hi : i.toNat ≤ nbits.toNat)
+    (i : USize) (base acc : BigNat) (hb : base.IsNorm) (hacc : acc.IsNorm) (hi : i.toNat ≤ nbits.toNat)
     (hbase : i.toNat < nbits.toNat → base.val = A ^ (2 ^ i.toNat) % m.val)
     (hbl : base.val < m.val) (hav : acc.val = A ^ (e.val % 2 ^ i.toNat) % m.val) :
     (powModLoop e m nbits i base acc).val = A ^ e.val % m.val ∧
@@ -283,7 +283,7 @@ public theorem powModLoop_spec (e m : Mag) (hm : m.IsNorm) (hm1 : 1 < m.val) (A 
     exact ⟨rfl, hacc⟩
 
 /-- `powMod` computes `a ^ e % m` for `m > 1`. -/
-public theorem powMod_spec (a e m : Mag) (ha : a.IsNorm) (he : e.IsNorm) (hm : m.IsNorm) (hm1 : 1 < m.val)
+public theorem powMod_spec (a e m : BigNat) (ha : a.IsNorm) (he : e.IsNorm) (hm : m.IsNorm) (hm1 : 1 < m.val)
     (hfit : (max a.n (2 * m.n) + 3) * 4 ≤ maxBytes) :
     (powMod a e m).val = a.val ^ e.val % m.val ∧ (powMod a e m).IsNorm := by
   obtain ⟨v1, n1⟩ := val_one
@@ -293,7 +293,7 @@ public theorem powMod_spec (a e m : Mag) (ha : a.IsNorm) (he : e.IsNorm) (hm : m
   · next h =>
     have : e.n = 0 := by
       have := e.usize_toNat; rw [beq_iff_eq.mp h] at this; simpa using this.symm
-    have hv : e.val = 0 := by rw [Mag.val, this]; rfl
+    have hv : e.val = 0 := by rw [BigNat.val, this]; rfl
     exact ⟨by rw [v1, hv, Nat.pow_zero, Nat.mod_eq_of_lt hm1], n1⟩
   · next h =>
     have hen : 0 < e.n := by

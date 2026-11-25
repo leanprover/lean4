@@ -123,9 +123,9 @@ public theorem ofDecimal_spec (s : String) (hfit : (s.toUTF8.size + 2) * 4 ≤ m
     (ofDecimal s).val = decVal s.toUTF8 s.toUTF8.size ∧ (ofDecimal s).IsNorm := by
   unfold ofDecimal
   dsimp only
-  obtain ⟨hv, hn, hc, ha⟩ := ofDecimalLoop_spec s.toUTF8 hfit 0 ⟨Mag.empty, 0, 0⟩ (Nat.zero_le _)
-    ⟨by simp [decVal], by simp, by simp, Mag.isNorm_empty⟩
-  generalize ofDecimalLoop s.toUTF8 0 ⟨Mag.empty, 0, 0⟩ = st at hv hn hc ha ⊢
+  obtain ⟨hv, hn, hc, ha⟩ := ofDecimalLoop_spec s.toUTF8 hfit 0 ⟨BigNat.empty, 0, 0⟩ (Nat.zero_le _)
+    ⟨by simp [decVal], by simp, by simp, BigNat.isNorm_empty⟩
+  generalize ofDecimalLoop s.toUTF8 0 ⟨BigNat.empty, 0, 0⟩ = st at hv hn hc ha ⊢
   have hacc : st.acc.val ≤ decVal s.toUTF8 s.toUTF8.size := by
     rw [← hv]; exact Nat.le_trans (Nat.le_mul_of_pos_right _ (Nat.pow_pos (by omega)))
       (Nat.le_add_right _ _)
@@ -160,7 +160,7 @@ public theorem back!_eq_getLast {α} [Inhabited α] (arr : Array α) (h : arr.to
 termination_by n
 decreasing_by exact Nat.div_lt_self (by omega) (by decide)
 
-public theorem chunksLoop_spec (j : Nat) : ∀ (fuel : Nat) (a : Mag) (acc : Array UInt32), a.IsNorm →
+public theorem chunksLoop_spec (j : Nat) : ∀ (fuel : Nat) (a : BigNat) (acc : Array UInt32), a.IsNorm →
     a.val < 2 ^ (29 * j) → j ≤ fuel → (chunksLoop fuel a acc).toList = acc.toList ++ chunkList a.val := by
   induction j with
   | zero =>
@@ -181,7 +181,7 @@ public theorem chunksLoop_spec (j : Nat) : ∀ (fuel : Nat) (a : Mag) (acc : Arr
     split
     · next h =>
       have : a.n = 0 := by have := a.usize_toNat; rw [beq_iff_eq.mp h] at this; simpa using this.symm
-      have hv : a.val = 0 := by rw [Mag.val, this]; rfl
+      have hv : a.val = 0 := by rw [BigNat.val, this]; rfl
       rw [hv, chunkList]; simp
     · next h =>
       have hn : 0 < a.n := by
@@ -331,7 +331,7 @@ public theorem foldr_string (L : List UInt32) (hL : ∀ c ∈ L, c.toNat < 10 ^ 
       padDigits_chunk c (hL c (by simp)), ih (fun d hd => hL d (by simp [hd]))]
 
 /-- `toDecimal` produces the decimal representation, as `toString` does on `Nat`. -/
-public theorem toDecimal_spec (a : Mag) (ha : a.IsNorm) : (toDecimal a).toList = Nat.toDigits 10 a.val := by
+public theorem toDecimal_spec (a : BigNat) (ha : a.IsNorm) : (toDecimal a).toList = Nat.toDigits 10 a.val := by
   unfold toDecimal
   have hc := chunksLoop_spec (2 * a.n) (2 * a.n) a #[] ha
     (Nat.lt_of_lt_of_le a.val_lt (Nat.pow_le_pow_right (by decide) (by omega))) (Nat.le_refl _)

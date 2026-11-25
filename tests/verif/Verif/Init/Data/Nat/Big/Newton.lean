@@ -21,14 +21,14 @@ public theorem div_mod_of_eq {a b Q R : Nat} (hb : 0 < b) (h : a = Q * b + R) (h
   · rw [Nat.add_comm, Nat.add_mul_div_right _ _ hb, Nat.div_eq_of_lt hR, Nat.zero_add]
   · rw [Nat.add_comm, Nat.add_mul_mod_self_right, Nat.mod_eq_of_lt hR]
 
-public theorem cmp_gt_iff (x y : Mag) (hx : x.IsNorm) (hy : y.IsNorm) :
+public theorem cmp_gt_iff (x y : BigNat) (hx : x.IsNorm) (hy : y.IsNorm) :
     (cmp x y == .gt) = true ↔ y.val < x.val := by
   rw [cmp_spec x y hx hy]
   constructor
   · intro h; exact Nat.compare_eq_gt.mp (by simpa using h)
   · intro h; simp [Nat.compare_eq_gt.mpr h]
 
-public theorem cmp_ne_lt_iff (x y : Mag) (hx : x.IsNorm) (hy : y.IsNorm) :
+public theorem cmp_ne_lt_iff (x y : BigNat) (hx : x.IsNorm) (hy : y.IsNorm) :
     (cmp x y != .lt) = true ↔ y.val ≤ x.val := by
   rw [cmp_spec x y hx hy]
   constructor
@@ -39,8 +39,8 @@ public theorem cmp_ne_lt_iff (x y : Mag) (hx : x.IsNorm) (hy : y.IsNorm) :
     have : compare x.val y.val ≠ .lt := fun h' => Nat.not_lt.mpr h (Nat.compare_eq_lt.mp h')
     simpa using this
 
-public theorem newtonDown_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (hfit : (a.n + 1) * 4 ≤ maxBytes)
-    (hbpos : 0 < b.val) (fuel : Nat) (q qb : Mag) (hq : q.IsNorm) (hqb : qb.IsNorm)
+public theorem newtonDown_spec (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm) (hfit : (a.n + 1) * 4 ≤ maxBytes)
+    (hbpos : 0 < b.val) (fuel : Nat) (q qb : BigNat) (hq : q.IsNorm) (hqb : qb.IsNorm)
     (hinv : qb.val = q.val * b.val) (hgt : a.val < qb.val) :
     (newtonDown a b fuel q qb).1.val = a.val / b.val ∧
       (newtonDown a b fuel q qb).2.val = a.val % b.val ∧
@@ -71,8 +71,8 @@ public theorem newtonDown_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (hfit
       (R := a.val - qb'.val) hbpos (by omega) (by omega)
     exact ⟨by rw [vq', hd], by rw [vr, hm], nq', nr⟩
 
-public theorem newtonUp_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (hfit : (a.n + 3) * 4 ≤ maxBytes)
-    (hbpos : 0 < b.val) (fuel : Nat) (q r : Mag) (hq : q.IsNorm) (hr : r.IsNorm)
+public theorem newtonUp_spec (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm) (hfit : (a.n + 3) * 4 ≤ maxBytes)
+    (hbpos : 0 < b.val) (fuel : Nat) (q r : BigNat) (hq : q.IsNorm) (hr : r.IsNorm)
     (hinv : q.val * b.val + r.val = a.val) :
     (newtonUp a b fuel q r).1.val = a.val / b.val ∧ (newtonUp a b fuel q r).2.val = a.val % b.val ∧
       (newtonUp a b fuel q r).1.IsNorm ∧ (newtonUp a b fuel q r).2.IsNorm := by
@@ -96,7 +96,7 @@ public theorem newtonUp_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (hfit :
     obtain ⟨hd, hm⟩ := div_mod_of_eq hbpos hinv.symm hlt
     exact ⟨hd.symm, hm.symm, hq, hr⟩
 
-public theorem newtonFinish_spec (a b q : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (hq : q.IsNorm)
+public theorem newtonFinish_spec (a b q : BigNat) (ha : a.IsNorm) (hb : b.IsNorm) (hq : q.IsNorm)
     (hfit : (a.n + 3) * 4 ≤ maxBytes) (hbpos : 0 < b.val) :
     (newtonFinish a b q).1.val = a.val / b.val ∧ (newtonFinish a b q).2.val = a.val % b.val ∧
       (newtonFinish a b q).1.IsNorm ∧ (newtonFinish a b q).2.IsNorm := by
@@ -116,20 +116,20 @@ public theorem newtonFinish_spec (a b q : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (
       exact newtonUp_spec a b ha hb hfit hbpos 64 q _ hq nr (by rw [vr, ← vqb]; omega)
   · exact divModBasecase_spec a b ha hb (by omega)
 
-public theorem divModNewton_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
+public theorem divModNewton_spec (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm)
     (hfit : (a.n + 3) * 4 ≤ maxBytes) (hbpos : 0 < b.val) :
     (divModNewton a b).1.val = a.val / b.val ∧ (divModNewton a b).2.val = a.val % b.val ∧
       (divModNewton a b).1.IsNorm ∧ (divModNewton a b).2.IsNorm := by
   unfold divModNewton
   exact newtonFinish_spec a b _ ha hb (val_shiftRight _ _).2 hfit hbpos
 
-public theorem bitLen_eq_zero (b : Mag) (h : b.n = 0) : bitLen b = 0 := by
+public theorem bitLen_eq_zero (b : BigNat) (h : b.n = 0) : bitLen b = 0 := by
   have : b.usize = 0 := USize.toNat_inj.mp (by rw [b.usize_toNat, h]; rfl)
   unfold bitLen
   simp [this]
 
 /-- `divMod` computes quotient and remainder (with `a / 0 = 0` and `a % 0 = a`). -/
-public theorem divMod_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (hfit : (a.n + 3) * 4 ≤ maxBytes) :
+public theorem divMod_spec (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm) (hfit : (a.n + 3) * 4 ≤ maxBytes) :
     (divMod a b).1.val = a.val / b.val ∧ (divMod a b).2.val = a.val % b.val ∧
       (divMod a b).1.IsNorm ∧ (divMod a b).2.IsNorm := by
   unfold divMod

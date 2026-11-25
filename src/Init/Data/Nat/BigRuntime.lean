@@ -12,11 +12,11 @@ public import Init.Data.SInt.Basic
 /-!
 # The runtime's big number primitives
 
-A `Nat` larger than `LEAN_MAX_SMALL_NAT` is represented as a `ByteArray` holding its magnitude (see
-`Init.Data.Nat.Big`). A big `Int` uses the same representation, followed by one byte `1` if it is
-negative; a non-negative big `Int` is thus also a valid big `Nat` if it is large enough. As the digit
-count of a magnitude is its byte size divided by four, the sign byte is invisible to the magnitude
-functions.
+A `Nat` larger than `LEAN_MAX_SMALL_NAT` is represented as the `ByteArray` of its `BigNat` (see
+`Init.Data.Nat.Big`). A big `Int` uses the `BigNat` of its magnitude, followed by one byte `1` if it
+is negative; a non-negative big `Int` is thus also a valid big `Nat` if it is large enough. As the
+digit count of a `BigNat` is its byte size divided by four, the sign byte is invisible to the
+`BigNat` functions.
 
 The definitions in this module are exported as `lean_bignum_*` and wrapped by the runtime primitives
 declared in `lean.h`, which borrow their arguments where these functions take ownership. As they are
@@ -51,15 +51,15 @@ open Nat.Big
 @[inline] public def smallIntBound : UInt64 := if is64 then 0x80000000 else 0x40000000
 @[inline] public def uintMax : USize := 0xFFFFFFFF
 
-/-- The magnitude `1`, as a function so that it is not a module-level constant. -/
-@[inline] public def one (_ : Unit) : Mag := ofUInt64 1
+/-- The `BigNat` `1`, as a function so that it is not a module-level constant. -/
+@[inline] public def one (_ : Unit) : BigNat := ofUInt64 1
 
-/-- The magnitude of a `Nat`. -/
-@[inline] public unsafe def mag (n : @& Nat) : Mag :=
+/-- The `BigNat` of a `Nat`. -/
+@[inline] public unsafe def toBigNat (n : @& Nat) : BigNat :=
   if isScalar n then ofUInt64 (unbox n).toUInt64 else unsafeCast n
 
-/-- The `Nat` with the normalized magnitude `m`. -/
-@[inline] public unsafe def ofMag (m : Mag) : Nat :=
+/-- The `Nat` with the normalized `BigNat` `m`. -/
+@[inline] public unsafe def ofBigNat (m : BigNat) : Nat :=
   if m.usize ≤ 2 then
     let v := low64 m
     if v ≤ maxSmallNat.toUInt64 then box v.toUSize else unsafeCast m
@@ -69,7 +69,7 @@ open Nat.Big
 @[inline] public def isNegBig (b : @& ByteArray) : Bool := b.usize &&& 3 == 1
 
 /-- Whether an `Int` is negative, and its magnitude. -/
-@[inline] public unsafe def intMag (i : @& Int) : Bool × Mag :=
+@[inline] public unsafe def intMag (i : @& Int) : Bool × BigNat :=
   if isScalarInt i then
     let v := scalarToInt64 i
     if v < 0 then (true, ofUInt64 (0 - v.toUInt64)) else (false, ofUInt64 v.toUInt64)
@@ -77,7 +77,7 @@ open Nat.Big
     (isNegBig (unsafeCast i), unsafeCast i)
 
 /-- The `Int` with sign `neg` and the normalized magnitude `m`, which may end in a sign byte. -/
-public unsafe def ofIntMag (neg : Bool) (m : Mag) : Int :=
+public unsafe def ofIntMag (neg : Bool) (m : BigNat) : Int :=
   let n := m.usize
   let v := low64 m
   if n ≤ 2 && (if neg then v ≤ smallIntBound else v < smallIntBound) then
@@ -98,7 +98,7 @@ public unsafe def bigUInt64ToNat (n : UInt64) : Nat :=
 
 /-- Used by `lean_cstr_to_nat`. -/
 @[export lean_bignum_nat_of_decimal]
-public unsafe def natOfDecimal (s : String) : Nat := ofMag (ofDecimal s)
+public unsafe def natOfDecimal (s : String) : Nat := ofBigNat (ofDecimal s)
 
 /-- Used by `lean_cstr_to_int`. -/
 @[export lean_bignum_int_of_decimal]
@@ -106,7 +106,7 @@ public unsafe def intOfDecimal (s : String) : Int :=
   ofIntMag (s.toUTF8.get! 0 == '-'.toUInt8) (ofDecimal s)
 
 @[export lean_bignum_nat_big_to_decimal]
-public unsafe def natToDecimal (n : Nat) : String := toDecimal (mag n)
+public unsafe def natToDecimal (n : Nat) : String := toDecimal (toBigNat n)
 
 @[export lean_bignum_big_size_t_to_int]
 public unsafe def bigSizeTToInt (n : USize) : Int := ofIntMag false (ofUInt64 n.toUInt64)
@@ -121,69 +121,69 @@ public unsafe def bigIntToInt (n : Int32) : Int := bigInt64ToInt n.toInt64
 /-! ## `Nat` arithmetic -/
 
 @[export lean_bignum_nat_big_succ]
-public unsafe def natSucc (a : Nat) : Nat := ofMag (add (mag a) (one ()))
+public unsafe def natSucc (a : Nat) : Nat := ofBigNat (add (toBigNat a) (one ()))
 
 @[export lean_bignum_nat_big_add]
-public unsafe def natAdd (a b : Nat) : Nat := ofMag (add (mag a) (mag b))
+public unsafe def natAdd (a b : Nat) : Nat := ofBigNat (add (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_big_sub]
 public unsafe def natSub (a b : Nat) : Nat :=
-  let ma := mag a
-  let mb := mag b
-  if cmp ma mb == .lt then box 0 else ofMag (sub ma mb)
+  let ma := toBigNat a
+  let mb := toBigNat b
+  if cmp ma mb == .lt then box 0 else ofBigNat (sub ma mb)
 
 @[export lean_bignum_nat_big_mul]
-public unsafe def natMul (a b : Nat) : Nat := ofMag (mul (mag a) (mag b))
+public unsafe def natMul (a b : Nat) : Nat := ofBigNat (mul (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_overflow_mul]
 public unsafe def natOverflowMul (a b : USize) : Nat :=
-  ofMag (mul (ofUInt64 a.toUInt64) (ofUInt64 b.toUInt64))
+  ofBigNat (mul (ofUInt64 a.toUInt64) (ofUInt64 b.toUInt64))
 
 @[inline] public def isZero (n : @& Nat) : Bool := isScalar n && unbox n == 0
 
 @[export lean_bignum_nat_big_div]
 public unsafe def natDiv (a b : Nat) : Nat :=
-  if isZero b then box 0 else ofMag (divMod (mag a) (mag b)).1
+  if isZero b then box 0 else ofBigNat (divMod (toBigNat a) (toBigNat b)).1
 
 @[export lean_bignum_nat_big_div_exact]
 public unsafe def natDivExact (a b : Nat) : Nat := natDiv a b
 
 @[export lean_bignum_nat_big_mod]
 public unsafe def natMod (a b : Nat) : Nat :=
-  if isZero b then a else ofMag (divMod (mag a) (mag b)).2
+  if isZero b then a else ofBigNat (divMod (toBigNat a) (toBigNat b)).2
 
 @[export lean_bignum_nat_big_eq]
-public unsafe def natEq (a b : Nat) : Bool := cmp (mag a) (mag b) == .eq
+public unsafe def natEq (a b : Nat) : Bool := cmp (toBigNat a) (toBigNat b) == .eq
 
 @[export lean_bignum_nat_big_le]
-public unsafe def natLe (a b : Nat) : Bool := cmp (mag a) (mag b) != .gt
+public unsafe def natLe (a b : Nat) : Bool := cmp (toBigNat a) (toBigNat b) != .gt
 
 @[export lean_bignum_nat_big_lt]
-public unsafe def natLt (a b : Nat) : Bool := cmp (mag a) (mag b) == .lt
+public unsafe def natLt (a b : Nat) : Bool := cmp (toBigNat a) (toBigNat b) == .lt
 
 @[export lean_bignum_nat_big_land]
-public unsafe def natLand (a b : Nat) : Nat := ofMag (land (mag a) (mag b))
+public unsafe def natLand (a b : Nat) : Nat := ofBigNat (land (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_big_lor]
-public unsafe def natLor (a b : Nat) : Nat := ofMag (lor (mag a) (mag b))
+public unsafe def natLor (a b : Nat) : Nat := ofBigNat (lor (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_big_xor]
-public unsafe def natXor (a b : Nat) : Nat := ofMag (xor (mag a) (mag b))
+public unsafe def natXor (a b : Nat) : Nat := ofBigNat (xor (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_big_shiftl]
 public unsafe def natShiftLeft (a b : Nat) : Nat :=
   if isZero a then box 0
   else if !isScalar b || unbox b > uintMax then internalPanic "Nat.shiftl exponent is too big"
-  else ofMag (shiftLeft (mag a) (unbox b))
+  else ofBigNat (shiftLeft (toBigNat a) (unbox b))
 
 @[export lean_bignum_nat_big_shiftr]
 public unsafe def natShiftRight (a b : Nat) : Nat :=
   if !isScalar b then box 0 else
     let s := unbox b
-    let ma := mag a
+    let ma := toBigNat a
     if s > uintMax then
       if ma.usize != 0 && log2 ma ≥ s then internalPanic "Nat.shiftr exponent is too big" else box 0
-    else ofMag (shiftRight ma s)
+    else ofBigNat (shiftRight ma s)
 
 @[export lean_bignum_nat_pow]
 public unsafe def natPow (a b : Nat) : Nat :=
@@ -191,45 +191,45 @@ public unsafe def natPow (a b : Nat) : Nat :=
     -- The result would exhaust memory for any base `≥ 2`.
     if isScalar a && unbox a ≤ 1 then a else internalPanic "Nat.pow exponent is too big"
   else
-    let ma := mag a
+    let ma := toBigNat a
     let e := unbox b
     if ma.usize != 0 && trailingZeros ma == log2 ma then
       -- a power of two: shift instead of repeated squaring
       let k := log2 ma
       if k != 0 && e > ((0 : USize) - 1) / k then internalPanic "Nat.pow exponent is too big"
-      else ofMag (shiftLeft (one ()) (k * e))
-    else ofMag (pow ma e)
+      else ofBigNat (shiftLeft (one ()) (k * e))
+    else ofBigNat (pow ma e)
 
 @[export lean_bignum_nat_powmod]
 public unsafe def natPowMod (b e m : Nat) : Nat :=
   if isZero m then natPow b e
   else if isScalar m && unbox m == 1 then box 0
-  else ofMag (powMod (mag b) (mag e) (mag m))
+  else ofBigNat (powMod (toBigNat b) (toBigNat e) (toBigNat m))
 
 public unsafe def gcdUSize (a b : USize) : USize := if b == 0 then a else gcdUSize b (a % b)
 
 @[export lean_bignum_nat_gcd]
 public unsafe def natGcd (a b : Nat) : Nat :=
   if isScalar a && isScalar b then box (gcdUSize (unbox a) (unbox b))
-  else ofMag (gcd (mag a) (mag b))
+  else ofBigNat (gcd (toBigNat a) (toBigNat b))
 
 public def log2USize (n : USize) : USize := (n.toUInt64.log2).toUSize
 
 @[export lean_bignum_nat_log2]
 public unsafe def natLog2 (a : Nat) : Nat :=
-  if isScalar a then box (log2USize (unbox a)) else box (log2 (mag a))
+  if isScalar a then box (log2USize (unbox a)) else box (log2 (toBigNat a))
 
 /-- The size of `a`'s representation in bytes; used for the kernel's size limits. -/
 @[export lean_bignum_nat_size_in_bytes]
 public unsafe def natSizeInBytes (a : Nat) : USize :=
-  if isScalar a then (if is64 then 8 else 4) else (mag a).bytes.usize
+  if isScalar a then (if is64 then 8 else 4) else (toBigNat a).bytes.usize
 
 @[inline] public unsafe def trailingZerosUSize (n : USize) : USize :=
   if n == 0 then 0 else trailingZeros (ofUInt64 n.toUInt64)
 
 @[export lean_bignum_nat_trailing_zeros]
 public unsafe def natTrailingZeros (a : Nat) : Nat :=
-  if isScalar a then box (trailingZerosUSize (unbox a)) else box (trailingZeros (mag a))
+  if isScalar a then box (trailingZerosUSize (unbox a)) else box (trailingZeros (toBigNat a))
 
 @[export lean_bignum_int_trailing_zeros]
 public unsafe def intTrailingZeros (a : Int) : Nat :=
@@ -240,14 +240,14 @@ public unsafe def intTrailingZeros (a : Int) : Nat :=
 /-! ## `Int` arithmetic -/
 
 @[export lean_bignum_big_int_to_nat]
-public unsafe def bigIntToNat (a : Int) : Nat := ofMag (unsafeCast a)
+public unsafe def bigIntToNat (a : Int) : Nat := ofBigNat (unsafeCast a)
 
 @[export lean_bignum_int_big_neg]
 public unsafe def intNeg (a : Int) : Int :=
   let (n, m) := intMag a
   ofIntMag (!n) m
 
-@[inline] public unsafe def signedAdd (na : Bool) (ma : Mag) (nb : Bool) (mb : Mag) : Int :=
+@[inline] public unsafe def signedAdd (na : Bool) (ma : BigNat) (nb : Bool) (mb : BigNat) : Int :=
   if na == nb then ofIntMag na (add ma mb)
   else if cmp ma mb == .lt then ofIntMag nb (sub mb ma)
   else ofIntMag na (sub ma mb)
@@ -330,19 +330,19 @@ public unsafe def intNonneg (a : Int) : Bool := !(intMag a).1
 /-! ## Conversions to fixed-width integers (modulo the width) -/
 
 @[export lean_bignum_uint8_of_big_nat]
-public unsafe def uint8OfBigNat (a : Nat) : UInt8 := (low64 (mag a)).toUInt8
+public unsafe def uint8OfBigNat (a : Nat) : UInt8 := (low64 (toBigNat a)).toUInt8
 
 @[export lean_bignum_uint16_of_big_nat]
-public unsafe def uint16OfBigNat (a : Nat) : UInt16 := (low64 (mag a)).toUInt16
+public unsafe def uint16OfBigNat (a : Nat) : UInt16 := (low64 (toBigNat a)).toUInt16
 
 @[export lean_bignum_uint32_of_big_nat]
-public unsafe def uint32OfBigNat (a : Nat) : UInt32 := (low64 (mag a)).toUInt32
+public unsafe def uint32OfBigNat (a : Nat) : UInt32 := (low64 (toBigNat a)).toUInt32
 
 @[export lean_bignum_uint64_of_big_nat]
-public unsafe def uint64OfBigNat (a : Nat) : UInt64 := low64 (mag a)
+public unsafe def uint64OfBigNat (a : Nat) : UInt64 := low64 (toBigNat a)
 
 @[export lean_bignum_usize_of_big_nat]
-public unsafe def usizeOfBigNat (a : Nat) : USize := (low64 (mag a)).toUSize
+public unsafe def usizeOfBigNat (a : Nat) : USize := (low64 (toBigNat a)).toUSize
 
 /-- The two's complement bits of `a` modulo `2^64`. -/
 @[inline] public unsafe def low64Int (a : @& Int) : UInt64 :=

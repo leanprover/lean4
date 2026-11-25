@@ -13,13 +13,13 @@ namespace Nat.Big
 
 /-! ## Digit loops -/
 
-public theorem mul1Loop_spec (q : UInt64) (hq : q.toNat < 2 ^ 32) (v : Mag) (n : USize) (hn) (i : USize)
-    (k : UInt64) (ms : Mag) (hms hi) (hk : k.toNat < 2 ^ 32)
+public theorem mul1Loop_spec (q : UInt64) (hq : q.toNat < 2 ^ 32) (v : BigNat) (n : USize) (hn) (i : USize)
+    (k : UInt64) (ms : BigNat) (hms hi) (hk : k.toNat < 2 ^ 32)
     (hinv : ms.valUpTo i.toNat + k.toNat * 2 ^ (32 * i.toNat) = q.toNat * v.valUpTo i.toNat) :
     (mul1Loop q v n hn i k ms hms hi).valUpTo (n.toNat + 1) = q.toNat * v.valUpTo n.toNat := by
   fun_induction mul1Loop q v n hn i k ms hms hi with
   | case1 i k ms hms hi h hi' t ih =>
-    have hg : (v.get i (by omega)).toNat = v.digit i.toNat := Mag.get_toNat _ _ _
+    have hg : (v.get i (by omega)).toNat = v.digit i.toNat := BigNat.get_toNat _ _ _
     have hx := v.digit_lt i.toNat
     have hb := mul_step _ _ 0 _ hq hx (by omega) hk
     have ht : t.toNat = q.toNat * v.digit i.toNat + k.toNat := by
@@ -29,7 +29,7 @@ public theorem mul1Loop_spec (q : UInt64) (hq : q.toNat < 2 ^ 32) (v : Mag) (n :
       simp [UInt64.toNat_shiftRight, Nat.shiftRight_eq_div_pow]
     have hst : t.toUInt32.toNat = t.toNat % 2 ^ 32 := by simp
     apply ih (by rw [hcarry]; omega)
-    rw [toNat_succ_of_lt h, Mag.valUpTo_set_succ, hst, hcarry, Mag.valUpTo,
+    rw [toNat_succ_of_lt h, BigNat.valUpTo_set_succ, hst, hcarry, BigNat.valUpTo,
       show 32 * (i.toNat + 1) = 32 * i.toNat + 32 by omega, Nat.pow_add]
     have hdm := Nat.div_add_mod t.toNat (2 ^ 32)
     rw [ht] at hdm ⊢
@@ -38,9 +38,9 @@ public theorem mul1Loop_spec (q : UInt64) (hq : q.toNat < 2 ^ 32) (v : Mag) (n :
   | case2 i k ms hms hi h =>
     have hle := not_lt_toNat h
     have hk32 : k.toUInt32.toNat = k.toNat := by simp; omega
-    rw [Mag.valUpTo_set_succ, hk32, show n.toNat = i.toNat by omega, hinv]
+    rw [BigNat.valUpTo_set_succ, hk32, show n.toNat = i.toNat by omega, hinv]
 
-public theorem subInPlace_spec (b : Mag) (len off : USize) (hb) (i : USize) (k : UInt64) (u : Mag) (hu hi)
+public theorem subInPlace_spec (b : BigNat) (len off : USize) (hb) (i : USize) (k : UInt64) (u : BigNat) (hu hi)
     (hk : k.toNat < 2) (Z₀ : Nat)
     (hinv : u.valUpTo (off.toNat + len.toNat) + b.valUpTo i.toNat * 2 ^ (32 * off.toNat) =
       Z₀ + k.toNat * 2 ^ (32 * (off.toNat + i.toNat))) :
@@ -51,14 +51,14 @@ public theorem subInPlace_spec (b : Mag) (len off : USize) (hb) (i : USize) (k :
   fun_induction subInPlace b len off hb i k u hu hi with
   | case1 i k u hu hi h hi' hoi t ih =>
     have hga : (u.get (off + i) (by omega)).toNat = u.digit (off.toNat + i.toNat) := by
-      rw [Mag.get_toNat, hoi]
-    have hgb : (b.get i (by omega)).toNat = b.digit i.toNat := Mag.get_toNat _ _ _
+      rw [BigNat.get_toNat, hoi]
+    have hgb : (b.get i (by omega)).toNat = b.digit i.toNat := BigNat.get_toNat _ _ _
     obtain ⟨hs1, hs2⟩ := sub_step (u.get (off + i) (by omega)) (b.get i (by omega)) k hk
     simp only [hga, hgb] at hs1
     apply ih hs2
     have hset := u.valUpTo_set' (off + i) (by omega) t.toUInt32 (off.toNat + len.toNat) _ hoi
       (by omega)
-    rw [toNat_succ_of_lt h, Mag.valUpTo, show 32 * (off.toNat + (i.toNat + 1)) =
+    rw [toNat_succ_of_lt h, BigNat.valUpTo, show 32 * (off.toNat + (i.toNat + 1)) =
       32 * off.toNat + 32 * i.toNat + 32 by omega, Nat.pow_add, Nat.pow_add]
     rw [show 32 * (off.toNat + i.toNat) = 32 * off.toNat + 32 * i.toNat by omega, Nat.pow_add]
       at hinv hset
@@ -72,13 +72,13 @@ public theorem subInPlace_spec (b : Mag) (len off : USize) (hb) (i : USize) (k :
     rw [show i.toNat = len.toNat by omega] at hinv
     exact ⟨k.toNat, hk, hinv⟩
 
-public theorem subInPlace_frame (b : Mag) (len off : USize) (hb) (i : USize) (k : UInt64) (u : Mag) (hu hi)
+public theorem subInPlace_frame (b : BigNat) (len off : USize) (hb) (i : USize) (k : UInt64) (u : BigNat) (hu hi)
     (p : Nat) (hp : p < off.toNat + i.toNat ∨ off.toNat + len.toNat ≤ p) :
     (subInPlace b len off hb i k u hu hi).digit p = u.digit p := by
   fun_induction subInPlace b len off hb i k u hu hi with
   | case1 i k u hu hi h hi' hoi t ih =>
     have := toNat_succ_of_lt h
-    rw [ih (by omega), Mag.digit_set, ite_eq_right (by rw [hoi]; omega)]
+    rw [ih (by omega), BigNat.digit_set, ite_eq_right (by rw [hoi]; omega)]
   | case2 => rfl
 
 public theorem add_step3 (x y : UInt32) (k : UInt64) (hk : k.toNat < 2) :
@@ -99,7 +99,7 @@ public theorem add_step3 (x y : UInt32) (k : UInt64) (hk : k.toNat < 2) :
   have : (2 : Nat) ^ 32 = 4294967296 := rfl
   omega
 
-public theorem addInPlace_spec (v : Mag) (len off : USize) (i : USize) (k : UInt64) (u : Mag) (hu hi)
+public theorem addInPlace_spec (v : BigNat) (len off : USize) (i : USize) (k : UInt64) (u : BigNat) (hu hi)
     (hk : k.toNat < 2) (Z₀ L T : Nat) (hL : L = len.toNat) (hT : T = off.toNat + len.toNat)
     (hinv : u.valUpTo T + k.toNat * 2 ^ (32 * (off.toNat + i.toNat)) =
       Z₀ + v.valUpTo i.toNat * 2 ^ (32 * off.toNat)) :
@@ -110,14 +110,14 @@ public theorem addInPlace_spec (v : Mag) (len off : USize) (i : USize) (k : UInt
   fun_induction addInPlace v len off i k u hu hi with
   | case1 i k u hu hi h hi' hoi t ih =>
     have hga : (u.get (off + i) (by omega)).toNat = u.digit (off.toNat + i.toNat) := by
-      rw [Mag.get_toNat, hoi]
+      rw [BigNat.get_toNat, hoi]
     have hgv : (getOr0 v i).toNat = v.digit i.toNat := getOr0_toNat v i
     obtain ⟨hs1, hs2⟩ := add_step3 (getOr0 v i) (u.get (off + i) (by omega)) k hk
     simp only [hga, hgv] at hs1
     apply ih hs2
     have hset := u.valUpTo_set' (off + i) (by omega) t.toUInt32 (off.toNat + len.toNat) _ hoi
       (by omega)
-    rw [toNat_succ_of_lt h, Mag.valUpTo, show 32 * (off.toNat + (i.toNat + 1)) =
+    rw [toNat_succ_of_lt h, BigNat.valUpTo, show 32 * (off.toNat + (i.toNat + 1)) =
       32 * off.toNat + 32 * i.toNat + 32 by omega, Nat.pow_add, Nat.pow_add]
     rw [show 32 * (off.toNat + i.toNat) = 32 * off.toNat + 32 * i.toNat by omega, Nat.pow_add]
       at hinv hset
@@ -131,13 +131,13 @@ public theorem addInPlace_spec (v : Mag) (len off : USize) (i : USize) (k : UInt
     rw [show i.toNat = len.toNat by omega] at hinv
     exact ⟨k.toNat, hk, hinv⟩
 
-public theorem addInPlace_frame (v : Mag) (len off : USize) (i : USize) (k : UInt64) (u : Mag) (hu hi)
+public theorem addInPlace_frame (v : BigNat) (len off : USize) (i : USize) (k : UInt64) (u : BigNat) (hu hi)
     (p : Nat) (hp : p < off.toNat + i.toNat ∨ off.toNat + len.toNat ≤ p) :
     (addInPlace v len off i k u hu hi).digit p = u.digit p := by
   fun_induction addInPlace v len off i k u hu hi with
   | case1 i k u hu hi h hi' hoi t ih =>
     have := toNat_succ_of_lt h
-    rw [ih (by omega), Mag.digit_set, ite_eq_right (by rw [hoi]; omega)]
+    rw [ih (by omega), BigNat.digit_set, ite_eq_right (by rw [hoi]; omega)]
   | case2 => rfl
 
 
@@ -226,11 +226,11 @@ public theorem trial_spec (dn1 dn2 nu x y : UInt32) (k vrest ulow V W : Nat)
 
 public theorem base_pow (k : Nat) : base ^ k = 2 ^ (32 * k) := by rw [Nat.pow_mul]
 
-public theorem Mag.valFrom_lt (a : Mag) (q i : Nat) : a.valFrom q i < 2 ^ (32 * i) := by
+public theorem BigNat.valFrom_lt (a : BigNat) (q i : Nat) : a.valFrom q i < 2 ^ (32 * i) := by
   induction i with
-  | zero => simp [Mag.valFrom]
+  | zero => simp [BigNat.valFrom]
   | succ i ih =>
-    rw [Mag.valFrom, show 32 * (i + 1) = 32 * i + 32 by omega, Nat.pow_add]
+    rw [BigNat.valFrom, show 32 * (i + 1) = 32 * i + 32 by omega, Nat.pow_add]
     have hd := a.digit_lt (q + i)
     have h1 : a.digit (q + i) * 2 ^ (32 * i) ≤ (2 ^ 32 - 1) * 2 ^ (32 * i) :=
       Nat.mul_le_mul_right _ (by omega)
@@ -240,8 +240,8 @@ public theorem Mag.valFrom_lt (a : Mag) (q i : Nat) : a.valFrom q i < 2 ^ (32 * 
       omega
     omega
 
-public theorem Mag.valUpTo_succ_div (a : Mag) (m : Nat) : a.valUpTo (m + 1) / 2 ^ (32 * m) = a.digit m := by
-  rw [Mag.valUpTo, Nat.add_comm, Nat.mul_comm (a.digit m), Nat.mul_add_div (Nat.two_pow_pos _),
+public theorem BigNat.valUpTo_succ_div (a : BigNat) (m : Nat) : a.valUpTo (m + 1) / 2 ^ (32 * m) = a.digit m := by
+  rw [BigNat.valUpTo, Nat.add_comm, Nat.mul_comm (a.digit m), Nat.mul_add_div (Nat.two_pow_pos _),
     Nat.div_eq_of_lt (a.valUpTo_lt m), Nat.add_zero]
 
 /--
@@ -287,8 +287,8 @@ public theorem divN_arith (Lo P W V qh k Z1 Bn : Nat) (hP : 0 < P) (hLo : Lo < P
     subst hk1
     refine ⟨rfl, rfl, by omega, by omega⟩
 
-public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64) (j1 : USize)
-    (q u ms : Mag) (hq hu hms) (dn1 dn2 : UInt32) (V U₀ : Nat)
+public theorem divNLoop_spec (v : BigNat) (n : USize) (hn2 hnv) (vtop vsec : UInt64) (j1 : USize)
+    (q u ms : BigNat) (hq hu hms) (dn1 dn2 : UInt32) (V U₀ : Nat)
     (hV : V = v.valUpTo n.toNat) (hvz : v.digit n.toNat = 0)
     (hd1 : dn1.toNat = v.digit (n.toNat - 1)) (hd2 : dn2.toNat = v.digit (n.toNat - 2))
     (hvtop : vtop = dn1.toUInt64) (hvsec : vsec = dn2.toUInt64) (hnorm : base ≤ 2 * dn1.toNat)
@@ -309,7 +309,7 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
         v.digit (n.toNat - 1) * 2 ^ (32 * (n.toNat - 2) + 32) := by
       obtain ⟨m, hm⟩ : ∃ m, n.toNat = m + 2 := ⟨n.toNat - 2, by omega⟩
       rw [hm, show m + 2 - 2 = m by omega, show m + 2 - 1 = m + 1 by omega,
-        show m + 2 = m + 1 + 1 by omega, Mag.valUpTo, Mag.valUpTo,
+        show m + 2 = m + 1 + 1 by omega, BigNat.valUpTo, BigNat.valUpTo,
         show 32 * (m + 1) = 32 * m + 32 by omega]
     rw [hV, e1, ← hd1, ← hd2, base_pow, Nat.pow_add]
     generalize (2 : Nat) ^ (32 * (n.toNat - 2)) = X
@@ -330,14 +330,14 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
     rename_i j1 q u ms hq hu hms _ hj1 j hj hjn hjn1 hjn2 temp qh ms1 hms1 hn1 u1 hu1 hcond ih
     have hjv : j.toNat + 1 = j1.toNat := by omega
     have hx : (u.get (j + n) (by rw [hjn]; omega)).toNat = u.digit (j.toNat + n.toNat) := by
-      rw [Mag.get_toNat, hjn]
+      rw [BigNat.get_toNat, hjn]
     have hy : (u.get (j + n - 1) (by rw [hjn1]; omega)).toNat =
-        u.digit (j.toNat + n.toNat - 1) := by rw [Mag.get_toNat, hjn1]
+        u.digit (j.toNat + n.toNat - 1) := by rw [BigNat.get_toNat, hjn1]
     have hnu : (u.get (j + n - 2) (by rw [hjn2]; omega)).toNat =
-        u.digit (j.toNat + n.toNat - 2) := by rw [Mag.get_toNat, hjn2]
+        u.digit (j.toNat + n.toNat - 2) := by rw [BigNat.get_toNat, hjn2]
     -- the window `W` of `n + 1` digits at `j`
     have hZ : u.val = u.valUpTo (j.toNat + n.toNat + 1) := by
-      rw [Mag.val, Mag.valUpTo_eq_of_zero u (j.toNat + n.toNat + 1) u.n (by omega)
+      rw [BigNat.val, BigNat.valUpTo_eq_of_zero u (j.toNat + n.toNat + 1) u.n (by omega)
         (fun p hp _ => huz p (by omega))]
     have hsplit := u.valUpTo_add j.toNat (n.toNat + 1)
     rw [show j.toNat + (n.toNat + 1) = j.toNat + n.toNat + 1 by omega] at hsplit
@@ -346,8 +346,8 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
           (u.get (j + n - 1) (by rw [hjn1]; omega)).toNat) * base ^ (n.toNat - 2 + 1) +
         (u.get (j + n - 2) (by rw [hjn2]; omega)).toNat * base ^ (n.toNat - 2) +
         u.valFrom j.toNat (n.toNat - 2) := by
-      rw [hx, hy, hnu, show n.toNat + 1 = (n.toNat - 2) + 1 + 1 + 1 by omega, Mag.valFrom,
-        Mag.valFrom, Mag.valFrom, show j.toNat + (n.toNat - 2 + 1 + 1) = j.toNat + n.toNat by omega,
+      rw [hx, hy, hnu, show n.toNat + 1 = (n.toNat - 2) + 1 + 1 + 1 by omega, BigNat.valFrom,
+        BigNat.valFrom, BigNat.valFrom, show j.toNat + (n.toNat - 2 + 1 + 1) = j.toNat + n.toNat by omega,
         show j.toNat + (n.toNat - 2 + 1) = j.toNat + n.toNat - 1 by omega,
         show j.toNat + (n.toNat - 2) = j.toNat + n.toNat - 2 by omega, base_pow, base_pow,
         show 32 * (n.toNat - 2 + 1 + 1) = 32 * (n.toNat - 2) + 32 + 32 by omega,
@@ -377,11 +377,11 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
     have hms1v : ms1.valUpTo (n.toNat + 1) = qh.toNat * V := by
       rw [hV]
       exact mul1Loop_spec qh (by simpa using hqh.1) v n hnv 0 0 ms hms (by simp) (by simp)
-        (by simp [Mag.valUpTo])
+        (by simp [BigNat.valUpTo])
     have hsub : ∃ k' : Nat, k' < 2 ∧
         u1.valUpTo (j.toNat + (n + 1).toNat) + ms1.valUpTo (n + 1).toNat * 2 ^ (32 * j.toNat) =
           u.valUpTo (j.toNat + (n + 1).toNat) + k' * 2 ^ (32 * (j.toNat + (n + 1).toNat)) :=
-      subInPlace_spec ms1 (n + 1) j _ 0 0 u _ _ (by simp) _ (by simp [Mag.valUpTo])
+      subInPlace_spec ms1 (n + 1) j _ 0 0 u _ _ (by simp) _ (by simp [BigNat.valUpTo])
     obtain ⟨k, hk, hsub⟩ := hsub
     rw [hn1, show j.toNat + (n.toNat + 1) = j.toNat + n.toNat + 1 by omega, hms1v] at hsub
     have hu1z : ∀ p, j.toNat + n.toNat + 1 ≤ p → u1.digit p = 0 := fun p hp => by
@@ -390,9 +390,9 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
       exact huz p (by omega)
     have htop1 : u1.digit (j.toNat + n.toNat) =
         u1.valUpTo (j.toNat + n.toNat + 1) / (2 ^ (32 * j.toNat) * 2 ^ (32 * n.toNat)) := by
-      rw [← Nat.pow_add, ← Nat.mul_add, Mag.valUpTo_succ_div]
+      rw [← Nat.pow_add, ← Nat.mul_add, BigNat.valUpTo_succ_div]
     have hget1 : (u1.get (j + n) (by rw [hjn]; omega)).toNat = u1.digit (j.toNat + n.toNat) := by
-      rw [Mag.get_toNat, hjn]
+      rw [BigNat.get_toNat, hjn]
     have hZ1lt := u1.valUpTo_lt (j.toNat + n.toNat + 1)
     rw [show 32 * (j.toNat + n.toNat + 1) = 32 * j.toNat + 32 * n.toNat + 32 by omega, Nat.pow_add,
       Nat.pow_add] at hZ1lt hsub
@@ -410,7 +410,7 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
     have hPV : 2 ^ (32 * j.toNat) * V ≤ 2 ^ (32 * j.toNat) * 2 ^ (32 * n.toNat) :=
       Nat.mul_le_mul_left _ (Nat.le_of_lt hVlt)
     -- the new state, given its window value
-    have hnext : ∀ (u' : Mag) (d : UInt32) (hd : d.toNat = u.valFrom j.toNat (n.toNat + 1) / V)
+    have hnext : ∀ (u' : BigNat) (d : UInt32) (hd : d.toNat = u.valFrom j.toNat (n.toNat + 1) / V)
         (hu'n : j.toNat + n.toNat + 1 ≤ u'.n)
         (hz' : ∀ p, j.toNat + n.toNat + 1 ≤ p → u'.digit p = 0)
         (hZ' : u'.valUpTo (j.toNat + n.toNat + 1) =
@@ -420,9 +420,9 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
           (∀ p, p < j.toNat → (q.set j (by omega) d).digit p = 0) := by
       intro u' d hd hu'n hz' hZ'
       have hval : u'.val = u'.valUpTo (j.toNat + n.toNat + 1) := by
-        rw [Mag.val, Mag.valUpTo_eq_of_zero u' (j.toNat + n.toNat + 1) u'.n hu'n
+        rw [BigNat.val, BigNat.valUpTo_eq_of_zero u' (j.toNat + n.toNat + 1) u'.n hu'n
           (fun p hp _ => hz' p hp)]
-      rw [hval, hZ', Mag.val_set_of_zero q j _ d hqv, hd]
+      rw [hval, hZ', BigNat.val_set_of_zero q j _ d hqv, hd]
       refine ⟨?_, ?_, ?_, ?_⟩
       · rw [hinv, hZ, hsplit]
         generalize u.valFrom j.toNat (n.toNat + 1) / V = Wq at *
@@ -441,7 +441,7 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
           exact this.symm
         · exact hz' p h
       · intro p hp
-        rw [Mag.digit_set, ite_eq_right (by omega), hqz p (by omega)]
+        rw [BigNat.digit_set, ite_eq_right (by omega), hqz p (by omega)]
   · -- the subtraction borrowed: add back once
     have hne : u1.digit (j.toNat + n.toNat) ≠ 0 := by
       have hc : u1.get (j + n) (by rw [hjn]; omega) ≠ 0 := by simpa using hcond
@@ -453,9 +453,9 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
               (j.toNat + n.toNat + 1) + k' * 2 ^ (32 * (j.toNat + n.toNat + 1)) =
             u1.valUpTo (j.toNat + n.toNat + 1) + v.valUpTo (n.toNat + 1) * 2 ^ (32 * j.toNat) :=
         addInPlace_spec v (n + 1) j 0 0 u1 _ _ (by simp) _ _ _ (by rw [hn1]) (by rw [hn1]; omega)
-          (by simp [Mag.valUpTo])
+          (by simp [BigNat.valUpTo])
       obtain ⟨k', hk', hadd⟩ := hadd
-      have hv1 : v.valUpTo (n.toNat + 1) = V := by rw [Mag.valUpTo, hvz, Nat.zero_mul, Nat.add_zero, hV]
+      have hv1 : v.valUpTo (n.toNat + 1) = V := by rw [BigNat.valUpTo, hvz, Nat.zero_mul, Nat.add_zero, hV]
       rw [hv1,
         show 32 * (j.toNat + n.toNat + 1) = 32 * j.toNat + 32 * n.toNat + 32 by omega, Nat.pow_add,
         Nat.pow_add] at hadd
@@ -502,17 +502,17 @@ public theorem divNLoop_spec (v : Mag) (n : USize) (hn2 hnv) (vtop vsec : UInt64
 public theorem UInt32.toNat_log2' (a : UInt32) : a.log2.toNat = Nat.log2 a.toNat := by
   unfold UInt32.log2 Fin.log2; rfl
 
-public theorem Mag.digit_eq_zero_of_val_lt (v : Mag) (p : Nat) (h : v.val < 2 ^ (32 * p)) :
+public theorem BigNat.digit_eq_zero_of_val_lt (v : BigNat) (p : Nat) (h : v.val < 2 ^ (32 * p)) :
     v.digit p = 0 := by
   rw [← v.val_div_mod p, Nat.div_eq_of_lt h]
 
-public theorem Mag.valUpTo_of_zero (a : Mag) (h : ∀ p, a.digit p = 0) (k : Nat) : a.valUpTo k = 0 := by
-  rw [Mag.valUpTo_eq_of_zero a 0 k (Nat.zero_le _) (fun p _ _ => h p)]; rfl
+public theorem BigNat.valUpTo_of_zero (a : BigNat) (h : ∀ p, a.digit p = 0) (k : Nat) : a.valUpTo k = 0 := by
+  rw [BigNat.valUpTo_eq_of_zero a 0 k (Nat.zero_le _) (fun p _ _ => h p)]; rfl
 
-public theorem Mag.val_of_zero (a : Mag) (h : ∀ p, a.digit p = 0) : a.val = 0 := a.valUpTo_of_zero h _
+public theorem BigNat.val_of_zero (a : BigNat) (h : ∀ p, a.digit p = 0) : a.val = 0 := a.valUpTo_of_zero h _
 
 /-- Shifting the divisor by `31 - log2 top` sets the high bit of its top digit without growing it. -/
-public theorem knuth_norm (b v : Mag) (hb : b.IsNorm) (hb2 : 2 ≤ b.n)
+public theorem knuth_norm (b v : BigNat) (hb : b.IsNorm) (hb2 : 2 ≤ b.n)
     (hv : v.val = b.val * 2 ^ (31 - Nat.log2 (b.digit (b.n - 1)))) (hvn : b.n ≤ v.n) :
     v.valUpTo b.n = v.val ∧ v.digit b.n = 0 ∧ 2 ^ 31 ≤ v.digit (b.n - 1) ∧
       v.val < 2 ^ (32 * b.n) := by
@@ -523,7 +523,7 @@ public theorem knuth_norm (b v : Mag) (hb : b.IsNorm) (hb2 : 2 ≤ b.n)
   have htl := b.digit_lt (b.n - 1)
   have hbv : b.val = b.valUpTo (b.n - 1) + b.digit (b.n - 1) * 2 ^ (32 * (b.n - 1)) := by
     have h : b.valUpTo (b.n - 1 + 1) =
-        b.valUpTo (b.n - 1) + b.digit (b.n - 1) * 2 ^ (32 * (b.n - 1)) := by rw [Mag.valUpTo]
+        b.valUpTo (b.n - 1) + b.digit (b.n - 1) * 2 ^ (32 * (b.n - 1)) := by rw [BigNat.valUpTo]
     rw [show b.n - 1 + 1 = b.n by omega] at h
     exact h
   have hlo := b.valUpTo_lt (b.n - 1)
@@ -554,14 +554,14 @@ public theorem knuth_norm (b v : Mag) (hb : b.IsNorm) (hb2 : 2 ≤ b.n)
   have hzero : ∀ p, b.n ≤ p → v.digit p = 0 := fun p hp =>
     v.digit_eq_zero_of_val_lt p (Nat.lt_of_lt_of_le hlt (Nat.pow_le_pow_right (by omega) (by omega)))
   refine ⟨?_, hzero _ (Nat.le_refl _), ?_, hlt⟩
-  · rw [Mag.val, Mag.valUpTo_eq_of_zero v b.n v.n hvn (fun p hp _ => hzero p hp)]
+  · rw [BigNat.val, BigNat.valUpTo_eq_of_zero v b.n v.n hvn (fun p hp _ => hzero p hp)]
   · rw [← v.val_div_mod (b.n - 1), hX]
     have hq1 : 2 ^ 31 ≤ v.val / X := (Nat.le_div_iff_mul_le hXpos).mpr (by rw [Nat.mul_comm]; exact hdown)
     have hq2 : v.val / X < 2 ^ 32 := (Nat.div_lt_iff_lt_mul hXpos).mpr (by rw [Nat.mul_comm]; exact hup)
     rw [Nat.mod_eq_of_lt hq2]
     exact hq1
 
-public theorem knuth_core (a b v u q0 ms : Mag) (_ha : a.IsNorm) (hb : b.IsNorm) (hb2 : 2 ≤ b.n)
+public theorem knuth_core (a b v u q0 ms : BigNat) (_ha : a.IsNorm) (hb : b.IsNorm) (hb2 : 2 ≤ b.n)
     (hba : b.n ≤ a.n) (s : Nat) (hs : s = 31 - Nat.log2 (b.digit (b.n - 1)))
     (hv : v.val = b.val * 2 ^ s) (hu : u.val = a.val * 2 ^ s) (hun : u.n = a.n + 1)
     (hq0 : ∀ p, q0.digit p = 0) (lb j1 : USize) (hlb : lb.toNat = b.n)
@@ -578,9 +578,9 @@ public theorem knuth_core (a b v u q0 ms : Mag) (_ha : a.IsNorm) (hb : b.IsNorm)
   have hbpos : 0 < b.val := Nat.lt_of_lt_of_le (Nat.two_pow_pos _) (b.pow_le_val hb (by omega))
   have hEpos : 0 < 2 ^ s := Nat.two_pow_pos _
   have hd1 : (v.get (lb - 1) hg1).toNat = v.digit (lb.toNat - 1) := by
-    rw [Mag.get_toNat, hlb1, hlb]
+    rw [BigNat.get_toNat, hlb1, hlb]
   have hd2 : (v.get (lb - 2) hg2).toNat = v.digit (lb.toNat - 2) := by
-    rw [Mag.get_toNat, hlb2, hlb]
+    rw [BigNat.get_toNat, hlb2, hlb]
   have hspec := divNLoop_spec v lb hn2 hnv _ _ j1 q0 u ms hq hu' hms (v.get (lb - 1) hg1)
     (v.get (lb - 2) hg2) v.val u.val (by rw [hlb, hvV]) (by rw [hlb]; exact hvz) hd1 hd2 rfl rfl
     (by rw [hd1, hlb]; simp only [base_eq]; omega)
@@ -620,7 +620,7 @@ public theorem toNat_shift31 (x : UInt32) : (31 - x.log2).toNat = 31 - Nat.log2 
     UInt32.toNat_log2']
   simp
 
-public theorem val_shiftDivisor (b : Mag) (s : UInt32) (h) (hs : s.toNat < 32) :
+public theorem val_shiftDivisor (b : BigNat) (s : UInt32) (h) (hs : s.toNat < 32) :
     (shiftDivisor b b.usize b.usize_toNat s h).1.val = b.val * 2 ^ s.toNat := by
   unfold shiftDivisor
   split
@@ -632,34 +632,34 @@ public theorem val_shiftDivisor (b : Mag) (s : UInt32) (h) (hs : s.toNat < 32) :
       have : s.toNat ≠ 0 := fun h' => h0 (by simpa [← UInt32.toNat_inj] using h')
       omega
     dsimp only
-    rw [shlLoop_val _ _ _ hs0 hs _ _ _ (fun p => Mag.digit_zeros _ _ _)
-      (by rw [Mag.n_zeros, b.usize_succ_toNat]; simp)]
+    rw [shlLoop_val _ _ _ hs0 hs _ _ _ (fun p => BigNat.digit_zeros _ _ _)
+      (by rw [BigNat.n_zeros, b.usize_succ_toNat]; simp)]
     simp
 
-public theorem val_shiftDividend (a : Mag) (s : UInt32) (h) (hs : s.toNat < 32) :
+public theorem val_shiftDividend (a : BigNat) (s : UInt32) (h) (hs : s.toNat < 32) :
     (shiftDividend a a.usize a.usize_toNat s h).1.val = a.val * 2 ^ s.toNat := by
   unfold shiftDividend
   split
   · next h0 =>
     have : s.toNat = 0 := by simpa [← UInt32.toNat_inj] using h0
     dsimp only
-    rw [copyLoop_val _ _ _ _ _ (fun p => Mag.digit_zeros _ _ _)
-      (by rw [Mag.n_zeros, a.usize_succ_toNat]; simp)]
+    rw [copyLoop_val _ _ _ _ _ (fun p => BigNat.digit_zeros _ _ _)
+      (by rw [BigNat.n_zeros, a.usize_succ_toNat]; simp)]
     simp [this]
   · next h0 =>
     have hs0 : 0 < s.toNat := by
       have : s.toNat ≠ 0 := fun h' => h0 (by simpa [← UInt32.toNat_inj] using h')
       omega
     dsimp only
-    rw [shlLoop_val _ _ _ hs0 hs _ _ _ (fun p => Mag.digit_zeros _ _ _)
-      (by rw [Mag.n_zeros, a.usize_succ_toNat]; simp)]
+    rw [shlLoop_val _ _ _ hs0 hs _ _ _ (fun p => BigNat.digit_zeros _ _ _)
+      (by rw [BigNat.n_zeros, a.usize_succ_toNat]; simp)]
     simp
 
-public theorem val_knuthRem (u : Mag) (lb : USize) (hlb) (s : UInt32) (h) (hs : s.toNat < 32)
+public theorem val_knuthRem (u : BigNat) (lb : USize) (hlb) (s : UInt32) (h) (hs : s.toNat < 32)
     (hz : ∀ p, lb.toNat ≤ p → u.digit p = 0) :
     (knuthRem u lb hlb s h).val = u.val / 2 ^ s.toNat := by
   have ht : (u.take lb hlb).val = u.val := by
-    rw [Mag.val_take, Mag.val, Mag.valUpTo_eq_of_zero u lb.toNat u.n hlb (fun p hp _ => hz p hp)]
+    rw [BigNat.val_take, BigNat.val, BigNat.valUpTo_eq_of_zero u lb.toNat u.n hlb (fun p hp _ => hz p hp)]
   unfold knuthRem
   split
   · next h0 =>
@@ -673,10 +673,10 @@ public theorem val_knuthRem (u : Mag) (lb : USize) (hlb) (s : UInt32) (h) (hs : 
     congr 1
     have := (u.take lb hlb).valUpTo_add 0 lb.toNat
     rw [Nat.zero_add, Nat.mul_zero, Nat.pow_zero, Nat.one_mul] at this
-    rw [Mag.val, Mag.n_take, this]
-    simp [Mag.valUpTo]
+    rw [BigNat.val, BigNat.n_take, this]
+    simp [BigNat.valUpTo]
 
-public theorem knuthCore_spec (a b : Mag) (h) (s : UInt32) (v u) (ha : a.IsNorm) (hb : b.IsNorm)
+public theorem knuthCore_spec (a b : BigNat) (h) (s : UInt32) (v u) (ha : a.IsNorm) (hb : b.IsNorm)
     (hs32 : s.toNat < 32) (hsS : s.toNat = 31 - Nat.log2 (b.digit (b.n - 1)))
     (hv : v.1.val = b.val * 2 ^ s.toNat) (hu : u.1.val = a.val * 2 ^ s.toNat) :
     (knuthCore a b h s v u).1.val = a.val / b.val ∧ (knuthCore a b h s v u).2.val = a.val % b.val ∧
@@ -692,20 +692,20 @@ public theorem knuthCore_spec (a b : Mag) (h) (s : UInt32) (v u) (ha : a.IsNorm)
   have hm1 : (a.usize - b.usize + 1).toNat = a.n - b.n + 1 := by
     rw [toNat_succ_of_lt_size (by have := maxBytes_lt; omega), hm]
   have hlb1' : (b.usize + 1).toNat = b.n + 1 := b.usize_succ_toNat
-  have hk := knuth_core a b v.1 u.1 (Mag.zeros (a.usize - b.usize + 1) (by omega))
-    (Mag.zeros (b.usize + 1) (by omega)) ha hb hb2 hba _ hsS hv hu
-    (by rw [u.2, hla]) (fun p => Mag.digit_zeros _ _ _) b.usize (a.usize - b.usize + 1) hlb hm1
-    (by omega) v.2 (by simp) (by rw [u.2]; omega) (by simp only [Mag.n_zeros]; omega)
+  have hk := knuth_core a b v.1 u.1 (BigNat.zeros (a.usize - b.usize + 1) (by omega))
+    (BigNat.zeros (b.usize + 1) (by omega)) ha hb hb2 hba _ hsS hv hu
+    (by rw [u.2, hla]) (fun p => BigNat.digit_zeros _ _ _) b.usize (a.usize - b.usize + 1) hlb hm1
+    (by omega) v.2 (by simp) (by rw [u.2]; omega) (by simp only [BigNat.n_zeros]; omega)
     (by rw [hlb1]; have := v.2; omega) (by rw [toNat_sub_two (by omega)]; have := v.2; omega)
   unfold knuthCore
   dsimp only
-  refine ⟨?_, ?_, Mag.isNorm_normalize _, Mag.isNorm_normalize _⟩
-  · rw [Mag.val_normalize]; exact hk.1
-  · rw [Mag.val_normalize, val_knuthRem _ _ _ _ _ hs32 (fun p hp => hk.2.2 p (by rw [← hlb]; exact hp)),
+  refine ⟨?_, ?_, BigNat.isNorm_normalize _, BigNat.isNorm_normalize _⟩
+  · rw [BigNat.val_normalize]; exact hk.1
+  · rw [BigNat.val_normalize, val_knuthRem _ _ _ _ _ hs32 (fun p hp => hk.2.2 p (by rw [← hlb]; exact hp)),
       hk.2.1, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
 
 /-- Knuth's algorithm D computes quotient and remainder. -/
-public theorem knuth_spec (a b : Mag) (h) (ha : a.IsNorm) (hb : b.IsNorm) :
+public theorem knuth_spec (a b : BigNat) (h) (ha : a.IsNorm) (hb : b.IsNorm) :
     (knuth a b h).1.val = a.val / b.val ∧ (knuth a b h).2.val = a.val % b.val ∧
       (knuth a b h).1.IsNorm ∧ (knuth a b h).2.IsNorm := by
   have hlb := b.usize_toNat
@@ -716,18 +716,18 @@ public theorem knuth_spec (a b : Mag) (h) (ha : a.IsNorm) (hb : b.IsNorm) :
     rw [toNat_shift31]; omega
   have hsS : (31 - (b.get (b.usize - 1) (by omega)).log2).toNat =
       31 - Nat.log2 (b.digit (b.n - 1)) := by
-    rw [toNat_shift31, Mag.get_toNat, hlb1]
+    rw [toNat_shift31, BigNat.get_toNat, hlb1]
   unfold knuth
   exact knuthCore_spec a b h _ _ _ ha hb hS32 hsS (val_shiftDivisor b _ _ hS32)
     (val_shiftDividend a _ _ hS32)
 
 public theorem val_ofUInt64 (x : UInt64) : (ofUInt64 x).val = x.toNat ∧ (ofUInt64 x).IsNorm := by
-  refine ⟨?_, Mag.isNorm_normalize _⟩
+  refine ⟨?_, BigNat.isNorm_normalize _⟩
   unfold ofUInt64
   dsimp only
-  rw [Mag.val_normalize, Mag.val]
-  simp only [Mag.n_set, Mag.n_zeros, two_usize_toNat]
-  simp only [Mag.valUpTo, Mag.digit_set, Mag.digit_zeros]
+  rw [BigNat.val_normalize, BigNat.val]
+  simp only [BigNat.n_set, BigNat.n_zeros, two_usize_toNat]
+  simp only [BigNat.valUpTo, BigNat.digit_set, BigNat.digit_zeros]
   simp only [USize.toNat_zero, USize.toNat_one, ite_eq_left]
   have h1 : x.toUInt32.toNat = x.toNat % 2 ^ 32 := by simp
   have h2 : (x >>> 32).toUInt32.toNat = x.toNat / 2 ^ 32 := by
@@ -740,7 +740,7 @@ public theorem val_ofUInt64 (x : UInt64) : (ofUInt64 x).val = x.toNat ∧ (ofUIn
   omega
 
 /-- Long division computes quotient and remainder (with `a / 0 = 0` and `a % 0 = a`). -/
-public theorem divModBasecase_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
+public theorem divModBasecase_spec (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm)
     (hfit : (a.n + 1) * 4 ≤ maxBytes) :
     (divModBasecase a b).1.val = a.val / b.val ∧ (divModBasecase a b).2.val = a.val % b.val ∧
       (divModBasecase a b).1.IsNorm ∧ (divModBasecase a b).2.IsNorm := by
@@ -750,14 +750,14 @@ public theorem divModBasecase_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
   · next hlt =>
     rw [hcmp] at hlt
     have hlt' : a.val < b.val := Nat.compare_eq_lt.mp (by simpa using hlt)
-    exact ⟨by rw [Mag.val_empty, Nat.div_eq_of_lt hlt'], by rw [Nat.mod_eq_of_lt hlt'],
-      Mag.isNorm_empty, ha⟩
+    exact ⟨by rw [BigNat.val_empty, Nat.div_eq_of_lt hlt'], by rw [Nat.mod_eq_of_lt hlt'],
+      BigNat.isNorm_empty, ha⟩
   · next hnlt =>
     split
     · next h1 =>
       have hn1 : b.n = 1 := by have := b.usize_toNat; rw [h1] at this; simpa using this.symm
-      have hbv : b.val = b.digit 0 := by rw [Mag.val, hn1]; simp [Mag.valUpTo]
-      have hd : (b.get 0 (by rw [USize.toNat_zero]; omega)).toNat = b.digit 0 := by rw [Mag.get_toNat]; rfl
+      have hbv : b.val = b.digit 0 := by rw [BigNat.val, hn1]; simp [BigNat.valUpTo]
+      have hd : (b.get 0 (by rw [USize.toNat_zero]; omega)).toNat = b.digit 0 := by rw [BigNat.get_toNat]; rfl
       have hd0 : 0 < (b.get 0 (by rw [USize.toNat_zero]; omega)).toNat := by
         rw [hd]
         rcases hb with h | h
@@ -789,7 +789,7 @@ public theorem divModBasecase_spec (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm)
             apply hnlt
             rw [hcmp]
             simp [Nat.compare_eq_lt.mpr hlt]
-        have hbv : b.val = 0 := by rw [Mag.val, hb0]; rfl
-        exact ⟨by rw [hbv, Mag.val_empty, Nat.div_zero], by rw [hbv, Nat.mod_zero], Mag.isNorm_empty, ha⟩
+        have hbv : b.val = 0 := by rw [BigNat.val, hb0]; rfl
+        exact ⟨by rw [hbv, BigNat.val_empty, Nat.div_zero], by rw [hbv, Nat.mod_zero], BigNat.isNorm_empty, ha⟩
 
 end Nat.Big

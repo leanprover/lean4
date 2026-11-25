@@ -13,7 +13,7 @@ is not known; cannot resolve field `n`
 Hint: Consider replacing the field projection with a call to one of the following:
   • `Foo.n`
   • `BitVec.DivModArgs.n`
-  • `Nat.Big.Mag.n`
+  • `Nat.Big.BigNat.n`
 ---
 error: Invalid field notation: Type of
   g
@@ -22,7 +22,7 @@ is not known; cannot resolve field `n`
 Hint: Consider replacing the field projection with a call to one of the following:
   • `Foo.n`
   • `BitVec.DivModArgs.n`
-  • `Nat.Big.Mag.n`
+  • `Nat.Big.BigNat.n`
 ---
 error: Invalid field notation: Type of
   f

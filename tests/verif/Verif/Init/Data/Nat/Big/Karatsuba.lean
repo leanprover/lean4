@@ -53,13 +53,13 @@ end ByteArray
 
 namespace Nat.Big
 
-public theorem Mag.digit_extractDigits (a : Mag) (lo hi h1 h2) (p : Nat) :
+public theorem BigNat.digit_extractDigits (a : BigNat) (lo hi h1 h2) (p : Nat) :
     (extractDigits a lo hi h1 h2).digit p =
       if p < hi.toNat - lo.toNat then a.digit (lo.toNat + p) else 0 := by
   have := maxBytes_lt; have := a.n_le
   have hs : min (hi.toNat * 4) a.bytes.size - lo.toNat * 4 = (hi.toNat - lo.toNat) * 4 := by
     rw [← a.n_mul_four]; omega
-  simp only [Mag.digit, extractDigits, ByteArray.readU32, ByteArray.getElem!_extract',
+  simp only [BigNat.digit, extractDigits, ByteArray.readU32, ByteArray.getElem!_extract',
     shiftLeft_toNat lo (by omega), shiftLeft_toNat hi (by omega), hs]
   by_cases hp : p < hi.toNat - lo.toNat
   · have q0 : p * 4 < (hi.toNat - lo.toNat) * 4 := by omega
@@ -78,18 +78,18 @@ public theorem Mag.digit_extractDigits (a : Mag) (lo hi h1 h2) (p : Nat) :
     simp only [q0, q1, q2, q3, hp, ite_false]
     rfl
 
-public theorem Mag.valUpTo_extractDigits (a : Mag) (lo hi h1 h2) (k : Nat) (hk : k ≤ hi.toNat - lo.toNat) :
+public theorem BigNat.valUpTo_extractDigits (a : BigNat) (lo hi h1 h2) (k : Nat) (hk : k ≤ hi.toNat - lo.toNat) :
     (extractDigits a lo hi h1 h2).valUpTo k = a.valFrom lo.toNat k := by
   induction k with
   | zero => rfl
   | succ k ih =>
-    rw [Mag.valUpTo, ih (by omega), Mag.digit_extractDigits, ite_eq_left (by omega), Mag.valFrom]
+    rw [BigNat.valUpTo, ih (by omega), BigNat.digit_extractDigits, ite_eq_left (by omega), BigNat.valFrom]
 
-public theorem Mag.val_extractDigits (a : Mag) (lo hi h1 h2) :
+public theorem BigNat.val_extractDigits (a : BigNat) (lo hi h1 h2) :
     (extractDigits a lo hi h1 h2).val = a.valFrom lo.toNat (hi.toNat - lo.toNat) := by
-  rw [Mag.val, n_extractDigits, Mag.valUpTo_extractDigits _ _ _ _ _ _ (Nat.le_refl _)]
+  rw [BigNat.val, n_extractDigits, BigNat.valUpTo_extractDigits _ _ _ _ _ _ (Nat.le_refl _)]
 
-public theorem Mag.n_le_of_val_lt (x : Mag) (hx : x.IsNorm) (k : Nat) (h : x.val < 2 ^ (32 * k)) :
+public theorem BigNat.n_le_of_val_lt (x : BigNat) (hx : x.IsNorm) (k : Nat) (h : x.val < 2 ^ (32 * k)) :
     x.n ≤ k := by
   rcases Nat.eq_zero_or_pos x.n with h0 | h0
   · omega
@@ -98,17 +98,17 @@ public theorem Mag.n_le_of_val_lt (x : Mag) (hx : x.IsNorm) (k : Nat) (h : x.val
     have := (Nat.pow_lt_pow_iff_right (by omega)).mp this
     omega
 
-public theorem Mag.valFrom_zero (a : Mag) (k : Nat) : a.valFrom 0 k = a.valUpTo k := by
+public theorem BigNat.valFrom_zero (a : BigNat) (k : Nat) : a.valFrom 0 k = a.valUpTo k := by
   have := a.valUpTo_add 0 k
   simp only [Nat.zero_add, Nat.mul_zero, Nat.pow_zero, Nat.one_mul] at this
   rw [this, show a.valUpTo 0 = 0 from rfl, Nat.zero_add]
 
-public theorem Mag.val_eq_valUpTo_add_valFrom (a : Mag) (m : Nat) (hm : m ≤ a.n) :
+public theorem BigNat.val_eq_valUpTo_add_valFrom (a : BigNat) (m : Nat) (hm : m ≤ a.n) :
     a.val = a.valUpTo m + 2 ^ (32 * m) * a.valFrom m (a.n - m) := by
-  rw [Mag.val, ← Mag.valUpTo_add, show m + (a.n - m) = a.n by omega]
+  rw [BigNat.val, ← BigNat.valUpTo_add, show m + (a.n - m) = a.n by omega]
 
 /-- A slice is the value of the digits it covers. -/
-public theorem val_slice (a : Mag) (lo hi : USize) (h : lo.toNat ≤ min hi.toNat a.n) :
+public theorem val_slice (a : BigNat) (lo hi : USize) (h : lo.toNat ≤ min hi.toNat a.n) :
     (slice a lo hi).val = a.valFrom lo.toNat (min hi.toNat a.n - lo.toNat) ∧
       (slice a lo hi).IsNorm := by
   have hc := (clampHi a hi).2
@@ -118,17 +118,17 @@ public theorem val_slice (a : Mag) (lo hi : USize) (h : lo.toNat ≤ min hi.toNa
   · next h' =>
     have := USize.le_iff_toNat_le.mp h'
     rw [show min hi.toNat a.n - lo.toNat = 0 by omega]
-    exact ⟨rfl, Mag.isNorm_empty⟩
+    exact ⟨rfl, BigNat.isNorm_empty⟩
   · next h' =>
-    refine ⟨?_, Mag.isNorm_normalize _⟩
-    rw [Mag.val_normalize, Mag.val_extractDigits, hc]
+    refine ⟨?_, BigNat.isNorm_normalize _⟩
+    rw [BigNat.val_normalize, BigNat.val_extractDigits, hc]
 
 
-public theorem Mag.digit_of_shifted (a S : Mag) (k : Nat) (_hfit : (a.n + k) * 4 ≤ maxBytes)
+public theorem BigNat.digit_of_shifted (a S : BigNat) (k : Nat) (_hfit : (a.n + k) * 4 ≤ maxBytes)
     (hS : S.bytes = a.bytes.copySlice 0 (ByteArray.replicate ((a.n + k) * 4) 0) (k * 4) (a.n * 4))
     (p : Nat) : S.digit p = if k ≤ p ∧ p < k + a.n then a.digit (p - k) else 0 := by
   have hsz := a.n_mul_four
-  simp only [Mag.digit, hS, ByteArray.readU32]
+  simp only [BigNat.digit, hS, ByteArray.readU32]
   rw [ByteArray.getElem!_copySlice _ _ _ _ _ (by omega) (by rw [size_replicate]; omega),
     ByteArray.getElem!_copySlice _ _ _ _ _ (by omega) (by rw [size_replicate]; omega),
     ByteArray.getElem!_copySlice _ _ _ _ _ (by omega) (by rw [size_replicate]; omega),
@@ -147,10 +147,10 @@ public theorem Mag.digit_of_shifted (a S : Mag) (k : Nat) (_hfit : (a.n + k) * 4
     have q1 : ¬ (k * 4 ≤ p * 4 + 1 ∧ p * 4 + 1 < k * 4 + a.n * 4) := by omega
     have q2 : ¬ (k * 4 ≤ p * 4 + 2 ∧ p * 4 + 2 < k * 4 + a.n * 4) := by omega
     have q3 : ¬ (k * 4 ≤ p * 4 + 3 ∧ p * 4 + 3 < k * 4 + a.n * 4) := by omega
-    simp only [q0, q1, q2, q3, hp, ite_false, Mag.getElem!_replicate]
+    simp only [q0, q1, q2, q3, hp, ite_false, BigNat.getElem!_replicate]
     rfl
 
-public theorem Mag.val_of_shifted (a S : Mag) (k : Nat) (hfit : (a.n + k) * 4 ≤ maxBytes)
+public theorem BigNat.val_of_shifted (a S : BigNat) (k : Nat) (hfit : (a.n + k) * 4 ≤ maxBytes)
     (hS : S.bytes = a.bytes.copySlice 0 (ByteArray.replicate ((a.n + k) * 4) 0) (k * 4) (a.n * 4)) :
     S.n = a.n + k ∧ S.val = a.val * 2 ^ (32 * k) := by
   have hsz := a.n_mul_four
@@ -159,40 +159,40 @@ public theorem Mag.val_of_shifted (a S : Mag) (k : Nat) (hfit : (a.n + k) * 4 �
     rw [hS, ByteArray.copySlice_eq_append] at h
     simp only [ByteArray.size_append, ByteArray.size_extract, ByteArray.size_data, size_replicate] at h
     omega
-  have hd := Mag.digit_of_shifted a S k hfit hS
+  have hd := BigNat.digit_of_shifted a S k hfit hS
   refine ⟨hn, ?_⟩
   have hfrom : ∀ i, i ≤ a.n → S.valFrom k i = a.valUpTo i := by
     intro i hi
     induction i with
     | zero => rfl
     | succ i ih =>
-      rw [Mag.valFrom, ih (by omega), Mag.valUpTo, hd, ite_eq_left (by omega), show k + i - k = i by omega]
+      rw [BigNat.valFrom, ih (by omega), BigNat.valUpTo, hd, ite_eq_left (by omega), show k + i - k = i by omega]
   have hlow : S.valUpTo k = 0 := by
-    rw [Mag.valUpTo_eq_of_zero S 0 k (Nat.zero_le _) (fun p _ hp => by rw [hd, ite_eq_right (by omega)])]
+    rw [BigNat.valUpTo_eq_of_zero S 0 k (Nat.zero_le _) (fun p _ hp => by rw [hd, ite_eq_right (by omega)])]
     rfl
-  rw [Mag.val, hn, Nat.add_comm, Mag.valUpTo_add, hlow, hfrom a.n (Nat.le_refl _), Nat.zero_add,
+  rw [BigNat.val, hn, Nat.add_comm, BigNat.valUpTo_add, hlow, hfrom a.n (Nat.le_refl _), Nat.zero_add,
     Nat.mul_comm]
   rfl
 
-public theorem val_shiftDigits (a : Mag) (k : USize) (h : (a.n + k.toNat) * 4 ≤ maxBytes) :
+public theorem val_shiftDigits (a : BigNat) (k : USize) (h : (a.n + k.toNat) * 4 ≤ maxBytes) :
     (shiftDigits a k).val = a.val * 2 ^ (32 * k.toNat) ∧ (shiftDigits a k).n ≤ a.n + k.toNat := by
   unfold shiftDigits
   split
   · next h0 =>
     have : a.n = 0 := by have := a.usize_toNat; simp at h0; rw [h0] at this; simpa using this.symm
-    have hv : a.val = 0 := by rw [Mag.val, this]; rfl
+    have hv : a.val = 0 := by rw [BigNat.val, this]; rfl
     exact ⟨by rw [hv, Nat.zero_mul], by omega⟩
   · dsimp only
     have := maxBytes_lt
     have hk : (a.usize + k).toNat = a.n + k.toNat := by
       rw [toNat_add_of_lt_size (by rw [a.usize_toNat]; omega), a.usize_toNat]
     constructor
-    · refine (Mag.val_of_shifted a _ k.toNat h ?_).2
-      simp only [Mag.zeros, hk, Mag.shiftLeft_toNat k (by omega),
-        Mag.shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), a.usize_toNat]
-    · refine Nat.le_of_eq (Mag.val_of_shifted a _ k.toNat h ?_).1
-      simp only [Mag.zeros, hk, Mag.shiftLeft_toNat k (by omega),
-        Mag.shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), a.usize_toNat]
+    · refine (BigNat.val_of_shifted a _ k.toNat h ?_).2
+      simp only [BigNat.zeros, hk, BigNat.shiftLeft_toNat k (by omega),
+        BigNat.shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), a.usize_toNat]
+    · refine Nat.le_of_eq (BigNat.val_of_shifted a _ k.toNat h ?_).1
+      simp only [BigNat.zeros, hk, BigNat.shiftLeft_toNat k (by omega),
+        BigNat.shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), a.usize_toNat]
 
 public theorem mul_lt_pow32 (x y m n : Nat) (hx : x < 2 ^ (32 * m)) (hy : y < 2 ^ (32 * n)) :
     x * y < 2 ^ (32 * (m + n)) := by
@@ -209,11 +209,11 @@ public theorem mul_lt_pow32 (x y m n : Nat) (hx : x < 2 ^ (32 * m)) (hy : y < 2 
       omega
 
 /-- A normalized product has at most as many digits as its factors together. -/
-public theorem n_le_of_mul (P x y : Mag) (hP : P.IsNorm) (hv : P.val = x.val * y.val) : P.n ≤ x.n + y.n :=
+public theorem n_le_of_mul (P x y : BigNat) (hP : P.IsNorm) (hv : P.val = x.val * y.val) : P.n ≤ x.n + y.n :=
   P.n_le_of_val_lt hP _ (by rw [hv]; exact mul_lt_pow32 _ _ _ _ x.val_lt y.val_lt)
 
 /-- Karatsuba multiplication computes the product unless it exceeds `maxBytes`. -/
-public theorem val_mul (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (h : (a.n + b.n + 1) * 4 ≤ maxBytes) :
+public theorem val_mul (a b : BigNat) (ha : a.IsNorm) (hb : b.IsNorm) (h : (a.n + b.n + 1) * 4 ≤ maxBytes) :
     (mul a b).val = a.val * b.val ∧ (mul a b).IsNorm := by
   fun_induction mul a b
   · rename_i a b _ ih
@@ -228,7 +228,7 @@ public theorem val_mul (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (h : (a.n + b
     obtain ⟨va0, na0⟩ : a0.val = a.valUpTo m.toNat ∧ a0.IsNorm := by
       have := val_slice a 0 m (by simp)
       rwa [USize.toNat_zero, Nat.sub_zero, show min m.toNat a.n = m.toNat by omega,
-        Mag.valFrom_zero] at this
+        BigNat.valFrom_zero] at this
     obtain ⟨va1, na1⟩ : a1.val = a.valFrom m.toNat (a.n - m.toNat) ∧ a1.IsNorm := by
       have := val_slice a m a.usize (by omega)
       rwa [show min a.usize.toNat a.n = a.n by omega] at this
@@ -261,14 +261,14 @@ public theorem val_mul (a b : Mag) (ha : a.IsNorm) (hb : b.IsNorm) (h : (a.n + b
     obtain ⟨va0, na0⟩ : a0.val = a.valUpTo m.toNat ∧ a0.IsNorm := by
       have := val_slice a 0 m (by simp)
       rwa [USize.toNat_zero, Nat.sub_zero, show min m.toNat a.n = m.toNat by omega,
-        Mag.valFrom_zero] at this
+        BigNat.valFrom_zero] at this
     obtain ⟨va1, na1⟩ : a1.val = a.valFrom m.toNat (a.n - m.toNat) ∧ a1.IsNorm := by
       have := val_slice a m a.usize (by omega)
       rwa [show min a.usize.toNat a.n = a.n by omega] at this
     obtain ⟨vb0, nb0⟩ : b0.val = b.valUpTo m.toNat ∧ b0.IsNorm := by
       have := val_slice b 0 m (by simp)
       rwa [USize.toNat_zero, Nat.sub_zero, show min m.toNat b.n = m.toNat by omega,
-        Mag.valFrom_zero] at this
+        BigNat.valFrom_zero] at this
     obtain ⟨vb1, nb1⟩ : b1.val = b.valFrom m.toNat (b.n - m.toNat) ∧ b1.IsNorm := by
       have := val_slice b m b.usize (by omega)
       rwa [show min b.usize.toNat b.n = b.n by omega] at this

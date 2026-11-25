@@ -103,9 +103,7 @@ SANDBOX:
   download build caches outside of dependency resolution.
 
   `--inadvisably-no-sandbox` and `LAKE_INADVISABLY_NO_SANDBOX=1` disable the
-  sandbox and take precedence over `--sandbox` and `LAKE_SANDBOX=1`. It is an
-  error to request the sandbox if `bwrap` is missing or cannot create
-  namespaces.
+  sandbox and take precedence over `--sandbox` and `LAKE_SANDBOX=1`.
 
   `lake exe` builds the executable in the sandbox and then runs it outside.
   `lake new`, `lake init`, `lake cache`, `lake upload` and `lake samply` are

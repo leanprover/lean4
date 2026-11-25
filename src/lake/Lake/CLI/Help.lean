@@ -90,8 +90,8 @@ SANDBOX:
   or `LAKE_SANDBOX=1`, every command that loads the package configuration
   therefore runs in a sandbox, which needs Linux and `bwrap` (bubblewrap) on
   PATH. In it, `/` is read-only, the home directories and `/tmp` are hidden,
-  only `.lake` and the Lake cache are writable, and only Lean's, Lake's and a
-  few common environment variables are kept.
+  only `.lake` and a Lake cache of the sandbox's own are writable, and only
+  Lean's, Lake's and a few common environment variables are kept.
 
   Such a command first resolves dependencies. Only that step and
   `lake update` have a network and a writable manifest. `lake shake --fix`,

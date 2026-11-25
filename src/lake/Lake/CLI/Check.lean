@@ -193,6 +193,8 @@ public structure SandboxArgs where
   /-- Paths the run can read even where they lie under the hidden home directories. -/
   readablePaths : Array System.FilePath
   writablePaths : Array System.FilePath
+  /-- Writable directories that appear at another path in the sandbox, as source and destination. -/
+  writableMounts : Array (System.FilePath × System.FilePath) := #[]
   /-- Paths inside `writablePaths` that stay read-only. -/
   protectedPaths : Array System.FilePath := #[]
   /--
@@ -332,6 +334,8 @@ public def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × St
     (fun acc path => acc ++ #["--ro-bind", path.toString, path.toString])
   let args := spawnArgs.writablePaths.foldl (init := args)
     (fun acc path => acc ++ #["--bind", path.toString, path.toString])
+  let args := spawnArgs.writableMounts.foldl (init := args)
+    (fun acc (src, dst) => acc ++ #["--bind", src.toString, dst.toString])
   let args := spawnArgs.protectedPaths.foldl (init := args)
     (fun acc path => acc ++ #["--ro-bind", path.toString, path.toString])
   let args := env.foldl (init := args) (fun acc (name, value) => acc ++ #["--setenv", name, value])

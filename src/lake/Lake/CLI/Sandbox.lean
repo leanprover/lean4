@@ -114,20 +114,27 @@ def sandboxEnv (lakeEnv : Lake.Env) : IO (Array (String × String)) := do
   return env
 
 /--
-The Lake cache directories to keep writable. They are created only where the cache was asked for,
-since a package can enable it too, and that is not known out here.
+The Lake cache directories of the sandbox, each as the directory that holds it and the cache path
+it appears at inside. Sandboxed builds get caches of their own, next to the regular ones: what a
+sandboxed package writes must not end up in a build that runs with the user's access.
+
+They are set up only where a cache exists or was asked for, since a package can enable the cache
+too, and that is not known out here.
 -/
-def cacheDirs (lakeEnv : Lake.Env) : IO (Array FilePath) := do
-  let mut dirs := #[]
+def cacheMounts (lakeEnv : Lake.Env) : IO (Array (FilePath × FilePath)) := do
+  let mut mounts := #[]
   for cache? in [lakeEnv.lakeCache?, lakeEnv.lakeSystemCache?] do
     let some cache := cache? | continue
     if lakeEnv.enableArtifactCache? == some true then
       try IO.FS.createDirAll cache.dir catch _ => pure ()
-    if ← cache.dir.pathExists then
-      let dir ← IO.FS.realPath cache.dir
-      unless dirs.contains dir do
-        dirs := dirs.push dir
-  return dirs
+    unless ← cache.dir.pathExists do continue
+    let dir ← IO.FS.realPath cache.dir
+    let some name := dir.fileName | continue
+    let sandboxDir := dir.withFileName (name ++ "-sandbox")
+    unless mounts.any (·.2 == dir) do
+      IO.FS.createDirAll sandboxDir
+      mounts := mounts.push (sandboxDir, dir)
+  return mounts
 
 structure Tools where
   bwrap : FilePath
@@ -199,7 +206,7 @@ public def run (req : Request) : IO (ExitCode × String) := do
   let gitDir := projectDir / ".git"
   IO.FS.createDirAll lakeDir
   let env := (← sandboxEnv req.lakeEnv) ++ req.env
-  let caches ← cacheDirs req.lakeEnv
+  let caches ← cacheMounts req.lakeEnv
   let protectedPaths := if ← gitDir.pathExists then #[gitDir] else #[]
   -- `bwrap` cannot change to a directory the covers hide, so it gets an empty one in its place.
   let cwdCover :=
@@ -214,7 +221,8 @@ public def run (req : Request) : IO (ExitCode × String) := do
         #[projectDir, req.lakeEnv.lean.sysroot, req.lakeEnv.lake.home].toList.eraseDups.toArray
       writablePaths :=
         (if writesProject then #[projectDir] else #[lakeDir])
-          ++ caches ++ (if resolves then #[manifest] else #[])
+          ++ (if resolves then #[manifest] else #[])
+      writableMounts := caches
       protectedPaths := if writesProject then protectedPaths else #[]
       tmpfsPaths := (if resolves then #[] else Check.forbiddenPaths) ++ cwdCover
       network := resolves

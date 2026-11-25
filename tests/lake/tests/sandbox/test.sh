@@ -117,6 +117,15 @@ COMPARATOR_BWRAP=lake-missing-sandbox test_status_out 1 "was not found" build
 COMPARATOR_BWRAP=false test_run --inadvisably-no-sandbox build
 test_exp ! -e "$LOG"
 
+# Sandboxed builds get a Lake cache of their own in place of the regular one.
+rm -f "$LOG"
+mkdir cache
+LAKE_CACHE_DIR="$PROJ/cache" test_run check-build
+test_exp -d cache-sandbox
+runs_of check-build
+match_text "--bind $PROJ/cache-sandbox $PROJ/cache" runs.log
+no_match_text "--bind $PROJ/cache $PROJ/cache" runs.log
+
 # A command that edits the sources gets the project writable, except for its `.git`.
 test_run translate-config lean
 test_exp -f lakefile.lean

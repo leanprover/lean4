@@ -132,10 +132,7 @@ public unsafe def natSucc (a : Nat) : Nat := ofBigNat (add (toBigNat a) (one ())
 public unsafe def natAdd (a b : Nat) : Nat := ofBigNat (add (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_big_sub]
-public unsafe def natSub (a b : Nat) : Nat :=
-  let ma := toBigNat a
-  let mb := toBigNat b
-  if cmp ma mb == .lt then box 0 else ofBigNat (sub ma mb)
+public unsafe def natSub (a b : Nat) : Nat := ofBigNat (sub (toBigNat a) (toBigNat b))
 
 @[export lean_bignum_nat_big_mul]
 public unsafe def natMul (a b : Nat) : Nat := ofBigNat (mul (toBigNat a) (toBigNat b))
@@ -229,8 +226,8 @@ public unsafe def natLog2 (a : Nat) : Nat :=
 public unsafe def natSizeInBytes (a : Nat) : USize :=
   if isScalar a then (if System.Platform.numBits = 64 then 8 else 4) else (toBigNat a).bytes.usize
 
-@[inline] public unsafe def trailingZerosUSize (n : USize) : USize :=
-  if n == 0 then 0 else trailingZeros (ofUInt64 n.toUInt64)
+/-- The position of the lowest set bit of `n`, or `0` if `n = 0`. -/
+@[inline] public def trailingZerosUSize (n : USize) : USize := log2USize (n &&& (0 - n))
 
 @[export lean_bignum_nat_trailing_zeros]
 public unsafe def natTrailingZeros (a : Nat) : Nat :=
@@ -239,8 +236,10 @@ public unsafe def natTrailingZeros (a : Nat) : Nat :=
 @[export lean_bignum_int_trailing_zeros]
 public unsafe def intTrailingZeros (a : Int) : Nat :=
   -- the magnitude has the same trailing zeros as the two's complement representation
-  let (_, m) := intMag a
-  if m.usize == 0 then box 0 else (trailingZeros m).toNat
+  if isScalarInt a then
+    let v := (scalarToInt64 a).toUInt64
+    box (v &&& (0 - v)).log2.toUSize
+  else (trailingZeros (intMag a).2).toNat
 
 /-! ## `Int` arithmetic -/
 

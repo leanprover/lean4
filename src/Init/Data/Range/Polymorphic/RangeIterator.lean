@@ -504,7 +504,7 @@ private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α
     | ⟨.done acc', _⟩ => return acc'
   else
     return acc
-termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 where finally
@@ -586,7 +586,7 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α
       -- since that one only appears in the type of a constant -- I think?
       simp [Monadic.step]
   · simp
-termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
@@ -1081,7 +1081,7 @@ private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α
     | ⟨.done acc', _⟩ => return acc'
   else
     return acc
-termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 where finally
@@ -1157,7 +1157,7 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LT α
     · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
       simp [IterM.step_eq, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
-termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
@@ -1555,7 +1555,7 @@ private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α
         loop.wf γ Pl wf LargeEnough hl acc' next' (hl _ _ ?hle h) f
       | none => return acc'
     | ⟨.done acc', _⟩ => return acc'
-termination_by IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 where finally
@@ -1620,7 +1620,7 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α]
     · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
-termination_by IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 

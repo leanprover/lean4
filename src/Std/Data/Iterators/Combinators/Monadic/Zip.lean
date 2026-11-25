@@ -122,25 +122,25 @@ instance Zip.instIterator [Monad m] :
           pure <| .deflate <| .done (.doneRight hm hp)
 
 variable (m) in
-def Zip.Rel₁ [Finite α₁ m] [Productive α₂ m] :
+private def Zip.Rel₁ [Finite α₁ m] [Productive α₂ m] :
     IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) → IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) → Prop :=
   InvImage (Prod.Lex
       IterM.TerminationMeasures.Finite.Rel
       (Prod.Lex (Option.lt emptyRelation) IterM.TerminationMeasures.Productive.Rel))
     (fun it => (it.internalState.left.finitelyManySteps, (it.internalState.memoizedLeft, it.internalState.right.finitelyManySkips)))
 
-theorem Zip.rel₁_of_left [Finite α₁ m] [Productive α₂ m] {it' it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)}
+private theorem Zip.rel₁_of_left [Finite α₁ m] [Productive α₂ m] {it' it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)}
     (h : it'.internalState.left.finitelyManySteps.Rel it.internalState.left.finitelyManySteps) :
     Zip.Rel₁ m it' it :=
   Prod.Lex.left _ _ h
 
-theorem Zip.rel₁_of_memoizedLeft [Finite α₁ m] [Productive α₂ m]
+private theorem Zip.rel₁_of_memoizedLeft [Finite α₁ m] [Productive α₂ m]
     {left : IterM (α := α₁) m β₁} {b' b} {right' right : IterM (α := α₂) m β₂}
     (h : Option.lt emptyRelation b' b) :
     Zip.Rel₁ m ⟨left, b', right'⟩ ⟨left, b, right⟩ :=
   Prod.Lex.right _ <| Prod.Lex.left _ _ h
 
-theorem Zip.rel₁_of_right [Finite α₁ m] [Productive α₂ m]
+private theorem Zip.rel₁_of_right [Finite α₁ m] [Productive α₂ m]
     {left : IterM (α := α₁) m β₁} {b b' : _} {it' it : IterM (α := α₂) m β₂}
     (h : b' = b)
     (h' : it'.finitelyManySkips.Rel it.finitelyManySkips) :
@@ -148,7 +148,7 @@ theorem Zip.rel₁_of_right [Finite α₁ m] [Productive α₂ m]
   cases h
   exact Prod.Lex.right _ <| Prod.Lex.right _ h'
 
-def Zip.instFinitenessRelation₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
+private def Zip.instFinitenessRelation₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
   Rel := Zip.Rel₁ m
   wf := by
@@ -189,24 +189,24 @@ instance Zip.instFinite₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
   Finite.of_finitenessRelation Zip.instFinitenessRelation₁
 
 variable (m) in
-def Zip.Rel₂ [Productive α₁ m] [Finite α₂ m] :
+private def Zip.Rel₂ [Productive α₁ m] [Finite α₂ m] :
     IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) → IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) → Prop :=
   InvImage (Prod.Lex
       IterM.TerminationMeasures.Finite.Rel
       (Prod.Lex (Option.SomeLtNone.lt emptyRelation) IterM.TerminationMeasures.Productive.Rel))
     (fun it => (it.internalState.right.finitelyManySteps, (it.internalState.memoizedLeft, it.internalState.left.finitelyManySkips)))
 
-theorem Zip.rel₂_of_right [Productive α₁ m] [Finite α₂ m] {it' it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)}
+private theorem Zip.rel₂_of_right [Productive α₁ m] [Finite α₂ m] {it' it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)}
     (h : it'.internalState.right.finitelyManySteps.Rel it.internalState.right.finitelyManySteps) : Zip.Rel₂ m it' it :=
   Prod.Lex.left _ _ h
 
-theorem Zip.rel₂_of_memoizedLeft [Productive α₁ m] [Finite α₂ m]
+private theorem Zip.rel₂_of_memoizedLeft [Productive α₁ m] [Finite α₂ m]
     {right : IterM (α := α₂) m β₂} {b' b} {left' left : IterM (α := α₁) m β₁}
     (h : Option.SomeLtNone.lt emptyRelation b' b) :
     Zip.Rel₂ m ⟨left, b', right⟩ ⟨left', b, right⟩ :=
   Prod.Lex.right _ <| Prod.Lex.left _ _ h
 
-theorem Zip.rel₂_of_left [Productive α₁ m] [Finite α₂ m]
+private theorem Zip.rel₂_of_left [Productive α₁ m] [Finite α₂ m]
     {right : IterM (α := α₂) m β₂} {b b' : _} {it' it : IterM (α := α₁) m β₁}
     (h : b' = b)
     (h' : it'.finitelyManySkips.Rel it.finitelyManySkips) :
@@ -214,7 +214,7 @@ theorem Zip.rel₂_of_left [Productive α₁ m] [Finite α₂ m]
   cases h
   exact Prod.Lex.right _ <| Prod.Lex.right _ h'
 
-def Zip.instFinitenessRelation₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
+private def Zip.instFinitenessRelation₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
   Rel := Zip.Rel₂ m
   wf := by
@@ -255,25 +255,25 @@ instance Zip.instFinite₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
   Finite.of_finitenessRelation Zip.instFinitenessRelation₂
 
 variable (m) in
-def Zip.Rel₃ [Productive α₁ m] [Productive α₂ m] :
+private def Zip.Rel₃ [Productive α₁ m] [Productive α₂ m] :
     IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) → IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂) → Prop :=
   InvImage (Prod.Lex
       (Option.SomeLtNone.lt emptyRelation)
       (Prod.Lex (IterM.TerminationMeasures.Productive.Rel) IterM.TerminationMeasures.Productive.Rel))
     (fun it => (it.internalState.memoizedLeft, (it.internalState.left.finitelyManySkips, it.internalState.right.finitelyManySkips)))
 
-theorem Zip.rel₃_of_memoizedLeft [Productive α₁ m] [Productive α₂ m] {it' it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)}
+private theorem Zip.rel₃_of_memoizedLeft [Productive α₁ m] [Productive α₂ m] {it' it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)}
     (h : Option.SomeLtNone.lt emptyRelation it'.internalState.memoizedLeft it.internalState.memoizedLeft) :
     Zip.Rel₃ m it' it :=
   Prod.Lex.left _ _ h
 
-theorem Zip.rel₃_of_left [Productive α₁ m] [Productive α₂ m]
+private theorem Zip.rel₃_of_left [Productive α₁ m] [Productive α₂ m]
     {left' left : IterM (α := α₁) m β₁} {b} {right' right : IterM (α := α₂) m β₂}
     (h : left'.finitelyManySkips.Rel left.finitelyManySkips) :
     Zip.Rel₃ m ⟨left', b, right'⟩ ⟨left, b, right⟩ :=
   Prod.Lex.right _ <| Prod.Lex.left _ _ h
 
-theorem Zip.rel₃_of_right [Productive α₁ m] [Productive α₂ m]
+private theorem Zip.rel₃_of_right [Productive α₁ m] [Productive α₂ m]
     {left : IterM (α := α₁) m β₁} {b b' : _} {it' it : IterM (α := α₂) m β₂}
     (h : b' = b)
     (h' : it'.finitelyManySkips.Rel it.finitelyManySkips) :
@@ -281,7 +281,7 @@ theorem Zip.rel₃_of_right [Productive α₁ m] [Productive α₂ m]
   cases h
   exact Prod.Lex.right _ <| Prod.Lex.right _ h'
 
-def Zip.instProductivenessRelation [Monad m] [Productive α₁ m] [Productive α₂ m] :
+private def Zip.instProductivenessRelation [Monad m] [Productive α₁ m] [Productive α₂ m] :
     ProductivenessRelation (Zip α₁ m α₂ β₂) m where
   Rel := Zip.Rel₃ m
   wf := by

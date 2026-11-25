@@ -15,6 +15,8 @@ After unfolding the instances 'instDecidableEqNat', 'Array.instDecidableEq' and 
 ```
 -/
 
+set_option trustEvalAsAxioms true
+
 example : #[0, 1] = #[0, 1] := by decide
 
 example : let a := Array.range (10^6); a == a := by native_decide

@@ -1,3 +1,5 @@
+set_option trustEvalAsAxioms true
+
 
 inductive P : Prop where
   | mk : P

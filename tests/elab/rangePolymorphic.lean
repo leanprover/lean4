@@ -1,5 +1,7 @@
 import Std.Data.Iterators
 
+set_option trustEvalAsAxioms true
+
 open Std.Iterators
 
 /-- info: true -/

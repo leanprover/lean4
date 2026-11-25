@@ -1,3 +1,5 @@
+set_option trustEvalAsAxioms true
+
 example : UInt8.toFin 42 = 42 := by simp
 example : UInt16.toFin 42 = 42 := by simp
 example : UInt32.toFin 42 = 42 := by simp

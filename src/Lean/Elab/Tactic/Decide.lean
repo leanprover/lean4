@@ -118,7 +118,7 @@ where
     let pf ← mkDecideProof expectedType
     -- Get instance from `pf`
     let s := pf.appFn!.appArg!
-    -- Reduce the decidable instance to (hopefully!) `isTrue` by passing `pf` to the kernel.
+    -- Reduce `decide p` to (hopefully!) `true` by passing `pf` to the kernel.
     -- The `mkAuxLemma` function caches the result in two ways:
     -- 1. First, the function makes use of a `type`-indexed cache per module.
     -- 2. Second, once the proof is added to the environment, the kernel doesn't need to check the proof again.

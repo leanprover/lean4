@@ -16,9 +16,9 @@ open Lean Meta
 namespace Lean.Meta
 
 /-!
-This module contains infrastructure for proofs by native evaluation (`native decide`, `bv_decide`).
-Such proofs involve a native computation using the Lean kernel, and then asserting the result
-of that computation as an axiom towards the logic.
+This module contains infrastructure for proofs by native evaluation (`native_decide`, `bv_decide`).
+Such proofs evaluate code like `#eval` does, following `@[implemented_by]` and `@[extern]`
+implementations, and then assert the result of that evaluation as a new axiom.
 -/
 
 public inductive NativeEqTrueResult where
@@ -33,8 +33,13 @@ that value, check that it evaluates to `true`, and if so, will add an axiom asse
 return that axiom.
 
 It is the basis for `native_decide` and `bv_decide` tactics.
+
+If `requireTrustEvalAsAxioms` is set, declarations using the axiom are rejected unless the option
+`trustEvalAsAxioms` is set, and the error is reported at `axiomDeclRange?` or the current ref. Only
+tactics whose code is very carefully vetted should unset it.
 -/
-public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqTrueResult  := do
+public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none)
+    (requireTrustEvalAsAxioms := true) : MetaM NativeEqTrueResult := do
   let e ← instantiateMVars e
   if e.hasFVar then
     throwError m!"Tactic `{tacticName}` failed: Cannot native decide proposition with free variables:{indentExpr e}"
@@ -72,6 +77,7 @@ public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option
 
   unless isTrue do return .notTrue
 
+  -- `isNativeComputationAxiomName` relies on this naming scheme
   let auxAxiomName ← mkAuxDeclName <| `_native ++ tacticName ++ `ax
   let axDecl := Declaration.axiomDecl {
     name := auxAxiomName
@@ -82,6 +88,9 @@ public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option
   addDecl axDecl
   if let some ref := axiomDeclRange? then
     Elab.addDeclarationRangesFromSyntax auxAxiomName ref
+  if requireTrustEvalAsAxioms then
+    let ref := axiomDeclRange?.getD (← getRef)
+    modifyEnv (addNativeComputationRef · auxAxiomName ref)
 
   let levelParams := levels.map mkLevelParam
   return .success <| mkConst auxAxiomName levelParams

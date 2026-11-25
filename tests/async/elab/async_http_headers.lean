@@ -1,6 +1,8 @@
 import Std.Http.Data.Headers
 import Std.Http.Protocol.H1
 
+set_option trustEvalAsAxioms true
+
 open Std.Http
 open Std.Http.Header
 

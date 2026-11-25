@@ -1,5 +1,7 @@
 module
 import Lean.Meta.Sym.Arith.Poly
+
+set_option trustEvalAsAxioms true
 open Lean.Grind.CommRing
 
 def w : Expr := .var 0

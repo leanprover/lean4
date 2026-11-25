@@ -1,3 +1,5 @@
+set_option trustEvalAsAxioms true
+
 set_option trace.Compiler.explicitRc true in
 /--
 trace: [Compiler.explicitRc] size: 3

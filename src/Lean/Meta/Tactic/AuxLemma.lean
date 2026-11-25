@@ -45,6 +45,11 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let key := { type, isPrivate := !env.isExporting, defeq }
+  -- Bypass the cache for native computation so that each use is checked by `checkTrustEvalAsAxioms`
+  -- and none is reused where `trustEvalAsAxioms` is not set.
+  let usesNative := value.hasNativeComputationAxiom && Id.run do
+    let refs := nativeComputationRefExt.getState env
+    return value.find? (fun | .const n _ => refs.contains n | _ => false) |>.isSome
   let mkNewAuxLemma := do
     let auxName ← mkAuxDeclName (kind := kind?.getD `_proof)
     let decl :=
@@ -65,9 +70,10 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
     if defeq then defeqAttr.setTag auxName
     if inferRfl then
       inferDefEqAttr auxName
-    modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert key (auxName, levelParams)⟩
+    unless usesNative do
+      modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert key (auxName, levelParams)⟩
     return auxName
-  if cache then
+  if cache && !usesNative then
     if let some (name, levelParams') := s.lemmas.find? key then
       if levelParams == levelParams' then
         return name

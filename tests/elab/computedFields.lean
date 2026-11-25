@@ -1,3 +1,5 @@
+set_option trustEvalAsAxioms true
+
 inductive Exp
   | hole
   | var (i : UInt32)

@@ -13,6 +13,7 @@ public import Lean.AutoDecl
 import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
 import Lean.Util.RecDepth
+import Lean.Util.FoldConsts
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
@@ -99,6 +100,97 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
+
+register_builtin_option trustEvalAsAxioms : Bool := {
+  defValue := false
+  descr    := "allow proofs (e.g. by `native_decide`) that evaluate code like `#eval` does, \
+    following `@[implemented_by]` and `@[extern]` implementations, and assert the result as a new \
+    axiom; this axiom shows up in `#print axioms`, and makes `lake comparator` and `lake check` fail"
+}
+
+/--
+If `n` is the name of an axiom added by `Lean.Meta.nativeEqTrue` to assert the result of a native
+computation, returns the `<prefix>` of its name `<prefix>._native.<tactic>.ax<suffix>`, which is the
+name of the declaration whose elaboration created it.
+-/
+def nativeComputationAxiomPrefix? (n : Name) : Option Name :=
+  match n.eraseMacroScopes with
+  | .str (.str (.str p "_native") _) s => if s.startsWith "ax" then some p else none
+  | _ => none
+
+/--
+Returns `true` if `n` is the name of an axiom added by `Lean.Meta.nativeEqTrue` to assert the result
+of a native computation.
+-/
+def isNativeComputationAxiomName (n : Name) : Bool :=
+  (nativeComputationAxiomPrefix? n).isSome
+
+/--
+Maps the native computation axioms that `checkTrustEvalAsAxioms` should reject to the syntax of the
+tactic invocation that created them. Not persisted: the declaration using such an axiom is added in
+the same elaboration as the axiom itself.
+-/
+builtin_initialize nativeComputationRefExt : EnvExtension (NameMap Syntax) ←
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
+
+/-- Records `ref` as the tactic invocation that created the native computation axiom `axName`. -/
+def addNativeComputationRef (env : Environment) (axName : Name) (ref : Syntax) : Environment :=
+  nativeComputationRefExt.modifyState (log := .decl axName) env (·.insert axName ref)
+
+/-- Returns `true` if `e` uses an axiom asserting the result of a native computation. -/
+def Expr.hasNativeComputationAxiom (e : Expr) : Bool :=
+  e.find? (fun | .const n _ => isNativeComputationAxiomName n | _ => false) |>.isSome
+
+/-- Returns the native computation axioms (see `isNativeComputationAxiomName`) used in `d`. -/
+def Declaration.getNativeComputationAxioms (d : Declaration) : Array Name := Id.run do
+  -- fast path, as this runs on every declaration
+  unless Id.run (d.foldExprM (fun r e => r || e.hasNativeComputationAxiom) false) do
+    return #[]
+  d.foldExprM (a := (#[] : Array Name)) fun axs e =>
+    e.foldConsts axs fun c axs =>
+      if isNativeComputationAxiomName c && !axs.contains c then axs.push c else axs
+
+/--
+Unless the `trustEvalAsAxioms` option is set, logs an error for each native computation axiom
+recorded by `addNativeComputationRef` during the elaboration of the declaration and used by it
+directly, at the tactic invocation that created it.
+-/
+def checkTrustEvalAsAxioms (decl : Declaration) : CoreM Unit := do
+  if trustEvalAsAxioms.get (← getOptions) then
+    return
+  let axs := decl.getNativeComputationAxioms
+  if axs.isEmpty then
+    return
+  let refs := nativeComputationRefExt.getState (← getEnv)
+  -- An axiom's name is prefixed by the declaration whose elaboration created it. Axioms of other
+  -- declarations, referenced explicitly, are treated like references to these declarations.
+  let names := decl.getNames.map (privateToUserName ·.eraseMacroScopes)
+  let isLocal (ax : Name) : Bool := Id.run do
+    let some p := nativeComputationAxiomPrefix? ax | return false
+    return names.any (privateToUserName p).isPrefixOf
+  -- Combinators such as `<;>` run the same tactic invocation several times; report it once.
+  let mut byRef : Array (Syntax × Array Name) := #[]
+  for ax in axs do
+    let some ref := if isLocal ax then refs.find? ax else none | continue
+    let key := (ref.getPos?, ref.getTailPos?)
+    if let some i := byRef.findIdx? (fun (r, _) => key.1.isSome && (r.getPos?, r.getTailPos?) == key) then
+      byRef := byRef.modify i fun (r, axs) => (r, axs.push ax)
+    else
+      byRef := byRef.push (ref, #[ax])
+  for (ref, axs) in byRef do
+    let axsMsg := MessageData.joinSep (axs.toList.map (m!"`{.ofConstName ·}`")) ", "
+    let axsMsg := if axs.size == 1 then m!"the axiom {axsMsg}" else m!"the axioms {axsMsg}"
+    logErrorAt ref m!"`{ref}` uses native computation, which requires trusting the Lean \
+      compiler\n\n\
+      It proves the goal by evaluating code like `#eval` does, following `@[implemented_by]` and \
+      `@[extern]` implementations, and asserting the result as a new axiom, instead of \
+      constructing a proof that the kernel can check. Relying on such a proof means trusting the \
+      Lean compiler and all `@[implemented_by]` and `@[extern]` implementations involved, in \
+      addition to the kernel. `#print axioms` lists {axsMsg} for this declaration and every \
+      declaration depending on it, and `lake comparator` and `lake check` fail on them.\n\n\
+      If this is acceptable, native computation can be allowed for a single declaration using \
+      `set_option trustEvalAsAxioms true in`, or for an entire project by setting \
+      `trustEvalAsAxioms` to `true` in the `leanOptions` of the Lake package configuration."
 
 builtin_initialize
   registerTraceClass `addDecl
@@ -201,6 +293,7 @@ where
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
+        checkTrustEvalAsAxioms decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

@@ -966,6 +966,13 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
     .pure <| .ofConstantInfo <$> (env.base.get env |>.constants.map₂.find? n)
 
 /--
+Looks up `n` among the imported constants. Returns `none` for a constant of the current module.
+Unlike `findAsync?`, it allocates no `AsyncConstantInfo` and no tasks.
+-/
+def findImported? (env : Environment) (n : Name) : Option ConstantInfo :=
+  env.base.get env |>.constants.map₁[n]?
+
+/--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
 tasks unless necessary. This can usually be done efficiently because `addConstAsync` ensures that
 declarations added in an environment branch have that branch's declaration name as a prefix, so we

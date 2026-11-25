@@ -46,19 +46,14 @@ namespace Nat.Big
 
 /--
 The largest byte size of a `BigNat`, `2 ^ (System.Platform.numBits - 4)`, far below `USize.size`.
-It is computed without module-level constants or literals of `2 ^ 32` and above, which the runtime
-would parse with these very functions.
+Both values fit in a scalar on their platform, so evaluating `maxBytes` never creates a big `Nat`,
+which would call back into this module.
 -/
 @[inline, expose] public def maxBytes : Nat :=
-  if System.Platform.numBits = 64 then ((1 : USize) <<< 60).toNat else 268435456
+  if System.Platform.numBits = 64 then 2 ^ 60 else 2 ^ 28
 
 public theorem maxBytes_eq : maxBytes = 2 ^ (System.Platform.numBits - 4) := by
-  have e : USize.size = 2 ^ System.Platform.numBits := rfl
-  rcases System.Platform.numBits_eq with h | h
-  · simp [maxBytes, h]
-  · simp only [maxBytes, h, ite_true, USize.toNat_shiftLeft, USize.toNat_one]
-    rw [show (60 : USize).toNat = 60 by simp [USize.toNat_ofNat, h]]
-    simp
+  rcases System.Platform.numBits_eq with h | h <;> simp [maxBytes, h]
 
 public theorem maxBytes_lt : maxBytes * 8 < USize.size := by
   have : USize.size = 2 ^ System.Platform.numBits := rfl

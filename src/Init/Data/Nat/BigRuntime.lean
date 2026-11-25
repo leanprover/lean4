@@ -215,7 +215,7 @@ public def log2USize (n : USize) : USize := (n.toUInt64.log2).toUSize
 
 @[export lean_bignum_nat_log2]
 public unsafe def natLog2 (a : Nat) : Nat :=
-  if isScalar a then box (log2USize (unbox a)) else box (log2 (toBigNat a))
+  if isScalar a then box (log2USize (unbox a)) else (log2 (toBigNat a)).toNat
 
 /-- The size of `a`'s representation in bytes; used for the kernel's size limits. -/
 @[export lean_bignum_nat_size_in_bytes]
@@ -227,13 +227,13 @@ public unsafe def natSizeInBytes (a : Nat) : USize :=
 
 @[export lean_bignum_nat_trailing_zeros]
 public unsafe def natTrailingZeros (a : Nat) : Nat :=
-  if isScalar a then box (trailingZerosUSize (unbox a)) else box (trailingZeros (toBigNat a))
+  if isScalar a then box (trailingZerosUSize (unbox a)) else (trailingZeros (toBigNat a)).toNat
 
 @[export lean_bignum_int_trailing_zeros]
 public unsafe def intTrailingZeros (a : Int) : Nat :=
   -- the magnitude has the same trailing zeros as the two's complement representation
   let (_, m) := intMag a
-  if m.usize == 0 then box 0 else box (trailingZeros m)
+  if m.usize == 0 then box 0 else (trailingZeros m).toNat
 
 /-! ## `Int` arithmetic -/
 

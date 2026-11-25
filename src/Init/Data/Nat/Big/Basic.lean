@@ -38,7 +38,9 @@ namespace Nat.Big
 
 
 /--
-The largest byte size of a `BigNat`, `2 ^ (System.Platform.numBits - 4)`, far below `USize.size`.
+The largest byte size of a `BigNat`, `2 ^ (System.Platform.numBits - 4)`, chosen so that the bit
+offsets of a `BigNat` fit in a `USize` (`maxBytes_lt`).
+
 Both values fit in a scalar on their platform, so evaluating `maxBytes` never creates a big `Nat`,
 which would call back into this module.
 -/

@@ -190,10 +190,10 @@ public structure SandboxArgs where
   args : Array String
   envPass : Array String
   envOverride : Array (String × Option String) := #[]
-  /-- Bound back read-only over the covered home directories, so the run can still read these. -/
+  /-- Paths the run can read even where they lie under the hidden home directories. -/
   readablePaths : Array System.FilePath
   writablePaths : Array System.FilePath
-  /-- Bound back read-only on top of `writablePaths`. -/
+  /-- Paths inside `writablePaths` that stay read-only. -/
   protectedPaths : Array System.FilePath := #[]
   /--
   Paths that get masked with a tmpfs so they exist but do not have the same content as the host
@@ -309,7 +309,7 @@ Builds the `bwrap` command line.
 
 `/` is bound read-only and the home directories are then covered with a `tmpfs`, so the code being
 judged is built against the system it expects while none of the invoking user's files are readable.
-Mounts apply in order, so `readablePaths` binds back what the run does need on top of those covers.
+Mounts apply in order, so the `readablePaths` mounted after those covers stay visible.
 Only the paths in `writablePaths` are writable, and the network is a namespace rather than a filter:
 a run either has one or has none at all.
 -/
@@ -590,7 +590,7 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       kernelArgs := kernelArgs.push solutionPath.toString
 
     -- Resolved rather than left to `PATH`: an external kernel installed under the home directory
-    -- the sandbox covers has to be bound back, which needs its path.
+    -- the sandbox hides has to be made readable again, which needs its path.
     let kernelExe := (← whichExe kernelCommand[0]!).getD kernelCommand[0]!
     let spawnArgs := {
       cmd := kernelExe.toString,

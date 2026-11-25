@@ -6,7 +6,8 @@ open Std Http Server
 Tests `Server.Driver`, the decisions of an HTTP/1.1 server connection, by stepping it with inputs and
 reading the commands it returns, with no I/O: a request answered and its connection kept alive, the
 timeouts of an idle connection and of a partial head, a shutdown while a handler runs, a failed write,
-a rejected `Expect: 100-continue`, and an exchange ended early being reported once.
+a rejected `Expect: 100-continue`, an exchange ended early being reported once, and the 500 that
+replaces a 1xx final response.
 -/
 
 def cfg : Http.Config := { generateDate := false }
@@ -141,6 +142,16 @@ def bodyEnds (cmds : Array Driver.Command) : Array String :=
   s.isClosed && (written cmds).startsWith "HTTP/1.1 500 Internal Server Error\r\n" &&
     reports cmds == #["Other error: the final response has the interim status 100"] &&
     cmds.any (· matches .close true)
+
+-- The 500 that replaces a 1xx final response to `HEAD` keeps its `Content-Length` but carries no
+-- content (RFC 9110 §9.3.2).
+#guard
+  let headRequest := "HEAD / HTTP/1.1\r\nHost: a\r\n\r\n".toUTF8
+  let (s, cmds) := drive fresh [.received (some headRequest), .responded { status := .earlyHints } none (.ok none)]
+  let out := written cmds
+  s.isClosed && out.startsWith "HTTP/1.1 500 Internal Server Error\r\n" &&
+    out.endsWith "Content-Length: 22\r\n\r\n" &&
+    reports cmds == #["Other error: the final response has the interim status 103"]
 
 -- A timeout or a failed handler while the request body is incomplete is reported once, and the body
 -- ends because the connection closes, not because of a failure of its own.

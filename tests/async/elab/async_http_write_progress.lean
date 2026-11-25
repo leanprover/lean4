@@ -7,7 +7,8 @@ open Std Http Internal Test
 /-!
 Tests that `Config.writeTimeout` bounds the time without any write completing, not the time a whole
 response takes: a peer that reads slowly but steadily gets a response that takes several times
-`writeTimeout` in full, and the keep-alive timeout counts from when a slow write completes.
+`writeTimeout` in full, the keep-alive timeout counts from when a slow write completes, and a write
+that ran late while nothing waited on it does not fail the connection once the peer catches up.
 -/
 
 def withTimeout {α : Type} (name : String) (ms : Nat) (action : IO α) : IO α := do
@@ -110,3 +111,44 @@ def piece : String := String.ofList (List.replicate 1024 'x')
   let second := String.fromUTF8! (← readAll client)
   unless second.startsWith "HTTP/1.1 200" do
     throw (IO.userError s!"the connection closed before its keep-alive timeout:\n{second}")
+
+/-- A transport whose first write completes after `first` ms and every later one after `rest` ms. -/
+structure SlowFirst where
+  inner : Mock.Server
+  count : IO.Ref Nat
+  first : Nat
+  rest : Nat
+
+instance : Transport SlowFirst where
+  recv s n := Transport.recv s.inner n
+  sendAll s data := do
+    let n ← s.count.modifyGet fun n => (n, n + 1)
+    sleep (.ofNat (if n == 0 then s.first else s.rest))
+    Transport.sendAll s.inner data
+  recvSelector s n := Transport.recvSelector s.inner n
+  close s := Transport.close s.inner
+
+-- One write takes 500 ms, past `writeTimeout`, while the connection waits only on the response
+-- body, and then the peer catches up. Nothing waited on that write while it ran late, so the
+-- connection goes on: the pipelined requests behind it are served and no failure is reported.
+#eval withTimeout "a late write the peer caught up on" 8000 <| Async.block do
+  let failures ← IO.mkRef (#[] : Array String)
+  let handler := Server.Handler.ofFns
+    (onRequest := fun req =>
+      if toString req.line.uri == "/slow" then
+        Response.ok |>.stream fun out => do
+          out.send (Chunk.ofByteArray "first".toUTF8)
+          sleep 800
+          out.send (Chunk.ofByteArray "second".toUTF8)
+      else Response.ok |>.text "after")
+    (onFailure := fun e => failures.modify (·.push (toString e)))
+  let config : Config := { defaultConfig with writeTimeout := 300 }
+  let (client, server) ← Mock.new
+  client.send (mkGet "/slow" ++ mkGet "/after" ++ mkGetClose "/after").toUTF8
+  let transport : SlowFirst := { inner := server, count := ← IO.mkRef 0, first := 500, rest := 20 }
+  Std.Http.Server.serveConnection transport handler config |>.run
+  let response := String.fromUTF8! (← readAll client)
+  unless countOccurrences response "HTTP/1.1 200" == 3 && response.endsWith "after" do
+    throw (IO.userError s!"the requests after the late write were not served:\n{response}")
+  unless (← failures.get).isEmpty do
+    throw (IO.userError s!"failures were reported for a peer that caught up: {← failures.get}")

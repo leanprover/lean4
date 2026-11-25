@@ -275,7 +275,7 @@ private def poll
     selectables := selectables.push
       (.case (Transport.recvSelector env.socket size.toUInt64) (pure ∘ .input ∘ .received))
   if watchWrites then
-    selectables := selectables.push (.case env.outbox.lateSelector fun _ => pure .writeDue)
+    selectables := selectables.push (.case (← env.outbox.lateSelector) fun _ => pure .writeDue)
   if sources.responseBody then
     if let some body := live.responseBody then
       selectables := selectables.push (.case (Body.recvSelector body) (pure ∘ .input ∘ .pulled))

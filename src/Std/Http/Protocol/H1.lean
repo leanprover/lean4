@@ -1079,9 +1079,13 @@ private def rejectOutgoing (machine : Machine dir) (error : H1.Error) : Machine 
     let head := errorHead status
     let encoded := encodeServerHead head machine.reader.messageHead.version machine.keepAlive
       machine.date machine.config.agentName (.fixed content.size)
-    machine.modifyWriter (fun w => { w with
-      messageHead := head, state := .complete,
-      outputData := w.outputData.push encoded |>.push content })
+    -- RFC 9110 §9.3.2: a HEAD response keeps the `Content-Length` but carries no content.
+    let isHead := machine.reader.messageHead.method == .head
+    machine.modifyWriter (fun w =>
+      let output := w.outputData.push encoded
+      { w with
+        messageHead := head, state := .complete
+        outputData := if isHead then output else output.push content })
     |>.suppressOutgoingBody
   | .sending, machine => machine.closeWriter
 

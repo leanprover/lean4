@@ -1424,5 +1424,6 @@ void finalize_inductive() {
     delete g_string_mk;
     delete g_list_cons_char;
     delete g_list_nil_char;
+    delete g_char_of_nat;
 }
 }

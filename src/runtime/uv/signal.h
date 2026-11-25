@@ -58,9 +58,6 @@ static inline lean_object* lean_uv_signal_new(lean_uv_signal_object * s) { retur
 static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return (lean_uv_signal_object*)(lean_get_external_data(o)); }
 
 void signal_take_pending(lean_object * signal, uv_finalize_batch & batch);
-// Before a restart: closes a handle kept listening after its `Signal` was freed, which restores the
-// signal's default action.
-void signal_close_orphan(uv_handle_t * handle);
 
 #endif
 

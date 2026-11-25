@@ -70,8 +70,13 @@ public:
     // `pending` returns false or `timeout_ms` passes. Callbacks run, but new operations still fail.
     void flush(uint64_t timeout_ms, bool (*pending)());
 
-    // The deadline of `flush`. It is not a Lean object, so finalization's walk skips it.
+    // The deadline of `flush`.
     uv_timer_t       m_flush_timer;
+
+    // Whether `handle` is one of the loop's own handles, which are not Lean objects and are never closed.
+    bool is_own_handle(uv_handle_t const * handle) const {
+        return handle == (uv_handle_t const *)&m_async || handle == (uv_handle_t const *)&m_flush_timer;
+    }
 
     // Stops libuv for `IO.Process.exit`, whose `exit()` runs libuv's destructor while other threads
     // keep running. Takes the lock and never releases it, so that no thread is inside libuv by then,

@@ -10,14 +10,6 @@ Author: Sofia Rodrigues
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 
-// Once libuv has stopped, a listening handle is never stopped or closed: that would restore the
-// signal's default action, which for most signals kills the program. A one-shot handler that has
-// fired is no longer listening, as on the OS level.
-static void keep_listening(lean_uv_signal_object * signal) {
-    uv_signal_start(&signal->m_uv_signal, [](uv_signal_t *, int) {}, signal->m_signum);
-    uv_unref((uv_handle_t*)&signal->m_uv_signal);
-}
-
 // The finalizer of the `Signal`.
 static void signal_finalizer(void* ptr) {
     lean_uv_signal_object * signal = (lean_uv_signal_object*) ptr;
@@ -33,13 +25,6 @@ static void signal_finalizer(void* ptr) {
         promise = std::move(signal->m_promise);
         // While a promise is pending the loop holds a reference, so the signal cannot be finalized.
         lean_assert(promise.get() == nullptr || promise_is_resolved(promise.get()));
-
-        if (guard.stopped() && uv_is_active((uv_handle_t*)&signal->m_uv_signal)) {
-            // The loop's handle queue keeps the struct reachable; a null `data` marks it orphaned.
-            keep_listening(signal);
-            signal->m_uv_signal.data = nullptr;
-            return;
-        }
 
         // The Lean object is being freed, so the close callback gets the struct instead. No callback
         // reads `data` as the Lean object after `uv_close`.
@@ -188,9 +173,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
             if (result == 0) {
                 signal->m_state = signal_state::Running;
-                // A stop before a restart left the handle listening but unreferenced; libuv only
-                // replaced its callback.
-                uv_ref((uv_handle_t*)&signal->m_uv_signal);
                 // The event loop keeps the signal alive while a promise is pending.
                 lean_inc(obj);
             } else {
@@ -289,20 +271,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-void signal_close_orphan(uv_handle_t * handle) {
-    // The handle is the struct's first member.
-    uv_close(handle, [](uv_handle_t * handle) {
-        delete reinterpret_cast<lean_uv_signal_object *>(handle);
-    });
-}
-
 void signal_take_pending(lean_object * obj, uv_finalize_batch & batch) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
     if (signal->m_state != signal_state::Running) {
         return;
     }
-    keep_listening(signal);
-    // So that `next` starts it again after a restart. Signals during the stop are not delivered.
+    // Restores the signal's default action once no other handle listens for it: the program can no
+    // longer handle it, and a stuck finalization must stay interruptible.
+    uv_signal_stop(&signal->m_uv_signal);
+    // So that `next` starts it again after a restart.
     signal->m_state = signal_state::Initial;
     signal->m_received = false;
     batch.take(signal->m_promise, obj);

@@ -7,6 +7,7 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/libuv.h"
 #include <chrono>
 #include <mutex>
+#include <string>
 #include <vector>
 #include "runtime/object.h"
 
@@ -34,21 +35,24 @@ extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
 // Takes what a handle's pending operations hold, stopping them as their `stop` or `cancel` would.
 // Handle constructors set `data` under the loop lock, since this reads it as the owning object.
 static void take_pending(uv_handle_t * handle, void * arg) {
-    // A closing handle was closed by `close` or a finalizer, which released what it held. A signal
-    // handle without `data` lost its object after the stop and only keeps listening.
-    if (uv_is_closing(handle) || handle->data == nullptr || handle == (uv_handle_t*)&global_ev.m_flush_timer) {
-        return;
+    // A closing handle was closed by `close` or a finalizer, which released what it held.
+    if (uv_is_closing(handle) || global_ev.is_own_handle(handle)) return;
+
+    // Its pending operations could not be stopped.
+    if (handle->data == nullptr) {
+        lean_internal_panic((std::string("libuv finalization found a ") + uv_handle_type_name(handle->type) + " handle without its object").c_str());
     }
 
     uv_finalize_batch & batch = *static_cast<uv_finalize_batch *>(arg);
     lean_object * obj = static_cast<lean_object *>(handle->data);
+
     switch (handle->type) {
     case UV_TIMER: timer_take_pending(obj, batch); break;
     case UV_SIGNAL: signal_take_pending(obj, batch); break;
     case UV_TCP: tcp_take_pending(obj, batch); break;
     case UV_UDP: udp_take_pending(obj, batch); break;
     case UV_PROCESS: process_set_cancelled(handle, true); break;
-    default: break;
+    default: lean_internal_panic((std::string("libuv finalization does not handle ") + uv_handle_type_name(handle->type) + " handles").c_str());
     }
 }
 
@@ -80,7 +84,9 @@ static bool take_all(uv_finalize_batch & batch) {
         keep_until_exit(batch);
         return false;
     }
+
     uv_walk(global_ev.m_loop, take_pending, &batch);
+
     if (batch.m_keep_flushable) {
         cancel_queued_work();
     }
@@ -236,12 +242,9 @@ extern "C" LEAN_EXPORT void lean_uv_restart() {
     if (global_ev.m_loop != nullptr) {
         event_loop_guard guard;
         if (guard.exiting()) return;
-        // Handles left from the last finalization that would otherwise outlive it.
+        // Children that the last finalization cancelled can be waited for again.
         uv_walk(global_ev.m_loop, [](uv_handle_t * handle, void *) {
-            if (uv_is_closing(handle)) return;
-            if (handle->type == UV_SIGNAL && handle->data == nullptr) {
-                signal_close_orphan(handle);
-            } else if (handle->type == UV_PROCESS) {
+            if (!uv_is_closing(handle) && handle->type == UV_PROCESS) {
                 process_set_cancelled(handle, false);
             }
         }, nullptr);

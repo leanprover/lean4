@@ -24,23 +24,30 @@ called while `Init.Prelude` is being initialized, they must not refer to any mod
 constants.
 -/
 
+set_option compiler.extract_closed false
+
 namespace Nat.Big.Runtime
 open Nat.Big
 
 /-! ## Object access -/
 
-@[extern "lean_is_scalar"] public opaque isScalar (n : @& Nat) : Bool
-@[extern "lean_unbox"] public opaque unbox (n : @& Nat) : USize
-@[extern "lean_box"] public opaque box (n : USize) : Nat
-@[extern "lean_is_scalar"] public opaque isScalarInt (n : @& Int) : Bool
-@[extern "lean_unbox"] public opaque unboxInt (n : @& Int) : USize
+@[extern "lean_is_scalar"] public unsafe opaque isScalar (n : @& Nat) : Bool
+@[extern "lean_unbox"] public unsafe opaque unbox (n : @& Nat) : USize
+/-- Must only be applied to values of at most `maxSmallNat`. -/
+@[extern "lean_box"] public unsafe opaque box (n : USize) : Nat
+@[extern "lean_is_scalar"] public unsafe opaque isScalarInt (n : @& Int) : Bool
+@[extern "lean_unbox"] public unsafe opaque unboxInt (n : @& Int) : USize
 /-- Must only be applied to values in the small `Int` range. -/
-@[extern "lean_int64_to_int_sint"] public opaque ofSmallInt64 (n : Int64) : Int
-@[extern "lean_internal_panic_string"] public opaque internalPanic (msg : @& String) : Nat
+@[extern "lean_int64_to_int_sint"] public unsafe opaque ofSmallInt64 (n : Int64) : Int
+/--
+Aborts the process because the exponent of `Nat.shiftLeft` (`op = 0`), `Nat.shiftRight` (`op = 1`)
+or `Nat.pow` (`op = 2`) is too big.
+-/
+@[extern "lean_bignum_panic_exponent_too_big"] public unsafe opaque exponentTooBig (op : UInt8) : Nat
 
 /-- The value of a scalar `Int`, as `lean_scalar_to_int64`: the low 32 (64-bit platforms) or
 31 (32-bit platforms) bits of the unboxed value, sign-extended. -/
-@[inline] public def scalarToInt64 (n : @& Int) : Int64 :=
+@[inline] public unsafe def scalarToInt64 (n : @& Int) : Int64 :=
   let v := (unboxInt n).toUInt32
   let v := if System.Platform.numBits == 64 || v &&& 0x40000000 == 0 then v else v ||| 0x80000000
   v.toInt32.toInt64
@@ -137,7 +144,7 @@ public unsafe def natMul (a b : Nat) : Nat := ofBigNat (mul (toBigNat a) (toBigN
 public unsafe def natOverflowMul (a b : USize) : Nat :=
   ofBigNat (mul (ofUInt64 a.toUInt64) (ofUInt64 b.toUInt64))
 
-@[inline] public def isZero (n : @& Nat) : Bool := isScalar n && unbox n == 0
+@[inline] public unsafe def isZero (n : @& Nat) : Bool := isScalar n && unbox n == 0
 
 @[export lean_bignum_nat_big_div]
 public unsafe def natDiv (a b : Nat) : Nat :=
@@ -171,7 +178,7 @@ public unsafe def natXor (a b : Nat) : Nat := ofBigNat (xor (toBigNat a) (toBigN
 @[export lean_bignum_nat_big_shiftl]
 public unsafe def natShiftLeft (a b : Nat) : Nat :=
   if isZero a then box 0
-  else if !isScalar b || unbox b > uintMax then internalPanic "Nat.shiftl exponent is too big"
+  else if !isScalar b || unbox b > uintMax then exponentTooBig 0
   else ofBigNat (shiftLeft (toBigNat a) (unbox b))
 
 @[export lean_bignum_nat_big_shiftr]
@@ -180,21 +187,21 @@ public unsafe def natShiftRight (a b : Nat) : Nat :=
     let s := unbox b
     let ma := toBigNat a
     if s > uintMax then
-      if ma.usize != 0 && log2 ma ≥ s then internalPanic "Nat.shiftr exponent is too big" else box 0
+      if ma.usize != 0 && log2 ma ≥ s then exponentTooBig 1 else box 0
     else ofBigNat (shiftRight ma s)
 
 @[export lean_bignum_nat_pow]
 public unsafe def natPow (a b : Nat) : Nat :=
   if !isScalar b || unbox b > uintMax then
     -- The result would exhaust memory for any base `≥ 2`.
-    if isScalar a && unbox a ≤ 1 then a else internalPanic "Nat.pow exponent is too big"
+    if isScalar a && unbox a ≤ 1 then a else exponentTooBig 2
   else
     let ma := toBigNat a
     let e := unbox b
     if ma.usize != 0 && trailingZeros ma == log2 ma then
       -- a power of two: shift instead of repeated squaring
       let k := log2 ma
-      if k != 0 && e > ((0 : USize) - 1) / k then internalPanic "Nat.pow exponent is too big"
+      if k != 0 && e > ((0 : USize) - 1) / k then exponentTooBig 2
       else ofBigNat (shiftLeft (one ()) (k * e))
     else ofBigNat (pow ma e)
 
@@ -268,7 +275,7 @@ public unsafe def intMul (a b : Int) : Int :=
   let (nb, mb) := intMag b
   ofIntMag (na != nb) (mul ma mb)
 
-@[inline] public def isZeroInt (i : @& Int) : Bool := isScalarInt i && scalarToInt64 i == 0
+@[inline] public unsafe def isZeroInt (i : @& Int) : Bool := isScalarInt i && scalarToInt64 i == 0
 
 /-- Division rounding toward zero. -/
 @[export lean_bignum_int_big_div]

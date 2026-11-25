@@ -1415,8 +1415,13 @@ extern "C" LEAN_EXPORT obj_res lean_bignum_big_size_t_to_int(size_t n);
 extern "C" LEAN_EXPORT obj_res lean_bignum_big_int64_to_int(uint64_t n);
 extern "C" LEAN_EXPORT obj_res lean_bignum_nat_powmod(obj_arg b, obj_arg e, obj_arg m);
 
-extern "C" LEAN_EXPORT LEAN_NORETURN lean_object * lean_internal_panic_string(b_obj_arg msg) {
-    lean_internal_panic(lean_string_cstr(msg));
+extern "C" LEAN_EXPORT LEAN_NORETURN lean_object * lean_bignum_panic_out_of_memory(lean_object *) {
+    lean_internal_panic_out_of_memory();
+}
+
+/* `op` is `0` for `Nat.shiftLeft`, `1` for `Nat.shiftRight` and `2` for `Nat.pow`. */
+extern "C" LEAN_EXPORT LEAN_NORETURN lean_object * lean_bignum_panic_exponent_too_big(uint8_t op) {
+    lean_internal_panic(op == 0 ? "Nat.shiftl exponent is too big" : op == 1 ? "Nat.shiftr exponent is too big" : "Nat.pow exponent is too big");
 }
 
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {

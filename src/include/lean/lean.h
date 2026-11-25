@@ -454,7 +454,10 @@ LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_out_of_memory(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_unreachable(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_rc_overflow(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_overflow(void);
-LEAN_EXPORT LEAN_NORETURN lean_object * lean_internal_panic_string(b_lean_obj_arg msg);
+/* Aborts of `Init.Data.Nat.Big` and `Init.Data.Nat.BigRuntime`, which take no strings because these modules
+   do not extract closed terms. */
+LEAN_EXPORT LEAN_NORETURN lean_object * lean_bignum_panic_out_of_memory(lean_object * unit);
+LEAN_EXPORT LEAN_NORETURN lean_object * lean_bignum_panic_exponent_too_big(uint8_t op);
 
 static inline bool lean_usize_mul_would_overflow(size_t a, size_t b) {
 #if defined(__GNUC__) || defined(__clang__)

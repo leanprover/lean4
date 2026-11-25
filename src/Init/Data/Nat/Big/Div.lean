@@ -195,7 +195,7 @@ decreasing_by all_goals (rw [toNat_pred hj1]; omega)
     let p := divModSmall a (b.get 0 (by have := b.usize_toNat; rw [h1] at this; simp at this ⊢; omega))
     (p.1, ofUInt64 p.2.toUInt64)
   else if h : 2 ≤ b.n ∧ b.n ≤ a.n then
-    if h' : (a.n + 1) * 4 ≤ maxBytes then knuth a b ⟨h.1, h.2, h'⟩ else panic! "out of memory"
+    if h' : (a.n + 1) * 4 ≤ maxBytes then knuth a b ⟨h.1, h.2, h'⟩ else (outOfMemory (), empty)
   else (empty, a)
 
 

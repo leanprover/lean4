@@ -70,12 +70,12 @@ public theorem BigNat.usize_add_toNat (a b : BigNat) (h : (a.n + b.n) * 4 ≤ ma
     (zeros (a.usize + b.usize) (by rw [BigNat.usize_add_toNat a b h]; exact h))
     (by rw [n_zeros, BigNat.usize_add_toNat a b h]; omega) (by simp)
 
-/-- Schoolbook multiplication; panics if the result would exceed `maxBytes`. -/
+/-- Schoolbook multiplication; aborts if the result would exceed `maxBytes`. -/
 @[expose] public def mulBasecase (a b : BigNat) : BigNat :=
   if h : (a.n + b.n) * 4 ≤ maxBytes then
     -- the longer operand goes into the inner loop
     if b.n ≤ a.n then (mulCore a b h).normalize else (mulCore b a (by omega)).normalize
-  else panic! "out of memory"
+  else outOfMemory ()
 
 
 /-! ## Karatsuba multiplication -/
@@ -86,7 +86,8 @@ public theorem n_normalize_le (a : BigNat) : a.normalize.n ≤ a.n := by
   rw [a.usize_toNat] at this
   exact this
 
-public theorem n_panic (msg : String) : (panic msg : BigNat).n = 0 := by unfold panic panicCore; rfl
+public theorem n_outOfMemory (u : Unit) : (outOfMemory u).n = 0 := by
+  simp [outOfMemory, empty, BigNat.n, size_replicate]
 
 public theorem not_le_toNat {i n : USize} (h : ¬ i ≤ n) : n.toNat < i.toNat := by
   have : ¬ i.toNat ≤ n.toNat := fun h' => h (USize.le_iff_toNat_le.mpr h')
@@ -107,10 +108,10 @@ public theorem n_add_le (a b : BigNat) : (add a b).n ≤ max a.n b.n + 1 := by
   split
   · split
     · have := n_normalize_le (addCore a b ‹_› ‹_›); rw [n_addCore] at this; omega
-    · simp [panicWithPosWithDecl, n_panic]
+    · simp [n_outOfMemory]
   · split
     · have := n_normalize_le (addCore b a (by omega) ‹_›); rw [n_addCore] at this; omega
-    · simp [panicWithPosWithDecl, n_panic]
+    · simp [n_outOfMemory]
 
 /-- Digits `[lo, hi)` of `a` for `lo ≤ hi ≤ a.n`. -/
 @[inline, expose] public def extractDigits (a : BigNat) (lo hi : USize) (h1 : lo.toNat ≤ hi.toNat) (h2 : hi.toNat ≤ a.n) :
@@ -161,7 +162,7 @@ public theorem n_slice_le (a : BigNat) (lo hi : USize) :
     rw [n_extractDigits] at h1
     omega
 
-/-- `a * 2^(32 k)`; panics if the result would exceed `maxBytes`. -/
+/-- `a * 2^(32 k)`; aborts if the result would exceed `maxBytes`. -/
 @[inline, expose] public def shiftDigits (a : BigNat) (k : USize) : BigNat :=
   if a.usize == 0 then a else
   if h : (a.n + k.toNat) * 4 ≤ maxBytes then
@@ -183,7 +184,7 @@ public theorem n_slice_le (a : BigNat) (lo hi : USize) :
           shiftLeft_toNat k (by omega), shiftLeft_toNat a.usize (by rw [a.usize_toNat]; omega), hk,
           a.usize_toNat, ← a.n_mul_four, ByteArray.size_data]
         omega }
-  else panic! "out of memory"
+  else outOfMemory ()
 
 /-- Karatsuba multiplication, falling back to `mulBasecase` below 48 digits. -/
 @[expose] public def mul (a b : BigNat) : BigNat :=

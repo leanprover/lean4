@@ -151,6 +151,9 @@ public theorem size_replicate (k : Nat) (v : UInt8) : (ByteArray.replicate k v).
 
 public instance : Inhabited BigNat := ⟨empty⟩
 
+/-- Aborts the process because a result would exceed `maxBytes`; `0` for the logic. -/
+@[extern "lean_bignum_panic_out_of_memory", expose] public def outOfMemory (_ : Unit) : BigNat := empty
+
 public theorem size_shrink (b : ByteArray) (k : Nat) : (b.shrink k).size = min k b.size := by
   rw [ByteArray.shrink, ByteArray.size_extract]; omega
 
@@ -250,13 +253,13 @@ decreasing_by rw [toNat_succ_of_lt h]; omega
     (zeros (a.usize + 1) (by rw [usize_succ_toNat]; exact h))
     (by rw [n_zeros, usize_succ_toNat]; omega) (by simp)
 
-/-- `a + b`; panics if the result would exceed `maxBytes`. -/
+/-- `a + b`; aborts if the result would exceed `maxBytes`. -/
 @[expose] public def add (a b : BigNat) : BigNat :=
   if hab : b.n ≤ a.n then
-    if h : (a.n + 1) * 4 ≤ maxBytes then (addCore a b hab h).normalize else panic! "out of memory"
+    if h : (a.n + 1) * 4 ≤ maxBytes then (addCore a b hab h).normalize else outOfMemory ()
   else
     if h : (b.n + 1) * 4 ≤ maxBytes then (addCore b a (by omega) h).normalize
-    else panic! "out of memory"
+    else outOfMemory ()
 
 /-! ## Subtraction -/
 
@@ -334,7 +337,7 @@ decreasing_by rw [toNat_succ_of_lt h]; omega
 termination_by la.toNat - i.toNat
 decreasing_by rw [toNat_succ_of_lt h]; omega
 
-/-- `a * 2^sh`; panics if the result would exceed `maxBytes`. -/
+/-- `a * 2^sh`; aborts if the result would exceed `maxBytes`. -/
 @[expose] public def shiftLeft (a : BigNat) (sh : USize) : BigNat :=
   let q := sh >>> 5
   let s := (sh &&& 31).toUInt32
@@ -348,7 +351,7 @@ decreasing_by rw [toNat_succ_of_lt h]; omega
     have hc : c.n = a.n + q.toNat + 1 := by simp only [c, n_zeros, hq]
     (if s == 0 then copyLoop a a.usize q 0 (usize_toNat a) c (by rw [hc, usize_toNat]; omega) (by simp)
      else shlLoop a a.usize q s 0 (usize_toNat a) 0 c (by rw [hc, usize_toNat]; omega) (by simp)).normalize
-  else panic! "out of memory"
+  else outOfMemory ()
 
 
 /-- `c[i] := a[q + i]` for `i < n`. -/
@@ -451,7 +454,7 @@ decreasing_by rw [toNat_succ_of_lt h]; omega
     (mulAddSmallLoop a a.usize a.usize_toNat m.toUInt64 0 k.toUInt64
       (zeros (a.usize + 1) (by rw [a.usize_succ_toNat]; exact h))
       (by rw [n_zeros, a.usize_succ_toNat, a.usize_toNat]; omega) (by simp)).normalize
-  else panic! "out of memory"
+  else outOfMemory ()
 
 @[expose] public def div1Loop (a : BigNat) (d : UInt64) (j : USize) (hj : j.toNat ≤ a.n) (r : UInt64) (q : BigNat)
     (hq : j.toNat ≤ q.n) : BigNat × UInt64 :=

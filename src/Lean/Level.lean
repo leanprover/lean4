@@ -571,7 +571,7 @@ Assumes that `u` and `v` don't contain meta-variables.
 -/
 @[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
-  u == v || Normalize.normalize u == Normalize.normalize v
+  u == v || u.normalize == v.normalize || Normalize.normalize u == Normalize.normalize v
 
 
 /-- Reduce (if possible) universe level by 1 -/

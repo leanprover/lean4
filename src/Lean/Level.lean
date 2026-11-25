@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
 module
 
@@ -413,7 +413,7 @@ Based on Yoan Géran, "A Canonical Form for Universe Levels in Impredicative Typ
 <https://lmf.cnrs.fr/downloads/Perso/long.pdf>.
 -/
 
-namespace Normalize
+namespace Canonical
 
 local instance : Ord Name := ⟨Name.cmp⟩
 
@@ -541,7 +541,7 @@ def NormLevel.subsumption (acc : NormLevel) : NormLevel :=
     if n.isEmpty then acc.erase p₁ else acc.insert p₁ n
 
 def normalize (l : Level) : NormLevel :=
-  Normalize.normalizeAux l [] 0 {} |>.subsumption
+  Canonical.normalizeAux l [] 0 {} |>.subsumption
 
 /-- Sublevel comparison, following Theorem 39 of the paper: `l₁ ≤ l₂` iff every sublevel
 of `l₁` is dominated by some sublevel of `l₂`, where
@@ -563,7 +563,7 @@ def NormLevel.le (l₁ l₂ : NormLevel) : Bool :=
         if n.isEmpty then none else some n
       else some n
 
-end Normalize
+end Canonical
 
 /--
 Return true if `u` and `v` denote the same level.
@@ -572,8 +572,8 @@ Assumes that `u` and `v` don't contain meta-variables.
 @[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
   -- the first two (redundant) cases are the most common
-  -- only use the complete procedure if both others failed
-  u == v || u.normalize == v.normalize || Normalize.normalize u == Normalize.normalize v
+  -- only use the Canonical procedure if both others failed
+  u == v || u.normalize == v.normalize || Canonical.normalize u == Canonical.normalize v
 
 
 /-- Reduce (if possible) universe level by 1 -/
@@ -792,7 +792,7 @@ private def instantiateParamsEx (u : Level) (paramNames : List Name) (vs : List 
 
 @[export lean_level_geq]
 def geq (u v : Level) : Bool :=
-  u == v || go u.normalize v.normalize || (Normalize.normalize v).le (Normalize.normalize u)
+  u == v || go u.normalize v.normalize || (Canonical.normalize v).le (Canonical.normalize u)
 where
   go (u v : Level) : Bool :=
     u == v ||

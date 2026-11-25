@@ -205,8 +205,7 @@ def build : CegarM EprTemplate :=
     for fact in eprProblem.quantifiedFacts do
       let instConsts ← mkInstConsts fact
       let (guards, body) := fact.instantiateParts instConsts
-      let some (ty@(.const ``Bool []), lhs, rhs@(.const ``Bool.true [])) := body.eq? | unreachable!
-      let negatedBody := mkApp3 (mkConst ``Eq [1]) ty (mkApp (mkConst ``Bool.not) lhs) rhs
+      let negatedBody := negate body
       let hyps ← (guards.push negatedBody).mapM (mkAssumption ·)
       let exprs ← SubsolverT.reifyNormalized hyps
       let instConstAtoms ← SubsolverT.liftReifyM do
@@ -220,6 +219,14 @@ def build : CegarM EprTemplate :=
       quants := quants.push { fact, instConsts, instConstAtoms, exprs }
     let predAtoms ← SubsolverT.liftReifyM collectPredAtoms
     return { reifyState := ← SubsolverT.getReifyState, quants, predAtoms }
+where
+  negate (body : Expr) : Expr := Id.run do
+    match_expr (meta := false) body with
+    | False => mkConst ``True
+    | True => mkConst ``false
+    | _ =>
+      let some (ty@(.const ``Bool []), lhs, rhs@(.const ``Bool.true [])) := body.eq? | unreachable!
+      mkApp3 (mkConst ``Eq [1]) ty (mkApp (mkConst ``Bool.not) lhs) rhs
 
 structure Substitution where
   /--

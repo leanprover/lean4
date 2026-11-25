@@ -55,6 +55,9 @@ example [Nonempty α] (agatha butler charles : α) (lives : α → Prop)
     (h12 : killed butler agatha ∨ killed charles agatha) : False := by
   bv_decide +epr +uf
 
+example (α : Type) (a : α) (h : ∀ x : α, False) : False := by
+  bv_decide +epr +uf
+
 end Unsat
 
 section Sat

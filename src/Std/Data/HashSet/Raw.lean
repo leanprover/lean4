@@ -76,6 +76,20 @@ instance : Inhabited (Raw α) where
   default := ∅
 
 /--
+Marks a hash set as linear, which is a no-op logically.
+
+At runtime the bucket array backing the set is first made unique, copying it if the reference is not
+already unique, and then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set,
+every non-linear use from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, inline] def markLinear (m : Raw α) : Raw α :=
+  ⟨m.inner.markLinear⟩
+
+@[simp, grind =] theorem markLinear_eq {m : Raw α} : m.markLinear = m := rfl
+
+/--
 Two hash sets are equivalent in the sense of `Equiv` iff all their values are equal.
 -/
 structure Equiv (m₁ m₂ : Raw α) where
@@ -325,6 +339,9 @@ theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c :
 
 theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α).WF :=
   WF.emptyWithCapacity
+
+theorem WF.markLinear [BEq α] [Hashable α] {m : Raw α} (h : m.WF) : m.markLinear.WF :=
+  ⟨HashMap.Raw.WF.markLinear h.out⟩
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insertIfNew h.out⟩

@@ -9,6 +9,7 @@ public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 import Lean.Meta.WHNF
 import Lean.Meta.LitValues
+import Lean.Meta.Check
 public section
 namespace Lean.Meta
 
@@ -680,6 +681,30 @@ private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
         trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe rejected candidate value{indentExpr v}\nis not definitionally equal to the synthesized instance{indentExpr inst}\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceSearchTypes false`"
       return false
 
+/--
+Counts a rejected assignment of `v` to an instance metavariable of type `mvarType` for
+`warn.repeatedInstanceRejections`. The count lives in `Meta.State.diag`, which backtracking does not
+restore, so repeated attempts inside one `isDefEq` call are all counted.
+-/
+private def recordInstanceRejection (mvarType v : Expr) : MetaM Unit := do
+  -- unrestricted: only the warning depends on it, not the result of the computation
+  let threshold := warn.repeatedInstanceRejections.get (← getOptionsUnrestricted)
+  if threshold == 0 then return
+  let mvarType ← instantiateMVars mvarType
+  let v ← instantiateMVars v
+  let key := (mvarType, v)
+  let (n, msg?) := (← get).diag.instRejections.find? key |>.getD (0, none)
+  let n := n + 1
+  let msg? ← if n == threshold && msg?.isNone then
+      let msg ← withoutModifyingState do
+        let vType ← try inferType v catch _ => pure (mkSort .zero)
+        let (vType, mvarType) ← try addPPExplicitToExposeDiff vType mvarType catch _ => pure (vType, mvarType)
+        addMessageContextFull m!"the assignment of{indentExpr v}\nof type{indentExpr vType}\n\
+          to an instance metavariable of type{indentExpr mvarType}"
+      pure (some msg)
+    else pure msg?
+  modify fun s => { s with diag := { s.diag with instRejections := s.diag.instRejections.insert key (n, msg?) } }
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
@@ -699,7 +724,10 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
           if (← isInstanceTypeDefEqWith Meta.isExprDefEqAux mvarType vType v) then
             mvar.mvarId!.assign v
             return true
-        synthInstanceTypedMVarAndUnify mvar v
+        if (← synthInstanceTypedMVarAndUnify mvar v) then
+          return true
+        recordInstanceRejection mvarType v
+        return false
       else if (← respectTransparencyAtTypes) then
         withImplicitConfig do
         if (← Meta.isExprDefEqAux mvarType vType) then

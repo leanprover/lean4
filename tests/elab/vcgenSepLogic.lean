@@ -516,6 +516,8 @@ theorem frames_sepConj {α : Type} (x : HeapM α) (F P : HProp) :
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc (fun _ _ _ => rfl)
     ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
+-- The proof crosses the synonym `HeapM`, so `isDefEq` rejects the same `WP` instance many times.
+set_option warn.repeatedInstanceRejections 0 in
 /-- Triple introduction from the base `StateM Heap` interpretation: prove the base triple with an
 arbitrary frame `F` held on both sides. -/
 theorem HeapM.triple_of_triple_StateM_run {α : Type} {x : HeapM α} {pre : HProp} {Q : α → HProp}

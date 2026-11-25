@@ -83,8 +83,32 @@ def appendSection (m : Array MessageData) (cls : Name) (header : String) (s : Di
     let header := if resultSummary then s!"{header} (max: {s.max}, num: {s.data.size}):" else header
     m.push <| .trace { cls } header s.data
 
+/--
+Warns about assignments to instance metavariables that `isDefEq` rejected at least
+`warn.repeatedInstanceRejections` times, and resets their counter. Such repetitions come from
+`isDefEq` retrying failing comparisons that contain the same instance hole, which can make
+elaboration slow or exhaust the heartbeats.
+-/
+def reportInstanceRejections : MetaM Unit := do
+  let rs := (← get).diag.instRejections
+  if rs.isEmpty then return
+  modify fun s => { s with diag := { s.diag with instRejections := {} } }
+  let hits := rs.toList.filterMap fun (_, n, msg?) => msg?.map (n, ·)
+  if hits.isEmpty then return
+  let hits := hits.toArray.qsort (fun a b => a.1 > b.1)
+  let shown := hits.extract 0 3
+  let body := shown.foldl (init := MessageData.nil) fun m (n, msg) =>
+    m ++ m!"\n\n{n} times: " ++ msg
+  let more := if hits.size > shown.size then m!"\n\n(and {hits.size - shown.size} more)" else .nil
+  logWarning <| m!"`isDefEq` rejected the same instance assignment many times: the type of the value \
+    does not agree with the type of the instance metavariable at `.instances` transparency, and \
+    no synthesized instance of that type is defeq to the value:{body}{more}" ++
+    .note m!"Repeated failing comparisons can make elaboration slow or exhaust the heartbeats. \
+      Disable this warning with `set_option warn.repeatedInstanceRejections 0`."
+
 /-- Logs diagnostics and resets the counters -/
 def reportDiag : MetaM Unit := do
+  reportInstanceRejections
   if (← isDiagnosticsEnabled) then
     -- Diagnostic output may reference private declarations (e.g. `_match_*`,
     -- `_sparseCasesOn_*`) that are not visible in exporting mode (issue #13581).

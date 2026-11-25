@@ -7,10 +7,12 @@ module
 
 prelude
 public import Lake.Util.Log
+public import Lake.Util.Subprocess
 import Init.Data.String.TakeDrop
 
 namespace Lake
 
+@[deprecated "Deprecated without replacement." (since := "2026-11-17")]
 public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   let envStr := String.join <| args.env.toList.map fun (k, v) =>
     if k == "PATH" then "PATH " else s!"{k}={v.getD ""} " -- PATH too big
@@ -18,7 +20,8 @@ public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   let cwd := args.cwd.getD "."
   s!"{cwd}> {envStr}{cmdStr}"
 
-@[inline] public def logOutput
+@[inline, deprecated "Deprecated without replacement." (since := "2026-11-17")]
+public def logOutput
   [Monad m] (out : IO.Process.Output) (log : String → m PUnit)
 : m Unit := do
   unless out.stdout.isEmpty do
@@ -26,7 +29,8 @@ public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   unless out.stderr.isEmpty do
     log s!"stderr:\n{out.stderr.trimAscii}"
 
-@[inline] public def rawProc
+@[inline, deprecated Subprocess.strOutput +typeChanged (since := "2026-11-17")]
+public def rawProc
   (args : IO.Process.SpawnArgs) (quiet := false) (input? : Option String := none)
 : LogIO IO.Process.Output := do
   withLogErrorPos do
@@ -35,6 +39,7 @@ public def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   | .ok out => return out
   | .error err => error s!"failed to execute '{args.cmd}': {err}"
 
+@[deprecated Subprocess.run +typeChanged (since := "2026-11-17")]
 public def proc
   (args : IO.Process.SpawnArgs) (quiet := false) (input? : Option String := none)
 : LogIO Unit := do
@@ -46,6 +51,7 @@ public def proc
     logOutput out logInfo
     error s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
+@[deprecated Subprocess.strOutputwithSuccess +typeChanged (since := "2026-11-17")]
 public def captureProc' (args : IO.Process.SpawnArgs) : LogIO (IO.Process.Output) := do
   let out ← rawProc args (quiet := true)
   if out.exitCode = 0 then
@@ -55,9 +61,11 @@ public def captureProc' (args : IO.Process.SpawnArgs) : LogIO (IO.Process.Output
     logOutput out logInfo
     logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
-@[inline] public def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
+@[inline, deprecated Subprocess.capture +typeChanged (since := "2026-11-17")]
+public def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
   return (← captureProc' args).stdout.trimAscii.copy -- remove, e.g., newline at end
 
+@[deprecated Subprocess.tryCapture? +typeChanged (since := "2026-11-17")]
 public def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) := do
   EIO.catchExceptions (h := fun _ => pure none) do
     let out ← IO.Process.output args
@@ -66,6 +74,7 @@ public def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) :
     else
       return none
 
+@[inline, deprecated Subprocess.tryRun +typeChanged (since := "2026-11-17")]
 public def testProc (args : IO.Process.SpawnArgs) : BaseIO Bool :=
   EIO.catchExceptions (h := fun _ => pure false) do
     let child ← IO.Process.spawn {

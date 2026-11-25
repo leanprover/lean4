@@ -53,7 +53,7 @@ theorem MonadicWP.isLaxDistrib_withFrameClosure {m : Type v → Type w} [Monad m
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_
     refine PartialOrder.rel_trans ?_
       (MonadicWP.wp_wp_le_wp_bind (m := m) x f (fun a => op r (post a)) (opE r E'))
-    refine WP.wp_monotone_post fun a => ?_
+    refine WP.wp_mono_post fun a => ?_
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)
 

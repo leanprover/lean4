@@ -54,7 +54,7 @@ theorem mp {x : Prog} [WP.IsConjunctive x] [Heyting Pred] [Heyting EPosts]
     (h₂ : Triple x pre₂ (post₁ ⇨ post₂) (eposts₁ ⇨ eposts₂)) :
     Triple x (pre₁ ⊓ pre₂) (post₁ ⊓ post₂) (eposts₁ ⊓ eposts₂) :=
   ⟨PartialOrder.rel_trans (and h₁ h₂).le_wp
-    (WP.wp_monotone meet_himp_le_meet meet_himp_le_meet)⟩
+    (WP.wp_mono meet_himp_le_meet meet_himp_le_meet)⟩
 
 /--
 Observe a fact about the state by running the program `obs`, then carry the fact into the proof
@@ -75,7 +75,7 @@ theorem observe {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPost
   ⟨PartialOrder.rel_trans (le_meet _ _ _ PartialOrder.rel_refl PartialOrder.rel_refl) <|
     PartialOrder.rel_trans (mp h hgoal).le_wp <|
       PartialOrder.rel_trans
-        (WP.wp_monotone (meet_le_right _ _) (meet_le_right _ _))
+        (WP.wp_mono (meet_le_right _ _) (meet_le_right _ _))
         (hp (wp prog post' eposts'))⟩
 
 end Triple

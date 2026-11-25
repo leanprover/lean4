@@ -105,7 +105,7 @@ theorem iff_conseq {x : Prog} {pre : Pred} {post : Value → Pred} {eposts : EPo
     (∀ pre' post', (pre' ⊑ pre) → (post ⊑ post') → pre' ⊑ wp x post' eposts) := by
   constructor
   · intro ⟨h⟩ pre' post' hpre hpost
-    exact PartialOrder.rel_trans hpre (PartialOrder.rel_trans h (WP.wp_monotone_post hpost))
+    exact PartialOrder.rel_trans hpre (PartialOrder.rel_trans h (WP.wp_mono_post hpost))
   · intro h
     exact ⟨h _ _ PartialOrder.rel_refl (fun _ => PartialOrder.rel_refl)⟩
 

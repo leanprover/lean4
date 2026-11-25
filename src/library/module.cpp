@@ -105,7 +105,7 @@ public:
 
 // Bump when the layout or the meaning of the stored data changes (e.g. the `Expr` hash function),
 // as external tools such as `leantar` reconstruct that data.
-static constexpr uint8_t OLEAN_VERSION = 4;
+static constexpr uint8_t OLEAN_VERSION = 5;
 
 /** On-disk format of a .olean file. */
 struct olean_header {
@@ -114,8 +114,9 @@ struct olean_header {
     // 1 byte: `OLEAN_VERSION`
     uint8_t version;
     // 1 byte of flags:
-    // * bit 0: whether persisted bignums use the GMP encoding of earlier versions; now always unset as
-    //   bignums are ordinary scalar arrays (see `Init.Data.Nat.BigRuntime`)
+    // * bit 0: up to version 4, whether persisted bignums use the GMP encoding rather than the
+    //   built-in `mpz` one; always unset since version 5, where bignums are scalar arrays (see
+    //   `Init.Data.Nat.BigRuntime`)
     // * bit 1-7: reserved
     uint8_t flags = 0b0;
     // 33 bytes: Lean version string, padded with '\0' to the right

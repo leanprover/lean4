@@ -126,7 +126,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
 // Returns false if a thread kept libuv busy past a deadline, so that `exit()` must not run its
 // destructor.
-extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit();
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit(uint32_t grace_period_ms);
 extern "C" LEAN_EXPORT void lean_uv_stop();
 // After the task manager is finalized: frees the handles that finalizers closed after the stop.
 extern "C" LEAN_EXPORT void lean_uv_free_closed();

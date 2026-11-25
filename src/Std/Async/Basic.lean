@@ -64,10 +64,11 @@ with non async code that uses them.
 ## Exit
 
 When the program finishes (`main` returns, or `IO.Process.exit` is called), pending writes and
-shutdowns get up to 2 seconds to complete. Every other I/O operation pending then or started
-afterwards fails with an error for which `IO.Error.isCanceled` holds; a loop that retries failed
-operations should stop on it, or the program cannot exit. A UDP send still queued after those 2
-seconds fails the same way, but its datagram may still be sent.
+shutdowns get up to 2 seconds to complete, or the `gracePeriodMs` passed to `IO.Process.exit`. Every
+other I/O operation pending then or started afterwards fails with an error for which
+`IO.Error.isCanceled` holds; a loop that retries failed operations should stop on it, or the program
+cannot exit. A UDP send still queued after that time fails the same way, but its datagram may still
+be sent.
 
 -/
 

@@ -1670,8 +1670,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
     return v;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {
-    if (!lean_uv_stop_for_exit()) {
+extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, uint32_t grace_period_ms) {
+    if (!lean_uv_stop_for_exit(grace_period_ms)) {
         // A thread blocked inside libuv's lock would run alongside libuv's destructor, so the program
         // ends without running destructors or `atexit` handlers.
         fflush(nullptr);

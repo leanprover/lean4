@@ -1736,12 +1736,12 @@ def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
 Terminates the current process with the provided exit code. `0` indicates success, all other values
 indicate failure.
 
-Pending socket writes and shutdowns get up to 2 seconds to complete, except from a `(sync := true)`
-continuation run by the event loop; other pending event-loop I/O fails, as when `main` returns. If a
-blocked `(sync := true)` continuation keeps the event loop busy for 3 seconds, the process ends as
-with `IO.Process.forceExit` instead.
+Pending socket writes and shutdowns get up to `gracePeriodMs` milliseconds to complete, except from
+a `(sync := true)` continuation run by the event loop; other pending event-loop I/O fails, as when
+`main` returns. If a blocked `(sync := true)` continuation keeps the event loop busy for one second
+longer than that, the process ends as with `IO.Process.forceExit` instead.
 -/
-@[extern "lean_io_exit"] opaque exit : UInt8 → IO α
+@[extern "lean_io_exit"] opaque exit (code : UInt8) (gracePeriodMs : UInt32 := 2000) : IO α
 
 /--
 Terminates the current process with the provided exit code. `0` indicates success, all other values

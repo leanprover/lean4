@@ -125,13 +125,15 @@ static std::timed_mutex & g_uv_stop_mutex = *new std::timed_mutex;
 // continuation that blocks, for example on a mutex the exiting thread holds, keeps the loop's lock, and
 // one run by a flush keeps `g_uv_stop_mutex`. Longer than a flush, which holds `g_uv_stop_mutex`
 // throughout.
-static constexpr auto g_uv_exit_lock_timeout = std::chrono::milliseconds(g_uv_flush_timeout_ms + 1000);
+static event_loop::deadline exit_lock_deadline(uint64_t flush_timeout_ms) {
+    return std::chrono::steady_clock::now() + std::chrono::milliseconds(flush_timeout_ms + 1000);
+}
 
 // Returns false if `IO.Process.exit` (`!settle`) timed out waiting for a lock. Waits without bound when
 // `main` returns, since the task manager's finalization waits for blocked tasks anyway.
-static bool stop_libuv(bool settle) {
+static bool stop_libuv(bool settle, uint64_t flush_timeout_ms) {
     auto deadline = [&] {
-        return settle ? event_loop::no_deadline : std::chrono::steady_clock::now() + g_uv_exit_lock_timeout;
+        return settle ? event_loop::no_deadline : exit_lock_deadline(flush_timeout_ms);
     };
     // The loop thread cannot join itself, so the loop keeps running. Checked before taking the
     // mutex, since a thread holding it may be joining the loop thread.
@@ -169,7 +171,7 @@ static bool stop_libuv(bool settle) {
     if (!take_all(batch)) return true;
 
     // Writes and shutdowns get to finish, but a peer that does not read must not hold up the exit.
-    global_ev.flush(g_uv_flush_timeout_ms, flush_pending);
+    global_ev.flush(flush_timeout_ms, flush_pending);
 
     // Then everything still in flight is cancelled, and the TCP sockets it uses are closed, so that a
     // restarted loop does not send what the program was told was cancelled. libuv completes their
@@ -193,13 +195,12 @@ static bool stop_libuv(bool settle) {
 }
 
 extern "C" LEAN_EXPORT void lean_uv_stop() {
-    stop_libuv(true);
+    stop_libuv(true, g_uv_flush_timeout_ms);
 }
 
-extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit() {
-    // Pending writes get the same bounded flush as when `main` returns.
-    return stop_libuv(false)
-        && global_ev.stop_for_exit(std::chrono::steady_clock::now() + g_uv_exit_lock_timeout);
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit(uint32_t grace_period_ms) {
+    return stop_libuv(false, grace_period_ms)
+        && global_ev.stop_for_exit(exit_lock_deadline(grace_period_ms));
 }
 
 // Whether a closed handle still waits for its close callback.
@@ -277,7 +278,7 @@ extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
 }
 
 extern "C" LEAN_EXPORT void lean_uv_stop() {}
-extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit() { return true; }
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit(uint32_t) { return true; }
 extern "C" LEAN_EXPORT void lean_uv_free_closed() {}
 extern "C" LEAN_EXPORT void lean_uv_restart() {}
 

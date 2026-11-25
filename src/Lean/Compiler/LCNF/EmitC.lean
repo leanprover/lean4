@@ -1009,7 +1009,8 @@ def emitDeclInit (decl : Decl .impure) (isBuiltin : Bool) : EmitM Unit := do
 /--
 Emits the module initializer for the given phases. Across all phases, the initializers of a module
 reference those of every direct import, so its native code cannot be loaded without theirs;
-`runInitAttrs` relies on this to skip looking up initializers of modules importing interpreted ones.
+outside of stage 0, `runInitAttrs` relies on this to skip looking up initializers of modules
+importing interpreted ones.
 -/
 def emitInitFn (phases : IRPhases) : EmitM Unit := do
   let env ← getEnv

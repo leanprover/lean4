@@ -165,6 +165,10 @@ void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
 
 bool event_loop::stop_for_exit(deadline until) {
     m_stopped.store(true, std::memory_order_release);
+    // An exit-on-panic panic may come before `start`, when the mutex is not initialized yet.
+    if (m_loop == nullptr) {
+        return true;
+    }
     // Recursive, so this also works on the loop thread. Taken before `exiting` is set: a finalizer that
     // then skips `uv_close` leaves `data` dangling, so no other thread may walk the handles or run the
     // loop by then.

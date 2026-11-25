@@ -94,7 +94,10 @@ FILE * g_saved_stderr = stderr;
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
     fprintf(g_saved_stderr, "INTERNAL PANIC: %s\n", msg);
     abort_on_panic();
-    std::exit(1);
+    // Not `exit()`: it runs libuv's destructor alongside threads that may be inside libuv, which this
+    // may be called from (or out of memory) and so cannot stop first.
+    fflush(nullptr);
+    std::_Exit(1);
 }
 
 extern "C" LEAN_EXPORT void lean_internal_panic_out_of_memory() {
@@ -193,7 +196,7 @@ static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = f
 
     abort_on_panic();
     if (g_exit_on_panic) {
-        std::exit(1);
+        lean_io_exit(1, g_exit_grace_period_ms);
     }
 }
 

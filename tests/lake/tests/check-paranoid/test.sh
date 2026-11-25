@@ -29,6 +29,12 @@ if [ $bundled = 1 ]; then
   done
 fi
 
+if [ "$UNAME" = Darwin ]; then
+  echo "Skipping the rest of the test: the stub toolchain links to files outside of the sandbox"
+  rm -f produced.out
+  exit 0
+fi
+
 # Everywhere else, point Lake at a copy of this toolchain whose bundled checkers are stubs that
 # report what they were handed. Checkers run with a cleared environment, so the stubs are plain
 # `sh`, and a marker file rather than a variable makes one reject.

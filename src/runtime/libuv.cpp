@@ -51,7 +51,10 @@ static void take_pending(uv_handle_t * handle, void * arg) {
     case UV_SIGNAL: signal_take_pending(obj, batch); break;
     case UV_TCP: tcp_take_pending(obj, batch); break;
     case UV_UDP: udp_take_pending(obj, batch); break;
-    case UV_PROCESS: process_set_cancelled(handle, true); break;
+
+    // A woken `Child.wait` runs its caller at once, which must not close a socket during the flush.
+    case UV_PROCESS: if (!batch.m_keep_flushable) process_set_cancelled(handle, true); break;
+
     default: lean_internal_panic((std::string("libuv finalization does not handle ") + uv_handle_type_name(handle->type) + " handles").c_str());
     }
 }
@@ -171,8 +174,8 @@ static bool stop_libuv(bool settle, uint64_t flush_timeout_ms) {
     // flush settle their own promises then.
     uv_finalize_batch batch;
 
-    // Waits (timers, signals, reads, accepts, child waits) and work that sends nothing (connects,
-    // DNS, random) are cancelled first.
+    // Waits (timers, signals, reads, accepts) and work that sends nothing (connects, DNS, random) are
+    // cancelled first; child waits only after the flush.
     batch.m_keep_flushable = true;
     if (!take_all(batch)) return true;
 

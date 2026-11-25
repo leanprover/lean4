@@ -17,10 +17,14 @@ example {x m n : Nat} (h : x = 4 ^ (m + 1) * n) : x % 4 = 0 := by
   grind only [usr Nat.div_pow_of_pos, usr Nat.dvd_mul_right_of_dvd]
 
 example {x m n : Nat} (h : x = 4 ^ (m + 1) * n) : x % 4 = 0 := by
-  grind =>
+  grind (ematch := 5) =>
     instantiate only [usr Nat.div_pow_of_pos]
     instantiate only [usr Nat.dvd_mul_right_of_dvd]
     lia
+  --grind =>
+  --  instantiate only [usr Nat.div_pow_of_pos]
+  --  instantiate only [usr Nat.dvd_mul_right_of_dvd]
+  --  lia
 
 example {x m n : Nat} (h₁ : x = 4 ^ (m + 1) * n) : x % 4 = 0 := by
   grind

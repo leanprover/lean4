@@ -8,6 +8,7 @@ Author: Markus Himmel, Sofia Rodrigues
 #include <chrono>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 #include "runtime/object.h"
 
@@ -128,7 +129,19 @@ static constexpr uint64_t g_uv_flush_timeout_ms = 2000;
 
 // `IO.Process.exit` and the task manager's finalization may stop libuv at the same time. Never
 // destroyed, since `exit()` runs static destructors while another thread may hold it.
-static std::timed_mutex & g_uv_stop_mutex = *new std::timed_mutex;
+static std::mutex & g_uv_stop_mutex = *new std::mutex;
+
+// Polls instead of `std::timed_mutex::try_lock_until`, which does not compile with libstdc++ under
+// ThreadSanitizer.
+static bool try_lock_until(std::unique_lock<std::mutex> & lock, event_loop::deadline until) {
+    while (!lock.try_lock()) {
+        if (std::chrono::steady_clock::now() >= until) {
+            return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    return true;
+}
 
 // How long `IO.Process.exit` waits for each lock before it gives up on stopping libuv: a `(sync := true)`
 // continuation that blocks, for example on a mutex the exiting thread holds, keeps the loop's lock, and
@@ -155,11 +168,11 @@ static bool stop_libuv(bool settle, uint64_t flush_timeout_ms) {
         }
         return true;
     }
-    std::unique_lock<std::timed_mutex> stopping(g_uv_stop_mutex, std::defer_lock);
+    std::unique_lock<std::mutex> stopping(g_uv_stop_mutex, std::defer_lock);
 
     if (settle) {
         stopping.lock();
-    } else if (!stopping.try_lock_until(deadline())) {
+    } else if (!try_lock_until(stopping, deadline())) {
         return false;
     }
 
@@ -232,7 +245,7 @@ extern "C" LEAN_EXPORT void lean_uv_free_closed() {
         return;
     }
     // A flush by `IO.Process.exit` on another thread would share the deadline timer.
-    std::lock_guard<std::timed_mutex> stopping(g_uv_stop_mutex);
+    std::lock_guard<std::mutex> stopping(g_uv_stop_mutex);
     global_ev.flush(g_uv_free_timeout_ms, handles_closing);
 }
 

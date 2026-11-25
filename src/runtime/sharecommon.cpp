@@ -23,11 +23,12 @@ extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     if (tag == LeanScalarArray) {
         // Ignore the capacity, which differs e.g. between equal big numbers.
         return memcmp(lean_sarray_cptr(o1), lean_sarray_cptr(o2), sz1 - sizeof(lean_sarray_object)) == 0;
+    } else {
+        size_t header_sz = sizeof(lean_object);
+        lean_assert(sz1 >= header_sz);
+        // compare objects' bodies
+        return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
     }
-    size_t header_sz = sizeof(lean_object);
-    lean_assert(sz1 >= header_sz);
-    // compare objects' bodies
-    return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
 extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
@@ -35,14 +36,15 @@ extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     size_t sz = lean_object_data_byte_size(o);
     size_t header_sz = sizeof(lean_object);
     uint8_t tag = lean_ptr_tag(o);
-    // hash relevant parts of the header
-    unsigned init = hash(tag, lean_ptr_other(o));
     if (tag == LeanScalarArray) {
         // Ignore the capacity, as in `lean_sharecommon_eq`.
-        return hash_str(sz - sizeof(lean_sarray_object), lean_sarray_cptr(o), init);
+        return hash_str(sz - sizeof(lean_sarray_object), lean_sarray_cptr(o), hash(tag, lean_ptr_other(o)));
+    } else {
+        // hash relevant parts of the header
+        unsigned init = hash(tag, lean_ptr_other(o));
+        // hash body
+        return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
     }
-    // hash body
-    return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
 }
 
 static obj_res mk_pair(obj_arg a, obj_arg b) {

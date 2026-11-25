@@ -676,8 +676,8 @@ abbrev respectTransparencyAtTypes : CoreM Bool := do
 Compares the type `vType` of an instance value `v` with its expected type `expectedType`. This is
 the one comparison of instance types that all strict instance checks use: the assignment of
 instance metavariables (`checkTypesAndAssign`, also during instance search), the
-instance-argument check of `simp` and `dsimp` (`dsimp.resynthInstances`) and the elaborator
-(`backward.elab.instanceTypes`).
+instance-argument check of `simp` and `dsimp` (`dsimp.resynthInstances`) and the instance linter
+of the elaborator (`linter.checkRespectTransparency.instances`).
 
 Only the class applications must agree at `.instances` transparency. For an instance family, i.e.
 when `expectedType` is a function type with a class codomain, the full types must agree at the

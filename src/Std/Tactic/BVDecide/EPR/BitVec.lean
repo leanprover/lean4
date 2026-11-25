@@ -83,6 +83,30 @@ public theorem toBvAux_lt_ofNat_length_of_mem {α : Type u} {w : Nat} {elems : L
   have := toBvAux_lt_ofNatLT_length_of_mem h hx
   simpa [BitVec.ofNatLT_eq_ofNat] using this
 
+/--
+The guard of a quantified variable `x` of a sort with elements `elems` of size `n` implies that `x`
+is one of them.
+-/
+public theorem mem_of_toBvAux_ult {α : Type u} {w : Nat} {elems : List α} {n : Nat}
+    (h : elems.length < 2 ^ w) (hn : elems.length = n) {x : α}
+    (hx : (toBvAux elems h x).ult (BitVec.ofNat w n) = true) : x ∈ elems := by
+  subst hn
+  apply Classical.byContradiction
+  intro hmem
+  rw [toBvAux_eq_length_of_not_mem h hmem] at hx
+  simp [BitVec.ult, Nat.mod_eq_of_lt h] at hx
+
+/--
+Every element `x` of a sort with elements `elems` of size `n` satisfies the guard of quantified
+variables of the sort.
+-/
+public theorem toBvAux_ult_of_mem {α : Type u} {w : Nat} {elems : List α} {n : Nat}
+    (h : elems.length < 2 ^ w) (hn : elems.length = n) {x : α} (hx : x ∈ elems) :
+    (toBvAux elems h x).ult (BitVec.ofNat w n) = true := by
+  subst hn
+  have := toBvAux_lt_ofNat_length_of_mem h hx
+  simpa [BitVec.lt_def, BitVec.ult] using this
+
 open Classical in
 /--
 Instead of bounding each element by the overall size of the sort we can use the first half of
@@ -130,33 +154,6 @@ public theorem toBvAux_ne_of_toBvAux_lt {α : Type u} {w : Nat} {elems : List α
   have hxy : x = y := hx.symm.trans e
   subst hxy
   exact Nat.ne_of_lt h1 h2
-
-public theorem mem_iff_toBvAux_mem_map_toBvAux {α : Type u} {w : Nat} (elems : List α)
-    (h1 : elems.length < 2 ^ w) (x : α) :
-    x ∈ elems ↔ toBvAux elems h1 x ∈ elems.map (toBvAux elems h1) := by
-  constructor
-  · intro hx
-    rw [List.mem_map]
-    exists x
-  · intro hbv
-    by_cases hx : x ∈ elems
-    · exact hx
-    · rw [List.mem_map] at hbv
-      rcases hbv with ⟨x', hx'1, hx'2⟩
-      rw [toBvAux_eq_length_of_not_mem h1 hx] at hx'2
-      have := toBvAux_lt_ofNatLT_length_of_mem h1 hx'1
-      simp [hx'2] at this
-
-public theorem mem_map_nil {α : Type u} {β : Type v} (x : β) (f : α → β) : (x ∈ List.map f []) = False := by
-  simp
-
-public theorem mem_map_singleton {α : Type u} {β : Type v} (x : β) (y : α) (f : α → β) :
-    (x ∈ List.map f [y]) = (x = f y)  := by
-  simp
-
-public theorem mem_map_cons_cons {α : Type u} {β : Type v} (x : β) (y z : α) (ys : List α) (f : α → β) :
-    (x ∈ List.map f (y :: z :: ys)) = (x = f y ∨ x ∈ List.map f (z :: ys))  := by
-  simp
 
 /--
 The left inverse of `toBvAux`.

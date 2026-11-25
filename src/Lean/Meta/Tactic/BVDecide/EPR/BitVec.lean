@@ -128,7 +128,6 @@ def translateAtom (ctx : TranslateCtx) : Sym.Simp.Simproc := fun e => do
 
 structure TranslateState where
   simpCache : Sym.Simp.Cache := {}
-  memHypThmsCache : Std.HashMap SortId Sym.Simp.Theorems := {}
 
 abbrev TranslateExprM := ReaderT TranslateCtx StateRefT TranslateState Sym.SymM
 
@@ -174,52 +173,20 @@ def translateQuantified (hyp : QuantifiedFact) : TranslateExprM QuantifiedFact :
   forallBoundedTelescope hyp.hyp.type hyp.boundSorts.size fun args body => do
     let body ← Sym.shareCommon body
     assert! args.size == hyp.boundSorts.size
-    let mut memHypDisjs := #[]
-    let mut memHypOfs := #[]
+    let mut guards := #[]
     for arg in args, sort in hyp.boundSorts do
-      let (memHypDisj, memHypOf) ← mkMemHyp arg sort
-      memHypDisjs := memHypDisjs.push (.anonymous, memHypDisj)
-      memHypOfs := memHypOfs.push memHypOf
-    withLocalDeclsDND memHypDisjs fun memHypDisjs => do
+      let guard ← Sym.share <| (← TranslateExprM.getSortInfo sort).mkGuard arg
+      guards := guards.push (.anonymous, guard)
+    withLocalDeclsDND guards fun guards => do
       let mut varMap := {}
-      for memHypDisj in memHypDisjs, memHypOf in memHypOfs, sort in hyp.boundSorts, arg in args do
-        varMap := varMap.insert arg { sort, memElemsProof := mkApp memHypOf memHypDisj }
+      for guard in guards, sort in hyp.boundSorts, arg in args do
+        let memElemsProof := (← TranslateExprM.getSortInfo sort).mkMemProofOfGuard arg guard
+        varMap := varMap.insert arg { sort, memElemsProof }
       TranslateExprM.withVarMap varMap do
         let (body, bodyProof) ← TranslateExprM.translateProp body (mkAppN hyp.hyp.value args)
-        let resExpr ← Sym.mkForallFVarsS (args ++ memHypDisjs) body
-        let resProof ← mkLambdaFVars (args ++ memHypDisjs) bodyProof
+        let resExpr ← Sym.mkForallFVarsS (args ++ guards) body
+        let resProof ← mkLambdaFVars (args ++ guards) bodyProof
         return { hyp with hyp.type := resExpr, hyp.value := resProof }
-where
-  /--
-  Compute:
-  1. `to_bv expr = to_bv sortList[0] ∨ ... ∨ to_bv expr = to_bv sortList[n]`
-  2. a proof that this implies `expr ∈ sortList`
-  -/
-  mkMemHyp (expr : Expr) (sortId : SortId) : TranslateExprM (Expr × Expr) := do
-    let sortInfo ← TranslateExprM.getSortInfo sortId
-    let thms ←
-      if let some thms := (← get).memHypThmsCache[sortId]? then
-        pure thms
-      else
-        let mut thms : Sym.Simp.Theorems := {}
-        let thm :=
-          mkApp4 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.mem_iff_toBvAux_mem_map_toBvAux [sortInfo.level])
-            sortInfo.type
-            (toExpr sortInfo.width)
-            sortInfo.elemList
-            sortInfo.elemListLt
-        thms := thms.insert (← Sym.Simp.mkTheoremFromExpr thm)
-        thms := thms.insert (← Sym.Simp.mkTheoremFromDecl ``Std.Tactic.BVDecide.EPR.BitVec.mem_map_nil)
-        thms := thms.insert (← Sym.Simp.mkTheoremFromDecl ``Std.Tactic.BVDecide.EPR.BitVec.mem_map_cons_cons)
-        thms := thms.insert (← Sym.Simp.mkTheoremFromDecl ``Std.Tactic.BVDecide.EPR.BitVec.mem_map_singleton)
-        modify fun s => { s with memHypThmsCache := s.memHypThmsCache.insert sortId thms }
-        pure thms
-
-    let mem ← Sym.share <| ← mkAppM ``Membership.mem #[sortInfo.elemList, expr]
-    let .step mem' eq ← Sym.simp mem { pre := thms.rewrite }
-      | throwError m!"Simplifying {mem} made no progress"
-    let proof := mkApp3 (mkConst ``Eq.mpr [0]) mem mem' eq
-    return (mem', proof)
 
 def translatePreds (preds : Std.HashMap Expr PredInfo) (sortInfos : Std.HashMap SortId BvSortInfo) :
     Sym.SymM (Std.HashMap Expr BvPredInfo) := do
@@ -253,7 +220,9 @@ def translateSorts (sorts : Std.HashMap SortId SortInfo)
   for (sortId, sortInfo) in sorts do
     let width := sortInfo.card.log2 + 1
     let elemList ← Sym.share <| ← mkListLit sortInfo.type sortInfo.elements.toList
-    let elemListLt ← mkDecideProof (← mkLt (← mkAppM ``List.length #[elemList]) (toExpr (2^width)))
+    let elemListLength ← mkAppM ``List.length #[elemList]
+    let elemListLt ← mkDecideProof (← mkLt elemListLength (toExpr (2^width)))
+    let elemListLength ← mkDecideProof (← mkEq elemListLength sortInfo.cardExpr)
     let toBv ← Sym.share <| mkApp4 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux [sortInfo.level]) sortInfo.type (toExpr width) elemList elemListLt
     let toSort ← Sym.share <| mkApp4 (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toSortAux [sortInfo.level]) sortInfo.type (toExpr width) elemList sortInfo.default
     let bvLit (n : Nat) : Expr := toExpr (BitVec.ofNat width n)
@@ -314,7 +283,8 @@ def translateSorts (sorts : Std.HashMap SortId SortInfo)
           let conclusion := mkNot (mkApp3 (mkConst ``Eq [1]) (toTypeExpr (BitVec width)) (mkApp toBv later) (bvLit idx))
           let type ← Sym.share <| ← mkArrow premise conclusion
           facts := facts.push <| mkFact type (mkApp thm later)
-    let sortInfo := { sortInfo with width, toBv, elemList, elemListLt, elemListMemProofs, toSort }
+    let sortInfo :=
+      { sortInfo with width, toBv, elemList, elemListLt, elemListLength, elemListMemProofs, toSort }
     bvSortInfo := bvSortInfo.insert sortId sortInfo
   return (bvSortInfo, facts)
 

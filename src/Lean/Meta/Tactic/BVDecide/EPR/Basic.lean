@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.BVDecide.Normalize.Hyp
+import Std.Tactic.BVDecide.EPR.BitVec
 
 /-!
 This module defines many-sorted EPR problems and their BitVec encoding.
@@ -171,6 +172,10 @@ public structure BvSortInfo extends SortInfo where
   -/
   elemListLt : Expr
   /--
+  A proof that `elemList.length = card`.
+  -/
+  elemListLength : Expr
+  /--
   A map from elements to membership proofs in elemList.
   -/
   elemListMemProofs : Std.HashMap Expr Expr
@@ -187,6 +192,30 @@ Apply the sorts BitVec injection to `e`.
 -/
 @[inline]
 public def BvSortInfo.appToBv (info : BvSortInfo) (e : Expr) : Expr := mkApp info.toBv e
+
+/--
+Compute the guard `(toBv e).ult card = true` of a quantified variable `e` of sort `info`.
+-/
+public def BvSortInfo.mkGuard (info : BvSortInfo) (e : Expr) : Expr :=
+  let card := toExpr (BitVec.ofNat info.width info.card)
+  let ult := mkApp3 (mkConst ``BitVec.ult) (toExpr info.width) (info.appToBv e) card
+  mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) ult (toExpr true)
+
+/--
+A proof of `info.mkGuard e` from a proof of `e ∈ elemList`.
+-/
+public def BvSortInfo.mkGuardProof (info : BvSortInfo) (e memProof : Expr) : Expr :=
+  mkAppN
+    (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.toBvAux_ult_of_mem [info.level])
+    #[info.type, toExpr info.width, info.elemList, info.cardExpr, info.elemListLt, info.elemListLength, e, memProof]
+
+/--
+A proof that `e ∈ elemList` from a proof of `info.mkGuard e`.
+-/
+public def BvSortInfo.mkMemProofOfGuard (info : BvSortInfo) (e guardProof : Expr) : Expr :=
+  mkAppN
+    (mkConst ``Std.Tactic.BVDecide.EPR.BitVec.mem_of_toBvAux_ult [info.level])
+    #[info.type, toExpr info.width, info.elemList, info.cardExpr, info.elemListLt, info.elemListLength, e, guardProof]
 
 public structure BvPredInfo extends PredInfo where
   bvPred : Expr

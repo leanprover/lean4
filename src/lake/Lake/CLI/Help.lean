@@ -86,8 +86,8 @@ OUTPUT OPTIONS:
 
 SANDBOX:
   Loading a package configuration, building a package and running its scripts
-  all execute code from the package and its dependencies. With `--sandbox` or
-  `LAKE_SANDBOX=1`, every command that loads the package configuration
+  all may execute code from the package and its dependencies. With `--sandbox`
+  or `LAKE_SANDBOX=1`, every command that loads the package configuration
   therefore runs in a sandbox, which needs Linux and `bwrap` (bubblewrap) on
   PATH. In it, `/` is read-only, the home directories and `/tmp` are hidden,
   only `.lake` and the Lake cache are writable, and only Lean's, Lake's and a

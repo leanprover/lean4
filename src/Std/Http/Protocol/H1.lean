@@ -1957,6 +1957,25 @@ private def leadingEmptyLineBytes (config : Config) (input : ByteArray.Iterator)
       break
   return n
 
+/--
+Whether the request line in `input` starts with the method `HEAD`. A client that sent it reads the
+response as having no content (RFC 9110 §9.3.2), even when the rest of the line fails to parse.
+-/
+private def startsWithHead (config : Config) (input : ByteArray.Iterator) : Bool :=
+  let s := input.idx + leadingEmptyLineBytes config input
+  let b := input.array
+  b[s]? == some 'H'.toUInt8 && b[s + 1]? == some 'E'.toUInt8 && b[s + 2]? == some 'A'.toUInt8 &&
+    b[s + 3]? == some 'D'.toUInt8 && b[s + 4]? == some ' '.toUInt8
+
+/--
+Marks the request as `HEAD` when its request line, which failed to parse, started with that method,
+so the error response omits its content.
+-/
+private def failedHeadLine (headLine : Bool) (machine : Machine .receiving) : Machine .receiving :=
+  if headLine then
+    machine.modifyReader fun r => r.setMessageHead { r.messageHead with method := .head }
+  else machine
+
 mutual
 
 /--
@@ -1969,6 +1988,7 @@ private partial def processReceivingStartLine (machine : Machine .receiving) : M
   -- own limits (leading empty lines, method, `maxUriLength`) bound an incomplete line, and they
   -- leave only the target unbounded, so a line over the limit gets 414 (RFC 9112 §3).
   let remaining := machine.reader.input.remainingBytes
+  let headLine := startsWithHead machine.config machine.reader.input
   let (parsed, result) := parseWith machine
     (parseRequestLineRawVersion machine.config)
     (limit := none)
@@ -1979,7 +1999,7 @@ private partial def processReceivingStartLine (machine : Machine .receiving) : M
     let lineBytes := remaining - parsed.reader.input.remainingBytes -
       leadingEmptyLineBytes machine.config machine.reader.input
     if lineBytes > machine.config.maxStartLineLength then
-      machine.setFailure .uriTooLong
+      (failedHeadLine headLine machine).setFailure .uriTooLong
     else
       match version with
       | some (v@Version.v11) | some (v@Version.v10) =>
@@ -1987,9 +2007,9 @@ private partial def processReceivingStartLine (machine : Machine .receiving) : M
         |>.modifyReader (.setMessageHead { method, version := v, uri, headers := .empty })
         |>.setReaderState (.needHeader 0)
         |> processRead
-      | _ => parsed.setFailure .unsupportedVersion
+      | _ => (failedHeadLine headLine parsed).setFailure .unsupportedVersion
   | none =>
-    parsed
+    if parsed.failed then failedHeadLine headLine parsed else parsed
 
 /--
 Parses one response start-line in client mode and initializes

@@ -59,7 +59,7 @@ static constexpr size_t cache_limit = 1 << 14;
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh), m_infer_only(cache_limit),
     m_whnf_core(cache_limit), m_whnf(cache_limit),
-    m_success(cache_limit), m_failure(cache_limit), m_unfold(cache_limit) {}
+    m_failure(cache_limit), m_unfold(cache_limit) {}
 
 /** \brief Make sure \c e "is" a sort, and return the corresponding sort.
     If \c e is not a sort, then the whnf procedure is invoked.
@@ -945,13 +945,13 @@ void type_checker::cache_failure(expr const & t, expr const & s) {
 
 bool type_checker::succeeded_before(expr const & t, expr const & s) const {
     if (hash(t) < hash(s)) {
-        return m_st->m_success.find(mk_pair(t, s)) != nullptr;
+        return m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end();
     } else if (hash(t) > hash(s)) {
-        return m_st->m_success.find(mk_pair(s, t)) != nullptr;
+        return m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
     } else {
         return
-            m_st->m_success.find(mk_pair(t, s)) != nullptr ||
-            m_st->m_success.find(mk_pair(s, t)) != nullptr;
+            m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end() ||
+            m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
     }
 }
 

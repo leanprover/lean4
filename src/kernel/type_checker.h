@@ -25,11 +25,12 @@ class type_checker {
 public:
     class state {
         typedef two_gen_cache<expr_map<expr>> expr_cache;
-        typedef two_gen_cache<lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq>> expr_pair_cache;
+        typedef lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+        typedef two_gen_cache<expr_pair_set> expr_pair_cache;
         environment               m_env;
         name_generator            m_ngen;
-        // unbounded: evicting an entry makes us check its shared subterm again, which can take time
-        // exponential in the depth of sharing
+        /* `m_infer_check` and `m_success` are unbounded: evicting an entry makes us check or compare
+           its shared subterms again, which can take time exponential in the depth of sharing. */
         expr_map<expr>            m_infer_check;
         expr_cache                m_infer_only;
         expr_cache                m_whnf_core;
@@ -41,7 +42,7 @@ public:
            structure): `is_def_eq` is a sound but incomplete semi-decision procedure and is therefore
            not transitive, so taking a transitive closure of successful pairs would make its result
            depend on evaluation order. */
-        expr_pair_cache           m_success;
+        expr_pair_set             m_success;
         expr_pair_cache           m_failure;
         expr_cache                m_unfold;
         friend type_checker;

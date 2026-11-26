@@ -23,11 +23,10 @@ sharing: only the nodes on the path from the root to each converted `let` are re
 A `let x := v; b` is nondependent if `b` typechecks with `x` opaque. As in
 `Meta.letToHave`, this is decided with the `withTrackingZetaDelta` technique: the body is
 checked with `x` declared as a zeta-expandable declaration, and `x` is nondependent iff
-no check needed to unfold it. Unlike `Meta.letToHave`, the traversal:
+no check needed to unfold it. The traversal:
 
 - keeps bodies in bound-variable form — no `instantiate`/`abstract` round-trip per
-  binder, which makes the traversal near-linear on nested binders with open bodies
-  (`Meta.letToHave` is quadratic there);
+  binder, which makes the traversal near-linear on nested binders with open bodies;
 - discharges checking obligations only on subterms that can reach a candidate `let`:
   subterms without loose bound variables, and subterms whose loose bound variables all
   refer to "clean" binders, are skipped in O(1);

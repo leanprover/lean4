@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include <limits>
 #include <climits>
-#include <cstdint>
 #include <cstdlib>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
@@ -58,10 +57,7 @@ static expr * g_nat_shiftRight = nullptr;
 static constexpr size_t cache_limit = 1 << 14;
 
 type_checker::state::state(environment const & env):
-    m_env(env), m_ngen(*g_kernel_fresh),
-    // Evicting an entry of the checking cache makes us check its shared subterm again, which can
-    // take time exponential in the depth of sharing, so it stays unbounded.
-    m_infer_type{expr_cache(SIZE_MAX), expr_cache(cache_limit)},
+    m_env(env), m_ngen(*g_kernel_fresh), m_infer_only(cache_limit),
     m_whnf_core(cache_limit), m_whnf(cache_limit),
     m_success(cache_limit), m_failure(cache_limit), m_unfold(cache_limit) {}
 
@@ -332,8 +328,14 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     scope_rec_depth guard;
     check_system("type checker", /* do_check_interrupted */ true);
 
-    if (auto it = m_st->m_infer_type[infer_only].find(e))
-        return it->second;
+    if (infer_only) {
+        if (auto it = m_st->m_infer_only.find(e))
+            return it->second;
+    } else {
+        auto it = m_st->m_infer_check.find(e);
+        if (it != m_st->m_infer_check.end())
+            return it->second;
+    }
 
     expr r;
     switch (e.kind()) {
@@ -355,7 +357,10 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Let:      r = infer_let(e, infer_only);            break;
     }
 
-    m_st->m_infer_type[infer_only].insert(mk_pair(e, r));
+    if (infer_only)
+        m_st->m_infer_only.insert(mk_pair(e, r));
+    else
+        m_st->m_infer_check.insert(mk_pair(e, r));
     return r;
 }
 

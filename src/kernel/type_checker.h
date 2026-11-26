@@ -28,7 +28,10 @@ public:
         typedef two_gen_cache<lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq>> expr_pair_cache;
         environment               m_env;
         name_generator            m_ngen;
-        expr_cache                m_infer_type[2];
+        // unbounded: evicting an entry makes us check its shared subterm again, which can take time
+        // exponential in the depth of sharing
+        expr_map<expr>            m_infer_check;
+        expr_cache                m_infer_only;
         expr_cache                m_whnf_core;
         expr_cache                m_whnf;
         /* Positive and negative caches for `is_def_eq`. Since kernel expressions contain no

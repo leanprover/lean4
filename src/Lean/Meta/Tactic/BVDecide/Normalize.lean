@@ -71,16 +71,17 @@ structure RewrittenProp where
 
 /--
 We run rewriting on the EPR quantifiers once ahead of time so we do not re-normalize them during
-MBQI over and over again. However, in order to ease later processing we do not just normalize them
-fully but instead keep the guards as separate implications, i.e. go from
+MBQI over and over again. However, in order to ease later processing we only normalize the body and
+keep the guards as they are, i.e. go from
 ```
 ∀ (x₁ ... xₙ), guard x₁ → ... → guard xₙ → body x₁ ... xₙ
 ```
 to
 ```
-∀ (x₁ ... xₙ), normalized_guard x₁ = true → ... → normalized_guard xₙ = true → normalized_body x₁ ... xₙ = true
+∀ (x₁ ... xₙ), guard x₁ → ... → guard xₙ → normalized_body x₁ ... xₙ = true
 ```
-This is done as during instantiation we can always simplify away all guard conditions trivially.
+The EPR encoding produces guards that are already in normal form and that are proven directly from
+sort membership during instantiation.
 -/
 public def normalizeEprQuantifiers : PreProcessM Unit := do
   let problem := (← get).eprBvProblem
@@ -101,27 +102,17 @@ where
     let n := fact.boundSorts.size
     forallBoundedTelescope fact.hyp.type (some (2 * n)) fun xs body => do
       assert! xs.size == 2 * n
-      let args := xs[0...n].toArray
-      let guards := xs[n...*].toArray
       let body ← rewrite (← Sym.shareCommon body)
       if body.type'.isTrue then return none
-      let guards ← guards.mapM fun guard => do
-        rewrite (← Sym.shareCommon (← guard.fvarId!.getType))
-      withLocalDeclsDND (guards.map fun guard => (.anonymous, guard.type')) fun newGuards => do
-        let binders := args ++ newGuards
-        let type ← Sym.mkForallFVarsS binders body.type'
-        let guardProofs := newGuards.zipWith (bs := guards) fun newGuard guard =>
-          match guard.proof? with
-          | some proof => mkApp4 (mkConst ``Eq.mpr [0]) guard.type guard.type' proof newGuard
-          | none => newGuard
-        let proof := mkAppN fact.hyp.value (args ++ guardProofs)
-        let proof :=
-          match body.proof? with
-          | some bodyProof => mkApp4 (mkConst ``Eq.mp [0]) body.type body.type' bodyProof proof
-          | none => proof
-        let proof ← mkLambdaFVars binders proof
-        trace[Meta.Tactic.bv.epr] m!"normalized quantified fact: {type}"
-        return some { fact with hyp := { fact.hyp with type, value := proof } }
+      let type ← Sym.mkForallFVarsS xs body.type'
+      let proof := mkAppN fact.hyp.value xs
+      let proof :=
+        match body.proof? with
+        | some bodyProof => mkApp4 (mkConst ``Eq.mp [0]) body.type body.type' bodyProof proof
+        | none => proof
+      let proof ← mkLambdaFVars xs proof
+      trace[Meta.Tactic.bv.epr] m!"normalized quantified fact: {type}"
+      return some { fact with hyp := { fact.hyp with type, value := proof } }
 
 
 public def bvNormalize (hyps? : Option (Array Hyp) := none) : PreProcessM Bool := do

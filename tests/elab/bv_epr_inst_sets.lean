@@ -26,7 +26,7 @@ trace: [Meta.Tactic.bv.epr.instSets] ✅️ Instantiation set analysis
   [Meta.Tactic.bv.epr.instSets] class 0: [a, b]
 -/
 #guard_msgs in
-example (α : Type) (a b c : α) (p q : α → Prop) (h1 : ∀ x, p x → q x) (h2 : ∀ x, q x → p b)
+example (α : Type) (a b _c : α) (p q : α → Prop) (h1 : ∀ x, p x → q x) (h2 : ∀ x, q x → p b)
     (h3 : p a) (h4 : ¬p b) : False := by
   bv_decide +epr +uf
 
@@ -111,10 +111,9 @@ a = α₀
 b = α₁
 p c = False
 c = α₂
-r b a = False
-p a = False
 p b = True
 r b c = False
+r a c = False
 -/
 #guard_msgs in
 example (α : Type) (a b c : α) (p : α → Prop) (r : α → α → Prop) (h1 : ∀ x y, r x y → p y ∨ x = y)

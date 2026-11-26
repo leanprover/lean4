@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Basic
 import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Subsolver
 import Lean.Meta.Tactic.BVDecide.Prover.Cegar.Function
-import Lean.Meta.Tactic.BVDecide.Normalize.Rewrite
 import Std.Tactic.BVDecide.EPR.BitVec
 import Std.Tactic.BVDecide.Bitblast.Substitute
 import Lean.Meta.Tactic.BVDecide.EPR.InstSets
@@ -89,10 +88,38 @@ def completion (model : FunModel) (pred : EprTemplate.PredAtom) (proj : Nat → 
 end FunModel
 
 /--
+The model dependent information about the terms of a sort that occur in the problem.
+-/
+structure RoundSortInfo where
+  /--
+  The values of the terms, without duplicates.
+  -/
+  values : Array BVExpr.PackedBitVec
+  /--
+  For each value the first term that has it.
+  -/
+  inv : Std.HashMap BVExpr.PackedBitVec Expr
+  deriving Inhabited
+
+/--
+The values of `terms` under `eval` without duplicates, together with the first term for each value.
+-/
+def invertTerms (terms : Array Expr) (eval : Expr → BVExpr.PackedBitVec) :
+    Array BVExpr.PackedBitVec × Std.HashMap BVExpr.PackedBitVec Expr := Id.run do
+  let mut values := #[]
+  let mut inv := {}
+  for term in terms do
+    let value := eval term
+    unless inv.contains value do
+      values := values.push value
+      inv := inv.insert value term
+  return (values, inv)
+
+/--
 The model dependent information about a class of the instantiation set analysis that is not
 unrestricted.
 -/
-structure RoundClass where
+structure RoundInstSetInfo where
   /--
   The values of the terms in the instantiation set, without duplicates.
   -/
@@ -110,8 +137,8 @@ structure RoundClass where
 The projection of argument `idx` of the EPR predicate `pred` in the round described by `round`, if
 any.
 -/
-def Projection.of? (instSets : EPR.InstSets) (round : Std.HashMap Nat RoundClass) (pred : Expr)
-    (idx : Nat) : Option Projection := do
+def Projection.of? (instSets : EPR.InstSets) (round : Std.HashMap Nat RoundInstSetInfo)
+    (pred : Expr) (idx : Nat) : Option Projection := do
   let root ← instSets.posRoot[(pred, idx)]?
   let cls ← round[root]?
   return { values := cls.values, elseValue := ← cls.else? }
@@ -126,8 +153,18 @@ structure EprCtx where
   -/
   instSets : EPR.InstSets
   /--
+  The model dependent information about the classes of `instSets`.
   -/
-  round : Std.HashMap Nat RoundClass
+  round : Std.HashMap Nat RoundInstSetInfo
+  /--
+  The model dependent information about the terms of each sort.
+  -/
+  sorts : Std.HashMap EPR.SortId RoundSortInfo
+  /--
+  For each instantiation constant the restriction of its value to the values of the terms of its
+  sort, shared between all quantifiers that use the constant.
+  -/
+  instConstRestrictions : Std.HashMap Expr BVLogicalExpr
 
 structure EprState where
   /--
@@ -280,12 +317,11 @@ def getEprTemplate : CegarM EprTemplate := do
 
 namespace EprM
 
-def run (template : EprTemplate) (cex : CegarM.CounterExample) (instSets : EPR.InstSets)
-    (round : Std.HashMap Nat RoundClass) (x : EprM α) : CegarM (α × EprState) := do
-  let ctx ← CegarM.getTacticContext
+def run (template : EprTemplate) (ctx : EprCtx) (x : EprM α) : CegarM (α × EprState) := do
+  let tacticCtx ← CegarM.getTacticContext
   let goal := (← read).goal
-  let x := SubsolverT.run ctx goal x (reifyState := template.reifyState)
-  StateRefT'.run (ReaderT.run x { cex, instSets, round }) {}
+  let x := SubsolverT.run tacticCtx goal x (reifyState := template.reifyState)
+  StateRefT'.run (ReaderT.run x ctx) {}
 
 def recordInstance (hyp : EPR.QuantifiedFact) (args : Array Expr) : EprM Unit := do
   modifyThe EprState fun s => { s with instances := s.instances.push (hyp, args) }
@@ -293,32 +329,25 @@ def recordInstance (hyp : EPR.QuantifiedFact) (args : Array Expr) : EprM Unit :=
 /--
 Record an instance of `hyp` with the values that `quantCex` assigns to `instConsts`. Whenever the
 value is in `invs` for a variable we use the associated term of the instantiation set, otherwise the
-first element of the sort that has the value.
+first term of the sort that has the value.
 -/
 def recordCounterInst (hyp : EPR.QuantifiedFact) (quantCex : CegarM.CounterExample)
     (instConsts : Array Expr) (invs : Array (Option (Std.HashMap BVExpr.PackedBitVec Expr))) :
     EprM Unit := do
   let eprProblem := (← getThe BVDecide.State).theoryState.eprState.problem
-  let sortInfos := hyp.boundSorts.map (eprProblem.sortInfo[·]!)
+  let sorts := (← read).sorts
   let mut assignment := #[]
-  for instConst in instConsts, sortInfo in sortInfos, inv? in invs do
-    let atom := sortInfo.appToBv instConst
+  for instConst in instConsts, sort in hyp.boundSorts, inv? in invs do
+    let atom := eprProblem.sortInfo[sort]!.appToBv instConst
     let instConstVal := quantCex.exprCex[atom]!
     if let some term := inv?.bind (·[instConstVal]?) then
       assignment := assignment.push term
+    else if let some term := sorts[sort]!.inv[instConstVal]? then
+      assignment := assignment.push term
     else
-      assignment := assignment.push <| ← recoverValue instConstVal sortInfo
+      throwError m!"Failed to recover sort value for {instConstVal.bv}, this is a bug."
   withTraceNode `Meta.Tactic.bv.epr (fun _ => return m!"New instance with: {assignment}") do
     recordInstance hyp assignment
-where
-  -- TODO: potentially cache
-  recoverValue (value : BVExpr.PackedBitVec) (sortInfo : EPR.BvSortInfo) : EprM Expr := do
-    for element in sortInfo.elements do
-      let encodedElement := sortInfo.appToBv element
-      let value' := (← read).cex.exprCex[encodedElement]!
-      if value == value' then
-        return element
-    throwError m!"Failed to recover sort value for {value.bv}, this is a bug."
 
 /--
 `atom == v₁ || ... || atom == vₙ`.
@@ -337,13 +366,18 @@ def checkQuant (quantIdx : Nat) (quant : EprTemplate.Quant) (exprs : Array BVLog
   let hyp := quant.fact
   let instConsts := quant.instConsts
   withTraceNode `Meta.Tactic.bv.epr (fun _ => return m!"MBQI check for {hyp.hyp.type}") do
-  let { instSets, round, .. } ← read
+  let { instSets, round, instConstRestrictions, .. } ← read
   -- If a round configuration does not contain an entry we assume the variable to be unrestricted
   -- Without `eprProjections` there are no classes.
   let classes := match instSets.varRoots[quantIdx]? with
     | some roots => roots.map (round[·]?)
     | none => hyp.boundSorts.map fun _ => none
   withTraceNode `Meta.Tactic.bv.epr (fun _ => return m!"Running consistency check") do
+    -- Restricting the inst consts to values that the sort has in this round
+    SubsolverT.pushReified <| instConsts.map (instConstRestrictions[·]!)
+    -- The quantifier itself. Note that we push the sort domain restriction from the encoded
+    -- quantifier as we measured they slightly improve performance when being present in addition to
+    -- the instConstRestrictions.
     SubsolverT.pushReified exprs
     let res ← SubsolverT.check
     match res with
@@ -360,11 +394,11 @@ def checkQuant (quantIdx : Nat) (quant : EprTemplate.Quant) (exprs : Array BVLog
       if ← inInstSets hyp instConsts classes quantCex then
         recordCounterInst hyp quantCex instConsts invs
       else
-        let mut restrictions := #[]
+        let mut instSetRestrictions := #[]
         for atom in quant.instConstAtoms, cls? in classes do
           let some cls := cls? | continue
-          restrictions := restrictions.push <| mkRestriction atom cls.values
-        SubsolverT.pushReified restrictions
+          instSetRestrictions := instSetRestrictions.push <| mkRestriction atom cls.values
+        SubsolverT.pushReified instSetRestrictions
         let restrictedRes ← SubsolverT.check
         SubsolverT.pop
         match restrictedRes with
@@ -379,7 +413,8 @@ def checkQuant (quantIdx : Nat) (quant : EprTemplate.Quant) (exprs : Array BVLog
     SubsolverT.pop
 where
   inInstSets (hyp : EPR.QuantifiedFact) (instConsts : Array Expr)
-      (classes : Array (Option RoundClass)) (quantCex : CegarM.CounterExample) : EprM Bool := do
+      (classes : Array (Option RoundInstSetInfo)) (quantCex : CegarM.CounterExample) :
+      EprM Bool := do
     let eprProblem := (← getThe BVDecide.State).theoryState.eprState.problem
     for instConst in instConsts, cls? in classes, sort in hyp.boundSorts do
       let some cls := cls? | continue
@@ -391,7 +426,7 @@ end EprM
 
 def checkModel (template : EprTemplate) : EprM Unit := do
   let funModel := (← getThe CegarM.State).theoryState.funState.currentModel
-  let { instSets, round, cex } ← read
+  let { instSets, round, cex, .. } ← read
   let subst : EprTemplate.Substitution :=
     { template, cex, funModel, proj := Projection.of? instSets round }
   let exprs := BVLogicalExpr.substituteAll subst (template.quants.flatMap (·.exprs))
@@ -406,25 +441,17 @@ def checkModel (template : EprTemplate) : EprM Unit := do
 Compute the model dependent information about the instantiation sets. Like Z3 an empty
 instantiation set is treated as if it contained the default element of its sort.
 -/
-def mkRound (instSets : EPR.InstSets) (cex : CegarM.CounterExample) (problem : EPR.EprBvProblem) :
-    Std.HashMap Nat RoundClass := Id.run do
+def mkRoundInstSets (instSets : EPR.InstSets) (cex : CegarM.CounterExample) (problem : EPR.EprBvProblem)
+    (sorts : Std.HashMap EPR.SortId RoundSortInfo) : Std.HashMap Nat RoundInstSetInfo := Id.run do
   let eval (sort : EPR.SortId) (e : Expr) : BVExpr.PackedBitVec :=
     cex.exprCex[problem.sortInfo[sort]!.appToBv e]!
   let mut round := {}
   for (root, cls) in instSets.classes do
     if cls.full then continue
     let terms := if cls.terms.isEmpty then #[problem.sortInfo[cls.sort]!.default] else cls.terms
-    let mut values := #[]
-    -- An inversion of the model for the elements in this class.
-    let mut inv := {}
-    for term in terms do
-      let value := eval cls.sort term
-      unless inv.contains value do
-        values := values.push value
-        inv := inv.insert value term
+    let (values, inv) := invertTerms terms (eval cls.sort)
     -- If the instantiation set covers the whole sort, projections and restrictions are the identity.
-    let covers := problem.sortInfo[cls.sort]!.elements.all fun elem =>
-      inv.contains (eval cls.sort elem)
+    let covers := sorts[cls.sort]!.values.all inv.contains
     if covers then continue
     round := round.insert root { values, inv }
   /-
@@ -433,7 +460,7 @@ def mkRound (instSets : EPR.InstSets) (cex : CegarM.CounterExample) (problem : E
   1. The else value MUST be one of the values assigned to a member of the equivalence class of that
      position.
   2. The else value SHOULD not take the same value as one of the values for the ground terms
-     recorded in the exception set. 
+     recorded in the exception set.
   3. The else value SHOULD not take the same value as one of the else values of the classes recorded
      in the avoid set. As this imposes an implicit dependency graph onto the else values, we try
      to make this computation more deterministic by iterating in a somewhat predictable order.
@@ -471,20 +498,39 @@ def getInstSets : CegarM EPR.InstSets := do
   return instSets
 
 /--
-Instantiate `hyp` with sort elements. As these elements satisfy their guards by construction we
-simplify each guard to `True` on its own to derive the body directly.
+Compute the model dependent information about the elements of each sort.
 -/
-def instantiateWithoutGuards (hyp : EPR.QuantifiedFact) (args : Array Expr) :
-    CegarM Normalize.Hyp := do
-  let (guards, body) := hyp.instantiateParts args
-  let proofs ← CegarM.liftPreProcessM do
-    Normalize.withRewriteRules fun _ _ simpMethods simpConfig => do
-      guards.mapM fun guard => do
-        let guard ← Sym.shareCommon guard
-        match ← Normalize.PreProcessM.simpExpr .rewrite simpMethods simpConfig guard with
-        | .step (.const ``True []) proof .. =>
-          return mkApp2 (mkConst ``of_eq_true) guard proof
-        | _ => throwError "Failed to simplify guard during instantiation, this is a bug."
+def mkRoundSorts (cex : CegarM.CounterExample) (problem : EPR.EprBvProblem) :
+    Std.HashMap EPR.SortId RoundSortInfo :=
+  problem.sortInfo.map fun _ info =>
+    let (values, inv) := invertTerms info.elements (cex.exprCex[info.appToBv ·]!)
+    { values, inv }
+
+/--
+Restrict every instantiation constant of `template` to the values of the terms of its sort.
+-/
+def mkInstConstRestrictions (template : EprTemplate) (sorts : Std.HashMap EPR.SortId RoundSortInfo) :
+    Std.HashMap Expr BVLogicalExpr := Id.run do
+  let mut restrictions := {}
+  for quant in template.quants do
+    for instConst in quant.instConsts, atom in quant.instConstAtoms,
+        sort in quant.fact.boundSorts do
+      unless restrictions.contains instConst do
+        restrictions := restrictions.insert instConst (EprM.mkRestriction atom sorts[sort]!.values)
+  return restrictions
+
+/--
+Instantiate `hyp` with elements of the sorts, proving the guards from the membership of the
+elements.
+-/
+def instantiate (hyp : EPR.QuantifiedFact) (args : Array Expr) : CegarM Normalize.Hyp := do
+  let problem := (← getThe BVDecide.State).theoryState.eprState.problem
+  let mut proofs := Array.emptyWithCapacity args.size
+  for arg in args, sort in hyp.boundSorts do
+    let some memProof := problem.sortInfo[sort]!.elemListMemProofs[arg]?
+      | throwError m!"Failed to find a membership proof for {arg}, this is a bug."
+    proofs := proofs.push <| problem.sortInfo[sort]!.mkGuardProof arg memProof
+  let (_guards, body) := hyp.instantiateParts args
   return {
     name := hyp.hyp.name ++ `inst
     type := ← Sym.shareCommon body
@@ -503,13 +549,16 @@ public def checkEpr (cex : CegarM.CounterExample) : CegarM Bool :=
       pure sets
     else
       pure {}
-  let round := mkRound instSets cex (← getThe BVDecide.State).theoryState.eprState.problem
+  let problem := (← getThe BVDecide.State).theoryState.eprState.problem
+  let sorts := mkRoundSorts cex problem
+  let round := mkRoundInstSets instSets cex problem sorts
   let template ← getEprTemplate
-  let (_, s) ← EprM.run template cex instSets round do
+  let instConstRestrictions := mkInstConstRestrictions template sorts
+  let (_, s) ← EprM.run template { cex, instSets, round, sorts, instConstRestrictions } do
     checkModel template
   let mut instSets := instSets
   for (hyp, args) in s.instances do
-    let inst ← instantiateWithoutGuards hyp args
+    let inst ← instantiate hyp args
     trace[Meta.Tactic.bv.epr] m!"Instance: {inst}"
     if config.eprProjections then
       instSets ← instSets.addGround inst.type

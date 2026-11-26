@@ -598,7 +598,9 @@ Returns `true` if the machine should flush buffered output.
 @[inline]
 def shouldFlush (machine : Machine dir) : Bool :=
   machine.failed ∨
-  machine.reader.state == .closed ∨
+  -- A server's reader closes after a request that ends the connection, which says nothing about the
+  -- response body: its head waits like any other, so a body that fails first can still get a 500.
+  (dir matches .sending ∧ machine.reader.state == .closed) ∨
   machine.writer.noMoreUserData ∨
   machine.writer.knownSize.isSome ∨
 

@@ -1,12 +1,13 @@
-rm -rf .lake
+# Work on a copy as the test edits its sources.
+rm -rf produced.work .lake
+mkdir produced.work
+cp -r lakefile.toml lean-toolchain SplitMod Errors produced.work/
+chmod -R u+w produced.work
+cd produced.work
 
 LEAN_ABORT_ON_PANIC=1 lake build SplitMod.Use SplitMod.UseAll
 # The private file is not a module of its own.
 capture_fail lake build SplitMod.Basic.private
-
-# Restore the edited private file afterwards.
-cp SplitMod/Basic.private.lean .lake/Basic.private.lean.orig
-trap 'cp .lake/Basic.private.lean.orig SplitMod/Basic.private.lean' EXIT
 
 # Changing only the private file leaves plain importers up to date, but not `import all` ones.
 perl -p -i -e 's/n \+ implOffset/implOffset + n/' SplitMod/Basic.private.lean

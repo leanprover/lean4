@@ -647,4 +647,47 @@ public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Op
   let status ← parseStatusCode limits
   return (status, Version.ofNumber? major (if major == 1 then min minor 1 else minor))
 
+/-! ## Scanning input before it is parsed -/
+
+/--
+Whether the unread input holds nothing but `CR` and `LF` bytes. Scans in place and stops at the
+first other byte; `ByteArray.data` would box a copy of the whole buffer.
+-/
+public def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
+  (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
+
+/--
+Whether the unread input holds only empty lines a server ignores before a request line, possibly
+followed by the `CR` of one more: line ends that the request-line parser reads to their end without
+failing. A bare `LF`, or more empty lines than `maxLeadingEmptyLines`, fail the parser, so they get
+the answer they get when more input follows.
+-/
+public def onlyEmptyLinesLeft (config : Config) (input : ByteArray.Iterator) : Bool :=
+  onlyLineEndsLeft input && (parseRequestLineRawVersion config input matches .error _ .eof)
+
+/--
+The bytes of the empty lines (`CRLF`) at the start of `input`, up to `maxLeadingEmptyLines` of them.
+A server ignores them before a request line (RFC 9112 §2.2), so they do not count toward
+`maxStartLineLength`.
+-/
+public def leadingEmptyLineBytes (config : Config) (input : ByteArray.Iterator) : Nat := Id.run do
+  let mut n := 0
+  for _ in [0:config.maxLeadingEmptyLines] do
+    if input.array[input.idx + n]? == some '\r'.toUInt8 &&
+        input.array[input.idx + n + 1]? == some '\n'.toUInt8 then
+      n := n + 2
+    else
+      break
+  return n
+
+/--
+Whether the request line in `input` starts with the method `HEAD`. A client that sent it reads the
+response as having no content (RFC 9110 §9.3.2), even when the rest of the line fails to parse.
+-/
+public def startsWithHead (config : Config) (input : ByteArray.Iterator) : Bool :=
+  let s := input.idx + leadingEmptyLineBytes config input
+  let b := input.array
+  b[s]? == some 'H'.toUInt8 && b[s + 1]? == some 'E'.toUInt8 && b[s + 2]? == some 'A'.toUInt8 &&
+    b[s + 3]? == some 'D'.toUInt8 && b[s + 4]? == some ' '.toUInt8
+
 end Std.Http.Protocol.H1

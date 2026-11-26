@@ -17,6 +17,8 @@ public import Std.Http.Protocol.H1.Reader
 public import Std.Http.Protocol.H1.Writer
 public import Std.Http.Protocol.H1.Event
 public import Std.Http.Protocol.H1.Redirect
+public import Std.Http.Protocol.H1.Rules
+public import Std.Http.Protocol.H1.Encode
 
 public section
 
@@ -26,13 +28,17 @@ public section
 This module implements the core HTTP/1.1 protocol state machine that handles
 parsing requests/responses and generating output. The machine is direction-aware,
 supporting both server mode (receiving requests) and client mode (receiving responses).
+
+The machine holds the state of a connection and its transitions. The rules that depend on a message
+head alone are in `H1.Rules`, the encoding of message heads in `H1.Encode`, and the grammar and
+input scanners in `H1.Parser`.
 -/
 
 namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Std.Internal Http.Internal Parsec ByteArray
+open Std Std.Internal Http.Internal Parsec ByteArray Rules Encode
 
 /--
 Results from a single step of the state machine.
@@ -212,196 +218,6 @@ Monotonic keep-alive update: once `keepAlive` is false it never flips back.
 private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine dir :=
   { machine with keepAlive := machine.keepAlive ∧ should }
 
-private inductive BodyMode where
-  | fixed (n : Nat)
-  | chunked
-  | eof
-
-/-
-RFC-conformance helpers.
--/
-
-/--
-Returns `true` when RFC semantics forbid a response payload body on the wire.
-This includes informational responses, `204`, and `304`.
-
-Reference: https://www.rfc-editor.org/rfc/rfc9112.html#name-message-body-length
--/
-@[inline]
-private def responseMustNotHaveBody (status : Status) : Bool :=
-  let code := status.toCode.toNat
-  (100 ≤ code ∧ code < 200) ∨ code = 204 ∨ code = 304
-
-/--
-Returns `true` when a server must not send content in a response with `status`: the statuses of
-`responseMustNotHaveBody`, and `205`. A 205 response still has a message body, of length zero, so
-it is written with `Content-Length: 0` (RFC 9110 §15.3.6).
--/
-@[inline]
-private def responseOmitsContent (status : Status) : Bool :=
-  responseMustNotHaveBody status ∨ status == .resetContent
-
-/--
-Checks that request-target form and method are compatible
-(`CONNECT` requires authority-form and `*` is reserved for `OPTIONS`).
-
-Reference: https://www.rfc-editor.org/rfc/rfc9110#name-methods
--/
-
-@[inline]
-private def isValidRequestTargetForMethod (message : Message.Head .receiving) : Bool :=
-  match message.method, message.uri with
-
-  -- Reference: https://www.rfc-editor.org/rfc/rfc9110#section-9.3.6
-  | .connect, .authorityForm _ => true
-  | .connect, _ => false
-  | _, .authorityForm _ => false
-
-  -- Reference: https://www.rfc-editor.org/rfc/rfc9110#name-options
-  | .options, .asteriskForm => true
-  | _, .asteriskForm => false
-
-  | _, _ => true
-
-/- Internal host/authority matching helpers. -/
-@[inline]
-private def isDefaultTunnelPort (port : UInt16) : Bool :=
-  port == 80 || port == 443
-
-@[inline]
-private def hostAuthorityMatchesConnectAuthority
-    (authority : URI.Authority)
-    (hostHeader : Header.Host) : Bool :=
-  authority.host == hostHeader.host &&
-    (authority.port == hostHeader.port ||
-      match authority.port, hostHeader.port with
-      | .value port, .omitted => isDefaultTunnelPort port
-      | _, _ => false)
-
-/--
-Validates the required `Host` header for HTTP/1.1 requests:
-exactly one value that is either empty or parseable as a valid host.
-
-As defined in RFC 9112 Section 3.2:
-
-"A client MUST send a Host header field (Section 7.2 of [HTTP]) in all HTTP/1.1 request messages.
-If the target URI includes an authority component, then a client MUST send a field value for Host that
-is identical to that authority component, excluding any userinfo subcomponent and its "@"
-delimiter (Section 4.2 of [HTTP]). If the authority component is missing or undefined for the target
-URI, then a client MUST send a Host header field with an empty field value."
-
-Reference: https://www.rfc-editor.org/rfc/rfc9112.html#name-request-target
--/
-@[inline]
-private def hasSingleAcceptedHostHeader (message : Message.Head .receiving) : Bool :=
-  match message.headers.getAll? Header.Name.host with
-  | some #[hostValue] =>
-    let parsed := Header.Host.parse hostValue
-    match message.uri with
-    | .asteriskForm =>
-      hostValue.value.isEmpty ∨ parsed.isSome
-    | .authorityForm authority =>
-      match parsed with
-      -- RFC 9110 CONNECT examples allow `Host` to omit the default port
-      -- while authority-form keeps the explicit tunnel port in request-target.
-      | some hostHeader => hostAuthorityMatchesConnectAuthority authority hostHeader
-      | none => false
-    | _ =>
-      -- origin-form, absolute-form, etc.: Host must be empty or well-formed.
-      -- RFC 9112 §3.2.2: for absolute-form, the authority is in the URI; the Host
-      -- header is left untouched so handlers can inspect what the client sent.
-      hostValue.value.isEmpty ∨ parsed.isSome
-  | _ => false
-
-/--
-Validates an incoming request head and selects the body framing mode.
--/
-private def checkReceivingMessageHead (config : Config) (message : Message.Head .receiving) :
-    Except H1.Error BodyMode := do
-  -- URI Validation
-  if !isValidRequestTargetForMethod message then
-    throw .badMessage
-
-  -- Host validation:
-  -- • HTTP/1.1: a Host header is REQUIRED (RFC 9112 §3.2).
-  -- • HTTP/1.0: Host is optional (RFC 2616 §14.23), but if present it must
-  --   be a single, well-formed value (no duplicates, correct authority form).
-  if message.version == .v11 || message.headers.contains .host then
-    if !hasSingleAcceptedHostHeader message then
-      throw .badMessage
-
-  -- RFC 9110 §4.2.4: a recipient SHOULD treat userinfo in an http(s) URI as an error.
-  if let .absoluteForm uri := message.uri then
-    if (uri.scheme.val == "http" || uri.scheme.val == "https") && uri.authority.any (·.userInfo.isSome) then
-      throw .badMessage
-
-  -- Gets the size of the message.
-  match message.getSize (allowEOFBody := true) with
-  | some (.fixed n) => return .fixed n
-  | some .chunked =>
-    -- RFC 9112 §6.1: a server answers a transfer coding it does not understand with 501. The
-    -- machine decodes the final `chunked` (`getSize` checked the codings end in it), and the
-    -- application the codings in `acceptedTransferCodings`.
-    match message.headers.getAll? Header.Name.transferEncoding >>=
-        Header.TransferEncoding.parseFieldLines? with
-    | some codings =>
-      if codings.pop.all (fun c => config.acceptedTransferCodings.any (·.toLower == c)) then
-        return .chunked
-      else
-        throw .unsupportedTransferCoding
-    | none => throw .badMessage
-  | none => throw .badMessage
-
-/--
-Returns `true` when a response with `status` to a request with `method` turns the connection into a
-tunnel: a 2xx to `CONNECT`. Such a response has no content and no framing fields (RFC 9110 §9.3.6),
-and the connection carries no more HTTP after its head: a server, which does not tunnel, closes it,
-and a client leaves the tunnel's bytes unread.
--/
-@[inline]
-private def startsTunnel (method : Method) (status : Status) : Bool :=
-  method == .connect ∧ status.isSuccess
-
-/--
-Returns `true` when user-provided headers include body framing fields.
--/
-@[inline]
-private def hasFramingHeaders (message : Message.Head dir) : Bool :=
-  message.headers.map.entries.any fun (name, _) =>
-    name == Header.Name.contentLength || name == Header.Name.transferEncoding
-
-/--
-Returns `true` when a response's transfer codings end in a coding other than `chunked` and no
-`Content-Length` competes with them. RFC 9112 §6.3 rule 4: such a body has no length of its own and
-runs until the server closes the connection.
--/
-private def hasCloseDelimitedCoding (message : Message.Head .sending) : Bool :=
-  message.version == .v11 && !message.headers.contains Header.Name.contentLength &&
-    match message.headers.getAll? Header.Name.transferEncoding with
-    | some values => Header.TransferEncoding.finalCodingIsChunked? values == some false
-    | none => false
-
-/--
-Validates an incoming response head, answering a request with `requestMethod`, and selects its body
-framing mode.
-
-RFC 9112 §6.3 rules 1 and 2: a response to `HEAD`, every 1xx, 204 and 304 response, and a 2xx
-response to `CONNECT` end at the header block whatever their framing fields say, so those fields are
-not validated. What follows a 2xx to `CONNECT` is the tunnel, which `processHeaders` leaves unread.
--/
-private def checkSendingMessageHead (requestMethod : Method) (message : Message.Head .sending) :
-    Except H1.Error BodyMode :=
-  if requestMethod == .head || responseMustNotHaveBody message.status ||
-      startsTunnel requestMethod message.status then
-    pure (.fixed 0)
-  else
-    match message.getSize false with
-    | some (.fixed n) => pure (.fixed n)
-    | some .chunked => pure .chunked
-    | none =>
-      if !hasFramingHeaders message || hasCloseDelimitedCoding message then pure .eof
-      else throw .badMessage
-
 /--
 Direction-dispatched validation of the message head the reader just finished.
 -/
@@ -409,45 +225,6 @@ private def checkMessageHead (machine : Machine dir) : Except H1.Error BodyMode 
   match dir with
   | .receiving => checkReceivingMessageHead machine.config machine.reader.messageHead
   | .sending => checkSendingMessageHead machine.writer.messageHead.method machine.reader.messageHead
-
-/--
-The `Transfer-Encoding` value for a chunked message: the caller's own codings when they end in
-`chunked` (`gzip, chunked`), since the body bytes were coded for them, and `chunked` otherwise.
-Several field lines are written as one.
--/
-private def chunkedCodings (headers : Headers) : Header.Value :=
-  match headers.getAll? Header.Name.transferEncoding with
-  | some values =>
-    if Header.TransferEncoding.finalCodingIsChunked? values == some true then
-      match values with
-      | #[value] => value
-      | _ =>
-        let combined := ", ".intercalate (values.map (·.value)).toList
-        (Header.Value.ofString? combined).getD (.mk "chunked")
-    else
-      .mk "chunked"
-  | none => .mk "chunked"
-
-/--
-Builds canonical framing headers for a chosen transfer mode.
-The caller handles status/method exceptions that should skip normalization.
--/
-@[inline]
-private def normalizeFramingHeaders (headers : Headers) (size : Body.Length) : Headers :=
-  let codings := chunkedCodings headers
-  let headers := headers.erase Header.Name.contentLength |>.erase Header.Name.transferEncoding
-  match size with
-  | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
-  | .chunked => headers.insert Header.Name.transferEncoding codings
-
-/--
-Returns `true` when response status forbids framing headers entirely
-(informational and `204` responses).
--/
-@[inline]
-private def responseForbidsFramingHeaders (status : Status) : Bool :=
-  let code := status.toCode.toNat
-  (100 ≤ code ∧ code < 200) ∨ code = 204
 
 /--
 Returns `true` when the body being read belongs to an interim (1xx) response. Such a response has no
@@ -810,77 +587,6 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       advanceAfterHeaders machine state
 
 /--
-The tokens of the `Connection` field the machine writes: the sender's own connection options, then
-`close` when the connection ends, or `keep-alive` when an HTTP/1.0 connection persists (RFC 2616
-§19.7.1). The sender's `close` and `keep-alive` are dropped, since the machine decides those itself;
-its other options are kept, such as the `upgrade` that RFC 9110 §7.8 requires next to `Upgrade`.
--/
-private def connectionTokens (headers : Headers) (keepAlive : Bool) (version : Version) :
-    Array String :=
-  let options : Array String :=
-    match headers.getAll? Header.Name.connection with
-    | none => #[]
-    | some values =>
-      values.foldl (init := #[]) fun acc value =>
-        match Header.Connection.parse value with
-        | some connection =>
-          acc ++ connection.tokens.filter (fun t => t != "close" && t != "keep-alive")
-        | none => acc
-  if !keepAlive then options.push "close"
-  else if version == .v10 then options.push "keep-alive"
-  else options
-
-/--
-Encodes a server response head. The handler's fields are written in order without `Connection`,
-`Content-Length` and `Transfer-Encoding`, then `Date` and `Server` unless the handler set them, then
-the `Connection` and framing fields the machine chose. The handler's own connection options (such as
-`upgrade`) go in that `Connection` field, before the machine's `close` or `keep-alive`.
-
-`version` is the request's version and selects the framing. The status line always carries
-HTTP/1.1, the highest version the server conforms to (RFC 9110 §6.2). A `tunnel` response (see
-`startsTunnel`) has no framing fields.
--/
-private def encodeServerHead (head : Response.Head) (version : Version) (keepAlive : Bool)
-    (date : Option Header.Value) (agentName : Option Header.Value) (size : Body.Length)
-    (tunnel : Bool := false) : ByteArray :=
-  let status := head.status
-  let out : ByteArray := ByteArray.empty ++ Version.v11 ++ ' ' ++ status ++ "\r\n"
-  let out : ByteArray := head.headers.fold out fun out name value =>
-    if name == Header.Name.connection || name == Header.Name.contentLength ||
-        name == Header.Name.transferEncoding then
-      out
-    else
-      appendFieldLine out name value
-  let out : ByteArray :=
-    match date with
-    | some date =>
-      if head.headers.contains Header.Name.date then out
-      else appendFieldLine out Header.Name.date date
-    | none => out
-  let out : ByteArray :=
-    match agentName with
-    | some server =>
-      if head.headers.contains Header.Name.server then out
-      else appendFieldLine out Header.Name.server server
-    | none => out
-  let tokens := connectionTokens head.headers keepAlive version
-  let out : ByteArray :=
-    if tokens.isEmpty then out
-    else out ++ "Connection: " ++ ", ".intercalate tokens.toList ++ "\r\n"
-  -- Framing fields are omitted for bodyless status codes (RFC 9110 §8.6, §15.4.5) and for
-  -- HTTP/1.0 connection-close framing (RFC 7230 §3.3.1).
-  let out : ByteArray :=
-    if responseForbidsFramingHeaders status ∨ status == .notModified ∨ tunnel then
-      out
-    else
-      match size with
-      | .fixed n => out ++ "Content-Length: " ++ n ++ "\r\n"
-      | .chunked =>
-        if version == .v10 then out
-        else appendFieldLine out Header.Name.transferEncoding (chunkedCodings head.headers)
-  out ++ "\r\n"
-
-/--
 Finalizes and serializes the outgoing start-line + headers.
 
 This applies connection/identity defaults, enforces framing-header
@@ -936,30 +642,7 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
     | .receiving, messageHead =>
       outputData.push (encodeServerHead messageHead version keepAlive date agentName size tunnel)
     | .sending, messageHead =>
-      let headers := messageHead.headers
-
-      let headers :=
-        match agentName with
-        | some userAgent =>
-          if headers.contains Header.Name.userAgent then headers
-          else headers.insert Header.Name.userAgent userAgent
-        | none => headers
-
-      -- The request's own version: the reader may already hold the next response's status line.
-      let tokens := connectionTokens headers keepAlive messageHead.version
-      let headers := headers.erase Header.Name.connection
-      let headers :=
-        if tokens.isEmpty then headers
-        else headers.insert Header.Name.connection (.ofString! (", ".intercalate tokens.toList))
-      -- RFC 9110 §8.6: no `Content-Length` on a request without content whose method anticipates
-      -- none, unless the caller set a framing field.
-      let headers :=
-        if size == .fixed 0 ∧ !messageHead.method.anticipatesContent ∧
-            !hasFramingHeaders messageHead then
-          headers
-        else
-          normalizeFramingHeaders headers size
-      outputData.push (ByteArray.empty ++ ({ messageHead with headers } : Request.Head))
+      outputData.push (encodeClientHead messageHead keepAlive agentName size)
 
   machine.modifyWriter (fun writer => { writer with outputData, state })
 
@@ -1054,30 +737,6 @@ private def reconcileOutgoingFraming (machine : Machine dir)
     else none
   | none, some parsed => some (machine.setKnownSize parsed)
   | _, none => if framingInHeaders then none else some machine
-
-/--
-The failure `rejectOutgoing` reports for a head that contradicts its body: a mistake of the sender's own code, not a malformed
-message from the peer. A server passes it to `Handler.onFailure`.
--/
-private def framingMismatchError : H1.Error :=
-  .other "Content-Length or Transfer-Encoding contradicts the body"
-
-/--
-The content of an error response the machine writes itself: the reason phrase, and for 505 the
-versions the server supports (RFC 9110 §15.6.6).
--/
-private def errorContent (status : Status) : ByteArray :=
-  match status with
-  | .httpVersionNotSupported =>
-    "HTTP Version Not Supported: this server supports HTTP/1.0 and HTTP/1.1\n".toUTF8
-  | _ => (status.reasonPhrase ++ "\n").toUTF8
-
-/--
-The head of an error response the machine writes itself, which carries `errorContent` as
-`text/plain`.
--/
-private def errorHead (status : Status) (headers : Headers := .empty) : Response.Head :=
-  { status, headers := headers.insert Header.Name.contentType (.mk "text/plain; charset=utf-8") }
 
 /--
 Rejects a message head the sender's own code got wrong, such as one `reconcileOutgoingFraming`
@@ -1410,13 +1069,6 @@ private def closeOnBadMessage (machine : Machine dir) : Machine dir :=
   |>.addEvent .close
 
 /--
-Whether the unread input holds nothing but `CR` and `LF` bytes. Scans in place and stops at the
-first other byte; `ByteArray.data` would box a copy of the whole buffer.
--/
-private def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
-  (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
-
-/--
 Handles input that reaches a client with no request outstanding: after the final response of an
 exchange, or before the next request. It answers no request (RFC 9112 §9.2), and what follows a
 response must not be read as the next one (RFC 9112 §6.3). Line breaks alone are discarded (RFC 9112
@@ -1687,18 +1339,6 @@ def abandonOutgoingBody (machine : Machine dir) : Machine dir :=
     { writer with userData := .empty, userDataBytes := 0, userClosedBody := true }
   completeWriterMessage (if truncated then machine.disableKeepAlive else machine)
 
-/-- Maps a reader failure to an HTTP status code. -/
-private def errorResponseStatus (error : H1.Error) : Status :=
-  match error with
-  | .unsupportedVersion => .httpVersionNotSupported
-  | .unsupportedTransferCoding => .notImplemented
-  | .unsupportedMethod => .notImplemented
-  | .entityTooLarge => .payloadTooLarge
-  | .uriTooLong => .uriTooLong
-  | .tooManyHeaders => .requestHeaderFieldsTooLarge
-  | .headersTooLarge => .requestHeaderFieldsTooLarge
-  | _ => .badRequest
-
 /--
 On the server side (`.receiving`), answers a failure with one error response, with a short
 `text/plain` explanation, unless a response was already started. `send` marks that response as
@@ -1914,58 +1554,6 @@ Converts raw parsed header name/value strings into typed header representations.
 @[inline]
 private def typedHeader? (name : String) (value : String) : Option (Header.Name × Header.Value) :=
   Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value
-
-/--
-Whether the unread input holds only empty lines a server ignores before a request line, possibly
-followed by the `CR` of one more: line ends that the request-line parser reads to their end without
-failing. A bare `LF`, or more empty lines than `maxLeadingEmptyLines`, fail the parser, so they get
-the answer they get when more input follows.
--/
-private def onlyEmptyLinesLeft (config : Config) (input : ByteArray.Iterator) : Bool :=
-  onlyLineEndsLeft input && (parseRequestLineRawVersion config input matches .error _ .eof)
-
-/--
-Classifies hard request start-line parse failures into protocol-level errors.
--/
-@[inline]
-private def classifyStartLineHardError : Std.Internal.Parsec.Error → H1.Error
-  | .other "uri too long" => .uriTooLong
-  | .other "unrecognized method" => .unsupportedMethod
-  | _ => .badMessage
-
-/--
-Classifies hard field-line parse failures: a name or value over its limit is too large, as too many
-fields are (RFC 6585 §5 answers both with 431), and anything else is malformed.
--/
-@[inline]
-private def classifyFieldLineHardError : Std.Internal.Parsec.Error → H1.Error
-  | .other "header name too long" | .other "header value too long" => .headersTooLarge
-  | _ => .badMessage
-
-/--
-The bytes of the empty lines (`CRLF`) at the start of `input`, up to `maxLeadingEmptyLines` of them.
-A server ignores them before a request line (RFC 9112 §2.2), so they do not count toward
-`maxStartLineLength`.
--/
-private def leadingEmptyLineBytes (config : Config) (input : ByteArray.Iterator) : Nat := Id.run do
-  let mut n := 0
-  for _ in [0:config.maxLeadingEmptyLines] do
-    if input.array[input.idx + n]? == some '\r'.toUInt8 &&
-        input.array[input.idx + n + 1]? == some '\n'.toUInt8 then
-      n := n + 2
-    else
-      break
-  return n
-
-/--
-Whether the request line in `input` starts with the method `HEAD`. A client that sent it reads the
-response as having no content (RFC 9110 §9.3.2), even when the rest of the line fails to parse.
--/
-private def startsWithHead (config : Config) (input : ByteArray.Iterator) : Bool :=
-  let s := input.idx + leadingEmptyLineBytes config input
-  let b := input.array
-  b[s]? == some 'H'.toUInt8 && b[s + 1]? == some 'E'.toUInt8 && b[s + 2]? == some 'A'.toUInt8 &&
-    b[s + 3]? == some 'D'.toUInt8 && b[s + 4]? == some ' '.toUInt8
 
 /--
 Marks the request as `HEAD` when its request line, which failed to parse, started with that method,

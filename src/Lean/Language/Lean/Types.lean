@@ -92,6 +92,11 @@ structure HeaderProcessedState where
   cmdState : Command.State
   /-- First command task (there is always at least a terminal command). -/
   firstCmdSnap : SnapshotTask CommandParsedSnapshot
+  /--
+  When processing the private file of a split module, the first command task of its public file,
+  which is elaborated after the header and before the first command of the private file.
+  -/
+  publicCmdSnap? : Option (SnapshotTask CommandParsedSnapshot) := none
 
 /-- State after the module header has been processed including imports. -/
 structure HeaderProcessedSnapshot extends Snapshot where
@@ -106,6 +111,7 @@ structure HeaderProcessedSnapshot extends Snapshot where
 instance : ToSnapshotTree HeaderProcessedSnapshot where
   toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot,
     #[← s.metaSnap.transform] |>
+      pushOpt (← (s.result?.bind (·.publicCmdSnap?)).mapM (·.transform)) |>
       pushOpt (← s.result?.mapM (·.firstCmdSnap.transform))⟩
 
 /-- State after successfully parsing the module header. -/

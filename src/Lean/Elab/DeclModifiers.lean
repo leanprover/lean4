@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.DocString.Add
 public import Lean.Linter.Init
+import Lean.OriginalConstKind
 meta import Lean.Parser.Command
 
 public section
@@ -246,8 +247,18 @@ If `protected`, register `declName` as protected in the environment.
 -/
 def applyVisibility (modifiers : Modifiers) (declName : Name) : m Name := do
   let mut declName := declName
-  if !modifiers.visibility.isInferredPublic (← getEnv) then
-    declName := mkPrivateName (← getEnv) declName
+  let env ← getEnv
+  if SplitModule.isInPrivateFile env then
+    if modifiers.visibility.isInferredPublic env then
+      throwError "private files cannot declare public declarations"
+    -- A declaration of the public file that omitted its value; it is public unless declared
+    -- `private` there.
+    for cand in [declName, mkPrivateName env declName] do
+      if let some (_, env) := SplitModule.startFilling? env cand then
+        setEnv env
+        return cand
+  if !modifiers.visibility.isInferredPublic env then
+    declName := mkPrivateName env declName
   checkNotAlreadyDeclared declName
   if modifiers.isProtected then
     modifyEnv fun env => addProtected env declName

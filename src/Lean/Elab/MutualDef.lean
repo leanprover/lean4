@@ -257,12 +257,26 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
-            let mut type ← match view.type? with
-              | some typeStx =>
+            let deferred? := SplitModule.findSupplied? (← getEnv) declName
+            let mut type ← match view.type?, deferred? with
+              | some typeStx, _ =>
                 let type ← elabType typeStx
                 registerFailedToInferDefTypeInfo type view
                 pure type
-              | none =>
+              | none, some deferred =>
+                -- A typeless declaration of the private file of a split module takes its type from
+                -- the public file.
+                let mut type := deferred.type
+                for (_, x) in xs do
+                  let .forallE _ dom body _ ← whnf type
+                    | throwErrorAt view.binders "too many binders for the declared type{indentExpr deferred.type}"
+                  unless (← isDefEq (← inferType x) dom) do
+                    throwErrorAt view.binders "binder type mismatch: expected{indentExpr dom}"
+                  type := body.instantiate1 x
+                pure type
+              | none, none =>
+                if view.kind.isTheorem then
+                  throwErrorAt view.declId "theorem must have a type"
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
@@ -1204,11 +1218,39 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
   else
     go
 where
+  /--
+  If `header` supplies a deferred declaration of a split module, checks it against the declared
+  signature, replaces its type by the declared one, and marks the declaration as supplied.
+  -/
+  adaptDeferredHeader (header : DefViewElabHeader) : TermElabM DefViewElabHeader := do
+    let some deferred := SplitModule.findSupplied? (← getEnv) header.declName
+      | return header
+    let expectedKind : DefKind := if deferred.kind matches .thm then .theorem else .def
+    if header.kind != expectedKind then
+      throwErrorAt header.declId "'{header.declName}' is declared as a \
+        {if deferred.kind matches .thm then "theorem" else "definition"} in the public file"
+    let usedVars := vars.filter fun x => header.type.containsFVar x.fvarId!
+    let type ← mkForallFVars usedVars header.type
+    let expected := deferred.type
+    unless (← isDefEq type expected) do
+      throwErrorAt header.declId "type mismatch: '{header.declName}' has type{indentExpr type}\n\
+        but is declared with type{indentExpr deferred.type}"
+    modifyEnv (SplitModule.setDeferredDeclState · header.declName .filled)
+    return { header with type := ← instantiateForall deferred.type usedVars }
   go := do
     let bodyPromises ← views.mapM fun _ => IO.Promise.new
     let tacPromises ← views.mapM fun _ => IO.Promise.new
+    for view in views do
+      if view.value.isOfKind ``Parser.Command.deferredDeclVal then
+        throwErrorAt view.ref "declarations without a body cannot be part of a `mutual` block"
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
-      Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let declId ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      if let some deferred := SplitModule.findSupplied? (← getEnv) declId.declName then
+        -- Make the universe parameters of the declared type available
+        let levelNames := deferred.levelParams.foldl (init := declId.levelNames) fun ns n =>
+          if ns.contains n then ns else ns ++ [n]
+        return { declId with levelNames }
+      return declId
     for view in views, declId in expandedDeclIds do
       -- Add tags early so elaboration can access them
       match view.modifiers.computeKind with
@@ -1224,6 +1266,7 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    let headers ← headers.mapM adaptDeferredHeader
     for header in headers do
       let info : DeclValueInfo := { header with isProof := (← isProp header.type) }
       pushInfoLeaf <| .ofCustomInfo { stx := header.value, value := .mk info }

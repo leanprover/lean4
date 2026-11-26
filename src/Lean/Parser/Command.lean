@@ -212,6 +212,18 @@ of a `def`. Tried only after `declVal` fails. -/
 def contractDeclVal := leading_parser
   optional givenClause >> optional requiresClause >> optional ensuresClause >>
   many throwsClause >> withoutInfo declVal
+/--
+The missing value of a `def` or `theorem` in the public file `M.lean` of a split module, to be
+supplied by its private file `M.private.lean`.
+-/
+def deferredDeclVal := leading_parser
+  skip
+/--
+The signature of a `theorem` in the private file of a split module that omits the type, which is
+taken from the declaration in the public file.
+-/
+def typelessDeclSig := leading_parser
+  atomic (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> lookahead " :=")
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser
@@ -221,9 +233,10 @@ def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
-  (declVal <|> contractDeclVal) >> optDefDeriving
+  (declVal <|> contractDeclVal <|> deferredDeclVal) >> optDefDeriving
 def «theorem»        := leading_parser
-  "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
+  "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent (typelessDeclSig <|> declSig) >>
+  (declVal <|> deferredDeclVal)
 def «opaque»         := leading_parser
   "opaque " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space

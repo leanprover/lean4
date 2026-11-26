@@ -172,6 +172,19 @@ def getSrcSearchPath : IO SearchPath := do
   -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
   return srcSearchPath ++ [srcPath / "lake", srcPath]
 
+/--
+Returns the private file `M.private.lean` of the split module `M` with public file `M.lean`.
+-/
+def privateFileOfPublicFile (fname : FilePath) : FilePath :=
+  fname.withExtension "private.lean"
+
+/--
+Returns the public file `M.lean` if `fname` is the private file `M.private.lean` of a split module.
+-/
+def publicFileOfPrivateFile? (fname : FilePath) : Option FilePath := do
+  guard <| fname.toString.endsWith ".private.lean"
+  return ⟨(fname.toString.dropEnd ".private.lean".length).copy ++ ".lean"⟩
+
 /-- Infer module name of source file name. -/
 def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Name := do
   let fname ← IO.FS.realPath fname
@@ -185,7 +198,9 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
     throw $ IO.userError s!"input file '{fname}' must be contained in root directory ({rootDir})"
   -- NOTE: use `fname` instead of `fname.normalize` to preserve casing on all platforms
   let fnameSuffix := fname.toString.drop rootDir.toString.length
-  let modNameStr := FilePath.mk fnameSuffix.copy |>.withExtension ""
+  let fnameSuffix := FilePath.mk fnameSuffix.copy
+  let fnameSuffix := (publicFileOfPrivateFile? fnameSuffix).getD fnameSuffix
+  let modNameStr := fnameSuffix.withExtension ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
 

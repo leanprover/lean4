@@ -224,6 +224,18 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·)))
 
 /--
+Declarations without a body in the public file of a split module
+* `def foo (unused : Nat) : Nat`
+* `theorem foo (unused : Nat) : True`
+-/
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stack.matches [`null, none, `null, none, none] &&
+  (stack[3]? |>.any fun (stx, _) =>
+    stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
+    stx.isOfKind ``Lean.Parser.Command.declSig) &&
+  (stack[4]? |>.any fun (stx, _) => stx[3].isOfKind ``Lean.Parser.Command.deferredDeclVal))
+
+/--
 Definition with foreign definition
 * `@[extern "bla"] def foo (unused : Nat) : Nat := ...`
 * `@[implemented_by bla] def foo (unused : Nat) : Nat := ...`

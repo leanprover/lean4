@@ -79,6 +79,10 @@ public def contains (m : ConstMap) (n : Name) : Bool :=
 public def insert (m : ConstMap) (n : Name) (v : ConstantInfo) : ConstMap :=
   { m with map₂ := m.map₂.insert n v }
 
+/-- Removes a constant declared in the current module. -/
+public def erase (m : ConstMap) (n : Name) : ConstMap :=
+  { m with map₂ := m.map₂.erase n }
+
 /-- Folds over the constants declared in the current module. -/
 @[inline] public def foldStage2 (f : σ → Name → ConstantInfo → σ) (s : σ) (m : ConstMap) : σ :=
   m.map₂.foldl f s

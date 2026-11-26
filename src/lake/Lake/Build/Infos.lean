@@ -67,6 +67,9 @@ public structure ModuleImport extends Import where
 /-- A module's source file path plus its parsed header. -/
 public structure ModuleInput where
   path : FilePath
+  /-- The private file of a split module (see `Lean.SplitModule`), if any. -/
+  privatePath? : Option FilePath := none
+  /-- Covers the private file as well, if any. -/
   trace : BuildTrace
   header : ModuleHeader
   imports : Array ModuleImport
@@ -86,6 +89,8 @@ public structure ModulePreSetup where
   irSigTrace : BuildTrace
   srcMTime : MTime
   srcFile : FilePath
+  /-- The private file of a split module (see `Lean.SplitModule`), if any. -/
+  privateSrcFile? : Option FilePath := none
   isModule : Bool
   directImports : Array ModuleImport
   directImportArts : NameMap ImportArtifacts

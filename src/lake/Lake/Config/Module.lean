@@ -111,6 +111,10 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+/-- The `.ilean` of the private file of a split module (see `Lean.SplitModule`). -/
+@[inline] public def privateIleanFile (self : Module) : FilePath :=
+  self.leanLibPath "private.ilean"
+
 @[inline] public def irSigFile (self : Module) : FilePath :=
   self.leanLibPath "ir.sig"
 

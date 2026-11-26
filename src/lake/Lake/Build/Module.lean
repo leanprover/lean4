@@ -53,12 +53,24 @@ def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async 
   -- and the modification time read would not be caught by the check in `buildLean`.
   let mtime ← getMTime path
   let contents ← IO.FS.readFile path
-  let trace := {caption := path.toString, mtime, hash := .ofText contents}
+  let mut trace := {caption := path.toString, mtime, hash := .ofText contents}
+  let mut header ← Lean.parseImports' contents path.toString
+  -- A split module is elaborated from both files; its imports are those of both.
+  let privatePath := privateFileOfPublicFile path
+  let privatePath? ← if ← privatePath.pathExists then pure (some privatePath) else pure none
+  if let some privatePath := privatePath? then
+    let privateMTime ← getMTime privatePath
+    let privateContents ← IO.FS.readFile privatePath
+    let privateTrace : BuildTrace :=
+      {caption := privatePath.toString, mtime := privateMTime, hash := .ofText privateContents}
+    trace := trace.mix privateTrace
+    let privateHeader ← Lean.parseImports' privateContents privatePath.toString
+    header := {header with
+      imports := header.imports ++ privateHeader.imports.filter (!header.imports.contains ·)}
   setTrace trace
-  let header ← Lean.parseImports' contents path.toString
   let imports ← header.imports.mapM fun imp => do
     return ⟨imp, (← findModule? imp.module)⟩
-  return {path, header, imports, trace}
+  return {path, privatePath?, header, imports, trace}
 
 /-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
 public def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
@@ -728,7 +740,11 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     | some true => addTrace depTrace; addTrace nilLibTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
     let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
-    let leanOptions := mod.leanOptions ++ extra
+    let mut leanOptions := mod.leanOptions ++ extra
+    if input.privatePath?.isSome then
+      -- Lean postpones code generation of split modules
+      leanOptions := {leanOptions with
+        values := leanOptions.values.insert `compiler.postponeCompile (.ofBool true)}
     addLeanTrace
     addTrace input.trace
     addTrace <| traceOptions leanOptions "options"
@@ -739,6 +755,7 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     return {
       trace := ← getTrace
       srcFile := input.path
+      privateSrcFile? := input.privatePath?
       srcMTime := input.trace.mtime
       isModule := input.header.isModule
       directImports := input.imports
@@ -1182,9 +1199,19 @@ def Module.buildLean
   let setup ← mkModuleSetup mod presetup
   let arts := mod.mkArtifacts presetup.srcFile presetup.isModule
   mod.clearOutputArtifacts
-  compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
-    (← getLeanPath) (← getLean)
-  unless presetup.srcMTime == (← getMTime presetup.srcFile) do
+  if let some privateSrcFile := presetup.privateSrcFile? then
+    -- The public file produces the `.olean`, the private file all other artifacts.
+    compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile
+      {olean? := arts.olean?, ilean? := arts.ilean?} args (← getLeanPath) (← getLean)
+    compileLeanModule privateSrcFile (relPathFrom mod.pkg.dir privateSrcFile) setup mod.setupFile
+      {arts with ilean? := mod.privateIleanFile} args (← getLeanPath) (← getLean)
+  else
+    compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
+      (← getLeanPath) (← getLean)
+  let mut srcMTime ← getMTime presetup.srcFile
+  if let some privateSrcFile := presetup.privateSrcFile? then
+    srcMTime := max srcMTime (← getMTime privateSrcFile)
+  unless presetup.srcMTime == srcMTime do
     error s!"module source file:\
       \n   {presetup.srcFile}\
       \nchanged since build began; rerun the build"

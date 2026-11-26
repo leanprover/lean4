@@ -9,7 +9,8 @@ def f (n : Nat) : Nat := n + implOffset
 -- Typeless forms take the declared type.
 theorem f_pos := by
   intro n
-  simp [f, implOffset]
+  unfold f implOffset
+  omega
 
 theorem f_succ (n : Nat) := by
   simp only [f]

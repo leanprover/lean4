@@ -26,10 +26,15 @@ public section
 namespace Lean
 open System
 
+/-- Returns whether `fileName` is the name of the private file `M.private.lean` of a split module. -/
+def isPrivateFileName (fileName : String) : Bool :=
+  fileName.endsWith ".private.lean"
+
 /--
 Executes `f` with the corresponding module name for each `.lean` file contained in `dir`.
 
-For example, if `dir` contains `A/B/C.lean`, `f` is called with `A.B.C`.
+For example, if `dir` contains `A/B/C.lean`, `f` is called with `A.B.C`. Private files
+`A/B/C.private.lean` of split modules are skipped.
 -/
 partial def forEachModuleInDir [Monad m] [MonadLiftT IO m]
     (dir : FilePath) (f : Lean.Name → m PUnit) : m PUnit := do
@@ -37,7 +42,7 @@ partial def forEachModuleInDir [Monad m] [MonadLiftT IO m]
     if (← liftM (m := IO) <| entry.path.isDir) then
       let n := Lean.Name.mkSimple entry.fileName
       forEachModuleInDir entry.path (f <| n ++ ·)
-    else if entry.path.extension == some "lean" then
+    else if entry.path.extension == some "lean" && !isPrivateFileName entry.fileName then
       f <| Lean.Name.mkSimple <| FilePath.withExtension entry.fileName "" |>.toString
 
 def realPathNormalized (p : FilePath) : IO FilePath :=
@@ -182,7 +187,7 @@ def privateFileOfPublicFile (fname : FilePath) : FilePath :=
 Returns the public file `M.lean` if `fname` is the private file `M.private.lean` of a split module.
 -/
 def publicFileOfPrivateFile? (fname : FilePath) : Option FilePath := do
-  guard <| fname.toString.endsWith ".private.lean"
+  guard <| isPrivateFileName fname.toString
   return ⟨(fname.toString.dropEnd ".private.lean".length).copy ++ ".lean"⟩
 
 /-- Infer module name of source file name. -/

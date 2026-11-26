@@ -1,20 +1,23 @@
 rm -rf .lake
 
 LEAN_ABORT_ON_PANIC=1 lake build SplitMod.Use SplitMod.UseAll
+# The private file is not a module of its own.
+capture_fail lake build SplitMod.Basic.private
 
 # Restore the edited private file afterwards.
 cp SplitMod/Basic.private.lean .lake/Basic.private.lean.orig
 trap 'cp .lake/Basic.private.lean.orig SplitMod/Basic.private.lean' EXIT
 
-# Editing only the private half leaves plain importers up to date, but not `import all` ones.
-echo '-- edit' >> SplitMod/Basic.private.lean
+# Changing only the private file leaves plain importers up to date, but not `import all` ones.
+perl -p -i -e 's/n \+ implOffset/implOffset + n/' SplitMod/Basic.private.lean
+lake build SplitMod.Basic
 lake build --no-build SplitMod.Use
 capture_fail lake build --no-build SplitMod.UseAll
 lake build SplitMod.UseAll
 
 # Bodiless declarations need a private file.
 capture_fail lake build Errors.NoPrivate
-check_out_contains "declaration 'x' has no body"
+check_out_contains "may only be omitted if the module has a private file"
 
 capture_fail lake build Errors.Missing
 check_out_contains "'y₂' is declared in the public file but has no implementation"
@@ -25,6 +28,6 @@ check_out_contains "type mismatch"
 capture_fail lake build Errors.PublicInPrivate
 check_out_contains "private files cannot declare public declarations"
 
-# The private build must reproduce the public `.olean` exactly.
+# The private file must not change how the public file elaborates.
 capture_fail lake build Errors.Diverge
 check_out_contains "elaborates differently"

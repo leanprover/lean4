@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Assignment
-// Imports: public import Std.Data.HashMap public import Init.Data.Hashable public import Std.Sat.CNF.Unit import Std.Sat.CNF.SpecLemmas import Std.Tactic.Do public import Std.Sat.CNF.Entails public import Std.Sat.CNF.Negation public import Std.Sat.CNF.Redundancy
+// Imports: public import Std.Data.HashMap public import Init.Data.Hashable public import Std.Internal.Sat.CNF.Unit import Std.Internal.Sat.CNF.SpecLemmas import Std.Tactic.Do public import Std.Internal.Sat.CNF.Entails public import Std.Internal.Sat.CNF.Negation public import Std.Internal.Sat.CNF.Redundancy
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -39,7 +39,7 @@ uint8_t lean_byte_array_uget(lean_object*, size_t);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Std_Sat_CNF_Clause_unit___redArg(lean_object*, uint8_t);
+lean_object* l_Std_Internal_Sat_CNF_Clause_unit___redArg(lean_object*, uint8_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* lean_obj_tag_nat(lean_object*);
@@ -119,10 +119,10 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__pri
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__1_spec__3_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__1_spec__3___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__1___redArg(lean_object*, lean_object*, lean_object*);
-static const lean_ctor_object l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
-static const lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0 = (const lean_object*)&l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0_value;
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0 = (const lean_object*)&l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0_value;
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause___closed__0;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause(lean_object*);
@@ -144,8 +144,8 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignmen
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Break_runK_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause__spec_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause__spec_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_AssignValue_ctorIdx___impl(uint8_t v_x_1_){
@@ -723,7 +723,7 @@ goto v___jp_206_;
 v___jp_206_:
 {
 lean_object* v___x_208_; lean_object* v___x_209_; 
-v___x_208_ = l_Std_Sat_CNF_Clause_unit___redArg(v_fst_204_, v_val_207_);
+v___x_208_ = l_Std_Internal_Sat_CNF_Clause_unit___redArg(v_fst_204_, v_val_207_);
 v___x_209_ = lean_array_push(v_x_200_, v___x_208_);
 v_x_200_ = v___x_209_;
 v_x_201_ = v_tail_203_;
@@ -1288,7 +1288,7 @@ return v___x_407_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(lean_object* v_c_412_, size_t v_sz_413_, size_t v_i_414_, lean_object* v_b_415_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(lean_object* v_c_412_, size_t v_sz_413_, size_t v_i_414_, lean_object* v_b_415_){
 _start:
 {
 lean_object* v_a_417_; uint8_t v___x_421_; 
@@ -1371,7 +1371,7 @@ goto v___jp_445_;
 v___jp_428_:
 {
 lean_object* v___x_429_; lean_object* v___x_431_; 
-v___x_429_ = ((lean_object*)(l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0));
+v___x_429_ = ((lean_object*)(l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0));
 if (v_isShared_427_ == 0)
 {
 lean_ctor_set(v___x_426_, 0, v___x_429_);
@@ -1453,7 +1453,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___boxed(lean_object* v_c_456_, lean_object* v_sz_457_, lean_object* v_i_458_, lean_object* v_b_459_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___boxed(lean_object* v_c_456_, lean_object* v_sz_457_, lean_object* v_i_458_, lean_object* v_b_459_){
 _start:
 {
 size_t v_sz_boxed_460_; size_t v_i_boxed_461_; lean_object* v_res_462_; 
@@ -1461,7 +1461,7 @@ v_sz_boxed_460_ = lean_unbox_usize(v_sz_457_);
 lean_dec(v_sz_457_);
 v_i_boxed_461_ = lean_unbox_usize(v_i_458_);
 lean_dec(v_i_458_);
-v_res_462_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(v_c_456_, v_sz_boxed_460_, v_i_boxed_461_, v_b_459_);
+v_res_462_ = l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(v_c_456_, v_sz_boxed_460_, v_i_boxed_461_, v_b_459_);
 lean_dec_ref(v_c_456_);
 return v_res_462_;
 }
@@ -1486,7 +1486,7 @@ v_atoms_467_ = lean_ctor_get(v_clause_466_, 0);
 v___x_468_ = lean_obj_once(&l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause___closed__0, &l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause___closed__0_once, _init_l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause___closed__0);
 v_sz_469_ = lean_array_size(v_atoms_467_);
 v___x_470_ = ((size_t)0ULL);
-v___x_471_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(v_clause_466_, v_sz_469_, v___x_470_, v___x_468_);
+v___x_471_ = l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(v_clause_466_, v_sz_469_, v___x_470_, v___x_468_);
 v_fst_472_ = lean_ctor_get(v___x_471_, 0);
 if (lean_obj_tag(v_fst_472_) == 0)
 {
@@ -1752,7 +1752,7 @@ return v___x_572_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(lean_object* v_lit_573_, lean_object* v_c_574_, size_t v_sz_575_, size_t v_i_576_, lean_object* v_b_577_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(lean_object* v_lit_573_, lean_object* v_c_574_, size_t v_sz_575_, size_t v_i_576_, lean_object* v_b_577_){
 _start:
 {
 lean_object* v_a_579_; uint8_t v___x_583_; 
@@ -1837,7 +1837,7 @@ goto v___jp_608_;
 v___jp_592_:
 {
 lean_object* v___x_593_; lean_object* v___x_595_; 
-v___x_593_ = ((lean_object*)(l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0));
+v___x_593_ = ((lean_object*)(l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2___closed__0));
 if (v_isShared_591_ == 0)
 {
 lean_ctor_set(v___x_590_, 0, v___x_593_);
@@ -1980,7 +1980,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0___boxed(lean_object* v_lit_627_, lean_object* v_c_628_, lean_object* v_sz_629_, lean_object* v_i_630_, lean_object* v_b_631_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0___boxed(lean_object* v_lit_627_, lean_object* v_c_628_, lean_object* v_sz_629_, lean_object* v_i_630_, lean_object* v_b_631_){
 _start:
 {
 size_t v_sz_boxed_632_; size_t v_i_boxed_633_; lean_object* v_res_634_; 
@@ -1988,7 +1988,7 @@ v_sz_boxed_632_ = lean_unbox_usize(v_sz_629_);
 lean_dec(v_sz_629_);
 v_i_boxed_633_ = lean_unbox_usize(v_i_630_);
 lean_dec(v_i_630_);
-v_res_634_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(v_lit_627_, v_c_628_, v_sz_boxed_632_, v_i_boxed_633_, v_b_631_);
+v_res_634_ = l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(v_lit_627_, v_c_628_, v_sz_boxed_632_, v_i_boxed_633_, v_b_631_);
 lean_dec_ref(v_c_628_);
 lean_dec_ref(v_lit_627_);
 return v_res_634_;
@@ -2005,7 +2005,7 @@ lean_ctor_set(v___x_640_, 0, v___x_639_);
 lean_ctor_set(v___x_640_, 1, v_assign_635_);
 v_sz_641_ = lean_array_size(v_atoms_638_);
 v___x_642_ = ((size_t)0ULL);
-v___x_643_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(v_lit_637_, v_c_636_, v_sz_641_, v___x_642_, v___x_640_);
+v___x_643_ = l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(v_lit_637_, v_c_636_, v_sz_641_, v___x_642_, v___x_640_);
 v_fst_644_ = lean_ctor_get(v___x_643_, 0);
 if (lean_obj_tag(v_fst_644_) == 0)
 {
@@ -2041,12 +2041,12 @@ return v_res_651_;
 }
 lean_object* runtime_initialize_Std_Data_HashMap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_CNF_Unit(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_CNF_SpecLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF_Unit(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF_SpecLemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_Do(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_CNF_Entails(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_CNF_Negation(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_CNF_Redundancy(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF_Entails(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF_Negation(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF_Redundancy(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Assignment(uint8_t builtin) {
@@ -2060,22 +2060,22 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_CNF_Unit(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF_Unit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_CNF_SpecLemmas(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF_SpecLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_CNF_Entails(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF_Entails(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_CNF_Negation(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF_Negation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_CNF_Redundancy(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF_Redundancy(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_empty = _init_l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_empty();
@@ -2091,12 +2091,12 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data_HashMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
-lean_object* initialize_Std_Sat_CNF_Unit(uint8_t builtin);
-lean_object* initialize_Std_Sat_CNF_SpecLemmas(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF_Unit(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF_SpecLemmas(uint8_t builtin);
 lean_object* initialize_Std_Tactic_Do(uint8_t builtin);
-lean_object* initialize_Std_Sat_CNF_Entails(uint8_t builtin);
-lean_object* initialize_Std_Sat_CNF_Negation(uint8_t builtin);
-lean_object* initialize_Std_Sat_CNF_Redundancy(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF_Entails(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF_Negation(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF_Redundancy(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Assignment(uint8_t builtin) {
 lean_object * res;
@@ -2108,22 +2108,22 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Unit(builtin);
+res = initialize_Std_Internal_Sat_CNF_Unit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_SpecLemmas(builtin);
+res = initialize_Std_Internal_Sat_CNF_SpecLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Tactic_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Entails(builtin);
+res = initialize_Std_Internal_Sat_CNF_Entails(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Negation(builtin);
+res = initialize_Std_Internal_Sat_CNF_Negation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Redundancy(builtin);
+res = initialize_Std_Internal_Sat_CNF_Redundancy(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Assignment(builtin);

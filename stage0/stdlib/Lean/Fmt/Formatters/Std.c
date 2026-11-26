@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Fmt.Formatters.Std
-// Imports: public import Lean.Fmt.Formatters.Std.Data public import Lean.Fmt.Formatters.Std.Do public import Lean.Fmt.Formatters.Std.Internal public import Lean.Fmt.Formatters.Std.Sat public import Lean.Fmt.Formatters.Std.Tactic public import Lean.Fmt.Formatters.Std.Time public import Lean.Fmt.Formatters.Std.WP
+// Imports: public import Lean.Fmt.Formatters.Std.Data public import Lean.Fmt.Formatters.Std.Do public import Lean.Fmt.Formatters.Std.Internal public import Lean.Fmt.Formatters.Std.Tactic public import Lean.Fmt.Formatters.Std.Time public import Lean.Fmt.Formatters.Std.WP
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,6 @@ extern "C" {
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Data(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Do(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Internal(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Sat(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Tactic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Time(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_WP(uint8_t builtin);
@@ -34,9 +33,6 @@ res = runtime_initialize_Lean_Fmt_Formatters_Std_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Fmt_Formatters_Std_Internal(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Lean_Fmt_Formatters_Std_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Fmt_Formatters_Std_Tactic(builtin);
@@ -60,7 +56,6 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Fmt_Formatters_Std_Data(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_Formatters_Std_Do(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_Formatters_Std_Internal(uint8_t builtin);
-lean_object* initialize_Lean_Fmt_Formatters_Std_Sat(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_Formatters_Std_Tactic(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_Formatters_Std_Time(uint8_t builtin);
 lean_object* initialize_Lean_Fmt_Formatters_Std_WP(uint8_t builtin);
@@ -76,9 +71,6 @@ res = initialize_Lean_Fmt_Formatters_Std_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Fmt_Formatters_Std_Internal(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Fmt_Formatters_Std_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Fmt_Formatters_Std_Tactic(builtin);

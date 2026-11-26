@@ -72,7 +72,7 @@ lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_LRAT_trim(lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString(lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Sat_CNF_dimacs(lean_object*);
+lean_object* l_Std_Internal_Sat_CNF_dimacs(lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_External_satQuery(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_put_str(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_flush(lean_object*);
@@ -4704,7 +4704,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_runExternal___lam__0(lean_o
 _start:
 {
 lean_object* v___x_1426_; 
-v___x_1426_ = l_Std_Sat_CNF_dimacs(v_cnf_1424_);
+v___x_1426_ = l_Std_Internal_Sat_CNF_dimacs(v_cnf_1424_);
 return v___x_1426_;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
-// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Sat.AIG.LawfulVecOperator import Init.Data.Nat.Order import Init.Data.Order.Lemmas
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Internal.Sat.AIG.LawfulVecOperator import Init.Data.Nat.Order import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -103,7 +103,7 @@ return v_res_49_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_AIG_LawfulVecOperator(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -116,7 +116,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_LawfulVecOperator(builtin);
+res = runtime_initialize_Std_Internal_Sat_AIG_LawfulVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Order(builtin);
@@ -135,7 +135,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_AIG_LawfulVecOperator(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
@@ -146,7 +146,7 @@ _G_initialized = true;
 res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_LawfulVecOperator(builtin);
+res = initialize_Std_Internal_Sat_AIG_LawfulVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Order(builtin);

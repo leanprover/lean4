@@ -32,17 +32,17 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_BvSolverM_push___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_empty___redArg();
-lean_object* l_Std_Sat_AIG_toCNF_State_empty___redArg(lean_object*);
+lean_object* l_Std_Internal_Sat_AIG_empty___redArg();
+lean_object* l_Std_Internal_Sat_AIG_toCNF_State_empty___redArg(lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_BvSolverM_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlReaderT___redArg();
-lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Cadical_Solver_new();
 lean_object* l_Lean_Meta_Tactic_BVDecide_External_SatOptions_ofMode(uint8_t);
 lean_object* l_Lean_Meta_Tactic_BVDecide_External_SatOptions_addIncremental(lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_External_SatOptions_configureSolver(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
+lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_const___override(uint8_t);
@@ -100,21 +100,21 @@ lean_object* l_Lean_Meta_Tactic_BVDecide_reconstructCounterExample(lean_object*,
 lean_object* l_Lean_Meta_Tactic_BVDecide_CegarM_CounterExample_ofArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_ReifyM_atomsAssignmentMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_BvSolverM_solve___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_array_object l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 246}, .m_size = 1, .m_capacity = 1, .m_data = {((lean_object*)(((size_t)(0) << 1) | 1))}};
-static const lean_object* l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0 = (const lean_object*)&l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0_value;
-static lean_once_cell_t l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1;
-static lean_once_cell_t l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2;
-static lean_once_cell_t l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3;
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0;
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_init___at___00Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_init___at___00Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1___boxed(lean_object*);
-static const lean_array_object l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
-static const lean_object* l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0 = (const lean_object*)&l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0_value;
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___boxed(lean_object*);
+static const lean_array_object l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 246}, .m_size = 1, .m_capacity = 1, .m_data = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0 = (const lean_object*)&l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0_value;
+static lean_once_cell_t l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1;
+static lean_once_cell_t l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2;
+static lean_once_cell_t l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3;
+LEAN_EXPORT lean_object* l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0;
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_AIG_CNF_0__Std_Internal_Sat_AIG_toCNF_Cache_init___at___00Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_AIG_CNF_0__Std_Internal_Sat_AIG_toCNF_Cache_init___at___00Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1___boxed(lean_object*);
+static const lean_array_object l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0 = (const lean_object*)&l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___boxed(lean_object*);
 static lean_once_cell_t l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__0;
 static lean_once_cell_t l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -467,7 +467,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_run___redA
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_run___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1(void){
+static lean_object* _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1(void){
 _start:
 {
 lean_object* v___x_5_; lean_object* v___x_6_; lean_object* v___x_7_; 
@@ -477,11 +477,11 @@ v___x_7_ = lean_mk_array(v___x_6_, v___x_5_);
 return v___x_7_;
 }
 }
-static lean_object* _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2(void){
+static lean_object* _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2(void){
 _start:
 {
 lean_object* v___x_8_; lean_object* v___x_9_; lean_object* v___x_10_; 
-v___x_8_ = lean_obj_once(&l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1, &l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1_once, _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1);
+v___x_8_ = lean_obj_once(&l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1, &l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1_once, _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__1);
 v___x_9_ = lean_unsigned_to_nat(0u);
 v___x_10_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_10_, 0, v___x_9_);
@@ -489,27 +489,27 @@ lean_ctor_set(v___x_10_, 1, v___x_8_);
 return v___x_10_;
 }
 }
-static lean_object* _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3(void){
+static lean_object* _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3(void){
 _start:
 {
 lean_object* v___x_11_; lean_object* v___x_12_; lean_object* v___x_13_; 
-v___x_11_ = lean_obj_once(&l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2, &l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2_once, _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2);
-v___x_12_ = ((lean_object*)(l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0));
+v___x_11_ = lean_obj_once(&l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2, &l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2_once, _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__2);
+v___x_12_ = ((lean_object*)(l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__0));
 v___x_13_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_13_, 0, v___x_12_);
 lean_ctor_set(v___x_13_, 1, v___x_11_);
 return v___x_13_;
 }
 }
-static lean_object* _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0(void){
+static lean_object* _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0(void){
 _start:
 {
 lean_object* v___x_14_; 
-v___x_14_ = lean_obj_once(&l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3, &l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3_once, _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3);
+v___x_14_ = lean_obj_once(&l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3, &l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3_once, _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0___closed__3);
 return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_init___at___00Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(lean_object* v_aig_15_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_AIG_CNF_0__Std_Internal_Sat_AIG_toCNF_Cache_init___at___00Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(lean_object* v_aig_15_){
 _start:
 {
 lean_object* v_decls_16_; lean_object* v___x_17_; uint8_t v___x_18_; lean_object* v___x_19_; lean_object* v___x_20_; 
@@ -521,32 +521,32 @@ v___x_20_ = lean_mk_array(v___x_17_, v___x_19_);
 return v___x_20_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_init___at___00Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1___boxed(lean_object* v_aig_21_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_AIG_CNF_0__Std_Internal_Sat_AIG_toCNF_Cache_init___at___00Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1___boxed(lean_object* v_aig_21_){
 _start:
 {
 lean_object* v_res_22_; 
-v_res_22_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_init___at___00Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(v_aig_21_);
+v_res_22_ = l___private_Std_Internal_Sat_AIG_CNF_0__Std_Internal_Sat_AIG_toCNF_Cache_init___at___00Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(v_aig_21_);
 lean_dec_ref(v_aig_21_);
 return v_res_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(lean_object* v_aig_25_){
+LEAN_EXPORT lean_object* l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(lean_object* v_aig_25_){
 _start:
 {
 lean_object* v___x_26_; lean_object* v___x_27_; lean_object* v___x_28_; 
-v___x_26_ = ((lean_object*)(l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0));
-v___x_27_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_Cache_init___at___00Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(v_aig_25_);
+v___x_26_ = ((lean_object*)(l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___closed__0));
+v___x_27_ = l___private_Std_Internal_Sat_AIG_CNF_0__Std_Internal_Sat_AIG_toCNF_Cache_init___at___00Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1_spec__1(v_aig_25_);
 v___x_28_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_28_, 0, v___x_26_);
 lean_ctor_set(v___x_28_, 1, v___x_27_);
 return v___x_28_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___boxed(lean_object* v_aig_29_){
+LEAN_EXPORT lean_object* l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1___boxed(lean_object* v_aig_29_){
 _start:
 {
 lean_object* v_res_30_; 
-v_res_30_ = l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(v_aig_29_);
+v_res_30_ = l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(v_aig_29_);
 lean_dec_ref(v_aig_29_);
 return v_res_30_;
 }
@@ -619,8 +619,8 @@ static lean_object* _init_l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redA
 _start:
 {
 lean_object* v___x_44_; lean_object* v___x_45_; 
-v___x_44_ = l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0;
-v___x_45_ = l_Std_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(v___x_44_);
+v___x_44_ = l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0;
+v___x_45_ = l_Std_Internal_Sat_AIG_toCNF_State_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__1(v___x_44_);
 return v___x_45_;
 }
 }
@@ -630,7 +630,7 @@ _start:
 lean_object* v___x_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
 v___x_46_ = lean_obj_once(&l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__6, &l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__6_once, _init_l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__6);
 v___x_47_ = lean_obj_once(&l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__5, &l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__5_once, _init_l_Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new___redArg___closed__5);
-v___x_48_ = l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0;
+v___x_48_ = l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0;
 v___x_49_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_49_, 0, v___x_48_);
 lean_ctor_set(v___x_49_, 1, v___x_47_);
@@ -938,7 +938,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Sub
 _start:
 {
 lean_object* v___x_174_; 
-v___x_174_ = l_Std_Sat_AIG_empty___redArg();
+v___x_174_ = l_Std_Internal_Sat_AIG_empty___redArg();
 return v___x_174_;
 }
 }
@@ -947,7 +947,7 @@ _start:
 {
 lean_object* v___x_175_; lean_object* v___x_176_; 
 v___x_175_ = lean_obj_once(&l___private_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver_0__Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_liftBvSolverM___redArg___lam__3___closed__0, &l___private_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver_0__Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_liftBvSolverM___redArg___lam__3___closed__0_once, _init_l___private_Lean_Meta_Tactic_BVDecide_Prover_Cegar_Subsolver_0__Lean_Meta_Tactic_BVDecide_Cegar_SubsolverT_liftBvSolverM___redArg___lam__3___closed__0);
-v___x_176_ = l_Std_Sat_AIG_toCNF_State_empty___redArg(v___x_175_);
+v___x_176_ = l_Std_Internal_Sat_AIG_toCNF_State_empty___redArg(v___x_175_);
 return v___x_176_;
 }
 }
@@ -4615,8 +4615,8 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_External(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0 = _init_l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0();
-lean_mark_persistent(l_Std_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0);
+l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0 = _init_l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0();
+lean_mark_persistent(l_Std_Internal_Sat_AIG_empty___at___00Lean_Meta_Tactic_BVDecide_Cegar_Subsolver_new_spec__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

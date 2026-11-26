@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
-// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend public import Std.Sat.AIG.If import Init.Omega
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend public import Std.Internal.Sat.AIG.If import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -28,7 +28,7 @@ lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastZeroExtend___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastSub___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVPred_mkUlt___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_RefVec_ite___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Internal_Sat_AIG_RefVec_ite___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -394,7 +394,7 @@ v___x_124_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_124_, 0, v_ref_123_);
 lean_ctor_set(v___x_124_, 1, v_vec_103_);
 lean_ctor_set(v___x_124_, 2, v_vec_112_);
-v_res_125_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_75_, v_inst_76_, v_w_77_, v_aig_122_, v___x_124_);
+v_res_125_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_75_, v_inst_76_, v_w_77_, v_aig_122_, v___x_124_);
 v_aig_126_ = lean_ctor_get(v_res_125_, 0);
 lean_inc_ref(v_aig_126_);
 v_vec_127_ = lean_ctor_get(v_res_125_, 1);
@@ -441,7 +441,7 @@ v___x_135_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_135_, 0, v_discr_134_);
 lean_ctor_set(v___x_135_, 1, v_vec_94_);
 lean_ctor_set(v___x_135_, 2, v_vec_120_);
-v_res_136_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_75_, v_inst_76_, v_w_77_, v_aig_126_, v___x_135_);
+v_res_136_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_75_, v_inst_76_, v_w_77_, v_aig_126_, v___x_135_);
 lean_dec(v_w_77_);
 v_aig_137_ = lean_ctor_get(v_res_136_, 0);
 lean_inc_ref(v_aig_137_);
@@ -831,7 +831,7 @@ goto v_reusejp_324_;
 v_reusejp_324_:
 {
 lean_object* v___x_326_; 
-v___x_326_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_293_, v_inst_294_, v_w_295_, v_aig_312_, v___x_325_);
+v___x_326_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_293_, v_inst_294_, v_w_295_, v_aig_312_, v___x_325_);
 lean_dec(v_w_295_);
 return v___x_326_;
 }
@@ -892,7 +892,7 @@ lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Eq(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Ult(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_ZeroExtend(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_AIG_If(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_AIG_If(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -913,7 +913,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_ZeroExtend(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_If(builtin);
+res = runtime_initialize_Std_Internal_Sat_AIG_If(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -932,7 +932,7 @@ lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operati
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Eq(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Ult(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_ZeroExtend(uint8_t builtin);
-lean_object* initialize_Std_Sat_AIG_If(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_AIG_If(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Udiv(uint8_t builtin) {
@@ -951,7 +951,7 @@ lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_ZeroExtend(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_If(builtin);
+res = initialize_Std_Internal_Sat_AIG_If(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

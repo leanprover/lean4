@@ -67,7 +67,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_array_propagate_mark(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ShareCommon_shareCommon___redArg(lean_object*);
+lean_object* lean_sharecommon_quick(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_mono_nanos_now();
 lean_object* lean_io_get_num_heartbeats();
@@ -1550,7 +1550,8 @@ goto v_resetjp_552_;
 v_resetjp_552_:
 {
 lean_object* v___x_555_; lean_object* v___x_557_; 
-v___x_555_ = l_Lean_ShareCommon_shareCommon___redArg(v_bvExpr_549_);
+v___x_555_ = lean_sharecommon_quick(v_bvExpr_549_);
+lean_dec_ref(v_bvExpr_549_);
 if (v_isShared_554_ == 0)
 {
 lean_ctor_set(v___x_553_, 0, v___x_555_);

@@ -127,7 +127,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_init___redArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_ShareCommon_objectFactory;
-lean_object* l_ShareCommon_mkStateImpl(lean_object*);
+lean_object* l___private_Init_ShareCommon_0__ShareCommon_Internal_mkStateImpl(lean_object*);
 lean_object* l_Array_instInhabited___redArg();
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -2026,7 +2026,7 @@ _start:
 {
 lean_object* v___x_278_; lean_object* v___x_279_; 
 v___x_278_ = l_Lean_ShareCommon_objectFactory;
-v___x_279_ = l_ShareCommon_mkStateImpl(v___x_278_);
+v___x_279_ = l___private_Init_ShareCommon_0__ShareCommon_Internal_mkStateImpl(v___x_278_);
 return v___x_279_;
 }
 }

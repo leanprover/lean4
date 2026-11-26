@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Fmt.Formatters.Std.Internal
-// Imports: public import Lean.Fmt.Formatters.Std.Internal.Order
+// Imports: public import Lean.Fmt.Formatters.Std.Internal.Order public import Lean.Fmt.Formatters.Std.Internal.Sat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Internal_Order(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Internal_Sat(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Fmt_Formatters_Std_Internal(uint8_t builtin) {
@@ -22,6 +23,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Fmt_Formatters_Std_Internal_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Fmt_Formatters_Std_Internal_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -34,12 +38,16 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Fmt_Formatters_Std_Internal_Order(uint8_t builtin);
+lean_object* initialize_Lean_Fmt_Formatters_Std_Internal_Sat(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Fmt_Formatters_Std_Internal(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Fmt_Formatters_Std_Internal_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Fmt_Formatters_Std_Internal_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Fmt_Formatters_Std_Internal(builtin);

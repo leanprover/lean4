@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
-// Imports: public import Std.Sat.AIG.RefVec
+// Imports: public import Std.Internal.Sat.AIG.RefVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -98,7 +98,7 @@ lean_dec_ref(v_inst_26_);
 return v_res_30_;
 }
 }
-lean_object* runtime_initialize_Std_Sat_AIG_RefVec(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_AIG_RefVec(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin) {
@@ -106,7 +106,7 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Std_Sat_AIG_RefVec(builtin);
+res = runtime_initialize_Std_Internal_Sat_AIG_RefVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -118,13 +118,13 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Std_Sat_AIG_RefVec(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_AIG_RefVec(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_AIG_RefVec(builtin);
+res = initialize_Std_Internal_Sat_AIG_RefVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(builtin);

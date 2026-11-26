@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.BVDecide.Counterexample
-// Imports: import Lean.Meta.Tactic.BVDecide.Reflect.SatAtBVLogical import Std.Tactic.BVDecide.EPR.BitVec import Std.Tactic.BVDecide.Normalize.Prop public import Lean.Meta.Tactic.BVDecide.Normalize.Enums public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Sat.AIG.Basic
+// Imports: import Lean.Meta.Tactic.BVDecide.Reflect.SatAtBVLogical import Std.Tactic.BVDecide.EPR.BitVec import Std.Tactic.BVDecide.Normalize.Prop public import Lean.Meta.Tactic.BVDecide.Normalize.Enums public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Internal.Sat.AIG.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12504,7 +12504,7 @@ lean_object* runtime_initialize_Std_Tactic_BVDecide_EPR_BitVec(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Normalize_Prop(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Normalize_Enums(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_AIG_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_AIG_Basic(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Counterexample(uint8_t builtin) {
@@ -12527,7 +12527,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_Basic(builtin);
+res = runtime_initialize_Std_Internal_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -12544,7 +12544,7 @@ lean_object* initialize_Std_Tactic_BVDecide_EPR_BitVec(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Normalize_Prop(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_BVDecide_Normalize_Enums(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_AIG_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_BVDecide_Counterexample(uint8_t builtin) {
 lean_object * res;
@@ -12565,7 +12565,7 @@ lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_Basic(builtin);
+res = initialize_Std_Internal_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_Counterexample(builtin);

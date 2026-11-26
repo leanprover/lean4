@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std
-// Imports: public import Std.Data public import Std.Do public import Std.Sat public import Std.Sync public import Std.Time public import Std.Tactic public import Std.Internal public import Std.Net public import Std.WP
+// Imports: public import Std.Data public import Std.Do public import Std.Sync public import Std.Time public import Std.Tactic public import Std.Internal public import Std.Net public import Std.WP
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Std_Data(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync(uint8_t builtin);
 lean_object* runtime_initialize_Std_Time(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic(uint8_t builtin);
@@ -33,9 +32,6 @@ res = runtime_initialize_Std_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Do(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Std_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Sync(builtin);
@@ -67,7 +63,6 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data(uint8_t builtin);
 lean_object* initialize_Std_Do(uint8_t builtin);
-lean_object* initialize_Std_Sat(uint8_t builtin);
 lean_object* initialize_Std_Sync(uint8_t builtin);
 lean_object* initialize_Std_Time(uint8_t builtin);
 lean_object* initialize_Std_Tactic(uint8_t builtin);
@@ -83,9 +78,6 @@ res = initialize_Std_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Do(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sync(builtin);

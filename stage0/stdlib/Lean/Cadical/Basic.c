@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Cadical.Basic
-// Imports: import Lean.Cadical.Internal public import Std.Sat.CNF.Basic public import Init.Data.SInt.Basic public import Init.System.IO
+// Imports: import Lean.Cadical.Internal public import Std.Internal.Sat.CNF.Basic public import Init.Data.SInt.Basic public import Init.System.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -214,8 +214,8 @@ static lean_once_cell_t l_panic___at___00Lean_Cadical_Solver_clause_spec__1___cl
 static lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Cadical_Solver_clause_spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Cadical_Solver_clause___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "Lean.Cadical.Basic"};
 static const lean_object* l_Lean_Cadical_Solver_clause___closed__0 = (const lean_object*)&l_Lean_Cadical_Solver_clause___closed__0_value;
 static const lean_string_object l_Lean_Cadical_Solver_clause___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 27, .m_capacity = 27, .m_length = 26, .m_data = "Lean.Cadical.Solver.clause"};
@@ -1419,7 +1419,7 @@ v_res_356_ = l_panic___at___00Lean_Cadical_Solver_clause_spec__1(v_msg_354_);
 return v_res_356_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(lean_object* v_s_357_, lean_object* v_c_358_, size_t v_sz_359_, size_t v_i_360_, lean_object* v_b_361_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(lean_object* v_s_357_, lean_object* v_c_358_, size_t v_sz_359_, size_t v_i_360_, lean_object* v_b_361_){
 _start:
 {
 uint8_t v___x_363_; 
@@ -1486,7 +1486,7 @@ return v___x_386_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0___boxed(lean_object* v_s_387_, lean_object* v_c_388_, lean_object* v_sz_389_, lean_object* v_i_390_, lean_object* v_b_391_, lean_object* v___y_392_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0___boxed(lean_object* v_s_387_, lean_object* v_c_388_, lean_object* v_sz_389_, lean_object* v_i_390_, lean_object* v_b_391_, lean_object* v___y_392_){
 _start:
 {
 size_t v_sz_boxed_393_; size_t v_i_boxed_394_; lean_object* v_res_395_; 
@@ -1494,7 +1494,7 @@ v_sz_boxed_393_ = lean_unbox_usize(v_sz_389_);
 lean_dec(v_sz_389_);
 v_i_boxed_394_ = lean_unbox_usize(v_i_390_);
 lean_dec(v_i_390_);
-v_res_395_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_387_, v_c_388_, v_sz_boxed_393_, v_i_boxed_394_, v_b_391_);
+v_res_395_ = l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_387_, v_c_388_, v_sz_boxed_393_, v_i_boxed_394_, v_b_391_);
 lean_dec_ref(v_c_388_);
 lean_dec_ref(v_s_387_);
 return v_res_395_;
@@ -1529,7 +1529,7 @@ v_atoms_413_ = lean_ctor_get(v_clause_406_, 0);
 v___x_414_ = lean_box(0);
 v_sz_415_ = lean_array_size(v_atoms_413_);
 v___x_416_ = ((size_t)0ULL);
-v___x_417_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_405_, v_clause_406_, v_sz_415_, v___x_416_, v___x_414_);
+v___x_417_ = l___private_Std_Internal_Sat_CNF_Basic_0__Std_Internal_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Lean_Cadical_Solver_clause_spec__0(v_s_405_, v_clause_406_, v_sz_415_, v___x_416_, v___x_414_);
 if (lean_obj_tag(v___x_417_) == 0)
 {
 lean_object* v___x_419_; uint8_t v_isShared_420_; uint8_t v_isSharedCheck_427_; 
@@ -2501,7 +2501,7 @@ return v_res_785_;
 }
 }
 lean_object* runtime_initialize_Lean_Cadical_Internal(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_CNF_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -2514,7 +2514,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Cadical_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_CNF_Basic(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_SInt_Basic(builtin);
@@ -2549,7 +2549,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Cadical_Internal(uint8_t builtin);
-lean_object* initialize_Std_Sat_CNF_Basic(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 static bool _G_initialized = false;
@@ -2560,7 +2560,7 @@ _G_initialized = true;
 res = initialize_Lean_Cadical_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_CNF_Basic(builtin);
+res = initialize_Std_Internal_Sat_CNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_SInt_Basic(builtin);

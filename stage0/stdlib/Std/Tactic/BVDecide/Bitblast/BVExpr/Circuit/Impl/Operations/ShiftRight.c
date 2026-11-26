@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
-// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Sat.AIG.If import Init.Omega
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Internal.Sat.AIG.If import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,7 +25,7 @@ lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_RefVec_ite___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Internal_Sat_AIG_RefVec_ite___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRightConst_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRightConst_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -509,7 +509,7 @@ v___x_212_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_212_, 0, v___y_211_);
 lean_ctor_set(v___x_212_, 1, v_vec_209_);
 lean_ctor_set(v___x_212_, 2, v_lhs_199_);
-v___x_213_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_193_, v_inst_194_, v_w_195_, v_aig_208_, v___x_212_);
+v___x_213_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_193_, v_inst_194_, v_w_195_, v_aig_208_, v___x_212_);
 return v___x_213_;
 }
 }
@@ -763,7 +763,7 @@ v___x_345_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_345_, 0, v___y_344_);
 lean_ctor_set(v___x_345_, 1, v_vec_342_);
 lean_ctor_set(v___x_345_, 2, v_lhs_332_);
-v___x_346_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_326_, v_inst_327_, v_w_328_, v_aig_341_, v___x_345_);
+v___x_346_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_326_, v_inst_327_, v_w_328_, v_aig_341_, v___x_345_);
 return v___x_346_;
 }
 }
@@ -949,7 +949,7 @@ return v_res_458_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_AIG_If(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_AIG_If(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -961,7 +961,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_If(builtin);
+res = runtime_initialize_Std_Internal_Sat_AIG_If(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -977,7 +977,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* initialize_Std_Sat_AIG_If(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_AIG_If(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_ShiftRight(uint8_t builtin) {
@@ -987,7 +987,7 @@ _G_initialized = true;
 res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_If(builtin);
+res = initialize_Std_Internal_Sat_AIG_If(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

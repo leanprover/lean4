@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Hashable
-// Imports: public import Init.Data.Hashable public import Init.Data.String.Defs
+// Imports: public import Init.Data.Hashable public import Init.Data.String.Defs public import Init.Data.String.Subslice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,6 +30,11 @@ LEAN_EXPORT lean_object* l_String_instHashablePos__1_hash___redArg___boxed(lean_
 LEAN_EXPORT uint64_t l_String_instHashablePos__1_hash(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instHashablePos__1_hash___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instHashablePos__1(lean_object*);
+LEAN_EXPORT uint64_t l_String_instHashableSubslice_hash___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_instHashableSubslice_hash___redArg___boxed(lean_object*);
+LEAN_EXPORT uint64_t l_String_instHashableSubslice_hash(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHashableSubslice_hash___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHashableSubslice(lean_object*);
 LEAN_EXPORT uint64_t l_String_instHashableRaw_hash(lean_object* v_x_1_){
 _start:
 {
@@ -148,8 +153,62 @@ lean_closure_set(v___x_43_, 0, v_s_42_);
 return v___x_43_;
 }
 }
+LEAN_EXPORT uint64_t l_String_instHashableSubslice_hash___redArg(lean_object* v_x_44_){
+_start:
+{
+lean_object* v_startInclusive_45_; lean_object* v_endExclusive_46_; uint64_t v___x_47_; uint64_t v___x_48_; uint64_t v___x_49_; uint64_t v___x_50_; uint64_t v___x_51_; uint64_t v___x_52_; 
+v_startInclusive_45_ = lean_ctor_get(v_x_44_, 0);
+v_endExclusive_46_ = lean_ctor_get(v_x_44_, 1);
+v___x_47_ = 0ULL;
+v___x_48_ = l_String_instHashablePos__1_hash___redArg(v_startInclusive_45_);
+v___x_49_ = lean_uint64_mix_hash(v___x_47_, v___x_48_);
+v___x_50_ = l_String_instHashablePos__1_hash___redArg(v_endExclusive_46_);
+v___x_51_ = lean_uint64_mix_hash(v___x_49_, v___x_50_);
+v___x_52_ = lean_uint64_mix_hash(v___x_51_, v___x_47_);
+return v___x_52_;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHashableSubslice_hash___redArg___boxed(lean_object* v_x_53_){
+_start:
+{
+uint64_t v_res_54_; lean_object* v_r_55_; 
+v_res_54_ = l_String_instHashableSubslice_hash___redArg(v_x_53_);
+lean_dec_ref(v_x_53_);
+v_r_55_ = lean_box_uint64(v_res_54_);
+return v_r_55_;
+}
+}
+LEAN_EXPORT uint64_t l_String_instHashableSubslice_hash(lean_object* v_s_56_, lean_object* v_x_57_){
+_start:
+{
+uint64_t v___x_58_; 
+v___x_58_ = l_String_instHashableSubslice_hash___redArg(v_x_57_);
+return v___x_58_;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHashableSubslice_hash___boxed(lean_object* v_s_59_, lean_object* v_x_60_){
+_start:
+{
+uint64_t v_res_61_; lean_object* v_r_62_; 
+v_res_61_ = l_String_instHashableSubslice_hash(v_s_59_, v_x_60_);
+lean_dec_ref(v_x_60_);
+lean_dec_ref(v_s_59_);
+v_r_62_ = lean_box_uint64(v_res_61_);
+return v_r_62_;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHashableSubslice(lean_object* v_s_63_){
+_start:
+{
+lean_object* v___x_64_; 
+v___x_64_ = lean_alloc_closure((void*)(l_String_instHashableSubslice_hash___boxed), 2, 1);
+lean_closure_set(v___x_64_, 0, v_s_63_);
+return v___x_64_;
+}
+}
 lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Subslice(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Hashable(uint8_t builtin) {
@@ -163,6 +222,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Subslice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -174,6 +236,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Subslice(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Hashable(uint8_t builtin) {
 lean_object * res;
@@ -183,6 +246,9 @@ res = initialize_Init_Data_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Subslice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Hashable(builtin);

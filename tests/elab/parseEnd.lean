@@ -18,7 +18,8 @@ elab d:docComment "test" : command => do
   let endPos := String.Pos.Raw.prev input <| String.Pos.Raw.prev input endPos
 
   if h : endPos ≤ input.rawEndPos then
-    let ictx := mkInputContext input (← getFileName) (endPos := endPos) (endPos_valid := h)
+    let ictx := InputContext.mk input (← getFileName) (endPos := endPos) (endPos_valid := h)
+      (fileMap := text)
     let env ← getEnv
     let s := { mkParserState input with pos }
     let s := p.run ictx { env, options := {} } (getTokenTable env) s

@@ -92,8 +92,9 @@ def parseContent (p : ParserFn) (tok : Syntax) (contents : String) : m Syntax :=
   let ⟨pos, endPos⟩ ← strLitRange ⟨tok⟩
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
-    mkInputContext text.source (← getFileName)
+    InputContext.mk text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
+      (fileMap := text)
   -- TODO fallback for non-original syntax
   let s := (mkParserState text.source).setPos pos
   let s := p.run ictx { env, options := ← getOptions } (getTokenTable env) s
@@ -182,8 +183,9 @@ def parseContent' (p : ParserFn) (tok : Syntax) (contents : String) : m (Syntax 
   let endPos := s.raw.getTailPos? true |>.get!
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
-    mkInputContext text.source (← getFileName)
+    InputContext.mk text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
+      (fileMap := text)
   -- TODO fallback for non-original syntax
   let s := (mkParserState text.source).setPos (s.raw.getPos? (canonicalOnly := true)).get!
   let s := p.run ictx { env, options := ← getOptions } (getTokenTable env) s

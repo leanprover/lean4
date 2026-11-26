@@ -479,7 +479,7 @@ Lake loads the package located a fixed `path` relative to the requiring package'
 from git <url> [@ <rev>] [/ <subDir>]
 ```
 
-Lake clones the Git repository available at the specified fixed Git `url`, and checks out the specified revision `rev`. The revision can be a commit hash, branch, or tag. If none is provided, Lake defaults to `master`. After checkout, Lake loads the package located in `subDir` (or the repository root if no subdirectory is specified).
+Lake clones the Git repository available at the specified fixed Git `url`, and checks out the specified revision `rev`. The revision can be a commit hash, branch, or tag. If none is provided, Lake defaults to `master`. After checkout, Lake loads the package located in `subDir` (or the repository root if no subdirectory is specified). When a `subDir` is given, Lake uses a Git sparse checkout.
 
 ### TOML `require`
 

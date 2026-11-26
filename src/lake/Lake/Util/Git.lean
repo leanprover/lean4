@@ -129,6 +129,33 @@ public def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
 public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["checkout", "--detach", hash, "--"]
 
+/--
+Returns the directories of the repository's cone-mode sparse checkout,
+or {lean}`none` if sparse checkout is not enabled (or is not in cone mode).
+-/
+public def getSparseCheckoutCone? (repo : GitRepo) : BaseIO (Option (Array String)) := do
+  -- Fast path (no Git process): repositories that never had a sparse checkout lack this file.
+  unless (← (repo.dir / ".git" / "info" / "sparse-checkout").pathExists) do return none
+  let enabled? ← repo.captureGit? #["config", "--type=bool", "--get", "core.sparseCheckout"]
+  unless enabled? == some "true" do return none
+  let cone? ← repo.captureGit? #["config", "--type=bool", "--get", "core.sparseCheckoutCone"]
+  -- Cone mode is the default for `git sparse-checkout` since Git 2.37.
+  if cone? == some "false" then return none
+  let some out ← repo.captureGit? #["sparse-checkout", "list"] | return none
+  return out.split '\n' |>.toStringArray |>.filter (!·.isEmpty)
+
+/--
+Restricts the working tree to a cone-mode sparse checkout of {lean}`dirs`
+(plus the files at the root of the repository and of each parent directory).
+Updates the working tree if {lit}`HEAD` is checked out. Requires Git 2.26+.
+-/
+public def setSparseCheckoutCone (dirs : Array String) (repo : GitRepo) : LogIO Bool :=
+  repo.testExecGit <| #["sparse-checkout", "set", "--cone", "--end-of-options"] ++ dirs
+
+/-- Disables sparse checkout, restoring the full working tree. -/
+public def disableSparseCheckout (repo : GitRepo) : LogIO Bool :=
+  repo.testExecGit #["sparse-checkout", "disable"]
+
 public def gcAuto (repo : GitRepo) : LogIO PUnit :=
   repo.execGit #["gc", "--auto"]
 

@@ -141,6 +141,20 @@ def originTarget (uri : URI) : RequestTarget :=
   .originForm uri.path uri.query
 
 /--
+The origin this URI addresses (RFC 6454): its scheme, its host, and its port, which defaults to the
+scheme's when the authority omits it. `none` when `host?` is.
+-/
+def origin? (uri : URI) : Option URI.Origin :=
+  uri.host?.map fun host => { scheme := uri.scheme, host, port := uri.port }
+
+/--
+What a client needs to send a request for this URI: the scheme, host and port to connect to, and
+the origin-form target. `none` when `host?` is.
+-/
+def toOriginRequest? (uri : URI) : Option (URI.Scheme × URI.Host × UInt16 × RequestTarget) :=
+  uri.host?.map fun host => (uri.scheme, host, uri.port, uri.originTarget)
+
+/--
 Attempts to parse a `URI` from the given string.
 -/
 @[inline]

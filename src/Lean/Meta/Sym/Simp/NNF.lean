@@ -36,8 +36,8 @@ public def nnf : Simproc := fun e => do
       return .step e' (mkApp2 (mkConst ``Grind.not_exists [u]) α q)
     | _ =>
       let .forallE n α b info := p | return .rfl
-      unless b.hasLooseBVars do return .rfl
-      let q    := mkLambda n info α b
+      if ← pure !b.hasLooseBVars <&&> isProp α then return .rfl -- it's an implication
+      let q := mkLambda n info α b
       let notQ ← mkLambdaS n info α (← mkNotS b)
       let u ← Sym.getLevel α
       return .step (← mkExistsS u α notQ) (mkApp2 (mkConst ``Grind.not_forall [u]) α q)

@@ -154,11 +154,9 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
   let task ← EAsync.toBaseIO (Transport.sendAll outbox.socket data)
   BaseIO.chainTask (sync := true) task fun result => do
     -- Settle the timer before giving up `writing`: a `send` that then starts a write arms after this.
-    let timer ← outbox.timer.get
-    let late ←
-      if result matches .error _ || (← outbox.state.get).queued.isEmpty then timer.watchdog.disarm
-      else timer.watchdog.hasFired
-    if late then
+    -- `disarm` decides lateness atomically, so the watchdog cannot fire between this and the next
+    -- write's `arm`, which would leave that write under a fired timer.
+    if ← (← outbox.timer.get).watchdog.disarm then
       outbox.renew
     let (next, idle) ← outbox.state.modifyGet fun s =>
       match result with

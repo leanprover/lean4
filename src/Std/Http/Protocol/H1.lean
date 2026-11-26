@@ -1309,13 +1309,21 @@ Ends the exchange from the server's side, as on a timeout or a shutdown, and clo
 input not yet read, including the rest of the request, is never parsed, so it cannot fail the
 machine afterwards.
 
-If the machine is waiting to send a message, sends `status` with a `Connection: close`
-header and a short `text/plain` explanation (letting the step function encode and flush the
-response). Otherwise, closes the writer directly and ends keep-alive.
+If no response head was written yet, including one that was sent but waits for its body to be
+flushed, sends `status` in its place with a `Connection: close` header and a short `text/plain`
+explanation (letting the step function encode and flush the response). Otherwise, closes the writer
+directly and ends keep-alive.
 -/
 def closeWithError (machine : Machine .receiving) (status : Status) : Machine .receiving :=
+  let unwritten := machine.writer.state == .waitingForFlush
   let machine :=
-    if machine.isWaitingMessage then
+    if machine.isWaitingMessage || unwritten then
+      let machine :=
+        if unwritten then
+          machine.modifyWriter fun w => { w with
+            state := .waitingHeaders, userData := #[], userDataBytes := 0, knownSize := none
+            userClosedBody := false, omitBody := false }
+        else machine
       machine.sendError status (.empty |>.insert .connection (.mk "close"))
     else
       machine.disableKeepAlive.closeWriter

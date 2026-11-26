@@ -75,6 +75,8 @@ inductive Input where
   | handlerFailed (err : IO.Error)
   /-- The response body returned a chunk, or `none` at its end. -/
   | pulled (chunk : Option Chunk)
+  /-- The response body failed. -/
+  | pullFailed (err : IO.Error)
   /-- The request body's reader waits for data, or the body ended. -/
   | bodyInterest (wanted : Bool)
   /-- The handler decided on `Expect: 100-continue`, or the wait for it ended (`false`). -/
@@ -436,7 +438,7 @@ private def respond (s : State) (head : Response.Head) (size : Option Body.Lengt
     | .ok none => ({ s with responseBody := true }, #[])
     | .ok (some (some chunk)) => ({ s with machine := machine.sendData #[chunk], responseBody := true }, #[])
     | .ok (some none) => ({ s with machine := machine.userClosedBody }, #[.closeResponse])
-    | .error err => finish { s with responseBody := true } #[.report err]
+    | .error err => abortWith { s with responseBody := true } .internalServerError #[.report err]
 
 /--
 Applies an input from the sources. Unless it ends the connection, the next pass of the machine
@@ -460,7 +462,8 @@ private def apply (cfg : Http.Config) (s : State) (now : Nat) : Input → State 
       if s.timer matches .keepAlive then finish s #[] else timeOut s
     else if deadline then timeOut s
     else abortWith s .serviceUnavailable #[]
-  | .handlerFailed err => abortWith s .internalServerError #[.report err]
+  -- A 500 replaces a response whose head is not written yet; a later failure closes the connection.
+  | .handlerFailed err | .pullFailed err => abortWith s .internalServerError #[.report err]
   | .responded head size first => respond s head size first
   | .failed => finish s #[]
   | .resume | .bodyInterest false | .written _ | .continueDecided _ => (s, #[])

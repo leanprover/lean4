@@ -286,6 +286,12 @@ private def poll
     selectables := selectables.push (.case live.response.recvSelector (pure ∘ .response))
   try Selectable.one selectables
   catch e =>
+    -- A failed body keeps failing, which tells its failure from the socket's. A chunk this takes
+    -- otherwise is lost, but the connection then ends anyway.
+    if sources.responseBody then
+      if let some body := live.responseBody then
+        if ← (try discard <| Body.tryRecv body; pure false catch _ => pure true) then
+          return .input (.pullFailed e)
     reportFailure env.handler e
     pure (.input .failed)
 

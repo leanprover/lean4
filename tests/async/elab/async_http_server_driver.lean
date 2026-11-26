@@ -6,8 +6,8 @@ open Std Http Server
 Tests `Server.Driver`, the decisions of an HTTP/1.1 server connection, by stepping it with inputs and
 reading the commands it returns, with no I/O: a request answered and its connection kept alive, the
 timeouts of an idle connection and of a partial head, a shutdown while a handler runs, a failed write,
-a rejected `Expect: 100-continue`, an exchange ended early being reported once, and the 500 that
-replaces a 1xx final response.
+a rejected `Expect: 100-continue`, an exchange ended early being reported once, the 500 that
+replaces a 1xx final response, and a response body that fails before or after its head is written.
 -/
 
 def cfg : Http.Config := { generateDate := false }
@@ -161,6 +161,33 @@ def bodyEnds (cmds : Array Driver.Command) : Array String :=
     s.isClosed && (reports cmds).size == 1 &&
       bodyEnds cmds == #["the connection closed before the request body was complete"] &&
       cmds.any (· matches .close true)
+
+/-! ## A failed response body -/
+
+-- A response body that fails before the response head is written is answered with a 500 instead,
+-- reported once, and the connection closes.
+#guard
+  let boom : IO.Error := .userError "boom"
+  [[Driver.Input.responded okHead none (.ok none), .pullFailed boom],
+   [.responded okHead none (.error boom)]].all fun inputs =>
+    let (s, cmds) := drive fresh (.received (some getRequest) :: inputs)
+    let out := written cmds
+    s.isClosed && out.startsWith "HTTP/1.1 500 Internal Server Error\r\n" &&
+      (out.splitOn "Connection: close\r\n").length == 2 && (out.splitOn "200 OK").length == 1 &&
+      reports cmds == #["boom"]
+
+-- Once the head is written, a failed body closes the connection mid-response and is reported once.
+-- A known length, chunked or not, writes the head at once.
+#guard
+  let boom : IO.Error := .userError "boom"
+  [[Driver.Input.responded okHead (some (.fixed 5)) (.ok none), .pullFailed boom],
+   [.responded okHead (some .chunked) (.ok none), .pullFailed boom],
+   [.responded okHead none (.ok (some (some (Chunk.ofByteArray "hi".toUTF8)))), .pullFailed boom]].all
+    fun inputs =>
+      let (s, cmds) := drive fresh (.received (some getRequest) :: inputs)
+      let out := written cmds
+      s.isClosed && out.startsWith "HTTP/1.1 200 OK\r\n" && (out.splitOn "500").length == 1 &&
+        !out.endsWith "0\r\n\r\n" && reports cmds == #["boom"]
 
 /-! ## A closed connection -/
 

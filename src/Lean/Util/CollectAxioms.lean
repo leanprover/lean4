@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.MonadEnv
-import Lean.OriginalConstKind
 
 namespace Lean
 
@@ -137,21 +136,12 @@ builtin_initialize exportedAxiomsExt :
           else names) #[]
       -- Compute axioms within a shared state (for caching across declarations).
       -- Use `privateEnv` so that `collect` can see all constant bodies.
-      let compute (extFind? : Environment → Name → Option (Array Name)) :=
-        let entries := CollectAxioms.runM privateEnv do
-          allNames.mapM fun name =>
-            return (name, ← CollectAxioms.collectAndGet extFind? name)
-        -- Sort by name for binary search at import time.
-        entries.qsort fun a b => Name.quickLt a.1 b.1
-      let entries := compute s.find?
-      if SplitModule.hasDeferredDecls env then
-        -- The `.olean` of a split module is produced from the public file alone, where the
-        -- declarations supplied by the private file are axioms.
-        let exported := compute fun env c =>
-          if (SplitModule.findDeferredDecl? env c).isSome then some #[c] else s.find? env c
-        { exported, server := entries, «private» := entries }
-      else
-        .uniform entries
+      let entries := CollectAxioms.runM privateEnv do
+        allNames.mapM fun name =>
+          return (name, ← CollectAxioms.collectAndGet s.find? name)
+      -- Sort by name for binary search at import time.
+      let entries := entries.qsort fun a b => Name.quickLt a.1 b.1
+      .uniform entries
     asyncMode     := .mainOnly
   }
 

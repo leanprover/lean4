@@ -80,6 +80,11 @@ structure SplitModuleState where
   deferred : NameMap DeferredDecl := {}
   /-- Deferred declaration names in declaration order. -/
   order : Array Name := #[]
+  /--
+  The environment at the end of the public file, once elaboration has reached the private file. Its
+  exported view defines the `.olean` of the split module.
+  -/
+  publicEnv? : Option Environment := none
   deriving Inhabited
 
 builtin_initialize splitModuleExt : EnvExtension SplitModuleState ←
@@ -93,7 +98,11 @@ def isInPrivateFile (env : Environment) : Bool :=
 
 /-- Marks the end of the public file of a split module. -/
 def startPrivateFile (env : Environment) : Environment :=
-  splitModuleExt.modifyState env ({ · with inPrivateFile := true })
+  splitModuleExt.modifyState env ({ · with inPrivateFile := true, publicEnv? := some env })
+
+/-- Returns the environment at the end of the public file if elaboration has reached the private file. -/
+def getPublicEnv? (env : Environment) : Option Environment :=
+  splitModuleExt.getState env |>.publicEnv?
 
 /-- Registers a declaration of the public file whose value the private file must supply. -/
 def registerDeferredDecl (env : Environment) (declName : Name) (decl : DeferredDecl) :
@@ -101,10 +110,6 @@ def registerDeferredDecl (env : Environment) (declName : Name) (decl : DeferredD
   splitModuleExt.modifyState env fun s => { s with
     deferred := s.deferred.insert declName decl
     order := s.order.push declName }
-
-/-- Returns whether the current module is a split module with deferred declarations. -/
-def hasDeferredDecls (env : Environment) : Bool :=
-  !(splitModuleExt.getState env).order.isEmpty
 
 /-- Returns the deferred declaration `declName`, if any. -/
 def findDeferredDecl? (env : Environment) (declName : Name) : Option DeferredDecl :=

@@ -2311,9 +2311,10 @@ inductive SplitModulePart where
   /--
   The private file `M.private.lean`, which produces all other parts. They can only be loaded together
   with an `.olean` part from the same elaboration, so the `.olean` part produced from the public file
-  must be byte-identical to the one we would have written.
+  must be byte-identical to the one we would have written from `publicEnv`, the environment at the end
+  of the public file.
   -/
-  | «private»
+  | «private» (publicEnv : Environment)
 
 def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true)
     (splitPart? : Option SplitModulePart := none) : IO Unit := do
@@ -2327,11 +2328,12 @@ def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true)
       let (fname, data) ← mkPart .exported
       saveModuleDataParts env.mainModule #[(fname, { data with imports })]
       return
-    if splitPart? matches some .private then
+    if let some (.private publicEnv) := splitPart? then
       -- Write to temporary files first so that mismatching parts never end up next to the `.olean`
       let tmp (level : OLeanLevel) := (level.adjustFileName fname).addExtension "fromPrivate"
+      let exported ← mkModuleData publicEnv .exported (← computeExtEntries publicEnv)
       saveModuleDataParts env.mainModule #[
-        (← mkPart .exported (tmp .exported)),
+        (tmp .exported, exported),
         (← mkPart .server (tmp .server)),
         (← mkPart .private (tmp .private))]
       let new ← IO.FS.readBinFile (tmp .exported)

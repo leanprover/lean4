@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <limits>
 #include <climits>
+#include <cstdint>
 #include <cstdlib>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
@@ -51,8 +52,18 @@ static expr * g_nat_xor      = nullptr;
 static expr * g_nat_shiftLeft  = nullptr;
 static expr * g_nat_shiftRight = nullptr;
 
+/* Maximum number of entries in each generation of the bounded caches. Larger limits barely reduce
+   the instruction count of kernel-heavy benchmarks further, but keep many more reduction results
+   alive. */
+static constexpr size_t cache_limit = 1 << 14;
+
 type_checker::state::state(environment const & env):
-    m_env(env), m_ngen(*g_kernel_fresh) {}
+    m_env(env), m_ngen(*g_kernel_fresh),
+    // Evicting an entry of the checking cache makes us check its shared subterm again, which can
+    // take time exponential in the depth of sharing, so it stays unbounded.
+    m_infer_type{expr_cache(SIZE_MAX), expr_cache(cache_limit)},
+    m_whnf_core(cache_limit), m_whnf(cache_limit),
+    m_success(cache_limit), m_failure(cache_limit), m_unfold(cache_limit) {}
 
 /** \brief Make sure \c e "is" a sort, and return the corresponding sort.
     If \c e is not a sort, then the whnf procedure is invoked.
@@ -321,8 +332,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     scope_rec_depth guard;
     check_system("type checker", /* do_check_interrupted */ true);
 
-    auto it = m_st->m_infer_type[infer_only].find(e);
-    if (it != m_st->m_infer_type[infer_only].end())
+    if (auto it = m_st->m_infer_type[infer_only].find(e))
         return it->second;
 
     expr r;
@@ -476,8 +486,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
     }
 
     // check cache
-    auto it = m_st->m_whnf_core.find(e);
-    if (it != m_st->m_whnf_core.end())
+    if (auto it = m_st->m_whnf_core.find(e))
         return it->second;
 
     // do the actual work
@@ -559,8 +568,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
                 m_diag->record_unfold(d->get_name());
             }
             if (len > 0) {
-                auto it = m_st->m_unfold.find(e);
-                if (it != m_st->m_unfold.end())
+                if (auto it = m_st->m_unfold.find(e))
                     return some_expr(it->second);
                 expr result = instantiate_value_lparams(*d, us);
                 m_st->m_unfold.insert(mk_pair(e, result));
@@ -710,8 +718,7 @@ expr type_checker::whnf(expr const & e) {
     }
 
     // check cache
-    auto it = m_st->m_whnf.find(e);
-    if (it != m_st->m_whnf.end())
+    if (auto it = m_st->m_whnf.find(e))
         return it->second;
 
     expr t = e;
@@ -914,13 +921,13 @@ lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
     if (hash(t) < hash(s)) {
-        return m_st->m_failure.find(mk_pair(t, s)) != m_st->m_failure.end();
+        return m_st->m_failure.find(mk_pair(t, s)) != nullptr;
     } else if (hash(t) > hash(s)) {
-        return m_st->m_failure.find(mk_pair(s, t)) != m_st->m_failure.end();
+        return m_st->m_failure.find(mk_pair(s, t)) != nullptr;
     } else {
         return
-            m_st->m_failure.find(mk_pair(t, s)) != m_st->m_failure.end() ||
-            m_st->m_failure.find(mk_pair(s, t)) != m_st->m_failure.end();
+            m_st->m_failure.find(mk_pair(t, s)) != nullptr ||
+            m_st->m_failure.find(mk_pair(s, t)) != nullptr;
     }
 }
 
@@ -933,13 +940,13 @@ void type_checker::cache_failure(expr const & t, expr const & s) {
 
 bool type_checker::succeeded_before(expr const & t, expr const & s) const {
     if (hash(t) < hash(s)) {
-        return m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end();
+        return m_st->m_success.find(mk_pair(t, s)) != nullptr;
     } else if (hash(t) > hash(s)) {
-        return m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
+        return m_st->m_success.find(mk_pair(s, t)) != nullptr;
     } else {
         return
-            m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end() ||
-            m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
+            m_st->m_success.find(mk_pair(t, s)) != nullptr ||
+            m_st->m_success.find(mk_pair(s, t)) != nullptr;
     }
 }
 

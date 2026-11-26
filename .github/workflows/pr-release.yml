@@ -25,15 +25,23 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@e2dae063368361e4cd1f510e8785cd73bca9352e # v1_5
-        # This action is deprecated and archived, but it seems hard to find a
-        # better solution for getting the PR number. Also, it must not be
-        # updated to v1_6 because that release is broken!
-        # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
+        uses: actions/github-script@v9
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sourceRunId: ${{ github.event.workflow_run.id }}
+          # `workflow_run.pull_requests` is empty for PRs from forks, so we look the PR up by its
+          # head branch, see https://github.com/orgs/community/discussions/25220
+          script: |
+            const run = context.payload.workflow_run;
+            core.setOutput('sourceHeadSha', run.head_sha);
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${run.head_repository.owner.login}:${run.head_branch}`,
+            });
+            const pr = prs.find(pr => pr.head.sha === run.head_sha);
+            core.info(pr ? `Found PR #${pr.number}` : `Found no open PR with head ${run.head_sha}`);
+            core.setOutput('pullRequestNumber', pr ? String(pr.number) : '');
 
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}

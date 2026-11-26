@@ -19,11 +19,14 @@ def pendingAfter (p : IO.Promise α) (ms : Nat) : IO Bool := do
   return !(← IO.hasFinished p.result?)
 
 /-- Windows accepts a whole write, however large, while its send buffer has room, so pieces are
-written until one stays pending. -/
+written until one stays pending. Windows also grows the buffer later, which can complete that write
+during the flush, so 64 MiB more are queued behind it: more than a peer that does not read takes. -/
 def sendUntilPending (socket : TCP.Socket) : IO Unit := do
   let piece := ByteArray.mk (Array.replicate (1024 * 1024) 1)
   for _ in [0:256] do
     if ← pendingAfter (← socket.send #[piece]) 300 then
+      for _ in [0:64] do
+        discard <| socket.send #[piece]
       return
   throw <| .userError "a peer that does not read took 256 MiB; no write stayed pending"
 

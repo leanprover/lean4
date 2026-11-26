@@ -63,7 +63,7 @@ check_olean_hash
 # a stale output hash. A trace-only archive leaves no `.olean` to cache.
 rm -rf .lake/cache .lake/build/ir/Test.ltar
 LEANTAR="$("$LAKE" env printenv LEAN_SYSROOT)/bin/leantar"
-test_cmd "$LEANTAR" -s -C .lake/build/lib/lean .lake/build/ir/Test.ltar Test.trace
+test_cmd "$LEANTAR" -C .lake/build/ir/Test.ltar.d .lake/build/ir/Test.ltar stub.trace -i 0 module.json
 test_cmd rm .lake/build/lib/lean/Test.olean
 echo -n $STALE_HASH > $OLEAN_HASH_FILE
 LAKE_ARTIFACT_CACHE=true test_err "failed to cache artifact" build +Test --no-build -v
@@ -128,3 +128,11 @@ test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.trace
 test_fails build +Test --no-build --old -v
 test_not_out "leantar" build +Test --old -v
 test_exp -f .lake/build/lib/lean/Test.olean
+
+# Test that the module's log survives the archive: Lake writes the restored trace
+# from the log stored in the archive, so a later up-to-date build replays it
+rm -rf .lake/cache .lake/build
+test_out "declaration uses \`sorry\`" build +Warn:ltar -v
+test_cmd rm .lake/build/lib/lean/Warn.olean
+test_out "leantar" build +Warn --no-build -v
+test_out "declaration uses \`sorry\`" build +Warn --no-build

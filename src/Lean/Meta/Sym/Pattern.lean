@@ -1402,6 +1402,9 @@ expressions that may contain unsolved metavariables.
 Instance arguments are synthesized (or assigned by unification). Any that cannot be resolved are
 reported in `MatchUnifyResult.unresolvedInsts` rather than silently left as loose metavariables in
 `args`. Proof arguments are skipped via proof irrelevance.
+
+Metavariables of `e` may be assigned even if unification fails. Callers that discard the result must
+restore the metavariable context (see `BackwardRule.apply`).
 -/
 public def Pattern.unify? (p : Pattern) (e : Expr) (zetaDelta := true) : SymM (Option (MatchUnifyResult)) :=
   main p e (unify := true) (zetaDelta := zetaDelta)

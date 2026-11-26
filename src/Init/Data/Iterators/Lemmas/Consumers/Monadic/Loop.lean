@@ -178,7 +178,7 @@ theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : T
       | ⟨.done _, h⟩ => rfl
   · apply IterM.DefaultConsumers.forIn'_eq_forIn' <;> assumption
   · rfl
-termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
+termination_by Internal.IteratorLoop.WithWF.mk it init (hwf := wf)
 decreasing_by
   · exact Or.inl ⟨_, ‹_›, ‹_›⟩
   · exact Or.inr ⟨‹_›, rfl⟩

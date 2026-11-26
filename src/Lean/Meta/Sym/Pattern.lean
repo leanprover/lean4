@@ -51,10 +51,6 @@ framework (`Sym`). The design prioritizes performance by using a two-phase appro
 - `instantiateRevS` ensures maximal sharing of result expressions
 -/
 
-/-- Helper function for checking whether types `α` and `β` are definitionally equal during unification/matching. -/
-def isDefEqTypes (α β : Expr) : MetaM Bool := do
-  withReducible <| isDefEq α β
-
 /--
 Collects `ProofInstInfo` for all function symbols occurring in `pattern`.
 
@@ -300,6 +296,8 @@ structure UnifyM.State where
   uDelayed     : Array (Level × Level) := #[]
   us           : List Level            := []
   args         : Array Expr            := #[]
+  /-- Accumulates the flag described at `MatchUnifyResult.assignedOld`. -/
+  assignedOld  : Bool                  := false
 
 abbrev UnifyM := ReaderT UnifyM.Context StateRefT UnifyM.State SymM
 
@@ -827,8 +825,32 @@ structure DefEqM.Context where
   we must check whether their types are compatible.
   -/
   mvarsToCheckType : Array MVarId := #[]
+  /-- Metavariables with smaller declaration indices predate this match/unification. -/
+  mvarCounterSaved : Nat := 0
 
-abbrev DefEqM := ReaderT DefEqM.Context SymM
+/-- State for structural definitional equality (`isDefEqS`). -/
+structure DefEqM.State where
+  /--
+  Whether unification may have assigned an expression metavariable whose declaration index is below
+  `DefEqM.Context.mvarCounterSaved`. Such assignments can leave fresh rule arguments undetermined,
+  so `BackwardRule.apply` must check for goals omitted from its precomputed `resultPos`.
+
+  The initial value includes earlier phases of pattern unification; once set, the flag stays true.
+  `DefEqM.assign` records these assignments directly. `isDefEqTypes` sets the flag conservatively
+  when the matched term's type contains expression metavariables. See
+  `MatchUnifyResult.assignedOld` for an example of the missing goals this detects.
+  -/
+  assignedOld : Bool := false
+
+abbrev DefEqM := ReaderT DefEqM.Context StateRefT DefEqM.State SymM
+
+/-- Records assignments to metavariables that predate this match/unification. -/
+def DefEqM.assign (mvarId : MVarId) (value : Expr) : DefEqM Unit := do
+  let mvarCounterSaved := (← read).mvarCounterSaved
+  unless (← get).assignedOld do
+    if (← mvarId.getDecl).index < mvarCounterSaved then
+      modify fun s => { s with assignedOld := true }
+  mvarId.assign value
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--
@@ -957,6 +979,13 @@ def DefEqM.occursCheck (mvarId : MVarId) (s : Expr) : DefEqM Bool := do
   | .false => return false
   | .undef => k
 
+/-- Helper function for checking whether types `α` and `β` are definitionally equal during unification/matching. -/
+def isDefEqTypes (α β : Expr) : DefEqM Bool := do
+  if β.hasExprMVar then
+    -- Approximation: If `β` has metavariables, we assume we may assign old metavariables.
+    modify fun s => { s with assignedOld := true }
+  withImplicit <| isDefEq α β
+
 /--
 Attempts to solve a unification constraint `t =?= s` where `t` has the form `?m a₁ ... aₙ`
 and satisfies the Miller pattern condition (all `aᵢ` are distinct, newly-introduced free variables).
@@ -985,7 +1014,7 @@ def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAp
   if (← read).mvarsToCheckType.contains mvarId then
     unless (← Sym.isDefEqTypes (← mvarId.getDecl).type (← inferType s)) do
       return .false
-  mvarId.assign s
+  DefEqM.assign mvarId s
   return .true
 
 /--
@@ -1018,7 +1047,7 @@ where
     checking. This is the case because `tryAssignUnassigned` is invoked only from a context where `t` and `s` are the arguments
     of function applications.
     -/
-    mvarId.assign s
+    DefEqM.assign mvarId s
     return true
 
 /--
@@ -1172,10 +1201,12 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
       isDefEqApp tFn t s rfl
 
 abbrev DefEqM.run (unify := true) (zetaDelta := true) (mvarsNew : Array MVarId := #[])
-    (mvarsToCheckType : Array MVarId := #[]) (x : DefEqM α) : SymM α := do
+    (mvarsToCheckType : Array MVarId := #[]) (mvarCounterSaved := 0) (assignedOld := false)
+    (x : DefEqM α) : SymM (α × DefEqM.State) := do
   let lctx ← getLCtx
   let lctxInitialNextIndex := lctx.decls.size
-  x { zetaDelta, lctxInitialNextIndex, unify, mvarsNew, mvarsToCheckType }
+  x { zetaDelta, lctxInitialNextIndex, unify, mvarsNew, mvarsToCheckType, mvarCounterSaved }
+    |>.run { assignedOld }
 
 /--
 A lightweight structural definitional equality for the symbolic simulation framework.
@@ -1183,8 +1214,11 @@ Unlike the full `isDefEq`, it avoids expensive operations while still supporting
 -/
 public def isDefEqS (t : Expr) (s : Expr) (unify := true) (zetaDelta := true)
     (mvarsNew : Array MVarId := #[]) (mvarsToCheckType : Array MVarId := #[]): SymM Bool := do
-  DefEqM.run (unify := unify) (zetaDelta := zetaDelta) (mvarsNew := mvarsNew) (mvarsToCheckType := mvarsToCheckType) do
+  -- The flag is discarded, so initialize it to `true` to skip metavariable index checks.
+  let (result, _) ← DefEqM.run (unify := unify) (zetaDelta := zetaDelta) (mvarsNew := mvarsNew)
+      (mvarsToCheckType := mvarsToCheckType) (mvarCounterSaved := 0) (assignedOld := true) do
     isDefEqMain t s
+  return result
 
 def noPending : UnifyM Bool := do
   let s ← get
@@ -1212,6 +1246,16 @@ inductive MkPreResultResult where
   -/
   | success (mvarsToCheckType : Array MVarId) (instMVars : Array MVarId) (newMVars : Array MVarId)
 
+/--
+Similar to `isDefEqTypes`, but at `UnifyM`.
+Helper function for checking whether types `α` and `β` are definitionally equal during unification/matching.
+-/
+def isDefEqTypes' (α β : Expr) : UnifyM Bool := do
+  if β.hasExprMVar then
+    -- Approximation: If `β` has metavariables, we assume we may assign old metavariables.
+    modify fun s => { s with assignedOld := true }
+  withImplicit <| isDefEq α β
+
 def mkPreResult : UnifyM MkPreResultResult := do
   let us ← (← get).uAssignment.toList.mapM fun
     | some val => pure val
@@ -1233,7 +1277,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
         let valType ← inferType val
         -- **Note**: we have to use the default `isDefEq` because the type of `val`
         -- is not necessarily normalized.
-        unless (← isDefEqTypes type valType) do
+        unless (← isDefEqTypes' type valType) do
           return .failed
       args := args.push val
     else
@@ -1301,13 +1345,16 @@ def processPendingExpr (mvarsToCheckType : Array MVarId) : UnifyM Bool := do
       | some decl => if decl.index ≥ mvarCounterSaved then some mvarId else none
       | none => none
     | _ => none
-  DefEqM.run unify zetaDelta mvarsNew mvarsToCheckType do
+  let (result, state) ← DefEqM.run unify zetaDelta mvarsNew mvarsToCheckType mvarCounterSaved
+      (assignedOld := (← get).assignedOld) do
     for (t, s) in ePending do
       let t ← instantiateLevelParamsS t pattern.levelParams us
       let t ← instantiateRevBetaS t args
       unless (← isDefEqMain t s) do
         return false
     return true
+  modify fun s => { s with assignedOld := state.assignedOld }
+  return result
 
 def processPending (mvarsToCheckType : Array MVarId) : UnifyM Bool := do
   if (← noPending) then
@@ -1328,6 +1375,22 @@ public structure MatchUnifyResult where
   type contains no assigned metavariables (see `instantiateNewMVarTypes`).
   -/
   args : Array Expr
+  /--
+  Whether unification may have assigned an expression metavariable predating this call.
+
+  `BackwardRule.apply` uses this flag to decide whether to inspect all rule arguments for missing
+  goals. Its precomputed `resultPos` omits arguments expected to be determined by matching the
+  conclusion. Assigning an old metavariable instead can leave these arguments unassigned.
+
+  For example, applying `r (n : Nat) : n + 1 = n + 1` to `?w = ?w` can assign the old metavariable
+  `?w := ?n + 1`. The fresh `?n : Nat` must then become a goal, even though `n` is omitted from
+  `resultPos`.
+
+  The flag is conservative: type checks set it when the matched term's type contains expression
+  metavariables, without checking whether an old metavariable was actually assigned. This keeps
+  the common case cheap while ensuring that possibly undetermined arguments are checked.
+  -/
+  assignedOld : Bool := false
   /--
   Instance arguments that could not be synthesized, nor assigned while processing pending
   constraints. `args` still holds a fresh, unassigned metavariable for each of them. A consumer that

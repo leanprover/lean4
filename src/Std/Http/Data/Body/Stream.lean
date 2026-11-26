@@ -141,6 +141,11 @@ private structure State where
   interestWaiter : Option (Async.Waiter Bool)
 
   /--
+  A waiter for `Stream.closedSelector`.
+  -/
+  closedWaiter : Option (Async.Waiter Unit) := none
+
+  /--
   How the channel ended, or `none` while it is open.
   -/
   ended : Option Ending := none
@@ -215,7 +220,12 @@ private def pruneFinishedWaiters [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     | none =>
       pure none
 
-  set { st with pendingConsumer, interestWaiter }
+  let closedWaiter ←
+    match st.closedWaiter with
+    | some waiter => if ← waiter.checkFinished then pure none else pure st.closedWaiter
+    | none => pure none
+
+  set { st with pendingConsumer, interestWaiter, closedWaiter }
 
 private def signalInterest [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
     AtomicT State m Unit := do
@@ -263,6 +273,9 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
   if let some waiter := st.interestWaiter then
     discard <| resolveInterestWaiter waiter false
 
+  if let some waiter := st.closedWaiter then
+    waiter.race (return ()) (fun promise => promise.resolve (.ok ()))
+
   if let some producer := st.pendingProducer then
     discard <| producer.done.resolve false
 
@@ -275,6 +288,7 @@ private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO
     pendingProducer
     pendingConsumer := none
     interestWaiter := none
+    closedWaiter := none
     pendingIncomplete := none
     closeAfterProducer := false
     knownSize
@@ -706,6 +720,35 @@ def offer (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) (closeA
     throw err
 
 /--
+Hands `chunk` to a consumer blocked in `recv` and returns `true`, or returns `false` without
+keeping the chunk when none is waiting. With `incomplete`, the chunk is buffered as in `send` and
+`true` is returned.
+-/
+def trySend (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async Bool := do
+  let toSend ←
+    match ← collapseForSend stream chunk incomplete with
+    | .error err => throw err
+    | .ok none => return true
+    | .ok (some toSend) => pure toSend
+  if toSend.data.isEmpty ∧ toSend.extensions.isEmpty then
+    return true
+  let result : Except IO.Error Bool ← stream.state.atomically do
+    Channel.pruneFinishedWaiters
+    let st ← get
+    if st.ended.isSome then
+      return .error (IO.Error.userError "channel closed")
+    let some consumer := st.pendingConsumer | return .ok false
+    set { st with pendingConsumer := none }
+    -- A select-mode consumer that lost its race is gone, so nobody is left to take the chunk.
+    if ← consumer.resolve (.ok (some toSend)) then
+      modify fun st => { st with knownSize := Channel.decreaseKnownSize st.knownSize toSend }
+      return .ok true
+    return .ok false
+  match result with
+  | .error err => throw err
+  | .ok delivered => return delivered
+
+/--
 Returns `true` when a consumer is currently blocked waiting for data.
 -/
 def hasInterest (stream : Stream) : Async Bool :=
@@ -749,6 +792,32 @@ def interestSelector (stream : Stream) : Selector Bool where
         throw (.userError "only one blocked interest selector is allowed")
       else
         set { st with interestWaiter := some waiter }
+
+  unregisterFn := do
+    stream.state.atomically do
+      Channel.pruneFinishedWaiters
+
+open Async in
+/--
+Creates a selector that resolves once the channel is closed. Unlike `interestSelector`, a waiting
+consumer does not resolve it, so a producer with nothing to send can wait on it to notice that the
+consumer went away.
+-/
+def closedSelector (stream : Stream) : Selector Unit where
+  tryFn := do
+    stream.state.atomically do
+      return if (← get).ended.isSome then some () else none
+
+  registerFn waiter := do
+    stream.state.atomically do
+      Channel.pruneFinishedWaiters
+      let st ← get
+      if st.ended.isSome then
+        waiter.race (return ()) (fun promise => promise.resolve (.ok ()))
+      else if st.closedWaiter.isSome then
+        throw (.userError "only one blocked closed selector is allowed")
+      else
+        set { st with closedWaiter := some waiter }
 
   unregisterFn := do
     stream.state.atomically do

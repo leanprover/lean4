@@ -958,6 +958,13 @@ def hostHeader (o : URI.Origin) : String :=
   if o.port == defaultPort then toString o.host
   else s!"{o.host}:{o.port}"
 
+/--
+Serializes the origin as RFC 6454 §6.2 does: `scheme://host`, followed by `:port` when the port is
+not the scheme's default.
+-/
+instance : ToString URI.Origin where
+  toString o := s!"{o.scheme.val}://{o.hostHeader}"
+
 end URI.Origin
 
 /--

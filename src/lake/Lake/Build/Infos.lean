@@ -86,7 +86,8 @@ builtin_facet imports : Module => Array Module
 /-- Dynamic information computed about a module before building. -/
 public structure ModulePreSetup where
   trace : BuildTrace
-  irSigTrace : BuildTrace
+  /-- The transitive import trace of the module's imports for importers of the module. -/
+  importTransTrace : BuildTrace
   srcMTime : MTime
   srcFile : FilePath
   /-- The private file of a split module (see `Lean.SplitModule`), if any. -/

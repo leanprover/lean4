@@ -31,3 +31,8 @@ check_out_contains "private files cannot declare public declarations"
 # The private file must not change how the public file elaborates.
 capture_fail lake build Errors.Diverge
 check_out_contains "elaborates differently"
+
+# Plain importers only wait for the public file: they are elaborated even if the private file fails.
+capture_fail lake build Errors.UsePrivateFails
+check_out_contains "Built Errors.UsePrivateFails"
+check_out_contains "Building Errors.PrivateFails"

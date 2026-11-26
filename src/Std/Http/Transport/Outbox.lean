@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Http.Transport
+public import Std.Async.Watchdog
 
 public section
 
@@ -59,10 +60,27 @@ structure Outbox.State where
   -/
   idle : Option (IO.Promise Unit) := none
 
+/--
+The timer of an `Outbox`, which tells when the write in flight has seen no write complete for
+`writeTimeout`. A watchdog stays fired once it fires, so once a late write completes the timer is
+replaced and the next write is timed afresh.
+-/
+structure Outbox.Timer where
   /--
-  When a write last started with none in flight or completed, by `IO.monoMsNow`.
+  Cancelled by `watchdog` once the write in flight runs late, and by `stop`.
   -/
-  progressAt : Nat := 0
+  ctx : CancellationContext
+
+  /--
+  Armed while a write is in flight. Only the code that starts a write or handles its completion arms
+  or disarms it, so its calls follow the writes' order.
+  -/
+  watchdog : Watchdog
+
+  /--
+  The outbox was stopped, so the timer is not replaced again.
+  -/
+  stopped : Bool := false
 
 /--
 Writes a connection's output to `socket` in order without the connection waiting for it. At most
@@ -85,14 +103,40 @@ structure Outbox (α : Type) where
 
   private state : IO.Ref Outbox.State
 
+  /--
+  The current timer. Only the code that handles a write's completion replaces it.
+  -/
+  private timer : IO.Ref Outbox.Timer
+
 namespace Outbox
+
+private def Timer.new : IO Outbox.Timer := do
+  let ctx ← CancellationContext.new
+  return { ctx, watchdog := ← Watchdog.new ctx }
 
 /--
 Creates an outbox that writes to `socket`, failing a wait for its writes once none has completed for
-`writeTimeout` milliseconds.
+`writeTimeout` milliseconds. `stop` releases its timer.
 -/
-def new (socket : α) (writeTimeout : Nat) : BaseIO (Outbox α) :=
-  return { socket, writeTimeout, state := ← IO.mkRef {} }
+def new (socket : α) (writeTimeout : Nat) : IO (Outbox α) := do
+  return { socket, writeTimeout, state := ← IO.mkRef {}, timer := ← IO.mkRef (← Timer.new) }
+
+/--
+Releases the outbox's timer. A wait for its writes then no longer times out.
+-/
+def stop (outbox : Outbox α) : BaseIO Unit := do
+  let timer ← outbox.timer.modifyGet fun t => (t, { t with stopped := true })
+  timer.ctx.cancel .cancel
+
+/--
+Replaces the timer after it fired, once the write that ran late completed, so the next write is
+timed afresh. Does nothing once the outbox is stopped.
+-/
+private def renew (outbox : Outbox α) : BaseIO Unit := do
+  let .ok fresh ← Timer.new.toBaseIO | return
+  let installed ← outbox.timer.modifyGet fun t => if t.stopped then (false, t) else (true, fresh)
+  unless installed do
+    fresh.ctx.cancel .cancel
 
 /--
 Joins queued output, given newest first, into one write in order.
@@ -109,7 +153,11 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
     BaseIO Unit := do
   let task ← EAsync.toBaseIO (Transport.sendAll outbox.socket data)
   BaseIO.chainTask (sync := true) task fun result => do
-    let now ← IO.monoMsNow
+    -- Settle the timer before giving up `writing`: a `send` that then starts a write arms after this.
+    -- `disarm` decides lateness atomically, so the watchdog cannot fire between this and the next
+    -- write's `arm`, which would leave that write under a fired timer.
+    if ← (← outbox.timer.get).watchdog.disarm then
+      outbox.renew
     let (next, idle) ← outbox.state.modifyGet fun s =>
       match result with
       | .error err =>
@@ -118,11 +166,12 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
           idle := none })
       | .ok () =>
         if s.queued.isEmpty then
-          ((#[], s.idle), { s with writing := false, idle := none, progressAt := now })
-        else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0, progressAt := now })
+          ((#[], s.idle), { s with writing := false, idle := none })
+        else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0 })
     if let some idle := idle then
       idle.resolve ()
     unless next.isEmpty do
+      (← outbox.timer.get).watchdog.arm (.ofNat outbox.writeTimeout)
       outbox.write next
 
 /--
@@ -133,14 +182,14 @@ def send [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) : BaseIO (
   if buffer.size = 0 then
     return if (← outbox.state.get).failed then none else some 0
   let data := buffer.data
-  let now ← IO.monoMsNow
   let (start, queued?) ← outbox.state.modifyGet fun s =>
     if s.failed then ((false, none), s)
     else if s.writing then
       let queuedBytes := s.queuedBytes + buffer.size
       ((false, some queuedBytes), { s with queued := data :: s.queued, queuedBytes })
-    else ((true, some 0), { s with writing := true, progressAt := now })
+    else ((true, some 0), { s with writing := true })
   if start then
+    (← outbox.timer.get).watchdog.arm (.ofNat outbox.writeTimeout)
     outbox.write data
     -- A write that fails without suspending has already dropped `buffer`.
     if (← outbox.state.get).failed then
@@ -190,30 +239,30 @@ private def taskSelector (task : Task (Option Unit)) : Selector Unit where
   unregisterFn := pure ()
 
 /--
+A selector that fires once a write in flight has seen no write complete for `writeTimeout`, or once
+the outbox is stopped. A wait for the writes, such as `awaitIdle`, then fails the outbox.
+-/
+def lateSelector (outbox : Outbox α) : BaseIO (Selector Unit) :=
+  return (← outbox.timer.get).ctx.doneSelector
+
+/--
 Waits until no write is in flight. If no write completes for `writeTimeout` milliseconds meanwhile,
-the outbox fails instead, so a peer that stops reading cannot hold the connection.
+the outbox fails instead, so a peer that stops reading cannot hold the connection. A write that ran
+late but completed before this wait leaves the outbox working.
 -/
 partial def awaitIdle (outbox : Outbox α) : Async Unit := do
   let some idle ← outbox.idle? | return
-  let deadline := (← outbox.state.get).progressAt + outbox.writeTimeout
-  let now ← IO.monoMsNow
-  if deadline ≤ now then
+  let timer ← outbox.timer.get
+  if timer.stopped then return
+  -- A completion replaces a fired timer, so a fired current one belongs to the write in flight.
+  if ← timer.watchdog.hasFired then
     outbox.expire
     return
   let finished ← Selectable.one #[
     .case (taskSelector idle) (fun _ => pure true),
-    .case (← Selector.sleep (.ofNat (deadline - now))) (fun _ => pure false)]
+    .case timer.ctx.doneSelector (fun _ => pure false)]
   unless finished do
-    -- A write that completed meanwhile moved the deadline.
     outbox.awaitIdle
-
-/--
-When, by `IO.monoMsNow`, a wait for the write in flight fails the outbox if no write completes
-before, or `none` if no write is in flight or the outbox failed.
--/
-def writeDeadline? (outbox : Outbox α) : BaseIO (Option Nat) := do
-  let s ← outbox.state.get
-  return if s.writing && !s.failed then some (s.progressAt + outbox.writeTimeout) else none
 
 /--
 Returns `true` once a write failed.

@@ -8,6 +8,8 @@ module
 prelude
 public import Init.System.Promise
 public import Init.While
+public import Init.Data.Range.Basic
+public import Init.Data.Range.Polymorphic.PRange
 
 public section
 
@@ -296,7 +298,7 @@ Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
-  x.result?.map fun
+  x.result?.map (sync := true) fun
     | none => .error error
     | some res => res
 
@@ -729,13 +731,13 @@ instance : MonadAwait (ETask ε) (EAsync ε) where
   await t := .mk <| BaseAsync.ofTask t
 
 instance : MonadAwait Task (EAsync ε) where
-  await t := .mk <| BaseAsync.ofTask (t.map (.ok))
+  await t := .mk <| BaseAsync.ofTask (t.map (.ok) (sync := true))
 
 instance : MonadAwait AsyncTask (EAsync IO.Error) where
   await t := .mk <| BaseAsync.ofTask t
 
 instance : MonadAwait IO.Promise (EAsync ε) where
-  await t := .mk <| BaseAsync.ofTask (t.result!.map (.ok))
+  await t := .mk <| BaseAsync.ofTask (t.result!.map (.ok) (sync := true))
 
 instance : MonadAsync (ETask ε) (EAsync ε) where
   async t prio := EAsync.lift <| t.asTask (prio := prio)
@@ -750,35 +752,99 @@ instance : MonadLift (EIO ε) (EAsync ε) where
   monadLift x := .mk <| pure <$> x.toBaseIO
 
 instance : MonadLift BaseAsync (EAsync ε) where
-  monadLift x := .mk <| x.map (.ok)
+  monadLift x := .mk <| x.map (.ok) (sync := true)
+
+/--
+The rest of a `forInCursor` loop once a step suspended: handles the result `r` of the step that
+ended at position `c`, runs the following steps, and resolves `promise` when the loop ends.
+-/
+@[specialize]
+partial def forInCursorAsync {σ α β : Type} (next : σ → Option (α × σ))
+    (f : α → β → EAsync ε (ForInStep β)) (prio : Task.Priority)
+    (promise : IO.Promise (Except ε β)) (c : σ) (r : Except ε (ForInStep β)) : BaseIO Unit :=
+  match r with
+  | .error e => promise.resolve (.error e)
+  | .ok (.done b) => promise.resolve (.ok b)
+  | .ok (.yield b) =>
+    match next c with
+    | none => promise.resolve (.ok b)
+    | some (a, c) => do
+      match ← (f a b).toRawBaseIO with
+      | .pure r => forInCursorAsync next f prio promise c r
+      | .ofTask t =>
+        if ← IO.hasFinished t then
+          forInCursorAsync next f prio promise c t.get
+        else
+          BaseIO.chainTask (prio := prio) t (forInCursorAsync next f prio promise c)
+
+/--
+A `forInCursor` loop while every step has completed synchronously.
+-/
+@[specialize]
+partial def forInCursorSync {σ α β : Type} (next : σ → Option (α × σ))
+    (f : α → β → EAsync ε (ForInStep β)) (prio : Task.Priority) (c : σ) (b : β) :
+    BaseIO (MaybeTask (Except ε β)) :=
+  match next c with
+  | none => return .pure (.ok b)
+  | some (a, c) => do
+    match ← (f a b).toRawBaseIO with
+    | .pure (.error e) => return .pure (.error e)
+    | .pure (.ok (.done b)) => return .pure (.ok b)
+    | .pure (.ok (.yield b)) => forInCursorSync next f prio c b
+    | .ofTask t =>
+      if ← IO.hasFinished t then
+        match t.get with
+        | .error e => return .pure (.error e)
+        | .ok (.done b) => return .pure (.ok b)
+        | .ok (.yield b) => forInCursorSync next f prio c b
+      else
+        have : Nonempty β := ⟨b⟩
+        let promise ← IO.Promise.new
+        BaseIO.chainTask (prio := prio) t (forInCursorAsync next f prio promise c)
+        return .ofTask promise.result!
+
+/--
+Runs `f` on the elements produced by `next`, starting at position `c`. Steps that complete
+synchronously run in a loop on the current thread, in constant stack space. The first step that
+suspends moves the rest of the loop into one promise, so the loop's memory stays constant however
+many steps suspend.
+-/
+@[inline]
+protected def forInCursor {σ α β : Type} (c : σ) (next : σ → Option (α × σ)) (init : β)
+    (f : α → β → EAsync ε (ForInStep β)) (prio := Task.Priority.default) : EAsync ε β :=
+  .mk (forInCursorSync next f prio c init)
 
 @[inline]
-protected partial def forIn
+protected def forIn
     {β : Type} (init : β)
     (f : Unit → β → EAsync ε (ForInStep β))
     (prio := Task.Priority.default) :
-    EAsync ε β := do
-
-  have : Nonempty β := ⟨init⟩
-  let promise ← IO.Promise.new
-
-  let rec @[specialize] loop (b : β) : BaseIO Unit := do
-    match ← f () b with
-    | MaybeTask.pure result =>
-      match result with
-      | .error e => promise.resolve (.error e)
-      | .ok (.done b) => promise.resolve (.ok b)
-      | .ok (.yield b) => loop b
-    | MaybeTask.ofTask task => BaseIO.chainTask (prio := prio) task fun
-      | .error e => promise.resolve (.error e)
-      | .ok (.done b) => promise.resolve (.ok b)
-      | .ok (.yield b) => loop b
-
-  loop init
-  .mk <| EAsync.ofETask promise.result!
+    EAsync ε β :=
+  EAsync.forInCursor () (fun _ => some ((), ())) init f prio
 
 instance : ForIn (EAsync ε) Lean.Loop Unit where
   forIn _ := EAsync.forIn
+
+-- The generic instances for these types nest one bind per element, so a long loop whose steps
+-- complete synchronously grows the native stack.
+instance : ForIn (EAsync ε) (List α) α where
+  forIn xs init f := EAsync.forInCursor xs (fun | [] => none | a :: as => some (a, as)) init f
+
+instance : ForIn (EAsync ε) (Array α) α where
+  forIn xs init f :=
+    EAsync.forInCursor 0 (fun i => if h : i < xs.size then some (xs[i], i + 1) else none) init f
+
+instance : ForIn (EAsync ε) Std.Legacy.Range Nat where
+  forIn r init f :=
+    EAsync.forInCursor r.start (fun i => if i < r.stop then some (i, i + r.step) else none) init f
+
+instance : ForIn (EAsync ε) (Std.Rco Nat) Nat where
+  forIn r init f :=
+    EAsync.forInCursor r.lower (fun i => if i < r.upper then some (i, i + 1) else none) init f
+
+instance : ForIn (EAsync ε) (Std.Rio Nat) Nat where
+  forIn r init f :=
+    EAsync.forInCursor 0 (fun i => if i < r.upper then some (i, i + 1) else none) init f
 
 /--
 Converts `Except` to `EAsync`.
@@ -871,7 +937,7 @@ Converts `Promise` into `Async`.
 @[inline]
 protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
   match ← task.toBaseIO with
-  | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map fun
+  | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map (sync := true) fun
     | none => .error error
     | some res => res
   | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
@@ -889,7 +955,7 @@ Converts `IO (Task α)` into `Async`.
 @[inline]
 protected def ofIOTask (task : IO (Task α)) : Async α := do
   match ← task.toBaseIO with
-  | .ok data => .ofAsyncTask (data.map Except.ok)
+  | .ok data => .ofAsyncTask (data.map Except.ok (sync := true))
   | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
 
 /--
@@ -904,7 +970,7 @@ Converts `Task` to `Async`.
 -/
 @[inline]
 protected def ofTask (task : Task α) : Async α := do
-  .ofAsyncTask (task.map Except.ok)
+  .ofAsyncTask (task.map Except.ok (sync := true))
 
 /--
 Converts `IO (IO.Promise α)` to `Async`.
@@ -912,7 +978,7 @@ Converts `IO (IO.Promise α)` to `Async`.
 @[inline]
 protected def ofPurePromise (task : IO (IO.Promise α)) (error : String := "the promise linked to the Async was dropped") : Async α := show BaseIO _ from do
   match ← task.toBaseIO with
-  | .ok data => pure <| MaybeTask.ofTask <| data.result?.map fun
+  | .ok data => pure <| MaybeTask.ofTask <| data.result?.map (sync := true) fun
     | none => .error error
     | some res => pure res
   | .error err => pure (MaybeTask.pure (.error err))

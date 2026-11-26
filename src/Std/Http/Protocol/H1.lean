@@ -598,7 +598,9 @@ Returns `true` if the machine should flush buffered output.
 @[inline]
 def shouldFlush (machine : Machine dir) : Bool :=
   machine.failed ∨
-  machine.reader.state == .closed ∨
+  -- A server's reader closes after a request that ends the connection, which says nothing about the
+  -- response body: its head waits like any other, so a body that fails first can still get a 500.
+  (dir matches .sending ∧ machine.reader.state == .closed) ∨
   machine.writer.noMoreUserData ∨
   machine.writer.knownSize.isSome ∨
 
@@ -1033,7 +1035,7 @@ private def reconcileOutgoingFraming (machine : Machine dir)
   | _, none => if framingInHeaders then none else some machine
 
 /--
-The failure `rejectOutgoingFraming` reports: a mistake of the sender's own code, not a malformed
+The failure `rejectOutgoing` reports for a head that contradicts its body: a mistake of the sender's own code, not a malformed
 message from the peer. A server passes it to `Handler.onFailure`.
 -/
 private def framingMismatchError : H1.Error :=
@@ -1057,15 +1059,15 @@ private def errorHead (status : Status) (headers : Headers := .empty) : Response
   { status, headers := headers.insert Header.Name.contentType (.mk "text/plain; charset=utf-8") }
 
 /--
-Handles a message head that `reconcileOutgoingFraming` rejected. None of that message is written:
-a server answers `500 Internal Server Error` with a short `text/plain` explanation and closes the
-connection, and a client ends the exchange. Both report `framingMismatchError`, and the machine
-halts once its output is taken.
+Rejects a message head the sender's own code got wrong, such as one `reconcileOutgoingFraming`
+rejected. None of that message is written: a server answers `500 Internal Server Error` with a short
+`text/plain` explanation and closes the connection, and a client ends the exchange. Both report
+`error`, and the machine halts once its output is taken.
 -/
-private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
+private def rejectOutgoing (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine := machine
-    |>.addEvent (.failed framingMismatchError)
-    |>.setError framingMismatchError
+    |>.addEvent (.failed error)
+    |>.setError error
     |>.disableKeepAlive
     |>.closeReader
     |>.setReaderState .closed
@@ -1079,9 +1081,13 @@ private def rejectOutgoingFraming (machine : Machine dir) : Machine dir :=
     let head := errorHead status
     let encoded := encodeServerHead head machine.reader.messageHead.version machine.keepAlive
       machine.date machine.config.agentName (.fixed content.size)
-    machine.modifyWriter (fun w => { w with
-      messageHead := head, state := .complete,
-      outputData := w.outputData.push encoded |>.push content })
+    -- RFC 9110 §9.3.2: a HEAD response keeps the `Content-Length` but carries no content.
+    let isHead := machine.reader.messageHead.method == .head
+    machine.modifyWriter (fun w =>
+      let output := w.outputData.push encoded
+      { w with
+        messageHead := head, state := .complete
+        outputData := if isHead then output else output.push content })
     |>.suppressOutgoingBody
   | .sending, machine => machine.closeWriter
 
@@ -1212,10 +1218,10 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
         reconcileOutgoingFraming machine headerSize framingInHeaders
 
     match reconciled with
-    | none => rejectOutgoingFraming machine
+    | none => rejectOutgoing machine framingMismatchError
     | some machine =>
       if unframeableForHttp10 machine message ∧ ¬omitsResponseBody machine message then
-        rejectOutgoingFraming machine
+        rejectOutgoing machine framingMismatchError
       else
         let tunnel : Bool :=
           match dir, machine.reader.messageHead, message with
@@ -1241,6 +1247,22 @@ def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
     machine.modifyWriter (fun writer =>
       let extraBytes := data.foldl (fun acc c => acc + c.data.size) 0
       { writer with userData := writer.userData ++ data, userDataBytes := writer.userDataBytes + extraBytes })
+
+/--
+Sends the final response to the request: its head, and the length of its body when `size` gives
+it. A 1xx status is interim, so it cannot be final (RFC 9110 §15.2): the machine answers
+`500 Internal Server Error` instead and reports the mistake, as for a head that contradicts its
+body. Does nothing unless the machine waits for a response head.
+-/
+def sendResponse (machine : Machine .receiving) (head : Response.Head) (size : Option Body.Length) :
+    Machine .receiving :=
+  if !machine.isWaitingMessage then
+    machine
+  else if head.status.isInformational then
+    rejectOutgoing machine
+      (.other s!"the final response has the interim status {head.status.toCode}")
+  else
+    (size.elim machine machine.setKnownSize).send head
 
 /--
 Sends a response the machine writes itself with `errorContent` as `text/plain` content, which
@@ -1285,20 +1307,29 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
   | .receiving, _ => machine
 
 /--
-Sends an error response with `Connection: close` and shuts down input.
+Ends the exchange from the server's side, as on a timeout or a shutdown, and closes the reader:
+input not yet read, including the rest of the request, is never parsed, so it cannot fail the
+machine afterwards.
 
-If the machine is waiting to send a message, sends `status` with a `Connection: close`
-header and a short `text/plain` explanation (letting the step function encode and flush the
-response), then stops accepting further input. Otherwise, closes the writer directly, ends
-keep-alive and stops accepting further input.
+If no response head was written yet, including one that was sent but waits for its body to be
+flushed, sends `status` in its place with a `Connection: close` header and a short `text/plain`
+explanation (letting the step function encode and flush the response). Otherwise, closes the writer
+directly and ends keep-alive.
 -/
 def closeWithError (machine : Machine .receiving) (status : Status) : Machine .receiving :=
-  if machine.isWaitingMessage then
-    machine.sendError status (.empty |>.insert .connection (.mk "close")) |>.closeReader
-  else
-    -- With keep-alive on, a reader that finished its request would wait for the next one whenever
-    -- unread input follows it, and the machine would never halt.
-    machine.disableKeepAlive.closeWriter.closeReader
+  let unwritten := machine.writer.state == .waitingForFlush
+  let machine :=
+    if machine.isWaitingMessage || unwritten then
+      let machine :=
+        if unwritten then
+          machine.modifyWriter fun w => { w with
+            state := .waitingHeaders, userData := #[], userDataBytes := 0, knownSize := none
+            userClosedBody := false, omitBody := false }
+        else machine
+      machine.sendError status (.empty |>.insert .connection (.mk "close"))
+    else
+      machine.disableKeepAlive.closeWriter
+  machine.closeReader.setReaderState .closed
 
 /--
 Takes and clears all accumulated events, returning the drained array.

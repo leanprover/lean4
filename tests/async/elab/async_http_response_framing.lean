@@ -153,7 +153,11 @@ private def ok200Head : String :=
   let request10 := "GET / HTTP/1.0\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
   let machine0 : Protocol.H1.Machine .receiving := { config := {} }
   let (machine1, _) := (machine0.feed request10).step
-  let (_, stepA) := (machine1.send ({ status := .ok, headers := .empty } : Response.Head)).step
+  -- The head waits for the body to start, so a body that fails first can still get a 500.
+  let (machine2, stepHeld) := (machine1.send ({ status := .ok, headers := .empty } : Response.Head)).step
+  unless stepHeld.output.size == 0 do
+    throw <| IO.userError s!"head must wait for the body:\n{(String.fromUTF8! stepHeld.output.toByteArray).quote}"
+  let (_, stepA) := (machine2.sendData #[{ data := "hi".toUTF8, extensions := #[] }]).step
   let textA := String.fromUTF8! stepA.output.toByteArray
   unless textA.contains "200 OK" do
     throw <| IO.userError s!"expected 200 status line:\n{textA.quote}"

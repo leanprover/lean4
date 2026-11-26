@@ -219,7 +219,7 @@ instance : Monad ContextAsync where
   bind x f := fun ctx => x ctx >>= fun a => f a ctx
 
 instance : MonadLift IO ContextAsync where
-  monadLift x := fun _ => Async.ofIOTask (Task.pure <$> x)
+  monadLift x := fun _ => EAsync.lift x
 
 instance : MonadLift BaseIO ContextAsync where
   monadLift x := fun _ => liftM (m := Async) x
@@ -248,6 +248,21 @@ protected def forIn {β : Type} (init : β) (f : Unit → β → ContextAsync (F
 
 instance : ForIn ContextAsync Lean.Loop Unit where
   forIn _ := ContextAsync.forIn
+
+instance : ForIn ContextAsync (List α) α where
+  forIn xs init f := fun ctx => forIn (m := Async) xs init (fun a b => f a b ctx)
+
+instance : ForIn ContextAsync (Array α) α where
+  forIn xs init f := fun ctx => forIn (m := Async) xs init (fun a b => f a b ctx)
+
+instance : ForIn ContextAsync Std.Legacy.Range Nat where
+  forIn r init f := fun ctx => forIn (m := Async) r init (fun a b => f a b ctx)
+
+instance : ForIn ContextAsync (Std.Rco Nat) Nat where
+  forIn r init f := fun ctx => forIn (m := Async) r init (fun a b => f a b ctx)
+
+instance : ForIn ContextAsync (Std.Rio Nat) Nat where
+  forIn r init f := fun ctx => forIn (m := Async) r init (fun a b => f a b ctx)
 
 /--
 Runs two computations concurrently and returns the result of the first to complete. Each computation

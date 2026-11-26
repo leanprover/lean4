@@ -13,6 +13,7 @@ public import Lean.AutoDecl
 import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
 import Lean.Util.RecDepth
+import Init.Data.Queue
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
@@ -126,6 +127,44 @@ private def markSignaturesPersistent (decl : Declaration) : CoreM Unit := do
       type.ctors.forM (markSignaturePersistent ·.type)
   | .quotDecl => pure ()
 
+/--
+Maximum number of declarations the kernel checks at the same time. A check holds on to its reduction
+caches until it is done, so the memory of concurrent checks adds up.
+-/
+private def maxParallelKernelChecks : Nat := 4
+
+private structure KernelCheckSlots where
+  /-- Number of slots in use. -/
+  used : Nat := 0
+  /-- Checks waiting for a slot, each resolved by the check that hands its slot over. -/
+  waiting : Std.Queue (IO.Promise Unit) := .empty
+
+private instance : Inhabited KernelCheckSlots := ⟨{}⟩
+
+private builtin_initialize kernelCheckSlotsRef : IO.Ref KernelCheckSlots ← IO.mkRef {}
+
+/-- Returns a task that finishes when a kernel check slot has been reserved for the caller. -/
+private def acquireKernelCheckSlot : BaseIO (Task Unit) := do
+  let promise ← IO.Promise.new
+  let wait ← kernelCheckSlotsRef.modifyGet fun s =>
+    if s.used < maxParallelKernelChecks then
+      (false, { s with used := s.used + 1 })
+    else
+      (true, { s with waiting := s.waiting.enqueue promise })
+  if wait then
+    return promise.resultD ()
+  else
+    return .pure ()
+
+/-- Releases a slot from `acquireKernelCheckSlot`, handing it to the next waiting check if any. -/
+private def releaseKernelCheckSlot : BaseIO Unit := do
+  let next? ← kernelCheckSlotsRef.modifyGet fun s =>
+    match s.waiting.dequeue? with
+    | some (promise, waiting) => (some promise, { s with waiting })
+    | none => (none, { s with used := s.used - 1 })
+  if let some promise := next? then
+    promise.resolve ()
+
 builtin_initialize
   registerTraceClass `addDecl
 
@@ -235,7 +274,12 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
         catch ex =>
           okPromise.resolve false
           throw ex
-      let t ← BaseIO.mapTask checkAct env.uncheckedKernelEnv
+      let slot ← acquireKernelCheckSlot
+      let t ← BaseIO.bindTask slot fun _ =>
+        BaseIO.mapTask (t := env.uncheckedKernelEnv) fun kenv => do
+          let r ← checkAct kenv
+          releaseKernelCheckSlot
+          return r
       -- A theorem is represented by its signature in `uncheckedKernelEnv`; see `addConstAsync`.
       let unchecked := if decl matches .thmDecl .. then env.uncheckedKernelEnv else
         env.uncheckedKernelEnv.map (sync := true) fun kenv =>

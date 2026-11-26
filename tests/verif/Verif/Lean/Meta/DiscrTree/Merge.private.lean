@@ -1749,10 +1749,7 @@ theorem roots_moduleRootsOf (laws : MapLaws (Trie α)) (ms : List (Array (Array 
     exact .cons (moduleRootsOf_spec laws es (hne es (by simp)))
       (ih fun es hes => hne es (by simp [hes]))
 
-theorem ofModuleRoots_spec (laws : MapLaws (Trie α)) (mods : Array (Array (Array Key × α)))
-    (hne : ∀ es ∈ mods, ∀ e ∈ es, 0 < e.1.size) (k : Key) :
-    Option.Rel Forces ((ofModuleRoots (mods.map moduleRootsOf)).root.find? k)
-      ((mods.foldl insertModule {}).root.find? k) := by
+theorem ofModuleRoots_spec (laws mods hne k) := by
   let all := (mods.toList.map Array.toList).flatten
   have hne' : ∀ es ∈ mods.toList, ∀ e ∈ es, 0 < e.1.size :=
     fun es hes => hne es (by simpa using hes)

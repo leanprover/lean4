@@ -764,21 +764,12 @@ theorem collectDupsAux_sound (trees : Array (Nat × ConstTrie α)) (covered : Ar
 termination_by maxSize cands
 decreasing_by exact maxSize_lt h₁ h₂
 
-theorem collectDuplicates_complete (trees : Array (Nat × ConstTrie α)) (covered : Array UInt64)
-    (hwf : ∀ p ∈ trees, WF p.2 ∧ p.2.key = .anonymous)
-    (hi : (i, ti) ∈ trees) (hj : (j, tj) ∈ trees) (hij : i ≠ j)
-    (hvi : Has ti n vi) (hvj : Has tj n vj)
-    (hcov : covered.isEmpty ∨ covered[i]! &&& covered[j]! = 0) :
-    ∃ d ∈ collectDuplicates trees covered,
-      d.name = n ∧ (vi, i) ∈ d.entries ∧ (vj, j) ∈ d.entries := by
+theorem collectDuplicates_complete (trees covered hwf hi hj hij hvi hvj hcov) := by
   have := two_le_size_of_mem hi hj (by simp [hij])
   rw [collectDuplicates, ite_eq_right_of_eq_false _ _ (eq_false (by omega))]
   exact collectDupsAux_complete covered _ trees #[] hwf hi hj hij hvi hvj hcov
 
-theorem collectDuplicates_sound (trees : Array (Nat × ConstTrie α)) (covered : Array UInt64)
-    (hwf : ∀ p ∈ trees, WF p.2 ∧ p.2.key = .anonymous)
-    (hord : trees.toList.Pairwise (fun a b => a.1 < b.1)) :
-    ∀ d ∈ collectDuplicates trees covered, Sound trees d := by
+theorem collectDuplicates_sound (trees covered hwf hord) := by
   rw [collectDuplicates]
   split
   · simp

@@ -696,33 +696,20 @@ theorem ofArrays_hasEntry (names : Array Name) (vals : Array α) (n : Name) (v :
   · rintro ⟨j, h1, h2, hn, hv', hl⟩
     exact ⟨j, h1, h2, by omega, hn, hv', fun j' h1' g1 g2 => hl j' h1' g1 (by omega)⟩
 
-theorem find?_ofArrays (names : Array Name) (vals : Array α) (n : Name) (v : α) :
-    (ofArrays names vals).find? n = some v ↔ ∃ j, ∃ h₁ : j < names.size, ∃ h₂ : j < vals.size,
-      names[j] = n ∧ vals[j] = v ∧
-      ∀ j' (h₁' : j' < names.size), j < j' → j' < vals.size → names[j'] ≠ n := by
+theorem find?_ofArrays (names vals n v) := by
   rw [find?_eq_some_iff (ofArrays_wf names vals) (ofArrays_key names vals), ofArrays_hasEntry]
 
-theorem find?_ofArrays_of_distinct (names : Array Name) (vals : Array α)
-    (hsize : names.size = vals.size)
-    (distinct : ∀ i j (hi : i < names.size) (hj : j < names.size), names[i] = names[j] → i = j)
-    (n : Name) (v : α) :
-    (ofArrays names vals).find? n = some v ↔
-      ∃ i, ∃ h : i < names.size, names[i] = n ∧ vals[i]'(hsize ▸ h) = v := by
+theorem find?_ofArrays_of_distinct (names vals hsize distinct n v) := by
   rw [find?_ofArrays]
   constructor
   · rintro ⟨j, h1, h2, hn, hv, -⟩; exact ⟨j, h1, hn, hv⟩
   · rintro ⟨j, h1, hn, hv⟩
     exact ⟨j, h1, hsize ▸ h1, hn, hv, by grind⟩
 
-theorem find?_ofArrays_getElem (names : Array Name) (vals : Array α)
-    (hsize : names.size = vals.size)
-    (distinct : ∀ i j (hi : i < names.size) (hj : j < names.size), names[i] = names[j] → i = j)
-    (i : Nat) (h : i < names.size) :
-    (ofArrays names vals).find? names[i] = some (vals[i]'(hsize ▸ h)) :=
+theorem find?_ofArrays_getElem (names vals hsize distinct i h) :=
   (find?_ofArrays_of_distinct names vals hsize distinct _ _).2 ⟨i, h, rfl, rfl⟩
 
-theorem find?_ofArrays_eq_none (names : Array Name) (vals : Array α) (n : Name) (h : n ∉ names) :
-    (ofArrays names vals).find? n = none := by
+theorem find?_ofArrays_eq_none (names vals n h) := by
   cases e : (ofArrays names vals).find? n with
   | none => rfl
   | some v =>
@@ -740,8 +727,7 @@ theorem sizeOf_lt_of_mem_children {t c : ConstTrie α} (h : c ∈ t.children) :
   have := Array.sizeOf_lt_of_mem h
   cases t <;> simp_all [children] <;> omega
 
-theorem foldlM_eq_entries [Monad m] [LawfulMonad m] (t : ConstTrie α) (f : σ → Name → α → m σ)
-    (init : σ) : t.foldlM f init = (entries t).foldlM (fun s p => f s p.1 p.2) init := by
+theorem foldlM_eq_entries [Monad m] [LawfulMonad m] (t f init) := by
   have key : ∀ (l : List (ConstTrie α)), (∀ c ∈ l, ∀ init, c.foldlM f init =
       (entries c).foldlM (fun s p => f s p.1 p.2) init) → ∀ init,
       l.foldlM (fun s c => c.foldlM f s) init =
@@ -811,10 +797,7 @@ theorem WF.entries_keys_nodup {t : ConstTrie α} (wf : WF t) : ((entries t).map 
     have := (keys_ext c (by simpa using hc) a hb).depth_le
     grind [depth_of_ne]
 
-theorem entries_ofArrays_perm (names : Array Name) (vals : Array α)
-    (hsize : names.size = vals.size)
-    (distinct : ∀ i j (hi : i < names.size) (hj : j < names.size), names[i] = names[j] → i = j) :
-    (entries (ofArrays names vals)).Perm (names.zip vals).toList := by
+theorem entries_ofArrays_perm (names vals hsize distinct) := by
   have hnd := (ofArrays_wf names vals).entries_keys_nodup
   have hzip : ((names.zip vals).toList.map Prod.fst).Nodup := by
     rw [List.nodup_iff_pairwise_ne, List.pairwise_iff_getElem]

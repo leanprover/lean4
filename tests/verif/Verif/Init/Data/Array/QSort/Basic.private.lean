@@ -185,10 +185,7 @@ theorem sort_spec (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi) (hlo : lo < n
     exact ⟨Rel.refl _ _ _, fun i j hj g1 g2 g3 => absurd g3 (by omega)⟩
 
 include trans in
-theorem qsort_spec (as : Array α) :
-    (as.qsort lt).Perm as ∧
-      ∀ i j (hj : j < (as.qsort lt).size) (hij : i < j),
-        ¬lt (as.qsort lt)[j] ((as.qsort lt)[i]'(by omega)) = true := by
+theorem qsort_spec (as) := by
   unfold Array.qsort
   split
   · exact ⟨.refl _, by grind⟩

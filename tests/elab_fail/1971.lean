@@ -19,7 +19,7 @@ theorem lem2 : True := ⟨⟩
   Outside of tactics as well it is generally a better idea to place the error
   right after the last correct token. -/
 
-def f1
+def f1 :=
 
 def f2 := 0
 

@@ -107,14 +107,8 @@ private def elabAxiomCore (modifiers : Modifiers) (stx declId binders typeStx : 
   runTermElabM fun vars => do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨shortName, declName, allUserLevelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
-    if deferredKind?.isSome then
-      let fileName : System.FilePath := (← getFileName)
-      let privateFile := privateFileOfPublicFile fileName
-      unless (← getEnv).header.isModule && (← privateFile.pathExists) do
-        throwErrorAt stx "declaration '{declName}' has no body; omitting the body requires a \
-          private file '{privateFile}' of the same module that supplies it"
-      if modifiers.isMeta then
-        throwErrorAt stx "`meta` declaration '{declName}' must have a body"
+    if deferredKind?.isSome && modifiers.isMeta then
+      throwErrorAt stx "`meta` declaration '{declName}' must have a body"
     addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
@@ -172,6 +166,15 @@ Elaborates a `def` or `theorem` without a value in the public file of a split mo
 placeholder axiom.
 -/
 private def elabDeferredDecl (modifiers : Modifiers) (decl : Syntax) : CommandElabM Unit := do
+  let privateFile := privateFileOfPublicFile (← getFileName)
+  let isModule := (← getEnv).header.isModule
+  unless isModule && (← privateFile.pathExists) do
+    -- Keep the error of the parser for an incomplete declaration
+    let note := if isModule then
+      m!"\n\nNote: The body may only be omitted if the module has a private file \
+        '{privateFile}' that supplies it."
+    else m!""
+    throwErrorAt decl m!"declaration has no body; expected ':=', 'where' or '|'{note}"
   let (binders, typeStx?) :=
     if decl.isOfKind ``Parser.Command.theorem then
       if decl[2].isOfKind ``Parser.Command.typelessDeclSig then

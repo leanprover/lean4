@@ -1,1 +1,1 @@
-def foo : Nat
+def foo : Nat :=

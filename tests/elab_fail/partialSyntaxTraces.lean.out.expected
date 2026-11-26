@@ -1,4 +1,4 @@
-partialSyntaxTraces.lean:6:0: error: unexpected end of input; expected ':=', 'where' or '|'
+partialSyntaxTraces.lean:6:0: error: unexpected end of input
 [Elab.command] 💥️ [Error pretty printing syntax: parenthesize: uncaught backtrack exception. Falling back to raw printer.]
     (Command.declaration
      (Command.declModifiers [] [] [] [] [] [] [])
@@ -6,5 +6,5 @@ partialSyntaxTraces.lean:6:0: error: unexpected end of input; expected ':=', 'wh
       "def"
       (Command.declId `f [])
       (Command.optDeclSig [] [])
-      (Command.contractDeclVal [] [] [] [] (Command.whereStructInst <missing>))))
+      (Command.declValSimple ":=" <missing>)))
 [Elab.command] ✅️ 

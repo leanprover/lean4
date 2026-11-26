@@ -41,3 +41,11 @@ termination_by n => n
 structure Impl where
   x : Nat
 deriving Repr
+
+section
+variable {γ : Type _} [Inhabited γ] (pick : γ → γ)
+
+theorem pickTwice (x h) := by rw [h, h]
+end
+
+theorem eqSymm (h) := h.symm

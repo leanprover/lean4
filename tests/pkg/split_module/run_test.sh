@@ -37,3 +37,6 @@ check_out_contains "elaborates differently"
 capture_fail lake build Errors.UsePrivateFails
 check_out_contains "Built Errors.UsePrivateFails"
 check_out_contains "Building Errors.PrivateFails"
+
+capture_fail lake build Errors.BinderName
+check_out_contains "binder \`m\` must be named \`n\` as in the public file"

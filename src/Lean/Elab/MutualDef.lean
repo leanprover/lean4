@@ -254,10 +254,13 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withReuseContext view.headerRef do
         withDeprecationContextFromAttrs view.modifiers.attrs do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
-        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-          elabBindersEx view.binders.getArgs fun xs => do
+        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames do
+        let deferred? := SplitModule.findSupplied? (← getEnv) declName
+        let binders ← match view.type?, deferred? with
+          | none, some deferred => typelessBinders deferred.type view.binders.getArgs
+          | _, _ => pure view.binders.getArgs
+          elabBindersEx binders fun xs => do
             let refForElabFunType := view.value
-            let deferred? := SplitModule.findSupplied? (← getEnv) declName
             let mut type ← match view.type?, deferred? with
               | some typeStx, _ =>
                 let type ← elabType typeStx
@@ -265,13 +268,22 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
                 pure type
               | none, some deferred =>
                 -- A typeless declaration of the private file of a split module takes its type from
-                -- the public file.
+                -- the public file. Its leading section variables are those of the current scope.
                 let mut type := deferred.type
-                for (_, x) in xs do
-                  let .forallE _ dom body _ ← whnf type
-                    | throwErrorAt view.binders "too many binders for the declared type{indentExpr deferred.type}"
+                for x in ← typelessSectionVars type do
+                  let .forallE _ dom body _ := type | unreachable!
                   unless (← isDefEq (← inferType x) dom) do
-                    throwErrorAt view.binders "binder type mismatch: expected{indentExpr dom}"
+                    throwErrorAt view.declId "type mismatch of section variable `{x}`: \
+                      expected{indentExpr dom}"
+                  type := body.instantiate1 x
+                for (id, x) in xs do
+                  let .forallE n dom body _ ← whnf type
+                    | throwErrorAt id "too many binders for the declared type{indentExpr deferred.type}"
+                  -- The parameters of the body are named after the declared type
+                  if id.isIdent && id.getId != n && !n.hasMacroScopes then
+                    throwErrorAt id "binder `{id.getId}` must be named `{n}` as in the public file"
+                  unless (← isDefEq (← inferType x) dom) do
+                    throwErrorAt id "binder type mismatch: expected{indentExpr dom}"
                   type := body.instantiate1 x
                 pure type
               | none, none =>
@@ -339,6 +351,64 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
       headers := headers.push newHeader
     return headers
 where
+  /--
+  Returns the section variables of the current scope that correspond to the leading parameters of
+  the declared type `type` of a typeless declaration: those with the same name, where anonymous
+  instance-implicit variables are matched in order.
+  -/
+  typelessSectionVars (type : Expr) : TermElabM (Array Expr) := do
+    let lctx ← getLCtx
+    -- (keyed by unique ids)
+    let mut vars := (← read).sectionFVars.valuesArray.filterMap fun x =>
+      lctx.find? x.fvarId! |>.map fun d => (d.userName, x, d.index)
+    vars := vars.qsort (·.2.2 < ·.2.2)
+    let mut result := #[]
+    let mut type := type
+    while true do
+      let .forallE n _ body _ := type | break
+      let some i := vars.findIdx? fun (n', _) =>
+          n' == n || (n'.hasMacroScopes && n.hasMacroScopes && n'.eraseMacroScopes == n.eraseMacroScopes)
+        | break
+      result := result.push vars[i]!.2.1
+      vars := vars.eraseIdx! i
+      type := body
+    return result
+  /--
+  Inserts binders for the implicit parameters of the declared type `type` of a typeless
+  declaration that `binders` skip before an explicit or instance-implicit binder, as in an
+  application. Leading parameters that are section variables are skipped as well.
+  -/
+  typelessBinders (type : Expr) (binders : Array Syntax) : TermElabM (Array Syntax) := do
+    let mut declared := #[]
+    let mut type := type
+    for _ in ← typelessSectionVars type do
+      let .forallE _ _ body _ := type | unreachable!
+      type := body
+    while true do
+      let .forallE n _ body bi := type | break
+      declared := declared.push (n, bi)
+      type := body
+    let mut result : Array Syntax := #[]
+    let mut i := 0
+    for b in binders do
+      let (insertBefore, count) :=
+        if b.isOfKind ``Parser.Term.explicitBinder then (true, b[1].getNumArgs)
+        else if b.isOfKind ``Parser.Term.implicitBinder ||
+            b.isOfKind ``Parser.Term.strictImplicitBinder then (false, b[1].getNumArgs)
+        else (true, 1)  -- identifier, hole, or instance-implicit binder
+      if insertBefore then
+        while h : i < declared.size do
+          let (n, bi) := declared[i]
+          if bi.isImplicit then
+            result := result.push (← `(Parser.Term.bracketedBinderF| {$(mkIdent n)})).raw
+          else if bi.isStrictImplicit then
+            result := result.push (← `(Parser.Term.bracketedBinderF| ⦃$(mkIdent n)⦄)).raw
+          else
+            break
+          i := i + 1
+      result := result.push b
+      i := i + count
+    return result
   getBodyTerm? (stx : Syntax) : Option Syntax := do
     -- TODO: does not work with partial syntax
     --| `(Parser.Command.declVal| := $body $_suffix:suffix) => body
@@ -1256,8 +1326,9 @@ where
           -- Not needed for elaboration; would rename auto-bound universe parameters
           return declId
         -- Make the universe parameters of the declared type available
+        -- (level names in scope are listed newest first)
         let levelNames := deferred.levelParams.foldl (init := declId.levelNames) fun ns n =>
-          if ns.contains n then ns else ns ++ [n]
+          if ns.contains n then ns else n :: ns
         return { declId with levelNames }
       return declId
     for view in views, declId in expandedDeclIds do

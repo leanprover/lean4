@@ -35,3 +35,13 @@ end
 
 /-- Proved by well-founded recursion in the private file. -/
 public theorem addZero (n : Nat) : n + 0 = n
+
+section
+variable {γ : Type _} [Inhabited γ] (pick : γ → γ)
+
+/-- Section variables, including an anonymous instance, are matched by typeless implementations. -/
+public theorem pickTwice (x : γ) (h : pick x = x) : pick (pick x) = x
+end
+
+/-- Implicit parameters are inserted before explicit binders of typeless implementations. -/
+public theorem eqSymm {a b : Nat} (h : a = b) : b = a

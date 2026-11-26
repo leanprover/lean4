@@ -39,6 +39,7 @@ $CP $GCC_LIB/lib/libatomic.so* stage1/lib/
 find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits,float,__float*}.h stage1/include/clang
+cp "$(dirname "$0")/leanc-assert.h" stage1/include/clang/assert.h
 # ELF dependencies, must be put there for `--sysroot`
 $CP $GLIBC/lib/*crt* llvm/lib/
 $CP $GLIBC/lib/*crt* stage1/lib/

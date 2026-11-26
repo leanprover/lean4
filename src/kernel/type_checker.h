@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/local_ctx.h"
 #include "kernel/expr_maps.h"
 #include "kernel/two_gen_cache.h"
+#include "kernel/window_cache.h"
 
 namespace lean {
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
@@ -33,8 +34,8 @@ public:
            its shared subterms again, which can take time exponential in the depth of sharing. */
         expr_map<expr>            m_infer_check;
         expr_cache                m_infer_only;
-        expr_cache                m_whnf_core;
-        expr_cache                m_whnf;
+        window_cache<expr_map<expr>> m_whnf_core;
+        window_cache<expr_map<expr>> m_whnf;
         /* Positive and negative caches for `is_def_eq`. Since kernel expressions contain no
            metavariables and free variables are globally unique with fixed types, the result of
            `is_def_eq` is a function of its two arguments, so both results can be cached and shared

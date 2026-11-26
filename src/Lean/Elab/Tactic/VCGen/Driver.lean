@@ -64,12 +64,6 @@ def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := 
       others := others.push sg
   return others
 
-/-- Simplify the target of a verification condition with `Context.simpMethods`. -/
-def simpVC (goal : MVarId) : VCGenM Sym.SimpGoalResult := goal.withContext do
-  let some methods := (← read).simpMethods | return .noProgress
-  let target ← goal.getType
-  (← runSimp methods (Sym.Simp.simp target)).toSimpGoalResult goal
-
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 `simp` rewrites the VC only when `reason` says that nothing is left to decompose, so a VC that
@@ -77,7 +71,8 @@ Called when decomposing the goal further did not succeed; in this case we emit a
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
 -/
-public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) : VCGenM Unit := do
+public def emitVC (scope : Scope) (goal : Grind.Goal) (reason : SolveResult.StopReason) :
+    VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
   if reason matches .noEntailment .. | .noProgress .. then
     -- An invariant from an `invariants` alternative is assigned while the target is built, as in
@@ -86,7 +81,7 @@ public def emitVC (goal : Grind.Goal) (reason : SolveResult.StopReason) : VCGenM
     let target' ← instantiateMVarsS target
     unless isSameExpr target target' do
       goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
-    match ← simpVC goal.mvarId with
+    match ← scope.simpGoal Sym.Simp.simp goal.mvarId with
     | .closed => return
     | .goal mvarId => goal := { goal with mvarId }
     | .noProgress => pure ()
@@ -110,7 +105,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
     | .stop reason =>
-      emitVC goal reason
+      emitVC s.scope goal reason
     | .goals scope subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.

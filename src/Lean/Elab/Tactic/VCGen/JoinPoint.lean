@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.VCGen.Context
+import Lean.Elab.Tactic.VCGen.Simp
 public import Lean.Elab.Tactic.VCGen.WPApp
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.SynthInstance
@@ -185,7 +186,7 @@ public def wpJump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   goal.assign (← mkAppNS jp.spec (args.push pf))
   modify fun s => { s with
     pendingJoinPoints := s.pendingJoinPoints.modify jp.rhsGoal fun (jp, jumps) =>
-      (jp, jumps.push { proof := pf.mvarId!, args }) }
+      (jp, jumps.push { proof := pf.mvarId!, args, scope }) }
   return some []
 
 /-- The locals of `jump` after `__do_jp_spec`. -/
@@ -465,19 +466,18 @@ partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (steps : List Ste
     let step :: steps := steps | throwError "vcgen +jp: missing local for{indentExpr φ}"
     mkStepProof φ step fun φ => mkTrieProof φ path steps leafPfs
 
-/-- The `vcgen` simp normal form `e'` of `e` with a proof of `e = e'`, or `e` with `none` if
-`vcgen` has no simp methods or simp makes no progress. -/
-def simpJoinTerm (e : Expr) : VCGenM (Expr × Option Expr) := do
-  let some methods := (← read).simpMethods | return (e, none)
+/-- The `vcgen` simp normal form `e'` of `e` under `scope` with a proof of `e = e'`, or `e` with
+`none` if `vcgen` has no simp methods or simp makes no progress. -/
+def simpJoinTerm (scope : Scope) (e : Expr) : VCGenM (Expr × Option Expr) := do
   let e ← shareCommonInc e
-  match ← runSimp methods (Sym.Simp.simp e) with
+  match ← runSimp scope Sym.Simp.simp e with
   | .rfl .. => return (e, none)
   | .step e' proof .. => return (e', some proof)
 
-/-- The equation `lhs = rhs` at type `α`, with `rhs` in `simp` normal form `rhs'`, and the proof of
-`rhs = rhs'` if `simp` makes progress. -/
-def mkJoinEq (α lhs rhs : Expr) : VCGenM (Expr × Option Expr) := do
-  let (rhs', pf?) ← simpJoinTerm rhs
+/-- The equation `lhs = rhs` at type `α`, with `rhs` in `simp` normal form `rhs'` under `scope`, and
+the proof of `rhs = rhs'` if `simp` makes progress. -/
+def mkJoinEq (scope : Scope) (α lhs rhs : Expr) : VCGenM (Expr × Option Expr) := do
+  let (rhs', pf?) ← simpJoinTerm scope rhs
   return (mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α lhs rhs', pf?)
 
 /-- The proof `pf? : rhs = rhs'` of an equation `lhs = rhs'` of `mkJoinEq` at a jump that passes
@@ -504,7 +504,8 @@ public def finalizeJoinPoint (goal : MVarId) : VCGenM MVarId := do
     let leaves ← (Array.range jumps.size).mapM fun k => do
       let decl ← jumps[k]!.proof.getDecl
       withLCtx decl.lctx decl.localInstances do
-        columns.mapM fun c => return (c.vals[k]!, ← mkJoinEq c.type c.lhs c.vals[k]!)
+        columns.mapM fun c =>
+          return (c.vals[k]!, ← mkJoinEq jumps[k]!.scope c.type c.lhs c.vals[k]!)
     let trieJumps := (jumpsLocals.zip leaves).map fun ((jump, locals), leaf) =>
       (jump, locals, mkAndN (leaf.map (·.2.1)).toList)
     let (trie, paths) ← mkTrie trieJumps 0

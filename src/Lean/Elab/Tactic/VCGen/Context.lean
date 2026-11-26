@@ -162,13 +162,6 @@ public structure JoinPoint where
   numStates : Nat
   deriving Inhabited
 
-/-- A jump to a join point with the arguments `args`, which include the states, and the proof
-`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump. -/
-public structure Jump where
-  proof : MVarId
-  args : Array Expr
-  deriving Inhabited
-
 public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
@@ -179,9 +172,21 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
-  /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
-  on `x` reduces with them. -/
-  splitEqs : FVarIdMap (Expr × FVarId) := {}
+  /-- The hypotheses `h : x = t` on a local `x`, stored as `x ↦ (t, h)`. `forallIntro?` adds them.
+  Used as a delayed substitution by various vcgen steps. -/
+  eqs : FVarIdMap (Expr × FVarId) := {}
+  /-- The hypotheses of `eqs` that rewrite `x` to `t`: those that no other local mentioned when
+  `forallIntro?` introduced them. -/
+  substs : FVarIdMap (Expr × FVarId) := {}
+  deriving Inhabited
+
+/-- A jump to a join point with the arguments `args`, which include the states, and the proof
+`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump, which `scope`
+describes. -/
+public structure Jump where
+  proof : MVarId
+  args : Array Expr
+  scope : Scope
   deriving Inhabited
 
 public structure State where
@@ -271,13 +276,5 @@ public def burnOne : VCGenM Unit :=
   modify fun s => { s with fuel := match s.fuel with
     | .limited (n+1) => .limited n
     | other => other }
-
-/-- Run `k` with `methods` and `Context.simpConfig` on the persistent simp state `State.simpState`.
-The state is taken out of `VCGenM`'s state for the run, so `k` updates it in place. -/
-public def runSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
-  let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
-  let (a, st) ← Sym.Simp.SimpM.run k methods (← read).simpConfig st
-  modify fun s => { s with simpState := st }
-  return a
 
 end Lean.Elab.Tactic.VCGen

@@ -274,6 +274,7 @@ theorem wide_triple : ⦃ fun _ => True ⦄ wide x ⦃ fun r => ⌜r > 1⌝ ⦄ 
 trace: case vc1
 b : Nat → Bool
 s₀ s✝¹ : Nat
+a✝ : s✝¹ = s₀
 x✝ : PUnit
 s✝ : Nat
 h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)
@@ -283,6 +284,7 @@ h✝ : b 1 = true
 case vc2
 b : Nat → Bool
 s₀ s✝¹ : Nat
+a✝ : s✝¹ = s₀
 x✝ : PUnit
 s✝ : Nat
 h✝¹ : ∃ z, s✝ = s₀ + z ∧ (b 0 = true ∧ z = 1 ∨ ¬b 0 = true ∧ z = 2)

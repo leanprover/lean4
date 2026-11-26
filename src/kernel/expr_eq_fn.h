@@ -11,7 +11,7 @@ class expr;
 // =======================================
 // Structural equality
 /** \brief Binder information is ignored in the following predicate */
-bool is_equal(expr const & a, expr const & b);
+bool is_equal(expr const & a, expr const & b, bool compare_binders = false);
 inline bool operator==(expr const & a, expr const & b) { return is_equal(a, b); }
 inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
 // =======================================

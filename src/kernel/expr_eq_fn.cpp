@@ -108,8 +108,8 @@ public:
     bool operator()(expr const & a, expr const & b) { return apply(a, b, true); }
 };
 
-bool is_equal(expr const & a, expr const & b) {
-    return expr_eq_fn<false>()(a, b);
+bool is_equal(expr const & a, expr const & b, bool compare_binders) {
+    return compare_binders ? expr_eq_fn<true>()(a, b) : expr_eq_fn<false>()(a, b);;
 }
 
 extern "C" LEAN_EXPORT uint8 lean_expr_eqv(b_obj_arg a, b_obj_arg b) {

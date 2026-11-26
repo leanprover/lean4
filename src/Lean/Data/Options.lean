@@ -259,13 +259,13 @@ end Option
 
 register_builtin_option meta.restrict : Bool := {
   defValue := false
-  descr := "Prevent the module from running code of its own choosing during elaboration, \
-    best-effort. Declarations of the module are not compiled, so nothing defined in it \
-    can be evaluated, neither in this file (`#eval`, `macro`, `notation`, `elab`, \
-    `native_decide`, ...) nor by modules importing it; options such as `sat.solver` \
-    allowing for other effects outside the build process are rejected as well. Code of \
-    imported modules, such as their macros and tactics, is still allowed to run. \
-    Read-only effects such as from `include_str` are currently accepted as well.\n\n\
+  descr := "Prevent modules elaborated with this option from running arbitrary metaprograms \
+    during elaboration, best-effort. Declarations of the module are not compiled, so \
+    nothing defined in it can be evaluated, neither in this file (`#eval`, `macro`, \
+    `notation`, `elab`, `native_decide`, ...) nor by modules importing it; options such \
+    as `sat.solver` allowing for other effects outside the build process are rejected as \
+    well. Code of imported modules, such as their macros and tactics, is still allowed \
+    to run. Read-only effects such as from `include_str` are currently accepted as well.\n\n\
     As this option is implemented best-effort given the large surface of potential for \
     effects through existing metaprograms, including those imported from dependencies \
     outside Lean itself, it cannot and does not aim to obviate the need for operating \

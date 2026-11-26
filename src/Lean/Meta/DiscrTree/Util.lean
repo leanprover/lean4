@@ -83,6 +83,13 @@ def foldChildrenM [Monad m] (f : σ → Key → Trie α → m σ) (init : σ) (t
   | ⟨.chain k c, _⟩ => f init k c
   | ⟨.node _ cs, _⟩ => cs.foldlM (init := init) fun s (k, c) => f s k c
 
+/-- Returns whether `f` holds for a child of the current trie node, stopping at the first one. -/
+@[inline]
+def anyChildrenM [Monad m] (f : Key → Trie α → m Bool) (t : Trie α) : m Bool :=
+  match t.force with
+  | ⟨.chain k c, _⟩ => f k c
+  | ⟨.node _ cs, _⟩ => cs.anyM fun (k, c) => f k c
+
 /--
 Whether the subterms `todo` match the remaining keys `ks[i:]` of a suffix, as when traversing its
 `chain`s. `key e` returns the key of `e` and data from which `push todo` pushes the arguments of `e`.

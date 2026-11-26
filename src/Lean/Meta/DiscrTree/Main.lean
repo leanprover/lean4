@@ -588,4 +588,58 @@ where
     else
       return if skip == 0 && todo.isEmpty then result.push v else result
 
+/-- Returns whether `getUnify d e` contains a value satisfying `p`, without collecting the values. -/
+partial def hasUnify (d : DiscrTree α) (e : Expr) (p : α → Bool) : MetaM Bool :=
+  withReducible do
+    let (k, args) ← getUnifyKeyArgs e (root := true)
+    match k with
+    | .star => d.root.foldlM (init := false) fun found k c =>
+      if found then pure true else go k.arity #[] c
+    | _ =>
+      if (getStarResult d).any p then return true
+      match d.root.find? k with
+      | none   => return false
+      | some c => go 0 args c
+where
+  go (skip : Nat) (todo : Array Expr) (c : Trie α) : MetaM Bool := do
+    if let .suffix ks i v := c then
+      return p v && (← goSuffix skip todo ks i)
+    match skip with
+    | skip+1 => c.anyChildrenM fun k c => go (skip + k.arity) todo c
+    | 0 =>
+      if todo.isEmpty then
+        return c.nodeValues.any p
+      if !c.hasChildren then
+        return false
+      let e     := todo.back!
+      let todo  := todo.pop
+      let (k, args) ← getUnifyKeyArgs e (root := false)
+      match k with
+      | .star  => c.anyChildrenM fun k c => go k.arity todo c
+      | _      =>
+        if let some c := c.starChild? then
+          if (← go 0 todo c) then return true
+        match c.findChild? k with
+        | some c => go 0 (todo ++ args) c
+        | none   => return false
+  goSuffix (skip : Nat) (todo : Array Expr) (ks : Array Key) (i : Nat) : MetaM Bool := do
+    if h : i < ks.size then
+      let key := ks[i]
+      match skip with
+      | skip+1 => goSuffix (skip + key.arity) todo ks (i + 1)
+      | 0 =>
+        if todo.isEmpty then
+          return false
+        let e     := todo.back!
+        let todo  := todo.pop
+        let (k, args) ← getUnifyKeyArgs e (root := false)
+        match k with
+        | .star  => goSuffix key.arity todo ks (i + 1)
+        | _      =>
+          if key == .star then goSuffix 0 todo ks (i + 1)
+          else if key == k then goSuffix 0 (todo ++ args) ks (i + 1)
+          else return false
+    else
+      return skip == 0 && todo.isEmpty
+
 end Lean.Meta.DiscrTree

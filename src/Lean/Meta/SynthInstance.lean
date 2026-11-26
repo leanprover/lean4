@@ -13,6 +13,7 @@ public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
 import Lean.Util.CollectFVars
+import Lean.Meta.FunInfo
 
 public section
 namespace Lean.Meta
@@ -700,8 +701,55 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   else
     return none
 
+/-- Returns whether the head of `e` is an unassigned metavariable that resolution cannot assign. -/
+private def hasReadOnlyMVarHead (e : Expr) : MetaM Bool := do
+  let .mvar mvarId := e.getAppFn | return false
+  return !(← mvarId.isAssignable) && !(← mvarId.isAssigned) && !(← mvarId.isDelayedAssigned)
+
+/--
+Returns whether the root goal `type` is to be reported as stuck without a search: an explicit
+argument is a type or type constructor whose head is a metavariable resolution cannot assign, as
+in `LE ?α`, `Monad ?m` or `LE (?f a)`, and there is an instance that may unify with `type`. This
+is the condition under which `isDefEq` gets stuck on the argument.
+
+Implicit arguments are not considered: classes such as `Trans` are resolved while the types of their
+explicit arguments are unknown.
+
+Almost every such search ends up stuck, when it reaches an instance that has to assign the
+metavariable, but only after collecting all instances of the class. Where one would succeed, the
+goal is resolved once the metavariable is assigned instead.
+-/
+private def isStuckOnMVarArg (type : Expr) : MetaM Bool := do
+  let fn := type.getAppFn
+  let .const className _ := fn | return false
+  let args := type.getAppArgs
+  unless (← args.anyM hasReadOnlyMVarHead) do return false
+  unless isClass (← getEnv) className do return false
+  let infos := (← getFunInfoNArgs fn args.size).paramInfo
+  let typeMVar ← (Array.range args.size).anyM fun i => do
+    let a := args[i]!
+    unless (← hasReadOnlyMVarHead a) do return false
+    if h : i < infos.size then
+      unless infos[i].isExplicit do return false
+    isTypeFormer a
+  unless typeMVar do return false
+  -- as in `getInstancesLazy`, so that an enclosing query records the same dependencies
+  recordLocalInstClass className
+  recordInstClassChanges className (getInstanceClassChanges (← getEnv) className)
+  -- Without an instance to try, resolution fails instead.
+  if (← getLocalInstances).any (·.className == className) then return true
+  let erasedInstances ← getErasedInstances
+  let env ← getEnv
+  -- as in `getInstancesLazy`
+  (← getGlobalInstancesIndex).hasUnify type fun e => match e.val with
+    | .const constName _ => !erasedInstances.contains constName && !(env.isExporting && !env.contains constName)
+    | _ => true
+
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
+     if (← isStuckOnMVarArg type) then
+       trace[Meta.synthInstance] "stuck on a metavariable argument"
+       Meta.throwIsDefEqStuck
      let mvar ← mkFreshExprMVar type
      let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do

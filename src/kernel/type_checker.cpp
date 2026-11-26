@@ -458,6 +458,14 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
+    return whnf_core_cached(e, cheap_rec, cheap_proj, true);
+}
+
+/* Each reduction step below ends in a tail call whose result is also the result of `e`. Only the
+   first term of such a chain (`cache = true`) gets a cache entry: the intermediate terms are
+   fresh, large and almost never looked up again, but keeping them would retain them until the
+   end of the declaration. */
+expr type_checker::whnf_core_cached(expr const & e, bool cheap_rec, bool cheap_proj, bool cache) {
     scope_rec_depth guard;
     check_system("type checker: whnf", /* do_check_interrupted */ true);
 
@@ -468,7 +476,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
     case expr_kind::Lit:
         return e;
     case expr_kind::MData:
-        return whnf_core(mdata_expr(e), cheap_rec, cheap_proj);
+        return whnf_core_cached(mdata_expr(e), cheap_rec, cheap_proj, cache);
     case expr_kind::FVar:
         if (is_let_fvar(m_lctx, e))
             break;
@@ -495,7 +503,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
         return whnf_fvar(e, cheap_rec, cheap_proj);
     case expr_kind::Proj: {
         if (auto m = reduce_proj(e, cheap_rec, cheap_proj))
-            r = whnf_core(*m, cheap_rec, cheap_proj);
+            r = whnf_core_cached(*m, cheap_rec, cheap_proj, false);
         else
             r = e;
         break;
@@ -512,8 +520,8 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
                 m++;
             }
             lean_assert(m <= num_args);
-            r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()),
-                          cheap_rec, cheap_proj);
+            r = whnf_core_cached(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()),
+                                 cheap_rec, cheap_proj, false);
         } else if (f == f0) {
             if (auto r = reduce_recursor(e, cheap_rec, cheap_proj)) {
                 if (m_diag) {
@@ -522,21 +530,21 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
                         m_diag->record_unfold(const_name(f));
                 }
                 /* iota-reduction and quotient reduction rules */
-                return whnf_core(*r, cheap_rec, cheap_proj);
+                return whnf_core_cached(*r, cheap_rec, cheap_proj, false);
             } else {
                 return e;
             }
         } else {
-            r = whnf_core(mk_rev_app(f, args.size(), args.data()), cheap_rec, cheap_proj);
+            r = whnf_core_cached(mk_rev_app(f, args.size(), args.data()), cheap_rec, cheap_proj, false);
         }
         break;
     }
     case expr_kind::Let:
-        r = whnf_core(instantiate(let_body(e), let_value(e)), cheap_rec, cheap_proj);
+        r = whnf_core_cached(instantiate(let_body(e), let_value(e)), cheap_rec, cheap_proj, false);
         break;
     }
 
-    if (!cheap_rec && !cheap_proj) {
+    if (cache && !cheap_rec && !cheap_proj) {
         m_st->m_whnf_core.insert(mk_pair(e, r));
     }
     return r;

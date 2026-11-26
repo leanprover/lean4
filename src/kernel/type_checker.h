@@ -63,6 +63,7 @@ private:
     names const *             m_lparams;
 
     expr ensure_sort_core(expr e, expr const & s);
+    expr whnf_core_cached(expr const & e, bool cheap_rec, bool cheap_proj, bool cache);
     expr ensure_pi_core(expr e, expr const & s);
     void check_level(level const & l);
     expr infer_fvar(expr const & e);

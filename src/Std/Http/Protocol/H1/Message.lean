@@ -139,6 +139,37 @@ instance : Internal.Encode .v11 (Message.Head dir) :=
   | .receiving => inferInstanceAs (Internal.Encode .v11 Request.Head)
   | .sending => inferInstanceAs (Internal.Encode .v11 Response.Head)
 
+/--
+Whether an `Expect` field line lists the expectation `100-continue`, compared case-insensitively. The
+line is split at the commas outside quoted strings (RFC 9110 §5.6.1, §5.6.4), so neither a member
+with a value (`100-continue=x`) nor one inside a quoted string (`a="b, 100-continue"`) matches.
+-/
+private def listsContinue (value : String) : Bool :=
+  let isContinue (member : String) := member.trimAscii.toString.toLower == "100-continue"
+  let (found, last, _, _) := value.foldl (init := (false, "", false, false))
+    fun (found, member, quoted, escaped) c =>
+      if escaped then (found, member.push c, quoted, false)
+      else if quoted && c == '\\' then (found, member.push c, quoted, true)
+      else if c == '"' then (found, member.push c, !quoted, false)
+      else if c == ',' && !quoted then (found || isContinue member, "", false, false)
+      else (found, member.push c, quoted, false)
+  found || isContinue last
+
+/--
+Returns `true` when the `Expect` field lines, which form one list (RFC 9110 §5.3), have the member
+`100-continue` (RFC 9110 §10.1.1). Other expectations are ignored.
+
+RFC 9110 §15.2: Since HTTP/1.0 did not define any 1xx status codes, a server MUST NOT send a 1xx response
+to an HTTP/1.0 client.
+-/
+def Message.Head.hasExpectContinue (message : Message.Head dir) : Bool :=
+  if message.version != .v11 then
+    false
+  else
+    match message.headers.getAll? Header.Name.expect with
+    | some values => values.any (listsContinue ·.value)
+    | none => false
+
 instance : EmptyCollection (Message.Head dir) where
   emptyCollection :=
     match dir with

@@ -104,6 +104,7 @@ placeholder of a `def` or `theorem` of that kind in the public file of a split m
 -/
 private def elabAxiomCore (modifiers : Modifiers) (stx declId binders typeStx : Syntax)
     (deferredKind? : Option ConstantKind := none) : CommandElabM Unit := do
+  let sc ← getScope
   runTermElabM fun vars => do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨shortName, declName, allUserLevelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
@@ -119,7 +120,11 @@ private def elabAxiomCore (modifiers : Modifiers) (stx declId binders typeStx : 
       let xs ← Term.addAutoBoundImplicits xs (declId.getTailPos? (canonicalOnly := true))
       let type ← instantiateMVars type
       let type ← mkForallFVars xs type
-      let type ← mkForallFVars vars type (usedOnly := true)
+      let type ← if deferredKind?.isSome then
+          -- like the header of a theorem, as the body is not known
+          Term.withSecVarsUsedBy vars sc #[type] (mkForallFVars · type)
+        else
+          mkForallFVars vars type (usedOnly := true)
       let type ← Term.levelMVarToParam type
       let usedParams  := collectLevelParams {} type |>.params
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with

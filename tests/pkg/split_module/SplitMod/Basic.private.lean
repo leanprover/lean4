@@ -24,3 +24,20 @@ def addK (n : Fin k) : Nat := n + k + privHelper
 end
 
 private theorem implOnly : f 0 = 1 := rfl
+
+section
+variable {β : Type _} (q : β → Prop) (hq : ∀ b, q b)
+include hq
+
+theorem allQ (b : β) : q b := hq b
+end
+
+theorem addZero : (n : Nat) → n + 0 = n
+  | 0 => rfl
+  | n + 1 => congrArg (· + 1) (addZero n)
+termination_by n => n
+
+-- Not exported, unlike in a single-file module.
+structure Impl where
+  x : Nat
+deriving Repr

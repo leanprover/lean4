@@ -457,7 +457,7 @@ private def declValToWhereFinally (declVal : Syntax) : TermElabM WhereFinallyVie
 
 /--
 Runs `k` with a restricted local context where only section variables from `vars` are included that
-* are directly referenced in any `headers`,
+* are directly referenced in any of `types`,
 * are included in `sc.includedVars` (via the `include` command),
 * are directly referenced in any variable included by these rules, OR
 * are instance-implicit variables that only reference section variables included by these rules AND
@@ -466,7 +466,7 @@ Runs `k` with a restricted local context where only section variables from `vars
 
 If `check` is false, no exceptions will be produced.
 -/
-private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
+def withSecVarsUsedBy {α} (vars : Array Expr) (sc : Command.Scope) (types : Array Expr)
     (k : Array Expr → TermElabM α) (check := true) : TermElabM α := do
   let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
@@ -477,7 +477,7 @@ private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (hea
 where
   collectUsed revSectionFVars : StateRefT CollectFVars.State MetaM Unit := do
     -- directly referenced in headers
-    headers.forM (·.type.collectFVars)
+    types.forM (·.collectFVars)
     -- included by `include`
     for var in vars do
       if let some uid := revSectionFVars[var.fvarId!]? then
@@ -502,6 +502,12 @@ where
         modify (·.add ldecl.fvarId)
   getFVars (e : Expr) : MetaM (Array FVarId) :=
     (·.2.fvarIds) <$> e.collectFVars.run {}
+
+/-- `withSecVarsUsedBy` for the types of `headers`. -/
+private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope)
+    (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) (check := true) :
+    TermElabM α :=
+  withSecVarsUsedBy vars sc (headers.map (·.type)) k check
 
 register_builtin_option deprecated.oldSectionVars : Bool := {
   defValue := false
@@ -1229,10 +1235,10 @@ where
     if header.kind != expectedKind then
       throwErrorAt header.declId "'{header.declName}' is declared as a \
         {if deferred.kind matches .thm then "theorem" else "definition"} in the public file"
-    let usedVars := vars.filter fun x => header.type.containsFVar x.fvarId!
+    -- the section variables of a theorem; see `elabAxiomCore`
+    let usedVars ← withSecVarsUsedBy vars sc #[header.type] (check := false) pure
     let type ← mkForallFVars usedVars header.type
-    let expected := deferred.type
-    unless (← isDefEq type expected) do
+    unless (← isDefEq type deferred.type) do
       throwErrorAt header.declId "type mismatch: '{header.declName}' has type{indentExpr type}\n\
         but is declared with type{indentExpr deferred.type}"
     modifyEnv (SplitModule.setDeferredDeclState · header.declName .filled)
@@ -1246,6 +1252,9 @@ where
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       let declId ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       if let some deferred := SplitModule.findSupplied? (← getEnv) declId.declName then
+        if view.type?.isSome then
+          -- Not needed for elaboration; would rename auto-bound universe parameters
+          return declId
         -- Make the universe parameters of the declared type available
         let levelNames := deferred.levelParams.foldl (init := declId.levelNames) fun ns n =>
           if ns.contains n then ns else ns ++ [n]

@@ -148,8 +148,9 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
       return (← doAdd)
 
   if let some deferred := SplitModule.findSupplied? (← getEnv) name then
-    -- The exported form must be identical to the placeholder from the public file.
-    unless kind == deferred.kind && info.levelParams == deferred.levelParams &&
+    -- The exported form must be identical to the placeholder from the public file. Recursive
+    -- declarations are temporarily added as axioms while elaborating them.
+    unless (kind == deferred.kind || kind == .axiom) && info.levelParams == deferred.levelParams &&
         info.type == deferred.type do
       throwError "implementation of '{name}' does not match its declaration in the public file: \
         expected {repr deferred.kind} with universe parameters {deferred.levelParams} and \

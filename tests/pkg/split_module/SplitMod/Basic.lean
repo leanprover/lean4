@@ -24,3 +24,14 @@ public def addK (n : Fin k) : Nat
 end
 
 def privHelper : Nat := 3
+
+section
+variable {β : Type _} (q : β → Prop) (hq : ∀ b, q b)
+include hq
+
+/-- Auto-bound universe and `include`d section variable. -/
+public theorem allQ (b : β) : q b
+end
+
+/-- Proved by well-founded recursion in the private file. -/
+public theorem addZero (n : Nat) : n + 0 = n

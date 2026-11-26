@@ -269,8 +269,8 @@ register_builtin_option meta.restrict : Bool := {
     As this option is implemented best-effort given the large surface of potential for \
     effects through existing metaprograms, including those imported from dependencies \
     outside Lean itself, it cannot and does not aim to obviate the need for operating \
-    system-level sandboxing of untrusted code but any known defects will be handled as \
-    high-priority issues and fixed.\n\n\
+    system-level sandboxing of untrusted code but any known defects (in the `lean4` \
+    repository) will be handled as high-priority issues and fixed.\n\n\
     This option takes effect only when passed on the command line or via the module \
     setup; `set_option` cannot enable or disable it."
 }

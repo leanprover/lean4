@@ -55,8 +55,10 @@ def child : List String → IO Unit
     let client ← TCP.Socket.new
     discard <| IO.ofExcept (← await (← client.connect (.v4 (.mk (.ofParts 127 0 0 1) port.toNat!.toUInt16))))
     let send ← client.send #[ByteArray.mk (Array.replicate size 1)]
-    discard <| IO.mapTask (sync := true) (fun _ => m.lock) send.result?
+    -- Taken first, since the send may already be done (Windows accepts a whole write while its send
+    -- buffer has room): its continuation then blocks `main` instead of keeping the mutex.
     exitHolding m 5
+    discard <| IO.mapTask (sync := true) (fun _ => m.lock) send.result?
   | args => throw <| .userError s!"unknown arguments {args}"
 
 /-- Reads until the connection ends, slowly at first so that the send is still pending when the child's

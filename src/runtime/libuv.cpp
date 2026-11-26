@@ -220,9 +220,30 @@ extern "C" LEAN_EXPORT void lean_uv_stop() {
     stop_libuv(true, g_uv_flush_timeout_ms);
 }
 
+#ifdef LEAN_WINDOWS
+// Windows resets a socket that is still open when the process ends, discarding what completed writes
+// left in its send buffer, while `closesocket` keeps sending it after the process ends. Sockets closed
+// earlier stay as they are: their writes were cancelled. Called with the loop lock held for good.
+static void close_sockets_for_exit() {
+    if (global_ev.m_loop == nullptr) return;
+    uv_walk(global_ev.m_loop, [](uv_handle_t * handle, void *) {
+        uv_os_fd_t fd;
+        if (handle->type == UV_TCP && !uv_is_closing(handle) && uv_fileno(handle, &fd) == 0) {
+            closesocket((SOCKET)fd);
+        }
+    }, nullptr);
+}
+#endif
+
 extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit(uint32_t grace_period_ms) {
-    return stop_libuv(false, grace_period_ms)
-        && global_ev.stop_for_exit(exit_lock_deadline(grace_period_ms));
+    if (!stop_libuv(false, grace_period_ms)
+        || !global_ev.stop_for_exit(exit_lock_deadline(grace_period_ms))) {
+        return false;
+    }
+#ifdef LEAN_WINDOWS
+    close_sockets_for_exit();
+#endif
+    return true;
 }
 
 // Whether a closed handle still waits for its close callback.

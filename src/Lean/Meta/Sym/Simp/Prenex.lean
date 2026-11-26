@@ -72,8 +72,12 @@ public def minscope : Simproc := fun e => do
     | _ => return .rfl
   | _ =>
     let .forallE n α b info := e | return .rfl
-    unless b.hasLooseBVars do return .rfl
     let lvl ← Sym.getLevel α
+    unless b.hasLooseBVars do
+      if (← isProp α) then return .rfl
+      let some inst ← synthNonempty? α | return .rfl
+      let proof := (mkApp3 (mkConst ``propext) e b (mkApp3 (mkConst ``forall_const [lvl]) b α inst))
+      return .step b proof
     match_expr b with
     | And p r =>
       if !r.hasLooseBVars || !p.hasLooseBVars then

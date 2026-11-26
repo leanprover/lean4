@@ -462,13 +462,15 @@ lean_object* v___x_113_; lean_object* v___x_114_; lean_object* v___x_115_; lean_
 v___x_113_ = lean_unsigned_to_nat(0u);
 v___x_114_ = l_Lean_Options_empty;
 v___x_115_ = ((lean_object*)(l_Lake_Package_mkConfigString___closed__19));
-v___x_116_ = lean_alloc_ctor(0, 6, 0);
+v___x_116_ = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(v___x_116_, 0, v___x_115_);
 lean_ctor_set(v___x_116_, 1, v___x_114_);
 lean_ctor_set(v___x_116_, 2, v___x_115_);
 lean_ctor_set(v___x_116_, 3, v___x_113_);
 lean_ctor_set(v___x_116_, 4, v___x_113_);
 lean_ctor_set(v___x_116_, 5, v___x_113_);
+lean_ctor_set(v___x_116_, 6, v___x_115_);
+lean_ctor_set(v___x_116_, 7, v___x_115_);
 return v___x_116_;
 }
 }

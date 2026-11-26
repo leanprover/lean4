@@ -146,6 +146,7 @@ where
     |>.insert ``packageAttr
     |>.insert ``packageDepAttr
     |>.insert ``postUpdateAttr
+    |>.insert ``cacheServiceAttr
     |>.insert ``scriptAttr
     |>.insert ``defaultScriptAttr
     |>.insert ``leanLibAttr

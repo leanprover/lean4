@@ -1,6 +1,8 @@
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Tests for framing the exception channel.
 
@@ -41,7 +43,7 @@ def HProp : Type := Heap → Prop
 instance : Lean.Order.CompleteLattice HProp :=
   inferInstanceAs (Lean.Order.CompleteLattice (Heap → Prop))
 
-instance : Std.WP.Assertion HProp := inferInstanceAs (Std.WP.Assertion (Heap → Prop))
+instance : Lean.Order.CompleteLattice HProp := inferInstanceAs (Lean.Order.CompleteLattice (Heap → Prop))
 
 /-- The cell `l` holds `v`, and nothing else is owned. -/
 def pointsTo (l : Addr) (v : Nat) : HProp := fun h => h = Heap.single l v
@@ -86,9 +88,7 @@ inductive Prog | skip | exit
 /-- The base wp: `skip` hands the heap to the postcondition, `exit` to the exception
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
-  trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
-  trans_monotone x := by
-    intro Q Q' E E' hE hQ
+  trans x := PredTrans.mk (fun Q E => (match x with | .skip => Q () | .exit => E)) fun hQ hE => by
     cases x
     · exact hQ ()
     · exact hE
@@ -174,7 +174,7 @@ companion is the pointwise meet on the exception layer and the ignoring companio
 tail. -/
 @[grind .]
 theorem frames_bumpOrThrow {F P : AppState → Prop}
-    (h : ∀ s a, F { s with fst := a } = F s) :
+    (h : ∀ a b, F (a, b) = F (0, b)) :
     WP.Frames meet (bumpOrThrow : MEx Nat) F P := by
   refine WP.frames_of_conjunctive (PartialOrder.rel_trans (meet_le_right _ _) ?_) ?_
   · vcgen [bumpOrThrow] with finish

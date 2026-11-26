@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Lean
 import Std.WP
 
+set_option sym.debug true
+
 set_option experimental.vcgen true
 set_option grind.warning false
 
@@ -503,9 +505,12 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
-noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
-  WPMonad.withFrameClosure (m := StateM Heap) sepConj
-    sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl) StateT.instWPMonad
+noncomputable instance HeapM.instWPMonad : MonadicWP HeapM HProp EStack⟨⟩ :=
+  ⟨fun α => WP.withFrameClosure (Prog := StateM Heap α) sepConj inferInstance⟩
+
+instance : MonadicWP.IsLaxDistrib HeapM :=
+  MonadicWP.isLaxDistrib_withFrameClosure (m := StateM Heap) sepConj
+    sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl)
 
 /-- Every `HeapM` program frames every heap assertion `F`, under every guard `P`. -/
 @[grind .]
@@ -1498,7 +1503,7 @@ loop is at, so that index is in bounds. -/
 /-- Extending the prefix by one element adds that element to the sum. -/
 @[grind =] theorem sum_take_succ (xs : List Nat) (i : Nat) (h : i < xs.length) :
     (xs.take (i + 1)).sum = xs[i]! + (xs.take i).sum := by
-  rw [List.take_succ, List.sum_append, List.getElem?_eq_getElem h]
+  rw [List.take_add_one, List.sum_append, List.getElem?_eq_getElem h]
   simp [getElem!_pos, h]
   grind
 

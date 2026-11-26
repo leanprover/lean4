@@ -233,6 +233,9 @@ where
       (id : TSyntax `ident)
       (minIndexable : Bool) : GrindTacticM (Array EMatchTheorem) := do
     let declName ← realizeGlobalConstNoOverloadWithInfo id
+    -- Definitions are unfolded, acting on occurrences that are already in the goal.
+    unless (← isDefn? declName).isSome do
+      Linter.checkDeprecatedAt id declName
     let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
     match kind with
     | .ematch .user =>
@@ -502,9 +505,11 @@ where
   let `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) := stx | throwUnsupportedSyntax
   let goal ← getMainGoal
   let recover := (← read).recover
-  discard <| Tactic.run goal.mvarId <| withCaseRef arr seq <| Tactic.closeUsingOrAdmit
-    <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr])
-    <| Tactic.withRecover recover <| evalTactic seq
+  -- `withRecover` must enclose `closeUsingOrAdmit`, which admits the goal on failure only when
+  -- recovery is enabled; `Tactic.run` alone starts with recovery enabled.
+  discard <| Tactic.run goal.mvarId <| Tactic.withRecover recover <| withCaseRef arr seq
+    <| Tactic.closeUsingOrAdmit <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr])
+    <| evalTactic seq
   replaceMainGoal []
 
 @[builtin_grind_tactic «first»] partial def evalFirst : GrindTactic := fun stx => do

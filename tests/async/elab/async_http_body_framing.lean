@@ -80,12 +80,14 @@ open Std Http Internal Test
     (handler := okHandler)
     (expect := (assertExact · r400))
 
-  check "TE: malformed token list (leading comma) → 400"
+  -- RFC 9110 §5.6.1.2: a recipient ignores empty list elements
+  check "TE: empty list element before chunked is ignored"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: ,chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
-    (handler := okHandler)
-    (expect := (assertExact · r400))
+    (handler := echoHandler)
+    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
 
-  check "TE: duplicate header lines with unsupported coding → 400"
+  -- RFC 9110 §5.3: the field lines combine into `chunked, gzip`, whose final coding is not chunked
+  check "TE: field lines chunked then gzip → 400"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nTransfer-Encoding: gzip\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
     (expect := (assertExact · r400))
@@ -101,16 +103,49 @@ open Std Http Internal Test
     (handler := okHandler)
     (expect := (assertExact · r400))
 
-#eval runGroup "RFC 9112 §6.1: Transfer-Encoding accepted cases" do
-  check "gzip, chunked accepted — chunked is last"
+#eval runGroup "RFC 9112 §6.1: Transfer-Encoding codings" do
+  -- §6.1: a server answers a transfer coding it does not understand with 501; only `chunked` is
+  -- decoded, so the handler never sees a body still coded with another coding
+  check "gzip, chunked → 501, handler not run"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
-    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
+    (expect := (assertExact · r501))
 
-  check "br, chunked accepted"
+  -- RFC 9110 §5.3: the same codings over two field lines are the same list
+  check "gzip and chunked on two field lines → 501"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := echoHandler)
+    (expect := (assertExact · r501))
+
+  check "br, chunked → 501"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: br, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
+    (expect := (assertExact · r501))
+
+  -- A coding the handler decodes itself reaches it with the chunked framing removed and the field
+  -- that names the codings left
+  check "gzip, chunked accepted when listed in acceptedTransferCodings"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := fun req => do
+      let te := match req.line.headers.getAll? Header.Name.transferEncoding with
+        | some vs => String.intercalate "|" (vs.map (fun (v : Header.Value) => v.value) |>.toList)
+        | none => "<none>"
+      let body : String ← req.body.readAll
+      Response.ok |>.text s!"{te};{body}")
+    (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
+    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "gzip, chunked;hello")
+
+  check "gzip and chunked on two field lines accepted when gzip is listed"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := echoHandler)
+    (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
     (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "hello")
+
+  check "br, chunked → 501 when only gzip is accepted"
+    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: br, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
+    (handler := echoHandler)
+    (config := { defaultConfig with acceptedTransferCodings := #["gzip"] })
+    (expect := (assertExact · r501))
 
   check "mixed-case Chunked accepted (codings are lowercased)"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: Chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
@@ -121,15 +156,6 @@ open Std Http Internal Test
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked \x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
     (handler := echoHandler)
     (expect := fun r => assertStatus r "HTTP/1.1 200")
-
-  check "gzip+chunked chain is visible to handler in TE header"
-    (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: gzip, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n")
-    (handler := fun req => do
-      let te := match req.line.headers.getAll? Header.Name.transferEncoding with
-        | some vs => String.intercalate "|" (vs.map (·.value) |>.toList)
-        | none => "<none>"
-      Response.ok |>.text te)
-    (expect := fun r => assertStatus r "HTTP/1.1 200" *> assertContains r "gzip, chunked")
 
 -- RFC 9112 §6.3: Content-Length
 
@@ -142,7 +168,7 @@ open Std Http Internal Test
   check "very large Content-Length → 413"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 99999999999999999999\x0d\nConnection: close\x0d\n\x0d\nhello")
     (handler := echoHandler)
-    (expect := fun r => assertStatus r "HTTP/1.1 413")
+    (expect := (assertExact · r413))
 
   check "duplicate Content-Length same value → 400"
     (raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\n\x0d\nhello")

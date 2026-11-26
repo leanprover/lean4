@@ -64,6 +64,7 @@ _start:
 lean_object* v___x_10_; uint64_t v___x_11_; 
 v___x_10_ = lean_unsigned_to_nat(2147483648u);
 v___x_11_ = lean_int64_of_nat(v___x_10_);
+lean_dec(v___x_10_);
 return v___x_11_;
 }
 }

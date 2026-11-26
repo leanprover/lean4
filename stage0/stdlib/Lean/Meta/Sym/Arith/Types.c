@@ -207,16 +207,17 @@ lean_object* v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; lean_obj
 v___x_23_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2, &l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2);
 v___x_24_ = lean_box(0);
 v___x_25_ = l_Lean_Meta_Sym_Arith_instInhabitedRing_default;
-v___x_26_ = lean_alloc_ctor(0, 9, 0);
+v___x_26_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_26_, 0, v___x_25_);
 lean_ctor_set(v___x_26_, 1, v___x_24_);
 lean_ctor_set(v___x_26_, 2, v___x_24_);
 lean_ctor_set(v___x_26_, 3, v___x_24_);
-lean_ctor_set(v___x_26_, 4, v___x_23_);
+lean_ctor_set(v___x_26_, 4, v___x_24_);
 lean_ctor_set(v___x_26_, 5, v___x_23_);
-lean_ctor_set(v___x_26_, 6, v___x_24_);
+lean_ctor_set(v___x_26_, 6, v___x_23_);
 lean_ctor_set(v___x_26_, 7, v___x_24_);
 lean_ctor_set(v___x_26_, 8, v___x_24_);
+lean_ctor_set(v___x_26_, 9, v___x_24_);
 return v___x_26_;
 }
 }

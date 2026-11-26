@@ -100,16 +100,16 @@ where
     mkApp3 (mkConst ``BVPred.getLsbD) (toExpr w) (toExpr expr) (toExpr idx)
 
 
-instance [ToExpr α] : ToExpr (BoolExpr α) where
+instance : ToExpr BVLogicalExpr where
   toExpr x := go x
-  toTypeExpr := mkApp (mkConst ``BoolExpr) (toTypeExpr α)
+  toTypeExpr := mkConst ``BVLogicalExpr
 where
-  go : (BoolExpr α) → Expr
-    | .literal lit => mkApp2 (mkConst ``BoolExpr.literal) (toTypeExpr α) (toExpr lit)
-    | .const b => mkApp2 (mkConst ``BoolExpr.const) (toTypeExpr α) (toExpr b)
-    | .not x => mkApp2 (mkConst ``BoolExpr.not) (toTypeExpr α) (go x)
-    | .gate g x y => mkApp4 (mkConst ``BoolExpr.gate) (toTypeExpr α) (toExpr g) (go x) (go y)
-    | .ite d l r => mkApp4 (mkConst ``BoolExpr.ite) (toTypeExpr α) (go d) (go l) (go r)
+  go : BVLogicalExpr → Expr
+    | .literal lit => mkApp (mkConst ``BVLogicalExpr.literal) (toExpr lit)
+    | .const b => mkApp (mkConst ``BVLogicalExpr.const) (toExpr b)
+    | .not x => mkApp (mkConst ``BVLogicalExpr.not) (go x)
+    | .gate g x y => mkApp3 (mkConst ``BVLogicalExpr.gate) (toExpr g) (go x) (go y)
+    | .ite d l r => mkApp3 (mkConst ``BVLogicalExpr.ite) (go d) (go l) (go r)
 
 
 open Lean.Meta
@@ -171,7 +171,13 @@ structure FunState where
   /--
   The function atoms with their congruence-relevant arguments abstracted as lambda binders.
   -/
-  patterns : Array Expr := #[]
+  patterns : Array Expr := {}
+
+/--
+The state associated with the EPR theory.
+-/
+structure EprState where
+  problem : EPR.EprBvProblem := {}
 
 /--
 Theory solver state.
@@ -181,6 +187,10 @@ structure TheoryState where
   State associated with the theory of uninterpreted functions (UF).
   -/
   funState : FunState := {}
+  /--
+  State associated with the EPR solver.
+  -/
+  eprState : EprState := {}
 
 /--
 The state of the reflection monad
@@ -330,10 +340,9 @@ namespace ReifyM
 /--
 Run a reflection computation as a `SymM` one.
 -/
-def run (m : ReifyM α) (hypotheses : Array Normalize.Hyp) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) :
-    Grind.GrindM α := do
+def run (m : ReifyM α) (hypotheses : Array Normalize.Hyp) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) (epr : EPR.EprBvProblem) : Grind.GrindM α := do
   let hypotheses ← hypotheses.mapM fun hyp => return { hyp with type := ← Sym.shareCommon hyp.type }
-  ReaderT.run m { hypotheses, config := cfg } |>.run' {}
+  ReaderT.run m { hypotheses, config := cfg } |>.run' { theoryState := { eprState := { problem := epr } }}
 
 /--
 Retrieve the atoms as pairs of their width and expression.

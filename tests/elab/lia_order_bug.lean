@@ -15,12 +15,9 @@ h : ¬1 ≤ k
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
+  [skipped] Irrelevant facts skipped, use `-filterFacts` to process them
     [prop] 2 ≤ k
     [prop] ¬1 ≤ k
-  [eqc] True propositions
-    [prop] 2 ≤ k
-  [eqc] False propositions
-    [prop] 1 ≤ k
 -/
 #guard_msgs in
 example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia +verbose

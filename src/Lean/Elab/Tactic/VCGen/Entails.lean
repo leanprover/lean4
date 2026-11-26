@@ -39,6 +39,13 @@ public def unfoldTriple (goal : MVarId) : VCGenM MVarId := do
     | throwError "Failed to unfold the Triple target of {goal}"
   return goal
 
+/-- The local `x` and the term `t` of an equation `x = t` whose `t` does not mention `x`. -/
+public def fvarEq? (φ : Expr) : Option (FVarId × Expr) := do
+  let_expr Eq _ x t := φ | none
+  let .fvar xId := x | none
+  if t.containsFVar xId then none
+  return (xId, t)
+
 /-- Decide whether `substEqHyp?` can substitute the equation `eqn` in the goal `eqn → G`.
 
 Consider this goal:
@@ -62,12 +69,11 @@ The result is `none` in these variations of the goal:
   of `hs` mentions `s`.
 * `s` is a `let` variable. -/
 def eqSubstCandidate? (eqn G : Expr) : VCGenM (Option (Expr × Expr × Expr × Bool)) := do
-  let eqn ← instantiateMVarsS eqn
-  let_expr Eq _ x t := eqn | return none
-  let .fvar fvarId := x | return none
+  let some (fvarId, t) := fvarEq? (← instantiateMVarsS eqn) | return none
+  let x := mkFVar fvarId
   let lctx ← getLCtx
   let some decl := lctx.find? fvarId | return none
-  if decl.isLet || t.containsFVar fvarId then return none
+  if decl.isLet then return none
   -- The `maxFVar` entries of `G` let `abstractFVarsRange` skip the subterms without `x`.
   let some maxFVarId ← getMaxFVar? G | return none
   if (← maxFVarId.getDecl).index < decl.index then return none
@@ -148,21 +154,6 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × Op
     pending := pending - 1
   return (goal, last?)
 
-/--
-Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
-selects. An exception postcondition is a tuple with one component per exception layer, so the head
-layer of `pre ⊑ eposts.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
-`.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
-`none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
-`Prod.fst` lattice split in `splitLatticeOp?`.
--/
-public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
-    VCGenM (Option MVarId) := do
-  unless rhs.isAppOf ``Prod.fst do return none
-  let some rhs' ← reduceHead? rhs | return none
-  let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs']
-  return some (← goal.replaceTargetDefEqFast newTarget)
-
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
 the clean pointwise `⇨` split instead of a generic frame for the excess state arguments. Returns `none` if the RHS is not a
@@ -174,9 +165,11 @@ def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     let some slice := args[2]? | return none
     unless slice.isAppOf ``Lean.Order.meet do return none
     let some Q := args[3]? | return none
-    let rhs' := mkAppN (← mkAppM ``Lean.Order.himp #[slice.appArg!, Q]) (args.extract 4 args.size)
+    let himp ← mkAppNS (← mkConstS ``Lean.Order.himp head.constLevels!)
+      #[args[0]!, args[1]!, slice.appArg!, Q]
+    let rhs' ← mkAppNS himp (args.extract 4 args.size)
     let target ← goal.getType
-    let newTarget := mkAppN target.getAppFn (target.getAppArgs.set! 3 rhs')
+    let newTarget ← mkAppNS target.getAppFn (target.getAppArgs.set! 3 rhs')
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--

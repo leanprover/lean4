@@ -1,0 +1,64 @@
+/-!
+Tests for the layout around syntax without a formatter that spans several lines. The formatter
+keeps the lines of such syntax, either relative to the start of the syntax or, if a line is to the
+left of the start, relative to the indentation. Which of the two applies can change when the
+output is formatted again, so the layout around the syntax must be the same in both cases: the
+syntax is not put on the line of the tokens before it where an aligned block would not be.
+-/
+
+syntax "same " term:max term:max : term
+
+macro_rules
+  | `(same $a $b) => `($a = $b)
+
+syntax:max "both " term:max term:max : term
+
+macro_rules
+  | `(both $a $b) => `($a + $b)
+
+def g (a : Nat) : Nat := a
+
+-- A line to the left of the start of the syntax.
+def inIf : Nat :=
+  if same 1
+    2 then
+    1
+  else
+    2
+
+-- All lines to the right of the start of the syntax.
+def inIfAligned : Nat :=
+  if same 1
+          2 then
+    1
+  else
+    2
+
+def inApp : Nat := g both 1
+  2
+
+def inAppAligned : Nat := g both 1
+                              2
+
+def inWhile : IO Unit := do
+  let mut i := 0
+  while both i
+    2 < 5 do
+    i := i + 1
+
+def inParens : Nat := (both 1
+  2) + 1
+
+theorem inType : same (both 1
+    2) 3 := rfl
+
+def afterAssignment : Nat := both 1
+  2
+
+-- The syntax starts its line.
+def onOwnLine : Nat :=
+  both 1
+    2
+
+-- Syntax on one line is not affected.
+def onOneLine : Nat := if same 1 2 then g both 1 2 else both 3 4

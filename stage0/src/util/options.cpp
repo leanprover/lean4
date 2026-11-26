@@ -35,12 +35,12 @@ extern "C" LEAN_EXPORT obj_res lean_internal_get_option_overrides(obj_arg) {
 extern "C" LEAN_EXPORT obj_res lean_options_get_empty(obj_arg u);
 options::options(): object_ref(lean_options_get_empty(box(0))) {}
 
-extern "C" LEAN_EXPORT bool lean_options_get_bool(obj_arg opts, obj_arg n, bool default_value);
+extern "C" LEAN_EXPORT uint8 lean_options_get_bool(obj_arg opts, obj_arg n, uint8 default_value);
 bool options::get_bool(name const & n, bool default_value) const {
     return lean_options_get_bool(this->to_obj_arg(), n.to_obj_arg(), default_value);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_options_update_bool(obj_arg opts, obj_arg n, bool v);
+extern "C" LEAN_EXPORT obj_res lean_options_update_bool(obj_arg opts, obj_arg n, uint8 v);
 options options::update(name const & n, bool v) const {
     return options(lean_options_update_bool(this->to_obj_arg(), n.to_obj_arg(), v));
 }

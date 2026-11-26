@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Elab.Tactic.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Simp.DiscrTree
+public import Lean.Elab.Tactic.VCGen.RIntroAttr
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
@@ -106,10 +107,14 @@ public structure Context where
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
   frameProcs : FrameProcs := {}
+  /-- The `@[vcgen_rintro]` rules, keyed by their conclusion. -/
+  rintros : DiscrTree RIntroEntry := .empty
   /-- The `Sym.simp` methods that rewrite hypotheses, state arguments and verification conditions
   with the `@[vcgen_simp]` theorems and those of the `simp [...]` clause. `none` when the `simp`
   config option is `false`. -/
   simpMethods : Option Sym.Simp.Methods := none
+  /-- The configuration of every `Sym.simp` run with `simpMethods`. -/
+  simpConfig : Sym.Simp.Config := {}
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
   whose body is a splitter and sets up shared-continuation handling instead of
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
@@ -133,11 +138,17 @@ public structure Context where
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
+  /-- The term elaboration context of the `vcgen` call, in which the `invariants` alternatives
+  elaborate. -/
+  termCtx : Term.Context := {}
+  /-- The universe parameter names of the enclosing declaration, in scope in the `invariants`
+  alternatives. -/
+  levelNames : List Name := []
   /-- The `until` pattern: when `some pat`, VC generation stops and emits the current goal as a VC
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
-/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+/-- A join point that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
   /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
   spec : Expr
@@ -168,27 +179,26 @@ public structure Scope where
   nextDeclIdx : Nat := 0
   /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
   joinPoints : FVarIdMap JoinPoint := {}
+  /-- The hypotheses `h : x = t`, stored as `x ↦ (t, h)`. Splitting adds them, and a later `match`
+  on `x` reduces with them. -/
+  splitEqs : FVarIdMap (Expr × FVarId) := {}
   deriving Inhabited
 
 public structure State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
-  The particular rule depends on the theorem name, the `WPMonad` instance and the number of
+  The particular rule depends on the theorem name, the `MonadicWP` instance and the number of
   excess state arguments that the weakest precondition target is applied to.
 
   The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
   This is sound because the instance is a subterm of the hash-consed goal target.
   -/
   specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
-  /--
-  A cache mapping matchers to their splitting backward rule to apply.
-  The particular rule depends on the matcher name, the monad and the number of excess state
-  arguments that the weakest precondition target is applied to.
-
-  The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
-  This is sound because the instance is a subterm of the hash-consed goal target.
-  -/
-  splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForSplit`, keyed by `(splitter name, instWP, excessArgs.size)`. -/
+  wpSplitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  /-- Cache for `mkBackwardRuleForAssertionSplit`, keyed by
+  `(splitter name, inPre, lattice instance, numStates)`. -/
+  assertionSplitBackwardRuleCache : Std.HashMap (Name × Bool × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping lattice connectives to their backward rule to apply, keyed by the `head … cₙ`
   prefix of constant arguments the rule bakes in verbatim and the total argument count that fixes the
@@ -198,9 +208,11 @@ public structure State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
+  /-- Caches the frame rule (`meet_op_wp_upperAdjoint_le_wp`), keyed by the `MonadicWP` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
+  /-- Caches the backward rules of the `@[vcgen_rintro]` rules, keyed by declaration name. -/
+  rintroBackwardRuleCache : Std.HashMap Name BackwardRule := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--
@@ -224,12 +236,6 @@ public structure State where
   `solve` short-circuits and emits the current goal as a VC.
   -/
   fuel : Lean.Elab.Tactic.Do.Fuel := .unlimited
-  /--
-  Set of invariant numbers that have been inline-elaborated by `Driver.emitVC` via
-  `tryInlineInvariant`. The post-hoc invariant elaboration in `Frontend` consults
-  this to know which user-provided alts have already been consumed (so it doesn't
-  warn about them). -/
-  inlineHandledInvariants : Std.HashSet Nat := {}
   /-- The join points whose RHS goal `vcgen` has yet to process, keyed by that goal, with their
   jumps so far. -/
   pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}
@@ -266,5 +272,12 @@ public def burnOne : VCGenM Unit :=
     | .limited (n+1) => .limited n
     | other => other }
 
+/-- Run `k` with `methods` and `Context.simpConfig` on the persistent simp state `State.simpState`.
+The state is taken out of `VCGenM`'s state for the run, so `k` updates it in place. -/
+public def runSimp (methods : Sym.Simp.Methods) (k : Sym.Simp.SimpM α) : VCGenM α := do
+  let st ← modifyGet fun s => (s.simpState, { s with simpState := {} })
+  let (a, st) ← Sym.Simp.SimpM.run k methods (← read).simpConfig st
+  modify fun s => { s with simpState := st }
+  return a
 
 end Lean.Elab.Tactic.VCGen

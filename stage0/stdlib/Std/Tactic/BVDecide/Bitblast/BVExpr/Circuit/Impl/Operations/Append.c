@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
-// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Sat.AIG.LawfulVecOperator import Init.Data.Nat.Order import Init.Data.Order.Lemmas
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Std.Internal.Sat.AIG.LawfulVecOperator import Init.Data.Nat.Order import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,9 @@ lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend___redArg(lean_object* v_aig_1_, lean_object* v_target_2_){
 _start:
 {
@@ -53,8 +56,54 @@ lean_dec_ref(v_inst_15_);
 return v_res_20_;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter___redArg(lean_object* v_target_21_, lean_object* v_h__1_22_){
+_start:
+{
+lean_object* v_lw_23_; lean_object* v_rw_24_; lean_object* v_lhs_25_; lean_object* v_rhs_26_; lean_object* v___x_27_; 
+v_lw_23_ = lean_ctor_get(v_target_21_, 0);
+lean_inc(v_lw_23_);
+v_rw_24_ = lean_ctor_get(v_target_21_, 1);
+lean_inc(v_rw_24_);
+v_lhs_25_ = lean_ctor_get(v_target_21_, 2);
+lean_inc_ref(v_lhs_25_);
+v_rhs_26_ = lean_ctor_get(v_target_21_, 3);
+lean_inc_ref(v_rhs_26_);
+lean_dec_ref(v_target_21_);
+v___x_27_ = lean_apply_5(v_h__1_22_, v_lw_23_, v_rw_24_, v_lhs_25_, v_rhs_26_, lean_box(0));
+return v___x_27_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter(lean_object* v_00_u03b1_28_, lean_object* v_inst_29_, lean_object* v_inst_30_, lean_object* v_newWidth_31_, lean_object* v_aig_32_, lean_object* v_motive_33_, lean_object* v_target_34_, lean_object* v_h__1_35_){
+_start:
+{
+lean_object* v_lw_36_; lean_object* v_rw_37_; lean_object* v_lhs_38_; lean_object* v_rhs_39_; lean_object* v___x_40_; 
+v_lw_36_ = lean_ctor_get(v_target_34_, 0);
+lean_inc(v_lw_36_);
+v_rw_37_ = lean_ctor_get(v_target_34_, 1);
+lean_inc(v_rw_37_);
+v_lhs_38_ = lean_ctor_get(v_target_34_, 2);
+lean_inc_ref(v_lhs_38_);
+v_rhs_39_ = lean_ctor_get(v_target_34_, 3);
+lean_inc_ref(v_rhs_39_);
+lean_dec_ref(v_target_34_);
+v___x_40_ = lean_apply_5(v_h__1_35_, v_lw_36_, v_rw_37_, v_lhs_38_, v_rhs_39_, lean_box(0));
+return v___x_40_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter___boxed(lean_object* v_00_u03b1_41_, lean_object* v_inst_42_, lean_object* v_inst_43_, lean_object* v_newWidth_44_, lean_object* v_aig_45_, lean_object* v_motive_46_, lean_object* v_target_47_, lean_object* v_h__1_48_){
+_start:
+{
+lean_object* v_res_49_; 
+v_res_49_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Append_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastAppend_match__1_splitter(v_00_u03b1_41_, v_inst_42_, v_inst_43_, v_newWidth_44_, v_aig_45_, v_motive_46_, v_target_47_, v_h__1_48_);
+lean_dec_ref(v_aig_45_);
+lean_dec(v_newWidth_44_);
+lean_dec_ref(v_inst_43_);
+lean_dec_ref(v_inst_42_);
+return v_res_49_;
+}
+}
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_AIG_LawfulVecOperator(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -67,7 +116,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Sat_AIG_LawfulVecOperator(builtin);
+res = runtime_initialize_Std_Internal_Sat_AIG_LawfulVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Order(builtin);
@@ -86,7 +135,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
-lean_object* initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_AIG_LawfulVecOperator(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
@@ -97,7 +146,7 @@ _G_initialized = true;
 res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_LawfulVecOperator(builtin);
+res = initialize_Std_Internal_Sat_AIG_LawfulVecOperator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Order(builtin);

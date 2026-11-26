@@ -47,7 +47,7 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
   let (expr, instMs) ← timeItMs (instantiateMVars mvar)
   -- Apply the `shareCommonPreDefs` structural sharing before sending the term to the
   -- kernel. If we don't do this, kernel checking time balloons.
-  let expr := Lean.ShareCommon.shareCommon expr
+  let expr := ShareCommon.shareCommon expr
   let (_, kernelMs) ← timeItMs (checkWithKernel expr)
   let label := s!"{goal.getPrefix}({n}):"
   let pad := "".pushn ' ' (24 - min label.length 24)

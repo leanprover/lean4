@@ -1,5 +1,5 @@
 
-structure SCore (α : Type) :=
+structure SCore (α : Type) where
 (x : α) (y : Nat)
 
 inductive M

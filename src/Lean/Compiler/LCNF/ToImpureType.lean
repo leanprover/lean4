@@ -47,7 +47,7 @@ earliest at the conversion from mono to impure.
 def impureIrrelevantType (type : Expr) : MetaM Bool := do
   let isVoidType type := do
     let type ← Meta.whnfD type
-    return type matches .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _)
+    return type matches .proj ``Subtype 0 (.app (.const ``ST.Internal.Void.nonemptyType []) _)
   Meta.isProp type <||> Meta.isTypeFormerType type <||> isVoidType type
 
 /-- Eagerly computes and persists the impure trivial-structure info of `declName`; see `compileDecls`. -/
@@ -336,8 +336,10 @@ public def compileInductives (typeNames : Array Name) : CoreM Unit := do
     setImpureType typeName
   for typeName in inductiveNames do  -- reads the type-level info above
     let .inductInfo iv ← getConstInfo typeName | unreachable!
+    let isPred ← Meta.MetaM.run' <| Meta.isPropFormerType iv.type
     for ctorName in iv.ctors do
       setOtherDeclMonoType ctorName
-      setCtorLayout ctorName
+      unless isPred do
+        setCtorLayout ctorName
 
 end Lean.Compiler.LCNF

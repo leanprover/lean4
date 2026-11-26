@@ -14,9 +14,10 @@ def nestedObjects (n : Nat) : String :=
   String.join (List.replicate n "{\"a\":") ++ "1" ++ String.ofList (List.replicate n '}')
 
 /-- Arrays and objects alternating, `n` levels deep. -/
-def nestedMixed : Nat → String
-  | 0 => "1"
-  | n + 1 => if n % 2 == 0 then "[" ++ nestedMixed n ++ "]" else "{\"a\":" ++ nestedMixed n ++ "}"
+def nestedMixed (n : Nat) : String :=
+  let levels := (List.range n).reverse
+  String.join (levels.map fun i => if i % 2 == 0 then "[" else "{\"a\":") ++ "1" ++
+    String.join (levels.reverse.map fun i => if i % 2 == 0 then "]" else "}")
 
 #guard (Json.parse (nestedArrays Json.Parser.maxDepth)).toOption.isSome
 #guard (Json.parse (nestedObjects Json.Parser.maxDepth)).toOption.isSome

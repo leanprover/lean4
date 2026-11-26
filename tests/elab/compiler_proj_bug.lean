@@ -1,4 +1,4 @@
-structure S :=
+structure S where
 (a : Nat) (h : a > 0) (b : Nat)
 
 def f (s : S) :=

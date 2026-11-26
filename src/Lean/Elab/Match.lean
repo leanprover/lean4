@@ -1273,7 +1273,7 @@ private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermEla
   elabMatchAux gen? discrStxs altViews matchOptMotive expectedType
 
 def isPatternVar (stx : Syntax) : TermElabM Bool := do
-  match (← resolveId? stx "pattern") with
+  match (← withoutCheckDeprecated <| resolveId? stx "pattern") with
   | none   => return isAtomicIdent stx
   | some f => match f with
     | Expr.const fName _ =>

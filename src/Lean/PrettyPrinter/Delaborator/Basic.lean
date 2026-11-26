@@ -118,14 +118,17 @@ unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
     evalKey := fun _ stx => do
       let stx ← Attribute.Builtin.getIdent stx
       let kind := stx.getId
-      if (← Elab.getInfoState).enabled && !kind.isAtomic && kind.getRoot == `app then
+      if !kind.isAtomic && kind.getRoot == `app then
         let c := kind.replacePrefix `app .anonymous
-        -- Create identifier dropping `app` prefix, for completions and term info
+        -- Create identifier dropping `app` prefix, for completions, term info, and deprecation hints
         let stx' := mkIdentFrom (mkNullNode (Syntax.identComponents stx).tail.toArray) c (canonical := true)
-        Elab.addCompletionInfo <| .id stx' c (danglingDot := false) (lctx := {}) (expectedType? := none)
+        if (← Elab.getInfoState).enabled then
+          Elab.addCompletionInfo <| .id stx' c (danglingDot := false) (lctx := {}) (expectedType? := none)
+          if (← getEnv).contains c then
+            recordExtraModUseFromDecl (isMeta := false) c
+            Elab.addConstInfo stx' c none
         if (← getEnv).contains c then
-          recordExtraModUseFromDecl (isMeta := false) c
-          Elab.addConstInfo stx' c none
+          Core.checkDeprecatedAt stx' c
       pure kind
   }
 
@@ -488,7 +491,9 @@ unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpande
     descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
-      let id ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      let idStx ← Attribute.Builtin.getIdent stx
+      let id ← Elab.realizeGlobalConstNoOverloadWithInfo idStx
+      Core.checkDeprecatedAt idStx id
       recordExtraModUseFromDecl (isMeta := false) id
       return id
   }

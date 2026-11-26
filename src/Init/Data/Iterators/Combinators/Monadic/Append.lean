@@ -135,7 +135,7 @@ section Finite
 variable {α₁ : Type w} {α₂ : Type w} {m : Type w → Type w'} {β : Type w}
 
 variable (α₁ α₂ m β) in
-def Append.Rel [Monad m] [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m] :
+private def Append.Rel [Monad m] [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m] :
     IterM (α := Append α₁ α₂ m β) m β → IterM (α := Append α₁ α₂ m β) m β → Prop :=
   InvImage
     (Prod.Lex
@@ -145,24 +145,24 @@ def Append.Rel [Monad m] [Iterator α₁ m β] [Iterator α₂ m β] [Finite α�
       | .fst it₁ it₂ => (some it₁, it₂)
       | .snd it₂ => (none, it₂))
 
-theorem Append.rel_of_fst [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private theorem Append.rel_of_fst [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Finite α₁ m] [Finite α₂ m] {it₁ it₁' : IterM (α := α₁) m β} {it₂ : IterM (α := α₂) m β}
     (h : it₁'.finitelyManySteps.Rel it₁.finitelyManySteps) :
     Append.Rel α₁ α₂ m β (it₁'.append it₂) (it₁.append it₂) := by
   exact Prod.Lex.left _ _ h
 
-theorem Append.rel_fstDone [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private theorem Append.rel_fstDone [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Finite α₁ m] [Finite α₂ m] {it₁ : IterM (α := α₁) m β} {it₂ : IterM (α := α₂) m β} :
     Append.Rel α₁ α₂ m β (IterM.Intermediate.appendSnd α₁ it₂) (it₁.append it₂) := by
   exact Prod.Lex.left _ _ trivial
 
-theorem Append.rel_of_snd [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private theorem Append.rel_of_snd [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Finite α₁ m] [Finite α₂ m] {it₂ it₂' : IterM (α := α₂) m β}
     (h : it₂'.finitelyManySteps.Rel it₂.finitelyManySteps) :
     Append.Rel α₁ α₂ m β (IterM.Intermediate.appendSnd α₁ it₂') (IterM.Intermediate.appendSnd α₁ it₂) := by
   exact Prod.Lex.right _ h
 
-def Append.instFinitenessRelation [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private def Append.instFinitenessRelation [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Finite α₁ m] [Finite α₂ m] :
     FinitenessRelation (Append α₁ α₂ m β) m where
   Rel := Append.Rel α₁ α₂ m β
@@ -200,7 +200,7 @@ section Productive
 variable {α₁ : Type w} {α₂ : Type w} {m : Type w → Type w'} {β : Type w}
 
 variable (α₁ α₂ m β) in
-def Append.ProductiveRel [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private def Append.ProductiveRel [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Productive α₁ m] [Productive α₂ m] :
     IterM (α := Append α₁ α₂ m β) m β → IterM (α := Append α₁ α₂ m β) m β → Prop :=
   InvImage
@@ -211,20 +211,20 @@ def Append.ProductiveRel [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
       | .fst it₁ it₂ => (some it₁, it₂)
       | .snd it₂ => (none, it₂))
 
-theorem Append.productiveRel_of_fst [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private theorem Append.productiveRel_of_fst [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Productive α₁ m] [Productive α₂ m] {it₁ it₁' : IterM (α := α₁) m β}
     {it₂ : IterM (α := α₂) m β}
     (h : it₁'.finitelyManySkips.Rel it₁.finitelyManySkips) :
     Append.ProductiveRel α₁ α₂ m β (it₁'.append it₂) (it₁.append it₂) := by
   exact Prod.Lex.left _ _ h
 
-theorem Append.productiveRel_fstDone [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private theorem Append.productiveRel_fstDone [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Productive α₁ m] [Productive α₂ m] {it₁ : IterM (α := α₁) m β}
     {it₂ : IterM (α := α₂) m β} :
     Append.ProductiveRel α₁ α₂ m β (IterM.Intermediate.appendSnd α₁ it₂) (it₁.append it₂) := by
   exact Prod.Lex.left _ _ trivial
 
-theorem Append.productiveRel_of_snd [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private theorem Append.productiveRel_of_snd [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Productive α₁ m] [Productive α₂ m] {it₂ it₂' : IterM (α := α₂) m β}
     (h : it₂'.finitelyManySkips.Rel it₂.finitelyManySkips) :
     Append.ProductiveRel α₁ α₂ m β

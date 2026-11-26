@@ -66,10 +66,10 @@ partial def markVars (e : Expr) : LinearM Unit := do
     markVar e
   | HSMul.hSMul _ _ _ i a b =>
     if isSMulIntInst (← getStruct) i then
-      if (← getIntValue? a).isSome then
+      if (← isIntValue a) then
         return (← markVar b)
     if isSMulNatInst (← getStruct) i then
-      if (← getNatValue? a).isSome then
+      if (← isNatValue a) then
         return (← markVar b)
     markVar e
   | Neg.neg _ _ a => markVars a
@@ -82,7 +82,7 @@ where
   isNumeral (e : Expr) : Bool :=
     match_expr e with
     | Neg.neg _ _ a => isNumeral a
-    | OfNat.ofNat _ n _ => isNatNum n
+    | OfNat.ofNat _ n _ => n.isRawNatLit
     | _ => false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do

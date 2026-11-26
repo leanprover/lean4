@@ -173,10 +173,7 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-// Morally, `{msg, size}` is an `std::string_view`.
-static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
-    if (g_panic_messages) {
-        panic_eprintln(msg, size, force_stderr);
+static void lean_panic_print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -184,6 +181,13 @@ static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = f
             print_backtrace(force_stderr);
         }
 #endif
+}
+
+// Morally, `{msg, size}` is an `std::string_view`.
+static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
+    if (g_panic_messages) {
+        panic_eprintln(msg, size, force_stderr);
+        lean_panic_print_backtrace(force_stderr);
     }
 
     abort_on_panic();
@@ -260,7 +264,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
     }
 }
 
-static inline void lean_dealloc(lean_object * o, size_t sz) {
+extern "C" LEAN_EXPORT void lean_dealloc(void * o, size_t sz) {
 #ifdef LEAN_MIMALLOC
     mi_free_size(o, sz);
 #else
@@ -344,6 +348,18 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
     }
+}
+
+extern "C" LEAN_EXPORT void * lean_alloc_memory(size_t sz) {
+#ifdef LEAN_MIMALLOC
+    void * r = mi_malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#else
+    void * r = malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
+#endif
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
@@ -430,7 +446,7 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-// sync with tests/elab/rc_model.lean (`incRefHugeN`)
+// sync with tests/verif/Verif/runtime/RC.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
     if (lean_is_st(o)) {
@@ -452,7 +468,7 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_model.lean (`decRefCold`)
+// sync with tests/verif/Verif/runtime/RC.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
@@ -514,6 +530,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
     return lean_panic_fn(def_val, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
+extern "C" LEAN_EXPORT b_lean_obj_res lean_array_get_borrowed_panic(b_lean_obj_arg def_val) {
+    lean_panic("Error: index out of bounds");
+    return def_val;
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
     return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
@@ -523,7 +544,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_ob
 // Thunks
 
 // Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
-// sync with tests/elab/rc_model.lean (`isUnshared`)
+// sync with tests/verif/Verif/runtime/RC.lean (`isUnshared`)
 static inline bool is_unshared(object * o) {
     int rc = lean_internal_get_rc(o);
     return rc > 0 || rc <= LEAN_RC_STUCK_ST;
@@ -675,7 +696,7 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
         if (!lean_is_scalar(o) && is_unshared(o)) {
             // A count that overflowed, or is too large for the live thread-shared range, freezes at
             // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
-            // sync with tests/elab/rc_model.lean (`markMtRc`)
+            // sync with tests/verif/Verif/runtime/RC.lean (`markMtRc`)
             int rc = lean_internal_get_rc(o);
             lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
             uint8_t tag = lean_ptr_tag(o);
@@ -931,16 +952,21 @@ class task_manager {
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
+        /* Extract everything from `t` before setting m_value.  Once m_value
+           is set, lock-free readers (lean_task_get) can observe the result,
+           drop their last ref, and free `t` — so `t` must not be accessed
+           after the store.  This is safe because handle_finished only uses
+           `imp`, never `t`. */
+        lean_task_imp * imp = t->m_imp;
+        t->m_imp   = nullptr;
         t->m_value = v;
-        lean_task_imp * imp = t->m_imp.exchange(nullptr, std::memory_order_relaxed);
-        handle_finished(lock, t, imp);
-        /* After the task has been finished and we propagated
-           dependencies, we can release `imp` and keep just the value */
+        /* `t` may be freed at any point after this line. */
+        handle_finished(lock, imp);
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -1063,6 +1089,15 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        /* Fast path for finished tasks (incl. Task.pure): m_value is set
+           atomically and m_imp is cleared before m_value is stored in
+           resolve_core, so no lock is needed. */
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp.load(std::memory_order_relaxed) == nullptr);
@@ -1582,11 +1617,8 @@ extern "C" LEAN_EXPORT object * lean_nat_big_xor(object * a1, object * a2) {
         return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    // Special case for shifted value is 0.
-    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
-        return lean_box(0);
-    }
+// `lean_nat_shiftl` handles `a1 == 0`, which the exponent check below would otherwise reject.
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     auto a = lean_is_scalar(a1)
            ? mpz::of_size_t(lean_unbox(a1))
            : mpz_value(a1);
@@ -1710,6 +1742,10 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     if (lean_is_scalar(a))
         return sizeof(size_t); // a scalar occupies one machine word
     return mpz_value(a).size_in_bytes();
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_nat_big_hash(b_lean_obj_arg a) {
+    return mpz_value(a).hash64();
 }
 
 static size_t trailing_zeros(size_t n) {
@@ -2182,6 +2218,7 @@ static size_t mk_capacity(size_t sz) {
 
 static void check_string_linearity(b_obj_arg s) {
     if (lean_string_is_marked_linear(s) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("string marked by `String.markLinear` was used non-linearly");
     }
 }
@@ -2639,6 +2676,24 @@ extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
 // =======================================
 // ByteArray & FloatArray
 
+extern "C" LEAN_EXPORT uint8_t lean_byte_array_get_panic() {
+    lean_panic("Error: index out of bounds");
+    return 0;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_byte_array_set_panic(lean_obj_arg a) {
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
+}
+
+extern "C" LEAN_EXPORT double lean_float_array_get_panic() {
+    lean_panic("Error: index out of bounds");
+    return 0.0;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_float_array_set_panic(lean_obj_arg a) {
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
+}
+
 size_t lean_nat_to_size_t(obj_arg n) {
     if (lean_is_scalar(n)) {
         return lean_unbox(n);
@@ -2667,6 +2722,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_sarray_nonlinear(obj_arg a, size_t cap) {
     if (lean_sarray_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("scalar array marked by `markLinear` was used non-linearly");
     }
     return lean_copy_sarray(a, cap);
@@ -2720,7 +2776,7 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, uint8 exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);
@@ -2834,6 +2890,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
     if (lean_array_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_panic_print_backtrace(true);
         lean_internal_panic("array marked by `Array.markLinear` was used non-linearly");
     }
     return lean_copy_expand_array(a, expand);

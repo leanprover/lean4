@@ -2,36 +2,60 @@
       (Lean.Grind.Nat.lt_eq x (y + z)) fun h =>
       Lean.Grind.intro_with_eq (y + 1 < z) (y + 2 ≤ z) (z + x < 3 * z)
         (Eq.trans (Lean.Grind.Nat.lt_eq (y + 1) z)
-          (id
-            (Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq_k
-              (Lean.RArray.branch 1 (Lean.RArray.leaf y) (Lean.RArray.leaf z))
-              { eq := false,
-                lhs :=
-                  ((Nat.Internal.Linear.Expr.var 0).add (Nat.Internal.Linear.Expr.num 1)).add
-                    (Nat.Internal.Linear.Expr.num 1),
-                rhs := Nat.Internal.Linear.Expr.var 1 }
-              { eq := false, lhs := (Nat.Internal.Linear.Expr.var 0).add (Nat.Internal.Linear.Expr.num 2),
-                rhs := Nat.Internal.Linear.Expr.var 1 }
-              (eagerReduce (Eq.refl true)))))
+          (congrFun'
+            (congrArg LE.le
+              (id
+                (Lean.Grind.CommRing.Expr.eq_of_kronLinS
+                  (Lean.RArray.branch 1 (Lean.RArray.leaf y) (Lean.RArray.leaf z)) 4
+                  (((Lean.Grind.CommRing.Expr.var 0).add (Lean.Grind.CommRing.Expr.num (Int.ofNat 1))).add
+                    (Lean.Grind.CommRing.Expr.num (Int.ofNat 1)))
+                  ((Lean.Grind.CommRing.Expr.var 0).add (Lean.Grind.CommRing.Expr.num (Int.ofNat 2)))
+                  (eagerReduce (Eq.refl true)) (eagerReduce (Eq.refl true))
+                  (Eq.refl
+                    (Lean.Grind.CommRing.Expr.kronLinEval_k 4
+                      (((Lean.Grind.CommRing.Expr.var 0).add (Lean.Grind.CommRing.Expr.num (Int.ofNat 1))).add
+                        (Lean.Grind.CommRing.Expr.num (Int.ofNat 1))))))))
+            z))
         fun h_1 =>
         Eq.mpr
           (id
-            (Eq.trans (Lean.Grind.Nat.lt_eq (z + x) (3 * z))
+            (Eq.trans
               (id
-                (Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq_k
-                  (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.leaf z))
-                  { eq := false,
-                    lhs :=
-                      ((Nat.Internal.Linear.Expr.var 1).add (Nat.Internal.Linear.Expr.var 0)).add
-                        (Nat.Internal.Linear.Expr.num 1),
-                    rhs := Nat.Internal.Linear.Expr.mulL 3 (Nat.Internal.Linear.Expr.var 1) }
-                  { eq := false, lhs := (Nat.Internal.Linear.Expr.var 0).add (Nat.Internal.Linear.Expr.num 1),
-                    rhs := Nat.Internal.Linear.Expr.mulL 2 (Nat.Internal.Linear.Expr.var 1) }
-                  (eagerReduce (Eq.refl true))))))
+                (Lean.Grind.CommRing.lt_cancel_of_kronLinS
+                  (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.leaf z)) 4
+                  ((Lean.Grind.CommRing.Expr.var 1).add (Lean.Grind.CommRing.Expr.var 0))
+                  ((Lean.Grind.CommRing.Expr.num (Int.ofNat 3)).mul (Lean.Grind.CommRing.Expr.var 1))
+                  (Lean.Grind.CommRing.Expr.var 0)
+                  ((Lean.Grind.CommRing.Expr.num (Int.ofNat 2)).mul (Lean.Grind.CommRing.Expr.var 1))
+                  (Lean.Grind.CommRing.Expr.var 1) (eagerReduce (Eq.refl true)) (eagerReduce (Eq.refl true))
+                  (Eq.refl
+                    (Lean.Grind.CommRing.Expr.kronLinEval_k 4
+                      ((Lean.Grind.CommRing.Expr.var 1).add (Lean.Grind.CommRing.Expr.var 0))))
+                  (eagerReduce (Eq.refl true)) (eagerReduce (Eq.refl true))
+                  (Eq.refl
+                    (Lean.Grind.CommRing.Expr.kronLinEval_k 4
+                      ((Lean.Grind.CommRing.Expr.num (Int.ofNat 3)).mul (Lean.Grind.CommRing.Expr.var 1))))))
+              (Lean.Grind.Nat.lt_eq x (2 * z))))
           (Classical.byContradiction
             (Lean.Grind.intro_with_eq (¬x + 1 ≤ 2 * z) (2 * z ≤ x) False
               (Eq.trans (Nat.not_le_eq (x + 1) (2 * z))
-                (Nat.Simproc.add_le_add_le (2 * z) x (of_decide_eq_true (Eq.refl true))))
+                (id
+                  (Lean.Grind.CommRing.le_cancel_of_kronLinS
+                    (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.leaf z)) 4
+                    (((Lean.Grind.CommRing.Expr.num (Int.ofNat 2)).mul (Lean.Grind.CommRing.Expr.var 1)).add
+                      (Lean.Grind.CommRing.Expr.num (Int.ofNat 1)))
+                    ((Lean.Grind.CommRing.Expr.var 0).add (Lean.Grind.CommRing.Expr.num (Int.ofNat 1)))
+                    ((Lean.Grind.CommRing.Expr.num (Int.ofNat 2)).mul (Lean.Grind.CommRing.Expr.var 1))
+                    (Lean.Grind.CommRing.Expr.var 0) (Lean.Grind.CommRing.Expr.num (Int.ofNat 1))
+                    (eagerReduce (Eq.refl true)) (eagerReduce (Eq.refl true))
+                    (Eq.refl
+                      (Lean.Grind.CommRing.Expr.kronLinEval_k 4
+                        (((Lean.Grind.CommRing.Expr.num (Int.ofNat 2)).mul (Lean.Grind.CommRing.Expr.var 1)).add
+                          (Lean.Grind.CommRing.Expr.num (Int.ofNat 1)))))
+                    (eagerReduce (Eq.refl true)) (eagerReduce (Eq.refl true))
+                    (Eq.refl
+                      (Lean.Grind.CommRing.Expr.kronLinEval_k 4
+                        ((Lean.Grind.CommRing.Expr.var 0).add (Lean.Grind.CommRing.Expr.num (Int.ofNat 1))))))))
               fun h_2 =>
               id
                 (let ctx :=

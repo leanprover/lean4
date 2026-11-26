@@ -18,7 +18,7 @@ This module implements parsers and serializers for both the binary and non-binar
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 open Std.Tactic.BVDecide.LRAT (IntAction)
 
 namespace LRAT

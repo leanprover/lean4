@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.ProofInstInfo
+import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Omega
 namespace Lean.Meta.Sym.DSimp
 open Lean.Meta.Sym.Internal
@@ -43,6 +44,8 @@ public def dsimpAppArgs (e : Expr) : DSimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then return .rfl
   let f := e.getAppFn
+  if f.isMVar then
+    if let some e' ← instantiateAssignedMVarHeadS? e then return .step e'
   let info? ← getProofInstInfoOfExpr? f
   let argsInfo? := info?.map (·.argsInfo)
   go argsInfo? numArgs e

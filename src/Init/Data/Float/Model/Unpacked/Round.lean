@@ -103,7 +103,7 @@ def shiftRightOne (em : ExtendedMantissa) : ExtendedMantissa where
   stickyBit := em.roundBit || em.stickyBit
 
 instance : HShiftRight ExtendedMantissa Nat ExtendedMantissa where
-  hShiftRight em n := n.repeat shiftRightOne em
+  hShiftRight em n := n.iterate shiftRightOne em
 
 end ExtendedMantissa
 

@@ -109,6 +109,56 @@ scoped instance instCompleteLatticeProp : CompleteLattice Prop where
 end Std.Internal.Order
 
 /-!
+## Lattices of a given order
+
+`CompleteLattice.OrderEq α` relates a partial order and a complete lattice on `α` that are given as
+separate instances. The instances cover a lattice with its own order, `Prop`, `Unit`, functions
+and pairs.
+-/
+
+namespace Lean.Order
+
+/-- The order of the complete lattice `l` on `α` is the partial order `o`. -/
+class CompleteLattice.OrderEq (α : Sort u) [o : PartialOrder α] [l : CompleteLattice α] : Prop where
+  /-- The order of the lattice is the given order. -/
+  toPartialOrder_eq : l.toPartialOrder = o
+
+instance {α : Sort u} [l : CompleteLattice α] : @CompleteLattice.OrderEq α l.toPartialOrder l :=
+  ⟨rfl⟩
+
+instance {σ : Sort v} {β : σ → Sort u} [∀ s, PartialOrder (β s)] [∀ s, CompleteLattice (β s)]
+    [h : ∀ s, CompleteLattice.OrderEq (β s)] : CompleteLattice.OrderEq (∀ s, β s) where
+  toPartialOrder_eq := congrArg (@instOrderPi σ β) (funext fun s => (h s).toPartialOrder_eq)
+
+instance {α : Type u} {β : Type v} [oα : PartialOrder α] [oβ : PartialOrder β]
+    [CompleteLattice α] [CompleteLattice β] [hα : CompleteLattice.OrderEq α]
+    [hβ : CompleteLattice.OrderEq β] : CompleteLattice.OrderEq (α × β) where
+  toPartialOrder_eq := by
+    obtain ⟨h₁⟩ := hα
+    obtain ⟨h₂⟩ := hβ
+    subst h₁ h₂
+    rfl
+
+instance {α : Sort u} {β : Sort v} [oα : PartialOrder α] [oβ : PartialOrder β]
+    [CompleteLattice α] [CompleteLattice β] [hα : CompleteLattice.OrderEq α]
+    [hβ : CompleteLattice.OrderEq β] : CompleteLattice.OrderEq (α ×' β) where
+  toPartialOrder_eq := by
+    obtain ⟨h₁⟩ := hα
+    obtain ⟨h₂⟩ := hβ
+    subst h₁ h₂
+    rfl
+
+instance : CompleteLattice.OrderEq Unit := ⟨rfl⟩
+
+end Lean.Order
+
+namespace Std.Internal.Order
+
+scoped instance : Lean.Order.CompleteLattice.OrderEq Prop := ⟨rfl⟩
+
+end Std.Internal.Order
+
+/-!
 ## Embedding of propositions
 
 `⌜p⌝` embeds a proposition `p` into an assertion lattice as `⊤` if `p` holds and `⊥` otherwise.

@@ -126,7 +126,7 @@ instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m) m
       | .skip it' h' => pure <| .deflate <| .skip ⟨it.internalState.countdown, it', it.internalState.finite⟩ (.skip h' h)
       | .done h' => pure <| .deflate <| .done (.done h')
 
-def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
+private def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
     IterM (α := Take α m) m β → IterM (α := Take α m) m β → Prop :=
   open scoped Classical in
   if _ : Finite α m then
@@ -136,13 +136,13 @@ def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive �
     InvImage (Prod.Lex Nat.lt_wfRel.rel IterM.TerminationMeasures.Productive.Rel)
       (fun it => (it.internalState.countdown, it.internalState.inner.finitelyManySkips))
 
-theorem Take.rel_of_countdown [Monad m] [Iterator α m β] [Productive α m]
+private theorem Take.rel_of_countdown [Monad m] [Iterator α m β] [Productive α m]
     {it it' : IterM (α := Take α m) m β}
     (h : it'.internalState.countdown < it.internalState.countdown) : Take.Rel m it' it := by
   simp only [Rel]
   split <;> exact Prod.Lex.left _ _ h
 
-theorem Take.rel_of_inner [Monad m] [Iterator α m β] [Productive α m] {remaining : Nat}
+private theorem Take.rel_of_inner [Monad m] [Iterator α m β] [Productive α m] {remaining : Nat}
     {it it' : IterM (α := α) m β}
     (h : it'.finitelyManySkips.Rel it.finitelyManySkips) :
     Take.Rel m (it'.take remaining) (it.take remaining) := by
@@ -151,7 +151,7 @@ theorem Take.rel_of_inner [Monad m] [Iterator α m β] [Productive α m] {remain
   · exact Prod.Lex.right _ (.of_productive h)
   · exact Prod.Lex.right _ h
 
-theorem Take.rel_of_zero_of_inner [Monad m] [Iterator α m β]
+private theorem Take.rel_of_zero_of_inner [Monad m] [Iterator α m β]
     {it it' : IterM (α := Take α m) m β}
     (h : it.internalState.countdown = 0) (h' : it'.internalState.countdown = 0)
     (h'' : haveI := it.internalState.finite.resolve_left (by omega); it'.internalState.inner.finitelyManySteps.Rel it.internalState.inner.finitelyManySteps) :

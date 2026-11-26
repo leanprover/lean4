@@ -14,7 +14,7 @@ import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.Core
 import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.Array
 import Lean.Meta.Tactic.Cbv.BuiltinCbvSimprocs.String
 import Lean.Meta.Tactic.Cbv.Util
-import Lean.Meta.Tactic.Cbv.TheoremsLookup
+import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Meta.Tactic.Cbv.CbvSimproc
 import Lean.Meta.Sym
@@ -136,13 +136,6 @@ def tryUnfold : Simproc := fun e => do
     trace[Meta.Tactic.cbv.unfold] "unfold `{appFn}`:{indentExpr e}\n==>{indentExpr e'}"
   return result
 
-def betaReduce : Simproc := fun e => do
-  -- TODO: Improve term sharing
-  let new := e.headBeta
-  let new ← Sym.share new
-  trace[Debug.Meta.Tactic.cbv.reduce] "beta:{indentExpr e}\n==>{indentExpr new}"
-  return .step new (← Sym.mkEqRefl new)
-
 def tryCbvTheorems : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
@@ -155,7 +148,29 @@ def tryCbvTheorems : Simproc := fun e => do
 def handleConstApp : Simproc := fun e => do
   tryEquations <|> tryUnfold <| e
 
+/--
+Decides `isPartialApp` for `c a₁ ... aₙ` from the declared type of `c` alone, if possible. After
+stripping `n` binders, a remaining `∀` means the application is partial; a sort or an inductive
+type cannot reduce to a function type, so the application is not partial.
+-/
+def isPartialAppQuick (e : Expr) : MetaM LBool := do
+  let .const declName _ := e.getAppFn | return .undef
+  let some info := (← getEnv).find? declName | return .undef
+  let mut type := info.type
+  for _ in 0...e.getAppNumArgs do
+    let .forallE _ _ b _ := type | return .undef
+    type := b
+  if type.isForall then return .true
+  match type.getAppFn with
+  | .sort .. => return .false
+  | .const n _ => return if (← isInductive n) then .false else .undef
+  | _ => return .undef
+
 def isPartialApp (e : Expr) : Sym.SymM Bool := do
+  match (← isPartialAppQuick e) with
+  | .true => return true
+  | .false => return false
+  | .undef =>
   let eType ← Sym.inferType e
   -- Fast path: a syntactically functional type cannot whnf to a non-function.
   if eType matches .forallE .. then return true
@@ -179,7 +194,7 @@ def handleApp : Simproc := fun e => do
       return markAsDoneIfFailed <| ← tryCbvTheorems e
     let info ← getConstInfo constName
     tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
-  | .lam .. => betaReduce e
+  | .lam .. => Sym.Simp.beta e
   | _ => return .rfl
 
 def handleOpaqueConst : Simproc := fun e => do
@@ -194,14 +209,6 @@ def foldLit : Simproc := fun e => do
   let new ← Sym.share <| mkNatLit n
   trace[Debug.Meta.Tactic.cbv.reduce] "foldLit: {e} ==> {new}"
   return .step new (← Sym.mkEqRefl e)
-
-def zetaReduce : Simproc := fun e => do
-  let .letE _ _ value body _ := e | return .rfl
-  let new := expandLet body #[value]
-  -- TODO: Improve sharing
-  let new ← Sym.share new
-  trace[Debug.Meta.Tactic.cbv.reduce] "zeta:{indentExpr e}\n==>{indentExpr new}"
-  return .step new (← Sym.mkEqRefl new)
 
 /-- Peels nested projections: for `e = base.proj₁.....projₙ` returns the projection nodes
 outermost-first together with the innermost non-projection `base`. -/
@@ -350,7 +357,7 @@ def cbvPreStep : Simproc := fun e => do
       let betaAppResult ← toBetaApp e
       return .step (betaAppResult.e) (betaAppResult.h)
     else
-      zetaReduce e
+      Sym.Simp.zeta e
   | .forallE .. | .lam .. | .fvar .. | .mvar .. | .bvar .. | .sort .. => return .rfl (done := true)
   | _ => return .rfl
 

@@ -8,11 +8,11 @@ unsafe def tst1 : ShareCommonT IO Unit := do
 let x := [1]
 let y := [0].map (fun x => x + 1)
 check $ ptrAddrUnsafe x != ptrAddrUnsafe y
-let x ← shareCommonM x
-let y ← shareCommonM y
+let x ← withShareCommon x
+let y ← withShareCommon y
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y
-let z ← shareCommonM [2]
-let x ← shareCommonM x
+let z ← withShareCommon [2]
+let x ← withShareCommon x
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y
 check $ ptrAddrUnsafe x != ptrAddrUnsafe z
 IO.println x
@@ -31,11 +31,11 @@ unsafe def tst2 : ShareCommonT IO Unit := do
 let x := [1, 2]
 let y := [0, 1].map (fun x => x + 1)
 check $ ptrAddrUnsafe x != ptrAddrUnsafe y
-let x ← shareCommonM x
-let y ← shareCommonM y
+let x ← withShareCommon x
+let y ← withShareCommon y
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y
-let z ← shareCommonM [2]
-let x ← shareCommonM x
+let z ← withShareCommon [2]
+let x ← withShareCommon x
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y
 check $ ptrAddrUnsafe x != ptrAddrUnsafe z
 IO.println x
@@ -50,7 +50,7 @@ info: [1, 2]
 #guard_msgs in
 #eval tst2.run
 
-structure Foo :=
+structure Foo where
 (x : Nat)
 (y : Bool)
 (z : Bool)
@@ -64,9 +64,9 @@ let o2 := mkFoo2 10 true
 let o3 := mkFoo2 10 false
 check $ ptrAddrUnsafe o1 != ptrAddrUnsafe o2
 check $ ptrAddrUnsafe o1 != ptrAddrUnsafe o3
-let o1 ← shareCommonM o1
-let o2 ← shareCommonM o2
-let o3 ← shareCommonM o3
+let o1 ← withShareCommon o1
+let o2 ← withShareCommon o2
+let o3 ← withShareCommon o3
 check $
   o1.x == 10 && o1.y == true &&
   o1.z == true && o3.z == false &&
@@ -83,11 +83,11 @@ unsafe def tst4 : ShareCommonT IO Unit := do
 let x := ["hello"]
 let y := ["ello"].map (fun x => "h" ++ x)
 check $ ptrAddrUnsafe x != ptrAddrUnsafe y
-let x ← shareCommonM x
-let y ← shareCommonM y
+let x ← withShareCommon x
+let y ← withShareCommon y
 check $ ptrAddrUnsafe x == ptrAddrUnsafe y
-let z ← shareCommonM ["world"]
-let x ← shareCommonM x
+let z ← withShareCommon ["world"]
+let x ← withShareCommon x
 check $
   ptrAddrUnsafe x == ptrAddrUnsafe y &&
   ptrAddrUnsafe x != ptrAddrUnsafe z
@@ -124,9 +124,9 @@ check $
   ptrAddrUnsafe a[0]! != ptrAddrUnsafe a[2]! &&
   ptrAddrUnsafe b[0]! != ptrAddrUnsafe b[1]! &&
   ptrAddrUnsafe c[0]! != ptrAddrUnsafe c[1]!
-let a ← shareCommonM a
-let b ← shareCommonM b
-let c ← shareCommonM c
+let a ← withShareCommon a
+let b ← withShareCommon b
+let c ← withShareCommon c
 check $
   ptrAddrUnsafe a == ptrAddrUnsafe b &&
   ptrAddrUnsafe a != ptrAddrUnsafe c &&
@@ -163,9 +163,9 @@ IO.println b
 IO.println c
 check $ ptrAddrUnsafe a != ptrAddrUnsafe b
 check $ ptrAddrUnsafe a != ptrAddrUnsafe c
-let a ← shareCommonM a
-let b ← shareCommonM b
-let c ← shareCommonM c
+let a ← withShareCommon a
+let b ← withShareCommon b
+let c ← withShareCommon c
 check $ ptrAddrUnsafe a == ptrAddrUnsafe b
 check $ ptrAddrUnsafe a != ptrAddrUnsafe c
 pure ()
@@ -181,9 +181,9 @@ info: [[2, 3, 4]]
 
 unsafe def tst7 (x : Nat) : ShareCommonT IO Unit := do
 let o0 := mkByteArray2 x
-let o1 ← shareCommonM o0
-let o2 ← shareCommonM o1
-let o3 ← shareCommonM o0
+let o1 ← withShareCommon o0
+let o2 ← withShareCommon o1
+let o3 ← withShareCommon o0
 check $ ptrAddrUnsafe o1 == ptrAddrUnsafe o2
 check $ ptrAddrUnsafe o1 == ptrAddrUnsafe o3
 

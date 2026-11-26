@@ -4,12 +4,12 @@ reached, as configuration items the user can raise.
 -/
 
 /--
-error: `lia` has failed after reaching the threshold `(splits := 1)`, use `+verbose` to obtain diagnostic information
+error: `lia` has failed after reaching the threshold `(branches := 1)`, use `+verbose` to obtain diagnostic information
 -/
 #guard_msgs in
 example (x y z : Int) (c1 c2 c3 : Bool) :
     (if c1 then x else 0) + (if c2 then y else 0) + (if c3 then z else 0) ≤ x + y + z := by
-  lia (splits := 1)
+  lia (branches := 1)
 
 /--
 error: `lia` has failed after reaching the threshold `(liaSteps := 1)`, use `+verbose` to obtain diagnostic information

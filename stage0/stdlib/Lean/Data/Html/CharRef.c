@@ -13,31 +13,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
-lean_object* lean_uint32_to_nat(uint32_t);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
-uint32_t l_Char_ofNat(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
-uint8_t l_Lean_Html_isNonCharacter(uint32_t);
-uint8_t l_Lean_Html_isControl(uint32_t);
-uint8_t l_Lean_Html_isAsciiWhitespace(uint32_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+uint32_t l_Char_ofNat(lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
+uint8_t l_Lean_Html_isNonCharacter(uint32_t);
+uint8_t l_Lean_Html_isControl(uint32_t);
+uint8_t l_Lean_Html_isAsciiWhitespace(uint32_t);
 static const lean_string_object l___private_Lean_Data_Html_CharRef_0__Lean_Html_namedCharRefData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24470, .m_capacity = 24470, .m_length = 20471, .m_data = "AElig Æ AMP & Aacute Á Abreve Ă Acirc Â Acy А Afr 𝔄 Agrave À Alpha Α Amacr Ā And ⩓ Aogon Ą Aopf 𝔸 ApplyFunction ⁡ Aring Å Ascr 𝒜 Assign ≔ Atilde Ã Auml Ä Backslash ∖ Barv ⫧ Barwed ⌆ Bcy Б Because ∵ Bernoullis ℬ Beta Β Bfr 𝔅 Bopf 𝔹 Breve ˘ Bscr ℬ Bumpeq ≎ CHcy Ч COPY © Cacute Ć Cap ⋒ CapitalDifferentialD ⅅ Cayleys ℭ Ccaron Č Ccedil Ç Ccirc Ĉ Cconint ∰ Cdot Ċ Cedilla ¸ CenterDot · Cfr ℭ Chi Χ CircleDot ⊙ CircleMinus ⊖ CirclePlus ⊕ CircleTimes ⊗ ClockwiseContourIntegral ∲ CloseCurlyDoubleQuote ” CloseCurlyQuote ’ Colon ∷ Colone ⩴ Congruent ≡ Conint ∯ ContourIntegral ∮ Copf ℂ Coproduct ∐ CounterClockwiseContourIntegral ∳ Cross ⨯ Cscr 𝒞 Cup ⋓ CupCap ≍ DD ⅅ DDotrahd ⤑ DJcy Ђ DScy Ѕ DZcy Џ Dagger ‡ Darr ↡ Dashv ⫤ Dcaron Ď Dcy Д Del ∇ Delta Δ Dfr 𝔇 DiacriticalAcute ´ DiacriticalDot ˙ DiacriticalDoubleAcute ˝ DiacriticalGrave ` DiacriticalTilde ˜ Diamond ⋄ DifferentialD ⅆ Dopf 𝔻 Dot ¨ DotDot ⃜ DotEqual ≐ DoubleContourIntegral ∯ DoubleDot ¨ DoubleDownArrow ⇓ DoubleLeftArrow ⇐ DoubleLeftRightArrow ⇔ DoubleLeftTee ⫤ DoubleLongLeftArrow ⟸ DoubleLongLeftRightArrow ⟺ DoubleLongRightArrow ⟹ DoubleRightArrow ⇒ DoubleRightTee ⊨ DoubleUpArrow ⇑ DoubleUpDownArrow ⇕ DoubleVerticalBar ∥ DownArrow ↓ DownArrowBar ⤓ DownArrowUpArrow ⇵ DownBreve ̑ DownLeftRightVector ⥐ DownLeftTeeVector ⥞ DownLeftVector ↽ DownLeftVectorBar ⥖ DownRightTeeVector ⥟ DownRightVector ⇁ DownRightVectorBar ⥗ DownTee ⊤ DownTeeArrow ↧ Downarrow ⇓ Dscr 𝒟 Dstrok Đ ENG Ŋ ETH Ð Eacute É Ecaron Ě Ecirc Ê Ecy Э Edot Ė Efr 𝔈 Egrave È Element ∈ Emacr Ē EmptySmallSquare ◻ EmptyVerySmallSquare ▫ Eogon Ę Eopf 𝔼 Epsilon Ε Equal ⩵ EqualTilde ≂ Equilibrium ⇌ Escr ℰ Esim ⩳ Eta Η Euml Ë Exists ∃ ExponentialE ⅇ Fcy Ф Ffr 𝔉 FilledSmallSquare ◼ FilledVerySmallSquare ▪ Fopf 𝔽 ForAll ∀ Fouriertrf ℱ Fscr ℱ GJcy Ѓ GT > Gamma Γ Gammad Ϝ Gbreve Ğ Gcedil Ģ Gcirc Ĝ Gcy Г Gdot Ġ Gfr 𝔊 Gg ⋙ Gopf 𝔾 GreaterEqual ≥ GreaterEqualLess ⋛ GreaterFullEqual ≧ GreaterGreater ⪢ GreaterLess ≷ GreaterSlantEqual ⩾ GreaterTilde ≳ Gscr 𝒢 Gt ≫ HARDcy Ъ Hacek ˇ Hat ^ Hcirc Ĥ Hfr ℌ HilbertSpace ℋ Hopf ℍ HorizontalLine ─ Hscr ℋ Hstrok Ħ HumpDownHump ≎ HumpEqual ≏ IEcy Е IJlig Ĳ IOcy Ё Iacute Í Icirc Î Icy И Idot İ Ifr ℑ Igrave Ì Im ℑ Imacr Ī ImaginaryI ⅈ Implies ⇒ Int ∬ Integral ∫ Intersection ⋂ InvisibleComma ⁣ InvisibleTimes ⁢ Iogon Į Iopf 𝕀 Iota Ι Iscr ℐ Itilde Ĩ Iukcy І Iuml Ï Jcirc Ĵ Jcy Й Jfr 𝔍 Jopf 𝕁 Jscr 𝒥 Jsercy Ј Jukcy Є KHcy Х KJcy Ќ Kappa Κ Kcedil Ķ Kcy К Kfr 𝔎 Kopf 𝕂 Kscr 𝒦 LJcy Љ LT < Lacute Ĺ Lambda Λ Lang ⟪ Laplacetrf ℒ Larr ↞ Lcaron Ľ Lcedil Ļ Lcy Л LeftAngleBracket ⟨ LeftArrow ← LeftArrowBar ⇤ LeftArrowRightArrow ⇆ LeftCeiling ⌈ LeftDoubleBracket ⟦ LeftDownTeeVector ⥡ LeftDownVector ⇃ LeftDownVectorBar ⥙ LeftFloor ⌊ LeftRightArrow ↔ LeftRightVector ⥎ LeftTee ⊣ LeftTeeArrow ↤ LeftTeeVector ⥚ LeftTriangle ⊲ LeftTriangleBar ⧏ LeftTriangleEqual ⊴ LeftUpDownVector ⥑ LeftUpTeeVector ⥠ LeftUpVector ↿ LeftUpVectorBar ⥘ LeftVector ↼ LeftVectorBar ⥒ Leftarrow ⇐ Leftrightarrow ⇔ LessEqualGreater ⋚ LessFullEqual ≦ LessGreater ≶ LessLess ⪡ LessSlantEqual ⩽ LessTilde ≲ Lfr 𝔏 Ll ⋘ Lleftarrow ⇚ Lmidot Ŀ LongLeftArrow ⟵ LongLeftRightArrow ⟷ LongRightArrow ⟶ Longleftarrow ⟸ Longleftrightarrow ⟺ Longrightarrow ⟹ Lopf 𝕃 LowerLeftArrow ↙ LowerRightArrow ↘ Lscr ℒ Lsh ↰ Lstrok Ł Lt ≪ Map ⤅ Mcy М MediumSpace   Mellintrf ℳ Mfr 𝔐 MinusPlus ∓ Mopf 𝕄 Mscr ℳ Mu Μ NJcy Њ Nacute Ń Ncaron Ň Ncedil Ņ Ncy Н NegativeMediumSpace ​ NegativeThickSpace ​ NegativeThinSpace ​ NegativeVeryThinSpace ​ NestedGreaterGreater ≫ NestedLessLess ≪ NewLine \n Nfr 𝔑 NoBreak ⁠ NonBreakingSpace   Nopf ℕ Not ⫬ NotCongruent ≢ NotCupCap ≭ NotDoubleVerticalBar ∦ NotElement ∉ NotEqual ≠ NotEqualTilde ≂̸ NotExists ∄ NotGreater ≯ NotGreaterEqual ≱ NotGreaterFullEqual ≧̸ NotGreaterGreater ≫̸ NotGreaterLess ≹ NotGreaterSlantEqual ⩾̸ NotGreaterTilde ≵ NotHumpDownHump ≎̸ NotHumpEqual ≏̸ NotLeftTriangle ⋪ NotLeftTriangleBar ⧏̸ NotLeftTriangleEqual ⋬ NotLess ≮ NotLessEqual ≰ NotLessGreater ≸ NotLessLess ≪̸ NotLessSlantEqual ⩽̸ NotLessTilde ≴ NotNestedGreaterGreater ⪢̸ NotNestedLessLess ⪡̸ NotPrecedes ⊀ NotPrecedesEqual ⪯̸ NotPrecedesSlantEqual ⋠ NotReverseElement ∌ NotRightTriangle ⋫ NotRightTriangleBar ⧐̸ NotRightTriangleEqual ⋭ NotSquareSubset ⊏̸ NotSquareSubsetEqual ⋢ NotSquareSuperset ⊐̸ NotSquareSupersetEqual ⋣ NotSubset ⊂⃒ NotSubsetEqual ⊈ NotSucceeds ⊁ NotSucceedsEqual ⪰̸ NotSucceedsSlantEqual ⋡ NotSucceedsTilde ≿̸ NotSuperset ⊃⃒ NotSupersetEqual ⊉ NotTilde ≁ NotTildeEqual ≄ NotTildeFullEqual ≇ NotTildeTilde ≉ NotVerticalBar ∤ Nscr 𝒩 Ntilde Ñ Nu Ν OElig Œ Oacute Ó Ocirc Ô Ocy О Odblac Ő Ofr 𝔒 Ograve Ò Omacr Ō Omega Ω Omicron Ο Oopf 𝕆 OpenCurlyDoubleQuote “ OpenCurlyQuote ‘ Or ⩔ Oscr 𝒪 Oslash Ø Otilde Õ Otimes ⨷ Ouml Ö OverBar ‾ OverBrace ⏞ OverBracket ⎴ OverParenthesis ⏜ PartialD ∂ Pcy П Pfr 𝔓 Phi Φ Pi Π PlusMinus ± Poincareplane ℌ Popf ℙ Pr ⪻ Precedes ≺ PrecedesEqual ⪯ PrecedesSlantEqual ≼ PrecedesTilde ≾ Prime ″ Product ∏ Proportion ∷ Proportional ∝ Pscr 𝒫 Psi Ψ QUOT \" Qfr 𝔔 Qopf ℚ Qscr 𝒬 RBarr ⤐ REG ® Racute Ŕ Rang ⟫ Rarr ↠ Rarrtl ⤖ Rcaron Ř Rcedil Ŗ Rcy Р Re ℜ ReverseElement ∋ ReverseEquilibrium ⇋ ReverseUpEquilibrium ⥯ Rfr ℜ Rho Ρ RightAngleBracket ⟩ RightArrow → RightArrowBar ⇥ RightArrowLeftArrow ⇄ RightCeiling ⌉ RightDoubleBracket ⟧ RightDownTeeVector ⥝ RightDownVector ⇂ RightDownVectorBar ⥕ RightFloor ⌋ RightTee ⊢ RightTeeArrow ↦ RightTeeVector ⥛ RightTriangle ⊳ RightTriangleBar ⧐ RightTriangleEqual ⊵ RightUpDownVector ⥏ RightUpTeeVector ⥜ RightUpVector ↾ RightUpVectorBar ⥔ RightVector ⇀ RightVectorBar ⥓ Rightarrow ⇒ Ropf ℝ RoundImplies ⥰ Rrightarrow ⇛ Rscr ℛ Rsh ↱ RuleDelayed ⧴ SHCHcy Щ SHcy Ш SOFTcy Ь Sacute Ś Sc ⪼ Scaron Š Scedil Ş Scirc Ŝ Scy С Sfr 𝔖 ShortDownArrow ↓ ShortLeftArrow ← ShortRightArrow → ShortUpArrow ↑ Sigma Σ SmallCircle ∘ Sopf 𝕊 Sqrt √ Square □ SquareIntersection ⊓ SquareSubset ⊏ SquareSubsetEqual ⊑ SquareSuperset ⊐ SquareSupersetEqual ⊒ SquareUnion ⊔ Sscr 𝒮 Star ⋆ Sub ⋐ Subset ⋐ SubsetEqual ⊆ Succeeds ≻ SucceedsEqual ⪰ SucceedsSlantEqual ≽ SucceedsTilde ≿ SuchThat ∋ Sum ∑ Sup ⋑ Superset ⊃ SupersetEqual ⊇ Supset ⋑ THORN Þ TRADE ™ TSHcy Ћ TScy Ц Tab \t Tau Τ Tcaron Ť Tcedil Ţ Tcy Т Tfr 𝔗 Therefore ∴ Theta Θ ThickSpace    ThinSpace   Tilde ∼ TildeEqual ≃ TildeFullEqual ≅ TildeTilde ≈ Topf 𝕋 TripleDot ⃛ Tscr 𝒯 Tstrok Ŧ Uacute Ú Uarr ↟ Uarrocir ⥉ Ubrcy Ў Ubreve Ŭ Ucirc Û Ucy У Udblac Ű Ufr 𝔘 Ugrave Ù Umacr Ū UnderBar _ UnderBrace ⏟ UnderBracket ⎵ UnderParenthesis ⏝ Union ⋃ UnionPlus ⊎ Uogon Ų Uopf 𝕌 UpArrow ↑ UpArrowBar ⤒ UpArrowDownArrow ⇅ UpDownArrow ↕ UpEquilibrium ⥮ UpTee ⊥ UpTeeArrow ↥ Uparrow ⇑ Updownarrow ⇕ UpperLeftArrow ↖ UpperRightArrow ↗ Upsi ϒ Upsilon Υ Uring Ů Uscr 𝒰 Utilde Ũ Uuml Ü VDash ⊫ Vbar ⫫ Vcy В Vdash ⊩ Vdashl ⫦ Vee ⋁ Verbar ‖ Vert ‖ VerticalBar ∣ VerticalLine | VerticalSeparator ❘ VerticalTilde ≀ VeryThinSpace   Vfr 𝔙 Vopf 𝕍 Vscr 𝒱 Vvdash ⊪ Wcirc Ŵ Wedge ⋀ Wfr 𝔚 Wopf 𝕎 Wscr 𝒲 Xfr 𝔛 Xi Ξ Xopf 𝕏 Xscr 𝒳 YAcy Я YIcy Ї YUcy Ю Yacute Ý Ycirc Ŷ Ycy Ы Yfr 𝔜 Yopf 𝕐 Yscr 𝒴 Yuml Ÿ ZHcy Ж Zacute Ź Zcaron Ž Zcy З Zdot Ż ZeroWidthSpace ​ Zeta Ζ Zfr ℨ Zopf ℤ Zscr 𝒵 aacute á abreve ă ac ∾ acE ∾̳ acd ∿ acirc â acute ´ acy а aelig æ af ⁡ afr 𝔞 agrave à alefsym ℵ aleph ℵ alpha α amacr ā amalg ⨿ amp & and ∧ andand ⩕ andd ⩜ andslope ⩘ andv ⩚ ang ∠ ange ⦤ angle ∠ angmsd ∡ angmsdaa ⦨ angmsdab ⦩ angmsdac ⦪ angmsdad ⦫ angmsdae ⦬ angmsdaf ⦭ angmsdag ⦮ angmsdah ⦯ angrt ∟ angrtvb ⊾ angrtvbd ⦝ angsph ∢ angst Å angzarr ⍼ aogon ą aopf 𝕒 ap ≈ apE ⩰ apacir ⩯ ape ≊ apid ≋ apos ' approx ≈ approxeq ≊ aring å ascr 𝒶 ast * asymp ≈ asympeq ≍ atilde ã auml ä awconint ∳ awint ⨑ bNot ⫭ backcong ≌ backepsilon ϶ backprime ‵ backsim ∽ backsimeq ⋍ barvee ⊽ barwed ⌅ barwedge ⌅ bbrk ⎵ bbrktbrk ⎶ bcong ≌ bcy б bdquo „ becaus ∵ because ∵ bemptyv ⦰ bepsi ϶ bernou ℬ beta β beth ℶ between ≬ bfr 𝔟 bigcap ⋂ bigcirc ◯ bigcup ⋃ bigodot ⨀ bigoplus ⨁ bigotimes ⨂ bigsqcup ⨆ bigstar ★ bigtriangledown ▽ bigtriangleup △ biguplus ⨄ bigvee ⋁ bigwedge ⋀ bkarow ⤍ blacklozenge ⧫ blacksquare ▪ blacktriangle ▴ blacktriangledown ▾ blacktriangleleft ◂ blacktriangleright ▸ blank ␣ blk12 ▒ blk14 ░ blk34 ▓ block █ bne =⃥ bnequiv ≡⃥ bnot ⌐ bopf 𝕓 bot ⊥ bottom ⊥ bowtie ⋈ boxDL ╗ boxDR ╔ boxDl ╖ boxDr ╓ boxH ═ boxHD ╦ boxHU ╩ boxHd ╤ boxHu ╧ boxUL ╝ boxUR ╚ boxUl ╜ boxUr ╙ boxV ║ boxVH ╬ boxVL ╣ boxVR ╠ boxVh ╫ boxVl ╢ boxVr ╟ boxbox ⧉ boxdL ╕ boxdR ╒ boxdl ┐ boxdr ┌ boxh ─ boxhD ╥ boxhU ╨ boxhd ┬ boxhu ┴ boxminus ⊟ boxplus ⊞ boxtimes ⊠ boxuL ╛ boxuR ╘ boxul ┘ boxur └ boxv │ boxvH ╪ boxvL ╡ boxvR ╞ boxvh ┼ boxvl ┤ boxvr ├ bprime ‵ breve ˘ brvbar ¦ bscr 𝒷 bsemi ⁏ bsim ∽ bsime ⋍ bsol \\ bsolb ⧅ bsolhsub ⟈ bull • bullet • bump ≎ bumpE ⪮ bumpe ≏ bumpeq ≏ cacute ć cap ∩ capand ⩄ capbrcup ⩉ capcap ⩋ capcup ⩇ capdot ⩀ caps ∩︀ caret ⁁ caron ˇ ccaps ⩍ ccaron č ccedil ç ccirc ĉ ccups ⩌ ccupssm ⩐ cdot ċ cedil ¸ cemptyv ⦲ cent ¢ centerdot · cfr 𝔠 chcy ч check ✓ checkmark ✓ chi χ cir ○ cirE ⧃ circ ˆ circeq ≗ circlearrowleft ↺ circlearrowright ↻ circledR ® circledS Ⓢ circledast ⊛ circledcirc ⊚ circleddash ⊝ cire ≗ cirfnint ⨐ cirmid ⫯ cirscir ⧂ clubs ♣ clubsuit ♣ colon : colone ≔ coloneq ≔ comma , commat @ comp ∁ compfn ∘ complement ∁ complexes ℂ cong ≅ congdot ⩭ conint ∮ copf 𝕔 coprod ∐ copy © copysr ℗ crarr ↵ cross ✗ cscr 𝒸 csub ⫏ csube ⫑ csup ⫐ csupe ⫒ ctdot ⋯ cudarrl ⤸ cudarrr ⤵ cuepr ⋞ cuesc ⋟ cularr ↶ cularrp ⤽ cup ∪ cupbrcap ⩈ cupcap ⩆ cupcup ⩊ cupdot ⊍ cupor ⩅ cups ∪︀ curarr ↷ curarrm ⤼ curlyeqprec ⋞ curlyeqsucc ⋟ curlyvee ⋎ curlywedge ⋏ curren ¤ curvearrowleft ↶ curvearrowright ↷ cuvee ⋎ cuwed ⋏ cwconint ∲ cwint ∱ cylcty ⌭ dArr ⇓ dHar ⥥ dagger † daleth ℸ darr ↓ dash ‐ dashv ⊣ dbkarow ⤏ dblac ˝ dcaron ď dcy д dd ⅆ ddagger ‡ ddarr ⇊ ddotseq ⩷ deg ° delta δ demptyv ⦱ dfisht ⥿ dfr 𝔡 dharl ⇃ dharr ⇂ diam ⋄ diamond ⋄ diamondsuit ♦ diams ♦ die ¨ digamma ϝ disin ⋲ div ÷ divide ÷ divideontimes ⋇ divonx ⋇ djcy ђ dlcorn ⌞ dlcrop ⌍ dollar $ dopf 𝕕 dot ˙ doteq ≐ doteqdot ≑ dotminus ∸ dotplus ∔ dotsquare ⊡ doublebarwedge ⌆ downarrow ↓ downdownarrows ⇊ downharpoonleft ⇃ downharpoonright ⇂ drbkarow ⤐ drcorn ⌟ drcrop ⌌ dscr 𝒹 dscy ѕ dsol ⧶ dstrok đ dtdot ⋱ dtri ▿ dtrif ▾ duarr ⇵ duhar ⥯ dwangle ⦦ dzcy џ dzigrarr ⟿ eDDot ⩷ eDot ≑ eacute é easter ⩮ ecaron ě ecir ≖ ecirc ê ecolon ≕ ecy э edot ė ee ⅇ efDot ≒ efr 𝔢 eg ⪚ egrave è egs ⪖ egsdot ⪘ el ⪙ elinters ⏧ ell ℓ els ⪕ elsdot ⪗ emacr ē empty ∅ emptyset ∅ emptyv ∅ emsp   emsp13   emsp14   eng ŋ ensp   eogon ę eopf 𝕖 epar ⋕ eparsl ⧣ eplus ⩱ epsi ε epsilon ε epsiv ϵ eqcirc ≖ eqcolon ≕ eqsim ≂ eqslantgtr ⪖ eqslantless ⪕ equals = equest ≟ equiv ≡ equivDD ⩸ eqvparsl ⧥ erDot ≓ erarr ⥱ escr ℯ esdot ≐ esim ≂ eta η eth ð euml ë euro € excl ! exist ∃ expectation ℰ exponentiale ⅇ fallingdotseq ≒ fcy ф female ♀ ffilig ﬃ fflig ﬀ ffllig ﬄ ffr 𝔣 filig ﬁ fjlig fj flat ♭ fllig ﬂ fltns ▱ fnof ƒ fopf 𝕗 forall ∀ fork ⋔ forkv ⫙ fpartint ⨍ frac12 ½ frac13 ⅓ frac14 ¼ frac15 ⅕ frac16 ⅙ frac18 ⅛ frac23 ⅔ frac25 ⅖ frac34 ¾ frac35 ⅗ frac38 ⅜ frac45 ⅘ frac56 ⅚ frac58 ⅝ frac78 ⅞ frasl ⁄ frown ⌢ fscr 𝒻 gE ≧ gEl ⪌ gacute ǵ gamma γ gammad ϝ gap ⪆ gbreve ğ gcirc ĝ gcy г gdot ġ ge ≥ gel ⋛ geq ≥ geqq ≧ geqslant ⩾ ges ⩾ gescc ⪩ gesdot ⪀ gesdoto ⪂ gesdotol ⪄ gesl ⋛︀ gesles ⪔ gfr 𝔤 gg ≫ ggg ⋙ gimel ℷ gjcy ѓ gl ≷ glE ⪒ gla ⪥ glj ⪤ gnE ≩ gnap ⪊ gnapprox ⪊ gne ⪈ gneq ⪈ gneqq ≩ gnsim ⋧ gopf 𝕘 grave ` gscr ℊ gsim ≳ gsime ⪎ gsiml ⪐ gt > gtcc ⪧ gtcir ⩺ gtdot ⋗ gtlPar ⦕ gtquest ⩼ gtrapprox ⪆ gtrarr ⥸ gtrdot ⋗ gtreqless ⋛ gtreqqless ⪌ gtrless ≷ gtrsim ≳ gvertneqq ≩︀ gvnE ≩︀ hArr ⇔ hairsp   half ½ hamilt ℋ hardcy ъ harr ↔ harrcir ⥈ harrw ↭ hbar ℏ hcirc ĥ hearts ♥ heartsuit ♥ hellip … hercon ⊹ hfr 𝔥 hksearow ⤥ hkswarow ⤦ hoarr ⇿ homtht ∻ hookleftarrow ↩ hookrightarrow ↪ hopf 𝕙 horbar ― hscr 𝒽 hslash ℏ hstrok ħ hybull ⁃ hyphen ‐ iacute í ic ⁣ icirc î icy и iecy е iexcl ¡ iff ⇔ ifr 𝔦 igrave ì ii ⅈ iiiint ⨌ iiint ∭ iinfin ⧜ iiota ℩ ijlig ĳ imacr ī image ℑ imagline ℐ imagpart ℑ imath ı imof ⊷ imped Ƶ in ∈ incare ℅ infin ∞ infintie ⧝ inodot ı int ∫ intcal ⊺ integers ℤ intercal ⊺ intlarhk ⨗ intprod ⨼ iocy ё iogon į iopf 𝕚 iota ι iprod ⨼ iquest ¿ iscr 𝒾 isin ∈ isinE ⋹ isindot ⋵ isins ⋴ isinsv ⋳ isinv ∈ it ⁢ itilde ĩ iukcy і iuml ï jcirc ĵ jcy й jfr 𝔧 jmath ȷ jopf 𝕛 jscr 𝒿 jsercy ј jukcy є kappa κ kappav ϰ kcedil ķ kcy к kfr 𝔨 kgreen ĸ khcy х kjcy ќ kopf 𝕜 kscr 𝓀 lAarr ⇚ lArr ⇐ lAtail ⤛ lBarr ⤎ lE ≦ lEg ⪋ lHar ⥢ lacute ĺ laemptyv ⦴ lagran ℒ lambda λ lang ⟨ langd ⦑ langle ⟨ lap ⪅ laquo « larr ← larrb ⇤ larrbfs ⤟ larrfs ⤝ larrhk ↩ larrlp ↫ larrpl ⤹ larrsim ⥳ larrtl ↢ lat ⪫ latail ⤙ late ⪭ lates ⪭︀ lbarr ⤌ lbbrk ❲ lbrace { lbrack [ lbrke ⦋ lbrksld ⦏ lbrkslu ⦍ lcaron ľ lcedil ļ lceil ⌈ lcub { lcy л ldca ⤶ ldquo “ ldquor „ ldrdhar ⥧ ldrushar ⥋ ldsh ↲ le ≤ leftarrow ← leftarrowtail ↢ leftharpoondown ↽ leftharpoonup ↼ leftleftarrows ⇇ leftrightarrow ↔ leftrightarrows ⇆ leftrightharpoons ⇋ leftrightsquigarrow ↭ leftthreetimes ⋋ leg ⋚ leq ≤ leqq ≦ leqslant ⩽ les ⩽ lescc ⪨ lesdot ⩿ lesdoto ⪁ lesdotor ⪃ lesg ⋚︀ lesges ⪓ lessapprox ⪅ lessdot ⋖ lesseqgtr ⋚ lesseqqgtr ⪋ lessgtr ≶ lesssim ≲ lfisht ⥼ lfloor ⌊ lfr 𝔩 lg ≶ lgE ⪑ lhard ↽ lharu ↼ lharul ⥪ lhblk ▄ ljcy љ ll ≪ llarr ⇇ llcorner ⌞ llhard ⥫ lltri ◺ lmidot ŀ lmoust ⎰ lmoustache ⎰ lnE ≨ lnap ⪉ lnapprox ⪉ lne ⪇ lneq ⪇ lneqq ≨ lnsim ⋦ loang ⟬ loarr ⇽ lobrk ⟦ longleftarrow ⟵ longleftrightarrow ⟷ longmapsto ⟼ longrightarrow ⟶ looparrowleft ↫ looparrowright ↬ lopar ⦅ lopf 𝕝 loplus ⨭ lotimes ⨴ lowast ∗ lowbar _ loz ◊ lozenge ◊ lozf ⧫ lpar ( lparlt ⦓ lrarr ⇆ lrcorner ⌟ lrhar ⇋ lrhard ⥭ lrm ‎ lrtri ⊿ lsaquo ‹ lscr 𝓁 lsh ↰ lsim ≲ lsime ⪍ lsimg ⪏ lsqb [ lsquo ‘ lsquor ‚ lstrok ł lt < ltcc ⪦ ltcir ⩹ ltdot ⋖ lthree ⋋ ltimes ⋉ ltlarr ⥶ ltquest ⩻ ltrPar ⦖ ltri ◃ ltrie ⊴ ltrif ◂ lurdshar ⥊ luruhar ⥦ lvertneqq ≨︀ lvnE ≨︀ mDDot ∺ macr ¯ male ♂ malt ✠ maltese ✠ map ↦ mapsto ↦ mapstodown ↧ mapstoleft ↤ mapstoup ↥ marker ▮ mcomma ⨩ mcy м mdash — measuredangle ∡ mfr 𝔪 mho ℧ micro µ mid ∣ midast * midcir ⫰ middot · minus − minusb ⊟ minusd ∸ minusdu ⨪ mlcp ⫛ mldr … mnplus ∓ models ⊧ mopf 𝕞 mp ∓ mscr 𝓂 mstpos ∾ mu μ multimap ⊸ mumap ⊸ nGg ⋙̸ nGt ≫⃒ nGtv ≫̸ nLeftarrow ⇍ nLeftrightarrow ⇎ nLl ⋘̸ nLt ≪⃒ nLtv ≪̸ nRightarrow ⇏ nVDash ⊯ nVdash ⊮ nabla ∇ nacute ń nang ∠⃒ nap ≉ napE ⩰̸ napid ≋̸ napos ŉ napprox ≉ natur ♮ natural ♮ naturals ℕ nbsp   nbump ≎̸ nbumpe ≏̸ ncap ⩃ ncaron ň ncedil ņ ncong ≇ ncongdot ⩭̸ ncup ⩂ ncy н ndash – ne ≠ neArr ⇗ nearhk ⤤ nearr ↗ nearrow ↗ nedot ≐̸ nequiv ≢ nesear ⤨ nesim ≂̸ nexist ∄ nexists ∄ nfr 𝔫 ngE ≧̸ nge ≱ ngeq ≱ ngeqq ≧̸ ngeqslant ⩾̸ nges ⩾̸ ngsim ≵ ngt ≯ ngtr ≯ nhArr ⇎ nharr ↮ nhpar ⫲ ni ∋ nis ⋼ nisd ⋺ niv ∋ njcy њ nlArr ⇍ nlE ≦̸ nlarr ↚ nldr ‥ nle ≰ nleftarrow ↚ nleftrightarrow ↮ nleq ≰ nleqq ≦̸ nleqslant ⩽̸ nles ⩽̸ nless ≮ nlsim ≴ nlt ≮ nltri ⋪ nltrie ⋬ nmid ∤ nopf 𝕟 not ¬ notin ∉ notinE ⋹̸ notindot ⋵̸ notinva ∉ notinvb ⋷ notinvc ⋶ notni ∌ notniva ∌ notnivb ⋾ notnivc ⋽ npar ∦ nparallel ∦ nparsl ⫽⃥ npart ∂̸ npolint ⨔ npr ⊀ nprcue ⋠ npre ⪯̸ nprec ⊀ npreceq ⪯̸ nrArr ⇏ nrarr ↛ nrarrc ⤳̸ nrarrw ↝̸ nrightarrow ↛ nrtri ⋫ nrtrie ⋭ nsc ⊁ nsccue ⋡ nsce ⪰̸ nscr 𝓃 nshortmid ∤ nshortparallel ∦ nsim ≁ nsime ≄ nsimeq ≄ nsmid ∤ nspar ∦ nsqsube ⋢ nsqsupe ⋣ nsub ⊄ nsubE ⫅̸ nsube ⊈ nsubset ⊂⃒ nsubseteq ⊈ nsubseteqq ⫅̸ nsucc ⊁ nsucceq ⪰̸ nsup ⊅ nsupE ⫆̸ nsupe ⊉ nsupset ⊃⃒ nsupseteq ⊉ nsupseteqq ⫆̸ ntgl ≹ ntilde ñ ntlg ≸ ntriangleleft ⋪ ntrianglelefteq ⋬ ntriangleright ⋫ ntrianglerighteq ⋭ nu ν num # numero № numsp   nvDash ⊭ nvHarr ⤄ nvap ≍⃒ nvdash ⊬ nvge ≥⃒ nvgt >⃒ nvinfin ⧞ nvlArr ⤂ nvle ≤⃒ nvlt <⃒ nvltrie ⊴⃒ nvrArr ⤃ nvrtrie ⊵⃒ nvsim ∼⃒ nwArr ⇖ nwarhk ⤣ nwarr ↖ nwarrow ↖ nwnear ⤧ oS Ⓢ oacute ó oast ⊛ ocir ⊚ ocirc ô ocy о odash ⊝ odblac ő odiv ⨸ odot ⊙ odsold ⦼ oelig œ ofcir ⦿ ofr 𝔬 ogon ˛ ograve ò ogt ⧁ ohbar ⦵ ohm Ω oint ∮ olarr ↺ olcir ⦾ olcross ⦻ oline ‾ olt ⧀ omacr ō omega ω omicron ο omid ⦶ ominus ⊖ oopf 𝕠 opar ⦷ operp ⦹ oplus ⊕ or ∨ orarr ↻ ord ⩝ order ℴ orderof ℴ ordf ª ordm º origof ⊶ oror ⩖ orslope ⩗ orv ⩛ oscr ℴ oslash ø osol ⊘ otilde õ otimes ⊗ otimesas ⨶ ouml ö ovbar ⌽ par ∥ para ¶ parallel ∥ parsim ⫳ parsl ⫽ part ∂ pcy п percnt % period . permil ‰ perp ⊥ pertenk ‱ pfr 𝔭 phi φ phiv ϕ phmmat ℳ phone ☎ pi π pitchfork ⋔ piv ϖ planck ℏ planckh ℎ plankv ℏ plus + plusacir ⨣ plusb ⊞ pluscir ⨢ plusdo ∔ plusdu ⨥ pluse ⩲ plusmn ± plussim ⨦ plustwo ⨧ pm ± pointint ⨕ popf 𝕡 pound £ pr ≺ prE ⪳ prap ⪷ prcue ≼ pre ⪯ prec ≺ precapprox ⪷ preccurlyeq ≼ preceq ⪯ precnapprox ⪹ precneqq ⪵ precnsim ⋨ precsim ≾ prime ′ primes ℙ prnE ⪵ prnap ⪹ prnsim ⋨ prod ∏ profalar ⌮ profline ⌒ profsurf ⌓ prop ∝ propto ∝ prsim ≾ prurel ⊰ pscr 𝓅 psi ψ puncsp   qfr 𝔮 qint ⨌ qopf 𝕢 qprime ⁗ qscr 𝓆 quaternions ℍ quatint ⨖ quest \? questeq ≟ quot \" rAarr ⇛ rArr ⇒ rAtail ⤜ rBarr ⤏ rHar ⥤ race ∽̱ racute ŕ radic √ raemptyv ⦳ rang ⟩ rangd ⦒ range ⦥ rangle ⟩ raquo » rarr → rarrap ⥵ rarrb ⇥ rarrbfs ⤠ rarrc ⤳ rarrfs ⤞ rarrhk ↪ rarrlp ↬ rarrpl ⥅ rarrsim ⥴ rarrtl ↣ rarrw ↝ ratail ⤚ ratio ∶ rationals ℚ rbarr ⤍ rbbrk ❳ rbrace } rbrack ] rbrke ⦌ rbrksld ⦎ rbrkslu ⦐ rcaron ř rcedil ŗ rceil ⌉ rcub } rcy р rdca ⤷ rdldhar ⥩ rdquo ” rdquor ” rdsh ↳ real ℜ realine ℛ realpart ℜ reals ℝ rect ▭ reg ® rfisht ⥽ rfloor ⌋ rfr 𝔯 rhard ⇁ rharu ⇀ rharul ⥬ rho ρ rhov ϱ rightarrow → rightarrowtail ↣ rightharpoondown ⇁ rightharpoonup ⇀ rightleftarrows ⇄ rightleftharpoons ⇌ rightrightarrows ⇉ rightsquigarrow ↝ rightthreetimes ⋌ ring ˚ risingdotseq ≓ rlarr ⇄ rlhar ⇌ rlm ‏ rmoust ⎱ rmoustache ⎱ rnmid ⫮ roang ⟭ roarr ⇾ robrk ⟧ ropar ⦆ ropf 𝕣 roplus ⨮ rotimes ⨵ rpar ) rpargt ⦔ rppolint ⨒ rrarr ⇉ rsaquo › rscr 𝓇 rsh ↱ rsqb ] rsquo ’ rsquor ’ rthree ⋌ rtimes ⋊ rtri ▹ rtrie ⊵ rtrif ▸ rtriltri ⧎ ruluhar ⥨ rx ℞ sacute ś sbquo ‚ sc ≻ scE ⪴ scap ⪸ scaron š sccue ≽ sce ⪰ scedil ş scirc ŝ scnE ⪶ scnap ⪺ scnsim ⋩ scpolint ⨓ scsim ≿ scy с sdot ⋅ sdotb ⊡ sdote ⩦ seArr ⇘ searhk ⤥ searr ↘ searrow ↘ sect § semi ; seswar ⤩ setminus ∖ setmn ∖ sext ✶ sfr 𝔰 sfrown ⌢ sharp ♯ shchcy щ shcy ш shortmid ∣ shortparallel ∥ shy ­ sigma σ sigmaf ς sigmav ς sim ∼ simdot ⩪ sime ≃ simeq ≃ simg ⪞ simgE ⪠ siml ⪝ simlE ⪟ simne ≆ simplus ⨤ simrarr ⥲ slarr ← smallsetminus ∖ smashp ⨳ smeparsl ⧤ smid ∣ smile ⌣ smt ⪪ smte ⪬ smtes ⪬︀ softcy ь sol / solb ⧄ solbar ⌿ sopf 𝕤 spades ♠ spadesuit ♠ spar ∥ sqcap ⊓ sqcaps ⊓︀ sqcup ⊔ sqcups ⊔︀ sqsub ⊏ sqsube ⊑ sqsubset ⊏ sqsubseteq ⊑ sqsup ⊐ sqsupe ⊒ sqsupset ⊐ sqsupseteq ⊒ squ □ square □ squarf ▪ squf ▪ srarr → sscr 𝓈 ssetmn ∖ ssmile ⌣ sstarf ⋆ star ☆ starf ★ straightepsilon ϵ straightphi ϕ strns ¯ sub ⊂ subE ⫅ subdot ⪽ sube ⊆ subedot ⫃ submult ⫁ subnE ⫋ subne ⊊ subplus ⪿ subrarr ⥹ subset ⊂ subseteq ⊆ subseteqq ⫅ subsetneq ⊊ subsetneqq ⫋ subsim ⫇ subsub ⫕ subsup ⫓ succ ≻ succapprox ⪸ succcurlyeq ≽ succeq ⪰ succnapprox ⪺ succneqq ⪶ succnsim ⋩ succsim ≿ sum ∑ sung ♪ sup ⊃ sup1 ¹ sup2 ² sup3 ³ supE ⫆ supdot ⪾ supdsub ⫘ supe ⊇ supedot ⫄ suphsol ⟉ suphsub ⫗ suplarr ⥻ supmult ⫂ supnE ⫌ supne ⊋ supplus ⫀ supset ⊃ supseteq ⊇ supseteqq ⫆ supsetneq ⊋ supsetneqq ⫌ supsim ⫈ supsub ⫔ supsup ⫖ swArr ⇙ swarhk ⤦ swarr ↙ swarrow ↙ swnwar ⤪ szlig ß target ⌖ tau τ tbrk ⎴ tcaron ť tcedil ţ tcy т tdot ⃛ telrec ⌕ tfr 𝔱 there4 ∴ therefore ∴ theta θ thetasym ϑ thetav ϑ thickapprox ≈ thicksim ∼ thinsp   thkap ≈ thksim ∼ thorn þ tilde ˜ times × timesb ⊠ timesbar ⨱ timesd ⨰ tint ∭ toea ⤨ top ⊤ topbot ⌶ topcir ⫱ topf 𝕥 topfork ⫚ tosa ⤩ tprime ‴ trade ™ triangle ▵ triangledown ▿ triangleleft ◃ trianglelefteq ⊴ triangleq ≜ triangleright ▹ trianglerighteq ⊵ tridot ◬ trie ≜ triminus ⨺ triplus ⨹ trisb ⧍ tritime ⨻ trpezium ⏢ tscr 𝓉 tscy ц tshcy ћ tstrok ŧ twixt ≬ twoheadleftarrow ↞ twoheadrightarrow ↠ uArr ⇑ uHar ⥣ uacute ú uarr ↑ ubrcy ў ubreve ŭ ucirc û ucy у udarr ⇅ udblac ű udhar ⥮ ufisht ⥾ ufr 𝔲 ugrave ù uharl ↿ uharr ↾ uhblk ▀ ulcorn ⌜ ulcorner ⌜ ulcrop ⌏ ultri ◸ umacr ū uml ¨ uogon ų uopf 𝕦 uparrow ↑ updownarrow ↕ upharpoonleft ↿ upharpoonright ↾ uplus ⊎ upsi υ upsih ϒ upsilon υ upuparrows ⇈ urcorn ⌝ urcorner ⌝ urcrop ⌎ uring ů urtri ◹ uscr 𝓊 utdot ⋰ utilde ũ utri ▵ utrif ▴ uuarr ⇈ uuml ü uwangle ⦧ vArr ⇕ vBar ⫨ vBarv ⫩ vDash ⊨ vangrt ⦜ varepsilon ϵ varkappa ϰ varnothing ∅ varphi ϕ varpi ϖ varpropto ∝ varr ↕ varrho ϱ varsigma ς varsubsetneq ⊊︀ varsubsetneqq ⫋︀ varsupsetneq ⊋︀ varsupsetneqq ⫌︀ vartheta ϑ vartriangleleft ⊲ vartriangleright ⊳ vcy в vdash ⊢ vee ∨ veebar ⊻ veeeq ≚ vellip ⋮ verbar | vert | vfr 𝔳 vltri ⊲ vnsub ⊂⃒ vnsup ⊃⃒ vopf 𝕧 vprop ∝ vrtri ⊳ vscr 𝓋 vsubnE ⫋︀ vsubne ⊊︀ vsupnE ⫌︀ vsupne ⊋︀ vzigzag ⦚ wcirc ŵ wedbar ⩟ wedge ∧ wedgeq ≙ weierp ℘ wfr 𝔴 wopf 𝕨 wp ℘ wr ≀ wreath ≀ wscr 𝓌 xcap ⋂ xcirc ◯ xcup ⋃ xdtri ▽ xfr 𝔵 xhArr ⟺ xharr ⟷ xi ξ xlArr ⟸ xlarr ⟵ xmap ⟼ xnis ⋻ xodot ⨀ xopf 𝕩 xoplus ⨁ xotime ⨂ xrArr ⟹ xrarr ⟶ xscr 𝓍 xsqcup ⨆ xuplus ⨄ xutri △ xvee ⋁ xwedge ⋀ yacute ý yacy я ycirc ŷ ycy ы yen ¥ yfr 𝔶 yicy ї yopf 𝕪 yscr 𝓎 yucy ю yuml ÿ zacute ź zcaron ž zcy з zdot ż zeetrf ℨ zeta ζ zfr 𝔷 zhcy ж zigrarr ⇝ zopf 𝕫 zscr 𝓏 zwj ‍ zwnj ‌"};
 static const lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_namedCharRefData___closed__0 = (const lean_object*)&l___private_Lean_Data_Html_CharRef_0__Lean_Html_namedCharRefData___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_namedCharRefData = (const lean_object*)&l___private_Lean_Data_Html_CharRef_0__Lean_Html_namedCharRefData___closed__0_value;
@@ -67,14 +67,18 @@ static const lean_object* l_Lean_Html_namedCharacterReference_x3f___closed__4 = 
 LEAN_EXPORT lean_object* l_Lean_Html_namedCharacterReference_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___00Lean_Html_namedCharacterReference_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___00Lean_Html_namedCharacterReference_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_digit_x3f(uint32_t);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_digit_x3f___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_digit_x3f(uint32_t);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_digit_x3f___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Html_numericCharacterReference_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Html_numericCharacterReference_x3f___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_scalar_x3f(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_scalar_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Html_characterReference_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_parseNamedCharRefData_space(lean_object* v_data_3_, lean_object* v_i_4_){
 _start:
@@ -457,7 +461,7 @@ lean_dec_ref(v_as_116_);
 return v_res_121_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_digit_x3f(uint32_t v_c_122_){
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_digit_x3f(uint32_t v_c_122_){
 _start:
 {
 uint32_t v___x_147_; uint8_t v___x_148_; 
@@ -562,27 +566,27 @@ return v___x_146_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_digit_x3f___boxed(lean_object* v_c_155_){
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_digit_x3f___boxed(lean_object* v_c_155_){
 _start:
 {
 uint32_t v_c_boxed_156_; lean_object* v_res_157_; 
 v_c_boxed_156_ = lean_unbox_uint32(v_c_155_);
 lean_dec(v_c_155_);
-v_res_157_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_digit_x3f(v_c_boxed_156_);
+v_res_157_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_digit_x3f(v_c_boxed_156_);
 return v_res_157_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg(lean_object* v_ref_158_, lean_object* v_radix_159_, lean_object* v_a_160_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg(lean_object* v_ref_158_, lean_object* v_radix_159_, lean_object* v_a_160_){
 _start:
 {
-lean_object* v_fst_161_; lean_object* v_snd_162_; lean_object* v___x_164_; uint8_t v_isShared_165_; uint8_t v_isSharedCheck_187_; 
+lean_object* v_fst_161_; lean_object* v_snd_162_; lean_object* v___x_164_; uint8_t v_isShared_165_; uint8_t v_isSharedCheck_186_; 
 v_fst_161_ = lean_ctor_get(v_a_160_, 0);
 v_snd_162_ = lean_ctor_get(v_a_160_, 1);
-v_isSharedCheck_187_ = !lean_is_exclusive(v_a_160_);
-if (v_isSharedCheck_187_ == 0)
+v_isSharedCheck_186_ = !lean_is_exclusive(v_a_160_);
+if (v_isSharedCheck_186_ == 0)
 {
 v___x_164_ = v_a_160_;
-v_isShared_165_ = v_isSharedCheck_187_;
+v_isShared_165_ = v_isSharedCheck_186_;
 goto v_resetjp_163_;
 }
 else
@@ -591,140 +595,132 @@ lean_inc(v_snd_162_);
 lean_inc(v_fst_161_);
 lean_dec(v_a_160_);
 v___x_164_ = lean_box(0);
-v_isShared_165_ = v_isSharedCheck_187_;
+v_isShared_165_ = v_isSharedCheck_186_;
 goto v_resetjp_163_;
 }
 v_resetjp_163_:
 {
-uint8_t v___x_166_; 
-v___x_166_ = lean_string_utf8_at_end(v_ref_158_, v_snd_162_);
-if (v___x_166_ == 0)
+lean_object* v___y_167_; uint8_t v___x_173_; 
+v___x_173_ = lean_string_utf8_at_end(v_ref_158_, v_snd_162_);
+if (v___x_173_ == 0)
 {
-uint32_t v___x_167_; lean_object* v___x_168_; 
-v___x_167_ = lean_string_utf8_get_fast(v_ref_158_, v_snd_162_);
-v___x_168_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_digit_x3f(v___x_167_);
-if (lean_obj_tag(v___x_168_) == 0)
+uint32_t v___x_174_; lean_object* v___x_175_; 
+v___x_174_ = lean_string_utf8_get_fast(v_ref_158_, v_snd_162_);
+v___x_175_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_digit_x3f(v___x_174_);
+if (lean_obj_tag(v___x_175_) == 0)
 {
-lean_object* v___x_169_; 
+lean_object* v___x_176_; 
 lean_del_object(v___x_164_);
 lean_dec(v_snd_162_);
 lean_dec(v_fst_161_);
-v___x_169_ = lean_box(0);
-return v___x_169_;
+v___x_176_ = lean_box(0);
+return v___x_176_;
 }
 else
 {
-lean_object* v_val_170_; uint8_t v___x_171_; 
-v_val_170_ = lean_ctor_get(v___x_168_, 0);
-lean_inc(v_val_170_);
-lean_dec_ref_known(v___x_168_, 1);
-v___x_171_ = lean_nat_dec_le(v_radix_159_, v_val_170_);
-if (v___x_171_ == 0)
+lean_object* v_val_177_; uint8_t v___x_178_; 
+v_val_177_ = lean_ctor_get(v___x_175_, 0);
+lean_inc(v_val_177_);
+lean_dec_ref_known(v___x_175_, 1);
+v___x_178_ = lean_nat_dec_le(v_radix_159_, v_val_177_);
+if (v___x_178_ == 0)
 {
-lean_object* v___x_172_; lean_object* v___x_173_; lean_object* v___x_174_; uint8_t v___x_175_; 
-v___x_172_ = lean_nat_mul(v_fst_161_, v_radix_159_);
+lean_object* v___x_179_; lean_object* v___x_180_; lean_object* v___x_181_; uint8_t v___x_182_; 
+v___x_179_ = lean_nat_mul(v_fst_161_, v_radix_159_);
 lean_dec(v_fst_161_);
-v___x_173_ = lean_nat_add(v___x_172_, v_val_170_);
-lean_dec(v_val_170_);
-lean_dec(v___x_172_);
-v___x_174_ = lean_unsigned_to_nat(1114111u);
-v___x_175_ = lean_nat_dec_lt(v___x_174_, v___x_173_);
-if (v___x_175_ == 0)
+v___x_180_ = lean_nat_add(v___x_179_, v_val_177_);
+lean_dec(v_val_177_);
+lean_dec(v___x_179_);
+v___x_181_ = lean_unsigned_to_nat(1114112u);
+v___x_182_ = lean_nat_dec_le(v___x_180_, v___x_181_);
+if (v___x_182_ == 0)
 {
-lean_object* v___x_176_; lean_object* v___x_178_; 
-v___x_176_ = lean_string_utf8_next_fast(v_ref_158_, v_snd_162_);
-lean_dec(v_snd_162_);
-if (v_isShared_165_ == 0)
-{
-lean_ctor_set(v___x_164_, 1, v___x_176_);
-lean_ctor_set(v___x_164_, 0, v___x_173_);
-v___x_178_ = v___x_164_;
-goto v_reusejp_177_;
+lean_dec(v___x_180_);
+v___y_167_ = v___x_181_;
+goto v___jp_166_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_180_; 
-v_reuseFailAlloc_180_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_180_, 0, v___x_173_);
-lean_ctor_set(v_reuseFailAlloc_180_, 1, v___x_176_);
-v___x_178_ = v_reuseFailAlloc_180_;
-goto v_reusejp_177_;
-}
-v_reusejp_177_:
-{
-v_a_160_ = v___x_178_;
-goto _start;
+v___y_167_ = v___x_180_;
+goto v___jp_166_;
 }
 }
 else
 {
-lean_object* v___x_181_; 
-lean_dec(v___x_173_);
-lean_del_object(v___x_164_);
-lean_dec(v_snd_162_);
-v___x_181_ = lean_box(0);
-return v___x_181_;
-}
-}
-else
-{
-lean_object* v___x_182_; 
-lean_dec(v_val_170_);
+lean_object* v___x_183_; 
+lean_dec(v_val_177_);
 lean_del_object(v___x_164_);
 lean_dec(v_snd_162_);
 lean_dec(v_fst_161_);
-v___x_182_ = lean_box(0);
-return v___x_182_;
+v___x_183_ = lean_box(0);
+return v___x_183_;
 }
 }
 }
 else
 {
-lean_object* v___x_184_; 
-if (v_isShared_165_ == 0)
-{
-v___x_184_ = v___x_164_;
-goto v_reusejp_183_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_186_; 
-v_reuseFailAlloc_186_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_186_, 0, v_fst_161_);
-lean_ctor_set(v_reuseFailAlloc_186_, 1, v_snd_162_);
-v___x_184_ = v_reuseFailAlloc_186_;
-goto v_reusejp_183_;
-}
-v_reusejp_183_:
-{
-lean_object* v___x_185_; 
+lean_object* v___x_184_; lean_object* v___x_185_; 
+lean_del_object(v___x_164_);
+v___x_184_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_184_, 0, v_fst_161_);
+lean_ctor_set(v___x_184_, 1, v_snd_162_);
 v___x_185_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_185_, 0, v___x_184_);
 return v___x_185_;
 }
+v___jp_166_:
+{
+lean_object* v___x_168_; lean_object* v___x_170_; 
+v___x_168_ = lean_string_utf8_next_fast(v_ref_158_, v_snd_162_);
+lean_dec(v_snd_162_);
+if (v_isShared_165_ == 0)
+{
+lean_ctor_set(v___x_164_, 1, v___x_168_);
+lean_ctor_set(v___x_164_, 0, v___y_167_);
+v___x_170_ = v___x_164_;
+goto v_reusejp_169_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_172_; 
+v_reuseFailAlloc_172_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_172_, 0, v___y_167_);
+lean_ctor_set(v_reuseFailAlloc_172_, 1, v___x_168_);
+v___x_170_ = v_reuseFailAlloc_172_;
+goto v_reusejp_169_;
+}
+v_reusejp_169_:
+{
+v_a_160_ = v___x_170_;
+goto _start;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg___boxed(lean_object* v_ref_188_, lean_object* v_radix_189_, lean_object* v_a_190_){
+}
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg___boxed(lean_object* v_ref_187_, lean_object* v_radix_188_, lean_object* v_a_189_){
 _start:
 {
-lean_object* v_res_191_; 
-v_res_191_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg(v_ref_188_, v_radix_189_, v_a_190_);
-lean_dec(v_radix_189_);
-lean_dec_ref(v_ref_188_);
-return v_res_191_;
+lean_object* v_res_190_; 
+v_res_190_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg(v_ref_187_, v_radix_188_, v_a_189_);
+lean_dec(v_radix_188_);
+lean_dec_ref(v_ref_187_);
+return v_res_190_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric(lean_object* v_radix_192_, lean_object* v_ref_193_, lean_object* v_i_194_){
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric(lean_object* v_radix_191_, lean_object* v_ref_192_, lean_object* v_i_193_){
 _start:
+{
+uint8_t v___x_194_; 
+v___x_194_ = lean_string_utf8_at_end(v_ref_192_, v_i_193_);
+if (v___x_194_ == 0)
 {
 lean_object* v_n_195_; lean_object* v___x_196_; lean_object* v___x_197_; 
 v_n_195_ = lean_unsigned_to_nat(0u);
 v___x_196_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_196_, 0, v_n_195_);
-lean_ctor_set(v___x_196_, 1, v_i_194_);
-v___x_197_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg(v_ref_193_, v_radix_192_, v___x_196_);
+lean_ctor_set(v___x_196_, 1, v_i_193_);
+v___x_197_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg(v_ref_192_, v_radix_191_, v___x_196_);
 if (lean_obj_tag(v___x_197_) == 0)
 {
 lean_object* v___x_198_; 
@@ -733,13 +729,13 @@ return v___x_198_;
 }
 else
 {
-lean_object* v_val_199_; lean_object* v___x_201_; uint8_t v_isShared_202_; uint8_t v_isSharedCheck_222_; 
+lean_object* v_val_199_; lean_object* v___x_201_; uint8_t v_isShared_202_; uint8_t v_isSharedCheck_207_; 
 v_val_199_ = lean_ctor_get(v___x_197_, 0);
-v_isSharedCheck_222_ = !lean_is_exclusive(v___x_197_);
-if (v_isSharedCheck_222_ == 0)
+v_isSharedCheck_207_ = !lean_is_exclusive(v___x_197_);
+if (v_isSharedCheck_207_ == 0)
 {
 v___x_201_ = v___x_197_;
-v_isShared_202_ = v_isSharedCheck_222_;
+v_isShared_202_ = v_isSharedCheck_207_;
 goto v_resetjp_200_;
 }
 else
@@ -747,208 +743,270 @@ else
 lean_inc(v_val_199_);
 lean_dec(v___x_197_);
 v___x_201_ = lean_box(0);
-v_isShared_202_ = v_isSharedCheck_222_;
+v_isShared_202_ = v_isSharedCheck_207_;
 goto v_resetjp_200_;
 }
 v_resetjp_200_:
 {
-lean_object* v_fst_203_; uint32_t v___x_204_; uint32_t v___x_211_; uint8_t v___x_212_; 
+lean_object* v_fst_203_; lean_object* v___x_205_; 
 v_fst_203_ = lean_ctor_get(v_val_199_, 0);
 lean_inc(v_fst_203_);
 lean_dec(v_val_199_);
-v___x_204_ = l_Char_ofNat(v_fst_203_);
-lean_dec(v_fst_203_);
-v___x_211_ = 0;
-v___x_212_ = lean_uint32_dec_eq(v___x_204_, v___x_211_);
-if (v___x_212_ == 0)
-{
-uint32_t v___x_213_; uint8_t v___x_214_; 
-v___x_213_ = 13;
-v___x_214_ = lean_uint32_dec_eq(v___x_204_, v___x_213_);
-if (v___x_214_ == 0)
-{
-uint8_t v___x_215_; 
-v___x_215_ = l_Lean_Html_isNonCharacter(v___x_204_);
-if (v___x_215_ == 0)
-{
-uint8_t v___x_216_; 
-v___x_216_ = l_Lean_Html_isControl(v___x_204_);
-if (v___x_216_ == 0)
-{
-goto v___jp_205_;
-}
-else
-{
-uint8_t v___x_217_; 
-v___x_217_ = l_Lean_Html_isAsciiWhitespace(v___x_204_);
-if (v___x_217_ == 0)
-{
-lean_object* v___x_218_; 
-lean_del_object(v___x_201_);
-v___x_218_ = lean_box(0);
-return v___x_218_;
-}
-else
-{
-goto v___jp_205_;
-}
-}
-}
-else
-{
-lean_object* v___x_219_; 
-lean_del_object(v___x_201_);
-v___x_219_ = lean_box(0);
-return v___x_219_;
-}
-}
-else
-{
-lean_object* v___x_220_; 
-lean_del_object(v___x_201_);
-v___x_220_ = lean_box(0);
-return v___x_220_;
-}
-}
-else
-{
-lean_object* v___x_221_; 
-lean_del_object(v___x_201_);
-v___x_221_ = lean_box(0);
-return v___x_221_;
-}
-v___jp_205_:
-{
-lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v___x_209_; 
-v___x_206_ = ((lean_object*)(l_Lean_Html_namedCharacterReference_x3f___closed__4));
-v___x_207_ = lean_string_push(v___x_206_, v___x_204_);
 if (v_isShared_202_ == 0)
 {
-lean_ctor_set(v___x_201_, 0, v___x_207_);
-v___x_209_ = v___x_201_;
-goto v_reusejp_208_;
+lean_ctor_set(v___x_201_, 0, v_fst_203_);
+v___x_205_ = v___x_201_;
+goto v_reusejp_204_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_210_; 
-v_reuseFailAlloc_210_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_210_, 0, v___x_207_);
-v___x_209_ = v_reuseFailAlloc_210_;
-goto v_reusejp_208_;
+lean_object* v_reuseFailAlloc_206_; 
+v_reuseFailAlloc_206_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_206_, 0, v_fst_203_);
+v___x_205_ = v_reuseFailAlloc_206_;
+goto v_reusejp_204_;
 }
-v_reusejp_208_:
+v_reusejp_204_:
 {
-return v___x_209_;
+return v___x_205_;
 }
 }
 }
 }
+else
+{
+lean_object* v___x_208_; 
+lean_dec(v_i_193_);
+v___x_208_ = lean_box(0);
+return v___x_208_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric___boxed(lean_object* v_radix_223_, lean_object* v_ref_224_, lean_object* v_i_225_){
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric___boxed(lean_object* v_radix_209_, lean_object* v_ref_210_, lean_object* v_i_211_){
 _start:
 {
-lean_object* v_res_226_; 
-v_res_226_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric(v_radix_223_, v_ref_224_, v_i_225_);
-lean_dec_ref(v_ref_224_);
-lean_dec(v_radix_223_);
-return v_res_226_;
+lean_object* v_res_212_; 
+v_res_212_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric(v_radix_209_, v_ref_210_, v_i_211_);
+lean_dec_ref(v_ref_210_);
+lean_dec(v_radix_209_);
+return v_res_212_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0(lean_object* v_ref_227_, lean_object* v_radix_228_, lean_object* v_inst_229_, lean_object* v_a_230_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0(lean_object* v_ref_213_, lean_object* v_radix_214_, lean_object* v_inst_215_, lean_object* v_a_216_){
 _start:
 {
-lean_object* v___x_231_; 
-v___x_231_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___redArg(v_ref_227_, v_radix_228_, v_a_230_);
-return v___x_231_;
+lean_object* v___x_217_; 
+v___x_217_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___redArg(v_ref_213_, v_radix_214_, v_a_216_);
+return v___x_217_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0___boxed(lean_object* v_ref_232_, lean_object* v_radix_233_, lean_object* v_inst_234_, lean_object* v_a_235_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0___boxed(lean_object* v_ref_218_, lean_object* v_radix_219_, lean_object* v_inst_220_, lean_object* v_a_221_){
 _start:
 {
-lean_object* v_res_236_; 
-v_res_236_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric_spec__0(v_ref_232_, v_radix_233_, v_inst_234_, v_a_235_);
-lean_dec(v_radix_233_);
-lean_dec_ref(v_ref_232_);
-return v_res_236_;
+lean_object* v_res_222_; 
+v_res_222_ = l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric_spec__0(v_ref_218_, v_radix_219_, v_inst_220_, v_a_221_);
+lean_dec(v_radix_219_);
+lean_dec_ref(v_ref_218_);
+return v_res_222_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Html_characterReference_x3f(lean_object* v_ref_237_){
+LEAN_EXPORT lean_object* l_Lean_Html_numericCharacterReference_x3f(lean_object* v_ref_223_){
 _start:
 {
-lean_object* v_i_238_; uint8_t v___x_239_; 
-v_i_238_ = lean_unsigned_to_nat(0u);
-v___x_239_ = lean_string_utf8_at_end(v_ref_237_, v_i_238_);
-if (v___x_239_ == 0)
+lean_object* v_i_224_; uint8_t v___x_225_; 
+v_i_224_ = lean_unsigned_to_nat(0u);
+v___x_225_ = lean_string_utf8_at_end(v_ref_223_, v_i_224_);
+if (v___x_225_ == 0)
 {
-uint32_t v___x_240_; uint32_t v___x_241_; uint8_t v___x_242_; 
-v___x_240_ = lean_string_utf8_get_fast(v_ref_237_, v_i_238_);
-v___x_241_ = 35;
-v___x_242_ = lean_uint32_dec_eq(v___x_240_, v___x_241_);
-if (v___x_242_ == 0)
+uint32_t v___x_226_; uint32_t v___x_227_; uint8_t v___x_228_; 
+v___x_226_ = lean_string_utf8_get_fast(v_ref_223_, v_i_224_);
+v___x_227_ = 35;
+v___x_228_ = lean_uint32_dec_eq(v___x_226_, v___x_227_);
+if (v___x_228_ == 0)
+{
+lean_object* v___x_229_; 
+v___x_229_ = lean_box(0);
+return v___x_229_;
+}
+else
+{
+lean_object* v_i_230_; uint8_t v___x_235_; 
+v_i_230_ = lean_string_utf8_next_fast(v_ref_223_, v_i_224_);
+v___x_235_ = lean_string_utf8_at_end(v_ref_223_, v_i_230_);
+if (v___x_235_ == 0)
+{
+uint32_t v___x_236_; uint32_t v___x_237_; uint8_t v___x_238_; 
+v___x_236_ = lean_string_utf8_get_fast(v_ref_223_, v_i_230_);
+v___x_237_ = 120;
+v___x_238_ = lean_uint32_dec_eq(v___x_236_, v___x_237_);
+if (v___x_238_ == 0)
+{
+uint32_t v___x_239_; uint8_t v___x_240_; 
+v___x_239_ = 88;
+v___x_240_ = lean_uint32_dec_eq(v___x_236_, v___x_239_);
+if (v___x_240_ == 0)
+{
+lean_object* v___x_241_; lean_object* v___x_242_; 
+v___x_241_ = lean_unsigned_to_nat(10u);
+v___x_242_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric(v___x_241_, v_ref_223_, v_i_230_);
+return v___x_242_;
+}
+else
+{
+goto v___jp_231_;
+}
+}
+else
+{
+goto v___jp_231_;
+}
+}
+else
 {
 lean_object* v___x_243_; 
-v___x_243_ = l_Lean_Html_namedCharacterReference_x3f(v_ref_237_);
+v___x_243_ = lean_box(0);
 return v___x_243_;
 }
+v___jp_231_:
+{
+lean_object* v___x_232_; lean_object* v___x_233_; lean_object* v___x_234_; 
+v___x_232_ = lean_unsigned_to_nat(16u);
+v___x_233_ = lean_string_utf8_next_fast(v_ref_223_, v_i_230_);
+v___x_234_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_numericCharacterReference_x3f_numeric(v___x_232_, v_ref_223_, v___x_233_);
+return v___x_234_;
+}
+}
+}
 else
 {
-lean_object* v_i_244_; uint8_t v___x_249_; 
-v_i_244_ = lean_string_utf8_next_fast(v_ref_237_, v_i_238_);
-v___x_249_ = lean_string_utf8_at_end(v_ref_237_, v_i_244_);
+lean_object* v___x_244_; 
+v___x_244_ = lean_box(0);
+return v___x_244_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Html_numericCharacterReference_x3f___boxed(lean_object* v_ref_245_){
+_start:
+{
+lean_object* v_res_246_; 
+v_res_246_ = l_Lean_Html_numericCharacterReference_x3f(v_ref_245_);
+lean_dec_ref(v_ref_245_);
+return v_res_246_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_scalar_x3f(lean_object* v_n_247_){
+_start:
+{
+lean_object* v___x_248_; uint8_t v___x_249_; 
+v___x_248_ = lean_unsigned_to_nat(1114111u);
+v___x_249_ = lean_nat_dec_lt(v___x_248_, v_n_247_);
 if (v___x_249_ == 0)
 {
-uint32_t v___x_250_; uint32_t v___x_251_; uint8_t v___x_252_; 
-v___x_250_ = lean_string_utf8_get_fast(v_ref_237_, v_i_244_);
-v___x_251_ = 120;
-v___x_252_ = lean_uint32_dec_eq(v___x_250_, v___x_251_);
-if (v___x_252_ == 0)
+uint32_t v_c_250_; uint32_t v___x_255_; uint8_t v___x_256_; 
+v_c_250_ = l_Char_ofNat(v_n_247_);
+v___x_255_ = 0;
+v___x_256_ = lean_uint32_dec_eq(v_c_250_, v___x_255_);
+if (v___x_256_ == 0)
 {
-uint32_t v___x_253_; uint8_t v___x_254_; 
-v___x_253_ = 88;
-v___x_254_ = lean_uint32_dec_eq(v___x_250_, v___x_253_);
-if (v___x_254_ == 0)
+uint32_t v___x_257_; uint8_t v___x_258_; 
+v___x_257_ = 13;
+v___x_258_ = lean_uint32_dec_eq(v_c_250_, v___x_257_);
+if (v___x_258_ == 0)
 {
-lean_object* v___x_255_; lean_object* v___x_256_; 
-v___x_255_ = lean_unsigned_to_nat(10u);
-v___x_256_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric(v___x_255_, v_ref_237_, v_i_244_);
-lean_dec_ref(v_ref_237_);
-return v___x_256_;
+uint8_t v___x_259_; 
+v___x_259_ = l_Lean_Html_isNonCharacter(v_c_250_);
+if (v___x_259_ == 0)
+{
+uint8_t v___x_260_; 
+v___x_260_ = l_Lean_Html_isControl(v_c_250_);
+if (v___x_260_ == 0)
+{
+goto v___jp_251_;
 }
 else
 {
-goto v___jp_245_;
-}
+uint8_t v___x_261_; 
+v___x_261_ = l_Lean_Html_isAsciiWhitespace(v_c_250_);
+if (v___x_261_ == 0)
+{
+lean_object* v___x_262_; 
+v___x_262_ = lean_box(0);
+return v___x_262_;
 }
 else
 {
-goto v___jp_245_;
-}
-}
-else
-{
-lean_object* v___x_257_; 
-lean_dec_ref(v_ref_237_);
-v___x_257_ = lean_box(0);
-return v___x_257_;
-}
-v___jp_245_:
-{
-lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; 
-v___x_246_ = lean_unsigned_to_nat(16u);
-v___x_247_ = lean_string_utf8_next_fast(v_ref_237_, v_i_244_);
-v___x_248_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_numeric(v___x_246_, v_ref_237_, v___x_247_);
-lean_dec_ref(v_ref_237_);
-return v___x_248_;
+goto v___jp_251_;
 }
 }
 }
 else
 {
-lean_object* v___x_258_; 
-lean_dec_ref(v_ref_237_);
-v___x_258_ = lean_box(0);
-return v___x_258_;
+lean_object* v___x_263_; 
+v___x_263_ = lean_box(0);
+return v___x_263_;
+}
+}
+else
+{
+lean_object* v___x_264_; 
+v___x_264_ = lean_box(0);
+return v___x_264_;
+}
+}
+else
+{
+lean_object* v___x_265_; 
+v___x_265_ = lean_box(0);
+return v___x_265_;
+}
+v___jp_251_:
+{
+lean_object* v___x_252_; lean_object* v___x_253_; lean_object* v___x_254_; 
+v___x_252_ = ((lean_object*)(l_Lean_Html_namedCharacterReference_x3f___closed__4));
+v___x_253_ = lean_string_push(v___x_252_, v_c_250_);
+v___x_254_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_254_, 0, v___x_253_);
+return v___x_254_;
+}
+}
+else
+{
+lean_object* v___x_266_; 
+v___x_266_ = lean_box(0);
+return v___x_266_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_scalar_x3f___boxed(lean_object* v_n_267_){
+_start:
+{
+lean_object* v_res_268_; 
+v_res_268_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_scalar_x3f(v_n_267_);
+lean_dec(v_n_267_);
+return v_res_268_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Html_characterReference_x3f(lean_object* v_ref_269_){
+_start:
+{
+lean_object* v___x_270_; 
+v___x_270_ = l_Lean_Html_numericCharacterReference_x3f(v_ref_269_);
+if (lean_obj_tag(v___x_270_) == 0)
+{
+lean_object* v___x_271_; 
+v___x_271_ = l_Lean_Html_namedCharacterReference_x3f(v_ref_269_);
+return v___x_271_;
+}
+else
+{
+lean_object* v_val_272_; lean_object* v___x_273_; 
+lean_dec_ref(v_ref_269_);
+v_val_272_ = lean_ctor_get(v___x_270_, 0);
+lean_inc(v_val_272_);
+lean_dec_ref_known(v___x_270_, 1);
+v___x_273_ = l___private_Lean_Data_Html_CharRef_0__Lean_Html_characterReference_x3f_scalar_x3f(v_val_272_);
+lean_dec(v_val_272_);
+return v___x_273_;
 }
 }
 }

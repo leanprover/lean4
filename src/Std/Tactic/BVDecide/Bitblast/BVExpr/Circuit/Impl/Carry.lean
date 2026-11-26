@@ -20,7 +20,7 @@ overflow. This is provided separately from the addition circuit for two reasons:
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace BVExpr
 namespace bitblast

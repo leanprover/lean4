@@ -141,13 +141,13 @@ Provides simple pattern matching capabilities from the start of a {name}`Slice`.
 -/
 class ForwardPattern {ρ : Type} (pat : ρ) where
   /--
-  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
-  prefix removed; otherwise the result is {name}`none`.
+  Checks whether the slice starts with the pattern. If it does, the position just after the prefix
+  is returned; otherwise the result is {name}`none`.
   -/
   skipPrefix? : (s : Slice) →  Option s.Pos
   /--
-  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
-  prefix removed; otherwise the result is {name}`none`.
+  Checks whether the slice starts with the pattern. If it does, the position just after the prefix
+  is returned; otherwise the result is {name}`none`.
   -/
   skipPrefixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => skipPrefix? s
   /--
@@ -299,13 +299,13 @@ Provides simple pattern matching capabilities from the end of a {name}`Slice`.
 -/
 class BackwardPattern {ρ : Type} (pat : ρ) where
   /--
-  Checks whether the slice ends with the pattern. If it does, the slice is returned with the
-  suffix removed; otherwise the result is {name}`none`.
+  Checks whether the slice ends with the pattern. If it does, the start position of the suffix is
+  returned; otherwise the result is {name}`none`.
   -/
   skipSuffix? : (s : Slice) → Option s.Pos
   /--
-  Checks whether the slice ends with the pattern. If it does, the slice is returned with the
-  suffix removed; otherwise the result is {name}`none`.
+  Checks whether the slice ends with the pattern. If it does, the start position of the suffix is
+  returned; otherwise the result is {name}`none`.
   -/
   skipSuffixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => skipSuffix? s
   /--
@@ -323,7 +323,7 @@ can still return completely different results on different slices, even if they 
 string.
 
 There is a stronger lawfulness typeclass {lit}`LawfulBackwardPatternModel` that asserts that the
-{name}`BackwardPattern.skipSuffix?` function behaves like a function that skips the longest prefix
+{name}`BackwardPattern.skipSuffix?` function behaves like a function that skips the longest suffix
 according to some notion of matching.
 -/
 class LawfulBackwardPattern {ρ : Type} (pat : ρ) [BackwardPattern pat] : Prop where
@@ -349,9 +349,7 @@ the pattern from the end towards the start of a {name}`Slice`.
 While these operations can be implemented on top of {name}`BackwardPattern`, some patterns allow
 for more efficient implementations. For example, a searcher for {name}`String` patterns derived
 from the {name}`BackwardPattern` instance on strings would try to match the pattern at every
-position in the string, but more efficient string matching routines are known. Indeed, the Lean
-standard library uses the Knuth-Morris-Pratt algorithm. See the module
-{module -checked}`Init.Data.String.Pattern.String` for the implementation.
+position in the string, but more efficient string matching routines are known.
 
 This class can be used to provide such an efficient implementation. If there is no
 need to specialize in this fashion, then

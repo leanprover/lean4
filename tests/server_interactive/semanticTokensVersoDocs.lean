@@ -12,7 +12,8 @@ part of any token. Empty content, such as an image without alternate text or a l
 without a URL, contributes no token. The final docstring exercises the remaining element kinds:
 roles with named arguments, flags, and brackets, inline link targets, footnotes, display math,
 description list terms, code blocks with arguments, directives, and block commands. Text, alternate
-text, and link URLs that contain an escaped newline get one token per actual source line.
+text, and link URLs that contain an escaped newline get one token per actual source line. Every
+markup token has the `documentation` modifier, and the info-based tokens don't have it.
 -/
 open Lean Doc Elab Term in
 /-- A directive whose content is its blocks, unchanged. -/

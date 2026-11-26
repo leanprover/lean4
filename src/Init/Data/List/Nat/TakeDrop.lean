@@ -387,6 +387,7 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   rw [drop_take]
   simp
 
+set_option linter.deprecated false in
 set_option doc.verso true in
 /--
 This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated

@@ -128,9 +128,6 @@ public def insertPattern [BEq α] (d : DiscrTree α) (p : Pattern) (v : α) : Di
   let keys := p.mkDiscrTreeKeys
   d.insertKeyValue keys v
 
-abbrev findKey? (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
-  cs.binSearch (k, default) (fun a b => a.1 < b.1)
-
 def getKey (e : Expr) : Key :=
   match e.getAppFn' with
   | .lit v            => .lit v
@@ -142,9 +139,9 @@ def getKey (e : Expr) : Key :=
 /--
 If its head is an assigned metavariable, replaces it with its value,
 beta-reducing any applied arguments. Goal types may mention metavariables assigned after the
-goal was created (e.g. by `Pattern.unify?` or by solving a sibling subgoal), so retrieval must
-see through assignments; unassigned metavariables remain opaque atoms (`Key.other`). The result
-is used only for key computation and need not be maximally shared.
+goal was created (e.g. by solving a sibling subgoal), so retrieval must see through assignments;
+unassigned metavariables remain opaque atoms (`Key.other`). The result is used only for key
+computation and need not be maximally shared.
 -/
 partial def resolveAssignedMVars (mctx : MetavarContext) (e : Expr) : Expr :=
   if e.hasExprMVar then
@@ -165,41 +162,10 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   | .mdata _ e => pushArgsTodo todo e
   | _ => todo
 
-partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
-  match c with
-  | .chain key child =>
-    if todo.isEmpty then
-      result
-    else
-      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
-      let todo  := todo.pop
-      if key == .star then
-        getMatchLoop mctx todo child result
-      else if key == getKey e then
-        getMatchLoop mctx (pushArgsTodo todo e) child result
-      else
-        result
-
-  | .node vs cs =>
-    let csize := cs.size
-    if todo.isEmpty then
-      result ++ vs
-    else if h : csize = 0 then
-      result
-    else
-      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
-      let todo  := todo.pop
-      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-        /- We must always visit `Key.star` edges since they are wildcards.
-          Thus, `todo` is not used linearly when there is `Key.star` edge
-          and there is an edge for `k` and `k != Key.star`. -/
-      let result := if first.1 == .star then
-          getMatchLoop mctx todo first.2 result
-        else
-          result
-      match findKey? cs (getKey e) with
-      | none   => result
-      | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
+def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) :
+    Array α :=
+  let key e := let e := resolveAssignedMVars mctx <| etaReduce e; pure (getKey e, e)
+  Id.run <| c.getMatchLoop key pushArgsTodo todo result
 
 /--
 Retrieves all values whose patterns match the expression `e`.

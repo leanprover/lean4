@@ -131,7 +131,19 @@ theorem add_def (xs ys : IntList) :
     (x :: xs) + (y :: ys) = (x + y) :: (xs + ys) := by simp [add_def]
 
 /-- Implementation of `*` on `IntList`. -/
-def mul (xs ys : IntList) : IntList := List.zipWith (· * ·) xs ys
+noncomputable def mul (xs ys : IntList) : IntList := List.zipWith (· * ·) xs ys
+
+/--
+Runtime implementation of `IntList.mul`, which avoids `List.zipWith` because its runtime
+implementation is not available here.
+-/
+def mulImpl : IntList → IntList → IntList
+  | x :: xs, y :: ys => x * y :: mulImpl xs ys
+  | _, _ => []
+
+@[csimp] theorem mul_eq_mulImpl : @mul = @mulImpl := by
+  funext xs ys
+  induction xs generalizing ys <;> cases ys <;> simp_all [mul, mulImpl]
 
 instance : Mul IntList := ⟨mul⟩
 
@@ -247,7 +259,19 @@ theorem sub_eq_add_neg (xs ys : IntList) : xs - ys = xs + (-ys) := by
     | cons y ys => simp_all [Int.mul_assoc]
 
 /-- The sum of the entries of an `IntList`. -/
-def sum (xs : IntList) : Int := xs.foldr (· + ·) 0
+noncomputable def sum (xs : IntList) : Int := xs.foldr (· + ·) 0
+
+/--
+Runtime implementation of `IntList.sum`, which avoids `List.foldr` because its runtime
+implementation is not available here.
+-/
+def sumImpl : IntList → Int
+  | [] => 0
+  | x :: xs => x + sumImpl xs
+
+@[csimp] theorem sum_eq_sumImpl : @sum = @sumImpl := by
+  funext xs
+  induction xs <;> simp_all [sum, sumImpl]
 
 @[simp] theorem sum_nil : sum ([] : IntList) = 0 := rfl
 @[simp] theorem sum_cons : sum (x::xs : IntList) = x + sum xs := rfl
@@ -338,7 +362,19 @@ def sdiv (xs : IntList) (g : Int) : IntList := xs.map fun x => x / g
 @[simp] theorem sdiv_cons : sdiv (x::xs) g = (x / g) :: sdiv xs g := rfl
 
 /-- The gcd of the absolute values of the entries of an `IntList`. -/
-def gcd (xs : IntList) : Nat := xs.foldr (fun x g => Nat.gcd x.natAbs g) 0
+noncomputable def gcd (xs : IntList) : Nat := xs.foldr (fun x g => Nat.gcd x.natAbs g) 0
+
+/--
+Runtime implementation of `IntList.gcd`, which avoids `List.foldr` because its runtime
+implementation is not available here.
+-/
+def gcdImpl : IntList → Nat
+  | [] => 0
+  | x :: xs => Nat.gcd x.natAbs (gcdImpl xs)
+
+@[csimp] theorem gcd_eq_gcdImpl : @gcd = @gcdImpl := by
+  funext xs
+  induction xs <;> simp_all [gcd, gcdImpl]
 
 @[simp] theorem gcd_nil : gcd [] = 0 := rfl
 @[simp] theorem gcd_cons : gcd (x :: xs) = Nat.gcd x.natAbs (gcd xs) := rfl

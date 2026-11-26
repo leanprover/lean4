@@ -56,29 +56,33 @@ Applies a function to a starting value the specified number of times.
 In other words, `f` is iterated `n` times on `a`.
 
 Examples:
-* `Nat.repeat f 3 a = f <| f <| f <| a`
-* `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
+* `Nat.iterate f 3 a = f <| f <| f <| a`
+* `Nat.iterate (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[specialize, expose] def «repeat» {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+@[specialize, expose] noncomputable def iterate {α : Sort u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
-  | succ n, a => f («repeat» f n a)
+  | succ n, a => f (iterate f n a)
 
 /--
 Applies a function to a starting value the specified number of times.
 
 In other words, `f` is iterated `n` times on `a`.
 
-This is a tail-recursive version of `Nat.repeat` that's used at runtime.
+This is a tail-recursive version of `Nat.iterate` that's used at runtime.
 
 Examples:
-* `Nat.repeatTR f 3 a = f <| f <| f <| a`
-* `Nat.repeatTR (· ++ "!") 4 "Hello" = "Hello!!!!"`
+* `Nat.iterateTR f 3 a = f <| f <| f <| a`
+* `Nat.iterateTR (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[inline] def repeatTR {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
+@[inline] def iterateTR {α : Sort u} (f : α → α) (n : Nat) (a : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ n, a => loop n (f a)
   loop n a
+
+set_option linter.missingDocs false in
+@[deprecated Nat.iterateTR (since := "2026-11-23")]
+abbrev repeatTR := @Nat.iterateTR
 
 /--
 The Boolean less-than comparison on natural numbers.
@@ -1220,11 +1224,16 @@ theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 
-@[csimp] theorem repeat_eq_repeatTR : @«repeat» = @repeatTR :=
+@[csimp] theorem iterate_eq_iterateTR : @iterate = @iterateTR :=
   funext fun α => funext fun f => funext fun n => funext fun init =>
-  let rec go : ∀ m n, repeatTR.loop f m («repeat» f n init) = «repeat» f (m + n) init
-    | 0,      n => by simp [repeatTR.loop]
-    | succ m, n => by rw [repeatTR.loop, succ_add]; exact go m (succ n)
+  let rec go : ∀ m n, iterateTR.loop f m (iterate f n init) = iterate f (m + n) init
+    | 0,      n => by simp [iterateTR.loop]
+    | succ m, n => by rw [iterateTR.loop, succ_add]; exact go m (succ n)
   (go n 0).symm
+
+-- we need the csimp to make this computable
+set_option linter.missingDocs false in
+@[deprecated Nat.iterate (since := "2026-11-23")]
+abbrev «repeat» := @Nat.iterate
 
 end Nat

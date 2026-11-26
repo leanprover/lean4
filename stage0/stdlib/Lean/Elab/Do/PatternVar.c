@@ -2161,7 +2161,7 @@ return v_res_796_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Do_getExprPatternVarsEx___redArg(lean_object* v_exprPattern_803_){
 _start:
 {
-lean_object* v___y_806_; size_t v___y_812_; lean_object* v___y_813_; lean_object* v___y_814_; lean_object* v___x_819_; uint8_t v___x_820_; 
+lean_object* v___y_806_; lean_object* v___y_812_; size_t v___y_813_; lean_object* v___y_814_; lean_object* v___x_819_; uint8_t v___x_820_; 
 v___x_819_ = ((lean_object*)(l_Lean_Elab_Do_getExprPatternVarsEx___redArg___closed__1));
 lean_inc(v_exprPattern_803_);
 v___x_820_ = l_Lean_Syntax_isOfKind(v_exprPattern_803_, v___x_819_);
@@ -2274,8 +2274,8 @@ v___x_847_ = lean_nat_dec_lt(v___x_822_, v___x_845_);
 if (v___x_847_ == 0)
 {
 lean_dec_ref(v_pvars_832_);
-v___y_812_ = v___x_843_;
-v___y_813_ = v___x_844_;
+v___y_812_ = v___x_844_;
+v___y_813_ = v___x_843_;
 v___y_814_ = v___x_846_;
 goto v___jp_811_;
 }
@@ -2285,8 +2285,8 @@ size_t v___x_848_; lean_object* v___x_849_;
 v___x_848_ = lean_usize_of_nat(v___x_845_);
 v___x_849_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__1(v_pvars_832_, v___x_843_, v___x_848_, v___x_846_);
 lean_dec_ref(v_pvars_832_);
-v___y_812_ = v___x_843_;
-v___y_813_ = v___x_844_;
+v___y_812_ = v___x_844_;
+v___y_813_ = v___x_843_;
 v___y_814_ = v___x_849_;
 goto v___jp_811_;
 }
@@ -2307,10 +2307,10 @@ return v___x_810_;
 v___jp_811_:
 {
 lean_object* v___x_815_; size_t v_sz_816_; lean_object* v___x_817_; lean_object* v___x_818_; 
-v___x_815_ = l_Array_append___redArg(v___y_813_, v___y_814_);
+v___x_815_ = l_Array_append___redArg(v___y_812_, v___y_814_);
 lean_dec_ref(v___y_814_);
 v_sz_816_ = lean_array_size(v___x_815_);
-v___x_817_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__0(v_sz_816_, v___y_812_, v___x_815_);
+v___x_817_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__0(v_sz_816_, v___y_813_, v___x_815_);
 v___x_818_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_818_, 0, v___x_817_);
 return v___x_818_;

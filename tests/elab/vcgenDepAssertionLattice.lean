@@ -1,5 +1,7 @@
 import Std.WP
 
+set_option sym.debug true
+
 /-!
 Regression test for a *dependent* assertion language `(st : State) → st.Invariant → Prop`. Its order
 is the pointwise function order, but `vcgen`'s peel rule `le_of_forall_le` cannot currently be
@@ -34,20 +36,19 @@ instance : LawfulMonad Stateful :=
     (bind_assoc := by intro _ _ _ x f g; simp only [bind]; funext; grind)
 
 /-- A dependent assertion language: the postcondition `Prop` may depend on a proof about the state.
-An `abbrev`, so the carrier unfolds to the dependent Pi and `Assertion`/`PartialOrder` are the generic
+An `abbrev`, so the carrier unfolds to the dependent Pi and `CompleteLattice`/`PartialOrder` are the generic
 pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 
 instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨⟩ where
-  trans f := ⟨fun post _epost =>
+  trans f := Lean.Order.PredTrans.mk (fun post _epost =>
     fun st _ =>
       let (optRes, stOut) := f.run st
       ∃ h : stOut.Invariant,
       match optRes with
       | none => True
-      | some res => post res stOut h⟩
-  trans_monotone x := by
-    simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
+      | some res => post res stOut h) (by
+    simp only [Lean.Order.PartialOrder.rel, Stateful.run]; grind)
 
 theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
     (post : α → StateProp) (eposts : EStack⟨⟩) (st : State) (h : st.Invariant) :
@@ -57,11 +58,16 @@ theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
           | none => True
           | some r => post r (x st).2 h' := rfl
 
-instance : WPMonad Stateful StateProp EStack⟨⟩ where
-  toWP _ := Stateful.instWP
-  pure_le_wp_pure x post eposts := by
+instance : MonadicWP Stateful StateProp EStack⟨⟩ := ⟨fun _ => inferInstance⟩
+
+instance : MonadicWP.IsLaxDistrib Stateful where
+  pure_le x := by
+    intro post eposts
     intro st h hp; exact ⟨h, hp⟩
-  bind_le_wp_bind x f post eposts := by
+  bind_le x f := by
+    intro post eposts
+    show Lean.Order.PartialOrder.rel (wp x (fun a => wp (f a) post eposts) eposts)
+      (wp (x >>= f) post eposts)
     intro st h hp
     simp only [Stateful.trans_apply_eq, bind] at hp ⊢
     grind

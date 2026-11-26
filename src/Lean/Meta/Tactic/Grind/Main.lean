@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.Relevance
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
@@ -134,18 +135,26 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
       pure ({}, {})
     else
       let thms ← getNormSymTheorems
-      pure (mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
+      pure (← mkNormSymMethods config thms, mkNormSymDSimpMethods config thms)
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
   let anchors := config.trace || anchorRefs?.isSome || params.interactive
   let identity := params.identity
   let activeSolvers ← Solvers.activeIds config
+  let filterFacts ← pure config.filterFacts <&&> Solvers.haveRelevanceChecks activeSolvers
+  let relevantSymbols := if filterFacts && config.ematch > 0 then
+    let symbols := extensions.foldl (init := {}) fun symbols ext => ext.ematch.collectSymbols symbols
+    params.extra.foldl (init := symbols) fun symbols thm =>
+      thm.symbols.foldl (init := symbols) fun symbols sym =>
+        if let .const declName := sym then symbols.insert declName else symbols
+  else
+    {}
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, identity, activeSolvers, anchorRefs?, anchors, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
+    { config, identity, activeSolvers, filterFacts, relevantSymbols, anchorRefs?, anchors, simpMethods, symSimpMethods, symDSimpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -212,6 +221,8 @@ structure Result where
   records are needed to print it after the `SymM` run is over.
   -/
   rings       : Array Sym.Arith.CommRing
+  /-- See `Grind.State.numBranches`. -/
+  numBranches : Nat
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
@@ -260,7 +271,7 @@ def Result.hasFailed (r : Result) : Bool :=
   r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config result.rings)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config result.rings result.numBranches)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -286,7 +297,7 @@ def Result.toErrorMessageData (result : Result) (tacticName : Name := result.ide
     return m!"`{tacticName}` failed\n{← result.toMessageData}"
   else
     let ts ← match result.failure? with
-      | some goal => getThresholdsReached goal result.config
+      | some goal => getThresholdsReached goal result.config result.numBranches
       | none => pure #[]
     let items := ts.map (·.toConfigItem)
     let reached := match items.toList with
@@ -368,6 +379,7 @@ where
       unless localDecl.isImplementationDetail do
         let type := localDecl.type
         if (← isProp type) then
+          unless (← filterFact type localDecl.toExpr) do return
           let r ← preprocessHypothesis type
           match r.proof? with
           | none => add r.expr localDecl.toExpr
@@ -419,7 +431,8 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
       if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
   let rings := (← Sym.Arith.getArithState).rings
-  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
+  let numBranches := (← get).numBranches
+  return { identity := params.identity, failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings, numBranches }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

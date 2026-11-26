@@ -3230,13 +3230,17 @@ theorem norm_int (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p �
 /-!
 Kernel-reduction variants of `Poly.denote'`: `cutsat` states the result of `norm_int` with
 `Poly.denote'_k`, which the kernel unfolds to match it with its own polynomials.
+They are `abbrev`s so that the kernel's lazy delta reduction unfolds them before the arithmetic on
+the other side (e.g., `Int.add`), whose unfolding would make the kernel reduce the atoms.
 -/
 
-noncomputable def Mon.denote'_k.go {α} [Semiring α] (ctx : Context α) (m : Mon) : α → α :=
+noncomputable abbrev Mon.denote'_k.go {α} [Semiring α] (ctx : Context α) (m : Mon) : α → α :=
   Mon.rec (fun acc => acc) (fun pw _ ih acc => ih (acc * pw.denote ctx)) m
 
-noncomputable def Mon.denote'_k {α} [Semiring α] (ctx : Context α) (m : Mon) : α :=
+noncomputable abbrev Mon.denote'_k {α} [Semiring α] (ctx : Context α) (m : Mon) : α :=
   Mon.rec 1 (fun pw m _ => Mon.denote'_k.go ctx m (pw.denote ctx)) m
+
+attribute [semireducible] Mon.denote'_k.go Mon.denote'_k
 
 theorem Mon.denote'_k_eq {α} [Semiring α] (ctx : Context α) (m : Mon) : m.denote'_k ctx = m.denote' ctx := by
   have hgo : ∀ m acc, Mon.denote'_k.go ctx m acc = Mon.denote'.go ctx m acc := by
@@ -3247,20 +3251,24 @@ theorem Mon.denote'_k_eq {α} [Semiring α] (ctx : Context α) (m : Mon) : m.den
   | unit => rfl
   | mult pw m => exact hgo m _
 
-noncomputable def denoteTerm_k {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : α :=
+noncomputable abbrev denoteTerm_k {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : α :=
   Bool.rec (k • Mon.denote'_k ctx m) (Mon.denote'_k ctx m) (Int.beq' k 1)
+
+attribute [semireducible] denoteTerm_k
 
 theorem denoteTerm_k_eq {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denoteTerm_k ctx k m = denoteTerm ctx k m := by
   unfold denoteTerm_k denoteTerm
   rw [Mon.denote'_k_eq, show Int.beq' k 1 = (k == 1) from by simp [Int.beq'_eq_beq]]
   cases k == 1 <;> rfl
 
-noncomputable def Poly.denote'_k.go {α} [Ring α] (ctx : Context α) (p : Poly) : α → α :=
+noncomputable abbrev Poly.denote'_k.go {α} [Ring α] (ctx : Context α) (p : Poly) : α → α :=
   Poly.rec (fun k acc => Bool.rec (acc + Int.cast k) acc (Int.beqZero_k k))
     (fun k m _ ih acc => ih (acc + denoteTerm_k ctx k m)) p
 
-noncomputable def Poly.denote'_k {α} [Ring α] (ctx : Context α) (p : Poly) : α :=
+noncomputable abbrev Poly.denote'_k {α} [Ring α] (ctx : Context α) (p : Poly) : α :=
   Poly.rec (fun k => Int.cast k) (fun k m p _ => Poly.denote'_k.go ctx p (denoteTerm_k ctx k m)) p
+
+attribute [semireducible] Poly.denote'_k.go Poly.denote'_k
 
 theorem Poly.denote'_k_eq {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote'_k ctx = p.denote' ctx := by
   have hgo : ∀ p acc, Poly.denote'_k.go ctx p acc = Poly.denote'.go ctx p acc := by

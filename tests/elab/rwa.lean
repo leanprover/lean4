@@ -7,12 +7,11 @@ public import Lean.Elab.Term.TermElabM
 # Tests for `rwa`
 
 This tests first-goal isolation, discharging rewrite side goals, rewriting at hypotheses,
-deprecated multi-location compatibility, and warnings when the final closing step is unnecessary.
+and warnings when the final closing step is unnecessary.
 -/
 
 set_option linter.unusedVariables false
 set_option linter.unnecessaryRwa true
-set_option linter.deprecated.syntax true
 
 section SuggestionValidation
 
@@ -161,60 +160,6 @@ example {P : Nat → Prop} {n m : Nat} (h : P (shrink (n + 1))) (h' : n = m) : P
   rwa [shrink, h'] at h
 
 end EquationTheorems
-
-section DeprecatedMultiLocation
-
-variable {a b : α} {P Q R : α → Prop}
-
-/--
-warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
-
-Hint: Replace the deprecated syntax:
-  r̵w̵a̵(̲r̲w̲ [h] at ha hb hc ̲<̲;̲>̲ ̲a̲s̲s̲u̲m̲p̲t̲i̲o̲n̲)̲
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
--/
-#guard_msgs in
-example (ha : P a) (hb : Q a) (hc : R a) (h : a = b) : P b := by
-  rwa [h] at ha hb hc
-
-/--
-warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
-
-Hint: Replace the deprecated syntax:
-  r̵w̵a̵(̲r̲w̲ [Nat.zero_add] at * ̲<̲;̲>̲ ̲a̲s̲s̲u̲m̲p̲t̲i̲o̲n̲)̲
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
--/
-#guard_msgs in
-example (S : Nat → Prop) (n : Nat) (h : S (0 + n)) : S n := by
-  rwa [Nat.zero_add] at *
-
-/--
-warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
-
-Hint: Replace the deprecated syntax:
-  r̵w̵a̵(̲r̲w̲ [Nat.zero_add] at ⊢ ̲<̲;̲>̲ ̲a̲s̲s̲u̲m̲p̲t̲i̲o̲n̲)̲
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
--/
-#guard_msgs in
-example (S : Nat → Prop) (n : Nat) (h : S n) : S (0 + n) := by
-  rwa [Nat.zero_add] at ⊢
-
-/--
-warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
-
-Hint: Replace the deprecated syntax:
-  r̵w̵a̵(̲r̲w̲ [h] at ha ⊢ ̲<̲;̲>̲ ̲a̲s̲s̲u̲m̲p̲t̲i̲o̲n̲)̲
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
--/
-#guard_msgs in
-example (ha : P a) (h : a = b) : P a := by
-  rwa [h] at ha ⊢
-
-end DeprecatedMultiLocation
 
 section Unnecessary
 

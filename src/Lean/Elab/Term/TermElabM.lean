@@ -10,6 +10,7 @@ public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 import Lean.Elab.DeprecatedSyntax.Basic
+import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -1085,6 +1086,17 @@ def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
 def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Ident :=
   return mkIdentFrom ref (← mkFreshBinderName) canonical
 
+@[inline] def withoutCheckDeprecated [MonadWithReaderOf Core.Context m] : m α → m α :=
+  withTheReader Core.Context (fun ctx => { ctx with checkDeprecated := .none })
+
+/--
+Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
+See `Core.DeprecationCheck.userWritten`.
+-/
+@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Core.Context m] : m α → m α :=
+  withTheReader Core.Context fun ctx =>
+    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
+
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
@@ -1094,7 +1106,9 @@ private def applyAttributesCore
   -/
   if declName == .anonymous then
     return
-  withDeclName declName do
+  -- Like the declaration's body, its attributes may refer to deprecated constants if it is deprecated
+  let isDeprecated := Linter.isDeprecated (← getEnv) declName || attrs.any (·.name == `deprecated)
+  (if isDeprecated then withoutCheckDeprecated else id) <| withDeclName declName do
     for attr in attrs do
       -- Use same visibility as for other signature elements, independent of call site
       withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do
@@ -1104,7 +1118,15 @@ private def applyAttributesCore
       match getAttributeImpl env attr.name with
       | .error errMsg => throwError errMsg
       | .ok attrImpl  =>
-        let runAttr := attrImpl.add declName attr.stx attr.kind
+        let runAttr := do
+          attrImpl.add declName attr.stx attr.kind
+          if let some attrsStx := attr.declAttrsStx? then
+            if (← isAutomationAttr attr.name) then
+              let insts := attrsStx[1].getSepArgs
+              let removal? ← match insts.findIdx? (·[1].getRange? == attr.stx.getRange?) with
+                | some i => Linter.mkListRemovalSuggestion attrsStx insts i
+                | none => pure none
+              Linter.checkDeprecatedAutomationAttr attr.stx declName attr.name removal?
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition
           let elaborator := attrImpl.ref
@@ -1720,17 +1742,6 @@ private def elabUsingElabFns (stx : Syntax) (expectedType? : Option Expr) (catch
 -- Shortcut instance; otherwise every use searches for a lift down to `CoreM`.
 instance : MonadMacroAdapter TermElabM := inferInstance
 
-@[inline] def withoutCheckDeprecated [MonadWithReaderOf Core.Context m] : m α → m α :=
-  withTheReader Core.Context (fun ctx => { ctx with checkDeprecated := .none })
-
-/--
-Runs `x` without reporting deprecated constants and syntax, except at syntax written by the user.
-See `Core.DeprecationCheck.userWritten`.
--/
-@[inline] def withoutCheckDeprecatedSynthetic [MonadWithReaderOf Core.Context m] : m α → m α :=
-  withTheReader Core.Context fun ctx =>
-    if ctx.checkDeprecated matches .all then { ctx with checkDeprecated := .userWritten } else ctx
-
 /--
 Runs `x`, which elaborates `stx` or its macro expansion. If the kind of `stx` is deprecated, `x`
 reports deprecations only in syntax written by the user: `stx` is reported as a whole, so the
@@ -2222,9 +2233,26 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
-  if (← Core.shouldCheckDeprecated (← getRef)) then
-    Linter.checkDeprecated constName allowSuggestion
+/--
+In a pattern, offers the replacement of a deprecated constant only if it can be used in patterns,
+and explains why not otherwise.
+-/
+private def mkPatternDeprecationHint (declName newName : Name) : MetaM MessageData := do
+  let env ← getEnv
+  if env.isConstructor newName || hasMatchPatternAttribute env newName then
+    Linter.mkIdentHint declName newName
+  else
+    return .note m!"`{.ofConstName newName true}` is neither a constructor nor a `@[match_pattern]` \
+      definition, so it cannot be used in this pattern. Written as `{newName.getString!}`, it would \
+      instead be a new pattern variable that matches every value."
+
+def checkDeprecatedCore (constName : Name) (hint : Linter.DeprecationHint := .ident) :
+    TermElabM Unit := do
+  let hint := if (← read).inPattern && hint matches .ident then
+    .custom (mkPatternDeprecationHint constName)
+  else
+    hint
+  Linter.checkDeprecatedAt (← getRef) constName hint
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
@@ -2234,7 +2262,7 @@ def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM
   Reports `constName` if it is deprecated, subject to `Core.Context.checkDeprecated`.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  checkDeprecatedCore constName (allowSuggestion := false)
+  checkDeprecatedCore constName (hint := .none)
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for `{constName}`"

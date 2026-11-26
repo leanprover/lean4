@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Basic
 public import Lean.Meta.Tactic.BVDecide.TacticContext
 public import Lean.Cadical.Basic
+public import Lean.Meta.Tactic.BVDecide.EPR.InstSets
 
 /-!
 This module provides the basic infrastructure for the CEGAR (Counter Example Guided Abstraction Refinement)
@@ -35,6 +36,90 @@ public structure CegarHyp where
   and let `grind` modes' automation figure it out.
   -/
   grindProof : MetaM (Option (TSyntax `Lean.Parser.Tactic.tacticSeq))
+  /--
+  Whether the hypothesis is already in `bv_decide` normal form and can skip the pre-processor.
+  -/
+  isNormalized : Bool := false
+
+namespace Cegar
+
+/--
+An entry for a particular function symbol in a model
+-/
+public structure FunModel.Entry where
+  /--
+  An entry is a map from inputs to the function symbol to values + the particular application of
+  that function symbol with that value.
+  -/
+  map : Std.HashMap (Array BVExpr.PackedBitVec) (BVExpr.PackedBitVec × Expr) := {}
+  deriving Inhabited
+
+/--
+A model for the UF component of the problem, derived from a SAT/BitVec model.
+-/
+public structure FunModel where
+  /--
+  A model is a map from function symbols (keep in mind that these are lambdas that potentially fix
+  some non-BitVec arguments like a dependent width) to the set of input/output pairs known for this
+  function.
+  -/
+  model : Std.HashMap Sym.ExprPtr FunModel.Entry := {}
+  deriving Inhabited
+
+/--
+A quantified EPR fact prepared for MBQI.
+-/
+public structure EprTemplate.Quant where
+  fact : EPR.QuantifiedFact
+  /--
+  The instantiation constants used to build the "skolem instance" of `fact`.
+  -/
+  instConsts : Array Expr
+  /--
+  The reified `toBv instConst` for each of `instConsts`.
+  -/
+  instConstAtoms : Array ((w : Nat) × BVExpr w)
+  /--
+  The guards and the negated body of `fact` instantiated with `instConsts`, as well as the lemmas
+  generated while reifying them.
+  -/
+  exprs : Array BVLogicalExpr
+
+/--
+A `Bool` predicate UF atom of an `EprTemplate`.
+-/
+public structure EprTemplate.PredAtom where
+  /--
+  The original, unencoded predicate if this is an application of an EPR predicate encoding.
+  -/
+  pred? : Option Expr
+  /--
+  The predicate abstracted over its arguments, the key of the predicate in a `FunModel`.
+  -/
+  pattern : Expr
+  /--
+  The congruence-relevant arguments that the predicate is applied to.
+  -/
+  args : Array ((w : Nat) × BVExpr w)
+
+/--
+The quantified facts of an EPR problem.
+-/
+public structure EprTemplate where
+  /--
+  The reification state that the expressions of the template live in.
+  -/
+  reifyState : BVDecide.State
+  /--
+  The quantifiers themselves.
+  -/
+  quants : Array EprTemplate.Quant
+  /--
+  The atoms of `reifyState` that are `Bool` UF atoms, by atom number.
+  -/
+  predAtoms : Std.HashMap Nat EprTemplate.PredAtom
+
+end Cegar
 
 namespace CegarM
 
@@ -60,6 +145,10 @@ public structure FunState where
   Cache for congruence lemmas on UF theory atoms.
   -/
   congrCache : Std.HashMap Sym.ExprPtr Expr := {}
+  /--
+  The most recent model produced by the UF solver.
+  -/
+  currentModel : Cegar.FunModel := {}
 
 /--
 State of the BitVec theory solver.
@@ -68,15 +157,30 @@ public structure BitVecState where
   /--
   The AIG built so far, incrementally extended every CEGAR step.
   -/
-  aig : Std.Sat.AIG BVBit := .empty
+  aig : Std.Internal.Sat.AIG BVBit := .empty
   /--
   The bitblasting cached used so far, incrementally extended every CEGAR step.
   -/
-  blastCache : BVExpr.Cache aig := .empty
+  blastCache : BVLogicalExpr.Cache aig := .empty
   /--
   Both the CNF cache and CNF formula built up so far, incrementally extended every CEGAR step.
   -/
-  cnfCache : Std.Sat.AIG.toCNF.State aig := .empty aig
+  cnfCache : Std.Internal.Sat.AIG.toCNF.State aig := .empty aig
+
+/--
+State of the EPR theory solver.
+-/
+public structure EprState where
+  /--
+  The instantiation set analysis, computed at the first MBQI round and updated continously
+  throughout the search. Before querying it needs to have been fed every ground term currently in
+  the problem.
+  -/
+  instSets : Option EPR.InstSets := none
+  /--
+  The reified quantifiers for MBQI, built at the first MBQI round.
+  -/
+  template : Option Cegar.EprTemplate := none
 
 /--
 State carried around by our theory solvers.
@@ -90,6 +194,10 @@ public structure TheoryState where
   BitVec theory state.
   -/
   bitvecState : BitVecState := {}
+  /--
+  EPR theory state.
+  -/
+  eprState : EprState := {}
   /--
   Caches for the hypothesis preprocessor.
   -/
@@ -184,7 +292,7 @@ public def getTacticContext : CegarM TacticContext := return (← read).tacticCo
 @[inline]
 public def hasRefinementProcedures : CegarM Bool := do
   let cfg := (← getTacticContext).config
-  return cfg.uf
+  return cfg.uf || cfg.epr
 
 @[inline]
 public def consumeSolverTime (ms : Nat) : CegarM Unit := do
@@ -227,6 +335,29 @@ public def run (ctx : TacticContext) (x : CegarM (Except CounterExample α)) : U
     StateRefT'.run' (ReaderT.run x ctx) state
 
 public def getSatSolver : CegarM Cadical.Solver := return (← get).theoryState.satSolver
+
+@[inline]
+public def liftPreProcessM (x : Normalize.PreProcessM α) : CegarM α := do
+  let target := .mvarIdTarget (← read).goal
+  let ctx := (← CegarM.getTacticContext).preProcessContext
+  let ctx :=
+    .new
+      ctx.mode
+      { ctx.config with
+          enums := false,
+          structures := false,
+          fixedInt := false,
+          shortCircuit := false
+          epr := false
+      }
+      true
+  let caches ← CegarM.takePreProcessCaches
+  let (val, state) ←
+    Normalize.PreProcessM.run ctx target do
+      Normalize.PreProcessM.setCaches caches
+      x
+  CegarM.setPreProcessCaches state.caches
+  return val
 
 public structure CounterExample where
   exprCex : Std.HashMap Expr BVExpr.PackedBitVec

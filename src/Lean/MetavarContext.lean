@@ -357,14 +357,6 @@ structure DelayedMetavarAssignment where
   fvars         : Array Expr
   mvarIdPending : MVarId
 
-/--
-Holds a `Lean.Meta.SynthNormClosureMemo`, whose type is defined later; see
-`MetavarContext.synthNormMemo?`.
--/
-structure SynthNormMemoSlot where
-  private raw? : Option NonScalar := none
-  deriving Inhabited
-
 /-- The metavariable context is a set of metavariable declarations and their assignments.
 
 For more information on specifics see the comment in the file that `MetavarContext` is defined in.
@@ -394,20 +386,13 @@ structure MetavarContext where
   /--
   Metavariables whose assignments must preserve the type up to `TransparencyMode.instances`.
 
-  Metavariables created for the instance-implicit arguments of an instance during typeclass
-  resolution are added to this set, and membership is propagated to the metavariables in
-  type-determining (spine) positions of values assigned to members. This maintains the
-  invariant that the final instantiation of such a metavariable has a type that agrees with
-  the metavariable's type at `.instances` transparency, so unification cannot commit to an
-  instance for a type that is different at instance-resolution time. See issue #9077.
+  Metavariables created for the instance-implicit arguments of an instance during type class
+  resolution are added to this set. This maintains the invariant that the final instantiation
+  of such a metavariable has a type that agrees with the metavariable's type at `.instances`
+  transparency, so unification cannot commit to an instance for a type that is different at
+  instance-resolution time. See issue #9077.
   -/
   instanceTypedMVars : PersistentHashMap MVarId Unit := {}
-  /--
-  The memoized free-variable normalization of the local instances for the type class resolution
-  cache key. It depends on the assignments, so it is stored with them: whatever reverts the
-  assignments also reverts the memo.
-  -/
-  synthNormMemo : SynthNormMemoSlot := default
 
 instance : Inhabited MetavarContext := ⟨{}⟩
 
@@ -699,7 +684,7 @@ def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit 
   let mvarDecl     := (← getMCtx).getDecl mvarId
   let lctx ← instantiateLCtxMVars mvarDecl.lctx
   let type ← instantiateMVars mvarDecl.type
-  let (lctx, type) := ShareCommon.shareCommon' (lctx, type)
+  let (lctx, type) := ShareCommon.shareCommon (lctx, type)
   modifyMCtx fun mctx => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx, type } }
 
 def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : m LocalDecl := do
@@ -1263,6 +1248,9 @@ mutual
           ngen := s.ngen.next
         }
       if !mvarDecl.kind.isSyntheticOpaque then
+        -- `newMVar` replaces `mvarId`, so it inherits the instance-typed mark.
+        if (← mvarId.isInstanceTyped) then
+          newMVarId.markInstanceTyped
         mvarId.assign result
       else
         /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := ?mvarPending`,

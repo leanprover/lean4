@@ -45,16 +45,23 @@ def getNormSymTheorems : CoreM NormSymTheorems :=
   return normSymExt.getState (← getEnv)
 
 /-- `Sym.simp` methods approximating the legacy `grind` normalizer. -/
-def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp.Methods := Id.run do
+def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : CoreM Sym.Simp.Methods := do
+  -- The arithmetic normalizer needs the `Grind` ring classes, which parts of `Init` do not import.
+  let arith := (← getEnv).contains `Lean.Grind.Ring.OfSemiring.Q
   let d : Discharger := Sym.Simp.dischargeSimpSelf
   let mut pre : Simproc := NormSym.eraseMData >> NormSym.preMatchCond >> NormSym.simpMatchDiscrsOnly
     >> Sym.Simp.beta >> NormSym.etaReduce >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
-  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) (maxChar? := some config.maxChar) >> thms.pre.rewrite d
+  pre := pre >> NormSym.pushNot
+  if arith then
+    pre := pre >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) (maxChar? := some config.maxChar)
+  pre := pre >> thms.pre.rewrite d
   -- `grind` keeps bit-vector literals in `OfNat.ofNat` form.
-  let post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround { bitVecOfNat := false } >> Sym.Simp.simpNatRel
-    >> Sym.Simp.simpNatSub (distrib := config.distrib) >> NormSym.simpEq >> NormSym.simpOr
+  let mut post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround { bitVecOfNat := false } >> Sym.Simp.simpNatRel
+  if arith then
+    post := post >> Sym.Simp.simpNatSub (distrib := config.distrib)
+  post := post >> NormSym.simpEq >> NormSym.simpOr
     >> NormSym.simpDIte >> NormSym.reduceCtorEq >> NormSym.simpForall >> NormSym.simpExists
   return { pre, post }
 
@@ -78,7 +85,7 @@ def normLegacy (e : Expr) : GrindM Simp.Result := do
 def normSym (e : Expr) : GrindM Simp.Result := do
   let thms ← getNormSymTheorems
   let config ← getConfig
-  let (r, _, _) ← symNorm e (mkNormSymMethods config thms) (mkNormSymDSimpMethods config thms) {} {}
+  let (r, _, _) ← symNorm e (← mkNormSymMethods config thms) (mkNormSymDSimpMethods config thms) {} {}
   return r
 
 end Lean.Meta.Grind

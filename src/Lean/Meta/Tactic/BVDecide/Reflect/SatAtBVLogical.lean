@@ -46,6 +46,18 @@ public partial def of (hyp : Normalize.Hyp) : LemmaM (Option SatAtBVLogical) := 
       -- we prove evalLogic = true by evalLogic = lhsExpr = true
       return ReifiedBVLogical.mkTrans evalLogic lhsExpr (mkConst ``Bool.true) evalProof hyp.value
     return some ⟨bvLogical.bvExpr, proof, bvLogical.expr⟩
+  | False =>
+    let bvExpr := .const false
+    let proof := do
+      let lhs ← mkEq (toExpr false) (toExpr true)
+      let rhs := mkConst ``False
+      return mkApp4 (mkConst ``Eq.mpr [0]) lhs rhs (mkConst ``Bool.false_eq_true) hyp.value
+    return some ⟨bvExpr, proof, toExpr bvExpr⟩
+  | True =>
+    let bvExpr := .const true
+    let proof := do
+      mkEqRefl (toExpr true)
+    return some ⟨bvExpr, proof, toExpr bvExpr⟩
   | _ => return none
 
 /--
@@ -53,7 +65,7 @@ Logical conjunction of two `ReifiedBVLogical`.
 -/
 public def and (x y : SatAtBVLogical) : ReifyM SatAtBVLogical := do
   let bvExpr := .gate .and x.bvExpr y.bvExpr
-  let expr ← Sym.share <| mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (mkConst ``Gate.and) x.expr y.expr
+  let expr ← Sym.share <| mkApp3 (mkConst ``BVLogicalExpr.gate) (mkConst ``Gate.and) x.expr y.expr
   let proof := do
     return mkApp5
       (mkConst ``BVLogicalExpr.sat_and)

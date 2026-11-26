@@ -230,7 +230,7 @@ Examples:
 Implementation of `OrElse`'s `<|>` syntax for `Option`. If the first argument is `some a`, returns
 `some a`, otherwise evaluates and returns the second argument.
 
-See also `or` for a version that is strict in the second argument.
+See also `or` for a version that takes the second argument directly rather than as a thunk.
 -/
 @[always_inline, macro_inline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
@@ -245,8 +245,9 @@ instance : OrElse (Option α) where
 /--
 Returns the first of its arguments that is `some`, or `none` if neither is `some`.
 
-This is similar to the `<|>` operator, also known as `OrElse.orElse`, but both arguments are always
-evaluated without short-circuiting.
+This is similar to the `<|>` operator, also known as `OrElse.orElse`, but takes the second argument
+directly rather than as a thunk. Because `or` is `@[macro_inline]`, the second argument is still only
+evaluated if the first is `none`.
 -/
 @[always_inline, macro_inline] def or : Option α → Option α → Option α
   | some a, _ => some a

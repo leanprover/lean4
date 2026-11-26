@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.CongrInfo
+import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Omega
 namespace Lean.Meta.Sym.Simp
 open Lean.Meta.Sym.Internal
@@ -373,7 +374,7 @@ See type `CongrArgKind`.
    - When `xs` or `i` are simplified, the proof is adjusted in the `rhs` of the auto-generated
      theorem.
 -/
-def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
+def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) (rhsVarMask : Nat) : SimpM Result := do
   let argKinds := thm.argKinds
   /-
   Constructs the non-`rfl` result. `argResults` contains the result for arguments with kind `.eq`.
@@ -422,8 +423,11 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
           subst := subst.push arg |>.push h
           if hasInst then substOld := substOld.push arg |>.push h
         | .step arg' h _ _ =>
+          subst := subst.push arg'
+          -- A proof substituted into the RHS must be shared before we rebuild the application.
+          let h ← if rhsVarMask.testBit subst.size then shareCommon h else pure h
           proof := mkApp2 proof arg' h
-          subst := subst.push arg' |>.push h
+          subst := subst.push h
           if hasInst then substOld := substOld.push arg |>.push h
         type := type.bindingBody!.bindingBody!
         j := j + 1
@@ -479,11 +483,14 @@ Dispatches to the appropriate strategy based on the function's `CongrInfo`.
 -/
 public def simpAppArgs (e : Expr) : SimpM Result := do
   let f := e.getAppFn
+  if f.isMVar then
+    if let some e' ← instantiateAssignedMVarHeadS? e then
+      return .step e' (← mkEqRefl e')
   match (← getCongrInfo f) with
   | .none => return .rfl
   | .fixedPrefix prefixSize suffixSize => simpFixedPrefix e prefixSize suffixSize
   | .interlaced rewritable => simpInterlaced e rewritable
-  | .congrTheorem thm => simpUsingCongrThm e thm
+  | .congrTheorem thm rhsVarMask => simpUsingCongrThm e thm rhsVarMask
 
 /--
 Simplifies arguments in a specified range `[start, stop)` of a function application.

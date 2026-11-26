@@ -121,8 +121,9 @@ static uint64_t _init_l___private_Init_While_0__repeatM_erased___at___00Std_Time
 _start:
 {
 lean_object* v___x_28_; uint64_t v___x_29_; 
-v___x_28_ = lean_cstr_to_nat("32503690800");
+v___x_28_ = lean_uint64_to_nat(32503690800ULL);
 v___x_29_ = lean_int64_of_nat(v___x_28_);
+lean_dec(v___x_28_);
 return v___x_29_;
 }
 }
@@ -409,6 +410,7 @@ _start:
 lean_object* v___x_94_; uint64_t v___x_95_; 
 v___x_94_ = lean_unsigned_to_nat(2147483648u);
 v___x_95_ = lean_int64_of_nat(v___x_94_);
+lean_dec(v___x_94_);
 return v___x_95_;
 }
 }

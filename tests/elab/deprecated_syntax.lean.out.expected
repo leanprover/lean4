@@ -1,47 +1,47 @@
-deprecated_syntax.lean:9:8-9:25: warning: syntax 'Lean.Parser.Term.let_fun' has been deprecated: use `have` instead
+deprecated_syntax.lean:12:8-12:26: warning: syntax 'oldHave' has been deprecated: use `have` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 have x := 1;
 x : Nat
-deprecated_syntax.lean:19:8-19:18: warning: macro 'termMy_wrapper' (expanded from 'Lean.Parser.Term.paren') produces deprecated syntax 'Lean.Parser.Term.let_fun': use `have` instead
+deprecated_syntax.lean:22:8-22:18: warning: macro 'termMy_wrapper' (expanded from 'Lean.Parser.Term.paren') produces deprecated syntax 'oldHave': use `have` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 have x := 1;
 x : Nat
-deprecated_syntax.lean:29:19-29:29: warning: macro 'termInnerMacro' (expanded from 'termOuterMacro') produces deprecated syntax 'Lean.Parser.Term.let_fun': use `have` instead
+deprecated_syntax.lean:32:19-32:29: warning: macro 'termInnerMacro' (expanded from 'termOuterMacro') produces deprecated syntax 'oldHave': use `have` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 have x := 1;
 x : Nat
 42 : Nat
-deprecated_syntax.lean:44:21-44:29: warning: syntax 'tacticMyDepTac' has been deprecated: use `trivial` instead
+deprecated_syntax.lean:47:21-47:29: warning: syntax 'tacticMyDepTac' has been deprecated: use `trivial` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:54:31-54:39: warning: quotation uses deprecated syntax 'termOldThing': use `42` instead
+deprecated_syntax.lean:57:31-57:39: warning: quotation uses deprecated syntax 'termOldThing': use `42` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:71:0-71:8: warning: syntax 'commandMyDepCmd' has been deprecated: use `#check` instead
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-42 : Nat
-deprecated_syntax.lean:77:0-77:12: warning: macro 'commandMyWrapperCmd' produces deprecated syntax 'commandMyDepCmd': use `#check` instead
+deprecated_syntax.lean:74:0-74:8: warning: syntax 'commandMyDepCmd' has been deprecated: use `#check` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 42 : Nat
-42 : Nat
-deprecated_syntax.lean:92:30-92:38: warning: syntax 'termOldThing' has been deprecated: use `42` instead
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:102:21-102:29: warning: syntax 'depRec' has been deprecated: use `trivial` instead
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:107:21-107:32: warning: syntax 'depRec' has been deprecated: use `trivial` instead
-
-Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
-deprecated_syntax.lean:116:7-116:19: warning: macro 'termWrapsOld_' (expanded from 'termUsesWrapsOld') produces deprecated syntax 'termOldThing': use `42` instead
+deprecated_syntax.lean:80:0-80:12: warning: macro 'commandMyWrapperCmd' produces deprecated syntax 'commandMyDepCmd': use `#check` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 42 : Nat
-deprecated_syntax.lean:120:40-120:48: warning: quotation uses deprecated syntax 'termOldThing': use `42` instead
+42 : Nat
+deprecated_syntax.lean:95:30-95:38: warning: syntax 'termOldThing' has been deprecated: use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+deprecated_syntax.lean:105:21-105:29: warning: syntax 'depRec' has been deprecated: use `trivial` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+deprecated_syntax.lean:110:21-110:32: warning: syntax 'depRec' has been deprecated: use `trivial` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+deprecated_syntax.lean:119:7-119:19: warning: macro 'termWrapsOld_' (expanded from 'termUsesWrapsOld') produces deprecated syntax 'termOldThing': use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+42 : Nat
+deprecated_syntax.lean:123:40-123:48: warning: quotation uses deprecated syntax 'termOldThing': use `42` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`

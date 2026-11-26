@@ -18,8 +18,8 @@ This module contains the verification of the `BitVec.umod` bitblaster from `Impl
 
 namespace Std.Tactic.BVDecide
 
-open Std.Sat
-open Std.Sat.AIG
+open Std.Internal.Sat
+open Std.Internal.Sat.AIG
 
 namespace BVExpr
 namespace bitblast
@@ -51,7 +51,7 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
     simp [go, hr]
   | succ curr ih =>
     intro idx hidx
-    rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
+    simp only [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
     next hdiscr =>
       rw [ih]

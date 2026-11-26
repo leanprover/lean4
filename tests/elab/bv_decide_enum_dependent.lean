@@ -20,14 +20,7 @@ def r' (b : Bool)
     else { state := .B, num := 0 }
   x.num.getLsbD 0
 
-/--
-error: None of the hypotheses are in the supported BitVec fragment after applying preprocessing.
-There are three potential reasons for this:
-1. If you are using custom BitVec constructs simplify them to built-in ones.
-2. If your problem is using only built-in ones it might currently be out of reach.
-   Consider expressing it in terms of different operations that are better supported.
-3. The original goal was reduced to False and is thus invalid.
--/
+/-- error: The prover found a counterexample, consider the following assignment: -/
 #guard_msgs in
 theorem wtf (a : Bool) : r' a := by
   simp [r']

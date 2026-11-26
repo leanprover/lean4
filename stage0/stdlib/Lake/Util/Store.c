@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Store
-// Imports: public import Init.Prelude
+// Imports: public import Init.Notation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,9 +23,12 @@ LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__0(lea
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -211,7 +214,7 @@ v___x_70_ = l_Lake_instMonadDStoreOfMonadLift___redArg(v_inst_68_, v_inst_69_);
 return v___x_70_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__0(lean_object* v_toPure_71_, lean_object* v_val_72_, lean_object* v_____r_73_){
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg___lam__0(lean_object* v_toPure_71_, lean_object* v_val_72_, lean_object* v_____r_73_){
 _start:
 {
 lean_object* v___x_74_; 
@@ -219,12 +222,12 @@ v___x_74_ = lean_apply_2(v_toPure_71_, lean_box(0), v_val_72_);
 return v___x_74_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__1(lean_object* v_toPure_75_, lean_object* v_store_76_, lean_object* v_toBind_77_, lean_object* v_val_78_){
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg___lam__1(lean_object* v_toPure_75_, lean_object* v_store_76_, lean_object* v_toBind_77_, lean_object* v_val_78_){
 _start:
 {
 lean_object* v___f_79_; lean_object* v___x_80_; lean_object* v___x_81_; 
 lean_inc(v_val_78_);
-v___f_79_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__0), 3, 2);
+v___f_79_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_79_, 0, v_toPure_75_);
 lean_closure_set(v___f_79_, 1, v_val_78_);
 v___x_80_ = lean_apply_1(v_store_76_, v_val_78_);
@@ -232,7 +235,7 @@ v___x_81_ = lean_apply_4(v_toBind_77_, lean_box(0), lean_box(0), v___x_80_, v___
 return v___x_81_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__2(lean_object* v_toBind_82_, lean_object* v_create_83_, lean_object* v___f_84_, lean_object* v_toPure_85_, lean_object* v_____do__lift_86_){
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg___lam__2(lean_object* v_toBind_82_, lean_object* v_create_83_, lean_object* v___f_84_, lean_object* v_toPure_85_, lean_object* v_____do__lift_86_){
 _start:
 {
 if (lean_obj_tag(v_____do__lift_86_) == 0)
@@ -256,7 +259,7 @@ return v___x_89_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object* v_inst_90_, lean_object* v_inst_91_, lean_object* v_create_92_){
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___redArg(lean_object* v_inst_90_, lean_object* v_inst_91_, lean_object* v_create_92_){
 _start:
 {
 lean_object* v_toApplicative_93_; lean_object* v_toBind_94_; lean_object* v_fetch_x3f_95_; lean_object* v_store_96_; lean_object* v_toPure_97_; lean_object* v___f_98_; lean_object* v___f_99_; lean_object* v___x_100_; 
@@ -273,11 +276,11 @@ lean_dec_ref(v_inst_91_);
 v_toPure_97_ = lean_ctor_get(v_toApplicative_93_, 1);
 lean_inc_n(v_toPure_97_, 2);
 lean_dec_ref(v_toApplicative_93_);
-v___f_98_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__1), 4, 3);
+v___f_98_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__1), 4, 3);
 lean_closure_set(v___f_98_, 0, v_toPure_97_);
 lean_closure_set(v___f_98_, 1, v_store_96_);
 lean_closure_set(v___f_98_, 2, v_toBind_94_);
-v___f_99_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__2), 5, 4);
+v___f_99_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__2), 5, 4);
 lean_closure_set(v___f_99_, 0, v_toBind_94_);
 lean_closure_set(v___f_99_, 1, v_create_92_);
 lean_closure_set(v___f_99_, 2, v___f_98_);
@@ -286,7 +289,7 @@ v___x_100_ = lean_apply_4(v_toBind_94_, lean_box(0), lean_box(0), v_fetch_x3f_95
 return v___x_100_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object* v_m_101_, lean_object* v_00_u03ba_102_, lean_object* v_00_u03b1_103_, lean_object* v_inst_104_, lean_object* v_key_105_, lean_object* v_inst_106_, lean_object* v_create_107_){
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic(lean_object* v_m_101_, lean_object* v_00_u03ba_102_, lean_object* v_00_u03b1_103_, lean_object* v_inst_104_, lean_object* v_key_105_, lean_object* v_inst_106_, lean_object* v_create_107_){
 _start:
 {
 lean_object* v_toApplicative_108_; lean_object* v_toBind_109_; lean_object* v_fetch_x3f_110_; lean_object* v_store_111_; lean_object* v_toPure_112_; lean_object* v___f_113_; lean_object* v___f_114_; lean_object* v___x_115_; 
@@ -303,11 +306,11 @@ lean_dec_ref(v_inst_106_);
 v_toPure_112_ = lean_ctor_get(v_toApplicative_108_, 1);
 lean_inc_n(v_toPure_112_, 2);
 lean_dec_ref(v_toApplicative_108_);
-v___f_113_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__1), 4, 3);
+v___f_113_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__1), 4, 3);
 lean_closure_set(v___f_113_, 0, v_toPure_112_);
 lean_closure_set(v___f_113_, 1, v_store_111_);
 lean_closure_set(v___f_113_, 2, v_toBind_109_);
-v___f_114_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__2), 5, 4);
+v___f_114_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__2), 5, 4);
 lean_closure_set(v___f_114_, 0, v_toBind_109_);
 lean_closure_set(v___f_114_, 1, v_create_107_);
 lean_closure_set(v___f_114_, 2, v___f_113_);
@@ -316,16 +319,85 @@ v___x_115_ = lean_apply_4(v_toBind_109_, lean_box(0), lean_box(0), v_fetch_x3f_1
 return v___x_115_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object* v_m_116_, lean_object* v_00_u03ba_117_, lean_object* v_00_u03b1_118_, lean_object* v_inst_119_, lean_object* v_key_120_, lean_object* v_inst_121_, lean_object* v_create_122_){
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreateNonatomic___boxed(lean_object* v_m_116_, lean_object* v_00_u03ba_117_, lean_object* v_00_u03b1_118_, lean_object* v_inst_119_, lean_object* v_key_120_, lean_object* v_inst_121_, lean_object* v_create_122_){
 _start:
 {
 lean_object* v_res_123_; 
-v_res_123_ = l_Lake_fetchOrCreate(v_m_116_, v_00_u03ba_117_, v_00_u03b1_118_, v_inst_119_, v_key_120_, v_inst_121_, v_create_122_);
+v_res_123_ = l_Lake_fetchOrCreateNonatomic(v_m_116_, v_00_u03ba_117_, v_00_u03b1_118_, v_inst_119_, v_key_120_, v_inst_121_, v_create_122_);
 lean_dec(v_key_120_);
 return v_res_123_;
 }
 }
-lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object* v_inst_124_, lean_object* v_inst_125_, lean_object* v_create_126_){
+_start:
+{
+lean_object* v_toApplicative_127_; lean_object* v_toBind_128_; lean_object* v_fetch_x3f_129_; lean_object* v_store_130_; lean_object* v_toPure_131_; lean_object* v___f_132_; lean_object* v___f_133_; lean_object* v___x_134_; 
+v_toApplicative_127_ = lean_ctor_get(v_inst_124_, 0);
+lean_inc_ref(v_toApplicative_127_);
+v_toBind_128_ = lean_ctor_get(v_inst_124_, 1);
+lean_inc_n(v_toBind_128_, 3);
+lean_dec_ref(v_inst_124_);
+v_fetch_x3f_129_ = lean_ctor_get(v_inst_125_, 0);
+lean_inc(v_fetch_x3f_129_);
+v_store_130_ = lean_ctor_get(v_inst_125_, 1);
+lean_inc(v_store_130_);
+lean_dec_ref(v_inst_125_);
+v_toPure_131_ = lean_ctor_get(v_toApplicative_127_, 1);
+lean_inc_n(v_toPure_131_, 2);
+lean_dec_ref(v_toApplicative_127_);
+v___f_132_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__1), 4, 3);
+lean_closure_set(v___f_132_, 0, v_toPure_131_);
+lean_closure_set(v___f_132_, 1, v_store_130_);
+lean_closure_set(v___f_132_, 2, v_toBind_128_);
+v___f_133_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__2), 5, 4);
+lean_closure_set(v___f_133_, 0, v_toBind_128_);
+lean_closure_set(v___f_133_, 1, v_create_126_);
+lean_closure_set(v___f_133_, 2, v___f_132_);
+lean_closure_set(v___f_133_, 3, v_toPure_131_);
+v___x_134_ = lean_apply_4(v_toBind_128_, lean_box(0), lean_box(0), v_fetch_x3f_129_, v___f_133_);
+return v___x_134_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object* v_m_135_, lean_object* v_00_u03ba_136_, lean_object* v_00_u03b1_137_, lean_object* v_inst_138_, lean_object* v_key_139_, lean_object* v_inst_140_, lean_object* v_create_141_){
+_start:
+{
+lean_object* v_toApplicative_142_; lean_object* v_toBind_143_; lean_object* v_fetch_x3f_144_; lean_object* v_store_145_; lean_object* v_toPure_146_; lean_object* v___f_147_; lean_object* v___f_148_; lean_object* v___x_149_; 
+v_toApplicative_142_ = lean_ctor_get(v_inst_138_, 0);
+lean_inc_ref(v_toApplicative_142_);
+v_toBind_143_ = lean_ctor_get(v_inst_138_, 1);
+lean_inc_n(v_toBind_143_, 3);
+lean_dec_ref(v_inst_138_);
+v_fetch_x3f_144_ = lean_ctor_get(v_inst_140_, 0);
+lean_inc(v_fetch_x3f_144_);
+v_store_145_ = lean_ctor_get(v_inst_140_, 1);
+lean_inc(v_store_145_);
+lean_dec_ref(v_inst_140_);
+v_toPure_146_ = lean_ctor_get(v_toApplicative_142_, 1);
+lean_inc_n(v_toPure_146_, 2);
+lean_dec_ref(v_toApplicative_142_);
+v___f_147_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__1), 4, 3);
+lean_closure_set(v___f_147_, 0, v_toPure_146_);
+lean_closure_set(v___f_147_, 1, v_store_145_);
+lean_closure_set(v___f_147_, 2, v_toBind_143_);
+v___f_148_ = lean_alloc_closure((void*)(l_Lake_fetchOrCreateNonatomic___redArg___lam__2), 5, 4);
+lean_closure_set(v___f_148_, 0, v_toBind_143_);
+lean_closure_set(v___f_148_, 1, v_create_141_);
+lean_closure_set(v___f_148_, 2, v___f_147_);
+lean_closure_set(v___f_148_, 3, v_toPure_146_);
+v___x_149_ = lean_apply_4(v_toBind_143_, lean_box(0), lean_box(0), v_fetch_x3f_144_, v___f_148_);
+return v___x_149_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object* v_m_150_, lean_object* v_00_u03ba_151_, lean_object* v_00_u03b1_152_, lean_object* v_inst_153_, lean_object* v_key_154_, lean_object* v_inst_155_, lean_object* v_create_156_){
+_start:
+{
+lean_object* v_res_157_; 
+v_res_157_ = l_Lake_fetchOrCreate(v_m_150_, v_00_u03ba_151_, v_00_u03b1_152_, v_inst_153_, v_key_154_, v_inst_155_, v_create_156_);
+lean_dec(v_key_154_);
+return v_res_157_;
+}
+}
+lean_object* runtime_initialize_Init_Notation(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Store(uint8_t builtin) {
@@ -333,7 +405,7 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Init_Prelude(builtin);
+res = runtime_initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -345,13 +417,13 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Prelude(uint8_t builtin);
+lean_object* initialize_Init_Notation(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Store(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin);
+res = initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_Util_Store(builtin);

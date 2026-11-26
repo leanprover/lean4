@@ -26,7 +26,7 @@ lean_object* lean_obj_tag_nat(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Float_Model_totalExponent(lean_object*, lean_object*);
 lean_object* l_Float_Model_Format_targetExponent(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
@@ -66,7 +66,7 @@ static const lean_closure_object l_Float_Model_UnpackedFloat_ExtendedMantissa_in
 static const lean_object* l_Float_Model_UnpackedFloat_ExtendedMantissa_instHShiftRightNat___closed__0 = (const lean_object*)&l_Float_Model_UnpackedFloat_ExtendedMantissa_instHShiftRightNat___closed__0_value;
 LEAN_EXPORT const lean_object* l_Float_Model_UnpackedFloat_ExtendedMantissa_instHShiftRightNat = (const lean_object*)&l_Float_Model_UnpackedFloat_ExtendedMantissa_instHShiftRightNat___closed__0_value;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_shiftToExponent(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_shiftToExponent___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_shiftToTargetExponent(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -499,7 +499,7 @@ _start:
 {
 lean_object* v___x_133_; lean_object* v___x_134_; 
 v___x_133_ = ((lean_object*)(l_Float_Model_UnpackedFloat_ExtendedMantissa_instHShiftRightNat___lam__0___closed__0));
-v___x_134_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop(lean_box(0), v___x_133_, v_n_132_, v_em_131_);
+v___x_134_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop(lean_box(0), v___x_133_, v_n_132_, v_em_131_);
 return v___x_134_;
 }
 }
@@ -511,7 +511,7 @@ v___x_138_ = lean_nat_to_int(v_a_137_);
 return v___x_138_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__0(lean_object* v_x_139_, lean_object* v_x_140_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__0(lean_object* v_x_139_, lean_object* v_x_140_){
 _start:
 {
 lean_object* v_zero_141_; uint8_t v_isZero_142_; 
@@ -544,7 +544,7 @@ v_shiftAmount_152_ = l_Int_toNat(v___x_151_);
 lean_dec(v___x_151_);
 v_initialExtendedMantissa_153_ = l_Float_Model_UnpackedFloat_ExtendedMantissa_ofMantissaAndAccuracy(v_mantissa_147_, v_accuracy_149_);
 lean_inc(v_shiftAmount_152_);
-v___x_154_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__0(v_shiftAmount_152_, v_initialExtendedMantissa_153_);
+v___x_154_ = l___private_Init_Data_Nat_Basic_0__Nat_iterateTR_loop___at___00Float_Model_UnpackedFloat_shiftToExponent_spec__0(v_shiftAmount_152_, v_initialExtendedMantissa_153_);
 v___x_155_ = lean_nat_to_int(v_shiftAmount_152_);
 v___x_156_ = lean_int_add(v_exponent_148_, v___x_155_);
 lean_dec(v___x_155_);

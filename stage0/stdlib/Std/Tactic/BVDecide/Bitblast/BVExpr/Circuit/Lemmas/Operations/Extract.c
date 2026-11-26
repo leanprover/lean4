@@ -13,6 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter___redArg(lean_object* v_s_1_, lean_object* v_h__1_2_){
+_start:
+{
+lean_object* v___x_3_; 
+v___x_3_ = lean_apply_2(v_h__1_2_, v_s_1_, lean_box(0));
+return v___x_3_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter(lean_object* v_00_u03b1_4_, lean_object* v_inst_5_, lean_object* v_inst_6_, lean_object* v_aig_7_, lean_object* v_len_8_, lean_object* v_motive_9_, lean_object* v_s_10_, lean_object* v_h__1_11_){
+_start:
+{
+lean_object* v___x_12_; 
+v___x_12_ = lean_apply_2(v_h__1_11_, v_s_10_, lean_box(0));
+return v___x_12_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter___boxed(lean_object* v_00_u03b1_13_, lean_object* v_inst_14_, lean_object* v_inst_15_, lean_object* v_aig_16_, lean_object* v_len_17_, lean_object* v_motive_18_, lean_object* v_s_19_, lean_object* v_h__1_20_){
+_start:
+{
+lean_object* v_res_21_; 
+v_res_21_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Extract_0__Std_Internal_Sat_AIG_RefVec_get_match__1_splitter(v_00_u03b1_13_, v_inst_14_, v_inst_15_, v_aig_16_, v_len_17_, v_motive_18_, v_s_19_, v_h__1_20_);
+lean_dec(v_len_17_);
+lean_dec_ref(v_aig_16_);
+lean_dec_ref(v_inst_15_);
+lean_dec_ref(v_inst_14_);
+return v_res_21_;
+}
+}
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Extract(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);

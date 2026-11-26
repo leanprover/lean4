@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+import Lean.Meta.Tactic.Grind.Formula
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Diseq
@@ -308,6 +309,25 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
 private def _root_.Int.Internal.Linear.Poly.denoteExprUsingCurrVars (p : Poly) : ProofM Expr := do
   let vars ← getCurrVars
   return (← p.denoteExpr (vars[·]!))
+
+/-- Weakens the selected atom directly to the final bound `q` with constant `k`. -/
+private def mkOrHullAtomProof (q : Expr) (k : Int) (atom : OrHullAtom) (h : Expr) : ProofM Expr := do
+  let h := if let some thm := atom.toIntThm? then mkApp thm h else h
+  let p := atom.lhs.sub atom.rhs |>.norm
+  let atomK := if atom.kind matches .eqNeg then -p.getConst else p.getConst
+  let delta := toExpr (atomK - k)
+  let ctx ← getContext
+  let lhs ← mkExprDecl atom.lhs
+  let rhs ← mkExprDecl atom.rhs
+  let pDecl ← mkPolyDecl p
+  match atom.kind with
+  | .le =>
+    let hp := mkApp6 (mkConst ``Int.Internal.Linear.le_norm_expr_rfl) ctx lhs rhs pDecl (← mkPolyRefl p) h
+    return mkApp6 (mkConst ``Int.Internal.Linear.le_weaken) ctx pDecl q delta eagerReflBoolTrue hp
+  | .eq | .eqNeg =>
+    let hp := mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr_rfl) ctx lhs rhs pDecl (← mkPolyRefl p) h
+    let thm := if atom.kind matches .eq then ``Int.Internal.Linear.eq_le_weaken else ``Int.Internal.Linear.eq_le_weaken_neg
+    return mkApp6 (mkConst thm) ctx pDecl q delta eagerReflBoolTrue hp
 
 private inductive MulEqProof where
   | const (k : Int) (h : Expr)
@@ -618,6 +638,11 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
       let thmName := if left then ``Int.Internal.Linear.cooper_dvd_left_split_ineq else ``Int.Internal.Linear.cooper_dvd_right_split_ineq
       return mkApp10 (mkConst thmName)
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
+  | .orHull e support =>
+    let q ← mkPolyDecl c'.p
+    let motive := mkIntLE (mkApp2 (mkConst ``Int.Internal.Linear.Poly.denote') (← getContext) q) (mkIntLit 0)
+    Formula.prove e motive (← mkOfEqTrue (← mkEqTrueProof e)) support fun atom _ h =>
+      mkOrHullAtomProof q c'.p.getConst atom h
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
@@ -834,7 +859,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .hyp .. | .bound .. => return ()
+  | .core .. | .coreNeg .. | .coreToInt .. | .coreExpr .. | .ofNatNonneg .. | .hyp .. | .bound .. | .orHull .. => return ()
   | .dec h => markAsFound h
   | .commRingNorm c .. | .reorder c | .cooper c
   | .norm c | .divCoeffs c => c.collectDecVars

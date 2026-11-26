@@ -57,7 +57,7 @@ structure Theorems (α : Type) where
   private origins : PHashSet Origin := {}
   /-- Theorems that have been marked as erased -/
   private erased  : PHashSet Origin := {}
-  /-- Mapping from origin to E-matching theorems associated with this origin. -/
+  /-- Mapping from origin to E-matching theorems associated with this origin, with all symbols. -/
   private omap : PHashMap Origin (List α) := {}
   deriving Inhabited
 
@@ -81,19 +81,19 @@ Otherwise, we reinsert into `map`.
 def Theorems.insert [TheoremLike α] (s : Theorems α) (thm : α) : Theorems α := Id.run do
   let .const declName :: syms := getSymbols thm
     | unreachable!
-  let thm := setSymbols thm syms
   let { smap, origins, erased, omap } := s
   let origin := getOrigin thm
   let origins := origins.insert origin
   let erased := erased.erase origin
-  let smap := if let some thms := smap.find? declName then
-    smap.insert declName (thm::thms)
-  else
-    smap.insert declName [thm]
   let omap := if let some thms := omap.find? origin then
     omap.insert origin (thm::thms)
   else
     omap.insert origin [thm]
+  let thm := setSymbols thm syms
+  let smap := if let some thms := smap.find? declName then
+    smap.insert declName (thm::thms)
+  else
+    smap.insert declName [thm]
   return { smap, origins, erased, omap }
 
 /-- Returns `true` if `s` contains a theorem with the given origin. -/
@@ -161,6 +161,14 @@ def Theorems.eraseDecl (s : Theorems α) (declName : Name) : MetaM (Theorems α)
 
 def Theorems.getOrigins (s : Theorems α) : List Origin :=
   s.origins.toList
+
+/-- Inserts into `acc` the constant symbols of the theorems in `s` that have not been erased. -/
+def Theorems.collectSymbols [TheoremLike α] (s : Theorems α) (acc : NameSet) : NameSet :=
+  s.omap.foldl (init := acc) fun acc origin thms =>
+    if s.erased.contains origin then acc
+    else thms.foldl (init := acc) fun acc thm =>
+      (getSymbols thm).foldl (init := acc) fun acc sym =>
+        if let .const declName := sym then acc.insert declName else acc
 
 def Theorems.mkEmpty (α : Type) : Theorems α := {}
 

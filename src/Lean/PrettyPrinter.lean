@@ -37,7 +37,7 @@ register_builtin_option pp.exprSizes : Bool := {
 
 private def maybePrependExprSizes (e : Expr) (f : Format) : MetaM Format := do
   if pp.exprSizes.get (← getOptions) then
-    return f!"[size {e.sizeWithoutSharing}/{← e.numObjs}/{← (ShareCommon.shareCommon' e).numObjs}] {f}"
+    return f!"[size {e.sizeWithoutSharing}/{← e.numObjs}/{← (ShareCommon.shareCommon e).numObjs}] {f}"
   else
     return f
 
@@ -64,11 +64,6 @@ def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
     let stx := mkIdent constName
     let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
     formatCategory `term stx
-
-def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
-    { fileName := "<PrettyPrinter>", fileMap := default }
-    { env := env }
 
 def ppLevel (l : Level) : MetaM Format := do
   ppCategory `level (← delabLevel l (prec := 0))

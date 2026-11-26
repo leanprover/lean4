@@ -16,7 +16,7 @@ import Init.Omega
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat
+open Std.Internal.Sat
 
 public def check (proof : Array IntAction) (formula : CNF Nat) : Bool :=
   let state := .ofCNF formula

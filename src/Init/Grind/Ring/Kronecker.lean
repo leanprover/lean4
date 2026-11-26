@@ -13,6 +13,7 @@ import Init.Data.Int.Order
 import Init.Data.Int.LemmasAux
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.List.Impl
 
 @[expose] public section
 

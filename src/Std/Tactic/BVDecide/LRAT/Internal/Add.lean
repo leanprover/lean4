@@ -10,7 +10,7 @@ public import Std.Tactic.BVDecide.LRAT.Internal.Basic
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat
+open Std.Internal.Sat
 
 namespace State
 

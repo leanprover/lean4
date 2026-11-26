@@ -8,18 +8,18 @@ module
 prelude
 public import Std.Data.HashMap
 public import Init.Data.Hashable
-public import Std.Sat.CNF.Unit
-import Std.Sat.CNF.SpecLemmas
+public import Std.Internal.Sat.CNF.Unit
+import Std.Internal.Sat.CNF.SpecLemmas
 import Std.Tactic.Do
-public import Std.Sat.CNF.Entails
-public import Std.Sat.CNF.Negation
-public import Std.Sat.CNF.Redundancy
+public import Std.Internal.Sat.CNF.Entails
+public import Std.Internal.Sat.CNF.Negation
+public import Std.Internal.Sat.CNF.Redundancy
 
 public section
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-open Std.Sat Std.Do
+open Std.Internal.Sat Std.Do
 
 /--
 The value of an atom under an `Assignment`.

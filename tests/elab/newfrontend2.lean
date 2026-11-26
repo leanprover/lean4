@@ -3,7 +3,7 @@ match a with
 | some a => a
 | none   => b
 
-structure S :=
+structure S where
 (x : Nat)
 
 #check if 0 == 1 then true else false

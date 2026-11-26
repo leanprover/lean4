@@ -64,4 +64,11 @@ instance : Sub (BitVec n) := ⟨BitVec.sub⟩
 
 end arithmetic
 
+/--
+Auxiliary theorem for proving that two `BitVec` literals are different. `h` is `Eq.refl false`: the
+kernel evaluates `Nat.beq` on two numerals, and does not unfold the `DecidableEq` instance.
+-/
+theorem ne_of_toNat_beq_eq_false {a b : BitVec w} (h : Nat.beq a.toNat b.toNat = false) : a ≠ b :=
+  fun h' => Nat.ne_of_beq_eq_false h (congrArg BitVec.toNat h')
+
 end BitVec

@@ -1,4 +1,7 @@
 module
+
+set_option backward.grind.normalizer false
+
 open Std Lean.Grind
 set_option sym.debug true
 
@@ -165,11 +168,8 @@ example [CommRing α] [LE α] [LT α] [IsLinearOrder α] [OrderedRing α] (a b c
 
 /--
 trace: [grind.linarith.assert] -3 • y + 2 • x + One.one ≤ 0
-[grind.linarith.assert] 2 • z + -4 • x + One.one ≤ 0
+[grind.linarith.assert] z + -2 • x + One.one ≤ 0
 [grind.linarith.assert] -1 • z + 3 • y + One.one ≤ 0
-[grind.linarith.assert] 6 • y + -4 • x + 3 • One.one ≤ 0
-[grind.linarith.assert] 15 • One.one ≤ 0
-[grind.linarith.assert] Zero.zero < 0
 -/
 #guard_msgs (trace) in
 set_option trace.grind.lia.assert true in -- cutsat should **not** process the following constraints

@@ -7,7 +7,7 @@ module
 
 prelude
 import Lean.Cadical.Internal
-public import Std.Sat.CNF.Basic
+public import Std.Internal.Sat.CNF.Basic
 public import Init.Data.SInt.Basic
 public import Init.System.IO
 
@@ -15,7 +15,7 @@ namespace Lean.Cadical
 
 /-!
 This module provides a thin wrapper around CaDiCaL's C++ FFI, allowing it to interact with the CNF
-API from `Std.Sat.CNF`.
+API from `Std.Internal.Sat.CNF`.
 -/
 
 /--
@@ -146,7 +146,7 @@ public structure Solver where
 
 namespace Solver
 
-open Std.Sat
+open Std.Internal.Sat
 
 @[inline]
 def toApiLit (lit : Nat) (pol : Bool) : IO Int32 := do
@@ -197,6 +197,16 @@ Run the SAT solver on current formula and assumptions.
 public def solve (s : Solver) : BaseIO Status := do
   assert! (← s.state).isReady
   let status ← s.solver.solve
+  return .ofInternal status
+
+/--
+Run the SAT solver on current formula and assumptions.
+`shouldTerminate` is polled from within the search every once in a while.
+Once it returns `true` the solver stops and returns `.unknown`.
+-/
+public def solveWithTerminator (s : Solver) (shouldTerminate : BaseIO Bool) : BaseIO Status := do
+  assert! (← s.state).isReady
+  let status ← s.solver.solveWithTerminator shouldTerminate
   return .ofInternal status
 
 /--

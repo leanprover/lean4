@@ -197,10 +197,13 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
       if let some r := full then
         let x ← realizeGlobalConstNoOverloadWithInfo r
         addConstInfo n x
+        Linter.checkDeprecatedAt r x
         pure x
       else
         try
-          realizeGlobalConstNoOverloadWithInfo n
+          let x ← realizeGlobalConstNoOverloadWithInfo n
+          Linter.checkDeprecatedAt n x
+          pure x
         catch
           | err => do
             let ref ← getRef
@@ -795,7 +798,7 @@ where
         | #[.atom info' str] =>
           emitLeading info'
           let ty? ← typeFromInfo <| deepestNodes trees fun ci i _ =>
-            if i.stx == stx then some (ci, i) else none
+            if isInfoFor stx i then some (ci, i) else none
           emit str (some <| .literal kind ty?)
           emitTrailing info'
           emitTrailing info
@@ -807,7 +810,7 @@ where
       -- TODO: find projections in the info tree as well as syntactically (see comment on
       -- `identProjKind`)
       let docInfo? ← toDocInfo <| deepestNodes trees fun ci i _ =>
-        if i.stx == stx then some (ci, i) else none
+        if isInfoFor stx i then some (ci, i) else none
       emitLeading info
       emit str.toString docInfo?
       emitTrailing info
@@ -816,6 +819,15 @@ where
       emit str (some .keyword)
       emitTrailing info
     | .missing => return
+
+  /--
+  Checks whether `i` describes the occurrence `stx` in the highlighted code.
+
+  The default `BEq` instance for syntax ignores source positions, so the source ranges distinguish
+  occurrences that have the same text.
+  -/
+  isInfoFor (stx : Syntax) (i : Info) : Bool :=
+    i.stx.getRange? == stx.getRange? && i.stx == stx
 
   emit (code : String) (info? : Option DocHighlight := none) : StateT DocCode m Unit :=
     modify (fun st => st.push code info?)
@@ -936,7 +948,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
     let mut pstate : Parser.ModuleParserState := {
       pos
       recovering := false
-      hasLeading := false
+      leadingStartPos? := none
     }
     let mut cmds := #[]
     repeat
@@ -1359,7 +1371,7 @@ def suggestName (code : VersoCode) : DocM (Array CodeSuggestion) := do
     | _ =>
     if let some (_, []) := (← resolveLocalName stx.getId) then
       suggestions := suggestions.push <| .mk ``name none none
-    else if stx.getId.components.length == 1 then
+    else if stx.getId.hasSingleComponent then
       suggestions := suggestions.push <| .mk ``given none none
   return suggestions
 
@@ -1382,12 +1394,13 @@ def suggestLean (code : VersoCode) : DocM (Array CodeSuggestion) := do
     let stx ← parseVersoCode leanTermContents code
     -- To cut down on false positives, we only suggest identifiers if their
     -- elaboration succeeds. Other terms are suggested if they parse.
-    if onlyIdent stx then
+    -- Only the suggested role reports uses of deprecated constants, when it is applied.
+    if onlyIdent stx then Term.withoutCheckDeprecated do
       let ty? ←
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      let tm ← withoutErrToSorry <| elabExtraTerm stx[0] ty?
+      discard <| withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``lean none none]
 
   catch | _ => return #[]
@@ -1401,7 +1414,8 @@ def suggestLeanTermBlock (code : VersoCodeBlock) : DocM (Array CodeBlockSuggesti
     let stx ← parseVersoCodeBlock leanTermContents code
     -- To cut down on false positives, we only suggest identifiers if their
     -- elaboration succeeds. Other terms are suggested if they parse.
-    if onlyIdent stx then
+    -- Only the suggested role reports uses of deprecated constants, when it is applied.
+    if onlyIdent stx then Term.withoutCheckDeprecated do
       let ty? ←
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none

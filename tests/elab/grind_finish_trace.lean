@@ -1,9 +1,11 @@
+set_option backward.grind.normalizer false
+
 open Lean Grind
 
 /--
 info: Try these:
-  [apply] cases #b501 <;> cases #08c5 <;> ring
-  [apply] finish only [#b501, #08c5]
+  [apply] cases #1905 <;> cases #2f18 <;> ring
+  [apply] finish only [#1905, #2f18]
 -/
 #guard_msgs in
 example {α : Type} [CommRing α] (a b c d e : α) :
@@ -16,11 +18,8 @@ example {α : Type} [CommRing α] (a b c d e : α) :
 
 /--
 info: Try these:
-  [apply] ⏎
-    cases #8675
-    · cases #7abc
-    · cases #7abc <;> lia
-  [apply] finish only [#8675, #7abc]
+  [apply] cases #8675 <;> lia
+  [apply] finish only [#8675]
 -/
 #guard_msgs in
 example (p : Nat → Prop) (x y z w : Int) :
@@ -104,12 +103,12 @@ set_option warn.sorry false
 
 /--
 info: Try this:
-  [apply] ⏎
-    cases #b501
-    · cases #8736
+  [apply] 
+    cases #1905
+    · cases #93e0
       · ring
       · sorry
-    · cases #8736
+    · cases #93e0
       · ring
       · sorry
 -/

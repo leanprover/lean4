@@ -126,7 +126,7 @@ section Utils
       -- If the input is `id.` and `declName` is of the form `id.atomic`, complete with `atomicName`
       if id.isPrefixOf declName then
         let declName := declName.replacePrefix id Name.anonymous
-        if declName.isAtomic && !declName.isAnonymous then
+        if declName.hasSingleComponent then
           return some declName
     else if let (.str p₁ s₁, .str p₂ s₂) := (id, declName) then
       if p₁ == p₂ then
@@ -644,7 +644,7 @@ def endSectionCompletion
     (danglingDot       : Bool)
     (scopeNames        : List String)
     : IO (Array ResolvableCompletionItem) := do
-  let mut idComponents := id?.map (fun id => id.components.toArray.map (·.toString)) |>.getD #[]
+  let mut idComponents := id?.map (fun id => id.iter.map (·.toString) |>.toArray) |>.getD #[]
   if danglingDot then
     idComponents := idComponents.push ""
   let scopeNames := scopeNames.toArray.pop.takeWhile (! ·.isEmpty) |>.reverse

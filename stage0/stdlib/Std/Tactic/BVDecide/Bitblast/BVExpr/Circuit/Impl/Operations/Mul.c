@@ -13,20 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Std_Sat_AIG_RefVec_countKnown___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Internal_Sat_AIG_RefVec_countKnown___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___redArg(lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_RefVec_ite___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Internal_Sat_AIG_RefVec_ite___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t l_Std_Sat_AIG_isConstant___redArg(lean_object*, lean_object*, uint8_t);
+uint8_t l_Std_Internal_Sat_AIG_isConstant___redArg(lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_RefVec_empty___redArg();
+lean_object* l_Std_Internal_Sat_AIG_RefVec_empty___redArg();
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,7 +97,7 @@ lean_ctor_set(v___x_13_, 1, v___y_10_);
 lean_ctor_set(v___x_13_, 2, v_acc_8_);
 lean_inc_ref(v_inst_2_);
 lean_inc_ref(v_inst_1_);
-v_res_14_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_1_, v_inst_2_, v_w_3_, v___y_11_, v___x_13_);
+v_res_14_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_1_, v_inst_2_, v_w_3_, v___y_11_, v___x_13_);
 v_aig_15_ = lean_ctor_get(v_res_14_, 0);
 lean_inc_ref(v_aig_15_);
 v_vec_16_ = lean_ctor_get(v_res_14_, 1);
@@ -115,7 +115,7 @@ v___jp_21_:
 {
 uint8_t v___x_23_; uint8_t v___x_24_; 
 v___x_23_ = 0;
-v___x_24_ = l_Std_Sat_AIG_isConstant___redArg(v_aig_4_, v___y_22_, v___x_23_);
+v___x_24_ = l_Std_Internal_Sat_AIG_isConstant___redArg(v_aig_4_, v___y_22_, v___x_23_);
 lean_dec_ref(v___y_22_);
 if (v___x_24_ == 0)
 {
@@ -251,7 +251,7 @@ static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast__
 _start:
 {
 lean_object* v___x_89_; 
-v___x_89_ = l_Std_Sat_AIG_RefVec_empty___redArg();
+v___x_89_ = l_Std_Internal_Sat_AIG_RefVec_empty___redArg();
 return v___x_89_;
 }
 }
@@ -307,7 +307,7 @@ lean_ctor_set(v___x_103_, 1, v_lhs_97_);
 lean_ctor_set(v___x_103_, 2, v_zero_100_);
 lean_inc_ref(v_inst_91_);
 lean_inc_ref(v_inst_90_);
-v_res_104_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_90_, v_inst_91_, v_w_92_, v_aig_93_, v___x_103_);
+v_res_104_ = l_Std_Internal_Sat_AIG_RefVec_ite___redArg(v_inst_90_, v_inst_91_, v_w_92_, v_aig_93_, v___x_103_);
 v_aig_105_ = lean_ctor_get(v_res_104_, 0);
 lean_inc_ref(v_aig_105_);
 v_vec_106_ = lean_ctor_get(v_res_104_, 1);
@@ -365,8 +365,8 @@ _start:
 lean_object* v_lhs_144_; lean_object* v_rhs_145_; lean_object* v___x_146_; lean_object* v___x_147_; uint8_t v___x_148_; 
 v_lhs_144_ = lean_ctor_get(v_input_143_, 0);
 v_rhs_145_ = lean_ctor_get(v_input_143_, 1);
-v___x_146_ = l_Std_Sat_AIG_RefVec_countKnown___redArg(v_w_141_, v_aig_142_, v_lhs_144_);
-v___x_147_ = l_Std_Sat_AIG_RefVec_countKnown___redArg(v_w_141_, v_aig_142_, v_rhs_145_);
+v___x_146_ = l_Std_Internal_Sat_AIG_RefVec_countKnown___redArg(v_w_141_, v_aig_142_, v_lhs_144_);
+v___x_147_ = l_Std_Internal_Sat_AIG_RefVec_countKnown___redArg(v_w_141_, v_aig_142_, v_rhs_145_);
 v___x_148_ = lean_nat_dec_lt(v___x_146_, v___x_147_);
 lean_dec(v___x_147_);
 lean_dec(v___x_146_);

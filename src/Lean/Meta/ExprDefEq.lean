@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 import Lean.Meta.WHNF
+import Lean.Meta.LitValues
 public section
 namespace Lean.Meta
 
@@ -212,9 +213,30 @@ where
           return false
       return true
 
-/--
-  Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
+/-- Partial applications of recursors of k-like and structure types may progress from getting eta-expanded.
+  See https://github.com/leanprover/lean4/issues/12520.
+  If `a` is a partial recursor call who can reduce on a neutral major, returns the eta-expanded, iota-reduced form of `a`.
+-/
+private def etaReduceRecursor? (a : Expr) : MetaM (Option Expr) := do
+  let afn := a.getAppFn
+  let some a_name := afn.constName? | return none
+  let .recInfo recVal ← getConstInfo a_name | return none
+  unless recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct do
+    return none
+  let args := a.getAppArgs
+  if args.size > recVal.getMajorIdx then
+    return none
+  let nExps := recVal.getMajorIdx + 1 - args.size
+  let aType ← inferType a
+  withTransparency .default do
+    forallBoundedTelescope (whnfType := true) aType (some nExps) fun xs _ => do
+      if xs.size != nExps then
+        return none
+      reduceRec recVal afn.constLevels! (args ++ xs) (fun _ => pure none) (fun e => return (← mkLambdaFVars xs e))
+
+/-- Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
+  We also eta-expand `b` when it is a partial application of a recursor of k-like and structure type.
 
   Remark: eta-reduction is not a good alternative even in a system without universe cumulativity like Lean.
   Example:
@@ -228,7 +250,7 @@ where
   Backtracking after η-expansion results in lots of duplicate δ-reductions,
   because we can δ-reduce `a` before and after the η-expansion.
   The fresh free variable `x` also busts the cache.
-  See https://github.com/leanprover/lean4/pull/2002 -/
+  See https://github.com/leanprover/lean4/pull/2002-/
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
   if a.isLambda && !b.isLambda then
     let bType ← inferType b
@@ -238,6 +260,8 @@ private def isDefEqEta (a b : Expr) : MetaM LBool := do
       let b' := mkLambda n c d (mkApp b (mkBVar 0))
       toLBoolM <| Meta.isExprDefEqAux a b'
     | _ => return .undef
+  else if let some b ← etaReduceRecursor? b then
+    toLBoolM <| Meta.isExprDefEqAux a b
   else
     return .undef
 
@@ -254,6 +278,26 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
     | some s, none   => isDefEq s t
     | none,   some t => isDefEq s t
     | none,   none   => pure LBool.undef
+
+/-- Cheap syntactic filter for `isDefEqFloatLit`. -/
+private def isFloatLitCandidate (e : Expr) : Bool :=
+  e.isApp &&
+  (e.isAppOf ``OfNat.ofNat || e.isAppOf ``OfScientific.ofScientific || e.isAppOf ``Neg.neg) &&
+    let type := e.getArg! 0
+    type.isConstOf ``Float || type.isConstOf ``Float32
+
+/--
+Support for constraints between `Float`/`Float32` literals, such as `5 =?= 1.0`, decided by
+comparing their values. Lazy delta reduction would unfold the float model on both sides in
+lockstep, which can take exponential time even though the kernel decides these quickly.
+Equal values are only reported as defeq at default transparency or above.
+-/
+def isDefEqFloatLit (s t : Expr) : MetaM LBool := do
+  unless isFloatLitCandidate s && isFloatLitCandidate t do return .undef
+  let some eq ← floatLitValuesEq? s t | return .undef
+  if !eq then return .false
+  if (← getTransparency) matches .default | .all then return .true
+  return .undef
 
 /-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
@@ -973,6 +1017,23 @@ where
 def mkAuxMVar (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr) (numScopeArgs : Nat := 0) : MetaM Expr := do
   mkFreshExprMVarAt lctx localInsts type MetavarKind.natural Name.anonymous numScopeArgs
 
+/--
+Like `mkAuxMVar`, but for a metavariable that is meant to stand in for or replace `mvarId`.
+For example, sometimes we want to replace a metavariable with one that has a smaller context
+or fewer arguments. We therefore create the new, more restricted, metavariable with `mkAuxMVarFor`
+and assign it to the old one.
+
+Other than with `mkAuxMVar`, the new metavariable inherits the instance-typed mark of `mvarId`,
+so that the type check for instance-typed metavariables cannot be bypassed by assigning the
+replacement metavariable instead. See `MetavarContext.instanceTypedMVars`.
+-/
+def mkAuxMVarFor (mvarId : MVarId) (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
+    (numScopeArgs : Nat := 0) : MetaM Expr := do
+  let newMVar ← mkAuxMVar lctx localInsts type numScopeArgs
+  if (← mvarId.isInstanceTyped) then
+    newMVar.mvarId!.markInstanceTyped
+  return newMVar
+
 namespace CheckAssignment
 
 builtin_initialize checkAssignmentExceptionId : InternalExceptionId ← registerInternalExceptionId `checkAssignment
@@ -1106,7 +1167,7 @@ mutual
     /- Compute new set of local instances. -/
     let localInsts := mvarDecl.localInstances.eraseAll toErase.contains
     let mvarType ← check mvarDecl.type
-    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
+    let newMVar ← mkAuxMVarFor mvarId lctx localInsts mvarType mvarDecl.numScopeArgs
     mvarId.assign newMVar
     return newMVar
 
@@ -1147,7 +1208,7 @@ mutual
             /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
                Note that `mvarType` may be different from `eType`. -/
             let ctx ← read
-            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+            let newMVar ← mkAuxMVarFor f.mvarId! ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
             if (← assignToConstFun f args.size newMVar) then
               pure newMVar
             else
@@ -1972,7 +2033,7 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
     let mvarDecl ← mvarId.getDecl
     if mvarDecl.numScopeArgs == args₁.size || cfg.constApprox then
       let type ← inferType (mkAppN mvar args₁)
-      let auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type
+      let auxMVar ← mkAuxMVarFor mvarId mvarDecl.lctx mvarDecl.localInstances type
       assignConst mvar args₁.size auxMVar
     else
       pure false
@@ -2346,48 +2407,16 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
 
-@[inline] private def cachedUnitLike? (key : ExprConfigCacheKey) : MetaM (Option Bool) := do
-  return (← get).cache.isUnitLike.find? key
-
-private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := do
-  modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
-  return b
-
-/-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
-private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
-  forallTelescopeReducing (whnfType := true) e fun _ tType => do
-    let hd := tType.getAppFn
-    matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
-      unless ← useEtaStruct ctorVal.induct do
-        return false
-      let ctorType := ctorVal.type
-          |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
-          -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `tType.getAppNumArgs = (← getConstInfoInduct ctorVal.induct).numParams`
-          |>.getForallBodyMaxDepth tType.getAppNumArgs
-          |>.instantiateRev tType.getAppArgs
-      forallTelescope ctorType fun xs _ =>
-        xs.allM fun e => do
-          let ty ← e.fvarId!.getType
-          isProp ty <||> isUnitLikeType ty
-
-/--
-  Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
-  with a single constructor for which all fields are unit-like or Prop types,
-  or a dependent arrow for which the codomain is unit-like.
--/
+/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  let tType ← inferType t
-  let useCache := !tType.hasFVar && !tType.hasExprMVar && (← read).customCanUnfoldPredicate?.isNone
-  let isUnit ←
-    if useCache then do
-      let key ← mkExprConfigCacheKey tType
-      match (← cachedUnitLike? key) with
-      | some b => pure b
-      | none => cacheUnitLike key (← isUnitLikeType tType)
+  let tType ← whnf (← inferType t)
+  matchConstNonRecStructure tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+    if ctorVal.numFields != 0 then
+      return false
+    else if (← useEtaStruct ctorVal.induct) then
+      Meta.isExprDefEqAux tType (← inferType s) -- TODO: Should we recover the old state if this fails?
     else
-      isUnitLikeType tType
-  if !isUnit then return false
-  Meta.isExprDefEqAux tType (← inferType s)
+      return false
 
 /--
   The `whnf` procedure has support for unfolding class projections when the
@@ -2459,6 +2488,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   else
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqFloatLit t s) do
     whenUndefDo (isDefEqDelta t s) do
     -- We try structure eta *after* lazy delta reduction;
     -- otherwise we would end up applying it at every step of a reduction chain
@@ -2615,6 +2645,7 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.delta.unfoldRight (inherited := true)
   registerTraceClass `Meta.isDefEq.delta.unfoldLeftRight (inherited := true)
   registerTraceClass `Meta.isDefEq.assign
+  registerTraceClass `Meta.isDefEq.eta
   registerTraceClass `Meta.isDefEq.assign.checkTypes (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.outOfScopeFVar (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.beforeMkLambda (inherited := true)

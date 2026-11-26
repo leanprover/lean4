@@ -40,6 +40,8 @@ lean_object* lean_uv_tcp_cancel_accept(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelAccept___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_shutdown(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_shutdown___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_close(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_close___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_getpeername(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_getsockname(lean_object*);
@@ -178,43 +180,52 @@ lean_dec(v_socket_74_);
 return v_res_76_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object* v_socket_79_, lean_object* v_a_00___x40___internal___hyg_80_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_close___boxed(lean_object* v_socket_79_, lean_object* v_a_00___x40___internal___hyg_80_){
 _start:
 {
 lean_object* v_res_81_; 
-v_res_81_ = lean_uv_tcp_getpeername(v_socket_79_);
+v_res_81_ = lean_uv_tcp_close(v_socket_79_);
 lean_dec(v_socket_79_);
 return v_res_81_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object* v_socket_84_, lean_object* v_a_00___x40___internal___hyg_85_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object* v_socket_84_, lean_object* v_a_00___x40___internal___hyg_85_){
 _start:
 {
 lean_object* v_res_86_; 
-v_res_86_ = lean_uv_tcp_getsockname(v_socket_84_);
+v_res_86_ = lean_uv_tcp_getpeername(v_socket_84_);
 lean_dec(v_socket_84_);
 return v_res_86_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object* v_socket_89_, lean_object* v_a_00___x40___internal___hyg_90_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object* v_socket_89_, lean_object* v_a_00___x40___internal___hyg_90_){
 _start:
 {
 lean_object* v_res_91_; 
-v_res_91_ = lean_uv_tcp_nodelay(v_socket_89_);
+v_res_91_ = lean_uv_tcp_getsockname(v_socket_89_);
 lean_dec(v_socket_89_);
 return v_res_91_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object* v_socket_96_, lean_object* v_enable_97_, lean_object* v_delay_98_, lean_object* v_a_00___x40___internal___hyg_99_){
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object* v_socket_94_, lean_object* v_a_00___x40___internal___hyg_95_){
 _start:
 {
-uint8_t v_enable_boxed_100_; uint32_t v_delay_boxed_101_; lean_object* v_res_102_; 
-v_enable_boxed_100_ = lean_unbox(v_enable_97_);
-v_delay_boxed_101_ = lean_unbox_uint32(v_delay_98_);
-lean_dec(v_delay_98_);
-v_res_102_ = lean_uv_tcp_keepalive(v_socket_96_, v_enable_boxed_100_, v_delay_boxed_101_);
-lean_dec(v_socket_96_);
-return v_res_102_;
+lean_object* v_res_96_; 
+v_res_96_ = lean_uv_tcp_nodelay(v_socket_94_);
+lean_dec(v_socket_94_);
+return v_res_96_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object* v_socket_101_, lean_object* v_enable_102_, lean_object* v_delay_103_, lean_object* v_a_00___x40___internal___hyg_104_){
+_start:
+{
+uint8_t v_enable_boxed_105_; uint32_t v_delay_boxed_106_; lean_object* v_res_107_; 
+v_enable_boxed_105_ = lean_unbox(v_enable_102_);
+v_delay_boxed_106_ = lean_unbox_uint32(v_delay_103_);
+lean_dec(v_delay_103_);
+v_res_107_ = lean_uv_tcp_keepalive(v_socket_101_, v_enable_boxed_105_, v_delay_boxed_106_);
+lean_dec(v_socket_101_);
+return v_res_107_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);

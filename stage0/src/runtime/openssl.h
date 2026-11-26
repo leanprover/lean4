@@ -7,3 +7,4 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg);
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg);

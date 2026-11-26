@@ -213,13 +213,13 @@ structure State where
   /-- Number of steps performed so far. -/
   numSteps := 0
   /--
-  Cache for context-independent results. Survives across binder entry and
-  across `simp` invocations within a `sym =>` block.
+  Cache for context-independent results of terms without metavariables. Survives across binder
+  entry and across `simp` invocations within a `sym =>` block.
   -/
   persistentCache : Cache := {}
   /--
-  Cache for context-dependent results. Cleared when entering binders
-  (where new hypotheses may change the result).
+  Cache for context-dependent results and results of terms with metavariables. Cleared when
+  entering binders (where new hypotheses may change the result) and at each `simp` invocation.
   -/
   transientCache : Cache := {}
   /-- Cache for generated funext theorems -/
@@ -279,9 +279,12 @@ abbrev pre : Simproc := fun e => do
 abbrev post : Simproc := fun e => do
   (← getMethods).post e
 
-/-- Caches `r` as the final result for `e`, in the transient cache if it is context-dependent. -/
+/--
+Caches `r` as the final result for `e`, in the transient cache if it is context-dependent or `e`
+contains metavariables, which may be assigned before the next `simp` invocation.
+-/
 abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
-  if r.isContextDependent then
+  if r.isContextDependent || e.hasMVar then
     modify fun s => { s with transientCache := s.transientCache.insert { expr := e } r }
   else
     modify fun s => { s with persistentCache := s.persistentCache.insert { expr := e } r }

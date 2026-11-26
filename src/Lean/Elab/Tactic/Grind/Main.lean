@@ -53,6 +53,8 @@ where
     let rhsExpr ← instantiateMVars rhsExpr
     if rhsExpr.hasSyntheticSorry then
       throwErrorAt rhs "invalid constraint, rhs contains a synthetic `sorry`"
+    -- Normalized like the patterns, since it is compared with the terms the patterns match.
+    let rhsExpr ← Grind.normalize rhsExpr {}
     let rhsExpr := rhsExpr.eta
     let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
     let numMVars := mvars.size
@@ -126,6 +128,7 @@ where
     let attrName := if let some attrName := attrName? then attrName.getId else `grind
     let some ext ← Grind.getExtension? attrName | throwError "unknown `grind` attribute `{attrName}`"
     let declName ← realizeGlobalConstNoOverloadWithInfo thmName
+    Linter.checkDeprecatedAt thmName declName
     let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
       let patterns ← terms.getElems.mapM fun term => do

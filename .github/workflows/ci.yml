@@ -299,6 +299,8 @@ jobs:
                 "upload": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
+                // Cheap enough to build and test on every run, not only releases
+                "lean-beam": true,
                 // Done as part of test-bench
                 //"check-stage3": level >= 2,
                 "test": true,
@@ -313,6 +315,8 @@ jobs:
                 // it neither enables the cache for the build nor transfers it.
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (stamped ? "" : " -DUSE_LAKE_CACHE=ON"),
                 "lake-cache": !stamped,
+                // Round-trips the uploaded cache; `merge-ci` and above only, since it is serial
+                "verify-lake-cache": level >= 1,
               },
               {
                 "name": "Linux RelWithAssert",
@@ -349,7 +353,10 @@ jobs:
                 // * treeMap2 is simply large and thus takes a lot of time
                 // * docparse times out as well
                 // * async_* are flakey at the moment, re-enable in the future
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_'"
+                // * `verif` only checks proofs, which takes over 7 minutes under the sanitizers
+                // * vcgenSepLogic is too big
+                // * do_scaling is too big
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_|^verif$|vcgenSepLogic|do_scaling'"
               },
               {
                 "name": "Linux tsanitize",
@@ -534,10 +541,14 @@ jobs:
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
+  # Only `Linux release`, `macOS aarch64` and `Windows` have to succeed; artifacts of other failed build jobs are left out.
   release-nightly:
     needs: [configure, build]
-    if: needs.configure.outputs.nightly
+    if: ${{ !cancelled() && needs.configure.outputs.nightly }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -550,6 +561,27 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
+      - name: Drop Artifacts of Failed Builds
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun,
+              { ...context.repo, run_id: context.runId });
+            const builds = jobs.filter(j => j.name.startsWith('build / '));
+            const required = ['Linux release', 'macOS aarch64', 'Windows'];
+            const missing = required.filter(n =>
+              !builds.some(j => j.name === `build / ${n}` && j.conclusion === 'success'));
+            if (missing.length > 0) {
+              core.setFailed(`Not releasing nightly, required jobs did not succeed: ${missing.join(', ')}`);
+              return;
+            }
+            // Artifacts are uploaded before tests run, so failed jobs may have left some behind
+            for (const j of builds.filter(j => j.conclusion !== 'success')) {
+              const name = j.name.slice('build / '.length);
+              core.info(`Dropping artifacts of failed job '${name}'`);
+              fs.rmSync(`artifacts/build-${name}`, { recursive: true, force: true });
+            }
       - name: Prepare Nightly Release
         run: |
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git

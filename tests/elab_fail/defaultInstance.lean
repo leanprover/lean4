@@ -1,4 +1,4 @@
-class Foo (α β : Type) :=
+class Foo (α β : Type) where
   (f : α → β)
 
 export Foo (f)

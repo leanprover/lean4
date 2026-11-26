@@ -7,7 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include <cstddef>
 #ifdef LEAN_USE_GMP
+/* Some installations of GMP are not on a system include path, and the kernel is built with `-Werror=conversion`. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#endif
 #include <gmp.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #else
 #include "runtime/mpn.h"
 #endif
@@ -297,6 +305,9 @@ public:
        i.e. the number of limbs times the bytes per limb. Used to bound memory usage.
     */
     size_t size_in_bytes() const;
+
+    /** \brief Hash of the absolute value that depends on all of its bits. It is the absolute value itself if that is less than `2^64`. */
+    uint64 hash64() const;
 
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }

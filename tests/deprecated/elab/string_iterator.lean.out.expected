@@ -1,0 +1,7 @@
+"cd"
+""
+{ byteIdx := 0 }
+{ byteIdx := 2 }
+{ byteIdx := 4 }
+String.Iterator.mk "αacc" { byteIdx := 2 }
+{ byteIdx := 6 }

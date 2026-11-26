@@ -50,6 +50,7 @@ def elabGrindLintSkip : CommandElab := fun stx => do
     -- Skip by exact name
     for id in ids do
       let declName ← realizeGlobalConstNoOverloadWithInfo id
+      Linter.checkDeprecatedAt id declName
       checkEMatchTheorem declName
       if skipExt.getState (← getEnv) |>.contains declName then
         throwError "`{declName}` is already in the `#grind_lint` skip set"
@@ -61,6 +62,7 @@ def elabGrindLintMute : CommandElab := fun stx => do
   liftTermElabM do
   for id in ids do
     let declName ← realizeGlobalConstNoOverloadWithInfo id
+    Linter.checkDeprecatedAt id declName
     checkEMatchTheorem declName
     if muteExt.getState (← getEnv) |>.contains declName then
       throwError "`{declName}` is already in the `#grind_lint` mute set"
@@ -70,7 +72,7 @@ def elabGrindLintMute : CommandElab := fun stx => do
 Default configuration for `#grind_lint`.
 -/
 def defaultConfig : Grind.Config := {
-  splits       := 0
+  branches     := 0
   lookahead    := false
   mbtc         := false
   ematch       := 20
@@ -177,7 +179,7 @@ def getTheorems (prefixes? : Option (Array Name)) (inModule : Bool) : CoreM (Lis
     else
       let keep := prefixes.any fun pre =>
         if pre == `_root_ then
-          declName.components.length == 1
+          declName.hasSingleComponent
         else
           pre.isPrefixOf declName
       unless keep do return none

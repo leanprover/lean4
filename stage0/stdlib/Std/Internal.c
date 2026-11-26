@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal
-// Imports: public import Std.Async public import Std.Http public import Std.Internal.ForIn public import Std.Internal.Parsec public import Std.Internal.UV
+// Imports: public import Std.Async public import Std.Http public import Std.Internal.ForIn public import Std.Internal.Order public import Std.Internal.Parsec public import Std.Internal.Sat public import Std.Internal.UV
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,9 @@ extern "C" {
 lean_object* runtime_initialize_Std_Async(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_ForIn(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Order(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Parsec(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_UV(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -34,7 +36,13 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_ForIn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Parsec(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_UV(builtin);
@@ -52,7 +60,9 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Async(uint8_t builtin);
 lean_object* initialize_Std_Http(uint8_t builtin);
 lean_object* initialize_Std_Internal_ForIn(uint8_t builtin);
+lean_object* initialize_Std_Internal_Order(uint8_t builtin);
 lean_object* initialize_Std_Internal_Parsec(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat(uint8_t builtin);
 lean_object* initialize_Std_Internal_UV(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal(uint8_t builtin) {
@@ -68,7 +78,13 @@ lean_dec_ref(res);
 res = initialize_Std_Internal_ForIn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Std_Internal_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Internal_Parsec(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_UV(builtin);

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Expr
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 
@@ -56,5 +58,17 @@ def collectLooseBVars (e : Expr) (offset : Nat := 0) : Std.HashSet Nat :=
     s.bvars
   else
     {}
+
+/--
+Returns a bitmask of the `numVars` innermost loose bound variables occurring in `e`,
+in binder order. Bit `i` corresponds to de Bruijn index `numVars - 1 - i`.
+The per-variable scans are intended for small expressions such as theorem right-hand sides.
+-/
+def looseBVarMask (e : Expr) (numVars : Nat) : Nat := Id.run do
+  let mut mask := 0
+  for i in *...numVars do
+    if e.hasLooseBVar (numVars - 1 - i) then
+      mask := mask ||| (1 <<< i)
+  return mask
 
 end Lean.Expr

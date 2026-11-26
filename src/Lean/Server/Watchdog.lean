@@ -16,6 +16,7 @@ public import Init.Data.List.Sort
 public import Std.Sync.Channel
 public import Lean.Server.Logging
 import Lean.Elab.ErrorUtils
+import Init.Data.List.Impl
 
 public section
 
@@ -1601,6 +1602,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     triggerCharacters? := some #[" "]
   }
   colorProvider? := some {}
+  documentFormattingProvider? := some {}
   experimental? := some {
     moduleHierarchyProvider? := some {}
     rpcProvider? := some {

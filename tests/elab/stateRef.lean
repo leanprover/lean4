@@ -52,10 +52,10 @@ info: 11
 #guard_msgs in
 #eval (f3.run' "test").run' 10
 
-structure Label {β : Type} (v : β) (α : Type) :=
+structure Label {β : Type} (v : β) (α : Type) where
 (val : α)
 
-class HasGetAt {β : Type} (v : β) (α : outParam Type) (m : Type → Type) :=
+class HasGetAt {β : Type} (v : β) (α : outParam Type) (m : Type → Type) where
 (getAt : m α)
 
 instance monadState.hasGetAt (β : Type) (v : β) (α : Type) (m : Type → Type) [Monad m] [MonadStateOf (Label v α) m] : HasGetAt v α m :=

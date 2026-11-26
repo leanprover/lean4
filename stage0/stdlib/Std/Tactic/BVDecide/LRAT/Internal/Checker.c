@@ -24,7 +24,7 @@ lean_object* lean_nat_to_int(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Std_Sat_CNF_Clause_ofLiterals___redArg(lean_object*);
+lean_object* l_Std_Internal_Sat_CNF_Clause_ofLiterals___redArg(lean_object*);
 uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_State_checkRup(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_State_checkRat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,7 +181,7 @@ lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; lean_obj
 v___x_37_ = lean_array_to_list(v_clause_36_);
 v___x_38_ = ((lean_object*)(l___private_Std_Tactic_BVDecide_LRAT_Internal_Checker_0__Std_Tactic_BVDecide_LRAT_Internal_check_convertClause___closed__0));
 v___x_39_ = l_List_filterMapTR_go___at___00__private_Std_Tactic_BVDecide_LRAT_Internal_Checker_0__Std_Tactic_BVDecide_LRAT_Internal_check_convertClause_spec__0(v___x_37_, v___x_38_);
-v___x_40_ = l_Std_Sat_CNF_Clause_ofLiterals___redArg(v___x_39_);
+v___x_40_ = l_Std_Internal_Sat_CNF_Clause_ofLiterals___redArg(v___x_39_);
 return v___x_40_;
 }
 }

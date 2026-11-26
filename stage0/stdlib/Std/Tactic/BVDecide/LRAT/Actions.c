@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Actions
-// Imports: public import Std.Sat.CNF
+// Imports: public import Std.Internal.Sat.CNF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1440,7 +1440,7 @@ lean_closure_set(v___x_527_, 3, v_inst_526_);
 return v___x_527_;
 }
 }
-lean_object* runtime_initialize_Std_Sat_CNF(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Sat_CNF(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin) {
@@ -1448,7 +1448,7 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Std_Sat_CNF(builtin);
+res = runtime_initialize_Std_Internal_Sat_CNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1460,13 +1460,13 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Std_Sat_CNF(uint8_t builtin);
+lean_object* initialize_Std_Internal_Sat_CNF(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_CNF(builtin);
+res = initialize_Std_Internal_Sat_CNF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin);

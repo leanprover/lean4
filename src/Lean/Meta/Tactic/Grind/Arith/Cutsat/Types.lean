@@ -68,6 +68,18 @@ Remark: we will not define a parent structure `Cnstr` with the common
 fields until the compiler provides support for avoiding the performance overhead.
 -/
 
+inductive OrHullKind where
+  | le | eq | eqNeg
+  deriving Inhabited
+
+/-- Reification of an arithmetic atom supplying one direction of a hull bound. -/
+structure OrHullAtom where
+  toIntThm? : Option Expr
+  lhs       : Int.Internal.Linear.Expr
+  rhs       : Int.Internal.Linear.Expr
+  kind      : OrHullKind
+  deriving Inhabited
+
 mutual
 /-- A equality constraint and its justification/proof. -/
 structure EqCnstr where
@@ -240,6 +252,8 @@ inductive LeCnstrProof where
     by `g`, a divisor of `d`, so the value of `c₂.p` is known modulo `g`. See `dvd_le_tight_mod`.
     -/
     dvdTightMod (c₁ : DvdCnstr) (c₂ : LeCnstr) (t g : Int)
+  | /-- A common bound from the true formula `e`, with evidence for the selected arithmetic atoms. -/
+    orHull (e : Expr) (support : Expr → Option OrHullAtom)
   | reorder (c : LeCnstr)
   | commRingNorm (c : LeCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
 
@@ -345,6 +359,12 @@ structure State where
   `dvdCnstrs`, `lowers`, or `uppers`.
   -/
   elimEqs : PArray (Option EqCnstr) := {}
+  /--
+  `active[x]` is `false` if `x` was created in a case of the model search that has been backtracked.
+  Backtracking keeps `x` because the proofs of refuted cases may use it, but rolls back the constraints
+  asserted when `x` was created. `mkVar` reactivates `x` by asserting them again.
+  -/
+  active : PArray Bool := {}
   /--
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/

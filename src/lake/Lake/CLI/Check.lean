@@ -495,7 +495,7 @@ def withSafeCheckExport (f : System.FilePath → M α) : M α := do
       step (.buildModule .check) <| runSandBoxedWithStdoutTo handle {
         cmd := (← read).whichLake.toString,
         args := #["check"],
-        envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+        envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC", "LEAN_NUM_THREADS"]
         envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
         readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
         writablePaths := #[projectDir / ".lake"]
@@ -518,7 +518,7 @@ def safeLakeBuild (kind : ModuleKind) (targets : Array Lean.Name) :
   runSandBoxed {
     cmd := whichLake.toString,
     args := #["build"] ++ targetArgs,
-    envPass := #["PATH", "LEAN_ABORT_ON_PANIC"]
+    envPass := #["PATH", "LEAN_ABORT_ON_PANIC", "LEAN_NUM_THREADS"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
     writablePaths := #[dotLakeDir]
@@ -534,7 +534,7 @@ def withRunExporter (kind : ModuleKind) (args : Array String) (f : System.FilePa
     step (.exportModule kind) <| runSandBoxedWithStdoutTo exportHandle {
       cmd := whichLean4Export.toString
       args
-      envPass := #["PATH", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
+      envPass := #["PATH", "LEAN_PATH", "LEAN_ABORT_ON_PANIC", "LEAN_NUM_THREADS"]
       envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
         ("PATH", some (← read).binPath)]
       readablePaths := #[projectDir, projectDir / ".lake", ← getLeanPrefix, whichLean4Export]
@@ -585,7 +585,7 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
     let spawnArgs := {
       cmd := kernelExe.toString,
       args := kernelArgs,
-      envPass := #["LEAN_ABORT_ON_PANIC"],
+      envPass := #["LEAN_ABORT_ON_PANIC", "LEAN_NUM_THREADS"],
       envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
       readablePaths := #[configPath.toString, solutionPath.toString, kernelExe, ← getLeanPrefix]
       writablePaths := #[]
@@ -657,7 +657,7 @@ def primitiveTargets : M (Array Lean.Name) := do
     ``eagerReduce,
     ``Nat,
     ``String,
-    ``String.mk,
+    set_option linter.deprecated false in ``String.mk,
     ``Char,
     ``optParam,
     ``autoParam,

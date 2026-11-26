@@ -100,7 +100,7 @@ example (x y : Nat) : x > 8 → y > 8 → x ≠ y → (x - y) % 4 = 1 := by
 example (x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 : Nat)
     : x1 - x2 - x3 - x4 - x5 - x6 - x7 - x8 - x9 - x10 = 0 →
       x1 ≤ x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 := by
-  grind (splits := 1)
+  grind (branches := 1)
 
 example (x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 : Nat)
     : x1 - x2 - x3 - x4 - x5 - x6 - x7 - x8 - x9 - x10 = 0 →

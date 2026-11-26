@@ -14,42 +14,37 @@ open System Lean
 
 namespace Lake
 
-public inductive CacheServiceKind
-| undef
-| reservoir
-| s3
-deriving Inhabited
-
-@[inline]
-public def CacheServiceKind.ofString? (s : String) : Option CacheServiceKind :=
-  match s with
-  | "reservoir" => some .reservoir
-  | "s3" => some .s3
-  | _ => none
-
-public configuration CacheServiceConfig where
-  name : String := ""
-  kind, type : CacheServiceKind := .undef
-  apiEndpoint : String := ""
+set_option linter.unusedVariables false in
+public configuration CacheServiceS3Config (name : String) where
+  /-- Base URL for an S3-style service's artifacts. -/
   artifactEndpoint : String := ""
+  /-- Base URL for an S3-style service's revisions. -/
   revisionEndpoint : String := ""
+  /-- Whether the service locates artifacts and revisions under different per-package scopes. -/
+  hasPackageScopes : Bool := true
   deriving Inhabited
+
+set_option linter.unusedVariables false in
+public configuration CacheServiceReservoirConfig (name : String) where
+  /-- Base URL for a Reservoir-style service's API. -/
+  apiEndpoint : String := ""
+  deriving Inhabited
+
+public abbrev CacheServiceMap :=  NameMap CacheService
 
 public configuration CacheConfig where
   defaultService : String := ""
   defaultUploadService : String := ""
-  services @ service : Array CacheServiceConfig := #[]
+  services @ service : CacheServiceMap := {}
   deriving Inhabited
 
 public configuration LakeConfig where
   cache : CacheConfig := ∅
   deriving Inhabited
 
-public abbrev CacheServiceMap := NameMap CacheService
-
 public structure LoadedLakeConfig where
-  config : LakeConfig
+  config : LakeConfig := ∅
   defaultCacheService : CacheService
-  defaultCacheUploadService? : Option CacheService
+  defaultCacheUploadService? : Option CacheService := none
   cacheServices : CacheServiceMap
   deriving Nonempty

@@ -34,6 +34,10 @@ def target : RequestTarget := RequestTarget.parse! "/"
 #guard
   let overrides : RequestOverrides := { requestTimeout := some ⟨500, by decide⟩ }
   (overrides.apply {}).requestTimeout.val == 500 && (({} : RequestOverrides).apply {}).requestTimeout.val == 120000
+#guard
+  let overrides : RequestOverrides := { responseTimeout := some ⟨900, by decide⟩ }
+  (overrides.apply {}).responseTimeout.val == 900 &&
+    (({} : RequestOverrides).apply {}).responseTimeout.val == 300000
 
 /-! ## `toH1Config` -/
 

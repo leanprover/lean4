@@ -46,6 +46,11 @@ structure RequestOverrides where
   requestTimeout : Option Timeout := none
 
   /--
+  Overrides `Config.responseTimeout` for this request.
+  -/
+  responseTimeout : Option Timeout := none
+
+  /--
   Overrides `Config.maxRedirects` for this request. `some 0` disables redirect following.
   -/
   maxRedirects : Option Nat := none
@@ -96,6 +101,15 @@ structure Config where
   resolution and the transport connect are covered by `connectTimeout` instead.
   -/
   requestTimeout : Timeout := ⟨120000, by decide⟩
+
+  /--
+  Bounds the whole wait for a response, from sending the request to the response head reaching the
+  caller: waiting for a connection, connecting, sending the request and its body, redirects, retries
+  and authentication. A request still unanswered when it passes fails with `Error.timeout`. Reading
+  the response body is not covered; `requestTimeout` bounds each pause there. Raise it for request
+  bodies that take longer than this to send.
+  -/
+  responseTimeout : Timeout := ⟨300000, by decide⟩
 
   /--
   Timeout for establishing a new connection, covering DNS resolution and the transport
@@ -199,6 +213,7 @@ request. Fields left `none` keep their configured value.
 def apply (overrides : RequestOverrides) (config : Config) : Config :=
   { config with
     requestTimeout := overrides.requestTimeout.getD config.requestTimeout
+    responseTimeout := overrides.responseTimeout.getD config.responseTimeout
     maxRedirects := overrides.maxRedirects.getD config.maxRedirects
   }
 

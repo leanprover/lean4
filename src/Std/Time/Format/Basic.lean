@@ -1011,13 +1011,17 @@ def formatParts (format : GenericFormat aw) (date : Option PlainDate) (time : Op
 Formats a `DateTime` value into a string using the given `GenericFormat`.
 -/
 def format (format : GenericFormat aw) (date : DateTime) : String :=
-  let date :=
+  let (pdt, zone) :=
     match aw with
-    | .any => date
-    | .only tz => date.convertZoneRules (TimeZone.ZoneRules.ofTimeZone tz)
-  let pdt := date.toPlainDateTime
+    | .any => (date.toPlainDateTime, date.timezone)
+    | .only tz =>
+      -- Going through the timestamp would turn a leap second `23:59:60` into `00:00:00`.
+      if date.timezone.offset == tz.offset then (date.toPlainDateTime, tz)
+      else
+        let date := date.convertZoneRules (TimeZone.ZoneRules.ofTimeZone tz)
+        (date.toPlainDateTime, date.timezone)
   -- A `DateTime` has every part, so no field is missing.
-  format.formatParts (some pdt.date) (some pdt.time) (some date.timezone) |>.getD ""
+  format.formatParts (some pdt.date) (some pdt.time) (some zone) |>.getD ""
 
 /--
 Constructs a `FormatType` function to format a date into a string using a `GenericFormat`.

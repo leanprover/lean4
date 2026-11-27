@@ -94,6 +94,13 @@ Gets the `TimeZone` offset from a `LocalTimeType`.
 def getTimeZone (time : LocalTimeType) : TimeZone :=
   ⟨time.gmtOffset, time.identifier, time.abbreviation, time.isDst⟩
 
+/--
+Takes the offset, DST flag and abbreviation from `tz`, the result of a POSIX TZ footer rule. The
+identifier is kept: `tz.name` is a seasonal abbreviation such as `EDT`, not the zone's IANA name.
+-/
+def applyRule (time : LocalTimeType) (tz : TimeZone) : LocalTimeType :=
+  { time with gmtOffset := tz.offset, isDst := tz.isDST, abbreviation := tz.abbreviation }
+
 end LocalTimeType
 
 /--
@@ -248,12 +255,15 @@ def UTC : ZoneRules :=
 /--
 Finds the `LocalTimeType` corresponding to a given `Timestamp` in `ZoneRules`.
 If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
-When the timestamp is beyond all stored transitions and a POSIX TZ footer rule is present, the rule is
-consulted. Falls back to `initialLocalTimeType` if no transition or rule applies.
+When the timestamp is beyond all stored transitions, or there are no transitions, and a POSIX TZ footer
+rule is present, the rule is consulted. Falls back to `initialLocalTimeType` if no transition or rule
+applies.
 -/
 def findLocalTimeTypeForTimestamp (zr : ZoneRules) (timestamp : Timestamp) : LocalTimeType := Id.run do
   let some lastIdx := Transition.findTransitionIndexForTimestamp zr.transitions timestamp
-    | return zr.initialLocalTimeType
+    | match zr.transitions.isEmpty, zr.transitionRule with
+      | true, some rule => return zr.initialLocalTimeType.applyRule (rule.timezoneAt timestamp)
+      | _, _ => return zr.initialLocalTimeType
 
   let some t := zr.transitions[lastIdx]?
     | return zr.initialLocalTimeType
@@ -261,9 +271,7 @@ def findLocalTimeTypeForTimestamp (zr : ZoneRules) (timestamp : Timestamp) : Loc
   let some rule := if lastIdx + 1 == zr.transitions.size then zr.transitionRule else none
     | return t.localTimeType
 
-  let tz := rule.timezoneAt timestamp
-
-  return { t.localTimeType with gmtOffset := tz.offset, isDst := tz.isDST, abbreviation := tz.abbreviation, identifier := tz.name }
+  return t.localTimeType.applyRule (rule.timezoneAt timestamp)
 
 /--
 Finds the `LocalTimeType` for a given wall-clock time (seconds since 1970-01-01T00:00:00 in local time).
@@ -286,8 +294,7 @@ def findLocalTimeTypeForWallTime (zr : ZoneRules) (wallTime : WallTime) : LocalT
   if let some rule := zr.transitionRule then
     -- Convert wall time to an approximate UTC timestamp using the last known offset.
     let approxUtc : Timestamp := wallTime.toTimestamp ltt.gmtOffset
-    let tz := rule.timezoneAt approxUtc
-    return { ltt with gmtOffset := tz.offset, isDst := tz.isDST, abbreviation := tz.abbreviation, identifier := tz.name }
+    return ltt.applyRule (rule.timezoneAt approxUtc)
 
   return ltt
 

@@ -36,10 +36,9 @@ instance : ToString (Ordinal leap) where
   toString r := toString r.val
 
 instance : OfNat (Ordinal leap) n := by
-  have inst : OfNat (Bounded.LE 0 (0 + (59 : Nat))) n := inferInstance
   cases leap
-  · exact inst
-  · exact ⟨inst.ofNat.expandTop (by decide)⟩
+  · exact inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
+  · exact inferInstanceAs (OfNat (Bounded.LE 0 (0 + (60 : Nat))) n)
 
 instance {x y : Ordinal leap} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))

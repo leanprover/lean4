@@ -158,24 +158,24 @@ The HTTP-date format of RFC 9110 §5.6.7 (IMF-fixdate), which follows the patter
 format to use when generating HTTP header fields such as `Date`, `Last-Modified` and `Expires`.
 The zone is always the literal `GMT`; dates in other zones are converted when formatting.
 -/
-def httpDate : GenericFormat (.only .GMT) := datespec("eee, dd MMM uuuu HH:mm:ss 'GMT'")
+def httpDate : GenericFormat (.only .GMT) := datespec("eee, dd MMM uuuu HH:mm:ss 'GMT'", { allowLeapSeconds := true })
 
 /--
 The obsolete RFC 850 form of an HTTP-date, for example `Sunday, 06-Nov-94 08:49:37 GMT`.
 -/
-private def httpDateRFC850 : GenericFormat (.only .GMT) := datespec("eeee, dd-MMM-uu HH:mm:ss 'GMT'")
+private def httpDateRFC850 : GenericFormat (.only .GMT) := datespec("eeee, dd-MMM-uu HH:mm:ss 'GMT'", { allowLeapSeconds := true })
 
 /--
 The obsolete asctime form of an HTTP-date with a two-digit day, for example
 `Wed Nov 16 08:49:37 1994`.
 -/
-private def httpDateAscTime : GenericFormat (.only .GMT) := datespec("eee MMM d HH:mm:ss uuuu")
+private def httpDateAscTime : GenericFormat (.only .GMT) := datespec("eee MMM d HH:mm:ss uuuu", { allowLeapSeconds := true })
 
 /--
 The obsolete asctime form of an HTTP-date with a space-padded day, for example
 `Sun Nov  6 08:49:37 1994`.
 -/
-private def httpDateAscTimePadded : GenericFormat (.only .GMT) := datespec("eee MMM  d HH:mm:ss uuuu")
+private def httpDateAscTimePadded : GenericFormat (.only .GMT) := datespec("eee MMM  d HH:mm:ss uuuu", { allowLeapSeconds := true })
 
 end Formats
 
@@ -386,7 +386,8 @@ def toHTTPDateString (date : DateTime) : String :=
 Parses an HTTP-date (RFC 9110 §5.6.7). Accepts the preferred form produced by `toHTTPDateString`
 and the two obsolete forms that recipients are required to accept: RFC 850
 (`Sunday, 06-Nov-94 08:49:37 GMT`) and asctime (`Sun Nov  6 08:49:37 1994`). A two-digit RFC 850
-year `yy` is read as `19yy` when `yy ≥ 70` and as `20yy` otherwise.
+year `yy` is read as `19yy` when `yy ≥ 70` and as `20yy` otherwise. A leap second (`23:59:60`) is
+accepted in all three forms.
 -/
 def fromHTTPDateString (input : String) : Except String DateTime :=
   Formats.httpDate.parse input

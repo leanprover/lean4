@@ -18,9 +18,8 @@ namespace lean {
 namespace {
 
 // A `uv_random` request. The callback fills `byte_array` and deletes it, and so does a failed submit.
-struct random_req_t {
+struct random_req_t : uv_tracked_req {
     uv_random_t uv;
-    owned_ref   promise;
     owned_ref   byte_array;
 };
 
@@ -383,9 +382,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
 
     auto on_random = [](uv_random_t* uv, int status, void* buf, size_t buflen) {
         std::unique_ptr<random_req_t> req(static_cast<random_req_t*>(uv->data));
+        req->unlink();
 
-        if (status < 0) {
-            lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise.get());
+        if (status < 0 || req->promise.get() == nullptr) {
+            resolve_with_code(status, req->promise.get());
         } else {
             lean_sarray_set_size(req->byte_array.get(), buflen);
             lean_promise_resolve(mk_except_ok(req->byte_array.release()), req->promise.get());
@@ -395,7 +395,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     int result;
     {
         event_loop_guard guard;
-        result = uv_random(global_ev.m_loop, &req->uv, lean_sarray_cptr(req->byte_array.get()), size, 0, on_random);
+        result = guard.stopped() ? UV_ECANCELED : uv_random(global_ev.m_loop, &req->uv, lean_sarray_cptr(req->byte_array.get()), size, 0, on_random);
+        if (result == 0) {
+            req->link((uv_req_t*)&req->uv);
+        }
     }
 
     if (result < 0) {

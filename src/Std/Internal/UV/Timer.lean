@@ -52,7 +52,7 @@ This function has different behavior depending on the state and configuration of
   - it is initial, run it and return a new `IO.Promise` that is set to resolve once `timeout`
     milliseconds have elapsed. After this `IO.Promise` is resolved the `Timer` is finished.
   - it is running, or finished after firing, return the same `IO.Promise`
-    that the last call to `next` returned.
+    that the last call to `nextResult` returned.
   - it was stopped with `stop` before firing, return a new `IO.Promise` that is never resolved.
 - if `repeating` is `true` and:
   - it is initial, run it and return a new `IO.Promise` that resolves right away
@@ -64,11 +64,22 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-A promise from `next` may also be resolved by the code holding it; the timer then treats it as
-fulfilled when it fires.
+Once the program is finishing this throws instead. The promise resolves to `.ok ()` when the timer
+fires, or to an error when it fails, as every timer does then. A promise from `nextResult` may also
+be resolved by the code holding it; the timer then treats it as fulfilled when it fires.
 -/
 @[extern "lean_uv_timer_next"]
-opaque next (timer : @& Timer) : IO (IO.Promise Unit)
+opaque nextResult (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit))
+
+/--
+Like `nextResult`, but each call returns a new promise without the error, which resolves once the
+one from `nextResult` does, also to an error, so that a wait on it ends.
+-/
+def next (timer : Timer) : IO (IO.Promise Unit) := do
+  let result ← timer.nextResult
+  let promise ← IO.Promise.new
+  BaseIO.chainTask (sync := true) result.result? fun r => do if r.isSome then promise.resolve ()
+  return promise
 
 /--
 This function has different behavior depending on the state and configuration of the `Timer`:

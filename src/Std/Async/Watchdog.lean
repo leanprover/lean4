@@ -128,12 +128,12 @@ private partial def round (wd : Watchdog) : BaseIO Unit := do
       wd.timer.set (some timer)
       BaseIO.chainTask (sync := true) elapsed.result? fun _ => wake.resolve ()
     match started with
-    -- A deadline that cannot be enforced is treated as passed.
-    | .error _ => wd.fire
+    | .error e => if e.isCanceled then wd.ctx.cancel .shutdown else wd.fire
     | .ok () => BaseIO.chainTask wake.result? fun _ => round wd
 
 /--
 Creates a watchdog that cancels `ctx` with `.deadline` when a wait outlives its deadline.
+It cancels `ctx` with `.shutdown` instead when the program finishes while it waits for a deadline.
 
 The watchdog and its timer stay alive until `ctx` is cancelled, so `ctx` should be cancelled once
 the watchdog is no longer needed.

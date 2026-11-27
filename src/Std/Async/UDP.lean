@@ -125,7 +125,7 @@ def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option So
           let lose := return ()
           let win promise := do
             try
-              discard <| IO.ofExcept res
+              discard <| MonadExcept.ofExcept res
               let readPromise ← s.native.recv size
               discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>

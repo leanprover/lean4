@@ -159,7 +159,7 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
           | some res =>
             let deliver : Async Unit :=
               try
-                let val ← IO.ofExcept res
+                let val ← MonadExcept.ofExcept res
                 waiter.promise.resolve (.ok (← selectable.cont val))
               catch e =>
                 waiter.promise.resolve (.error e)

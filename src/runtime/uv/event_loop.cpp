@@ -6,6 +6,7 @@ Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
 #include "runtime/thread.h"
+#include <thread>
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
@@ -23,13 +24,17 @@ static void check_uv(int result, const char * msg) {
 }
 
 void event_loop::start() {
-    m_loop = uv_default_loop();
+    // Not `uv_default_loop()`: finalization takes every handle on the loop to be a Lean object.
+    m_loop = new uv_loop_t;
+    check_uv(uv_loop_init(m_loop), "Failed to initialize the event loop");
     check_uv(uv_mutex_init_recursive(&m_mutex), "Failed to initialize mutex");
     check_uv(uv_cond_init(&m_cond), "Failed to initialize condition variable");
     check_uv(uv_async_init(m_loop, &m_async, nullptr), "Failed to initialize async");
+    check_uv(uv_timer_init(m_loop, &m_flush_timer), "Failed to initialize the flush timer");
+    uv_unref((uv_handle_t*)&m_flush_timer);
     m_waiters = 0;
 
-    lthread([this]() { run(); });
+    m_thread = new lthread([this]() { run(); });
 }
 
 void event_loop::lock() {
@@ -41,6 +46,32 @@ void event_loop::lock() {
         uv_mutex_lock(&m_mutex);
         m_waiters--;
     }
+}
+
+bool event_loop::lock_until(deadline until) {
+    if (until == no_deadline) {
+        lock();
+        return true;
+    }
+    if (uv_mutex_trylock(&m_mutex) == 0) {
+        return true;
+    }
+    m_waiters++;
+    int result = uv_async_send(&m_async);
+    (void)result;
+    lean_assert(result == 0);
+    // libuv has no timed lock. The loop thread releases the mutex while it waits for the waiters.
+    while (uv_mutex_trylock(&m_mutex) != 0) {
+        if (std::chrono::steady_clock::now() >= until) {
+            if (--m_waiters == 0) {
+                uv_cond_signal(&m_cond);
+            }
+            return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    m_waiters--;
+    return true;
 }
 
 void event_loop::unlock() {
@@ -62,6 +93,93 @@ bool event_loop::on_loop_thread() const {
     return g_on_loop_thread;
 }
 
+event_loop::stop_result event_loop::stop(deadline until) {
+    m_stopped.store(true, std::memory_order_release);
+
+    if (m_loop == nullptr || on_loop_thread()) {
+        return stop_result::not_joined;
+    }
+
+    if (m_thread != nullptr) {
+        if (!lock_until(until)) {
+            return stop_result::timed_out;
+        }
+        m_thread_stop = true;
+        // Wakes a loop thread waiting on `m_cond`; `lock` already made a running `uv_run` return.
+        unlock();
+        m_thread->join();
+        delete m_thread;
+        m_thread = nullptr;
+    }
+    return stop_result::joined;
+}
+
+void event_loop::restart() {
+    if (exiting()) {
+        return;
+    }
+    m_stopped.store(false, std::memory_order_release);
+    if (m_thread == nullptr && m_loop != nullptr) {
+        m_thread_stop = false;
+        m_thread = new lthread([this]() { run(); });
+    }
+}
+
+void event_loop::flush(uint64_t timeout_ms, bool (*pending)()) {
+    // The loop thread still runs when the stop happened on it.
+    if (exiting() || m_loop == nullptr || m_thread != nullptr) {
+        return;
+    }
+
+    // Callbacks that check for the loop thread, such as a finalizer run by a continuation, must take
+    // this thread for it.
+    bool was_on_loop_thread = g_on_loop_thread;
+    g_on_loop_thread = true;
+
+    lock();
+    // The loop's cached time may be long stale after a task manager's finalization.
+    uv_update_time(m_loop);
+    // Inactive once it has fired.
+    uv_timer_start(&m_flush_timer, [](uv_timer_t *) {}, timeout_ms, 0);
+    unlock();
+
+    // As in `run`: waiting threads take the lock between iterations, find the loop stopped, and fail
+    // or clean up instead of waiting for the whole flush.
+    while (true) {
+        uv_mutex_lock(&m_mutex);
+        while (m_waiters != 0) {
+            uv_cond_wait(&m_cond, &m_mutex);
+        }
+        if (!uv_is_active((uv_handle_t*)&m_flush_timer) || !pending()) {
+            uv_timer_stop(&m_flush_timer);
+            uv_mutex_unlock(&m_mutex);
+            break;
+        }
+        // The deadline timer bounds how long this blocks.
+        uv_run(m_loop, UV_RUN_ONCE);
+        uv_mutex_unlock(&m_mutex);
+    }
+
+    g_on_loop_thread = was_on_loop_thread;
+}
+
+bool event_loop::stop_for_exit(deadline until) {
+    m_stopped.store(true, std::memory_order_release);
+    // An exit-on-panic panic may come before `start`, when the mutex is not initialized yet.
+    if (m_loop == nullptr) {
+        return true;
+    }
+    // Recursive, so this also works on the loop thread. Taken before `exiting` is set: a finalizer that
+    // then skips `uv_close` leaves `data` dangling, so no other thread may walk the handles or run the
+    // loop by then.
+    if (!lock_until(until)) {
+        return false;
+    }
+
+    m_exiting.store(true, std::memory_order_release);
+    return true;
+}
+
 // The loop thread's body.
 void event_loop::run() {
     g_on_loop_thread = true;
@@ -73,7 +191,7 @@ void event_loop::run() {
         }
 
         // Checked with the lock held, since `alive` unreferences `m_async` under it.
-        if (!uv_loop_alive(m_loop)) {
+        if (m_thread_stop || !uv_loop_alive(m_loop)) {
             uv_mutex_unlock(&m_mutex);
             break;
         }
@@ -96,7 +214,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     {
         event_loop_guard guard;
 
-        if (accum) {
+        if (guard.stopped()) {
+            result = UV_ECANCELED;
+        } else if (accum) {
             result = uv_loop_configure(global_ev.m_loop, UV_METRICS_IDLE_TIME);
         }
 
@@ -117,7 +237,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     event_loop_guard guard;
-    return global_ev.alive(guard);
+    return !guard.stopped() && global_ev.alive(guard);
 }
 
 #else

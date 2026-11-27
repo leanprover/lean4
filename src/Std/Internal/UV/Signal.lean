@@ -53,7 +53,7 @@ This function has different behavior depending on the state and configuration of
   - it is initial, start listening and return a new `IO.Promise` that is set to resolve once
     the signal `signum` is received. After this `IO.Promise` is resolved the `Signal` is finished.
   - it is running, or finished after receiving the signal, return the same `IO.Promise` that the
-    last call to `next` returned, or a new one if `cancel` dropped it. A signal received after
+    last call to `nextResult` returned, or a new one if `cancel` dropped it. A signal received after
     `cancel` resolves that promise.
   - it was stopped with `stop` before receiving the signal, return a new `IO.Promise` that is never
     resolved.
@@ -70,12 +70,28 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 
-A promise from `next` may also be resolved by the code holding it; the handler then treats it as
-fulfilled when the signal arrives. The resolved `IO.Promise` contains the signal number that was
-received.
+Once the program is finishing this throws instead. The promise resolves to `.ok signum`, or to an
+error when the handler fails, as every handler does then. A promise from `nextResult` may also be
+resolved by the code holding it; the handler then treats it as fulfilled when the signal arrives.
 -/
 @[extern "lean_uv_signal_next"]
-opaque next (signal : @& Signal) : IO (IO.Promise Int)
+opaque nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
+
+@[extern "lean_uv_keep_pending"]
+private opaque keepPending (promise : @& IO.Promise Int) : BaseIO Unit
+
+/--
+Like `nextResult`, but each call returns a new promise of the signal number, which resolves once the
+one from `nextResult` resolves to `.ok` and stays pending for good if it fails.
+-/
+def next (signal : Signal) : IO (IO.Promise Int) := do
+  let result ← signal.nextResult
+  let promise ← IO.Promise.new
+  BaseIO.chainTask (sync := true) result.result? fun
+    | some (.ok signum) => promise.resolve signum
+    | some (.error _) => keepPending promise
+    | none => pure ()
+  return promise
 
 /--
 This function has different behavior depending on the state of the `Signal`:

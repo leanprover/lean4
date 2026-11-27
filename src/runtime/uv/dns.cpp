@@ -38,9 +38,8 @@ namespace {
 // A DNS request and the promise its callback settles. The callback deletes it, and so does a failed
 // submit. libuv copies the host, service, hints and address it is given.
 template<class Req>
-struct dns_req_t {
+struct dns_req_t : uv_tracked_req {
     Req       uv;
-    owned_ref promise;
 };
 
 using getaddrinfo_req_t = dns_req_t<uv_getaddrinfo_t>;
@@ -83,6 +82,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     auto on_resolved = [](uv_getaddrinfo_t * uv, int status, addrinfo * res) {
         std::unique_ptr<getaddrinfo_req_t> req(static_cast<getaddrinfo_req_t*>(uv->data));
+        req->unlink();
 
         if (status != 0) {
             resolve_with_code(status, req->promise.get());
@@ -90,6 +90,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         }
 
         std::unique_ptr<addrinfo, decltype(&uv_freeaddrinfo)> owned_res(res, uv_freeaddrinfo);
+        if (req->promise.get() == nullptr) return;
         lean_object * arr = lean_alloc_array(0, 1);
 
         for (addrinfo * ai = res; ai != nullptr; ai = ai->ai_next) {
@@ -114,7 +115,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     {
         event_loop_guard guard;
-        result = uv_getaddrinfo(global_ev.m_loop, &req->uv, on_resolved, name_cstr, service_cstr, &hints);
+        result = guard.stopped() ? UV_ECANCELED : uv_getaddrinfo(global_ev.m_loop, &req->uv, on_resolved, name_cstr, service_cstr, &hints);
+        if (result == 0) {
+            req->link((uv_req_t*)&req->uv);
+        }
     }
 
     if (result != 0) {
@@ -140,8 +144,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 
     auto on_resolved = [](uv_getnameinfo_t * uv, int status, const char * hostname, const char * service) {
         std::unique_ptr<getnameinfo_req_t> req(static_cast<getnameinfo_req_t*>(uv->data));
+        req->unlink();
 
-        if (status != 0) {
+        if (status != 0 || req->promise.get() == nullptr) {
             resolve_with_code(status, req->promise.get());
             return;
         }
@@ -156,7 +161,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     int result;
     {
         event_loop_guard guard;
-        result = uv_getnameinfo(global_ev.m_loop, &req->uv, on_resolved, (const struct sockaddr*)&addr_ptr, 0);
+        result = guard.stopped() ? UV_ECANCELED : uv_getnameinfo(global_ev.m_loop, &req->uv, on_resolved, (const struct sockaddr*)&addr_ptr, 0);
+        if (result == 0) {
+            req->link((uv_req_t*)&req->uv);
+        }
     }
 
     if (result != 0) {

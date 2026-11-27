@@ -8,10 +8,12 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/io.h"
 #include "runtime/object.h"
+#include "runtime/thread.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
 #include <atomic>
+#include <chrono>
 #endif
 
 namespace lean {
@@ -37,7 +39,11 @@ class event_loop_guard;
 //
 class event_loop {
 public:
-    uv_loop_t * m_loop;
+    using deadline = std::chrono::steady_clock::time_point;
+    // Waits for the lock without bound.
+    static constexpr deadline no_deadline = deadline::max();
+
+    uv_loop_t * m_loop = nullptr;
 
     // Initializes the loop and starts the loop thread.
     void start();
@@ -49,13 +55,46 @@ public:
     // these run inline. No callback runs while that thread is blocked.
     bool on_loop_thread() const;
 
+    bool exiting() const { return m_exiting.load(std::memory_order_acquire); }
+
+    enum class stop_result { joined, not_joined, timed_out };
+
+    // Marks libuv stopped and joins the loop thread, so that no callback runs afterwards. Does not join
+    // without a loop, or on the loop thread, which cannot join itself. Times out if the loop thread
+    // keeps the lock past `until`, as a callback blocked in a `(sync := true)` continuation does.
+    // `lean_init_task_manager` restarts it.
+    stop_result stop(deadline until = no_deadline);
+    void restart();
+
+    // If `stop` joined the loop thread, runs the loop on this thread as the loop thread would, until
+    // `pending` returns false or `timeout_ms` passes. Callbacks run, but new operations still fail.
+    void flush(uint64_t timeout_ms, bool (*pending)());
+
+    // The deadline of `flush`.
+    uv_timer_t       m_flush_timer;
+
+    // Whether `handle` is one of the loop's own handles, which are not Lean objects and are never closed.
+    bool is_own_handle(uv_handle_t const * handle) const {
+        return handle == (uv_handle_t const *)&m_async || handle == (uv_handle_t const *)&m_flush_timer;
+    }
+
+    // Stops libuv for `IO.Process.exit`, whose `exit()` runs libuv's destructor while other threads
+    // keep running. Takes the lock and never releases it, so that no thread is inside libuv by then,
+    // and the loop thread runs no more callbacks. Returns false if the lock is not free by `until`.
+    bool stop_for_exit(deadline until);
+
 private:
     uv_mutex_t       m_mutex;
     uv_cond_t        m_cond;
     uv_async_t       m_async;   // Interrupts `uv_run` for a waiting thread.
     std::atomic<int> m_waiters; // Threads waiting for `m_mutex`.
+    std::atomic<bool> m_stopped{false};
+    std::atomic<bool> m_exiting{false};
+    lthread *        m_thread = nullptr;
+    bool             m_thread_stop = false; // Asks the loop thread to return. Guarded by `m_mutex`.
 
     void lock();
+    bool lock_until(deadline until);
     void unlock();
     void run();
 
@@ -68,11 +107,20 @@ extern event_loop global_ev;
 // immediately. libuv callbacks already run under the lock and do not take it, but a finalizer or an FFI
 // call from a continuation they run inline does; the lock is recursive, so this nests.
 class event_loop_guard {
+    bool m_locked;
 public:
-    [[nodiscard]] event_loop_guard() { global_ev.lock(); }
-    ~event_loop_guard() { global_ev.unlock(); }
+    [[nodiscard]] event_loop_guard() : m_locked(!global_ev.exiting()) {
+        if (m_locked) global_ev.lock();
+    }
+    ~event_loop_guard() { if (m_locked) global_ev.unlock(); }
     event_loop_guard(event_loop_guard const &) = delete;
     event_loop_guard & operator=(event_loop_guard const &) = delete;
+
+    // Whether libuv has stopped: new operations fail with `UV_ECANCELED`, but cancellations, closes and
+    // finalizers still clean up. Checked under the lock, since libuv may stop while waiting for it.
+    bool stopped() const { return !m_locked || global_ev.m_stopped.load(std::memory_order_acquire); }
+    // Whether `stop_for_exit` ran, so that the guard holds no lock: callers then do nothing.
+    bool exiting() const { return !m_locked; }
 };
 
 #endif
@@ -81,5 +129,12 @@ public:
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options);
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
+// Returns false if a thread kept libuv busy past a deadline, so that `exit()` must not run its
+// destructor.
+extern "C" LEAN_EXPORT bool lean_uv_stop_for_exit(uint32_t grace_period_ms);
+extern "C" LEAN_EXPORT void lean_uv_stop();
+// After the task manager is finalized: frees the handles that finalizers closed after the stop.
+extern "C" LEAN_EXPORT void lean_uv_free_closed();
+extern "C" LEAN_EXPORT void lean_uv_restart();
 
 }

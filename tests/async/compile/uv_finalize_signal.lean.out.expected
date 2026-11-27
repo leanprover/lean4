@@ -1,0 +1,5 @@
+signal 1: received
+signal 2: received
+main returns
+wait: canceled
+exit code 0

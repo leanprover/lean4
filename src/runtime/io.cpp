@@ -51,6 +51,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
 #include "runtime/option_ref.h"
+#include "runtime/uv/event_loop.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -1671,7 +1672,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
     return v;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {
+extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, uint32_t grace_period_ms) {
+    if (!lean_uv_stop_for_exit(grace_period_ms)) {
+        // A thread blocked inside libuv's lock would run alongside libuv's destructor, so the program
+        // ends without running destructors or `atexit` handlers.
+        fflush(nullptr);
+        std::_Exit((int)code);
+    }
+
     exit(code);
 }
 

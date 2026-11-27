@@ -10,9 +10,9 @@ only drops settled promises) nor lose the wakeup. `Async.sleep` relies on this f
 open Std Async
 
 /-- Starts a one-shot timer and returns only its promise, so the loop holds the last reference. -/
-def startDroppedTimer (ms : UInt64) : IO (IO.Promise Unit) := do
+def startDroppedTimer (ms : UInt64) : IO (IO.Promise (Except IO.Error Unit)) := do
   let timer ← Internal.UV.Timer.mk ms false
-  timer.next
+  timer.nextResult
 
 /-- Same for a one-shot SIGWINCH waiter. -/
 def startDroppedSignal : IO (AsyncTask Int) := do

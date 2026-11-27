@@ -10,6 +10,8 @@ Author: Sofia Rodrigues
 #include "runtime/object.h"
 #include <array>
 #include <utility>
+#include <vector>
+#include <uv.h>
 
 namespace lean {
 
@@ -80,13 +82,83 @@ inline lean_obj_res mk_mt_promise() {
 }
 
 // Resolves `promise` with `.ok ()` if `status` is zero, and with the decoded libuv error otherwise.
+// A null `promise` was taken by finalization, which settled it already.
 inline void resolve_with_code(int status, b_obj_arg promise) {
+    if (promise == nullptr) {
+        return;
+    }
     obj_arg res = status == 0
         ? mk_except_ok(lean_box(0))
         : mk_except_err(lean_decode_uv_error(status, nullptr));
 
     lean_promise_resolve(res, promise);
 }
+
+struct uv_tracked_req;
+// Every request libuv owns. Guarded by the loop lock.
+inline uv_tracked_req * g_uv_requests = nullptr;
+
+// A request whose callback settles `promise`. While libuv owns it, it is linked into `g_uv_requests`
+// under the loop lock, so that finalization can take and settle the promise without its callback,
+// which then finds `promise` empty. Finalization leaves it linked, since libuv still owns it: the
+// list keeps it reachable, and a restarted loop runs the callback, which unlinks and frees it.
+struct uv_tracked_req {
+    uv_tracked_req * m_prev = nullptr;
+    uv_tracked_req * m_next = nullptr;
+    uv_req_t *       m_uv = nullptr;
+    owned_ref        promise;
+
+    void link(uv_req_t * uv) {
+        m_uv = uv;
+        m_next = g_uv_requests;
+        if (g_uv_requests != nullptr) {
+            g_uv_requests->m_prev = this;
+        }
+        g_uv_requests = this;
+    }
+
+    // Does nothing if the request is not linked.
+    void unlink() {
+        if (m_prev != nullptr) {
+            m_prev->m_next = m_next;
+        } else if (g_uv_requests == this) {
+            g_uv_requests = m_next;
+        }
+        if (m_next != nullptr) {
+            m_next->m_prev = m_prev;
+        }
+        m_prev = nullptr;
+        m_next = nullptr;
+    }
+};
+
+// What finalization takes from pending operations under the loop lock: their promises, settled with
+// `UV_ECANCELED` once the lock is released, and the loop's references to their handles, released
+// after that.
+struct uv_finalize_batch {
+    std::vector<owned_ref> m_promises;
+    std::vector<owned_ref> m_refs;
+    // Before the flush: leave operations that send data, such as a TCP shutdown, to finish.
+    bool m_keep_flushable = false;
+    // After the flush: TCP sockets to close, since they have cancelled writes, connects or shutdowns.
+    std::vector<uv_handle_t *> m_close;
+
+    // Takes a pending promise and the loop's reference to `handle`, held while the promise is pending.
+    void take(owned_ref & promise, lean_object * handle) {
+        if (promise.get() != nullptr) {
+            m_promises.push_back(std::move(promise));
+            m_refs.push_back(owned_ref(handle));
+        }
+    }
+
+    // Also takes the payload, released with the references.
+    void take(uv_pending_op & op, lean_object * handle) {
+        if (op.pending()) {
+            m_refs.push_back(std::move(op.m_payload));
+            take(op.m_promise, handle);
+        }
+    }
+};
 
 // An array libuv allocated together with its length, released with `Free(data, count)`.
 template<class T, void (*Free)(T*, int)>

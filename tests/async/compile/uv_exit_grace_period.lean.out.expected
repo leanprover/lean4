@@ -1,0 +1,2 @@
+grace 0: exited within 1 s: true, exit code 7
+grace 1500: waited at least 1.5 s: true, exited within 3 s: true, exit code 7

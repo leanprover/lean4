@@ -26,6 +26,10 @@ LEAN_EXPORT lean_obj_res mk_embedded_nul_error(b_lean_obj_arg str);
 // a name no variable has can find another variable instead.
 LEAN_EXPORT bool is_env_var_name(char const * name);
 LEAN_EXPORT lean_obj_res io_wrap_handle(FILE * hfile);
+// `IO.Process.exit`.
+extern "C" LEAN_EXPORT lean_obj_res lean_io_exit(uint8_t code, uint32_t grace_period_ms);
+// The default `gracePeriodMs` of `IO.Process.exit`.
+constexpr uint32_t g_exit_grace_period_ms = 2000;
 void initialize_io();
 void finalize_io();
 }

@@ -298,4 +298,15 @@ def toString : IO.Error → String
 
 instance : ToString IO.Error := ⟨ IO.Error.toString ⟩
 
+@[extern "lean_uv_canceled_code"]
+private opaque canceledCode : Unit → UInt32
+
+/--
+Whether `e` reports an I/O operation of the event loop canceled because the program is finishing
+(`main` returned or `IO.Process.exit` was called). Retrying it fails again at once.
+-/
+def isCanceled : IO.Error → Bool
+  | .otherError code _ => code == canceledCode ()
+  | _ => false
+
 end IO.Error

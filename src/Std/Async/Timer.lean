@@ -53,7 +53,7 @@ If:
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
-  Async.ofPurePromise s.native.next
+  Async.ofPromise s.native.nextResult
 
 /--
 If:
@@ -84,21 +84,22 @@ from `duration`, so a `Sleep` that is checked more often than `duration` never f
 def selector (s : Sleep) : Selector Unit :=
   {
     tryFn := do
-      let sleepWaiter ← s.native.next
+      let sleepWaiter ← s.native.nextResult
       if ← sleepWaiter.isResolved then
+        if let some (.error e) := sleepWaiter.result?.get then throw e
         return some ()
       else
         s.native.cancel
         return none
 
     registerFn waiter := do
-      let sleepWaiter ← s.native.next
+      let sleepWaiter ← s.native.nextResult
       BaseIO.chainTask sleepWaiter.result? fun
         | none => do
           return ()
-        | some _ =>
+        | some res =>
           let lose := return ()
-          let win promise := promise.resolve (.ok ())
+          let win promise := promise.resolve res
           waiter.race lose win
 
     unregisterFn := s.native.cancel
@@ -153,7 +154,7 @@ If:
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do
-  Async.ofPurePromise i.native.next
+  Async.ofPromise i.native.nextResult
 
 /--
 If:

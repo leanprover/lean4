@@ -225,8 +225,8 @@ the same on every platform (the x86 Linux numbering).
 -/
 @[inline]
 def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
-  let promise ← s.native.next
-  return .ofPurePromise promise
+  let promise ← s.native.nextResult
+  return .ofPromise promise
 
 /--
 If:
@@ -252,20 +252,22 @@ lost.
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter ← s.native.next
+      let signalWaiter ← s.native.nextResult
       -- Also when `signalWaiter` is already resolved: a repeating signal otherwise keeps the loop's
       -- reference to it, so it would keep listening after it is dropped.
       s.native.cancel
       -- A signal that arrived before `cancel` resolved `signalWaiter` instead of being kept.
       if ← signalWaiter.isResolved then
+        if let some (.error e) := signalWaiter.result?.get then throw e
         return some ()
       return none
 
     registerFn waiter := do
-      let signalWaiter ← s.wait
-      discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
+      let signalWaiter ← s.native.nextResult
+      BaseIO.chainTask signalWaiter.result? fun res => do
+        let some res := res | return ()
         let lose := return ()
-        let win promise := promise.resolve (.ok ())
+        let win promise := promise.resolve (res.map fun _ => ())
         waiter.race lose win
 
     unregisterFn := s.native.cancel

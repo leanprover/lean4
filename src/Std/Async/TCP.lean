@@ -103,7 +103,7 @@ def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
         | some res =>
           waiter.race (lose := pure ()) fun promise => do
             -- A connection is pending, so this accept does not wait.
-            match ← (do IO.ofExcept res; s.tryAccept).toBaseIO with
+            match ← (do MonadExcept.ofExcept res; s.tryAccept).toBaseIO with
             | .ok (some client) => promise.resolve (.ok client)
             | .ok none => promise.resolve (.error (.userError "the pending connection was accepted concurrently"))
             | .error e => promise.resolve (.error e)
@@ -224,7 +224,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
           let lose := return ()
           let win promise := do
             try
-              discard <| IO.ofExcept res
+              discard <| MonadExcept.ofExcept res
               let readPromise ← s.native.recv? size
               discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>
@@ -242,8 +242,8 @@ def shutdown (s : Client) : Async Unit :=
   Async.ofPromise <| s.native.shutdown
 
 /--
-Closes the client socket. Pending operations fail, and so does every later one. Writes still in
-flight are cancelled, so the peer may receive only part of them. Closing twice does nothing.
+Closes the client socket. Pending operations fail with `EBADF`, and so does every later one. Writes
+still in flight are cut short, so the peer may receive only part of them. Closing twice does nothing.
 -/
 @[inline]
 def close (s : Client) : IO Unit :=

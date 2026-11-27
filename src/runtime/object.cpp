@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/uv/event_loop.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -93,7 +94,10 @@ FILE * g_saved_stderr = stderr;
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
     fprintf(g_saved_stderr, "INTERNAL PANIC: %s\n", msg);
     abort_on_panic();
-    std::exit(1);
+    // Not `exit()`: it runs libuv's destructor alongside threads that may be inside libuv, which this
+    // may be called from (or out of memory) and so cannot stop first.
+    fflush(nullptr);
+    std::_Exit(1);
 }
 
 extern "C" LEAN_EXPORT void lean_internal_panic_out_of_memory() {
@@ -192,7 +196,7 @@ static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = f
 
     abort_on_panic();
     if (g_exit_on_panic) {
-        std::exit(1);
+        lean_io_exit(1, g_exit_grace_period_ms);
     }
 }
 
@@ -1146,6 +1150,8 @@ extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
         g_task_manager = new task_manager(num_workers);
     }
 #endif
+    // Last, since the restarted loop runs callbacks, which resolve promises through the task manager.
+    lean_uv_restart();
 }
 
 static unsigned get_lean_num_threads() {
@@ -1167,10 +1173,14 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
+    // First, since libuv callbacks resolve promises through the task manager. Pending and later libuv
+    // operations fail with `UV_ECANCELED`, so that tasks waiting on them finish.
+    lean_uv_stop();
     if (g_task_manager) {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
+    lean_uv_free_closed();
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
@@ -1180,13 +1190,17 @@ scoped_task_manager::scoped_task_manager(unsigned num_workers) {
         g_task_manager = new task_manager(num_workers);
     }
 #endif
+    // Last, since the restarted loop runs callbacks, which resolve promises through the task manager.
+    lean_uv_restart();
 }
 
 scoped_task_manager::~scoped_task_manager() {
+    lean_uv_stop();
     if (g_task_manager) {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
+    lean_uv_free_closed();
 }
 
 void deactivate_task(lean_task_object * t) {

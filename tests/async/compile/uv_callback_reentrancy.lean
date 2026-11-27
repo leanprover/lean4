@@ -25,7 +25,7 @@ def signalFromCallback (useStop : Bool) : IO Unit := do
   let pid ← IO.Process.getPID
   for _ in [0:30] do
     let signal ← Signal.mk 28 false
-    let received ← signal.next
+    let received ← signal.nextResult
     let done ← IO.Promise.new
     BaseIO.chainTask (sync := true) received.result? fun _ => do
       let _ ← (if useStop then signal.stop else signal.cancel : IO _).toBaseIO

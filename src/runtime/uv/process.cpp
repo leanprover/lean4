@@ -48,6 +48,7 @@ static void process_close_cb(uv_handle_t * handle) {
 static void process_finalizer(void * ptr) {
     lean_uv_process_object * p = static_cast<lean_uv_process_object *>(ptr);
     event_loop_guard guard;
+    if (guard.exiting()) return;
     if (p->m_exited) {
         uv_close((uv_handle_t *)&p->m_uv_process, process_close_cb);
     } else {
@@ -190,6 +191,8 @@ static int build_env(array_ref<pair_ref<string_ref, option_ref<string_ref>>> con
 
 // libuv fails with the same error for a missing working directory as for a missing executable.
 static obj_res mk_spawn_error(int err, string_ref const & cmd, option_ref<string_ref> const & cwd) {
+    // Not about the command: the program is finishing.
+    if (err == UV_ECANCELED) return io_result_mk_uv_error(err);
     if (cwd) {
         uv_fs_t req;
         int stat_err = uv_fs_stat(nullptr, &req, cwd.get()->data(), nullptr);
@@ -246,6 +249,11 @@ static lean_uv_process_object * spawn_process(uv_process_options_t const & optio
     }
     p->m_setsid = setsid;
     event_loop_guard guard;
+    if (guard.stopped()) {
+        delete p;
+        err = UV_ECANCELED;
+        return nullptr;
+    }
     err = uv_spawn(global_ev.m_loop, &p->m_uv_process, &options);
     p->m_uv_process.data = p;
     if (err != 0) {
@@ -410,7 +418,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     if (!p->m_exited && global_ev.on_loop_thread()) {
         return io_result_mk_error("cannot wait for a child process on the event loop thread");
     }
-    p->m_exited_cond.wait(lock, [&] { return p->m_exited; });
+    p->m_exited_cond.wait(lock, [&] { return p->m_exited || p->m_cancelled; });
+    if (!p->m_exited) {
+        return io_result_mk_uv_error(UV_ECANCELED);
+    }
     return lean_io_result_mk_ok(box_uint32(p->m_exit_code));
 }
 
@@ -419,6 +430,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
     lean_uv_process_object * p = lean_to_uv_process(cnstr_get(child, 3));
     lock_guard<mutex> lock(p->m_mutex);
     if (!p->m_exited) {
+        if (p->m_cancelled) {
+            return io_result_mk_uv_error(UV_ECANCELED);
+        }
         return lean_io_result_mk_ok(mk_option_none());
     }
     return lean_io_result_mk_ok(mk_option_some(box_uint32(p->m_exit_code)));
@@ -431,8 +445,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
     int err;
     {
         // libuv reaps the child under the loop lock, so `uv_process_kill` cannot signal another
-        // process that has reused the child's pid.
+        // process that has reused the child's pid, also while a flush runs the loop after the stop.
         event_loop_guard guard;
+        if (guard.exiting()) {
+            err = UV_ECANCELED;
+        } else
 #if !defined(LEAN_WINDOWS)
         if (p->m_setsid) {
             // The group outlives its leader as long as it has members, so it is killed even after
@@ -454,6 +471,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
 /* IO.Process.Child.pid {cfg : @& StdioConfig} : @& Child cfg → UInt32 */
 extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
     return uv_process_get_pid(&lean_to_uv_process(cnstr_get(child, 3))->m_uv_process);
+}
+
+void process_set_cancelled(uv_handle_t * handle, bool cancelled) {
+    lean_uv_process_object * p = static_cast<lean_uv_process_object *>(handle->data);
+    lock_guard<mutex> lock(p->m_mutex);
+    p->m_cancelled = cancelled;
+    p->m_exited_cond.notify_all();
 }
 
 #else

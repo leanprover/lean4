@@ -19,6 +19,7 @@ static void signal_finalizer(void* ptr) {
 
     {
         event_loop_guard guard;
+        if (guard.exiting()) return;
 
         // The close callback may free `signal` as soon as the lock is released.
         promise = std::move(signal->m_promise);
@@ -81,7 +82,7 @@ static void handle_signal_event(uv_signal_t* handle, int) {
     // Continuations run by the resolve may `stop` a repeating signal and free it, so nothing below may
     // touch it. Code holding the promise may have resolved it already.
     if (!promise_is_resolved(promise.get())) {
-        lean_dec(lean_io_promise_resolve(lean_box(signum), promise.get()));
+        lean_dec(lean_io_promise_resolve(mk_except_ok(lean_box(signum)), promise.get()));
     }
 
     // Released only after resolving: when the loop holds the last reference this runs the finalizer,
@@ -133,12 +134,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     signal->m_lean_signum = (int)(int32_t)signum_obj;
     signal->m_repeating = repeating;
 
-    int result;
-
-    {
-        event_loop_guard guard;
-        result = uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
-    }
+    event_loop_guard guard;
+    int result = guard.stopped() ? UV_ECANCELED : uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
 
     if (result != 0) {
         delete signal;
@@ -152,7 +149,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     return lean_io_result_mk_ok(obj);
 }
 
-/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise Int) */
+/* Std.Internal.UV.Signal.nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
@@ -163,6 +160,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
     {
         event_loop_guard guard;
+        if (guard.stopped()) return io_result_mk_uv_error(UV_ECANCELED);
 
         if (signal->m_state == signal_state::Initial) {
             signal->m_promise = owned_ref(mk_mt_promise());
@@ -193,7 +191,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
             if (signal->m_received) {
                 signal->m_received = false;
-                lean_dec(lean_io_promise_resolve(lean_box(signal->m_lean_signum), signal->m_promise.get()));
+                lean_dec(lean_io_promise_resolve(mk_except_ok(lean_box(signal->m_lean_signum)), signal->m_promise.get()));
             }
         }
 
@@ -224,6 +222,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     {
         // Locked so that a firing one-shot signal cannot finish it concurrently.
         event_loop_guard guard;
+        if (guard.exiting()) return lean_io_result_mk_ok(lean_box(0));
 
         if (signal->m_state == signal_state::Running) {
             result = uv_signal_stop(&signal->m_uv_signal);
@@ -255,6 +254,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     {
         // It's locking here to avoid changing the state during other operations.
         event_loop_guard guard;
+        if (guard.exiting()) return lean_io_result_mk_ok(lean_box(0));
 
         // The signal keeps listening, so one that arrives before the next `next` is not lost. The loop
         // stops keeping it alive, so a signal that is dropped instead is closed by its finalizer.
@@ -271,6 +271,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+void signal_take_pending(lean_object * obj, uv_finalize_batch & batch) {
+    lean_uv_signal_object * signal = lean_to_uv_signal(obj);
+    if (signal->m_state != signal_state::Running) {
+        return;
+    }
+    // Restores the signal's default action once no other handle listens for it: the program can no
+    // longer handle it, and a stuck finalization must stay interruptible.
+    uv_signal_stop(&signal->m_uv_signal);
+    // So that `next` starts it again after a restart.
+    signal->m_state = signal_state::Initial;
+    signal->m_received = false;
+    batch.take(signal->m_promise, obj);
+}
+
 #else
 
 /* Std.Internal.UV.Signal.mk (signum : Int32) (repeating : Bool) : IO Signal */
@@ -280,7 +294,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     );
 }
 
-/* Std.Internal.UV.Signal.next (signal : @& Signal) : IO (IO.Promise Int) */
+/* Std.Internal.UV.Signal.nextResult (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

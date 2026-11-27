@@ -48,13 +48,15 @@ def within (ms : Nat) (action : Async Unit) : Async Bool :=
 
 /--
 Serves `raw` with a handler that reads the body, ignoring a failed read, then answers 500 ms later
-with a streamed body. Cancels the connection's context after `shutdownAfter` ms, if given. Returns
-the status line and what the response's producer saw.
+with a streamed body. Cancels the connection's context once the handler has read the body, if
+`shutdown`. Returns the status line and what the response's producer saw.
 -/
-def lateResponse (name : String) (raw : String) (shutdownAfter : Option Nat) : IO (String × String) := do
+def lateResponse (name : String) (raw : String) (shutdown : Bool) : IO (String × String) := do
   let outcome : IO.Promise String ← IO.Promise.new
+  let bodyRead : IO.Promise Unit ← IO.Promise.new
   let handler : TestHandler := fun req => do
     try discard (req.body.readAll : Async ByteArray) catch _ => pure ()
+    bodyRead.resolve ()
     sleep 500
     Response.ok |>.stream fun out => do
       try
@@ -68,8 +70,9 @@ def lateResponse (name : String) (raw : String) (shutdownAfter : Option Nat) : I
     client.send raw.toUTF8
     let serve ← async ((Std.Http.Server.serveConnection server handler
       { defaultConfig with lingeringTimeout := 200 }).runIn ctx)
-    if let some ms := shutdownAfter then
-      sleep (.ofNat ms)
+    if shutdown then
+      -- A cancel before the request is read closes the connection with no response.
+      discard <| await bodyRead.result?
       ctx.cancel .shutdown
     await serve
     pure ((← client.recv?).getD .empty)
@@ -79,11 +82,11 @@ def lateResponse (name : String) (raw : String) (shutdownAfter : Option Nat) : I
 -- The connection ends while the handler runs, by a stalled body or a shutdown; the handler then
 -- returns a streamed body nobody will write. Its producer's send fails instead of waiting forever.
 #eval show IO Unit from do
-  for (name, raw, shutdownAfter, status) in [
-      ("stalled body", "POST / HTTP/1.1\x0d\nHost: x\x0d\nContent-Length: 10\x0d\n\x0d\nabc", none,
+  for (name, raw, shutdown, status) in [
+      ("stalled body", "POST / HTTP/1.1\x0d\nHost: x\x0d\nContent-Length: 10\x0d\n\x0d\nabc", false,
         "HTTP/1.1 408 Request Timeout"),
-      ("shutdown", mkPost "/" "0123456789", some 100, "HTTP/1.1 503 Service Unavailable")] do
-    let (gotStatus, outcome) ← lateResponse name raw shutdownAfter
+      ("shutdown", mkPost "/" "0123456789", true, "HTTP/1.1 503 Service Unavailable")] do
+    let (gotStatus, outcome) ← lateResponse name raw shutdown
     unless gotStatus == status && outcome == "closed" do
       throw <| IO.userError
         s!"'{name}': expected {status.quote} and the late producer's send to fail, got {gotStatus.quote} / {outcome.quote}"

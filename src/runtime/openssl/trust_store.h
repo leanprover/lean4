@@ -36,7 +36,10 @@ bool has_distrusted_key(STACK_OF(X509) * distrusted, X509 * cert);
 // is complete: it refuses any chain through the key of a certificate that `store` or `distrusted` (the
 // distrusting blocks the caller's material held, whichever copy the store kept) rejects for `trust_id`
 // (the peer's role). With `platform` (the platform's anchors are trusted) it defers chains the store
-// cannot establish to the system on macOS and Windows. Returns false on allocation failure.
+// cannot establish to the system on macOS and Windows, which only judges TLS servers: `platform` is
+// ignored for any other `trust_id`. The system never sees a chain the store establishes, so an anchor in
+// the store is trusted even where the system distrusts it. No revocation is checked. Returns false on
+// allocation failure.
 bool install_chain_verifier(SSL_CTX * ctx, X509_STORE * store, int trust_id, bool platform,
                             STACK_OF(X509) * distrusted);
 

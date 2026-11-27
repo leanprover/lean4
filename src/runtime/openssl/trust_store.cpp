@@ -14,17 +14,14 @@ Author: Sofia Rodrigues
 #include <wincrypt.h>
 #endif
 
-#include "runtime/openssl.h"
 #include "runtime/openssl/trust_store.h"
 
 #ifndef LEAN_EMSCRIPTEN
 
 #include <openssl/crypto.h>
 #include <openssl/err.h>
-#include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
-#include <openssl/x509v3.h>
 #include <memory>
 #include <string>
 
@@ -34,6 +31,7 @@ Author: Sofia Rodrigues
 #include <CoreFoundation/CoreFoundation.h>
 #include <type_traits>
 #elif !defined(LEAN_WINDOWS)
+#include <openssl/pem.h>
 #include <algorithm>
 #include <cctype>
 #include <dirent.h>
@@ -44,9 +42,6 @@ namespace lean {
 
 #if !defined(__APPLE__) && !defined(LEAN_WINDOWS)
 
-// The certificates in the store, which already holds the caller's own CAs when the system's are
-// loaded; `X509_STORE_load_file` also succeeds on a CRL-only file, so the count is what shows a load
-// added any.
 static int certificate_count(X509_STORE * store) {
     STACK_OF(X509_OBJECT) * objs = X509_STORE_get0_objects(store);
     int count = 0;
@@ -138,32 +133,6 @@ static char const * const g_fallback_cert_dirs[] = {
     "/etc/pki/tls/certs",
 };
 
-// Adds the first of the well-known bundles that adds a certificate, stored in `*bundle`, plus every hash
-// directory holding one.
-static bool load_fallback_anchors(X509_STORE * store, char const ** bundle) {
-    bool any = false;
-
-    int before = certificate_count(store);
-
-    for (char const * file : g_fallback_cert_files) {
-        if (X509_STORE_load_file(store, file) == 1 && certificate_count(store) > before) {
-            *bundle = file;
-            any = true;
-            break;
-        }
-    }
-
-    // `X509_STORE_load_path` succeeds even for a missing directory, since lookups are lazy.
-    for (char const * dir : g_fallback_cert_dirs) {
-        if (dir_has_hashed_certs(dir) && X509_STORE_load_path(store, dir) == 1) any = true;
-    }
-
-    // The caller reports failure in its own terms.
-    ERR_clear_error();
-
-    return any;
-}
-
 #endif
 
 bool push_ref(STACK_OF(X509) * sk, X509 * cert) {
@@ -213,7 +182,7 @@ static bool chain_has_distrusted(STACK_OF(X509) * distrusted, STACK_OF(X509) * c
 struct chain_verifier {
     // The certificates, from the store or the caller's material, that a `TRUSTED CERTIFICATE` block
     // rejects for the peer's role.
-    STACK_OF(X509) * distrusted;
+    x509_stack_ptr distrusted;
     // Whether a chain the store cannot establish goes to the platform (macOS, Windows).
     bool platform;
 };
@@ -221,8 +190,6 @@ struct chain_verifier {
 static int chain_verifier_index() {
     static int const index = SSL_CTX_get_ex_new_index(0, nullptr, nullptr, nullptr,
         [](void *, void * verifier, CRYPTO_EX_DATA *, int, long, void *) {
-            if (verifier == nullptr) return;
-            free_x509_stack(static_cast<chain_verifier *>(verifier)->distrusted);
             delete static_cast<chain_verifier *>(verifier);
         });
     return index;
@@ -296,10 +263,14 @@ static int verify_along_chain(X509_STORE_CTX * ctx, STACK_OF(X509) * chain) {
     X509_STORE_CTX_set0_trusted_stack(check.get(), anchor.get());
 
     X509_VERIFY_PARAM * param = X509_STORE_CTX_get0_param(check.get());
-    X509_VERIFY_PARAM_set1(param, X509_STORE_CTX_get0_param(ctx));
 
-    // A trust setting may have placed the anchor on an intermediate or on the leaf itself.
-    X509_VERIFY_PARAM_set_flags(param, X509_V_FLAG_PARTIAL_CHAIN);
+    // A copy that fails midway leaves `param` without the peer's name, which would then go unchecked.
+    // The flag: a trust setting may have placed the anchor on an intermediate or on the leaf itself.
+    if (X509_VERIFY_PARAM_set1(param, X509_STORE_CTX_get0_param(ctx)) != 1 ||
+        X509_VERIFY_PARAM_set_flags(param, X509_V_FLAG_PARTIAL_CHAIN) != 1) {
+        X509_STORE_CTX_set_error(ctx, X509_V_ERR_OUT_OF_MEM);
+        return 0;
+    }
 
     int ok = X509_verify_cert(check.get());
 
@@ -315,8 +286,6 @@ static int verify_along_chain(X509_STORE_CTX * ctx, STACK_OF(X509) * chain) {
 #if defined(__APPLE__)
 
 template<typename T> using cf_ptr = std::unique_ptr<std::remove_pointer_t<T>, released_by<CFRelease>>;
-
-static void free_openssl_string(char * str) { OPENSSL_free(str); }
 
 static bool append_sec_certificate(CFMutableArrayRef certs, X509 * cert) {
     unsigned char * der = nullptr;
@@ -350,7 +319,10 @@ static CFArrayRef copy_evaluated_chain(SecTrustRef trust) {
 // Whether `trust`'s chain reaches an anchor the platform trusts at all, Apple's TLS rules aside.
 static bool reaches_platform_anchor(SecTrustRef trust) {
     cf_ptr<SecPolicyRef> basic(SecPolicyCreateBasicX509());
+
+    // The fetch setting lives in the policies, so replacing them drops it.
     return basic != nullptr && SecTrustSetPolicies(trust, basic.get()) == errSecSuccess &&
+           SecTrustSetNetworkFetchAllowed(trust, false) == errSecSuccess &&
            SecTrustEvaluateWithError(trust, nullptr);
 }
 
@@ -380,17 +352,16 @@ static SecPolicyRef copy_ssl_policy(X509_VERIFY_PARAM * param, bool * ip) {
     if (X509_VERIFY_PARAM_get0_host(param, 1) != nullptr) return SecPolicyCreateSSL(true, nullptr);
 
     char const * host = X509_VERIFY_PARAM_get0_host(param, 0);
-    std::unique_ptr<char, released_by<free_openssl_string>> ip_str(
-        host == nullptr ? X509_VERIFY_PARAM_get1_ip_asc(param) : nullptr);
-    char const * name = host != nullptr ? host : ip_str.get();
+    char * ip_str = host == nullptr ? X509_VERIFY_PARAM_get1_ip_asc(param) : nullptr;
+    char const * name = host != nullptr ? host : ip_str;
 
     if (name == nullptr) return SecPolicyCreateSSL(true, nullptr);
 
     cf_ptr<CFStringRef> cf_name(CFStringCreateWithCString(nullptr, name, kCFStringEncodingUTF8));
-    if (cf_name == nullptr) return nullptr;
-
     *ip = ip_str != nullptr;
-    return SecPolicyCreateSSL(true, cf_name.get());
+    OPENSSL_free(ip_str);
+
+    return cf_name != nullptr ? SecPolicyCreateSSL(true, cf_name.get()) : nullptr;
 }
 
 // The chain the system's trust evaluation (Keychain trust settings and Apple's CA policy) builds from
@@ -604,14 +575,14 @@ static int verify_with_platform(X509_STORE_CTX * ctx, STACK_OF(X509) * distruste
 // settles on if it goes through a distrusted key: OpenSSL's issuer lookup can pass a distrusted copy by.
 static int check_chain(X509_STORE_CTX * ctx, chain_verifier const * verifier) {
     if (X509_verify_cert(ctx) > 0) {
-        if (!chain_has_distrusted(verifier->distrusted, X509_STORE_CTX_get0_chain(ctx))) return 1;
+        if (!chain_has_distrusted(verifier->distrusted.get(), X509_STORE_CTX_get0_chain(ctx))) return 1;
 
         X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REJECTED);
         return 0;
     }
 
 #if defined(__APPLE__) || defined(LEAN_WINDOWS)
-    if (verifier->platform) return verify_with_platform(ctx, verifier->distrusted);
+    if (verifier->platform) return verify_with_platform(ctx, verifier->distrusted.get());
 #endif
 
     return 0;
@@ -623,7 +594,11 @@ static int verify_chain(X509_STORE_CTX * ctx, void * arg) {
     ERR_set_mark();
     int ok = check_chain(ctx, static_cast<chain_verifier const *>(arg));
     ERR_pop_to_mark();
-    return ok;
+
+    // libssl records the error as the session's verify result, which must not read as success.
+    if (ok <= 0 && X509_STORE_CTX_get_error(ctx) == X509_V_OK) X509_STORE_CTX_set_error(ctx, X509_V_ERR_UNSPECIFIED);
+
+    return ok > 0;
 }
 
 bool install_chain_verifier(SSL_CTX * ctx, X509_STORE * store, int trust_id, bool platform,
@@ -633,6 +608,8 @@ bool install_chain_verifier(SSL_CTX * ctx, X509_STORE * store, int trust_id, boo
     if (stored == nullptr || distrusted == nullptr) return false;
 
     // The store's own, such as a system bundle's, then the caller's, which the store may not have kept.
+    // A hash directory's certificates enter the store on lookup, so one distrusted only there is not
+    // collected: OpenSSL still refuses that certificate, but not another one with its key.
     for (int i = 0; i < sk_X509_num(stored.get()); i++) {
         X509 * cert = sk_X509_value(stored.get(), i);
 
@@ -645,15 +622,16 @@ bool install_chain_verifier(SSL_CTX * ctx, X509_STORE * store, int trust_id, boo
         if (!push_ref(distrusted.get(), sk_X509_value(given, i))) return false;
     }
 
-    auto * verifier = new chain_verifier{distrusted.release(), platform};
+    // The platform is asked about a TLS server, so it has no say on a peer in another role.
+    platform = platform && trust_id == X509_TRUST_SSL_SERVER;
 
-    if (SSL_CTX_set_ex_data(ctx, chain_verifier_index(), verifier) != 1) {
-        free_x509_stack(verifier->distrusted);
-        delete verifier;
-        return false;
-    }
+    int index = chain_verifier_index();
+    auto * previous = static_cast<chain_verifier *>(SSL_CTX_get_ex_data(ctx, index));
+    std::unique_ptr<chain_verifier> verifier(new chain_verifier{std::move(distrusted), platform});
+    if (SSL_CTX_set_ex_data(ctx, index, verifier.get()) != 1) return false;
 
-    SSL_CTX_set_cert_verify_callback(ctx, verify_chain, verifier);
+    SSL_CTX_set_cert_verify_callback(ctx, verify_chain, verifier.release());
+    delete previous;
     return true;
 }
 
@@ -667,14 +645,26 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 #else
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
 
-#if !defined(LEAN_STANDALONE)
-    // Counted before any system material: the store already holds the caller's own CAs.
+    // Counted before any system material: the store already holds the caller's own CAs. A load also
+    // succeeds on a CRL-only file, so the count is what shows it added any.
     int before = certificate_count(store);
-#endif
 
-    // The distribution bundles are always read; the compiled-in paths only add to them.
+    // The first well-known bundle that adds a certificate and every hash directory holding one are always
+    // read; the compiled-in paths only add to them.
     char const * bundle = nullptr;
-    bool platform = load_fallback_anchors(store, &bundle);
+    for (char const * file : g_fallback_cert_files) {
+        if (X509_STORE_load_file(store, file) == 1 && certificate_count(store) > before) {
+            bundle = file;
+            break;
+        }
+    }
+
+    bool platform = bundle != nullptr;
+
+    // `X509_STORE_load_path` succeeds even for a missing directory, since lookups are lazy.
+    for (char const * dir : g_fallback_cert_dirs) {
+        if (dir_has_hashed_certs(dir) && X509_STORE_load_path(store, dir) == 1) platform = true;
+    }
 
 #if !defined(LEAN_STANDALONE)
     // A distribution's OpenSSL usually names the bundle just read, which would parse it twice.

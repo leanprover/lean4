@@ -24,7 +24,8 @@ register_builtin_option backward.dsimp.instances : Bool := {
 /--
 After a definitional rewrite of an argument, check the instance arguments whose types depend on
 it at `.instances` transparency; adopt a resynthesized instance when one exists and is defeq at
-`.implicit`, and refuse the rewrite otherwise. See `Simp.resynthInstanceArgs`.
+`.implicit` (at `.default` under `backward.isDefEq.respectTransparency false`), and refuse the
+rewrite otherwise. See `Simp.resynthInstanceArgs`.
 -/
 register_builtin_option dsimp.resynthInstances : Bool := {
     defValue := true
@@ -756,7 +757,10 @@ def resynthInstanceArgs (e f : Expr) (origArgs args0 : Array Expr) : SimpM (Arra
           catch _ => pure none
         match inst'? with
         | some inst' =>
-          if ← withTransparency .implicit <| isDefEqGuarded instOld inst' then
+          -- Compare as `isDefEq` compares an instance-implicit argument: at `.implicit`, or at
+          -- `.default` under `backward.isDefEq.respectTransparency false`.
+          let mode := if (← getOptionFlags).respectTransparency then .implicit else .default
+          if ← withTransparency mode <| isDefEqGuarded instOld inst' then
             pure (some inst')
           else
             pure none

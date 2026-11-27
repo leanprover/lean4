@@ -62,6 +62,8 @@ ${LEAN_EXTRA_LAKEFILE_TOML}
 [[lean_lib]]
 name = "Init"
 defaultFacets = ["static", "static.export"]
+# `weak.` because stage0 does not know this option yet
+weakLeanArgs = ["-Dweak.linter.deprecated.laxInstanceDefeq=false"]
 
 [[lean_lib]]
 name = "Std"

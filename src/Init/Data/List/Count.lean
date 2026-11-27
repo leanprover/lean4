@@ -267,6 +267,7 @@ theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
   | [], a => by simp
   | _ :: _, a => by
+    rw [tail_cons, head?_cons, Option.some_beq_some]
     set_option backward.isDefEq.respectTransparency false in
     simp [count_cons]
 

@@ -637,7 +637,7 @@ _start:
 lean_object* v___x_175_; lean_object* v___x_176_; lean_object* v___x_177_; 
 v___x_175_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__1);
 v___x_176_ = lean_unsigned_to_nat(0u);
-v___x_177_ = lean_alloc_ctor(0, 11, 0);
+v___x_177_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_177_, 0, v___x_176_);
 lean_ctor_set(v___x_177_, 1, v___x_176_);
 lean_ctor_set(v___x_177_, 2, v___x_176_);
@@ -648,7 +648,6 @@ lean_ctor_set(v___x_177_, 6, v___x_175_);
 lean_ctor_set(v___x_177_, 7, v___x_175_);
 lean_ctor_set(v___x_177_, 8, v___x_175_);
 lean_ctor_set(v___x_177_, 9, v___x_175_);
-lean_ctor_set(v___x_177_, 10, v___x_175_);
 return v___x_177_;
 }
 }

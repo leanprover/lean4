@@ -19914,7 +19914,7 @@ _start:
 lean_object* v___x_6451_; lean_object* v___x_6452_; lean_object* v___x_6453_; 
 v___x_6451_ = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_findJoinPoints_x3f_spec__0___closed__1, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_findJoinPoints_x3f_spec__0___closed__1_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_findJoinPoints_x3f_spec__0___closed__1);
 v___x_6452_ = lean_unsigned_to_nat(0u);
-v___x_6453_ = lean_alloc_ctor(0, 11, 0);
+v___x_6453_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_6453_, 0, v___x_6452_);
 lean_ctor_set(v___x_6453_, 1, v___x_6452_);
 lean_ctor_set(v___x_6453_, 2, v___x_6452_);
@@ -19925,7 +19925,6 @@ lean_ctor_set(v___x_6453_, 6, v___x_6451_);
 lean_ctor_set(v___x_6453_, 7, v___x_6451_);
 lean_ctor_set(v___x_6453_, 8, v___x_6451_);
 lean_ctor_set(v___x_6453_, 9, v___x_6451_);
-lean_ctor_set(v___x_6453_, 10, v___x_6451_);
 return v___x_6453_;
 }
 }

@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Attributes
+public import Lean.ScopedEnvExtension
+public import Lean.Linter.Init
 import Lean.Util.CollectLevelParams
 public section
 namespace Lean
@@ -176,6 +178,64 @@ def addClass (env : Environment) (clsName : Name) : Except MessageData Environme
   -- `log` necessary: `attribute [class]` may be applied to an existing declaration
   return classExtension.addEntry (log := .decl clsName) env
     { name := clsName, outParams, outLevelParams }
+
+/--
+Classes marked `@[lax_instance_defeq]` are exempt from the strict instance-argument discipline of
+`backward.isDefEq.respectTransparency.instances`: a value assigned to an instance metavariable of
+such a class is not required to have a type that matches the metavariable's type at `.instances`
+transparency. The instance-argument check of `simp`/`dsimp` (`dsimp.resynthInstances`) and the
+`linter.checkRespectTransparency.wellTyped` and `linter.checkRespectTransparency.instances` linters
+skip these classes as well.
+
+The attribute is a backward compatibility feature and will be removed. Each use logs a warning
+unless `linter.deprecated.laxInstanceDefeq` is false.
+-/
+builtin_initialize laxInstanceDefeqExt : SimpleScopedEnvExtension Name NameSet ←
+  registerSimpleScopedEnvExtension {
+    initial    := {}
+    addEntry   := fun s n => s.insert n
+    -- read during type class resolution, see `Lean.Meta.SynthInstanceCache`
+    logWrites  := true
+    entryDecl? := some id
+  }
+
+register_builtin_option linter.deprecated.laxInstanceDefeq : Bool := {
+  defValue := true
+  descr    := "if true, warn on uses of the `lax_instance_defeq` attribute, a backward \
+    compatibility feature that will be removed"
+}
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `lax_instance_defeq
+    descr := "exempt instances of a class from the strict defeq check at `.instances` \
+      transparency (see `backward.isDefEq.respectTransparency.instances`)"
+    add   := fun declName stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless isClass (← getEnv) declName do
+        throwError "invalid `lax_instance_defeq`, `{.ofConstName declName}` is not a class"
+      Linter.logLintIf linter.deprecated.laxInstanceDefeq stx
+        m!"`lax_instance_defeq` is a backward compatibility feature and will be removed in the \
+          future"
+      laxInstanceDefeqExt.add declName kind
+  }
+
+/-- Whether a class type's result sort is `Prop`. -/
+private def isPropValued : Expr → Bool
+  | .forallE _ _ b _ => isPropValued b
+  | .sort u          => u == .zero
+  | _                => false
+
+/--
+Return `true` if instances of class `className` are exempt from the strict defeq check at
+`.instances` transparency: the class is marked `@[lax_instance_defeq]`, or it is propositional
+(proof irrelevance makes a stale instance argument harmless there). See `laxInstanceDefeqExt`.
+-/
+def isLaxInstanceDefeqClass (env : Environment) (className : Name) : Bool :=
+  (laxInstanceDefeqExt.getState env).contains className ||
+    match env.find? className with
+    | some info => isPropValued info.type
+    | none => false
 
 /--
 Registers an inductive type or structure as a type class. Using `class` or `class inductive` is

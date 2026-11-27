@@ -31,6 +31,7 @@ theorem Take.isPlausibleStep_take_skip [Monad m] [Iterator α m β] {n : Nat}
 
 end Iterators.Types
 
+set_option dsimp.resynthInstances false in
 theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} :
     (it.take n).step = (match n with
@@ -55,6 +56,7 @@ theorem IterM.toList_take_zero {α m β} [Monad m] [LawfulMonad m] [Iterator α 
   rw [toList_eq_match_step]
   simp [step_take]
 
+set_option dsimp.resynthInstances false in
 theorem IterM.step_toTake {α m β} [Monad m] [Iterator α m β] [Finite α m]
     {it : IterM (α := α) m β} :
     it.toTake.step = (do

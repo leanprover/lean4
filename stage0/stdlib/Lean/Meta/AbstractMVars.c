@@ -2402,8 +2402,8 @@ else
 lean_object* v_val_711_; lean_object* v___x_712_; 
 lean_dec_ref(v_type_658_);
 lean_dec(v_userName_657_);
-lean_dec(v_mvarId_653_);
 lean_dec_ref_known(v_e_649_, 1);
+lean_dec(v_mvarId_653_);
 v_val_711_ = lean_ctor_get(v___x_663_, 0);
 lean_inc(v_val_711_);
 lean_dec_ref_known(v___x_663_, 1);

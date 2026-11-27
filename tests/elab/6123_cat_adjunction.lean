@@ -485,6 +485,7 @@ def connectedComponents : Cat.{v, u} ⥤ Type u where
   obj C := ConnectedComponents C
   map F := Functor.mapConnectedComponents F
 
+set_option dsimp.resynthInstances false in
 def connectedComponentsTypeToCatAdj : connectedComponents ⊣ typeToCat :=
   Adjunction.mk' {
     homEquiv := sorry

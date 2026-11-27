@@ -2700,6 +2700,8 @@ where
       p := body
     p.isProp
 
+set_option allowUnsafeReducibility true in
+attribute [local instance_reducible] Id in
 /--
 Picks the entry stored for a name declared by several modules from the candidate entries, given in
 module order: a later declaration replaces the first one if it subsumes it. Conflicts have been ruled out by `checkImportConflicts` before.

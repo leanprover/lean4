@@ -618,19 +618,20 @@ private def reservedDigits : FormatString → Option Nat
     if isNumericModifier m then (· + ·) <$> fixedDigits m <*> reservedDigits rest else some 0
   | _ => some 0
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `reserve`: the `reservedDigits` of the rest of the format. -/
 private def parseWith (config : FormatConfig) (reserve : Option Nat) : (mod : Modifier) → Parser (TypeFormat mod)
   | .G text => eraOfIndex <$> parseName (eraNames config.dateformat.symbols text)
   | .y format =>
     match format with
     | .any => Int.ofNat <$> parseVarWidthNum 1 reserve
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .twoDigit => (fun x => (2000 + x : Int)) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => parseFourDigitYear false reserve
     | .extended n => Int.ofNat <$> parseVarWidthNum n reserve
   | .u format | .Y format =>
     match format with
     | .any => parseSigned <| parseVarWidthNum 1 reserve
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .twoDigit => (fun x => (2000 + x : Int)) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => parseFourDigitYear true reserve
     | .extended n => parseSigned <| parseVarWidthNum n reserve
   | .D format => Sigma.mk true <$> parseNatToBounded (parseField (.D format) format.padding reserve)

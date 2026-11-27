@@ -93,6 +93,7 @@ public theorem le_apply_minOn_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
   · intro h
     cases minOn_eq_or (f := f) (x := x) (y := y) <;> simp_all
 
+set_option dsimp.resynthInstances false in
 public theorem minOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y z : α} : minOn f (minOn f x y) z = minOn f x (minOn f y z) := by
   open scoped Classical.Order in

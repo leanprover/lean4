@@ -7655,7 +7655,7 @@ _start:
 lean_object* v___x_2546_; lean_object* v___x_2547_; lean_object* v___x_2548_; 
 v___x_2546_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addPreDefInfo_spec__0_spec__0_spec__1_spec__3_spec__8_spec__10_spec__13___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addPreDefInfo_spec__0_spec__0_spec__1_spec__3_spec__8_spec__10_spec__13___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addPreDefInfo_spec__0_spec__0_spec__1_spec__3_spec__8_spec__10_spec__13___redArg___closed__1);
 v___x_2547_ = lean_unsigned_to_nat(0u);
-v___x_2548_ = lean_alloc_ctor(0, 11, 0);
+v___x_2548_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_2548_, 0, v___x_2547_);
 lean_ctor_set(v___x_2548_, 1, v___x_2547_);
 lean_ctor_set(v___x_2548_, 2, v___x_2547_);
@@ -7666,7 +7666,6 @@ lean_ctor_set(v___x_2548_, 6, v___x_2546_);
 lean_ctor_set(v___x_2548_, 7, v___x_2546_);
 lean_ctor_set(v___x_2548_, 8, v___x_2546_);
 lean_ctor_set(v___x_2548_, 9, v___x_2546_);
-lean_ctor_set(v___x_2548_, 10, v___x_2546_);
 return v___x_2548_;
 }
 }
@@ -20915,13 +20914,13 @@ goto v___jp_7390_;
 LEAN_EXPORT lean_object* l_Lean_Elab_shareCommonPreDefs___lam__1___boxed(lean_object* v_preDefs_7450_, lean_object* v_sz_7451_, lean_object* v___x_7452_, lean_object* v___x_7453_, lean_object* v___x_7454_, lean_object* v___x_7455_, lean_object* v___x_7456_, lean_object* v___x_7457_, lean_object* v___f_7458_, lean_object* v___y_7459_, lean_object* v___y_7460_, lean_object* v___y_7461_){
 _start:
 {
-size_t v_sz_boxed_7462_; size_t v___x_9354__boxed_7463_; uint8_t v___x_9358__boxed_7464_; lean_object* v_res_7465_; 
+size_t v_sz_boxed_7462_; size_t v___x_9334__boxed_7463_; uint8_t v___x_9338__boxed_7464_; lean_object* v_res_7465_; 
 v_sz_boxed_7462_ = lean_unbox_usize(v_sz_7451_);
 lean_dec(v_sz_7451_);
-v___x_9354__boxed_7463_ = lean_unbox_usize(v___x_7452_);
+v___x_9334__boxed_7463_ = lean_unbox_usize(v___x_7452_);
 lean_dec(v___x_7452_);
-v___x_9358__boxed_7464_ = lean_unbox(v___x_7456_);
-v_res_7465_ = l_Lean_Elab_shareCommonPreDefs___lam__1(v_preDefs_7450_, v_sz_boxed_7462_, v___x_9354__boxed_7463_, v___x_7453_, v___x_7454_, v___x_7455_, v___x_9358__boxed_7464_, v___x_7457_, v___f_7458_, v___y_7459_, v___y_7460_);
+v___x_9338__boxed_7464_ = lean_unbox(v___x_7456_);
+v_res_7465_ = l_Lean_Elab_shareCommonPreDefs___lam__1(v_preDefs_7450_, v_sz_boxed_7462_, v___x_9334__boxed_7463_, v___x_7453_, v___x_7454_, v___x_7455_, v___x_9338__boxed_7464_, v___x_7457_, v___f_7458_, v___y_7459_, v___y_7460_);
 lean_dec(v___y_7460_);
 lean_dec_ref(v___y_7459_);
 lean_dec_ref(v_preDefs_7450_);

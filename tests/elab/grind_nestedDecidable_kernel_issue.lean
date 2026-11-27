@@ -47,7 +47,12 @@ def MyChar.isLower (c : MyChar) : Bool :=
 After `split`, the instance of the `if` from `isLower` is `instDecidableAnd (UInt32.decLe 97 {val := c.val + (65 - 97)}.val) ..`.
 `grind` normalizes the condition to `97 ≤ c.val + 4294967264 ∧ ..` and wraps the instance with the
 projection reduced, so the kernel has to check the two instances against each other.
+
+`dsimp.resynthInstances` is off here. With it, the preprocessing of `grind` gives the `if` from
+`isLower` a new instance for the rewritten condition, the kernel no longer has to compare the two
+instances, and the control below no longer detects the timeout.
 -/
+set_option dsimp.resynthInstances false in
 theorem MyChar.isLower_toUpper (c : MyChar) : c.toUpper.isLower = false := by
   unfold MyChar.isLower MyChar.toUpper
   split <;> grind only

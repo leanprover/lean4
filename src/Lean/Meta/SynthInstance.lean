@@ -37,6 +37,28 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+/--
+Controls the transparency used by the post-synthesis check that unifies the original goal type
+with the synthesized result's type when the class has `outParam`s.
+
+When `true` (the default), the check uses `.instances` transparency, matching the transparency
+used by the rest of typeclass resolution. This means a non-reducible `def Bar := Nat` is *not*
+unfolded, so e.g. `#synth Foo Nat Bar` cannot be satisfied by `instance : Foo Nat Nat`.
+
+When `false`, the check bumps transparency to `.default`, which unfolds semireducible
+definitions. This was the historical behavior, retained because patterns like Mathlib's
+`def OrderDual (α : Type) : Type := α` rely on `OrderDual α` and `α` being defEq at `.default`
+during the outParam check.
+
+See `assignOutParams` for the implementation.
+-/
+register_builtin_option backward.isDefEq.respectTransparency.outParams : Bool := {
+  defValue := false
+  descr    := "if true (the default), do not bump transparency to `.default` \
+  when checking that a synthesized instance's type matches the original goal type \
+  for classes with `outParam`s"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -376,10 +398,6 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
   let localInsts ← getLocalInstances
   forallTelescopeReducing mvarType fun xs mvarTypeBody => do
     let { subgoals, instVal, instTypeBody } ← getSubgoals lctx localInsts xs inst
-    -- Mark the instance-argument metavariables so that a would-be assignment during unification
-    -- with the goal type must preserve the type at instance transparency.
-    -- See `backward.isDefEq.respectTransparency.instanceSearchTypes` and issue #9077.
-    subgoals.forM fun subgoal => subgoal.mvarId!.markInstanceTyped
     withTraceNode `Meta.synthInstance.tryResolve (fun _ => do withMCtx (← getMCtx) do
         return m!"{← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then
@@ -867,8 +885,14 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   ```
   Mathlib developers are currently trying to refactor the `OrderDual` declaration,
   but it will take time. We will try to remove the `withDefault` again after the refactoring.
+
+  The `backward.isDefEq.respectTransparency.outParams` option (defaulting to `true`) keeps the
+  check at `.instances` transparency. Setting it to `false` restores the historical `withDefault`
+  behavior.
   -/
-  let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
+  let bumpTransparency := !(← getRecordedOption backward.isDefEq.respectTransparency.outParams)
+  let defEq ← (if bumpTransparency then withDefault else id) <|
+    withAssignableSyntheticOpaque <| isDefEq type resultType
   unless defEq do
     trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
   return defEq
@@ -946,8 +970,26 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
       universe assignments the search itself never derived) that these few Mathlib places
       rely on, possibly by accident. We should diagnose whether they work by accident and,
       if so, fix Mathlib and remove (or further weaken) this `check`.
+
+      **Note**: `check` fails, rather than postponing a universe constraint, when the constraint
+      contains no level metavariable that is assignable here. This happens when the query itself
+      contains a subterm that is type-correct only modulo a constraint that an enclosing context
+      postponed, and the caller runs synthesis at a greater metavariable depth (e.g. `simp`). Then
+      the result is no less type-correct than the query, and we keep it. Otherwise a failing `check`
+      means that the result is not type-correct here, and synthesis fails.
   -/
-  check result
+  let s ← saveState
+  try
+    check result
+  catch ex =>
+    if ex.isInterrupt || ex.isRuntime || !(ex matches .error ..) then throw ex
+    s.restore
+    let queryOk ← withoutModifyingState <| isTypeCorrect type
+    s.restore
+    if queryOk then
+      trace[Meta.synthInstance] "{crossEmoji} result{indentExpr result}\nis not type-correct here:{indentD ex.toMessageData}"
+      return none
+    trace[Meta.synthInstance] "result{indentExpr result}\nis not type-correct here, but neither is the query{indentExpr type}"
   return some result
 
 /-- Returns whether every recorded lookup in `log` gives the same answer in `opts`. -/

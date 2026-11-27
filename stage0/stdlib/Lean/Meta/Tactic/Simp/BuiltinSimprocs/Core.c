@@ -1411,7 +1411,7 @@ LEAN_EXPORT lean_object* l_dreduceIte(lean_object* v_e_375_, lean_object* v_a_37
 _start:
 {
 uint8_t v_inDSimp_387_; 
-v_inDSimp_387_ = lean_ctor_get_uint8(v_a_377_, sizeof(void*)*10 + 8);
+v_inDSimp_387_ = lean_ctor_get_uint8(v_a_377_, sizeof(void*)*10 + 10);
 if (v_inDSimp_387_ == 0)
 {
 lean_object* v___x_388_; lean_object* v___x_389_; 
@@ -2000,7 +2000,7 @@ LEAN_EXPORT lean_object* l_dreduceDIte(lean_object* v_e_519_, lean_object* v_a_5
 _start:
 {
 uint8_t v_inDSimp_531_; 
-v_inDSimp_531_ = lean_ctor_get_uint8(v_a_521_, sizeof(void*)*10 + 8);
+v_inDSimp_531_ = lean_ctor_get_uint8(v_a_521_, sizeof(void*)*10 + 10);
 if (v_inDSimp_531_ == 0)
 {
 lean_object* v___x_532_; lean_object* v___x_533_; 

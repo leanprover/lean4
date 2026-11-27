@@ -629,4 +629,84 @@ Infers the types of the next `n` parameters that `e` expects. See `arrowDomainsN
 def inferArgumentTypesN (n : Nat) (e : Expr) : MetaM (Array Expr) := do
   arrowDomainsN n (← inferType e)
 
+/--
+Ensure `MetaM` configuration is strong enough for checking definitional equality of
+implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
+least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
+-/
+@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
+  let old ← getTransparency
+  if old.lt .implicit then
+    trace[Meta.isDefEq.transparency]
+      "raising transparency {toString old} → implicit"
+  withAtLeastTransparency .implicit do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
+/--
+Like `withImplicitConfig`, but sets transparency to exactly `.instances`: instance-typed
+metavariable assignments must preserve the type at `.instances` even when the ambient
+transparency is higher.
+-/
+@[inline] def withExactInstancesConfig (x : MetaM α) : MetaM α := do
+  withTransparency .instances do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
+/--
+Returns `true` if both `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types` is true.
+
+The option `backward.isDefEq.respectTransparency.types` is newer than ``backward.isDefEq.respectTransparency`,
+and is used to enable the transparency bump when checking metavariable assignments.
+
+If `backward.isDefEq.respectTransparency` is `false`, then we automatically disable
+`backward.isDefEq.respectTransparency.types` too.
+-/
+abbrev respectTransparencyAtTypes : CoreM Bool := do
+  let flags ← getOptionFlags
+  return flags.respectTransparencyTypes && flags.respectTransparency
+
+/--
+Compares the type `vType` of an instance value `v` with its expected type `expectedType`. This is
+the one comparison of instance types that all strict instance checks use: the assignment of
+instance metavariables (`checkTypesAndAssign`, also during instance search), the
+instance-argument check of `simp` and `dsimp` (`dsimp.resynthInstances`) and the instance linter
+of the elaborator (`linter.checkRespectTransparency.instances`).
+
+Only the class applications must agree at `.instances` transparency. For an instance family, i.e.
+when `expectedType` is a function type with a class codomain, the full types must agree at the
+ordinary transparency for types (`.implicit`, or `.default` under
+`backward.isDefEq.respectTransparency.types false`), and the codomains must agree at `.instances`
+under the binders of `expectedType`. So a binder type such as `Fin n` against `Fin 0` is not held
+to `.instances` transparency. This also keeps eta reduction from changing the outcome:
+`tryResolve` eta-reduces answers, so `fun i : α => inst i` becomes `inst`, whose inferred type can
+have another binder type.
+
+`defEq` is the definitional equality test to use: `Meta.isExprDefEqAux` inside `isDefEq`,
+`isDefEq` elsewhere (see `isInstanceTypeDefEq`).
+-/
+@[specialize] def isInstanceTypeDefEqWith (defEq : Expr → Expr → MetaM Bool)
+    (expectedType vType v : Expr) : MetaM Bool := do
+  if (← withExactInstancesConfig <| defEq expectedType vType) then
+    return true
+  unless expectedType.isForall do return false
+  let okAtHigherTransparency ←
+    if (← respectTransparencyAtTypes) then
+      withImplicitConfig <| defEq expectedType vType
+    else
+      withInferTypeConfig <| defEq expectedType vType
+  unless okAtHigherTransparency do return false
+  forallTelescope expectedType fun xs body => do
+    withExactInstancesConfig <| defEq body (← inferType (mkAppN v xs))
+
+/-- `isInstanceTypeDefEqWith` for callers outside of `isDefEq`. -/
+def isInstanceTypeDefEq (expectedType vType v : Expr) : MetaM Bool :=
+  isInstanceTypeDefEqWith (fun a b => isDefEq a b) expectedType vType v
+
 end Lean.Meta

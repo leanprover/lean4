@@ -365,6 +365,7 @@ private theorem combineMinIdxOn_lt' [LE β] [DecidableLE β]
   simp only [combineMinIdxOn, h]
   split <;> (simp; omega)
 
+set_option dsimp.resynthInstances false in
 private theorem combineMinIdxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys zs : List α} {i j k : Nat} {f : α → β} (hi : i < xs.length) (hj : j < ys.length)
     (hk : k < zs.length) (h) :

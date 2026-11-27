@@ -174,8 +174,8 @@ the option up in a `KVMap`. The word is recomputed wherever the options change (
 `Core.Context.setOptions`) and defaulted from them at construction; `Core.Context.optionFlags_eq`
 guarantees that it always agrees with the options in scope.
 
-Bits 0 to 8 are the definitional-equality and unfolding compatibility flags read on every step of
-`isDefEq` and `whnf`. Bit 9 is `diagnostics`.
+Bits 0 to 8 and 10 to 13 are the definitional-equality and unfolding compatibility flags read on every
+step of `isDefEq` and `whnf`. Bit 9 is `diagnostics`.
 -/
 structure OptionFlags where
   private bits : UInt16
@@ -196,6 +196,12 @@ namespace OptionFlags
 @[inline] def smartUnfolding (f : OptionFlags) : Bool := f.bits &&& 0x080 != 0
 @[inline] def throwOnStuckAfterApp (f : OptionFlags) : Bool := f.bits &&& 0x100 != 0
 @[inline] def diag (f : OptionFlags) : Bool := f.bits &&& 0x200 != 0
+@[inline] def respectTransparencyInstances (f : OptionFlags) : Bool := f.bits &&& 0x400 != 0
+@[inline] def auxMVarKind (f : OptionFlags) : Bool := f.bits &&& 0x800 != 0
+@[inline] def respectTransparencyInstancesNatural (f : OptionFlags) : Bool := f.bits &&& 0x1000 != 0
+@[inline] def respectTransparencyInstancesAllMVars (f : OptionFlags) : Bool := f.bits &&& 0x2000 != 0
+/-- `linter.checkRespectTransparency.instances`, with `linter.checkRespectTransparency` as default. -/
+@[inline] def checkRespectTransparencyInstances (f : OptionFlags) : Bool := f.bits &&& 0x4000 != 0
 
 /--
 Resolves the flags from `opts`.
@@ -216,7 +222,13 @@ def ofOptions (opts : Options) : OptionFlags :=
       flag (getB `backward.isDefEq.lazyWhnfCore true) 0x040 |||
       flag (getB `smartUnfolding true) 0x080 |||
       flag (getB `backward.isDefEq.throwOnStuckAfterApp false) 0x100 |||
-      flag (diagnostics.get opts) 0x200 }
+      flag (diagnostics.get opts) 0x200 |||
+      flag (getB `backward.isDefEq.respectTransparency.instances true) 0x400 |||
+      flag (getB `backward.isDefEq.auxMVarKind true) 0x800 |||
+      flag (getB `backward.isDefEq.respectTransparency.instances.natural false) 0x1000 |||
+      flag (getB `backward.isDefEq.respectTransparency.instances.allMVars true) 0x2000 |||
+      flag (getB `linter.checkRespectTransparency.instances
+        (getB `linter.checkRespectTransparency false)) 0x4000 }
 
 end OptionFlags
 

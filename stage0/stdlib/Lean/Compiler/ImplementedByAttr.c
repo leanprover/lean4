@@ -269,7 +269,7 @@ _start:
 lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
 v___x_4_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_3808671820____hygCtx___hyg_2__spec__2_spec__3___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_3808671820____hygCtx___hyg_2__spec__2_spec__3___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_3808671820____hygCtx___hyg_2__spec__2_spec__3___closed__1);
 v___x_5_ = lean_unsigned_to_nat(0u);
-v___x_6_ = lean_alloc_ctor(0, 11, 0);
+v___x_6_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_6_, 0, v___x_5_);
 lean_ctor_set(v___x_6_, 1, v___x_5_);
 lean_ctor_set(v___x_6_, 2, v___x_5_);
@@ -280,7 +280,6 @@ lean_ctor_set(v___x_6_, 6, v___x_4_);
 lean_ctor_set(v___x_6_, 7, v___x_4_);
 lean_ctor_set(v___x_6_, 8, v___x_4_);
 lean_ctor_set(v___x_6_, 9, v___x_4_);
-lean_ctor_set(v___x_6_, 10, v___x_4_);
 return v___x_6_;
 }
 }
@@ -2276,9 +2275,9 @@ return v___x_646_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_3808671820____hygCtx___hyg_2____boxed(lean_object* v___x_647_, lean_object* v_env_648_, lean_object* v_n_649_, lean_object* v_x_650_){
 _start:
 {
-uint8_t v___x_7100__boxed_651_; uint8_t v_res_652_; lean_object* v_r_653_; 
-v___x_7100__boxed_651_ = lean_unbox(v___x_647_);
-v_res_652_ = l___private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_3808671820____hygCtx___hyg_2_(v___x_7100__boxed_651_, v_env_648_, v_n_649_, v_x_650_);
+uint8_t v___x_7065__boxed_651_; uint8_t v_res_652_; lean_object* v_r_653_; 
+v___x_7065__boxed_651_ = lean_unbox(v___x_647_);
+v_res_652_ = l___private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_3808671820____hygCtx___hyg_2_(v___x_7065__boxed_651_, v_env_648_, v_n_649_, v_x_650_);
 lean_dec(v_x_650_);
 v_r_653_ = lean_box(v_res_652_);
 return v_r_653_;

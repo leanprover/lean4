@@ -764,7 +764,7 @@ _start:
 lean_object* v___x_92_; lean_object* v___x_93_; lean_object* v___x_94_; 
 v___x_92_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_registerInitAttrUnsafe_spec__1_spec__2___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_registerInitAttrUnsafe_spec__1_spec__2___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_registerInitAttrUnsafe_spec__1_spec__2___closed__1);
 v___x_93_ = lean_unsigned_to_nat(0u);
-v___x_94_ = lean_alloc_ctor(0, 11, 0);
+v___x_94_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_94_, 0, v___x_93_);
 lean_ctor_set(v___x_94_, 1, v___x_93_);
 lean_ctor_set(v___x_94_, 2, v___x_93_);
@@ -775,7 +775,6 @@ lean_ctor_set(v___x_94_, 6, v___x_92_);
 lean_ctor_set(v___x_94_, 7, v___x_92_);
 lean_ctor_set(v___x_94_, 8, v___x_92_);
 lean_ctor_set(v___x_94_, 9, v___x_92_);
-lean_ctor_set(v___x_94_, 10, v___x_92_);
 return v___x_94_;
 }
 }
@@ -2373,10 +2372,10 @@ return v___x_611_;
 LEAN_EXPORT lean_object* l_Lean_registerInitAttrUnsafe___lam__3___boxed(lean_object* v_runAfterImport_612_, lean_object* v___x_613_, lean_object* v_env_614_, lean_object* v_declName_615_, lean_object* v_x_616_){
 _start:
 {
-uint8_t v_runAfterImport_boxed_617_; uint8_t v___x_5479__boxed_618_; uint8_t v_res_619_; lean_object* v_r_620_; 
+uint8_t v_runAfterImport_boxed_617_; uint8_t v___x_5444__boxed_618_; uint8_t v_res_619_; lean_object* v_r_620_; 
 v_runAfterImport_boxed_617_ = lean_unbox(v_runAfterImport_612_);
-v___x_5479__boxed_618_ = lean_unbox(v___x_613_);
-v_res_619_ = l_Lean_registerInitAttrUnsafe___lam__3(v_runAfterImport_boxed_617_, v___x_5479__boxed_618_, v_env_614_, v_declName_615_, v_x_616_);
+v___x_5444__boxed_618_ = lean_unbox(v___x_613_);
+v_res_619_ = l_Lean_registerInitAttrUnsafe___lam__3(v_runAfterImport_boxed_617_, v___x_5444__boxed_618_, v_env_614_, v_declName_615_, v_x_616_);
 lean_dec(v_x_616_);
 v_r_620_ = lean_box(v_res_619_);
 return v_r_620_;

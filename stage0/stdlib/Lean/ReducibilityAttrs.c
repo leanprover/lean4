@@ -4183,7 +4183,7 @@ _start:
 lean_object* v___x_1277_; lean_object* v___x_1278_; lean_object* v___x_1279_; 
 v___x_1277_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1_spec__1___closed__0, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1_spec__1___closed__0_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1_spec__1___closed__0);
 v___x_1278_ = lean_unsigned_to_nat(0u);
-v___x_1279_ = lean_alloc_ctor(0, 11, 0);
+v___x_1279_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1279_, 0, v___x_1278_);
 lean_ctor_set(v___x_1279_, 1, v___x_1278_);
 lean_ctor_set(v___x_1279_, 2, v___x_1278_);
@@ -4194,7 +4194,6 @@ lean_ctor_set(v___x_1279_, 6, v___x_1277_);
 lean_ctor_set(v___x_1279_, 7, v___x_1277_);
 lean_ctor_set(v___x_1279_, 8, v___x_1277_);
 lean_ctor_set(v___x_1279_, 9, v___x_1277_);
-lean_ctor_set(v___x_1279_, 10, v___x_1277_);
 return v___x_1279_;
 }
 }

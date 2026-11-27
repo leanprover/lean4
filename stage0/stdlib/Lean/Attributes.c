@@ -1740,9 +1740,9 @@ return v___x_307_;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAttributeImpl_default___lam__0___boxed(lean_object* v_x_308_, lean_object* v___y_309_, lean_object* v___y_310_, lean_object* v___y_311_, lean_object* v___y_312_, lean_object* v___y_313_){
 _start:
 {
-uint8_t v___y_1029__boxed_314_; lean_object* v_res_315_; 
-v___y_1029__boxed_314_ = lean_unbox(v___y_310_);
-v_res_315_ = l_Lean_instInhabitedAttributeImpl_default___lam__0(v_x_308_, v___y_309_, v___y_1029__boxed_314_, v___y_311_, v___y_312_);
+uint8_t v___y_1010__boxed_314_; lean_object* v_res_315_; 
+v___y_1010__boxed_314_ = lean_unbox(v___y_310_);
+v_res_315_ = l_Lean_instInhabitedAttributeImpl_default___lam__0(v_x_308_, v___y_309_, v___y_1010__boxed_314_, v___y_311_, v___y_312_);
 lean_dec(v___y_312_);
 lean_dec_ref(v___y_311_);
 lean_dec(v___y_309_);
@@ -1774,7 +1774,7 @@ _start:
 lean_object* v___x_319_; lean_object* v___x_320_; lean_object* v___x_321_; 
 v___x_319_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_instInhabitedAttributeImpl_default_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_instInhabitedAttributeImpl_default_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_instInhabitedAttributeImpl_default_spec__0_spec__0___closed__1);
 v___x_320_ = lean_unsigned_to_nat(0u);
-v___x_321_ = lean_alloc_ctor(0, 11, 0);
+v___x_321_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_321_, 0, v___x_320_);
 lean_ctor_set(v___x_321_, 1, v___x_320_);
 lean_ctor_set(v___x_321_, 2, v___x_320_);
@@ -1785,7 +1785,6 @@ lean_ctor_set(v___x_321_, 6, v___x_319_);
 lean_ctor_set(v___x_321_, 7, v___x_319_);
 lean_ctor_set(v___x_321_, 8, v___x_319_);
 lean_ctor_set(v___x_321_, 9, v___x_319_);
-lean_ctor_set(v___x_321_, 10, v___x_319_);
 return v___x_321_;
 }
 }

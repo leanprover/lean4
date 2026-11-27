@@ -691,6 +691,7 @@ theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
     assumption
   · simp
 
+set_option backward.isDefEq.respectTransparency.instances.allMVars false in
 @[simp]
 theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α m β] [Finite α m] {f : β → β'}

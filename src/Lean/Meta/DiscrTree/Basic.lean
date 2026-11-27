@@ -145,13 +145,15 @@ where
     | .fvar fvarId nargs =>
       mkApp m!"{mkFVar fvarId}" (← goN nargs) parenIfNonAtomic
     | .proj _ i nargs =>
-      mkApp m!"{← go}.{i+1}" (← goN nargs) parenIfNonAtomic
+      let args ← goN nargs
+      let struct ← go
+      mkApp m!"{struct}.{i+1}" args parenIfNonAtomic
     | .arrow =>
-      mkApp m!"∀ " (← goN 1) parenIfNonAtomic
+      mkApp m!"∀" (← goN 1) parenIfNonAtomic
     | .star => return "_"
     | .other => return "<other>"
     | .lit (.natVal v) => return m!"{v}"
-    | .lit (.strVal v) => return m!"{v}"
+    | .lit (.strVal v) => return m!"{v.quote}"
 
   goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
     let mut r := #[]

@@ -1,7 +1,7 @@
 import Lean
 /-!
 The equations of a `match` with many `String` literals prove that two literals are different by
-comparing their codes with `String.Internal.ne_of_code`. The code of each literal of the matcher
+comparing their codes with `String.Internal.ne_of_byteCode`. The code of each literal of the matcher
 is computed once, in an auxiliary theorem `strLitCodes`, and shared by all the equations (#16313).
 -/
 open Lean Meta
@@ -31,12 +31,12 @@ partial def numOccs (declName : Name) (e : Expr) : Nat :=
 
 /--
 Returns, for each congruence equation of `matcherName`, the number of disequalities between
-literals proved by comparing codes, and by comparing characters.
+literals proved by comparing codes, and by comparing bytes.
 -/
 def numNeProofs (matcherName : Name) : MetaM (Array (Nat × Nat)) := do
   (← Match.genMatchCongrEqns matcherName).mapM fun eqn => do
     let some (.thmInfo info) := (← getEnv).find? eqn | throwError "theorem expected: {eqn}"
-    return (numOccs ``String.Internal.ne_of_code info.value, numOccs ``String.Internal.ofList_ne_ofList info.value)
+    return (numOccs ``String.Internal.ne_of_byteCode info.value, numOccs ``String.Internal.ne_of_sameByteAt info.value)
 
 /-! A matcher with 32 literals. The equation of the literal `i` skips `i` tests. -/
 
@@ -54,11 +54,11 @@ def f : String → Nat
 /--
 info: 32
 ---
-info: String.Internal.code "lit_0" = 947798728022099382692216941
+info: String.Internal.byteCode "lit_0" = 215398365661
 ---
-info: String.Internal.code "lit_1" = 967141541135933449487515757
+info: String.Internal.byteCode "lit_1" = 219760836062
 ---
-info: String.Internal.code "lit_31" = 2028241966192334405996308206714989
+info: String.Internal.byteCode "lit_31" = 56286230429714
 -/
 #guard_msgs in
 run_meta do
@@ -94,19 +94,19 @@ def special : String → Nat
   | _ => 32
 
 /--
-info: String.Internal.code "" = 0
+info: String.Internal.byteCode "" = 0
 ---
-info: String.Internal.code "\x00" = 1
+info: String.Internal.byteCode "\x00" = 1
 ---
-info: String.Internal.code "\x00\x00" = 2097153
+info: String.Internal.byteCode "\x00\x00" = 258
 ---
-info: String.Internal.code "a" = 98
+info: String.Internal.byteCode "a" = 98
 ---
-info: String.Internal.code "ab" = 207618146
+info: String.Internal.byteCode "ab" = 25541
 ---
-info: String.Internal.code "abc" = 439804858728546
+info: String.Internal.byteCode "abc" = 6630441
 ---
-info: String.Internal.code "αβ" = 1986003890
+info: String.Internal.byteCode "αβ" = 3052170243
 -/
 #guard_msgs in
 run_meta do
@@ -122,8 +122,8 @@ example : special "αβ" = 6 := by simp [special]
 example : special "abcd" = 32 := by simp [special]
 
 /-!
-A literal with more than 256 characters does not have a code: the kernel would need a time
-quadratic in its length to compute it. A disequality with this literal compares characters.
+A literal with more than 256 bytes does not have a code: the kernel would need a time
+quadratic in its length to compute it. A disequality with this literal compares bytes.
 -/
 
 def long : String → Nat

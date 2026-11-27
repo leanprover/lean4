@@ -5,8 +5,8 @@ Previously, `String.reduceNe` and `String.reduceEq` used `decide` with `String.d
 forced the kernel to run UTF-8 encoding/decoding and byte array comparison. This caused a high
 number of kernel unfoldings (e.g. 86 for `List.rec` on short strings).
 
-The fix uses `String.ofList_injective` to reduce to `List Char` comparison, which is much
-cheaper in the kernel since string literals are `String.ofList [chars]` at the kernel level.
+The fix compares the bytes at the first position where the two literals differ, which is much
+cheaper in the kernel since string literals are lists of UTF-8 bytes at the kernel level.
 -/
 
 -- String.reduceNe: different strings (the primary use case)

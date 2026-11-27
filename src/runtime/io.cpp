@@ -1492,7 +1492,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_current_dir() {
     if (cwd) {
         return io_result_mk_ok(mk_string(cwd));
     } else {
-        return io_result_mk_error("failed to retrieve current working directory");
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     }
 }
 

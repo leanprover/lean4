@@ -480,8 +480,8 @@ private def next (c : Config) (phase : Phase) (n exts : Nat) (b : UInt8) : Next 
     else if b == '\r'.toUInt8 then plain .opaque 0
     else stop
   | .stReason =>
-    if isReasonPhraseByte b then
-      if n + 1 ≤ c.maxReasonPhraseLength then plain .stReason (n + 1) else stop
+    -- `parseReasonPhrase` skips bytes past `maxReasonPhraseLength`, so no length stops the scan.
+    if isReasonPhraseByte b then plain .stReason n
     else if b == '\r'.toUInt8 then plain .opaque 0
     else stop
   -- Field line and obs-fold continuation

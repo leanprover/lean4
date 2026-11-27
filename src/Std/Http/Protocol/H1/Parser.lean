@@ -872,17 +872,16 @@ def isForbiddenTrailerField (name : String) : Bool :=
   n == "authorization" || n == "max-forwards" || n == "cache-control" || n == "content-encoding"
 
 /--
-Parses a trailer header (used after a chunked body). Framing and routing fields
-(`isFramingTrailerField`) are always rejected, to prevent trailer injection attacks where a
-downstream proxy might re-interpret them. With `strict`, every field forbidden in trailers is
-rejected; without it, the others are parsed and left for the caller to drop, since RFC 9110 §6.5.1
-asks recipients not to merge them rather than to reject a message that is otherwise complete.
+Parses a trailer header (used after a chunked body). With `strict`, every field forbidden in
+trailers (`isForbiddenTrailerField`) is rejected, so that a downstream proxy cannot reinterpret
+one. Without it they are parsed and left for the caller to drop: RFC 9110 §6.5.1 asks a recipient
+not to merge them, not to reject a message that is otherwise complete.
 -/
 public def parseTrailerHeader (limits : H1.Config) (strict : Bool := true) :
     Parser (Option (String × String)) := do
   let result ← parseSingleHeader limits
   if let some (name, _) := result then
-    if isFramingTrailerField name || (strict && isForbiddenTrailerField name) then
+    if strict && isForbiddenTrailerField name then
       fail s!"forbidden trailer field: {name}"
   return result
 
@@ -909,10 +908,13 @@ def isReasonPhraseByte (c : UInt8) : Bool :=
 Parses a reason phrase (text after status code).
 
 Allows `HTAB / SP / VCHAR / obs-text` bytes. A client ignores the phrase (RFC 9112 §4), so bytes
-that are not UTF-8 are replaced rather than rejected.
+that are not UTF-8 are replaced rather than rejected, and a phrase longer than
+`maxReasonPhraseLength` is cut there rather than refused.
 -/
 def parseReasonPhrase (limits : H1.Config) : Parser String := do
   let bytes ← takeRunUpTo isReasonPhraseByte limits.maxReasonPhraseLength
+  -- The machine's `maxStartLineLength` still bounds the skipped bytes.
+  if bytes.size == limits.maxReasonPhraseLength then skipWhile isReasonPhraseByte
   return String.fromUTF8Lossy bytes.toByteArray
 
 /--
@@ -978,6 +980,12 @@ first other byte; `ByteArray.data` would box a copy of the whole buffer.
 -/
 public def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
   (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
+
+/-- The input past the `CR` and `LF` bytes at its start. -/
+public def skipLineEnds (input : ByteArray.Iterator) : ByteArray.Iterator :=
+  match input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx with
+  | some idx => input.forward (idx - input.idx)
+  | none => input.forward input.remainingBytes
 
 /--
 Whether the unread input holds only empty lines a server ignores before a request line, possibly

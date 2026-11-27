@@ -245,6 +245,25 @@ message from the peer. A server passes it to `Handler.onFailure`.
 def framingMismatchError : H1.Error :=
   .other "Content-Length or Transfer-Encoding contradicts the body"
 
+/--
+The mistake in a request head built by the client's own code, which `send` refuses to write: a
+version other than HTTP/1.0 and HTTP/1.1 (RFC 9110 §6.2), a target form the method does not allow
+(RFC 9112 §3.2.3, §3.2.4), a `Host` field missing from an HTTP/1.1 request, or more than one
+(RFC 9112 §3.2).
+-/
+def requestHeadError? (head : Message.Head .receiving) : Option H1.Error :=
+  let hosts := (head.headers.getAll? Header.Name.host).elim 0 (·.size)
+  if !(head.version == .v11 || head.version == .v10) then
+    some (.other "an HTTP/1.1 connection sends only HTTP/1.0 and HTTP/1.1 requests")
+  else if !isValidRequestTargetForMethod head then
+    some (.other s!"the request target form is not allowed for {head.method}")
+  else if hosts > 1 then
+    some (.other "the request has more than one Host field")
+  else if hosts == 0 && head.version == .v11 then
+    some (.other "the HTTP/1.1 request has no Host field")
+  else
+    none
+
 /-- Maps a reader failure to an HTTP status code. -/
 def errorResponseStatus (error : H1.Error) : Status :=
   match error with

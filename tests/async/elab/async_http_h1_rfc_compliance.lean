@@ -428,7 +428,7 @@ private def minimalGetRequest : Request.Head :=
 #eval runGroup "RFC 9110 §2.5, §5.5 / RFC 9112 §4: response start line and field values" do
   -- §5.5: a recipient treats obs-text in a field value as opaque data
   MachineTester.sending "§5.5: obs-text in a response field value is accepted"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feedBytes ("HTTP/1.1 200 OK\r\nContent-Disposition: attachment; filename=\"caf".toUTF8
       ++ ByteArray.mk #[0xC3, 0xA9] ++ ".txt\"\r\nX-Latin1: caf".toUTF8 ++ ByteArray.mk #[0xE9]
       ++ "\r\nContent-Length: 0\r\n\r\n".toUTF8)
@@ -445,7 +445,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §4: obs-text in a reason phrase, which a client ignores
   MachineTester.sending "§4: obs-text in the reason phrase is accepted"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feedBytes ("HTTP/1.1 200 Tr".toUTF8 ++ ByteArray.mk #[0xC3, 0xA8] ++ "s bien ".toUTF8
       ++ ByteArray.mk #[0xFF] ++ "\r\nContent-Length: 0\r\n\r\n".toUTF8)
     |>.step |>.assertNoError
@@ -455,7 +455,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §4: a status line that ends right after the status code
   MachineTester.sending "§4: status line with no space after the code is accepted"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 204\r\n\r\n"
     |>.step |>.assertNoError
     |>.onEndHeaders (fun t head =>
@@ -464,7 +464,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §2.5: a higher minor version is processed as the highest minor version the recipient implements
   MachineTester.sending "§2.5: HTTP/1.2 response is read as HTTP/1.1"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.2 200 OK\r\nContent-Length: 2\r\n\r\nok"
     |>.step |>.assertNoError |>.assertKeepAlive
     |>.onEndHeaders (fun t head =>
@@ -474,16 +474,17 @@ private def minimalGetRequest : Request.Head :=
 #eval runGroup "RFC 9112 §7.1.2 / RFC 9110 §6.5: trailer fields" do
   -- §6.5.1: a client drops a trailer field it must not process instead of failing the response
   MachineTester.sending "§6.5: forbidden non-framing trailer field in a response is dropped"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nok\r\n0\r\nCache-Control: no-cache\r\n\r\n"
     |>.step |>.assertNoError
     |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8 |>.assertLastChunkFinal |>.run
 
-  -- a field that frames the message is still refused in a response's trailers
-  MachineTester.sending "§6.5: framing field in response trailers → badMessage"
-    |>.send minimalGetRequest |>.step
+  -- the client discards trailers, so even a field that would reframe the message is dropped
+  MachineTester.sending "§6.5: framing field in response trailers is dropped"
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nok\r\n0\r\nContent-Length: 2\r\n\r\n"
-    |>.step |>.drainBody |>.assertFailedWith .badMessage |>.run
+    |>.step |>.assertNoError
+    |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8 |>.assertLastChunkFinal |>.run
 
   -- a server keeps rejecting every field forbidden in a request's trailers
   MachineTester.receiving "§6.5: forbidden trailer field in a request → badMessage"
@@ -492,7 +493,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- RFC 9112 §5.2: a client replaces an obs-fold in a response with SP; a server rejects it
   MachineTester.sending "§5.2: obs-fold in response trailers is accepted"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nok\r\n0\r\nT: v\r\n w\r\n\r\n"
     |>.step |>.drainBody |>.assertNoError |>.assertPulledBody "ok".toUTF8 |>.assertLastChunkFinal |>.run
 
@@ -690,14 +691,14 @@ private def minimalGetRequest : Request.Head :=
 
   let respBody := "Hello!".toUTF8
   MachineTester.sending "§6.3: response Content-Length body delivered exactly"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed s!"HTTP/1.1 200 OK\r\nContent-Length: {respBody.size}\r\n\r\n"
     |>.feedBytes respBody |>.step |>.assertNoError
     |>.drainBody |>.assertPulledBody respBody |>.assertLastChunkFinal |>.run
 
   let eofBody := "eof body".toUTF8
   MachineTester.sending "§6.3: EOF-delimited response body; keep-alive disabled"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\n\r\n"
     |>.step |>.assertNoError |>.assertNotKeepAlive
     |>.feedBytes eofBody |>.noMoreInput
@@ -741,7 +742,7 @@ private def minimalGetRequest : Request.Head :=
   -- §7.1: 200 response with chunked body decoded correctly
   let respBody := "chunked".toUTF8
   MachineTester.sending "§7.1: response chunked body decoded"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n7\r\nchunked\r\n0\r\n\r\n"
     |>.step |>.assertNoError
     |>.drainBody |>.assertPulledBody respBody |>.assertLastChunkFinal |>.run
@@ -774,7 +775,7 @@ private def minimalGetRequest : Request.Head :=
     |>.step |>.drainBody |>.assertFailedWith .badMessage |>.run
 
   MachineTester.sending "§7.1.1: BWS after a valueless chunk-ext name in a response → badMessage"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n5;a \r\nhello\r\n0\r\n\r\n"
     |>.step |>.drainBody |>.assertFailedWith .badMessage |>.run
 
@@ -811,20 +812,20 @@ private def minimalGetRequest : Request.Head :=
 #eval runGroup "RFC 9112 §6: framing of messages without a body, and of written messages" do
   -- §6.3 rule 1: a response to HEAD ends at its header block, whatever its framing fields say
   MachineTester.sending "§6.3: HEAD response with contradictory framing fields completes"
-    |>.send { minimalGetRequest with method := .head } |>.step
+    |>.send { minimalGetRequest with method := .head } |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Length: 10\r\n\r\n"
     |>.step |>.assertNoError |>.assertReaderComplete |>.run
 
   -- §6.3 rule 1: so does a 204 response
   MachineTester.sending "§6.3: 204 response with contradictory framing fields completes"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 204 No Content\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\n\r\n"
     |>.step |>.assertNoError |>.assertReaderComplete |>.run
 
   -- §6.3 rule 4: a response whose final transfer coding is not chunked is read until the server closes
   for coding in ["gzip", "chunked, gzip", "gzip;level=1", "gzip ; level = \"9\""] do
     MachineTester.sending s!"§6.3: Transfer-Encoding: {coding} response is close-delimited"
-      |>.send minimalGetRequest |>.step
+      |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
       |>.feed s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: {coding}\r\n\r\nabc"
       |>.step |>.assertNoError |>.assertNotKeepAlive
       |>.noMoreInput |>.drainBody |>.assertNoError
@@ -832,7 +833,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §7: transfer parameters do not change which coding is final
   MachineTester.sending "§6.3: Transfer-Encoding: gzip;level=1, chunked response is chunked"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nTransfer-Encoding: gzip;level=1, chunked\r\n\r\n3\r\nabc\r\n0\r\n\r\n"
     |>.step |>.assertNoError |>.assertKeepAlive
     |>.drainBody |>.assertNoError |>.assertPulledBody "abc".toUTF8 |>.assertLastChunkFinal |>.run
@@ -840,7 +841,7 @@ private def minimalGetRequest : Request.Head :=
   -- §7.1: chunked defines no parameters
   for coding in ["chunked;x=1", "gzip;level, chunked", "gzip;=1, chunked"] do
     MachineTester.sending s!"§7: Transfer-Encoding: {coding} → badMessage"
-      |>.send minimalGetRequest |>.step
+      |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
       |>.feed s!"HTTP/1.1 200 OK\r\nTransfer-Encoding: {coding}\r\n\r\n3\r\nabc\r\n0\r\n\r\n"
       |>.step |>.assertFailedWith .badMessage |>.run
 
@@ -1039,7 +1040,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §9.6: HTTP/1.1 response with Connection: close → keep-alive disabled
   MachineTester.sending "§9.6: HTTP/1.1 response Connection:close → keep-alive = false"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 0\r\n\r\n"
     |>.step |>.assertNoError |>.assertNotKeepAlive |>.run
 
@@ -1145,7 +1146,7 @@ private def minimalGetRequest : Request.Head :=
 #eval runGroup "RFC 9110 §15.2: informational responses" do
   -- §15.2: multiple 1xx responses before the real response are all skipped
   MachineTester.sending "§15.2: multiple 1xx responses all skipped"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 100 Continue\r\n\r\n" |>.step
     |>.feed "HTTP/1.1 102 Processing\r\n\r\n" |>.step
     |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step
@@ -1165,7 +1166,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §15.2: an interim response has no body of its own, so it must not end the response body
   MachineTester.sending "§15.2: 103 Early Hints → no closeBody until the final response"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 103 Early Hints\r\nLink: </style.css>; rel=preload\r\n\r\n" |>.step
     |>.assertNoError
     |>.assertNoEvent (fun | .closeBody => true | _ => false)
@@ -1204,7 +1205,7 @@ private def minimalGetRequest : Request.Head :=
     |>.send { minimalGetRequest with
       headers := minimalGetRequest.headers
         |>.insert! "Connection" "upgrade" |>.insert! "Upgrade" "websocket" }
-    |>.step
+    |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n"
     |>.feedBytes (ByteArray.mk #[0x81, 0x02, 0x68, 0x69])
     |>.step
@@ -1243,7 +1244,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- RFC 2616 §8.1: HTTP/1.0 does not default to persistent connections
   MachineTester.sending "§8.1: client receives HTTP/1.0 response → keepAlive = false"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.0 200 OK\r\nContent-Length: 0\r\n\r\n"
     |>.step |>.assertNoError |>.assertNotKeepAlive |>.run
 
@@ -1276,7 +1277,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §19.7.1: client side — response Connection:keep-alive → keepAlive = true
   MachineTester.sending "§19.7.1: client receives HTTP/1.0 + Connection:keep-alive → keepAlive = true"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.0 200 OK\r\nConnection: keep-alive\r\nContent-Length: 0\r\n\r\n"
     |>.step |>.assertNoError |>.assertKeepAlive |>.run
 
@@ -1434,7 +1435,7 @@ private def minimalGetRequest : Request.Head :=
   -- it as zero-length and finish without blocking, even though Content-Length advertises bytes that
   -- never arrive on the wire.
   MachineTester.sending "§8.6: client HEAD response — body suppressed despite Content-Length"
-    |>.send { minimalGetRequest with method := .head } |>.step
+    |>.send { minimalGetRequest with method := .head } |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\n"
     |>.step
     |>.assertNoError
@@ -1445,7 +1446,7 @@ private def minimalGetRequest : Request.Head :=
   -- §6.3: a client response with a known zero-length body (e.g. 204) must auto-complete; otherwise
   -- the connection would stall waiting for a `pullBody` that never produces bytes.
   MachineTester.sending "§6.3: client zero-length response auto-completes without pullBody"
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
     |>.feed "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\n\r\n"
     |>.step
     |>.assertNoError
@@ -1461,7 +1462,7 @@ private def connectRequest : Request.Head :=
 
 /-- Feeds `raw` one byte per read after sending `minimalGetRequest`, and returns the response head. -/
 private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) := Id.run do
-  let mut machine := (({ config := {} } : Machine .sending).send minimalGetRequest).step.1
+  let mut machine := (({ config := {} } : Machine .sending).send minimalGetRequest |>.setKnownSize (.fixed 0)).step.1
   for b in raw.toUTF8 do
     let (next, result) := (machine.feed (ByteArray.mk #[b])).step
     machine := next
@@ -1489,7 +1490,7 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
       ("X-Fold:\r\n text", "text"), ("X-Fold: text\r\n ", "text"), ("X-Fold:\r\n ", "")] do
     let raw := s!"HTTP/1.1 200 OK\r\n{field}\r\nContent-Length: 0\r\n\r\n"
     MachineTester.sending s!"obs-fold {field.quote}"
-      |>.send minimalGetRequest |>.step |>.feed raw |>.step |>.assertNoError
+      |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed raw |>.step |>.assertNoError
       |>.onEndHeaders (fun t head =>
         let got := (head.headers.get? (.ofString! "X-Fold")).map (·.value)
         if got == some want then t else t.addError s!"expected {want.quote}, got {repr got}")
@@ -1499,7 +1500,7 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
       throw <| IO.userError s!"one byte per read, {field.quote}: expected {want.quote}, got {repr got}"
   -- A whitespace line before the first field folds nothing, and a server rejects obs-fold.
   MachineTester.sending "SP line before the first field"
-    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\n Foo: bar\r\nContent-Length: 0\r\n\r\n" |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed "HTTP/1.1 200 OK\r\n Foo: bar\r\nContent-Length: 0\r\n\r\n" |>.step
     |>.assertFailedWith .badMessage |>.run
   MachineTester.receiving "obs-fold in a request"
     |>.feed "GET / HTTP/1.1\r\nHost: a\r\nX-Fold: a\r\n b\r\n\r\n" |>.step
@@ -1507,19 +1508,19 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
 
 #eval runGroup "RFC 9112 §6.3 rule 5: an invalid response Content-Length ends the connection" do
   MachineTester.sending "Content-Length: -1"
-    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: -1\r\n\r\n" |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: -1\r\n\r\n" |>.step
     |>.assert (·.failed) "expected a failure" |>.assertNotKeepAlive |>.run
 
 #eval runGroup "RFC 9112 §8: EOF before a final response is an incomplete exchange" do
   MachineTester.sending "before any status line"
-    |>.send minimalGetRequest |>.step |>.noMoreInput |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.noMoreInput |>.step
     |>.assertFailedWith .connectionClosed |>.run
   MachineTester.sending "after only 100 Continue"
-    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 100 Continue\r\n\r\n" |>.step |>.noMoreInput |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed "HTTP/1.1 100 Continue\r\n\r\n" |>.step |>.noMoreInput |>.step
     |>.assertFailedWith .connectionClosed |>.run
   -- With no request outstanding, EOF is a normal close.
   MachineTester.sending "after a complete response"
-    |>.send minimalGetRequest |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step |>.step
     |>.noMoreInput |>.step |>.assertNoError |>.run
 
 -- A POST whose body is open with no length holds its head; a failure must keep it, and any more body,
@@ -1553,7 +1554,7 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
   for (digits, want) in [("000", 500), ("001", 500), ("099", 500), ("600", 500), ("700", 500),
       ("999", 500), ("599", 599)] do
     MachineTester.sending s!"status {digits}"
-      |>.send minimalGetRequest |>.step |>.feed s!"HTTP/1.1 {digits} X\r\nContent-Length: 0\r\n\r\n" |>.step
+      |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed s!"HTTP/1.1 {digits} X\r\nContent-Length: 0\r\n\r\n" |>.step
       |>.assertNoError
       |>.onEndHeaders (fun t head =>
         if head.status.isServerError && head.status.toCode.toNat == want then t
@@ -1579,12 +1580,12 @@ private def headOneBytePerRead (raw : String) : Option (Message.Head .sending) :
   -- 54 bytes of each interim head count: its status line and its field line.
   let interim := "HTTP/1.1 100 Continue\r\nX-Pad: 0123456789012345678901\r\n\r\n"
   let mut t := MachineTester.sending "a run of 1xx responses" (config := { maxHeaderBytes := 200 })
-    |>.send minimalGetRequest |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step
   for _ in [0:20] do
     t := t.feed interim |>.step
   t.assertFailedWith .headersTooLarge |>.run
   MachineTester.sending "two 1xx responses, then the final one" (config := { maxHeaderBytes := 200 })
-    |>.send minimalGetRequest |>.step |>.feed interim |>.step |>.feed interim |>.step
+    |>.send minimalGetRequest |>.setKnownSize (.fixed 0) |>.step |>.feed interim |>.step |>.feed interim |>.step
     |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n" |>.step
     |>.assertNoError |>.assertHasEndHeaders |>.run
 

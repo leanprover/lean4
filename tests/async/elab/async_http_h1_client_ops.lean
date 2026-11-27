@@ -163,13 +163,14 @@ def partlySentPost (answer : String) : Machine .sending :=
   let (m, _, _) := run m
   (run (m.feed (response answer))).1
 
--- A `close` answer: the server will not read the remaining 7 bytes, so abandon them.
+-- A `close` answer whose body is still arriving: the server will not read the remaining 7 bytes,
+-- so abandon them. Once such an answer is complete, the machine abandons them itself.
 #guard
-  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 0\r\n"
+  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 5\r\n"
   m.isWritingBody && m.peerWillNotReadBody
 
 #guard
-  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 0\r\n"
+  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 5\r\n"
   let (m, out, _) := run m.abandonOutgoingBody
   !m.isWritingBody && !m.keepAlive && out.isEmpty
 

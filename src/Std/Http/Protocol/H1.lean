@@ -373,6 +373,8 @@ private def writeHead (machine : Machine dir) : Machine dir :=
   let size : Body.Length :=
     -- RFC 9110 §15.3.6: a 205 response is framed as empty, whatever length was set for its body.
     if machine.isServer && machine.response.status == .resetContent then .fixed 0
+    -- RFC 9110 §9.3.6: whatever length was set since `send`, a CONNECT request has no content.
+    else if !machine.isServer && machine.request.method == .connect then .fixed 0
     else writer.knownSize.getD (if writer.userClosedBody then .fixed writer.userDataBytes else .chunked)
   let raw := machine.isServer && machine.request.version == .v10 && size matches .chunked
   let machine := machine.lowerKeepAlive (!raw || writer.omitBody)
@@ -386,6 +388,11 @@ private def writeHead (machine : Machine dir) : Machine dir :=
     match size with
     | .fixed n => .fixed n
     | .chunked => if raw then .closeDelimited else .chunked
+  -- `readStep` does this first when `step` drives the machine; `processWrite` alone needs it here.
+  let machine :=
+    if !machine.isServer && machine.reader.state matches .pending then
+      machine.setReaderState .needStartLine
+    else machine
   machine.modifyWriter fun w =>
     { w with outputData := w.outputData.push encoded, state := .writingBody body }
 
@@ -527,8 +534,15 @@ private def sendResponseHead (machine : Machine .receiving) (head : Response.Hea
       if tunnel then (machine.lowerKeepAlive false).closeReader.setReaderState .closed else machine
     | none => machine.rejectOutgoing framingMismatchError
 
-/-- `send` for a client. An HTTP/1.0 request cannot be chunked (RFC 9112 §6.1). -/
+/--
+`send` for a client. A head `requestHeadError?` refuses is not written, and neither is a chunked
+HTTP/1.0 request (RFC 9112 §6.1). A `CONNECT` request has no content (RFC 9110 §9.3.6), so its head
+goes out at once, and one whose fields announce content is refused. The reader waits for the head to
+be written: until then, a response answers no request (RFC 9112 §9.2).
+-/
 private def sendRequestHead (machine : Machine .sending) (head : Request.Head) : Machine .sending :=
+  if let some error := requestHeadError? head then machine.rejectOutgoing error else
+  let machine := if head.method == .connect then machine.setKnownSize (.fixed 0) else machine
   let fields := hasFramingHeaders (dir := .receiving) head
   let size := if fields then Message.Head.getSize (dir := .receiving) head false else none
   match machine.adoptFraming fields size false with
@@ -536,8 +550,7 @@ private def sendRequestHead (machine : Machine .sending) (head : Request.Head) :
     if head.version == .v10 && machine.writer.knownSize == some .chunked then
       machine.rejectOutgoing framingMismatchError
     else
-      { machine with
-        request := head, writer.state := .waitingForFlush, reader.state := .needStartLine }
+      { machine with request := head, writer.state := .waitingForFlush }
   | none => machine.rejectOutgoing framingMismatchError
 
 /--
@@ -547,9 +560,11 @@ A server writes a 1xx head at once (dropped for HTTP/1.0) and keeps waiting for 
 `canContinue`, not `send`, resolves `Expect: 100-continue`. A `Content-Length` in the head gives the
 length of a body set as `chunked`. A head whose framing fields otherwise contradict `setKnownSize`, or
 describe no length, or that HTTP/1.0 cannot frame, is not written: a server answers `500 Internal
-Server Error`, a client ends the exchange; both report an `.other` error and halt. A response without
-content (to `HEAD`, 1xx/204/205/304, a 2xx to `CONNECT`) cannot contradict it; a HEAD response
-advertises its head's `Content-Length`, and a 2xx to `CONNECT` closes the connection after its head.
+Server Error`, a client ends the exchange; both report an `.other` error and halt. A client does the
+same with a request head that `requestHeadError?` refuses, and writes no content for `CONNECT`
+(RFC 9110 §9.3.6). A response without content (to `HEAD`, 1xx/204/205/304, a 2xx to `CONNECT`)
+cannot contradict it; a HEAD response advertises its head's `Content-Length`, and a 2xx to `CONNECT`
+closes the connection after its head.
 -/
 @[inline] def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   if !machine.isWaitingMessage then
@@ -680,9 +695,10 @@ private def closeOnBadMessage (machine : Machine dir) : Machine dir :=
   (machine.recordFailure .badMessage).closeWriter.closeReader.setReaderState .closed |>.addEvent .close
 
 /--
-Input that reaches a client with no request outstanding answers no request (RFC 9112 §9.2), and what
-follows a response must not be read as the next one (RFC 9112 §6.3). Line breaks alone are discarded
-(RFC 9112 §2.2); anything else leaves the message boundaries ambiguous, so the connection fails.
+Input that reaches a client before its request head is written answers no request (RFC 9112 §9.2),
+and what follows a response must not be read as the next one (RFC 9112 §6.3). Line breaks alone are
+discarded (RFC 9112 §2.2); anything else leaves the message boundaries ambiguous, so the connection
+fails.
 -/
 private def readIdleInput (machine : Machine dir) : Machine dir :=
   let input := machine.reader.input
@@ -839,8 +855,8 @@ inside the section does not parse the earlier fields again. The empty line ends 
 private def parseTrailerState (machine : Machine dir)
     (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (count : Nat) :
     Machine dir × Option PulledChunk :=
-  -- A server rejects every field forbidden in a request's trailers; a client, which discards
-  -- trailers, only refuses those that would reframe the response.
+  -- A server rejects every field forbidden in a request's trailers; a client discards trailers, so
+  -- none of them, not even a framing field, can reframe the response.
   let strict := machine.isServer
   let input := machine.reader.input
   -- RFC 9112 §5.2: a user agent replaces an obs-fold in a response with SP. Such a line continues the
@@ -1037,6 +1053,10 @@ private def processNeedStartLine (machine : Machine dir) : Machine dir :=
     if machine.isServer then machine.setReaderState .closed else machine.setFailure .connectionClosed
   else if reader.input.atEnd then machine.addEvent (.needMoreData none)
   else if machine.isServer then processRequestLine machine
+  -- Discarded as `readIdleInput` discards them, so the verdict does not depend on whether they
+  -- arrive before or after the request is written.
+  else if reader.input.curr == '\r'.toUInt8 || reader.input.curr == '\n'.toUInt8 then
+    { machine with reader.input := skipLineEnds reader.input }
   else processStatusLine machine
 
 /-- Adds a field line to the head being read, within the header count and byte limits. -/
@@ -1119,6 +1139,12 @@ private def processReaderCompleteState (machine : Machine dir) : Machine dir :=
       (response.status.toCode == 101 || startsTunnel machine.request.method response.status) then
     (machine.lowerKeepAlive false).setReaderState .closed
   else if (reader.noMoreInput && reader.input.atEnd) || !machine.keepAlive then
+    -- RFC 9112 §9.5: once the final response is in and the connection ends, the rest of the request
+    -- body would not be read.
+    let machine :=
+      if !machine.isServer && !machine.keepAlive && machine.isWritingBody then
+        machine.abandonOutgoingBody
+      else machine
     machine.setReaderState .closed
   else
     machine
@@ -1132,6 +1158,13 @@ private def readStep (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
   | .pending =>
     if machine.writer.state matches .closed then machine.setReaderState .closed
+    else if !machine.isServer && machine.writer.state matches .waitingForFlush then
+      -- A head this step writes is on the wire before any response to it.
+      if machine.shouldFlush then machine.setReaderState .needStartLine
+      -- The peer closed before the held head was written, so no response can come.
+      else if machine.reader.noMoreInput && machine.reader.input.atEnd then
+        machine.setFailure .connectionClosed
+      else readIdleInput machine
     else readIdleInput machine
   | .needStartLine => processNeedStartLine machine
   | .needHeader count => processNeedHeader machine count
@@ -1149,7 +1182,8 @@ machine drains itself.
 -/
 def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
-  | .needStartLine | .needHeader _ | .readBody _ => run readStep machine
+  -- `.pending` too: a client's request head going out moves it to a status line without reading.
+  | .pending | .needStartLine | .needHeader _ | .readBody _ => run readStep machine
   -- The other states take at most one transition, so they skip the loop.
   | _ => readStep machine
 

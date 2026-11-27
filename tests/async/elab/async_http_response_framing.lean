@@ -34,6 +34,41 @@ private def ok200Head : String :=
       assertContains getResp "hello" *>
       assertAbsent headResp "hello")
 
+-- RFC 9110 §9.3.2: the error response to a HEAD request whose request line fails to parse has no
+-- content, since the client reads it as a response to HEAD.
+
+/-- What the machine writes for `raw`, sent alone and followed by EOF. -/
+private def machineOutput (raw : String) : String :=
+  let m : Protocol.H1.Machine .receiving := { config := {} }
+  let (m, r1) := (m.feed raw.toUTF8).noMoreInput.step
+  let (_, r2) := m.step
+  String.fromUTF8! (r1.output.toByteArray ++ r2.output.toByteArray)
+
+#eval runGroup "RFC 9110 §9.3.2: errors for malformed HEAD request lines" do
+  let headLines := [
+    ("bad version token", "HEAD / HTTp/1.1\x0d\nHost: x\x0d\n\x0d\n", "400 Bad Request"),
+    ("unsupported version", "HEAD / HTTP/2.0\x0d\nHost: x\x0d\n\x0d\n", "505 HTTP Version Not Supported"),
+    ("space in target", "HEAD /a b HTTP/1.1\x0d\nHost: x\x0d\n\x0d\n", "400 Bad Request"),
+    ("two spaces after method", "HEAD  / HTTP/1.1\x0d\nHost: x\x0d\n\x0d\n", "400 Bad Request"),
+    ("space after version", "HEAD / HTTP/1.1 \x0d\nHost: x\x0d\n\x0d\n", "400 Bad Request"),
+    ("after leading empty lines", "\x0d\n\x0d\nHEAD / HTTp/1.1\x0d\nHost: x\x0d\n\x0d\n", "400 Bad Request"),
+    ("start line too long",
+      s!"HEAD /{String.ofList (List.replicate 70000 'a')} HTTP/1.1\x0d\nHost: x\x0d\n\x0d\n", "414 URI Too Long")]
+  for (name, raw, status) in headLines do
+    let out := machineOutput raw
+    unless out.startsWith s!"HTTP/1.1 {status}\x0d\n" && out.endsWith "\x0d\n\x0d\n" &&
+        (out.splitOn "Content-Length: ").length == 2 do
+      throw <| IO.userError s!"{name}: expected {status} without content, got {out.quote}"
+  -- Only the method `HEAD` omits the content.
+  let others := [
+    ("GET", "GET / HTTp/1.1\x0d\nHost: x\x0d\n\x0d\n"),
+    ("method starting with HEAD", "HEADX / HTTp/1.1\x0d\nHost: x\x0d\n\x0d\n"),
+    ("lowercase head", "head / HTTp/1.1\x0d\nHost: x\x0d\n\x0d\n")]
+  for (name, raw) in others do
+    let out := machineOutput raw
+    unless out.endsWith "Bad Request\n" do
+      throw <| IO.userError s!"{name}: expected the error content, got {out.quote}"
+
 -- RFC 9110 §15.4: 304 and 204 response framing
 
 #eval runGroup "RFC 9110 §15.4: 304 Not Modified strips framing headers" do

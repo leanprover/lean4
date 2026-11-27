@@ -135,6 +135,14 @@ structure Config where
   maxBodySize : Nat := 64 * 1024 * 1024
 
   /--
+  Upper bound on the unread body input the reader keeps in memory at once, on top of its header,
+  start-line and chunk-line allowances. `none` uses `maxBodySize`. Set it when `maxBodySize` is
+  large on purpose, as for a client streaming a download of any length, so that input buffered
+  ahead of a slow reader stays bounded.
+  -/
+  maxBufferedBodyBytes : Option Nat := none
+
+  /--
   Maximum length of reason phrase (default: 512 bytes).
   -/
   maxReasonPhraseLength : Nat := 512

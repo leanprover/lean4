@@ -15,7 +15,8 @@ theorem join_round_one_b_max_vote_properties2
         (st_one_b_max_vote : node → round → round → value → Bool)
         (st_proposal : round → value → Bool) (st_vote st_decision : node → round → value → Bool),
       (∀ (Q1 Q2 : quorum), ∃ (N : node), th_member N Q1 = Bool.true ∧ th_member N Q2 = Bool.true)
-        → ∀ (tot_le : round → round → Prop),
+        → ∀ (node_inhabited : node) (value_inhabited : value) (quorum_inhabited : quorum)
+            (round_inhabited : round) (tot_le : round → round → Prop),
           (∀ (x_1 : round), tot_le x_1 x_1)
             → (∀ (x_2 y_1 z : round), tot_le x_2 y_1 → tot_le y_1 z → tot_le x_2 z)
             → (∀ (x_3 y_2 : round), tot_le x_3 y_2 → tot_le y_2 x_3 → x_3 = y_2)

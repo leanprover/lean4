@@ -14,6 +14,7 @@ theorem net_byz_send_echo_vote_sent
         (st_echoed st_voted st_delivered : node → value → Bool)
         (st_echoFrom st_voteFrom : node → value → node → Bool)
         (st_initial_net st_echo_net st_vote_net : node → node → value → Bool)
+        (node_inhabited : node) (nodeset_inhabited : nodeset) (value_inhabited : value)
         (nset_is_byz : node → Bool) (nset_member : node → nodeset → Bool)
         (nset_is_empty nset_greater_than_third nset_supermajority : nodeset → Prop),
       (∀ (s1 s2 : nodeset),
@@ -67,7 +68,8 @@ theorem net_byz_send_echo_vote_sent
               nset_supermajority q
                 ∧ ∀ (s_7 : node),
                   nset_member s_7 q = Bool.true → st_voteFrom N_5 V_6 s_7 = Bool.true)
-        → ∀ (pc_label_Enum_pc_start pc_label_Enum_pc_done pc_label_Enum_pc_recv2 : pc_label),
+        → ∀ (pc_label_inhabited pc_label_Enum_pc_start pc_label_Enum_pc_done
+            pc_label_Enum_pc_recv2 : pc_label),
           ¬(pc_label_Enum_pc_start = pc_label_Enum_pc_done
               ∨ pc_label_Enum_pc_start = pc_label_Enum_pc_recv2)
             → ¬ pc_label_Enum_pc_done = pc_label_Enum_pc_recv2

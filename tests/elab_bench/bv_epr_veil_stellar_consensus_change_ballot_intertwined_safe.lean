@@ -16,7 +16,8 @@ theorem change_ballot_intertwined_safe
         (st_nomination_output : node → value → Bool)
         (st_started st_left_ballot : node → ballot → Bool)
         (st_received_accept_prepare st_received_accept_commit : node → node → ballot → value → Bool)
-        (tot_le : ballot → ballot → Prop),
+        (value_inhabited : value) (node_inhabited : node) (nset_inhabited : nset)
+        (ballot_inhabited : ballot) (tot_le : ballot → ballot → Prop),
       (∀ (x_1 : ballot), tot_le x_1 x_1)
         → (∀ (x_2 y_1 z : ballot), tot_le x_2 y_1 → tot_le y_1 z → tot_le x_2 z)
         → (∀ (x_3 y_2 : ballot), tot_le x_3 y_2 → tot_le y_2 x_3 → x_3 = y_2)

@@ -14,7 +14,7 @@ theorem inherit_manual_6
         (st_s1 : node → node → Bool) (st_in_s1 : node → Bool) (st_s2 : node → node → Bool)
         (st_in_s2 : node → Bool) (st_p : node → node → Bool) (st_reach st_error : node → Bool),
       th_other ≠ th_org
-        → ∀ (ring_btw : node → node → node → Prop),
+        → ∀ (node_inhabited : node) (ring_btw : node → node → node → Prop),
           (∀ (w x_1 y_1 z_1 : node), ring_btw w x_1 y_1 → ring_btw w y_1 z_1 → ring_btw w x_1 z_1)
             → (∀ (w_1 x_2 y_2 : node), ring_btw w_1 x_2 y_2 → ¬ ring_btw w_1 y_2 x_2)
             → (∀ (w_2 x_3 y_3 : node),

@@ -9,8 +9,10 @@ prelude
 public import Init.Data.ToString
 public import Init.Data.LawfulHashable
 public import Std.Http.Internal
+public import Std.Http.Data.Headers.Bytes
 import Init.Data.String.Search
 import Init.Data.String.Iter
+import Init.Data.String.Lemmas.Pattern.TakeDrop.Pred
 
 public section
 
@@ -92,11 +94,57 @@ Attempts to create a `Name` from a `String`, returning `none` if the string cont
 characters for HTTP header names or is empty.
 -/
 def ofString? (s : String) : Option Name :=
-  let val := s.trimAscii.toString.toLower
-  if h : IsValidHeaderName val then
-    some ⟨val, h, IsLowerCase.isLowerCase_toLower⟩
+  let val :=
+    if s.front?.all (!·.isWhitespace) && s.back?.all (!·.isWhitespace) then s
+    else s.trimAscii.toString
+  let lower : { v : String // IsLowerCase v } :=
+    if h : val.all (fun c => !c.isUpper) then
+      ⟨val, IsLowerCase.of_all_not_isUpper (by rwa [String.all_bool_eq] at h)⟩
+    else
+      ⟨val.toLower, IsLowerCase.isLowerCase_toLower⟩
+  if h : isToken lower.val then some ⟨lower.val, h, lower.property⟩ else none
+
+/--
+Creates a `Name` from the bytes of a token: `none` unless there is at least one byte and every byte is
+a `tchar`. The uppercase letters are lowered in place, so for such bytes this gives `ofString?` of the
+string they encode without decoding or scanning a `String`.
+-/
+def ofAsciiBytes? (b : ByteArray) : Option Name :=
+  let b := lower b 0 b.size
+  if h : b.size ≠ 0 ∧ b.data.all fun x => x < 128 && Char.tchar (Char.ofUInt8 x) &&
+      !(Char.ofUInt8 x).isUpper then
+    have hl : ∀ x ∈ b.data.toList, (x < 128 ∧ Char.tchar (Char.ofUInt8 x)) ∧
+        (Char.ofUInt8 x).isUpper = false := by
+      intro x hx
+      have := (Array.all_eq_true_iff_forall_mem.mp h.2) x (by simpa using hx)
+      simpa [Bool.and_eq_true] using this
+    have ha : b.data.all (· < 128) :=
+      Array.all_eq_true_iff_forall_mem.mpr fun x hx => by simpa using (hl x (by simpa using hx)).1.1
+    some ⟨ofAsciiBytes b ha,
+      by
+        have hne : b.data.toList ≠ [] := by
+          intro e; apply h.1; simp [ByteArray.size, ← Array.length_toList, e]
+        unfold IsValidHeaderName isToken
+        rw [toList_ofAsciiBytes]
+        exact decide_eq_true ⟨by simpa [List.isEmpty_iff] using hne,
+          List.all_eq_true.mpr fun c hc => by
+            obtain ⟨x, hx, rfl⟩ := List.mem_map.mp hc
+            exact (hl x hx).1.2⟩,
+      IsLowerCase.of_all_not_isUpper (by
+        rw [toList_ofAsciiBytes]
+        exact List.all_eq_true.mpr fun c hc => by
+          obtain ⟨x, hx, rfl⟩ := List.mem_map.mp hc
+          simpa using (hl x hx).2)⟩
   else
     none
+where
+  lower (b : ByteArray) (i n : Nat) : ByteArray :=
+    if i < n then
+      let c := b[i]!
+      lower (if 'A'.toUInt8 ≤ c && c ≤ 'Z'.toUInt8 then b.set! i (c + 32) else b) (i + 1) n
+    else
+      b
+  termination_by n - i
 
 /--
 Creates a `Name` from a string, panicking with an error message if the string contains invalid
@@ -218,6 +266,16 @@ def location : Header.Name := .mk "location"
 Standard Proxy-Authorization header name
 -/
 def proxyAuthorization : Header.Name := .mk "proxy-authorization"
+
+/--
+Standard WWW-Authenticate header name
+-/
+def wwwAuthenticate : Header.Name := .mk "www-authenticate"
+
+/--
+Standard Proxy-Authenticate header name
+-/
+def proxyAuthenticate : Header.Name := .mk "proxy-authenticate"
 
 /--
 Standard Content-Encoding header name

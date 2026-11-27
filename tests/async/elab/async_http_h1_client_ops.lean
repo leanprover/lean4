@@ -5,9 +5,10 @@ open Std.Http.Protocol.H1
 
 /-!
 Tests the HTTP/1.1 machine operations a client connection uses: `hasBufferedInput`,
-`bodyBytesRead`, `needsInput`, `exhausted`, `hasPendingEvents`, `shutdown`, `sendRequest`,
-`awaitsContinue`, `isWritingBody`, `peerWillNotReadBody`, `abandonOutgoingBody`, `drainBody`, and
-the public `Message.Head.hasExpectContinue`.
+`bufferedInputBytes`, `bodyBytesRead`, `needsInput`, `exhausted`, `hasPendingEvents`, `shutdown`,
+`sendRequest`, `awaitsContinue`, `isWritingBody`, `isReadingBody`, `outgoingBodySupplied`,
+`peerWillNotReadBody`, `abandonOutgoingBody`, `drainBody`, and the public
+`Message.Head.hasExpectContinue`; also the `WWW-Authenticate` and `Proxy-Authenticate` names.
 -/
 
 def request (method : Method) (headers : Headers := .empty) : Request.Head :=
@@ -163,13 +164,14 @@ def partlySentPost (answer : String) : Machine .sending :=
   let (m, _, _) := run m
   (run (m.feed (response answer))).1
 
--- A `close` answer: the server will not read the remaining 7 bytes, so abandon them.
+-- A `close` answer whose body is still arriving: the server will not read the remaining 7 bytes,
+-- so abandon them. Once such an answer is complete, the machine abandons them itself.
 #guard
-  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 0\r\n"
+  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 5\r\n"
   m.isWritingBody && m.peerWillNotReadBody
 
 #guard
-  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 0\r\n"
+  let m := partlySentPost "HTTP/1.1 413 Content Too Large\r\nConnection: close\r\nContent-Length: 5\r\n"
   let (m, out, _) := run m.abandonOutgoingBody
   !m.isWritingBody && !m.keepAlive && out.isEmpty
 
@@ -218,3 +220,57 @@ def partlySentPost (answer : String) : Machine .sending :=
     let (m, _, _) := run ((m.send (request .get)).userClosedBody)
     let (_, _, events) := run (m.feed (response "HTTP/1.1 204 No Content\r\n"))
     events.any (· matches .endHeaders _)
+
+/-! ## `bufferedInputBytes` -/
+
+-- Counts the input not parsed yet: all of it before a step, none once the response is read.
+#guard
+  let raw := response "HTTP/1.1 204 No Content\r\n"
+  let fed := sentGet.feed raw
+  fed.bufferedInputBytes == raw.size && (run fed).1.bufferedInputBytes == 0
+
+-- A body nobody pulls stays buffered.
+#guard
+  let (m, _, _) := run (sentGet.feed (response "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n" "hello"))
+  m.bufferedInputBytes == 5
+
+/-! ## `isReadingBody` -/
+
+-- In the body until its last byte is pulled.
+#guard
+  let (m, _, _) := run (sentGet.feed (response "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n" "hello"))
+  m.isReadingBody && !m.drainBody.isReadingBody
+
+-- Not before the head is read, nor for a response without a body.
+#guard !sentGet.isReadingBody
+#guard !(run (sentGet.feed (response "HTTP/1.1 204 No Content\r\n"))).1.isReadingBody
+
+/-! ## `outgoingBodySupplied` -/
+
+-- A fixed-length body with all its bytes handed over: the last ones wait for the caller to close it.
+#guard
+  let m := fresh.send (request .post (Headers.empty.insert .contentLength (.mk "3")))
+    |>.setKnownSize (.fixed 3) |>.sendData #[Chunk.ofByteArray "abc".toUTF8]
+  (run m).1.outgoingBodySupplied
+
+-- Bytes still owed, or a chunked body the caller has not closed: more is needed.
+#guard
+  let m := fresh.send (request .post (Headers.empty.insert .contentLength (.mk "3")))
+    |>.setKnownSize (.fixed 3) |>.sendData #[Chunk.ofByteArray "ab".toUTF8]
+  !(run m).1.outgoingBodySupplied
+
+#guard
+  let m := fresh.send (request .post) |>.sendData #[Chunk.ofByteArray "ab".toUTF8]
+  !(run m).1.outgoingBodySupplied
+
+-- A request written whole, and a fixed-length body written and closed.
+#guard (run (fresh.send (request .get) |>.userClosedBody)).1.outgoingBodySupplied
+#guard
+  let m := fresh.send (request .post (Headers.empty.insert .contentLength (.mk "3")))
+    |>.setKnownSize (.fixed 3) |>.sendData #[Chunk.ofByteArray "abc".toUTF8] |>.userClosedBody
+  (run m).1.outgoingBodySupplied
+
+/-! ## Authentication header names -/
+
+#guard Header.Name.wwwAuthenticate == Header.Name.ofString! "WWW-Authenticate"
+#guard Header.Name.proxyAuthenticate == Header.Name.ofString! "Proxy-Authenticate"

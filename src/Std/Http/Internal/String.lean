@@ -11,6 +11,11 @@ import Init.Grind
 public import Init.Data.String.TakeDrop
 public import Std.Http.Internal.Char
 import Init.Data.String.Csimp
+import Init.Data.String.Lemmas.Search
+import Init.Data.ByteArray.Lemmas
+import Init.Data.Array.Lemmas
+import Init.Data.List.ToArray
+import Init.Data.UInt.Lemmas
 
 public section
 
@@ -137,5 +142,77 @@ theorem isToken_eq_isTokenImpl : isToken = isTokenImpl := by
   funext s
   rw [Bool.eq_iff_iff]
   simp [isToken, isTokenImpl, String.all_bool_eq, List.isEmpty_iff]
+
+/--
+Checks whether a string is a valid HTTP field value (RFC 9110 §5.5): field content throughout, with a
+visible character at each end.
+-/
+@[expose]
+noncomputable def isFieldValue (s : String) : Bool :=
+  let s := s.toList
+  s.all Char.fieldContent && (s.head?.map Char.fieldVchar |>.getD true) &&
+    (s.getLast?.map Char.fieldVchar |>.getD true)
+
+/--
+Runtime implementation of `isFieldValue` that avoids materializing `toList`.
+-/
+def isFieldValueImpl (s : String) : Bool :=
+  s.all Char.fieldContent && (s.front?.map Char.fieldVchar |>.getD true) &&
+    (s.back?.map Char.fieldVchar |>.getD true)
+
+/--
+Use `isFieldValueImpl` at run time while leaving the list-based version for proofs.
+-/
+@[csimp]
+theorem isFieldValue_eq_isFieldValueImpl : isFieldValue = isFieldValueImpl := by
+  funext s
+  simp [isFieldValue, isFieldValueImpl, String.all_bool_eq, String.front?_eq, String.back?_eq]
+
+private theorem utf8EncodeChar_ofUInt8 {x : UInt8} (h : x < 128) :
+    String.utf8EncodeChar (Char.ofUInt8 x) = [x] := by
+  have hx : x.toNat < 128 := by simpa using UInt8.lt_iff_toNat_lt.mp h
+  have hv : (Char.ofUInt8 x).val ≤ 0x7F := by
+    simp only [Char.ofUInt8, UInt32.le_iff_toNat_le]; simp; omega
+  rw [String.utf8EncodeChar_eq_singleton (by simp [Char.utf8Size, hv])]
+  congr 1
+  apply UInt8.toNat_inj.mp
+  simp [Char.ofUInt8]
+
+private theorem utf8Encode_map_ofUInt8 (l : List UInt8) (h : ∀ x ∈ l, x < 128) :
+    (l.map Char.ofUInt8).utf8Encode = l.toByteArray := by
+  rw [List.utf8Encode_eq_toByteArray, List.flatMap_map]
+  congr 1
+  induction l with
+  | nil => rfl
+  | cons x l ih =>
+    rw [List.flatMap_cons, utf8EncodeChar_ofUInt8 (h x (by simp)),
+      ih (fun y hy => h y (by simp [hy]))]
+    rfl
+
+private theorem ascii_mem {b : ByteArray} (h : b.data.all (· < 128)) :
+    ∀ x ∈ b.data.toList, x < 128 :=
+  fun x hx => by simpa using Array.all_eq_true_iff_forall_mem.mp h x (by simpa using hx)
+
+private theorem toByteArray_data (b : ByteArray) : b.data.toList.toByteArray = b := by
+  apply ByteArray.ext; simp
+
+/--
+The string of bytes that are all ASCII, without validating them again: each byte is the character
+with its code (`toList_ofAsciiBytes`).
+-/
+def ofAsciiBytes (b : ByteArray) (h : b.data.all (· < 128)) : String :=
+  String.ofByteArray b ⟨b.data.toList.map Char.ofUInt8, by
+    rw [utf8Encode_map_ofUInt8 _ (ascii_mem h), toByteArray_data]⟩
+
+/--
+The characters of `ofAsciiBytes b h` are the bytes of `b`.
+-/
+theorem toList_ofAsciiBytes (b : ByteArray) (h : b.data.all (· < 128)) :
+    (ofAsciiBytes b h).toList = b.data.toList.map Char.ofUInt8 := by
+  have : ofAsciiBytes b h = String.ofList (b.data.toList.map Char.ofUInt8) := by
+    rw [← String.toByteArray_inj, String.toByteArray_ofList,
+      utf8Encode_map_ofUInt8 _ (ascii_mem h), toByteArray_data]
+    rfl
+  rw [this, String.toList_ofList]
 
 end Std.Http.Internal

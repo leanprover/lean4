@@ -69,6 +69,13 @@ theorem isLowerCase_toLower {s : String} : IsLowerCase s.toLower := by
   rw [String.map_map, Function.comp_def]
   simp [Char.toLower_idempotent]
 
+/--
+A string without uppercase ASCII letters is lowercase.
+-/
+theorem of_all_not_isUpper {s : String} (h : s.toList.all (fun c => !c.isUpper) = true) :
+    IsLowerCase s :=
+  String.toLower_eq_self_iff.mpr (by simpa [List.any_eq_false] using h)
+
 theorem isLowerCase_empty : IsLowerCase "" := by
   simp [IsLowerCase, String.toLower]
 

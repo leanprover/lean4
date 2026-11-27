@@ -134,7 +134,7 @@ def shortLine : Protocol.H1.Config := { maxStartLineLength := 64 }
 def clientError (response : String) (config : Protocol.H1.Config := {}) : Option Error := Id.run do
   let mut m : Machine .sending := { config }
   m := m.send { method := .get, version := .v11, uri := RequestTarget.originForm! "/",
-                headers := Headers.empty.insert! "Host" "a" }
+                headers := Headers.empty.insert! "Host" "a" } |>.userClosedBody
   m := m.feed response.toUTF8
   for _ in [0:6] do
     let (m', _) := m.step

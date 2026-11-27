@@ -94,6 +94,7 @@ set(
   uv/signal.cpp
   uv/process.cpp
   openssl.cpp
+  openssl/trust_store.cpp
   cadical.cpp
 )
 

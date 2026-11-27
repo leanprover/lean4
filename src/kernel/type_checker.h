@@ -30,15 +30,16 @@ public:
         infer_cache               m_infer_type[2];
         expr_map<expr>            m_whnf_core;
         expr_map<expr>            m_whnf;
-        /* Positive and negative caches for `is_def_eq`. Since kernel expressions contain no
-           metavariables and free variables are globally unique with fixed types, the result of
-           `is_def_eq` is a function of its two arguments, so both results can be cached and shared
-           across calls. We intentionally use plain pair sets (not an equivalence-closure/union-find
-           structure): `is_def_eq` is a sound but incomplete semi-decision procedure and is therefore
-           not transitive, so taking a transitive closure of successful pairs would make its result
+        /* Positive and negative caches for `is_def_eq`, indexed by `m_eager_reduce`. Since kernel
+           expressions contain no metavariables and free variables are globally unique with fixed
+           types, the result of `is_def_eq` for a given `m_eager_reduce` mode is a function of its
+           ordered argument pair, so both results can be cached and shared across calls. We
+           intentionally use plain pair sets (not an equivalence-closure/union-find structure):
+           `is_def_eq` is a sound but incomplete semi-decision procedure and is therefore not
+           transitive, so taking a transitive closure of successful pairs would make its result
            depend on evaluation order. */
-        expr_pair_set             m_success;
-        expr_pair_set             m_failure;
+        expr_pair_set             m_success[2];
+        expr_pair_set             m_failure[2];
         expr_map<expr>            m_unfold;
         friend type_checker;
     public:

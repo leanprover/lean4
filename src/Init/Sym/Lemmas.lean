@@ -321,4 +321,12 @@ theorem or_exists_eq [Nonempty α] (p : Prop) (q : α → Prop) : (p ∨ ∃ x, 
     · exact .inl hp
     · exact .inr ⟨x, hx⟩
 
+theorem exists_eq_epsilon {α : Sort u} [Nonempty α] (p : α → Prop) :
+    (∃ x, p x) = p (Classical.epsilon p) := by
+  ext
+  constructor
+  · exact Classical.epsilon_spec
+  · intro h
+    exists Classical.epsilon p
+
 end Lean.Sym

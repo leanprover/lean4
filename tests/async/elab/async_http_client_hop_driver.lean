@@ -3,9 +3,10 @@ import Std.Http
 /-!
 Tests the HTTP client hop driver (`Std.Http.Client.Hop.Driver`) without I/O: responses delivered to the
 caller, redirects followed (method rewrites, bodies, `Expect`, other origins), the redirect budget
-and cycles, retries on fresh connections and when a request may be sent again, and failures; then
-the redirect rules of RFC 9110 §15.4 status by status, how `Location` is resolved, the header fields
-a redirect drops, and the methods RFC 9110 §9.2.2 lets a retry repeat.
+and cycles, retries on fresh connections and when a request may be sent again, retries on listed
+statuses with `Retry-After` and backoff delays, the redirect policy, and failures; then the redirect
+rules of RFC 9110 §15.4 status by status, how `Location` is resolved, the header fields a redirect
+drops, and the methods RFC 9110 §9.2.2 lets a retry repeat.
 -/
 
 open Std.Http Std.Http.Client Std.Http.Client.Hop.Driver
@@ -30,6 +31,7 @@ def tags (cmds : Array Command) : List String :=
     | .send o head body fresh =>
       s!"send {o.host} {head.method} {head.uri} {repr body}{if fresh then " fresh" else ""}"
     | .drain => "drain"
+    | .wait ms => s!"wait {ms}"
     | .release reusable => s!"release {reusable}"
     | .deliver => "deliver"
     | .fail err => s!"fail {err}"
@@ -238,4 +240,74 @@ def content : Headers :=
 
 -- Every hop of a retry asks for a fresh connection, its redirects included.
 #guard (run (get) ([.start, .failed (.closed "x") false] ++ redirected .found "/b")).2.getLast? ==
+  some "send a GET /b Std.Http.Client.Hop.Driver.BodySource.empty fresh"
+
+/-! ## Retries on listed statuses, delays, and the redirect policy -/
+
+def retrying (statuses : Array Status) (delay := 0) (maxDelay := 30000) (maxRetries := 1)
+    (method : Method := .get) (replayable := true) : State :=
+  init a (request method) replayable 10 maxRetries { statuses, delay, maxDelay }
+
+def withRetryAfter (status : Status) (value : String) : Response.Head :=
+  { status, headers := Headers.empty.insert (.mk "retry-after") (.ofString! value) }
+
+-- A listed status: its body is drained, the connection given back, and the hop sent again at once.
+#guard (run (retrying #[.serviceUnavailable])
+    [.start, .responded (response .serviceUnavailable), .drained (.ok true)]).2 ==
+  ["send a GET /a Std.Http.Client.Hop.Driver.BodySource.original", "drain", "release true",
+   "send a GET /a Std.Http.Client.Hop.Driver.BodySource.rewound fresh"]
+
+-- `Retry-After` in seconds sets the delay; the hop goes once `waited` reports it passed.
+#guard (run (retrying #[.tooManyRequests])
+    [.start, .responded (withRetryAfter .tooManyRequests "2"), .drained (.ok true), .waited]).2 ==
+  ["send a GET /a Std.Http.Client.Hop.Driver.BodySource.original", "drain", "release true",
+   "wait 2000", "send a GET /a Std.Http.Client.Hop.Driver.BodySource.rewound fresh"]
+
+-- ...up to `maxDelay`.
+#guard (run (retrying #[.tooManyRequests] (maxDelay := 500))
+    [.start, .responded (withRetryAfter .tooManyRequests "100"), .drained (.ok true)]).2.getLast? ==
+  some "wait 500"
+
+-- A date in `Retry-After` is not read: the backoff delay applies.
+#guard (run (retrying #[.serviceUnavailable] (delay := 100))
+    [.start, .responded (withRetryAfter .serviceUnavailable "Fri, 27 Nov 2026 12:00:00 GMT"),
+     .drained (.ok true)]).2.getLast? == some "wait 100"
+
+-- The delay doubles with each retry, for connection-level failures too.
+#guard (run (retrying #[] (delay := 100) (maxRetries := 3))
+    [.start, .failed (.closed "x") false, .waited, .failed (.closed "x") false, .waited,
+     .failed (.closed "x") false, .waited]).2.filter (·.startsWith "wait") ==
+  ["wait 100", "wait 200", "wait 400"]
+
+-- Once no attempt is left, the listed status is the caller's.
+#guard (run (retrying #[.serviceUnavailable])
+    [.start, .responded (response .serviceUnavailable), .drained (.ok true),
+     .responded (response .serviceUnavailable)]).2.getLast? == some "deliver"
+
+-- A status that is not listed, a method that is not idempotent, or a body that cannot be rewound
+-- leaves the response to the caller.
+#guard (run (retrying #[.serviceUnavailable]) [.start, .responded (response .internalServerError)]).2.getLast? ==
+  some "deliver"
+#guard (run (retrying #[.serviceUnavailable] (method := .post))
+    [.start, .responded (response .serviceUnavailable)]).2.getLast? == some "deliver"
+#guard (run (retrying #[.serviceUnavailable] (replayable := false))
+    [.start, .responded (response .serviceUnavailable)]).2.getLast? == some "deliver"
+
+-- A response whose body could not be read is retried all the same, its connection not reused.
+#guard (run (retrying #[.serviceUnavailable])
+    [.start, .responded (response .serviceUnavailable), .drained (.error (.closed "x"))]).2.contains
+  "release false"
+
+-- The redirect policy keeps the redirect it declines for the caller.
+#guard (run (init a (request .get) true 10 1 (policy := fun _ _ _ plan => plan.origin == a))
+    [.start, .responded (response .found (some "http://b/x"))]).2.getLast? == some "deliver"
+#guard (run (init a (request .get) true 10 1 (policy := fun _ _ _ plan => plan.origin == a))
+    ([.start] ++ redirected .found "/b")).2.getLast? ==
+  some "send a GET /b Std.Http.Client.Hop.Driver.BodySource.empty"
+
+-- A retried hop that had no content is sent again without any, not with the caller's body: here a
+-- POST turned into a GET by a `303`.
+#guard (run (init a (request .post) true 10 1 { statuses := #[.serviceUnavailable] })
+    ([.start] ++ redirected .seeOther "/b" ++
+      [.responded (response .serviceUnavailable), .drained (.ok true)])).2.getLast? ==
   some "send a GET /b Std.Http.Client.Hop.Driver.BodySource.empty fresh"

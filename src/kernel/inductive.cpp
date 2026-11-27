@@ -1380,9 +1380,33 @@ expr nat_lit_to_constructor(expr const & e) {
         return mk_app(*g_nat_succ, mk_lit(literal(v - nat(1))));
 }
 
+static bool g_strlit_bytes = false;
+static FILE * g_strlit_stats = nullptr;
+static expr * g_string_of_byte_array = nullptr;
+static expr * g_string_is_valid_utf8 = nullptr;
+static expr * g_byte_array_mk = nullptr;
+static expr * g_array_mk_uint8 = nullptr;
+static expr * g_list_cons_uint8 = nullptr;
+static expr * g_list_nil_uint8 = nullptr;
+static expr * g_uint8_of_nat = nullptr;
+
 expr string_lit_to_constructor(expr const & e) {
     lean_assert(is_string_lit(e));
     string_ref const & s = lit_value(e).get_string();
+    if (g_strlit_stats) {
+        fprintf(g_strlit_stats, "%zu\n", s.num_bytes());
+        fflush(g_strlit_stats);
+    }
+    if (g_strlit_bytes) {
+        std::string bs = s.to_std_string();
+        expr r = *g_list_nil_uint8;
+        size_t i = bs.size();
+        while (i > 0) {
+            i--;
+            r = mk_app(*g_list_cons_uint8, mk_app(*g_uint8_of_nat, mk_lit(literal(static_cast<unsigned>(static_cast<unsigned char>(bs[i]))))), r);
+        }
+        return mk_app(*g_string_of_byte_array, mk_app(*g_byte_array_mk, mk_app(*g_array_mk_uint8, r)), mk_app(*g_string_is_valid_utf8, e));
+    }
     std::vector<unsigned> cs;
     utf8_decode(s.to_std_string(), cs);
     expr r = *g_list_nil_char;
@@ -1415,6 +1439,24 @@ void initialize_inductive() {
     mark_persistent(g_list_nil_char->raw());
     g_char_of_nat    = new expr(mk_constant(name{"Char", "ofNat"}));
     mark_persistent(g_char_of_nat->raw());
+    g_strlit_bytes = getenv("LEAN_STRLIT_BYTES") != nullptr;
+    if (char const * stats = getenv("LEAN_STRLIT_STATS"))
+        g_strlit_stats = fopen(stats, "a");
+    expr uint8_type = mk_constant(name{"UInt8"});
+    g_string_of_byte_array = new expr(mk_constant(name{"String", "ofByteArray"}));
+    mark_persistent(g_string_of_byte_array->raw());
+    g_string_is_valid_utf8 = new expr(mk_constant(name{"String", "isValidUTF8"}));
+    mark_persistent(g_string_is_valid_utf8->raw());
+    g_byte_array_mk = new expr(mk_constant(name{"ByteArray", "mk"}));
+    mark_persistent(g_byte_array_mk->raw());
+    g_array_mk_uint8 = new expr(mk_app(mk_constant(name{"Array", "mk"}, {level()}), uint8_type));
+    mark_persistent(g_array_mk_uint8->raw());
+    g_list_cons_uint8 = new expr(mk_app(mk_constant(name{"List", "cons"}, {level()}), uint8_type));
+    mark_persistent(g_list_cons_uint8->raw());
+    g_list_nil_uint8 = new expr(mk_app(mk_constant(name{"List", "nil"}, {level()}), uint8_type));
+    mark_persistent(g_list_nil_uint8->raw());
+    g_uint8_of_nat = new expr(mk_constant(name{"UInt8", "ofNat"}));
+    mark_persistent(g_uint8_of_nat->raw());
     register_name_generator_prefix(*g_ind_fresh);
     register_name_generator_prefix(*g_nested_fresh);
 }

@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 module
+
 prelude
 public import Init.System.IO
 import Init.Data.Array.QSort.Basic
+import Init.Data.String.Compare
 
 /-!
 TLS contexts. A context holds what every connection made from it shares: the certificate and key it
@@ -35,14 +37,16 @@ new context.
 ## Security settings
 
 Every context requires TLS 1.2 or later. TLS 1.2 connections only use ECDHE key exchange with
-AES-GCM or ChaCha20-Poly1305; TLS 1.3 uses its three standard cipher suites. A certificate a context
-presents or verifies needs an RSA key of at least 2048 bits; one it accepts unchecked (`request`,
-`requireAny`, `insecureSkipVerify`) does not. Session resumption, compression and renegotiation are
-off, and encrypted keys are refused rather than prompting for a passphrase.
+AES-GCM or ChaCha20-Poly1305; TLS 1.3 uses `TLS_AES_256_GCM_SHA384`, `TLS_CHACHA20_POLY1305_SHA256`
+and `TLS_AES_128_GCM_SHA256`. A certificate a context presents or verifies needs at least 112-bit
+security (RSA keys of 2048 bits, EC keys of 224 bits, no SHA-1 signatures); one it accepts unchecked
+(`request`, `requireAny`, `insecureSkipVerify`) does not. Session resumption, compression and
+renegotiation are off, and encrypted keys are refused rather than prompting for a passphrase.
 
-When Lean uses the system's OpenSSL, that library's configuration can make these settings stricter
-but not looser. If it leaves no TLS version or cipher suite these settings allow, creating a context
-fails.
+A Lean that bundles OpenSSL, such as an official release, reads no OpenSSL configuration file. A Lean
+built against the system's OpenSSL reads that library's configuration, which can make these settings
+stricter but not looser; if it leaves no TLS version or cipher suite these settings allow, creating a
+context fails.
 
 ## Errors
 
@@ -51,9 +55,10 @@ fails.
 * `noSuchThing`: a client trusting the system has no certificates to trust: the system has none,
   or `SSL_CERT_FILE` and `SSL_CERT_DIR` name none trusted for TLS server authentication.
 * `unsupportedOperation`: the system's OpenSSL configuration leaves no TLS version or cipher suite
-  these settings allow, or this build of Lean has no TLS support.
+  these settings allow, OpenSSL failed to initialize, or this build of Lean has no TLS support.
 * `userError`: OpenSSL failed for some other reason.
-* Errors from reading a file are those of `IO.FS.readBinFile`.
+* Errors from reading a file are those of `IO.FS.readBinFile`, except that a file over 16 MiB is an
+  `invalidArgument`.
 
 ## Platform notes
 
@@ -65,7 +70,7 @@ With `trust := .system`, a client trusts:
   `Disallowed` store and the uses each root is trusted for. A root Windows trusts but hasn't
   installed yet is downloaded from Microsoft, which can make a handshake wait.
 * Linux and others: the distribution's certificate bundle and certificate directories, whose files
-  are read when a handshake needs them. A Lean build that uses the system's OpenSSL also reads
+  are read when a handshake needs them. A Lean built against the system's OpenSSL also reads
   OpenSSL's default certificate locations.
 
 Missing intermediate certificates are never downloaded: the server has to send them, or they must be
@@ -74,8 +79,8 @@ listed as trusted.
 If `SSL_CERT_FILE` or `SSL_CERT_DIR` is set, the certificates they name are trusted instead of the
 system's, on every platform. `SSL_CERT_FILE` names a PEM bundle; `SSL_CERT_DIR` is a list of
 directories, separated by `:` (`;` on Windows), whose files are all read. Only regular files of at
-most 16 MiB are loaded, and reading stops after 64 MiB in all, a larger file counting the 16 MiB
-read of it. Blocks that aren't certificates are skipped (a block missing its END line takes the
+most 16 MiB are loaded, and reading stops after 64 MiB in all, a file too large to load counting
+what was read of it. Blocks that aren't certificates are skipped (a block missing its END line takes the
 block after it along). Both variables are ignored in set-user-ID and set-group-ID programs.
 
 Lean does not check whether a certificate has been revoked.
@@ -113,6 +118,7 @@ structure Credentials where
   -/
   key : PEM
 
+-- The runtime reads these constructors by position.
 /--
 A TLS protocol version.
 -/
@@ -123,6 +129,7 @@ inductive Version where
   | tls13
   deriving Repr, DecidableEq
 
+-- The runtime reads these fields by position.
 /--
 PEM bytes as the runtime takes them, with the file they came from so that errors can name it.
 -/
@@ -130,15 +137,38 @@ private structure LoadedPEM where
   bytes : ByteArray
   path? : Option System.FilePath
 
+-- The most read from one PEM file, or from one file `SSL_CERT_FILE` or `SSL_CERT_DIR` names.
+private def fileLimit : Nat := 16 * 1024 * 1024
+
+/--
+The contents of `h` if they are at most `limit` bytes, reading no more than `limit + 1`. Bounded by
+what is read rather than by the size the file reports, which is 0 for many `/proc` files.
+-/
+private partial def readBounded (h : IO.FS.Handle) (limit : Nat) (acc : ByteArray := .empty) :
+    IO (Option ByteArray) := do
+  let chunk ← h.read (min (limit + 1 - acc.size) 65536).toUSize
+  if chunk.isEmpty then
+    return some acc
+  let acc := acc ++ chunk
+  if acc.size > limit then
+    return none
+  readBounded h limit acc
+
 private def PEM.load : PEM → IO LoadedPEM
   | .text contents =>
     return { bytes := contents.toUTF8, path? := none }
   | .file path => do
-    let bytes ← try IO.FS.readBinFile path catch
+    let bytes? ← try
+        -- Stats the path first so that failures match `IO.FS.readBinFile`'s.
+        discard path.metadata
+        readBounded (← IO.FS.Handle.mk path .read) fileLimit
+      catch
       | .inappropriateType none code details =>
         throw <| .inappropriateType (some path.toString) code details
       | e =>
         throw e
+    let some bytes := bytes? |
+      throw <| .invalidArgument (some path.toString) 22 "the PEM material is too large"
     return { bytes, path? := some path }
 
 private opaque ContextServerImpl : NonemptyType.{0}
@@ -161,6 +191,7 @@ instance : Nonempty Context.Client := ContextClientImpl.property
 
 namespace Context.Server
 
+-- The runtime reads these constructors by position.
 /--
 Whether a server asks clients for a certificate, and what it does with one.
 -/
@@ -202,7 +233,8 @@ structure Config where
   Whether to ask clients for a certificate. When verifying one, any of the listed CA certificates
   can end a chain, not only a root, and their names are sent to help the client pick a certificate.
   A `TRUSTED CERTIFICATE` block that rejects TLS client authentication, or trusts the CA only for
-  other uses, is neither, and a client chain through any certificate with its key is refused.
+  other uses, is neither trusted nor advertised, and a client chain through any certificate with its
+  key is refused.
   -/
   clientAuth : ClientAuth := .none
   /--
@@ -219,8 +251,9 @@ private opaque mkImpl (cert key : @& LoadedPEM) (clientAuth : @& ClientAuth)
     (clientCA : @& Array LoadedPEM) (minVersion maxVersion : Version) : IO Context.Server
 
 /--
-Creates a server context. Fails if the key doesn't match the certificate, if either can't be read,
-or if `clientAuth` verifies certificates against an empty list.
+Creates a server context. Fails, for example, if the key doesn't match the certificate, if either
+can't be read, or if `clientAuth` verifies certificates against a list that is empty or whose
+certificates are all distrusted.
 
 An expired certificate is accepted here and rejected by clients during the handshake.
 -/
@@ -235,6 +268,7 @@ end Server
 
 namespace Client
 
+-- The runtime reads these constructors by position.
 /--
 Which server certificates a client accepts.
 -/
@@ -294,30 +328,15 @@ private opaque mkImpl (trust : @& Trust) (ca : @& Array LoadedPEM)
 @[extern "lean_ssl_env_ignored"]
 private opaque envIgnored : BaseIO Bool
 
--- The most read from one file `SSL_CERT_FILE` or `SSL_CERT_DIR` names, and from all of them.
-private def envFileLimit : Nat := 16 * 1024 * 1024
+-- The most read from all the files `SSL_CERT_FILE` and `SSL_CERT_DIR` name.
 private def envTotalLimit : Nat := 64 * 1024 * 1024
 
 /--
-The contents of `h` if they are at most `limit` bytes, reading no more than `limit + 1`. Bounded by
-what is read rather than by the size the file reports, which is 0 for many `/proc` files.
--/
-private partial def readBounded (h : IO.FS.Handle) (limit : Nat) (acc : ByteArray := .empty) :
-    IO (Option ByteArray) := do
-  let chunk ← h.read (limit + 1 - acc.size).toUSize
-  if chunk.isEmpty then
-    return some acc
-  let acc := acc ++ chunk
-  if acc.size > limit then
-    return none
-  readBounded h limit acc
-
-/--
 The files `SSL_CERT_FILE` and `SSL_CERT_DIR` name, or `none` if neither is set. Only regular files
-of at most `envFileLimit` bytes are read, so a device, pipe or socket among them can't stall or
-exhaust memory; the others, files that can't be read, and the entries of a directory that can't be
-listed are skipped. Reading stops once `envTotalLimit` bytes have been read; the file that would
-pass it is not loaded.
+of at most `fileLimit` bytes are read, so a device, pipe or socket among them is skipped rather than
+read (one swapped in between the check and the open is not). Other files, files that can't be read,
+and the entries of a directory that can't be listed are skipped. Reading stops once `envTotalLimit`
+bytes have been read; the file that would pass it is not loaded.
 -/
 private def envAnchors : IO (Option (Array LoadedPEM)) := do
   if ← envIgnored then
@@ -334,7 +353,7 @@ private def envAnchors : IO (Option (Array LoadedPEM)) := do
   for dir in System.SearchPath.parse (dirs.getD "") do
     if let .ok entries ← (System.FilePath.readDir dir).toBaseIO then
       -- Sorted so that what is loaded doesn't depend on the order the file system lists files in.
-      paths := paths ++ (entries.qsort (hash ·.fileName < hash ·.fileName)).map (·.path)
+      paths := paths ++ (entries.qsort (·.fileName < ·.fileName)).map (·.path)
 
   let mut loaded := #[]
   let mut total := 0
@@ -345,7 +364,7 @@ private def envAnchors : IO (Option (Array LoadedPEM)) := do
     let .ok md ← path.metadata.toBaseIO | continue
     if md.type != .file then
       continue
-    let limit := min envFileLimit budget
+    let limit := min fileLimit budget
     let .ok read ← (do readBounded (← IO.FS.Handle.mk path .read) limit).toBaseIO | continue
     match read with
     | some bytes =>
@@ -359,7 +378,8 @@ private def envAnchors : IO (Option (Array LoadedPEM)) := do
 Creates a client context.
 
 The context only decides which certificates are trusted. It does not check that a certificate
-belongs to the server being contacted: the connection does that, given the server's name.
+belongs to the server being contacted: the connection does that, given the server's name. A
+connection given no name accepts any certificate the trust admits.
 -/
 def mk (cfg : Config := {}) : IO Context.Client := do
   let (ca, env) ← match cfg.trust with

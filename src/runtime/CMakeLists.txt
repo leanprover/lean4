@@ -94,11 +94,10 @@ set(
   uv/signal.cpp
   uv/process.cpp
   openssl.cpp
-  openssl/trust_store.cpp
-  cadical.cpp
   openssl/context.cpp
   openssl/ssl_error.cpp
   openssl/trust_store.cpp
+  cadical.cpp
 )
 
 if(CADICAL_INCLUDE_DIR)

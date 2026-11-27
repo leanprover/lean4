@@ -213,7 +213,7 @@ def testPinningRejectsEmptyCAMaterial : IO Unit := do
   assertErrorMessage "pinned to an empty CA string" (malformedPEMError caNoCerts)
     (discard <| Context.Client.mk { trust := .only #[.text ""] })
 
--- Any listed certificate can end a chain, so an intermediate CA can be trusted on its own.
+-- An intermediate CA alone is accepted at creation; only a handshake shows it ending a chain.
 def testPinningToIntermediate (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk { trust := .only #[.text testIntermediateCertPEM] }
   let _clientCtx2 ← Context.Client.mk { trust := .only #[.file f.intermediate] }
@@ -530,10 +530,14 @@ def testRejectsDirectoryPaths (f : Fixtures) : IO Unit := do
   assertErrorMessageOneOf "directory as CA file" expected
     (discard <| Context.Client.mk { trust := .system #[.file f.dir] })
 
--- A readable non-regular file is read like any other.
+-- A readable non-regular file is read like any other, up to the same size limit.
 def testReadsNonRegularFile (f : Fixtures) : IO Unit := do
   if System.Platform.isWindows then
     return
+
+  assertErrorMessage "endless character device as CA file"
+    (malformedFileError "/dev/zero" "the PEM material is too large")
+    (discard <| Context.Client.mk { trust := .system #[.file "/dev/zero"] })
 
   assertErrorMessage "character device as CA file" (malformedFileError "/dev/null" caNoCerts)
     (discard <| Context.Client.mk { trust := .system #[.file "/dev/null"] })
@@ -577,12 +581,13 @@ def withCertEnv (file dir : String) (act : IO Unit) : IO Unit :=
   withEnv "SSL_CERT_FILE" file (withEnv "SSL_CERT_DIR" dir act)
 
 def envNamesNoCertificate : String :=
-  "no such thing (error code: 2, failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR \
-    name no certificate)"
+  "no such thing (error code: 2, could not load the system trust store: SSL_CERT_FILE and \
+    SSL_CERT_DIR name no certificate (files that are missing, unreadable, not regular or too large \
+    are skipped))"
 
 def envNamesOnlyDistrusted : String :=
-  "no such thing (error code: 2, failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR \
-    name no certificate trusted for TLS server authentication)"
+  "no such thing (error code: 2, could not load the system trust store: SSL_CERT_FILE and \
+    SSL_CERT_DIR name no certificate trusted for TLS server authentication)"
 
 def testCertEnvVars (f : Fixtures) : IO Unit := do
   if System.Platform.isWindows then
@@ -739,6 +744,14 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
     (malformedFileError f.encKey "could not read an unencrypted PEM private key")
     (discard <| Context.Client.mk
       { insecure with credentials := some { cert := .file f.cert, key := .file f.encKey } })
+
+-- OpenSSL reads its configuration once, at the first context, so the host's must not decide the
+-- outcome, and neither may the host's certificate variables.
+#eval show IO Unit from do
+  unless System.Platform.isWindows do
+    Std.Async.System.setEnvVar "OPENSSL_CONF" "/dev/null"
+    Std.Async.System.unsetEnvVar "SSL_CERT_FILE"
+    Std.Async.System.unsetEnvVar "SSL_CERT_DIR"
 
 #eval withFixtures fun f => do
   testContextCreation f

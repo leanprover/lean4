@@ -3,9 +3,10 @@ import Std.Async.System
 
 /-!
 Checks that suites the security level removes do not count: `OPENSSL_CONF` names a policy at
-`@SECLEVEL=4`, which needs 192-bit ciphers, whose only suites are 128-bit ones. It must run before the process's first context, since OpenSSL is initialized once, so it has
-a file of its own. A standalone build reads no configuration, so there every context builds. Windows
-is skipped: libuv sets variables there through the Win32 API, which `getenv` does not see.
+`@SECLEVEL=4`, which needs 192-bit ciphers, whose only suites are 128-bit ones. It must run before
+the process's first context, since OpenSSL is initialized once, so it has a file of its own. A
+standalone build reads no configuration, so there every context builds. Windows is skipped: libuv
+sets variables there through the Win32 API, which `getenv` does not see.
 -/
 
 open Std.Internal.SSL

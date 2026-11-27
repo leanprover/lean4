@@ -7,6 +7,7 @@ Author: Sofia Rodrigues
 #include "runtime/openssl/context.h"
 
 #ifndef LEAN_EMSCRIPTEN
+#include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -15,8 +16,8 @@ Author: Sofia Rodrigues
 namespace lean {
 
 bool ensure_openssl_initialized() {
-    // `NO_ATEXIT`: the default `atexit(OPENSSL_cleanup)` frees global state that thread-pool tasks
-    // outliving `main` may still be using. A standalone toolchain skips `openssl.cnf`, whose
+    // `NO_ATEXIT`: OpenSSL 3 otherwise registers `atexit(OPENSSL_cleanup)`, which frees global state
+    // that thread-pool tasks outliving `main` may still be using. A standalone toolchain skips `openssl.cnf`, whose
     // compiled-in path names a directory on the build machine; a system OpenSSL reads the
     // distribution's crypto policy like any other consumer.
 #ifdef LEAN_STANDALONE
@@ -32,8 +33,8 @@ bool ensure_openssl_initialized() {
     LEAN_THREAD_VALUE(bool, g_thread_stop_registered, false);
 
     if (ok && !g_thread_stop_registered) {
-        g_thread_stop_registered = true;
         register_thread_finalizer([](void *) { OPENSSL_thread_stop(); }, nullptr);
+        g_thread_stop_registered = true;
     }
 #endif
 
@@ -64,6 +65,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg o) 
 
 namespace lean {
 void initialize_openssl() {
+#if defined(LEAN_STANDALONE) && !defined(LEAN_EMSCRIPTEN)
+    // OpenSSL takes its configuration flags from whichever call initializes it first, which could
+    // otherwise be one made before `ensure_openssl_initialized`. Loads no providers.
+    OPENSSL_init_crypto(OPENSSL_INIT_NO_LOAD_CONFIG | OPENSSL_INIT_NO_ATEXIT, nullptr);
+#endif
     initialize_openssl_context();
 }
 }

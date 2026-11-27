@@ -40,8 +40,10 @@ def brokenConfig : String :=
       | .ok _, true => pure ()
       | .error e, true =>
         throw <| IO.userError s!"the planted configuration was read by a standalone build: {e}"
+      -- Which step the unloadable provider breaks depends on the OpenSSL version.
+      | .error (.unsupportedOperation _ "could not initialize the TLS library"), false => pure ()
       | .error e, false =>
-        unless (toString e).startsWith "could not create the TLS context: library has no ciphers" do
+        unless (toString e).startsWith "could not create the TLS context" do
           throw <| IO.userError s!"unexpected failure: {e}"
       | .ok _, false =>
         throw <| IO.userError "the configuration was not read by a build linking the system OpenSSL"

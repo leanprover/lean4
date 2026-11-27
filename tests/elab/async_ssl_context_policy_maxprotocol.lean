@@ -3,9 +3,10 @@ import Std.Async.System
 
 /-!
 Checks that a policy capping the version below TLS 1.2 refuses every context: `OPENSSL_CONF`
-names a policy with `MaxProtocol = TLSv1.1`, which leaves no version Lean allows. It must run before the process's first context, since OpenSSL is initialized once, so it has
-a file of its own. A standalone build reads no configuration, so there every context builds. Windows
-is skipped: libuv sets variables there through the Win32 API, which `getenv` does not see.
+names a policy with `MaxProtocol = TLSv1.1`, which leaves no version Lean allows. It must run
+before the process's first context, since OpenSSL is initialized once, so it has a file of its own.
+A standalone build reads no configuration, so there every context builds. Windows is skipped: libuv
+sets variables there through the Win32 API, which `getenv` does not see.
 -/
 
 open Std.Internal.SSL
@@ -51,5 +52,5 @@ def expectRefused (reads : Bool) (details : String) (act : IO Unit) : IO Unit :=
 
 #eval withPolicy fun reads =>
   expectRefused reads "could not configure the TLS versions: the system OpenSSL configuration \
-      permits none of the TLS versions allowed here"
+      permits none of the requested TLS versions"
     (discard <| Context.Client.mk { trust := .insecureSkipVerify })

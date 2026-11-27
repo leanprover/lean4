@@ -22,6 +22,7 @@ Author: Sofia Rodrigues
 #include <limits>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_set>
 
 #endif
@@ -64,8 +65,17 @@ static bool rejected_by_security_level() {
            reason == SSL_R_CA_MD_TOO_WEAK;
 }
 
+// Whether the last PEM read failed because no block was left.
+static bool at_pem_end() {
+    unsigned long err = ERR_peek_last_error();
+    return ERR_GET_LIB(err) == ERR_LIB_PEM && ERR_GET_REASON(err) == PEM_R_NO_START_LINE;
+}
+
+using bio_ptr = std::unique_ptr<BIO, released_by<BIO_free>>;
+using ssl_ctx_ptr = std::unique_ptr<SSL_CTX, released_by<SSL_CTX_free>>;
+
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
-static BIO * open_pem_bio(b_obj_arg src, char const * unreadable, lean_obj_res * err) {
+static bio_ptr open_pem_bio(b_obj_arg src, char const * unreadable, lean_obj_res * err) {
     b_obj_arg bytes = lean_ctor_get(src, 0);
     size_t size = lean_sarray_size(bytes);
 
@@ -74,13 +84,10 @@ static BIO * open_pem_bio(b_obj_arg src, char const * unreadable, lean_obj_res *
         return nullptr;
     }
 
-    BIO * bio = BIO_new_mem_buf(lean_sarray_cptr(bytes), (int)size);
+    bio_ptr bio(BIO_new_mem_buf(lean_sarray_cptr(bytes), (int)size));
     if (bio == nullptr) *err = mk_openssl_io_error(unreadable);
     return bio;
 }
-
-// Owns a context while it is still being built, so no error path has to remember to free it.
-using ssl_ctx_ptr = std::unique_ptr<SSL_CTX, released_by<SSL_CTX_free>>;
 
 void initialize_openssl_context() {
     g_ssl_context_external_class = lean_register_external_class([](void * ptr) {
@@ -104,6 +111,7 @@ static void configure_ctx_options(SSL_CTX * ctx) {
     SSL_CTX_clear_options(ctx,
         SSL_OP_IGNORE_UNEXPECTED_EOF |
         SSL_OP_NO_EXTENDED_MASTER_SECRET |
+        SSL_OP_ALLOW_CLIENT_RENEGOTIATION |
         SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION |
         SSL_OP_LEGACY_SERVER_CONNECT |
         SSL_OP_ALLOW_NO_DHE_KEX
@@ -149,9 +157,7 @@ static bool version_permitted(SSL_CTX * ctx, int version, uint64_t disabled_by) 
     int min = (int)SSL_CTX_get_min_proto_version(ctx);
     int max = (int)SSL_CTX_get_max_proto_version(ctx);
 
-    // 0 leaves that end of the range open.
-    return (min == 0 || min <= version) && (max == 0 || max >= version) &&
-           (SSL_CTX_get_options(ctx) & disabled_by) == 0;
+    return min <= version && version <= max && (SSL_CTX_get_options(ctx) & disabled_by) == 0;
 }
 
 static lean_obj_res refused_by_policy(char const * what, std::string const & why) {
@@ -171,7 +177,8 @@ static lean_obj_res no_suite_left(char const * version) {
 static lean_obj_res restrict_ciphers(SSL_CTX * ctx) {
     char const * failed = "could not configure the TLS cipher suites";
 
-    std::unordered_set<std::string> allowed;
+    // `SSL_CIPHER_get_name` returns static strings.
+    std::unordered_set<std::string_view> allowed;
     STACK_OF(SSL_CIPHER) * before = SSL_CTX_get_ciphers(ctx);
 
     for (int i = 0, n = sk_SSL_CIPHER_num(before); i < n; i++) {
@@ -229,7 +236,7 @@ static lean_obj_res check_usable(SSL_CTX * ctx) {
     bool tls12 = version_permitted(ctx, TLS1_2_VERSION, SSL_OP_NO_TLSv1_2);
     bool tls13 = version_permitted(ctx, TLS1_3_VERSION, SSL_OP_NO_TLSv1_3);
 
-    if (!tls12 && !tls13) return refused_by_policy("versions", "permits none of the TLS versions allowed here");
+    if (!tls12 && !tls13) return refused_by_policy("versions", "permits none of the requested TLS versions");
 
     std::unique_ptr<SSL, released_by<SSL_free>> ssl(SSL_new(ctx));
     if (ssl == nullptr) return mk_openssl_io_error("could not create the TLS context");
@@ -295,7 +302,6 @@ static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, uint8_t min, uint8
     return ctx;
 }
 
-// Wraps a fully configured SSL_CTX into a Lean external object, taking ownership of it.
 static lean_obj_res wrap_ssl_context(ssl_ctx_ptr ctx) {
     // A successful build can still leave errors queued, e.g. from `X509_check_trust`.
     ERR_clear_error();
@@ -324,9 +330,7 @@ static bool use_certificate_chain_bio(SSL_CTX * ctx, BIO * bio) {
         }
     }
 
-    unsigned long err = ERR_peek_last_error();
-
-    if (ERR_GET_LIB(err) != ERR_LIB_PEM || ERR_GET_REASON(err) != PEM_R_NO_START_LINE) return false;
+    if (!at_pem_end()) return false;
 
     ERR_clear_error();
     return true;
@@ -338,14 +342,11 @@ static lean_obj_res load_credentials(SSL_CTX * ctx, b_obj_arg cert, b_obj_arg ke
 
     lean_obj_res err = nullptr;
 
-    BIO * cert_bio = open_pem_bio(cert, "could not read a PEM certificate chain", &err);
+    bio_ptr cert_bio = open_pem_bio(cert, "could not read a PEM certificate chain", &err);
 
     if (cert_bio == nullptr) return err;
 
-    bool cert_ok = use_certificate_chain_bio(ctx, cert_bio);
-    BIO_free(cert_bio);
-
-    if (!cert_ok) {
+    if (!use_certificate_chain_bio(ctx, cert_bio.get())) {
         return mk_pem_error(cert, rejected_by_security_level()
             ? "the certificate is rejected by the TLS security level (key too small or signature "
               "digest too weak)"
@@ -354,12 +355,11 @@ static lean_obj_res load_credentials(SSL_CTX * ctx, b_obj_arg cert, b_obj_arg ke
 
     char const * unreadable_key = "could not read an unencrypted PEM private key";
     char const * mismatch = "the private key does not match the certificate";
-    BIO * key_bio = open_pem_bio(key, unreadable_key, &err);
+    bio_ptr key_bio = open_pem_bio(key, unreadable_key, &err);
 
     if (key_bio == nullptr) return err;
 
-    EVP_PKEY * pkey = PEM_read_bio_PrivateKey(key_bio, nullptr, reject_encrypted_pem, nullptr);
-    BIO_free(key_bio);
+    EVP_PKEY * pkey = PEM_read_bio_PrivateKey(key_bio.get(), nullptr, reject_encrypted_pem, nullptr);
 
     if (pkey == nullptr) return mk_pem_error(key, unreadable_key);
 
@@ -409,6 +409,8 @@ static bool note_distrust(X509 * cert, int trust_id, STACK_OF(X509) * distrusted
     return X509_check_trust(cert, trust_id, 0) != X509_TRUST_REJECTED || push_ref(distrusted, cert);
 }
 
+static void free_x509_info_stack(STACK_OF(X509_INFO) * sk) { sk_X509_INFO_pop_free(sk, X509_INFO_free); }
+
 // Adds every certificate in `src` to `store`, collecting those distrusted for `trust_id` in `distrusted`.
 // Material that does not parse or holds no certificate is an error.
 static lean_obj_res load_ca_bundle(X509_STORE * store, b_obj_arg src, int trust_id, STACK_OF(X509) * distrusted) {
@@ -416,37 +418,29 @@ static lean_obj_res load_ca_bundle(X509_STORE * store, b_obj_arg src, int trust_
 
     char const * unreadable = "could not read PEM CA certificates";
     lean_obj_res err = nullptr;
-    BIO * bio = open_pem_bio(src, unreadable, &err);
+    bio_ptr bio = open_pem_bio(src, unreadable, &err);
 
     if (bio == nullptr) return err;
 
-    STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, reject_encrypted_pem, nullptr);
-    BIO_free(bio);
+    std::unique_ptr<STACK_OF(X509_INFO), released_by<free_x509_info_stack>> infos(
+        PEM_X509_INFO_read_bio(bio.get(), nullptr, reject_encrypted_pem, nullptr));
 
     if (infos == nullptr) return mk_pem_error(src, unreadable);
 
     int cert_count = 0;
 
-    for (int i = 0, n = sk_X509_INFO_num(infos); i < n; i++) {
+    for (int i = 0, n = sk_X509_INFO_num(infos.get()); i < n; i++) {
         // A bundle may hold private keys and CRLs; only certificates are anchors.
-        X509 * cert = sk_X509_INFO_value(infos, i)->x509;
+        X509 * cert = sk_X509_INFO_value(infos.get(), i)->x509;
 
         if (cert == nullptr) continue;
         cert_count++;
 
-        if (X509_STORE_add_cert(store, cert) != 1 || !note_distrust(cert, trust_id, distrusted)) {
-            err = mk_openssl_io_error("could not add a CA certificate to the trust store");
-            break;
-        }
+        if (X509_STORE_add_cert(store, cert) != 1 || !note_distrust(cert, trust_id, distrusted))
+            return mk_openssl_io_error("could not add a CA certificate to the trust store");
     }
 
-    sk_X509_INFO_pop_free(infos, X509_INFO_free);
-
-    if (err != nullptr)
-        return err;
-
-    if (cert_count == 0)
-        return mk_pem_error(src, "the CA material contains no certificates");
+    if (cert_count == 0) return mk_pem_error(src, "the CA material contains no certificates");
 
     return nullptr;
 }
@@ -457,36 +451,33 @@ static lean_obj_res load_env_bundle(X509_STORE * store, b_obj_arg src, int * add
     ERR_clear_error();
 
     lean_obj_res err = nullptr;
-    BIO * bio = open_pem_bio(src, "could not read PEM CA certificates", &err);
+    bio_ptr bio = open_pem_bio(src, "could not read PEM CA certificates", &err);
     if (bio == nullptr) return err;
 
     // A failed read consumes the input up to the next END line, so a block missing its own takes the block
     // after it along. The pending count guards against a read that consumes nothing.
-    for (long pending = BIO_pending(bio); pending > 0; ) {
-        X509 * cert = PEM_read_bio_X509_AUX(bio, nullptr, reject_encrypted_pem, nullptr);
+    for (long pending = BIO_pending(bio.get()); pending > 0; ) {
+        X509 * cert = PEM_read_bio_X509_AUX(bio.get(), nullptr, reject_encrypted_pem, nullptr);
 
         if (cert != nullptr) {
             bool stored = X509_STORE_add_cert(store, cert) == 1 &&
                           note_distrust(cert, X509_TRUST_SSL_SERVER, distrusted);
             X509_free(cert);
 
-            if (!stored) {
-                BIO_free(bio);
-                return mk_openssl_io_error("could not add a CA certificate to the trust store");
-            }
+            if (!stored) return mk_openssl_io_error("could not add a CA certificate to the trust store");
 
             (*added)++;
+        } else if (at_pem_end()) {
+            break;
         } else {
-            unsigned long last = ERR_peek_last_error();
-            if (ERR_GET_LIB(last) == ERR_LIB_PEM && ERR_GET_REASON(last) == PEM_R_NO_START_LINE) break;
+            ERR_clear_error();
         }
 
-        long left = BIO_pending(bio);
+        long left = BIO_pending(bio.get());
         if (left >= pending) break;
         pending = left;
     }
 
-    BIO_free(bio);
     ERR_clear_error();
     return nullptr;
 }
@@ -545,6 +536,8 @@ static int accept_unverified(X509_STORE_CTX * ctx, void *) {
 static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth, b_obj_arg client_ca,
                                   uint8_t min, uint8_t max) {
     unsigned auth = lean_obj_tag(client_auth);
+    if (auth > auth_require_and_verify) return mk_ssl_invalid_argument("unknown client authentication mode");
+
     bool verifies = auth == auth_verify_if_given || auth == auth_require_and_verify;
 
     if (verifies && lean_array_size(client_ca) == 0)
@@ -569,10 +562,8 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
     if (lean_array_size(client_ca) > 0) {
         // Kept apart from the context's own store, which a server never needs for its chain.
         std::unique_ptr<X509_STORE, released_by<X509_STORE_free>> store(X509_STORE_new());
-        if (store == nullptr) return mk_openssl_io_error("could not create the TLS context");
-
         x509_stack_ptr distrusted(sk_X509_new_null());
-        if (distrusted == nullptr) return mk_openssl_io_error("could not create the TLS context");
+        if (store == nullptr || distrusted == nullptr) return mk_openssl_io_error("could not create the TLS context");
 
         if (lean_obj_res e = load_ca_bundles(store.get(), client_ca, X509_TRUST_SSL_CLIENT, distrusted.get())) return e;
         if (!store_has_anchor(store.get(), X509_TRUST_SSL_CLIENT, distrusted.get()))
@@ -598,10 +589,12 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
 static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_opt, b_obj_arg cert_opt,
                                   b_obj_arg key_opt, uint8_t min, uint8_t max) {
     unsigned kind = lean_obj_tag(trust);
-    bool verify = kind != trust_insecure_skip_verify;
     bool use_env = !lean_is_scalar(env_opt);
     bool platform = kind == trust_system && !use_env;
 
+    if (kind > trust_insecure_skip_verify) return mk_ssl_invalid_argument("unknown trust mode");
+    if (lean_is_scalar(cert_opt) != lean_is_scalar(key_opt))
+        return mk_ssl_invalid_argument("a certificate and its key must be given together");
     if (kind == trust_only && lean_array_size(cas) == 0)
         return mk_ssl_invalid_argument("`Trust.only` needs at least one CA certificate");
 
@@ -614,7 +607,7 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
             return e;
     }
 
-    if (!verify) {
+    if (kind == trust_insecure_skip_verify) {
         SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_NONE, nullptr);
         return wrap_ssl_context(std::move(ctx));
     }
@@ -638,7 +631,7 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
         platform_roots = use_system_trust_store(ctx.get(), &detail);
 
         if (!platform_roots && !has_ca) {
-            std::string msg("failed to load system trust store");
+            std::string msg("could not load the system trust store");
             if (!detail.empty()) msg += ": " + detail;
 
             return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(msg)));
@@ -656,8 +649,9 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
 
         if (!has_ca && (env_added == 0 || !store_has_anchor(store, X509_TRUST_SSL_SERVER, distrusted.get()))) {
             return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(env_added == 0
-                ? "failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate"
-                : "failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate "
+                ? "could not load the system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate "
+                  "(files that are missing, unreadable, not regular or too large are skipped)"
+                : "could not load the system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate "
                   "trusted for TLS server authentication")));
         }
     }
@@ -673,8 +667,8 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
     return wrap_ssl_context(std::move(ctx));
 }
 
-// Initializes OpenSSL before any other call can register `atexit(OPENSSL_cleanup)`, and keeps C++
-// exceptions out of Lean code.
+// Initializes OpenSSL with Lean's flags before any other call can initialize it with the defaults, and
+// keeps C++ exceptions out of Lean code.
 template<typename F>
 static lean_obj_res ssl_entry_point(F && build) {
     try {
@@ -685,6 +679,7 @@ static lean_obj_res ssl_entry_point(F && build) {
 
         return build();
     } catch (std::exception & ex) {
+        ERR_clear_error();
         return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(ex.what())));
     }
 }

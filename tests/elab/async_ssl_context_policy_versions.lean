@@ -3,9 +3,10 @@ import Std.Async.System
 
 /-!
 Checks that a policy requiring TLS 1.3 is kept and meets the context's own range: `OPENSSL_CONF`
-names a policy with `MinProtocol = TLSv1.3`, so a context capped at TLS 1.2 is left with no version. It must run before the process's first context, since OpenSSL is initialized once, so it has
-a file of its own. A standalone build reads no configuration, so there every context builds. Windows
-is skipped: libuv sets variables there through the Win32 API, which `getenv` does not see.
+names a policy with `MinProtocol = TLSv1.3`, so a context capped at TLS 1.2 is left with no version.
+It must run before the process's first context, since OpenSSL is initialized once, so it has a file
+of its own. A standalone build reads no configuration, so there every context builds. Windows is
+skipped: libuv sets variables there through the Win32 API, which `getenv` does not see.
 -/
 
 open Std.Internal.SSL
@@ -54,5 +55,5 @@ def expectRefused (reads : Bool) (details : String) (act : IO Unit) : IO Unit :=
   discard <| Context.Client.mk { trust := .insecureSkipVerify, minVersion := .tls13 }
 
   expectRefused reads "could not configure the TLS versions: the system OpenSSL configuration \
-      permits none of the TLS versions allowed here"
+      permits none of the requested TLS versions"
     (discard <| Context.Client.mk { trust := .insecureSkipVerify, maxVersion := .tls12 })

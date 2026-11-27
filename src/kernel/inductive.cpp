@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "runtime/sstream.h"
-#include "runtime/utf8.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
@@ -1366,10 +1365,6 @@ environment environment::add_inductive(declaration const & d) const {
 
 static expr * g_nat_zero       = nullptr;
 static expr * g_nat_succ       = nullptr;
-static expr * g_string_mk      = nullptr;
-static expr * g_list_cons_char = nullptr;
-static expr * g_list_nil_char  = nullptr;
-static expr * g_char_of_nat    = nullptr;
 
 expr nat_lit_to_constructor(expr const & e) {
     lean_assert(is_nat_lit(e));
@@ -1380,8 +1375,6 @@ expr nat_lit_to_constructor(expr const & e) {
         return mk_app(*g_nat_succ, mk_lit(literal(v - nat(1))));
 }
 
-static bool g_strlit_bytes = false;
-static FILE * g_strlit_stats = nullptr;
 static expr * g_string_of_byte_array = nullptr;
 static expr * g_string_is_valid_utf8 = nullptr;
 static expr * g_byte_array_mk = nullptr;
@@ -1390,32 +1383,18 @@ static expr * g_list_cons_uint8 = nullptr;
 static expr * g_list_nil_uint8 = nullptr;
 static expr * g_uint8_of_nat = nullptr;
 
+/* Returns `String.ofByteArray ⟨⟨[UInt8.ofNat b₁, ...]⟩⟩ (String.isValidUTF8 e)` for the UTF-8 bytes `bᵢ` of the literal `e`. */
 expr string_lit_to_constructor(expr const & e) {
     lean_assert(is_string_lit(e));
     string_ref const & s = lit_value(e).get_string();
-    if (g_strlit_stats) {
-        fprintf(g_strlit_stats, "%zu\n", s.num_bytes());
-        fflush(g_strlit_stats);
-    }
-    if (g_strlit_bytes) {
-        std::string bs = s.to_std_string();
-        expr r = *g_list_nil_uint8;
-        size_t i = bs.size();
-        while (i > 0) {
-            i--;
-            r = mk_app(*g_list_cons_uint8, mk_app(*g_uint8_of_nat, mk_lit(literal(static_cast<unsigned>(static_cast<unsigned char>(bs[i]))))), r);
-        }
-        return mk_app(*g_string_of_byte_array, mk_app(*g_byte_array_mk, mk_app(*g_array_mk_uint8, r)), mk_app(*g_string_is_valid_utf8, e));
-    }
-    std::vector<unsigned> cs;
-    utf8_decode(s.to_std_string(), cs);
-    expr r = *g_list_nil_char;
-    size_t i = cs.size();
+    char const * bs = s.data();
+    expr r = *g_list_nil_uint8;
+    size_t i = s.num_bytes();
     while (i > 0) {
         i--;
-        r = mk_app(*g_list_cons_char, mk_app(*g_char_of_nat, mk_lit(literal(cs[i]))), r);
+        r = mk_app(*g_list_cons_uint8, mk_app(*g_uint8_of_nat, mk_lit(literal(static_cast<unsigned>(static_cast<unsigned char>(bs[i]))))), r);
     }
-    return mk_app(*g_string_mk, r);
+    return mk_app(*g_string_of_byte_array, mk_app(*g_byte_array_mk, mk_app(*g_array_mk_uint8, r)), mk_app(*g_string_is_valid_utf8, e));
 }
 
 
@@ -1430,18 +1409,6 @@ void initialize_inductive() {
     mark_persistent(g_nat_zero->raw());
     g_nat_succ       = new expr(mk_constant(name{"Nat", "succ"}));
     mark_persistent(g_nat_succ->raw());
-    g_string_mk      = new expr(mk_constant(name{"String", "ofList"}));
-    mark_persistent(g_string_mk->raw());
-    expr char_type   = mk_constant(name{"Char"});
-    g_list_cons_char = new expr(mk_app(mk_constant(name{"List", "cons"}, {level()}), char_type));
-    mark_persistent(g_list_cons_char->raw());
-    g_list_nil_char  = new expr(mk_app(mk_constant(name{"List", "nil"}, {level()}), char_type));
-    mark_persistent(g_list_nil_char->raw());
-    g_char_of_nat    = new expr(mk_constant(name{"Char", "ofNat"}));
-    mark_persistent(g_char_of_nat->raw());
-    g_strlit_bytes = getenv("LEAN_STRLIT_BYTES") != nullptr;
-    if (char const * stats = getenv("LEAN_STRLIT_STATS"))
-        g_strlit_stats = fopen(stats, "a");
     expr uint8_type = mk_constant(name{"UInt8"});
     g_string_of_byte_array = new expr(mk_constant(name{"String", "ofByteArray"}));
     mark_persistent(g_string_of_byte_array->raw());
@@ -1467,8 +1434,12 @@ void finalize_inductive() {
     delete g_nested_fresh;
     delete g_nat_succ;
     delete g_nat_zero;
-    delete g_string_mk;
-    delete g_list_cons_char;
-    delete g_list_nil_char;
+    delete g_string_of_byte_array;
+    delete g_string_is_valid_utf8;
+    delete g_byte_array_mk;
+    delete g_array_mk_uint8;
+    delete g_list_cons_uint8;
+    delete g_list_nil_uint8;
+    delete g_uint8_of_nat;
 }
 }

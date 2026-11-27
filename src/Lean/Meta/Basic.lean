@@ -215,7 +215,7 @@ structure Config where
   canUnfoldPredicateConfig : CanUnfoldPredicateConfig := .default
   /--
   If `true`, `whnf` and `isDefEq` convert a `String` literal into the constructor application
-  `String.ofList [c₁, ..., cₙ]` when a reduction step needs its constructor, e.g., to reduce
+  `String.ofByteArray ⟨⟨[b₁, ..., bₙ]⟩⟩ _` when a reduction step needs its constructor, e.g., to reduce
   `String.decEq` on two literals. The reductions enabled by this conversion are linear in the
   size of the literal.
   If `false`, the internal exception `stringLitToCtor` is thrown instead of performing the

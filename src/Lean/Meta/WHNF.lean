@@ -25,10 +25,14 @@ def toCtorIfLit : Expr → MetaM Expr
   | .lit (.natVal v) =>
     if v == 0 then return mkConst ``Nat.zero
     else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) => do
+  | e@(.lit (.strVal v)) => do
     unless (← Lean.Meta.getConfig).stringLitToCtor do
       throw <| .internal Lean.Meta.stringLitToCtorExceptionId
-    Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
+    let uint8 := mkConst ``UInt8
+    let bytes := v.toUTF8.data.foldr (init := mkApp (mkConst ``List.nil [0]) uint8) fun b bs =>
+      mkApp3 (mkConst ``List.cons [0]) uint8 (mkApp (mkConst ``UInt8.ofNat) (mkRawNatLit b.toNat)) bs
+    let bytes := mkApp (mkConst ``ByteArray.mk) (mkApp2 (mkConst ``Array.mk [0]) uint8 bytes)
+    return mkApp2 (mkConst ``String.ofByteArray) bytes (mkApp (mkConst ``String.isValidUTF8) e)
   | e => return e
 
 end Lean.Expr

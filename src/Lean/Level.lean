@@ -573,7 +573,15 @@ Assumes that `u` and `v` don't contain meta-variables.
 def isEquiv (u v : Level) : Bool :=
   -- the first two (redundant) cases are the most common
   -- only use the Canonical procedure if both others failed
-  u == v || u.normalize == v.normalize || Canonical.normalize u == Canonical.normalize v
+  if u == v then
+    true
+  else
+    let un := u.normalize
+    let vn := v.normalize
+    if un == vn then
+      true
+    else
+     Canonical.normalize un == Canonical.normalize vn
 
 
 /-- Reduce (if possible) universe level by 1 -/

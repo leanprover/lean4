@@ -4,7 +4,7 @@ import Std.Tactic.BVDecide
 Tests for `epr`'s NNF procedure.
 -/
 
-example {α : Type} {p : Prop} (h1 : ¬∀ _ : α, p) (h2 : p) : False := by
+example {α : Type} {a : α} {p : Prop} (h1 : ¬∀ _ : α, p) (h2 : p) : False := by
   epr
 
 example {α : Type} {a : α} {p : Prop} (h : ¬p) : p ↔ ∃ _ : α, p := by

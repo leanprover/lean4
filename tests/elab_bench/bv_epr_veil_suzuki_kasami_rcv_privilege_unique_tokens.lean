@@ -13,7 +13,8 @@ theorem rcv_privilege_unique_tokens
     : ∀ (node seq_t : Type) (n : node) (t : seq_t)
         (st_n_have_privilege st_n_requesting : node → Bool) (st_n_token_seq : node → seq_t)
         (st_reqs : node → node → seq_t → Bool) (st_t_for : seq_t → node → Bool)
-        (st_crit : node → Bool) (seq_le : seq_t → seq_t → Prop),
+        (st_crit : node → Bool) (node_inhabited : node) (seq_t_inhabited : seq_t)
+        (seq_le : seq_t → seq_t → Prop),
       (∀ (x_1 : seq_t), seq_le x_1 x_1)
         → (∀ (x_2 y_1 z : seq_t), seq_le x_2 y_1 → seq_le y_1 z → seq_le x_2 z)
         → (∀ (x_3 y_2 : seq_t), seq_le x_3 y_2 → seq_le y_2 x_3 → x_3 = y_2)

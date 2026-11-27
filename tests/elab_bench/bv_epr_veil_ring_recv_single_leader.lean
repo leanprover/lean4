@@ -12,7 +12,7 @@ open Classical in
 theorem recv_single_leader
     : ∀ (node : Type) (sender n next : node) (st_leader : node → Bool)
         (st_pending : node → node → Bool) [instNonempty : Nonempty node]
-        (tot_le : node → node → Prop),
+        (node_inhabited : node) (tot_le : node → node → Prop),
       (∀ (x_1 : node), tot_le x_1 x_1)
         → (∀ (x_2 y_1 z : node), tot_le x_2 y_1 → tot_le y_1 z → tot_le x_2 z)
         → (∀ (x_3 y_2 : node), tot_le x_3 y_2 → tot_le y_2 x_3 → x_3 = y_2)

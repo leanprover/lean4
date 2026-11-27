@@ -200,6 +200,10 @@ and an empty remainder as soon as the response head is sent.
 @[inline] def hasBufferedInput (machine : Machine dir) : Bool :=
   !machine.reader.input.atEnd
 
+/-- The number of input bytes the reader holds and has not parsed yet. -/
+@[inline] def bufferedInputBytes (machine : Machine dir) : Nat :=
+  machine.reader.input.remainingBytes
+
 /--
 The decoded body bytes accepted for the current incoming message. Bytes the machine drains by
 itself count as well as those `pullBody` hands out, so a caller enforcing its own body limit gets
@@ -793,6 +797,21 @@ theorem processWrite_closed (machine : Machine dir) (h : machine.writer.state = 
 /-- Returns `true` while the writer is writing a body: its head is written, and it is not over. -/
 def isWritingBody (machine : Machine dir) : Bool :=
   machine.writer.state matches .writingBody _
+
+/-- Returns `true` while the reader is in the body of the incoming message. -/
+def isReadingBody (machine : Machine dir) : Bool :=
+  machine.reader.state matches .readBody _
+
+/--
+Returns `true` when the outgoing message needs no more body bytes from the caller: a fixed-length
+body holds all of them (its last bytes are written once the caller closes it), or the message is
+complete or closed.
+-/
+def outgoingBodySupplied (machine : Machine dir) : Bool :=
+  match machine.writer.state with
+  | .writingBody (.fixed n) => machine.writer.userDataBytes == n
+  | .complete | .closed => true
+  | _ => false
 
 /--
 Returns `true` when the peer will not read the rest of the body being written, because the

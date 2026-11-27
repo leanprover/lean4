@@ -47,7 +47,8 @@ class Header (α : Type) where
 Appends the field line `Name: value\r\n`.
 -/
 def Internal.appendFieldLine (out : ByteArray) (name : Header.Name) (value : Header.Value) : ByteArray :=
-  out ++ name ++ ": " ++ value ++ "\r\n"
+  let out := (out ++ name).push ':'.toUInt8 |>.push ' '.toUInt8
+  (out ++ value).push '\r'.toUInt8 |>.push '\n'.toUInt8
 
 instance [h : Header α] : Encode .v11 α where
   encode out a :=
@@ -61,9 +62,19 @@ Splits a comma-separated list into its lowercased elements. Empty elements (`a, 
 a recipient must accept them (RFC 9110 §5.6.1.2), so an empty value is an empty list.
 -/
 private def parseTokenList (v : Value) : Option (Array String) :=
-  some <| (v.value.split ',' |>.toStringList).toArray.filterMap fun part =>
-    let part := part.trimAscii
-    if part.isEmpty then none else some part.toString.toLower
+  some (go v.value 0 #[])
+where
+  -- `,` and whitespace are ASCII, so the bounds found on bytes are character boundaries.
+  go (s : String) (start : Nat) (acc : Array String) : Array String :=
+    let stop := Bytes.findByte s ','.toUInt8 start
+    let a := Bytes.skipWhitespace s start stop
+    let b := Bytes.skipWhitespaceBack s a stop
+    let acc := if a < b then acc.push (String.Pos.Raw.extract s ⟨a⟩ ⟨b⟩).toLower else acc
+    if h : stop < s.utf8ByteSize then go s (stop + 1) acc else acc
+  termination_by s.utf8ByteSize - start
+  decreasing_by
+    have : start ≤ stop := Bytes.le_findByte h
+    omega
 
 /--
 The `Content-Length` header, representing the size of the message body in bytes.
@@ -86,8 +97,13 @@ Parses a content length header value.
 -/
 def parse (v : Value) : Option ContentLength :=
   let s := v.value
-  if s.isEmpty || !s.all Char.isDigit then none
-  else s.toNat?.map (.mk)
+  if s.isEmpty || !Bytes.all (fun b => '0'.toUInt8 ≤ b && b ≤ '9'.toUInt8) s then none
+  else some ⟨digits s 0 0⟩
+where
+  digits (s : String) (i acc : Nat) : Nat :=
+    if i < s.utf8ByteSize then digits s (i + 1) (acc * 10 + (Bytes.get s i - '0'.toUInt8).toNat)
+    else acc
+  termination_by s.utf8ByteSize - i
 
 /--
 Serializes a content length header back to a name-value pair.
@@ -186,14 +202,33 @@ Empty list elements (`gzip, , chunked`) are skipped (RFC 9110 §5.6.1.2). Transf
 none, so a list in which `chunked` has one is rejected.
 -/
 def parseCodings? (v : Value) : Option (Array String) :=
-  (splitOutsideQuotes v.value ',').toArray.filterMapM fun element => do
-    if element.trimAscii.isEmpty then
-      return none
-    let name :: params := splitOutsideQuotes element ';' | none
-    let name := name.trimAscii.toString.toLower
-    guard (isToken name && params.all isTransferParameter)
-    guard (params.isEmpty || name != "chunked")
-    return some name
+  -- Without quotes, `;` or `=`, every element is a coding name with no parameters.
+  if Bytes.all (fun b => Bytes.isTchar b || b == ' '.toUInt8 || b == '\t'.toUInt8 ||
+      b == ','.toUInt8) v.value then
+    names v.value 0 #[]
+  else
+    (splitOutsideQuotes v.value ',').toArray.filterMapM fun element => do
+      if element.trimAscii.isEmpty then
+        return none
+      let name :: params := splitOutsideQuotes element ';' | none
+      let name := name.trimAscii.toString.toLower
+      guard (isToken name && params.all isTransferParameter)
+      guard (params.isEmpty || name != "chunked")
+      return some name
+where
+  names (s : String) (start : Nat) (acc : Array String) : Option (Array String) :=
+    let stop := Bytes.findByte s ','.toUInt8 start
+    let a := Bytes.skipWhitespace s start stop
+    let b := Bytes.skipWhitespaceBack s a stop
+    if a < b && !Bytes.allBetween Bytes.isTchar s a b then
+      none
+    else
+      let acc := if a < b then acc.push (String.Pos.Raw.extract s ⟨a⟩ ⟨b⟩).toLower else acc
+      if h : stop < s.utf8ByteSize then names s (stop + 1) acc else some acc
+  termination_by s.utf8ByteSize - start
+  decreasing_by
+    have : start ≤ stop := Bytes.le_findByte h
+    omega
 
 /--
 Parses the transfer codings of all of a message's `Transfer-Encoding` field lines, in order, with

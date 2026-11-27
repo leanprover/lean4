@@ -12,6 +12,7 @@ public import Std.Http.Data
 public import Std.Http.Protocol.H1.Config
 public import Std.Http.Protocol.H1.Message
 public import Std.Http.Protocol.H1.Error
+public import Std.Http.Protocol.H1.Host
 
 public section
 
@@ -123,12 +124,11 @@ Reference: https://www.rfc-editor.org/rfc/rfc9112.html#name-request-target
 def hasSingleAcceptedHostHeader (message : Message.Head .receiving) : Bool :=
   match message.headers.getAll? Header.Name.host with
   | some #[hostValue] =>
-    let parsed := Header.Host.parse hostValue
     match message.uri with
     | .asteriskForm =>
-      hostValue.value.isEmpty ∨ parsed.isSome
+      hostValue.value.isEmpty ∨ Host.isValid hostValue
     | .authorityForm authority =>
-      match parsed with
+      match Header.Host.parse hostValue with
       -- RFC 9110 CONNECT examples allow `Host` to omit the default port
       -- while authority-form keeps the explicit tunnel port in request-target.
       | some hostHeader => hostAuthorityMatchesConnectAuthority authority hostHeader
@@ -137,7 +137,7 @@ def hasSingleAcceptedHostHeader (message : Message.Head .receiving) : Bool :=
       -- origin-form, absolute-form, etc.: Host must be empty or well-formed.
       -- RFC 9112 §3.2.2: for absolute-form, the authority is in the URI; the Host
       -- header is left untouched so handlers can inspect what the client sent.
-      hostValue.value.isEmpty ∨ parsed.isSome
+      hostValue.value.isEmpty ∨ Host.isValid hostValue
   | _ => false
 
 /--

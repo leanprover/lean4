@@ -101,6 +101,7 @@ def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Op
         -- HTTP/1.0 request carrying Transfer-Encoding: chunked is malformed.
         if message.version == .v10 then none else some .chunked
     | _, _ => none -- To avoid request smuggling when TE and CL are mixed.
+
 /--
 Checks whether the message indicates that the connection should be kept alive. A `close` option
 ends the connection for every version, even next to `keep-alive` (RFC 9112 §9.3, §9.6); otherwise
@@ -108,26 +109,16 @@ HTTP/1.1 persists by default and HTTP/1.0 only with `keep-alive`.
 -/
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
   -- Most messages have no `Connection` field.
-  if !message.headers.map.entries.any (·.1 == Header.Name.connection) then
-    message.version == .v11
-  else
-    let tokens? : Option (Array String) :=
-      match message.headers.getAll? .connection with
-      | none => some #[]
-      | some values =>
-          values.foldl (fun acc raw => do
-            let acc ← acc
-            let parsed ← Header.Connection.parse raw
-            pure (acc ++ parsed.tokens)
-          ) (some #[])
-
-    match tokens? with
+  match message.headers.getAll? .connection with
+  | none => message.version == .v11
+  | some values =>
+    match values.mapM Header.Connection.parse with
     | none => false
-    | some tokens =>
-        if tokens.any (· == "close") then
-          false
-        else
-          message.version == .v11 || tokens.any (· == "keep-alive")
+    | some options =>
+      if options.any (·.tokens.contains "close") then
+        false
+      else
+        message.version == .v11 || options.any (·.tokens.contains "keep-alive")
 
 instance : Repr (Message.Head dir) :=
   match dir with

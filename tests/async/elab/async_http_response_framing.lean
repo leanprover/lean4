@@ -112,9 +112,9 @@ private def machineOutput (raw : String) : String :=
     throw <| IO.userError s!"unexpected failure parsing 200 response: {repr stepA.events}"
   unless stepA.events.any (fun | .endHeaders _ => true | _ => false) do
     throw <| IO.userError s!"missing endHeaders event: {repr stepA.events}"
-  unless machineA'.reader.messageHead.status == .ok do
-    throw <| IO.userError s!"unexpected status: {repr machineA'.reader.messageHead.status}"
-  unless machineA'.reader.messageHead.headers.hasEntry Header.Name.contentLength (Header.Value.ofString! "0") do
+  unless machineA'.response.status == .ok do
+    throw <| IO.userError s!"unexpected status: {repr machineA'.response.status}"
+  unless machineA'.response.headers.hasEntry Header.Name.contentLength (Header.Value.ofString! "0") do
     throw <| IO.userError "missing Content-Length header in parsed response"
 
   -- Parse headerless 204

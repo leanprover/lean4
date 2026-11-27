@@ -6,22 +6,16 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
 public import Std.Http.Data
-public import Std.Http.Internal
-public import Std.Http.Protocol.H1.Parser
 public import Std.Http.Protocol.H1.Config
-public import Std.Http.Protocol.H1.Message
-public import Std.Http.Protocol.H1.Error
+public import Std.Http.Protocol.H1.Input
 
 public section
 
 /-!
 # HTTP/1.1 Reader
 
-This module defines the reader state machine for parsing incoming HTTP/1.1 messages.
-It tracks the parsing state including start line, headers, and body handling for
-both fixed-length and chunked transfer encodings.
+The incoming side of the HTTP/1.1 machine: the phase of the message being read and the input.
 -/
 
 namespace Std.Http.Protocol.H1
@@ -29,275 +23,83 @@ namespace Std.Http.Protocol.H1
 set_option linter.all true
 
 /--
-The body-framing sub-state of the `Reader` state machine.
+How the body being read is delimited, and how far into it the reader is.
 -/
 inductive Reader.BodyState where
-  /--
-  Parse fixed-length body bytes, tracking the number of bytes remaining.
-  -/
+  /-- A `Content-Length` body with `remaining` bytes left. -/
   | fixed (remaining : Nat)
-
-  /--
-  Parse the next chunk-size line in chunked transfer encoding.
-  -/
+  /-- Before a chunk-size line. -/
   | chunkedSize
-
-  /--
-  Parse chunk data for the current chunk.
-  -/
+  /-- Inside the data of a chunk with extensions `ext`, `remaining` bytes left. -/
   | chunkedBody (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (remaining : Nat)
-
-  /--
-  Parse the trailer section after the last chunk one field at a time, tracking the number of
-  trailer fields parsed.
-  -/
+  /-- In the trailer section after the last chunk, `count` fields into it. -/
   | trailers (ext : Array (Chunk.ExtensionName × Option Chunk.ExtensionValue)) (count : Nat)
-
-  /--
-  Parse body bytes until EOF (connection close).
-  -/
+  /-- A body that ends when the peer closes the connection. -/
   | closeDelimited
 deriving Inhabited, Repr, BEq
 
 /--
-The state of the `Reader` state machine.
+The phase of the incoming message.
 -/
-inductive Reader.State (dir : Direction) : Type
-  /--
-  Initial state waiting for HTTP start line.
-  -/
-  | needStartLine : State dir
-
-  /--
-  State waiting for HTTP headers, tracking number of headers parsed.
-  -/
-  | needHeader : Nat → State dir
-
-  /--
-  Unified body-reading state.
-  -/
-  | readBody : Reader.BodyState → State dir
-
-  /--
-  Paused waiting for a `canContinue` decision, carrying the next state.
-  -/
-  | continue : State dir → State dir
-
-  /--
-  State waiting to be able to read new data.
-  -/
-  | pending : State dir
-
-  /--
-  State that it completed a single request or response and can go to the next one
-  -/
+inductive Reader.State where
+  /-- No message is expected: a client with no request outstanding. -/
+  | pending
+  /-- Before a start line. -/
+  | needStartLine
+  /-- In the header section, `count` fields into it. -/
+  | needHeader (count : Nat)
+  /-- In the body. -/
+  | readBody (body : Reader.BodyState)
+  /-- A server waits for the `canContinue` decision on `Expect: 100-continue` before `body`. -/
+  | «continue» (body : Reader.BodyState)
+  /-- The message was read; the next one waits for the exchange to end. -/
   | complete
-
-  /--
-  State that it has completed, or failed, and cannot process more data.
-  -/
+  /-- Nothing more is read. -/
   | closed
 deriving Inhabited, Repr, BEq
 
 /--
-Manages the reading state of the HTTP parsing and processing machine.
+The incoming side of the machine.
 -/
-structure Reader (dir : Direction) where
-  /--
-  The current state of the machine.
-  -/
-  state : Reader.State dir := match dir with | .receiving => .needStartLine | .sending => .pending
-
-  /--
-  The input byte array.
-  -/
+structure Reader where
+  /-- The phase of the incoming message. -/
+  state : Reader.State := .needStartLine
+  /-- The input not read yet. -/
   input : ByteArray.Iterator := ByteArray.emptyWithCapacity 4096 |>.iter
-
-  /--
-  The incoming message head.
-  -/
-  messageHead : Message.Head dir := {}
-
-  /--
-  Count of messages that this connection has already parsed.
-  -/
+  /-- The number of messages of earlier exchanges on this connection. -/
   messageCount : Nat := 0
-
   /--
-  Number of body bytes read for the current message. For a chunked body this includes the framing:
+  The body bytes read for the current message. For a chunked body this includes the framing:
   chunk-size lines, the line break after each chunk's data, and the trailer section.
   -/
   bodyBytesRead : Nat := 0
-
-  /--
-  Number of header bytes accumulated for the current message.
-  Counts name + value bytes plus 4 bytes per line for `: ` and `\r\n`.
-  -/
+  /-- The header bytes of the current message: name, value and 4 bytes per field line. -/
   headerBytesRead : Nat := 0
-
-  /--
-  Set when the peer closed its side of the connection, so no further input bytes will arrive.
-  -/
+  /-- The peer closed its side of the connection. -/
   peerClosed : Bool := false
-
-  /--
-  Set when the machine stops taking input, as when it rejects `Expect: 100-continue` or answers with
-  an error and closes the connection. Input already buffered is still parsed.
-  -/
+  /-- The machine stopped taking input. Input already buffered is still parsed. -/
   inputStopped : Bool := false
+  /-- The scan of the incomplete line at the start of `input`, resumed by the next read of it. -/
+  lineScan : LineScan := {}
 
 namespace Reader
 
 /--
 Whether no further input will be fed: the peer closed its side, or the machine stopped taking input.
 -/
-@[inline]
-def noMoreInput (reader : Reader dir) : Bool :=
+@[inline] def noMoreInput (reader : Reader) : Bool :=
   reader.peerClosed || reader.inputStopped
 
 /--
-Checks if the reader is in a closed state and cannot process more messages.
+The number of bytes not read yet.
 -/
-@[inline]
-def isClosed (reader : Reader dir) : Bool :=
-  match reader.state with
-  | .closed => true
-  | _ => false
-
-/--
-Checks if the reader has completed parsing the current message.
--/
-@[inline]
-def isComplete (reader : Reader dir) : Bool :=
-  match reader.state with
-  | .complete => true
-  | _ => false
-
-/--
-Feeds new data into the reader's input buffer.
-If the current input is exhausted, replaces it; otherwise compacts the buffer
-by discarding already-parsed bytes before appending.
--/
-@[inline]
-def feed (data : ByteArray) (reader : Reader dir) : Reader dir :=
-  { reader with input :=
-    if reader.input.atEnd
-      then data.iter
-      else (reader.input.array.extract reader.input.pos reader.input.array.size ++ data).iter }
-
-/--
-Replaces the reader's input iterator with a new one.
--/
-@[inline]
-def setInput (input : ByteArray.Iterator) (reader : Reader dir) : Reader dir :=
-  { reader with input }
-
-/--
-Updates the message head being constructed.
--/
-@[inline]
-def setMessageHead (messageHead : Message.Head dir) (reader : Reader dir) : Reader dir :=
-  { reader with messageHead }
-
-/--
-Adds a header to the current message head.
--/
-@[inline]
-def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
-  match dir with
-  | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
-
-/--
-Replaces the value of the last header named `name` in the current message head.
--/
-@[inline]
-def replaceLastHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
-  match dir with
-  | .sending | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.replaceLast name value } }
-
-/--
-Marks the current message as complete and prepares for the next message.
--/
-@[inline]
-def markComplete (reader : Reader dir) : Reader dir :=
-  { reader with
-    state := .complete
-    messageCount := reader.messageCount + 1 }
-
-/--
-Resets the reader to parse a new message on the same connection.
--/
-@[inline]
-def reset (reader : Reader dir) : Reader dir :=
-  { reader with
-    state := .needStartLine
-    bodyBytesRead := 0
-    headerBytesRead := 0
-    messageHead := {} }
-
-/--
-Checks if more input is needed to continue parsing.
--/
-@[inline]
-def needsMoreInput (reader : Reader dir) : Bool :=
-  reader.input.atEnd && !reader.noMoreInput &&
-  match reader.state with
-  | .complete | .closed | .«continue» _ => false
-  | _ => true
-
-/--
-Gets the number of bytes remaining in the input buffer.
--/
-@[inline]
-def remainingBytes (reader : Reader dir) : Nat :=
+@[inline] def remainingBytes (reader : Reader) : Nat :=
   reader.input.array.size - reader.input.pos
 
 /--
-Advances the input iterator by n bytes.
+Appends `data` to the input (`Input.append`).
 -/
-@[inline]
-def advance (n : Nat) (reader : Reader dir) : Reader dir :=
-  { reader with input := reader.input.forward n }
+@[inline] def feed (data : ByteArray) (reader : Reader) : Reader :=
+  { reader with input := Input.append reader.input data }
 
-/--
-Transitions to the state for reading headers.
--/
-@[inline]
-def startHeaders (reader : Reader dir) : Reader dir :=
-  { reader with state := .needHeader 0, bodyBytesRead := 0, headerBytesRead := 0 }
-
-/--
-Adds body bytes parsed for the current message.
--/
-@[inline]
-def addBodyBytes (n : Nat) (reader : Reader dir) : Reader dir :=
-  { reader with bodyBytesRead := reader.bodyBytesRead + n }
-
-/--
-Adds header bytes accumulated for the current message.
--/
-@[inline]
-def addHeaderBytes (n : Nat) (reader : Reader dir) : Reader dir :=
-  { reader with headerBytesRead := reader.headerBytesRead + n }
-
-/--
-Transitions to the state for reading a fixed-length body.
--/
-@[inline]
-def startFixedBody (size : Nat) (reader : Reader dir) : Reader dir :=
-  { reader with state := .readBody (.fixed size) }
-
-/--
-Transitions to the state for reading chunked transfer encoding.
--/
-@[inline]
-def startChunkedBody (reader : Reader dir) : Reader dir :=
-  { reader with state := .readBody .chunkedSize }
-
-/--
-Checks if the connection should be kept alive for the next message.
--/
-def shouldKeepAlive (reader : Reader dir) : Bool :=
-  reader.messageHead.shouldKeepAlive
-
-end Reader
+end Std.Http.Protocol.H1.Reader

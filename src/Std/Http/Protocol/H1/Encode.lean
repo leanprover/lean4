@@ -47,18 +47,6 @@ def chunkedCodings (headers : Headers) : Header.Value :=
   | none => .mk "chunked"
 
 /--
-Builds canonical framing headers for a chosen transfer mode.
-The caller handles status/method exceptions that should skip normalization.
--/
-@[inline]
-def normalizeFramingHeaders (headers : Headers) (size : Body.Length) : Headers :=
-  let codings := chunkedCodings headers
-  let headers := headers.erase Header.Name.contentLength |>.erase Header.Name.transferEncoding
-  match size with
-  | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
-  | .chunked => headers.insert Header.Name.transferEncoding codings
-
-/--
 The tokens of the `Connection` field the machine writes: the sender's own connection options, then
 `close` when the connection ends, or `keep-alive` when an HTTP/1.0 connection persists (RFC 2616
 §19.7.1). The sender's `close` and `keep-alive` are dropped, since the machine decides those itself;
@@ -80,6 +68,18 @@ def connectionTokens (headers : Headers) (keepAlive : Bool) (version : Version) 
   else options
 
 /--
+The status line of a `200 OK` response.
+-/
+def okStatusLine : ByteArray :=
+  "HTTP/1.1 200 OK\r\n".toUTF8
+
+/--
+The start of a `Content-Length` field line.
+-/
+def contentLengthPrefix : ByteArray :=
+  "Content-Length: ".toUTF8
+
+/--
 Encodes a server response head. The handler's fields are written in order without `Connection`,
 `Content-Length` and `Transfer-Encoding`, then `Date` and `Server` unless the handler set them, then
 the `Connection` and framing fields the machine chose. The handler's own connection options (such as
@@ -93,7 +93,12 @@ def encodeServerHead (head : Response.Head) (version : Version) (keepAlive : Boo
     (date : Option Header.Value) (agentName : Option Header.Value) (size : Body.Length)
     (tunnel : Bool := false) : ByteArray :=
   let status := head.status
-  let out : ByteArray := ByteArray.empty ++ Version.v11 ++ ' ' ++ status ++ "\r\n"
+  -- Room for a typical head, so the appends below rarely grow it.
+  let out := ByteArray.emptyWithCapacity 256
+  let out : ByteArray :=
+    match status with
+    | .ok => out ++ okStatusLine
+    | status => (out ++ Version.v11 ++ ' ' ++ status).push '\r'.toUInt8 |>.push '\n'.toUInt8
   let out : ByteArray := head.headers.fold out fun out name value =>
     if name == Header.Name.connection || name == Header.Name.contentLength ||
         name == Header.Name.transferEncoding then
@@ -123,11 +128,11 @@ def encodeServerHead (head : Response.Head) (version : Version) (keepAlive : Boo
       out
     else
       match size with
-      | .fixed n => out ++ "Content-Length: " ++ n ++ "\r\n"
+      | .fixed n => (out ++ contentLengthPrefix ++ n).push '\r'.toUInt8 |>.push '\n'.toUInt8
       | .chunked =>
         if version == .v10 then out
         else appendFieldLine out Header.Name.transferEncoding (chunkedCodings head.headers)
-  out ++ "\r\n"
+  out.push '\r'.toUInt8 |>.push '\n'.toUInt8
 
 /--
 The content of an error response the machine writes itself: the reason phrase, and for 505 the
@@ -153,27 +158,37 @@ the `Connection` field and the framing fields the machine chose in place of the 
 def encodeClientHead (head : Request.Head) (keepAlive : Bool) (agentName : Option Header.Value)
     (size : Body.Length) : ByteArray :=
   let headers := head.headers
-
-  let headers :=
-    match agentName with
-    | some userAgent =>
-      if headers.contains Header.Name.userAgent then headers
-      else headers.insert Header.Name.userAgent userAgent
-    | none => headers
-
-  -- The request's own version: the reader may already hold the next response's status line.
-  let tokens := connectionTokens headers keepAlive head.version
-  let headers := headers.erase Header.Name.connection
-  let headers :=
-    if tokens.isEmpty then headers
-    else headers.insert Header.Name.connection (.ofString! (", ".intercalate tokens.toList))
   -- RFC 9110 §8.6: no `Content-Length` on a request without content whose method anticipates
   -- none, unless the caller set a framing field.
-  let headers :=
-    if size == .fixed 0 ∧ !head.method.anticipatesContent ∧ !hasFramingHeaders (dir := .receiving) head then
-      headers
+  let framed :=
+    !(size == .fixed 0 ∧ !head.method.anticipatesContent ∧
+      !hasFramingHeaders (dir := .receiving) head)
+  let out : ByteArray :=
+    ByteArray.emptyWithCapacity 256 ++ head.method ++ ' ' ++ head.uri ++ ' ' ++ head.version
+  let out : ByteArray := out.push '\r'.toUInt8 |>.push '\n'.toUInt8
+  let out : ByteArray := headers.fold out fun out name value =>
+    if name == Header.Name.connection ||
+        (framed && (name == Header.Name.contentLength || name == Header.Name.transferEncoding)) then
+      out
     else
-      normalizeFramingHeaders headers size
-  ByteArray.empty ++ ({ head with headers } : Request.Head)
+      appendFieldLine out name value
+  let out : ByteArray :=
+    match agentName with
+    | some userAgent =>
+      if headers.contains Header.Name.userAgent then out
+      else appendFieldLine out Header.Name.userAgent userAgent
+    | none => out
+  -- The request's own version: the reader may already hold the next response's status line.
+  let tokens := connectionTokens headers keepAlive head.version
+  let out : ByteArray :=
+    if tokens.isEmpty then out
+    else out ++ "Connection: " ++ ", ".intercalate tokens.toList ++ "\r\n"
+  let out : ByteArray :=
+    if !framed then out
+    else
+      match size with
+      | .fixed n => (out ++ contentLengthPrefix ++ n).push '\r'.toUInt8 |>.push '\n'.toUInt8
+      | .chunked => appendFieldLine out Header.Name.transferEncoding (chunkedCodings headers)
+  out.push '\r'.toUInt8 |>.push '\n'.toUInt8
 
 end Std.Http.Protocol.H1.Encode

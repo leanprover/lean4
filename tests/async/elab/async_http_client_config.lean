@@ -20,6 +20,7 @@ def target : RequestTarget := RequestTarget.parse! "/"
 #guard ({} : Client.Config).proxySelector.select example80 == Proxy.direct
 #guard ({} : Client.Config).authenticator.isNone
 #guard ({} : Client.Config).cookieHandler.isNone
+#guard ({} : Client.Config).interceptor.isNone
 #guard ({} : Client.Config).maxResponseBodySize.isNone
 
 /-! ## `RequestOverrides` -/

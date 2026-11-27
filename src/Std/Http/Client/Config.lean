@@ -11,6 +11,7 @@ public import Std.Http.Protocol.H1
 public import Std.Http.Client.Authenticator
 public import Std.Http.Client.CookieHandler
 public import Std.Http.Client.Proxy
+public import Std.Http.Client.Interceptor
 
 public section
 
@@ -19,8 +20,8 @@ public section
 
 This module exposes the `Config` structure describing the timeouts, connection limits, and header
 limits of an HTTP client, together with the per-request `RequestOverrides` that shadow it. The
-policy hooks a `Config` points at live in their own modules: `Authenticator`, `CookieHandler`, and
-`ProxySelector`.
+policy hooks a `Config` points at live in their own modules: `Authenticator`, `CookieHandler`,
+`Interceptor`, and `ProxySelector`.
 -/
 
 namespace Std.Http.Client
@@ -149,6 +150,12 @@ structure Config where
   Set to `0` to disable automatic redirect following.
   -/
   maxRedirects : Nat := 10
+
+  /--
+  Hooks run around each hop: before it is sent, and when its response heads arrive.
+  `none` (default) runs none.
+  -/
+  interceptor : Option Interceptor := none
 
   /--
   Maximum number of connections a client keeps open to one origin at a time, counting those still

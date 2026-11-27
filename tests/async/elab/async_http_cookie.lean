@@ -1,12 +1,14 @@
 import Std.Http
 
 open Std Http
+open Std.Http.Client Std.Async
 
 /-!
 Tests `Std.Http.Cookie` against the user-agent algorithms of RFC 6265: the `Set-Cookie` parser
 (§5.2), the cookie-date parser (§5.1.1), domain and path matching (§5.1.3, §5.1.4), the storage
-model (§5.3) and the `Cookie` header (§5.4), all through `Cookie.Store` with an explicit clock, and
-`Cookie.Jar`, its thread-safe wrapper on the wall clock.
+model (§5.3) and the `Cookie` header (§5.4), all through `Cookie.Store` with an explicit clock;
+`Cookie.Jar`, its thread-safe wrapper on the wall clock; and the client's `CookieHandler`, including
+`CookieHandler.ofJar`.
 -/
 
 def ts (s : Int) : Std.Time.Timestamp := .ofSecondsSinceUnixEpoch (.ofInt s)
@@ -225,3 +227,29 @@ def sunday1994 : Std.Time.Timestamp := ts 784111777  -- 1994-11-06 08:49:37 UTC
   let none ← jar.load (origin "https://other.example") (target "/")
   unless none.isEmpty do
     throw <| IO.userError "jar: a cookie went to another host"
+
+/-! ## `CookieHandler` -/
+
+-- A handler observes `store` and replays what it recorded from `load`.
+#eval show IO Unit from do
+  let jar ← IO.mkRef (#[] : Array Header.Value)
+  let handler : CookieHandler :=
+    { load := fun _ _ => return (← jar.get),
+      store := fun _ _ headers => jar.modify (· ++ (headers.getAll? .setCookie).getD #[]) }
+  let response := (Headers.empty.insert .setCookie (.mk "a=1")).insert .setCookie (.mk "b=2")
+  handler.store (origin "http://example.com") (target "/") response |>.block
+  let sent ← handler.load (origin "http://example.com") (target "/") |>.block
+  unless sent.map (·.value) == #["a=1", "b=2"] do
+    throw <| IO.userError s!"cookie handler replayed {sent.map (·.value)}"
+
+-- `ofJar` stores into the jar and loads the RFC 6265 `Cookie` header from it.
+#eval show IO Unit from do
+  let handler := CookieHandler.ofJar (← Cookie.Jar.new)
+  let response := (Headers.empty.insert .setCookie (.mk "a=1")).insert .setCookie (.mk "b=2; Path=/x")
+  handler.store (origin "http://example.com") (target "/login") response |>.block
+  let sent ← handler.load (origin "http://example.com") (target "/x/y") |>.block
+  unless sent.map (·.value) == #["b=2; a=1"] do
+    throw <| IO.userError s!"ofJar sent {sent.map (·.value)}"
+  let other ← handler.load (origin "http://other.example") (target "/") |>.block
+  unless other.isEmpty do
+    throw <| IO.userError "ofJar sent a cookie to another host"

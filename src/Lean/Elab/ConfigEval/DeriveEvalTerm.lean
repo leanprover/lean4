@@ -148,7 +148,7 @@ where
       | throwError "`{.ofConstName indTypeName}` is not an inductive type"
     unless ival.levelParams.isEmpty && ival.numParams == 0 && ival.numIndices == 0 do
       throwError "`{.ofConstName indTypeName}` has universe parameters, parameters, or indices"
-    if ival.isNested || (← isReflexive ival) then
+    if ← pure ival.isNested <||> isReflexive ival then
       throwError "`{.ofConstName indTypeName}` has unsupported recursion"
     return ival
   useCtor (ival : InductiveVal) (ctorName : Name) : Bool :=

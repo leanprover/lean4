@@ -7,8 +7,6 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 
 namespace lean {
-void initialize_openssl();
-
 #ifndef LEAN_EMSCRIPTEN
 // Initializes OpenSSL on first call and returns whether it is usable. Lazy, so programs without TLS
 // never load OpenSSL's providers. Every entry point that creates or uses OpenSSL objects must call this
@@ -21,5 +19,6 @@ template<auto release> struct released_by { void operator()(auto * p) const { re
 #endif
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_pin_flags();
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg);
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg);

@@ -1,31 +1,37 @@
 # TLS test certificate fixtures
 
-Certificate fixtures used by the `async_ssl_*` tests, self-signed but for `intermediate.pem` and
-its trusted copy. These contain **no secrets**: the private key exists only so the tests can drive a
-real TLS handshake, and nothing outside the test suite trusts these certificates. They are committed
-as fixtures so the tests neither shell out to the `openssl` CLI nor depend on it being installed.
+Certificate fixtures used by the `async_ssl_*` tests, self-signed but for `intermediate.pem`, its
+trusted copy and `manynames.pem`. These contain **no secrets**: the private key exists only so the
+tests can drive a real TLS handshake, and nothing outside the test suite trusts these certificates.
+They are committed as fixtures so the tests neither shell out to the `openssl` CLI nor depend on it
+being installed.
 
-All certificates are signed by `key.pem` (RSA-2048) and are valid until 2126, with two exceptions:
+All certificates are signed by `key.pem` (RSA-2048) and are valid until 2126, with three exceptions:
 `expired.pem`, whose validity window is entirely in 2020 (building a context parses a certificate
-without checking its validity period, so this one is rejected only at handshake time), and
-`weakcert.pem`, which is self-signed under a throwaway 512-bit key that is not kept.
+without checking its validity period, so this one is rejected only at handshake time), `dsacert.pem`,
+which is self-signed under `dsakey.pem`, and `weakcert.pem` (and its `TRUSTED CERTIFICATE` copy
+`weaktrustedcert.pem`), which is self-signed under a throwaway 512-bit key that is not kept.
 
 | file | subject | notes |
 |---|---|---|
-| `key.pem` | | RSA-2048 private key for the certs below, except `intermediate.pem` and its trusted copy (`key2.pem`) and `weakcert.pem` |
-| `key2.pem` | | second RSA-2048 key; it is the key of `intermediate.pem` (and of its trusted copy), so it matches none of the server certificates below |
+| `key.pem` | | RSA-2048 private key for the certs below, except `intermediate.pem`, its trusted copy and `manynames.pem` (`key2.pem`), `weakcert.pem` and its trusted copy, and `dsacert.pem` (`dsakey.pem`) |
+| `key2.pem` | | second RSA-2048 key; it is the key of `intermediate.pem` (and of its trusted copy) and of `manynames.pem`, so it matches none of the server certificates below |
 | `eckey.pem` | | P-256 key; a *different algorithm* from every certificate here, which OpenSSL accepts against an RSA certificate unless `SSL_CTX_check_private_key` is consulted |
 | `enckey.pem` | | `key.pem` encrypted with the passphrase `lean4`; encrypted keys are unsupported and must be rejected without prompting for one |
 | `emptypwkey.pem` | | `key.pem` encrypted under an *empty* passphrase; still an encrypted key, and rejected only because the password callback reports a failure rather than a zero-length passphrase |
 | `tradkey.pem` | | `key.pem` in the traditional (RFC 1421) encoding rather than PKCS#8; the bundle loader reads it as an entry carrying no certificate, so it exercises the skip branch |
 | `enccert.pem` | | `cert.pem` as an RFC 1421 encrypted `CERTIFICATE` block; decrypted in place while a bundle is read, so it is the input that makes a missing password callback prompt on the terminal and hang |
+| `dsakey.pem` | | DSA-2048 key of `dsacert.pem` |
 | `x25519key.pem` | | X25519 key; parses as a private key but its algorithm cannot sign, so no certificate can use it for TLS |
 | `cert.pem` | `CN=localhost` | standard server cert (no SAN, so it matches no hostname: contexts never fall back to the CN) |
 | `wildcard.pem` | `CN=*.test.local` | SAN: `DNS:*.test.local, DNS:test.local` |
 | `multisan.pem` | `CN=alpha.test.local` | SAN: `DNS:alpha.test.local, DNS:beta.test.local` |
 | `expired.pem` | `CN=localhost` | valid 2020-01-01 → 2020-01-02 only |
 | `corrupt.pem` | | `cert.pem` with one bit flipped in the first DER byte (`SEQUENCE` tag → `SET`) |
+| `manynames.pem` | `CN=Test Many Names CA` plus 840 `OU`s | a CA signed by `cert.pem`, under `key2.pem`; its subject name takes 63,033 bytes, over the 60 KiB of names a server advertises |
+| `dsacert.pem` | `CN=localhost` | self-signed under `dsakey.pem`; no cipher suite a context allows authenticates a server with DSA, though a client may present it in TLS 1.2 |
 | `weakcert.pem` | `CN=localhost` | self-signed under a 512-bit RSA key; parses perfectly but is below the security level every context pins, so it is refused on policy grounds rather than as unreadable PEM |
+| `weaktrustedcert.pem` | `CN=localhost` | `weakcert.pem` as a `TRUSTED CERTIFICATE` block with no trust settings, so a chain member read from it is refused by the security level rather than skipped |
 | `intermediate.pem` | `CN=Test Intermediate CA` | a CA signed by `cert.pem` rather than by itself, so it is not a root; it ends a chain only because contexts accept any listed certificate as an anchor; with its trusted copy, the only fixtures whose issuer differs from their subject |
 | `trustedintermediate.pem` | `CN=Test Intermediate CA` | `intermediate.pem` as a `TRUSTED CERTIFICATE` explicitly trusted for TLS server authentication, which OpenSSL accepts as an anchor without it being self-signed |
 | `rejectedcert.pem` | `CN=localhost` | `cert.pem` as a `TRUSTED CERTIFICATE` explicitly rejected for TLS server authentication, so it anchors no server chain despite being self-signed |
@@ -57,6 +63,7 @@ openssl rsa -in key.pem -traditional -out tradkey.pem
 # 512-bit key kept only long enough to self-sign the certificate; nothing loads it.
 openssl req -x509 -newkey rsa:512 -keyout weakkey.pem -out weakcert.pem -days 36500 -nodes \
   -subj "/CN=localhost" && rm weakkey.pem
+openssl x509 -in weakcert.pem -trustout -out weaktrustedcert.pem
 openssl req -new -key key2.pem -out inter.csr -subj "/CN=Test Intermediate CA"
 openssl x509 -req -in inter.csr -CA cert.pem -CAkey key.pem -set_serial 42 -days 36500 \
   -extfile <(printf 'basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n') \
@@ -65,6 +72,13 @@ openssl x509 -in intermediate.pem -addtrust serverAuth -trustout -out trustedint
 openssl x509 -in cert.pem -addreject serverAuth -trustout -out rejectedcert.pem
 openssl x509 -in cert.pem -addreject clientAuth -trustout -out clientrejectedcert.pem
 openssl genpkey -algorithm X25519 -out x25519key.pem
+openssl req -new -key key2.pem -out many.csr -subj "/CN=Test Many Names CA$(python3 -c \
+  'print("".join("/OU=%03d-%s" % (i, "n" * 60) for i in range(840)))')"
+openssl x509 -req -in many.csr -CA cert.pem -CAkey key.pem -set_serial 77 -days 36500 \
+  -extfile <(printf 'basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n') \
+  -out manynames.pem && rm many.csr
+openssl dsaparam -out dsaparam.pem 2048 && openssl gendsa -out dsakey.pem dsaparam.pem && rm dsaparam.pem
+openssl req -new -x509 -key dsakey.pem -out dsacert.pem -days 36500 -subj "/CN=localhost"
 mkdir -p ca/newcerts && touch ca/index.txt && echo 01 > ca/crlnumber
 printf '[ca]\ndefault_ca=CA_default\n[CA_default]\ndatabase=./ca/index.txt\ncrlnumber=./ca/crlnumber\ndefault_md=sha256\ndefault_crl_days=36500\n' > ca/openssl.cnf
 openssl ca -config ca/openssl.cnf -gencrl -cert cert.pem -keyfile key.pem -out crl.pem && rm -r ca

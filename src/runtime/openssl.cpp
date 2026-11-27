@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include "runtime/openssl.h"
-#include "runtime/openssl/context.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/crypto.h>
@@ -17,9 +16,9 @@ namespace lean {
 
 bool ensure_openssl_initialized() {
     // `NO_ATEXIT`: OpenSSL 3 otherwise registers `atexit(OPENSSL_cleanup)`, which frees global state
-    // that thread-pool tasks outliving `main` may still be using. A standalone toolchain skips `openssl.cnf`, whose
-    // compiled-in path names a directory on the build machine; a system OpenSSL reads the
-    // distribution's crypto policy like any other consumer.
+    // that thread-pool tasks outliving `main` may still be using. A standalone toolchain skips
+    // `openssl.cnf`, whose compiled-in path names a directory on the build machine; a system OpenSSL
+    // reads the distribution's crypto policy like any other consumer.
 #ifdef LEAN_STANDALONE
     uint64_t const config = OPENSSL_INIT_NO_LOAD_CONFIG;
 #else
@@ -43,6 +42,19 @@ bool ensure_openssl_initialized() {
 
 }
 
+/* Std.Internal.SSL.pinOpenSSLFlags : BaseIO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_pin_flags() {
+    // OpenSSL takes these flags from whichever call initializes it first, which could otherwise be one
+    // that foreign code makes before `ensure_openssl_initialized`. The configuration is not loaded here,
+    // only kept from loading in a standalone toolchain; this loads no providers.
+#ifdef LEAN_STANDALONE
+    OPENSSL_init_crypto(OPENSSL_INIT_NO_ATEXIT | OPENSSL_INIT_NO_LOAD_CONFIG, nullptr);
+#else
+    OPENSSL_init_crypto(OPENSSL_INIT_NO_ATEXIT, nullptr);
+#endif
+    return lean_box(0);
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(OPENSSL_VERSION_NUMBER);
 }
@@ -53,6 +65,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg o) 
 
 #else
 
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_pin_flags() {
+    return lean_box(0);
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_box(0);
 }
@@ -62,14 +78,3 @@ extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg o) 
 }
 
 #endif
-
-namespace lean {
-void initialize_openssl() {
-#if defined(LEAN_STANDALONE) && !defined(LEAN_EMSCRIPTEN)
-    // OpenSSL takes its configuration flags from whichever call initializes it first, which could
-    // otherwise be one made before `ensure_openssl_initialized`. Loads no providers.
-    OPENSSL_init_crypto(OPENSSL_INIT_NO_LOAD_CONFIG | OPENSSL_INIT_NO_ATEXIT, nullptr);
-#endif
-    initialize_openssl_context();
-}
-}

@@ -39,14 +39,16 @@ new context.
 Every context requires TLS 1.2 or later. TLS 1.2 connections only use ECDHE key exchange with
 AES-GCM or ChaCha20-Poly1305; TLS 1.3 uses `TLS_AES_256_GCM_SHA384`, `TLS_CHACHA20_POLY1305_SHA256`
 and `TLS_AES_128_GCM_SHA256`. A certificate a context presents or verifies needs at least 112-bit
-security (RSA keys of 2048 bits, EC keys of 224 bits, no SHA-1 signatures); one it accepts unchecked
-(`request`, `requireAny`, `insecureSkipVerify`) does not. Session resumption, compression and
-renegotiation are off, and encrypted keys are refused rather than prompting for a passphrase.
+security (RSA keys of 2048 bits, EC keys of 224 bits, no SHA-1 signatures except a self-signed
+certificate's signature on itself, which nothing checks); one it accepts unchecked (`request`,
+`requireAny`, `insecureSkipVerify`) does not. Session resumption, compression and renegotiation are
+off, and encrypted keys are refused rather than prompting for a passphrase.
 
-A Lean that bundles OpenSSL, such as an official release, reads no OpenSSL configuration file. A Lean
-built against the system's OpenSSL reads that library's configuration, which can make these settings
-stricter but not looser; if it leaves no TLS version or cipher suite these settings allow, creating a
-context fails.
+A Lean that bundles OpenSSL, such as an official release, reads no OpenSSL configuration file. A
+Lean built against the system's OpenSSL reads that library's configuration, which can make these
+settings stricter but not looser; if it leaves no TLS version or cipher suite these settings allow,
+creating a context fails. One that leaves TLS 1.2 no elliptic curve is not detected, and its TLS 1.2
+handshakes fail.
 
 ## Errors
 
@@ -80,8 +82,8 @@ If `SSL_CERT_FILE` or `SSL_CERT_DIR` is set, the certificates they name are trus
 system's, on every platform. `SSL_CERT_FILE` names a PEM bundle; `SSL_CERT_DIR` is a list of
 directories, separated by `:` (`;` on Windows), whose files are all read. Only regular files of at
 most 16 MiB are loaded, and reading stops after 64 MiB in all, a file too large to load counting
-what was read of it. Blocks that aren't certificates are skipped (a block missing its END line takes the
-block after it along). Both variables are ignored in set-user-ID and set-group-ID programs.
+what was read of it. Blocks that aren't certificates are skipped (a block missing its END line
+swallows the block after it). Both variables are ignored in set-user-ID and set-group-ID programs.
 
 Lean does not check whether a certificate has been revoked.
 -/
@@ -96,7 +98,8 @@ PEM-encoded certificates or keys.
 inductive PEM where
 
   /--
-  The contents of the file at `path`.
+  The contents of the file at `path`. A file that blocks when opened or read, such as a FIFO no one
+  writes to, blocks creating the context, as it would block `IO.FS.readBinFile`.
   -/
   | file (path : System.FilePath)
 
@@ -171,6 +174,15 @@ private def PEM.load : PEM → IO LoadedPEM
       throw <| .invalidArgument (some path.toString) 22 "the PEM material is too large"
     return { bytes, path? := some path }
 
+-- OpenSSL takes its process-wide flags from the call that first initializes it. Making that call as
+-- this module is initialized keeps foreign code from making it first with other flags. `builtin`,
+-- so that only native code runs it: an older compiler interpreting this module, as stage0 does
+-- while building, has no implementation of the extern.
+@[extern "lean_openssl_pin_flags"]
+private opaque pinOpenSSLFlags : BaseIO Unit
+
+builtin_initialize pinOpenSSLFlags
+
 private opaque ContextServerImpl : NonemptyType.{0}
 
 /--
@@ -232,6 +244,7 @@ structure Config where
   /--
   Whether to ask clients for a certificate. When verifying one, any of the listed CA certificates
   can end a chain, not only a root, and their names are sent to help the client pick a certificate.
+  Names taking more than 60 KiB, close to what a handshake can carry, are not sent at all.
   A `TRUSTED CERTIFICATE` block that rejects TLS client authentication, or trusts the CA only for
   other uses, is neither trusted nor advertised, and a client chain through any certificate with its
   key is refused.
@@ -252,8 +265,9 @@ private opaque mkImpl (cert key : @& LoadedPEM) (clientAuth : @& ClientAuth)
 
 /--
 Creates a server context. Fails, for example, if the key doesn't match the certificate, if either
-can't be read, or if `clientAuth` verifies certificates against a list that is empty or whose
-certificates are all distrusted.
+can't be read, if the certificate's key is DSA, which no allowed cipher suite can use, or if
+`clientAuth` verifies certificates against a list that is empty or whose certificates are all
+distrusted.
 
 An expired certificate is accepted here and rejected by clients during the handshake.
 -/
@@ -291,9 +305,10 @@ inductive Trust where
 /--
 What a client trusts and presents.
 
-In `Trust.system` and `Trust.only`, each entry may hold several certificates, and other PEM blocks,
-such as keys, are ignored. Any listed certificate can end a chain, not only a root, so an
-intermediate CA can be trusted on its own.
+In `Trust.system` and `Trust.only`, each entry may hold several certificates. Other PEM blocks that
+parse, such as keys and CRLs, are ignored; a block that does not parse makes the entry unreadable.
+Any listed certificate can end a chain, not only a root, so an intermediate CA can be trusted on its
+own.
 
 A `TRUSTED CERTIFICATE` block can also distrust a CA: one that rejects TLS server authentication,
 or trusts it only for other uses, ends no chain, and a chain through any certificate with its key is
@@ -308,7 +323,8 @@ structure Config where
   -/
   trust : Trust := .system
   /--
-  The certificate and key to present when a server asks for one (mutual TLS).
+  The certificate and key to present when a server asks for one (mutual TLS). A DSA certificate is
+  only presented over TLS 1.2: TLS 1.3 has no DSA signature scheme, so none is sent there.
   -/
   credentials : Option Credentials := none
   /--

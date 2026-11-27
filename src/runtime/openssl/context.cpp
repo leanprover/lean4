@@ -34,9 +34,16 @@ static lean_obj_res mk_tls_unsupported(char const * msg) {
     return lean_io_result_mk_error(lean_mk_io_error_unsupported_operation(ENOTSUP, mk_string(msg)));
 }
 
-lean_external_class * g_ssl_context_external_class = nullptr;
-
 #ifndef LEAN_EMSCRIPTEN
+
+// Registered on first use rather than at runtime start-up, so that a program that does not import the
+// TLS module links none of OpenSSL.
+lean_external_class * ssl_context_class() {
+    static lean_external_class * const cls = lean_register_external_class([](void * ptr) {
+        SSL_CTX_free((SSL_CTX*)ptr);
+    }, [](void *, lean_object *) {});
+    return cls;
+}
 
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 
@@ -89,12 +96,6 @@ static bio_ptr open_pem_bio(b_obj_arg src, char const * unreadable, lean_obj_res
     return bio;
 }
 
-void initialize_openssl_context() {
-    g_ssl_context_external_class = lean_register_external_class([](void * ptr) {
-        SSL_CTX_free((SSL_CTX*)ptr);
-    }, [](void *, lean_object *) {});
-}
-
 // Options every context shares. The caller sets the version range and cipher list, whose failures it
 // reports.
 static void configure_ctx_options(SSL_CTX * ctx) {
@@ -131,7 +132,7 @@ static void configure_ctx_options(SSL_CTX * ctx) {
     SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 
     // The session layer may move a pending write's buffer between `SSL_write` retries. A peer is sent
-    // exactly the chain it was given, never one completed from the trust store.
+    // exactly the configured chain, never one completed from the trust store.
     SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER | SSL_MODE_NO_AUTO_CHAIN);
 
     // Applies once the session layer calls `SSL_set1_host`: no partial wildcards (RFC 9525 §6.3) and
@@ -231,12 +232,14 @@ static lean_obj_res restrict_ciphers(SSL_CTX * ctx) {
 
 // Refuses a context no handshake could succeed with: one whose version range is empty, or that has no
 // suite for a version it permits once the security level has filtered the lists. OpenSSL would
-// otherwise still offer that version and then fail every handshake.
+// otherwise still offer that version and then fail every handshake. Key exchange groups go unchecked:
+// OpenSSL has no getter for a context's own list, so a policy leaving TLS 1.2 no elliptic curve for its
+// ECDHE suites only shows in its handshakes.
 static lean_obj_res check_usable(SSL_CTX * ctx) {
-    bool tls12 = version_permitted(ctx, TLS1_2_VERSION, SSL_OP_NO_TLSv1_2);
-    bool tls13 = version_permitted(ctx, TLS1_3_VERSION, SSL_OP_NO_TLSv1_3);
+    bool permits12 = version_permitted(ctx, TLS1_2_VERSION, SSL_OP_NO_TLSv1_2);
+    bool permits13 = version_permitted(ctx, TLS1_3_VERSION, SSL_OP_NO_TLSv1_3);
 
-    if (!tls12 && !tls13) return refused_by_policy("versions", "permits none of the requested TLS versions");
+    if (!permits12 && !permits13) return refused_by_policy("versions", "permits none of the requested TLS versions");
 
     std::unique_ptr<SSL, released_by<SSL_free>> ssl(SSL_new(ctx));
     if (ssl == nullptr) return mk_openssl_io_error("could not create the TLS context");
@@ -252,8 +255,8 @@ static lean_obj_res check_usable(SSL_CTX * ctx) {
 
     sk_SSL_CIPHER_free(usable);
 
-    if (tls12 && n12 == 0) return no_suite_left("TLS 1.2");
-    if (tls13 && n13 == 0) return no_suite_left("TLS 1.3");
+    if (permits12 && n12 == 0) return no_suite_left("TLS 1.2");
+    if (permits13 && n13 == 0) return no_suite_left("TLS 1.3");
 
     return nullptr;
 }
@@ -312,9 +315,10 @@ static lean_obj_res wrap_ssl_context(ssl_ctx_ptr ctx) {
     return lean_io_result_mk_ok(obj);
 }
 
-// `SSL_CTX_use_certificate_chain_file` for a BIO, which OpenSSL has no public function for.
+// `SSL_CTX_use_certificate_chain_file` for a BIO, which OpenSSL has no public function for. Every
+// certificate is read with `_AUX`, which also takes `TRUSTED CERTIFICATE` blocks; the plain reader the
+// file variant uses for the chain skips them, silently leaving the peer an incomplete chain.
 static bool use_certificate_chain_bio(SSL_CTX * ctx, BIO * bio) {
-    // `_AUX`, as the file variant reads the leaf.
     X509 * leaf = PEM_read_bio_X509_AUX(bio, nullptr, reject_encrypted_pem, nullptr);
     if (leaf == nullptr) return false;
 
@@ -323,7 +327,7 @@ static bool use_certificate_chain_bio(SSL_CTX * ctx, BIO * bio) {
 
     if (!used || SSL_CTX_clear_chain_certs(ctx) != 1) return false;
 
-    while (X509 * ca = PEM_read_bio_X509(bio, nullptr, reject_encrypted_pem, nullptr)) {
+    while (X509 * ca = PEM_read_bio_X509_AUX(bio, nullptr, reject_encrypted_pem, nullptr)) {
         if (SSL_CTX_add0_chain_cert(ctx, ca) != 1) {
             X509_free(ca);
             return false;
@@ -454,8 +458,9 @@ static lean_obj_res load_env_bundle(X509_STORE * store, b_obj_arg src, int * add
     bio_ptr bio = open_pem_bio(src, "could not read PEM CA certificates", &err);
     if (bio == nullptr) return err;
 
-    // A failed read consumes the input up to the next END line, so a block missing its own takes the block
-    // after it along. The pending count guards against a read that consumes nothing.
+    // A read consumes the input up to the next END line, so a block missing its own swallows the block
+    // after it, which is lost; the first still loads if its data is whole. The pending count guards
+    // against a read that consumes nothing.
     for (long pending = BIO_pending(bio.get()); pending > 0; ) {
         X509 * cert = PEM_read_bio_X509_AUX(bio.get(), nullptr, reject_encrypted_pem, nullptr);
 
@@ -503,18 +508,51 @@ static lean_obj_res no_anchor_error(b_obj_arg cas, bool cas_alone, int trust_id)
                                                   : mk_ssl_invalid_argument(msg);
 }
 
-// Sends clients the names of the CAs in `store` that can end a client's chain, to help them pick a
-// certificate.
-static lean_obj_res advertise_client_cas(SSL_CTX * ctx, X509_STORE * store, STACK_OF(X509) * distrusted) {
-    x509_stack_ptr certs(X509_STORE_get1_all_certs(store));
-    bool ok = certs != nullptr;
+// The names fill one field of at most 2^16 - 1 bytes, each with a 2-byte length (RFC 5246 §7.4.4). TLS
+// 1.3 carries them in an extension, and a CertificateRequest's extensions share a field of that size
+// (RFC 8446 §4.3.2); the others take well under the 4 KiB left over.
+static size_t const g_client_ca_names_limit = 60 * 1024;
 
-    for (int i = 0; ok && i < sk_X509_num(certs.get()); i++) {
+static void free_x509_name_stack(STACK_OF(X509_NAME) * sk) { sk_X509_NAME_pop_free(sk, X509_NAME_free); }
+
+// Sends clients the names of the CAs in `store` that can end a client's chain, to help them pick a
+// certificate. Names that a CertificateRequest could not carry would fail every handshake, so then none
+// are sent, which both TLS versions allow.
+static lean_obj_res advertise_client_cas(SSL_CTX * ctx, X509_STORE * store, STACK_OF(X509) * distrusted) {
+    char const * failed = "could not configure the client CA names";
+    x509_stack_ptr certs(X509_STORE_get1_all_certs(store));
+    std::unique_ptr<STACK_OF(X509_NAME), released_by<free_x509_name_stack>> names(sk_X509_NAME_new_null());
+    if (certs == nullptr || names == nullptr) return mk_openssl_io_error(failed);
+
+    size_t size = 0;
+
+    for (int i = 0; i < sk_X509_num(certs.get()); i++) {
         X509 * cert = sk_X509_value(certs.get(), i);
-        ok = !can_anchor(cert, X509_TRUST_SSL_CLIENT, distrusted) || SSL_CTX_add_client_CA(ctx, cert) == 1;
+        if (!can_anchor(cert, X509_TRUST_SSL_CLIENT, distrusted)) continue;
+
+        X509_NAME * name = X509_NAME_dup(X509_get_subject_name(cert));
+        int len = name == nullptr ? -1 : i2d_X509_NAME(name, nullptr);
+
+        if (len < 0 || sk_X509_NAME_push(names.get(), name) <= 0) {
+            X509_NAME_free(name);
+            return mk_openssl_io_error(failed);
+        }
+
+        size += 2 + (size_t)len;
     }
 
-    return ok ? nullptr : mk_openssl_io_error("could not configure the client CA names");
+    if (size <= g_client_ca_names_limit) SSL_CTX_set_client_CA_list(ctx, names.release());
+
+    return nullptr;
+}
+
+// A client trusting the system has nothing to trust. The checks that led here can leave errors queued.
+static lean_obj_res no_trust_store(std::string const & detail) {
+    ERR_clear_error();
+    std::string msg = "could not load the system trust store";
+    if (!detail.empty()) msg += ": " + detail;
+
+    return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(msg)));
 }
 
 // `Context.Server.ClientAuth`'s constructors, in declaration order.
@@ -548,6 +586,13 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
     if (ctx == nullptr) return err;
 
     if (lean_obj_res e = load_credentials(ctx.get(), cert, key)) return e;
+
+    // A DSA server could complete no handshake: the TLS 1.2 suites `restrict_ciphers` keeps need RSA or
+    // ECDSA (which covers EdDSA), and TLS 1.3 has no DSA signature scheme. A client may still sign with
+    // DSA in TLS 1.2.
+    EVP_PKEY * leaf_key = X509_get0_pubkey(SSL_CTX_get0_certificate(ctx.get()));
+    if (leaf_key != nullptr && EVP_PKEY_is_a(leaf_key, "DSA"))
+        return mk_pem_error(cert, "the certificate's DSA key cannot be used with the cipher suites Lean allows");
 
     int mode = SSL_VERIFY_NONE;
     bool unverified = false;
@@ -630,12 +675,7 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
         std::string detail;
         platform_roots = use_system_trust_store(ctx.get(), &detail);
 
-        if (!platform_roots && !has_ca) {
-            std::string msg("could not load the system trust store");
-            if (!detail.empty()) msg += ": " + detail;
-
-            return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(msg)));
-        }
+        if (!platform_roots && !has_ca) return no_trust_store(detail);
     }
 
     if (use_env) {
@@ -648,11 +688,10 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
         }
 
         if (!has_ca && (env_added == 0 || !store_has_anchor(store, X509_TRUST_SSL_SERVER, distrusted.get()))) {
-            return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(env_added == 0
-                ? "could not load the system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate "
-                  "(files that are missing, unreadable, not regular or too large are skipped)"
-                : "could not load the system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate "
-                  "trusted for TLS server authentication")));
+            return no_trust_store(env_added == 0
+                ? "SSL_CERT_FILE and SSL_CERT_DIR name no certificate (files that are missing, unreadable, "
+                  "not regular or too large are skipped)"
+                : "SSL_CERT_FILE and SSL_CERT_DIR name no certificate trusted for TLS server authentication");
         }
     }
 
@@ -706,8 +745,6 @@ extern "C" LEAN_EXPORT uint8_t lean_ssl_env_ignored() {
 }
 
 #else
-
-void initialize_openssl_context() {}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg, b_obj_arg, b_obj_arg, b_obj_arg, uint8_t,
                                                            uint8_t) {

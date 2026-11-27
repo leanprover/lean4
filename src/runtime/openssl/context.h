@@ -16,17 +16,13 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-extern lean_external_class * g_ssl_context_external_class;
-void initialize_openssl_context();
-
 #ifndef LEAN_EMSCRIPTEN
 
-inline lean_object * lean_ssl_context_new(SSL_CTX * ctx) { return lean_alloc_external(g_ssl_context_external_class, ctx); }
+lean_external_class * ssl_context_class();
+
+inline lean_object * lean_ssl_context_new(SSL_CTX * ctx) { return lean_alloc_external(ssl_context_class(), ctx); }
 inline SSL_CTX * lean_to_ssl_context(lean_object * o) { return (SSL_CTX*)lean_get_external_data(o); }
 #endif
-
-// =======================================
-// Context Operations
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth,
     b_obj_arg client_ca, uint8_t min, uint8_t max);

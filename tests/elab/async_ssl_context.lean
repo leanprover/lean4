@@ -10,7 +10,6 @@ decisions are only observable through the contexts that are refused.
 open Std.Internal.SSL
 
 open Lean in
-
 elab "include_cert% " path:str : term => do
   let dir := (System.FilePath.mk (← readThe Core.Context).fileName).parent.getD ⟨"."⟩
   return mkStrLit (← IO.FS.readFile (dir / path.getString))
@@ -46,6 +45,9 @@ def testEncryptedCertPEM : String := include_cert% "async_ssl_certs/enccert.pem"
 -- Self-signed under a 512-bit RSA key, below security level 2.
 def testWeakCertPEM : String := include_cert% "async_ssl_certs/weakcert.pem"
 
+-- `weakcert.pem` as a `TRUSTED CERTIFICATE` block.
+def testWeakTrustedCertPEM : String := include_cert% "async_ssl_certs/weaktrustedcert.pem"
+
 -- Signed by `cert.pem`, so not a root; it ends a chain only because any listed certificate can.
 def testIntermediateCertPEM : String := include_cert% "async_ssl_certs/intermediate.pem"
 
@@ -63,6 +65,13 @@ def testClientRejectedCertPEM : String := include_cert% "async_ssl_certs/clientr
 
 -- A key whose algorithm cannot sign.
 def testX25519KeyPEM : String := include_cert% "async_ssl_certs/x25519key.pem"
+
+-- A CA whose subject name alone takes over 60 KiB, more than a server advertises.
+def testManyNamesCAPEM : String := include_cert% "async_ssl_certs/manynames.pem"
+
+-- A self-signed DSA-2048 certificate and its key.
+def testDSACertPEM : String := include_cert% "async_ssl_certs/dsacert.pem"
+def testDSAKeyPEM : String := include_cert% "async_ssl_certs/dsakey.pem"
 
 -- Three distinct certificates in one file.
 def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
@@ -375,6 +384,16 @@ def testMkServerRejectsUnusableKeyAlgorithm : IO Unit := do
     (malformedPEMError "the private key's algorithm cannot be used for TLS")
     (discard <| Context.Server.mk { cert := .text testCertPEM, key := .text testX25519KeyPEM })
 
+-- No suite a context allows authenticates a server with DSA. A client can still use DSA in TLS 1.2.
+def testDSACredentials : IO Unit := do
+  assertErrorMessage "DSA server certificate"
+    (malformedPEMError "the certificate's DSA key cannot be used with the cipher suites Lean allows")
+    (discard <| Context.Server.mk { cert := .text testDSACertPEM, key := .text testDSAKeyPEM })
+
+  let _clientCtx ← Context.Client.mk
+    { trust := .insecureSkipVerify,
+      credentials := some { cert := .text testDSACertPEM, key := .text testDSAKeyPEM } }
+
 -- Only `SSL_CTX_check_private_key` catches a key of another algorithm.
 def testMkServerRejectsCrossAlgorithmKey (f : Fixtures) : IO Unit := do
   assertErrorMessage "EC server key against an RSA certificate"
@@ -499,6 +518,12 @@ def testMkServerRejectsWeakChainMember : IO Unit := do
   assertErrorMessage "512-bit certificate behind the leaf" (malformedPEMError weakCertError)
     (discard <| Context.Server.mk
       { cert := .text (testCertPEM ++ testWeakCertPEM), key := .text testKeyPEM })
+
+-- A chain member in a `TRUSTED CERTIFICATE` block is loaded like any other, not skipped.
+def testMkServerRejectsWeakTrustedChainMember : IO Unit := do
+  assertErrorMessage "512-bit TRUSTED CERTIFICATE behind the leaf" (malformedPEMError weakCertError)
+    (discard <| Context.Server.mk
+      { cert := .text (testCertPEM ++ testWeakTrustedCertPEM), key := .text testKeyPEM })
 
 -- The security level is not applied to CA material at load time.
 def testAcceptsWeakCertAsCA (f : Fixtures) : IO Unit := do
@@ -727,6 +752,10 @@ def testClientAuth (f : Fixtures) : IO Unit := do
   -- Distrusted only for server authentication, which does not concern clients.
   discard <| Context.Server.mk { base with clientAuth := .requireAndVerify #[.text testRejectedCertPEM] }
 
+  -- Names too large for a CertificateRequest are not advertised, and the context still builds.
+  discard <| Context.Server.mk
+    { base with clientAuth := .requireAndVerify #[.text testManyNamesCAPEM, .text testCertPEM] }
+
 def testClientCredentials (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk
     { insecure with credentials := some { cert := .file f.cert, key := .file f.key } }
@@ -807,6 +836,7 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
   testMkServerRejectsMismatchedKey f
   testMkServerRejectsCrossAlgorithmKey f
   testMkServerRejectsUnusableKeyAlgorithm
+  testDSACredentials
   testMkServerRejectsCorruptChainMember f
   testRejectsNulInPaths f
 
@@ -822,6 +852,7 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
   testAcceptsExpiredCert f
   testMkServerRejectsWeakCert f
   testMkServerRejectsWeakChainMember
+  testMkServerRejectsWeakTrustedChainMember
   testAcceptsWeakCertAsCA f
 
 -- OS-level failures keep the path and the real errno.

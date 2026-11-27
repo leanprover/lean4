@@ -630,6 +630,13 @@ structure Diagnostics where
   instanceCounter : PHashMap Name Nat := {}
   /-- Pending instances that were not synthesized because `maxSynthPendingDepth` has been reached. -/
   synthPendingFailures : PHashMap Expr MessageData := {}
+  /--
+  Assignments to instance metavariables that the instance-type check of `isDefEq` rejected, also
+  after the synthesis fallback, keyed by the type of the metavariable and the candidate value: the
+  number of rejections, and the message for `warn.repeatedInstanceRejections`, built when the number
+  reaches the threshold. Unlike the other counters, this one is always maintained.
+  -/
+  instRejections : PHashMap (Expr × Expr) (Nat × Option MessageData) := {}
   deriving Inhabited
 
 /--
@@ -652,6 +659,12 @@ structure SavedState where
   core        : Core.SavedState
   «meta»      : State
   deriving Nonempty
+
+register_builtin_option warn.repeatedInstanceRejections : Nat := {
+  defValue := 64
+  descr    := "warn at the end of a declaration about each assignment to an instance metavariable \
+    that `isDefEq` rejected at least this many times (0: never)"
+}
 
 register_builtin_option maxSynthPendingDepth : Nat := {
   defValue := 1
@@ -927,30 +940,30 @@ def resetSynthInstanceCache : MetaM Unit := do
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
-    { unfoldCounter := unfoldCounter.insert declName newC, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures }
+    { unfoldCounter := unfoldCounter.insert declName newC, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections }
 
 def recordUnfoldAxiom (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections } =>
     let newC := if let some c := unfoldAxiomCounter.find? declName then c + 1 else 1
-    { unfoldCounter, unfoldAxiomCounter := unfoldAxiomCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter := unfoldAxiomCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures, instRejections }
 
 def resetUnfoldAxiom : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures, .. } =>
-    { unfoldCounter, unfoldAxiomCounter := {}, heuristicCounter, instanceCounter, synthPendingFailures }
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections, .. } =>
+    { unfoldCounter, unfoldAxiomCounter := {}, heuristicCounter, instanceCounter, synthPendingFailures, instRejections }
 
 /-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
 def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections } =>
     let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
-    { unfoldCounter, unfoldAxiomCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures, instRejections }
 
 /-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
 def recordInstance (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections } =>
     let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
-    { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures, instRejections }
 
 /-- If diagnostics are enabled, record that synth pending failures. -/
 def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
@@ -958,8 +971,8 @@ def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
     unless (← get).diag.synthPendingFailures.contains type do
       -- We need to save the full context since type class resolution uses multiple metavar contexts and different local contexts
       let msg ← addMessageContextFull m!"{type}"
-      modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
-        { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
+      modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures, instRejections } =>
+        { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg, instRejections }
 
 @[inline]
 def getLocalInstances : MetaM LocalInstances :=

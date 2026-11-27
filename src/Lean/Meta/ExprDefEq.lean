@@ -9,7 +9,6 @@ public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 import Lean.Meta.WHNF
 import Lean.Meta.LitValues
-import Init.Data.String.Csimp
 public section
 namespace Lean.Meta
 
@@ -299,22 +298,6 @@ def isDefEqFloatLit (s t : Expr) : MetaM LBool := do
   if !eq then return .false
   if (← getTransparency) matches .default | .all then return .true
   return .undef
-
-/-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
-def isDefEqStringLit (s t : Expr) : MetaM LBool := do
-  let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if let .lit (.strVal v) := s then
-    if t.isAppOf ``String.ofList then
-      return ← isDefEq (← ofList v) t
-  if let .lit (.strVal v) := t then
-    if s.isAppOf ``String.ofList then
-      return ← isDefEq s (← ofList v)
-  return .undef
-where
-  ofList (v : String) : MetaM Expr := do
-    unless (← getConfig).stringLitToCtor do
-      throw <| .internal stringLitToCtorExceptionId
-    return mkApp (mkConst ``String.ofList) (toExpr v.toList)
 
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m x_1 ... x_n)`, and `?m` is unassigned.
@@ -2433,9 +2416,7 @@ is a decline (the rule does not apply), not a negative verdict, hence `.undef`.
 private def isDefEqLateSpecialCases (t s : Expr) : MetaM LBool := do
   match (← isDefEqProjInst t s) with
   | .undef =>
-    match (← isDefEqStringLit t s) with
-    | .undef => return if (← isDefEqUnitLike t s) then .true else .undef
-    | r      => return r
+    return if (← isDefEqUnitLike t s) then .true else .undef
   | r => return r
 
 /--
